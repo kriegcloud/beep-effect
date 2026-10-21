@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   attachCacheEntrypointReview,
   CacheCensusReport,
@@ -10,7 +11,6 @@ import { CacheEvidenceReference } from "@beep/repo-configs/cache";
 import { Sha256HexFromBytes } from "@beep/schema";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect } from "@effect/vitest";

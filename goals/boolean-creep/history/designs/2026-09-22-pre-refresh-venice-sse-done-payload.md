@@ -3,16 +3,16 @@
 - id: `venice-sse-done-payload`
 - exact source SHA: `3330f9881a50c96d3f2ec0fcad76f0f7a09027e4`
 - corpus source SHA: `52fcc8d1353db9481ef9edb6cc9619500f95568d`
-- file:line: `packages/drivers/venice-ai/src/VeniceAI.service.ts:649`
+- file:line: `retired:venice-ai/src/VeniceAI.service.ts:649`
 - symbol: `VeniceAIServerSentEvent`
 - members: `done`, `data`
 - evidence classes:
-  - E3 at `packages/drivers/venice-ai/src/VeniceAI.service.ts:1900` — `[DONE]` writes `done=true` with no data; JSON writes `data=some` plus `done=false`. `done` restates payload absence.
-  - E2 at `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts:215` — reader treats done as terminal empty stream and otherwise parses event data; no done+data arm.
+  - E3 at `retired:venice-ai/src/VeniceAI.service.ts:1900` — `[DONE]` writes `done=true` with no data; JSON writes `data=some` plus `done=false`. `done` restates payload absence.
+  - E2 at `retired:venice-ai/src/VeniceAiLanguageModel.service.ts:215` — reader treats done as terminal empty stream and otherwise parses event data; no done+data arm.
 
 # Current shape
 
-Live declaration at `packages/drivers/venice-ai/src/VeniceAI.service.ts:649`:
+Live declaration at `retired:venice-ai/src/VeniceAI.service.ts:649`:
 
 ```ts
 export class VeniceAIServerSentEvent extends S.Class<VeniceAIServerSentEvent>($I`VeniceAIServerSentEvent`)(
@@ -84,37 +84,37 @@ The data member carries the payload directly, not `Option`; the discriminator al
 
 # Migration inventory
 
-- `packages/drivers/venice-ai/src/VeniceAI.service.ts:15` — add `Tuple` to the existing Effect imports.
-- `packages/drivers/venice-ai/src/VeniceAI.service.ts:626-661` — update the example and replace the class bag with the kind kit, data/done classes, union schema, and derived type.
-- `packages/drivers/venice-ai/src/VeniceAI.service.ts:1469-1471` — the stream method signature keeps the same exported type name but now returns the tagged union.
-- `packages/drivers/venice-ai/src/VeniceAI.service.ts:1894-1907` — map `[DONE]` to `.cases.done` and decoded JSON directly to `.cases.data`; remove `O.some` and both boolean writes.
-- `packages/drivers/venice-ai/src/VeniceAI.service.ts:1909-1925` — stream plumbing retains the union output with no encoded boundary change.
-- `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts:26,192-207` — type import remains; change `parseStreamEvent` to accept the data payload (or inline decode in the data arm) and remove the defensive `Option` match.
-- `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts:209-215` — replace `event.done` branching with `VeniceAIServerSentEvent.match`, dropping done and decoding data.
-- `packages/drivers/venice-ai/test/VeniceAI.service.test.ts:20,137-138` — imports, encoder, and schema-derived arbitrary target the union.
-- `packages/drivers/venice-ai/test/VeniceAI.service.test.ts:494-512` — construct `.cases.data`/`.cases.done` and update internal encoded expectations to the `kind` discriminator.
-- `packages/drivers/venice-ai/test/VeniceAI.service.test.ts:529-548` — property round trips generate only legal union cases.
-- `packages/drivers/venice-ai/test/VeniceAI.service.test.ts:985-1000` — narrow events by `kind`; read `data` only in the data case and assert the second event is done.
-- `packages/drivers/venice-ai/test/VeniceAI.service.test.ts:1030-1039` — narrow the collected first event to `data` before reading its payload.
+- `retired:venice-ai/src/VeniceAI.service.ts:15` — add `Tuple` to the existing Effect imports.
+- `retired:venice-ai/src/VeniceAI.service.ts:626-661` — update the example and replace the class bag with the kind kit, data/done classes, union schema, and derived type.
+- `retired:venice-ai/src/VeniceAI.service.ts:1469-1471` — the stream method signature keeps the same exported type name but now returns the tagged union.
+- `retired:venice-ai/src/VeniceAI.service.ts:1894-1907` — map `[DONE]` to `.cases.done` and decoded JSON directly to `.cases.data`; remove `O.some` and both boolean writes.
+- `retired:venice-ai/src/VeniceAI.service.ts:1909-1925` — stream plumbing retains the union output with no encoded boundary change.
+- `retired:venice-ai/src/VeniceAiLanguageModel.service.ts:26,192-207` — type import remains; change `parseStreamEvent` to accept the data payload (or inline decode in the data arm) and remove the defensive `Option` match.
+- `retired:venice-ai/src/VeniceAiLanguageModel.service.ts:209-215` — replace `event.done` branching with `VeniceAIServerSentEvent.match`, dropping done and decoding data.
+- `retired:venice-ai/test/VeniceAI.service.test.ts:20,137-138` — imports, encoder, and schema-derived arbitrary target the union.
+- `retired:venice-ai/test/VeniceAI.service.test.ts:494-512` — construct `.cases.data`/`.cases.done` and update internal encoded expectations to the `kind` discriminator.
+- `retired:venice-ai/test/VeniceAI.service.test.ts:529-548` — property round trips generate only legal union cases.
+- `retired:venice-ai/test/VeniceAI.service.test.ts:985-1000` — narrow events by `kind`; read `data` only in the data case and assert the second event is done.
+- `retired:venice-ai/test/VeniceAI.service.test.ts:1030-1039` — narrow the collected first event to `data` before reading its payload.
 
 Repository-wide search finds no other source or test reader/writer of this event model.
 
 # Guard-deletion accounting
 
-- `packages/drivers/venice-ai/src/VeniceAI.service.ts:1900-1906` — delete paired `done`/`Option` writes whose coherence is manually maintained; case constructors make the illegal combinations unrepresentable.
-- `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts:195-207` — delete the defensive `O.match` and `InvalidOutputError` for a non-done event with no payload. The data case requires payload and the done case never reaches parsing.
-- `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts:215` — delete the truthiness branch over `event.done`; the schema-derived match is exhaustive.
-- `packages/drivers/venice-ai/src/VeniceAI.service.ts:649-661` — delete the comment-only invariant connecting `done` and the optional payload.
+- `retired:venice-ai/src/VeniceAI.service.ts:1900-1906` — delete paired `done`/`Option` writes whose coherence is manually maintained; case constructors make the illegal combinations unrepresentable.
+- `retired:venice-ai/src/VeniceAiLanguageModel.service.ts:195-207` — delete the defensive `O.match` and `InvalidOutputError` for a non-done event with no payload. The data case requires payload and the done case never reaches parsing.
+- `retired:venice-ai/src/VeniceAiLanguageModel.service.ts:215` — delete the truthiness branch over `event.done`; the schema-derived match is exhaustive.
+- `retired:venice-ai/src/VeniceAI.service.ts:649-661` — delete the comment-only invariant connecting `done` and the optional payload.
 
 # Encoded-side impact
 
-The schema encoding changes from `{ done, data?, index }` to `{ kind, data?, index }`, with `data` required only in the data member. This is an internal parsed-event codec, not the Venice SSE wire: `parseSseData` consumes the provider's `data:` text and the driver never serializes this model back to Venice. `@beep/venice-ai` is private and repository search finds only the in-package stream consumer and codec fixtures named above, so the decoded TypeScript and internal encoded shape migrate atomically. No compatibility codec is needed for persisted or external data.
+The schema encoding changes from `{ done, data?, index }` to `{ kind, data?, index }`, with `data` required only in the data member. This is an internal parsed-event codec, not the Venice SSE wire: `parseSseData` consumes the provider's `data:` text and the driver never serializes this model back to Venice. `retired:venice-ai` is private and repository search finds only the in-package stream consumer and codec fixtures named above, so the decoded TypeScript and internal encoded shape migrate atomically. No compatibility codec is needed for persisted or external data.
 
 # Test impact
 
-- `packages/drivers/venice-ai/test/VeniceAI.service.test.ts:137-145,529-548` — schema-derived arbitrary/round-trip coverage becomes a coherence proof for the tagged union.
-- `packages/drivers/venice-ai/test/VeniceAI.service.test.ts:494-512` — update explicit data/done constructors and internal schema encodings.
-- `packages/drivers/venice-ai/test/VeniceAI.service.test.ts:985-1000,1030-1039` — replace direct optional-data/boolean reads with discriminator narrowing while retaining stream ordering and payload assertions.
+- `retired:venice-ai/test/VeniceAI.service.test.ts:137-145,529-548` — schema-derived arbitrary/round-trip coverage becomes a coherence proof for the tagged union.
+- `retired:venice-ai/test/VeniceAI.service.test.ts:494-512` — update explicit data/done constructors and internal schema encodings.
+- `retired:venice-ai/test/VeniceAI.service.test.ts:985-1000,1030-1039` — replace direct optional-data/boolean reads with discriminator narrowing while retaining stream ordering and payload assertions.
 
 # Risk & sequencing
 

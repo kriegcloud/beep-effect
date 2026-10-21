@@ -411,8 +411,8 @@
     "secondaryTargets": [
       "packages/drivers/anthropic",
       "packages/drivers/openai-compat",
-      "packages/drivers/venice-ai",
-      "packages/drivers/xai"
+      "retired:venice-ai",
+      "retired:xai"
     ],
     "disposition": "netNew",
     "wave": "P3",

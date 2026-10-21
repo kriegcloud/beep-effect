@@ -4,7 +4,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as S from "effect/Schema";
 import { ActionOutputs, RunnerFileUnavailableError, RunnerFileWriteError, InvalidOutputNameError, OutputEncodeError, DetachedOutputError } from "../../effected/github-actions/ActionOutputs.ts";
 import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";

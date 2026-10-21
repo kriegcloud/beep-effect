@@ -2,7 +2,7 @@ import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Result from "effect/Result";
 import * as Effect from "effect/Effect";
-import { GlobPattern } from "../../effected/glob/index.ts";
+import { GlobPattern } from "@beep/glob";
 import { DescendError, descend } from "../../effected/walker/Descend.ts";
 import { platform } from "./fixtures.ts";
 

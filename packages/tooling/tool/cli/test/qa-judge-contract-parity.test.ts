@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { MarkerEvent, RoundLayout } from "@beep/qa-capture";
 import {
   CitedArtifactExistsGate,
@@ -53,7 +54,6 @@ import {
 import { VerifySkillArtifactInput } from "@beep/skill-contract/SkillProjection";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { A } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -299,7 +299,7 @@ it.layer(Layer.merge(MemoryPlatformLayer, BunCrypto.layer), { timeout: "30 secon
   "commands/Qa complete judge contract parity",
   (it) => {
     it("composes the five declarations from the single ordered gate-id registry", () => {
-      expect(QaJudgeContract.id).toBe("https://beep-effect.dev/contracts/qa-inventory/v1");
+      expect(QaJudgeContract.id).toBe("https://beep-effect.com/ns/contracts/qa-inventory/v1");
       expect(A.map(QaJudgeContract.gates.declarations, (gate) => gate.id)).toEqual([
         "judge-output-inventory-decodes",
         "declared-round-coherent",
@@ -561,15 +561,15 @@ describe("commands/Qa judge contract completion through the kernel evaluator", (
         contractSubject: QaJudgeContractSubject,
         gateResults,
         inputAttestations: [
-          AttestationResource.make({ digest, uri: URLStr.make("https://beep-effect.dev/qa/attestations/input/v1") }),
+          AttestationResource.make({ digest, uri: URLStr.make("https://example.test/qa/attestations/input/v1") }),
         ],
-        policy: AttestationResource.make({ digest, uri: URLStr.make("https://beep-effect.dev/qa/policy/judge/v1") }),
-        resourceUri: URLStr.make("https://beep-effect.dev/qa/rounds/1/inventory.json"),
+        policy: AttestationResource.make({ digest, uri: URLStr.make("https://example.test/qa/policy/judge/v1") }),
+        resourceUri: URLStr.make("https://example.test/qa/rounds/1/inventory.json"),
         timeVerified: "2026-08-25T00:00:00.000Z",
         verificationResult: passed ? "PASSED" : "FAILED",
         verifiedLevels: passed ? ["BEEP_SKILL_CONTRACT_BLOCKING_GATES"] : ["FAILED"],
         verifier: GateSummaryVerifier.make({
-          id: URLStr.make("https://beep-effect.dev/qa/verifier/judge/v1"),
+          id: URLStr.make("https://example.test/qa/verifier/judge/v1"),
           version: { kernel: "1.0.0" },
         }),
       }),

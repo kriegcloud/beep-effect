@@ -30,10 +30,10 @@ const verifySpecFilesExist = Effect.fn("ApiDocs.test.verifySpecFilesExist")(func
 });
 
 describe("API docs catalog", () => {
-  it("contains nine entries with unique slugs", () => {
+  it("contains eight entries with unique slugs", () => {
     const slugs = A.map(Catalog, (entry) => entry.meta.slug);
 
-    expect(A.length(Catalog)).toBe(9);
+    expect(A.length(Catalog)).toBe(8);
     expect(HashSet.size(HashSet.fromIterable(slugs))).toBe(A.length(slugs));
   });
 

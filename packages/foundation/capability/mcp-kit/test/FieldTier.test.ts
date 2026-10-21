@@ -15,6 +15,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const documentTiers = defineFieldTiers({
   balanced: S.Struct({ abstractText: S.String, documentId: S.String, title: S.String }),
@@ -27,10 +28,10 @@ const documentTiers = defineFieldTiers({
   minimal: S.Struct({ documentId: S.String, title: S.String }),
 });
 
-const documentBagFixture = Array.from({ length: 500 }, (_, index) => `document-page-content-${index}`.repeat(20));
+const documentBagFixture = Array.from({ length: 500 }, (_, index) => Str.repeat(20)(`document-page-content-${index}`));
 
 const largeDocumentBagPayload: Record<string, unknown> = {
-  abstractText: "A".repeat(2000),
+  abstractText: Str.repeat(2000)("A"),
   documentBag: documentBagFixture,
   documentId: "US-12345678-A1",
   title: "Fixture Patent Title",

@@ -193,10 +193,8 @@
     "@beep/colors": "workspace:^",
     "@beep/duckdb": "workspace:^",
     "@beep/exiftool": "workspace:^",
-    "@beep/face-detection": "workspace:^",
     "@beep/ffmpeg": "workspace:^",
     "@beep/file-processing": "workspace:^",
-    "@beep/firecrawl": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/libpff": "workspace:^",
     "@beep/m365": "workspace:^",
@@ -254,6 +252,7 @@
   },
   "devDependencies": {
     "@beep/fc-runs": "workspace:^",
+    "@beep/memfs": "workspace:^",
     "@beep/test-runner": "workspace:^",
     "@commitlint/is-ignored": "catalog:",
     "@effect/platform-node-shared": "catalog:",

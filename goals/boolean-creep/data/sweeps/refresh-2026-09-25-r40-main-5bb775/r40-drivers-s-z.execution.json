@@ -13,7 +13,7 @@
   "reportRecords": 0,
   "qualifiedCandidates": 0,
   "errors": [],
-  "completionSummary": "`goals/boolean-creep/data/sweeps/refresh-2026-09-25-r40-main-5bb775/r40-drivers-s-z.jsonl` \u2014 confirmed 0, disqualified 0. Validator: `inventory OK: 0 records, 0 unique ids`.\n\nEvery assigned root was covered (`sanity`, `shacl`, `tailscale`, `tika`, `uspto`, `uspto-mcp`, `venice-ai`, `wink`, `xai`). The five seeds still match their owners and D1 rulings (`CorpusStatsParams`, `WinkBackend.capabilities`, `tokenToAi`, `makeToken`, `validateShacl.resultFlags`). No withdrawals and no unresolved source question. Single-boolean SSE and WebSocket shapes (`done`/`data`, `isBinary`/`bytes`/`text`) stay outside the two-boolean net.",
+  "completionSummary": "`goals/boolean-creep/data/sweeps/refresh-2026-09-25-r40-main-5bb775/r40-drivers-s-z.jsonl` \u2014 confirmed 0, disqualified 0. Validator: `inventory OK: 0 records, 0 unique ids`.\n\nEvery assigned root was covered (`sanity`, `shacl`, `tailscale`, `tika`, `uspto`, `uspto-mcp`, `retired:venice-ai`, `wink`, `retired:xai`). The five seeds still match their owners and D1 rulings (`CorpusStatsParams`, `WinkBackend.capabilities`, `tokenToAi`, `makeToken`, `validateShacl.resultFlags`). No withdrawals and no unresolved source question. Single-boolean SSE and WebSocket shapes (`done`/`data`, `isBinary`/`bytes`/`text`) stay outside the two-boolean net.",
   "transcriptSha256": "e323b9dcdc8f80e3cafbc39544e6e813febb28f42a07fa5622e5aac416f28382",
   "runnerSha256": "ed35606fece056d1918b7bbd657b37e0239c34f7e2668e23651610c805d5ec6a",
   "seedSha256": "1cd0adbbd47daceab5c33ef060cf01c0450589066b7c9eaedc71912bd594eedc",

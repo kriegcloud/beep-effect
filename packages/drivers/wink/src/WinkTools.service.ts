@@ -823,7 +823,7 @@ export const WinkNlpToolkitLive: Layer.Layer<
       Paragraphize: Effect.fn("WinkNlpToolkit.Paragraphize")(
         function* ({ text }) {
           yield* Effect.annotateCurrentSpan(textLengthAttribute(text, "text"));
-          const paragraphs = pipe(text.split(/\n\s*\n/), A.map(Str.trim), A.filter(Str.isNonEmpty));
+          const paragraphs = pipe(Str.split(/\n\s*\n/)(text), A.map(Str.trim), A.filter(Str.isNonEmpty));
           return {
             count: A.length(paragraphs),
             paragraphs,

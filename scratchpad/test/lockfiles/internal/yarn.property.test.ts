@@ -10,7 +10,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { parseYarn } from "../../../effected/lockfiles/internal/yarn.ts";
 import { LockfileFields } from "../../../effected/lockfiles/internal/shared.ts";
-import { Yaml } from "../../../effected/yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 
 const runs = { arbitrary: fcRuns(100) };
 const sample = Arbitrary.schema(S.Struct({

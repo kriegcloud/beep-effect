@@ -4,7 +4,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { registrySettingsOf, scratchWorkspaceYaml } from "../../../effected/workspaces/internal/configDependencyFetch.ts";
-import { Yaml } from "../../../effected/yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 
 const runs = { arbitrary: fcRuns(100) };
 const settings = S.Struct({ registry: S.String, registries: S.Record(S.String, S.String) });

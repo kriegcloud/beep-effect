@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   COMMITLINT_MAX_LINE_LENGTH,
   CommitlintRun,
@@ -20,7 +21,6 @@ import {
   squashCommitlintOffendingLines,
   squashPullRequestTitleMaxLength,
 } from "@beep/repo-cli/test/Yeet";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeChildProcessSpawner, NodeCrypto } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";

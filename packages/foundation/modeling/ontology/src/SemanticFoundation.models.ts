@@ -204,12 +204,13 @@ export class ConceptAlignment extends S.Opaque<ConceptAlignment, { readonly bran
  * **Example** (Make taxonomy concept)
  *
  * ```ts
+ * import { $SemanticFoundationId } from "@beep/identity/packages"
  * import { TaxonomyConcept } from "@beep/ontology/SemanticFoundation.models"
  * import { IRIReference } from "@beep/rdf"
  *
  * const concept = TaxonomyConcept.make({
  *   alignments: [], broader: [], definition: "A legal document.", documentClasses: ["received"],
- *   filingSegment: "legal-documents", iri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/legal-document"),
+ *   filingSegment: "legal-documents", iri: IRIReference.make($SemanticFoundationId.create("concept/legal-document").iri),
  *   prefLabel: "Legal document"
  * })
  * console.log(concept.prefLabel)
@@ -276,10 +277,11 @@ export type FilingRootKind = typeof FilingRootKind.Type;
  * **Example** (Make filing root)
  *
  * ```ts
+ * import { $SemanticFoundationId } from "@beep/identity/packages"
  * import { FilingRoot } from "@beep/ontology/SemanticFoundation.models"
  * import { IRIReference } from "@beep/rdf"
  *
- * const root = FilingRoot.make({ iri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/filing-root/local-vault"), kind: "local-vault", rootSegment: "vault" })
+ * const root = FilingRoot.make({ iri: IRIReference.make($SemanticFoundationId.create("filing-root/local-vault").iri), kind: "local-vault", rootSegment: "vault" })
  * console.log(root.rootSegment)
  * ```
  *

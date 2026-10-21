@@ -1,5 +1,5 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
@@ -392,7 +392,7 @@ it.layer(Platform, { timeout: "5 seconds" })("runSetup", (it) => {
       expect(result.report.complete).toBe(false);
       expect(result.installersRun).toEqual([]);
       expect(result.opened).toEqual([]);
-      expect(A.some(result.said, (line) => line.startsWith("Setup stopped: The Claude installer"))).toBe(true);
+      expect(A.some(result.said, (line) => Str.startsWith("Setup stopped: The Claude installer")(line))).toBe(true);
       expect(saidAny(result.said, "Press Enter to close this window.")).toBe(false);
     })
   );

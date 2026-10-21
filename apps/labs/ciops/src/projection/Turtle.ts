@@ -44,7 +44,7 @@ const pnLocalSlug = (value: string): string =>
     A.map(A.fromIterable(new TextEncoder().encode(value)), (byte) =>
       /[A-Za-z0-9]/.test(String.fromCharCode(byte))
         ? String.fromCharCode(byte)
-        : `%${byte.toString(16).toUpperCase().padStart(2, "0")}`
+        : `%${Str.padStart(2, "0")(Str.toUpperCase(byte.toString(16)))}`
     ),
     ""
   );

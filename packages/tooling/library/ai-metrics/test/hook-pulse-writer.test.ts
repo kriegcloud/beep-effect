@@ -47,6 +47,7 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 // The writer is shell, so the only honest conformance test spawns the real
 // script and decodes what it wrote. `HookPulseV1` carries the
@@ -180,7 +181,7 @@ const jqAllowlist = (source: string, definition: string): ReadonlyArray<string> 
   O.match(O.fromNullishOr(new RegExp(`def ${definition}:\\s*\\[([^\\]]*)\\];`).exec(source)?.[1]), {
     onNone: () => A.empty<string>(),
     onSome: (body) =>
-      A.getSomes(A.map(A.fromIterable(body.matchAll(/"([^"]*)"/g)), (match) => O.fromNullishOr(match[1]))),
+      A.getSomes(A.map(A.fromIterable(Str.matchAll(/"([^"]*)"/g)(body)), (match) => O.fromNullishOr(match[1]))),
   });
 
 interface WriterRun {
@@ -205,7 +206,7 @@ const readWriterLines = Effect.fnUntraced(function* (directory: string, files: R
     yield* Effect.forEach(files, (entry) =>
       fs
         .readFileString(path.join(directory, entry))
-        .pipe(Effect.map((contents) => A.filter(contents.split("\n"), (line) => line.length > 0)))
+        .pipe(Effect.map((contents) => A.filter(Str.split("\n")(contents), (line) => line.length > 0)))
     )
   );
 });
@@ -339,7 +340,7 @@ const runWriter = Effect.fnUntraced(function* (stdin: string, options: WriterOpt
     .readDirectory(evidenceRoot)
     .pipe(
       Effect.orElseSucceed(A.empty<string>),
-      Effect.map(A.filter((name) => name.startsWith("hook-pulse-refusals-")))
+      Effect.map(A.filter((name) => Str.startsWith("hook-pulse-refusals-")(name)))
     );
   const refusals = yield* readWriterLines(evidenceRoot, refusalFiles);
   return { exitCode, files, stderr, stdout, rows, refusals, refusalFiles };
@@ -438,7 +439,7 @@ const permissionDeniedPayload = {
 // — which is exactly how an out-of-range duration would actually arrive.
 const nonFiniteDurationStdin = Effect.map(
   encodeJson(R.remove(postToolUsePayload, "duration_ms")),
-  (json) => `{"duration_ms":1e400,${json.slice(1)}`
+  (json) => `{"duration_ms":1e400,${Str.slice(1)(json)}`
 );
 
 const notificationPayload = (notificationType: O.Option<string>) => ({
@@ -732,7 +733,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       const arm = O.fromNullishOr(/case "\$\{agent_kind\}" in\s*\n\s*([^)\n]+)\)\s*;;/.exec(source)?.[1]);
       const admitted = O.match(arm, {
         onNone: () => A.empty<string>(),
-        onSome: (body) => A.map(body.split("|"), (kind) => kind.trim()),
+        onSome: (body) => A.map(Str.split("|")(body), (kind) => Str.trim(kind)),
       });
 
       expect(A.difference(admitted, HookPulseAgentKind.literals)).toEqual([]);
@@ -752,7 +753,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       const arm = O.fromNullishOr(/case "\$\{agent_kind\}" in\s*\n\s*([^)\n]+)\)\s*;;/.exec(source)?.[1]);
       const admitted = O.match(arm, {
         onNone: () => A.empty<string>(),
-        onSome: (body) => A.map(body.split("|"), (kind) => kind.trim()),
+        onSome: (body) => A.map(Str.split("|")(body), (kind) => Str.trim(kind)),
       });
       // Anchored to the agent-kind title `case`: the target `case` below it also has
       // `<name>) title="..." ;;` arms (human-input, plan-approval, tool-permission).
@@ -762,7 +763,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       const titled = O.match(titleArm, {
         onNone: () => A.empty<string>(),
         onSome: (body) =>
-          A.getSomes(A.map(A.fromIterable(body.matchAll(/([a-z-]+)\) title=/g)), (match) => O.fromNullishOr(match[1]))),
+          A.getSomes(
+            A.map(A.fromIterable(Str.matchAll(/([a-z-]+)\) title=/g)(body)), (match) => O.fromNullishOr(match[1]))
+          ),
       });
       const schemaKinds = HookPulseAgentKind.literals;
 
@@ -882,7 +885,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
 
       // Exact equality against the oracle digest, so the raw session id cannot
       // reappear in the name under any spelling.
-      expect(run.files).toEqual([`hook-pulse-${ts.slice(0, 10)}-${sessionDigest}.ndjson`]);
+      expect(run.files).toEqual([`hook-pulse-${Str.slice(0, 10)(ts)}-${sessionDigest}.ndjson`]);
     })
   );
 
@@ -1731,7 +1734,7 @@ const readWindowRows = Effect.fnUntraced(function* (store: SwitchStore) {
   const fs = yield* FileSystem.FileSystem;
   const contents = (yield* fs.exists(store.windowsPath)) ? yield* fs.readFileString(store.windowsPath) : "";
 
-  return A.filter(contents.split("\n"), (line) => line.length > 0);
+  return A.filter(Str.split("\n")(contents), (line) => line.length > 0);
 });
 
 const seedSentinel = Effect.fnUntraced(function* (store: SwitchStore, contents: string) {

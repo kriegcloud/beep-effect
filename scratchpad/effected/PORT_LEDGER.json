@@ -6820,7 +6820,7 @@
         {
           "test": "scratchpad/test/templates/Section.test.ts:87; scratchpad/test/templates/SectionDialect.test.ts:152; module suite scratchpad/test/templates/**",
           "upstreamBehaviour": "Schema classes/errors use bare names, ManagedSection has the @effected/templates/ManagedSection service key, and SectionKey/Delimiter patterns are inline; JSON Schema definitions use bare class names.",
-          "labBehaviour": "File-local $ScratchpadId composers identify schemas, checks, fields and ManagedSection across all source files. JSON Schema definitions use @beep/scratchpad/effected/templates/... keys; SectionKey and Delimiter are referenced named definitions, with matching test-path retargets.",
+          "labBehaviour": "File-local $ScratchpadId composers identify schemas, checks, fields and ManagedSection across all source files. JSON Schema definitions use @beep/managed-section/... keys; SectionKey and Delimiter are referenced named definitions, with matching test-path retargets.",
           "reason": "identity-annotations: D5 and step 4 require @beep/identity annotations. Round-1 codemod-3 plus fix-templates-g2.md:4-8 require recording the JSON Schema key changes; normalized here from the reports identity-keys label because these are composer-derived schema names."
         },
         {
@@ -8365,7 +8365,7 @@
           "seat": "fable",
           "round": 1,
           "finding": "git-b7 — Adapt README to the lab module (scratchpad/effected/git/README.md:3,10,34)",
-          "reason": "docs: Adapt badges/install/examples to the lab during S2, preserve substantive prose and use @beep/scratchpad/effected/git/index imports; central bookkeeping owns Port notes."
+          "reason": "docs: Adapt badges/install/examples to the lab during S2, preserve substantive prose and use @beep/git imports; central bookkeeping owns Port notes."
         },
         {
           "seat": "fable",

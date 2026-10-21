@@ -22,14 +22,14 @@
  */
 export * as Errors from "./Acp.errors.ts";
 /**
- * Generated ACP schema exports.
+ * Generated ACP generation-2 schema and method metadata exports.
  *
- * **Example** (Log schema protocol version)
+ * **Example** (Log both protocol versions)
  *
  * ```ts
  * import { Schema } from "@beep/acp"
  *
- * console.log(Schema.PROTOCOL_VERSION)
+ * console.log(Schema.PROTOCOL_VERSION, Schema.V1_PROTOCOL_VERSION)
  * ```
  *
  * @category schemas
@@ -55,19 +55,48 @@ export * as Agent from "./AcpAgent.service.ts";
 /**
  * Client-side ACP service exports.
  *
- * **Example** (Access ACP client service)
+ * **Example** (Check a protocol generation choice)
  *
  * ```ts
  * import { Client } from "@beep/acp"
  *
- * const service = Client.AcpClient
- * console.log(service)
+ * console.log(Client.AcpClientProtocolGeneration.is.negotiate("negotiate")) // true
  * ```
  *
  * @category services
  * @since 0.0.0
  */
 export * as Client from "./AcpClient.service.ts";
+/**
+ * Client-side ACP terminal service exports.
+ *
+ * **Example** (Read the default live-terminal bound)
+ *
+ * ```ts
+ * import { Terminals } from "@beep/acp"
+ *
+ * console.log(Terminals.AcpClientTerminalLimits.make({}).maxLiveTerminals) // 16
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as Terminals from "./AcpClientTerminals.service.ts";
+/**
+ * Normalized ACP compatibility exports shared by protocol generations 1 and 2.
+ *
+ * **Example** (Read the unknown-variant sentinel)
+ *
+ * ```ts
+ * import { Compat } from "@beep/acp"
+ *
+ * console.log(Compat.ACP_UNKNOWN) // "_acp_unknown"
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * as Compat from "./AcpCompat.models.ts";
 /**
  * ACP JSON text codec exports.
  *
@@ -117,18 +146,34 @@ export * as Protocol from "./AcpProtocol.service.ts";
  */
 export * as Rpc from "./AcpRpc.models.ts";
 /**
- * ACP terminal handle exports.
+ * Bounded, redacted stderr tails for ACP peer processes.
  *
- * **Example** (Create terminal handle)
+ * **Example** (Redact a home directory)
  *
  * ```ts
- * import { Terminal } from "@beep/acp"
+ * import { Stderr } from "@beep/acp"
  *
- * const make = Terminal.makeTerminal
- * console.log(make)
+ * console.log(Stderr.sanitizeStderrExcerpt("/home/ada/.agent/log", ["/home/ada"])) // ~/.agent/log
  * ```
  *
- * @category resources
+ * @category services
  * @since 0.0.0
  */
-export * as Terminal from "./AcpTerminal.models.ts";
+export * as Stderr from "./AcpStderr.models.ts";
+/**
+ * Generated ACP generation-1 schema exports.
+ *
+ * **Example** (Check a generation-1 command input)
+ *
+ * ```ts
+ * import { SchemaV1 } from "@beep/acp"
+ * import * as S from "effect/Schema"
+ *
+ * const isCommand = S.is(SchemaV1.AvailableCommand)
+ * console.log(isCommand({ name: "plan", description: "Make a plan", input: { hint: "Task" } }))
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * as SchemaV1 from "./AcpV1.models.ts";

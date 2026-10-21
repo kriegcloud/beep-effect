@@ -142,16 +142,13 @@
       "path": "packages/drivers/exiftool"
     },
     {
-      "path": "packages/drivers/face-detection"
-    },
-    {
       "path": "packages/drivers/ffmpeg"
     },
     {
-      "path": "packages/drivers/firecrawl"
+      "path": "packages/drivers/freshbooks"
     },
     {
-      "path": "packages/drivers/freshbooks"
+      "path": "packages/drivers/git"
     },
     {
       "path": "packages/drivers/gov-legal-mcp"
@@ -253,16 +250,10 @@
       "path": "packages/drivers/uspto-mcp"
     },
     {
-      "path": "packages/drivers/venice-ai"
-    },
-    {
       "path": "packages/drivers/windows-secrets"
     },
     {
       "path": "packages/drivers/wink"
-    },
-    {
-      "path": "packages/drivers/xai"
     },
     {
       "path": "packages/drivers/xstate"
@@ -328,6 +319,9 @@
       "path": "packages/foundation/modeling/github-references"
     },
     {
+      "path": "packages/foundation/modeling/glob"
+    },
+    {
       "path": "packages/foundation/modeling/html"
     },
     {
@@ -343,6 +337,9 @@
       "path": "packages/foundation/modeling/lexical"
     },
     {
+      "path": "packages/foundation/modeling/managed-section"
+    },
+    {
       "path": "packages/foundation/modeling/md"
     },
     {
@@ -356,6 +353,9 @@
     },
     {
       "path": "packages/foundation/modeling/provenance"
+    },
+    {
+      "path": "packages/foundation/modeling/public-site"
     },
     {
       "path": "packages/foundation/modeling/rdf"
@@ -376,7 +376,13 @@
       "path": "packages/foundation/modeling/spdx"
     },
     {
+      "path": "packages/foundation/modeling/toml"
+    },
+    {
       "path": "packages/foundation/modeling/utils"
+    },
+    {
+      "path": "packages/foundation/modeling/yaml"
     },
     {
       "path": "packages/foundation/primitive/data"
@@ -467,6 +473,9 @@
     },
     {
       "path": "packages/tooling/test-kit/fc-runs"
+    },
+    {
+      "path": "packages/tooling/test-kit/memfs"
     },
     {
       "path": "packages/tooling/test-kit/test-runner"

@@ -63,7 +63,7 @@ remaining glue is small enough to rebuild license-free.
 
 **Recommended:** Prove V1 with Anthropic-primary → one fallback step (xAI or
 openai-compat) over the **four already-installed drivers** (`@beep/anthropic`,
-`@beep/openai-compat`, `@beep/xai`, `@beep/venice-ai`), wired into the existing
+`@beep/openai-compat`, `retired:xai`, `retired:venice-ai`), wired into the existing
 `AnthropicTurnKernel` `Stream.withExecutionPlan` seam — swapping its single-
 provider `AnthropicTurnPlan` for a multi-provider plan. Do NOT target the
 `@effect/ai-openai` / `@effect/ai-openrouter` packages, and defer a Gemini/Google
@@ -91,7 +91,7 @@ settled).
 **Recommended:** Model the registry as an **adapter table over four distinct
 surfaces**, and have it READ each driver's own config constants rather than
 re-declare them. The `.model(name) → AiModel.Model<provider, …>` identity carrier
-exists ONLY on `@beep/xai` and `@beep/venice-ai`; `@beep/anthropic`
+exists ONLY on `retired:xai` and `retired:venice-ai`; `@beep/anthropic`
 (`makeAnthropicLanguageModelLayer`) and `@beep/openai-compat` (top-level `layer`)
 expose only Layer constructors. Source `requiredEnvVar` and `defaultModel` from
 the driver constants — e.g. Anthropic's non-standard `AI_ANTHROPIC_API_KEY` and
@@ -239,8 +239,8 @@ generic resilience package.
 **Answer:** Reuse vendored `ExecutionPlan` and the four existing drivers through
 their live public barrels: `packages/drivers/anthropic/src/index.ts`,
 `packages/drivers/openai-compat/src/index.ts`,
-`packages/drivers/xai/src/index.ts`, and
-`packages/drivers/venice-ai/src/index.ts`. Build only the app-local composition
+`retired:xai/src/index.ts`, and
+`retired:venice-ai/src/index.ts`. Build only the app-local composition
 needed by the consuming runtime. Do not create a bespoke or wrapped fallback
 engine, and do not port a BAML/LiteLLM-style runtime.
 

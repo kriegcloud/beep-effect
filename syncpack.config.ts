@@ -46,12 +46,9 @@ const config = {
     "packages/workspace/domain/package.json",
     "packages/drivers/drizzle/package.json",
     "packages/drivers/duckdb/package.json",
-    "packages/drivers/face-detection/package.json",
     "packages/drivers/ffmpeg/package.json",
     "packages/drivers/postgres/package.json",
     "packages/drivers/anthropic/package.json",
-    "packages/drivers/venice-ai/package.json",
-    "packages/drivers/xai/package.json",
     "packages/drivers/acp/package.json",
     "packages/drivers/openai-compat/package.json",
     "packages/workspace/tables/package.json",
@@ -90,7 +87,6 @@ const config = {
     "packages/drivers/doc-text/package.json",
     "packages/drivers/libpff/package.json",
     "packages/drivers/box/package.json",
-    "packages/drivers/firecrawl/package.json",
     "packages/drivers/uspto/package.json",
     "packages/drivers/pglite/package.json",
     "packages/drivers/m365/package.json",
@@ -126,6 +122,7 @@ const config = {
     "apps/practice-setup/package.json",
     "apps/practice-review-hub/package.json",
     "packages/drivers/commands/package.json",
+    "packages/drivers/git/package.json",
   ],
   customTypes: {
     catalog: {

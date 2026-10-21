@@ -54,8 +54,8 @@ Scope: the shared MCP auth-gating helper that returns a structured `{error:api_k
 
 - This packet and the LLM-fallback cluster share ONE primitive (`Config.redacted` credential resolution) but sit on different axes and must stay separate (per CAPTURE caution + tree-snapshot routing).
   - **This packet = build-time capability gating** of MCP *tools* by *source* credential presence. Lifecycle: resolved once at Layer build (or per-call guard). Failure model: omit the tool group / return `api_key_required`. Surface: which tools exist.
-  - **LLM dispatch/fallback = runtime request-time selection** of a *model provider* per prompt, with key-precedence + automatic failover across `@beep/anthropic`, `@beep/openai-compat`, `@beep/xai`, `@beep/venice-ai`. Lifecycle: every request. Failure model: retry/failover to the next provider. Surface: which model answers.
-- Repo evidence they already resolve creds independently (so fusion would couple unrelated lifecycles): `packages/drivers/anthropic/src/Anthropic.service.ts:36 Config.redacted(ANTHROPIC_API_KEY_ENV)`; `packages/drivers/xai/src/XAi.service.ts:1020-1021 Config.redacted("XAI_API_KEY"|"XAI_MANAGEMENT_API_KEY").pipe(Config.option)`; `packages/drivers/venice-ai/src/VeniceAI.service.ts:1877 Config.redacted("AI_VENICE_API_KEY")` (in-repo grep).
+  - **LLM dispatch/fallback = runtime request-time selection** of a *model provider* per prompt, with key-precedence + automatic failover across `@beep/anthropic`, `@beep/openai-compat`, `retired:xai`, `retired:venice-ai`. Lifecycle: every request. Failure model: retry/failover to the next provider. Surface: which model answers.
+- Repo evidence they already resolve creds independently (so fusion would couple unrelated lifecycles): `packages/drivers/anthropic/src/Anthropic.service.ts:36 Config.redacted(ANTHROPIC_API_KEY_ENV)`; `retired:xai/src/XAi.service.ts:1020-1021 Config.redacted("XAI_API_KEY"|"XAI_MANAGEMENT_API_KEY").pipe(Config.option)`; `retired:venice-ai/src/VeniceAI.service.ts:1877 Config.redacted("AI_VENICE_API_KEY")` (in-repo grep).
 - Boundary contract: the MCP registration layer consumes the SAME `Config.redacted`/`Config.option` primitive but owns only the *source* gating registry; if a tool needs an LLM, it depends on a provider-selection PORT (a `Context.Tag` service) supplied by the separate cluster, and never embeds precedence/fallback logic itself. The GOLD_SYNTHESIS routes the LLM-fallback work to a proposed `multi-provider-llm-dispatch-fallback` packet (gapStatus partial/P2) — cross-link, do not pull it in (CAPTURE.md "Scope note"; `scratchpad/routing/tree-snapshot.md` line 15 + proposed-slug list).
 
 ### Licensing (for any port)
@@ -77,7 +77,7 @@ Scope: the shared MCP auth-gating helper that returns a structured `{error:api_k
 - Effect Config docs (`Config.redacted`/`option`/`withDefault`, `ConfigError`/`MissingData`, `Redacted`) — https://effect.website/docs/configuration/
 - In-repo gold catalog (verbatim snippets + per-repo licenses) — `explorations/_gold-intake/research/gold-catalog.json` (nuggets `mcp-uspto#2`, `us-legal-tools#9`, `patents-mcp-server#1`, `patents-mcp-server#12`, `uspto-patents-mcp#4`, `us-gov-open-data-mcp#5/#6`)
 - In-repo MCP composition idiom — `packages/drivers/nlp-mcp/src/Server.ts`, `packages/drivers/nlp-mcp/src/StreamingTools.ts` (`failureMode:"return"`), `packages/drivers/nlp-mcp/CLAUDE.md`
-- In-repo LLM-driver Config usage (boundary evidence) — `packages/drivers/anthropic/src/Anthropic.service.ts:36`, `packages/drivers/xai/src/XAi.service.ts:1020-1026`, `packages/drivers/venice-ai/src/VeniceAI.service.ts:1877`
+- In-repo LLM-driver Config usage (boundary evidence) — `packages/drivers/anthropic/src/Anthropic.service.ts:36`, `retired:xai/src/XAi.service.ts:1020-1026`, `retired:venice-ai/src/VeniceAI.service.ts:1877`
 - Routing/scope guardrails — `explorations/mcp-auth-gated-registration/CAPTURE.md`, `scratchpad/routing/tree-snapshot.md`
 
 ## Open / Unverified

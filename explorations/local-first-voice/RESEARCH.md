@@ -150,8 +150,8 @@ Discovery key: ✅ exists · 🆕 NOT FOUND (net-new).
 - `packages/foundation/ui-system/ui/src/hooks/use-scribe.ts` +
   `.../components/speech-input.tsx` — ElevenLabs Scribe v2 realtime STT over WS,
   atom-backed (`Atom.family`, `useAtom`).
-- `packages/drivers/xai` — realtime voice + streaming TTS/STT WS endpoints.
-- `packages/drivers/venice-ai` — `createSpeech` / `createTranscription` / voice-clone.
+- `retired:xai` — realtime voice + streaming TTS/STT WS endpoints.
+- `retired:venice-ai` — `createSpeech` / `createTranscription` / voice-clone.
 - `@effect/ai-openai` (4.0.0-beta.90) — whisper / gpt-4o-transcribe / realtime models.
 - `@elevenlabs/client` ^1.14.0. `packages/drivers/ffmpeg` (frame extraction; no
   audio codec path 🆕).

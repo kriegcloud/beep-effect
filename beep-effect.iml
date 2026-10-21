@@ -74,7 +74,6 @@
       <excludeFolder url="file://$MODULE_DIR$/goals/fallow-quality-enforcement" />
       <excludeFolder url="file://$MODULE_DIR$/goals/fallow-zero-dead-code" />
       <excludeFolder url="file://$MODULE_DIR$/goals/file-processing-capability" />
-      <excludeFolder url="file://$MODULE_DIR$/goals/firecrawl-driver" />
       <excludeFolder url="file://$MODULE_DIR$/goals/fleet-mirror" />
       <excludeFolder url="file://$MODULE_DIR$/goals/goals-doctor" />
       <excludeFolder url="file://$MODULE_DIR$/goals/gov-legal-data-driver-codegen" />

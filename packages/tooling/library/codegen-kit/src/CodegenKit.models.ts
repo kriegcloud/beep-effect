@@ -151,12 +151,26 @@ export type OutputFormat = typeof OutputFormat.Type;
 /**
  * Registered JSON Schema transforms available to consumers.
  *
+ * **Details**
+ *
+ * Every transform is opt-in and pure. `notDiscriminatorPattern` rewrites a forward-compatible
+ * `not.anyOf[const]` exclusion into a negative-lookahead `pattern` on the discriminator property.
+ * `unevaluatedPropertiesOpen` lowers `unevaluatedProperties: true` to `additionalProperties: true`.
+ * `uniqueDiscriminatorOneOfAsAnyOf` turns a `oneOf` whose branches carry distinct string
+ * discriminators into the equivalent `anyOf`. `intersectSiblingProperties` pushes a base property
+ * that `anyOf` / `oneOf` branches redeclare down into every branch, intersected with each branch's
+ * declaration. `distributeAllOf` merges `allOf` parts and distributes
+ * object intersections over `anyOf` unions, inlining `$ref` targets after applying the other selected
+ * transforms to them. A `$ref` names a definition only by its full pointer, `#/$defs/<name>` or
+ * `#/components/schemas/<name>`. Unsupported shapes fail with a `CodegenTransformError`.
+ *
  * **Example** (Select the ACP transform set)
  *
  * ```ts
  * import { NamedTransform } from "@beep/codegen-kit"
  *
  * console.log(NamedTransform.is.flattenAllOfRefVariants("flattenAllOfRefVariants"))
+ * console.log(NamedTransform.is.distributeAllOf("distributeAllOf"))
  * ```
  *
  * @category configuration
@@ -168,6 +182,11 @@ export const NamedTransform = LiteralKit([
   "distributeUnionSiblings",
   "openObjects",
   "stripExamples",
+  "notDiscriminatorPattern",
+  "unevaluatedPropertiesOpen",
+  "uniqueDiscriminatorOneOfAsAnyOf",
+  "intersectSiblingProperties",
+  "distributeAllOf",
 ]).annotate(
   $I.annote("NamedTransform", {
     description: "Opt-in JSON Schema transforms composed into the generator onEnter hook.",
@@ -330,6 +349,12 @@ export class GeneratePatch extends S.Opaque<GeneratePatch, { readonly brand: uni
 /**
  * Primary generated module path and optional package-specific header.
  *
+ * **Details**
+ *
+ * `exampleImport` replaces the module specifier used by generated `**Example**` blocks in every output
+ * format. When omitted, struct-style schemas import from `<packageName>/schema`, and class-style schemas
+ * and the exports of `httpclient`, `httpapi` and `type-only` modules import from `<packageName>`.
+ *
  * **Example** (Prefix the generated module with a do-not-edit banner)
  *
  * ```ts
@@ -343,6 +368,19 @@ export class GeneratePatch extends S.Opaque<GeneratePatch, { readonly brand: uni
  * console.log(output.path.endsWith(".gen.ts")) // => true
  * ```
  *
+ * **Example** (Point generated examples at a secondary schema subpath)
+ *
+ * ```ts
+ * import { GenerateOutput } from "@beep/codegen-kit/CodegenKit.models"
+ *
+ * const output = GenerateOutput.make({
+ *   path: "src/_generated/schema-v1.gen.ts",
+ *   exampleImport: "@beep/acp/schema-v1"
+ * })
+ *
+ * console.log(output.exampleImport) // => "@beep/acp/schema-v1"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -350,9 +388,11 @@ export class GenerateOutput extends S.Opaque<GenerateOutput, { readonly brand: u
   S.Struct({
     path: S.NonEmptyString,
     header: S.optionalKey(S.String),
+    exampleImport: S.optionalKey(S.NonEmptyString),
   }).pipe(
     $I.annoteSchema("GenerateOutput", {
-      description: "Primary generated module path and optional package-specific header.",
+      description:
+        "Primary generated module path, optional package-specific header, and optional module specifier for generated Example imports.",
     })
   )
 ) {}

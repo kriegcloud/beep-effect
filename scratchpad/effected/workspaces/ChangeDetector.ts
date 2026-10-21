@@ -7,8 +7,8 @@
 // the consumer's platform layer discharges at the edge.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { GitCommandError, NotARepositoryError, UnknownRefError } from "../git/index.ts";
-import { Git } from "../git/index.ts";
+import type { GitCommandError, NotARepositoryError, UnknownRefError } from "@beep/git";
+import { Git } from "@beep/git";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";

@@ -1,7 +1,7 @@
 import { assert, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
-import { Yaml } from "../../../effected/yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { ScriptedSpawner } from "@beep/commands";
 

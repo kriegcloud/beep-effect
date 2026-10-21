@@ -18,7 +18,7 @@ import type { Screen } from "../../../effected/cli/ui.ts";
 import { CliUi, Confirm, Select } from "../../../effected/cli/ui.ts";
 import type { CliUiTestSession } from "../../../effected/cli/ui-testing.ts";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 
 const proceed: Screen<boolean> = CliUi.map(Confirm.screen({ message: "Publish?" }), (result) => result.confirmed);
 

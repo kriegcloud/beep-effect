@@ -3,6 +3,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $LawPracticeServerId } from "@beep/identity/packages";
 import {
   ContactCardSource,
@@ -14,6 +15,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as M from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -141,7 +143,7 @@ const cardFrom = (values: CardFields): RawContactCard => {
   });
 };
 const addProperty = (values: CardFields, line: string) => {
-  const colon = line.indexOf(":");
+  const colon = O.getOrElse(constant(-1))(Str.indexOf(":")(line));
   if (colon < 0) throw invalid();
   const prop = Str.slice(0, colon)(line);
   if (/ENCODING=QUOTED-PRINTABLE/iu.test(prop)) throw invalid();

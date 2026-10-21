@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   assertExclusiveModeFlags,
   checkGeneratedFile,
@@ -7,7 +8,6 @@ import {
   writeArtifact,
   writeGeneratedFile,
 } from "@beep/repo-cli/test/Artifacts";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

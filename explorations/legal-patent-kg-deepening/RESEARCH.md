@@ -49,7 +49,7 @@ and is presumed standing.>
 Standing bricks wave 2 composes against (verify at mining time):
 
 - `goals/semantic-foundation` — SKOS concept schemes under
-  `https://ns.beep.sh/`, FOLIO alignment policy, `@beep/ontology`
+  `https://beep-effect.com/ns/`, FOLIO alignment policy, `@beep/ontology`
   registry/loader; no graph store, no SPARQL engine (locked wave-1 outcome).
 - `@beep/langextract` (`packages/foundation/capability/langextract`) —
   source-grounded char-span extraction (absorbed from effect-langextract).

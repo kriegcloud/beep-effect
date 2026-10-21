@@ -1,7 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { Git, GitCommandError, LsTreeEntry } from "../../effected/git/index.ts";
-import type { GitStubs } from "../../effected/git/index.ts";
+import { Git, GitCommandError, LsTreeEntry } from "@beep/git";
+import type { GitStubs } from "@beep/git";
 import { CatalogAssemblyError, CatalogResolver, WorkspaceResolver } from "../../effected/npm/index.ts";
 import * as HashMap from "effect/HashMap";
 import * as Effect from "effect/Effect";

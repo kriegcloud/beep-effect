@@ -37,6 +37,7 @@ import * as O from "effect/Option";
 import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $NlpProcessingId.create("Graph/EffectGraph");
 
@@ -779,7 +780,7 @@ export const show: {
       onNone: R.empty,
       onSome: (node) => {
         const op = O.getOrElse(node.metadata.operation, () => "root");
-        lines.push(`${"  ".repeat(indent)}[${op}] ${showData(node.data)}`);
+        lines.push(`${Str.repeat(indent)("  ")}[${op}] ${showData(node.data)}`);
         for (const child of getChildren(graph, nodeId)) {
           visit(child.id, indent + 1);
         }

@@ -19,7 +19,6 @@ import {
   decodeCreateCaptionFilesOptions,
   decodeCropBordersOptions,
   decodeDetectBordersOptions,
-  decodeDetectFacesOptions,
   decodeNormalizeMaxLongEdge,
   decodeSafeFilePrefix,
 } from "../Files.schemas.ts";
@@ -28,7 +27,6 @@ import type {
   CreateCaptionFilesOptions,
   CropBordersOptions,
   DetectBordersOptions,
-  DetectFacesOptions,
   PositiveMediaDimension,
   SafeFilePrefix,
 } from "../Files.schemas.ts";
@@ -149,119 +147,6 @@ export const validateDetectBordersOptions = (
     ),
     Effect.filterOrFail(scanWidthFitsWithinMaximum, invalidScanWidthError)
   );
-
-/**
- * Decode and validate detect-faces options.
- *
- * @param options - Raw options.
- * @returns Decoded options.
- * @category validation
- * @since 0.0.0
- */
-export const validateDetectFacesOptions = (
-  options: DetectFacesOptions
-): Effect.Effect<DetectFacesOptions, FilesCommandError> =>
-  decodeDetectFacesOptions(options).pipe(
-    FilesCommandError.mapError(
-      "Invalid detect-faces options. Expected --model to point at a YuNet ONNX file, --min-confidence between 0 and 1, and face area/margin percentages between 0 and 100."
-    )
-  );
-
-/**
- * Validate the optional no-face move directory.
- *
- * @param moveNoFaceTo - Optional target directory.
- * @param directory - Source directory.
- * @returns Optional resolved target directory.
- * @category validation
- * @since 0.0.0
- */
-export const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateDetectFacesMoveNoFaceDirectory")(
-  function* (
-    moveNoFaceTo: O.Option<string>,
-    directory: string
-  ): Effect.fn.Return<O.Option<string>, FilesCommandError, FileSystem.FileSystem | Path.Path> {
-    if (O.isNone(moveNoFaceTo)) {
-      return O.none<string>();
-    }
-
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const sourceDirectory = path.resolve(directory);
-    const noFaceDirectory = path.resolve(moveNoFaceTo.value);
-
-    if (Str.equivalence(sourceDirectory, noFaceDirectory)) {
-      return yield* FilesCommandError.make({
-        message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
-      });
-    }
-
-    const exists = yield* fs
-      .exists(noFaceDirectory)
-      .pipe(
-        Effect.mapError((cause) =>
-          formatPlatformError(
-            "Failed to inspect no-face image move directory",
-            noFaceDirectory,
-            PlatformErrorOptions.make({ cause })
-          )
-        )
-      );
-
-    if (!exists) {
-      return O.some(noFaceDirectory);
-    }
-
-    const stat = yield* fs
-      .stat(noFaceDirectory)
-      .pipe(
-        Effect.mapError((cause) =>
-          formatPlatformError(
-            "Failed to stat no-face image move directory",
-            noFaceDirectory,
-            PlatformErrorOptions.make({ cause })
-          )
-        )
-      );
-
-    if (stat.type !== "Directory") {
-      return yield* FilesCommandError.make({
-        message: `Expected --move-no-face-to to be a directory or missing path: "${noFaceDirectory}"`,
-      });
-    }
-
-    const canonicalSource = yield* fs
-      .realPath(sourceDirectory)
-      .pipe(
-        Effect.mapError((cause) =>
-          formatPlatformError(
-            "Failed to resolve source directory",
-            sourceDirectory,
-            PlatformErrorOptions.make({ cause })
-          )
-        )
-      );
-    const canonicalNoFace = yield* fs
-      .realPath(noFaceDirectory)
-      .pipe(
-        Effect.mapError((cause) =>
-          formatPlatformError(
-            "Failed to resolve no-face image move directory",
-            noFaceDirectory,
-            PlatformErrorOptions.make({ cause })
-          )
-        )
-      );
-
-    if (Str.equivalence(canonicalSource, canonicalNoFace)) {
-      return yield* FilesCommandError.make({
-        message: `Refusing to move no-face images into the source directory: "${noFaceDirectory}"`,
-      });
-    }
-
-    return O.some(noFaceDirectory);
-  }
-);
 
 /**
  * Decode and validate crop-borders options.

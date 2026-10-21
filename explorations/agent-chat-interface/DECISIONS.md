@@ -109,7 +109,7 @@ policy, timeouts, connection config) to driver `.config.ts`. The proof
 produced exactly such repo-owned technical logic: ExecutionPlan
 *acquisition-only* retries gated on `AiError.isRetryable`, and the
 model-catalog ceiling pin (beta.79 SSE decode rejects newer model ids).
-Family symmetry with `openai-compat`/`venice-ai`/`xai`; no slice imports a
+Family symmetry with `openai-compat`/`retired:venice-ai`/`retired:xai`; no slice imports a
 provider library directly today.
 
 ## 2026-06-12 — PGlite confirmed (closes handoff decision 3)

@@ -18,6 +18,7 @@ import {
   XLogoIcon,
   YoutubeLogoIcon,
 } from "@phosphor-icons/react/ssr";
+import * as Str from "effect/String";
 // import * as P from "effect/Predicate";
 import Image from "next/image";
 import { BackToTop } from "./BackToTop";
@@ -156,7 +157,7 @@ function Hero({ content }: { readonly content: OipSiteContent }) {
           clips={A.map(hero.clips, (clip) => ({
             poster: clip.poster.src,
             mp4: clip.video.src,
-            webm: clip.video.src.replace(/\.mp4$/, ".webm"),
+            webm: Str.replace(/\.mp4$/, ".webm")(clip.video.src),
           }))}
         />
         <div className="absolute inset-0 bg-oip-hero-scrim" />

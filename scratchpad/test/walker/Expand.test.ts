@@ -1,7 +1,7 @@
 // The compile+expand recipe: one call, one typed error, both causes intact.
 
 import { assert, describe, it, layer } from "@effect/vitest";
-import { GlobPatternError, GlobPatternOptions } from "../../effected/glob/index.ts";
+import { GlobPatternError, GlobPatternOptions } from "@beep/glob";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";

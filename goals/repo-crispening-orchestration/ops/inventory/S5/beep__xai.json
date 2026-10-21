@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-precision-audit",
-    "file": "packages/drivers/xai/src/XAi.models.ts",
+    "file": "retired:xai/src/XAi.models.ts",
     "line": 78,
     "symbol": "XAiRequestOptions / XAiQueryValue",
     "smell": "Detector candidate: raw request options use broad `S.Unknown`, `S.Record(S.String, S.String)`, and finite/string/boolean query values.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-arbitrary-tests",
-    "file": "packages/drivers/xai/test/XAi.service.test.ts",
+    "file": "retired:xai/test/XAi.service.test.ts",
     "line": 225,
     "symbol": "xAI endpoint and transport compatibility fixtures",
     "smell": "Detector candidate: the suite uses table-like endpoint fixtures and fake transport captures instead of schema arbitraries.",

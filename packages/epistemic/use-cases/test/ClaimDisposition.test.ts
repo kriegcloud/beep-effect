@@ -5,6 +5,7 @@ import {
   makeClaimGateOutcomeResolver,
 } from "@beep/epistemic-use-cases/ClaimDisposition";
 import { makeClaimTransition } from "@beep/epistemic-use-cases/ClaimLifecycle";
+import { $EpistemicId } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
 import { productEntityFixtureInput } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
@@ -45,9 +46,9 @@ const claimInput = (id: number, fixtureKey: string) => ({
 });
 
 const violation = {
-  focusNode: "https://beep.dev/epistemic/claim/patentability",
+  focusNode: $EpistemicId.create("claim/patentability").iri,
   message: "Expected at least 1 value(s) for evidence.",
-  path: "https://beep.dev/epistemic/hasEvidenceQuote",
+  path: $EpistemicId.create("hasEvidenceQuote").iri,
   severity: "violation",
 };
 

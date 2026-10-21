@@ -2,7 +2,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 // @effect-diagnostics strictEffectProvide:skip-file
 import * as Data from "effect/Data";
 import { assert, describe, it } from "@effect/vitest";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";

@@ -31,7 +31,7 @@ import {
   Unknown,
 } from "effect/Schema";
 import { makeEffect } from "effect/SchemaParser";
-import { camelCase, snakeCase } from "effect/String";
+import { camelCase, includes, snakeCase } from "effect/String";
 import { SqlClient } from "effect/sql/SqlClient";
 import { isSqlError } from "effect/sql/SqlError";
 import {
@@ -237,14 +237,14 @@ it.layer(PgliteHarnessLayer, { timeout: 90_000 })("@beep/effect-drizzle live PGl
     fnUntraced(function* () {
       const { migrationStatements, noOpStatements } = yield* PgliteHarness;
       expect(isReadonlyArrayNonEmpty(migrationStatements)).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('CREATE TABLE "user"'))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes("record_status"))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes("deduped_status"))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes('CREATE TABLE "user"')(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes("record_status")(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes("deduped_status")(statement))).toBe(true);
       expect(
-        someArray(migrationStatements, (statement) => statement.includes('CREATE TABLE "enum_export_collision"'))
+        someArray(migrationStatements, (statement) => includes('CREATE TABLE "enum_export_collision"')(statement))
       ).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('"labels" text[]'))).toBe(true);
-      expect(someArray(migrationStatements, (statement) => statement.includes('"matrix" text[][]'))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes('"labels" text[]')(statement))).toBe(true);
+      expect(someArray(migrationStatements, (statement) => includes('"matrix" text[][]')(statement))).toBe(true);
       expect(noOpStatements).toEqual([]);
     })
   );

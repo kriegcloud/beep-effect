@@ -29,6 +29,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import type {
   DecisionRecordHash as DecisionRecordHashType,
@@ -71,9 +72,9 @@ const decisionContent = (input: {
   const common = {
     audience: "external-network",
     decidedAt: DateTime.makeUnsafe(input.seq + 1_000),
-    destinationDigest: SinkDestinationDigest.make("d".repeat(64)),
-    grantSetDigest: GrantSetDigest.make("e".repeat(64)),
-    operationDigest: GrantOperationDigest.make("c".repeat(64)),
+    destinationDigest: SinkDestinationDigest.make(Str.repeat(64)("d")),
+    grantSetDigest: GrantSetDigest.make(Str.repeat(64)("e")),
+    operationDigest: GrantOperationDigest.make(Str.repeat(64)("c")),
     policyRevision: revision,
     prevHash: input.prevHash,
     runKey: ExecutionRunKey.make(input.runKey),
@@ -109,7 +110,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("1".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("1"));
           const [first, second, third] = sealedRun(runKey);
 
           for (const decision of [first, second, third]) {
@@ -166,7 +167,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("2".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("2"));
           const [first] = sealedRun(runKey);
 
           yield* ledger.appendDecision(first);
@@ -188,10 +189,10 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("3".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("3"));
 
           const orphan = sealExecutionOutcome({
-            decisionHash: DecisionRecordHash.make("b".repeat(64)),
+            decisionHash: DecisionRecordHash.make(Str.repeat(64)("b")),
             recordedAt: DateTime.makeUnsafe(2_000),
             runKey,
             settlement: "completed",
@@ -212,7 +213,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("4".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("4"));
           const [first] = sealedRun(runKey);
           yield* ledger.appendDecision(first);
 
@@ -245,8 +246,8 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const sql = yield* rawSql;
-          const runKey = "5".repeat(64);
-          const digest = "d".repeat(64);
+          const runKey = Str.repeat(64)("5");
+          const digest = Str.repeat(64)("d");
 
           // Raw SQL bypasses every domain codec on purpose: the bounded-reason
           // CHECK is the last line against a compromised writer smuggling
@@ -273,7 +274,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("b".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("b"));
           const [first, second] = sealedRun(runKey);
           yield* ledger.appendDecision(first);
           yield* ledger.appendDecision(second);
@@ -303,7 +304,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("c".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("c"));
           const [first] = sealedRun(runKey);
           yield* ledger.appendDecision(first);
           yield* ledger.appendOutcome(
@@ -330,7 +331,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("d".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("d"));
           const [first] = sealedRun(runKey);
           yield* ledger.appendDecision(first);
           yield* ledger.appendOutcome(
@@ -376,7 +377,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const sql = yield* rawSql;
-          const digest = "d".repeat(64);
+          const digest = Str.repeat(64)("d");
 
           const violation = yield* Effect.flip(sql`
             INSERT INTO epistemic_execution_decision (
@@ -384,7 +385,7 @@ if (!shouldRunPgliteIntegration) {
               sink_class, audience, destination_digest, grant_set_digest,
               policy_revision, decided_at
             ) VALUES (
-              ${"e".repeat(64)}, 1, NULL, ${digest}, 'allowed', NULL,
+              ${Str.repeat(64)("e")}, 1, NULL, ${digest}, 'allowed', NULL,
               ${digest}, 'network-egress', 'external-network', ${digest}, ${digest},
               '1.0.0', 1000
             )
@@ -400,7 +401,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const sql = yield* rawSql;
-          const digest = "d".repeat(64);
+          const digest = Str.repeat(64)("d");
 
           // The reason itself is in the bounded list, so the only constraint
           // this row can violate is the presence rule — pinning the CHECK body,
@@ -411,7 +412,7 @@ if (!shouldRunPgliteIntegration) {
               sink_class, audience, destination_digest, grant_set_digest,
               policy_revision, decided_at
             ) VALUES (
-              ${"f".repeat(64)}, 0, NULL, ${digest}, 'allowed', 'grant-expired',
+              ${Str.repeat(64)("f")}, 0, NULL, ${digest}, 'allowed', 'grant-expired',
               ${digest}, 'network-egress', 'external-network', ${digest}, ${digest},
               '1.0.0', 1000
             )
@@ -429,7 +430,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("0".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("0"));
           const [first] = sealedRun(runKey);
           yield* ledger.appendDecision(first);
 
@@ -438,7 +439,7 @@ if (!shouldRunPgliteIntegration) {
             INSERT INTO epistemic_execution_outcome (
               run_key, decision_hash, settlement, recorded_at, hash
             ) VALUES (
-              ${runKey}, ${first.hash}, 'exfiltrated', 2000, ${"9".repeat(64)}
+              ${runKey}, ${first.hash}, 'exfiltrated', 2000, ${Str.repeat(64)("9")}
             )
           `);
 
@@ -454,14 +455,14 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("6".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("6"));
           const [first] = sealedRun(runKey);
           yield* ledger.appendDecision(first);
 
           const sql = yield* rawSql;
           const mutation = yield* Effect.flip(sql`
             UPDATE epistemic_execution_decision
-            SET destination_digest = ${"9".repeat(64)}
+            SET destination_digest = ${Str.repeat(64)("9")}
             WHERE run_key = ${runKey}
           `);
 
@@ -475,7 +476,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("7".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("7"));
           const [first] = sealedRun(runKey);
           yield* ledger.appendDecision(first);
 
@@ -494,7 +495,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("8".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("8"));
           const chain = sealedRun(runKey);
           for (const decision of chain) {
             yield* ledger.appendDecision(decision);
@@ -513,7 +514,7 @@ if (!shouldRunPgliteIntegration) {
               Effect.gen(function* () {
                 yield* sql`
             UPDATE epistemic_execution_decision
-            SET destination_digest = ${"9".repeat(64)}
+            SET destination_digest = ${Str.repeat(64)("9")}
             WHERE run_key = ${runKey} AND seq = 1
           `;
 
@@ -541,7 +542,7 @@ if (!shouldRunPgliteIntegration) {
         Effect.fnUntraced(function* () {
           yield* migrateLedger();
           const ledger = yield* ExecutionLedger;
-          const runKey = ExecutionRunKey.make("9".repeat(64));
+          const runKey = ExecutionRunKey.make(Str.repeat(64)("9"));
           const [first] = sealedRun(runKey);
           yield* ledger.appendDecision(first);
           const outcome = sealExecutionOutcome({

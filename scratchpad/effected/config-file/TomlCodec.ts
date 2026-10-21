@@ -1,4 +1,4 @@
-import { Toml } from "../toml/index.ts";
+import { Toml } from "@beep/toml";
 import * as Effect from "effect/Effect";
 import type { ConfigCodec } from "./ConfigCodec.ts";
 import { ConfigCodecError } from "./ConfigCodec.ts";

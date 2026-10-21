@@ -159,7 +159,7 @@ excludes test services so native watch timeouts use the live clock.
 | `ReadSurfaces.test.ts` | Cursor boundaries, time windows, selection before payload decoding, live end, replay/projection, bounded reads and an append forced into the replay/live seam. |
 | `Watcher.test.ts` | Local/external order, chunked Unicode, incomplete external writes, truncation/replacement, missing-file activation and the arming-window catch-up. |
 | `integration/Journal.int.test.ts` | Real concurrent appends, a cooperating foreign writer, reopening/BOM offsets and two layers observing the same file. |
-| `MemFsHelper.test.ts`, `helpers/memfs.ts` | Not copied: these test upstream's private filesystem. The port uses `@beep/test-utils/MemoryFileSystem`; its narrow read barrier suspends before sampling, exercising the bounded-read regression directly. |
+| `MemFsHelper.test.ts`, `helpers/memfs.ts` | Not copied: these test upstream's private filesystem. The port uses `@beep/memfs` (`MemoryFileSystem`), the workspace's single in-memory filesystem; the bounded short-read cases run against it directly. |
 
 The selected tests consolidate overlapping upstream cases. They do not claim
 Windows platform execution, exhaustive watch-backend fault injection, or a full
@@ -779,7 +779,7 @@ allowed cause and were reverted; each test now pins upstream's behaviour):
 None. Upstream has zero runtime dependencies (`effect` is its only peer). At
 runtime the port imports only `effect` and the workspace packages
 `@beep/identity`, `@beep/schema` and `@beep/utils`. Tests use
-`@beep/test-utils/MemoryFileSystem` instead of `@effected/memfs` (D14) and
+`@beep/memfs`, the promoted port of `@effected/memfs` (effected-promotion D-07), and
 `@beep/fc-runs` for property run counts, and the integration group uses
 `@effect/platform-node` as a dev dependency.
 

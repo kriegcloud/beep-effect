@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Hex from "effect/encoding/Hex";
 import * as S from "effect/Schema";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { digestFile, digestFileHex, sha256, sha256Hex } from "../../../effected/github-actions/internal/digest.ts";
 const runs = { arbitrary: fcRuns(100) };
 it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {

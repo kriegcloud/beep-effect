@@ -407,7 +407,7 @@
         ".claude/skills/schema-first-development",
         ".agents/skills/schema-first-development"
       ],
-      "installedTreeHash": "a46949595f8cfaa0b1dc3f52c13332b41ab50812b9a247a047554f06e3e2834b"
+      "installedTreeHash": "9fc057ff22d863fa7343b53d2cc049ade6ce823cc42ade978ab6babc0c4e5a75"
     },
     "shadcn": {
       "_tag": "vendored",

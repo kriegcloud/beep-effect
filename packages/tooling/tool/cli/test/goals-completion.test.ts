@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   compileCapabilityProjection,
   GoalAcceptanceEvidenceRef,
@@ -22,7 +23,6 @@ import {
   readGoalCloseoutViews,
 } from "@beep/repo-cli/test/Goals";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { describe, expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";

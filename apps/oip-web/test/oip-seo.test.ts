@@ -5,6 +5,7 @@ import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import {
   decodeOipSiteContentResult,
   makeJsonLdGraph,
@@ -181,7 +182,7 @@ describe("OipSeo social.active filter (CSF-043)", () => {
 
     expect(seoUrls).toContain("https://www.instagram.com/oip.law/");
     pipe(
-      A.some(seoUrls, (url) => url.includes("discord")),
+      A.some(seoUrls, (url) => Str.includes("discord")(url)),
       assertFalse
     );
     expect(oipTwitterHandle(OipSiteContent.make({ ...oipSiteContent }))).toBe("@opiplaw");

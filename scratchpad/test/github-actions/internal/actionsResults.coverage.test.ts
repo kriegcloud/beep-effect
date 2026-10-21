@@ -14,7 +14,7 @@ import {
   RUNTIME_TOKEN,
   misconfiguredDetail,
 } from "../../../effected/github-actions/internal/actionsResults.ts";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
   const json = S.fromJsonString(S.Unknown);
   it.effect("rejects unreadable claims and malformed scope entries precisely", () =>

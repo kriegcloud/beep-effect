@@ -3,7 +3,7 @@ import * as Path from "effect/Path";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
 import { ChildProcessSpawner } from "effect/process/ChildProcessSpawner";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import type * as CliError from "effect/cli/CliError";
 import type * as Command from "effect/cli/Command";
 import * as Clock from "effect/Clock";

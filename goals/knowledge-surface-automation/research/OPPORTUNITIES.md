@@ -62,7 +62,7 @@ measurement first). Reviewed at each grill.
    Four proof cycles were needed. One failed purely on cross-checkout
    contention: with three other worktrees compiling concurrently (load average
    36 on 64 cores), `quality:build` failed with no-location `TS2589` in
-   `@beep/box`, then `@beep/ui` on the quarantine rerun, and `@beep/xai` in
+   `@beep/box`, then `@beep/ui` on the quarantine rerun, and `retired:xai` in
    `check`. Three different packages in one run — the signature of resource
    exhaustion, not a type error. Re-running `bun run build` alone at load 15
    passed 131/131 with zero `TS2589`.

@@ -1547,15 +1547,15 @@
     "lines": 179
   },
   {
-    "file": "packages/drivers/face-detection/test/FaceDetection.equivalence.test.ts",
-    "package": "@beep/face-detection",
+    "file": "retired:face-detection/test/FaceDetection.equivalence.test.ts",
+    "package": "retired:face-detection",
     "kind": "test",
     "bytes": 1269,
     "lines": 37
   },
   {
-    "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
-    "package": "@beep/face-detection",
+    "file": "retired:face-detection/test/FaceDetection.service.test.ts",
+    "package": "retired:face-detection",
     "kind": "test",
     "bytes": 8655,
     "lines": 242
@@ -1603,22 +1603,22 @@
     "lines": 352
   },
   {
-    "file": "packages/drivers/firecrawl/test/Firecrawl.equivalence.test.ts",
-    "package": "@beep/firecrawl",
+    "file": "retired:firecrawl/test/Firecrawl.equivalence.test.ts",
+    "package": "retired:firecrawl",
     "kind": "test",
     "bytes": 715,
     "lines": 17
   },
   {
-    "file": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
-    "package": "@beep/firecrawl",
+    "file": "retired:firecrawl/test/Firecrawl.service.test.ts",
+    "package": "retired:firecrawl",
     "kind": "test",
     "bytes": 20641,
     "lines": 524
   },
   {
-    "file": "packages/drivers/firecrawl/test/integration/Firecrawl.live.test.ts",
-    "package": "@beep/firecrawl",
+    "file": "retired:firecrawl/test/integration/Firecrawl.live.test.ts",
+    "package": "retired:firecrawl",
     "kind": "test",
     "bytes": 1873,
     "lines": 52
@@ -2212,22 +2212,22 @@
     "lines": 318
   },
   {
-    "file": "packages/drivers/venice-ai/test/VeniceAI.equivalence.test.ts",
-    "package": "@beep/venice-ai",
+    "file": "retired:venice-ai/test/VeniceAI.equivalence.test.ts",
+    "package": "retired:venice-ai",
     "kind": "test",
     "bytes": 595,
     "lines": 17
   },
   {
-    "file": "packages/drivers/venice-ai/test/VeniceAI.service.test.ts",
-    "package": "@beep/venice-ai",
+    "file": "retired:venice-ai/test/VeniceAI.service.test.ts",
+    "package": "retired:venice-ai",
     "kind": "test",
     "bytes": 39954,
     "lines": 1107
   },
   {
-    "file": "packages/drivers/venice-ai/test/integration/VeniceAI.integration.test.ts",
-    "package": "@beep/venice-ai",
+    "file": "retired:venice-ai/test/integration/VeniceAI.integration.test.ts",
+    "package": "retired:venice-ai",
     "kind": "test",
     "bytes": 1708,
     "lines": 51
@@ -2310,15 +2310,15 @@
     "lines": 50
   },
   {
-    "file": "packages/drivers/xai/test/XAi.equivalence.test.ts",
-    "package": "@beep/xai",
+    "file": "retired:xai/test/XAi.equivalence.test.ts",
+    "package": "retired:xai",
     "kind": "test",
     "bytes": 825,
     "lines": 25
   },
   {
-    "file": "packages/drivers/xai/test/XAi.service.test.ts",
-    "package": "@beep/xai",
+    "file": "retired:xai/test/XAi.service.test.ts",
+    "package": "retired:xai",
     "kind": "test",
     "bytes": 28525,
     "lines": 763

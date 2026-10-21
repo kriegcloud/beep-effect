@@ -22,7 +22,6 @@ import {
 } from "../../../internal/cli/FsGuards.ts";
 import { FilesCommandError, formatPlatformError, mapPlatformError, PlatformErrorOptions } from "../Files.errors.ts";
 import { formatIndex, makeStripMetadataTempEntries, selectedCanonicalPathSet } from "../Files.media.ts";
-import { uniqueArchiveTargetName } from "../Files.plan.ts";
 import { FilesConcurrency, runFilesProgressForEach } from "../Files.progress.ts";
 import {
   archivedEntries,
@@ -31,7 +30,6 @@ import {
   renderNormalizeManifest,
 } from "../Files.render.ts";
 import {
-  DetectFacesEntry,
   FileSha256Hash,
   NormalizeManifest,
   NormalizeManifestSummary,
@@ -785,105 +783,6 @@ export const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorC
         })
         .pipe(Effect.ignore)
   );
-});
-
-const withDetectFacesMovedNoFaceTarget = (
-  entry: DetectFacesEntry,
-  targetName: string,
-  targetPath: string,
-  targetRelativePath: string
-): DetectFacesEntry => {
-  const primaryFace = O.fromUndefinedOr(entry.primaryFace);
-  const primaryFaceAreaPct = O.fromUndefinedOr(entry.primaryFaceAreaPct);
-
-  return DetectFacesEntry.make({
-    extension: entry.extension,
-    faceCount: entry.faceCount,
-    faces: entry.faces,
-    flags: entry.flags,
-    hasFace: entry.hasFace,
-    height: entry.height,
-    movedNoFaceName: targetName,
-    movedNoFacePath: targetPath,
-    movedNoFaceRelativePath: targetRelativePath,
-    ...(O.isSome(primaryFace) ? { primaryFace: primaryFace.value } : {}),
-    ...(O.isSome(primaryFaceAreaPct) ? { primaryFaceAreaPct: primaryFaceAreaPct.value } : {}),
-    sourceName: entry.sourceName,
-    sourcePath: entry.sourcePath,
-    width: entry.width,
-  });
-};
-
-/**
- * Move no-face detection entries when requested and annotate report rows.
- *
- * @param entries - Face detection entries.
- * @param moveNoFaceDirectory - Optional target directory.
- * @param progressEnabled - Whether progress output is enabled.
- * @returns Entries with moved target fields when applicable.
- * @category mutations
- * @since 0.0.0
- */
-export const moveDetectFacesNoFaceEntries = Effect.fn("Files.moveDetectFacesNoFaceEntries")(function* (
-  entries: ReadonlyArray<DetectFacesEntry>,
-  moveNoFaceDirectory: O.Option<string>,
-  progressEnabled: boolean
-): Effect.fn.Return<
-  ReadonlyArray<DetectFacesEntry>,
-  FilesCommandError,
-  FileSystem.FileSystem | Path.Path | Terminal.Terminal
-> {
-  if (O.isNone(moveNoFaceDirectory)) {
-    return entries;
-  }
-
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const targetDirectory = moveNoFaceDirectory.value;
-
-  yield* makeDirectoryRecursive(fs, targetDirectory, "Failed to create no-face image move directory");
-
-  let usedTargetNames = HashSet.empty<string>();
-  let movePlans = A.empty<{
-    readonly entry: DetectFacesEntry;
-    readonly targetPath: string;
-  }>();
-  let nextEntries = A.empty<DetectFacesEntry>();
-
-  for (const entry of entries) {
-    if (entry.hasFace) {
-      nextEntries = A.append(nextEntries, entry);
-      continue;
-    }
-
-    const sourceStem = path.basename(entry.sourceName, entry.extension);
-    const archiveTargetName = uniqueArchiveTargetName(sourceStem, entry.extension, usedTargetNames);
-    usedTargetNames = HashSet.add(usedTargetNames, archiveTargetName);
-
-    const targetPath = path.join(targetDirectory, archiveTargetName);
-    const targetRelativePath = path.relative(targetDirectory, targetPath);
-    nextEntries = A.append(
-      nextEntries,
-      withDetectFacesMovedNoFaceTarget(entry, archiveTargetName, targetPath, targetRelativePath)
-    );
-    movePlans = A.append(movePlans, { entry, targetPath });
-  }
-
-  for (const plan of movePlans) {
-    yield* preflightOverwritableFile(plan.targetPath, false, "no-face image target");
-  }
-
-  yield* runFilesProgressForEach(
-    movePlans,
-    ({ entry, targetPath }) => renameOrFail(entry.sourcePath, targetPath, targetDirectory),
-    {
-      concurrency: FilesConcurrency.scan,
-      enabled: progressEnabled,
-      label: "faces move",
-    }
-  );
-
-  return nextEntries;
 });
 
 /**

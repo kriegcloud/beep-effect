@@ -242,7 +242,7 @@
       "bytes": 2835
     },
     {
-      "file": "packages/drivers/face-detection/package.json",
+      "file": "retired:face-detection/package.json",
       "sha256": "dc2b3836e0bf424d9ec3043480b9b2b55003650a6e56da21548be593abd08f50",
       "bytes": 2950
     },
@@ -252,7 +252,7 @@
       "bytes": 2903
     },
     {
-      "file": "packages/drivers/firecrawl/package.json",
+      "file": "retired:firecrawl/package.json",
       "sha256": "f52dd4da87c4a1d73073e5f200301b48ee29b2de861d36340a39ac0e28db431d",
       "bytes": 2796
     },
@@ -402,7 +402,7 @@
       "bytes": 2740
     },
     {
-      "file": "packages/drivers/venice-ai/package.json",
+      "file": "retired:venice-ai/package.json",
       "sha256": "37478aee8c5232da50eb1344fa2b85395e5ad32f7d008c09e1907dc54b61f5e2",
       "bytes": 2785
     },
@@ -412,7 +412,7 @@
       "bytes": 2961
     },
     {
-      "file": "packages/drivers/xai/package.json",
+      "file": "retired:xai/package.json",
       "sha256": "557a98a3424526719c18ed086d91857e137cf7885fd11876fdae2a2cf4d82d06",
       "bytes": 2813
     },

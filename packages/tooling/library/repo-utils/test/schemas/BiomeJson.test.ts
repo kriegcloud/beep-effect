@@ -1,7 +1,7 @@
 import * as NodeURL from "node:url";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";

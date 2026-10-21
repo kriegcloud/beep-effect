@@ -587,18 +587,17 @@ export const resolveGoldQuoteAnchor: {
   );
 });
 
-const proposeJob = Effect.fn("Gold.proposeJob")(function* (
+// Everything one job needs before any file is touched: the canonical text and the decoded proposal.
+// Replay is cache-only, so a missing entry or invalid output fails here, before the run writes.
+const generateJobProposal = Effect.fn("Gold.generateJobProposal")(function* (
   selection: DocumentSelection,
-  job: GoldJob,
-  outputDirectory: string
+  job: GoldJob
 ) {
   const source = yield* DocumentSource;
   const parser = yield* Parser;
   const canonicalizer = yield* Canonicalizer;
   const languageModel = yield* LanguageModel.LanguageModel;
-  const proposer = yield* ActiveModelIdentity;
   const config = yield* LabConfig;
-  const path = yield* Path.Path;
 
   const documents = yield* source
     .list(DocumentSelection.make({ ...selection, paper: O.some(job.paperId) }))
@@ -642,6 +641,16 @@ const proposeJob = Effect.fn("Gold.proposeJob")(function* (
       )
     );
   const proposed = yield* decodeProposal(job.subset, response.text);
+  return { canonical, job, proposed };
+});
+
+const writeJobProposal = Effect.fn("Gold.writeJobProposal")(function* (
+  { canonical, job, proposed }: Effect.Success<ReturnType<typeof generateJobProposal>>,
+  outputDirectory: string
+) {
+  const canonicalizer = yield* Canonicalizer;
+  const proposer = yield* ActiveModelIdentity;
+  const path = yield* Path.Path;
   const entityLabels = Str.Equivalence(job.subset, "relation")
     ? yield* entityLabelsFor(outputDirectory, job.paperId, canonical.text)
     : [];
@@ -715,6 +724,10 @@ const proposeJob = Effect.fn("Gold.proposeJob")(function* (
  * `verified: false`; Benjamin's later spot check is the only workflow allowed
  * to change that marker or `spotCheckedFraction`.
  *
+ * Every selected job is generated before anything is written, so a provider
+ * failure or replay-cache miss leaves the existing `gold.json` and label files
+ * untouched.
+ *
  * **Example** (Build a proposal effect)
  *
  * ```ts
@@ -760,6 +773,9 @@ export const proposeGold = Effect.fn("Gold.propose")(function* (
   const completeRun = O.isNone(options.paper) && O.isNone(options.subset);
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  // Generate every selected proposal first: a replay miss in a checkout without the local provider
+  // cache must fail before the committed gold.json is invalidated or any label file is rewritten.
+  const generated = yield* Effect.forEach(jobs, (job) => generateJobProposal(selection, job), { concurrency: 1 });
   yield* fs
     .remove(path.join(options.outputDirectory, "gold.json"), { force: true })
     .pipe(
@@ -767,7 +783,7 @@ export const proposeGold = Effect.fn("Gold.propose")(function* (
         unavailable("write-failed", "The existing gold reference could not be invalidated before label writes.")
       )
     );
-  const proposed = yield* Effect.forEach(jobs, (job) => proposeJob(selection, job, options.outputDirectory), {
+  const proposed = yield* Effect.forEach(generated, (proposal) => writeJobProposal(proposal, options.outputDirectory), {
     concurrency: 1,
   });
   const accepted = A.reduce(proposed, 0, (count, item) => count + item.accepted);

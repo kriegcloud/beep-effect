@@ -12,7 +12,7 @@ import { Str } from "@beep/utils";
 import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { ArrowSquareOutIcon, InfoIcon } from "@phosphor-icons/react";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -131,9 +131,9 @@ const linkPreviewObserverAtom = Atom.family((instanceId: string) =>
 const linkPreviewFetchAtom = Atom.family((key: string) =>
   Atom.make((get) => {
     let disposed = false;
-    const separatorIndex = key.indexOf("\n");
-    const instanceId = key.slice(0, separatorIndex);
-    const href = key.slice(separatorIndex + 1);
+    const separatorIndex = O.getOrElse(constant(-1))(Str.indexOf("\n")(key));
+    const instanceId = Str.slice(0, separatorIndex)(key);
+    const href = Str.slice(separatorIndex + 1)(key);
 
     const maybeFetch = () => {
       const instanceState = get.once(linkPreviewInstanceStateAtom(instanceId));

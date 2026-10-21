@@ -34,7 +34,7 @@ import type {
 } from "@beep/epistemic-tables/values/ExecutionRecord";
 import type { Table } from "drizzle-orm";
 
-const digest = (fill: string): string => fill.repeat(64);
+const digest = (fill: string): string => Str.repeat(64)(fill);
 
 // A selected row always carries every column; the insert projection leaves the
 // nullable ones optional, so the row shape fills them with the null the

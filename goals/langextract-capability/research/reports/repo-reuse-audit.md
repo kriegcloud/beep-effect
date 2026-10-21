@@ -13,7 +13,7 @@ Status: completed from export-catalog search, packet files, standards, and sourc
 - `@beep/nlp/Core/Token.ts` already defines branded non-negative character offsets through `CharPosition`, plus token models with half-open `start` and `end` offsets.
 - `@beep/nlp/Core/Document.ts` already defines a document model with `id`, `text`, `tokens`, `sentences`, and helpers such as token range lookup.
 - `@beep/file-processing/Extraction` already has a `TextSpan`, but its offsets are explicitly byte or character offsets supplied by an engine. It is not a canonical source-grounded NLP character span.
-- Provider-specific language model construction already lives in driver packages such as `@beep/openai-compat`, `@beep/xai`, and `@beep/venice-ai`.
+- Provider-specific language model construction already lives in driver packages such as `@beep/openai-compat`, `retired:xai`, and `retired:venice-ai`.
 - Existing drivers adapt provider clients into `effect/ai/LanguageModel` layers; `@beep/langextract` can consume that injected service without importing drivers.
 
 ## Evidence
@@ -24,7 +24,7 @@ Status: completed from export-catalog search, packet files, standards, and sourc
 - Existing NLP package exports and dependency shape: `packages/foundation/capability/nlp/package.json`.
 - Existing NLP consumer policy: `packages/foundation/capability/nlp/README.md`.
 - Existing file-processing span: `packages/foundation/capability/file-processing/src/Extraction/index.ts`.
-- Existing provider language model adapters: `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts`, `packages/drivers/xai/src/XAiLanguageModel.service.ts`, and `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts`.
+- Existing provider language model adapters: `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts`, `retired:xai/src/XAiLanguageModel.service.ts`, and `retired:venice-ai/src/VeniceAiLanguageModel.service.ts`.
 
 ## Classifications
 

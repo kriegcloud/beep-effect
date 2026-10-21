@@ -706,7 +706,7 @@ If budget is one sprint: implement **A + D** over existing `TaxonomyLoader`/`Reg
 
 ## 13. Open questions for the packet
 
-1. **IRI strategy:** map FOLIO IRIs 1:1 as external identifiers on beep concepts, or mint `https://ns.beep.sh/…` with `skos:exactMatch` / `owl:sameAs` to FOLIO?
+1. **IRI strategy:** map FOLIO IRIs 1:1 as external identifiers on beep concepts, or mint `https://beep-effect.com/ns/…` with `skos:exactMatch` / `owl:sameAs` to FOLIO?
 2. **Which UTBMS PA\* depth to vendor?** Full PA tree vs PA300/PA400 only?
 3. **Dual SALI/FOLIO:** is any client already on SALI API IRIs that must round-trip?
 4. **MCP host language:** TS Effect in-repo vs Python sidecar?

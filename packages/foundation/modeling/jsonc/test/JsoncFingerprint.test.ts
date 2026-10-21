@@ -13,7 +13,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { sha256, toHex } from "./fixtures/Sha256.ts";
+import { sha256, toHex } from "./support/Sha256.ts";
 import type { JsoncDigest } from "@beep/jsonc";
 
 // A real SHA-256 backend over WebCrypto, wired through core's Crypto.make so

@@ -1,4 +1,5 @@
 import * as NodeURL from "node:url";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import {
   getWorkspaceDir,
@@ -7,7 +8,6 @@ import {
   workspaceGlobsFrom,
 } from "@beep/repo-utils/Workspaces";
 import { it as rootIt } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect } from "@effect/vitest";

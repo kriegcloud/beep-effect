@@ -1,4 +1,5 @@
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   AiMetricsDeployTarget,
   AiMetricsDerivedStorageWriteInput,
@@ -24,7 +25,6 @@ import {
 } from "@beep/repo-ai-metrics";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -33,9 +33,10 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
-const stampX = HarnessHash.make("b".repeat(64));
-const stampY = HarnessHash.make("c".repeat(64));
+const stampX = HarnessHash.make(Str.repeat(64)("b"));
+const stampY = HarnessHash.make(Str.repeat(64)("c"));
 
 const decodeRecord = S.decodeUnknownEffect(AiMetricsDerivedTranscriptRecord);
 const encodeRecord = S.encodeEffect(AiMetricsDerivedTranscriptRecord);
@@ -80,11 +81,11 @@ const makeRecord = Effect.fn("SessionStampEvidenceTest.makeRecord")(function* (v
   return AiMetricsDerivedTranscriptRecord.make({
     archiveObject: AiMetricsRawArchiveObject.make({
       algorithm: "AES-256-GCM",
-      archiveObjectId: `raw-${"1".repeat(64)}`,
+      archiveObjectId: `raw-${Str.repeat(64)("1")}`,
       archivePath: "/fixture/metrics/raw/codex/raw-object.json",
       created: false,
       encryptedAtEpochMillis: 1,
-      plaintextContentHash: "2".repeat(64),
+      plaintextContentHash: Str.repeat(64)("2"),
       sourceKind: AiMetricsTranscriptSource.Enum.codex,
       sourcePathHash: summary.sourcePathHash,
     }),

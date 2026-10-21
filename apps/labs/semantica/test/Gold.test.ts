@@ -5,6 +5,7 @@ import * as BunServices from "@effect/platform-bun/BunServices";
 import { describe, expect } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as AiError from "effect/ai/AiError";
 import * as LanguageModel from "effect/ai/LanguageModel";
 import * as Response from "effect/ai/Response";
 import * as Command from "effect/cli/Command";
@@ -24,7 +25,7 @@ import { GOLD_SUBSETS, GoldArtifactSemantics, proposeGold, resolveGoldQuoteAncho
 import { CorpusManifest, CorpusPaperId } from "@/corpus/Manifest";
 import { CorpusManifestBuilder } from "@/corpus/ManifestBuilder";
 import { F1Catalog, F1Index } from "@/fixtures/F1";
-import { GOLD_PROMPT_ARTIFACT_HASH } from "@/gold/Prompts";
+import { GOLD_PROMPT_ARTIFACT_HASH, GOLD_V1_PROPOSER_IDENTITY } from "@/gold/Prompts";
 import { CanonicalizerLive } from "@/layers/CanonicalizerLive";
 import { ActiveModelIdentityLive, promptText } from "@/layers/LanguageModelLive";
 import { LabConfig } from "@/runtime/Config";
@@ -129,7 +130,8 @@ const makeGoldTestLayer = (
   manifest: CorpusManifest,
   fixtures: F1Index,
   goldGenerationTimeout = Duration.minutes(45),
-  stallGeneration = false
+  stallGeneration = false,
+  missRelationReplay = false
 ) => {
   const documentId = DocumentId.make(sourceDigest);
   const documentFor = (paperId: CorpusPaperId) =>
@@ -183,11 +185,19 @@ const makeGoldTestLayer = (
       generateText: (options) =>
         stallGeneration
           ? Effect.never
-          : Effect.succeed([
-              Response.makePart("text", {
-                text: proposalForPrompt(options.prompt.pipe(promptText)),
-              }),
-            ]),
+          : missRelationReplay && Str.includes("\nSUBSET=relation\nSOURCE_TEXT_BEGIN")(options.prompt.pipe(promptText))
+            ? Effect.fail(
+                AiError.AiError.make({
+                  method: "generateText",
+                  module: "GoldTest",
+                  reason: AiError.UnknownError.make({ description: "The relation replay entry is absent." }),
+                })
+              )
+            : Effect.succeed([
+                Response.makePart("text", {
+                  text: proposalForPrompt(options.prompt.pipe(promptText)),
+                }),
+              ]),
       streamText: () => Stream.empty,
     })
   );
@@ -211,7 +221,6 @@ const makeGoldTestLayer = (
         extractorModel: "stub-extractor-20260826",
         goldDirectory: "fixtures/gold/v1",
         goldGenerationTimeout,
-        goldModel: "stub-gold-20260826",
         ledgerRoot: ".beep/semantica/ledger",
         mode: "replay",
         offline: true,
@@ -293,6 +302,34 @@ describe("C0 gold proposer", () => {
             abstractLabels,
             (label) => label.verified && N.Equivalence(N.subtract(label.endChar, label.startChar), 8)
           ),
+          assertTrue
+        );
+      })
+    );
+
+    it.effect("records the frozen gold-v1 proposer identity in every committed file", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const expected = yield* ModelIdentity.encodeEffect(GOLD_V1_PROPOSER_IDENTITY);
+        const reference = yield* fs
+          .readFileString("fixtures/gold/v1/gold.json")
+          .pipe(Effect.flatMap(decodeGoldRefJson));
+        const files = yield* Effect.forEach(
+          GOLD_SUBSETS,
+          (subset) =>
+            Effect.forEach(reference.subsets[subset], (paperId) =>
+              fs
+                .readFileString(`fixtures/gold/v1/${paperId}.${subset}.json`)
+                .pipe(Effect.flatMap(decodeGoldFileEncodedJson))
+            ),
+          { concurrency: 1 }
+        ).pipe(Effect.map(A.flatten));
+
+        expect(GOLD_V1_PROPOSER_IDENTITY.artifactHash).toBe(GOLD_PROMPT_ARTIFACT_HASH);
+        expect(yield* ModelIdentity.encodeEffect(reference.proposer)).toEqual(expected);
+        expect(files).toHaveLength(18);
+        pipe(
+          A.every(files, (file) => GoldArtifactSemantics.modelIdentityEquivalence(file.proposer, expected)),
           assertTrue
         );
       })
@@ -498,6 +535,48 @@ describe("C0 gold proposer", () => {
   });
 
   it.layer(BunServices.layer, { timeout: "30 seconds", excludeTestServices: true })((it) => {
+    it.effect("leaves gold.json and label files untouched when a selected replay misses", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const manifest = yield* fs
+          .readFileString("fixtures/w1.manifest.json")
+          .pipe(Effect.flatMap(decodeCorpusManifestJson));
+        const fixtures = yield* fs.readFileString("fixtures/f1/index.json").pipe(Effect.flatMap(decodeF1IndexJson));
+        const outputDirectory = yield* fs.makeTempDirectoryScoped({ prefix: "semantica-gold-miss-" });
+        yield* provideScopedLayer(makeGoldTestLayer(manifest, fixtures))(
+          proposeGold({
+            manifestPath: "stub.manifest.json",
+            outputDirectory,
+            paper: O.none(),
+            subset: O.none(),
+          })
+        );
+        const referencePath = path.join(outputDirectory, "gold.json");
+        const reference = yield* fs.readFileString(referencePath);
+        const labelPath = path.join(outputDirectory, `${A.getUnsafe(manifest.rows, 0).id}.structure.json`);
+        yield* fs.writeFileString(labelPath, "sentinel\n");
+
+        const error = yield* provideScopedLayer(
+          makeGoldTestLayer(manifest, fixtures, Duration.minutes(45), false, true)
+        )(
+          proposeGold({
+            manifestPath: "stub.manifest.json",
+            outputDirectory,
+            paper: O.none(),
+            subset: O.none(),
+          })
+        ).pipe(Effect.flip);
+
+        expect(error).toBeInstanceOf(GoldUnavailable);
+        expect(error.reason).toBe("provider-failed");
+        expect(yield* fs.readFileString(referencePath)).toBe(reference);
+        expect(yield* fs.readFileString(labelPath)).toBe("sentinel\n");
+      })
+    );
+  });
+
+  it.layer(BunServices.layer, { timeout: "30 seconds", excludeTestServices: true })((it) => {
     it.effect("fails with mixed-proposer when one complete-set file is stale", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -561,7 +640,7 @@ describe("C0 gold proposer", () => {
           version: "0.0.0",
         });
         const error = yield* provideScopedLayer(makeGoldTestLayer(manifest, fixtures))(
-          runCanary(["gold", "propose", "--offline", "--paper", paperId, "--subset", "entity"]).pipe(
+          runCanary(["gold", "propose", "--paper", paperId, "--subset", "entity"]).pipe(
             Effect.provideService(CanaryC0, unusedCanaryC0),
             Effect.provideService(CanaryC1, unusedCanaryC1),
             Effect.provideService(CanaryC2, unusedCanaryC2),

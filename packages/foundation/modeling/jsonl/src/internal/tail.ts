@@ -213,7 +213,7 @@ const readWindow: {
  * **Example** (Hold an unfinished multi-byte suffix)
  * ```ts
  * import { readRangeWindow } from "@beep/jsonl/internal/tail";
- * import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+ * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
  * import * as Effect from "effect/Effect";
  * const program = Effect.gen(function* () {
  *   const fs = yield* MemoryFileSystem.make;
@@ -315,7 +315,7 @@ export class SampledRange extends S.Opaque<SampledRange, { readonly brand: uniqu
  * **Example** (Fail a page the file no longer holds)
  * ```ts
  * import { readSampledWindow } from "@beep/jsonl/internal/tail";
- * import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+ * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
  * import * as Effect from "effect/Effect";
  * const program = Effect.gen(function* () {
  *   const fs = yield* MemoryFileSystem.make;
@@ -378,7 +378,7 @@ export const readSampledWindow: {
  * **Example** (Read a BOM width through an open handle)
  * ```ts
  * import { handleBomBytes } from "@beep/jsonl/internal/tail";
- * import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+ * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
  * import * as Effect from "effect/Effect";
  * const program = Effect.gen(function* () {
  *   const fs = yield* MemoryFileSystem.make;
@@ -420,7 +420,7 @@ export const handleBomBytes: (file: FileSystem.File) => Effect.Effect<number, Pl
  *
  * ```ts
  * import { probeBomBytes } from "@beep/jsonl/internal/tail";
- * import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+ * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
  * import * as Effect from "effect/Effect";
  * const program = Effect.gen(function* () {
  *   const fs = yield* MemoryFileSystem.make;
@@ -482,7 +482,7 @@ export const probeBomBytes: {
  *
  * ```ts
  * import { readTail } from "@beep/jsonl/internal/tail";
- * import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+ * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
  * import * as Effect from "effect/Effect";
  * const program = Effect.gen(function* () {
  *   const fs = yield* MemoryFileSystem.make;
@@ -544,7 +544,7 @@ export const readTail: {
  *
  * ```ts
  * import { readTailUntil } from "@beep/jsonl/internal/tail";
- * import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+ * import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
  * import { Line } from "@beep/jsonl/Line";
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";

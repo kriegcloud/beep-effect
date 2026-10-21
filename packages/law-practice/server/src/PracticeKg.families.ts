@@ -377,7 +377,7 @@ const withPathEvidence = (row: PracticeKgCatalogRow): PracticeKgCatalogRow => {
     O.match({
       onNone: () => row,
       onSome: (docket) => {
-        const docketFamily = docket.replace(afterFamilyPattern, "");
+        const docketFamily = Str.replace(afterFamilyPattern, "")(docket);
         return PracticeKgCatalogRow.make({
           ...row,
           category: "docket",

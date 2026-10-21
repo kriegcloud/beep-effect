@@ -1,4 +1,11 @@
 [default.extend-words]
+# @beep/glob keeps minimatch's upstream method name (adjascentGlobstarOptimize) and
+# the glob test vectors "abd"; "compilability" is a glob design term. The
+# @beep/yaml lexer tests name an anchor "anc".
+adjascent = "adjascent"
+abd = "abd"
+compilability = "compilability"
+anc = "anc"
 # @beep/commands quotes "raison d'etre"; @beep/schema-org tests reference the
 # vendored vocabulary's "fnd" namespace.
 raison = "raison"
@@ -97,6 +104,10 @@ metalness = "metalness"
 
 [files]
 extend-exclude = [
+  # Vendored conformance suites promoted from the effected kit: byte-faithful
+  # upstream text (yaml-test-suite, toml-test).
+  "packages/foundation/modeling/yaml/test/fixtures/yaml-test-suite/**",
+  "packages/foundation/modeling/toml/test/fixtures/toml-test/**",
   # Vendored data lists promoted from the effected kit: byte-faithful upstream
   # text (the schema.org vocabulary, the SPDX license and exception lists).
   "packages/foundation/modeling/schema-org/src/internal/vocabulary.ts",
@@ -152,8 +163,6 @@ extend-exclude = [
   "packages/law-practice/domain/src/internal/generated/free-law-project/**",
   "**/src-tauri/gen/**",
   "**/src-tauri/target/**",
-  "packages/drivers/venice-ai/swagger.yaml",
-  "packages/drivers/venice-ai/test/fixtures/swagger.json",
   # Vendored, version-pinned WHATWG/webref spec data for @beep/html (see data/SOURCES.md).
   "packages/foundation/modeling/html/data/**",
   # Generated registered BCP 47 subtags are machine-owned identifiers, not prose.

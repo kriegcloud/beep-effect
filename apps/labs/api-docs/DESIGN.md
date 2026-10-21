@@ -88,7 +88,6 @@ Spec entries (committed files, served as-is):
 | `runpod` | consumed | `packages/drivers/runpod/openapi.json` | openapi-3.0, json (pre-patch source; say so in description) |
 | `ecfr-source` | consumed | `packages/drivers/ecfr/openapi.json` | swagger-2.0, json (hand-maintained source of the `ecfr` contract entry — description should say "compare with /apis/ecfr/docs") |
 | `acp` | consumed | `packages/drivers/acp/spec/schema.unstable.json` | json-schema-2020-12 — raw link only, NO Scalar page (Scalar renders OpenAPI, not bare JSON Schema) |
-| `venice-ai` | consumed | `packages/drivers/venice-ai/swagger.yaml` | read the file's `openapi:`/`swagger:` field to pick the dialect; yaml format |
 
 Deferred by decision: oip-web contact (apps publish no API); govinfo generated
 oracle stays private (`govinfo-full` spec covers it).
@@ -124,9 +123,9 @@ readable without JS.
 
 1. `bun run check`, `bun run test`, `bun run lint` green in this app.
 2. Touched driver packages typecheck green.
-3. Boot via the diagnostic bypass; curl and confirm: `/` lists all 9 entries;
+3. Boot via the diagnostic bypass; curl and confirm: `/` lists all 8 entries;
    `/apis/qa-collector/docs` returns Scalar HTML; `/apis/qa-collector/openapi.json`
    is valid JSON with the collector paths un-prefixed; `/apis/govinfo-full/openapi.json`
-   serves the committed file; `/apis/venice-ai/docs` returns the self-only CSP
+   serves the committed file; `/apis/govinfo-full/docs` returns the self-only CSP
    embed page and loads the installed version-pinned Scalar asset from the same origin;
    `/apis/acp/openapi.json` serves the JSON Schema and no acp docs page exists.

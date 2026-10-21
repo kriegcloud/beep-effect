@@ -1,4 +1,5 @@
 import { M365AuthorizationRequest } from "@beep/m365";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   M365_TOKEN_CACHE_SEGMENTS,
   M365SignIn,
@@ -8,7 +9,6 @@ import {
 import { SystemBrowser } from "@beep/practice-gateway/SystemBrowser";
 import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { WindowsSecretStore } from "@beep/windows-secrets";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";

@@ -7,8 +7,8 @@ import {
   WriteTagsRequest,
   WriteXmpPacketRequest,
 } from "@beep/exiftool";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { A, Str } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";

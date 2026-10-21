@@ -48,7 +48,6 @@ export const wikilinkFor: {
  */
 export const printResearchIndex = printLines([
   "Research commands:",
-  "- bun run beep research capture <url> --tags effect,schema",
   "- bun run beep research history-sift --since-days 7 --browser all",
   "- bun run beep research repo-card --research-root ~/YeeBois/research --stars",
   '- bun run beep research notion-pull --page <page-id> (or --database "Awesome X Posts" / --links-file file.json)',

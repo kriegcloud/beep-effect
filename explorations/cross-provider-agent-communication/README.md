@@ -60,6 +60,8 @@ gates remain explicit in [MAP.md](MAP.md). No alignment question blocks these go
 7. [Decisions](DECISIONS.md), [brief](BRIEF.md), and [candidate goals](MAP.md).
 8. [Source and license ledger](research/SOURCES.md).
 9. [Executed capability spike](research/spike/README.md).
+10. [Attorney-PC Codex bridge, 2026-10-21](research/2026-10-21-codex-remote-control-bridge.md):
+    loopback app-server over SSH qualified; the remote-control relay refuted for CLI use.
 
 ## Validation
 
@@ -85,6 +87,12 @@ for their separate evidence boundaries.
 
 ## Trail
 
+- 2026-10-21: Qualified a direct Codex bridge to the attorney PC (operator
+  ruling S42): a loopback `codex app-server` WebSocket listener started over SSH,
+  reached through an SSH tunnel with a capability token; `codex queue` by UUID and
+  a one-shot ask client both returned `PONG` under explicit `never`/`readOnly`.
+  `codex remote-control` is the OpenAI relay for app clients and is not a CLI
+  transport. Stage and status unchanged; see the dated research note and decision.
 - 2026-10-09: Operator authorized graduation and implementation. Both promised-now
   goals exist with source provenance; app, browser, role and federation gates
   remain queued. The implementation lane merged origin/main at `7febc0287b`.
@@ -112,7 +120,7 @@ for their separate evidence boundaries.
 
 ## Next Open Question
 
-No blocking admission question remains. Implement the approved attached T3 slice in the bridge goal; qualify the policy-race boundary and real delegated audit before marking it achieved.
+No blocking admission question remains. Implement the approved attached T3 slice in the bridge goal; qualify the policy-race boundary and real delegated audit before marking it achieved. For the attorney-PC Codex bridge, the open question is whether to keep the loopback listener standing and harden its MCP/plugin surface for inert bridge threads, or start it per task; the probe left it stopped.
 
 - 2026-10-09: T3 enrollment gate fired; reopened at decompose and admitted the bridge extension. New driver, attached-host composition and scoped peer CLI are approved; global role handoff remains deferred.
 

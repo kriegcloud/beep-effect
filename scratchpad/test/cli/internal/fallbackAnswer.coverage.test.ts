@@ -5,7 +5,7 @@ import * as CliError from "effect/cli/CliError";
 import * as Path from "effect/Path";
 import * as Layer from "effect/Layer";
 import { TestTerminal } from "../../../effected/cli/testing.ts";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { answerWithoutPerson } from "../../../effected/cli/internal/fallbackAnswer.ts";
 
 it.effect("an explicitly undefined default still reports the missing argument or flag", () => Effect.gen(function* () {

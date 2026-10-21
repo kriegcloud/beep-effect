@@ -30,9 +30,17 @@ extractor or import a new derivation with its own provenance.
 
 Qualification performs actual source acquisition. An installed executable, a
 configured MCP server, and a successful provider request are insufficient: the
-target source, returned content, and completeness must also pass. Firecrawl uses
-the existing `@beep/firecrawl` service and its configured credential route. Keep
-secret values out of commands, logs, import manifests, and packet documents.
+target source, returned content, and completeness must also pass. Keep secret
+values out of commands, logs, import manifests, and packet documents.
+
+Web, docs, and registry sources have no acquisition route, because the repository
+has no web scraper. `acquire` gives them an unsupported `disposition` receipt that
+points to `import-result`, and `qualify` never probes a web route. To read one of
+these sources, scrape it with a session tool and import the result (see
+[Session-owned provider results](#session-owned-provider-results)), or record a
+reviewed disposition. Captures and the qualification receipt from the removed
+`firecrawl` route remain valid. `verify`, `status`, and `render` still check them
+against their retained response, HTML, and Markdown.
 
 Acquisition retains a start receipt before each attempt and records its terminal
 result. Qualified routes can progress independently. Inspect failed receipts
@@ -40,7 +48,8 @@ before using `--retry-failed`; do not repeatedly retry an unavailable source or
 mistake a provider outage for source unavailability. `--source <source-id>` selects
 a source for a bounded retry. A valid reviewed disposition survives a blanket
 `--retry-failed` run. An explicit source selection can force a reviewed network
-route; X imports and unresolved disposition routes remain explicit imports.
+route; X imports, web sources, and unresolved disposition routes remain explicit
+imports.
 Concurrency is bounded from 1 through 8. GitHub operations are sequential within
 one repository and concurrent across repository groups; catalog writes share one
 writer. `qualify --adapter <adapter> --source <source-id> --max-probes <1..3>`
@@ -77,11 +86,21 @@ never infer a version number.
 ## Session-owned provider results
 
 Use `import-result <manifest-file>` for evidence obtained through a session tool,
-including alphaXiv full text and Grok Build. Artifact entries identify local
-original files by path, byte count, media type, role, and full SHA-256. The importer
-checks identity and hashes before admitting them. Keep interpretations separate
-from raw source text. The maintained import schemas are in
+including alphaXiv full text, Grok Build, and web scrapes. Artifact entries identify
+local original files by path, byte count, media type, role, and full SHA-256. The
+importer checks identity and hashes before admitting them. Keep interpretations
+separate from raw source text. The maintained import schemas are in
 `Library/Library.import.ts`; the acquisition tests provide validated envelopes.
+
+A web, docs, registry, or endpoint scrape imports with method and provider
+`firecrawl` and three originals: the scrape response as `raw-response`, the page
+HTML as `raw-full-text`, and its Markdown as `extracted-full-text`. The response
+must have the shape
+`{"data": {"markdown", "rawHtml", "metadata": {"sourceURL", "statusCode"}}}`. The
+capture becomes readable only when the status is 2xx, `sourceURL` matches the cited
+URL, and both full-text files equal the response's `rawHtml` and `markdown`. A
+`target-metadata` redirect proof can bind a resolved URL that differs from the
+cited one.
 
 Grok research must dispatch the literal `/deep-research` workflow and retain both
 launch and completion evidence. An ordinary model answer is insufficient. Grok

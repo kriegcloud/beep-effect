@@ -50,7 +50,7 @@
       "lines": [718, 1181, 1220]
     },
     {
-      "file": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+      "file": "retired:firecrawl/test/Firecrawl.service.test.ts",
       "count": 3,
       "lines": [419, 452, 506]
     },

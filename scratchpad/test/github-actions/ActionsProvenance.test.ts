@@ -1,6 +1,6 @@
 // @effect-diagnostics strictEffectProvide:skip-file
 import { assert, describe, it } from "@effect/vitest";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { SlsaProvenance } from "../../effected/sbom/index.ts";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

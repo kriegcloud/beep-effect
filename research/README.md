@@ -14,7 +14,7 @@ front end) and from the private out-of-repo knowledge vault managed by the
 | `research/<YYYY-MM-DD>/` | One immutable packet per run (ISO dates: lexicographic order is chronological). |
 | `research/<date>/REPORT.md` | Delta-first report — leads with what changed since the last run (new / moved / contradicted / settled); topical narrative is the appendix. |
 | `research/<date>/SOURCES.md` | Quarantined evidence: short, fenced, quoted, sanitized excerpts with canonical links (x.com posts, GitHub repos, arXiv, web). |
-| `research/<date>/SUGGESTED_ACTIONS.md` | Proposed actions, each carrying an executable capture command. Proposals only — see Laws. |
+| `research/<date>/SUGGESTED_ACTIONS.md` | Proposed actions, each naming its source URL and an admission path. Proposals only — see Laws. Packets written before 2026-10-21 carry `bun run beep research capture` lines; that command was removed, so admit those sources as described under Laws. |
 | `research/<date>/PROMPT.md` | Ready-to-fire kickoff prompt(s) for actioning items immediately. |
 | `research/<date>/claims.jsonl` | Schema-validated structured findings — the packet's truth. |
 | `research/<date>/RUN.json` | Run status (`success` / `partial` / `timed-out`), research window, usage per quota pool, novelty metrics, `frictions[]`. |
@@ -40,8 +40,11 @@ front end) and from the private out-of-repo knowledge vault managed by the
   publisher touches this tree, scoped to the new packet dir plus
   `research/ledger/`.
 - **Machine proposes, human admits:** nothing here auto-appends to
-  `explorations/INBOX.md` or `goals/`. Actions graduate when a human fires a
-  capture command from `SUGGESTED_ACTIONS.md`.
+  `explorations/INBOX.md` or `goals/`. Actions graduate when a human admits a
+  source from `SUGGESTED_ACTIONS.md`: scrape it with a session tool and run
+  `bun run beep research library import-result <result-file>` (see
+  `docs/runbooks/research-library.md`), or add the card through
+  `research notion-pull`.
 - **No explorations ceremony:** no `ops/manifest.json`, no ATLAS sync, no
   reflections requirement. `RUN.json.frictions[]` is the friction-receipt
   surface; the weekly consolidation rolls recurring frictions up for a human.
@@ -65,7 +68,6 @@ inject`) rather than pasting values into the repo or a transcript.
 | `COGNEE_API_EMAIL` | Cognee login | Cognee's default user email |
 | `COGNEE_API_PASSWORD` | Cognee login | Cognee's default user password |
 | `NOTION_API_KEY` | daily `notion-pull` step (`--page`), `research notion-pull` | notion-pull fails |
-| `FIRECRAWL_API_KEY` | `research capture` | capture fails |
 | `BEEP_KNOWLEDGE_VAULT` | every vault command | vault defaults to `$HOME/YeeBois/knowledge` |
 
 A configured `COGNEE_API_URL` whose server is down is reported as a failed

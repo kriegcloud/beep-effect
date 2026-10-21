@@ -1,4 +1,5 @@
 import { CapabilitySupported, PracticeProfile } from "@beep/law-practice-domain";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   BOX_READ_MAX_CHARACTERS,
   BoxDocument,
@@ -11,7 +12,6 @@ import {
 import { ProfileStore } from "@beep/practice-gateway/ProfileStore";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue, deepStrictEqual } from "@effect/vitest/utils";
@@ -27,6 +27,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { fakeHost, gapProfile, itLimits, settingsLayer } from "./fixtures.ts";
 
@@ -55,7 +56,7 @@ const userFolder = Effect.gen(function* () {
   yield* fs.writeFileString(path.join(home, "Private", "secret.txt"), "not for Claude");
   yield* fs.writeFileString(path.join(box, "Clients", "Smith", "notes.md"), "# Smith\nFiling due Friday.");
   yield* fs.writeFileString(path.join(box, "readme.txt"), "Box root file");
-  yield* fs.writeFileString(path.join(box, "long.txt"), "x".repeat(BOX_READ_MAX_CHARACTERS + 10));
+  yield* fs.writeFileString(path.join(box, "long.txt"), Str.repeat(BOX_READ_MAX_CHARACTERS + 10)("x"));
   yield* fs.writeFile(path.join(box, "Clients", "Smith", "letter.pdf"), yield* makePdf("Dear Ms Smith"));
   yield* fs.writeFile(path.join(box, "photo.png"), new Uint8Array([137, 80, 78, 71]));
   yield* fs.symlink(path.join(home, "Private"), path.join(box, "escape"));

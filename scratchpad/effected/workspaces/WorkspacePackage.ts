@@ -9,7 +9,7 @@
 
 import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { GlobPattern } from "../glob/index.ts";
+import { GlobPattern } from "@beep/glob";
 import { WorkspaceManifest } from "../lockfiles/index.ts";
 import { Package } from "../package-json/index.ts";
 import type * as PlatformError from "effect/PlatformError";

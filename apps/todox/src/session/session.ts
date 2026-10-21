@@ -9,6 +9,7 @@
  * @since 0.0.0
  */
 
+import * as Str from "effect/String";
 import {
   ApprovalGate,
   Chain,
@@ -535,7 +536,7 @@ const question = (no: string, text: string, span: SpanRef["span"]): SessionRecor
     actor: "FIXTURE RUNTIME",
     time: "04-14 10:02",
     evidence: [at("SRC 0001", span)],
-    fixtureId: `question-wealth-${no.slice(4)}`,
+    fixtureId: `question-wealth-${Str.slice(4)(no)}`,
     provenance: "authored",
     receipt: receipt(no, QUESTIONS, [at("SRC 0001", span)], "CANDIDATE", "10:02"),
   });

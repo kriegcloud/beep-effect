@@ -1,5 +1,5 @@
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Stdio from "effect/Stdio";
 import * as Path from "effect/Path";
 // @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file

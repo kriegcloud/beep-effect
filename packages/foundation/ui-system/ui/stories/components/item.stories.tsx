@@ -247,7 +247,7 @@ export const Group: Story = {
           <ItemMedia variant="icon">A</ItemMedia>
           <ItemContent>
             <ItemTitle>Avery Diaz</ItemTitle>
-            <ItemDescription>avery@beep.dev</ItemDescription>
+            <ItemDescription>avery@example.com</ItemDescription>
           </ItemContent>
           <ItemActions>
             <Button variant="ghost" size="sm">
@@ -260,7 +260,7 @@ export const Group: Story = {
           <ItemMedia variant="icon">B</ItemMedia>
           <ItemContent>
             <ItemTitle>Blake Nguyen</ItemTitle>
-            <ItemDescription>blake@beep.dev</ItemDescription>
+            <ItemDescription>blake@example.com</ItemDescription>
           </ItemContent>
           <ItemActions>
             <Button variant="ghost" size="sm">
@@ -273,7 +273,7 @@ export const Group: Story = {
           <ItemMedia variant="icon">C</ItemMedia>
           <ItemContent>
             <ItemTitle>Casey Romero</ItemTitle>
-            <ItemDescription>casey@beep.dev</ItemDescription>
+            <ItemDescription>casey@example.com</ItemDescription>
           </ItemContent>
           <ItemActions>
             <Button variant="ghost" size="sm">

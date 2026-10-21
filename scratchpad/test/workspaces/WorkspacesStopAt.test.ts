@@ -14,7 +14,7 @@ import { assert, describe, layer, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Context from "effect/Context";
 import { LocalExec, ScriptedSpawner } from "@beep/commands";
-import { Git, LsTreeEntry } from "../../effected/git/index.ts";
+import { Git, LsTreeEntry } from "@beep/git";
 import type { LocalExecShape } from "@beep/commands";
 import * as HashMap from "effect/HashMap";
 import * as Effect from "effect/Effect";

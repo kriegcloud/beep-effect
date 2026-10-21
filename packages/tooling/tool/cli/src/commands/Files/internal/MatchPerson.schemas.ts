@@ -5,7 +5,6 @@
  * @since 0.0.0
  */
 
-import { FaceDetectionConfidence, FaceDetectionPercentage } from "@beep/face-detection";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as SchemaUtils from "@beep/schema/SchemaUtils";
@@ -339,6 +338,62 @@ const PersonMatchSimilarityScore = S.Finite.check(
 ).pipe(
   $I.annoteSchema("PersonMatchSimilarityScore", {
     description: "A finite cosine-similarity score in the inclusive interval from -1 to 1.",
+  })
+);
+
+const PersonMatchConfidence = S.Finite.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`PersonMatchConfidenceGreaterThanOrEqualToZeroCheck`,
+        title: "Person-match confidence minimum",
+        description: "Requires a normalized confidence or threshold greater than or equal to zero.",
+        message: "Expected confidence greater than or equal to zero",
+      }),
+      S.isLessThanOrEqualTo(1, {
+        identifier: $I`PersonMatchConfidenceLessThanOrEqualToOneCheck`,
+        title: "Person-match confidence maximum",
+        description: "Requires a normalized confidence or threshold less than or equal to one.",
+        message: "Expected confidence less than or equal to one",
+      }),
+    ],
+    {
+      identifier: $I`PersonMatchConfidenceChecks`,
+      title: "Person-match confidence range",
+      description: "Constrains detection scores and thresholds to the inclusive interval from 0 to 1.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("PersonMatchConfidence", {
+    description: "A finite normalized confidence or threshold in the inclusive interval from 0 to 1.",
+  })
+);
+
+const PersonMatchPercentage = S.Finite.check(
+  S.makeFilterGroup(
+    [
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`PersonMatchPercentageGreaterThanOrEqualToZeroCheck`,
+        title: "Person-match percentage minimum",
+        description: "Requires a percentage greater than or equal to zero.",
+        message: "Expected percentage greater than or equal to zero",
+      }),
+      S.isLessThanOrEqualTo(100, {
+        identifier: $I`PersonMatchPercentageLessThanOrEqualToOneHundredCheck`,
+        title: "Person-match percentage maximum",
+        description: "Requires a percentage less than or equal to 100.",
+        message: "Expected percentage less than or equal to 100",
+      }),
+    ],
+    {
+      identifier: $I`PersonMatchPercentageChecks`,
+      title: "Person-match percentage range",
+      description: "Constrains face-area percentages and thresholds to the inclusive interval from 0 to 100.",
+    }
+  )
+).pipe(
+  $I.annoteSchema("PersonMatchPercentage", {
+    description: "A finite percentage in the inclusive interval from 0 to 100.",
   })
 );
 
@@ -692,10 +747,10 @@ export class PersonMatchThresholdProfile extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    detectionThreshold: FaceDetectionConfidence,
-    matchThreshold: FaceDetectionConfidence,
-    reviewThreshold: FaceDetectionConfidence,
-    minFaceAreaPct: FaceDetectionPercentage,
+    detectionThreshold: PersonMatchConfidence,
+    matchThreshold: PersonMatchConfidence,
+    reviewThreshold: PersonMatchConfidence,
+    minFaceAreaPct: PersonMatchPercentage,
   }).pipe(
     $I.annoteSchema("PersonMatchThresholdProfile", {
       description: "Resolved detection, identity, review, and face-area thresholds for one backend profile.",
@@ -840,10 +895,10 @@ export class MatchPersonOptions extends S.Opaque<MatchPersonOptions, { readonly 
     batchSize: PosInt.pipe(S.withConstructorDefault(Effect.succeed(PosInt.make(32)))),
     thresholdSource: PersonMatchThresholdSource.pipe(S.withConstructorDefault(Effect.succeed("calibrated-default"))),
     recursive: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-    detectionThreshold: FaceDetectionConfidence,
-    matchThreshold: FaceDetectionConfidence,
-    reviewThreshold: FaceDetectionConfidence,
-    minFaceAreaPct: FaceDetectionPercentage,
+    detectionThreshold: PersonMatchConfidence,
+    matchThreshold: PersonMatchConfidence,
+    reviewThreshold: PersonMatchConfidence,
+    minFaceAreaPct: PersonMatchPercentage,
     acceptModelLicense: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     json: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     overwrite: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
@@ -1224,10 +1279,10 @@ export class PersonMatchParameters extends S.Opaque<PersonMatchParameters, { rea
     batchSize: PosInt,
     precision: PersonMatchPrecision,
     thresholdSource: PersonMatchThresholdSource,
-    detectionThreshold: FaceDetectionConfidence,
-    matchThreshold: FaceDetectionConfidence,
-    reviewThreshold: FaceDetectionConfidence,
-    minFaceAreaPct: FaceDetectionPercentage,
+    detectionThreshold: PersonMatchConfidence,
+    matchThreshold: PersonMatchConfidence,
+    reviewThreshold: PersonMatchConfidence,
+    minFaceAreaPct: PersonMatchPercentage,
     recursive: S.Boolean,
   }).pipe(
     $I.annoteSchema("PersonMatchParameters", {
@@ -1270,7 +1325,7 @@ export class PersonMatchReference extends S.Opaque<PersonMatchReference, { reado
     sourcePath: S.NonEmptyString,
     accepted: S.Boolean,
     faceCount: S.Natural,
-    detectionScore: S.optionalKey(FaceDetectionConfidence),
+    detectionScore: S.optionalKey(PersonMatchConfidence),
     reason: S.optionalKey(PersonMatchReferenceRejectionReason),
   }).pipe(
     $I.annoteSchema("PersonMatchReference", {
@@ -1343,8 +1398,8 @@ export class PersonMatchFaceBox extends S.Opaque<PersonMatchFaceBox, { readonly 
 export class PersonMatchFace extends S.Opaque<PersonMatchFace, { readonly brand: unique symbol }>()(
   S.Struct({
     box: PersonMatchFaceBox,
-    detectionScore: FaceDetectionConfidence,
-    faceAreaPct: FaceDetectionPercentage,
+    detectionScore: PersonMatchConfidence,
+    faceAreaPct: PersonMatchPercentage,
     matchScore: PersonMatchSimilarityScore,
     centroidScore: PersonMatchSimilarityScore,
     top3MedianScore: PersonMatchSimilarityScore,

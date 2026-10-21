@@ -265,7 +265,7 @@ proven shapes, and wave 0 generalizes them.
 | D11 | **Required finding** = law violation, bug, unsafe type assertion, tsgo diagnostic, JSDoc-law break, schema or effect idiom violation with a cited standard, or performance only with a measured regression versus upstream or an algorithmic-class win. Everything else is backlog in the ledger. | Three xhigh models never run out of opinions. |
 | D12 | Record a **provisional** beep home per module (section 4), routed through `standards/architecture/07-non-slice-families.md`; re-grill at promotion. | Categories and identity choices need a target. |
 | D13 | Imports: `.js` → `.ts`; sibling modules by relative path (`../<dep>/index.ts` in source, `../../effected/<dep>/index.ts` in tests); never `@effected/*` inside `scratchpad/effected/**`; module internals in tests by relative path too. | Promotion later is a path rewrite. |
-| D14 | Filesystem double for new modules' tests is the ported `memfs` (upstream parity). `jsonl` stays on `@beep/test-utils/MemoryFileSystem` (already promoted via effect-vitest-canon D8). | Keeps upstream tests verbatim. |
+| D14 | Filesystem double for new modules' tests is the ported `memfs` (upstream parity). `jsonl` originally stayed on `@beep/test-utils/MemoryFileSystem` (promoted via effect-vitest-canon D8); since effected-promotion wave 1b (SPEC D-07) `memfs` is `@beep/memfs`, `@beep/test-utils/MemoryFileSystem` is retired, and `jsonl` uses `@beep/memfs`. | Keeps upstream tests verbatim. |
 | D15 | Unsafe type assertion = any `as` other than `as const`, any `!` non-null assertion, any `<T>expr` cast, any `any`. `satisfies` is fine. Gate in the runner. | Matches the jsonc bar. |
 | D16 | Node vitest (`bunx --no-install vitest run`) is the test gate. A Bun run (`bun run beep test`) is advisory per module and recorded. | Same gate the repo uses. |
 | D17 | Review evidence (`.review/`) is committed. Coverage output goes to the git-ignored `coverage/scratchpad-effected/<m>/`. | Durable on-disk hand-offs. |
@@ -327,8 +327,8 @@ Skills to load at the named stage: `schema-first-development`,
 
 Beep helpers the ports use: `@beep/identity/packages` (`$ScratchpadId`),
 `@beep/schema` (`LiteralKit`, kits), `@beep/utils` (`@beep/utils/Option`),
-`@beep/fc-runs` (`fcRuns`), `@beep/test-utils` (vitest helpers;
-`MemoryFileSystem` for `jsonl` only).
+`@beep/fc-runs` (`fcRuns`), `@beep/test-utils` (vitest helpers), `@beep/memfs`
+(the in-memory FileSystem double since effected-promotion SPEC D-07).
 
 ---
 
@@ -342,7 +342,7 @@ is first in wave 1 because later tests use it as the filesystem double.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | `jsonl` (retrofit) | — | — | — | 2,894 / 3,689 | — | foundation/modeling |
 | 0 | `jsonc` (retrofit) | — | — | — | 3,771 / 1,846 | — | foundation/modeling |
-| 1 | `memfs` | — | — | — | 5,409 / 3,119 | `./node-sync` → `NodeSyncFileSystem.ts` | tooling/test-kit (overlaps `@beep/test-utils/MemoryFileSystem`) |
+| 1 | `memfs` | — | — | — | 5,409 / 3,119 | `./node-sync` → `NodeSyncFileSystem.ts` | tooling/test-kit (promoted as `@beep/memfs`; replaced `@beep/test-utils/MemoryFileSystem`, SPEC D-07) |
 | 1 | `yaml` | — | — | `yaml` (catalog ^2.9.1) | 18,429 / 7,076 | — | foundation/modeling |
 | 1 | `toml` | — | — | `smol-toml` (catalog) | 4,244 / 3,686 | — | foundation/modeling |
 | 1 | `glob` | — | — | `minimatch` (catalog 10.2.5) | 3,368 / 1,606 | — | foundation/modeling |
@@ -372,9 +372,19 @@ is first in wave 1 because later tests use it as the filesystem double.
 
 Homes are provisional (D12): format parsers and pure grammars go to
 `foundation/modeling`; wrappers over external engines, binaries or services go
-to `drivers`; repo-operational substrate goes to `tooling`. Two overlaps must
-be recorded, not resolved: `markdown` versus `@beep/md`, and `memfs` versus
-`@beep/test-utils/MemoryFileSystem`.
+to `drivers`; repo-operational substrate goes to `tooling`. Two overlaps were
+recorded, not resolved, during the port: `markdown` versus `@beep/md`, and
+`memfs` versus `@beep/test-utils/MemoryFileSystem`. The second is resolved:
+effected-promotion wave 1b (SPEC D-07) retired the test-utils copy onto
+`@beep/memfs`.
+
+Promotion status (goal `effected-promotion`): wave 1a moved `jsonl`, `jsonc`,
+`semver`, `spdx`, `schema-org`, `github-references`, `github-commands`,
+`commands` and `templates` (as `@beep/managed-section`) out of the lab; wave 1b
+moved `memfs` (`@beep/memfs`, tooling/test-kit), `toml` (`@beep/toml`), `yaml`
+(`@beep/yaml`), `glob` (`@beep/glob`) and `git` (`@beep/git`, drivers). Lab
+modules that depend on them import the `@beep/*` package, not a
+`../<dep>/index.ts` sibling.
 
 Dependency versions for new deps: copy the exact specifier from upstream
 `packages/<m>/package.json` (`pnpm-workspace.yaml` catalogs resolve them) into
@@ -411,7 +421,8 @@ literals marked "never regenerate" upstream are never regenerated here.
 3. `@effected/<dep>` → `../<dep>/index.ts` in source, `../../effected/<dep>/index.ts`
    in tests; `@effected/<dep>/<subpath>` → the subpath file from section 4.
 4. `@effected/memfs` in tests → `../../effected/memfs/index.ts` (D14), except
-   `jsonl`.
+   `jsonl`. Since wave 1b of effected-promotion, `memfs` (and the other
+   promoted kit modules) resolve to their `@beep/*` package instead.
 5. Never leave an `@effected/*` specifier inside `scratchpad/effected/**` or
    `scratchpad/test/<m>/**`. The runner's `parity` step fails on one.
 6. `node:` imports stay as upstream wrote them in S0. The `native-runtime`

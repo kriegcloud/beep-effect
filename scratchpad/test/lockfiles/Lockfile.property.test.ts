@@ -12,7 +12,7 @@ import { Lockfile, LockfileParseError, LockfileFramingError } from "../../effect
 import { LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts";
 import { BunExtension } from "../../effected/lockfiles/BunExtension.ts";
 import { PnpmExtension } from "../../effected/lockfiles/PnpmExtension.ts";
-import { Yaml } from "../../effected/yaml/Yaml.ts";
+import { Yaml } from "@beep/yaml/Yaml";
 // Native schema derivation generates independent specifier tags and raw strings.
 // Classify a valid spelling before sampling the enclosing serialization model;
 // all other generated fields, optional keys and collections remain unchanged.

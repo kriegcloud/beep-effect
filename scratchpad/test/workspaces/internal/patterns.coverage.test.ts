@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { manifestPatternsOf, pnpmPatternsOf, readPatterns, stringsOf } from "../../../effected/workspaces/internal/patterns.ts";
 
 it.effect("extracts only string patterns from both manifest shapes and rejects malformed shapes", () => Effect.sync(() => {

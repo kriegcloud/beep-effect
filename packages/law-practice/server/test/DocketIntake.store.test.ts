@@ -18,10 +18,10 @@ import {
   IntakeFailed,
   NotDocketItem,
 } from "@beep/law-practice-use-cases/DocketIntake";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { addDays, LocalDate, equals as sameDate } from "@beep/schema/LocalDate";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { describe, expect } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";

@@ -19,6 +19,22 @@
     {
       "name": "@beep/federal-register",
       "rationale": "VERSION-only driver deleted by goals/honest-repo-signal. Name-reuse guard: recreate only with a real surface; see goals/honest-repo-signal/research/FOLLOW-UPS.md. Pending notes were retired by the private release-note reset."
+    },
+    {
+      "name": "@beep/venice-ai",
+      "rationale": "Unused private driver removed 2026-10-21 on branch chore/remove-unused-drivers at the operator's request. Name-reuse guard; recover the source from commit 426d494b34."
+    },
+    {
+      "name": "@beep/xai",
+      "rationale": "Unused private driver removed 2026-10-21 on branch chore/remove-unused-drivers at the operator's request. Name-reuse guard; recover the source from commit 426d494b34."
+    },
+    {
+      "name": "@beep/firecrawl",
+      "rationale": "Unused private driver removed 2026-10-21 on branch chore/remove-unused-drivers at the operator's request. Name-reuse guard; recover the source from commit 426d494b34."
+    },
+    {
+      "name": "@beep/face-detection",
+      "rationale": "Unused private driver removed 2026-10-21 on branch chore/remove-unused-drivers at the operator's request. Name-reuse guard; recover the source from commit 426d494b34."
     }
   ]
 }

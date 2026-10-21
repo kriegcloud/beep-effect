@@ -34,7 +34,6 @@
     "@beep/editor": "Editor UI behavior is interaction-heavy and remains materially below the tier.",
     "@beep/epistemic-client": "Client state behavior needs additional focused tests to meet the function tier.",
     "@beep/exiftool": "Driver branch behavior needs additional process-boundary tests.",
-    "@beep/face-detection": "Native and model-service behavior remains materially below the tier.",
     "@beep/graph-3d": "Browser-bound tests are excluded from the Node lane; the 0/0/0/0 seed remains until a browser lane exists.",
     "@beep/hubspot": "Driver function coverage needs additional API-path tests.",
     "@beep/infra": "Pulumi-heavy infrastructure behavior is newly wired and seeded at its measured floor.",
@@ -67,25 +66,25 @@
   "packages": {
     "@beep/acp": {
       "path": "packages/drivers/acp",
-      "lines": 70.32,
-      "statements": 70.33,
-      "branches": 73.03,
-      "functions": 45.97,
+      "lines": 80.72,
+      "statements": 81.04,
+      "branches": 89.8,
+      "functions": 61.14,
       "uncovered": {
-        "lines": 322,
-        "statements": 329,
-        "branches": 48,
-        "functions": 262
+        "lines": 460,
+        "statements": 466,
+        "branches": 31,
+        "functions": 453
       },
       "files": {
         "packages/drivers/acp/src/Acp.errors.ts": {
-          "lines": 45.83,
-          "statements": 45.83,
-          "branches": 16.66,
-          "functions": 65,
+          "lines": 91.07,
+          "statements": 91.52,
+          "branches": 79.16,
+          "functions": 90.14,
           "uncovered": {
-            "lines": 13,
-            "statements": 13,
+            "lines": 10,
+            "statements": 10,
             "branches": 5,
             "functions": 7
           }
@@ -103,51 +102,63 @@
           }
         },
         "packages/drivers/acp/src/AcpAgent.service.ts": {
-          "lines": 51.54,
-          "statements": 52.04,
+          "lines": 79.03,
+          "statements": 78.78,
           "branches": 100,
-          "functions": 24.19,
+          "functions": 64.1,
           "uncovered": {
-            "lines": 47,
-            "statements": 47,
+            "lines": 13,
+            "statements": 14,
             "branches": 0,
-            "functions": 47
+            "functions": 14
           }
         },
         "packages/drivers/acp/src/AcpClient.service.ts": {
-          "lines": 6.54,
-          "statements": 6.42,
-          "branches": 0,
-          "functions": 1.69,
+          "lines": 88.83,
+          "statements": 88.83,
+          "branches": 91.3,
+          "functions": 84.51,
           "uncovered": {
-            "lines": 100,
-            "statements": 102,
-            "branches": 17,
-            "functions": 58
+            "lines": 23,
+            "statements": 25,
+            "branches": 2,
+            "functions": 24
+          }
+        },
+        "packages/drivers/acp/src/AcpCompat.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/drivers/acp/src/AcpJson.codec.ts": {
-          "lines": 99.49,
-          "statements": 99.5,
+          "lines": 100,
+          "statements": 100,
           "branches": 98.38,
           "functions": 100,
           "uncovered": {
-            "lines": 1,
-            "statements": 1,
+            "lines": 0,
+            "statements": 0,
             "branches": 1,
             "functions": 0
           }
         },
         "packages/drivers/acp/src/AcpProtocol.service.ts": {
-          "lines": 80.2,
-          "statements": 79.41,
-          "branches": 63.63,
-          "functions": 71.71,
+          "lines": 91.49,
+          "statements": 91.4,
+          "branches": 88.65,
+          "functions": 87.41,
           "uncovered": {
-            "lines": 38,
-            "statements": 42,
-            "branches": 20,
-            "functions": 28
+            "lines": 25,
+            "statements": 27,
+            "branches": 11,
+            "functions": 19
           }
         },
         "packages/drivers/acp/src/AcpRpc.models.ts": {
@@ -162,16 +173,16 @@
             "functions": 0
           }
         },
-        "packages/drivers/acp/src/AcpTerminal.models.ts": {
-          "lines": 0,
-          "statements": 0,
+        "packages/drivers/acp/src/AcpV1.models.ts": {
+          "lines": 100,
+          "statements": 100,
           "branches": 100,
-          "functions": 0,
+          "functions": 100,
           "uncovered": {
-            "lines": 1,
-            "statements": 1,
+            "lines": 0,
+            "statements": 0,
             "branches": 0,
-            "functions": 1
+            "functions": 0
           }
         },
         "packages/drivers/acp/src/_generated/meta.gen.ts": {
@@ -186,16 +197,28 @@
             "functions": 0
           }
         },
-        "packages/drivers/acp/src/_generated/schema.gen.ts": {
-          "lines": 66.87,
-          "statements": 66.87,
+        "packages/drivers/acp/src/_generated/schema-v1.gen.ts": {
+          "lines": 65.05,
+          "statements": 65.05,
           "branches": 100,
-          "functions": 28.37,
+          "functions": 30.88,
           "uncovered": {
-            "lines": 106,
-            "statements": 106,
+            "lines": 188,
+            "statements": 188,
             "branches": 0,
-            "functions": 106
+            "functions": 188
+          }
+        },
+        "packages/drivers/acp/src/_generated/schema.gen.ts": {
+          "lines": 65.98,
+          "statements": 65.98,
+          "branches": 100,
+          "functions": 32.72,
+          "uncovered": {
+            "lines": 183,
+            "statements": 183,
+            "branches": 0,
+            "functions": 183
           }
         },
         "packages/drivers/acp/src/index.ts": {
@@ -222,27 +245,39 @@
             "functions": 0
           }
         },
-        "packages/drivers/acp/src/internal/shared.ts": {
-          "lines": 50,
-          "statements": 50,
-          "branches": 25,
-          "functions": 38.88,
+        "packages/drivers/acp/src/internal/normalize.ts": {
+          "lines": 96.68,
+          "statements": 96.9,
+          "branches": 80.95,
+          "functions": 94.44,
           "uncovered": {
-            "lines": 13,
-            "statements": 13,
-            "branches": 3,
-            "functions": 11
+            "lines": 6,
+            "statements": 6,
+            "branches": 8,
+            "functions": 5
+          }
+        },
+        "packages/drivers/acp/src/internal/shared.ts": {
+          "lines": 78.57,
+          "statements": 78.57,
+          "branches": 87.5,
+          "functions": 70,
+          "uncovered": {
+            "lines": 9,
+            "statements": 9,
+            "branches": 1,
+            "functions": 9
           }
         },
         "packages/drivers/acp/src/internal/stdio.ts": {
-          "lines": 66.66,
-          "statements": 60,
-          "branches": 0,
-          "functions": 42.85,
+          "lines": 84.21,
+          "statements": 80,
+          "branches": 62.5,
+          "functions": 66.66,
           "uncovered": {
             "lines": 3,
             "statements": 4,
-            "branches": 2,
+            "branches": 3,
             "functions": 4
           }
         }
@@ -1177,15 +1212,15 @@
     },
     "@beep/ai-provider-cli": {
       "path": "packages/drivers/ai-provider-cli",
-      "lines": 50.56,
-      "statements": 50.27,
-      "branches": 52,
-      "functions": 36.04,
+      "lines": 81.75,
+      "statements": 81.31,
+      "branches": 84.65,
+      "functions": 62.2,
       "uncovered": {
-        "lines": 88,
-        "statements": 90,
-        "branches": 12,
-        "functions": 55
+        "lines": 100,
+        "statements": 111,
+        "branches": 31,
+        "functions": 65
       },
       "files": {
         "packages/drivers/ai-provider-cli/src/AiProviderCli.errors.ts": {
@@ -1213,8 +1248,8 @@
           }
         },
         "packages/drivers/ai-provider-cli/src/AiProviderCli.service.ts": {
-          "lines": 96.29,
-          "statements": 96.36,
+          "lines": 96.42,
+          "statements": 96.49,
           "branches": 92.85,
           "functions": 100,
           "uncovered": {
@@ -1249,22 +1284,22 @@
           }
         },
         "packages/drivers/ai-provider-cli/src/AiProviderCliHome.service.ts": {
-          "lines": 15.95,
-          "statements": 15.62,
+          "lines": 16.12,
+          "statements": 15.78,
           "branches": 0,
-          "functions": 3.92,
+          "functions": 4,
           "uncovered": {
-            "lines": 79,
-            "statements": 81,
+            "lines": 78,
+            "statements": 80,
             "branches": 11,
-            "functions": 49
+            "functions": 48
           }
         },
         "packages/drivers/ai-provider-cli/src/AiProviderCliSession.claude.service.ts": {
-          "lines": 93.61,
-          "statements": 92.3,
-          "branches": 89.47,
-          "functions": 76,
+          "lines": 93.93,
+          "statements": 92.85,
+          "branches": 90.9,
+          "functions": 78.57,
           "uncovered": {
             "lines": 6,
             "statements": 8,
@@ -1272,7 +1307,31 @@
             "functions": 6
           }
         },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.codex.service.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/drivers/ai-provider-cli/src/AiProviderCliSession.cursor.service.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.errors.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -1296,11 +1355,23 @@
             "functions": 0
           }
         },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/drivers/ai-provider-cli/src/AiProviderCliSession.profile.service.ts": {
-          "lines": 96.82,
-          "statements": 96.87,
-          "branches": 96.87,
-          "functions": 84.61,
+          "lines": 96.96,
+          "statements": 97.05,
+          "branches": 97.05,
+          "functions": 85.71,
           "uncovered": {
             "lines": 2,
             "statements": 2,
@@ -1308,16 +1379,40 @@
             "functions": 2
           }
         },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.service.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/drivers/ai-provider-cli/src/AiProviderCliSession.stdio.service.ts": {
-          "lines": 96.93,
-          "statements": 93.58,
-          "branches": 83.52,
+          "lines": 97,
+          "statements": 93.71,
+          "branches": 84.26,
           "functions": 91.66,
           "uncovered": {
             "lines": 5,
             "statements": 12,
             "branches": 14,
             "functions": 3
+          }
+        },
+        "packages/drivers/ai-provider-cli/src/AiProviderCliSession.wire.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/drivers/ai-provider-cli/src/index.ts": {
@@ -9302,69 +9397,6 @@
         }
       }
     },
-    "@beep/face-detection": {
-      "path": "packages/drivers/face-detection",
-      "lines": 34.16,
-      "statements": 32.54,
-      "branches": 9.09,
-      "functions": 14.1,
-      "uncovered": {
-        "lines": 158,
-        "statements": 172,
-        "branches": 60,
-        "functions": 67
-      },
-      "files": {
-        "packages/drivers/face-detection/src/FaceDetection.errors.ts": {
-          "lines": 56.52,
-          "statements": 56.52,
-          "branches": 0,
-          "functions": 0,
-          "uncovered": {
-            "lines": 10,
-            "statements": 10,
-            "branches": 11,
-            "functions": 9
-          }
-        },
-        "packages/drivers/face-detection/src/FaceDetection.models.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/drivers/face-detection/src/FaceDetection.service.ts": {
-          "lines": 27.8,
-          "statements": 26.36,
-          "branches": 10.9,
-          "functions": 14.7,
-          "uncovered": {
-            "lines": 148,
-            "statements": 162,
-            "branches": 49,
-            "functions": 58
-          }
-        },
-        "packages/drivers/face-detection/src/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        }
-      }
-    },
     "@beep/fc-runs": {
       "path": "packages/tooling/test-kit/fc-runs",
       "lines": 100,
@@ -9802,81 +9834,6 @@
             "statements": 8,
             "branches": 3,
             "functions": 3
-          }
-        }
-      }
-    },
-    "@beep/firecrawl": {
-      "path": "packages/drivers/firecrawl",
-      "lines": 90.18,
-      "statements": 90.5,
-      "branches": 52.94,
-      "functions": 87.24,
-      "uncovered": {
-        "lines": 32,
-        "statements": 32,
-        "branches": 8,
-        "functions": 19
-      },
-      "files": {
-        "packages/drivers/firecrawl/src/Firecrawl.errors.ts": {
-          "lines": 89.47,
-          "statements": 89.74,
-          "branches": 57.14,
-          "functions": 73.33,
-          "uncovered": {
-            "lines": 4,
-            "statements": 4,
-            "branches": 3,
-            "functions": 4
-          }
-        },
-        "packages/drivers/firecrawl/src/Firecrawl.models.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/drivers/firecrawl/src/Firecrawl.service.ts": {
-          "lines": 83.62,
-          "statements": 84.35,
-          "branches": 50,
-          "functions": 88.46,
-          "uncovered": {
-            "lines": 28,
-            "statements": 28,
-            "branches": 5,
-            "functions": 15
-          }
-        },
-        "packages/drivers/firecrawl/src/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
           }
         }
       }
@@ -28389,18 +28346,6 @@
             "functions": 0
           }
         },
-        "packages/tooling/tool/cli/src/commands/Files/internal/DetectFaces.schemas.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/tooling/tool/cli/src/commands/Files/internal/FileTransaction.ts": {
           "lines": 91.66,
           "statements": 91.89,
@@ -31687,18 +31632,6 @@
             "statements": 2,
             "branches": 0,
             "functions": 2
-          }
-        },
-        "packages/tooling/tool/cli/src/commands/Research/internal/Capture.ts": {
-          "lines": 89.79,
-          "statements": 88,
-          "branches": 75,
-          "functions": 71.42,
-          "uncovered": {
-            "lines": 5,
-            "statements": 6,
-            "branches": 1,
-            "functions": 4
           }
         },
         "packages/tooling/tool/cli/src/commands/Research/internal/Catalog.ts": {
@@ -45404,57 +45337,6 @@
         }
       }
     },
-    "@beep/venice-ai": {
-      "path": "packages/drivers/venice-ai",
-      "lines": 88.13,
-      "statements": 88.28,
-      "branches": 78.66,
-      "functions": 74.3,
-      "uncovered": {
-        "lines": 40,
-        "statements": 41,
-        "branches": 16,
-        "functions": 37
-      },
-      "files": {
-        "packages/drivers/venice-ai/src/VeniceAI.service.ts": {
-          "lines": 94.5,
-          "statements": 94.4,
-          "branches": 81.69,
-          "functions": 87.61,
-          "uncovered": {
-            "lines": 15,
-            "statements": 16,
-            "branches": 13,
-            "functions": 13
-          }
-        },
-        "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts": {
-          "lines": 60.31,
-          "statements": 60.31,
-          "branches": 25,
-          "functions": 38.46,
-          "uncovered": {
-            "lines": 25,
-            "statements": 25,
-            "branches": 3,
-            "functions": 24
-          }
-        },
-        "packages/drivers/venice-ai/src/index.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        }
-      }
-    },
     "@beep/windows-secrets": {
       "path": "packages/drivers/windows-secrets",
       "lines": 97.18,
@@ -46672,93 +46554,6 @@
           }
         },
         "packages/workspace/use-cases/src/server.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        }
-      }
-    },
-    "@beep/xai": {
-      "path": "packages/drivers/xai",
-      "lines": 72.47,
-      "statements": 72.1,
-      "branches": 62.72,
-      "functions": 66.5,
-      "uncovered": {
-        "lines": 117,
-        "statements": 123,
-        "branches": 41,
-        "functions": 70
-      },
-      "files": {
-        "packages/drivers/xai/src/XAi.errors.ts": {
-          "lines": 95.83,
-          "statements": 92.59,
-          "branches": 81.81,
-          "functions": 93.33,
-          "uncovered": {
-            "lines": 1,
-            "statements": 2,
-            "branches": 2,
-            "functions": 1
-          }
-        },
-        "packages/drivers/xai/src/XAi.models.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/drivers/xai/src/XAi.service.ts": {
-          "lines": 65.38,
-          "statements": 64.98,
-          "branches": 61.25,
-          "functions": 62.91,
-          "uncovered": {
-            "lines": 99,
-            "statements": 104,
-            "branches": 31,
-            "functions": 56
-          }
-        },
-        "packages/drivers/xai/src/XAiEndpoints.models.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/drivers/xai/src/XAiLanguageModel.service.ts": {
-          "lines": 69.09,
-          "statements": 69.09,
-          "branches": 57.89,
-          "functions": 53.57,
-          "uncovered": {
-            "lines": 17,
-            "statements": 17,
-            "branches": 8,
-            "functions": 13
-          }
-        },
-        "packages/drivers/xai/src/index.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,

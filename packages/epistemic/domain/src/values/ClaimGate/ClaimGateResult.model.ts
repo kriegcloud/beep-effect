@@ -69,10 +69,11 @@ export type ClaimGateSeverity = typeof ClaimGateSeverity.Type;
  *
  * ```ts
  * import { ClaimGateViolation } from "@beep/epistemic-domain"
+ * import { $EpistemicId } from "@beep/identity/packages"
  *
  * const violation = ClaimGateViolation.make({
  *   focusNode: "<urn:claim:1>",
- *   path: "https://beep.dev/epistemic/evidence",
+ *   path: $EpistemicId.create("evidence").iri,
  *   message: "Expected at least 1 value(s) for evidence.",
  *   severity: "violation",
  * })
@@ -110,15 +111,16 @@ const ClaimGateVerdict = LiteralKit(["admitted", "rejected"]).annotate(
  *
  * ```ts
  * import { ClaimGateResult } from "@beep/epistemic-domain"
+ * import { $EpistemicId } from "@beep/identity/packages"
  * import * as S from "effect/Schema"
  *
  * const result = S.decodeUnknownSync(ClaimGateResult)({
  *   verdict: "rejected",
  *   violations: [
  *     {
- *       focusNode: "https://beep.dev/epistemic/claim/patentability",
+ *       focusNode: $EpistemicId.create("claim/patentability").iri,
  *       message: "Expected at least 1 value(s) for evidence.",
- *       path: "https://beep.dev/epistemic/hasEvidenceQuote",
+ *       path: $EpistemicId.create("hasEvidenceQuote").iri,
  *       severity: "violation",
  *     },
  *   ],

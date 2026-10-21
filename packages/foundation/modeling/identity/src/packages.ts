@@ -44,7 +44,7 @@ import * as Identity from "./Id.ts";
  * @category configuration
  * @since 0.0.0
  */
-export const $I = Identity.make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId;
+export const $I = Identity.make("beep", { authority: Identity.IdentityAuthority, prefix: "beep" }).$BeepId;
 
 const generatedComposers = $I.compose(
   // IaC Infra Package
@@ -104,13 +104,10 @@ const generatedComposers = $I.compose(
   "oip-web",
   "drizzle",
   "duckdb",
-  "face-detection",
   "ffmpeg",
   "postgres",
   "anthropic",
   "scratchpad",
-  "venice-ai",
-  "xai",
   "acp",
   "openai-compat",
   "workspace-tables",
@@ -139,7 +136,6 @@ const generatedComposers = $I.compose(
   "tika",
   "libpff",
   "box",
-  "firecrawl",
   "uspto",
   "lexical-schema",
   "editor",
@@ -222,7 +218,14 @@ const generatedComposers = $I.compose(
   "schema-org",
   "github-references",
   "github-commands",
-  "commands"
+  "commands",
+  "public-site",
+  "git",
+  "glob",
+  "managed-section",
+  "memfs",
+  "toml",
+  "yaml"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -437,13 +440,65 @@ export const $OntologyId: Identity.IdentityComposer<"@beep/ontology"> = composer
  * ```ts import.meta.vitest name="Log semantic foundation IRI"
  * import { $SemanticFoundationId } from "@beep/identity/packages"
  *
- * $SemanticFoundationId.iri // => "https://ns.beep.sh/ontology/semantic-foundation"
+ * $SemanticFoundationId.iri // => "https://beep-effect.com/ns/ontology/semantic-foundation"
  * ```
  *
  * @category configuration
  * @since 0.0.0
  */
 export const $SemanticFoundationId = $OntologyId.create("semantic-foundation");
+
+/**
+ * Identity composer for the epistemic slice vocabulary (claims, evidence quotes, claim subjects).
+ *
+ * **Details**
+ *
+ * The vocabulary is shared by every `@beep/epistemic-*` package, so it hangs off
+ * the root composer instead of one package composer. Derive terms with
+ * `create`; a slash namespace is the composer IRI plus a trailing `/`, because
+ * identity segments cannot end in `/`.
+ *
+ * **Example** (Log epistemic claim class IRI)
+ *
+ * ```ts import.meta.vitest name="Log epistemic claim class IRI"
+ * import { $EpistemicId } from "@beep/identity/packages"
+ *
+ * const claimSubjectPrefix = `${$EpistemicId.create("claim").iri}/`
+ *
+ * $EpistemicId.create("Claim").iri // => "https://beep-effect.com/ns/epistemic/Claim"
+ * claimSubjectPrefix // => "https://beep-effect.com/ns/epistemic/claim/"
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $EpistemicId = $I.create("epistemic");
+
+/**
+ * Identity composer for the QA evidence vocabulary (judge evidence and receipt
+ * predicate types, the QA XMP namespace).
+ *
+ * **Details**
+ *
+ * The vocabulary is shared by `@beep/repo-cli` QA commands and `@beep/exiftool`,
+ * so it hangs off the root composer instead of one package composer. The XMP
+ * namespace is the versioned composer IRI plus a trailing `/`.
+ *
+ * **Example** (Log QA vocabulary IRI)
+ *
+ * ```ts import.meta.vitest name="Log QA vocabulary IRI"
+ * import { $QaId } from "@beep/identity/packages"
+ *
+ * const xmpNamespace = `${$QaId.create("1.0").iri}/`
+ *
+ * $QaId.iri // => "https://beep-effect.com/ns/qa"
+ * xmpNamespace // => "https://beep-effect.com/ns/qa/1.0/"
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $QaId = $I.create("qa");
 
 /**
  * Identity composer for the `@beep/types` package.
@@ -1039,22 +1094,6 @@ export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.
 export const $DuckdbId: Identity.IdentityComposer<"@beep/duckdb"> = composers.$DuckdbId;
 
 /**
- * $face detection id export.
- *
- * **Example** (Log face detection package ID)
- *
- * ```ts
- * import { $FaceDetectionId } from "@beep/identity/packages"
- *
- * console.log($FaceDetectionId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $FaceDetectionId: Identity.IdentityComposer<"@beep/face-detection"> = composers.$FaceDetectionId;
-
-/**
  * $ffmpeg id export.
  *
  * **Example** (Log ffmpeg package ID)
@@ -1102,38 +1141,6 @@ export const $PostgresId: Identity.IdentityComposer<"@beep/postgres"> = composer
  * @since 0.0.0
  */
 export const $AnthropicId: Identity.IdentityComposer<"@beep/anthropic"> = composers.$AnthropicId;
-
-/**
- * $venice ai id export.
- *
- * **Example** (Log Venice AI package ID)
- *
- * ```ts
- * import { $VeniceAiId } from "@beep/identity/packages"
- *
- * console.log($VeniceAiId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = composers.$VeniceAiId;
-
-/**
- * $xai id export.
- *
- * **Example** (Log xAI package ID)
- *
- * ```ts
- * import { $XaiId } from "@beep/identity/packages"
- *
- * console.log($XaiId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
 
 /**
  * Identity composer for `@beep/acp`.
@@ -1671,23 +1678,6 @@ export const $TikaId: Identity.IdentityComposer<"@beep/tika"> = composers.$TikaI
  * @since 0.0.0
  */
 export const $LibpffId: Identity.IdentityComposer<"@beep/libpff"> = composers.$LibpffId;
-
-/**
- * Identity composer for `@beep/firecrawl`.
- *
- * **Example** (Make Firecrawl package ID)
- *
- * ```ts import.meta.vitest name="Make Firecrawl package ID"
- * import { $FirecrawlId } from "@beep/identity"
- *
- * const id = $FirecrawlId.make("Firecrawl")
- * void id
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;
 
 /**
  * Identity composer for the `@beep/uspto` package.
@@ -3135,3 +3125,122 @@ export const $GithubCommandsId: Identity.IdentityComposer<"@beep/github-commands
  * @since 0.0.0
  */
 export const $CommandsId: Identity.IdentityComposer<"@beep/commands"> = composers.$CommandsId;
+
+/**
+ * Identity composer for `@beep/public-site`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $PublicSiteId } from "@beep/identity/packages"
+ *
+ * const id = $PublicSiteId.make("PublicSite")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $PublicSiteId: Identity.IdentityComposer<"@beep/public-site"> = composers.$PublicSiteId;
+
+/**
+ * Identity composer for `@beep/git`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GitId } from "@beep/identity/packages"
+ *
+ * const id = $GitId.make("Git")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GitId: Identity.IdentityComposer<"@beep/git"> = composers.$GitId;
+
+/**
+ * Identity composer for `@beep/glob`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GlobId } from "@beep/identity/packages"
+ *
+ * const id = $GlobId.make("Glob")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GlobId: Identity.IdentityComposer<"@beep/glob"> = composers.$GlobId;
+
+/**
+ * Identity composer for `@beep/managed-section`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $ManagedSectionId } from "@beep/identity/packages"
+ *
+ * const id = $ManagedSectionId.make("ManagedSection")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $ManagedSectionId: Identity.IdentityComposer<"@beep/managed-section"> = composers.$ManagedSectionId;
+
+/**
+ * Identity composer for `@beep/memfs`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $MemfsId } from "@beep/identity/packages"
+ *
+ * const id = $MemfsId.make("Memfs")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $MemfsId: Identity.IdentityComposer<"@beep/memfs"> = composers.$MemfsId;
+
+/**
+ * Identity composer for `@beep/toml`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $TomlId } from "@beep/identity/packages"
+ *
+ * const id = $TomlId.make("Toml")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $TomlId: Identity.IdentityComposer<"@beep/toml"> = composers.$TomlId;
+
+/**
+ * Identity composer for `@beep/yaml`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $YamlId } from "@beep/identity/packages"
+ *
+ * const id = $YamlId.make("Yaml")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $YamlId: Identity.IdentityComposer<"@beep/yaml"> = composers.$YamlId;
