@@ -131,7 +131,12 @@ beep reviewer review post --pr 123 --sha "$SHA" --json inline-review.json
 ```
 
 `start` checks the live PR head and reuses this App's in-progress run on that SHA.
-It sets `external_id=pr-123-<sha7>` and the title `Reviewing…`. Completion uses a
+It sets `external_id=pr-123-<head sha40>-<base sha40>` (the PR number, the full
+head SHA and the full base SHA GitHub reports for the PR; this binding landed in
+#1805) and the title `Reviewing…`. The merge gate accepts only a successful run
+from the required App whose `external_id` matches that exact triple, so a
+reviewer build older than #1805, which wrote `pr-123-<sha7>`, can never satisfy
+`beep reviewer gate` or `yeet merge`. Completion uses a
 title such as `4/5 · L2 · P0 0 · P1 0 · P2 2`; `auto` fails when `p0+p1 > 0` and
 succeeds otherwise. Optional `--annotations-file annotations.json` accepts an array
 of Checks API annotations. Batches contain at most 50 annotations and are appended
