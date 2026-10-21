@@ -85,9 +85,10 @@ const Status = LiteralKit(["active", "inactive"]).pipe(
 ```
 
 Never write `.annotate($I.annote(...))` on a non-class schema. It writes the
-same annotations, but its extras are untyped against the schema and it keeps
-no statics: on an `S.toTaggedUnion(...)` result it drops `match`, `cases`,
-`guards` and `isAnyOf` at runtime.
+same annotations, but its extras are untyped against the schema, and it keeps
+only the statics a schema re-attaches in its own `rebuild`. `LiteralKit` does,
+but an `S.toTaggedUnion(...)` result loses `match`, `cases`, `guards` and
+`isAnyOf` at runtime. `annoteSchema` copies statics back for every schema.
 
 ## Checks and filters
 
