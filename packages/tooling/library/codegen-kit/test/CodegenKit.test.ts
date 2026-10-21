@@ -788,6 +788,25 @@ const elicitationDefinitions = {
 
 const elicitationRequest: JsonSchema.JsonSchema = elicitationDefinitions.CreateElicitationRequest;
 
+const closedOpenApi: S.Json = {
+  openapi: "3.1.0",
+  info: { title: "Closed API", version: "1.0.0" },
+  paths: {
+    "/closed": {
+      get: {
+        operationId: "getClosed",
+        responses: {
+          "200": {
+            description: "Closed object",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/Closed" } } },
+          },
+        },
+      },
+    },
+  },
+  components: { schemas: { Closed: { type: "object", unevaluatedProperties: false } } },
+};
+
 const unionMembers = (node: unknown): ReadonlyArray<unknown> =>
   P.isObject(node) && A.isArray(node.anyOf) ? node.anyOf : [];
 
@@ -988,6 +1007,70 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
     })
   );
 
+  it.effect("resolves $ref by its full JSON pointer and rejects pointers outside the definition pool", () =>
+    Effect.gen(function* () {
+      const definitions: JsonSchema.Definitions = {
+        Envelope: {
+          type: "object",
+          properties: { meta: { type: "object", properties: { traceId: { type: "string" } }, required: ["traceId"] } },
+        },
+        meta: { type: "object", properties: { legacy: { type: "number" } }, required: ["legacy"] },
+        "a/b": { type: "object", properties: { escaped: { type: "string" } } },
+      };
+      const distribute = composeTransforms(["distributeAllOf"], definitions);
+      const node = (ref: string): JsonSchema.JsonSchema => ({
+        type: "object",
+        properties: { id: { type: "string" } },
+        allOf: [{ $ref: ref }],
+      });
+
+      const nested = yield* transformFailure(() => distribute(node("#/$defs/Envelope/properties/meta")));
+      expect(nested.transform).toBe("distributeAllOf");
+      expect(nested.message).toContain("Unsupported $ref #/$defs/Envelope/properties/meta");
+
+      const external = yield* transformFailure(() => distribute(node("other.json#/$defs/meta")));
+      expect(external.message).toContain("Unsupported $ref other.json#/$defs/meta");
+
+      expect(distribute(node("#/$defs/a~1b")).properties).toEqual({
+        id: { type: "string" },
+        escaped: { type: "string" },
+      });
+      expect(distribute(node("#/components/schemas/meta"))).toEqual({
+        type: "object",
+        properties: { id: { type: "string" }, legacy: { type: "number" } },
+        required: ["legacy"],
+      });
+
+      const flatten = composeTransforms(["flattenAllOfRefVariants"], definitions);
+      const unresolved = node("#/$defs/Envelope/properties/meta");
+      expect(flatten(unresolved)).toEqual(unresolved);
+    })
+  );
+
+  it.effect("compares intersected constraints structurally regardless of key order", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(["distributeAllOf"], {});
+      const merged = hook({
+        type: "object",
+        properties: { name: { type: "string", minLength: 1 } },
+        additionalProperties: { type: "string", maxLength: 8 },
+        allOf: [
+          {
+            type: "object",
+            properties: { name: { minLength: 1, type: "string" }, tag: { type: "string" } },
+            additionalProperties: { maxLength: 8, type: "string" },
+          },
+        ],
+      });
+
+      expect(merged).toEqual({
+        type: "object",
+        properties: { name: { minLength: 1, type: "string" }, tag: { type: "string" } },
+        additionalProperties: { maxLength: 8, type: "string" },
+      });
+    })
+  );
+
   it.effect("generates the ACP transform set end to end and wraps transform failures", () =>
     Effect.gen(function* () {
       const kit = yield* CodegenKit;
@@ -1005,6 +1088,71 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
         .pipe(Effect.flip);
       expect(failure._tag).toBe("CodegenGenerateError");
       expect(isTransformError(failure.cause)).toBe(true);
+    })
+  );
+
+  it.effect("reports transform failures on OpenAPI formats as typed generate errors", () =>
+    Effect.gen(function* () {
+      const kit = yield* CodegenKit;
+      const formats: ReadonlyArray<GenerateConfig["format"]> = ["httpclient", "httpapi", "type-only"];
+      yield* Effect.logInfo("Codegen stage: generate");
+      const failures = yield* Effect.forEach(formats, (format) =>
+        kit
+          .generate(
+            closedOpenApi,
+            GenerateConfig.make({
+              packageName: "@beep/codegen-kit-fixture",
+              name: "ClosedApi",
+              identity: { composer: "$CodegenKitId", moduleId: "fixture/ClosedApi.gen" },
+              source: { _tag: "file", path: "closed.json" },
+              dialect: "openapi-3.1",
+              transforms: ["unevaluatedPropertiesOpen"],
+              format,
+              output: { path: "ClosedApi.gen.ts" },
+            })
+          )
+          .pipe(Effect.flip)
+      );
+
+      expect(A.map(failures, (failure) => failure._tag)).toEqual([
+        "CodegenGenerateError",
+        "CodegenGenerateError",
+        "CodegenGenerateError",
+      ]);
+      expect(A.map(failures, (failure) => isTransformError(failure.cause))).toEqual([true, true, true]);
+      expect(A.map(failures, (failure) => failure.message)).toEqual([
+        "Could not generate httpclient for @beep/codegen-kit-fixture",
+        "Could not generate httpapi for @beep/codegen-kit-fixture",
+        "Could not generate type-only for @beep/codegen-kit-fixture",
+      ]);
+    })
+  );
+
+  it.effect("points generic HTTP export examples at a configured import specifier", () =>
+    Effect.gen(function* () {
+      const kit = yield* CodegenKit;
+      const httpConfig = GenerateConfig.make({
+        packageName: "@beep/codegen-kit-fixture",
+        identity: { composer: "$CodegenKitId", moduleId: "fixture/v1/http.gen" },
+        source: { _tag: "file", path: "fixture.json" },
+        dialect: "openapi-3.1",
+        format: "httpapi",
+        output: { path: "v1/http.gen.ts", exampleImport: "@beep/codegen-kit-fixture/v1" },
+      });
+      const raw = A.join(
+        [
+          'import * as Effect from "effect/Effect";',
+          'import { HttpApi } from "effect/http-api";',
+          'export class Api extends HttpApi.make("fixture") {}',
+          "export const make = Effect.succeed(Api);",
+        ],
+        "\n"
+      );
+      const output = yield* kit.postProcess(raw, httpConfig);
+
+      expect(output).toContain('import { Api } from "@beep/codegen-kit-fixture/v1"');
+      expect(output).toContain('import { make } from "@beep/codegen-kit-fixture/v1"');
+      expect(output).not.toContain('from "@beep/codegen-kit-fixture"');
     })
   );
 

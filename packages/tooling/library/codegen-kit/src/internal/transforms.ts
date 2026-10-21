@@ -1,5 +1,7 @@
 import * as A from "effect/Array";
-import { dual, flow, pipe } from "effect/Function";
+import * as Equal from "effect/Equal";
+import { dual, pipe } from "effect/Function";
+import * as JsonPointer from "effect/JsonPointer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -46,12 +48,33 @@ const singleRef = (node: JsonSchema.JsonSchema): O.Option<string> =>
     O.filter(P.isString)
   );
 
-const refName: (ref: string) => O.Option<string> = flow(Str.split("/"), A.last, O.filter(Str.isNonEmpty));
+/**
+ * JSON Pointer prefixes that address the document's definition pool. The upstream generator rewrites
+ * `#/components/schemas/<name>` to `#/$defs/<name>` for every dialect the kit feeds it, so both name the
+ * same entry of the `definitions` the kit passes to {@link composeTransforms}.
+ */
+const definitionPools: ReadonlyArray<ReadonlyArray<string>> = [["$defs"], ["components", "schemas"]];
+
+const isDefinitionPointer =
+  (path: ReadonlyArray<string>) =>
+  (pool: ReadonlyArray<string>): boolean =>
+    A.length(path) === A.length(pool) + 1 && A.every(pool, (token, index) => path[index] === token);
+
+/**
+ * Resolves a same-document `$ref` to its definition key by its full, unescaped JSON pointer. Nested
+ * pointers (`#/$defs/A/properties/b`) and external references (`other.json#/$defs/A`) have no key.
+ */
+const definitionKey = (ref: string): O.Option<string> =>
+  pipe(
+    O.fromUndefinedOr(JsonPointer.parseUriFragment(ref)),
+    O.filter((path) => A.some(definitionPools, isDefinitionPointer(path))),
+    O.flatMap(A.last)
+  );
 
 const refTarget = (definitions: JsonSchema.Definitions, ref: string): O.Option<JsonSchema.JsonSchema> =>
   pipe(
-    refName(ref),
-    O.flatMap((name) => R.get(definitions, name))
+    definitionKey(ref),
+    O.flatMap((key) => R.get(definitions, key))
   );
 
 const isMergeableTarget = (node: JsonSchema.JsonSchema): boolean =>
@@ -293,8 +316,6 @@ const walkSchema = (value: unknown, visit: (node: Record<string, unknown>) => un
   return visit(children);
 };
 
-const sameJson = (left: unknown, right: unknown): boolean => JSON.stringify(left) === JSON.stringify(right);
-
 const failDistribute = (message: string): never => transformFailure("distributeAllOf", message);
 
 const mergeIntersection = (
@@ -311,7 +332,7 @@ const mergeIntersection = (
   if (A.isArray(right.anyOf)) return { anyOf: A.map(right.anyOf, (branch) => mergeIntersection(left, branch, inline)) };
   for (const key of R.keys(left)) {
     if (key === "properties" || key === "required" || isAnnotationKeyword(key)) continue;
-    if (right[key] !== undefined && !sameJson(left[key], right[key])) {
+    if (right[key] !== undefined && !Equal.equals(left[key], right[key])) {
       return failDistribute(`Unsupported conflicting schema constraint: ${key}`);
     }
   }
@@ -342,7 +363,7 @@ const mergeOverlappingProperties = (
   right: Record<string, unknown>
 ): Record<string, unknown> => {
   for (const key of R.keys(left)) {
-    if (right[key] !== undefined && !sameJson(left[key], right[key])) {
+    if (right[key] !== undefined && !Equal.equals(left[key], right[key])) {
       return failDistribute(`Unsupported overlapping schema property: ${key}`);
     }
   }
@@ -365,7 +386,9 @@ const makeDistributeAllOf = (definitions: JsonSchema.Definitions, normalize: Nod
   const flatten = (value: unknown): unknown => walkSchema(value, (node) => distributeNode(node, inline));
   const inline = (ref: string): unknown =>
     pipe(
-      refTarget(definitions, ref),
+      definitionKey(ref),
+      O.getOrElse(() => failDistribute(`Unsupported $ref ${ref}: use #/$defs/<name> or #/components/schemas/<name>`)),
+      (key) => R.get(definitions, key),
       O.map((target) => flatten(normalizeDeep(target))),
       O.getOrElse(() => failDistribute(`Missing definition ${ref}`))
     );

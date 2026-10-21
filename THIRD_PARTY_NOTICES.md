@@ -169,6 +169,12 @@ Upstream repository: <https://github.com/pingdotgg/t3code>
     compatibility layer, RPC groups, schema normalization in its code
     generator, and ported test cases and fixtures. The material is adapted to
     this repository's schema-first and Effect conventions.
+  - Affected material: the ACP schema transforms of `@beep/codegen-kit`
+    (`packages/tooling/library/codegen-kit/src/internal/transforms.ts`:
+    `notDiscriminatorPattern`, `unevaluatedPropertiesOpen`,
+    `uniqueDiscriminatorOneOfAsAnyOf` and `distributeAllOf`), which adapt the
+    schema normalizations of `packages/effect-acp/scripts/generate.ts` into
+    registered, opt-in generator transforms, and their test cases.
 
 MIT License
 

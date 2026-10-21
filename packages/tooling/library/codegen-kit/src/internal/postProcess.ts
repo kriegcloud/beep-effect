@@ -636,7 +636,7 @@ const renderGenericDoc = (name: string, typeOnly: boolean, config: GenerateConfi
             ` * **Example** (Inspect ${name})`,
             " *",
             " * ```ts",
-            ` * import { ${name} } from "${config.packageName}"`,
+            ` * import { ${name} } from "${config.output.exampleImport ?? config.packageName}"`,
             " *",
             ` * console.log(${name})`,
             " * ```",

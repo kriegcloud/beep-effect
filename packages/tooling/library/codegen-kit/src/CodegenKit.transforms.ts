@@ -37,8 +37,10 @@ export type NodeTransform = InternalNodeTransform;
  * The kit passes this hook to the upstream generator as `onEnter`, so it receives the raw document
  * definitions. `distributeAllOf` applies the other selected transforms to every subtree and every
  * inlined `$ref` target before it distributes, and all registered transforms are idempotent, so a
- * node that was already rewritten passes through unchanged. Unsupported shapes throw a
- * `CodegenTransformError`, which generation reports as the cause of a `CodegenGenerateError`.
+ * node that was already rewritten passes through unchanged. A `$ref` resolves only when its full JSON
+ * pointer is `#/$defs/<name>` or `#/components/schemas/<name>`; nested pointers and external references
+ * never resolve to a definition. Unsupported shapes throw a `CodegenTransformError`, which generation
+ * reports, for every output format, as the cause of a `CodegenGenerateError`.
  *
  * **Example** (Lower an ACP forward-compatible variant)
  *

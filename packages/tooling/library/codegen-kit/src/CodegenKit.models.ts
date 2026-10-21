@@ -159,7 +159,8 @@ export type OutputFormat = typeof OutputFormat.Type;
  * `uniqueDiscriminatorOneOfAsAnyOf` turns a `oneOf` whose branches carry distinct string
  * discriminators into the equivalent `anyOf`. `distributeAllOf` merges `allOf` parts and distributes
  * object intersections over `anyOf` unions, inlining `$ref` targets after applying the other selected
- * transforms to them. Unsupported shapes fail with a `CodegenTransformError`.
+ * transforms to them. A `$ref` names a definition only by its full pointer, `#/$defs/<name>` or
+ * `#/components/schemas/<name>`. Unsupported shapes fail with a `CodegenTransformError`.
  *
  * **Example** (Select the ACP transform set)
  *
@@ -347,8 +348,9 @@ export class GeneratePatch extends S.Opaque<GeneratePatch, { readonly brand: uni
  *
  * **Details**
  *
- * `exampleImport` replaces the module specifier used by generated `**Example**` blocks. When omitted,
- * struct-style schemas import from `<packageName>/schema` and class-style schemas from `<packageName>`.
+ * `exampleImport` replaces the module specifier used by generated `**Example**` blocks in every output
+ * format. When omitted, struct-style schemas import from `<packageName>/schema`, and class-style schemas
+ * and the exports of `httpclient`, `httpapi` and `type-only` modules import from `<packageName>`.
  *
  * **Example** (Prefix the generated module with a do-not-edit banner)
  *
