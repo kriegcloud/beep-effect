@@ -141,7 +141,7 @@ export class MemoryReviewConflict extends Model<MemoryReviewConflict>("MemoryRev
       pg.doublePrecision(),
       pg.columnName("impact"),
     ),
-    status: S.Literal("pending").annotateKey({ description: "Review queue status. New conflicts are pending." }).pipe(
+    status: S.tag("pending").annotateKey({ description: "Review queue status. New conflicts are pending." }).pipe(
       pg.text(),
       pg.columnName("status"),
     ),

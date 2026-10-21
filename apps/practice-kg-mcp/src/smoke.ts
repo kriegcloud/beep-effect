@@ -48,7 +48,7 @@ class SmokeToolsResponse extends S.Opaque<SmokeToolsResponse, { readonly brand: 
 ) {}
 
 class SmokeServerInfo extends S.Opaque<SmokeServerInfo, { readonly brand: unique symbol }>()(
-  S.Struct({ name: S.Literal("beep-practice-kg") }).pipe(
+  S.Struct({ name: S.tag("beep-practice-kg") }).pipe(
     $I.annoteSchema("SmokeServerInfo", { description: "Server identity returned by MCP initialization." })
   )
 ) {}
@@ -113,7 +113,7 @@ class SmokeManifest extends S.Opaque<SmokeManifest, { readonly brand: unique sym
 ) {}
 
 class SmokeCallContent extends S.Opaque<SmokeCallContent, { readonly brand: unique symbol }>()(
-  S.Struct({ text: S.String, type: S.Literal("text") }).pipe(
+  S.Struct({ text: S.String, type: S.tag("text") }).pipe(
     $I.annoteSchema("SmokeCallContent", { description: "Text content item returned by a compiled-host tool call." })
   )
 ) {}
@@ -352,13 +352,13 @@ const runCompiledHost = Effect.fn("PracticeKgSmoke.runCompiledHost")(function* (
 const HANDSHAKE_PROTOCOL_VERSION = "2025-11-25";
 
 class SmokeInitializeResult extends S.Opaque<SmokeInitializeResult, { readonly brand: unique symbol }>()(
-  S.Struct({ protocolVersion: S.Literal(HANDSHAKE_PROTOCOL_VERSION), serverInfo: SmokeServerInfo }).pipe(
+  S.Struct({ protocolVersion: S.tag(HANDSHAKE_PROTOCOL_VERSION), serverInfo: SmokeServerInfo }).pipe(
     $I.annoteSchema("SmokeInitializeResult", { description: "Initialize result negotiated by the compiled MCP host." })
   )
 ) {}
 
 class SmokeInitializeResponse extends S.Opaque<SmokeInitializeResponse, { readonly brand: unique symbol }>()(
-  S.Struct({ id: S.Literal(0), result: SmokeInitializeResult }).pipe(
+  S.Struct({ id: S.tag(0), result: SmokeInitializeResult }).pipe(
     $I.annoteSchema("SmokeInitializeResponse", {
       description: "Initialize JSON-RPC response from the compiled MCP host.",
     })
@@ -366,7 +366,7 @@ class SmokeInitializeResponse extends S.Opaque<SmokeInitializeResponse, { readon
 ) {}
 
 class SmokeHandshakeToolsResponse extends S.Opaque<SmokeHandshakeToolsResponse, { readonly brand: unique symbol }>()(
-  S.Struct({ id: S.Literal(1), result: SmokeToolsResult }).pipe(
+  S.Struct({ id: S.tag(1), result: SmokeToolsResult }).pipe(
     $I.annoteSchema("SmokeHandshakeToolsResponse", { description: "Tool list returned after an initialize handshake." })
   )
 ) {}

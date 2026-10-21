@@ -96,14 +96,14 @@ class AwsEbsBlockDevice extends S.Opaque<AwsEbsBlockDevice, { readonly brand: un
     Iops: S.Int,
     Throughput: S.Int,
     VolumeSize: S.Int,
-    VolumeType: S.Literal("gp3"),
+    VolumeType: S.tag("gp3"),
   }).pipe(
     $I.annoteSchema("AwsEbsBlockDevice", { description: "EBS settings for the temporary bake instance root volume." })
   )
 ) {}
 
 class AwsBlockDeviceMapping extends S.Opaque<AwsBlockDeviceMapping, { readonly brand: unique symbol }>()(
-  S.Struct({ DeviceName: S.Literal("/dev/xvda"), Ebs: AwsEbsBlockDevice }).pipe(
+  S.Struct({ DeviceName: S.tag("/dev/xvda"), Ebs: AwsEbsBlockDevice }).pipe(
     $I.annoteSchema("AwsBlockDeviceMapping", { description: "EC2 root block-device override for a runner bake." })
   )
 ) {}

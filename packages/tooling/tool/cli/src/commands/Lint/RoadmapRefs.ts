@@ -69,8 +69,8 @@ const RoadmapPolicySeverity = LiteralKit(["warning", "error"]).pipe(
 
 class RoadmapPolicyFinding extends S.Opaque<RoadmapPolicyFinding, { readonly brand: unique symbol }>()(
   S.Struct({
-    category: S.Literal("roadmap-policy"),
-    ruleId: S.Literal("roadmap-ref"),
+    category: S.tag("roadmap-policy"),
+    ruleId: S.tag("roadmap-ref"),
     severity: RoadmapPolicySeverity,
     target: S.String,
     file: S.String,

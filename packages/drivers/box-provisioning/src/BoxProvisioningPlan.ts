@@ -433,9 +433,7 @@ export class BoxForeignResource extends S.Opaque<BoxForeignResource, { readonly 
  */
 export class BoxProvisioningPlan extends S.Opaque<BoxProvisioningPlan, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("box-provisioning-plan/v1").pipe(
-      S.withConstructorDefault(Effect.succeed("box-provisioning-plan/v1"))
-    ),
+    version: S.tag("box-provisioning-plan/v1"),
     sourceRevision: BoxSourceRevision,
     expectedEnterpriseId: BoxProviderId,
     subjectId: BoxProviderId,

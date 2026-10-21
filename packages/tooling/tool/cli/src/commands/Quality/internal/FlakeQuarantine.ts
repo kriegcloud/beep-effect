@@ -211,7 +211,7 @@ export class FlakeQuarantineIncident extends S.Opaque<FlakeQuarantineIncident, {
  */
 export class FlakeQuarantineArtifact extends S.Opaque<FlakeQuarantineArtifact, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-flake-quarantine/v1"),
+    schemaVersion: S.tag("yeet-flake-quarantine/v1"),
     incidents: S.Array(FlakeQuarantineIncident),
   }).pipe(
     $I.annoteSchema("FlakeQuarantineArtifact", {

@@ -615,9 +615,7 @@ export class AiMetricsMirrorStatus extends S.Opaque<AiMetricsMirrorStatus, { rea
   S.Struct({
     bundleId: S.String,
     createdAtEpochMillis: S.Finite,
-    mirrorStatusSchemaVersion: S.Literal(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_status.v1"]).pipe(
-      S.withConstructorDefault(Effect.succeed(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_status.v1"]))
-    ),
+    mirrorStatusSchemaVersion: S.tag(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_status.v1"]),
     remoteRoot: S.String,
     rowCounts: S.Record(S.String, S.Finite),
     syncStatus: AiMetricsMirrorSyncStatus.pipe(
@@ -686,18 +684,14 @@ export class AiMetricsMirrorBundleManifest extends S.Opaque<
     bundleId: S.String,
     createdAtEpochMillis: S.Finite,
     includedTables: S.Array(S.String),
-    mirrorStatusSchemaVersion: S.Literal(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_status.v1"]).pipe(
-      S.withConstructorDefault(Effect.succeed(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_status.v1"]))
-    ),
+    mirrorStatusSchemaVersion: S.tag(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_status.v1"]),
     omittedDataClasses: S.Array(AiMetricsMirrorOmittedDataClass),
     omittedTables: S.Array(S.String),
     p6ProofPreserved: S.Boolean,
     privacyProof: AiMetricsMirrorPrivacyProof,
     remoteRoot: S.String,
     rowCounts: S.Record(S.String, S.Finite),
-    schemaVersion: S.Literal(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_bundle.v1"]).pipe(
-      S.withConstructorDefault(Effect.succeed(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_bundle.v1"]))
-    ),
+    schemaVersion: S.tag(AiMetricsMirrorSchemaVersion.Enum["beep.ai_metrics.mirror_bundle.v1"]),
     sourceDataClass: AiMetricsMirrorSourceDataClass.pipe(
       S.withConstructorDefault(
         Effect.succeed(AiMetricsMirrorSourceDataClass.Enum.workstation_local_sanitized_derived_storage)

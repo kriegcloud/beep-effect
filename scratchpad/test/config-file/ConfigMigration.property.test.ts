@@ -24,8 +24,8 @@ describe("ConfigMigration schema properties", () => {
 import { ConfigMigration } from "../../effected/config-file/ConfigMigration.ts";
 import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
 
-const Latest = S.Struct({ version: S.Literal(2), payload: S.Json });
-const Previous = S.Struct({ version: S.Literal(1), payload: S.Json });
+const Latest = S.Struct({ version: S.tag(2), payload: S.Json });
+const Previous = S.Struct({ version: S.tag(1), payload: S.Json });
 const migrating = ConfigMigration.make({ codec: JsonCodec, migrations: [{ version: 2, name: "upgrade", up: Effect.succeed }] });
 
 it.effect.prop("migration codec round-trips current documents and normalization is idempotent", [Arbitrary.schema(Latest)], ([value]) =>

@@ -195,7 +195,7 @@ export class ImageAuditManifest extends S.Opaque<ImageAuditManifest, { readonly 
     duplicateClusters: S.Array(ImageAuditCluster),
     entries: S.Array(ImageAuditEntry),
     manifestPath: S.String,
-    schemaVersion: S.Literal("beep.files.image-audit.v2"),
+    schemaVersion: S.tag("beep.files.image-audit.v2"),
     sessionClusters: S.Array(ImageAuditCluster),
     similarityPairs: S.Array(ImageAuditSimilarityPair),
     skipped: S.Array(ImageAuditSkippedEntry),

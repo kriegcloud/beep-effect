@@ -13,23 +13,61 @@
 import { $ScratchpadId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
+import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
+import * as Hex from "effect/encoding/Hex";
 import * as Equal from "effect/Equal";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import * as PlatformError from "effect/PlatformError";
 import * as Record from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tuple from "effect/Tuple";
-import { v4 as uuidV4, v5 as uuidV5 } from "uuid";
 import { Model, bool, optionalText, pg, text } from "./Kit.ts";
 import { boolDefault, optionDefault, textDefault } from "./Port.ts";
 import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("beep/TranscriptSegment");
 
-const NAMESPACE_URL = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
+// RFC 9562 URL namespace 6ba7b811-9dad-11d1-80b4-00c04fd430c8 in network byte order.
+const NAMESPACE_URL = Uint8Array.of(
+  0x6b, 0xa7, 0xb8, 0x11, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8,
+);
+
+const textEncoder = new TextEncoder();
+
+/**
+ * RFC 9562 name-based UUIDv5 from the `Crypto` service's SHA-1 digest.
+ *
+ * SHA-1 over the namespace bytes and the UTF-8 name, truncated to 16 bytes,
+ * with version 5 and the RFC variant written into bytes 6 and 8. A name with a
+ * lone surrogate has no UTF-8 encoding, so it fails instead of hashing as U+FFFD.
+ */
+const uuidV5 = Effect.fnUntraced(function* (
+  name: string,
+  namespace: Uint8Array,
+): Effect.fn.Return<string, PlatformError.PlatformError, Crypto.Crypto> {
+  if (!name.isWellFormed()) {
+    return yield* PlatformError.badArgument({
+      module: "TranscriptSegment",
+      method: "uuidV5",
+      description: "name must be well-formed UTF-16",
+    });
+  }
+  const crypto = yield* Crypto.Crypto;
+  const nameBytes = textEncoder.encode(name);
+  const input = new Uint8Array(namespace.length + nameBytes.length);
+  input.set(namespace);
+  input.set(nameBytes, namespace.length);
+  const bytes = (yield* crypto.digest("SHA-1", input)).slice(0, 16);
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  view.setUint8(6, (view.getUint8(6) & 0x0f) | 0x50);
+  view.setUint8(8, (view.getUint8(8) & 0x3f) | 0x80);
+  const hex = Hex.encode(bytes);
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+});
 
 /**
  * Sentence-ending punctuation shared by the merge helpers.
@@ -90,15 +128,24 @@ export const SENTENCE_FINDALL_RE = new RegExp(`[^${SENTENCE_ENDERS}]+(?:${senten
  *
  * **Details**
  *
- * `uuid5(NAMESPACE_URL, omi/conversations/{id}/transcript-segments/{index})`.
- * Reads and manual writes share this id.
+ * `uuid5(NAMESPACE_URL, omi/conversations/{id}/transcript-segments/{index})`,
+ * hashed with the `Crypto` service's SHA-1 digest. Reads and manual writes
+ * share this id.
+ *
+ * **Gotchas**
+ *
+ * A conversation id with a lone surrogate fails with a `BadArgument`
+ * `PlatformError`, as the `uuid` package and Python's `uuid5` did.
  *
  * **Example** (Mint the first segment id)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
+ * import * as Effect from "effect/Effect"
  * import { legacyConversationSegmentId } from "./TranscriptSegment.ts"
  *
- * console.log(legacyConversationSegmentId("conv-1", 0))
+ * const id = Effect.runSync(legacyConversationSegmentId("conv-1", 0).pipe(Effect.provide(BunCrypto.layer)))
+ * console.log(id)
  * // "da57cb65-5efc-5c8a-9e87-2959d45b8279"
  * ```
  *
@@ -106,10 +153,13 @@ export const SENTENCE_FINDALL_RE = new RegExp(`[^${SENTENCE_ENDERS}]+(?:${senten
  * @since 0.0.0
  */
 export const legacyConversationSegmentId: {
-  (conversationId: string, index: number): string,
-  (index: number): (conversationId: string)=> string
-} = dual(2, (conversationId: string, index: number): string =>
-  uuidV5(`omi/conversations/${conversationId}/transcript-segments/${index}`, NAMESPACE_URL));
+  (conversationId: string, index: number): Effect.Effect<string, PlatformError.PlatformError, Crypto.Crypto>;
+  (index: number): (conversationId: string) => Effect.Effect<string, PlatformError.PlatformError, Crypto.Crypto>;
+} = dual(
+  2,
+  (conversationId: string, index: number): Effect.Effect<string, PlatformError.PlatformError, Crypto.Crypto> =>
+    uuidV5(`omi/conversations/${conversationId}/transcript-segments/${index}`, NAMESPACE_URL),
+);
 
 /**
  * Evidence state behind the legacy `isUser` boolean.
@@ -324,7 +374,8 @@ const optionText = (value: string | null | undefined): O.Option<string> =>
  * **Details**
  *
  * Missing `speaker` becomes `SPEAKER_00`. Null stays empty. A missing id, or
- * an empty one, is a new uuid4. `isUser` without a status stores `user`.
+ * an empty one, is a new UUIDv4 from the `Crypto` service. `isUser` without a
+ * status stores `user`.
  * `speakerId` is parsed from `SPEAKER_N` only when it was not provided.
  *
  * **Gotchas**
@@ -335,12 +386,15 @@ const optionText = (value: string | null | undefined): O.Option<string> =>
  * **Example** (Parse a speaker label)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
  * import { prepareTranscriptSegment } from "./TranscriptSegment.ts"
  *
  * const prepared = Effect.runSync(
- *   prepareTranscriptSegment({ text: "Hello", speaker: "SPEAKER_03", isUser: false, start: 0, end: 1 }),
+ *   prepareTranscriptSegment({ text: "Hello", speaker: "SPEAKER_03", isUser: false, start: 0, end: 1 }).pipe(
+ *     Effect.provide(BunCrypto.layer),
+ *   ),
  * )
  * console.log(prepared.segment.speakerId) // 3
  * console.log(prepared.speakerIdSynthesized) // false
@@ -354,7 +408,9 @@ export const prepareTranscriptSegment = Effect.fn("TranscriptSegment.prepare")(f
   input: TranscriptSegmentIngress,
 ) {
   const id =
-    input.id !== undefined && input.id !== null && !Str.isEmpty(input.id) ? input.id : yield* Effect.sync(() => uuidV4());
+    input.id !== undefined && input.id !== null && !Str.isEmpty(input.id)
+      ? input.id
+      : yield* Crypto.Crypto.use((crypto) => crypto.randomUUIDv4());
   const speaker = input.speaker === undefined ? O.some("SPEAKER_00") : optionText(input.speaker);
   const speakerId =
     input.speakerId !== undefined && input.speakerId !== null

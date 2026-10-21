@@ -18,8 +18,8 @@ import type { AgentMessageStoreShape } from "./AgentMessage.store.ts";
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.service");
 const isExpiredCompletion = S.is(
   S.Struct({
-    code: S.Literal("staleClaim"),
-    message: S.Literal("Dispatch lease expired before its result was recorded."),
+    code: S.tag("staleClaim"),
+    message: S.tag("Dispatch lease expired before its result was recorded."),
   })
 );
 

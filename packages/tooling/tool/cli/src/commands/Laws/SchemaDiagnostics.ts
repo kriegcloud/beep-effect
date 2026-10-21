@@ -51,7 +51,7 @@ const formatStandardIssue = (diagnostic: StandardIssueDiagnostic): string =>
  * import * as Result from "effect/Result";
  * import * as S from "effect/Schema"
  *
- * const result = S.decodeUnknownResult(S.Struct({ token: S.Literal("expected-token") }))({ token: "sk-test-secret" })
+ * const result = S.decodeUnknownResult(S.Struct({ token: S.tag("expected-token") }))({ token: "sk-test-secret" })
  * if (Result.isFailure(result)) {
  *   console.log(formatSchemaDiagnostics(result.failure).some((line) => line.includes("expected-token"))) // true
  * }
@@ -82,7 +82,7 @@ export const formatSchemaDiagnostics = (errorOrIssue: S.SchemaError | SchemaIssu
  * import * as Result from "effect/Result";
  * import * as S from "effect/Schema"
  *
- * const result = S.decodeUnknownResult(S.Struct({ token: S.Literal("expected-token") }))({ token: "sk-test-secret" })
+ * const result = S.decodeUnknownResult(S.Struct({ token: S.tag("expected-token") }))({ token: "sk-test-secret" })
  * if (Result.isFailure(result)) {
  *   console.log(formatRedactedSchemaDiagnostics(result.failure).some((line) => line.includes("sk-test-secret"))) // false
  * }

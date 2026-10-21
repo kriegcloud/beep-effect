@@ -623,7 +623,7 @@ export const CanonicalNormalizedFixtures: readonly [NormalizedFixture, Normalize
  * @since 0.0.0
  */
 const RuleSourceFields = S.Struct({
-  accessedOn: S.Literal("2026-08-25"),
+  accessedOn: S.tag("2026-08-25"),
   evidence: S.NonEmptyString,
   evidenceAnchor: TextAnchor,
   id: EntityId,
@@ -863,7 +863,7 @@ export const ProviderCandidateListFromJsonString = S.fromJsonString(
 
 const ProviderRecordingFields = S.Struct({
   candidates: S.Tuple([ProviderCandidate, ProviderCandidate, ProviderCandidate]),
-  documentId: S.Literal(PROVIDER_RECORDING_DOCUMENT_ID),
+  documentId: S.tag(PROVIDER_RECORDING_DOCUMENT_ID),
   extractionContractRevision: S.tag("lejeune-rfq-a-extraction/v1"),
   model: S.NonEmptyString,
   provider: LiteralKit(["anthropic", "openai-compat", "xai"]),
@@ -968,7 +968,7 @@ export class ProjectionSnapshot extends S.Opaque<ProjectionSnapshot, { readonly 
       S.Literal("source:fastenal-a490-coating|https://blueprint.fastenal.com/structural-bolts.html"),
       S.Literal("source:portland-bolt-astm-f959|https://www.portlandbolt.com/technical/specifications/astm-f959/"),
     ]),
-    documentCount: S.Literal(4),
+    documentCount: S.tag(4),
     documentDigests: S.Tuple([
       S.Literal("rfq-a-outlook-body|ee38c21a1635fa152f1e48914ae2c2ce3761d5ada7f96b8c7c3d5a50e808f3b5"),
       S.Literal("rfq-a-xlsx-takeoff|2ef7617efaf7b70880d8cce16744fa85f5e5c9c6bc558b1f09f1685036a5adda"),
@@ -1031,12 +1031,12 @@ export class ProjectionSnapshot extends S.Opaque<ProjectionSnapshot, { readonly 
  * @since 0.0.0
  */
 const ImmutableDemoBundleFields = S.Struct({
-  bundleVersion: S.Literal(BUNDLE_VERSION),
+  bundleVersion: S.tag(BUNDLE_VERSION),
   certificates: S.Tuple([LotCertificate, LotCertificate]),
   finishes: S.Tuple([Finish, Finish]),
   fixtures: S.Tuple([NormalizedFixture, NormalizedFixture]),
-  mutableCorpusDisposition: S.Literal("delete-or-promote"),
-  mutableCorpusDispositionDate: S.Literal(MUTABLE_CORPUS_DISPOSITION_DATE),
+  mutableCorpusDisposition: S.tag("delete-or-promote"),
+  mutableCorpusDispositionDate: S.tag(MUTABLE_CORPUS_DISPOSITION_DATE),
   offers: S.Tuple([SupplierOffer, SupplierOffer]),
   projection: ProjectionSnapshot,
   providerRecording: FrozenProviderRecording,
@@ -1049,7 +1049,7 @@ type ImmutableDemoBundleFields = typeof ImmutableDemoBundleFields.Type;
 
 class CanonicalRuleSourceContract extends S.Opaque<CanonicalRuleSourceContract, { readonly brand: unique symbol }>()(
   S.Struct({
-    accessedOn: S.Literal("2026-08-25"),
+    accessedOn: S.tag("2026-08-25"),
     evidence: S.NonEmptyString,
     id: EntityId,
     researchPath: PosixPath,
@@ -1387,9 +1387,9 @@ export class MutableReviewLedger extends S.Opaque<MutableReviewLedger, { readonl
   S.Struct({
     approvals: S.Tuple([]),
     claims: S.Tuple([]),
-    disposition: S.Literal("delete-or-promote"),
-    dispositionDate: S.Literal(MUTABLE_CORPUS_DISPOSITION_DATE),
-    schemaVersion: S.Literal("lejeune-review-ledger/v1"),
+    disposition: S.tag("delete-or-promote"),
+    dispositionDate: S.tag(MUTABLE_CORPUS_DISPOSITION_DATE),
+    schemaVersion: S.tag("lejeune-review-ledger/v1"),
   }).pipe(
     $I.annoteSchema("MutableReviewLedger", {
       description: "Mutable approvals and reviewed claims governed by the explicit 2026-09-30 disposition.",
@@ -1413,12 +1413,12 @@ export class MutableReviewLedger extends S.Opaque<MutableReviewLedger, { readonl
  */
 export class GoldenReplayReceipt extends S.Opaque<GoldenReplayReceipt, { readonly brand: unique symbol }>()(
   S.Struct({
-    bundleVersion: S.Literal(BUNDLE_VERSION),
+    bundleVersion: S.tag(BUNDLE_VERSION),
     bundleIdentity: Sha256Hex,
-    networkAvailable: S.Literal(false),
+    networkAvailable: S.tag(false),
     projection: ProjectionSnapshot,
-    providerAvailable: S.Literal(false),
-    replayMode: S.Literal("recorded-offline"),
+    providerAvailable: S.tag(false),
+    replayMode: S.tag("recorded-offline"),
     schemaVersion: S.tag("lejeune-golden-replay/v1"),
   }).pipe(
     $I.annoteSchema("GoldenReplayReceipt", {
@@ -1504,7 +1504,7 @@ export class RetentionAuthorization extends S.Opaque<RetentionAuthorization, { r
 ) {}
 
 const MutableRetentionMetadataFields = S.Struct({
-  disposition: S.Literal("delete-or-promote"),
+  disposition: S.tag("delete-or-promote"),
   dispositionDate: IsoDate,
   retentionAuthorization: S.OptionFromOptionalKey(RetentionAuthorization).pipe(
     S.withConstructorDefault(Effect.succeedNone)
@@ -1619,8 +1619,8 @@ export const MutableRetentionMetadataArbitrary = RetentionAuthorization.pipe(
 export class ProjectionStoreMetadata extends S.Opaque<ProjectionStoreMetadata, { readonly brand: unique symbol }>()(
   S.Struct({
     bundleIdentity: Sha256Hex,
-    bundleVersion: S.Literal(BUNDLE_VERSION),
-    projectionSchemaVersion: S.Literal("lejeune-projection-stores/v1"),
+    bundleVersion: S.tag(BUNDLE_VERSION),
+    projectionSchemaVersion: S.tag("lejeune-projection-stores/v1"),
     schemaVersion: S.tag("lejeune-projection-metadata/v1"),
     stores: S.Tuple([S.Literal("pglite"), S.Literal("duckdb")]),
   }).pipe(

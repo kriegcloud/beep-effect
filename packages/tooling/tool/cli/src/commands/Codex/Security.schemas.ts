@@ -156,13 +156,13 @@ class Artifact extends S.Opaque<Artifact, { readonly brand: unique symbol }>()(
   )
 ) {}
 class Producer extends S.Opaque<Producer, { readonly brand: unique symbol }>()(
-  S.Struct({ name: S.Literal("codex-security-plugin"), version: S.Literal(SECURITY_PLUGIN_VERSION) }).pipe(
+  S.Struct({ name: S.tag("codex-security-plugin"), version: S.tag(SECURITY_PLUGIN_VERSION) }).pipe(
     $I.annoteSchema("Producer", { description: `Bundled producer supported by SDK ${SECURITY_PACKAGE_VERSION}.` })
   )
 ) {}
 class Target extends S.Opaque<Target, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("git_revision"),
+    kind: S.tag("git_revision"),
     revision: GitCommitSha,
     remote: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     targetId: S.NonEmptyString,
@@ -192,7 +192,7 @@ class Target extends S.Opaque<Target, { readonly brand: unique symbol }>()(
  */
 export class SecuritySourceReceipt extends S.Opaque<SecuritySourceReceipt, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("beep-security-source/v1"),
+    schemaVersion: S.tag("beep-security-source/v1"),
     repository: GitHubRepoSlug,
     revision: GitCommitSha,
   }).pipe(
@@ -232,15 +232,15 @@ class Scan extends S.Opaque<Scan, { readonly brand: unique symbol }>()(
   S.Struct({
     id: ScanId,
     producer: Producer,
-    status: S.Literal("completed"),
+    status: S.tag("completed"),
     startedAt: Timestamp,
     completedAt: Timestamp,
     sealedAt: Timestamp,
     target: Target,
     scope: Scope,
     extensions: S.OptionFromOptionalKey(Extensions).pipe(S.withConstructorDefault(Effect.succeedNone)),
-    coverageRef: S.Literal("coverage.json"),
-    findingsRef: S.Literal("findings.json"),
+    coverageRef: S.tag("coverage.json"),
+    findingsRef: S.tag("findings.json"),
     artifacts: S.Array(Artifact).check(S.isMinLength(2), S.isMaxLength(10000)),
   }).pipe($I.annoteSchema("Scan", { description: "Completed immutable scan with artifact integrity records." }))
 ) {}
@@ -260,8 +260,8 @@ class Scan extends S.Opaque<Scan, { readonly brand: unique symbol }>()(
  */
 export class SecurityManifest extends S.Opaque<SecurityManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    documentType: S.Literal("codex-security.scan-manifest"),
-    schemaVersion: S.Literal("1.0"),
+    documentType: S.tag("codex-security.scan-manifest"),
+    schemaVersion: S.tag("1.0"),
     scan: Scan,
   }).pipe($I.annoteSchema("SecurityManifest", { description: "Consumed fields of the sealed scan manifest." }))
 ) {}
@@ -309,7 +309,7 @@ class Location extends S.Opaque<Location, { readonly brand: unique symbol }>()(
 ) {}
 class Fingerprints extends S.Opaque<Fingerprints, { readonly brand: unique symbol }>()(
   S.Struct({
-    algorithm: S.Literal("codex-security/v1"),
+    algorithm: S.tag("codex-security/v1"),
     primary: S.String.check(S.isPattern(/^codex-security\/v1:sha256:[a-f0-9]{64}$/)),
   }).pipe($I.annoteSchema("Fingerprints", { description: "Producer's root-cause fingerprint." }))
 ) {}
@@ -345,8 +345,8 @@ class Finding extends S.Opaque<Finding, { readonly brand: unique symbol }>()(
  */
 export class SecurityFindings extends S.Opaque<SecurityFindings, { readonly brand: unique symbol }>()(
   S.Struct({
-    documentType: S.Literal("codex-security.findings"),
-    schemaVersion: S.Literal("1.0"),
+    documentType: S.tag("codex-security.findings"),
+    schemaVersion: S.tag("1.0"),
     scanId: ScanId,
     findings: S.Array(Finding).check(S.isMaxLength(500)),
   }).pipe($I.annoteSchema("SecurityFindings", { description: "Finding capture projection from a sealed local scan." }))
@@ -367,8 +367,8 @@ export class SecurityFindings extends S.Opaque<SecurityFindings, { readonly bran
  */
 export class SecurityCoverage extends S.Opaque<SecurityCoverage, { readonly brand: unique symbol }>()(
   S.Struct({
-    documentType: S.Literal("codex-security.coverage"),
-    schemaVersion: S.Literal("1.0"),
+    documentType: S.tag("codex-security.coverage"),
+    schemaVersion: S.tag("1.0"),
     scanId: ScanId,
     completeness: LiteralKit(["complete", "partial", "unknown"]),
     includePaths: S.Array(S.String),

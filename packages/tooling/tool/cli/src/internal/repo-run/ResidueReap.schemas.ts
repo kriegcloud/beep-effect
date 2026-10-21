@@ -271,7 +271,7 @@ export type ResidueReapKeepCount = typeof ResidueReapKeepCount.Type;
  */
 export class QualificationViewReceipt extends S.Opaque<QualificationViewReceipt, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("cache-dependency-materialization/v1"),
+    schemaVersion: S.tag("cache-dependency-materialization/v1"),
     directory: S.String,
   }).pipe(
     $I.annoteSchema("QualificationViewReceipt", {

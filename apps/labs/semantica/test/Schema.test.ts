@@ -506,7 +506,7 @@ const metricScores = A.map(requiredC0, (required) =>
 );
 
 const EvalReportBodySchema = S.Struct({
-  schemaVersion: S.Literal("eval-report/v1"),
+  schemaVersion: S.tag("eval-report/v1"),
   run: EvalRun,
   documents: S.NonEmptyArray(DocumentOutcome),
   metrics: S.NonEmptyArray(MetricScore),

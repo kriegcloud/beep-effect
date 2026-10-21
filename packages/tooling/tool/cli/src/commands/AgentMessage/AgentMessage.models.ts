@@ -458,15 +458,11 @@ export type MessageTarget = typeof MessageTarget.Type;
  */
 export class Envelope extends S.Opaque<Envelope, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("agent-message/v1").pipe(
-      S.withDecodingDefaultKey(Effect.succeed<"agent-message/v1">("agent-message/v1")),
-      S.withConstructorDefault(Effect.succeed<"agent-message/v1">("agent-message/v1"))
+    schemaVersion: S.tag("agent-message/v1").pipe(
+      S.withDecodingDefaultKey(Effect.succeed<"agent-message/v1">("agent-message/v1"))
     ),
     conversationId: Identity,
-    requestedMode: S.Literal("queued").pipe(
-      S.withDecodingDefaultKey(Effect.succeed<"queued">("queued")),
-      S.withConstructorDefault(Effect.succeed<"queued">("queued"))
-    ),
+    requestedMode: S.tag("queued").pipe(S.withDecodingDefaultKey(Effect.succeed<"queued">("queued"))),
     messageId: Identity,
     idempotencyKey: Identity,
     from: Identity,

@@ -206,7 +206,7 @@ export class GoalDoctorFinding extends S.Opaque<GoalDoctorFinding, { readonly br
 
 class GoalsDoctorBaseline extends S.Opaque<GoalsDoctorBaseline, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("goals-doctor-baseline/v1"),
+    schemaVersion: S.tag("goals-doctor-baseline/v1"),
     note: S.optionalKey(S.String),
     findings: S.Array(S.String),
   }).pipe(

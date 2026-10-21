@@ -38,7 +38,7 @@ const $I = $OntologyId.create("ClassificationRegistry");
 class ClassificationAsset extends S.Opaque<ClassificationAsset, { readonly brand: unique symbol }>()(
   S.Struct({
     id: S.NonEmptyString,
-    format: S.Literal("xml"),
+    format: S.tag("xml"),
     loadKind: S.tag("classification-scheme"),
     schemeKind: ClassificationSchemeKind,
     edition: S.NonEmptyString,

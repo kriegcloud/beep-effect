@@ -75,7 +75,7 @@ export class LibraryQualificationImportPayload extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    kind: S.Literal("qualification"),
+    kind: S.tag("qualification"),
     adapter: S.Literals(["alphaxiv", "grok-deep-research", "grok-x-import"]),
     provider: S.Literals(["alphaxiv", "grok"]),
     artifacts: S.Array(LibraryArtifact),
@@ -101,7 +101,7 @@ export class LibraryDispositionImportPayload extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    kind: S.Literal("disposition"),
+    kind: S.tag("disposition"),
     sourceId: S.String,
     locator: S.String,
     disposition: S.Literals([
@@ -123,8 +123,8 @@ export class LibraryDispositionImportPayload extends S.Opaque<
     })
   )
 ) {}
-const ToolCall = S.Struct({ type: S.Literal("tool_use"), id: S.String, name: S.String, input: S.Unknown });
-const ToolResult = S.Struct({ type: S.Literal("tool_result"), tool_use_id: S.String, content: S.Unknown });
+const ToolCall = S.Struct({ type: S.tag("tool_use"), id: S.String, name: S.String, input: S.Unknown });
+const ToolResult = S.Struct({ type: S.tag("tool_result"), tool_use_id: S.String, content: S.Unknown });
 const ReturnedPost = S.Struct({ url: S.String, text: S.String, author: S.String });
 const ReturnedPosts = S.Struct({ posts: S.Array(ReturnedPost) });
 
@@ -548,7 +548,7 @@ export class LibraryReferenceResolutionPayload extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    kind: S.Literal("reference-resolution"),
+    kind: S.tag("reference-resolution"),
     sourceId: S.String,
     locator: S.String,
     canonicalUrl: S.String,

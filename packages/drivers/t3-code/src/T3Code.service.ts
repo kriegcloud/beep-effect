@@ -60,12 +60,12 @@ export class T3CodeConfig extends S.Opaque<T3CodeConfig, { readonly brand: uniqu
 const decodeConfig = S.decodeUnknownEffect(T3CodeConfig);
 
 class InitializeResult extends S.Opaque<InitializeResult, { readonly brand: unique symbol }>()(
-  S.Struct({ protocolVersion: S.Literal(PROTOCOL) }).pipe(
+  S.Struct({ protocolVersion: S.tag(PROTOCOL) }).pipe(
     $I.annoteSchema("InitializeResult", { description: "Required installed T3 MCP revision." })
   )
 ) {}
 class TextContent extends S.Opaque<TextContent, { readonly brand: unique symbol }>()(
-  S.Struct({ type: S.Literal("text"), text: S.String }).pipe(
+  S.Struct({ type: S.tag("text"), text: S.String }).pipe(
     $I.annoteSchema("TextContent", { description: "Tool JSON fallback content." })
   )
 ) {}

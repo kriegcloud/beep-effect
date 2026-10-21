@@ -184,7 +184,7 @@ describe("Fibered", () => {
       base: S.Literals(["custom"]),
       fibers: { custom: S.String },
       member: (point, fiber) =>
-        S.Struct({ _tag: S.tag(point), value: fiber }).annotate({ description: "Custom member schema" }),
+        S.TaggedStruct(point, { value: fiber }).annotate({ description: "Custom member schema" }),
       section: {
         schema: S.Struct({ label: S.String }),
         values: { custom: { label: "Custom" } },

@@ -177,7 +177,7 @@ class DocketDryRunEntry extends S.Opaque<DocketDryRunEntry, { readonly brand: un
 export class DocketDryRunReport extends S.Opaque<DocketDryRunReport, { readonly brand: unique symbol }>()(
   S.Struct({
     runId: DocketRunId.annotateKey({ description: "Id of the dry run; nothing is journaled under it." }),
-    dryRun: S.Literal(true).annotateKey({ description: "Always true: nothing was written." }),
+    dryRun: S.tag(true).annotateKey({ description: "Always true: nothing was written." }),
     ...DocketPollReport.fields,
     entries: S.Array(DocketDryRunEntry).annotateKey({ description: "Entries the pass would have created." }),
   }).pipe($I.annoteSchema("DocketDryRunReport", { description: "What a docket intake dry run would have written." }))

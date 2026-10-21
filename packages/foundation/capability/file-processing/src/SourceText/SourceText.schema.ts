@@ -138,7 +138,7 @@ class SourceTextPageStruct extends S.Opaque<SourceTextPageStruct, { readonly bra
     identity: SourceTextIdentity,
     pageCount: PosInt,
     pageIndex: S.Natural,
-    pageSizeCodeUnits: S.Literal(SOURCE_TEXT_PAGE_CODE_UNITS),
+    pageSizeCodeUnits: S.tag(SOURCE_TEXT_PAGE_CODE_UNITS),
     startOffset: S.Natural,
     text: S.String,
     totalCodeUnits: S.Natural,

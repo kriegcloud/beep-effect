@@ -5,14 +5,19 @@
     "title": "Knowledge Endgame",
     "status": "parked",
     "stage": "capture",
-    "openQuestions": [],
-    "sources": ["research/SOURCES.md"],
+    "openQuestions": [
+      "Reopen decision pending: trigger 1 fired 2026-08-26 (packet-system-redesign D20-D22), and the 2026-10-09 agent-native documentation research bears on triggers 3 and 4; take the reopen to /grill-with-docs."
+    ],
+    "sources": [
+      "research/SOURCES.md",
+      "research/2026-10-09-agent-native-documentation-endgame.md"
+    ],
     "links": {
       "goals": [],
       "docs": [],
       "supersededBy": null
     },
     "created": "2026-08-25",
-    "updated": "2026-08-25"
+    "updated": "2026-10-21"
   }
 }

@@ -43,7 +43,7 @@ import type { SourceFile } from "ts-morph";
 import type { EffectVitestLintOptions, EffectVitestPrimitiveGraphDocument } from "../Lint.schemas.ts";
 
 const EffectVitestPackageMetadata = S.Struct({
-  name: S.Literal("@effect/vitest"),
+  name: S.tag("@effect/vitest"),
   version: S.NonEmptyString,
 });
 

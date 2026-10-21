@@ -4,7 +4,9 @@
  * **Details**
  *
  * Implements the progress streaming contract with Effect patterns.
- * Provides functional builders for creating progress events.
+ * Provides functional builders for creating progress events. Event ids are
+ * UUIDv4 values from the platform `Crypto` service, so the builders require
+ * `Crypto.Crypto`.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -16,6 +18,7 @@ import { LiteralKit } from "@beep/schema";
 import { Percentage } from "@beep/schema/Percentage";
 import * as Chunk from "effect/Chunk";
 import * as Clock from "effect/Clock";
+import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -27,9 +30,9 @@ import * as Stream from "effect/Stream";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import type { PlatformError } from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { v4 as uuidv4 } from "uuid";
 import type { BackpressureConfigInput } from "../Contract/ProgressStreaming.ts";
 import {
   BackpressureConfig,
@@ -185,11 +188,28 @@ const calculateOverallProgress = (state: ProgressBuilderState, phaseProgress: nu
 };
 
 /**
+ * Data-first when the first argument is the builder `Ref`.
+ *
+ * Builders with an optional last parameter cannot pick a style by arity; every
+ * data-last call starts with a primitive (`chunkIndex` or `errorType`).
+ */
+const isRefFirst = (args: IArguments): boolean => P.isObject(args[0]);
+
+/**
+ * Mint a progress event id from the platform `Crypto` service.
+ */
+const nextEventId: Effect.Effect<UUID, PlatformError, Crypto.Crypto> = Effect.map(
+  Crypto.Crypto.use((crypto) => crypto.randomUUIDv4()),
+  UUID.make
+);
+
+/**
  * Create ExtractionStartedEvent
  *
  * **Example** (Emit extraction started)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -205,7 +225,7 @@ const calculateOverallProgress = (state: ProgressBuilderState, phaseProgress: nu
  *       estimatedAvgChunkSize: PosInt.make(300)
  *     })
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "extraction_started"
  * ```
@@ -221,12 +241,12 @@ export const createExtractionStarted: {
       estimatedAvgChunkSize: PosInt;
       contentType?: string;
     }
-  ): Effect.Effect<ExtractionStartedEvent>;
+  ): Effect.Effect<ExtractionStartedEvent, PlatformError, Crypto.Crypto>;
   (textMetadata: {
     characterCount: PosInt;
     estimatedAvgChunkSize: PosInt;
     contentType?: string;
-  }): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ExtractionStartedEvent>;
+  }): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ExtractionStartedEvent, PlatformError, Crypto.Crypto>;
 } = dual(
   2,
   Effect.fn("ProgressStreaming.createExtractionStarted")(function* (
@@ -236,11 +256,11 @@ export const createExtractionStarted: {
       estimatedAvgChunkSize: PosInt;
       contentType?: string;
     }
-  ): Effect.fn.Return<ExtractionStartedEvent> {
+  ): Effect.fn.Return<ExtractionStartedEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return ExtractionStartedEvent.make({
       _tag: "extraction_started",
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(0),
@@ -260,6 +280,7 @@ export const createExtractionStarted: {
  * **Example** (Emit chunking progress)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -277,7 +298,7 @@ export const createExtractionStarted: {
  *       PosInt.make(300)
  *     )
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "chunking_progress"
  * ```
@@ -291,12 +312,12 @@ export const createChunkingProgress: {
     chunksCompleted: number,
     chunksProcessing: number,
     avgChunkSize: PosInt
-  ): Effect.Effect<ChunkingProgressEvent>;
+  ): Effect.Effect<ChunkingProgressEvent, PlatformError, Crypto.Crypto>;
   (
     chunksCompleted: number,
     chunksProcessing: number,
     avgChunkSize: PosInt
-  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ChunkingProgressEvent>;
+  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ChunkingProgressEvent, PlatformError, Crypto.Crypto>;
 } = dual(
   4,
   Effect.fn("ProgressStreaming.createChunkingProgress")(function* (
@@ -304,11 +325,11 @@ export const createChunkingProgress: {
     chunksCompleted: number,
     chunksProcessing: number,
     avgChunkSize: PosInt
-  ): Effect.fn.Return<ChunkingProgressEvent> {
+  ): Effect.fn.Return<ChunkingProgressEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return ChunkingProgressEvent.make({
       _tag: "chunking_progress",
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(calculateOverallProgress(state, 0)),
@@ -325,6 +346,7 @@ export const createChunkingProgress: {
  * **Example** (Start processing a chunk)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -342,7 +364,7 @@ export const createChunkingProgress: {
  *       "Ada founded Acme."
  *     )
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "chunk_processing_started"
  * ```
@@ -356,12 +378,12 @@ export const createChunkProcessingStarted: {
     chunkIndex: number,
     chunkTextLength: PosInt,
     textPreview: string
-  ): Effect.Effect<ChunkProcessingStartedEvent>;
+  ): Effect.Effect<ChunkProcessingStartedEvent, PlatformError, Crypto.Crypto>;
   (
     chunkIndex: number,
     chunkTextLength: PosInt,
     textPreview: string
-  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ChunkProcessingStartedEvent>;
+  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ChunkProcessingStartedEvent, PlatformError, Crypto.Crypto>;
 } = dual(
   4,
   Effect.fn("ProgressStreaming.createChunkProcessingStarted")(function* (
@@ -369,11 +391,11 @@ export const createChunkProcessingStarted: {
     chunkIndex: number,
     chunkTextLength: PosInt,
     textPreview: string
-  ): Effect.fn.Return<ChunkProcessingStartedEvent> {
+  ): Effect.fn.Return<ChunkProcessingStartedEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return ChunkProcessingStartedEvent.make({
       _tag: "chunk_processing_started",
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(calculateOverallProgress(state, 0)),
@@ -390,6 +412,7 @@ export const createChunkProcessingStarted: {
  * **Example** (Emit an entity-found event)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -408,7 +431,7 @@ export const createChunkProcessingStarted: {
  *       ["Person"]
  *     )
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "entity_found"
  * ```
@@ -424,16 +447,16 @@ export const createEntityFound: {
     mention: string,
     types: ReadonlyArray<string>,
     confidence?: Confidence
-  ): Effect.Effect<EntityFoundEvent>;
+  ): Effect.Effect<EntityFoundEvent, PlatformError, Crypto.Crypto>;
   (
     chunkIndex: number,
     entityId: string,
     mention: string,
     types: ReadonlyArray<string>,
     confidence?: Confidence
-  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<EntityFoundEvent>;
+  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<EntityFoundEvent, PlatformError, Crypto.Crypto>;
 } = dual(
-  5,
+  isRefFirst,
   Effect.fn("ProgressStreaming.createEntityFound")(function* (
     ref: Ref.Ref<ProgressBuilderState>,
     chunkIndex: number,
@@ -441,11 +464,11 @@ export const createEntityFound: {
     mention: string,
     types: ReadonlyArray<string>,
     confidence?: Confidence
-  ): Effect.fn.Return<EntityFoundEvent> {
+  ): Effect.fn.Return<EntityFoundEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return EntityFoundEvent.make({
       _tag: "entity_found",
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(calculateOverallProgress(state, 40)),
@@ -464,6 +487,7 @@ export const createEntityFound: {
  * **Example** (Emit a relation-found event)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -483,7 +507,7 @@ export const createEntityFound: {
  *       true
  *     )
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "relation_found"
  * ```
@@ -500,7 +524,7 @@ export const createRelationFound: {
     object: string | number | boolean,
     isEntityReference: boolean,
     confidence?: Confidence
-  ): Effect.Effect<RelationFoundEvent>;
+  ): Effect.Effect<RelationFoundEvent, PlatformError, Crypto.Crypto>;
   (
     chunkIndex: number,
     subjectId: string,
@@ -508,9 +532,9 @@ export const createRelationFound: {
     object: string | number | boolean,
     isEntityReference: boolean,
     confidence?: Confidence
-  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<RelationFoundEvent>;
+  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<RelationFoundEvent, PlatformError, Crypto.Crypto>;
 } = dual(
-  6,
+  isRefFirst,
   Effect.fn("ProgressStreaming.createRelationFound")(function* (
     ref: Ref.Ref<ProgressBuilderState>,
     chunkIndex: number,
@@ -519,11 +543,11 @@ export const createRelationFound: {
     object: string | number | boolean,
     isEntityReference: boolean,
     confidence?: Confidence
-  ): Effect.fn.Return<RelationFoundEvent> {
+  ): Effect.fn.Return<RelationFoundEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return RelationFoundEvent.make({
       _tag: "relation_found",
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(calculateOverallProgress(state, 60)),
@@ -543,6 +567,7 @@ export const createRelationFound: {
  * **Example** (Complete a chunk)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -561,7 +586,7 @@ export const createRelationFound: {
  *       PosInt.make(40)
  *     )
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "chunk_processing_complete"
  * ```
@@ -577,16 +602,16 @@ export const createChunkProcessingComplete: {
     relationCount: number,
     durationMs: PosInt,
     errors?: Array<{ readonly phase: string; readonly message: string }>
-  ): Effect.Effect<ChunkProcessingCompleteEvent>;
+  ): Effect.Effect<ChunkProcessingCompleteEvent, PlatformError, Crypto.Crypto>;
   (
     chunkIndex: number,
     entityCount: number,
     relationCount: number,
     durationMs: PosInt,
     errors?: Array<{ readonly phase: string; readonly message: string }>
-  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ChunkProcessingCompleteEvent>;
+  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ChunkProcessingCompleteEvent, PlatformError, Crypto.Crypto>;
 } = dual(
-  6,
+  isRefFirst,
   Effect.fn("ProgressStreaming.createChunkProcessingComplete")(function* (
     ref: Ref.Ref<ProgressBuilderState>,
     chunkIndex: number,
@@ -594,11 +619,11 @@ export const createChunkProcessingComplete: {
     relationCount: number,
     durationMs: PosInt,
     errors?: Array<{ readonly phase: string; readonly message: string }>
-  ): Effect.fn.Return<ChunkProcessingCompleteEvent> {
+  ): Effect.fn.Return<ChunkProcessingCompleteEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return ChunkProcessingCompleteEvent.make({
       _tag: "chunk_processing_complete",
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(calculateOverallProgress(state, 100)),
@@ -617,6 +642,7 @@ export const createChunkProcessingComplete: {
  * **Example** (Complete an extraction)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -637,7 +663,7 @@ export const createChunkProcessingComplete: {
  *       S.Natural.make(0)
  *     )
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "extraction_complete"
  * ```
@@ -654,7 +680,7 @@ export const createExtractionComplete: {
     totalDurationMs: PosInt,
     successfulChunks: number,
     failedChunks: number
-  ): Effect.Effect<ExtractionCompleteEvent>;
+  ): Effect.Effect<ExtractionCompleteEvent, PlatformError, Crypto.Crypto>;
   (
     totalEntities: number,
     totalRelations: number,
@@ -662,7 +688,7 @@ export const createExtractionComplete: {
     totalDurationMs: PosInt,
     successfulChunks: number,
     failedChunks: number
-  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ExtractionCompleteEvent>;
+  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ExtractionCompleteEvent, PlatformError, Crypto.Crypto>;
 } = dual(
   7,
   Effect.fn("ProgressStreaming.createExtractionComplete")(function* (
@@ -673,11 +699,11 @@ export const createExtractionComplete: {
     totalDurationMs: PosInt,
     successfulChunks: number,
     failedChunks: number
-  ): Effect.fn.Return<ExtractionCompleteEvent> {
+  ): Effect.fn.Return<ExtractionCompleteEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return ExtractionCompleteEvent.make({
       _tag: "extraction_complete",
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(100),
@@ -708,6 +734,7 @@ type CreateExtractionFailedOptions = {
  * **Example** (Emit extraction failed)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -725,7 +752,7 @@ type CreateExtractionFailedOptions = {
  *       true
  *     )
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "extraction_failed"
  * ```
@@ -740,25 +767,25 @@ export const createExtractionFailed: {
     errorMessage: string,
     isRecoverable: boolean,
     options?: CreateExtractionFailedOptions
-  ): Effect.Effect<ExtractionFailedEvent>;
+  ): Effect.Effect<ExtractionFailedEvent, PlatformError, Crypto.Crypto>;
   (
     errorType: string,
     errorMessage: string,
     isRecoverable: boolean,
     options?: CreateExtractionFailedOptions
-  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ExtractionFailedEvent>;
+  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<ExtractionFailedEvent, PlatformError, Crypto.Crypto>;
 } = dual(
-  5,
+  isRefFirst,
   Effect.fn("ProgressStreaming.createExtractionFailed")(function* (
     ref: Ref.Ref<ProgressBuilderState>,
     errorType: string,
     errorMessage: string,
     isRecoverable: boolean,
     options?: CreateExtractionFailedOptions
-  ): Effect.fn.Return<ExtractionFailedEvent> {
+  ): Effect.fn.Return<ExtractionFailedEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return ExtractionFailedEvent.make({
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(calculateOverallProgress(state, 0)),
@@ -784,6 +811,7 @@ export const createExtractionFailed: {
  * **Example** (Emit a recoverable error)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -803,7 +831,7 @@ export const createExtractionFailed: {
  *       "Retry the chunk"
  *     )
  *     return event._tag
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(tag) // "error_recoverable"
  * ```
@@ -819,14 +847,14 @@ export const createRecoverableError: {
     errorMessage: string,
     phase: string,
     recoveryAction: string
-  ): Effect.Effect<RecoverableErrorEvent>;
+  ): Effect.Effect<RecoverableErrorEvent, PlatformError, Crypto.Crypto>;
   (
     chunkIndex: number,
     errorType: string,
     errorMessage: string,
     phase: string,
     recoveryAction: string
-  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<RecoverableErrorEvent>;
+  ): (ref: Ref.Ref<ProgressBuilderState>) => Effect.Effect<RecoverableErrorEvent, PlatformError, Crypto.Crypto>;
 } = dual(
   6,
   Effect.fn("ProgressStreaming.createRecoverableError")(function* (
@@ -836,10 +864,10 @@ export const createRecoverableError: {
     errorMessage: string,
     phase: string,
     recoveryAction: string
-  ): Effect.fn.Return<RecoverableErrorEvent> {
+  ): Effect.fn.Return<RecoverableErrorEvent, PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
     return RecoverableErrorEvent.make({
-      eventId: UUID.make(uuidv4()),
+      eventId: yield* nextEventId,
       runId: state.runId,
       timestamp: DateTime.formatIso(yield* DateTime.now),
       overallProgress: Percentage.make(calculateOverallProgress(state, 50)),
@@ -1066,6 +1094,7 @@ const backpressureOverflow = Match.type<BackpressureConfig["strategy"]>().pipe(
  * **Example** (Enqueue a started event)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import { ExtractionRunId } from "@effect-ontology/Identity"
@@ -1089,7 +1118,7 @@ const backpressureOverflow = Match.type<BackpressureConfig["strategy"]>().pipe(
  *     })
  *     yield* enqueueEvent(handler, started)
  *     return yield* getQueueSize(handler)
- *   }).pipe(Effect.orDie)
+ *   }).pipe(Effect.provide(BunCrypto.layer), Effect.orDie)
  * )
  * console.log(size) // 1
  * ```
@@ -1101,16 +1130,18 @@ export const enqueueEvent: {
   (
     ref: Ref.Ref<BackpressureState>,
     event: ProgressEvent
-  ): Effect.Effect<O.Option<BackpressureWarningEvent>, ProgressStreamingError>;
+  ): Effect.Effect<O.Option<BackpressureWarningEvent>, ProgressStreamingError | PlatformError, Crypto.Crypto>;
   (
     event: ProgressEvent
-  ): (ref: Ref.Ref<BackpressureState>) => Effect.Effect<O.Option<BackpressureWarningEvent>, ProgressStreamingError>;
+  ): (
+    ref: Ref.Ref<BackpressureState>
+  ) => Effect.Effect<O.Option<BackpressureWarningEvent>, ProgressStreamingError | PlatformError, Crypto.Crypto>;
 } = dual(
   2,
   Effect.fn("ProgressStreaming.enqueueEvent")(function* (
     ref: Ref.Ref<BackpressureState>,
     event: ProgressEvent
-  ): Effect.fn.Return<O.Option<BackpressureWarningEvent>, ProgressStreamingError> {
+  ): Effect.fn.Return<O.Option<BackpressureWarningEvent>, ProgressStreamingError | PlatformError, Crypto.Crypto> {
     const state = yield* Ref.get(ref);
 
     // Check sampling
@@ -1139,7 +1170,7 @@ export const enqueueEvent: {
         return O.some(
           BackpressureWarningEvent.make({
             _tag: "backpressure_warning",
-            eventId: UUID.make(uuidv4()),
+            eventId: yield* nextEventId,
             runId: event.runId,
             timestamp: DateTime.formatIso(yield* DateTime.now),
             overallProgress: event.overallProgress,
@@ -1262,13 +1293,14 @@ export const combineProgressStreams: {
  * **Example** (Apply backpressure to an empty stream)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
  * import { BackpressureConfig } from "@effect-ontology/Contract/ProgressStreaming"
  * import { withBackpressure } from "@effect-ontology/Service/ProgressStreaming"
  *
  * const count = Effect.runSync(
- *   Stream.runCount(withBackpressure(Stream.empty, BackpressureConfig.make({}))).pipe(Effect.orDie)
+ *   Stream.runCount(withBackpressure(Stream.empty, BackpressureConfig.make({}))).pipe(Effect.provide(BunCrypto.layer), Effect.orDie)
  * )
  * console.log(count) // 0
  * ```
@@ -1279,17 +1311,19 @@ export const combineProgressStreams: {
 export const withBackpressure: {
   <E, R>(
     config: BackpressureConfig
-  ): (stream: Stream.Stream<ProgressEvent, E, R>) => Stream.Stream<ProgressEvent, E | ProgressStreamingError, R>;
+  ): (
+    stream: Stream.Stream<ProgressEvent, E, R>
+  ) => Stream.Stream<ProgressEvent, E | ProgressStreamingError | PlatformError, R | Crypto.Crypto>;
   <E, R>(
     stream: Stream.Stream<ProgressEvent, E, R>,
     config: BackpressureConfig
-  ): Stream.Stream<ProgressEvent, E | ProgressStreamingError, R>;
+  ): Stream.Stream<ProgressEvent, E | ProgressStreamingError | PlatformError, R | Crypto.Crypto>;
 } = dual(
   2,
   <E, R>(
     stream: Stream.Stream<ProgressEvent, E, R>,
     config: BackpressureConfig
-  ): Stream.Stream<ProgressEvent, E | ProgressStreamingError, R> =>
+  ): Stream.Stream<ProgressEvent, E | ProgressStreamingError | PlatformError, R | Crypto.Crypto> =>
     Stream.unwrap(
       Effect.gen(function* () {
         const handlerRef = yield* makeBackpressureHandler(config);
@@ -1392,6 +1426,7 @@ export class ResumableExtractionState extends S.Opaque<ResumableExtractionState,
  * **Example** (Extract resume state from a failure)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as S from "effect/Schema"
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option"
@@ -1410,7 +1445,7 @@ export class ResumableExtractionState extends S.Opaque<ResumableExtractionState,
  *     const builder = yield* makeProgressBuilder(runId, PosInt.make(4))
  *     const failed = yield* createExtractionFailed(builder, "Timeout", "The extractor timed out", true)
  *     return extractResumableState(runId, failed)
- *   })
+ *   }).pipe(Effect.provide(BunCrypto.layer))
  * )
  * console.log(O.isNone(resumable)) // true
  * ```

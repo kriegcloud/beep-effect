@@ -622,7 +622,7 @@ export const YeetMergeReadyFromEncoded = YeetMergeReadyEncoded.pipe(
  */
 export class YeetVerdict extends S.Opaque<YeetVerdict, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-verdict/v2"),
+    schemaVersion: S.tag("yeet-verdict/v2"),
     base: S.String,
     branch: S.String,
     committed: S.Boolean,

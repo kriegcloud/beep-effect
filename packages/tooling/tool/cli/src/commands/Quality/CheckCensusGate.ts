@@ -278,7 +278,7 @@ export class CheckCensusBaseline extends S.Opaque<CheckCensusBaseline, { readonl
     dirtyWorktree: S.Boolean,
     compiler: S.String,
     command: S.String,
-    checkTimeBandPercent: S.Literal(CHECK_CENSUS_CHECK_TIME_BAND_PERCENT),
+    checkTimeBandPercent: S.tag(CHECK_CENSUS_CHECK_TIME_BAND_PERCENT),
     packages: S.Array(CheckCensusBaselineRow),
     typeperfFixtures: S.Array(CheckCensusBaselineRow),
   }).pipe(

@@ -23,8 +23,8 @@ describe("schema test helpers", () => {
   it("supports object-valued class schemas", () => {
     class ExamplePayload extends S.Opaque<ExamplePayload, { readonly brand: unique symbol }>()(
       S.Struct({
-        count: S.Literal(1),
-        status: S.Literal("ready"),
+        count: S.tag(1),
+        status: S.tag("ready"),
       }).annotate({ identifier: "ExamplePayload" })
     ) {}
 

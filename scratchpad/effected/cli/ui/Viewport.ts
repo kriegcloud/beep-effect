@@ -67,12 +67,10 @@ export const ViewportState = S.Struct({
  */
 export type ViewportState = typeof ViewportState.Type;
 
-const Header = S.Struct({
-	_tag: S.tag("Header"),
+const Header = S.TaggedStruct("Header", {
 	label: S.String.pipe($I.annoteKey("Header.label", { description: "The section heading shown above its items." })),
 }).pipe($I.annoteSchema("Header", { description: "A non-selectable section heading in a viewport." }));
-const Item = S.Struct({
-	_tag: S.tag("Item"),
+const Item = S.TaggedStruct("Item", {
 	key: S.String.pipe($I.annoteKey("Item.key", { description: "The unique React key of a selectable item." })),
 }).pipe($I.annoteSchema("Item", { description: "A selectable viewport item identified by its key." }));
 /**

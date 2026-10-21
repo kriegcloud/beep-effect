@@ -23,18 +23,24 @@ import * as HttpServer from "effect/http/HttpServer";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { makeReviewHubLayer, TAILSCALE_LOGIN_HEADER } from "@/runtime/Layer";
 import { Platform } from "./Hub.fixture.ts";
 import type { CallToolResult } from "effect/ai/McpSchema";
 
+const API_TOKEN = Redacted.make("synthetic-test-token-with-32-characters");
 const ATTORNEY = "attorney@example.test";
 
 // The hub on 127.0.0.1 at an ephemeral port, over stores in a fresh temporary directory.
 const HubTest = Layer.unwrap(
   Effect.gen(function* () {
     const dataDirectory = yield* (yield* FileSystem.FileSystem).makeTempDirectoryScoped({ prefix: "review-hub-" });
-    return HttpRouter.serve(makeReviewHubLayer([ATTORNEY]), { disableListenLog: true, disableLogger: true }).pipe(
+    return HttpRouter.serve(makeReviewHubLayer([ATTORNEY], API_TOKEN), {
+      disableListenLog: true,
+      disableLogger: true,
+    }).pipe(
       Layer.provideMerge(makeReviewFilesLayer(ReviewFilesConfig.make({ dataDirectory }))),
       Layer.provideMerge(BunHttpServer.layer({ hostname: "127.0.0.1", port: 0 }))
     );
@@ -49,7 +55,10 @@ const endpoint = Effect.map(HttpServer.HttpServer, (server) =>
 );
 
 const connectAs = Effect.fnUntraced(function* (login: string) {
-  const options = McpHttpProtocolOptions.make({ url: yield* endpoint, headers: { [TAILSCALE_LOGIN_HEADER]: login } });
+  const options = McpHttpProtocolOptions.make({
+    url: yield* endpoint,
+    headers: { [TAILSCALE_LOGIN_HEADER]: login, authorization: `Bearer ${Redacted.value(API_TOKEN)}` },
+  });
   return yield* connect.pipe(Effect.provideContext(yield* Layer.build(layerProtocolHttp(options))));
 });
 
@@ -85,7 +94,36 @@ describe("@beep/practice-review-hub", () => {
         const missing = yield* postJsonRpc(url, message, {});
         const stranger = yield* postJsonRpc(url, message, { [TAILSCALE_LOGIN_HEADER]: "stranger@example.test" });
 
-        expect([missing.status, stranger.status]).toStrictEqual([403, 403]);
+        const forged = yield* postJsonRpc(url, message, { [TAILSCALE_LOGIN_HEADER]: ATTORNEY });
+        const wrongToken = yield* postJsonRpc(url, message, {
+          [TAILSCALE_LOGIN_HEADER]: ATTORNEY,
+          authorization: "Bearer wrong-token",
+        });
+        const sameLengthWrongToken = yield* postJsonRpc(url, message, {
+          [TAILSCALE_LOGIN_HEADER]: ATTORNEY,
+          authorization: "Bearer synthetic-test-token-with-32-characterx",
+        });
+        const oversizedToken = yield* postJsonRpc(url, message, {
+          [TAILSCALE_LOGIN_HEADER]: ATTORNEY,
+          authorization: `Bearer ${Str.repeat(1_025)("x")}`,
+        });
+        const credentialOnly = yield* postJsonRpc(url, message, {
+          authorization: `Bearer ${Redacted.value(API_TOKEN)}`,
+        });
+        const wrongLogin = yield* postJsonRpc(url, message, {
+          [TAILSCALE_LOGIN_HEADER]: "stranger@example.test",
+          authorization: `Bearer ${Redacted.value(API_TOKEN)}`,
+        });
+        expect([
+          missing.status,
+          stranger.status,
+          forged.status,
+          wrongToken.status,
+          sameLengthWrongToken.status,
+          oversizedToken.status,
+          credentialOnly.status,
+          wrongLogin.status,
+        ]).toStrictEqual([403, 403, 403, 403, 403, 403, 403, 403]);
       })
     );
 

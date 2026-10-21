@@ -61,7 +61,7 @@ const Evidence = S.Struct({
 });
 
 const baseFields = {
-  schemaVersion: S.Literal(SCHEMA_VERSION),
+  schemaVersion: S.tag(SCHEMA_VERSION),
   id: S.NonEmptyString,
   file: S.NonEmptyString,
   line: S.Int,
@@ -110,7 +110,7 @@ export const QualifiedRecord = S.Struct({
  */
 export const DisqualifiedRecord = S.Struct({
   ...baseFields,
-  status: S.Literal("disqualified"),
+  status: S.tag("disqualified"),
   disqualifier: S.Struct({
     class: DisqualifierClass,
     note: S.NonEmptyString,
