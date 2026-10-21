@@ -619,12 +619,11 @@ export class HookPulseDisarmWindow extends S.Opaque<HookPulseDisarmWindow, { rea
               DateTime.toEpochMillis(DateTime.makeUnsafe(start)) <=
               DateTime.toEpochMillis(DateTime.makeUnsafe(rearmedAt)),
           }),
-        {
-          identifier: $I`HookPulseDisarmWindowOrder`,
+        $I.annote("HookPulseDisarmWindowOrder", {
           title: "Ordered disarm window",
           description: "Requires a known disarm start to be no later than the re-arm timestamp.",
           message: "Disarm start must not follow re-arm time.",
-        }
+        })
       )
     )
     .pipe(

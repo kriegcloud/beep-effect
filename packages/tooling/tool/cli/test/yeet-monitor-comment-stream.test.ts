@@ -648,7 +648,7 @@ describe("yeet monitor comment truncation", () => {
         user: { login: "octocat" },
       },
       {
-        body: "x".repeat(600 * 1024),
+        body: Str.repeat(600 * 1024)("x"),
         created_at: SECOND_AT,
         html_url: `https://github.com/o/r/pull/${PR_NUMBER}#issuecomment-2`,
         id: 2,

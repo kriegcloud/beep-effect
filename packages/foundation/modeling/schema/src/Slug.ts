@@ -51,36 +51,43 @@ const doesNotEndWithHyphen = (value: unknown): boolean => P.isString(value) && !
  */
 export const SlugChecks = S.makeFilterGroup(
   [
-    S.isPattern(slugAllowedCharactersPattern, {
-      identifier: $I`SlugAllowedCharactersCheck`,
-      title: "Slug Allowed Characters",
-      description: "A slug that uses only lowercase ASCII letters, digits, and hyphens.",
-      message: "Slug must use lowercase ASCII letters, digits, and hyphens only",
-    }),
-    S.makeFilter(doesNotStartWithHyphen, {
-      identifier: $I`SlugNoLeadingHyphenCheck`,
-      title: "Slug No Leading Hyphen",
-      description: "A slug that does not start with a hyphen.",
-      message: "Slug must not start with a hyphen",
-    }),
-    S.makeFilter(doesNotEndWithHyphen, {
-      identifier: $I`SlugNoTrailingHyphenCheck`,
-      title: "Slug No Trailing Hyphen",
-      description: "A slug that does not end with a hyphen.",
-      message: "Slug must not end with a hyphen",
-    }),
-    S.makeFilter(P.not(Str.includes("--")), {
-      identifier: $I`SlugNoRepeatedHyphenCheck`,
-      title: "Slug No Repeated Hyphen",
-      description: "A slug that does not contain repeated hyphen separators.",
-      message: "Slug must not contain repeated hyphens",
-    }),
+    S.isPattern(
+      slugAllowedCharactersPattern,
+      $I.annote("SlugAllowedCharactersCheck", {
+        title: "Slug Allowed Characters",
+        description: "A slug that uses only lowercase ASCII letters, digits, and hyphens.",
+        message: "Slug must use lowercase ASCII letters, digits, and hyphens only",
+      })
+    ),
+    S.makeFilter(
+      doesNotStartWithHyphen,
+      $I.annote("SlugNoLeadingHyphenCheck", {
+        title: "Slug No Leading Hyphen",
+        description: "A slug that does not start with a hyphen.",
+        message: "Slug must not start with a hyphen",
+      })
+    ),
+    S.makeFilter(
+      doesNotEndWithHyphen,
+      $I.annote("SlugNoTrailingHyphenCheck", {
+        title: "Slug No Trailing Hyphen",
+        description: "A slug that does not end with a hyphen.",
+        message: "Slug must not end with a hyphen",
+      })
+    ),
+    S.makeFilter(
+      P.not(Str.includes("--")),
+      $I.annote("SlugNoRepeatedHyphenCheck", {
+        title: "Slug No Repeated Hyphen",
+        description: "A slug that does not contain repeated hyphen separators.",
+        message: "Slug must not contain repeated hyphens",
+      })
+    ),
   ],
-  {
-    identifier: $I`SlugChecks`,
+  $I.annote("SlugChecks", {
     title: "Slug",
     description: "Checks for canonical lowercase kebab-case slug text safe for a single URL path segment.",
-  }
+  })
 );
 
 /**

@@ -22,14 +22,16 @@ const artifactNameArbitraryPattern = /^[a-z0-9][a-z0-9-]{0,23}\.[a-z0-9][a-z0-9-
 const ArtifactExtension = S.Union([
   FileExtension,
   S.NonEmptyString.check(
-    S.makeFilter((value: string) => artifactExtensionPattern.test(value), {
-      identifier: $I`ArtifactExtensionBareExtensionCheck`,
-      title: "Artifact Extension",
-      description:
-        "A bare source extension. File processing accepts known MIME extensions plus local-corpus extensions such as pst.",
-      arbitraryConstraint: { patterns: [artifactExtensionArbitraryPattern] },
-      message: "Expected a bare file extension without path separators, a leading dot, or NUL bytes.",
-    })
+    S.makeFilter(
+      (value: string) => artifactExtensionPattern.test(value),
+      $I.annote("ArtifactExtensionBareExtensionCheck", {
+        title: "Artifact Extension",
+        description:
+          "A bare source extension. File processing accepts known MIME extensions plus local-corpus extensions such as pst.",
+        arbitraryConstraint: { patterns: [artifactExtensionArbitraryPattern] },
+        message: "Expected a bare file extension without path separators, a leading dot, or NUL bytes.",
+      })
+    )
   ),
 ]).pipe(
   $I.annoteSchema("ArtifactExtension", {
@@ -41,13 +43,15 @@ const ArtifactExtension = S.Union([
 const ArtifactName = S.Union([
   FileName,
   S.NonEmptyString.check(
-    S.makeFilter((value: string) => artifactNamePattern.test(value), {
-      identifier: $I`ArtifactNameNoPathSeparatorCheck`,
-      title: "Artifact Name",
-      description: "A source artifact name without path separators or embedded NUL bytes.",
-      arbitraryConstraint: { patterns: [artifactNameArbitraryPattern] },
-      message: "Expected a file name without path separators or embedded NUL bytes.",
-    })
+    S.makeFilter(
+      (value: string) => artifactNamePattern.test(value),
+      $I.annote("ArtifactNameNoPathSeparatorCheck", {
+        title: "Artifact Name",
+        description: "A source artifact name without path separators or embedded NUL bytes.",
+        arbitraryConstraint: { patterns: [artifactNameArbitraryPattern] },
+        message: "Expected a file name without path separators or embedded NUL bytes.",
+      })
+    )
   ),
 ]).pipe(
   $I.annoteSchema("ArtifactName", {

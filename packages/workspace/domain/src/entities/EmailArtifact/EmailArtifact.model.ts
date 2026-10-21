@@ -14,12 +14,14 @@ const UnknownRecord = S.Record(S.String, S.Unknown);
 const $I = $WorkspaceDomainId.create("entities/EmailArtifact/EmailArtifact.model");
 const pg = ProductEntity.pg;
 const UtcIsoTimestamp = S.NonEmptyString.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/u, {
-    identifier: $I`UtcIsoTimestampPatternCheck`,
-    title: "UTC ISO timestamp",
-    description: "Checks that imported email timestamps use a UTC ISO 8601 shape.",
-    message: "Expected a UTC ISO timestamp such as 2024-01-01T00:00:00Z.",
-  })
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/u,
+    $I.annote("UtcIsoTimestampPatternCheck", {
+      title: "UTC ISO timestamp",
+      description: "Checks that imported email timestamps use a UTC ISO 8601 shape.",
+      message: "Expected a UTC ISO timestamp such as 2024-01-01T00:00:00Z.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("UtcIsoTimestamp", {
     description: "UTC ISO 8601 timestamp string for imported email artifacts.",

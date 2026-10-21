@@ -179,12 +179,14 @@ export type CaptureArtifactKind = typeof CaptureArtifactKind.Type;
  * @since 0.0.0
  */
 export const SessionId = S.String.check(
-  S.isMinLength(1, {
-    identifier: $I`SessionIdNonEmptyCheck`,
-    title: "Session Id Non Empty",
-    description: "Session identifiers must not be empty.",
-    message: "Expected a non-empty session identifier",
-  })
+  S.isMinLength(
+    1,
+    $I.annote("SessionIdNonEmptyCheck", {
+      title: "Session Id Non Empty",
+      description: "Session identifiers must not be empty.",
+      message: "Expected a non-empty session identifier",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SessionId", {
     description: "Non-empty QA capture session identifier.",
@@ -223,12 +225,14 @@ export type SessionId = typeof SessionId.Type;
  * @since 0.0.0
  */
 export const RoundNumber = S.Int.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`RoundNumberMinimumCheck`,
-    title: "Round Number Minimum",
-    description: "QA round numbers are one-based positive integers.",
-    message: "Expected a positive round number",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("RoundNumberMinimumCheck", {
+      title: "Round Number Minimum",
+      description: "QA round numbers are one-based positive integers.",
+      message: "Expected a positive round number",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RoundNumber", {
     description: "One-based QA round number.",
@@ -267,12 +271,14 @@ export type RoundNumber = typeof RoundNumber.Type;
  * @since 0.0.0
  */
 export const ViewportDimension = S.Int.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`ViewportDimensionMinimumCheck`,
-    title: "Viewport Dimension Minimum",
-    description: "Viewport dimensions are positive integer pixel counts.",
-    message: "Expected a positive viewport dimension",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("ViewportDimensionMinimumCheck", {
+      title: "Viewport Dimension Minimum",
+      description: "Viewport dimensions are positive integer pixel counts.",
+      message: "Expected a positive viewport dimension",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ViewportDimension", {
     description: "Positive integer pixel dimension for viewports.",
@@ -313,24 +319,27 @@ export type ViewportDimension = typeof ViewportDimension.Type;
 export const CollectorPort = S.Int.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`CollectorPortMinimumCheck`,
-        title: "Collector Port Minimum",
-        description: "Bound collector ports are at least one.",
-        message: "Expected a port of at least one",
-      }),
-      S.isLessThanOrEqualTo(65535, {
-        identifier: $I`CollectorPortMaximumCheck`,
-        title: "Collector Port Maximum",
-        description: "Collector ports do not exceed 65535.",
-        message: "Expected a port of at most 65535",
-      }),
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("CollectorPortMinimumCheck", {
+          title: "Collector Port Minimum",
+          description: "Bound collector ports are at least one.",
+          message: "Expected a port of at least one",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        65535,
+        $I.annote("CollectorPortMaximumCheck", {
+          title: "Collector Port Maximum",
+          description: "Collector ports do not exceed 65535.",
+          message: "Expected a port of at most 65535",
+        })
+      ),
     ],
-    {
-      identifier: $I`CollectorPortChecks`,
+    $I.annote("CollectorPortChecks", {
       title: "Collector Port",
       description: "Checks for valid bound TCP port numbers.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("CollectorPort", {
@@ -553,24 +562,28 @@ export class ClockSync extends S.Opaque<ClockSync, { readonly brand: unique symb
       })
     ),
     residualRmsMs: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`ClockSyncResidualRmsMinimumCheck`,
-        title: "Clock Sync Residual RMS Minimum",
-        description: "Residual RMS values are zero or greater.",
-        message: "Expected a non-negative residual RMS",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("ClockSyncResidualRmsMinimumCheck", {
+          title: "Clock Sync Residual RMS Minimum",
+          description: "Residual RMS values are zero or greater.",
+          message: "Expected a non-negative residual RMS",
+        })
+      )
     ).pipe(
       $I.annoteKey("ClockSync.residualRmsMs", {
         description: "Root-mean-square fit residual in milliseconds.",
       })
     ),
     slope: S.Finite.check(
-      S.isGreaterThan(0, {
-        identifier: $I`ClockSyncSlopePositiveCheck`,
-        title: "Clock Sync Slope Positive",
-        description: "Clock slopes are strictly positive.",
-        message: "Expected a positive clock slope",
-      })
+      S.isGreaterThan(
+        0,
+        $I.annote("ClockSyncSlopePositiveCheck", {
+          title: "Clock Sync Slope Positive",
+          description: "Clock slopes are strictly positive.",
+          message: "Expected a positive clock slope",
+        })
+      )
     ).pipe(
       $I.annoteKey("ClockSync.slope", {
         description: "Multiplicative slope; fixed at 1.0 for all current methods.",
@@ -700,12 +713,14 @@ export class CaptureArtifact extends S.Opaque<CaptureArtifact, { readonly brand:
     ),
     fileSizeBytes: S.OptionFromOptionalKey(
       S.Int.check(
-        S.isGreaterThanOrEqualTo(0, {
-          identifier: $I`CaptureArtifactFileSizeMinimumCheck`,
-          title: "Capture Artifact File Size Minimum",
-          description: "Artifact file sizes are zero or greater.",
-          message: "Expected a non-negative file size",
-        })
+        S.isGreaterThanOrEqualTo(
+          0,
+          $I.annote("CaptureArtifactFileSizeMinimumCheck", {
+            title: "Capture Artifact File Size Minimum",
+            description: "Artifact file sizes are zero or greater.",
+            message: "Expected a non-negative file size",
+          })
+        )
       )
     ).pipe(
       S.withConstructorDefault(Effect.succeedNone),
@@ -842,12 +857,14 @@ export class CollectorHandle extends S.Opaque<CollectorHandle, { readonly brand:
       })
     ),
     pid: S.Int.check(
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`CollectorHandlePidMinimumCheck`,
-        title: "Collector Handle Pid Minimum",
-        description: "Process identifiers are positive integers.",
-        message: "Expected a positive process identifier",
-      })
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("CollectorHandlePidMinimumCheck", {
+          title: "Collector Handle Pid Minimum",
+          description: "Process identifiers are positive integers.",
+          message: "Expected a positive process identifier",
+        })
+      )
     ).pipe(
       $I.annoteKey("CollectorHandle.pid", {
         description: "Process id owning the live collector.",

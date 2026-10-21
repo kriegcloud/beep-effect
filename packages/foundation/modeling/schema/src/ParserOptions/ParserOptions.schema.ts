@@ -43,12 +43,14 @@ const SingleCharacterText = S.String.check(
 
 const canMakeRegExp = (pattern: string): boolean => Result.isSuccess(Result.try(() => new globalThis.RegExp(pattern)));
 
-const RegExpPatternCheck = S.makeFilter(canMakeRegExp, {
-  identifier: $I`RegExpPatternCheck`,
-  title: "RegExp String",
-  description: "A string that can be converted to a JavaScript RegExp with new RegExp(value).",
-  message: "Expected a valid regular expression pattern string",
-});
+const RegExpPatternCheck = S.makeFilter(
+  canMakeRegExp,
+  $I.annote("RegExpPatternCheck", {
+    title: "RegExp String",
+    description: "A string that can be converted to a JavaScript RegExp with new RegExp(value).",
+    message: "Expected a valid regular expression pattern string",
+  })
+);
 
 // The encoded side stays a plain pattern string, never the `{ source, flags }`
 // object that `S.toCodecJson(S.RegExp)` writes. The pattern check runs before

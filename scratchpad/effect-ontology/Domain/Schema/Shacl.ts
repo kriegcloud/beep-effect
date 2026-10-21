@@ -25,12 +25,11 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Schema/Shacl");
 const isValidValidationDuration = P.every([Duration.isFinite, Duration.isGreaterThanOrEqualTo(Duration.zero)]);
 
 const ValidationDurationMs = S.DurationFromMillis.check(
-  S.makeFilter(isValidValidationDuration, {
-    identifier: $I`FiniteValidationDurationCheck`,
+  S.makeFilter(isValidValidationDuration, $I.annote("FiniteValidationDurationCheck", {
     title: "Finite Validation Duration",
     description: "A measured validation duration that is finite and non-negative.",
     message: "Validation duration must be finite and non-negative.",
-  })
+  }))
 ).pipe(
     $I.annoteSchema("ValidationDurationMs", {
       description: "Finite, non-negative validation duration encoded as milliseconds.",

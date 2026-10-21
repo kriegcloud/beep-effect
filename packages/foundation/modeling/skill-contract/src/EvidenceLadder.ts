@@ -265,12 +265,14 @@ export const evidenceLadderFor = (types: EvidenceLadderReceiptTypes) => {
     [types.accepted, types.persisted, types.delivered, types.semanticallyApplied],
     "|"
   )})`;
-  const ReceiptTypeCheck = S.makeFilter((state: EvidenceLadderState) => ladderMatchesReceiptTypes(types, state), {
-    identifier: $I.create(identifier).make("ReceiptTypeCheck"),
-    title: "Evidence ladder receipt types",
-    description: "Every cumulative rung receipt must match the contract's named predicate identity.",
-    message: "Evidence ladder receipt predicate types do not match the contract bindings",
-  });
+  const ReceiptTypeCheck = S.makeFilter(
+    (state: EvidenceLadderState) => ladderMatchesReceiptTypes(types, state),
+    $I.create(identifier).annote("ReceiptTypeCheck", {
+      title: "Evidence ladder receipt types",
+      description: "Every cumulative rung receipt must match the contract's named predicate identity.",
+      message: "Evidence ladder receipt predicate types do not match the contract bindings",
+    })
+  );
 
   return EvidenceLadderState.check(ReceiptTypeCheck).pipe(
     $I.annoteSchema(identifier, {

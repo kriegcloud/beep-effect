@@ -35,12 +35,14 @@ const patentNumberPattern = /^(?:RE|PP|D|H|T)?\d{5,8}$/;
  * @since 0.0.0
  */
 export const UsptoApplicationNumber = S.String.check(
-  S.isPattern(applicationNumberPattern, {
-    identifier: $I`UsptoApplicationNumberPatternCheck`,
-    title: "USPTO Application Number",
-    description: "A normalized USPTO application number is exactly eight digits.",
-    message: "Expected an eight-digit USPTO application number",
-  })
+  S.isPattern(
+    applicationNumberPattern,
+    $I.annote("UsptoApplicationNumberPatternCheck", {
+      title: "USPTO Application Number",
+      description: "A normalized USPTO application number is exactly eight digits.",
+      message: "Expected an eight-digit USPTO application number",
+    })
+  )
 ).pipe(
   S.brand("UsptoApplicationNumber"),
   $I.annoteSchema("UsptoApplicationNumber", {
@@ -142,12 +144,14 @@ export type UsptoApplicationNumberFromText = typeof UsptoApplicationNumberFromTe
  * @since 0.0.0
  */
 export const UsptoPatentNumber = S.String.check(
-  S.isPattern(patentNumberPattern, {
-    identifier: $I`UsptoPatentNumberPatternCheck`,
-    title: "USPTO Patent Number",
-    description: "A normalized USPTO patent number is five to eight digits with an optional RE/PP/D/H/T prefix.",
-    message: "Expected a normalized USPTO patent number",
-  })
+  S.isPattern(
+    patentNumberPattern,
+    $I.annote("UsptoPatentNumberPatternCheck", {
+      title: "USPTO Patent Number",
+      description: "A normalized USPTO patent number is five to eight digits with an optional RE/PP/D/H/T prefix.",
+      message: "Expected a normalized USPTO patent number",
+    })
+  )
 ).pipe(
   S.brand("UsptoPatentNumber"),
   $I.annoteSchema("UsptoPatentNumber", {

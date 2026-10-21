@@ -97,24 +97,28 @@ const RuntimeUsageRecordId = S.NonEmptyString.pipe(
   })
 );
 const RuntimeLocalDateText = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}$/u, {
-    identifier: $I`RuntimeLocalDateTextCheck`,
-    title: "Runtime Local Date Text",
-    description: "A local calendar date encoded as YYYY-MM-DD.",
-    message: "Expected a local date encoded as YYYY-MM-DD",
-  })
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}$/u,
+    $I.annote("RuntimeLocalDateTextCheck", {
+      title: "Runtime Local Date Text",
+      description: "A local calendar date encoded as YYYY-MM-DD.",
+      message: "Expected a local date encoded as YYYY-MM-DD",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RuntimeLocalDateText", {
     description: "Local calendar date text encoded as YYYY-MM-DD.",
   })
 );
 const RuntimeIsoInstantText = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/u, {
-    identifier: $I`RuntimeIsoInstantTextCheck`,
-    title: "Runtime ISO Instant Text",
-    description: "An ISO-like UTC instant encoded as YYYY-MM-DDTHH:mm:ssZ.",
-    message: "Expected an ISO UTC instant encoded as YYYY-MM-DDTHH:mm:ssZ",
-  })
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/u,
+    $I.annote("RuntimeIsoInstantTextCheck", {
+      title: "Runtime ISO Instant Text",
+      description: "An ISO-like UTC instant encoded as YYYY-MM-DDTHH:mm:ssZ.",
+      message: "Expected an ISO UTC instant encoded as YYYY-MM-DDTHH:mm:ssZ",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RuntimeIsoInstantText", {
     description: "UTC instant text encoded as YYYY-MM-DDTHH:mm:ssZ.",

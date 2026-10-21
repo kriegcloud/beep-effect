@@ -51,18 +51,22 @@ const $I = $RepoCliId.create("commands/Goals/Bootstrap.schemas");
  * @since 0.0.0
  */
 export const GoalSlug = S.String.check(
-  S.isPattern(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/, {
-    identifier: $I`GoalSlugPatternCheck`,
-    title: "Goal Slug Pattern",
-    description: "Lowercase ASCII slug segments joined by single hyphens.",
-    message: "Expected a lowercase goal slug with internal single hyphens only",
-  }),
-  S.isMaxLength(64, {
-    identifier: $I`GoalSlugLengthCheck`,
-    title: "Goal Slug Length",
-    description: "A goal slug is at most 64 characters.",
-    message: "Expected a goal slug with at most 64 characters",
-  })
+  S.isPattern(
+    /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/,
+    $I.annote("GoalSlugPatternCheck", {
+      title: "Goal Slug Pattern",
+      description: "Lowercase ASCII slug segments joined by single hyphens.",
+      message: "Expected a lowercase goal slug with internal single hyphens only",
+    })
+  ),
+  S.isMaxLength(
+    64,
+    $I.annote("GoalSlugLengthCheck", {
+      title: "Goal Slug Length",
+      description: "A goal slug is at most 64 characters.",
+      message: "Expected a goal slug with at most 64 characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("GoalSlug", {
     description: "Constrained lowercase goal-packet slug; traversal and the template slug fail the grammar.",
@@ -349,12 +353,14 @@ export type PhaseArchetype = typeof PhaseArchetype.Type;
  * @since 0.0.0
  */
 export const PlanDigest = S.String.check(
-  S.isPattern(/^[0-9a-f]{64}$/, {
-    identifier: $I`PlanDigestPatternCheck`,
-    title: "Plan Digest Pattern",
-    description: "A lowercase 64-character SHA-256 hex digest.",
-    message: "Expected a lowercase 64-character SHA-256 hex digest",
-  })
+  S.isPattern(
+    /^[0-9a-f]{64}$/,
+    $I.annote("PlanDigestPatternCheck", {
+      title: "Plan Digest Pattern",
+      description: "A lowercase 64-character SHA-256 hex digest.",
+      message: "Expected a lowercase 64-character SHA-256 hex digest",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PlanDigest", {
     description: "Lowercase SHA-256 hex digest of exact file bytes.",
@@ -404,12 +410,14 @@ export type PlanDigest = typeof PlanDigest.Type;
  * @since 0.0.0
  */
 export const MaterializationPlanId = S.String.check(
-  S.isPattern(/^goal-plan\/v1:[0-9a-f]{64}$/, {
-    identifier: $I`MaterializationPlanIdPatternCheck`,
-    title: "Materialization Plan Id Pattern",
-    description: "goal-plan/v1: followed by a lowercase SHA-256 hex digest.",
-    message: "Expected goal-plan/v1: followed by a lowercase SHA-256 hex digest",
-  })
+  S.isPattern(
+    /^goal-plan\/v1:[0-9a-f]{64}$/,
+    $I.annote("MaterializationPlanIdPatternCheck", {
+      title: "Materialization Plan Id Pattern",
+      description: "goal-plan/v1: followed by a lowercase SHA-256 hex digest.",
+      message: "Expected goal-plan/v1: followed by a lowercase SHA-256 hex digest",
+    })
+  )
 ).pipe(
   $I.annoteSchema("MaterializationPlanId", {
     description: "Content address of one compiled plan.",
@@ -623,12 +631,14 @@ export class BootstrapInput extends S.Opaque<BootstrapInput, { readonly brand: u
     requires: S.Array(CapabilitySlug).pipe(S.withConstructorDefault(Effect.succeed(A.empty<CapabilitySlug>()))),
     provenanceExploration: S.optionalKey(S.String),
     today: S.String.check(
-      S.isPattern(/^\d{4}-\d{2}-\d{2}$/, {
-        identifier: $I`BootstrapTodayPatternCheck`,
-        title: "Bootstrap Today Pattern",
-        description: "An explicit ISO date (YYYY-MM-DD) input.",
-        message: "Expected an explicit ISO date (YYYY-MM-DD)",
-      })
+      S.isPattern(
+        /^\d{4}-\d{2}-\d{2}$/,
+        $I.annote("BootstrapTodayPatternCheck", {
+          title: "Bootstrap Today Pattern",
+          description: "An explicit ISO date (YYYY-MM-DD) input.",
+          message: "Expected an explicit ISO date (YYYY-MM-DD)",
+        })
+      )
     ),
   }).pipe(
     $I.annoteSchema("BootstrapInput", {

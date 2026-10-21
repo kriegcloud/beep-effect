@@ -1,5 +1,5 @@
 /**
- * REST-first pull-request operations for the repo CLI, over `@effected/github`.
+ * REST-first pull-request operations for the repo CLI, over `@beep/github`.
  *
  * **Details**
  *
@@ -21,9 +21,11 @@
  * @since 0.0.0
  */
 
+import { GitHubClient } from "@beep/github/GitHubClient";
+import { GitHubError } from "@beep/github/GitHubError";
+import { Repo } from "@beep/github/Repo";
 import { $RepoCliId } from "@beep/identity/packages";
 import * as OptionUtils from "@beep/utils/Option";
-import { GitHubClient, GitHubError, Repo } from "@effected/github";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";

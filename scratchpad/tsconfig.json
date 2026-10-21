@@ -23,6 +23,9 @@
       "path": "../packages/drivers/git/tsconfig.json"
     },
     {
+      "path": "../packages/drivers/github/tsconfig.json"
+    },
+    {
       "path": "../packages/drivers/n3/tsconfig.json"
     },
     {

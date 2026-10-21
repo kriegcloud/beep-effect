@@ -13,32 +13,32 @@ const OklchLightnessRangeCheck = S.isBetween(
     minimum: 0,
     maximum: 1,
   },
-  {
-    identifier: $I`OklchLightnessRangeCheck`,
+  $I.annote("OklchLightnessRangeCheck", {
     title: "OKLCH Lightness Range",
     description: "OKLCH lightness normalized to the range 0 through 1.",
     message: "OKLCH lightness must be between 0 and 1",
-  }
+  })
 );
 
-const OklchChromaCheck = S.makeFilter((value: number) => value >= 0, {
-  identifier: $I`OklchChromaCheck`,
-  title: "OKLCH Chroma Non-Negative",
-  description: "OKLCH chroma expressed as a non-negative finite number.",
-  message: "OKLCH chroma must be greater than or equal to 0",
-});
+const OklchChromaCheck = S.makeFilter(
+  (value: number) => value >= 0,
+  $I.annote("OklchChromaCheck", {
+    title: "OKLCH Chroma Non-Negative",
+    description: "OKLCH chroma expressed as a non-negative finite number.",
+    message: "OKLCH chroma must be greater than or equal to 0",
+  })
+);
 
 const OklchHueRangeCheck = S.isBetween(
   {
     minimum: 0,
     maximum: 360,
   },
-  {
-    identifier: $I`OklchHueRangeCheck`,
+  $I.annote("OklchHueRangeCheck", {
     title: "OKLCH Hue Range",
     description: "OKLCH hue in degrees from 0 through 360.",
     message: "OKLCH hue must be between 0 and 360",
-  }
+  })
 );
 
 const linearToSrgb = (value: number): number => {

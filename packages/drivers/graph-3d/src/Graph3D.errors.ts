@@ -33,8 +33,8 @@ export const Graph3DDriverErrorReason = LiteralKit([
   "webglUnavailable",
   "adapterInvariant",
   "renderFailed",
-]).annotate(
-  $I.annote("Graph3DDriverErrorReason", {
+]).pipe(
+  $I.annoteSchema("Graph3DDriverErrorReason", {
     description: "Failure reason emitted by the graph-3d render driver.",
   })
 );

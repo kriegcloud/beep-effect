@@ -49,12 +49,11 @@ const IdentityRequiredFibersDistinct = S.makeFilter<ReadonlyArray<string>>(
         onSome: (duplicate) => `Required identity fiber '${duplicate}' appears more than once.`,
       })
     ),
-  {
-    identifier: $I`IdentityRequiredFibersDistinct`,
+  $I.annote("IdentityRequiredFibersDistinct", {
     title: "Distinct Required Identity Fibers",
     description: "Requires every named identity fiber in a SHACL projection policy to be unique.",
     message: "Required identity fibers must be unique.",
-  }
+  })
 );
 
 const RequiredIdentityFibers = S.Array(S.String).pipe(S.check(IdentityRequiredFibersDistinct));

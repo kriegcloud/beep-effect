@@ -28,18 +28,19 @@ const regionalIndicatorOffset = regionalIndicatorSymbolLetterA - latinCapitalLet
 const CountryFlagCode = S.String.check(
   S.makeFilterGroup(
     [
-      S.isPattern(/^[A-Z]{2}$/u, {
-        identifier: $I`CountryFlagCodePatternCheck`,
-        title: "Country Flag Code Pattern",
-        description: "A two-letter uppercase code that maps to Unicode regional indicator symbols.",
-        message: "Country flag codes must contain exactly two uppercase ASCII letters",
-      }),
+      S.isPattern(
+        /^[A-Z]{2}$/u,
+        $I.annote("CountryFlagCodePatternCheck", {
+          title: "Country Flag Code Pattern",
+          description: "A two-letter uppercase code that maps to Unicode regional indicator symbols.",
+          message: "Country flag codes must contain exactly two uppercase ASCII letters",
+        })
+      ),
     ],
-    {
-      identifier: $I`CountryFlagCodeChecks`,
+    $I.annote("CountryFlagCodeChecks", {
       title: "Country Flag Code",
       description: "Checks for country codes that can be rendered as Unicode emoji flags.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("CountryFlagCode", {

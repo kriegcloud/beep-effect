@@ -23,12 +23,11 @@ const $I = $ScratchpadId.create("effect-ontology/Service/Retry");
 
 const PositiveDuration = S.Duration.pipe(
   S.check(
-    S.makeFilter(Duration.isGreaterThan(Duration.zero), {
-      identifier: $I`PositiveRetryDurationCheck`,
+    S.makeFilter(Duration.isGreaterThan(Duration.zero), $I.annote("PositiveRetryDurationCheck", {
       title: "Positive Retry Duration",
       description: "A finite retry duration greater than zero.",
       message: "Retry durations must be greater than zero.",
-    })
+    }))
   )
 );
 
@@ -63,12 +62,11 @@ const RetryPolicyInvariantCheck = S.makeFilter(
             "Overall timeout must accommodate every configured attempt plus the conservative maximum retry delays.",
         };
   },
-  {
-    identifier: $I`RetryPolicyInvariantCheck`,
+  $I.annote("RetryPolicyInvariantCheck", {
     title: "Retry Policy Deadline Invariant",
     description: "Retry delays are ordered and the overall deadline can accommodate the complete attempt budget.",
     message: "Retry policy deadlines must accommodate every attempt and retry delay.",
-  }
+  })
 );
 
 const retryPolicyAttemptTimeoutDefault = Duration.seconds(60);

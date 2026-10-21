@@ -23,6 +23,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
 
@@ -361,7 +362,7 @@ describe("restoration archive boundary helpers", () => {
         ).pipe(Effect.exit)).pipe(Exit.isFailure, assertTrue);
         (yield* RA.validateFinalArchiveInventory(
           { ...context, manifestPath: path.join(archiveRoot, "signature-failure.jsonl") },
-          { ...inventory, signature: Sha256Hex.make("0".repeat(64)) }
+          { ...inventory, signature: Sha256Hex.make(Str.repeat(64)("0")) }
         ).pipe(Effect.exit)).pipe(Exit.isFailure, assertTrue);
         (yield* RA.validateFinalArchiveInventory(
           {
@@ -577,7 +578,7 @@ describe("restoration archive boundary helpers", () => {
           open: (filePath: string, options?: Parameters<FileSystem.FileSystem["open"]>[1]) =>
             fs.open(filePath, options).pipe(
               Effect.map((file) => {
-                if (!filePath.endsWith("source.bin.partial")) return file;
+                if (!Str.endsWith("source.bin.partial")(filePath)) return file;
                 let mutatedThisAttempt = false;
                 return new Proxy(file, {
                   get: (target, property) =>
@@ -1131,7 +1132,7 @@ describe("restoration archive boundary helpers", () => {
 
         const options = preserveOptions(sourceRoot, sourcePath, root, path.join(root, "collector.jsonl"));
         const sourceStat = RA.sourceStat(sourceInfo);
-        const copiedDigest = Sha256Hex.make("0".repeat(64));
+        const copiedDigest = Sha256Hex.make(Str.repeat(64)("0"));
         const promotedDestination = path.join(destinationDirectory, "promoted.bin");
         const promotedPartial = `${promotedDestination}.partial`;
         const promoteContext = {
@@ -1168,14 +1169,14 @@ describe("streaming hasher", () => {
           return this;
         }
         digest(_encoding: "hex"): string {
-          return "ab".repeat(32);
+          return Str.repeat(32)("ab");
         }
       }
       Reflect.set(bun, "CryptoHasher", FakeCryptoHasher);
       try {
         const hasher = RA.createStreamingSha256();
         hasher.update(Uint8Array.of(1, 2, 3));
-        expect(hasher.digestHex()).toBe("ab".repeat(32));
+        expect(hasher.digestHex()).toBe(Str.repeat(32)("ab"));
         expect(seen).toEqual([3]);
       } finally {
         Reflect.set(bun, "CryptoHasher", original);

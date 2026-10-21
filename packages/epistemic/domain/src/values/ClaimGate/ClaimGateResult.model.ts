@@ -96,8 +96,8 @@ export class ClaimGateViolation extends S.Opaque<ClaimGateViolation, { readonly 
   )
 ) {}
 
-const ClaimGateVerdict = LiteralKit(["admitted", "rejected"]).annotate(
-  $I.annote("ClaimGateVerdict", {
+const ClaimGateVerdict = LiteralKit(["admitted", "rejected"]).pipe(
+  $I.annoteSchema("ClaimGateVerdict", {
     description: "Internal literal verdict vocabulary used to build ClaimGateResult.",
   })
 );

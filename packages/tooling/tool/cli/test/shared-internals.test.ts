@@ -106,7 +106,7 @@ it.layer(Layer.merge(BunCrypto.layer, Path.layer), { timeout: "10 seconds" })((i
           remediation: "Apply S.withConstructorDefault.",
         });
         const rendered = yield* line(finding);
-        expect(rendered.startsWith(SchemaFirstPolicyIssuePrefix)).toBe(true);
+        expect(Str.startsWith(SchemaFirstPolicyIssuePrefix)(rendered)).toBe(true);
         const decoded = decodeSchemaFirstPolicyFindingLine(rendered);
         decoded.pipe(O.isSome, assertTrue);
         if (O.isSome(decoded)) {
@@ -183,8 +183,8 @@ it.layer(Layer.merge(BunCrypto.layer, Path.layer), { timeout: "10 seconds" })((i
             message: "m",
           })
         );
-        expect(json.startsWith("{")).toBe(true);
-        expect(json.includes(SchemaFirstPolicyIssuePrefix)).toBe(false);
+        expect(Str.startsWith("{")(json)).toBe(true);
+        expect(Str.includes(SchemaFirstPolicyIssuePrefix)(json)).toBe(false);
       }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
   });
@@ -247,15 +247,15 @@ it.layer(Layer.merge(BunCrypto.layer, Path.layer), { timeout: "10 seconds" })((i
     it("modifies a value while preserving comments and formatting", () => {
       const source = '{\n  // keep me\n  "a": 1,\n  "b": 2\n}';
       const next = applyJsoncModification(JsoncModification.make({ content: source, path: ["a"], value: 42 }));
-      expect(next.includes("// keep me")).toBe(true);
-      expect(next.includes('"a": 42')).toBe(true);
-      expect(next.includes('"b": 2')).toBe(true);
+      expect(Str.includes("// keep me")(next)).toBe(true);
+      expect(Str.includes('"a": 42')(next)).toBe(true);
+      expect(Str.includes('"b": 2')(next)).toBe(true);
     });
 
     it("formats with 2-space indentation", () => {
       const formatted = jsonText('{"a":1,"b":{"c":2}}');
-      expect(formatted.includes('  "a": 1')).toBe(true);
-      expect(formatted.includes('    "c": 2')).toBe(true);
+      expect(Str.includes('  "a": 1')(formatted)).toBe(true);
+      expect(Str.includes('    "c": 2')(formatted)).toBe(true);
     });
   });
 

@@ -46,12 +46,14 @@ const rangeComparatorPattern = /^(\^|>=|>|<=|<|=)?(.+)$/;
 const comparatorSpacePattern = /(\^|>=|>|<=|<|=)\s+(v?)/g;
 
 const SemverNumberSegmentString = S.String.check(
-  S.isPattern(semverNumericIdentifierPattern, {
-    identifier: $I`SemverNumberSegmentStringCheck`,
-    title: "Semver Number Segment String",
-    description: "A SemVer numeric identifier with no leading zeroes unless the value is exactly zero.",
-    message: "SemVer numeric identifiers must be non-negative integers without leading zeroes",
-  })
+  S.isPattern(
+    semverNumericIdentifierPattern,
+    $I.annote("SemverNumberSegmentStringCheck", {
+      title: "Semver Number Segment String",
+      description: "A SemVer numeric identifier with no leading zeroes unless the value is exactly zero.",
+      message: "SemVer numeric identifiers must be non-negative integers without leading zeroes",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SemverNumberSegmentString", {
     description: "A SemVer numeric identifier string.",
@@ -59,12 +61,14 @@ const SemverNumberSegmentString = S.String.check(
 );
 
 const SemverNumberSegment = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`SemverNumberSegmentNonNegativeCheck`,
-    title: "Semver Number Segment Non Negative",
-    description: "A SemVer numeric segment must be zero or greater.",
-    message: "SemVer numeric segments must be non-negative integers",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("SemverNumberSegmentNonNegativeCheck", {
+      title: "Semver Number Segment Non Negative",
+      description: "A SemVer numeric segment must be zero or greater.",
+      message: "SemVer numeric segments must be non-negative integers",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SemverNumberSegment", {
     description: "A safe non-negative integer segment in a semantic version.",
@@ -72,13 +76,15 @@ const SemverNumberSegment = S.Int.check(
 );
 
 const SemverPrereleaseIdentifier = S.String.check(
-  S.isPattern(semverPrereleaseIdentifierPattern, {
-    identifier: $I`SemverPrereleaseIdentifierCheck`,
-    title: "Semver Prerelease Identifier",
-    description:
-      "A SemVer prerelease identifier: numeric identifiers cannot have leading zeroes, while alphanumeric identifiers may include ASCII letters, digits, and hyphens.",
-    message: "SemVer prerelease identifiers must be numeric or ASCII alphanumeric-hyphen identifiers",
-  })
+  S.isPattern(
+    semverPrereleaseIdentifierPattern,
+    $I.annote("SemverPrereleaseIdentifierCheck", {
+      title: "Semver Prerelease Identifier",
+      description:
+        "A SemVer prerelease identifier: numeric identifiers cannot have leading zeroes, while alphanumeric identifiers may include ASCII letters, digits, and hyphens.",
+      message: "SemVer prerelease identifiers must be numeric or ASCII alphanumeric-hyphen identifiers",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SemverPrereleaseIdentifier", {
     description: "A SemVer prerelease identifier.",
@@ -86,12 +92,14 @@ const SemverPrereleaseIdentifier = S.String.check(
 );
 
 const SemverBuildIdentifier = S.String.check(
-  S.isPattern(semverBuildIdentifierPattern, {
-    identifier: $I`SemverBuildIdentifierCheck`,
-    title: "Semver Build Identifier",
-    description: "A SemVer build metadata identifier made from ASCII letters, digits, and hyphens.",
-    message: "SemVer build identifiers must contain only ASCII letters, digits, and hyphens",
-  })
+  S.isPattern(
+    semverBuildIdentifierPattern,
+    $I.annote("SemverBuildIdentifierCheck", {
+      title: "Semver Build Identifier",
+      description: "A SemVer build metadata identifier made from ASCII letters, digits, and hyphens.",
+      message: "SemVer build identifiers must contain only ASCII letters, digits, and hyphens",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SemverBuildIdentifier", {
     description: "A SemVer build metadata identifier.",

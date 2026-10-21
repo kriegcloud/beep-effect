@@ -395,12 +395,14 @@ export class DocumentUploaded extends S.Opaque<DocumentUploaded, { readonly bran
  * @since 0.0.0
  */
 export const ContentSha1 = S.String.check(
-  S.isPattern(/^[0-9a-f]{40}$/u, {
-    identifier: $I`ContentSha1PatternCheck`,
-    title: "Content SHA-1",
-    description: "A SHA-1 digest as exactly 40 lowercase hexadecimal characters.",
-    message: "Content SHA-1 must be 40 lowercase hexadecimal characters.",
-  })
+  S.isPattern(
+    /^[0-9a-f]{40}$/u,
+    $I.annote("ContentSha1PatternCheck", {
+      title: "Content SHA-1",
+      description: "A SHA-1 digest as exactly 40 lowercase hexadecimal characters.",
+      message: "Content SHA-1 must be 40 lowercase hexadecimal characters.",
+    })
+  )
 ).pipe(
   S.brand("ContentSha1"),
   $I.annoteSchema("ContentSha1", {

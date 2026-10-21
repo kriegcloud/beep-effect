@@ -58,8 +58,8 @@ const TurboConfiguration = S.Struct({
       inputs: S.Array(S.String),
     }),
   }),
-}).annotate(
-  $I.annote("TurboConfiguration", {
+}).pipe(
+  $I.annoteSchema("TurboConfiguration", {
     description: "Coverage input declaration decoded from the repository Turbo configuration.",
   })
 );

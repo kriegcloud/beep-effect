@@ -777,23 +777,24 @@ export const inlineSafetyIssuesAtRoot = (inline: Inline): ReadonlyArray<Document
   ...inlineSafetyIssues(inline, []),
 ];
 
-const SafeInlineCheck = S.makeFilter<Inline>((inline) => !A.isReadonlyArrayNonEmpty(inlineSafetyIssuesAtRoot(inline)), {
-  identifier: $I`SafeInlineCheck`,
-  title: "Safe Markdown Inline",
-  description: "An inline node without trusted raw content, unsafe URLs, or invalid scalar strings.",
-  message: "Inline content contains trusted raw content, an unsafe URL, or an invalid scalar string.",
-});
+const SafeInlineCheck = S.makeFilter<Inline>(
+  (inline) => !A.isReadonlyArrayNonEmpty(inlineSafetyIssuesAtRoot(inline)),
+  $I.annote("SafeInlineCheck", {
+    title: "Safe Markdown Inline",
+    description: "An inline node without trusted raw content, unsafe URLs, or invalid scalar strings.",
+    message: "Inline content contains trusted raw content, an unsafe URL, or an invalid scalar string.",
+  })
+);
 
 const SafeDocumentCheck = S.makeFilter<Document>(
   (document) => !A.isReadonlyArrayNonEmpty(documentSafetyIssues(document)),
-  {
-    identifier: $I`SafeDocumentCheck`,
+  $I.annote("SafeDocumentCheck", {
     title: "Safe Markdown Document",
     description:
       "A bounded document without trusted raw content, unsafe URLs, duplicate footnotes, invalid scalars, or HTML projection issues.",
     message:
       "Document exceeds the complexity budget or contains trusted raw content, an unsafe URL, duplicate footnotes, an invalid scalar string, or an HTML projection issue.",
-  }
+  })
 );
 
 /**

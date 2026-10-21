@@ -28,8 +28,8 @@ const $I = $CosmosId.create("Cosmos.errors");
  * @category errors
  * @since 0.0.0
  */
-export const CosmosDriverErrorReason = LiteralKit(["importFailed", "adapterInvariant", "renderFailed"]).annotate(
-  $I.annote("CosmosDriverErrorReason", {
+export const CosmosDriverErrorReason = LiteralKit(["importFailed", "adapterInvariant", "renderFailed"]).pipe(
+  $I.annoteSchema("CosmosDriverErrorReason", {
     description: "Failure reason emitted by the cosmos graph driver.",
   })
 );

@@ -45,36 +45,43 @@ const isValidWindowsUncSegments = S.is(ValidWindowsUncSegments);
 export const WindowsDrivePath = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(isSupportedWindowsNamespace, {
-        identifier: $I`WindowsDrivePathSupportedNamespaceCheck`,
-        title: "Windows Drive Path Supported Namespace",
-        description: "A drive path that does not use an unsupported Windows namespace prefix.",
-        message: "Windows drive paths must not use unsupported namespace prefixes",
-      }),
-      S.isPattern(windowsDrivePrefixRegExp, {
-        identifier: $I`WindowsDrivePathPrefixCheck`,
-        title: "Windows Drive Path Prefix",
-        description: "A drive path that starts with `<letter>:`.",
-        message: "Windows drive paths must start with a drive prefix like C:",
-      }),
-      S.makeFilter(isHasLeafSegment, {
-        identifier: $I`WindowsDrivePathLeafSegmentCheck`,
-        title: "Windows Drive Path Leaf Segment",
-        description: "A drive path that includes a leaf segment and is not only a drive root.",
-        message: "Windows drive paths must include a leaf segment",
-      }),
-      S.makeFilter((value: string) => pipe(Str.substring(2)(value), splitNonEmpty(/[\\/]+/), isWindowsSegments), {
-        identifier: $I`WindowsDrivePathSegmentsCheck`,
-        title: "Windows Drive Path Segments",
-        description: "A drive path whose segments after the drive prefix are valid Windows path segments.",
-        message: "Windows drive paths must contain valid Windows path segments after the drive prefix",
-      }),
+      S.makeFilter(
+        isSupportedWindowsNamespace,
+        $I.annote("WindowsDrivePathSupportedNamespaceCheck", {
+          title: "Windows Drive Path Supported Namespace",
+          description: "A drive path that does not use an unsupported Windows namespace prefix.",
+          message: "Windows drive paths must not use unsupported namespace prefixes",
+        })
+      ),
+      S.isPattern(
+        windowsDrivePrefixRegExp,
+        $I.annote("WindowsDrivePathPrefixCheck", {
+          title: "Windows Drive Path Prefix",
+          description: "A drive path that starts with `<letter>:`.",
+          message: "Windows drive paths must start with a drive prefix like C:",
+        })
+      ),
+      S.makeFilter(
+        isHasLeafSegment,
+        $I.annote("WindowsDrivePathLeafSegmentCheck", {
+          title: "Windows Drive Path Leaf Segment",
+          description: "A drive path that includes a leaf segment and is not only a drive root.",
+          message: "Windows drive paths must include a leaf segment",
+        })
+      ),
+      S.makeFilter(
+        (value: string) => pipe(Str.substring(2)(value), splitNonEmpty(/[\\/]+/), isWindowsSegments),
+        $I.annote("WindowsDrivePathSegmentsCheck", {
+          title: "Windows Drive Path Segments",
+          description: "A drive path whose segments after the drive prefix are valid Windows path segments.",
+          message: "Windows drive paths must contain valid Windows path segments after the drive prefix",
+        })
+      ),
     ],
-    {
-      identifier: $I`WindowsDrivePathChecks`,
+    $I.annote("WindowsDrivePathChecks", {
       title: "Windows Drive Path",
       description: "Checks for a Windows drive path with a leaf segment.",
-    }
+    })
   )
 ).pipe(
   S.brand("WindowsDrivePath"),
@@ -121,42 +128,51 @@ export type WindowsDrivePath = typeof WindowsDrivePath.Type;
 export const WindowsUncPath = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(isSupportedWindowsNamespace, {
-        identifier: $I`WindowsUncPathSupportedNamespaceCheck`,
-        title: "Windows UNC Path Supported Namespace",
-        description: "A UNC path that does not use an unsupported Windows namespace prefix.",
-        message: "Windows UNC paths must not use unsupported namespace prefixes",
-      }),
-      S.isPattern(windowsUncPrefixRegExp, {
-        identifier: $I`WindowsUncPathPrefixCheck`,
-        title: "Windows UNC Path Prefix",
-        description: "A UNC path that starts with two leading backslashes.",
-        message: "Windows UNC paths must start with \\\\",
-      }),
-      S.makeFilter(P.not(isUsesPosixSeparator), {
-        identifier: $I`WindowsUncPathNoPosixSeparatorCheck`,
-        title: "Windows UNC Path No Posix Separator",
-        description: "A UNC path that does not contain the POSIX separator /.",
-        message: "Windows UNC paths must not contain /",
-      }),
-      S.makeFilter(isHasLeafSegment, {
-        identifier: $I`WindowsUncPathLeafSegmentCheck`,
-        title: "Windows UNC Path Leaf Segment",
-        description: "A UNC path that includes a leaf segment and is not only a UNC root.",
-        message: "Windows UNC paths must include a leaf segment",
-      }),
-      S.makeFilter(flow(Str.substring(2), splitNonEmpty(/\\+/), isValidWindowsUncSegments), {
-        identifier: $I`WindowsUncPathSegmentsCheck`,
-        title: "Windows UNC Path Segments",
-        description: "A UNC path whose segments form `[server, share, ...rest]` with valid Windows path segments.",
-        message: "Windows UNC paths must include valid server, share, and leaf segments",
-      }),
+      S.makeFilter(
+        isSupportedWindowsNamespace,
+        $I.annote("WindowsUncPathSupportedNamespaceCheck", {
+          title: "Windows UNC Path Supported Namespace",
+          description: "A UNC path that does not use an unsupported Windows namespace prefix.",
+          message: "Windows UNC paths must not use unsupported namespace prefixes",
+        })
+      ),
+      S.isPattern(
+        windowsUncPrefixRegExp,
+        $I.annote("WindowsUncPathPrefixCheck", {
+          title: "Windows UNC Path Prefix",
+          description: "A UNC path that starts with two leading backslashes.",
+          message: "Windows UNC paths must start with \\\\",
+        })
+      ),
+      S.makeFilter(
+        P.not(isUsesPosixSeparator),
+        $I.annote("WindowsUncPathNoPosixSeparatorCheck", {
+          title: "Windows UNC Path No Posix Separator",
+          description: "A UNC path that does not contain the POSIX separator /.",
+          message: "Windows UNC paths must not contain /",
+        })
+      ),
+      S.makeFilter(
+        isHasLeafSegment,
+        $I.annote("WindowsUncPathLeafSegmentCheck", {
+          title: "Windows UNC Path Leaf Segment",
+          description: "A UNC path that includes a leaf segment and is not only a UNC root.",
+          message: "Windows UNC paths must include a leaf segment",
+        })
+      ),
+      S.makeFilter(
+        flow(Str.substring(2), splitNonEmpty(/\\+/), isValidWindowsUncSegments),
+        $I.annote("WindowsUncPathSegmentsCheck", {
+          title: "Windows UNC Path Segments",
+          description: "A UNC path whose segments form `[server, share, ...rest]` with valid Windows path segments.",
+          message: "Windows UNC paths must include valid server, share, and leaf segments",
+        })
+      ),
     ],
-    {
-      identifier: $I`WindowsUncPathChecks`,
+    $I.annote("WindowsUncPathChecks", {
       title: "Windows UNC Path",
       description: "Checks for a Windows UNC file path.",
-    }
+    })
   )
 ).pipe(
   S.brand("WindowsUncPath"),
@@ -203,54 +219,67 @@ export type WindowsUncPath = typeof WindowsUncPath.Type;
 export const WindowsRelativePath = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(isSupportedWindowsNamespace, {
-        identifier: $I`WindowsRelativePathSupportedNamespaceCheck`,
-        title: "Windows Relative Path Supported Namespace",
-        description: "A Windows relative path that does not use an unsupported namespace prefix.",
-        message: "Windows relative paths must not use unsupported namespace prefixes",
-      }),
-      S.makeFilter(isUsesWindowsSeparator, {
-        identifier: $I`WindowsRelativePathWindowsSeparatorCheck`,
-        title: "Windows Relative Path Uses Windows Separator",
-        description: "A Windows relative path that contains at least one backslash separator.",
-        message: "Windows relative paths must contain a Windows separator",
-      }),
-      S.makeFilter(P.not(isUsesPosixSeparator), {
-        identifier: $I`WindowsRelativePathNoPosixSeparatorCheck`,
-        title: "Windows Relative Path No Posix Separator",
-        description: "A Windows relative path that does not contain the POSIX separator /.",
-        message: "Windows relative paths must not contain /",
-      }),
-      S.makeFilter(P.not(Str.startsWith("\\\\")), {
-        identifier: $I`WindowsRelativePathNotUncCheck`,
-        title: "Windows Relative Path Not UNC",
-        description: "A Windows relative path that does not start with a UNC prefix.",
-        message: "Windows relative paths must not start with \\\\",
-      }),
-      S.makeFilter(P.not(isWindowsDrivePrefix), {
-        identifier: $I`WindowsRelativePathNotDrivePrefixedCheck`,
-        title: "Windows Relative Path Not Drive Prefixed",
-        description: "A Windows relative path that does not begin with a drive prefix.",
-        message: "Windows relative paths must not start with a drive prefix like C:",
-      }),
-      S.makeFilter(isHasLeafSegment, {
-        identifier: $I`WindowsRelativePathLeafSegmentCheck`,
-        title: "Windows Relative Path Leaf Segment",
-        description: "A Windows relative path that includes a leaf segment and does not end with a separator.",
-        message: "Windows relative paths must include a leaf segment",
-      }),
-      S.makeFilter(flow(splitNonEmpty(/\\+/), isWindowsSegments), {
-        identifier: $I`WindowsRelativePathSegmentsCheck`,
-        title: "Windows Relative Path Segments",
-        description: "A Windows relative path whose segments are valid Windows path segments.",
-        message: "Windows relative paths must contain valid Windows path segments",
-      }),
+      S.makeFilter(
+        isSupportedWindowsNamespace,
+        $I.annote("WindowsRelativePathSupportedNamespaceCheck", {
+          title: "Windows Relative Path Supported Namespace",
+          description: "A Windows relative path that does not use an unsupported namespace prefix.",
+          message: "Windows relative paths must not use unsupported namespace prefixes",
+        })
+      ),
+      S.makeFilter(
+        isUsesWindowsSeparator,
+        $I.annote("WindowsRelativePathWindowsSeparatorCheck", {
+          title: "Windows Relative Path Uses Windows Separator",
+          description: "A Windows relative path that contains at least one backslash separator.",
+          message: "Windows relative paths must contain a Windows separator",
+        })
+      ),
+      S.makeFilter(
+        P.not(isUsesPosixSeparator),
+        $I.annote("WindowsRelativePathNoPosixSeparatorCheck", {
+          title: "Windows Relative Path No Posix Separator",
+          description: "A Windows relative path that does not contain the POSIX separator /.",
+          message: "Windows relative paths must not contain /",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.startsWith("\\\\")),
+        $I.annote("WindowsRelativePathNotUncCheck", {
+          title: "Windows Relative Path Not UNC",
+          description: "A Windows relative path that does not start with a UNC prefix.",
+          message: "Windows relative paths must not start with \\\\",
+        })
+      ),
+      S.makeFilter(
+        P.not(isWindowsDrivePrefix),
+        $I.annote("WindowsRelativePathNotDrivePrefixedCheck", {
+          title: "Windows Relative Path Not Drive Prefixed",
+          description: "A Windows relative path that does not begin with a drive prefix.",
+          message: "Windows relative paths must not start with a drive prefix like C:",
+        })
+      ),
+      S.makeFilter(
+        isHasLeafSegment,
+        $I.annote("WindowsRelativePathLeafSegmentCheck", {
+          title: "Windows Relative Path Leaf Segment",
+          description: "A Windows relative path that includes a leaf segment and does not end with a separator.",
+          message: "Windows relative paths must include a leaf segment",
+        })
+      ),
+      S.makeFilter(
+        flow(splitNonEmpty(/\\+/), isWindowsSegments),
+        $I.annote("WindowsRelativePathSegmentsCheck", {
+          title: "Windows Relative Path Segments",
+          description: "A Windows relative path whose segments are valid Windows path segments.",
+          message: "Windows relative paths must contain valid Windows path segments",
+        })
+      ),
     ],
-    {
-      identifier: $I`WindowsRelativePathChecks`,
+    $I.annote("WindowsRelativePathChecks", {
       title: "Windows Relative Path",
       description: "Checks for a Windows relative path that uses backslashes and contains a leaf segment.",
-    }
+    })
   )
 ).pipe(
   S.brand("WindowsRelativePath"),

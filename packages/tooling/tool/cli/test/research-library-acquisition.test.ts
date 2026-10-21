@@ -44,6 +44,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const LibraryImportPayloadJson = S.fromJsonString(LibraryImportPayload);
 const UnknownJson = S.fromJsonString(S.Unknown);
@@ -112,7 +113,7 @@ const headerlessPdf = (body: string) => {
   });
   const xref = pdf.length;
   pdf += `xref\n0 6\n0000000000 65535 f \n${A.join(
-    A.map(offsets.slice(1), (offset) => `${String(offset).padStart(10, "0")} 00000 n \n`),
+    A.map(offsets.slice(1), (offset) => `${Str.padStart(10, "0")(String(offset))} 00000 n \n`),
     ""
   )}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
   return pdf;
@@ -188,7 +189,7 @@ it.layer(
             );
             artifacts = A.append(
               artifacts,
-              scenario === "corrupt" ? LibraryArtifact.make({ ...proof, sha256: "0".repeat(64) }) : proof
+              scenario === "corrupt" ? LibraryArtifact.make({ ...proof, sha256: Str.repeat(64)("0") }) : proof
             );
           }
         }
@@ -213,7 +214,7 @@ it.layer(
         provider: "alphaxiv",
         operation: "get_paper_content",
         arguments: { url: "https://arxiv.org/abs/2608.23992v3", fullText: true },
-        result: { content: [{ type: "text", text: "Actual retained source body. ".repeat(50) }] },
+        result: { content: [{ type: "text", text: Str.repeat(50)("Actual retained source body. ") }] },
       };
       expect(yield* validateProviderQualification("alphaxiv", [receipt])).toBe(true);
       const error = yield* validateProviderQualification("alphaxiv", [
@@ -244,7 +245,7 @@ it.layer(
           return Effect.succeed(
             HttpClientResponse.fromWeb(
               request,
-              new Response(request.url.endsWith(".pdf") ? headerlessPdf("Real full paper fixture") : html, {
+              new Response(Str.endsWith(".pdf")(request.url) ? headerlessPdf("Real full paper fixture") : html, {
                 status: 200,
               })
             )
@@ -352,7 +353,7 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
       ]);
       yield* fixture.fs.writeFileString(
         fixture.path.join(clone, "large.txt"),
-        "actual cited patch content ".repeat(360_000)
+        Str.repeat(360_000)("actual cited patch content ")
       );
       yield* runLibraryCommand(fixture.root, "git", ["-C", clone, "add", "large.txt"]);
       yield* runLibraryCommand(fixture.root, "git", [
@@ -368,7 +369,7 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
         "-m",
         "fixture",
       ]);
-      const revision = (yield* runLibraryCommand(fixture.root, "git", ["-C", clone, "rev-parse", "HEAD"])).trim();
+      const revision = Str.trim(yield* runLibraryCommand(fixture.root, "git", ["-C", clone, "rev-parse", "HEAD"]));
       const code = LibrarySource.make({
         ...source,
         kind: "github-code",
@@ -405,7 +406,7 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
           HttpClientResponse.fromWeb(
             request,
             new Response(
-              request.url.includes("api/query")
+              Str.includes("api/query")(request.url)
                 ? "<feed><entry><id>http://arxiv.org/abs/2608.23992v3</id></entry></feed>"
                 : pdf,
               { status: 200 }
@@ -425,9 +426,9 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
           HttpClientResponse.fromWeb(
             request,
             new Response(
-              request.url.includes("api/query")
+              Str.includes("api/query")(request.url)
                 ? "<feed><entry><id>http://arxiv.org/abs/2608.23992v3</id></entry></feed>"
-                : request.url.endsWith("v3")
+                : Str.endsWith("v3")(request.url)
                   ? headerlessPdf("Different actual version bytes")
                   : pdf,
               { status: 200 }
@@ -489,10 +490,10 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
           HttpClientResponse.fromWeb(
             request,
             new Response(
-              request.url.endsWith("article")
+              Str.endsWith("article")(request.url)
                 ? '<meta content="/pdf?id=paper" name="citation_pdf_url">'
                 : "Access denied",
-              { status: request.url.endsWith("article") ? 200 : 403, headers: { "content-type": "text/html" } }
+              { status: Str.endsWith("article")(request.url) ? 200 : 403, headers: { "content-type": "text/html" } }
             )
           )
         );

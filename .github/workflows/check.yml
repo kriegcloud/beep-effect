@@ -1269,7 +1269,6 @@ jobs:
     permissions:
       contents: read
       actions: read
-      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -1295,13 +1294,22 @@ jobs:
             --lockfile=bun.lock
             --config=osv-scanner.toml
 
+      # Manifest-aware replacement for actions/dependency-review-action v5.0.0,
+      # which has no manifest-path exclusion (#1882). It reads the same
+      # dependency-graph compare API with the job's read-only GITHUB_TOKEN,
+      # drops only manifests under the declared fixture policy
+      # (dependencyReviewFixturePolicy in the repo CLI), keeps the action's
+      # thresholds (high severity, runtime scope, AGPL-3.0/GPL-3.0 denied) and
+      # fails closed when the API cannot answer. Fork PRs run it the same way:
+      # `pull_request` gives them a read-only token and no secrets.
       - name: Dependency review
         if: github.event_name == 'pull_request'
-        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-        with:
-          fail-on-severity: high
-          deny-licenses: AGPL-3.0, GPL-3.0
-          comment-summary-in-pr: on-failure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bun run beep ci dependency-review --base "$BASE_SHA" --head "$HEAD_SHA"
 
       # Exercise the documented read permission with GITHUB_TOKEN on PRs too,
       # before relying on these governance reads after a main push.

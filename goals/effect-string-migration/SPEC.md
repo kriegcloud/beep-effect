@@ -79,6 +79,7 @@ them and record each in the Decision Log.
 | 2026-10-21 | Prove each wave with a temporary local 0.55.0 install and `effect-diagnostics --filter`, reverted before commit. | The pin moves only in the arming PR, so hosted CI cannot see the rule until then. | Drop the temporary step once the pin is at 0.55+. |
 | 2026-10-21 | Fallbacks for Option results that cannot be empty use `constant(...)` from `effect/Function`, not a new arrow. | A never-called arrow is a new uncovered function and line, which the coverage ratchet counts. | Replace with an arrow plus a test that reaches it. |
 | 2026-10-21 | Zero-import and hot-path modules keep native-free scanning without `effect/String` calls in their loops: anchored or positioned `RegExp.exec` and indexed character reads replace positional `indexOf`, `startsWith` and `charCodeAt`. | `effect/String` has no positional search, an `Option` per character slowed the ACP scanner 5x, and repo-cli's pre-fast-path modules must not import anything. | Revert to native calls behind a documented rule exception if a future rule release allows one. |
+| 2026-10-21 | Split repo-cli's remainder into waves 5b (224 sites) and 5c (213) for review size, and hold its 7 files with open-lane hunks plus the root for 5d, which also moves the pin and arms the rule. | About 470 sites in one PR is too large to review, and the held files would conflict with open lanes. | Fold 5d's files into whichever wave is open when their lanes merge. |
 
 ## Exception Ledger
 

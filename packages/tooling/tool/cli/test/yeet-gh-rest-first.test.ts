@@ -1,3 +1,7 @@
+import { GitHubClient } from "@beep/github/GitHubClient";
+import { GitHubError } from "@beep/github/GitHubError";
+import { GitHubGraphQLError } from "@beep/github/GraphQL";
+import { Repo, RepoRef } from "@beep/github/Repo";
 import {
   decideGraphqlBudget,
   GithubCheckRunRecord,
@@ -27,20 +31,23 @@ import {
 } from "@beep/repo-cli/test/Yeet";
 import { describe, expect, it } from "@effect/vitest";
 import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
-import { GitHubClient, GitHubError, GitHubGraphQLError, Repo, RepoRef } from "@effected/github";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
+import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
+import type { GraphQLDocument } from "@beep/github/GraphQL";
 
 // Recorded REST payloads (trimmed to the fields the wire schemas read).
 const pullPayload = {
@@ -82,12 +89,49 @@ const timelinePayload = [
 
 const repoLayer = Repo.layer(RepoRef.make({ owner: "beep-effect", repo: "beep-effect" }));
 
-const restLayer = (fixtures: Parameters<typeof GitHubClient.layerFixture>[0]) =>
-  layerGithubRest.pipe(Layer.provide(Layer.mergeAll(GitHubClient.layerFixture(fixtures), repoLayer)));
+// The recorded pages are trimmed to the fields GithubRest's wire schemas read,
+// so they cannot meet octokit's full item types; GithubRest re-decodes every
+// item it reads, which is the boundary these suites exercise.
+const TrimmedPage = S.Array(S.Any);
+
+// Decode a recorded payload against the schema the code under test asked for,
+// failing the way the live client does when GitHub's answer does not fit.
+const decodeRecorded = <A, I>(route: string, schema: S.Codec<A, I>, recorded: unknown): Effect.Effect<A, GitHubError> =>
+  S.decodeUnknownEffect(schema)(recorded).pipe(
+    Effect.mapError((cause) => GitHubError.decode(route, "recorded response did not match its schema", cause))
+  );
+
+// Recorded responses keyed by route: `requestDecoded` holds raw payloads (or the
+// `GitHubError` the call fails with) and `paginate` holds whole collections.
+const restLayer = (
+  requestDecoded: Readonly<Record<string, unknown>>,
+  paginate: Readonly<Record<string, ReadonlyArray<unknown>>> = {}
+) =>
+  layerGithubRest.pipe(
+    Layer.provide(
+      Layer.mergeAll(
+        GitHubClient.layerTest({
+          requestDecoded: dual(3, <A, I>(route: string, _params: Record<string, unknown>, schema: S.Codec<A, I>) =>
+            O.match(R.get(requestDecoded, route), {
+              onNone: () => Effect.die(`no recorded requestDecoded response for ${route}`),
+              onSome: (recorded): Effect.Effect<A, GitHubError> =>
+                S.is(GitHubError)(recorded) ? Effect.fail(recorded) : decodeRecorded(route, schema, recorded),
+            })
+          ),
+          paginate: dual(
+            (args) => P.isString(args[0]),
+            (route: string) =>
+              S.decodeEffect(TrimmedPage)(O.getOrElse(R.get(paginate, route), A.empty)).pipe(Effect.orDie)
+          ),
+        }),
+        repoLayer
+      )
+    )
+  );
 
 it.layer(
-  restLayer({
-    request: {
+  restLayer(
+    {
       "GET /repos/{owner}/{repo}/pulls/{pull_number}": pullPayload,
       "GET /repos/{owner}/{repo}/pulls/{pull_number}/comments": [],
       "GET /repos/{owner}/{repo}/commits/{ref}/check-suites": {
@@ -95,13 +139,13 @@ it.layer(
       },
       "DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}": GitHubError.notFound("DELETE label", "label"),
     },
-    paginate: {
+    {
       "GET /repos/{owner}/{repo}/pulls": [pullPayload],
       "GET /repos/{owner}/{repo}/commits/{ref}/check-runs": checkRunsPayload,
       "GET /repos/{owner}/{repo}/rules/branches/{branch}": rulesPayload,
       "GET /repos/{owner}/{repo}/issues/{issue_number}/timeline": timelinePayload,
-    },
-  }),
+    }
+  ),
   { timeout: "30 seconds" }
 )("GithubRest over recorded REST payloads", (it) => {
   it.effect("decodes a pull request, its check runs, required contexts, and ready event", () =>
@@ -142,7 +186,7 @@ it.layer(
   );
 });
 
-it.layer(restLayer({ request: { "GET /repos/{owner}/{repo}/pulls/{pull_number}": { number: "not a number" } } }), {
+it.layer(restLayer({ "GET /repos/{owner}/{repo}/pulls/{pull_number}": { number: "not a number" } }), {
   timeout: "30 seconds",
 })("GithubRest decode boundary", (it) => {
   it.effect("surfaces a malformed payload as a decode GitHubError", () =>
@@ -174,8 +218,26 @@ describe("GraphQL budget decisions", () => {
 
 const rateLimitData = (remaining: number, resetAt: string) => ({ rateLimit: { remaining, resetAt } });
 
-const budgetLayer = (client: Parameters<typeof GitHubClient.layerTest>[0]) =>
-  layerGraphqlBudget.pipe(Layer.provide(GitHubClient.layerTest(client)));
+// `graphql` answers every document; `restRateLimit` is the raw `GET /rate_limit`
+// payload the REST fallback decodes.
+const budgetLayer = (stubs: {
+  readonly graphql: <A, V extends Record<string, unknown>>(
+    document: GraphQLDocument<A, V>
+  ) => Effect.Effect<A, GitHubGraphQLError>;
+  readonly restRateLimit?: unknown;
+}) =>
+  layerGraphqlBudget.pipe(
+    Layer.provide(
+      GitHubClient.layerTest({
+        graphql: dual(2, <A, V extends Record<string, unknown>>(document: GraphQLDocument<A, V>, _variables: V) =>
+          stubs.graphql(document)
+        ),
+        requestDecoded: dual(3, <A, I>(route: string, _params: Record<string, unknown>, schema: S.Codec<A, I>) =>
+          decodeRecorded(route, schema, stubs.restRateLimit).pipe(Effect.orDie)
+        ),
+      })
+    )
+  );
 
 it.layer(
   budgetLayer({
@@ -203,10 +265,7 @@ it.layer(
         })
       ),
     // REST reports 4999 here (it misreports GraphQL); only its reset time is used.
-    requestDecoded: (_route, _params, schema) =>
-      S.decodeUnknownEffect(schema)({ resources: { graphql: { remaining: 4999, reset: 1791307765 } } }).pipe(
-        Effect.orDie
-      ),
+    restRateLimit: { resources: { graphql: { remaining: 4999, reset: 1791307765 } } },
   }),
   { timeout: "30 seconds" }
 )("GraphqlBudget guard with a spent budget", (it) => {

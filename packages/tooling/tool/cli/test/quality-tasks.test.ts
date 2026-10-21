@@ -177,7 +177,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
-import { flow, identity, pipe } from "effect/Function";
+import { constant, flow, identity, pipe } from "effect/Function";
 import * as HM from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -3481,11 +3481,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         // the ci-lane step-plan tests. Here we pin the workflow contract:
         // the dispatch line, and envelope validation as a separate
         // always()-guarded step after the run step.
-        const dispatchIndex = workflowText.indexOf(
-          'bun run beep ci lane fallow --base "${{ steps.base.outputs.base_ref }}"'
+        const dispatchIndex = O.getOrElse(constant(-1))(
+          Str.indexOf('bun run beep ci lane fallow --base "${{ steps.base.outputs.base_ref }}"')(workflowText)
         );
-        const validateStepIndex = workflowText.indexOf("      - name: Validate Fallow envelopes", dispatchIndex);
-        const uploadStepIndex = workflowText.indexOf("      - name: Upload Fallow envelopes", validateStepIndex);
+        const validateStep = / {6}- name: Validate Fallow envelopes/g;
+        validateStep.lastIndex = Math.max(0, dispatchIndex);
+        const validateStepIndex = validateStep.exec(workflowText)?.index ?? -1;
+        const uploadStep = / {6}- name: Upload Fallow envelopes/g;
+        uploadStep.lastIndex = Math.max(0, validateStepIndex);
+        const uploadStepIndex = uploadStep.exec(workflowText)?.index ?? -1;
 
         expect(dispatchIndex).toBeGreaterThan(-1);
         expect(workflowText).not.toContain("run_blocking_fallow()");

@@ -78,12 +78,14 @@ export type PdfVersion = typeof PdfVersion.Type;
  * @since 0.0.0
  */
 export const PageNumber = S.Int.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`PageNumberCheck`,
-    title: "Page Number",
-    description: "PDF pages are numbered from one.",
-    message: "Expected a page number of at least 1",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("PageNumberCheck", {
+      title: "Page Number",
+      description: "PDF pages are numbered from one.",
+      message: "Expected a page number of at least 1",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PageNumber", {
     description: "One-based PDF page number.",
@@ -122,12 +124,14 @@ export type PageNumber = typeof PageNumber.Type;
  * @since 0.0.0
  */
 export const Dpi = S.Int.check(
-  S.isGreaterThanOrEqualTo(36, {
-    identifier: $I`DpiCheck`,
-    title: "Dpi",
-    description: "Raster resolutions below 36 dpi are not useful for measurement.",
-    message: "Expected a resolution of at least 36 dpi",
-  })
+  S.isGreaterThanOrEqualTo(
+    36,
+    $I.annote("DpiCheck", {
+      title: "Dpi",
+      description: "Raster resolutions below 36 dpi are not useful for measurement.",
+      message: "Expected a resolution of at least 36 dpi",
+    })
+  )
 ).pipe(
   $I.annoteSchema("Dpi", {
     description: "Raster resolution in dots per inch.",
@@ -152,12 +156,14 @@ export const Dpi = S.Int.check(
 export type Dpi = typeof Dpi.Type;
 
 const AbsoluteDirectory = S.NonEmptyString.check(
-  S.makeFilter(Str.startsWith("/"), {
-    identifier: $I`AbsoluteFontDirectoryCheck`,
-    title: "Font Directory",
-    description: "A pinned font directory is an absolute path.",
-    message: "Expected an absolute font directory",
-  })
+  S.makeFilter(
+    Str.startsWith("/"),
+    $I.annote("AbsoluteFontDirectoryCheck", {
+      title: "Font Directory",
+      description: "A pinned font directory is an absolute path.",
+      message: "Expected an absolute font directory",
+    })
+  )
 );
 
 /**
@@ -287,12 +293,14 @@ export class SvgToPdfRequest extends S.Opaque<SvgToPdfRequest, { readonly brand:
   S.Struct({
     svgPaths: S.Array(S.NonEmptyString)
       .check(
-        S.isMinLength(1, {
-          identifier: $I`SvgToPdfRequestPagesCheck`,
-          title: "SVG Pages",
-          description: "A conversion needs at least one SVG page.",
-          message: "Expected at least one SVG path",
-        })
+        S.isMinLength(
+          1,
+          $I.annote("SvgToPdfRequestPagesCheck", {
+            title: "SVG Pages",
+            description: "A conversion needs at least one SVG page.",
+            message: "Expected at least one SVG path",
+          })
+        )
       )
       .annotateKey({ description: "SVG files, one page each, in page order." }),
     outputPath: S.NonEmptyString.annotateKey({ description: "Destination PDF path; overwritten." }),
@@ -312,13 +320,15 @@ export class SvgToPdfRequest extends S.Opaque<SvgToPdfRequest, { readonly brand:
     ),
   })
     .check(
-      S.makeFilter((request) => request.pdfVersion !== "1.4" || A.length(request.svgPaths) === 1, {
-        identifier: $I`SvgToPdfRequestPdf14PagesCheck`,
-        title: "PDF 1.4 Pages",
-        description:
-          "rsvg-convert writes several pages only at PDF 1.5 or later, so a PDF 1.4 conversion takes one SVG.",
-        message: "Expected exactly one SVG path for PDF 1.4 output",
-      })
+      S.makeFilter(
+        (request) => request.pdfVersion !== "1.4" || A.length(request.svgPaths) === 1,
+        $I.annote("SvgToPdfRequestPdf14PagesCheck", {
+          title: "PDF 1.4 Pages",
+          description:
+            "rsvg-convert writes several pages only at PDF 1.5 or later, so a PDF 1.4 conversion takes one SVG.",
+          message: "Expected exactly one SVG path for PDF 1.4 output",
+        })
+      )
     )
     .pipe(
       $I.annoteSchema("SvgToPdfRequest", {

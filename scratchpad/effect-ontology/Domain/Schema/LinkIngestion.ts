@@ -348,12 +348,11 @@ const BatchIngestResponseDefinition = S.Struct({
         actual: summary,
         expected: summarizeBatchResults(results),
       }),
-    {
-      identifier: $I`BatchIngestSummaryConsistencyCheck`,
+    $I.annote("BatchIngestSummaryConsistencyCheck", {
       title: "Batch Ingest Summary Consistency",
       description: "A response whose total and per-status counts exactly summarize its results.",
       message: "Batch ingest summary must exactly match the result collection.",
-    }
+    })
   )
 );
 

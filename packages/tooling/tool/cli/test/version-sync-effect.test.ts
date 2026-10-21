@@ -43,6 +43,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
 const decodeJsonEffect = S.decodeEffect(UnknownJson);
@@ -842,7 +843,7 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync report su
     const recording: Console.Console = {
       ...current,
       log: (...args: ReadonlyArray<unknown>) => {
-        lines.push(A.join(A.map(args, String), " ").replace(/^\n+/, ""));
+        lines.push(Str.replace(/^\n+/, "")(A.join(A.map(args, String), " ")));
       },
     };
     yield* program.pipe(Effect.provideService(Console.Console, recording));
@@ -875,7 +876,7 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync report su
         expect(dryRun).toContain("Run `beep version-sync --write` to apply these changes.");
 
         const write = yield* captureConsole(renderer.renderReport(report, "write"));
-        expect(A.some(write, (line) => line.startsWith("Run `beep version-sync"))).toBe(false);
+        expect(A.some(write, Str.startsWith("Run `beep version-sync"))).toBe(false);
 
         const clean = yield* captureConsole(
           renderer.renderReport(VersionSyncReport.make({ categories: [allCategories[0]!], hasDrift: false }), "check")

@@ -80,12 +80,14 @@ const BEACON_HIGH_MIN_PAIRS = 4;
 export class BeaconEdge extends S.Opaque<BeaconEdge, { readonly brand: unique symbol }>()(
   S.Struct({
     timeSeconds: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`BeaconEdgeTimeMinimumCheck`,
-        title: "Beacon Edge Time Minimum",
-        description: "Edge times are zero or greater.",
-        message: "Expected a non-negative edge time",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("BeaconEdgeTimeMinimumCheck", {
+          title: "Beacon Edge Time Minimum",
+          description: "Edge times are zero or greater.",
+          message: "Expected a non-negative edge time",
+        })
+      )
     ).pipe(
       $I.annoteKey("BeaconEdge.timeSeconds", {
         description: "Video-timeline moment the corner region changed state, in seconds.",
@@ -267,12 +269,14 @@ export class CorrelateClockRequest extends S.Opaque<CorrelateClockRequest, { rea
       })
     ),
     beaconRegionSize: S.Int.check(
-      S.isGreaterThanOrEqualTo(16, {
-        identifier: $I`CorrelateClockRequestRegionSizeMinimumCheck`,
-        title: "Correlate Clock Region Size Minimum",
-        description: "Beacon probe regions are at least 16 pixels square.",
-        message: "Expected a beacon region of at least 16 pixels",
-      })
+      S.isGreaterThanOrEqualTo(
+        16,
+        $I.annote("CorrelateClockRequestRegionSizeMinimumCheck", {
+          title: "Correlate Clock Region Size Minimum",
+          description: "Beacon probe regions are at least 16 pixels square.",
+          message: "Expected a beacon region of at least 16 pixels",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(128)),
       S.withDecodingDefaultTypeKey(Effect.succeed(128)),
@@ -281,12 +285,14 @@ export class CorrelateClockRequest extends S.Opaque<CorrelateClockRequest, { rea
       })
     ),
     probePadSeconds: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`CorrelateClockRequestProbePadMinimumCheck`,
-        title: "Correlate Clock Probe Pad Minimum",
-        description: "Probe pads are zero or greater.",
-        message: "Expected a non-negative probe pad",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("CorrelateClockRequestProbePadMinimumCheck", {
+          title: "Correlate Clock Probe Pad Minimum",
+          description: "Probe pads are zero or greater.",
+          message: "Expected a non-negative probe pad",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(2)),
       S.withDecodingDefaultTypeKey(Effect.succeed(2)),

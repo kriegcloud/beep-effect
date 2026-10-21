@@ -34,12 +34,14 @@ export const NonNegativeInt64 = S.BigInt.check(
     { minimum: BigInt("-9223372036854775808"), maximum: BigInt("9223372036854775807") },
     { expected: "a signed 64-bit integer", message: "Expected a signed 64-bit integer" }
   ),
-  S.isGreaterThanOrEqualToBigInt(BigInt(0), {
-    description: "A non-negative signed 64-bit integer.",
-    identifier: $I`NonNegativeInt64MinimumCheck`,
-    message: "Expected a non-negative signed 64-bit integer",
-    title: "Non-negative signed 64-bit integer",
-  })
+  S.isGreaterThanOrEqualToBigInt(
+    BigInt(0),
+    $I.annote("NonNegativeInt64MinimumCheck", {
+      description: "A non-negative signed 64-bit integer.",
+      message: "Expected a non-negative signed 64-bit integer",
+      title: "Non-negative signed 64-bit integer",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NonNegativeInt64", {
     description: "Non-negative signed 64-bit integer reported by GovInfo count fields.",

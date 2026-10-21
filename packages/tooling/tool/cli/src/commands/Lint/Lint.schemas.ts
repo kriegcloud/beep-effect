@@ -1074,11 +1074,13 @@ const EffectVitestPositiveLine = S.Int.check(S.isGreaterThan(0)).pipe(
   $I.annoteSchema("EffectVitestPositiveLine", { description: "Positive one-based source line number." })
 );
 const EffectVitestConfidence = S.Finite.check(
-  S.makeFilterGroup([S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1)], {
-    identifier: $I`EffectVitestConfidenceChecks`,
-    title: "Effect Vitest Confidence",
-    description: "Finite confidence value in the inclusive interval from zero to one.",
-  })
+  S.makeFilterGroup(
+    [S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1)],
+    $I.annote("EffectVitestConfidenceChecks", {
+      title: "Effect Vitest Confidence",
+      description: "Finite confidence value in the inclusive interval from zero to one.",
+    })
+  )
 ).pipe($I.annoteSchema("EffectVitestConfidence", { description: "Finding confidence from zero through one." }));
 const EffectVitestEvidence = S.String.check(S.isMaxLength(200)).pipe(
   $I.annoteSchema("EffectVitestEvidence", { description: "Compact source evidence limited to 200 characters." })
@@ -1168,25 +1170,23 @@ const EffectVitestFindingFields = S.Struct({
       (Str.endsWith("-NONE")(finding.ruleId)
         ? isEffectVitestNoFindingsFields(finding)
         : finding.class !== "no-findings"),
-    {
-      identifier: $I`EffectVitestFindingLensInvariant`,
+    $I.annote("EffectVitestFindingLensInvariant", {
       title: "Effect Vitest finding lens and coverage invariants",
       description:
         "Rule prefixes match their lens; NONE identifies only charter coverage rows, never actionable findings.",
       message: "Expected matching lens/rule and a faithful NONE/no-findings relationship",
-    }
+    })
   ),
   S.makeFilter(
     (finding) =>
       (O.isNone(finding.endLine) || finding.endLine.value >= finding.line) &&
       ((finding.status !== "exception" && finding.class !== "flaky-test-wrap") ||
         O.exists(finding.reason, (reason) => Str.isNonEmpty(Str.trim(reason)))),
-    {
-      identifier: $I`EffectVitestFindingInvariant`,
+    $I.annote("EffectVitestFindingInvariant", {
       title: "Effect Vitest finding invariants",
       description: "End lines cannot precede start lines, and exception or flaky-wrap rows require a non-empty reason.",
       message: "Expected ordered lines and a non-empty reason for exception or flaky-test-wrap rows",
-    }
+    })
   )
 );
 
@@ -1262,13 +1262,12 @@ const EffectVitestPrimitiveFields = S.Struct({
       primitive.endLine >= primitive.startLine &&
       A.length(A.dedupe(primitive.replaces)) === A.length(primitive.replaces) &&
       (!A.isReadonlyArrayEmpty(primitive.replaces) || Str.startsWith("No detector replacement:")(primitive.whenToUse)),
-    {
-      identifier: $I`EffectVitestPrimitiveInvariant`,
+    $I.annote("EffectVitestPrimitiveInvariant", {
       title: "Effect Vitest primitive invariants",
       description:
         "Source ranges must be ordered, replacement rule IDs must be unique, and entries without replacements must explain why.",
       message: "Expected ordered lines, unique replacement rule IDs, and an explicit no-replacement reason",
-    }
+    })
   )
 );
 
@@ -1364,13 +1363,12 @@ const EffectVitestPrimitiveGraphFields = S.Struct({
         A.every(EffectVitestRuleId.literals, (ruleId) => A.contains(replacements, ruleId))
       );
     },
-    {
-      identifier: $I`EffectVitestPrimitiveGraphInvariant`,
+    $I.annote("EffectVitestPrimitiveGraphInvariant", {
       title: "Effect Vitest primitive graph invariants",
       description:
         "The tag must match the package/version pin, entry IDs must be unique, and every detector rule must have a replacement edge.",
       message: "Expected a matching package tag, unique entries, and complete EV001-EV015 replacement coverage",
-    }
+    })
   )
 );
 

@@ -17,12 +17,12 @@ const MatrixSummary = S.Struct({
   completed: S.Finite,
   passed: S.Finite,
   failed: S.Finite,
-}).annotate($I.annote("MatrixSummary", { description: "Recorded primary package matrix counts." }));
+}).pipe($I.annoteSchema("MatrixSummary", { description: "Recorded primary package matrix counts." }));
 const MatrixResult = S.Struct({
   packageName: S.NonEmptyString,
   ok: S.Boolean,
   exitCode: S.Finite,
-}).annotate($I.annote("MatrixResult", { description: "A primary package verifier's terminal result." }));
+}).pipe($I.annoteSchema("MatrixResult", { description: "A primary package verifier's terminal result." }));
 const Matrix = S.Struct({
   schemaVersion: S.tag("inline-schema-package-verification/v2"),
   head: S.NonEmptyString,
@@ -30,13 +30,15 @@ const Matrix = S.Struct({
   supplementalReceipts: S.Array(S.NonEmptyString),
   summary: MatrixSummary,
   results: S.Array(MatrixResult),
-}).annotate($I.annote("Matrix", { description: "Primary matrix and its explicitly linked supplemental receipts." }));
+}).pipe($I.annoteSchema("Matrix", { description: "Primary matrix and its explicitly linked supplemental receipts." }));
 const ImplementationOwner = S.Struct({
   packageName: S.NonEmptyString,
   workspaceRoot: S.NonEmptyString,
   files: S.Array(S.NonEmptyString),
-}).annotate(
-  $I.annote("ImplementationOwner", { description: "Workspace owner and changed files from an implementation PR." })
+}).pipe(
+  $I.annoteSchema("ImplementationOwner", {
+    description: "Workspace owner and changed files from an implementation PR.",
+  })
 );
 const ImplementationPullRequest = S.Struct({
   number: S.Finite,
@@ -45,8 +47,8 @@ const ImplementationPullRequest = S.Struct({
   changedFileCount: S.Finite,
   owners: S.Array(ImplementationOwner),
   unownedPaths: S.Array(S.NonEmptyString),
-}).annotate(
-  $I.annote("ImplementationPullRequest", {
+}).pipe(
+  $I.annoteSchema("ImplementationPullRequest", {
     description: "Complete paginated file inventory for a merged implementation PR.",
   })
 );
@@ -54,8 +56,8 @@ const ImplementationInventory = S.Struct({
   schemaVersion: S.tag("inline-schema-implementation-owners/v1"),
   pullRequests: S.Array(ImplementationPullRequest),
   packageNames: S.Array(S.NonEmptyString),
-}).annotate(
-  $I.annote("ImplementationInventory", {
+}).pipe(
+  $I.annoteSchema("ImplementationInventory", {
     description: "Affected owners derived independently from the shipped implementation diffs.",
   })
 );

@@ -35,24 +35,26 @@ const $I = $ExiftoolId.create("Exiftool.models");
 export const PositiveMilliseconds = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isFinite({
-        identifier: $I`PositiveMillisecondsFiniteCheck`,
-        title: "Positive Milliseconds Finite",
-        description: "Timeout milliseconds must be finite numbers.",
-        message: "Expected finite milliseconds",
-      }),
-      S.isGreaterThan(0, {
-        identifier: $I`PositiveMillisecondsGreaterThanZeroCheck`,
-        title: "Positive Milliseconds Greater Than Zero",
-        description: "Timeout milliseconds must be greater than zero.",
-        message: "Expected milliseconds greater than zero",
-      }),
+      S.isFinite(
+        $I.annote("PositiveMillisecondsFiniteCheck", {
+          title: "Positive Milliseconds Finite",
+          description: "Timeout milliseconds must be finite numbers.",
+          message: "Expected finite milliseconds",
+        })
+      ),
+      S.isGreaterThan(
+        0,
+        $I.annote("PositiveMillisecondsGreaterThanZeroCheck", {
+          title: "Positive Milliseconds Greater Than Zero",
+          description: "Timeout milliseconds must be greater than zero.",
+          message: "Expected milliseconds greater than zero",
+        })
+      ),
     ],
-    {
-      identifier: $I`PositiveMillisecondsChecks`,
+    $I.annote("PositiveMillisecondsChecks", {
       title: "Positive Milliseconds",
       description: "Checks for positive finite timeout milliseconds.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PositiveMilliseconds", {
@@ -94,12 +96,14 @@ export type PositiveMilliseconds = typeof PositiveMilliseconds.Type;
  * @since 0.0.0
  */
 export const EpochMilliseconds = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`EpochMillisecondsMinimumCheck`,
-    title: "Epoch Milliseconds Minimum",
-    description: "Epoch millisecond timestamps must be zero or greater.",
-    message: "Expected non-negative epoch milliseconds",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("EpochMillisecondsMinimumCheck", {
+      title: "Epoch Milliseconds Minimum",
+      description: "Epoch millisecond timestamps must be zero or greater.",
+      message: "Expected non-negative epoch milliseconds",
+    })
+  )
 ).pipe(
   $I.annoteSchema("EpochMilliseconds", {
     description: "Non-negative epoch timestamp measured in milliseconds.",
@@ -140,12 +144,14 @@ export type EpochMilliseconds = typeof EpochMilliseconds.Type;
  * @since 0.0.0
  */
 export const TagCount = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`TagCountMinimumCheck`,
-    title: "Tag Count Minimum",
-    description: "Tag counts are non-negative integers.",
-    message: "Expected a non-negative tag count",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("TagCountMinimumCheck", {
+      title: "Tag Count Minimum",
+      description: "Tag counts are non-negative integers.",
+      message: "Expected a non-negative tag count",
+    })
+  )
 ).pipe(
   $I.annoteSchema("TagCount", {
     description: "Non-negative integer count of tag assignments.",
@@ -194,24 +200,27 @@ export type TagCount = typeof TagCount.Type;
 export const SafeTagName = S.String.check(
   S.makeFilterGroup(
     [
-      S.isMinLength(1, {
-        identifier: $I`SafeTagNameNonEmptyCheck`,
-        title: "Safe Tag Name Non Empty",
-        description: "ExifTool tag names must not be empty.",
-        message: "Expected a non-empty tag name",
-      }),
-      S.isPattern(/^[A-Za-z0-9:_-]+$/, {
-        identifier: $I`SafeTagNameCharactersCheck`,
-        title: "Safe Tag Name Characters",
-        description: "ExifTool tag names may only use group-qualified identifier characters.",
-        message: "Expected a tag name matching ^[A-Za-z0-9:_-]+$",
-      }),
+      S.isMinLength(
+        1,
+        $I.annote("SafeTagNameNonEmptyCheck", {
+          title: "Safe Tag Name Non Empty",
+          description: "ExifTool tag names must not be empty.",
+          message: "Expected a non-empty tag name",
+        })
+      ),
+      S.isPattern(
+        /^[A-Za-z0-9:_-]+$/,
+        $I.annote("SafeTagNameCharactersCheck", {
+          title: "Safe Tag Name Characters",
+          description: "ExifTool tag names may only use group-qualified identifier characters.",
+          message: "Expected a tag name matching ^[A-Za-z0-9:_-]+$",
+        })
+      ),
     ],
-    {
-      identifier: $I`SafeTagNameChecks`,
+    $I.annote("SafeTagNameChecks", {
       title: "Safe Tag Name",
       description: "Checks for tag names that stay a single -TAG=VALUE argv entry.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("SafeTagName", {

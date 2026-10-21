@@ -139,13 +139,12 @@ type VitestCoveragePct = typeof VitestCoveragePct.Type;
 const CoverageRepoRelativeFilePath = S.NonEmptyString.check(
   S.isPattern(
     /^(?!.*[\u0000-\u001F\u007F-\u009F])(?!\/)(?![A-Za-z]:)(?!.*\\)(?!\.{1,2}(?:\/|$))(?!.*\/\.{1,2}(?:\/|$))(?!.*\/\/)(?!.*\/$).+$/u,
-    {
-      identifier: $I`CoverageRepoRelativeFilePathCheck`,
+    $I.annote("CoverageRepoRelativeFilePathCheck", {
       title: "Normalized repository-relative coverage file path",
       description:
         "A non-empty repository-relative file path with POSIX separators, normalized segments, no control characters, and no trailing slash.",
       message: "Expected a normalized repository-relative coverage file path without control characters",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("CoverageRepoRelativeFilePath", {
@@ -162,12 +161,14 @@ const CoverageRepoRelativePackagePath = S.Union([S.Literal("."), CoverageRepoRel
 );
 
 const CoverageSummaryRawFilePath = S.NonEmptyString.check(
-  S.isPattern(/^[^\u0000-\u001F\u007F-\u009F]+$/u, {
-    identifier: $I`CoverageSummaryRawFilePathCheck`,
-    title: "Render-safe coverage summary file path",
-    description: "A non-empty raw coverage-summary path without C0 or C1 control characters.",
-    message: "Expected a coverage summary file path without control characters",
-  })
+  S.isPattern(
+    /^[^\u0000-\u001F\u007F-\u009F]+$/u,
+    $I.annote("CoverageSummaryRawFilePathCheck", {
+      title: "Render-safe coverage summary file path",
+      description: "A non-empty raw coverage-summary path without C0 or C1 control characters.",
+      message: "Expected a coverage summary file path without control characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CoverageSummaryRawFilePath", {
     description: "Raw absolute or package-relative Vitest coverage file path safe for normalization and diagnostics.",
@@ -285,11 +286,10 @@ const CoverageRepoRelativeFiles = S.Record(S.String, CoverageFileBaseline)
             }),
           })
         ),
-      {
-        identifier: $I`CoverageRepoRelativeFilesCheck`,
+      $I.annote("CoverageRepoRelativeFilesCheck", {
         title: "Normalized repository-relative coverage file keys",
         description: "Every coverage file key must be a normalized repository-relative path.",
-      }
+      })
     )
   )
   .pipe(
@@ -482,11 +482,10 @@ const ValidVitestCoverageMetric = VitestCoverageMetric.check(
         path: [],
         issue: "Expected covered and skipped counts not to exceed the total count",
       },
-    {
-      identifier: $I`ValidVitestCoverageMetricCheck`,
+    $I.annote("ValidVitestCoverageMetricCheck", {
       title: "Consistent Vitest coverage metric counts",
       description: "Covered and skipped counts must not exceed the corresponding total count.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("ValidVitestCoverageMetric", {

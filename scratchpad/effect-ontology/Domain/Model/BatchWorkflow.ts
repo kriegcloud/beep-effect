@@ -186,8 +186,8 @@ export const BatchStage = LiteralKit([
   "Ingesting",
   "Complete",
   "Failed",
-]).annotate(
-    $I.annote("BatchStage", {
+]).pipe(
+    $I.annoteSchema("BatchStage", {
       description: "Closed ordered lifecycle stages for batch ingestion.",
     })
   );

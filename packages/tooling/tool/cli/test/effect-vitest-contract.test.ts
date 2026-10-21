@@ -512,7 +512,7 @@ it("keeps control-bearing filenames inside one prefixed report line", () => {
 it("preserves a justified exception on the matching live row", () => {
   const live = EffectVitestFinding.make({
     ...finding(8, "Fx.runSync(program)"),
-    occurrence: O.some(`v2:${"a".repeat(64)}`),
+    occurrence: O.some(`v2:${Str.repeat(64)("a")}`),
   });
   const baselineFinding = EffectVitestFinding.make({
     ...live,
@@ -681,7 +681,7 @@ it.layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
 
   it.effect("retains full token evidence beyond the display limit and significant literal whitespace", () =>
     Effect.gen(function* () {
-      const prefix = "a".repeat(240);
+      const prefix = Str.repeat(240)("a");
       const before = yield* occurrences(`it("x", () => { Effect.runSync(subject("${prefix}a  b")); });`);
       const after = yield* occurrences(`it("x", () => { Effect.runSync(subject("${prefix}a b")); });`);
       assertTrue(before[0]?.evidence === after[0]?.evidence);
@@ -700,7 +700,7 @@ it.layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
 
   it.effect("requires re-review of a unique legacy exception when historical statement or context is unknowable", () =>
     Effect.gen(function* () {
-      const prefix = "a".repeat(240);
+      const prefix = Str.repeat(240)("a");
       const original = yield* occurrences(`it("original", () => { Effect.runSync(subject("${prefix}before")); });`);
       const legacy = A.map(original, (row) => EffectVitestFinding.make({ ...row, occurrence: O.none() }));
       const document = O.some(withException(legacy));
@@ -797,9 +797,9 @@ it("retains unmatched duplicate payloads and stable equal-id order in both membe
 });
 
 it("keeps indexed legacy membership separate from anchored exception eligibility", () => {
-  const current = EffectVitestFinding.make({ ...finding(4, "same"), occurrence: O.some(`v2:${"a".repeat(64)}`) });
+  const current = EffectVitestFinding.make({ ...finding(4, "same"), occurrence: O.some(`v2:${Str.repeat(64)("a")}`) });
   const legacy = EffectVitestFinding.make({ ...current, occurrence: O.none() });
-  const changed = EffectVitestFinding.make({ ...current, occurrence: O.some(`v2:${"b".repeat(64)}`) });
+  const changed = EffectVitestFinding.make({ ...current, occurrence: O.some(`v2:${Str.repeat(64)("b")}`) });
   deepStrictEqual(diffEffectVitestFindings([current], [legacy]), {
     currentCount: 1,
     baselineCount: 1,

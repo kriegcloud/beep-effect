@@ -434,7 +434,7 @@ describe("manifest translation", () => {
     if (O.isNone(withLifecycle.translation)) return;
     expect(withLifecycle.translation.value.edits).not.toContain("add lifecycle from initiative.status");
     expect(withLifecycle.translation.value.edits).toContain("add packetPath from the scanned directory");
-    expect(withLifecycle.translation.value.content.at(-1)).toBe("\n");
+    expect(O.getOrUndefined(Str.at(-1)(withLifecycle.translation.value.content))).toBe("\n");
 
     const withPacketPath = planManifestTranslation(
       record("demo", {

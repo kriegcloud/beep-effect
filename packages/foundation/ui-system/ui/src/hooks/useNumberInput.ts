@@ -139,12 +139,14 @@ export const NumberInputTestKit = {
 } as const;
 
 const NumberInputText = S.String.check(
-  S.isPattern(numberInputTextPattern, {
-    identifier: $I`NumberInputTextPattern`,
-    title: "Number Input Text",
-    description: "A partial numeric string accepted while the user edits a number input.",
-    message: "Number input text must be a valid editable numeric string.",
-  })
+  S.isPattern(
+    numberInputTextPattern,
+    $I.annote("NumberInputTextPattern", {
+      title: "Number Input Text",
+      description: "A partial numeric string accepted while the user edits a number input.",
+      message: "Number input text must be a valid editable numeric string.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NumberInputText", {
     description: "Editable text accepted by the number input during typing.",
@@ -183,12 +185,14 @@ const NumberInputFiniteFromText = S.String.pipe(
 );
 
 const PositiveFiniteStep = S.Finite.check(
-  S.isGreaterThan(0, {
-    identifier: $I`PositiveFiniteStepCheck`,
-    title: "Positive Finite Step",
-    description: "Step values must be finite numbers greater than zero.",
-    message: "Number input step must be greater than zero.",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("PositiveFiniteStepCheck", {
+      title: "Positive Finite Step",
+      description: "Step values must be finite numbers greater than zero.",
+      message: "Number input step must be greater than zero.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PositiveFiniteStep", {
     description: "Positive step size for number input spinner changes.",

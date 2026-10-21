@@ -18,6 +18,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
@@ -160,21 +161,90 @@ const decodePrLabelsJson = PrLabels.pipe(S.fromJsonString, S.decodeUnknownEffect
 const snapshotJson = S.fromJsonString(S.Unknown, { space: 2 });
 const encodeSnapshotJson = snapshotJson.pipe(S.encodeUnknownEffect);
 
+/**
+ * One `gh api` reply: its exit code, the merged stdout/stderr text and whether
+ * the capture bound truncated it.
+ *
+ * **Details**
+ *
+ * A non-zero exit keeps `gh`'s own error line (for example
+ * `gh: Not Found (HTTP 404)`) in `output`, so callers that must tell a
+ * permission, missing-data or rate-limit failure apart read it from here.
+ *
+ * **Example** (Record a not-found reply)
+ *
+ * ```ts
+ * import { GithubApiReply } from "@beep/repo-cli/commands/Ci"
+ *
+ * const reply = GithubApiReply.make({ exitCode: 1, output: "gh: Not Found (HTTP 404)", truncated: false })
+ * console.log(reply.exitCode) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GithubApiReply extends S.Opaque<GithubApiReply, { readonly brand: unique symbol }>()(
+  S.Struct({
+    exitCode: S.Int,
+    output: S.String,
+    truncated: S.Boolean,
+  }).pipe($I.annoteSchema("GithubApiReply", { description: "Exit code and merged output of one gh api request." }))
+) {}
+
 interface GithubPolicyClientShape {
   readonly read: (endpoint: string, projection?: string) => Effect.Effect<string, CiCommandError>;
+  readonly request: (args: ReadonlyArray<string>) => Effect.Effect<GithubApiReply, CiCommandError>;
   readonly write: (args: ReadonlyArray<string>) => Effect.Effect<void, CiCommandError>;
 }
-class GithubPolicyClient extends Context.Service<GithubPolicyClient, GithubPolicyClientShape>()(
+/**
+ * Read and write access to the GitHub REST API through the `gh` CLI.
+ *
+ * **Details**
+ *
+ * `read` and `write` fail with {@link CiCommandError} on any non-zero exit or
+ * truncated reply, and report the state as unknown. `request` returns the raw
+ * {@link GithubApiReply} instead, failing only when `gh` cannot be spawned.
+ * Endpoints may use the `{owner}/{repo}` placeholders, which `gh` resolves
+ * from `GH_REPO` or the checkout's remote. Authentication is whatever `gh`
+ * finds, normally `GH_TOKEN`.
+ *
+ * **Example** (Provide a recorded reply in a test)
+ *
+ * ```ts
+ * import { GithubApiReply, GithubPolicyClient } from "@beep/repo-cli/commands/Ci"
+ * import * as Effect from "effect/Effect"
+ * import * as Layer from "effect/Layer"
+ *
+ * const reply = GithubApiReply.make({ exitCode: 0, output: "[]", truncated: false })
+ * const recorded = Layer.succeed(
+ *   GithubPolicyClient,
+ *   GithubPolicyClient.of({
+ *     read: () => Effect.succeed(reply.output),
+ *     write: () => Effect.void,
+ *     request: () => Effect.succeed(reply),
+ *   })
+ * )
+ * console.log(Layer.isLayer(recorded)) // true
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class GithubPolicyClient extends Context.Service<GithubPolicyClient, GithubPolicyClientShape>()(
   $I`GithubPolicyClient`
 ) {}
 const makeClient = Effect.fn("CiGovernance.makeClient")(function* (root: string) {
   // Capture the platform dependencies once; commands provide this implementation.
   const capture = yield* Effect.context<Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>();
-  const execute = Effect.fn("CiGovernance.execute")(function* (args: ReadonlyArray<string>) {
+  const request = Effect.fn("CiGovernance.request")(function* (args: ReadonlyArray<string>) {
     const result = yield* runRepoCommandCapture("gh", ["api", ...args], root).pipe(
       Effect.provide(capture),
       CiCommandError.mapError("GitHub policy request failed; state is unknown.")
     );
+    return GithubApiReply.make(result);
+  });
+  const execute = Effect.fn("CiGovernance.execute")(function* (args: ReadonlyArray<string>) {
+    const result = yield* request(args);
     if (result.exitCode !== 0 || result.truncated)
       return yield* CiCommandError.make({
         message: `GitHub policy request failed (exit ${result.exitCode}, truncated=${result.truncated}); state is unknown.`,
@@ -186,8 +256,29 @@ const makeClient = Effect.fn("CiGovernance.makeClient")(function* (root: string)
       execute([endpoint, ...A.flatMap(O.toArray(O.fromUndefinedOr(projection)), (jq) => ["--jq", jq])])
     ),
     write: Effect.fn("GithubPolicyClient.write")((args: ReadonlyArray<string>) => execute(args).pipe(Effect.asVoid)),
+    request,
   });
 });
+
+/**
+ * Live {@link GithubPolicyClient} running `gh api` from the repository root.
+ *
+ * **Example** (Provide the live client)
+ *
+ * ```ts
+ * import { GithubPolicyClientLive } from "@beep/repo-cli/commands/Ci"
+ * import * as Layer from "effect/Layer"
+ *
+ * console.log(Layer.isLayer(GithubPolicyClientLive)) // true
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const GithubPolicyClientLive = Layer.effect(
+  GithubPolicyClient,
+  findRepoRoot().pipe(CiCommandError.mapError("Failed to locate repository root."), Effect.flatMap(makeClient))
+);
 const strings = S.decodeUnknownOption(S.String);
 const stringAt = (record: Readonly<Record<string, unknown>>, key: string): string =>
   pipe(

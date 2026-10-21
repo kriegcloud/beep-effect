@@ -317,11 +317,10 @@ const ClassificationPinFields = S.Struct({
         cpc: () => S.is(CpcEdition)(pin.edition),
         nice: () => S.is(NiceEdition)(pin.edition),
       }),
-    {
-      identifier: $I`ClassificationPinFields`,
+    $I.annote("ClassificationPinFields", {
       title: "Pinned Classification Edition",
       description: "An edition identifier in the requested authority's notation.",
-    }
+    })
   )
 );
 

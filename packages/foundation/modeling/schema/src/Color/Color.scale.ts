@@ -17,18 +17,20 @@ import { hexToOklchValue, oklchToHexValue } from "./Color.transforms.ts";
 
 const HexColorScale12Checks = S.makeFilterGroup(
   [
-    S.isBetweenLength(12, 12, {
-      identifier: $I`HexColorScale12LengthCheck`,
-      title: "Hex Color Scale Length",
-      description: "A hex color scale containing exactly 12 entries.",
-      message: "Hex color scales must contain exactly 12 colors",
-    }),
+    S.isBetweenLength(
+      12,
+      12,
+      $I.annote("HexColorScale12LengthCheck", {
+        title: "Hex Color Scale Length",
+        description: "A hex color scale containing exactly 12 entries.",
+        message: "Hex color scales must contain exactly 12 colors",
+      })
+    ),
   ],
-  {
-    identifier: $I`HexColorScale12Checks`,
+  $I.annote("HexColorScale12Checks", {
     title: "Hex Color Scale",
     description: "Checks for fixed-size 12-step hex color scales.",
-  }
+  })
 );
 
 const darkScaleLightSteps = [0.15, 0.18, 0.22, 0.26, 0.32, 0.38, 0.46, 0.56] as const;
