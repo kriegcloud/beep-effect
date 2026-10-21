@@ -11,7 +11,7 @@ bun add @beep/architecture-lab-proof
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/architecture-lab-proof"
+import { runArchitectureLabProof } from "@beep/architecture-lab-proof"
 ```
 
 ## Development

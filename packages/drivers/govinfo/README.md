@@ -11,7 +11,7 @@ bun add @beep/govinfo
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/govinfo"
+import { Govinfo } from "@beep/govinfo"
 ```
 
 ## Development

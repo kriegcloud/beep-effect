@@ -30,7 +30,7 @@ in the monorepo:
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/nlp-mcp"
+import { makeServerLayer } from "@beep/nlp-mcp"
 ```
 
 Run the server over stdio from the repository root (the entrypoint provides the

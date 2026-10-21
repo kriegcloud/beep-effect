@@ -14,9 +14,8 @@ bun add @beep/acp
 ## Usage
 
 ```ts
-import { Agent, Client, Schema, VERSION } from "@beep/acp"
+import { Agent, Client, Schema } from "@beep/acp"
 
-const version = VERSION
 const clientTag = Client.AcpClient
 const agentTag = Agent.AcpAgent
 const request = Schema.InitializeRequest.make({
@@ -24,7 +23,7 @@ const request = Schema.InitializeRequest.make({
     fs: { readTextFile: false, writeTextFile: false },
     terminal: false
   },
-  clientInfo: { name: "@beep/acp", version },
+  clientInfo: { name: "@beep/acp", version: "0.0.0" },
   protocolVersion: 1
 })
 ```

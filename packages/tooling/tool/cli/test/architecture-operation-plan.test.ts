@@ -603,7 +603,7 @@ describe("architecture operation plan", () => {
   );
 
   it.effect(
-    "emits TypeScript source specifiers for every package role with an extra export",
+    "emits every package role's barrel exports with TypeScript source specifiers and no placeholder version",
     Effect.fnUntraced(function* () {
       const roleExports = [
         ["domain", 'export * as Aggregates from "./aggregates/index.ts";'],
@@ -611,6 +611,8 @@ describe("architecture operation plan", () => {
         ["config", 'export * from "./public.ts";'],
         ["server", 'export * from "./Layer.ts";'],
         ["tables", 'export * from "./tables.ts";'],
+        ["client", "export {};"],
+        ["ui", "export {};"],
       ] as const;
 
       yield* Effect.forEach(
@@ -630,6 +632,7 @@ describe("architecture operation plan", () => {
 
           expect(indexOperation.content).toContain(expectedExport);
           expect(indexOperation.content).not.toContain('.js";');
+          expect(indexOperation.content).not.toContain("VERSION");
 
           if (role === "config" || role === "server") {
             const layerSuffix = role === "config" ? "/src/layer.ts" : "/src/Layer.ts";

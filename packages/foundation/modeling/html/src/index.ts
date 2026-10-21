@@ -276,10 +276,3 @@ export {
  * @since 0.0.0
  */
 export { Html } from "./Html.ts";
-/**
- * Current `@beep/html` package version.
- *
- * @category configuration
- * @since 0.0.0
- */
-export { VERSION } from "./Version.ts";

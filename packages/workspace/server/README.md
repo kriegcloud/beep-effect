@@ -22,7 +22,7 @@ bun add @beep/workspace-server
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/workspace-server"
+import { Thread } from "@beep/workspace-server"
 ```
 
 ## Development

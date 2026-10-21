@@ -11,7 +11,7 @@ bun add @beep/uspto
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/uspto"
+import { Uspto } from "@beep/uspto"
 ```
 
 ## Development

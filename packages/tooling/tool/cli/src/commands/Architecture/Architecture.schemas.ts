@@ -548,7 +548,7 @@ export class ArchitecturePlanTarget extends S.Opaque<ArchitecturePlanTarget, { r
  * import { WriteFileOperation } from "@beep/repo-cli/commands/Architecture"
  *
  * const operation = WriteFileOperation.make({
- *   content: "export const VERSION = \"0.0.0\"",
+ *   content: "export {};",
  *   description: "Write the package index.",
  *   kind: "write-file",
  *   path: "packages/research-lab/domain/src/index.ts",

@@ -1920,17 +1920,7 @@
       "@beep/dock/Recency": [
         "./packages/foundation/ui-system/dock/src/Recency.ts"
       ],
-      "@beep/editor/Version": [
-        "./packages/foundation/ui-system/editor/src/Version.ts"
-      ],
       "@beep/html/Html": ["./packages/foundation/modeling/html/src/Html.ts"],
-      "@beep/html/Version": [
-        "./packages/foundation/modeling/html/src/Version.ts"
-      ],
-      "@beep/lexical-schema/Version": [
-        "./packages/foundation/modeling/lexical/src/Version.ts"
-      ],
-      "@beep/md/Version": ["./packages/foundation/modeling/md/src/Version.ts"],
       "@beep/observability/CauseDiagnostics": [
         "./packages/foundation/capability/observability/src/CauseDiagnostics.ts"
       ],
@@ -1955,22 +1945,12 @@
       "@beep/observability/PhaseProfiler": [
         "./packages/foundation/capability/observability/src/PhaseProfiler.ts"
       ],
-      "@beep/observability/Version": [
-        "./packages/foundation/capability/observability/src/Version.ts"
-      ],
-      "@beep/pandoc-ast/Version": [
-        "./packages/foundation/modeling/pandoc-ast/src/Version.ts"
-      ],
       "@beep/schema/FileDiff": [
         "./packages/foundation/modeling/schema/src/FileDiff.schema.ts"
       ],
       "@beep/schema/SafeRemoteHost": [
         "./packages/foundation/modeling/schema/src/SafeRemoteHost.ts"
       ],
-      "@beep/schema/Version": [
-        "./packages/foundation/modeling/schema/src/Version.ts"
-      ],
-      "@beep/ui/Version": ["./packages/foundation/ui-system/ui/src/Version.ts"],
       "@beep/freshbooks": ["./packages/drivers/freshbooks/src/index.ts"],
       "@beep/freshbooks/*": ["./packages/drivers/freshbooks/src/*"],
       "@beep/test-utils/MemoryFileSystem": [
@@ -2175,24 +2155,14 @@
       "@beep/law-practice-use-cases/PracticeSetup": [
         "./packages/law-practice/use-cases/src/PracticeSetup/index.ts"
       ],
-      "@beep/mcpb-kit": [
-        "./packages/tooling/library/mcpb-kit/src/index.ts"
-      ],
-      "@beep/mcpb-kit/*": [
-        "./packages/tooling/library/mcpb-kit/src/*"
-      ],
-      "@beep/practice-gateway": [
-        "./apps/practice-gateway/src/index.ts"
-      ],
-      "@beep/practice-gateway/*": [
-        "./apps/practice-gateway/src/*"
-      ],
+      "@beep/mcpb-kit": ["./packages/tooling/library/mcpb-kit/src/index.ts"],
+      "@beep/mcpb-kit/*": ["./packages/tooling/library/mcpb-kit/src/*"],
+      "@beep/practice-gateway": ["./apps/practice-gateway/src/index.ts"],
+      "@beep/practice-gateway/*": ["./apps/practice-gateway/src/*"],
       "@beep/windows-secrets": [
         "./packages/drivers/windows-secrets/src/index.ts"
       ],
-      "@beep/windows-secrets/*": [
-        "./packages/drivers/windows-secrets/src/*"
-      ],
+      "@beep/windows-secrets/*": ["./packages/drivers/windows-secrets/src/*"],
       "@beep/windows-secrets/internal/*": [
         "./packages/drivers/windows-secrets/src/internal/*"
       ]

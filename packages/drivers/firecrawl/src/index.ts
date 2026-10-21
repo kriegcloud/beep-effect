@@ -65,19 +65,3 @@ export * from "./Firecrawl.models.ts";
  * @since 0.0.0
  */
 export * from "./Firecrawl.service.ts";
-
-/**
- * Package version for `@beep/firecrawl`.
- *
- * **Example** (Import package VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/firecrawl"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0";

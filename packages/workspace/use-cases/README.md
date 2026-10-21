@@ -11,7 +11,7 @@ bun add @beep/workspace-use-cases
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/workspace-use-cases"
+import { Thread } from "@beep/workspace-use-cases"
 ```
 
 ## Development

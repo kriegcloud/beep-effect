@@ -48,7 +48,6 @@ type BeepNamespace = typeof BeepNamespace.Type;
 const BeepBase = S.Literal("beep");
 type BeepBase = typeof BeepBase.Type;
 
-const IdentityVersion = S.Literal("0.0.0");
 type DefaultIdentityAuthority = "https://ns.beep.sh/";
 type DefaultIdentityPrefix = "beep";
 
@@ -195,22 +194,6 @@ export class IdentitySegmentCountError extends S.TaggedError<
     return "Identity template tags must use a single literal segment.";
   }
 }
-
-/**
- * Current version of the `@beep/identity` package.
- *
- * **Example** (Read the package version)
- *
- * ```ts import.meta.vitest name="Read the package version"
- * import { VERSION } from "@beep/identity"
- *
- * VERSION // => "0.0.0"
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const VERSION = IdentityVersion.make("0.0.0");
 
 /**
  * Type-level constraint ensuring an identity segment does not start or end with a slash.

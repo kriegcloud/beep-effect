@@ -1607,9 +1607,15 @@ export const $IdentityId: Identity.IdentityComposer<"@beep/identity"> = composer
               }
             }
 
+            // The library entry point starts as an empty, documented barrel: no
+            // placeholder export to drift from the manifest version.
+            const libraryIndex = Str.split("\n")(yield* fs.readFileString(path.join(libraryDir, "src", "index.ts")));
+            expect(A.filter(libraryIndex, Str.startsWith("export "))).toStrictEqual(["export {};"]);
+            expect(libraryIndex).toContain(" * Package entry point for `@beep/fresh-lib`.");
+            expect(A.some(libraryIndex, Str.startsWith(" * @packageDocumentation"))).toBe(true);
+
             // JSDoc ratchet: every scaffolded export carries a titled example.
             for (const filePath of [
-              path.join(libraryDir, "src", "index.ts"),
               path.join(serviceDir, "src", "Api.ts"),
               path.join(serviceDir, "src", "runtime", "Layer.ts"),
             ]) {

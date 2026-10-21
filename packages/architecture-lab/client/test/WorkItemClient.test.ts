@@ -1,4 +1,3 @@
-import { VERSION } from "@beep/architecture-lab-client";
 import { makeWorkItemClient } from "@beep/architecture-lab-client/aggregates/WorkItem";
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public";
@@ -13,10 +12,6 @@ import * as S from "effect/Schema";
 const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 
 describe("WorkItem client", () => {
-  it("exposes the client facade version", () => {
-    expect(VERSION).toBe("0.0.0");
-  });
-
   it.effect(
     "delegates through a client-safe transport",
     Effect.fnUntraced(function* () {

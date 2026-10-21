@@ -7,24 +7,6 @@
  */
 
 /**
- * Package version for `@beep/epistemic-ui`.
- *
- * **Example** (Compare package version)
- *
- * ```ts
- * import { VERSION } from "@beep/epistemic-ui"
- *
- * const expectedVersion: typeof VERSION = "0.0.0"
- * const isExpectedVersion = VERSION === expectedVersion
- * console.log(isExpectedVersion) // true
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Inspectable claim evidence and controlled human review.
  *
  * @category components
