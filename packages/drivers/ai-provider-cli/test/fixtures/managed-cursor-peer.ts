@@ -1,65 +1,55 @@
-import { Agent } from "@beep/acp";
-import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
-import * as NodeServices from "@effect/platform-node/NodeServices";
-import * as Config from "effect/Config";
+import * as SchemaV1 from "@beep/acp/schema-v1";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
-import * as Layer from "effect/Layer";
-import * as Path from "effect/Path";
-import { fixtureMode, fixtureStallAt } from "./session-options.ts";
+import * as HashMap from "effect/HashMap";
+import { decodeV1, replyV1, runManagedV1Peer } from "./managed-acp-v1-peer.ts";
+import { fixtureMode } from "./session-options.ts";
+import type { ManagedV1Peer, ManagedV1Route } from "./managed-acp-v1-peer.ts";
 
 const model = "claude-opus-5-5[context=300k,effort=medium,fast=false]";
-const program = Effect.gen(function* () {
-  const agent = yield* Agent.AcpAgent;
-  const stalled = fixtureStallAt;
-  const home = yield* Config.String("HOME");
-  const mode = fixtureMode;
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const checkpoint = (operation: string) =>
-    operation === stalled
-      ? fs.writeFileString(path.join(home, "stall-reached"), operation).pipe(Effect.andThen(Effect.never), Effect.orDie)
-      : Effect.void;
-  yield* agent.handleInitialize(() =>
-    checkpoint("initialize").pipe(Effect.andThen(Effect.succeed({ protocolVersion: 1, agentCapabilities: {} })))
-  );
-  yield* agent.handleCreateSession(() =>
-    checkpoint("session/new").pipe(
-      Effect.andThen(
-        Effect.succeed({
-          sessionId: "owned-cursor",
-          models: {
-            currentModelId: mode === "wrong-model" ? "foreign" : model,
-            availableModels: [{ modelId: model, name: "synthetic" }],
-          },
-        })
-      )
+const denial =
+  fixtureMode === "quoted-denial"
+    ? 'The documentation says "Upgrade your plan to continue"; this is quoted output.'
+    : "Upgrade your plan to continue";
+
+const routes = (peer: ManagedV1Peer) => {
+  const prompt: ManagedV1Route = Effect.fnUntraced(function* (params) {
+    const request = yield* decodeV1(SchemaV1.PromptRequest)(params);
+    yield* peer.sendText(request.sessionId, denial);
+    return yield* replyV1(SchemaV1.PromptResponse)({ stopReason: "end_turn" });
+  });
+  return Effect.succeed(
+    HashMap.make(
+      [
+        "initialize",
+        () =>
+          peer
+            .checkpoint("initialize")
+            .pipe(Effect.andThen(replyV1(SchemaV1.InitializeResponse)({ protocolVersion: 1, agentCapabilities: {} }))),
+      ],
+      [
+        "session/new",
+        () =>
+          peer.checkpoint("session/new").pipe(
+            Effect.andThen(
+              replyV1(SchemaV1.NewSessionResponse)({
+                sessionId: "owned-cursor",
+                // The removed unstable model-selection API, which the managed policy readback still reads.
+                models: {
+                  currentModelId: fixtureMode === "wrong-model" ? "foreign" : model,
+                  availableModels: A.make({ modelId: model, name: "synthetic" }),
+                },
+              })
+            )
+          ),
+      ],
+      [
+        "session/set_mode",
+        () => peer.checkpoint("session/set_mode").pipe(Effect.andThen(replyV1(SchemaV1.SetSessionModeResponse)({}))),
+      ],
+      ["session/prompt", prompt]
     )
   );
-  yield* agent.handleSetSessionMode(() => checkpoint("session/set_mode").pipe(Effect.andThen(Effect.succeed({}))));
-  yield* agent.handlePrompt((request) =>
-    agent.client
-      .sessionUpdate({
-        sessionId: request.sessionId,
-        update: {
-          sessionUpdate: "agent_message_chunk",
-          content: {
-            type: "text",
-            text:
-              mode === "quoted-denial"
-                ? 'The documentation says "Upgrade your plan to continue"; this is quoted output.'
-                : "Upgrade your plan to continue",
-          },
-        },
-      })
-      .pipe(Effect.as({ stopReason: "end_turn" }))
-  );
-  return yield* Effect.never;
-});
-Agent.layerStdio().pipe(
-  Layer.provideMerge(NodeServices.layer),
-  Layer.build,
-  Effect.flatMap((context) => program.pipe(Effect.provide(context))),
-  Effect.scoped,
-  NodeRuntime.runMain
-);
+};
+
+runManagedV1Peer(routes);

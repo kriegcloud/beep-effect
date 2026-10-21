@@ -1,101 +1,98 @@
-import { Agent } from "@beep/acp";
-import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
-import * as NodeServices from "@effect/platform-node/NodeServices";
-import * as Config from "effect/Config";
+import * as SchemaV1 from "@beep/acp/schema-v1";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
-import * as Layer from "effect/Layer";
-import * as Path from "effect/Path";
-import { fixtureMode, fixtureStallAt } from "./session-options.ts";
-import type { Schema } from "@beep/acp";
+import * as HashMap from "effect/HashMap";
+import * as Ref from "effect/Ref";
+import * as Str from "effect/String";
+import { decodeV1, replyV1, runManagedV1Peer } from "./managed-acp-v1-peer.ts";
+import { fixtureMode } from "./session-options.ts";
+import type { ManagedV1Peer, ManagedV1Route } from "./managed-acp-v1-peer.ts";
 
-const program = Effect.gen(function* () {
-  const agent = yield* Agent.AcpAgent;
-  const stalled = fixtureStallAt;
-  const home = yield* Config.String("HOME");
-  const mode = fixtureMode;
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const checkpoint = (operation: string) =>
-    operation === stalled
-      ? fs.writeFileString(path.join(home, "stall-reached"), operation).pipe(Effect.andThen(Effect.never), Effect.orDie)
-      : Effect.void;
-  let authenticated = false;
-  yield* agent.handleInitialize(() =>
-    checkpoint("initialize").pipe(Effect.andThen(Effect.succeed({ protocolVersion: 1, agentCapabilities: {} })))
-  );
-  yield* agent.handleAuthenticate(() =>
-    checkpoint("authenticate").pipe(
-      Effect.andThen(
-        Effect.sync(() => {
-          authenticated = true;
-          return {};
-        })
-      )
-    )
-  );
-  yield* agent.handleCreateSession(() =>
-    checkpoint("session/new").pipe(
-      Effect.andThen(
-        Effect.sync(
-          (): Schema.NewSessionResponse => ({
-            sessionId: authenticated ? "owned-grok" : "unauthenticated",
-            models: {
-              currentModelId: mode === "wrong-model" ? "foreign" : "grok-4.7",
-              availableModels: [{ modelId: "grok-4.7", name: "synthetic" }],
-            },
-            configOptions: [
-              {
-                id: "reasoning_effort",
-                name: "Effort",
-                type: "select",
-                currentValue: mode === "wrong-effort" ? "high" : "medium",
-                options: [{ value: "medium", name: "Medium" }],
+const permissionPrefix = "permission:";
+const offeredToolName = (testCase: string) =>
+  testCase === "wrong-server"
+    ? "foreign__agent_message_acknowledge"
+    : testCase === "builtin"
+      ? "shell"
+      : testCase === "unknown"
+        ? "peer__unknown"
+        : "peer__agent_message_acknowledge";
+
+const routes = Effect.fnUntraced(function* (peer: ManagedV1Peer) {
+  const authenticated = yield* Ref.make(false);
+  const answerText = Effect.fnUntraced(function* (sessionId: string, text: string) {
+    if (!Str.startsWith(permissionPrefix)(text)) return yield* peer.sendText(sessionId, text);
+    const testCase = Str.slice(permissionPrefix.length)(text);
+    const decision = yield* peer.requestPermission({
+      sessionId: testCase === "wrong-session" ? "foreign-session" : sessionId,
+      toolCall: {
+        toolCallId: "synthetic-tool",
+        title: "synthetic",
+        rawInput: { tool_name: offeredToolName(testCase) },
+      },
+      options: [{ optionId: "allow", name: "Allow once", kind: "allow_once" }],
+    });
+    yield* peer.sendText(sessionId, decision.outcome.outcome);
+  });
+  const prompt: ManagedV1Route = Effect.fnUntraced(function* (params) {
+    const request = yield* decodeV1(SchemaV1.PromptRequest)(params);
+    // The process ends while the client still waits for the prompt result.
+    if (fixtureMode === "exit-on-prompt") return yield* Effect.sync(() => process.exit(3));
+    for (const block of request.prompt) {
+      if (block.type === "text") yield* answerText(request.sessionId, block.text);
+    }
+    return yield* replyV1(SchemaV1.PromptResponse)({ stopReason: "end_turn" });
+  });
+  return HashMap.make(
+    [
+      "initialize",
+      () =>
+        peer
+          .checkpoint("initialize")
+          .pipe(Effect.andThen(replyV1(SchemaV1.InitializeResponse)({ protocolVersion: 1, agentCapabilities: {} }))),
+    ],
+    [
+      "authenticate",
+      () =>
+        peer
+          .checkpoint("authenticate")
+          .pipe(
+            Effect.andThen(Ref.set(authenticated, true)),
+            Effect.andThen(replyV1(SchemaV1.AuthenticateResponse)({}))
+          ),
+    ],
+    [
+      "session/new",
+      () =>
+        peer.checkpoint("session/new").pipe(
+          Effect.andThen(Ref.get(authenticated)),
+          Effect.flatMap((isAuthenticated) =>
+            replyV1(SchemaV1.NewSessionResponse)({
+              sessionId: isAuthenticated ? "owned-grok" : "unauthenticated",
+              // The removed unstable model-selection API, which the managed policy readback still reads.
+              models: {
+                currentModelId: fixtureMode === "wrong-model" ? "foreign" : "grok-4.7",
+                availableModels: A.make({ modelId: "grok-4.7", name: "synthetic" }),
               },
-            ],
-          })
-        )
-      )
-    )
+              configOptions: [
+                {
+                  id: "reasoning_effort",
+                  name: "Effort",
+                  type: "select",
+                  currentValue: fixtureMode === "wrong-effort" ? "high" : "medium",
+                  options: [{ value: "medium", name: "Medium" }],
+                },
+              ],
+            })
+          )
+        ),
+    ],
+    [
+      "session/set_mode",
+      () => peer.checkpoint("session/set_mode").pipe(Effect.andThen(replyV1(SchemaV1.SetSessionModeResponse)({}))),
+    ],
+    ["session/prompt", prompt]
   );
-  yield* agent.handlePrompt((request) =>
-    Effect.gen(function* () {
-      for (const block of request.prompt) {
-        if (block.type === "text" && block.text.startsWith("permission:")) {
-          const testCase = block.text.slice(11);
-          const toolName =
-            testCase === "wrong-server"
-              ? "foreign__agent_message_acknowledge"
-              : testCase === "builtin"
-                ? "shell"
-                : testCase === "unknown"
-                  ? "peer__unknown"
-                  : "peer__agent_message_acknowledge";
-          const decision = yield* agent.client.requestPermission({
-            sessionId: testCase === "wrong-session" ? "foreign-session" : request.sessionId,
-            toolCall: { toolCallId: "synthetic-tool", title: "synthetic", rawInput: { tool_name: toolName } },
-            options: [{ optionId: "allow", name: "Allow once", kind: "allow_once" }],
-          });
-          yield* agent.client.sessionUpdate({
-            sessionId: request.sessionId,
-            update: { sessionUpdate: "agent_message_chunk", content: { type: "text", text: decision.outcome.outcome } },
-          });
-        } else if (block.type === "text")
-          yield* agent.client.sessionUpdate({
-            sessionId: request.sessionId,
-            update: { sessionUpdate: "agent_message_chunk", content: { type: "text", text: block.text } },
-          });
-      }
-      return { stopReason: "end_turn" };
-    })
-  );
-  yield* agent.handleSetSessionMode(() => checkpoint("session/set_mode").pipe(Effect.andThen(Effect.succeed({}))));
-  return yield* Effect.never;
 });
-Agent.layerStdio().pipe(
-  Layer.provideMerge(NodeServices.layer),
-  Layer.build,
-  Effect.flatMap((context) => program.pipe(Effect.provide(context))),
-  Effect.scoped,
-  NodeRuntime.runMain
-);
+
+runManagedV1Peer(routes);

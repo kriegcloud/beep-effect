@@ -100,7 +100,11 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
     forceKillAfter: Duration.seconds(3),
   }).pipe(transportFailure("spawn"));
   yield* handle.stderr.pipe(Stream.runDrain, Effect.forkChild);
-  const context = yield* Layer.build(AcpClient.layerChildProcess({ handle }));
+  // cursor-agent's answer to a negotiating ACP initialize is unproven and the managed Cursor path
+  // needs generation 1 (`session/set_mode`, legacy `models`), so Cursor pins a pure v1 handshake.
+  // Grok answers a negotiating initialize with v1; Codex never initializes through the ACP agent API.
+  const protocolGeneration = profile.provider === "cursor" ? "v1" : "negotiate";
+  const context = yield* Layer.build(AcpClient.layerChildProcess({ handle, protocolGeneration }));
   const client = Context.get(context, AcpClient.AcpClient);
   const events = yield* PubSub.sliding<ManagedSessionEvent>(128);
   const chunks = yield* Ref.make("");

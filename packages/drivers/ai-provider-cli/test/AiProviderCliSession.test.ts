@@ -248,6 +248,18 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
     })
   );
 
+  it.effect(
+    "classifies a native process that exits mid-prompt as closed",
+    Effect.fnUntraced(function* () {
+      const session = yield* (yield* AiProviderCliSession).open(yield* syntheticProfile("grok", "exit-on-prompt"));
+      const error = yield* session
+        .prompt(ManagedSessionMessage.make({ messageId: "exited", text: "synthetic" }))
+        .pipe(Effect.flip);
+      assert.equal(error.reason, "closed");
+      assert.equal(error.operation, "prompt");
+    })
+  );
+
   for (const mode of ["malformed-resume", "malformed-turn", "failed-turn"]) {
     it.effect(
       `fences Codex ${mode} without replaying`,
