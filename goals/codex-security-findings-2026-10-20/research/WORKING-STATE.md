@@ -1,5 +1,23 @@
 # Working state
 
+## CI repair — 2026-10-21 07:07 UTC
+
+Runner capacity recovered. On published head `07aa7cee12721c294aeaa869ef2fc1a14103e4dd`,
+Heavy Check, Effect Diagnostics and Lint Policy failed on introduced PDF
+consumer test typing. The errors are typed-schema-decoder diagnostics and an
+optional-field omission incompatible with exact optional-property checking.
+The repair uses `decodeEffect` for typed encoded inputs and `Struct.omit`
+for the heterogeneous encoded fixture. Focused runtime controls pass: 49 technical-drawing tests and 39 critic tests.
+Default technical-drawing package verification and quick CLI verification pass.
+Strict technical-drawing diagnostics pass all three projects, and the strict
+CLI test overlay passes 385 files with zero diagnostics. The full strict CLI run also passes all three programs (2,043 file visits).
+Both failed inbox rows are acknowledged against the repair commit. One
+consolidated publication follows; hosted rerun and merged proof remain pending.
+No source security bound, coverage floor, diagnostic or baseline is waived.
+Retained logs are `raw/heavy-{check,effect,policy}-failure.log`.
+The eight Cloud and 123 Dependabot IDs remain open pending merged proof.
+Historical handoffs below describe their recorded heads, not current readiness.
+
 ## Current handoff — 2026-10-21 05:35 UTC
 
 PR #1930 is open and ready at `e3c548ea5839cd468c95f8e77bb2c0524205c647`.

@@ -71,6 +71,7 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
 import * as TestClock from "effect/testing/TestClock";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
@@ -1292,7 +1293,7 @@ describe("PDF measurements codec properties", () => {
       expect(equivalent(roundTrip, pdf)).toBe(true);
       expect(roundTrip.containerDiscovery).toBe(pdf.containerDiscovery);
       const encoded = yield* S.encodeEffect(CriticPdfMeasurements)(pdf);
-      const legacy = yield* S.decodeUnknownEffect(CriticPdfMeasurements)(R.remove(encoded, "containerDiscovery"));
+      const legacy = yield* S.decodeEffect(CriticPdfMeasurements)(Struct.omit(encoded, ["containerDiscovery"]));
       expect(legacy.containerDiscovery).toBe("complete");
       expect(equivalent(legacy, CriticPdfMeasurements.make({ ...pdf, containerDiscovery: "complete" }))).toBe(true);
     }),
@@ -1341,7 +1342,7 @@ describe("MEASUREMENTS.md", () => {
       const json = yield* encodeCriticMeasurements(measurements);
       expect(yield* decodeCriticMeasurements(json)).toEqual(measurements);
       expect(measurements.pdf.containerDiscovery).toBe("complete");
-      const legacyPdf = yield* S.decodeUnknownEffect(CriticPdfMeasurements)({
+      const legacyPdf = yield* S.decodeEffect(CriticPdfMeasurements)({
         file: "render/sheets.pdf",
         version: "1.6",
         pageCount: 0,

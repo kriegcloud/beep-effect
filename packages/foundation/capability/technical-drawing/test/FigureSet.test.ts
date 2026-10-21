@@ -1153,7 +1153,7 @@ describe("@beep/technical-drawing", () => {
           structuralFindings({ facts: clean, options: ValidationOptions.make({ expectedPages: O.some(1) }) })
         ).toEqual([]);
         expect(clean.containerDiscovery).toBe("complete");
-        const legacy = yield* S.decodeUnknownEffect(PdfFacts)({
+        const legacy = yield* S.decodeEffect(PdfFacts)({
           headerVersion: "1.6",
           pages: [letter],
           fonts: [],

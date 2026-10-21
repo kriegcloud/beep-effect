@@ -106,3 +106,14 @@ Existing small positive controls and adversarial bounds missed these cases.
 Add realistic long-document, ignored-media and multi-dozen-claim controls beside
 the security probes, and charge actual selected work. The earlier independent
 source review is retained as historical evidence, superseded by these findings.
+
+### Match local test compilation to hosted Effect diagnostics
+
+PR #1930 jobs `119064906295` and `119064905615` rejected two PDF consumer
+properties using `decodeUnknownEffect` with already typed encoded values. The
+Check job also rejected a fixture omission over an optional encoded field under
+`exactOptionalPropertyTypes`. Focused runtime tests did not establish this
+compiler proof. Use the canonical strict test overlay, including Effect
+diagnostics, for the repair; retain the hosted failures and the exact commands
+that cover these test files. No diagnostic suppression or baseline waiver is
+appropriate for these introduced errors.
