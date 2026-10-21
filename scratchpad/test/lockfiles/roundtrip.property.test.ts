@@ -30,7 +30,8 @@
 
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
-import { DependencySpecifier, IntegrityHash } from "../../effected/npm/index.ts";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";

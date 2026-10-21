@@ -14,7 +14,6 @@ import * as Crypto from "effect/Crypto";
 import * as Argument from "effect/cli/Argument";
 import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
-import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
@@ -25,7 +24,6 @@ import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
-import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -37,6 +35,7 @@ import { expectPlanDigestFlag } from "./internal/PlanFlags.ts";
 import { checkInstalledSkills } from "./internal/SkillFrontmatterCheck.ts";
 import {
   SkillFrontmatterError,
+  SkillPublicationError,
   SkillsCommandError,
   SkillsDriftError,
   SkillVendoredRefetchError,
@@ -46,6 +45,7 @@ import {
   renderSkillMaterializeSummary,
   renderSkillProvenanceJson,
   renderSkillProvenanceSummary,
+  renderSkillRecoveryReport,
   renderSkillsLockMigrationPlanJson,
   renderSkillsLockMigrationPlanSummary,
   renderSkillsLockWriteReceiptJson,
@@ -61,6 +61,8 @@ import {
 import { decodeSkillsLockDocumentJson, SkillsLockDocument } from "./SkillsLock.schemas.ts";
 import { renderSkillsLockDocumentText, writeSkillsLockMigration } from "./SkillsLock.write.ts";
 import { SkillMaterializer, SkillMaterializerLive } from "./SkillsMaterialize.service.ts";
+import { SkillPublicationFile } from "./SkillsPublication.schemas.ts";
+import { SkillPublisher, skillPublisherOrLive } from "./SkillsPublication.service.ts";
 import {
   renderSkillRelockReceiptJson,
   renderSkillReplayJson,
@@ -71,6 +73,7 @@ import {
 import { SkillTrainPullRequests } from "./SkillsRelock.schemas.ts";
 import { isSkillReplayClean, SkillUpdateTrain, SkillUpdateTrainLive } from "./SkillsRelock.service.ts";
 import { skillsPatchCommand, skillsReviewCommand } from "./SkillsReview.command.ts";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 import type { SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
@@ -517,68 +520,20 @@ const resolveSkillDestination = Effect.fn("Skills.resolveDestination")(function*
   return canonical;
 });
 
+// Every projection file goes through the journaled, exchange-qualified writer.
 const writeStringFile = Effect.fn("Skills.writeStringFile")(function* (
   absolutePath: string,
   content: string
-): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<
+  void,
+  SkillsCommandError | SkillPublicationError,
+  FileSystem.FileSystem | Path.Path | SkillPublisher
+> {
   const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Cannot locate skill backup root."));
   const target = yield* resolveSkillDestination(repoRoot, absolutePath);
   yield* makeParentDirectory(target);
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const now = yield* DateTime.now;
-  const salt = yield* Random.nextIntBetween(0, 0xffffff);
-  const stamp = now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""));
-  const suffix = `${stamp}-${salt}`;
-  const existing = yield* readExistingFile(target);
-  if (O.isSome(existing) && existing.value === content) return;
-  const directory = path.join(repoRoot, ".beep", "skills-backups");
-  yield* fs
-    .makeDirectory(directory, { recursive: true, mode: 0o700 })
-    .pipe(SkillsCommandError.mapError("Cannot create skill backup directory."));
-  if (O.isSome(existing)) {
-    yield* fs
-      .writeFileString(path.join(directory, `${path.basename(target)}.${suffix}`), existing.value, {
-        flag: "wx",
-        mode: 0o600,
-      })
-      .pipe(SkillsCommandError.mapError("Cannot back up skill projection."));
-  }
-  const temporary = `${target}.tmp-${suffix}`;
-  yield* Effect.acquireUseRelease(
-    fs
-      .writeFileString(temporary, content, { flag: "wx", mode: 0o600 })
-      .pipe(SkillsCommandError.mapError("Cannot stage skill projection.")),
-    Effect.fnUntraced(function* () {
-      const current = yield* readExistingFile(target);
-      if (!S.toEquivalence(S.Option(S.String))(current, existing))
-        return yield* SkillsCommandError.make({
-          message: "Skill projection drifted after planning.",
-          file: target,
-        });
-      if (O.isSome(existing)) {
-        const info = yield* fs.stat(target).pipe(SkillsCommandError.mapError("Cannot read projection permissions."));
-        yield* fs
-          .chmod(temporary, info.mode)
-          .pipe(SkillsCommandError.mapError("Cannot preserve projection permissions."));
-      } else {
-        yield* fs.chmod(temporary, 0o644).pipe(SkillsCommandError.mapError("Cannot set projection permissions."));
-      }
-      yield* fs.rename(temporary, target).pipe(SkillsCommandError.mapError("Cannot replace skill projection."));
-    }),
-    () => Effect.ignore(fs.remove(temporary))
-  );
-});
-
-const writeByteFile = Effect.fn("Skills.writeByteFile")(function* (
-  absolutePath: string,
-  bytes: Uint8Array
-): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-  yield* makeParentDirectory(absolutePath);
-  const fs = yield* FileSystem.FileSystem;
-  yield* fs
-    .writeFile(absolutePath, asArrayBufferView(bytes))
-    .pipe(SkillsCommandError.mapError(`Failed to write ${absolutePath}.`, absolutePath));
+  const publisher = yield* SkillPublisher;
+  yield* publisher.publishFile(repoRoot, target, content);
 });
 
 const readSkillFiles = Effect.fn("Skills.readSkillFiles")(function* (
@@ -738,62 +693,28 @@ const resolveSourcesToFetch = (
   return Effect.succeed([source]);
 };
 
+// A remote skill directory is published as one tree through the journaled
+// writer; its backup is kept under .beep/skills-backups.
 const writeRemoteSkill = Effect.fn("Skills.writeRemoteSkill")(function* (
   repoRoot: string,
   source: RemoteSkillSource,
   snapshot: SkillSnapshot
-): Effect.fn.Return<void, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
+): Effect.fn.Return<
+  void,
+  SkillsCommandError | SkillPublicationError,
+  FileSystem.FileSystem | Path.Path | SkillPublisher
+> {
   const path = yield* Path.Path;
   const skillDir = yield* resolveSkillDestination(repoRoot, path.resolve(repoRoot, CLAUDE_SKILLS_DIR, source.name));
-  const now = yield* DateTime.now;
-  const salt = yield* Random.nextIntBetween(0, 0xffffff);
-  const suffix = `${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
-  const backups = path.join(repoRoot, ".beep", "skills-backups");
-  yield* fs
-    .makeDirectory(backups, { recursive: true, mode: 0o700 })
-    .pipe(SkillsCommandError.mapError("Cannot create remote skill backup directory."));
-  const backup = path.join(backups, `${source.name}.${suffix}`);
-  const existed = yield* fs.exists(skillDir).pipe(SkillsCommandError.mapError("Cannot inspect remote skill."));
-  if (existed)
-    yield* fs
-      .copy(skillDir, backup, { overwrite: false, preserveTimestamps: true })
-      .pipe(SkillsCommandError.mapError("Cannot back up remote skill."));
-  const stage = path.join(path.dirname(skillDir), `.${source.name}.stage-${suffix}`);
-  // Keep deferred cleanup outside discovery: it is recovery state, not an installed skill.
-  const previous = path.join(backups, `${source.name}.${suffix}.previous`);
-  yield* makeParentDirectory(stage);
-  yield* Effect.acquireUseRelease(
-    fs.makeDirectory(stage).pipe(SkillsCommandError.mapError("Cannot stage remote skill.")),
-    Effect.fnUntraced(function* () {
-      for (const file of snapshot.files) {
-        const relativePath = yield* validateSkillFilePath(file.path, source.name);
-        const writePath = path.resolve(stage, relativePath);
-        const containmentPath = normalizeSlashes(path.relative(stage, writePath));
-        if (!isSafeRelativeSkillFilePath(containmentPath))
-          return yield* SkillsCommandError.make({
-            message: "Refusing a remote skill file outside its staged tree.",
-            file: file.path,
-            skill: source.name,
-          });
-        yield* writeByteFile(writePath, file.bytes);
-      }
-      yield* Effect.uninterruptible(
-        Effect.gen(function* () {
-          if (existed)
-            yield* fs
-              .rename(skillDir, previous)
-              .pipe(SkillsCommandError.mapError("Cannot preserve previous remote skill."));
-          yield* fs.rename(stage, skillDir).pipe(
-            Effect.onError(() => (existed ? Effect.ignore(fs.rename(previous, skillDir)) : Effect.void)),
-            SkillsCommandError.mapError("Cannot publish staged remote skill.")
-          );
-          if (existed) yield* Effect.ignore(fs.remove(previous, { recursive: true, force: true }));
-        })
-      );
-    }),
-    () => Effect.ignore(fs.remove(stage, { recursive: true, force: true }))
+  const files = yield* Effect.forEach(
+    snapshot.files,
+    Effect.fnUntraced(function* (file) {
+      const relativePath = yield* validateSkillFilePath(file.path, source.name);
+      return SkillPublicationFile.make({ path: relativePath, bytes: file.bytes });
+    })
   );
+  const publisher = yield* SkillPublisher;
+  yield* publisher.publishDirectory(repoRoot, skillDir, files);
 });
 
 const readLockFile = Effect.fn("Skills.readLockFile")(function* (
@@ -1353,14 +1274,33 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
   readonly skill: O.Option<string>;
 }): Effect.fn.Return<
   ReadonlyArray<SkillDrift>,
-  SkillsCommandError | SkillsDriftError | SkillFrontmatterError | SkillVendoredRefetchError,
-  FileSystem.FileSystem | Path.Path | Crypto.Crypto | HttpClient.HttpClient
+  SkillsCommandError | SkillsDriftError | SkillFrontmatterError | SkillVendoredRefetchError | SkillPublicationError,
+  FileSystem.FileSystem | Path.Path | Crypto.Crypto | HttpClient.HttpClient | ChildProcessSpawner.ChildProcessSpawner
 > {
+  const publisher = yield* skillPublisherOrLive;
+  return yield* updateSkills(options).pipe(Effect.provideService(SkillPublisher, publisher));
+});
+
+// Automatic recovery: reconcile interrupted publications before planning a
+// write. A refusal keeps its artifacts and does not block the update.
+const recoverBeforeWrite = Effect.fn("Skills.recoverBeforeWrite")(function* (repoRoot: string) {
+  const publisher = yield* SkillPublisher;
+  const reports = yield* publisher.recover(repoRoot, "pending");
+  for (const report of reports) {
+    yield* Console.log(`skills:update: recovery ${renderSkillRecoveryReport(report)}`);
+  }
+});
+
+const updateSkills = Effect.fn("Skills.updateSkills")(function* (options: {
+  readonly mode: SkillsRunMode;
+  readonly skill: O.Option<string>;
+}) {
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Failed to locate repository root."));
   // Preflight all destinations before any update writes a backup or projection.
   yield* resolveSkillDestination(repoRoot, path.join(repoRoot, CODEX_CONFIG_PATH));
   yield* resolveSkillDestination(repoRoot, path.join(repoRoot, SKILLS_LOCK_PATH));
+  if (options.mode === "write") yield* recoverBeforeWrite(repoRoot);
   const lock = yield* readLockV2(repoRoot);
   yield* refuseVendoredRefetch(lock, options.skill);
   const sources = yield* floatingSources(lock, yield* resolveSourcesToFetch(options.skill));
@@ -1429,10 +1369,76 @@ const skillsUpdateCommand = Command.make(
           yield* Console.error(`skills:update: ${error.message}`);
           return yield* failWithReportedExit(`skills:update: ${error.message}`);
         }),
+        SkillPublicationError: Effect.fn(function* (error) {
+          yield* Console.error(`skills:update: ${error.message}`);
+          return yield* failWithReportedExit(`skills:update: ${error.message}`);
+        }),
       })
     );
   })
 ).pipe(Command.withDescription("Update repo-local Claude/Codex skill mirrors from known upstream sources"));
+
+/**
+ * Reconcile interrupted skill publications and report each decision.
+ *
+ * **Details**
+ *
+ * This is the explicit entry point of the recovery path `skills update` runs
+ * before it writes. It also retries publications an earlier recovery refused.
+ * It fails after printing every decision when any publication is refused, so
+ * a competing writer is never silently left in place.
+ *
+ * **Example** (Create the recovery workflow)
+ *
+ * ```ts
+ * import { runSkillsRecover } from "@beep/repo-cli/commands/Skills"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(runSkillsRecover())) // true
+ * ```
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runSkillsRecover = Effect.fn("Skills.runSkillsRecover")(function* () {
+  const repoRoot = yield* findRepoRoot().pipe(
+    SkillsCommandError.mapError("Failed to locate repository root for skills recover.")
+  );
+  const publisher = yield* skillPublisherOrLive;
+  const reports = yield* publisher.recover(repoRoot, "retry");
+  yield* Console.log(`skills:recover: ${A.length(reports)} journal(s) reconciled`);
+  for (const report of reports) {
+    yield* Console.log(`- ${renderSkillRecoveryReport(report)}`);
+  }
+  const refused = A.filter(reports, (report) => report.result._tag === "refused");
+  if (A.isReadonlyArrayNonEmpty(refused))
+    return yield* SkillPublicationError.make({
+      message: `${A.length(refused)} skill publication(s) refused recovery; every artifact is kept.`,
+    });
+  return reports;
+});
+
+const reportRecoverError = Effect.fn("Skills.recoverCommand.reportError")(function* (error: {
+  readonly message: string;
+}) {
+  const message = `skills:recover: ${error.message}`;
+  yield* Console.error(message);
+  return yield* failWithReportedExit(message);
+});
+
+const skillsRecoverCommand = Command.make(
+  "recover",
+  {},
+  Effect.fn("Skills.recoverCommand")(function* () {
+    yield* runSkillsRecover().pipe(
+      Effect.catchTags({ SkillsCommandError: reportRecoverError, SkillPublicationError: reportRecoverError })
+    );
+  })
+).pipe(
+  Command.withDescription(
+    "Reconcile interrupted skill publications from .beep/skills-backups/journals; never overwrites a competing writer"
+  )
+);
 
 const runSkillsProvenanceCommand = Effect.fn("Skills.runSkillsProvenanceCommand")(function* (options: {
   readonly json: boolean;
@@ -1771,12 +1777,13 @@ const skillsTrainIssueCommand = Command.make(
  */
 export const skillsCommand = Command.make("skills", {}, () =>
   Console.log(
-    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]\n- bun run beep skills replay [--skill <name>] [--json] [--markdown <file>]\n- bun run beep skills relock --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills train-issue --batch <id> --prs <file> --body-out <file>\n- bun run beep skills review [--skill <name>] [--json] [--interactive | --decisions <file>] [--reviewer <handle>] [--ghost] [--budget <minutes>]\n- bun run beep skills patch add --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills patch label --skill <name> [--json] [--expect <planDigest>]"
+    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills recover\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]\n- bun run beep skills replay [--skill <name>] [--json] [--markdown <file>]\n- bun run beep skills relock --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills train-issue --batch <id> --prs <file> --body-out <file>\n- bun run beep skills review [--skill <name>] [--json] [--interactive | --decisions <file>] [--reviewer <handle>] [--ghost] [--budget <minutes>]\n- bun run beep skills patch add --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills patch label --skill <name> [--json] [--expect <planDigest>]"
   )
 ).pipe(
   Command.withDescription("Manage repo-local Claude and Codex skill mirrors"),
   Command.withSubcommands([
     skillsUpdateCommand,
+    skillsRecoverCommand,
     skillsProvenanceCommand,
     skillsLockPlanCommand,
     skillsMaterializeCommand,

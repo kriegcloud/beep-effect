@@ -13,8 +13,9 @@ pending. This is no implementation or independent approval. Tier 1, ordered
 Tier1E tooling batch; shared-file edits are serial.
 Derived/internal carrier: six OpenMode Booleans, 64 representable / 10 legal states.
 
-Unless explicitly qualified, source line references below refer to
-`packages/tooling/test-kit/test-utils/src/MemoryFileSystem/MemoryFileSystem.test-kit.ts`.
+Unless explicitly qualified, source line references below refer to the test-utils
+MemoryFileSystem.test-kit.ts engine as of this design. effected-promotion D-25 retired it on
+2026-10-21; the engine now lives in `packages/tooling/test-kit/memfs/src/internal/volume.ts`.
 Paths beginning `src/` or `test/` are relative to `packages/tooling/test-kit/test-utils/`.
 
 ## Current shape

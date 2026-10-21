@@ -1628,7 +1628,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
     ["an empty chunk result", encoder.encode('{"jsonrpc":"2.0","id":15,"chunk":true,"result":[]}\n'), "SchemaError"],
     [
       "a line longer than the buffer limit",
-      encoder.encode(`${" ".repeat(16 * 1024 * 1024 + 1)}\n`),
+      encoder.encode(`${Str.repeat(16 * 1024 * 1024 + 1)(" ")}\n`),
       "MaxBufferSizeExceeded",
     ],
   ];

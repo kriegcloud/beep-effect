@@ -1,5 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { DependencyField, DependencySpecifier } from "../npm/index.ts";
+import { DependencyField } from "@beep/npm-spec/DependencySection";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
 import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/lockfiles/ImporterDependency");

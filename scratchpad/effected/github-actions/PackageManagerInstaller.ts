@@ -4,8 +4,10 @@
  * @packageDocumentation
  */
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { IntegrityHashBrand } from "../npm/index.ts";
-import { CorepackIntegrityHash, IntegrityHash, DEFAULT_REGISTRY, PackageManagerPin, PackageManagerPinName } from "../npm/index.ts";
+import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
+import { CorepackIntegrityHash, IntegrityHash } from "@beep/npm-spec/IntegrityHash";
+import { PackageManagerPin, PackageManagerPinName } from "@beep/npm-spec/PackageManagerPin";
+import { DEFAULT_REGISTRY } from "@beep/npm-spec/RegistryKind";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -1405,7 +1407,7 @@ const dies = unstubbed("PackageManagerInstaller.makeTest");
  * ```ts
  * import { PackageManagerInstaller } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
  * import { ActionOutputs } from "@beep/scratchpad/effected/github-actions/ActionOutputs";
- * import { PackageManagerPin } from "@beep/scratchpad/effected/npm/PackageManagerPin";
+ * import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
  * import * as Effect from "effect/Effect";
  *
  * const provision = Effect.gen(function* () {
@@ -1461,7 +1463,7 @@ export class PackageManagerInstaller extends Context.Service<PackageManagerInsta
 	 *
 	 * ```ts
 	 * import { AmbientPackageManager, PackageManagerInstaller } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
-	 * import { PackageManagerPin } from "@beep/scratchpad/effected/npm/PackageManagerPin";
+	 * import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
 	 * import * as Effect from "effect/Effect";
 	 * import { dual } from "effect/Function";
 	 * import * as S from "effect/Schema";

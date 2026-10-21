@@ -1,5 +1,7 @@
-import type { DependencyField, IntegrityHashBrand } from "../../npm/index.ts";
-import { DependencySpecifier, IntegrityHash } from "../../npm/index.ts";
+import type { DependencyField } from "@beep/npm-spec/DependencySection";
+import type { IntegrityHashBrand } from "@beep/npm-spec/IntegrityHash";
+import { DependencySpecifier } from "@beep/npm-spec/DependencySpecifier";
+import { IntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as HashSet from "effect/HashSet";

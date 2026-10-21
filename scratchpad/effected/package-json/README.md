@@ -131,7 +131,8 @@ console.log(Effect.runSync(program));
 Specifiers the resolvers answer `None` for are left exactly as they were.
 
 ```ts
-import { CatalogResolver, WorkspaceResolver } from "@beep/scratchpad/effected/npm/index";
+import { CatalogResolver } from "@beep/npm-spec/CatalogResolver";
+import { WorkspaceResolver } from "@beep/npm-spec/WorkspaceResolver";
 import { Package } from "@beep/scratchpad/effected/package-json/Package";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";

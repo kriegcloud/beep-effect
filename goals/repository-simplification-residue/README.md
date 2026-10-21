@@ -62,6 +62,12 @@ and restart recovery reconciles every crash point byte-exact, idempotently, thro
 the next apply, `beep models recover` or `restore`. A target a competing writer
 changed is refused and every artifact is kept
 ([record](./history/receipts/exchange-recovery.md)).
+#1881 is complete: `skills update` replaces skill files and directories only through
+a qualified, verified atomic exchange, journals each publication with the same state
+machine, and recovers every crash point byte-exact through the next update or
+`beep skills recover`, refusing a replacing writer with every artifact kept
+([record](./history/receipts/skill-publication.md)).
+
 #1882 is complete: the required `Security` job runs `beep ci dependency-review`
 with its read-only token. It excludes only manifests under the declared
 `**/test/**/fixtures/**` policy, keeps production transitive advisories and the
