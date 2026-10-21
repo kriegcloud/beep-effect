@@ -251,8 +251,8 @@ const CommandOptions = S.Struct({
     S.Record(
       AdditionalFdKey,
       S.Union([
-        S.Struct({ type: S.Literal("input"), stream: S.optionalKey(InputStream) }),
-        S.Struct({ type: S.Literal("output"), sink: S.optionalKey(OutputSink) }),
+        S.Struct({ type: S.tag("input"), stream: S.optionalKey(InputStream) }),
+        S.Struct({ type: S.tag("output"), sink: S.optionalKey(OutputSink) }),
       ])
     )
   ),

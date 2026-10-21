@@ -277,7 +277,7 @@ export class HotParcelLine extends S.Opaque<HotParcelLine, { readonly brand: uni
  */
 export class HotParcels extends S.Opaque<HotParcels, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("palantiri-hot/v2"),
+    schemaVersion: S.tag("palantiri-hot/v2"),
     writtenAt: S.DateTimeUtcFromString,
     lines: S.Array(HotParcelLine),
   }).pipe(

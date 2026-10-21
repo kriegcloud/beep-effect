@@ -369,7 +369,7 @@ export class BoxActionApplied extends S.Opaque<BoxActionApplied, { readonly bran
  * @since 0.0.0
  */
 export class BoxActionSkipped extends S.Opaque<BoxActionSkipped, { readonly brand: unique symbol }>()(
-  S.TaggedStruct("Skipped", { ...outcomeFields, reason: S.Literal("noop") }).pipe(
+  S.TaggedStruct("Skipped", { ...outcomeFields, reason: S.tag("noop") }).pipe(
     $I.annoteSchema("BoxActionSkipped", { description: "Receipt outcome for a reviewed no-op plan action." })
   )
 ) {}
@@ -454,9 +454,7 @@ export type BoxApplyOutcome = typeof BoxApplyOutcome.Type;
  */
 export class BoxApplyReceipt extends S.Opaque<BoxApplyReceipt, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("box-provisioning-receipt/v1").pipe(
-      S.withConstructorDefault(Effect.succeed("box-provisioning-receipt/v1"))
-    ),
+    version: S.tag("box-provisioning-receipt/v1"),
     planDigest: Sha256Hex,
     appliedAt: S.DateTimeUtc,
     outcomes: S.Array(BoxApplyOutcome),
@@ -489,8 +487,8 @@ export class BoxApplyReceipt extends S.Opaque<BoxApplyReceipt, { readonly brand:
 export class BoxPostApplyVerdict extends S.Opaque<BoxPostApplyVerdict, { readonly brand: unique symbol }>()(
   S.Struct({
     entitlementBlockerCount: S.Natural,
-    entitlementBlockersPreserved: S.Literal(true),
-    allOtherActionsNoop: S.Literal(true),
+    entitlementBlockersPreserved: S.tag(true),
+    allOtherActionsNoop: S.tag(true),
   }).pipe(
     $I.annoteSchema("BoxPostApplyVerdict", {
       description: "Proof that entitlement blockers were preserved and every other post-apply action is Noop.",

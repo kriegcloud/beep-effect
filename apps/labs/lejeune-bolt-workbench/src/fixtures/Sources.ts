@@ -78,7 +78,7 @@ class XlsxCell extends S.Opaque<XlsxCell, { readonly brand: unique symbol }>()(
   S.Struct({
     is: XlsxInlineString,
     r: S.String,
-    t: S.Literal("inlineStr"),
+    t: S.tag("inlineStr"),
   }).pipe($I.annoteSchema("XlsxCell"))
 ) {}
 class XlsxRow extends S.Opaque<XlsxRow, { readonly brand: unique symbol }>()(

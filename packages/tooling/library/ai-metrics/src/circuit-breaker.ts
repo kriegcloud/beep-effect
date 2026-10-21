@@ -7,7 +7,6 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import * as Effect from "effect/Effect";
 import * as Num from "effect/Number";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
@@ -422,7 +421,7 @@ export class CircuitBreakerEventV1 extends S.Opaque<CircuitBreakerEventV1, { rea
     probe: CircuitBreakerProbe,
     caller: CircuitBreakerCaller,
     breakerRev: S.NonEmptyString,
-    evidenceTier: S.Literal("derived").pipe(S.withConstructorDefault(Effect.succeed("derived"))),
+    evidenceTier: S.tag("derived"),
     outcome: CircuitBreakerOutcome,
   }).pipe(
     $I.annoteSchema("CircuitBreakerEventV1", {

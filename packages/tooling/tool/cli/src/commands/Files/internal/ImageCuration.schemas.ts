@@ -99,7 +99,7 @@ export class ImageCurationDecisionDocument extends S.Opaque<
 >()(
   S.Struct({
     decisions: S.Array(ImageCurationDecision),
-    schemaVersion: S.Literal("beep.files.image-curation-decisions.v1"),
+    schemaVersion: S.tag("beep.files.image-curation-decisions.v1"),
     sourceDirectory: S.String,
   }).pipe(
     $I.annoteSchema("ImageCurationDecisionDocument", {
@@ -198,7 +198,7 @@ export class ImageCurationManifest extends S.Opaque<ImageCurationManifest, { rea
     entries: S.Array(ImageCurationManifestEntry),
     manifestPath: S.String,
     outputDirectory: S.String,
-    schemaVersion: S.Literal("beep.files.image-curation.v1"),
+    schemaVersion: S.tag("beep.files.image-curation.v1"),
     sourceDirectory: S.String,
     summary: ImageCurationSummary,
   }).pipe(

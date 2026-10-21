@@ -7,7 +7,7 @@ import { LicenseException } from "../LicenseException.ts";
 const $I = $SpdxId.create("internal/parser");
 
 const RawLicense = S.Struct({
-  kind: S.Literal("license").pipe($I.annoteKey("RawLicense.kind", { description: "Cataloged license variant." })),
+  kind: S.tag("license").pipe($I.annoteKey("RawLicense.kind", { description: "Cataloged license variant." })),
   id: S.String.pipe($I.annoteKey("RawLicense.id", { description: "The SPDX short identifier." })),
   plus: S.Boolean.pipe(
     $I.annoteKey("RawLicense.plus", { description: "Whether the trailing or-later marker is present." })
@@ -15,7 +15,7 @@ const RawLicense = S.Struct({
 }).pipe($I.annoteSchema("RawLicense", { description: "A plain-object cataloged license leaf emitted by the parser." }));
 
 const RawLicenseRef = S.Struct({
-  kind: S.Literal("licenseRef").pipe($I.annoteKey("RawLicenseRef.kind", { description: "License reference variant." })),
+  kind: S.tag("licenseRef").pipe($I.annoteKey("RawLicenseRef.kind", { description: "License reference variant." })),
   documentRef: S.UndefinedOr(S.String).pipe(
     $I.annoteKey("RawLicenseRef.documentRef", {
       description: "The document idstring, or undefined for a local reference; the key is required.",
@@ -35,7 +35,7 @@ const RawSimpleLicense = S.Union([RawLicense, RawLicenseRef]).pipe(
 );
 
 const RawWith = S.Struct({
-  kind: S.Literal("with").pipe($I.annoteKey("RawWith.kind", { description: "License exception variant." })),
+  kind: S.tag("with").pipe($I.annoteKey("RawWith.kind", { description: "License exception variant." })),
   license: RawSimpleLicense.pipe(
     $I.annoteKey("RawWith.license", { description: "The simple expression qualified by the exception." })
   ),
@@ -45,7 +45,7 @@ const RawWith = S.Struct({
 );
 
 const RawAnd = S.Struct({
-  kind: S.Literal("and").pipe($I.annoteKey("RawAnd.kind", { description: "Conjunction variant." })),
+  kind: S.tag("and").pipe($I.annoteKey("RawAnd.kind", { description: "Conjunction variant." })),
   left: S.suspend((): S.Codec<RawExpression> => RawExpression).pipe(
     $I.annoteKey("RawAnd.left", { description: "The left expression operand." })
   ),
@@ -55,7 +55,7 @@ const RawAnd = S.Struct({
 }).pipe($I.annoteSchema("RawAnd", { description: "A plain-object conjunction of two raw expressions." }));
 
 const RawOr = S.Struct({
-  kind: S.Literal("or").pipe($I.annoteKey("RawOr.kind", { description: "Disjunction variant." })),
+  kind: S.tag("or").pipe($I.annoteKey("RawOr.kind", { description: "Disjunction variant." })),
   left: S.suspend((): S.Codec<RawExpression> => RawExpression).pipe(
     $I.annoteKey("RawOr.left", { description: "The left expression operand." })
   ),

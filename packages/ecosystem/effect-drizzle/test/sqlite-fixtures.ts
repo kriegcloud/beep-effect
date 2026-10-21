@@ -1,6 +1,6 @@
 /** Cross-dialect domain-sharing and SQLite consumer fixtures. */
 
-import { make, VariantField } from "@beep/effect-drizzle";
+import { make, makeNativeRepository, VariantField } from "@beep/effect-drizzle";
 import { Table as SqliteTable } from "@beep/effect-drizzle/sqlite";
 import { sql } from "drizzle-orm";
 import { getTableConfig as getSqliteTableConfig } from "drizzle-orm/sqlite-core";
@@ -107,6 +107,14 @@ export const sqliteUserRepository = sqliteKit.Repository(SqliteUser, {
   spanPrefix: "SqliteUser",
   idColumn: "id",
 });
+export const _sqliteNativeRepositoryVersionedModel = () => ({
+  repository: makeNativeRepository(
+    // @ts-expect-error invariant: native repositories reject models with an optimistic version field
+    SqliteUser,
+    { spanPrefix: "SqliteUserNative", idColumn: "id" }
+  ),
+});
+// Deliberate bypass: proves the versioned model still satisfies Effect SQL's native repository.
 export const sqliteNativeUserRepository = makeSqlRepository(SqliteUser, {
   tableName: SqliteUser.sql.tableName,
   spanPrefix: "SqliteUserNative",

@@ -116,7 +116,7 @@ export const SchemaFirstPolicySeverity = LiteralKit(["warn", "warning", "error"]
  */
 export class SchemaFirstPolicyFinding extends S.Opaque<SchemaFirstPolicyFinding, { readonly brand: unique symbol }>()(
   S.Struct({
-    category: S.Literal("schema-first-policy"),
+    category: S.tag("schema-first-policy"),
     ruleId: S.String,
     severity: S.optionalKey(SchemaFirstPolicySeverity),
     file: S.String,

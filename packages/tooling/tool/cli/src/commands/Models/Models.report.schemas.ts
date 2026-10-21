@@ -275,9 +275,8 @@ export class ManualVerification extends S.Opaque<ManualVerification, { readonly 
     path: S.NonEmptyString,
     locator: Locator,
     current: S.OptionFromOptionalKey(S.String),
-    status: S.Literal("manual verification required").pipe(
-      S.withDecodingDefaultKey(Effect.succeed<"manual verification required">("manual verification required")),
-      S.withConstructorDefault(Effect.succeed<"manual verification required">("manual verification required"))
+    status: S.tag("manual verification required").pipe(
+      S.withDecodingDefaultKey(Effect.succeed<"manual verification required">("manual verification required"))
     ),
   }).pipe(
     $I.annoteSchema("ManualVerification", {

@@ -155,12 +155,12 @@ export class SecretCategoryCount extends S.Opaque<SecretCategoryCount, { readonl
 export class SecretEvidence extends S.Opaque<SecretEvidence, { readonly brand: unique symbol }>()(
   S.Struct({
     category: CredentialCategory,
-    count: S.Literal(1),
-    bankVersion: S.Literal(credentialPatternBankVersion),
-    ruleVersion: S.Literal("v1"),
+    count: S.tag(1),
+    bankVersion: S.tag(credentialPatternBankVersion),
+    ruleVersion: S.tag("v1"),
     start: S.Natural,
     end: S.Natural,
-    mask: S.Literal("[REDACTED]"),
+    mask: S.tag("[REDACTED]"),
     state: S.Literals(["matched", "residue", "unresolved"]),
     retention: SecretRetentionRecord,
   }).pipe(
@@ -183,7 +183,7 @@ export class SecretEvidence extends S.Opaque<SecretEvidence, { readonly brand: u
  */
 export class SecretScrubProof extends S.Opaque<SecretScrubProof, { readonly brand: unique symbol }>()(
   S.Struct({
-    bankVersion: S.Literal(credentialPatternBankVersion),
+    bankVersion: S.tag(credentialPatternBankVersion),
     counts: S.Array(SecretCategoryCount),
     evidence: S.Array(SecretEvidence),
     transientRaw: SecretRetentionRecord,

@@ -33,7 +33,7 @@ class TextSimilarityParameters extends S.Opaque<TextSimilarityParameters, { read
 
 class TextSimilaritySuccess extends S.Opaque<TextSimilaritySuccess, { readonly brand: unique symbol }>()(
   S.Struct({
-    method: S.Literal(SimilarityMethod.Enum["vector.cosine"]).annotateKey({
+    method: S.tag(SimilarityMethod.Enum["vector.cosine"]).annotateKey({
       description: "The similarity method used",
     }),
     score: UnitInterval.annotateKey({

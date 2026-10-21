@@ -495,7 +495,7 @@ export class DetectBordersReport extends S.Opaque<DetectBordersReport, { readonl
     directory: S.String,
     entries: S.Array(DetectBordersEntry),
     options: DetectBordersOptions,
-    schemaVersion: S.Literal("beep.files.detect-borders.v1"),
+    schemaVersion: S.tag("beep.files.detect-borders.v1"),
     skipped: S.Array(DetectBordersSkippedEntry),
     summary: DetectBordersSummary,
   }).pipe(

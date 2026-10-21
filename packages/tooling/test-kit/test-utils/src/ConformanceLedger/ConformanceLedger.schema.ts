@@ -14,7 +14,7 @@ const $I = $TestUtilsId.create("ConformanceLedger");
 const strictDecodeOptions = { errors: "all", onExcessProperty: "error" } as const;
 
 const LedgerHeader = S.Struct({
-  schemaVersion: S.Literal(1),
+  schemaVersion: S.tag(1),
   packageName: S.NonEmptyString,
   profileIds: S.NonEmptyArray(S.NonEmptyString),
 }).pipe(

@@ -77,6 +77,9 @@ Closed (`completed-retained`). The operator turns the services on through
 - 2026-10-15 P4: the amendment and the hub contract are in the repo and registered with the
   orchestrator as a routing item for the review-queue follow-on.
 - 2026-10-15 P6: closeout reflection `history/reflections/2026-10-15-claude.md`.
+- 2026-10-20 operations: the hub runs on the workstation with the interim identity (SPEC Decision
+  Log). On loopback, a request with no login and one with an unlisted login both get 403;
+  `server/discover` through `tailscale serve` gets 200. The daily notice timer is not on yet.
 
 ## Notes
 

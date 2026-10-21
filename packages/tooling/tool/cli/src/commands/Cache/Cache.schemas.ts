@@ -537,7 +537,7 @@ export type CacheDependencyLink = typeof CacheDependencyLink.Type;
  */
 export class CacheDependencyTree extends S.Opaque<CacheDependencyTree, { readonly brand: unique symbol }>()(
   S.Struct({
-    format: S.Literal("canonical-gnu-tar/v1"),
+    format: S.tag("canonical-gnu-tar/v1"),
     sha256: Sha256Hex,
     regularFiles: S.Natural.check(S.isLessThanOrEqualTo(400000)),
     entries: S.Natural.check(S.isLessThanOrEqualTo(600000)),
@@ -653,7 +653,7 @@ export class CacheRuntimeLinkerSnapshot extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    format: S.Literal("glibc-ldd/v1"),
+    format: S.tag("glibc-ldd/v1"),
     detector: CacheLinkedFile,
     loader: CacheLinkedFile,
     executables: S.Record(CacheRuntimeExecutable, CacheLinkerResolution),

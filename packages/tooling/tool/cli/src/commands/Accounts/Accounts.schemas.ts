@@ -504,7 +504,7 @@ export class AccountRanking extends S.Opaque<AccountRanking, { readonly brand: u
  */
 export class AccountSnapshot extends S.Opaque<AccountSnapshot, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("accounts-snapshot/v1"),
+    schemaVersion: S.tag("accounts-snapshot/v1"),
     provider: AccountProviderName,
     label: AccountLabel,
     capturedAt: S.DateTimeUtcFromString,
@@ -568,7 +568,7 @@ export class AccountGroup extends S.Opaque<AccountGroup, { readonly brand: uniqu
  */
 export class AccountsStatusReport extends S.Opaque<AccountsStatusReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("accounts-status/v2"),
+    schemaVersion: S.tag("accounts-status/v2"),
     generatedAt: S.DateTimeUtcFromString,
     groups: S.Array(AccountGroup),
   }).pipe(

@@ -35,7 +35,7 @@ import { ConfigDependencyHooks } from "../../effected/workspaces/index.ts";
 
 const ManifestText = S.fromJsonString(S.Struct({ name: S.String, version: S.String }));
 const ReplayText = S.fromJsonString(S.Struct({
-	ok: S.Literal(true),
+	ok: S.tag(true),
 	config: S.Struct({
 		catalog: S.Record(S.String, S.String),
 		catalogs: S.Record(S.String, S.Record(S.String, S.String)),

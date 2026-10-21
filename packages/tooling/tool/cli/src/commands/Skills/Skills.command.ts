@@ -148,7 +148,7 @@ export class RemoteSkillSource extends S.Opaque<RemoteSkillSource, { readonly br
   S.Struct({
     name: S.String,
     source: S.String,
-    sourceType: S.Literal("github"),
+    sourceType: S.tag("github"),
     ref: S.String,
     skillPath: S.String,
   }).pipe(
@@ -208,7 +208,7 @@ export class SkillLockEntry extends S.Opaque<SkillLockEntry, { readonly brand: u
  */
 export class SkillLockFile extends S.Opaque<SkillLockFile, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal(1),
+    version: S.tag(1),
     skills: S.Record(S.String, SkillLockEntry),
   }).pipe(
     $I.annoteSchema("SkillLockFile", {
@@ -1209,7 +1209,7 @@ const readLockV2 = Effect.fn("Skills.readLockV2")(function* (
 });
 
 // The legacy lock is recognized by its declared version alone.
-const decodeLegacyLockVersion = S.decodeUnknownEffect(S.fromJsonString(S.Struct({ version: S.Literal(1) })));
+const decodeLegacyLockVersion = S.decodeUnknownEffect(S.fromJsonString(S.Struct({ version: S.tag(1) })));
 
 const vendoredEntryOf = (lock: O.Option<SkillsLockDocument>, name: string): O.Option<VendoredSkillLockEntry> =>
   O.flatMap(lock, (document) =>

@@ -816,11 +816,11 @@ const REPLAY_TIMEOUT = Duration.seconds(30);
  */
 const ReplayPayload = S.Union([
 	S.Struct({
-		ok: S.Literal(true).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child completed hook replay successfully." })),
+		ok: S.tag(true).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child completed hook replay successfully." })),
 		config: S.Unknown.pipe($I.annoteKey("ReplayPayload.config", { description: "Hook-returned config data, normalized tolerantly by the parent." })),
 	}),
 	S.Struct({
-		ok: S.Literal(false).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child failed to load or replay a hook." })),
+		ok: S.tag(false).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child failed to load or replay a hook." })),
 		name: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.name", { description: "The config dependency whose hook failed, when identified." })),
 		message: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.message", { description: "The child-side failure message, when available." })),
 		stack: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.stack", { description: "The child-side failure stack, when available." })),

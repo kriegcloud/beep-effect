@@ -18,7 +18,7 @@ import * as S from "effect/Schema";
 
 const decodeUnknownStructInlineSchemaResult = S.decodeUnknownResult(
   S.Struct({
-    token: S.Literal("expected-token"),
+    token: S.tag("expected-token"),
   })
 );
 

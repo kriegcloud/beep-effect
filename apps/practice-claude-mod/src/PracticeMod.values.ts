@@ -158,7 +158,7 @@ export class KgAnswerItem extends S.Opaque<KgAnswerItem, { readonly brand: uniqu
  */
 export class TimerInterval extends S.Opaque<TimerInterval, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("practice-timer/v1"),
+    schemaVersion: S.tag("practice-timer/v1"),
     sessionId: S.NonEmptyString,
     matter: S.OptionFromNullOr(ChosenMatter),
     startedAt: S.DateTimeUtcFromString,

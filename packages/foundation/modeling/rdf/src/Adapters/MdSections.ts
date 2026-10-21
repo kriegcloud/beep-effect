@@ -106,7 +106,7 @@ export class MdSourceBlock extends S.Opaque<MdSourceBlock, { readonly brand: uni
 export class MdSection extends S.Opaque<MdSection, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("section"),
-    type: S.Literal(`${DOCO_NAMESPACE}Section`),
+    type: S.tag(`${DOCO_NAMESPACE}Section`),
     heading: MdSourceBlock,
     level: HeadingLevel,
     children: S.Array(

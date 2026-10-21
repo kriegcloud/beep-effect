@@ -127,7 +127,7 @@ export type AdmissionEvictionEmission = typeof AdmissionEvictionEmission.Type;
  */
 export class AdmissionProtocol extends S.Opaque<AdmissionProtocol, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-protocol/v2"),
+    schemaVersion: S.tag("yeet-admission-protocol/v2"),
     eviction: AdmissionEvictionEmission,
   }).pipe(
     $I.annoteSchema("AdmissionProtocol", {
@@ -171,7 +171,7 @@ export class AdmissionJournalLockGeneration extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-journal-lock/v1"),
+    schemaVersion: S.tag("yeet-admission-journal-lock/v1"),
     pid: S.Finite,
     procStart: S.NonEmptyString,
     ownerToken: S.NonEmptyString,
@@ -196,7 +196,7 @@ class AdmissionJournalLockReapAdopter extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-journal-lock-reap-adopter/v1"),
+    schemaVersion: S.tag("yeet-admission-journal-lock-reap-adopter/v1"),
     generation: AdmissionJournalLockGeneration,
     claimedAtMillis: S.Finite,
   }).pipe(
@@ -222,7 +222,7 @@ class AdmissionJournalLockReapAdopter extends S.Opaque<
  */
 export class AdmissionJournalAdmitted extends S.Opaque<AdmissionJournalAdmitted, { readonly brand: unique symbol }>()(
   S.TaggedStruct("admission-admitted", {
-    schemaVersion: S.Literal("yeet-admission-journal/v1"),
+    schemaVersion: S.tag("yeet-admission-journal/v1"),
 
     nonce: S.String,
     pid: S.Finite,
@@ -257,7 +257,7 @@ export class AdmissionJournalAdmitted extends S.Opaque<AdmissionJournalAdmitted,
  */
 export class AdmissionJournalReleased extends S.Opaque<AdmissionJournalReleased, { readonly brand: unique symbol }>()(
   S.TaggedStruct("admission-released", {
-    schemaVersion: S.Literal("yeet-admission-journal/v1"),
+    schemaVersion: S.tag("yeet-admission-journal/v1"),
 
     nonce: S.String,
     pid: S.Finite,
@@ -328,7 +328,7 @@ export class AdmissionJournalLeaseEvicted extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.TaggedStruct("admission-lease-evicted", {
-    schemaVersion: S.Literal("yeet-admission-journal/v2"),
+    schemaVersion: S.tag("yeet-admission-journal/v2"),
 
     nonce: S.String,
     pid: S.Finite,
@@ -398,7 +398,7 @@ export class AdmissionJournalTicketEvicted extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.TaggedStruct("admission-ticket-evicted", {
-    schemaVersion: S.Literal("yeet-admission-journal/v2"),
+    schemaVersion: S.tag("yeet-admission-journal/v2"),
 
     nonce: S.String,
     pid: S.Finite,
@@ -428,7 +428,7 @@ class AdmissionJournalQueuedIdentity extends S.Class<AdmissionJournalQueuedIdent
       "branch",
       "enqueuedAtMillis",
     ]),
-    schemaVersion: S.Literal("yeet-admission-journal/v3"),
+    schemaVersion: S.tag("yeet-admission-journal/v3"),
   },
   $I.annote("AdmissionJournalQueuedIdentity", {
     description: "Ticket identity shared by enqueue and withdrawal journal transitions.",
@@ -443,7 +443,7 @@ class AdmissionJournalQueuedIdentity extends S.Class<AdmissionJournalQueuedIdent
  * ```ts
  * import { AdmissionJournalEnqueued } from "@beep/repo-cli/test/RepoRun"
  *
- * console.log(AdmissionJournalEnqueued.fields._tag.literal) // "admission-enqueued"
+ * console.log(AdmissionJournalEnqueued.fields._tag.schema.literal) // "admission-enqueued"
  * ```
  *
  * @category domain-events
@@ -453,7 +453,7 @@ export class AdmissionJournalEnqueued extends AdmissionJournalQueuedIdentity.ext
   $I`AdmissionJournalEnqueued`
 )(
   {
-    _tag: S.Literal("admission-enqueued"),
+    _tag: S.tag("admission-enqueued"),
     weightTokens: YeetAdmissionTicket.fields.weightTokens,
   },
   $I.annote("AdmissionJournalEnqueued", { description: "A request entered the durable admission queue." })
@@ -467,7 +467,7 @@ export class AdmissionJournalEnqueued extends AdmissionJournalQueuedIdentity.ext
  * ```ts
  * import { AdmissionJournalWithdrawn } from "@beep/repo-cli/test/RepoRun"
  *
- * console.log(AdmissionJournalWithdrawn.fields._tag.literal) // "admission-withdrawn"
+ * console.log(AdmissionJournalWithdrawn.fields._tag.schema.literal) // "admission-withdrawn"
  * ```
  *
  * @category domain-events
@@ -477,7 +477,7 @@ export class AdmissionJournalWithdrawn extends AdmissionJournalQueuedIdentity.ex
   $I`AdmissionJournalWithdrawn`
 )(
   {
-    _tag: S.Literal("admission-withdrawn"),
+    _tag: S.tag("admission-withdrawn"),
     withdrawnAtMillis: S.Finite,
   },
   $I.annote("AdmissionJournalWithdrawn", { description: "A queued request left without becoming admitted work." })
@@ -501,7 +501,7 @@ class AdmissionJournalCheckoutIdentity extends S.Class<
  * ```ts
  * import { AdmissionJournalReleasedV3 } from "@beep/repo-cli/test/RepoRun"
  *
- * console.log(AdmissionJournalReleasedV3.fields.schemaVersion.literal) // "yeet-admission-journal/v3"
+ * console.log(AdmissionJournalReleasedV3.fields.schemaVersion.schema.literal) // "yeet-admission-journal/v3"
  * ```
  *
  * @category domain-events
@@ -510,7 +510,7 @@ class AdmissionJournalCheckoutIdentity extends S.Class<
 export class AdmissionJournalReleasedV3 extends AdmissionJournalCheckoutIdentity.extend<AdmissionJournalReleasedV3>(
   $I`AdmissionJournalReleasedV3`
 )(
-  { ...AdmissionJournalReleased.fields, schemaVersion: S.Literal("yeet-admission-journal/v3") },
+  { ...AdmissionJournalReleased.fields, schemaVersion: S.tag("yeet-admission-journal/v3") },
   $I.annote("AdmissionJournalReleasedV3", { description: "A released lease with direct checkout attribution." })
 ) {}
 
@@ -522,7 +522,7 @@ export class AdmissionJournalReleasedV3 extends AdmissionJournalCheckoutIdentity
  * ```ts
  * import { AdmissionJournalLeaseEvictedV3 } from "@beep/repo-cli/test/RepoRun"
  *
- * console.log(AdmissionJournalLeaseEvictedV3.fields.schemaVersion.literal) // "yeet-admission-journal/v3"
+ * console.log(AdmissionJournalLeaseEvictedV3.fields.schemaVersion.schema.literal) // "yeet-admission-journal/v3"
  * ```
  *
  * @category domain-events
@@ -533,7 +533,7 @@ export class AdmissionJournalLeaseEvictedV3 extends AdmissionJournalCheckoutIden
 )(
   {
     ...AdmissionJournalLeaseEvicted.fields,
-    schemaVersion: S.Literal("yeet-admission-journal/v3"),
+    schemaVersion: S.tag("yeet-admission-journal/v3"),
     lastHeartbeatAtMillis: S.Finite,
   },
   $I.annote("AdmissionJournalLeaseEvictedV3", {
@@ -549,7 +549,7 @@ export class AdmissionJournalLeaseEvictedV3 extends AdmissionJournalCheckoutIden
  * ```ts
  * import { AdmissionJournalTicketEvictedV3 } from "@beep/repo-cli/test/RepoRun"
  *
- * console.log(AdmissionJournalTicketEvictedV3.fields.schemaVersion.literal) // "yeet-admission-journal/v3"
+ * console.log(AdmissionJournalTicketEvictedV3.fields.schemaVersion.schema.literal) // "yeet-admission-journal/v3"
  * ```
  *
  * @category domain-events
@@ -558,7 +558,7 @@ export class AdmissionJournalLeaseEvictedV3 extends AdmissionJournalCheckoutIden
 export class AdmissionJournalTicketEvictedV3 extends AdmissionJournalCheckoutIdentity.extend<AdmissionJournalTicketEvictedV3>(
   $I`AdmissionJournalTicketEvictedV3`
 )(
-  { ...AdmissionJournalTicketEvicted.fields, schemaVersion: S.Literal("yeet-admission-journal/v3") },
+  { ...AdmissionJournalTicketEvicted.fields, schemaVersion: S.tag("yeet-admission-journal/v3") },
   $I.annote("AdmissionJournalTicketEvictedV3", {
     description: "An evicted queue ticket with direct checkout attribution.",
   })

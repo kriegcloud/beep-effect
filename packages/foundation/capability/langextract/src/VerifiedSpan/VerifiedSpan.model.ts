@@ -583,7 +583,7 @@ const GroundedExtractionBatch: S.Codec<
     message: `Verified span attempts must retain at most ${MAX_EXTRACTION_CANDIDATES} candidates.`,
   })
 );
-const VerifiedSpanNormalizationVersion = S.Literal(VERIFIED_SPAN_NORMALIZATION_VERSION);
+const VerifiedSpanNormalizationVersion = S.tag(VERIFIED_SPAN_NORMALIZATION_VERSION);
 const sourceTextIdentityEquivalence = S.toEquivalence(SourceTextIdentity);
 const attemptIdEquivalence = S.toEquivalence(VerifiedSpanAttemptId);
 

@@ -800,7 +800,7 @@ export class StarvationRow extends S.Opaque<StarvationRow, { readonly brand: uni
     requests: S.Natural,
     beyondBound: S.Natural,
     openAtCapture: S.Natural,
-    exceptions: S.Literal("unobservable"),
+    exceptions: S.tag("unobservable"),
   }).pipe(
     $I.annoteSchema("StarvationRow", {
       description: "Seat requests in a slice and how many waited beyond one declared or sensitivity bound.",
@@ -842,7 +842,7 @@ export class StarvationRow extends S.Opaque<StarvationRow, { readonly brand: uni
 export class M1ReplicaRow extends S.Opaque<M1ReplicaRow, { readonly brand: unique symbol }>()(
   S.Struct({
     slice: WindowSlice,
-    label: S.Literal("M1 definition over the fleet pin, not M1"),
+    label: S.tag("M1 definition over the fleet pin, not M1"),
     comparable24h: PercentileSet,
     uncut: PercentileSet,
     rightCensoredStreaks: S.Natural,
@@ -957,7 +957,7 @@ export type Cq012Decomposition = typeof Cq012Decomposition.Type;
  */
 export class AdoptionTable extends S.Opaque<AdoptionTable, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("ciops-kpi-adoption-table/v1"),
+    schemaVersion: S.tag("ciops-kpi-adoption-table/v1"),
     generator: RepoRelativePath,
     probe: S.NonEmptyString,
     generation: S.NonEmptyString,
@@ -1049,7 +1049,7 @@ export class ChangeEventTierPartition extends S.Opaque<ChangeEventTierPartition,
 export class ChangeEventPartition extends S.Opaque<ChangeEventPartition, { readonly brand: unique symbol }>()(
   S.Struct({
     changeEventId: ChangeEventId,
-    label: S.Literal("observational"),
+    label: S.tag("observational"),
     inWindow: S.Boolean,
     tiers: S.Array(ChangeEventTierPartition),
   }).pipe(
@@ -1115,8 +1115,8 @@ export class ChangeEventPartition extends S.Opaque<ChangeEventPartition, { reado
  */
 export class KpiReading extends S.Opaque<KpiReading, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("ciops-kpi-reading/v1"),
-    estimator: S.Literal("nearest-rank"),
+    schemaVersion: S.tag("ciops-kpi-reading/v1"),
+    estimator: S.tag("nearest-rank"),
     inputs: S.NonEmptyArray(PinnedKpiInput),
     windows: S.NonEmptyArray(WindowBounds),
     starvationBoundMs: PosInt,

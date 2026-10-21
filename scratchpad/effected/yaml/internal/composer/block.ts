@@ -294,22 +294,22 @@ const trimDisownedTrailingComments: {
  */
 export const SemanticItem = S.Union([
 	S.Struct({
-		kind: S.Literal("key")
+		kind: S.tag("key")
 			.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Key.kind", { description: "Explicit or external key marker." })),
 		node: YamlNode.pipe(S.optionalKey, S.mutableKey, $I.annoteKey("SemanticItem.Key.node", { description: "Optional key node; an explicit-key marker may be empty." })),
 	}).pipe($I.annoteSchema("SemanticItem.Key", { description: "Explicit or external key." })),
 	S.Struct({
-		kind: S.Literal("value-sep")
+		kind: S.tag("value-sep")
 			.pipe(S.mutableKey, $I.annoteKey("SemanticItem.ValueSep.kind", { description: "Mapping value separator." })),
 		offset: S.Finite.pipe(S.mutableKey, $I.annoteKey("SemanticItem.ValueSep.offset", { description: "Source offset of the structural colon." })),
 	}).pipe($I.annoteSchema("SemanticItem.ValueSep", { description: "Mapping value separator." })),
 	S.Struct({
-		kind: S.Literal("node")
+		kind: S.tag("node")
 			.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Node.kind", { description: "Composed content node." })),
 		node: YamlNode.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Node.node", { description: "Composed YAML node." })),
 	}).pipe($I.annoteSchema("SemanticItem.Node", { description: "Composed content node." })),
 	S.Struct({
-		kind: S.Literal("comment")
+		kind: S.tag("comment")
 			.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Comment.kind", { description: "Comment awaiting attribution." })),
 		comment: S.String.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Comment.comment", { description: "Raw post-indicator comment text." })),
 		offset: S.Finite.pipe(S.mutableKey, $I.annoteKey("SemanticItem.Comment.offset", { description: "Source offset of the comment." })),

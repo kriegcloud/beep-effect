@@ -120,7 +120,7 @@ const RuntimeIsoInstantText = S.String.check(
     description: "UTC instant text encoded as YYYY-MM-DDTHH:mm:ssZ.",
   })
 );
-const RuntimeContextPacketSchemaVersion = S.Literal("runtime-data-loop.expected.context-packet.v1").pipe(
+const RuntimeContextPacketSchemaVersion = S.tag("runtime-data-loop.expected.context-packet.v1").pipe(
   $I.annoteSchema("RuntimeContextPacketSchemaVersion", {
     description: "Schema version literal emitted by deterministic runtime context packets.",
   })
