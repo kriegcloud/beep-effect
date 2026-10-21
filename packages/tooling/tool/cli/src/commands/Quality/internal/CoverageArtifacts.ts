@@ -269,20 +269,26 @@ const isEmptyUndecoratedClass = (node: Node) =>
 const isDefaultCallExport = (node: Node) =>
   Node.isExportAssignment(node) && !node.isExportEquals() && Node.isCallExpression(node.getExpression());
 
+const isDirectiveStatement = (node: Node) =>
+  Node.isExpressionStatement(node) && Node.isStringLiteral(node.getExpression());
+
 const structuralZero = Effect.fn("CoverageArtifacts.structuralZero")(function* (file: string, source: string) {
   return yield* Effect.try({
     try: () => {
       const project = new Project({ useInMemoryFileSystem: true });
       const parsed = project.createSourceFile(file, source);
+      const statements = parsed.getStatements();
+      const directives = A.takeWhile(statements, isDirectiveStatement);
       const admissible = A.every(
-        parsed.getStatements(),
+        statements,
         (statement) =>
           Node.isImportDeclaration(statement) ||
           Node.isExportDeclaration(statement) ||
           Node.isInterfaceDeclaration(statement) ||
           Node.isTypeAliasDeclaration(statement) ||
           isEmptyUndecoratedClass(statement) ||
-          isDefaultCallExport(statement)
+          isDefaultCallExport(statement) ||
+          A.contains(directives, statement)
       );
       if (!admissible) return undefined;
       const instrumenter = createInstrumenter({

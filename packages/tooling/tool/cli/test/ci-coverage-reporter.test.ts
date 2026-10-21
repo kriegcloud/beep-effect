@@ -59,6 +59,7 @@ const fixture = Effect.fn("CoverageReporterTest.fixture")(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
+  yield* fs.makeDirectory(path.join(repoRoot, ".beep"), { recursive: true });
   const root = yield* fs.makeTempDirectoryScoped({ directory: path.join(repoRoot, ".beep"), prefix: "reporter-" });
   const reporter = path.join(repoRoot, "packages/tooling/tool/cli/src/commands/Ci/CiCoverage.reporter.ts");
   yield* fs.writeFileString(path.join(root, "package.json"), '{"type":"module"}');

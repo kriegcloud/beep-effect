@@ -187,11 +187,6 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "vitest": "catalog:",
-    "@vitest/coverage-istanbul": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "@vitest/istanbul-lib-coverage": "catalog:",
-    "@vitest/istanbul-lib-instrument": "catalog:",
     "@beep/ai-provider-cli": "workspace:^",
     "@beep/ai-sync": "workspace:^",
     "@beep/chalk": "workspace:^",
@@ -238,6 +233,10 @@
     "@noble/hashes": "catalog:",
     "@nodable/entities": "3.1.0",
     "@openai/codex-sdk": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/istanbul-lib-coverage": "catalog:",
+    "@vitest/istanbul-lib-instrument": "catalog:",
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "fast-xml-validator": "catalog:",
@@ -250,6 +249,7 @@
     "tar": "catalog:",
     "tinyglobby": "catalog:",
     "ts-morph": "catalog:",
+    "vitest": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {

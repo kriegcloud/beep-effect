@@ -579,6 +579,25 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
       })
     );
 
+    it.effect("retains a directive-prologue re-export only when Istanbul proves zero own units", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "src/direction.ts"),
+          '"use client"; "use strict"; export { DirectionProvider, useDirection } from "@base-ui/react/direction-provider";'
+        );
+        yield* f.write(1);
+        yield* f.write(2);
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        expect(snapshots[0]?.baseline.files[`${f.packagePath}/src/direction.ts`]?.uncovered).toEqual({
+          lines: 0,
+          statements: 0,
+          functions: 0,
+          branches: 0,
+        });
+      })
+    );
+
     for (const [kind, source] of R.toEntries({
       method: "export class Runtime { run() { return 1; } }",
       field: "export class Runtime { value = 1; }",
@@ -592,6 +611,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
       defaultMutable: "export default (globalThis.value = 1);",
       mixedDefault: "export const value = 1; export default definePlugin({ value });",
       exportEquals: "export = definePlugin({});",
+      nonPrologueString: 'export { choose } from "./choose.js"; "use client";',
+      computedDirective: '("use client"); export { choose } from "./choose.js";',
+      directiveRuntime: '"use client"; export const value = sideEffect();',
+      directiveCallback: '"use client"; export default definePlugin({ create: () => 1 });',
     })) {
       it.effect(`rejects missing ${kind} coverage instead of treating it as a zero-unit declaration`, () =>
         Effect.gen(function* () {

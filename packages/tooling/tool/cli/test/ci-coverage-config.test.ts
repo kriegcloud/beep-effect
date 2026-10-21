@@ -188,6 +188,7 @@ it.layer(NodeServices.layer, { timeout: "60 seconds" })("actual runtime coverage
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const repoRoot = path.resolve(import.meta.dirname, "../../../../..");
+      yield* fs.makeDirectory(path.join(repoRoot, ".beep"), { recursive: true });
       const temporaryRoot = yield* fs.makeTempDirectoryScoped({
         directory: path.join(repoRoot, ".beep"),
         prefix: "config-census-",
