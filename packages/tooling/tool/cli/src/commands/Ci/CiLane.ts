@@ -2265,19 +2265,22 @@ const runCiPartitionedLane = Effect.fn("CiLane.runCiPartitionedLane")(function* 
   yield* runCiPartitionExecution(repoRoot, request, options, proof, coveragePlan);
 });
 
-const validateCiCoverageRequest = Effect.fn("CiLane.validateCiCoverageRequest")(function* (
+const validateCiCoverageConsumerRequest = Effect.fn("CiLane.validateCiCoverageConsumerRequest")(function* (
   laneId: CiLaneId,
   options: CiLaneRunOptions
 ) {
-  if (
-    (options.compareOnly || options.coverageInput !== undefined) &&
-    (laneId !== "coverage" || !options.compareOnly || options.coverageInput === undefined)
-  ) {
+  if (options.compareOnly !== (options.coverageInput !== undefined) || (options.compareOnly && laneId !== "coverage")) {
     return yield* CiCommandError.make({
       message: "--compare-only and --coverage-input must be used together on the coverage lane.",
     });
   }
-  if (options.coverageOutput !== undefined && laneId !== "test-unit" && laneId !== "labs") {
+});
+
+const validateCiCoverageProducerRequest = Effect.fn("CiLane.validateCiCoverageProducerRequest")(function* (
+  laneId: CiLaneId,
+  options: CiLaneRunOptions
+) {
+  if (options.coverageOutput !== undefined && !A.contains(["test-unit", "labs"], laneId)) {
     return yield* CiCommandError.make({
       message: "--coverage-output requires a Test Unit partition or the Labs lane.",
     });
@@ -2327,7 +2330,8 @@ export const runCiLane = Effect.fn("CiLane.runCiLane")(function* (
   CiCommandError | CiLanePartitionError | QualityTaskConfigurationError | QualityTaskGroupFailed,
   CiLaneEnvironment
 > {
-  yield* validateCiCoverageRequest(laneId, options);
+  yield* validateCiCoverageConsumerRequest(laneId, options);
+  yield* validateCiCoverageProducerRequest(laneId, options);
   const partitionedRequest = yield* resolvePartitionedLaneRequest(laneId, options);
   const repoRoot = yield* findRepoRoot().pipe(CiCommandError.mapError("Failed to locate repository root."));
 
