@@ -23,11 +23,11 @@ struck by the orchestrator.
    allowlist predicate from `Quality.command.ts`: exact path and exact
    skip-file line) and require the `disabled Effect diagnostic directives`
    section to be absent. Then `rg -n '@effect-diagnostics' {{SHARD_PATHS}}`
-   and compare against the two allowlisted files: `vitest.setup.ts` (outside
-   every shard; S01 owns the sibling `vitest.shared.ts`) and
-   `packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts`
-   (inside L07). Any other hit is a rejection; the allowlisted hits are the
-   only permitted ones where they live.
+   and compare against the allowlisted file `vitest.setup.ts` (outside every
+   shard; S01 owns the sibling `vitest.shared.ts`). The test-utils
+   FileSystemConformance.ts entry (formerly inside L07) retired 2026-10-21 with
+   effected-promotion D-25, which deleted the file. Any other hit is a
+   rejection; the allowlisted hits are the only permitted ones where they live.
 4. **Canon:** in test files, `rg -n 'Effect\.runSync\(\s*S(chema)?\.decode'`
    returns nothing; decodes go through `it.effect`.
 5. **Behavior:** sample five rewritten sites against the card's "When NOT to

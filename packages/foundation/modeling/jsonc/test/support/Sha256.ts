@@ -82,10 +82,10 @@ const INITIAL = Uint32Array.of(
 
 const rotr = (value: number, bits: number): number => (value >>> bits) | (value << (32 - bits));
 
-/**
- * Computes the 32-byte SHA-256 digest of `bytes` synchronously.
- */
-export const sha256 = (bytes: Uint8Array): Uint8Array => {
+const at = (words: Uint32Array, index: number): number => words[index] ?? 0;
+
+// FIPS 180-4 5.1.1: append 0x80, zero-fill, and end with the 64-bit big-endian bit length.
+const pad = (bytes: Uint8Array): DataView => {
   const bitLength = bytes.length * 8;
   const paddedLength = Math.ceil((bytes.length + 9) / 64) * 64;
   const padded = new Uint8Array(paddedLength);
@@ -94,58 +94,60 @@ export const sha256 = (bytes: Uint8Array): Uint8Array => {
   const view = new DataView(padded.buffer);
   view.setUint32(paddedLength - 8, Math.floor(bitLength / 0x1_0000_0000));
   view.setUint32(paddedLength - 4, bitLength >>> 0);
+  return view;
+};
 
+// FIPS 180-4 6.2.2 step 1: the 64-word message schedule of one block.
+const expandSchedule = (view: DataView, offset: number, w: Uint32Array): void => {
+  for (let t = 0; t < 16; t++) {
+    w[t] = view.getUint32(offset + t * 4);
+  }
+  for (let t = 16; t < 64; t++) {
+    const w15 = at(w, t - 15);
+    const w2 = at(w, t - 2);
+    const s0 = rotr(w15, 7) ^ rotr(w15, 18) ^ (w15 >>> 3);
+    const s1 = rotr(w2, 17) ^ rotr(w2, 19) ^ (w2 >>> 10);
+    w[t] = (at(w, t - 16) + s0 + at(w, t - 7) + s1) >>> 0;
+  }
+};
+
+// One compression round over the working variables a..h held in v[0..7].
+const round = (v: Uint32Array, k: number, wt: number): void => {
+  const [a, b, c, d, e, f, g, h] = [at(v, 0), at(v, 1), at(v, 2), at(v, 3), at(v, 4), at(v, 5), at(v, 6), at(v, 7)];
+  const temp1 = (h + (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) + ((e & f) ^ (~e & g)) + k + wt) >>> 0;
+  const temp2 = ((rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) >>> 0;
+  // b..h take the previous a..g; then e and a get their new values.
+  v.copyWithin(1, 0, 7);
+  v[4] = (d + temp1) >>> 0;
+  v[0] = (temp1 + temp2) >>> 0;
+};
+
+// FIPS 180-4 6.2.2 steps 2-4: compress one scheduled block into the hash state.
+const compress = (state: Uint32Array, w: Uint32Array): void => {
+  const v = Uint32Array.from(state);
+  for (let t = 0; t < 64; t++) {
+    round(v, at(K, t), at(w, t));
+  }
+  for (let i = 0; i < 8; i++) {
+    state[i] = (at(state, i) + at(v, i)) >>> 0;
+  }
+};
+
+/**
+ * Computes the 32-byte SHA-256 digest of `bytes` synchronously.
+ */
+export const sha256 = (bytes: Uint8Array): Uint8Array => {
+  const view = pad(bytes);
   const state = Uint32Array.from(INITIAL);
   const w = new Uint32Array(64);
-  for (let offset = 0; offset < paddedLength; offset += 64) {
-    for (let t = 0; t < 16; t++) {
-      w[t] = view.getUint32(offset + t * 4);
-    }
-    for (let t = 16; t < 64; t++) {
-      const w15 = w[t - 15] ?? 0;
-      const w2 = w[t - 2] ?? 0;
-      const s0 = rotr(w15, 7) ^ rotr(w15, 18) ^ (w15 >>> 3);
-      const s1 = rotr(w2, 17) ^ rotr(w2, 19) ^ (w2 >>> 10);
-      w[t] = ((w[t - 16] ?? 0) + s0 + (w[t - 7] ?? 0) + s1) >>> 0;
-    }
-    let a = state[0] ?? 0;
-    let b = state[1] ?? 0;
-    let c = state[2] ?? 0;
-    let d = state[3] ?? 0;
-    let e = state[4] ?? 0;
-    let f = state[5] ?? 0;
-    let g = state[6] ?? 0;
-    let h = state[7] ?? 0;
-    for (let t = 0; t < 64; t++) {
-      const s1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
-      const ch = (e & f) ^ (~e & g);
-      const temp1 = (h + s1 + ch + (K[t] ?? 0) + (w[t] ?? 0)) >>> 0;
-      const s0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
-      const maj = (a & b) ^ (a & c) ^ (b & c);
-      const temp2 = (s0 + maj) >>> 0;
-      h = g;
-      g = f;
-      f = e;
-      e = (d + temp1) >>> 0;
-      d = c;
-      c = b;
-      b = a;
-      a = (temp1 + temp2) >>> 0;
-    }
-    state[0] = ((state[0] ?? 0) + a) >>> 0;
-    state[1] = ((state[1] ?? 0) + b) >>> 0;
-    state[2] = ((state[2] ?? 0) + c) >>> 0;
-    state[3] = ((state[3] ?? 0) + d) >>> 0;
-    state[4] = ((state[4] ?? 0) + e) >>> 0;
-    state[5] = ((state[5] ?? 0) + f) >>> 0;
-    state[6] = ((state[6] ?? 0) + g) >>> 0;
-    state[7] = ((state[7] ?? 0) + h) >>> 0;
+  for (let offset = 0; offset < view.byteLength; offset += 64) {
+    expandSchedule(view, offset, w);
+    compress(state, w);
   }
-
   const out = new Uint8Array(32);
   const outView = new DataView(out.buffer);
   for (let i = 0; i < 8; i++) {
-    outView.setUint32(i * 4, state[i] ?? 0);
+    outView.setUint32(i * 4, at(state, i));
   }
   return out;
 };
