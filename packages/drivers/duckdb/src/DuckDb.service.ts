@@ -14,7 +14,7 @@
 
 import { $DuckdbId } from "@beep/identity/packages";
 import { A, O } from "@beep/utils";
-import { DuckDBInstance, quotedIdentifier, quotedString } from "@duckdb/node-api";
+import { quotedIdentifier, quotedString } from "@duckdb/node-api";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -24,8 +24,8 @@ import * as Scope from "effect/Scope";
 import * as Semaphore from "effect/Semaphore";
 import { DuckDbError } from "./DuckDb.errors.ts";
 import { DuckDbRows } from "./DuckDb.models.ts";
-import { ignoreNativeClose, releaseNativeConnection } from "./DuckDbNative.ts";
-import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
+import { ignoreNativeClose, openLegacyInstance, releaseNativeConnection } from "./internal/native.ts";
+import type { DuckDBConnection, DuckDBInstance, DuckDBValue } from "@duckdb/node-api";
 import type { DuckDbOperation } from "./DuckDb.errors.ts";
 import type { DuckDbConnectionOptions, DuckDbParquetExport } from "./DuckDb.models.ts";
 
@@ -65,9 +65,9 @@ export type DuckDbQueryParameters = Array<DuckDBValue> | Record<string, DuckDBVa
  * **Example** (Stub client for tests)
  *
  * ```ts
- * import type { DuckDbClient, DuckDbRows } from "@beep/duckdb"
+ * import type { DuckDbAdapter, DuckDbRows } from "@beep/duckdb"
  * import * as Effect from "effect/Effect";
- * const client: DuckDbClient = {
+ * const client: DuckDbAdapter = {
  *   copyTableToParquet: () => Effect.void,
  *   query: (statement) => Effect.succeed([{ statement }] satisfies DuckDbRows),
  *   run: () => Effect.void,
@@ -86,7 +86,7 @@ export type DuckDbQueryParameters = Array<DuckDBValue> | Record<string, DuckDBVa
  * @category models
  * @since 0.0.0
  */
-export interface DuckDbClient {
+export interface DuckDbAdapter {
   /**
    * Export a table through DuckDB's Parquet writer.
    *
@@ -145,7 +145,7 @@ export interface DuckDbClient {
    * @since 0.0.0
    */
   readonly withTransaction: <A, R>(
-    use: (transaction: DuckDbClient) => Effect.Effect<A, DuckDbError, R>
+    use: (transaction: DuckDbAdapter) => Effect.Effect<A, DuckDbError, R>
   ) => Effect.Effect<A, DuckDbError, R>;
 }
 
@@ -155,7 +155,7 @@ export interface DuckDbClient {
  * **Details**
  *
  * Application code depends on this service shape rather than on native
- * `@duckdb/node-api` connection objects. The shape mirrors {@link DuckDbClient}
+ * `@duckdb/node-api` connection objects. The shape mirrors {@link DuckDbAdapter}
  * so production layers, host adapters, and tests can share the same boundary.
  *
  * **Example** (Service shape stub)
@@ -179,7 +179,7 @@ export interface DuckDbClient {
  * @category services
  * @since 0.0.0
  */
-export interface DuckDbShape extends DuckDbClient {}
+export interface DuckDbShape extends DuckDbAdapter {}
 
 interface NativeConnection {
   readonly connection: DuckDBConnection;
@@ -250,7 +250,10 @@ const acquireSharedConnection = (options: DuckDbConnectionOptions) => {
     (operation: DuckDbOperation): Effect.Effect<NativeConnection, DuckDbError> =>
       Effect.tryPromise({
         try: () => {
-          nativePromise ??= DuckDBInstance.create(options.databasePath, options.databaseOptions)
+          nativePromise ??= openLegacyInstance({
+            databasePath: options.databasePath,
+            databaseOptions: options.databaseOptions,
+          })
             .then((instance) =>
               instance.connect().then(
                 (connection) => ({ connection, instance }),
@@ -296,7 +299,7 @@ const makeConnectionClient = (
   options: DuckDbConnectionOptions,
   useConnection: <A, R>(operation: DuckDbOperation, use: NativeUse<A, R>) => Effect.Effect<A, DuckDbError, R>,
   transactionScoped = false
-): DuckDbClient => {
+): DuckDbAdapter => {
   const run = Effect.fn("DuckDb.run")(
     (statement: string, parameters?: DuckDbQueryParameters | undefined): Effect.Effect<void, DuckDbError> =>
       useConnection("run", (connection) => runOnConnection("run", options, connection, statement, parameters)).pipe(
@@ -357,9 +360,9 @@ const makeConnectionClient = (
         })
       )
   );
-  let client: DuckDbClient;
+  let client: DuckDbAdapter;
   const withTransaction = Effect.fn("DuckDb.withTransaction")(function* <A, R>(
-    use: (transaction: DuckDbClient) => Effect.Effect<A, DuckDbError, R>
+    use: (transaction: DuckDbAdapter) => Effect.Effect<A, DuckDbError, R>
   ): Effect.fn.Return<A, DuckDbError, R> {
     return yield* transactionScoped
       ? use(client)
@@ -421,7 +424,7 @@ const makeConnectionClient = (
   return client;
 };
 
-const makeNodeClient = (options: DuckDbConnectionOptions): DuckDbClient => {
+const makeNodeClient = (options: DuckDbConnectionOptions): DuckDbAdapter => {
   const getConnection = acquireSharedConnection(options);
   const connectionLock = Semaphore.makeUnsafe(1);
   const useNodeConnection = Effect.fn("DuckDb.useNodeConnection")(function* <A, R>(
@@ -472,9 +475,9 @@ const makeNodeLayer = (options: DuckDbConnectionOptions): Layer.Layer<DuckDb> =>
  * **Example** (Provide adapter via layer)
  *
  * ```ts
- * import { DuckDb, type DuckDbClient, type DuckDbRows } from "@beep/duckdb"
+ * import { DuckDb, type DuckDbAdapter, type DuckDbRows } from "@beep/duckdb"
  * import * as Effect from "effect/Effect";
- * const client: DuckDbClient = {
+ * const client: DuckDbAdapter = {
  *   copyTableToParquet: () => Effect.void,
  *   query: () => Effect.succeed([{ ok: true }] satisfies DuckDbRows),
  *   run: () => Effect.void,
@@ -506,9 +509,9 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
    * **Example** (Layer from adapter client)
    *
    * ```ts
-   * import { DuckDb, type DuckDbClient, type DuckDbRows } from "@beep/duckdb"
+   * import { DuckDb, type DuckDbAdapter, type DuckDbRows } from "@beep/duckdb"
    * import * as Effect from "effect/Effect";
-   * const client: DuckDbClient = {
+   * const client: DuckDbAdapter = {
    *   copyTableToParquet: () => Effect.void,
    *   query: () => Effect.succeed([{ id: "run-1" }] satisfies DuckDbRows),
    *   run: () => Effect.void,
@@ -527,7 +530,7 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
    * @category layers
    * @since 0.0.0
    */
-  static readonly makeLayer = (client: DuckDbClient): Layer.Layer<DuckDb> => Layer.succeed(DuckDb, DuckDb.of(client));
+  static readonly makeLayer = (client: DuckDbAdapter): Layer.Layer<DuckDb> => Layer.succeed(DuckDb, DuckDb.of(client));
 
   /**
    * Build a native DuckDB Node API client.

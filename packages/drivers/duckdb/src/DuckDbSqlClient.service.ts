@@ -42,7 +42,7 @@ import * as SqlClient from "effect/sql/SqlClient";
 import { ConnectionError, SqlError, UnknownError } from "effect/sql/SqlError";
 import * as Statement from "effect/sql/Statement";
 import * as Tracer from "effect/Tracer";
-import { ignoreNativeClose, releaseNativeConnection } from "./DuckDbNative.ts";
+import { ignoreNativeClose, releaseNativeConnection } from "./internal/native.ts";
 import type { DuckDBConnection, DuckDBValue, Json } from "@duckdb/node-api";
 import type * as SqlConnection from "effect/sql/SqlConnection";
 import type { DuckDbConnectionOptions, DuckDbParquetExport } from "./DuckDb.models.ts";
