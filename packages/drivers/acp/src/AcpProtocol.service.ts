@@ -737,7 +737,7 @@ const decodeSessionUpdate = S.decodeUnknownEffect(AcpSessionUpdateParams);
 // report partial or newer shapes. Such an idle is re-decoded without those two fields.
 const IdleStateUpdateEnvelope = S.StructWithRest(
   S.Struct({
-    update: S.StructWithRest(S.Struct({ sessionUpdate: S.Literal("state_update"), state: S.Literal("idle") }), [
+    update: S.StructWithRest(S.Struct({ sessionUpdate: S.tag("state_update"), state: S.tag("idle") }), [
       S.Record(S.String, S.Unknown),
     ]),
   }),
@@ -751,7 +751,7 @@ const withoutUnstableIdleFields = (envelope: typeof IdleStateUpdateEnvelope.Type
 const decodeElicitationComplete = S.decodeUnknownEffect(AcpSchema.CompleteElicitationNotification);
 const isElicitationCompleteMethod = S.is(AcpElicitationCompleteMethod);
 const JsonRpcNotificationFrame = S.Struct({
-  jsonrpc: S.Literal("2.0"),
+  jsonrpc: S.tag("2.0"),
   method: S.String,
   params: S.Unknown,
 });

@@ -72,7 +72,7 @@ const OuterResponse = jsonRpcResponse(S.Struct({ inner: S.Struct({ ok: S.Boolean
 const JsonRpcErrorResponse = S.Struct({
   error: S.Struct({ code: S.Finite, message: S.String }),
   id: S.Finite,
-  jsonrpc: S.Literal("2.0"),
+  jsonrpc: S.tag("2.0"),
 });
 const decodeSessionCancelNotification = S.decodeEffect(AcpJson.fromJsonText(SessionCancelNotification));
 const decodeExtRequest = S.decodeEffect(AcpJson.fromJsonText(ExtRequest));

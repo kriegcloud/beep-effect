@@ -57,7 +57,7 @@ const LegacyMeta = S.Record(S.String, S.Json).pipe(S.NullOr, S.optionalKey).anno
 // index signature and could not be placed in a normalized update without a type assertion.
 
 const UnknownContentFields = S.Struct({
-  type: S.Literal(ACP_UNKNOWN).annotateKey({
+  type: S.tag(ACP_UNKNOWN).annotateKey({
     description: "The `_acp_unknown` sentinel.",
   }),
   originalType: S.String.annotateKey({
@@ -69,7 +69,7 @@ const UnknownContentFields = S.Struct({
 });
 
 const UnknownSessionUpdateFields = S.Struct({
-  sessionUpdate: S.Literal(ACP_UNKNOWN).annotateKey({
+  sessionUpdate: S.tag(ACP_UNKNOWN).annotateKey({
     description: "The `_acp_unknown` sentinel.",
   }),
   originalSessionUpdate: S.String.annotateKey({
