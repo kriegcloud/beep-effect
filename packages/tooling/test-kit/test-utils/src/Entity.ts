@@ -5,7 +5,8 @@
  * @since 0.0.0
  */
 
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 type ProductEntityFixtureInput = {
   readonly createdAt: number;
@@ -41,7 +42,7 @@ export const systemPrincipal = {
 } as const;
 
 const publicIdFor = (entityType: string, id: number) =>
-  `${entityType.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase()}_a${id}`;
+  `${pipe(entityType, Str.replace(/([a-z0-9])([A-Z])/g, "$1_$2"), Str.toLowerCase)}_a${id}`;
 
 /**
  * Build the common ProductEntity fields used by model decode tests.

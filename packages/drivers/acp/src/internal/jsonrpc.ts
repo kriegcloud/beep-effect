@@ -1,5 +1,6 @@
 import { A } from "@beep/utils";
 import * as O from "@beep/utils/Option";
+import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -195,26 +196,24 @@ export const makeNdJsonRpcFrameDecoder = (): ((
     buffer += decoder.decode(chunk, { stream: true });
     const batches = A.empty<ReadonlyArray<AcpInboundMessage>>();
     let position = 0;
-    let newline = buffer.indexOf("\n", position);
-    while (newline !== -1) {
-      if (exceeds(newline - position)) {
+    const lines = Str.split("\n")(buffer);
+    for (const line of A.dropRight(lines, 1)) {
+      if (exceeds(Str.length(line))) {
         return failBufferSize();
       }
-      const line = buffer.slice(position, newline);
-      position = newline + 1;
-      newline = buffer.indexOf("\n", position);
+      position += Str.length(line) + 1;
       // A blank keep-alive line carries no message; skip it instead of failing the connection.
       if (isBlankLine(line)) {
         continue;
       }
       const decoded = Result.flatMap(readJsonText(line), decodeJsonRpcFrame);
       if (Result.isFailure(decoded)) {
-        buffer = buffer.slice(position);
+        buffer = pipe(buffer, Str.slice(position));
         return Result.fail(decoded.failure);
       }
       A.appendInPlace(batches, decoded.success);
     }
-    buffer = buffer.slice(position);
+    buffer = pipe(buffer, Str.slice(position));
     if (exceeds(Str.length(buffer))) {
       return failBufferSize();
     }
