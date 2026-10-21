@@ -8,16 +8,17 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
+import * as BI from "effect/BigInt";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { constant } from "effect/Function";
+import { constant, dual, flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { ProcessPid, ProcessStatus, ProcessTable, processLineage } from "./ProcessTable.ts";
+import { ProcessInotifyWatch, ProcessPid, ProcessStatus, ProcessTable, processLineage } from "./ProcessTable.ts";
 import type { ProcessTableShape } from "./ProcessTable.ts";
 
 const $I = $RepoCliId.create("internal/repo-run/ProcessAttachment");
@@ -25,7 +26,50 @@ const $I = $RepoCliId.create("internal/repo-run/ProcessAttachment");
 const PID_SCAN_CONCURRENCY = 8;
 
 /**
+ * The attachment kinds that give a process a handle it could write through.
+ *
+ * **Details**
+ *
+ * A working directory resolves relative paths into the tree and an open
+ * descriptor reaches it directly (a directory descriptor through `openat`),
+ * so either one lets a process write there. A scan that must prove nothing
+ * can still write into a tree reads exactly these kinds.
+ *
+ * **Example** (List the handle kinds)
+ *
+ * ```ts
+ * import { ProcessHandleKind } from "@beep/repo-cli/test/RepoRun"
+ *
+ * console.log(ProcessHandleKind.literals) // [ 'cwd', 'descriptor' ]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ProcessHandleKind = LiteralKit(["cwd", "descriptor"]).pipe(
+  $I.annoteSchema("ProcessHandleKind", {
+    description:
+      "Link family under /proc/<pid> that hands a process a writable way into a path: its cwd or an open descriptor.",
+  })
+);
+
+/**
+ * Handle attachment kind type.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ProcessHandleKind = typeof ProcessHandleKind.Type;
+
+/**
  * How a process holds a path inside a scanned directory.
+ *
+ * **Details**
+ *
+ * `cwd` and `descriptor` are handles ({@link ProcessHandleKind}). `watch` is
+ * an inotify watch on the scanned directory itself, read from the fdinfo of
+ * the process's inotify descriptors: a subscription to events that nothing
+ * can be written through.
  *
  * **Example** (Recognize a descriptor attachment)
  *
@@ -33,14 +77,16 @@ const PID_SCAN_CONCURRENCY = 8;
  * import { ProcessAttachmentKind } from "@beep/repo-cli/test/RepoRun"
  *
  * console.log(ProcessAttachmentKind.is.descriptor("descriptor")) // true
+ * console.log(ProcessAttachmentKind.is.watch("watch")) // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const ProcessAttachmentKind = LiteralKit(["cwd", "descriptor"]).pipe(
+export const ProcessAttachmentKind = LiteralKit([...ProcessHandleKind.literals, "watch"]).pipe(
   $I.annoteSchema("ProcessAttachmentKind", {
-    description: "Link family under /proc/<pid> through which a process holds a path: its cwd or an open descriptor.",
+    description:
+      "Link family under /proc/<pid> through which a process holds a path: its cwd, an open descriptor, or an inotify watch.",
   })
 );
 
@@ -86,10 +132,141 @@ type ProcessAttachmentScan = {
   readonly kinds: ReadonlyArray<ProcessAttachmentKind>;
 };
 
+// What one scan compares every process against: the resolved directory, a
+// path test for the handle kinds, and the inotify identity of the directory
+// itself for `watch` (`None` when it could not be read).
+type ProcessAttachmentProbe = {
+  readonly root: string;
+  readonly within: (candidate: string) => boolean;
+  readonly watched: O.Option<ProcessInotifyWatch>;
+};
+
 const isPathWithin =
   (root: string) =>
   (candidate: string): boolean =>
     Str.Equivalence(candidate, root) || Str.startsWith(`${root}/`)(candidate);
+
+// A mount point covers itself and everything below it; `/` covers every path.
+const isMountedUnder =
+  (path: string) =>
+  (mountPoint: string): boolean =>
+    mountPoint === "/" || isPathWithin(mountPoint)(path);
+
+// `/proc/self/mountinfo` fields: mount id, parent id, `major:minor` of the
+// superblock, root within it, and the mount point, which escapes space, tab,
+// newline, and backslash as three-digit octal (the backslash goes last, so an
+// escaped backslash never starts another escape).
+const MOUNTINFO_LINE = /^\d+ \d+ (\d+):(\d+) \S+ (\S+)/u;
+const KERNEL_MINOR_BITS = BigInt(20);
+
+const unescapeMountPoint = flow(
+  Str.replaceAll("\\040", " "),
+  Str.replaceAll("\\011", "\t"),
+  Str.replaceAll("\\012", "\n"),
+  Str.replaceAll("\\134", "\\")
+);
+
+type MountRow = { readonly mountPoint: string; readonly device: bigint };
+
+const parseMountRow = (line: string): O.Option<MountRow> =>
+  O.flatMap(O.fromNullishOr(MOUNTINFO_LINE.exec(line)), (match) =>
+    O.map(
+      O.all({
+        major: O.flatMap(O.fromNullishOr(match[1]), BI.fromString),
+        minor: O.flatMap(O.fromNullishOr(match[2]), BI.fromString),
+        mountPoint: O.map(O.fromNullishOr(match[3]), unescapeMountPoint),
+      }),
+      ({ major, minor, mountPoint }) => ({ mountPoint, device: (major << KERNEL_MINOR_BITS) | minor })
+    )
+  );
+
+/**
+ * The superblock device a path lives on, read from a `/proc/self/mountinfo` document.
+ *
+ * **Details**
+ *
+ * The path is matched to the mount with the longest mount point covering it,
+ * the later row winning a tie because a later mount over the same point
+ * shadows the earlier one. The device is returned as the kernel `dev_t`
+ * (`major << 20 | minor`), the encoding an inotify fdinfo line prints as
+ * `sdev:`. `stat`'s `st_dev` would not do: a btrfs subvolume reports its own
+ * anonymous device there, while the watch carries the filesystem's. `None`
+ * when no row covers the path.
+ *
+ * **Example** (Find the device under a home directory)
+ *
+ * ```ts
+ * import { superblockDeviceOf } from "@beep/repo-cli/test/RepoRun"
+ * import * as O from "effect/Option"
+ *
+ * const mountinfo = "23 1 0:36 /@ / rw - btrfs /dev/nvme0n1p2 rw\n58 23 0:33 /@home /home rw - btrfs /dev/nvme0n1p2 rw\n"
+ * console.log(O.getOrUndefined(superblockDeviceOf(mountinfo, "/home/me/repo"))) // 33n
+ * console.log(O.getOrUndefined(superblockDeviceOf("/var/lib")(mountinfo))) // 36n
+ * ```
+ *
+ * @param mountinfo - The mountinfo document content; the data-last form takes it alone.
+ * @param path - An absolute, fully resolved path.
+ * @returns The kernel device of the covering mount, or `None`.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const superblockDeviceOf: {
+  (mountinfo: string, path: string): O.Option<bigint>;
+  (path: string): (mountinfo: string) => O.Option<bigint>;
+} = dual(
+  2,
+  (mountinfo: string, path: string): O.Option<bigint> =>
+    pipe(
+      A.getSomes(A.map(Str.split(mountinfo, "\n"), parseMountRow)),
+      A.filter((row) => isMountedUnder(path)(row.mountPoint)),
+      A.reduce(O.none<MountRow>(), (best, row) =>
+        O.exists(best, (current) => Str.length(current.mountPoint) > Str.length(row.mountPoint)) ? best : O.some(row)
+      ),
+      O.map((row) => row.device)
+    )
+);
+
+/**
+ * The inotify identity of a directory: the watch an fdinfo line would print for it.
+ *
+ * **Details**
+ *
+ * The inode comes from `stat` of the resolved directory and the device from
+ * {@link superblockDeviceOf} over `/proc/self/mountinfo`. `None` when either
+ * cannot be read.
+ *
+ * **Example** (Build the identity effect)
+ *
+ * ```ts
+ * import { inotifyWatchTarget } from "@beep/repo-cli/test/RepoRun"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(inotifyWatchTarget(process.cwd()))) // true
+ * ```
+ *
+ * @param directory - The directory to identify.
+ * @returns The device and inode a watch on it carries, or `None`.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const inotifyWatchTarget = Effect.fnUntraced(function* (
+  directory: string
+): Effect.fn.Return<O.Option<ProcessInotifyWatch>, never, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const resolved = yield* fs.realPath(directory).pipe(Effect.option);
+  if (O.isNone(resolved)) {
+    return O.none();
+  }
+  const info = yield* fs.stat(resolved.value).pipe(Effect.option);
+  const mountinfo = yield* fs.readFileString("/proc/self/mountinfo").pipe(Effect.option);
+  return O.map(
+    O.all({
+      inode: O.flatMap(info, (stat) => stat.ino),
+      device: O.flatMap(mountinfo, superblockDeviceOf(resolved.value)),
+    }),
+    ProcessInotifyWatch.make
+  );
+});
 
 const attachmentWithin =
   (pid: number, kind: ProcessAttachmentKind, within: (candidate: string) => boolean) =>
@@ -99,31 +276,45 @@ const attachmentWithin =
 const cwdAttachments = Effect.fnUntraced(function* (
   table: ProcessTableShape,
   pid: number,
-  within: (candidate: string) => boolean
+  probe: ProcessAttachmentProbe
 ): Effect.fn.Return<ReadonlyArray<ProcessAttachment>, never, FileSystem.FileSystem> {
   const cwd = yield* table.cwd(pid);
-  return A.fromOption(O.flatMap(cwd, attachmentWithin(pid, "cwd", within)));
+  return A.fromOption(O.flatMap(cwd, attachmentWithin(pid, "cwd", probe.within)));
 });
 
 const descriptorAttachments = Effect.fnUntraced(function* (
   table: ProcessTableShape,
   pid: number,
-  within: (candidate: string) => boolean
+  probe: ProcessAttachmentProbe
 ): Effect.fn.Return<ReadonlyArray<ProcessAttachment>, never, FileSystem.FileSystem> {
   const targets = yield* table.descriptors(pid);
-  return A.getSomes(A.map(targets, attachmentWithin(pid, "descriptor", within)));
+  return A.getSomes(A.map(targets, attachmentWithin(pid, "descriptor", probe.within)));
+});
+
+const watchAttachments = Effect.fnUntraced(function* (
+  table: ProcessTableShape,
+  pid: number,
+  probe: ProcessAttachmentProbe
+): Effect.fn.Return<ReadonlyArray<ProcessAttachment>, never, FileSystem.FileSystem> {
+  if (O.isNone(probe.watched)) {
+    return A.empty();
+  }
+  return (yield* table.watching(pid, probe.watched.value))
+    ? A.of(ProcessAttachment.make({ pid, kind: "watch", target: probe.root }))
+    : A.empty();
 });
 
 const pidAttachments = (
   table: ProcessTableShape,
   pid: number,
-  within: (candidate: string) => boolean,
+  probe: ProcessAttachmentProbe,
   kinds: ReadonlyArray<ProcessAttachmentKind>
 ): Effect.Effect<ReadonlyArray<ProcessAttachment>, never, FileSystem.FileSystem> =>
   Effect.forEach(kinds, (kind) =>
     Match.value(kind).pipe(
-      Match.when("cwd", () => cwdAttachments(table, pid, within)),
-      Match.when("descriptor", () => descriptorAttachments(table, pid, within)),
+      Match.when("cwd", () => cwdAttachments(table, pid, probe)),
+      Match.when("descriptor", () => descriptorAttachments(table, pid, probe)),
+      Match.when("watch", () => watchAttachments(table, pid, probe)),
       Match.exhaustive
     )
   ).pipe(Effect.map(A.flatten));
@@ -147,6 +338,11 @@ const pidAttachments = (
  * directory withholds the result. Reading descriptors visits every
  * `/proc/<pid>/fd` link, which is the thorough form a destructive step wants;
  * a cwd-only scan is the cheap form a liveness probe repeats per candidate.
+ * A `watch` scan reports a process whose inotify watches include the
+ * directory itself (matched by {@link inotifyWatchTarget}; a watch on a
+ * subdirectory alone is not reported). It names watchers rather than
+ * proving anything, so a directory whose inotify identity cannot be read
+ * yields no watch attachments instead of withholding the result.
  * The table is read through the `ProcessTable` reference, so a test can
  * substitute a scripted one.
  *
@@ -175,8 +371,11 @@ export const scanProcessAttachments = Effect.fnUntraced(function* (
   if (O.isNone(pids) || O.isNone(resolved)) {
     return O.none();
   }
-  const within = isPathWithin(resolved.value);
-  const attachments = yield* Effect.forEach(pids.value, (pid) => pidAttachments(table, pid, within, request.kinds), {
+  const watched = A.contains(request.kinds, "watch")
+    ? yield* inotifyWatchTarget(resolved.value)
+    : O.none<ProcessInotifyWatch>();
+  const probe: ProcessAttachmentProbe = { root: resolved.value, within: isPathWithin(resolved.value), watched };
+  const attachments = yield* Effect.forEach(pids.value, (pid) => pidAttachments(table, pid, probe, request.kinds), {
     concurrency: PID_SCAN_CONCURRENCY,
   });
   return O.some(A.flatten(attachments));

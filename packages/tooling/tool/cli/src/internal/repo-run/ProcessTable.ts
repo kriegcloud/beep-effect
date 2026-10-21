@@ -11,6 +11,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -39,6 +40,10 @@ const STAT_FOREGROUND_GROUP_FIELD = 5;
 const NO_TERMINAL = 0;
 const NO_FOREGROUND_GROUP = -1;
 const GROUP_SCAN_CONCURRENCY = 16;
+// The link target of an inotify instance's descriptor. Its fdinfo lists one
+// watch per line: `inotify wd:<hex> ino:<hex> sdev:<hex> mask:<hex> ...`.
+const INOTIFY_LINK_TARGET = "anon_inode:inotify";
+const HEX_RADIX = 16;
 
 /**
  * A running process id as `/proc` names it.
@@ -264,6 +269,83 @@ export const parseProcessJobControl: {
   }).pipe(O.flatMap((parsed) => decodeProcessJobControl({ pid, ...parsed })));
 });
 
+const ProcessWatchNumber = S.BigInt.check(S.isGreaterThanOrEqualToBigInt(BigInt(0))).pipe(
+  $I.annoteSchema("ProcessWatchNumber", {
+    description: "A non-negative inode or device number as an inotify fdinfo line prints it.",
+  })
+);
+
+/**
+ * One inotify watch a process holds, as the kernel reports it in fdinfo.
+ *
+ * **Details**
+ *
+ * `inode` is the watched inode. `device` is the kernel `dev_t` of the
+ * superblock that inode lives on (`major << 20 | minor`), which is the
+ * `major:minor` pair `/proc/self/mountinfo` prints for the mount. It is not
+ * `stat`'s `st_dev`: a btrfs subvolume reports its own anonymous device
+ * there, while the watch carries the filesystem's.
+ *
+ * **Example** (Construct a watch)
+ *
+ * ```ts
+ * import { ProcessInotifyWatch } from "@beep/repo-cli/test/RepoRun"
+ *
+ * const watch = ProcessInotifyWatch.make({ device: BigInt(33), inode: BigInt(809092275) })
+ * console.log(watch.inode) // 809092275n
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ProcessInotifyWatch extends S.Opaque<ProcessInotifyWatch, { readonly brand: unique symbol }>()(
+  S.Struct({
+    device: ProcessWatchNumber,
+    inode: ProcessWatchNumber,
+  }).pipe(
+    $I.annoteSchema("ProcessInotifyWatch", {
+      description: "An inotify watch: the watched inode and the kernel dev_t of the superblock it lives on.",
+    })
+  )
+) {}
+
+const inotifyWatchEquivalence = S.toEquivalence(ProcessInotifyWatch);
+
+/**
+ * Whether an inotify descriptor's fdinfo document lists a watch on the target.
+ *
+ * **Details**
+ *
+ * Each watch is one `inotify wd:<hex> ino:<hex> sdev:<hex> mask:<hex> ...`
+ * line, so the check looks for the exact ` ino:<hex> sdev:<hex> ` run the
+ * target would print. An editor watching a whole clone holds a watch per
+ * directory, a document of tens of megabytes, and a fence asks about one
+ * inode per scan, so the document is searched rather than parsed.
+ *
+ * **Example** (Find the watch on a lane root)
+ *
+ * ```ts
+ * import { fdinfoWatches, ProcessInotifyWatch } from "@beep/repo-cli/test/RepoRun"
+ *
+ * const fdinfo = "pos:\t0\nflags:\t00\ninotify wd:1 ino:3039c4b3 sdev:21 mask:fc6 ignored_mask:0\n"
+ * const lane = ProcessInotifyWatch.make({ device: BigInt(33), inode: BigInt(809092275) })
+ * console.log(fdinfoWatches(fdinfo, lane)) // true
+ * console.log(fdinfoWatches(ProcessInotifyWatch.make({ device: BigInt(33), inode: BigInt(2) }))(fdinfo)) // false
+ * ```
+ *
+ * @param fdinfo - The fdinfo document content; the data-last form takes it alone.
+ * @param target - The watch to look for.
+ * @returns Whether the document lists that watch.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const fdinfoWatches: {
+  (fdinfo: string, target: ProcessInotifyWatch): boolean;
+  (target: ProcessInotifyWatch): (fdinfo: string) => boolean;
+} = dual(2, (fdinfo: string, target: ProcessInotifyWatch): boolean =>
+  Str.includes(` ino:${target.inode.toString(HEX_RADIX)} sdev:${target.device.toString(HEX_RADIX)} `)(fdinfo)
+);
+
 /**
  * How a process table answers the questions a retirement fence asks of `/proc`.
  *
@@ -272,7 +354,9 @@ export const parseProcessJobControl: {
  * `pids` lists every process the table knows, or `None` when the table could
  * not be listed at all. `cwd` and `descriptors` return the fully resolved
  * paths a process holds through those link families; an unreadable process
- * answers empty, never as attached. `status` reads a process's parent and
+ * answers empty, never as attached. `watching` says whether a process holds
+ * an inotify watch on a given inode, read from the fdinfo of its inotify
+ * descriptors, and an unreadable process answers `false`. `status` reads a process's parent and
  * command name, and `jobControl` its process group and terminal, each `None`
  * when the process cannot be read. `self` is the pid of the process asking.
  *
@@ -292,6 +376,8 @@ export interface ProcessTableShape {
   readonly self: number;
   /** The parent pid and command name of a process, when readable. */
   readonly status: (pid: number) => Effect.Effect<O.Option<ProcessStatus>, never, FileSystem.FileSystem>;
+  /** Whether a process holds an inotify watch on the target, `false` when unreadable. */
+  readonly watching: (pid: number, target: ProcessInotifyWatch) => Effect.Effect<boolean, never, FileSystem.FileSystem>;
 }
 
 const readLinkTarget = Effect.fnUntraced(function* (
@@ -332,6 +418,35 @@ const readProcDescriptors = Effect.fnUntraced(function* (
   return A.getSomes(targets);
 });
 
+const descriptorWatches = Effect.fnUntraced(function* (
+  pid: number,
+  descriptor: string,
+  target: ProcessInotifyWatch
+): Effect.fn.Return<boolean, never, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const link = yield* readLinkTarget(`/proc/${pid}/fd/${descriptor}`);
+  if (!O.exists(link, (resolved) => resolved === INOTIFY_LINK_TARGET)) {
+    return false;
+  }
+  const fdinfo = yield* fs.readFileString(`/proc/${pid}/fdinfo/${descriptor}`).pipe(Effect.option);
+  return O.exists(fdinfo, fdinfoWatches(target));
+});
+
+const readProcWatching = Effect.fnUntraced(function* (
+  pid: number,
+  target: ProcessInotifyWatch
+): Effect.fn.Return<boolean, never, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const names = yield* fs.readDirectory(`/proc/${pid}/fd`).pipe(Effect.option);
+  if (O.isNone(names)) {
+    return false;
+  }
+  const answers = yield* Effect.forEach(names.value, (name) => descriptorWatches(pid, name, target), {
+    concurrency: LINK_SCAN_CONCURRENCY,
+  });
+  return Bool.some(answers);
+});
+
 const readProcStatus = Effect.fnUntraced(function* (
   pid: number
 ): Effect.fn.Return<O.Option<ProcessStatus>, never, FileSystem.FileSystem> {
@@ -367,6 +482,7 @@ export const procProcessTable: ProcessTableShape = {
   pids: listProcPids(),
   cwd: (pid) => readLinkTarget(`/proc/${pid}/cwd`),
   descriptors: readProcDescriptors,
+  watching: readProcWatching,
   jobControl: readProcJobControl,
   status: readProcStatus,
 };
@@ -405,7 +521,8 @@ export const ProcessTable: Context.Reference<ProcessTableShape> = Context.Refere
  * group with no controlling terminal, which is what an agent's tool shell or
  * an MCP server looks like. A terminal shell names its `terminal` device and
  * the `foregroundGroup` that terminal runs. `contextSwitches` is optional too;
- * a row without it reports no count.
+ * a row without it reports no count, and a row without `watches` holds no
+ * inotify watch (the rows answer `watching`).
  *
  * **Example** (Describe a shell standing in a lane)
  *
@@ -426,6 +543,7 @@ export class ProcessTableEntry extends S.Opaque<ProcessTableEntry, { readonly br
     command: S.String,
     cwd: S.optionalKey(S.String),
     descriptors: S.Array(S.String).pipe(S.optionalKey),
+    watches: S.Array(ProcessInotifyWatch).pipe(S.optionalKey),
     processGroup: S.optionalKey(ProcessGroupId),
     terminal: S.optionalKey(S.Int),
     foregroundGroup: S.optionalKey(S.Int),
@@ -505,6 +623,13 @@ export const processTableFromEntries = ({
           A.empty
         )
       ),
+    watching: (pid, target) =>
+      Effect.succeed(
+        O.exists(
+          O.flatMap(lookup(pid), (entry) => O.fromNullishOr(entry.watches)),
+          A.some((watch) => inotifyWatchEquivalence(watch, target))
+        )
+      ),
     jobControl: (pid) => Effect.succeed(O.map(lookup(pid), entryJobControl)),
     status: (pid) => Effect.succeed(O.map(lookup(pid), entryStatus)),
   };
@@ -536,7 +661,7 @@ export const processTableFromEntries = ({
  * console.log(table.self) // 70
  * ```
  *
- * @param table - The base table that keeps answering `pids`, `cwd`, and `descriptors`, the pid to report as `self`, and the rows that answer `status`.
+ * @param table - The base table that keeps answering `pids`, `cwd`, `descriptors`, and `watching`, the pid to report as `self`, and the rows that answer `status`.
  * @returns A process table with scripted lineage over live attachments.
  * @category testing
  * @since 0.0.0

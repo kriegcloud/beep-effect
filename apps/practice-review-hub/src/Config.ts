@@ -23,13 +23,16 @@ const $I = $PracticeReviewHubId.create("Config");
  * ```ts
  * import { ReviewHubConfig } from "@/Config"
  * import * as S from "effect/Schema"
+ * import * as Effect from "effect/Effect"
+ * import * as Redacted from "effect/Redacted"
  *
- * const config = S.decodeUnknownSync(ReviewHubConfig)({
+ * const config = S.decodeUnknownEffect(ReviewHubConfig)({
+ *   apiToken: Redacted.make("synthetic-test-token-with-32-characters"),
  *   allowedLogins: ["attorney@example.test"],
  *   dataDirectory: "/var/lib/practice-review-hub",
  *   port: 8787
  * })
- * console.log(config.port) // 8787
+ * Effect.runPromise(config).then(({ port }) => console.log(port)) // 8787
  * ```
  *
  * @category models
@@ -37,6 +40,11 @@ const $I = $PracticeReviewHubId.create("Config");
  */
 export class ReviewHubConfig extends S.Opaque<ReviewHubConfig, { readonly brand: unique symbol }>()(
   S.Struct({
+    apiToken: S.Redacted(S.String.check(S.isMinLength(32), S.isMaxLength(256)), {
+      disallowJsonEncode: true,
+    }).annotateKey({
+      description: "Independent application credential required in addition to the proxy login header.",
+    }),
     allowedLogins: S.NonEmptyArray(S.NonEmptyString).annotateKey({
       description: "Tailscale logins (the Tailscale-User-Login header) allowed to call the hub; any other gets 403.",
     }),
@@ -65,7 +73,8 @@ const dataDirectoryFlag = Flag.String("data-dir").pipe(
  *
  * `--port` falls back to `PORT`, then 8787; `--allowed-logins` (comma
  * separated) to `PRACTICE_REVIEW_HUB_ALLOWED_LOGINS`; `--data-dir` to
- * `PRACTICE_REVIEW_HUB_DATA_DIR`. None of them is a secret.
+ * `PRACTICE_REVIEW_HUB_DATA_DIR`. The application token is read separately
+ * from `PRACTICE_REVIEW_HUB_API_TOKEN` and is never a command-line flag.
  *
  * **Example** (List the flags)
  *
@@ -100,12 +109,18 @@ export const reviewHubFlags = {
  * import { decodeReviewHubConfig } from "@/Config"
  * import * as Effect from "effect/Effect"
  *
+ * import * as ConfigProvider from "effect/ConfigProvider"
+ *
  * const config = decodeReviewHubConfig({
  *   allowedLogins: "attorney@example.test, paralegal@example.test",
  *   dataDirectory: "/var/lib/practice-review-hub",
  *   port: 8787
  * })
- * Effect.runPromise(config).then(({ allowedLogins }) => console.log(allowedLogins.length)) // 2
+ * const provider = ConfigProvider.fromUnknown({
+ *   PRACTICE_REVIEW_HUB_API_TOKEN: "synthetic-test-token-with-32-characters"
+ * })
+ * Effect.runPromise(config.pipe(Effect.provideService(ConfigProvider.ConfigProvider, provider)))
+ *   .then(({ allowedLogins }) => console.log(allowedLogins.length)) // 2
  * ```
  *
  * @category configuration
@@ -116,8 +131,10 @@ export const decodeReviewHubConfig = Effect.fn("ReviewHubConfig.decode")(functio
   readonly dataDirectory: string;
   readonly port: number;
 }) {
+  const apiToken = yield* Config.Redacted("PRACTICE_REVIEW_HUB_API_TOKEN");
   return yield* S.decodeUnknownEffect(ReviewHubConfig)({
     ...flags,
+    apiToken,
     allowedLogins: splitCommaSeparatedTrimmed(flags.allowedLogins),
   });
 });

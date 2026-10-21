@@ -1004,9 +1004,8 @@ export class PersonMatchOnnxRuntime extends S.Opaque<PersonMatchOnnxRuntime, { r
  *
  * **Details**
  *
- * The pinned ROCm wheel distribution is `2.9.1+rocm7.2.0.lw.git7e1940d4`,
- * while `torch.__version__` reports `2.9.1+rocm7.2.0.git7e1940d4`. The CPU
- * fallback reports `2.9.1+cpu`. Runtime provenance records the selected wheel
+ * The pinned ROCm wheel and runtime report `2.13.0+rocm7.2`; the CPU
+ * fallback reports `2.13.0+cpu`. Runtime provenance records the selected wheel
  * family and reported version exactly.
  *
  * **Example** (Create CPU PyTorch runtime provenance)
@@ -1016,7 +1015,7 @@ export class PersonMatchOnnxRuntime extends S.Opaque<PersonMatchOnnxRuntime, { r
  *
  * const runtime = PersonMatchPyTorchRuntime.make({
  *   distribution: "cpu",
- *   packageVersion: "2.9.1+cpu",
+ *   packageVersion: "2.13.0+cpu",
  *   actualCompute: "cpu",
  *   precision: "fp32",
  *   devices: [],
@@ -1117,7 +1116,7 @@ export class PersonMatchBuffaloModel extends S.Opaque<PersonMatchBuffaloModel, {
  *   runtime: {
  *     framework: "pytorch",
  *     distribution: "cpu",
- *     packageVersion: "2.9.1+cpu",
+ *     packageVersion: "2.13.0+cpu",
  *     actualCompute: "cpu",
  *     precision: "fp32",
  *     devices: [],

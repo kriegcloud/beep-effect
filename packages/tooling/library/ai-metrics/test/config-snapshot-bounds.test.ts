@@ -149,6 +149,76 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
         expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
       })
     );
+    for (const location of ["root", "ancestor"]) {
+      for (const fixture of [
+        {
+          label: "large non-marker",
+          content: Str.repeat(1024 * 1024)("x"),
+          chunkSize: 7,
+          requests: [7],
+          recognized: false,
+        },
+        {
+          label: "partial marker reads",
+          content: "gitdir: missing-checkout\n",
+          chunkSize: 2,
+          requests: [7, 5, 3, 1],
+          recognized: true,
+        },
+        { label: "early EOF", content: "gitdi", chunkSize: 2, requests: [7, 5, 3, 2], recognized: false },
+        { label: "empty metadata", content: "", chunkSize: 2, requests: [7], recognized: false },
+      ]) {
+        it.effect(`bounds ${fixture.label} at the ${location} after Git rejects metadata`, () =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const pathApi = yield* Path.Path;
+            const tmpDir = yield* fs.makeTempDirectoryScoped();
+            const repoRoot = pathApi.join(tmpDir, "repo");
+            yield* makeFixtureRepo(repoRoot);
+            const metadata = pathApi.join(location === "root" ? repoRoot : tmpDir, ".git");
+            yield* writeText(metadata, fixture.content);
+            const requested = yield* Ref.make<ReadonlyArray<number>>([]);
+            const guarded = FileSystem.FileSystem.of({
+              ...fs,
+              readFile: Effect.fn("configSnapshotBoundsTest.readFile")((file) =>
+                file === metadata ? Effect.die(new Error("Metadata must not be read in full")) : fs.readFile(file)
+              ),
+              readFileString: Effect.fn("configSnapshotBoundsTest.readFileString")((file, ...args) =>
+                file === metadata
+                  ? Effect.die(new Error("Metadata must not be read as a complete string"))
+                  : fs.readFileString(file, ...args)
+              ),
+              open: Effect.fn("configSnapshotBoundsTest.open")((file, options) =>
+                fs.open(file, options).pipe(
+                  Effect.map((handle) =>
+                    file !== metadata
+                      ? handle
+                      : {
+                          ...handle,
+                          read: (buffer, readOptions) =>
+                            Ref.update(requested, A.append(buffer.byteLength)).pipe(
+                              Effect.andThen(handle.read(buffer.subarray(0, fixture.chunkSize), readOptions))
+                            ),
+                        }
+                  )
+                )
+              ),
+            });
+            const snapshot = makeAiMetricsConfigSnapshot(AiMetricsConfigSnapshotInput.make({ repoRoot })).pipe(
+              Effect.provideService(FileSystem.FileSystem, guarded)
+            );
+            if (fixture.recognized) {
+              const error = yield* snapshot.pipe(Effect.flip);
+              expect(error.message).toBe("Git metadata exists but cannot be resolved.");
+            } else {
+              const result = yield* snapshot;
+              expect(snapshotPaths(result.files)).toEqual(legitimatePaths);
+            }
+            expect(yield* Ref.get(requested)).toEqual(fixture.requests);
+          })
+        );
+      }
+    }
     it.effect("walks successfully beneath a dangling parent .git symlink", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;

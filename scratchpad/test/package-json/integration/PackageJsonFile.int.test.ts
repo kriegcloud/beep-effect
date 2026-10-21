@@ -7,11 +7,11 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
-import minimal from "./fixtures/minimal/package.json" with { type: "json" };
-import full from "./fixtures/full/package.json" with { type: "json" };
-import scoped from "./fixtures/scoped/package.json" with { type: "json" };
-import boilerplate from "./fixtures/boilerplate/package.json" with { type: "json" };
-import customFields from "./fixtures/with-custom-fields/package.json" with { type: "json" };
+import minimal from "./fixtures/minimal/package.fixture.json" with { type: "json" };
+import full from "./fixtures/full/package.fixture.json" with { type: "json" };
+import scoped from "./fixtures/scoped/package.fixture.json" with { type: "json" };
+import boilerplate from "./fixtures/boilerplate/package.fixture.json" with { type: "json" };
+import customFields from "./fixtures/with-custom-fields/package.fixture.json" with { type: "json" };
 import { Package } from "../../../effected/package-json/Package.ts";
 import { PackageJsonFile } from "../../../effected/package-json/PackageJsonFile.ts";
 

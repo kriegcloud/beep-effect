@@ -9,6 +9,7 @@
 import * as DomainSyncConflict from "@beep/documents-domain/entities/SyncConflict";
 import { DmsProvider, RemoteItemId, VaultRelPath } from "@beep/documents-domain/values/Sync";
 import { $DocumentsUseCasesId } from "@beep/identity/packages";
+import { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as Documents from "@beep/shared-domain/identity/Documents";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import * as Context from "effect/Context";
@@ -111,6 +112,58 @@ export class SyncConflictRepositoryNotFound extends S.TaggedError<
   })
 ) {
   static readonly is = S.is(SyncConflictRepositoryNotFound);
+}
+
+/**
+ * Persistence failure raised when a SyncConflict write lost an optimistic-concurrency race.
+ *
+ * **Details**
+ *
+ * `markReviewed` writes back the row version it read. The stored row moved past that version, so the write was rejected
+ * instead of overwriting the newer row; re-read the SyncConflict and reapply the
+ * change.
+ *
+ * **Example** (Construct version-conflict error)
+ *
+ * ```ts
+ * import { SyncConflictRepositoryVersionConflict } from "@beep/documents-use-cases/entities/SyncConflict/server"
+ * import { RowVersion } from "@beep/shared-domain/entity/EntityKit"
+ * import * as Documents from "@beep/shared-domain/identity/Documents"
+ * import * as S from "effect/Schema"
+ *
+ * const error = SyncConflictRepositoryVersionConflict.make({
+ *   actualRowVersion: RowVersion.make(3),
+ *   expectedRowVersion: RowVersion.make(2),
+ *   conflictId: S.decodeUnknownSync(Documents.SyncConflictId)(1)
+ * })
+ * console.log(error._tag)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SyncConflictRepositoryVersionConflict extends S.TaggedError<
+  SyncConflictRepositoryVersionConflict,
+  { readonly brand: unique symbol }
+>($I`SyncConflictRepositoryVersionConflict`)(
+  "SyncConflictRepositoryVersionConflict",
+  {
+    actualRowVersion: RowVersion.annotateKey({
+      description: "Row version currently stored for the SyncConflict.",
+    }),
+    expectedRowVersion: RowVersion.annotateKey({
+      description: "Row version the rejected write expected to replace.",
+    }),
+    conflictId: Documents.SyncConflictId.annotateKey({
+      description: "SyncConflict identity whose write was rejected.",
+    }),
+  },
+  $I.annoteError<SyncConflictRepositoryVersionConflict>("SyncConflictRepositoryVersionConflict", {
+    title: "SyncConflict repository version conflict",
+    description: "Another write changed the SyncConflict after it was read; the stale review was rejected.",
+  })
+) {
+  static readonly is = S.is(SyncConflictRepositoryVersionConflict);
 }
 
 /**
@@ -226,7 +279,9 @@ export class MarkSyncConflictReviewedInput extends S.Opaque<
  * `record` deduplicates by provider event: when the seed's `remoteEventId` is
  * `Some` and a row already exists for the same `provider` and `remoteEventId`,
  * that existing row is returned unchanged instead of inserting a duplicate.
- * `markReviewed` flips the record's `resolutionStatus` to `reviewed`.
+ * `markReviewed` flips the record's `resolutionStatus` to `reviewed` and fails
+ * with {@link SyncConflictRepositoryVersionConflict} when another write changed
+ * the record between its read and its write.
  *
  * **Example** (Stub repository shape)
  *
@@ -265,7 +320,7 @@ export interface SyncConflictRepositoryShape {
     input: MarkSyncConflictReviewedInput
   ) => Effect.Effect<
     DomainSyncConflict.SyncConflict,
-    SyncConflictRepositoryNotFound | SyncConflictRepositoryUnavailable
+    SyncConflictRepositoryNotFound | SyncConflictRepositoryVersionConflict | SyncConflictRepositoryUnavailable
   >;
   readonly record: (
     seed: SyncConflictSeed

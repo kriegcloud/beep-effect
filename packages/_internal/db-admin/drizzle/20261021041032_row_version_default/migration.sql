@@ -1,0 +1,26 @@
+ALTER TABLE "architecture_lab_worker" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "documents_sync_conflict" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "documents_sync_cursor" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "documents_sync_item" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "documents_sync_operation" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_candidate_claim" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_claim_disposition" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_contradiction_candidate" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_contradiction_disposition" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_contradiction_receipt" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_edge_version" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_evidence" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_evidence_verification" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "epistemic_usage_record" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "law_practice_act_frame" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "law_practice_candor_disposition" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "law_practice_correction_delta" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "law_practice_ids_submission_fact" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "law_practice_legal_opposition_candidate" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "law_practice_legal_position_relator" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "law_practice_patent_citation_event" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "law_practice_power_exercise" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "workspace_message" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "workspace_thread" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "workspace_turn" ALTER COLUMN "row_version" SET DEFAULT 1;--> statement-breakpoint
+ALTER TABLE "workspace_workspace" ALTER COLUMN "row_version" SET DEFAULT 1;

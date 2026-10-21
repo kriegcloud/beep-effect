@@ -707,7 +707,7 @@ def test_run_worker_selects_adaface_backend_and_emits_v2_protocol(
         "runtime": {
             "framework": "pytorch",
             "distribution": "cpu",
-            "packageVersion": "2.9.1+cpu",
+            "packageVersion": "2.13.0+cpu",
             "actualCompute": "cpu",
             "precision": "fp32",
             "devices": [],

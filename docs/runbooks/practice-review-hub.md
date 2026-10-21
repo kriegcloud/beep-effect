@@ -4,7 +4,8 @@ The review hub (`apps/practice-review-hub`) keeps the attorney's review queue
 on the workstation: the items waiting for a verdict, the questions waiting for
 an answer, and the verdicts and answers given. It serves them as one MCP
 endpoint on `127.0.0.1`. `tailscale serve` exposes that endpoint on the
-tailnet, and the hub answers only the tailnet logins on its allow-list.
+tailnet. Every request requires both an allowed tailnet login and an
+independent bearer credential.
 
 Three things feed or read the hub's data directory:
 
@@ -20,7 +21,7 @@ calendar. This runbook is the manual install.
 
 | Unit | Sample | Environment file |
 | --- | --- | --- |
-| `practice-review-hub.service` | `apps/practice-review-hub/deploy/practice-review-hub.service` | none: the hub reads no secrets |
+| `practice-review-hub.service` | `apps/practice-review-hub/deploy/practice-review-hub.service` | `$HOME/.config/beep-practice-review-hub/hub.env` |
 | `practice-review-notice.service` | `apps/practice-review-hub/deploy/practice-review-notice.service` | `$HOME/.config/beep-practice-review-hub/notice.env` |
 | `practice-review-notice.timer` | `apps/practice-review-hub/deploy/practice-review-notice.timer` | none |
 
@@ -57,9 +58,25 @@ systemctl --user enable --now practice-review-hub.service
 journalctl --user -u practice-review-hub.service -f
 ```
 
-The hub binds `127.0.0.1` only. Any process of this user on the workstation
-can reach that port and send any header, so the boundary is the loopback bind
-plus the tailnet identity `tailscale serve` adds; no token is involved.
+The hub binds `127.0.0.1` only. Other local OS users can reach that port and
+forge the proxy login header, so the server also requires an independent
+bearer token. Before starting it, create a random token of 32–256 characters
+in the approved secret store. Store its reference as
+`PRACTICE_REVIEW_HUB_API_TOKEN` in the owner-only `hub.env` file. The sample
+unit uses `op run` to resolve it; do not use systemd `EnvironmentFile=` for
+`op://` references. Replace the unit's `REPLACE_WITH_OP_PATH` too.
+
+Provision the same token into the authorized MCP client's protected credential
+configuration as `Authorization: Bearer <token>`. Keep it out of command-line
+arguments, source control, URLs and diagnostic output. Tailscale forwards that
+header; the hub independently checks it before accepting the login header.
+A missing or invalid token returns 403, and missing configuration prevents
+startup. The default HTTP tracing redaction protects `Authorization`.
+
+Existing installations must provision the token on both the service and its
+clients before upgrading. Reverting the code would restore the vulnerable
+header-only boundary; keep the service stopped if rolling back. No live
+service or secret is changed by this repository update.
 
 ## 3. Expose it on the tailnet with `tailscale serve`
 
@@ -230,14 +247,19 @@ journalctl --user -u practice-review-notice.service -n 20
 
 ## 7. Verify
 
-On the workstation, a request without a login gets 403:
+On the workstation, a request without credentials gets 403, including one
+that forges an allowed `Tailscale-User-Login`:
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:<port>/mcp
+curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:<port>/mcp \
+  -H 'Tailscale-User-Login: <attorney-login>'
 ```
 
 From the attorney's device, signed in to the tailnet as an allowed login, an
-MCP discover through `tailscale serve` succeeds. Save the request body as
+MCP discover through `tailscale serve` succeeds when its independent bearer
+credential is supplied too. For the curl probe, provision an owner-only
+`hub-auth.headers` file containing the Authorization header using your approved
+secret tool; never put the token in shell history or an argument. Save the request body as
 `discover.json`:
 
 ```json
@@ -246,6 +268,7 @@ MCP discover through `tailscale serve` succeeds. Save the request body as
 
 ```bash
 curl -s https://<workstation>.<tailnet>.ts.net:8787/mcp \
+  -H @hub-auth.headers \
   -H 'content-type: application/json' \
   -H 'accept: application/json, text/event-stream' \
   -H 'MCP-Protocol-Version: 2026-07-28' \
@@ -277,21 +300,25 @@ systemctl --user start practice-review-hub.service
 ```
 
 The notice needs no restart: each run starts from the checkout as it is.
-Roll back by checking out the previous commit the same way.
+For a rollback to another revision that enforces the independent credential,
+use the same stop/update/start sequence. When rolling back to a revision before
+this authentication fix, keep `practice-review-hub.service` stopped: restarting
+that revision restores the vulnerable header-only authorization boundary.
 
 ## 9. Remove
 
 ```bash
 systemctl --user disable --now practice-review-notice.timer practice-review-hub.service
-tailscale serve --https=443 off
+tailscale serve --https=8787 off
 rm $HOME/.config/systemd/user/practice-review-hub.service \
   $HOME/.config/systemd/user/practice-review-notice.service \
   $HOME/.config/systemd/user/practice-review-notice.timer
 systemctl --user daemon-reload
 ```
 
-`tailscale serve --https=443 off` removes only the hub's handler; when the
-workstation serves nothing else, `tailscale serve reset` clears it as well.
+`tailscale serve --https=8787 off` removes the hub's listener from the example
+installation. If you selected a different HTTPS port, use that port here.
+Inspect `tailscale serve status` first and preserve listeners used by other services.
 Remove `DOCKET_INTAKE_REVIEW_HUB_DIR` from the docket intake environment file
 and restart `docket-intake.service`. Keep `<data-dir>`: it holds the verdicts
 and answers.
