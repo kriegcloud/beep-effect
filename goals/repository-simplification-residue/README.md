@@ -52,6 +52,11 @@ the complete public output manifest
 merge push, which covers rulesets deleted since then, and on green required checks at
 the accepted head. Missing, deleted or partial evidence stays `unknown`
 ([record](./history/receipts/completion-evidence.md)).
+#1879 is complete: native writes qualify atomic exchange on the target's own
+filesystem. The capability is cached per parent-directory device and filesystem
+type, and is probed with disposable files on that mount. An unsupported target
+refuses before any backup or publication
+([record](./history/receipts/target-exchange.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.

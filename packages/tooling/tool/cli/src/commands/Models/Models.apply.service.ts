@@ -14,6 +14,7 @@ import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -21,9 +22,17 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Random from "effect/Random";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Semaphore from "effect/Semaphore";
 import { getNodeValue } from "jsonc-parser";
 import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
-import { ModelsLocatorError } from "./Models.errors.ts";
+import { collectText } from "../../internal/process/StepExec.ts";
+import { ModelsExchangeFault, ModelsExchangeProbeError, ModelsLocatorError } from "./Models.errors.ts";
+import {
+  ModelsExchangeCapability,
+  ModelsExchangeFilesystemIdentity,
+  ModelsExchangeQualification,
+  modelsExchangeIdentityKey,
+} from "./Models.exchange.schemas.ts";
 import { modelsReadLocator } from "./Models.locator.service.ts";
 import { ModelsApplyJournal, ModelsEligibilityResult, ModelsWriteSpan } from "./Models.manifest.schemas.ts";
 import { ModelsTargetFile } from "./Models.paths.ts";
@@ -37,6 +46,7 @@ import {
   modelsWritePreflight,
   modelsWriteSpans,
 } from "./Models.spans.ts";
+import type { ModelsExchangeUnsupportedReason } from "./Models.exchange.schemas.ts";
 import type { ModelsApplyMode, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.apply.service");
@@ -188,8 +198,10 @@ export interface ModelsApplyShape {
  * displaced inode and bytes. Apply, restore and recovery exchange rather than
  * overwriting a pathname. A competing replacement is returned to the live path;
  * every detected race fails with a journal id and retains recovery artifacts.
- * Capability is probed once per service; unsupported atomic exchange fails closed
- * for every write, including home writes. There is no unverified fallback.
+ * Capability is qualified per target filesystem (parent-directory device id and
+ * reported filesystem type) and cached per identity. An unsupported or unknown
+ * capability fails closed for every write and restore, including home writes,
+ * before any backup, journal or publication. There is no unverified fallback.
  * Writers holding an inode can still mutate it after its final observation;
  * strict exclusion of such writers requires an external maintenance boundary.
  *
@@ -249,63 +261,263 @@ const checkReadOnlyDrift = Effect.fnUntraced(function* (text: string, writes: Re
 });
 
 /**
+ * Host primitives the atomic-exchange capability is built from.
+ *
+ * **Details**
+ *
+ * `identify` names the filesystem that holds a directory. `exchange` swaps two
+ * pathnames atomically or fails with the errno-derived reason the host
+ * returned. The live primitives are GNU `stat --file-system` and
+ * `mv --exchange` (renameat2 `RENAME_EXCHANGE`); tests supply their own to
+ * simulate a refusing filesystem or a changed mount identity.
+ *
+ * **Example** (Describe the primitives)
+ *
+ * ```ts
+ * import type { ModelsExchangeSystemShape } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * const primitives: ReadonlyArray<keyof ModelsExchangeSystemShape> = ["identify", "exchange"]
+ * console.log(primitives.length) // 2
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export interface ModelsExchangeSystemShape {
+  readonly exchange: (left: string, right: string) => Effect.Effect<void, ModelsExchangeFault>;
+  readonly identify: (directory: string) => Effect.Effect<ModelsExchangeFilesystemIdentity, ModelsExchangeProbeError>;
+}
+
+/**
+ * Atomic exchange plus the per-target-filesystem capability that gates it.
+ *
+ * **Example** (Describe the capability operations)
+ *
+ * ```ts
+ * import type { ModelsAtomicExchangeShape } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * const operations: ReadonlyArray<keyof ModelsAtomicExchangeShape> = ["exchange", "qualify"]
+ * console.log(operations.length) // 2
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export interface ModelsAtomicExchangeShape {
+  readonly exchange: (left: string, right: string) => Effect.Effect<void, ModelsLocatorError>;
+  readonly qualify: (target: string) => Effect.Effect<ModelsExchangeQualification, ModelsExchangeProbeError>;
+}
+
+/**
  * Atomic pathname exchange capability shared by publication and recovery.
+ *
+ * **Details**
+ *
+ * `qualify` answers for the filesystem of one existing target. It identifies
+ * the target's parent directory, then probes by exchanging two disposable
+ * files in a temporary directory it creates inside that parent and removes
+ * afterwards; native content is never touched. Results are cached per
+ * {@link ModelsExchangeFilesystemIdentity}, so a target whose device or
+ * filesystem type changes is probed again. A target that is itself a mount
+ * point is unsupported (`exdev`) without probing. A probe that cannot run fails
+ * with {@link ModelsExchangeProbeError} and is not cached.
  *
  * **Example** (Inspect the capability)
  *
  * ```ts
  * import { ModelsAtomicExchange } from "@beep/repo-cli/commands/Models/Models.apply.service"
  * import * as Effect from "effect/Effect"
- * console.log(Effect.isEffect(ModelsAtomicExchange.use((service) => service.supported)))
+ * console.log(Effect.isEffect(ModelsAtomicExchange.use((service) => service.qualify("/srv/config/app.toml"))))
  * ```
  *
  * @category services
  * @since 0.0.0
  */
-export class ModelsAtomicExchange extends Context.Service<
-  ModelsAtomicExchange,
-  {
-    readonly exchange: (left: string, right: string) => Effect.Effect<void, ModelsLocatorError>;
-    readonly supported: Effect.Effect<boolean>;
-  }
->()($I`ModelsAtomicExchange`) {}
+export class ModelsAtomicExchange extends Context.Service<ModelsAtomicExchange, ModelsAtomicExchangeShape>()(
+  $I`ModelsAtomicExchange`
+) {}
 
-const makeAtomicExchange = Effect.fn("ModelsAtomicExchange.make")(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-  const io = ModelsLocatorError.mapError("Native configuration I/O failed.");
-  const exchange = Effect.fnUntraced(function* (left: string, right: string) {
-    const code = yield* spawner
-      .exitCode(
-        ChildProcess.make("mv", ["--exchange", "--no-copy", "--", left, right], {
-          stdout: "ignore",
-          stderr: "ignore",
-        })
-      )
-      .pipe(ModelsLocatorError.mapError("Atomic exchange failed; retain recovery artifacts."));
-    if (code !== 0) return yield* failure("Atomic exchange failed; retain recovery artifacts.");
-  });
-  const supported = yield* Effect.gen(function* () {
-    const root = yield* fs.makeTempDirectoryScoped().pipe(io);
-    const left = path.join(root, "left");
-    const right = path.join(root, "right");
-    yield* fs.writeFileString(left, "left", { flag: "wx", mode: 0o600 }).pipe(io);
-    yield* fs.writeFileString(right, "right", { flag: "wx", mode: 0o600 }).pipe(io);
-    yield* exchange(left, right);
-    return (
-      (yield* fs.readFileString(left).pipe(io)) === "right" && (yield* fs.readFileString(right).pipe(io)) === "left"
-    );
-  }).pipe(
-    Effect.scoped,
-    Effect.catchTag("ModelsLocatorError", () => Effect.succeed(false)),
-    Effect.cached
-  );
-  return ModelsAtomicExchange.of({ exchange, supported });
-});
+const errnoMessages: ReadonlyArray<readonly [RegExp, ModelsExchangeUnsupportedReason]> = [
+  [/Invalid cross-device link/i, "exdev"],
+  [/Invalid argument/i, "einval"],
+  [/Operation not permitted/i, "eperm"],
+  [/Function not implemented/i, "enosys"],
+];
 
 /**
- * GNU mv exchange with a cached, fail-closed capability probe.
+ * Map the C-locale strerror text a failed exchange printed onto its reason.
+ *
+ * **Details**
+ *
+ * The live primitive runs `mv` with `LC_ALL=C`, so the errno text is stable.
+ * Text that names none of the four errno values, such as an `mv` that does not
+ * know `--exchange`, maps to `unknown`.
+ *
+ * **Example** (Classify a cross-device refusal)
+ *
+ * ```ts
+ * import { modelsExchangeErrnoFromStderr } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * console.log(modelsExchangeErrnoFromStderr("mv: cannot exchange 'a' and 'b': Invalid cross-device link")) // "exdev"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsExchangeErrnoFromStderr = (stderr: string): ModelsExchangeUnsupportedReason =>
+  O.match(
+    A.findFirst(errnoMessages, ([pattern]) => pattern.test(stderr)),
+    {
+      onNone: (): ModelsExchangeUnsupportedReason => "unknown",
+      onSome: ([, reason]) => reason,
+    }
+  );
+
+const unsupported = (reason: ModelsExchangeUnsupportedReason, detail: string) =>
+  ModelsExchangeCapability.cases.unsupported.make({ reason, detail });
+
+/**
+ * Build the cached, per-target-filesystem exchange capability from host primitives.
+ *
+ * **Details**
+ *
+ * Probes are serialized, so concurrent writers to one new filesystem probe it
+ * once. Supported and unsupported verdicts are both cached for the identity;
+ * probe failures are not.
+ *
+ * **Example** (Build the capability from primitives)
+ *
+ * ```ts
+ * import { makeModelsAtomicExchange } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * import { ModelsExchangeFault } from "@beep/repo-cli/commands/Models/Models.errors"
+ * import { ModelsExchangeFilesystemIdentity } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * const capability = makeModelsAtomicExchange({
+ *   identify: () => Effect.succeed(ModelsExchangeFilesystemIdentity.make({ device: 1n, filesystemType: O.none() })),
+ *   exchange: () => Effect.fail(ModelsExchangeFault.make({ reason: "einval", message: "Invalid argument" }))
+ * })
+ * console.log(Effect.isEffect(capability))
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeModelsAtomicExchange = Effect.fn("ModelsAtomicExchange.make")(function* (
+  system: ModelsExchangeSystemShape
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const cache = MutableHashMap.empty<string, ModelsExchangeCapability>();
+  const lock = yield* Semaphore.make(1);
+  const exchange: ModelsAtomicExchangeShape["exchange"] = (left, right) =>
+    system
+      .exchange(left, right)
+      .pipe(
+        Effect.mapError((fault) =>
+          failure(`Atomic exchange failed; retain recovery artifacts. (${fault.reason}: ${fault.message})`)
+        )
+      );
+  // The disposable pair lives in a fresh directory inside the target's parent,
+  // on the same mount, and the scope removes it whatever the outcome.
+  const probe = Effect.fnUntraced(function* (directory: string, device: bigint) {
+    const probeError = ModelsExchangeProbeError.mapError("Cannot run the atomic exchange probe.", directory);
+    const root = yield* fs
+      .makeTempDirectoryScoped({ directory, prefix: ".beep-models-exchange-probe-" })
+      .pipe(probeError);
+    if ((yield* fs.stat(root).pipe(probeError)).dev !== device)
+      return yield* ModelsExchangeProbeError.make({
+        message: "Atomic exchange probe directory is not on the target filesystem.",
+        path: directory,
+      });
+    const left = path.join(root, "left");
+    const right = path.join(root, "right");
+    yield* fs.writeFileString(left, "left", { flag: "wx", mode: 0o600 }).pipe(probeError);
+    yield* fs.writeFileString(right, "right", { flag: "wx", mode: 0o600 }).pipe(probeError);
+    const refused = yield* system.exchange(left, right).pipe(
+      Effect.as(O.none<ModelsExchangeCapability>()),
+      Effect.catchTag("ModelsExchangeFault", (fault) => Effect.succeedSome(unsupported(fault.reason, fault.message)))
+    );
+    if (O.isSome(refused)) return refused.value;
+    const swapped =
+      (yield* fs.readFileString(left).pipe(probeError)) === "right" &&
+      (yield* fs.readFileString(right).pipe(probeError)) === "left";
+    return swapped
+      ? ModelsExchangeCapability.cases.supported.make({})
+      : unsupported("unknown", "Atomic exchange probe files were not exchanged.");
+  }, Effect.scoped);
+  const qualify: ModelsAtomicExchangeShape["qualify"] = Effect.fn("ModelsAtomicExchange.qualify")(function* (target) {
+    const directory = path.dirname(target);
+    const statError = ModelsExchangeProbeError.mapError("Cannot identify the target filesystem.", directory);
+    const parent = yield* fs.stat(directory).pipe(statError);
+    const own = yield* fs.stat(target).pipe(statError);
+    const identity = yield* system.identify(directory);
+    const qualification = (capability: ModelsExchangeCapability) =>
+      ModelsExchangeQualification.make({ directory, identity, capability });
+    if (own.dev !== parent.dev)
+      return qualification(unsupported("exdev", "Target is a mount point separate from its parent directory."));
+    const key = modelsExchangeIdentityKey(identity);
+    return qualification(
+      yield* lock.withPermits(1)(
+        Effect.gen(function* () {
+          const cached = MutableHashMap.get(cache, key);
+          if (O.isSome(cached)) return cached.value;
+          const probed = yield* probe(directory, parent.dev);
+          MutableHashMap.set(cache, key, probed);
+          return probed;
+        })
+      )
+    );
+  });
+  return ModelsAtomicExchange.of({ exchange, qualify });
+});
+
+const makeExchangeSystemLive = Effect.fn("ModelsExchangeSystem.make")(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const cLocale = { env: { LC_ALL: "C" }, extendEnv: true, stdin: "ignore" } as const;
+  const identify: ModelsExchangeSystemShape["identify"] = Effect.fnUntraced(function* (directory) {
+    const info = yield* fs
+      .stat(directory)
+      .pipe(ModelsExchangeProbeError.mapError("Cannot identify the target filesystem.", directory));
+    const reported = yield* spawner
+      .string(
+        ChildProcess.make("stat", ["--file-system", "--format=%T", "--", directory], { ...cLocale, stderr: "ignore" })
+      )
+      .pipe(Effect.map(Str.trim), Effect.option);
+    return ModelsExchangeFilesystemIdentity.make({
+      device: info.dev,
+      filesystemType: O.filter(reported, Str.isNonEmpty),
+    });
+  });
+  const exchange: ModelsExchangeSystemShape["exchange"] = Effect.fnUntraced(function* (left, right) {
+    const [stderr, code] = yield* Effect.scoped(
+      Effect.gen(function* () {
+        const handle = yield* spawner.spawn(
+          ChildProcess.make("mv", ["--exchange", "--no-copy", "--", left, right], {
+            ...cLocale,
+            stdout: "ignore",
+            stderr: "pipe",
+          })
+        );
+        return yield* Effect.all([collectText(handle.stderr), handle.exitCode], { concurrency: "unbounded" });
+      })
+    ).pipe(
+      Effect.mapError((error) =>
+        ModelsExchangeFault.make({ reason: "unknown", message: `Cannot run mv --exchange: ${error.message}` })
+      )
+    );
+    if (code !== 0)
+      return yield* ModelsExchangeFault.make({
+        reason: modelsExchangeErrnoFromStderr(stderr),
+        message: Str.isNonEmpty(Str.trim(stderr)) ? Str.trim(stderr) : `mv --exchange exited ${code}.`,
+      });
+  });
+  return { identify, exchange } satisfies ModelsExchangeSystemShape;
+});
+
+const makeAtomicExchangeLive = () => makeExchangeSystemLive().pipe(Effect.flatMap(makeModelsAtomicExchange));
+
+/**
+ * GNU mv exchange with a cached, fail-closed, per-target-filesystem capability probe.
  *
  * **Example** (Inspect the live capability layer)
  *
@@ -318,7 +530,7 @@ const makeAtomicExchange = Effect.fn("ModelsAtomicExchange.make")(function* () {
  * @category layers
  * @since 0.0.0
  */
-export const ModelsAtomicExchangeLive = Layer.effect(ModelsAtomicExchange, makeAtomicExchange());
+export const ModelsAtomicExchangeLive = Layer.effect(ModelsAtomicExchange, makeAtomicExchangeLive());
 
 const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -360,9 +572,28 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return `models-${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
   });
 
-  const { exchange, supported } = yield* Effect.serviceOption(ModelsAtomicExchange).pipe(
-    Effect.flatMap(O.match({ onNone: makeAtomicExchange, onSome: Effect.succeed }))
+  const { exchange, qualify } = yield* Effect.serviceOption(ModelsAtomicExchange).pipe(
+    Effect.flatMap(O.match({ onNone: makeAtomicExchangeLive, onSome: Effect.succeed }))
   );
+  // The retained fail-closed boundary: every write and restore qualifies its
+  // actual target filesystem before any backup, journal, staging or exchange.
+  const requireExchange = Effect.fnUntraced(function* (target: string) {
+    const { capability } = yield* qualify(target).pipe(
+      Effect.mapError((error) =>
+        ModelsLocatorError.make({
+          reason: "exchange-probe-failed",
+          path: target,
+          message: `Atomic exchange capability unknown; refusing native write before backup or publication: ${error.message}`,
+        })
+      )
+    );
+    if (capability._tag === "unsupported")
+      return yield* ModelsLocatorError.make({
+        reason: "exchange-unsupported",
+        path: target,
+        message: `Atomic exchange unsupported on the target filesystem (${capability.reason}: ${capability.detail}); refusing native write before backup or publication.`,
+      });
+  });
   const sameInode = (left: FileSystem.File.Info, right: FileSystem.File.Info) =>
     O.isSome(left.ino) && O.isSome(right.ino) && left.dev === right.dev && left.ino.value === right.ino.value;
 
@@ -435,8 +666,6 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     backupDirectory: string,
     writes: ReadonlyArray<ModelsLocatorWrite> = []
   ) {
-    if (!(yield* supported))
-      return yield* failure(`Atomic exchange unsupported; refusing native write. Journal: ${journal.id}`);
     const operation = `${journal.id}-${yield* suffix}`;
     const temporary = `${file}.${operation}.tmp`;
     const retained = `${file}.${operation}.preimage`;
@@ -522,6 +751,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       if (after === before) return O.none();
       if (mode === "dry-run") return O.none();
       if (!A.isReadonlyArrayNonEmpty(writes)) return yield* failure("Locator ownership must be non-empty.");
+      yield* requireExchange(actual);
       const info = yield* fs.stat(actual).pipe(io);
       const id = yield* suffix;
       yield* fs.makeDirectory(backupDirectory, { recursive: true, mode: 0o700 }).pipe(io);
@@ -591,6 +821,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         const { content: original } = yield* eligibility(journal.file, writes, backup, "restore");
         if ((yield* hash(original)) !== journal.beforeHash)
           return yield* failure("Recovery backup hash does not match.");
+        yield* requireExchange(journal.file);
         yield* atomic(
           journal.file,
           journal.afterHash,
