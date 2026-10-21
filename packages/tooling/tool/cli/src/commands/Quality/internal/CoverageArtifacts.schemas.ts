@@ -186,10 +186,11 @@ export class CoverageRawFile extends S.Opaque<CoverageRawFile, { readonly brand:
     ),
     s: S.Record(S.String, S.Natural),
     f: S.Record(S.String, S.Natural),
-    b: S.Record(S.String, S.Array(S.Natural)),
+    b: S.Record(S.String, S.Array(S.Int)),
   }).pipe(
     $I.annoteSchema("CoverageRawFile", {
-      description: "Istanbul raw file coverage with finite nonnegative hit counters and positive source locations.",
+      description:
+        "Raw coverage with nonnegative statement/function hits; signed branch residuals require provider-specific validation.",
     })
   )
 ) {}

@@ -132,6 +132,63 @@ it.layer(NodeServices.layer, { timeout: "60 seconds" })("same-process coverage r
     })
   );
 
+  it.effect("rejects an absolute receipt path without writing outside the invocation cwd", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: process.cwd(), prefix: ".reporter-absolute-" });
+      const context = yield* Effect.acquireRelease(
+        Effect.promise(() => createVitest({ root, config: false, coverage: { enabled: true, provider: "istanbul" } })),
+        (value) => Effect.promise(() => value.close())
+      );
+      const reporter = new CoverageRuntimeReporter();
+      reporter.onInit(context);
+      const destination = path.join(root, "absolute-runtime.json");
+      vi.stubEnv("BEEP_COVERAGE_INVOCATION_ID", "absolute-boundary");
+      vi.stubEnv("BEEP_COVERAGE_RUNTIME_RECEIPT", destination);
+      yield* Effect.promise(() =>
+        expect(reporter.onTestRunEnd([], [], "passed")).rejects.toThrow(
+          "Coverage runtime receipt must be relative to the test cwd."
+        )
+      );
+      expect(yield* fs.exists(destination)).toBe(false);
+    })
+  );
+
+  it.effect("maps a scoped Bun capability marker to the receipt runtime and its exact version", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ directory: process.cwd(), prefix: ".reporter-marker-" });
+      const context = yield* Effect.acquireRelease(
+        Effect.promise(() => createVitest({ root, config: false, coverage: { enabled: true, provider: "istanbul" } })),
+        (value) => Effect.promise(() => value.close())
+      );
+      const reporter = new CoverageRuntimeReporter();
+      reporter.onInit(context);
+      const destination = path.join(root, "runtime.json");
+      vi.stubEnv("BEEP_COVERAGE_INVOCATION_ID", "bun-marker-boundary");
+      vi.stubEnv("BEEP_COVERAGE_RUNTIME_RECEIPT", path.relative(process.cwd(), destination));
+      // Only this boundary assertion simulates the marker; child-process tests prove real runtimes.
+      yield* Effect.acquireRelease(
+        Effect.sync(() =>
+          vi.stubGlobal(
+            "process",
+            Object.create(process, { versions: { value: { ...process.versions, bun: "1.4.3" } } })
+          )
+        ),
+        () => Effect.sync(vi.unstubAllGlobals)
+      );
+      yield* Effect.promise(() => reporter.onTestRunEnd([], [], "passed"));
+      const receipt = yield* fs.readFileString(destination).pipe(Effect.flatMap(decode));
+      expect(receipt.testRuntime).toBe("bun");
+      expect(receipt.runtimeVersion).toBe("1.4.3");
+      expect(receipt.invocationId).toBe("bun-marker-boundary");
+      expect(receipt.success).toBe(true);
+      expect(receipt.provider).toBe("istanbul");
+    })
+  );
+
   for (const runtime of ["bun", "node"] satisfies ReadonlyArray<"bun" | "node">) {
     it.effect(`attests the real ${runtime} invocation and exact test runtime version`, () =>
       Effect.gen(function* () {

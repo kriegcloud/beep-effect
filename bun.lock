@@ -3484,7 +3484,9 @@
         "@effect/platform-node-shared": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+        "ast-v8-to-istanbul": "catalog:",
         "pdf-lib": "catalog:",
+        "vite": "catalog:",
       },
     },
     "packages/tooling/tool/docgen": {
@@ -3857,6 +3859,7 @@
     "@xstate/effect": "1.0.0-alpha.9",
     "@xstate/test": "2.0.0-alpha.4",
     "are-docs-informative": "0.1.1",
+    "ast-v8-to-istanbul": "1.0.7",
     "babel-plugin-annotate-pure-calls": "^0.5.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "bippy": "^0.7.3",

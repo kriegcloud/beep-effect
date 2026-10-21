@@ -259,6 +259,8 @@
     "@effect/platform-node-shared": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "pdf-lib": "catalog:"
+    "ast-v8-to-istanbul": "catalog:",
+    "pdf-lib": "catalog:",
+    "vite": "catalog:"
   }
 }

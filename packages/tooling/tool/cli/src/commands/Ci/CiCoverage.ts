@@ -92,11 +92,6 @@ const coverageTestCommands = Effect.fn("CiCoverage.testCommands")(function* (
   const commands = yield* Effect.forEach(
     prefix,
     Effect.fnUntraced(function* (command, index) {
-      if (!isCanonicalVitestCommand(command)) {
-        return yield* CiCommandError.make({
-          message: `Coverage owner ${packageName} must use a canonical Vitest test script.`,
-        });
-      }
       const [assignments, tokens] = A.span(Str.split(/\s+/)(command), isEnvironmentAssignment);
       const env = A.reduce(assignments, R.empty<string, string>(), (values, assignment) => {
         const name = A.headNonEmpty(Str.split("=")(assignment));

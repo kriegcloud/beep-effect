@@ -388,6 +388,47 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
     })
   );
 
+  it.effect("refuses a missing CLI coverage script before discovering or comparing evidence", () =>
+    Effect.gen(function* () {
+      const { root, fs, path } = yield* fixture();
+      yield* fs.writeFileString(
+        path.join(root, "packages/tool/package.json"),
+        yield* encode({
+          name: "@beep/repo-cli",
+          version: "0.0.0",
+          scripts: { test: "bun run beep:test", "beep:test": "bunx --bun vitest run" },
+        })
+      );
+      const error = yield* Effect.flip(runCiCoverageComparison(root, options()));
+      expect(error.message).toContain("canonical Vitest test script");
+      expect(mocks.discover).not.toHaveBeenCalled();
+      expect(mocks.run).not.toHaveBeenCalled();
+      expect(mocks.write).not.toHaveBeenCalled();
+      expect(mocks.compare).not.toHaveBeenCalled();
+    })
+  );
+
+  it.effect("refuses an undeclared native continuation before discovering or running tests", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/infra", "infra");
+      const { root, fs, path } = yield* fixture([entry]);
+      yield* fs.writeFileString(
+        path.join(root, "infra/package.json"),
+        yield* encode({
+          name: entry.packageName,
+          version: "0.0.0",
+          scripts: { test: "bun run beep:test", "beep:test": "bunx --bun vitest run && bun run test:lambda" },
+        })
+      );
+      const error = yield* Effect.flip(runCiCoverageComparison(root, options()));
+      expect(error.message).toBe("Coverage owner @beep/infra has no continuation script test:lambda.");
+      expect(mocks.discover).not.toHaveBeenCalled();
+      expect(mocks.run).not.toHaveBeenCalled();
+      expect(mocks.write).not.toHaveBeenCalled();
+      expect(mocks.compare).not.toHaveBeenCalled();
+    })
+  );
+
   it.effect("keeps an unsharded selected owner in its ordinary unit partition", () =>
     Effect.gen(function* () {
       const entry = owner("@beep/mcpb-kit", "packages/tool");

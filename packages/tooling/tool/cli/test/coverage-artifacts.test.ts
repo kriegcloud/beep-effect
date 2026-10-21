@@ -7,6 +7,7 @@ import {
   CoverageProducerPackage,
   CoverageProducerPartition,
   CoverageProducerWriteOptions,
+  CoverageRawFile,
   CoverageRegressionBaseline,
   CoverageRuntimeReceipt,
   collectCoverageProducerArtifacts,
@@ -20,6 +21,8 @@ import { currentHostPlatform } from "@beep/utils";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterEach, describe, expect, it, vi } from "@effect/vitest";
 import { createInstrumenter } from "@vitest/istanbul-lib-instrument";
+import convertV8 from "ast-v8-to-istanbul";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -28,6 +31,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { parse } from "vite";
 import { hostNodeExecutable } from "./helpers/native-node.ts";
 
 const nativeTestRuntime = process.versions.bun === undefined ? "node" : "bun";
@@ -191,6 +195,114 @@ const fixture = Effect.fnUntraced(function* () {
     ),
   });
   return { root, fs, path, packageRoot, packagePath, identity, tests, raw, options, write };
+});
+
+const BranchHitsJson = S.fromJsonString(CoverageRawFile.fields.b);
+const encodeBranchHits = S.encodeEffect(BranchHitsJson);
+const decodeBranchHits = S.decodeEffect(BranchHitsJson);
+const sameBranchHits = S.toEquivalence(CoverageRawFile.fields.b);
+const decodeRawFixture = S.decodeUnknownEffect(S.fromJsonString(S.Record(S.String, CoverageRawFile)));
+const signedV8Fixture = Effect.fnUntraced(function* () {
+  const f = yield* fixture();
+  const file = f.path.join(f.packageRoot, "src/choose.ts");
+  const code = "export function choose(flag) { if (flag) { return 1; } return 2; }\n";
+  yield* f.fs.writeFileString(file, code);
+  yield* f.fs.remove(f.path.join(f.packageRoot, "src/index.ts"));
+  const consequent = code.indexOf("{ return 1; }");
+  const fileUrl = yield* f.path.toFileUrl(file);
+  const converted = yield* Effect.forEach([3, 0], (count) =>
+    Effect.tryPromise(() =>
+      convertV8({
+        code,
+        ast: parse("choose.js", code).then((result) => result.program),
+        coverage: {
+          url: fileUrl.href,
+          functions: [
+            {
+              functionName: "choose",
+              isBlockCoverage: true,
+              ranges: [
+                { startOffset: 0, endOffset: code.length, count: 1 },
+                { startOffset: consequent + 1, endOffset: consequent + "{ return 1; }".length - 1, count },
+              ],
+            },
+          ],
+        },
+      })
+    ).pipe(Effect.flatMap(encode), Effect.flatMap(decodeRawFixture), Effect.map(R.values))
+  );
+  const first = converted[0]?.[0];
+  const second = converted[1]?.[0];
+  if (first === undefined || second === undefined) return yield* Effect.die("Expected real converter maps");
+  expect(first.b["0"]).toEqual([3, -2]);
+  expect(second.b["0"]).toEqual([0, 1]);
+  const node = yield* hostNodeExecutable;
+  const version = yield* StepExec.runCaptured({ command: node, args: ["--print", "process.versions.node"] });
+  const searchPath = yield* Config.String("PATH");
+  const delimiter = currentHostPlatform === "win32" ? ";" : ":";
+  const selection = (index: number, provider: "v8" | "istanbul" = "v8") =>
+    CoverageProducerPackage.make({
+      packageName: "@beep/example",
+      packagePath: f.packagePath,
+      expectedTestFiles: f.tests,
+      testReportPath: "coverage/unit-results.json",
+      testRuntime: "node",
+      testRuntimeVersion: version.output.trim(),
+      provider,
+      testCommand: ["bunx", "vitest", "run"],
+      testEnvironment: { PATH: `${f.path.dirname(node)}${delimiter}${searchPath}` },
+      shard: { index, total: 2 },
+    });
+  const write = Effect.fnUntraced(function* (index: number, raw: unknown, provider: "v8" | "istanbul" = "v8") {
+    const invocation = selection(index, provider);
+    yield* f.fs.writeFileString(
+      f.path.join(f.packageRoot, "coverage/coverage-final.json"),
+      yield* encode({ [file]: raw })
+    );
+    yield* f.fs.writeFileString(
+      f.path.join(f.packageRoot, "coverage/unit-results.json"),
+      yield* encode({
+        success: true,
+        numFailedTests: 0,
+        numFailedTestSuites: 0,
+        testResults: [{ name: f.path.join(f.root, f.tests[index - 1] ?? ""), status: "passed" }],
+      })
+    );
+    yield* f.fs.writeFileString(
+      f.path.join(f.packageRoot, "coverage/runtime.json"),
+      yield* encode(
+        CoverageRuntimeReceipt.make({
+          schemaVersion: "coverage-runtime/v1",
+          invocationId: invocation.invocationId,
+          testRuntime: "node",
+          runtimeVersion: invocation.testRuntimeVersion,
+          provider,
+          success: true,
+        })
+      )
+    );
+    yield* writeCoverageProducerArtifact(
+      f.root,
+      CoverageProducerWriteOptions.make({
+        artifactRoot: `.beep/signed-artifacts/shard-${index}`,
+        identity: f.identity,
+        partitionId: `signed-${index}`,
+        packages: [invocation],
+      })
+    );
+  });
+  const options = CoverageProducerCompareOptions.make({
+    artifactRoot: ".beep/signed-artifacts",
+    identity: f.identity,
+    scoped: true,
+    expectedPartitions: A.map([1, 2], (index) =>
+      CoverageProducerPartition.make({
+        partitionId: `signed-${index}`,
+        packages: [selection(index)],
+      })
+    ),
+  });
+  return { ...f, first, second, write, options };
 });
 
 type ArtifactFixture = Effect.Success<ReturnType<typeof fixture>>;
@@ -457,6 +569,61 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
         expect(failure.message).toContain("unexpected coverage sources");
       })
     );
+    it.effect("rejects a canonical discovery child whose runtime version differs from its declaration", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        const invocation = CoverageProducerPackage.make({
+          packageName: "@beep/example",
+          packagePath: f.packagePath,
+          expectedTestFiles: f.tests,
+          testReportPath: "coverage/unit-results.json",
+          testRuntime: nativeTestRuntime,
+          testRuntimeVersion: "invalid-declared-version",
+        });
+        const failure = yield* discoverCoverageArtifactSources(f.root, f.packagePath, invocation).pipe(Effect.flip);
+        expect(failure.message).toContain("canonical invocation source discovery failed");
+        expect(failure.message).toContain("Coverage discovery runtime differs");
+      })
+    );
+
+    it.effect("retains the configuration cause when source discovery cannot initialize Vitest", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "vitest.config.ts"),
+          'throw new Error("invalid fixture coverage configuration"); export default {};'
+        );
+        const failure = yield* discoverCoverageArtifactSources(f.root, f.packagePath).pipe(Effect.flip);
+        expect(failure.message).toContain("cannot resolve Vitest configuration");
+        expect(failure.message).toContain("invalid fixture coverage configuration");
+      })
+    );
+
+    it.effect("rejects a barrel that changes into executable source after its inventory was validated", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        const barrel = f.path.join(f.packageRoot, "src/index.ts");
+        let reads = 0;
+        const racingFs = FileSystem.make({
+          ...f.fs,
+          readFile: Effect.fnUntraced(function* (file: string) {
+            if (file === barrel) {
+              reads += 1;
+              if (reads === 2) yield* f.fs.writeFileString(barrel, "export const changed = 1;\n");
+            }
+            return yield* f.fs.readFile(file);
+          }),
+        });
+        const failure = yield* collectCoverageProducerArtifacts(f.root, f.options).pipe(
+          Effect.provideService(FileSystem.FileSystem, racingFs),
+          Effect.flip
+        );
+        expect(reads).toBe(2);
+        expect(failure.message).toContain(`missing source ${f.packagePath}/src/index.ts`);
+        expect(yield* f.fs.readFileString(barrel)).toContain("export const changed = 1");
+      })
+    );
+
     it.effect("rejects an omitted V8 source instead of borrowing an Istanbul zero witness", () =>
       Effect.gen(function* () {
         const f = yield* sealedFixture();
@@ -486,6 +653,83 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
         expect(failure.message).toContain("missing V8 source");
       })
     );
+    it.effect("round trips schema-generated signed branch records without changing hit counts", () =>
+      Effect.gen(function* () {
+        const result = yield* Arbitrary.checkEffect(
+          Arbitrary.schema(CoverageRawFile.fields.b),
+          Effect.fnUntraced(function* (branches) {
+            const text = yield* encodeBranchHits(branches);
+            const decoded = yield* decodeBranchHits(text);
+            return sameBranchHits(branches, decoded);
+          }),
+          { runs: 64, seed: 1934 }
+        );
+        expect(result._tag).toBe("Passed");
+      })
+    );
+
+    it.effect("preserves real V8 implicit-else residuals through native merge and uncovered summaries", () =>
+      Effect.gen(function* () {
+        const f = yield* signedV8Fixture();
+        yield* f.write(1, f.first);
+        yield* f.write(2, f.second);
+        const manifest = yield* f.fs
+          .readFileString(f.path.join(f.root, ".beep/signed-artifacts/shard-1/manifest.json"))
+          .pipe(Effect.flatMap(decodeManifest));
+        const entry = manifest.packages[0];
+        if (entry === undefined) return yield* Effect.die("Expected signed report");
+        const raw = yield* f.fs
+          .readFileString(f.path.join(f.root, ".beep/signed-artifacts/shard-1", entry.reportPath))
+          .pipe(Effect.flatMap(decodeRawFixture));
+        expect(R.values(raw)[0]?.b["0"]).toEqual([3, -2]);
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        const row = snapshots[0]?.baseline.files[`${f.packagePath}/src/choose.ts`];
+        // Native signed addition gives [3,-1]. Clamping before merge would falsely cover both branches.
+        expect(row?.branches).toBe(50);
+        expect(row?.uncovered.branches).toBe(1);
+      })
+    );
+
+    it.effect("rejects an Istanbul signed residual even when its shape matches V8", () =>
+      Effect.gen(function* () {
+        const f = yield* signedV8Fixture();
+        const failure = yield* f.write(1, f.first, "istanbul").pipe(Effect.flip);
+        expect(failure.message).toContain("invalid branch counters");
+      })
+    );
+
+    for (const [kind, mutate] of R.toEntries({
+      explicitElse: (raw: CoverageRawFile) => ({
+        ...raw,
+        branchMap: R.map(raw.branchMap, (branch) => ({ ...branch, locations: [branch.loc, branch.loc] })),
+      }),
+      wrongType: (raw: CoverageRawFile) => ({
+        ...raw,
+        branchMap: R.map(raw.branchMap, (branch) => ({ ...branch, type: "cond-expr" })),
+      }),
+      wrongArity: (raw: CoverageRawFile) => ({ ...raw, b: { "0": [3, -2, 0] } }),
+      negativeFirst: (raw: CoverageRawFile) => ({ ...raw, b: { "0": [-1, 2] } }),
+      negativeParent: (raw: CoverageRawFile) => ({ ...raw, b: { "0": [1, -2] } }),
+      wrongFirstLocation: (raw: CoverageRawFile) => ({
+        ...raw,
+        branchMap: R.map(raw.branchMap, (branch) => ({
+          ...branch,
+          locations: [{ start: { line: 1, column: 0 }, end: { line: 1, column: 1 } }, branch.locations[1]],
+        })),
+      }),
+      negativeStatement: (raw: CoverageRawFile) => ({ ...raw, s: R.map(raw.s, () => -1) }),
+      negativeFunction: (raw: CoverageRawFile) => ({ ...raw, f: R.map(raw.f, () => -1) }),
+      fractional: (raw: CoverageRawFile) => ({ ...raw, b: { "0": [3, -0.5] } }),
+    })) {
+      it.effect(`rejects ${kind} signed coverage outside the V8 implicit-else contract`, () =>
+        Effect.gen(function* () {
+          const f = yield* signedV8Fixture();
+          const failure = yield* f.write(1, mutate(f.first)).pipe(Effect.flip);
+          expect(failure.message).toContain("Coverage artifact:");
+        })
+      );
+    }
+
     it.effect("rejects mixed providers within one package before merging maps", () =>
       Effect.gen(function* () {
         const f = yield* sealedFixture();

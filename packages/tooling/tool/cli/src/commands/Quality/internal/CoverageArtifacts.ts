@@ -318,7 +318,48 @@ const structuralZero = Effect.fn("CoverageArtifacts.structuralZero")(function* (
   );
 });
 
-const validateCounters = Effect.fn("CoverageArtifacts.validateCounters")(function* (file: CoverageRawFile) {
+// ast-v8-to-istanbul derives a missing else count as parent minus consequent.
+// Preserve that signed residual: the coverage library sums it and counts only >0.
+const rawBranch = CoverageRawFile.fields.branchMap.value;
+const rawBranchRange = rawBranch.fields.loc;
+const sameRawBranchRange = S.toEquivalence(rawBranchRange);
+const V8ImplicitElseResidual = S.Struct({
+  provider: S.tag("v8"),
+  branch: S.Struct({
+    type: S.tag("if"),
+    loc: rawBranchRange,
+    locations: S.Tuple([rawBranchRange, rawBranch.fields.locations.value.members[1]]),
+  }),
+  hits: S.Tuple([S.Natural, S.Int.check(S.isLessThan(0))]),
+});
+const isV8ImplicitElseResidual = S.is(V8ImplicitElseResidual);
+const isNatural = S.is(S.Natural);
+const validSignedBranch = (
+  provider: CoverageProducerPackage["provider"],
+  branch: CoverageRawFile["branchMap"][string],
+  hits: ReadonlyArray<number>
+) => {
+  const candidate = { provider, branch, hits };
+  return (
+    isV8ImplicitElseResidual(candidate) &&
+    isNatural(candidate.hits[0] + candidate.hits[1]) &&
+    sameRawBranchRange(candidate.branch.loc, candidate.branch.locations[0])
+  );
+};
+
+const validBranchHits = (
+  provider: CoverageProducerPackage["provider"],
+  branch: CoverageRawFile["branchMap"][string],
+  hits: O.Option<ReadonlyArray<number>>
+) =>
+  O.isSome(hits) &&
+  A.length(hits.value) === A.length(branch.locations) &&
+  (A.every(hits.value, isNatural) || validSignedBranch(provider, branch, hits.value));
+
+const validateCounters = Effect.fn("CoverageArtifacts.validateCounters")(function* (
+  file: CoverageRawFile,
+  provider: CoverageProducerPackage["provider"]
+) {
   for (const [locations, counters] of [
     Tuple.make(R.keys(file.statementMap), R.keys(file.s)),
     Tuple.make(R.keys(file.fnMap), R.keys(file.f)),
@@ -329,8 +370,8 @@ const validateCounters = Effect.fn("CoverageArtifacts.validateCounters")(functio
   }
   for (const [key, branch] of R.toEntries(file.branchMap)) {
     const hits = R.get(file.b, key);
-    if (O.isNone(hits) || A.length(hits.value) !== A.length(branch.locations))
-      return yield* configurationError(`branch arity mismatch for ${file.path}.`);
+    if (!validBranchHits(provider, branch, hits))
+      return yield* configurationError(`invalid branch counters (arity or signed residual) ${key} for ${file.path}.`);
   }
 });
 
@@ -348,7 +389,7 @@ const normalizedRaw = Effect.fn("CoverageArtifacts.normalizedRaw")(function* (
       const normalizedValue = yield* relativeFile(repoRoot, file.path);
       yield* relativeFile(path.join(repoRoot, selection.packagePath), path.join(repoRoot, normalized));
       if (normalized !== normalizedValue) return yield* configurationError(`raw map key/path disagree for ${key}.`);
-      yield* validateCounters(file);
+      yield* validateCounters(file, selection.provider);
       return [normalized, CoverageRawFile.make({ ...file, path: normalized })] as const;
     }),
     { concurrency: 1 }
@@ -723,12 +764,10 @@ export const collectCoverageProducerArtifacts = Effect.fn("CoverageArtifacts.col
     )
   )
     return yield* configurationError("missing producer partitions.");
-  const packages = A.groupBy(
-    A.flatMap(manifests, (manifest, index) =>
-      A.map(manifest.packages, (entry) => ({ entry, directory: path.dirname(path.resolve(root, files[index] ?? "")) }))
-    ),
-    (slice) => slice.entry.selection.packageName
+  const locatedPackages = A.flatMap(A.zip(manifests, files), ([manifest, file]: [CoverageProducerManifest, string]) =>
+    A.map(manifest.packages, (entry) => ({ entry, directory: path.dirname(path.resolve(root, file)) }))
   );
+  const packages = A.groupBy(locatedPackages, (slice) => slice.entry.selection.packageName);
   return yield* Effect.forEach(
     A.sortWith(R.toEntries(packages), (entry) => entry[0], Order.String),
     Effect.fnUntraced(function* ([packageName, located]) {
