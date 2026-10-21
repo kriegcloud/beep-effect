@@ -1,0 +1,297 @@
+// The public scripted-spawner fixture is itself load-bearing test machinery —
+// every unit suite in this package (and downstream consumers stubbing the
+// spawner seam) leans on it — so its contract is tested directly: script
+// routing, spawn recording (options, extendEnv), the PlatformError failure
+// path, hang, unref observation, and the loud pipeline refusal.
+
+import { CommandFailedError, Run } from "@beep/commands/Run";
+import { ScriptCompletion, ScriptedSpawner, ScriptResult, SpawnRecord } from "@beep/commands/ScriptedSpawner";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { assert, describe, it } from "@effect/vitest";
+import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as Fiber from "effect/Fiber";
+import * as Layer from "effect/Layer";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as S from "effect/Schema";
+import * as Sink from "effect/Sink";
+import * as Stream from "effect/Stream";
+import * as TestClock from "effect/testing/TestClock";
+
+/** Builds each test layer under the program's scope, with fresh per-invocation state. */
+const withLayer =
+  <R, E2, R2>(layer: Layer.Layer<R, E2, R2>) =>
+  <A, E, R3>(program: Effect.Effect<A, E, R3>) =>
+    Effect.scopedWith((scope) =>
+      Effect.flatMap(Layer.buildWithScope(layer, scope), (context) => Effect.provideContext(program, context))
+    );
+
+const cmd = (executable = "tool", args: ReadonlyArray<string> = []) => ChildProcess.make(executable, args);
+
+describe("ScriptedSpawner.make", () => {
+  it.effect("routes by executable and argv", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make((command, args) =>
+        command === "git" && args[0] === "rev-parse" ? { stdout: "abc123\n" } : { stdout: "other\n" }
+      );
+      const sha = yield* Run.text(cmd("git", ["rev-parse", "HEAD"])).pipe(withLayer(spawner.layer));
+      const other = yield* Run.text(cmd("npm", ["--version"])).pipe(withLayer(spawner.layer));
+      assert.strictEqual(sha, "abc123");
+      assert.strictEqual(other, "other");
+    })
+  );
+
+  it.effect("an empty ScriptResult scripts a silent success", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make(() => ({}));
+      const output = yield* Run.collect(cmd()).pipe(withLayer(spawner.layer));
+      assert.strictEqual(output.stdout, "");
+      assert.strictEqual(output.stderr, "");
+      assert.strictEqual(output.exitCode, 0);
+    })
+  );
+
+  it.effect("records command, args, cwd, env and extendEnv, plus the full options", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make(() => ({ stdout: "ok" }));
+      const command = cmd("pnpm", ["store", "path"]).pipe(ChildProcess.setCwd("/repo"), Run.extendEnv({ CI: "1" }));
+      yield* Run.collect(command).pipe(withLayer(spawner.layer));
+      const record = spawner.spawns[0];
+      assert.strictEqual(record?.command, "pnpm");
+      assert.deepStrictEqual(record?.args, ["store", "path"]);
+      assert.strictEqual(record?.cwd, "/repo");
+      assert.deepStrictEqual(record?.env, { CI: "1" });
+      assert.strictEqual(record?.extendEnv, true);
+      // The conveniences are lifted from the full options, which stay readable.
+      assert.strictEqual(record?.options.cwd, "/repo");
+      assert.deepStrictEqual(record?.options.env, { CI: "1" });
+    })
+  );
+
+  it.effect("records spawns in call order, only when the effect actually runs", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make(() => ({}));
+      const program = Run.collect(cmd("first")).pipe(withLayer(spawner.layer));
+      // Constructed but not yet run: nothing may be recorded.
+      assert.lengthOf(spawner.spawns, 0);
+      yield* program;
+      yield* Run.collect(cmd("second")).pipe(withLayer(spawner.layer));
+      assert.deepStrictEqual(
+        A.map(spawner.spawns, (record) => record.command),
+        ["first", "second"]
+      );
+    })
+  );
+
+  it.effect("a scripted notFound fails the spawn as kind 'spawn' with notFound set — and is still recorded", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make((command) => ScriptedSpawner.notFound(command));
+      const error = yield* Effect.flip(Run.collect(cmd("missing")).pipe(withLayer(spawner.layer)));
+      assert.instanceOf(error, CommandFailedError);
+      if (S.is(CommandFailedError)(error)) {
+        assert.strictEqual(error.kind, "spawn");
+        assert.isTrue(error.notFound, "a NotFound system error must classify as absent");
+      }
+      assert.lengthOf(spawner.spawns, 1, "a failed spawn is a probe and must be recorded");
+    })
+  );
+
+  it.effect("a scripted permissionDenied is kind 'spawn' but NOT notFound", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make((command) => ScriptedSpawner.permissionDenied(command));
+      const error = yield* Effect.flip(Run.collect(cmd("blocked")).pipe(withLayer(spawner.layer)));
+      assert.instanceOf(error, CommandFailedError);
+      if (S.is(CommandFailedError)(error)) {
+        assert.strictEqual(error.kind, "spawn");
+        assert.isFalse(error.notFound);
+      }
+    })
+  );
+
+  it.effect("hang never resolves exitCode, so an opted-in timeout fires", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make(() => ({ hang: true }));
+      const fiber = yield* Run.collect(cmd(), { timeout: "30 seconds" }).pipe(
+        withLayer(spawner.layer),
+        Effect.flip,
+        Effect.forkChild
+      );
+      yield* TestClock.adjust("31 seconds");
+      const error = yield* Fiber.join(fiber);
+      assert.instanceOf(error, CommandFailedError);
+      if (S.is(CommandFailedError)(error)) {
+        assert.strictEqual(error.kind, "timeout");
+      }
+    })
+  );
+
+  it.effect("unrefed flips only when the handle's unref actually RUNS", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make(() => ({}));
+      yield* Run.collect(cmd("plain")).pipe(withLayer(spawner.layer));
+      yield* Run.detach(cmd("daemon")).pipe(withLayer(spawner.layer));
+      assert.isFalse(spawner.spawns[0]?.unrefed, "a plain run must not report unref");
+      assert.isTrue(spawner.spawns[1]?.unrefed, "detach runs unref before its scope closes");
+    })
+  );
+
+  it.effect("a piped command dies loudly with the documented message", () =>
+    Effect.gen(function* () {
+      const spawner = ScriptedSpawner.make(() => ({}));
+      const piped = ChildProcess.pipeTo(cmd("producer"), cmd("consumer"));
+      const exit = yield* Effect.exit(Run.collect(piped).pipe(withLayer(spawner.layer)));
+      if (Exit.isSuccess(exit)) assert.fail("expected a defect from a piped command");
+      assertExitFailure(exit, exit.cause);
+      if (Exit.isFailure(exit)) {
+        assert.isFalse(A.some(exit.cause.reasons, Cause.isFailReason), "must be a die, never a typed failure");
+        assert.isTrue(Cause.hasDies(exit.cause));
+        const defect = A.map(A.filter(exit.cause.reasons, Cause.isDieReason), (reason) => reason.defect)[0];
+        assert.instanceOf(defect, Error);
+        assert.include(defect.message, "piped command");
+      }
+      assert.lengthOf(spawner.spawns, 0, "a refused pipeline must not be recorded as a spawn");
+    })
+  );
+});
+
+it("ScriptResult retains optional fields, platform errors and the upstream numeric domain", () => {
+  assert.isTrue(S.is(ScriptResult)({}));
+  assert.isTrue(S.is(ScriptResult)({ stdout: undefined, stderr: undefined, exit: undefined, hang: undefined }));
+  assert.isFalse(S.is(ScriptResult)({ stdout: "ok", exit: 1.5, hang: true }));
+  assert.isFalse(S.is(ScriptResult)({ exit: Number.POSITIVE_INFINITY }));
+  assert.isTrue(S.is(ScriptResult)({ stdout: "ok", exit: 42, hang: true }));
+  const platformError = ScriptedSpawner.notFound("tool");
+  assert.isTrue(S.is(ScriptResult)(platformError));
+  const decode = (input: unknown) => S.decodeUnknownOption(ScriptResult)(input);
+  assertNone(decode({ exit: 1.5 }));
+  assertNone(decode({ exit: Number.POSITIVE_INFINITY }));
+  assertSome(decode({ exit: 42 }), ScriptCompletion.make({ exit: 42 }));
+  const decoded = decode(platformError);
+  if (decoded._tag !== "Some") assert.fail("expected the platform error carrier");
+  assert.strictEqual(decoded.value, platformError);
+  assert.isFalse(S.is(ScriptResult)({ stdout: 1 }));
+  assert.isFalse(S.is(ScriptResult)({ hang: "true" }));
+});
+
+it("SpawnRecord retains complete options, opaque objects and writable unref state", () => {
+  const options: ChildProcess.CommandOptions = {
+    cwd: "/repo",
+    env: { MARKER: undefined },
+    extendEnv: true,
+    shell: "/bin/sh",
+    detached: true,
+    windowsHide: false,
+    killSignal: "SIGTERM",
+    forceKillAfter: { milliseconds: 50 },
+    stdin: { stream: Stream.empty, endOnDone: false, encoding: "utf-8" },
+    stdout: { stream: Sink.succeed(new Uint8Array()) },
+    stderr: "pipe",
+    additionalFds: {
+      fd3: { type: "input", stream: Stream.empty },
+      fd4: { type: "output", sink: Sink.succeed(new Uint8Array()) },
+    },
+  };
+  const record = {
+    command: "tool",
+    args: [],
+    cwd: options.cwd,
+    env: options.env,
+    extendEnv: options.extendEnv,
+    options,
+    unrefed: false,
+  };
+  assert.isTrue(S.is(SpawnRecord)(record));
+  const decode = (input: unknown) => S.decodeUnknownOption(SpawnRecord)(input);
+  const decoded = decode(record);
+  if (decoded._tag !== "Some") assert.fail("expected a spawn record");
+  assert.strictEqual(decoded.value.options, options);
+  record.unrefed = true;
+  assert.isTrue(record.unrefed);
+  assert.isFalse(S.is(SpawnRecord)({ ...record, options: { cwd: 1 } }));
+  assert.isFalse(S.is(SpawnRecord)({ ...record, options: { stdin: { stream: {} } } }));
+  assert.isFalse(S.is(SpawnRecord)({ ...record, options: { killSignal: "INVALID" } }));
+});
+
+it("SpawnRecord accepts numeric-template FD keys and preserves their opaque carriers", () => {
+  for (const key of ["fd 3", "fd0x3"] as const) {
+    for (const config of [
+      { type: "input", stream: Stream.empty },
+      { type: "output", sink: Sink.succeed(new Uint8Array()) },
+    ] as const) {
+      const options: ChildProcess.CommandOptions = { additionalFds: { [key]: config } };
+      const record = {
+        command: "tool",
+        args: [],
+        cwd: undefined,
+        env: undefined,
+        extendEnv: undefined,
+        options,
+        unrefed: false,
+      };
+      assert.isTrue(S.is(SpawnRecord)(record));
+      const decoded = S.decodeOption(SpawnRecord)(record);
+      if (decoded._tag !== "Some") assert.fail("expected a spawn record with a numeric-template FD key");
+      assert.strictEqual(decoded.value.options, options);
+      assert.strictEqual(decoded.value.options.additionalFds?.[key], config);
+    }
+  }
+});
+
+it("SpawnRecord rejects invalid stream and sink payloads under numeric-template FD keys", () => {
+  for (const key of ["fd3", "fd4", "fd 3", "fd0x3"] as const) {
+    for (const config of [
+      { type: "input", stream: 42 },
+      { type: "output", sink: 42 },
+    ] as const) {
+      const record = {
+        command: "tool",
+        args: [],
+        cwd: undefined,
+        env: undefined,
+        extendEnv: undefined,
+        options: { additionalFds: { [key]: config } },
+        unrefed: false,
+      };
+      assert.isFalse(S.is(SpawnRecord)(record));
+      assertNone(S.decodeUnknownOption(SpawnRecord)(record));
+    }
+  }
+});
+
+it.effect("SpawnRecord accepts whitespace in forceKillAfter and preserves the original options", () =>
+  Effect.gen(function* () {
+    for (const forceKillAfter of ["1  seconds", "-1  seconds"] as const) {
+      const options: ChildProcess.CommandOptions = { forceKillAfter };
+      const record = {
+        command: "tool",
+        args: [],
+        cwd: undefined,
+        env: undefined,
+        extendEnv: undefined,
+        options,
+        unrefed: false,
+      };
+      assert.isTrue(S.is(SpawnRecord)(record));
+      const decoded = yield* S.decodeEffect(SpawnRecord)(record);
+      assert.strictEqual(decoded.options, options);
+      assert.strictEqual(decoded.options.forceKillAfter, forceKillAfter);
+    }
+  })
+);
+
+it.effect.prop(
+  "ScriptResult accepts and round-trips every scripted completion",
+  [Arbitrary.schema(ScriptCompletion)],
+  ([completion]) =>
+    Effect.gen(function* () {
+      assert.isTrue(S.is(ScriptResult)(completion));
+      const encoded = yield* S.encodeEffect(ScriptResult)(completion);
+      const decoded = yield* S.decodeEffect(ScriptResult)(encoded);
+      assert.isTrue(S.toEquivalence(ScriptResult)(decoded, completion));
+    }),
+  { arbitrary: fcRuns(100) }
+);

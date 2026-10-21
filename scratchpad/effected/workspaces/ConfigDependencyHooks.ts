@@ -34,7 +34,7 @@ import { dual, pipe } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { pathToFileURL } from "node:url";
-import { Run } from "../commands/index.ts";
+import { Run } from "@beep/commands";
 import { PartialReleaseAgeGate } from "../npm/index.ts";
 import { CatalogAssemblyError } from "../npm/index.ts";
 import * as Context from "effect/Context";

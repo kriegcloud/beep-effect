@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
-import { ScriptedSpawner } from "../../effected/commands/index.ts";
+import { ScriptedSpawner } from "@beep/commands";
 import type { PeerDependencyRules } from "../../effected/workspaces/ConfigDependencyHooks.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);

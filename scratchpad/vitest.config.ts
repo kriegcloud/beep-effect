@@ -5,12 +5,12 @@ export default defineConfig({
   plugins: [Doctest.plugin()],
   test: {
     include: ["scratchpad/test/**/*.test.ts"],
-    includeSource: ["scratchpad/effected/jsonl/**/*.ts"],
+    includeSource: ["packages/foundation/modeling/jsonl/src/**/*.ts"],
     passWithNoTests: true,
     coverage: {
       // The @effected/jsonc port is held at full coverage; enable with
       // `--coverage.enabled` to enforce it.
-      include: ["scratchpad/effected/jsonc/**/*.ts"],
+      include: ["packages/foundation/modeling/jsonc/src/**/*.ts"],
       thresholds: {
         branches: 100,
         functions: 100,

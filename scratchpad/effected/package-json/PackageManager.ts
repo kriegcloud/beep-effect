@@ -22,7 +22,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { CorepackIntegrityHash } from "../npm/index.ts";
-import { SemVer } from "../semver/index.ts";
+import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { dual } from "effect/Function";

@@ -4,7 +4,7 @@ import * as Order from "effect/Order";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashSet from "effect/MutableHashSet";
-import { Jsonc } from "../../jsonc/index.ts";
+import { Jsonc } from "@beep/jsonc";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Exit from "effect/Exit";
