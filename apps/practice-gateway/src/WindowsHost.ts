@@ -1,6 +1,7 @@
 /**
- * The small set of Windows facts the setup probes read: known folders, file
- * presence, registry values, BitLocker protection and running processes.
+ * The small set of Windows facts the setup probes read (known folders, file
+ * presence, registry values, BitLocker protection and running processes) and
+ * the one question the gateway asks the lawyer directly: a Yes/No dialog.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -161,6 +162,32 @@ export class RegistryValueQuery extends S.Opaque<RegistryValueQuery, { readonly 
 ) {}
 
 /**
+ * A Yes/No question shown in a Windows dialog on the lawyer's desktop.
+ *
+ * **Example** (Ask before installing Box Drive)
+ *
+ * ```ts
+ * import { YesNoQuestion } from "@beep/practice-gateway/WindowsHost"
+ *
+ * const question = YesNoQuestion.make({ title: "Practice gateway", message: "Install Box Drive now?" })
+ * console.log(question.title) // "Practice gateway"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class YesNoQuestion extends S.Opaque<YesNoQuestion, { readonly brand: unique symbol }>()(
+  S.Struct({
+    title: S.String.annotateKey({ description: "Dialog title bar text." }),
+    message: S.String.annotateKey({ description: "The plain-language question; Yes approves, No declines." }),
+  }).pipe(
+    $I.annoteSchema("YesNoQuestion", {
+      description: "A Yes/No question shown in a Windows dialog on the lawyer's desktop.",
+    })
+  )
+) {}
+
+/**
  * Service shape of {@link WindowsHost}.
  *
  * **Example** (Build a host shape)
@@ -179,6 +206,7 @@ export class RegistryValueQuery extends S.Opaque<RegistryValueQuery, { readonly 
  *   appxPackageFamilies: () => Effect.succeed([]),
  *   bitLocker: () => Effect.succeed("unknown"),
  *   processRunning: () => Effect.succeed(false),
+ *   askYesNo: () => Effect.succeed(false),
  * })
  * console.log(shape.isWindows) // false
  * ```
@@ -193,6 +221,13 @@ export class WindowsHostShape extends S.Opaque<WindowsHostShape, { readonly bran
       output: WindowsHostOutput<ReadonlyArray<string>>(),
     }).annotateKey({
       description: "Package family names of the MSIX (Appx) packages with this name installed for the current user.",
+    }),
+    askYesNo: Fn({
+      input: YesNoQuestion,
+      output: WindowsHostOutput<boolean>(),
+    }).annotateKey({
+      description:
+        "Show a topmost Yes/No dialog, No preselected, on the lawyer's desktop and wait for the answer; true only for Yes.",
     }),
     bitLocker: Fn({
       input: S.String,
@@ -226,7 +261,7 @@ export class WindowsHostShape extends S.Opaque<WindowsHostShape, { readonly bran
     }),
   }).pipe(
     $I.annoteSchema("WindowsHostShape", {
-      description: "The Windows facts the setup probes read.",
+      description: "The Windows facts the setup probes read and the Yes/No dialog the gateway can show.",
     })
   )
 ) {}
@@ -351,6 +386,19 @@ const AppxFamilyScript = (name: string) => `Get-AppxPackage -Name '${name}' | Fo
 const BitLockerScript = (drive: string) =>
   `(New-Object -ComObject Shell.Application).NameSpace('${drive}').Self.ExtendedProperty('System.Volume.BitLockerProtection')`;
 
+// Reads its input from BEEP_ASK_TITLE and BEEP_ASK_MESSAGE; prints "yes" only for Yes.
+// No is the default button, so a stray Enter or Space while the lawyer types
+// elsewhere declines, like every other way out of the dialog.
+const YesNoScript = A.join(
+  [
+    "Add-Type -AssemblyName System.Windows.Forms",
+    "$owner = New-Object System.Windows.Forms.Form -Property @{ TopMost = $true }",
+    "$answer = [System.Windows.Forms.MessageBox]::Show($owner, $env:BEEP_ASK_MESSAGE, $env:BEEP_ASK_TITLE, 'YesNo', 'Question', 'Button2')",
+    "if ($answer -eq 'Yes') { 'yes' } else { 'no' }",
+  ],
+  "; "
+);
+
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
   stream.pipe(
     Stream.decodeText(),
@@ -367,7 +415,9 @@ const notWindows = (operation: string) =>
  *
  * The live layer reads files through `FileSystem`, folders through `Config`
  * and shells out to `reg.exe`, `powershell.exe` and `tasklist.exe` through
- * `ChildProcessSpawner`. Off Windows the shell-backed queries fail with
+ * `ChildProcessSpawner`. `askYesNo` runs a Windows Forms message box in a
+ * PowerShell child that reads the question from environment variables, so
+ * the text is never parsed as PowerShell; interrupting the call closes it. Off Windows the shell-backed queries fail with
  * {@link WindowsHostFailure}; probes check `isWindows` first and never reach
  * them. Tests provide a fake shape with `WindowsHostShape.make`.
  *
@@ -390,6 +440,7 @@ const notWindows = (operation: string) =>
  *     appxPackageFamilies: () => Effect.succeed([]),
  *     bitLocker: () => Effect.succeed("on"),
  *     processRunning: () => Effect.succeed(false),
+ *     askYesNo: () => Effect.succeed(false),
  *   })
  * )
  * console.log(Layer.isLayer(fake))
@@ -422,9 +473,15 @@ export class WindowsHost extends Context.Service<WindowsHost, WindowsHostShape>(
       const { isWindows } = yield* GatewaySettings;
 
       const run = Effect.fnUntraced(
-        function* (command: string, args: ReadonlyArray<string>) {
+        function* (command: string, args: ReadonlyArray<string>, env?: Record<string, string>) {
           const child = yield* spawner.spawn(
-            ChildProcess.make(command, args, { stdin: "ignore", stderr: "ignore", stdout: "pipe" })
+            ChildProcess.make(command, args, {
+              stdin: "ignore",
+              stderr: "ignore",
+              stdout: "pipe",
+              env,
+              extendEnv: true,
+            })
           );
           const [stdout, exitCode] = yield* Effect.all([collectText(child.stdout), child.exitCode], {
             concurrency: "unbounded",
@@ -500,8 +557,17 @@ export class WindowsHost extends Context.Service<WindowsHost, WindowsHostShape>(
             )
           : notWindows("Listing processes");
 
+      const askYesNo = ({ title, message }: YesNoQuestion) =>
+        isWindows
+          ? run("powershell.exe", ["-NoProfile", "-NonInteractive", "-STA", "-Command", YesNoScript], {
+              BEEP_ASK_TITLE: title,
+              BEEP_ASK_MESSAGE: message,
+            }).pipe(Effect.map(({ exitCode, stdout }) => exitCode === 0 && Str.trim(stdout) === "yes"))
+          : notWindows("Asking in a Windows dialog");
+
       return WindowsHostShape.make({
         isWindows,
+        askYesNo,
         folder,
         exists,
         readFile,

@@ -34,11 +34,11 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — schemas first. P0 findings: [history/p0](history/p0/2026-10-14-research.md).
+P1 Implement: slice 1 merged in #1771. Run 4 (2026-10-20) found four problems; #1935 fixes them, and run 5 (2026-10-21, agent-driven) proved all four on the VM and fixed a stale `claude://` handler. Open follow-ups: an expired Claude session still passes the sign-in step, Claude asks permission once per tool, and the BitLocker wording. P0 findings: [history/p0](history/p0/2026-10-14-research.md).
 
 ## Latest Evidence
 
-P0 inventory and decisions recorded 2026-10-14.
+[Onboarding proof run 5](history/p1/2026-10-21-onboarding-proof-run5.md) (2026-10-21): an agent drove every console step; the operator only signed in to Claude. Update to 0.1.2, the Windows approval dialog, the signed-in check and the Microsoft 365 app-ID gate all pass. [Run 4](history/p1/2026-10-20-onboarding-proof-run4.md) (2026-10-20): gateway 0.1.0 → 0.1.1 update, interview and profile save pass, with a FreshBooks gap recorded. Four findings: no `.mcpb` file type, no approval prompt in Claude Desktop, a false signed-in negative, and Microsoft 365 offered without an app ID.
 
 ## Notes
 

@@ -21,6 +21,7 @@ import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as S from "effect/Schema";
 import { GatewaySettings } from "./GatewaySettings.ts";
 import { M365_TOKEN_CACHE_SEGMENTS, M365SignIn, M365SignInOutcome } from "./M365SignIn.ts";
 import { PracticeKgModuleLoader } from "./PracticeKgProvider.ts";
@@ -89,6 +90,13 @@ export interface GatewayProbe {
  */
 export type GatewayProbeRegistry = { readonly [Id in GatewayRequirementId]: GatewayProbe };
 
+// The sign-in marker in Claude Desktop's config.json (an undocumented internal):
+// a non-empty `lastKnownAccountUuid` appears once an account has signed in. Only
+// its presence is read; the value is never logged.
+const decodeClaudeAccountMarker = S.decodeUnknownOption(
+  S.fromJsonString(S.Struct({ lastKnownAccountUuid: S.NonEmptyString }))
+);
+
 const satisfied = ProbeSatisfied.make({});
 const missing = (detail: string): ProbeResult => ProbeMissing.make({ detail });
 const broken = (detail: string): ProbeResult => ProbeBroken.make({ detail });
@@ -106,9 +114,12 @@ const readOnly = (probe: Effect.Effect<ProbeResult, SetupProbeUnavailable>): Gat
  * Windows-only facts (Claude Desktop, Box Drive, BitLocker, the DPAPI token
  * cache) answer `missing` with "only on Windows" off Windows, so a Linux
  * self-check still prints a full report. `claude-signed-in` is satisfied
- * while an MCP client is calling the gateway: a Claude session that reaches
- * the tool is a signed-in session. `m365-consented` reports "not configured"
- * without a Microsoft 365 app id, and its repair runs the browser sign-in
+ * while an MCP client is calling the gateway (a Claude session that reaches
+ * the tool is a signed-in session); outside one, such as the `--self-check`
+ * command line, it reads Claude Desktop's own sign-in marker from the
+ * per-user or MSIX `config.json`. `m365-app-configured` reports "not configured"
+ * without a Microsoft 365 app id; `m365-consented` depends on it, and its
+ * repair runs the browser sign-in
  * ({@link M365SignIn}). The Box Drive install repair is a
  * download-free placeholder that fails with a plain reason until the
  * installer route is decided.
@@ -176,13 +187,37 @@ export const makeGatewayProbes = Effect.gen(function* () {
     })
   );
 
+  const configSignedIn = Effect.fnUntraced(function* (
+    folder: Parameters<typeof host.folder>[0],
+    ...segments: Array<string>
+  ) {
+    const base = yield* host.folder(folder);
+    if (O.isNone(base)) {
+      return false;
+    }
+    const bytes = yield* host.readFile(path.join(base.value, ...segments, "config.json"));
+    return O.exists(bytes, (raw) => O.isSome(decodeClaudeAccountMarker(new TextDecoder().decode(raw))));
+  });
+
+  const claudeConfigSignedIn = windowsOnly(
+    "claude-signed-in",
+    Effect.gen(function* () {
+      const signedIn =
+        (yield* configSignedIn("APPDATA", "Claude")) ||
+        (yield* configSignedIn(
+          "LOCALAPPDATA",
+          "Packages",
+          CLAUDE_MSIX_PACKAGE_FAMILY,
+          "LocalCache",
+          "Roaming",
+          "Claude"
+        ));
+      return signedIn ? satisfied : missing("Claude Desktop is not signed in to a Claude account.");
+    })
+  );
+
   const claudeSignedIn = Effect.serviceOption(McpSchema.McpRequestContext).pipe(
-    Effect.map(
-      O.match({
-        onNone: () => missing("No signed-in Claude session is using the practice gateway right now."),
-        onSome: () => satisfied,
-      })
-    )
+    Effect.flatMap(O.match({ onNone: () => claudeConfigSignedIn, onSome: () => Effect.succeed(satisfied) }))
   );
 
   const boxDriveInstalled = windowsOnly(
@@ -209,16 +244,15 @@ export const makeGatewayProbes = Effect.gen(function* () {
   );
 
   // Without a configured app id the requirement reports "not configured" in
-  // plain language instead of failing.
-  const m365Consented = m365.connection.pipe(
-    Effect.matchEffect({
-      onFailure: (failure) => Effect.succeed(missing(failure.message)),
-      onSuccess: () =>
-        host.exists(tokenCachePath).pipe(
-          Effect.map((present) => (present ? satisfied : missing("Microsoft 365 has not been connected yet."))),
-          Effect.mapError(unavailable("m365-consented"))
-        ),
-    })
+  // plain language instead of failing; consent waits on it as a dependency,
+  // so the sign-in repair is never offered before it could work.
+  const m365AppConfigured = m365.connection.pipe(
+    Effect.match({ onFailure: (failure) => missing(failure.message), onSuccess: () => satisfied })
+  );
+
+  const m365Consented = host.exists(tokenCachePath).pipe(
+    Effect.map((present) => (present ? satisfied : missing("Microsoft 365 has not been connected yet."))),
+    Effect.mapError(unavailable("m365-consented"))
   );
 
   const m365TokenCached = windowsOnly(
@@ -322,6 +356,7 @@ export const makeGatewayProbes = Effect.gen(function* () {
     "box-drive-installed": { probe: boxDriveInstalled, repair: installBoxDrive.pipe(Effect.fail, O.some) },
     "box-drive-signed-in": readOnly(boxDriveSignedIn),
     "box-drive-folder-available": readOnly(boxDriveFolder),
+    "m365-app-configured": readOnly(m365AppConfigured),
     "m365-consented": { probe: m365Consented, repair: O.some(connectM365) },
     "m365-token-cached": readOnly(m365TokenCached),
     "practice-kg-bundle-present": readOnly(bundlePresent),
