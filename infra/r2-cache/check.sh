@@ -5,7 +5,7 @@ set +x
 root="$(cd "$(dirname "$0")" && pwd)"
 "$root/adapter.sh" install
 python3 - "$root" <<'PY'
-import http.server,json,os,pathlib,shutil,socket,subprocess,sys,tempfile,threading,time,uuid
+import http.server,json,os,pathlib,re,shutil,socket,subprocess,sys,tarfile,tempfile,threading,time,uuid
 source=pathlib.Path(sys.argv[1]);parent=pathlib.Path.home()/'.cache/beep/r2-cache-check';parent.mkdir(parents=True,exist_ok=True)
 def run(args,env,ok=True):
     p=subprocess.run(args,env=env,capture_output=True,text=True,timeout=30)
@@ -26,6 +26,13 @@ with tempfile.TemporaryDirectory(dir=parent) as directory:
     dotenv.write_text(enrolled+'LATER_EDIT=retained\n')
     run([str(source/'workstation.sh'),'rollback',str(checkout)],env)
     assert dotenv.read_text()==original+'LATER_EDIT=retained\n'
+    exported=original.replace('TURBO_','export TURBO_').replace('export TURBO_API=','  export TURBO_API  =').replace('export TURBO_TOKEN=op://fixture/item/old','export TURBO_TOKEN="op://fixture/item/old" # retain reference comment')
+    dotenv.write_text(exported)
+    run([str(source/'workstation.sh'),'enable',str(checkout)],env)
+    assert '  export TURBO_API  =http://127.0.0.1:9427' in dotenv.read_text()
+    dotenv.write_text(dotenv.read_text()+'LATER_EDIT=retained\n')
+    run([str(source/'workstation.sh'),'rollback',str(checkout)],env)
+    assert dotenv.read_text()==exported+'LATER_EDIT=retained\n'
     dotenv.write_text(original+'TURBO_CACHE=local:rw\n')
     assert run([str(source/'workstation.sh'),'enable',str(checkout)],env,False).returncode!=0
     dotenv.write_text(original+'export TURBO_TOKEN=op://fixture/item/duplicate\n')
@@ -108,5 +115,26 @@ with tempfile.TemporaryDirectory(dir=parent) as directory:
             run([real_systemctl,'--user','stop',unit],manager_env,False)
             unitfile.unlink(missing_ok=True);run([real_systemctl,'--user','daemon-reload'],manager_env,False)
     else:print('SKIP: live user-service parsing requires an active systemd user manager.')
-print('PASS: enrollment, rollback preservation, duplicate/raw-token refusal, occupied-port/startup fallback, secret isolation, runner tracking and exact-process cleanup.')
+    # Real state-copy/archive operations with inert git/bun boundaries, never a cloud call.
+    archivebin=base/'archive-bin';archivebin.mkdir();cache_root=base/'archive-cache';state_root=base/'archive-state'
+    script=(source/'alchemy.sh').read_text()
+    pins={name:re.search(r'^'+name+r'=([a-f0-9]{40})$',script,re.M).group(1) for name in ['revision','distilled']}
+    fakegit=archivebin/'git';fakebun=archivebin/'bun'
+    fakegit.write_text('#!/usr/bin/python3\nimport sys\npins='+repr(pins)+'\nkey=sys.argv[-1]\nassert key in ["HEAD","HEAD:submodules/distilled"]\nprint(pins["revision" if key=="HEAD" else "distilled"])\n')
+    fakegit.chmod(0o700);fakebun.write_text('#!/bin/sh\nexit 0\n');fakebun.chmod(0o700)
+    tool=cache_root/'beep/alchemy-r2-pilot-95f1581';(tool/'.git').mkdir(parents=True)
+    (tool/'node_modules').mkdir();(tool/'submodules/distilled').mkdir(parents=True);(tool/'submodules/distilled/.git').touch()
+    (tool/'.alchemy').mkdir();(tool/'.alchemy/state.json').write_text('{"version":1}')
+    archive_env={**os.environ,'PATH':str(archivebin)+os.pathsep+os.environ['PATH'],'XDG_CACHE_HOME':str(cache_root),'XDG_STATE_HOME':str(state_root)}
+    run([str(source/'alchemy.sh'),'plan'],archive_env)
+    durable=state_root/'beep/r2-cache/alchemy';(durable/'state.json').write_text('{"version":2}')
+    run([str(source/'alchemy.sh'),'plan'],archive_env)
+    archives=list(durable.parent.glob('state-before-plan-*.tar.gz'));assert len(archives)==2
+    versions=[]
+    for archive in archives:
+        with tarfile.open(archive) as saved:versions.append(json.load(saved.extractfile('alchemy/state.json'))['version'])
+    assert sorted(versions)==[1,2]
+    assert (tool/'.alchemy.before-durable-state/state.json').read_text()=='{"version":1}'
+    print('PASS: repeated Alchemy plans retain distinct pre-operation archives and the original recovery state; inert tool boundaries only.')
+print('PASS: enrollment/export-line rollback preservation, duplicate/raw-token refusal, occupied-port/startup fallback, secret isolation, runner tracking and exact-process cleanup.')
 PY

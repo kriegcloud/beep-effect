@@ -26,7 +26,8 @@ Only the owner workstation runs deployment. The tool clone lives under
 `~/.cache/beep/alchemy-r2-pilot-95f1581`. The wrapper relocates existing local
 Alchemy state to `~/.local/state/beep/r2-cache/alchemy`, keeps the original state
 directory as a recovery copy, links the tool to the durable state, and makes a
-pre-operation archive. A conflicting state root stops provisioning.
+unique timestamped pre-operation archive. Later operations retain earlier snapshots.
+A conflicting state root stops provisioning.
 
 Use the reference-only management environment produced by the credential handoff:
 
@@ -94,7 +95,8 @@ A persistent failure leaves quality commands able to execute locally.
 Enrollment changes only the cache quad plus `BEEP_TURBO_TRUSTED_WRITER=true` in
 that checkout. It refuses duplicate cache entries, symlinked dotenv files, and
 raw existing cache tokens. A private receipt retains only the old/new cache fields
-and references. Other dotenv values and unrelated later edits stay intact.
+and references, retaining original cache lines for rollback, including `export`
+and spacing. Other dotenv values and unrelated later edits stay intact.
 Enroll one checkout initially; older CLI versions intentionally reject remote
 writes, so do not enroll clones before they contain the matching resolver change.
 

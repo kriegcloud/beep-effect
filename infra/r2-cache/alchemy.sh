@@ -34,7 +34,8 @@ else
   ln -s "$state" "$tool/.alchemy"
 fi
 cp "$source_dir/alchemy.run.ts" "$tool/pilot/alchemy.run.ts"
-(cd "$(dirname "$state")" && tar -czf state-before-operation.tar.gz alchemy)
+archive="$(mktemp --suffix=.tar.gz "$(dirname "$state")/state-before-${action}-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")"
+(cd "$(dirname "$state")" && tar -czf "$archive" alchemy)
 cd "$tool"
 args=("$action" --config ./pilot/alchemy.run.ts --stage r2-pilot)
 [[ "$action" == plan ]] && args+=(--detailed)

@@ -91,11 +91,12 @@ def assignment(line):
     match=re.match(r'^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=(.*)$',line)
     return match.groups() if match else ('', '')
 updates={'TURBO_API':'http://127.0.0.1:'+values.get('R2_ADAPTER_PORT','9427'),'TURBO_TOKEN':ref,'TURBO_TEAM':values['TURBO_TEAM'],'TURBO_CACHE':'local:rw,remote:rw','BEEP_TURBO_TRUSTED_WRITER':'true'}
-before={}
+before={};before_lines={}
 for key in updates:
-    found=[assignment(line)[1] for line in text.splitlines() if assignment(line)[0]==key]
+    found=[line for line in text.splitlines() if assignment(line)[0]==key]
     if len(found)>1:raise SystemExit('Duplicate cache assignment; reconcile before enrollment: '+key)
-    before[key]=found[0] if found else None
+    before[key]=assignment(found[0])[1] if found else None
+    before_lines[key]=found[0] if found else None
 old_token=before['TURBO_TOKEN']
 if old_token and (len(shlex.split(old_token,comments=True))!=1 or not shlex.split(old_token,comments=True)[0].startswith('op://')):
     raise SystemExit('Existing cache token is a raw value; migrate it to a reference before enrollment')
@@ -104,11 +105,11 @@ if before==updates:
 state.mkdir(parents=True,exist_ok=True);stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
 receipt=state/('enrollment-'+stamp+'.json')
 fd=os.open(receipt,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
-with os.fdopen(fd,'w') as out:json.dump({'target':str(target),'before':before,'after':updates},out)
+with os.fdopen(fd,'w') as out:json.dump({'target':str(target),'before':before,'beforeLines':before_lines,'after':updates},out)
 lines=[];remaining=dict(updates)
 for line in text.splitlines():
     key,_=assignment(line)
-    if key in remaining:lines.append(key+'='+remaining.pop(key))
+    if key in remaining:lines.append(line[:line.index('=')+1]+remaining.pop(key))
     else:lines.append(line)
 lines.extend(key+'='+value for key,value in remaining.items())
 temporary=target.with_name('.env.r2-enrollment')
@@ -144,7 +145,7 @@ for line in text.splitlines():
     key,_=assignment(line)
     if key in record['before']:
         value=record['before'][key]
-        if value is not None:lines.append(key+'='+value)
+        if value is not None:lines.append(record.get('beforeLines',{}).get(key) or key+'='+value)
     else:lines.append(line)
 temporary=target.with_name('.env.r2-rollback')
 fd=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
