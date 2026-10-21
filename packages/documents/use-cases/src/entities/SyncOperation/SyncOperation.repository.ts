@@ -10,6 +10,7 @@ import { DocumentContentDigest } from "@beep/documents-domain/aggregates/Documen
 import * as DomainSyncOperation from "@beep/documents-domain/entities/SyncOperation";
 import { DmsProvider, VaultRelPath } from "@beep/documents-domain/values/Sync";
 import { $DocumentsUseCasesId } from "@beep/identity/packages";
+import { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as Documents from "@beep/shared-domain/identity/Documents";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import * as Context from "effect/Context";
@@ -170,6 +171,58 @@ export class SyncOperationRepositoryNotFound extends S.TaggedError<
   })
 ) {
   static readonly is = S.is(SyncOperationRepositoryNotFound);
+}
+
+/**
+ * Persistence failure raised when a SyncOperation write lost an optimistic-concurrency race.
+ *
+ * **Details**
+ *
+ * `update` treats the entity's `rowVersion` as the version it was read at. The stored row moved past that version, so the write was rejected
+ * instead of overwriting the newer row; re-read the SyncOperation and reapply the
+ * change.
+ *
+ * **Example** (Construct version-conflict error)
+ *
+ * ```ts
+ * import { SyncOperationRepositoryVersionConflict } from "@beep/documents-use-cases/entities/SyncOperation/server"
+ * import { RowVersion } from "@beep/shared-domain/entity/EntityKit"
+ * import * as Documents from "@beep/shared-domain/identity/Documents"
+ * import * as S from "effect/Schema"
+ *
+ * const error = SyncOperationRepositoryVersionConflict.make({
+ *   actualRowVersion: RowVersion.make(3),
+ *   expectedRowVersion: RowVersion.make(2),
+ *   syncOperationId: S.decodeUnknownSync(Documents.SyncOperationId)(1)
+ * })
+ * console.log(error._tag)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SyncOperationRepositoryVersionConflict extends S.TaggedError<
+  SyncOperationRepositoryVersionConflict,
+  { readonly brand: unique symbol }
+>($I`SyncOperationRepositoryVersionConflict`)(
+  "SyncOperationRepositoryVersionConflict",
+  {
+    actualRowVersion: RowVersion.annotateKey({
+      description: "Row version currently stored for the SyncOperation.",
+    }),
+    expectedRowVersion: RowVersion.annotateKey({
+      description: "Row version the rejected write expected to replace.",
+    }),
+    syncOperationId: Documents.SyncOperationId.annotateKey({
+      description: "SyncOperation identity whose write was rejected.",
+    }),
+  },
+  $I.annoteError<SyncOperationRepositoryVersionConflict>("SyncOperationRepositoryVersionConflict", {
+    title: "SyncOperation repository version conflict",
+    description: "Another write changed the SyncOperation after it was read; the stale update was rejected.",
+  })
+) {
+  static readonly is = S.is(SyncOperationRepositoryVersionConflict);
 }
 
 /**
@@ -371,7 +424,11 @@ export class ListSyncOperationsByStatusInput extends S.Opaque<
  * `idempotencyKey` is already enqueued. `listQueued` and `listQueuedForItem`
  * return queued operations in FIFO order (ascending entity id). `requeueLeased`
  * is boot recovery: it flips every `leased` operation of the workspace mirror
- * back to `queued` and returns the number of operations it requeued.
+ * back to `queued`, advances each one's `rowVersion`, and returns the number of
+ * operations it requeued. `update` persists a full entity only while the stored
+ * `rowVersion` still equals the entity's and returns the stored entity; it fails
+ * with {@link SyncOperationRepositoryVersionConflict} when another write (such
+ * as a requeue) moved the row past that version.
  *
  * **Example** (Stub repository implementation)
  *
@@ -427,7 +484,7 @@ export interface SyncOperationRepositoryShape {
     operation: DomainSyncOperation.SyncOperation
   ) => Effect.Effect<
     DomainSyncOperation.SyncOperation,
-    SyncOperationRepositoryNotFound | SyncOperationRepositoryUnavailable
+    SyncOperationRepositoryNotFound | SyncOperationRepositoryVersionConflict | SyncOperationRepositoryUnavailable
   >;
 }
 

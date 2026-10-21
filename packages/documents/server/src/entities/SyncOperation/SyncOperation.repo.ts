@@ -18,11 +18,13 @@ import {
   SyncOperationRepositoryConflict,
   SyncOperationRepositoryNotFound,
   SyncOperationRepositoryUnavailable,
+  SyncOperationRepositoryVersionConflict,
 } from "@beep/documents-use-cases/entities/SyncOperation/server";
 import { extractPostgresDiagnostics, PostgresDrizzle, PostgresErrorCodeByName } from "@beep/postgres";
+import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as DocumentsIdentity from "@beep/shared-domain/identity/Documents";
 import { A, N } from "@beep/utils";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -32,9 +34,16 @@ import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { byIdAscending, makeEntityStore, nextEntityId, SYSTEM_PRINCIPAL } from "../internal/RepoSupport.ts";
+import {
+  byIdAscending,
+  makeEntityStore,
+  nextEntityId,
+  replaceVersioned,
+  SYSTEM_PRINCIPAL,
+} from "../internal/RepoSupport.ts";
 import type { DmsProvider } from "@beep/documents-domain/values/Sync";
 import type { SyncOperationSeed } from "@beep/documents-use-cases/entities/SyncOperation/server";
+import type { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 
 const decodeSyncOperation = S.decodeUnknownEffect(DomainSyncOperation.SyncOperation);
@@ -83,6 +92,13 @@ type MirrorScope = {
 
 const matchesMirror = (input: MirrorScope) => (operation: DomainSyncOperation.SyncOperation) =>
   operation.workspaceId === input.workspaceId && operation.provider === input.provider;
+
+const versionConflict = (operation: DomainSyncOperation.SyncOperation, actualRowVersion: RowVersion) =>
+  SyncOperationRepositoryVersionConflict.make({
+    actualRowVersion,
+    expectedRowVersion: operation.rowVersion,
+    syncOperationId: operation.id,
+  });
 
 const duplicateIdempotencyKeyConflict = (idempotencyKey: string): SyncOperationRepositoryConflict =>
   SyncOperationRepositoryConflict.make({
@@ -168,19 +184,25 @@ export const makeInMemorySyncOperationRepository = Effect.fn("Documents.SyncOper
               (operation) =>
                 matchesMirror(input)(operation) && DomainSyncOperation.SyncOperationStatus.is.leased(operation.status)
             ),
-            A.map((operation) => DomainSyncOperation.SyncOperation.make({ ...operation, status: "queued" }))
+            A.map((operation) =>
+              DomainSyncOperation.SyncOperation.make({
+                ...operation,
+                rowVersion: nextRowVersion(operation.rowVersion),
+                status: "queued",
+              })
+            )
           );
           const next = A.reduce(requeued, current, (map, operation) => HashMap.set(map, operation.id, operation));
           return [A.length(requeued), next];
         });
       }),
       update: Effect.fn("Documents.SyncOperationRepository.update")(function* (operation) {
-        const operations = yield* Ref.get(store);
-        if (O.isNone(HashMap.get(operations, operation.id))) {
-          return yield* SyncOperationRepositoryNotFound.make({ syncOperationId: operation.id });
-        }
-        yield* Ref.update(store, HashMap.set(operation.id, operation));
-        return operation;
+        return yield* replaceVersioned(store, {
+          replacement: operation,
+          withRowVersion: (entity, rowVersion) => DomainSyncOperation.SyncOperation.make({ ...entity, rowVersion }),
+          onMissing: () => SyncOperationRepositoryNotFound.make({ syncOperationId: operation.id }),
+          onStale: (actualRowVersion) => versionConflict(operation, actualRowVersion),
+        });
       }),
     });
   }
@@ -259,13 +281,33 @@ const translateEnqueueFailure =
  *
  * @effects Requires `PostgresDrizzle`; executes `select`, `insert`, and
  * `update` statements against the SyncOperation table and redacts driver
- * failures to `SyncOperationRepositoryUnavailable`.
+ * failures to `SyncOperationRepositoryUnavailable`. Every `update` advances
+ * `row_version`; `update` also matches the expected version in its `WHERE`
+ * clause.
  * @category repositories
  * @since 0.0.0
  */
 export const makeDrizzleSyncOperationRepository = Effect.fn("Documents.SyncOperationRepository.makeDrizzle")(
   function* () {
     const db = yield* PostgresDrizzle;
+
+    // A guarded update matched no row: either the row is gone or another write
+    // (such as a requeue) advanced its version past the one this write expected.
+    const rejectUpdate = Effect.fn("Documents.SyncOperationRepository.drizzleRejectUpdate")(function* (
+      operation: DomainSyncOperation.SyncOperation
+    ) {
+      const rows = yield* db
+        .select({ rowVersion: syncOperationTable.rowVersion })
+        .from(syncOperationTable)
+        .where(eq(syncOperationTable.id, operation.id))
+        .limit(1)
+        .pipe(repositoryUnavailable("select SyncOperation row version"));
+      const stored = A.head(rows);
+      if (O.isNone(stored)) {
+        return yield* SyncOperationRepositoryNotFound.make({ syncOperationId: operation.id });
+      }
+      return yield* versionConflict(operation, stored.value.rowVersion);
+    });
 
     return SyncOperationRepository.of({
       enqueue: Effect.fn("Documents.SyncOperationRepository.drizzleEnqueue")(function* (seed) {
@@ -345,7 +387,10 @@ export const makeDrizzleSyncOperationRepository = Effect.fn("Documents.SyncOpera
       requeueLeased: Effect.fn("Documents.SyncOperationRepository.drizzleRequeueLeased")(function* (input) {
         const rows = yield* db
           .update(syncOperationTable)
-          .set({ status: DomainSyncOperation.SyncOperationStatus.Enum.queued })
+          .set({
+            rowVersion: sql`${syncOperationTable.rowVersion} + 1`,
+            status: DomainSyncOperation.SyncOperationStatus.Enum.queued,
+          })
           .where(
             and(
               eq(syncOperationTable.workspaceId, input.workspaceId),
@@ -363,13 +408,13 @@ export const makeDrizzleSyncOperationRepository = Effect.fn("Documents.SyncOpera
         );
         const rows = yield* db
           .update(syncOperationTable)
-          .set(insert)
-          .where(eq(syncOperationTable.id, operation.id))
+          .set({ ...insert, rowVersion: nextRowVersion(operation.rowVersion) })
+          .where(and(eq(syncOperationTable.id, operation.id), eq(syncOperationTable.rowVersion, operation.rowVersion)))
           .returning()
           .pipe(repositoryUnavailable("update SyncOperation"));
         const updated = A.head(rows);
         if (O.isNone(updated)) {
-          return yield* SyncOperationRepositoryNotFound.make({ syncOperationId: operation.id });
+          return yield* rejectUpdate(operation);
         }
         return yield* Effect.fromResult(fromSyncOperationRow(updated.value)).pipe(
           repositoryUnavailable("decode SyncOperation")
