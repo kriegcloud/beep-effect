@@ -1,5 +1,45 @@
 # The Agent-Native Documentation Endgame for `beep-effect`
 
+> **Editor's note (2026-10-21).** This is raw research input, not a decision.
+> It is a ChatGPT deep-research answer commissioned by the operator in early
+> October 2026. It first landed at the repository root by accident, inside
+> #1592, and was moved here. Cleanup applied: the unresolvable ChatGPT
+> citation markers were removed (checked sources are listed under
+> [Sources](#sources) at the end), the embedded screenshot (a local sandbox
+> path) was dropped, and wrong names were corrected: `@beep/docgen` to
+> `@beep/repo-docgen`, `pnpm` to `bun run`, `@effect/schema` to
+> `effect/Schema`, and `@effect/platform` to `effect` (Effect v4 folded both
+> packages into `effect`). The argument itself is unchanged.
+>
+> Read it against these repository facts, which it predates or misses:
+>
+> - **Identity.** The 2026-10-20 public-origin ruling (PR #1946) puts
+>   dereference at `https://beep-effect.com/ns/`, reserved permanently. `$I`
+>   IRIs are the authority plus the `@beep` package path, with no kind or
+>   version segment. The `/id/{kind}/v4/...` scheme below conflicts with both,
+>   and `$I` cannot mint IRIs for upstream Effect symbols such as
+>   `Schema.Struct`.
+> - **Versioning.** `@beep/*` packages are private and unreleased, so the only
+>   real version coordinate is the commit SHA. "v4" is Effect's major version.
+> - **Ontology authoring.** identity-as-iri D7 makes the T-box fold-first in
+>   TypeScript (`$I.class`/`$I.key` plus `Ontology.fold`), with Turtle and
+>   JSON-LD as projections
+>   ([decisions](../../identity-as-iri/DECISIONS.md)). A hand-written
+>   `beep.ttl` would be a second writer.
+> - **Local index.** A SQLite+FTS5 code index served over per-session stdio
+>   MCP is the codegraph design removed on 2026-08-29
+>   ([decision log](../../../standards/memory-architecture/04-decision-log.md)).
+>   A new code index needs a decision-log entry first, and `beep knowledge`
+>   already names the Markdown reference linter.
+> - **Markdown IR.** docgen already renders through `@beep/md`, not mdast.
+> - **Layout.** Top-level `ontology/`, `tooling/knowledge/` and `examples/`
+>   fall outside the package families and `bun run beep create-package`.
+> - **OpenAPI.** Effect 4.0.5's `OpenApi.fromApi` emits 3.1.0, so 3.2.x would
+>   need post-processing.
+> - **Eval.** The packet's cold-agent eval ([CAPTURE](../CAPTURE.md), Part
+>   III) counts the human facts a fresh agent needs on a real packet. The
+>   docs Q&A benchmark proposed near the end is a narrower, secondary measure.
+
 ## Executive conclusion
 
 There is no single “ultimate” agent-readable file format. The strongest architecture is a **polyglot publication system with one identity model and many deterministic projections**:
@@ -29,13 +69,13 @@ For `beep-effect`, I would make the stack:
 | Semantic retrieval | **FTS + graph first; embeddings as a derived optional index** |
 | Training-oriented release artifact | **Markdown/source corpus + JSONL metadata + graph/provenance exports** |
 
-That division follows the strengths of the standards rather than forcing one representation to solve every problem. HTML has first-class document structure; Markdown has a registered `text/markdown` media type and excellent portability; JSON-LD is specifically designed to express Linked Data in JSON; OWL gives a formally defined ontology language; SKOS is designed for knowledge-organization systems; SHACL validates RDF graphs; SPARQL queries RDF; and MCP now has a stateless protocol core suitable for horizontally scalable query services. citeturn22view0turn4view2turn3view0turn12search0turn14search0turn14search1turn12search3turn18search6
+That division follows the strengths of the standards rather than forcing one representation to solve every problem. HTML has first-class document structure; Markdown has a registered `text/markdown` media type and excellent portability; JSON-LD is specifically designed to express Linked Data in JSON; OWL gives a formally defined ontology language; SKOS is designed for knowledge-organization systems; SHACL validates RDF graphs; SPARQL queries RDF; and MCP now has a stateless protocol core suitable for horizontally scalable query services.
 
 The key idea is:
 
 > **Do not choose between Markdown, semantic HTML, JSON-LD, RDF, and MCP. Give them separate jobs and generate them from the same knowledge model.**
 
-That is also unusually well aligned with the direction already captured in `knowledge-endgame`: your repository notes describe “practice-as-repo with ontologies as the type system,” “dereferenceable know-how,” nested knowledge flywheels, and explicitly imagine a projection of `beep-effect` APIs/docs with linked data, machine-readable semantics, AEO/SEO/GEO, and a training-data flywheel. fileciteturn1file0L1-L13 fileciteturn4file0L8-L15
+That is also unusually well aligned with the direction already captured in `knowledge-endgame`: your repository notes describe “practice-as-repo with ontologies as the type system,” “dereferenceable know-how,” nested knowledge flywheels, and explicitly imagine a projection of `beep-effect` APIs/docs with linked data, machine-readable semantics, AEO/SEO/GEO, and a training-data flywheel.
 
 The architecture I would aim for is therefore:
 
@@ -81,9 +121,9 @@ The most important distinction is between **authoring formats, semantic represen
 
 ### Semantic HTML should be the primary public document projection
 
-For browser agents and humans, semantic HTML is still the highest-leverage surface. The current HTML Living Standard gives explicit semantics to `article`, `section`, `nav`, headings, `header`, `footer`, and related structures; for example, `article` identifies self-contained distributable content, `section` represents thematic sections, and `nav` identifies major navigation blocks. citeturn22view0
+For browser agents and humans, semantic HTML is still the highest-leverage surface. The current HTML Living Standard gives explicit semantics to `article`, `section`, `nav`, headings, `header`, `footer`, and related structures; for example, `article` identifies self-contained distributable content, `section` represents thematic sections, and `nav` identifies major navigation blocks.
 
-This matters even more for agents that operate through browser/computer-use tooling. OpenAI's current publisher/developer guidance says its browser agent uses ARIA roles, labels, and states to understand page structure and interactive controls and specifically recommends accessible semantics for buttons, menus, forms, and other controls. WAI's ARIA Authoring Practices likewise exists to expose UI semantics programmatically. citeturn13view2turn21search1
+This matters even more for agents that operate through browser/computer-use tooling. OpenAI's current publisher/developer guidance says its browser agent uses ARIA roles, labels, and states to understand page structure and interactive controls and specifically recommends accessible semantics for buttons, menus, forms, and other controls. WAI's ARIA Authoring Practices likewise exists to expose UI semantics programmatically.
 
 So a `beep-effect` API page should not merely *look* structured. Its DOM should actually resemble:
 
@@ -105,11 +145,11 @@ So a `beep-effect` API page should not merely *look* structured. Its DOM should 
 </main>
 ```
 
-For your FOLIO-like explorer, this means the visual graph should **not be the sole representation**. Any graph rendered with canvas/SVG should have an equivalent DOM-accessible tree/list of nodes, edges, parents, children, and actions. A browser agent should be able to navigate “Asset Type → Financial Assets” through links or tree controls without having to infer coordinates from pixels. WAI provides patterns for accessible tree/treegrid-style widgets, while OpenAI explicitly identifies accessible labels and roles as useful to browser agents. citeturn21search33turn13view2
+For your FOLIO-like explorer, this means the visual graph should **not be the sole representation**. Any graph rendered with canvas/SVG should have an equivalent DOM-accessible tree/list of nodes, edges, parents, children, and actions. A browser agent should be able to navigate “Asset Type → Financial Assets” through links or tree controls without having to infer coordinates from pixels. WAI provides patterns for accessible tree/treegrid-style widgets, while OpenAI explicitly identifies accessible labels and roles as useful to browser agents.
 
 ### Markdown should be the primary text projection
 
-For prose, examples, local search, copying, Git, and context injection, I would standardize on a **conservative CommonMark-compatible GFM dialect**. CommonMark provides a precise specification, and Markdown has the registered `text/markdown` media type. citeturn22view1turn4view2
+For prose, examples, local search, copying, Git, and context injection, I would standardize on a **conservative CommonMark-compatible GFM dialect**. CommonMark provides a precise specification, and Markdown has the registered `text/markdown` media type.
 
 Every meaningful documentation page should therefore have an explicit Markdown twin:
 
@@ -134,7 +174,7 @@ Markdown also makes `beep-effect` clone-friendly: an agent operating without a w
 
 This is an important distinction in your original list.
 
-`mdast` is explicitly a specification for representing Markdown as an **abstract syntax tree**; its own project describes it as extending `unist` and representing CommonMark, GFM, and other Markdown flavors as typed syntax-tree nodes. fileciteturn2file0L1-L2
+`mdast` is explicitly a specification for representing Markdown as an **abstract syntax tree**; its own project describes it as extending `unist` and representing CommonMark, GFM, and other Markdown flavors as typed syntax-tree nodes.
 
 That makes mdast ideal for your build pipeline:
 
@@ -161,7 +201,7 @@ mdast = internal compiler IR.**
 
 ### JSON-LD should be the semantic per-resource API
 
-JSON-LD 1.1 is a W3C Recommendation designed for Linked Data in JSON. It provides IRIs, contexts, typed values, relationships, and a mapping to the RDF data model, and it can be embedded in HTML. citeturn3view0
+JSON-LD 1.1 is a W3C Recommendation designed for Linked Data in JSON. It provides IRIs, contexts, typed values, relationships, and a mapping to the RDF data model, and it can be embedded in HTML.
 
 That makes it an excellent answer to:
 
@@ -193,7 +233,7 @@ For example, conceptually:
 
 That is much more useful to graph-aware agents than trying to reverse-engineer an ontology from Markdown frontmatter.
 
-I would embed a **small SEO-oriented schema.org JSON-LD block** in the HTML and expose the **full domain JSON-LD graph** as an alternate representation. Google recommends JSON-LD as a supported structured-data encoding and requires structured data to match the visible page content; its search guidance should therefore be treated as a presentation layer over your ontology, not as the ontology itself. citeturn11view1
+I would embed a **small SEO-oriented schema.org JSON-LD block** in the HTML and expose the **full domain JSON-LD graph** as an alternate representation. Google recommends JSON-LD as a supported structured-data encoding and requires structured data to match the visible page content; its search guidance should therefore be treated as a presentation layer over your ontology, not as the ontology itself.
 
 ### Turtle, TriG, and N-Quads are the semantic engineering formats
 
@@ -207,7 +247,7 @@ For bulk exports:
 - JSON-LD for individual entities and web integrations.
 - RDF/XML only as a compatibility projection where a consumer genuinely needs it.
 
-RDF defines graph data around subject-predicate-object statements and RDF datasets around default and named graphs. As of October 2026, RDF 1.2 is progressing through the W3C process while RDF 1.1 remains the established Recommendation baseline, so I would design the model to be RDF 1.2-compatible without requiring 1.2-only semantics for core functionality yet. citeturn4view0
+RDF defines graph data around subject-predicate-object statements and RDF datasets around default and named graphs. As of October 2026, RDF 1.2 is progressing through the W3C process while RDF 1.1 remains the established Recommendation baseline, so I would design the model to be RDF 1.2-compatible without requiring 1.2-only semantics for core functionality yet.
 
 That means your FOLIO-inspired:
 
@@ -224,7 +264,7 @@ is exactly the right *family* of idea.
 
 For a local “download once, query everything” artifact, I would choose **SQLite**, not RDF serialization alone and not a vector database.
 
-SQLite's FTS5 extension provides built-in full-text indexes, phrase search, prefix search, proximity search, column filtering, ranking, snippets, and extensibility. citeturn17search6
+SQLite's FTS5 extension provides built-in full-text indexes, phrase search, prefix search, proximity search, column filtering, ranking, snippets, and extensibility.
 
 A release artifact such as:
 
@@ -256,7 +296,7 @@ That gives a local coding agent one portable read-only artifact that can answer:
 
 ```text
 search "Schema.Struct"
-filter package = @effect/schema
+filter module = effect/Schema
 filter kind = Function
 find examples
 find callers
@@ -272,7 +312,7 @@ I would still publish the RDF exports because SQLite is an **operational index**
 
 ### `llms.txt` is useful, but it is a guidepost rather than the foundation
 
-The official `llms.txt` site still describes the format as a **proposal** for a short Markdown file containing background information, guidance, and links to more detailed Markdown resources. citeturn19view3
+The official `llms.txt` site still describes the format as a **proposal** for a short Markdown file containing background information, guidance, and links to more detailed Markdown resources.
 
 That makes it valuable, but its proper role is:
 
@@ -282,7 +322,7 @@ Not:
 
 > “A dump of my entire website into one 8 MB context file.”
 
-The newer `llms.txt` work explicitly moves toward linking clean Markdown alternatives and allowing scoped `llms.txt` surfaces, while relying on standard Web Linking mechanisms for discovery. citeturn0search0turn0search4
+The newer `llms.txt` work explicitly moves toward linking clean Markdown alternatives and allowing scoped `llms.txt` surfaces, while relying on standard Web Linking mechanisms for discovery.
 
 For `beep-effect`, I would use several small scopes:
 
@@ -323,7 +363,7 @@ The root one should say, essentially:
 - contribution guide
 ```
 
-AI Hero is a particularly good real-world example of the layered model: its `llms.txt` points agents separately to `/.well-known/api-catalog`, a JSON discovery document, `sitemap.md`, `sitemap.xml`, clean `.md` twins, OpenAPI, and search/resource APIs instead of pretending `llms.txt` itself is the entire machine interface. citeturn19view1
+AI Hero is a particularly good real-world example of the layered model: its `llms.txt` points agents separately to `/.well-known/api-catalog`, a JSON discovery document, `sitemap.md`, `sitemap.xml`, clean `.md` twins, OpenAPI, and search/resource APIs instead of pretending `llms.txt` itself is the entire machine interface.
 
 ## Identity, URLs, alternate representations, and provenance
 
@@ -366,7 +406,7 @@ That distinction becomes extremely useful once you attach examples, source files
 
 ### Use explicit representation URLs and content negotiation
 
-HTTP defines representations and content negotiation, including the `Accept` request field and `Vary` response field. Web Linking gives a standardized mechanism for declaring relationships between resources through HTML `<link>` elements or HTTP `Link` headers. citeturn15view0turn22view3
+HTTP defines representations and content negotiation, including the `Accept` request field and `Vary` response field. Web Linking gives a standardized mechanism for declaring relationships between resources through HTML `<link>` elements or HTTP `Link` headers.
 
 I would support **both** mechanisms:
 
@@ -397,7 +437,7 @@ Link: </id/.../Struct.jsonld>; rel="alternate"; type="application/ld+json"
 Link: </llms.txt>; rel="describedby"; type="text/markdown"
 ```
 
-The current `llms.txt` work specifically embraces standard alternate/described-by link relations for discovering the Markdown representation and the applicable `llms.txt`; the relation infrastructure itself comes from the IETF Web Linking standard. citeturn0search0turn22view3
+The current `llms.txt` work specifically embraces standard alternate/described-by link relations for discovering the Markdown representation and the applicable `llms.txt`; the relation infrastructure itself comes from the IETF Web Linking standard.
 
 ### Make source provenance first-class
 
@@ -417,7 +457,7 @@ generated-at timestamp
 
 The “view source” button should therefore point to an **immutable commit-pinned source location** for versioned documentation. You can separately provide a “latest source” link.
 
-For RDF provenance, PROV-O is purpose-built for describing entities, activities, derivation, and provenance, and its W3C Recommendation is designed specifically to let provenance information be represented, exchanged, and integrated across systems. citeturn12search2turn12search18
+For RDF provenance, PROV-O is purpose-built for describing entities, activities, derivation, and provenance, and its W3C Recommendation is designed specifically to let provenance information be represented, exchanged, and integrated across systems.
 
 That gives you statements along the lines of:
 
@@ -465,7 +505,7 @@ This is the area where I would be most careful about separating real standards f
 
 ### `llms.txt` is not a magic GEO ranking file
 
-Google's current guidance for AI Overviews and AI Mode is unusually explicit: its ordinary SEO fundamentals continue to apply, there are **no additional technical requirements** to appear in those AI features, and site owners do not need to create special AI text files or special schema markup solely for them. Pages still need to be crawlable, indexed, internally linked, useful, textual, and eligible to appear in Search. citeturn11view0
+Google's current guidance for AI Overviews and AI Mode is unusually explicit: its ordinary SEO fundamentals continue to apply, there are **no additional technical requirements** to appear in those AI features, and site owners do not need to create special AI text files or special schema markup solely for them. Pages still need to be crawlable, indexed, internally linked, useful, textual, and eligible to appear in Search.
 
 Therefore:
 
@@ -493,11 +533,11 @@ Direct agent usability
     + API catalog
 ```
 
-Google's structured-data guidance also says the structured data should correspond to the visible page, and JSON-LD is one of its supported formats. That strongly favors **one knowledge model projected into both visible HTML and JSON-LD**, rather than an invisible “SEO ontology” that diverges from what readers see. citeturn11view1
+Google's structured-data guidance also says the structured data should correspond to the visible page, and JSON-LD is one of its supported formats. That strongly favors **one knowledge model projected into both visible HTML and JSON-LD**, rather than an invisible “SEO ontology” that diverges from what readers see.
 
 ### Search-engine discovery still means real internal links and sitemaps
 
-Google describes a sitemap as a mechanism for telling search engines about important pages and their relationships so they can crawl a site more efficiently, while also noting that inclusion in a sitemap does not guarantee crawling or indexing. It further emphasizes that properly linked pages are often discoverable through normal navigation. citeturn21search6turn21search18
+Google describes a sitemap as a mechanism for telling search engines about important pages and their relationships so they can crawl a site more efficiently, while also noting that inclusion in a sitemap does not guarantee crawling or indexing. It further emphasizes that properly linked pages are often discoverable through normal navigation.
 
 So I would put only **canonical web documents** into `sitemap.xml`, not every `.md`, `.jsonld`, `.ttl`, and SQLite representation.
 
@@ -517,7 +557,7 @@ Those alternates are discoverable from the canonical resource through `Link` rel
 
 ### Use the standardized API catalog for machine service discovery
 
-RFC 9727 standardizes `/.well-known/api-catalog` as a well-known URI and link relationship for discovering APIs associated with a domain. citeturn22view2
+RFC 9727 standardizes `/.well-known/api-catalog` as a well-known URI and link relationship for discovering APIs associated with a domain.
 
 That should be your machine-level “what services exist here?” root.
 
@@ -535,13 +575,13 @@ human API documentation
 
 This is substantially stronger than inventing `/agent-manifest-v7.json` as your sole discovery convention.
 
-OpenAPI itself is expressly designed so humans and computers can discover and understand the capabilities of HTTP APIs without source-code inspection; the official OpenAPI site currently carries the 3.2 specification family. citeturn14search3turn14search9
+OpenAPI itself is expressly designed so humans and computers can discover and understand the capabilities of HTTP APIs without source-code inspection; the official OpenAPI site currently carries the 3.2 specification family.
 
 ### Search crawlers, AI-search crawlers, training crawlers, and user agents are distinct
 
-OpenAI currently treats these as independent controls. `OAI-SearchBot` is used to surface sites in ChatGPT search; `GPTBot` crawls content that may be used for training generative foundation models; and `ChatGPT-User` is used for certain user-initiated retrieval and is not the crawler that controls search inclusion. OpenAI explicitly says a publisher can allow the search crawler while blocking the training crawler. citeturn13view0
+OpenAI currently treats these as independent controls. `OAI-SearchBot` is used to surface sites in ChatGPT search; `GPTBot` crawls content that may be used for training generative foundation models; and `ChatGPT-User` is used for certain user-initiated retrieval and is not the crawler that controls search inclusion. OpenAI explicitly says a publisher can allow the search crawler while blocking the training crawler.
 
-Anthropic similarly documents separate `Claude-SearchBot`, `ClaudeBot`, and `Claude-User` roles for search indexing, potential training retrieval, and user-directed access. citeturn9search6
+Anthropic similarly documents separate `Claude-SearchBot`, `ClaudeBot`, and `Claude-User` roles for search indexing, potential training retrieval, and user-directed access.
 
 So if the explicit goal is:
 
@@ -559,7 +599,7 @@ ordinary search bots     → allow
 canonical docs           → indexable
 ```
 
-But this is only permission. OpenAI carefully says GPTBot crawls content that **may** be used in training; exposing your corpus cannot compel any lab to include it. citeturn13view0
+But this is only permission. OpenAI carefully says GPTBot crawls content that **may** be used in training; exposing your corpus cannot compel any lab to include it.
 
 ### Optimize browser-agent UX as seriously as search-engine UX
 
@@ -578,7 +618,7 @@ Your interactive docs should be unusually good for computer-use agents:
 - Explicit text labels such as “JSON-LD”, “Turtle”, “Source”, “Backlinks”.
 - Server-rendered or otherwise immediately available primary documentation content.
 
-Those recommendations follow the web's native semantic model and align directly with OpenAI's current statement that accessible ARIA semantics improve its browser agent's ability to interpret interactive pages. citeturn22view0turn13view2
+Those recommendations follow the web's native semantic model and align directly with OpenAI's current statement that accessible ARIA semantics improve its browser agent's ability to interpret interactive pages.
 
 ### AEO/GEO should primarily be a content architecture strategy
 
@@ -619,7 +659,7 @@ That is good human documentation, good retrieval data, good answer-engine materi
 
 Your FOLIO screenshot is very close to the UI model I would recommend for the semantic layer:
 
-![FOLIO Ontology Explorer reference supplied with the request](sandbox:/mnt/data/Screenshot_20261006_234945.png)
+*The original answer embedded the FOLIO Ontology Explorer screenshot supplied with the request (`Screenshot_20261006_234945.png`, a local sandbox file); it was not preserved.*
 
 The crucial step is to build something **deeper than a pretty ontology tree**: the taxonomy browser, API docs, Markdown pages, source code graph, MCP server, and search engine should all query the same normalized identities and relations.
 
@@ -666,11 +706,11 @@ references
 generatedFrom
 ```
 
-OWL 2 is the W3C ontology language with formally defined meaning for classes, properties, individuals, and relationships. Its standardized profiles allow implementations to choose useful subsets rather than requiring unrestricted reasoning. citeturn12search0turn12search16
+OWL 2 is the W3C ontology language with formally defined meaning for classes, properties, individuals, and relationships. Its standardized profiles allow implementations to choose useful subsets rather than requiring unrestricted reasoning.
 
 For a documentation graph I would deliberately stay toward a **small, tractable OWL/RDFS vocabulary**, roughly in an OWL 2 RL-friendly spirit, rather than demonstrating every expressive feature of OWL.
 
-**The taxonomy/glossary layer** should use SKOS. SKOS is specifically intended to represent knowledge-organization systems and can coexist with more formal OWL ontologies. citeturn14search0turn12search17
+**The taxonomy/glossary layer** should use SKOS. SKOS is specifically intended to represent knowledge-organization systems and can coexist with more formal OWL ontologies.
 
 That makes it a natural model for:
 
@@ -694,7 +734,7 @@ For example, `Effect` as a conceptual glossary term can be a SKOS concept linked
 **The A-box** is then generated instance knowledge:
 
 ```text
-@effect/platform is a Package
+effect is a Package
 effect/Schema is a Module
 Schema.Struct is an ApiSymbol
 example-X is an Example
@@ -706,9 +746,9 @@ This is where your doc generator becomes a graph compiler.
 
 ### SHACL should make the knowledge graph lintable
 
-SHACL's W3C Recommendation defines shapes for validating RDF graphs against constraints, and the specification explicitly notes uses beyond validation such as UI generation, code generation, and integration. citeturn14search1
+SHACL's W3C Recommendation defines shapes for validating RDF graphs against constraints, and the specification explicitly notes uses beyond validation such as UI generation, code generation, and integration.
 
-That gives you exactly the “ontology as type system for non-code work” behavior your `knowledge-endgame` notes envision. fileciteturn1file0L1-L13
+That gives you exactly the “ontology as type system for non-code work” behavior your `knowledge-endgame` notes envision.
 
 For example:
 
@@ -737,7 +777,7 @@ Run SHACL in CI. A new package export that exists in source but not in the seman
 
 ### Named graphs are ideal for provenance partitions
 
-RDF datasets include named graphs, which gives you a clean way to represent provenance boundaries. citeturn4view0
+RDF datasets include named graphs, which gives you a clean way to represent provenance boundaries.
 
 For example:
 
@@ -803,7 +843,7 @@ Referenced by
 
 and JSON-LD/MCP can return the exact same inverse edge set.
 
-Graft's current design provides a useful adjacent precedent: its repository describes a graph represented as linked Markdown nodes that agents can open, grep, and follow using ordinary repository operations, while treating that graph as a regenerable cache. fileciteturn3file0L2-L2
+Graft's current design provides a useful adjacent precedent: its repository describes a graph represented as linked Markdown nodes that agents can open, grep, and follow using ordinary repository operations, while treating that graph as a regenerable cache.
 
 I would take that principle one step further: **linked Markdown is the human/agent projection, but the same graph should also exist structurally as typed RDF and SQLite edges.**
 
@@ -853,7 +893,7 @@ Examples
 
 and the selected state should correspond to a real URL so both humans and browser agents can deep-link directly into a node.
 
-SPARQL 1.1 is explicitly designed to query RDF graphs using graph patterns, including optional patterns, alternatives, property paths, and aggregation, so it is the right advanced query language for this representation. citeturn12search3turn12search7
+SPARQL 1.1 is explicitly designed to query RDF graphs using graph patterns, including optional patterns, alternatives, property paths, and aggregation, so it is the right advanced query language for this representation.
 
 But I would **not force ordinary agents to generate SPARQL**. Give them high-level typed MCP tools first and SPARQL as an escape hatch.
 
@@ -861,7 +901,7 @@ But I would **not force ordinary agents to generate SPARQL**. Give them high-lev
 
 The timing for the MCP portion of your design is particularly good.
 
-The July 2026 MCP specification introduced a **stateless protocol core**: the project describes removal of the protocol-level initialization/session requirement, self-describing requests, cacheable list results, and the ability for independent requests to land on any server instance without shared session storage. citeturn18search6
+The July 2026 MCP specification introduced a **stateless protocol core**: the project describes removal of the protocol-level initialization/session requirement, self-describing requests, cacheable list results, and the ability for independent requests to land on any server instance without shared session storage.
 
 That maps almost perfectly to a read-only documentation service.
 
@@ -891,7 +931,7 @@ That is operationally simpler than letting the MCP server itself become the know
 
 ### Use MCP resources for knowledge objects
 
-MCP's resource model is expressly intended to expose contextual data as URI-addressed resources that clients can list and read, with MIME types and resource templates. citeturn7view0
+MCP's resource model is expressly intended to expose contextual data as URI-addressed resources that clients can list and read, with MIME types and resource templates.
 
 I would expose resource templates conceptually like:
 
@@ -907,7 +947,7 @@ beep://source/{commit}/{path}
 
 For web interoperability, results should also return the equivalent HTTPS canonical URI.
 
-The server should make the resource catalog relatively stable and cacheable rather than inventing thousands of dynamically different tool names. The 2026 MCP revision explicitly introduced cache hints and deterministic ordering for list results. citeturn18search6
+The server should make the resource catalog relatively stable and cacheable rather than inventing thousands of dynamically different tool names. The 2026 MCP revision explicitly introduced cache hints and deterministic ordering for list results.
 
 ### Keep the tool surface small and orthogonal
 
@@ -923,7 +963,7 @@ Something close to this is enough:
 | `examples` | Find examples associated with symbols/concepts |
 | `query` | Structured advanced query; optionally permit read-only SPARQL |
 
-Tool definitions in MCP use JSON Schema for their arguments/results, which gives you a strong typed interface for agents. citeturn7view1
+Tool definitions in MCP use JSON Schema for their arguments/results, which gives you a strong typed interface for agents.
 
 A search input might be:
 
@@ -986,11 +1026,11 @@ Therefore embeddings should be treated as **replaceable derived acceleration dat
 For coding agents working in a cloned repository, I would expose a command along the lines of:
 
 ```text
-pnpm beep knowledge build
-pnpm beep knowledge search ...
-pnpm beep knowledge resolve ...
-pnpm beep knowledge graph ...
-pnpm beep knowledge mcp
+bun run beep knowledge build
+bun run beep knowledge search ...
+bun run beep knowledge resolve ...
+bun run beep knowledge graph ...
+bun run beep knowledge mcp
 ```
 
 The default local artifact can be:
@@ -1014,7 +1054,7 @@ ontology/**/*.md
 examples/**
 ```
 
-`AGENTS.md` now has a dedicated open-format convention intended to act as a predictable “README for agents.” citeturn17search4
+`AGENTS.md` now has a dedicated open-format convention intended to act as a predictable “README for agents.”
 
 A root `AGENTS.md` should tell a coding agent only the high-value operational facts:
 
@@ -1034,7 +1074,7 @@ Nested `AGENTS.md` files can add package-specific guidance without turning the r
 
 ### Publish the MCP server to the official registry
 
-The official MCP Registry now provides discovery for MCP servers and a registry API/documentation surface. citeturn18search3turn18search9
+The official MCP Registry now provides discovery for MCP servers and a registry API/documentation surface.
 
 So there are two complementary discovery paths:
 
@@ -1078,7 +1118,7 @@ If I were designing the “Effect V4 mega-monorepo knowledge substrate” from s
 │   ├── guides/
 │   ├── recipes/
 │   ├── glossary/
-│   └── api/                     # generated @beep/docgen projections
+│   └── api/                     # generated @beep/repo-docgen projections
 │
 ├── examples/
 │
@@ -1092,7 +1132,7 @@ If I were designing the “Effect V4 mega-monorepo knowledge substrate” from s
         └── mcp/
 ```
 
-The authored repository remains understandable with nothing except a filesystem and text editor. That preserves the strongest property of the linked-Markdown/Graft idea while adding a formal semantic plane. Graft itself explicitly emphasizes ordinary linked files that agents can grep and follow, and your own `knowledge-endgame` notes emphasize dereferenceable know-how and ontology-backed practice. fileciteturn3file0L2-L2 fileciteturn1file0L1-L13
+The authored repository remains understandable with nothing except a filesystem and text editor. That preserves the strongest property of the linked-Markdown/Graft idea while adding a formal semantic plane. Graft itself explicitly emphasizes ordinary linked files that agents can grep and follow, and your own `knowledge-endgame` notes emphasize dereferenceable know-how and ontology-backed practice.
 
 ### Published site layout
 
@@ -1143,7 +1183,7 @@ The authored repository remains understandable with nothing except a filesystem 
         └── api/...
 ```
 
-`/.well-known/api-catalog` has a standards-track discovery role from RFC 9727, while `sitemap.xml` remains the search-crawler discovery mechanism and `llms.txt` remains the agent-oriented hint surface. citeturn22view2turn21search6turn19view3
+`/.well-known/api-catalog` has a standards-track discovery role from RFC 9727, while `sitemap.xml` remains the search-crawler discovery mechanism and `llms.txt` remains the agent-oriented hint surface.
 
 ### Every API page should be an entity hub
 
@@ -1221,7 +1261,7 @@ Source references
 Backlinks
 ```
 
-SKOS is a standard model specifically suited to that type of concept scheme, while OWL can represent the more formal software/domain ontology alongside it. citeturn14search0turn12search0
+SKOS is a standard model specifically suited to that type of concept scheme, while OWL can represent the more formal software/domain ontology alongside it.
 
 That gives an agent a route from **language → semantics → code**:
 
@@ -1277,11 +1317,11 @@ web pages
 
 without needing to scrape React hydration payloads or infer which generated text came from which symbol.
 
-Crawler permission still does not guarantee that any specific lab will select the material for training; OpenAI's current language deliberately describes GPTBot content as content that *may* be used. citeturn13view0
+Crawler permission still does not guarantee that any specific lab will select the material for training; OpenAI's current language deliberately describes GPTBot content as content that *may* be used.
 
 ### Build a cold-agent evaluation harness as a first-class product test
 
-Your existing `knowledge-endgame` README specifically lists a “cold-agent eval” as one possible reason to reopen the exploration. fileciteturn1file0L1-L13
+Your existing `knowledge-endgame` README specifically lists a “cold-agent eval” as one possible reason to reopen the exploration.
 
 I think that is exactly the right acceptance test.
 
@@ -1331,19 +1371,19 @@ The first tranche should be almost boring:
 
 **Semantic HTML + excellent CommonMark twins + stable URLs + source links + `sitemap.xml` + `robots.txt` + small `llms.txt` + `AGENTS.md`.**
 
-This immediately benefits humans, ordinary search crawlers, direct-fetch agents, and local coding agents. Google itself says its AI search surfaces need the same fundamentals as ordinary Search rather than a special AI-specific file, while `llms.txt` provides a complementary agent-oriented orientation surface. citeturn11view0turn19view3
+This immediately benefits humans, ordinary search crawlers, direct-fetch agents, and local coding agents. Google itself says its AI search surfaces need the same fundamentals as ordinary Search rather than a special AI-specific file, while `llms.txt` provides a complementary agent-oriented orientation surface.
 
 The second tranche is where `beep-effect` becomes unusual:
 
 **Stable entity IRIs + JSON-LD + Turtle ontology + SKOS glossary + SHACL + generated backlinks + a FOLIO-style explorer.**
 
-OWL, SKOS, SHACL, JSON-LD, and RDF have complementary standardized roles here rather than competing with one another. citeturn12search0turn14search0turn14search1turn3view0turn4view0
+OWL, SKOS, SHACL, JSON-LD, and RDF have complementary standardized roles here rather than competing with one another.
 
 The third tranche turns it into infrastructure:
 
 **SQLite knowledge pack + exact/FTS/graph retrieval + stateless MCP + OpenAPI + `/.well-known/api-catalog` + official MCP Registry publication + optional SPARQL.**
 
-SQLite FTS5 supplies a robust local lexical layer; MCP's 2026 protocol is explicitly stateless and cache-aware; OpenAPI gives conventional HTTP interface description; and RFC 9727 gives a standardized discovery root. citeturn17search6turn18search6turn14search3turn22view2
+SQLite FTS5 supplies a robust local lexical layer; MCP's 2026 protocol is explicitly stateless and cache-aware; OpenAPI gives conventional HTTP interface description; and RFC 9727 gives a standardized discovery root.
 
 The fourth tranche is the actual moat:
 
@@ -1358,3 +1398,34 @@ The deepest design principle is therefore:
 > **The knowledge base is the identity- and provenance-preserving compiler graph produced from your source, documentation, examples, and ontology. HTML, Markdown, JSON-LD, RDF, SQLite, search, and MCP are interoperable projections of that graph.**
 
 That architecture would satisfy nearly every goal in your prompt at once: excellent ordinary docs, Effect-style API reference, source-linked examples, FOLIO-class semantic exploration, Obsidian-class backlinks, local coding-agent navigation, browser-agent usability, queryable stateless MCP, conventional web/API discovery, and an unusually clean public corpus for whichever search engines, agents, researchers, or frontier labs choose to consume it.
+
+## Sources
+
+The original citations were tool markers that cannot be resolved. These
+sources were checked on 2026-10-21 against the document's external claims;
+all of the claims held.
+
+- MCP 2026-07-28 revision (stateless core, `server/discover`, cache hints):
+  <https://modelcontextprotocol.io/specification/2026-07-28/changelog>
+- MCP Registry (still labelled preview):
+  <https://modelcontextprotocol.io/registry/about>
+- RDF 1.2 Concepts, Candidate Recommendation Snapshot 2026-04-07:
+  <https://www.w3.org/standards/history/rdf12-concepts/>
+- llms.txt proposal (v2: `.md` twins, scoped files, `rel="alternate"` and
+  `rel="describedby"` discovery): <https://llmstxt.org/>
+- RFC 9727, `/.well-known/api-catalog`:
+  <https://www.rfc-editor.org/rfc/rfc9727.html>
+- OpenAPI 3.2.0 release: <https://www.openapis.org/?p=4078>
+- Google, AI features and your website:
+  <https://developers.google.com/search/docs/appearance/ai-features>
+- Google, structured data introduction:
+  <https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data>
+- OpenAI crawlers and user agents: <https://developers.openai.com/api/docs/bots>
+- OpenAI publishers and developers FAQ (ARIA guidance):
+  <https://help.openai.com/en/articles/12627856-publishers-and-developers-faq>
+- Anthropic crawlers:
+  <https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler>
+- AGENTS.md: <https://agents.md/>
+- AI Hero llms.txt: <https://www.aihero.dev/llms.txt>
+- SQLite FTS5: <https://sqlite.org/fts5.html>
+- SHACL Recommendation: <https://www.w3.org/TR/shacl/>
