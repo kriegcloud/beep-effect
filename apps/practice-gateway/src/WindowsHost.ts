@@ -226,7 +226,8 @@ export class WindowsHostShape extends S.Opaque<WindowsHostShape, { readonly bran
       input: YesNoQuestion,
       output: WindowsHostOutput<boolean>(),
     }).annotateKey({
-      description: "Show a topmost Yes/No dialog on the lawyer's desktop and wait for the answer; true only for Yes.",
+      description:
+        "Show a topmost Yes/No dialog, No preselected, on the lawyer's desktop and wait for the answer; true only for Yes.",
     }),
     bitLocker: Fn({
       input: S.String,
@@ -386,11 +387,13 @@ const BitLockerScript = (drive: string) =>
   `(New-Object -ComObject Shell.Application).NameSpace('${drive}').Self.ExtendedProperty('System.Volume.BitLockerProtection')`;
 
 // Reads its input from BEEP_ASK_TITLE and BEEP_ASK_MESSAGE; prints "yes" only for Yes.
+// No is the default button, so a stray Enter or Space while the lawyer types
+// elsewhere declines, like every other way out of the dialog.
 const YesNoScript = A.join(
   [
     "Add-Type -AssemblyName System.Windows.Forms",
     "$owner = New-Object System.Windows.Forms.Form -Property @{ TopMost = $true }",
-    "$answer = [System.Windows.Forms.MessageBox]::Show($owner, $env:BEEP_ASK_MESSAGE, $env:BEEP_ASK_TITLE, 'YesNo', 'Question')",
+    "$answer = [System.Windows.Forms.MessageBox]::Show($owner, $env:BEEP_ASK_MESSAGE, $env:BEEP_ASK_TITLE, 'YesNo', 'Question', 'Button2')",
     "if ($answer -eq 'Yes') { 'yes' } else { 'no' }",
   ],
   "; "
