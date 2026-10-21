@@ -6,7 +6,8 @@ workspaces: retired:venice-ai, retired:xai, retired:firecrawl and retired:face-d
 The cheap-gates cache audit reported fifteen blocking `configuration-drift` findings and one
 `configuration-source-drift` review for `turbo.json`. A complete comparison of the executable
 projection against the previous baseline (SHA-256
-`bab18d96b29f5c4f97fb5ac3430999de609877b3d5b317741069de85e30f72ac`) finds only subtractive changes:
+`5d593dd8cca2d61ef8f98d85058f1d3700139c1d98127f66a8c6500f3ea1e602`, the baseline on `main` at
+`3a47ea26c5`, which this branch merged) finds only subtractive changes:
 
 - 58 computations are removed, all owned by the four deleted workspaces (15 + 15 + 14 + 14). Their
   four review records are dropped with them. No computation is added.
@@ -15,7 +16,8 @@ projection against the previous baseline (SHA-256
 - 122 computations change only their effective configuration. Each one loses entries and gains
   nothing.
 - The global configuration is unchanged. The only configuration source whose bytes change is
-  `turbo.json`, now SHA-256 `fac2248a6591102f478c0ea7f248f3c20e90b8cb4b4671135a4a383d312327c1`.
+  `turbo.json`, from SHA-256 `6a81f3b809fd6990a9db45868be59b860f8f3f2aeaa15b3caba429720044bb1c` to
+  `d2ede075c2069c88b304f4f196efcdfc6a3dfdd87b93a3c3ae393b85317eaa6d`.
 
 ## Dependency-only changes
 
@@ -69,6 +71,13 @@ Anthropic only. The manifest is now SHA-256
 - 120 `test:integration` and `test:integration:parallel` computations lose the environment names
   `AI_VENICE_API_KEY` and `FIRECRAWL_API_KEY` from their shared root task definition. These tasks
   are not cached, so this changes no reuse decision.
+
+## Root subject
+
+The root subject `//` changes through `//#lint:policy-fingerprint` and `//#lint:typos` only, so this
+review replaces its record. Its previous record, the `//#lint:tsgo-rules` input-set review in
+`docs/reports/tsgo-rules-git-visibility-cache-review-2026-10-21.md`, is already part of the previous
+baseline. The `//#lint:tsgo-rules` computation is identical before and after this refresh.
 
 ## What this review does not change
 

@@ -476,6 +476,41 @@ const readDirectoryEntries = Effect.fnUntraced(function* (directory: string) {
   return yield* fs.readDirectory(directory).pipe(mapPlatformError("Failed to read directory", directory));
 });
 
+// Scan a directory with one per-entry collector, then sort kept files by name and
+// skipped entries by source name. Every scan-style command shares this shape.
+const collectScannedEntries = Effect.fnUntraced(function* <Skipped extends { readonly sourceName: string }>(
+  directory: string,
+  collectEntry: (
+    entry: string
+  ) => Effect.Effect<
+    { readonly files: ReadonlyArray<SortableFile>; readonly skipped: ReadonlyArray<Skipped> },
+    FilesCommandError,
+    FileSystem.FileSystem | Path.Path
+  >,
+  progress: { readonly enabled?: boolean; readonly label: string }
+): Effect.fn.Return<
+  { readonly files: ReadonlyArray<SortableFile>; readonly skipped: ReadonlyArray<Skipped> },
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | Terminal.Terminal
+> {
+  const entries = yield* readDirectoryEntries(directory);
+  const collectedEntries = yield* runFilesProgressForEach(entries, collectEntry, {
+    concurrency: FilesConcurrency.scan,
+    ...progress,
+  });
+
+  return {
+    files: A.sort(
+      A.flatMap(collectedEntries, (collected) => collected.files),
+      byNameAscending
+    ),
+    skipped: A.sort(
+      A.flatMap(collectedEntries, (collected) => collected.skipped),
+      Order.mapInput(Order.String, (entry: Skipped) => entry.sourceName)
+    ),
+  };
+});
+
 const collectSortableFiles = Effect.fn("Files.collectSortableFiles")(function* (
   dir: string,
   mediaOnly: boolean,
@@ -636,25 +671,11 @@ const collectNormalizeFiles = Effect.fn("Files.collectNormalizeFiles")(function*
   FilesCommandError,
   FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
-  const entries = yield* readDirectoryEntries(directory);
-  const collectedEntries = yield* runFilesProgressForEach(
-    entries,
+  return yield* collectScannedEntries(
+    directory,
     (entry) => collectNormalizeFile(directory, canonicalDirectory, entry),
-    {
-      concurrency: FilesConcurrency.scan,
-      label: "normalize scan",
-    }
+    { label: "normalize scan" }
   );
-  const files = A.flatMap(collectedEntries, (collected) => collected.files);
-  const skipped = A.flatMap(collectedEntries, (collected) => collected.skipped);
-
-  return {
-    files: A.sort(files, byNameAscending),
-    skipped: A.sort(
-      skipped,
-      Order.mapInput(Order.String, (entry: NormalizeSkippedEntry) => entry.sourceName)
-    ),
-  };
 });
 
 interface CaptionSourceMetadata {
@@ -1039,28 +1060,13 @@ const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(f
   FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
   const { canonicalDir, directory } = yield* validateDirectory(dir);
-  const entries = yield* readDirectoryEntries(directory);
-
-  const collectedEntries = yield* runFilesProgressForEach(
-    entries,
-    (entry) => collectDetectBordersFile(directory, canonicalDir, entry),
-    {
-      concurrency: FilesConcurrency.scan,
-      enabled: progressEnabled,
-      label: "borders scan",
-    }
-  );
-  const files = A.flatMap(collectedEntries, (collected) => collected.files);
-  const skipped = A.flatMap(collectedEntries, (collected) => collected.skipped);
-
-  return {
+  const collection = yield* collectScannedEntries(
     directory,
-    files: A.sort(files, byNameAscending),
-    skipped: A.sort(
-      skipped,
-      Order.mapInput(Order.String, (entry: DetectBordersSkippedEntry) => entry.sourceName)
-    ),
-  };
+    (entry) => collectDetectBordersFile(directory, canonicalDir, entry),
+    { enabled: progressEnabled, label: "borders scan" }
+  );
+
+  return { directory, ...collection };
 });
 
 const archiveCandidateCollectedFile = (file: SortableFile): ArchiveCandidateCollectedEntries => ({
@@ -1208,25 +1214,11 @@ const collectArchiveCandidateFiles = Effect.fn("Files.collectArchiveCandidateFil
   FilesCommandError,
   FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
-  const entries = yield* readDirectoryEntries(directory);
-  const collectedEntries = yield* runFilesProgressForEach(
-    entries,
+  return yield* collectScannedEntries(
+    directory,
     (entry) => collectArchiveCandidateFile(directory, canonicalDirectory, entry),
-    {
-      concurrency: FilesConcurrency.scan,
-      label: "archive scan",
-    }
+    { label: "archive scan" }
   );
-  const files = A.flatMap(collectedEntries, (collected) => collected.files);
-  const skipped = A.flatMap(collectedEntries, (collected) => collected.skipped);
-
-  return {
-    files: A.sort(files, byNameAscending),
-    skipped: A.sort(
-      skipped,
-      Order.mapInput(Order.String, (entry: ArchivePoorCandidatesSkippedEntry) => entry.sourceName)
-    ),
-  };
 });
 
 const buildCropBordersPlan = Effect.fn("Files.buildCropBordersPlan")(function* (

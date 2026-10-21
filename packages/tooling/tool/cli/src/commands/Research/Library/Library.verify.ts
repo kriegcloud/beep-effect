@@ -15,7 +15,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { requiredLibraryAdapters } from "./Library.acquire.ts";
+import { removedLibraryWebAdapter, requiredLibraryAdapters } from "./Library.acquire.ts";
 import { encodeLibraryJson, runLibraryCommand } from "./Library.adapter.ts";
 import { LibraryCaptureCorrection } from "./Library.corrections.ts";
 import { LibraryError } from "./Library.errors.ts";
@@ -590,7 +590,9 @@ const verifyRequiredQualifications = Effect.fn("Library.verifyRequiredQualificat
       Str.isNonEmpty(receipt.recordedAt)
     )
       requiredVerified++;
-    else {
+    // The removed web route cannot be re-qualified, so its retained receipt is held only to the
+    // evidence integrity checks above; anything else would wedge verify permanently.
+    else if (adapter !== removedLibraryWebAdapter) {
       requiredFailed++;
       issue(`${adapter}: required route lacks verified source-bound probe evidence`);
     }

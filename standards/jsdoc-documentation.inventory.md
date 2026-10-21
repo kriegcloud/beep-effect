@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-21T07:18:01.148Z
+Generated: 2026-10-21T08:40:36.445Z
 
 ## Scope
 
@@ -15,7 +15,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 80 |
 | publicModules | 3699 |
-| publicExports | 25068 |
+| publicExports | 25073 |
 | openModules | 913 |
 | openExports | 1384 |
 | missingExportExamples | 7 |
@@ -162,7 +162,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 104 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 15 | 0 | 0 |
 | 105 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 106 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
-| 107 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 450 | 4132 | 47 | 35 |
+| 107 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 450 | 4137 | 47 | 35 |
 | 108 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 109 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
 | 110 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
@@ -256,7 +256,7 @@ Export findings:
 - `src/Curie.ts:408` `CoreCurieCodec` (const) - 1 example import violation(s)
 - `src/Curie.ts:426` `makeCurieFromIri` (const) - 1 example import violation(s)
 - `src/Curie.ts:450` `CurieFromIri` (const) - 1 example import violation(s)
-- `src/Fibered.ts:220` `Fibered` (const) - 1 example import violation(s)
+- `src/Fibered.ts:219` `Fibered` (const) - 1 example import violation(s)
 - `src/Id.ts:144` `IdentityInterpolationError` (class) - 1 example import violation(s)
 - `src/Id.ts:178` `IdentitySegmentCountError` (class) - 1 example import violation(s)
 - `src/Id.ts:213` `VERSION` (const) - 1 example import violation(s)
@@ -1410,25 +1410,25 @@ Export findings:
 - `src/TechnicalDrawing.ports.ts:144` `MailReaderShape` (interface) - 1 example import violation(s)
 - `src/TechnicalDrawing.ports.ts:163` `MailReader` (class) - 1 example import violation(s)
 - `src/Validation.rules.ts:168` `structuralFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:221` `labelTextFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:259` `marginFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:313` `purityFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:366` `shadingSpacingFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:429` `outlineSpacingFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:515` `shadingCoverageFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:562` `shadingOutlineClearanceFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:622` `shadingLoneLineFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:722` `shadingBandLadderFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:231` `labelTextFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:269` `marginFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:323` `purityFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:376` `shadingSpacingFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:439` `outlineSpacingFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:525` `shadingCoverageFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:572` `shadingOutlineClearanceFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:632` `shadingLoneLineFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:732` `shadingBandLadderFindings` (const) - 1 example import violation(s)
 - `src/Validation.schemas.ts:31` `PdfPageSize` (class) - 1 example import violation(s)
 - `src/Validation.schemas.ts:56` `PdfFontFact` (class) - 1 example import violation(s)
 - `src/Validation.schemas.ts:190` `PdfFacts` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:234` `InkBounds` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:266` `PageMetrics` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:326` `FindingCode` (const) - 1 example import violation(s)
-- `src/Validation.schemas.ts:348` `FindingCode` (type) - 1 example import violation(s)
-- `src/Validation.schemas.ts:366` `SheetFinding` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:435` `ValidationOptions` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:531` `ValidationReport` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:242` `InkBounds` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:274` `PageMetrics` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:334` `FindingCode` (const) - 1 example import violation(s)
+- `src/Validation.schemas.ts:356` `FindingCode` (type) - 1 example import violation(s)
+- `src/Validation.schemas.ts:374` `SheetFinding` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:443` `ValidationOptions` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:539` `ValidationReport` (class) - 1 example import violation(s)
 - `src/View.schemas.ts:51` `ViewName` (const) - 1 example import violation(s)
 - `src/View.schemas.ts:73` `ViewName` (type) - 1 example import violation(s)
 - `src/View.schemas.ts:254` `isPerspectiveView` (const) - 1 example import violation(s)
@@ -1946,8 +1946,8 @@ Module findings:
 Export findings:
 - `src/Lexical.model.ts:1135` `ElementNode` (class) - 1 documentation section/link violation(s)
 - `src/Lexical.model.ts:2349` `YouTubeNode` (class) - 1 documentation section/link violation(s)
-- `src/Lexical.model.ts:3321` `decodeEditorStateStrictResult` (const) - 1 documentation section/link violation(s)
-- `src/Lexical.model.ts:3404` `analyzeEditorStateCompatibilityResult` (const) - 1 documentation section/link violation(s)
+- `src/Lexical.model.ts:3318` `decodeEditorStateStrictResult` (const) - 1 documentation section/link violation(s)
+- `src/Lexical.model.ts:3401` `analyzeEditorStateCompatibilityResult` (const) - 1 documentation section/link violation(s)
 - `src/index.ts:26` `export { editorStateToPlainText, nodeToPlainText } from "./Lexical.behavior.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:41` `export {
   ARTIFACT_URI_PREFIX,
@@ -2228,7 +2228,7 @@ Export findings:
 - `src/commands/Drawings/Drawings.intake.schemas.ts:354` `IntakeRecord` (class) - 1 example import violation(s)
 - `src/commands/Drawings/Drawings.intake.schemas.ts:405` `IntakeResult` (class) - 1 example import violation(s)
 - `src/commands/Drawings/Drawings.intake.ts:629` `renderIntakeSummary` (const) - 1 example import violation(s)
-- `src/commands/Drawings/Drawings.measurements.schemas.ts:422` `CriticMeasurements` (class) - 1 example import violation(s)
+- `src/commands/Drawings/Drawings.measurements.schemas.ts:431` `CriticMeasurements` (class) - 1 example import violation(s)
 - `src/commands/Drawings/Drawings.measurements.ts:910` `measurementsMarkdown` (const) - 1 example import violation(s)
 - `src/commands/Explore/Atlas.ts:774` `explorationProjectionDriftPaths` (const) - 1 example import violation(s)
 - `src/commands/Laws/FrozenGrantSet.ts:339` `runFrozenGrantSetRules` (const) - 1 documentation section/link violation(s)
@@ -2236,7 +2236,7 @@ Export findings:
 - `src/commands/Qa/JudgeCheck.ts:512` `extractLastJsonBlock` (const) - 1 documentation section/link violation(s)
 - `src/commands/Qa/JudgePack.ts:628` `renderTimeline` (const) - 1 documentation section/link violation(s)
 - `src/commands/Qa/JudgePack.ts:732` `selectJudgeEvidence` (const) - 1 documentation section/link violation(s)
-- `src/commands/Quality/Quality.command.ts:1061` `runBunAudit` (const) - 1 documentation section/link violation(s)
+- `src/commands/Quality/Quality.command.ts:1065` `runBunAudit` (const) - 1 documentation section/link violation(s)
 - `src/commands/Runners/Runners.schemas.ts:120` `BakeConfig` (class) - 1 example import violation(s)
 - `src/commands/Runners/Runners.schemas.ts:167` `BakeReport` (class) - 1 example import violation(s)
 - `src/commands/Runners/Runners.schemas.ts:276` `BakePlan` (class) - 1 example import violation(s)
@@ -2374,19 +2374,19 @@ Module findings:
 Export findings:
 - `src/Openclaw.models.ts:123` `OpenclawDiagnosticText` (const) - 1 documentation section/link violation(s)
 - `src/Openclaw.models.ts:177` `OpenclawProcessRequest` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:356` `OpenclawConfigInvalid` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:431` `OpenclawDoctorReport` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:467` `OpenclawSecretsReloadOutput` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:538` `OpenclawSecretsReloadDegraded` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:1241` `OpenclawInvocationContext` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:1345` `OpenclawSystemdUnitState` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:1434` `OpenclawHttpProbe` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:1506` `OpenclawSchemaPlaceholderFinding` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:354` `OpenclawConfigInvalid` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:427` `OpenclawDoctorReport` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:463` `OpenclawSecretsReloadOutput` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:532` `OpenclawSecretsReloadDegraded` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:1233` `OpenclawInvocationContext` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:1337` `OpenclawSystemdUnitState` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:1426` `OpenclawHttpProbe` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:1498` `OpenclawSchemaPlaceholderFinding` (class) - 1 documentation section/link violation(s)
 - `src/OpenclawCli.service.ts:457` `OpenclawCliRunner` (type) - 1 documentation section/link violation(s)
 - `src/OpenclawIntent.models.ts:54` `OpenclawSecretReference` (const) - 1 documentation section/link violation(s)
 - `src/OpenclawIntent.models.ts:101` `OpenclawTargetVersion` (const) - 1 documentation section/link violation(s)
-- `src/OpenclawIntent.models.ts:1106` `OpenclawSkillPin` (class) - 1 documentation section/link violation(s)
-- `src/OpenclawIntent.models.ts:1211` `OpenclawDeploymentIntent` (class) - 1 documentation section/link violation(s)
+- `src/OpenclawIntent.models.ts:1102` `OpenclawSkillPin` (class) - 1 documentation section/link violation(s)
+- `src/OpenclawIntent.models.ts:1207` `OpenclawDeploymentIntent` (class) - 1 documentation section/link violation(s)
 
 ### @beep/db-admin
 
@@ -3074,7 +3074,7 @@ Export findings:
 - `src/BoxContentMigrationReceipt.ts:277` `BoxContentActionFailed` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationReceipt.ts:310` `BoxContentActionNotAttempted` (class) - 1 example import violation(s)
 - `src/BoxProvisioningErrors.ts:155` `BoxProvisioningDriftError` (class) - 1 example import violation(s)
-- `src/BoxProvisioningIntent.ts:545` `BoxWebhookIntent` (class) - 1 example import violation(s)
+- `src/BoxProvisioningIntent.ts:543` `BoxWebhookIntent` (class) - 1 example import violation(s)
 - `src/BoxProvisioningObserved.ts:326` `BoxObservedWebhook` (class) - 1 example import violation(s)
 - `src/BoxProvisioningPlan.ts:399` `BoxForeignResource` (class) - 1 example import violation(s)
 - `src/BoxProvisioningReceipt.ts:342` `BoxActionApplied` (class) - 1 example import violation(s)

@@ -60,9 +60,27 @@ export const libraryAdapterFor = (source: LibrarySource): string =>
     Match.orElse(() => "disposition")
   );
 
-// Route of the removed in-repo web scraper: its retained captures and qualification receipts still
-// verify, but no source routes to it and qualify never probes it.
-const removedWebAdapter = "firecrawl";
+/**
+ * Route of the removed in-repo web scraper.
+ *
+ * **Details**
+ *
+ * Retained captures and qualification receipts on this route still verify. No source routes to it,
+ * `library qualify` refuses to probe it, and a retained receipt that is no longer verified is reported
+ * by its evidence integrity alone instead of failing `library verify` as a required route.
+ *
+ * **Example** (Recognize the removed web route)
+ *
+ * ```ts
+ * import { removedLibraryWebAdapter } from "@beep/repo-cli/commands/Research"
+ *
+ * console.log(removedLibraryWebAdapter) // "firecrawl"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const removedLibraryWebAdapter = "firecrawl";
 
 /**
  * Required operational routes for a catalog.
@@ -84,7 +102,7 @@ export const requiredLibraryAdapters = (catalog: LibraryCatalog) =>
     ...A.map(
       A.filter(
         catalog.qualifications,
-        (qualification) => qualification.required && qualification.adapter !== removedWebAdapter
+        (qualification) => qualification.required && qualification.adapter !== removedLibraryWebAdapter
       ),
       (qualification) => qualification.adapter
     ),

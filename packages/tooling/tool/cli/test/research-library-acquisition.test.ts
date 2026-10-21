@@ -7,8 +7,11 @@ import {
   LibraryDispositionImportPayload,
   LibraryImportPayload,
   LibraryQualification,
+  LibraryQualifyOptions,
   LibrarySource,
   loadCatalog,
+  qualifyLibrary,
+  removedLibraryWebAdapter,
   requiredLibraryAdapters,
   saveImmutable,
   validateLibraryScrape,
@@ -806,6 +809,20 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
       expect(requiredLibraryAdapters(LibraryCatalog.make({ ...catalog, qualifications: [retained] }))).toEqual([
         "grok-deep-research",
       ]);
+    })
+  );
+
+  it.effect("refuses to probe the removed web route instead of skipping it", () =>
+    Effect.gen(function* () {
+      const fixture = yield* prepare();
+      const error = yield* Effect.flip(
+        qualifyLibrary(
+          fixture.root,
+          LibraryQualifyOptions.make({ adapters: [removedLibraryWebAdapter], sourceIds: [], maxProbes: 1 })
+        )
+      );
+      expect(error.message).toContain(`Adapter ${removedLibraryWebAdapter} was removed`);
+      expect((yield* loadCatalog(fixture.root)).qualifications).toEqual([]);
     })
   );
 });

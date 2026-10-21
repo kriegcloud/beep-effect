@@ -866,7 +866,9 @@ const ProviderRecordingFields = S.Struct({
   documentId: S.tag(PROVIDER_RECORDING_DOCUMENT_ID),
   extractionContractRevision: S.tag("lejeune-rfq-a-extraction/v1"),
   model: S.NonEmptyString,
-  provider: LiteralKit(["anthropic", "openai-compat", "xai"]),
+  // Frozen `lejeune-provider-recording/v1` provider set: provider-smoke now records only Anthropic, but
+  // narrowing this set would stop earlier v1 review candidates from decoding without a version bump.
+  provider: LiteralKit(["anthropic", "openai-compat", "venice-ai", "xai"]),
   recordedAt: IsoTimestamp,
   responseSha256: Sha256Hex,
   schemaVersion: S.tag("lejeune-provider-recording/v1"),

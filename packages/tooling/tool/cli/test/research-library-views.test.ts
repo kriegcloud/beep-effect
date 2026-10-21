@@ -16,6 +16,7 @@ import {
   LibrarySource,
   LibraryVersion,
   loadCatalog,
+  removedLibraryWebAdapter,
   renderLibrary,
   saveImmutable,
   verifyLibrary,
@@ -39,6 +40,7 @@ import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const LibraryProbeEvidenceJson = S.fromJsonString(LibraryProbeEvidence);
 const UnknownJson = S.fromJsonString(S.Unknown);
@@ -389,6 +391,35 @@ it.layer(services, { timeout: "30 seconds" })("portable research library views a
     Effect.gen(function* () {
       const { root } = yield* fixture;
       yield* verifyLibrary(root);
+    })
+  );
+
+  it.effect("holds a failed retained receipt on the removed web route only to evidence integrity", () =>
+    Effect.gen(function* () {
+      const { root, catalog } = yield* fixture;
+      const retained = A.getUnsafe(catalog.qualifications, 0);
+      expect(retained.adapter).toBe(removedLibraryWebAdapter);
+      const failed = LibraryQualification.make({
+        ...retained,
+        id: "firecrawl-failed",
+        status: "failed",
+        recordedAt: "2026-10-07",
+      });
+      yield* withCatalog(root, () =>
+        Effect.succeed(LibraryCatalog.make({ ...catalog, qualifications: [...catalog.qualifications, failed] }))
+      );
+      yield* verifyLibrary(root);
+
+      const tampered = LibraryQualification.make({
+        ...failed,
+        evidence: A.map(failed.evidence, (artifact) =>
+          LibraryArtifact.make({ ...artifact, sha256: Str.repeat(64)("0") })
+        ),
+      });
+      yield* withCatalog(root, () =>
+        Effect.succeed(LibraryCatalog.make({ ...catalog, qualifications: [...catalog.qualifications, tampered] }))
+      );
+      expect(Exit.isFailure(yield* Effect.exit(verifyLibrary(root)))).toBe(true);
     })
   );
 
