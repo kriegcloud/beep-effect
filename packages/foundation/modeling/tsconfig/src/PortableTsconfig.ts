@@ -251,7 +251,6 @@ const PortableTsconfigData = S.Struct({
  * ```ts
  * import { PortableTsconfigOptions } from "@beep/tsconfig/PortableTsconfig";
  * import * as S from "effect/Schema";
-import * as SchemaParser from "effect/SchemaParser";
  *
  * console.log(S.decodeUnknownSync(PortableTsconfigOptions)({ includeTypes: true }).includeTypes) // true
  * ```

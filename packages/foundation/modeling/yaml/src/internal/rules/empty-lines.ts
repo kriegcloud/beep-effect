@@ -28,8 +28,7 @@ const $I = $YamlId.create("internal/rules/empty-lines");
  * **Example** (Decode empty-lines options)
  *
  * ```ts
- * import * as A from "effect/Array";
-import * as S from "effect/Schema";
+ * import * as S from "effect/Schema";
  * import { emptyLinesOptions } from "@beep/yaml/internal/rules/empty-lines";
  *
  * const options = S.decodeUnknownSync(emptyLinesOptions)({ max: 1, maxStart: 0, maxEnd: 0 });
