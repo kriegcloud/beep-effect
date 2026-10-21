@@ -300,34 +300,26 @@ const evidenceSpecificationFields = {
   spanFixtureKey: S.String,
 };
 
-// Typed annotations (examples, toArbitrary, ...) live in an explicitly annotated
-// const typed by the struct, not the class: naming the class here forces TS to
-// resolve it while its base type is still being computed (TS2310/TS2506).
-const evidenceSpecificationAnnotations: S.Annotations.Declaration<
-  S.Struct.Type<typeof evidenceSpecificationFields>,
-  readonly []
-> = $I.annoteClass<S.Struct<typeof evidenceSpecificationFields>, readonly []>("EvidenceSpecification", {
-  description: "Deterministic evidence fixture specification consumed by the contradiction browser-QA seed.",
-  examples: [
-    {
-      artifactFixtureKey: "artifactFixtureKey",
-      createdAt: 1,
-      publicIdSuffix: Cuid.make("a123"),
-      span: {
-        confidence: 0.99,
-        endChar: Str.length("The renewal notice lists 15 July 2027."),
-        quote: "The renewal notice lists 15 July 2027.",
-        startChar: 0,
-      },
-      spanFixtureKey: "",
-    },
-  ],
-});
-
 class EvidenceSpecification extends S.Opaque<EvidenceSpecification, { readonly brand: unique symbol }>()(
-  S.Struct(evidenceSpecificationFields)
-    .pipe($I.annoteSchema("EvidenceSpecification"))
-    .annotate(evidenceSpecificationAnnotations)
+  S.Struct(evidenceSpecificationFields).pipe(
+    $I.annoteSchema("EvidenceSpecification", {
+      description: "Deterministic evidence fixture specification consumed by the contradiction browser-QA seed.",
+      examples: [
+        {
+          artifactFixtureKey: "artifactFixtureKey",
+          createdAt: 1,
+          publicIdSuffix: Cuid.make("a123"),
+          span: {
+            confidence: 0.99,
+            endChar: Str.length("The renewal notice lists 15 July 2027."),
+            quote: "The renewal notice lists 15 July 2027.",
+            startChar: 0,
+          },
+          spanFixtureKey: "",
+        },
+      ],
+    })
+  )
 ) {
   static readonly deadlineVerified = EvidenceSpecification.make({
     artifactFixtureKey: "qa.contradiction.deadline.executed-amendment",

@@ -230,12 +230,14 @@ const TS_NODE_MODULE_TYPE_VALUES = ["cjs", "esm", "package"] as const;
 // rebuilds (plain assignment sets the prototype instead), so admitting it on
 // the wire both breaks round-tripping and invites prototype pollution.
 const TSConfigJsonKey = S.String.check(
-  S.makeFilter((key: string) => key !== "__proto__", {
-    identifier: $I.make("TSConfigJsonKeyCheck"),
-    title: "TSConfig JSON Key",
-    description: 'A tsconfig JSON object key; the prototype-polluting "__proto__" is rejected.',
-    message: 'Key must not be "__proto__".',
-  })
+  S.makeFilter(
+    (key: string) => key !== "__proto__",
+    $I.annote("TSConfigJsonKeyCheck", {
+      title: "TSConfig JSON Key",
+      description: 'A tsconfig JSON object key; the prototype-polluting "__proto__" is rejected.',
+      message: 'Key must not be "__proto__".',
+    })
+  )
 );
 
 const JsonRecord = S.Record(TSConfigJsonKey, S.Json).pipe(
@@ -392,12 +394,11 @@ const makeUniqueArraySchema = <Item extends S.Top>(item: Item, name: string, des
     .check(
       S.makeFilter(
         (values: ReadonlyArray<Item["Type"]>) => A.length(A.dedupeWith(equivalence)(values)) === A.length(values),
-        {
-          identifier: $I.make(`${name}UniqueItemsCheck`),
+        $I.annote(`${name}UniqueItemsCheck`, {
           title: `${name} Unique Items`,
           description: `${description} Items must be unique.`,
           message: "Array items must be unique.",
-        }
+        })
       )
     )
     .pipe(
