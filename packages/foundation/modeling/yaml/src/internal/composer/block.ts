@@ -346,7 +346,7 @@ const absorbBlankLinesAbove = (text: string, offset: number, start: number): num
  */
 export class SemanticKey extends S.Opaque<SemanticKey, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("key").pipe(
+    kind: S.tag("key").pipe(
       S.mutableKey,
       $I.annoteKey("SemanticItem.Key.kind", { description: "Explicit or external key marker." })
     ),
@@ -379,7 +379,7 @@ export class SemanticKey extends S.Opaque<SemanticKey, { readonly brand: unique 
  */
 export class SemanticValueSep extends S.Opaque<SemanticValueSep, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("value-sep").pipe(
+    kind: S.tag("value-sep").pipe(
       S.mutableKey,
       $I.annoteKey("SemanticItem.ValueSep.kind", { description: "Mapping value separator." })
     ),
@@ -412,7 +412,7 @@ export class SemanticValueSep extends S.Opaque<SemanticValueSep, { readonly bran
  */
 export class SemanticNode extends S.Opaque<SemanticNode, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("node").pipe(
+    kind: S.tag("node").pipe(
       S.mutableKey,
       $I.annoteKey("SemanticItem.Node.kind", { description: "Composed content node." })
     ),
@@ -437,7 +437,7 @@ export class SemanticNode extends S.Opaque<SemanticNode, { readonly brand: uniqu
  */
 export class SemanticComment extends S.Opaque<SemanticComment, { readonly brand: unique symbol }>()(
   S.Struct({
-    kind: S.Literal("comment").pipe(
+    kind: S.tag("comment").pipe(
       S.mutableKey,
       $I.annoteKey("SemanticItem.Comment.kind", { description: "Comment awaiting attribution." })
     ),

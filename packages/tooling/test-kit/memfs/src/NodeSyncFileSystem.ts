@@ -79,7 +79,7 @@ class InvalidPathArgumentError extends S.TaggedError<InvalidPathArgumentError, {
         description: "The required path argument type and the received type.",
       })
     ),
-    code: S.Literal("ERR_INVALID_ARG_TYPE").pipe(
+    code: S.tag("ERR_INVALID_ARG_TYPE").pipe(
       $I.annoteKey("InvalidPathArgumentError.code", {
         description: "The Node.js error code for an invalid path argument type.",
       })

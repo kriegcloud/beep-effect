@@ -119,7 +119,7 @@ export class ScanFailure extends S.Opaque<ScanFailure, { readonly brand: unique 
  */
 export class ScanSucceeded extends S.Opaque<ScanSucceeded, { readonly brand: unique symbol }>()(
   S.Struct({
-    ok: S.Literal(true).pipe($I.annoteKey("ScanResult.ok", { description: "The scan succeeded." })),
+    ok: S.tag(true).pipe($I.annoteKey("ScanResult.ok", { description: "The scan succeeded." })),
     sections: S.Array(S.suspend(() => PlacedSection)).pipe(
       $I.annoteKey("ScanResult.sections", { description: "Located sections in source order." })
     ),
@@ -146,7 +146,7 @@ export class ScanSucceeded extends S.Opaque<ScanSucceeded, { readonly brand: uni
  */
 export class ScanFailed extends S.Opaque<ScanFailed, { readonly brand: unique symbol }>()(
   S.Struct({
-    ok: S.Literal(false).pipe($I.annoteKey("ScanResult.ok", { description: "The scan failed." })),
+    ok: S.tag(false).pipe($I.annoteKey("ScanResult.ok", { description: "The scan failed." })),
     failure: ScanFailure.pipe($I.annoteKey("ScanResult.failure", { description: "The first structural failure." })),
   }).pipe($I.annoteSchema("ScanFailed", { description: "A scan refused at its first structural ambiguity." }))
 ) {}
