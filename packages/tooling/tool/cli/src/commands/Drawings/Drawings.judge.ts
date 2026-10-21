@@ -124,7 +124,7 @@ const copyPhotos = Effect.fn("DrawingsJudge.copyPhotos")(function* (photosDir: s
   const names = yield* fs.readDirectory(photosDir).pipe(Effect.mapError(fail(`Could not list "${photosDir}".`)));
   const photos = pipe(
     names,
-    A.filter((name) => HashSet.has(PHOTO_EXTENSIONS, path.extname(name).toLowerCase())),
+    A.filter((name) => HashSet.has(PHOTO_EXTENSIONS, Str.toLowerCase(path.extname(name)))),
     A.sort(Order.String)
   );
   yield* fs
@@ -277,7 +277,7 @@ const inventoryProblems = Effect.fn("DrawingsJudge.inventoryProblems")(function*
   );
   const pathProblems = yield* Effect.forEach(evidence, ({ id, ref }) => {
     const resolved = path.resolve(packDir, ref.path);
-    const inside = !path.relative(packDir, resolved).startsWith("..");
+    const inside = !Str.startsWith("..")(path.relative(packDir, resolved));
     return (inside ? fs.exists(resolved) : Effect.succeed(false)).pipe(
       Effect.orElseSucceed(() => false),
       Effect.map((exists) => (exists ? O.none() : O.some(`${id}: evidence "${ref.path}" is not a file in the pack`)))

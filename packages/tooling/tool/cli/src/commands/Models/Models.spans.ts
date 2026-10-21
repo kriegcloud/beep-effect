@@ -7,7 +7,7 @@
 import { A, O, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -366,6 +366,8 @@ const ownedShellValue = (
     : O.none<string>();
 };
 
+const matchIndex = (match: RegExpExecArray): number => match.index;
+
 const recognizedShellOffsets = (
   line: string,
   words: ReadonlyArray<string>,
@@ -376,7 +378,9 @@ const recognizedShellOffsets = (
   let cursor = 0;
   let declaration = false;
   for (const [index, word] of A.entries(words)) {
-    const offset = line.indexOf(word, cursor);
+    const pattern = new RegExp(Regex.escape(word), "g");
+    pattern.lastIndex = cursor;
+    const offset = O.getOrElse(O.map(O.fromNullishOr(pattern.exec(line)), matchIndex), constant(-1));
     cursor = offset + Str.length(word);
     if (shellControl.test(word)) declaration = false;
     if (/^(?:declare|typeset|local|unset)$/.test(word)) declaration = true;

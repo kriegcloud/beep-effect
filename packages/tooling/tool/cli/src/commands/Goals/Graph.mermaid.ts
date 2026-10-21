@@ -22,7 +22,7 @@
  */
 
 import * as A from "effect/Array";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Str from "effect/String";
@@ -45,7 +45,7 @@ const nodeId = (slug: string): string => `p_${Str.replaceAll("-", "_")(slug)}`;
 const SAFE_ID_CHAR = /^[a-z0-9]$/;
 
 const encodeIdChar = (char: string): string =>
-  SAFE_ID_CHAR.test(char) ? char : `_${char.charCodeAt(0).toString(16)}_`;
+  SAFE_ID_CHAR.test(char) ? char : `_${O.getOrElse(Str.charCodeAt(0)(char), constant(Number.NaN)).toString(16)}_`;
 
 const fogId = (capability: string): string => `fog_${A.join(A.map(Str.split("")(capability), encodeIdChar), "")}`;
 

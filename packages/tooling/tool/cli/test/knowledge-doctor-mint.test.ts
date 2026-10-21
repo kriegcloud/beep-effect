@@ -31,6 +31,7 @@ import { assert, describe } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { KnowledgeDoctorTree } from "@beep/repo-cli/commands/Knowledge";
 
 const platformLayer = NodeCrypto.layer;
@@ -128,7 +129,7 @@ describe("knowledge doctor mint workflow", () => {
             first.baseline.entries,
             KnowledgeBaselineEntry.make({
               ...O.getOrThrow(A.head(first.baseline.entries)),
-              key: `knowledge-doctor/v1:${"f".repeat(64)}`,
+              key: `knowledge-doctor/v1:${Str.repeat(64)("f")}`,
             })
           ),
         });
@@ -215,7 +216,7 @@ describe("knowledge doctor mint workflow", () => {
 
   it("admits a baseline change only when conditions (i) through (iv) all hold", () => {
     const entry = KnowledgeBaselineEntry.make({
-      key: `knowledge-doctor/v1:${"a".repeat(64)}`,
+      key: `knowledge-doctor/v1:${Str.repeat(64)("a")}`,
       group: "unresolved-reference",
       kind: "broken-tracked-path",
       document: "docs/a.md",

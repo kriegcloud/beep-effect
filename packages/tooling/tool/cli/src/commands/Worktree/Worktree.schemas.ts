@@ -723,7 +723,7 @@ type PorcelainAccumulator = {
 };
 
 const stripRefsHeads = (ref: string): string =>
-  Str.startsWith(REFS_HEADS_PREFIX)(ref) ? ref.slice(REFS_HEADS_PREFIX.length) : ref;
+  Str.startsWith(REFS_HEADS_PREFIX)(ref) ? Str.slice(REFS_HEADS_PREFIX.length)(ref) : ref;
 
 const accumulatorEntry = (accumulator: PorcelainAccumulator): WorktreeListEntry =>
   WorktreeListEntry.make({
@@ -737,9 +737,9 @@ const accumulatorEntry = (accumulator: PorcelainAccumulator): WorktreeListEntry 
 
 const applyPorcelainAttribute = (current: PorcelainAccumulator, line: string): void => {
   if (Str.startsWith("HEAD ")(line)) {
-    current.head = line.slice("HEAD ".length);
+    current.head = Str.slice("HEAD ".length)(line);
   } else if (Str.startsWith("branch ")(line)) {
-    current.branch = stripRefsHeads(line.slice("branch ".length));
+    current.branch = stripRefsHeads(Str.slice("branch ".length)(line));
   } else if (line === "detached") {
     current.detached = true;
   } else if (line === "locked" || Str.startsWith("locked ")(line)) {
@@ -759,7 +759,7 @@ const porcelainBlocks = (lines: ReadonlyArray<string>): ReadonlyArray<PorcelainB
   const blocks: Array<PorcelainBlock> = [];
   for (const line of lines) {
     if (Str.startsWith(WORKTREE_PREFIX)(line)) {
-      blocks.push({ path: line.slice(WORKTREE_PREFIX.length), attributes: [] });
+      blocks.push({ path: Str.slice(WORKTREE_PREFIX.length)(line), attributes: [] });
       continue;
     }
     const current = blocks[blocks.length - 1];

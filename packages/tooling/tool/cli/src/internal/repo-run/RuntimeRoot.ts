@@ -26,6 +26,7 @@ import * as O from "@beep/utils/Option";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
+import * as Str from "effect/String";
 import { RuntimeRootChoice, RuntimeRootKind } from "./RuntimeRoot.schemas.ts";
 import type * as Path from "effect/Path";
 /**
@@ -49,8 +50,8 @@ export const canonicalRuntimeRootForTesting: {
   (userHome: string): (platform: string) => string;
 } = dual(2, (platform: string, userHome: string): string =>
   platform === "win32"
-    ? `${userHome.replace(/[\\/]+$/u, "")}\\.beep\\runtime`
-    : `${userHome.replace(/\/+$/u, "")}/.beep/runtime`
+    ? `${Str.replace(/[\\/]+$/u, "")(userHome)}\\.beep\\runtime`
+    : `${Str.replace(/\/+$/u, "")(userHome)}/.beep/runtime`
 );
 
 const CANONICAL_RUNTIME_ROOT = canonicalRuntimeRootForTesting(currentHostPlatform, NodeOS.userInfo().homedir);

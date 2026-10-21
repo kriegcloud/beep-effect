@@ -10,6 +10,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 
 const writeExecutable = Effect.fn("SetupEffectRefTest.writeExecutable")(function* (filePath: string, content: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -85,7 +86,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("setup-effect-ref", (it)
           );
           return {
             stderr: A.join(
-              A.filter(lines, (line) => line.startsWith("warning:")),
+              A.filter(lines, (line) => Str.startsWith("warning:")(line)),
               "\n"
             ),
             stdout: A.join(lines, "\n"),
