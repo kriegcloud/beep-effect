@@ -5,7 +5,7 @@
 // edges and extension payloads — plus the model's own instance surface
 // (packagesNamed, workspacePackages) and the withImporterNames seam repair.
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertExitSuccess, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
@@ -20,10 +20,9 @@ import type { LockfileFormat } from "../../effected/lockfiles/LockfileFormat.ts"
 import { filenameFor } from "../../effected/lockfiles/LockfileFormat.ts";
 import { ResolvedPackage } from "../../effected/lockfiles/ResolvedPackage.ts";
 import { isUnsupportedLockfileVersion } from "../../effected/lockfiles/UnsupportedLockfileVersion.ts";
+import { fixture, fixturePath } from "./fixtures.ts";
 
 const JsonString = S.fromJsonString(S.Unknown);
-
-const fixture = (relative: string): string => readFileSync(join(import.meta.dirname, "fixtures", relative), "utf8");
 
 /**
  * Fixture directories under this prefix hold input the parser must *reject*,
@@ -1790,8 +1789,8 @@ describe("supported lockfile versions", () => {
 					// would throw ENOENT OUTSIDE the Effect, where `Effect.exit` cannot
 					// capture it and the path is lost from the message. Report it here.
 					assert.isTrue(
-						existsSync(join(formatDir, entry.name, filename)),
-						`${relative} is missing: this guard reads each format's primary filename`,
+						existsSync(fixturePath(relative)),
+						`${relative} is missing: this guard reads each format's primary filename with the inert .fixture suffix`,
 					);
 					// Through `Effect.exit` so a fixture that has aged below the gate
 					// reports *which* fixture, rather than surfacing as a bare parse
