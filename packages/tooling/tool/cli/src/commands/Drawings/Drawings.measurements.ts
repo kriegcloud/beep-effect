@@ -910,7 +910,11 @@ const figureSection = (figure: CriticFigureMeasurements): ReadonlyArray<string> 
 export const measurementsMarkdown = (measurements: CriticMeasurements): string => {
   const { pdf } = measurements;
   const streams = A.isReadonlyArrayEmpty(pdf.undecodableStreams)
-    ? ["Undecodable streams: none."]
+    ? [
+        pdf.containerDiscovery === "complete" && pdf.streamCheck === "complete"
+          ? "Undecodable streams: none."
+          : "Undecodable streams: none among inspected streams; global stream inspection is incomplete.",
+      ]
     : [
         "Undecodable streams (a strict reader refuses these; a PDF-structure defect):",
         "",
@@ -936,6 +940,7 @@ export const measurementsMarkdown = (measurements: CriticMeasurements): string =
       `## PDF (${pdf.file})`,
       "",
       `PDF version: ${pdf.version}; pages: ${pdf.pageCount}; FlateDecode stream check: ${pdf.streamCheck}.`,
+      `PDF container discovery: ${pdf.containerDiscovery}.`,
       "",
       ...streams,
       "",

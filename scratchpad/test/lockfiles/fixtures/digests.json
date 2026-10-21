@@ -1,0 +1,154 @@
+[
+  {
+    "logicalPath": "bun/nested/bun.lock",
+    "sha256": "03183bd7d96c7eade5a758e8ae34f723a3c14d8acf460d10ffac4beefbbbc483"
+  },
+  {
+    "logicalPath": "bun/peers/bun.lock",
+    "sha256": "9400d362bab6d4caa7ba49c2a6b38c38da44cc07b840be779358432a6b40de59"
+  },
+  {
+    "logicalPath": "bun/v1/bun.lock",
+    "sha256": "b300949304df98df68df0537d5c9d2569fc5b069825e884adffdf6bbf2f8d23c"
+  },
+  {
+    "logicalPath": "bun/v2/bun.lock",
+    "sha256": "68a4dbf5c38b1c7ad93d36f19196083b440819035d7c84601f9027851083aad9"
+  },
+  {
+    "logicalPath": "bun/v3/bun.lock",
+    "sha256": "018bd1ed6e07ebcb56d4f9057b7eec55179493da692fbdc3ec3b627e077c8ec8"
+  },
+  {
+    "logicalPath": "npm/ancestor-walk/package-lock.json",
+    "sha256": "38bacb7cafdfe2cda0c541b3e4318fddb7bffe844a383068470ce917f935e4b2"
+  },
+  {
+    "logicalPath": "npm/nested/package-lock.json",
+    "sha256": "b0cf800c4c7625566ab6c3a05384689b4cc7cae04322da1844558df96a36f89f"
+  },
+  {
+    "logicalPath": "npm/peers/package-lock.json",
+    "sha256": "0687ddb3d6cf0312886ce23b4c491a816e5d0b416a56fa32dbea018686c73a45"
+  },
+  {
+    "logicalPath": "npm/unsupported-v1/package-lock.json",
+    "sha256": "688bb9912ab0ebf4b62c972416a22c0d7a35669dda40150a7c711a272b38f491"
+  },
+  {
+    "logicalPath": "npm/unsupported-v2/package-lock.json",
+    "sha256": "4a2f58c781543947e31de2a887c0583e0ea43757907992a4e72e28f750592015"
+  },
+  {
+    "logicalPath": "npm/v1/package-lock.json",
+    "sha256": "5ff8644bc670fdc7ea76f1a73a628ecb806437aa8983546111e7f1efaa780906"
+  },
+  {
+    "logicalPath": "npm/v2/package-lock.json",
+    "sha256": "7b58f0caa75f104312bf31d516cf707bc98947fb02f779269dd1355283050fe1"
+  },
+  {
+    "logicalPath": "pnpm/alias/pnpm-lock.yaml",
+    "sha256": "24d7f41821c8bb9670d76d544d846231d89f5821b00090936a93e18179cc73fd"
+  },
+  {
+    "logicalPath": "pnpm/emptysnapshots/pnpm-lock.yaml",
+    "sha256": "ca386802fada680cd01f963434de9f67d122d20631bdf596bb6e282c85e73c49"
+  },
+  {
+    "logicalPath": "pnpm/env-configdeps/pnpm-lock.yaml",
+    "sha256": "1772f3a1d6c91e449c260455721e86864de20f05166f305878002f0aa9f2e4f3"
+  },
+  {
+    "logicalPath": "pnpm/env-configdeps-pnpm11/pnpm-lock.yaml",
+    "sha256": "88e5034b9f49245a486c0f3c63872716b43cbdb8044ada450c98fd0ef20ddad2"
+  },
+  {
+    "logicalPath": "pnpm/env-configdeps-pnpm12/pnpm-lock.yaml",
+    "sha256": "2161b5c13a555a816b45aa903621ea4bcde86d901a0dfd23f78b5ea5fc07ce09"
+  },
+  {
+    "logicalPath": "pnpm/env-configonly-pnpm11/pnpm-lock.yaml",
+    "sha256": "111c47f2d180f4ecbe28ed07121108148c6802095583f4939575cdfd3d151b8a"
+  },
+  {
+    "logicalPath": "pnpm/env-configonly-pnpm12/pnpm-lock.yaml",
+    "sha256": "111c47f2d180f4ecbe28ed07121108148c6802095583f4939575cdfd3d151b8a"
+  },
+  {
+    "logicalPath": "pnpm/env-pnpm11/pnpm-lock.yaml",
+    "sha256": "4b9f9ad1fe0ef478d549bf4cd5f54fc52831065b875820a032b2f7120ddda59f"
+  },
+  {
+    "logicalPath": "pnpm/env-pnpm12/pnpm-lock.yaml",
+    "sha256": "077093776793742c0e4bffc76f2448bb1945984495e2ab50506b8b8240c19aaf"
+  },
+  {
+    "logicalPath": "pnpm/filepeer/pnpm-lock.yaml",
+    "sha256": "c8de9ca81ce83c8054d19f617c2fae1ecba9d6595c4234c63576a6782f7a685a"
+  },
+  {
+    "logicalPath": "pnpm/linkedpeer/pnpm-lock.yaml",
+    "sha256": "f27ccdff0c04c5897d1c24bbc6e65d94cbc2a0927379bfbefa89b9fcca5e4e1c"
+  },
+  {
+    "logicalPath": "pnpm/multidoc/pnpm-lock.yaml",
+    "sha256": "92e40005360a06d7fb5d16fb9294d4d417c57ce880b04a15e14186e9893b9e2d"
+  },
+  {
+    "logicalPath": "pnpm/peers/pnpm-lock.yaml",
+    "sha256": "cf5e622771521a79d8041e0370d62637bed43fc463537a427ad23f5fffc54f27"
+  },
+  {
+    "logicalPath": "pnpm/publishdir/pnpm-lock.yaml",
+    "sha256": "fcc6a9f143649435b6534cb7ac88b37f3e827628c30833c4ac6a98e809de132e"
+  },
+  {
+    "logicalPath": "pnpm/unnameablelink/pnpm-lock.yaml",
+    "sha256": "743e644ebf5e720c3209260360c7d5b3de955f586edbc8fbd30abc098d33f661"
+  },
+  {
+    "logicalPath": "pnpm/unsupported-interrupted-pnpm12/pnpm-lock.yaml",
+    "sha256": "111c47f2d180f4ecbe28ed07121108148c6802095583f4939575cdfd3d151b8a"
+  },
+  {
+    "logicalPath": "pnpm/unsupported-v6/pnpm-lock.yaml",
+    "sha256": "b9e985ef374ec77802ff502d63b721663d28bce6b7402d3ab5de43b7e55eb509"
+  },
+  {
+    "logicalPath": "pnpm/unsupported-v6-single/pnpm-lock.yaml",
+    "sha256": "27a8e20cb5a29104192046c4895162033af58711674ad6176184d6a85adb8af7"
+  },
+  {
+    "logicalPath": "pnpm/v1/pnpm-lock.yaml",
+    "sha256": "164765e113269e412b46c807fb135771ec73d1602875288b43c5d408d3f0d071"
+  },
+  {
+    "logicalPath": "pnpm/v2/pnpm-lock.yaml",
+    "sha256": "14a9af85634e5757795a70db86913f65957bdbbf76dca71d7a2600a7623a682f"
+  },
+  {
+    "logicalPath": "pnpm/v3/pnpm-lock.yaml",
+    "sha256": "1028e26b931a143d58a2d85c6a31b46b1fa146eb7bb1c1a08bde1428f9358d17"
+  },
+  {
+    "logicalPath": "pnpm/variants/pnpm-lock.yaml",
+    "sha256": "192b3a07eca54570f16af7c4c6f2f787d0874992741f8bd29cd2a8e962ebeed0"
+  },
+  {
+    "logicalPath": "yarn/devdeps/yarn.lock",
+    "sha256": "94a1e7b99356be27db53b79c3f62eea3294693df1ce1254fc24964259fd75cb1"
+  },
+  {
+    "logicalPath": "yarn/peers/yarn.lock",
+    "sha256": "3daea0ddfe845588d6c621eb0f1b384b7a0e5975af53dbf73ddd75e55a1e0d18"
+  },
+  {
+    "logicalPath": "yarn/v1/yarn.lock",
+    "sha256": "f8a6312a1b2dc21f52912bb12e48087a47d94fb96dcffb654c4d790aef9b5f9d"
+  },
+  {
+    "logicalPath": "yarn/v2/yarn.lock",
+    "sha256": "0d46fcba8f9b15b073b8cf90a6185960125761a43864c3c26d5fc8662a5f283a"
+  }
+]

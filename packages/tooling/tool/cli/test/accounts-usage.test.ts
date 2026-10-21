@@ -72,10 +72,12 @@ import * as Base64Url from "effect/encoding/Base64Url";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
+import * as Headers from "effect/http/Headers";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientError from "effect/http/HttpClientError";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
+import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -87,6 +89,7 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Terminal from "effect/Terminal";
+import * as Tracer from "effect/Tracer";
 import * as TestClock from "effect/testing/TestClock";
 import type * as Cause from "effect/Cause";
 import type * as HttpClientRequest from "effect/http/HttpClientRequest";
@@ -1204,6 +1207,7 @@ const junieTestLayer = (
     readonly quotaBody?: string;
     readonly status?: Readonly<Record<string, (call: number) => number>>;
     readonly quotaDelay?: Duration.Duration;
+    readonly quotaResponseHeaders?: Readonly<Record<string, string>>;
   } = {}
 ) => {
   const root = "/accounts-test";
@@ -1275,7 +1279,15 @@ const junieTestLayer = (
             const next = O.getOrElse(HashMap.get(counts, request.url), () => 0) + 1;
             return [next, HashMap.set(counts, request.url, next)] as const;
           });
-          return respond(request, responseBody(request), responseStatus(request, call));
+          return HttpClientResponse.fromWeb(
+            request,
+            new Response(responseBody(request), {
+              status: responseStatus(request, call),
+              ...(Str.includes("quota/")(request.url) && overrides.quotaResponseHeaders !== undefined
+                ? { headers: overrides.quotaResponseHeaders }
+                : {}),
+            })
+          );
         });
         if (overrides.quotaDelay !== undefined && Str.includes("quota/")(request.url))
           return reply.pipe(Effect.delay(overrides.quotaDelay));
@@ -1553,6 +1565,56 @@ describe("Junie detailed cycle quota", () => {
     ".junie/secure_credentials.json":
       '{"jb-account-stored":{"jbAccount":{"access_token":"synthetic-old","refresh_token":"synthetic-refresh","expires_in":3600,"name":"Synthetic Name"}}}',
   };
+  it.layer(
+    junieTestLayer(credential, false, 401, 200, 200, true, undefined, 200, false, false, {
+      quotaResponseHeaders: {
+        "GrAzIe-AuThEnTiCaTe-JwT": "synthetic-response-grazie",
+        "X-Custom-Secret": "synthetic-custom-secret",
+        "X-Private-Token": "synthetic-regex-secret",
+      },
+    }),
+    { timeout: "30 seconds" }
+  )("quota tracing redaction", (it) => {
+    it.effect("redacts JWT and inherited custom rules in real HTTP client spans", () =>
+      Effect.gen(function* () {
+        const recorded = MutableRef.make<ReadonlyArray<Tracer.NativeSpan>>([]);
+        const tracer = Tracer.make({
+          span(options) {
+            const span = new Tracer.NativeSpan(options);
+            MutableRef.update(recorded, A.append(span));
+            return span;
+          },
+        });
+        const inheritedNames = yield* Headers.CurrentRedactedNames;
+        yield* pollAccounts.pipe(
+          Effect.withTracer(tracer),
+          Effect.provideService(HttpClient.TracerHeaderFilter, () => true),
+          Effect.provideService(Headers.CurrentRedactedNames, [...inheritedNames, "X-Custom-Secret", /^x-private-/i])
+        );
+        const attributes = A.flatMap(MutableRef.get(recorded), (span) => A.fromIterable(span.attributes));
+        for (const header of [
+          "http.request.header.grazie-authenticate-jwt",
+          "http.response.header.grazie-authenticate-jwt",
+          "http.response.header.x-custom-secret",
+          "http.response.header.x-private-token",
+          "http.request.header.authorization",
+        ]) {
+          const captured = A.filter(attributes, ([name]) => name === header);
+          expect(captured.length).toBeGreaterThanOrEqual(2);
+          expect(A.every(captured, ([, value]) => value === "<redacted>")).toBe(true);
+        }
+        for (const secret of [
+          "synthetic-grazie",
+          "synthetic-response-grazie",
+          "synthetic-custom-secret",
+          "synthetic-regex-secret",
+        ]) {
+          expect(A.some(attributes, ([, value]) => value === secret)).toBe(false);
+        }
+        expect(yield* Headers.CurrentRedactedNames).toEqual(inheritedNames);
+      })
+    );
+  });
   it.layer(junieTestLayer(credential, false, 401, 200, 200, true), { timeout: "30 seconds" })(
     "licenseType selection and cache",
     (it) => {

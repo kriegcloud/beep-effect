@@ -1165,7 +1165,9 @@
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
+        "fflate": "catalog:",
         "mammoth": "catalog:",
+        "saxes": "^6.0.0",
         "unpdf": "catalog:",
       },
       "devDependencies": {

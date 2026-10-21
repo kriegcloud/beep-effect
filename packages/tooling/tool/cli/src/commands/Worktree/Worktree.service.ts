@@ -5,7 +5,9 @@
  * land under the original path, refuses while any same-uid process still holds
  * the fenced copy by cwd or open descriptor (a self-retirement exempts its own
  * session and an idle Claude Desktop Terminal panel shell standing in it by
- * cwd), then captures the fenced copy: the
+ * cwd; a process holding only an inotify watch, such as an editor's file
+ * watcher, is named in the receipt and never refuses, and its walk of the
+ * renamed tree is waited out), then captures the fenced copy: the
  * target commit becomes reachable through a create-only ref, tracked and
  * untracked residue is written outside the checkout, and only then is the
  * fenced copy deleted and its branch ref removed by compare-and-swap on the
@@ -22,13 +24,14 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Sha256HexFromBytes } from "@beep/schema";
+import { LiteralKit, Sha256HexFromBytes } from "@beep/schema";
 import { GitObjectId } from "@beep/schema/Conformance";
 import { A, O, Str } from "@beep/utils";
 import * as Bool from "effect/Boolean";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
@@ -66,6 +69,8 @@ import { WorktreeCommandError, WorktreeDirtyError, WorktreePreservationError } f
 import {
   parseWorktreePorcelain,
   WorktreeArchivePlan,
+  WorktreeFenceSettlePolicy,
+  WorktreeInotifyWatcher,
   WorktreeRemovalReceipt,
   WorktreeRemovalRequest,
   WorktreeRepositoryHash,
@@ -1056,7 +1061,8 @@ const makeRemovalReceipt = (
   manifest: O.Option<WorktreeResidueManifest>,
   branchDeleted: boolean,
   unpushedInspection: O.Option<WorktreeUnpushedInspection>,
-  idleTerminalShells: ReadonlyArray<number> = A.empty()
+  idleTerminalShells: ReadonlyArray<number> = A.empty(),
+  inotifyWatchers: ReadonlyArray<WorktreeInotifyWatcher> = A.empty()
 ): WorktreeRemovalReceipt =>
   WorktreeRemovalReceipt.make({
     targetPath: request.targetPath,
@@ -1066,6 +1072,7 @@ const makeRemovalReceipt = (
     branchDeleted,
     unpushedInspection,
     idleTerminalShells,
+    inotifyWatchers,
   });
 
 const inspectRemovalChanges = Effect.fn("WorktreeRemovalService.inspectRemovalChanges")(function* <Error>(
@@ -1265,9 +1272,11 @@ const DESKTOP_TERMINAL_SHELL_HINT =
 // `comm` is the kernel's short executable name: enough to tell an operator
 // which holder (a `zsh` terminal panel, a `node` editor helper) to close. A
 // Claude Desktop Terminal panel shell is named as such, because the operator
-// may never have opened that tab.
+// may never have opened that tab. `note` says what the fence knows about the
+// holder beyond its link family.
 const describeHolder = Effect.fnUntraced(function* (
-  holder: ProcessAttachment
+  holder: ProcessAttachment,
+  note: string
 ): Effect.fn.Return<{ readonly text: string; readonly desktopTerminal: boolean }, never, FileSystem.FileSystem> {
   const name = yield* processName(holder.pid);
   const named = O.match(name, { onNone: () => "", onSome: (comm) => ` (${comm})` });
@@ -1280,15 +1289,16 @@ const describeHolder = Effect.fnUntraced(function* (
         busy: () => " (the Claude Desktop Terminal panel shell, running a command)",
       }),
   });
-  return { text: `pid ${holder.pid}${named} via ${holder.kind}${role}`, desktopTerminal: O.isSome(terminal) };
+  return { text: `pid ${holder.pid}${named} via ${holder.kind}${role}${note}`, desktopTerminal: O.isSome(terminal) };
 });
 
 const describeAttachedProcesses = Effect.fnUntraced(function* (
-  attachments: A.NonEmptyReadonlyArray<ProcessAttachment>
+  attachments: A.NonEmptyReadonlyArray<ProcessAttachment>,
+  note = ""
 ): Effect.fn.Return<{ readonly listed: string; readonly hint: string }, never, FileSystem.FileSystem> {
   const holders = A.dedupeWith(attachments, (left, right) => left.pid === right.pid);
   const shown = A.take(holders, MAX_REPORTED_HOLDERS);
-  const described = yield* Effect.forEach(shown, describeHolder);
+  const described = yield* Effect.forEach(shown, (holder) => describeHolder(holder, note));
   const listed = A.join(
     A.map(described, (holder) => holder.text),
     ", "
@@ -1447,11 +1457,120 @@ const setAsideIdleTerminalShells = Effect.fnUntraced(function* (
   };
 });
 
-const assertQuiescentFence = Effect.fnUntraced(function* (
+// An inotify watch is a subscription to events, not a handle: nothing can be
+// written through it, so a holder whose only hold on the fenced copy is a
+// watch on its root (an editor's file watcher, such as WebStorm's
+// fsnotifier) is `watching`, named in the receipt rather than refused. The
+// fence's own rename makes such a watcher walk the moved tree again, opening
+// each directory in turn to add its watch. A directory descriptor is a handle
+// (`openat` creates through it), so that walk is waited out, never exempted:
+// a watcher whose other holds are all directory descriptors is `walking`, and
+// any other hold (a cwd, an open file) leaves a process `holding`.
+const FenceHolderStanding = LiteralKit(["watching", "walking", "holding"]).pipe(
+  $I.annoteSchema("FenceHolderStanding", {
+    description:
+      "How the archive fence treats one holder: an inotify watcher it names, a watcher it waits out while it walks the tree, or a holder that refuses.",
+  })
+);
+
+type FenceHolderStanding = typeof FenceHolderStanding.Type;
+
+type FenceStandings = { readonly [Standing in FenceHolderStanding]: ReadonlyArray<ProcessAttachment> };
+
+const isDirectoryTarget = Effect.fnUntraced(function* (
+  target: string
+): Effect.fn.Return<boolean, never, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const info = yield* fs.stat(target).pipe(Effect.option);
+  return O.exists(info, (stat) => stat.type === "Directory");
+});
+
+// The standing of one process, from every attachment the scan found for it.
+const holderStanding = Effect.fnUntraced(function* (
+  attachments: ReadonlyArray<ProcessAttachment>
+): Effect.fn.Return<FenceHolderStanding, never, FileSystem.FileSystem> {
+  const handles = A.filter(attachments, (attachment) => !ProcessAttachmentKind.is.watch(attachment.kind));
+  if (A.length(handles) === A.length(attachments)) {
+    return FenceHolderStanding.Enum.holding;
+  }
+  if (A.isReadonlyArrayEmpty(handles)) {
+    return FenceHolderStanding.Enum.watching;
+  }
+  if (!A.every(handles, (handle) => ProcessAttachmentKind.is.descriptor(handle.kind))) {
+    return FenceHolderStanding.Enum.holding;
+  }
+  const directories = yield* Effect.forEach(handles, (handle) => isDirectoryTarget(handle.target));
+  return Bool.every(directories) ? FenceHolderStanding.Enum.walking : FenceHolderStanding.Enum.holding;
+});
+
+type RankedHolder = {
+  readonly standing: FenceHolderStanding;
+  readonly group: ReadonlyArray<ProcessAttachment>;
+};
+
+const sortHolders = Effect.fnUntraced(function* (
+  holders: ReadonlyArray<ProcessAttachment>
+): Effect.fn.Return<FenceStandings, never, FileSystem.FileSystem> {
+  const groups = R.values(A.groupBy(holders, (holder) => String(holder.pid)));
+  const ranked = yield* Effect.forEach(
+    groups,
+    (group): Effect.Effect<RankedHolder, never, FileSystem.FileSystem> =>
+      Effect.map(holderStanding(group), (standing) => ({ standing, group }))
+  );
+  const holdersIn = (standing: FenceHolderStanding): ReadonlyArray<ProcessAttachment> =>
+    A.flatMap(
+      A.filter(ranked, (entry) => entry.standing === standing),
+      (entry: RankedHolder) => entry.group
+    );
+  return { watching: holdersIn("watching"), walking: holdersIn("walking"), holding: holdersIn("holding") };
+});
+
+type FenceScan = {
+  readonly quietShells: QuietShells;
+  readonly watchers: ReadonlyArray<ProcessAttachment>;
+  readonly walking: ReadonlyArray<ProcessAttachment>;
+};
+
+type FenceQuiescence = {
+  readonly quietShells: QuietShells;
+  readonly watchers: ReadonlyArray<ProcessAttachment>;
+};
+
+const WALKING_WATCHER_NOTE = " (an inotify watcher still walking the tree)";
+
+const WALKING_WATCHER_HINT =
+  " An editor's file watcher (WebStorm's fsnotifier, for one) walks a watched tree again after the fence renames it; rerun once the editor settles, or exclude `.claude/worktrees` from the editor's project so it never watches lanes.";
+
+/**
+ * How long the archive fence waits out an inotify watcher re-walking the fenced tree.
+ *
+ * **Details**
+ *
+ * The default scans every 250 milliseconds, 40 scans in all (about ten
+ * seconds), which outlasts an editor's walk of a full lane. A test provides
+ * a shorter policy through `Effect.provideService(WorktreeFenceSettle, policy)`.
+ *
+ * **Example** (Read the default policy)
+ *
+ * ```ts
+ * import { WorktreeFenceSettle } from "@beep/repo-cli/commands/Worktree"
+ *
+ * console.log(typeof WorktreeFenceSettle.key) // "string"
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export const WorktreeFenceSettle: Context.Reference<WorktreeFenceSettlePolicy> = Context.Reference(
+  $I`WorktreeFenceSettle`,
+  { defaultValue: () => WorktreeFenceSettlePolicy.make({ interval: Duration.millis(250), attempts: 40 }) }
+);
+
+const scanFence = Effect.fnUntraced(function* (
   request: WorktreeRemovalRequest,
   fencedPath: string,
   earlier: O.Option<QuietShells>
-): Effect.fn.Return<QuietShells, WorktreeCommandError, FileSystem.FileSystem> {
+): Effect.fn.Return<FenceScan, WorktreeCommandError, FileSystem.FileSystem> {
   const scan = yield* scanProcessAttachments({ directory: fencedPath, kinds: ProcessAttachmentKind.literals });
   if (O.isNone(scan)) {
     return yield* WorktreeCommandError.make({
@@ -1477,14 +1596,55 @@ const assertQuiescentFence = Effect.fnUntraced(function* (
     yield* holdersOutsideInvoker(request, scan.value),
     earlier
   );
-  if (A.isReadonlyArrayNonEmpty(holders.blocking)) {
-    const described = yield* describeAttachedProcesses(holders.blocking);
+  const standings = yield* sortHolders(holders.blocking);
+  if (A.isReadonlyArrayNonEmpty(standings.holding)) {
+    const described = yield* describeAttachedProcesses(standings.holding);
     return yield* WorktreeCommandError.make({
       message: `Refusing to retire ${request.targetPath}: ${described.listed} still hold it, and any write they make after the archive is captured would be deleted with the fenced copy.${described.hint}`,
     });
   }
-  return holders.quietShells;
+  return { quietShells: holders.quietShells, watchers: standings.watching, walking: standings.walking };
 });
+
+const settleFence = Effect.fnUntraced(function* (
+  request: WorktreeRemovalRequest,
+  fencedPath: string,
+  earlier: O.Option<QuietShells>,
+  policy: WorktreeFenceSettlePolicy,
+  remaining: number
+): Effect.fn.Return<FenceScan, WorktreeCommandError, FileSystem.FileSystem> {
+  const scan = yield* scanFence(request, fencedPath, earlier);
+  if (A.isReadonlyArrayEmpty(scan.walking) || remaining <= 1) {
+    return scan;
+  }
+  yield* Effect.sleep(policy.interval);
+  return yield* settleFence(request, fencedPath, earlier, policy, remaining - 1);
+});
+
+const assertQuiescentFence = Effect.fnUntraced(function* (
+  request: WorktreeRemovalRequest,
+  fencedPath: string,
+  earlier: O.Option<QuietShells>
+): Effect.fn.Return<FenceQuiescence, WorktreeCommandError, FileSystem.FileSystem> {
+  const policy = yield* WorktreeFenceSettle;
+  const scan = yield* settleFence(request, fencedPath, earlier, policy, policy.attempts);
+  if (A.isReadonlyArrayNonEmpty(scan.walking)) {
+    const described = yield* describeAttachedProcesses(scan.walking, WALKING_WATCHER_NOTE);
+    return yield* WorktreeCommandError.make({
+      message: `Refusing to retire ${request.targetPath}: ${described.listed} still hold it after ${policy.attempts} scans ${Duration.format(policy.interval)} apart, and any write they make after the archive is captured would be deleted with the fenced copy.${WALKING_WATCHER_HINT}`,
+    });
+  }
+  return { quietShells: scan.quietShells, watchers: scan.watchers };
+});
+
+const nameInotifyWatchers = (
+  watchers: ReadonlyArray<ProcessAttachment>
+): Effect.Effect<ReadonlyArray<WorktreeInotifyWatcher>, never, FileSystem.FileSystem> =>
+  Effect.forEach(
+    A.dedupeWith(watchers, (left, right) => left.pid === right.pid),
+    (watcher) =>
+      Effect.map(processName(watcher.pid), (command) => WorktreeInotifyWatcher.make({ pid: watcher.pid, command }))
+  );
 
 const fencedArchivePlan = Effect.fn("WorktreeRemovalService.fencedArchivePlan")(function* (
   request: WorktreeRemovalRequest,
@@ -1502,7 +1662,9 @@ const fencedArchivePlan = Effect.fn("WorktreeRemovalService.fencedArchivePlan")(
   // The one exception is an idle desktop Terminal panel shell on a self-retirement:
   // at its prompt it writes nothing (see `setAsideIdleTerminalShells`), and the
   // rescan after capture holds it to the context-switch count recorded here.
-  const quietShells = yield* assertQuiescentFence(request, fenced.targetPath, O.none());
+  // An inotify watcher holds no handle at all, so it never blocks; its walk of
+  // the renamed tree, which does open directories, is waited out (`settleFence`).
+  const { quietShells } = yield* assertQuiescentFence(request, fenced.targetPath, O.none());
   const changes = yield* inspectRemovalChanges(
     fenced.targetPath,
     preservationErrorAdapter("inspect-residue", `Failed to inspect ${fenced.targetPath}.`, fenced.targetPath)
@@ -1594,7 +1756,8 @@ const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedW
     manifest,
     branchDeleted,
     O.some(unpushedInspection),
-    A.sort(A.fromIterable(HashMap.keys(reQuiescent.success)), N.Order)
+    A.sort(A.fromIterable(HashMap.keys(reQuiescent.success.quietShells)), N.Order),
+    yield* nameInotifyWatchers(reQuiescent.success.watchers)
   );
 });
 

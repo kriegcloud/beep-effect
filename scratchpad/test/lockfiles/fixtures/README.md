@@ -1,9 +1,32 @@
 # Lockfile fixtures
 
-One directory per fixture, grouped by format: `<format>/<name>/<lockfile>`.
+One directory per fixture, grouped by format: `<format>/<name>/<lockfile>.fixture`.
 Unless an entry below says otherwise, each file is a package manager's own
 output, committed verbatim. Do not reformat or hand-edit a real fixture: the
 byte shape is part of what the parser is tested against.
+
+## Inert historical documents
+
+These files are parser input, not dependencies installed by this repository.
+They retain historical vulnerable versions because the tests assert the exact
+manager-produced package graph, integrity hashes, importer edges and version
+framing. Updating package versions inside a captured lockfile would falsify that
+provenance and weaken the parser regression oracle.
+
+The `.fixture` suffix prevents package managers and dependency-manifest discovery
+from treating these documents as active installation lockfiles. Tests retain the
+logical original filename and load the suffixed document through `../fixtures.ts`.
+The SHA-256 inventory in `digests.json` records all 38 original documents; the
+fixture-storage regression enumerates the corpus and checks those bytes. The
+migration changes filenames only, preserving content, including known vulnerable
+package records. This is representation of test data, not a security upgrade.
+Do not remove the suffix, install a fixture tree, or execute its package scripts.
+
+All original filenames used in the provenance tables below are logical filenames.
+After a deliberately authorized regeneration, copy the manager's original output
+to its `.fixture` path and update the provenance, digest inventory and any pinned
+assertions together. Keep capture installations outside this repository. Restoring
+an old capture means reverting the capture and digest changes together.
 
 Two naming rules matter here, and `okf/modules/lockfiles.md` explains both:
 
@@ -71,7 +94,7 @@ the config dependency was installed, and left this file on disk.
 | `pnpm/unsupported-interrupted-pnpm12` | `npx -y pnpm@12.7.0 install --store-dir <tmp>`, which failed (pnpm 11.28.0 left the same bytes) | a root `package.json` whose one dependency cannot resolve | **Byte-identical** to `pnpm/env-configonly-pnpm12`. The bytes cannot tell a config-only workspace from an interrupted install, which is why `Lockfile.parse` fails this stream unless the caller asserts `configOnly`. It carries the `unsupported-` prefix because its caller, which sees a root `package.json`, must reject it. |
 
 To regenerate one, recreate its input project in an empty directory `<d>`, run
-the command in its row, and copy `<d>/pnpm-lock.yaml` over the fixture
+the command in its row, and copy `<d>/pnpm-lock.yaml` over the `.fixture` document
 unchanged. The assertions in `PnpmEnvLockfile.test.ts` pin exact versions and
 integrities, so a re-capture against a newer pnpm means updating them too.
 

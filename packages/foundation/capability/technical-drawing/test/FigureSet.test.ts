@@ -1152,6 +1152,26 @@ describe("@beep/technical-drawing", () => {
         expect(
           structuralFindings({ facts: clean, options: ValidationOptions.make({ expectedPages: O.some(1) }) })
         ).toEqual([]);
+        expect(clean.containerDiscovery).toBe("complete");
+        const legacy = yield* S.decodeEffect(PdfFacts)({
+          headerVersion: "1.6",
+          pages: [letter],
+          fonts: [],
+          annotationCount: 0,
+          hasOptionalContent: false,
+          encrypted: false,
+          undecodableStreams: [],
+          streamCheck: "complete",
+        });
+        expect(legacy.containerDiscovery).toBe("complete");
+        for (const containerDiscovery of ["limit-reached", "encrypted"] as const) {
+          const incomplete = structuralFindings({
+            facts: PdfFacts.make({ ...clean, containerDiscovery }),
+            options: ValidationOptions.make({ expectedPages: O.some(1) }),
+          });
+          expect(A.map(incomplete, (finding) => finding.code)).toEqual(["pdf-stream-undecodable"]);
+          expect(incomplete[0]!.message).toContain("global stream inspection is incomplete");
+        }
         // a FlateDecode stream a strict reader refuses fails the set, with every such stream named
         const truncated = PdfFacts.make({
           ...clean,
