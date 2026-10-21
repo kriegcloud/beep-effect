@@ -155,6 +155,8 @@ export class ModelsExchangeFilesystemIdentity extends S.Opaque<
  * console.log(modelsExchangeIdentityKey(identity)) // "29:7:tmpfs"
  * ```
  *
+ * @param identity - The filesystem identity to key.
+ * @returns The `mount:device:filesystemType` cache key, with an empty type when none was reported.
  * @category utilities
  * @since 0.0.0
  */
