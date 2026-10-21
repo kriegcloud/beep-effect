@@ -5,8 +5,10 @@
  *
  * Effect moved every module out of its `unstable` namespace with no
  * compatibility re-exports (`.patterns/effect-module-paths.md`). This law
- * scans every git-tracked text file for a retired path and suggests the
- * current one, so a stale path in code, prose, or JSON cannot return.
+ * scans every git-tracked text file for a retired path, or a Markdown link
+ * fragment holding a retired path's heading slug, and suggests the current
+ * one, so a stale path in code, prose, JSON, or a table of contents cannot
+ * return.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -47,9 +49,17 @@ const MODULE_SPECIFIER_PATTERN = /effect\/unstable\b(?:\/[\w*-]+)*/gu;
 const SOURCE_PATH_PATTERN =
   /(?<![\w-])unstable\/(?:arbitrary\/Arbitrary\.(?:d\.ts|ts|js)\b|(?:ai|cli|cluster|devtools|encoding|eventlog|http|httpapi|net|observability|persistence|process|reactivity|rpc|schema|socket|sql|workers|workflow|arbitrary)\b)/gu;
 
+/**
+ * A retired path's GitHub heading slug (`effect/unstable/reactivity/Atom` →
+ * `effectunstablereactivityatom`) inside the `#fragment` of an inline link
+ * `](…#…)` or a reference definition `]: …#…`. The slug runs to the next
+ * hyphen, since slugging turns the heading's spaces into hyphens.
+ */
+const ANCHOR_SLUG_PATTERN = /(?<=\](?:\(|:[ \t]*)[^\s)]*#[^\s)]*)effectunstable[\p{L}\p{N}_]*/gu;
+
 const NEWLINE_PATTERN = /\n/gu;
 
-/** Cheap pre-filter: every match of both rules contains this literal. */
+/** Cheap pre-filter: every match of every rule contains this literal. */
 const RULE_LITERAL = "unstable";
 
 /** `git ls-files --stage` modes of regular files; symlinks (120000) and gitlinks (160000) carry no text. */
@@ -171,8 +181,10 @@ const toFinding =
  * **Details**
  *
  * A `source-path` match that starts inside a `module-specifier` match is the
- * same retired span and is not reported twice. Lines and columns are 1-based;
- * columns count UTF-16 code units.
+ * same retired span and is not reported twice. An `anchor-slug` match is
+ * reported only inside a Markdown link fragment, so the slug in prose or in
+ * link text is ignored. Lines and columns are 1-based; columns count UTF-16
+ * code units.
  *
  * **Example** (Find a retired import specifier)
  *
@@ -181,6 +193,15 @@ const toFinding =
  *
  * const [finding] = scanText("demo.ts", 'import { HttpClient } from "effect/unstable/http"\n')
  * console.log(finding?.suggestion) // "effect/http"
+ * ```
+ *
+ * **Example** (Find a retired heading anchor in a table of contents)
+ *
+ * ```ts
+ * import { scanText } from "@beep/repo-cli/commands/Laws/RetiredEffectPaths"
+ *
+ * const [finding] = scanText("api.md", "- [Atom](#atom-effectunstablereactivityatom)\n")
+ * console.log(finding?.suggestion) // "effectreactivityatom"
  * ```
  *
  * **Example** (Scan in a pipeline)
@@ -210,7 +231,8 @@ export const scanText: {
     collectMatches(content, SOURCE_PATH_PATTERN, "source-path"),
     (match) => !isInsideSpan(moduleMatches)(match)
   );
-  const matches = A.sort(A.appendAll(moduleMatches, sourceMatches), byIndexAscending);
+  const anchorMatches = collectMatches(content, ANCHOR_SLUG_PATTERN, "anchor-slug");
+  const matches = A.sort(A.flatten([moduleMatches, sourceMatches, anchorMatches]), byIndexAscending);
   return A.match(matches, {
     onEmpty: A.empty<RetiredEffectPathFinding>,
     onNonEmpty: A.map(toFinding(file, lineStartOffsets(content))),
