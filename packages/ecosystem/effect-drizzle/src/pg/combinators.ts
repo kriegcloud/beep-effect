@@ -1573,7 +1573,9 @@ type ValidateVersionCompatibility<I extends Field.Input> = Field.MetaFrom<I>["id
  * **Details**
  *
  * The field is optional on insert so its SQL default applies, required on
- * update as the expected version, and present on selected and JSON rows.
+ * update and JSON update as the expected version, present on selected and
+ * JSON rows, and absent from JSON create payloads because a client never picks
+ * a row's first version.
  *
  * **Gotchas**
  *

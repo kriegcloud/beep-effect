@@ -144,6 +144,13 @@ describe("SQLite projection", () => {
     expect(column("updated_at").getSQLType()).toBe("text");
   });
 
+  it("keeps version fields out of JSON create payloads but required on JSON update", () => {
+    expect(keys(SqliteUser.insert.fields)).toContain("rowVersion");
+    expect(keys(SqliteUser.update.fields)).toContain("rowVersion");
+    expect(keys(SqliteUser.jsonUpdate.fields)).toContain("rowVersion");
+    expect(keys(SqliteUser.jsonCreate.fields)).not.toContain("rowVersion");
+  });
+
   it("emits enum and kit checks plus SQLite partial indexes", () => {
     expect(map(config.checks, (current) => current.name)).toEqual(
       expect.arrayContaining(["shared_user_status_enum_check", "sqlite_row_version_positive"])

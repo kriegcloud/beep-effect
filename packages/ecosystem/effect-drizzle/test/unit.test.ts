@@ -391,6 +391,8 @@ describe("kit write strategies", () => {
     expect(keys(AuditedRecord.update.fields)).toContain("updatedAt");
     expect(keys(AuditedRecord.update.fields)).toContain("rowVersion");
     expect(keys(AuditedRecord.json.fields)).toContain("rowVersion");
+    expect(keys(AuditedRecord.jsonUpdate.fields)).toContain("rowVersion");
+    expect(keys(AuditedRecord.jsonCreate.fields)).not.toContain("rowVersion");
     expect(AuditedRecord.sql.columns.createdAt.column.kind).toBe("timestamp");
     expect(AuditedRecord.sql.columns.updatedAt.column.kind).toBe("timestamp");
   });
