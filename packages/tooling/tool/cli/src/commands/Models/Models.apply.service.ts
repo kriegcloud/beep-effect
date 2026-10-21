@@ -373,6 +373,8 @@ const errnoMessages: ReadonlyArray<readonly [RegExp, ModelsExchangeUnsupportedRe
  * console.log(modelsExchangeErrnoFromStderr("mv: cannot exchange 'a' and 'b': Invalid cross-device link")) // "exdev"
  * ```
  *
+ * @param stderr - C-locale stderr emitted by the failed exchange primitive.
+ * @returns The recognized refusal reason, or `unknown` when no supported errno text matches.
  * @category utilities
  * @since 0.0.0
  */

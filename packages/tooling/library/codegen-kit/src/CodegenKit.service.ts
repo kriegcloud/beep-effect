@@ -386,15 +386,24 @@ const makeService = Effect.fn("CodegenKit.make")(function* (extraRenderers: Extr
       Effect.mapError((cause) => generateError(`Could not decode OpenAPI document for ${config.packageName}`, cause))
     );
     const warnings = MutableList.make<OpenApiGenerator.OpenApiGeneratorWarning>();
-    const generated = yield* openApiGenerator.generate(spec, {
-      name: pipe(
-        O.fromUndefinedOr(config.name),
-        O.getOrElse(() => packageLabel(config.packageName))
-      ),
-      format: generatorFormat(config.format),
-      onEnter: composeTransforms(config.transforms, yield* definitionsFor(document, config)),
-      onWarning: (warning) => MutableList.append(warnings, warning),
-    });
+    const onEnter = composeTransforms(config.transforms, yield* definitionsFor(document, config));
+    // The upstream generator runs synchronously inside its own Effect, so a throwing `onEnter` transform
+    // or importer surfaces as a defect. Report it like the schemas branch does: as a typed generate error.
+    const generated = yield* openApiGenerator
+      .generate(spec, {
+        name: pipe(
+          O.fromUndefinedOr(config.name),
+          O.getOrElse(() => packageLabel(config.packageName))
+        ),
+        format: generatorFormat(config.format),
+        onEnter,
+        onWarning: (warning) => MutableList.append(warnings, warning),
+      })
+      .pipe(
+        Effect.catchDefect((defect) =>
+          Effect.fail(generateError(`Could not generate ${config.format} for ${config.packageName}`, defect))
+        )
+      );
     yield* handleWarnings(MutableList.toArray(warnings), config);
     return generated;
   });
@@ -486,7 +495,25 @@ const makeService = Effect.fn("CodegenKit.make")(function* (extraRenderers: Extr
     return reports;
   });
 
-  return { fetch, patch, generate, postProcess, format, write, drift, run } as const;
+  const runAll = Effect.fn("CodegenKit.runAll")(function* (
+    configs: A.NonEmptyReadonlyArray<GenerateConfig>,
+    mode: "write" | "check",
+    refresh = false
+  ) {
+    const perConfig = yield* Effect.forEach(
+      configs,
+      (config) =>
+        run(config, mode, refresh).pipe(Effect.catchTag("CodegenDriftError", (error) => Effect.succeed(error.reports))),
+      { concurrency: 1 }
+    );
+    const reports = A.flatten(perConfig);
+    if (A.some(reports, hasDrift)) {
+      return yield* CodegenDriftError.make({ message: "Generated output drift detected", reports });
+    }
+    return reports;
+  });
+
+  return { fetch, patch, generate, postProcess, format, write, drift, run, runAll } as const;
 });
 
 const packageLabel = (packageName: string): string =>
