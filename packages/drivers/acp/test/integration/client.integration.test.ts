@@ -33,6 +33,7 @@ const ExtRequestPayload = Schema.Struct({ hello: Schema.String });
 const ExtResponsePayload = Schema.Struct({ ok: Schema.Boolean });
 const TypedRequestPayload = Schema.Struct({ message: Schema.String });
 const TypedNotificationPayload = Schema.Struct({ count: Schema.Finite });
+const McpNotifiedPayload = Schema.Struct({ method: Schema.String });
 const ExtRequest = jsonRpcRequest("x/test", ExtRequestPayload);
 const ExtResponse = jsonRpcResponse(ExtResponsePayload);
 const decodeInitializeRequest = Schema.decodeEffect(Schema.fromJsonString(InitializeRequest));
@@ -218,7 +219,11 @@ it.layer(NodeServices.layer, { timeout: "20 seconds" })("effect-acp client", (it
       );
       yield* Queue.offer(
         input,
-        yield* encodeJsonl(PromptResponse, { jsonrpc: "2.0", id: RPC_REQUEST_ID_START, result: {} })
+        yield* encodeJsonl(PromptResponse, {
+          jsonrpc: "2.0",
+          id: RPC_REQUEST_ID_START,
+          result: { messageId: "message-1" },
+        })
       );
 
       const { update } = yield* Deferred.await(delivered);
@@ -421,19 +426,20 @@ it.layer(NodeServices.layer, { timeout: "20 seconds" })("effect-acp client", (it
   );
 
   it.effect(
-    "routes MCP-over-ACP connect, message, notification, and disconnect callbacks from a spawned peer",
+    "routes MCP-over-ACP message requests and notifications through a spawned peer",
     Effect.fnUntraced(function* () {
       const methods = yield* Ref.make(A.empty<string>());
       const record = (method: string) => Ref.update(methods, A.append(method));
+      const notified = yield* Deferred.make<string>();
       const { acp } = yield* spawnClient({ ACP_MOCK_MCP_OVER_ACP: "1" });
       yield* acp.handleRequestPermission(allowPermission);
       yield* acp.handleElicitation(() => Effect.succeed({ action: "decline" } as const));
       yield* acp.handleExtRequest("x/typed_request", TypedRequestPayload, () => Effect.succeed({ ok: true }));
       yield* acp.handleExtNotification("x/typed_notification", TypedNotificationPayload, () => Effect.void);
-      yield* acp.handleMcpConnect(() => record("connect").pipe(Effect.as({ connectionId: "connection-1" })));
-      yield* acp.handleMcpMessage(() => record("message").pipe(Effect.as({ tools: [] })));
-      yield* acp.handleMcpNotification(() => record("notification"));
-      yield* acp.handleMcpDisconnect(() => record("disconnect").pipe(Effect.as({})));
+      yield* acp.handleMcpMessage(() => record("message").pipe(Effect.as({ result: { tools: [] } })));
+      yield* acp.handleExtNotification("x/mcp_notified", McpNotifiedPayload, ({ method }) =>
+        Deferred.succeed(notified, method).pipe(Effect.asVoid)
+      );
 
       yield* acp.agent.initialize({
         protocolVersion: 2,
@@ -443,7 +449,9 @@ it.layer(NodeServices.layer, { timeout: "20 seconds" })("effect-acp client", (it
       const session = yield* acp.agent.createSession({ cwd: process.cwd(), mcpServers: [] });
       yield* acp.agent.prompt({ sessionId: session.sessionId, prompt: [{ type: "text", text: "exercise MCP" }] });
 
-      assert.deepEqual(yield* Ref.get(methods), ["connect", "message", "notification", "disconnect"]);
+      assert.deepEqual(yield* Ref.get(methods), ["message"]);
+      yield* acp.agent.notifyMcp({ serverId: "test-server", requestId: "mcp-1", method: "notifications/progress" });
+      assert.equal(yield* Deferred.await(notified), "notifications/progress");
     })
   );
 

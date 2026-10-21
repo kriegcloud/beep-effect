@@ -63,10 +63,7 @@ const authMethods = (config: MockPeerConfig) => {
 };
 
 const runMcpOverAcp = Effect.fnUntraced(function* (agent: AcpAgent.AcpAgentShape) {
-  const connected = yield* agent.client.connectMcp({ serverId: "test-server" });
-  yield* agent.client.messageMcp({ connectionId: connected.connectionId, method: "tools/list" });
-  yield* agent.client.notifyMcp({ connectionId: connected.connectionId, method: "notifications/initialized" });
-  yield* agent.client.disconnectMcp({ connectionId: connected.connectionId });
+  yield* agent.client.messageMcp({ serverId: "test-server", requestId: "mcp-1", method: "tools/list" });
 });
 
 const sendUnknownVariants = Effect.fnUntraced(function* (agent: AcpAgent.AcpAgentShape) {
@@ -160,7 +157,7 @@ const runPrompt = Effect.fnUntraced(function* (agent: AcpAgent.AcpAgentShape, co
     sessionId,
     update: { sessionUpdate: "state_update", state: "idle", stopReason: "end_turn" },
   });
-  return {};
+  return { messageId: "mock-user-message" };
 });
 
 const registerHandlers = Effect.fnUntraced(function* (config: MockPeerConfig) {
@@ -194,6 +191,8 @@ const registerHandlers = Effect.fnUntraced(function* (config: MockPeerConfig) {
   yield* agent.handleSetProvider(() => Effect.succeed({}));
   yield* agent.handleDisableProvider(() => Effect.succeed({}));
   yield* agent.handlePrompt(() => runPrompt(agent, config));
+  // Echo each MCP notification the client sends back as an extension notification it can observe.
+  yield* agent.handleMcpNotification(({ method }) => agent.client.extNotification("x/mcp_notified", { method }));
   yield* agent.handleUnknownExtRequest((method, params) =>
     Effect.succeed({ echoedMethod: method, echoedParams: params ?? null })
   );

@@ -163,12 +163,15 @@ fields through `.schema.fields`, and prefer `S.is` / `S.decodeUnknown*` to
 
 | Generation | Pinned release | Spec cache | Output |
 | --- | --- | --- | --- |
-| 2 | `schema-v2.0.0-alpha.3` | `spec/schema.unstable.json`, `spec/meta.unstable.json` | `src/_generated/schema.gen.ts`, `src/_generated/meta.gen.ts` |
-| 1 | `schema-v1.21.0` | `spec/v1/schema.unstable.json`, `spec/v1/meta.unstable.json` | `src/_generated/schema-v1.gen.ts` (method tables go into `meta.gen.ts`) |
+| 2 | `schema-v2.0.0-alpha.9` | `spec/schema.unstable.json`, `spec/meta.unstable.json` | `src/_generated/schema.gen.ts`, `src/_generated/meta.gen.ts` |
+| 1 | `schema-v1.26.0` | `spec/v1/schema.unstable.json`, `spec/v1/meta.unstable.json` | `src/_generated/schema-v1.gen.ts` (method tables go into `meta.gen.ts`) |
 
 Both configs apply the kit transforms `nullableTypeArray`,
 `unevaluatedPropertiesOpen`, `notDiscriminatorPattern`,
-`uniqueDiscriminatorOneOfAsAnyOf` and `distributeAllOf`.
+`uniqueDiscriminatorOneOfAsAnyOf`, `intersectSiblingProperties` and
+`distributeAllOf`. `intersectSiblingProperties` is needed since alpha.9 /
+v1.26.0, where the `IdleStateUpdate` branches narrow the base `stopReason`
+(`end_turn`, …, `error` with `error`, an open string, or `null`).
 
 ```bash
 # Regenerate from the committed caches (offline).
@@ -193,8 +196,8 @@ Build and check stay offline.
   removed too: generation 2 has no client fs or terminal methods. The client
   still answers generation-1 `fs/*` and `terminal/*` requests through
   `handleReadTextFile`, `handleCreateTerminal` and the other handlers.
-- `Schema` (`@beep/acp/schema`) is now ACP v2 (`schema-v2.0.0-alpha.3`,
-  `PROTOCOL_VERSION` 2). The v1 schemas (`schema-v1.21.0`) moved to
+- `Schema` (`@beep/acp/schema`) is now ACP v2 (`schema-v2.0.0-alpha.9`,
+  `PROTOCOL_VERSION` 2). The v1 schemas (`schema-v1.26.0`) moved to
   `SchemaV1` (`@beep/acp/schema-v1`).
 - `AcpAgent` serves generation 2 only. `handleSetSessionMode` and
   `handleSetSessionModel` are gone; `handleAuthenticate`/`handleLogout` serve
@@ -233,8 +236,8 @@ follows this repository's laws (schema-first models, `Effect.fn` spans,
 | ID | Decision | Reason | Reversal |
 | --- | --- | --- | --- |
 | D1 / O1 | One PR on `feat/acp-t3code-port`. The client and agent are ported once, straight to the dual-generation design. (Overrides the planned two-PR split.) | No interim hardening code that the next stage would replace. | Split a follow-up if review cost dominates. |
-| D2 / O2 | Pin `schema-v2.0.0-alpha.3` and `schema-v1.21.0`. | Parity with the ported t3 runtime, tests and recorded fixtures. | Follow-up PR bumps to alpha.9 / v1.26.0 with `generate -- --refresh`. |
-| D3 | `Schema` = v2, `SchemaV1` = v1.21, `Compat` = normalized client surface; no v1-name aliases in `Schema`. | 223 names collide; aliases such as `LoadSessionRequest` meaning v2 `ResumeSessionRequest` are a trap. | Add aliases if a consumer needs them. |
+| D2 / O2 | The port pinned `schema-v2.0.0-alpha.3` and `schema-v1.21.0` for t3 parity; the follow-up bumped them to `schema-v2.0.0-alpha.9` and `schema-v1.26.0`, the newest releases on 2026-10-21. | Track the spec; t3code is still on alpha.3. | Set `V2_SCHEMA_RELEASE` / `V1_SCHEMA_RELEASE` back and run `generate -- --refresh`. |
+| D3 | `Schema` = v2, `SchemaV1` = v1.26, `Compat` = normalized client surface; no v1-name aliases in `Schema`. | 223 names collide; aliases such as `LoadSessionRequest` meaning v2 `ResumeSessionRequest` are a trap. | Add aliases if a consumer needs them. |
 | D4 | `AcpAgent` is v2-only. The ai-provider-cli grok and cursor fixtures are raw v1 peers on `makeAcpPatchedProtocol`. | No production consumer of the agent; raw peers exercise the real generation-1 client path. | A test-only v1 agent built from `RpcServer` and the v1 groups. |
 | D5 | Delete `AcpTerminal.models.ts`, `./terminal`, the `Terminal` namespace and the agent's fs/terminal client calls; the client keeps the v1 handlers. | v2 has no client fs/terminal methods; upstream deleted the module. | Reintroduce as a client terminal host kit. |
 | D6 | Keep the beep file names, `Json`, the object-form `layerChildProcess({ handle, ... })` and `layer({ stdio, ... })`, `HashSet` `serverRequestMethods`, curried `request`/`notify`, `AcpExtensionRegistrars` (now with `context`), `AcpProtocolLoggingOptions`, `AcpProtocolLogEvent`. | Keeps inventory keys, Markdown paths and the ai-provider-cli call site stable. | — |
@@ -250,6 +253,10 @@ follows this repository's laws (schema-first models, `Effect.fn` spans,
 | D16 | `AcpClientOptions.protocolGeneration` (`negotiate` by default). ai-provider-cli picks the mode per provider; see the table below. | Each managed path is written against the methods of one protocol generation. | Per provider, below. |
 | D17 / O4 | A v2 idle with `stopReason: "error"` still resolves `prompt`. A generation-1 client fails `deleteSession`, `listProviders`, `setProvider` and `disableProvider` locally. `PROTOCOL_METHODS` is not generated; there is no `-32800` constructor. | t3 parity. | Gate generation-1 calls on advertised capabilities; revisit the error idle with the session runtime. |
 | O5 | `provider-acp` and `provider-acp-registry` are not ported. | Scope. | Follow-up PRs. |
+| D18 | The opt-in `intersectSiblingProperties` codegen-kit transform pushes a base property that union branches redeclare into every branch, intersected with each branch's declaration. | alpha.9 / v1.26.0 `IdleStateUpdate` failed `distributeAllOf` ("overlapping schema property: stopReason"); ecfr, govinfo and runpod do not select it (D15). | Drop it from `acpTransforms` once upstream stops narrowing base properties. |
+| D19 | `mcp/connect` and `mcp/disconnect` are gone (RPCs, `handleMcpConnect`, `handleMcpDisconnect`, `AcpAgent.client.connectMcp` / `disconnectMcp`, the Compat re-exports). The `mcp/message` notification now goes from client to agent: `client.agent.notifyMcp` and `AcpAgent.handleMcpNotification` replace `AcpAgent.client.notifyMcp` and `client.handleMcpNotification`. | Both releases removed connect/disconnect, address servers by `serverId` plus an inner `requestId`, and mark the notification as sent by the provider (the client hosting the MCP server). | — |
+| D20 | `Compat.StopReason` is authored (known reasons plus `error`, or any string); `Compat.IdleStateUpdate` flattens the generated idle union into one struct with an open `stopReason` and an optional `error`; a malformed idle `error` is still dropped. | v2 no longer exports `StopReason`, and only its `error` idle variant carries `error`. | Expose the generated idle union if a consumer needs the variants. |
+| D21 | The prompt RPC decodes a result as the compat result, then as an open acknowledgement whose `messageId` is optional (`OpenPromptAcknowledgement`). `notice`, `subagent_update`, `session_message` and `session_message_chunk` are projected like the other kinds (session-message content normalized); the `unknown` state stays `UnknownSessionUpdate`. | alpha.9 requires `messageId`, which a generation-1 result outside both schemas lacks; both releases add the four kinds. | Require `messageId` once no generation-1 fallback is needed. |
 
 D16 per provider in `@beep/ai-provider-cli`
 (`AiProviderCliSession.stdio.service.ts`, `openStdio`):
@@ -298,9 +305,16 @@ Further deviations from t3, each deliberate:
   request handlers.
 - Decode-failure warnings are deduplicated by kind with array indices folded,
   at most 64 kinds per connection.
-- A generation-1 prompt result outside the v1.21 schema keeps its string
+- A generation-1 prompt result outside the v1.26 schema keeps its string
   `stopReason` (and `_meta`, and `usage` when valid); `end_turn` is used only
   when `stopReason` is missing or not a string.
+- Spec bump to `schema-v2.0.0-alpha.9` / `schema-v1.26.0`: the NES
+  (`nes/*`), `document/*` and `mcp/connect` / `mcp/disconnect` methods and
+  their schemas are gone, and so is the v2 `StopReason` (use
+  `Compat.StopReason`). `mcp/message` requests carry `serverId` and
+  `requestId` and answer `{ result }` or `{ error }`; the `mcp/message`
+  notification goes from client to agent (D19). Generation-2 prompt
+  acknowledgements carry `messageId`.
 - A re-sent `UnknownContent` block goes on the wire as the original block it
   carries; a block with no wire form fails locally with `-32602`. The
   `_acp_unknown` sentinel is never sent.

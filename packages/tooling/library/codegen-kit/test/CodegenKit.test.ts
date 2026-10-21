@@ -740,8 +740,23 @@ const acpTransforms: ReadonlyArray<NamedTransform> = [
   "unevaluatedPropertiesOpen",
   "notDiscriminatorPattern",
   "uniqueDiscriminatorOneOfAsAnyOf",
+  "intersectSiblingProperties",
   "distributeAllOf",
 ];
+
+// The ACP `IdleStateUpdate` shape since schema-v2.0.0-alpha.9: union branches narrow the base `stopReason`.
+const idleStateUpdate = {
+  type: "object",
+  properties: {
+    usage: { type: "string" },
+    stopReason: { description: "Why foreground work stopped.", type: ["string", "null"] },
+  },
+  anyOf: [
+    { type: "object", properties: { stopReason: { type: "string", const: "end_turn" } }, required: ["stopReason"] },
+    { type: "object", properties: { stopReason: { type: "null" } } },
+    { type: "object", properties: { code: { type: "integer" } } },
+  ],
+} satisfies JsonSchema.JsonSchema;
 
 const isTransformError = S.is(CodegenTransformError);
 
@@ -1117,6 +1132,84 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
     })
   );
 
+  it.effect("intersects a base property into every union branch that narrows it", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(acpTransforms, {});
+      const narrowed = hook(idleStateUpdate);
+
+      expect(narrowed).toEqual({
+        anyOf: [
+          {
+            type: "object",
+            properties: {
+              usage: { type: "string" },
+              stopReason: { description: "Why foreground work stopped.", type: "string", const: "end_turn" },
+            },
+            required: ["stopReason"],
+          },
+          { type: "object", properties: { usage: { type: "string" }, stopReason: { type: "null" } } },
+          {
+            type: "object",
+            properties: {
+              usage: { type: "string" },
+              code: { type: "integer" },
+              stopReason: {
+                anyOf: [{ description: "Why foreground work stopped.", type: "string" }, { type: "null" }],
+              },
+            },
+          },
+        ],
+      });
+      expect(hook(narrowed)).toEqual(narrowed);
+
+      const pushedDown = composeTransforms(["intersectSiblingProperties"], {})(idleStateUpdate);
+      expect(pushedDown.properties).toEqual({ usage: { type: "string" } });
+
+      const unchanged: JsonSchema.JsonSchema = {
+        type: "object",
+        properties: { kind: { type: "string" } },
+        anyOf: [{ type: "object", properties: { kind: { type: "string" } } }],
+      };
+      expect(composeTransforms(["intersectSiblingProperties"], {})(unchanged)).toEqual(unchanged);
+    })
+  );
+
+  it.effect("rejects sibling property intersections it cannot express", () =>
+    Effect.gen(function* () {
+      const hook = composeTransforms(["intersectSiblingProperties"], {});
+      const overlap = (base: JsonSchema.JsonSchema, branch: unknown): JsonSchema.JsonSchema => ({
+        type: "object",
+        properties: { name: base },
+        anyOf: [branch],
+      });
+
+      const unsatisfiable = yield* transformFailure(() =>
+        hook(overlap({ type: "string" }, { type: "object", properties: { name: { type: "number" } } }))
+      );
+      expect(unsatisfiable.transform).toBe("intersectSiblingProperties");
+      expect(unsatisfiable.message).toContain("Unsatisfiable overlapping property name");
+
+      const conflict = yield* transformFailure(() =>
+        hook(
+          overlap(
+            { type: "string", maxLength: 3 },
+            { type: "object", properties: { name: { type: "string", maxLength: 5 } } }
+          )
+        )
+      );
+      expect(conflict.message).toContain("conflicting constraint maxLength on overlapping property name");
+
+      const reference = yield* transformFailure(() =>
+        hook({
+          type: "object",
+          properties: { name: { type: "string" } },
+          anyOf: [{ $ref: "#/$defs/Named" }, { type: "object", properties: { name: { const: "x" } } }],
+        })
+      );
+      expect(reference.message).toContain("expected an inline object schema");
+    })
+  );
+
   it.effect("generates the ACP transform set end to end and wraps transform failures", () =>
     Effect.gen(function* () {
       const kit = yield* CodegenKit;
@@ -1128,6 +1221,14 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
       expect(raw).not.toContain("Schema.Never");
       expect(raw).not.toContain('mode: "oneOf"');
       expect(raw).toContain("(?!(?:form|url)$)");
+
+      const idleConfig = GenerateConfig.make({ ...config("idle.gen.ts"), transforms: acpTransforms });
+      const idle = yield* kit.postProcess(
+        yield* kit.generate({ $defs: { IdleStateUpdate: idleStateUpdate } }, idleConfig),
+        idleConfig
+      );
+      expect(idle).toContain('"stopReason": S.tag("end_turn")');
+      expect(idle).toContain('"stopReason": S.optionalKey(S.Null)');
 
       const failure = yield* kit
         .generate({ $defs: { Closed: { type: "object", unevaluatedProperties: false } } }, acpConfig)

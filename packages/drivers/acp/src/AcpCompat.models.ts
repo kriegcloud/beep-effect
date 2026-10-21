@@ -25,6 +25,7 @@
  */
 
 import { $AcpId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import * as V2 from "./_generated/schema.gen.ts";
 import * as V1 from "./_generated/schema-v1.gen.ts";
@@ -1162,6 +1163,53 @@ export const PromptRequest = S.StructWithRest(
  */
 export type PromptRequest = typeof PromptRequest.Type;
 
+const KnownStopReason = LiteralKit(["end_turn", "max_tokens", "max_turn_requests", "refusal", "cancelled", "error"]);
+
+/**
+ * Why a turn ended, as the client delivers it.
+ *
+ * **Details**
+ *
+ * The known reasons of both generations (generation 1 has no `error`) or any other string, so
+ * custom (`_`-prefixed) and future reasons are kept. Since `schema-v2.0.0-alpha.9`, generation 2
+ * spells the stop reason only as the discriminator of its idle `state_update` variants and exports
+ * no `StopReason` schema of its own.
+ *
+ * **Example** (Check a custom stop reason)
+ *
+ * ```ts
+ * import { StopReason } from "@beep/acp/compat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(StopReason)("_vendor_timeout")) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const StopReason = S.Union([KnownStopReason, S.String]).pipe(
+  $I.annoteSchema("StopReason", {
+    description: "Why a turn ended: a known stop reason or any custom or future string.",
+  })
+);
+
+/**
+ * Type for {@link StopReason}.
+ *
+ * **Example** (Default a missing stop reason)
+ *
+ * ```ts
+ * import type { StopReason } from "@beep/acp/compat"
+ *
+ * const orEndTurn = (reason: StopReason | null | undefined): StopReason => reason ?? "end_turn"
+ * console.log(orEndTurn(null)) // "end_turn"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type StopReason = typeof StopReason.Type;
+
 /**
  * Result of `session/prompt` as the client delivers it.
  *
@@ -1169,7 +1217,7 @@ export type PromptRequest = typeof PromptRequest.Type;
  *
  * A generation-1 agent returns it from `session/prompt`; for a generation-2 agent the client
  * builds it from the idle `state_update` that ends the turn. The stop reason is the open
- * generation-2 `StopReason`, so custom and future reasons are kept.
+ * {@link StopReason}, so custom and future reasons are kept.
  *
  * **Example** (Check a prompt result)
  *
@@ -1186,7 +1234,7 @@ export type PromptRequest = typeof PromptRequest.Type;
 export const PromptResponse = S.StructWithRest(
   V1.PromptResponse.schema.pipe(
     S.fieldsAssign({
-      stopReason: V2.StopReason.annotateKey({ description: "Why the turn ended." }),
+      stopReason: StopReason.annotateKey({ description: "Why the turn ended." }),
       usage: V2.Usage.pipe(S.NullOr, S.optionalKey).annotateKey({
         description: "Token usage of the turn, when the agent reports it.",
       }),
@@ -1346,14 +1394,21 @@ const [
   V2ConfigOptionUpdate,
   V2SessionInfoUpdate,
   V2UsageUpdate,
+  V2Notice,
   V2CompactionUpdate,
   V2CompactionSummaryChunk,
+  V2SubagentUpdate,
+  V2SessionMessage,
+  V2SessionMessageChunk,
 ] = V2.SessionUpdate.members;
 const [V2RunningState, V2IdleState, V2RequiresActionState] = V2StateUpdate.members;
+const [, , , , , V2IdleErrorState] = V2IdleState.members;
 const [V1UserMessageChunk, V1AgentMessageChunk, V1AgentThoughtChunk, V1ToolCall, , V1Plan] = V1.SessionUpdate.members;
 const V1CurrentModeUpdate = V1.SessionUpdate.members[9];
 // Generation 1 accepts any `Cost.currency`; generation 2 requires `^[A-Z]{3}$`.
 const V1UsageUpdate = V1.SessionUpdate.members[12];
+const V1Notice = V1.SessionUpdate.members[13];
+const V1SubagentUpdate = V1.SessionUpdate.members[16];
 
 const ContentField = ContentBlock.annotateKey({ description: "Content of this update." });
 const ContentListField = ContentBlock.pipe(S.Array, S.NullOr, S.optionalKey).annotateKey({
@@ -1383,6 +1438,14 @@ const AgentMessage = S.StructWithRest(
 const AgentThought = S.StructWithRest(
   V2AgentThought.schema.pipe(S.fieldsAssign({ content: ContentListField })),
   V2AgentThought.records
+);
+const SessionMessage = S.StructWithRest(
+  V2SessionMessage.schema.pipe(S.fieldsAssign({ content: ContentListField })),
+  V2SessionMessage.records
+);
+const SessionMessageChunk = S.StructWithRest(
+  V2SessionMessageChunk.schema.pipe(S.fieldsAssign({ content: ContentField })),
+  V2SessionMessageChunk.records
 );
 const ToolCall = S.StructWithRest(
   V1ToolCall.schema.pipe(
@@ -1424,12 +1487,15 @@ const CompactionSummaryChunk = S.StructWithRest(
 );
 
 /**
- * Generation-2 idle `state_update`, widened with the prompt `error` some agents report.
+ * Generation-2 idle `state_update` as the client delivers it: one struct with an open stop reason.
  *
  * **Details**
  *
- * The pinned generation-2 schema has no `error` field on idle; Claude Agent ACP reports a failed
- * turn there. The client still completes the prompt with the idle `stopReason`.
+ * The generated idle update is a union keyed by `stopReason`, and only its `error` variant carries
+ * `error`. Agents written against earlier drafts, such as Claude Agent ACP, report a failed turn's
+ * `error` next to other stop reasons, so the client surface flattens the variants: `stopReason` is
+ * any {@link StopReason}, omitted or `null`, and every idle may carry `error`. The client still
+ * completes the prompt with the idle `stopReason`.
  *
  * **Example** (Check an idle update with an error)
  *
@@ -1451,17 +1517,20 @@ const CompactionSummaryChunk = S.StructWithRest(
  * @since 0.0.0
  */
 export const IdleStateUpdate = S.StructWithRest(
-  V2IdleState.schema.pipe(
+  V2IdleErrorState.schema.pipe(
     S.fieldsAssign({
+      stopReason: StopReason.pipe(S.NullOr, S.optionalKey).annotateKey({
+        description: "Why foreground work stopped; omitted or null when the agent reports no stop reason.",
+      }),
       error: V2.Error.pipe(S.NullOr, S.optionalKey).annotateKey({
         description: "Error that ended the turn, when the agent reports one.",
       }),
     })
   ),
-  V2IdleState.records
+  V2IdleErrorState.records
 ).pipe(
   $I.annoteSchema("IdleStateUpdate", {
-    description: "Generation-2 idle state update, widened with the prompt error some agents report.",
+    description: "Generation-2 idle state update with an open stop reason and an optional error.",
   })
 );
 
@@ -1490,8 +1559,10 @@ export type IdleStateUpdate = typeof IdleStateUpdate.Type;
  * The union of both generations' kinds: message chunks (the `messageId` generation 2 requires is
  * optional), complete messages, tool calls and tool-call content chunks, `running`, `idle` and
  * `requires_action` state updates, terminal, plan, command, config-option, session-info, usage
- * and compaction updates, the generation-1 `plan` and `current_mode_update`, and
- * `UnknownSessionUpdate` for any other kind. A usage update may take either generation's shape:
+ * and compaction updates, the `notice`, `subagent_update`, `session_message` and
+ * `session_message_chunk` kinds both generations gained in `schema-v2.0.0-alpha.9` /
+ * `schema-v1.26.0`, the generation-1 `plan` and `current_mode_update`, and
+ * `UnknownSessionUpdate` for any other kind or state. A usage update may take either generation's shape:
  * generation 1 accepts any currency code, generation 2 only an upper-case ISO 4217 code.
  *
  * **Example** (Check an agent message chunk)
@@ -1531,6 +1602,12 @@ export const SessionUpdate = S.Union([
   V1UsageUpdate,
   CompactionUpdate,
   CompactionSummaryChunk,
+  V2Notice,
+  V1Notice,
+  V2SubagentUpdate,
+  V1SubagentUpdate,
+  SessionMessage,
+  SessionMessageChunk,
   S.StructWithRest(
     V2ConfigOptionUpdate.schema.pipe(
       S.fieldsAssign({
@@ -1689,13 +1766,13 @@ export type RequestPermissionRequest = typeof RequestPermissionRequest.Type;
  * `AuthenticateRequest` and `AuthenticateResponse` are `auth/login`, `LogoutRequest` and
  * `LogoutResponse` are `auth/logout`, and `CancelNotification` is `session/cancel`.
  *
- * **Example** (Check a stop reason and an authenticate request)
+ * **Example** (Check a usage record and an authenticate request)
  *
  * ```ts
- * import { AuthenticateRequest, StopReason } from "@beep/acp/compat"
+ * import { AuthenticateRequest, Usage } from "@beep/acp/compat"
  * import * as S from "effect/Schema"
  *
- * console.log(S.is(StopReason)("end_turn")) // true
+ * console.log(S.is(Usage)({ inputTokens: 1, outputTokens: 2, totalTokens: 3 })) // true
  * console.log(S.is(AuthenticateRequest)({ methodId: "login" })) // true
  * ```
  *
@@ -1708,16 +1785,12 @@ export {
   CloseSessionRequest,
   CloseSessionResponse,
   CompleteElicitationNotification,
-  ConnectMcpRequest,
-  ConnectMcpResponse,
   CreateElicitationRequest,
   CreateElicitationResponse,
   DeleteSessionRequest,
   DeleteSessionResponse,
   DisableProviderRequest,
   DisableProviderResponse,
-  DisconnectMcpRequest,
-  DisconnectMcpResponse,
   ElicitationContentValue,
   ListProvidersRequest,
   ListProvidersResponse,
@@ -1735,7 +1808,6 @@ export {
   SessionConfigSelectOption,
   SetProviderRequest,
   SetProviderResponse,
-  StopReason,
   TerminalExitStatus,
   ToolCallLocation,
   ToolCallStatus,
