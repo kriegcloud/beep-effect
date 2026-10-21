@@ -424,7 +424,7 @@ export const renderSkillMaterializeSummary = (report: SkillMaterializeReport): s
  *
  * @param report - One recovery decision.
  * @returns The rendered line.
- * @category rendering
+ * @category formatting
  * @since 0.0.0
  */
 export const renderSkillRecoveryReport = (report: SkillRecoveryReport): string =>
