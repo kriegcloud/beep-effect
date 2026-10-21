@@ -384,8 +384,17 @@ export type ModelsRecoveryRefusal = typeof ModelsRecoveryRefusal.Type;
  * `recovering` is written before recovery changes anything and names the step
  * it found. `recovered` closes a reconciled publication with its outcome.
  * `refused` closes a publication that recovery would not touch, with its
- * reason. `completed`, `recovered` and `refused` are terminal. Automatic
- * recovery skips them, and only an explicit restore revisits a refusal.
+ * reason. `abandoned` closes a publication its own writer gave up before the
+ * exchange: the target was never touched, and the stage, preimage link and
+ * backup are dropped. `completed`, `recovered`, `refused` and `abandoned` are
+ * terminal. Automatic recovery skips them, and only an explicit restore
+ * revisits a refusal.
+ *
+ * **Gotchas**
+ *
+ * `abandoned` is newer than the other states. A decoder that predates it does
+ * not accept the journal, so recovery skips it as undecodable and restore
+ * refuses it as an invalid journal; neither touches the target.
  *
  * **Example** (Record a recovery)
  *
@@ -409,9 +418,10 @@ export const ModelsPublicationState = S.TaggedUnion({
   recovering: { from: ModelsPublicationStep },
   recovered: { from: ModelsPublicationStep, outcome: ModelsRecoveryOutcome },
   refused: { from: ModelsPublicationStep, reason: ModelsRecoveryRefusal, detail: S.String },
+  abandoned: { from: ModelsPublicationStep, detail: S.String },
 }).pipe(
   $I.annoteSchema("ModelsPublicationState", {
-    description: "Durable forward, recovering, recovered or refused state of one native publication.",
+    description: "Durable forward, recovering, recovered, refused or abandoned state of one native publication.",
   })
 );
 
@@ -612,7 +622,9 @@ export type ModelsPublicationRole = typeof ModelsPublicationRole.Type;
  * **Details**
  *
  * `legacy` journals predate tracked publications. `owner-alive` publications
- * still belong to a running process.
+ * still belong to a running process. `lock-held` means another live process
+ * holds the journal's exclusive recovery lock. `settled` means the publication
+ * was already terminal when this recoverer re-read it under the lock.
  *
  * **Example** (Guard a skip reason)
  *
@@ -620,15 +632,15 @@ export type ModelsPublicationRole = typeof ModelsPublicationRole.Type;
  * import { ModelsRecoverySkip } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
  * import * as S from "effect/Schema"
  *
- * console.log(S.is(ModelsRecoverySkip)("owner-alive")) // true
+ * console.log(S.is(ModelsRecoverySkip)("lock-held")) // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const ModelsRecoverySkip = LiteralKit(["legacy", "owner-alive"]).pipe(
+export const ModelsRecoverySkip = LiteralKit(["legacy", "owner-alive", "lock-held", "settled"]).pipe(
   $I.annoteSchema("ModelsRecoverySkip", {
-    description: "Why automatic recovery left a journal untouched.",
+    description: "Why recovery left a journal untouched.",
   })
 );
 

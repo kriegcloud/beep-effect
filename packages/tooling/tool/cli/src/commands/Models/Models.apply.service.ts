@@ -81,7 +81,9 @@ const pendingState = ModelsPublicationState.isAnyOf([
   "verified",
   "recovering",
 ]);
-const isRecoveryState = ModelsPublicationState.isAnyOf(["recovering", "recovered", "refused"]);
+const isRecoveryState = ModelsPublicationState.isAnyOf(["recovering", "recovered", "refused", "abandoned"]);
+const encodeOwner = S.encodeEffect(S.fromJsonString(ModelsPublicationOwner));
+const decodeOwner = S.decodeEffect(S.fromJsonString(ModelsPublicationOwner));
 // Explicit restore also retries a publication automatic recovery refused.
 const retryableState = ModelsPublicationState.isAnyOf([
   "intent",
@@ -931,7 +933,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         current = { journal: withPublication(current.journal, role, next), publication: next };
         return publishJournal(backupDirectory, current.journal, false);
       });
-    return { advance, journal: () => current.journal };
+    return { advance, journal: () => current.journal, state: () => current.publication.state };
   };
 
   const artifactNames = (file: string, operation: string) => ({
@@ -975,10 +977,57 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     if (info.value.type !== "File") return Observation.cases.foreign.make({});
     return Observation.cases.file.make({ hash: yield* hashBytes(yield* fs.readFile(file).pipe(io)) });
   });
+  // Removal tolerates an artifact another recoverer or a cleanup already removed.
   const discard = (file: string) =>
-    fs.exists(file).pipe(
-      Effect.flatMap((present) => (present ? fs.remove(file) : Effect.void)),
+    fs.remove(file).pipe(
+      Effect.catchTag("PlatformError", (error) =>
+        error.reason._tag === "NotFound" ? Effect.void : Effect.fail(error)
+      ),
       io
+    );
+
+  // The exclusive per-journal recovery lock: an O_EXCL `<id>.recovering` file
+  // stamped with its owner. A lock whose owner is dead (or unreadable) is stale;
+  // it is renamed aside, and reclaimed only when the renamed bytes are still the
+  // stale bytes read, so a fresh lock taken meanwhile is put back, not lost.
+  const lockPath = (backupDirectory: string, id: string) => path.join(backupDirectory, `${id}.recovering`);
+  const createLock = Effect.fnUntraced(function* (lock: string) {
+    const stamp = yield* O.match(yield* currentOwner, {
+      onNone: () => Effect.succeed(""),
+      onSome: (owner) => encodeOwner(owner).pipe(ModelsLocatorError.mapError("Cannot encode recovery lock.")),
+    });
+    return yield* writeDurable(lock, textBytes(stamp)).pipe(
+      Effect.as(true),
+      Effect.orElseSucceed(() => false)
+    );
+  });
+  const lockHolderAlive = (stamp: string) =>
+    decodeOwner(stamp).pipe(
+      Effect.option,
+      Effect.flatMap((owner) => ownerAlive(owner))
+    );
+  const reclaimLock = Effect.fnUntraced(function* (lock: string, stale: string) {
+    const aside = `${lock}.${yield* Random.nextIntBetween(0, 0xffffff)}.stale`;
+    if (O.isNone(yield* fs.rename(lock, aside).pipe(Effect.option))) return false;
+    const moved = yield* fs.readFileString(aside).pipe(Effect.option);
+    if (!O.contains(moved, stale)) {
+      yield* fs.link(aside, lock).pipe(Effect.ignore);
+      yield* discard(aside);
+      return false;
+    }
+    yield* discard(aside);
+    return yield* createLock(lock);
+  });
+  const acquireLock = Effect.fnUntraced(function* (lock: string) {
+    if (yield* createLock(lock)) return true;
+    const stamp = yield* fs.readFileString(lock).pipe(Effect.option);
+    if (O.isNone(stamp)) return yield* createLock(lock);
+    if (yield* lockHolderAlive(stamp.value)) return false;
+    return yield* reclaimLock(lock, stamp.value);
+  });
+  const recoveryLock = (backupDirectory: string, id: string) =>
+    Effect.acquireRelease(acquireLock(lockPath(backupDirectory, id)), (held) =>
+      held ? Effect.ignore(discard(lockPath(backupDirectory, id))) : Effect.void
     );
 
   // Recorded paths must be this journal's own artifacts beside its own target,
@@ -1084,10 +1133,10 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const fromStep = (state: ModelsPublicationState): ModelsPublicationStep =>
     isRecoveryState(state) ? state.from : state._tag;
 
-  // The one reconciliation path behind automatic recovery, `recover` and
-  // `restore`. It records `recovering` before changing anything, so a crash
-  // during recovery is reconciled again from the bytes on disk.
-  const reconcile = Effect.fnUntraced(function* (
+  // Reconcile one publication the caller holds the recovery lock for. It
+  // records `recovering` before changing anything, so a crash during recovery is
+  // reconciled again from the bytes on disk.
+  const reconcileLocked = Effect.fnUntraced(function* (
     backupDirectory: string,
     journal: ModelsApplyJournal,
     role: ModelsPublicationRole,
@@ -1119,6 +1168,28 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return { journal: ledger.journal(), result };
   });
 
+  // The one reconciliation path behind automatic recovery, `recover` and
+  // `restore`. The exclusive recovery lock is taken before the owner check and
+  // the journal is re-read under it, so two recoverers never settle one
+  // publication twice; the loser reports `lock-held` or `settled`.
+  const reconcile = (
+    backupDirectory: string,
+    journal: ModelsApplyJournal,
+    role: ModelsPublicationRole,
+    eligible: (state: ModelsPublicationState) => boolean
+  ) =>
+    Effect.scoped(
+      Effect.gen(function* () {
+        if (!(yield* recoveryLock(backupDirectory, journal.id)))
+          return { journal, result: ModelsRecoveryResult.cases.skipped.make({ reason: "lock-held" }) };
+        const fresh = O.getOrElse(yield* readJournalEntry(backupDirectory, `${journal.id}.json`), () => journal);
+        const publication = O.filter(publicationOf(fresh, role), (entry) => eligible(entry.state));
+        if (O.isNone(publication))
+          return { journal: fresh, result: ModelsRecoveryResult.cases.skipped.make({ reason: "settled" }) };
+        return yield* reconcileLocked(backupDirectory, fresh, role, publication.value);
+      })
+    );
+
   // Undecodable or misnamed journals are not this writer's to judge.
   const readJournalEntry = (backupDirectory: string, entry: string) =>
     fs
@@ -1140,12 +1211,15 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
           result: ModelsRecoveryResult.cases.skipped.make({ reason: "legacy" }),
         }),
       ];
+    // An abandoned publication's backup copies an untouched target; a writer that
+    // died between recording `abandoned` and dropping it leaves it for here.
+    if (initial.publication.state._tag === "abandoned")
+      yield* Effect.forEach(O.toArray(initial.publication.backup), discard, { discard: true });
     let journal = initial;
     const reports: Array<ModelsRecoveryReport> = [];
     for (const role of ModelsPublicationRole.literals) {
-      const pending = O.filter(publicationOf(journal, role), (publication) => pendingState(publication.state));
-      if (O.isNone(pending)) continue;
-      const settled = yield* reconcile(backupDirectory, journal, role, pending.value);
+      if (!O.exists(publicationOf(journal, role), (publication) => pendingState(publication.state))) continue;
+      const settled = yield* reconcile(backupDirectory, journal, role, pendingState);
       journal = settled.journal;
       reports.push(ModelsRecoveryReport.make({ journal: journal.id, role, result: settled.result }));
     }
@@ -1173,7 +1247,8 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     journal: ModelsApplyJournal,
     backupDirectory: string,
     writes: ReadonlyArray<ModelsLocatorWrite>,
-    advance: (state: ModelsPublicationState) => Effect.Effect<void, ModelsLocatorError>
+    advance: (state: ModelsPublicationState) => Effect.Effect<void, ModelsLocatorError>,
+    progress: { exchanged: boolean }
   ) {
     const file = journal.file;
     const { operation, staging: temporary, retained } = names;
@@ -1203,6 +1278,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
                 // Once publication starts, a failed process observation is uncertain:
                 // retain both occupants even if mv cannot report its final status.
                 exchanged = true;
+                progress.exchanged = true;
                 yield* exchange(temporary, file);
                 yield* advance(ModelsPublicationState.cases.exchanged.make({}));
                 if (!(yield* matches(temporary, plannedInfo, beforeHash))) {
@@ -1232,6 +1308,21 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       Effect.mapError((error) => failure(`${error.message} Journal: ${journal.id}`))
     );
   });
+
+  // A publication that fails before its exchange never touched the target, and
+  // atomic's releases already dropped its stage and preimage link: record the
+  // terminal `abandoned` state, then drop the backup of the unchanged target. A
+  // failure to record keeps the original error and the pending journal.
+  const abandonUnexchanged =
+    (ledger: ReturnType<typeof makeLedger>, progress: { readonly exchanged: boolean }, backup: O.Option<string>) =>
+    (error: ModelsLocatorError) =>
+      progress.exchanged
+        ? Effect.void
+        : ledger
+            .advance(
+              ModelsPublicationState.cases.abandoned.make({ from: fromStep(ledger.state()), detail: error.message })
+            )
+            .pipe(Effect.andThen(Effect.forEach(O.toArray(backup), discard, { discard: true })), Effect.ignore);
 
   // Automatic recovery: reconcile this target's interrupted publications before
   // reading the bytes a write is planned from. A refusal keeps its artifacts and
@@ -1290,12 +1381,16 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       restoration: O.none(),
     });
     const ledger = makeLedger(backupDirectory, journal, "publication", publication);
+    const progress = { exchanged: false };
     yield* publishJournal(backupDirectory, journal, true);
     yield* writeDurable(backup, textBytes(before)).pipe(
       Effect.andThen(ledger.advance(ModelsPublicationState.cases["backed-up"].make({}))),
-      Effect.mapError((error) => failure(`${error.message} Journal: ${id}`))
+      Effect.mapError((error) => failure(`${error.message} Journal: ${id}`)),
+      Effect.andThen(
+        atomic(names, beforeHash, after, info.mode, journal, backupDirectory, writes, ledger.advance, progress)
+      ),
+      Effect.tapError(abandonUnexchanged(ledger, progress, O.some(backup)))
     );
-    yield* atomic(names, beforeHash, after, info.mode, journal, backupDirectory, writes, ledger.advance);
     return ledger.journal();
   });
 
@@ -1355,11 +1450,16 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     Match.value(result).pipe(
       Match.tagsExhaustive({
         recovered: () => Effect.void,
-        skipped: () =>
-          ModelsLocatorError.make({
-            reason: "owner-alive",
-            message: "The publication's owning process is still running; refusing recovery.",
-          }),
+        skipped: ({ reason }) =>
+          reason === "settled"
+            ? Effect.void
+            : ModelsLocatorError.make({
+                reason: reason === "lock-held" ? "lock-held" : "owner-alive",
+                message:
+                  reason === "lock-held"
+                    ? "Another live process holds this journal's recovery lock; refusing recovery."
+                    : "The publication's owning process is still running; refusing recovery.",
+              }),
         refused: ({ detail, reason }) =>
           ModelsLocatorError.make({
             reason,
@@ -1374,9 +1474,8 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     let journal = initial;
     let restored = false;
     for (const role of ModelsPublicationRole.literals) {
-      const retryable = O.filter(publicationOf(journal, role), (publication) => retryableState(publication.state));
-      if (O.isNone(retryable)) continue;
-      const settled = yield* reconcile(root, journal, role, retryable.value);
+      if (!O.exists(publicationOf(journal, role), (publication) => retryableState(publication.state))) continue;
+      const settled = yield* reconcile(root, journal, role, retryableState);
       yield* recoveryRefusal(settled.result);
       journal = settled.journal;
       restored = role === "restoration" && settled.result._tag === "recovered" && settled.result.outcome === "intended";
@@ -1384,11 +1483,12 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return { journal, restored };
   });
 
-  // A publication recovered to its preimage never landed: nothing to restore.
+  // A publication recovered to its preimage, or abandoned before its exchange,
+  // never landed: nothing to restore.
   const neverLanded = (journal: ModelsApplyJournal) =>
     isTrackedPublication(journal.publication) &&
-    journal.publication.state._tag === "recovered" &&
-    journal.publication.state.outcome === "preimage";
+    ((journal.publication.state._tag === "recovered" && journal.publication.state.outcome === "preimage") ||
+      journal.publication.state._tag === "abandoned");
 
   // The fingerprint-fenced undo, published as the journal's restoration.
   const undo = Effect.fnUntraced(function* (root: string, journal: ModelsApplyJournal) {
@@ -1419,16 +1519,11 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     });
     const restoring = withPublication(journal, "restoration", restoration);
     const ledger = makeLedger(root, restoring, "restoration", restoration);
+    const progress = { exchanged: false };
+    const mode = (yield* fs.stat(journal.file).pipe(io)).mode;
     yield* publishJournal(root, restoring, false);
-    yield* atomic(
-      names,
-      journal.afterHash,
-      original,
-      (yield* fs.stat(journal.file).pipe(io)).mode,
-      restoring,
-      root,
-      [],
-      ledger.advance
+    yield* atomic(names, journal.afterHash, original, mode, restoring, root, [], ledger.advance, progress).pipe(
+      Effect.tapError(abandonUnexchanged(ledger, progress, O.none()))
     );
   });
 

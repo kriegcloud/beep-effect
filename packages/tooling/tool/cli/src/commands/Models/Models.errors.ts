@@ -35,8 +35,9 @@ const $I = $RepoCliId.create("commands/Models/Models.errors");
  * `exchange-probe-failed` means its capability could not be established. Both
  * exchange refusals happen before any backup, journal or publication. The
  * {@link ModelsRecoveryRefusal} reasons come from restart recovery, which
- * refuses and keeps every artifact, and `owner-alive` means the publication
- * still belongs to a running process.
+ * refuses and keeps every artifact. `owner-alive` means the publication still
+ * belongs to a running process, and `lock-held` that another live process holds
+ * its exclusive recovery lock.
  *
  * **Example** (Guard a refusal reason)
  *
@@ -55,6 +56,7 @@ export const ModelsLocatorRefusal = LiteralKit([
   "exchange-unsupported",
   "exchange-probe-failed",
   "owner-alive",
+  "lock-held",
   ...ModelsRecoveryRefusal.literals,
 ]).pipe(
   $I.annoteSchema("ModelsLocatorRefusal", {

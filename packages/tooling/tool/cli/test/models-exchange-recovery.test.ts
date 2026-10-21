@@ -27,6 +27,7 @@ import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
 import * as Command from "effect/cli/Command";
+import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
@@ -48,6 +49,7 @@ import type { ModelsRecoveryOutcome } from "@beep/repo-cli/commands/Models/Model
 const crashWriterUrl = new URL("./fixtures/models/exchange-crash-writer.ts", import.meta.url);
 const decodeJournal = S.decodeUnknownEffect(S.fromJsonString(ModelsApplyJournal));
 const encodeJournal = S.encodeEffect(S.fromJsonString(ModelsApplyJournal));
+const encodeOwner = S.encodeEffect(S.fromJsonString(ModelsPublicationOwner));
 const JsonRecord = S.fromJsonString(S.Record(S.String, S.Unknown));
 const decodeRecord = S.decodeUnknownEffect(JsonRecord);
 const encodeRecord = S.encodeEffect(JsonRecord);
@@ -109,6 +111,23 @@ const writerWith = Effect.fn("ModelsRecoveryTest.writerWith")(function* (exchang
   const capability = exchange === undefined ? yield* ModelsAtomicExchange : exchange;
   const services = yield* Layer.build(
     ModelsApplyLive.pipe(Layer.provide(Layer.succeed(ModelsAtomicExchange, capability)))
+  );
+  return Context.get(services, ModelsApply);
+});
+
+// A writer over a wrapped filesystem, for interleavings the exchange seam alone
+// cannot express.
+const writerWithFs = Effect.fn("ModelsRecoveryTest.writerWithFs")(function* (
+  fs: FileSystem.FileSystem,
+  exchange?: ModelsAtomicExchangeShape
+) {
+  const capability = exchange === undefined ? yield* ModelsAtomicExchange : exchange;
+  const services = yield* Layer.build(
+    ModelsApplyLive.pipe(
+      Layer.provide(
+        Layer.mergeAll(Layer.succeed(FileSystem.FileSystem, fs), Layer.succeed(ModelsAtomicExchange, capability))
+      )
+    )
   );
   return Context.get(services, ModelsApply);
 });
@@ -599,6 +618,142 @@ layer(
       expect(yield* writer.recover(target.backups)).toEqual([]);
       expect(yield* writer.recover(path.join(target.root, "absent"))).toEqual([]);
       expect(trackedOf(journal.publication).state._tag).toBe("staged");
+    })
+  );
+
+  it.effect("abandons a publication that failed before its exchange and drops its backup", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const target = yield* fixture("recovery-abandoned-");
+      // A native writer replaces the target between planning and the drift check.
+      const drifting = FileSystem.FileSystem.of({
+        ...fs,
+        chmod: Effect.fn("ModelsRecoveryTest.chmod")(function* (file, mode) {
+          yield* fs.chmod(file, mode);
+          if (Str.endsWith(".tmp")(file)) {
+            yield* fs.writeFileString(path.join(target.root, "competitor"), competitor);
+            yield* fs.rename(path.join(target.root, "competitor"), target.file);
+          }
+        }),
+      });
+      const writer = yield* writerWithFs(drifting);
+      const refusal = yield* Effect.flip(writer.apply(target.file, [request], "write", target.backups));
+      expect(refusal.message).toContain("Native file drifted after planning");
+      const { journal } = yield* onlyJournal(target.backups);
+      expect(trackedOf(journal.publication).state).toMatchObject({ _tag: "abandoned", from: "backed-up" });
+      expect(yield* listing(target.backups)).toEqual([`${journal.id}.json`]);
+      expect(yield* listing(target.root)).toEqual(["backups", "config.toml"]);
+      expect(yield* fs.readFileString(target.file)).toBe(competitor);
+      // The writer never touched the target, so nothing is refused afterwards.
+      const plain = yield* writerWith();
+      expect(yield* plain.recover(target.backups)).toEqual([]);
+      const next = yield* plain.apply(target.file, [request], "write", target.backups);
+      next.pipe(O.isSome, assertTrue);
+      expect(yield* fs.readFileString(target.file)).toBe(Str.replace('"competitor"', '"gpt-6.1-sol"')(competitor));
+      expect(yield* listing(target.root)).toEqual(["backups", "config.toml"]);
+    })
+  );
+
+  it.effect("lets exactly one of two concurrent recoverers reconcile a journal", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const base = yield* ModelsAtomicExchange;
+      const target = yield* interrupted("recovery-concurrent-", "displace-then-fail");
+      const journal = yield* abandon(target.backups);
+      const journalFile = `${target.backups}/${journal.id}.json`;
+      const firstRead = yield* Deferred.make<void>();
+      const secondRead = yield* Deferred.make<void>();
+      const firstAtExchange = yield* Deferred.make<void>();
+      const secondDone = yield* Deferred.make<void>();
+      let exchanges = 0;
+      // Both recoverers read the abandoned journal before either records
+      // `recovering`; the first then waits at its exchange until the second ends.
+      const reading = (read: Deferred.Deferred<void>, wait: Deferred.Deferred<void>) =>
+        FileSystem.FileSystem.of({
+          ...fs,
+          readFileString: Effect.fn("ModelsRecoveryTest.readFileString")(function* (file, options) {
+            const text = yield* fs.readFileString(file, options);
+            if (file === journalFile) {
+              yield* Deferred.succeed(read, undefined);
+              yield* Deferred.await(wait);
+            }
+            return text;
+          }),
+        });
+      const counting = (before: Effect.Effect<void>) =>
+        ModelsAtomicExchange.of({
+          qualify: base.qualify,
+          exchange: Effect.fn("ModelsRecoveryTest.countedExchange")(function* (left, right) {
+            if (left === target.file || right === target.file) {
+              yield* before;
+              exchanges += 1;
+            }
+            yield* base.exchange(left, right);
+          }),
+        });
+      const first = yield* writerWithFs(
+        reading(firstRead, secondRead),
+        counting(Deferred.succeed(firstAtExchange, undefined).pipe(Effect.andThen(Deferred.await(secondDone))))
+      );
+      const second = yield* writerWithFs(reading(secondRead, firstAtExchange), counting(Effect.void));
+      const [firstReports, secondReports] = yield* Effect.all(
+        [
+          first.recover(target.backups),
+          second.recover(target.backups).pipe(Effect.ensuring(Deferred.succeed(secondDone, undefined))),
+        ],
+        { concurrency: "unbounded" }
+      );
+      expect(exchanges).toBe(1);
+      expect(yield* fs.readFileString(target.file)).toBe(competitor);
+      expect(yield* fileSha(trackedOf(journal.publication).staging)).toBe(yield* textSha(intended));
+      expect(firstReports[0]?.result).toMatchObject({ _tag: "refused", reason: "competing-writer" });
+      expect(secondReports).toEqual([
+        ModelsRecoveryReport.make({
+          journal: journal.id,
+          role: "publication",
+          result: ModelsRecoveryResult.cases.skipped.make({ reason: "lock-held" }),
+        }),
+      ]);
+      expect(A.filter(yield* listing(target.backups), Str.endsWith(".recovering"))).toEqual([]);
+    })
+  );
+
+  it.effect("reclaims a stale recovery lock and refuses past a live one", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const target = yield* interrupted("recovery-lock-", "refuse");
+      const journal = yield* abandon(target.backups);
+      const lock = path.join(target.backups, `${journal.id}.recovering`);
+      const writer = yield* writerWith();
+      // A live owner (this process) holds the lock: recovery and restore stand back.
+      const live = yield* fs.readFileString("/proc/self/stat");
+      const boot = Str.trim(yield* fs.readFileString("/proc/sys/kernel/random/boot_id"));
+      const fields = Str.split(Str.trim(live.slice(live.lastIndexOf(")") + 1)), " ");
+      const self = ModelsPublicationOwner.make({
+        bootId: boot,
+        pid: Number.parseInt(live, 10),
+        startTicks: fields[19] ?? "",
+      });
+      yield* fs.writeFileString(lock, yield* encodeOwner(self));
+      expect(yield* writer.recover(target.backups)).toEqual([
+        ModelsRecoveryReport.make({
+          journal: journal.id,
+          role: "publication",
+          result: ModelsRecoveryResult.cases.skipped.make({ reason: "lock-held" }),
+        }),
+      ]);
+      const refusal = yield* Effect.flip(
+        writer.restore(path.join(target.backups, `${journal.id}.json`), target.backups)
+      );
+      expect(refusal.reason).toBe("lock-held");
+      expect(yield* fs.readFileString(lock)).toBe(yield* encodeOwner(self));
+      // A dead owner's lock is stale and reclaimed.
+      yield* fs.writeFileString(lock, yield* encodeOwner(deadOwner));
+      expect(yield* writer.recover(target.backups)).toEqual([recovered(journal.id, "preimage")]);
+      expect(yield* listing(target.backups)).toEqual([`${journal.id}.json`]);
+      expect(yield* fileSha(target.file)).toBe(yield* textSha(native));
     })
   );
 

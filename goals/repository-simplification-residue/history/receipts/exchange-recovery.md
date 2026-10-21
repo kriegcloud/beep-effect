@@ -72,17 +72,39 @@ later one, then a directory `fsync`.
 | `recovering { from }` | before recovery changes anything; owner becomes the recoverer | unchanged artifacts | removals or an exchange-back |
 | `recovered { from, outcome }` | after reconciliation | per crash-point table | — (terminal) |
 | `refused { from, reason, detail }` | after a refusal | every artifact kept | — (terminal; only explicit restore retries) |
+| `abandoned { from, detail }` | by the writer itself when it fails before `exchanged = true`, after `atomic`'s releases dropped the stage and link | journal only; the backup is dropped right after (a sweep drops one a crash left) | — (terminal; restore treats it as never landed) |
 | `legacy` | never written; decoded for journals without `publication` | whatever the old writer left | — (never touched) |
 
 Transitions: `intent → backed-up → staged → exchanged → verified → completed` for an
 apply; `intent → staged → exchanged → verified → completed` for a restoration (it has
 no backup of its own). Any pending state (`intent` … `verified`, `recovering`) →
 `recovering → recovered | refused`. Explicit `restore` also takes `refused →
-recovering`.
+recovering`. A writer that fails before its exchange (planning drift, `validate`,
+`assertDestination`, a failed stage or backup write) takes `intent`, `backed-up` or
+`staged` → `abandoned`. Without it the next sweep would read the drifted target as a
+competing writer and refuse, keeping a stale backup, although this writer never
+touched the target. A decoder that predates `abandoned` rejects the journal, so it
+is skipped as undecodable and restore refuses it as invalid; neither touches the
+target.
 
 Recovery leaves a pending publication alone while its owner is alive: same boot id,
 `/proc/<pid>/stat` present, same start ticks, not a zombie. A reused pid, a reboot or
 a reaped process reads as dead. Terminal states skip the owner check.
+
+## Concurrency rule
+
+Every reconciliation first takes the journal's exclusive recovery lock: an O_EXCL
+`<id>.recovering` file in the backup directory, stamped with the owner (boot id, pid,
+start ticks), held in an Effect scope (`acquireRelease`) and removed on every exit
+path. Only then does it re-read the journal from disk, check that the publication is
+still eligible (pending, or also refused for an explicit restore), and apply the
+owner check. A second recoverer reports `skipped`/`lock-held` (restore: typed
+`lock-held` refusal) while the first holds the lock, or `skipped`/`settled` if the
+publication went terminal before it got the lock. A lock whose owner is dead or
+unreadable is stale. It is renamed aside and reclaimed only when the renamed bytes are
+still the stale bytes read; otherwise the fresh lock is linked back. `discard` treats
+an already-removed artifact as success, so the lock's loser and a racing cleanup
+never turn a removal into an I/O error.
 
 ## Crash-point recovery
 
@@ -144,6 +166,9 @@ SHA-256 of the raw target bytes. No crash-writer process outlives a run.
 | competing writer replaces the target after SIGKILL at `staged`; in-place write after `exchange-returned` | `refused`/`competing-writer`; target keeps the competitor; stage, link and backup kept; second `recover` `[]`; explicit restore refuses again with the typed reason |
 | legacy journal (no `publication` key) | decodes to `legacy`; `recover` reports `skipped`/`legacy` and changes nothing; `restore` undoes byte-exact |
 | live owner | `skipped`/`owner-alive`; restore refuses with reason `owner-alive` |
+| drift between planning and staging (failing first, review thread PRRT_kwDOPbO_N86uwoZi) | the apply fails with the drift message; journal `abandoned`/`from: backed-up`; no backup, stage or link left; `recover` returns `[]`; the next apply succeeds on the competitor's bytes |
+| two recoverers that both read the journal before either records `recovering` (failing first, thread PRRT_kwDOPbO_N86uwoZp) | one exchange, competitor live, stage keeps the staged content; the winner refuses `competing-writer`, the loser reports `skipped`/`lock-held`; no lock left behind |
+| recovery lock held by a live owner / by a dead owner | `skipped`/`lock-held` and restore refuses `lock-held`, lock untouched / stale lock reclaimed, recovered to the preimage, lock removed |
 | displaced competitor (in-process) | exchanged back to the live path, `refused`/`competing-writer` |
 | changed filesystem identity | `refused`/`filesystem-changed`, no exchange |
 | foreign stage, foreign link, missing target, symlinked target, recorded path outside the target directory | typed refusal, every artifact and the outside file kept |
@@ -228,6 +253,38 @@ through `beep-heavy` with `</dev/null`:
 | package-verify `@beep/repo-cli` | `ok docgen`; audit red only on `test/architecture-operation-plan.test.ts` (ENOENT for the #1941 migration `20261021041032_row_version_default`, which the architecture generator does not produce); inherited from #1941 `2a42813ca1`, nothing here touches it |
 | coverage | the full ratchet cannot report while that inherited test fails, and a direct full run with `reportOnFailure` was SIGTERMed by the host. A scoped run over the models tests puts every changed file at or above its baseline row: `Models.apply.service.ts` 95.89/93.82/88.63/90.68 (baseline 93.52/90.4/83.06/85.07), `Models.command.ts` 88.15/88.15/89.01/76.47 (70.23/70.58/33.33/50), `Models.errors.ts`, `Models.manifest.schemas.ts`, `Models.exchange.schemas.ts` 100 |
 
+## Review round 1 (#1970)
+
+Two beep-reviewer P2 findings, each fixed with a failing-first test in
+`test/models-exchange-recovery.test.ts`:
+
+1. PRRT_kwDOPbO_N86uwoZi: a publication that failed before its exchange stayed
+   `backed-up`/`staged`, so the next sweep refused it as `competing-writer` and kept
+   its backup. The fix records the new terminal `abandoned { from, detail }` state
+   and then drops the backup. Pinned by "abandons a publication that failed before
+   its exchange and drops its backup". It failed first with `{ _tag: "backed-up" }`.
+2. PRRT_kwDOPbO_N86uwoZp: two recoverers could both pass the owner check on a stale
+   read and exchange twice. The fix adds the exclusive recovery lock, the journal
+   re-read under it, stale-lock reclaim and a tolerant `discard`. Pinned by "lets
+   exactly one of two concurrent recoverers reconcile a journal", a deterministic
+   interleaving through the filesystem and exchange seams. It failed first with
+   two exchanges. "reclaims a stale recovery lock and refuses past a live one" pins
+   both lock outcomes.
+
+Schema: `ModelsPublicationState` gains `abandoned`, `ModelsRecoverySkip` gains
+`lock-held` and `settled`, and `ModelsLocatorRefusal` gains `lock-held`. Every
+existing #1879/#1880/#1944 test is unchanged. Results, each heavy command alone
+through `beep-heavy` with `</dev/null`:
+
+| Check | Result |
+| --- | --- |
+| models tests (9 files), Bun and Node | 174 passed on each (44 in the recovery file) |
+| `tsc-rs` check and test overlays; effect-diagnostics `--filter repo-cli` | 0 / 0 errors on the check, test and scripts overlays |
+| effect-vitest / schema-first | `introduced=0` / parity ok, `introduced=0` |
+| oxlint / biome on the changed files; fallow audit `--base origin/main --check` | clean; verdict pass, 0 complexity findings |
+| jsdoc ratchet; retired-effect-paths | `increased=0`, zero-legacy ok; 0 |
+| observability / schema catalogs `--write` | no change / `ModelsPublicationState`, `ModelsRecoverySkip` descriptions updated |
+
 ## Route and model evidence
 
 Worked by a Claude Code Agent-tool child pinned to `claude-opus-5-5` (S39/S41 Claude
@@ -249,9 +306,10 @@ chain, step 1). No fallback was taken; no other provider ran in this lane.
 
 ## Residual limits
 
-- Two recoverers that start on the same dead publication at the same instant are not
-  mutually excluded beyond the owner check; the same external-maintenance-boundary
-  note as the writer applies.
+- Recovery is excluded per journal by the recovery lock. Two processes reclaiming the
+  same stale lock at once are separated by the compare-after-rename step; a host
+  without procfs stamps an empty lock, which any recoverer treats as stale (such
+  hosts never publish, see below).
 - Owner liveness reads procfs. Without procfs no owner is recorded and recovery
   treats the publication as abandoned; such hosts also fail #1879's exchange
   qualification, so they never publish.
