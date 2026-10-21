@@ -721,17 +721,41 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          jobs_directory="$(mktemp -d "${RUNNER_TEMP}/coverage-producer-jobs.XXXXXX")"
           jobs_file="${RUNNER_TEMP}/coverage-producer-jobs.json"
-          gh api --paginate --slurp "/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?filter=all&per_page=100" > "$jobs_file"
+          # Read every attempt explicitly: successful carried records have new
+          # attempt numbers, but the original execution must remain available.
+          for ((attempt=1; attempt<=GITHUB_RUN_ATTEMPT; attempt++)); do
+            gh api --paginate --slurp "/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${attempt}/jobs?per_page=100" > "${jobs_directory}/${attempt}.json"
+          done
+          jq -s 'add' "${jobs_directory}/"*.json > "$jobs_file"
           labs_attempt="$(jq -er --argjson current "$GITHUB_RUN_ATTEMPT" '
             [.[].jobs[] | select(.name == "Labs")] as $jobs
-            | if ($jobs | length) == 0 or any($jobs[]; .run_attempt > $current)
-              then error("Missing or future Labs execution") else $jobs end
+            | if ($jobs | length) == 0 or any($jobs[];
+                (.run_attempt | type) != "number" or .run_attempt < 1
+                or (.run_attempt | floor) != .run_attempt or .run_attempt > $current)
+              then error("Missing, malformed or future Labs execution") else $jobs end
+            | if (map(.run_attempt) | length) != (map(.run_attempt) | unique | length)
+              then error("Duplicate Labs attempt records") else . end
             | (map(.run_attempt) | max) as $latest
             | map(select(.run_attempt == $latest))
             | if length != 1 then error("Ambiguous latest Labs execution") else .[0] end
             | if .status != "completed" or .conclusion != "success"
-              then error("Latest Labs execution did not succeed") else .run_attempt end
+              then error("Latest Labs execution did not succeed") else . end
+            | . as $latestJob
+            | if (.started_at | type) != "string" or .started_at == ""
+                or (.completed_at | type) != "string" or .completed_at == ""
+              then error("Missing Labs execution timestamps") else . end
+            # Partial reruns can carry successful job records into a new
+            # attempt without executing or uploading again. Their timestamps
+            # identify the original execution whose artifact must be required.
+            | [$jobs[] | select(.started_at == $latestJob.started_at
+                and .completed_at == $latestJob.completed_at)] as $execution
+            | if any($execution[]; .status != "completed" or .conclusion != "success")
+              then error("Inconsistent carried Labs execution") else $execution end
+            | (map(.run_attempt) | min) as $producer
+            | map(select(.run_attempt == $producer))
+            | if length != 1 then error("Ambiguous original Labs execution") else .[0].run_attempt end
           ' "$jobs_file")"
           echo "attempt=$labs_attempt" >> "$GITHUB_OUTPUT"
 

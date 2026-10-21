@@ -72,7 +72,11 @@ than the consumer, requiring every other identity and assignment field to match.
 Future attempts, duplicate partition/attempt manifests and invalid newer evidence
 fail closed. The Test Unit dependency must succeed, and the workflow independently
 checks the latest Labs job's successful terminal status and exact manifest before
-comparison; an older Labs artifact cannot mask a newer failed job.
+comparison; an older Labs artifact cannot mask a newer failed job. GitHub may
+carry a successful job record into a later attempt without rerunning it. The
+guard matches the latest record's execution timestamps to the earliest matching
+attempt, and requires that original producer's manifest instead of expecting a
+new upload from a carried record.
 
 The validator also checks expected packages, invocations, runtimes, shards, test
 and source inventories, digests and successful test completion. Missing, stale
