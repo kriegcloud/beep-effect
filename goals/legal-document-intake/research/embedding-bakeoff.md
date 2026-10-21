@@ -26,8 +26,8 @@ Findings:
 
 | Area | Paths | Finding |
 | --- | --- | --- |
-| ONNX runtime precedent | `packages/drivers/face-detection/src/FaceDetection.service.ts`, `FaceDetection.models.ts`, `FaceDetection.errors.ts`, `packages/tooling/tool/cli/src/commands/Files/Files.service.ts` | `onnxruntime-node` is already used for the face-detection driver and examples reference local `.onnx` model paths. This is useful driver precedent, but it is image-specific and has no text tokenizer/embedding pipeline. |
-| Remote embeddings | `packages/drivers/venice-ai/src/VeniceAI.service.ts:1120` | VeniceAI exposes a remote `/embeddings` API path. This does not satisfy D10 because bulk privileged text would leave the machine. |
+| ONNX runtime precedent | `retired:face-detection/src/FaceDetection.service.ts`, `retired:face-detection/src/FaceDetection.models.ts`, `retired:face-detection/src/FaceDetection.errors.ts`, `packages/tooling/tool/cli/src/commands/Files/Files.service.ts` | `onnxruntime-node` is already used for the retired:face-detection driver and examples reference local `.onnx` model paths. This is useful driver precedent, but it is image-specific and has no text tokenizer/embedding pipeline. |
+| Remote embeddings | `retired:venice-ai/src/VeniceAI.service.ts:1120` | VeniceAI exposes a remote `/embeddings` API path. This does not satisfy D10 because bulk privileged text would leave the machine. |
 | Generic vector abstractions | `packages/foundation/modeling/nlp/src/Algebra/Monoid.ts`, `packages/foundation/modeling/nlp/src/Ontology/Kind.ts` | There are generic vector/embedding-adjacent types and algebra examples, but no retrieval index, model driver, tokenizer, or pgvector table wiring. |
 | pgvector | `packages/tooling/tool/cli/src/commands/VersionSync/internal/resolvers/DockerResolver.ts` | Only tooling knows how to resolve pgvector Docker tags. No package source currently implements pgvector schema, migrations, vector columns, indexes, or retrieval services. |
 

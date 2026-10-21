@@ -1530,7 +1530,7 @@ and hosted checks remain separate obligations.
 ### Location-free compiler diagnostics during RC checkpoint
 
 The post-merge repair build reported `TS2589` without a source location in
-`@beep/box`, `@beep/ui`, and `@beep/xai`; their sources are unchanged against
+`@beep/box`, `@beep/ui`, and `retired:xai`; their sources are unchanged against
 `origin/main`. The same repair later rebuilt box and xai successfully as
 dependencies, while the repository typecheck passed 244 tasks. Preserve the
 failed lane result until a fresh full proof passes. A source location and

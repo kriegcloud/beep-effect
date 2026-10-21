@@ -329,13 +329,13 @@
     {
       "id": "r35-drivers-s-z-venice-sse-done",
       "disposition": "outside-recall-net-single-Boolean-owner",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "sourceSha256": "0d3eb813bf472eaa0cc316fae5f4e9b687bb0c495d88461206e3c5415ea60bfa"
     },
     {
       "id": "r35-drivers-s-z-xai-sse-done",
       "disposition": "outside-recall-net-single-Boolean-owner",
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "sourceSha256": "90617588fcb7d9040262aab8861cf5ecbab5c4f6dc426b4f27992aea74c3ed79"
     },
     {

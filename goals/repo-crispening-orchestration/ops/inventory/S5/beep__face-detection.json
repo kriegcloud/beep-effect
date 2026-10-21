@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-precision-audit",
-    "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+    "file": "retired:face-detection/src/FaceDetection.models.ts",
     "line": 244,
     "symbol": "FaceDetectionModelConfig.modelPath / FaceDetectionImageRequest.imagePath",
     "smell": "Detector candidate: model and image paths are broad S.String fields.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-arbitrary-tests",
-    "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+    "file": "retired:face-detection/test/FaceDetection.service.test.ts",
     "line": 53,
     "symbol": "FaceDetection service fixture",
     "smell": "Detector candidate: the service test uses a hand-built fake detector, fake face, and exact result assertions.",

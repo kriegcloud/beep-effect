@@ -3899,7 +3899,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "file": "retired:face-detection/src/FaceDetection.models.ts",
       "helper": "withCodecStatics",
       "line": 43,
       "start": 1214,
@@ -3911,7 +3911,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "file": "retired:face-detection/src/FaceDetection.models.ts",
       "helper": "withCodecStatics",
       "line": 107,
       "start": 3335,
@@ -3923,7 +3923,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "file": "retired:face-detection/src/FaceDetection.models.ts",
       "helper": "withCodecStatics",
       "line": 157,
       "start": 4895,
@@ -3933,22 +3933,22 @@
       "jsonKeys": [],
       "propertyReads": [
         {
-          "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+          "file": "retired:face-detection/src/FaceDetection.service.ts",
           "start": 17508,
           "property": "decodeOption"
         },
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+          "file": "retired:face-detection/test/FaceDetection.service.test.ts",
           "start": 7623,
           "property": "fromUnknown"
         },
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+          "file": "retired:face-detection/test/FaceDetection.service.test.ts",
           "start": 7689,
           "property": "fromUnknown"
         },
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+          "file": "retired:face-detection/test/FaceDetection.service.test.ts",
           "start": 7756,
           "property": "fromUnknown"
         }
@@ -3956,7 +3956,7 @@
       "referenceCount": 4
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "file": "retired:face-detection/src/FaceDetection.models.ts",
       "helper": "withCodecStatics",
       "line": 219,
       "start": 6872,
@@ -3968,7 +3968,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "file": "retired:face-detection/src/FaceDetection.models.ts",
       "helper": "withCodecStatics",
       "line": 268,
       "start": 8371,
@@ -3980,7 +3980,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "file": "retired:face-detection/src/FaceDetection.models.ts",
       "helper": "withCodecStatics",
       "line": 317,
       "start": 9881,
@@ -4264,7 +4264,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/firecrawl/src/Firecrawl.config.ts",
+      "file": "retired:firecrawl/src/Firecrawl.config.ts",
       "helper": "withCodecStatics",
       "line": 56,
       "start": 1713,
@@ -4276,7 +4276,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/firecrawl/src/Firecrawl.models.ts",
+      "file": "retired:firecrawl/src/Firecrawl.models.ts",
       "helper": "withCodecStatics",
       "line": 4822,
       "start": 130217,
@@ -4286,7 +4286,7 @@
       "jsonKeys": [],
       "propertyReads": [
         {
-          "file": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
+          "file": "retired:firecrawl/test/Firecrawl.service.test.ts",
           "start": 8273,
           "property": "decodeOption"
         }
@@ -5145,7 +5145,7 @@
       "referenceCount": 1
     },
     {
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "helper": "withCodecStatics",
       "line": 294,
       "start": 7837,
@@ -5157,7 +5157,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "helper": "withCodecStatics",
       "line": 318,
       "start": 8420,
@@ -5169,7 +5169,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "helper": "withCodecStatics",
       "line": 609,
       "start": 18031,
@@ -5259,7 +5259,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/xai/src/XAi.config.ts",
+      "file": "retired:xai/src/XAi.config.ts",
       "helper": "withCodecStatics",
       "line": 60,
       "start": 1688,
@@ -5271,7 +5271,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/xai/src/XAi.config.ts",
+      "file": "retired:xai/src/XAi.config.ts",
       "helper": "withCodecStatics",
       "line": 95,
       "start": 2674,
@@ -5283,7 +5283,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "helper": "withCodecStatics",
       "line": 46,
       "start": 1380,
@@ -5295,7 +5295,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "helper": "withCodecStatics",
       "line": 85,
       "start": 2228,
@@ -5305,12 +5305,12 @@
       "jsonKeys": [],
       "propertyReads": [
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 23844,
           "property": "decodeOption"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 23963,
           "property": "decodeOption"
         }
@@ -5318,7 +5318,7 @@
       "referenceCount": 2
     },
     {
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "helper": "withCodecStatics",
       "line": 124,
       "start": 3067,
@@ -5330,7 +5330,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "helper": "withCodecStatics",
       "line": 341,
       "start": 8561,
@@ -5342,7 +5342,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "helper": "withCodecStatics",
       "line": 513,
       "start": 13152,
@@ -5354,7 +5354,7 @@
       "referenceCount": 0
     },
     {
-      "file": "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+      "file": "retired:xai/src/XAiLanguageModel.service.ts",
       "helper": "withCodecStatics",
       "line": 57,
       "start": 1768,
@@ -8672,7 +8672,7 @@
           "property": "encodeUnknownSyncFromJsonString"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 19397,
           "property": "decodeUnknownOptionFromJsonString"
         },
@@ -9498,7 +9498,7 @@
           "property": "encodeUnknownSyncFromJsonString"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 19397,
           "property": "decodeUnknownOptionFromJsonString"
         },
@@ -10330,7 +10330,7 @@
           "property": "encodeUnknownSyncFromJsonString"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 19397,
           "property": "decodeUnknownOptionFromJsonString"
         },
@@ -11156,7 +11156,7 @@
           "property": "encodeUnknownSyncFromJsonString"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 19397,
           "property": "decodeUnknownOptionFromJsonString"
         },
@@ -11982,7 +11982,7 @@
           "property": "encodeUnknownSyncFromJsonString"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 19397,
           "property": "decodeUnknownOptionFromJsonString"
         },
@@ -12808,7 +12808,7 @@
           "property": "encodeUnknownSyncFromJsonString"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.service.ts",
+          "file": "retired:xai/src/XAi.service.ts",
           "start": 19397,
           "property": "decodeUnknownOptionFromJsonString"
         },
@@ -13551,7 +13551,7 @@
           "property": "is"
         },
         {
-          "file": "packages/drivers/xai/src/XAi.config.ts",
+          "file": "retired:xai/src/XAi.config.ts",
           "start": 579,
           "property": "is"
         },

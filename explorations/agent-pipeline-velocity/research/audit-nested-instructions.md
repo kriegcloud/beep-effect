@@ -33,10 +33,10 @@ agents/server (keep **scanChunk byte-stability law** — property-test-proven);
 shared/domain (keep Add-Here/Keep-Out + purity laws; cut 13-row file map to
 barrel level); shared/tables; drivers/acp, drizzle (keep EntityTable
 projection), postgres (**fix stale pglite paragraph**), pglite (keep tag-shim
-explanation), firecrawl (keep cost-gating + watcher-cleanup laws), openai-compat
+explanation), retired:firecrawl (keep cost-gating + watcher-cleanup laws), openai-compat
 (move 25-line recipe to docgen @example), nlp-mcp (keep toolkit-composition
-ownership), m365-mcp (keep read-only + redaction laws), uspto-mcp, venice-ai,
-wink (keep AiToolError/span laws), xai (fix vacuous purpose), runpod (keep
+ownership), m365-mcp (keep read-only + redaction laws), uspto-mcp, retired:venice-ai,
+wink (keep AiToolError/span laws), retired:xai (fix vacuous purpose), runpod (keep
 no-infra-policy boundary); epistemic/tables, workspace/tables (keep proof
 lineage); foundation/modeling/html, pandoc-ast; tooling/library/ai-sync (keep
 evidence-discipline laws + generate/drift commands).
@@ -59,7 +59,7 @@ tooling/policy-pack/repo-configs; tooling/test-kit/test-utils;
 workspace/{server,use-cases} (**both have CONFIRMED WRONG descriptions** —
 claim "Architecture-lab WorkItem" but host the Thread aggregate).
 Plus 8 byte-identical CLAUDE.md copies → replace with symlinks
-(firecrawl, epistemic/tables, chalk, repo-configs, test-utils,
+(retired:firecrawl, epistemic/tables, chalk, repo-configs, test-utils,
 workspace/server, workspace/use-cases, **postgres — already drifted from its
 twin, proving copies rot**), 1 `@AGENTS.md` import shim (shared/CLAUDE.md),
 1 vacuous pair counted above.

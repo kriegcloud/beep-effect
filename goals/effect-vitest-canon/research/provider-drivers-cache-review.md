@@ -9,8 +9,8 @@ Only the following dependency lists change in the reviewed cache projection:
 - @beep/anthropic: audit, build, check, coverage, lint:deprecated-apis, package-test-typecheck, test, test:property.
 - @beep/openai: audit, build, check, coverage, lint:deprecated-apis, package-test-typecheck, test, test:integration.
 - @beep/openai-compat: audit, build, check, coverage, lint:deprecated-apis, package-test-typecheck, test, test:integration, test:property.
-- @beep/venice-ai: audit, build, check, coverage, lint:deprecated-apis, package-test-typecheck, test, test:integration, test:integration:parallel, test:property.
-- @beep/xai: audit, build, check, coverage, lint:deprecated-apis, package-test-typecheck, test, test:integration, test:property.
+- retired:venice-ai: audit, build, check, coverage, lint:deprecated-apis, package-test-typecheck, test, test:integration, test:integration:parallel, test:property.
+- retired:xai: audit, build, check, coverage, lint:deprecated-apis, package-test-typecheck, test, test:integration, test:property.
 
 Preserve every computation identity, command, command digest, configuration,
 profile, epoch, scope, source record, and unrelated node from main at

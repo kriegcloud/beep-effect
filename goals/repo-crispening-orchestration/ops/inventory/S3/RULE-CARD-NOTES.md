@@ -108,9 +108,9 @@ Fixture/refinement candidate: add a negative fixture for `R.getSomes({ data: O.f
 - Detector heuristic: flag `R.getSomes({...})` from `effect/Record` when the call participates in fixed known-key Option struct assembly that should preserve per-key value types through `O.getSomesStruct({...})`. The repo-local helper is verified at `packages/foundation/modeling/utils/src/Option.ts:102`; Effect v4 `R.getSomes` is the homogeneous record helper at `.repos/effect-v4/packages/effect/src/Record.ts:824`.
 - D5 ordering: keep this card non-blocking via the per-owner policy. Do not run the remediation sweep until effect-first Law 20 and Law 47, plus mirrors, prefer `O.getSomesStruct` for heterogeneous struct-spreads while preserving `R.getSomes` for homogeneous dictionaries. Every `SFV4-getsomes-struct` finding in this batch is held at `mechanization: "judgment"`.
 - Positive finding from this batch: `packages/drivers/runpod/src/Runpod.service.ts:580` and `:583` are adjacent single-key `R.getSomes` spreads that together form one heterogeneous diagnostics struct (`cause` string plus `status` number). The detector should either flag adjacent spreads in one object literal as one finding or prompt the remediation agent to coalesce them into one `O.getSomesStruct` call.
-- False-positive escape hatches from this batch: `packages/drivers/firecrawl/src/Firecrawl.errors.ts:302` and `packages/drivers/runpod/src/RunpodDocs.service.ts:147` are single-key optional payload spreads. They are not homogeneous dynamic dictionaries, but they are also not heterogeneous structs; inventory them as exceptions, not actionable `SFV4-getsomes-struct` findings.
-- Already-good target usage seen in this batch: `@beep/firecrawl` uses `OptionUtils.getSomesStruct` for diagnostics and watcher events at `packages/drivers/firecrawl/src/Firecrawl.service.ts:297,394,410,474,816`; `@beep/runpod` uses `O.getSomesStruct` in its error constructors at `packages/drivers/runpod/src/Runpod.errors.ts:151,167,183,226`.
-- No legitimate homogeneous dynamic-key `R.getSomes` dictionary use was found in `@beep/firecrawl`, `@beep/runpod`, or `@beep/wink`.
+- False-positive escape hatches from this batch: `retired:firecrawl/src/Firecrawl.errors.ts:302` and `packages/drivers/runpod/src/RunpodDocs.service.ts:147` are single-key optional payload spreads. They are not homogeneous dynamic dictionaries, but they are also not heterogeneous structs; inventory them as exceptions, not actionable `SFV4-getsomes-struct` findings.
+- Already-good target usage seen in this batch: `retired:firecrawl` uses `OptionUtils.getSomesStruct` for diagnostics and watcher events at `retired:firecrawl/src/Firecrawl.service.ts:297,394,410,474,816`; `@beep/runpod` uses `O.getSomesStruct` in its error constructors at `packages/drivers/runpod/src/Runpod.errors.ts:151,167,183,226`.
+- No legitimate homogeneous dynamic-key `R.getSomes` dictionary use was found in `retired:firecrawl`, `@beep/runpod`, or `@beep/wink`.
 
 ---
 
@@ -122,7 +122,7 @@ Fixture/refinement candidate: add a negative fixture for `R.getSomes({ data: O.f
 - Detector heuristic: flag `R.getSomes({...})` from `effect/Record` only when the inline object literal is a fixed, heterogeneous Option struct whose per-key value types should be preserved by `O.getSomesStruct({...})`. The repo-local helper is verified at `packages/foundation/modeling/utils/src/Option.ts:102`; Effect v4 `Record.getSomes` is verified as the homogeneous record helper at `.repos/effect-v4/packages/effect/src/Record.ts:824`.
 - D5 ordering: keep this card non-blocking via the per-owner policy. Do not run or activate the remediation sweep until effect-first Law 20 and Law 47, plus mirrors, prefer `O.getSomesStruct` for heterogeneous struct-spreads while preserving `R.getSomes` for homogeneous dictionaries. No positive `SFV4-getsomes-struct` findings were recorded in this batch.
 - False-positive escape hatches from `@beep/box`: `packages/drivers/box/src/Box.service.ts:93` is a homogeneous optional string pair (`enterpriseId`/`userId`); `packages/drivers/box/src/Box.errors.ts:177` and `:218` split string-ish groups from singleton `context` and `status` calls. Inventory these as exceptions, not actionable heterogeneous-struct findings.
-- False-positive escape hatches from `@beep/xai`: `packages/drivers/xai/src/XAi.service.ts:238`/`:408` and `packages/drivers/xai/src/XAi.errors.ts:124`/`:150` are singleton optional payload compactions. They are not heterogeneous structs. `packages/drivers/xai/src/XAiLanguageModel.service.ts:191` is already-good `O.getSomesStruct` usage.
+- False-positive escape hatches from `retired:xai`: `retired:xai/src/XAi.service.ts:238`/`:408` and `retired:xai/src/XAi.errors.ts:124`/`:150` are singleton optional payload compactions. They are not heterogeneous structs. `retired:xai/src/XAiLanguageModel.service.ts:191` is already-good `O.getSomesStruct` usage.
 - False-positive escape hatches from `@beep/nlp-mcp`: `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:348`, `:389`, and `:405`, plus `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:475`, are homogeneous optional boolean option objects; `DatasetLoader.ts:576` is a singleton optional `sizeBytes` spread. These should remain non-actionable for this card.
 - Detector refinement: require either mixed value domains in the same `R.getSomes({...})` object or evidence that adjacent single-key spreads participate in one heterogeneous constructor payload. Do not treat `A.getSomes` array Option compaction as part of this card.
 
@@ -131,7 +131,7 @@ Fixture/refinement candidate: add a negative fixture for `R.getSomes({ data: O.f
 <!-- batch DD -->
 # S3 Rule-Card Notes - Batch DD
 
-Packages scanned: `@beep/postgres`, `@beep/m365`, `@beep/openai-compat`, `@beep/govinfo`, `@beep/venice-ai`.
+Packages scanned: `@beep/postgres`, `@beep/m365`, `@beep/openai-compat`, `@beep/govinfo`, `retired:venice-ai`.
 
 ## SFV4-getsomes-struct
 
@@ -139,7 +139,7 @@ Packages scanned: `@beep/postgres`, `@beep/m365`, `@beep/openai-compat`, `@beep/
 - D5 ordering: keep this card non-blocking via the per-owner policy until effect-first Laws 20 and 47 and mirrors are amended. Do not activate a blocking `R.getSomes` -> `O.getSomesStruct` sweep before that amendment lands; every discovery finding for this card stays `mechanization: "judgment"` until then.
 - Positive finding from this batch: `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:599` passes one fixed object literal containing optional numbers, booleans, response-format objects, stream flags, tool choice, tool arrays, and nullable sampling fields to `R.getSomes`; this is a good fixture for `SFV4-getsomes-struct`.
 - Escape hatches from `@beep/openai-compat`: `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:441` is a singleton `tool_calls` optional spread and should remain non-actionable.
-- Escape hatches from `@beep/venice-ai`: `packages/drivers/venice-ai/src/VeniceAI.service.ts:594`, `:597`, `:620`, `:1336`, `:1339`, and `:1488` are singleton optional spreads or deliberately split single-field calls. They are not heterogeneous structs.
+- Escape hatches from `retired:venice-ai`: `retired:venice-ai/src/VeniceAI.service.ts:594`, `:597`, `:620`, `:1336`, `:1339`, and `:1488` are singleton optional spreads or deliberately split single-field calls. They are not heterogeneous structs.
 - Positive non-findings: `@beep/m365` already uses `getSomesStruct` for mixed optional config/request assembly at `packages/drivers/m365/src/M365.service.ts:991` and for MSAL cache options at `packages/drivers/m365/src/M365.auth.ts:344`; `@beep/govinfo` already uses `O.getSomesStruct` in `packages/drivers/govinfo/src/Govinfo.errors.ts:117` and `:132`.
 - Refinement note: do not flag `A.getSomes` array compaction, singleton `R.getSomes` calls, or split adjacent one-key calls unless the detector can prove they are one fixed heterogeneous constructor payload.
 
@@ -148,7 +148,7 @@ Packages scanned: `@beep/postgres`, `@beep/m365`, `@beep/openai-compat`, `@beep/
 <!-- batch DE -->
 # S3 Rule-Card Notes - Batch DE
 
-Packages scanned: `@beep/ffmpeg`, `@beep/phoenix`, `@beep/face-detection`, `@beep/drizzle`, `@beep/duckdb`, `@beep/hubspot`.
+Packages scanned: `@beep/ffmpeg`, `@beep/phoenix`, `retired:face-detection`, `@beep/drizzle`, `@beep/duckdb`, `@beep/hubspot`.
 
 ## SFV4-getsomes-struct
 
@@ -156,7 +156,7 @@ Packages scanned: `@beep/ffmpeg`, `@beep/phoenix`, `@beep/face-detection`, `@bee
 - D5 ordering: keep this card non-blocking via the per-owner policy until effect-first Laws 20 and 47 and mirrors are amended. Do not activate a blocking `R.getSomes` -> `O.getSomesStruct` sweep before that amendment lands; every discovery finding for this card stays `mechanization: "judgment"` until then.
 - Positive finding from this batch: `packages/drivers/ffmpeg/src/FFmpeg.service.ts:262` is not an `R.getSomes` call, but it is a manual sibling shape worth a future fixture if the card grows beyond the core detector: `maybe(key, value)` hides fixed optional constructor payload spreads at `:299-303` and heterogeneous `outTimeSeconds`/`speed` spreads at `:445-446`.
 - Escape hatch from `@beep/phoenix`: `packages/drivers/phoenix/src/Phoenix.errors.ts:169` is a singleton optional `cause` spread via `R.getSomes({ cause: ... })`; it is not a heterogeneous struct and was inventoried as a false-positive exception.
-- Positive non-findings: `@beep/face-detection` already uses `O.getSomesStruct` for the optional `imagePath` payload at `packages/drivers/face-detection/src/FaceDetection.service.ts:288`; `@beep/drizzle` uses it for mixed `query`/`params` context at `packages/drivers/drizzle/src/Drizzle.errors.ts:56`; `@beep/duckdb` uses it for mixed connection/error context at `packages/drivers/duckdb/src/DuckDb.service.ts:180` and `packages/drivers/duckdb/src/DuckDb.errors.ts:141`; `@beep/hubspot` uses it for config and error option structs at `packages/drivers/hubspot/src/HubSpot.service.ts:533` and `packages/drivers/hubspot/src/HubSpot.errors.ts:111`.
+- Positive non-findings: `retired:face-detection` already uses `O.getSomesStruct` for the optional `imagePath` payload at `retired:face-detection/src/FaceDetection.service.ts:288`; `@beep/drizzle` uses it for mixed `query`/`params` context at `packages/drivers/drizzle/src/Drizzle.errors.ts:56`; `@beep/duckdb` uses it for mixed connection/error context at `packages/drivers/duckdb/src/DuckDb.service.ts:180` and `packages/drivers/duckdb/src/DuckDb.errors.ts:141`; `@beep/hubspot` uses it for config and error option structs at `packages/drivers/hubspot/src/HubSpot.service.ts:533` and `packages/drivers/hubspot/src/HubSpot.errors.ts:111`.
 - No legitimate homogeneous dynamic-key `R.getSomes` dictionary use was found in this batch. Refinement note: keep singleton `R.getSomes` calls non-actionable, and do not flag packages already using `O.getSomesStruct` unless a separate law explicitly asks for style-only cleanup.
 
 ---

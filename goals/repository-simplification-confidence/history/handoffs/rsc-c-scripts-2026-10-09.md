@@ -10,7 +10,7 @@ Refs provisioning, Cache remote-read configuration, Knowledge exact-count rewrit
 Worktree merge-driver setup and Accounts secret-layout administration now belong
 to existing Effect command families. Dead/superseded root entry points are removed
 and operational callers retargeted. ONNX dispatch uses the existing seven-case
-face-detection installer suite before OSV. Retained apt/compiler adapters have
+retired:face-detection installer suite before OSV. Retained apt/compiler adapters have
 synthetic fixtures. Graft old patches retire and its two Node tests relocate.
 Systemd sources adopt the current installed budget without installing/reloading.
 
@@ -63,7 +63,7 @@ No qualification was granted. No lockfile or compiler patch changed.
   Cache/Knowledge failures in that run were introduced use of an unavailable
   Effect helper, since fixed. The new follow-up tests must settle before a pass
   is claimed: Cache 7, Knowledge 4, Accounts 2 cases.
-- Owning ONNX suite: 7 tests passed. No edits to the face-detection package were
+- Owning ONNX suite: 7 tests passed. No edits to the retired:face-detection package were
   needed because its existing suite is the superset; A still owns patch reversal.
 - `bash -n` retained cloud/apt/merge/Graft adapters and `node --check` compiler /
   changelog adapters passed. `systemd-analyze --user verify` source passed with

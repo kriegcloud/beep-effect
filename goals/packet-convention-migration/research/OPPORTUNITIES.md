@@ -539,13 +539,13 @@
 ## 2026-08-30 — Green repo-cli suite prints unscoped failure-shaped fixture output
 
 - **What happened:** the full package-scoped repo-cli test run printed repeated
-  `TS2589` failures for `@beep/xai` and `@beep/ui` plus `Failed:` task lines,
+  `TS2589` failures for `retired:xai` and `@beep/ui` plus `Failed:` task lines,
   which looked like a live dependency regression while the suite continued for
   several minutes. Those messages were fixture output: the terminal result was
   143 passing files and 2,694 passing tests.
 - **Evidence:** `bunx turbo run test --filter=@beep/test-utils
   --filter=@beep/repo-ai-metrics --filter=@beep/repo-cli` emitted
-  `@beep/xai#build` and `@beep/ui#build` failure-shaped lines mid-run, then
+  `retired:xai#build` and `@beep/ui#build` failure-shaped lines mid-run, then
   completed `3 successful, 3 total` after 4 minutes 32 seconds.
 - **What would have prevented it:** capture expected nested-command stderr in
   the owning fixture, or prefix replayed failure samples with the test name and
@@ -868,7 +868,7 @@
   evidence; the paired package check and focused Docgen regression test were
   green.
 - **Evidence:** `bunx turbo run test --filter=@beep/repo-cli
-  --filter=@beep/test-utils` printed simulated `@beep/xai:build` and
+  --filter=@beep/test-utils` printed simulated `retired:xai:build` and
   `@beep/ui:build` TS2589 failures, then continued into temporary Git worktrees
   and hosted-check fixtures for more than four minutes; the scoped check
   completed 34/34 tasks, the focused regression test passed, and

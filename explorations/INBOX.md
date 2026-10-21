@@ -41,8 +41,8 @@ existing packet's `CAPTURE.md`, or is struck through with a word of why.
   root tasks) and passes hosted. (2) The `@beep/agents-client`
   `test/run-turn-reconciliation.test.ts` idle-sweep case is a real-clock timing
   flake (1 ms idle timeout against a 20 ms sleep). (3) Local `turbo check` hits
-  a location-less TS2589 on `@beep/box`, `@beep/ui` or `@beep/xai` `#build` at
-  random. (4) `apps/storybook` fails package-test-typecheck on main ("no
+  a location-less TS2589 on `@beep/box` or `@beep/ui` `#build` at random.
+  (4) `apps/storybook` fails package-test-typecheck on main ("no
   package-owned test files"). (5) The generated schema catalog and other
   tracked inventories drift between lane merges: the catalog was about 1,087
   entries stale before P5 regenerated it, and six more entries (repo-cli

@@ -45,7 +45,7 @@
       "lines": [21]
     },
     {
-      "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "file": "retired:face-detection/test/FaceDetection.service.test.ts",
       "count": 1,
       "lines": [31]
     },

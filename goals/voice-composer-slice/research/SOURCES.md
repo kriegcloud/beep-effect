@@ -50,7 +50,6 @@ Direct ONNX Runtime claims or reuse remain **NEEDS-REVERIFICATION** before P1.
 | Composer | `apps/professional-desktop/src/chat/ui/Composer.tsx`; `packages/foundation/ui-system/editor/src/chat/chat-composer.tsx` | Controls and transcript insertion seam. |
 | Cancellation | `packages/agents/client/src/Chat.atoms.ts` | Reactivity/`AtomRegistry` lifecycle precedent. |
 | Audio event release | `packages/drivers/box/src/Box.streaming.ts` | Scoped event/stream cleanup precedent. |
-| Existing voice drivers | `packages/drivers/xai`; `packages/drivers/venice-ai` | Follow-on evidence only; not slice dependencies. |
 | Browser worker/RPC | `.repos/effect-v4/packages/platform-browser`; `.repos/effect-v4/packages/effect/src/rpc` | Re-verify APIs; Effect remains outside AudioWorklet. |
 
 ## 4. Cross-links

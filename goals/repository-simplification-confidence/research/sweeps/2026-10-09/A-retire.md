@@ -244,7 +244,7 @@ MIT, notion v0.1.5). `plugins/github/.mcp.json` points at a hosted GitHub MCP wi
 | `.claude/settings.json:100` (`"serena"` in `disabledMcpjsonServers`) | remove together with the `.mcp.json` entry | |
 | `.claude/settings.json:300` (`"serena@claude-plugins-official": false`) | decision (workstream F) | A Claude plugin toggle, separate from the repo `.serena/`. `~/.claude.json` lists `plugin:serena:serena`. |
 | `goals/cloud-agent-readiness/SPEC.md:89`, `goals/cloud-agent-readiness/research/2026-10-01-container-probe.md:24`, `goals/shared-memory-code-kg-wiring/**`, `goals/knowledge-surface-automation/research/p1-context-pruning-analysis.md:108`, `explorations/effect-mcp-2026-07-28/research/21-r2-hosts.md:213` | keep-as-history | |
-| `explorations/atlas-synthesis/...:485`, venice-ai swagger voices "Serena" | not Serena-the-tool | |
+| `explorations/atlas-synthesis/...:485`, retired:venice-ai swagger voices "Serena" | not Serena-the-tool | |
 | Workstation: `~/.codex/config.toml:1511` (a `[projects.…]` trust entry for an out-of-tree Serena checkout) | out of repo; report to F | |
 
 ## 7. Repository Impeccable (remove completely)

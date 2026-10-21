@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/xai/src/XAi.service.ts",
+    "file": "retired:xai/src/XAi.service.ts",
     "line": 535,
     "symbol": "decodeJsonOption",
     "smell": "Detector hit: top-level `S.decodeUnknownOption(S.UnknownFromJsonString)` helper parses WebSocket text payloads outside a named schema const.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/xai/src/XAi.service.ts",
+    "file": "retired:xai/src/XAi.service.ts",
     "line": 99,
     "symbol": "XAiEndpointMethod",
     "smell": "Detector hit: exported function type models endpoint behavior away from schema-modeled data.",
@@ -31,7 +31,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/xai/src/XAi.service.ts",
+    "file": "retired:xai/src/XAi.service.ts",
     "line": 133,
     "symbol": "XAiWebSocketSession",
     "smell": "Detector hit: exported interface groups WebSocket session behavior (`close`, `sendBytes`, `sendJson`, `sendText`) apart from schema-modeled data.",
@@ -46,7 +46,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/xai/src/XAi.service.ts",
+    "file": "retired:xai/src/XAi.service.ts",
     "line": 193,
     "symbol": "XAiShape",
     "smell": "Detector hit: public service-shape type exposes every endpoint method away from schema-modeled data.",
@@ -61,7 +61,7 @@
   },
   {
     "ruleId": "SFV4-static-api",
-    "file": "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+    "file": "retired:xai/src/XAiLanguageModel.service.ts",
     "line": 237,
     "symbol": "model",
     "smell": "Detector hit: exported two-argument helper is not `dual`.",

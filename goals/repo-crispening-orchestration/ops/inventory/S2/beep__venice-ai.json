@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+    "file": "retired:venice-ai/src/VeniceAI.service.ts",
     "line": 1406,
     "symbol": "addRequestHeaders",
     "smell": "`HttpClientRequest.accept(options.accept ?? defaultAcceptHeader(descriptor))` is a nullish default over a request option.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-normalization",
-    "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+    "file": "retired:venice-ai/src/VeniceAI.service.ts",
     "line": 1503,
     "symbol": "contentMediaType",
     "smell": "`contentMediaType` splits an HTTP Content-Type header, defaults a missing first segment to `\"\"`, then trims/lowercases it.",
@@ -31,7 +31,7 @@
   },
   {
     "ruleId": "SFV4-normalization",
-    "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+    "file": "retired:venice-ai/src/VeniceAI.service.ts",
     "line": 1600,
     "symbol": "dataLine",
     "smell": "`dataLine` trims `data:` payload lines and `sseBlockData` trims joined SSE blocks before empty checks.",
@@ -46,7 +46,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts",
+    "file": "retired:venice-ai/src/VeniceAiLanguageModel.service.ts",
     "line": 73,
     "symbol": "networkTransportError",
     "smell": "`hash: undefined`, `method: error.method ?? \"POST\"`, and `url: error.path ?? \"/\"` build fallback request metadata for Effect AI network errors.",
@@ -61,7 +61,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+    "file": "retired:venice-ai/src/VeniceAI.service.ts",
     "line": 702,
     "symbol": "ChatCompletionMessageResponse.content",
     "smell": "`content: S.NullOr(S.String)` preserves nullable chat message content and `extractChatText` converts it through `O.fromNullishOr` at line 1747.",

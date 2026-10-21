@@ -220,7 +220,7 @@ Total: 660.
 
 | Kind | Count | Largest areas |
 | --- | --- | --- |
-| `fallow-ignore` | 240 | tooling CLI 66, effect-drizzle 11, ui 10, venice-ai 10, labs 9, `vitest.setup.ts` 8 |
+| `fallow-ignore` | 240 | tooling CLI 66, effect-drizzle 11, ui 10, retired:venice-ai 10, labs 9, `vitest.setup.ts` 8 |
 | `@effect-diagnostics` | 131 | scratchpad tests 119, `vitest.setup.ts` 6, tooling CLI 3 |
 | `@ts-expect-error` | 121 | effect-drizzle 72, scratchpad tests 27, html 5, identity 4 |
 | `biome-ignore` | 57 | scratchpad tests 15, scratchpad effected 11, tooling CLI 10, one goal packet 6 |

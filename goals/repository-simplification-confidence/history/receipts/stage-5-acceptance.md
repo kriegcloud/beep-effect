@@ -257,7 +257,7 @@ git history and the eventual PR revert.
 | `scripts/setup-regenerate-merge-driver.sh` | Worktree `prepare` and `new` | Repeated setup fixture passed; doctor prints remediation; codegen caller updated; no live caller matches. |
 | `scripts/systemd/agent-runs.slice` | Retained source of record | Adopted existing effective 48G high / 60G max / 8G swap budget. Source verify passed with inherited CPUAccounting obsolete-setting warning. No installed-unit change. |
 | `scripts/systemd/agent-runs.slice.d/50-oomd.conf` | Retained declarative drop-in | Adopts existing effective 50% pressure threshold; operator installation/re-sync is a separate follow-up. |
-| `scripts/test-onnxruntime-installer-patch.mjs` | Existing face-detection installer suite | Seven-case owning suite passed. Workflow and Quality dispatch point to it before OSV; dispatch fixtures passed. A owns fail-unpatched/pass-patched receipt, E reviews workflow hunk. |
+| `scripts/test-onnxruntime-installer-patch.mjs` | Existing retired:face-detection installer suite | Seven-case owning suite passed. Workflow and Quality dispatch point to it before OSV; dispatch fixtures passed. A owns fail-unpatched/pass-patched receipt, E reviews workflow hunk. |
 | `scripts/yeet-inbox-grok-tail.sh` | Deleted dead adapter | Caller census has no matches; active `.claude/hooks/yeet-inbox.sh` grok branch remains authoritative. |
 | `scripts/graft/` | Retained workstation bootstrap/patch adapter | Old patch versions 0.16/0.18/0.19 removed, current 0.21.1 retained. Two Node suites relocated under CLI test fixtures and run explicitly, with fake transports; queued. No model call or fresh installation ran. |
 
@@ -308,7 +308,7 @@ have no pre-existing baseline floor. Exact affected floors are in the handoff.
 C owns its command-family ports, fixture tests, caller rewiring and historical
 cloud packet annotations. Shared root command/cache baseline/AGENTS/workflow
 hunks require serialized orchestration. No lockfile or compiler patch changed.
-The face-detection source/test already held the seven-case superset, so C changed
+The retired:face-detection source/test already held the seven-case superset, so C changed
 its callers and removed the duplicate root suite without editing that package.
 A remains the sole surviving-capabilities register writer. E must review the
 ONNX workflow hunk and co-sign the final Ci ordering decision. R24's cloud packet
@@ -415,7 +415,7 @@ local results. Both C-owned heavy commands have ended.
 
 Resume ruling 4 transfers the unused root ONNX devDependency removal to C.
 Only the root `catalog:` devDependency and matching root lockfile row are
-removed; catalog range, override, installer patch and face-detection consumer
+removed; catalog range, override, installer patch and retired:face-detection consumer
 remain. Install exits 0; reused installed ONNX 1.30.0 has all four patch markers.
 Bun emits no fresh patch-applied line, so that output is not claimed.
 Run 4's six-row terminal qualification remains the verification of record.

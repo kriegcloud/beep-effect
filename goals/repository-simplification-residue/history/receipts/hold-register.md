@@ -15,6 +15,12 @@ the Biome hold's recorded failure was replaced with the current one. No standard
 inventory row was added (S31). The two OSV rows changed in place, and the
 Fallow `ignoreDependencyOverrides`/`ignoreDependencies` lists shrank by 18 rows.
 
+Update 2026-10-21: removing the `retired:firecrawl` and `retired:face-detection`
+driver packages met three exits recorded below. The `axios` override leaves
+with firecrawl. The `onnxruntime-node@1.30.0` override and patch leave
+together, with face-detection, in the same PR. Nine overrides and four
+patches stay retained.
+
 ## Census commands
 
 The lane hook denies shell globs and `$` expansion (D21), so the census ran as
@@ -93,15 +99,15 @@ js-yaml 3), `@beep/doc-text` (docx nanoid 6), `@beep/infra` (Pulumi js-yaml 4),
 | --- | --- | --- | --- | --- | --- |
 | `@effect/platform-node-shared` `catalog:` | 4.0.4 / 4.0.5 | 9 workspaces; `@effect/platform-bun` and `@effect/platform-node` declare `^4.0.4` | Those ranges would install an unpatched 4.0.5 next to the 4.0.4 copy that `patches/@effect%2Fplatform-node-shared@4.0.4.patch` fixes | #1853 with the Effect ecosystem owner | Effect upgrade with the patch retired or re-keyed (#1853) |
 | `@opentelemetry/exporter-trace-otlp-proto` `catalog:` | 0.223.0 / 0.223.0 | `@beep/observability`, `@beep/repo-ai-metrics`; `@arizeai/phoenix-otel` 2.2.0 (via `@arizeai/phoenix-client`) declares `^0.220.0` | Trial removal adds a second OTel exporter/SDK tree (0.220.0 / 2.9.0) under phoenix-otel | `@beep/observability` | phoenix-otel accepts `^0.223` or later |
-| `axios` 1.20.0 | 1.20.0 / 1.20.0 | `@beep/firecrawl` (`firecrawl@4.37.0` pins exact 1.18.0) | 1.18.0 carries 12 GHSAs (GHSA-3pq3-5fj3-cg6v, GHSA-44g4-m2mj-wpvx, ...; full list in `census.json`) | `@beep/firecrawl` | firecrawl's axios range resolves a fixed version, or firecrawl is removed |
+| `axios` 1.20.0 | 1.20.0 / 1.20.0 | none since 2026-10-21; was `retired:firecrawl` (`firecrawl@4.37.0` pins exact 1.18.0) | 1.18.0 carries 12 GHSAs (GHSA-3pq3-5fj3-cg6v, GHSA-44g4-m2mj-wpvx, ...; full list in `census.json`) | — | **Exit met 2026-10-21:** firecrawl left the tree with `retired:firecrawl`; the override is removed in the same PR |
 | `basic-ftp` 6.2.1 | 6.2.1 / 6.2.3 | `@beep/box` (box-node-sdk → proxy-agent → pac-proxy-agent → `get-uri@6.0.5` `^5.0.2`) | 5.3.1: GHSA-c475-qrg2-pj4r | `@beep/box` | get-uri accepts 6.2.1+, or the path is removed |
 | `detailed-xml-validator` 2.1.0 | 2.1.0 / 2.2.0 | `@beep/schema`, `@beep/repo-cli` via `fast-xml-validator` 1.2.0 (`^2.1.0`) | 2.2.0 pulls `@nodable/flexible-xml-parser`. At 1.11.3 its module scope still runs `new EncodingRegistry()`, which calls `Buffer.from`, breaking every browser bundle | `@beep/schema` | flexible-xml-parser stops touching `Buffer` at module scope (then remove with the `fast-xml-validator` catalog hold) |
 | `katex` `^0.18.2` | 0.18.11 / 0.19.0 | `@beep/editor` (`mermaid@12.1.0` `^0.16.47`) | 0.16.47: GHSA-238p-pmpm-9mq7 | `@beep/editor` | mermaid's katex range reaches a fixed version |
 | `next` `catalog:` | 16.5.0-canary.3 / 16.4.2 | `@beep/oip-web`, `@beep/todox`, `@beep/ui`, `@beep/repo-configs`; peers `@serwist/next`, `@vercel/analytics`, `@vercel/speed-insights` | Began as the GHSA-vcvr-r3jv-pc5j floor (#1359). A canary prerelease does not satisfy plain `>=13`/`>=14` peer ranges, so a fresh resolve could add a second stable next. Removal left this lock unchanged only because of lockfile retention, so it is kept. | `@beep/repo-configs` | the catalog returns to a stable next |
-| `onnxruntime-node@1.30.0` → `adm-zip: npm:fflate@0.8.3` | — | `@beep/face-detection` | GHSA-vwc7-r8mq-g2x9 (`patches/onnxruntime-node@1.30.0.md`) | #1853 / `@beep/face-detection` | per that record. Never remove it separately from the patch. |
+| `onnxruntime-node@1.30.0` → `adm-zip: npm:fflate@0.8.3` | — | none since 2026-10-21; was `retired:face-detection` | GHSA-vwc7-r8mq-g2x9 (`patches/onnxruntime-node@1.30.0.md`) | #1853 | **Exit met 2026-10-21:** removed together with the patch below and its record when `retired:face-detection`, the only consumer, left the tree |
 | `postcss-selector-parser` `^7.1.6` | 7.1.6 / 7.1.6 | `@beep/ui` (`@tailwindcss/typography@0.5.20` pins 6.0.10) | 6.0.10: GHSA-rj75-hqrm-r3gf | `@beep/ui` | typography depends on 7.1.6+ |
 | `protobufjs` `^7.6.6` | 7.6.6 / 8.8.1 | `@beep/scratchpad` (`@xenova/transformers` → onnxruntime-node 1.14 → `onnx-proto@4.0.4` `^6.8.8`) | 6.11.6: 11 GHSAs (GHSA-2pr8-phx7-x9h3, ...) | scratchpad effect-ontology | effect-ontology/`@xenova/transformers` retirement, or onnx-proto moves to 7.x |
-| `sharp` `catalog:` | 0.35.5 / 0.35.5 | `@beep/face-detection`, `@beep/repo-cli`; `@xenova/transformers` `^0.32.0` | 0.32.6: GHSA-f88m-g3jw-g9cj, GHSA-rgj7-g3m4-5g8c, GHSA-wq5f-xc86-pv6w | scratchpad effect-ontology | `@xenova/transformers` path removed |
+| `sharp` `catalog:` | 0.35.5 / 0.35.5 | `@beep/repo-cli`; `@xenova/transformers` `^0.32.0` | 0.32.6: GHSA-f88m-g3jw-g9cj, GHSA-rgj7-g3m4-5g8c, GHSA-wq5f-xc86-pv6w | scratchpad effect-ontology | `@xenova/transformers` path removed |
 
 ## Patches (retained; proofs owned by #1853)
 
@@ -114,7 +120,7 @@ fail-unpatched/pass-patched proofs and their retirement.
 | `@effect/platform-node-shared@4.0.4` | 4.0.4 / 4.0.5 | offset `Uint8Array` views write extra bytes under Bun | upstream passes explicit offsets; `FileSystemWriteCompatibility.test.ts` passes unpatched |
 | `drizzle-orm@1.0.0-rc.5-ab785fc` | rc.5-ab785fc / rc tag `1.0.0-rc.4` | `.d.ts` imports of a removed `SqlError` path silently become `any` | a drizzle build that emits `effect/sql/SqlError` |
 | `@xstate/effect@0.1.0-alpha.6` | alpha.6 / `1.0.0-alpha.8` | TS4023 on exported machines with `actions` | an alpha that exports the brand or uses a string key, after an exported-machine declaration check passes unpatched |
-| `onnxruntime-node@1.30.0` | 1.30.0 / 1.30.0 | adm-zip symlink extraction (with the override above) | per `patches/onnxruntime-node@1.30.0.md` |
+| `onnxruntime-node@1.30.0` | 1.30.0 / 1.30.0 | adm-zip symlink extraction (with the override above) | **Exit met 2026-10-21:** removed with its override and record when `retired:face-detection` left the tree |
 
 ## Held catalog pins (`syncpack.config.ts` "Held back" group)
 

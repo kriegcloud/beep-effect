@@ -212,7 +212,7 @@
       "baselineSha256": "c327ba2b826e2118205de5639a4adfb8cc7c1c30a2ed6224ec1836ae0e072a72"
     },
     {
-      "path": "packages/drivers/face-detection/package.json",
+      "path": "retired:face-detection/package.json",
       "sha256": "dc2b3836e0bf424d9ec3043480b9b2b55003650a6e56da21548be593abd08f50",
       "baselineSha256": "feae0f1bc2491143005b32b281a97583768ce8e41c5cfe8e65b3c0a38acd2057"
     },

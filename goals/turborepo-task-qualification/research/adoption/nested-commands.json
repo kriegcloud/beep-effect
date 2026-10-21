@@ -2904,60 +2904,60 @@
       "definition": "@beep/exiftool#test:integration:parallel"
     },
     {
-      "computation": "@beep/face-detection#audit",
-      "definition": "@beep/face-detection#audit"
+      "computation": "retired:face-detection#audit",
+      "definition": "retired:face-detection#audit"
     },
     {
-      "computation": "@beep/face-detection#build",
-      "definition": "@beep/face-detection#build"
+      "computation": "retired:face-detection#build",
+      "definition": "retired:face-detection#build"
     },
     {
-      "computation": "@beep/face-detection#check",
-      "definition": "@beep/face-detection#check"
+      "computation": "retired:face-detection#check",
+      "definition": "retired:face-detection#check"
     },
     {
-      "computation": "@beep/face-detection#coverage",
-      "definition": "@beep/face-detection#coverage"
+      "computation": "retired:face-detection#coverage",
+      "definition": "retired:face-detection#coverage"
     },
     {
-      "computation": "@beep/face-detection#docgen",
-      "definition": "@beep/face-detection#docgen"
+      "computation": "retired:face-detection#docgen",
+      "definition": "retired:face-detection#docgen"
     },
     {
-      "computation": "@beep/face-detection#lint",
-      "definition": "@beep/face-detection#lint"
+      "computation": "retired:face-detection#lint",
+      "definition": "retired:face-detection#lint"
     },
     {
-      "computation": "@beep/face-detection#lint:deprecated-apis",
-      "definition": "@beep/face-detection#lint:deprecated-apis"
+      "computation": "retired:face-detection#lint:deprecated-apis",
+      "definition": "retired:face-detection#lint:deprecated-apis"
     },
     {
-      "computation": "@beep/face-detection#lint:fix",
-      "definition": "@beep/face-detection#lint:fix"
+      "computation": "retired:face-detection#lint:fix",
+      "definition": "retired:face-detection#lint:fix"
     },
     {
-      "computation": "@beep/face-detection#lint:jsdoc",
-      "definition": "@beep/face-detection#lint:jsdoc"
+      "computation": "retired:face-detection#lint:jsdoc",
+      "definition": "retired:face-detection#lint:jsdoc"
     },
     {
-      "computation": "@beep/face-detection#lint:laws",
-      "definition": "@beep/face-detection#lint:laws"
+      "computation": "retired:face-detection#lint:laws",
+      "definition": "retired:face-detection#lint:laws"
     },
     {
-      "computation": "@beep/face-detection#package-test-typecheck",
-      "definition": "@beep/face-detection#package-test-typecheck"
+      "computation": "retired:face-detection#package-test-typecheck",
+      "definition": "retired:face-detection#package-test-typecheck"
     },
     {
-      "computation": "@beep/face-detection#test",
-      "definition": "@beep/face-detection#test"
+      "computation": "retired:face-detection#test",
+      "definition": "retired:face-detection#test"
     },
     {
-      "computation": "@beep/face-detection#test:integration",
-      "definition": "@beep/face-detection#test:integration"
+      "computation": "retired:face-detection#test:integration",
+      "definition": "retired:face-detection#test:integration"
     },
     {
-      "computation": "@beep/face-detection#test:property",
-      "definition": "@beep/face-detection#test:property"
+      "computation": "retired:face-detection#test:property",
+      "definition": "retired:face-detection#test:property"
     },
     {
       "computation": "@beep/fc-runs#audit",
@@ -3132,64 +3132,64 @@
       "definition": "@beep/file-processing#test:property"
     },
     {
-      "computation": "@beep/firecrawl#audit",
-      "definition": "@beep/firecrawl#audit"
+      "computation": "retired:firecrawl#audit",
+      "definition": "retired:firecrawl#audit"
     },
     {
-      "computation": "@beep/firecrawl#build",
-      "definition": "@beep/firecrawl#build"
+      "computation": "retired:firecrawl#build",
+      "definition": "retired:firecrawl#build"
     },
     {
-      "computation": "@beep/firecrawl#check",
-      "definition": "@beep/firecrawl#check"
+      "computation": "retired:firecrawl#check",
+      "definition": "retired:firecrawl#check"
     },
     {
-      "computation": "@beep/firecrawl#coverage",
-      "definition": "@beep/firecrawl#coverage"
+      "computation": "retired:firecrawl#coverage",
+      "definition": "retired:firecrawl#coverage"
     },
     {
-      "computation": "@beep/firecrawl#docgen",
-      "definition": "@beep/firecrawl#docgen"
+      "computation": "retired:firecrawl#docgen",
+      "definition": "retired:firecrawl#docgen"
     },
     {
-      "computation": "@beep/firecrawl#lint",
-      "definition": "@beep/firecrawl#lint"
+      "computation": "retired:firecrawl#lint",
+      "definition": "retired:firecrawl#lint"
     },
     {
-      "computation": "@beep/firecrawl#lint:deprecated-apis",
-      "definition": "@beep/firecrawl#lint:deprecated-apis"
+      "computation": "retired:firecrawl#lint:deprecated-apis",
+      "definition": "retired:firecrawl#lint:deprecated-apis"
     },
     {
-      "computation": "@beep/firecrawl#lint:fix",
-      "definition": "@beep/firecrawl#lint:fix"
+      "computation": "retired:firecrawl#lint:fix",
+      "definition": "retired:firecrawl#lint:fix"
     },
     {
-      "computation": "@beep/firecrawl#lint:jsdoc",
-      "definition": "@beep/firecrawl#lint:jsdoc"
+      "computation": "retired:firecrawl#lint:jsdoc",
+      "definition": "retired:firecrawl#lint:jsdoc"
     },
     {
-      "computation": "@beep/firecrawl#lint:laws",
-      "definition": "@beep/firecrawl#lint:laws"
+      "computation": "retired:firecrawl#lint:laws",
+      "definition": "retired:firecrawl#lint:laws"
     },
     {
-      "computation": "@beep/firecrawl#package-test-typecheck",
-      "definition": "@beep/firecrawl#package-test-typecheck"
+      "computation": "retired:firecrawl#package-test-typecheck",
+      "definition": "retired:firecrawl#package-test-typecheck"
     },
     {
-      "computation": "@beep/firecrawl#test",
-      "definition": "@beep/firecrawl#test"
+      "computation": "retired:firecrawl#test",
+      "definition": "retired:firecrawl#test"
     },
     {
-      "computation": "@beep/firecrawl#test:integration",
-      "definition": "@beep/firecrawl#test:integration"
+      "computation": "retired:firecrawl#test:integration",
+      "definition": "retired:firecrawl#test:integration"
     },
     {
-      "computation": "@beep/firecrawl#test:integration:parallel",
-      "definition": "@beep/firecrawl#test:integration:parallel"
+      "computation": "retired:firecrawl#test:integration:parallel",
+      "definition": "retired:firecrawl#test:integration:parallel"
     },
     {
-      "computation": "@beep/firecrawl#test:property",
-      "definition": "@beep/firecrawl#test:property"
+      "computation": "retired:firecrawl#test:property",
+      "definition": "retired:firecrawl#test:property"
     },
     {
       "computation": "@beep/freshbooks#audit",
@@ -7500,64 +7500,64 @@
       "definition": "@beep/utils#test:property"
     },
     {
-      "computation": "@beep/venice-ai#audit",
-      "definition": "@beep/venice-ai#audit"
+      "computation": "retired:venice-ai#audit",
+      "definition": "retired:venice-ai#audit"
     },
     {
-      "computation": "@beep/venice-ai#build",
-      "definition": "@beep/venice-ai#build"
+      "computation": "retired:venice-ai#build",
+      "definition": "retired:venice-ai#build"
     },
     {
-      "computation": "@beep/venice-ai#check",
-      "definition": "@beep/venice-ai#check"
+      "computation": "retired:venice-ai#check",
+      "definition": "retired:venice-ai#check"
     },
     {
-      "computation": "@beep/venice-ai#coverage",
-      "definition": "@beep/venice-ai#coverage"
+      "computation": "retired:venice-ai#coverage",
+      "definition": "retired:venice-ai#coverage"
     },
     {
-      "computation": "@beep/venice-ai#docgen",
-      "definition": "@beep/venice-ai#docgen"
+      "computation": "retired:venice-ai#docgen",
+      "definition": "retired:venice-ai#docgen"
     },
     {
-      "computation": "@beep/venice-ai#lint",
-      "definition": "@beep/venice-ai#lint"
+      "computation": "retired:venice-ai#lint",
+      "definition": "retired:venice-ai#lint"
     },
     {
-      "computation": "@beep/venice-ai#lint:deprecated-apis",
-      "definition": "@beep/venice-ai#lint:deprecated-apis"
+      "computation": "retired:venice-ai#lint:deprecated-apis",
+      "definition": "retired:venice-ai#lint:deprecated-apis"
     },
     {
-      "computation": "@beep/venice-ai#lint:fix",
-      "definition": "@beep/venice-ai#lint:fix"
+      "computation": "retired:venice-ai#lint:fix",
+      "definition": "retired:venice-ai#lint:fix"
     },
     {
-      "computation": "@beep/venice-ai#lint:jsdoc",
-      "definition": "@beep/venice-ai#lint:jsdoc"
+      "computation": "retired:venice-ai#lint:jsdoc",
+      "definition": "retired:venice-ai#lint:jsdoc"
     },
     {
-      "computation": "@beep/venice-ai#lint:laws",
-      "definition": "@beep/venice-ai#lint:laws"
+      "computation": "retired:venice-ai#lint:laws",
+      "definition": "retired:venice-ai#lint:laws"
     },
     {
-      "computation": "@beep/venice-ai#package-test-typecheck",
-      "definition": "@beep/venice-ai#package-test-typecheck"
+      "computation": "retired:venice-ai#package-test-typecheck",
+      "definition": "retired:venice-ai#package-test-typecheck"
     },
     {
-      "computation": "@beep/venice-ai#test",
-      "definition": "@beep/venice-ai#test"
+      "computation": "retired:venice-ai#test",
+      "definition": "retired:venice-ai#test"
     },
     {
-      "computation": "@beep/venice-ai#test:integration",
-      "definition": "@beep/venice-ai#test:integration"
+      "computation": "retired:venice-ai#test:integration",
+      "definition": "retired:venice-ai#test:integration"
     },
     {
-      "computation": "@beep/venice-ai#test:integration:parallel",
-      "definition": "@beep/venice-ai#test:integration:parallel"
+      "computation": "retired:venice-ai#test:integration:parallel",
+      "definition": "retired:venice-ai#test:integration:parallel"
     },
     {
-      "computation": "@beep/venice-ai#test:property",
-      "definition": "@beep/venice-ai#test:property"
+      "computation": "retired:venice-ai#test:property",
+      "definition": "retired:venice-ai#test:property"
     },
     {
       "computation": "@beep/wink#audit",
@@ -7840,60 +7840,60 @@
       "definition": "@beep/workspace-use-cases#test:property"
     },
     {
-      "computation": "@beep/xai#audit",
-      "definition": "@beep/xai#audit"
+      "computation": "retired:xai#audit",
+      "definition": "retired:xai#audit"
     },
     {
-      "computation": "@beep/xai#build",
-      "definition": "@beep/xai#build"
+      "computation": "retired:xai#build",
+      "definition": "retired:xai#build"
     },
     {
-      "computation": "@beep/xai#check",
-      "definition": "@beep/xai#check"
+      "computation": "retired:xai#check",
+      "definition": "retired:xai#check"
     },
     {
-      "computation": "@beep/xai#coverage",
-      "definition": "@beep/xai#coverage"
+      "computation": "retired:xai#coverage",
+      "definition": "retired:xai#coverage"
     },
     {
-      "computation": "@beep/xai#docgen",
-      "definition": "@beep/xai#docgen"
+      "computation": "retired:xai#docgen",
+      "definition": "retired:xai#docgen"
     },
     {
-      "computation": "@beep/xai#lint",
-      "definition": "@beep/xai#lint"
+      "computation": "retired:xai#lint",
+      "definition": "retired:xai#lint"
     },
     {
-      "computation": "@beep/xai#lint:deprecated-apis",
-      "definition": "@beep/xai#lint:deprecated-apis"
+      "computation": "retired:xai#lint:deprecated-apis",
+      "definition": "retired:xai#lint:deprecated-apis"
     },
     {
-      "computation": "@beep/xai#lint:fix",
-      "definition": "@beep/xai#lint:fix"
+      "computation": "retired:xai#lint:fix",
+      "definition": "retired:xai#lint:fix"
     },
     {
-      "computation": "@beep/xai#lint:jsdoc",
-      "definition": "@beep/xai#lint:jsdoc"
+      "computation": "retired:xai#lint:jsdoc",
+      "definition": "retired:xai#lint:jsdoc"
     },
     {
-      "computation": "@beep/xai#lint:laws",
-      "definition": "@beep/xai#lint:laws"
+      "computation": "retired:xai#lint:laws",
+      "definition": "retired:xai#lint:laws"
     },
     {
-      "computation": "@beep/xai#package-test-typecheck",
-      "definition": "@beep/xai#package-test-typecheck"
+      "computation": "retired:xai#package-test-typecheck",
+      "definition": "retired:xai#package-test-typecheck"
     },
     {
-      "computation": "@beep/xai#test",
-      "definition": "@beep/xai#test"
+      "computation": "retired:xai#test",
+      "definition": "retired:xai#test"
     },
     {
-      "computation": "@beep/xai#test:integration",
-      "definition": "@beep/xai#test:integration"
+      "computation": "retired:xai#test:integration",
+      "definition": "retired:xai#test:integration"
     },
     {
-      "computation": "@beep/xai#test:property",
-      "definition": "@beep/xai#test:property"
+      "computation": "retired:xai#test:property",
+      "definition": "retired:xai#test:property"
     },
     {
       "computation": "@beep/xstate#audit",
@@ -22800,19 +22800,19 @@
       ]
     },
     {
-      "id": "@beep/face-detection#audit",
+      "id": "retired:face-detection#audit",
       "command": "bun run --if-present beep:audit",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run --if-present beep:audit",
-          "target": "@beep/face-detection#beep:audit",
+          "target": "retired:face-detection#beep:audit",
           "optional": true
         }
       ]
     },
     {
-      "id": "@beep/face-detection#babel",
+      "id": "retired:face-detection#babel",
       "command": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
       "steps": [
         {
@@ -22822,43 +22822,43 @@
       ]
     },
     {
-      "id": "@beep/face-detection#beep:audit",
+      "id": "retired:face-detection#beep:audit",
       "command": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:build",
-          "target": "@beep/face-detection#beep:build",
+          "target": "retired:face-detection#beep:build",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:check",
-          "target": "@beep/face-detection#beep:check",
+          "target": "retired:face-detection#beep:check",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/face-detection#beep:test",
+          "target": "retired:face-detection#beep:test",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/face-detection#beep:test:integration",
+          "target": "retired:face-detection#beep:test:integration",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:lint",
-          "target": "@beep/face-detection#beep:lint",
+          "target": "retired:face-detection#beep:lint",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#beep:build",
+      "id": "retired:face-detection#beep:build",
       "command": "tsc -p tsconfig.json && bun run babel",
       "steps": [
         {
@@ -22868,13 +22868,13 @@
         {
           "kind": "local-script",
           "command": "bun run babel",
-          "target": "@beep/face-detection#babel",
+          "target": "retired:face-detection#babel",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#beep:check",
+      "id": "retired:face-detection#beep:check",
       "command": "tsgo -p tsconfig.check.json && bun run beep:check:tests",
       "steps": [
         {
@@ -22884,13 +22884,13 @@
         {
           "kind": "local-script",
           "command": "bun run beep:check:tests",
-          "target": "@beep/face-detection#beep:check:tests",
+          "target": "retired:face-detection#beep:check:tests",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#beep:check:tests",
+      "id": "retired:face-detection#beep:check:tests",
       "command": "tsgo -p tsconfig.test.json --noEmit",
       "steps": [
         {
@@ -22900,7 +22900,7 @@
       ]
     },
     {
-      "id": "@beep/face-detection#beep:docgen",
+      "id": "retired:face-detection#beep:docgen",
       "command": "bunx --bun --no-install docgen",
       "steps": [
         {
@@ -22910,7 +22910,7 @@
       ]
     },
     {
-      "id": "@beep/face-detection#beep:lint",
+      "id": "retired:face-detection#beep:lint",
       "command": "biome check .",
       "steps": [
         {
@@ -22920,7 +22920,7 @@
       ]
     },
     {
-      "id": "@beep/face-detection#beep:lint:fix",
+      "id": "retired:face-detection#beep:lint:fix",
       "command": "biome check . --write",
       "steps": [
         {
@@ -22930,7 +22930,7 @@
       ]
     },
     {
-      "id": "@beep/face-detection#beep:test",
+      "id": "retired:face-detection#beep:test",
       "command": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
       "steps": [
         {
@@ -22940,7 +22940,7 @@
       ]
     },
     {
-      "id": "@beep/face-detection#beep:test:integration",
+      "id": "retired:face-detection#beep:test:integration",
       "command": "bunx --bun vitest run test/integration --passWithNoTests",
       "steps": [
         {
@@ -22950,31 +22950,31 @@
       ]
     },
     {
-      "id": "@beep/face-detection#build",
+      "id": "retired:face-detection#build",
       "command": "bun run beep:build",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:build",
-          "target": "@beep/face-detection#beep:build",
+          "target": "retired:face-detection#beep:build",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#check",
+      "id": "retired:face-detection#check",
       "command": "bun run beep:check",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:check",
-          "target": "@beep/face-detection#beep:check",
+          "target": "retired:face-detection#beep:check",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#coverage",
+      "id": "retired:face-detection#coverage",
       "command": "bunx vitest run --coverage --exclude=test/integration/**",
       "steps": [
         {
@@ -22984,31 +22984,31 @@
       ]
     },
     {
-      "id": "@beep/face-detection#docgen",
+      "id": "retired:face-detection#docgen",
       "command": "bun run beep:docgen",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:docgen",
-          "target": "@beep/face-detection#beep:docgen",
+          "target": "retired:face-detection#beep:docgen",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#lint",
+      "id": "retired:face-detection#lint",
       "command": "bun run beep:lint",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:lint",
-          "target": "@beep/face-detection#beep:lint",
+          "target": "retired:face-detection#beep:lint",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#lint:deprecated-apis",
+      "id": "retired:face-detection#lint:deprecated-apis",
       "command": "beep-cli lint deprecated-apis --package .",
       "steps": [
         {
@@ -23018,19 +23018,19 @@
       ]
     },
     {
-      "id": "@beep/face-detection#lint:fix",
+      "id": "retired:face-detection#lint:fix",
       "command": "bun run beep:lint:fix",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:lint:fix",
-          "target": "@beep/face-detection#beep:lint:fix",
+          "target": "retired:face-detection#beep:lint:fix",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#lint:jsdoc",
+      "id": "retired:face-detection#lint:jsdoc",
       "command": "beep-cli lint jsdoc --package .",
       "steps": [
         {
@@ -23040,7 +23040,7 @@
       ]
     },
     {
-      "id": "@beep/face-detection#lint:laws",
+      "id": "retired:face-detection#lint:laws",
       "command": "beep-cli lint laws --package .",
       "steps": [
         {
@@ -23050,7 +23050,7 @@
       ]
     },
     {
-      "id": "@beep/face-detection#package-test-typecheck",
+      "id": "retired:face-detection#package-test-typecheck",
       "command": "beep-cli quality test-tsgo-package",
       "steps": [
         {
@@ -23060,37 +23060,37 @@
       ]
     },
     {
-      "id": "@beep/face-detection#test",
+      "id": "retired:face-detection#test",
       "command": "bun run beep:test",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/face-detection#beep:test",
+          "target": "retired:face-detection#beep:test",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#test:integration",
+      "id": "retired:face-detection#test:integration",
       "command": "bun run beep:test:integration",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/face-detection#beep:test:integration",
+          "target": "retired:face-detection#beep:test:integration",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/face-detection#test:property",
+      "id": "retired:face-detection#test:property",
       "command": "bun run beep:test",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/face-detection#beep:test",
+          "target": "retired:face-detection#beep:test",
           "optional": false
         }
       ]
@@ -24006,19 +24006,19 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#audit",
+      "id": "retired:firecrawl#audit",
       "command": "bun run --if-present beep:audit",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run --if-present beep:audit",
-          "target": "@beep/firecrawl#beep:audit",
+          "target": "retired:firecrawl#beep:audit",
           "optional": true
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#babel",
+      "id": "retired:firecrawl#babel",
       "command": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
       "steps": [
         {
@@ -24028,43 +24028,43 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:audit",
+      "id": "retired:firecrawl#beep:audit",
       "command": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:build",
-          "target": "@beep/firecrawl#beep:build",
+          "target": "retired:firecrawl#beep:build",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:check",
-          "target": "@beep/firecrawl#beep:check",
+          "target": "retired:firecrawl#beep:check",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/firecrawl#beep:test",
+          "target": "retired:firecrawl#beep:test",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/firecrawl#beep:test:integration",
+          "target": "retired:firecrawl#beep:test:integration",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:lint",
-          "target": "@beep/firecrawl#beep:lint",
+          "target": "retired:firecrawl#beep:lint",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:build",
+      "id": "retired:firecrawl#beep:build",
       "command": "tsc -p tsconfig.json && bun run babel",
       "steps": [
         {
@@ -24074,13 +24074,13 @@
         {
           "kind": "local-script",
           "command": "bun run babel",
-          "target": "@beep/firecrawl#babel",
+          "target": "retired:firecrawl#babel",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:check",
+      "id": "retired:firecrawl#beep:check",
       "command": "tsgo -p tsconfig.check.json && bun run beep:check:tests",
       "steps": [
         {
@@ -24090,13 +24090,13 @@
         {
           "kind": "local-script",
           "command": "bun run beep:check:tests",
-          "target": "@beep/firecrawl#beep:check:tests",
+          "target": "retired:firecrawl#beep:check:tests",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:check:tests",
+      "id": "retired:firecrawl#beep:check:tests",
       "command": "tsgo -p tsconfig.test.json --noEmit",
       "steps": [
         {
@@ -24106,7 +24106,7 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:docgen",
+      "id": "retired:firecrawl#beep:docgen",
       "command": "bunx --bun --no-install docgen",
       "steps": [
         {
@@ -24116,7 +24116,7 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:lint",
+      "id": "retired:firecrawl#beep:lint",
       "command": "biome check .",
       "steps": [
         {
@@ -24126,7 +24126,7 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:lint:fix",
+      "id": "retired:firecrawl#beep:lint:fix",
       "command": "biome check . --write",
       "steps": [
         {
@@ -24136,7 +24136,7 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:test",
+      "id": "retired:firecrawl#beep:test",
       "command": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
       "steps": [
         {
@@ -24146,7 +24146,7 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#beep:test:integration",
+      "id": "retired:firecrawl#beep:test:integration",
       "command": "bunx --bun vitest run test/integration --passWithNoTests",
       "steps": [
         {
@@ -24156,31 +24156,31 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#build",
+      "id": "retired:firecrawl#build",
       "command": "bun run beep:build",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:build",
-          "target": "@beep/firecrawl#beep:build",
+          "target": "retired:firecrawl#beep:build",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#check",
+      "id": "retired:firecrawl#check",
       "command": "bun run beep:check",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:check",
-          "target": "@beep/firecrawl#beep:check",
+          "target": "retired:firecrawl#beep:check",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#coverage",
+      "id": "retired:firecrawl#coverage",
       "command": "bunx vitest run --coverage --exclude=test/integration/**",
       "steps": [
         {
@@ -24190,31 +24190,31 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#docgen",
+      "id": "retired:firecrawl#docgen",
       "command": "bun run beep:docgen",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:docgen",
-          "target": "@beep/firecrawl#beep:docgen",
+          "target": "retired:firecrawl#beep:docgen",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#lint",
+      "id": "retired:firecrawl#lint",
       "command": "bun run beep:lint",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:lint",
-          "target": "@beep/firecrawl#beep:lint",
+          "target": "retired:firecrawl#beep:lint",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#lint:deprecated-apis",
+      "id": "retired:firecrawl#lint:deprecated-apis",
       "command": "beep-cli lint deprecated-apis --package .",
       "steps": [
         {
@@ -24224,19 +24224,19 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#lint:fix",
+      "id": "retired:firecrawl#lint:fix",
       "command": "bun run beep:lint:fix",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:lint:fix",
-          "target": "@beep/firecrawl#beep:lint:fix",
+          "target": "retired:firecrawl#beep:lint:fix",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#lint:jsdoc",
+      "id": "retired:firecrawl#lint:jsdoc",
       "command": "beep-cli lint jsdoc --package .",
       "steps": [
         {
@@ -24246,7 +24246,7 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#lint:laws",
+      "id": "retired:firecrawl#lint:laws",
       "command": "beep-cli lint laws --package .",
       "steps": [
         {
@@ -24256,7 +24256,7 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#package-test-typecheck",
+      "id": "retired:firecrawl#package-test-typecheck",
       "command": "beep-cli quality test-tsgo-package",
       "steps": [
         {
@@ -24266,49 +24266,49 @@
       ]
     },
     {
-      "id": "@beep/firecrawl#test",
+      "id": "retired:firecrawl#test",
       "command": "bun run beep:test",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/firecrawl#beep:test",
+          "target": "retired:firecrawl#beep:test",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#test:integration",
+      "id": "retired:firecrawl#test:integration",
       "command": "bun run beep:test:integration",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/firecrawl#beep:test:integration",
+          "target": "retired:firecrawl#beep:test:integration",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#test:integration:parallel",
+      "id": "retired:firecrawl#test:integration:parallel",
       "command": "bun run beep:test:integration",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/firecrawl#beep:test:integration",
+          "target": "retired:firecrawl#beep:test:integration",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/firecrawl#test:property",
+      "id": "retired:firecrawl#test:property",
       "command": "bun run beep:test",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/firecrawl#beep:test",
+          "target": "retired:firecrawl#beep:test",
           "optional": false
         }
       ]
@@ -46808,19 +46808,19 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#audit",
+      "id": "retired:venice-ai#audit",
       "command": "bun run --if-present beep:audit",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run --if-present beep:audit",
-          "target": "@beep/venice-ai#beep:audit",
+          "target": "retired:venice-ai#beep:audit",
           "optional": true
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#babel",
+      "id": "retired:venice-ai#babel",
       "command": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
       "steps": [
         {
@@ -46830,43 +46830,43 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:audit",
+      "id": "retired:venice-ai#beep:audit",
       "command": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:build",
-          "target": "@beep/venice-ai#beep:build",
+          "target": "retired:venice-ai#beep:build",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:check",
-          "target": "@beep/venice-ai#beep:check",
+          "target": "retired:venice-ai#beep:check",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/venice-ai#beep:test",
+          "target": "retired:venice-ai#beep:test",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/venice-ai#beep:test:integration",
+          "target": "retired:venice-ai#beep:test:integration",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:lint",
-          "target": "@beep/venice-ai#beep:lint",
+          "target": "retired:venice-ai#beep:lint",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:build",
+      "id": "retired:venice-ai#beep:build",
       "command": "tsc -p tsconfig.json && bun run babel",
       "steps": [
         {
@@ -46876,13 +46876,13 @@
         {
           "kind": "local-script",
           "command": "bun run babel",
-          "target": "@beep/venice-ai#babel",
+          "target": "retired:venice-ai#babel",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:check",
+      "id": "retired:venice-ai#beep:check",
       "command": "tsgo -p tsconfig.check.json && bun run beep:check:tests",
       "steps": [
         {
@@ -46892,13 +46892,13 @@
         {
           "kind": "local-script",
           "command": "bun run beep:check:tests",
-          "target": "@beep/venice-ai#beep:check:tests",
+          "target": "retired:venice-ai#beep:check:tests",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:check:tests",
+      "id": "retired:venice-ai#beep:check:tests",
       "command": "tsgo -p tsconfig.test.json --noEmit",
       "steps": [
         {
@@ -46908,7 +46908,7 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:docgen",
+      "id": "retired:venice-ai#beep:docgen",
       "command": "bunx --bun --no-install docgen",
       "steps": [
         {
@@ -46918,7 +46918,7 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:lint",
+      "id": "retired:venice-ai#beep:lint",
       "command": "biome check .",
       "steps": [
         {
@@ -46928,7 +46928,7 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:lint:fix",
+      "id": "retired:venice-ai#beep:lint:fix",
       "command": "biome check . --write",
       "steps": [
         {
@@ -46938,7 +46938,7 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:test",
+      "id": "retired:venice-ai#beep:test",
       "command": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
       "steps": [
         {
@@ -46948,7 +46948,7 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#beep:test:integration",
+      "id": "retired:venice-ai#beep:test:integration",
       "command": "bunx --bun vitest run test/integration --passWithNoTests",
       "steps": [
         {
@@ -46958,31 +46958,31 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#build",
+      "id": "retired:venice-ai#build",
       "command": "bun run beep:build",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:build",
-          "target": "@beep/venice-ai#beep:build",
+          "target": "retired:venice-ai#beep:build",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#check",
+      "id": "retired:venice-ai#check",
       "command": "bun run beep:check",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:check",
-          "target": "@beep/venice-ai#beep:check",
+          "target": "retired:venice-ai#beep:check",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#coverage",
+      "id": "retired:venice-ai#coverage",
       "command": "bunx vitest run --coverage --exclude=test/integration/**",
       "steps": [
         {
@@ -46992,31 +46992,31 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#docgen",
+      "id": "retired:venice-ai#docgen",
       "command": "bun run beep:docgen",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:docgen",
-          "target": "@beep/venice-ai#beep:docgen",
+          "target": "retired:venice-ai#beep:docgen",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#lint",
+      "id": "retired:venice-ai#lint",
       "command": "bun run beep:lint",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:lint",
-          "target": "@beep/venice-ai#beep:lint",
+          "target": "retired:venice-ai#beep:lint",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#lint:deprecated-apis",
+      "id": "retired:venice-ai#lint:deprecated-apis",
       "command": "beep-cli lint deprecated-apis --package .",
       "steps": [
         {
@@ -47026,19 +47026,19 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#lint:fix",
+      "id": "retired:venice-ai#lint:fix",
       "command": "bun run beep:lint:fix",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:lint:fix",
-          "target": "@beep/venice-ai#beep:lint:fix",
+          "target": "retired:venice-ai#beep:lint:fix",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#lint:jsdoc",
+      "id": "retired:venice-ai#lint:jsdoc",
       "command": "beep-cli lint jsdoc --package .",
       "steps": [
         {
@@ -47048,7 +47048,7 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#lint:laws",
+      "id": "retired:venice-ai#lint:laws",
       "command": "beep-cli lint laws --package .",
       "steps": [
         {
@@ -47058,7 +47058,7 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#package-test-typecheck",
+      "id": "retired:venice-ai#package-test-typecheck",
       "command": "beep-cli quality test-tsgo-package",
       "steps": [
         {
@@ -47068,49 +47068,49 @@
       ]
     },
     {
-      "id": "@beep/venice-ai#test",
+      "id": "retired:venice-ai#test",
       "command": "bun run beep:test",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/venice-ai#beep:test",
+          "target": "retired:venice-ai#beep:test",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#test:integration",
+      "id": "retired:venice-ai#test:integration",
       "command": "bun run beep:test:integration",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/venice-ai#beep:test:integration",
+          "target": "retired:venice-ai#beep:test:integration",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#test:integration:parallel",
+      "id": "retired:venice-ai#test:integration:parallel",
       "command": "bun run beep:test:integration",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/venice-ai#beep:test:integration",
+          "target": "retired:venice-ai#beep:test:integration",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/venice-ai#test:property",
+      "id": "retired:venice-ai#test:property",
       "command": "bun run beep:test",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/venice-ai#beep:test",
+          "target": "retired:venice-ai#beep:test",
           "optional": false
         }
       ]
@@ -48564,19 +48564,19 @@
       ]
     },
     {
-      "id": "@beep/xai#audit",
+      "id": "retired:xai#audit",
       "command": "bun run --if-present beep:audit",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run --if-present beep:audit",
-          "target": "@beep/xai#beep:audit",
+          "target": "retired:xai#beep:audit",
           "optional": true
         }
       ]
     },
     {
-      "id": "@beep/xai#babel",
+      "id": "retired:xai#babel",
       "command": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
       "steps": [
         {
@@ -48586,49 +48586,49 @@
       ]
     },
     {
-      "id": "@beep/xai#beep:audit",
+      "id": "retired:xai#beep:audit",
       "command": "bun run beep:build && bun run beep:check && bun run beep:check:tests && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:build",
-          "target": "@beep/xai#beep:build",
+          "target": "retired:xai#beep:build",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:check",
-          "target": "@beep/xai#beep:check",
+          "target": "retired:xai#beep:check",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:check:tests",
-          "target": "@beep/xai#beep:check:tests",
+          "target": "retired:xai#beep:check:tests",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/xai#beep:test",
+          "target": "retired:xai#beep:test",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/xai#beep:test:integration",
+          "target": "retired:xai#beep:test:integration",
           "optional": false
         },
         {
           "kind": "local-script",
           "command": "bun run beep:lint",
-          "target": "@beep/xai#beep:lint",
+          "target": "retired:xai#beep:lint",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#beep:build",
+      "id": "retired:xai#beep:build",
       "command": "tsc -p tsconfig.json && bun run babel",
       "steps": [
         {
@@ -48638,13 +48638,13 @@
         {
           "kind": "local-script",
           "command": "bun run babel",
-          "target": "@beep/xai#babel",
+          "target": "retired:xai#babel",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#beep:check",
+      "id": "retired:xai#beep:check",
       "command": "tsgo -p tsconfig.check.json && bun run beep:check:tests",
       "steps": [
         {
@@ -48654,13 +48654,13 @@
         {
           "kind": "local-script",
           "command": "bun run beep:check:tests",
-          "target": "@beep/xai#beep:check:tests",
+          "target": "retired:xai#beep:check:tests",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#beep:check:tests",
+      "id": "retired:xai#beep:check:tests",
       "command": "tsgo -p tsconfig.test.json --noEmit",
       "steps": [
         {
@@ -48670,7 +48670,7 @@
       ]
     },
     {
-      "id": "@beep/xai#beep:docgen",
+      "id": "retired:xai#beep:docgen",
       "command": "bunx --bun --no-install docgen",
       "steps": [
         {
@@ -48680,7 +48680,7 @@
       ]
     },
     {
-      "id": "@beep/xai#beep:lint",
+      "id": "retired:xai#beep:lint",
       "command": "biome check .",
       "steps": [
         {
@@ -48690,7 +48690,7 @@
       ]
     },
     {
-      "id": "@beep/xai#beep:lint:fix",
+      "id": "retired:xai#beep:lint:fix",
       "command": "biome check . --write",
       "steps": [
         {
@@ -48700,7 +48700,7 @@
       ]
     },
     {
-      "id": "@beep/xai#beep:test",
+      "id": "retired:xai#beep:test",
       "command": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
       "steps": [
         {
@@ -48710,7 +48710,7 @@
       ]
     },
     {
-      "id": "@beep/xai#beep:test:integration",
+      "id": "retired:xai#beep:test:integration",
       "command": "bunx --bun vitest run test/integration --passWithNoTests",
       "steps": [
         {
@@ -48720,31 +48720,31 @@
       ]
     },
     {
-      "id": "@beep/xai#build",
+      "id": "retired:xai#build",
       "command": "bun run beep:build",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:build",
-          "target": "@beep/xai#beep:build",
+          "target": "retired:xai#beep:build",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#check",
+      "id": "retired:xai#check",
       "command": "bun run beep:check",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:check",
-          "target": "@beep/xai#beep:check",
+          "target": "retired:xai#beep:check",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#coverage",
+      "id": "retired:xai#coverage",
       "command": "bunx vitest run --coverage --exclude=test/integration/**",
       "steps": [
         {
@@ -48754,31 +48754,31 @@
       ]
     },
     {
-      "id": "@beep/xai#docgen",
+      "id": "retired:xai#docgen",
       "command": "bun run beep:docgen",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:docgen",
-          "target": "@beep/xai#beep:docgen",
+          "target": "retired:xai#beep:docgen",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#lint",
+      "id": "retired:xai#lint",
       "command": "bun run beep:lint",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:lint",
-          "target": "@beep/xai#beep:lint",
+          "target": "retired:xai#beep:lint",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#lint:deprecated-apis",
+      "id": "retired:xai#lint:deprecated-apis",
       "command": "beep-cli lint deprecated-apis --package .",
       "steps": [
         {
@@ -48788,19 +48788,19 @@
       ]
     },
     {
-      "id": "@beep/xai#lint:fix",
+      "id": "retired:xai#lint:fix",
       "command": "bun run beep:lint:fix",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:lint:fix",
-          "target": "@beep/xai#beep:lint:fix",
+          "target": "retired:xai#beep:lint:fix",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#lint:jsdoc",
+      "id": "retired:xai#lint:jsdoc",
       "command": "beep-cli lint jsdoc --package .",
       "steps": [
         {
@@ -48810,7 +48810,7 @@
       ]
     },
     {
-      "id": "@beep/xai#lint:laws",
+      "id": "retired:xai#lint:laws",
       "command": "beep-cli lint laws --package .",
       "steps": [
         {
@@ -48820,7 +48820,7 @@
       ]
     },
     {
-      "id": "@beep/xai#package-test-typecheck",
+      "id": "retired:xai#package-test-typecheck",
       "command": "beep-cli quality test-tsgo-package",
       "steps": [
         {
@@ -48830,37 +48830,37 @@
       ]
     },
     {
-      "id": "@beep/xai#test",
+      "id": "retired:xai#test",
       "command": "bun run beep:test",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/xai#beep:test",
+          "target": "retired:xai#beep:test",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#test:integration",
+      "id": "retired:xai#test:integration",
       "command": "bun run beep:test:integration",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test:integration",
-          "target": "@beep/xai#beep:test:integration",
+          "target": "retired:xai#beep:test:integration",
           "optional": false
         }
       ]
     },
     {
-      "id": "@beep/xai#test:property",
+      "id": "retired:xai#test:property",
       "command": "bun run beep:test",
       "steps": [
         {
           "kind": "local-script",
           "command": "bun run beep:test",
-          "target": "@beep/xai#beep:test",
+          "target": "retired:xai#beep:test",
           "optional": false
         }
       ]

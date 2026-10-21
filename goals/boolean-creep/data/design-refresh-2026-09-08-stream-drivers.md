@@ -51,22 +51,22 @@ The live design was over-broad and the inventory cardinality is stale.
 
 Current message members have optional `isBinary`, so that field has three states: absent, false, and true. Combined with bytes/text presence, the inventoried carrier represents `3 × 2 × 2 = 12` combinations, not 8. Three combinations have direct semantic evidence:
 
-1. `isBinary: true` plus bytes from `parseWebSocketMessage` at `XAi.service.ts:703-710`;
+1. `isBinary: true` plus bytes from `parseWebSocketMessage` at `retired:xai/src/XAi.service.ts:703-710`;
 2. `isBinary: false` plus text from the same parser at lines 712-721;
-3. absent `isBinary` plus text in the exported model examples at `XAi.models.ts:456-463,518-522`.
+3. absent `isBinary` plus text in the exported model examples at `retired:xai/src/XAi.models.ts:456-463,518-522`.
 
 Required inventory correction: `representable: 12`, `legal: 3`, with evidence for the documented third constructor. Schema-derived arbitrary round trips show codec permissiveness but do not establish that all 12 combinations have independent semantics.
 
 The parser's text event also carries decoded-or-raw `data`, while the documented text constructor omits it. The repaired target therefore uses binary `{ bytes }` and text `{ text, data: Option<unknown> }` members. Text data uses `S.OptionFromOptionalKey(S.Unknown).pipe(SchemaUtils.withNoneDefault)`, preserving omitted data as `None`, explicit `undefined` as `Some(undefined)`, and parser data as `Some(value)`.
 
-The earlier design also tightened unrelated close/error cases by requiring their writer payloads and removing other optional fields. That was unsupported by this instance. The refreshed design leaves both non-message schemas and their accepted inputs unchanged. The existing exact close decode/encode fixture at `XAi.service.test.ts:305-309,361-365`, invalid close-code test at line 372, and live close/error objects at `XAi.service.ts:797-802` remain unchanged. Only the message member and parser construction migrate.
+The earlier design also tightened unrelated close/error cases by requiring their writer payloads and removing other optional fields. That was unsupported by this instance. The refreshed design leaves both non-message schemas and their accepted inputs unchanged. The existing exact close decode/encode fixture at `retired:xai/test/XAi.service.test.ts:305-309,361-365`, invalid close-code test at line 372, and live close/error objects at `retired:xai/src/XAi.service.ts:797-802` remain unchanged. Only the message member and parser construction migrate.
 
-This is an internal Tier 1 codec change, not WebSocket wire data: `ws` supplies the external `(RawData, isBinary)` callback, `@beep/xai` is private, and exact search found no persistence, RPC, outbound serialization, or external-package consumer of `XAiWebSocketEvent`.
+This is an internal Tier 1 codec change, not WebSocket wire data: `ws` supplies the external `(RawData, isBinary)` callback, `retired:xai` is private, and exact search found no persistence, RPC, outbound serialization, or external-package consumer of `XAiWebSocketEvent`.
 
 ## Required inventory action for parent
 
 - Update `xai-websocket-message-binary` cardinality from 8/2 to 12/3.
-- Add evidence for the legitimate absent-`isBinary` text constructor at `packages/drivers/xai/src/XAi.models.ts:456-463` (also repeated at 518-522).
+- Add evidence for the legitimate absent-`isBinary` text constructor at `retired:xai/src/XAi.models.ts:456-463` (also repeated at 518-522).
 - Keep its exposure Tier 1/internal: the exported model is an in-process private-package stream type and its schema codec is exercised only by package tests.
 - Keep `r25-drivers-n-r-stream-state-finished-finish-reason` disqualified separately; it does not change `drivers-stream-state`.
 

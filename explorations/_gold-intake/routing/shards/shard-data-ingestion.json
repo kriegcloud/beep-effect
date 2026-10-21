@@ -353,8 +353,8 @@
     "targetExists": false,
     "proposedSlug": "gov-legal-data-driver-codegen",
     "secondaryTargets": [
-      "goals/firecrawl-driver",
-      "packages/drivers/firecrawl"
+      "retired-packet:firecrawl-driver",
+      "retired:firecrawl"
     ],
     "disposition": "netNew",
     "wave": "P3",

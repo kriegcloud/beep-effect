@@ -61,11 +61,11 @@
     "@beep/epistemic-tables#babel",
     "@beep/epistemic-ui#babel",
     "@beep/exiftool#babel",
-    "@beep/face-detection#babel",
+    "retired:face-detection#babel",
     "@beep/fc-runs#babel",
     "@beep/ffmpeg#babel",
     "@beep/file-processing#babel",
-    "@beep/firecrawl#babel",
+    "retired:firecrawl#babel",
     "@beep/freshbooks#babel",
     "@beep/gov-legal-mcp#babel",
     "@beep/govinfo#babel",
@@ -130,12 +130,12 @@
     "@beep/uspto#babel",
     "@beep/uspto-mcp#babel",
     "@beep/utils#babel",
-    "@beep/venice-ai#babel",
+    "retired:venice-ai#babel",
     "@beep/wink#babel",
     "@beep/workspace-server#babel",
     "@beep/workspace-tables#babel",
     "@beep/workspace-use-cases#babel",
-    "@beep/xai#babel",
+    "retired:xai#babel",
     "@beep/box#babel",
     "@beep/data#babel"
   ],
@@ -191,7 +191,7 @@
       "changedScripts": {}
     },
     {
-      "path": "packages/drivers/face-detection/package.json",
+      "path": "retired:face-detection/package.json",
       "changedFields": [
         "devDependencies"
       ],
