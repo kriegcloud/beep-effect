@@ -46,24 +46,27 @@ const decodeQualityReportJson = S.decodeUnknownEffect(S.fromJsonString(DocgenQua
 const DocgenQualityWorkerEvalLocalScore = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`DocgenQualityWorkerEvalLocalScoreMinimumCheck`,
-        title: "Docgen Quality Worker Eval Local Score Minimum",
-        description: "Worker eval local scores must be at least one.",
-        message: "Expected a worker eval local score greater than or equal to one",
-      }),
-      S.isLessThanOrEqualTo(10, {
-        identifier: $I`DocgenQualityWorkerEvalLocalScoreMaximumCheck`,
-        title: "Docgen Quality Worker Eval Local Score Maximum",
-        description: "Worker eval local scores must not exceed ten.",
-        message: "Expected a worker eval local score less than or equal to ten",
-      }),
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("DocgenQualityWorkerEvalLocalScoreMinimumCheck", {
+          title: "Docgen Quality Worker Eval Local Score Minimum",
+          description: "Worker eval local scores must be at least one.",
+          message: "Expected a worker eval local score greater than or equal to one",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        10,
+        $I.annote("DocgenQualityWorkerEvalLocalScoreMaximumCheck", {
+          title: "Docgen Quality Worker Eval Local Score Maximum",
+          description: "Worker eval local scores must not exceed ten.",
+          message: "Expected a worker eval local score less than or equal to ten",
+        })
+      ),
     ],
-    {
-      identifier: $I`DocgenQualityWorkerEvalLocalScoreChecks`,
+    $I.annote("DocgenQualityWorkerEvalLocalScoreChecks", {
       title: "Docgen Quality Worker Eval Local Score",
       description: "Inclusive one-to-ten score bounds for advisory worker eval output.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("DocgenQualityWorkerEvalLocalScore", {

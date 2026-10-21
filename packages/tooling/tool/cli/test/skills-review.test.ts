@@ -410,7 +410,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills review", (it) => {
       const rebase = yield* decideWith(review, repoRoot, [answer(itemAt(listed, 1), "rebase")]).pipe(Effect.flip);
       expect(refusalReason(rebase)).toBe("invalid-decision");
       const unknown = yield* decideWith(review, repoRoot, [
-        SkillReviewScriptEntry.make({ hunk: "f".repeat(12), decision: "drop", label: O.none() }),
+        SkillReviewScriptEntry.make({ hunk: Str.repeat(12)("f"), decision: "drop", label: O.none() }),
       ]).pipe(Effect.flip);
       expect(refusalReason(unknown)).toBe("unknown-hunk");
       const twice = yield* decideWith(review, repoRoot, [
@@ -619,7 +619,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills patch", (it) => {
       expect(yield* fs.exists(path.join(repoRoot, added))).toBe(false);
       expect(yield* fs.readFileString(yield* lockPathOf(repoRoot))).toBe(lockBefore);
 
-      const stale = yield* recorder.add(repoRoot, SKILL, O.some("0".repeat(64))).pipe(Effect.flip);
+      const stale = yield* recorder.add(repoRoot, SKILL, O.some(Str.repeat(64)("0"))).pipe(Effect.flip);
       expect(refusalReason(stale)).toBe("digest-mismatch");
 
       const written = yield* recorder.add(repoRoot, SKILL, O.some(planned.planDigest));

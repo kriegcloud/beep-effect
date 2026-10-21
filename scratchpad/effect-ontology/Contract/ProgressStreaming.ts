@@ -45,8 +45,7 @@ const $I = $ScratchpadId.create("effect-ontology/Contract/ProgressStreaming");
  */
 export const IsoDateTimeString = S.Trim.check(
   S.isNonEmpty({ message: "String must not be empty" }),
-  S.makeFilter((value: string) => O.isSome(DateTime.make(value)), {
-    identifier: $I`IsoDateTimeStringCheck`,
+  S.makeFilter((value: string) => O.isSome(DateTime.make(value)), $I.annote("IsoDateTimeStringCheck", {
     title: "ISO DateTime String",
     description: "Accepts any string DateTime.make parses; generation stays inside a constructive ISO 8601 UTC shape.",
     arbitraryConstraint: {
@@ -57,7 +56,7 @@ export const IsoDateTimeString = S.Trim.check(
         },
       ],
     },
-  })
+  }))
 ).pipe(
   $I.annoteSchema("IsoDateTimeString", {
     description: "Trimmed, non-empty datetime string that DateTime.make parses, kept verbatim.",

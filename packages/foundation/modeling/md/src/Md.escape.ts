@@ -45,12 +45,14 @@ const StringArray = S.Array(S.String).pipe(
   })
 );
 const UnsafeUrlProtocolDestination = S.String.check(
-  S.isPattern(unsafeUrlProtocolPattern, {
-    identifier: $I`UnsafeUrlProtocolDestinationCheck`,
-    title: "Unsafe URL Protocol Destination",
-    description: "A normalized URL destination that starts with an active unsafe protocol.",
-    message: "URL destination must not start with javascript:, vbscript:, or data:",
-  })
+  S.isPattern(
+    unsafeUrlProtocolPattern,
+    $I.annote("UnsafeUrlProtocolDestinationCheck", {
+      title: "Unsafe URL Protocol Destination",
+      description: "A normalized URL destination that starts with an active unsafe protocol.",
+      message: "URL destination must not start with javascript:, vbscript:, or data:",
+    })
+  )
 ).pipe(
   $I.annoteSchema("UnsafeUrlProtocolDestination", {
     description: "Normalized URL destination that starts with an active unsafe protocol.",
@@ -60,12 +62,14 @@ const UnsafeUrlProtocolDestination = S.String.check(
 const NormalizedUrlScheme = S.Trim.pipe(
   S.decode(SchemaTransformation.toLowerCase()),
   S.check(
-    S.isPattern(urlSchemePattern, {
-      identifier: $I`NormalizedUrlSchemeCheck`,
-      title: "Normalized URL Scheme",
-      description: "A lowercase RFC 3986 scheme name followed by a colon.",
-      message: "URL schemes must be lowercase RFC 3986 scheme names ending in ':'.",
-    })
+    S.isPattern(
+      urlSchemePattern,
+      $I.annote("NormalizedUrlSchemeCheck", {
+        title: "Normalized URL Scheme",
+        description: "A lowercase RFC 3986 scheme name followed by a colon.",
+        message: "URL schemes must be lowercase RFC 3986 scheme names ending in ':'.",
+      })
+    )
   ),
   $I.annoteSchema("NormalizedUrlScheme", {
     description: "A schema-normalized lowercase URL scheme including its trailing colon.",

@@ -41,16 +41,20 @@ const NEXT_GEN_CSO_TOKEN_LENGTH = 128;
  */
 export const NextGenCsoToken = S.String.pipe(
   S.check(
-    S.isMinLength(NEXT_GEN_CSO_TOKEN_LENGTH, {
-      identifier: $I`NextGenCsoTokenMinLengthCheck`,
-      title: "NextGenCSO Min Length",
-      description: "PACER nextGenCSO tokens must contain exactly 128 characters.",
-    }),
-    S.isMaxLength(NEXT_GEN_CSO_TOKEN_LENGTH, {
-      identifier: $I`NextGenCsoTokenMaxLengthCheck`,
-      title: "NextGenCSO Max Length",
-      description: "PACER nextGenCSO tokens must contain exactly 128 characters.",
-    })
+    S.isMinLength(
+      NEXT_GEN_CSO_TOKEN_LENGTH,
+      $I.annote("NextGenCsoTokenMinLengthCheck", {
+        title: "NextGenCSO Min Length",
+        description: "PACER nextGenCSO tokens must contain exactly 128 characters.",
+      })
+    ),
+    S.isMaxLength(
+      NEXT_GEN_CSO_TOKEN_LENGTH,
+      $I.annote("NextGenCsoTokenMaxLengthCheck", {
+        title: "NextGenCSO Max Length",
+        description: "PACER nextGenCSO tokens must contain exactly 128 characters.",
+      })
+    )
   ),
   S.brand("NextGenCsoToken"),
   $I.annoteSchema("NextGenCsoToken", {

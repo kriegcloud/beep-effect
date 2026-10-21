@@ -276,7 +276,7 @@ export const currentRegisterRows: (rows: ReadonlyArray<RegisterRow>) => Readonly
 export const registerRowsWaiting = (rows: ReadonlyArray<RegisterRow>): ReadonlyArray<RegisterRow> =>
   A.filter(currentRegisterRows(rows), (row) => O.isSome(row.waitingOnOrchestrator));
 
-const cell = (value: string): string => value.replace(/\|/gu, "\\|").replace(/\n/gu, " ");
+const cell = (value: string): string => Str.replace(/\n/gu, " ")(Str.replace(/\|/gu, "\\|")(value));
 
 const optionCell = (value: O.Option<string>): string => O.getOrElse(value, () => "");
 

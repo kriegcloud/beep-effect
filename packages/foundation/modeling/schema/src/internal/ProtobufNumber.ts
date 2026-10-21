@@ -42,8 +42,9 @@ export const ProtobufNumber = S.declare(isJsNumber)
         })
       ),
   })
-  .annotate({
-    description: "A JavaScript number, including IEEE-754 special values accepted by protobuf.",
-    identifier: $I`ProtobufNumber`,
-    title: "Protobuf Number",
-  });
+  .pipe(
+    $I.annoteSchema("ProtobufNumber", {
+      description: "A JavaScript number, including IEEE-754 special values accepted by protobuf.",
+      title: "Protobuf Number",
+    })
+  );

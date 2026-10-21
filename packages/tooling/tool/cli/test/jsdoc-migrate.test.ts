@@ -25,9 +25,12 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { constant } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeUnknownJSDocMigrateProxyUrl = S.decodeUnknownEffect(JSDocMigrateProxyUrl);
 const isJSDocMigrateInlineText = S.is(JSDocMigrateInlineText);
@@ -66,7 +69,9 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
     expect(result.text).toContain("**Example** (Decode a user name)");
     expect(result.text).not.toContain("@example");
     expect(result.text).toContain('const result = decodeUserName("Ada")');
-    expect(result.text.indexOf("@category decoding")).toBeLessThan(result.text.indexOf("@since 0.0.0"));
+    expect(O.getOrElse(Str.indexOf("@category decoding")(result.text), constant(-1))).toBeLessThan(
+      O.getOrElse(Str.indexOf("@since 0.0.0")(result.text), constant(-1))
+    );
   });
 
   it("quarantines an @example inside an {@inheritDoc} block instead of emitting summary content", () => {
@@ -156,11 +161,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
     if (result._tag !== "Rewritten") {
       return;
     }
-    const first = result.text.indexOf("**Example** (First case)");
-    const second = result.text.indexOf("**Example** (Second case)");
+    const first = O.getOrElse(Str.indexOf("**Example** (First case)")(result.text), constant(-1));
+    const second = O.getOrElse(Str.indexOf("**Example** (Second case)")(result.text), constant(-1));
     expect(first).toBeGreaterThan(-1);
     expect(second).toBeGreaterThan(first);
-    expect(result.text.indexOf("parse(1)")).toBeLessThan(result.text.indexOf("parse(2)"));
+    expect(O.getOrElse(Str.indexOf("parse(1)")(result.text), constant(-1))).toBeLessThan(
+      O.getOrElse(Str.indexOf("parse(2)")(result.text), constant(-1))
+    );
   });
 
   it("fails with DataMismatch when the title count disagrees with the block", () => {
@@ -199,7 +206,9 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
     expect(result.text).toContain("**Details**");
     expect(result.text).toContain("Returns None rather than throwing for invalid input.");
     expect(result.text).not.toContain("@remarks");
-    expect(result.text.indexOf("**Details**")).toBeLessThan(result.text.indexOf("**Example** (Decode a name)"));
+    expect(O.getOrElse(Str.indexOf("**Details**")(result.text), constant(-1))).toBeLessThan(
+      O.getOrElse(Str.indexOf("**Example** (Decode a name)")(result.text), constant(-1))
+    );
     expect(jsdocMigrateShapeRegressions(block, result.text)).toEqual([]);
   });
 
@@ -294,7 +303,7 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
     expect(result.text).not.toContain("@template");
     expect(result.text).not.toContain("{string}");
     const order = ["@typeParam", "@param", "@returns", "@defaultValue", "@see", "@category", "@since"];
-    const positions = A.map(order, (tag) => result.text.indexOf(tag));
+    const positions = A.map(order, (tag) => O.getOrElse(Str.indexOf(tag)(result.text), constant(-1)));
     for (const [index, position] of positions.entries()) {
       expect(position).toBeGreaterThan(index === 0 ? -1 : (positions[index - 1] ?? -1));
     }
@@ -329,7 +338,7 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
     }
     expect(result.text).toContain("**Example** (Parse a citation)");
     expect(result.text).not.toContain("@example");
-    expect(result.text.match(/\*\*Example\*\*/g)?.length).toBe(1);
+    expect(O.getOrNull(Str.match(/\*\*Example\*\*/g)(result.text))?.length).toBe(1);
     expect(jsdocMigrateShapeRegressions(block, result.text)).toEqual([]);
   });
 
@@ -384,42 +393,42 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       return;
     }
     expect(result.text).toContain("\n   * **Example** (Read the member)");
-    expect(result.text.endsWith("  */")).toBe(true);
+    expect(Str.endsWith("  */")(result.text)).toBe(true);
   });
 });
 
 describe("JSDocMigrateRewrite conservation law", () => {
   it("flags a mutated fence as a conservation violation", () => {
-    const mutated = simpleBlock.replace('decodeUserName("Ada")', 'decodeUserName("Eve")');
+    const mutated = Str.replace('decodeUserName("Ada")', 'decodeUserName("Eve")')(simpleBlock);
     const findings = jsdocMigrateConservationFindings({
       original: simpleBlock,
       candidate: mutated,
       allowedAddedTokens: [],
       allowedRemovedTokens: [],
     });
-    expect(A.some(findings, (finding) => finding.startsWith("fence-bytes-changed"))).toBe(true);
+    expect(A.some(findings, (finding) => Str.startsWith("fence-bytes-changed")(finding))).toBe(true);
   });
 
   it("flags dropped prose as a removed token", () => {
-    const mutated = simpleBlock.replace(" * Decodes a user name.", " * Decodes.");
+    const mutated = Str.replace(" * Decodes a user name.", " * Decodes.")(simpleBlock);
     const findings = jsdocMigrateConservationFindings({
       original: simpleBlock,
       candidate: mutated,
       allowedAddedTokens: [],
       allowedRemovedTokens: [],
     });
-    expect(A.some(findings, (finding) => finding.startsWith("token-removed"))).toBe(true);
+    expect(A.some(findings, (finding) => Str.startsWith("token-removed")(finding))).toBe(true);
   });
 
   it("flags invented prose as an added token", () => {
-    const mutated = simpleBlock.replace(" * Decodes a user name.", " * Decodes a wonderful user name.");
+    const mutated = Str.replace(" * Decodes a user name.", " * Decodes a wonderful user name.")(simpleBlock);
     const findings = jsdocMigrateConservationFindings({
       original: simpleBlock,
       candidate: mutated,
       allowedAddedTokens: [],
       allowedRemovedTokens: [],
     });
-    expect(A.some(findings, (finding) => finding.startsWith("token-added"))).toBe(true);
+    expect(A.some(findings, (finding) => Str.startsWith("token-added")(finding))).toBe(true);
   });
 
   it("accepts an identical candidate", () => {

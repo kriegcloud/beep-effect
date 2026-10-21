@@ -95,12 +95,14 @@ export const TurboCacheEnvName = LiteralKit(["TURBO_API", "TURBO_TOKEN", "TURBO_
 export type TurboCacheEnvName = typeof TurboCacheEnvName.Type;
 
 const TurboEnvironmentVariableName = S.String.check(
-  S.isPattern(/^[A-Za-z_][A-Za-z0-9_]*$/u, {
-    identifier: $I`TurboEnvironmentVariableNamePatternCheck`,
-    title: "Environment Variable Name Pattern",
-    description: "Environment variable names use a portable shell identifier form.",
-    message: "Expected an environment variable name matching ^[A-Za-z_][A-Za-z0-9_]*$",
-  })
+  S.isPattern(
+    /^[A-Za-z_][A-Za-z0-9_]*$/u,
+    $I.annote("TurboEnvironmentVariableNamePatternCheck", {
+      title: "Environment Variable Name Pattern",
+      description: "Environment variable names use a portable shell identifier form.",
+      message: "Expected an environment variable name matching ^[A-Za-z_][A-Za-z0-9_]*$",
+    })
+  )
 ).pipe(
   $I.annoteSchema("TurboEnvironmentVariableName", {
     description: "A portable shell environment variable name.",

@@ -53,12 +53,14 @@ export const DEFAULT_SCENARIO_PATH = ".beep/qa-capture.mjs";
  * @since 0.0.0
  */
 export const BudgetMib = S.Int.check(
-  S.isGreaterThan(0, {
-    identifier: $I`BudgetMibMinimumCheck`,
-    title: "Budget Mib Minimum",
-    description: "Artifact budgets are at least one mebibyte.",
-    message: "Expected a positive artifact budget in mebibytes",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("BudgetMibMinimumCheck", {
+      title: "Budget Mib Minimum",
+      description: "Artifact budgets are at least one mebibyte.",
+      message: "Expected a positive artifact budget in mebibytes",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BudgetMib", {
     description: "Round artifact budget in mebibytes.",
@@ -81,12 +83,14 @@ export const BudgetMib = S.Int.check(
  * @since 0.0.0
  */
 export const DurationSeconds = S.Int.check(
-  S.isGreaterThan(0, {
-    identifier: $I`DurationSecondsMinimumCheck`,
-    title: "Duration Seconds Minimum",
-    description: "Recording durations are at least one second.",
-    message: "Expected a positive recording duration in seconds",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("DurationSecondsMinimumCheck", {
+      title: "Duration Seconds Minimum",
+      description: "Recording durations are at least one second.",
+      message: "Expected a positive recording duration in seconds",
+    })
+  )
 ).pipe(
   $I.annoteSchema("DurationSeconds", {
     description: "Auto-stop duration of a lane B recording, in seconds.",
@@ -240,12 +244,14 @@ export class QaMarkOptions extends S.Opaque<QaMarkOptions, { readonly brand: uni
   S.Struct({
     data: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     label: S.String.check(
-      S.isMinLength(1, {
-        identifier: $I`QaMarkLabelNonEmptyCheck`,
-        title: "Qa Mark Label Non Empty",
-        description: "Marker labels must not be empty.",
-        message: "Expected a non-empty marker label",
-      })
+      S.isMinLength(
+        1,
+        $I.annote("QaMarkLabelNonEmptyCheck", {
+          title: "Qa Mark Label Non Empty",
+          description: "Marker labels must not be empty.",
+          message: "Expected a non-empty marker label",
+        })
+      )
     ),
   }).pipe(
     $I.annoteSchema("QaMarkOptions", {

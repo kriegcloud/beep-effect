@@ -67,12 +67,14 @@ export class ProjectionRequest extends S.Opaque<ProjectionRequest, { readonly br
     solid: ModelSpec.annotateKey({ description: "Model to project." }),
     cameras: S.Array(Camera)
       .check(
-        S.isMinLength(1, {
-          identifier: $I`ProjectionRequestCamerasCheck`,
-          title: "Projection Cameras",
-          description: "A projection request names at least one camera.",
-          message: "Expected at least one camera",
-        })
+        S.isMinLength(
+          1,
+          $I.annote("ProjectionRequestCamerasCheck", {
+            title: "Projection Cameras",
+            description: "A projection request names at least one camera.",
+            message: "Expected at least one camera",
+          })
+        )
       )
       .annotateKey({ description: "Cameras, one view each, in order." }),
     withHidden: S.Boolean.pipe(

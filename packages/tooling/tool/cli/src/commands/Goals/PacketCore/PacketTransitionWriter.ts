@@ -90,12 +90,11 @@ const PacketTransitionDisposition = LiteralKit(["append", "skipped", "streamless
 const PacketTransitionGenesisPairCheck = S.makeFilter(
   (request: { readonly genesisStage?: PacketStage; readonly genesisOrdinal?: PacketStageOrdinal }) =>
     (request.genesisStage === undefined) === (request.genesisOrdinal === undefined),
-  {
-    identifier: $I`PacketTransitionGenesisPairCheck`,
+  $I.annote("PacketTransitionGenesisPairCheck", {
     title: "Packet Transition Genesis Pair",
     description: "Genesis stage and ordinal are supplied together or not at all.",
     message: "Expected genesisStage and genesisOrdinal to be present together or absent together",
-  }
+  })
 );
 
 /**

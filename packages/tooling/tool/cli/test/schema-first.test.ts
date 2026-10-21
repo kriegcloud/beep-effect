@@ -27,6 +27,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { parse } from "jsonc-parser";
 import { Project, SyntaxKind, ts } from "ts-morph";
 
@@ -342,7 +343,7 @@ describe("normalizationEntryFromCallExpression", () => {
     );
     const callExpression = O.getOrThrowWith(
       A.findFirst(sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression), (candidate) =>
-        candidate.getExpression().getText().endsWith(".trim")
+        Str.endsWith(".trim")(candidate.getExpression().getText())
       ),
       () => new Error("Expected trim call expression fixture.")
     );

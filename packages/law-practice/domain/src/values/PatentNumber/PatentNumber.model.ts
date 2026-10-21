@@ -36,18 +36,23 @@ const patentNumberDigitsPattern = /^[0-9]+$/;
  * @since 0.0.0
  */
 export const PatentNumber = S.String.check(
-  S.isPattern(patentNumberDigitsPattern, {
-    identifier: $I`PatentNumberDigitsCheck`,
-    title: "Patent Number Digits",
-    description: "A WIPO ST.6 publication number containing only ASCII digits.",
-    message: "Patent publication number must contain digits only.",
-  }),
-  S.isBetweenLength(1, 13, {
-    identifier: $I`PatentNumberLengthCheck`,
-    title: "Patent Number Length",
-    description: "A WIPO ST.6 publication number containing between 1 and 13 digits.",
-    message: "Patent publication number must contain 1 to 13 digits.",
-  })
+  S.isPattern(
+    patentNumberDigitsPattern,
+    $I.annote("PatentNumberDigitsCheck", {
+      title: "Patent Number Digits",
+      description: "A WIPO ST.6 publication number containing only ASCII digits.",
+      message: "Patent publication number must contain digits only.",
+    })
+  ),
+  S.isBetweenLength(
+    1,
+    13,
+    $I.annote("PatentNumberLengthCheck", {
+      title: "Patent Number Length",
+      description: "A WIPO ST.6 publication number containing between 1 and 13 digits.",
+      message: "Patent publication number must contain 1 to 13 digits.",
+    })
+  )
 ).pipe(
   S.brand("PatentNumber"),
   $I.annoteSchema("PatentNumber", {

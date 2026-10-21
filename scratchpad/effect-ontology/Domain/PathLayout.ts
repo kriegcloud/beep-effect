@@ -123,13 +123,12 @@ const makeImageOwnerPathSchema = <const Name extends string, const Suffix extend
  * @since 0.0.0
  */
 export const StoragePathSegment = S.String.check(
-  S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._:@-]{0,127}$/, {
-    identifier: $I`StoragePathSegmentPatternCheck`,
+  S.isPattern(/^[A-Za-z0-9][A-Za-z0-9._:@-]{0,127}$/, $I.annote("StoragePathSegmentPatternCheck", {
     title: "Storage Path Segment",
     description: "A non-empty storage-key segment without path separators, traversal syntax, or control characters.",
     message:
       "Storage path segment must begin with a letter or digit and contain at most 128 letters, digits, dots, underscores, colons, at-signs, or dashes.",
-  })
+  }))
 ).pipe(
     S.brand("StoragePathSegment"),
     $I.annoteSchema("StoragePathSegment", {
@@ -724,13 +723,12 @@ export type RunInputPath = typeof RunInputPath.Type;
 
 const runChunkPathPattern = /^runs\/doc-[0-9a-f]{12}\/input\/chunks\/chunk-(?:0|[1-9][0-9]*)\.txt$/;
 
-const RunChunkCanonicalIndexCheck = S.isPattern(runChunkPathPattern, {
-  identifier: $I`RunChunkCanonicalIndexCheck`,
+const RunChunkCanonicalIndexCheck = S.isPattern(runChunkPathPattern, $I.annote("RunChunkCanonicalIndexCheck", {
   title: "Canonical Run Chunk Index",
   description:
     "A run chunk path whose non-negative decimal index has no sign, fraction, exponent, or redundant leading zero.",
   message: "Run chunk path must end with a canonical non-negative decimal index such as chunk-0.txt or chunk-12.txt.",
-});
+}));
 
 const RunChunkPathParts = S.TemplateLiteralParser([
   "runs/",

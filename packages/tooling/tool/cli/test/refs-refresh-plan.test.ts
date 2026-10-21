@@ -10,6 +10,7 @@ import * as Effect from "effect/Effect";
 import * as HttpClient from "effect/http/HttpClient";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   graftTestApiKey,
   patchKitStub,
@@ -382,7 +383,7 @@ describe("reference planning and refresh", () => {
           report.coverage.pipe(O.isSome, assertTrue);
         }
         // The patch kit is checked once, before any member work, with the maintenance allowlist.
-        expect(log.startsWith("patch-kit --check\n")).toBe(true);
+        expect(Str.startsWith("patch-kit --check\n")(log)).toBe(true);
         expect(yield* f.fs.readFileString(f.path.join(f.home, "patch-kit-env.log"))).toBe("root=unset key=unset\n");
         assertSome(status.preflight, RefsRefreshPreflight.make({ patchKit: "ok", detail: O.none() }));
       })

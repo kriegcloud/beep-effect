@@ -260,12 +260,11 @@ const GateResultSummaryFields = S.Struct({
 const AllowedGateEvidenceCheck = S.makeFilter(
   (result: typeof GateResultSummaryFields.Type) =>
     !result.applicable || !GateOutcome.is.allowed(result.outcome) || A.isReadonlyArrayNonEmpty(result.evidenceSubjects),
-  {
-    identifier: $I`AllowedGateEvidenceCheck`,
+  $I.annote("AllowedGateEvidenceCheck", {
     title: "Allowed gate evidence",
     description: "Every applicable allowed gate result must cite at least one digest-bound evidence subject.",
     message: "Applicable allowed gate results require non-empty evidence subjects",
-  }
+  })
 );
 
 /**
@@ -333,11 +332,10 @@ const GateSummaryCoherenceCheck = S.makeFilter(
           issue: "Gate summary result and verifiedLevels must agree with every applicable blocking gate result.",
         };
   },
-  {
-    identifier: $I`GateSummaryCoherenceCheck`,
+  $I.annote("GateSummaryCoherenceCheck", {
     title: "Gate summary coherence",
     description: "Gate summary result and verified levels agree with applicable blocking gate outcomes.",
-  }
+  })
 );
 
 /**

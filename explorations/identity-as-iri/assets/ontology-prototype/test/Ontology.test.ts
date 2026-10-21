@@ -319,16 +319,16 @@ class MissingClassMetadata extends S.Opaque<MissingClassMetadata, { readonly bra
   )
 ) {}
 
-const InvalidClassMetadata = S.String.annotate(
-  $I.annote("InvalidClassMetadata", {
+const InvalidClassMetadata = S.String.pipe(
+  $I.annoteSchema("InvalidClassMetadata", {
     ontologyMetadata: Ont.dataPredicate({
       range: XSD_STRING,
     }),
   })
 );
 
-const ScalarClass = S.String.annotate(
-  $I.annote(
+const ScalarClass = S.String.pipe(
+  $I.annoteSchema(
     "ScalarClass",
     Ont.class({
       description: "Scalar metadata cannot assemble as an object class.",
@@ -346,8 +346,8 @@ const StructBackedClass = S.Struct({
       })
     )
   ),
-}).annotate(
-  $I.annote(
+}).pipe(
+  $I.annoteSchema(
     "StructBackedClass",
     Ont.class({
       description: "Struct-backed class metadata.",
@@ -367,8 +367,8 @@ const SymbolFieldNameClass = S.Struct({
       })
     )
   ),
-}).annotate(
-  $I.annote(
+}).pipe(
+  $I.annoteSchema(
     "SymbolFieldNameClass",
     Ont.class({
       description: "Class with an unsupported symbol field name.",

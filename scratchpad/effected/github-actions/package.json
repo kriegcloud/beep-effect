@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@azure/storage-blob": "^12.33.0",
-    "@effected/github": "workspace:^",
+    "@beep/github": "workspace:^",
     "@beep/github-commands": "workspace:^",
     "@beep/glob": "workspace:^",
     "@effected/markdown": "workspace:^",

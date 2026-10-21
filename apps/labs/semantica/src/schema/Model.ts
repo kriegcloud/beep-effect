@@ -122,12 +122,11 @@ const ModelIdentityDimensionCheck = S.makeFilter(
       extraction: () => O.isNone(model.dimension),
       "gold-proposal": () => O.isNone(model.dimension),
     }),
-  {
-    identifier: $I`ModelIdentityDimensionCheck`,
+  $I.annote("ModelIdentityDimensionCheck", {
     title: "Model identity dimension ownership",
     description: "Requires only embedding identities to carry a positive vector dimension.",
     message: "ModelIdentity dimension must be present exactly when taskType is embedding.",
-  }
+  })
 );
 
 export class ModelIdentity extends S.Opaque<ModelIdentity, { readonly brand: unique symbol }>()(

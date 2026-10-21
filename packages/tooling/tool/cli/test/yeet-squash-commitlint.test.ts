@@ -134,7 +134,8 @@ describe("squash commit message prediction", () => {
   });
 
   it("picks the remedy by rule family, then by offending line", () => {
-    const over = (line: number) => SquashCommitlintOffendingLine.make({ line, length: 116, text: "x".repeat(116) });
+    const over = (line: number) =>
+      SquashCommitlintOffendingLine.make({ line, length: 116, text: Str.repeat(116)("x") });
     const render = (rules: ReadonlyArray<string>, lines: ReadonlyArray<SquashCommitlintOffendingLine>) =>
       renderSquashCommitlintVerdict(
         SquashCommitlintFail.make({
@@ -165,7 +166,7 @@ describe("squash commit message prediction", () => {
   });
 
   it("exempts body URL lines while still reporting an overlong URL header", () => {
-    const url = `* docs: see https://github.com/beep-effect/beep-effect/pull/1915#issuecomment-${"9".repeat(80)}`;
+    const url = `* docs: see https://github.com/beep-effect/beep-effect/pull/1915#issuecomment-${Str.repeat(80)("9")}`;
     expect(Str.length(url)).toBeGreaterThan(COMMITLINT_MAX_LINE_LENGTH);
     const message = SquashCommitMessage.make({ header: `fix(docs): ${url} (#7)`, body: `${url}\n\n* ${longSubject}` });
     expect(A.map(squashCommitlintOffendingLines(message), (line) => line.line)).toEqual([1, 5]);

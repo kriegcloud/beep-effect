@@ -71,7 +71,7 @@ export const notionPullImpl = Effect.fn("Research.notionPullImpl")(function* (
     MutableHashSet.add(seen, urlNorm.value);
     const frontmatter = KnowledgeCardFrontmatter.make({
       capturedAt,
-      id: `kb-xpost-${link.pageId.replaceAll("-", "").slice(0, 16)}`,
+      id: `kb-xpost-${Str.slice(0, 16)(Str.replaceAll("-", "")(link.pageId))}`,
       related: [],
       sourceType: "x-post",
       status: "inbox",

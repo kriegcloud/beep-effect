@@ -389,12 +389,11 @@ export class AiMetricsRetentionSelector extends S.Opaque<
             () => true
           );
         },
-        {
-          identifier: $I`OrderedRetentionWindowCheck`,
+        $I.annote("OrderedRetentionWindowCheck", {
           title: "Ordered retention window",
           description: "Requires a retention window lower bound to precede its upper bound when both are present.",
           message: "Retention window lower bound must be before its upper bound",
-        }
+        })
       )
     )
     .pipe(

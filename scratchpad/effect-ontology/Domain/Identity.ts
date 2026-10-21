@@ -39,64 +39,56 @@ const isNotGcsReservedSpelling = P.every([P.not(Str.includes("google")), P.not(S
 
 const GcsBucketChecks = S.makeFilterGroup(
   [
-    S.isPattern(gcsBucketNamePattern, {
-      identifier: $I`GcsBucketSyntaxCheck`,
+    S.isPattern(gcsBucketNamePattern, $I.annote("GcsBucketSyntaxCheck", {
       title: "GCS Bucket Name Syntax",
       description:
         "A 3-63 character GCS bucket name that starts and ends with a lowercase ASCII letter or digit and otherwise contains only lowercase ASCII letters, digits, dashes, underscores, or dots.",
       message:
         "GCS bucket name must be 3-63 characters long, start and end with a lowercase letter or number, and contain only lowercase letters, numbers, dashes, underscores, and periods.",
-    }),
-    S.makeFilter(isNotGcsIpv4Address, {
-      identifier: $I`GcsBucketNotIpv4AddressCheck`,
+    })),
+    S.makeFilter(isNotGcsIpv4Address, $I.annote("GcsBucketNotIpv4AddressCheck", {
       title: "GCS Bucket Name Is Not An IPv4 Address",
       description: "A GCS bucket name that is not a dotted-decimal IPv4 address.",
       message: "GCS bucket name must not be an IPv4 address.",
-    }),
-    S.makeFilter(isNotGcsReservedPrefix, {
-      identifier: $I`GcsBucketNotReservedPrefixCheck`,
+    })),
+    S.makeFilter(isNotGcsReservedPrefix, $I.annote("GcsBucketNotReservedPrefixCheck", {
       title: "GCS Bucket Name Has No Reserved Prefix",
       description: 'A GCS bucket name that does not begin with Google Cloud Storage\'s reserved "goog" prefix.',
       message: 'GCS bucket name must not begin with the reserved "goog" prefix.',
-    }),
-    S.makeFilter(isNotGcsReservedSpelling, {
-      identifier: $I`GcsBucketNotReservedSpellingCheck`,
+    })),
+    S.makeFilter(isNotGcsReservedSpelling, $I.annote("GcsBucketNotReservedSpellingCheck", {
       title: "GCS Bucket Name Has No Reserved Google Spelling",
       description: 'A GCS bucket name that contains neither "google" nor the documented "g00gle" lookalike.',
       message: 'GCS bucket name must not contain the reserved spellings "google" or "g00gle".',
-    }),
+    })),
   ],
-  {
-    identifier: $I`GcsBucketChecks`,
+  $I.annote("GcsBucketChecks", {
     title: "GCS Bucket Name",
     description: "Locally decidable Google Cloud Storage bucket-name checks for the portable 3-63 character form.",
-  }
+  })
 );
 
 const GcsObjectName = S.String.check(
   S.makeFilterGroup(
     [
-      S.isPattern(gcsObjectNamePattern, {
-        identifier: $I`GcsObjectNameSyntaxCheck`,
+      S.isPattern(gcsObjectNamePattern, $I.annote("GcsObjectNameSyntaxCheck", {
         arbitraryConstraint: { patterns: [{ source: "^[a-z][a-z0-9._-]{0,20}$", flags: "" }] },
         title: "GCS Object Name Syntax",
         description:
           "A non-empty GCS object name without carriage returns, line feeds, the reserved ACME challenge prefix, or a dot-only name.",
         message:
           'GCS object name must be non-empty, must not contain CR or LF, must not be "." or "..", and must not use the reserved ACME challenge prefix.',
-      }),
-      S.makeFilter((value: string) => utf8Encoder.encode(value).byteLength <= 1_024, {
-        identifier: $I`GcsObjectNameUtf8LengthCheck`,
+      })),
+      S.makeFilter((value: string) => utf8Encoder.encode(value).byteLength <= 1_024, $I.annote("GcsObjectNameUtf8LengthCheck", {
         title: "GCS Object Name UTF-8 Length",
         description: "A flat-namespace GCS object name whose UTF-8 representation is no larger than 1,024 bytes.",
         message: "GCS object name must not exceed 1,024 bytes when UTF-8 encoded.",
-      }),
+      })),
     ],
-    {
-      identifier: $I`GcsObjectNameChecks`,
+    $I.annote("GcsObjectNameChecks", {
       title: "GCS Object Name",
       description: "Google Cloud Storage flat-namespace object-name checks.",
-    }
+    })
   )
 ).pipe(
     $I.annoteSchema("GcsObjectName", {
@@ -127,12 +119,11 @@ const GcsObjectName = S.String.check(
  * @since 0.0.0
  */
 export const LegacyContentHashPrefix = S.String.check(
-  S.isPattern(legacyContentHashPrefixPattern, {
-    identifier: $I`LegacyContentHashPrefixPatternCheck`,
+  S.isPattern(legacyContentHashPrefixPattern, $I.annote("LegacyContentHashPrefixPatternCheck", {
     title: "Legacy Content Hash Prefix",
     description: "A legacy 16-character lowercase hexadecimal prefix of a SHA-256 digest.",
     message: "Legacy content hash prefix must contain exactly 16 lowercase hexadecimal characters.",
-  })
+  }))
 ).pipe(
     S.brand("LegacyContentHashPrefix"),
     $I.annoteSchema("LegacyContentHashPrefix", {
@@ -499,24 +490,21 @@ const batchIdPattern = /^batch-[0-9a-f]{12}$/;
 
 const GcsObjectChecks = S.makeFilterGroup(
   [
-    S.isPattern(gcsObjectPathPattern, {
-      identifier: $I`GcsObjectBoundarySlashCheck`,
+    S.isPattern(gcsObjectPathPattern, $I.annote("GcsObjectBoundarySlashCheck", {
       title: "GCS Object Path Boundaries",
       description: "A canonical GCS object path that does not begin or end with a forward slash.",
       message: "GCS object path must not begin or end with a forward slash.",
-    }),
-    S.makeFilter(P.not(Str.includes("//")), {
-      identifier: $I`GcsObjectConsecutiveSlashCheck`,
+    })),
+    S.makeFilter(P.not(Str.includes("//")), $I.annote("GcsObjectConsecutiveSlashCheck", {
       title: "GCS Object Path Consecutive Slashes",
       description: "A canonical GCS object path without empty path segments created by consecutive slashes.",
       message: "GCS object path must not contain consecutive forward slashes.",
-    }),
+    })),
   ],
-  {
-    identifier: $I`GcsObjectChecks`,
+  $I.annote("GcsObjectChecks", {
     title: "Canonical GCS Object Path",
     description: "Application-level canonicalization checks layered on the provider-valid GCS object-name schema.",
-  }
+  })
 );
 
 /**
@@ -621,14 +609,13 @@ export type GcsObject = typeof GcsObject.Type;
  * @since 0.0.0
  */
 export const Namespace = S.String.check(
-  S.isPattern(namespacePattern, {
-    identifier: $I`NamespacePatternCheck`,
+  S.isPattern(namespacePattern, $I.annote("NamespacePatternCheck", {
     title: "Ontology Namespace",
     description:
       "A lowercase ontology namespace beginning with a letter and continuing with letters, digits, or hyphens.",
     message:
       "Ontology namespace must begin with a lowercase letter and contain only lowercase letters, digits, or hyphens.",
-  })
+  }))
 ).pipe(
     S.brand("Namespace"),
     $I.annoteSchema("Namespace", {
@@ -671,14 +658,13 @@ export type Namespace = typeof Namespace.Type;
  * @since 0.0.0
  */
 export const OntologyName = S.String.check(
-  S.isPattern(ontologyNamePattern, {
-    identifier: $I`OntologyNamePatternCheck`,
+  S.isPattern(ontologyNamePattern, $I.annote("OntologyNamePatternCheck", {
     title: "Ontology Name",
     description:
       "A lowercase ontology name beginning with a letter and continuing with letters, digits, hyphens, or underscores.",
     message:
       "Ontology name must begin with a lowercase letter and contain only lowercase letters, digits, hyphens, or underscores.",
-  })
+  }))
 ).pipe(
     S.brand("OntologyName"),
     $I.annoteSchema("OntologyName", {
@@ -759,12 +745,11 @@ export const OntologyVersion = S.TemplateLiteral([Namespace, "/", OntologyName, 
 export type OntologyVersion = typeof OntologyVersion.Type;
 
 const DocumentIdSchema = S.String.check(
-  S.isPattern(documentIdPattern, {
-    identifier: $I`DocumentIdPatternCheck`,
+  S.isPattern(documentIdPattern, $I.annote("DocumentIdPatternCheck", {
     title: "Document Identifier",
     description: "A deterministic document identifier with a doc- prefix and 12 lowercase hexadecimal characters.",
     message: "Document ID must use the doc- prefix followed by exactly 12 lowercase hexadecimal characters.",
-  })
+  }))
 ).pipe(
     S.brand("DocumentId"),
     $I.annoteSchema("DocumentId", {
@@ -835,12 +820,11 @@ export type DocumentId = typeof DocumentId.Type;
  * @since 0.0.0
  */
 export const ChunkId = S.String.check(
-  S.isPattern(chunkIdPattern, {
-    identifier: $I`ChunkIdPatternCheck`,
+  S.isPattern(chunkIdPattern, $I.annote("ChunkIdPatternCheck", {
     title: "Chunk Identifier",
     description: "A document-derived chunk identifier with a canonical non-negative decimal chunk index.",
     message: "Chunk ID must use doc-<12-lowercase-hex>-chunk-<canonical-non-negative-index> form.",
-  })
+  }))
 ).pipe(
     S.brand("ChunkId"),
     $I.annoteSchema("ChunkId", {
@@ -929,12 +913,11 @@ export type ExtractionRunId = typeof ExtractionRunId.Type;
  * @since 0.0.0
  */
 export const BatchId = S.String.check(
-  S.isPattern(batchIdPattern, {
-    identifier: $I`BatchIdPatternCheck`,
+  S.isPattern(batchIdPattern, $I.annote("BatchIdPatternCheck", {
     title: "Batch Identifier",
     description: "A deterministic batch identifier with a batch- prefix and 12 lowercase hexadecimal characters.",
     message: "Batch ID must use the batch- prefix followed by exactly 12 lowercase hexadecimal characters.",
-  })
+  }))
 ).pipe(
     S.brand("BatchId"),
     $I.annoteSchema("BatchId", {

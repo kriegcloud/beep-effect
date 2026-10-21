@@ -22,12 +22,14 @@ const $I = $LangExtractId.create("Extraction");
 
 const ModelOutputCandidates = S.Array(ExtractionCandidate)
   .check(
-    S.isMaxLength(MAX_EXTRACTION_CANDIDATES, {
-      identifier: $I`ModelOutputCandidatesMaxLengthCheck`,
-      title: "Model Output Candidate Limit",
-      description: "Checks that one language-model response stays within the bounded extraction-candidate limit.",
-      message: `Language model output must contain at most ${MAX_EXTRACTION_CANDIDATES} extraction candidates.`,
-    })
+    S.isMaxLength(
+      MAX_EXTRACTION_CANDIDATES,
+      $I.annote("ModelOutputCandidatesMaxLengthCheck", {
+        title: "Model Output Candidate Limit",
+        description: "Checks that one language-model response stays within the bounded extraction-candidate limit.",
+        message: `Language model output must contain at most ${MAX_EXTRACTION_CANDIDATES} extraction candidates.`,
+      })
+    )
   )
   .pipe(
     $I.annoteSchema("ModelOutputCandidates", {

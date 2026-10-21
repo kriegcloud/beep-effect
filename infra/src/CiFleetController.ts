@@ -509,48 +509,58 @@ const runnerLabelPattern = /^[A-Za-z0-9_-]{1,64}$/u;
 const ssmParameterNamePattern = /^\/[A-Za-z0-9_./-]+$/u;
 
 const AwsArn = S.String.check(
-  S.isPattern(awsArnPattern, {
-    identifier: $I`AwsArnFormat`,
-    title: "AWS ARN Format",
-    description: "An AWS resource ARN.",
-    message: "Expected an AWS ARN",
-  })
+  S.isPattern(
+    awsArnPattern,
+    $I.annote("AwsArnFormat", {
+      title: "AWS ARN Format",
+      description: "An AWS resource ARN.",
+      message: "Expected an AWS ARN",
+    })
+  )
 ).pipe($I.annoteSchema("AwsArn", { description: "An AWS resource ARN." }));
 
 const SsmParameterArn = S.String.check(
-  S.isPattern(ssmParameterArnPattern, {
-    identifier: $I`SsmParameterArnFormat`,
-    title: "SSM Parameter ARN Format",
-    description: "An ARN for an AWS Systems Manager parameter.",
-    message: "Expected an SSM parameter ARN",
-  })
+  S.isPattern(
+    ssmParameterArnPattern,
+    $I.annote("SsmParameterArnFormat", {
+      title: "SSM Parameter ARN Format",
+      description: "An ARN for an AWS Systems Manager parameter.",
+      message: "Expected an SSM parameter ARN",
+    })
+  )
 ).pipe($I.annoteSchema("SsmParameterArn", { description: "An ARN for an AWS Systems Manager parameter." }));
 
 const AbsoluteZipPath = S.String.check(
-  S.isPattern(absoluteZipPathPattern, {
-    identifier: $I`AbsoluteZipPathFormat`,
-    title: "Absolute ZIP Path Format",
-    description: "An absolute filesystem path ending in .zip.",
-    message: "Expected an absolute path ending in .zip",
-  })
+  S.isPattern(
+    absoluteZipPathPattern,
+    $I.annote("AbsoluteZipPathFormat", {
+      title: "Absolute ZIP Path Format",
+      description: "An absolute filesystem path ending in .zip.",
+      message: "Expected an absolute path ending in .zip",
+    })
+  )
 ).pipe($I.annoteSchema("AbsoluteZipPath", { description: "An absolute filesystem path ending in .zip." }));
 
 const AmiId = S.String.check(
-  S.isPattern(amiIdPattern, {
-    identifier: $I`AmiIdFormat`,
-    title: "AMI ID Format",
-    description: "An EC2 machine image id.",
-    message: "Expected an AMI id like ami-0123456789abcdef0",
-  })
+  S.isPattern(
+    amiIdPattern,
+    $I.annote("AmiIdFormat", {
+      title: "AMI ID Format",
+      description: "An EC2 machine image id.",
+      message: "Expected an AMI id like ami-0123456789abcdef0",
+    })
+  )
 ).pipe($I.annoteSchema("AmiId", { description: "An EC2 machine image id." }));
 
 const RunnerLabel = S.String.check(
-  S.isPattern(runnerLabelPattern, {
-    identifier: $I`RunnerLabelFormat`,
-    title: "Runner Label Format",
-    description: "A GitHub Actions runner label containing letters, digits, underscores, or hyphens.",
-    message: "Expected a runner label containing only letters, digits, underscores, or hyphens",
-  })
+  S.isPattern(
+    runnerLabelPattern,
+    $I.annote("RunnerLabelFormat", {
+      title: "Runner Label Format",
+      description: "A GitHub Actions runner label containing letters, digits, underscores, or hyphens.",
+      message: "Expected a runner label containing only letters, digits, underscores, or hyphens",
+    })
+  )
 ).pipe($I.annoteSchema("RunnerLabel", { description: "A GitHub Actions runner label." }));
 
 /**
@@ -566,12 +576,14 @@ const RunnerLabel = S.String.check(
  * Parameter names must be absolute paths beginning with `/`.
  */
 const SsmParameterName = S.String.check(
-  S.isPattern(ssmParameterNamePattern, {
-    identifier: $I`SsmParameterNameFormat`,
-    title: "SSM Parameter Name Format",
-    description: "An absolute SSM parameter path.",
-    message: "Expected an absolute SSM parameter path starting with /",
-  })
+  S.isPattern(
+    ssmParameterNamePattern,
+    $I.annote("SsmParameterNameFormat", {
+      title: "SSM Parameter Name Format",
+      description: "An absolute SSM parameter path.",
+      message: "Expected an absolute SSM parameter path starting with /",
+    })
+  )
 ).pipe($I.annoteSchema("SsmParameterName", { description: "An absolute SSM parameter path." }));
 
 type CiFleetControllerPulumiConfigValuesFields = {

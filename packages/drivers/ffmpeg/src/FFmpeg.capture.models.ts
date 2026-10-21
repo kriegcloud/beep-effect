@@ -41,12 +41,14 @@ const $I = $FfmpegId.create("FFmpeg.capture.models");
  * @since 0.0.0
  */
 export const PositiveSeconds = S.Finite.check(
-  S.isGreaterThan(0, {
-    identifier: $I`PositiveSecondsGreaterThanZeroCheck`,
-    title: "Positive Seconds Greater Than Zero",
-    description: "Capture durations must be greater than zero seconds.",
-    message: "Expected seconds greater than zero",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("PositiveSecondsGreaterThanZeroCheck", {
+      title: "Positive Seconds Greater Than Zero",
+      description: "Capture durations must be greater than zero seconds.",
+      message: "Expected seconds greater than zero",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PositiveSeconds", {
     description: "Positive finite duration measured in seconds.",
@@ -87,12 +89,14 @@ export type PositiveSeconds = typeof PositiveSeconds.Type;
  * @since 0.0.0
  */
 export const FileSizeBytes = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`FileSizeBytesMinimumCheck`,
-    title: "File Size Bytes Minimum",
-    description: "File sizes are non-negative integer byte counts.",
-    message: "Expected a non-negative file size in bytes",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("FileSizeBytesMinimumCheck", {
+      title: "File Size Bytes Minimum",
+      description: "File sizes are non-negative integer byte counts.",
+      message: "Expected a non-negative file size in bytes",
+    })
+  )
 ).pipe(
   $I.annoteSchema("FileSizeBytes", {
     description: "Non-negative integer file size measured in bytes.",
@@ -133,12 +137,14 @@ export type FileSizeBytes = typeof FileSizeBytes.Type;
  * @since 0.0.0
  */
 export const TileCount = S.Int.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`TileCountMinimumCheck`,
-    title: "Tile Count Minimum",
-    description: "Contact-sheet tile grids use positive integer column and row counts.",
-    message: "Expected a positive tile count",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("TileCountMinimumCheck", {
+      title: "Tile Count Minimum",
+      description: "Contact-sheet tile grids use positive integer column and row counts.",
+      message: "Expected a positive tile count",
+    })
+  )
 ).pipe(
   $I.annoteSchema("TileCount", {
     description: "Positive integer tile-grid count for contact sheets.",
@@ -181,24 +187,27 @@ export type TileCount = typeof TileCount.Type;
 export const JpegQuality = S.Int.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`JpegQualityMinimumCheck`,
-        title: "JPEG Quality Minimum",
-        description: "ffmpeg -q:v quantizer values must be at least 1.",
-        message: "Expected a -q:v quality of at least 1",
-      }),
-      S.isLessThanOrEqualTo(31, {
-        identifier: $I`JpegQualityMaximumCheck`,
-        title: "JPEG Quality Maximum",
-        description: "ffmpeg -q:v quantizer values must not exceed 31.",
-        message: "Expected a -q:v quality of at most 31",
-      }),
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("JpegQualityMinimumCheck", {
+          title: "JPEG Quality Minimum",
+          description: "ffmpeg -q:v quantizer values must be at least 1.",
+          message: "Expected a -q:v quality of at least 1",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        31,
+        $I.annote("JpegQualityMaximumCheck", {
+          title: "JPEG Quality Maximum",
+          description: "ffmpeg -q:v quantizer values must not exceed 31.",
+          message: "Expected a -q:v quality of at most 31",
+        })
+      ),
     ],
-    {
-      identifier: $I`JpegQualityChecks`,
+    $I.annote("JpegQualityChecks", {
       title: "JPEG Quality",
       description: "Checks for ffmpeg -q:v quantizer values in the closed 1-31 range.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("JpegQuality", {
@@ -240,12 +249,14 @@ export type JpegQuality = typeof JpegQuality.Type;
  * @since 0.0.0
  */
 export const PixelOffset = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`PixelOffsetMinimumCheck`,
-    title: "Pixel Offset Minimum",
-    description: "Crop-region pixel offsets are non-negative integers.",
-    message: "Expected a non-negative pixel offset",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("PixelOffsetMinimumCheck", {
+      title: "Pixel Offset Minimum",
+      description: "Crop-region pixel offsets are non-negative integers.",
+      message: "Expected a non-negative pixel offset",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PixelOffset", {
     description: "Non-negative integer pixel offset from a frame edge.",
@@ -288,24 +299,27 @@ export type PixelOffset = typeof PixelOffset.Type;
 export const LumaValue = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`LumaValueMinimumCheck`,
-        title: "Luma Value Minimum",
-        description: "Mean luma values must be zero or greater.",
-        message: "Expected a luma value of at least zero",
-      }),
-      S.isLessThanOrEqualTo(255, {
-        identifier: $I`LumaValueMaximumCheck`,
-        title: "Luma Value Maximum",
-        description: "Mean luma values must not exceed 255.",
-        message: "Expected a luma value of at most 255",
-      }),
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("LumaValueMinimumCheck", {
+          title: "Luma Value Minimum",
+          description: "Mean luma values must be zero or greater.",
+          message: "Expected a luma value of at least zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        255,
+        $I.annote("LumaValueMaximumCheck", {
+          title: "Luma Value Maximum",
+          description: "Mean luma values must not exceed 255.",
+          message: "Expected a luma value of at most 255",
+        })
+      ),
     ],
-    {
-      identifier: $I`LumaValueChecks`,
+    $I.annote("LumaValueChecks", {
       title: "Luma Value",
       description: "Checks for mean luma values in the closed 0-255 range.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("LumaValue", {
@@ -353,12 +367,15 @@ export type LumaValue = typeof LumaValue.Type;
  * @since 0.0.0
  */
 export const SafeMetadataKey = S.String.check(
-  S.isPattern(/^[A-Za-z][A-Za-z0-9_]*$/, {
-    identifier: $I`SafeMetadataKeyPatternCheck`,
-    title: "Safe Metadata Key Pattern",
-    description: "Container metadata keys must start with a letter and contain only letters, digits, and underscores.",
-    message: "Expected a metadata key matching /^[A-Za-z][A-Za-z0-9_]*$/",
-  })
+  S.isPattern(
+    /^[A-Za-z][A-Za-z0-9_]*$/,
+    $I.annote("SafeMetadataKeyPatternCheck", {
+      title: "Safe Metadata Key Pattern",
+      description:
+        "Container metadata keys must start with a letter and contain only letters, digits, and underscores.",
+      message: "Expected a metadata key matching /^[A-Za-z][A-Za-z0-9_]*$/",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SafeMetadataKey", {
     description: "Container metadata key restricted to letters, digits, and underscores.",
@@ -680,12 +697,14 @@ export class ExtractFramesAtRequest extends S.Opaque<ExtractFramesAtRequest, { r
     ),
     timestampsSeconds: S.Array(NonNegativeSeconds)
       .check(
-        S.isMinLength(1, {
-          identifier: $I`ExtractFramesAtRequestTimestampsNonEmptyCheck`,
-          title: "Extract Frames At Timestamps Non Empty",
-          description: "Timestamped extraction requires at least one timestamp.",
-          message: "Expected at least one timestamp",
-        })
+        S.isMinLength(
+          1,
+          $I.annote("ExtractFramesAtRequestTimestampsNonEmptyCheck", {
+            title: "Extract Frames At Timestamps Non Empty",
+            description: "Timestamped extraction requires at least one timestamp.",
+            message: "Expected at least one timestamp",
+          })
+        )
       )
       .pipe(
         $I.annoteKey("ExtractFramesAtRequest.timestampsSeconds", {
@@ -1329,12 +1348,14 @@ export class WriteContainerMetadataRequest extends S.Opaque<
   S.Struct({
     metadata: S.Array(MetadataPair)
       .check(
-        S.isMinLength(1, {
-          identifier: $I`WriteContainerMetadataRequestMetadataNonEmptyCheck`,
-          title: "Write Container Metadata Non Empty",
-          description: "Metadata remuxing requires at least one key/value pair.",
-          message: "Expected at least one metadata pair",
-        })
+        S.isMinLength(
+          1,
+          $I.annote("WriteContainerMetadataRequestMetadataNonEmptyCheck", {
+            title: "Write Container Metadata Non Empty",
+            description: "Metadata remuxing requires at least one key/value pair.",
+            message: "Expected at least one metadata pair",
+          })
+        )
       )
       .pipe(
         $I.annoteKey("WriteContainerMetadataRequest.metadata", {

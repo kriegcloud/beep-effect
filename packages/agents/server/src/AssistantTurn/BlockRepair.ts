@@ -49,18 +49,22 @@ const RepairTokenCount = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
 const redactedJsonPointerPathPattern = /^(?:$|\/)/u;
 
 const RedactedJsonPointerPath = S.String.check(
-  S.isPattern(redactedJsonPointerPathPattern, {
-    identifier: $I`RedactedJsonPointerPathPattern`,
-    title: "Redacted JSON Pointer Path",
-    description: "Accepts the empty JSON Pointer root or a slash-prefixed JSON Pointer path after redaction.",
-    message: "Expected a JSON Pointer root or slash-prefixed path.",
-  }),
-  S.isMaxLength(PATCH_PATH_LIMIT + 3, {
-    identifier: $I`RedactedJsonPointerPathMaxLength`,
-    title: "Redacted JSON Pointer Path Max Length",
-    description: "Keeps redacted JSON Pointer paths within the configured truncation limit plus ellipsis.",
-    message: `Expected a redacted JSON Pointer path of ${PATCH_PATH_LIMIT + 3} characters or fewer.`,
-  })
+  S.isPattern(
+    redactedJsonPointerPathPattern,
+    $I.annote("RedactedJsonPointerPathPattern", {
+      title: "Redacted JSON Pointer Path",
+      description: "Accepts the empty JSON Pointer root or a slash-prefixed JSON Pointer path after redaction.",
+      message: "Expected a JSON Pointer root or slash-prefixed path.",
+    })
+  ),
+  S.isMaxLength(
+    PATCH_PATH_LIMIT + 3,
+    $I.annote("RedactedJsonPointerPathMaxLength", {
+      title: "Redacted JSON Pointer Path Max Length",
+      description: "Keeps redacted JSON Pointer paths within the configured truncation limit plus ellipsis.",
+      message: `Expected a redacted JSON Pointer path of ${PATCH_PATH_LIMIT + 3} characters or fewer.`,
+    })
+  )
 ).pipe(
   $I.annoteSchema("RedactedJsonPointerPath", {
     description: "Redacted and length-bounded JSON Pointer path safe for repair observability.",

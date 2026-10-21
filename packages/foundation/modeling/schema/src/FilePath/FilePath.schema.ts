@@ -91,36 +91,42 @@ const matchesSupportedPathFamily = (value: string): boolean =>
 
 const FilePathChecks = S.makeFilterGroup(
   [
-    S.isNonEmpty({
-      identifier: $I`FilePathNonEmptyCheck`,
-      title: "File Path Non-empty",
-      description: "A file path string that is not empty.",
-      message: "File path must not be empty",
-    }),
-    S.makeFilter(P.not(isHasNullByte), {
-      identifier: $I`FilePathNoNullByteCheck`,
-      title: "File Path No Null Byte",
-      description: "A file path string without embedded NUL bytes.",
-      message: "File path must not contain embedded NUL bytes",
-    }),
-    S.makeFilter(isHasLeafSegment, {
-      identifier: $I`FilePathHasLeafSegmentCheck`,
-      title: "File Path Has Leaf Segment",
-      description: "A file path string that includes a leaf segment and is not just a root.",
-      message: "File path must include a leaf segment",
-    }),
-    S.makeFilter(matchesSupportedPathFamily, {
-      identifier: $I`FilePathSupportedFamilyCheck`,
-      title: "File Path Supported Family",
-      description: "A file path string that matches a supported POSIX or Windows path family.",
-      message: "File path must use supported POSIX or Windows file path syntax",
-    }),
+    S.isNonEmpty(
+      $I.annote("FilePathNonEmptyCheck", {
+        title: "File Path Non-empty",
+        description: "A file path string that is not empty.",
+        message: "File path must not be empty",
+      })
+    ),
+    S.makeFilter(
+      P.not(isHasNullByte),
+      $I.annote("FilePathNoNullByteCheck", {
+        title: "File Path No Null Byte",
+        description: "A file path string without embedded NUL bytes.",
+        message: "File path must not contain embedded NUL bytes",
+      })
+    ),
+    S.makeFilter(
+      isHasLeafSegment,
+      $I.annote("FilePathHasLeafSegmentCheck", {
+        title: "File Path Has Leaf Segment",
+        description: "A file path string that includes a leaf segment and is not just a root.",
+        message: "File path must include a leaf segment",
+      })
+    ),
+    S.makeFilter(
+      matchesSupportedPathFamily,
+      $I.annote("FilePathSupportedFamilyCheck", {
+        title: "File Path Supported Family",
+        description: "A file path string that matches a supported POSIX or Windows path family.",
+        message: "File path must use supported POSIX or Windows file path syntax",
+      })
+    ),
   ],
-  {
-    identifier: $I`FilePathChecks`,
+  $I.annote("FilePathChecks", {
     title: "File Path",
     description: "Checks for a file path string accepted by at least one supported filesystem path family.",
-  }
+  })
 );
 
 /**

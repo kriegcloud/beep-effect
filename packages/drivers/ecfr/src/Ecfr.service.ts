@@ -55,24 +55,28 @@ const SearchPagination = SearchPaginationBase.pipe(
   SchemaUtils.withLiteralKitStatics(SearchPaginationBase)
 );
 const DatePathSegment = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}$/u, {
-    identifier: $I`DatePathSegmentCheck`,
-    title: "eCFR date path segment",
-    description: "An ISO calendar-date spelling that is safe to substitute into an eCFR URL path.",
-    message: "Expected an eCFR path date in YYYY-MM-DD form",
-  })
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}$/u,
+    $I.annote("DatePathSegmentCheck", {
+      title: "eCFR date path segment",
+      description: "An ISO calendar-date spelling that is safe to substitute into an eCFR URL path.",
+      message: "Expected an eCFR path date in YYYY-MM-DD form",
+    })
+  )
 ).pipe(
   $I.annoteSchema("DatePathSegment", {
     description: "An ISO date string accepted in dated eCFR versioner paths.",
   })
 );
 const TitlePathSegment = S.String.check(
-  S.isPattern(/^[A-Za-z0-9._~-]+$/u, {
-    identifier: $I`TitlePathSegmentCheck`,
-    title: "eCFR title path segment",
-    description: "A non-empty title identifier made only from unreserved URL path-segment characters.",
-    message: "Expected an eCFR title containing only unreserved URL path-segment characters",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9._~-]+$/u,
+    $I.annote("TitlePathSegmentCheck", {
+      title: "eCFR title path segment",
+      description: "A non-empty title identifier made only from unreserved URL path-segment characters.",
+      message: "Expected an eCFR title containing only unreserved URL path-segment characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("TitlePathSegment", {
     description: "A title identifier accepted in eCFR URL paths.",

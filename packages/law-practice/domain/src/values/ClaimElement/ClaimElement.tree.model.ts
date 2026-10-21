@@ -226,12 +226,11 @@ const ClaimElementTreeCoherenceCheck = S.makeFilter(
       ),
     ]);
   },
-  {
-    identifier: $I`ClaimElementTreeCoherenceCheck`,
+  $I.annote("ClaimElementTreeCoherenceCheck", {
     title: "Coherent claim-element tree",
     description:
       "Element paths are unique and rooted at the tree's claim number; every claim-local edge endpoint and term reference names an element and term of the tree; terms lie inside their element's span and do not overlap; part-of nests within the claim; dependencies and introductions point to earlier claims; functional edges read from functional-relation elements whose span holds their connecting text and whose terms are their term parts.",
-  }
+  })
 );
 
 /**

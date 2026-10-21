@@ -68,12 +68,14 @@ const CONSOLE_POST_LIMIT = Duration.minutes(20);
 const IMAGE_WAIT_LIMIT = Duration.hours(2);
 
 const BunVersion = S.String.check(
-  S.isPattern(/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/u, {
-    identifier: $I`BunVersionPattern`,
-    title: "Bun version",
-    description: "Exact Bun semantic version safe for interpolation into runner bake shell commands.",
-    message: "Expected an exact Bun semantic version",
-  })
+  S.isPattern(
+    /^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/u,
+    $I.annote("BunVersionPattern", {
+      title: "Bun version",
+      description: "Exact Bun semantic version safe for interpolation into runner bake shell commands.",
+      message: "Expected an exact Bun semantic version",
+    })
+  )
 ).pipe($I.annoteSchema("BunVersion", { description: "Validated Bun release used by the runner bake." }));
 const decodeBunVersion = S.decodeEffect(BunVersion);
 

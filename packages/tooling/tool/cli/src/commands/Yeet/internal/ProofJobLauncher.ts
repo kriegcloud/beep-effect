@@ -244,7 +244,9 @@ class ProofJobUnitObservation extends S.Opaque<ProofJobUnitObservation, { readon
 const ProofJobUnitEvidence = S.TaggedUnion({
   absent: {},
   terminal: { observation: ProofJobUnitObservation },
-}).annotate($I.annote("ProofJobUnitEvidence", { description: "Recoverable absent or empty-terminal unit evidence." }));
+}).pipe(
+  $I.annoteSchema("ProofJobUnitEvidence", { description: "Recoverable absent or empty-terminal unit evidence." })
+);
 type ProofJobUnitEvidence = typeof ProofJobUnitEvidence.Type;
 
 const isTerminalUnitState = (unit: ProofJobUnitObservation): boolean =>

@@ -199,32 +199,29 @@ export class MarkdownConformanceError extends S.TaggedError<
 
 const CommonMarkDocumentCheck = S.makeFilter<Document>(
   (document) => !A.isReadonlyArrayNonEmpty(markdownConformanceIssues(document, MarkdownProfileIds.CommonMark)),
-  {
-    identifier: $I`CommonMarkDocumentCheck`,
+  $I.annote("CommonMarkDocumentCheck", {
     title: "CommonMark semantic document",
     description: "A Markdown AST satisfying every implemented CommonMark 0.31.2 semantic-tree invariant.",
     message: "Document violates an implemented CommonMark 0.31.2 semantic-tree invariant.",
-  }
+  })
 );
 
 const GfmDocumentCheck = S.makeFilter<Document>(
   (document) => !A.isReadonlyArrayNonEmpty(markdownConformanceIssues(document, MarkdownProfileIds.Gfm)),
-  {
-    identifier: $I`GfmDocumentCheck`,
+  $I.annote("GfmDocumentCheck", {
     title: "GFM semantic document",
     description: "A Markdown AST satisfying every implemented pinned-GFM semantic-tree invariant.",
     message: "Document violates an implemented GFM semantic-tree invariant.",
-  }
+  })
 );
 
 const BeepMarkdownDocumentCheck = S.makeFilter<Document>(
   (document) => !A.isReadonlyArrayNonEmpty(markdownConformanceIssues(document, MarkdownProfileIds.Beep)),
-  {
-    identifier: $I`BeepMarkdownDocumentCheck`,
+  $I.annote("BeepMarkdownDocumentCheck", {
     title: "Beep Markdown semantic document",
     description: "A Markdown AST satisfying every implemented Beep extension semantic-tree invariant.",
     message: "Document violates an implemented Beep Markdown semantic-tree invariant.",
-  }
+  })
 );
 
 /**

@@ -146,8 +146,8 @@ export const DockAtomOperationKind = LiteralKit([
   "dispatchUnknownCommand",
   "saveSnapshot",
   "restoreSnapshot",
-]).annotate(
-  $I.annote("DockAtomOperationKind", {
+]).pipe(
+  $I.annoteSchema("DockAtomOperationKind", {
     description: "Discriminant for the dock atom session operation protocol.",
   })
 );
@@ -190,13 +190,12 @@ export const DockAtomOperation = DockAtomOperationKind.mapMembers(
     () => SaveDockSnapshot,
     () => RestoreDockSnapshot,
   ])
-)
-  .annotate(
-    $I.annote("DockAtomOperation", {
-      description: "All stateful session operations share this one serialized execution lane.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("DockAtomOperation", {
+    description: "All stateful session operations share this one serialized execution lane.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded serialized operation submitted to the Atom session.
  *
@@ -286,13 +285,12 @@ const DockAtomOperationOutcomeKind = LiteralKit(["mutationCompleted", "snapshotS
  */
 export const DockAtomOperationOutcome = DockAtomOperationOutcomeKind.mapMembers(
   Tuple.evolve([() => DockMutationCompleted, () => DockSnapshotSaved])
-)
-  .annotate(
-    $I.annote("DockAtomOperationOutcome", {
-      description: "Discriminates mutation outcomes from snapshot persistence results.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("DockAtomOperationOutcome", {
+    description: "Discriminates mutation outcomes from snapshot persistence results.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded tagged union of successful session operation results.
  *

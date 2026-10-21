@@ -40,12 +40,14 @@ const isSafeFilingSegment = (segment: string): boolean =>
  * @since 0.0.0
  */
 export const FilingSegment = S.NonEmptyString.check(
-  S.makeFilter(isSafeFilingSegment, {
-    identifier: $I`FilingSegmentCheck`,
-    title: "Filing Segment",
-    description: "A single path component without separators, dot traversal, or NUL bytes.",
-    message: "Filing segment must be a single safe path component",
-  })
+  S.makeFilter(
+    isSafeFilingSegment,
+    $I.annote("FilingSegmentCheck", {
+      title: "Filing Segment",
+      description: "A single path component without separators, dot traversal, or NUL bytes.",
+      message: "Filing segment must be a single safe path component",
+    })
+  )
 ).pipe(
   $I.annoteSchema("FilingSegment", {
     description: "A single safe path component used when projecting filing paths.",

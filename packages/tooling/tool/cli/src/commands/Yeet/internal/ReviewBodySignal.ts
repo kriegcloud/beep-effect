@@ -355,7 +355,7 @@ const parseCount = (value: string | undefined): number =>
 
 const sumPatternCounts = (body: string, pattern: RegExp): number =>
   pipe(
-    A.fromIterable(body.matchAll(pattern)),
+    A.fromIterable(Str.matchAll(pattern)(body)),
     A.map((match) => parseCount(match.groups?.count)),
     A.reduce(0, (total, count) => N.min(total + count, maxReviewBodyCount))
   );
@@ -428,8 +428,8 @@ const parseFindingTriplet = (body: string): FindingTally =>
 const parseFindingItems = (body: string): FindingTally =>
   pipe(
     O.fromNullOr(newMarkerPattern.exec(body)),
-    O.map((marker) => A.fromIterable(Str.slice(marker.index + marker[0].length)(body).matchAll(newItemPattern))),
-    O.getOrElse(A.empty<RegExpExecArray>),
+    O.map((marker) => A.fromIterable(Str.matchAll(newItemPattern)(Str.slice(marker.index + marker[0].length)(body)))),
+    O.getOrElse(A.empty<RegExpMatchArray>),
     A.reduce(noFindings, (counts, match) => {
       const count = parseCount(match.groups?.count);
       const level = match.groups?.level;

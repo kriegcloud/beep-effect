@@ -30,12 +30,14 @@ const $I = $ProfessionalDesktopId.create("spikes/CosmosSpike.rpc");
  * @since 0.0.0
  */
 export const SyntheticProjectionNodeCount = S.Int.check(
-  S.isGreaterThan(0, {
-    identifier: $I`SyntheticProjectionNodeCountCheck`,
-    title: "Synthetic projection node count",
-    description: "A synthetic projection needs at least one node.",
-    message: "Expected at least one synthetic projection node",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("SyntheticProjectionNodeCountCheck", {
+      title: "Synthetic projection node count",
+      description: "A synthetic projection needs at least one node.",
+      message: "Expected at least one synthetic projection node",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SyntheticProjectionNodeCount", {
     description: "Positive node count accepted by the synthetic projection worker.",
@@ -75,12 +77,14 @@ export type SyntheticProjectionNodeCount = typeof SyntheticProjectionNodeCount.T
  * @since 0.0.0
  */
 export const SyntheticProjectionCount = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`SyntheticProjectionCountCheck`,
-    title: "Synthetic projection count",
-    description: "Synthetic projection counts cannot be negative.",
-    message: "Expected a non-negative synthetic projection count",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("SyntheticProjectionCountCheck", {
+      title: "Synthetic projection count",
+      description: "Synthetic projection counts cannot be negative.",
+      message: "Expected a non-negative synthetic projection count",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SyntheticProjectionCount", {
     description: "Non-negative element or edge count used by the synthetic projection worker.",

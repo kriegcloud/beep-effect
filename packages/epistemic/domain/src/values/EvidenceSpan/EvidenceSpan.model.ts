@@ -87,12 +87,14 @@ export const EVIDENCE_SPAN_QUOTE_MAX_LENGTH = 65_536;
 
 const EvidenceSpanQuote = TextAnchorFields.quote
   .check(
-    S.isMaxLength(EVIDENCE_SPAN_QUOTE_MAX_LENGTH, {
-      identifier: $I`EvidenceSpanQuoteMaximumLengthCheck`,
-      title: "Evidence Span Quote Maximum Length",
-      description: "Checks that an evidence quote fits within one bounded 65,536-code-unit source-text page.",
-      message: "Expected evidence quote to contain at most 65,536 UTF-16 code units.",
-    })
+    S.isMaxLength(
+      EVIDENCE_SPAN_QUOTE_MAX_LENGTH,
+      $I.annote("EvidenceSpanQuoteMaximumLengthCheck", {
+        title: "Evidence Span Quote Maximum Length",
+        description: "Checks that an evidence quote fits within one bounded 65,536-code-unit source-text page.",
+        message: "Expected evidence quote to contain at most 65,536 UTF-16 code units.",
+      })
+    )
   )
   .pipe(
     $I.annoteSchema("EvidenceSpanQuote", {

@@ -29,8 +29,8 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Schema/Inference");
  * @category schemas
  * @since 0.0.0
  */
-export const ReasoningProfile = LiteralKit(["rdfs", "rdfs-subclass", "owl-sameas", "custom"]).annotate(
-    $I.annote("ReasoningProfile", {
+export const ReasoningProfile = LiteralKit(["rdfs", "rdfs-subclass", "owl-sameas", "custom"]).pipe(
+    $I.annoteSchema("ReasoningProfile", {
       description: "Supported built-in and custom inference reasoning profiles.",
     })
   );
@@ -51,8 +51,8 @@ export const ReasoningProfile = LiteralKit(["rdfs", "rdfs-subclass", "owl-sameas
  */
 export type ReasoningProfile = typeof ReasoningProfile.Type;
 
-const InferenceGraphFormat = LiteralKit(["turtle", "trig"]).annotate(
-    $I.annote("InferenceGraphFormat", {
+const InferenceGraphFormat = LiteralKit(["turtle", "trig"]).pipe(
+    $I.annoteSchema("InferenceGraphFormat", {
       description: "RDF concrete syntaxes accepted by the inference endpoint.",
     })
   );
@@ -191,8 +191,8 @@ export class InferenceRunRequest extends S.Opaque<InferenceRunRequest, { readonl
  * @category schemas
  * @since 0.0.0
  */
-export const InferenceStatus = LiteralKit(["complete", "processing", "failed"]).annotate(
-    $I.annote("InferenceStatus", {
+export const InferenceStatus = LiteralKit(["complete", "processing", "failed"]).pipe(
+    $I.annoteSchema("InferenceStatus", {
       description: "Terminal and in-flight statuses emitted by an inference job.",
     })
   );

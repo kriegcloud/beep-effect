@@ -55,18 +55,22 @@ export const FileSizeSuffix = S.TemplateLiteral([FileSizeScale, FileSizeByte]).p
 export type FileSizeSuffix = typeof FileSizeSuffix.Type;
 
 const NonNegativeSizeLimitNumber = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`NonNegativeSizeLimitNumber`,
-    title: "Non-negative size limit number",
-    description: "A numeric Next.js size limit must be zero or greater.",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("NonNegativeSizeLimitNumber", {
+      title: "Non-negative size limit number",
+      description: "A numeric Next.js size limit must be zero or greater.",
+    })
+  )
 );
 const SizeLimitText = S.TemplateLiteral([S.Finite, FileSizeSuffix]).check(
-  S.makeFilter(P.not(Str.startsWith("-")), {
-    identifier: $I`NonNegativeSizeLimitText`,
-    title: "Non-negative size limit text",
-    description: "A suffixed Next.js size limit must not start with a negative sign.",
-  })
+  S.makeFilter(
+    P.not(Str.startsWith("-")),
+    $I.annote("NonNegativeSizeLimitText", {
+      title: "Non-negative size limit text",
+      description: "A suffixed Next.js size limit must not start with a negative sign.",
+    })
+  )
 );
 
 /**

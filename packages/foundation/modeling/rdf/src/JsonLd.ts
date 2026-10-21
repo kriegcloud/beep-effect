@@ -23,18 +23,19 @@ const JsonLdScalar = S.Union([S.String, S.Finite, S.Boolean]).pipe(
 
 const jsonLdBlankNodeIdentifierChecks = S.makeFilterGroup(
   [
-    S.isPattern(/^_:\S+$/, {
-      identifier: $I`JsonLdBlankNodeIdentifierPatternCheck`,
-      title: "JSON-LD Blank Node Identifier Pattern",
-      description: "A JSON-LD blank-node identifier beginning with `_:` and containing no whitespace.",
-      message: "Blank-node identifiers must begin with `_:`, and must not contain whitespace",
-    }),
+    S.isPattern(
+      /^_:\S+$/,
+      $I.annote("JsonLdBlankNodeIdentifierPatternCheck", {
+        title: "JSON-LD Blank Node Identifier Pattern",
+        description: "A JSON-LD blank-node identifier beginning with `_:` and containing no whitespace.",
+        message: "Blank-node identifiers must begin with `_:`, and must not contain whitespace",
+      })
+    ),
   ],
-  {
-    identifier: $I`JsonLdBlankNodeIdentifierChecks`,
+  $I.annote("JsonLdBlankNodeIdentifierChecks", {
     title: "JSON-LD Blank Node Identifier",
     description: "Checks for bounded JSON-LD blank-node identifiers.",
-  }
+  })
 );
 
 /**

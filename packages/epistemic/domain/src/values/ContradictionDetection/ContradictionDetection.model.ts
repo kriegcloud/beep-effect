@@ -86,12 +86,11 @@ const assertionFitsProposal = S.makeFilter(
       value: belief.value,
       polarity: belief.polarity,
     }),
-  {
-    identifier: $I`AssertionFitsProposal`,
+  $I.annote("AssertionFitsProposal", {
     title: "Assertion fits proposal fact",
     description: "Bounds the complete replacement assertion by the shipped proposal fact limits.",
     message: "Expected an assertion fitting the shipped proposal fact bounds.",
-  }
+  })
 );
 class DetectionBeliefStruct extends S.Opaque<DetectionBeliefStruct, { readonly brand: unique symbol }>()(
   S.Struct({
@@ -112,11 +111,12 @@ class DetectionBeliefStruct extends S.Opaque<DetectionBeliefStruct, { readonly b
 ) {}
 const DetectionBeliefChecked = DetectionBeliefStruct.mapFields((fields) => fields).check(
   assertionFitsProposal,
-  makeValidIntervalCheck({
-    identifier: $I`DetectionBeliefInterval`,
-    title: "Detection belief interval",
-    description: "Requires a non-empty forward half-open belief interval.",
-  })
+  makeValidIntervalCheck(
+    $I.annote("DetectionBeliefInterval", {
+      title: "Detection belief interval",
+      description: "Requires a non-empty forward half-open belief interval.",
+    })
+  )
 );
 /**
  * One caller-populated assertion whose whole fact fits a shipped resolution proposal.
@@ -142,12 +142,11 @@ const UniqueBeliefs = S.Array(DetectionBelief).check(
   S.makeFilter(
     (beliefs) =>
       HashSet.size(HashSet.fromIterable(A.map(beliefs, (belief) => belief.ref.edgeVersionId))) === A.length(beliefs),
-    {
-      identifier: $I`UniqueSnapshotBeliefs`,
+    $I.annote("UniqueSnapshotBeliefs", {
       title: "Unique snapshot beliefs",
       description: "Each immutable edge version occurs once in one view snapshot.",
       message: "Expected distinct edgeVersionIds in the snapshot.",
-    }
+    })
   )
 );
 /**
@@ -229,11 +228,12 @@ class DetectedContradictionStruct extends S.Opaque<DetectedContradictionStruct, 
 export class DetectedContradiction extends S.Opaque<DetectedContradiction, { readonly brand: unique symbol }>()(
   DetectedContradictionStruct.mapFields((fields) => fields)
     .check(
-      makeValidIntervalCheck({
-        identifier: $I`DetectedContradictionInterval`,
-        title: "Detected contradiction interval",
-        description: "Preserves the shipped content's non-empty half-open validity invariant.",
-      })
+      makeValidIntervalCheck(
+        $I.annote("DetectedContradictionInterval", {
+          title: "Detected contradiction interval",
+          description: "Preserves the shipped content's non-empty half-open validity invariant.",
+        })
+      )
     )
     .pipe(
       $I.annoteSchema("DetectedContradiction", {

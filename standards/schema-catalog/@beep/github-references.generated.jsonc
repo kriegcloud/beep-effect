@@ -5,13 +5,13 @@
   "owner": "@beep/github-references",
   "entries": [
     {"file":"packages/foundation/modeling/github-references/src/ClosingList.ts","symbol":"ClosingList","kind":"struct-const","owner":"@beep/github-references","identity":"ClosingList","description":"The issues named by a whole closing-list line."},
-    {"file":"packages/foundation/modeling/github-references/src/ClosingList.ts","symbol":"HarvestedReferenceList","kind":"struct-const","owner":"@beep/github-references","identity":"HarvestedReferenceList.OrderedSpan","description":"The exclusive end offset exceeds the start offset of the harvested match."},
+    {"file":"packages/foundation/modeling/github-references/src/ClosingList.ts","symbol":"HarvestedReferenceList","kind":"struct-const","owner":"@beep/github-references","identity":"HarvestedReferenceList","description":"A reference list harvested from prose with its match offsets."},
     {"file":"packages/foundation/modeling/github-references/src/ClosingList.ts","symbol":"ListKeyword","kind":"literal-kit","owner":"@beep/github-references","identity":"ListKeyword","description":"A closing or non-closing keyword accepted by the list dialect."},
     {"file":"packages/foundation/modeling/github-references/src/ClosingList.ts","symbol":"ReferenceKeyword","kind":"literal-kit","owner":"@beep/github-references","identity":"ReferenceKeyword","description":"A non-closing reference keyword in canonical lowercase form."},
     {"file":"packages/foundation/modeling/github-references/src/ClosingList.ts","symbol":"ReferenceList","kind":"struct-const","owner":"@beep/github-references","identity":"ReferenceList","description":"The issues named by a whole reference-list line with its closing flag."},
     {"file":"packages/foundation/modeling/github-references/src/IssueReferences.ts","symbol":"BareLineReference","kind":"struct-const","owner":"@beep/github-references","identity":"BareLineReference","description":"The closing issue reference carried by a whole bare line."},
     {"file":"packages/foundation/modeling/github-references/src/IssueReferences.ts","symbol":"ClosingKeyword","kind":"literal-kit","owner":"@beep/github-references","identity":"ClosingKeyword","description":"A documented GitHub closing keyword in canonical lowercase form."},
-    {"file":"packages/foundation/modeling/github-references/src/IssueReferences.ts","symbol":"IssueReference","kind":"struct-const","owner":"@beep/github-references","identity":"IssueReference.OrderedSpan","description":"The exclusive end offset exceeds the start offset of the harvested match."},
+    {"file":"packages/foundation/modeling/github-references/src/IssueReferences.ts","symbol":"IssueReference","kind":"struct-const","owner":"@beep/github-references","identity":"IssueReference","description":"A closing issue reference harvested from prose with its match offsets."},
     {"file":"packages/foundation/modeling/github-references/src/KeywordFamily.ts","symbol":"KeywordFamily","kind":"literal-kit","owner":"@beep/github-references","identity":"KeywordFamily","description":"The tense-collapsed stem of a closing or reference keyword."}
   ]
 }

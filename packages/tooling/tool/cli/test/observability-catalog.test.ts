@@ -38,6 +38,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { Project } from "ts-morph";
 import { dynamicSpans, literalSpans } from "./fixtures/observability-catalog/sources.ts";
 import { NodeTestLayer, withTempWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
@@ -237,7 +238,7 @@ describe("rendering", () => {
 
   it("splices the count-free generated section between its markers", () => {
     expect(STANDARD_SECTION).not.toContain("| Family |");
-    expect(STANDARD_SECTION.endsWith(STANDARD_SECTION_END)).toBe(true);
+    expect(Str.endsWith(STANDARD_SECTION_END)(STANDARD_SECTION)).toBe(true);
     const doc = `# Title\n\n${STANDARD_SECTION_BEGIN}\nold\n${STANDARD_SECTION_END}\n\nrest\n`;
     assertSome(spliceStandardSection(doc, STANDARD_SECTION), `# Title\n\n${STANDARD_SECTION}\n\nrest\n`);
     assertNone(spliceStandardSection("# no markers\n", STANDARD_SECTION));

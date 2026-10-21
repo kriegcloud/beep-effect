@@ -28,8 +28,8 @@ const $I = $CodegenKitId.create("CodegenKit.models");
  * @category configuration
  * @since 0.0.0
  */
-export const SpecPinPolicy = LiteralKit(["url-embedded", "info-version"]).annotate(
-  $I.annote("SpecPinPolicy", {
+export const SpecPinPolicy = LiteralKit(["url-embedded", "info-version"]).pipe(
+  $I.annoteSchema("SpecPinPolicy", {
     description: "Policy used to verify a remote source pin before its committed cache is replaced.",
   })
 );
@@ -104,8 +104,8 @@ export type SpecSource = typeof SpecSource.Type;
  * @category configuration
  * @since 0.0.0
  */
-export const SpecDialect = LiteralKit(["json-schema-2020-12", "openapi-3.0", "openapi-3.1", "swagger-2.0"]).annotate(
-  $I.annote("SpecDialect", {
+export const SpecDialect = LiteralKit(["json-schema-2020-12", "openapi-3.0", "openapi-3.1", "swagger-2.0"]).pipe(
+  $I.annoteSchema("SpecDialect", {
     description: "Document dialect supplied to the shared code generator.",
   })
 );
@@ -133,8 +133,8 @@ export type SpecDialect = typeof SpecDialect.Type;
  * @category configuration
  * @since 0.0.0
  */
-export const OutputFormat = LiteralKit(["schemas", "httpclient", "httpapi", "type-only"]).annotate(
-  $I.annote("OutputFormat", {
+export const OutputFormat = LiteralKit(["schemas", "httpclient", "httpapi", "type-only"]).pipe(
+  $I.annoteSchema("OutputFormat", {
     description: "TypeScript module format produced by the generation pipeline.",
   })
 );
@@ -187,8 +187,8 @@ export const NamedTransform = LiteralKit([
   "uniqueDiscriminatorOneOfAsAnyOf",
   "intersectSiblingProperties",
   "distributeAllOf",
-]).annotate(
-  $I.annote("NamedTransform", {
+]).pipe(
+  $I.annoteSchema("NamedTransform", {
     description: "Opt-in JSON Schema transforms composed into the generator onEnter hook.",
   })
 );
@@ -216,8 +216,8 @@ export type NamedTransform = typeof NamedTransform.Type;
  * @category configuration
  * @since 0.0.0
  */
-export const NumberPolicy = LiteralKit(["finite", "number"]).annotate(
-  $I.annote("NumberPolicy", {
+export const NumberPolicy = LiteralKit(["finite", "number"]).pipe(
+  $I.annoteSchema("NumberPolicy", {
     description: "Policy deciding whether generated JSON numbers use S.Finite or S.Number.",
   })
 );
@@ -245,8 +245,8 @@ export type NumberPolicy = typeof NumberPolicy.Type;
  * @category configuration
  * @since 0.0.0
  */
-export const SchemaStyle = LiteralKit(["struct", "class"]).annotate(
-  $I.annote("SchemaStyle", {
+export const SchemaStyle = LiteralKit(["struct", "class"]).pipe(
+  $I.annoteSchema("SchemaStyle", {
     description: "Rendering style for generated object schemas.",
   })
 );
@@ -274,8 +274,8 @@ export type SchemaStyle = typeof SchemaStyle.Type;
  * @category configuration
  * @since 0.0.0
  */
-export const WarningPolicy = LiteralKit(["fail", "log"]).annotate(
-  $I.annote("WarningPolicy", {
+export const WarningPolicy = LiteralKit(["fail", "log"]).pipe(
+  $I.annoteSchema("WarningPolicy", {
     description: "Policy deciding whether OpenAPI generator warnings fail or are logged.",
   })
 );
@@ -542,8 +542,8 @@ export class GeneratedModule extends S.Opaque<GeneratedModule, { readonly brand:
  * @category diagnostics
  * @since 0.0.0
  */
-export const DriftStatus = LiteralKit(["clean", "changed", "missing"]).annotate(
-  $I.annote("DriftStatus", {
+export const DriftStatus = LiteralKit(["clean", "changed", "missing"]).pipe(
+  $I.annoteSchema("DriftStatus", {
     description: "Comparison result for a generated destination.",
   })
 );

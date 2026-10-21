@@ -1,5 +1,5 @@
 {
-  "previous": "0ebb98741184344889cc34e76f5c5ca2c80b7ea9449fefb4ae1777ffe26c3c8c",
+  "previous": "42a13d7194e295106b8743228ed1b39753ae180906ba50403f9a7b20a9eaa053",
   "review": {
     "reviewer": "Claude Opus 5.5 (rsc residue #1882, feat/residue-dependency-review)",
     "reason": "Record the new @beep/repo-cli -> @beep/spdx dependency edge and the matching policy-fingerprint inputs; commands and cache settings are unchanged and no qualification is granted.",

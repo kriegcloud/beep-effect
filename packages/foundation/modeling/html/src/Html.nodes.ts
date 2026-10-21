@@ -86,48 +86,59 @@ export declare namespace Text {
 export const HtmlCommentData = S.String.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(P.not(Str.startsWith(">")), {
-        identifier: $I`HtmlCommentDataLeadingCloseCheck`,
-        title: "HTML Comment Leading Close",
-        description: "Rejects comment data beginning with `>`.",
-        message: "Comment data must not begin with >",
-      }),
-      S.makeFilter(P.not(Str.startsWith("->")), {
-        identifier: $I`HtmlCommentDataLeadingArrowCheck`,
-        title: "HTML Comment Leading Arrow",
-        description: "Rejects comment data beginning with `->`.",
-        message: "Comment data must not begin with ->",
-      }),
-      S.makeFilter(P.not(Str.includes("<!--")), {
-        identifier: $I`HtmlCommentDataOpenDelimiterCheck`,
-        title: "HTML Comment Open Delimiter",
-        description: "Rejects nested HTML comment opening delimiters.",
-        message: "Comment data must not contain <!--",
-      }),
-      S.makeFilter(P.not(Str.includes("-->")), {
-        identifier: $I`HtmlCommentDataCloseDelimiterCheck`,
-        title: "HTML Comment Close Delimiter",
-        description: "Rejects HTML comment closing delimiters.",
-        message: "Comment data must not contain -->",
-      }),
-      S.makeFilter(P.not(Str.includes("--!>")), {
-        identifier: $I`HtmlCommentDataBangCloseDelimiterCheck`,
-        title: "HTML Comment Bang Close Delimiter",
-        description: "Rejects HTML comment bang-closing delimiters.",
-        message: "Comment data must not contain --!>",
-      }),
-      S.makeFilter(P.not(Str.endsWith("<!-")), {
-        identifier: $I`HtmlCommentDataTrailingOpenCheck`,
-        title: "HTML Comment Trailing Open",
-        description: "Rejects comment data ending with `<!-`.",
-        message: "Comment data must not end with <!-",
-      }),
+      S.makeFilter(
+        P.not(Str.startsWith(">")),
+        $I.annote("HtmlCommentDataLeadingCloseCheck", {
+          title: "HTML Comment Leading Close",
+          description: "Rejects comment data beginning with `>`.",
+          message: "Comment data must not begin with >",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.startsWith("->")),
+        $I.annote("HtmlCommentDataLeadingArrowCheck", {
+          title: "HTML Comment Leading Arrow",
+          description: "Rejects comment data beginning with `->`.",
+          message: "Comment data must not begin with ->",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.includes("<!--")),
+        $I.annote("HtmlCommentDataOpenDelimiterCheck", {
+          title: "HTML Comment Open Delimiter",
+          description: "Rejects nested HTML comment opening delimiters.",
+          message: "Comment data must not contain <!--",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.includes("-->")),
+        $I.annote("HtmlCommentDataCloseDelimiterCheck", {
+          title: "HTML Comment Close Delimiter",
+          description: "Rejects HTML comment closing delimiters.",
+          message: "Comment data must not contain -->",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.includes("--!>")),
+        $I.annote("HtmlCommentDataBangCloseDelimiterCheck", {
+          title: "HTML Comment Bang Close Delimiter",
+          description: "Rejects HTML comment bang-closing delimiters.",
+          message: "Comment data must not contain --!>",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.endsWith("<!-")),
+        $I.annote("HtmlCommentDataTrailingOpenCheck", {
+          title: "HTML Comment Trailing Open",
+          description: "Rejects comment data ending with `<!-`.",
+          message: "Comment data must not end with <!-",
+        })
+      ),
     ],
-    {
-      identifier: $I`HtmlCommentDataChecks`,
+    $I.annote("HtmlCommentDataChecks", {
       title: "HTML Comment Data",
       description: "Checks the HTML comment-data grammar needed for lossless serialization.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("HtmlCommentData", {

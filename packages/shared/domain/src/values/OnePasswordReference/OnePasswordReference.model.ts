@@ -14,12 +14,14 @@ const $I = $SharedDomainId.create("values/OnePasswordReference/OnePasswordRefere
 const onePasswordReferencePattern = /^op:\/\/[^/]+\/[^/]+\/[^/]+(?:\/[^/]+)?$/;
 
 const OnePasswordReferenceChecks = S.makeFilterGroup([
-  S.isPattern(onePasswordReferencePattern, {
-    identifier: $I`OnePasswordReferencePatternCheck`,
-    title: "1Password reference pattern",
-    description: "Requires an op://vault/item/field reference, with an optional section segment.",
-    message: "OnePasswordReference must look like op://vault/item/field",
-  }),
+  S.isPattern(
+    onePasswordReferencePattern,
+    $I.annote("OnePasswordReferencePatternCheck", {
+      title: "1Password reference pattern",
+      description: "Requires an op://vault/item/field reference, with an optional section segment.",
+      message: "OnePasswordReference must look like op://vault/item/field",
+    })
+  ),
 ]);
 
 /**
