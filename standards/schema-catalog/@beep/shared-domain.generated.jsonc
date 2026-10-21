@@ -18,7 +18,7 @@
     {"file":"packages/shared/domain/src/entity/EntityRef.errors.ts","symbol":"EntityRefError","kind":"union","owner":"@beep/shared-domain","identity":"EntityRefError","description":"Union of entity-reference invariant failures."},
     {"file":"packages/shared/domain/src/entity/EntityRef.errors.ts","symbol":"EntityRefInvariantError","kind":"tagged-error","owner":"@beep/shared-domain","identity":"EntityRefInvariantError"},
     {"file":"packages/shared/domain/src/entity/EntityRef.ts","symbol":"EntityRef","kind":"struct-const","owner":"@beep/shared-domain","identity":"EntityRef","description":"Storage-neutral polymorphic entity reference."},
-    {"file":"packages/shared/domain/src/entity/EntityRef.ts","symbol":"EntityType","kind":"brand","owner":"@beep/shared-domain","identity":"EntityType","description":"PascalCase entity type token used by polymorphic entity references."},
+    {"file":"packages/shared/domain/src/entity/EntityRef.ts","symbol":"EntityType","kind":"brand","owner":"@beep/shared-domain","identity":"EntityRefEntityTypePattern","description":"PascalCase entity type token used by polymorphic entity references."},
     {"file":"packages/shared/domain/src/entity/Principal.ts","symbol":"AgentPrincipal","kind":"struct-const","owner":"@beep/shared-domain","identity":"AgentPrincipal","description":"Canonical actor reference for an agent."},
     {"file":"packages/shared/domain/src/entity/Principal.ts","symbol":"ConnectorAccountPrincipal","kind":"struct-const","owner":"@beep/shared-domain","identity":"ConnectorAccountPrincipal","description":"Canonical actor reference for a connector account."},
     {"file":"packages/shared/domain/src/entity/Principal.ts","symbol":"Principal","kind":"tagged-union","owner":"@beep/shared-domain"},

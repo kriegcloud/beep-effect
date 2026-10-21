@@ -10,7 +10,7 @@
     {"file":"packages/drivers/cosmos/src/Cosmos.backend.ts","symbol":"ProbeWebGl2Options","kind":"struct-const","owner":"@beep/cosmos","identity":"ProbeWebGl2Options","description":"Optional canvas override for probing WebGL2 without creating a document element."},
     {"file":"packages/drivers/cosmos/src/Cosmos.errors.ts","symbol":"CosmosDriverError","kind":"tagged-error","owner":"@beep/cosmos","identity":"CosmosDriverError"},
     {"file":"packages/drivers/cosmos/src/Cosmos.errors.ts","symbol":"CosmosDriverErrorReason","kind":"literal-kit","owner":"@beep/cosmos","identity":"CosmosDriverErrorReason","description":"Failure reason emitted by the cosmos graph driver."},
-    {"file":"packages/drivers/cosmos/src/Cosmos.projection.ts","symbol":"CosmosGraphProjection","kind":"struct-const","owner":"@beep/cosmos","identity":"CosmosGraphProjection","description":"Typed-array graph projection: node ids, point positions, source-target link pairs, and labels."},
+    {"file":"packages/drivers/cosmos/src/Cosmos.projection.ts","symbol":"CosmosGraphProjection","kind":"struct-const","owner":"@beep/cosmos","identity":"CosmosGraphProjectionShapeCheck","description":"Checks that nodeIds holds nodeCount ids, pointPositions 2 * nodeCount floats, and links 2 * edgeCount floats."},
     {"file":"packages/drivers/cosmos/src/Cosmos.projection.ts","symbol":"SyntheticOntologyGraphOptions","kind":"struct-const","owner":"@beep/cosmos","identity":"SyntheticOntologyGraphOptions","description":"Deterministic synthetic ontology graph generation options."},
     {"file":"packages/drivers/cosmos/src/Cosmos.renderer.ts","symbol":"CosmosRenderHandle","kind":"struct-const","owner":"@beep/cosmos","identity":"CosmosRenderHandle","description":""}
   ]
