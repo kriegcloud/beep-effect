@@ -2066,5 +2066,9 @@
   "@beep/public-site": [
     "./packages/foundation/modeling/public-site/src/index.ts"
   ],
-  "@beep/public-site/*": ["./packages/foundation/modeling/public-site/src/*"]
+  "@beep/public-site/*": ["./packages/foundation/modeling/public-site/src/*"],
+  "@beep/acp/stderr": ["./packages/drivers/acp/src/AcpStderr.models.ts"],
+  "@beep/acp/terminals": [
+    "./packages/drivers/acp/src/AcpClientTerminals.service.ts"
+  ]
 }

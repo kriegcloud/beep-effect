@@ -68,6 +68,21 @@ export * as Agent from "./AcpAgent.service.ts";
  */
 export * as Client from "./AcpClient.service.ts";
 /**
+ * Client-side ACP terminal service exports.
+ *
+ * **Example** (Read the default live-terminal bound)
+ *
+ * ```ts
+ * import { Terminals } from "@beep/acp"
+ *
+ * console.log(Terminals.AcpClientTerminalLimits.make({}).maxLiveTerminals) // 16
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as Terminals from "./AcpClientTerminals.service.ts";
+/**
  * Normalized ACP compatibility exports shared by protocol generations 1 and 2.
  *
  * **Example** (Read the unknown-variant sentinel)
@@ -130,6 +145,21 @@ export * as Protocol from "./AcpProtocol.service.ts";
  * @since 0.0.0
  */
 export * as Rpc from "./AcpRpc.models.ts";
+/**
+ * Bounded, redacted stderr tails for ACP peer processes.
+ *
+ * **Example** (Redact a home directory)
+ *
+ * ```ts
+ * import { Stderr } from "@beep/acp"
+ *
+ * console.log(Stderr.sanitizeStderrExcerpt("/home/ada/.agent/log", ["/home/ada"])) // ~/.agent/log
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * as Stderr from "./AcpStderr.models.ts";
 /**
  * Generated ACP generation-1 schema exports.
  *

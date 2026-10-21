@@ -3,17 +3,20 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Errors as AcpErrors } from "@beep/acp";
+import { Errors as AcpErrors, Stderr as AcpStderr } from "@beep/acp";
 import { $AiProviderCliId } from "@beep/identity";
 import { LiteralKit, Sha256HexFromBytes } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ManagedSessionError } from "./AiProviderCliSession.errors.ts";
+import type * as Scope from "effect/Scope";
+import type * as Stream from "effect/Stream";
 import type { ManagedLaunchProfile } from "./AiProviderCliSession.models.ts";
 
 const $I = $AiProviderCliId.create("AiProviderCliSession.profile.service");
@@ -91,6 +94,76 @@ export const transportFailure = (operation: string) =>
               : "Native runtime transport failed"
           )
   );
+/**
+ * Keeps the bounded, redacted stderr tail of a managed native process.
+ *
+ * **Details**
+ *
+ * The collector consumes the whole stream so the native process never blocks on a full stderr
+ * pipe, and redacts the owned profile root and `HOME` in every excerpt.
+ *
+ * **Example** (Collect a synthetic stderr stream)
+ * ```ts
+ * import { collectStderr } from "../../src/AiProviderCliSession.profile.service.ts"
+ * import * as Effect from "effect/Effect"
+ * import * as Stream from "effect/Stream"
+ * import { ManagedLaunchProfile } from "@beep/ai-provider-cli"
+ * const profile = ManagedLaunchProfile.make({
+ *   provider: "grok", executable: "grok", prefixArgs: [],
+ *   workspace: "/owned/workspace", profileRoot: "/owned/profile",
+ *   env: { HOME: "/owned/profile" }, authLane: "existing-subscription", tools: []
+ * })
+ * const operation = Stream.empty.pipe(collectStderr(profile))
+ * console.log(Effect.isEffect(operation)) // true
+ * ```
+ * @internal
+ * @category resource-management
+ * @since 0.0.0
+ */
+export const collectStderr =
+  (profile: ManagedLaunchProfile) =>
+  <E>(stderr: Stream.Stream<Uint8Array, E>): Effect.Effect<AcpStderr.AcpStderrCollector, never, Scope.Scope> =>
+    AcpStderr.collectStderrTail(stderr, {
+      homeDirectories: [profile.profileRoot, ...O.toArray(R.get(profile.env, "HOME"))],
+    });
+
+/**
+ * Logs the redacted stderr excerpt of a managed native process at debug level.
+ *
+ * **Details**
+ *
+ * The excerpt never enters `ManagedSessionError`, whose messages stay value-free; it goes to the
+ * debug log only, and nothing is logged when the process wrote no printable stderr.
+ *
+ * **Example** (Compose the excerpt log)
+ * ```ts
+ * import { logStderrExcerpt } from "../../src/AiProviderCliSession.profile.service.ts"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ * import { Stderr } from "@beep/acp"
+ * const collector: Stderr.AcpStderrCollector = {
+ *   drained: Effect.void, excerpt: Effect.succeed(O.none()), tail: Effect.succeed(Stderr.AcpStderrTail.empty)
+ * }
+ * console.log(Effect.isEffect(logStderrExcerpt("close")(collector))) // true
+ * ```
+ * @internal
+ * @category observability
+ * @since 0.0.0
+ */
+export const logStderrExcerpt =
+  (operation: string) =>
+  (collector: AcpStderr.AcpStderrCollector): Effect.Effect<void> =>
+    Effect.flatMap(
+      collector.excerpt,
+      O.match({
+        onNone: () => Effect.void,
+        onSome: (excerpt) =>
+          Effect.logDebug("Managed native runtime stderr").pipe(
+            Effect.annotateLogs({ "ai_provider_cli.operation": operation, "process.stderr_excerpt": excerpt })
+          ),
+      })
+    );
+
 /**
  * Encodes protocol payloads as JSON through the schema encoder.
  *

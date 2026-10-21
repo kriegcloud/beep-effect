@@ -175,6 +175,14 @@ Upstream repository: <https://github.com/pingdotgg/t3code>
     `uniqueDiscriminatorOneOfAsAnyOf` and `distributeAllOf`), which adapt the
     schema normalizations of `packages/effect-acp/scripts/generate.ts` into
     registered, opt-in generator transforms, and their test cases.
+- `packages/provider-acp`
+  - Pinned commit: [`e64766c56ac6fc1678e6107052feb0047a35337f`](https://github.com/pingdotgg/t3code/commit/e64766c56ac6fc1678e6107052feb0047a35337f)
+  - Affected material: `@beep/acp/stderr` and `@beep/acp/terminals`
+    (`packages/drivers/acp/src/AcpStderr.models.ts`,
+    `packages/drivers/acp/src/AcpClientTerminals.service.ts`), adapted from
+    `src/server/stderr.ts`, `src/server/clientTerminals.ts` and the stderr
+    enrichment of `src/server/AcpSessionRuntime.ts`, with their ported test
+    cases.
 
 MIT License
 

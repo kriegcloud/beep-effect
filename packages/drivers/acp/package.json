@@ -55,6 +55,8 @@
     "./rpc": "./src/AcpRpc.models.ts",
     "./schema": "./src/Acp.models.ts",
     "./schema-v1": "./src/AcpV1.models.ts",
+    "./stderr": "./src/AcpStderr.models.ts",
+    "./terminals": "./src/AcpClientTerminals.service.ts",
     "./_generated/*": null,
     "./internal/*": "./src/internal/*.ts",
     "./package.json": "./package.json"
@@ -81,6 +83,8 @@
       "./rpc": "./dist/AcpRpc.models.js",
       "./schema": "./dist/Acp.models.js",
       "./schema-v1": "./dist/AcpV1.models.js",
+      "./stderr": "./dist/AcpStderr.models.js",
+      "./terminals": "./dist/AcpClientTerminals.service.js",
       "./_generated/*": null,
       "./internal/*": null,
       "./package.json": "./package.json"
