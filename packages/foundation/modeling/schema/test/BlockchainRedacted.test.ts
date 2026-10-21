@@ -34,7 +34,7 @@ describe("blockchain redacted schemas", () => {
       const invalidChecksum = "bc1qqypqxpq9qcrsszg2pvxq6rs0zqg3yyc5fcj4z4";
       const result = yield* Effect.exit(decodeCryptoWalletAddressRedactedEffect(invalidChecksum));
 
-      assertTrue(Exit.isFailure(result));
+      result.pipe(Exit.isFailure, assertTrue);
     })
   );
 
