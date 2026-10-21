@@ -448,10 +448,10 @@ const reasons = (input: YeetGhGateFacts) => A.map(decideYeetGhMergeGate(input).f
 describe("REST merge gate", () => {
   it("folds the squash body under the 100-character commitlint limit", () => {
     const folded = foldCommitMessage(
-      `Squash-merged at ${"a".repeat(40)} by beep yeet gh merge. Tolerated: ${"Heavy / Coverage Regression; ".repeat(4)}`
+      `Squash-merged at ${Str.repeat(40)("a")} by beep yeet gh merge. Tolerated: ${Str.repeat(4)("Heavy / Coverage Regression; ")}`
     );
-    expect(A.every(folded.split("\n"), (line) => line.length < 100)).toBe(true);
-    expect(folded.replaceAll("\n", " ")).toContain("by beep yeet gh merge.");
+    expect(A.every(Str.split("\n")(folded), (line) => line.length < 100)).toBe(true);
+    expect(Str.replaceAll("\n", " ")(folded)).toContain("by beep yeet gh merge.");
   });
 
   it("is met when every required context is green, the window passed, and threads are zero", () => {

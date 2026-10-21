@@ -9,7 +9,7 @@
 import * as Catalog from "@beep/observability/catalog";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
@@ -432,9 +432,9 @@ export const spliceStandardSection: {
   (section: string): (current: string) => O.Option<string>;
   (current: string, section: string): O.Option<string>;
 } = dual(2, (current: string, section: string): O.Option<string> => {
-  const begin = current.indexOf(STANDARD_SECTION_BEGIN);
-  const end = current.indexOf(STANDARD_SECTION_END);
+  const begin = O.getOrElse(Str.indexOf(STANDARD_SECTION_BEGIN)(current), constant(-1));
+  const end = O.getOrElse(Str.indexOf(STANDARD_SECTION_END)(current), constant(-1));
   return begin < 0 || end < begin
     ? O.none()
-    : O.some(`${current.slice(0, begin)}${section}${current.slice(end + Str.length(STANDARD_SECTION_END))}`);
+    : O.some(`${Str.slice(0, begin)(current)}${section}${Str.slice(end + Str.length(STANDARD_SECTION_END))(current)}`);
 });

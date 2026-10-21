@@ -20,6 +20,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 import * as jsonc from "jsonc-parser";
@@ -830,14 +831,14 @@ export default defineRule({
             expect(pkg).toBeDefined();
 
             const documented = O.getOrThrow(
-              A.findFirst(pkg.exports, (entry) => entry.repoPath.endsWith("/documentedRule.ts"))
+              A.findFirst(pkg.exports, (entry) => Str.endsWith("/documentedRule.ts")(entry.repoPath))
             );
             expect(documented).toBeDefined();
             expect(documented.missingRequiredTags).toEqual([]);
             expect(documented.remediationStatus).toBe("resolved");
 
             const undocumented = O.getOrThrow(
-              A.findFirst(pkg.exports, (entry) => entry.repoPath.endsWith("/undocumentedRule.ts"))
+              A.findFirst(pkg.exports, (entry) => Str.endsWith("/undocumentedRule.ts")(entry.repoPath))
             );
             expect(undocumented).toBeDefined();
             expect(undocumented.missingRequiredTags).toEqual(
@@ -1074,7 +1075,9 @@ export * from "./flatTarget.ts";
             const namespacedBarrelLine = O.getOrThrow(
               A.findFirst(
                 pkg.exports,
-                (entry) => entry.exportKind === "re-export" && entry.symbolName?.includes("Ns") === true
+                (entry) =>
+                  entry.exportKind === "re-export" &&
+                  (entry.symbolName === undefined ? undefined : Str.includes("Ns")(entry.symbolName)) === true
               )
             );
             expect(namespacedBarrelLine).toBeDefined();

@@ -4,6 +4,7 @@ import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as Str from "effect/String";
 import { NodeTestLayer, temporaryWorkingDirectory } from "./support/CommandTest.ts";
 
 const SLUG = "codex-security-findings-2026-08-04";
@@ -80,7 +81,7 @@ it.layer(NodeTestLayer, { timeout: "5 seconds" })((it) => {
         const fs = yield* FileSystem.FileSystem;
         const entries = yield* fs.readDirectory("goals");
 
-        expect(A.filter(entries, (entry) => entry.startsWith(".tmp-"))).toEqual([]);
+        expect(A.filter(entries, (entry) => Str.startsWith(".tmp-")(entry))).toEqual([]);
         expect(entries).toContain(SLUG);
       })
     );
@@ -118,7 +119,7 @@ it.layer(NodeTestLayer, { timeout: "5 seconds" })((it) => {
 
         expect(outcome).toBe("staging-failed");
         expect(yield* fs.exists(`goals/${SLUG}`)).toBe(false);
-        expect(A.filter(yield* fs.readDirectory("goals"), (entry) => entry.startsWith(".tmp-"))).toEqual([]);
+        expect(A.filter(yield* fs.readDirectory("goals"), (entry) => Str.startsWith(".tmp-")(entry))).toEqual([]);
       })
     );
   });
@@ -188,7 +189,7 @@ it.layer(NodeTestLayer, { timeout: "5 seconds" })((it) => {
         expect(yield* fs.readFileString(`goals/${SLUG}/README.md`)).toBe(sampleDocuments[0]?.contents);
         // The replaced packet is moved aside, promoted, then removed. Nothing
         // may survive under goals/ once the promotion succeeds.
-        expect(A.filter(yield* fs.readDirectory("goals"), (e) => e.includes("-replaced"))).toEqual([]);
+        expect(A.filter(yield* fs.readDirectory("goals"), (e) => Str.includes("-replaced")(e))).toEqual([]);
         // A replacement is a replacement: files the new packet does not declare
         // must not survive from the packet it replaced.
         expect(yield* fs.exists(`goals/${SLUG}/findings/CSF-999.md`)).toBe(false);

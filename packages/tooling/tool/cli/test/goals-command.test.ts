@@ -19,8 +19,10 @@ import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { parse } from "jsonc-parser";
 
 const decodeManifest = S.decodeUnknownEffect(GoalManifest);
@@ -255,7 +257,7 @@ describe("README helpers", () => {
   it("extracts a one-line mission only when cleanly extractable", () => {
     const readme = "# T\n\n## Mission\n\nLine one\nline two.\n\nSecond paragraph.\n\n## Next\n";
     expect(O.getOrNull(readmeMissionLine(readme))).toBe("Line one line two.");
-    const long = `# T\n\n## Mission\n\n${"x".repeat(301)}\n`;
+    const long = `# T\n\n## Mission\n\n${Str.repeat(301)("x")}\n`;
     readmeMissionLine(long).pipe(assertNone);
     readmeMissionLine("# T\n\n## Overview\n\nNo mission.\n").pipe(assertNone);
   });
@@ -293,13 +295,15 @@ describe("renderPortfolioIndex", () => {
     const second = renderPortfolioIndex([...rows].reverse(), ["broken"]);
     expect(first).toBe(second);
 
-    const activeIndex = first.indexOf("## Active (2)");
-    const referenceIndex = first.indexOf("## Reference (1)");
-    const invalidIndex = first.indexOf("## Invalid or missing manifests (1)");
+    const activeIndex = O.getOrElse(Str.indexOf("## Active (2)")(first), constant(-1));
+    const referenceIndex = O.getOrElse(Str.indexOf("## Reference (1)")(first), constant(-1));
+    const invalidIndex = O.getOrElse(Str.indexOf("## Invalid or missing manifests (1)")(first), constant(-1));
     expect(activeIndex).toBeGreaterThan(-1);
     expect(referenceIndex).toBeGreaterThan(activeIndex);
     expect(invalidIndex).toBeGreaterThan(referenceIndex);
-    expect(first.indexOf("[alpha]")).toBeLessThan(first.indexOf("[zeta]"));
+    expect(O.getOrElse(Str.indexOf("[alpha]")(first), constant(-1))).toBeLessThan(
+      O.getOrElse(Str.indexOf("[zeta]")(first), constant(-1))
+    );
     expect(first).toContain("4 packets: 2 active · 0 paused · 0 completed-retained · 0 superseded · 1 reference.");
     expect(first).toContain("Zeta \\| Pipes");
     expect(first).toContain("Do the \\| thing");

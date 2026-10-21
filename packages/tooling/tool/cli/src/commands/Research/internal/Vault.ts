@@ -14,7 +14,7 @@ import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
@@ -116,14 +116,14 @@ export const normalizeUrl = (rawUrl: string): Effect.Effect<string, ResearchComm
       url.hash = "";
       const params = A.filter(
         [...url.searchParams.entries()],
-        ([key]) => !key.startsWith("utm_") && key !== "fbclid" && key !== "gclid" && key !== "ref"
-      ).sort(([a], [b]) => a.localeCompare(b));
+        ([key]) => !Str.startsWith("utm_")(key) && key !== "fbclid" && key !== "gclid" && key !== "ref"
+      ).sort(([a], [b]) => Str.localeCompare(b)(a));
       url.search = "";
       A.forEach(params, ([key, value]) => url.searchParams.append(key, value));
-      if (url.pathname !== "/" && url.pathname.endsWith("/")) {
-        url.pathname = url.pathname.slice(0, -1);
+      if (url.pathname !== "/" && Str.endsWith("/")(url.pathname)) {
+        url.pathname = Str.slice(0, -1)(url.pathname);
       }
-      url.host = url.host.toLowerCase();
+      url.host = Str.toLowerCase(url.host);
       return url.toString();
     },
   });
@@ -162,13 +162,15 @@ export const slugFor = Effect.fn("ResearchVault.slugFor")(function* (
   title: string,
   urlNorm: string
 ): Effect.fn.Return<string, ResearchCommandError, Crypto.Crypto> {
-  const base = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60)
-    .replace(/-+$/, "");
-  const suffix = (yield* sha256HexOf(urlNorm)).slice(0, 8);
+  const base = pipe(
+    title,
+    Str.toLowerCase,
+    Str.replace(/[^a-z0-9]+/g, "-"),
+    Str.replace(/^-+|-+$/g, ""),
+    Str.slice(0, 60),
+    Str.replace(/-+$/, "")
+  );
+  const suffix = Str.slice(0, 8)(yield* sha256HexOf(urlNorm));
   return Str.isEmpty(base) ? suffix : `${base}--${suffix}`;
 });
 
@@ -190,7 +192,7 @@ export const renderCard: {
     return P.isUndefined(value) ? [] : [[key, value] as const];
   });
   const rendered = Yaml.stringify(R.fromEntries(yamlSource), { lineWidth: 0 });
-  return `---\n${rendered}---\n\n${body.trimEnd()}\n`;
+  return `---\n${rendered}---\n\n${Str.trimEnd(body)}\n`;
 });
 
 /**
