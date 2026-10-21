@@ -75,6 +75,9 @@ them and record each in the Decision Log.
 | Date | Decision | Reason | How to reverse |
 | --- | --- | --- | --- |
 | 2026-10-21 | Ship the tsgo bump at 0.54.1 and move `preferEffectString` here. | The 0.55.0 census found 1,413 sites in 365 files; declaring it off would grow the exception inventory (S31). | Move the pin to 0.55+ with the rule at error once the sites are gone. |
+| 2026-10-21 | Migrate in package waves, quietest packages first; repo-cli (674 sites) goes last. | Packages with few open lanes keep conflicts low; whole-package waves give each PR a zero-finding proof. | Re-order the remaining waves; no migrated site depends on order. |
+| 2026-10-21 | Prove each wave with a temporary local 0.55.0 install and `effect-diagnostics --filter`, reverted before commit. | The pin moves only in the arming PR, so hosted CI cannot see the rule until then. | Drop the temporary step once the pin is at 0.55+. |
+| 2026-10-21 | Fallbacks for Option results that cannot be empty use `constant(...)` from `effect/Function`, not a new arrow. | A never-called arrow is a new uncovered function and line, which the coverage ratchet counts. | Replace with an arrow plus a test that reaches it. |
 
 ## Exception Ledger
 

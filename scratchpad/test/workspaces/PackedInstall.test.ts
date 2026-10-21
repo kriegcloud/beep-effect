@@ -1,6 +1,6 @@
 import { assert, describe, it, layer } from "@effect/vitest";
-import type { SpawnScript } from "../../effected/commands/index.ts";
-import { ScriptedSpawner } from "../../effected/commands/index.ts";
+import type { SpawnScript } from "@beep/commands";
+import { ScriptedSpawner } from "@beep/commands";
 import type { MemoryFileSystemSeed } from "../../effected/memfs/index.ts";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import * as Duration from "effect/Duration";

@@ -3,8 +3,8 @@
 // and the `InvalidSpdxLicenseError` the concept raises.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { SpdxExpression } from "../spdx/index.ts";
-import { SpdxExpression as SpdxExpressionOps, isValidExpression } from "../spdx/index.ts";
+import type { SpdxExpression } from "@beep/spdx";
+import { SpdxExpression as SpdxExpressionOps, isValidExpression } from "@beep/spdx";
 import type * as Brand from "effect/Brand";
 import type * as O from "effect/Option";
 import * as Result from "effect/Result";

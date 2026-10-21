@@ -1,7 +1,7 @@
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as ChildProcess from "effect/process/ChildProcess";
-import { ExecContext, LocalExec, LocalExecError } from "../../effected/commands/LocalExec.ts";
+import { ExecContext, LocalExec, LocalExecError } from "@beep/commands/LocalExec";
 import { NpmExecutor } from "../../effected/npm/NpmExecutor.ts";
 
 const cause = LocalExecError.make({ directory: "/project" });

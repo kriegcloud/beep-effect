@@ -11,7 +11,7 @@
 // value so the json codec fails typed on an empty capture.
 
 import { assert, describe, it } from "@effect/vitest";
-import { JsoncParseError } from "../../effected/jsonc/index.ts";
+import { JsoncParseError } from "@beep/jsonc";
 import { TomlParseError } from "../../effected/toml/index.ts";
 import { YamlParseError } from "../../effected/yaml/index.ts";
 import * as Effect from "effect/Effect";

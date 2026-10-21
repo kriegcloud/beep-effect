@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-14T13:17:56.705Z
+Generated: 2026-10-21T08:44:55.281Z
 
 ## Scope
 
@@ -10,20 +10,20 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 147 |
-| cleanPackages | 64 |
+| packages | 163 |
+| cleanPackages | 80 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 81 |
-| publicModules | 3468 |
-| publicExports | 23522 |
-| openModules | 912 |
-| openExports | 1389 |
-| missingExportExamples | 8 |
+| publicModules | 3700 |
+| publicExports | 25398 |
+| openModules | 853 |
+| openExports | 1386 |
+| missingExportExamples | 7 |
 | missingExportCategories | 0 |
 | missingExportSince | 0 |
 | forbiddenTagFindings | 0 |
 | malformedConditionalTagFindings | 0 |
-| exampleImportFindings | 1364 |
+| exampleImportFindings | 1362 |
 | unsafeExampleFindings | 0 |
 | schemaAnnotationFindings | 0 |
 | undescribed-see | 11 |
@@ -40,7 +40,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | duplicate-example | 0 |
 | loose-ts-fence | 0 |
 | forbidden-remarks | 0 |
-| no-root-package-import | 1343 |
+| no-root-package-import | 1341 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -59,150 +59,166 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 1 | `@beep/fc-runs` | `packages/tooling/test-kit/fc-runs` | needs-remediation | 2 | 6 | 1 | 0 |
 | 2 | `@beep/test-runner` | `packages/tooling/test-kit/test-runner` | clean | 4 | 6 | 0 | 0 |
 | 3 | `@beep/types` | `packages/foundation/primitive/types` | needs-remediation | 5 | 12 | 1 | 12 |
-| 4 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 8 | 242 | 2 | 200 |
-| 5 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 29 | 216 | 6 | 101 |
+| 4 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 8 | 258 | 2 | 200 |
+| 5 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 29 | 220 | 6 | 101 |
 | 6 | `@beep/data` | `packages/foundation/primitive/data` | needs-remediation | 12 | 162 | 10 | 16 |
-| 7 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 170 | 957 | 13 | 33 |
+| 7 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 170 | 977 | 13 | 33 |
 | 8 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 17 | 51 | 1 | 0 |
 | 9 | `@beep/pglite` | `packages/drivers/pglite` | needs-remediation | 4 | 11 | 3 | 0 |
-| 10 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 66 | 689 | 18 | 0 |
+| 10 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 66 | 702 | 18 | 0 |
 | 11 | `@beep/html` | `packages/foundation/modeling/html` | needs-remediation | 16 | 546 | 9 | 28 |
 | 12 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 10 | 263 | 4 | 87 |
 | 13 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 105 | 371 | 3 | 5 |
 | 14 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 39 | 305 | 1 | 5 |
 | 15 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 30 | 58 | 0 | 0 |
 | 16 | `@beep/provenance` | `packages/foundation/modeling/provenance` | needs-remediation | 4 | 28 | 1 | 0 |
-| 17 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 8 | 56 | 0 | 11 |
-| 18 | `@beep/agents-domain` | `packages/agents/domain` | clean | 16 | 75 | 0 | 0 |
-| 19 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 12 | 46 | 1 | 0 |
-| 20 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 6 | 15 | 0 | 0 |
-| 21 | `@beep/colors` | `packages/foundation/capability/colors` | needs-remediation | 1 | 9 | 1 | 9 |
+| 17 | `@beep/colors` | `packages/foundation/capability/colors` | needs-remediation | 1 | 9 | 1 | 9 |
+| 18 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 8 | 56 | 0 | 11 |
+| 19 | `@beep/agents-domain` | `packages/agents/domain` | clean | 16 | 75 | 0 | 0 |
+| 20 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 12 | 46 | 1 | 0 |
+| 21 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 6 | 15 | 0 | 0 |
 | 22 | `@beep/nlp` | `packages/foundation/modeling/nlp` | needs-remediation | 28 | 313 | 9 | 9 |
-| 23 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 34 | 182 | 0 | 19 |
+| 23 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 34 | 183 | 0 | 19 |
 | 24 | `@beep/epistemic-domain` | `packages/epistemic/domain` | needs-remediation | 60 | 269 | 8 | 2 |
-| 25 | `@beep/mcp-kit` | `packages/foundation/capability/mcp-kit` | needs-remediation | 12 | 113 | 8 | 53 |
-| 26 | `@beep/ontology-domain` | `packages/ontology/domain` | clean | 6 | 41 | 0 | 0 |
-| 27 | `@beep/shacl` | `packages/drivers/shacl` | clean | 3 | 6 | 0 | 0 |
-| 28 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 31 | 128 | 2 | 2 |
-| 29 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 25 | 167 | 8 | 98 |
-| 30 | `@beep/law-practice-domain` | `packages/law-practice/domain` | needs-remediation | 227 | 799 | 9 | 5 |
-| 31 | `@beep/langextract` | `packages/foundation/capability/langextract` | clean | 26 | 126 | 0 | 0 |
-| 32 | `@beep/epistemic-use-cases` | `packages/epistemic/use-cases` | needs-remediation | 38 | 149 | 11 | 0 |
-| 33 | `@beep/api-transport` | `packages/foundation/capability/api-transport` | needs-remediation | 4 | 11 | 2 | 7 |
-| 34 | `@beep/epistemic-config` | `packages/epistemic/config` | needs-remediation | 7 | 21 | 3 | 0 |
-| 35 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 43 | 0 | 1 |
-| 36 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 34 | 99 | 4 | 0 |
-| 37 | `@beep/chalk` | `packages/foundation/capability/chalk` | needs-remediation | 1 | 35 | 1 | 35 |
-| 38 | `@beep/phoenix` | `packages/drivers/phoenix` | clean | 5 | 50 | 0 | 0 |
-| 39 | `@beep/duckdb` | `packages/drivers/duckdb` | clean | 6 | 28 | 0 | 0 |
-| 40 | `@beep/codegen-kit` | `packages/tooling/library/codegen-kit` | clean | 5 | 37 | 0 | 0 |
-| 41 | `@beep/technical-drawing` | `packages/foundation/capability/technical-drawing` | needs-remediation | 18 | 186 | 0 | 122 |
-| 42 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | clean | 5 | 111 | 0 | 0 |
-| 43 | `@beep/pretext` | `packages/drivers/pretext` | needs-remediation | 6 | 36 | 6 | 0 |
-| 44 | `@beep/ontology-use-cases` | `packages/ontology/use-cases` | needs-remediation | 23 | 214 | 1 | 3 |
-| 45 | `@beep/cosmos` | `packages/drivers/cosmos` | clean | 6 | 22 | 0 | 0 |
-| 46 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 6 | 39 | 2 | 5 |
-| 47 | `@beep/documents-domain` | `packages/documents/domain` | clean | 26 | 82 | 0 | 0 |
-| 48 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | clean | 15 | 48 | 0 | 0 |
-| 49 | `@beep/uspto` | `packages/drivers/uspto` | clean | 5 | 26 | 0 | 0 |
-| 50 | `@beep/law-practice-tables` | `packages/law-practice/tables` | needs-remediation | 34 | 89 | 1 | 0 |
-| 51 | `@beep/law-practice-use-cases` | `packages/law-practice/use-cases` | needs-remediation | 60 | 452 | 4 | 1 |
-| 52 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 8 | 34 | 3 | 4 |
-| 53 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 7 | 43 | 4 | 2 |
-| 54 | `@beep/box` | `packages/drivers/box` | needs-remediation | 7 | 877 | 0 | 2 |
-| 55 | `@beep/epistemic-server` | `packages/epistemic/server` | needs-remediation | 24 | 53 | 8 | 4 |
-| 56 | `@beep/m365` | `packages/drivers/m365` | needs-remediation | 8 | 165 | 2 | 0 |
-| 57 | `@beep/nlp-processing` | `packages/foundation/capability/nlp-processing` | needs-remediation | 48 | 312 | 13 | 0 |
-| 58 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 54 | 0 | 0 |
-| 59 | `@beep/epistemic-client` | `packages/epistemic/client` | clean | 4 | 25 | 0 | 0 |
-| 60 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 134 | 557 | 1 | 1 |
-| 61 | `@beep/poppler` | `packages/drivers/poppler` | clean | 3 | 10 | 0 | 0 |
-| 62 | `@beep/face-detection` | `packages/drivers/face-detection` | clean | 4 | 34 | 0 | 0 |
-| 63 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 104 | 0 | 0 |
-| 64 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 10 | 86 | 0 | 3 |
-| 65 | `@beep/skill-contract` | `packages/foundation/modeling/skill-contract` | needs-remediation | 9 | 113 | 0 | 79 |
-| 66 | `@beep/exiftool` | `packages/drivers/exiftool` | needs-remediation | 5 | 55 | 1 | 0 |
-| 67 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 30 | 521 | 0 | 2 |
-| 68 | `@beep/pdf-tools` | `packages/drivers/pdf-tools` | clean | 4 | 35 | 0 | 0 |
-| 69 | `@beep/firecrawl` | `packages/drivers/firecrawl` | clean | 5 | 267 | 0 | 0 |
-| 70 | `@beep/runpod` | `packages/drivers/runpod` | clean | 7 | 203 | 0 | 0 |
-| 71 | `@beep/tesseract` | `packages/drivers/tesseract` | clean | 3 | 16 | 0 | 0 |
-| 72 | `@beep/obs` | `packages/drivers/obs` | needs-remediation | 6 | 73 | 3 | 0 |
-| 73 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 28 | 188 | 0 | 1 |
-| 74 | `@beep/occt` | `packages/drivers/occt` | clean | 4 | 13 | 0 | 0 |
-| 75 | `@beep/qa-capture` | `packages/tooling/library/qa-capture` | needs-remediation | 11 | 155 | 10 | 0 |
-| 76 | `@beep/dock` | `packages/foundation/ui-system/dock` | needs-remediation | 20 | 212 | 0 | 189 |
-| 77 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 7 | 44 | 3 | 0 |
-| 78 | `@beep/agents-tables` | `packages/agents/tables` | clean | 7 | 16 | 0 | 0 |
-| 79 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 6 | 32 | 0 | 0 |
-| 80 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 7 | 126 | 4 | 7 |
-| 81 | `@beep/rdf-canonize` | `packages/drivers/rdf-canonize` | clean | 2 | 2 | 0 | 0 |
-| 82 | `@beep/ontology-config` | `packages/ontology/config` | needs-remediation | 7 | 19 | 1 | 0 |
-| 83 | `@beep/oxigraph` | `packages/drivers/oxigraph` | clean | 3 | 6 | 0 | 0 |
-| 84 | `@beep/n3` | `packages/drivers/n3` | clean | 3 | 11 | 0 | 0 |
-| 85 | `@beep/workspace-tables` | `packages/workspace/tables` | clean | 23 | 56 | 0 | 0 |
-| 86 | `@beep/doc-text` | `packages/drivers/doc-text` | clean | 3 | 11 | 0 | 0 |
-| 87 | `@beep/ontology-client` | `packages/ontology/client` | clean | 3 | 93 | 0 | 0 |
-| 88 | `@beep/documents-tables` | `packages/documents/tables` | clean | 19 | 48 | 0 | 0 |
-| 89 | `@beep/documents-use-cases` | `packages/documents/use-cases` | clean | 23 | 120 | 0 | 0 |
-| 90 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | clean | 9 | 21 | 0 | 0 |
-| 91 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | clean | 7 | 21 | 0 | 0 |
-| 92 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | clean | 18 | 64 | 0 | 0 |
-| 93 | `@beep/law-practice-server` | `packages/law-practice/server` | needs-remediation | 60 | 317 | 1 | 1 |
-| 94 | `@beep/ecfr` | `packages/drivers/ecfr` | needs-remediation | 6 | 138 | 2 | 0 |
-| 95 | `@beep/govinfo` | `packages/drivers/govinfo` | needs-remediation | 32 | 86 | 2 | 2 |
-| 96 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 73 | 1 | 0 |
-| 97 | `@beep/pacer` | `packages/drivers/pacer` | needs-remediation | 13 | 89 | 12 | 0 |
-| 98 | `@beep/venice-ai` | `packages/drivers/venice-ai` | needs-remediation | 3 | 35 | 0 | 1 |
-| 99 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 70 | 0 | 0 |
-| 100 | `@beep/openai` | `packages/drivers/openai` | clean | 4 | 17 | 0 | 0 |
-| 101 | `@beep/hubspot` | `packages/drivers/hubspot` | clean | 4 | 23 | 0 | 0 |
-| 102 | `@beep/sanity` | `packages/drivers/sanity` | clean | 4 | 16 | 0 | 0 |
-| 103 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 15 | 0 | 0 |
-| 104 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
-| 105 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
-| 106 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 387 | 3449 | 47 | 38 |
-| 107 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
-| 108 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
-| 109 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
-| 110 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 11 | 39 | 2 | 0 |
-| 111 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 36 | 212 | 13 | 3 |
-| 112 | `@beep/ontology-server` | `packages/ontology/server` | clean | 8 | 24 | 0 | 0 |
-| 113 | `@beep/xstate` | `packages/drivers/xstate` | clean | 6 | 26 | 0 | 0 |
-| 114 | `@beep/workspace-server` | `packages/workspace/server` | clean | 12 | 32 | 0 | 0 |
-| 115 | `@beep/ontology-ui` | `packages/ontology/ui` | clean | 15 | 28 | 0 | 0 |
-| 116 | `@beep/documents-server` | `packages/documents/server` | needs-remediation | 28 | 103 | 2 | 0 |
-| 117 | `@beep/openclaw` | `packages/drivers/openclaw` | needs-remediation | 9 | 130 | 7 | 15 |
-| 118 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | clean | 3 | 7 | 0 | 0 |
-| 119 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | clean | 13 | 34 | 0 | 0 |
-| 120 | `@beep/practice-mail-tagging` | `apps/practice-mail-tagging` | clean | 8 | 44 | 0 | 0 |
-| 121 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 13 | 46 | 2 | 0 |
-| 122 | `@beep/discord` | `packages/drivers/discord` | clean | 4 | 15 | 0 | 0 |
-| 123 | `@beep/docket-intake` | `apps/docket-intake` | clean | 10 | 27 | 0 | 0 |
-| 124 | `@beep/gov-legal-mcp` | `packages/drivers/gov-legal-mcp` | needs-remediation | 8 | 40 | 6 | 0 |
-| 125 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | clean | 3 | 7 | 0 | 0 |
-| 126 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 123 | 8 | 1 |
-| 127 | `@beep/lint-rules` | `packages/tooling/policy-pack/lint-rules` | needs-remediation | 9 | 32 | 1 | 0 |
-| 128 | `@beep/m365-mcp` | `packages/drivers/m365-mcp` | needs-remediation | 13 | 109 | 0 | 3 |
-| 129 | `@beep/oip-web` | `apps/oip-web` | clean | 31 | 86 | 0 | 0 |
-| 130 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 131 | `@beep/shared-tables` | `packages/shared/tables` | clean | 9 | 12 | 0 | 0 |
-| 132 | `@beep/scratchpad` | `scratchpad` | needs-remediation | 590 | 3443 | 552 | 0 |
-| 133 | `@beep/practice-kg-mcp` | `apps/practice-kg-mcp` | clean | 10 | 23 | 0 | 0 |
-| 134 | `@beep/tailscale` | `packages/drivers/tailscale` | clean | 5 | 29 | 0 | 0 |
-| 135 | `@beep/todox` | `apps/todox` | clean | 16 | 57 | 0 | 0 |
-| 136 | `@beep/practice-m365-contacts` | `apps/practice-m365-contacts` | clean | 8 | 27 | 0 | 0 |
-| 137 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 64 | 232 | 25 | 0 |
-| 138 | `@beep/acp` | `packages/drivers/acp` | clean | 11 | 417 | 0 | 0 |
-| 139 | `@beep/practice-identify` | `apps/practice-identify` | clean | 3 | 10 | 0 | 0 |
-| 140 | `@beep/infra` | `infra` | needs-remediation | 11 | 105 | 3 | 23 |
-| 141 | `@beep/box-provisioning` | `packages/drivers/box-provisioning` | needs-remediation | 15 | 184 | 0 | 21 |
-| 142 | `@beep/freshbooks` | `packages/drivers/freshbooks` | needs-remediation | 6 | 49 | 5 | 3 |
-| 143 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | clean | 4 | 16 | 0 | 0 |
-| 144 | `@beep/uspto-mcp` | `packages/drivers/uspto-mcp` | needs-remediation | 7 | 32 | 7 | 3 |
-| 145 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
-| 146 | `@beep/tsgo-shim` | `tools/tsgo-shim` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 147 | `@beep/pandoc-ast` | `packages/foundation/modeling/pandoc-ast` | needs-remediation | 7 | 204 | 0 | 5 |
+| 25 | `@beep/codegen-kit` | `packages/tooling/library/codegen-kit` | clean | 5 | 41 | 0 | 0 |
+| 26 | `@beep/phoenix` | `packages/drivers/phoenix` | clean | 5 | 50 | 0 | 0 |
+| 27 | `@beep/duckdb` | `packages/drivers/duckdb` | clean | 6 | 28 | 0 | 0 |
+| 28 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 43 | 339 | 8 | 98 |
+| 29 | `@beep/mcp-kit` | `packages/foundation/capability/mcp-kit` | needs-remediation | 12 | 113 | 8 | 50 |
+| 30 | `@beep/ontology-domain` | `packages/ontology/domain` | clean | 6 | 41 | 0 | 0 |
+| 31 | `@beep/shacl` | `packages/drivers/shacl` | clean | 3 | 6 | 0 | 0 |
+| 32 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 31 | 128 | 2 | 2 |
+| 33 | `@beep/law-practice-domain` | `packages/law-practice/domain` | needs-remediation | 249 | 945 | 9 | 5 |
+| 34 | `@beep/langextract` | `packages/foundation/capability/langextract` | clean | 26 | 131 | 0 | 0 |
+| 35 | `@beep/epistemic-use-cases` | `packages/epistemic/use-cases` | needs-remediation | 38 | 149 | 11 | 0 |
+| 36 | `@beep/api-transport` | `packages/foundation/capability/api-transport` | needs-remediation | 4 | 11 | 2 | 7 |
+| 37 | `@beep/epistemic-config` | `packages/epistemic/config` | needs-remediation | 7 | 21 | 3 | 0 |
+| 38 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 43 | 0 | 1 |
+| 39 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 34 | 99 | 4 | 0 |
+| 40 | `@beep/chalk` | `packages/foundation/capability/chalk` | needs-remediation | 1 | 35 | 1 | 35 |
+| 41 | `@beep/acp` | `packages/drivers/acp` | clean | 11 | 418 | 0 | 0 |
+| 42 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 31 | 587 | 0 | 2 |
+| 43 | `@beep/technical-drawing` | `packages/foundation/capability/technical-drawing` | needs-remediation | 19 | 224 | 0 | 126 |
+| 44 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | clean | 5 | 111 | 0 | 0 |
+| 45 | `@beep/pretext` | `packages/drivers/pretext` | needs-remediation | 6 | 36 | 6 | 0 |
+| 46 | `@beep/ontology-use-cases` | `packages/ontology/use-cases` | needs-remediation | 23 | 218 | 1 | 3 |
+| 47 | `@beep/cosmos` | `packages/drivers/cosmos` | clean | 6 | 22 | 0 | 0 |
+| 48 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 6 | 39 | 2 | 5 |
+| 49 | `@beep/documents-domain` | `packages/documents/domain` | clean | 26 | 82 | 0 | 0 |
+| 50 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | clean | 15 | 48 | 0 | 0 |
+| 51 | `@beep/uspto` | `packages/drivers/uspto` | clean | 5 | 26 | 0 | 0 |
+| 52 | `@beep/law-practice-tables` | `packages/law-practice/tables` | needs-remediation | 34 | 89 | 1 | 0 |
+| 53 | `@beep/law-practice-use-cases` | `packages/law-practice/use-cases` | needs-remediation | 103 | 645 | 4 | 4 |
+| 54 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 8 | 34 | 3 | 4 |
+| 55 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 7 | 43 | 4 | 2 |
+| 56 | `@beep/box` | `packages/drivers/box` | needs-remediation | 7 | 879 | 0 | 2 |
+| 57 | `@beep/epistemic-server` | `packages/epistemic/server` | needs-remediation | 24 | 53 | 8 | 4 |
+| 58 | `@beep/m365` | `packages/drivers/m365` | needs-remediation | 8 | 167 | 2 | 0 |
+| 59 | `@beep/nlp-processing` | `packages/foundation/capability/nlp-processing` | needs-remediation | 48 | 312 | 13 | 0 |
+| 60 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 54 | 0 | 0 |
+| 61 | `@beep/epistemic-client` | `packages/epistemic/client` | clean | 4 | 25 | 0 | 0 |
+| 62 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 134 | 559 | 1 | 1 |
+| 63 | `@beep/t3-code` | `packages/drivers/t3-code` | clean | 4 | 18 | 0 | 0 |
+| 64 | `@beep/poppler` | `packages/drivers/poppler` | clean | 3 | 10 | 0 | 0 |
+| 65 | `@beep/face-detection` | `packages/drivers/face-detection` | clean | 4 | 34 | 0 | 0 |
+| 66 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 104 | 0 | 0 |
+| 67 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 10 | 91 | 0 | 3 |
+| 68 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 17 | 89 | 3 | 0 |
+| 69 | `@beep/skill-contract` | `packages/foundation/modeling/skill-contract` | needs-remediation | 9 | 113 | 0 | 79 |
+| 70 | `@beep/exiftool` | `packages/drivers/exiftool` | needs-remediation | 5 | 55 | 1 | 0 |
+| 71 | `@beep/palantiri` | `packages/tooling/library/palantiri` | clean | 20 | 156 | 0 | 0 |
+| 72 | `@beep/pdf-tools` | `packages/drivers/pdf-tools` | clean | 4 | 38 | 0 | 0 |
+| 73 | `@beep/firecrawl` | `packages/drivers/firecrawl` | clean | 5 | 268 | 0 | 0 |
+| 74 | `@beep/runpod` | `packages/drivers/runpod` | clean | 7 | 205 | 0 | 0 |
+| 75 | `@beep/tesseract` | `packages/drivers/tesseract` | clean | 3 | 16 | 0 | 0 |
+| 76 | `@beep/obs` | `packages/drivers/obs` | needs-remediation | 6 | 73 | 3 | 0 |
+| 77 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 198 | 0 | 1 |
+| 78 | `@beep/occt` | `packages/drivers/occt` | clean | 4 | 13 | 0 | 0 |
+| 79 | `@beep/qa-capture` | `packages/tooling/library/qa-capture` | needs-remediation | 11 | 155 | 10 | 0 |
+| 80 | `@beep/dock` | `packages/foundation/ui-system/dock` | needs-remediation | 20 | 212 | 0 | 189 |
+| 81 | `@beep/agents-tables` | `packages/agents/tables` | clean | 7 | 16 | 0 | 0 |
+| 82 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 6 | 32 | 0 | 0 |
+| 83 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 7 | 126 | 4 | 7 |
+| 84 | `@beep/rdf-canonize` | `packages/drivers/rdf-canonize` | clean | 2 | 2 | 0 | 0 |
+| 85 | `@beep/ontology-config` | `packages/ontology/config` | needs-remediation | 7 | 19 | 1 | 0 |
+| 86 | `@beep/oxigraph` | `packages/drivers/oxigraph` | clean | 3 | 6 | 0 | 0 |
+| 87 | `@beep/n3` | `packages/drivers/n3` | clean | 3 | 11 | 0 | 0 |
+| 88 | `@beep/workspace-tables` | `packages/workspace/tables` | clean | 23 | 56 | 0 | 0 |
+| 89 | `@beep/doc-text` | `packages/drivers/doc-text` | clean | 3 | 11 | 0 | 0 |
+| 90 | `@beep/ontology-client` | `packages/ontology/client` | clean | 3 | 93 | 0 | 0 |
+| 91 | `@beep/documents-tables` | `packages/documents/tables` | clean | 19 | 48 | 0 | 0 |
+| 92 | `@beep/documents-use-cases` | `packages/documents/use-cases` | clean | 23 | 120 | 0 | 0 |
+| 93 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | clean | 9 | 21 | 0 | 0 |
+| 94 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | clean | 7 | 21 | 0 | 0 |
+| 95 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | clean | 18 | 64 | 0 | 0 |
+| 96 | `@beep/law-practice-server` | `packages/law-practice/server` | needs-remediation | 73 | 342 | 1 | 1 |
+| 97 | `@beep/ecfr` | `packages/drivers/ecfr` | needs-remediation | 6 | 138 | 2 | 0 |
+| 98 | `@beep/govinfo` | `packages/drivers/govinfo` | needs-remediation | 32 | 86 | 2 | 2 |
+| 99 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 73 | 1 | 0 |
+| 100 | `@beep/mcpb-kit` | `packages/tooling/library/mcpb-kit` | clean | 5 | 25 | 0 | 0 |
+| 101 | `@beep/m365-mcp` | `packages/drivers/m365-mcp` | needs-remediation | 13 | 109 | 0 | 3 |
+| 102 | `@beep/windows-secrets` | `packages/drivers/windows-secrets` | clean | 4 | 13 | 0 | 0 |
+| 103 | `@beep/pacer` | `packages/drivers/pacer` | needs-remediation | 13 | 89 | 12 | 0 |
+| 104 | `@beep/venice-ai` | `packages/drivers/venice-ai` | needs-remediation | 3 | 35 | 0 | 1 |
+| 105 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 70 | 0 | 0 |
+| 106 | `@beep/openai` | `packages/drivers/openai` | clean | 4 | 17 | 0 | 0 |
+| 107 | `@beep/hubspot` | `packages/drivers/hubspot` | clean | 4 | 23 | 0 | 0 |
+| 108 | `@beep/sanity` | `packages/drivers/sanity` | clean | 4 | 16 | 0 | 0 |
+| 109 | `@beep/epistemic-ui` | `packages/epistemic/ui` | clean | 6 | 15 | 0 | 0 |
+| 110 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
+| 111 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
+| 112 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 450 | 4150 | 47 | 35 |
+| 113 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
+| 114 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
+| 115 | `@beep/commands` | `packages/drivers/commands` | clean | 8 | 58 | 0 | 0 |
+| 116 | `@beep/github-references` | `packages/foundation/modeling/github-references` | clean | 4 | 28 | 0 | 0 |
+| 117 | `@beep/spdx` | `packages/foundation/modeling/spdx` | clean | 4 | 14 | 0 | 0 |
+| 118 | `@beep/github-commands` | `packages/foundation/modeling/github-commands` | clean | 3 | 6 | 0 | 0 |
+| 119 | `@beep/jsonc` | `packages/foundation/modeling/jsonc` | clean | 8 | 48 | 0 | 0 |
+| 120 | `@beep/semver` | `packages/foundation/modeling/semver` | clean | 6 | 23 | 0 | 0 |
+| 121 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
+| 122 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 11 | 39 | 2 | 0 |
+| 123 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 36 | 212 | 13 | 3 |
+| 124 | `@beep/ontology-server` | `packages/ontology/server` | clean | 8 | 24 | 0 | 0 |
+| 125 | `@beep/xstate` | `packages/drivers/xstate` | clean | 6 | 26 | 0 | 0 |
+| 126 | `@beep/workspace-server` | `packages/workspace/server` | clean | 12 | 32 | 0 | 0 |
+| 127 | `@beep/ontology-ui` | `packages/ontology/ui` | clean | 15 | 28 | 0 | 0 |
+| 128 | `@beep/documents-server` | `packages/documents/server` | needs-remediation | 28 | 103 | 2 | 0 |
+| 129 | `@beep/openclaw` | `packages/drivers/openclaw` | needs-remediation | 9 | 130 | 7 | 15 |
+| 130 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | clean | 3 | 7 | 0 | 0 |
+| 131 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | clean | 13 | 34 | 0 | 0 |
+| 132 | `@beep/practice-claude-mod` | `apps/practice-claude-mod` | clean | 8 | 30 | 0 | 0 |
+| 133 | `@beep/practice-mail-tagging` | `apps/practice-mail-tagging` | clean | 8 | 44 | 0 | 0 |
+| 134 | `@beep/schema-org` | `packages/foundation/modeling/schema-org` | clean | 13 | 57 | 0 | 0 |
+| 135 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 13 | 46 | 2 | 0 |
+| 136 | `@beep/discord` | `packages/drivers/discord` | clean | 4 | 15 | 0 | 0 |
+| 137 | `@beep/docket-intake` | `apps/docket-intake` | clean | 11 | 29 | 0 | 0 |
+| 138 | `@beep/gov-legal-mcp` | `packages/drivers/gov-legal-mcp` | needs-remediation | 8 | 40 | 6 | 0 |
+| 139 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | clean | 3 | 7 | 0 | 0 |
+| 140 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 123 | 8 | 1 |
+| 141 | `@beep/lint-rules` | `packages/tooling/policy-pack/lint-rules` | needs-remediation | 13 | 40 | 1 | 0 |
+| 142 | `@beep/practice-gateway` | `apps/practice-gateway` | clean | 20 | 139 | 0 | 0 |
+| 143 | `@beep/oip-web` | `apps/oip-web` | clean | 31 | 87 | 0 | 0 |
+| 144 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 145 | `@beep/shared-tables` | `packages/shared/tables` | clean | 9 | 12 | 0 | 0 |
+| 146 | `@beep/scratchpad` | `scratchpad` | needs-remediation | 519 | 3048 | 493 | 0 |
+| 147 | `@beep/practice-kg-mcp` | `apps/practice-kg-mcp` | clean | 15 | 69 | 0 | 0 |
+| 148 | `@beep/tailscale` | `packages/drivers/tailscale` | clean | 5 | 29 | 0 | 0 |
+| 149 | `@beep/todox` | `apps/todox` | clean | 16 | 57 | 0 | 0 |
+| 150 | `@beep/practice-m365-contacts` | `apps/practice-m365-contacts` | clean | 8 | 27 | 0 | 0 |
+| 151 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 65 | 241 | 25 | 0 |
+| 152 | `@beep/jsonl` | `packages/foundation/modeling/jsonl` | clean | 8 | 60 | 0 | 0 |
+| 153 | `@beep/practice-identify` | `apps/practice-identify` | clean | 3 | 10 | 0 | 0 |
+| 154 | `@beep/infra` | `infra` | needs-remediation | 11 | 105 | 3 | 22 |
+| 155 | `@beep/practice-setup` | `apps/practice-setup` | clean | 6 | 38 | 0 | 0 |
+| 156 | `@beep/box-provisioning` | `packages/drivers/box-provisioning` | needs-remediation | 15 | 184 | 0 | 21 |
+| 157 | `@beep/freshbooks` | `packages/drivers/freshbooks` | needs-remediation | 6 | 49 | 5 | 3 |
+| 158 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | clean | 4 | 16 | 0 | 0 |
+| 159 | `@beep/practice-review-hub` | `apps/practice-review-hub` | clean | 3 | 11 | 0 | 0 |
+| 160 | `@beep/uspto-mcp` | `packages/drivers/uspto-mcp` | needs-remediation | 7 | 32 | 7 | 0 |
+| 161 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
+| 162 | `@beep/tsgo-shim` | `tools/tsgo-shim` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 163 | `@beep/pandoc-ast` | `packages/foundation/modeling/pandoc-ast` | needs-remediation | 7 | 204 | 0 | 5 |
 
 ## Open Findings
 
@@ -252,43 +268,43 @@ Export findings:
 - `src/Curie.ts:408` `CoreCurieCodec` (const) - 1 example import violation(s)
 - `src/Curie.ts:426` `makeCurieFromIri` (const) - 1 example import violation(s)
 - `src/Curie.ts:450` `CurieFromIri` (const) - 1 example import violation(s)
-- `src/Fibered.ts:220` `Fibered` (const) - 1 example import violation(s)
+- `src/Fibered.ts:219` `Fibered` (const) - 1 example import violation(s)
 - `src/Id.ts:144` `IdentityInterpolationError` (class) - 1 example import violation(s)
-- `src/Id.ts:177` `IdentitySegmentCountError` (class) - 1 example import violation(s)
-- `src/Id.ts:211` `VERSION` (const) - 1 example import violation(s)
-- `src/Id.ts:233` `SegmentValue` (type) - 1 example import violation(s)
-- `src/Id.ts:369` `TitleFromIdentifier` (type) - 1 example import violation(s)
-- `src/Id.ts:394` `IriFromIdentity` (type) - 1 example import violation(s)
-- `src/Id.ts:423` `CurieFromIdentity` (type) - 1 example import violation(s)
-- `src/Id.ts:453` `SlugFromIdentifier` (type) - 1 example import violation(s)
-- `src/Id.ts:496` `ModuleSegmentValue` (type) - 1 example import violation(s)
-- `src/Id.ts:517` `ModuleAccessor` (type) - 1 example import violation(s)
-- `src/Id.ts:538` `TaggedAccessor` (type) - 1 example import violation(s)
-- `src/Id.ts:557` `IdentityString` (type) - 2 example import violation(s)
-- `src/Id.ts:578` `IdentitySymbol` (type) - 2 example import violation(s)
-- `src/Id.ts:601` `SchemaAnnotationExtras` (type) - 1 example import violation(s)
-- `src/Id.ts:627` `DeclarationAnnotationExtras` (type) - 1 example import violation(s)
-- `src/Id.ts:662` `ErrorAnnotationRecord` (interface) - 1 example import violation(s)
-- `src/Id.ts:684` `KeyAnnotationExtras` (type) - 1 example import violation(s)
-- `src/Id.ts:707` `SkosClassification` (type) - 1 example import violation(s)
-- `src/Id.ts:730` `OntologyKeyOptions` (type) - 1 example import violation(s)
-- `src/Id.ts:761` `OntologyClassExtras` (type) - 1 example import violation(s)
-- `src/Id.ts:795` `HttpAnnotationExtras` (type) - 1 example import violation(s)
-- `src/Id.ts:821` `IdentityAnyAnnotationExtras` (type) - 1 example import violation(s)
-- `src/Id.ts:847` `IdentityAnnotation` (type) - 1 example import violation(s)
-- `src/Id.ts:902` `IdentityAnnotationResult` (type) - 1 example import violation(s)
-- `src/Id.ts:936` `AnnotatedSchema` (type) - 1 example import violation(s)
-- `src/Id.ts:953` `TaggedModuleRecord` (type) - 1 example import violation(s)
-- `src/Id.ts:1016` `IdentityComposer` (interface) - 1 example import violation(s)
-- `src/Id.ts:1625` `BaseIdentityInput` (const) - 1 example import violation(s)
-- `src/Id.ts:1654` `BaseIdentityInput` (type) - 1 example import violation(s)
-- `src/Id.ts:2167` `make` (const) - 2 example import violation(s)
+- `src/Id.ts:178` `IdentitySegmentCountError` (class) - 1 example import violation(s)
+- `src/Id.ts:213` `VERSION` (const) - 1 example import violation(s)
+- `src/Id.ts:235` `SegmentValue` (type) - 1 example import violation(s)
+- `src/Id.ts:371` `TitleFromIdentifier` (type) - 1 example import violation(s)
+- `src/Id.ts:396` `IriFromIdentity` (type) - 1 example import violation(s)
+- `src/Id.ts:425` `CurieFromIdentity` (type) - 1 example import violation(s)
+- `src/Id.ts:455` `SlugFromIdentifier` (type) - 1 example import violation(s)
+- `src/Id.ts:498` `ModuleSegmentValue` (type) - 1 example import violation(s)
+- `src/Id.ts:519` `ModuleAccessor` (type) - 1 example import violation(s)
+- `src/Id.ts:540` `TaggedAccessor` (type) - 1 example import violation(s)
+- `src/Id.ts:559` `IdentityString` (type) - 2 example import violation(s)
+- `src/Id.ts:580` `IdentitySymbol` (type) - 2 example import violation(s)
+- `src/Id.ts:603` `SchemaAnnotationExtras` (type) - 1 example import violation(s)
+- `src/Id.ts:629` `DeclarationAnnotationExtras` (type) - 1 example import violation(s)
+- `src/Id.ts:664` `ErrorAnnotationRecord` (interface) - 1 example import violation(s)
+- `src/Id.ts:686` `KeyAnnotationExtras` (type) - 1 example import violation(s)
+- `src/Id.ts:709` `SkosClassification` (type) - 1 example import violation(s)
+- `src/Id.ts:732` `OntologyKeyOptions` (type) - 1 example import violation(s)
+- `src/Id.ts:763` `OntologyClassExtras` (type) - 1 example import violation(s)
+- `src/Id.ts:797` `HttpAnnotationExtras` (type) - 1 example import violation(s)
+- `src/Id.ts:823` `IdentityAnyAnnotationExtras` (type) - 1 example import violation(s)
+- `src/Id.ts:849` `IdentityAnnotation` (type) - 1 example import violation(s)
+- `src/Id.ts:904` `IdentityAnnotationResult` (type) - 1 example import violation(s)
+- `src/Id.ts:938` `AnnotatedSchema` (type) - 1 example import violation(s)
+- `src/Id.ts:955` `TaggedModuleRecord` (type) - 1 example import violation(s)
+- `src/Id.ts:1018` `IdentityComposer` (interface) - 1 example import violation(s)
+- `src/Id.ts:1627` `BaseIdentityInput` (const) - 1 example import violation(s)
+- `src/Id.ts:1656` `BaseIdentityInput` (type) - 1 example import violation(s)
+- `src/Id.ts:2169` `make` (const) - 2 example import violation(s)
 - `src/IdentityRegistry.ts:34` `IdentityEncoding` (const) - 1 example import violation(s)
 - `src/IdentityRegistry.ts:66` `IdentityRef` (const) - 1 example import violation(s)
 - `src/IdentityRegistry.ts:104` `IdentityEntry` (class) - 1 example import violation(s)
-- `src/IdentityRegistry.ts:181` `IdentityNotFoundError` (class) - 1 example import violation(s)
-- `src/IdentityRegistry.ts:209` `IdentityRegistryConflictError` (class) - 1 example import violation(s)
-- `src/IdentityRegistry.ts:250` `IdentityRegistry` (class) - 1 example import violation(s)
+- `src/IdentityRegistry.ts:182` `IdentityNotFoundError` (class) - 1 example import violation(s)
+- `src/IdentityRegistry.ts:210` `IdentityRegistryConflictError` (class) - 1 example import violation(s)
+- `src/IdentityRegistry.ts:252` `IdentityRegistry` (class) - 1 example import violation(s)
 - `src/PnLocal.ts:161` `SafePnLocal` (const) - 1 example import violation(s)
 - `src/PnLocal.ts:190` `SafePnLocal` (type) - 1 example import violation(s)
 - `src/PnLocal.ts:209` `SafePnPrefix` (const) - 1 example import violation(s)
@@ -303,17 +319,17 @@ Export findings:
 - `src/PnLocal.ts:472` `prefixedNameOrIri` (const) - 1 example import violation(s)
 - `src/Vocab.ts:37` `VocabShape` (type) - 1 example import violation(s)
 - `src/Vocab.ts:63` `VocabEntry` (class) - 1 example import violation(s)
-- `src/Vocab.ts:89` `VocabRegistry` (const) - 1 example import violation(s)
-- `src/Vocab.ts:110` `VocabRegistry` (type) - 1 example import violation(s)
-- `src/Vocab.ts:129` `CoreVocab` (const) - 1 example import violation(s)
-- `src/Vocab.ts:377` `CoreVocab` (type) - 1 example import violation(s)
-- `src/Vocab.ts:394` `Curie` (type) - 1 example import violation(s)
-- `src/Vocab.ts:413` `Predicate` (type) - 1 example import violation(s)
-- `src/Vocab.ts:430` `Expand` (type) - 1 example import violation(s)
-- `src/Vocab.ts:472` `mergeVocab` (const) - 1 example import violation(s)
-- `src/Vocab.ts:497` `SemanticFoundationVocab` (const) - 1 example import violation(s)
-- `src/Vocab.ts:524` `SemanticFoundationVocab` (type) - 1 example import violation(s)
-- `src/Vocab.ts:539` `SparVocab` (const) - 1 example import violation(s)
+- `src/Vocab.ts:90` `VocabRegistry` (const) - 1 example import violation(s)
+- `src/Vocab.ts:111` `VocabRegistry` (type) - 1 example import violation(s)
+- `src/Vocab.ts:130` `CoreVocab` (const) - 1 example import violation(s)
+- `src/Vocab.ts:378` `CoreVocab` (type) - 1 example import violation(s)
+- `src/Vocab.ts:395` `Curie` (type) - 1 example import violation(s)
+- `src/Vocab.ts:414` `Predicate` (type) - 1 example import violation(s)
+- `src/Vocab.ts:431` `Expand` (type) - 1 example import violation(s)
+- `src/Vocab.ts:473` `mergeVocab` (const) - 1 example import violation(s)
+- `src/Vocab.ts:498` `SemanticFoundationVocab` (const) - 1 example import violation(s)
+- `src/Vocab.ts:525` `SemanticFoundationVocab` (type) - 1 example import violation(s)
+- `src/Vocab.ts:540` `SparVocab` (const) - 1 example import violation(s)
 - `src/index.ts:31` `export * from "./Curie.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:56` `export * from "./Fibered.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:72` `export * from "./Id.ts";` (re-export) - 1 example import violation(s)
@@ -321,128 +337,128 @@ Export findings:
 - `src/index.ts:105` `export * from "./PnLocal.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:120` `export * from "./packages.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:135` `export * from "./Vocab.ts";` (re-export) - 1 example import violation(s)
-- `src/packages.ts:334` `$DataId` (const) - 1 example import violation(s)
-- `src/packages.ts:350` `$IdentityId` (const) - 1 example import violation(s)
-- `src/packages.ts:366` `$SchemaId` (const) - 1 example import violation(s)
-- `src/packages.ts:382` `$ProvenanceId` (const) - 1 example import violation(s)
-- `src/packages.ts:398` `$RdfId` (const) - 1 example import violation(s)
-- `src/packages.ts:446` `$TypesId` (const) - 1 example import violation(s)
-- `src/packages.ts:462` `$UtilsId` (const) - 1 example import violation(s)
-- `src/packages.ts:480` `$UiId` (const) - 1 example import violation(s)
-- `src/packages.ts:498` `$RepoAiMetricsId` (const) - 1 example import violation(s)
-- `src/packages.ts:514` `$RepoCliId` (const) - 1 example import violation(s)
-- `src/packages.ts:530` `$RepoConfigsId` (const) - 1 example import violation(s)
-- `src/packages.ts:546` `$RepoUtilsId` (const) - 1 example import violation(s)
-- `src/packages.ts:562` `$TestUtilsId` (const) - 1 example import violation(s)
-- `src/packages.ts:580` `$SharedDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:613` `$SharedTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:629` `$SemanticWebId` (const) - 1 example import violation(s)
-- `src/packages.ts:645` `$NlpId` (const) - 1 example import violation(s)
-- `src/packages.ts:677` `$LangExtractId` (const) - 1 example import violation(s)
-- `src/packages.ts:693` `$ObservabilityId` (const) - 1 example import violation(s)
-- `src/packages.ts:709` `$ColorsId` (const) - 1 example import violation(s)
-- `src/packages.ts:725` `$ChalkId` (const) - 1 example import violation(s)
-- `src/packages.ts:741` `$RepoDocgenId` (const) - 1 example import violation(s)
-- `src/packages.ts:757` `$InfraId` (const) - 1 example import violation(s)
-- `src/packages.ts:775` `$WorkspaceDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:791` `$EpistemicDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:808` `$EpistemicUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:825` `$AgentsDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:841` `$AgentsServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:857` `$AgentsUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:873` `$AgentsClientId` (const) - 1 example import violation(s)
-- `src/packages.ts:889` `$LawPracticeDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:907` `$LawPracticeUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:925` `$LawPracticeServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:942` `$ProfessionalDesktopId` (const) - 1 example import violation(s)
-- `src/packages.ts:1088` `$AnthropicId` (const) - 1 example import violation(s)
-- `src/packages.ts:1137` `$AcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:1154` `$OpenaiCompatId` (const) - 1 example import violation(s)
-- `src/packages.ts:1171` `$WorkspaceTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1188` `$WorkspaceUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1206` `$WorkspaceServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:1223` `$DocumentsDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:1240` `$DocumentsUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1258` `$DocumentsServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:1275` `$ArchitectureLabDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:1293` `$ArchitectureLabUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1311` `$ArchitectureLabConfigId` (const) - 1 example import violation(s)
-- `src/packages.ts:1329` `$ArchitectureLabServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:1347` `$ArchitectureLabTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:1365` `$ArchitectureLabClientId` (const) - 1 example import violation(s)
-- `src/packages.ts:1383` `$ArchitectureLabUiId` (const) - 1 example import violation(s)
-- `src/packages.ts:1401` `$ArchitectureLabProofId` (const) - 1 example import violation(s)
-- `src/packages.ts:1419` `$RunpodId` (const) - 1 example import violation(s)
-- `src/packages.ts:1436` `$OnepasswordCliId` (const) - 1 example import violation(s)
-- `src/packages.ts:1453` `$DiscordId` (const) - 1 example import violation(s)
-- `src/packages.ts:1470` `$AiProviderCliId` (const) - 1 example import violation(s)
-- `src/packages.ts:1487` `$SanityId` (const) - 1 example import violation(s)
-- `src/packages.ts:1504` `$HubspotId` (const) - 1 example import violation(s)
-- `src/packages.ts:1521` `$PhoenixId` (const) - 1 example import violation(s)
-- `src/packages.ts:1538` `$AiSyncId` (const) - 1 example import violation(s)
-- `src/packages.ts:1555` `$BoxId` (const) - 1 example import violation(s)
-- `src/packages.ts:1572` `$NlpMcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:1606` `$WinkId` (const) - 1 example import violation(s)
-- `src/packages.ts:1623` `$FileProcessingId` (const) - 1 example import violation(s)
-- `src/packages.ts:1640` `$TikaId` (const) - 1 example import violation(s)
-- `src/packages.ts:1657` `$LibpffId` (const) - 1 example import violation(s)
-- `src/packages.ts:1674` `$FirecrawlId` (const) - 1 example import violation(s)
-- `src/packages.ts:1691` `$UsptoId` (const) - 1 example import violation(s)
-- `src/packages.ts:1708` `$LexicalSchemaId` (const) - 1 example import violation(s)
-- `src/packages.ts:1725` `$EditorId` (const) - 1 example import violation(s)
-- `src/packages.ts:1742` `$ScratchpadId` (const) - 1 example import violation(s)
-- `src/packages.ts:1759` `$HtmlId` (const) - 1 example import violation(s)
-- `src/packages.ts:1776` `$PandocAstId` (const) - 1 example import violation(s)
-- `src/packages.ts:1793` `$PgliteId` (const) - 1 example import violation(s)
-- `src/packages.ts:1810` `$M365Id` (const) - 1 example import violation(s)
-- `src/packages.ts:1827` `$M365McpId` (const) - 1 example import violation(s)
-- `src/packages.ts:1844` `$GovinfoId` (const) - 1 example import violation(s)
-- `src/packages.ts:1861` `$EcfrId` (const) - 1 example import violation(s)
-- `src/packages.ts:1878` `$ApiTransportId` (const) - 1 example import violation(s)
-- `src/packages.ts:1895` `$McpKitId` (const) - 1 example import violation(s)
-- `src/packages.ts:1912` `$UsptoMcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:1929` `$PacerId` (const) - 1 example import violation(s)
-- `src/packages.ts:1946` `$FcRunsId` (const) - 1 example import violation(s)
-- `src/packages.ts:1963` `$CosmosId` (const) - 1 example import violation(s)
-- `src/packages.ts:1980` `$DbAdminId` (const) - 1 example import violation(s)
-- `src/packages.ts:1997` `$EpistemicServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:2014` `$EpistemicTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2031` `$LintRulesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2048` `$N3Id` (const) - 1 example import violation(s)
-- `src/packages.ts:2065` `$PretextId` (const) - 1 example import violation(s)
-- `src/packages.ts:2082` `$Graph3dId` (const) - 1 example import violation(s)
-- `src/packages.ts:2099` `$DockId` (const) - 1 example import violation(s)
-- `src/packages.ts:2116` `$DockReactId` (const) - 1 example import violation(s)
-- `src/packages.ts:2133` `$OntologyClientId` (const) - 1 example import violation(s)
-- `src/packages.ts:2150` `$OntologyConfigId` (const) - 1 example import violation(s)
-- `src/packages.ts:2167` `$OntologyDomainId` (const) - 1 example import violation(s)
-- `src/packages.ts:2184` `$OntologyServerId` (const) - 1 example import violation(s)
-- `src/packages.ts:2201` `$OntologyUiId` (const) - 1 example import violation(s)
-- `src/packages.ts:2218` `$OntologyUseCasesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2235` `$OxigraphId` (const) - 1 example import violation(s)
-- `src/packages.ts:2252` `$ShaclId` (const) - 1 example import violation(s)
-- `src/packages.ts:2269` `$StorybookId` (const) - 1 example import violation(s)
-- `src/packages.ts:2286` `$TsgoShimId` (const) - 1 example import violation(s)
-- `src/packages.ts:2303` `$DocTextId` (const) - 1 example import violation(s)
-- `src/packages.ts:2320` `$DocumentsTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2337` `$TailscaleId` (const) - 1 example import violation(s)
-- `src/packages.ts:2354` `$AgentsTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2371` `$EpistemicConfigId` (const) - 1 example import violation(s)
-- `src/packages.ts:2388` `$LawPracticeTablesId` (const) - 1 example import violation(s)
-- `src/packages.ts:2406` `$PracticeKgMcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:2423` `$OpenclawId` (const) - 1 example import violation(s)
-- `src/packages.ts:2440` `$ObsId` (const) - 1 example import violation(s)
-- `src/packages.ts:2457` `$ExiftoolId` (const) - 1 example import violation(s)
-- `src/packages.ts:2474` `$QaCaptureId` (const) - 1 example import violation(s)
-- `src/packages.ts:2491` `$GovLegalMcpId` (const) - 1 example import violation(s)
-- `src/packages.ts:2507` `$EpistemicClientId` (const) - 1 example import violation(s)
-- `src/packages.ts:2523` `$EpistemicUiId` (const) - 1 example import violation(s)
-- `src/packages.ts:2556` `$SkillContractId` (const) - 1 example import violation(s)
-- `src/packages.ts:2573` `$CodegenKitId` (const) - 1 example import violation(s)
-- `src/packages.ts:2590` `$BrandId` (const) - 1 example import violation(s)
-- `src/packages.ts:2607` `$OpenaiId` (const) - 1 example import violation(s)
-- `src/packages.ts:2624` `$TodoxId` (const) - 1 example import violation(s)
-- `src/packages.ts:2641` `$BoxProvisioningId` (const) - 1 example import violation(s)
+- `src/packages.ts:350` `$DataId` (const) - 1 example import violation(s)
+- `src/packages.ts:366` `$IdentityId` (const) - 1 example import violation(s)
+- `src/packages.ts:382` `$SchemaId` (const) - 1 example import violation(s)
+- `src/packages.ts:398` `$ProvenanceId` (const) - 1 example import violation(s)
+- `src/packages.ts:414` `$RdfId` (const) - 1 example import violation(s)
+- `src/packages.ts:462` `$TypesId` (const) - 1 example import violation(s)
+- `src/packages.ts:478` `$UtilsId` (const) - 1 example import violation(s)
+- `src/packages.ts:496` `$UiId` (const) - 1 example import violation(s)
+- `src/packages.ts:514` `$RepoAiMetricsId` (const) - 1 example import violation(s)
+- `src/packages.ts:530` `$RepoCliId` (const) - 1 example import violation(s)
+- `src/packages.ts:546` `$RepoConfigsId` (const) - 1 example import violation(s)
+- `src/packages.ts:562` `$RepoUtilsId` (const) - 1 example import violation(s)
+- `src/packages.ts:578` `$TestUtilsId` (const) - 1 example import violation(s)
+- `src/packages.ts:596` `$SharedDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:629` `$SharedTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:645` `$SemanticWebId` (const) - 1 example import violation(s)
+- `src/packages.ts:661` `$NlpId` (const) - 1 example import violation(s)
+- `src/packages.ts:693` `$LangExtractId` (const) - 1 example import violation(s)
+- `src/packages.ts:709` `$ObservabilityId` (const) - 1 example import violation(s)
+- `src/packages.ts:725` `$ColorsId` (const) - 1 example import violation(s)
+- `src/packages.ts:741` `$ChalkId` (const) - 1 example import violation(s)
+- `src/packages.ts:757` `$RepoDocgenId` (const) - 1 example import violation(s)
+- `src/packages.ts:773` `$InfraId` (const) - 1 example import violation(s)
+- `src/packages.ts:791` `$WorkspaceDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:807` `$EpistemicDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:824` `$EpistemicUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:841` `$AgentsDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:857` `$AgentsServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:873` `$AgentsUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:889` `$AgentsClientId` (const) - 1 example import violation(s)
+- `src/packages.ts:905` `$LawPracticeDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:923` `$LawPracticeUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:941` `$LawPracticeServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:958` `$ProfessionalDesktopId` (const) - 1 example import violation(s)
+- `src/packages.ts:1104` `$AnthropicId` (const) - 1 example import violation(s)
+- `src/packages.ts:1153` `$AcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:1170` `$OpenaiCompatId` (const) - 1 example import violation(s)
+- `src/packages.ts:1187` `$WorkspaceTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1204` `$WorkspaceUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1222` `$WorkspaceServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1239` `$DocumentsDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:1256` `$DocumentsUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1274` `$DocumentsServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1291` `$ArchitectureLabDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:1309` `$ArchitectureLabUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1327` `$ArchitectureLabConfigId` (const) - 1 example import violation(s)
+- `src/packages.ts:1345` `$ArchitectureLabServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1363` `$ArchitectureLabTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:1381` `$ArchitectureLabClientId` (const) - 1 example import violation(s)
+- `src/packages.ts:1399` `$ArchitectureLabUiId` (const) - 1 example import violation(s)
+- `src/packages.ts:1417` `$ArchitectureLabProofId` (const) - 1 example import violation(s)
+- `src/packages.ts:1435` `$RunpodId` (const) - 1 example import violation(s)
+- `src/packages.ts:1452` `$OnepasswordCliId` (const) - 1 example import violation(s)
+- `src/packages.ts:1469` `$DiscordId` (const) - 1 example import violation(s)
+- `src/packages.ts:1486` `$AiProviderCliId` (const) - 1 example import violation(s)
+- `src/packages.ts:1503` `$SanityId` (const) - 1 example import violation(s)
+- `src/packages.ts:1520` `$HubspotId` (const) - 1 example import violation(s)
+- `src/packages.ts:1537` `$PhoenixId` (const) - 1 example import violation(s)
+- `src/packages.ts:1554` `$AiSyncId` (const) - 1 example import violation(s)
+- `src/packages.ts:1571` `$BoxId` (const) - 1 example import violation(s)
+- `src/packages.ts:1588` `$NlpMcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:1622` `$WinkId` (const) - 1 example import violation(s)
+- `src/packages.ts:1639` `$FileProcessingId` (const) - 1 example import violation(s)
+- `src/packages.ts:1656` `$TikaId` (const) - 1 example import violation(s)
+- `src/packages.ts:1673` `$LibpffId` (const) - 1 example import violation(s)
+- `src/packages.ts:1690` `$FirecrawlId` (const) - 1 example import violation(s)
+- `src/packages.ts:1707` `$UsptoId` (const) - 1 example import violation(s)
+- `src/packages.ts:1724` `$LexicalSchemaId` (const) - 1 example import violation(s)
+- `src/packages.ts:1741` `$EditorId` (const) - 1 example import violation(s)
+- `src/packages.ts:1758` `$ScratchpadId` (const) - 1 example import violation(s)
+- `src/packages.ts:1775` `$HtmlId` (const) - 1 example import violation(s)
+- `src/packages.ts:1792` `$PandocAstId` (const) - 1 example import violation(s)
+- `src/packages.ts:1809` `$PgliteId` (const) - 1 example import violation(s)
+- `src/packages.ts:1826` `$M365Id` (const) - 1 example import violation(s)
+- `src/packages.ts:1843` `$M365McpId` (const) - 1 example import violation(s)
+- `src/packages.ts:1860` `$GovinfoId` (const) - 1 example import violation(s)
+- `src/packages.ts:1877` `$EcfrId` (const) - 1 example import violation(s)
+- `src/packages.ts:1894` `$ApiTransportId` (const) - 1 example import violation(s)
+- `src/packages.ts:1911` `$McpKitId` (const) - 1 example import violation(s)
+- `src/packages.ts:1928` `$UsptoMcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:1945` `$PacerId` (const) - 1 example import violation(s)
+- `src/packages.ts:1962` `$FcRunsId` (const) - 1 example import violation(s)
+- `src/packages.ts:1979` `$CosmosId` (const) - 1 example import violation(s)
+- `src/packages.ts:1996` `$DbAdminId` (const) - 1 example import violation(s)
+- `src/packages.ts:2013` `$EpistemicServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:2030` `$EpistemicTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2047` `$LintRulesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2064` `$N3Id` (const) - 1 example import violation(s)
+- `src/packages.ts:2081` `$PretextId` (const) - 1 example import violation(s)
+- `src/packages.ts:2098` `$Graph3dId` (const) - 1 example import violation(s)
+- `src/packages.ts:2115` `$DockId` (const) - 1 example import violation(s)
+- `src/packages.ts:2132` `$DockReactId` (const) - 1 example import violation(s)
+- `src/packages.ts:2149` `$OntologyClientId` (const) - 1 example import violation(s)
+- `src/packages.ts:2166` `$OntologyConfigId` (const) - 1 example import violation(s)
+- `src/packages.ts:2183` `$OntologyDomainId` (const) - 1 example import violation(s)
+- `src/packages.ts:2200` `$OntologyServerId` (const) - 1 example import violation(s)
+- `src/packages.ts:2217` `$OntologyUiId` (const) - 1 example import violation(s)
+- `src/packages.ts:2234` `$OntologyUseCasesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2251` `$OxigraphId` (const) - 1 example import violation(s)
+- `src/packages.ts:2268` `$ShaclId` (const) - 1 example import violation(s)
+- `src/packages.ts:2285` `$StorybookId` (const) - 1 example import violation(s)
+- `src/packages.ts:2302` `$TsgoShimId` (const) - 1 example import violation(s)
+- `src/packages.ts:2319` `$DocTextId` (const) - 1 example import violation(s)
+- `src/packages.ts:2336` `$DocumentsTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2353` `$TailscaleId` (const) - 1 example import violation(s)
+- `src/packages.ts:2370` `$AgentsTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2387` `$EpistemicConfigId` (const) - 1 example import violation(s)
+- `src/packages.ts:2404` `$LawPracticeTablesId` (const) - 1 example import violation(s)
+- `src/packages.ts:2422` `$PracticeKgMcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:2439` `$OpenclawId` (const) - 1 example import violation(s)
+- `src/packages.ts:2456` `$ObsId` (const) - 1 example import violation(s)
+- `src/packages.ts:2473` `$ExiftoolId` (const) - 1 example import violation(s)
+- `src/packages.ts:2490` `$QaCaptureId` (const) - 1 example import violation(s)
+- `src/packages.ts:2507` `$GovLegalMcpId` (const) - 1 example import violation(s)
+- `src/packages.ts:2523` `$EpistemicClientId` (const) - 1 example import violation(s)
+- `src/packages.ts:2539` `$EpistemicUiId` (const) - 1 example import violation(s)
+- `src/packages.ts:2572` `$SkillContractId` (const) - 1 example import violation(s)
+- `src/packages.ts:2589` `$CodegenKitId` (const) - 1 example import violation(s)
+- `src/packages.ts:2606` `$BrandId` (const) - 1 example import violation(s)
+- `src/packages.ts:2623` `$OpenaiId` (const) - 1 example import violation(s)
+- `src/packages.ts:2640` `$TodoxId` (const) - 1 example import violation(s)
+- `src/packages.ts:2657` `$BoxProvisioningId` (const) - 1 example import violation(s)
 
 ### @beep/utils
 
@@ -486,54 +502,54 @@ Export findings:
 - `src/GlobalValue.ts:73` `globalValue` (const) - 1 example import violation(s)
 - `src/Number.ts:43` `isPositive` (const) - 1 documentation section/link violation(s)
 - `src/Number.ts:87` `isInteger` (const) - 1 example import violation(s)
-- `src/Option.ts:63` `propFromNullishOr` (const) - 1 example import violation(s)
-- `src/Option.ts:112` `getSomesStruct` (const) - 1 example import violation(s)
+- `src/Option.ts:132` `propFromNullishOr` (const) - 1 example import violation(s)
+- `src/Option.ts:181` `getSomesStruct` (const) - 1 example import violation(s)
 - `src/Predicate.ts:207` `chainRefinements` (function) - 1 example import violation(s)
 - `src/Predicate.ts:156` `hasInspectableObjectShape` (const) - 1 example import violation(s)
-- `src/Str.ts:824` `export * from "effect/String";` (re-export) - 1 example import violation(s)
-- `src/Str.ts:294` `mapPrefix` (function) - 1 example import violation(s)
-- `src/Str.ts:339` `mapPostfix` (function) - 1 example import violation(s)
+- `src/Str.ts:814` `export * from "effect/String";` (re-export) - 1 example import violation(s)
 - `src/Str.ts:41` `equivalence` (const) - 1 example import violation(s)
 - `src/Str.ts:71` `orderAsc` (const) - 1 example import violation(s)
 - `src/Str.ts:118` `prefix` (const) - 1 example import violation(s)
 - `src/Str.ts:159` `prefixThunk` (const) - 1 example import violation(s)
 - `src/Str.ts:212` `postfix` (const) - 1 example import violation(s)
 - `src/Str.ts:253` `postfixThunk` (const) - 1 example import violation(s)
-- `src/Str.ts:370` `camelCase` (const) - 1 example import violation(s)
-- `src/Str.ts:388` `snakeCase` (const) - 1 example import violation(s)
-- `src/Str.ts:406` `kebabCase` (const) - 1 example import violation(s)
-- `src/Str.ts:425` `screamingSnake` (const) - 1 example import violation(s)
-- `src/Str.ts:444` `pascalCase` (const) - 1 example import violation(s)
-- `src/Str.ts:462` `pascalToSnake` (const) - 1 example import violation(s)
-- `src/Str.ts:481` `snakeToCamel` (const) - 1 example import violation(s)
-- `src/Str.ts:500` `snakeToKebab` (const) - 1 example import violation(s)
-- `src/Str.ts:519` `camelToSnake` (const) - 1 example import violation(s)
-- `src/Str.ts:538` `snakeToPascal` (const) - 1 example import violation(s)
-- `src/Str.ts:557` `kebabToSnake` (const) - 1 example import violation(s)
-- `src/Str.ts:584` `startsWith` (const) - 1 example import violation(s)
-- `src/Str.ts:624` `endsWith` (const) - 1 example import violation(s)
-- `src/Str.ts:669` `contains` (const) - 1 example import violation(s)
-- `src/Str.ts:713` `repeat` (const) - 1 example import violation(s)
-- `src/Str.ts:748` `replaceWith` (const) - 1 example import violation(s)
-- `src/Str.ts:791` `replaceAllWith` (const) - 1 example import violation(s)
-- `src/Str.ts:844` `trimThunk` (const) - 1 example import violation(s)
-- `src/Str.ts:864` `fromNumber` (const) - 1 example import violation(s)
-- `src/Str.ts:881` `toSlug` (const) - 1 example import violation(s)
-- `src/Str.ts:919` `truncate` (const) - 1 example import violation(s)
-- `src/Str.ts:945` `orEmpty` (const) - 1 example import violation(s)
-- `src/Str.ts:993` `matchEmpty` (const) - 1 example import violation(s)
-- `src/Struct.ts:173` `dotGet` (const) - 1 example import violation(s)
-- `src/Struct.ts:220` `dotGetOption` (const) - 1 example import violation(s)
-- `src/Struct.ts:287` `mapPath` (const) - 1 example import violation(s)
-- `src/Struct.ts:365` `mapPathLazy` (const) - 1 example import violation(s)
-- `src/Struct.ts:447` `getLazy` (const) - 1 example import violation(s)
-- `src/Struct.ts:482` `pathsOf` (const) - 1 example import violation(s)
-- `src/Struct.ts:602` `entriesNonEmpty` (const) - 1 example import violation(s)
-- `src/Struct.ts:633` `keys` (const) - 1 example import violation(s)
-- `src/Struct.ts:659` `keysNonEmpty` (const) - 1 example import violation(s)
-- `src/Struct.ts:694` `fromEntries` (const) - 1 example import violation(s)
-- `src/Struct.ts:802` `reverse` (const) - 1 example import violation(s)
-- `src/Struct.ts:924` `deepMerge` (const) - 1 example import violation(s)
+- `src/Str.ts:294` `mapPrefix` (const) - 1 example import violation(s)
+- `src/Str.ts:334` `mapPostfix` (const) - 1 example import violation(s)
+- `src/Str.ts:360` `camelCase` (const) - 1 example import violation(s)
+- `src/Str.ts:378` `snakeCase` (const) - 1 example import violation(s)
+- `src/Str.ts:396` `kebabCase` (const) - 1 example import violation(s)
+- `src/Str.ts:415` `screamingSnake` (const) - 1 example import violation(s)
+- `src/Str.ts:434` `pascalCase` (const) - 1 example import violation(s)
+- `src/Str.ts:452` `pascalToSnake` (const) - 1 example import violation(s)
+- `src/Str.ts:471` `snakeToCamel` (const) - 1 example import violation(s)
+- `src/Str.ts:490` `snakeToKebab` (const) - 1 example import violation(s)
+- `src/Str.ts:509` `camelToSnake` (const) - 1 example import violation(s)
+- `src/Str.ts:528` `snakeToPascal` (const) - 1 example import violation(s)
+- `src/Str.ts:547` `kebabToSnake` (const) - 1 example import violation(s)
+- `src/Str.ts:574` `startsWith` (const) - 1 example import violation(s)
+- `src/Str.ts:614` `endsWith` (const) - 1 example import violation(s)
+- `src/Str.ts:659` `contains` (const) - 1 example import violation(s)
+- `src/Str.ts:703` `repeat` (const) - 1 example import violation(s)
+- `src/Str.ts:738` `replaceWith` (const) - 1 example import violation(s)
+- `src/Str.ts:781` `replaceAllWith` (const) - 1 example import violation(s)
+- `src/Str.ts:834` `trimThunk` (const) - 1 example import violation(s)
+- `src/Str.ts:854` `fromNumber` (const) - 1 example import violation(s)
+- `src/Str.ts:871` `toSlug` (const) - 1 example import violation(s)
+- `src/Str.ts:909` `truncate` (const) - 1 example import violation(s)
+- `src/Str.ts:935` `orEmpty` (const) - 1 example import violation(s)
+- `src/Str.ts:983` `matchEmpty` (const) - 1 example import violation(s)
+- `src/Struct.ts:175` `dotGet` (const) - 1 example import violation(s)
+- `src/Struct.ts:222` `dotGetOption` (const) - 1 example import violation(s)
+- `src/Struct.ts:289` `mapPath` (const) - 1 example import violation(s)
+- `src/Struct.ts:367` `mapPathLazy` (const) - 1 example import violation(s)
+- `src/Struct.ts:449` `getLazy` (const) - 1 example import violation(s)
+- `src/Struct.ts:484` `pathsOf` (const) - 1 example import violation(s)
+- `src/Struct.ts:604` `entriesNonEmpty` (const) - 1 example import violation(s)
+- `src/Struct.ts:635` `keys` (const) - 1 example import violation(s)
+- `src/Struct.ts:661` `keysNonEmpty` (const) - 1 example import violation(s)
+- `src/Struct.ts:696` `fromEntries` (const) - 1 example import violation(s)
+- `src/Struct.ts:804` `reverse` (const) - 1 example import violation(s)
+- `src/Struct.ts:926` `deepMerge` (const) - 1 example import violation(s)
 - `src/Text.ts:33` `splitCommaSeparatedTrimmed` (const) - 1 example import violation(s)
 - `src/Text.ts:61` `formatNameWithAliases` (const) - 1 example import violation(s)
 - `src/Text.ts:93` `joinLines` (const) - 1 example import violation(s)
@@ -614,17 +630,17 @@ Module findings:
 
 Export findings:
 - `src/CredentialPatternBank/CredentialPatternBank.policy.ts:37` `credentialRules` (const) - 1 example import violation(s)
-- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:160` `detectCredentials` (const) - 1 example import violation(s)
-- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:190` `countCredentialCategory` (const) - 1 example import violation(s)
-- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:242` `replaceCredentialCategory` (const) - 1 example import violation(s)
-- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:276` `replaceCredentialAssignmentsOutsideHeaders` (const) - 1 example import violation(s)
-- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:306` `maskCredentialMatches` (const) - 1 example import violation(s)
-- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:351` `maskCredentialCategory` (const) - 1 example import violation(s)
+- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:158` `detectCredentials` (const) - 1 example import violation(s)
+- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:192` `countCredentialCategory` (const) - 1 example import violation(s)
+- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:244` `replaceCredentialCategory` (const) - 1 example import violation(s)
+- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:278` `replaceCredentialAssignmentsOutsideHeaders` (const) - 1 example import violation(s)
+- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:308` `maskCredentialMatches` (const) - 1 example import violation(s)
+- `src/CredentialPatternBank/CredentialPatternBank.policy.ts:353` `maskCredentialCategory` (const) - 1 example import violation(s)
 - `src/CredentialPatternBank/CredentialPatternBank.schema.ts:26` `credentialPatternBankVersion` (const) - 1 example import violation(s)
 - `src/CredentialPatternBank/CredentialPatternBank.schema.ts:39` `CredentialCategory` (const) - 1 example import violation(s)
 - `src/CredentialPatternBank/CredentialPatternBank.schema.ts:63` `CredentialCategory` (type) - 1 example import violation(s)
 - `src/CredentialPatternBank/CredentialPatternBank.schema.ts:75` `CredentialRule` (class) - 1 example import violation(s)
-- `src/CredentialPatternBank/CredentialPatternBank.schema.ts:99` `CredentialMatch` (class) - 1 example import violation(s)
+- `src/CredentialPatternBank/CredentialPatternBank.schema.ts:100` `CredentialMatch` (class) - 1 example import violation(s)
 - `src/Email.ts:33` `EmailString` (const) - 1 example import violation(s)
 - `src/Email.ts:52` `EmailString` (type) - 2 example import violation(s)
 - `src/Email.ts:76` `Email` (const) - 1 example import violation(s)
@@ -640,9 +656,9 @@ Export findings:
 - `src/Fn/Fn.schema.ts:481` `AnyFn` (const) - 1 example import violation(s)
 - `src/Fn/Fn.schema.ts:503` `AnyFn` (type) - 1 example import violation(s)
 - `src/SafeRemoteHost.ts:93` `BlockedHostError` (class) - 1 example import violation(s)
-- `src/SafeRemoteHost.ts:281` `isBlockedRemoteHost` (const) - 1 example import violation(s)
-- `src/SafeRemoteHost.ts:326` `assertAllowedRemoteHost` (const) - 1 example import violation(s)
-- `src/SafeRemoteHost.ts:391` `assertAllowedRemoteUrl` (const) - 1 example import violation(s)
+- `src/SafeRemoteHost.ts:283` `isBlockedRemoteHost` (const) - 1 example import violation(s)
+- `src/SafeRemoteHost.ts:328` `assertAllowedRemoteHost` (const) - 1 example import violation(s)
+- `src/SafeRemoteHost.ts:393` `assertAllowedRemoteUrl` (const) - 1 example import violation(s)
 - `src/SemanticVersion.ts:53` `SemanticVersionSchema` (interface) - 1 documentation section/link violation(s)
 - `src/Slug.ts:52` `SlugChecks` (const) - 1 example import violation(s)
 - `src/index.ts:200` `export * from "./Port.ts";` (re-export) - 1 example import violation(s)
@@ -703,34 +719,34 @@ Module findings:
 - `src/index.ts:1` (packageDocumentation) - 1 example import violation(s)
 
 Export findings:
-- `src/Html.conformance.ts:220` `ConformantHtmlNode` (const) - 1 example import violation(s)
+- `src/Html.conformance.ts:222` `ConformantHtmlNode` (const) - 1 example import violation(s)
 - `src/Html.form-control.ts:43` `InputState` (const) - 1 example import violation(s)
 - `src/Html.form-control.ts:128` `resolveInputState` (const) - 1 example import violation(s)
 - `src/Html.form-control.ts:157` `inputStateAllowedAttributes` (const) - 1 example import violation(s)
 - `src/Html.form-control.ts:231` `ButtonState` (const) - 1 example import violation(s)
 - `src/Html.form-control.ts:303` `resolveButtonState` (const) - 1 example import violation(s)
-- `src/Html.meta.ts:604` `HTML_GLOBAL_ATTRIBUTE_NAMES` (const) - 1 documentation section/link violation(s)
-- `src/Html.policy.ts:502` `SafeHtmlAst` (const) - 1 example import violation(s)
-- `src/Html.policy.ts:527` `SafeHtmlAst` (type) - 1 example import violation(s)
-- `src/Html.policy.ts:549` `SafeHtmlNode` (const) - 1 example import violation(s)
-- `src/Html.policy.ts:804` `inspectSafeHtml` (const) - 1 example import violation(s)
-- `src/Html.policy.ts:833` `enforceSafeHtml` (const) - 1 example import violation(s)
-- `src/Html.policy.ts:859` `safeHtmlAstConformant` (const) - 1 example import violation(s)
-- `src/Html.policy.ts:887` `safeHtmlAstRoot` (const) - 1 example import violation(s)
+- `src/Html.meta.ts:607` `HTML_GLOBAL_ATTRIBUTE_NAMES` (const) - 1 documentation section/link violation(s)
+- `src/Html.policy.ts:507` `SafeHtmlAst` (const) - 1 example import violation(s)
+- `src/Html.policy.ts:532` `SafeHtmlAst` (type) - 1 example import violation(s)
+- `src/Html.policy.ts:554` `SafeHtmlNode` (const) - 1 example import violation(s)
+- `src/Html.policy.ts:809` `inspectSafeHtml` (const) - 1 example import violation(s)
+- `src/Html.policy.ts:838` `enforceSafeHtml` (const) - 1 example import violation(s)
+- `src/Html.policy.ts:864` `safeHtmlAstConformant` (const) - 1 example import violation(s)
+- `src/Html.policy.ts:892` `safeHtmlAstRoot` (const) - 1 example import violation(s)
 - `src/Html.script.ts:44` `HtmlMimeType` (const) - 1 example import violation(s)
 - `src/Html.script.ts:84` `JavaScriptMimeTypeEssence` (const) - 1 example import violation(s)
 - `src/Html.script.ts:138` `ScriptDataBlockMimeType` (const) - 1 example import violation(s)
 - `src/Html.script.ts:191` `ScriptState` (const) - 1 example import violation(s)
 - `src/Html.script.ts:232` `InvalidScriptType` (class) - 1 example import violation(s)
-- `src/Html.script.ts:287` `resolveScriptState` (const) - 1 example import violation(s)
+- `src/Html.script.ts:289` `resolveScriptState` (const) - 1 example import violation(s)
 - `src/Html.serialize.ts:147` `SafeHtml` (const) - 1 example import violation(s)
 - `src/Html.serialize.ts:180` `SafeHtml` (type) - 1 example import violation(s)
-- `src/Html.serialize.ts:611` `serialize` (const) - 1 example import violation(s)
-- `src/Html.serialize.ts:636` `serializeConformant` (const) - 1 example import violation(s)
-- `src/Html.serialize.ts:685` `serializeSafe` (const) - 1 example import violation(s)
-- `src/Html.serialize.ts:706` `untrustedHtmlValue` (const) - 1 example import violation(s)
-- `src/Html.serialize.ts:739` `safeHtmlValue` (const) - 1 example import violation(s)
-- `src/Html.source-size.ts:829` `inspectSourceSizeList` (const) - 1 documentation section/link violation(s)
+- `src/Html.serialize.ts:613` `serialize` (const) - 1 example import violation(s)
+- `src/Html.serialize.ts:638` `serializeConformant` (const) - 1 example import violation(s)
+- `src/Html.serialize.ts:687` `serializeSafe` (const) - 1 example import violation(s)
+- `src/Html.serialize.ts:708` `untrustedHtmlValue` (const) - 1 example import violation(s)
+- `src/Html.serialize.ts:741` `safeHtmlValue` (const) - 1 example import violation(s)
+- `src/Html.source-size.ts:831` `inspectSourceSizeList` (const) - 1 documentation section/link violation(s)
 
 ### @beep/md
 
@@ -747,8 +763,8 @@ Export findings:
 - `src/Md.behavior.ts:133` `renderPlainTextInline` (const) - 1 example import violation(s)
 - `src/Md.behavior.ts:150` `renderPlainTextBlock` (const) - 1 example import violation(s)
 - `src/Md.behavior.ts:167` `renderPlainTextBlocks` (const) - 1 example import violation(s)
-- `src/Md.conformance.ts:381` `refineStrictMarkdownDocument` (const) - 1 example import violation(s)
-- `src/Md.conformance.ts:465` `inspectMarkdownSpecificationConformance` (const) - 1 example import violation(s)
+- `src/Md.conformance.ts:405` `refineStrictMarkdownDocument` (const) - 1 example import violation(s)
+- `src/Md.conformance.ts:489` `inspectMarkdownSpecificationConformance` (const) - 1 example import violation(s)
 - `src/Md.escape.ts:712` `maxBackticks` (const) - 1 example import violation(s)
 - `src/Md.escape.ts:777` `renderFencedCode` (const) - 1 example import violation(s)
 - `src/Md.html.ts:42` `renderSafeHtml` (const) - 1 example import violation(s)
@@ -764,18 +780,18 @@ Export findings:
 - `src/Md.render.ts:897` `renderWithUnsafe` (const) - 1 example import violation(s)
 - `src/Md.render.ts:932` `renderEffectWithUnsafe` (const) - 1 example import violation(s)
 - `src/Md.render.ts:974` `renderEffectWith` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1378` `makeMarkdownAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1404` `makeHtmlFragmentAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1428` `MarkdownAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1452` `HtmlFragmentAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1471` `PlainTextAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1498` `renderWith` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1532` `render` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1557` `renderHtml` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1582` `renderPlainText` (const) - 1 example import violation(s)
-- `src/Md.safe.ts:745` `documentSafetyIssues` (const) - 1 example import violation(s)
-- `src/Md.safe.ts:771` `inlineSafetyIssuesAtRoot` (const) - 1 example import violation(s)
-- `src/Md.safe.ts:962` `refineSafeDocument` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1379` `makeMarkdownAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1407` `makeHtmlFragmentAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1433` `MarkdownAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1457` `HtmlFragmentAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1476` `PlainTextAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1503` `renderWith` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1537` `render` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1562` `renderHtml` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1587` `renderPlainText` (const) - 1 example import violation(s)
+- `src/Md.safe.ts:750` `documentSafetyIssues` (const) - 1 example import violation(s)
+- `src/Md.safe.ts:776` `inlineSafetyIssuesAtRoot` (const) - 1 example import violation(s)
+- `src/Md.safe.ts:967` `refineSafeDocument` (const) - 1 example import violation(s)
 - `src/Md.ts:124` `InlineContent` (type) - 1 example import violation(s)
 - `src/Md.ts:180` `BlockContent` (type) - 1 example import violation(s)
 - `src/Md.ts:203` `BlockTemplateValue` (type) - 1 example import violation(s)
@@ -841,11 +857,11 @@ Module findings:
 - `src/values/LocalDate/LocalDate.model.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/entity/Principal.ts:253` `PrincipalSchema` (interface) - 1 documentation section/link violation(s)
+- `src/entity/Principal.ts:258` `PrincipalSchema` (interface) - 1 documentation section/link violation(s)
 - `src/entity/SourceKind.ts:32` `SourceKindSchema` (interface) - 1 documentation section/link violation(s)
 - `src/entity/primitives.ts:64` `Sha256` (const) - 1 example import violation(s)
-- `src/identity/index.ts:84` `isIdentityComposer` (const) - 1 example import violation(s)
-- `src/identity/index.ts:119` `AnyIdentityComposer` (const) - 1 example import violation(s)
+- `src/identity/index.ts:82` `isIdentityComposer` (const) - 1 example import violation(s)
+- `src/identity/index.ts:117` `AnyIdentityComposer` (const) - 1 example import violation(s)
 
 ### @beep/rdf
 
@@ -868,30 +884,6 @@ Path: `packages/foundation/modeling/provenance`
 Module findings:
 - `src/TextAnchor.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
-### @beep/semantic-web
-
-Path: `packages/foundation/capability/semantic-web`
-
-Export findings:
-- `src/identity/IdentityRdfBinding.ts:99` `IdentityRdfBinding` (class) - 1 example import violation(s)
-- `src/identity/IdentityRdfBinding.ts:142` `DefaultIdentityRdfBinding` (const) - 1 example import violation(s)
-- `src/identity/IdentityRdfBinding.ts:163` `IdentityFiberPathError` (class) - 1 example import violation(s)
-- `src/identity/IdentityRdfBinding.ts:189` `IdentityEntryIriError` (class) - 1 example import violation(s)
-- `src/identity/IdentityRdfBinding.ts:215` `IdentityDatasetDecodeError` (class) - 1 example import violation(s)
-- `src/identity/IdentityRdfBinding.ts:256` `decodeEntrySubject` (const) - 1 example import violation(s)
-- `src/identity/IdentityRdfBinding.ts:440` `entriesToDataset` (const) - 1 example import violation(s)
-- `src/identity/IdentityRdfBinding.ts:494` `datasetToEntries` (const) - 1 example import violation(s)
-- `src/identity/IdentityRegistryDataset.ts:43` `layerDataset` (const) - 1 example import violation(s)
-- `src/identity/IdentityShaclProjection.ts:90` `IdentityShapePolicy` (class) - 1 example import violation(s)
-- `src/identity/IdentityShaclProjection.ts:127` `projectShapes` (const) - 1 example import violation(s)
-
-### @beep/workspace-use-cases
-
-Path: `packages/workspace/use-cases`
-
-Module findings:
-- `src/aggregates/Thread/ThreadStore.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-
 ### @beep/colors
 
 Path: `packages/foundation/capability/colors`
@@ -901,14 +893,38 @@ Module findings:
 
 Export findings:
 - `src/Colors.ts:62` `ProcessLikeStdout` (class) - 1 example import violation(s)
-- `src/Colors.ts:90` `ProcessLike` (class) - 1 example import violation(s)
-- `src/Colors.ts:196` `Formatter` (const) - 1 example import violation(s)
-- `src/Colors.ts:213` `Formatter` (type) - 1 example import violation(s)
+- `src/Colors.ts:91` `ProcessLike` (class) - 1 example import violation(s)
+- `src/Colors.ts:198` `Formatter` (const) - 1 example import violation(s)
+- `src/Colors.ts:215` `Formatter` (type) - 1 example import violation(s)
 - `src/Colors.ts:252` `supportsColor` (const) - 1 example import violation(s)
 - `src/Colors.ts:268` `isColorSupported` (const) - 1 example import violation(s)
 - `src/Colors.ts:292` `Colors` (class) - 1 example import violation(s)
 - `src/Colors.ts:341` `createColors` (const) - 1 example import violation(s)
 - `src/Colors.ts:409` `default` (const) - 1 example import violation(s)
+
+### @beep/semantic-web
+
+Path: `packages/foundation/capability/semantic-web`
+
+Export findings:
+- `src/identity/IdentityRdfBinding.ts:99` `IdentityRdfBinding` (class) - 1 example import violation(s)
+- `src/identity/IdentityRdfBinding.ts:144` `DefaultIdentityRdfBinding` (const) - 1 example import violation(s)
+- `src/identity/IdentityRdfBinding.ts:165` `IdentityFiberPathError` (class) - 1 example import violation(s)
+- `src/identity/IdentityRdfBinding.ts:193` `IdentityEntryIriError` (class) - 1 example import violation(s)
+- `src/identity/IdentityRdfBinding.ts:221` `IdentityDatasetDecodeError` (class) - 1 example import violation(s)
+- `src/identity/IdentityRdfBinding.ts:263` `decodeEntrySubject` (const) - 1 example import violation(s)
+- `src/identity/IdentityRdfBinding.ts:447` `entriesToDataset` (const) - 1 example import violation(s)
+- `src/identity/IdentityRdfBinding.ts:501` `datasetToEntries` (const) - 1 example import violation(s)
+- `src/identity/IdentityRegistryDataset.ts:43` `layerDataset` (const) - 1 example import violation(s)
+- `src/identity/IdentityShaclProjection.ts:90` `IdentityShapePolicy` (class) - 1 example import violation(s)
+- `src/identity/IdentityShaclProjection.ts:128` `projectShapes` (const) - 1 example import violation(s)
+
+### @beep/workspace-use-cases
+
+Path: `packages/workspace/use-cases`
+
+Module findings:
+- `src/aggregates/Thread/ThreadStore.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 ### @beep/nlp
 
@@ -952,11 +968,11 @@ Export findings:
 - `src/SecretScrub/SecretScrub.schema.ts:80` `SecretRetentionClass` (const) - 1 example import violation(s)
 - `src/SecretScrub/SecretScrub.schema.ts:96` `SecretRetentionClass` (type) - 1 example import violation(s)
 - `src/SecretScrub/SecretScrub.schema.ts:110` `SecretRetentionRecord` (class) - 1 example import violation(s)
-- `src/SecretScrub/SecretScrub.schema.ts:132` `SecretCategoryCount` (class) - 1 example import violation(s)
-- `src/SecretScrub/SecretScrub.schema.ts:153` `SecretEvidence` (class) - 1 example import violation(s)
-- `src/SecretScrub/SecretScrub.schema.ts:181` `SecretScrubProof` (class) - 1 example import violation(s)
-- `src/SecretScrub/SecretScrub.schema.ts:205` `SecretScrubInput` (class) - 1 example import violation(s)
-- `src/SecretScrub/SecretScrub.schema.ts:228` `SecretScrubResult` (class) - 1 example import violation(s)
+- `src/SecretScrub/SecretScrub.schema.ts:133` `SecretCategoryCount` (class) - 1 example import violation(s)
+- `src/SecretScrub/SecretScrub.schema.ts:155` `SecretEvidence` (class) - 1 example import violation(s)
+- `src/SecretScrub/SecretScrub.schema.ts:184` `SecretScrubProof` (class) - 1 example import violation(s)
+- `src/SecretScrub/SecretScrub.schema.ts:209` `SecretScrubInput` (class) - 1 example import violation(s)
+- `src/SecretScrub/SecretScrub.schema.ts:233` `SecretScrubResult` (class) - 1 example import violation(s)
 - `src/SecretScrub/SecretScrub.service.ts:38` `SecretScrubService` (class) - 1 example import violation(s)
 - `src/SecretScrub/SecretScrub.service.ts:57` `scrubSecretText` (const) - 1 example import violation(s)
 - `src/SecretScrub/SecretScrub.service.ts:128` `SecretScrubLive` (const) - 1 example import violation(s)
@@ -976,89 +992,8 @@ Module findings:
 - `src/values/LogicalEdgeIdentity/LogicalEdgeIdentity.model.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/values/GrantSet/GrantSet.model.ts:282` `addGrant` (const) - 1 documentation section/link violation(s)
-- `src/values/GrantSet/GrantSet.model.ts:510` `evaluateExecutionRequest` (const) - 1 documentation section/link violation(s)
-
-### @beep/mcp-kit
-
-Path: `packages/foundation/capability/mcp-kit`
-
-Module findings:
-- `src/ApiKeyRequired.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/FieldTier.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/SanitizedSpan.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/SourceAuth.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/TierGate.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/ToolAnnotations.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/ToolkitComposition.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/index.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-
-Export findings:
-- `src/ApiKeyRequired.ts:75` `ApiKeyRequiredFailure` (class) - 1 example import violation(s)
-- `src/ApiKeyRequired.ts:131` `apiKeyRequiredFailure` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
-- `src/FieldTier.ts:50` `FieldTierName` (const) - 1 example import violation(s)
-- `src/FieldTier.ts:71` `FieldTierName` (type) - 1 example import violation(s)
-- `src/FieldTier.ts:96` `FieldTierSet` (interface) - 1 example import violation(s)
-- `src/FieldTier.ts:130` `defineFieldTiers` (const) - 1 example import violation(s)
-- `src/FieldTier.ts:157` `stripNulls` (const) - 1 example import violation(s)
-- `src/FieldTier.ts:189` `projectFieldTier` (const) - 1 example import violation(s)
-- `src/FieldTier.ts:232` `estimateJsonSize` (const) - 1 example import violation(s)
-- `src/FieldTier.ts:260` `OversizedFieldProjection` (class) - 1 example import violation(s)
-- `src/FieldTier.ts:298` `FetchableHandle` (class) - 1 example import violation(s)
-- `src/FieldTier.ts:343` `FieldProjectionOutcome` (const) - 1 example import violation(s)
-- `src/FieldTier.ts:380` `FieldProjectionOutcome` (type) - 2 example import violation(s)
-- `src/FieldTier.ts:433` `projectWithinBudget` (const) - 1 example import violation(s)
-- `src/FieldTier.ts:470` `ColumnarEnvelope` (class) - 1 example import violation(s)
-- `src/FieldTier.ts:517` `toColumnarEnvelope` (const) - 1 example import violation(s)
-- `src/McpCaller.ts:44` `McpCallerIdentity` (class) - 1 example import violation(s)
-- `src/McpCaller.ts:76` `CurrentMcpCaller` (const) - 1 example import violation(s)
-- `src/SanitizedSpan.ts:74` `defaultSanitizedSpanKeys` (const) - 1 example import violation(s)
-- `src/SanitizedSpan.ts:99` `sanitizeTracerAttributes` (const) - 1 example import violation(s)
-- `src/SanitizedSpan.ts:188` `withSanitizedToolSpan` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
-- `src/SanitizedSpan.ts:604` `sanitizedToolkit` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
-- `src/SourceAuth.ts:55` `SourceAuthGate` (const) - 1 example import violation(s)
-- `src/SourceAuth.ts:77` `SourceAuthGate` (type) - 1 example import violation(s)
-- `src/SourceAuth.ts:100` `SourceAuthRegistration` (class) - 1 example import violation(s)
-- `src/SourceAuth.ts:149` `resolveSourceCredential` (const) - 1 example import violation(s)
-- `src/SourceAuth.ts:178` `SourceAuthDecision` (type) - 2 example import violation(s)
-- `src/SourceAuth.ts:199` `SourceAuthDecision` (const) - 1 example import violation(s)
-- `src/SourceAuth.ts:228` `decideSourceAuthMount` (const) - 1 example import violation(s)
-- `src/TierGate.ts:65` `TierGateSettlement` (const) - 1 example import violation(s)
-- `src/TierGate.ts:87` `TierGateSettlement` (type) - 1 example import violation(s)
-- `src/TierGate.ts:107` `TierGateOutcome` (const) - 1 example import violation(s)
-- `src/TierGate.ts:130` `TierGateOutcome` (type) - 2 example import violation(s)
-- `src/TierGate.ts:160` `TierGateAuditRecord` (class) - 1 example import violation(s)
-- `src/TierGate.ts:220` `TierGateVerdict` (const) - 1 example import violation(s)
-- `src/TierGate.ts:255` `TierGateVerdict` (type) - 1 example import violation(s)
-- `src/TierGate.ts:280` `ToolCallRequest` (interface) - 1 example import violation(s)
-- `src/TierGate.ts:330` `TierGateShape` (interface) - 2 example import violation(s)
-- `src/TierGate.ts:376` `TierGate` (class) - 1 example import violation(s)
-- `src/TierGate.ts:396` `TierGatePolicy` (class) - 1 example import violation(s)
-- `src/TierGate.ts:466` `fromApprovedToolsPolicy` (const) - 1 example import violation(s)
-- `src/TierGate.ts:518` `TierGateDispatchResult` (type) - 1 example import violation(s)
-- `src/TierGate.ts:553` `TierGateDispatchResult` (const) - 1 example import violation(s)
-- `src/TierGate.ts:602` `dispatchWithTierGate` (const) - 1 example import violation(s)
-- `src/TierGate.ts:640` `withEnabledWhenApprovedTool` (const) - 1 example import violation(s)
-- `src/ToolAnnotations.ts:42` `FourHintAnnotations` (class) - 1 example import violation(s)
-- `src/ToolAnnotations.ts:101` `AnnotatedTool` (type) - 1 example import violation(s)
-- `src/ToolAnnotations.ts:120` `annotateFourHints` (const) - 1 example import violation(s)
-- `src/ToolAnnotations.ts:153` `readOnlyToolHints` (const) - 1 example import violation(s)
-- `src/ToolAnnotations.ts:171` `destructiveWriteToolHints` (const) - 1 example import violation(s)
-- `src/ToolkitComposition.ts:54` `GatedLayer` (interface) - 2 example import violation(s)
-- `src/ToolkitComposition.ts:90` `gatedLayer` (const) - 1 example import violation(s)
-- `src/ToolkitComposition.ts:136` `composeGatedLayers` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
-
-### @beep/agents-use-cases
-
-Path: `packages/agents/use-cases`
-
-Module findings:
-- `src/processes/AssistantTurn/AssistantTurn.fixture.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/processes/AssistantTurn/AssistantTurn.kernel.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-
-Export findings:
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:397` `RuntimeDraftRecipient` (class) - 1 example import violation(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:446` `RuntimeCandidateDraft` (class) - 1 example import violation(s)
+- `src/values/GrantSet/GrantSet.model.ts:284` `addGrant` (const) - 1 documentation section/link violation(s)
+- `src/values/GrantSet/GrantSet.model.ts:515` `evaluateExecutionRequest` (const) - 1 documentation section/link violation(s)
 
 ### @beep/observability
 
@@ -1080,14 +1015,14 @@ Export findings:
 - `src/CauseDiagnostics.ts:102` `ExitOutcome` (const) - 1 example import violation(s)
 - `src/CauseDiagnostics.ts:123` `ExitOutcome` (type) - 1 example import violation(s)
 - `src/CauseDiagnostics.ts:140` `CauseFingerprint` (class) - 1 example import violation(s)
-- `src/CauseDiagnostics.ts:207` `CauseSummary` (type) - 1 example import violation(s)
-- `src/CauseDiagnostics.ts:278` `ObservedExitSummary` (const) - 1 example import violation(s)
-- `src/CauseDiagnostics.ts:299` `ObservedExitSummary` (type) - 1 example import violation(s)
-- `src/CauseDiagnostics.ts:428` `classifyCause` (const) - 1 example import violation(s)
-- `src/CauseDiagnostics.ts:451` `fingerprintCause` (const) - 1 example import violation(s)
-- `src/CauseDiagnostics.ts:476` `summarizeCause` (const) - 1 example import violation(s)
-- `src/CauseDiagnostics.ts:527` `summarizeExit` (const) - 1 example import violation(s)
-- `src/CauseDiagnostics.ts:586` `renderObservedCause` (const) - 1 example import violation(s)
+- `src/CauseDiagnostics.ts:208` `CauseSummary` (type) - 1 example import violation(s)
+- `src/CauseDiagnostics.ts:279` `ObservedExitSummary` (const) - 1 example import violation(s)
+- `src/CauseDiagnostics.ts:300` `ObservedExitSummary` (type) - 1 example import violation(s)
+- `src/CauseDiagnostics.ts:429` `classifyCause` (const) - 1 example import violation(s)
+- `src/CauseDiagnostics.ts:452` `fingerprintCause` (const) - 1 example import violation(s)
+- `src/CauseDiagnostics.ts:477` `summarizeCause` (const) - 1 example import violation(s)
+- `src/CauseDiagnostics.ts:528` `summarizeExit` (const) - 1 example import violation(s)
+- `src/CauseDiagnostics.ts:587` `renderObservedCause` (const) - 1 example import violation(s)
 - `src/CauseRedaction.ts:74` `REDACTION_PLACEHOLDER` (const) - 1 example import violation(s)
 - `src/CauseRedaction.ts:94` `DEFAULT_MESSAGE_LIMIT` (const) - 1 example import violation(s)
 - `src/CauseRedaction.ts:114` `DEFAULT_DETAIL_LIMIT` (const) - 1 example import violation(s)
@@ -1096,43 +1031,43 @@ Export findings:
 - `src/CauseRedaction.ts:193` `sanitizeSensitiveText` (const) - 1 example import violation(s)
 - `src/CauseRedaction.ts:218` `redactString` (const) - 1 example import violation(s)
 - `src/CauseRedaction.ts:248` `RedactedCause` (class) - 1 example import violation(s)
-- `src/CauseRedaction.ts:286` `RedactCauseOptions` (class) - 1 example import violation(s)
-- `src/CauseRedaction.ts:380` `redactCauseSummary` (const) - 1 example import violation(s)
-- `src/CauseRedaction.ts:416` `redactCause` (const) - 1 example import violation(s)
-- `src/CauseRedaction.ts:446` `redactCauseForClient` (const) - 1 example import violation(s)
-- `src/CauseRedaction.ts:470` `RedactedCauseError` (class) - 1 example import violation(s)
-- `src/CauseRedaction.ts:506` `redactCauseEffect` (const) - 1 example import violation(s)
-- `src/CauseRedaction.ts:535` `RedactedCauseLogLevel` (const) - 1 example import violation(s)
-- `src/CauseRedaction.ts:556` `RedactedCauseLogLevel` (type) - 1 example import violation(s)
-- `src/CauseRedaction.ts:573` `LogRedactedCauseOptions` (class) - 1 example import violation(s)
-- `src/CauseRedaction.ts:618` `logRedactedCause` (const) - 1 example import violation(s)
-- `src/CauseRedaction.ts:659` `tapRedactedCause` (const) - 1 example import violation(s)
+- `src/CauseRedaction.ts:287` `RedactCauseOptions` (class) - 1 example import violation(s)
+- `src/CauseRedaction.ts:382` `redactCauseSummary` (const) - 1 example import violation(s)
+- `src/CauseRedaction.ts:418` `redactCause` (const) - 1 example import violation(s)
+- `src/CauseRedaction.ts:448` `redactCauseForClient` (const) - 1 example import violation(s)
+- `src/CauseRedaction.ts:472` `RedactedCauseError` (class) - 1 example import violation(s)
+- `src/CauseRedaction.ts:510` `redactCauseEffect` (const) - 1 example import violation(s)
+- `src/CauseRedaction.ts:539` `RedactedCauseLogLevel` (const) - 1 example import violation(s)
+- `src/CauseRedaction.ts:560` `RedactedCauseLogLevel` (type) - 1 example import violation(s)
+- `src/CauseRedaction.ts:577` `LogRedactedCauseOptions` (class) - 1 example import violation(s)
+- `src/CauseRedaction.ts:623` `logRedactedCause` (const) - 1 example import violation(s)
+- `src/CauseRedaction.ts:664` `tapRedactedCause` (const) - 1 example import violation(s)
 - `src/CoreConfig.ts:45` `ObservabilityCoreConfig` (const) - 1 example import violation(s)
 - `src/CoreConfig.ts:69` `ObservabilityCoreConfig` (type) - 1 example import violation(s)
 - `src/HttpError.ts:166` `ClientHttpError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:205` `ServerHttpError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:239` `BadRequestError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:267` `UnauthorizedError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:295` `ForbiddenError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:323` `NotFoundError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:351` `ConflictError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:379` `UnprocessableEntityError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:407` `TooManyRequestsError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:435` `InternalServerErrorError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:463` `BadGatewayError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:491` `ServiceUnavailableError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:519` `GatewayTimeoutError` (class) - 2 example import violation(s)
-- `src/HttpError.ts:545` `makeBadRequestError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:565` `makeUnauthorizedError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:585` `makeForbiddenError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:605` `makeNotFoundError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:625` `makeConflictError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:645` `makeUnprocessableEntityError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:665` `makeTooManyRequestsError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:685` `makeInternalServerError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:705` `makeBadGatewayError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:725` `makeServiceUnavailableError` (const) - 1 example import violation(s)
-- `src/HttpError.ts:745` `makeGatewayTimeoutError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:207` `ServerHttpError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:243` `BadRequestError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:273` `UnauthorizedError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:303` `ForbiddenError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:333` `NotFoundError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:361` `ConflictError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:389` `UnprocessableEntityError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:420` `TooManyRequestsError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:450` `InternalServerErrorError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:481` `BadGatewayError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:511` `ServiceUnavailableError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:541` `GatewayTimeoutError` (class) - 2 example import violation(s)
+- `src/HttpError.ts:569` `makeBadRequestError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:589` `makeUnauthorizedError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:609` `makeForbiddenError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:629` `makeNotFoundError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:649` `makeConflictError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:669` `makeUnprocessableEntityError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:689` `makeTooManyRequestsError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:709` `makeInternalServerError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:729` `makeBadGatewayError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:749` `makeServiceUnavailableError` (const) - 1 example import violation(s)
+- `src/HttpError.ts:769` `makeGatewayTimeoutError` (const) - 1 example import violation(s)
 - `src/Logging.ts:62` `LogFormat` (const) - 1 example import violation(s)
 - `src/Logging.ts:83` `LogFormat` (type) - 1 example import violation(s)
 - `src/Logging.ts:100` `PrettyLogTheme` (const) - 1 example import violation(s)
@@ -1140,18 +1075,18 @@ Export findings:
 - `src/Logging.ts:138` `BannerMode` (const) - 1 example import violation(s)
 - `src/Logging.ts:159` `BannerMode` (type) - 1 example import violation(s)
 - `src/Logging.ts:180` `PrettyLoggerConfig` (class) - 1 example import violation(s)
-- `src/Logging.ts:209` `LoggingConfig` (class) - 1 example import violation(s)
-- `src/Logging.ts:242` `layerMinimumLogLevel` (const) - 1 example import violation(s)
-- `src/Logging.ts:261` `RenderLogBannerOptions` (class) - 1 example import violation(s)
-- `src/Logging.ts:371` `renderLogBanner` (const) - 1 example import violation(s)
-- `src/Logging.ts:464` `layerConsoleLogger` (const) - 1 example import violation(s)
+- `src/Logging.ts:210` `LoggingConfig` (class) - 1 example import violation(s)
+- `src/Logging.ts:244` `layerMinimumLogLevel` (const) - 1 example import violation(s)
+- `src/Logging.ts:263` `RenderLogBannerOptions` (class) - 1 example import violation(s)
+- `src/Logging.ts:374` `renderLogBanner` (const) - 1 example import violation(s)
+- `src/Logging.ts:467` `layerConsoleLogger` (const) - 1 example import violation(s)
 - `src/Metric.ts:59` `TrackDurationOptions` (class) - 1 example import violation(s)
-- `src/Metric.ts:86` `TrackDurationOptionsInput` (type) - 1 example import violation(s)
-- `src/Metric.ts:160` `statusClass` (const) - 1 example import violation(s)
-- `src/Metric.ts:195` `measureElapsedMillis` (const) - 1 example import violation(s)
-- `src/Metric.ts:281` `trackDuration` (const) - 1 example import violation(s)
-- `src/Metric.ts:409` `observeWorkflow` (const) - 1 example import violation(s)
-- `src/Metric.ts:562` `observeHttpRequest` (const) - 1 example import violation(s)
+- `src/Metric.ts:87` `TrackDurationOptionsInput` (type) - 1 example import violation(s)
+- `src/Metric.ts:210` `statusClass` (const) - 1 example import violation(s)
+- `src/Metric.ts:245` `measureElapsedMillis` (const) - 1 example import violation(s)
+- `src/Metric.ts:331` `trackDuration` (const) - 1 example import violation(s)
+- `src/Metric.ts:462` `observeWorkflow` (const) - 1 example import violation(s)
+- `src/Metric.ts:615` `observeHttpRequest` (const) - 1 example import violation(s)
 - `src/Observed.ts:46` `ObservedError` (const) - 1 example import violation(s)
 - `src/Observed.ts:67` `ObservedError` (type) - 1 example import violation(s)
 - `src/Observed.ts:86` `ObservedErrorWithStack` (const) - 1 example import violation(s)
@@ -1169,10 +1104,88 @@ Export findings:
 - `src/PhaseProfiler.ts:75` `PhaseOutcome` (const) - 1 example import violation(s)
 - `src/PhaseProfiler.ts:96` `PhaseOutcome` (type) - 1 example import violation(s)
 - `src/PhaseProfiler.ts:122` `PhaseProfile` (class) - 1 example import violation(s)
-- `src/PhaseProfiler.ts:307` `profilePhase` (const) - 1 example import violation(s)
+- `src/PhaseProfiler.ts:308` `profilePhase` (const) - 1 example import violation(s)
 - `src/server/DevTools.ts:37` `DevToolsSpanFilter` (const) - 1 example import violation(s)
 - `src/server/DevTools.ts:63` `DevToolsSpanFilter` (type) - 1 example import violation(s)
-- `src/server/DevTools.ts:214` `layerFilteredDevToolsTracer` (const) - 1 example import violation(s)
+- `src/server/DevTools.ts:216` `layerFilteredDevToolsTracer` (const) - 1 example import violation(s)
+
+### @beep/mcp-kit
+
+Path: `packages/foundation/capability/mcp-kit`
+
+Module findings:
+- `src/ApiKeyRequired.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/FieldTier.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/SanitizedSpan.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/SourceAuth.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/TierGate.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/ToolAnnotations.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/ToolkitComposition.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/index.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+
+Export findings:
+- `src/ApiKeyRequired.ts:76` `ApiKeyRequiredFailure` (class) - 1 example import violation(s)
+- `src/ApiKeyRequired.ts:133` `apiKeyRequiredFailure` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
+- `src/FieldTier.ts:50` `FieldTierName` (const) - 1 example import violation(s)
+- `src/FieldTier.ts:71` `FieldTierName` (type) - 1 example import violation(s)
+- `src/FieldTier.ts:96` `FieldTierSet` (interface) - 1 example import violation(s)
+- `src/FieldTier.ts:130` `defineFieldTiers` (const) - 1 example import violation(s)
+- `src/FieldTier.ts:157` `stripNulls` (const) - 1 example import violation(s)
+- `src/FieldTier.ts:189` `projectFieldTier` (const) - 1 example import violation(s)
+- `src/FieldTier.ts:232` `estimateJsonSize` (const) - 1 example import violation(s)
+- `src/FieldTier.ts:260` `OversizedFieldProjection` (class) - 1 example import violation(s)
+- `src/FieldTier.ts:299` `FetchableHandle` (class) - 1 example import violation(s)
+- `src/FieldTier.ts:345` `FieldProjectionOutcome` (const) - 1 example import violation(s)
+- `src/FieldTier.ts:382` `FieldProjectionOutcome` (type) - 2 example import violation(s)
+- `src/FieldTier.ts:435` `projectWithinBudget` (const) - 1 example import violation(s)
+- `src/FieldTier.ts:472` `ColumnarEnvelope` (class) - 1 example import violation(s)
+- `src/FieldTier.ts:520` `toColumnarEnvelope` (const) - 1 example import violation(s)
+- `src/McpCaller.ts:44` `McpCallerIdentity` (class) - 1 example import violation(s)
+- `src/McpCaller.ts:77` `CurrentMcpCaller` (const) - 1 example import violation(s)
+- `src/SanitizedSpan.ts:75` `defaultSanitizedSpanKeys` (const) - 1 example import violation(s)
+- `src/SanitizedSpan.ts:100` `sanitizeTracerAttributes` (const) - 1 example import violation(s)
+- `src/SanitizedSpan.ts:189` `withSanitizedToolSpan` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
+- `src/SanitizedSpan.ts:606` `sanitizedToolkit` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
+- `src/SourceAuth.ts:55` `SourceAuthGate` (const) - 1 example import violation(s)
+- `src/SourceAuth.ts:77` `SourceAuthGate` (type) - 1 example import violation(s)
+- `src/SourceAuth.ts:100` `SourceAuthRegistration` (class) - 1 example import violation(s)
+- `src/SourceAuth.ts:150` `resolveSourceCredential` (const) - 1 example import violation(s)
+- `src/SourceAuth.ts:179` `SourceAuthDecision` (type) - 2 example import violation(s)
+- `src/SourceAuth.ts:200` `SourceAuthDecision` (const) - 1 example import violation(s)
+- `src/SourceAuth.ts:229` `decideSourceAuthMount` (const) - 1 example import violation(s)
+- `src/TierGate.ts:65` `TierGateSettlement` (const) - 1 example import violation(s)
+- `src/TierGate.ts:87` `TierGateSettlement` (type) - 1 example import violation(s)
+- `src/TierGate.ts:107` `TierGateOutcome` (const) - 1 example import violation(s)
+- `src/TierGate.ts:130` `TierGateOutcome` (type) - 2 example import violation(s)
+- `src/TierGate.ts:282` `ToolCallRequest` (interface) - 1 example import violation(s)
+- `src/TierGate.ts:332` `TierGateShape` (interface) - 2 example import violation(s)
+- `src/TierGate.ts:378` `TierGate` (class) - 1 example import violation(s)
+- `src/TierGate.ts:398` `TierGatePolicy` (class) - 1 example import violation(s)
+- `src/TierGate.ts:469` `fromApprovedToolsPolicy` (const) - 1 example import violation(s)
+- `src/TierGate.ts:521` `TierGateDispatchResult` (type) - 1 example import violation(s)
+- `src/TierGate.ts:556` `TierGateDispatchResult` (const) - 1 example import violation(s)
+- `src/TierGate.ts:605` `dispatchWithTierGate` (const) - 1 example import violation(s)
+- `src/TierGate.ts:643` `withEnabledWhenApprovedTool` (const) - 1 example import violation(s)
+- `src/ToolAnnotations.ts:42` `FourHintAnnotations` (class) - 1 example import violation(s)
+- `src/ToolAnnotations.ts:102` `AnnotatedTool` (type) - 1 example import violation(s)
+- `src/ToolAnnotations.ts:121` `annotateFourHints` (const) - 1 example import violation(s)
+- `src/ToolAnnotations.ts:154` `readOnlyToolHints` (const) - 1 example import violation(s)
+- `src/ToolAnnotations.ts:172` `destructiveWriteToolHints` (const) - 1 example import violation(s)
+- `src/ToolkitComposition.ts:54` `GatedLayer` (interface) - 2 example import violation(s)
+- `src/ToolkitComposition.ts:90` `gatedLayer` (const) - 1 example import violation(s)
+- `src/ToolkitComposition.ts:136` `composeGatedLayers` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
+
+### @beep/agents-use-cases
+
+Path: `packages/agents/use-cases`
+
+Module findings:
+- `src/processes/AssistantTurn/AssistantTurn.fixture.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/processes/AssistantTurn/AssistantTurn.kernel.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+
+Export findings:
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:403` `RuntimeDraftRecipient` (class) - 1 example import violation(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts:453` `RuntimeCandidateDraft` (class) - 1 example import violation(s)
 
 ### @beep/law-practice-domain
 
@@ -1192,7 +1205,7 @@ Module findings:
 Export findings:
 - `src/values/KindCode/KindCode.model.ts:37` `KindCode` (const) - 1 documentation section/link violation(s)
 - `src/values/OfficeCode/OfficeCode.model.ts:38` `OfficeCode` (const) - 1 documentation section/link violation(s)
-- `src/values/PatentDocument/PatentDocument.normalizer.ts:501` `normalizePatentApplicationDocument` (const) - 1 example import violation(s)
+- `src/values/PatentDocument/PatentDocument.normalizer.ts:543` `normalizePatentApplicationDocument` (const) - 1 example import violation(s)
 - `src/values/PatentDocumentTriplet/PatentDocumentTriplet.model.ts:61` `PatentDocumentTriplet` (const) - 4 documentation section/link violation(s)
 - `src/values/PatentNumber/PatentNumber.model.ts:38` `PatentNumber` (const) - 1 documentation section/link violation(s)
 
@@ -1226,9 +1239,9 @@ Export findings:
 - `src/Transport.ts:67` `ApiAuth` (const) - 1 example import violation(s)
 - `src/Transport.ts:114` `ApiAuth` (type) - 1 example import violation(s)
 - `src/Transport.ts:177` `RateLimitSnapshot` (class) - 1 example import violation(s)
-- `src/Transport.ts:277` `ApiTransportOptions` (class) - 1 example import violation(s)
-- `src/Transport.ts:351` `ApiTransport` (interface) - 1 example import violation(s)
-- `src/Transport.ts:390` `makeApiTransport` (const) - 1 example import violation(s)
+- `src/Transport.ts:278` `ApiTransportOptions` (class) - 1 example import violation(s)
+- `src/Transport.ts:355` `ApiTransport` (interface) - 1 example import violation(s)
+- `src/Transport.ts:396` `makeApiTransport` (const) - 1 example import violation(s)
 
 ### @beep/epistemic-config
 
@@ -1300,6 +1313,14 @@ Export findings:
 - `src/Chalk.ts:774` `chalkStderr` (const) - 1 example import violation(s)
 - `src/Chalk.ts:806` `default` (const) - 1 example import violation(s)
 
+### @beep/repo-ai-metrics
+
+Path: `packages/tooling/library/ai-metrics`
+
+Export findings:
+- `src/forwarder.ts:467` `AiMetricsForwarderInput` (class) - 1 example import violation(s)
+- `src/forwarder.ts:1406` `runAiMetricsForwarder` (const) - 1 example import violation(s)
+
 ### @beep/technical-drawing
 
 Path: `packages/foundation/capability/technical-drawing`
@@ -1312,84 +1333,86 @@ Export findings:
 - `src/Approval.schemas.ts:56` `EmailAddress` (const) - 1 example import violation(s)
 - `src/Approval.schemas.ts:74` `EmailAddress` (type) - 1 example import violation(s)
 - `src/Approval.schemas.ts:102` `EmailConfirmation` (class) - 1 example import violation(s)
-- `src/Approval.schemas.ts:137` `PdfConfirmation` (class) - 1 example import violation(s)
-- `src/Approval.schemas.ts:174` `Confirmation` (const) - 1 example import violation(s)
-- `src/Approval.schemas.ts:197` `Confirmation` (type) - 2 example import violation(s)
-- `src/Approval.schemas.ts:220` `ApprovalRefusalReason` (const) - 1 example import violation(s)
-- `src/Approval.schemas.ts:243` `ApprovalRefusalReason` (type) - 1 example import violation(s)
-- `src/Approval.schemas.ts:277` `ApprovalRecord` (class) - 1 example import violation(s)
+- `src/Approval.schemas.ts:138` `PdfConfirmation` (class) - 1 example import violation(s)
+- `src/Approval.schemas.ts:176` `Confirmation` (const) - 1 example import violation(s)
+- `src/Approval.schemas.ts:199` `Confirmation` (type) - 2 example import violation(s)
+- `src/Approval.schemas.ts:222` `ApprovalRefusalReason` (const) - 1 example import violation(s)
+- `src/Approval.schemas.ts:245` `ApprovalRefusalReason` (type) - 1 example import violation(s)
+- `src/Approval.schemas.ts:279` `ApprovalRecord` (class) - 1 example import violation(s)
 - `src/Approval.service.ts:45` `ConfirmationSource` (const) - 1 example import violation(s)
 - `src/Approval.service.ts:81` `ConfirmationSource` (type) - 2 example import violation(s)
 - `src/Approval.service.ts:102` `SignRequest` (class) - 1 example import violation(s)
-- `src/Approval.service.ts:131` `SheetSetApprovalShape` (interface) - 1 example import violation(s)
-- `src/Approval.service.ts:257` `SheetSetApproval` (class) - 1 example import violation(s)
-- `src/FigureSet.service.ts:91` `RenderRequest` (class) - 1 example import violation(s)
-- `src/FigureSet.service.ts:142` `FigureSetShape` (interface) - 1 example import violation(s)
-- `src/FigureSet.service.ts:620` `FigureSet` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:37` `Vec3` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:58` `Vec3` (type) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:74` `PositiveLength` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:102` `PositiveLength` (type) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:119` `Rotation` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:162` `Box` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:192` `Prism` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:228` `Cylinder` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:258` `Primitive` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:281` `Primitive` (type) - 2 example import violation(s)
-- `src/Geometry.schemas.ts:310` `PartLineStyle` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:332` `PartLineStyle` (type) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:368` `Part` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:416` `LengthUnit` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:438` `LengthUnit` (type) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:457` `ModelSpec` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:503` `Camera` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:536` `Segment2` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:557` `Segment2` (type) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:594` `ShadingSkipReason` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:617` `ShadingSkipReason` (type) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:633` `ShadingSkip` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:667` `ShadingCoverage` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:710` `EdgeSet` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:761` `ShadingStyle` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:783` `ShadingStyle` (type) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:811` `HatchAxis` (const) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:833` `HatchAxis` (type) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:879` `ShadingPlan` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:959` `BoundingBox` (class) - 1 example import violation(s)
-- `src/Geometry.schemas.ts:995` `ModelSummary` (class) - 1 example import violation(s)
+- `src/Approval.service.ts:133` `SheetSetApprovalShape` (interface) - 1 example import violation(s)
+- `src/Approval.service.ts:259` `SheetSetApproval` (class) - 1 example import violation(s)
+- `src/FigureSet.service.ts:103` `RenderRequest` (class) - 1 example import violation(s)
+- `src/FigureSet.service.ts:155` `FigureSetShape` (interface) - 1 example import violation(s)
+- `src/FigureSet.service.ts:780` `FigureSet` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:39` `Vec3` (const) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:60` `Vec3` (type) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:76` `PositiveLength` (const) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:104` `PositiveLength` (type) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:121` `Rotation` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:259` `Box` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:296` `Prism` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:339` `Cylinder` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:370` `Primitive` (const) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:393` `Primitive` (type) - 2 example import violation(s)
+- `src/Geometry.schemas.ts:431` `Part` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:615` `LengthUnit` (const) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:637` `LengthUnit` (type) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:661` `ModelSpec` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:793` `Camera` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:836` `Segment2` (const) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:857` `Segment2` (type) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:895` `ShadingSkipReason` (const) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:918` `ShadingSkipReason` (type) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:934` `ShadingSkip` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1071` `ShadingCoverage` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1141` `ShadingBand` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1183` `EdgeSet` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1252` `ShadingStyle` (const) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1274` `ShadingStyle` (type) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1302` `HatchAxis` (const) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1324` `HatchAxis` (type) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1372` `ShadingPlan` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1460` `BoundingBox` (class) - 1 example import violation(s)
+- `src/Geometry.schemas.ts:1497` `ModelSummary` (class) - 1 example import violation(s)
 - `src/Geometry.segments.ts:47` `canonicalSegments` (const) - 1 example import violation(s)
-- `src/Geometry.segments.ts:69` `mirrorSegments` (const) - 1 example import violation(s)
-- `src/Geometry.segments.ts:97` `sameSegments` (const) - 1 example import violation(s)
+- `src/Geometry.segments.ts:71` `mirrorSegments` (const) - 1 example import violation(s)
+- `src/Geometry.segments.ts:99` `sameSegments` (const) - 1 example import violation(s)
 - `src/Manifest.digest.ts:34` `sha256Hex` (const) - 1 example import violation(s)
 - `src/Manifest.schemas.ts:33` `Sha256Hex` (const) - 1 example import violation(s)
 - `src/Manifest.schemas.ts:61` `Sha256Hex` (type) - 1 example import violation(s)
 - `src/Manifest.schemas.ts:77` `EngineInfo` (class) - 1 example import violation(s)
-- `src/Manifest.schemas.ts:106` `FigureRecord` (class) - 1 example import violation(s)
-- `src/Manifest.schemas.ts:159` `OmissionProof` (class) - 1 example import violation(s)
-- `src/Manifest.schemas.ts:255` `RenderManifest` (class) - 1 example import violation(s)
-- `src/Shading.rules.ts:86` `viewFactsOf` (const) - 1 example import violation(s)
-- `src/Shading.rules.ts:167` `aspectOf` (const) - 2 example import violation(s)
-- `src/Shading.rules.ts:468` `legibleShading` (const) - 1 example import violation(s)
-- `src/Shading.rules.ts:613` `hatchDirectionOf` (const) - 1 example import violation(s)
-- `src/Shading.rules.ts:693` `anchorOf` (const) - 1 example import violation(s)
-- `src/Shading.rules.ts:875` `treatmentFor` (const) - 1 example import violation(s)
-- `src/Shading.schemas.ts:215` `FaceFacts` (class) - 1 example import violation(s)
-- `src/Sheet.compose.ts:219` `labelWidthPt` (const) - 1 example import violation(s)
-- `src/Sheet.compose.ts:242` `strokeLabel` (const) - 1 example import violation(s)
-- `src/Sheet.compose.ts:282` `viewExtents` (const) - 1 example import violation(s)
-- `src/Sheet.compose.ts:422` `sheetGeometry` (const) - 1 example import violation(s)
-- `src/Sheet.compose.ts:439` `commonScale` (const) - 1 example import violation(s)
-- `src/Sheet.compose.ts:599` `drawnBrokenGapMm` (const) - 1 example import violation(s)
-- `src/Sheet.compose.ts:650` `composeSheet` (const) - 2 example import violation(s)
+- `src/Manifest.schemas.ts:156` `FigureRecord` (class) - 1 example import violation(s)
+- `src/Manifest.schemas.ts:226` `OmissionProof` (class) - 1 example import violation(s)
+- `src/Manifest.schemas.ts:325` `RenderManifest` (class) - 1 example import violation(s)
+- `src/Shading.rules.ts:152` `viewFactsOf` (const) - 1 example import violation(s)
+- `src/Shading.rules.ts:242` `aspectOf` (const) - 2 example import violation(s)
+- `src/Shading.rules.ts:567` `legibleStrokeLength` (const) - 1 example import violation(s)
+- `src/Shading.rules.ts:917` `legibleShading` (const) - 1 example import violation(s)
+- `src/Shading.rules.ts:1142` `reclippedShading` (const) - 1 example import violation(s)
+- `src/Shading.rules.ts:1212` `reclippedCoverage` (const) - 1 example import violation(s)
+- `src/Shading.rules.ts:1353` `hatchDirectionOf` (const) - 1 example import violation(s)
+- `src/Shading.rules.ts:1433` `anchorOf` (const) - 1 example import violation(s)
+- `src/Shading.rules.ts:1716` `treatmentFor` (const) - 1 example import violation(s)
+- `src/Shading.schemas.ts:216` `FaceFacts` (class) - 1 example import violation(s)
+- `src/Sheet.compose.ts:221` `labelWidthPt` (const) - 1 example import violation(s)
+- `src/Sheet.compose.ts:244` `strokeLabel` (const) - 1 example import violation(s)
+- `src/Sheet.compose.ts:334` `viewExtents` (const) - 1 example import violation(s)
+- `src/Sheet.compose.ts:474` `sheetGeometry` (const) - 1 example import violation(s)
+- `src/Sheet.compose.ts:491` `commonScale` (const) - 1 example import violation(s)
+- `src/Sheet.compose.ts:651` `drawnBrokenGapMm` (const) - 1 example import violation(s)
+- `src/Sheet.compose.ts:719` `composeSheet` (const) - 2 example import violation(s)
 - `src/Sheet.schemas.ts:35` `SheetFormat` (const) - 1 example import violation(s)
 - `src/Sheet.schemas.ts:57` `SheetFormat` (type) - 1 example import violation(s)
 - `src/Sheet.schemas.ts:82` `PT_PER_CM` (const) - 1 example import violation(s)
 - `src/Sheet.schemas.ts:98` `PT_PER_MM` (const) - 1 example import violation(s)
 - `src/Sheet.schemas.ts:114` `PagePoints` (class) - 1 example import violation(s)
-- `src/Sheet.schemas.ts:144` `pageSizePt` (const) - 1 example import violation(s)
-- `src/Sheet.schemas.ts:165` `MARGINS_CM` (const) - 1 example import violation(s)
-- `src/Sheet.schemas.ts:181` `MIN_LETTER_HEIGHT_CM` (const) - 1 example import violation(s)
-- `src/Sheet.schemas.ts:690` `SheetOptions` (class) - 1 example import violation(s)
+- `src/Sheet.schemas.ts:145` `pageSizePt` (const) - 1 example import violation(s)
+- `src/Sheet.schemas.ts:166` `MARGINS_CM` (const) - 1 example import violation(s)
+- `src/Sheet.schemas.ts:182` `MIN_LETTER_HEIGHT_CM` (const) - 1 example import violation(s)
+- `src/Sheet.schemas.ts:698` `SheetOptions` (class) - 1 example import violation(s)
 - `src/TechnicalDrawing.errors.ts:40` `DrawingErrorReason` (const) - 1 example import violation(s)
 - `src/TechnicalDrawing.errors.ts:63` `DrawingErrorReason` (type) - 1 example import violation(s)
 - `src/TechnicalDrawing.errors.ts:87` `DrawingError` (class) - 1 example import violation(s)
@@ -1399,34 +1422,36 @@ Export findings:
 - `src/TechnicalDrawing.ports.ts:127` `PdfBackend` (class) - 1 example import violation(s)
 - `src/TechnicalDrawing.ports.ts:144` `MailReaderShape` (interface) - 1 example import violation(s)
 - `src/TechnicalDrawing.ports.ts:163` `MailReader` (class) - 1 example import violation(s)
-- `src/Validation.rules.ts:73` `structuralFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:180` `labelTextFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:218` `marginFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:272` `purityFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:325` `shadingSpacingFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:372` `shadingCoverageFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:408` `shadingOutlineClearanceFindings` (const) - 1 example import violation(s)
-- `src/Validation.rules.ts:468` `shadingLoneLineFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:168` `structuralFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:231` `labelTextFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:269` `marginFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:323` `purityFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:376` `shadingSpacingFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:439` `outlineSpacingFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:525` `shadingCoverageFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:572` `shadingOutlineClearanceFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:632` `shadingLoneLineFindings` (const) - 1 example import violation(s)
+- `src/Validation.rules.ts:732` `shadingBandLadderFindings` (const) - 1 example import violation(s)
 - `src/Validation.schemas.ts:31` `PdfPageSize` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:55` `PdfFontFact` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:105` `PdfFacts` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:133` `InkBounds` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:164` `PageMetrics` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:218` `FindingCode` (const) - 1 example import violation(s)
-- `src/Validation.schemas.ts:240` `FindingCode` (type) - 1 example import violation(s)
-- `src/Validation.schemas.ts:258` `SheetFinding` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:326` `ValidationOptions` (class) - 1 example import violation(s)
-- `src/Validation.schemas.ts:393` `ValidationReport` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:56` `PdfFontFact` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:190` `PdfFacts` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:242` `InkBounds` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:274` `PageMetrics` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:334` `FindingCode` (const) - 1 example import violation(s)
+- `src/Validation.schemas.ts:356` `FindingCode` (type) - 1 example import violation(s)
+- `src/Validation.schemas.ts:374` `SheetFinding` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:443` `ValidationOptions` (class) - 1 example import violation(s)
+- `src/Validation.schemas.ts:539` `ValidationReport` (class) - 1 example import violation(s)
 - `src/View.schemas.ts:51` `ViewName` (const) - 1 example import violation(s)
 - `src/View.schemas.ts:73` `ViewName` (type) - 1 example import violation(s)
-- `src/View.schemas.ts:204` `isPerspectiveView` (const) - 1 example import violation(s)
-- `src/View.schemas.ts:226` `CameraForViewInput` (class) - 1 example import violation(s)
-- `src/View.schemas.ts:290` `cameraForView` (const) - 1 example import violation(s)
-- `src/View.schemas.ts:354` `FigureSpec` (class) - 1 example import violation(s)
-- `src/View.schemas.ts:395` `OmissionRelation` (const) - 1 example import violation(s)
-- `src/View.schemas.ts:417` `OmissionRelation` (type) - 1 example import violation(s)
-- `src/View.schemas.ts:434` `OmissionClaim` (class) - 1 example import violation(s)
-- `src/View.schemas.ts:477` `FigureSetSpec` (class) - 1 example import violation(s)
+- `src/View.schemas.ts:254` `isPerspectiveView` (const) - 1 example import violation(s)
+- `src/View.schemas.ts:289` `CameraForViewInput` (class) - 1 example import violation(s)
+- `src/View.schemas.ts:399` `cameraForView` (const) - 1 example import violation(s)
+- `src/View.schemas.ts:504` `FigureSpec` (class) - 1 example import violation(s)
+- `src/View.schemas.ts:546` `OmissionRelation` (const) - 1 example import violation(s)
+- `src/View.schemas.ts:568` `OmissionRelation` (type) - 1 example import violation(s)
+- `src/View.schemas.ts:585` `OmissionClaim` (class) - 1 example import violation(s)
+- `src/View.schemas.ts:676` `FigureSetSpec` (class) - 1 example import violation(s)
 
 ### @beep/pretext
 
@@ -1448,9 +1473,9 @@ Module findings:
 - `src/aggregates/Session/worker.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/aggregates/Session/Session.worker-protocol.ts:285` `encodeWorkerCommand` (const) - 1 documentation section/link violation(s)
-- `src/aggregates/Session/Session.worker-protocol.ts:326` `encodeWorkerResult` (const) - 1 documentation section/link violation(s)
-- `src/aggregates/Session/Session.worker-protocol.ts:367` `OntologyWorkerUndecodableCommand` (class) - 1 documentation section/link violation(s)
+- `src/aggregates/Session/Session.worker-protocol.ts:286` `encodeWorkerCommand` (const) - 1 documentation section/link violation(s)
+- `src/aggregates/Session/Session.worker-protocol.ts:327` `encodeWorkerResult` (const) - 1 documentation section/link violation(s)
+- `src/aggregates/Session/Session.worker-protocol.ts:368` `OntologyWorkerUndecodableCommand` (class) - 1 documentation section/link violation(s)
 
 ### @beep/agents-client
 
@@ -1461,11 +1486,11 @@ Module findings:
 - `src/ClientObservability.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/Chat.atoms.ts:718` `SendTurnRequest` (class) - 1 example import violation(s)
-- `src/Chat.atoms.ts:750` `EditTurnRequest` (class) - 1 example import violation(s)
+- `src/Chat.atoms.ts:714` `SendTurnRequest` (class) - 1 example import violation(s)
+- `src/Chat.atoms.ts:748` `EditTurnRequest` (class) - 1 example import violation(s)
 - `src/Chat.atoms.ts:788` `TurnRequest` (const) - 1 example import violation(s)
 - `src/Chat.atoms.ts:816` `TurnRequest` (type) - 1 example import violation(s)
-- `src/Chat.atoms.ts:890` `runTurnAtom` (const) - 1 example import violation(s)
+- `src/Chat.atoms.ts:889` `runTurnAtom` (const) - 1 example import violation(s)
 
 ### @beep/law-practice-tables
 
@@ -1485,7 +1510,10 @@ Module findings:
 - `src/PracticeKg.tools.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/PracticeKg.tools.ts:265` `PracticeKgToolResult` (class) - 1 example import violation(s)
+- `src/PracticeKg.tools.ts:457` `PracticeKgToolResult` (class) - 1 example import violation(s)
+- `src/PracticeSetup/PracticeSetup.ports.ts:99` `SetupProbesShape` (class) - missing @example
+- `src/PracticeSetup/PracticeSetup.ports.ts:178` `SetupApprovalsShape` (class) - missing @example
+- `src/PracticeSetup/PracticeSetup.service.ts:112` `SetupDoctorShape` (class) - missing @example
 
 ### @beep/tika
 
@@ -1497,10 +1525,10 @@ Module findings:
 - `src/Tika.server.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/Tika.response.ts:151` `readTikaContentText` (const) - 1 example import violation(s)
-- `src/Tika.server.ts:171` `makeTikaServerFileProcessingEngine` (const) - 1 documentation section/link violation(s)
-- `src/Tika.server.ts:316` `makeTikaServerFileProcessingEngineFromEnv` (const) - 1 documentation section/link violation(s)
-- `src/Tika.tikaapp.ts:98` `makeTikaAppFileProcessingEngine` (const) - 1 documentation section/link violation(s)
+- `src/Tika.response.ts:155` `readTikaContentText` (const) - 1 example import violation(s)
+- `src/Tika.server.ts:181` `makeTikaServerFileProcessingEngine` (const) - 1 documentation section/link violation(s)
+- `src/Tika.server.ts:333` `makeTikaServerFileProcessingEngineFromEnv` (const) - 1 documentation section/link violation(s)
+- `src/Tika.tikaapp.ts:101` `makeTikaAppFileProcessingEngine` (const) - 1 documentation section/link violation(s)
 
 ### @beep/libpff
 
@@ -1521,8 +1549,8 @@ Export findings:
 Path: `packages/drivers/box`
 
 Export findings:
-- `src/Box.streaming.ts:437` `BoxUploadFilePartByUrlPayload` (class) - 1 example import violation(s)
-- `src/Box.streaming.ts:597` `BoxGetZipDownloadContentPayload` (class) - 1 example import violation(s)
+- `src/Box.streaming.ts:493` `BoxUploadFilePartByUrlPayload` (class) - 1 example import violation(s)
+- `src/Box.streaming.ts:660` `BoxGetZipDownloadContentPayload` (class) - 1 example import violation(s)
 
 ### @beep/epistemic-server
 
@@ -1539,10 +1567,10 @@ Module findings:
 - `src/Layer.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/GovernedEgress/GovernedEgress.fetch.ts:214` `makeGovernedEgressFetch` (const) - 1 documentation section/link violation(s)
+- `src/GovernedEgress/GovernedEgress.fetch.ts:210` `makeGovernedEgressFetch` (const) - 1 documentation section/link violation(s)
 - `src/GovernedTierGate/GovernedTierGate.gate.ts:129` `GovernedTierGateOptions` (class) - 1 documentation section/link violation(s)
-- `src/GovernedTierGate/GovernedTierGate.gate.ts:186` `refusalGuidance` (const) - 1 documentation section/link violation(s)
-- `src/GovernedTierGate/GovernedTierGate.gate.ts:243` `makeGovernedTierGate` (const) - 1 documentation section/link violation(s)
+- `src/GovernedTierGate/GovernedTierGate.gate.ts:187` `refusalGuidance` (const) - 1 documentation section/link violation(s)
+- `src/GovernedTierGate/GovernedTierGate.gate.ts:244` `makeGovernedTierGate` (const) - 1 documentation section/link violation(s)
 
 ### @beep/m365
 
@@ -1587,8 +1615,17 @@ Path: `packages/tooling/tool/docgen`
 
 Export findings:
 - `src/ProofManifest.ts:162` `DocgenProofManifestFile` (class) - 1 example import violation(s)
-- `src/ProofManifest.ts:198` `DocgenProofManifestFingerprint` (class) - 1 example import violation(s)
-- `src/ProofManifest.ts:263` `DocgenProofManifest` (class) - 1 example import violation(s)
+- `src/ProofManifest.ts:199` `DocgenProofManifestFingerprint` (class) - 1 example import violation(s)
+- `src/ProofManifest.ts:266` `DocgenProofManifest` (class) - 1 example import violation(s)
+
+### @beep/ai-provider-cli
+
+Path: `packages/drivers/ai-provider-cli`
+
+Module findings:
+- `src/AiProviderCliHome.errors.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/AiProviderCliHome.models.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/AiProviderCliHome.service.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 ### @beep/skill-contract
 
@@ -1596,84 +1633,84 @@ Path: `packages/foundation/modeling/skill-contract`
 
 Export findings:
 - `src/EvidenceLadder.ts:34` `EvidenceReceiptReference` (class) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:59` `EvidenceLadderReceiptTypes` (class) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:85` `Accepted` (class) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:111` `Persisted` (class) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:138` `Delivered` (class) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:166` `SemanticallyApplied` (class) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:195` `EvidenceLadderState` (const) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:254` `evidenceLadderFor` (const) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:289` `transportCompleted` (const) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:309` `advanceToPersisted` (const) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:335` `advanceToDelivered` (const) - 1 example import violation(s)
-- `src/EvidenceLadder.ts:361` `advanceToSemanticallyApplied` (const) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:60` `EvidenceLadderReceiptTypes` (class) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:90` `Accepted` (class) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:117` `Persisted` (class) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:145` `Delivered` (class) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:174` `SemanticallyApplied` (class) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:204` `EvidenceLadderState` (const) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:263` `evidenceLadderFor` (const) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:298` `transportCompleted` (const) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:318` `advanceToPersisted` (const) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:344` `advanceToDelivered` (const) - 1 example import violation(s)
+- `src/EvidenceLadder.ts:370` `advanceToSemanticallyApplied` (const) - 1 example import violation(s)
 - `src/EvidenceReceipt.ts:42` `EvidenceDigest` (class) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:74` `EvidenceSubject` (class) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:131` `EvidenceReceipt` (const) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:157` `AttestationResource` (class) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:181` `GateSummaryVerifier` (class) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:205` `GateVerificationResult` (const) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:233` `GateVerifiedLevel` (const) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:281` `GateResultSummary` (class) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:358` `GateSummary` (class) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:379` `GateSummaryPredicateType` (const) - 1 example import violation(s)
-- `src/EvidenceReceipt.ts:397` `GateSummaryReceipt` (const) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:75` `EvidenceSubject` (class) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:133` `EvidenceReceipt` (const) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:159` `AttestationResource` (class) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:184` `GateSummaryVerifier` (class) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:209` `GateVerificationResult` (const) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:237` `GateVerifiedLevel` (const) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:285` `GateResultSummary` (class) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:363` `GateSummary` (class) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:385` `GateSummaryPredicateType` (const) - 1 example import violation(s)
+- `src/EvidenceReceipt.ts:403` `GateSummaryReceipt` (const) - 1 example import violation(s)
 - `src/Gate.ts:41` `GateId` (const) - 1 example import violation(s)
 - `src/Gate.ts:80` `makeGateId` (const) - 1 example import violation(s)
 - `src/Gate.ts:103` `GateSeverity` (const) - 1 example import violation(s)
 - `src/Gate.ts:131` `GateApplicabilityKind` (const) - 1 example import violation(s)
 - `src/Gate.ts:159` `AlwaysGateApplicability` (class) - 1 example import violation(s)
-- `src/Gate.ts:190` `ConditionalGateApplicability` (class) - 1 example import violation(s)
-- `src/Gate.ts:222` `GateApplicability` (const) - 1 example import violation(s)
-- `src/Gate.ts:254` `EvidencePredicateType` (const) - 1 example import violation(s)
-- `src/Gate.ts:286` `GateEvidenceRequirement` (class) - 1 example import violation(s)
-- `src/Gate.ts:326` `GateDeclaration` (class) - 1 example import violation(s)
-- `src/Gate.ts:379` `GateRegistry` (class) - 1 example import violation(s)
-- `src/Gate.ts:400` `GateOutcome` (const) - 1 example import violation(s)
-- `src/Gate.ts:520` `GateAuditRecord` (const) - 1 example import violation(s)
-- `src/Gate.ts:586` `GateVerdict` (const) - 1 example import violation(s)
+- `src/Gate.ts:191` `ConditionalGateApplicability` (class) - 1 example import violation(s)
+- `src/Gate.ts:225` `GateApplicability` (const) - 1 example import violation(s)
+- `src/Gate.ts:257` `EvidencePredicateType` (const) - 1 example import violation(s)
+- `src/Gate.ts:289` `GateEvidenceRequirement` (class) - 1 example import violation(s)
+- `src/Gate.ts:330` `GateDeclaration` (class) - 1 example import violation(s)
+- `src/Gate.ts:385` `GateRegistry` (class) - 1 example import violation(s)
+- `src/Gate.ts:407` `GateOutcome` (const) - 1 example import violation(s)
+- `src/Gate.ts:527` `GateAuditRecord` (const) - 1 example import violation(s)
+- `src/Gate.ts:593` `GateVerdict` (const) - 1 example import violation(s)
 - `src/Recovery.ts:66` `BudgetDuration` (const) - 1 example import violation(s)
 - `src/Recovery.ts:94` `RecoveryBudget` (class) - 1 example import violation(s)
-- `src/Recovery.ts:120` `RecoveryBudgetConsumed` (class) - 1 example import violation(s)
-- `src/Recovery.ts:145` `RecoveryAttemptOutcome` (const) - 1 example import violation(s)
-- `src/Recovery.ts:173` `RecoveryAttemptReceipt` (class) - 1 example import violation(s)
-- `src/Recovery.ts:202` `FailureTerminalReason` (const) - 1 example import violation(s)
-- `src/Recovery.ts:314` `FailureReceiptPredicate` (class) - 1 example import violation(s)
-- `src/Recovery.ts:335` `FailurePredicateType` (const) - 1 example import violation(s)
-- `src/Recovery.ts:353` `FailureReceipt` (const) - 1 example import violation(s)
-- `src/Recovery.ts:377` `NoRecoveryPolicy` (class) - 1 example import violation(s)
-- `src/Recovery.ts:400` `BoundedRecoveryPolicy` (class) - 1 example import violation(s)
-- `src/Recovery.ts:431` `RecoveryPolicy` (const) - 1 example import violation(s)
+- `src/Recovery.ts:121` `RecoveryBudgetConsumed` (class) - 1 example import violation(s)
+- `src/Recovery.ts:147` `RecoveryAttemptOutcome` (const) - 1 example import violation(s)
+- `src/Recovery.ts:175` `RecoveryAttemptReceipt` (class) - 1 example import violation(s)
+- `src/Recovery.ts:205` `FailureTerminalReason` (const) - 1 example import violation(s)
+- `src/Recovery.ts:317` `FailureReceiptPredicate` (class) - 1 example import violation(s)
+- `src/Recovery.ts:339` `FailurePredicateType` (const) - 1 example import violation(s)
+- `src/Recovery.ts:357` `FailureReceipt` (const) - 1 example import violation(s)
+- `src/Recovery.ts:381` `NoRecoveryPolicy` (class) - 1 example import violation(s)
+- `src/Recovery.ts:405` `BoundedRecoveryPolicy` (class) - 1 example import violation(s)
+- `src/Recovery.ts:437` `RecoveryPolicy` (const) - 1 example import violation(s)
 - `src/SchemaReference.ts:27` `SchemaReferenceId` (const) - 1 example import violation(s)
 - `src/SchemaReference.ts:64` `SchemaReference` (class) - 1 example import violation(s)
 - `src/SkillCompletion.ts:61` `SkillCompletionReceipt` (class) - 1 example import violation(s)
-- `src/SkillCompletion.ts:117` `SkillCompletion` (const) - 1 example import violation(s)
-- `src/SkillCompletion.ts:144` `toSkillCompletionReceipt` (const) - 1 example import violation(s)
-- `src/SkillCompletion.ts:167` `EvaluateSkillCompletionInput` (class) - 1 example import violation(s)
-- `src/SkillCompletion.ts:195` `CompletionInvariantReason` (const) - 1 example import violation(s)
-- `src/SkillCompletion.ts:234` `CompletionInvariantError` (class) - 1 example import violation(s)
-- `src/SkillCompletion.ts:260` `CompletionAllowed` (class) - 1 example import violation(s)
-- `src/SkillCompletion.ts:286` `CompletionDenied` (class) - 1 example import violation(s)
-- `src/SkillCompletion.ts:312` `CompletionEvaluation` (const) - 1 example import violation(s)
-- `src/SkillCompletion.ts:395` `evaluateSkillCompletion` (const) - 1 example import violation(s)
-- `src/SkillCompletion.ts:462` `LiveVerified` (class) - 1 example import violation(s)
-- `src/SkillCompletion.ts:488` `DeployableBlocked` (class) - 1 example import violation(s)
-- `src/SkillCompletion.ts:516` `FailedWithPartialEffects` (class) - 1 example import violation(s)
-- `src/SkillCompletion.ts:543` `SkillTerminal` (const) - 1 example import violation(s)
+- `src/SkillCompletion.ts:118` `SkillCompletion` (const) - 1 example import violation(s)
+- `src/SkillCompletion.ts:145` `toSkillCompletionReceipt` (const) - 1 example import violation(s)
+- `src/SkillCompletion.ts:168` `EvaluateSkillCompletionInput` (class) - 1 example import violation(s)
+- `src/SkillCompletion.ts:198` `CompletionInvariantReason` (const) - 1 example import violation(s)
+- `src/SkillCompletion.ts:237` `CompletionInvariantError` (class) - 1 example import violation(s)
+- `src/SkillCompletion.ts:266` `CompletionAllowed` (class) - 1 example import violation(s)
+- `src/SkillCompletion.ts:293` `CompletionDenied` (class) - 1 example import violation(s)
+- `src/SkillCompletion.ts:320` `CompletionEvaluation` (const) - 1 example import violation(s)
+- `src/SkillCompletion.ts:403` `evaluateSkillCompletion` (const) - 1 example import violation(s)
+- `src/SkillCompletion.ts:470` `LiveVerified` (class) - 1 example import violation(s)
+- `src/SkillCompletion.ts:497` `DeployableBlocked` (class) - 1 example import violation(s)
+- `src/SkillCompletion.ts:526` `FailedWithPartialEffects` (class) - 1 example import violation(s)
+- `src/SkillCompletion.ts:555` `SkillTerminal` (const) - 1 example import violation(s)
 - `src/SkillContract.ts:33` `SkillContractId` (const) - 1 example import violation(s)
 - `src/SkillContract.ts:62` `ReceiptTypeBindings` (class) - 1 example import violation(s)
-- `src/SkillContract.ts:94` `SkillContract` (class) - 1 example import violation(s)
+- `src/SkillContract.ts:95` `SkillContract` (class) - 1 example import violation(s)
 - `src/SkillProjection.ts:66` `SkillMarkdownProjection` (class) - 1 example import violation(s)
-- `src/SkillProjection.ts:92` `SkillArtifactDenialReason` (const) - 1 example import violation(s)
-- `src/SkillProjection.ts:130` `SkillArtifactCheck` (class) - 1 example import violation(s)
-- `src/SkillProjection.ts:181` `SkillArtifactAllowed` (class) - 1 example import violation(s)
-- `src/SkillProjection.ts:207` `SkillArtifactDenied` (class) - 1 example import violation(s)
-- `src/SkillProjection.ts:234` `SkillArtifactVerdict` (const) - 1 example import violation(s)
-- `src/SkillProjection.ts:265` `VerifySkillArtifactInput` (class) - 1 example import violation(s)
-- `src/SkillProjection.ts:371` `projectSkillDocument` (const) - 1 example import violation(s)
-- `src/SkillProjection.ts:403` `renderSkillMarkdown` (const) - 1 example import violation(s)
-- `src/SkillProjection.ts:444` `decodeSkillFrontmatter` (const) - 1 example import violation(s)
-- `src/SkillProjection.ts:553` `verifySkillArtifact` (const) - 1 example import violation(s)
+- `src/SkillProjection.ts:93` `SkillArtifactDenialReason` (const) - 1 example import violation(s)
+- `src/SkillProjection.ts:131` `SkillArtifactCheck` (class) - 1 example import violation(s)
+- `src/SkillProjection.ts:183` `SkillArtifactAllowed` (class) - 1 example import violation(s)
+- `src/SkillProjection.ts:210` `SkillArtifactDenied` (class) - 1 example import violation(s)
+- `src/SkillProjection.ts:238` `SkillArtifactVerdict` (const) - 1 example import violation(s)
+- `src/SkillProjection.ts:269` `VerifySkillArtifactInput` (class) - 1 example import violation(s)
+- `src/SkillProjection.ts:376` `projectSkillDocument` (const) - 1 example import violation(s)
+- `src/SkillProjection.ts:408` `renderSkillMarkdown` (const) - 1 example import violation(s)
+- `src/SkillProjection.ts:449` `decodeSkillFrontmatter` (const) - 1 example import violation(s)
+- `src/SkillProjection.ts:558` `verifySkillArtifact` (const) - 1 example import violation(s)
 
 ### @beep/exiftool
 
@@ -1681,14 +1718,6 @@ Path: `packages/drivers/exiftool`
 
 Module findings:
 - `src/ExiftoolConfig.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-
-### @beep/repo-ai-metrics
-
-Path: `packages/tooling/library/ai-metrics`
-
-Export findings:
-- `src/forwarder.ts:139` `AiMetricsForwarderInput` (class) - 1 example import violation(s)
-- `src/forwarder.ts:1023` `runAiMetricsForwarder` (const) - 1 example import violation(s)
 
 ### @beep/obs
 
@@ -1704,7 +1733,7 @@ Module findings:
 Path: `packages/tooling/policy-pack/repo-configs`
 
 Export findings:
-- `src/next/models/ImageConfig.schema.ts:238` `ImageConfigComplete` (class) - 1 documentation section/link violation(s)
+- `src/next/models/ImageConfig.schema.ts:241` `ImageConfigComplete` (class) - 1 documentation section/link violation(s)
 
 ### @beep/qa-capture
 
@@ -1739,71 +1768,71 @@ Export findings:
 - `src/AnchoredBox.ts:233` `AnchoredBox` (const) - 1 example import violation(s)
 - `src/AnchoredBox.ts:262` `AnchoredBox` (type) - 1 example import violation(s)
 - `src/AnchoredBox.ts:284` `AnchoredBox` (namespace) - 1 example import violation(s)
-- `src/Dock.atoms.ts:53` `DockAtomObservabilityLive` (const) - 1 example import violation(s)
-- `src/Dock.atoms.ts:211` `makeDockAtomsWith` (const) - 1 example import violation(s)
-- `src/Dock.atoms.ts:244` `makeDockAtoms` (const) - 1 example import violation(s)
+- `src/Dock.atoms.ts:55` `DockAtomObservabilityLive` (const) - 1 example import violation(s)
+- `src/Dock.atoms.ts:213` `makeDockAtomsWith` (const) - 1 example import violation(s)
+- `src/Dock.atoms.ts:246` `makeDockAtoms` (const) - 1 example import violation(s)
 - `src/Dock.commands.ts:34` `UserCommandOrigin` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:59` `ApiCommandOrigin` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:86` `CommandOrigin` (const) - 1 example import violation(s)
-- `src/Dock.commands.ts:110` `CommandOrigin` (type) - 1 example import violation(s)
-- `src/Dock.commands.ts:127` `OpenPanelCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:153` `ActivatePanelCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:179` `UpdatePanelCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:199` `MovePanelCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:225` `MoveGroupCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:246` `UpdateGroupCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:266` `ClosePanelCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:291` `ResizeSplitCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:317` `ClearWorkspaceCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:341` `MaximizeGroupCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:361` `RestoreMaximizedCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:381` `FloatGroupCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:400` `DockFloatingGroupCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:419` `MoveFloatingGroupCommand` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:456` `DockCommand` (const) - 1 example import violation(s)
-- `src/Dock.commands.ts:495` `DockCommand` (type) - 1 example import violation(s)
-- `src/Dock.commands.ts:512` `DockCommandEnvelope` (class) - 1 example import violation(s)
-- `src/Dock.commands.ts:538` `AllowedRenderers` (const) - 1 example import violation(s)
-- `src/Dock.commands.ts:561` `AllowedRenderers` (type) - 1 example import violation(s)
-- `src/Dock.commands.ts:578` `RestoreSnapshotRequest` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:60` `ApiCommandOrigin` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:88` `CommandOrigin` (const) - 1 example import violation(s)
+- `src/Dock.commands.ts:112` `CommandOrigin` (type) - 1 example import violation(s)
+- `src/Dock.commands.ts:129` `OpenPanelCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:156` `ActivatePanelCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:183` `UpdatePanelCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:204` `MovePanelCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:231` `MoveGroupCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:255` `UpdateGroupCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:278` `ClosePanelCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:304` `ResizeSplitCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:331` `ClearWorkspaceCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:356` `MaximizeGroupCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:377` `RestoreMaximizedCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:398` `FloatGroupCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:418` `DockFloatingGroupCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:438` `MoveFloatingGroupCommand` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:478` `DockCommand` (const) - 1 example import violation(s)
+- `src/Dock.commands.ts:517` `DockCommand` (type) - 1 example import violation(s)
+- `src/Dock.commands.ts:534` `DockCommandEnvelope` (class) - 1 example import violation(s)
+- `src/Dock.commands.ts:561` `AllowedRenderers` (const) - 1 example import violation(s)
+- `src/Dock.commands.ts:584` `AllowedRenderers` (type) - 1 example import violation(s)
+- `src/Dock.commands.ts:601` `RestoreSnapshotRequest` (class) - 1 example import violation(s)
 - `src/Dock.errors.ts:29` `DockRejectionReason` (const) - 1 example import violation(s)
 - `src/Dock.errors.ts:64` `DockRejectionReason` (type) - 1 example import violation(s)
 - `src/Dock.errors.ts:81` `DockCommandRejected` (class) - 1 example import violation(s)
-- `src/Dock.errors.ts:108` `DockInvariantReason` (const) - 1 example import violation(s)
-- `src/Dock.errors.ts:135` `DockInvariantReason` (type) - 1 example import violation(s)
-- `src/Dock.errors.ts:152` `DockInvariantViolation` (class) - 1 example import violation(s)
-- `src/Dock.errors.ts:178` `DockInputBoundary` (const) - 1 example import violation(s)
-- `src/Dock.errors.ts:198` `DockInputBoundary` (type) - 1 example import violation(s)
-- `src/Dock.errors.ts:215` `DockInputError` (class) - 1 example import violation(s)
-- `src/Dock.errors.ts:241` `DockPersistenceOperation` (const) - 1 example import violation(s)
-- `src/Dock.errors.ts:261` `DockPersistenceOperation` (type) - 1 example import violation(s)
-- `src/Dock.errors.ts:278` `DockPersistenceError` (class) - 1 example import violation(s)
-- `src/Dock.errors.ts:304` `DockSnapshotMissing` (class) - 1 example import violation(s)
-- `src/Dock.errors.ts:329` `DockTransitionError` (const) - 1 example import violation(s)
-- `src/Dock.errors.ts:351` `DockTransitionError` (type) - 1 example import violation(s)
+- `src/Dock.errors.ts:110` `DockInvariantReason` (const) - 1 example import violation(s)
+- `src/Dock.errors.ts:137` `DockInvariantReason` (type) - 1 example import violation(s)
+- `src/Dock.errors.ts:154` `DockInvariantViolation` (class) - 1 example import violation(s)
+- `src/Dock.errors.ts:182` `DockInputBoundary` (const) - 1 example import violation(s)
+- `src/Dock.errors.ts:202` `DockInputBoundary` (type) - 1 example import violation(s)
+- `src/Dock.errors.ts:219` `DockInputError` (class) - 1 example import violation(s)
+- `src/Dock.errors.ts:247` `DockPersistenceOperation` (const) - 1 example import violation(s)
+- `src/Dock.errors.ts:267` `DockPersistenceOperation` (type) - 1 example import violation(s)
+- `src/Dock.errors.ts:284` `DockPersistenceError` (class) - 1 example import violation(s)
+- `src/Dock.errors.ts:312` `DockSnapshotMissing` (class) - 1 example import violation(s)
+- `src/Dock.errors.ts:339` `DockTransitionError` (const) - 1 example import violation(s)
+- `src/Dock.errors.ts:361` `DockTransitionError` (type) - 1 example import violation(s)
 - `src/Dock.events.ts:31` `PanelOpenedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:57` `PanelActivatedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:83` `PanelTitleChangedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:103` `PanelViewChangedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:123` `PanelRenderModeChangedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:144` `PanelTabComponentChangedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:173` `PanelConstraintsChangedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:202` `PanelMovedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:230` `PanelReorderedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:250` `GroupMergedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:272` `GroupMovedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:292` `GroupUpdatedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:312` `PanelClosedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:338` `SplitResizedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:364` `WorkspaceClearedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:389` `WorkspaceRestoredEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:415` `GroupMaximizedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:435` `GroupRestoredEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:454` `GroupFloatedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:473` `GroupDockedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:492` `FloatingGroupMovedEvent` (class) - 1 example import violation(s)
-- `src/Dock.events.ts:536` `DockEvent` (const) - 1 example import violation(s)
-- `src/Dock.events.ts:582` `DockEvent` (type) - 1 example import violation(s)
+- `src/Dock.events.ts:58` `PanelActivatedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:85` `PanelTitleChangedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:106` `PanelViewChangedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:127` `PanelRenderModeChangedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:155` `PanelTabComponentChangedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:191` `PanelConstraintsChangedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:222` `PanelMovedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:251` `PanelReorderedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:272` `GroupMergedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:300` `GroupMovedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:323` `GroupUpdatedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:344` `PanelClosedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:371` `SplitResizedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:398` `WorkspaceClearedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:424` `WorkspaceRestoredEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:452` `GroupMaximizedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:473` `GroupRestoredEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:493` `GroupFloatedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:513` `GroupDockedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:533` `FloatingGroupMovedEvent` (class) - 1 example import violation(s)
+- `src/Dock.events.ts:578` `DockEvent` (const) - 1 example import violation(s)
+- `src/Dock.events.ts:624` `DockEvent` (type) - 1 example import violation(s)
 - `src/Dock.ids.ts:30` `PanelId` (const) - 1 example import violation(s)
 - `src/Dock.ids.ts:51` `PanelId` (type) - 1 example import violation(s)
 - `src/Dock.ids.ts:69` `GroupId` (const) - 1 example import violation(s)
@@ -1823,33 +1852,33 @@ Export findings:
 - `src/Dock.models-tree.ts:123` `PanelParameters` (const) - 1 example import violation(s)
 - `src/Dock.models-tree.ts:143` `PanelParameters` (type) - 1 example import violation(s)
 - `src/Dock.models-tree.ts:160` `ComponentPanelView` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:186` `TextPanelView` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:211` `PanelView` (const) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:233` `PanelView` (type) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:262` `PanelConstraints` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:289` `Panel` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:340` `PanelPatch` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:372` `GroupLockedMode` (const) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:390` `GroupLockedMode` (type) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:407` `GroupHeaderPosition` (const) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:425` `GroupHeaderPosition` (type) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:442` `GroupMetadata` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:472` `GroupPatch` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:509` `TabsNode` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:675` `HorizontalSplitLayout` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:704` `VerticalSplitLayout` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:735` `SplitLayout` (const) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:802` `SplitLayout` (type) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:821` `SplitNode` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:915` `DockNode` (const) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:1060` `DockNode` (type) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:1103` `DockNode` (namespace) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:1173` `FloatingMember` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:1193` `EmptyWorkspace` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:1221` `PopulatedWorkspace` (class) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:1302` `DockWorkspace` (const) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:1520` `DockWorkspace` (type) - 1 example import violation(s)
-- `src/Dock.models-tree.ts:1537` `DockSnapshot` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:187` `TextPanelView` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:213` `PanelView` (const) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:235` `PanelView` (type) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:264` `PanelConstraints` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:292` `Panel` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:344` `PanelPatch` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:377` `GroupLockedMode` (const) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:395` `GroupLockedMode` (type) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:412` `GroupHeaderPosition` (const) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:430` `GroupHeaderPosition` (type) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:447` `GroupMetadata` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:478` `GroupPatch` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:516` `TabsNode` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:682` `HorizontalSplitLayout` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:712` `VerticalSplitLayout` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:744` `SplitLayout` (const) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:811` `SplitLayout` (type) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:830` `SplitNode` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:924` `DockNode` (const) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:1069` `DockNode` (type) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:1112` `DockNode` (namespace) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:1182` `FloatingMember` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:1203` `EmptyWorkspace` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:1232` `PopulatedWorkspace` (class) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:1314` `DockWorkspace` (const) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:1532` `DockWorkspace` (type) - 1 example import violation(s)
+- `src/Dock.models-tree.ts:1549` `DockSnapshot` (class) - 1 example import violation(s)
 - `src/Dock.outcomes.ts:32` `DockUnchangedReason` (const) - 1 example import violation(s)
 - `src/Dock.outcomes.ts:63` `DockUnchangedReason` (type) - 1 example import violation(s)
 - `src/Dock.outcomes.ts:81` `DockChanged` (class) - 1 example import violation(s)
@@ -1858,37 +1887,37 @@ Export findings:
 - `src/Dock.outcomes.ts:158` `DockMutationResult` (type) - 1 example import violation(s)
 - `src/Dock.outcomes.ts:176` `DockMutationOutcome` (class) - 1 example import violation(s)
 - `src/Dock.placement.ts:31` `RootPlacement` (class) - 1 example import violation(s)
-- `src/Dock.placement.ts:56` `TabPlacement` (class) - 1 example import violation(s)
-- `src/Dock.placement.ts:83` `DockSide` (const) - 1 example import violation(s)
-- `src/Dock.placement.ts:103` `DockSide` (type) - 1 example import violation(s)
-- `src/Dock.placement.ts:120` `SplitPlacement` (class) - 1 example import violation(s)
-- `src/Dock.placement.ts:154` `RootSplitPlacement` (class) - 1 example import violation(s)
-- `src/Dock.placement.ts:182` `GroupSplitPlacement` (class) - 1 example import violation(s)
-- `src/Dock.placement.ts:210` `GroupRootSplitPlacement` (class) - 1 example import violation(s)
-- `src/Dock.placement.ts:239` `DockPlacement` (const) - 1 example import violation(s)
-- `src/Dock.placement.ts:263` `DockPlacement` (type) - 1 example import violation(s)
-- `src/Dock.placement.ts:280` `DockMoveTarget` (const) - 1 example import violation(s)
-- `src/Dock.placement.ts:301` `DockMoveTarget` (type) - 1 example import violation(s)
-- `src/Dock.placement.ts:318` `DockGroupMoveTarget` (const) - 1 example import violation(s)
-- `src/Dock.placement.ts:339` `DockGroupMoveTarget` (type) - 1 example import violation(s)
+- `src/Dock.placement.ts:57` `TabPlacement` (class) - 1 example import violation(s)
+- `src/Dock.placement.ts:85` `DockSide` (const) - 1 example import violation(s)
+- `src/Dock.placement.ts:105` `DockSide` (type) - 1 example import violation(s)
+- `src/Dock.placement.ts:122` `SplitPlacement` (class) - 1 example import violation(s)
+- `src/Dock.placement.ts:157` `RootSplitPlacement` (class) - 1 example import violation(s)
+- `src/Dock.placement.ts:186` `GroupSplitPlacement` (class) - 1 example import violation(s)
+- `src/Dock.placement.ts:215` `GroupRootSplitPlacement` (class) - 1 example import violation(s)
+- `src/Dock.placement.ts:245` `DockPlacement` (const) - 1 example import violation(s)
+- `src/Dock.placement.ts:269` `DockPlacement` (type) - 1 example import violation(s)
+- `src/Dock.placement.ts:286` `DockMoveTarget` (const) - 1 example import violation(s)
+- `src/Dock.placement.ts:307` `DockMoveTarget` (type) - 1 example import violation(s)
+- `src/Dock.placement.ts:324` `DockGroupMoveTarget` (const) - 1 example import violation(s)
+- `src/Dock.placement.ts:345` `DockGroupMoveTarget` (type) - 1 example import violation(s)
 - `src/Dock.protocol.ts:38` `DispatchDockCommand` (class) - 1 example import violation(s)
-- `src/Dock.protocol.ts:63` `DispatchUnknownDockCommand` (class) - 1 example import violation(s)
-- `src/Dock.protocol.ts:88` `SaveDockSnapshot` (class) - 1 example import violation(s)
-- `src/Dock.protocol.ts:112` `RestoreDockSnapshot` (class) - 1 example import violation(s)
-- `src/Dock.protocol.ts:137` `DockAtomOperationKind` (const) - 1 example import violation(s)
-- `src/Dock.protocol.ts:162` `DockAtomOperationKind` (type) - 1 example import violation(s)
-- `src/Dock.protocol.ts:179` `DockAtomOperation` (const) - 1 example import violation(s)
-- `src/Dock.protocol.ts:208` `DockAtomOperation` (type) - 1 example import violation(s)
-- `src/Dock.protocol.ts:226` `DockMutationCompleted` (class) - 1 example import violation(s)
-- `src/Dock.protocol.ts:251` `DockSnapshotSaved` (class) - 1 example import violation(s)
-- `src/Dock.protocol.ts:278` `DockAtomOperationOutcome` (const) - 1 example import violation(s)
-- `src/Dock.protocol.ts:302` `DockAtomOperationOutcome` (type) - 1 example import violation(s)
-- `src/Dock.protocol.ts:319` `DockAtomSessionError` (const) - 1 example import violation(s)
-- `src/Dock.protocol.ts:346` `DockAtomSessionError` (type) - 1 example import violation(s)
-- `src/Dock.protocol.ts:364` `DockAtomFeedSuccess` (class) - 1 example import violation(s)
-- `src/Dock.protocol.ts:392` `DockAtomFeedFailure` (class) - 1 example import violation(s)
-- `src/Dock.protocol.ts:420` `DockAtomFeedEntry` (const) - 1 example import violation(s)
-- `src/Dock.protocol.ts:442` `DockAtomFeedEntry` (type) - 1 example import violation(s)
+- `src/Dock.protocol.ts:64` `DispatchUnknownDockCommand` (class) - 1 example import violation(s)
+- `src/Dock.protocol.ts:93` `SaveDockSnapshot` (class) - 1 example import violation(s)
+- `src/Dock.protocol.ts:118` `RestoreDockSnapshot` (class) - 1 example import violation(s)
+- `src/Dock.protocol.ts:144` `DockAtomOperationKind` (const) - 1 example import violation(s)
+- `src/Dock.protocol.ts:169` `DockAtomOperationKind` (type) - 1 example import violation(s)
+- `src/Dock.protocol.ts:186` `DockAtomOperation` (const) - 1 example import violation(s)
+- `src/Dock.protocol.ts:215` `DockAtomOperation` (type) - 1 example import violation(s)
+- `src/Dock.protocol.ts:233` `DockMutationCompleted` (class) - 1 example import violation(s)
+- `src/Dock.protocol.ts:259` `DockSnapshotSaved` (class) - 1 example import violation(s)
+- `src/Dock.protocol.ts:287` `DockAtomOperationOutcome` (const) - 1 example import violation(s)
+- `src/Dock.protocol.ts:311` `DockAtomOperationOutcome` (type) - 1 example import violation(s)
+- `src/Dock.protocol.ts:328` `DockAtomSessionError` (const) - 1 example import violation(s)
+- `src/Dock.protocol.ts:355` `DockAtomSessionError` (type) - 1 example import violation(s)
+- `src/Dock.protocol.ts:373` `DockAtomFeedSuccess` (class) - 1 example import violation(s)
+- `src/Dock.protocol.ts:401` `DockAtomFeedFailure` (class) - 1 example import violation(s)
+- `src/Dock.protocol.ts:429` `DockAtomFeedEntry` (const) - 1 example import violation(s)
+- `src/Dock.protocol.ts:451` `DockAtomFeedEntry` (type) - 1 example import violation(s)
 - `src/DockEngine.service.ts:93` `DockEngineShape` (interface) - 2 example import violation(s)
 - `src/DockEngine.service.ts:134` `DockEngine` (class) - 1 example import violation(s)
 - `src/DockEngine.service.ts:169` `DockEngineLive` (const) - 1 example import violation(s)
@@ -1901,30 +1930,21 @@ Export findings:
 - `src/DockPolicy.ts:204` `makePolicyDockEngineLayer` (const) - 1 example import violation(s)
 - `src/Geometry.models.ts:40` `Extent` (const) - 1 example import violation(s)
 - `src/Geometry.models.ts:64` `DockBox` (class) - 1 example import violation(s)
-- `src/Geometry.models.ts:89` `GroupGeometry` (class) - 1 example import violation(s)
+- `src/Geometry.models.ts:88` `GroupGeometry` (class) - 1 example import violation(s)
 - `src/Geometry.models.ts:109` `SashGeometry` (class) - 1 example import violation(s)
-- `src/Geometry.models.ts:129` `FloatingGeometry` (class) - 1 example import violation(s)
-- `src/Geometry.models.ts:149` `DockGeometry` (class) - 1 example import violation(s)
-- `src/Geometry.models.ts:189` `resolveAnchoredBox` (const) - 1 example import violation(s)
-- `src/Geometry.models.ts:232` `GeometryOptions` (class) - 1 example import violation(s)
-- `src/Geometry.models.ts:266` `GroupMinimumLookup` (type) - 2 example import violation(s)
-- `src/Geometry.models.ts:283` `GroupMinimaRecord` (type) - 1 example import violation(s)
-- `src/Minima.ts:65` `TabChrome` (class) - 1 example import violation(s)
+- `src/Geometry.models.ts:130` `FloatingGeometry` (class) - 1 example import violation(s)
+- `src/Geometry.models.ts:151` `DockGeometry` (class) - 1 example import violation(s)
+- `src/Geometry.models.ts:190` `resolveAnchoredBox` (const) - 1 example import violation(s)
+- `src/Geometry.models.ts:233` `GeometryOptions` (class) - 1 example import violation(s)
+- `src/Geometry.models.ts:268` `GroupMinimumLookup` (type) - 2 example import violation(s)
+- `src/Geometry.models.ts:285` `GroupMinimaRecord` (type) - 1 example import violation(s)
+- `src/Minima.ts:66` `TabChrome` (class) - 1 example import violation(s)
 - `src/Minima.ts:90` `titleWords` (const) - 1 example import violation(s)
 - `src/Minima.ts:142` `titleMinima` (const) - 1 example import violation(s)
 - `src/Minima.ts:201` `makeTitleMinimaAtom` (const) - 1 example import violation(s)
 - `src/Recency.ts:42` `touchedGroupsInEvents` (const) - 1 example import violation(s)
 - `src/Recency.ts:82` `touchedGroups` (const) - 1 example import violation(s)
 - `src/Recency.ts:131` `makeMruGroupsAtom` (const) - 1 example import violation(s)
-
-### @beep/ai-provider-cli
-
-Path: `packages/drivers/ai-provider-cli`
-
-Module findings:
-- `src/AiProviderCliHome.errors.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/AiProviderCliHome.models.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/AiProviderCliHome.service.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 ### @beep/lexical-schema
 
@@ -1939,8 +1959,8 @@ Module findings:
 Export findings:
 - `src/Lexical.model.ts:1135` `ElementNode` (class) - 1 documentation section/link violation(s)
 - `src/Lexical.model.ts:2349` `YouTubeNode` (class) - 1 documentation section/link violation(s)
-- `src/Lexical.model.ts:3316` `decodeEditorStateStrictResult` (const) - 1 documentation section/link violation(s)
-- `src/Lexical.model.ts:3399` `analyzeEditorStateCompatibilityResult` (const) - 1 documentation section/link violation(s)
+- `src/Lexical.model.ts:3318` `decodeEditorStateStrictResult` (const) - 1 documentation section/link violation(s)
+- `src/Lexical.model.ts:3401` `analyzeEditorStateCompatibilityResult` (const) - 1 documentation section/link violation(s)
 - `src/index.ts:26` `export { editorStateToPlainText, nodeToPlainText } from "./Lexical.behavior.ts";` (re-export) - 1 example import violation(s)
 - `src/index.ts:41` `export {
   ARTIFACT_URI_PREFIX,
@@ -2045,7 +2065,7 @@ Module findings:
 
 Export findings:
 - `src/Govinfo.config.ts:130` `GovinfoConfigInput` (class) - 1 example import violation(s)
-- `src/Govinfo.service.ts:68` `GovinfoShape` (interface) - 1 example import violation(s)
+- `src/Govinfo.service.ts:69` `GovinfoShape` (interface) - 1 example import violation(s)
 
 ### @beep/wink
 
@@ -2053,6 +2073,15 @@ Path: `packages/drivers/wink`
 
 Module findings:
 - `src/WinkBackend.service.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+
+### @beep/m365-mcp
+
+Path: `packages/drivers/m365-mcp`
+
+Export findings:
+- `src/OutboxAttachmentSource.ts:151` `OutboxAttachmentDigest` (class) - 1 example import violation(s)
+- `src/OutboxAttachmentSource.ts:184` `OutboxAttachment` (class) - 1 example import violation(s)
+- `src/OutboxSendGuard.ts:269` `sameAttachments` (const) - 1 example import violation(s)
 
 ### @beep/pacer
 
@@ -2077,7 +2106,7 @@ Module findings:
 Path: `packages/drivers/venice-ai`
 
 Export findings:
-- `src/VeniceAI.service.ts:1458` `VENICE_AI_OPERATION_DESCRIPTORS` (const) - 1 example import violation(s)
+- `src/VeniceAI.service.ts:1472` `VENICE_AI_OPERATION_DESCRIPTORS` (const) - 1 example import violation(s)
 
 ### @beep/graph-3d
 
@@ -2104,7 +2133,7 @@ Export findings:
 - `src/Fold.markdown.ts:46` `MarkdownLinkMode` (const) - 1 example import violation(s)
 - `src/Fold.markdown.ts:67` `MarkdownLinkMode` (type) - 1 example import violation(s)
 - `src/Fold.markdown.ts:84` `MarkdownOptions` (class) - 1 example import violation(s)
-- `src/Fold.markdown.ts:295` `toMarkdown` (const) - 2 example import violation(s)
+- `src/Fold.markdown.ts:296` `toMarkdown` (const) - 2 example import violation(s)
 - `src/Fold.models.ts:40` `AbsoluteIri` (type) - 1 example import violation(s)
 - `src/Fold.models.ts:65` `SchemaHandle` (type) - 1 example import violation(s); 1 documentation section/link violation(s)
 - `src/Fold.models.ts:81` `Subject` (type) - 1 example import violation(s)
@@ -2121,19 +2150,19 @@ Export findings:
 - `src/Fold.models.ts:351` `AssembledPredicateKind` (const) - 1 example import violation(s); 1 documentation section/link violation(s)
 - `src/Fold.models.ts:371` `AssembledPredicateKind` (type) - 1 example import violation(s)
 - `src/Fold.models.ts:388` `FactLiteral` (class) - 1 example import violation(s)
-- `src/Fold.models.ts:413` `FactObject` (const) - 1 example import violation(s)
-- `src/Fold.models.ts:435` `FactObject` (type) - 2 example import violation(s)
-- `src/Fold.models.ts:460` `AssembledFact` (class) - 1 example import violation(s); 1 documentation section/link violation(s)
-- `src/Fold.models.ts:493` `AssembledPredicate` (class) - 1 example import violation(s)
-- `src/Fold.models.ts:528` `AssembledClass` (class) - 1 example import violation(s)
-- `src/Fold.models.ts:556` `OntologyWarningCode` (const) - 1 example import violation(s)
-- `src/Fold.models.ts:580` `OntologyWarningCode` (type) - 1 example import violation(s)
-- `src/Fold.models.ts:603` `OntologyValidationWarning` (class) - 1 example import violation(s); 1 documentation section/link violation(s)
-- `src/Fold.models.ts:636` `AssembledOntology` (class) - 1 example import violation(s)
-- `src/Fold.models.ts:664` `OntologyAssemblyErrorReason` (const) - 1 example import violation(s)
-- `src/Fold.models.ts:693` `OntologyAssemblyErrorReason` (type) - 1 example import violation(s)
-- `src/Fold.models.ts:718` `OntologyAssemblyError` (class) - 1 example import violation(s)
-- `src/Fold.models.ts:750` `isFactLiteral` (const) - 1 example import violation(s)
+- `src/Fold.models.ts:414` `FactObject` (const) - 1 example import violation(s)
+- `src/Fold.models.ts:436` `FactObject` (type) - 2 example import violation(s)
+- `src/Fold.models.ts:461` `AssembledFact` (class) - 1 example import violation(s); 1 documentation section/link violation(s)
+- `src/Fold.models.ts:495` `AssembledPredicate` (class) - 1 example import violation(s)
+- `src/Fold.models.ts:531` `AssembledClass` (class) - 1 example import violation(s)
+- `src/Fold.models.ts:560` `OntologyWarningCode` (const) - 1 example import violation(s)
+- `src/Fold.models.ts:584` `OntologyWarningCode` (type) - 1 example import violation(s)
+- `src/Fold.models.ts:607` `OntologyValidationWarning` (class) - 1 example import violation(s); 1 documentation section/link violation(s)
+- `src/Fold.models.ts:641` `AssembledOntology` (class) - 1 example import violation(s)
+- `src/Fold.models.ts:670` `OntologyAssemblyErrorReason` (const) - 1 example import violation(s)
+- `src/Fold.models.ts:699` `OntologyAssemblyErrorReason` (type) - 1 example import violation(s)
+- `src/Fold.models.ts:724` `OntologyAssemblyError` (class) - 1 example import violation(s)
+- `src/Fold.models.ts:758` `isFactLiteral` (const) - 1 example import violation(s)
 - `src/Fold.projections.ts:46` `JsonLdTerm` (type) - 1 example import violation(s)
 - `src/Fold.projections.ts:70` `JsonLdContext` (type) - 1 example import violation(s)
 - `src/Fold.projections.ts:87` `JsonLdNodeValue` (type) - 1 example import violation(s)
@@ -2143,16 +2172,16 @@ Export findings:
 - `src/Fold.projections.ts:390` `toJsonLd` (const) - 2 example import violation(s)
 - `src/Fold.projections.ts:633` `toTurtle` (const) - 2 example import violation(s)
 - `src/SemanticFoundation.models.ts:189` `ConceptAlignment` (class) - 1 example import violation(s)
-- `src/SemanticFoundation.models.ts:220` `TaxonomyConcept` (class) - 1 example import violation(s)
-- `src/SemanticFoundation.models.ts:287` `FilingRoot` (class) - 1 example import violation(s)
-- `src/TaxonomyLoader.ts:215` `VendorAlignmentManifestEntry` (class) - 1 example import violation(s)
-- `src/TaxonomyLoader.ts:274` `VendorConceptSlice` (class) - 1 example import violation(s)
-- `src/TaxonomyLoader.ts:470` `VendorSliceConceptMismatch` (class) - 1 example import violation(s)
-- `src/TaxonomyLoader.ts:504` `VendorAlignmentTargetNotFound` (class) - 1 example import violation(s)
+- `src/SemanticFoundation.models.ts:221` `TaxonomyConcept` (class) - 1 example import violation(s)
+- `src/SemanticFoundation.models.ts:289` `FilingRoot` (class) - 1 example import violation(s)
+- `src/TaxonomyLoader.ts:217` `VendorAlignmentManifestEntry` (class) - 1 example import violation(s)
+- `src/TaxonomyLoader.ts:277` `VendorConceptSlice` (class) - 1 example import violation(s)
+- `src/TaxonomyLoader.ts:487` `VendorSliceConceptMismatch` (class) - 1 example import violation(s)
+- `src/TaxonomyLoader.ts:522` `VendorAlignmentTargetNotFound` (class) - 1 example import violation(s)
 - `src/TaxonomyRegistry.ts:36` `LibrarianInput` (class) - 1 example import violation(s)
-- `src/TaxonomyRegistry.ts:105` `TaxonomyConceptNotFound` (class) - 1 example import violation(s)
-- `src/TaxonomyRegistry.ts:127` `UnsupportedDocumentClass` (class) - 1 example import violation(s)
-- `src/TaxonomyRegistry.ts:158` `runLibrarianLoop` (const) - 1 example import violation(s)
+- `src/TaxonomyRegistry.ts:110` `TaxonomyConceptNotFound` (class) - 1 example import violation(s)
+- `src/TaxonomyRegistry.ts:134` `UnsupportedDocumentClass` (class) - 1 example import violation(s)
+- `src/TaxonomyRegistry.ts:168` `runLibrarianLoop` (const) - 1 example import violation(s)
 
 ### @beep/repo-cli
 
@@ -2208,43 +2237,40 @@ Module findings:
 - `src/index.ts:1` (packageDocumentation) - 2 documentation section/link violation(s)
 
 Export findings:
-- `src/commands/Cache/Cache.command.ts:271` `runCacheWarm` (const) - 1 example import violation(s)
-- `src/commands/Cache/Cache.command.ts:468` `buildCacheDashboard` (const) - 1 example import violation(s)
+- `src/commands/Cache/Cache.command.ts:273` `runCacheWarm` (const) - 1 example import violation(s)
+- `src/commands/Cache/Cache.command.ts:470` `buildCacheDashboard` (const) - 1 example import violation(s)
 - `src/commands/Cache/Cache.service.ts:111` `encodeCachePolicyBaselineText` (const) - 1 example import violation(s)
-- `src/commands/Ci/CiLane.ts:387` `CI_LANE_DESCRIPTORS` (const) - 1 documentation section/link violation(s)
-- `src/commands/Ci/CiLane.ts:1529` `ciLaneStepsForTesting` (const) - 1 documentation section/link violation(s)
-- `src/commands/Corpus/Corpus.errors.ts:303` `CorpusArchiveMoveDigestMismatchError` (class) - 1 example import violation(s)
-- `src/commands/Corpus/Corpus.service.ts:915` `indexMailExportTrees` (const) - missing @example
-- `src/commands/Corpus/Corpus.service.ts:928` `repairAttachmentExtensions` (const) - missing @example
-- `src/commands/Corpus/Corpus.service.ts:941` `runMetadataCensus` (const) - missing @example
-- `src/commands/CreatePackage/CreatePackage.command.ts:114` `resolveCreatePackageTemplateDir` (const) - 1 documentation section/link violation(s)
-- `src/commands/Drawings/Drawings.intake.schemas.ts:300` `MessageFacts` (class) - 1 example import violation(s)
-- `src/commands/Drawings/Drawings.intake.schemas.ts:351` `IntakeRecord` (class) - 1 example import violation(s)
-- `src/commands/Drawings/Drawings.intake.schemas.ts:401` `IntakeResult` (class) - 1 example import violation(s)
-- `src/commands/Drawings/Drawings.intake.ts:631` `renderIntakeSummary` (const) - 1 example import violation(s)
-- `src/commands/Explore/Atlas.ts:762` `explorationProjectionDriftPaths` (const) - 1 example import violation(s)
-- `src/commands/Laws/FrozenGrantSet.ts:330` `runFrozenGrantSetRules` (const) - 1 documentation section/link violation(s)
-- `src/commands/Laws/NoNativeRuntime.ts:620` `runNoNativeRuntimeRules` (const) - 1 documentation section/link violation(s)
-- `src/commands/Qa/JudgeCheck.ts:511` `extractLastJsonBlock` (const) - 1 documentation section/link violation(s)
-- `src/commands/Qa/JudgePack.ts:587` `renderTimeline` (const) - 1 documentation section/link violation(s)
-- `src/commands/Qa/JudgePack.ts:688` `selectJudgeEvidence` (const) - 1 documentation section/link violation(s)
-- `src/commands/Quality/Quality.command.ts:1028` `runBunAudit` (const) - 1 documentation section/link violation(s)
+- `src/commands/Ci/CiLane.ts:390` `CI_LANE_DESCRIPTORS` (const) - 1 documentation section/link violation(s)
+- `src/commands/Ci/CiLane.ts:1540` `ciLaneStepsForTesting` (const) - 1 documentation section/link violation(s)
+- `src/commands/Corpus/Corpus.errors.ts:312` `CorpusArchiveMoveDigestMismatchError` (class) - 1 example import violation(s)
+- `src/commands/CreatePackage/CreatePackage.command.ts:121` `resolveCreatePackageTemplateDir` (const) - 1 documentation section/link violation(s)
+- `src/commands/Drawings/Drawings.intake.schemas.ts:304` `MessageFacts` (class) - 1 example import violation(s)
+- `src/commands/Drawings/Drawings.intake.schemas.ts:354` `IntakeRecord` (class) - 1 example import violation(s)
+- `src/commands/Drawings/Drawings.intake.schemas.ts:405` `IntakeResult` (class) - 1 example import violation(s)
+- `src/commands/Drawings/Drawings.intake.ts:629` `renderIntakeSummary` (const) - 1 example import violation(s)
+- `src/commands/Drawings/Drawings.measurements.schemas.ts:431` `CriticMeasurements` (class) - 1 example import violation(s)
+- `src/commands/Drawings/Drawings.measurements.ts:910` `measurementsMarkdown` (const) - 1 example import violation(s)
+- `src/commands/Explore/Atlas.ts:774` `explorationProjectionDriftPaths` (const) - 1 example import violation(s)
+- `src/commands/Laws/FrozenGrantSet.ts:339` `runFrozenGrantSetRules` (const) - 1 documentation section/link violation(s)
+- `src/commands/Laws/NoNativeRuntime.ts:631` `runNoNativeRuntimeRules` (const) - 1 documentation section/link violation(s)
+- `src/commands/Qa/JudgeCheck.ts:512` `extractLastJsonBlock` (const) - 1 documentation section/link violation(s)
+- `src/commands/Qa/JudgePack.ts:628` `renderTimeline` (const) - 1 documentation section/link violation(s)
+- `src/commands/Qa/JudgePack.ts:732` `selectJudgeEvidence` (const) - 1 documentation section/link violation(s)
+- `src/commands/Quality/Quality.command.ts:1065` `runBunAudit` (const) - 1 documentation section/link violation(s)
 - `src/commands/Runners/Runners.schemas.ts:120` `BakeConfig` (class) - 1 example import violation(s)
-- `src/commands/Runners/Runners.schemas.ts:166` `BakeReport` (class) - 1 example import violation(s)
-- `src/commands/Runners/Runners.schemas.ts:275` `BakePlan` (class) - 1 example import violation(s)
+- `src/commands/Runners/Runners.schemas.ts:167` `BakeReport` (class) - 1 example import violation(s)
+- `src/commands/Runners/Runners.schemas.ts:276` `BakePlan` (class) - 1 example import violation(s)
 - `src/commands/Runners/Runners.schemas.ts:334` `BakeCheckReport` (class) - 1 example import violation(s)
-- `src/commands/Runners/Runners.service.ts:170` `BakeLocalInputs` (class) - 1 example import violation(s)
+- `src/commands/Runners/Runners.service.ts:177` `BakeLocalInputs` (class) - 1 example import violation(s)
 - `src/commands/Skills/Skills.render.ts:221` `renderSkillsLockMigrationPlanJson` (const) - 1 example import violation(s)
 - `src/commands/Skills/Skills.render.ts:295` `renderSkillsLockMigrationPlanSummary` (const) - 1 example import violation(s)
 - `src/commands/Skills/Skills.render.ts:348` `renderSkillsLockWriteReceiptJson` (const) - 1 example import violation(s)
 - `src/commands/Skills/SkillsLock.schemas.ts:96` `LocalSkillLockEntry` (class) - 1 example import violation(s)
-- `src/commands/Skills/SkillsLock.schemas.ts:570` `LocalMigrationRow` (class) - 1 example import violation(s)
-- `src/commands/Skills/SkillsLock.schemas.ts:734` `SkillsLockMigrationPlan` (class) - 1 example import violation(s)
-- `src/commands/Skills/SkillsLock.schemas.ts:800` `SkillsLockMigrationArtifacts` (class) - 1 example import violation(s)
-- `src/commands/Skills/SkillsLock.schemas.ts:871` `SkillsLockWrittenFile` (class) - 1 example import violation(s)
-- `src/commands/Skills/SkillsLock.schemas.ts:905` `SkillsLockWriteReceipt` (class) - 1 example import violation(s)
-- `src/commands/Skills/SkillsLock.write.ts:89` `skillsLockWriteConflicts` (const) - 1 example import violation(s)
-- `src/commands/Skills/SkillsLock.write.ts:123` `skillsLockDocumentOf` (const) - 1 example import violation(s)
+- `src/commands/Skills/SkillsLock.schemas.ts:579` `LocalMigrationRow` (class) - 1 example import violation(s)
+- `src/commands/Skills/SkillsLock.schemas.ts:745` `SkillsLockMigrationPlan` (class) - 1 example import violation(s)
+- `src/commands/Skills/SkillsLock.schemas.ts:813` `SkillsLockMigrationArtifacts` (class) - 1 example import violation(s)
+- `src/commands/Skills/SkillsLock.schemas.ts:886` `SkillsLockWrittenFile` (class) - 1 example import violation(s)
+- `src/commands/Skills/SkillsLock.schemas.ts:921` `SkillsLockWriteReceipt` (class) - 1 example import violation(s)
 - `src/commands/Worktree/Fleet.service.ts:327` `parseProcStatStartTime` (const) - 1 example import violation(s)
 
 ### @beep/dock-react
@@ -2254,13 +2280,13 @@ Path: `packages/foundation/ui-system/dock-react`
 Export findings:
 - `src/DockReact.types.ts:34` `DockAtomGraph` (type) - 1 example import violation(s)
 - `src/DockReact.types.ts:53` `DockPanelApi` (class) - 2 example import violation(s)
-- `src/DockReact.types.ts:77` `DockPanelProps` (type) - 1 example import violation(s)
-- `src/DockReact.types.ts:98` `DockTabProps` (type) - 1 example import violation(s)
-- `src/DockReact.types.ts:115` `DockRenderer` (type) - 1 example import violation(s)
-- `src/DockReact.types.ts:132` `DockTabRenderer` (type) - 1 example import violation(s)
-- `src/DockReact.types.ts:149` `DockviewAdapterApi` (type) - 1 example import violation(s)
-- `src/DockReact.types.ts:185` `DockTitleMinimaOptions` (type) - 1 example import violation(s)
-- `src/DockReact.types.ts:209` `DockviewReactProps` (type) - 1 example import violation(s)
+- `src/DockReact.types.ts:78` `DockPanelProps` (type) - 1 example import violation(s)
+- `src/DockReact.types.ts:99` `DockTabProps` (type) - 1 example import violation(s)
+- `src/DockReact.types.ts:116` `DockRenderer` (type) - 1 example import violation(s)
+- `src/DockReact.types.ts:133` `DockTabRenderer` (type) - 1 example import violation(s)
+- `src/DockReact.types.ts:150` `DockviewAdapterApi` (type) - 1 example import violation(s)
+- `src/DockReact.types.ts:186` `DockTitleMinimaOptions` (type) - 1 example import violation(s)
+- `src/DockReact.types.ts:210` `DockviewReactProps` (type) - 1 example import violation(s)
 - `src/DockviewReact.tsx:244` `DockviewReact` (const) - 2 example import violation(s)
 
 ### @beep/brand
@@ -2269,10 +2295,10 @@ Path: `packages/foundation/ui-system/brand`
 
 Export findings:
 - `src/Brand.assets.ts:31` `RenderedAsset` (class) - 1 example import violation(s)
-- `src/Brand.assets.ts:84` `renderBrandAssets` (const) - 1 example import violation(s)
-- `src/Brand.css.ts:28` `GENERATED_CSS_BANNER` (const) - 1 example import violation(s)
-- `src/Brand.css.ts:76` `fontStack` (const) - 1 example import violation(s)
-- `src/Brand.css.ts:147` `renderThemeCss` (const) - 1 example import violation(s)
+- `src/Brand.assets.ts:85` `renderBrandAssets` (const) - 1 example import violation(s)
+- `src/Brand.css.ts:37` `GENERATED_CSS_BANNER` (const) - 1 example import violation(s)
+- `src/Brand.css.ts:87` `fontStack` (const) - 1 example import violation(s)
+- `src/Brand.css.ts:158` `renderThemeCss` (const) - 1 example import violation(s)
 - `src/Brand.schema.ts:32` `PrintableText` (const) - 1 example import violation(s)
 - `src/Brand.schema.ts:60` `PrintableText` (type) - 1 example import violation(s)
 - `src/Brand.schema.ts:76` `ScaleStep` (const) - 1 example import violation(s)
@@ -2280,36 +2306,36 @@ Export findings:
 - `src/Brand.schema.ts:111` `SurfaceStep` (const) - 1 example import violation(s)
 - `src/Brand.schema.ts:130` `SurfaceStep` (type) - 1 example import violation(s)
 - `src/Brand.schema.ts:146` `ColorScale` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:176` `SurfaceScale` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:202` `Foreground` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:225` `Border` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:247` `Semantic` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:270` `Alpha` (const) - 1 example import violation(s)
-- `src/Brand.schema.ts:290` `Alpha` (type) - 1 example import violation(s)
-- `src/Brand.schema.ts:306` `GlowStop` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:328` `GlowLayer` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:350` `Glow` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:373` `ColorScheme` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:399` `SchemeName` (const) - 1 example import violation(s)
-- `src/Brand.schema.ts:418` `SchemeName` (type) - 1 example import violation(s)
-- `src/Brand.schema.ts:434` `FontStack` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:458` `Typography` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:480` `SvgPathData` (const) - 1 example import violation(s)
-- `src/Brand.schema.ts:513` `SvgPathData` (type) - 1 example import violation(s)
-- `src/Brand.schema.ts:529` `MarkPoint` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:551` `MarkRotation` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:573` `PixelGlasses` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:598` `BrandMark` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:627` `BrandIdentity` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:653` `SvgPaint` (const) - 1 example import violation(s)
-- `src/Brand.schema.ts:672` `SvgPaint` (type) - 1 example import violation(s)
-- `src/Brand.schema.ts:689` `MarkPaint` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:712` `MarkGround` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:741` `MarkSvgRequest` (class) - 1 example import violation(s)
-- `src/Brand.schema.ts:774` `WordmarkSvgRequest` (class) - 1 example import violation(s)
-- `src/Brand.svg.ts:52` `glassesTransform` (const) - 1 example import violation(s)
-- `src/Brand.svg.ts:121` `renderMarkSvg` (const) - 1 example import violation(s)
-- `src/Brand.svg.ts:159` `renderWordmarkSvg` (const) - 1 example import violation(s)
+- `src/Brand.schema.ts:175` `SurfaceScale` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:200` `Foreground` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:222` `Border` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:243` `Semantic` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:265` `Alpha` (const) - 1 example import violation(s)
+- `src/Brand.schema.ts:285` `Alpha` (type) - 1 example import violation(s)
+- `src/Brand.schema.ts:301` `GlowStop` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:322` `GlowLayer` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:343` `Glow` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:365` `ColorScheme` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:390` `SchemeName` (const) - 1 example import violation(s)
+- `src/Brand.schema.ts:409` `SchemeName` (type) - 1 example import violation(s)
+- `src/Brand.schema.ts:425` `FontStack` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:448` `Typography` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:469` `SvgPathData` (const) - 1 example import violation(s)
+- `src/Brand.schema.ts:502` `SvgPathData` (type) - 1 example import violation(s)
+- `src/Brand.schema.ts:518` `MarkPoint` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:539` `MarkRotation` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:560` `PixelGlasses` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:588` `BrandMark` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:616` `BrandIdentity` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:645` `SvgPaint` (const) - 1 example import violation(s)
+- `src/Brand.schema.ts:664` `SvgPaint` (type) - 1 example import violation(s)
+- `src/Brand.schema.ts:681` `MarkPaint` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:703` `MarkGround` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:731` `MarkSvgRequest` (class) - 1 example import violation(s)
+- `src/Brand.schema.ts:765` `WordmarkSvgRequest` (class) - 1 example import violation(s)
+- `src/Brand.svg.ts:46` `glassesTransform` (const) - 1 example import violation(s)
+- `src/Brand.svg.ts:115` `renderMarkSvg` (const) - 1 example import violation(s)
+- `src/Brand.svg.ts:153` `renderWordmarkSvg` (const) - 1 example import violation(s)
 - `src/Brand.tokens.ts:134` `beep` (const) - 1 example import violation(s)
 
 ### @beep/agents-server
@@ -2341,7 +2367,7 @@ Module findings:
 
 Export findings:
 - `src/capability/projection.ts:38` `ShortcutHelpEntry` (class) - 1 example import violation(s)
-- `src/chat/atoms.ts:901` `onSendAtom` (const) - 1 example import violation(s)
+- `src/chat/atoms.ts:900` `onSendAtom` (const) - 1 example import violation(s)
 - `src/viewer.tsx:244` `EditorViewer` (function) - 1 example import violation(s)
 
 ### @beep/documents-server
@@ -2368,19 +2394,19 @@ Module findings:
 Export findings:
 - `src/Openclaw.models.ts:123` `OpenclawDiagnosticText` (const) - 1 documentation section/link violation(s)
 - `src/Openclaw.models.ts:177` `OpenclawProcessRequest` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:351` `OpenclawConfigInvalid` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:424` `OpenclawDoctorReport` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:459` `OpenclawSecretsReloadOutput` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:524` `OpenclawSecretsReloadDegraded` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:1200` `OpenclawInvocationContext` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:1303` `OpenclawSystemdUnitState` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:1390` `OpenclawHttpProbe` (class) - 1 documentation section/link violation(s)
-- `src/Openclaw.models.ts:1461` `OpenclawSchemaPlaceholderFinding` (class) - 1 documentation section/link violation(s)
-- `src/OpenclawCli.service.ts:446` `OpenclawCliRunner` (type) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:354` `OpenclawConfigInvalid` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:427` `OpenclawDoctorReport` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:463` `OpenclawSecretsReloadOutput` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:532` `OpenclawSecretsReloadDegraded` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:1233` `OpenclawInvocationContext` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:1337` `OpenclawSystemdUnitState` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:1426` `OpenclawHttpProbe` (class) - 1 documentation section/link violation(s)
+- `src/Openclaw.models.ts:1498` `OpenclawSchemaPlaceholderFinding` (class) - 1 documentation section/link violation(s)
+- `src/OpenclawCli.service.ts:457` `OpenclawCliRunner` (type) - 1 documentation section/link violation(s)
 - `src/OpenclawIntent.models.ts:54` `OpenclawSecretReference` (const) - 1 documentation section/link violation(s)
 - `src/OpenclawIntent.models.ts:101` `OpenclawTargetVersion` (const) - 1 documentation section/link violation(s)
-- `src/OpenclawIntent.models.ts:1080` `OpenclawSkillPin` (class) - 1 documentation section/link violation(s)
-- `src/OpenclawIntent.models.ts:1183` `OpenclawDeploymentIntent` (class) - 1 documentation section/link violation(s)
+- `src/OpenclawIntent.models.ts:1102` `OpenclawSkillPin` (class) - 1 documentation section/link violation(s)
+- `src/OpenclawIntent.models.ts:1207` `OpenclawDeploymentIntent` (class) - 1 documentation section/link violation(s)
 
 ### @beep/db-admin
 
@@ -2417,7 +2443,7 @@ Module findings:
 - `src/bin.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/Streaming/DatasetLoader.ts:671` `loadJsonl` (const) - 1 documentation section/link violation(s)
+- `src/Streaming/DatasetLoader.ts:685` `loadJsonl` (const) - 1 documentation section/link violation(s)
 
 ### @beep/lint-rules
 
@@ -2425,15 +2451,6 @@ Path: `packages/tooling/policy-pack/lint-rules`
 
 Module findings:
 - `src/index.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-
-### @beep/m365-mcp
-
-Path: `packages/drivers/m365-mcp`
-
-Export findings:
-- `src/OutboxAttachmentSource.ts:149` `OutboxAttachmentDigest` (class) - 1 example import violation(s)
-- `src/OutboxAttachmentSource.ts:181` `OutboxAttachment` (class) - 1 example import violation(s)
-- `src/OutboxSendGuard.ts:267` `sameAttachments` (const) - 1 example import violation(s)
 
 ### @beep/scratchpad
 
@@ -2523,18 +2540,10 @@ Module findings:
 - `effected/cli/ui/internal/mountPermit.ts:1` (none) - missing summary; missing @since
 - `effected/cli/ui/internal/perfDrain.ts:1` (none) - missing summary; missing @since
 - `effected/cli/ui/internal/renderOptions.ts:1` (none) - missing summary; missing @since
+- `effected/cli/ui/internal/screenElement.ts:1` (none) - missing summary; missing @since
 - `effected/cli/ui/testing/CliUiTest.ts:1` (none) - missing summary; missing @since
 - `effected/cli/ui/testing/fakeStreams.ts:1` (none) - missing summary; missing @since
 - `effected/cli/ui/testing/terminalModel.ts:1` (none) - missing summary; missing @since
-- `effected/commands/LocalExec.ts:1` (none) - missing summary; missing @since
-- `effected/commands/Redaction.ts:1` (none) - missing summary; missing @since
-- `effected/commands/Retry.ts:1` (none) - missing summary; missing @since
-- `effected/commands/Run.ts:1` (none) - missing summary; missing @since
-- `effected/commands/ScriptedSpawner.ts:1` (none) - missing summary; missing @since
-- `effected/commands/Tool.ts:1` (none) - missing summary; missing @since
-- `effected/commands/ToolDiscovery.ts:1` (none) - missing summary; missing @since
-- `effected/commands/index.ts:1` (packageDocumentation) - missing @since
-- `effected/commands/internal/capture.ts:1` (none) - missing summary; missing @since
 - `effected/config-file/ConfigCodec.ts:1` (none) - missing summary; missing @since
 - `effected/config-file/ConfigEvent.ts:1` (none) - missing summary; missing @since
 - `effected/config-file/ConfigFile.ts:1` (none) - missing summary; missing @since
@@ -2618,12 +2627,6 @@ Module findings:
 - `effected/github-actions/internal/spawn.ts:1` (none) - missing summary; missing @since
 - `effected/github-actions/internal/twirp.ts:1` (none) - missing summary; missing @since
 - `effected/github-actions/internal/unstubbed.ts:1` (none) - missing summary; missing @since
-- `effected/github-commands/CommandNeutralizer.ts:1` (none) - missing summary; missing @since
-- `effected/github-commands/WorkflowCommand.ts:1` (none) - missing summary; missing @since
-- `effected/github-references/ClosingList.ts:1` (none) - missing summary; missing @since
-- `effected/github-references/IssueReferences.ts:1` (none) - missing summary; missing @since
-- `effected/github-references/KeywordFamily.ts:1` (none) - missing summary; missing @since
-- `effected/github-references/index.ts:1` (packageDocumentation) - missing @since
 - `effected/github/ArtifactMetadata.ts:1` (none) - missing summary; missing @since
 - `effected/github/Attestation.ts:1` (none) - missing summary; missing @since
 - `effected/github/CheckRun.ts:1` (none) - missing summary; missing @since
@@ -2670,19 +2673,6 @@ Module findings:
 - `effected/glob/internal/minimatch.ts:1` (none) - missing summary; missing @since
 - `effected/glob/internal/types.ts:1` (none) - missing summary; missing @since
 - `effected/glob/internal/unescape.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/Jsonc.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/JsoncEdit.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/JsoncFingerprint.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/JsoncFormatter.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/JsoncModifier.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/JsoncNode.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/JsoncVisitor.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/index.ts:1` (packageDocumentation) - missing @since
-- `effected/jsonc/internal/limits.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/internal/navigate.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/internal/parser.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/internal/scanner.ts:1` (none) - missing summary; missing @since
-- `effected/jsonc/internal/skip.ts:1` (none) - missing summary; missing @since
 - `effected/lockfiles/BunExtension.ts:1` (none) - missing summary; missing @since
 - `effected/lockfiles/ConfigDependencyLock.ts:1` (none) - missing summary; missing @since
 - `effected/lockfiles/ImporterDependency.ts:1` (none) - missing summary; missing @since
@@ -2822,38 +2812,6 @@ Module findings:
 - `effected/sbom/SigstoreBundle.ts:1` (none) - missing summary; missing @since
 - `effected/sbom/SigstoreSigner.ts:1` (none) - missing summary; missing @since
 - `effected/sbom/SlsaProvenance.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/APIReference.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/Conformance.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/CreativeWork.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/JsonLdDocument.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/NodeRef.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/Organization.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/Person.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/SoftwareSourceCode.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/TechArticle.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/Thing.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/Vocabulary.ts:1` (none) - missing summary; missing @since
-- `effected/schema-org/conformance-entry.ts:1` (packageDocumentation) - missing @since
-- `effected/schema-org/index.ts:1` (packageDocumentation) - missing @since
-- `effected/schema-org/internal/vocabulary.ts:1` (none) - missing summary; missing @since
-- `effected/semver/Comparator.ts:1` (none) - missing summary; missing @since
-- `effected/semver/Range.ts:1` (none) - missing summary; missing @since
-- `effected/semver/SemVer.ts:1` (none) - missing summary; missing @since
-- `effected/semver/VersionCache.ts:1` (none) - missing summary; missing @since
-- `effected/semver/VersionDiff.ts:1` (none) - missing summary; missing @since
-- `effected/semver/index.ts:1` (packageDocumentation) - missing @since
-- `effected/semver/internal/desugar.ts:1` (none) - missing summary; missing @since
-- `effected/semver/internal/grammar.ts:1` (none) - missing summary; missing @since
-- `effected/semver/internal/normalize.ts:1` (none) - missing summary; missing @since
-- `effected/semver/internal/order.ts:1` (none) - missing summary; missing @since
-- `effected/spdx/License.ts:1` (none) - missing summary; missing @since
-- `effected/spdx/LicenseException.ts:1` (none) - missing summary; missing @since
-- `effected/spdx/SpdxExpression.ts:1` (none) - missing summary; missing @since
-- `effected/spdx/index.ts:1` (packageDocumentation) - missing @since
-- `effected/spdx/internal/exceptions.ts:1` (none) - missing summary; missing @since
-- `effected/spdx/internal/licenseIds.ts:1` (none) - missing summary; missing @since
-- `effected/spdx/internal/licenseMeta.ts:1` (none) - missing summary; missing @since
-- `effected/spdx/internal/parser.ts:1` (none) - missing summary; missing @since
 - `effected/templates/CommentStyle.ts:1` (none) - missing summary; missing @since
 - `effected/templates/ManagedSection.ts:1` (none) - missing summary; missing @since
 - `effected/templates/Section.ts:1` (none) - missing summary; missing @since
@@ -3034,56 +2992,55 @@ Module findings:
 - `src/OpenClaw.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/CiFleetController.ts:598` `CiFleetControllerPulumiConfigValues` (const) - missing @example
-- `src/CiFleetController.ts:634` `CiFleetControllerConfig` (class) - missing @example
-- `src/CiFleetController.ts:666` `makeCiFleetControllerConfig` (const) - missing @example
-- `src/CiFleetController.ts:690` `loadCiFleetControllerConfig` (const) - missing @example
+- `src/CiFleetController.ts:643` `CiFleetControllerConfig` (class) - missing @example
+- `src/CiFleetController.ts:676` `makeCiFleetControllerConfig` (const) - missing @example
+- `src/CiFleetController.ts:700` `loadCiFleetControllerConfig` (const) - missing @example
 - `src/OpenClaw.ts:399` `OpenClawExpectedIdentity` (class) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:582` `OpenClawDeploymentConfig` (class) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:824` `OpenClawBackupConfig` (class) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:896` `OpenClawGeneration` (class) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:1250` `makeOpenClawGeneration` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:1332` `renderOpenClawUnit` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:1406` `renderOpenClawRunScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:1508` `renderOpenClawGenerationTree` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:1574` `renderOpenClawPreflightScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:1705` `renderOpenClawStageScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:1837` `renderOpenClawApplyScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:1959` `renderOpenClawRollbackScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:2110` `renderOpenClawDriftAuditScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:2166` `renderOpenClawProbeScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:2241` `renderOpenClawLiveAcceptanceScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:2341` `renderOpenClawBackupShipScript` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:2405` `OpenClawStackArgs` (class) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:2491` `makeOpenClawStackArgsFromConfigValues` (const) - 1 documentation section/link violation(s)
-- `src/OpenClaw.ts:2694` `OpenClawStack` (class) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:590` `OpenClawDeploymentConfig` (class) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:833` `OpenClawBackupConfig` (class) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:906` `OpenClawGeneration` (class) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:1268` `makeOpenClawGeneration` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:1355` `renderOpenClawUnit` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:1429` `renderOpenClawRunScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:1532` `renderOpenClawGenerationTree` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:1601` `renderOpenClawPreflightScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:1737` `renderOpenClawStageScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:1869` `renderOpenClawApplyScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:1991` `renderOpenClawRollbackScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:2145` `renderOpenClawDriftAuditScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:2204` `renderOpenClawProbeScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:2279` `renderOpenClawLiveAcceptanceScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:2382` `renderOpenClawBackupShipScript` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:2446` `OpenClawStackArgs` (class) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:2533` `makeOpenClawStackArgsFromConfigValues` (const) - 1 documentation section/link violation(s)
+- `src/OpenClaw.ts:2736` `OpenClawStack` (class) - 1 documentation section/link violation(s)
 
 ### @beep/box-provisioning
 
 Path: `packages/drivers/box-provisioning`
 
 Export findings:
-- `src/BoxContentMigrationMap.ts:225` `BoxContentMigrationFile` (class) - 1 example import violation(s)
+- `src/BoxContentMigrationMap.ts:226` `BoxContentMigrationFile` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationPlan.ts:70` `BoxContentFolderExists` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationPlan.ts:102` `BoxContentFolderCreate` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationPlan.ts:160` `BoxContentUpload` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationPlan.ts:197` `BoxContentSkipIdentical` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationPlan.ts:233` `BoxContentBlockedNameConflict` (class) - 1 example import violation(s)
-- `src/BoxContentMigrationPlan.ts:262` `BoxContentBlockedSourceMissing` (class) - 1 example import violation(s)
-- `src/BoxContentMigrationPlan.ts:288` `BoxContentBlockedSourceChanged` (class) - 1 example import violation(s)
+- `src/BoxContentMigrationPlan.ts:263` `BoxContentBlockedSourceMissing` (class) - 1 example import violation(s)
+- `src/BoxContentMigrationPlan.ts:290` `BoxContentBlockedSourceChanged` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationReceipt.ts:181` `BoxContentActionApplied` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationReceipt.ts:210` `BoxContentActionSkipped` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationReceipt.ts:241` `BoxContentActionBlocked` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationReceipt.ts:277` `BoxContentActionFailed` (class) - 1 example import violation(s)
 - `src/BoxContentMigrationReceipt.ts:310` `BoxContentActionNotAttempted` (class) - 1 example import violation(s)
-- `src/BoxProvisioningErrors.ts:152` `BoxProvisioningDriftError` (class) - 1 example import violation(s)
-- `src/BoxProvisioningIntent.ts:540` `BoxWebhookIntent` (class) - 1 example import violation(s)
-- `src/BoxProvisioningObserved.ts:323` `BoxObservedWebhook` (class) - 1 example import violation(s)
-- `src/BoxProvisioningPlan.ts:398` `BoxForeignResource` (class) - 1 example import violation(s)
-- `src/BoxProvisioningReceipt.ts:339` `BoxActionApplied` (class) - 1 example import violation(s)
-- `src/BoxProvisioningReceipt.ts:368` `BoxActionSkipped` (class) - 1 example import violation(s)
-- `src/BoxProvisioningReceipt.ts:395` `BoxActionBlocked` (class) - 1 example import violation(s)
-- `src/BoxProvisioningReceipt.ts:452` `BoxApplyReceipt` (class) - 1 example import violation(s)
+- `src/BoxProvisioningErrors.ts:155` `BoxProvisioningDriftError` (class) - 1 example import violation(s)
+- `src/BoxProvisioningIntent.ts:543` `BoxWebhookIntent` (class) - 1 example import violation(s)
+- `src/BoxProvisioningObserved.ts:326` `BoxObservedWebhook` (class) - 1 example import violation(s)
+- `src/BoxProvisioningPlan.ts:399` `BoxForeignResource` (class) - 1 example import violation(s)
+- `src/BoxProvisioningReceipt.ts:342` `BoxActionApplied` (class) - 1 example import violation(s)
+- `src/BoxProvisioningReceipt.ts:371` `BoxActionSkipped` (class) - 1 example import violation(s)
+- `src/BoxProvisioningReceipt.ts:398` `BoxActionBlocked` (class) - 1 example import violation(s)
+- `src/BoxProvisioningReceipt.ts:455` `BoxApplyReceipt` (class) - 1 example import violation(s)
 
 ### @beep/freshbooks
 
@@ -3097,9 +3054,9 @@ Module findings:
 - `src/index.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 Export findings:
-- `src/Freshbooks.config.ts:286` `FreshbooksConfigInput` (class) - 1 documentation section/link violation(s)
+- `src/Freshbooks.config.ts:285` `FreshbooksConfigInput` (class) - 1 documentation section/link violation(s)
 - `src/Freshbooks.errors.ts:73` `FreshbooksErrorReason` (const) - 1 documentation section/link violation(s)
-- `src/Freshbooks.models.ts:566` `FreshbooksDecode` (const) - missing @example
+- `src/Freshbooks.models.ts:575` `FreshbooksDecode` (const) - missing @example
 
 ### @beep/uspto-mcp
 
@@ -3113,11 +3070,6 @@ Module findings:
 - `src/UsptoTools.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 - `src/bin.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 - `src/index.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-
-Export findings:
-- `src/UsptoDocumentTiers.ts:190` `MintFetchableHandle` (const) - 1 example import violation(s)
-- `src/UsptoDocumentTiers.ts:251` `ProjectDocumentsWithinBudgetOptions` (class) - 1 example import violation(s)
-- `src/UsptoDocumentTiers.ts:305` `projectDocumentsWithinBudget` (const) - 1 example import violation(s)
 
 ### @beep/pandoc-ast
 

@@ -1,6 +1,6 @@
 import type { AudienceKind, ColorLevel } from "../env/index.ts";
 import { Audience, TerminalEnv } from "../env/index.ts";
-import { CommandNeutralizer } from "../github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";

@@ -40,8 +40,8 @@
 		"types:check": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@effected/github-references": "workspace:^",
-		"@effected/semver": "workspace:^",
+		"@beep/github-references": "workspace:^",
+		"@beep/semver": "workspace:^",
 		"@octokit/core": "^7.0.6",
 		"@octokit/plugin-paginate-rest": "^16.0.0",
 		"@octokit/types": "^18.0.0",

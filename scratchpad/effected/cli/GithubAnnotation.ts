@@ -2,7 +2,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as S from "effect/Schema";
 import { dual } from "effect/Function";
-import { WorkflowCommand } from "../github-commands/index.ts";
+import { WorkflowCommand } from "@beep/github-commands";
 
 const $I = $ScratchpadId.create("effected/cli/GithubAnnotation");
 

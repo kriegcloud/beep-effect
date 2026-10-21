@@ -592,7 +592,7 @@ const buildPlan = Effect.fn("BoxContentMigration.buildPlan")(function* (
         fileActions: A.map(sortedFiles, (planned) => planned.action),
         folderActions: A.map(sortedFolders, (planned) => planned.action),
         mapDigest: yield* hashed(boxContentMigrationMapDigest(map)),
-        planDigest: Sha256Hex.make("0".repeat(64)),
+        planDigest: Sha256Hex.make(pipe("0", Str.repeat(64))),
         rootFolderId: map.rootFolderId,
         sourceRevision: map.sourceRevision,
         subjectId: identity.subjectId,

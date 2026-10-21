@@ -4,7 +4,7 @@ import { assert, it, vi } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { LocalExec } from "../../effected/commands/index.ts";
+import { LocalExec } from "@beep/commands";
 import { PackageManagerDetector } from "../../effected/workspaces/PackageManagerName.ts";
 import { WorkspaceRoot, WorkspaceRootNotFoundError } from "../../effected/workspaces/WorkspaceRoot.ts";
 import { Workspaces } from "../../effected/workspaces/Workspaces.ts";
