@@ -561,6 +561,7 @@
     "packages/drivers/windows-secrets",
     "apps/practice-gateway",
     "apps/practice-setup",
-    "apps/practice-review-hub"
+    "apps/practice-review-hub",
+    "packages/drivers/commands"
   ]
 }

@@ -29,7 +29,7 @@
  * @packageDocumentation
  */
 
-export { JsoncEdit, type JsoncPath } from "../jsonc/index.ts";
+export { JsoncEdit, type JsoncPath } from "@beep/jsonc";
 export {
 	type DependencyKind,
 	type DependencyProtocol,

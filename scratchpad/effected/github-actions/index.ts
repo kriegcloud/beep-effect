@@ -25,7 +25,7 @@
  */
 
 // `WorkflowCommand` is owned by the pure `@effected/github-commands`; this entrypoint re-exports it so it stays importable from here.
-export { type AnnotationProperties, WorkflowCommand } from "../github-commands/index.ts";
+export { type AnnotationProperties, WorkflowCommand } from "@beep/github-commands";
 export {
 	Action,
 	type ActionRunOptions,

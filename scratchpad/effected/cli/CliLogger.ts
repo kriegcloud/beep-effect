@@ -1,5 +1,5 @@
 import { dual, pipe } from "effect/Function";
-import { CommandNeutralizer } from "../github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import type * as Fiber from "effect/Fiber";
 import type * as Layer from "effect/Layer";
 import * as Console from "effect/Console";

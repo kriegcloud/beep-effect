@@ -3,7 +3,7 @@ import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import * as Context from "effect/Context";
 import { flow, identity } from "effect/Function";
 import * as O from "effect/Option";
-import { LocalExec } from "../../effected/commands/index.ts";
+import { LocalExec } from "@beep/commands";
 import type { MemoryFileSystemFaults, MemoryFileSystemSeed } from "../../effected/memfs/index.ts";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import * as Effect from "effect/Effect";

@@ -147,17 +147,20 @@ Loop:
    state `probed`, a result of `missing` or `broken`, and no entry in the
    lawyer's steps; the summary's "I can do this for you" lines describe
    them. For each, tell the lawyer in one sentence what you are about to do
-   and that an approval prompt will appear, then call `setup_repair` with
+   and that an approval prompt will appear, either inside Claude or as a
+   small Windows window titled "Practice gateway: approve a change" (it can
+   open behind Claude; it waits up to ten minutes), where they click Yes to
+   go ahead. Then call `setup_repair` with
    that check's `requirement` id. Do one repair at a time. Checks with state
    `blocked` wait on earlier steps; leave them alone.
 5. Call `setup_status` again and continue the loop.
 
 Reading `setup_repair` failures:
 
-- `declined`: nothing changed. The lawyer said no, closed the prompt, or this
-  Claude app cannot show approval prompts. Ask whether they want to try
-  again. If the prompt never appeared, give them the manual step from the
-  check's instruction instead.
+- `declined`: nothing changed. The lawyer said no, closed the prompt, or
+  it timed out. Ask whether they want to try again. If no prompt appeared
+  at all, inside Claude or as a Windows window, give them the manual step
+  from the check's instruction instead.
 - `needs-human`: this one is a lawyer step; relay its instruction.
 - `dependencies-unsatisfied`: an earlier step is unfinished; finish that
   first.
@@ -178,6 +181,9 @@ Special cases:
 - If the computer cannot approve Windows prompts (`adminRights: blocked`),
   skip repairs that need one and list them in the final summary as "needs
   your IT person".
+- Microsoft 365 needs an app ID from whoever set up the practice gateway
+  for the firm before the sign-in can be offered. If that check is in the
+  lawyer's steps, relay it once and move on; mail and calendar wait on it.
 - A reboot request: tell the lawyer setup will continue afterwards when they
   open Claude and say "continue setup".
 

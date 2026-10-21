@@ -138,9 +138,10 @@ no intent-to-context routing manifest or transcript-order gate. The closest prot
 - Drizzle tables/repositories provide strongly typed persistence boundaries, but no declarative
   cross-backend query-plan ADT was found. `@beep/duckdb` offers a typed row codec (`DuckDbRows`) and
   raw parameterized query/run operations (`packages/drivers/duckdb/src/DuckDb.models.ts:119`, `:165`;
-  `packages/drivers/duckdb/src/DuckDb.service.ts:82`). `DuckDbSqlClient` adapts DuckDB to Effect SQL
-  using the SQLite statement compiler (`packages/drivers/duckdb/src/DuckDbSqlClient.service.ts:404`,
-  `:505`). These are execution/compilation mechanisms, not a plan with phase evidence.
+  `packages/drivers/duckdb/src/DuckDb.service.ts:91`). `DuckDbClient` adapts DuckDB to Effect SQL
+  under the `"sqlite"` dialect with its own statement compiler
+  (`packages/drivers/duckdb/src/internal/compiler.ts:56`,
+  `packages/drivers/duckdb/src/DuckDbClient.service.ts:289`). These are execution/compilation mechanisms, not a plan with phase evidence.
 - The closest capability probe is the ontology toolkit’s typed `CapabilityMetadataResponse`, which
   reports capabilities, budgets, canonicalization semantics, statelessness, and reasoner profile
   (`packages/ontology/use-cases/src/tools/OntologyToolkit.ts:680`). It is static service metadata,
