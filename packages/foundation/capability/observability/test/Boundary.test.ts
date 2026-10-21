@@ -1,4 +1,4 @@
-import { redactString, VERSION } from "@beep/observability";
+import { redactString } from "@beep/observability";
 import { it } from "@beep/test-runner";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
@@ -78,7 +78,6 @@ describe("Boundary", () => {
           "./web": "./src/web/index.ts",
         });
         expect(packageJson.exports).not.toHaveProperty("./*");
-        expect(VERSION).toBe(packageJson.version);
         expect(tsconfigSource).not.toMatch(/"types"\s*:\s*\[[^\]]*"node"/m);
       }),
     { timeout: 60_000 }

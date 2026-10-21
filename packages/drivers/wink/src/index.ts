@@ -6,25 +6,6 @@
  */
 
 /**
- * Package version constant.
- *
- * **Example** (Create versioned InstanceId)
- *
- * ```ts
- * import { strictEqual } from "node:assert"
- * import { InstanceId, VERSION } from "@beep/wink"
- *
- * const versionedInstance = InstanceId.make(`wink-engine-${VERSION}`)
- *
- * strictEqual(versionedInstance, "wink-engine-0.0.0")
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * @since 0.0.0
  * @category errors
  */

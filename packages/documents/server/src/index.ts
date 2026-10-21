@@ -7,22 +7,6 @@
  */
 
 /**
- * Package version for `@beep/documents-server`.
- *
- * **Example** (Import and log VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/documents-server"
- *
- * console.log(VERSION)
- * ```
- *
- * @category handlers
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Document server aggregate exports.
  *
  * @category handlers

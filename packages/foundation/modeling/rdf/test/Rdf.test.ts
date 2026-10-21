@@ -973,8 +973,8 @@ describe("@beep/rdf crispening parity", () => {
 });
 
 describe("@beep/rdf package and vocabulary exports", () => {
-  it("exports the package root version and all core vocabulary named nodes", () => {
-    expect(RdfRoot.VERSION).toBe("0.0.0");
+  it("resolves the package root and exports all core vocabulary named nodes", () => {
+    expect(RdfRoot).toBeTypeOf("object");
     expect(OA_NAMESPACE).toBe("http://www.w3.org/ns/oa#");
     expect(OA_ANNOTATION.value).toBe(`${OA_NAMESPACE}Annotation`);
     expect(OA_HAS_TARGET.value).toBe(`${OA_NAMESPACE}hasTarget`);

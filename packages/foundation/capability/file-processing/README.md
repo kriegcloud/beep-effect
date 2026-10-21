@@ -43,7 +43,7 @@ bun add @beep/file-processing
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/file-processing"
+import { SourceText } from "@beep/file-processing"
 ```
 
 ## Development

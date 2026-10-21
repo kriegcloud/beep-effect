@@ -1,4 +1,3 @@
-import { VERSION } from "@beep/architecture-lab-config";
 import {
   ArchitectureLabConfigLive,
   ArchitectureLabConfigTest,
@@ -50,7 +49,6 @@ const liveConfigFrom = (env: Readonly<Record<string, string>>) =>
 
 describe("WorkItem configuration boundaries", () => {
   it("re-exports the same config contracts from each visibility entry", () => {
-    expect(VERSION).toBe("0.0.0");
     expect(PublicBoundaryConfig).toBe(WorkItemPublicConfig);
     expect(publicBoundaryDefault).toBe(defaultWorkItemPublicConfig);
     expect(SecretBoundaryConfig).toBe(WorkItemSecretConfig);

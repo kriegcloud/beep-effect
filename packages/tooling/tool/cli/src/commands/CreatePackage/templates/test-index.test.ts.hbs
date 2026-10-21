@@ -1,11 +1,11 @@
-import { VERSION } from "{{scopedName}}";
+import * as Package from "{{scopedName}}";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 
 describe("{{scopedName}}", () => {
-  it.effect("exports the package version", () =>
+  it.effect("resolves the package entry point through its alias", () =>
     Effect.sync(() => {
-      expect(VERSION).toBe("0.0.0");
+      expect(Package).toBeTypeOf("object");
     })
   );
 });

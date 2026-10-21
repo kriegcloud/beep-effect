@@ -88,13 +88,6 @@ export * from "./SemanticSchemaMetadata/index.ts";
  */
 export * from "./Uri.ts";
 /**
- * Current `@beep/rdf` package version.
- *
- * @category configuration
- * @since 0.0.0
- */
-export { VERSION } from "./Version.ts";
-/**
  * Cito pinned vocabulary constants.
  * @category constants
  * @since 0.0.0

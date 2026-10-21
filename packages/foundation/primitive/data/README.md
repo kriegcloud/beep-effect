@@ -11,7 +11,7 @@ bun add @beep/data
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/data"
+import { Timezones } from "@beep/data"
 ```
 
 ## Development

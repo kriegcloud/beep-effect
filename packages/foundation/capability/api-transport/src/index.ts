@@ -20,10 +20,3 @@ export * from "./EgressDenied.ts";
  * @category ports
  */
 export * from "./Transport.ts";
-/**
- * Current `@beep/api-transport` package version.
- *
- * @category constants
- * @since 0.0.0
- */
-export { VERSION } from "./Version.ts";

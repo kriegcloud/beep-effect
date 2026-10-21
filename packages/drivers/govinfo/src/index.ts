@@ -35,19 +35,3 @@ export * from "./Govinfo.errors.ts";
  * @category services
  */
 export * from "./Govinfo.service.ts";
-
-/**
- * Package version.
- *
- * **Example** (Import and log version)
- *
- * ```ts
- * import { VERSION } from "@beep/govinfo"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

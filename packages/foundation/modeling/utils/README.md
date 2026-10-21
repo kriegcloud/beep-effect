@@ -11,7 +11,7 @@ bun add @beep/utils
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/utils"
+import { A } from "@beep/utils"
 ```
 
 ## Development

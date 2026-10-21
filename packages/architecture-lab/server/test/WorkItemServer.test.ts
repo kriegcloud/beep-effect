@@ -1,5 +1,4 @@
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
-import { VERSION } from "@beep/architecture-lab-server";
 import {
   makeWorkItemHttpHandlers,
   toWorkItemHttpError,
@@ -138,8 +137,7 @@ describe("WorkItem server", () => {
     }
   );
 
-  it("exports the package version and the live server layer", () => {
-    expect(VERSION).toBe("0.0.0");
+  it("exports the live server layer", () => {
     expect(Layer.isLayer(ArchitectureLabServerLive)).toBe(true);
   });
 

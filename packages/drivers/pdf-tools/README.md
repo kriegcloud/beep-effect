@@ -11,7 +11,7 @@ bun add @beep/pdf-tools
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/pdf-tools"
+import { PdfTools } from "@beep/pdf-tools"
 ```
 
 ## Development

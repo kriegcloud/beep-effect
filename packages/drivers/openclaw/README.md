@@ -11,7 +11,7 @@ bun add @beep/openclaw
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/openclaw"
+import { OpenclawCli } from "@beep/openclaw"
 ```
 
 ## Development

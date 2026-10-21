@@ -12,7 +12,7 @@ bun add @beep/ontology-use-cases
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/ontology-use-cases"
+import { Session } from "@beep/ontology-use-cases"
 ```
 
 ## Development
