@@ -62,6 +62,7 @@
     "@beep/toml": "workspace:^",
     "@beep/tsconfig": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/walker": "workspace:^",
     "@beep/wink": "workspace:^",
     "@beep/yaml": "workspace:^",
     "@effect/ai-anthropic": "catalog:",

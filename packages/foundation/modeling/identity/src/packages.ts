@@ -228,6 +228,7 @@ const generatedComposers = $I.compose(
   "yaml",
   "npm-spec",
   "tsconfig",
+  "walker",
   "github"
 );
 
@@ -3281,6 +3282,23 @@ export const $NpmSpecId: Identity.IdentityComposer<"@beep/npm-spec"> = composers
  * @since 0.0.0
  */
 export const $TsconfigId: Identity.IdentityComposer<"@beep/tsconfig"> = composers.$TsconfigId;
+
+/**
+ * Identity composer for `@beep/walker`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $WalkerId } from "@beep/identity/packages"
+ *
+ * const id = $WalkerId.make("Walker")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $WalkerId: Identity.IdentityComposer<"@beep/walker"> = composers.$WalkerId;
 
 /**
  * Identity composer for `@beep/github`.

@@ -66,8 +66,8 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
  * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`). Upstream
  * reached each as a bare `@effected/*` edge and the lab as a relative sibling
  * entrypoint; promoted, each is a bare package edge again, so the walker stops at
- * it as it stops at a lab sibling. The kit modules not yet promoted (`walker`,
- * `markdown`, ...) are still lab siblings reached relatively. Add a module here
+ * it as it stops at a lab sibling. The kit modules not yet promoted (`markdown`,
+ * `sbom`, ...) are still lab siblings reached relatively. Add a module here
  * when it is promoted.
  */
 const PROMOTED_KIT_PACKAGES = new Set([
@@ -87,6 +87,7 @@ const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/spdx",
 	"@beep/toml",
 	"@beep/tsconfig",
+	"@beep/walker",
 	"@beep/yaml",
 ]);
 
@@ -234,12 +235,12 @@ describe("bundle reachability", () => {
 		]);
 		// `node:crypto` is the sanctioned import, and it is here because core
 		// `Crypto` is RNG-only at beta.101 — no digest, no HMAC.
-		// `@effected/walker` is the file walker under `matchingFiles`; its own
-		// graph is `effect` and `@beep/glob`, both already here.
+		// `@beep/walker` (upstream `@effected/walker`) is the file walker under
+		// `matchingFiles`; its own graph is `effect` and `@beep/glob`, both already here.
 		assert.deepStrictEqual([...reachableRuntimeImports("CacheKey.ts")].sort(), [
-			"../walker/index.ts",
 			"@beep/glob",
 			"@beep/identity/packages",
+			"@beep/walker/Descend",
 			"effect/Array",
 			"effect/Effect",
 			"effect/FileSystem",
