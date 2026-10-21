@@ -169,6 +169,13 @@ export const sanitizeStderrExcerpt: {
   );
 });
 
+// A truncated tail can start inside a credential, past the prefix every redaction pattern anchors
+// on, so the partial first line is dropped before the excerpt is sanitized.
+const completeLines = (tail: AcpStderrTail): string =>
+  tail.truncated
+    ? O.match(Str.indexOf("\n")(tail.text), { onNone: () => "", onSome: (index) => Str.slice(index + 1)(tail.text) })
+    : tail.text;
+
 /**
  * Options for {@link collectStderrTail}.
  *
@@ -213,7 +220,8 @@ export class AcpStderrCollectorOptions extends S.Opaque<AcpStderrCollectorOption
  * - `tail` reads the raw retained tail at any time.
  * - `drained` completes once the stderr stream has ended or failed.
  * - `excerpt` waits up to the drain grace for the stream to end, then returns the sanitized tail,
- *   or `None` when nothing printable remains.
+ *   or `None` when nothing printable remains. A truncated tail loses its partial first line first,
+ *   so a credential cut at the boundary is never emitted without the prefix that redacts it.
  *
  * **Example** (Read the excerpt of a collector)
  *
@@ -277,7 +285,7 @@ export const collectStderrTail = Effect.fn($I`collectStderrTail`)(function* <E>(
     excerpt: drained.pipe(
       Effect.timeoutOption(drainGrace),
       Effect.andThen(Ref.get(tailRef)),
-      Effect.map((tail) => O.liftPredicate(sanitizeStderrExcerpt(tail.text, homeDirectories), Str.isNonEmpty))
+      Effect.map((tail) => O.liftPredicate(sanitizeStderrExcerpt(completeLines(tail), homeDirectories), Str.isNonEmpty))
     ),
     tail: Ref.get(tailRef),
   };

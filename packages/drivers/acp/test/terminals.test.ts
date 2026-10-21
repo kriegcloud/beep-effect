@@ -4,6 +4,7 @@ import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -254,3 +255,47 @@ it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => 
     })
   );
 });
+
+// The kill grace and the exit-output grace need the real clock.
+it.layer(SpawnerLayer, { excludeTestServices: true, timeout: "30 seconds" })(
+  "AcpClientTerminals on the real clock",
+  (it) => {
+    it.effect(
+      "escalates terminal/kill to SIGKILL when the command ignores SIGTERM",
+      Effect.fnUntraced(function* () {
+        const terminals = yield* make({ defaultCwd: cwd, forceKillAfter: Duration.millis(200) });
+        const { terminalId } = yield* terminals.create({
+          sessionId: "session",
+          ...script("process.on('SIGTERM', () => {}); process.stdout.write('ready'); setInterval(() => {}, 1000);"),
+        });
+        // Kill only once the SIGTERM handler is installed, or the default disposition ends the child.
+        yield* terminals.output({ sessionId: "session", terminalId }).pipe(
+          Effect.tap(() => Effect.yieldNow),
+          Effect.repeat({ until: (output) => output.output === "ready" }),
+          Effect.timeout("10 seconds")
+        );
+
+        yield* terminals.kill({ sessionId: "session", terminalId }).pipe(Effect.timeout("5 seconds"));
+        const exit = yield* terminals.waitForExit({ sessionId: "session", terminalId });
+        if (process.platform !== "win32") assert.strictEqual(exit.signal, "SIGKILL");
+      })
+    );
+
+    it.effect(
+      "reports the exit of a command whose background process still holds its output",
+      Effect.fnUntraced(function* () {
+        const terminals = yield* make({ defaultCwd: cwd, shellCommands: true, exitOutputGrace: Duration.millis(200) });
+        const { terminalId } = yield* terminals.create({ sessionId: "session", command: "sleep 20 & echo started" });
+
+        const exit = yield* terminals
+          .waitForExit({ sessionId: "session", terminalId })
+          .pipe(Effect.timeout("5 seconds"));
+        assert.strictEqual(exit.exitCode, 0);
+        const output = yield* terminals.output({ sessionId: "session", terminalId });
+        assert.strictEqual(output.output.trim(), "started");
+        assert.strictEqual(output.exitStatus?.exitCode, 0);
+        yield* terminals.release({ sessionId: "session", terminalId }).pipe(Effect.timeout("10 seconds"));
+      })
+    );
+  }
+);

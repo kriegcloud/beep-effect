@@ -108,6 +108,22 @@ describe("collectStderrTail", () => {
   );
 
   it.effect(
+    "drops the partial first line of a truncated tail so a cut credential never leaks",
+    Effect.fnUntraced(function* () {
+      // The 4096-character tail starts 18 characters into the first line, inside the token.
+      const credential = "Bearer SECRETTOKENVALUE123\n";
+      const filler = "z".repeat(ACP_STDERR_TAIL_MAX_CHARS - (credential.length - 18));
+      const collector = yield* collectStderrTail(bytes(credential, filler));
+      yield* collector.drained;
+
+      const tail = yield* collector.tail;
+      assert.isTrue(tail.truncated);
+      assert.isTrue(tail.text.startsWith("VALUE123\n"));
+      assertSome(yield* collector.excerpt, filler);
+    })
+  );
+
+  it.effect(
     "reports no excerpt for blank output and survives a failing stream",
     Effect.fnUntraced(function* () {
       const collector = yield* collectStderrTail(Stream.concat(bytes("  \n"), Stream.fail("boom")));

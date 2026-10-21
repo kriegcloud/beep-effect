@@ -113,7 +113,10 @@ export class AcpClientTerminalLimits extends S.Opaque<AcpClientTerminalLimits, {
  * - `shellCommands` runs a request that has a `command` and no `args` through the system shell,
  *   for agents that send shell source as the command.
  * - `forceKillAfter` is how long `terminal/kill` and `terminal/release` wait after the first
- *   termination signal before forcing it; it defaults to 5 seconds.
+ *   termination signal before sending `SIGKILL`; it defaults to 5 seconds.
+ * - `exitOutputGrace` bounds how long the exit status waits for the output pipes to close after
+ *   the command exits. A background process the command started can hold them open; its later
+ *   output is still buffered. It defaults to 1 second.
  *
  * **Example** (Run commands in a fixed directory)
  *
@@ -142,6 +145,9 @@ export class AcpClientTerminalsOptions extends S.Opaque<AcpClientTerminalsOption
       S.withConstructorDefault(Effect.sync(() => AcpClientTerminalLimits.make({})))
     ).annotateKey({
       description: "Resource bounds; the AcpClientTerminalLimits defaults when absent.",
+    }),
+    exitOutputGrace: S.Duration.pipe(S.withConstructorDefault(Effect.succeed(Duration.seconds(1)))).annotateKey({
+      description: "How long the exit status waits for the output pipes to close; 1 second by default.",
     }),
     shellCommands: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))).annotateKey({
       description: "Run an argument-less command through the system shell.",
@@ -454,7 +460,7 @@ export const make = Effect.fn($I`AcpClientTerminals_make`)(function* (
       dispose: Scope.close(terminalScope, Exit.void),
       exit: yield* Deferred.make<Compat.WaitForTerminalExitResponse>(),
       exitStatus: O.none(),
-      kill: child.kill().pipe(Effect.ignore),
+      kill: child.kill({ forceKillAfter: options.forceKillAfter }).pipe(Effect.ignore),
       ordinal,
       released: false,
       sessionId: request.sessionId,
@@ -479,7 +485,8 @@ export const make = Effect.fn($I`AcpClientTerminals_make`)(function* (
     yield* Effect.forkDetach(
       child.exitCode.pipe(
         exitStatusOf,
-        Effect.tap(() => Fiber.joinAll([stdout, stderr])),
+        // A background process the command started can keep the pipes open after it exits.
+        Effect.tap(() => Fiber.joinAll([stdout, stderr]).pipe(Effect.timeoutOption(options.exitOutputGrace))),
         Effect.tap((status) =>
           Effect.sync(() => {
             record.exitStatus = O.some(status);
