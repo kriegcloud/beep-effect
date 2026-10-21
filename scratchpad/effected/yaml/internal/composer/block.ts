@@ -7,50 +7,60 @@ import { $ScratchpadId } from "@beep/identity/packages";
 //
 // Cross-seam recursion into flow composition goes through `state.flow` (see
 // `FlowComposers` in `state.ts`) so this module never imports `flow.ts`.
-
-import { YamlNode } from "../../YamlNode.ts";
-import { YamlAlias, YamlMap, YamlPair, YamlScalar, YamlSeq } from "../../YamlNode.ts";
+import {
+  YamlAlias,
+  YamlMap,
+  YamlNode,
+  YamlPair,
+  YamlScalar,
+  YamlSeq,
+} from "../../YamlNode.ts";
 import type { CstNode } from "../cst.ts";
-import { checkAnchorOnAlias, getAnchorName, makeAlias, registerAnchor } from "./anchors.ts";
+import {
+  checkAnchorOnAlias,
+  getAnchorName,
+  makeAlias,
+  registerAnchor,
+} from "./anchors.ts";
 import type { CommentFields, EscapedComment } from "./comments.ts";
 import {
-	blankAboveIsKeepChompContent,
-	columnAt,
-	hasBlankLineAbove,
-	isAfterIndicatorOnly,
-	isOwnLineAt,
-	joinComments,
-	rawCommentText,
-	sameLineSpan,
-	withCommentFields,
+  blankAboveIsKeepChompContent,
+  columnAt,
+  hasBlankLineAbove,
+  isAfterIndicatorOnly,
+  isOwnLineAt,
+  joinComments,
+  rawCommentText,
+  sameLineSpan,
+  withCommentFields,
 } from "./comments.ts";
 import {
-	blockMapStartsWithValueSep,
-	classifyPlainNumeric,
-	collectMultilineKey,
-	collectMultilinePlainScalar,
-	findFirstContent,
-	findLastContent,
-	findNextContentInList,
-	findNextSignificantChild,
-	findValueSepOffset,
-	getScalarStyle,
-	hasValueSepAfterInList,
-	hasValueSepBetween,
-	hasValueSepThroughPlainScalars,
-	makeScalar,
-	resolveScalar,
-	shouldPreserveRaw,
+  blockMapStartsWithValueSep,
+  classifyPlainNumeric,
+  collectMultilineKey,
+  collectMultilinePlainScalar,
+  findFirstContent,
+  findLastContent,
+  findNextContentInList,
+  findNextSignificantChild,
+  findValueSepOffset,
+  getScalarStyle,
+  hasValueSepAfterInList,
+  hasValueSepBetween,
+  hasValueSepThroughPlainScalars,
+  makeScalar,
+  resolveScalar,
+  shouldPreserveRaw,
 } from "./scalars.ts";
 import type { ComposerState, NodeMeta } from "./state.ts";
 import {
-	enterNesting,
-	exitNesting,
-	hasMeta,
-	hasNonWhitespaceBeforeOnLine,
-	lineCol,
-	lineIndentColumn,
-	sameLine,
+  enterNesting,
+  exitNesting,
+  hasMeta,
+  hasNonWhitespaceBeforeOnLine,
+  lineCol,
+  lineIndentColumn,
+  sameLine,
 } from "./state.ts";
 import * as S from "effect/Schema";
 import * as O from "@beep/utils/Option";
@@ -423,8 +433,7 @@ export const flattenBlockMapChildren: {
 		if (!afterValueSep && nodeOffset !== undefined && nodeOffset >= 0) {
 			// If `?` explicit-key indicator preceded this scalar, the entry's
 			// indent is the `?` column. Otherwise it's the scalar's column.
-			const newCol = pendingExplicitKeyCol >= 0 ? pendingExplicitKeyCol : lineCol(state.text, nodeOffset).column;
-			lastKeyColumn = newCol;
+      lastKeyColumn = pendingExplicitKeyCol >= 0 ? pendingExplicitKeyCol : lineCol(state.text, nodeOffset).column;
 			lastKeyOffset = nodeOffset;
 		}
 		pendingExplicitKeyCol = -1;
@@ -1879,8 +1888,7 @@ const precededByExplicitKeyMarker: {
 		if (c === undefined) continue;
 		if (c.type === "whitespace" || c.type === "newline" || c.type === "comment") continue;
 		if (c.type === "block-seq" && c.length === 0) return true;
-		if (c.type === "block-map" && c.source.trimEnd() === "?") return true;
-		return false;
+		return c.type === "block-map" && c.source.trimEnd() === "?";
 	}
 	return false;
 });
