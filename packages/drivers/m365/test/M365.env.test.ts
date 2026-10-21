@@ -11,7 +11,7 @@ import * as Str from "effect/String";
 const complete = {
   LANE_TEST_TENANT_ID: "00000000-0000-0000-0000-000000000001",
   LANE_TEST_CLIENT_ID: "00000000-0000-0000-0000-000000000002",
-  LANE_TEST_CERT_THUMBPRINT_SHA256: "AB12CD34".repeat(8),
+  LANE_TEST_CERT_THUMBPRINT_SHA256: Str.repeat(8)("AB12CD34"),
   LANE_TEST_CERT_PRIVATE_KEY: "synthetic-private-key-text",
   LANE_TEST_MAILBOX: "drawings@example.test",
 };
@@ -93,7 +93,7 @@ describe("loadM365AppOnlyEnv", () => {
       const short = yield* refusalOf({ ...complete, LANE_TEST_CERT_THUMBPRINT_SHA256: "AB12CD34" });
       strictEqual(short.setting, "LANE_TEST_CERT_THUMBPRINT_SHA256");
       strictEqual(short.problem, "invalid");
-      const colons = yield* refusalOf({ ...complete, LANE_TEST_CERT_THUMBPRINT_SHA256: `${"AB:".repeat(31)}CD` });
+      const colons = yield* refusalOf({ ...complete, LANE_TEST_CERT_THUMBPRINT_SHA256: `${Str.repeat(31)("AB:")}CD` });
       strictEqual(colons.problem, "invalid");
       assertFalse(Str.includes("AB:")(colons.message));
     })

@@ -1,4 +1,5 @@
 import * as Arbitrary from "effect/Arbitrary";
+import { pipe } from "effect/Function";
 // @vitest-environment jsdom
 
 import { ContradictionCandidate, ContradictionDisposition } from "@beep/epistemic-domain/entities/Contradiction";
@@ -38,10 +39,10 @@ declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
 }
 
-const digest = "a".repeat(64);
-const otherDigest = "b".repeat(64);
-const proposalId = "c".repeat(64);
-const proposalDigest = "d".repeat(64);
+const digest = Str.repeat(64)("a");
+const otherDigest = Str.repeat(64)("b");
+const proposalId = Str.repeat(64)("c");
+const proposalDigest = Str.repeat(64)("d");
 const sourceDigest = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 const systemPrincipal = { component: "Runtime", kind: "System" } as const;
 
@@ -51,7 +52,7 @@ const baseEntity = (entityType: string, id: number) => ({
   entityType,
   id,
   orgId: 1,
-  publicId: `${entityType.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase()}_a${id}`,
+  publicId: `${Str.toLowerCase(Str.replace(/([a-z0-9])([A-Z])/g, "$1_$2")(entityType))}_a${id}`,
   rowVersion: 1,
   schemaVersion: "0.0.0",
   source: "System",
@@ -383,7 +384,7 @@ const renderView = (root: Root, props: ContradictionTriageViewProps = makeProps(
 
 const requireButton = (container: ParentNode, label: string): HTMLButtonElement => {
   for (const button of container.querySelectorAll("button")) {
-    if (button.textContent?.includes(label) === true) {
+    if (pipe(button.textContent, O.fromNullishOr, O.map(Str.includes(label)), O.getOrUndefined) === true) {
       return button;
     }
   }
@@ -463,7 +464,9 @@ describe("ContradictionTriageView", { concurrent: false }, () => {
       expect(container.innerHTML).toContain(">signed amendment</mark>");
       expect(container.querySelectorAll('[data-testid="contradiction-candidate-row"]')).toHaveLength(1);
       expect(container.querySelectorAll('[data-slot="verified-source-anchor"]')).toHaveLength(1);
-      expect(container.textContent?.toLowerCase()).not.toContain("winner");
+      expect(pipe(container.textContent, O.fromNullishOr, O.map(Str.toLowerCase), O.getOrUndefined)).not.toContain(
+        "winner"
+      );
     }));
 
   it("forwards controlled filters, selections, tabs, review draft, and confirmation", () => {

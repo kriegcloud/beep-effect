@@ -1266,6 +1266,57 @@ const warningsAbout = (issue: string) =>
       Str.includes(issue)(annotations.issueSummary)
   );
 
+// A response no outstanding request can claim (no id, `id: null`, or an id this side never
+// issued) is dropped, but a hung call must still leave something to diagnose.
+it.layer(Logger.layer([warningCollector]), { timeout: "10 seconds" })("effect-acp uncorrelated responses", (it) => {
+  it.effect(
+    "warns with the error code and message when a response matches no outstanding request",
+    Effect.fnUntraced(function* () {
+      const sentinel = "acp-uncorrelated-response-sentinel";
+      const { stdio, input } = yield* makeInMemoryStdio();
+      const notifications = yield* Queue.unbounded<AcpProtocol.AcpIncomingNotification>();
+      yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        onNotification: (notification) => Queue.offer(notifications, notification).pipe(Effect.asVoid),
+      });
+
+      const frames = [
+        `{"jsonrpc":"2.0","id":null,"error":{"code":-32700,"message":"${sentinel}"}}`,
+        `{"jsonrpc":"2.0","error":{"_tag":"Defect","code":-32603,"message":"${sentinel}"}}`,
+        `{"jsonrpc":"2.0","id":"agent-7","error":{"code":-32000,"message":"${sentinel}"}}`,
+        // effect's own encoder writes a server-level `Defect` with this id.
+        `{"jsonrpc":"2.0","id":-32603,"error":{"_tag":"Defect","code":1,"message":"${sentinel}"}}`,
+        '{"jsonrpc":"2.0","method":"x/after","params":{}}',
+      ];
+      yield* Queue.offer(
+        input,
+        encoder.encode(
+          A.join(
+            A.map(frames, (frame) => `${frame}\n`),
+            ""
+          )
+        )
+      );
+      // The reader routes frames in order, so every response was handled once this arrives.
+      yield* Queue.take(notifications);
+
+      const warnings = A.filter(
+        capturedWarnings,
+        (annotations) => P.hasProperty(annotations, "errorMessage") && annotations.errorMessage === sentinel
+      );
+      assert.lengthOf(warnings, 4);
+      const [parseError, idlessDefect, unknownId, effectDefect] = warnings;
+      assert.include(parseError, { code: -32700, messageTag: "Exit" });
+      assert.notProperty(parseError, "requestId");
+      assert.include(idlessDefect, { code: -32603, messageTag: "Exit" });
+      assert.notProperty(idlessDefect, "requestId");
+      assert.include(unknownId, { code: -32000, messageTag: "Exit", requestId: "agent-7" });
+      assert.include(effectDefect, { code: 1, messageTag: "Exit", requestId: -32603 });
+    })
+  );
+});
+
 it.layer(Logger.layer([warningCollector]), { timeout: "10 seconds" })("effect-acp notification decoding", (it) => {
   it.effect(
     "drops a session/update that fails to decode and keeps reading",
@@ -1385,7 +1436,8 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
         .run(0, (message) => Queue.offer(clientSeen, message).pipe(Effect.asVoid))
         .pipe(Effect.forkScoped);
 
-      // `@effect/rpc/*` control frames deliberately diverge from the oracle; see the hardening suite.
+      // `@effect/rpc/*` control frames and `Defect`-tagged errors deliberately diverge from the
+      // oracle; see the hardening suite and the edge cases below.
       const serverFrames = [
         '{"jsonrpc":"2.0","id":7,"method":"session/request_permission","params":{"sessionId":"s","toolCall":{"toolCallId":"t","title":"x"},"options":[]}}',
       ];
@@ -1398,7 +1450,6 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
         '{"jsonrpc":"2.0","id":6,"result":{"ok":true}}',
         '{"jsonrpc":"2.0","id":8,"error":{"code":-32000,"message":"boom","data":{"k":1}}}',
         '{"jsonrpc":"2.0","id":9,"error":{"_tag":"Cause","code":-32602,"message":"bad","data":[{"_tag":"Fail","error":{"code":-32602,"message":"bad"}},{"_tag":"Die","defect":"x"}]}}',
-        '{"jsonrpc":"2.0","id":10,"error":{"_tag":"Defect","code":-32603,"message":"defect","data":{"boom":true}}}',
         '{"jsonrpc":"2.0","id":11,"chunk":true,"result":[1,2]}',
       ];
       for (const line of clientFrames) {
@@ -1543,6 +1594,32 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
           _tag: "Failure",
           cause: [{ _tag: "Fail", error: { _tag: "Cause", code: 2, message: "odd", data: "oops" } }],
         },
+      });
+      // effect reads a `Defect`-tagged error as a connection-level defect that the RpcClient applies
+      // to every in-flight call. From a peer it stays the typed failure of its own request id, and
+      // any other `_tag` is an ordinary extra member of the error object.
+      yield* Queue.offer(
+        input,
+        encoder.encode(
+          '{"jsonrpc":"2.0","id":10,"error":{"_tag":"Defect","code":-32603,"message":"defect","data":{"boom":true}}}\n'
+        )
+      );
+      assert.deepEqual(yield* Queue.take(clientSeen), {
+        _tag: "Exit",
+        requestId: 10,
+        exit: {
+          _tag: "Failure",
+          cause: [{ _tag: "Fail", error: { _tag: "Defect", code: -32603, message: "defect", data: { boom: true } } }],
+        },
+      });
+      yield* Queue.offer(
+        input,
+        encoder.encode('{"jsonrpc":"2.0","id":17,"error":{"_tag":"Other","code":-32000,"message":"tagged"}}\n')
+      );
+      assert.deepEqual(yield* Queue.take(clientSeen), {
+        _tag: "Exit",
+        requestId: 17,
+        exit: { _tag: "Failure", cause: [{ _tag: "Fail", error: { _tag: "Other", code: -32000, message: "tagged" } }] },
       });
     })
   );

@@ -19,13 +19,22 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { constant, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // Claim 1: "A system comprising an optical sensor and a processor configured to read the optical sensor."
 // Claim 2: "The system of claim 1, wherein the lever is coupled to the processor."
 const claimOneText = "A system comprising an optical sensor and a processor configured to read the optical sensor.";
 const anchorIn = (text: string, quote: string, from = 0) => {
-  const startChar = text.indexOf(quote, from);
+  const startChar = pipe(
+    text,
+    Str.slice(from),
+    Str.indexOf(quote),
+    O.map((index) => index + from),
+    O.getOrElse(constant(-1))
+  );
   return { startChar, endChar: startChar + quote.length, quote };
 };
 

@@ -20,6 +20,9 @@ import {
 import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument";
 import { TextAnchor } from "@beep/provenance/TextAnchor";
 import * as A from "effect/Array";
+import { constant, pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type {
   ClaimDecompositionReason,
   ClaimElementKind,
@@ -76,7 +79,15 @@ const path = (elementPath: string): ClaimElementPath => ClaimElementPath.make(el
 // Anchors are located by quote; `occurrence` picks a repeated quote.
 const anchorsIn = ({ claimText }: PatentClaim) => {
   const anchor = (quote: string, occurrence = 0): TextAnchor => {
-    const startChar = A.reduce(A.replicate(0, occurrence + 1), -1, (from) => claimText.indexOf(quote, from + 1));
+    const startChar = A.reduce(A.replicate(0, occurrence + 1), -1, (from) =>
+      pipe(
+        claimText,
+        Str.slice(from + 1),
+        Str.indexOf(quote),
+        O.map((index) => index + (from + 1)),
+        O.getOrElse(constant(-1))
+      )
+    );
     return TextAnchor.make({ startChar, endChar: startChar + quote.length, quote });
   };
   const term = (quote: string, determiner: ClaimTermDeterminer, head: string, occurrence = 0): ClaimTerm =>

@@ -9,6 +9,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   ContactsInput,
   EvaluateInput,
@@ -105,7 +106,7 @@ it.layer(makeIdentificationStages(lookup).pipe(Layer.provideMerge(NodeServices.l
           s.uspto(UsptoInput.make({ ...input, output: file("results-next.jsonl") }))
         );
         const ledger = yield* fs.readFileString(input.ledger);
-        expect(ledger.trim().split("\n")).toHaveLength(4);
+        expect(Str.split("\n")(Str.trim(ledger))).toHaveLength(4);
         expect(ledger).not.toContain("18900001");
         expect(ledger).not.toContain("Acme");
         expect(ledger).not.toContain("docket");
@@ -146,7 +147,7 @@ it.layer(makeIdentificationStages(lookup).pipe(Layer.provideMerge(NodeServices.l
         );
         const doc = I.IdentificationDocument.make({
           documentId: "synthetic-1",
-          contentHash: I.ContentHash.make("0".repeat(64)),
+          contentHash: I.ContentHash.make(Str.repeat(64)("0")),
           text: "Private synthetic text, docket 90001.10001US01",
           sourcePath: "",
           copies: [],

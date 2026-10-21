@@ -27,6 +27,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const RenderManifestJson = S.fromJsonString(RenderManifest);
 const ApprovalRecordJson = S.fromJsonString(ApprovalRecord);
@@ -40,7 +41,7 @@ const sha256 = (bytes: Uint8Array) =>
       Sha256Hex.make(
         pipe(
           A.fromIterable(new Uint8Array(digest)),
-          A.map((b) => b.toString(16).padStart(2, "0")),
+          A.map((b) => Str.padStart(2, "0")(b.toString(16))),
           A.join("")
         )
       )
