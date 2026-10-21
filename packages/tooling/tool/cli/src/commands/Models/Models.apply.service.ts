@@ -12,6 +12,7 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -26,10 +27,16 @@ import * as Semaphore from "effect/Semaphore";
 import { getNodeValue } from "jsonc-parser";
 import { asArrayBufferView } from "../../internal/cli/Bytes.ts";
 import { collectText } from "../../internal/process/StepExec.ts";
-import { ModelsExchangeFault, ModelsExchangeProbeError, ModelsLocatorError } from "./Models.errors.ts";
+import {
+  ModelsExchangeFault,
+  ModelsExchangeLaunchError,
+  ModelsExchangeProbeError,
+  ModelsLocatorError,
+} from "./Models.errors.ts";
 import {
   ModelsExchangeCapability,
   ModelsExchangeFilesystemIdentity,
+  ModelsExchangeMount,
   ModelsExchangeQualification,
   modelsExchangeIdentityKey,
 } from "./Models.exchange.schemas.ts";
@@ -198,8 +205,8 @@ export interface ModelsApplyShape {
  * displaced inode and bytes. Apply, restore and recovery exchange rather than
  * overwriting a pathname. A competing replacement is returned to the live path;
  * every detected race fails with a journal id and retains recovery artifacts.
- * Capability is qualified per target filesystem (parent-directory device id and
- * reported filesystem type) and cached per identity. An unsupported or unknown
+ * Capability is qualified per target mount (parent-directory mount id, device id
+ * and reported filesystem type) and cached per identity. An unsupported or unknown
  * capability fails closed for every write and restore, including home writes,
  * before any backup, journal or publication. There is no unverified fallback.
  * Writers holding an inode can still mutate it after its final observation;
@@ -265,26 +272,33 @@ const checkReadOnlyDrift = Effect.fnUntraced(function* (text: string, writes: Re
  *
  * **Details**
  *
- * `identify` names the filesystem that holds a directory. `exchange` swaps two
- * pathnames atomically or fails with the errno-derived reason the host
- * returned. The live primitives are GNU `stat --file-system` and
- * `mv --exchange` (renameat2 `RENAME_EXCHANGE`); tests supply their own to
- * simulate a refusing filesystem or a changed mount identity.
+ * `identify` names the mount and filesystem that hold a directory, and
+ * `mount` names the mount that contains any path, including a path that is
+ * itself a mount point. `exchange` swaps two pathnames atomically. It fails
+ * with {@link ModelsExchangeFault} when the host refuses, or with
+ * {@link ModelsExchangeLaunchError} when it could not be run at all. The live
+ * primitives are `/proc/self/mountinfo`, GNU `stat --file-system` and
+ * `mv --exchange` (renameat2 `RENAME_EXCHANGE`). Tests supply their own to
+ * simulate a refusing filesystem, a bind mount or a changed identity.
  *
  * **Example** (Describe the primitives)
  *
  * ```ts
  * import type { ModelsExchangeSystemShape } from "@beep/repo-cli/commands/Models/Models.apply.service"
- * const primitives: ReadonlyArray<keyof ModelsExchangeSystemShape> = ["identify", "exchange"]
- * console.log(primitives.length) // 2
+ * const primitives: ReadonlyArray<keyof ModelsExchangeSystemShape> = ["identify", "mount", "exchange"]
+ * console.log(primitives.length) // 3
  * ```
  *
  * @category services
  * @since 0.0.0
  */
 export interface ModelsExchangeSystemShape {
-  readonly exchange: (left: string, right: string) => Effect.Effect<void, ModelsExchangeFault>;
+  readonly exchange: (
+    left: string,
+    right: string
+  ) => Effect.Effect<void, ModelsExchangeFault | ModelsExchangeLaunchError>;
   readonly identify: (directory: string) => Effect.Effect<ModelsExchangeFilesystemIdentity, ModelsExchangeProbeError>;
+  readonly mount: (path: string) => Effect.Effect<ModelsExchangeMount, ModelsExchangeProbeError>;
 }
 
 /**
@@ -315,9 +329,10 @@ export interface ModelsAtomicExchangeShape {
  * the target's parent directory, then probes by exchanging two disposable
  * files in a temporary directory it creates inside that parent and removes
  * afterwards; native content is never touched. Results are cached per
- * {@link ModelsExchangeFilesystemIdentity}, so a target whose device or
- * filesystem type changes is probed again. A target that is itself a mount
- * point is unsupported (`exdev`) without probing. A probe that cannot run fails
+ * {@link ModelsExchangeFilesystemIdentity}, so a target whose mount, device or
+ * filesystem type changes is probed again. A target on a different mount than
+ * its parent (a mount point or a bind mount, even one with the same device
+ * id) is unsupported (`exdev`) without probing. A probe that cannot run fails
  * with {@link ModelsExchangeProbeError} and is not cached.
  *
  * **Example** (Inspect the capability)
@@ -370,6 +385,95 @@ export const modelsExchangeErrnoFromStderr = (stderr: string): ModelsExchangeUns
     }
   );
 
+/**
+ * Classify a failed `mv --exchange` run as a host refusal, or as no verdict.
+ *
+ * **Details**
+ *
+ * A host refusal is a non-zero exit below 128 that printed error text; its
+ * reason comes from {@link modelsExchangeErrnoFromStderr}. A run killed by a
+ * signal (exit 128 or above) or one that printed nothing gave no host verdict,
+ * so it returns `None` and the caller reports a launch failure that is never
+ * cached.
+ *
+ * **Example** (Separate a refusal from a killed run)
+ *
+ * ```ts
+ * import { modelsExchangeHostRefusal } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.getOrNull(modelsExchangeHostRefusal(1, "mv: cannot exchange 'a' and 'b': Invalid argument"))) // "einval"
+ * console.log(O.isNone(modelsExchangeHostRefusal(137, ""))) // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsExchangeHostRefusal: {
+  (stderr: string): (code: number) => O.Option<ModelsExchangeUnsupportedReason>;
+  (code: number, stderr: string): O.Option<ModelsExchangeUnsupportedReason>;
+} = dual(
+  2,
+  (code: number, stderr: string): O.Option<ModelsExchangeUnsupportedReason> =>
+    code > 0 && code < 128 && Str.isNonEmpty(Str.trim(stderr))
+      ? O.some(modelsExchangeErrnoFromStderr(stderr))
+      : O.none()
+);
+
+// mountinfo octal-escapes space, tab, newline and backslash in mount points.
+const decodeMountPoint = (field: string): string =>
+  field.replace(/\\([0-7]{3})/g, (_match: string, octal: string) => String.fromCharCode(Number.parseInt(octal, 8)));
+
+const containsPath = (point: string, path: string) =>
+  point === "/" || path === point || Str.startsWith(`${point}/`)(path);
+
+/**
+ * Find the mount that contains an absolute, symlink-free path in a Linux mount table.
+ *
+ * **Details**
+ *
+ * Reads `/proc/self/mountinfo` text: field 1 is the mount id and field 5 the
+ * octal-escaped mount point. The deepest mount point that contains the path
+ * wins, and among mounts stacked on the same point the last line (the visible
+ * one) wins. A file that is itself bind-mounted therefore resolves to its own
+ * mount, not its parent's. Malformed lines are skipped.
+ *
+ * **Example** (Resolve a bind-mounted file)
+ *
+ * ```ts
+ * import { modelsExchangeMountOf } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * import * as O from "effect/Option"
+ *
+ * const table = [
+ *   "1 0 8:1 / / rw - ext4 /dev/sda1 rw",
+ *   "40 1 8:1 /srv/a.toml /etc/app.toml rw - ext4 /dev/sda1 rw"
+ * ].join("\n")
+ * console.log(O.getOrThrow(modelsExchangeMountOf(table, "/etc/app.toml")).id) // 40n
+ * console.log(O.getOrThrow(modelsExchangeMountOf(table, "/etc")).id) // 1n
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const modelsExchangeMountOf: {
+  (path: string): (mountinfo: string) => O.Option<ModelsExchangeMount>;
+  (mountinfo: string, path: string): O.Option<ModelsExchangeMount>;
+} = dual(
+  2,
+  (mountinfo: string, path: string): O.Option<ModelsExchangeMount> =>
+    A.reduce(Str.split(mountinfo, "\n"), O.none<ModelsExchangeMount>(), (best, line) => {
+      const fields = Str.split(line, " ");
+      const id = fields[0];
+      const raw = fields[4];
+      if (id === undefined || raw === undefined || !/^[0-9]+$/.test(id)) return best;
+      const point = decodeMountPoint(raw);
+      if (!Str.startsWith("/")(point) || !containsPath(point, path)) return best;
+      return O.isSome(best) && Str.length(best.value.point) > Str.length(point)
+        ? best
+        : O.some(ModelsExchangeMount.make({ id: BigInt(id), point }));
+    })
+);
+
 const unsupported = (reason: ModelsExchangeUnsupportedReason, detail: string) =>
   ModelsExchangeCapability.cases.unsupported.make({ reason, detail });
 
@@ -379,20 +483,27 @@ const unsupported = (reason: ModelsExchangeUnsupportedReason, detail: string) =>
  * **Details**
  *
  * Probes are serialized, so concurrent writers to one new filesystem probe it
- * once. Supported and unsupported verdicts are both cached for the identity;
- * probe failures are not.
+ * once. Only host verdicts are cached for the identity: supported, or
+ * unsupported because the host refused the exchange. A probe that could not
+ * run, including a launch failure of the exchange primitive, is a typed
+ * {@link ModelsExchangeProbeError} and is not cached.
  *
  * **Example** (Build the capability from primitives)
  *
  * ```ts
  * import { makeModelsAtomicExchange } from "@beep/repo-cli/commands/Models/Models.apply.service"
  * import { ModelsExchangeFault } from "@beep/repo-cli/commands/Models/Models.errors"
- * import { ModelsExchangeFilesystemIdentity } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
+ * import {
+ *   ModelsExchangeFilesystemIdentity,
+ *   ModelsExchangeMount
+ * } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
  * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
  *
  * const capability = makeModelsAtomicExchange({
- *   identify: () => Effect.succeed(ModelsExchangeFilesystemIdentity.make({ device: 1n, filesystemType: O.none() })),
+ *   identify: () =>
+ *     Effect.succeed(ModelsExchangeFilesystemIdentity.make({ mount: 1n, device: 1n, filesystemType: O.none() })),
+ *   mount: () => Effect.succeed(ModelsExchangeMount.make({ id: 1n, point: "/" })),
  *   exchange: () => Effect.fail(ModelsExchangeFault.make({ reason: "einval", message: "Invalid argument" }))
  * })
  * console.log(Effect.isEffect(capability))
@@ -412,18 +523,20 @@ export const makeModelsAtomicExchange = Effect.fn("ModelsAtomicExchange.make")(f
     system
       .exchange(left, right)
       .pipe(
-        Effect.mapError((fault) =>
-          failure(`Atomic exchange failed; retain recovery artifacts. (${fault.reason}: ${fault.message})`)
+        Effect.mapError((error) =>
+          failure(
+            `Atomic exchange failed; retain recovery artifacts. (${error._tag === "ModelsExchangeFault" ? error.reason : "launch"}: ${error.message})`
+          )
         )
       );
   // The disposable pair lives in a fresh directory inside the target's parent,
   // on the same mount, and the scope removes it whatever the outcome.
-  const probe = Effect.fnUntraced(function* (directory: string, device: bigint) {
+  const probe = Effect.fnUntraced(function* (directory: string, device: bigint, mount: bigint) {
     const probeError = ModelsExchangeProbeError.mapError("Cannot run the atomic exchange probe.", directory);
     const root = yield* fs
       .makeTempDirectoryScoped({ directory, prefix: ".beep-models-exchange-probe-" })
       .pipe(probeError);
-    if ((yield* fs.stat(root).pipe(probeError)).dev !== device)
+    if ((yield* fs.stat(root).pipe(probeError)).dev !== device || (yield* system.mount(root)).id !== mount)
       return yield* ModelsExchangeProbeError.make({
         message: "Atomic exchange probe directory is not on the target filesystem.",
         path: directory,
@@ -434,7 +547,14 @@ export const makeModelsAtomicExchange = Effect.fn("ModelsAtomicExchange.make")(f
     yield* fs.writeFileString(right, "right", { flag: "wx", mode: 0o600 }).pipe(probeError);
     const refused = yield* system.exchange(left, right).pipe(
       Effect.as(O.none<ModelsExchangeCapability>()),
-      Effect.catchTag("ModelsExchangeFault", (fault) => Effect.succeedSome(unsupported(fault.reason, fault.message)))
+      Effect.catchTags({
+        ModelsExchangeFault: (fault) => Effect.succeedSome(unsupported(fault.reason, fault.message)),
+        ModelsExchangeLaunchError: (error) =>
+          ModelsExchangeProbeError.make({
+            message: `Atomic exchange probe could not run; no host verdict: ${error.message}`,
+            path: directory,
+          }),
+      })
     );
     if (O.isSome(refused)) return refused.value;
     const swapped =
@@ -454,13 +574,24 @@ export const makeModelsAtomicExchange = Effect.fn("ModelsAtomicExchange.make")(f
       ModelsExchangeQualification.make({ directory, identity, capability });
     if (own.dev !== parent.dev)
       return qualification(unsupported("exdev", "Target is a mount point separate from its parent directory."));
+    // An equal device id does not prove an equal mount: a bind mount of a file
+    // or directory from the same filesystem keeps st_dev, but rename across it
+    // fails with EXDEV. Compare real mount ids before any probe or backup.
+    const targetMount = yield* system.mount(target);
+    if (targetMount.id !== identity.mount)
+      return qualification(
+        unsupported(
+          "exdev",
+          `Target is on mount ${targetMount.id} (${targetMount.point}), not its parent directory's mount ${identity.mount}; bind-mounted or mount-point targets cannot be exchanged.`
+        )
+      );
     const key = modelsExchangeIdentityKey(identity);
     return qualification(
       yield* lock.withPermits(1)(
         Effect.gen(function* () {
           const cached = MutableHashMap.get(cache, key);
           if (O.isSome(cached)) return cached.value;
-          const probed = yield* probe(directory, parent.dev);
+          const probed = yield* probe(directory, parent.dev, identity.mount);
           MutableHashMap.set(cache, key, probed);
           return probed;
         })
@@ -474,6 +605,16 @@ const makeExchangeSystemLive = Effect.fn("ModelsExchangeSystem.make")(function* 
   const fs = yield* FileSystem.FileSystem;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const cLocale = { env: { LC_ALL: "C" }, extendEnv: true, stdin: "ignore" } as const;
+  const mount: ModelsExchangeSystemShape["mount"] = Effect.fnUntraced(function* (target) {
+    const mountError = ModelsExchangeProbeError.mapError("Cannot read the mount table for the target.", target);
+    const actual = yield* fs.realPath(target).pipe(mountError);
+    const table = yield* fs.readFileString("/proc/self/mountinfo").pipe(mountError);
+    return yield* O.match(modelsExchangeMountOf(table, actual), {
+      onNone: () =>
+        ModelsExchangeProbeError.make({ message: "No mount table entry contains the target.", path: target }),
+      onSome: Effect.succeed,
+    });
+  });
   const identify: ModelsExchangeSystemShape["identify"] = Effect.fnUntraced(function* (directory) {
     const info = yield* fs
       .stat(directory)
@@ -484,6 +625,7 @@ const makeExchangeSystemLive = Effect.fn("ModelsExchangeSystem.make")(function* 
       )
       .pipe(Effect.map(Str.trim), Effect.option);
     return ModelsExchangeFilesystemIdentity.make({
+      mount: (yield* mount(directory)).id,
       device: info.dev,
       filesystemType: O.filter(reported, Str.isNonEmpty),
     });
@@ -502,16 +644,19 @@ const makeExchangeSystemLive = Effect.fn("ModelsExchangeSystem.make")(function* 
       })
     ).pipe(
       Effect.mapError((error) =>
-        ModelsExchangeFault.make({ reason: "unknown", message: `Cannot run mv --exchange: ${error.message}` })
+        ModelsExchangeLaunchError.make({ message: `Cannot run mv --exchange: ${error.message}`, cause: error })
       )
     );
-    if (code !== 0)
-      return yield* ModelsExchangeFault.make({
-        reason: modelsExchangeErrnoFromStderr(stderr),
-        message: Str.isNonEmpty(Str.trim(stderr)) ? Str.trim(stderr) : `mv --exchange exited ${code}.`,
-      });
+    if (code === 0) return;
+    return yield* O.match(modelsExchangeHostRefusal(code, stderr), {
+      onNone: () =>
+        ModelsExchangeLaunchError.make({
+          message: `mv --exchange exited ${code} without a host refusal${Str.isNonEmpty(Str.trim(stderr)) ? `: ${Str.trim(stderr)}` : "."}`,
+        }),
+      onSome: (reason) => ModelsExchangeFault.make({ reason, message: Str.trim(stderr) }),
+    });
   });
-  return { identify, exchange } satisfies ModelsExchangeSystemShape;
+  return { identify, mount, exchange } satisfies ModelsExchangeSystemShape;
 });
 
 const makeAtomicExchangeLive = () => makeExchangeSystemLive().pipe(Effect.flatMap(makeModelsAtomicExchange));

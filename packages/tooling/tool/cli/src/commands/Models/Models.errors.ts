@@ -300,6 +300,45 @@ export class ModelsExchangeFault extends S.TaggedError<ModelsExchangeFault, { re
 ) {}
 
 /**
+ * The exchange primitive could not be run, so the host gave no verdict.
+ *
+ * **Details**
+ *
+ * Raised when `mv --exchange` cannot be spawned, its output cannot be
+ * collected, or it ends without a host refusal (killed by a signal, or a
+ * non-zero exit with no error text). This is never a capability verdict: the
+ * probe reports it as {@link ModelsExchangeProbeError} and does not cache it,
+ * so a later probe can still succeed. Contrast {@link ModelsExchangeFault},
+ * which is the host refusing the exchange.
+ *
+ * **Example** (Make a launch error)
+ *
+ * ```ts
+ * import { ModelsExchangeLaunchError } from "@beep/repo-cli/commands/Models"
+ *
+ * const error = ModelsExchangeLaunchError.make({ message: "Cannot run mv --exchange: spawn EAGAIN" })
+ * console.log(error._tag) // "ModelsExchangeLaunchError"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class ModelsExchangeLaunchError extends S.TaggedError<
+  ModelsExchangeLaunchError,
+  { readonly brand: unique symbol }
+>($I`ModelsExchangeLaunchError`)(
+  "ModelsExchangeLaunchError",
+  {
+    message: S.String,
+    cause: S.optionalKey(OpaqueDefect),
+  },
+  $I.annoteError<ModelsExchangeLaunchError>("ModelsExchangeLaunchError", {
+    title: "Models Exchange Launch Error",
+    description: "The atomic exchange primitive could not be run, so the host gave no exchange verdict.",
+  })
+) {}
+
+/**
  * The home catalog ledger could not be read or written.
  *
  * **Example** (Make a ledger error)

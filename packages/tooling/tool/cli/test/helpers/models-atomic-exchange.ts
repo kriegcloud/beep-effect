@@ -1,6 +1,9 @@
 import { ModelsAtomicExchange, makeModelsAtomicExchange } from "@beep/repo-cli/commands/Models/Models.apply.service";
 import { ModelsExchangeFault, ModelsExchangeProbeError } from "@beep/repo-cli/commands/Models/Models.errors";
-import { ModelsExchangeFilesystemIdentity } from "@beep/repo-cli/commands/Models/Models.exchange.schemas";
+import {
+  ModelsExchangeFilesystemIdentity,
+  ModelsExchangeMount,
+} from "@beep/repo-cli/commands/Models/Models.exchange.schemas";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -10,16 +13,24 @@ import type { ModelsExchangeSystemShape } from "@beep/repo-cli/commands/Models/M
 // Test competitors run only before or after this uninterruptible transaction.
 // Moving directory entries preserves inodes and symlinks; no bytes are copied.
 // This deterministic model is not a production cross-process exchange fallback.
+export const modelsTestMountId = 1n;
+
 export const makeModelsTestExchangeSystem = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;
-  return {
+  const system: ModelsExchangeSystemShape = {
     identify: (directory) =>
       fs.stat(directory).pipe(
         Effect.map((info) =>
-          ModelsExchangeFilesystemIdentity.make({ device: info.dev, filesystemType: O.some("test-rename") })
+          ModelsExchangeFilesystemIdentity.make({
+            mount: modelsTestMountId,
+            device: info.dev,
+            filesystemType: O.some("test-rename"),
+          })
         ),
         ModelsExchangeProbeError.mapError("Test filesystem identity failed.", directory)
       ),
+    // Every test path is on one simulated mount; tests override this to model a bind mount.
+    mount: () => Effect.succeed(ModelsExchangeMount.make({ id: modelsTestMountId, point: "/" })),
     exchange: Effect.fn("ModelsTestExchange.exchange")((left, right) =>
       Effect.gen(function* () {
         const temporary = `${left}.test-exchange`;
@@ -33,7 +44,8 @@ export const makeModelsTestExchangeSystem = Effect.fnUntraced(function* () {
         )
       )
     ),
-  } satisfies ModelsExchangeSystemShape;
+  };
+  return system;
 });
 
 export const modelsTestExchangeLayer = Layer.effect(

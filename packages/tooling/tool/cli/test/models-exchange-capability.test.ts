@@ -5,13 +5,23 @@ import {
   ModelsAtomicExchangeLive,
   makeModelsAtomicExchange,
   modelsExchangeErrnoFromStderr,
+  modelsExchangeHostRefusal,
+  modelsExchangeMountOf,
 } from "@beep/repo-cli/commands/Models/Models.apply.service";
-import { ModelsExchangeFault, ModelsExchangeProbeError } from "@beep/repo-cli/commands/Models/Models.errors";
-import { ModelsExchangeFilesystemIdentity } from "@beep/repo-cli/commands/Models/Models.exchange.schemas";
+import {
+  ModelsExchangeFault,
+  ModelsExchangeLaunchError,
+  ModelsExchangeProbeError,
+} from "@beep/repo-cli/commands/Models/Models.errors";
+import {
+  ModelsExchangeFilesystemIdentity,
+  ModelsExchangeMount,
+} from "@beep/repo-cli/commands/Models/Models.exchange.schemas";
 import { LocatorBinding, ModelsLocatorWrite } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
 import { expect, layer } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -19,7 +29,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { makeModelsTestExchangeSystem } from "./helpers/models-atomic-exchange.ts";
+import { makeModelsTestExchangeSystem, modelsTestMountId } from "./helpers/models-atomic-exchange.ts";
 import type {
   ModelsAtomicExchangeShape,
   ModelsExchangeSystemShape,
@@ -45,23 +55,41 @@ const writerWith = Effect.fn("ModelsExchangeTest.writerWith")(function* (capabil
   return Context.get(services, ModelsApply);
 });
 
-// Counts probe exchanges and lets a test replace identity or refuse with an errno.
+// Counts probe exchanges and lets a test replace identity, put the target on its
+// own mount, refuse with an errno, or fail to launch the exchange.
 const countingSystem = Effect.fn("ModelsExchangeTest.countingSystem")(function* (options: {
   readonly refuse?: ModelsExchangeUnsupportedReason;
   readonly device?: () => bigint;
   readonly noop?: boolean;
+  readonly targetMount?: { readonly file: string; readonly id: bigint };
+  readonly launchFailures?: number;
 }) {
   const base = yield* makeModelsTestExchangeSystem();
-  const counter = { probes: 0, identities: 0 };
+  const counter = { probes: 0, identities: 0, launches: 0 };
   const system: ModelsExchangeSystemShape = {
     identify: (directory) => {
       counter.identities += 1;
       const device = options.device;
       return device === undefined
         ? base.identify(directory)
-        : Effect.succeed(ModelsExchangeFilesystemIdentity.make({ device: device(), filesystemType: O.none() }));
+        : Effect.succeed(
+            ModelsExchangeFilesystemIdentity.make({
+              mount: modelsTestMountId,
+              device: device(),
+              filesystemType: O.none(),
+            })
+          );
+    },
+    mount: (target) => {
+      const own = options.targetMount;
+      return own !== undefined && own.file === target
+        ? Effect.succeed(ModelsExchangeMount.make({ id: own.id, point: target }))
+        : base.mount(target);
     },
     exchange: (left, right) => {
+      counter.launches += 1;
+      if (counter.launches <= (options.launchFailures ?? 0))
+        return Effect.fail(ModelsExchangeLaunchError.make({ message: "simulated spawn EAGAIN" }));
       counter.probes += 1;
       if (options.refuse !== undefined)
         return Effect.fail(
@@ -182,6 +210,56 @@ layer(ModelsAtomicExchangeLive.pipe(Layer.provideMerge(Layer.mergeAll(NodeServic
     })
   );
 
+  it.effect("refuses a same-device bind-mounted target as exdev before probe, backup or journal", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { backups, file, root } = yield* fixture("exchange-bind-");
+      // Same st_dev as its parent (a real fixture file), but its own mount id.
+      const { counter, system } = yield* countingSystem({ targetMount: { file, id: 99n } });
+      const capability = yield* makeModelsAtomicExchange(system);
+      const { capability: verdict } = yield* capability.qualify(file);
+      expect(verdict).toMatchObject({ _tag: "unsupported", reason: "exdev" });
+      const error = yield* Effect.flip((yield* writerWith(capability)).apply(file, [topLevel], "write", backups));
+      expect(error.reason).toBe("exchange-unsupported");
+      expect(error.message).toContain("(exdev: Target is on mount 99");
+      expect(error.message).not.toContain("Journal:");
+      expect(yield* fs.exists(backups)).toBe(false);
+      expect(yield* fs.readFileString(file)).toBe(native);
+      expect(yield* fs.readDirectory(root)).toEqual(["config.toml"]);
+      expect(counter.probes).toBe(0);
+    })
+  );
+
+  it.effect("reports an exchange that cannot launch as an uncached probe failure", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const { backups, file, root } = yield* fixture("exchange-launch-");
+      const { counter, system } = yield* countingSystem({ launchFailures: 1 });
+      const capability = yield* makeModelsAtomicExchange(system);
+      const writer = yield* writerWith(capability);
+      const error = yield* Effect.flip(writer.apply(file, [topLevel], "write", backups));
+      expect(error.reason).toBe("exchange-probe-failed");
+      expect(error.message).toContain("no host verdict: simulated spawn EAGAIN");
+      expect(yield* fs.exists(backups)).toBe(false);
+      expect(yield* fs.readFileString(file)).toBe(native);
+      expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.startsWith(probePrefix))).toEqual([]);
+      // Not cached: the next qualification probes again and the host verdict is supported.
+      expect((yield* capability.qualify(file)).capability._tag).toBe("supported");
+      expect(counter.launches).toBe(2);
+      expect(counter.probes).toBe(1);
+      const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
+      expect(yield* fs.readFileString(journal.backup)).toBe(native);
+      expect(counter.probes).toBe(2);
+      // A launch failure during publication keeps the retain-artifacts boundary.
+      const publishing = yield* makeModelsAtomicExchange({
+        ...system,
+        exchange: () => Effect.fail(ModelsExchangeLaunchError.make({ message: "simulated signal" })),
+      });
+      const published = yield* Effect.flip(publishing.exchange(file, journal.backup));
+      expect(published.message).toContain("retain recovery artifacts. (launch: simulated signal)");
+    })
+  );
+
   it.effect("treats an exchange that leaves the probe files in place as unsupported", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -235,6 +313,43 @@ layer(ModelsAtomicExchangeLive.pipe(Layer.provideMerge(Layer.mergeAll(NodeServic
       expect(refused.message).toContain("Atomic exchange failed; retain recovery artifacts.");
     })
   );
+
+  it("separates host refusals from runs that gave no host verdict", () => {
+    const refusal = "mv: cannot exchange 'a' and 'b': Invalid cross-device link";
+    expect(O.getOrNull(modelsExchangeHostRefusal(1, refusal))).toBe("exdev");
+    expect(O.getOrNull(modelsExchangeHostRefusal(1, "mv: something unexpected"))).toBe("unknown");
+    assertNone(modelsExchangeHostRefusal(1, "  \n"));
+    assertNone(modelsExchangeHostRefusal(137, refusal));
+    assertNone(modelsExchangeHostRefusal(-1, refusal));
+  });
+
+  it("resolves the containing mount from mountinfo, including bind-mounted files", () => {
+    const table = A.join(
+      [
+        "1 0 8:1 / / rw,relatime - ext4 /dev/sda1 rw",
+        "22 1 8:1 /home /home rw - ext4 /dev/sda1 rw",
+        "30 22 0:40 / /home/me/My\\040Config rw - tmpfs tmpfs rw",
+        "31 30 0:41 / /home/me/My\\040Config rw - tmpfs tmpfs rw",
+        "40 22 8:1 /srv/app.toml /home/me/app.toml rw - ext4 /dev/sda1 rw",
+        "garbage",
+        "x 1 8:1 / /broken rw - ext4 /dev/sda1 rw",
+        "",
+      ],
+      "\n"
+    );
+    const idOf = (target: string) => O.map(modelsExchangeMountOf(table, target), (mount) => mount.id);
+    expect(O.getOrNull(idOf("/home/me/app.toml"))).toBe(40n);
+    expect(O.getOrNull(idOf("/home/me"))).toBe(22n);
+    expect(O.getOrNull(idOf("/home/me/app.toml.tmp"))).toBe(22n);
+    expect(O.getOrNull(idOf("/home/me/My Config/settings.json"))).toBe(31n);
+    expect(O.getOrNull(idOf("/etc/hosts"))).toBe(1n);
+    expect(O.getOrNull(idOf("/broken/file"))).toBe(1n);
+    assertSome(
+      O.map(modelsExchangeMountOf(table, "/home/me/My Config"), (mount) => mount.point),
+      "/home/me/My Config"
+    );
+    assertNone(modelsExchangeMountOf("", "/etc"));
+  });
 
   it("maps C-locale exchange errno text onto typed reasons", () => {
     const cases: ReadonlyArray<readonly [string, ModelsExchangeUnsupportedReason]> = [

@@ -3,10 +3,10 @@
  *
  * **Details**
  *
- * Exchange support is a property of the filesystem that holds the target, not
- * of the host. The writer identifies that filesystem by the device id of the
- * target's parent directory, together with the filesystem type when the host
- * reports one, and caches one probe result per identity.
+ * Exchange support is a property of the mount that holds the target, not of
+ * the host. The writer identifies that mount by the mount id and device id of
+ * the target's parent directory, together with the filesystem type when the
+ * host reports one, and caches one probe result per identity.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -62,15 +62,49 @@ export const ModelsExchangeUnsupportedReason = ModelsExchangeUnsupportedReasonKi
 export type ModelsExchangeUnsupportedReason = typeof ModelsExchangeUnsupportedReason.Type;
 
 /**
+ * One entry of the host mount table: the mount id and where it is mounted.
+ *
+ * **Details**
+ *
+ * On Linux this is a `/proc/self/mountinfo` line. Two paths are on the same
+ * mount only when their mount ids are equal. An equal `stat` device id is not
+ * enough, because a bind mount of a file or directory from the same filesystem
+ * keeps the device id but is a separate mount, and `rename` across it fails
+ * with `EXDEV`.
+ *
+ * **Example** (Describe a mount)
+ *
+ * ```ts
+ * import { ModelsExchangeMount } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
+ *
+ * const mount = ModelsExchangeMount.make({ id: 29n, point: "/srv/config" })
+ * console.log(mount.point) // "/srv/config"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModelsExchangeMount extends S.Opaque<ModelsExchangeMount, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.BigInt,
+    point: S.NonEmptyString,
+  }).pipe(
+    $I.annoteSchema("ModelsExchangeMount", {
+      description: "Mount id and mount point of the mount that contains a path.",
+    })
+  )
+) {}
+
+/**
  * Mount identity of the filesystem that holds a native target.
  *
  * **Details**
  *
- * `device` is the `stat` device id of the target's parent directory.
- * `filesystemType` is the type name the host reports for that directory, when
- * it reports one. Two targets share a cached capability only when both fields
- * are equal, so a remount, a different device or a newly reported type forces a
- * fresh probe.
+ * `mount` is the mount id of the target's parent directory and `device` its
+ * `stat` device id. `filesystemType` is the type name the host reports for that
+ * directory, when it reports one. Two targets share a cached capability only
+ * when all three fields are equal, so a remount, a bind mount, a different
+ * device or a newly reported type forces a fresh probe.
  *
  * **Example** (Describe a filesystem)
  *
@@ -78,7 +112,11 @@ export type ModelsExchangeUnsupportedReason = typeof ModelsExchangeUnsupportedRe
  * import { ModelsExchangeFilesystemIdentity } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
  * import * as O from "effect/Option"
  *
- * const identity = ModelsExchangeFilesystemIdentity.make({ device: 64769n, filesystemType: O.some("ext2/ext3") })
+ * const identity = ModelsExchangeFilesystemIdentity.make({
+ *   mount: 29n,
+ *   device: 64769n,
+ *   filesystemType: O.some("ext2/ext3")
+ * })
  * console.log(identity.device) // 64769n
  * ```
  *
@@ -90,11 +128,13 @@ export class ModelsExchangeFilesystemIdentity extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
+    mount: S.BigInt,
     device: S.BigInt,
     filesystemType: S.OptionFromOptionalKey(S.NonEmptyString),
   }).pipe(
     $I.annoteSchema("ModelsExchangeFilesystemIdentity", {
-      description: "Parent-directory device id and reported filesystem type that key the exchange capability cache.",
+      description:
+        "Parent-directory mount id, device id and reported filesystem type that key the exchange capability cache.",
     })
   )
 ) {}
@@ -111,15 +151,15 @@ export class ModelsExchangeFilesystemIdentity extends S.Opaque<
  * } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
  * import * as O from "effect/Option"
  *
- * const identity = ModelsExchangeFilesystemIdentity.make({ device: 7n, filesystemType: O.some("tmpfs") })
- * console.log(modelsExchangeIdentityKey(identity)) // "7:tmpfs"
+ * const identity = ModelsExchangeFilesystemIdentity.make({ mount: 29n, device: 7n, filesystemType: O.some("tmpfs") })
+ * console.log(modelsExchangeIdentityKey(identity)) // "29:7:tmpfs"
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
 export const modelsExchangeIdentityKey = (identity: ModelsExchangeFilesystemIdentity): string =>
-  `${identity.device}:${O.getOrElse(identity.filesystemType, () => "")}`;
+  `${identity.mount}:${identity.device}:${O.getOrElse(identity.filesystemType, () => "")}`;
 
 /**
  * Whether a target filesystem supports atomic pathname exchange.
@@ -181,7 +221,7 @@ export type ModelsExchangeCapability = typeof ModelsExchangeCapability.Type;
  *
  * const qualification = ModelsExchangeQualification.make({
  *   directory: "/srv/config",
- *   identity: ModelsExchangeFilesystemIdentity.make({ device: 7n, filesystemType: O.none() }),
+ *   identity: ModelsExchangeFilesystemIdentity.make({ mount: 29n, device: 7n, filesystemType: O.none() }),
  *   capability: ModelsExchangeCapability.cases.supported.make({})
  * })
  * console.log(qualification.capability._tag) // "supported"

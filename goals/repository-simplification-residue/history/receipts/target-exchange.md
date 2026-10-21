@@ -165,6 +165,85 @@ any backup.
 No baseline, inventory or exception rows are added (S31). The package is private, so
 no changeset is needed.
 
+## Review round 1 (#1944, 2026-10-21)
+
+Head `15096d32d3` (`dcabf8ef17` plus an empty re-request commit). Two P2 threads on
+`Models.apply.service.ts`, both fixed in the same order: schema, then contract, then
+implementation.
+
+1. **Same-device bind mounts passed the mount-point check.** A bind mount of a file
+   or directory from the same filesystem keeps the parent's `st_dev`. It was probed
+   in the parent's mount, cached as supported, and passed `requireExchange`. Apply
+   then wrote the backup and the journal before `atomic()` failed at `fs.link` with
+   `EXDEV`.
+   - Schema: `ModelsExchangeMount { id, point }`, and
+     `ModelsExchangeFilesystemIdentity` gains `mount`, the parent directory's mount
+     id. The cache key is now `${mount}:${device}:${filesystemType}`.
+   - Contract: `ModelsExchangeSystemShape` gains `mount(path)`. The live primitive
+     resolves the path with `realPath` and reads `/proc/self/mountinfo`.
+     `modelsExchangeMountOf` picks the deepest mount point that contains the path, and
+     the last line wins among stacked mounts, so a bind-mounted file resolves to its
+     own mount. Mount points are octal-unescaped. Node and Bun expose no `statx` mount
+     id. Without a mount table the probe fails closed (`exchange-probe-failed`), which
+     costs nothing, because renameat2 `RENAME_EXCHANGE` is Linux-only anyway.
+   - Implementation: `qualify` compares `mount(target).id` with `identity.mount`.
+     A mismatch is `unsupported`/`exdev`, with the target's mount id and point in the
+     detail. It is checked before any probe, cache lookup, backup or journal. The probe
+     also checks that its scratch directory has the parent's mount id as well as its
+     device id.
+2. **A probe whose `mv` could not run was cached as unsupported.** Spawn and output
+   collection failures became `ModelsExchangeFault`/`unknown`. The probe turned every
+   fault into a verdict, and one transient failure made every later write refuse
+   as `exchange-unsupported`.
+   - Schema: a new `ModelsExchangeLaunchError` (no host verdict), distinct from
+     `ModelsExchangeFault` (a host refusal).
+   - Contract: the `exchange` primitive fails with
+     `ModelsExchangeFault | ModelsExchangeLaunchError`. `modelsExchangeHostRefusal(code, stderr)`
+     returns a reason only for an exit in 1..127 that printed error text, where
+     unrecognised text is a genuine `unknown`. A signal exit (128 or above), a negative
+     code, or an exit that printed nothing returns `None`. The live primitive reports
+     those cases, and spawn or collection failures, as launch errors.
+   - Implementation: the probe maps a launch error to `ModelsExchangeProbeError`
+     ("could not run; no host verdict"), which apply reports as
+     `exchange-probe-failed`. Only host verdicts reach the cache. During publication,
+     a launch error keeps the retain-artifacts `ModelsLocatorError` and is labelled
+     `launch`.
+
+New tests in `test/models-exchange-capability.test.ts`:
+- a same-dev target on mount 99 under parent mount 1 is refused as `exdev`, with no
+  probe, backup, journal or file change;
+- a launch failure is `exchange-probe-failed` with no backup and no probe residue.
+  The next qualify probes again and is supported (2 launches, 1 probe), a write then
+  succeeds, and a launch error during publication keeps the retain-artifacts
+  message;
+- the host-refusal classifier table (refusal, unknown text, blank text, signal,
+  negative code);
+- `modelsExchangeMountOf` over a fixture table: root, nested, a bind-mounted file, a
+  sibling `.tmp` beside it, an escaped `\040` stacked mount, malformed lines, and an
+  empty table.
+
+Round-1 verification (final tree):
+
+| Check | Result |
+| --- | --- |
+| models tests (9 files), Bun and Node | 134 passed each |
+| `tsc-rs` check overlay and test overlay | 0 errors |
+| effect-diagnostics `--filter repo-cli` | 0 errors / 0 warnings (check, test, scripts) |
+| `beep lint effect-vitest` | `introduced=0` (5 EV006 rows fixed with `assertNone`/`assertSome`) |
+| `beep lint schema-first` | `introduced=0` |
+| oxlint / biome on changed files | exit 0 / clean |
+| fallow audit `--base origin/main --check` | ok, 0 findings |
+| jsdoc ratchet | `increased=0`, zero-legacy ok |
+| schema catalog / observability catalog | regenerated (+2 schema entries; spans unchanged) |
+| `beep quality package-verify @beep/repo-cli` | exit 0 (`ok audit`, `ok docgen`) |
+| `bun run coverage --filter=@beep/repo-cli` | `coverage-ratchet ok`; 341 files / 6908 tests; apply service 91.54% lines, errors and exchange schemas 100% |
+
+As in round 0, package-verify and coverage ran with this packet's `ops/manifest.json`
+set to its committed bytes. That avoids the environment-only knowledge-doctor
+comparison with the uncommitted manifest. A run without the swap failed only that
+one test (6912 others passed). The lane edit was restored afterwards and checked
+with `diff`.
+
 ## Reversal
 
 Revert the PR. The journal schema, backup layout and on-disk artifacts are
