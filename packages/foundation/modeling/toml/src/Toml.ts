@@ -74,7 +74,7 @@ export class TomlStringifyOptions extends S.Opaque<TomlStringifyOptions, { reado
 /**
  * Parse failure: the {@link TomlDiagnostic} entries describing why the
  * document was rejected (first violation wins, so there is one today; the
- * array shape matches `@effected/yaml`'s aggregate contract). Raised by
+ * array shape matches `@beep/yaml`'s aggregate contract). Raised by
  * {@link Toml.parse} and the decode direction of the schema factories.
  *
  * **Details**

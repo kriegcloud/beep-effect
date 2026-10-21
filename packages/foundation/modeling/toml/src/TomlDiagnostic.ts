@@ -191,8 +191,8 @@ export type TomlErrorCode = typeof TomlErrorCode.Type;
  * **Details**
  *
  * The five-field positional core (`code`/`offset`/`length`/`line`/`character`)
- * is structurally identical to `@effected/jsonc`'s parse-error detail shape
- * and `@effected/yaml`'s `YamlDiagnostic`; `message` is this package's
+ * is structurally identical to `@beep/jsonc`'s parse-error detail shape
+ * and `@beep/yaml`'s `YamlDiagnostic`; `message` is this package's
  * additive extra.
  *
  * **Example** (Construct a positioned diagnostic)

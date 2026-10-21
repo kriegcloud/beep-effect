@@ -8,7 +8,8 @@ Path map for this package (`@beep/managed-section`): upstream `@effected/templat
 is `@beep/managed-section`, `packages/templates/src/` is
 `packages/foundation/modeling/managed-section/src/`, `__test__/` is `test/` (fixtures in
 `test/fixtures.ts`, integration in `test/integration/`), `@effected/memfs` is
-`@beep/memfs`, and the upstream `pnpm build --filter @effected/templates` gate is
+`@beep/memfs`, `@effected/git` is `@beep/git`, and the upstream
+`pnpm build --filter @effected/templates` gate is
 `bun run beep quality package-verify @beep/managed-section` here.
 
 ---

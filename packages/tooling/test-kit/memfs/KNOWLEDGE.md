@@ -5,7 +5,9 @@ Relative `okf/...` links refer to that checkout. Content is carried verbatim; po
 decisions live in README.md → Port notes, not here. Paths and commands below are
 upstream's: in this repo the package is `@beep/memfs` at
 `packages/tooling/test-kit/memfs`, upstream's `__test__/` suites live under `test/`,
-the `./node-sync` subpath is `@beep/memfs/NodeSyncFileSystem`, and the `pnpm` and
+the `./node-sync` subpath is `@beep/memfs/NodeSyncFileSystem`, `@effected/glob` is
+`@beep/glob`, the Volume service key is
+`@beep/memfs/MemoryFileSystem/MemoryFileSystemVolume`, and the `pnpm` and
 `savvy.build.ts` commands map to `bun run beep quality package-verify @beep/memfs`.
 
 ---

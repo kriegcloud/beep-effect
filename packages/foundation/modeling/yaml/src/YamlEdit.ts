@@ -105,8 +105,8 @@ export class YamlRange extends S.Opaque<YamlRange, { readonly brand: unique symb
  *
  * **Details**
  *
- * Structurally identical to the edit shape of `@effected/jsonc`,
- * `@effected/toml` and `@effected/markdown` (same field names, types and
+ * Structurally identical to the edit shape of `@beep/jsonc`,
+ * `@beep/toml` and `@effected/markdown` (same field names, types and
  * semantics), so consumer code can be written once over "a document codec's
  * Edit/Range/Path".
  *

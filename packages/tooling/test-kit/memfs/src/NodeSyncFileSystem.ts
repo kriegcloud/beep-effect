@@ -6,7 +6,7 @@
  *
  * **Details**
  *
- * Deliberately a separate subpath (`@effected/memfs/node-sync`): the main
+ * Deliberately a separate subpath (`@beep/memfs/NodeSyncFileSystem`): the main
  * entry imports nothing from `node:*`, and this module is the one place that
  * does. Import it only where Node's filesystem is the platform you mean.
  *

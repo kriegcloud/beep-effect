@@ -6,6 +6,8 @@ verbatim; port decisions live in README.md → Port notes, not here. Upstream `p
 is this package's `src/` (`packages/drivers/git/src/`), and upstream `packages/git/__test__/` is
 `packages/drivers/git/test/`. Upstream `pnpm` commands map to this repository's package scripts:
 `bun run test`, `bun run test:integration` and `bun run beep quality package-verify @beep/git`.
+Upstream package names map the same way: upstream `@effected/git` is this package, `@beep/git`,
+and upstream `@effected/memfs` is `@beep/memfs`.
 
 ---
 <!-- packages/git/CLAUDE.md -->

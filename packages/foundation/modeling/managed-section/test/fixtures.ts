@@ -29,7 +29,7 @@ const systemError = (tag: "NotFound" | "PermissionDenied", method: string, path:
   );
 
 /**
- * A real in-memory volume (`@effected/memfs`) paired with its inspection
+ * A real in-memory volume (`@beep/memfs`) paired with its inspection
  * surface, plus a write counter and the two permission knobs.
  *
  * @remarks

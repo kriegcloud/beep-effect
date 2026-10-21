@@ -5,7 +5,9 @@ Relative `okf/...` links refer to that checkout. Content is carried verbatim; po
 decisions live in README.md → Port notes, not here. Upstream paths (`packages/glob/`,
 `__test__/`) and `pnpm` commands describe the upstream repo; in this workspace the package
 lives at `packages/foundation/modeling/glob` (`src/`, `test/`) and runs through the `bun run`
-scripts listed in README.md → Development.
+scripts listed in README.md → Development. Package names inside the bundle are upstream's too:
+upstream `@effected/glob` ships here as `@beep/glob`, `@effected/yaml` as `@beep/yaml` and
+`@effected/templates` as `@beep/managed-section`.
 
 ---
 <!-- packages/glob/CLAUDE.md -->

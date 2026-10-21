@@ -23,7 +23,7 @@
  * and `makeSync` (at describe scope) return every view over one volume at
  * once, plus a layer pinned to it.
  *
- * The `@effected/memfs/node-sync` subpath is the one module that touches the
+ * The `@beep/memfs/NodeSyncFileSystem` subpath is the one module that touches the
  * real disk: a read-only, synchronous `FileSystem` over `node:fs`. This main
  * entry imports nothing from `node:*`.
  *

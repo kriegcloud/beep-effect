@@ -1,4 +1,4 @@
-// Proves the whole @effected/git stack against a REAL git binary and a real
+// Proves the whole @beep/git stack against a REAL git binary and a real
 // filesystem, through @effect/platform-node's NodeServices.layer. Every other
 // test in this package runs against the scripted spawner in ../fixtures.ts;
 // this is the only place that proves the argv, the LC_ALL=C classification,
