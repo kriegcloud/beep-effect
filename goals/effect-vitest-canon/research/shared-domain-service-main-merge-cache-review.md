@@ -21,16 +21,16 @@ Branch computations:
 
 Main computations:
 
-- `@beep/firecrawl#audit`
-- `@beep/firecrawl#build`
-- `@beep/firecrawl#check`
-- `@beep/firecrawl#coverage`
-- `@beep/firecrawl#lint:deprecated-apis`
-- `@beep/firecrawl#package-test-typecheck`
-- `@beep/firecrawl#test`
-- `@beep/firecrawl#test:integration`
-- `@beep/firecrawl#test:integration:parallel`
-- `@beep/firecrawl#test:property`
+- `retired:firecrawl#audit`
+- `retired:firecrawl#build`
+- `retired:firecrawl#check`
+- `retired:firecrawl#coverage`
+- `retired:firecrawl#lint:deprecated-apis`
+- `retired:firecrawl#package-test-typecheck`
+- `retired:firecrawl#test`
+- `retired:firecrawl#test:integration`
+- `retired:firecrawl#test:integration:parallel`
+- `retired:firecrawl#test:property`
 - `@beep/runpod#audit`
 - `@beep/runpod#build`
 - `@beep/runpod#check`

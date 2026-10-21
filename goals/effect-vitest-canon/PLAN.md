@@ -168,8 +168,6 @@ candidates are separate; uncovered packages are not represented as complete.
 | `@beep/openai-compat` | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 4 |
 | `@beep/phoenix` | 2 | 2 | 2 | 2 | 2 | 0 | 2 | 6 |
 | `@beep/exiftool` | 4 | 4 | 4 | 4 | 4 | 1 | 1 | 14 |
-| `@beep/face-detection` | 3 | 3 | 3 | 3 | 3 | 0 | 0 | 12 |
-| `@beep/firecrawl` | 3 | 3 | 3 | 3 | 3 | 0 | 1 | 11 |
 | `@beep/freshbooks` | 2 | 2 | 2 | 2 | 2 | 1 | 0 | 7 |
 | `@beep/hubspot` | 2 | 2 | 2 | 2 | 2 | 1 | 0 | 7 |
 | `@beep/m365` | 2 | 2 | 2 | 2 | 2 | 0 | 1 | 7 |
@@ -217,8 +215,6 @@ candidates are separate; uncovered packages are not represented as complete.
 | `@beep/ontology-domain` | 2 | 2 | 2 | 2 | 2 | 0 | 1 | 7 |
 | `@beep/trustgraph-workbench` | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 3 |
 | `@beep/uspto-mcp` | 1 | 1 | 1 | 1 | 1 | 0 | 2 | 2 |
-| `@beep/venice-ai` | 3 | 3 | 3 | 3 | 3 | 0 | 2 | 10 |
-| `@beep/xai` | 2 | 2 | 2 | 2 | 2 | 0 | 1 | 7 |
 | `@beep/gov-legal-mcp` | 2 | 2 | 2 | 2 | 2 | 0 | 2 | 6 |
 | `@beep/onepassword-cli` | 2 | 2 | 2 | 2 | 2 | 0 | 1 | 7 |
 | `@beep/shared-tables` | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 4 |
@@ -275,6 +271,14 @@ candidates are separate; uncovered packages are not represented as complete.
 | `@beep/professional-desktop` | 59 | 59 | 59 | 59 | 59 | 4 | 21 | 211 |
 
 | `@beep/repo-cli` | 249 | 249 | 249 | 249 | 249 | 51 | 52 | 893 |
+
+2026-10-21: the four driver packages removed from the repository
+(`retired:face-detection`, `retired:firecrawl`, `retired:venice-ai`,
+`retired:xai`) were dropped from this table and their per-package inventory
+files deleted. The table now totals 135 packages, 1,111 files and 4,482 human
+lens rows (1,120 resource, 1,112 flake, 1,131 property, 1,119 observability;
+208 major, 453 minor, 3,821 info). The removal took out 11 files and 44 rows
+(4 minor, 40 info). The 2026-09-16 figures above are the pre-removal snapshot.
 
 ## Phase gates
 

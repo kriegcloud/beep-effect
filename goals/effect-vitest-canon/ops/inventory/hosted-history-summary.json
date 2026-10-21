@@ -682,7 +682,7 @@
       "interpretation": "Historical observations only; no current-source or flaky classification. Zero mapped observations does not establish absence of failures."
     },
     {
-      "package": "@beep/face-detection",
+      "package": "retired:face-detection",
       "currentCensusOwner": true,
       "observationRows": 0,
       "distinctJobs": 0,
@@ -734,7 +734,7 @@
       "interpretation": "Historical observations only; no current-source or flaky classification. Zero mapped observations does not establish absence of failures."
     },
     {
-      "package": "@beep/firecrawl",
+      "package": "retired:firecrawl",
       "currentCensusOwner": true,
       "observationRows": 1,
       "distinctJobs": 1,
@@ -3900,7 +3900,7 @@
       "interpretation": "Historical observations only; no current-source or flaky classification. Zero mapped observations does not establish absence of failures."
     },
     {
-      "package": "@beep/venice-ai",
+      "package": "retired:venice-ai",
       "currentCensusOwner": true,
       "observationRows": 0,
       "distinctJobs": 0,
@@ -3975,7 +3975,7 @@
       "interpretation": "Historical observations only; no current-source or flaky classification. Zero mapped observations does not establish absence of failures."
     },
     {
-      "package": "@beep/xai",
+      "package": "retired:xai",
       "currentCensusOwner": true,
       "observationRows": 0,
       "distinctJobs": 0,

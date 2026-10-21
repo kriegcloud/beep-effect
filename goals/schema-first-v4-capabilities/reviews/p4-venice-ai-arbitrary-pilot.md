@@ -4,7 +4,7 @@ Date: 2026-06-08
 
 ## Completed
 
-- Remediated `packages/drivers/venice-ai/test/VeniceAI.service.test.ts` from
+- Remediated `retired:venice-ai/test/VeniceAI.service.test.ts` from
   the `SFV4-arbitrary-tests` advisory inventory.
 - Added property coverage deriving values from local source schemas used by the
   test's OpenAPI fixture parser and prompt body decoder:
@@ -33,9 +33,9 @@ data to exercise schema encode/decode laws.
 ## Verification
 
 ```sh
-cd packages/drivers/venice-ai && bun run beep:test -- VeniceAI.service.test.ts
-cd packages/drivers/venice-ai && bun run check
-cd packages/drivers/venice-ai && bun run lint
+cd retired:venice-ai && bun run beep:test -- retired:venice-ai/test/VeniceAI.service.test.ts
+cd retired:venice-ai && bun run check
+cd retired:venice-ai && bun run lint
 bun run beep lint schema-first --write
 bun run beep lint schema-first
 ```

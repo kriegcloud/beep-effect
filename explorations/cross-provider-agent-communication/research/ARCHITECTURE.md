@@ -110,7 +110,7 @@ opaque IDs and payload values must not be rewritten. No hidden endpoint or
 credential extraction is required by the measured UI route.
 
 The [targeted source inventory](spike/browser-integration.md) found service-side
-Firecrawl browser APIs but no repo-owned authenticated local enrollment driver.
+Firecrawl browser APIs (in the removed `retired:firecrawl` driver) but no repo-owned authenticated local enrollment driver.
 In-session computer-use tooling is not automatically a deployable Beep driver.
 The implementation must supply a supported enrolled browser-control boundary,
 owned lifecycle and receipt persistence before this can run unattended. Keep

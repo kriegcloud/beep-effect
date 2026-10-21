@@ -328,7 +328,7 @@ then grilled. The 22 fetched-and-verified primary sources behind S1–S5 are lis
   measured (Zheng et al. 2023; Panickssery, Bowman, Feng 2024). The gold-proposer's provider
   family must differ from the extraction run's, enforced as a schema refinement on `EvalRun`;
   the spot-checked fraction is committed as a number in `gold/v1`. Zero new code:
-  `@beep/langextract` takes an injected `LanguageModel`; anthropic/xai/venice-ai/openai-compat
+  `@beep/langextract` takes an injected `LanguageModel`; anthropic/retired:xai/retired:venice-ai/openai-compat
   Layers exist. (Rejected: informal spot-check; same model "fine for a lab".)
 - **S3 (embeddings; amends G6 wording).** Contract = `effect/ai` `EmbeddingModel`
   (effect 4.0.0-rc.111; verified in `node_modules/effect/src/ai/EmbeddingModel.ts`).
@@ -336,7 +336,7 @@ then grilled. The 22 fetched-and-verified primary sources behind S1–S5 are lis
   API. M1 Layer = a new `POST /embeddings` operation + `makeEmbeddingModelFromProvider` in
   `@beep/openai-compat` (its client already defaults to `https://api.openai.com/v1`); Venice/
   xAI become configs later. The lab owns `EmbeddingVector` + `ModelIdentity`, borrowing
-  effect-ontology's `ProviderMetadata` dimension invariant. (Rejected: Layer in `@beep/venice-ai`
+  effect-ontology's `ProviderMetadata` dimension invariant. (Rejected: Layer in `retired:venice-ai`
   — provider preference; Voyage as a new driver — NET-NEW client; app-local — pays twice.)
 - **S4 (lab shape; refines D12/G2/A5).** `--app-kind tauri`, one local `cargo check` at
   scaffold time, `src-tauri` frozen through C0-C2, plus a hand-written `server/main.ts` and

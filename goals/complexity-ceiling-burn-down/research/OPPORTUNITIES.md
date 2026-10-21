@@ -496,7 +496,7 @@ repository's whitespace check before starting aggregate verification.
 
 The first complete cheap-gate run after mitigation passed 14 of 15 lanes but
 Knip reported `unlisted: scripts/test-onnxruntime-installer-patch.mjs#onnxruntime-node`.
-The root script resolved a package installed for the face-detection workspace
+The root script resolved a package installed for the retired:face-detection workspace
 without declaring its own dependency. The root development manifest now names
 `onnxruntime-node` through the existing catalog, retaining resolved version
 1.29.0 and the pinned patch. Root-script dependency checks should run alongside

@@ -5,9 +5,7 @@
  * @since 0.0.0
  */
 
-import * as A from "effect/Array";
 import * as Config from "effect/Config";
-import * as Argument from "effect/cli/Argument";
 import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
@@ -17,7 +15,6 @@ import { constFalse } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { resolveOperatorPath, resolveUnitBunPath, systemdUnitPathRule } from "../../internal/systemd/index.ts";
 import { installResearchTimers, readRecordedResearchTimer, uninstallResearchTimers } from "./internal/Timers.ts";
 import { resolveVaultRoot } from "./internal/Vault.ts";
@@ -25,7 +22,6 @@ import { libraryCommand } from "./Library/Library.command.ts";
 import { ResearchCommandError } from "./Research.errors.ts";
 import { printResearchIndex } from "./Research.render.ts";
 import {
-  ResearchCaptureOptions,
   ResearchCognifyOptions,
   ResearchDailyOptions,
   ResearchDigestOptions,
@@ -36,7 +32,6 @@ import {
   ResearchTimerOptions,
 } from "./Research.schemas.ts";
 import {
-  captureResearchUrl,
   cognifyResearchCards,
   pullResearchNotionLinks,
   ResearchCommandServiceLive,
@@ -57,44 +52,6 @@ const vaultFlag = Flag.Directory("vault", { mustExist: true }).pipe(
   Flag.withDescription("Knowledge vault root; defaults to BEEP_KNOWLEDGE_VAULT or ~/YeeBois/knowledge"),
   Flag.optional
 );
-/** @since 0.0.0 */
-const tagsFlag = Flag.String("tags").pipe(
-  Flag.withDescription("Comma-separated tags recorded on the captured card"),
-  Flag.optional
-);
-/** @since 0.0.0 */
-const captureUrlArgument = Argument.String("url").pipe(
-  Argument.withDescription("URL to scrape into a markdown knowledge card")
-);
-
-const splitTags = (tags: O.Option<string>): ReadonlyArray<string> =>
-  tags.pipe(
-    O.map((value) => A.filter(A.map(Str.split(value, ","), Str.trim), Str.isNonEmpty)),
-    O.getOrElse(A.empty<string>)
-  );
-
-const researchCaptureCommand = Command.make(
-  "capture",
-  {
-    tags: tagsFlag,
-    url: captureUrlArgument,
-    vault: vaultFlag,
-  },
-  Effect.fn(function* ({ tags, url, vault }) {
-    const vaultRoot = yield* resolveVaultRoot(vault);
-    yield* captureResearchUrl(
-      ResearchCaptureOptions.make({
-        tags: splitTags(tags),
-        url,
-        vaultRoot,
-      })
-    ).pipe(Effect.asVoid);
-  })
-).pipe(
-  Command.withDescription("Scrape a URL to markdown via Firecrawl and file it as a knowledge card"),
-  Command.provide(ResearchCommandServiceLive)
-);
-
 /** @since 0.0.0 */
 const browserFlag = Flag.String("browser").pipe(
   Flag.withDefault("all"),
@@ -463,10 +420,9 @@ const researchStatusCommand = Command.make(
  * @since 0.0.0
  */
 export const researchCommand = Command.make("research", {}, () => printResearchIndex).pipe(
-  Command.withDescription("Research capture and knowledge-vault curation commands"),
+  Command.withDescription("Research knowledge-vault and source-library curation commands"),
   Command.withSubcommands([
     libraryCommand,
-    researchCaptureCommand,
     researchCognifyCommand,
     researchDailyCommand,
     researchDigestCommand,

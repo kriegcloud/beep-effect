@@ -10,7 +10,7 @@
     "mechanization": "assisted",
     "roiRank": 3,
     "exception": {
-      "reason": "`OpenAiCompatLanguageModelClientOptions.config` is consumed by `@beep/venice-ai` and `@beep/xai`; changing it to an Option/default field would require cross-package option construction edits outside this package writer lane.",
+      "reason": "`OpenAiCompatLanguageModelClientOptions.config` is consumed by `retired:venice-ai` and `retired:xai`; changing it to an Option/default field would require cross-package option construction edits outside this package writer lane.",
       "boundary": "cross-package ripple, deferred to family-close sweep"
     }
   },

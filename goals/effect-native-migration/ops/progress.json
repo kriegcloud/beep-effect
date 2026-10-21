@@ -58,7 +58,7 @@
     "@beep/postgres",
     "@beep/workspace-domain",
     "@beep/repo-codegraph",
-    "@beep/face-detection",
+    "retired:face-detection",
     "@beep/repo-docgen",
     "@beep/repo-ai-metrics",
     "@beep/runpod",
@@ -92,14 +92,14 @@
     "@beep/md",
     "@beep/canvas",
     "@beep/semantic-web",
-    "@beep/venice-ai",
+    "retired:venice-ai",
     "@beep/stack-installer",
     "@beep/professional-desktop",
     "@beep/professional-runtime-proof",
     "@beep/acp",
     "@beep/nlp",
     "@beep/codedank-web",
-    "@beep/xai",
+    "retired:xai",
     "@beep/architecture-lab-proof",
     "@beep/konva",
     "@beep/shared-client",
@@ -383,8 +383,8 @@
       "needsHumanDecision": 0,
       "triageWeight": "light"
     },
-    "@beep/face-detection": {
-      "path": "packages/drivers/face-detection",
+    "retired:face-detection": {
+      "path": "retired:face-detection",
       "sanitized": "beep__face-detection",
       "canImportUtils": true,
       "discovery": "done",
@@ -734,8 +734,8 @@
       "triageWeight": "heavy",
       "remediationNote": "WeakSet cycle-detection guard waived (genuine constructor, identity/GC semantics)"
     },
-    "@beep/venice-ai": {
-      "path": "packages/drivers/venice-ai",
+    "retired:venice-ai": {
+      "path": "retired:venice-ai",
       "sanitized": "beep__venice-ai",
       "canImportUtils": true,
       "discovery": "done",
@@ -808,8 +808,8 @@
       "needsHumanDecision": 0,
       "triageWeight": "clean"
     },
-    "@beep/xai": {
-      "path": "packages/drivers/xai",
+    "retired:xai": {
+      "path": "retired:xai",
       "sanitized": "beep__xai",
       "canImportUtils": true,
       "discovery": "done",

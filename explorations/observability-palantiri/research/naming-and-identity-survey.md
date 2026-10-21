@@ -40,7 +40,7 @@ whatever host runs it: dankstation, CI runners, vendor cloud VMs, lanes.
 - **Interpolated names: 19 sites.** Examples: `` `box.${methodName}` ``
   (`packages/drivers/box/src/Box.streaming.ts:884`),
   `` `firecrawl.${method}` ``
-  (`packages/drivers/firecrawl/src/Firecrawl.service.ts:341`),
+  (`retired:firecrawl/src/Firecrawl.service.ts:341`),
   `` `documents.sync.${operation}` ``
   (`apps/professional-desktop/src/sync/VaultSyncOrchestrator.ts:43`).
 - **Names shared by more than one package: only 4.** They are

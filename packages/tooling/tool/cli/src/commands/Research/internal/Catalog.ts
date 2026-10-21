@@ -139,14 +139,6 @@ export const INSERT_SEEN_URL = `INSERT INTO research_seen_urls (url_norm, first_
   VALUES (?, ?, ?) ON CONFLICT (url_norm) DO NOTHING`;
 
 /**
- * Statement checking whether a normalized URL is already known.
- *
- * @internal
- * @category utilities
- */
-export const SELECT_SEEN_URL = "SELECT COUNT(*)::DOUBLE AS total FROM research_seen_urls WHERE url_norm = ?";
-
-/**
  * Statement upserting one card row by stable card id.
  *
  * @internal

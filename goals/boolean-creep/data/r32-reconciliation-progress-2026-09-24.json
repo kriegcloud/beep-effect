@@ -501,7 +501,7 @@
     },
     {
       "id": "xai-sse-done-payload",
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "line": 383,
       "sourceSha256": "90617588fcb7d9040262aab8861cf5ecbab5c4f6dc426b4f27992aea74c3ed79",
       "reason": "done is sole Boolean; data is optional Unknown.",
@@ -509,7 +509,7 @@
     },
     {
       "id": "venice-sse-done-payload",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "line": 636,
       "sourceSha256": "0d3eb813bf472eaa0cc316fae5f4e9b687bb0c495d88461206e3c5415ea60bfa",
       "reason": "done is sole Boolean; data is optional payload.",
@@ -517,7 +517,7 @@
     },
     {
       "id": "xai-websocket-message-binary",
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "line": 471,
       "sourceSha256": "90617588fcb7d9040262aab8861cf5ecbab5c4f6dc426b4f27992aea74c3ed79",
       "reason": "isBinary is sole Boolean across complete shared event fields; bytes/text/data are optional payloads.",

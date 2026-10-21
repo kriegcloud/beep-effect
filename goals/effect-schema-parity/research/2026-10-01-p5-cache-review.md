@@ -22,7 +22,7 @@ changes.
   `coverage`, `lint:deprecated-apis`, `package-test-typecheck`, `test`,
   `test:integration` and `test:property`, for each of the two packages above.
 - **`//#lint:typos` configuration (1 node).** The recorded inputs now include
-  `!packages/drivers/venice-ai/test/fixtures/swagger.json`. That exclusion is
+  `!retired:venice-ai/test/fixtures/swagger.json`. That exclusion is
   already in `turbo.json` on `main`; the committed baseline predated it.
 - **Projection source.** The recorded `turbo.json` digest moves from the stale
   `00a20784…` to `6503a298…`, the digest of `turbo.json` as it stands on

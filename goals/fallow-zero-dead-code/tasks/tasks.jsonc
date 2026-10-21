@@ -42,7 +42,7 @@
         "apps/codedank-web",
         "apps/storybook",
         "packages/foundation/ui-system/ui",
-        "packages/drivers/firecrawl/package.json",
+        "retired:firecrawl/package.json",
         "packages/drivers/libpff/package.json",
         "packages/foundation/capability/langextract/package.json",
         "packages/tooling/tool/cli/package.json",

@@ -273,11 +273,11 @@
       "output": "pkg-verify @beep/exiftool (./packages/drivers/exiftool)\n  ok audit 8.3s   ok docgen 2.6s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify @beep/exiftool"
     },
     {
-      "packageName": "@beep/face-detection",
+      "packageName": "retired:face-detection",
       "ok": true,
       "exitCode": 0,
       "durationMillis": 12915,
-      "output": "pkg-verify @beep/face-detection (./packages/drivers/face-detection)\n  ok audit 6.0s   ok docgen 2.7s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify @beep/face-detection"
+      "output": "pkg-verify retired:face-detection (retired:face-detection)\n  ok audit 6.0s   ok docgen 2.7s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify retired:face-detection"
     },
     {
       "packageName": "@beep/ffmpeg",
@@ -294,11 +294,11 @@
       "output": "pkg-verify @beep/file-processing (./packages/foundation/capability/file-processing)\n  ok audit 6.8s   ok docgen 3.0s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify @beep/file-processing"
     },
     {
-      "packageName": "@beep/firecrawl",
+      "packageName": "retired:firecrawl",
       "ok": true,
       "exitCode": 0,
       "durationMillis": 16691,
-      "output": "pkg-verify @beep/firecrawl (./packages/drivers/firecrawl)\n  ok audit 8.8s   ok docgen 3.6s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify @beep/firecrawl"
+      "output": "pkg-verify retired:firecrawl (retired:firecrawl)\n  ok audit 8.8s   ok docgen 3.6s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify retired:firecrawl"
     },
     {
       "packageName": "@beep/gov-legal-mcp",
@@ -707,11 +707,11 @@
       "output": "pkg-verify @beep/utils (./packages/foundation/modeling/utils)\n  ok audit 3.9s   ok docgen 2.3s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify @beep/utils"
     },
     {
-      "packageName": "@beep/venice-ai",
+      "packageName": "retired:venice-ai",
       "ok": true,
       "exitCode": 0,
       "durationMillis": 15990,
-      "output": "pkg-verify @beep/venice-ai (./packages/drivers/venice-ai)\n  ok audit 9.1s   ok docgen 3.0s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify @beep/venice-ai"
+      "output": "pkg-verify retired:venice-ai (retired:venice-ai)\n  ok audit 9.1s   ok docgen 3.0s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify retired:venice-ai"
     },
     {
       "packageName": "@beep/wink",
@@ -749,11 +749,11 @@
       "output": "pkg-verify @beep/workspace-use-cases (./packages/workspace/use-cases)\n  ok audit 9.1s   ok docgen 5.5s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify @beep/workspace-use-cases"
     },
     {
-      "packageName": "@beep/xai",
+      "packageName": "retired:xai",
       "ok": true,
       "exitCode": 0,
       "durationMillis": 14166,
-      "output": "pkg-verify @beep/xai (./packages/drivers/xai)\n  ok audit 7.4s   ok docgen 3.0s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify @beep/xai"
+      "output": "pkg-verify retired:xai (retired:xai)\n  ok audit 7.4s   ok docgen 3.0s\n$ bun run packages/tooling/tool/cli/src/bin.ts -- quality package-verify retired:xai"
     }
   ]
 }

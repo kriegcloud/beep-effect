@@ -4,7 +4,7 @@
  * Renders service+timer unit pairs into `~/.config/systemd/user/` and
  * enables them. The daily unit runs `beep research daily`; a weekly unit
  * refreshes repo cards.
- * Secrets (FIRECRAWL_API_KEY, NOTION_API_KEY, COGNEE_API_URL and the optional
+ * Secrets (NOTION_API_KEY, COGNEE_API_URL and the optional
  * COGNEE_API_EMAIL / COGNEE_API_PASSWORD) load from an optional
  * `$HOME/.config/beep-research/env` EnvironmentFile.
  *

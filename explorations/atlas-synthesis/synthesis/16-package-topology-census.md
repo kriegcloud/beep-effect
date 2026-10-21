@@ -139,14 +139,14 @@ All have `src` + `test`. These wrap third-party APIs/binaries behind Effect serv
 | Package | Path | #ts | Purpose |
 |---|---|--:|---|
 | `@beep/anthropic` | `packages/drivers/anthropic` | 5 | Anthropic LLM API driver. |
-| `@beep/xai` | `packages/drivers/xai` | 7 | xAI LLM driver. |
-| `@beep/venice-ai` | `packages/drivers/venice-ai` | 3 | Venice AI driver. |
+| `retired:xai` | `retired:xai` | 7 | xAI LLM driver. |
+| `retired:venice-ai` | `retired:venice-ai` | 3 | Venice AI driver. |
 | `@beep/openai-compat` | `packages/drivers/openai-compat` | 4 | OpenAI-compatible API driver. |
 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | 4 | CLI-facing AI provider adapter. |
 | `@beep/acp` | `packages/drivers/acp` | 12 | Agent/Client protocol driver (228 unique symbols). |
 | `@beep/runpod` | `packages/drivers/runpod` | 6 | RunPod compute driver. |
 | `@beep/phoenix` | `packages/drivers/phoenix` | 5 | Arize Phoenix (LLM observability) driver. |
-| `@beep/firecrawl` | `packages/drivers/firecrawl` | 5 | Firecrawl web-scraping driver (198 unique symbols). |
+| `retired:firecrawl` | `retired:firecrawl` | 5 | Firecrawl web-scraping driver (198 unique symbols). |
 | `@beep/box` | `packages/drivers/box` | 13 | Box file-storage driver (huge generated export surface: 3462 symbols). |
 | `@beep/sanity` | `packages/drivers/sanity` | 4 | Sanity CMS driver. |
 | `@beep/hubspot` | `packages/drivers/hubspot` | 4 | HubSpot CRM/Forms driver. |
@@ -158,7 +158,7 @@ All have `src` + `test`. These wrap third-party APIs/binaries behind Effect serv
 | `@beep/tika` | `packages/drivers/tika` | 4 | Apache Tika document-extraction driver. |
 | `@beep/libpff` | `packages/drivers/libpff` | 4 | libpff (PST/Outlook) parsing driver. |
 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | 4 | FFmpeg media driver. |
-| `@beep/face-detection` | `packages/drivers/face-detection` | 4 | Face-detection driver. |
+| `retired:face-detection` | `retired:face-detection` | 4 | Face-detection driver. |
 | `@beep/konva` | `packages/drivers/konva` | 1 | Konva canvas driver (thin). |
 | `@beep/wink` | `packages/drivers/wink` | 15 | wink-nlp driver. |
 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | 9 | NLP MCP-server driver. |

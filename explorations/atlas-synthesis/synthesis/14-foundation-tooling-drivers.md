@@ -118,11 +118,11 @@ All wrap a third-party API or binary behind an Effect service, with a **consiste
 | `@beep/postgres` + `@beep/drizzle` | `packages/drivers/{postgres,drizzle}` | DB connectivity + ORM integration (`@beep/drizzle` holds `EntityTable.models.ts`). The persistence pair every server tier needs. |
 | `@beep/box` | `packages/drivers/box` | Box file-storage driver (huge generated surface, ~3462 symbols). Document storage. |
 | `@beep/tika` / `@beep/libpff` | `packages/drivers/{tika,libpff}` | Document extraction (Apache Tika) and PST/Outlook parsing — corpus/email ingestion. |
-| `@beep/firecrawl` | `packages/drivers/firecrawl` | Web-scraping (~198 symbols). |
+| `retired:firecrawl` | `retired:firecrawl` | Web-scraping (~198 symbols). |
 
-**LLM / AI fleet:** `@beep/anthropic`, `@beep/xai`, `@beep/venice-ai`, `@beep/openai-compat`, `@beep/ai-provider-cli`, `@beep/acp` (agent/client protocol, ~228 symbols), `@beep/runpod`, `@beep/phoenix` (Arize observability), `@beep/nlp-mcp`, `@beep/wink` (wink-nlp).
+**LLM / AI fleet:** `@beep/anthropic`, `retired:xai`, `retired:venice-ai`, `@beep/openai-compat`, `@beep/ai-provider-cli`, `@beep/acp` (agent/client protocol, ~228 symbols), `@beep/runpod`, `@beep/phoenix` (Arize observability), `@beep/nlp-mcp`, `@beep/wink` (wink-nlp).
 
-**Other system adapters:** `@beep/sanity`, `@beep/hubspot`, `@beep/discord`, `@beep/duckdb`, `@beep/ffmpeg`, `@beep/face-detection`, `@beep/konva`, `@beep/onepassword-cli`.
+**Other system adapters:** `@beep/sanity`, `@beep/hubspot`, `@beep/discord`, `@beep/duckdb`, `@beep/ffmpeg`, `retired:face-detection`, `@beep/konva`, `@beep/onepassword-cli`.
 
 _Verified: `ls packages/drivers` (25 entries), `ls` of `anthropic/src`, `uspto/src`, `drizzle/src`. Symbol counts from catalog._
 

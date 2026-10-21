@@ -2003,7 +2003,7 @@
       "relevance": "direct",
       "candidateBeepTarget": "@beep multi-provider LLM driver layer (Anthropic/OpenAI/xAI auth + model resolution)",
       "verdict": "verified",
-      "finalBeepTarget": "shared multi-provider LLM dispatch/fallback Layer over @beep/anthropic+openai-compat+xai+venice-ai: registry + key precedence + helpful errors",
+      "finalBeepTarget": "shared multi-provider LLM dispatch/fallback Layer over @beep/anthropic+openai-compat+retired:xai+retired:venice-ai: registry + key precedence + helpful errors",
       "gapStatus": "partial",
       "recommendation": "port",
       "priority": "P2"
@@ -3241,7 +3241,7 @@
       "relevance": "direct",
       "candidateBeepTarget": "multi-provider LLM driver layer + swappable data-ingestion drivers",
       "verdict": "verified",
-      "finalBeepTarget": "unified LLM-provider selection Layer.unwrapEffect over @beep/anthropic|openai-compat|xai|venice-ai; swappable data-source tag",
+      "finalBeepTarget": "unified LLM-provider selection Layer.unwrapEffect over @beep/anthropic|openai-compat|retired:xai|retired:venice-ai; swappable data-source tag",
       "gapStatus": "partial",
       "recommendation": "adopt",
       "priority": "P1"

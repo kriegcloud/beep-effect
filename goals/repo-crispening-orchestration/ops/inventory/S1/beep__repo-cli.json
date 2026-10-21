@@ -305,7 +305,7 @@
     "line": 55,
     "symbol": "SyncDataFetchedSource",
     "smell": "Exported interface models the fetched-source payload (`bytes`, `id`, `sha256`, `text`, `url`) consumed by `fetchSource`, `sourceMetadata`, and all parse helpers. The existing durable inventory treats it as a runtime-handle exception, but `Uint8Array` is schema-supported in Effect v4, so this is a re-audit candidate rather than a hard carve-out.",
-    "proposedTarget": "Promote `SyncDataFetchedSource` to an `S.Class` in this module or in `internal/Models.ts` with `bytes: S.Uint8Array`, `id/url/text/sha256: S.String`, and return `SyncDataFetchedSource.make(...)` from `fetchSource`. In-repo exemplars: `SyncDataSourceMetadata` at packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:75 and binary schema usage at packages/drivers/xai/src/XAi.models.ts:180. Effect v4 API verified: `S.Uint8Array` at .repos/effect-v4/packages/effect/src/Schema.ts:11781.",
+    "proposedTarget": "Promote `SyncDataFetchedSource` to an `S.Class` in this module or in `internal/Models.ts` with `bytes: S.Uint8Array`, `id/url/text/sha256: S.String`, and return `SyncDataFetchedSource.make(...)` from `fetchSource`. In-repo exemplars: `SyncDataSourceMetadata` at packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts:75 and binary schema usage at retired:xai/src/XAi.models.ts:180. Effect v4 API verified: `S.Uint8Array` at .repos/effect-v4/packages/effect/src/Schema.ts:11781.",
     "confidence": 0.66,
     "mechanization": "assisted",
     "roiRank": 3.8,

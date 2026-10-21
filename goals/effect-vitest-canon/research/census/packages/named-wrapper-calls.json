@@ -49,7 +49,7 @@
       "lines": [134, 195, 234, 270, 308]
     },
     {
-      "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
+      "file": "retired:face-detection/test/FaceDetection.service.test.ts",
       "count": 2,
       "lines": [219, 231]
     },

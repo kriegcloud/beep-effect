@@ -1,7 +1,7 @@
 # Service-driver runner dependency review
 
-The Firecrawl, Runpod and Sanity test-runner devDependencies add30 direct
-task edges to the executable graph:10 Firecrawl,11 Runpod and9 Sanity.
+The `retired:firecrawl`, Runpod and Sanity test-runner devDependencies add30 direct
+task edges to the executable graph:10 `retired:firecrawl`,11 Runpod and9 Sanity.
 Each changed list gains exactly one test-runner audit, build, codegen or
 transit edge matching its task contract. No dependency is removed, and all
 existing duplicate edges retain their multiplicity. Only these30 dependency

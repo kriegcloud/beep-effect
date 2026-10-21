@@ -273,7 +273,7 @@ evidence, what would have prevented it). Redact for the public repo.
   `@beep/box` reported `TS2589: Type instantiation is excessively deep and
   possibly infinite`; an immediate focused `@beep/box` build passed in under
   one second without a source change. A retry moved the same failure to
-  `@beep/xai` after 60 successful tasks; its immediate focused build also
+  `retired:xai` after 60 successful tasks; its immediate focused build also
   passed. A process census showed a sibling checkout simultaneously running
   many Vitest workers and a high-CPU tsgo check on the shared host.
 - **Would have prevented it:** retry this known transient compiler-depth

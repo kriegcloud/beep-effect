@@ -3051,35 +3051,35 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "file": "packages/drivers/face-detection/package.json",
+      "file": "retired:face-detection/package.json",
       "sha256": "dc2b3836e0bf424d9ec3043480b9b2b55003650a6e56da21548be593abd08f50"
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.errors.ts",
+      "file": "retired:face-detection/src/FaceDetection.errors.ts",
       "sha256": "c4c8b701e6f3db0e52b9d9e6bad07938ffebae2057af155ed85efb1b968a675c"
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "file": "retired:face-detection/src/FaceDetection.models.ts",
       "sha256": "691690763032ad9967f849d24731e5d1ab1e2e357931f90b17b30690a0d1161d"
     },
     {
-      "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
+      "file": "retired:face-detection/src/FaceDetection.service.ts",
       "sha256": "b9f17a8fddb21fe8c6589b2e1f0b0c82174100dd19974e20ed1b59145bb396bf"
     },
     {
-      "file": "packages/drivers/face-detection/src/index.ts",
+      "file": "retired:face-detection/src/index.ts",
       "sha256": "aa93abdb0ff05394551c5c70b52166c871fd9c9b938f8455bfc59783d6de0d74"
     },
     {
-      "file": "packages/drivers/face-detection/tsconfig.check.json",
+      "file": "retired:face-detection/tsconfig.check.json",
       "sha256": "f0a3feef358629fb839ee453dc07cfc6ef5c953294dea4e5ca92b894c1212d51"
     },
     {
-      "file": "packages/drivers/face-detection/tsconfig.json",
+      "file": "retired:face-detection/tsconfig.json",
       "sha256": "bdfa01466bec92c9b36266c29b48d5795d343ca18bd7789cfb3e0636743a3063"
     },
     {
-      "file": "packages/drivers/face-detection/tsconfig.test.json",
+      "file": "retired:face-detection/tsconfig.test.json",
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
@@ -3119,43 +3119,43 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "file": "packages/drivers/firecrawl/package.json",
+      "file": "retired:firecrawl/package.json",
       "sha256": "f52dd4da87c4a1d73073e5f200301b48ee29b2de861d36340a39ac0e28db431d"
     },
     {
-      "file": "packages/drivers/firecrawl/src/Firecrawl.config.ts",
+      "file": "retired:firecrawl/src/Firecrawl.config.ts",
       "sha256": "cb65a19a962258a6deb40215827e3850bade0e49055277486d1ce9e93877f7cb"
     },
     {
-      "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "file": "retired:firecrawl/src/Firecrawl.errors.ts",
       "sha256": "94a65e581f745dd62199871c560baa36a5a494f5ea2ec5be82147f9bd7045a65"
     },
     {
-      "file": "packages/drivers/firecrawl/src/Firecrawl.models.ts",
+      "file": "retired:firecrawl/src/Firecrawl.models.ts",
       "sha256": "0e4b60edf451afe0b2d8f4a4469ab05ce7d7c7523b54e6c8e4cb8e23de35002c"
     },
     {
-      "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "file": "retired:firecrawl/src/Firecrawl.service.ts",
       "sha256": "67b17bb692e4b350376be377de8372e646aa446698ea4fbf79a27a17efca06d0"
     },
     {
-      "file": "packages/drivers/firecrawl/src/index.ts",
+      "file": "retired:firecrawl/src/index.ts",
       "sha256": "86aa5714450b448c9f98dda1e71fe08c7c8b6c972c655d96cd3dea9bad24db00"
     },
     {
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "sha256": "9749c6bcdd917fe5385578d84b4f16fce9f4fcead914567a5b94503c1c1db81c"
     },
     {
-      "file": "packages/drivers/firecrawl/tsconfig.check.json",
+      "file": "retired:firecrawl/tsconfig.check.json",
       "sha256": "f0a3feef358629fb839ee453dc07cfc6ef5c953294dea4e5ca92b894c1212d51"
     },
     {
-      "file": "packages/drivers/firecrawl/tsconfig.json",
+      "file": "retired:firecrawl/tsconfig.json",
       "sha256": "bdfa01466bec92c9b36266c29b48d5795d343ca18bd7789cfb3e0636743a3063"
     },
     {
-      "file": "packages/drivers/firecrawl/tsconfig.test.json",
+      "file": "retired:firecrawl/tsconfig.test.json",
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
@@ -4419,31 +4419,31 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "file": "packages/drivers/venice-ai/package.json",
+      "file": "retired:venice-ai/package.json",
       "sha256": "37478aee8c5232da50eb1344fa2b85395e5ad32f7d008c09e1907dc54b61f5e2"
     },
     {
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "sha256": "0d3eb813bf472eaa0cc316fae5f4e9b687bb0c495d88461206e3c5415ea60bfa"
     },
     {
-      "file": "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts",
+      "file": "retired:venice-ai/src/VeniceAiLanguageModel.service.ts",
       "sha256": "054b3871287e822852a87adb76bec12cf6fa411cb6b1a7e543f3b4d49b1610fe"
     },
     {
-      "file": "packages/drivers/venice-ai/src/index.ts",
+      "file": "retired:venice-ai/src/index.ts",
       "sha256": "1a80cfba61703695b2fe2ce0c3b433ce15fef9c21658dc012c42223a6c11e827"
     },
     {
-      "file": "packages/drivers/venice-ai/tsconfig.check.json",
+      "file": "retired:venice-ai/tsconfig.check.json",
       "sha256": "dd1bff5f694c5d1bce5b512fb90c3f274ed2e12aeb9040605f504a6569d36bfb"
     },
     {
-      "file": "packages/drivers/venice-ai/tsconfig.json",
+      "file": "retired:venice-ai/tsconfig.json",
       "sha256": "49f94e8e0af4f5e62737e225dd22197f40720eec09814dea0e3102d109071ebd"
     },
     {
-      "file": "packages/drivers/venice-ai/tsconfig.test.json",
+      "file": "retired:venice-ai/tsconfig.test.json",
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
@@ -4527,47 +4527,47 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "file": "packages/drivers/xai/package.json",
+      "file": "retired:xai/package.json",
       "sha256": "557a98a3424526719c18ed086d91857e137cf7885fd11876fdae2a2cf4d82d06"
     },
     {
-      "file": "packages/drivers/xai/src/XAi.config.ts",
+      "file": "retired:xai/src/XAi.config.ts",
       "sha256": "7d89c662ff87d7c6854beea27c5895e3a08156ee001b131d209d9511b4193a0a"
     },
     {
-      "file": "packages/drivers/xai/src/XAi.errors.ts",
+      "file": "retired:xai/src/XAi.errors.ts",
       "sha256": "51da234eb7c8a2d7aa2518aca621336125b78a7365f46d06ffd1e4bd8c10becb"
     },
     {
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "sha256": "90617588fcb7d9040262aab8861cf5ecbab5c4f6dc426b4f27992aea74c3ed79"
     },
     {
-      "file": "packages/drivers/xai/src/XAi.service.ts",
+      "file": "retired:xai/src/XAi.service.ts",
       "sha256": "fe94aeac166efae741d048358f2555af0d33729bf498f7ff1606cc09ee95fd44"
     },
     {
-      "file": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+      "file": "retired:xai/src/XAiEndpoints.models.ts",
       "sha256": "9b8f66d3baf41dea93324f1ee5195504b5bd4541c74ed78fbfc7a570df49ff86"
     },
     {
-      "file": "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+      "file": "retired:xai/src/XAiLanguageModel.service.ts",
       "sha256": "611bef1966ebaeedfec9b36e1659d305b8678980cc72c1d671468ecf2d93ca98"
     },
     {
-      "file": "packages/drivers/xai/src/index.ts",
+      "file": "retired:xai/src/index.ts",
       "sha256": "6610717811ff8f87a8472608f082808ad09b71017fee8506c97e23c476f1848d"
     },
     {
-      "file": "packages/drivers/xai/tsconfig.check.json",
+      "file": "retired:xai/tsconfig.check.json",
       "sha256": "dd1bff5f694c5d1bce5b512fb90c3f274ed2e12aeb9040605f504a6569d36bfb"
     },
     {
-      "file": "packages/drivers/xai/tsconfig.json",
+      "file": "retired:xai/tsconfig.json",
       "sha256": "49f94e8e0af4f5e62737e225dd22197f40720eec09814dea0e3102d109071ebd"
     },
     {
-      "file": "packages/drivers/xai/tsconfig.test.json",
+      "file": "retired:xai/tsconfig.test.json",
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {

@@ -1,5 +1,4 @@
 import { $SemanticaId } from "@beep/identity/packages";
-import * as Bool from "effect/Boolean";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
@@ -12,9 +11,8 @@ import { GOLD_SUBSETS, proposeGold } from "@/canary/Gold";
 import { RelationPreviewOptions, runRelationPreview } from "@/canary/RelationPreview";
 import { CorpusManifest, ManifestWriteFailed } from "@/corpus/Manifest";
 import { CorpusManifestBuilder } from "@/corpus/ManifestBuilder";
-import { GOLD_PROMPT_ARTIFACT_HASH } from "@/gold/Prompts";
-import { LanguageModelRuntimeLive, XAiGoldModelIdentityLive, XAiGoldProviderLive } from "@/layers/LanguageModelLive";
-import { LabConfig } from "@/runtime/Config";
+import { GOLD_V1_PROPOSER_IDENTITY } from "@/gold/Prompts";
+import { ActiveModelIdentityLive, ReplayLanguageModelLive } from "@/layers/LanguageModelLive";
 import { CanaryStage, EvalSelectionMode } from "@/schema/Eval";
 import { CanaryC0 } from "@/services/CanaryC0";
 import { CanaryC1 } from "@/services/CanaryC1";
@@ -205,28 +203,11 @@ const goldSubset = Flag.Literals("subset", GOLD_SUBSETS).pipe(
 
 const runGoldProposal = Effect.fn("SemanticaCanary.runGoldProposal")(function* (options: {
   readonly manifest: string;
-  readonly offline: boolean;
   readonly paper: O.Option<string>;
   readonly subset: O.Option<GoldFile["subset"]>;
 }) {
-  const config = yield* LabConfig;
-  const selectedOffline = config.offline || options.offline;
-  const selectedConfig = LabConfig.of({
-    ...config,
-    mode: Bool.match(selectedOffline, {
-      onFalse: () => "live" as const,
-      onTrue: () => "replay" as const,
-    }),
-    offline: selectedOffline,
-  });
-  const identity = XAiGoldModelIdentityLive({
-    artifactHash: GOLD_PROMPT_ARTIFACT_HASH,
-    model: config.goldModel,
-  });
-  const model = LanguageModelRuntimeLive(XAiGoldProviderLive(config.goldModel)).pipe(
-    Layer.provide(identity),
-    Layer.provide(Layer.succeed(LabConfig, selectedConfig))
-  );
+  const identity = ActiveModelIdentityLive(GOLD_V1_PROPOSER_IDENTITY);
+  const model = ReplayLanguageModelLive.pipe(Layer.provide(identity));
   return yield* model.pipe(
     Layer.merge(identity),
     Layer.build,
@@ -243,10 +224,10 @@ const runGoldProposal = Effect.fn("SemanticaCanary.runGoldProposal")(function* (
 });
 
 const GoldCommand = Command.make("gold").pipe(
-  Command.withDescription("Propose independently anchored gold-v1 labels."),
+  Command.withDescription("Replay the frozen, independently anchored gold-v1 labels."),
   Command.withSubcommands([
-    Command.make("propose", { manifest: stageManifest, offline, paper, subset: goldSubset }, runGoldProposal).pipe(
-      Command.withDescription("Propose frozen structure, entity, or relation labels through xAI or cache replay.")
+    Command.make("propose", { manifest: stageManifest, paper, subset: goldSubset }, runGoldProposal).pipe(
+      Command.withDescription("Rebuild frozen gold-v1 structure, entity, or relation labels from cache replay.")
     ),
   ])
 );

@@ -198,7 +198,7 @@ flag someone must remember to check.
   Biscuit/UCAN/token exchange until a real cross-process hop exists.
 - **Uncovered egress paths, named rather than chased**: the **chat/Anthropic
   path** — the app's single largest outbound sink, deferred to the second slice
-  with the request principal it needs; SDK-wrapping drivers (box, firecrawl,
+  with the request principal it needs; SDK-wrapping drivers (box, retired:firecrawl,
   phoenix) that never touch `HttpClient`; raw `window.fetch` in
   `link-preview.tsx`; the renderer process generally; and `nlp-mcp`'s
   URL-loading stream tools, which live in a `drivers`-rooted process that may

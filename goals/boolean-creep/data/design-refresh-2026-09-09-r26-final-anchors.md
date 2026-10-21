@@ -40,18 +40,18 @@ two-arm expressions, so their single-line cites should be interpreted as entry
 points rather than as field anchors:
 
 - xAI `parseSseData` begins its terminal/data branch at
-  `XAi.service.ts:588`; the terminal constructor is 589 and the data constructor
+  `retired:xai/src/XAi.service.ts:588`; the terminal constructor is 589 and the data constructor
   is 592. Canonical E3 line 591 sits in the data arm. If the parent is already
   normalizing evidence entry points, use 588; otherwise this is not a
   source-drift correction and need not block integration.
 - Venice `parseSseData` begins its branch at
-  `VeniceAI.service.ts:1899`; constructors are at 1900 and 1904. Canonical E3
+  `retired:venice-ai/src/VeniceAI.service.ts:1899`; constructors are at 1900 and 1904. Canonical E3
   1900 is the terminal constructor. Line 1899 is the more complete branch
   entry, but again this is citation precision rather than merge drift.
 
-The xAI reader at `XAiLanguageModel.service.ts:210`, Venice reader at
-`VeniceAiLanguageModel.service.ts:215`, and xAI WebSocket writers at
-`XAi.service.ts:703-718` are unchanged by the merged main.
+The xAI reader at `retired:xai/src/XAiLanguageModel.service.ts:210`, Venice reader at
+`retired:venice-ai/src/VeniceAiLanguageModel.service.ts:215`, and xAI WebSocket writers at
+`retired:xai/src/XAi.service.ts:703-718` are unchanged by the merged main.
 
 ## CLI commands R-Z completion notes
 

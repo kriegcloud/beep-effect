@@ -69,7 +69,7 @@ These remain ungoverned after this packet ships. They are a stated artifact so
 the boundary's edges are known, not discovered:
 
 1. The chat/Anthropic path (see above).
-2. SDK-wrapping drivers (box, firecrawl, phoenix) that never touch `HttpClient`.
+2. SDK-wrapping drivers (box, retired:firecrawl, phoenix) that never touch `HttpClient`.
 3. Raw `window.fetch` in `link-preview.tsx`.
 4. The renderer process generally.
 5. `nlp-mcp`'s URL-loading stream tools (`stream_load_text`,

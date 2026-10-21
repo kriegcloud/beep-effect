@@ -19,7 +19,6 @@ import {
   CreateCaptionFilesOptions,
   CropBordersOptions,
   DetectBordersOptions,
-  DetectFacesOptions,
   FlattenMediaOptions,
   ImageAuditOptions,
   ImageCurationOptions,
@@ -36,7 +35,6 @@ import {
   cropBordersFiles,
   curateImages,
   detectBordersFiles,
-  detectFacesFiles,
   FilesCommandServiceLive,
   flattenMediaFiles,
   matchPerson,
@@ -75,12 +73,6 @@ const createCaptionsDirFlag = Flag.Directory("dir", { mustExist: true }).pipe(
 const detectBordersDirFlag = Flag.Directory("dir", { mustExist: true }).pipe(
   Flag.withDescription("Directory whose direct image files should be scanned for solid borders")
 );
-const detectFacesDirFlag = Flag.Directory("dir", { mustExist: true }).pipe(
-  Flag.withDescription("Directory whose direct image files should be scanned for human faces")
-);
-const detectFacesModelFlag = Flag.File("model", { mustExist: true }).pipe(
-  Flag.withDescription("YuNet-compatible ONNX face detection model file")
-);
 const cropBordersDirFlag = Flag.Directory("dir", { mustExist: true }).pipe(
   Flag.withDescription("Directory whose direct image files should be cropped when solid borders are detected")
 );
@@ -89,9 +81,6 @@ const archiveCandidatesDirFlag = Flag.Directory("dir", { mustExist: true }).pipe
 );
 const auditImagesDirFlag = Flag.Directory("dir", { mustExist: true }).pipe(
   Flag.withDescription("Directory whose direct image files should be audited without mutation")
-);
-const auditImagesModelFlag = Flag.File("model", { mustExist: true }).pipe(
-  Flag.withDescription("Pinned YuNet-compatible ONNX face detection model")
 );
 const auditImagesManifestFlag = Flag.Path("manifest", { pathType: "file" }).pipe(
   Flag.withDescription("Path to the image audit manifest")
@@ -196,14 +185,6 @@ const manifestFlag = Flag.Path("manifest", { pathType: "file" }).pipe(
 );
 const archiveManifestFlag = Flag.Path("manifest", { pathType: "file" }).pipe(
   Flag.withDescription("Manifest output path; defaults to --archive-dir/archive-poor-candidates-manifest.json"),
-  Flag.optional
-);
-const detectFacesManifestFlag = Flag.Path("manifest", { pathType: "file" }).pipe(
-  Flag.withDescription("Manifest output path; defaults to --dir/detect-faces-manifest.json"),
-  Flag.optional
-);
-const detectFacesMoveNoFaceToFlag = Flag.Directory("move-no-face-to").pipe(
-  Flag.withDescription("Move images with no detected faces to this directory"),
   Flag.optional
 );
 const prefixFlag = Flag.String("prefix").pipe(
@@ -359,14 +340,6 @@ const maxScanPctFlag = Flag.Finite("max-scan-pct").pipe(
   Flag.withDefault(45),
   Flag.withDescription("Maximum percent of each image dimension to scan inward from an edge")
 );
-const minFaceConfidenceFlag = Flag.Finite("min-confidence").pipe(
-  Flag.withDefault(0.75),
-  Flag.withDescription("Minimum face detection confidence between 0 and 1")
-);
-const minFaceAreaPctFlag = Flag.Finite("min-face-area-pct").pipe(
-  Flag.withDefault(1),
-  Flag.withDescription("Flag detected faces whose primary face box area is below this image percentage")
-);
 const matchPersonDetectionThresholdFlag = Flag.Finite("detection-threshold").pipe(
   Flag.withDescription("Override the backend profile's minimum face-detection confidence between 0 and 1"),
   Flag.optional
@@ -382,10 +355,6 @@ const matchPersonReviewThresholdFlag = Flag.Finite("review-threshold").pipe(
 const matchPersonMinFaceAreaPctFlag = Flag.Finite("min-face-area-pct").pipe(
   Flag.withDescription("Override the backend profile's minimum matched-face percentage of the full image area"),
   Flag.optional
-);
-const faceEdgeMarginPctFlag = Flag.Finite("edge-margin-pct").pipe(
-  Flag.withDefault(2),
-  Flag.withDescription("Flag detected faces whose primary face box is within this percent of an image edge")
 );
 
 const buffaloMatchPersonThresholdProfile = PersonMatchThresholdProfile.make({
@@ -443,25 +412,21 @@ const filesAuditImagesCommand = Command.make(
   {
     dir: auditImagesDirFlag,
     manifest: auditImagesManifestFlag,
-    minConfidence: minFaceConfidenceFlag,
-    modelPath: auditImagesModelFlag,
     overwrite: auditImagesOverwriteFlag,
   },
-  Effect.fn(function* ({ dir, manifest, minConfidence, modelPath, overwrite }) {
+  Effect.fn(function* ({ dir, manifest, overwrite }) {
     yield* runFilesProgram(
       auditImages(
         ImageAuditOptions.make({
           dir,
           manifest,
-          minConfidence,
-          modelPath,
           overwrite,
         })
       )
     );
   })
 ).pipe(
-  Command.withDescription("Audit image hashes, geometry, metadata presence, faces, and advisory quality"),
+  Command.withDescription("Audit image hashes, geometry, metadata presence, and advisory quality"),
   Command.provide(FilesCommandServiceLive)
 );
 
@@ -625,39 +590,6 @@ const filesCurateImagesCommand = Command.make(
   })
 ).pipe(
   Command.withDescription("Materialize hash-pinned image decisions as metadata-free canonical PNG derivatives"),
-  Command.provide(FilesCommandServiceLive)
-);
-
-const filesDetectFacesCommand = Command.make(
-  "detect-faces",
-  {
-    dir: detectFacesDirFlag,
-    edgeMarginPct: faceEdgeMarginPctFlag,
-    json: jsonFlag,
-    manifest: detectFacesManifestFlag,
-    minConfidence: minFaceConfidenceFlag,
-    minFaceAreaPct: minFaceAreaPctFlag,
-    modelPath: detectFacesModelFlag,
-    moveNoFaceTo: detectFacesMoveNoFaceToFlag,
-  },
-  Effect.fn(function* ({ dir, edgeMarginPct, json, manifest, minConfidence, minFaceAreaPct, modelPath, moveNoFaceTo }) {
-    yield* runFilesProgram(
-      detectFacesFiles(
-        DetectFacesOptions.make({
-          dir,
-          edgeMarginPct,
-          json,
-          manifest,
-          minConfidence,
-          minFaceAreaPct,
-          modelPath,
-          moveNoFaceTo,
-        })
-      )
-    );
-  })
-).pipe(
-  Command.withDescription("Detect human faces in direct image files and write a triage manifest"),
   Command.provide(FilesCommandServiceLive)
 );
 
@@ -906,7 +838,6 @@ export const filesCommand = Command.make("files", {}, () => printFilesIndex).pip
     filesCropBordersCommand,
     filesCurateImagesCommand,
     filesDetectBordersCommand,
-    filesDetectFacesCommand,
     filesFlattenMediaCommand,
     filesMatchPersonCommand,
     filesNormalizeCommand,

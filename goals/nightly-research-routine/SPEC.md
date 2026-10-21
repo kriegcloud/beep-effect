@@ -37,7 +37,10 @@ can click-merge in the morning.
    result; missing capability remains an explicit `partial` terminal result
    rather than being upgraded to complete coverage. The writer composes
    `REPORT.md`, `SUGGESTED_ACTIONS.md`, and `PROMPT.md` from structured records,
-   never raw scraped bytes. The hosted VM receives no repo checkout, 1Password
+   never raw scraped bytes. Each suggested action names its source URL and an
+   admission path that exists (`research library import-result` or
+   `research notion-pull`); `research capture` was removed on 2026-10-21 and
+   must not be emitted. The hosted VM receives no repo checkout, 1Password
    access, or publisher authority.
 3. **Handoff (deterministic framing):** public-safe records cross a GitHub
    issue mailbox as a small envelope comment, numbered JSONL parts carrying

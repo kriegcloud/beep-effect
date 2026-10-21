@@ -80,7 +80,7 @@ count of proven defects.
 | `epistemic-claim-lifecycle-gate` | atomic | `6f6ca8a85d` | implementation and closed packet/reflection introduced together | 3 |
 | `fallow-quality-enforcement` | retroactive | `a718c21e8a` | later bulk reconciliation | 1 |
 | `fallow-zero-dead-code` | retroactive | `a718c21e8a` | later bulk reconciliation | 1 |
-| `firecrawl-driver` | retroactive | `a718c21e8a` | later bulk reconciliation | 1 |
+| `retired-packet:firecrawl-driver` | retroactive | `a718c21e8a` | later bulk reconciliation | 1 |
 | `form` | retroactive | `50fb69b386` | separate docs-only closeout after implementation | 2 |
 | `goals-doctor` | atomic | `19609ce830` | final implementation/proof, reflection, and close flip together | 0 |
 | `gov-legal-data-driver-codegen` | retroactive | `7f05bb8b5b` | phase reflection; manifest remained active | 1 |

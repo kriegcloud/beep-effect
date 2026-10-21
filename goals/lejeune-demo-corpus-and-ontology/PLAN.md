@@ -44,7 +44,7 @@ owns the screen from day 1; this packet owns data outcomes through day 3.
    mismatch, and refusal cases.
 5. Seed timestamped supplier offers and certificates with structural `SYNTHETIC` labels.
 6. Make one live `@beep/anthropic` extraction over public or synthetic data. If it fails, prove
-   `openai-compat`, `venice-ai`, or `xai` that day and record the outcome without secrets.
+   `openai-compat` that day and record the outcome without secrets.
 
 ## P1 Bundle Build: Parse → Spans → Projections
 

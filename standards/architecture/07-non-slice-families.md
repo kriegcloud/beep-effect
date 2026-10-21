@@ -157,7 +157,7 @@ drivers    = external engines, SDKs, and service boundaries
 foundation = repo-owned substrate the repo increasingly owns
 ```
 
-If the code wraps Drizzle, Postgres, Firecrawl, browser APIs, or another
+If the code wraps Drizzle, Postgres, Tika, browser APIs, or another
 third-party engine behind a dev-safe boundary, it belongs in `drivers`.
 
 If the repo owns the implementation as internal substrate, it belongs in

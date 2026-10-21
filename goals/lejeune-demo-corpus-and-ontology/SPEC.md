@@ -129,8 +129,8 @@ must stop for an RFI or qualified human decision.
   needed by the golden run, so the complete scenario replays with network and provider
   unavailable.
 - Day-1 acceptance includes one live `@beep/anthropic` extraction over public or synthetic
-  data. If that call fails, try `openai-compat`, `venice-ai`, or `xai` the same day. A live call
-  never becomes a lunch dependency.
+  data. If that call fails, try `openai-compat` the same day. A live call never becomes a lunch
+  dependency.
 - Provider recordings contain no secret, raw authorization header, or undisclosed real data.
 - Delete the mutable machine-local corpus on 2026-09-30 unless an explicit promotion or
   consented pilot grants a new retention term. Authored packet history and source ledgers
@@ -149,6 +149,7 @@ Binding detail remains in the exploration; these rows identify what this goal ex
 | [Single lab package](../../explorations/lejeune-bolt-agentic-demo/DECISIONS.md#2026-08-26--single-lab-package) | Both packets deliver into one lab package; no promotion now. |
 | [Replay-first](../../explorations/lejeune-bolt-agentic-demo/DECISIONS.md#2026-08-26--replay-first-lunch-demo) | The recorded golden run, not a live provider call, is the lunch artifact. |
 | [Disposition date](../../explorations/lejeune-bolt-agentic-demo/DECISIONS.md#2026-08-25--what-deletion-date-governs-the-lab-and-corpus) | Mutable corpus deletes or receives explicit promotion on 2026-09-30. |
+| Provider smoke narrowed (2026-10-21, branch `chore/remove-unused-drivers`) | The provider smoke is Anthropic-only; `venice-ai` left the provider-recording provider literals with `retired:venice-ai`. Reverse by restoring both from commit `426d494b34` via git. |
 
 ## Acceptance Criteria
 

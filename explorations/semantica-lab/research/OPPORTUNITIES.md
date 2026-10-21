@@ -215,7 +215,7 @@ ratifies.
   and external paths); the private-workspace case is a third spelling of it. Prevention: spell
   any untracked/gitignored/future path in prose in packet-root files; run
   `bun run beep ci lane lint-policy` on the committed branch before the full proof. Attribution
-  note: the `@beep/xai#build` TS2589 seen in the same proof is the known native-compiler flake;
+  note: the `retired:xai#build` TS2589 seen in the same proof is the known native-compiler flake;
   the build lane retried green and needed no repair. A second full cycle
   then failed on `knowledge:refs-check` for one `~/YeeBois/dev/effect` anchor in the same
   DECISIONS entry (`external-mirror-reference`, home-relative). Two cycles for two spellings of
@@ -250,7 +250,7 @@ ratifies.
   tool calls; quote `--include='*.ts'`; both are the same class as the `nullglob` receipt above.
 
 - **2026-08-26 — First live gold-proposal run surfaced four defects local tests could not see.**
-  (1) The repo `.env` names the key `AI_XAI_API_KEY` but `@beep/xai`'s `XAi.layer` reads
+  (1) The repo `.env` names the key `AI_XAI_API_KEY` but `retired:xai`'s `XAi.layer` reads
   `XAI_API_KEY`, so the driver failed with an opaque `reason: "config"` (its status-less
   config-miss error names no missing key). (2) `PinnedModelId` accepted no real xAI id: the live
   `/v1/models` list has `grok-4.6/4.5/4.3` — versioned, never dated — and the configured default
