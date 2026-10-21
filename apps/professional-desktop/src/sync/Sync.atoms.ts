@@ -132,13 +132,12 @@ export const VaultSyncPanelState = VaultSyncPanelStateKind.mapMembers(
     () => VaultSyncSucceededState,
     () => VaultSyncFailedState,
   ])
-)
-  .pipe(
-    $I.annoteSchema("VaultSyncPanelState", {
-      description: "Exhaustive lifecycle state for vault sync and conflict-review actions.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("VaultSyncPanelState", {
+    description: "Exhaustive lifecycle state for vault sync and conflict-review actions.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Runtime type for {@link VaultSyncPanelState}.
@@ -202,13 +201,12 @@ const VaultSyncCommandKind = LiteralKit(["trigger", "review"]).pipe(
  */
 export const VaultSyncCommand = VaultSyncCommandKind.mapMembers(
   Tuple.evolve([() => TriggerVaultSyncCommand, () => ReviewVaultSyncConflictCommand])
-)
-  .pipe(
-    $I.annoteSchema("VaultSyncCommand", {
-      description: "Serialized operator commands for one workspace vault sync state machine.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("VaultSyncCommand", {
+    description: "Serialized operator commands for one workspace vault sync state machine.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Runtime type for {@link VaultSyncCommand}.

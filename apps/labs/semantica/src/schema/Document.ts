@@ -104,13 +104,12 @@ const OriginKind = LiteralKit(["W1Paper", "Fixture"]);
  * @category schemas
  * @since 0.0.0
  */
-export const Origin = OriginKind.mapMembers(Tuple.evolve([() => W1PaperOrigin, () => FixtureOrigin]))
-  .pipe(
-    $I.annoteSchema("Origin", {
-      description: "Tagged source origin for a W1 paper or synthetic F1 fixture.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+export const Origin = OriginKind.mapMembers(Tuple.evolve([() => W1PaperOrigin, () => FixtureOrigin])).pipe(
+  $I.annoteSchema("Origin", {
+    description: "Tagged source origin for a W1 paper or synthetic F1 fixture.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Decoded source-document origin.

@@ -62,13 +62,14 @@ const ParseOutcomeKind = LiteralKit(["Parsed", "Degraded"]);
  * @category schemas
  * @since 0.0.0
  */
-export const ParseOutcome = ParseOutcomeKind.mapMembers(Tuple.evolve([() => ParsedOutcome, () => DegradedParseOutcome]))
-  .pipe(
-    $I.annoteSchema("ParseOutcome", {
-      description: "Parser outcome preserving either raw text or a typed degraded state.",
-    })
-  )
-  .pipe(S.toTaggedUnion("outcome"));
+export const ParseOutcome = ParseOutcomeKind.mapMembers(
+  Tuple.evolve([() => ParsedOutcome, () => DegradedParseOutcome])
+).pipe(
+  $I.annoteSchema("ParseOutcome", {
+    description: "Parser outcome preserving either raw text or a typed degraded state.",
+  }),
+  S.toTaggedUnion("outcome")
+);
 
 /**
  * Decoded parser outcome.

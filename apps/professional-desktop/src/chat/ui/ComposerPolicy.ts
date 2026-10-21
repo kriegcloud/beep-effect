@@ -102,13 +102,12 @@ const ComposerNoticeKind = LiteralKit(["decode-error", "error", "info"]).pipe(
  */
 export const ComposerNotice = ComposerNoticeKind.mapMembers(
   Tuple.evolve([() => ComposerDecodeErrorNotice, () => ComposerErrorNotice, () => ComposerInfoNotice])
-)
-  .pipe(
-    $I.annoteSchema("ComposerNotice", {
-      description: "Typed notification commands emitted by the composer state machine.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("ComposerNotice", {
+    description: "Typed notification commands emitted by the composer state machine.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Runtime type for {@link ComposerNotice}.

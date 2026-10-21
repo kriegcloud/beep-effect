@@ -319,13 +319,12 @@ class ManifestBytesMismatch extends S.Opaque<ManifestBytesMismatch, { readonly b
  */
 export const ManifestDiff = ManifestDriftKind.mapMembers(
   Tuple.evolve([() => MissingManifestFile, () => ManifestSha256Mismatch, () => ManifestBytesMismatch])
-)
-  .pipe(
-    $I.annoteSchema("ManifestDiff", {
-      description: "Exhaustive row-level W1 manifest drift details.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("ManifestDiff", {
+    description: "Exhaustive row-level W1 manifest drift details.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Runtime type for {@link ManifestDiff}.

@@ -149,13 +149,12 @@ const IntakeResultEntryKind = LiteralKit(["document", "failure"]).pipe(
  */
 export const IntakeResultEntry = IntakeResultEntryKind.mapMembers(
   Tuple.evolve([() => IntakeResultEntryDocument, () => IntakeResultEntryFailure])
-)
-  .pipe(
-    $I.annoteSchema("IntakeResultEntry", {
-      description: "Exhaustive per-file outcome emitted by desktop document intake.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("IntakeResultEntry", {
+    description: "Exhaustive per-file outcome emitted by desktop document intake.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Runtime type for {@link IntakeResultEntry}.
@@ -244,13 +243,12 @@ export const VaultSelectionState = VaultSelectionStateKind.mapMembers(
     () => VaultSelectionSaving,
     () => VaultSelectionFailed,
   ])
-)
-  .pipe(
-    $I.annoteSchema("VaultSelectionState", {
-      description: "Workspace vault picker and persistence lifecycle state.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("VaultSelectionState", {
+    description: "Workspace vault picker and persistence lifecycle state.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Runtime type for {@link VaultSelectionState}.
@@ -973,13 +971,12 @@ export const PickerOutcome = PickerOutcomeKind.mapMembers(
     () => PickerOutcomeFailed,
     () => PickerOutcomeManual,
   ])
-)
-  .pipe(
-    $I.annoteSchema("PickerOutcome", {
-      description: "How one native or sidecar vault picker flow finished.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("PickerOutcome", {
+    description: "How one native or sidecar vault picker flow finished.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 class ManualOutcomeCancelled extends S.Opaque<ManualOutcomeCancelled, {}>()(
   S.Struct({ kind: S.tag("cancelled") }).pipe(
@@ -1019,13 +1016,12 @@ const ManualOutcomeKind = LiteralKit(["cancelled", "saved"]).pipe(
  */
 export const ManualOutcome = ManualOutcomeKind.mapMembers(
   Tuple.evolve([() => ManualOutcomeCancelled, () => ManualOutcomeSaved])
-)
-  .pipe(
-    $I.annoteSchema("ManualOutcome", {
-      description: "How one manual vault path entry finished.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("ManualOutcome", {
+    description: "How one manual vault path entry finished.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Input of the vault-root persistence actor.

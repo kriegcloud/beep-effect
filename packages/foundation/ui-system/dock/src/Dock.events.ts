@@ -599,13 +599,12 @@ export const DockEvent = DockEventKind.mapMembers(
     () => GroupDockedEvent,
     () => FloatingGroupMovedEvent,
   ])
-)
-  .pipe(
-    $I.annoteSchema("DockEvent", {
-      description: "Exhaustive events produced by accepted commands and restores.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("DockEvent", {
+    description: "Exhaustive events produced by accepted commands and restores.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded complete dock domain event.
  *

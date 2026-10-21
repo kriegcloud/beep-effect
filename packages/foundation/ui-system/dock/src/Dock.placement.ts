@@ -244,13 +244,12 @@ const DockPlacementKind = LiteralKit(["root", "tab", "split", "rootSplit"]);
  */
 export const DockPlacement = DockPlacementKind.mapMembers(
   Tuple.evolve([() => RootPlacement, () => TabPlacement, () => SplitPlacement, () => RootSplitPlacement])
-)
-  .pipe(
-    $I.annoteSchema("DockPlacement", {
-      description: "Semantic panel placement independent from DOM coordinates.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("DockPlacement", {
+    description: "Semantic panel placement independent from DOM coordinates.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded panel-opening destination.
  *

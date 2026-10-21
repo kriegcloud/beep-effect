@@ -210,13 +210,12 @@ export class TextPanelView extends S.Opaque<TextPanelView, { readonly brand: uni
  * @category models
  * @since 0.0.0
  */
-export const PanelView = PanelViewKind.mapMembers(Tuple.evolve([() => ComponentPanelView, () => TextPanelView]))
-  .pipe(
-    $I.annoteSchema("PanelView", {
-      description: "Discriminated panel content with no DOM or framework values.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+export const PanelView = PanelViewKind.mapMembers(Tuple.evolve([() => ComponentPanelView, () => TextPanelView])).pipe(
+  $I.annoteSchema("PanelView", {
+    description: "Discriminated panel content with no DOM or framework values.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded renderer-neutral panel view.
  *
@@ -897,13 +896,12 @@ export class SplitNode extends S.Opaque<SplitNode, { readonly brand: unique symb
 type DockNodeShape = TabsNode | SplitNode;
 
 /** Recursive layout tree node. */
-const DockNodeBase = S.Union([TabsNode, SplitNode])
-  .pipe(
-    $I.annoteSchema("DockNode", {
-      description: "Recursive binary dock tree containing only non-empty leaves.",
-    })
-  )
-  .pipe(S.toTaggedUnion("_tag"));
+const DockNodeBase = S.Union([TabsNode, SplitNode]).pipe(
+  $I.annoteSchema("DockNode", {
+    description: "Recursive binary dock tree containing only non-empty leaves.",
+  }),
+  S.toTaggedUnion("_tag")
+);
 
 /**
  * Recursive codec for tabs and binary split tree nodes.

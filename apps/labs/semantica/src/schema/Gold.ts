@@ -542,13 +542,12 @@ const GoldFileSubset = LiteralKit(["structure", "entity", "relation"]);
 
 const GoldFileDefinition = GoldFileSubset.mapMembers(
   Tuple.evolve([() => GoldStructureFile, () => GoldEntityFile, () => GoldRelationFile])
-)
-  .pipe(
-    $I.annoteSchema("GoldFileDefinition", {
-      description: "Subset-indexed gold-v1 label file variants.",
-    })
-  )
-  .pipe(S.toTaggedUnion("subset"));
+).pipe(
+  $I.annoteSchema("GoldFileDefinition", {
+    description: "Subset-indexed gold-v1 label file variants.",
+  }),
+  S.toTaggedUnion("subset")
+);
 
 const GoldFileProposerCheck = S.makeFilter(
   (file: typeof GoldFileDefinition.Type) => file.proposer.taskType === "gold-proposal",
