@@ -1,9 +1,12 @@
 import { AcpClientTerminalLimits, make } from "@beep/acp/terminals";
-import * as NodeServices from "@effect/platform-node/NodeServices";
+import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
+import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 
@@ -11,7 +14,13 @@ const node = process.execPath;
 const script = (source: string) => ({ command: node, args: ["-e", source] });
 const cwd = process.cwd();
 
-it.layer(NodeServices.layer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => {
+// The spawner reads the filesystem only to check that an explicit cwd is accessible; every
+// command here runs in the test's own working directory.
+const SpawnerLayer = NodeChildProcessSpawner.layer.pipe(
+  Layer.provide(Layer.mergeAll(FileSystem.layerNoop({ access: () => Effect.void }), NodePath.layer))
+);
+
+it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => {
   it.effect(
     "runs a command, buffers output, and reports the exit status",
     Effect.fnUntraced(function* () {

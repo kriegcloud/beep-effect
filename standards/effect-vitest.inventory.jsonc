@@ -22969,28 +22969,6 @@
       "reason": "Native Bun child spawning, piped stdio and real termination/exit-code behavior are the test subjects; NodeServices supplies native process/path services. MemoryFileSystem is not a substitute."
     },
     {
-      "id": "EV010:packages/drivers/acp/test/terminals.test.ts:2:@effect/platform-node/NodeServices@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/acp",
-      "file": "packages/drivers/acp/test/terminals.test.ts",
-      "line": 2,
-      "endLine": 2,
-      "symbol": "@effect/platform-node/NodeServices",
-      "occurrence": "v2:fb7d6bba929488197f859519d08aea3efcf9ac097f647f2bbff02362d70850d7",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import * as NodeServices from \"@effect/platform-node/NodeServices\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Real child spawning, piped output, kill signals and exit codes of ACP client terminals are the test subjects; NodeServices supplies the native ChildProcessSpawner."
-    },
-    {
       "id": "EV010:packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts:9:@effect/platform-node/NodeServices@0#1",
       "lens": "resource",
       "ruleId": "EV010",
