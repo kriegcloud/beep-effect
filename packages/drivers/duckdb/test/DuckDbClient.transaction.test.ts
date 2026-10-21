@@ -363,6 +363,33 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
     );
 
     it.effect(
+      "maps a statement-time transaction conflict to SerializationError and keeps the client usable",
+      Effect.fnUntraced(function* () {
+        const instance = yield* acquireInstance;
+        const conn2 = yield* acquireRawConnection(instance);
+        const sql = yield* DuckDbClient.fromInstance({ instance });
+        yield* sql`create table tx_statement_conflict (id INTEGER)`;
+
+        const error = yield* sql
+          .withTransaction(
+            Effect.gen(function* () {
+              yield* sql`select * from tx_statement_conflict`;
+              yield* runRaw(conn2, "alter table tx_statement_conflict add column extra INTEGER");
+              yield* sql`insert into tx_statement_conflict (id) values (1)`;
+            })
+          )
+          .pipe(Effect.flip);
+
+        expect(error.reason._tag).toBe("SerializationError");
+        assert.isTrue(error.isRetryable);
+        yield* expectUsable(sql);
+        expect(yield* countRows(sql, "tx_statement_conflict")).toBe(0);
+        yield* sql.withTransaction(sql`insert into tx_statement_conflict (id) values (2)`);
+        expect(yield* countRows(sql, "tx_statement_conflict")).toBe(1);
+      })
+    );
+
+    it.effect(
       "maps a catalog write-write conflict to SerializationError and keeps the client usable",
       Effect.fnUntraced(function* () {
         const instance = yield* acquireInstance;

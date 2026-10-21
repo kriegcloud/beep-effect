@@ -207,7 +207,9 @@ its connection only after a statement still running at teardown settles. A file 
   sent inside a transaction you opened with raw `BEGIN`: when it is refused,
   the client runs `ROLLBACK` itself and the `COMMIT` fails with the same
   `UnknownError`.
-- **Commit-time conflicts** classify as `SerializationError` and are retryable.
+- **Write conflicts** classify as `SerializationError` and are retryable: commit-time
+  conflicts and statement-time ones (`Conflict on update!`, `Transaction conflict:`
+  after another transaction altered or dropped the table).
 - **Concurrent Migrator runs** on one file from two clients are not
   coordinated by a lock: the loser fails with `SerializationError` or dies, never
   with `MigrationError` kind `Locked`.
@@ -357,7 +359,7 @@ The reason's `message` names the operation; the native error is in
 | `INTERRUPT Error` | `StatementTimeoutError` |
 | duplicate key on a primary key or unique constraint | `UniqueViolation` (with `constraint`) |
 | other `Constraint Error` (NOT NULL, CHECK, FOREIGN KEY) | `ConstraintError` |
-| commit conflict, `Conflict on`, catalog write-write conflict | `SerializationError` |
+| commit conflict, `Conflict on`, `Transaction conflict`, catalog write-write conflict | `SerializationError` |
 | write in a read-only transaction, read-only attach, permission denied | `AuthorizationError` |
 | `Could not set lock on file` | `LockTimeoutError` |
 | `Connection Error`, closed instance or connection, IO error while connecting | `ConnectionError` |
