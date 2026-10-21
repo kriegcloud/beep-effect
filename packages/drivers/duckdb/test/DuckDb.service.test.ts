@@ -1145,12 +1145,12 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
 
         yield* Effect.gen(function* () {
           const firstFiber = yield* client
-            .unsafe<{ readonly value: number }>("select 1")
+            .unsafe<{ readonly value: number }>("select ? as value", [1])
             .pipe(Effect.forkChild({ startImmediately: true }));
           yield* awaitLatch(firstStarted);
           const interruption = yield* Fiber.interrupt(firstFiber).pipe(Effect.forkChild({ startImmediately: true }));
           const secondFiber = yield* client
-            .unsafe<{ readonly value: number }>("select 2")
+            .unsafe<{ readonly value: number }>("select ? as value", [2])
             .pipe(Effect.forkChild({ startImmediately: true }));
           expect(yield* latchResolvesWithin(secondStarted, 50)).toBe(false);
           releaseFirst.resolve();

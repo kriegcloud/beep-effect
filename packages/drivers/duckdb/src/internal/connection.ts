@@ -154,7 +154,11 @@ export const isDuckDbConnection = (u: unknown): u is DuckDbConnection => P.hasPr
  * scope closes under the op lock, so every cached statement is destroyed while
  * no other native operation runs on the connection. A `prepareCacheSize` of 0
  * or less disables the cache; every statement then runs through
- * `connection.run`. The native connection itself is never closed here.
+ * `connection.run`. Statements without bind values always run through
+ * `connection.run` as well: DuckDB plans a parameterless prepared statement
+ * once against the table statistics of that moment, so a cached copy can keep
+ * returning stale results after later writes. The native connection itself is
+ * never closed here.
  *
  * **Example** (Wrap a native connection)
  *
@@ -224,7 +228,11 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
   ): Effect.Effect<A, SqlError> => {
     const op = O.getOrElse(R.get(CONTROL_OPERATIONS, control), () => operation);
     const direct = gate.runUnlocked(op, () => native.run(sql, nativeBinds(binds)).then((r) => read(r, converter)));
-    const viaCache = O.filter(cache, () => prepared && control === "statement");
+    // DuckDB plans a parameterless prepared statement once, with the table
+    // statistics of that moment, so a constant filter pruned on an empty table
+    // stays empty after later writes. Only statements with binds are re-planned
+    // per execution, so only those use the cache.
+    const viaCache = O.filter(cache, () => prepared && control === "statement" && binds.length > 0);
     const run = O.match(viaCache, {
       onNone: () => direct,
       onSome: (statements) =>
