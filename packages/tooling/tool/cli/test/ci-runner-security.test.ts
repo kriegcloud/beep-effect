@@ -80,6 +80,7 @@ const WorkflowJobs = S.Record(
 type WorkflowJobs = typeof WorkflowJobs.Type;
 const decodeWorkflowSteps = S.decodeUnknownEffect(S.Array(WorkflowStep));
 const decodeWorkflowJobs = S.decodeUnknownEffect(WorkflowJobs);
+const encodeJobsFixture = S.encodeEffect(S.fromJsonString(S.Unknown));
 
 const workflowJobs = Effect.fnUntraced(function* (document: Document) {
   return yield* decodeWorkflowJobs(document.toJS().jobs);
@@ -1416,7 +1417,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       const download = stepByName(comparison, "Download coverage evidence");
       expect(download.uses).toBe("actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333");
       expect(download.with).toMatchObject({
-        pattern: "unit-coverage-${{ github.run_id }}-${{ github.run_attempt }}-*",
+        pattern: "unit-coverage-${{ github.run_id }}-*",
         path: ".beep/ci-coverage-inputs",
         "merge-multiple": false,
       });
@@ -1425,7 +1426,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       expect(compare.run).not.toContain("ci lane test");
       expect(setupMonorepoInputs(jobs, "coverage-regression")["cache-turbo"]).toBe("false");
       expect(setupMonorepoInputs(jobs, "coverage-regression")["turbo-token"]).toBeUndefined();
-      expect(jobs["coverage-regression"]?.permissions).toEqual({ contents: "read" });
+      expect(jobs["coverage-regression"]?.permissions).toEqual({ contents: "read", actions: "read" });
       for (const { job, name } of [
         { job: "test-unit-shard", name: "Upload Unit coverage evidence" },
         { job: "verify", name: "Upload Labs coverage evidence" },
@@ -1445,6 +1446,136 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       expect(gate.run).not.toContain("verify.result");
     })
   );
+
+  for (const scenario of [
+    {
+      name: "carried Labs execution",
+      original: true,
+      conclusion: "success",
+      started: "08:00:00",
+      completed: "08:04:00",
+      output: "attempt=1\n",
+    },
+    {
+      name: "actual Labs rerun",
+      original: true,
+      conclusion: "success",
+      started: "09:00:00",
+      completed: "09:04:00",
+      output: "attempt=2\n",
+    },
+    {
+      name: "failed latest Labs execution",
+      original: true,
+      conclusion: "failure",
+      started: "09:00:00",
+      completed: "09:04:00",
+      output: "",
+    },
+    {
+      name: "missing Labs attempt history",
+      original: false,
+      conclusion: "success",
+      started: "08:00:00",
+      completed: "08:04:00",
+      output: "",
+    },
+  ]) {
+    it.effect(`authenticates ${scenario.name} using the actual paginated workflow guard`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* findRepoRoot();
+        const policy = yield* readCredentialPolicySources();
+        const comparison = jobSteps(yield* workflowJobs(policy.workflow), "coverage-regression");
+        const authenticate = stepByName(comparison, "Authenticate latest Labs execution").run ?? "";
+        const manifestGuard =
+          Str.split(stepByName(comparison, "Compare coverage evidence").run ?? "", "shape_args=")[0] ?? "";
+        expect(authenticate).toContain("--paginate --slurp");
+        expect(manifestGuard).toContain('"$labs_manifest"');
+        const temp = yield* fs.makeTempDirectoryScoped();
+        const output = path.join(temp, "github-output");
+        const calls = path.join(temp, "api-calls");
+        yield* fs.writeFileString(output, "");
+        yield* fs.writeFileString(
+          path.join(temp, "gh"),
+          '#!/bin/bash\nset -euo pipefail\n[[ "${@: -1}" =~ /attempts/([0-9]+)/jobs ]] || exit 24\nattempt="${BASH_REMATCH[1]}"\nprintf "%s\\n" "$attempt" >> "$API_CALLS"\ncat "$JOBS_FIXTURES/$attempt.json"\n'
+        );
+        yield* fs.chmod(path.join(temp, "gh"), 0o700);
+        const original = {
+          name: "Labs",
+          run_attempt: 1,
+          status: "completed",
+          conclusion: "success",
+          started_at: "2026-10-21T08:00:00Z",
+          completed_at: "2026-10-21T08:04:00Z",
+        };
+        if (scenario.original) {
+          yield* fs.writeFileString(
+            path.join(temp, "1.json"),
+            yield* encodeJobsFixture([{ jobs: [{ name: "Unrelated verification" }] }, { jobs: [original] }])
+          );
+        }
+        yield* fs.writeFileString(
+          path.join(temp, "2.json"),
+          yield* encodeJobsFixture([
+            { jobs: [{ name: "Unrelated verification" }] },
+            {
+              jobs: [
+                {
+                  ...original,
+                  run_attempt: 2,
+                  conclusion: scenario.conclusion,
+                  started_at: `2026-10-21T${scenario.started}Z`,
+                  completed_at: `2026-10-21T${scenario.completed}Z`,
+                },
+              ],
+            },
+          ])
+        );
+        const ambientPath = yield* Config.String("PATH");
+        const env = {
+          ...process.env,
+          PATH: `${temp}:${ambientPath}`,
+          RUNNER_TEMP: temp,
+          GITHUB_OUTPUT: output,
+          GITHUB_RUN_ID: "123",
+          GITHUB_RUN_ATTEMPT: "2",
+          GITHUB_REPOSITORY: "beep-effect/beep-effect",
+          JOBS_FIXTURES: temp,
+          API_CALLS: calls,
+        };
+        const result = Bun.spawnSync(["bash", "-c", authenticate], { cwd: root, env, stdout: "pipe", stderr: "pipe" });
+        expect(result.exitCode === 0).toBe(Str.isNonEmpty(scenario.output));
+        expect(yield* fs.readFileString(output)).toBe(scenario.output);
+        expect(yield* fs.readFileString(calls)).toBe(scenario.original ? "1\n2\n" : "1\n");
+        if (Str.isNonEmpty(scenario.output)) {
+          const attempt = parseProfileOutput(scenario.output).attempt ?? "";
+          const manifest = path.join(temp, `.beep/ci-coverage-inputs/unit-coverage-123-${attempt}-labs/manifest.json`);
+          yield* fs.makeDirectory(path.dirname(manifest), { recursive: true });
+          yield* fs.writeFileString(
+            manifest,
+            yield* encodeJobsFixture({ partitionId: "labs", identity: { runId: "123", runAttempt: Number(attempt) } })
+          );
+          const accepted = Bun.spawnSync(["bash", "-c", manifestGuard], {
+            cwd: temp,
+            env: { ...env, LABS_PRODUCER_ATTEMPT: attempt },
+            stdout: "pipe",
+            stderr: "pipe",
+          });
+          expect(accepted.exitCode).toBe(0);
+          yield* fs.remove(manifest);
+          const missing = Bun.spawnSync(["bash", "-c", manifestGuard], {
+            cwd: temp,
+            env: { ...env, LABS_PRODUCER_ATTEMPT: attempt },
+            stdout: "pipe",
+            stderr: "pipe",
+          });
+          expect(missing.exitCode).not.toBe(0);
+        }
+      })
+    );
+  }
 
   it.effect("binds coverage rollout naming to GitHub's resolved reusable SHA and fails closed", () =>
     Effect.gen(function* () {
