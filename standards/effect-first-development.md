@@ -272,7 +272,9 @@ export class MyService extends Context.Service<MyService, {
   statics: a raw `.annotate` on an `S.toTaggedUnion(...)` result drops `match`,
   `cases`, `guards` and `isAnyOf` at runtime.
 - Classes keep their trailing annotation argument: `$I.annote(...)` for
-  `S.Class` / `S.Opaque`, `$I.annoteError<X>(...)` for errors.
+  `S.Class` / `S.TaggedClass`, `$I.annoteError<X>(...)` for errors. `S.Opaque`
+  takes none: it wraps a struct annotated with `.pipe($I.annoteSchema(...))`
+  (EF-33).
 - Checks and filters take `$I.annote("Name", {...})` as their annotation
   argument: `S.isPattern(re, $I.annote("SlugPattern", {...}))`,
   `S.makeFilter(f, $I.annote(...))`, `S.makeFilterGroup([...], $I.annote(...))`.
