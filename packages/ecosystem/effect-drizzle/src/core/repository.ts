@@ -389,8 +389,9 @@ const validateRepositoryModel = (model: AnyModel, idColumn: string): void => {
  *
  * Effect SQL writes model keys as SQL identifiers and decodes `returning *`
  * rows by key, while derived columns are `snakeCase(key)`. The `SqlClient`
- * must set `transformQueryNames: snakeCase` and `transformResultNames:
- * camelCase`; otherwise every multi-word field misses its column. Every field
+ * must set `transformQueryNames: snakeCase` and
+ * `transformResultNames: camelCase`; otherwise every multi-word field misses
+ * its column. Every field
  * key must survive `camelCase(snakeCase(key))` unchanged, so acronym keys such
  * as `userID` and snake_case keys throw {@link ModelInvariantError} at
  * construction. On PostgreSQL clients the transforms also rewrite keys inside
