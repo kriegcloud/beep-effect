@@ -68,8 +68,12 @@ The five subject-only packets stay unmigrated, each with its reason.
 #1879 `residue-target-exchange` is complete
 (`history/receipts/target-exchange.md`): atomic-exchange capability is probed and
 cached per target filesystem identity, using disposable files on the target's own
-mount. Unsupported filesystems refuse before any backup or publication. #1880 and
-#1881 follow in that order.
+mount. Unsupported filesystems refuse before any backup or publication.
+#1880 `residue-exchange-recovery` is complete
+(`history/receipts/exchange-recovery.md`): every publication is a durable journal
+state machine, and one idempotent reconciliation path recovers each crash point
+byte-exact from the next apply, `beep models recover` or `restore`, refusing with
+every artifact kept when a competing writer changed the target. #1881 follows.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability
