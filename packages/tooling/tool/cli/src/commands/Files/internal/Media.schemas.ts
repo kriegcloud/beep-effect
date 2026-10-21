@@ -35,18 +35,19 @@ const $I = $RepoCliId.create("commands/Files/internal/Media.schemas");
 export const PositiveMediaDimension = S.Int.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThan(0, {
-        identifier: $I`PositiveMediaDimensionGreaterThanZeroCheck`,
-        title: "Positive Media Dimension",
-        description: "A media width or height must be greater than zero.",
-        message: "Expected a positive media dimension",
-      }),
+      S.isGreaterThan(
+        0,
+        $I.annote("PositiveMediaDimensionGreaterThanZeroCheck", {
+          title: "Positive Media Dimension",
+          description: "A media width or height must be greater than zero.",
+          message: "Expected a positive media dimension",
+        })
+      ),
     ],
-    {
-      identifier: $I`PositiveMediaDimensionChecks`,
+    $I.annote("PositiveMediaDimensionChecks", {
       title: "Positive Media Dimension",
       description: "Checks for positive integer media dimensions.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PositiveMediaDimension", {
@@ -78,12 +79,14 @@ export type PositiveMediaDimension = typeof PositiveMediaDimension.Type;
  * @since 0.0.0
  */
 export const FileSha256Hash = S.String.check(
-  S.isPattern(/^sha256:[a-f0-9]{64}$/, {
-    identifier: $I`FileSha256HashPatternCheck`,
-    title: "File SHA-256 Hash",
-    description: "A file content hash must use the sha256:<64 lowercase hex digits> format.",
-    message: "Expected a SHA-256 file hash",
-  })
+  S.isPattern(
+    /^sha256:[a-f0-9]{64}$/,
+    $I.annote("FileSha256HashPatternCheck", {
+      title: "File SHA-256 Hash",
+      description: "A file content hash must use the sha256:<64 lowercase hex digits> format.",
+      message: "Expected a SHA-256 file hash",
+    })
+  )
 ).pipe(
   $I.annoteSchema("FileSha256Hash", {
     description: "A SHA-256 digest for exact file-byte duplicate detection.",
@@ -116,18 +119,19 @@ export type FileSha256Hash = typeof FileSha256Hash.Type;
 export const NonNegativePixelOffset = S.Int.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`NonNegativePixelOffsetGreaterThanOrEqualToZeroCheck`,
-        title: "Non-negative Pixel Offset",
-        description: "A crop offset must be greater than or equal to zero.",
-        message: "Expected a non-negative pixel offset",
-      }),
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("NonNegativePixelOffsetGreaterThanOrEqualToZeroCheck", {
+          title: "Non-negative Pixel Offset",
+          description: "A crop offset must be greater than or equal to zero.",
+          message: "Expected a non-negative pixel offset",
+        })
+      ),
     ],
-    {
-      identifier: $I`NonNegativePixelOffsetChecks`,
+    $I.annote("NonNegativePixelOffsetChecks", {
       title: "Non-negative Pixel Offset",
       description: "Checks for non-negative integer pixel offsets.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("NonNegativePixelOffset", {
@@ -190,24 +194,27 @@ export type MediaKind = typeof MediaKind.Type;
 export const RgbChannel = S.Int.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`RgbChannelGreaterThanOrEqualToZeroCheck`,
-        title: "RGB Channel Minimum",
-        description: "RGB channel values must be zero or greater.",
-        message: "Expected an RGB channel value no less than zero",
-      }),
-      S.isLessThanOrEqualTo(255, {
-        identifier: $I`RgbChannelLessThanOrEqualToTwoHundredFiftyFiveCheck`,
-        title: "RGB Channel Maximum",
-        description: "RGB channel values must not exceed 255.",
-        message: "Expected an RGB channel value no greater than 255",
-      }),
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("RgbChannelGreaterThanOrEqualToZeroCheck", {
+          title: "RGB Channel Minimum",
+          description: "RGB channel values must be zero or greater.",
+          message: "Expected an RGB channel value no less than zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        255,
+        $I.annote("RgbChannelLessThanOrEqualToTwoHundredFiftyFiveCheck", {
+          title: "RGB Channel Maximum",
+          description: "RGB channel values must not exceed 255.",
+          message: "Expected an RGB channel value no greater than 255",
+        })
+      ),
     ],
-    {
-      identifier: $I`RgbChannelChecks`,
+    $I.annote("RgbChannelChecks", {
       title: "RGB Channel",
       description: "Checks for one 8-bit RGB channel.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("RgbChannel", {
@@ -346,36 +353,43 @@ export class FfprobeOutput extends S.Opaque<FfprobeOutput, { readonly brand: uni
 export const SafeFilePrefix = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(P.not(Str.includes(".")), {
-        identifier: $I`SafeFilePrefixNoDotCheck`,
-        title: "Safe File Prefix Without Dot",
-        description: "A file prefix that does not contain a dot.",
-        message: "File prefix must not contain .",
-      }),
-      S.makeFilter(P.not(Str.includes("/")), {
-        identifier: $I`SafeFilePrefixNoPosixSeparatorCheck`,
-        title: "Safe File Prefix Without Posix Separator",
-        description: "A file prefix that does not contain the POSIX path separator.",
-        message: "File prefix must not contain /",
-      }),
-      S.makeFilter(P.not(Str.includes("\\")), {
-        identifier: $I`SafeFilePrefixNoWindowsSeparatorCheck`,
-        title: "Safe File Prefix Without Windows Separator",
-        description: "A file prefix that does not contain the Windows path separator.",
-        message: "File prefix must not contain \\",
-      }),
-      S.makeFilter(P.not(Str.includes("\0")), {
-        identifier: $I`SafeFilePrefixNoNullByteCheck`,
-        title: "Safe File Prefix Without Null Byte",
-        description: "A file prefix that does not contain an embedded NUL byte.",
-        message: "File prefix must not contain embedded NUL bytes",
-      }),
+      S.makeFilter(
+        P.not(Str.includes(".")),
+        $I.annote("SafeFilePrefixNoDotCheck", {
+          title: "Safe File Prefix Without Dot",
+          description: "A file prefix that does not contain a dot.",
+          message: "File prefix must not contain .",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.includes("/")),
+        $I.annote("SafeFilePrefixNoPosixSeparatorCheck", {
+          title: "Safe File Prefix Without Posix Separator",
+          description: "A file prefix that does not contain the POSIX path separator.",
+          message: "File prefix must not contain /",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.includes("\\")),
+        $I.annote("SafeFilePrefixNoWindowsSeparatorCheck", {
+          title: "Safe File Prefix Without Windows Separator",
+          description: "A file prefix that does not contain the Windows path separator.",
+          message: "File prefix must not contain \\",
+        })
+      ),
+      S.makeFilter(
+        P.not(Str.includes("\0")),
+        $I.annote("SafeFilePrefixNoNullByteCheck", {
+          title: "Safe File Prefix Without Null Byte",
+          description: "A file prefix that does not contain an embedded NUL byte.",
+          message: "File prefix must not contain embedded NUL bytes",
+        })
+      ),
     ],
-    {
-      identifier: $I`SafeFilePrefixChecks`,
+    $I.annote("SafeFilePrefixChecks", {
       title: "Safe File Prefix",
       description: "Checks for a safe file-name stem used as a generated dataset prefix.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("SafeFilePrefix", {

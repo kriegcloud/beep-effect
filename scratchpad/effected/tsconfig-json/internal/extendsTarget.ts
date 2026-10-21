@@ -15,7 +15,7 @@
  */
 
 import { Jsonc } from "@beep/jsonc";
-import { Walker } from "../../walker/index.ts";
+import { Walker } from "@beep/walker/Walker";
 import type * as PlatformError from "effect/PlatformError";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

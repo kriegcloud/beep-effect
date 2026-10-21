@@ -16,12 +16,14 @@ import * as S from "effect/Schema";
 const $I = $InfraId.create("AccountCostControls");
 
 const AccountId = S.String.check(
-  S.isPattern(/^\d{12}$/u, {
-    identifier: $I`AccountIdFormat`,
-    title: "AWS Account ID",
-    description: "The twelve-digit AWS account that owns the cost controls.",
-    message: "Expected a twelve-digit AWS account ID",
-  })
+  S.isPattern(
+    /^\d{12}$/u,
+    $I.annote("AccountIdFormat", {
+      title: "AWS Account ID",
+      description: "The twelve-digit AWS account that owns the cost controls.",
+      message: "Expected a twelve-digit AWS account ID",
+    })
+  )
 ).pipe($I.annoteSchema("AccountId", { description: "Expected AWS account for guarded cost operations." }));
 
 const PositiveDollars = S.Finite.check(S.isGreaterThan(0)).pipe(

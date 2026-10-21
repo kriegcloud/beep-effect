@@ -68,6 +68,27 @@ export * from "./CiOperational.service.ts";
  */
 export * from "./CiRerunRunnerLoss.ts";
 /**
+ * Dependency review service, live layer and verdict rendering.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./DependencyReview.ts";
+/**
+ * Manifest-aware dependency review subcommand export.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./DependencyReviewCommand.ts";
+/**
+ * Dependency review compare, fixture-policy and verdict schemas.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./DependencyReviewSchemas.ts";
+/**
  * Public heavy-admission decision export.
  *
  * @category cli-commands

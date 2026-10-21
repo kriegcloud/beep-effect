@@ -59,12 +59,14 @@ const legacyNameSets = [
 
 const PostgresSchemaName = S.NonEmptyString.pipe(
   S.check(
-    S.isPattern(/^[A-Za-z_][A-Za-z0-9_]*$/, {
-      identifier: $I`PostgresSchemaNamePattern`,
-      title: "Postgres Schema Name",
-      description: "Postgres schema names accepted by the Professional Desktop migration journal option.",
-      message: "Expected a Postgres schema name starting with a letter or underscore",
-    })
+    S.isPattern(
+      /^[A-Za-z_][A-Za-z0-9_]*$/,
+      $I.annote("PostgresSchemaNamePattern", {
+        title: "Postgres Schema Name",
+        description: "Postgres schema names accepted by the Professional Desktop migration journal option.",
+        message: "Expected a Postgres schema name starting with a letter or underscore",
+      })
+    )
   ),
   $I.annoteSchema("PostgresSchemaName", {
     description: "Identifier-like Postgres schema name used for Drizzle migration journaling.",

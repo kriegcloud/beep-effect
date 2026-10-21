@@ -1,4 +1,4 @@
-import { Walker } from "../walker/index.ts";
+import { Walker } from "@beep/walker/Walker";
 import type * as FileSystem from "effect/FileSystem";
 import type * as O from "effect/Option";
 import * as Effect from "effect/Effect";

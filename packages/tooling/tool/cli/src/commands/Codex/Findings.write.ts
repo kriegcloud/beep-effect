@@ -98,12 +98,14 @@ export class PacketDocument extends S.Opaque<PacketDocument, { readonly brand: u
     // which every Codex packet requires — is admitted. The trailing lookahead
     // rejects `.` and `..` as a filename in their own right.
     path: S.String.check(
-      S.isPattern(/^(?:[A-Za-z0-9][A-Za-z0-9._-]*\/)*(?!\.\.?$)[A-Za-z0-9._-]+$/, {
-        identifier: $I`PacketDocumentPathCheck`,
-        title: "Packet Document Path",
-        description: "Packet-relative paths carry no traversal, no hidden directory, and no absolute prefix.",
-        message: "Expected a packet-relative document path",
-      })
+      S.isPattern(
+        /^(?:[A-Za-z0-9][A-Za-z0-9._-]*\/)*(?!\.\.?$)[A-Za-z0-9._-]+$/,
+        $I.annote("PacketDocumentPathCheck", {
+          title: "Packet Document Path",
+          description: "Packet-relative paths carry no traversal, no hidden directory, and no absolute prefix.",
+          message: "Expected a packet-relative document path",
+        })
+      )
     ).pipe(
       $I.annoteKey("PacketDocument.path", {
         description: "Location of the document relative to the packet directory.",

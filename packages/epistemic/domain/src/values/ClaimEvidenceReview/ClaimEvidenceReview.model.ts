@@ -101,8 +101,8 @@ export class ClaimEvidenceReview extends S.Opaque<ClaimEvidenceReview, { readonl
 export const ClaimEvidenceVerification = S.TaggedUnion({
   Verified: {},
   Unverified: { reason: VerifiedTextAnchorErrorReason },
-}).annotate(
-  $I.annote("ClaimEvidenceVerification", {
+}).pipe(
+  $I.annoteSchema("ClaimEvidenceVerification", {
     description: "Current exact-source verification result, separate from any human approval.",
   })
 );
@@ -124,8 +124,8 @@ export const ClaimEvidenceVerification = S.TaggedUnion({
  */
 export type ClaimEvidenceVerification = typeof ClaimEvidenceVerification.Type;
 
-const ReviewStalenessReason = LiteralKit(["basis-changed", "source-unverified"]).annotate(
-  $I.annote("ReviewStalenessReason", {
+const ReviewStalenessReason = LiteralKit(["basis-changed", "source-unverified"]).pipe(
+  $I.annoteSchema("ReviewStalenessReason", {
     description: "Reason a historical approval cannot apply to the current evidence.",
   })
 );
@@ -148,8 +148,8 @@ export const ClaimEvidenceReviewStatus = S.TaggedUnion({
   Pending: {},
   Current: { review: ClaimEvidenceReview },
   Stale: { review: ClaimEvidenceReview, reason: ReviewStalenessReason },
-}).annotate(
-  $I.annote("ClaimEvidenceReviewStatus", {
+}).pipe(
+  $I.annoteSchema("ClaimEvidenceReviewStatus", {
     description: "Pending human review, a current approval, or a retained approval whose basis is stale.",
   })
 );

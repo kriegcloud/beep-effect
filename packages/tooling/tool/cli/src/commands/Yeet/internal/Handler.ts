@@ -1381,8 +1381,8 @@ const MonitorCheckReconciliation = S.TaggedUnion({
   "required-red": {},
   timeout: { names: S.String },
   unreadable: {},
-}).annotate(
-  $I.annote("MonitorCheckReconciliation", {
+}).pipe(
+  $I.annoteSchema("MonitorCheckReconciliation", {
     description: "Required-census decision after a nonzero check watch attempt.",
   })
 );

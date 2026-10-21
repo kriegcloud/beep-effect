@@ -15,6 +15,9 @@
       "path": "../../../drivers/ffmpeg/tsconfig.json"
     },
     {
+      "path": "../../../drivers/github/tsconfig.json"
+    },
+    {
       "path": "../../../drivers/libpff/tsconfig.json"
     },
     {
@@ -69,6 +72,9 @@
       "path": "../../../foundation/capability/technical-drawing/tsconfig.json"
     },
     {
+      "path": "../../../foundation/capability/walker/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/identity/tsconfig.json"
     },
     {
@@ -79,6 +85,9 @@
     },
     {
       "path": "../../../foundation/modeling/skill-contract/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/modeling/spdx/tsconfig.json"
     },
     {
       "path": "../../../foundation/modeling/utils/tsconfig.json"

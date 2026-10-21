@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a (`@beep/npm-spec`, `@beep/tsconfig`) in progress.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b-1 merged (#1992, `@beep/walker`); wave 2b-2 (`@beep/github`, D-34, D-35) in review.
 
 ## Phases
 
@@ -20,9 +20,12 @@ Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged 
 | --- | --- | --- |
 | 1a (merged, #1956) | `@beep/spdx`, `@beep/schema-org`, `@beep/github-references`, `@beep/github-commands`, `@beep/commands`, `@beep/jsonl`, `@beep/jsonc`, `@beep/semver` | Low-finding packages first (D-19, D-20, D-21); every gate at zero findings, no inventory growth. |
 | 1b (merged, #1981) | `@beep/memfs` (+ D-07 retirement of `@beep/test-utils/MemoryFileSystem`), `@beep/managed-section`, `@beep/toml`, `@beep/git`, `@beep/glob`, `@beep/yaml` | Complexity and duplication refactored to zero against the conformance oracles (yaml-test-suite, toml-test, minimatch, node:fs differential suites); shared helpers in `@beep/utils` (D-23); memfs replaces the test-utils copy in 17 packages (D-25). |
-| 2a (in progress) | `@beep/npm-spec`, `@beep/tsconfig` | The pure halves of `npm` and `tsconfig-json` (D-26..D-28); `DEFAULT_REGISTRY` moves into `@beep/npm-spec`. The registry/publish half and the tsconfig loaders stay in the lab. |
-| 2b | `@beep/walker`, `@beep/runtime-env`, `@beep/github` | `@beep/github` replaces `@effected/github` in repo-cli. `walker` lands with repo-utils Root/FsUtils as importers; `runtime-env` with repo-cli EnvConfig and `@beep/chalk`. |
-| 2c | `@beep/markdown` (+ `@beep/md` `Md.syntax`/`Md.parse`) | D-02 layered design. |
+| 2a (merged, #1988) | `@beep/npm-spec`, `@beep/tsconfig` | The pure halves of `npm` and `tsconfig-json` (D-26..D-28); `DEFAULT_REGISTRY` moves into `@beep/npm-spec`. The registry/publish half and the tsconfig loaders stay in the lab. |
+| 2b-1 (merged, #1992) | `@beep/walker` | D-31, D-32. Adopters: repo-utils `Root` `findRepoRoot`, `TSMorph` `resolveFileEntrypointTsConfig`, `FsUtils` `findNearestPackageDir`; repo-cli `Drawings.review`, `TestTsgoPrograms` (segment-aware containment). Lab importers retargeted to `@beep/walker` leaves. |
+| 2b-2 (in review) | `@beep/github` | Replaces `@effected/github` in repo-cli (one atomic swap, D-34); closes the `@effected/github` Exception Ledger row. Merges after 2b-1 (shared identity, catalog, `bun.lock` and `PROMOTED`-map files). |
+| 2b-3 | `@beep/runtime-env` | Lands with repo-cli EnvConfig and the `@beep/chalk`/`@beep/colors` delegation (D-14, colour precedence ruling). Last in 2b: the only PR with intended CI-visible behaviour changes. |
+| 2c | glob adoption (no new package) | Needs 2b-1. Retires `@beep/utils/Glob`, `@beep/schema/Glob` and `FsUtils.walkFiles`/`globFiles` onto `@beep/glob` + `@beep/walker`, and repo-cli `Lint/internal/WorkspaceWalk.ts`; records the Bun `node:fs` glob census. Closes the "Duplicate glob matching" and "Duplicate directory traversal" ledger rows. |
+| 2d | `@beep/markdown` (+ `@beep/md` `Md.syntax`/`Md.parse`) | D-02 layered design (formerly labelled 2c; renumbered by D-31). |
 | 3 | `@beep/package-json`, `@beep/lockfiles`, `@beep/github-reporting`, `@beep/config-file`, `@beep/repo-tsconfig` | `repo-tsconfig` replaces `get-tsconfig`; `config-file` lands with docgen and the repo-cli Models store as importers. |
 | 4 | `@beep/sbom`, `@beep/xdg`, `@beep/cli-kit`, `@beep/repo-workspaces` | `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
 | 5 | `@beep/github-actions` | Leaf driver. |
@@ -50,7 +53,7 @@ promotion restores the upstream optional semantics its tests assert, as
 
 | Module | Failing on main | Wave |
 | --- | --- | --- |
-| `github` | `CodeScanning.test.ts` explicit-undefined keys | 2 |
+| `github` | `CodeScanning.test.ts` explicit-undefined keys | fixed in 2b-2: `CodeScanningSetup`'s five optional keys are `S.optional` again; the Bun `blakejs` interop failure in `crypto.test.ts` went with the dependency (D-34) |
 | `engine` | `ProcessGuard.test.ts` explicit-undefined `onRejection` | deferred |
 | `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubMarkdown, GitHubToken, twirp, ManagedDocument, PackageManagerInstaller, sigv4, ToolInstaller option schemas | 5 |
 | `cli` | CliLog/CliTest property tests, round-3 config and key-input schemas, CliMessage and Status hostile-glyph suites | 4 |

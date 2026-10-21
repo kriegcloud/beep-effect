@@ -70,6 +70,12 @@ a qualified, verified atomic exchange, journals each publication with the same s
 machine, and recovers every crash point byte-exact through the next update or
 `beep skills recover`, refusing a replacing writer with every artifact kept
 ([record](./history/receipts/skill-publication.md)).
+
+#1882 is complete: the required `Security` job runs `beep ci dependency-review`
+with its read-only token. It excludes only manifests under the declared
+`**/test/**/fixtures/**` policy, keeps production transitive advisories and the
+action's thresholds, and fails closed when GitHub cannot answer
+([record](./history/receipts/dependency-review.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.

@@ -13,8 +13,8 @@ import { PosInt } from "../internal/PosInt.ts";
 import { AiNGram, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/NGrams");
-const NGramModeKit = LiteralKit(["bag", "edge", "set"]).annotate(
-  $I.annote("NGramModeKit", {
+const NGramModeKit = LiteralKit(["bag", "edge", "set"]).pipe(
+  $I.annoteSchema("NGramModeKit", {
     description: "LiteralKit backing schema for character n-gram generation modes.",
   })
 );

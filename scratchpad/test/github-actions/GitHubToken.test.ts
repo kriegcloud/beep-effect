@@ -1,14 +1,9 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, fail } from "@effect/vitest/utils";
 import * as Exit from "effect/Exit";
-import type { GitHubAppShape } from "../../effected/github/index.ts";
-import {
-  AppIdentity,
-  GitHubApp,
-  GitHubAppError,
-  GitHubClient,
-  InstallationToken,
-} from "../../effected/github/index.ts";
+import type { GitHubAppShape } from "@beep/github/GitHubApp";
+import { AppIdentity, GitHubApp, GitHubAppError, InstallationToken } from "@beep/github/GitHubApp";
+import { GitHubClient } from "@beep/github/GitHubClient";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

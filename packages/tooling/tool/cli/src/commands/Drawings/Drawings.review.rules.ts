@@ -225,7 +225,7 @@ export const parseFigureOverride = (text: string): Result.Result<FigureOverride,
     : Result.succeed(FigureOverride.make({ file, page, figure }));
 };
 
-const normalize = (text: string): string => Str.toLowerCase(Str.trim(text.replace(WHITESPACE, " ")));
+const normalize = (text: string): string => Str.toLowerCase(Str.trim(Str.replace(WHITESPACE, " ")(text)));
 
 /**
  * Whether a note says it applies to every sheet ("(all sheets)").
@@ -416,7 +416,7 @@ export const buildFindings = (input: {
     A.map(drafts, (draft, index) => {
       const every = coversEverySheet(draft, input.sheets);
       return ReviewFinding.make({
-        id: ReviewFindingId.make(`A${input.round}-${`${index + 1}`.padStart(2, "0")}`),
+        id: ReviewFindingId.make(`A${input.round}-${Str.padStart(2, "0")(`${index + 1}`)}`),
         severity: "P1",
         scope: every ? "all-sheets" : "sheet",
         figures: every ? [] : A.sort(draft.figures, Order.Number),
@@ -455,7 +455,7 @@ export const reviewFindingRef: {
 } = dual(
   2,
   (id: ReviewFindingId, sheetSetSha256: Sha256Hex): ReviewFindingRef =>
-    ReviewFindingRef.make(`${id}@${sheetSetSha256.slice(0, 12)}`)
+    ReviewFindingRef.make(`${id}@${Str.slice(0, 12)(sheetSetSha256)}`)
 );
 
 const planned = (): ReviewFindingStatus => "planned";
@@ -606,7 +606,7 @@ export const statementGuard = (input: {
       ", "
     );
   const where = (round: ReviewRound): string => {
-    const set = round.reviewedSheetSetSha256.slice(0, 12);
+    const set = Str.slice(0, 12)(round.reviewedSheetSetSha256);
     if (round.reviewedSheetSetSha256 === input.sheetSetSha256) {
       return "this sheet set";
     }
@@ -634,7 +634,7 @@ export const statementGuard = (input: {
   return ReviewGuardVerdict.make({ refusals: A.getSomes(refusals), warnings: [] });
 };
 
-const cell = (text: string): string => text.replace(/\|/g, "\\|").replace(/\r?\n/g, "<br>");
+const cell = (text: string): string => Str.replace(/\r?\n/g, "<br>")(Str.replace(/\|/g, "\\|")(text));
 
 const dispositionText: (disposition: Disposition) => string = Disposition.match({
   "spec-change": ({ pointer, summary }) => `spec change at ${pointer}: ${summary}`,
@@ -704,7 +704,7 @@ export const reviewerRequestsSection = (input: {
 }): string =>
   A.join(
     [
-      `### Reviewer requests (review round ${input.round}, on sheet set ${input.sheetSetSha256.slice(0, 12)})`,
+      `### Reviewer requests (review round ${input.round}, on sheet set ${Str.slice(0, 12)(input.sheetSetSha256)})`,
       "",
       "The attorney marked up an earlier set with the requests below. Check each one on these sheets.",
       "A request these sheets still do not meet is a finding whose title starts with the request id (the whole `A<round>-<nn>@<set>` value).",

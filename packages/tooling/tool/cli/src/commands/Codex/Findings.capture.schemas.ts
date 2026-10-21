@@ -133,18 +133,23 @@ export const CodexCaptureAuthState = LiteralKit(["authenticated", "expired"]).pi
 export type CodexCaptureAuthState = typeof CodexCaptureAuthState.Type;
 
 const CodexFindingIdChecks = S.makeFilterGroup([
-  S.isBetweenLength(32, 32, {
-    identifier: $I`CodexFindingIdLengthCheck`,
-    title: "Codex Finding Id Length",
-    description: "Codex finding identifiers are exactly 32 characters.",
-    message: "Expected a 32-character Codex finding identifier",
-  }),
-  S.isPattern(/^[0-9a-f]{32}$/, {
-    identifier: $I`CodexFindingIdPatternCheck`,
-    title: "Codex Finding Id Pattern",
-    description: "Codex finding identifiers are lowercase hexadecimal.",
-    message: "Expected a lowercase hexadecimal Codex finding identifier",
-  }),
+  S.isBetweenLength(
+    32,
+    32,
+    $I.annote("CodexFindingIdLengthCheck", {
+      title: "Codex Finding Id Length",
+      description: "Codex finding identifiers are exactly 32 characters.",
+      message: "Expected a 32-character Codex finding identifier",
+    })
+  ),
+  S.isPattern(
+    /^[0-9a-f]{32}$/,
+    $I.annote("CodexFindingIdPatternCheck", {
+      title: "Codex Finding Id Pattern",
+      description: "Codex finding identifiers are lowercase hexadecimal.",
+      message: "Expected a lowercase hexadecimal Codex finding identifier",
+    })
+  ),
 ]);
 
 /**
@@ -204,12 +209,14 @@ export type CodexFindingId = typeof CodexFindingId.Type;
  * @since 0.0.0
  */
 export const SecurityCloudFindingId = S.String.check(
-  S.isPattern(/^commit:[0-9a-f]{32}$/, {
-    identifier: $I`SecurityCloudFindingIdPatternCheck`,
-    title: "Security Cloud Finding Id",
-    description: "A commit namespace followed by the provider's 32-character lowercase hexadecimal identity.",
-    message: "Expected a Security Cloud commit finding identity",
-  })
+  S.isPattern(
+    /^commit:[0-9a-f]{32}$/,
+    $I.annote("SecurityCloudFindingIdPatternCheck", {
+      title: "Security Cloud Finding Id",
+      description: "A commit namespace followed by the provider's 32-character lowercase hexadecimal identity.",
+      message: "Expected a Security Cloud commit finding identity",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SecurityCloudFindingId", {
     description: "Source-qualified Security Cloud commit finding identity, preserved verbatim.",
@@ -276,18 +283,23 @@ export const CodexCaptureSource = LiteralKit(["cloud-csv", "security-cloud-csv",
 export type CodexCaptureSource = typeof CodexCaptureSource.Type;
 
 const GitCommitShaChecks = S.makeFilterGroup([
-  S.isBetweenLength(40, 40, {
-    identifier: $I`GitCommitShaLengthCheck`,
-    title: "Git Commit Sha Length",
-    description: "Full git object names are exactly 40 characters.",
-    message: "Expected a 40-character git commit sha",
-  }),
-  S.isPattern(/^[0-9a-f]{40}$/, {
-    identifier: $I`GitCommitShaPatternCheck`,
-    title: "Git Commit Sha Pattern",
-    description: "Git object names are lowercase hexadecimal.",
-    message: "Expected a lowercase hexadecimal git commit sha",
-  }),
+  S.isBetweenLength(
+    40,
+    40,
+    $I.annote("GitCommitShaLengthCheck", {
+      title: "Git Commit Sha Length",
+      description: "Full git object names are exactly 40 characters.",
+      message: "Expected a 40-character git commit sha",
+    })
+  ),
+  S.isPattern(
+    /^[0-9a-f]{40}$/,
+    $I.annote("GitCommitShaPatternCheck", {
+      title: "Git Commit Sha Pattern",
+      description: "Git object names are lowercase hexadecimal.",
+      message: "Expected a lowercase hexadecimal git commit sha",
+    })
+  ),
 ]);
 
 /**
@@ -349,12 +361,14 @@ export type GitCommitSha = typeof GitCommitSha.Type;
  * @since 0.0.0
  */
 export const CaptureDate = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}$/, {
-    identifier: $I`CaptureDatePatternCheck`,
-    title: "Capture Date Pattern",
-    description: "Capture dates are ISO calendar dates without a time component.",
-    message: "Expected a YYYY-MM-DD capture date",
-  })
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}$/,
+    $I.annote("CaptureDatePatternCheck", {
+      title: "Capture Date Pattern",
+      description: "Capture dates are ISO calendar dates without a time component.",
+      message: "Expected a YYYY-MM-DD capture date",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CaptureDate", {
     description: "Calendar date a findings capture ran, used to derive the packet slug.",
@@ -386,12 +400,14 @@ export type CaptureDate = typeof CaptureDate.Type;
  * @since 0.0.0
  */
 export const GitHubRepoSlug = S.String.check(
-  S.isPattern(/^[A-Za-z0-9._-]{1,39}\/[A-Za-z0-9._-]{1,100}$/, {
-    identifier: $I`GitHubRepoSlugPatternCheck`,
-    title: "GitHub Repo Slug Pattern",
-    description: "Repository slugs are a bounded owner and name separated by a single slash.",
-    message: "Expected an owner/repo GitHub slug",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9._-]{1,39}\/[A-Za-z0-9._-]{1,100}$/,
+    $I.annote("GitHubRepoSlugPatternCheck", {
+      title: "GitHub Repo Slug Pattern",
+      description: "Repository slugs are a bounded owner and name separated by a single slash.",
+      message: "Expected an owner/repo GitHub slug",
+    })
+  )
 ).pipe(
   $I.annoteSchema("GitHubRepoSlug", {
     description: "Bounded GitHub owner/repo slug the captured findings were scoped to.",
@@ -407,34 +423,42 @@ export const GitHubRepoSlug = S.String.check(
 export type GitHubRepoSlug = typeof GitHubRepoSlug.Type;
 
 const CodexFindingTitleChecks = S.makeFilterGroup([
-  S.isMinLength(1, {
-    identifier: $I`CodexFindingTitleMinLengthCheck`,
-    title: "Codex Finding Title Minimum Length",
-    description: "Every captured finding carries a title.",
-    message: "Expected a non-empty finding title",
-  }),
-  S.isMaxLength(300, {
-    identifier: $I`CodexFindingTitleMaxLengthCheck`,
-    title: "Codex Finding Title Maximum Length",
-    description: "Finding titles are bounded so packet documents stay within their size budgets.",
-    message: "Expected a finding title of at most 300 characters",
-  }),
-  S.isPattern(/^[^\p{Cc}\p{Cf}]+$/u, {
-    identifier: $I`CodexFindingTitlePrintableCheck`,
-    title: "Codex Finding Title Printable",
-    description: "Finding titles contain no control or format characters.",
-    message: "Expected a finding title without control or bidirectional format characters",
-  }),
+  S.isMinLength(
+    1,
+    $I.annote("CodexFindingTitleMinLengthCheck", {
+      title: "Codex Finding Title Minimum Length",
+      description: "Every captured finding carries a title.",
+      message: "Expected a non-empty finding title",
+    })
+  ),
+  S.isMaxLength(
+    300,
+    $I.annote("CodexFindingTitleMaxLengthCheck", {
+      title: "Codex Finding Title Maximum Length",
+      description: "Finding titles are bounded so packet documents stay within their size budgets.",
+      message: "Expected a finding title of at most 300 characters",
+    })
+  ),
+  S.isPattern(
+    /^[^\p{Cc}\p{Cf}]+$/u,
+    $I.annote("CodexFindingTitlePrintableCheck", {
+      title: "Codex Finding Title Printable",
+      description: "Finding titles contain no control or format characters.",
+      message: "Expected a finding title without control or bidirectional format characters",
+    })
+  ),
   // A title is captured from an external system and flows into tracked
   // Markdown that a reader may well paste into a spreadsheet. A leading sigil
   // is what turns that value into a formula, so it is refused at the boundary
   // rather than neutralized downstream.
-  S.isPattern(/^[^=+\-@]/u, {
-    identifier: $I`CodexFindingTitleFormulaCheck`,
-    title: "Codex Finding Title Not A Formula",
-    description: "Finding titles do not open with a spreadsheet formula sigil.",
-    message: "Expected a finding title not beginning with =, +, -, or @",
-  }),
+  S.isPattern(
+    /^[^=+\-@]/u,
+    $I.annote("CodexFindingTitleFormulaCheck", {
+      title: "Codex Finding Title Not A Formula",
+      description: "Finding titles do not open with a spreadsheet formula sigil.",
+      message: "Expected a finding title not beginning with =, +, -, or @",
+    })
+  ),
 ]);
 
 /**
@@ -580,12 +604,14 @@ export class CodexCaptureMeta extends S.Opaque<CodexCaptureMeta, { readonly bran
       })
     ),
     sourceUrl: S.String.check(
-      S.isMaxLength(300, {
-        identifier: $I`CodexCaptureMetaSourceUrlMaxLengthCheck`,
-        title: "Capture Source Url Maximum Length",
-        description: "The recorded source URL is bounded so manifests stay within budget.",
-        message: "Expected a source URL of at most 300 characters",
-      })
+      S.isMaxLength(
+        300,
+        $I.annote("CodexCaptureMetaSourceUrlMaxLengthCheck", {
+          title: "Capture Source Url Maximum Length",
+          description: "The recorded source URL is bounded so manifests stay within budget.",
+          message: "Expected a source URL of at most 300 characters",
+        })
+      )
     ).pipe(
       $I.annoteKey("CodexCaptureMeta.sourceUrl", {
         description: "Dashboard URL the capture was taken from.",
@@ -597,24 +623,28 @@ export class CodexCaptureMeta extends S.Opaque<CodexCaptureMeta, { readonly bran
       })
     ),
     findingsView: S.String.check(
-      S.isMaxLength(120, {
-        identifier: $I`CodexCaptureMetaFindingsViewMaxLengthCheck`,
-        title: "Findings View Maximum Length",
-        description: "The recorded view description is bounded.",
-        message: "Expected a findings view description of at most 120 characters",
-      })
+      S.isMaxLength(
+        120,
+        $I.annote("CodexCaptureMetaFindingsViewMaxLengthCheck", {
+          title: "Findings View Maximum Length",
+          description: "The recorded view description is bounded.",
+          message: "Expected a findings view description of at most 120 characters",
+        })
+      )
     ).pipe(
       $I.annoteKey("CodexCaptureMeta.findingsView", {
         description: "Filter description of the captured dashboard view.",
       })
     ),
     expectedCount: S.Int.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`CodexCaptureMetaExpectedCountCheck`,
-        title: "Expected Count Non Negative",
-        description: "The dashboard's reported finding total is never negative.",
-        message: "Expected a non-negative finding count",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("CodexCaptureMetaExpectedCountCheck", {
+          title: "Expected Count Non Negative",
+          description: "The dashboard's reported finding total is never negative.",
+          message: "Expected a non-negative finding count",
+        })
+      )
     ).pipe(
       $I.annoteKey("CodexCaptureMeta.expectedCount", {
         description: "Finding total the dashboard itself reported, used to detect a short read.",
@@ -633,12 +663,14 @@ export class CodexCaptureMeta extends S.Opaque<CodexCaptureMeta, { readonly bran
 ) {}
 
 const CodexCaptureFindingListChecks = S.makeFilterGroup([
-  S.isMaxLength(500, {
-    identifier: $I`CodexCaptureFindingListMaxLengthCheck`,
-    title: "Capture Finding List Maximum Length",
-    description: "A single capture carries a bounded number of findings.",
-    message: "Expected at most 500 captured findings in one payload",
-  }),
+  S.isMaxLength(
+    500,
+    $I.annote("CodexCaptureFindingListMaxLengthCheck", {
+      title: "Capture Finding List Maximum Length",
+      description: "A single capture carries a bounded number of findings.",
+      message: "Expected at most 500 captured findings in one payload",
+    })
+  ),
 ]);
 
 /**
@@ -699,12 +731,13 @@ export class CodexFindingsCapturePayload extends S.Opaque<
     findings: S.Array(CodexCaptureFinding)
       .check(
         CodexCaptureFindingListChecks,
-        S.isUnique({
-          identifier: $I`CodexCaptureFindingListUniqueCheck`,
-          title: "Unique Codex Finding Identifiers",
-          description: "A capture never reports the same Codex finding twice.",
-          message: "Expected every captured finding to carry a distinct Codex identifier",
-        })
+        S.isUnique(
+          $I.annote("CodexCaptureFindingListUniqueCheck", {
+            title: "Unique Codex Finding Identifiers",
+            description: "A capture never reports the same Codex finding twice.",
+            message: "Expected every captured finding to carry a distinct Codex identifier",
+          })
+        )
       )
       .pipe(
         $I.annoteKey("CodexFindingsCapturePayload.findings", {

@@ -79,12 +79,14 @@ class TextOffsetRangeStruct extends S.Opaque<TextOffsetRangeStruct, { readonly b
 ) {}
 
 const TextOffsetRangeInvariant = TextOffsetRangeStruct.mapFields(identity).check(
-  S.makeFilter(({ end, start }) => start < end, {
-    identifier: $I`TextOffsetRangeOrderCheck`,
-    title: "Text Offset Range Order",
-    description: "Checks that an incoming half-open text range is non-empty and forward ordered.",
-    message: "Expected start to be less than end.",
-  })
+  S.makeFilter(
+    ({ end, start }) => start < end,
+    $I.annote("TextOffsetRangeOrderCheck", {
+      title: "Text Offset Range Order",
+      description: "Checks that an incoming half-open text range is non-empty and forward ordered.",
+      message: "Expected start to be less than end.",
+    })
+  )
 );
 
 /**
@@ -139,12 +141,14 @@ class Utf16TextRangeStruct extends S.Opaque<Utf16TextRangeStruct, { readonly bra
 ) {}
 
 const Utf16TextRangeInvariant = Utf16TextRangeStruct.mapFields(identity).check(
-  S.makeFilter(({ endChar, startChar }) => startChar < endChar, {
-    identifier: $I`Utf16TextRangeOrderCheck`,
-    title: "UTF-16 Text Range Order",
-    description: "Checks that a canonical half-open UTF-16 range is non-empty and forward ordered.",
-    message: "Expected startChar to be less than endChar.",
-  })
+  S.makeFilter(
+    ({ endChar, startChar }) => startChar < endChar,
+    $I.annote("Utf16TextRangeOrderCheck", {
+      title: "UTF-16 Text Range Order",
+      description: "Checks that a canonical half-open UTF-16 range is non-empty and forward ordered.",
+      message: "Expected startChar to be less than endChar.",
+    })
+  )
 );
 
 /**
@@ -399,12 +403,14 @@ const hasConsistentFailureStage = (failure: VerifiedSpanAttemptFailureStruct): b
   });
 
 const VerifiedSpanAttemptFailureInvariant = VerifiedSpanAttemptFailureStruct.check(
-  S.makeFilter(hasConsistentFailureStage, {
-    identifier: $I`VerifiedSpanAttemptFailureStageCheck`,
-    title: "Verified Span Attempt Failure Stage",
-    description: "Checks that each persisted failure reason belongs to its source, locator, or anchor stage.",
-    message: "Expected the verified-span failure reason to match its recorded stage.",
-  })
+  S.makeFilter(
+    hasConsistentFailureStage,
+    $I.annote("VerifiedSpanAttemptFailureStageCheck", {
+      title: "Verified Span Attempt Failure Stage",
+      description: "Checks that each persisted failure reason belongs to its source, locator, or anchor stage.",
+      message: "Expected the verified-span failure reason to match its recorded stage.",
+    })
+  )
 );
 
 /**
@@ -553,19 +559,22 @@ export type VerifiedSpanAttemptOutcome = typeof VerifiedSpanAttemptOutcome.Type;
 // fallow-ignore-next-line code-duplication -- consumer-local copy of the retired @beep/schema ISOStr wire; langextract has no dependency on @beep/skill-contract, which owns the other copy
 const IsoDateTimeString = S.Trim.check(
   S.isNonEmpty({ message: "String must not be empty" }),
-  S.makeFilter((value: string) => O.isSome(DateTime.make(value)), {
-    identifier: $I`IsoDateTimeStringCheck`,
-    title: "ISO DateTime String",
-    description: "Accepts any string DateTime.make parses; generation stays inside a constructive ISO 8601 UTC shape.",
-    arbitraryConstraint: {
-      patterns: [
-        {
-          source: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$",
-          flags: "",
-        },
-      ],
-    },
-  })
+  S.makeFilter(
+    (value: string) => O.isSome(DateTime.make(value)),
+    $I.annote("IsoDateTimeStringCheck", {
+      title: "ISO DateTime String",
+      description:
+        "Accepts any string DateTime.make parses; generation stays inside a constructive ISO 8601 UTC shape.",
+      arbitraryConstraint: {
+        patterns: [
+          {
+            source: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$",
+            flags: "",
+          },
+        ],
+      },
+    })
+  )
 ).pipe(
   $I.annoteSchema("IsoDateTimeString", {
     description: "Trimmed, non-empty datetime string that DateTime.make parses, kept verbatim.",
@@ -576,12 +585,14 @@ const GroundedExtractionBatch: S.Codec<
   ReadonlyArray<GroundedExtraction>,
   ReadonlyArray<GroundedExtraction.Encoded>
 > = S.Array(GroundedExtraction).check(
-  S.isMaxLength(MAX_EXTRACTION_CANDIDATES, {
-    identifier: $I`VerifiedSpanAttemptCandidatesMaxLengthCheck`,
-    title: "Verified Span Attempt Candidate Limit",
-    description: "Checks that a persisted raw candidate batch stays within the extraction capability bound.",
-    message: `Verified span attempts must retain at most ${MAX_EXTRACTION_CANDIDATES} candidates.`,
-  })
+  S.isMaxLength(
+    MAX_EXTRACTION_CANDIDATES,
+    $I.annote("VerifiedSpanAttemptCandidatesMaxLengthCheck", {
+      title: "Verified Span Attempt Candidate Limit",
+      description: "Checks that a persisted raw candidate batch stays within the extraction capability bound.",
+      message: `Verified span attempts must retain at most ${MAX_EXTRACTION_CANDIDATES} candidates.`,
+    })
+  )
 );
 const VerifiedSpanNormalizationVersion = S.tag(VERIFIED_SPAN_NORMALIZATION_VERSION);
 const sourceTextIdentityEquivalence = S.toEquivalence(SourceTextIdentity);
@@ -715,28 +726,34 @@ const hasConsistentAttemptOutcome = (attempt: VerifiedSpanAttemptRecordStruct): 
   })(attempt.outcome);
 
 const VerifiedSpanAttemptRecordInvariant = VerifiedSpanAttemptRecordStruct.check(
-  S.makeFilter(hasConsistentAttemptLink, {
-    identifier: $I`VerifiedSpanAttemptLinkCheck`,
-    title: "Verified Span Attempt Link",
-    description:
-      "Checks that every re-anchor attempt identifies its immediate predecessor and makes its newly proven source explicit.",
-    message:
-      "Expected a re-anchor attempt to carry previousAttemptId and matching expected/resolved source identities.",
-  }),
-  S.makeFilter(hasConsistentAttemptSource, {
-    identifier: $I`VerifiedSpanAttemptSourceCheck`,
-    title: "Verified Span Attempt Source",
-    description:
-      "Checks matter, source, and normalization authority while preserving only evidence-matched source-stage failures.",
-    message: "Expected source authority and any source-stage failure reason to agree with the retained identities.",
-  }),
-  S.makeFilter(hasConsistentAttemptOutcome, {
-    identifier: $I`VerifiedSpanAttemptOutcomeCheck`,
-    title: "Verified Span Attempt Outcome",
-    description:
-      "Checks that negative attempts have no candidates and successful attempts retain one source-matched anchor per candidate.",
-    message: "Expected candidate and anchor fields to agree with the terminal attempt outcome.",
-  })
+  S.makeFilter(
+    hasConsistentAttemptLink,
+    $I.annote("VerifiedSpanAttemptLinkCheck", {
+      title: "Verified Span Attempt Link",
+      description:
+        "Checks that every re-anchor attempt identifies its immediate predecessor and makes its newly proven source explicit.",
+      message:
+        "Expected a re-anchor attempt to carry previousAttemptId and matching expected/resolved source identities.",
+    })
+  ),
+  S.makeFilter(
+    hasConsistentAttemptSource,
+    $I.annote("VerifiedSpanAttemptSourceCheck", {
+      title: "Verified Span Attempt Source",
+      description:
+        "Checks matter, source, and normalization authority while preserving only evidence-matched source-stage failures.",
+      message: "Expected source authority and any source-stage failure reason to agree with the retained identities.",
+    })
+  ),
+  S.makeFilter(
+    hasConsistentAttemptOutcome,
+    $I.annote("VerifiedSpanAttemptOutcomeCheck", {
+      title: "Verified Span Attempt Outcome",
+      description:
+        "Checks that negative attempts have no candidates and successful attempts retain one source-matched anchor per candidate.",
+      message: "Expected candidate and anchor fields to agree with the terminal attempt outcome.",
+    })
+  )
 );
 
 const VerifiedSpanAttemptRecordBase: S.Class<
@@ -837,13 +854,15 @@ class VerifiedSpanHistoryStruct extends S.Opaque<VerifiedSpanHistoryStruct, { re
 ) {}
 
 const VerifiedSpanHistoryInvariant = VerifiedSpanHistoryStruct.mapFields(identity).check(
-  S.makeFilter(hasLinkedAttemptHistory, {
-    identifier: $I`VerifiedSpanAttemptHistoryCheck`,
-    title: "Verified Span Attempt History",
-    description:
-      "Checks unique attempt ids, one initial verification, permitted verification/re-anchor transitions, same-matter continuity, and immediate predecessor links.",
-    message: "Expected a uniquely identified, validly transitioned, same-matter verified-span history.",
-  })
+  S.makeFilter(
+    hasLinkedAttemptHistory,
+    $I.annote("VerifiedSpanAttemptHistoryCheck", {
+      title: "Verified Span Attempt History",
+      description:
+        "Checks unique attempt ids, one initial verification, permitted verification/re-anchor transitions, same-matter continuity, and immediate predecessor links.",
+      message: "Expected a uniquely identified, validly transitioned, same-matter verified-span history.",
+    })
+  )
 );
 
 /**

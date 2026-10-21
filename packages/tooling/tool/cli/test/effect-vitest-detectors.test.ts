@@ -9,6 +9,7 @@ import { assertFalse, assertTrue, deepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { createWrappedNode, Node, Project, SyntaxKind, ts } from "ts-morph";
 import type { EffectVitestRuleId } from "@beep/repo-cli/test/Lint";
 import type { Node as MorphNode } from "ts-morph";
@@ -1413,7 +1414,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         A.map(residue, (row) => [row.class, row.mechanization]),
         [["platform-resource-provenance-review", "judgment"]]
       );
-      assertTrue(A.every(residue, (row) => row.replacement.sketch.includes("unproven")));
+      assertTrue(A.every(residue, (row) => Str.includes("unproven")(row.replacement.sketch)));
     })
   );
 
@@ -1546,7 +1547,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
           A.map(platform, (row) => [row.class, row.mechanization]),
           [["platform-resource-provenance-review", "judgment"]]
         );
-        assertTrue(A.every(platform, (row) => row.replacement.sketch.includes("unproven")));
+        assertTrue(A.every(platform, (row) => Str.includes("unproven")(row.replacement.sketch)));
       }
     })
   );
@@ -1625,8 +1626,8 @@ it.layer(NodeServices.layer)((it) => {
         A.map(rows, (row) => row.mechanization),
         ["judgment", "judgment"]
       );
-      assertTrue(rows[0]?.evidence.includes("attempt"));
-      assertTrue(rows[1]?.evidence.includes("retry"));
+      assertTrue(Str.includes("attempt")(rows[0]?.evidence ?? ""));
+      assertTrue(Str.includes("retry")(rows[1]?.evidence ?? ""));
       assertFalse(
         yield* hasRule(
           `for (const retry in retries) consume(retry); it("x", () => { for (const value of values) consume(value); });`,
@@ -1651,8 +1652,8 @@ it.layer(NodeServices.layer)((it) => {
           A.every(
             rows,
             (row) =>
-              row.replacement.sketch.includes("not concurrency isolation") &&
-              row.replacement.sketch.includes("intentional live")
+              Str.includes("not concurrency isolation")(row.replacement.sketch) &&
+              Str.includes("intentional live")(row.replacement.sketch)
           )
         );
       }
@@ -1710,7 +1711,7 @@ it.layer(NodeServices.layer)((it) => {
       assertTrue(
         A.every(
           A.filter(rows, (row) => row.ruleId === "EV012"),
-          (row) => row.replacement.sketch.includes("real service key")
+          (row) => Str.includes("real service key")(row.replacement.sketch)
         )
       );
       assertFalse(yield* hasRule(`vi.spyOn(Math, "random");`, "EV012"));
@@ -1856,9 +1857,9 @@ it.layer(NodeServices.layer)((it) => {
               ? []
               : [[primitive, mode]]
           );
-          assertTrue(A.every(rows, (row) => row.evidence.includes(expression)));
-          assertTrue(A.every(rows, (row) => row.replacement.sketch.includes(polarity)));
-          assertTrue(A.every(rows, (row) => row.replacement.sketch.includes(requirement)));
+          assertTrue(A.every(rows, (row) => Str.includes(expression)(row.evidence)));
+          assertTrue(A.every(rows, (row) => Str.includes(polarity)(row.replacement.sketch)));
+          assertTrue(A.every(rows, (row) => Str.includes(requirement)(row.replacement.sketch)));
         }
       })
   );
@@ -1990,7 +1991,7 @@ it.layer(NodeServices.layer)((it) => {
           A.map(rows, (row) => [row.class, row.mechanization, row.replacement]),
           expected
         );
-        assertTrue(A.every(rows, (row) => row.replacement.sketch.includes("filesystem use is unproven")));
+        assertTrue(A.every(rows, (row) => Str.includes("filesystem use is unproven")(row.replacement.sketch)));
       }
     })
   );
@@ -2082,7 +2083,7 @@ it.layer(NodeServices.layer)((it) => {
         A.map(rows, (row) => [row.mechanization, row.replacement.primitive]),
         [["judgment", "utils.deepStrictEqual"]]
       );
-      assertTrue(A.every(rows, (row) => row.evidence.includes("expect(")));
+      assertTrue(A.every(rows, (row) => Str.includes("expect(")(row.evidence)));
     })
   );
 
@@ -2115,7 +2116,7 @@ it.layer(NodeServices.layer)((it) => {
           A.map(rows, (row) => row.mechanization),
           ["judgment"]
         );
-        assertTrue(A.every(rows, (row) => row.evidence.includes(`toBe(${truth})`)));
+        assertTrue(A.every(rows, (row) => Str.includes(`toBe(${truth})`)(row.evidence)));
       }
     })
   );
@@ -2330,7 +2331,7 @@ it.layer(NodeServices.layer)((it) => {
         A.map(rows, (row) => [row.replacement.primitive, row.mechanization]),
         [["readme.exit", "judgment"]]
       );
-      assertTrue(A.every(rows, (row) => row.replacement.sketch.includes("Cause")));
+      assertTrue(A.every(rows, (row) => Str.includes("Cause")(row.replacement.sketch)));
     })
   );
 
@@ -2584,7 +2585,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
           A.map(rows, (row) => [row.replacement.primitive, row.mechanization]),
           [["readme.exit", "judgment"]]
         );
-        assertTrue(A.every(rows, (row) => row.replacement.sketch.includes("Cause")));
+        assertTrue(A.every(rows, (row) => Str.includes("Cause")(row.replacement.sketch)));
       }
     })
   );

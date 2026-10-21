@@ -6,6 +6,7 @@
  */
 
 import { dual } from "effect/Function";
+import * as Str from "effect/String";
 import { printLines } from "../../internal/cli/Printer.ts";
 
 /**
@@ -26,8 +27,8 @@ export const wikilinkFor: {
   (cardPath: string, title: string | null): string;
   (title: string | null): (cardPath: string) => string;
 } = dual(2, (cardPath: string, title: string | null): string => {
-  const target = cardPath.replace(/\.md$/, "");
-  const label = title ?? target.split("/").pop() ?? target;
+  const target = Str.replace(/\.md$/, "")(cardPath);
+  const label = title ?? Str.split("/")(target).pop() ?? target;
   return `[[${target}|${label}]]`;
 });
 

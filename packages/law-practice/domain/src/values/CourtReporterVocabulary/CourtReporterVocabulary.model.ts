@@ -698,12 +698,11 @@ const CourtReporterArtifactVersionCoherenceCheck = S.makeFilter(
   }) =>
     Eq.equals(artifact.artifactVersion, artifact.courts.artifactVersion) &&
     Eq.equals(artifact.artifactVersion, artifact.reporters.artifactVersion),
-  {
-    identifier: $I`CourtReporterArtifactVersionCoherenceCheck`,
+  $I.annote("CourtReporterArtifactVersionCoherenceCheck", {
     title: "Court Reporter Artifact Version Coherence",
     description: "The combined contract and both independently generated vocabularies must name one artifact version.",
     message: "Court and reporter vocabularies must match the combined artifact version",
-  }
+  })
 );
 
 /**

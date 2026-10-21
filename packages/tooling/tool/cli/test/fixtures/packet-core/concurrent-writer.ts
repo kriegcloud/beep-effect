@@ -38,8 +38,8 @@ const PausePoint = LiteralKit([
   "beforeGenesisPublish",
   "afterGenesisPublish",
   "afterForkBackup",
-]).annotate(
-  $I.annote("PausePoint", {
+]).pipe(
+  $I.annoteSchema("PausePoint", {
     description: "Real filesystem boundary at which a packet writer waits for its test parent.",
   })
 );

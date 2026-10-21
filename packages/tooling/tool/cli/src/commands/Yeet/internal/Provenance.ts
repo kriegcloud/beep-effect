@@ -72,7 +72,7 @@ export const PrProvenanceBranch = S.NonEmptyString.check(
           Str.split("/")(branch),
           (part) => Str.isNonEmpty(part) && !Str.startsWith(".")(part) && !Str.endsWith(".lock")(part)
         )) || { path: [], issue: "Expected a valid Git branch name" },
-    { identifier: $I`PrProvenanceBranchCheck`, title: "Git branch", description: "A valid Git branch name." }
+    $I.annote("PrProvenanceBranchCheck", { title: "Git branch", description: "A valid Git branch name." })
   )
 ).pipe($I.annoteSchema("PrProvenanceBranch", { description: "Git-valid provenance branch." }));
 /**
@@ -351,11 +351,10 @@ export const PrProvenanceLabel = S.NonEmptyString.check(
         !Str.endsWith(".lock")(value) &&
         !uuidPattern.test(value) &&
         !longHexPattern.test(value)) || { path: [], issue: "Expected a public-safe provenance label" },
-    {
-      identifier: $I`PrProvenanceLabelCheck`,
+    $I.annote("PrProvenanceLabelCheck", {
       title: "Public provenance label",
       description: "A short slug excluding UUID and long hexadecimal identifiers.",
-    }
+    })
   )
 ).pipe($I.annoteSchema("PrProvenanceLabel", { description: "Public-safe workspace or Claude display label." }));
 /**
@@ -399,11 +398,10 @@ export const PrProvenanceModel = S.NonEmptyString.check(
         path: [],
         issue: "Expected a public model slug",
       },
-    {
-      identifier: $I`PrProvenanceModelCheck`,
+    $I.annote("PrProvenanceModelCheck", {
       title: "Model slug",
       description: "A public model identifier excluding UUID and long hexadecimal shapes.",
-    }
+    })
   )
 ).pipe($I.annoteSchema("PrProvenanceModel", { description: "Public model slug, or unknown." }));
 /**
@@ -425,11 +423,13 @@ export const PrProvenanceModel = S.NonEmptyString.check(
  */
 export type PrProvenanceModel = typeof PrProvenanceModel.Type;
 const GitHubName = S.NonEmptyString.check(
-  S.makeFilter<string>((value) => /^[A-Za-z0-9_.-]+$/u.test(value) || { path: [], issue: "Expected a GitHub name" }, {
-    identifier: $I`GitHubNameCheck`,
-    title: "GitHub name",
-    description: "GitHub owner or repository name.",
-  })
+  S.makeFilter<string>(
+    (value) => /^[A-Za-z0-9_.-]+$/u.test(value) || { path: [], issue: "Expected a GitHub name" },
+    $I.annote("GitHubNameCheck", {
+      title: "GitHub name",
+      description: "GitHub owner or repository name.",
+    })
+  )
 );
 
 /**

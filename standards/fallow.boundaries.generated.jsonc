@@ -348,6 +348,12 @@
         ]
       },
       {
+        "name": "@beep/github",
+        "patterns": [
+          "packages/drivers/github/src/**"
+        ]
+      },
+      {
         "name": "@beep/github-commands",
         "patterns": [
           "packages/foundation/modeling/github-commands/src/**"
@@ -999,6 +1005,12 @@
         "name": "@beep/utils",
         "patterns": [
           "packages/foundation/modeling/utils/src/**"
+        ]
+      },
+      {
+        "name": "@beep/walker",
+        "patterns": [
+          "packages/foundation/capability/walker/src/**"
         ]
       },
       {
@@ -2303,6 +2315,25 @@
           "@beep/git",
           "@beep/identity",
           "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/github",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/github",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/github",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/semver",
           "@beep/utils"
         ]
       },
@@ -4031,6 +4062,7 @@
           "@beep/fc-runs",
           "@beep/ffmpeg",
           "@beep/file-processing",
+          "@beep/github",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4053,6 +4085,7 @@
           "@beep/runpod",
           "@beep/schema",
           "@beep/skill-contract",
+          "@beep/spdx",
           "@beep/t3-code",
           "@beep/technical-drawing",
           "@beep/tesseract",
@@ -4060,7 +4093,8 @@
           "@beep/test-utils",
           "@beep/tika",
           "@beep/uspto",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
           "@beep/ai-provider-cli",
@@ -4072,6 +4106,7 @@
           "@beep/fc-runs",
           "@beep/ffmpeg",
           "@beep/file-processing",
+          "@beep/github",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4094,6 +4129,7 @@
           "@beep/runpod",
           "@beep/schema",
           "@beep/skill-contract",
+          "@beep/spdx",
           "@beep/t3-code",
           "@beep/technical-drawing",
           "@beep/tesseract",
@@ -4101,7 +4137,8 @@
           "@beep/test-utils",
           "@beep/tika",
           "@beep/uspto",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {
@@ -4157,7 +4194,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ],
         "allowTypeOnly": [
           "@beep/identity",
@@ -4166,7 +4204,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {
@@ -4253,6 +4292,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/git",
+          "@beep/github",
           "@beep/github-commands",
           "@beep/github-references",
           "@beep/glob",
@@ -4284,6 +4324,7 @@
           "@beep/toml",
           "@beep/tsconfig",
           "@beep/utils",
+          "@beep/walker",
           "@beep/wink",
           "@beep/yaml"
         ],
@@ -4297,6 +4338,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/git",
+          "@beep/github",
           "@beep/github-commands",
           "@beep/github-references",
           "@beep/glob",
@@ -4328,6 +4370,7 @@
           "@beep/toml",
           "@beep/tsconfig",
           "@beep/utils",
+          "@beep/walker",
           "@beep/wink",
           "@beep/yaml"
         ]
@@ -4817,6 +4860,25 @@
           "@beep/test-runner",
           "@beep/types",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/walker",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/walker"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/walker"
         ]
       },
       {

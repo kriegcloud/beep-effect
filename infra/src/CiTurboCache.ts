@@ -29,12 +29,14 @@ const ssmParameterArnPattern = /^arn:aws(?:-us-gov|-cn)?:ssm:[a-z0-9-]+:\d{12}:p
 const absoluteZipPathPattern = /^\/.+\.zip$/u;
 
 const KmsKeyArn = S.String.check(
-  S.isPattern(kmsKeyArnPattern, {
-    identifier: $I`KmsKeyArnFormat`,
-    title: "KMS Key ARN Format",
-    description: "An ARN for an AWS KMS key.",
-    message: "Expected an AWS KMS key ARN",
-  })
+  S.isPattern(
+    kmsKeyArnPattern,
+    $I.annote("KmsKeyArnFormat", {
+      title: "KMS Key ARN Format",
+      description: "An ARN for an AWS KMS key.",
+      message: "Expected an AWS KMS key ARN",
+    })
+  )
 ).pipe(
   $I.annoteSchema("KmsKeyArn", {
     description: "An ARN for the KMS key encrypting the cache SecureString parameters.",
@@ -42,39 +44,47 @@ const KmsKeyArn = S.String.check(
 );
 
 const CacheBucketName = S.String.check(
-  S.isPattern(bucketNamePattern, {
-    identifier: $I`CacheBucketNameFormat`,
-    title: "Cache Bucket Name Format",
-    description:
-      "A lowercase, DNS-compatible S3 bucket name between 3 and 63 characters, excluding S3-reserved prefixes (xn--, sthree-, amzn-s3-demo-) and suffixes (-s3alias, --ol-s3, .mrap, --x-s3, --table-s3).",
-    message: "Expected a lowercase, DNS-compatible S3 bucket name without S3-reserved prefixes or suffixes",
-  })
+  S.isPattern(
+    bucketNamePattern,
+    $I.annote("CacheBucketNameFormat", {
+      title: "Cache Bucket Name Format",
+      description:
+        "A lowercase, DNS-compatible S3 bucket name between 3 and 63 characters, excluding S3-reserved prefixes (xn--, sthree-, amzn-s3-demo-) and suffixes (-s3alias, --ol-s3, .mrap, --x-s3, --table-s3).",
+      message: "Expected a lowercase, DNS-compatible S3 bucket name without S3-reserved prefixes or suffixes",
+    })
+  )
 ).pipe(
+  // fallow-ignore-next-line code-duplication -- each infra module owns its AWS schemas under its own file-local identity
   $I.annoteSchema("CacheBucketName", {
     description: "A lowercase, DNS-compatible S3 bucket name for Turbo artifacts.",
   })
 );
 
 const SsmParameterArn = S.String.check(
-  S.isPattern(ssmParameterArnPattern, {
-    identifier: $I`SsmParameterArnFormat`,
-    title: "SSM Parameter ARN Format",
-    description: "An ARN for an AWS Systems Manager parameter.",
-    message: "Expected an SSM parameter ARN",
-  })
+  S.isPattern(
+    ssmParameterArnPattern,
+    $I.annote("SsmParameterArnFormat", {
+      title: "SSM Parameter ARN Format",
+      description: "An ARN for an AWS Systems Manager parameter.",
+      message: "Expected an SSM parameter ARN",
+    })
+  )
 ).pipe(
+  // fallow-ignore-next-line code-duplication -- each infra module owns its AWS schemas under its own file-local identity
   $I.annoteSchema("SsmParameterArn", {
     description: "An ARN for an AWS Systems Manager SecureString parameter.",
   })
 );
 
 const AbsoluteZipPath = S.String.check(
-  S.isPattern(absoluteZipPathPattern, {
-    identifier: $I`AbsoluteZipPathFormat`,
-    title: "Absolute ZIP Path Format",
-    description: "An absolute filesystem path ending in .zip.",
-    message: "Expected an absolute path ending in .zip",
-  })
+  S.isPattern(
+    absoluteZipPathPattern,
+    $I.annote("AbsoluteZipPathFormat", {
+      title: "Absolute ZIP Path Format",
+      description: "An absolute filesystem path ending in .zip.",
+      message: "Expected an absolute path ending in .zip",
+    })
+  )
 ).pipe(
   $I.annoteSchema("AbsoluteZipPath", {
     description: "An absolute path to the bundled Turbo cache Lambda ZIP.",

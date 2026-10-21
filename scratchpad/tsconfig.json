@@ -23,6 +23,9 @@
       "path": "../packages/drivers/git/tsconfig.json"
     },
     {
+      "path": "../packages/drivers/github/tsconfig.json"
+    },
+    {
       "path": "../packages/drivers/n3/tsconfig.json"
     },
     {
@@ -57,6 +60,9 @@
     },
     {
       "path": "../packages/foundation/capability/semantic-web/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/capability/walker/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/github-commands/tsconfig.json"

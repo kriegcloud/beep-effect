@@ -2254,7 +2254,15 @@
       "@beep/tsconfig": [
         "./packages/foundation/modeling/tsconfig/src/index.ts"
       ],
-      "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"]
+      "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"],
+      "@beep/walker": ["./packages/foundation/capability/walker/src/index.ts"],
+      "@beep/walker/*": ["./packages/foundation/capability/walker/src/*"],
+      "@beep/walker/internal/*": [
+        "./packages/foundation/capability/walker/src/internal/*"
+      ],
+      "@beep/github": ["./packages/drivers/github/src/index.ts"],
+      "@beep/github/*": ["./packages/drivers/github/src/*"],
+      "@beep/github/internal/*": ["./packages/drivers/github/src/internal/*"]
     }
   }
 }

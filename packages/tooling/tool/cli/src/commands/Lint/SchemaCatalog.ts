@@ -559,28 +559,39 @@ const isIdentityAnnotationCall = (callExpression: CallExpression): boolean => {
   );
 };
 
-const metadataFromAnnotationCalls = (node: Node): SchemaCatalogMetadata => {
-  let identity = O.none<string>();
-  let description = O.none<string>();
+const enclosingCallCount =
+  (root: Node) =>
+  (node: Node): number =>
+    pipe(
+      node.getAncestors(),
+      A.takeWhile((ancestor) => ancestor !== root),
+      A.filter(Node.isCallExpression),
+      A.length
+    );
 
-  for (const callExpression of callExpressionsIn(node)) {
-    if (!isIdentityAnnotationCall(callExpression)) {
-      continue;
-    }
-    const args = callExpression.getArguments();
-    if (O.isNone(identity)) {
-      identity = pipe(O.fromNullishOr(args[0]), O.flatMap(literalTextFromNode));
-    }
-    if (O.isNone(description)) {
-      description = descriptionFromAnnotationOptions(args[1]);
-    }
-    if (O.isSome(identity) && O.isSome(description)) {
-      return { identity, description };
-    }
-  }
+const byEnclosingCallCount = Order.mapInput(Order.Number, ({ depth }: { readonly depth: number }) => depth);
 
-  return { identity, description };
-};
+// The declaration's own annotation is its least-nested identity call: the outer `.pipe($I.annoteSchema(...))`
+// or a class's trailing `$I.annote(...)`. Check arguments (`S.isPattern(re, $I.annote(...))`) and field
+// schemas sit deeper, so they never name the declaration. Ties keep source order.
+const metadataFromAnnotationCalls = (node: Node): SchemaCatalogMetadata =>
+  pipe(
+    callExpressionsIn(node),
+    A.filter(isIdentityAnnotationCall),
+    A.map((callExpression) => ({ callExpression, depth: enclosingCallCount(node)(callExpression) })),
+    A.sort(byEnclosingCallCount),
+    A.head,
+    O.match({
+      onNone: () => ({ identity: O.none<string>(), description: O.none<string>() }),
+      onSome: ({ callExpression }) => {
+        const args = callExpression.getArguments();
+        return {
+          identity: pipe(O.fromNullishOr(args[0]), O.flatMap(literalTextFromNode)),
+          description: descriptionFromAnnotationOptions(args[1]),
+        };
+      },
+    })
+  );
 
 const identityFromTaggedTemplate = (node: Node): O.Option<string> => {
   for (const expression of node.getDescendantsOfKind(SyntaxKind.TaggedTemplateExpression)) {

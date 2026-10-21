@@ -15,12 +15,14 @@ const base64UrlPattern = /^[A-Za-z0-9_-]+$/u;
 const stableTokenPattern = /^[A-Za-z][A-Za-z0-9._:-]*$/u;
 
 const Base64UrlToken = S.NonEmptyString.check(
-  S.isPattern(base64UrlPattern, {
-    identifier: $I`Base64UrlTokenPattern`,
-    title: "Base64url token pattern",
-    description: "Base64url text using alphanumeric characters, underscore, and hyphen.",
-    message: "Expected base64url text",
-  })
+  S.isPattern(
+    base64UrlPattern,
+    $I.annote("Base64UrlTokenPattern", {
+      title: "Base64url token pattern",
+      description: "Base64url text using alphanumeric characters, underscore, and hyphen.",
+      message: "Expected base64url text",
+    })
+  )
 ).pipe(
   $I.annoteSchema("Base64UrlToken", {
     description: "Base64url text used by shared cryptographic primitives.",
@@ -28,12 +30,14 @@ const Base64UrlToken = S.NonEmptyString.check(
 );
 
 const StableToken = S.NonEmptyString.check(
-  S.isPattern(stableTokenPattern, {
-    identifier: $I`StableTokenPattern`,
-    title: "Stable token pattern",
-    description: "Stable non-whitespace token beginning with a letter.",
-    message: "Expected a stable token beginning with a letter",
-  })
+  S.isPattern(
+    stableTokenPattern,
+    $I.annote("StableTokenPattern", {
+      title: "Stable token pattern",
+      description: "Stable non-whitespace token beginning with a letter.",
+      message: "Expected a stable token beginning with a letter",
+    })
+  )
 ).pipe(
   $I.annoteSchema("StableToken", {
     description: "Stable non-whitespace token used by shared entity primitives.",

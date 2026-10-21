@@ -46,7 +46,7 @@ const EXCESSIVE_EXAMPLE_BLANK_LINES_PATTERN = /(?:^|\r?\n)(?:[ \t]*\r?\n){3,}/m;
 const SYMBOL_HANDLE_METADATA_PROPERTIES_PATTERN =
   /(?:ast|Encoded|fields|identifier|Type|TypeId|annotations|annotationsFromSelf)/;
 
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
 const exampleOnlyVoidsResult = (example: string): boolean => {
   const code = exampleCodeText(example);

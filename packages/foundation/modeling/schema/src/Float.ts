@@ -20,14 +20,16 @@ const isProtobufFloatValue = (value: number) =>
   value === globalThis.Number.NEGATIVE_INFINITY ||
   (globalThis.Number.isFinite(value) && value >= floatMinimum && value <= floatMaximum);
 
-const FloatChecks = S.makeFilter(isProtobufFloatValue, {
-  identifier: $I`FloatValueCheck`,
-  title: "Protobuf float Value",
-  description:
-    "A protobuf float value must be an IEEE-754 binary32 JavaScript number or a protobuf-valid special value.",
-  expected: "a protobuf float number",
-  message: "Expected a protobuf float value in the binary32 range or an IEEE-754 special value",
-});
+const FloatChecks = S.makeFilter(
+  isProtobufFloatValue,
+  $I.annote("FloatValueCheck", {
+    title: "Protobuf float Value",
+    description:
+      "A protobuf float value must be an IEEE-754 binary32 JavaScript number or a protobuf-valid special value.",
+    expected: "a protobuf float number",
+    message: "Expected a protobuf float value in the binary32 range or an IEEE-754 special value",
+  })
+);
 
 /**
  * Branded schema for protobuf `float` values.

@@ -1,6 +1,9 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { BotIdentity, GitHubAppShape, RetryPolicy } from "../github/index.ts";
-import { GitHubApp, GitHubClient, InstallationToken, PermissionLevel, TokenPermissions } from "../github/index.ts";
+import type { BotIdentity, GitHubAppShape } from "@beep/github/GitHubApp";
+import { GitHubApp, InstallationToken } from "@beep/github/GitHubApp";
+import { GitHubClient } from "@beep/github/GitHubClient";
+import type { RetryPolicy } from "@beep/github/Resilience";
+import { PermissionLevel, TokenPermissions } from "@beep/github/TokenPermissions";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

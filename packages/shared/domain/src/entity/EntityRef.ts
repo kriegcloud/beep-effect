@@ -38,12 +38,14 @@ const entityTypePattern = /^[A-Z][A-Za-z0-9]*$/u;
  * @since 0.0.0
  */
 export const EntityType = S.NonEmptyString.check(
-  S.isPattern(entityTypePattern, {
-    identifier: $I`EntityRefEntityTypePattern`,
-    title: "EntityRef entity type pattern",
-    description: "PascalCase entity type token used by polymorphic entity references.",
-    message: "Expected a PascalCase entity type token",
-  })
+  S.isPattern(
+    entityTypePattern,
+    $I.annote("EntityRefEntityTypePattern", {
+      title: "EntityRef entity type pattern",
+      description: "PascalCase entity type token used by polymorphic entity references.",
+      message: "Expected a PascalCase entity type token",
+    })
+  )
 ).pipe(
   S.brand("EntityType"),
   $I.annoteSchema("EntityType", {

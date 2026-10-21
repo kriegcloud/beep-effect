@@ -116,12 +116,11 @@ class TextChunkModel extends S.Opaque<TextChunkModel, { readonly brand: unique s
   }))) {}
 
 const TextChunkDefinition = TextChunkModel.check(
-  S.makeFilter(({ endOffset, startOffset }) => endOffset >= startOffset, {
-    identifier: $I`TextChunkOffsetOrderCheck`,
+  S.makeFilter(({ endOffset, startOffset }) => endOffset >= startOffset, $I.annote("TextChunkOffsetOrderCheck", {
     title: "Text Chunk Offset Order",
     description: "Checks that a text chunk ends at or after its source start offset.",
     message: "Expected endOffset to be greater than or equal to startOffset.",
-  })
+  }))
 );
 
 /**

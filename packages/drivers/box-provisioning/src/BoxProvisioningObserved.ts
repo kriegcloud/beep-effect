@@ -27,12 +27,14 @@ const $I = $BoxProvisioningId.create("BoxProvisioningObserved");
  * @since 0.0.0
  */
 export const BoxProviderId = S.String.check(
-  S.isPattern(/^[A-Za-z0-9._-]{1,128}$/u, {
-    identifier: $I`BoxProviderIdCheck`,
-    title: "Box Provider Identifier",
-    description: "An opaque provider identifier containing at most 128 safe identifier characters.",
-    message: "Box provider identifiers must match ^[A-Za-z0-9._-]{1,128}$",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9._-]{1,128}$/u,
+    $I.annote("BoxProviderIdCheck", {
+      title: "Box Provider Identifier",
+      description: "An opaque provider identifier containing at most 128 safe identifier characters.",
+      message: "Box provider identifiers must match ^[A-Za-z0-9._-]{1,128}$",
+    })
+  )
 ).pipe(S.brand("BoxProviderId"), $I.annoteSchema("BoxProviderId", { description: "Opaque Box resource identifier." }));
 
 /**
@@ -58,12 +60,14 @@ export type BoxProviderId = typeof BoxProviderId.Type;
  * @since 0.0.0
  */
 export const BoxProviderRevision = S.String.check(
-  S.isPattern(/^[A-Za-z0-9._-]{1,128}$/u, {
-    identifier: $I`BoxProviderRevisionCheck`,
-    title: "Box Provider Revision",
-    description: "An opaque provider revision containing at most 128 safe identifier characters.",
-    message: "Box provider revisions must match ^[A-Za-z0-9._-]{1,128}$",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9._-]{1,128}$/u,
+    $I.annote("BoxProviderRevisionCheck", {
+      title: "Box Provider Revision",
+      description: "An opaque provider revision containing at most 128 safe identifier characters.",
+      message: "Box provider revisions must match ^[A-Za-z0-9._-]{1,128}$",
+    })
+  )
 ).pipe(
   S.brand("BoxProviderRevision"),
   $I.annoteSchema("BoxProviderRevision", {

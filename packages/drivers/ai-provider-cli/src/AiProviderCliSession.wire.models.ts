@@ -198,7 +198,7 @@ export const MessagingToolName = LiteralKit([
   "agent_message_acknowledge",
   "agent_message_inspect",
   "agent_message_discover",
-]).annotate($I.annote("MessagingToolName", { description: "Exact scoped MCP messaging tool identifiers." }));
+]).pipe($I.annoteSchema("MessagingToolName", { description: "Exact scoped MCP messaging tool identifiers." }));
 
 /**
  * Decoded identifier of an allowed scoped MCP messaging tool.

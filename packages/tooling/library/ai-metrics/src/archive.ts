@@ -67,16 +67,16 @@ const isStandardBase64 = (annotations: S.Annotations.Filter) =>
   });
 
 const Aes256KeyBase64 = S.String.check(
-  isStandardBase64({
-    identifier: $I`Aes256KeyBase64ShapeCheck`,
-    title: "AES-256 Key Base64 Shape",
-    description: "A standard Base64 string containing AES-256 key bytes.",
-    message: "Raw archive key must be valid standard Base64",
-  }),
+  isStandardBase64(
+    $I.annote("Aes256KeyBase64ShapeCheck", {
+      title: "AES-256 Key Base64 Shape",
+      description: "A standard Base64 string containing AES-256 key bytes.",
+      message: "Raw archive key must be valid standard Base64",
+    })
+  ),
   S.makeFilter(
     decodedBase64ByteLengthSatisfies((byteLength) => byteLength === AES_GCM_KEY_BYTES),
-    {
-      identifier: $I`Aes256KeyByteLengthCheck`,
+    $I.annote("Aes256KeyByteLengthCheck", {
       arbitraryConstraint: {
         patterns: [
           {
@@ -88,7 +88,7 @@ const Aes256KeyBase64 = S.String.check(
       title: "AES-256 Key Byte Length",
       description: "A Base64 value that decodes to exactly 32 AES-256 key bytes.",
       message: "Raw archive key must decode to exactly 32 bytes for AES-256-GCM",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("Aes256KeyBase64", {
@@ -97,16 +97,16 @@ const Aes256KeyBase64 = S.String.check(
 );
 
 const AesGcmNonceBase64 = S.String.check(
-  isStandardBase64({
-    identifier: $I`AesGcmNonceBase64ShapeCheck`,
-    title: "AES-GCM Nonce Base64 Shape",
-    description: "A standard Base64 string containing an AES-GCM nonce.",
-    message: "Archive envelope nonce must be valid standard Base64",
-  }),
+  isStandardBase64(
+    $I.annote("AesGcmNonceBase64ShapeCheck", {
+      title: "AES-GCM Nonce Base64 Shape",
+      description: "A standard Base64 string containing an AES-GCM nonce.",
+      message: "Archive envelope nonce must be valid standard Base64",
+    })
+  ),
   S.makeFilter(
     decodedBase64ByteLengthSatisfies((byteLength) => byteLength === AES_GCM_NONCE_BYTES),
-    {
-      identifier: $I`AesGcmNonceByteLengthCheck`,
+    $I.annote("AesGcmNonceByteLengthCheck", {
       arbitraryConstraint: {
         patterns: [
           {
@@ -118,7 +118,7 @@ const AesGcmNonceBase64 = S.String.check(
       title: "AES-GCM Nonce Byte Length",
       description: "A Base64 value that decodes to exactly 12 nonce bytes.",
       message: "Archive envelope nonce must decode to exactly 12 bytes",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("AesGcmNonceBase64", {
@@ -127,16 +127,16 @@ const AesGcmNonceBase64 = S.String.check(
 );
 
 const AesGcmCiphertextBase64 = S.String.check(
-  isStandardBase64({
-    identifier: $I`AesGcmCiphertextBase64ShapeCheck`,
-    title: "AES-GCM Ciphertext Base64 Shape",
-    description: "A standard Base64 string containing AES-GCM ciphertext and its authentication tag.",
-    message: "Archive envelope ciphertext must be valid standard Base64",
-  }),
+  isStandardBase64(
+    $I.annote("AesGcmCiphertextBase64ShapeCheck", {
+      title: "AES-GCM Ciphertext Base64 Shape",
+      description: "A standard Base64 string containing AES-GCM ciphertext and its authentication tag.",
+      message: "Archive envelope ciphertext must be valid standard Base64",
+    })
+  ),
   S.makeFilter(
     decodedBase64ByteLengthSatisfies((byteLength) => byteLength >= AES_GCM_TAG_BYTES),
-    {
-      identifier: $I`AesGcmCiphertextTagLengthCheck`,
+    $I.annote("AesGcmCiphertextTagLengthCheck", {
       arbitraryConstraint: {
         patterns: [
           {
@@ -148,7 +148,7 @@ const AesGcmCiphertextBase64 = S.String.check(
       title: "AES-GCM Ciphertext Tag Length",
       description: "Ciphertext bytes long enough to contain the 16-byte AES-GCM authentication tag.",
       message: "Archive envelope ciphertext must include a 16-byte AES-GCM authentication tag",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("AesGcmCiphertextBase64", {
@@ -157,12 +157,14 @@ const AesGcmCiphertextBase64 = S.String.check(
 );
 
 const AiMetricsRawArchiveObjectId = S.String.check(
-  S.isPattern(/^raw-[0-9a-f]{64}$/u, {
-    identifier: $I`AiMetricsRawArchiveObjectIdShapeCheck`,
-    title: "AI Metrics Raw Archive Object Id Shape",
-    description: "A raw- prefix followed by one lowercase SHA-256 hexadecimal digest.",
-    message: "Raw archive object id must be 'raw-' followed by 64 lowercase hexadecimal characters",
-  })
+  S.isPattern(
+    /^raw-[0-9a-f]{64}$/u,
+    $I.annote("AiMetricsRawArchiveObjectIdShapeCheck", {
+      title: "AI Metrics Raw Archive Object Id Shape",
+      description: "A raw- prefix followed by one lowercase SHA-256 hexadecimal digest.",
+      message: "Raw archive object id must be 'raw-' followed by 64 lowercase hexadecimal characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("AiMetricsRawArchiveObjectId", {
     description: "Content-addressed raw archive object id derived from a SHA-256 digest.",

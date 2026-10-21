@@ -13,8 +13,8 @@ import { ClaimElementPath, ClaimTermRef } from "./ClaimElement.model.ts";
 
 const $I = $LawPracticeDomainId.create("values/ClaimElement/ClaimElement.edge.model");
 
-const ClaimFunctionalPartKind = LiteralKit(["term", "text"]).annotate(
-  $I.annote("ClaimFunctionalPartKind", {
+const ClaimFunctionalPartKind = LiteralKit(["term", "text"]).pipe(
+  $I.annoteSchema("ClaimFunctionalPartKind", {
     description:
       "A functional-relation part is either a reference to a claim term or span-anchored connecting claim text.",
   })

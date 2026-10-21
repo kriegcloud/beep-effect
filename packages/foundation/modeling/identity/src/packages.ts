@@ -227,7 +227,9 @@ const generatedComposers = $I.compose(
   "toml",
   "yaml",
   "npm-spec",
-  "tsconfig"
+  "tsconfig",
+  "walker",
+  "github"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3280,3 +3282,37 @@ export const $NpmSpecId: Identity.IdentityComposer<"@beep/npm-spec"> = composers
  * @since 0.0.0
  */
 export const $TsconfigId: Identity.IdentityComposer<"@beep/tsconfig"> = composers.$TsconfigId;
+
+/**
+ * Identity composer for `@beep/walker`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $WalkerId } from "@beep/identity/packages"
+ *
+ * const id = $WalkerId.make("Walker")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $WalkerId: Identity.IdentityComposer<"@beep/walker"> = composers.$WalkerId;
+
+/**
+ * Identity composer for `@beep/github`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GithubId } from "@beep/identity/packages"
+ *
+ * const id = $GithubId.make("Github")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GithubId: Identity.IdentityComposer<"@beep/github"> = composers.$GithubId;

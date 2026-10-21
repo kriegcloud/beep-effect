@@ -735,16 +735,13 @@ export type YamlNode = YamlScalar | YamlMap | YamlSeq | YamlAlias;
  */
 export class YamlPair extends S.Opaque<YamlPair, { readonly brand: unique symbol }>()(
   S.TaggedStruct("YamlPair", {
-    key: S.suspend((): typeof YamlNode => YamlNode).annotateKey(
-      $I.annote("YamlPair.key", {
-        description: "Node identifying the mapping entry, carrying any own-line comments above that entry",
-      })
-    ),
-    value: S.NullOr(S.suspend((): typeof YamlNode => YamlNode)).annotateKey(
-      $I.annote("YamlPair.value", {
-        description: "Node containing the mapping entry's content, or `null` when no value follows the key",
-      })
-    ),
+    key: $I.annoteKey("YamlPair.key", {
+      description: "Node identifying the mapping entry, carrying any own-line comments above that entry",
+    })(S.suspend((): typeof YamlNode => YamlNode)),
+    // @effect-diagnostics-next-line missedPipeableOpportunity:off -- the pipe form makes TypeScript resolve YamlPair inside its own base (TS2310).
+    value: $I.annoteKey("YamlPair.value", {
+      description: "Node containing the mapping entry's content, or `null` when no value follows the key",
+    })(S.NullOr(S.suspend((): typeof YamlNode => YamlNode))),
   }).pipe(
     $I.annoteSchema("YamlPair", {
       description:

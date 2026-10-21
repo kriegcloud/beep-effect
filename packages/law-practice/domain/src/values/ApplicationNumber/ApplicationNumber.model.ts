@@ -50,19 +50,24 @@ const applicationNumberPattern = /^(?:1[0-9]|91)[0-9]{4}[A-Z0-9]{2}[0-9]{7}$/u;
  * @since 0.0.0
  */
 export const ApplicationNumber = S.String.check(
-  S.isBetweenLength(15, 15, {
-    identifier: $I`ApplicationNumberLengthCheck`,
-    title: "Application Number Length",
-    description: "A WIPO ST.13 machine-readable application number containing exactly 15 characters.",
-    message: "Patent application number must contain exactly 15 characters.",
-  }),
-  S.isPattern(applicationNumberPattern, {
-    identifier: $I`ApplicationNumberPatternCheck`,
-    title: "Application Number Pattern",
-    description:
-      "A WIPO ST.13 patent application number with patent type code 10-19 or 91, four year digits, and nine serial positions.",
-    message: "Patent application number must match the WIPO ST.13 machine-readable patent application format.",
-  })
+  S.isBetweenLength(
+    15,
+    15,
+    $I.annote("ApplicationNumberLengthCheck", {
+      title: "Application Number Length",
+      description: "A WIPO ST.13 machine-readable application number containing exactly 15 characters.",
+      message: "Patent application number must contain exactly 15 characters.",
+    })
+  ),
+  S.isPattern(
+    applicationNumberPattern,
+    $I.annote("ApplicationNumberPatternCheck", {
+      title: "Application Number Pattern",
+      description:
+        "A WIPO ST.13 patent application number with patent type code 10-19 or 91, four year digits, and nine serial positions.",
+      message: "Patent application number must match the WIPO ST.13 machine-readable patent application format.",
+    })
+  )
 ).pipe(
   S.brand("ApplicationNumber"),
   $I.annoteSchema("ApplicationNumber", {

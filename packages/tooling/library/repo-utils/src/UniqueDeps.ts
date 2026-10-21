@@ -28,12 +28,11 @@ const UniqueNpmPackageNames = S.Array(NpmPackageName)
     S.makeFilter(
       (values: ReadonlyArray<NpmPackageName>) =>
         A.length(A.dedupeWith(sameNpmPackageName)(values)) === A.length(values),
-      {
-        identifier: $I`UniqueNpmPackageNamesUniqueItemsCheck`,
+      $I.annote("UniqueNpmPackageNamesUniqueItemsCheck", {
         title: "Unique NPM Package Names",
         description: "Unique NPM dependency name arrays must not contain duplicate package names.",
         message: "Dependency names must be unique.",
-      }
+      })
     )
   )
   .pipe(

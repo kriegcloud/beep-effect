@@ -32,23 +32,29 @@ const isOTelLogRecordProcessor = (value: unknown): value is LogRecordProcessor =
 const isOTelMetricReader = (value: unknown): value is MetricReader => P.isUnknown(value);
 const isOTelSpanProcessor = (value: unknown): value is SpanProcessor => P.isUnknown(value);
 
-const OTelLogRecordProcessor = S.declare<LogRecordProcessor>(isOTelLogRecordProcessor, {
-  description: "OpenTelemetry log record processor supplied by a Node SDK caller.",
-  expected: "LogRecordProcessor",
-  identifier: $I`OTelLogRecordProcessor`,
-});
+const OTelLogRecordProcessor = S.declare<LogRecordProcessor>(
+  isOTelLogRecordProcessor,
+  $I.annote("OTelLogRecordProcessor", {
+    description: "OpenTelemetry log record processor supplied by a Node SDK caller.",
+    expected: "LogRecordProcessor",
+  })
+);
 
-const OTelMetricReader = S.declare<MetricReader>(isOTelMetricReader, {
-  description: "OpenTelemetry metric reader supplied by a Node SDK caller.",
-  expected: "MetricReader",
-  identifier: $I`OTelMetricReader`,
-});
+const OTelMetricReader = S.declare<MetricReader>(
+  isOTelMetricReader,
+  $I.annote("OTelMetricReader", {
+    description: "OpenTelemetry metric reader supplied by a Node SDK caller.",
+    expected: "MetricReader",
+  })
+);
 
-const OTelSpanProcessor = S.declare<SpanProcessor>(isOTelSpanProcessor, {
-  description: "OpenTelemetry span processor supplied by a Node SDK caller.",
-  expected: "SpanProcessor",
-  identifier: $I`OTelSpanProcessor`,
-});
+const OTelSpanProcessor = S.declare<SpanProcessor>(
+  isOTelSpanProcessor,
+  $I.annote("OTelSpanProcessor", {
+    description: "OpenTelemetry span processor supplied by a Node SDK caller.",
+    expected: "SpanProcessor",
+  })
+);
 
 const NodeSdkLogRecordProcessorOption = S.Union([OTelLogRecordProcessor, S.Array(OTelLogRecordProcessor)]).pipe(
   $I.annoteSchema("NodeSdkLogRecordProcessorOption", {

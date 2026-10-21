@@ -18,34 +18,36 @@ const hexColorPattern = /^#[0-9a-f]{6}$/;
 
 const HexColorInputChecks = S.makeFilterGroup(
   [
-    S.isPattern(hexColorInputPattern, {
-      identifier: $I`HexColorInputPatternCheck`,
-      title: "Hex Color Input Pattern",
-      description: "A hex color string in #rgb or #rrggbb format.",
-      message: "Hex colors must look like #rgb or #rrggbb",
-    }),
+    S.isPattern(
+      hexColorInputPattern,
+      $I.annote("HexColorInputPatternCheck", {
+        title: "Hex Color Input Pattern",
+        description: "A hex color string in #rgb or #rrggbb format.",
+        message: "Hex colors must look like #rgb or #rrggbb",
+      })
+    ),
   ],
-  {
-    identifier: $I`HexColorInputChecks`,
+  $I.annote("HexColorInputChecks", {
     title: "Hex Color Input",
     description: "Checks for shorthand and canonical hex color inputs.",
-  }
+  })
 );
 
 const HexColorChecks = S.makeFilterGroup(
   [
-    S.isPattern(hexColorPattern, {
-      identifier: $I`HexColorPatternCheck`,
-      title: "Canonical Hex Color Pattern",
-      description: "A lowercase six-digit hex color string in #rrggbb format.",
-      message: "Hex colors must be canonical lowercase #rrggbb strings",
-    }),
+    S.isPattern(
+      hexColorPattern,
+      $I.annote("HexColorPatternCheck", {
+        title: "Canonical Hex Color Pattern",
+        description: "A lowercase six-digit hex color string in #rrggbb format.",
+        message: "Hex colors must be canonical lowercase #rrggbb strings",
+      })
+    ),
   ],
-  {
-    identifier: $I`HexColorChecks`,
+  $I.annote("HexColorChecks", {
     title: "Hex Color",
     description: "Checks for canonical lowercase six-digit hex colors.",
-  }
+  })
 );
 
 const expandShortHex = (value: string): string =>

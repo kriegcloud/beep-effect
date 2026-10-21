@@ -83,6 +83,11 @@ only by a qualified, verified atomic exchange, journaled with the same state mac
 and recovered byte-exact (tree hash for directories) by the next `skills update` or
 `beep skills recover`; a replacing writer is refused with every artifact kept. Wave 8
 is closed.
+#1882 `residue-dependency-review` is complete
+(`history/receipts/dependency-review.md`): the required `Security` job reviews
+dependency changes through `beep ci dependency-review`, excluding only manifests under
+the declared `**/test/**/fixtures/**` policy, keeping production transitive advisories
+and the action's thresholds, and failing closed on any GitHub read failure.
 
 Workstreams are one per issue even when a train shares a PR. Future owners must
 record source acceptance and head-bound results per issue. Slot availability

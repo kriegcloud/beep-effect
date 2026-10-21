@@ -77,30 +77,35 @@ export type WindowsDotSegment = typeof WindowsDotSegment.Type;
 export const ValidWindowsPlainPathSegment = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.isPattern(windowsSegmentWithoutSeparatorsRegExp, {
-        identifier: $I`WindowsPlainPathSegmentNoSeparatorsCheck`,
-        title: "Windows Plain Path Segment Without Separators",
-        description: "A Windows path segment that does not contain / or \\.",
-        message: "Windows path segments must not contain / or \\",
-      }),
-      S.isPattern(windowsInvalidSegmentCharacterRegExp, {
-        identifier: $I`WindowsPlainPathSegmentCharacterCheck`,
-        title: "Windows Plain Path Segment Characters",
-        description: 'A Windows path segment without reserved characters <>:"|?*.',
-        message: 'Windows path segments must not contain <>:"|?*',
-      }),
-      S.isPattern(windowsInvalidTrailingSegmentRegExp, {
-        identifier: $I`WindowsPlainPathSegmentTrailingCheck`,
-        title: "Windows Plain Path Segment Trailing Character",
-        description: "A Windows path segment that does not end with a trailing dot or space.",
-        message: "Windows path segments must not end with a dot or space",
-      }),
+      S.isPattern(
+        windowsSegmentWithoutSeparatorsRegExp,
+        $I.annote("WindowsPlainPathSegmentNoSeparatorsCheck", {
+          title: "Windows Plain Path Segment Without Separators",
+          description: "A Windows path segment that does not contain / or \\.",
+          message: "Windows path segments must not contain / or \\",
+        })
+      ),
+      S.isPattern(
+        windowsInvalidSegmentCharacterRegExp,
+        $I.annote("WindowsPlainPathSegmentCharacterCheck", {
+          title: "Windows Plain Path Segment Characters",
+          description: 'A Windows path segment without reserved characters <>:"|?*.',
+          message: 'Windows path segments must not contain <>:"|?*',
+        })
+      ),
+      S.isPattern(
+        windowsInvalidTrailingSegmentRegExp,
+        $I.annote("WindowsPlainPathSegmentTrailingCheck", {
+          title: "Windows Plain Path Segment Trailing Character",
+          description: "A Windows path segment that does not end with a trailing dot or space.",
+          message: "Windows path segments must not end with a dot or space",
+        })
+      ),
     ],
-    {
-      identifier: $I`ValidWindowsPlainPathSegmentChecks`,
+    $I.annote("ValidWindowsPlainPathSegmentChecks", {
       title: "Valid Windows Plain Path Segment",
       description: "Checks for a Windows path segment that is neither empty nor structurally invalid.",
-    }
+    })
   )
 ).pipe(
   S.brand("ValidWindowsPlainPathSegment"),
@@ -147,12 +152,14 @@ const isWindowsDotSegment = (value: string): value is WindowsDotSegment => HashS
  * @since 0.0.0
  */
 export const ValidWindowsRootSegment = ValidWindowsPlainPathSegment.check(
-  S.makeFilter(P.not(isWindowsDotSegment), {
-    identifier: $I`ValidWindowsRootSegmentCheck`,
-    title: "Valid Windows Root Segment",
-    description: "A Windows root segment that is not . or ..",
-    message: "Windows root segments must not be . or ..",
-  })
+  S.makeFilter(
+    P.not(isWindowsDotSegment),
+    $I.annote("ValidWindowsRootSegmentCheck", {
+      title: "Valid Windows Root Segment",
+      description: "A Windows root segment that is not . or ..",
+      message: "Windows root segments must not be . or ..",
+    })
+  )
 ).pipe(
   S.brand("ValidWindowsRootSegment"),
   $I.annoteSchema("ValidWindowsRootSegment", {

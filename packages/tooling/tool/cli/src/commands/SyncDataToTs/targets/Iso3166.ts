@@ -139,7 +139,7 @@ const normalizeUpperAscii = flow(normalizeWhitespace, Str.toLocaleUpperCase("en-
 const normalizeOptionalCell = flow(normalizeWhitespace, O.liftPredicate(Str.isNonEmpty));
 const codePointToString = (codePoint: number): string => globalThis.String.fromCodePoint(codePoint);
 const regionalIndicatorFromLetter = (letter: string): string =>
-  codePointToString(regionalIndicatorOffset + letter.charCodeAt(0));
+  codePointToString(regionalIndicatorOffset + O.getOrElse(Str.charCodeAt(0)(letter), constant(Number.NaN)));
 const countryFlagEmoji: (alpha2: string) => string = flow(
   Str.split(""),
   A.map(regionalIndicatorFromLetter),
@@ -198,7 +198,7 @@ const normalizePatternedCell = (
 };
 
 const normalizeCountryNumeric = (value: string, rowLabel: string): Effect.Effect<string, SyncDataToTsError> => {
-  const normalized = normalizeWhitespace(value).padStart(3, "0");
+  const normalized = Str.padStart(3, "0")(normalizeWhitespace(value));
   return numericPattern.test(normalized)
     ? Effect.succeed(normalized)
     : Effect.fail(

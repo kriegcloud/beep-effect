@@ -19,13 +19,12 @@ const Fixed64Range = S.isBetweenBigInt(
     minimum: fixed64Minimum,
     maximum: fixed64Maximum,
   },
-  {
-    identifier: $I`Fixed64RangeCheck`,
+  $I.annote("Fixed64RangeCheck", {
     title: "Protobuf fixed64 Range",
     description: "A protobuf fixed64 value must fit in the unsigned 64-bit fixed-width range.",
     expected: "an unsigned fixed-width 64-bit protobuf integer",
     message: "Expected a protobuf fixed64 value between 0 and 18446744073709551615",
-  }
+  })
 );
 
 const Fixed64BigInt = S.BigInt.check(Fixed64Range);

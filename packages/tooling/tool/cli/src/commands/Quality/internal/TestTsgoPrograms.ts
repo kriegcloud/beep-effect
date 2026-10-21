@@ -6,6 +6,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { jsonStringifyPretty } from "@beep/repo-utils";
 import { thunkFalse } from "@beep/utils";
+import { Walker } from "@beep/walker/Walker";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -79,22 +80,13 @@ const findOwningPackageDir = Effect.fn("QualityScriptCommands.findOwningPackageD
   repoRoot: string,
   filePath: string
 ): Effect.fn.Return<string, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  let current = path.dirname(filePath);
+  // Segment-aware containment: a bare prefix test would let `/repo` claim `/repo-worktrees/...`.
+  const isInsideRepo = (dir: string) => dir === repoRoot || Str.startsWith(`${repoRoot}${path.sep}`)(dir);
+  const dirs = A.takeWhile(yield* Walker.ascend(path.dirname(filePath), { stopAt: repoRoot }), isInsideRepo);
+  const manifest = yield* Walker.findUpward(dirs, (dir) => [path.join(dir, "package.json")]);
 
-  while (current !== repoRoot && Str.startsWith(repoRoot)(current)) {
-    const packageJsonPath = path.join(current, "package.json");
-    const hasPackageJson = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
-
-    if (hasPackageJson) {
-      return current;
-    }
-
-    current = path.dirname(current);
-  }
-
-  return repoRoot;
+  return O.match(manifest, { onNone: () => repoRoot, onSome: path.dirname });
 });
 
 const collectOwnedTestTsgoFiles = Effect.fn("QualityScriptCommands.collectOwnedTestTsgoFiles")(function* (

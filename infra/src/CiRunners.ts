@@ -198,12 +198,14 @@ const instanceTypePattern =
 const amiIdPattern = /^ami-[0-9a-f]{8,17}$/u;
 const ssmParameterNamePattern = /^\/[A-Za-z0-9_./-]+$/u;
 
-const Ipv4CidrFormat = S.isPattern(ipv4CidrPattern, {
-  identifier: $I`Ipv4CidrFormat`,
-  title: "IPv4 CIDR Format",
-  description: "An IPv4 CIDR block such as 10.88.0.0/16.",
-  message: "Expected an IPv4 CIDR block like 10.88.0.0/16",
-});
+const Ipv4CidrFormat = S.isPattern(
+  ipv4CidrPattern,
+  $I.annote("Ipv4CidrFormat", {
+    title: "IPv4 CIDR Format",
+    description: "An IPv4 CIDR block such as 10.88.0.0/16.",
+    message: "Expected an IPv4 CIDR block like 10.88.0.0/16",
+  })
+);
 
 const Ipv4Cidr = S.String.check(Ipv4CidrFormat).pipe(
   $I.annoteSchema("Ipv4Cidr", {
@@ -211,12 +213,14 @@ const Ipv4Cidr = S.String.check(Ipv4CidrFormat).pipe(
   })
 );
 
-const AwsRegionFormat = S.isPattern(awsRegionPattern, {
-  identifier: $I`AwsRegionFormat`,
-  title: "AWS Region Format",
-  description: "An AWS region name such as us-east-1.",
-  message: "Expected an AWS region name like us-east-1",
-});
+const AwsRegionFormat = S.isPattern(
+  awsRegionPattern,
+  $I.annote("AwsRegionFormat", {
+    title: "AWS Region Format",
+    description: "An AWS region name such as us-east-1.",
+    message: "Expected an AWS region name like us-east-1",
+  })
+);
 
 const AwsRegion = S.String.check(AwsRegionFormat).pipe(
   $I.annoteSchema("AwsRegion", {
@@ -224,12 +228,14 @@ const AwsRegion = S.String.check(AwsRegionFormat).pipe(
   })
 );
 
-const AwsAvailabilityZoneFormat = S.isPattern(availabilityZonePattern, {
-  identifier: $I`AwsAvailabilityZoneFormat`,
-  title: "AWS Availability Zone Format",
-  description: "An AWS availability zone name such as us-east-1a.",
-  message: "Expected an AWS availability zone name like us-east-1a",
-});
+const AwsAvailabilityZoneFormat = S.isPattern(
+  availabilityZonePattern,
+  $I.annote("AwsAvailabilityZoneFormat", {
+    title: "AWS Availability Zone Format",
+    description: "An AWS availability zone name such as us-east-1a.",
+    message: "Expected an AWS availability zone name like us-east-1a",
+  })
+);
 
 const AwsAvailabilityZone = S.String.check(AwsAvailabilityZoneFormat).pipe(
   $I.annoteSchema("AwsAvailabilityZone", {
@@ -237,12 +243,14 @@ const AwsAvailabilityZone = S.String.check(AwsAvailabilityZoneFormat).pipe(
   })
 );
 
-const Ec2InstanceTypeFormat = S.isPattern(instanceTypePattern, {
-  identifier: $I`Ec2InstanceTypeFormat`,
-  title: "EC2 Instance Type Format",
-  description: "An EC2 instance type such as m7i.2xlarge.",
-  message: "Expected an EC2 instance type like m7i.2xlarge",
-});
+const Ec2InstanceTypeFormat = S.isPattern(
+  instanceTypePattern,
+  $I.annote("Ec2InstanceTypeFormat", {
+    title: "EC2 Instance Type Format",
+    description: "An EC2 instance type such as m7i.2xlarge.",
+    message: "Expected an EC2 instance type like m7i.2xlarge",
+  })
+);
 
 const Ec2InstanceType = S.String.check(Ec2InstanceTypeFormat).pipe(
   $I.annoteSchema("Ec2InstanceType", {
@@ -250,12 +258,14 @@ const Ec2InstanceType = S.String.check(Ec2InstanceTypeFormat).pipe(
   })
 );
 
-const AmiIdFormat = S.isPattern(amiIdPattern, {
-  identifier: $I`AmiIdFormat`,
-  title: "AMI ID Format",
-  description: "An EC2 machine image id such as ami-0123456789abcdef0.",
-  message: "Expected an AMI id like ami-0123456789abcdef0",
-});
+const AmiIdFormat = S.isPattern(
+  amiIdPattern,
+  $I.annote("AmiIdFormat", {
+    title: "AMI ID Format",
+    description: "An EC2 machine image id such as ami-0123456789abcdef0.",
+    message: "Expected an AMI id like ami-0123456789abcdef0",
+  })
+);
 
 const AmiId = S.String.check(AmiIdFormat).pipe(
   $I.annoteSchema("AmiId", {
@@ -263,13 +273,15 @@ const AmiId = S.String.check(AmiIdFormat).pipe(
   })
 );
 
-const SsmParameterNameFormat = S.isPattern(ssmParameterNamePattern, {
-  identifier: $I`SsmParameterNameFormat`,
-  title: "SSM Parameter Name Format",
-  description:
-    "An absolute SSM parameter path such as /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id.",
-  message: "Expected an absolute SSM parameter path starting with /",
-});
+const SsmParameterNameFormat = S.isPattern(
+  ssmParameterNamePattern,
+  $I.annote("SsmParameterNameFormat", {
+    title: "SSM Parameter Name Format",
+    description:
+      "An absolute SSM parameter path such as /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id.",
+    message: "Expected an absolute SSM parameter path starting with /",
+  })
+);
 
 const SsmParameterName = S.String.check(SsmParameterNameFormat).pipe(
   $I.annoteSchema("SsmParameterName", {
@@ -282,12 +294,11 @@ const RootVolumeSizeGbRange = S.isBetween(
     minimum: 20,
     maximum: 1000,
   },
-  {
-    identifier: $I`RootVolumeSizeGbRange`,
+  $I.annote("RootVolumeSizeGbRange", {
     title: "Root Volume Size Range",
     description: "A gp3 root volume size in GiB between 20 and 1000.",
     message: "Expected a root volume size between 20 and 1000 GiB",
-  }
+  })
 );
 
 const RootVolumeSizeGb = S.Int.check(RootVolumeSizeGbRange).pipe(
@@ -301,12 +312,11 @@ const MaxRunMinutesRange = S.isBetween(
     minimum: 5,
     maximum: 120,
   },
-  {
-    identifier: $I`MaxRunMinutesRange`,
+  $I.annote("MaxRunMinutesRange", {
     title: "Max Run Minutes Range",
     description: "In-guest self-destruct deadline in minutes between 5 and 120.",
     message: "Expected a max run deadline between 5 and 120 minutes",
-  }
+  })
 );
 
 const MaxRunMinutes = S.Int.check(MaxRunMinutesRange).pipe(
@@ -320,12 +330,11 @@ const ReaperTtlMinutesRange = S.isBetween(
     minimum: 15,
     maximum: 1440,
   },
-  {
-    identifier: $I`ReaperTtlMinutesRange`,
+  $I.annote("ReaperTtlMinutesRange", {
     title: "Reaper TTL Minutes Range",
     description: "AWS-side reaper instance TTL in minutes between 15 and 1440.",
     message: "Expected a reaper TTL between 15 and 1440 minutes",
-  }
+  })
 );
 
 const ReaperTtlMinutes = S.Int.check(ReaperTtlMinutesRange).pipe(
@@ -486,12 +495,11 @@ const networkPublicSubnetCidrs = (network: CiRunnersNetworkGeometry): ReadonlyAr
 
 const CiRunnersNetworkZonesWithinRegionCheck = S.makeFilter<CiRunnersNetworkGeometry>(
   (network) => A.every(networkAvailabilityZones(network), Str.startsWith(network.region)),
-  {
-    identifier: $I`CiRunnersNetworkZonesWithinRegionCheck`,
+  $I.annote("CiRunnersNetworkZonesWithinRegionCheck", {
     title: "Availability Zones Within Region",
     description: "Every availability zone must belong to the configured AWS region.",
     message: "Expected every availability zone to start with the configured AWS region",
-  }
+  })
 );
 
 const CiRunnersNetworkZonesDistinctCheck = S.makeFilter<CiRunnersNetworkGeometry>(
@@ -499,12 +507,11 @@ const CiRunnersNetworkZonesDistinctCheck = S.makeFilter<CiRunnersNetworkGeometry
     const zones = networkAvailabilityZones(network);
     return A.length(A.dedupe(zones)) === A.length(zones);
   },
-  {
-    identifier: $I`CiRunnersNetworkZonesDistinctCheck`,
+  $I.annote("CiRunnersNetworkZonesDistinctCheck", {
     title: "Availability Zones Distinct",
     description: "Every public subnet must sit in a different availability zone.",
     message: "Expected every public subnet availability zone to be distinct",
-  }
+  })
 );
 
 type CidrRange = {
@@ -533,12 +540,11 @@ const CiRunnersSubnetsWithinVpcCheck = S.makeFilter<CiRunnersNetworkGeometry>(
     const vpc = cidrRange(network.vpcCidr);
     return A.every(networkPublicSubnetCidrs(network), (cidr) => cidrRangeContains(vpc, cidrRange(cidr)));
   },
-  {
-    identifier: $I`CiRunnersSubnetsWithinVpcCheck`,
+  $I.annote("CiRunnersSubnetsWithinVpcCheck", {
     title: "Subnets Within VPC",
     description: "Every public subnet CIDR block must be contained within the VPC CIDR block.",
     message: "Expected every public subnet CIDR block to be contained within the VPC CIDR block",
-  }
+  })
 );
 
 const CiRunnersSubnetsDisjointCheck = S.makeFilter<CiRunnersNetworkGeometry>(
@@ -548,12 +554,11 @@ const CiRunnersSubnetsDisjointCheck = S.makeFilter<CiRunnersNetworkGeometry>(
       A.every(A.drop(subnets, index + 1), (other) => cidrRangesDisjoint(subnet, other))
     );
   },
-  {
-    identifier: $I`CiRunnersSubnetsDisjointCheck`,
+  $I.annote("CiRunnersSubnetsDisjointCheck", {
     title: "Subnets Disjoint",
     description: "The public subnet CIDR blocks must not overlap each other.",
     message: "Expected the public subnet CIDR blocks not to overlap",
-  }
+  })
 );
 
 /**

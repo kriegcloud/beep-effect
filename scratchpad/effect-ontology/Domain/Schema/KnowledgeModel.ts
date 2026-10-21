@@ -51,12 +51,11 @@ const ruleIdPattern = /^rule-[a-z0-9]+(?:-[a-z0-9]+)*$/;
  * @since 0.0.0
  */
 export const ClaimId = S.String.check(
-  S.isPattern(claimIdPattern, {
-    identifier: $I`ClaimIdPatternCheck`,
+  S.isPattern(claimIdPattern, $I.annote("ClaimIdPatternCheck", {
     title: "Claim Identifier",
     description: "A claim- prefix followed by exactly twelve lowercase hexadecimal characters.",
     message: "Claim ID must use claim- followed by exactly twelve lowercase hexadecimal characters.",
-  })
+  }))
 ).pipe(
     S.brand("ClaimId"),
     $I.annoteSchema("ClaimId", {
@@ -98,12 +97,11 @@ export type ClaimId = typeof ClaimId.Type;
  * @since 0.0.0
  */
 export const AssertionId = S.String.check(
-  S.isPattern(assertionIdPattern, {
-    identifier: $I`AssertionIdPatternCheck`,
+  S.isPattern(assertionIdPattern, $I.annote("AssertionIdPatternCheck", {
     title: "Assertion Identifier",
     description: "An assertion- prefix followed by exactly twelve lowercase hexadecimal characters.",
     message: "Assertion ID must use assertion- followed by exactly twelve lowercase hexadecimal characters.",
-  })
+  }))
 ).pipe(
     S.brand("AssertionId"),
     $I.annoteSchema("AssertionId", {
@@ -145,12 +143,11 @@ export type AssertionId = typeof AssertionId.Type;
  * @since 0.0.0
  */
 export const DerivedAssertionId = S.String.check(
-  S.isPattern(derivedAssertionIdPattern, {
-    identifier: $I`DerivedAssertionIdPatternCheck`,
+  S.isPattern(derivedAssertionIdPattern, $I.annote("DerivedAssertionIdPatternCheck", {
     title: "Derived Assertion Identifier",
     description: "A derived- prefix followed by exactly twelve lowercase hexadecimal characters.",
     message: "Derived assertion ID must use derived- followed by exactly twelve lowercase hexadecimal characters.",
-  })
+  }))
 ).pipe(
     S.brand("DerivedAssertionId"),
     $I.annoteSchema("DerivedAssertionId", {
@@ -195,12 +192,11 @@ export type DerivedAssertionId = typeof DerivedAssertionId.Type;
  * @since 0.0.0
  */
 export const RuleId = S.String.check(
-  S.isPattern(ruleIdPattern, {
-    identifier: $I`RuleIdPatternCheck`,
+  S.isPattern(ruleIdPattern, $I.annote("RuleIdPatternCheck", {
     title: "Reasoning Rule Identifier",
     description: "A rule- prefix followed by lowercase alphanumeric hyphen-separated segments.",
     message: "Rule ID must use rule- followed by lowercase alphanumeric segments separated by single hyphens.",
-  })
+  }))
 ).pipe(
     S.brand("RuleId"),
     $I.annoteSchema("RuleId", {
@@ -385,8 +381,8 @@ export const RdfObject = ObjectTerm.pipe(
 export type RdfObject = typeof RdfObject.Type;
 
 /** Literal domain underlying the public claim-rank schema. */
-const ClaimRankDefinition = LiteralKit(["preferred", "normal", "deprecated"]).annotate(
-  $I.annote("ClaimRank", {
+const ClaimRankDefinition = LiteralKit(["preferred", "normal", "deprecated"]).pipe(
+  $I.annoteSchema("ClaimRank", {
     description: "Wikidata-style preferred, normal, or deprecated claim rank.",
   })
 );
@@ -442,12 +438,11 @@ const TemporalIntervalDefinition = S.Struct({
             path: ["to"],
             issue: "Temporal interval end must not precede its start.",
           },
-    {
-      identifier: $I`TemporalIntervalOrderCheck`,
+    $I.annote("TemporalIntervalOrderCheck", {
       title: "Ordered Temporal Interval",
       description: "A UTC validity interval whose end is not before its start.",
       message: "Temporal interval end must be greater than or equal to its start.",
-    }
+    })
   )
 );
 const isTemporalIntervalDefinition = S.is(TemporalIntervalDefinition);
@@ -542,8 +537,8 @@ export class Claim extends S.Opaque<Claim, { readonly brand: unique symbol }>()(
  * @category schemas
  * @since 0.0.0
  */
-export const AssertionStatus = LiteralKit(["accepted", "rejected", "pending"]).annotate(
-    $I.annote("AssertionStatus", {
+export const AssertionStatus = LiteralKit(["accepted", "rejected", "pending"]).pipe(
+    $I.annoteSchema("AssertionStatus", {
       description: "Accepted, rejected, or pending curation status of an assertion.",
     })
   );
@@ -717,8 +712,8 @@ export const EventType = LiteralKit([
   "BudgetAction",
   "PublicMeeting",
   "Generic",
-]).annotate(
-    $I.annote("EventType", {
+]).pipe(
+    $I.annoteSchema("EventType", {
       description: "Finite event categories used for timeline grouping and presentation.",
     })
   );

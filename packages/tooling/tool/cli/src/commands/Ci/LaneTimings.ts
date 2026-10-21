@@ -184,8 +184,8 @@ export class CiWorkflowJob extends S.Opaque<CiWorkflowJob, { readonly brand: uni
 const CiWorkflowAttemptOneJob = CiWorkflowJob.mapFields((fields) => ({
   ...fields,
   run_attempt: S.tag(1),
-})).annotate(
-  $I.annote("CiWorkflowAttemptOneJob", {
+})).pipe(
+  $I.annoteSchema("CiWorkflowAttemptOneJob", {
     description: "A structurally selected GitHub Actions job from the first workflow-run attempt.",
   })
 );

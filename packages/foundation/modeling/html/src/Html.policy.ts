@@ -265,13 +265,15 @@ const isSafeImageUrlAttribute = isSafeUrlAttributeWith(hasAllowedImageScheme);
  * @since 0.0.0
  */
 export const SafeUrlAttribute = S.String.check(
-  S.makeFilter(isSafeUrlAttribute, {
-    arbitraryConstraint: { patterns: [/^(https:\/\/example\.test)?\/[a-z0-9]{1,30}$/] },
-    identifier: $I`SafeUrlAttributeCheck`,
-    title: "Safe HTML URL Attribute",
-    description: "Checks the conservative browser-output URL policy.",
-    message: "Expected a relative, https, mailto, or tel URL without control characters",
-  })
+  S.makeFilter(
+    isSafeUrlAttribute,
+    $I.annote("SafeUrlAttributeCheck", {
+      arbitraryConstraint: { patterns: [/^(https:\/\/example\.test)?\/[a-z0-9]{1,30}$/] },
+      title: "Safe HTML URL Attribute",
+      description: "Checks the conservative browser-output URL policy.",
+      message: "Expected a relative, https, mailto, or tel URL without control characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SafeUrlAttribute", {
     description: "URL permitted in a safe HTML href or src attribute.",
@@ -312,13 +314,15 @@ export type SafeUrlAttribute = typeof SafeUrlAttribute.Type;
  * @since 0.0.0
  */
 export const SafeImageUrlAttribute = S.String.check(
-  S.makeFilter(isSafeImageUrlAttribute, {
-    arbitraryConstraint: { patterns: [/^(https:\/\/example\.test)?\/[a-z0-9]{1,30}\.png$/] },
-    identifier: $I`SafeImageUrlAttributeCheck`,
-    title: "Safe HTML Image URL Attribute",
-    description: "Checks the conservative image-source URL policy.",
-    message: "Expected a relative or https image URL without control characters",
-  })
+  S.makeFilter(
+    isSafeImageUrlAttribute,
+    $I.annote("SafeImageUrlAttributeCheck", {
+      arbitraryConstraint: { patterns: [/^(https:\/\/example\.test)?\/[a-z0-9]{1,30}\.png$/] },
+      title: "Safe HTML Image URL Attribute",
+      description: "Checks the conservative image-source URL policy.",
+      message: "Expected a relative or https image URL without control characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("SafeImageUrlAttribute", {
     description: "URL permitted in a safe HTML img src attribute.",

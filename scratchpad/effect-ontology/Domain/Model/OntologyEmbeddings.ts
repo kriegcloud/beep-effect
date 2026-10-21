@@ -116,12 +116,11 @@ class OntologyEmbeddingsFieldsModel extends S.Opaque<OntologyEmbeddingsFieldsMod
       description: "Embedding-model identifier used to compute every vector.",
     }),
     dimension: S.Natural.check(
-      S.isGreaterThan(0, {
-        identifier: $I`EmbeddingDimensionPositiveCheck`,
+      S.isGreaterThan(0, $I.annote("EmbeddingDimensionPositiveCheck", {
         title: "Positive Embedding Dimension",
         description: "An embedding dimension must be a positive integer.",
         message: "Embedding dimension must be greater than zero.",
-      })
+      }))
     ).annotateKey({
       description: "Expected vector length for every embedded element.",
     }),
@@ -146,12 +145,11 @@ const hasConsistentEmbeddingDimension = (artifact: OntologyEmbeddingsFieldsModel
   );
 
 const OntologyEmbeddingsDefinition = OntologyEmbeddingsFieldsModel.check(
-  S.makeFilter(hasConsistentEmbeddingDimension, {
-    identifier: $I`ConsistentEmbeddingDimensionCheck`,
+  S.makeFilter(hasConsistentEmbeddingDimension, $I.annote("ConsistentEmbeddingDimensionCheck", {
     title: "Consistent Embedding Dimension",
     description: "Every class and property vector has the artifact's declared dimension.",
     message: "Every embedding vector must match the declared embedding dimension.",
-  })
+  }))
 );
 
 const computeOntologyVersion = flow(
