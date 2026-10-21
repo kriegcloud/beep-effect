@@ -107,6 +107,14 @@ describe("rule registry", () => {
           summary: "Prefer `.flatMap(f)` over `.map(f).flat()`.",
           scope: null,
         },
+        "prefer-identity-annote-pipe": {
+          name: "prefer-identity-annote-pipe",
+          severity: "error",
+          replaces: null,
+          summary:
+            "Pipe identity annotations onto non-class schemas: `X.pipe($I.annoteSchema(...))` and `X.pipe($I.annoteKey(...))`, not `.annotate($I.annote(...))` or `.annotateKey($I.annote(...))`.",
+          scope: null,
+        },
       });
     })
   );

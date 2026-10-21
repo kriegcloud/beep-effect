@@ -30,7 +30,8 @@ const $I = $LintRulesId;
  *   "no-native-error",
  *   "no-bigint-literals",
  *   "no-empty-named-blocks",
- *   "prefer-array-flat-map"
+ *   "prefer-array-flat-map",
+ *   "prefer-identity-annote-pipe"
  * ])
  * ```
  *
@@ -42,6 +43,7 @@ export const RULE_NAMES = [
   "no-bigint-literals",
   "no-empty-named-blocks",
   "prefer-array-flat-map",
+  "prefer-identity-annote-pipe",
 ] as const;
 
 /**
@@ -160,6 +162,7 @@ export class RuleRegistrySchema extends S.Opaque<RuleRegistrySchema, { readonly 
     "no-bigint-literals": RuleMetadataSchema,
     "no-empty-named-blocks": RuleMetadataSchema,
     "prefer-array-flat-map": RuleMetadataSchema,
+    "prefer-identity-annote-pipe": RuleMetadataSchema,
   }).pipe(
     $I.annoteSchema("RuleRegistrySchema", {
       description: "Schema for the finite rule registry keyed by rule slug.",
@@ -210,6 +213,14 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = RuleRegistrySch
     severity: "error",
     replaces: O.none(),
     summary: "Prefer `.flatMap(f)` over `.map(f).flat()`.",
+    scope: O.none(),
+  }),
+  "prefer-identity-annote-pipe": RuleMetadataSchema.make({
+    name: "prefer-identity-annote-pipe",
+    severity: "error",
+    replaces: O.none(),
+    summary:
+      "Pipe identity annotations onto non-class schemas: `X.pipe($I.annoteSchema(...))` and `X.pipe($I.annoteKey(...))`, not `.annotate($I.annote(...))` or `.annotateKey($I.annote(...))`.",
     scope: O.none(),
   }),
 });

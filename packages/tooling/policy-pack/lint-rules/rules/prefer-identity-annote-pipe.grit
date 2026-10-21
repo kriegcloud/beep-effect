@@ -1,0 +1,41 @@
+language js
+
+// EF-12 (standards/effect-first-development.md): identity annotations reach a
+// non-class schema through the pipeable composer helpers, never through the raw
+// `.annotate` / `.annotateKey` methods. `$C` is any `$`-prefixed IdentityComposer.
+//
+//   X.annotate($C.annote(...))     ->  X.pipe($C.annoteSchema(...))
+//   X.annotateKey($C.annote(...))  ->  X.pipe($C.annoteKey(...))
+//
+// Class trailing arguments (`S.Class(..., $C.annote(...))`) and check arguments
+// (`S.isInt($C.annote(...))`) never call `.annotate`, so they do not match.
+// Exception: a field whose schema contains `S.suspend(...)` inside a class's
+// `extends` clause keeps `.annotateKey($C.annote(...))`, because the pipe form
+// there makes the class recursively reference itself as a base type (TS2310).
+// The `within` ancestor walk runs only after the call, composer and suspend
+// matches succeed, so it never touches the hot path.
+
+pattern identity_annote() {
+  or {
+    `$composer.annote($...)`,
+    `$composer.annote<$...>($...)`
+  } where { $composer <: r"^[$][A-Za-z0-9_]*$" }
+}
+
+or {
+  or {
+    `$schema.annotate($annotation)`,
+    `$schema.annotate<$...>($annotation)`
+  } as $call where {
+    $annotation <: identity_annote(),
+    register_diagnostic(span=$call, message="Rule: identity annotations go through `$I.annoteSchema`, not `.annotate($I.annote(...))`. Why: the raw `.annotate` returns a plain schema and drops statics such as `match`, `cases`, `guards` and `isAnyOf` on `S.toTaggedUnion` results; `annoteSchema` preserves them (EF-12). Fix: write `X.pipe($I.annoteSchema(...))`; a check takes the annotations as its argument, `S.isInt($I.annote(...))`.", severity="error")
+  },
+  or {
+    `$schema.annotateKey($annotation)`,
+    `$schema.annotateKey<$...>($annotation)`
+  } as $call where {
+    $annotation <: identity_annote(),
+    not and { $schema <: contains `$_.suspend($...)`, $call <: within JsExtendsClause() },
+    register_diagnostic(span=$call, message="Rule: identity annotations go through `$I.annoteKey`, not `.annotateKey($I.annote(...))`. Why: `annoteKey` is the canonical key form and types its extras as key annotations (EF-12). Fix: write `X.pipe($I.annoteKey(...))`. Only an `S.suspend(...)` field inside a recursive class's own base keeps the raw form (the pipe form there fails with TS2310).", severity="error")
+  }
+}

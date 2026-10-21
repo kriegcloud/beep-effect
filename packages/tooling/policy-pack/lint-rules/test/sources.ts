@@ -45,4 +45,47 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
       "\n"
     ),
   },
+  "prefer-identity-annote-pipe": {
+    invalidCount: 8,
+    messageIncludes: "identity annotations go through",
+    invalid: A.join(
+      [
+        "export const Single = S.String.annotate($I.annote('Single', { description: 'one line' }));",
+        "export const Multi = S.Struct({ a: S.String }).annotate(",
+        "  $SchemaId.annote('Multi', {",
+        "    description: 'spans lines',",
+        "  })",
+        ");",
+        "export const TypedAnnote = S.Number.annotate($I.annote<number>('TypedAnnote'));",
+        "export const TypedAnnotate = S.Number.annotate<number>($I.annote('TypedAnnotate'));",
+        "export const CheckAnnotate = S.Number.check(S.isInt().annotate($I.annote('CheckAnnotate')));",
+        "export const Key = S.Struct({ a: S.String.annotateKey($I.annote('Key.a')) });",
+        "export const SuspendKey = S.Struct({ a: S.suspend(() => S.String).annotateKey($I.annote('SuspendKey.a')) });",
+        "export class BaseKey extends S.Opaque<BaseKey>()(S.Struct({ a: S.String.annotateKey($I.annote('BaseKey.a')) })) {}",
+      ],
+      "\n"
+    ),
+    valid: A.join(
+      [
+        "export class Tree extends S.Opaque<Tree>()(",
+        "  S.TaggedStruct('Tree', {",
+        "    children: S.Array(S.suspend((): S.Codec<Tree> => Tree)).annotateKey(",
+        "      $I.annote('Tree.children', { description: 'recursive base' })",
+        "    ),",
+        "    parent: S.NullOr(S.suspend((): S.Codec<Tree> => Tree)).annotateKey($I.annote('Tree.parent')),",
+        "  })",
+        ") {}",
+        "export class Model extends S.Class<Model>('Model')({ a: S.String }, $I.annote('Model', { description: 'class' })) {}",
+        "export class Boom extends S.TaggedError<Boom>()('Boom', {}, $I.annoteError<Boom>('Boom', { description: 'error' })) {}",
+        "export const Checked = S.Number.check(S.isInt($I.annote('Checked')));",
+        "export const Piped = S.String.pipe($I.annoteSchema('Piped', { description: 'canonical' }));",
+        "export const PipedKey = S.Struct({ a: S.String.pipe($I.annoteKey('PipedKey.a')) });",
+        "export const Plain = S.String.annotate({ identifier: 'Plain' });",
+        "export const NotComposer = S.String.annotate(I.annote('NotComposer'));",
+        "// S.String.annotate($I.annote('InComment'))",
+        "export const InString = 'S.String.annotate($I.annote(1))';",
+      ],
+      "\n"
+    ),
+  },
 };
