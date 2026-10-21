@@ -17525,6 +17525,93 @@
         }
       }
     },
+    "@beep/mcpb-kit": {
+      "path": "packages/tooling/library/mcpb-kit",
+      "lines": 87.4,
+      "statements": 87.69,
+      "branches": 83.33,
+      "functions": 73.8,
+      "uncovered": {
+        "lines": 16,
+        "statements": 16,
+        "branches": 4,
+        "functions": 11
+      },
+      "files": {
+        "packages/tooling/library/mcpb-kit/src/McpbKit.entrypoint.ts": {
+          "lines": 25,
+          "statements": 25,
+          "branches": 0,
+          "functions": 0,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 2,
+            "functions": 1
+          }
+        },
+        "packages/tooling/library/mcpb-kit/src/McpbKit.errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/mcpb-kit/src/McpbKit.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/mcpb-kit/src/McpbKit.package.ts": {
+          "lines": 95.23,
+          "statements": 95.34,
+          "branches": 100,
+          "functions": 88.23,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "packages/tooling/library/mcpb-kit/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/mcpb-kit/src/internal/steps.ts": {
+          "lines": 85.33,
+          "statements": 85.71,
+          "branches": 88.88,
+          "functions": 66.66,
+          "uncovered": {
+            "lines": 11,
+            "statements": 11,
+            "branches": 2,
+            "functions": 8
+          }
+        }
+      }
+    },
     "@beep/md": {
       "path": "packages/foundation/modeling/md",
       "lines": 96.93,
@@ -22391,6 +22478,285 @@
         }
       }
     },
+    "@beep/practice-gateway": {
+      "path": "apps/practice-gateway",
+      "lines": 75.64,
+      "statements": 75.34,
+      "branches": 62.2,
+      "functions": 64.31,
+      "uncovered": {
+        "lines": 151,
+        "statements": 162,
+        "branches": 48,
+        "functions": 96
+      },
+      "files": {
+        "apps/practice-gateway/src/Approvals.ts": {
+          "lines": 93.33,
+          "statements": 93.33,
+          "branches": 100,
+          "functions": 87.5,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/practice-gateway/src/BoxDriveTools.ts": {
+          "lines": 92.92,
+          "statements": 93.51,
+          "branches": 82.14,
+          "functions": 86.66,
+          "uncovered": {
+            "lines": 7,
+            "statements": 7,
+            "branches": 5,
+            "functions": 6
+          }
+        },
+        "apps/practice-gateway/src/GatewaySettings.ts": {
+          "lines": 23.07,
+          "statements": 25,
+          "branches": 0,
+          "functions": 14.28,
+          "uncovered": {
+            "lines": 20,
+            "statements": 21,
+            "branches": 6,
+            "functions": 6
+          }
+        },
+        "apps/practice-gateway/src/M365Provider.ts": {
+          "lines": 16.66,
+          "statements": 13.33,
+          "branches": 0,
+          "functions": 0,
+          "uncovered": {
+            "lines": 10,
+            "statements": 13,
+            "branches": 4,
+            "functions": 5
+          }
+        },
+        "apps/practice-gateway/src/M365SignIn.ts": {
+          "lines": 79,
+          "statements": 78.21,
+          "branches": 72,
+          "functions": 55.17,
+          "uncovered": {
+            "lines": 21,
+            "statements": 22,
+            "branches": 7,
+            "functions": 13
+          }
+        },
+        "apps/practice-gateway/src/OnboardingGuide.ts": {
+          "lines": 90,
+          "statements": 81.81,
+          "branches": 50,
+          "functions": 33.33,
+          "uncovered": {
+            "lines": 1,
+            "statements": 2,
+            "branches": 1,
+            "functions": 2
+          }
+        },
+        "apps/practice-gateway/src/OnboardingSkill.generated.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-gateway/src/OnboardingSkill.ts": {
+          "lines": 100,
+          "statements": 83.33,
+          "branches": 50,
+          "functions": 50,
+          "uncovered": {
+            "lines": 0,
+            "statements": 1,
+            "branches": 1,
+            "functions": 1
+          }
+        },
+        "apps/practice-gateway/src/PracticeGateway.errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-gateway/src/PracticeKgProvider.ts": {
+          "lines": 82.6,
+          "statements": 83.33,
+          "branches": 75,
+          "functions": 100,
+          "uncovered": {
+            "lines": 4,
+            "statements": 4,
+            "branches": 1,
+            "functions": 0
+          }
+        },
+        "apps/practice-gateway/src/Probes.ts": {
+          "lines": 95.34,
+          "statements": 95.69,
+          "branches": 88.88,
+          "functions": 92,
+          "uncovered": {
+            "lines": 4,
+            "statements": 4,
+            "branches": 2,
+            "functions": 4
+          }
+        },
+        "apps/practice-gateway/src/ProfileStore.ts": {
+          "lines": 96.29,
+          "statements": 96.29,
+          "branches": 100,
+          "functions": 83.33,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/practice-gateway/src/Requirements.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-gateway/src/SelfCheck.ts": {
+          "lines": 85,
+          "statements": 85,
+          "branches": 100,
+          "functions": 57.14,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "apps/practice-gateway/src/Server.ts": {
+          "lines": 75,
+          "statements": 66.66,
+          "branches": 0,
+          "functions": 25,
+          "uncovered": {
+            "lines": 2,
+            "statements": 3,
+            "branches": 2,
+            "functions": 3
+          }
+        },
+        "apps/practice-gateway/src/SetupTools.ts": {
+          "lines": 77.02,
+          "statements": 77.63,
+          "branches": 83.33,
+          "functions": 58.97,
+          "uncovered": {
+            "lines": 17,
+            "statements": 17,
+            "branches": 1,
+            "functions": 16
+          }
+        },
+        "apps/practice-gateway/src/SystemBrowser.ts": {
+          "lines": 18.18,
+          "statements": 18.18,
+          "branches": 0,
+          "functions": 0,
+          "uncovered": {
+            "lines": 9,
+            "statements": 9,
+            "branches": 2,
+            "functions": 4
+          }
+        },
+        "apps/practice-gateway/src/Version.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-gateway/src/WindowsHost.ts": {
+          "lines": 39.34,
+          "statements": 38.7,
+          "branches": 20,
+          "functions": 19.35,
+          "uncovered": {
+            "lines": 37,
+            "statements": 38,
+            "branches": 16,
+            "functions": 25
+          }
+        },
+        "apps/practice-gateway/src/bin.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 100,
+          "functions": 0,
+          "uncovered": {
+            "lines": 9,
+            "statements": 11,
+            "branches": 0,
+            "functions": 4
+          }
+        },
+        "apps/practice-gateway/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-gateway/src/package.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 100,
+          "functions": 0,
+          "uncovered": {
+            "lines": 5,
+            "statements": 5,
+            "branches": 0,
+            "functions": 2
+          }
+        }
+      }
+    },
     "@beep/practice-identify": {
       "path": "apps/practice-identify",
       "lines": 92.9,
@@ -22942,6 +23308,93 @@
             "statements": 1,
             "branches": 0,
             "functions": 1
+          }
+        }
+      }
+    },
+    "@beep/practice-setup": {
+      "path": "apps/practice-setup",
+      "lines": 83.33,
+      "statements": 82.06,
+      "branches": 83.92,
+      "functions": 76.92,
+      "uncovered": {
+        "lines": 47,
+        "statements": 52,
+        "branches": 9,
+        "functions": 21
+      },
+      "files": {
+        "apps/practice-setup/src/Setup.errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-setup/src/Setup.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-setup/src/Setup.program.ts": {
+          "lines": 99.1,
+          "statements": 98.24,
+          "branches": 96.42,
+          "functions": 92.59,
+          "uncovered": {
+            "lines": 1,
+            "statements": 2,
+            "branches": 1,
+            "functions": 2
+          }
+        },
+        "apps/practice-setup/src/Setup.services.ts": {
+          "lines": 88.17,
+          "statements": 84.69,
+          "branches": 100,
+          "functions": 73.8,
+          "uncovered": {
+            "lines": 11,
+            "statements": 15,
+            "branches": 0,
+            "functions": 11
+          }
+        },
+        "apps/practice-setup/src/bin.ts": {
+          "lines": 23.52,
+          "statements": 23.52,
+          "branches": 16.66,
+          "functions": 0,
+          "uncovered": {
+            "lines": 13,
+            "statements": 13,
+            "branches": 5,
+            "functions": 4
+          }
+        },
+        "apps/practice-setup/src/build.ts": {
+          "lines": 24.13,
+          "statements": 24.13,
+          "branches": 25,
+          "functions": 20,
+          "uncovered": {
+            "lines": 22,
+            "statements": 22,
+            "branches": 3,
+            "functions": 4
           }
         }
       }
@@ -44877,6 +45330,93 @@
             "lines": 0,
             "statements": 0,
             "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
+    "@beep/windows-secrets": {
+      "path": "packages/drivers/windows-secrets",
+      "lines": 97.18,
+      "statements": 96.85,
+      "branches": 92.3,
+      "functions": 94.82,
+      "uncovered": {
+        "lines": 4,
+        "statements": 5,
+        "branches": 2,
+        "functions": 3
+      },
+      "files": {
+        "packages/drivers/windows-secrets/src/WindowsSecrets.errors.ts": {
+          "lines": 75,
+          "statements": 75,
+          "branches": 100,
+          "functions": 66.66,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "packages/drivers/windows-secrets/src/WindowsSecrets.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/windows-secrets/src/WindowsSecrets.service.ts": {
+          "lines": 88.88,
+          "statements": 87.87,
+          "branches": 50,
+          "functions": 90.9,
+          "uncovered": {
+            "lines": 3,
+            "statements": 4,
+            "branches": 1,
+            "functions": 2
+          }
+        },
+        "packages/drivers/windows-secrets/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/windows-secrets/src/internal/WindowsSecretsLayout.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/windows-secrets/src/internal/WindowsSecretsNative.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 95.45,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 1,
             "functions": 0
           }
         }
