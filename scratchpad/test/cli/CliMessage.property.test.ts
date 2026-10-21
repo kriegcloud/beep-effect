@@ -5,7 +5,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
-import { Audience } from "../../effected/env/index.ts";
+import { Audience } from "@beep/runtime-env";
 import { CliMessage } from "../../effected/cli/CliMessage.ts";
 import { CliTheme } from "../../effected/cli/CliTheme.ts";
 import { Fmt } from "../../effected/cli/Fmt.ts";

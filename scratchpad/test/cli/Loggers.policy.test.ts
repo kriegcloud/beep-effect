@@ -2,7 +2,7 @@
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import { Audience, CurrentRuntimeEnv, TerminalEnv } from "../../effected/env/index.ts";
+import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

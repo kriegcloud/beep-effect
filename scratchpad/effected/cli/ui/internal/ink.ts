@@ -1,7 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { dual } from "effect/Function";
-import type { ColorLevel } from "../../../env/index.ts";
+import type { ColorLevel } from "@beep/runtime-env";
 import type * as Scope from "effect/Scope";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

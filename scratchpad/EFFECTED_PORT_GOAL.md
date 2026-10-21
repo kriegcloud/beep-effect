@@ -385,7 +385,8 @@ moved `memfs` (`@beep/memfs`, tooling/test-kit), `toml` (`@beep/toml`), `yaml`
 (`@beep/yaml`), `glob` (`@beep/glob`) and `git` (`@beep/git`, drivers); wave 2a
 split two modules, moving the pure half of `npm` to `@beep/npm-spec` and the pure
 half of `tsconfig-json` to `@beep/tsconfig` (their IO halves stay in the lab until
-their consumers arrive); wave 2b moved `walker` (`@beep/walker`, foundation/capability).
+their consumers arrive); wave 2b moved `walker` (`@beep/walker`, foundation/capability) and
+`env` (`@beep/runtime-env`, foundation/capability).
 Lab modules that depend on them import the `@beep/*`
 package, not a `../<dep>/index.ts` sibling.
 

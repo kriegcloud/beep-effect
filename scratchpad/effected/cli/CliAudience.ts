@@ -1,8 +1,7 @@
 import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { AudienceKind } from "../env/Audience.ts";
-import type { AudienceShape } from "../env/index.ts";
-import { Audience, TerminalEnv } from "../env/index.ts";
+import { AudienceKind, AudienceShape } from "@beep/runtime-env/Audience";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import type * as Terminal from "effect/Terminal";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -139,12 +138,12 @@ const resolve = (input: AudienceFlagInput): Effect.Effect<AudienceShape, CliErro
 	}
 	const [kind] = named;
 	// No flag: the ambient audience, the override variable or detection, is read and provided back unchanged.
-	return kind === undefined ? Audience : Effect.succeed({ kind, source: "flag" });
+	return kind === undefined ? Audience : Effect.succeed(AudienceShape.make({ kind, source: "flag" }));
 };
 
 /**
  * The audience flags of a CLI: `--audience <human|agent|ci>` and the shorthands `--human`, `--agent`, `--ci`,
- * resolved into `@effected/env`'s `Audience`.
+ * resolved into `@beep/runtime-env`'s `Audience`.
  *
  * **Details**
  *
@@ -367,12 +366,12 @@ export class CliAudience {
 			const { given, conflict } = scanAudience(argv);
 			const [kind] = given;
 			if (kind === undefined) return yield* run;
-			const withAudience = conflict ? run : Effect.provideService(run, Audience, { kind, source: "flag" });
+			const withAudience = conflict ? run : Effect.provideService(run, Audience, AudienceShape.make({ kind, source: "flag" }));
 			const current = yield* CliInteractive;
 			const ambient = yield* CliConfig.CliConfig;
 			// The report of a failure is written outside this run, where the flag is not in force: record the audience
 			// the flag named, so `--agent` on a terminal gets the plain report and `--human` the painted one.
-			if (!conflict) yield* refreshFailureTarget({ kind, source: "flag" });
+			if (!conflict) yield* refreshFailureTarget(AudienceShape.make({ kind, source: "flag" }));
 			const interactive = !conflict && (yield* interactiveWhenFlagged(kind, current));
 			const decided = Effect.provideService(withAudience, CliInteractive, interactive);
 			// The wizard prompts, so it follows the decision: the environment gated it from the detected audience,

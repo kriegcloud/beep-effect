@@ -1,22 +1,30 @@
 /**
- * Node.js color support detection for Chalk.
+ * Node.js color support detection for Chalk, delegated to the shared colour-level decision of `@beep/runtime-env`.
+ *
+ * **Details**
+ *
+ * `ColorLevel.fromEnv` decides the level: `FORCE_COLOR` first (`0` disables, `1`, `2` and `3` force a level), then a
+ * non-empty `NO_COLOR`, then a stream that is not a TTY, then the `TERM` and `COLORTERM` capability table. CI alone
+ * never enables colour. Chalk adds only its argv flags: when neither `FORCE_COLOR` nor a non-empty `NO_COLOR` or
+ * `NODE_DISABLE_COLORS` is set, a `--no-color`, `--color=16m`, `--color=256` or `--color` flag before `--` stands in for
+ * `FORCE_COLOR` `0`, `3`, `2` or `1`.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-import * as NodeOS from "node:os";
 import * as NodeProcess from "node:process";
 import * as NodeTty from "node:tty";
 import { $ChalkId } from "@beep/identity/packages";
+import * as ColorLevel from "@beep/runtime-env/ColorLevel";
 import { A, O, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import { flow, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { ColorSupport, ColorSupportLevel } from "./ChalkSchema.ts";
-import type { ColorInfo, ColorSupportLevel as ColorSupportLevelType } from "./ChalkSchema.ts";
+import { ColorSupport } from "./ChalkSchema.ts";
+import type { ColorInfo, ColorSupportLevel } from "./ChalkSchema.ts";
 
 const $I = $ChalkId.create("Domain");
 
@@ -68,8 +76,6 @@ class RuntimeProcessLikeModel extends S.Opaque<RuntimeProcessLikeModel, { readon
       S.withConstructorDefault(Effect.succeed(runtimeProcessLikeModelEnvDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(runtimeProcessLikeModelEnvDefault))
     ),
-    osRelease: S.optionalKey(S.String),
-    platform: S.optionalKey(S.String),
   }).pipe(
     $I.annoteSchema("RuntimeProcessLike", {
       description: "Minimal process metadata used by Chalk color support detection.",
@@ -91,91 +97,7 @@ type CreateSupportsColorInput = {
   readonly stream?: StreamLike;
 };
 
-class SupportsColorDecisionInputModel extends S.Opaque<
-  SupportsColorDecisionInputModel,
-  { readonly brand: unique symbol }
->()(
-  S.Struct({
-    argv: S.Array(S.String),
-    env: S.Record(S.String, S.UndefinedOr(S.String)),
-    isTTY: S.optionalKey(S.Boolean),
-    osRelease: S.optionalKey(S.String),
-    platform: S.optionalKey(S.String),
-    sniffFlags: S.optionalKey(S.Boolean),
-  }).pipe(
-    $I.annoteSchema("SupportsColorDecisionInput", {
-      description: "Normalized decision input for Chalk color support heuristics.",
-    })
-  )
-) {}
-
-type SupportsColorDecisionInput = typeof SupportsColorDecisionInputModel.Encoded;
-
-class ColorHeuristicInputModel extends S.Opaque<ColorHeuristicInputModel, { readonly brand: unique symbol }>()(
-  S.Struct({
-    argv: S.Array(S.String),
-    env: S.Record(S.String, S.UndefinedOr(S.String)),
-    forceColor: S.Option(ColorSupportLevel),
-    isTTY: S.optionalKey(S.Boolean),
-    minimumLevel: ColorSupportLevel,
-    osRelease: S.optionalKey(S.String),
-    platform: S.optionalKey(S.String),
-    sniffFlags: S.optionalKey(S.Boolean),
-  }).pipe(
-    $I.annoteSchema("ColorHeuristicInput", {
-      description: "Prepared inputs shared by Chalk color support heuristics.",
-    })
-  )
-) {}
-
-type ColorHeuristicInput = typeof ColorHeuristicInputModel.Encoded;
-
-type ColorLevelHeuristic = (input: ColorHeuristicInput) => O.Option<ColorSupportLevel>;
-
-class WindowsReleaseModel extends S.Opaque<WindowsReleaseModel, { readonly brand: unique symbol }>()(
-  S.Struct({
-    build: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-    major: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  }).pipe(
-    $I.annoteSchema("WindowsRelease", {
-      description: "Parsed Windows release metadata used to infer terminal color support.",
-    })
-  )
-) {
-  static readonly fromOsRelease: (osRelease: O.Option<string>) => WindowsRelease = flow(
-    O.getOrElse(() => "0.0.0"),
-    Str.split("."),
-    ([major = "0", , build = "0"]) =>
-      WindowsReleaseModel.make({
-        build: parseIntegerSegment(build),
-        major: parseIntegerSegment(major),
-      })
-  );
-}
-
-type WindowsRelease = typeof WindowsReleaseModel.Encoded;
-
-class TermProgramInfoModel extends S.Opaque<TermProgramInfoModel, { readonly brand: unique symbol }>()(
-  S.Struct({
-    majorVersion: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-    program: S.String,
-  }).pipe(
-    $I.annoteSchema("TermProgramInfo", {
-      description: "Terminal program metadata used to infer color support.",
-    })
-  )
-) {
-  static readonly fromEnvironment = (
-    program: string,
-    env: Readonly<Record<string, string | undefined>>
-  ): TermProgramInfo =>
-    TermProgramInfoModel.make({
-      majorVersion: parseIntegerSegment(firstVersionSegment(env.TERM_PROGRAM_VERSION)),
-      program,
-    });
-}
-
-type TermProgramInfo = typeof TermProgramInfoModel.Encoded;
+type Env = RuntimeProcessLikeModel["env"];
 
 const disabledColorFlags = ["no-color", "no-colors", "color=false", "color=never"] as const;
 
@@ -185,25 +107,26 @@ const trueColorFlags = ["color=16m", "color=full", "color=truecolor"] as const;
 
 const ansi256ColorFlags = ["color=256"] as const;
 
-const highColorCiEnvironmentKeys = ["GITHUB_ACTIONS", "GITEA_ACTIONS", "CIRCLECI"] as const;
+// Each flag family stands in for the `FORCE_COLOR` value of the same level; the first family present wins.
+const flagForceColorValues: ReadonlyArray<readonly [ReadonlyArray<string>, string]> = [
+  [disabledColorFlags, "0"],
+  [trueColorFlags, "3"],
+  [ansi256ColorFlags, "2"],
+  [basicColorFlags, "1"],
+];
 
-const basicColorCiEnvironmentKeys = ["TRAVIS", "APPVEYOR", "GITLAB_CI", "BUILDKITE", "DRONE"] as const;
-
-const trueColorTerminals: ReadonlyArray<string> = ["xterm-kitty", "xterm-ghostty", "wezterm"];
+const supportLevels: { readonly [Level in ColorLevel.ColorLevel]: ColorSupportLevel } = {
+  none: 0,
+  basic: 1,
+  "256": 2,
+  truecolor: 3,
+};
 
 const normalizeStreamLike = StreamLikeModel.normalize;
 
 const normalizeSupportsColorOptions = SupportsColorOptionsModel.normalize;
 
 const normalizeRuntimeProcessLike = RuntimeProcessLikeModel.normalize;
-
-const level0: ColorSupportLevelType = 0;
-
-const level1: ColorSupportLevelType = 1;
-
-const level2: ColorSupportLevelType = 2;
-
-const level3: ColorSupportLevelType = 3;
 
 const flagPrefix = Match.type<string>().pipe(
   Match.when(Str.startsWith("-"), () => ""),
@@ -213,39 +136,6 @@ const flagPrefix = Match.type<string>().pipe(
   ),
   Match.orElse(() => "--")
 );
-
-const normalizeParsedForceColorLevel: (level: number) => ColorSupportLevel = Match.type<number>().pipe(
-  Match.when(
-    (level) => level <= 0,
-    () => level0
-  ),
-  Match.when(1, () => level1),
-  Match.when(2, () => level2),
-  Match.orElse(() => level3)
-);
-
-const forceColorIntegerPattern = /^-?\d+$/;
-
-const parseIntegerSegment = (segment: string): number => {
-  const parsed = Number.parseInt(segment, 10);
-  return Number.isNaN(parsed) ? 0 : parsed;
-};
-
-const literalForceColorLevel: (value: string) => O.Option<ColorSupportLevel> = Match.type<string>().pipe(
-  Match.when("true", () => O.some(level1)),
-  Match.when("false", () => O.some(level0)),
-  Match.when(Str.isEmpty, () => O.some(level1)),
-  Match.orElse(O.none<ColorSupportLevel>)
-);
-
-const colorLevelWhen = (level: ColorSupportLevel) => flow(O.liftPredicate(P.isTruthy), O.as(level));
-
-const matchesPattern = (pattern: RegExp) => flow(Str.match(pattern), O.isSome);
-
-const isDisabledColorLevel = (level: ColorSupportLevel): level is 0 => level === 0;
-
-const hasNoColorEnvironment = (env: Readonly<Record<string, string | undefined>>): boolean =>
-  P.isNotUndefined(env.NO_COLOR);
 
 const equalsArgument =
   (expected: string) =>
@@ -263,43 +153,6 @@ const isBeforeArgumentTerminator =
       })
     );
 
-const hasAnyFlag =
-  (flags: ReadonlyArray<string>) =>
-  (argv: ReadonlyArray<string>): boolean =>
-    A.some(flags, (flag) => hasFlag(flag, argv));
-
-const hasAnyEnvironmentValue =
-  (keys: ReadonlyArray<string>) =>
-  (env: Readonly<Record<string, string | undefined>>): boolean =>
-    A.some(keys, (key) => P.isNotUndefined(env[key]));
-
-const isAzurePipelinesEnvironment = (env: Readonly<Record<string, string | undefined>>): boolean =>
-  P.isNotUndefined(env.TF_BUILD) && P.isNotUndefined(env.AGENT_NAME);
-
-const isHighColorCiEnvironment = hasAnyEnvironmentValue(highColorCiEnvironmentKeys);
-
-const isBasicColorCiEnvironment = (env: Readonly<Record<string, string | undefined>>): boolean =>
-  hasAnyEnvironmentValue(basicColorCiEnvironmentKeys)(env) || env.CI_NAME === "codeship";
-
-const isModernTeamCityVersion = matchesPattern(/^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/);
-
-const isAnsi256Terminal = matchesPattern(/-256(color)?$/i);
-
-const isBasicColorTerminal = matchesPattern(/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i);
-
-const hasTrueColorTerminalName: (term: O.Option<string>) => boolean = O.exists((name) =>
-  A.contains(trueColorTerminals, name)
-);
-
-const readCurrentRuntimeProcessLike = (): RuntimeProcessLike => ({
-  argv: NodeProcess.argv,
-  env: NodeProcess.env,
-  osRelease: NodeOS.release(),
-  platform: NodeProcess.platform,
-});
-
-const currentRuntimeProcessLike: RuntimeProcessLike = readCurrentRuntimeProcessLike();
-
 const hasFlag = (flag: string, argv: ReadonlyArray<string>): boolean => {
   const position = pipe(argv, A.findFirstIndex(equalsArgument(`${flagPrefix(flag)}${flag}`)));
   const terminatorPosition = pipe(argv, A.findFirstIndex(equalsArgument("--")));
@@ -307,36 +160,34 @@ const hasFlag = (flag: string, argv: ReadonlyArray<string>): boolean => {
   return pipe(position, O.exists(isBeforeArgumentTerminator(terminatorPosition)));
 };
 
-const detectFlagForceColor = (argv: ReadonlyArray<string>): O.Option<ColorSupportLevel> =>
-  pipe(
-    [
-      colorLevelWhen(level0)(hasAnyFlag(disabledColorFlags)(argv)),
-      colorLevelWhen(level1)(hasAnyFlag(basicColorFlags)(argv)),
-    ],
-    O.firstSomeOf
-  );
+const hasAnyFlag =
+  (argv: ReadonlyArray<string>) =>
+  (flags: ReadonlyArray<string>): boolean =>
+    A.some(flags, (flag) => hasFlag(flag, argv));
 
-const parseNumericForceColorLevel: (value: string) => O.Option<ColorSupportLevel> = flow(
-  Str.trim,
-  O.liftPredicate(matchesPattern(forceColorIntegerPattern)),
-  O.map((level) => normalizeParsedForceColorLevel(Number.parseInt(level, 10)))
-);
+const flagForceColor = (argv: ReadonlyArray<string>): O.Option<string> =>
+  A.findFirst(flagForceColorValues, ([flags, value]) => pipe(flags, O.liftPredicate(hasAnyFlag(argv)), O.as(value)));
 
-const envForceColor = (env: Readonly<Record<string, string | undefined>>): O.Option<ColorSupportLevel> =>
+const isSetValue: (value: string | undefined) => boolean = flow(O.fromUndefinedOr, O.exists(Str.isNonEmpty));
+
+// Flags rank below FORCE_COLOR and a non-empty NO_COLOR or NODE_DISABLE_COLORS, and above the TTY and TERM checks.
+const defersToFlags = (env: Env): boolean =>
+  P.isUndefined(env.FORCE_COLOR) && !isSetValue(env.NO_COLOR) && !isSetValue(env.NODE_DISABLE_COLORS);
+
+const withFlagOverlay = (env: Env, argv: ReadonlyArray<string>, sniffFlags: boolean | undefined): Env =>
   pipe(
-    env.FORCE_COLOR,
-    O.fromNullishOr,
-    O.flatMap((value) =>
-      pipe(
-        literalForceColorLevel(value),
-        O.orElse(() => parseNumericForceColorLevel(value))
-      )
-    )
+    env,
+    O.liftPredicate((current) => sniffFlags !== false && defersToFlags(current)),
+    O.flatMap(() => flagForceColor(argv)),
+    O.match({
+      onNone: () => env,
+      onSome: (FORCE_COLOR) => ({ ...env, FORCE_COLOR }),
+    })
   );
 
 const translateLevel = (level: ColorSupportLevel): ColorInfo =>
   Match.type<ColorSupportLevel>().pipe(
-    Match.when(level0, () => false as const),
+    Match.when(0, () => false as const),
     Match.orElse((enabledLevel) =>
       ColorSupport.make({
         has16m: enabledLevel >= 3,
@@ -347,201 +198,9 @@ const translateLevel = (level: ColorSupportLevel): ColorInfo =>
     )
   )(level);
 
-const resolveForceColor = (input: SupportsColorDecisionInput): O.Option<ColorSupportLevel> =>
-  Match.type<boolean>().pipe(
-    Match.when(true, () => envForceColor(input.env)),
-    Match.orElse(() =>
-      pipe(
-        envForceColor(input.env),
-        O.orElse(() => detectFlagForceColor(input.argv))
-      )
-    )
-  )(input.sniffFlags === false);
-
-const detectForcedOffColorLevel: ColorLevelHeuristic = ({ forceColor }) =>
-  pipe(forceColor, O.filter(isDisabledColorLevel));
-
-const detectNoColorEnvironmentLevel: ColorLevelHeuristic = ({ env, forceColor }) =>
-  colorLevelWhen(level0)(hasNoColorEnvironment(env) && O.isNone(forceColor));
-
-const detectSniffFlagColorLevel: ColorLevelHeuristic = ({ argv, sniffFlags }) =>
-  pipe(
-    sniffFlags !== false,
-    O.liftPredicate(P.isTruthy),
-    O.flatMap(() =>
-      pipe(
-        [
-          colorLevelWhen(level3)(hasAnyFlag(trueColorFlags)(argv)),
-          colorLevelWhen(level2)(hasAnyFlag(ansi256ColorFlags)(argv)),
-        ],
-        O.firstSomeOf
-      )
-    )
-  );
-
-const detectAzurePipelinesColorLevel: ColorLevelHeuristic = ({ env }) =>
-  colorLevelWhen(level1)(isAzurePipelinesEnvironment(env));
-
-const detectNonTtyColorLevel: ColorLevelHeuristic = ({ forceColor, isTTY }) =>
-  colorLevelWhen(level0)(isTTY !== true && O.isNone(forceColor));
-
-const detectDumbTerminalColorLevel: ColorLevelHeuristic = ({ env, minimumLevel }) =>
-  colorLevelWhen(minimumLevel)(env.TERM === "dumb");
-
-const parseWindowsRelease = (osRelease: string | undefined): WindowsRelease =>
-  WindowsReleaseModel.fromOsRelease(O.fromUndefinedOr(osRelease));
-
-const selectWindowsBuildColorLevel: (build: number) => ColorSupportLevel = Match.type<number>().pipe(
-  Match.when(
-    (build) => build >= 14931,
-    () => level3
-  ),
-  Match.orElse(() => level2)
-);
-
-const selectWindowsReleaseColorLevel: (release: WindowsRelease) => ColorSupportLevel =
-  Match.type<WindowsRelease>().pipe(
-    Match.when(
-      ({ build, major }) => major >= 10 && build >= 10586,
-      ({ build }) => selectWindowsBuildColorLevel(build)
-    ),
-    Match.orElse(() => level1)
-  );
-
-const detectWindowsColorLevel: ColorLevelHeuristic = ({ osRelease, platform }) =>
-  pipe(
-    platform === "win32",
-    O.liftPredicate(P.isTruthy),
-    O.map(() => selectWindowsReleaseColorLevel(parseWindowsRelease(osRelease)))
-  );
-
-const selectCiColorLevel = (minimumLevel: ColorSupportLevel) =>
-  Match.type<Readonly<Record<string, string | undefined>>>().pipe(
-    Match.when(isHighColorCiEnvironment, () => level3),
-    Match.when(isBasicColorCiEnvironment, () => level1),
-    Match.orElse(() => minimumLevel)
-  );
-
-const detectCiColorLevel: ColorLevelHeuristic = ({ env, minimumLevel }) =>
-  pipe(
-    env.CI,
-    O.fromNullishOr,
-    O.map(() => selectCiColorLevel(minimumLevel)(env))
-  );
-
-const selectTeamCityColorLevel: (version: string) => ColorSupportLevel = Match.type<string>().pipe(
-  Match.when(isModernTeamCityVersion, () => level1),
-  Match.orElse(() => level0)
-);
-
-const detectTeamCityColorLevel: ColorLevelHeuristic = ({ env }) =>
-  pipe(env.TEAMCITY_VERSION, O.fromNullishOr, O.map(selectTeamCityColorLevel));
-
-const isTrueColorTerminal = (env: Readonly<Record<string, string | undefined>>): boolean =>
-  env.COLORTERM === "truecolor" || hasTrueColorTerminalName(O.fromNullishOr(env.TERM));
-
-const detectTrueColorTerminalLevel: ColorLevelHeuristic = ({ env }) => colorLevelWhen(level3)(isTrueColorTerminal(env));
-
-const firstVersionSegment = (version: string | undefined): string =>
-  pipe(
-    version ?? "",
-    Str.split("."),
-    A.head,
-    O.getOrElse(() => "0")
-  );
-
-const selectITermColorLevel: (version: number) => ColorSupportLevel = Match.type<number>().pipe(
-  Match.when(
-    (version) => version >= 3,
-    () => level3
-  ),
-  Match.orElse(() => level2)
-);
-
-const selectTermProgramColorLevel: (info: TermProgramInfo) => ColorSupportLevel = Match.type<TermProgramInfo>().pipe(
-  Match.when(
-    ({ program }) => program === "iTerm.app",
-    ({ majorVersion }) => selectITermColorLevel(majorVersion)
-  ),
-  Match.when(
-    ({ program }) => program === "Apple_Terminal",
-    () => level2
-  ),
-  Match.orElse(() => level0)
-);
-
-const detectTermProgramColorLevel: ColorLevelHeuristic = ({ env }) =>
-  pipe(
-    env.TERM_PROGRAM,
-    O.fromNullishOr,
-    O.map((program) => selectTermProgramColorLevel(TermProgramInfoModel.fromEnvironment(program, env)))
-  );
-
-const detectTerminalPatternColorLevel: ColorLevelHeuristic = ({ env }) =>
-  pipe(
-    [
-      pipe(env.TERM, O.fromNullishOr, O.filter(isAnsi256Terminal), O.as(level2)),
-      pipe(env.TERM, O.fromNullishOr, O.filter(isBasicColorTerminal), O.as(level1)),
-      pipe(env.COLORTERM, O.fromNullishOr, O.as(level1)),
-    ],
-    O.firstSomeOf
-  );
-
-const makeSupportsColorDecisionInput = (
-  argv: SupportsColorDecisionInput["argv"],
-  env: SupportsColorDecisionInput["env"],
-  isTTY: SupportsColorDecisionInput["isTTY"],
-  osRelease: SupportsColorDecisionInput["osRelease"],
-  platform: SupportsColorDecisionInput["platform"],
-  sniffFlags: SupportsColorDecisionInput["sniffFlags"]
-): SupportsColorDecisionInput => ({
-  argv,
-  env,
-  ...O.getSomesStruct({
-    isTTY: O.fromUndefinedOr(isTTY),
-    osRelease: O.fromUndefinedOr(osRelease),
-    platform: O.fromUndefinedOr(platform),
-    sniffFlags: O.fromUndefinedOr(sniffFlags),
-  }),
-});
-
-const supportsColorLevel = ({
-  argv,
-  env,
-  isTTY,
-  osRelease,
-  platform,
-  sniffFlags,
-}: SupportsColorDecisionInput): ColorSupportLevel => {
-  const decisionInput = makeSupportsColorDecisionInput(argv, env, isTTY, osRelease, platform, sniffFlags);
-  const forceColor = resolveForceColor(decisionInput);
-  const heuristicInput: ColorHeuristicInput = {
-    ...decisionInput,
-    forceColor,
-    minimumLevel: pipe(
-      forceColor,
-      O.getOrElse(() => level0)
-    ),
-  };
-
-  return pipe(
-    [
-      detectForcedOffColorLevel(heuristicInput),
-      detectNoColorEnvironmentLevel(heuristicInput),
-      detectSniffFlagColorLevel(heuristicInput),
-      detectAzurePipelinesColorLevel(heuristicInput),
-      detectNonTtyColorLevel(heuristicInput),
-      detectDumbTerminalColorLevel(heuristicInput),
-      detectWindowsColorLevel(heuristicInput),
-      detectCiColorLevel(heuristicInput),
-      detectTeamCityColorLevel(heuristicInput),
-      detectTrueColorTerminalLevel(heuristicInput),
-      detectTermProgramColorLevel(heuristicInput),
-      detectTerminalPatternColorLevel(heuristicInput),
-    ],
-    O.firstSomeOf,
-    O.getOrElse(() => heuristicInput.minimumLevel)
-  );
+const currentRuntimeProcessLike: RuntimeProcessLike = {
+  argv: NodeProcess.argv,
+  env: NodeProcess.env,
 };
 
 /**
@@ -550,7 +209,7 @@ const supportsColorLevel = ({
  * **Example** (Force color via env)
  *
  * ```ts
- * import { createSupportsColor } from "./SupportsColor.ts"
+ * import { createSupportsColor } from "@beep/chalk/internal/SupportsColor"
  *
  * const support = createSupportsColor({
  *   stream: { isTTY: true },
@@ -567,22 +226,12 @@ export const createSupportsColor = ({
   runtimeProcessLike = currentRuntimeProcessLike,
   stream = {},
 }: CreateSupportsColorInput = {}): ColorInfo => {
-  const normalizedStream = normalizeStreamLike(stream);
-  const normalizedOptions = normalizeSupportsColorOptions(options);
-  const normalizedRuntimeProcessLike = normalizeRuntimeProcessLike(runtimeProcessLike);
+  const { isTTY } = normalizeStreamLike(stream);
+  const { sniffFlags } = normalizeSupportsColorOptions(options);
+  const { argv, env } = normalizeRuntimeProcessLike(runtimeProcessLike);
+  const level = ColorLevel.fromEnv(withFlagOverlay(env, argv, sniffFlags), isTTY === true);
 
-  return translateLevel(
-    supportsColorLevel(
-      makeSupportsColorDecisionInput(
-        normalizedRuntimeProcessLike.argv,
-        normalizedRuntimeProcessLike.env,
-        normalizedStream.isTTY,
-        normalizedRuntimeProcessLike.osRelease,
-        normalizedRuntimeProcessLike.platform,
-        normalizedOptions.sniffFlags
-      )
-    )
-  );
+  return translateLevel(supportLevels[level]);
 };
 
 /**
@@ -591,7 +240,7 @@ export const createSupportsColor = ({
  * **Example** (Log detected stdout support)
  *
  * ```ts
- * import { detectedSupportsColor } from "./SupportsColor.ts"
+ * import { detectedSupportsColor } from "@beep/chalk/internal/SupportsColor"
  *
  * console.log(detectedSupportsColor.stdout)
  * ```

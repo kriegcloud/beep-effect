@@ -1,12 +1,13 @@
 import { assert, describe, it } from "@effect/vitest";
-import type { AudienceKind } from "../../effected/env/index.ts";
-import { Audience, TerminalEnv } from "../../effected/env/index.ts";
+import type { AudienceKind } from "@beep/runtime-env";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import type { Document } from "../../effected/cli/index.ts";
 import { CliLinks, CliTheme, Doc, Render, Status } from "../../effected/cli/index.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 
 const ESC = String.fromCharCode(0x1b);
 const strip = (text: string): string => text.replace(new RegExp(`${ESC}\\[[0-9;]*m`, "g"), "");
@@ -53,7 +54,7 @@ describe("Render.context's width follows the stream's terminal for a human", () 
 			Effect.gen(function* () {
 				for (const audience of ["human", "agent", "ci"] as const) {
 					const ctx = yield* Render.context("stdout").pipe(
-						Effect.provideService(Audience, { kind: audience, source: "override" }),
+						Effect.provideService(Audience, AudienceShape.make({ kind: audience, source: "override" })),
 					);
 					assert.strictEqual(ctx.width, Number.POSITIVE_INFINITY, audience);
 				}

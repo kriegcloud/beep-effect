@@ -1,7 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
 import { MemoryFileSystem } from "@beep/memfs";
-import type { AudienceShape } from "../../effected/env/index.ts";
-import { Audience } from "../../effected/env/index.ts";
+import { Audience } from "@beep/runtime-env";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -16,6 +15,7 @@ import * as Runtime from "effect/Runtime";
 import * as Argument from "effect/cli/Argument";
 import * as Command from "effect/cli/Command";
 import { CliAudience, CliInteractive, CliRuntime } from "../../effected/cli/index.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 
 const memoryPlatform = (fs: FileSystem.FileSystem) =>
 	Layer.mergeAll(
@@ -66,26 +66,26 @@ const run = Effect.fn("run")(function* (argv: ReadonlyArray<string>, options?: {
 		Effect.exit,
 		Effect.provideService(Console.Console, double),
 		// The ambient audience, as env's detection would have left it.
-		Effect.provideService(Audience, { kind: "human", source: "detected" }),
+		Effect.provideService(Audience, AudienceShape.make({ kind: "human", source: "detected" })),
 	);
 	const code = Exit.isFailure(exit) ? exit.cause.pipe(Cause.squash, Runtime.getErrorExitCode) : 0;
 	return { code, seen, out, err };
 });
 
-const HUMAN_DETECTED: AudienceShape = { kind: "human", source: "detected" };
-const AGENT_FLAG: AudienceShape = { kind: "agent", source: "flag" };
-const CI_FLAG: AudienceShape = { kind: "ci", source: "flag" };
+const HUMAN_DETECTED: AudienceShape = AudienceShape.make({ kind: "human", source: "detected" });
+const AGENT_FLAG: AudienceShape = AudienceShape.make({ kind: "agent", source: "flag" });
+const CI_FLAG: AudienceShape = AudienceShape.make({ kind: "ci", source: "flag" });
 
 it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
 	describe("CliAudience", () => {
 		const cases: ReadonlyArray<readonly [string, ReadonlyArray<string>, AudienceShape]> = [
-			["no flag leaves the ambient audience untouched", ["verify", "x"], { kind: "human", source: "detected" }],
-			["--agent before the subcommand", ["--agent", "verify", "x"], { kind: "agent", source: "flag" }],
-			["--agent after the subcommand", ["verify", "x", "--agent"], { kind: "agent", source: "flag" }],
-			["--audience ci", ["verify", "x", "--audience", "ci"], { kind: "ci", source: "flag" }],
-			["--human", ["--human", "verify", "x"], { kind: "human", source: "flag" }],
-			["--ci", ["--ci", "verify", "x"], { kind: "ci", source: "flag" }],
-			["--audience=ci, the equals form", ["--audience=ci", "verify", "x"], { kind: "ci", source: "flag" }],
+			["no flag leaves the ambient audience untouched", ["verify", "x"], AudienceShape.make({ kind: "human", source: "detected" })],
+			["--agent before the subcommand", ["--agent", "verify", "x"], AudienceShape.make({ kind: "agent", source: "flag" })],
+			["--agent after the subcommand", ["verify", "x", "--agent"], AudienceShape.make({ kind: "agent", source: "flag" })],
+			["--audience ci", ["verify", "x", "--audience", "ci"], AudienceShape.make({ kind: "ci", source: "flag" })],
+			["--human", ["--human", "verify", "x"], AudienceShape.make({ kind: "human", source: "flag" })],
+			["--ci", ["--ci", "verify", "x"], AudienceShape.make({ kind: "ci", source: "flag" })],
+			["--audience=ci, the equals form", ["--audience=ci", "verify", "x"], AudienceShape.make({ kind: "ci", source: "flag" })],
 			// A false boolean is "not given": it falls through to the ambient audience, never to its own kind.
 			["--no-agent falls through to the ambient audience", ["--no-agent", "verify", "x"], HUMAN_DETECTED],
 			["--agent=false falls through to the ambient audience", ["--agent=false", "verify", "x"], HUMAN_DETECTED],
@@ -182,7 +182,7 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
 				Effect.gen(function* () {
 					const { code, seen } = yield* run(["--agent", "verify", "x"], { hidden: true });
 					assert.strictEqual(code, 0);
-					assert.deepStrictEqual(seen, [{ kind: "agent", source: "flag" }]);
+					assert.deepStrictEqual(seen, [AudienceShape.make({ kind: "agent", source: "flag" })]);
 				}),
 			);
 		});
@@ -209,7 +209,7 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
 				Effect.exit,
 				Effect.provideService(Console.Console, double),
 				Effect.provideService(CliInteractive, ambient),
-				Effect.provideService(Audience, { kind: "human", source: "detected" }),
+				Effect.provideService(Audience, AudienceShape.make({ kind: "human", source: "detected" })),
 			);
 			return seen;
 		});

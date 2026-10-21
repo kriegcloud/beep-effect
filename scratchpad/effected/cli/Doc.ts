@@ -3,7 +3,7 @@ import * as S from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
 import * as SchemaAST from "effect/SchemaAST";
 import * as SchemaTransformation from "effect/SchemaTransformation";
-import type { Audience, TerminalEnv } from "../env/index.ts";
+import type { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
