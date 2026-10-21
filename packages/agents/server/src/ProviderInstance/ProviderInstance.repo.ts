@@ -16,10 +16,12 @@ import {
   ProviderInstanceActorContext,
   ProviderInstanceNotFound,
   ProviderInstanceRepository,
+  ProviderInstanceVersionConflict,
   ProviderProbeUnavailable,
 } from "@beep/agents-use-cases/server";
 import { PostgresDrizzle } from "@beep/postgres";
 import { CuidState } from "@beep/schema/Cuid";
+import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
 import { Principal } from "@beep/shared-domain/entity/Principal";
 import * as PublicEntityId from "@beep/shared-domain/entity/PublicEntityId";
 import * as Agents from "@beep/shared-domain/identity/Agents";
@@ -78,8 +80,11 @@ const insertFromCommand = Effect.fn("Agents.ProviderInstanceRepository.insertFro
     updatedAt: now,
     updatedByPrincipal: scope.principal,
   }).pipe(unavailable("construct ProviderInstance"));
-  const encoded = yield* encodeProviderInstanceInsert(insert).pipe(unavailable("encode ProviderInstance"));
-  return { ...encoded, rowVersion: 1 } satisfies ProviderInstanceInsert;
+  // `rowVersion` is omitted: the column's SQL default seeds the first version.
+  const encoded: ProviderInstanceInsert = yield* encodeProviderInstanceInsert(insert).pipe(
+    unavailable("encode ProviderInstance")
+  );
+  return encoded;
 });
 
 /**
@@ -99,6 +104,30 @@ export const makeProviderInstanceRepository = Effect.fn("Agents.ProviderInstance
   const db = yield* PostgresDrizzle;
   const scope = yield* ProviderInstanceActorContext;
   const publicIdContext = yield* Effect.context<CuidState | Crypto.Crypto>();
+  const inScope = (id: Agents.ProviderInstanceId) =>
+    and(eq(providerInstanceTable.id, id), eq(providerInstanceTable.orgId, scope.orgId));
+
+  // A guarded save matched no row: the row is gone (or belongs to another
+  // organization, which must look the same), or another write advanced it.
+  const rejectSave = Effect.fn("Agents.ProviderInstanceRepository.rejectSave")(function* (
+    instance: Domain.ProviderInstance
+  ) {
+    const rows = yield* db
+      .select({ rowVersion: providerInstanceTable.rowVersion })
+      .from(providerInstanceTable)
+      .where(inScope(instance.id))
+      .limit(1)
+      .pipe(unavailable("select ProviderInstance row version"));
+    const stored = A.head(rows);
+    if (O.isNone(stored)) {
+      return yield* notFound(instance.id);
+    }
+    return yield* ProviderInstanceVersionConflict.make({
+      actualRowVersion: stored.value.rowVersion,
+      expectedRowVersion: instance.rowVersion,
+      providerInstanceId: instance.id,
+    });
+  });
 
   return ProviderInstanceRepository.of({
     add: Effect.fn("Agents.ProviderInstanceRepository.add")(function* (command) {
@@ -129,7 +158,7 @@ export const makeProviderInstanceRepository = Effect.fn("Agents.ProviderInstance
       const rows = yield* db
         .select()
         .from(providerInstanceTable)
-        .where(and(eq(providerInstanceTable.id, id), eq(providerInstanceTable.orgId, scope.orgId)))
+        .where(inScope(id))
         .limit(1)
         .pipe(unavailable("select ProviderInstance"));
       return yield* pipe(
@@ -156,7 +185,7 @@ export const makeProviderInstanceRepository = Effect.fn("Agents.ProviderInstance
     remove: Effect.fn("Agents.ProviderInstanceRepository.remove")(function* (id) {
       const rows = yield* db
         .delete(providerInstanceTable)
-        .where(and(eq(providerInstanceTable.id, id), eq(providerInstanceTable.orgId, scope.orgId)))
+        .where(inScope(id))
         .returning({ id: providerInstanceTable.id })
         .pipe(unavailable("delete ProviderInstance"));
       if (O.isNone(A.head(rows))) return yield* notFound(id);
@@ -171,19 +200,19 @@ export const makeProviderInstanceRepository = Effect.fn("Agents.ProviderInstance
         .set({
           ...insert,
           orgId: scope.orgId,
-          rowVersion: instance.rowVersion + 1,
+          rowVersion: nextRowVersion(instance.rowVersion),
           updatedAt: now,
           updatedByPrincipal: yield* encodePrincipal(scope.principal).pipe(unavailable("encode Principal")),
         })
-        .where(and(eq(providerInstanceTable.id, instance.id), eq(providerInstanceTable.orgId, scope.orgId)))
+        .where(and(inScope(instance.id), eq(providerInstanceTable.rowVersion, instance.rowVersion)))
         .returning()
         .pipe(unavailable("update ProviderInstance"));
-      return yield* pipe(
-        A.head(rows),
-        Effect.fromOption(() => notFound(instance.id)),
-        Effect.flatMap((row) =>
-          Effect.fromResult(fromProviderInstanceRow(row)).pipe(unavailable("decode ProviderInstance"))
-        )
+      const saved = A.head(rows);
+      if (O.isNone(saved)) {
+        return yield* rejectSave(instance);
+      }
+      return yield* Effect.fromResult(fromProviderInstanceRow(saved.value)).pipe(
+        unavailable("decode ProviderInstance")
       );
     }),
   });

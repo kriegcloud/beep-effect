@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 import { $AgentsUseCasesId } from "@beep/identity/packages";
+import { RowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as Agents from "@beep/shared-domain/identity/Agents";
 import * as S from "effect/Schema";
 
@@ -32,6 +33,47 @@ export class ProviderInstanceNotFound extends S.TaggedError<
   { providerInstanceId: Agents.ProviderInstanceId },
   $I.annoteError<ProviderInstanceNotFound>("ProviderInstanceNotFound", {
     description: "The requested provider instance does not exist.",
+  })
+) {}
+
+/**
+ *  Provider instance changed after it was read, so the stale save was rejected.
+ *
+ * **Details**
+ *
+ * `save` treats the instance's `rowVersion` as the version it was read at. A
+ * concurrent `update` or `probe` stored a newer version first; re-read the
+ * instance and apply the change again.
+ *
+ * **Example** (Make version-conflict error)
+ *
+ * ```ts
+ * import { ProviderInstanceVersionConflict } from "@beep/agents-use-cases/public"
+ * import { RowVersion } from "@beep/shared-domain/entity/EntityKit"
+ * import * as Agents from "@beep/shared-domain/identity/Agents"
+ * const error = ProviderInstanceVersionConflict.make({
+ *   actualRowVersion: RowVersion.make(3),
+ *   expectedRowVersion: RowVersion.make(2),
+ *   providerInstanceId: Agents.ProviderInstanceId.make(1)
+ * })
+ * console.log(error._tag)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class ProviderInstanceVersionConflict extends S.TaggedError<
+  ProviderInstanceVersionConflict,
+  { readonly brand: unique symbol }
+>($I`ProviderInstanceVersionConflict`)(
+  "ProviderInstanceVersionConflict",
+  {
+    actualRowVersion: RowVersion,
+    expectedRowVersion: RowVersion,
+    providerInstanceId: Agents.ProviderInstanceId,
+  },
+  $I.annoteError<ProviderInstanceVersionConflict>("ProviderInstanceVersionConflict", {
+    description: "The provider instance changed after it was read; the stale save was rejected.",
   })
 ) {}
 
@@ -104,6 +146,7 @@ export class ProviderProbeUnavailable extends S.TaggedError<
  */
 export const ProviderActionError = S.Union([
   ProviderInstanceNotFound,
+  ProviderInstanceVersionConflict,
   ProviderUnauthenticated,
   ProviderProbeUnavailable,
 ]).pipe(
