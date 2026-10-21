@@ -2079,5 +2079,7 @@
   "@beep/npm-spec": ["./packages/foundation/modeling/npm-spec/src/index.ts"],
   "@beep/npm-spec/*": ["./packages/foundation/modeling/npm-spec/src/*"],
   "@beep/tsconfig": ["./packages/foundation/modeling/tsconfig/src/index.ts"],
-  "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"]
+  "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"],
+  "@beep/github": ["./packages/drivers/github/src/index.ts"],
+  "@beep/github/*": ["./packages/drivers/github/src/*"]
 }

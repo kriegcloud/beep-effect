@@ -151,6 +151,9 @@
       "path": "packages/drivers/git"
     },
     {
+      "path": "packages/drivers/github"
+    },
+    {
       "path": "packages/drivers/gov-legal-mcp"
     },
     {

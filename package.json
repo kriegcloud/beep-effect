@@ -549,6 +549,7 @@
     "apps/practice-setup",
     "apps/practice-review-hub",
     "packages/drivers/commands",
-    "packages/drivers/git"
+    "packages/drivers/git",
+    "packages/drivers/github"
   ]
 }

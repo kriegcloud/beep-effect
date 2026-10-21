@@ -1310,6 +1310,18 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/drivers/github": {
+      "name": "@beep/github",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/drivers/gov-legal-mcp": {
       "name": "@beep/gov-legal-mcp",
       "version": "0.0.0",
@@ -4422,6 +4434,8 @@
     "@beep/freshbooks": ["@beep/freshbooks@workspace:packages/drivers/freshbooks"],
 
     "@beep/git": ["@beep/git@workspace:packages/drivers/git"],
+
+    "@beep/github": ["@beep/github@workspace:packages/drivers/github"],
 
     "@beep/github-commands": ["@beep/github-commands@workspace:packages/foundation/modeling/github-commands"],
 

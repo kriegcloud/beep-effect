@@ -348,6 +348,12 @@
         ]
       },
       {
+        "name": "@beep/github",
+        "patterns": [
+          "packages/drivers/github/src/**"
+        ]
+      },
+      {
         "name": "@beep/github-commands",
         "patterns": [
           "packages/foundation/modeling/github-commands/src/**"
@@ -2304,6 +2310,15 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/github",
+        "allow": [
+          "@beep/github"
+        ],
+        "allowTypeOnly": [
+          "@beep/github"
         ]
       },
       {
