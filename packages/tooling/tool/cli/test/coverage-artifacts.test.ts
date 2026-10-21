@@ -22,7 +22,6 @@ import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterEach, describe, expect, it, vi } from "@effect/vitest";
 import { createInstrumenter } from "@vitest/istanbul-lib-instrument";
 import convertV8 from "ast-v8-to-istanbul";
-import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -653,19 +652,15 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
         expect(failure.message).toContain("missing V8 source");
       })
     );
-    it.effect("round trips schema-generated signed branch records without changing hit counts", () =>
-      Effect.gen(function* () {
-        const result = yield* Arbitrary.checkEffect(
-          Arbitrary.schema(CoverageRawFile.fields.b),
-          Effect.fnUntraced(function* (branches) {
-            const text = yield* encodeBranchHits(branches);
-            const decoded = yield* decodeBranchHits(text);
-            return sameBranchHits(branches, decoded);
-          }),
-          { runs: 64, seed: 1934 }
-        );
-        expect(result._tag).toBe("Passed");
-      })
+    it.effect.prop(
+      "round trips schema-generated signed branch records without changing hit counts",
+      { branches: CoverageRawFile.fields.b },
+      Effect.fnUntraced(function* ({ branches }) {
+        const text = yield* encodeBranchHits(branches);
+        const decoded = yield* decodeBranchHits(text);
+        expect(sameBranchHits(branches, decoded)).toBe(true);
+      }),
+      { arbitrary: { runs: 64, seed: 1934 } }
     );
 
     it.effect("preserves real V8 implicit-else residuals through native merge and uncovered summaries", () =>
