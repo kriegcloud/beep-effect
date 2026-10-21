@@ -52,12 +52,14 @@ const optionalHash = (description: string) =>
  * @since 0.0.0
  */
 export const FigureNumber = S.Int.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`FigureNumberCheck`,
-    title: "Figure Number",
-    description: "FIG. numbers start at 1.",
-    message: "Expected a FIG. number of at least 1",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("FigureNumberCheck", {
+      title: "Figure Number",
+      description: "FIG. numbers start at 1.",
+      message: "Expected a FIG. number of at least 1",
+    })
+  )
 ).pipe(
   $I.annoteSchema("FigureNumber", {
     description: "One-based FIG. number of a sheet.",
@@ -152,12 +154,14 @@ export type ReviewFindingId = typeof ReviewFindingId.Type;
  * @since 0.0.0
  */
 export const ReviewFindingRef = S.String.check(
-  S.isPattern(/^A[1-9][0-9]*-[0-9]{2}@[0-9a-f]{12}$/, {
-    identifier: $I`ReviewFindingRefPatternCheck`,
-    title: "Review Finding Ref Pattern",
-    description: "A<round>-<nn>@ followed by the first 12 hex digits of the reviewed sheet-set hash.",
-    message: "Expected A<round>-<nn>@<12 hex digits>",
-  })
+  S.isPattern(
+    /^A[1-9][0-9]*-[0-9]{2}@[0-9a-f]{12}$/,
+    $I.annote("ReviewFindingRefPatternCheck", {
+      title: "Review Finding Ref Pattern",
+      description: "A<round>-<nn>@ followed by the first 12 hex digits of the reviewed sheet-set hash.",
+      message: "Expected A<round>-<nn>@<12 hex digits>",
+    })
+  )
 ).pipe(
   S.brand("ReviewFindingRef"),
   $I.annoteSchema("ReviewFindingRef", {
@@ -541,23 +545,21 @@ export type Disposition = typeof Disposition.Type;
 const ScopeFigureCheck = S.makeFilter(
   (finding: { readonly scope: FindingScope; readonly figures: ReadonlyArray<number> }) =>
     finding.scope === "sheet" ? A.isReadonlyArrayNonEmpty(finding.figures) : A.isReadonlyArrayEmpty(finding.figures),
-  {
-    identifier: $I`ReviewFindingScopeFigureCheck`,
+  $I.annote("ReviewFindingScopeFigureCheck", {
     title: "Review Finding Scope Figure",
     description: "A sheet finding names at least one FIG.; an all-sheets finding names none.",
     message: "Expected figures exactly when the scope is sheet",
-  }
+  })
 );
 
 const StatusDispositionCheck = S.makeFilter(
   (finding: { readonly status: ReviewFindingStatus; readonly disposition: O.Option<unknown> }) =>
     finding.status === "open" || O.isSome(finding.disposition),
-  {
-    identifier: $I`ReviewFindingStatusDispositionCheck`,
+  $I.annote("ReviewFindingStatusDispositionCheck", {
     title: "Review Finding Status Disposition",
     description: "Only an open finding may lack a disposition.",
     message: "Expected a disposition on every finding that is not open",
-  }
+  })
 );
 
 /**

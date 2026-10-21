@@ -17,12 +17,14 @@ import type { ProviderUsageMetadata } from "@beep/agents-use-cases/public";
 
 const $I = $ProfessionalDesktopId.create("chat/UsagePricing");
 const TokenPriceUsd = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`TokenPriceUsdNonNegativeCheck`,
-    title: "Token Price USD Non Negative",
-    description: "An approximate USD price per million tokens must be zero or greater.",
-    message: "Expected a non-negative token price",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("TokenPriceUsdNonNegativeCheck", {
+      title: "Token Price USD Non Negative",
+      description: "An approximate USD price per million tokens must be zero or greater.",
+      message: "Expected a non-negative token price",
+    })
+  )
 ).pipe(
   $I.annoteSchema("TokenPriceUsd", {
     description: "Approximate USD price per million tokens used for product attribution.",

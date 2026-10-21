@@ -20,14 +20,14 @@ const GoldUnavailableReason = LiteralKit([
   "stale-reference",
   "digest-failed",
   "encoding-failed",
-]).annotate(
-  $I.annote("GoldUnavailableReason", {
+]).pipe(
+  $I.annoteSchema("GoldUnavailableReason", {
     description: "Stable reason codes for failures in the gold-proposal workflow.",
   })
 );
 
-const ModelRevisionPinSetting = LiteralKit(["AI_ANTHROPIC_MODEL"]).annotate(
-  $I.annote("ModelRevisionPinSetting", {
+const ModelRevisionPinSetting = LiteralKit(["AI_ANTHROPIC_MODEL"]).pipe(
+  $I.annoteSchema("ModelRevisionPinSetting", {
     description: "Configuration boundaries that must name an explicitly versioned hosted model.",
   })
 );
@@ -40,8 +40,8 @@ const RelationPreviewFailureReason = LiteralKit([
   "parse-degraded",
   "response-invalid",
   "preview-floor-not-met",
-]).annotate(
-  $I.annote("RelationPreviewFailureReason", {
+]).pipe(
+  $I.annoteSchema("RelationPreviewFailureReason", {
     description: "Stable reason codes for the zero-spend evidence-quote preview.",
   })
 );
@@ -56,8 +56,8 @@ const ProjectionFailureReason = LiteralKit([
   "rebuild-mismatch",
   "report-invalid",
   "vector-failed",
-]).annotate(
-  $I.annote("ProjectionFailureReason", {
+]).pipe(
+  $I.annoteSchema("ProjectionFailureReason", {
     description: "Stable reason codes for C1 embedding, vector, RDF, expectation, and rebuild failures.",
   })
 );
@@ -70,8 +70,8 @@ const ReasoningFailureReason = LiteralKit([
   "report-invalid",
   "rule-invalid",
   "tier-l-exceeded",
-]).annotate(
-  $I.annote("ReasoningFailureReason", {
+]).pipe(
+  $I.annoteSchema("ReasoningFailureReason", {
     description: "Stable reason codes for C2 closure, proof, crash, report, and Tier-L failures.",
   })
 );

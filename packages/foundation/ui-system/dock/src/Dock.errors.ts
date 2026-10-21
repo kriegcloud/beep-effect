@@ -41,8 +41,8 @@ export const DockRejectionReason = LiteralKit([
   "group-floating",
   "group-not-docked",
   "group-not-floating",
-]).annotate(
-  $I.annote("DockRejectionReason", {
+]).pipe(
+  $I.annoteSchema("DockRejectionReason", {
     description: "Expected business reasons for rejecting a dock command.",
   })
 );
@@ -114,8 +114,8 @@ export const DockInvariantReason = LiteralKit([
   "revision-exhausted",
   "topology-corrupted",
   "maximized-group-invalid",
-]).annotate(
-  $I.annote("DockInvariantReason", {
+]).pipe(
+  $I.annoteSchema("DockInvariantReason", {
     description: "Workspace invariant failures surfaced through the typed transition boundary.",
   })
 );
@@ -179,8 +179,8 @@ export class DockInvariantViolation extends S.TaggedError<DockInvariantViolation
  * @category errors
  * @since 0.0.0
  */
-export const DockInputBoundary = LiteralKit(["command", "snapshot"]).annotate(
-  $I.annote("DockInputBoundary", {
+export const DockInputBoundary = LiteralKit(["command", "snapshot"]).pipe(
+  $I.annoteSchema("DockInputBoundary", {
     description: "External schema boundary at which unknown input was rejected.",
   })
 );
@@ -244,8 +244,8 @@ export class DockInputError extends S.TaggedError<DockInputError, { readonly bra
  * @category errors
  * @since 0.0.0
  */
-export const DockPersistenceOperation = LiteralKit(["load", "save"]).annotate(
-  $I.annote("DockPersistenceOperation", {
+export const DockPersistenceOperation = LiteralKit(["load", "save"]).pipe(
+  $I.annoteSchema("DockPersistenceOperation", {
     description: "Snapshot-store operation that can fail in a host adapter.",
   })
 );

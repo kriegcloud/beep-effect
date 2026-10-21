@@ -44,43 +44,45 @@ const hyphenRunsPattern = /-+/g;
 const edgeSeparatorsPattern = /^[_-]+|[_-]+$/g;
 const wireNamePattern = /^[a-zA-Z0-9_-]+$/u;
 
-const NormalizationFailureReason = LiteralKit(["empty_normalized", "invalid_normalized"]).annotate(
-  $I.annote("NormalizationFailureReason", {
+const NormalizationFailureReason = LiteralKit(["empty_normalized", "invalid_normalized"]).pipe(
+  $I.annoteSchema("NormalizationFailureReason", {
     description: "Reasons deterministic MCP tool-name normalization can reject a candidate.",
   })
 );
 
-const RowDuplicateVerdict = LiteralKit(["unique", "duplicate_normalized", "duplicate_final"]).annotate(
-  $I.annote("RowDuplicateVerdict", {
+const RowDuplicateVerdict = LiteralKit(["unique", "duplicate_normalized", "duplicate_final"]).pipe(
+  $I.annoteSchema("RowDuplicateVerdict", {
     description: "Per-candidate collision verdict in a tool-name collision report.",
   })
 );
 
-const CollisionFailureReason = LiteralKit(["duplicate_normalized", "duplicate_final"]).annotate(
-  $I.annote("CollisionFailureReason", {
+const CollisionFailureReason = LiteralKit(["duplicate_normalized", "duplicate_final"]).pipe(
+  $I.annoteSchema("CollisionFailureReason", {
     description: "Duplicate grouping stage that caused deterministic MCP tool-name generation to fail.",
   })
 );
 
-const ReportDuplicateVerdict = LiteralKit(["clean", "duplicate"]).annotate(
-  $I.annote("ReportDuplicateVerdict", {
+const ReportDuplicateVerdict = LiteralKit(["clean", "duplicate"]).pipe(
+  $I.annoteSchema("ReportDuplicateVerdict", {
     description: "Aggregate collision verdict for a complete tool-name report.",
   })
 );
 
-const RegistrationFailureReason = LiteralKit(["missing_candidate", "wire_name_drift"]).annotate(
-  $I.annote("RegistrationFailureReason", {
+const RegistrationFailureReason = LiteralKit(["missing_candidate", "wire_name_drift"]).pipe(
+  $I.annoteSchema("RegistrationFailureReason", {
     description: "Reasons a registered MCP tool declaration can disagree with the validated production report.",
   })
 );
 
 const NormalizedWireName = S.NonEmptyString.check(
-  S.isPattern(wireNamePattern, {
-    identifier: $I`NormalizedWireNameCheck`,
-    title: "Normalized MCP wire name",
-    description: "A non-empty MCP wire name containing only ASCII letters, digits, underscores, and hyphens.",
-    message: "Expected a non-empty MCP wire name matching ^[a-zA-Z0-9_-]+$",
-  })
+  S.isPattern(
+    wireNamePattern,
+    $I.annote("NormalizedWireNameCheck", {
+      title: "Normalized MCP wire name",
+      description: "A non-empty MCP wire name containing only ASCII letters, digits, underscores, and hyphens.",
+      message: "Expected a non-empty MCP wire name matching ^[a-zA-Z0-9_-]+$",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NormalizedWireName", {
     description: "A normalized MCP wire name containing only the frozen safe ASCII character set.",

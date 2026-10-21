@@ -68,12 +68,14 @@ export type AccountWindowKind = typeof AccountWindowKind.Type;
  * @since 0.0.0
  */
 export const AccountProviderName = S.String.check(
-  S.isPattern(/^[a-z][a-z0-9-]{0,31}$/, {
-    identifier: $I`AccountProviderNamePattern`,
-    title: "Account provider name",
-    description: "Lowercase letters, digits, and hyphens, starting with a letter.",
-    message: "a provider name uses lowercase letters, digits, and hyphens",
-  })
+  S.isPattern(
+    /^[a-z][a-z0-9-]{0,31}$/,
+    $I.annote("AccountProviderNamePattern", {
+      title: "Account provider name",
+      description: "Lowercase letters, digits, and hyphens, starting with a letter.",
+      message: "a provider name uses lowercase letters, digits, and hyphens",
+    })
+  )
 ).pipe($I.annoteSchema("AccountProviderName", { description: "Subscription provider name on an accounts report." }));
 
 /**

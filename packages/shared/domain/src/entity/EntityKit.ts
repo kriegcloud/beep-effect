@@ -63,11 +63,12 @@ const $I = $SharedDomainId.create("entity/EntityKit");
  * @category schemas
  * @since 0.0.0
  */
-export const RowVersion = PosInt.annotate({
-  identifier: $I`RowVersion`,
-  title: "Row version",
-  description: "Positive optimistic-concurrency token; starts at 1 and increments on every committed row write.",
-});
+export const RowVersion = PosInt.pipe(
+  $I.annoteSchema("RowVersion", {
+    title: "Row version",
+    description: "Positive optimistic-concurrency token; starts at 1 and increments on every committed row write.",
+  })
+);
 
 /**
  * Type of {@link RowVersion}.

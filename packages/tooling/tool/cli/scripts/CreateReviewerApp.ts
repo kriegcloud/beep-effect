@@ -2,9 +2,11 @@
  * Human-operated App registration. Run: bun scripts/github-app/create-beep-reviewer.ts
  * Secret material travels only through memory and the op process's stdin.
  */
+
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
@@ -12,6 +14,7 @@ import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as Context from "effect/Context";
 
 const PORT = 8787;
@@ -107,7 +110,12 @@ const serve = Effect.gen(function* () {
     Effect.flatMap(decodeManifest)
   );
   const manifestJson = yield* encodeJson(manifest);
-  const escaped = manifestJson.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+  const escaped = pipe(
+    manifestJson,
+    Str.replaceAll("&", "&amp;"),
+    Str.replaceAll('"', "&quot;"),
+    Str.replaceAll("<", "&lt;")
+  );
   const context = yield* Effect.context<HttpClient.HttpClient>();
   let attempted = false;
   const validCallback = (url: URL) =>

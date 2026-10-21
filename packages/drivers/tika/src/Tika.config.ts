@@ -35,18 +35,22 @@ const hasHttpProtocol = (url: string): boolean => A.contains(httpProtocols, new 
 // identity-preserving, which is not true of opaque URLs such as `A:/`.
 const TikaServerBaseUrl = URLStr.pipe(
   S.check(
-    S.makeFilter((url: string) => (hasHttpProtocol(url) ? true : "must use the http or https scheme"), {
-      identifier: $I`TikaServerBaseUrlProtocolCheck`,
-      title: "Tika Server Base URL Protocol",
-      description: "Checks that the Tika Server base URL uses the http or https scheme.",
-    })
+    S.makeFilter(
+      (url: string) => (hasHttpProtocol(url) ? true : "must use the http or https scheme"),
+      $I.annote("TikaServerBaseUrlProtocolCheck", {
+        title: "Tika Server Base URL Protocol",
+        description: "Checks that the Tika Server base URL uses the http or https scheme.",
+      })
+    )
   ),
   S.check(
-    S.makeFilter((url: string) => (carriesQueryOrFragment(url) ? "must not carry a query string or fragment" : true), {
-      identifier: $I`TikaServerBaseUrlEndpointCheck`,
-      title: "Tika Server Base URL",
-      description: "Checks that the Tika Server base URL carries no query string or fragment.",
-    })
+    S.makeFilter(
+      (url: string) => (carriesQueryOrFragment(url) ? "must not carry a query string or fragment" : true),
+      $I.annote("TikaServerBaseUrlEndpointCheck", {
+        title: "Tika Server Base URL",
+        description: "Checks that the Tika Server base URL carries no query string or fragment.",
+      })
+    )
   ),
   S.decode({
     decode: SchemaGetter.transform((url: URLStr) => URLStr.make(Str.replace(trailingSlashPattern, "")(url))),
@@ -57,11 +61,13 @@ const TikaServerBaseUrl = URLStr.pipe(
   // which runs type-side checks but not transformations — is rejected outright
   // instead of silently producing `//rmeta/text`.
   S.check(
-    S.makeFilter((url: string) => (trailingSlashPattern.test(url) ? "must not end with a trailing slash" : true), {
-      identifier: $I`TikaServerBaseUrlTrailingSlashCheck`,
-      title: "Tika Server Base URL Trailing Slash",
-      description: "Checks that the normalized Tika Server base URL carries no trailing slash.",
-    })
+    S.makeFilter(
+      (url: string) => (trailingSlashPattern.test(url) ? "must not end with a trailing slash" : true),
+      $I.annote("TikaServerBaseUrlTrailingSlashCheck", {
+        title: "Tika Server Base URL Trailing Slash",
+        description: "Checks that the normalized Tika Server base URL carries no trailing slash.",
+      })
+    )
   ),
   $I.annoteSchema("TikaServerBaseUrl", {
     description: "Tika Server base URL: http(s) only, no trailing slash, no query string, and no fragment.",

@@ -22,13 +22,14 @@ import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow } from "effect/Function";
+import { constant, flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { permutedDirectoryReadsFileSystem } from "./support/CommandTest.ts";
 
@@ -203,7 +204,9 @@ describe("exploration projections", () => {
         expect(projection.atlasContent).toContain("## Killed (1)");
         expect(projection.atlasContent).toContain("## Underivable packets (1)");
         expect(projection.atlasContent).toContain("manifest-adoption");
-        expect(projection.atlasContent.indexOf("[Alpha]")).toBeLessThan(projection.atlasContent.indexOf("[Zeta]"));
+        expect(O.getOrElse(constant(-1))(Str.indexOf("[Alpha]")(projection.atlasContent))).toBeLessThan(
+          O.getOrElse(constant(-1))(Str.indexOf("[Zeta]")(projection.atlasContent))
+        );
         expect(A.every(repeated, (next) => next.atlasContent === projection.atlasContent)).toBe(true);
         expect(
           A.every(
@@ -220,7 +223,7 @@ describe("exploration projections", () => {
         expect(projection.issues).toHaveLength(1);
         expect(projection.issues[0]?.detail).toContain("manifest is missing or invalid");
 
-        const alpha = A.findFirst(projection.readmes, (item) => item.path.endsWith("/alpha/README.md"));
+        const alpha = A.findFirst(projection.readmes, (item) => Str.endsWith("/alpha/README.md")(item.path));
         alpha.pipe(O.isSome, assertTrue);
         if (O.isSome(alpha)) {
           expect(alpha.value.projected).toContain("<!-- BEGIN GENERATED: EXPLORATION STATUS -->");
@@ -290,7 +293,7 @@ describe("exploration projections", () => {
         const projection = yield* buildExplorationProjection(root);
 
         expect(projection.atlasContent).toContain("## Underivable packets (1)");
-        expect(A.some(projection.issues, (issue) => issue.detail.includes("unreadable or invalid"))).toBe(true);
+        expect(A.some(projection.issues, (issue) => Str.includes("unreadable or invalid")(issue.detail))).toBe(true);
         expect(projection.atlasContent).not.toContain("manifest-adoption");
       }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );

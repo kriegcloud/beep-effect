@@ -38,13 +38,12 @@ const agentIdPattern = /^[a-z][a-z0-9_-]*$/;
  * @since 0.0.0
  */
 export const AgentId = S.String.check(
-  S.isPattern(agentIdPattern, {
-    identifier: $I`AgentIdPatternCheck`,
+  S.isPattern(agentIdPattern, $I.annote("AgentIdPatternCheck", {
     title: "Agent Identifier",
     description: "A lowercase agent identifier with optional digits, dashes, and underscores.",
     message:
       "Agent identifier must start with a lowercase letter and contain only lowercase letters, digits, dashes, or underscores.",
-  })
+  }))
 ).pipe(
     S.brand("AgentId"),
     $I.annoteSchema("AgentId", {
@@ -88,8 +87,8 @@ export const AgentType = LiteralKit([
   "corrector",
   "reasoner",
   "ingestor",
-]).annotate(
-    $I.annote("AgentType", {
+]).pipe(
+    $I.annoteSchema("AgentType", {
       description: "Closed set of functional roles supported by the ontology pipeline.",
     })
   );
@@ -863,8 +862,8 @@ export class AgentFailed extends S.Opaque<AgentFailed, { readonly brand: unique 
  * @category schemas
  * @since 0.0.0
  */
-export const CheckpointReason = LiteralKit(["scheduled", "agent-completed", "manual", "error-recovery"]).annotate(
-    $I.annote("CheckpointReason", {
+export const CheckpointReason = LiteralKit(["scheduled", "agent-completed", "manual", "error-recovery"]).pipe(
+    $I.annoteSchema("CheckpointReason", {
       description: "Closed set of reasons for persisting pipeline state.",
     })
   );

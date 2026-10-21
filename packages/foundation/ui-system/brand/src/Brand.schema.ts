@@ -30,12 +30,14 @@ const printableTextPattern = /^[^\u0000-\u001f\u007f-\u009f\p{Cs}\p{Noncharacter
  * @since 0.0.0
  */
 export const PrintableText = S.NonEmptyString.check(
-  S.isPattern(printableTextPattern, {
-    identifier: $I`PrintableTextPatternCheck`,
-    title: "Printable Text",
-    description: "Non-empty text with no control characters, lone surrogates, or noncharacters.",
-    message: "Text must not contain control characters, lone surrogates, or noncharacters",
-  })
+  S.isPattern(
+    printableTextPattern,
+    $I.annote("PrintableTextPatternCheck", {
+      title: "Printable Text",
+      description: "Non-empty text with no control characters, lone surrogates, or noncharacters.",
+      message: "Text must not contain control characters, lone surrogates, or noncharacters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PrintableText", {
     description: "Non-empty text with no control characters, lone surrogates, or noncharacters.",
@@ -73,8 +75,8 @@ export type PrintableText = typeof PrintableText.Type;
  * @category models
  * @since 0.0.0
  */
-export const ScaleStep = LiteralKit(["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"]).annotate(
-  $I.annote("ScaleStep", { description: "Tint step of a ten-stop brand color scale, lightest first." })
+export const ScaleStep = LiteralKit(["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"]).pipe(
+  $I.annoteSchema("ScaleStep", { description: "Tint step of a ten-stop brand color scale, lightest first." })
 );
 
 /**
@@ -108,8 +110,8 @@ export type ScaleStep = typeof ScaleStep.Type;
  * @category models
  * @since 0.0.0
  */
-export const SurfaceStep = LiteralKit(["0", "50", "100", "200", "300", "400"]).annotate(
-  $I.annote("SurfaceStep", { description: "Elevation step of a six-stop surface scale, base first." })
+export const SurfaceStep = LiteralKit(["0", "50", "100", "200", "300", "400"]).pipe(
+  $I.annoteSchema("SurfaceStep", { description: "Elevation step of a six-stop surface scale, base first." })
 );
 
 /**
@@ -387,8 +389,8 @@ export class ColorScheme extends S.Opaque<ColorScheme, { readonly nominal: uniqu
  * @category models
  * @since 0.0.0
  */
-export const SchemeName = LiteralKit(["light", "dark"]).annotate(
-  $I.annote("SchemeName", { description: "Appearance name of a color scheme." })
+export const SchemeName = LiteralKit(["light", "dark"]).pipe(
+  $I.annoteSchema("SchemeName", { description: "Appearance name of a color scheme." })
 );
 
 /**
@@ -467,18 +469,22 @@ export class Typography extends S.Opaque<Typography, { readonly brand: unique sy
  * @since 0.0.0
  */
 export const SvgPathData = S.String.check(
-  S.isPattern(svgPathDataPattern, {
-    identifier: $I`SvgPathDataPatternCheck`,
-    title: "SVG Path Data",
-    description: "SVG path data beginning with a move-to command.",
-    message: "SVG path data must begin with M or m",
-  }),
-  S.isPattern(printableTextPattern, {
-    identifier: $I`SvgPathDataPrintableCheck`,
-    title: "Printable SVG Path Data",
-    description: "SVG path data with no control characters, lone surrogates, or noncharacters.",
-    message: "SVG path data must not contain control characters",
-  })
+  S.isPattern(
+    svgPathDataPattern,
+    $I.annote("SvgPathDataPatternCheck", {
+      title: "SVG Path Data",
+      description: "SVG path data beginning with a move-to command.",
+      message: "SVG path data must begin with M or m",
+    })
+  ),
+  S.isPattern(
+    printableTextPattern,
+    $I.annote("SvgPathDataPrintableCheck", {
+      title: "Printable SVG Path Data",
+      description: "SVG path data with no control characters, lone surrogates, or noncharacters.",
+      message: "SVG path data must not contain control characters",
+    })
+  )
 ).pipe(
   S.brand("SvgPathData"),
   $I.annoteSchema("SvgPathData", { description: "SVG path data beginning with a move-to command." })

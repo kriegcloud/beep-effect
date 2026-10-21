@@ -494,7 +494,7 @@ const errorMessage = (error: QualityScriptCommandError): string =>
   P.isString(error.message) ? error.message : String(error);
 
 const titleRetryBackoffMs = (message: string, tryIndex: number): number => {
-  const authCooldown = message.includes("auth_unavailable") || message.includes("HTTP 5");
+  const authCooldown = Str.includes("auth_unavailable")(message) || Str.includes("HTTP 5")(message);
   return (authCooldown ? 2_000 : 400) * (tryIndex + 1);
 };
 

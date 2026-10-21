@@ -507,12 +507,14 @@ export const isKnowledgeSkipReason = S.is(KnowledgeSkipReason);
  * @since 0.0.0
  */
 export const KnowledgeCommitSha = S.String.check(
-  S.isPattern(/^[0-9a-f]{40}$/u, {
-    identifier: $I`KnowledgeCommitShaPatternCheck`,
-    title: "Knowledge Commit Sha Pattern",
-    description: "Lowercase forty-character hexadecimal Git commit object name.",
-    message: "Expected a lowercase forty-character hexadecimal Git commit id",
-  })
+  S.isPattern(
+    /^[0-9a-f]{40}$/u,
+    $I.annote("KnowledgeCommitShaPatternCheck", {
+      title: "Knowledge Commit Sha Pattern",
+      description: "Lowercase forty-character hexadecimal Git commit object name.",
+      message: "Expected a lowercase forty-character hexadecimal Git commit id",
+    })
+  )
 ).pipe(
   $I.annoteSchema("KnowledgeCommitSha", {
     description: "Forty-character lowercase hexadecimal Git commit object name.",

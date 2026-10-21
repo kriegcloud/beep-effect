@@ -14,12 +14,11 @@ import * as Effect from "effect/Effect";
 const $I = $ScratchpadId.create("effect-ontology/Domain/Model/EnrichedContent");
 
 const LanguageCode = S.String.check(
-  S.isPattern(/^[a-z]{2}$/, {
-    identifier: $I`LanguageCodePatternCheck`,
+  S.isPattern(/^[a-z]{2}$/, $I.annote("LanguageCodePatternCheck", {
     title: "ISO 639-1 Language Code",
     description: "A lowercase two-letter ISO 639-1 language code.",
     message: "Language code must contain exactly two lowercase ASCII letters.",
-  })
+  }))
 ).pipe(
     $I.annoteSchema("LanguageCode", {
       description: "Lowercase two-letter language code used for enriched content.",
@@ -40,8 +39,8 @@ const LanguageCode = S.String.check(
  * @category schemas
  * @since 0.0.0
  */
-export const SourceType = LiteralKit(["news", "blog", "press_release", "official", "academic", "unknown"]).annotate(
-    $I.annote("SourceType", {
+export const SourceType = LiteralKit(["news", "blog", "press_release", "official", "academic", "unknown"]).pipe(
+    $I.annoteSchema("SourceType", {
       description: "Closed classification of source kinds recognized by content enrichment.",
     })
   );

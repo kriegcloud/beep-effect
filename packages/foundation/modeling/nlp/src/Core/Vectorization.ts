@@ -29,8 +29,8 @@ const $I = $NlpId.create("Core/Vectorization");
  */
 export { PositiveNumber } from "../internal/numbers.ts";
 
-const BM25NormKit = LiteralKit(["none", "l1", "l2"]).annotate(
-  $I.annote("BM25NormKit", {
+const BM25NormKit = LiteralKit(["none", "l1", "l2"]).pipe(
+  $I.annoteSchema("BM25NormKit", {
     description: "LiteralKit backing schema for BM25 normalization modes.",
   })
 );

@@ -146,24 +146,22 @@ const AllowedChecksAreComplete = S.makeFilter(
     artifactCheckOutcome.is.passed(checks[0].outcome) &&
     artifactCheckName.is["frontmatter-contract-equality"](checks[1].check) &&
     artifactCheckOutcome.is.passed(checks[1].outcome),
-  {
-    identifier: $I`AllowedChecksAreComplete`,
+  $I.annote("AllowedChecksAreComplete", {
     title: "Allowed artifact checks are complete",
     description: "An allowed verdict records exactly the passed re-render and frontmatter checks, in that order.",
     message:
       "Expected the passed rerender-byte-equality check followed by the passed frontmatter-contract-equality check",
-  }
+  })
 );
 
 const DeniedChecksRecordAFailure = S.makeFilter(
   (checks: A.NonEmptyReadonlyArray<SkillArtifactCheck>) =>
     A.some(checks, (check) => artifactCheckOutcome.is.failed(check.outcome)),
-  {
-    identifier: $I`DeniedChecksRecordAFailure`,
+  $I.annote("DeniedChecksRecordAFailure", {
     title: "Denied artifact checks record a failure",
     description: "A denied verdict records at least one failed check.",
     message: "Expected at least one failed artifact check",
-  }
+  })
 );
 
 /**

@@ -22,12 +22,14 @@ import { RoundNumber, SessionId } from "./QaCapture.models.ts";
 const $I = $QaCaptureId.create("Collector.api");
 
 const NonNegativeCount = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`NonNegativeCountMinimumCheck`,
-    title: "Non Negative Count Minimum",
-    description: "Counters are zero or greater.",
-    message: "Expected a non-negative count",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("NonNegativeCountMinimumCheck", {
+      title: "Non Negative Count Minimum",
+      description: "Counters are zero or greater.",
+      message: "Expected a non-negative count",
+    })
+  )
 );
 
 /**
@@ -134,12 +136,14 @@ export class EventsAccepted extends S.Opaque<EventsAccepted, { readonly brand: u
 export class MarkRequest extends S.Opaque<MarkRequest, { readonly brand: unique symbol }>()(
   S.Struct({
     label: S.String.check(
-      S.isMinLength(1, {
-        identifier: $I`MarkRequestLabelNonEmptyCheck`,
-        title: "Mark Request Label Non Empty",
-        description: "Marker labels must not be empty.",
-        message: "Expected a non-empty marker label",
-      })
+      S.isMinLength(
+        1,
+        $I.annote("MarkRequestLabelNonEmptyCheck", {
+          title: "Mark Request Label Non Empty",
+          description: "Marker labels must not be empty.",
+          message: "Expected a non-empty marker label",
+        })
+      )
     ).pipe(
       $I.annoteKey("MarkRequest.label", {
         description: "Semantic marker label to append to the event log.",

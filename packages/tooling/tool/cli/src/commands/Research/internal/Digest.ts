@@ -41,8 +41,8 @@ const decodeDigestCardRows = S.decodeUnknownEffect(S.Array(DigestCardRow));
 const decodeDigestSummary = S.decodeUnknownEffect(ResearchDigestSummary);
 
 const wikilinkFor = (cardPath: string, title: string | null): string => {
-  const target = cardPath.replace(/\.md$/, "");
-  const label = title ?? target.split("/").pop() ?? target;
+  const target = Str.replace(/\.md$/, "")(cardPath);
+  const label = title ?? Str.split("/")(target).pop() ?? target;
   return `[[${target}|${label}]]`;
 };
 
@@ -130,7 +130,7 @@ export const digestImpl = Effect.fn("Research.digestImpl")(function* (
   lines.push(`Pending cognify: ${pendingCognify}`, "");
 
   const digestRelativePath = path.join(VAULT_DIRS.digest, `${date}.md`);
-  yield* writeCard(options.vaultRoot, digestRelativePath, `${A.join(lines, "\n").trimEnd()}\n`);
+  yield* writeCard(options.vaultRoot, digestRelativePath, `${Str.trimEnd(A.join(lines, "\n"))}\n`);
   yield* Console.log(
     `research digest: wrote "${digestRelativePath}" (new=${A.length(newCards)} backlog=${inboxBacklog}).`
   );

@@ -68,8 +68,8 @@ export const TextKind = LiteralKit([
   "Dependency",
   "Chunk",
   "Embedding",
-]).annotate(
-  $I.annote("TextKind", {
+]).pipe(
+  $I.annoteSchema("TextKind", {
     description: "Ontological strata of text in the NLP category (structural hierarchy + annotation kinds).",
   })
 );

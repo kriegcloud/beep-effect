@@ -27,12 +27,14 @@ import type { Accept, DropzoneOptions, FileRejection } from "react-dropzone";
 const $I = $UiId.create("components/upload");
 
 const BlobObjectUrl = S.String.check(
-  S.isPattern(/^blob:/u, {
-    identifier: $I`BlobObjectUrlPattern`,
-    title: "Blob Object URL",
-    description: "Browser object URLs created for upload previews start with the blob: protocol.",
-    message: "Upload preview URL must be a browser blob: object URL.",
-  })
+  S.isPattern(
+    /^blob:/u,
+    $I.annote("BlobObjectUrlPattern", {
+      title: "Blob Object URL",
+      description: "Browser object URLs created for upload previews start with the blob: protocol.",
+      message: "Upload preview URL must be a browser blob: object URL.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BlobObjectUrl", {
     description: "Browser object URL created for an upload preview.",

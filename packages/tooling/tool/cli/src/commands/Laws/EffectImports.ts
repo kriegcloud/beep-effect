@@ -58,8 +58,8 @@ const EFFECT_IMPORT_PROMOTED_FAMILY_PREFIXES = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export const EffectImportCorpusMode = LiteralKit(["code", "jsdoc", "markdown"]).annotate(
-  $I.annote("EffectImportCorpusMode", {
+export const EffectImportCorpusMode = LiteralKit(["code", "jsdoc", "markdown"]).pipe(
+  $I.annoteSchema("EffectImportCorpusMode", {
     description: "Corpus representation scanned by the per-module import vehicle.",
   })
 );
@@ -96,8 +96,8 @@ export const EffectImportManualReviewKind = LiteralKit([
   "require",
   "root-namespace",
   "side-effect",
-]).annotate(
-  $I.annote("EffectImportManualReviewKind", {
+]).pipe(
+  $I.annoteSchema("EffectImportManualReviewKind", {
     description: "Reason category for a root import that cannot be rewritten mechanically.",
   })
 );

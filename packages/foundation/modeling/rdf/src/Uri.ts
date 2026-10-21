@@ -67,31 +67,34 @@ const makeReferenceChecks = (
 ) =>
   S.makeFilterGroup(
     [
-      S.isTrimmed({
-        identifier: $I.create(identifier).make("TrimmedCheck"),
-        title: `${title} Trimmed`,
-        description: `${description} Values must not contain leading or trailing whitespace.`,
-        message: `${title} values must not contain leading or trailing whitespace`,
-      }),
-      S.makeFilter(predicate, {
-        identifier: $I.create(identifier).make("FormatCheck"),
-        title,
-        description,
-        message,
-        arbitraryConstraint: {
-          patterns: [
-            Str.startsWith(identifier, "Relative")
-              ? /^[a-z][a-z0-9/]{0,30}$/
-              : /^https:\/\/example\.org\/[a-z0-9]{1,30}$/,
-          ],
-        },
-      }),
+      S.isTrimmed(
+        $I.create(identifier).annote("TrimmedCheck", {
+          title: `${title} Trimmed`,
+          description: `${description} Values must not contain leading or trailing whitespace.`,
+          message: `${title} values must not contain leading or trailing whitespace`,
+        })
+      ),
+      S.makeFilter(
+        predicate,
+        $I.create(identifier).annote("FormatCheck", {
+          title,
+          description,
+          message,
+          arbitraryConstraint: {
+            patterns: [
+              Str.startsWith(identifier, "Relative")
+                ? /^[a-z][a-z0-9/]{0,30}$/
+                : /^https:\/\/example\.org\/[a-z0-9]{1,30}$/,
+            ],
+          },
+        })
+      ),
+      // fallow-ignore-next-line code-duplication -- URI and IRI reference checks share one shape but keep separate identities and messages
     ],
-    {
-      identifier: $I.create(identifier).make("Checks"),
+    $I.create(identifier).annote("Checks", {
       title,
       description,
-    }
+    })
   );
 
 const makeNonEmptyReferenceChecks = (
@@ -103,35 +106,38 @@ const makeNonEmptyReferenceChecks = (
 ) =>
   S.makeFilterGroup(
     [
-      S.isNonEmpty({
-        identifier: $I.create(identifier).make("NonEmptyCheck"),
-        title: `${title} Non Empty`,
-        description: `${description} Values must not be empty.`,
-        message: `${title} values must not be empty`,
-      }),
-      S.isTrimmed({
-        identifier: $I.create(identifier).make("TrimmedCheck"),
-        title: `${title} Trimmed`,
-        description: `${description} Values must not contain leading or trailing whitespace.`,
-        message: `${title} values must not contain leading or trailing whitespace`,
-      }),
-      S.makeFilter(predicate, {
-        identifier: $I.create(identifier).make("FormatCheck"),
-        title,
-        description,
-        message,
-        arbitraryConstraint: {
-          // Every family built here is absolute (URI, AbsoluteURI); the
-          // reference builder above owns the relative generation pattern.
-          patterns: [/^https:\/\/example\.org\/[a-z0-9]{1,30}$/],
-        },
-      }),
+      S.isNonEmpty(
+        $I.create(identifier).annote("NonEmptyCheck", {
+          title: `${title} Non Empty`,
+          description: `${description} Values must not be empty.`,
+          message: `${title} values must not be empty`,
+        })
+      ),
+      S.isTrimmed(
+        $I.create(identifier).annote("TrimmedCheck", {
+          title: `${title} Trimmed`,
+          description: `${description} Values must not contain leading or trailing whitespace.`,
+          message: `${title} values must not contain leading or trailing whitespace`,
+        })
+      ),
+      S.makeFilter(
+        predicate,
+        $I.create(identifier).annote("FormatCheck", {
+          title,
+          description,
+          message,
+          arbitraryConstraint: {
+            // Every family built here is absolute (URI, AbsoluteURI); the
+            // reference builder above owns the relative generation pattern.
+            patterns: [/^https:\/\/example\.org\/[a-z0-9]{1,30}$/],
+          },
+        })
+      ),
     ],
-    {
-      identifier: $I.create(identifier).make("Checks"),
+    $I.create(identifier).annote("Checks", {
       title,
       description,
-    }
+    })
   );
 
 const normalizePercentEncoding: (value: string) => string = Str.replaceWith(/%[0-9a-fA-F]{2}/g, (token) => {

@@ -7,7 +7,7 @@
  * session on the workstation account. A different identity has its own
  * budget: a personal token held in 1Password (`--token-ref op://…` or
  * `BEEP_GH_TOKEN_REF`), or a GitHub App installation token minted through
- * `@effected/github`'s `GitHubApp` (`BEEP_GH_APP_ID`,
+ * `@beep/github`'s `GitHubApp` (`BEEP_GH_APP_ID`,
  * `BEEP_GH_APP_INSTALLATION_ID`, `BEEP_GH_APP_KEY_REF`). Without either, the
  * client borrows the `gh` CLI login (`gh auth token`). Every token stays a
  * `Redacted` value inside this process; it is never printed or written.
@@ -17,9 +17,11 @@
  * @since 0.0.0
  */
 
+import { GitHubApp } from "@beep/github/GitHubApp";
+import { GitHubClient } from "@beep/github/GitHubClient";
+import { Repo, RepoRef } from "@beep/github/Repo";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { GitHubApp, GitHubClient, Repo, RepoRef } from "@effected/github";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -286,7 +288,7 @@ export class GithubClientRequest extends S.Opaque<GithubClientRequest, { readonl
 ) {}
 
 /**
- * Build the `@effected/github` client layer for an identity.
+ * Build the `@beep/github` client layer for an identity.
  *
  * **Details**
  *
@@ -380,7 +382,7 @@ const remotePattern =
  */
 export const repoSlugFromRemote = (remote: string): O.Option<string> =>
   pipe(
-    O.fromNullishOr(Str.trim(remote).match(remotePattern)),
+    Str.match(remotePattern)(Str.trim(remote)),
     O.flatMap((parts) =>
       O.zipWith(O.fromNullishOr(parts[1]), O.fromNullishOr(parts[2]), (owner, name) => `${owner}/${name}`)
     )
@@ -399,7 +401,7 @@ export const repoSlugFromRemote = (remote: string): O.Option<string> =>
  * ```
  *
  * @param cwd - The checkout to read the remote from.
- * @returns A layer providing `@effected/github`'s `Repo`.
+ * @returns A layer providing `@beep/github`'s `Repo`.
  * @category layers
  * @since 0.0.0
  */

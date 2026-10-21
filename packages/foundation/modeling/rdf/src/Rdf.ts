@@ -129,73 +129,77 @@ const datasetMetadata = makeSemanticSchemaMetadata({
 
 const PrefixLabelChecks = S.makeFilterGroup(
   [
-    S.isPattern(/^(?:|[A-Za-z][A-Za-z0-9._-]*)$/, {
-      identifier: $I`PrefixLabelPatternCheck`,
-      title: "Prefix Label Pattern",
-      description: "A prefixed-name label or empty default-prefix label used in RDF namespace bindings.",
-      message:
-        "Prefix labels must be empty for the default prefix or begin with an ASCII letter and then use letters, digits, dot, underscore, or hyphen",
-    }),
+    S.isPattern(
+      /^(?:|[A-Za-z][A-Za-z0-9._-]*)$/,
+      $I.annote("PrefixLabelPatternCheck", {
+        title: "Prefix Label Pattern",
+        description: "A prefixed-name label or empty default-prefix label used in RDF namespace bindings.",
+        message:
+          "Prefix labels must be empty for the default prefix or begin with an ASCII letter and then use letters, digits, dot, underscore, or hyphen",
+      })
+    ),
   ],
-  {
-    identifier: $I`PrefixLabelChecks`,
+  $I.annote("PrefixLabelChecks", {
     title: "Prefix Label",
     description: "Checks for RDF prefix labels.",
-  }
+  })
 );
 
 const CurieChecks = S.makeFilterGroup(
   [
-    S.isPattern(/^[A-Za-z][A-Za-z0-9._-]*:[^\\s]+$/, {
-      identifier: $I`CuriePatternCheck`,
-      title: "CURIE Pattern",
-      description: "A compact URI expression using a prefix label and a local part.",
-      message: "CURIE values must be of the form prefix:suffix without whitespace",
-    }),
+    S.isPattern(
+      /^[A-Za-z][A-Za-z0-9._-]*:[^\\s]+$/,
+      $I.annote("CuriePatternCheck", {
+        title: "CURIE Pattern",
+        description: "A compact URI expression using a prefix label and a local part.",
+        message: "CURIE values must be of the form prefix:suffix without whitespace",
+      })
+    ),
   ],
-  {
-    identifier: $I`CurieChecks`,
+  $I.annote("CurieChecks", {
     title: "CURIE",
     description: "Checks for CURIE syntax.",
-  }
+  })
 );
 
 const LanguageTagChecks = S.makeFilterGroup(
   [
-    S.isPattern(/^[A-Za-z]+(?:-[A-Za-z0-9]+)*$/, {
-      identifier: $I`LanguageTagPatternCheck`,
-      title: "Language Tag Pattern",
-      description: "A simple BCP 47-style language tag.",
-      message: "Language tags must use alphanumeric subtags separated by hyphens",
-    }),
+    S.isPattern(
+      /^[A-Za-z]+(?:-[A-Za-z0-9]+)*$/,
+      $I.annote("LanguageTagPatternCheck", {
+        title: "Language Tag Pattern",
+        description: "A simple BCP 47-style language tag.",
+        message: "Language tags must use alphanumeric subtags separated by hyphens",
+      })
+    ),
   ],
-  {
-    identifier: $I`LanguageTagChecks`,
+  $I.annote("LanguageTagChecks", {
     title: "Language Tag",
     description: "Checks for RDF literal language tags.",
-  }
+  })
 );
 
 const BlankNodeLabelChecks = S.makeFilterGroup(
   [
-    S.isNonEmpty({
-      identifier: $I`BlankNodeLabelNonEmptyCheck`,
-      title: "Blank Node Label Non Empty",
-      description: "Blank node labels must not be empty.",
-      message: "Blank node labels must not be empty",
-    }),
-    S.isTrimmed({
-      identifier: $I`BlankNodeLabelTrimmedCheck`,
-      title: "Blank Node Label Trimmed",
-      description: "Blank node labels must not contain leading or trailing whitespace.",
-      message: "Blank node labels must not contain leading or trailing whitespace",
-    }),
+    S.isNonEmpty(
+      $I.annote("BlankNodeLabelNonEmptyCheck", {
+        title: "Blank Node Label Non Empty",
+        description: "Blank node labels must not be empty.",
+        message: "Blank node labels must not be empty",
+      })
+    ),
+    S.isTrimmed(
+      $I.annote("BlankNodeLabelTrimmedCheck", {
+        title: "Blank Node Label Trimmed",
+        description: "Blank node labels must not contain leading or trailing whitespace.",
+        message: "Blank node labels must not contain leading or trailing whitespace",
+      })
+    ),
   ],
-  {
-    identifier: $I`BlankNodeLabelChecks`,
+  $I.annote("BlankNodeLabelChecks", {
     title: "Blank Node Label",
     description: "Checks for blank node labels.",
-  }
+  })
 );
 
 const BlankNodeLabel = S.String.check(BlankNodeLabelChecks).pipe(
@@ -264,20 +268,18 @@ const PrefixMapKeyChecks = S.makeFilterGroup(
     S.makeFilter(
       (prefixes: Readonly<Record<string, unknown>>) =>
         R.every(prefixes, (_namespace, prefix) => S.is(PrefixLabel)(prefix)),
-      {
-        identifier: $I`PrefixMapKeyCheck`,
+      $I.annote("PrefixMapKeyCheck", {
         title: "Prefix Map Keys",
         description: "Prefix maps must use RDF prefix labels for every key.",
         message:
           "Prefix labels must be empty for the default prefix or begin with an ASCII letter and then use letters, digits, dot, underscore, or hyphen",
-      }
+      })
     ),
   ],
-  {
-    identifier: $I`PrefixMapKeyChecks`,
+  $I.annote("PrefixMapKeyChecks", {
     title: "Prefix Map Keys",
     description: "Checks for RDF prefix map keys.",
-  }
+  })
 );
 
 /**

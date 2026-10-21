@@ -160,12 +160,14 @@ export type ArchivePoorCandidatesSkippedReason = typeof ArchivePoorCandidatesSki
  * @since 0.0.0
  */
 export const CandidateRatioThreshold = S.Finite.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`CandidateRatioThresholdGreaterThanOrEqualToOneCheck`,
-    title: "Candidate Ratio Threshold",
-    description: "Candidate assessment ratio thresholds must be at least one.",
-    message: "Expected a ratio threshold greater than or equal to one",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("CandidateRatioThresholdGreaterThanOrEqualToOneCheck", {
+      title: "Candidate Ratio Threshold",
+      description: "Candidate assessment ratio thresholds must be at least one.",
+      message: "Expected a ratio threshold greater than or equal to one",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CandidateRatioThreshold", {
     description: "A ratio threshold greater than or equal to one.",

@@ -116,12 +116,14 @@ const proofSkillHeredocSentinel = "BEEP_OPENCLAW_PROOF_SKILL";
 const machineIdPattern = /^[0-9a-f]{32}$/u;
 const OpenClawFileModeBase = LiteralKit(["0644", "0755"]);
 
-const MachineIdFormat = S.isPattern(machineIdPattern, {
-  identifier: $I`MachineIdFormat`,
-  title: "Machine ID Format",
-  description: "A 32-character lowercase hexadecimal `/etc/machine-id` value.",
-  message: "Expected a 32-character lowercase hex machine id",
-});
+const MachineIdFormat = S.isPattern(
+  machineIdPattern,
+  $I.annote("MachineIdFormat", {
+    title: "Machine ID Format",
+    description: "A 32-character lowercase hexadecimal `/etc/machine-id` value.",
+    message: "Expected a 32-character lowercase hex machine id",
+  })
+);
 
 const MachineId = S.String.check(MachineIdFormat).pipe(
   $I.annoteSchema("MachineId", {
@@ -129,12 +131,14 @@ const MachineId = S.String.check(MachineIdFormat).pipe(
   })
 );
 
-const LoopbackProviderBaseUrlFormat = S.isPattern(loopbackProviderBaseUrlPattern, {
-  identifier: $I`LoopbackProviderBaseUrlFormat`,
-  title: "Loopback Provider Base URL",
-  description: "An HTTP URL rooted at localhost or 127.0.0.1.",
-  message: "Expected an HTTP loopback URL rooted at localhost or 127.0.0.1",
-});
+const LoopbackProviderBaseUrlFormat = S.isPattern(
+  loopbackProviderBaseUrlPattern,
+  $I.annote("LoopbackProviderBaseUrlFormat", {
+    title: "Loopback Provider Base URL",
+    description: "An HTTP URL rooted at localhost or 127.0.0.1.",
+    message: "Expected an HTTP loopback URL rooted at localhost or 127.0.0.1",
+  })
+);
 
 const LoopbackProviderBaseUrl = S.NonEmptyString.check(LoopbackProviderBaseUrlFormat).pipe(
   $I.annoteSchema("LoopbackProviderBaseUrl", {
@@ -147,12 +151,11 @@ const PosixUidRange = S.isBetween(
     minimum: 0,
     maximum: 65_535,
   },
-  {
-    identifier: $I`PosixUidRange`,
+  $I.annote("PosixUidRange", {
     title: "POSIX UID Range",
     description: "A POSIX user id in the inclusive range 0 through 65535.",
     message: "Expected a POSIX uid between 0 and 65535",
-  }
+  })
 );
 
 const PosixUid = S.Int.check(PosixUidRange).pipe(

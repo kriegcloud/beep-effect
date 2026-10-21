@@ -119,16 +119,20 @@ const isRelative = (path: string): boolean =>
  * @since 0.0.0
  */
 export const BoxRelativePath = S.String.check(
-  S.makeFilter(isRelative, {
-    identifier: $I`BoxRelativePathRelative`,
-    description: "A relative path: no leading separator and no drive letter.",
-    message: "Use a path inside the Box folder, not a full path.",
-  }),
-  S.makeFilter(hasNoParentSegment, {
-    identifier: $I`BoxRelativePathNoParent`,
-    description: "A path without `..` segments.",
-    message: "Paths may not step out of the Box folder with `..`.",
-  })
+  S.makeFilter(
+    isRelative,
+    $I.annote("BoxRelativePathRelative", {
+      description: "A relative path: no leading separator and no drive letter.",
+      message: "Use a path inside the Box folder, not a full path.",
+    })
+  ),
+  S.makeFilter(
+    hasNoParentSegment,
+    $I.annote("BoxRelativePathNoParent", {
+      description: "A path without `..` segments.",
+      message: "Paths may not step out of the Box folder with `..`.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BoxRelativePath", {
     description: "A path inside the Box Drive folder, relative to it.",

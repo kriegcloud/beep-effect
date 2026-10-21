@@ -203,11 +203,13 @@ export class RateLimitSnapshot extends S.Opaque<RateLimitSnapshot, { readonly br
   static readonly fromHeaders = fromRateLimitHeaders;
 }
 
-const ApiTransportDurationNumber = S.declare<number>(P.isNumber, {
-  identifier: $I`ApiTransportDurationNumber`,
-  title: "API Transport Duration Number",
-  description: "A JavaScript number, including the special values accepted by Effect duration inputs.",
-});
+const ApiTransportDurationNumber = S.declare<number>(
+  P.isNumber,
+  $I.annote("ApiTransportDurationNumber", {
+    title: "API Transport Duration Number",
+    description: "A JavaScript number, including the special values accepted by Effect duration inputs.",
+  })
+);
 
 const ApiTransportDurationObject = S.Struct({
   weeks: S.optional(ApiTransportDurationNumber),

@@ -46,8 +46,8 @@ const PanelViewKind = LiteralKit(["component", "text"]);
  * @category models
  * @since 0.0.0
  */
-export const PanelRenderMode = LiteralKit(["onlyWhenVisible", "always"]).annotate(
-  $I.annote("PanelRenderMode", {
+export const PanelRenderMode = LiteralKit(["onlyWhenVisible", "always"]).pipe(
+  $I.annoteSchema("PanelRenderMode", {
     description: "Serializable host rendering policy for inactive panel content.",
   })
 );
@@ -210,13 +210,12 @@ export class TextPanelView extends S.Opaque<TextPanelView, { readonly brand: uni
  * @category models
  * @since 0.0.0
  */
-export const PanelView = PanelViewKind.mapMembers(Tuple.evolve([() => ComponentPanelView, () => TextPanelView]))
-  .annotate(
-    $I.annote("PanelView", {
-      description: "Discriminated panel content with no DOM or framework values.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+export const PanelView = PanelViewKind.mapMembers(Tuple.evolve([() => ComponentPanelView, () => TextPanelView])).pipe(
+  $I.annoteSchema("PanelView", {
+    description: "Discriminated panel content with no DOM or framework values.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded renderer-neutral panel view.
  *
@@ -374,8 +373,8 @@ export class PanelPatch extends S.Opaque<PanelPatch, { readonly brand: unique sy
  * @category models
  * @since 0.0.0
  */
-export const GroupLockedMode = LiteralKit(["unlocked", "locked", "no-drop-target"]).annotate(
-  $I.annote("GroupLockedMode", { description: "Persisted group locking policy data." })
+export const GroupLockedMode = LiteralKit(["unlocked", "locked", "no-drop-target"]).pipe(
+  $I.annoteSchema("GroupLockedMode", { description: "Persisted group locking policy data." })
 );
 /**
  * Decoded tab-group locking policy.
@@ -409,8 +408,8 @@ export type GroupLockedMode = typeof GroupLockedMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const GroupHeaderPosition = LiteralKit(["top", "bottom"]).annotate(
-  $I.annote("GroupHeaderPosition", { description: "Persisted tab-group header edge." })
+export const GroupHeaderPosition = LiteralKit(["top", "bottom"]).pipe(
+  $I.annoteSchema("GroupHeaderPosition", { description: "Persisted tab-group header edge." })
 );
 /**
  * Decoded tab-group header edge.
@@ -897,13 +896,12 @@ export class SplitNode extends S.Opaque<SplitNode, { readonly brand: unique symb
 type DockNodeShape = TabsNode | SplitNode;
 
 /** Recursive layout tree node. */
-const DockNodeBase = S.Union([TabsNode, SplitNode])
-  .annotate(
-    $I.annote("DockNode", {
-      description: "Recursive binary dock tree containing only non-empty leaves.",
-    })
-  )
-  .pipe(S.toTaggedUnion("_tag"));
+const DockNodeBase = S.Union([TabsNode, SplitNode]).pipe(
+  $I.annoteSchema("DockNode", {
+    description: "Recursive binary dock tree containing only non-empty leaves.",
+  }),
+  S.toTaggedUnion("_tag")
+);
 
 /**
  * Recursive codec for tabs and binary split tree nodes.
@@ -1288,12 +1286,11 @@ const DockWorkspaceGlobalIdentityCheck = S.makeFilter<typeof DockWorkspaceBase.T
         );
       },
     }),
-  {
-    identifier: $I`DockWorkspaceGlobalIdentityCheck`,
+  $I.annote("DockWorkspaceGlobalIdentityCheck", {
     title: "Dock workspace global identity",
     description: "Identifiers must be globally unique and a maximized group must exist and be visible.",
     message: "Expected globally unique panel, group, and split identifiers and an existing visible maximized group.",
-  }
+  })
 );
 
 /**

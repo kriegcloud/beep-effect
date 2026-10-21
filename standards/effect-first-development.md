@@ -263,8 +263,37 @@ export class MyService extends Context.Service<MyService, {
 
 ### EF-12: Schema annotation is required
 
-- New schemas must include meaningful annotation metadata via canonical `$I.annote(...)`.
+- New schemas must include meaningful annotation metadata from the file's
+  identity composer `$I`.
+- Non-class schemas (structs, literals and `LiteralKit`, brands, unions,
+  tagged unions) annotate with `.pipe($I.annoteSchema("Name", {...}))`, never
+  `.annotate($I.annote(...))`. `annoteSchema` writes the same identifier, title
+  and schema id, types its extras against the schema, and keeps the schema's
+  statics: a raw `.annotate` on an `S.toTaggedUnion(...)` result drops `match`,
+  `cases`, `guards` and `isAnyOf` at runtime.
+- Classes keep their trailing annotation argument: `$I.annote(...)` for
+  `S.Class` / `S.TaggedClass`, `$I.annoteError<X>(...)` for errors. `S.Opaque`
+  takes none: it wraps a struct annotated with `.pipe($I.annoteSchema(...))`
+  (EF-33).
+- Checks and filters take `$I.annote("Name", {...})` as their annotation
+  argument: `S.isPattern(re, $I.annote("SlugPattern", {...}))`,
+  `S.makeFilter(f, $I.annote(...))`, `S.makeFilterGroup([...], $I.annote(...))`.
+  Never hand-build `{ identifier: $I\`Name\`, ... }`: it skips the schema id,
+  IRI and CURIE the composer writes.
+- A caller-supplied `title` wins over the title the composer derives from the
+  identifier; `identifier`, `schemaId`, `iri` and `curie` always come from the
+  identity.
+- Struct fields use `.pipe($I.annoteKey("Parent.key", {...}))`, never
+  `.annotate($I.annote(...))` or `.annotateKey($I.annote(...))`. A raw
+  `.annotate({...})` on a field is fine. When a recursive class's own base
+  expression trips TS2310 on the pipe form, apply the helper directly:
+  `$I.annoteKey("Parent.key", {...})(S.suspend(() => Node))`.
 - Annotation descriptions should encode intent, not repeat the symbol name.
+- Biome enforces the composer forms in every package's `lint` task through two
+  `@beep/lint-rules` GritQL rules: `prefer-identity-annote-pipe` rejects
+  `.annotate($I.annote(...))` and `.annotateKey($I.annote(...))`, and
+  `no-hand-built-identity-annotation` rejects `identifier:` values built from
+  `` $I`Name` `` or `$I.make("Name")`.
 
 Example:
 
@@ -274,8 +303,8 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export const Tenant = S.String.annotate(
-  $I.annote("Tenant", {
+export const Tenant = S.String.pipe(
+  $I.annoteSchema("Tenant", {
     description: "Logical tenant identifier used for request and storage partitioning."
   })
 )
@@ -355,17 +384,19 @@ export const ExternalJobEvent = ExternalJobKind
       () => ExternalJobCompleted
     ])
   )
-  .pipe(S.toTaggedUnion("kind"))
-  .annotate($I.annote("ExternalJobEvent", {
-    description: "External job event union discriminated by `kind`."
-  }))
+  .pipe(
+    S.toTaggedUnion("kind"),
+    $I.annoteSchema("ExternalJobEvent", {
+      description: "External job event union discriminated by `kind`."
+    })
+  )
 
 export type ExternalJobEvent = typeof ExternalJobEvent.Type
 
 export const InternalJobEvent = S.TaggedUnion({
   Created: { id: S.String },
   Completed: { id: S.String, at: S.String }
-}).annotate($I.annote("InternalJobEvent", {
+}).pipe($I.annoteSchema("InternalJobEvent", {
   description: "Canonical internal union discriminated by `_tag`."
 }))
 ```
@@ -943,12 +974,11 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 const TopicKind = LiteralKit(["plain", "scoped"])
 
 const ContainsScopeSeparator = S.String.check(
-  S.isIncluding(":", {
-    identifier: $I`ContainsScopeSeparatorCheck`,
+  S.isIncluding(":", $I.annote("ContainsScopeSeparatorCheck", {
     title: "Contains Scope Separator",
     description: "A string that contains `:`.",
-    message: "Topic text must contain :"
-  })
+    message: "Topic text must contain :",
+  }))
 ).pipe(
   S.brand("ContainsScopeSeparator"),
   $I.annoteSchema("ContainsScopeSeparator", {
@@ -959,12 +989,11 @@ const ContainsScopeSeparator = S.String.check(
 const isContainsScopeSeparator = S.is(ContainsScopeSeparator)
 
 const TopicSegment = S.NonEmptyString.check(
-  S.makeFilter(P.not(isContainsScopeSeparator), {
-    identifier: $I`TopicSegmentNoSeparatorCheck`,
+  S.makeFilter(P.not(isContainsScopeSeparator), $I.annote("TopicSegmentNoSeparatorCheck", {
     title: "Topic Segment No Separator",
     description: "A topic segment that does not contain `:`.",
-    message: "Topic segments must not contain :"
-  })
+    message: "Topic segments must not contain :",
+  }))
 ).pipe(
   S.brand("TopicSegment"),
   $I.annoteSchema("TopicSegment", {
@@ -987,12 +1016,11 @@ const classifyTopicKind = Match.type<string>().pipe(
 export const TopicName = S.NonEmptyString.check(
   S.makeFilterGroup(
     [
-      S.makeFilter(P.not(Str.endsWith(":")), {
-        identifier: $I`TopicNameNoTrailingSeparatorCheck`,
+      S.makeFilter(P.not(Str.endsWith(":")), $I.annote("TopicNameNoTrailingSeparatorCheck", {
         title: "Topic Name No Trailing Separator",
         description: "A topic name that does not end with `:`.",
-        message: "Topic names must not end with :"
-      }),
+        message: "Topic names must not end with :",
+      })),
       S.makeFilter((value: string) =>
         pipe(
           value,
@@ -1001,18 +1029,16 @@ export const TopicName = S.NonEmptyString.check(
             plain: isTopicSegment,
             scoped: () => pipe(value, splitNonEmpty(":"), A.every(isTopicSegment))
           })
-        ), {
-        identifier: $I`TopicNameSegmentsCheck`,
+        ), $I.annote("TopicNameSegmentsCheck", {
         title: "Topic Name Segments",
         description: "A topic name whose segments are valid topic segments.",
-        message: "Topic names must contain only valid segments"
-      })
+        message: "Topic names must contain only valid segments",
+      }))
     ],
-    {
-      identifier: $I`TopicNameChecks`,
+    $I.annote("TopicNameChecks", {
       title: "Topic Name",
-      description: "Checks for a plain or scoped topic name."
-    }
+      description: "Checks for a plain or scoped topic name.",
+    })
   )
 ).pipe(
   S.brand("TopicName"),

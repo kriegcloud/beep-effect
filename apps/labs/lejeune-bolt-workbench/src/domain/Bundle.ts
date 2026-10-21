@@ -299,24 +299,27 @@ const fixtureReferencesAreClosed = (fixture: NormalizedFixtureFields): boolean =
 
 const NormalizedFixtureChecks = S.makeFilterGroup(
   [
-    S.makeFilter(fixtureAnchorsAreGrounded, {
-      identifier: $I`NormalizedFixtureGroundingCheck`,
-      title: "Normalized Fixture Exact Grounding",
-      description: "Requires every extracted value to re-slice its referenced source exactly.",
-      message: "Every extracted value must equal the exact anchored slice of its referenced source.",
-    }),
-    S.makeFilter(fixtureReferencesAreClosed, {
-      identifier: $I`NormalizedFixtureReferenceCheck`,
-      title: "Normalized Fixture Closed References",
-      description: "Requires all fixed fixture identities and cardinalities to agree across the normalized graph.",
-      message: "Normalized fixture references, layout cardinality, and missing-field identities must agree.",
-    }),
+    S.makeFilter(
+      fixtureAnchorsAreGrounded,
+      $I.annote("NormalizedFixtureGroundingCheck", {
+        title: "Normalized Fixture Exact Grounding",
+        description: "Requires every extracted value to re-slice its referenced source exactly.",
+        message: "Every extracted value must equal the exact anchored slice of its referenced source.",
+      })
+    ),
+    S.makeFilter(
+      fixtureReferencesAreClosed,
+      $I.annote("NormalizedFixtureReferenceCheck", {
+        title: "Normalized Fixture Closed References",
+        description: "Requires all fixed fixture identities and cardinalities to agree across the normalized graph.",
+        message: "Normalized fixture references, layout cardinality, and missing-field identities must agree.",
+      })
+    ),
   ],
-  {
-    identifier: $I`NormalizedFixtureChecks`,
+  $I.annote("NormalizedFixtureChecks", {
     title: "Normalized Fixture",
     description: "Checks exact grounding and closed referential integrity for a persisted fixture.",
-  }
+  })
 );
 
 const NormalizedFixtureModel = NormalizedFixtureFields.mapFields(identity).check(NormalizedFixtureChecks);
@@ -639,12 +642,11 @@ const RuleSourceEvidenceCheck = S.makeFilter(
       Str.slice(source.evidenceAnchor.startChar, source.evidenceAnchor.endChar)(source.evidence),
       source.evidenceAnchor.quote
     ) && Str.Equivalence(source.evidenceAnchor.quote, source.evidence),
-  {
-    identifier: $I`RuleSourceEvidenceCheck`,
+  $I.annote("RuleSourceEvidenceCheck", {
     title: "Rule Source Exact Evidence",
     description: "Requires the persisted evidence anchor to reproduce the complete bounded rule evidence.",
     message: "Rule source evidence must exactly match its persisted evidence anchor.",
-  }
+  })
 );
 
 /**
@@ -721,12 +723,11 @@ const RuleResultFields = S.Struct({
 
 const RuleResultHumanStopCheck = S.makeFilter(
   (result: typeof RuleResultFields.Type) => result.requiresHuman === !RuleDisposition.is.pass(result.disposition),
-  {
-    identifier: $I`RuleResultHumanStopCheck`,
+  $I.annote("RuleResultHumanStopCheck", {
     title: "Rule Result Human Stop",
     description: "Requires every non-pass disposition, and only a non-pass disposition, to stop for a human.",
     message: "RuleResult requiresHuman must be false for pass and true for every non-pass disposition.",
-  }
+  })
 );
 
 /**
@@ -914,12 +915,11 @@ const CanonicalProviderRecording = ProviderRecording.make({
 const FrozenProviderRecordingCheck = S.makeFilter(
   (recording: typeof ProviderRecordingFields.Type) =>
     S.toEquivalence(ProviderRecordingFields)(recording, CanonicalProviderRecording),
-  {
-    identifier: $I`FrozenProviderRecordingCheck`,
+  $I.annote("FrozenProviderRecordingCheck", {
     title: "Frozen Provider Recording",
     description: "Requires provider metadata, candidate order and values, and digest to match the committed artifact.",
     message: "Provider recording must match the exact committed offline replay artifact v1.",
-  }
+  })
 );
 
 /**
@@ -1339,12 +1339,14 @@ const bundleReferencesAreClosed = (bundle: ImmutableDemoBundleFields): boolean =
     identity
   );
 
-const ImmutableDemoBundleCheck = S.makeFilter(bundleReferencesAreClosed, {
-  identifier: $I`ImmutableDemoBundleReferenceCheck`,
-  title: "Immutable Demo Bundle Closed References",
-  description: "Requires every fixed bundle identity, citation, and ontology reference to resolve exactly once.",
-  message: "Immutable bundle references and fixed identity sets must be complete, unique, and closed.",
-});
+const ImmutableDemoBundleCheck = S.makeFilter(
+  bundleReferencesAreClosed,
+  $I.annote("ImmutableDemoBundleReferenceCheck", {
+    title: "Immutable Demo Bundle Closed References",
+    description: "Requires every fixed bundle identity, citation, and ontology reference to resolve exactly once.",
+    message: "Immutable bundle references and fixed identity sets must be complete, unique, and closed.",
+  })
+);
 
 /**
  * Validates the complete frozen replay payload and requires every entity and citation reference to resolve.
@@ -1464,12 +1466,11 @@ const RetentionAuthorizationExtensionCheck = S.makeFilter(
       identity
     );
   },
-  {
-    identifier: $I`RetentionAuthorizationExtensionCheck`,
+  $I.annote("RetentionAuthorizationExtensionCheck", {
     title: "Retention Authorization Extension",
     description: "Requires a reviewed retention term to extend both the fixed cutoff and its authorization date.",
     message: "New disposition date must be later than 2026-09-30 and the authorization date.",
-  }
+  })
 );
 
 /**
@@ -1520,12 +1521,11 @@ const MutableRetentionMetadataAuthorityCheck = S.makeFilter(
       onNone: () => Str.Equivalence(metadata.dispositionDate, MUTABLE_CORPUS_DISPOSITION_DATE),
       onSome: (authorization) => Str.Equivalence(metadata.dispositionDate, authorization.newDispositionDate),
     }),
-  {
-    identifier: $I`MutableRetentionMetadataAuthorityCheck`,
+  $I.annote("MutableRetentionMetadataAuthorityCheck", {
     title: "Mutable Retention Metadata Authority",
     description: "Requires the effective disposition date to match the decoded retention authority when present.",
     message: "Disposition date must be the fixed cutoff or the date granted by the persisted retention authority.",
-  }
+  })
 );
 
 const mutableRetentionWithoutAuthorization = (): typeof MutableRetentionMetadataFields.Type => ({
@@ -1656,13 +1656,15 @@ const publishedReplayAggregateIsClosed = (aggregate: PublishedReplayAggregateFie
     identity
   );
 
-const PublishedReplayAggregateCheck = S.makeFilter(publishedReplayAggregateIsClosed, {
-  identifier: $I`PublishedReplayAggregateCheck`,
-  title: "Published Replay Aggregate",
-  description:
-    "Requires the exact persisted bundle identity, replay receipt, projection sidecar, empty ledger, and retention policy to describe one publication.",
-  message: "Persisted bundle, receipt, projection, review, and retention records must form one closed publication.",
-});
+const PublishedReplayAggregateCheck = S.makeFilter(
+  publishedReplayAggregateIsClosed,
+  $I.annote("PublishedReplayAggregateCheck", {
+    title: "Published Replay Aggregate",
+    description:
+      "Requires the exact persisted bundle identity, replay receipt, projection sidecar, empty ledger, and retention policy to describe one publication.",
+    message: "Persisted bundle, receipt, projection, review, and retention records must form one closed publication.",
+  })
+);
 
 const PublishedReplayAggregateModel =
   PublishedReplayAggregateFields.mapFields(identity).check(PublishedReplayAggregateCheck);

@@ -21,8 +21,9 @@ const isVerboseLevel = (value: string | undefined): boolean =>
   value !== undefined && VERBOSE_LOG_LEVELS.includes(value);
 
 /** `--log-level=debug` carries its value in the same argv entry. */
-const inlineLogLevel = (entry: string): string | undefined =>
-  entry.startsWith(LOG_LEVEL_INLINE_PREFIX) ? entry.slice(LOG_LEVEL_INLINE_PREFIX.length) : undefined;
+// A regular expression, not String methods, keeps this module free of imports.
+const LOG_LEVEL_INLINE_PATTERN = new RegExp(`^${LOG_LEVEL_INLINE_PREFIX}([\\s\\S]*)$`);
+const inlineLogLevel = (entry: string): string | undefined => LOG_LEVEL_INLINE_PATTERN.exec(entry)?.[1];
 
 /** `--log-level debug` carries its value in the next entry, which may not exist. */
 const separatedLogLevel = (argv: ReadonlyArray<string>, index: number): string | undefined =>

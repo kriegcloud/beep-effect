@@ -1,0 +1,237 @@
+/**
+ * Text-file reads out of a repository at a ref, through the contents API.
+ *
+ * **Details**
+ *
+ * `GitHubContent` decodes the base64 payload GitHub returns and reports a
+ * missing path as `notFound`, or as `Option.none()` through `getFileOption`.
+ * Directories, non-regular files and payloads too large for the contents API
+ * fail `rejected` rather than answering an empty string.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $GithubId } from "@beep/identity/packages";
+import * as O from "@beep/utils/Option";
+import * as A from "effect/Array";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { GitHubClient } from "./GitHubClient.ts";
+import { GitHubError } from "./GitHubError.ts";
+import { unstubbedFor } from "./internal/unstubbed.ts";
+import { Repo } from "./Repo.ts";
+
+const $I = $GithubId.create("GitHubContent");
+
+const JsonValue = S.String.pipe(S.NullOr, S.fromJsonString);
+
+const ContentResponse = S.Struct({
+  type: S.String,
+  encoding: S.optionalKey(S.Unknown),
+  content: S.optionalKey(S.Unknown),
+}).pipe(
+  $I.annoteSchema("ContentResponse", {
+    description: "The outer repository content response before file-specific decoding.",
+  })
+);
+
+/**
+ * Read a text file out of a repository at a ref.
+ *
+ * @public
+ * @category services
+ * @since 0.0.0
+ */
+export interface GitHubContentShape {
+  /**
+   * A text file's contents at `ref`, or the default branch when `ref` is
+   * omitted.
+   *
+   * **Gotchas**
+   *
+   * Fails `notFound` when the path does not exist, and `rejected` when it is a
+   * directory, is not a regular file, or is too large for the contents API
+   * (which answers an empty body above roughly a megabyte).
+   */
+  readonly getFile: {
+    (path: string, options?: { readonly ref?: string | undefined }): Effect.Effect<string, GitHubError, Repo>;
+    (options?: { readonly ref?: string | undefined }): (path: string) => Effect.Effect<string, GitHubError, Repo>;
+  };
+  /** As {@link GitHubContentShape.getFile}, with absence as `Option.none`. */
+  readonly getFileOption: {
+    (path: string, options?: { readonly ref?: string | undefined }): Effect.Effect<O.Option<string>, GitHubError, Repo>;
+    (options?: {
+      readonly ref?: string | undefined;
+    }): (path: string) => Effect.Effect<O.Option<string>, GitHubError, Repo>;
+  };
+}
+
+/**
+ * Read a text file out of a repository at a ref, with absence as an `Option`
+ * when you want it.
+ *
+ * **Details**
+ *
+ * Provide it with {@link GitHubContent.layer}, which needs a `GitHubClient`;
+ * each method also needs a `Repo` in `R`.
+ *
+ * **Example** (Read a README with an empty fallback)
+ *
+ * ```ts
+ * import { GitHubContent } from "@beep/github/GitHubContent";
+ * import * as Effect from "effect/Effect";
+ * import * as O from "effect/Option";
+ *
+ * const readme = Effect.gen(function* () {
+ *   const content = yield* GitHubContent;
+ *   const file = yield* content.getFileOption("README.md", { ref: "main" });
+ *   return O.getOrElse(file, () => "");
+ * });
+ * console.log(Effect.isEffect(readme)); // true
+ * ```
+ *
+ * @public
+ * @category services
+ * @since 0.0.0
+ */
+export class GitHubContent extends Context.Service<GitHubContent, GitHubContentShape>()($I`GitHubContent`) {
+  /**
+ * The live service, built over a `GitHubClient`.
+ *
+
+ * **Example** (Construct a file read with the live layer)
+ *
+ * ```ts
+ * import { GitHubContent } from "@beep/github/GitHubContent";
+ * import * as Effect from "effect/Effect";
+ *
+ * const program = Effect.flatMap(GitHubContent, (content) => content.getFile("README.md")).pipe(
+ *   Effect.provide(GitHubContent.layer),
+ * );
+ * console.log(Effect.isEffect(program)); // true
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+  static readonly layer: Layer.Layer<GitHubContent, never, GitHubClient> = Layer.effect(
+    this,
+    Effect.map(GitHubClient, (client) => make(client))
+  );
+
+  /**
+ * An in-memory double; unstubbed members die naming themselves.
+ *
+
+ * **Example** (Override a repository file read)
+ *
+ * ```ts
+ * import { GitHubContent } from "@beep/github/GitHubContent";
+ * import * as Effect from "effect/Effect";
+ * import { dual } from "effect/Function";
+ * import * as P from "effect/Predicate";
+ *
+ * const content = GitHubContent.makeTest({
+ *   getFile: dual((args) => P.isString(args[0]), (_path: string, _options?: object) => Effect.succeed("# Project")),
+ * });
+ * console.log(Effect.isEffect(content.getFile("README.md"))); // true
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+  static readonly makeTest = (overrides: Partial<GitHubContentShape> = {}): GitHubContentShape => ({
+    getFile: overrides.getFile ?? (() => unstubbed("getFile")),
+    getFileOption: overrides.getFileOption ?? (() => unstubbed("getFileOption")),
+  });
+
+  /**
+ * {@link GitHubContent.makeTest} behind a `Layer`.
+ *
+
+ * **Example** (Provide a content test layer)
+ *
+ * ```ts
+ * import { GitHubContent } from "@beep/github/GitHubContent";
+ * import * as Effect from "effect/Effect";
+ *
+ * const program = Effect.map(GitHubContent, () => "ready").pipe(
+ *   Effect.provide(GitHubContent.layerTest()),
+ * );
+ * console.log(Effect.runSync(program)); // ready
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+  static readonly layerTest = (overrides: Partial<GitHubContentShape> = {}): Layer.Layer<GitHubContent> =>
+    Layer.succeed(GitHubContent, GitHubContent.makeTest(overrides));
+}
+
+const unstubbed = unstubbedFor({ service: "GitHubContent" });
+
+const make = (client: GitHubClient["Service"]): GitHubContentShape => {
+  const getFile: GitHubContentShape["getFile"] = dual(
+    (args) => P.isString(args[0]),
+    Effect.fn("GitHubContent.getFile")(function* (path: string, options?: { readonly ref?: string | undefined }) {
+      const { owner, repo } = yield* Repo;
+      yield* Effect.annotateCurrentSpan({ owner, repo, path, ref: options?.ref ?? "" });
+      const response = yield* client.request("GET /repos/{owner}/{repo}/contents/{path}", {
+        owner,
+        repo,
+        path,
+        ...O.getSomesStruct({ ref: O.fromUndefinedOr(options?.ref) }),
+      });
+      // A directory comes back as an array. Reading one as a file would be a
+      // silent type confusion.
+      if (A.isArray(response)) {
+        return yield* GitHubError.rejected("GitHubContent.getFile", 422, `${path} is a directory`);
+      }
+      const content = yield* S.decodeEffect(ContentResponse)(response).pipe(
+        Effect.mapError((error) =>
+          GitHubError.decode("GitHubContent.getFile", "GitHub returned unexpected file content", error)
+        )
+      );
+      if (content.type !== "file") {
+        return yield* GitHubError.rejected("GitHubContent.getFile", 422, `${path} is a ${content.type}, not a file`);
+      }
+      // Over about a megabyte GitHub answers with `encoding: "none"` and an empty
+      // body. Decoding that as base64 yields an empty string that looks exactly
+      // like a legitimately empty file, so it is refused instead.
+      if (content.encoding !== "base64") {
+        return yield* GitHubError.rejected(
+          "GitHubContent.getFile",
+          422,
+          `${path} came back with encoding ${O.getOrElse(S.encodeUnknownOption(JsonValue)(content.encoding), () => "undefined")} — it is probably too large for the contents API`
+        );
+      }
+      const encoded = yield* S.decodeUnknownEffect(S.String)(content.content).pipe(
+        Effect.mapError((error) =>
+          GitHubError.decode("GitHubContent.getFile", "GitHub returned unexpected base64 content", error)
+        )
+      );
+      return Buffer.from(Str.replace(/\s/g, "")(encoded), "base64").toString("utf8");
+    })
+  );
+
+  return {
+    getFile,
+    getFileOption: dual(
+      (args) => P.isString(args[0]),
+      Effect.fn("GitHubContent.getFileOption")(function* (
+        path: string,
+        options?: { readonly ref?: string | undefined }
+      ) {
+        return yield* getFile(path, options).pipe(
+          Effect.asSome,
+          Effect.catchIf(GitHubError.hasKind("notFound"), () => Effect.succeedNone)
+        );
+      })
+    ),
+  };
+};

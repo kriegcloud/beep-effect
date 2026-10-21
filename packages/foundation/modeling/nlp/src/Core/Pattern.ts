@@ -23,12 +23,14 @@ const EmptyPatternChoice = S.Literal("").pipe(
     description: "Empty placeholder choice used to represent a wildcard in pattern alternatives.",
   })
 );
-const MeaningfulPatternOptionChoice = S.makeFilter(A.some<string>(Str.isNonEmpty), {
-  description: "Pattern options must include at least one non-empty choice.",
-  identifier: $I`MeaningfulPatternOptionChoice`,
-  message: "Pattern options must include at least one non-empty choice.",
-  title: "Meaningful Pattern Option Choice",
-});
+const MeaningfulPatternOptionChoice = S.makeFilter(
+  A.some<string>(Str.isNonEmpty),
+  $I.annote("MeaningfulPatternOptionChoice", {
+    description: "Pattern options must include at least one non-empty choice.",
+    message: "Pattern options must include at least one non-empty choice.",
+    title: "Meaningful Pattern Option Choice",
+  })
+);
 const UniversalPOSTagKit = LiteralKit([
   "ADJ",
   "ADP",
@@ -48,8 +50,8 @@ const UniversalPOSTagKit = LiteralKit([
   "VERB",
   "X",
   "SPACE",
-]).annotate(
-  $I.annote("UniversalPOSTagKit", {
+]).pipe(
+  $I.annoteSchema("UniversalPOSTagKit", {
     description: "LiteralKit backing schema for wink part-of-speech tags.",
   })
 );
@@ -67,8 +69,8 @@ const NamedEntityTypeKit = LiteralKit([
   "EMAIL",
   "URL",
   "MENTION",
-]).annotate(
-  $I.annote("NamedEntityTypeKit", {
+]).pipe(
+  $I.annoteSchema("NamedEntityTypeKit", {
     description: "LiteralKit backing schema for wink named-entity types.",
   })
 );
@@ -164,12 +166,11 @@ const isNamedEntityType = S.is(NamedEntityType);
 const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
   (values: ReadonlyArray<string>) =>
     A.some(values, (value) => P.every([Str.isNonEmpty, P.not(isUniversalPOSTag), P.not(isNamedEntityType)])(value)),
-  {
+  $I.annote("DisambiguatedLiteralPatternOptionChoice", {
     description: "Literal pattern options must include at least one non-reserved literal choice.",
-    identifier: $I`DisambiguatedLiteralPatternOptionChoice`,
     message: "Literal pattern options must include at least one non-reserved literal choice.",
     title: "Disambiguated Literal Pattern Option Choice",
-  }
+  })
 );
 
 /**

@@ -367,25 +367,29 @@ describe("marker attributes", () => {
 });
 
 describe("attribute constraint review regressions", () => {
+  const $AttributesId = $ManagedSectionId.create("internal/attributes");
+
   it("identifies the reusable name check and documents its grammar", () => {
-    assert.deepInclude(AttributeName.ast.checks?.[0]?.annotations, {
-      identifier: $ManagedSectionId.create("internal/attributes")`AttributeNameCheck`,
-      title: "AttributeNameCheck",
-      description:
-        "An ASCII letter followed by ASCII letters, digits, underscores or hyphens, with JavaScript dollar-anchor semantics.",
-      message:
-        "Expected an attribute name starting with an ASCII letter, followed by ASCII letters, digits, underscores or hyphens",
-    });
+    assert.deepInclude(
+      AttributeName.ast.checks?.[0]?.annotations,
+      $AttributesId.annote("AttributeNameCheck", {
+        description:
+          "An ASCII letter followed by ASCII letters, digits, underscores or hyphens, with JavaScript dollar-anchor semantics.",
+        message:
+          "Expected an attribute name starting with an ASCII letter, followed by ASCII letters, digits, underscores or hyphens",
+      })
+    );
   });
 
   it("identifies the reusable value check and documents its exclusions", () => {
-    assert.deepInclude(AttributeValue.ast.checks?.[0]?.annotations, {
-      identifier: $ManagedSectionId.create("internal/attributes")`AttributeValueCheck`,
-      title: "AttributeValueCheck",
-      description:
-        "Text rendered verbatim inside double quotes, excluding double quotes, carriage returns and line feeds.",
-      message: "Expected an attribute value without double quotes, carriage returns or line feeds",
-    });
+    assert.deepInclude(
+      AttributeValue.ast.checks?.[0]?.annotations,
+      $AttributesId.annote("AttributeValueCheck", {
+        description:
+          "Text rendered verbatim inside double quotes, excluding double quotes, carriage returns and line feeds.",
+        message: "Expected an attribute value without double quotes, carriage returns or line feeds",
+      })
+    );
   });
 
   it.effect("explains an invalid attribute name when decoding", () =>

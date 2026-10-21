@@ -128,24 +128,27 @@ export type DetectBordersSkippedReason = typeof DetectBordersSkippedReason.Type;
 export const BorderDetectionPercentage = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThan(0, {
-        identifier: $I`BorderDetectionPercentageGreaterThanZeroCheck`,
-        title: "Border Detection Percentage Greater Than Zero",
-        description: "Border detection percentages must be greater than zero.",
-        message: "Expected a percentage greater than zero",
-      }),
-      S.isLessThanOrEqualTo(100, {
-        identifier: $I`BorderDetectionPercentageLessThanOrEqualToOneHundredCheck`,
-        title: "Border Detection Percentage Maximum",
-        description: "Border detection percentages must not exceed 100.",
-        message: "Expected a percentage no greater than 100",
-      }),
+      S.isGreaterThan(
+        0,
+        $I.annote("BorderDetectionPercentageGreaterThanZeroCheck", {
+          title: "Border Detection Percentage Greater Than Zero",
+          description: "Border detection percentages must be greater than zero.",
+          message: "Expected a percentage greater than zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        100,
+        $I.annote("BorderDetectionPercentageLessThanOrEqualToOneHundredCheck", {
+          title: "Border Detection Percentage Maximum",
+          description: "Border detection percentages must not exceed 100.",
+          message: "Expected a percentage no greater than 100",
+        })
+      ),
     ],
-    {
-      identifier: $I`BorderDetectionPercentageChecks`,
+    $I.annote("BorderDetectionPercentageChecks", {
       title: "Border Detection Percentage",
       description: "Checks for percentage thresholds accepted by border detection.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("BorderDetectionPercentage", {
@@ -179,24 +182,27 @@ export type BorderDetectionPercentage = typeof BorderDetectionPercentage.Type;
 export const BorderDetectionMaxScanPercentage = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThan(0, {
-        identifier: $I`BorderDetectionMaxScanPercentageGreaterThanZeroCheck`,
-        title: "Border Detection Max Scan Percentage Greater Than Zero",
-        description: "The maximum scan percentage must be greater than zero.",
-        message: "Expected a max scan percentage greater than zero",
-      }),
-      S.isLessThanOrEqualTo(50, {
-        identifier: $I`BorderDetectionMaxScanPercentageLessThanOrEqualToFiftyCheck`,
-        title: "Border Detection Max Scan Percentage Maximum",
-        description: "The maximum scan percentage is capped at half of an image dimension.",
-        message: "Expected a max scan percentage no greater than 50",
-      }),
+      S.isGreaterThan(
+        0,
+        $I.annote("BorderDetectionMaxScanPercentageGreaterThanZeroCheck", {
+          title: "Border Detection Max Scan Percentage Greater Than Zero",
+          description: "The maximum scan percentage must be greater than zero.",
+          message: "Expected a max scan percentage greater than zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        50,
+        $I.annote("BorderDetectionMaxScanPercentageLessThanOrEqualToFiftyCheck", {
+          title: "Border Detection Max Scan Percentage Maximum",
+          description: "The maximum scan percentage is capped at half of an image dimension.",
+          message: "Expected a max scan percentage no greater than 50",
+        })
+      ),
     ],
-    {
-      identifier: $I`BorderDetectionMaxScanPercentageChecks`,
+    $I.annote("BorderDetectionMaxScanPercentageChecks", {
       title: "Border Detection Max Scan Percentage",
       description: "Checks for maximum inward border scan percentage.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("BorderDetectionMaxScanPercentage", {
@@ -230,24 +236,27 @@ export type BorderDetectionMaxScanPercentage = typeof BorderDetectionMaxScanPerc
 export const BorderDetectionTolerance = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`BorderDetectionToleranceGreaterThanOrEqualToZeroCheck`,
-        title: "Border Detection Tolerance Minimum",
-        description: "RGB tolerance must be zero or greater.",
-        message: "Expected an RGB tolerance no less than zero",
-      }),
-      S.isLessThanOrEqualTo(255, {
-        identifier: $I`BorderDetectionToleranceLessThanOrEqualToTwoHundredFiftyFiveCheck`,
-        title: "Border Detection Tolerance Maximum",
-        description: "RGB tolerance must fit inside one 8-bit color channel.",
-        message: "Expected an RGB tolerance no greater than 255",
-      }),
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("BorderDetectionToleranceGreaterThanOrEqualToZeroCheck", {
+          title: "Border Detection Tolerance Minimum",
+          description: "RGB tolerance must be zero or greater.",
+          message: "Expected an RGB tolerance no less than zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        255,
+        $I.annote("BorderDetectionToleranceLessThanOrEqualToTwoHundredFiftyFiveCheck", {
+          title: "Border Detection Tolerance Maximum",
+          description: "RGB tolerance must fit inside one 8-bit color channel.",
+          message: "Expected an RGB tolerance no greater than 255",
+        })
+      ),
     ],
-    {
-      identifier: $I`BorderDetectionToleranceChecks`,
+    $I.annote("BorderDetectionToleranceChecks", {
       title: "Border Detection Tolerance",
       description: "Checks for RGB channel tolerance accepted by border detection.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("BorderDetectionTolerance", {

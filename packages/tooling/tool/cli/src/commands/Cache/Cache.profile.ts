@@ -19,8 +19,8 @@ import type * as Path from "effect/Path";
 import type { FsGuardError } from "../../internal/cli/FsGuards.ts";
 
 const $I = $RepoCliId.create("commands/Cache/Cache.profile");
-const SupportedIncludes = S.TupleWithRest(S.Tuple([S.Literal("**")]), [S.String.check(S.isPattern(/^!.+/))]).annotate(
-  $I.annote("SupportedIncludes", {
+const SupportedIncludes = S.TupleWithRest(S.Tuple([S.Literal("**")]), [S.String.check(S.isPattern(/^!.+/))]).pipe(
+  $I.annoteSchema("SupportedIncludes", {
     description: "Reviewed root scanner selection: one universal positive selector followed only by exclusions.",
   })
 );

@@ -153,12 +153,14 @@ export type BeepQaTagName = typeof BeepQaTagName.Type;
  * @since 0.0.0
  */
 export const XmpNamespacePrefix = S.String.check(
-  S.isPattern(/^[A-Za-z][A-Za-z0-9]*$/, {
-    identifier: $I`XmpNamespacePrefixPatternCheck`,
-    title: "XMP Namespace Prefix Pattern",
-    description: "Namespace prefixes must be alphanumeric Perl bareword identifiers.",
-    message: "Expected an alphanumeric namespace prefix starting with a letter",
-  })
+  S.isPattern(
+    /^[A-Za-z][A-Za-z0-9]*$/,
+    $I.annote("XmpNamespacePrefixPatternCheck", {
+      title: "XMP Namespace Prefix Pattern",
+      description: "Namespace prefixes must be alphanumeric Perl bareword identifiers.",
+      message: "Expected an alphanumeric namespace prefix starting with a letter",
+    })
+  )
 ).pipe(
   $I.annoteSchema("XmpNamespacePrefix", {
     description: "XMP namespace prefix usable as a bare Perl identifier.",
@@ -200,12 +202,14 @@ export type XmpNamespacePrefix = typeof XmpNamespacePrefix.Type;
  * @since 0.0.0
  */
 export const XmpPropertyName = S.String.check(
-  S.isPattern(/^[A-Za-z_][A-Za-z0-9_]*$/, {
-    identifier: $I`XmpPropertyNamePatternCheck`,
-    title: "XMP Property Name Pattern",
-    description: "Property names must be Perl bareword identifiers.",
-    message: "Expected a property name matching ^[A-Za-z_][A-Za-z0-9_]*$",
-  })
+  S.isPattern(
+    /^[A-Za-z_][A-Za-z0-9_]*$/,
+    $I.annote("XmpPropertyNamePatternCheck", {
+      title: "XMP Property Name Pattern",
+      description: "Property names must be Perl bareword identifiers.",
+      message: "Expected a property name matching ^[A-Za-z_][A-Za-z0-9_]*$",
+    })
+  )
 ).pipe(
   $I.annoteSchema("XmpPropertyName", {
     description: "XMP property name usable as a bare Perl hash key.",
@@ -247,12 +251,14 @@ export type XmpPropertyName = typeof XmpPropertyName.Type;
  * @since 0.0.0
  */
 export const XmpNamespaceUri = S.String.check(
-  S.isPattern(/^[^'\\]+$/, {
-    identifier: $I`XmpNamespaceUriPatternCheck`,
-    title: "XMP Namespace URI Pattern",
-    description: "Namespace URIs must not contain single quotes or backslashes.",
-    message: "Expected a namespace URI without single quotes or backslashes",
-  })
+  S.isPattern(
+    /^[^'\\]+$/,
+    $I.annote("XmpNamespaceUriPatternCheck", {
+      title: "XMP Namespace URI Pattern",
+      description: "Namespace URIs must not contain single quotes or backslashes.",
+      message: "Expected a namespace URI without single quotes or backslashes",
+    })
+  )
 ).pipe(
   $I.annoteSchema("XmpNamespaceUri", {
     description: "XMP namespace URI safe to inline inside a single-quoted Perl string.",

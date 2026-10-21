@@ -134,11 +134,11 @@ export const InlineNode = InlineNodeUntagged.pipe(S.toTaggedUnion("type"));
  */
 export type InlineNode = typeof InlineNode.Type;
 
-const ParagraphBlockInlineNode = InlineNode.annotate({ identifier: $I`ParagraphBlockInlineNode` });
-const HeadingBlockInlineNode = InlineNode.annotate({ identifier: $I`HeadingBlockInlineNode` });
-const QuoteBlockInlineNode = InlineNode.annotate({ identifier: $I`QuoteBlockInlineNode` });
-const ListItemInlineNode = InlineNode.annotate({ identifier: $I`ListItemInlineNode` });
-const TableCellBlockInlineNode = InlineNode.annotate({ identifier: $I`TableCellBlockInlineNode` });
+const ParagraphBlockInlineNode = InlineNode.pipe($I.annoteSchema("ParagraphBlockInlineNode"));
+const HeadingBlockInlineNode = InlineNode.pipe($I.annoteSchema("HeadingBlockInlineNode"));
+const QuoteBlockInlineNode = InlineNode.pipe($I.annoteSchema("QuoteBlockInlineNode"));
+const ListItemInlineNode = InlineNode.pipe($I.annoteSchema("ListItemInlineNode"));
+const TableCellBlockInlineNode = InlineNode.pipe($I.annoteSchema("TableCellBlockInlineNode"));
 
 // ---------------------------------------------------------------------------
 // Blocks (structured assistant turn block vocabulary)
@@ -474,12 +474,15 @@ const isRectangularNonEmptyTableRows = (rows: ReadonlyArray<TableRowBlock>): boo
 
 const RectangularTableRows = S.Array(TableRowBlock)
   .check(
-    S.makeFilter(isRectangularNonEmptyTableRows, {
-      identifier: $I`RectangularTableRowsCheck`,
-      title: "Rectangular Table Rows",
-      description: "Checks that table rows are non-empty and have the same non-zero cell count.",
-      message: "Tables must contain at least one row, at least one cell, and every row must have the same cell count.",
-    })
+    S.makeFilter(
+      isRectangularNonEmptyTableRows,
+      $I.annote("RectangularTableRowsCheck", {
+        title: "Rectangular Table Rows",
+        description: "Checks that table rows are non-empty and have the same non-zero cell count.",
+        message:
+          "Tables must contain at least one row, at least one cell, and every row must have the same cell count.",
+      })
+    )
   )
   .pipe(
     $I.annoteSchema("RectangularTableRows", {
@@ -488,12 +491,14 @@ const RectangularTableRows = S.Array(TableRowBlock)
   );
 
 const YouTubeVideoId = S.String.check(
-  S.isPattern(youtubeVideoIdPattern, {
-    identifier: $I`YouTubeVideoIdPatternCheck`,
-    title: "YouTube Video ID",
-    description: "Checks that a YouTube embed references only the bare 11-character video id.",
-    message: "YouTube blocks must use the bare 11-character video id, not a URL.",
-  })
+  S.isPattern(
+    youtubeVideoIdPattern,
+    $I.annote("YouTubeVideoIdPatternCheck", {
+      title: "YouTube Video ID",
+      description: "Checks that a YouTube embed references only the bare 11-character video id.",
+      message: "YouTube blocks must use the bare 11-character video id, not a URL.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("YouTubeVideoId", {
     description: "Bare 11-character YouTube video id accepted by assistant content blocks.",

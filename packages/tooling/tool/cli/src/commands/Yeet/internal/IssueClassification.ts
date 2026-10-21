@@ -6,7 +6,7 @@
  */
 
 import * as A from "effect/Array";
-import { dual, flow, pipe } from "effect/Function";
+import { constant, dual, flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -343,7 +343,7 @@ const knownSubLaneHintFromText = (text: string): O.Option<KnownSubLaneHint> =>
   pipe(
     knownSubLaneHints,
     A.reduce(O.none<KnownSubLaneMatch>(), (latest, hint) => {
-      const index = text.lastIndexOf(hint.needle);
+      const index = O.getOrElse(Str.lastIndexOf(hint.needle)(text), constant(-1));
       if (index < 0) {
         return latest;
       }
@@ -435,7 +435,7 @@ const knownSubLaneHintFromFailureSlices = (slices: FailureHintSlices): O.Option<
  */
 export const knownSubLaneHintFromOutput = (output: string | undefined): O.Option<KnownSubLaneHint> => {
   const normalized = Str.toLowerCase(output ?? "");
-  const tail = normalized.slice(-KNOWN_SUB_LANE_TAIL_CHARS);
+  const tail = Str.slice(-KNOWN_SUB_LANE_TAIL_CHARS)(normalized);
   const failureSlices = outputFailureHintSlices(normalized);
   return pipe(
     knownSubLaneHintFromFailureSlices(failureSlices),

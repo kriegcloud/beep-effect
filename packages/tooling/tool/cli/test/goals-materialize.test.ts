@@ -311,7 +311,7 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
           expectReportedExit(yield* Effect.exit(runGoalsCommand([...bootstrapArgs, "--write"])));
           expectReportedExit(
             yield* Effect.exit(
-              runGoalsCommand([...bootstrapArgs, "--write", "--expect", `goal-plan/v1:${"0".repeat(64)}`])
+              runGoalsCommand([...bootstrapArgs, "--write", "--expect", `goal-plan/v1:${Str.repeat(64)("0")}`])
             )
           );
           expect(yield* listGoals).toEqual([]);

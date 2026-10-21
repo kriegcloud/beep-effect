@@ -74,12 +74,14 @@ export type Vec3 = typeof Vec3.Type;
  * @since 0.0.0
  */
 export const PositiveLength = S.Finite.check(
-  S.isGreaterThan(0, {
-    identifier: $I`PositiveLengthCheck`,
-    title: "Positive Length",
-    description: "Lengths, radii, and focal distances are strictly positive.",
-    message: "Expected a strictly positive length",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("PositiveLengthCheck", {
+      title: "Positive Length",
+      description: "Lengths, radii, and focal distances are strictly positive.",
+      message: "Expected a strictly positive length",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PositiveLength", {
     description: "Strictly positive finite length in model units.",
@@ -298,12 +300,14 @@ export class Prism extends S.Opaque<Prism, { readonly brand: unique symbol }>()(
     kind: S.tag("prism").annotateKey({ description: "Primitive discriminator." }),
     profile: S.Array(Vec3)
       .check(
-        S.isMinLength(3, {
-          identifier: $I`PrismProfileCheck`,
-          title: "Prism Profile",
-          description: "A prism profile is a closed polygon of at least three coplanar points.",
-          message: "Expected at least three profile points",
-        })
+        S.isMinLength(
+          3,
+          $I.annote("PrismProfileCheck", {
+            title: "Prism Profile",
+            description: "A prism profile is a closed polygon of at least three coplanar points.",
+            message: "Expected at least three profile points",
+          })
+        )
       )
       .annotateKey({ description: "Closed planar polygon vertices in order; the last joins the first." }),
     extrusion: Vec3.annotateKey({ description: "Extrusion vector; its length is the prism depth." }),
@@ -433,12 +437,14 @@ export class Part extends S.Opaque<Part, { readonly brand: unique symbol }>()(
     name: S.NonEmptyString.annotateKey({ description: "Stable part name used in diagnostics." }),
     add: S.Array(Primitive)
       .check(
-        S.isMinLength(1, {
-          identifier: $I`PartAddCheck`,
-          title: "Part Add",
-          description: "A part fuses at least one primitive.",
-          message: "Expected at least one primitive to add",
-        })
+        S.isMinLength(
+          1,
+          $I.annote("PartAddCheck", {
+            title: "Part Add",
+            description: "A part fuses at least one primitive.",
+            message: "Expected at least one primitive to add",
+          })
+        )
       )
       .annotateKey({ description: "Primitives fused together, in order." }),
     subtract: S.Array(Primitive).pipe(
@@ -511,12 +517,14 @@ export const OverlayStyle = OverlayStyleBase.pipe(
 export type OverlayStyle = typeof OverlayStyle.Type;
 
 const OverlayFacing = Vec3.check(
-  S.makeFilter((v: Vec3) => Math.hypot(v[0], v[1], v[2]) > 0, {
-    identifier: $I`OverlayFacingCheck`,
-    title: "Overlay Facing",
-    description: "An overlay's facing is the outward normal of the face it lies on, so it has a direction.",
-    message: "Expected a non-zero facing vector",
-  })
+  S.makeFilter(
+    (v: Vec3) => Math.hypot(v[0], v[1], v[2]) > 0,
+    $I.annote("OverlayFacingCheck", {
+      title: "Overlay Facing",
+      description: "An overlay's facing is the outward normal of the face it lies on, so it has a direction.",
+      message: "Expected a non-zero facing vector",
+    })
+  )
 );
 
 /**
@@ -565,12 +573,14 @@ export class OverlayLine extends S.Opaque<OverlayLine, { readonly brand: unique 
     style: OverlayStyle.annotateKey({ description: "Line class: emphasis or broken." }),
     points: S.Array(Vec3)
       .check(
-        S.isMinLength(2, {
-          identifier: $I`OverlayLinePointsCheck`,
-          title: "Overlay Line Points",
-          description: "An overlay line joins at least two points.",
-          message: "Expected at least two overlay points",
-        })
+        S.isMinLength(
+          2,
+          $I.annote("OverlayLinePointsCheck", {
+            title: "Overlay Line Points",
+            description: "An overlay line joins at least two points.",
+            message: "Expected at least two overlay points",
+          })
+        )
       )
       .annotateKey({ description: "Open polyline vertices in model units; consecutive points are joined." }),
     facing: S.OptionFromOptionalKey(OverlayFacing).pipe(
@@ -667,18 +677,22 @@ export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symb
     ),
     parts: S.Array(Part)
       .check(
-        S.isMinLength(1, {
-          identifier: $I`ModelSpecPartsCheck`,
-          title: "Solid Spec Parts",
-          description: "A model has at least one part.",
-          message: "Expected at least one part",
-        }),
-        S.isMaxLength(256, {
-          identifier: $I`ModelSpecPartsMaxCheck`,
-          title: "Solid Spec Parts Limit",
-          description: "A model has at most 256 parts to bound overlap work.",
-          message: "Expected at most 256 parts",
-        })
+        S.isMinLength(
+          1,
+          $I.annote("ModelSpecPartsCheck", {
+            title: "Solid Spec Parts",
+            description: "A model has at least one part.",
+            message: "Expected at least one part",
+          })
+        ),
+        S.isMaxLength(
+          256,
+          $I.annote("ModelSpecPartsMaxCheck", {
+            title: "Solid Spec Parts Limit",
+            description: "A model has at most 256 parts to bound overlap work.",
+            message: "Expected at most 256 parts",
+          })
+        )
       )
       .annotateKey({ description: "Parts kept as separate solids in one compound." }),
     overlays: S.Array(OverlayLine).pipe(
@@ -1324,18 +1338,22 @@ export const HatchAxis = HatchAxisBase.pipe(
 export type HatchAxis = typeof HatchAxis.Type;
 
 const ExposureThreshold = S.Finite.check(
-  S.isGreaterThanOrEqualTo(-1, {
-    identifier: $I`ExposureThresholdMinCheck`,
-    title: "Exposure Threshold Minimum",
-    description: "Exposure is a cosine, so a threshold below -1 shades nothing differently.",
-    message: "Expected a threshold of at least -1",
-  }),
-  S.isLessThanOrEqualTo(1, {
-    identifier: $I`ExposureThresholdMaxCheck`,
-    title: "Exposure Threshold Maximum",
-    description: "Exposure is a cosine, so a threshold above 1 shades every face.",
-    message: "Expected a threshold of at most 1",
-  })
+  S.isGreaterThanOrEqualTo(
+    -1,
+    $I.annote("ExposureThresholdMinCheck", {
+      title: "Exposure Threshold Minimum",
+      description: "Exposure is a cosine, so a threshold below -1 shades nothing differently.",
+      message: "Expected a threshold of at least -1",
+    })
+  ),
+  S.isLessThanOrEqualTo(
+    1,
+    $I.annote("ExposureThresholdMaxCheck", {
+      title: "Exposure Threshold Maximum",
+      description: "Exposure is a cosine, so a threshold above 1 shades every face.",
+      message: "Expected a threshold of at most 1",
+    })
+  )
 );
 
 /**
@@ -1392,12 +1410,14 @@ export class ShadingPlan extends S.Opaque<ShadingPlan, { readonly brand: unique 
       S.annotateKey({ description: "Which way lines run on a face. Defaults to `longest-edge`." })
     ),
     minFaceSpan: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`ShadingMinFaceSpanCheck`,
-        title: "Shading Minimum Face Span",
-        description: "A face narrower than this on the view plane is a sliver and gets no lines.",
-        message: "Expected a non-negative minimum face span",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("ShadingMinFaceSpanCheck", {
+          title: "Shading Minimum Face Span",
+          description: "A face narrower than this on the view plane is a sliver and gets no lines.",
+          message: "Expected a non-negative minimum face span",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
@@ -1407,12 +1427,14 @@ export class ShadingPlan extends S.Opaque<ShadingPlan, { readonly brand: unique 
       })
     ),
     minStroke: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`ShadingMinStrokeCheck`,
-        title: "Shading Minimum Stroke",
-        description: "A shading stroke shorter than this on the view plane is not drawn.",
-        message: "Expected a non-negative minimum stroke length",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("ShadingMinStrokeCheck", {
+          title: "Shading Minimum Stroke",
+          description: "A shading stroke shorter than this on the view plane is not drawn.",
+          message: "Expected a non-negative minimum stroke length",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),

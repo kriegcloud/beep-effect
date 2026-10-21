@@ -2,7 +2,12 @@ import {
   CiRerunRunnerLossInput,
   CiWorkflowJob,
   ciRerunRunnerLossCommand,
+  DependencyReview,
+  DependencyReviewLive,
+  DependencyReviewRequest,
   decideRunnerLossRerun,
+  GithubPolicyClient,
+  GithubPolicyClientLive,
   RunnerLossFailedJob,
   RunnerLossHead,
   RunnerLossJobEvidence,
@@ -29,6 +34,7 @@ import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow, pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -831,6 +837,80 @@ it.layer(platform, { timeout: "30 seconds" })("ci rerun-runner-loss", (layerIt) 
       expect(code).not.toContain("secrets.");
       expect(code).not.toContain("workflow_run.head_");
       expect(code).not.toContain("beep-ec2-heavy");
+    })
+  );
+});
+
+// #1882: the dependency review's live layers run `gh api` through the shared
+// GithubPolicyClient. The scripted gh answers exact argument lists only, so the
+// test proves the argument lists, the raw reply for a failed call, and a spawn
+// failure reported as unknown, without reaching GitHub.
+const REVIEW_SHA = SHA;
+const SPAWN_FAILURE_SHA = "d1f3330135e21c9646685097f1d6c8c8b09c77de";
+const reviewRow = {
+  change_type: "added",
+  manifest: "packages/tooling/tool/cli/python/photo-face/uv.lock",
+  ecosystem: "pip",
+  name: "urllib3",
+  version: "2.7.0",
+  package_url: "pkg:pypi/urllib3@2.7.0",
+  license: "MIT",
+  source_repository_url: null,
+  scope: "runtime",
+  vulnerabilities: [
+    {
+      severity: "high",
+      advisory_ghsa_id: "GHSA-8988-9cw3-xx77",
+      advisory_summary: "urllib3 advisory",
+      advisory_url: "https://github.com/advisories/GHSA-8988-9cw3-xx77",
+    },
+  ],
+};
+const reviewReplies = HashMap.make(
+  [`api --jq .sha repos/{owner}/{repo}/commits/${REVIEW_SHA}`, handle(0, `${REVIEW_SHA}\n`)],
+  [
+    `api -i repos/{owner}/{repo}/dependency-graph/compare/${REVIEW_SHA}...${REVIEW_SHA}?per_page=1&page=1`,
+    handle(0, `HTTP/2.0 200 OK\r\nContent-Type: application/json; charset=utf-8\r\n\r\n${encodeJson([reviewRow])}`),
+  ]
+);
+const reviewSpawner = ChildProcessSpawner.make((command) => {
+  if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+  const key = A.join(command.args, " ");
+  return key === `api --jq .sha repos/{owner}/{repo}/commits/${SPAWN_FAILURE_SHA}`
+    ? Effect.fail(
+        PlatformError.systemError({
+          _tag: "NotFound",
+          module: "DependencyReviewTest",
+          method: "spawn",
+          description: "gh is not installed",
+        })
+      )
+    : Effect.succeed(O.getOrElse(HashMap.get(reviewReplies, key), () => handle(1, `gh: unscripted ${key} (HTTP 404)`)));
+});
+const reviewPlatform = Layer.merge(
+  NodeServices.layer,
+  Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, reviewSpawner)
+);
+
+it.layer(Layer.provideMerge(Layer.provideMerge(DependencyReviewLive, GithubPolicyClientLive), reviewPlatform), {
+  timeout: "30 seconds",
+})("dependency review over the live gh client", (layerIt) => {
+  layerIt.effect("runs the exact gh api calls and fails closed when gh cannot start", () =>
+    Effect.gen(function* () {
+      expect(yield* ChildProcessSpawner.ChildProcessSpawner).toBe(reviewSpawner);
+      const service = yield* DependencyReview;
+      const verdict = yield* service.review(DependencyReviewRequest.make({ base: REVIEW_SHA, head: REVIEW_SHA }));
+      expect(verdict._tag === "fail" && A.map(verdict.findings, (finding) => finding.name)).toEqual(["urllib3"]);
+      const client = yield* GithubPolicyClient;
+      expect(yield* client.request(["repos/{owner}/{repo}/license"])).toEqual({
+        exitCode: 1,
+        output: "gh: unscripted api repos/{owner}/{repo}/license (HTTP 404)",
+        truncated: false,
+      });
+      const unknown = yield* service.review(
+        DependencyReviewRequest.make({ base: SPAWN_FAILURE_SHA, head: REVIEW_SHA })
+      );
+      expect(unknown._tag === "unknown" && unknown.reason).toBe("request-failed");
     })
   );
 });

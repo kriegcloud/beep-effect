@@ -42,12 +42,14 @@ const $I = $BoxProvisioningId.create("BoxContentMigrationMap");
  * @since 0.0.0
  */
 export const BoxFileName = BoxFolderName.check(
-  S.makeFilter((value: string) => Eq.equals(Str.trimStart(value), value), {
-    identifier: $I`BoxFileNameLeadingWhitespaceCheck`,
-    title: "Box File Name Leading Whitespace",
-    description: "A Box file name without leading whitespace.",
-    message: "Box file names must not start with whitespace",
-  })
+  S.makeFilter(
+    (value: string) => Eq.equals(Str.trimStart(value), value),
+    $I.annote("BoxFileNameLeadingWhitespaceCheck", {
+      title: "Box File Name Leading Whitespace",
+      description: "A Box file name without leading whitespace.",
+      message: "Box file names must not start with whitespace",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BoxFileName", {
     description: "Destination file name accepted by Box's documented upload contract.",
@@ -77,12 +79,14 @@ export type BoxFileName = typeof BoxFileName.Type;
  * @since 0.0.0
  */
 export const BoxContentMigrationRuleId = S.String.check(
-  S.isPattern(/^[a-z0-9-]{1,64}$/u, {
-    identifier: $I`BoxContentMigrationRuleIdCheck`,
-    title: "Box Content Migration Rule Identifier",
-    description: "A lowercase rule token containing 1 to 64 letters, digits, or hyphens.",
-    message: "Box content migration rule identifiers must match ^[a-z0-9-]{1,64}$",
-  })
+  S.isPattern(
+    /^[a-z0-9-]{1,64}$/u,
+    $I.annote("BoxContentMigrationRuleIdCheck", {
+      title: "Box Content Migration Rule Identifier",
+      description: "A lowercase rule token containing 1 to 64 letters, digits, or hyphens.",
+      message: "Box content migration rule identifiers must match ^[a-z0-9-]{1,64}$",
+    })
+  )
 ).pipe(
   S.brand("BoxContentMigrationRuleId"),
   $I.annoteSchema("BoxContentMigrationRuleId", {
@@ -119,12 +123,14 @@ export type BoxContentMigrationRuleId = typeof BoxContentMigrationRuleId.Type;
  * @since 0.0.0
  */
 export const BoxContentSourceRelativePath = S.String.check(
-  S.isPattern(/^(?![/\\])(?![A-Za-z]:)(?!.*(?:^|[/\\])\.\.(?:[/\\]|$))[^\u0000]+$/u, {
-    identifier: $I`BoxContentSourceRelativePathCheck`,
-    title: "Box Content Source Relative Path",
-    description: "A non-empty relative path without a parent-directory segment or NUL character.",
-    message: "Source paths must be relative and must not contain a .. segment",
-  })
+  S.isPattern(
+    /^(?![/\\])(?![A-Za-z]:)(?!.*(?:^|[/\\])\.\.(?:[/\\]|$))[^\u0000]+$/u,
+    $I.annote("BoxContentSourceRelativePathCheck", {
+      title: "Box Content Source Relative Path",
+      description: "A non-empty relative path without a parent-directory segment or NUL character.",
+      message: "Source paths must be relative and must not contain a .. segment",
+    })
+  )
 ).pipe(
   $I.annoteSchema("BoxContentSourceRelativePath", {
     description: "Relative local source path that cannot escape the migration source root.",

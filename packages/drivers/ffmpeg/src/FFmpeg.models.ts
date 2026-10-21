@@ -31,24 +31,26 @@ const $I = $FfmpegId.create("FFmpeg.models");
 export const PositiveFrameRate = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isFinite({
-        identifier: $I`PositiveFrameRateFiniteCheck`,
-        title: "Positive Frame Rate Finite",
-        description: "Frame extraction rates must be finite numbers.",
-        message: "Expected a finite frame rate",
-      }),
-      S.isGreaterThan(0, {
-        identifier: $I`PositiveFrameRateGreaterThanZeroCheck`,
-        title: "Positive Frame Rate Greater Than Zero",
-        description: "Frame extraction rates must be greater than zero.",
-        message: "Expected a frame rate greater than zero",
-      }),
+      S.isFinite(
+        $I.annote("PositiveFrameRateFiniteCheck", {
+          title: "Positive Frame Rate Finite",
+          description: "Frame extraction rates must be finite numbers.",
+          message: "Expected a finite frame rate",
+        })
+      ),
+      S.isGreaterThan(
+        0,
+        $I.annote("PositiveFrameRateGreaterThanZeroCheck", {
+          title: "Positive Frame Rate Greater Than Zero",
+          description: "Frame extraction rates must be greater than zero.",
+          message: "Expected a frame rate greater than zero",
+        })
+      ),
     ],
-    {
-      identifier: $I`PositiveFrameRateChecks`,
+    $I.annote("PositiveFrameRateChecks", {
       title: "Positive Frame Rate",
       description: "Checks for positive finite frame extraction rates.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PositiveFrameRate", {
@@ -93,24 +95,26 @@ export type PositiveFrameRate = typeof PositiveFrameRate.Type;
 export const PositiveMilliseconds = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isFinite({
-        identifier: $I`PositiveMillisecondsFiniteCheck`,
-        title: "Positive Milliseconds Finite",
-        description: "Timeout milliseconds must be finite numbers.",
-        message: "Expected finite milliseconds",
-      }),
-      S.isGreaterThan(0, {
-        identifier: $I`PositiveMillisecondsGreaterThanZeroCheck`,
-        title: "Positive Milliseconds Greater Than Zero",
-        description: "Timeout milliseconds must be greater than zero.",
-        message: "Expected milliseconds greater than zero",
-      }),
+      S.isFinite(
+        $I.annote("PositiveMillisecondsFiniteCheck", {
+          title: "Positive Milliseconds Finite",
+          description: "Timeout milliseconds must be finite numbers.",
+          message: "Expected finite milliseconds",
+        })
+      ),
+      S.isGreaterThan(
+        0,
+        $I.annote("PositiveMillisecondsGreaterThanZeroCheck", {
+          title: "Positive Milliseconds Greater Than Zero",
+          description: "Timeout milliseconds must be greater than zero.",
+          message: "Expected milliseconds greater than zero",
+        })
+      ),
     ],
-    {
-      identifier: $I`PositiveMillisecondsChecks`,
+    $I.annote("PositiveMillisecondsChecks", {
       title: "Positive Milliseconds",
       description: "Checks for positive finite timeout milliseconds.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PositiveMilliseconds", {
@@ -155,24 +159,27 @@ export type PositiveMilliseconds = typeof PositiveMilliseconds.Type;
 export const SafeFramePrefix = S.String.check(
   S.makeFilterGroup(
     [
-      S.isMinLength(1, {
-        identifier: $I`SafeFramePrefixNonEmptyCheck`,
-        title: "Safe Frame Prefix Non Empty",
-        description: "Frame filename prefixes must not be empty.",
-        message: "Expected a non-empty frame prefix",
-      }),
-      S.isPattern(/^[^/\\\0]+$/, {
-        identifier: $I`SafeFramePrefixNoPathSeparatorsCheck`,
-        title: "Safe Frame Prefix Without Path Separators",
-        description: "Frame filename prefixes must not contain path separators or NUL bytes.",
-        message: "Expected a frame prefix without path separators or NUL bytes",
-      }),
+      S.isMinLength(
+        1,
+        $I.annote("SafeFramePrefixNonEmptyCheck", {
+          title: "Safe Frame Prefix Non Empty",
+          description: "Frame filename prefixes must not be empty.",
+          message: "Expected a non-empty frame prefix",
+        })
+      ),
+      S.isPattern(
+        /^[^/\\\0]+$/,
+        $I.annote("SafeFramePrefixNoPathSeparatorsCheck", {
+          title: "Safe Frame Prefix Without Path Separators",
+          description: "Frame filename prefixes must not contain path separators or NUL bytes.",
+          message: "Expected a frame prefix without path separators or NUL bytes",
+        })
+      ),
     ],
-    {
-      identifier: $I`SafeFramePrefixChecks`,
+    $I.annote("SafeFramePrefixChecks", {
       title: "Safe Frame Prefix",
       description: "Checks for frame prefixes that stay within the selected output directory.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("SafeFramePrefix", {
@@ -214,12 +221,14 @@ export type SafeFramePrefix = typeof SafeFramePrefix.Type;
  * @since 0.0.0
  */
 export const NonNegativeSeconds = S.Finite.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`NonNegativeSecondsMinimumCheck`,
-    title: "Non Negative Seconds Minimum",
-    description: "Video durations must be zero or greater.",
-    message: "Expected non-negative seconds",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("NonNegativeSecondsMinimumCheck", {
+      title: "Non Negative Seconds Minimum",
+      description: "Video durations must be zero or greater.",
+      message: "Expected non-negative seconds",
+    })
+  )
 ).pipe(
   $I.annoteSchema("NonNegativeSeconds", {
     description: "Non-negative finite duration measured in seconds.",
@@ -260,12 +269,14 @@ export type NonNegativeSeconds = typeof NonNegativeSeconds.Type;
  * @since 0.0.0
  */
 export const FrameIndex = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`FrameIndexMinimumCheck`,
-    title: "Frame Index Minimum",
-    description: "Generated frame indexes are zero-based non-negative integers.",
-    message: "Expected a non-negative frame index",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("FrameIndexMinimumCheck", {
+      title: "Frame Index Minimum",
+      description: "Generated frame indexes are zero-based non-negative integers.",
+      message: "Expected a non-negative frame index",
+    })
+  )
 ).pipe(
   $I.annoteSchema("FrameIndex", {
     description: "Zero-based non-negative integer frame index.",
@@ -306,12 +317,14 @@ export type FrameIndex = typeof FrameIndex.Type;
  * @since 0.0.0
  */
 export const FrameCount = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`FrameCountMinimumCheck`,
-    title: "Frame Count Minimum",
-    description: "Frame counts are non-negative integers.",
-    message: "Expected a non-negative frame count",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("FrameCountMinimumCheck", {
+      title: "Frame Count Minimum",
+      description: "Frame counts are non-negative integers.",
+      message: "Expected a non-negative frame count",
+    })
+  )
 ).pipe(
   $I.annoteSchema("FrameCount", {
     description: "Non-negative integer frame count.",
@@ -352,12 +365,14 @@ export type FrameCount = typeof FrameCount.Type;
  * @since 0.0.0
  */
 export const VideoDimension = S.Int.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`VideoDimensionMinimumCheck`,
-    title: "Video Dimension Minimum",
-    description: "Video dimensions are positive integer pixel counts.",
-    message: "Expected a positive integer pixel dimension",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("VideoDimensionMinimumCheck", {
+      title: "Video Dimension Minimum",
+      description: "Video dimensions are positive integer pixel counts.",
+      message: "Expected a positive integer pixel dimension",
+    })
+  )
 ).pipe(
   $I.annoteSchema("VideoDimension", {
     description: "Positive integer pixel dimension.",
@@ -400,24 +415,27 @@ export type VideoDimension = typeof VideoDimension.Type;
 export const FFmpegProgressPercent = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`FFmpegProgressPercentMinimumCheck`,
-        title: "FFmpeg Progress Percent Minimum",
-        description: "FFmpeg progress percentages must be zero or greater.",
-        message: "Expected progress percent to be at least zero",
-      }),
-      S.isLessThanOrEqualTo(100, {
-        identifier: $I`FFmpegProgressPercentMaximumCheck`,
-        title: "FFmpeg Progress Percent Maximum",
-        description: "FFmpeg progress percentages must not exceed 100.",
-        message: "Expected progress percent to be at most 100",
-      }),
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("FFmpegProgressPercentMinimumCheck", {
+          title: "FFmpeg Progress Percent Minimum",
+          description: "FFmpeg progress percentages must be zero or greater.",
+          message: "Expected progress percent to be at least zero",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        100,
+        $I.annote("FFmpegProgressPercentMaximumCheck", {
+          title: "FFmpeg Progress Percent Maximum",
+          description: "FFmpeg progress percentages must not exceed 100.",
+          message: "Expected progress percent to be at most 100",
+        })
+      ),
     ],
-    {
-      identifier: $I`FFmpegProgressPercentChecks`,
+    $I.annote("FFmpegProgressPercentChecks", {
       title: "FFmpeg Progress Percent",
       description: "Checks for FFmpeg progress percentages in the closed 0-100 range.",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("FFmpegProgressPercent", {
@@ -459,12 +477,14 @@ export type FFmpegProgressPercent = typeof FFmpegProgressPercent.Type;
  * @since 0.0.0
  */
 export const FrameFilenamePadding = S.Int.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`FrameFilenamePaddingMinimumCheck`,
-    title: "Frame Filename Padding Minimum",
-    description: "Frame filename padding widths must be positive integers.",
-    message: "Expected a positive frame filename padding width",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("FrameFilenamePaddingMinimumCheck", {
+      title: "Frame Filename Padding Minimum",
+      description: "Frame filename padding widths must be positive integers.",
+      message: "Expected a positive frame filename padding width",
+    })
+  )
 ).pipe(
   $I.annoteSchema("FrameFilenamePadding", {
     description: "Positive integer filename padding width used for generated frame numbers.",
