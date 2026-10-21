@@ -49,6 +49,7 @@ import { LiteralKit, Sha256Hex } from "@beep/schema";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
+import { expect } from "@effect/vitest";
 import { assertDefined, assertNone, assertSome, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
@@ -59,7 +60,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -75,7 +76,6 @@ import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import * as TestClock from "effect/testing/TestClock";
 import sharp from "sharp";
-import { expect } from "vitest";
 import type * as PlatformError from "effect/PlatformError";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
@@ -1120,7 +1120,7 @@ const setUint64 = (view: DataView, offset: number, value: bigint): void => {
 
 const writeUtf16 = (view: DataView, offset: number, text: string): void => {
   A.forEach(Array.from(text), (char, index) => {
-    view.setUint16(offset + index * 2, char.charCodeAt(0), true);
+    view.setUint16(offset + index * 2, O.getOrElse(Str.charCodeAt(0)(char), constant(Number.NaN)), true);
   });
 };
 
@@ -1218,11 +1218,11 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus catalog", (it) => {
   it.effect(
     "builds the catalog, duplicate report, and restoration manifest from a synthetic corpus",
     Effect.fnUntraced(function* () {
-      const digestA = "a".repeat(64);
-      const digestB = "b".repeat(64);
-      const digestMeta = "c".repeat(64);
-      const digestContent = "d".repeat(64);
-      const digestLoose = "e".repeat(64);
+      const digestA = Str.repeat(64)("a");
+      const digestB = Str.repeat(64)("b");
+      const digestMeta = Str.repeat(64)("c");
+      const digestContent = Str.repeat(64)("d");
+      const digestLoose = Str.repeat(64)("e");
 
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -1287,7 +1287,7 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus catalog", (it) => {
       expect(duplicateText).toContain("source-a/docs/a.txt | source-b/copy/a.txt");
       expect(summaryText).toContain('"sourceFiles":6');
 
-      const restorationLines = restorationText.trim().split("\n");
+      const restorationLines = Str.split("\n")(Str.trim(restorationText));
       expect(restorationLines).toHaveLength(2);
       expect(restorationText).toContain("Spec v3.docx");
       expect(restorationText).toContain("unmatched-content");
@@ -1604,9 +1604,9 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus catalog run manifests", (
   it.effect(
     "unions base and run-labeled manifests with provenance-only occurrences and per-run digest deltas",
     Effect.fnUntraced(function* () {
-      const digestB = "b".repeat(64);
-      const digestC = "c".repeat(64);
-      const digestD = "d".repeat(64);
+      const digestB = Str.repeat(64)("b");
+      const digestC = Str.repeat(64)("c");
+      const digestD = Str.repeat(64)("d");
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const corpusRoot = yield* fs.makeTempDirectoryScoped({ prefix: "corpus-catalog-runs-test-" });
@@ -2612,8 +2612,8 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus salvage run labels and de
 
       expect(A.length(lines)).toBe(summary.recordsChecked);
       expect(A.length(records)).toBe(summary.recordsChecked);
-      expect(firstLine.startsWith("{")).toBe(true);
-      expect(firstLine.includes("\u0000")).toBe(false);
+      expect(Str.startsWith("{")(firstLine)).toBe(true);
+      expect(Str.includes("\u0000")(firstLine)).toBe(false);
       expect(firstRecord.relativePath).toBe(firstFileName);
       expect(firstRecord.sizeBytes).toBe(131_072);
       expect(firstRecord.copyMode).toBe("copied");
@@ -3483,7 +3483,7 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus restoration preservation"
       expect(malformedError.message).toContain("unreadable");
       yield* fs.remove(claimPath);
 
-      yield* fs.writeFileString(claimPath, "x".repeat(16 * 1024 + 1));
+      yield* fs.writeFileString(claimPath, Str.repeat(16 * 1024 + 1)("x"));
       const oversizedError = yield* withRestorationWriterClaim(claimDirectory, claimName, Effect.void).pipe(
         Effect.flip
       );
@@ -3556,7 +3556,7 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus restoration preservation"
         O.map(resumedPass, (record) => (record.recordType === "archive-file-pass" ? record.resumedBytes : 0)),
         S.Natural.make(2)
       );
-      expect(provenance.trim().split("\n")).toHaveLength(2);
+      expect(Str.split("\n")(Str.trim(provenance))).toHaveLength(2);
       expect(reports).toHaveLength(1);
       expect(rootArchiveExists).toBe(true);
     })

@@ -12,6 +12,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const TestLayer = Layer.mergeAll(
@@ -184,7 +185,7 @@ describe("CI commands", () => {
           yield* appendTurboSummary(O.none(), true);
 
           const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
-          expect(output.match(/## Turbo Summary/gu) ?? []).toHaveLength(2);
+          expect(O.getOrNull(Str.match(/## Turbo Summary/gu)(output)) ?? []).toHaveLength(2);
           expect(output).toContain("`@beep/repo-cli#build`");
           expect(output).toContain("`@beep/repo-cli#coverage`");
         })

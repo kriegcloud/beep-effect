@@ -140,7 +140,7 @@ export const normalizeJson: {
  * @since 0.0.0
  */
 export const formatTsLiteral = (value: unknown): string =>
-  pipe(formatJson(value).trimEnd(), Str.replaceAll(/"([A-Za-z_$][A-Za-z0-9_$]*)":/g, "$1:"));
+  pipe(Str.trimEnd(formatJson(value)), Str.replaceAll(/"([A-Za-z_$][A-Za-z0-9_$]*)":/g, "$1:"));
 
 /**
  * Render untrusted source metadata as a single safe JSDoc block-comment line.
