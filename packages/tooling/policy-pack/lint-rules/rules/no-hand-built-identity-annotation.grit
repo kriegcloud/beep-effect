@@ -19,5 +19,5 @@ JsPropertyObjectMember(name=$name, value=$value) as $member where {
   },
   $value <: JsTemplateExpression(tag=$tag),
   $tag <: r"^[$][A-Za-z0-9_]*$",
-  register_diagnostic(span=$member, message="Rule: identity annotations come from `$I.annote`, not a hand-built `{ identifier: $I`Name` }` object. Why: the object sets only `identifier`; `$I.annote` also writes the `schemaId`, `title` and configured `iri`/`curie` (EF-12). Fix: pass `$I.annote('Name', {...})` as the check, filter or `S.declare` argument; on a schema, write `X.pipe($I.annoteSchema('Name', {...}))`.", severity="error")
+  register_diagnostic(span=$member, message="Rule: identity annotations come from `$I.annote`, not a hand-built `{ identifier: $I`Name` }` object. Why: the object skips the schema id, IRI and CURIE the composer writes (EF-12). Fix: pass `$I.annote('Name', {...})` as the check, filter or `S.declare` argument; on a schema, write `X.pipe($I.annoteSchema('Name', {...}))`.", severity="error")
 }

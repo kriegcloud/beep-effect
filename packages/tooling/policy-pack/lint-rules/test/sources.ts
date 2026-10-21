@@ -46,7 +46,7 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
     ),
   },
   "prefer-identity-annote-pipe": {
-    invalidCount: 8,
+    invalidCount: 10,
     messageIncludes: "identity annotations go through",
     invalid: A.join(
       [
@@ -62,6 +62,14 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
         "export const Key = S.Struct({ a: S.String.annotateKey($I.annote('Key.a')) });",
         "export const SuspendKey = S.Struct({ a: S.suspend(() => S.String).annotateKey($I.annote('SuspendKey.a')) });",
         "export class BaseKey extends S.Opaque<BaseKey>()(S.Struct({ a: S.String.annotateKey($I.annote('BaseKey.a')) })) {}",
+        "export class Branch extends S.Opaque<Branch>()(",
+        "  S.TaggedStruct('Branch', {",
+        "    children: S.Array(S.suspend((): S.Codec<Branch> => Branch)).annotateKey(",
+        "      $I.annote('Branch.children', { description: 'recursive base' })",
+        "    ),",
+        "    parent: S.NullOr(S.suspend((): S.Codec<Branch> => Branch)).annotateKey($I.annote('Branch.parent')),",
+        "  })",
+        ") {}",
       ],
       "\n"
     ),
@@ -69,10 +77,10 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
       [
         "export class Tree extends S.Opaque<Tree>()(",
         "  S.TaggedStruct('Tree', {",
-        "    children: S.Array(S.suspend((): S.Codec<Tree> => Tree)).annotateKey(",
-        "      $I.annote('Tree.children', { description: 'recursive base' })",
+        "    children: $I.annoteKey('Tree.children', { description: 'recursive base' })(",
+        "      S.Array(S.suspend((): S.Codec<Tree> => Tree))",
         "    ),",
-        "    parent: S.NullOr(S.suspend((): S.Codec<Tree> => Tree)).annotateKey($I.annote('Tree.parent')),",
+        "    parent: S.NullOr(S.suspend((): S.Codec<Tree> => Tree)).annotateKey({ description: 'raw object' }),",
         "  })",
         ") {}",
         "export class Model extends S.Class<Model>('Model')({ a: S.String }, $I.annote('Model', { description: 'class' })) {}",

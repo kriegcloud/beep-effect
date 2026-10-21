@@ -8,12 +8,10 @@ language js
 //   X.annotateKey($C.annote(...))  ->  X.pipe($C.annoteKey(...))
 //
 // Class trailing arguments (`S.Class(..., $C.annote(...))`) and check arguments
-// (`S.isInt($C.annote(...))`) never call `.annotate`, so they do not match.
-// Exception: a field whose schema contains `S.suspend(...)` inside a class's
-// `extends` clause keeps `.annotateKey($C.annote(...))`, because the pipe form
-// there makes the class recursively reference itself as a base type (TS2310).
-// The `within` ancestor walk runs only after the call, composer and suspend
-// matches succeed, so it never touches the hot path.
+// (`S.isInt($C.annote(...))`) never call `.annotate`, so they do not match. Raw
+// `.annotate({...})` / `.annotateKey({...})` objects are allowed. Where the pipe
+// form trips TS2310 inside a recursive class's own base, EF-12 applies the
+// helper directly, `$C.annoteKey(...)(S.suspend(...))`, which does not match.
 
 pattern identity_annote() {
   or {
@@ -35,7 +33,6 @@ or {
     `$schema.annotateKey<$...>($annotation)`
   } as $call where {
     $annotation <: identity_annote(),
-    not and { $schema <: contains `$_.suspend($...)`, $call <: within JsExtendsClause() },
-    register_diagnostic(span=$call, message="Rule: identity annotations go through `$I.annoteKey`, not `.annotateKey($I.annote(...))`. Why: `annoteKey` is the canonical key form and types its extras as key annotations (EF-12). Fix: write `X.pipe($I.annoteKey(...))`. Only an `S.suspend(...)` field inside a recursive class's own base keeps the raw form (the pipe form there fails with TS2310).", severity="error")
+    register_diagnostic(span=$call, message="Rule: identity annotations go through `$I.annoteKey`, not `.annotateKey($I.annote(...))`. Why: `annoteKey` is the canonical field form and types its extras as key annotations (EF-12). Fix: write `X.pipe($I.annoteKey('Parent.key', {...}))`; inside a recursive class's own base, where the pipe form trips TS2310, apply it directly: `$I.annoteKey('Parent.key', {...})(S.suspend(...))`.", severity="error")
   }
 }
