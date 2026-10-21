@@ -600,8 +600,8 @@ export const DockEvent = DockEventKind.mapMembers(
     () => FloatingGroupMovedEvent,
   ])
 )
-  .annotate(
-    $I.annote("DockEvent", {
+  .pipe(
+    $I.annoteSchema("DockEvent", {
       description: "Exhaustive events produced by accepted commands and restores.",
     })
   )

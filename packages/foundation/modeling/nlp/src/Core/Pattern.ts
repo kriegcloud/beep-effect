@@ -48,8 +48,8 @@ const UniversalPOSTagKit = LiteralKit([
   "VERB",
   "X",
   "SPACE",
-]).annotate(
-  $I.annote("UniversalPOSTagKit", {
+]).pipe(
+  $I.annoteSchema("UniversalPOSTagKit", {
     description: "LiteralKit backing schema for wink part-of-speech tags.",
   })
 );
@@ -67,8 +67,8 @@ const NamedEntityTypeKit = LiteralKit([
   "EMAIL",
   "URL",
   "MENTION",
-]).annotate(
-  $I.annote("NamedEntityTypeKit", {
+]).pipe(
+  $I.annoteSchema("NamedEntityTypeKit", {
     description: "LiteralKit backing schema for wink named-entity types.",
   })
 );

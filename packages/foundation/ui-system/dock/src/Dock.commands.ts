@@ -88,8 +88,8 @@ const CommandOriginKind = LiteralKit(["user", "api"]);
 export const CommandOrigin = CommandOriginKind.mapMembers(
   Tuple.evolve([() => UserCommandOrigin, () => ApiCommandOrigin])
 )
-  .annotate(
-    $I.annote("CommandOrigin", {
+  .pipe(
+    $I.annoteSchema("CommandOrigin", {
       description: "Causal origin carried with every top-level dock command.",
     })
   )
@@ -493,8 +493,8 @@ export const DockCommand = DockCommandKind.mapMembers(
     () => MoveFloatingGroupCommand,
   ])
 )
-  .annotate(
-    $I.annote("DockCommand", {
+  .pipe(
+    $I.annoteSchema("DockCommand", {
       description: "Exhaustive command algebra for the POC layout kernel.",
     })
   )

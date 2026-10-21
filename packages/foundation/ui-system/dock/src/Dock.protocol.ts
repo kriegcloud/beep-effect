@@ -146,8 +146,8 @@ export const DockAtomOperationKind = LiteralKit([
   "dispatchUnknownCommand",
   "saveSnapshot",
   "restoreSnapshot",
-]).annotate(
-  $I.annote("DockAtomOperationKind", {
+]).pipe(
+  $I.annoteSchema("DockAtomOperationKind", {
     description: "Discriminant for the dock atom session operation protocol.",
   })
 );
@@ -191,8 +191,8 @@ export const DockAtomOperation = DockAtomOperationKind.mapMembers(
     () => RestoreDockSnapshot,
   ])
 )
-  .annotate(
-    $I.annote("DockAtomOperation", {
+  .pipe(
+    $I.annoteSchema("DockAtomOperation", {
       description: "All stateful session operations share this one serialized execution lane.",
     })
   )
@@ -287,8 +287,8 @@ const DockAtomOperationOutcomeKind = LiteralKit(["mutationCompleted", "snapshotS
 export const DockAtomOperationOutcome = DockAtomOperationOutcomeKind.mapMembers(
   Tuple.evolve([() => DockMutationCompleted, () => DockSnapshotSaved])
 )
-  .annotate(
-    $I.annote("DockAtomOperationOutcome", {
+  .pipe(
+    $I.annoteSchema("DockAtomOperationOutcome", {
       description: "Discriminates mutation outcomes from snapshot persistence results.",
     })
   )

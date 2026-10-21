@@ -40,8 +40,8 @@ export const DockUnchangedReason = LiteralKit([
   "group-already-maximized",
   "no-group-maximized",
   "floating-position-unchanged",
-]).annotate(
-  $I.annote("DockUnchangedReason", {
+]).pipe(
+  $I.annoteSchema("DockUnchangedReason", {
     description: "Expected reasons a valid dock intent produces no state change or domain event.",
   })
 );

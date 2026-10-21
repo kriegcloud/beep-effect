@@ -73,8 +73,8 @@ export type PrintableText = typeof PrintableText.Type;
  * @category models
  * @since 0.0.0
  */
-export const ScaleStep = LiteralKit(["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"]).annotate(
-  $I.annote("ScaleStep", { description: "Tint step of a ten-stop brand color scale, lightest first." })
+export const ScaleStep = LiteralKit(["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"]).pipe(
+  $I.annoteSchema("ScaleStep", { description: "Tint step of a ten-stop brand color scale, lightest first." })
 );
 
 /**
@@ -108,8 +108,8 @@ export type ScaleStep = typeof ScaleStep.Type;
  * @category models
  * @since 0.0.0
  */
-export const SurfaceStep = LiteralKit(["0", "50", "100", "200", "300", "400"]).annotate(
-  $I.annote("SurfaceStep", { description: "Elevation step of a six-stop surface scale, base first." })
+export const SurfaceStep = LiteralKit(["0", "50", "100", "200", "300", "400"]).pipe(
+  $I.annoteSchema("SurfaceStep", { description: "Elevation step of a six-stop surface scale, base first." })
 );
 
 /**
@@ -387,8 +387,8 @@ export class ColorScheme extends S.Opaque<ColorScheme, { readonly nominal: uniqu
  * @category models
  * @since 0.0.0
  */
-export const SchemeName = LiteralKit(["light", "dark"]).annotate(
-  $I.annote("SchemeName", { description: "Appearance name of a color scheme." })
+export const SchemeName = LiteralKit(["light", "dark"]).pipe(
+  $I.annoteSchema("SchemeName", { description: "Appearance name of a color scheme." })
 );
 
 /**

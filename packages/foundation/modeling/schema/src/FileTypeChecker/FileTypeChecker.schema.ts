@@ -89,8 +89,8 @@ export const FileType = LiteralKit([
   "ogg",
   "swf",
   "webm",
-]).annotate(
-  $I.annote("FileType", {
+]).pipe(
+  $I.annoteSchema("FileType", {
     description: "A file extension supported by the file type checker.",
   })
 );
@@ -277,8 +277,8 @@ const CatalogOnlyFileMediaType = LiteralKit([
   "video/x-m4v",
   "video/x-matroska",
   "video/x-msvideo",
-]).annotate(
-  $I.annote("CatalogOnlyFileMediaType", {
+]).pipe(
+  $I.annoteSchema("CatalogOnlyFileMediaType", {
     description: "A legacy or experimental media type used by the file signature catalog.",
   })
 );
@@ -320,8 +320,8 @@ const CatalogOnlyCompatibleExtension = LiteralKit([
   "vsdx",
   "vxd",
   "wiz",
-]).annotate(
-  $I.annote("CatalogOnlyCompatibleExtension", {
+]).pipe(
+  $I.annoteSchema("CatalogOnlyCompatibleExtension", {
     description: "A compatible catalog extension absent from the shared FileExtension domain.",
   })
 );

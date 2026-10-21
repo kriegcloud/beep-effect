@@ -46,8 +46,8 @@ const PanelViewKind = LiteralKit(["component", "text"]);
  * @category models
  * @since 0.0.0
  */
-export const PanelRenderMode = LiteralKit(["onlyWhenVisible", "always"]).annotate(
-  $I.annote("PanelRenderMode", {
+export const PanelRenderMode = LiteralKit(["onlyWhenVisible", "always"]).pipe(
+  $I.annoteSchema("PanelRenderMode", {
     description: "Serializable host rendering policy for inactive panel content.",
   })
 );
@@ -211,8 +211,8 @@ export class TextPanelView extends S.Opaque<TextPanelView, { readonly brand: uni
  * @since 0.0.0
  */
 export const PanelView = PanelViewKind.mapMembers(Tuple.evolve([() => ComponentPanelView, () => TextPanelView]))
-  .annotate(
-    $I.annote("PanelView", {
+  .pipe(
+    $I.annoteSchema("PanelView", {
       description: "Discriminated panel content with no DOM or framework values.",
     })
   )
@@ -374,8 +374,8 @@ export class PanelPatch extends S.Opaque<PanelPatch, { readonly brand: unique sy
  * @category models
  * @since 0.0.0
  */
-export const GroupLockedMode = LiteralKit(["unlocked", "locked", "no-drop-target"]).annotate(
-  $I.annote("GroupLockedMode", { description: "Persisted group locking policy data." })
+export const GroupLockedMode = LiteralKit(["unlocked", "locked", "no-drop-target"]).pipe(
+  $I.annoteSchema("GroupLockedMode", { description: "Persisted group locking policy data." })
 );
 /**
  * Decoded tab-group locking policy.
@@ -409,8 +409,8 @@ export type GroupLockedMode = typeof GroupLockedMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const GroupHeaderPosition = LiteralKit(["top", "bottom"]).annotate(
-  $I.annote("GroupHeaderPosition", { description: "Persisted tab-group header edge." })
+export const GroupHeaderPosition = LiteralKit(["top", "bottom"]).pipe(
+  $I.annoteSchema("GroupHeaderPosition", { description: "Persisted tab-group header edge." })
 );
 /**
  * Decoded tab-group header edge.
@@ -898,8 +898,8 @@ type DockNodeShape = TabsNode | SplitNode;
 
 /** Recursive layout tree node. */
 const DockNodeBase = S.Union([TabsNode, SplitNode])
-  .annotate(
-    $I.annote("DockNode", {
+  .pipe(
+    $I.annoteSchema("DockNode", {
       description: "Recursive binary dock tree containing only non-empty leaves.",
     })
   )
