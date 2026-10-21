@@ -30,7 +30,7 @@
     "goals/entity-optimistic-concurrency/GOAL.md",
     "goals/entity-optimistic-concurrency/research/SOURCES.md"
   ],
-  "researchReports": ["research/SOURCES.md"],
+  "researchReports": ["research/SOURCES.md", "research/OPPORTUNITIES.md"],
   "agentLaunchers": [
     {
       "kind": "codex-goal",
@@ -46,22 +46,22 @@
     {
       "id": "P0",
       "name": "Research",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Implement",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P4",

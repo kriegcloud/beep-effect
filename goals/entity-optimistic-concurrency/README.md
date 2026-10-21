@@ -31,13 +31,14 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P3 Yeet — local verification green; PR published through yeet.
 
 ## Latest Evidence
 
-Not started.
+Stale-write and race tests per adapter are listed in [`PLAN.md`](./PLAN.md) (write-path inventory).
 
 ## Notes
 
-<Record high-signal constraints or resume notes that do not belong in the
-normative spec.>
+- Fibers cannot force a read-modify-write race on one PGlite session; the
+  documents suite injects the competing write at the `PgClient` seam
+  (`packages/documents/server/test/CompetingWrite.ts`).
