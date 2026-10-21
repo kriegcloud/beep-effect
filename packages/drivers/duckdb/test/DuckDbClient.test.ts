@@ -321,6 +321,28 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
+      "widens a list mixing integers and non-integers to the widest number type",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`CREATE TABLE widen_list (id INTEGER, xs DOUBLE[], grid DOUBLE[][])`;
+        yield* sql`INSERT INTO widen_list ${sql.insert({ id: 1, xs: [1, 2.5], grid: [[1], [2.5]] })}`;
+        yield* sql.unsafe("INSERT INTO widen_list VALUES (?, ?, ?)", [2, [null, 3, 0.5], [[null, 4], null]]);
+        yield* sql.unsafe("INSERT INTO widen_list VALUES (?, ?, ?)", [3, [3e9, 1.5], [[2.5, 1]]]).unprepared;
+        assert.deepStrictEqual(yield* sql`SELECT * FROM widen_list ORDER BY id`, [
+          { id: 1, xs: [1, 2.5], grid: [[1], [2.5]] },
+          { id: 2, xs: [null, 3, 0.5], grid: [[null, 4], null] },
+          { id: 3, xs: [3e9, 1.5], grid: [[2.5, 1]] },
+        ]);
+        assert.deepStrictEqual(yield* sql`SELECT ${[1, 2.5]} AS l, typeof(${[1, 2.5]}) AS t`, [
+          { l: [1, 2.5], t: "DOUBLE[]" },
+        ]);
+        assert.deepStrictEqual(yield* sql`SELECT typeof(${[1, 3e9]}) AS t, typeof(${[[1], [2.5]]}) AS g`, [
+          { t: "BIGINT[]", g: "DOUBLE[][]" },
+        ]);
+      })
+    );
+
+    it.effect(
       "binds an empty array as an empty LIST into typed and untyped contexts",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
@@ -503,11 +525,11 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
-      "fails the documented numeric bind limits with UnknownError",
+      "fails the documented number and mixed-array bind limits with UnknownError",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
         assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [1e20])))._tag, "UnknownError");
-        assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[1, 2.5]])))._tag, "UnknownError");
+        assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[1, "a"]])))._tag, "UnknownError");
       })
     );
 

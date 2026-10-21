@@ -147,15 +147,38 @@ const isNotNullValue = (value: DuckDBValue): boolean => value !== null;
 const hasNullLeaf = (type: DuckDBType): boolean =>
   type.typeId === DuckDBTypeId.SQLNULL || (type instanceof DuckDBListType && hasNullLeaf(type.valueType));
 
-/** The first item type without a `NULL` leaf, so `[[null], [null, 2]]` types as `INTEGER[][]`. */
-const listItemType = (items: ReadonlyArray<DuckDBValue>): DuckDBType => {
-  const types = A.map(A.filter(items, isNotNullValue), bindTypeOf);
-  return pipe(
-    A.findFirst(types, (type) => !hasNullLeaf(type)),
-    O.orElse(() => A.head(types)),
-    O.getOrElse(() => SQLNULL)
-  );
-};
+/** The types a JS `number` binds as, narrowest first. */
+const NUMBER_TYPE_IDS = [DuckDBTypeId.INTEGER, DuckDBTypeId.BIGINT, DuckDBTypeId.DOUBLE];
+
+const numberRank = (type: DuckDBType): O.Option<number> =>
+  A.findFirstIndex(NUMBER_TYPE_IDS, (typeId) => typeId === type.typeId);
+
+/**
+ * The common item type of two items: the wider of two number types
+ * (`INTEGER`, then `BIGINT`, then `DOUBLE`), the widened item type of two
+ * LIST types, and otherwise the first type without a `NULL` leaf.
+ */
+const widenItemType = (current: DuckDBType, next: DuckDBType): DuckDBType =>
+  current instanceof DuckDBListType && next instanceof DuckDBListType
+    ? LIST(widenItemType(current.valueType, next.valueType))
+    : pipe(
+        O.all([numberRank(current), numberRank(next)]),
+        O.match({
+          onNone: () => (hasNullLeaf(current) && !hasNullLeaf(next) ? next : current),
+          onSome: ([currentRank, nextRank]) => (nextRank > currentRank ? next : current),
+        })
+      );
+
+/**
+ * The item type of a list: number items widen to the widest number type, so
+ * `[1, 2.5]` types as `DOUBLE[]`, and a `NULL` leaf yields to the first type
+ * without one, so `[[null], [null, 2]]` types as `INTEGER[][]`.
+ */
+const listItemType = (items: ReadonlyArray<DuckDBValue>): DuckDBType =>
+  A.matchLeft(A.map(A.filter(items, isNotNullValue), bindTypeOf), {
+    onEmpty: () => SQLNULL,
+    onNonEmpty: (head, tail) => A.reduce(tail, head, widenItemType),
+  });
 
 /**
  * The bind type of one normalized value. `typeForValue` types a LIST from its
@@ -172,8 +195,10 @@ const bindTypeOf = (value: DuckDBValue): DuckDBType =>
  * **Details**
  *
  * LIST values are typed from their first item whose type has no `NULL` leaf
- * (recursively); every other value gets the same `typeForValue` type DuckDB
- * infers for an untyped bind, so only lists bind differently. A list whose
+ * (recursively), and number items widen to the widest number type
+ * (`INTEGER`, then `BIGINT`, then `DOUBLE`), so `[1, 2.5]` types as `DOUBLE[]`; every
+ * other value gets the same `typeForValue` type DuckDB infers for an untyped
+ * bind, so only lists bind differently. A list whose
  * items are all `NULL`, and an empty list, stay `LIST(SQLNULL)`, which DuckDB
  * casts into any LIST column (`SELECT ?` reads it back as `INTEGER[]`).
  *
@@ -202,7 +227,8 @@ export const bindTypes = (binds: ReadonlyArray<DuckDBValue>): Array<DuckDBType> 
  * pass through; a valid `Date` binds as a TIMESTAMPTZ instant; `Uint8Array`
  * and `Int8Array` bind as BLOB; typed `DuckDB*Value` instances pass through;
  * an array binds as a LIST of normalized items, typed from its first non-null
- * item through {@link bindTypes} (an empty array binds as an empty LIST); a
+ * item with number items widened through {@link bindTypes} (an empty array
+ * binds as an empty LIST); a
  * plain object binds as JSON text. The first value that cannot be bound fails
  * the whole call.
  *

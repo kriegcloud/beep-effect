@@ -85,6 +85,7 @@ SPEC; D44 onward record what implementation changed or learned.
 | D54 | `layerClientConfig` is the Config-driven `layerClient` | Config-driven programs beside PGlite otherwise have to choose `layerConfig` and its `SqlClient` | hand-roll `Config.unwrap` + `layerClient` |
 | D55 | Raw `COMMIT`/`END` text run inside a transaction goes through the same commit decision as `withTransaction`'s commit; on a refusal the driver runs `ROLLBACK` and fails with the refused-commit `UnknownError` (`guardedCommit` in `src/internal/connection.ts`) | a raw `BEGIN` / swallowed constraint error / raw `COMMIT` reported success and wrote nothing although the tracker had recorded the failure (review round 2); the raw caller has no `onCommitFailure`, so the driver cleans up | send raw COMMIT straight to DuckDB and document the gap |
 | D56 | Legacy `DuckDbError.message` carries the native DuckDB diagnostic of a classified statement failure when no explicit message is given | the cause moved to a `SqlError` in B2, which put the native text two levels down | keep the generic default message |
+| D57 | A list whose number items bind as different types takes the widest, INTEGER < BIGINT < DOUBLE, recursively through nested lists (`[1, 2.5]` is `DOUBLE[]`, `[1, 3e9]` is `BIGINT[]`) in `bindTypes` (R2-05) | upstream `typeForValue` types a list from its first item, so `[1, 2.5]` bound as `INTEGER[]` and failed with "number is not an integer"; every JS number is a double, so widening loses nothing the caller had | keep failing and point at a typed `listValue` |
 
 ## Known hazards
 
@@ -121,9 +122,10 @@ SPEC; D44 onward record what implementation changed or learned.
   natively with `Error in native callback` (`UnknownError`). Not special-cased:
   detecting it needs a tokenizer and binding values to it has no meaning.
 - **Number and array bind gaps.** Integral numbers outside int64 and
-  mixed-type arrays fail with `UnknownError`. `@duckdb/node-api` 1.5.6
-  has no `doubleValue` helper and `listValue(items)` takes no item type, so the
-  fix is the typed `DuckDB*Value` pass-through.
+  arrays mixing kinds (`[1, "a"]`) fail with `UnknownError`; arrays mixing
+  number kinds widen (D57). `@duckdb/node-api` 1.5.6 has no `doubleValue`
+  helper and `listValue(items)` takes no item type, so the fix is the typed
+  `DuckDB*Value` pass-through.
 - **`DuckDb.makeNodeClient`** is unscoped and never closes its connection
   (D25).
 

@@ -330,13 +330,13 @@ Duplicate column names come back as `a`, `a:1`.
 | valid `Date` | TIMESTAMPTZ |
 | `Uint8Array`, `Buffer`, `Int8Array` | BLOB |
 | a `DuckDB*Value` from `@duckdb/node-api` | as is |
-| array | LIST, item type taken from the first element whose type has no NULL in it (`[null, 7]` is `INTEGER[]`); an all-null array is a list of NULLs; an empty array is an empty LIST that casts into any LIST column |
+| array | LIST, item type taken from the first element whose type has no NULL in it (`[null, 7]` is `INTEGER[]`); number items widen to the widest number type, INTEGER < BIGINT < DOUBLE (`[1, 2.5]` is `DOUBLE[]`, `[1, 3e9]` is `BIGINT[]`, `[[1], [2.5]]` is `DOUBLE[][]`); an all-null array is a list of NULLs; an empty array is an empty LIST that casts into any LIST column |
 | plain object | JSON text (VARCHAR, casts into JSON columns) |
 
 Limits, all failing with `UnknownError`:
 
-- Mixed arrays such as `[1, 2.5]` or `[1, "a"]` fail; build a `listValue` with
-  typed items.
+- Arrays mixing kinds, such as `[1, "a"]` or `[1, true]`, fail; build a
+  `listValue` with typed items. Arrays mixing number kinds widen instead.
 - An integral `number` outside the int64 range (`1e20`) fails; bind a string or
   a `decimalValue`.
 - An invalid `Date`, a plain object holding a `bigint` or a cycle, and
