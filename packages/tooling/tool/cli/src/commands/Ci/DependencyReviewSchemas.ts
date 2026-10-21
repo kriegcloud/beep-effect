@@ -181,8 +181,43 @@ export class DependencyChange extends S.Opaque<DependencyChange, { readonly bran
 ) {}
 
 /**
- * The compare response as `gh api --paginate --slurp` prints it: one array of
- * rows per page.
+ * One page of the compare response: the rows GitHub returns for one
+ * `per_page`/`page` request.
+ *
+ * **Details**
+ *
+ * GitHub's `per_page` counts manifests, not rows, and a page may be empty in
+ * the middle of the sequence. Only the `Link` header's `rel="next"` says whether
+ * another page follows.
+ *
+ * **Example** (Decode an empty page)
+ *
+ * ```ts
+ * import { DependencyGraphComparePage } from "@beep/repo-cli/commands/Ci"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.decodeUnknownSync(DependencyGraphComparePage)([]).length) // 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const DependencyGraphComparePage = DependencyChange.pipe(
+  S.Array,
+  $I.annoteSchema("DependencyGraphComparePage", { description: "One page of dependency-graph compare rows." })
+);
+
+/**
+ * One decoded compare page.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type DependencyGraphComparePage = typeof DependencyGraphComparePage.Type;
+
+/**
+ * Several compare pages, one array of rows per page, as recorded fixtures store
+ * them.
  *
  * **Example** (Decode two recorded pages)
  *
@@ -196,8 +231,7 @@ export class DependencyChange extends S.Opaque<DependencyChange, { readonly bran
  * @category models
  * @since 0.0.0
  */
-export const DependencyGraphComparePages = DependencyChange.pipe(
-  S.Array,
+export const DependencyGraphComparePages = DependencyGraphComparePage.pipe(
   S.Array,
   $I.annoteSchema("DependencyGraphComparePages", {
     description: "Paginated dependency-graph compare rows, one array per page.",
@@ -575,6 +609,7 @@ export const DependencyReviewUnknownReason = LiteralKit([
   "rate-limited",
   "request-failed",
   "malformed-response",
+  "page-limit-exceeded",
 ]).pipe(
   $I.annoteSchema("DependencyReviewUnknownReason", {
     description: "Why a dependency review could not decide pass or fail.",

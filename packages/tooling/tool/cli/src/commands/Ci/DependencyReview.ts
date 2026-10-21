@@ -6,7 +6,8 @@
  * The review first resolves both commits (the compare API answers an empty
  * list for an unknown commit), then reads
  * `GET /repos/{owner}/{repo}/dependency-graph/compare/{base}...{head}`
- * through {@link GithubPolicyClient}, drops only the rows whose manifest
+ * page by page through {@link GithubPolicyClient} (see
+ * {@link DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT}), drops only the rows whose manifest
  * matches the declared fixture-path policy, and applies the thresholds the
  * pinned `actions/dependency-review-action` step enforced: added runtime rows
  * fail on a high or critical advisory, on a license a denied license alone can
@@ -26,13 +27,14 @@ import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { GithubPolicyClient } from "./CiGovernance.ts";
 import {
-  DependencyGraphComparePages,
+  DependencyGraphComparePage,
   DependencyReviewCounts,
   DependencyReviewFinding,
   DependencyReviewUnavailableError,
@@ -283,7 +285,59 @@ const replyOutput = Effect.fn("DependencyReview.replyOutput")(function* (endpoin
   return reply.output;
 });
 
-const decodeComparePages = S.decodeUnknownEffect(S.fromJsonString(DependencyGraphComparePages));
+const decodeComparePage = S.decodeUnknownEffect(S.fromJsonString(DependencyGraphComparePage));
+
+/**
+ * The most compare pages one review reads before failing closed.
+ *
+ * **Details**
+ *
+ * The review asks for `per_page=1`. GitHub's `per_page` counts manifests, and on
+ * the recorded #1592 range it was the only page size that returned every row:
+ * the unpaged reply silently dropped 5 of 69 manifests, `per_page=5` dropped one
+ * row, and `per_page=1` returned 822 rows in 77 pages, some of them empty. One
+ * page therefore holds one manifest's rows, and the dependency graph lists
+ * 226 manifests today, so a review that is still following `rel="next"` after
+ * this many pages is not converging. It stops with `page-limit-exceeded`, never a
+ * partial pass. Each page is its own bounded `gh api` capture, so only a single
+ * manifest with more rows than one capture holds (about 1,490 rows at roughly
+ * 352 bytes each) can truncate a page, and that page is `unknown` too.
+ *
+ * **Example** (Read the ceiling)
+ *
+ * ```ts
+ * import { DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT } from "@beep/repo-cli/commands/Ci"
+ *
+ * console.log(DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT) // 500
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT = 500;
+
+const LINK_NEXT_PAGE = /[?&]page=(\d+)>;\s*rel="next"/u;
+
+// `gh api -i` prints the status line, the headers, one blank line, then the body.
+const httpReplyParts = (output: string) => {
+  const lines = Str.split(output, "\n");
+  return pipe(
+    A.findFirstIndex(lines, (line) => Str.isEmpty(Str.trim(line))),
+    O.map((blank) => ({
+      status: Str.trim(O.getOrElse(A.head(lines), () => "")),
+      headers: A.take(lines, blank),
+      body: A.join(A.drop(lines, blank + 1), "\n"),
+    }))
+  );
+};
+
+const nextPage = (headers: ReadonlyArray<string>): O.Option<number> =>
+  pipe(
+    A.findFirst(headers, (header) => Str.startsWith("link:")(Str.toLowerCase(header))),
+    O.flatMap(Str.match(LINK_NEXT_PAGE)),
+    O.flatMap((match) => O.fromUndefinedOr(match[1])),
+    O.flatMap(Num.parse)
+  );
 const RepositoryLicense = S.Struct({
   license: S.NullOr(S.Struct({ spdx_id: S.NullOr(S.String) })),
 });
@@ -421,15 +475,46 @@ export const makeDependencyReviewLayer = (settings: DependencyReviewSettings) =>
           );
       });
 
+      // One `per_page=1` page per request, each its own bounded capture,
+      // following `rel="next"` (a page may be empty mid-sequence) up to the
+      // page ceiling. Any failed, truncated, malformed or skipped page is unknown.
+      const comparePage = Effect.fn("DependencyReview.comparePage")(function* (
+        request: DependencyReviewRequest,
+        page: number
+      ) {
+        const endpoint = `repos/{owner}/{repo}/dependency-graph/compare/${request.base}...${request.head}?per_page=1&page=${page}`;
+        const output = yield* read(endpoint, ["-i"]);
+        const parts = yield* O.match(httpReplyParts(output), {
+          onNone: () => unavailable("malformed-response", `${endpoint}: reply has no header/body separator`),
+          onSome: Effect.succeed,
+        });
+        if (!Str.startsWith("HTTP/")(parts.status) || !Str.includes(" 200")(parts.status))
+          return yield* unavailable("malformed-response", `${endpoint}: unexpected status "${parts.status}"`);
+        const rows = yield* decodeComparePage(parts.body).pipe(
+          Effect.mapError((error) => unavailable("malformed-response", `${endpoint}: ${error.message}`))
+        );
+        const next = nextPage(parts.headers);
+        if (O.isSome(next) && next.value !== page + 1)
+          return yield* unavailable("malformed-response", `${endpoint}: next page is ${next.value}, not ${page + 1}`);
+        return [rows, next] as const;
+      });
+
       const compare = Effect.fn("DependencyReview.compare")(function* (request: DependencyReviewRequest) {
         yield* verifyCommit(request.base);
         yield* verifyCommit(request.head);
-        const endpoint = `repos/{owner}/{repo}/dependency-graph/compare/${request.base}...${request.head}?per_page=100`;
-        const output = yield* read(endpoint, ["--paginate", "--slurp"]);
-        const pages = yield* decodeComparePages(output).pipe(
-          Effect.mapError((error) => unavailable("malformed-response", `${endpoint}: ${error.message}`))
-        );
-        return A.flatten(pages);
+        let rows = A.empty<DependencyChange>();
+        let page = O.some(1);
+        while (O.isSome(page)) {
+          if (page.value > DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT)
+            return yield* unavailable(
+              "page-limit-exceeded",
+              `compare ${request.base}...${request.head}: more than ${DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT} pages`
+            );
+          const [pageRows, next] = yield* comparePage(request, page.value);
+          rows = A.appendAll(rows, pageRows);
+          page = next;
+        }
+        return rows;
       });
 
       // GitHub answers 404 for a repository without a detectable license; the

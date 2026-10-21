@@ -11,7 +11,9 @@
 import {
   CiCommandError,
   classifyGithubFailure,
+  DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT,
   DependencyChange,
+  DependencyGraphComparePage,
   DependencyGraphComparePages,
   DependencyReview,
   DependencyReviewLive,
@@ -34,6 +36,7 @@ import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -44,11 +47,27 @@ import type { DependencyReviewVerdict } from "@beep/repo-cli/commands/Ci";
 
 const sha = (digit: string): string => A.join(A.replicate(digit, 40), "");
 const request = (base: string, head: string) => DependencyReviewRequest.make({ base: sha(base), head: sha(head) });
-const compareArgs = (review: DependencyReviewRequest): string =>
-  `--paginate --slurp repos/{owner}/{repo}/dependency-graph/compare/${review.base}...${review.head}?per_page=100`;
+const rangeKey = (review: DependencyReviewRequest): string => `${review.base}...${review.head}`;
+const COMPARE_PAGE =
+  /^-i repos\/\{owner\}\/\{repo\}\/dependency-graph\/compare\/([0-9a-f]{40}\.\.\.[0-9a-f]{40})\?per_page=1&page=(\d+)$/u;
+// GitHub's `gh api -i` shape: status line, CRLF headers, a blank line, then the
+// JSON page. A Link header names the next page until the last one.
+const pageLink = (page: number, last: number): string => {
+  const url = (target: number) =>
+    `<https://api.github.com/repositories/1/dependency-graph/compare/x?per_page=1&page=${target}>`;
+  const rels = [
+    ...(page > 1 ? [`${url(page - 1)}; rel="prev"`] : []),
+    ...(page < last ? [`${url(page + 1)}; rel="next"`] : []),
+    `${url(last)}; rel="last"`,
+    `${url(1)}; rel="first"`,
+  ];
+  return last > 1 ? `Link: ${A.join(rels, ", ")}\r\n` : "";
+};
+const httpPage = (page: number, last: number, body: string): string =>
+  `HTTP/2.0 200 OK\r\nContent-Type: application/json; charset=utf-8\r\n${pageLink(page, last)}\r\n${body}`;
 const ok = (output: string) => GithubApiReply.make({ exitCode: 0, output, truncated: false });
 const failed = (output: string) => GithubApiReply.make({ exitCode: 1, output, truncated: false });
-const encodePages = S.encodeEffect(S.fromJsonString(DependencyGraphComparePages));
+const encodePage = S.encodeEffect(S.fromJsonString(DependencyGraphComparePage));
 const decodePages = S.decodeUnknownEffect(DependencyGraphComparePages);
 
 // Real recorded pull-request ranges.
@@ -76,6 +95,14 @@ const MALFORMED_JSON = request("1", "4");
 const TRUNCATED = request("1", "5");
 const SPAWN_FAILURE = request("1", "6");
 const EMPTY = request("1", "7");
+const PAGE_2_ADVISORY = request("1", "9");
+const LATER_PAGE_TRUNCATED = request("1", "a");
+const LATER_PAGE_MALFORMED = request("1", "b");
+const LATER_PAGE_FAILED = request("1", "c");
+const PAGE_LIMIT = request("1", "d");
+const SKIPPED_PAGE = request("1", "e");
+const NO_SEPARATOR = request("1", "f");
+const NOT_OK_STATUS = request("2", "0");
 const MISSING_HEAD = DependencyReviewRequest.make({
   base: sha("1"),
   head: A.join(A.replicate("deadbeef", 5), ""),
@@ -99,125 +126,163 @@ const RecordedGithub = Layer.effect(
   Effect.gen(function* () {
     const pr911Pages = yield* decodePages(pr911Recorded);
     const pr1592Pages = yield* decodePages(pr1592Recorded);
-    const pr911 = yield* encodePages(pr911Pages);
-    const pr1592 = yield* encodePages(pr1592Pages);
     const lodash = recordedLodashFixture(pr1592Pages);
     const urllib3 = recordedUrllib3(pr911Pages);
     const vitest = recordedVitestDevelopment(pr1592Pages);
     const moved = (manifest: string) => DependencyChange.make({ ...lodash, manifest });
     const licensed = (license: string | null, name: string) =>
       DependencyChange.make({ ...urllib3, name, license, vulnerabilities: [] });
+    // GitHub's `per_page` counts manifests: with `per_page=1` every page holds
+    // one manifest's rows, and some pages are empty.
+    const paged = Effect.fn("RecordedGithub.paged")(function* (pages: ReadonlyArray<ReadonlyArray<DependencyChange>>) {
+      const last = A.isReadonlyArrayEmpty(pages) ? 1 : A.length(pages);
+      const served: ReadonlyArray<ReadonlyArray<DependencyChange>> = A.isReadonlyArrayEmpty(pages)
+        ? [A.empty<DependencyChange>()]
+        : pages;
+      // A lambda, not `encodePage` itself: `forEach` passes the index as a
+      // second argument, which the codec reads as parse options.
+      const bodies = yield* Effect.forEach(served, (rows) => encodePage(rows));
+      return A.map(bodies, (body, index) => ok(httpPage(index + 1, last, body)));
+    });
+    const byManifest = (rows: ReadonlyArray<DependencyChange>) =>
+      A.groupWith(rows, (self, that) => self.manifest === that.manifest);
+    const pr1592ByManifest = byManifest(A.flatten(pr1592Pages));
     const replies = HashMap.make(
-      [compareArgs(PR_911), ok(pr911)],
-      [compareArgs(PR_1592), ok(pr1592)],
+      [rangeKey(PR_911), yield* paged(byManifest(A.flatten(pr911Pages)))],
+      // The recorded #1592 rows across one page per manifest, with an empty
+      // page after the third, as GitHub serves them.
+      [rangeKey(PR_1592), yield* paged([...A.take(pr1592ByManifest, 3), [], ...A.drop(pr1592ByManifest, 3)])],
       [
-        compareArgs(LOOK_ALIKE),
-        ok(
-          yield* encodePages([
-            [
-              moved("scratchpad/tests/fixtures/npm/v1/package-lock.json"),
-              moved("packages/tooling/test-fixtures/package-lock.json"),
-              moved("fixtures/test/package-lock.json"),
-              moved("packages/demo/test/fixtures-loader/package-lock.json"),
-            ],
+        rangeKey(LOOK_ALIKE),
+        yield* paged(
+          byManifest([
+            moved("scratchpad/tests/fixtures/npm/v1/package-lock.json"),
+            moved("packages/tooling/test-fixtures/package-lock.json"),
+            moved("fixtures/test/package-lock.json"),
+            moved("packages/demo/test/fixtures-loader/package-lock.json"),
           ])
         ),
       ],
       [
-        compareArgs(LICENSES),
-        ok(
-          yield* encodePages([
-            [
-              licensed("GPL-3.0-or-later", "gpl-or-later"),
-              licensed("MIT OR AGPL-3.0-only", "agpl-choice"),
-              licensed("MIT AND GPL-3.0", "gpl-conjunction"),
-              licensed("GPL-3.0 WITH Classpath-exception-2.0", "gpl-exception"),
-              licensed("LGPL-3.0-only", "lgpl"),
-              licensed("NOASSERTION", "no-assertion"),
-              licensed("Custom proprietary terms", "unresolved"),
-            ],
-          ])
-        ),
+        rangeKey(LICENSES),
+        yield* paged([
+          [
+            licensed("GPL-3.0-or-later", "gpl-or-later"),
+            licensed("MIT OR AGPL-3.0-only", "agpl-choice"),
+            licensed("MIT AND GPL-3.0", "gpl-conjunction"),
+            licensed("GPL-3.0 WITH Classpath-exception-2.0", "gpl-exception"),
+            licensed("LGPL-3.0-only", "lgpl"),
+            licensed("NOASSERTION", "no-assertion"),
+            licensed("Custom proprietary terms", "unresolved"),
+          ],
+        ]),
       ],
       [
-        compareArgs(SCOPE_AND_REMOVAL),
-        ok(
-          yield* encodePages([
-            [
-              DependencyChange.make({ ...vitest, manifest: "apps/oip-web/package.json" }),
-              DependencyChange.make({ ...urllib3, change_type: "removed" }),
-            ],
-          ])
-        ),
+        rangeKey(SCOPE_AND_REMOVAL),
+        yield* paged([
+          [DependencyChange.make({ ...vitest, manifest: "apps/oip-web/package.json" })],
+          [DependencyChange.make({ ...urllib3, change_type: "removed" })],
+        ]),
       ],
       [
-        compareArgs(REPOSITORY_LICENSE),
-        ok(
-          yield* encodePages([
-            [
-              DependencyChange.make({
-                ...urllib3,
-                name: "agpl-repo",
-                license: null,
-                source_repository_url: "https://github.com/example/agpl-repo",
-                vulnerabilities: [],
-              }),
-              DependencyChange.make({
-                ...urllib3,
-                name: "unlicensed-repo",
-                license: null,
-                source_repository_url: "https://github.com/example/unlicensed-repo",
-                vulnerabilities: [],
-              }),
-            ],
-          ])
-        ),
+        rangeKey(REPOSITORY_LICENSE),
+        yield* paged([
+          [
+            DependencyChange.make({
+              ...urllib3,
+              name: "agpl-repo",
+              license: null,
+              source_repository_url: "https://github.com/example/agpl-repo",
+              vulnerabilities: [],
+            }),
+            DependencyChange.make({
+              ...urllib3,
+              name: "unlicensed-repo",
+              license: null,
+              source_repository_url: "https://github.com/example/unlicensed-repo",
+              vulnerabilities: [],
+            }),
+          ],
+        ]),
       ],
+      [
+        rangeKey(LICENSE_LOOKUP_DENIED),
+        yield* paged([
+          [
+            DependencyChange.make({
+              ...urllib3,
+              license: null,
+              source_repository_url: "https://github.com/example/forbidden-repo",
+            }),
+          ],
+        ]),
+      ],
+      // A clean production page, then the recorded high urllib3 advisory alone on page 2.
+      [
+        rangeKey(PAGE_2_ADVISORY),
+        yield* paged([
+          [licensed("MIT", "clean")],
+          [DependencyChange.make({ ...urllib3, manifest: "apps/oip-web/uv.lock" })],
+        ]),
+      ],
+      [
+        rangeKey(LATER_PAGE_TRUNCATED),
+        [ok(httpPage(1, 2, "[]")), GithubApiReply.make({ exitCode: 0, output: httpPage(2, 2, "[{"), truncated: true })],
+      ],
+      [rangeKey(LATER_PAGE_MALFORMED), [ok(httpPage(1, 2, "[]")), ok(httpPage(2, 2, '{"rows":[]}'))]],
+      [rangeKey(LATER_PAGE_FAILED), [ok(httpPage(1, 2, "[]")), failed("gh: Server Error (HTTP 502)")]],
+      // Page 1 claims the next page is 3: a skipped page could hide rows.
+      [rangeKey(SKIPPED_PAGE), [ok(Str.replace('page=2>; rel="next"', 'page=3>; rel="next"')(httpPage(1, 3, "[]")))]],
+      [rangeKey(NO_SEPARATOR), [ok("[]")]],
+      [rangeKey(NOT_OK_STATUS), [ok("HTTP/2.0 304 Not Modified\r\n\r\n[]")]],
+      [rangeKey(HTTP_403), [failed("gh: Resource not accessible by integration (HTTP 403)")]],
+      [rangeKey(HTTP_404), [failed("gh: Not Found (HTTP 404)")]],
+      [rangeKey(RATE_LIMIT), [failed("gh: API rate limit exceeded for installation ID 4242. (HTTP 403)")]],
+      [rangeKey(HTTP_429), [failed("gh: You have exceeded a secondary rate limit. (HTTP 429)")]],
+      [rangeKey(MALFORMED_SHAPE), [ok(httpPage(1, 1, '[{"change_type":"modified","manifest":"package.json"}]'))]],
+      [rangeKey(MALFORMED_JSON), [ok(httpPage(1, 1, "<html>bad gateway</html>"))]],
+      [rangeKey(TRUNCATED), [GithubApiReply.make({ exitCode: 0, output: httpPage(1, 1, "[{"), truncated: true })]],
+      [rangeKey(EMPTY), yield* paged([])],
+      // GitHub's real reply for an unknown commit range: 200 and no rows.
+      [rangeKey(MISSING_HEAD), yield* paged([])]
+    );
+    const licenses = HashMap.make(
       ["repos/example/agpl-repo/license", ok('{"license":{"spdx_id":"AGPL-3.0"}}')],
       ["repos/example/unlicensed-repo/license", failed("gh: Not Found (HTTP 404)")],
-      [
-        compareArgs(LICENSE_LOOKUP_DENIED),
-        ok(
-          yield* encodePages([
-            [
-              DependencyChange.make({
-                ...urllib3,
-                license: null,
-                source_repository_url: "https://github.com/example/forbidden-repo",
-              }),
-            ],
-          ])
-        ),
-      ],
-      ["repos/example/forbidden-repo/license", failed("gh: Resource not accessible by integration (HTTP 403)")],
-      [compareArgs(HTTP_403), failed("gh: Resource not accessible by integration (HTTP 403)")],
-      [compareArgs(HTTP_404), failed("gh: Not Found (HTTP 404)")],
-      [compareArgs(RATE_LIMIT), failed("gh: API rate limit exceeded for installation ID 4242. (HTTP 403)")],
-      [compareArgs(HTTP_429), failed("gh: You have exceeded a secondary rate limit. (HTTP 429)")],
-      [compareArgs(MALFORMED_SHAPE), ok('[[{"change_type":"modified","manifest":"package.json"}]]')],
-      [compareArgs(MALFORMED_JSON), ok("<html>bad gateway</html>")],
-      [compareArgs(TRUNCATED), GithubApiReply.make({ exitCode: 0, output: "[[", truncated: true })],
-      [compareArgs(EMPTY), ok("[[]]")],
-      // GitHub's real reply for an unknown commit range: 200 and no rows.
-      [compareArgs(MISSING_HEAD), ok("[]")]
+      ["repos/example/forbidden-repo/license", failed("gh: Resource not accessible by integration (HTTP 403)")]
     );
     // Every commit resolves to itself except MISSING_HEAD's head, which gets
     // GitHub's recorded reply for an unknown SHA.
     const commitReply = (commit: string) =>
       commit === MISSING_HEAD.head ? failed(`gh: No commit found for SHA: ${commit} (HTTP 422)`) : ok(`${commit}\n`);
-    const respond = (args: ReadonlyArray<string>) => {
+    // PAGE_LIMIT links a next page forever.
+    const pageReply = (range: string, page: number) =>
+      range === rangeKey(PAGE_LIMIT)
+        ? ok(httpPage(page, page + 1, "[]"))
+        : pipe(
+            HashMap.get(replies, range),
+            O.flatMap(A.get(page - 1)),
+            O.getOrElse(() => failed(`gh: unrecorded page ${page} of ${range} (HTTP 418)`))
+          );
+    const respond = Effect.fn("RecordedGithub.respond")(function* (args: ReadonlyArray<string>) {
       const key = A.join(args, " ");
       const commit = pipe(
         Str.match(COMMIT_LOOKUP)(key),
         O.flatMap((match) => O.fromUndefinedOr(match[1]))
       );
-      if (O.isSome(commit)) return Effect.succeed(commitReply(commit.value));
-      return key === compareArgs(SPAWN_FAILURE)
-        ? Effect.fail(CiCommandError.make({ message: "GitHub policy request failed; state is unknown." }))
-        : Effect.succeed(
-            O.getOrElse(HashMap.get(replies, key), () => failed(`gh: unrecorded request ${key} (HTTP 418)`))
-          );
-    };
+      if (O.isSome(commit)) return commitReply(commit.value);
+      const page = Str.match(COMPARE_PAGE)(key);
+      if (O.isSome(page)) {
+        const [, range = "", number = "0"] = page.value;
+        if (range === rangeKey(SPAWN_FAILURE))
+          return yield* CiCommandError.make({ message: "GitHub policy request failed; state is unknown." });
+        return pageReply(
+          range,
+          O.getOrElse(Num.parse(number), () => 0)
+        );
+      }
+      return O.getOrElse(HashMap.get(licenses, key), () => failed(`gh: unrecorded request ${key} (HTTP 418)`));
+    });
     return GithubPolicyClient.of({
       read: Effect.fn("RecordedGithub.read")(() =>
         Effect.fail(CiCommandError.make({ message: "read is not used by dependency review" }))
@@ -400,6 +465,32 @@ it.layer(Layer.provideMerge(DependencyReviewLive, RecordedGithub), { timeout: "3
         expect(yield* exitCode(HTTP_403)).toBe(1);
         expect(yield* exitCode(MISSING_HEAD)).toBe(1);
         expect(yield* exitCode({ base: "abc", head: PR_911.head })).toBe(64);
+      })
+    );
+
+    it.effect("reads every compare page, so an advisory on page 2 still fails", () =>
+      Effect.gen(function* () {
+        expect(findings(yield* review(PAGE_2_ADVISORY))).toEqual(["vulnerability:urllib3"]);
+      })
+    );
+
+    it.effect("fails closed on a truncated, malformed, failed or skipped later page and at the page ceiling", () =>
+      Effect.gen(function* () {
+        const cases = [
+          [LATER_PAGE_TRUNCATED, "request-failed"],
+          [LATER_PAGE_MALFORMED, "malformed-response"],
+          [LATER_PAGE_FAILED, "request-failed"],
+          [SKIPPED_PAGE, "malformed-response"],
+          [PAGE_LIMIT, "page-limit-exceeded"],
+          [NO_SEPARATOR, "malformed-response"],
+          [NOT_OK_STATUS, "malformed-response"],
+        ] as const;
+        for (const [target, reason] of cases) {
+          const verdict = yield* review(target);
+          expect(verdict._tag === "unknown" && verdict.reason).toBe(reason);
+        }
+        const limited = yield* review(PAGE_LIMIT);
+        expect(limited._tag === "unknown" && limited.detail).toContain(`${DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT} pages`);
       })
     );
 

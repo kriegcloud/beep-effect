@@ -84,8 +84,9 @@ their behavior and messages.
    compare API answers `200 []` for a commit it does not know (probed with two
    invented SHAs), so without this an unknown range would pass. The action has this
    fail-open too.
-2. `--paginate --slurp repos/{owner}/{repo}/dependency-graph/compare/<base>...<head>?per_page=100`,
-   decoded with `DependencyGraphComparePages`.
+2. Read `repos/{owner}/{repo}/dependency-graph/compare/<base>...<head>?per_page=1&page=N`
+   one page per `gh api -i` call, following the `Link` header's `rel="next"`, and
+   decode each page with `DependencyGraphComparePage` (see "Review round 1").
 3. Drop rows whose manifest matches the fixture policy. Keep rows in
    `failOnScopes`, treating a missing scope as `runtime`, and keep `added` rows.
 4. A vulnerability finding is any advisory at or above `high`.
@@ -226,6 +227,84 @@ changed. package-verify runs `@beep/repo-cli`'s docgen. `tooling-schema-first`
   ruleset still lists `Security` as required (`ci ruleset --check` passes in that
   job).
 - On a fork PR, when one exists, the step passes with the fork's read-only token.
+
+## Review round 1 (#1991)
+
+Thread `PRRT_kwDOPbO_N86u6gwA` (beep-reviewer, P2): the compare read went through one
+`gh api --paginate --slurp` capture, which `runRepoCommandCapture` bounds at
+512 KiB. A larger range came back truncated, became `unknown (request-failed)` and
+failed the required job with no override. The #1592 range alone was about 278 KB.
+
+Probe (read-only `gh api -i` on the #1592 range, 2026-10-21):
+
+| Request | Rows | Manifests | `Link` |
+| --- | ---: | ---: | --- |
+| no `per_page`, or `per_page=99`/`100`/`200`/`1000` | 792 | 64 | none |
+| `per_page=50`, pages 1 to 2 | 820 | | `next`, `last=2` |
+| `per_page=5`, pages 1 to 16 | 821 | 69 | `next`, `last=16` |
+| `per_page=1`, pages 1 to 77 | 822 | 69 | `next`, `last=77`; 7 pages empty mid-sequence |
+| a page past `last` | 0 | | `prev`, `first`, `last` only |
+
+The endpoint does paginate. Three facts shaped the fix:
+
+- `per_page` counts manifests, not rows.
+- A large page silently drops data. The unpaged reply the lane used lost 5 of 69
+  manifests (30 rows), so the first version under-reported, which is a fail-open.
+  The pinned action's `per_page: 5` also dropped one row.
+- An empty page does not mean the end, because empty pages occur mid-sequence.
+  The only end marker is the absence of `rel="next"`.
+
+Fix (`DependencyReview.ts`):
+
+- Read each page with `-i` and `per_page=1`, one bounded capture per page. Each page
+  is split at the header/body blank line and must have a `200` status. Its body is
+  decoded with the new `DependencyGraphComparePage` schema, and the rows are
+  combined.
+- Follow `rel="next"`. A `next` that is not `page + 1` is `malformed-response`,
+  because a skipped page could hide rows.
+- Ceiling: `DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT = 500` pages. Past it, the verdict
+  is the new `unknown` reason `page-limit-exceeded`. The dependency graph lists 226
+  manifests, and one page holds one manifest's rows, so 500 leaves room for empty
+  pages and growth. A full 500-page read would use half of the job token's
+  1,000-requests-per-hour budget; a typical PR reads a handful of pages.
+- A truncated, malformed, non-`200` or failed page, a missing separator and the
+  ceiling are all fail-closed `unknown`, never a partial pass. Only one manifest
+  with more than about 1,490 rows (512 KiB at roughly 352 bytes per row) can
+  truncate a page now.
+- Live: the #1592 range now reads 822 rows (743 excluded, 79 reviewed) and passes.
+  The #911 range reads 41 rows instead of 37 and fails on the same three
+  transitive packages.
+
+Tests written failing first: the suite failed to load before the fix, because the
+page schema and ceiling did not exist yet. The recorded client now serves
+`gh api -i` pages with `Link` headers, one manifest per page:
+
+- #1592's recorded rows over six pages (one per manifest plus an empty page after the third): fixtures still
+  excluded, same counts;
+- a high advisory alone on page 2: `fail`;
+- a later page truncated, malformed or failed (502), a skipped `next`, a missing
+  separator, a non-`200` status: `unknown`;
+- an endless `next` chain: `unknown (page-limit-exceeded)`, with the ceiling in the
+  detail.
+
+The live-client test in `ci-rerun-runner-loss.test.ts` now asserts the `-i
+...?per_page=1&page=1` argument list.
+
+Round-1 verification, each command alone through `beep-heavy`:
+
+| Command | Result |
+| --- | --- |
+| repo-cli `check` | exit 0 |
+| Bun and Node runs of the seven CI test files | 184 tests pass on each |
+| effect-vitest / schema-first | `introduced=0` / parity ok, `introduced=0` |
+| effect-diagnostics `--filter repo-cli` | 0 in changed files (4 inherited in `laws-schema-tag-idioms.test.ts`) |
+| oxlint on changed files; biome | 0 |
+| fallow audit `--base origin/main --check` | exit 0, `introduced=0` |
+| jsdoc-ratchet | `increased=0` |
+| observability catalog | current after `--write` (adds `DependencyReview.comparePage`) |
+| schema-catalog, policy-fingerprint | current |
+| `quality cache-policy` | 0 blocking |
+| scoped Node coverage | `DependencyReview.ts` 96.3% lines, 95.2% branches; the other two files 100% |
 
 ## Reversal
 

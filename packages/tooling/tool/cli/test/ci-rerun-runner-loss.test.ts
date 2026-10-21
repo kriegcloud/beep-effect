@@ -869,8 +869,8 @@ const reviewRow = {
 const reviewReplies = HashMap.make(
   [`api --jq .sha repos/{owner}/{repo}/commits/${REVIEW_SHA}`, handle(0, `${REVIEW_SHA}\n`)],
   [
-    `api --paginate --slurp repos/{owner}/{repo}/dependency-graph/compare/${REVIEW_SHA}...${REVIEW_SHA}?per_page=100`,
-    handle(0, encodeJson([[reviewRow]])),
+    `api -i repos/{owner}/{repo}/dependency-graph/compare/${REVIEW_SHA}...${REVIEW_SHA}?per_page=1&page=1`,
+    handle(0, `HTTP/2.0 200 OK\r\nContent-Type: application/json; charset=utf-8\r\n\r\n${encodeJson([reviewRow])}`),
   ]
 );
 const reviewSpawner = ChildProcessSpawner.make((command) => {

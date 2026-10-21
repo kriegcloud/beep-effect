@@ -1006,6 +1006,7 @@
     {"name":"DeletePackage.statBaselineOutput","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"DeletePackage.workspacePathsAtRoot","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"DependencyReview.compare","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"DependencyReview.comparePage","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"DependencyReview.evaluate","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"DependencyReview.read","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"DependencyReview.replyOutput","owner":"@beep/repo-cli","family":"tooling","conforms":true},
