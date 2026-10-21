@@ -14,7 +14,7 @@ import { Float32Arr } from "@beep/schema/Float32Array";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { A, O, P, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
@@ -582,7 +582,8 @@ const hashText = (text: string): number => {
   let index = 0;
 
   while (index < text.length) {
-    hash = (hash ^ text.charCodeAt(index)) * 16_777_619;
+    // index stays below text.length, so the code unit is always present.
+    hash = (hash ^ pipe(text, Str.charCodeAt(index), O.getOrElse(constant(0)))) * 16_777_619;
     index += 1;
   }
 

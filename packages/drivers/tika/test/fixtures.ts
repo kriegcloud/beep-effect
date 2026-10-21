@@ -4,9 +4,10 @@ import { decodeTestOperationIdentifiers } from "@beep/file-processing/test";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { O } from "@beep/utils";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { FileFormatFamily } from "@beep/file-processing/Strategy";
 
 const decodePosixPath = S.decodeEffect(PosixPath);
@@ -71,7 +72,7 @@ export const tikaVersionResponse = "Apache Tika 3.3.1";
 /**
  * Trimmed text a stubbed `/rmeta/text` payload yields for a fixture format.
  */
-export const fixtureText = (format: TikaFixtureFormat): string => fixtureContent[format].trim();
+export const fixtureText = (format: TikaFixtureFormat): string => pipe(fixtureContent[format], Str.trim);
 
 /**
  * Build the canned `PUT /rmeta/text` JSON payload for a fixture format.
