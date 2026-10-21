@@ -1764,6 +1764,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("checkout retention arch
                 cwd: F.constant(Effect.succeedNone),
                 status: F.constant(Effect.succeedNone),
                 jobControl: F.constant(Effect.succeedNone),
+                watching: F.constant(Effect.succeed(false)),
                 descriptors: Effect.fn("ResidueReapTest.descriptors")(function* () {
                   const destination = yield* Ref.get(holder);
                   if (O.isNone(destination)) return A.empty<string>();

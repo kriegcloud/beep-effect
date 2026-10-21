@@ -87,7 +87,7 @@ export class KnownFlightObjective extends S.Opaque<KnownFlightObjective, { reado
 export class UnknownFlightObjective extends S.Opaque<UnknownFlightObjective, { readonly brand: unique symbol }>()(
   S.Struct({
     status: S.tag(FlightObjectiveStatus.Enum.unknown),
-    evidenceTier: S.Literal(EvidenceTier.Enum.unknown),
+    evidenceTier: S.tag(EvidenceTier.Enum.unknown),
   }).pipe(
     $I.annoteSchema("UnknownFlightObjective", {
       description: "Explicit absence of an attributable objective, without a guessed or free-text replacement.",
@@ -519,7 +519,7 @@ export class LastKnownFlightConfig extends S.Opaque<LastKnownFlightConfig, { rea
   S.Struct({
     status: S.tag(FlightConfigStatus.Enum["last-known"]),
     fingerprint: Sha256Hex,
-    evidenceTier: S.Literal(EvidenceTier.Enum.heuristic),
+    evidenceTier: S.tag(EvidenceTier.Enum.heuristic),
   }).pipe(
     $I.annoteSchema("LastKnownFlightConfig", {
       description: "Last-known configuration fingerprint retained as explicitly heuristic evidence.",
@@ -546,7 +546,7 @@ export class LastKnownFlightConfig extends S.Opaque<LastKnownFlightConfig, { rea
 export class UnknownFlightConfig extends S.Opaque<UnknownFlightConfig, { readonly brand: unique symbol }>()(
   S.Struct({
     status: S.tag(FlightConfigStatus.Enum.unknown),
-    evidenceTier: S.Literal(EvidenceTier.Enum.unknown),
+    evidenceTier: S.tag(EvidenceTier.Enum.unknown),
   }).pipe(
     $I.annoteSchema("UnknownFlightConfig", {
       description: "Explicit absence of a session configuration fingerprint.",
@@ -765,7 +765,7 @@ export const FlightRecordCompositionInputArbitrary = Arbitrary.all([
  */
 export class FlightRecord extends S.Opaque<FlightRecord, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(flightRecordSchemaVersion),
+    schemaVersion: S.tag(flightRecordSchemaVersion),
     recordId: Sha256Hex,
     sessionId: Sha256Hex,
     sourceKind: AiMetricsTranscriptSource,

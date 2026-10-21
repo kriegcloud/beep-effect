@@ -772,7 +772,7 @@ export class LedgerCheckpoint extends S.Class<LedgerCheckpoint, { readonly brand
  */
 export class Ledger extends S.Class<Ledger, { readonly brand: unique symbol }>($I`Ledger`)(
   {
-    version: S.Literal(1),
+    version: S.tag(1),
     effectedCommit: S.NonEmptyString,
     startedAt: S.NonEmptyString,
     lastCheckpoint: S.NullOr(LedgerCheckpoint),

@@ -2381,7 +2381,7 @@ export type PlanEntryStatus = typeof PlanEntryStatus.Type;
 export const AvailableCommandInput = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("text"),
+      type: S.tag("text"),
       hint: S.String.annotateKey({
         description:
           "A hint to display when the input hasn't been provided yet",
@@ -4885,7 +4885,7 @@ export type HttpHeader = typeof HttpHeader.Type;
 export const ReplayFrom = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("start"),
+      type: S.tag("start"),
       _meta: S.optionalKey(
         S.Union([
           S.Record(
@@ -6670,7 +6670,7 @@ export const DiffChange = S.Union([
           S.Null,
         ]),
       ),
-      operation: S.Literal("add"),
+      operation: S.tag("add"),
       path: S.suspend((): S.Codec<AbsolutePath> => AbsolutePath).annotateKey({
         description: "Absolute path for the operation.",
       }),
@@ -6705,7 +6705,7 @@ export const DiffChange = S.Union([
           S.Null,
         ]),
       ),
-      operation: S.Literal("delete"),
+      operation: S.tag("delete"),
       path: S.suspend((): S.Codec<AbsolutePath> => AbsolutePath).annotateKey({
         description: "Absolute path for the operation.",
       }),
@@ -6740,7 +6740,7 @@ export const DiffChange = S.Union([
           S.Null,
         ]),
       ),
-      operation: S.Literal("modify"),
+      operation: S.tag("modify"),
       path: S.suspend((): S.Codec<AbsolutePath> => AbsolutePath).annotateKey({
         description: "Absolute path for the operation.",
       }),
@@ -6775,7 +6775,7 @@ export const DiffChange = S.Union([
           S.Null,
         ]),
       ),
-      operation: S.Literal("move"),
+      operation: S.tag("move"),
       oldPath: S.suspend((): S.Codec<AbsolutePath> => AbsolutePath).annotateKey(
         { description: "Absolute path before the operation." },
       ),
@@ -6813,7 +6813,7 @@ export const DiffChange = S.Union([
           S.Null,
         ]),
       ),
-      operation: S.Literal("copy"),
+      operation: S.tag("copy"),
       oldPath: S.suspend((): S.Codec<AbsolutePath> => AbsolutePath).annotateKey(
         { description: "Absolute path before the operation." },
       ),
@@ -7339,7 +7339,7 @@ export const SetSessionConfigOptionRequest = S.Union([
       value: S.suspend(
         (): S.Codec<SessionConfigValueId> => SessionConfigValueId,
       ).annotateKey({ description: "The value ID." }),
-      type: S.Literal("id"),
+      type: S.tag("id"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
@@ -7369,7 +7369,7 @@ export const SetSessionConfigOptionRequest = S.Union([
         ]),
       ),
       value: S.Boolean.annotateKey({ description: "The boolean value." }),
-      type: S.Literal("boolean"),
+      type: S.tag("boolean"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({ description: 'A boolean value (`type: "boolean"`).' }),
@@ -7838,7 +7838,7 @@ export type CancelRequestNotification = typeof CancelRequestNotification.Type;
  * @since 0.0.0
  */
 export const RequestPermissionOutcome = S.Union([
-  S.StructWithRest(S.Struct({ outcome: S.Literal("cancelled") }), [
+  S.StructWithRest(S.Struct({ outcome: S.tag("cancelled") }), [
     S.Record(S.String, S.Json.annotate({ expected: "JSON value" })),
   ]).annotateKey({
     description:
@@ -7846,7 +7846,7 @@ export const RequestPermissionOutcome = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      outcome: S.Literal("selected"),
+      outcome: S.tag("selected"),
       optionId: S.suspend(
         (): S.Codec<PermissionOptionId> => PermissionOptionId,
       ).annotateKey({ description: "The ID of the option the user selected." }),
@@ -8179,7 +8179,7 @@ export type LoginAuthRequest = typeof LoginAuthRequest.Type;
 export const AuthMethod = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("terminal"),
+      type: S.tag("terminal"),
       methodId: S.suspend(
         (): S.Codec<AuthMethodId> => AuthMethodId,
       ).annotateKey({
@@ -8229,7 +8229,7 @@ export const AuthMethod = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("agent"),
+      type: S.tag("agent"),
       methodId: S.suspend(
         (): S.Codec<AuthMethodId> => AuthMethodId,
       ).annotateKey({
@@ -9068,7 +9068,7 @@ export type RejectNesNotification = typeof RejectNesNotification.Type;
 export const McpServer = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("http"),
+      type: S.tag("http"),
       name: S.String.annotateKey({
         description: "Human-readable name identifying this MCP server.",
       }),
@@ -9099,7 +9099,7 @@ export const McpServer = S.Union([
   ).annotateKey({ description: "HTTP transport configuration for MCP." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("acp"),
+      type: S.tag("acp"),
       name: S.String.annotateKey({
         description: "Human-readable name identifying this MCP server.",
       }),
@@ -9129,7 +9129,7 @@ export const McpServer = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("stdio"),
+      type: S.tag("stdio"),
       name: S.String.annotateKey({
         description: "Human-readable name identifying this MCP server.",
       }),
@@ -9374,7 +9374,7 @@ export const CreateElicitationResponse = S.Union([
           S.Null,
         ]),
       ),
-      action: S.Literal("accept"),
+      action: S.tag("accept"),
       content: S.optionalKey(
         S.Union([
           S.Record(S.String, ElicitationContentValue).annotateKey({
@@ -9403,7 +9403,7 @@ export const CreateElicitationResponse = S.Union([
           S.Null,
         ]),
       ),
-      action: S.Literal("decline"),
+      action: S.tag("decline"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({ description: "The user declined the elicitation." }),
@@ -9421,7 +9421,7 @@ export const CreateElicitationResponse = S.Union([
           S.Null,
         ]),
       ),
-      action: S.Literal("cancel"),
+      action: S.tag("cancel"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({ description: "The elicitation was cancelled." }),
@@ -9777,7 +9777,7 @@ export type ListSessionsResponse = typeof ListSessionsResponse.Type;
 export const PlanUpdateContent = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("items"),
+      type: S.tag("items"),
       planId: S.suspend((): S.Codec<PlanId> => PlanId).annotateKey({
         description: "The plan ID to update.",
       }),
@@ -9802,7 +9802,7 @@ export const PlanUpdateContent = S.Union([
   ).annotateKey({ description: "A plan represented as structured entries." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("file"),
+      type: S.tag("file"),
       planId: S.suspend((): S.Codec<PlanId> => PlanId).annotateKey({
         description: "The plan ID to update.",
       }),
@@ -9830,7 +9830,7 @@ export const PlanUpdateContent = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("markdown"),
+      type: S.tag("markdown"),
       planId: S.suspend((): S.Codec<PlanId> => PlanId).annotateKey({
         description: "The plan ID to update.",
       }),
@@ -10042,7 +10042,7 @@ export type RequestPermissionResponse = typeof RequestPermissionResponse.Type;
 export const MultiSelectItems = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("string"),
+      type: S.tag("string"),
       enum: S.Array(S.String)
         .annotateKey({
           description: "Allowed enum values. Must contain at least one value.",
@@ -10907,7 +10907,7 @@ export type NesEventCapabilities = typeof NesEventCapabilities.Type;
 export const ContentBlock = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("text"),
+      type: S.tag("text"),
       text: S.String.annotateKey({
         description: "Text payload carried by this content block.",
       }),
@@ -10934,7 +10934,7 @@ export const ContentBlock = S.Union([
   ).annotateKey({ description: "Text provided to or from an LLM." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("image"),
+      type: S.tag("image"),
       data: S.String.annotateKey({
         description: "Base64-encoded media payload.",
         contentEncoding: "base64",
@@ -10974,7 +10974,7 @@ export const ContentBlock = S.Union([
   ).annotateKey({ description: "An image provided to or from an LLM." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("audio"),
+      type: S.tag("audio"),
       data: S.String.annotateKey({
         description: "Base64-encoded media payload.",
         contentEncoding: "base64",
@@ -11005,7 +11005,7 @@ export const ContentBlock = S.Union([
   ).annotateKey({ description: "Audio provided to or from an LLM." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("resource_link"),
+      type: S.tag("resource_link"),
       name: S.String.annotateKey({
         description: "Human-readable name shown for this protocol object.",
       }),
@@ -11080,7 +11080,7 @@ export const ContentBlock = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("resource"),
+      type: S.tag("resource"),
       resource: S.suspend(
         (): S.Codec<EmbeddedResourceResource> => EmbeddedResourceResource,
       ).annotateKey({
@@ -11222,7 +11222,7 @@ export type SessionConfigSelectOptions = typeof SessionConfigSelectOptions.Type;
 export const ElicitationPropertySchema = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("string"),
+      type: S.tag("string"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -11344,7 +11344,7 @@ export const ElicitationPropertySchema = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("number"),
+      type: S.tag("number"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -11413,7 +11413,7 @@ export const ElicitationPropertySchema = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("integer"),
+      type: S.tag("integer"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -11481,7 +11481,7 @@ export const ElicitationPropertySchema = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("boolean"),
+      type: S.tag("boolean"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -11528,7 +11528,7 @@ export const ElicitationPropertySchema = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("array"),
+      type: S.tag("array"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -11731,7 +11731,7 @@ export type ListProvidersResponse = typeof ListProvidersResponse.Type;
 export const NesSuggestion = S.Union([
   S.StructWithRest(
     S.Struct({
-      kind: S.Literal("edit"),
+      kind: S.tag("edit"),
       suggestionId: S.suspend(
         (): S.Codec<NesSuggestionId> => NesSuggestionId,
       ).annotateKey({
@@ -11774,7 +11774,7 @@ export const NesSuggestion = S.Union([
   ).annotateKey({ description: "A text edit suggestion." }),
   S.StructWithRest(
     S.Struct({
-      kind: S.Literal("jump"),
+      kind: S.tag("jump"),
       suggestionId: S.suspend(
         (): S.Codec<NesSuggestionId> => NesSuggestionId,
       ).annotateKey({
@@ -11804,7 +11804,7 @@ export const NesSuggestion = S.Union([
   ).annotateKey({ description: "A jump-to-location suggestion." }),
   S.StructWithRest(
     S.Struct({
-      kind: S.Literal("rename"),
+      kind: S.tag("rename"),
       suggestionId: S.suspend(
         (): S.Codec<NesSuggestionId> => NesSuggestionId,
       ).annotateKey({
@@ -11837,7 +11837,7 @@ export const NesSuggestion = S.Union([
   ).annotateKey({ description: "A rename symbol suggestion." }),
   S.StructWithRest(
     S.Struct({
-      kind: S.Literal("searchAndReplace"),
+      kind: S.tag("searchAndReplace"),
       suggestionId: S.suspend(
         (): S.Codec<NesSuggestionId> => NesSuggestionId,
       ).annotateKey({
@@ -12253,7 +12253,7 @@ export type NesCapabilities = typeof NesCapabilities.Type;
 export const ToolCallContent = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("content"),
+      type: S.tag("content"),
       content: S.suspend((): S.Codec<ContentBlock> => ContentBlock).annotateKey(
         { description: "The actual content block." },
       ),
@@ -12276,7 +12276,7 @@ export const ToolCallContent = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("diff"),
+      type: S.tag("diff"),
       changes: S.Array(DiffChange).annotateKey({
         description:
           "Structured file changes described by this diff.\n\nClients can use this field without parsing patch text to determine affected paths.",
@@ -12307,7 +12307,7 @@ export const ToolCallContent = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("terminal"),
+      type: S.tag("terminal"),
       terminalId: S.suspend((): S.Codec<TerminalId> => TerminalId).annotateKey({
         description: "The ID of the terminal to display.",
       }),
@@ -12487,7 +12487,7 @@ export const SessionConfigOption = S.Union([
           S.Null,
         ]),
       ),
-      type: S.Literal("select"),
+      type: S.tag("select"),
       currentValue: S.suspend(
         (): S.Codec<SessionConfigValueId> => SessionConfigValueId,
       ).annotateKey({ description: "The currently selected value." }),
@@ -12536,7 +12536,7 @@ export const SessionConfigOption = S.Union([
           S.Null,
         ]),
       ),
-      type: S.Literal("boolean"),
+      type: S.tag("boolean"),
       currentValue: S.Boolean.annotateKey({
         description: "The current value of the boolean option.",
       }),
@@ -13076,7 +13076,7 @@ export type ToolCallUpdate = typeof ToolCallUpdate.Type;
 export const SessionUpdate = S.Union([
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("user_message_chunk"),
+      sessionUpdate: S.tag("user_message_chunk"),
       messageId: S.suspend((): S.Codec<MessageId> => MessageId).annotateKey({
         description:
           "A unique identifier for the message this chunk belongs to.\n\nAll chunks belonging to the same message share the same `messageId`.\nA change in `messageId` indicates a new message has started.",
@@ -13101,7 +13101,7 @@ export const SessionUpdate = S.Union([
   ).annotateKey({ description: "A streamed item of message content." }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("user_message"),
+      sessionUpdate: S.tag("user_message"),
       messageId: S.suspend((): S.Codec<MessageId> => MessageId).annotateKey({
         description: "A unique identifier for the message.",
       }),
@@ -13133,7 +13133,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("agent_message_chunk"),
+      sessionUpdate: S.tag("agent_message_chunk"),
       messageId: S.suspend((): S.Codec<MessageId> => MessageId).annotateKey({
         description:
           "A unique identifier for the message this chunk belongs to.\n\nAll chunks belonging to the same message share the same `messageId`.\nA change in `messageId` indicates a new message has started.",
@@ -13158,7 +13158,7 @@ export const SessionUpdate = S.Union([
   ).annotateKey({ description: "A streamed item of message content." }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("agent_message"),
+      sessionUpdate: S.tag("agent_message"),
       messageId: S.suspend((): S.Codec<MessageId> => MessageId).annotateKey({
         description: "A unique identifier for the message.",
       }),
@@ -13190,7 +13190,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("agent_thought_chunk"),
+      sessionUpdate: S.tag("agent_thought_chunk"),
       messageId: S.suspend((): S.Codec<MessageId> => MessageId).annotateKey({
         description:
           "A unique identifier for the message this chunk belongs to.\n\nAll chunks belonging to the same message share the same `messageId`.\nA change in `messageId` indicates a new message has started.",
@@ -13215,7 +13215,7 @@ export const SessionUpdate = S.Union([
   ).annotateKey({ description: "A streamed item of message content." }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("agent_thought"),
+      sessionUpdate: S.tag("agent_thought"),
       messageId: S.suspend((): S.Codec<MessageId> => MessageId).annotateKey({
         description: "A unique identifier for the thought message.",
       }),
@@ -13249,8 +13249,8 @@ export const SessionUpdate = S.Union([
   S.Union([
     S.StructWithRest(
       S.Struct({
-        sessionUpdate: S.Literal("state_update"),
-        state: S.Literal("running"),
+        sessionUpdate: S.tag("state_update"),
+        state: S.tag("running"),
         _meta: S.optionalKey(
           S.Union([
             S.Record(
@@ -13268,8 +13268,8 @@ export const SessionUpdate = S.Union([
     ).annotateKey({ description: "Foreground work is in progress." }),
     S.StructWithRest(
       S.Struct({
-        sessionUpdate: S.Literal("state_update"),
-        state: S.Literal("idle"),
+        sessionUpdate: S.tag("state_update"),
+        state: S.tag("idle"),
         stopReason: S.optionalKey(
           S.Union([StopReason, S.Null]).annotateKey({
             description:
@@ -13301,8 +13301,8 @@ export const SessionUpdate = S.Union([
     }),
     S.StructWithRest(
       S.Struct({
-        sessionUpdate: S.Literal("state_update"),
-        state: S.Literal("requires_action"),
+        sessionUpdate: S.tag("state_update"),
+        state: S.tag("requires_action"),
         _meta: S.optionalKey(
           S.Union([
             S.Record(
@@ -13322,7 +13322,7 @@ export const SessionUpdate = S.Union([
     }),
     S.StructWithRest(
       S.Struct({
-        sessionUpdate: S.Literal("state_update"),
+        sessionUpdate: S.tag("state_update"),
         state: S.String.annotateKey({
           description:
             "Custom or future session state.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.",
@@ -13344,7 +13344,7 @@ export const SessionUpdate = S.Union([
   ]),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("tool_call_content_chunk"),
+      sessionUpdate: S.tag("tool_call_content_chunk"),
       toolCallId: S.suspend((): S.Codec<ToolCallId> => ToolCallId).annotateKey({
         description: "The ID of the tool call this content belongs to.",
       }),
@@ -13373,7 +13373,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("tool_call_update"),
+      sessionUpdate: S.tag("tool_call_update"),
       toolCallId: S.suspend((): S.Codec<ToolCallId> => ToolCallId).annotateKey({
         description: "Unique identifier for this tool call within the session.",
       }),
@@ -13455,7 +13455,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("terminal_update"),
+      sessionUpdate: S.tag("terminal_update"),
       terminalId: S.suspend((): S.Codec<TerminalId> => TerminalId).annotateKey({
         description: "Unique identifier for this terminal within the session.",
       }),
@@ -13502,7 +13502,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("terminal_output_chunk"),
+      sessionUpdate: S.tag("terminal_output_chunk"),
       terminalId: S.suspend((): S.Codec<TerminalId> => TerminalId).annotateKey({
         description: "The terminal receiving these bytes.",
       }),
@@ -13530,7 +13530,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("plan_update"),
+      sessionUpdate: S.tag("plan_update"),
       plan: S.suspend(
         (): S.Codec<PlanUpdateContent> => PlanUpdateContent,
       ).annotateKey({ description: "The updated plan content." }),
@@ -13553,7 +13553,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("plan_removed"),
+      sessionUpdate: S.tag("plan_removed"),
       planId: S.suspend((): S.Codec<PlanId> => PlanId).annotateKey({
         description: "The plan ID to remove.",
       }),
@@ -13577,7 +13577,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("available_commands_update"),
+      sessionUpdate: S.tag("available_commands_update"),
       availableCommands: S.Array(AvailableCommand).annotateKey({
         description: "Commands the agent can execute.",
       }),
@@ -13600,7 +13600,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("config_option_update"),
+      sessionUpdate: S.tag("config_option_update"),
       configOptions: S.Array(SessionConfigOption).annotateKey({
         description:
           "The full set of configuration options and their current values.",
@@ -13624,7 +13624,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("session_info_update"),
+      sessionUpdate: S.tag("session_info_update"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -13664,7 +13664,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("usage_update"),
+      sessionUpdate: S.tag("usage_update"),
       used: S.Int.annotateKey({
         description: "Tokens currently in context.",
         format: "uint64",
@@ -13705,7 +13705,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("compaction_update"),
+      sessionUpdate: S.tag("compaction_update"),
       compactionId: S.suspend(
         (): S.Codec<CompactionId> => CompactionId,
       ).annotateKey({
@@ -13752,7 +13752,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("compaction_summary_chunk"),
+      sessionUpdate: S.tag("compaction_summary_chunk"),
       compactionId: S.suspend(
         (): S.Codec<CompactionId> => CompactionId,
       ).annotateKey({
@@ -14107,7 +14107,7 @@ export const CreateElicitationRequest = S.Union([
             S.Null,
           ]),
         ),
-        mode: S.Literal("form"),
+        mode: S.tag("form"),
         requestedSchema: S.suspend(
           (): S.Codec<ElicitationSchema> => ElicitationSchema,
         ).annotateKey({
@@ -14147,7 +14147,7 @@ export const CreateElicitationRequest = S.Union([
             S.Null,
           ]),
         ),
-        mode: S.Literal("form"),
+        mode: S.tag("form"),
         requestedSchema: S.suspend(
           (): S.Codec<ElicitationSchema> => ElicitationSchema,
         ).annotateKey({
@@ -14183,7 +14183,7 @@ export const CreateElicitationRequest = S.Union([
             S.Null,
           ]),
         ),
-        mode: S.Literal("url"),
+        mode: S.tag("url"),
         elicitationId: S.suspend(
           (): S.Codec<ElicitationId> => ElicitationId,
         ).annotateKey({
@@ -14226,7 +14226,7 @@ export const CreateElicitationRequest = S.Union([
             S.Null,
           ]),
         ),
-        mode: S.Literal("url"),
+        mode: S.tag("url"),
         elicitationId: S.suspend(
           (): S.Codec<ElicitationId> => ElicitationId,
         ).annotateKey({
@@ -14451,7 +14451,7 @@ export type InitializeResponse = typeof InitializeResponse.Type;
 export const RequestPermissionSubject = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("tool_call"),
+      type: S.tag("tool_call"),
       toolCall: S.suspend(
         (): S.Codec<ToolCallUpdate> => ToolCallUpdate,
       ).annotateKey({
@@ -14462,7 +14462,7 @@ export const RequestPermissionSubject = S.Union([
   ).annotateKey({ description: "Permission request details for a tool call." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("command"),
+      type: S.tag("command"),
       command: S.String.annotateKey({
         description: "The command that would be run if permission is granted.",
       }),
@@ -18674,7 +18674,7 @@ export type SessionInfoUpdate = typeof SessionInfoUpdate.Type;
 export const StateUpdate = S.Union([
   S.StructWithRest(
     S.Struct({
-      state: S.Literal("running"),
+      state: S.tag("running"),
       _meta: S.optionalKey(
         S.Union([
           S.Record(
@@ -18692,7 +18692,7 @@ export const StateUpdate = S.Union([
   ).annotateKey({ description: "Foreground work is in progress." }),
   S.StructWithRest(
     S.Struct({
-      state: S.Literal("idle"),
+      state: S.tag("idle"),
       stopReason: S.optionalKey(
         S.Union([StopReason, S.Null]).annotateKey({
           description:
@@ -18722,7 +18722,7 @@ export const StateUpdate = S.Union([
   ).annotateKey({ description: "The agent is ready to process a new prompt." }),
   S.StructWithRest(
     S.Struct({
-      state: S.Literal("requires_action"),
+      state: S.tag("requires_action"),
       _meta: S.optionalKey(
         S.Union([
           S.Record(

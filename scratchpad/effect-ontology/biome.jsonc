@@ -46,7 +46,21 @@
             "style": "separatedType"
           }
         },
-        "noNonNullAssertion": "error"
+        "noNonNullAssertion": "error",
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "uuid": "Use the effect/Crypto service: randomUUIDv4, randomUUIDv7, or digest for name-based ids. uuid is not a repository dependency."
+            },
+            "patterns": [
+              {
+                "group": ["uuid/**"],
+                "message": "Use the effect/Crypto service: randomUUIDv4, randomUUIDv7, or digest for name-based ids. uuid is not a repository dependency."
+              }
+            ]
+          }
+        }
       },
       "suspicious": {
         "noExplicitAny": "error",

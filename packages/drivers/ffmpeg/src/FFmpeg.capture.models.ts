@@ -812,7 +812,7 @@ export class ExtractFramesAtManifest extends S.Opaque<ExtractFramesAtManifest, {
         description: "Video metadata observed before extraction.",
       })
     ),
-    schemaVersion: S.Literal("beep.ffmpeg.extract-frames-at.v1").pipe(
+    schemaVersion: S.tag("beep.ffmpeg.extract-frames-at.v1").pipe(
       $I.annoteKey("ExtractFramesAtManifest.schemaVersion", {
         description: "Manifest schema version literal.",
       })

@@ -135,9 +135,7 @@ export const YEET_DISPATCH_SCHEMA_VERSION = "yeet-dispatch/v1";
  */
 export class YeetRemediationWave extends S.Opaque<YeetRemediationWave, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(YEET_DISPATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_DISPATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_DISPATCH_SCHEMA_VERSION),
     capsuleIds: S.Array(S.String),
     headSha: S.NonEmptyString,
     prNumber: S.Finite,

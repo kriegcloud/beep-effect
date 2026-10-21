@@ -16,12 +16,17 @@ import { ExtractFileOperation } from "@beep/file-processing/Operation";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
+import * as A from "@beep/utils/Array";
 import { describe, expect } from "@effect/vitest";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { strToU8, Zip, ZipDeflate, zipSync } from "fflate";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 
 const decodePosixPath = S.decodeEffect(PosixPath);
@@ -100,7 +105,429 @@ const makeDocx = (text: string): Promise<Buffer> =>
     })
   );
 
+const documentXml = (text: string) =>
+  `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>${text}</w:t></w:r></w:p></w:body></w:document>`;
+
+// Visit headers by their declared spans rather than scanning compressed data
+// for coincidental ZIP signatures. Mutations affect metadata, never payloads.
+const alterZipHeaders = (bytes: Uint8Array, change: (view: DataView, offset: number, central: boolean) => void) => {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let offset = 0;
+  while (offset + 4 <= bytes.byteLength) {
+    const signature = view.getUint32(offset, true);
+    if (signature === 0x04034b50) {
+      const next =
+        offset +
+        30 +
+        view.getUint16(offset + 26, true) +
+        view.getUint16(offset + 28, true) +
+        view.getUint32(offset + 18, true);
+      change(view, offset, false);
+      offset = next;
+    } else if (signature === 0x02014b50) {
+      const next =
+        offset +
+        46 +
+        view.getUint16(offset + 28, true) +
+        view.getUint16(offset + 30, true) +
+        view.getUint16(offset + 32, true);
+      change(view, offset, true);
+      offset = next;
+    } else break;
+  }
+  return bytes;
+};
+
 describe("@beep/doc-text", () => {
+  for (const { name, xml } of [
+    { name: "expanded bytes", xml: `<document>${Str.repeat(9 * 1024 * 1024)("a")}</document>` },
+    { name: "XML nodes", xml: `<document>${Str.repeat(1_000_001)("<p/>")}</document>` },
+    { name: "XML depth", xml: `${Str.repeat(129)("<p>")}${Str.repeat(129)("</p>")}` },
+    { name: "DTD", xml: '<!DOCTYPE document [<!ENTITY x "expanded">]><document>&x;</document>' },
+  ]) {
+    it.effect(`rejects DOCX ${name} before Mammoth extraction`, () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const bytes = zipSync({ "word/document.xml": strToU8(xml) });
+        const operation = yield* makeOperation(ids, "docx", "docx", bytes);
+        const error = yield* Effect.flip(DocTextFileProcessingEngine.extract(operation));
+        expect(error.reason).toBe("output-limit-exceeded");
+      })
+    );
+  }
+
+  it.effect("charges actual expanded bytes even when ZIP length declarations understate them", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({ "word/document.xml": strToU8(`<p>${Str.repeat(9 * 1024 * 1024)("a")}</p>`) });
+      alterZipHeaders(bytes, (view, offset, central) => view.setUint32(offset + (central ? 24 : 22), 1, true));
+      const operation = yield* makeOperation(ids, "docx", "docx", bytes);
+      const error = yield* Effect.flip(DocTextFileProcessingEngine.extract(operation));
+      expect(error.reason).toBe("output-limit-exceeded");
+    })
+  );
+
+  const archiveLimitCases: ReadonlyArray<{ readonly name: string; readonly files: Record<string, Uint8Array> }> = [
+    {
+      name: "entry count",
+      files: R.fromEntries(
+        A.makeBy(513, (index): readonly [string, Uint8Array] => [`part-${index}`, new Uint8Array(0)])
+      ),
+    },
+    {
+      name: "aggregate XML nodes",
+      files: {
+        "word/document.xml": strToU8(`<p>${Str.repeat(500_001)("<p/>")}</p>`),
+        "word/styles.xml": strToU8(`<p>${Str.repeat(500_001)("<p/>")}</p>`),
+      },
+    },
+    {
+      name: "XML attributes",
+      files: {
+        "word/document.xml": strToU8(
+          `<p ${A.join(
+            A.makeBy(1_000_001, (index) => `a${index}="x"`),
+            " "
+          )}/>`
+        ),
+      },
+    },
+    {
+      name: "relationship-targeted XML without an XML extension",
+      files: {
+        "_rels/.rels": strToU8(
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/payload.bin"/></Relationships>'
+        ),
+        "word/payload.bin": strToU8(`<p>${Str.repeat(1_000_001)("<p/>")}</p>`),
+      },
+    },
+  ];
+  for (const { name, files } of archiveLimitCases) {
+    it.effect(`rejects DOCX ${name}`, () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const bytes = zipSync(files);
+        const error = yield* Effect.flip(
+          DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+        );
+        expect(error.reason).toBe("output-limit-exceeded");
+      })
+    );
+  }
+
+  it.effect("bounds data-descriptor ZIP entries with no local size declarations", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      let bytes = new Uint8Array(0);
+      const archive = new Zip((error, data) => {
+        expect(error).toBeNull();
+        bytes = new Uint8Array(Buffer.concat([bytes, data]));
+      });
+      const part = new ZipDeflate("word/document.xml");
+      archive.add(part);
+      part.push(strToU8(`<p>${Str.repeat(9 * 1024 * 1024)("a")}</p>`), true);
+      archive.end();
+      const error = yield* Effect.flip(
+        DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+      );
+      expect(error.reason).toBe("output-limit-exceeded");
+    })
+  );
+
+  it.effect("honors the caller's smaller expanded-byte budget", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({ "word/document.xml": strToU8(documentXml(Str.repeat(16_384)("a"))) });
+      expect(bytes.byteLength).toBeLessThan(4_096);
+      const error = yield* Effect.flip(
+        DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes, 4_096))
+      );
+      expect(error.reason).toBe("output-limit-exceeded");
+    })
+  );
+
+  it.effect("does not trust central-directory names to choose the document part", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({
+        "word/document.xml": strToU8(documentXml("validated safe text")),
+        "word/payload0.bin": strToU8(`<p>${Str.repeat(1_000_001)("<p/>")}</p>`),
+      });
+      alterZipHeaders(bytes, (view, offset, central) => {
+        if (!central) return;
+        const name = bytes.subarray(offset + 46, offset + 46 + view.getUint16(offset + 28, true));
+        if (new TextDecoder().decode(name) === "word/payload0.bin") name.set(strToU8("word/document.xml"));
+      });
+      const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+      expect(result.text).toContain("validated safe text");
+    })
+  );
+
+  it.effect("ignores central-directory expansion claims after rebuilding validated entries", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = alterZipHeaders(
+        zipSync({ "word/document.xml": strToU8(documentXml("safe text")) }),
+        (view, offset, central) => {
+          if (central) view.setUint32(offset + 24, 0xfffffff0, true);
+        }
+      );
+      const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+      expect(result.text).toContain("safe text");
+    })
+  );
+
+  for (const name of ["word/../word/document.xml", "word//document.xml", "word/./document.xml"]) {
+    it.effect(`rejects JSZip-normalized name ${name}`, () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const bytes = zipSync({ [name]: strToU8(documentXml("ambiguous")) });
+        const error = yield* Effect.flip(
+          DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+        );
+        expect(error.reason).toBe("file-extraction-failed");
+      })
+    );
+  }
+
+  for (const pages of [20, 60]) {
+    it.effect(`extracts an ordinary ${pages}-page run-heavy document above the former node cap`, () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const paragraph = `<w:p><w:pPr><w:spacing w:after="120"/></w:pPr>${Str.repeat(30)(
+          '<w:r><w:rPr><w:b w:val="0"/><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">ordinary contract text </w:t></w:r>'
+        )}</w:p>`;
+        const body = Str.repeat(pages)(`${Str.repeat(12)(paragraph)}<w:p><w:r><w:br w:type="page"/></w:r></w:p>`);
+        const bytes = zipSync({
+          "word/document.xml": strToU8(
+            `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}</w:body></w:document>`
+          ),
+          // Mammoth does not read these parts: their complexity must not consume
+          // the raw-text XML budget or cause them to be inflated for validation.
+          "word/theme/theme1.xml": strToU8(`<theme>${Str.repeat(1_000_001)("<p/>")}</theme>`),
+          "word/settings.xml": strToU8("<!DOCTYPE ignored><settings/>"),
+          "word/fontTable.xml": strToU8("<ignored>"),
+        });
+        const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+        expect(result.text).toContain("ordinary contract text");
+        expect(Str.length(O.getOrElse(O.fromUndefinedOr(result.text), () => ""))).toBeGreaterThan(pages * 5_000);
+      })
+    );
+  }
+
+  it.effect("extracts text with a referenced 10 MiB embedded image without expanding media", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({
+        "word/document.xml": strToU8(
+          '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body><w:p><w:r><w:t>document with embedded photos</w:t></w:r></w:p><w:p><w:r><w:drawing><wp:inline><wp:docPr id="1" name="photo"/><a:graphic><a:graphicData><pic:pic><pic:blipFill><a:blip r:embed="photo1"/></pic:blipFill></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p></w:body></w:document>'
+        ),
+        "word/_rels/document.xml.rels": strToU8(
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="photo1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/photo.png"/></Relationships>'
+        ),
+        "[Content_Types].xml": strToU8(
+          '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="png" ContentType="image/png"/></Types>'
+        ),
+        "word/media/photo.png": new Uint8Array(10 * 1024 * 1024),
+      });
+      const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+      expect(result.text).toContain("document with embedded photos");
+    })
+  );
+
+  it.effect("preserves custom document relationships while leaving original binary members untouched", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({
+        "_rels/.rels": strToU8(
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/main.part"/></Relationships>'
+        ),
+        "word/main.part": strToU8(documentXml("custom document text")),
+        "word/media/image.png": new Uint8Array([137, 80, 78, 71, 60, 0, 255]),
+      });
+      const original = new Uint8Array(bytes);
+      const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+      expect(result.text).toContain("custom document text");
+      expect(bytes).toEqual(original);
+    })
+  );
+
+  it.effect("follows extensionless main and styles targets using Mammoth's exact lookup", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({
+        "_rels/.rels": strToU8(
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="custom/main"/></Relationships>'
+        ),
+        "custom/main": strToU8(documentXml("extensionless document text")),
+        "custom/_rels/main.rels": strToU8(
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="styles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles"/></Relationships>'
+        ),
+        "custom/styles": strToU8('<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'),
+      });
+      const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+      expect(result.text).toContain("extensionless document text");
+    })
+  );
+
+  it.effect("bounds dense repeated and arbitrary relationship types while preserving first-existing order", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const related = A.join(
+        A.makeBy(30_000, (index) =>
+          index % 2 === 0
+            ? `<Relationship Id="r${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles"/>`
+            : `<Relationship Id="r${index}" Type="ignored-type-${index}" Target="ignored"/>`
+        ),
+        ""
+      );
+      const bytes = zipSync({
+        "word/document.xml": strToU8(documentXml("dense relationship text")),
+        "word/_rels/document.xml.rels": strToU8(
+          `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="missing" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="missing"/>${related}<Relationship Id="later" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="later"/></Relationships>`
+        ),
+        "word/styles": strToU8('<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'),
+        // The later existing match must not displace the first existing target.
+        "word/later": strToU8("<!DOCTYPE rejected><invalid/>"),
+      });
+      const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+      expect(result.text).toContain("dense relationship text");
+    })
+  );
+
+  it.effect("rejects duplicate local names instead of letting JSZip overwrite a part", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({
+        "word/document.xml": strToU8(documentXml("safe")),
+        "word/payload0.bin": strToU8(documentXml("other")),
+      });
+      alterZipHeaders(bytes, (view, offset, central) => {
+        const start = offset + (central ? 46 : 30);
+        const name = bytes.subarray(start, start + view.getUint16(offset + (central ? 28 : 26), true));
+        if (new TextDecoder().decode(name) === "word/payload0.bin") name.set(strToU8("word/document.xml"));
+      });
+      const error = yield* Effect.flip(
+        DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+      );
+      expect(error.reason).toBe("file-extraction-failed");
+    })
+  );
+
+  it.effect("rejects UTF-16 XML without changing Mammoth's UTF-8 extraction semantics", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const content = Buffer.concat([
+        new Uint8Array([0xff, 0xfe]),
+        Buffer.from(documentXml("Unicode café 文書"), "utf16le"),
+      ]);
+      const bytes = zipSync({ "word/document.xml": content });
+      const error = yield* Effect.flip(
+        DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+      );
+      expect(error.reason).toBe("file-extraction-failed");
+    })
+  );
+
+  for (const { name, mainTarget, partName } of [
+    { name: "root-absolute custom main", mainTarget: "/custom/document.part", partName: "custom/document.part" },
+    {
+      name: "literal percent-encoded custom main",
+      mainTarget: "custom/document%2Epart",
+      partName: "custom/document%2Epart",
+    },
+  ]) {
+    it.effect(`budgets ${name} using Mammoth's exact target lookup`, () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const bytes = zipSync({
+          "_rels/.rels": strToU8(
+            `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="${mainTarget}"/></Relationships>`
+          ),
+          [partName]: strToU8(`<p>${Str.repeat(1_000_001)("<p/>")}</p>`),
+        });
+        const error = yield* Effect.flip(
+          DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+        );
+        expect(error.reason).toBe("output-limit-exceeded");
+      })
+    );
+  }
+
+  for (const target of ["styles.part", "/custom/styles.part", "styles%2Epart"]) {
+    it.effect(`budgets nested custom document styles at ${target}`, () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const partName = target === "/custom/styles.part" ? "custom/styles.part" : `nested/deep/${target}`;
+        const bytes = zipSync({
+          "_rels/.rels": strToU8(
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="nested/deep/main.part"/></Relationships>'
+          ),
+          "nested/deep/main.part": strToU8(documentXml("safe document")),
+          "nested/deep/_rels/main.part.rels": strToU8(
+            `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="styles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="${target}"/></Relationships>`
+          ),
+          [partName]: strToU8(`<p>${Str.repeat(1_000_001)("<p/>")}</p>`),
+        });
+        const error = yield* Effect.flip(
+          DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+        );
+        expect(error.reason).toBe("output-limit-exceeded");
+      })
+    );
+  }
+
+  for (const target of ["../custom.part", "./custom.part", "custom%2Epart", "custom//part"]) {
+    it.effect(`fails an unsupported main target ${target} instead of normalizing it`, () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const bytes = zipSync({
+          "_rels/.rels": strToU8(
+            `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="${target}"/></Relationships>`
+          ),
+          "custom.part": strToU8(documentXml("unselected normalized target")),
+          "custom/part": strToU8(documentXml("unselected collapsed target")),
+        });
+        const error = yield* Effect.flip(
+          DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+        );
+        expect(error.reason).toBe("file-extraction-failed");
+      })
+    );
+  }
+
+  it.effect("leaves unsupported parent-relative styles unconsumed under nested relationships", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({
+        "_rels/.rels": strToU8(
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="nested/deep/main.part"/></Relationships>'
+        ),
+        "nested/deep/main.part": strToU8(documentXml("nested document text")),
+        "nested/deep/_rels/main.part.rels": strToU8(
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="styles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="../custom.part"/></Relationships>'
+        ),
+        "nested/custom.part": strToU8(`<p>${Str.repeat(1_000_001)("<p/>")}</p>`),
+      });
+      const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+      expect(result.text).toContain("nested document text");
+    })
+  );
+
+  it.effect("rejects truncated compressed members through the typed extraction error", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const bytes = zipSync({ "word/document.xml": strToU8(documentXml("safe")) });
+      const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      const payloadStart = 30 + view.getUint16(26, true) + view.getUint16(28, true);
+      const truncated = bytes.subarray(0, payloadStart + 1);
+      const error = yield* Effect.flip(
+        DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", truncated))
+      );
+      expect(error.reason).toBe("file-extraction-failed");
+    })
+  );
+
   // The stable codec law: decoding an encoded value and re-encoding it must
   // reproduce the original encoding byte-for-byte. This holds for every schema,
   // including class schemas whose decoded side is an Error subclass.

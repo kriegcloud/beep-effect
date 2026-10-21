@@ -137,7 +137,7 @@ class IanaMediaTypesCanonicalMetadata extends S.Opaque<
 
 class IanaMediaTypesCanonical extends S.Opaque<IanaMediaTypesCanonical, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("beep-data/iana-media-types/v1"),
+    schemaVersion: S.tag("beep-data/iana-media-types/v1"),
     metadata: IanaMediaTypesCanonicalMetadata,
     mediaTypesByType: S.Record(S.String, IanaMediaTypeEntry),
   }).pipe(

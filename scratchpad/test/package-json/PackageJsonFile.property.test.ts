@@ -27,11 +27,11 @@ import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import { Package } from "../../effected/package-json/Package.ts";
 import { PackageJsonFile } from "../../effected/package-json/PackageJsonFile.ts";
 const FileSample = S.Struct({
-  name: S.Literal("property-package"),
+  name: S.tag("property-package"),
   version: S.Literals(["1.0.0", "2.0.0"]),
   description: S.String,
   keywords: S.Array(S.String),
-  dependencies: S.Struct({lib: S.Literal("workspace:*")}),
+  dependencies: S.Struct({lib: S.tag("workspace:*")}),
   "x-data": S.Json,
 });
 const FileLayer = PackageJsonFile.layer.pipe(Layer.provideMerge(Layer.mergeAll(MemoryFileSystem.layerWith({}), Path.layer)));

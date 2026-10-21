@@ -254,7 +254,7 @@ export class AccountsReportGroup extends S.Opaque<AccountsReportGroup, { readonl
  */
 export class AccountsReportInput extends S.Opaque<AccountsReportInput, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("accounts-status/v2"),
+    schemaVersion: S.tag("accounts-status/v2"),
     generatedAt: S.DateTimeUtcFromString,
     groups: S.Array(AccountsReportGroup),
   }).pipe(

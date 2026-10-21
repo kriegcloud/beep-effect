@@ -21,6 +21,7 @@
 
 import { ModelInvariantError, VariantField } from "@beep/effect-drizzle";
 import * as Pg from "@beep/effect-drizzle/pg";
+import { $SharedDomainId } from "@beep/identity/packages";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -37,6 +38,60 @@ import type { FieldsInput, ModelClass, PatchedField } from "@beep/effect-drizzle
 import type { Annotations } from "effect/Schema";
 import type * as VariantSchema from "effect/schema/VariantSchema";
 import type * as EntityId from "./EntityId.ts";
+
+const $I = $SharedDomainId.create("entity/EntityKit");
+
+/**
+ * Optimistic-concurrency token stored in every entity row's `rowVersion`.
+ *
+ * **Details**
+ *
+ * A row starts at `1` (the column's SQL default) and every committed write
+ * stores the next value. A full-entity write treats the entity's own token as
+ * the expected value: it succeeds only while the stored token still equals it,
+ * so two writers that read the same row cannot both succeed.
+ *
+ * **Example** (Decode a stored token)
+ *
+ * ```ts
+ * import { RowVersion } from "@beep/shared-domain/entity/EntityKit"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.decodeUnknownSync(RowVersion)(3)) // 3
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const RowVersion = PosInt.annotate({
+  identifier: $I`RowVersion`,
+  title: "Row version",
+  description: "Positive optimistic-concurrency token; starts at 1 and increments on every committed row write.",
+});
+
+/**
+ * Type of {@link RowVersion}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type RowVersion = typeof RowVersion.Type;
+
+/**
+ * Token a successful write stores after the expected one.
+ *
+ * **Example** (Advance a token)
+ *
+ * ```ts
+ * import { nextRowVersion, RowVersion } from "@beep/shared-domain/entity/EntityKit"
+ *
+ * console.log(nextRowVersion(RowVersion.make(1))) // 2
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const nextRowVersion = (rowVersion: RowVersion): RowVersion => RowVersion.make(rowVersion + 1);
 
 /**
  * Timestamp and optimistic-version columns shared by every tier.
@@ -55,11 +110,7 @@ import type * as EntityId from "./EntityId.ts";
  */
 export const baseColumns = {
   createdAt: M.DateTimeInsertFromNumber.pipe(Pg.bigint("number")),
-  rowVersion: VariantField({
-    select: PosInt,
-    update: PosInt,
-    json: PosInt,
-  }).pipe(Pg.integer()),
+  rowVersion: RowVersion.pipe(Pg.integer(), Pg.default(1), Pg.version()),
   updatedAt: M.DateTimeUpdateFromNumber.pipe(Pg.bigint("number")),
 };
 

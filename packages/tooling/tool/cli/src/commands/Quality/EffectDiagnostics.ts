@@ -44,19 +44,20 @@ const effectDiagnosticsProfilePath = "standards/effect-diagnostics.profile.json"
 class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { readonly brand: unique symbol }>()(
   S.Struct({
     diagnosticSeverity: S.Struct({
-      effectSleepZeroToYieldNow: S.Literal("error"),
-      errorPayloadShadowsName: S.Literal("error"),
-      flatMapToTap: S.Literal("error"),
-      preferBarrelImport: S.Literal("off"),
-      preferEffectArray: S.Literal("error"),
-      preferEffectRecord: S.Literal("error"),
-      preferNamespaceImport: S.Literal("off"),
-      preferSchemaTaggedError: S.Literal("error"),
-      schemaClassMissingBrand: S.Literal("error"),
+      effectSleepZeroToYieldNow: S.tag("error"),
+      errorPayloadShadowsName: S.tag("error"),
+      flatMapToTap: S.tag("error"),
+      preferBarrelImport: S.tag("off"),
+      preferEffectArray: S.tag("error"),
+      preferEffectRecord: S.tag("error"),
+      preferNamespaceImport: S.tag("off"),
+      preferSchemaTaggedError: S.tag("error"),
+      schemaClassMissingBrand: S.tag("error"),
+      schemaClassObjectLiteral: S.tag("error"),
     }),
   }).pipe(
     $I.annoteSchema("EffectDiagnosticsProfile", {
-      description: "The nine rules absent from tsc-rs 0.6.0, configured for the standalone @effect/tsgo lane.",
+      description: "The ten rules absent from tsc-rs 0.6.0, configured for the standalone @effect/tsgo lane.",
     })
   )
 ) {}
@@ -94,7 +95,7 @@ const RuleSeverity = LiteralKit(["off", "error", "warning", "suggestion", "messa
 );
 class EffectPlugin extends S.Opaque<EffectPlugin, { readonly brand: unique symbol }>()(
   S.StructWithRest(
-    S.Struct({ name: S.Literal("@effect/language-service"), diagnosticSeverity: S.Record(S.String, RuleSeverity) }),
+    S.Struct({ name: S.tag("@effect/language-service"), diagnosticSeverity: S.Record(S.String, RuleSeverity) }),
     [S.Record(S.String, S.Unknown)]
   ).pipe(
     $I.annoteSchema("EffectPlugin", {

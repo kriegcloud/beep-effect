@@ -272,7 +272,7 @@ export type FallowAttributionKinds = typeof FallowAttributionKinds.Type;
  * @since 0.0.0
  */
 export const FallowReportBaseFields = {
-  schemaVersion: S.Literal("fallow-report-envelope/v1"),
+  schemaVersion: S.tag("fallow-report-envelope/v1"),
   toolVersion: S.String,
   command: S.String,
   subcommand: FallowFeatureFamily,
@@ -296,7 +296,7 @@ export const FallowReportBaseFields = {
 export class FallowReportOk extends S.Opaque<FallowReportOk, { readonly brand: unique symbol }>()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("ok"),
+    status: S.tag("ok"),
     exitStatus: S.Natural,
     report: FallowReportPayload,
   }).pipe(
@@ -316,7 +316,7 @@ export class FallowReportOk extends S.Opaque<FallowReportOk, { readonly brand: u
 export class FallowReportToolFailed extends S.Opaque<FallowReportToolFailed, { readonly brand: unique symbol }>()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("tool-failed"),
+    status: S.tag("tool-failed"),
     exitStatus: PositiveExitStatus,
     stderrExcerpt: S.String,
   }).pipe(
@@ -336,7 +336,7 @@ export class FallowReportToolFailed extends S.Opaque<FallowReportToolFailed, { r
 export class FallowReportInvalidJson extends S.Opaque<FallowReportInvalidJson, { readonly brand: unique symbol }>()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("invalid-json"),
+    status: S.tag("invalid-json"),
     exitStatus: S.Natural,
     stderrExcerpt: S.String,
   }).pipe(
@@ -356,7 +356,7 @@ export class FallowReportInvalidJson extends S.Opaque<FallowReportInvalidJson, {
 export class FallowReportInvalidReport extends S.Opaque<FallowReportInvalidReport, { readonly brand: unique symbol }>()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("invalid-report"),
+    status: S.tag("invalid-report"),
     exitStatus: S.Natural,
     stderrExcerpt: S.String,
   }).pipe(
@@ -379,7 +379,7 @@ export class FallowReportBaseResolutionFailed extends S.Opaque<
 >()(
   S.Struct({
     ...FallowReportBaseFields,
-    status: S.Literal("base-resolution-failed"),
+    status: S.tag("base-resolution-failed"),
     exitStatus: PositiveExitStatus,
     stderrExcerpt: S.String,
   }).pipe(

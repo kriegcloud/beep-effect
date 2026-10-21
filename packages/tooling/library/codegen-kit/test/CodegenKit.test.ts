@@ -708,6 +708,31 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit", (i
       expect(rendered).toContain('from "@beep/identity"');
     })
   );
+
+  it.effect("renders required const properties as schema tags", () =>
+    Effect.gen(function* () {
+      const kit = yield* CodegenKit;
+      const tagged: S.Json = {
+        $defs: {
+          Gadget: {
+            type: "object",
+            properties: {
+              kind: { const: "gadget", type: "string" },
+              stage: { const: "beta", type: "string" },
+            },
+            required: ["kind"],
+          },
+        },
+      };
+      const generateConfig = config("gadget.gen.ts");
+      const raw = yield* kit.generate(tagged, generateConfig);
+      const rendered = yield* kit.postProcess(raw, generateConfig);
+
+      expect(rendered).toContain('"kind": S.tag("gadget")');
+      expect(rendered).toContain('"stage": S.optionalKey(S.Literal("beta"))');
+      expect(rendered).not.toContain('S.Literal("gadget")');
+    })
+  );
 });
 
 const acpTransforms: ReadonlyArray<NamedTransform> = [

@@ -113,7 +113,7 @@ export type DocStructureSourceModality = typeof DocStructureSourceModality.Type;
  */
 export class DocStructureRuleFamily extends S.Opaque<DocStructureRuleFamily, { readonly brand: unique symbol }>()(
   S.Struct({
-    id: S.Literal("uspto-oa-finality-ssp"),
+    id: S.tag("uspto-oa-finality-ssp"),
     version: S.Int.check(
       S.isGreaterThan(0, {
         identifier: $I`RuleVersionCheck`,
@@ -244,7 +244,7 @@ export type OfficeActionRawOutcome = typeof OfficeActionRawOutcome.Type;
 const sourceEquivalent = S.toEquivalence(SourceTextIdentity);
 const VerifiedAnchorSchema: S.Codec<VerifiedTextAnchor> = VerifiedTextAnchor;
 type CandidateFields = {
-  readonly schemaVersion: S.Literal<"1">;
+  readonly schemaVersion: S.tag<"1">;
   readonly document: typeof DocStructureDocument;
   readonly source: typeof SourceTextIdentity;
   readonly rule: typeof DocStructureRuleFamily;
@@ -252,7 +252,7 @@ type CandidateFields = {
   readonly confidence: typeof UnitInterval;
 };
 const CandidateFields: CandidateFields = {
-  schemaVersion: S.Literal("1"),
+  schemaVersion: S.tag("1"),
   document: DocStructureDocument,
   source: SourceTextIdentity,
   rule: DocStructureRuleFamily,
@@ -270,15 +270,18 @@ const CandidateSourceCheck = S.makeFilter(
   }
 );
 type OfficeActionFinalityCandidateFields = CandidateFields & {
-  readonly _tag: S.tag<"OfficeActionFinalityCandidate">;
   readonly finality: typeof OfficeActionFinality;
 };
-const OfficeActionFinalityCandidateStruct: S.Struct<OfficeActionFinalityCandidateFields> =
-  S.Struct<OfficeActionFinalityCandidateFields>({
+const OfficeActionFinalityCandidateStruct: S.TaggedStruct<
+  "OfficeActionFinalityCandidate",
+  OfficeActionFinalityCandidateFields
+> = S.TaggedStruct<"OfficeActionFinalityCandidate", OfficeActionFinalityCandidateFields>(
+  "OfficeActionFinalityCandidate",
+  {
     ...CandidateFields,
-    _tag: S.tag("OfficeActionFinalityCandidate"),
     finality: OfficeActionFinality,
-  }).check(CandidateSourceCheck);
+  }
+).check(CandidateSourceCheck);
 const OfficeActionFinalityCandidateBase: S.Class<
   OfficeActionFinalityCandidate,
   typeof OfficeActionFinalityCandidateStruct,
@@ -310,15 +313,18 @@ const OfficeActionFinalityCandidateBase: S.Class<
  */
 export class OfficeActionFinalityCandidate extends OfficeActionFinalityCandidateBase {}
 type ShortenedStatutoryPeriodCandidateFields = CandidateFields & {
-  readonly _tag: S.tag<"ShortenedStatutoryPeriodCandidate">;
-  readonly months: S.Literal<3>;
+  readonly months: S.tag<3>;
 };
-const ShortenedStatutoryPeriodCandidateStruct: S.Struct<ShortenedStatutoryPeriodCandidateFields> =
-  S.Struct<ShortenedStatutoryPeriodCandidateFields>({
+const ShortenedStatutoryPeriodCandidateStruct: S.TaggedStruct<
+  "ShortenedStatutoryPeriodCandidate",
+  ShortenedStatutoryPeriodCandidateFields
+> = S.TaggedStruct<"ShortenedStatutoryPeriodCandidate", ShortenedStatutoryPeriodCandidateFields>(
+  "ShortenedStatutoryPeriodCandidate",
+  {
     ...CandidateFields,
-    _tag: S.tag("ShortenedStatutoryPeriodCandidate"),
-    months: S.Literal(3),
-  }).check(CandidateSourceCheck);
+    months: S.tag(3),
+  }
+).check(CandidateSourceCheck);
 const ShortenedStatutoryPeriodCandidateBase: S.Class<
   ShortenedStatutoryPeriodCandidate,
   typeof ShortenedStatutoryPeriodCandidateStruct,

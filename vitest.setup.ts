@@ -25,7 +25,7 @@
 // @effect-diagnostics globalTimers:skip-file
 // @effect-diagnostics globalRandom:skip-file
 import * as NodeChildProcess from "node:child_process";
-import { createHash, createHmac } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import * as NodeFS from "node:fs";
 import * as NodeFSP from "node:fs/promises";
 import * as NodeHttp from "node:http";
@@ -596,4 +596,10 @@ if (!isBunTestShim(Reflect.get(globalThis, "Bun"))) {
     stdout: process.stdout,
     write,
   } satisfies BunTestShim);
+}
+
+// Bun exposes the native constant-time comparator on its global Crypto API.
+// Node coverage runs use the same native primitive through this platform shim.
+if (!hasFunctionProperty(globalThis.crypto, "timingSafeEqual")) {
+  Reflect.set(globalThis.crypto, "timingSafeEqual", timingSafeEqual);
 }

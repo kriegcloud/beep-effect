@@ -21,6 +21,9 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { SyncOperationRow } from "@beep/documents-tables/entities/SyncOperation";
 
+// Optional on insert: the column's SQL default supplies the first version.
+const insertedRowVersion = (rowVersion: number | undefined): number => rowVersion ?? 1;
+
 const decodeUnknownSyncOperation = S.decodeUnknownEffect(DomainSyncOperation.SyncOperation);
 
 const SyncOperationEquivalence = S.toEquivalence(DomainSyncOperation.SyncOperation);
@@ -122,6 +125,7 @@ describe("SyncOperation table", () => {
           ...insert,
           deletedAt: insert.deletedAt ?? null,
           deletedByPrincipal: insert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(insert.rowVersion),
           id: 20,
           // $inferInsert types nullable columns as `value | null | undefined`; the
           // select-row converter expects `value | null`, so resolve absent
@@ -151,6 +155,7 @@ describe("SyncOperation table", () => {
         ...insert.success,
         deletedAt: insert.success.deletedAt ?? null,
         deletedByPrincipal: insert.success.deletedByPrincipal ?? null,
+        rowVersion: insertedRowVersion(insert.success.rowVersion),
         id: syncOperation.id,
         inputContentDigest: insert.success.inputContentDigest ?? null,
         lastError: insert.success.lastError ?? null,

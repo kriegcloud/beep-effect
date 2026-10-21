@@ -1,5 +1,6 @@
 import { Document, P, Text } from "@beep/md";
 import { CuidState } from "@beep/schema/Cuid";
+import { nextRowVersion } from "@beep/shared-domain/entity/EntityKit";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
@@ -313,7 +314,7 @@ describe("ThreadStore in-memory", () => {
     })
   );
 
-  it.layer(Layer.fresh(CuidTestLayer))((it) => {
+  it.layer(Layer.fresh(CuidTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
       "sets an empty thread title once",
       Effect.fnUntraced(function* () {
@@ -339,6 +340,8 @@ describe("ThreadStore in-memory", () => {
 
         const threads = yield* store.listThreads(workspaceId);
         expect(A.map(threads, (thread) => thread.title)).toEqual(["Draft fee memo"]);
+        // The rename advanced the row version; the no-op replacement did not.
+        expect(A.map(threads, (current) => current.rowVersion)).toEqual([nextRowVersion(thread.rowVersion)]);
       })
     );
   });

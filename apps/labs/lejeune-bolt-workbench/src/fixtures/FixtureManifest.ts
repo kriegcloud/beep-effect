@@ -76,7 +76,7 @@ const FrozenFixtureManifestFields = S.Struct({
     ExtractedField,
   ]),
   missingFields: S.Tuple([S.Literal("rfq-a|certificationRequirement"), S.Literal("rfq-b|domesticOrigin")]),
-  schemaVersion: S.Literal("lejeune-fixture-manifest/v1"),
+  schemaVersion: S.tag("lejeune-fixture-manifest/v1"),
   sources: S.Tuple([FrozenSourceHash, FrozenSourceHash, FrozenSourceHash, FrozenSourceHash]),
 });
 

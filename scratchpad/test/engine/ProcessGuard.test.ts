@@ -215,8 +215,8 @@ describe("ProcessGuard.run", () => {
 				load: async () => undefined,
 			});
 			assert.isTrue(S.is(S.TaggedStruct("InjectedCrash", {
-				kind: S.Literal(kind),
-				message: S.Literal(`[injected] ${kind}`),
+				kind: S.tag(kind),
+				message: S.tag(`[injected] ${kind}`),
 			}))(error));
 			assert.instanceOf(error, Error);
 			if (!(error instanceof Error)) assert.fail("injected crash must be an Error");

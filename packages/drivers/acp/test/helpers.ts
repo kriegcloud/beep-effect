@@ -19,8 +19,8 @@ const jsonRpcRequestImpl = <A, I>(method: string, params: S.Codec<A, I>) =>
   S.Struct({
     headers: JsonRpcHeaders.pipe(S.withDecodingDefaultKey(Effect.succeed([]))),
     id: JsonRpcId,
-    jsonrpc: S.Literal("2.0"),
-    method: S.Literal(method),
+    jsonrpc: S.tag("2.0"),
+    method: S.tag(method),
     params,
   });
 
@@ -31,8 +31,8 @@ export const jsonRpcRequest: {
 
 const jsonRpcNotificationImpl = <A, I>(method: string, params: S.Codec<A, I>) =>
   S.Struct({
-    jsonrpc: S.Literal("2.0"),
-    method: S.Literal(method),
+    jsonrpc: S.tag("2.0"),
+    method: S.tag(method),
     params,
   });
 
@@ -44,7 +44,7 @@ export const jsonRpcNotification: {
 export const jsonRpcResponse = <A, I>(result: S.Codec<A, I>) =>
   S.Struct({
     id: JsonRpcId,
-    jsonrpc: S.Literal("2.0"),
+    jsonrpc: S.tag("2.0"),
     result,
   });
 

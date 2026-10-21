@@ -233,9 +233,9 @@ class FallowEntryPointsRawReport extends S.Opaque<FallowEntryPointsRawReport, { 
   )
 ) {}
 const FallowAuditRawReport = S.Struct({
-  kind: S.Literal("audit"),
+  kind: S.tag("audit"),
   ...FallowVersionedRawFields,
-  command: S.Literal("audit"),
+  command: S.tag("audit"),
   verdict: S.String,
   changed_files_count: S.Finite,
   base_ref: S.String,
@@ -261,7 +261,7 @@ const FallowAuditRawReport = S.Struct({
   })
 );
 const FallowDeadCodeRawReport = S.Struct({
-  kind: S.Literal("dead-code"),
+  kind: S.tag("dead-code"),
   ...FallowVersionedRawFields,
   total_issues: S.Finite,
   entry_points: FallowEntryPointsRawReport,
@@ -295,7 +295,7 @@ const FallowDeadCodeRawReport = S.Struct({
   })
 );
 const FallowHealthRawReport = S.Struct({
-  kind: S.Literal("health"),
+  kind: S.tag("health"),
   ...FallowVersionedRawFields,
   findings: S.Array(FallowHealthFinding),
   summary: S.Struct({
@@ -326,7 +326,7 @@ class FallowSecurityDetailedRawReport extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    kind: S.Literal("security"),
+    kind: S.tag("security"),
     schema_version: S.Union([S.Finite, S.String]),
     security_findings: S.Array(FallowSecurityFinding),
     unresolved_edge_files: S.Finite,
@@ -342,7 +342,7 @@ class FallowSecuritySummaryRawReport extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    kind: S.Literal("security"),
+    kind: S.tag("security"),
     schema_version: S.Union([S.Finite, S.String]),
     version: S.String,
     elapsed_ms: S.Finite,
@@ -373,7 +373,7 @@ const FallowSecurityRawReport = S.Union([FallowSecurityDetailedRawReport, Fallow
 );
 class FallowFixPreviewRawReport extends S.Opaque<FallowFixPreviewRawReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    dry_run: S.Literal(true),
+    dry_run: S.tag(true),
     fixes: S.Array(FallowFixPreviewFinding),
     total_fixed: S.Finite,
     skipped: S.Finite,

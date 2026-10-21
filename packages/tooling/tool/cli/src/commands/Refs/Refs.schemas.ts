@@ -114,8 +114,8 @@ export class ReferenceWorkspaceManifest extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("beep-references/v1"),
-    theme: S.Literal("effect"),
+    schemaVersion: S.tag("beep-references/v1"),
+    theme: S.tag("effect"),
     rootDefault: S.NonEmptyString.check(
       S.isPattern(/^\$HOME\/[^\p{Cc}]+$/u, {
         arbitraryConstraint: { patterns: [{ source: "^\\$HOME/[a-zA-Z0-9_-]+$", flags: "" }] },
@@ -133,7 +133,7 @@ export class ReferenceWorkspaceManifest extends S.Opaque<
         }
       )
     ),
-    workspaceLink: S.Literal(".repos/effect-workspace"),
+    workspaceLink: S.tag(".repos/effect-workspace"),
   }).pipe($I.annoteSchema("ReferenceWorkspaceManifest", { description: "The on-disk beep-references/v1 manifest." }))
 ) {
   /**
@@ -382,7 +382,7 @@ export class RefsRefreshPreflight extends S.Opaque<RefsRefreshPreflight, { reado
  */
 export class RefsRefreshStatus extends S.Opaque<RefsRefreshStatus, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("beep-refs-refresh/v1"),
+    schemaVersion: S.tag("beep-refs-refresh/v1"),
     timestamp: S.String,
     root: S.NonEmptyString,
     members: S.Array(MemberRefreshReport),

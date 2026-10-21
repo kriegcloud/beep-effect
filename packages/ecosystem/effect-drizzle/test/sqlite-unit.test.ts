@@ -34,6 +34,7 @@ import {
   _sqliteGeneratedOnlyModel,
   _sqliteInvalidFiniteDefault,
   _sqliteMultiplePrimaryKeys,
+  _sqliteNativeRepositoryVersionedModel,
   _sqliteNonUniqueForeignKey,
   _sqliteNulColumnName,
   _sqliteNulDefault,
@@ -85,6 +86,14 @@ describe("SQLite name invariants", () => {
     expect(_sqliteDuplicateIndexNamespace).toThrow(SqliteSchemaAssemblyError);
     expect(_sqliteDuplicateConstraintNamespace).toThrow("Schema-global name");
     expect(_sqliteDuplicateConstraintNamespace).toThrow(SqliteSchemaAssemblyError);
+  });
+});
+
+describe("SQLite repository invariants", () => {
+  it("rejects a version() model in the native repository", () => {
+    expect(_sqliteNativeRepositoryVersionedModel).toThrow(
+      "would overwrite optimistic-version field 'rowVersion'; use makeRepository"
+    );
   });
 });
 
@@ -142,6 +151,13 @@ describe("SQLite projection", () => {
     expect(column("status").default).toBe("active");
     expect(column("created_at").getSQLType()).toBe("text");
     expect(column("updated_at").getSQLType()).toBe("text");
+  });
+
+  it("keeps version fields out of JSON create payloads but required on JSON update", () => {
+    expect(keys(SqliteUser.insert.fields)).toContain("rowVersion");
+    expect(keys(SqliteUser.update.fields)).toContain("rowVersion");
+    expect(keys(SqliteUser.jsonUpdate.fields)).toContain("rowVersion");
+    expect(keys(SqliteUser.jsonCreate.fields)).not.toContain("rowVersion");
   });
 
   it("emits enum and kit checks plus SQLite partial indexes", () => {

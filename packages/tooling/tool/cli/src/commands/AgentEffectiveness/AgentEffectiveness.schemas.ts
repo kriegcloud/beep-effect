@@ -625,7 +625,7 @@ export class AgentConventionMeasurements extends S.Opaque<
  */
 export class AgentConventionTrial extends S.Opaque<AgentConventionTrial, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("agent-convention-trial/v1"),
+    schemaVersion: S.tag("agent-convention-trial/v1"),
     runId: S.NonEmptyString,
     pairId: S.NonEmptyString,
     controls: AgentConventionControls,
@@ -711,7 +711,7 @@ export class AgentConventionDifferences extends S.Opaque<
  */
 export class AgentConventionComparison extends S.Opaque<AgentConventionComparison, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("agent-convention-comparison/v1"),
+    schemaVersion: S.tag("agent-convention-comparison/v1"),
     baseline: AgentConventionTrial,
     candidate: AgentConventionTrial,
     result: S.TaggedUnion({

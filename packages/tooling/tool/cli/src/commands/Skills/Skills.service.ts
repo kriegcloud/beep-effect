@@ -755,7 +755,7 @@ export const SkillUpstreamContentSourceLive = Layer.effect(SkillUpstreamContentS
 
 const V1LockSkills = S.fromJsonString(
   S.Struct({
-    version: S.Literal(1),
+    version: S.tag(1),
     skills: S.Record(S.String, S.Struct({ sourceType: S.String })),
   })
 );

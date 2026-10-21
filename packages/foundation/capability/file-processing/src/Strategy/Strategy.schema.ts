@@ -342,7 +342,7 @@ export class StrategyPreference extends S.Opaque<StrategyPreference, { readonly 
  */
 export class SupportedSelectedStrategy extends S.Opaque<SupportedSelectedStrategy, { readonly brand: unique symbol }>()(
   S.Struct({
-    disposition: S.Literal("supported"),
+    disposition: S.tag("supported"),
     engine: FileProcessingEngineFamily,
     format: FileFormatFamily,
     operationKind: FileProcessingOperationKind,
@@ -377,7 +377,7 @@ export class SupportedSelectedStrategy extends S.Opaque<SupportedSelectedStrateg
  */
 export class DeferredSelectedStrategy extends S.Opaque<DeferredSelectedStrategy, { readonly brand: unique symbol }>()(
   S.Struct({
-    disposition: S.Literal("deferred"),
+    disposition: S.tag("deferred"),
     engine: FileProcessingEngineFamily,
     format: FileFormatFamily,
     operationKind: FileProcessingOperationKind,
@@ -416,7 +416,7 @@ export class UnsupportedSelectedStrategy extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    disposition: S.Literal("unsupported"),
+    disposition: S.tag("unsupported"),
     engine: FileProcessingEngineFamily,
     format: FileFormatFamily,
     operationKind: FileProcessingOperationKind,

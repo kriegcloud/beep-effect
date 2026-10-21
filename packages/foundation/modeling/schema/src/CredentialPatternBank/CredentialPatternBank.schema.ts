@@ -75,7 +75,7 @@ export type CredentialCategory = typeof CredentialCategory.Type;
 export class CredentialRule extends S.Opaque<CredentialRule, { readonly brand: unique symbol }>()(
   S.Struct({
     category: CredentialCategory,
-    version: S.Literal("v1"),
+    version: S.tag("v1"),
     pattern: S.NonEmptyString,
     flags: S.Literals(["gu", "giu"]),
     valueGroups: S.NonEmptyArray(S.Natural),
@@ -100,7 +100,7 @@ export class CredentialRule extends S.Opaque<CredentialRule, { readonly brand: u
 export class CredentialMatch extends S.Opaque<CredentialMatch, { readonly brand: unique symbol }>()(
   S.Struct({
     category: CredentialCategory,
-    ruleVersion: S.Literal("v1"),
+    ruleVersion: S.tag("v1"),
     start: S.Natural,
     end: S.Natural,
     state: S.Literals(["matched", "residue", "unresolved"]),

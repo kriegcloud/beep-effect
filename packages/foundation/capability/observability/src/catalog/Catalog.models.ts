@@ -604,7 +604,7 @@ export const catalogConflicts = ({
  */
 export class InstrumentCatalog extends S.Opaque<InstrumentCatalog, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal(1).pipe(S.withConstructorDefault(Effect.succeed(1))),
+    version: S.tag(1),
     ...InstrumentCatalogContent.fields,
   })
     .check(

@@ -83,7 +83,7 @@ export const formatJsonc = Effect.fn("ArtifactIo.formatJsonc")(function* (value:
  * import { readArtifact } from "@beep/repo-cli/test/Artifacts"
  *
  * class ReadError extends Error {}
- * const Doc = S.Struct({ schema_version: S.Literal(1) })
+ * const Doc = S.Struct({ schema_version: S.tag(1) })
  * const program = readArtifact({
  *   path: "/repo/standards/example.jsonc",
  *   schema: Doc,

@@ -7667,7 +7667,7 @@ export const SetSessionConfigOptionRequest = S.Union([
         ]),
       ),
       value: S.Boolean.annotateKey({ description: "The boolean value." }),
-      type: S.Literal("boolean"),
+      type: S.tag("boolean"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({ description: 'A boolean value (`type: "boolean"`).' }),
@@ -8066,7 +8066,7 @@ export type ConnectMcpResponse = typeof ConnectMcpResponse.Type;
  * @since 0.0.0
  */
 export const RequestPermissionOutcome = S.Union([
-  S.StructWithRest(S.Struct({ outcome: S.Literal("cancelled") }), [
+  S.StructWithRest(S.Struct({ outcome: S.tag("cancelled") }), [
     S.Record(S.String, S.Json.annotate({ expected: "JSON value" })),
   ]).annotateKey({
     description:
@@ -8074,7 +8074,7 @@ export const RequestPermissionOutcome = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      outcome: S.Literal("selected"),
+      outcome: S.tag("selected"),
       optionId: S.suspend(
         (): S.Codec<PermissionOptionId> => PermissionOptionId,
       ).annotateKey({ description: "The ID of the option the user selected." }),
@@ -9528,7 +9528,7 @@ export const CreateElicitationResponse = S.Union([
           S.Null,
         ]),
       ),
-      action: S.Literal("accept"),
+      action: S.tag("accept"),
       content: S.optionalKey(
         S.Union([
           S.Record(S.String, ElicitationContentValue).annotateKey({
@@ -9557,7 +9557,7 @@ export const CreateElicitationResponse = S.Union([
           S.Null,
         ]),
       ),
-      action: S.Literal("decline"),
+      action: S.tag("decline"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({ description: "The user declined the elicitation." }),
@@ -9575,7 +9575,7 @@ export const CreateElicitationResponse = S.Union([
           S.Null,
         ]),
       ),
-      action: S.Literal("cancel"),
+      action: S.tag("cancel"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({ description: "The elicitation was cancelled." }),
@@ -9798,7 +9798,7 @@ export type NesDocumentEventCapabilities =
 export const ContentBlock = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("text"),
+      type: S.tag("text"),
       annotations: S.optionalKey(
         S.Union([Annotations, S.Null]).annotateKey({
           description:
@@ -9825,7 +9825,7 @@ export const ContentBlock = S.Union([
   ).annotateKey({ description: "Text provided to or from an LLM." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("image"),
+      type: S.tag("image"),
       annotations: S.optionalKey(
         S.Union([Annotations, S.Null]).annotateKey({
           description:
@@ -9863,7 +9863,7 @@ export const ContentBlock = S.Union([
   ).annotateKey({ description: "An image provided to or from an LLM." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("audio"),
+      type: S.tag("audio"),
       annotations: S.optionalKey(
         S.Union([Annotations, S.Null]).annotateKey({
           description:
@@ -9893,7 +9893,7 @@ export const ContentBlock = S.Union([
   ).annotateKey({ description: "Audio provided to or from an LLM." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("resource_link"),
+      type: S.tag("resource_link"),
       annotations: S.optionalKey(
         S.Union([Annotations, S.Null]).annotateKey({
           description:
@@ -9961,7 +9961,7 @@ export const ContentBlock = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("resource"),
+      type: S.tag("resource"),
       annotations: S.optionalKey(
         S.Union([Annotations, S.Null]).annotateKey({
           description:
@@ -10033,7 +10033,7 @@ export type ContentBlock = typeof ContentBlock.Type;
 export const PlanUpdateContent = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("items"),
+      type: S.tag("items"),
       planId: S.suspend((): S.Codec<PlanId> => PlanId).annotateKey({
         description: "The plan ID to update.",
       }),
@@ -10061,7 +10061,7 @@ export const PlanUpdateContent = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("file"),
+      type: S.tag("file"),
       planId: S.suspend((): S.Codec<PlanId> => PlanId).annotateKey({
         description: "The plan ID to update.",
       }),
@@ -10088,7 +10088,7 @@ export const PlanUpdateContent = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("markdown"),
+      type: S.tag("markdown"),
       planId: S.suspend((): S.Codec<PlanId> => PlanId).annotateKey({
         description: "The plan ID to update.",
       }),
@@ -10403,7 +10403,7 @@ export type RequestPermissionResponse = typeof RequestPermissionResponse.Type;
 export const McpServer = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("http"),
+      type: S.tag("http"),
       name: S.String.annotateKey({
         description: "Human-readable name identifying this MCP server.",
       }),
@@ -10429,7 +10429,7 @@ export const McpServer = S.Union([
   ).annotateKey({ description: "HTTP transport configuration for MCP." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("sse"),
+      type: S.tag("sse"),
       name: S.String.annotateKey({
         description: "Human-readable name identifying this MCP server.",
       }),
@@ -10455,7 +10455,7 @@ export const McpServer = S.Union([
   ).annotateKey({ description: "SSE transport configuration for MCP." }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("acp"),
+      type: S.tag("acp"),
       name: S.String.annotateKey({
         description: "Human-readable name identifying this MCP server.",
       }),
@@ -10530,7 +10530,7 @@ export type McpServer = typeof McpServer.Type;
 export const MultiSelectItems = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("string"),
+      type: S.tag("string"),
       enum: S.Array(S.String).annotateKey({
         description: "Allowed enum values.",
       }),
@@ -10614,7 +10614,7 @@ export type MultiSelectItems = typeof MultiSelectItems.Type;
 export const AuthMethod = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("terminal"),
+      type: S.tag("terminal"),
       id: S.suspend((): S.Codec<AuthMethodId> => AuthMethodId).annotateKey({
         description: "Unique identifier for this authentication method.",
       }),
@@ -11241,7 +11241,7 @@ export type NesEventCapabilities = typeof NesEventCapabilities.Type;
 export const ToolCallContent = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("content"),
+      type: S.tag("content"),
       content: S.suspend((): S.Codec<ContentBlock> => ContentBlock).annotateKey(
         { description: "The actual content block." },
       ),
@@ -11264,7 +11264,7 @@ export const ToolCallContent = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("diff"),
+      type: S.tag("diff"),
       path: S.String.annotateKey({
         description: "The absolute file path being modified.",
       }),
@@ -11299,7 +11299,7 @@ export const ToolCallContent = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("terminal"),
+      type: S.tag("terminal"),
       terminalId: S.suspend((): S.Codec<TerminalId> => TerminalId).annotateKey({
         description:
           "Identifier of the terminal instance to embed in the content stream.",
@@ -11759,7 +11759,7 @@ export type ResumeSessionRequest = typeof ResumeSessionRequest.Type;
 export const ElicitationPropertySchema = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("string"),
+      type: S.tag("string"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -11868,7 +11868,7 @@ export const ElicitationPropertySchema = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("number"),
+      type: S.tag("number"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -11937,7 +11937,7 @@ export const ElicitationPropertySchema = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("integer"),
+      type: S.tag("integer"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -12005,7 +12005,7 @@ export const ElicitationPropertySchema = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("boolean"),
+      type: S.tag("boolean"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -12052,7 +12052,7 @@ export const ElicitationPropertySchema = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("array"),
+      type: S.tag("array"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -12255,7 +12255,7 @@ export type ListProvidersResponse = typeof ListProvidersResponse.Type;
 export const NesSuggestion = S.Union([
   S.StructWithRest(
     S.Struct({
-      kind: S.Literal("edit"),
+      kind: S.tag("edit"),
       id: S.suspend(
         (): S.Codec<NesSuggestionId> => NesSuggestionId,
       ).annotateKey({
@@ -12290,7 +12290,7 @@ export const NesSuggestion = S.Union([
   ).annotateKey({ description: "A text edit suggestion." }),
   S.StructWithRest(
     S.Struct({
-      kind: S.Literal("jump"),
+      kind: S.tag("jump"),
       id: S.suspend(
         (): S.Codec<NesSuggestionId> => NesSuggestionId,
       ).annotateKey({
@@ -12317,7 +12317,7 @@ export const NesSuggestion = S.Union([
   ).annotateKey({ description: "A jump-to-location suggestion." }),
   S.StructWithRest(
     S.Struct({
-      kind: S.Literal("rename"),
+      kind: S.tag("rename"),
       id: S.suspend(
         (): S.Codec<NesSuggestionId> => NesSuggestionId,
       ).annotateKey({
@@ -12349,7 +12349,7 @@ export const NesSuggestion = S.Union([
   ).annotateKey({ description: "A rename symbol suggestion." }),
   S.StructWithRest(
     S.Struct({
-      kind: S.Literal("searchAndReplace"),
+      kind: S.tag("searchAndReplace"),
       id: S.suspend(
         (): S.Codec<NesSuggestionId> => NesSuggestionId,
       ).annotateKey({
@@ -12917,7 +12917,7 @@ export const SessionConfigOption = S.Union([
           S.Null,
         ]),
       ),
-      type: S.Literal("select"),
+      type: S.tag("select"),
       currentValue: S.suspend(
         (): S.Codec<SessionConfigValueId> => SessionConfigValueId,
       ).annotateKey({ description: "The currently selected value." }),
@@ -12966,7 +12966,7 @@ export const SessionConfigOption = S.Union([
           S.Null,
         ]),
       ),
-      type: S.Literal("boolean"),
+      type: S.tag("boolean"),
       currentValue: S.Boolean.annotateKey({
         description: "The current value of the boolean option.",
       }),
@@ -13505,7 +13505,7 @@ export type RequestPermissionRequest = typeof RequestPermissionRequest.Type;
 export const SessionUpdate = S.Union([
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("user_message_chunk"),
+      sessionUpdate: S.tag("user_message_chunk"),
       content: S.suspend((): S.Codec<ContentBlock> => ContentBlock).annotateKey(
         { description: "A single item of content" },
       ),
@@ -13532,7 +13532,7 @@ export const SessionUpdate = S.Union([
   ).annotateKey({ description: "A streamed item of content" }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("agent_message_chunk"),
+      sessionUpdate: S.tag("agent_message_chunk"),
       content: S.suspend((): S.Codec<ContentBlock> => ContentBlock).annotateKey(
         { description: "A single item of content" },
       ),
@@ -13559,7 +13559,7 @@ export const SessionUpdate = S.Union([
   ).annotateKey({ description: "A streamed item of content" }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("agent_thought_chunk"),
+      sessionUpdate: S.tag("agent_thought_chunk"),
       content: S.suspend((): S.Codec<ContentBlock> => ContentBlock).annotateKey(
         { description: "A single item of content" },
       ),
@@ -13586,7 +13586,7 @@ export const SessionUpdate = S.Union([
   ).annotateKey({ description: "A streamed item of content" }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("tool_call"),
+      sessionUpdate: S.tag("tool_call"),
       toolCallId: S.suspend((): S.Codec<ToolCallId> => ToolCallId).annotateKey({
         description: "Unique identifier for this tool call within the session.",
       }),
@@ -13656,7 +13656,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("tool_call_update"),
+      sessionUpdate: S.tag("tool_call_update"),
       toolCallId: S.suspend((): S.Codec<ToolCallId> => ToolCallId).annotateKey({
         description: "The ID of the tool call being updated.",
       }),
@@ -13735,7 +13735,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("plan"),
+      sessionUpdate: S.tag("plan"),
       entries: S.Array(PlanEntry).annotateKey({
         description:
           "The list of tasks to be accomplished.\n\nWhen updating a plan, the agent must send a complete list of all entries\nwith their current status. The client replaces the entire plan with each update.",
@@ -13760,7 +13760,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("plan_update"),
+      sessionUpdate: S.tag("plan_update"),
       plan: S.suspend(
         (): S.Codec<PlanUpdateContent> => PlanUpdateContent,
       ).annotateKey({ description: "The updated plan content." }),
@@ -13784,7 +13784,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("plan_removed"),
+      sessionUpdate: S.tag("plan_removed"),
       planId: S.suspend((): S.Codec<PlanId> => PlanId).annotateKey({
         description: "The plan ID to remove.",
       }),
@@ -13808,7 +13808,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("available_commands_update"),
+      sessionUpdate: S.tag("available_commands_update"),
       availableCommands: S.Array(AvailableCommand).annotateKey({
         description: "Commands the agent can execute",
       }),
@@ -13831,7 +13831,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("current_mode_update"),
+      sessionUpdate: S.tag("current_mode_update"),
       currentModeId: S.suspend(
         (): S.Codec<SessionModeId> => SessionModeId,
       ).annotateKey({ description: "The ID of the current mode" }),
@@ -13855,7 +13855,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("config_option_update"),
+      sessionUpdate: S.tag("config_option_update"),
       configOptions: S.Array(SessionConfigOption).annotateKey({
         description:
           "The full set of configuration options and their current values.",
@@ -13879,7 +13879,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("session_info_update"),
+      sessionUpdate: S.tag("session_info_update"),
       title: S.optionalKey(
         S.Union([
           S.String.annotateKey({
@@ -13918,7 +13918,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("usage_update"),
+      sessionUpdate: S.tag("usage_update"),
       used: S.Int.annotateKey({
         description: "Tokens currently in context.",
         format: "uint64",
@@ -13959,7 +13959,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("compaction_update"),
+      sessionUpdate: S.tag("compaction_update"),
       compactionId: S.suspend(
         (): S.Codec<CompactionId> => CompactionId,
       ).annotateKey({
@@ -14006,7 +14006,7 @@ export const SessionUpdate = S.Union([
   }),
   S.StructWithRest(
     S.Struct({
-      sessionUpdate: S.Literal("compaction_summary_chunk"),
+      sessionUpdate: S.tag("compaction_summary_chunk"),
       compactionId: S.suspend(
         (): S.Codec<CompactionId> => CompactionId,
       ).annotateKey({
@@ -14437,7 +14437,7 @@ export const CreateElicitationRequest = S.Union([
             S.Null,
           ]),
         ),
-        mode: S.Literal("form"),
+        mode: S.tag("form"),
         requestedSchema: S.suspend(
           (): S.Codec<ElicitationSchema> => ElicitationSchema,
         ).annotateKey({
@@ -14477,7 +14477,7 @@ export const CreateElicitationRequest = S.Union([
             S.Null,
           ]),
         ),
-        mode: S.Literal("form"),
+        mode: S.tag("form"),
         requestedSchema: S.suspend(
           (): S.Codec<ElicitationSchema> => ElicitationSchema,
         ).annotateKey({
@@ -14513,7 +14513,7 @@ export const CreateElicitationRequest = S.Union([
             S.Null,
           ]),
         ),
-        mode: S.Literal("url"),
+        mode: S.tag("url"),
         elicitationId: S.suspend(
           (): S.Codec<ElicitationId> => ElicitationId,
         ).annotateKey({
@@ -14556,7 +14556,7 @@ export const CreateElicitationRequest = S.Union([
             S.Null,
           ]),
         ),
-        mode: S.Literal("url"),
+        mode: S.tag("url"),
         elicitationId: S.suspend(
           (): S.Codec<ElicitationId> => ElicitationId,
         ).annotateKey({

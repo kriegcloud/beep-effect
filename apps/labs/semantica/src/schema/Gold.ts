@@ -100,7 +100,7 @@ export class GoldSubset extends S.Opaque<GoldSubset, { readonly brand: unique sy
 ) {}
 
 const GoldRefFields = S.Struct({
-  version: S.Literal("gold/v1"),
+  version: S.tag("gold/v1"),
   digest: Sha256Hex,
   proposer: ModelIdentity,
   spotCheckedFraction: UnitInterval,
@@ -125,7 +125,7 @@ const GoldRefProposerCheck = S.makeFilter(
  * ```ts
  * import { GoldRef } from "@/schema/Gold"
  *
- * console.log(GoldRef.fields.version.literals[0]) // "gold/v1"
+ * console.log(GoldRef.fields.version.schema.literal) // "gold/v1"
  * ```
  *
  * @category models
@@ -498,7 +498,7 @@ const GoldRelationLabelFromEncoded = EncodedGoldRelationLabel.pipe(
 
 class GoldStructureFile extends S.Opaque<GoldStructureFile, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("gold/v1"),
+    version: S.tag("gold/v1"),
     paperId: CorpusPaperId,
     subset: S.tag("structure"),
     labels: S.Array(GoldStructureLabelFromEncoded),
@@ -512,7 +512,7 @@ class GoldStructureFile extends S.Opaque<GoldStructureFile, { readonly brand: un
 
 class GoldEntityFile extends S.Opaque<GoldEntityFile, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("gold/v1"),
+    version: S.tag("gold/v1"),
     paperId: CorpusPaperId,
     subset: S.tag("entity"),
     labels: S.Array(GoldEntityLabelFromEncoded),
@@ -526,7 +526,7 @@ class GoldEntityFile extends S.Opaque<GoldEntityFile, { readonly brand: unique s
 
 class GoldRelationFile extends S.Opaque<GoldRelationFile, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal("gold/v1"),
+    version: S.tag("gold/v1"),
     paperId: CorpusPaperId,
     subset: S.tag("relation"),
     labels: S.Array(GoldRelationLabelFromEncoded),

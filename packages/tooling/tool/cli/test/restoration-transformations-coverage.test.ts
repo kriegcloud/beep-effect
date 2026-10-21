@@ -630,7 +630,7 @@ layer(testLayer, { timeout: 30_000 })("restoration transformation semantic helpe
       yield* RT.appendRecycleJoins(grouped, RT.recycleSurfaceCounts(grouped), recycleContext, joins);
       expect(yield* fs.readFileString(recycleContext.ledgerPath)).toBe(ledger);
       (yield* RT.appendRecycleJoins(grouped, RT.recycleSurfaceCounts(grouped), recycleContext, [
-        { ...joins[0]!, count: S.Natural.make(2) },
+        TransformationLedgerRecord.cases["recycle-join"].make({ ...joins[0]!, count: S.Natural.make(2) }),
       ]).pipe(Effect.option)).pipe(assertNone);
     })
   );
@@ -730,7 +730,7 @@ layer(testLayer, { timeout: 30_000 })("restoration transformation semantic helpe
         recycleContext,
         outputRoot,
         pair,
-        { ...mapping, contentObjectId: "different" },
+        TransformationLedgerRecord.cases["recycle-mapping"].make({ ...mapping, contentObjectId: "different" }),
         MutableHashMap.empty()
       ).pipe(Effect.option)).pipe(assertNone);
       expect(yield* RT.validateRecycleMappingPrefix(recycleContext, outputRoot, [mapping], [pair])).toMatchObject({
@@ -2528,13 +2528,25 @@ else exit 92; fi
       expect(RT.familyEvidenceDigestsMatch({ ...evidence, evidenceSha256: sha("drift") }, outputTree)).toBe(false);
       expect(
         RT.familyEvidenceDigestsMatch(
-          { ...evidence, acceptance: { ...acceptance, outputTreeSha256: sha("drift") } },
+          {
+            ...evidence,
+            acceptance: TransformationLedgerRecord.cases["family-acceptance-pass"].make({
+              ...acceptance,
+              outputTreeSha256: sha("drift"),
+            }),
+          },
           outputTree
         )
       ).toBe(false);
       expect(
         RT.familyEvidenceDigestsMatch(
-          { ...evidence, summary: { ...summary, outputTreeSha256: sha("drift") } },
+          {
+            ...evidence,
+            summary: TransformationLedgerRecord.cases["family-run-summary"].make({
+              ...summary,
+              outputTreeSha256: sha("drift"),
+            }),
+          },
           outputTree
         )
       ).toBe(false);
@@ -2544,22 +2556,37 @@ else exit 92; fi
       expect(
         RT.familyEvidenceCeilingsMatch({
           ...evidence,
-          summary: { ...summary, elapsedMillis: S.Natural.make(101) },
-        })
-      ).toBe(false);
-      expect(
-        RT.familyEvidenceCeilingsMatch({ ...evidence, summary: { ...summary, outputBytes: S.Natural.make(101) } })
-      ).toBe(false);
-      expect(
-        RT.familyEvidenceCeilingsMatch({
-          ...evidence,
-          acceptance: { ...acceptance, maxTotalElapsedMillis: PosInt.make(99) },
+          summary: TransformationLedgerRecord.cases["family-run-summary"].make({
+            ...summary,
+            elapsedMillis: S.Natural.make(101),
+          }),
         })
       ).toBe(false);
       expect(
         RT.familyEvidenceCeilingsMatch({
           ...evidence,
-          acceptance: { ...acceptance, maxTotalOutputBytes: PosInt.make(99) },
+          summary: TransformationLedgerRecord.cases["family-run-summary"].make({
+            ...summary,
+            outputBytes: S.Natural.make(101),
+          }),
+        })
+      ).toBe(false);
+      expect(
+        RT.familyEvidenceCeilingsMatch({
+          ...evidence,
+          acceptance: TransformationLedgerRecord.cases["family-acceptance-pass"].make({
+            ...acceptance,
+            maxTotalElapsedMillis: PosInt.make(99),
+          }),
+        })
+      ).toBe(false);
+      expect(
+        RT.familyEvidenceCeilingsMatch({
+          ...evidence,
+          acceptance: TransformationLedgerRecord.cases["family-acceptance-pass"].make({
+            ...acceptance,
+            maxTotalOutputBytes: PosInt.make(99),
+          }),
         })
       ).toBe(false);
 
@@ -2573,13 +2600,19 @@ else exit 92; fi
       expect(
         RT.familyEvidenceTerminalsMatch({
           ...evidence,
-          acceptance: { ...acceptance, expectedCount: S.Natural.make(1) },
+          acceptance: TransformationLedgerRecord.cases["family-acceptance-pass"].make({
+            ...acceptance,
+            expectedCount: S.Natural.make(1),
+          }),
         })
       ).toBe(false);
       expect(
         RT.familyEvidenceTerminalsMatch({
           ...evidence,
-          acceptance: { ...acceptance, terminalCount: S.Natural.make(1) },
+          acceptance: TransformationLedgerRecord.cases["family-acceptance-pass"].make({
+            ...acceptance,
+            terminalCount: S.Natural.make(1),
+          }),
         })
       ).toBe(false);
 
@@ -2587,7 +2620,12 @@ else exit 92; fi
       expect(RT.familyEvidenceAccepted(context, { ...evidence, acceptance: failure }, outputTree)).toBe(false);
 
       expect(RT.recordIdentityMatches(runStart, context)).toBe(true);
-      expect(RT.recordIdentityMatches({ ...runStart, runLabel: "other" }, context)).toBe(false);
+      expect(
+        RT.recordIdentityMatches(
+          TransformationLedgerRecord.cases["family-run-start"].make({ ...runStart, runLabel: "other" }),
+          context
+        )
+      ).toBe(false);
       expect(RT.strictEvidenceSha256(["one", "summary", "acceptance"])).toBe(sha("one\n"));
       expect(RT.strictEvidenceSha256(["summary", "acceptance"])).toBe(sha(""));
       expect(yield* RT.requireStrictFamilyTerminalRows(context, [runStart, summary, acceptance])).toEqual({
@@ -2640,9 +2678,12 @@ else exit 92; fi
         sourceFamily: "pst",
       });
       yield* RT.rehashMailExceptionOutputs(mailContext, [exception]);
-      (yield* RT.rehashMailExceptionOutputs(mailContext, [{ ...exception, retainedOutputSha256: sha("drift") }]).pipe(
-        Effect.option
-      )).pipe(assertNone);
+      (yield* RT.rehashMailExceptionOutputs(mailContext, [
+        TransformationLedgerRecord.cases["mail-store-exception"].make({
+          ...exception,
+          retainedOutputSha256: sha("drift"),
+        }),
+      ]).pipe(Effect.option)).pipe(assertNone);
       yield* RT.requireMailPhysicalFilesOwned(mailContext, [], [], []);
       yield* fs.writeFileString(path.join(mailRoot, "rogue.txt"), "rogue");
       (yield* RT.requireMailPhysicalFilesOwned(mailContext, [], [], []).pipe(Effect.option)).pipe(assertNone);
@@ -2687,16 +2728,41 @@ else exit 92; fi
         retryOrdinal: S.Natural.make(0),
         sourceId: "source-1",
       });
-      yield* RT.rehashMailChildren(mailContext, [{ ...child, attemptId: interrupted.attemptId }], [interrupted]);
+      yield* RT.rehashMailChildren(
+        mailContext,
+        [
+          TransformationLedgerRecord.cases["mail-child-pass"].make({
+            ...child,
+            attemptId: interrupted.attemptId,
+          }),
+        ],
+        [interrupted]
+      );
       (yield* RT.rehashMailChildren(
         mailContext,
-        [{ ...child, attemptId: interrupted.attemptId }],
-        [{ ...interrupted, retainedOutputRelativePath: "../../escape" }]
+        [
+          TransformationLedgerRecord.cases["mail-child-pass"].make({
+            ...child,
+            attemptId: interrupted.attemptId,
+          }),
+        ],
+        [
+          TransformationLedgerRecord.cases["family-attempt-interrupted"].make(
+            {
+              ...interrupted,
+              retainedOutputRelativePath: "../../escape",
+            },
+            { disableChecks: true }
+          ),
+        ]
       ).pipe(Effect.option)).pipe(assertNone);
       yield* RT.rehashInterruptedOutputs(mailContext, [interrupted]);
-      (yield* RT.rehashInterruptedOutputs(mailContext, [{ ...interrupted, retainedOutputSha256: sha("wrong") }]).pipe(
-        Effect.option
-      )).pipe(assertNone);
+      (yield* RT.rehashInterruptedOutputs(mailContext, [
+        TransformationLedgerRecord.cases["family-attempt-interrupted"].make({
+          ...interrupted,
+          retainedOutputSha256: sha("wrong"),
+        }),
+      ]).pipe(Effect.option)).pipe(assertNone);
 
       const recycleRoot = path.join(root, "recycle");
       yield* fs.makeDirectory(path.join(recycleRoot, "restored"), { recursive: true });
@@ -2725,12 +2791,17 @@ else exit 92; fi
       yield* RT.requireRecyclePhysicalEntriesOwned(
         recycleContext,
         [mapping],
-        [{ ...interruptedWithoutScope, family: "recycle" }]
+        [
+          TransformationLedgerRecord.cases["family-attempt-interrupted"].make({
+            ...interruptedWithoutScope,
+            family: "recycle",
+          }),
+        ]
       );
       yield* RT.rehashRecycleOutputs(recycleContext, [mapping]);
-      (yield* RT.rehashRecycleOutputs(recycleContext, [{ ...mapping, digest: sha("wrong") }]).pipe(Effect.option)).pipe(
-        assertNone
-      );
+      (yield* RT.rehashRecycleOutputs(recycleContext, [
+        TransformationLedgerRecord.cases["recycle-mapping"].make({ ...mapping, digest: sha("wrong") }),
+      ]).pipe(Effect.option)).pipe(assertNone);
 
       const legacyRoot = path.join(root, "legacy");
       const originalSha256 = sha("legacy-original");
@@ -2752,9 +2823,12 @@ else exit 92; fi
         visualRmse: 0,
       });
       yield* RT.rehashLegacyOutputs(legacyContext, [legacyPass]);
-      (yield* RT.rehashLegacyOutputs(legacyContext, [{ ...legacyPass, convertedSha256: sha("wrong") }]).pipe(
-        Effect.option
-      )).pipe(assertNone);
+      (yield* RT.rehashLegacyOutputs(legacyContext, [
+        TransformationLedgerRecord.cases["legacy-word-pass"].make({
+          ...legacyPass,
+          convertedSha256: sha("wrong"),
+        }),
+      ]).pipe(Effect.option)).pipe(assertNone);
     })
   );
 
@@ -2799,11 +2873,25 @@ else exit 92; fi
     expect(RT.safeAttemptId("bad/name")).toBe(false);
     expect(RT.safeAttemptId("bad\\name")).toBe(false);
     expect(RT.mailPassReconciles(pass, [child], [])).toBe(true);
-    expect(RT.mailPassReconciles({ ...pass, childCount: S.Natural.make(0) }, [child], [])).toBe(false);
-    expect(RT.mailPassReconciles(pass, [{ ...child, childRelativePath: "duplicate" }, child], [])).toBe(false);
+    expect(
+      RT.mailPassReconciles(
+        TransformationLedgerRecord.cases["mail-store-pass"].make({ ...pass, childCount: S.Natural.make(0) }),
+        [child],
+        []
+      )
+    ).toBe(false);
+    expect(
+      RT.mailPassReconciles(
+        pass,
+        [TransformationLedgerRecord.cases["mail-child-pass"].make({ ...child, childRelativePath: "duplicate" }), child],
+        []
+      )
+    ).toBe(false);
     expect(RT.mailTerminalCountsReconcile(summary, [pass], [])).toBe(true);
     expect(RT.mailTerminalIdentitiesReconcile([pass])).toBe(true);
-    expect(RT.mailTerminalIdentitiesReconcile([pass, { ...pass }])).toBe(false);
+    expect(
+      RT.mailTerminalIdentitiesReconcile([pass, TransformationLedgerRecord.cases["mail-store-pass"].make({ ...pass })])
+    ).toBe(false);
     expect(RT.mailOwnedEvidenceReconciles([pass], [], [], [child], [])).toBe(true);
     expect(RT.mailOwnedEvidenceReconciles([], [], [], [child], [])).toBe(false);
     expect(RT.attemptTerminalBindings([pass])).toEqual([{ attemptId: start.attemptId, sourceId: objectId }]);
@@ -2831,7 +2919,11 @@ else exit 92; fi
     const { disposition: _disposition, ...exceptionWithoutDisposition } = exception;
     expect(RT.mailExceptionIsApproved(exception)).toBe(true);
     expect(RT.mailExceptionIsApproved(exceptionWithoutDisposition)).toBe(false);
-    expect(RT.mailExceptionIsApproved({ ...exception, approved: false })).toBe(false);
+    expect(
+      RT.mailExceptionIsApproved(
+        TransformationLedgerRecord.cases["mail-store-exception"].make({ ...exception, approved: false })
+      )
+    ).toBe(false);
 
     const warning = TransformationLedgerRecord.cases["mail-warning"].make({
       ...identity,
@@ -2863,10 +2955,24 @@ else exit 92; fi
         [],
         [interrupted],
         [],
-        [{ ...warning, attemptId: interrupted.attemptId, objectId: interrupted.sourceId }]
+        [
+          TransformationLedgerRecord.cases["mail-warning"].make({
+            ...warning,
+            attemptId: interrupted.attemptId,
+            objectId: interrupted.sourceId,
+          }),
+        ]
       )
     ).toBe(true);
-    expect(RT.mailOwnedEvidenceReconciles([], [], [], [], [{ ...warning, attemptId: "unowned" }])).toBe(false);
+    expect(
+      RT.mailOwnedEvidenceReconciles(
+        [],
+        [],
+        [],
+        [],
+        [TransformationLedgerRecord.cases["mail-warning"].make({ ...warning, attemptId: "unowned" })]
+      )
+    ).toBe(false);
   });
 
   it("reconciles attachment repair identities with copied and Tika derivatives", () => {
@@ -2907,12 +3013,32 @@ else exit 92; fi
 
     expect(RT.attachmentRepairsReconcile([repair], [copied, tika], owners)).toBe(true);
     expect(RT.attachmentRepairsReconcile([repair, repair], [copied, tika], owners)).toBe(false);
-    expect(RT.attachmentRepairsReconcile([{ ...repair, attemptId: "../escape" }], [copied, tika], owners)).toBe(false);
+    expect(
+      RT.attachmentRepairsReconcile(
+        [
+          TransformationLedgerRecord.cases["attachment-type-repair"].make(
+            { ...repair, attemptId: "../escape" },
+            { disableChecks: true }
+          ),
+        ],
+        [copied, tika],
+        owners
+      )
+    ).toBe(false);
     expect(RT.attachmentRepairsReconcile([repair], [copied], owners)).toBe(false);
     expect(RT.attachmentRepairsReconcile([repairWithoutDigest], [copied, tika], owners)).toBe(false);
-    expect(RT.attachmentRepairsReconcile([{ ...repairWithoutDerived, repairStatus: "unchanged" }], [], owners)).toBe(
-      true
-    );
+    expect(
+      RT.attachmentRepairsReconcile(
+        [
+          TransformationLedgerRecord.cases["attachment-type-repair"].make({
+            ...repairWithoutDerived,
+            repairStatus: "unchanged",
+          }),
+        ],
+        [],
+        owners
+      )
+    ).toBe(true);
   });
 
   it("reconciles recycle and legacy terminal segments against their durable attempts", () => {
@@ -2952,7 +3078,7 @@ else exit 92; fi
       RT.recycleSegmentReconciles(recycleSummary, [
         recycleRunStart,
         recycleStart,
-        { ...join, count: S.Natural.make(2) },
+        TransformationLedgerRecord.cases["recycle-join"].make({ ...join, count: S.Natural.make(2) }),
         mapping,
       ])
     ).toBe(false);
@@ -2961,7 +3087,10 @@ else exit 92; fi
         recycleRunStart,
         recycleStart,
         join,
-        { ...mapping, metadataObjectId: "content-object" },
+        TransformationLedgerRecord.cases["recycle-mapping"].make({
+          ...mapping,
+          metadataObjectId: "content-object",
+        }),
       ])
     ).toBe(false);
 

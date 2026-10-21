@@ -26,3 +26,7 @@ tauri-plugin-opener = "2.5.4"
 tauri-plugin-shell = "2"
 tauri-plugin-updater = "2"
 uuid = { version = "1", features = ["v4"] }
+
+# Keep the GTK 0.18 ABI while applying the upstream VariantStrIter safety fix.
+[patch.crates-io]
+glib = { path = "../../../vendor/rust/glib-0.18.5" }

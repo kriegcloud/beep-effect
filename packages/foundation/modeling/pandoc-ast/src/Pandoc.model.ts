@@ -3059,9 +3059,9 @@ export declare namespace Figure {
 const PandocAttrPayload = S.Tuple([S.String, S.Array(S.String), S.Array(PandocKeyValue)]);
 const PandocTargetPayload = S.Tuple([S.String, S.String]);
 const pandocConstructorWithPayload = <const Name extends string, Payload extends S.Top>(t: Name, c: Payload) =>
-  S.Struct({ c, t: S.Literal(t) });
+  S.Struct({ c, t: S.tag(t) });
 const pandocNullaryConstructor = <const Name extends string>(t: Name) =>
-  S.Struct({ c: S.optionalKey(S.Undefined), t: S.Literal(t) });
+  S.Struct({ c: S.optionalKey(S.Undefined), t: S.tag(t) });
 const PandocMathTypeWire = S.Struct({
   c: S.optionalKey(S.Undefined),
   t: PandocMathType,

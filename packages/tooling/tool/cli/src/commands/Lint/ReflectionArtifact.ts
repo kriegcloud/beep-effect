@@ -141,8 +141,8 @@ const ReflectionPolicySeverity = LiteralKit(["warning", "error"]).pipe(
 
 class ReflectionPolicyFinding extends S.Opaque<ReflectionPolicyFinding, { readonly brand: unique symbol }>()(
   S.Struct({
-    category: S.Literal("reflection-policy"),
-    ruleId: S.Literal("reflection-artifact"),
+    category: S.tag("reflection-policy"),
+    ruleId: S.tag("reflection-artifact"),
     severity: ReflectionPolicySeverity,
     goal: S.String,
     file: S.optionalKey(S.String),

@@ -373,9 +373,51 @@ const normalizePipeableSchemas = (source: string): string => {
   return normalizePipeableSchemas(applyReplacements(source, innermost));
 };
 
+const isKeyAnnotationAccess = (node: ts.Node, receiver: ts.Node): node is ts.PropertyAccessExpression =>
+  ts.isPropertyAccessExpression(node) &&
+  node.expression === receiver &&
+  (node.name.text === "annotate" || node.name.text === "annotateKey");
+
+const annotatedSchemaRoot = (schema: ts.Expression): ts.Expression =>
+  pipe(
+    O.fromUndefinedOr(schema.parent),
+    O.filter((parent) => isKeyAnnotationAccess(parent, schema)),
+    O.flatMap((access) => callParent(access, access.parent)),
+    O.filter(ts.isCallExpression),
+    O.match({ onNone: () => schema, onSome: annotatedSchemaRoot })
+  );
+
+const isRequiredStructField = (schema: ts.Expression): boolean => {
+  const root = annotatedSchemaRoot(schema);
+  return pipe(
+    O.fromUndefinedOr(root.parent),
+    O.filter(ts.isPropertyAssignment),
+    O.filter((property) => property.initializer === root && ts.isObjectLiteralExpression(property.parent)),
+    O.exists((property) => isFirstSchemaArgument(property.parent, "Struct"))
+  );
+};
+
+const isSchemaLiteralCall = (
+  node: ts.Node
+): node is ts.CallExpression & { readonly expression: ts.PropertyAccessExpression } =>
+  ts.isCallExpression(node) && isSchemaCall(node, "Literal") && node.arguments.length === 1;
+
+const tagSchemaReplacement: NodeReplacement = (node, sourceFile) =>
+  pipe(
+    O.some(node),
+    O.filter(isSchemaLiteralCall),
+    O.filter(isRequiredStructField),
+    O.map((call) => new Replacement(call.expression.name.getStart(sourceFile), call.expression.name.getEnd(), "tag"))
+  );
+
+const normalizeTagSchemas = (source: string): string =>
+  applyReplacements(source, collectNodeReplacements(source, tagSchemaReplacement));
+
 const prepareSchemaExpression = (expression: string, config: GenerateConfig): SchemaExpression =>
   extractTopAnnotation(
-    rewriteKeyAnnotations(normalizeNumberSchemas(Str.replaceAll(/\bSchema\./gu, "S.")(expression), config))
+    rewriteKeyAnnotations(
+      normalizeTagSchemas(normalizeNumberSchemas(Str.replaceAll(/\bSchema\./gu, "S.")(expression), config))
+    )
   );
 
 const renderKey = (key: string): string =>

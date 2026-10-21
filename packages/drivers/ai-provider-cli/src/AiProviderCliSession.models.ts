@@ -76,7 +76,7 @@ export class ManagedLaunchProfile extends S.Opaque<ManagedLaunchProfile, { reado
     workspace: S.NonEmptyString,
     profileRoot: S.NonEmptyString,
     env: S.Record(S.String, S.String),
-    authLane: S.Literal("existing-subscription"),
+    authLane: S.tag("existing-subscription"),
     tools: S.Array(ManagedToolServer),
     sandboxWritablePaths: S.Array(S.NonEmptyString).pipe(
       S.withConstructorDefault(Effect.succeed([])),
@@ -105,7 +105,7 @@ export class ManagedSessionIdentity extends S.Opaque<ManagedSessionIdentity, { r
     provider: ManagedProvider,
     sessionId: S.NonEmptyString,
     model: S.NonEmptyString,
-    effort: S.Literal("medium"),
+    effort: S.tag("medium"),
     policy: S.NonEmptyString,
     policyEvidence: S.Literals(["runtime-reported", "launch-enforced"]),
   }).pipe(
@@ -171,26 +171,26 @@ export const ManagedTerminalEvidence = LiteralKit(["codex", "claude", "grok", "c
       sessionId: S.NonEmptyString.check(S.isMaxLength(128)),
       messageId: S.NonEmptyString.check(S.isMaxLength(128)),
       turnId: S.NonEmptyString.check(S.isMaxLength(128)),
-      outcome: S.Literal("delivered"),
-      stopReason: S.Literal("completed"),
+      outcome: S.tag("delivered"),
+      stopReason: S.tag("completed"),
     },
     claude: {
       sessionId: S.NonEmptyString.check(S.isMaxLength(128)),
       messageId: S.NonEmptyString.check(S.isMaxLength(128)),
-      outcome: S.Literal("delivered"),
-      stopReason: S.Literal("completed"),
+      outcome: S.tag("delivered"),
+      stopReason: S.tag("completed"),
     },
     grok: {
       sessionId: S.NonEmptyString.check(S.isMaxLength(128)),
       messageId: S.NonEmptyString.check(S.isMaxLength(128)),
-      outcome: S.Literal("delivered"),
-      stopReason: S.Literal("end_turn"),
+      outcome: S.tag("delivered"),
+      stopReason: S.tag("end_turn"),
     },
     cursor: {
       sessionId: S.NonEmptyString.check(S.isMaxLength(128)),
       messageId: S.NonEmptyString.check(S.isMaxLength(128)),
-      outcome: S.Literal("delivered"),
-      stopReason: S.Literal("end_turn"),
+      outcome: S.tag("delivered"),
+      stopReason: S.tag("end_turn"),
     },
   })
   .pipe(

@@ -54,7 +54,7 @@ class TverskySimilaritySuccess extends S.Opaque<TverskySimilaritySuccess, { read
     beta: UnitInterval.annotateKey({
       description: "Applied beta parameter",
     }),
-    method: S.Literal(SimilarityMethod.Enum["set.tversky"]).annotateKey({
+    method: S.tag(SimilarityMethod.Enum["set.tversky"]).annotateKey({
       description: "The similarity method used",
     }),
     score: UnitInterval.annotateKey({

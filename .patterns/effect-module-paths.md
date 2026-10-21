@@ -43,7 +43,11 @@ module is unfit for production (Code Laws in `AGENTS.md`).
 
 `bun run beep laws retired-effect-paths --check` (`lint:retired-effect-paths`)
 fails on any retired path in a git-tracked text file and prints the
-replacement. Allowlisted: this file, `patches/`, and `.gitleaksignore`. A
+replacement. It also fails on a Markdown link fragment (`](#…)`, `](file.md#…)`,
+or a `]: #…` reference definition) that holds a retired path's heading slug,
+such as `#atom-effectunstablereactivityatom`, and prints the current slug
+(`effectreactivityatom`; `effecthttp-api` for `httpapi`). Allowlisted: this
+file, `patches/`, and `.gitleaksignore`. A
 patch's removed and context lines are the vendor's published bytes and must
 match upstream for the patch to apply; a `.gitleaksignore` entry is a
 `commit:path:rule:line` fingerprint of a historical commit, where the old path
@@ -65,6 +69,7 @@ copies).
 | D7 | Agent memory and rule files outside the repo are rewritten too; session transcripts are not. | Memory is read as current guidance; transcripts are logs. | Not applicable (outside the repo). |
 | D8 | Rewrite, record, and gate ship in one PR. | The gate lands green against a clean tree. | Revert the PR. |
 | D9 | `.gitleaksignore` is exempt, like `patches/`. | Its fingerprints name the path as it was in the fingerprinted commit; rewriting them un-ignores those findings. | None needed. |
+| D10 | The law also flags heading-anchor slugs of retired paths in Markdown link fragments (2026-10-20). | Renaming a heading's path leaves its table-of-contents anchor dead; PR #1751 fixed four such anchors by hand. Only fragments are scanned, so the slug in prose stays free. | Remove the `anchor-slug` rule and its mapping rows. |
 
 ## Per-module enforcement
 

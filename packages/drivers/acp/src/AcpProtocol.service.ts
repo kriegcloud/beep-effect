@@ -533,7 +533,7 @@ const AcpElicitationCompleteMethod = AcpElicitationCompleteMethodBase.pipe(
 );
 
 const AcpSessionUpdateNotification = S.TaggedStruct("SessionUpdate", {
-  method: S.Literal(CLIENT_METHODS.session_update).annotateKey({
+  method: S.tag(CLIENT_METHODS.session_update).annotateKey({
     description: "ACP `session/update` method name.",
   }),
   params: AcpSessionUpdateParams.annotateKey({

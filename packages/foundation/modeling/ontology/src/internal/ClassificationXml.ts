@@ -96,7 +96,7 @@ const IpcDocument = S.Struct({
 const CpcDocument = S.Struct({
   "class-scheme": S.Struct({
     "publication-date": S.String,
-    "scheme-type": S.Literal("cpc"),
+    "scheme-type": S.tag("cpc"),
     "classification-item": S.ArrayEnsure(CpcEntry),
   }),
 });
@@ -111,7 +111,7 @@ const NiceTextDocument = S.Struct({
   ClassificationTexts: S.Struct({
     edition: S.String,
     version: S.String,
-    language: S.Literal("en"),
+    language: S.tag("en"),
     ClassesTexts: S.Struct({ ClassTexts: S.ArrayEnsure(NiceClassText) }),
     GoodsAndServicesTexts: S.Struct({ GoodOrServiceTexts: S.ArrayEnsure(NiceGoodText) }),
   }),

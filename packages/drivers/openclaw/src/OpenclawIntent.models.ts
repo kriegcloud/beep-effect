@@ -396,7 +396,7 @@ export class OpenclawPersonaIntent extends S.Opaque<OpenclawPersonaIntent, { rea
 export class OpenclawControlUiIntent extends S.Opaque<OpenclawControlUiIntent, { readonly brand: unique symbol }>()(
   S.Struct({
     allowedOrigins: S.Array(S.NonEmptyString),
-    enabled: S.Literal(true),
+    enabled: S.tag(true),
   }).pipe(
     $I.annoteSchema("OpenclawControlUiIntent", {
       description: "Enabled Control UI with an explicit origin allowlist.",
@@ -540,14 +540,12 @@ export type OpenclawModelInputKind = typeof OpenclawModelInputKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawProviderApiKeySecretRef extends S.Class<
+export class OpenclawProviderApiKeySecretRef extends S.TaggedClass<
   OpenclawProviderApiKeySecretRef,
   { readonly brand: unique symbol }
 >($I`OpenclawProviderApiKeySecretRef`)(
+  "SecretRef",
   {
-    _tag: S.tag("SecretRef").annotateKey({
-      description: "Discriminator for secret-referenced provider API keys.",
-    }),
     ref: OpenclawSecretReference.annotateKey({
       description: "op:// reference resolved at runtime into the provider API key.",
     }),
@@ -571,14 +569,12 @@ export class OpenclawProviderApiKeySecretRef extends S.Class<
  * @category models
  * @since 0.0.0
  */
-export class OpenclawProviderApiKeyPlaceholder extends S.Class<
+export class OpenclawProviderApiKeyPlaceholder extends S.TaggedClass<
   OpenclawProviderApiKeyPlaceholder,
   { readonly brand: unique symbol }
 >($I`OpenclawProviderApiKeyPlaceholder`)(
+  "Placeholder",
   {
-    _tag: S.tag("Placeholder").annotateKey({
-      description: "Discriminator for non-secret placeholder API keys.",
-    }),
     value: S.NonEmptyString.annotateKey({
       description: "Non-secret sentinel value accepted by the provider, e.g. 'ollama-local'.",
     }),
