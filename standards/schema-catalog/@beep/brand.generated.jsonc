@@ -28,7 +28,7 @@
     {"file":"packages/foundation/ui-system/brand/src/Brand.schema.ts","symbol":"SurfaceScale","kind":"struct-const","owner":"@beep/brand","identity":"SurfaceScale","description":"Six-stop surface scale keyed by SurfaceStep."},
     {"file":"packages/foundation/ui-system/brand/src/Brand.schema.ts","symbol":"SurfaceStep","kind":"literal-kit","owner":"@beep/brand","identity":"SurfaceStep","description":"Elevation step of a six-stop surface scale, base first."},
     {"file":"packages/foundation/ui-system/brand/src/Brand.schema.ts","symbol":"SvgPaint","kind":"union","owner":"@beep/brand","identity":"SvgPaint","description":"A hex color or the inherited currentColor keyword."},
-    {"file":"packages/foundation/ui-system/brand/src/Brand.schema.ts","symbol":"SvgPathData","kind":"brand","owner":"@beep/brand","identity":"SvgPathDataPatternCheck","description":"SVG path data beginning with a move-to command."},
+    {"file":"packages/foundation/ui-system/brand/src/Brand.schema.ts","symbol":"SvgPathData","kind":"brand","owner":"@beep/brand","identity":"SvgPathData","description":"SVG path data beginning with a move-to command."},
     {"file":"packages/foundation/ui-system/brand/src/Brand.schema.ts","symbol":"Typography","kind":"struct-const","owner":"@beep/brand","identity":"Typography","description":"Brand typography: sans and mono stacks."},
     {"file":"packages/foundation/ui-system/brand/src/Brand.schema.ts","symbol":"WordmarkSvgRequest","kind":"struct-const","owner":"@beep/brand","identity":"WordmarkSvgRequest","description":"Request to render the mark beside the brand name."}
   ]

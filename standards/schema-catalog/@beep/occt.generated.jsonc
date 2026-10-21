@@ -8,6 +8,6 @@
     {"file":"packages/drivers/occt/src/Occt.errors.ts","symbol":"OcctErrorReason","kind":"literal-kit","owner":"@beep/occt","identity":"OcctErrorReason","description":"Where an OCCT driver call failed: kernel load, request validation, solid construction, or projection."},
     {"file":"packages/drivers/occt/src/Occt.models.ts","symbol":"KernelInfo","kind":"struct-const","owner":"@beep/occt","identity":"KernelInfo","description":"Version and binary hash of the loaded geometry kernel."},
     {"file":"packages/drivers/occt/src/Occt.models.ts","symbol":"KernelVariant","kind":"literal-kit","owner":"@beep/occt","identity":"KernelVariant","description":"opencascade.js build variant loaded by the driver."},
-    {"file":"packages/drivers/occt/src/Occt.models.ts","symbol":"ProjectionRequest","kind":"struct-const","owner":"@beep/occt","identity":"ProjectionRequestCamerasCheck","description":"A projection request names at least one camera."}
+    {"file":"packages/drivers/occt/src/Occt.models.ts","symbol":"ProjectionRequest","kind":"struct-const","owner":"@beep/occt","identity":"ProjectionRequest","description":"One model projected through one or more cameras."}
   ]
 }

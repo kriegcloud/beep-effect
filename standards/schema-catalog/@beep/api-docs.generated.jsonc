@@ -7,6 +7,6 @@
     {"file":"apps/labs/api-docs/src/Api.ts","symbol":"Health","kind":"struct-const","owner":"@beep/api-docs","identity":"Health","description":"Service health snapshot returned by GET /health."},
     {"file":"apps/labs/api-docs/src/Catalog.models.ts","symbol":"ApiAudience","kind":"literal-kit","owner":"@beep/api-docs","identity":"ApiAudience","description":"Whether this repository serves an API or consumes an external API."},
     {"file":"apps/labs/api-docs/src/Catalog.models.ts","symbol":"CatalogEntryMeta","kind":"tagged-union","owner":"@beep/api-docs","identity":"CatalogEntryMeta","description":"Route identity and index-page copy for one API docs catalog entry."},
-    {"file":"apps/labs/api-docs/src/Catalog.models.ts","symbol":"CatalogSlug","kind":"brand","owner":"@beep/api-docs","identity":"CatalogSlugPattern","description":"A non-empty lowercase kebab-case API catalog identifier."}
+    {"file":"apps/labs/api-docs/src/Catalog.models.ts","symbol":"CatalogSlug","kind":"brand","owner":"@beep/api-docs","identity":"CatalogSlug","description":"Branded lowercase kebab-case identifier used in API docs routes."}
   ]
 }
