@@ -405,7 +405,7 @@ describe("@beep/documents-server VaultSyncEngine review regressions", () => {
             itemKind: O.some("file"),
             name: O.some("huge.txt"),
             parentRemoteId: O.some(DMS_MIRROR_FIXTURE_ROOT_ID),
-            payload: { blob: "x".repeat(32768), origin: "test" },
+            payload: { blob: Str.repeat(32768)("x"), origin: "test" },
             remoteId: O.some(RemoteItemId.make("fx-huge")),
           })
         );

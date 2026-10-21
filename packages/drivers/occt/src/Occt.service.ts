@@ -16,6 +16,7 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as replicad from "replicad";
 import opencascade from "replicad-opencascadejs";
 import { buildCompound, buildParts, compoundParts, countOverlaps, project, summarize } from "./internal/kernel.ts";
@@ -61,7 +62,7 @@ export interface OcctShape {
 const hexOf = (bytes: ArrayBuffer): string =>
   pipe(
     A.fromIterable(new Uint8Array(bytes)),
-    A.map((b) => b.toString(16).padStart(2, "0")),
+    A.map((b) => Str.padStart(2, "0")(b.toString(16))),
     A.join("")
   );
 

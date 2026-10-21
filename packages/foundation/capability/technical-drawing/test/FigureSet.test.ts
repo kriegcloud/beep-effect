@@ -58,7 +58,7 @@ import { assertInstanceOf, assertNone, assertSome, assertTrue } from "@effect/vi
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
@@ -263,8 +263,8 @@ const makeLabelAlphabetFont = Effect.fnUntraced(function* (alphabet: string) {
       outline.close();
     }
     return new opentype.Glyph({
-      name: `u${char.charCodeAt(0)}`,
-      unicode: char.charCodeAt(0),
+      name: `u${pipe(char, Str.charCodeAt(0), O.getOrElse(constant(Number.NaN)))}`,
+      unicode: pipe(char, Str.charCodeAt(0), O.getOrElse(constant(Number.NaN))),
       advanceWidth: 500,
       path: outline,
     });
@@ -289,7 +289,7 @@ const makeLayer = () =>
 // made of M/L/Q/Z, and the largest all-ink square of its nonzero fill.
 type Pt = readonly [number, number];
 const pathPieces = (d: string): ReadonlyArray<ReadonlyArray<Pt>> => {
-  const tokens = d.match(/[MLQZ]|-?\d+(?:\.\d+)?/g) ?? [];
+  const tokens = pipe(d, Str.match(/[MLQZ]|-?\d+(?:\.\d+)?/g), O.getOrElse(A.empty<string>));
   const pieces: Array<Array<Pt>> = [];
   let at: Pt = [0, 0];
   let start: Pt = [0, 0];
@@ -413,7 +413,7 @@ const sha256Hex = (text: string) =>
   Effect.promise(() => crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))).pipe(
     Effect.map((digest) =>
       A.join(
-        A.map(A.fromIterable(new Uint8Array(digest)), (b) => b.toString(16).padStart(2, "0")),
+        A.map(A.fromIterable(new Uint8Array(digest)), (b) => Str.padStart(2, "0")(b.toString(16))),
         ""
       )
     )
@@ -438,7 +438,7 @@ describe("@beep/technical-drawing", () => {
         expect(a).toBe(b);
         expect(a).toContain('width="612.000pt"');
         const coords = A.map(
-          [...a.matchAll(/[ML](-?\d+\.\d+) (-?\d+\.\d+)/g)],
+          [...Str.matchAll(/[ML](-?\d+\.\d+) (-?\d+\.\d+)/g)(a)],
           (m) => [Number(m[1]), Number(m[2])] as const
         );
         expect(A.length(coords)).toBeGreaterThan(20);
@@ -467,7 +467,7 @@ describe("@beep/technical-drawing", () => {
           'stroke-width="0.992" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8.504 4.252"/>'
         );
         const order = A.map(['id="labels"', 'id="shading"', 'id="broken"', 'id="figure"'], (id) =>
-          withBroken.indexOf(id)
+          pipe(withBroken, Str.indexOf(id), O.getOrElse(constant(-1)))
         );
         expect(order).toEqual(A.sort(order, Order.Number));
         expect(A.every(order, (index) => index > 0)).toBe(true);
@@ -479,7 +479,8 @@ describe("@beep/technical-drawing", () => {
         });
         expect(custom).toContain('stroke-dasharray="5.669 2.835"');
         // broken lines inside the outline do not move it; outside it they re-centre the view
-        const figureOf = (svg: string) => svg.slice(svg.indexOf('<path id="figure"'));
+        const figureOf = (svg: string) =>
+          Str.slice(pipe(svg, Str.indexOf('<path id="figure"'), O.getOrElse(constant(-1))))(svg);
         expect(figureOf(withBroken)).toBe(figureOf(plain));
         expect(figureOf(composeSheet({ ...base, shading: [], broken: [[-10, 0, 0, 0]] }))).not.toBe(figureOf(plain));
         expect(SheetOptions.make({}).brokenGapMm).toBe(1.5);
@@ -598,11 +599,21 @@ describe("@beep/technical-drawing", () => {
         expect(withEmphasis).toContain(
           'fill="none" stroke="#000000" stroke-width="1.984" stroke-linecap="round" stroke-linejoin="round"/>\n</svg>'
         );
-        expect(withEmphasis.indexOf('id="figure"')).toBeLessThan(withEmphasis.indexOf('id="emphasis"'));
+        expect(pipe(withEmphasis, Str.indexOf('id="figure"'), O.getOrElse(constant(-1)))).toBeLessThan(
+          pipe(withEmphasis, Str.indexOf('id="emphasis"'), O.getOrElse(constant(-1)))
+        );
         // the emphasis line runs along the outline, so the outlines do not move
         const figureOf = (svg: string) =>
-          svg.slice(svg.indexOf('<path id="figure"'), svg.indexOf('<path id="emphasis"'));
-        expect(figureOf(withEmphasis)).toBe(plain.slice(plain.indexOf('<path id="figure"'), plain.indexOf("</svg>")));
+          Str.slice(
+            pipe(svg, Str.indexOf('<path id="figure"'), O.getOrElse(constant(-1))),
+            pipe(svg, Str.indexOf('<path id="emphasis"'), O.getOrElse(constant(-1)))
+          )(svg);
+        expect(figureOf(withEmphasis)).toBe(
+          Str.slice(
+            pipe(plain, Str.indexOf('<path id="figure"'), O.getOrElse(constant(-1))),
+            pipe(plain, Str.indexOf("</svg>"), O.getOrElse(constant(-1)))
+          )(plain)
+        );
         const heavy = composeSheet({
           ...base,
           emphasis: [[0, 0, 10, 0]],
@@ -924,7 +935,7 @@ describe("@beep/technical-drawing", () => {
           scale: 20,
           options: SheetOptions.make({ margins: "cfr-strict", labelGapMm: O.some(1) }),
         });
-        const ys = A.map([...svg.matchAll(/[ML](-?\d+\.\d+) (-?\d+\.\d+)/g)], (m) => Number(m[2]));
+        const ys = A.map([...Str.matchAll(/[ML](-?\d+\.\d+) (-?\d+\.\d+)/g)(svg)], (m) => Number(m[2]));
         expect(Math.min(...ys)).toBeCloseTo(72 + 72 / 25.4, 2);
         expect(Math.max(...ys)).toBeCloseTo(792 - 72 / 2.54 - 72 / 25.4, 2);
       })
@@ -1020,9 +1031,9 @@ describe("@beep/technical-drawing", () => {
         expect(outlinesOf(svg)).toBe("");
         expect(svg).not.toContain('id="labels"');
         const elements = A.fromIterable(
-          svg.matchAll(
+          Str.matchAll(
             /<text x="([\d.]+)" y="([\d.]+)" font-family="([^"]+)" font-size="([\d.]+)" text-anchor="middle" fill="#000000">([^<]+)<\/text>/g
-          )
+          )(svg)
         );
         expect(A.map(elements, (m) => [m[3], m[4], m[5]])).toEqual([
           ["Arial", "18.000", "1/8"],
@@ -1711,7 +1722,7 @@ describe("@beep/technical-drawing", () => {
           // The loaded face places the text: a 700-unit box glyph has its ink top 12.6 pt
           // (18 pt × 0.7) above the baseline and its ink bottom on it.
           const g = sheetGeometry(manifest.sheet.pipe(O.getOrThrow));
-          const ys = A.map(A.fromIterable(svg.matchAll(/<text x="[\d.]+" y="([\d.]+)"/g)), (m) => Number(m[1]));
+          const ys = A.map(A.fromIterable(Str.matchAll(/<text x="[\d.]+" y="([\d.]+)"/g)(svg)), (m) => Number(m[1]));
           expect(ys[0]).toBeCloseTo(g.labels.top + 12.6, 3);
           expect(ys[1]).toBeCloseTo(g.labels.bottom, 3);
           // the fake backend extracts no text, so the validator reports both labels missing on both pages
@@ -2258,7 +2269,7 @@ const closeScene: ReadonlyArray<FakeSegment> = [
 const figureSegmentsMm = (svg: string, layer = "figure"): ReadonlyArray<Segment2> =>
   pipe(
     new RegExp(`<path id="${layer}" d="([^"]*)"`).exec(svg)?.[1] ?? "",
-    (d) => [...d.matchAll(/M(-?\d+\.\d+) (-?\d+\.\d+)L(-?\d+\.\d+) (-?\d+\.\d+)/g)],
+    (d) => [...Str.matchAll(/M(-?\d+\.\d+) (-?\d+\.\d+)L(-?\d+\.\d+) (-?\d+\.\d+)/g)(d)],
     A.map((m) => Segment2.make([Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4])])),
     A.map(([x1, y1, x2, y2]) => Segment2.make([x1 / PT_PER_MM, y1 / PT_PER_MM, x2 / PT_PER_MM, y2 / PT_PER_MM]))
   );

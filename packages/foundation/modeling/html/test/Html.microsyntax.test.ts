@@ -28,6 +28,7 @@ import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeGlobalAttributesStructResult = S.decodeResult(GlobalAttributesStruct);
 const decodeOlResult = S.decodeResult(Ol);
@@ -275,7 +276,7 @@ describe("@beep/html attribute microsyntaxes", () => {
     [Arbitrary.schema(S.Array(S.Boolean).check(S.isMinLength(5), S.isMaxLength(5)))],
     ([uppercase]) => {
       const encoded = A.join(
-        A.map([..."image"], (character, index) => (uppercase[index] === true ? character.toUpperCase() : character)),
+        A.map([..."image"], (character, index) => (uppercase[index] === true ? Str.toUpperCase(character) : character)),
         ""
       );
       const canonical = Result.getOrThrow(decodeEnumeratedResult(encoded));
