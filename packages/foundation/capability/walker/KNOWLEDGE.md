@@ -1,8 +1,17 @@
 # walker — upstream knowledge bundle (verbatim)
 
-Provenance: ~/YeeBois/references/effect/effected @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
+Provenance: `$HOME/YeeBois/references/effect/effected` @ af7566a9da2eff169cb74955efcc5ede1e5de9f8; files listed below.
 Relative `okf/...` links refer to that checkout. Content is carried verbatim; port
-decisions live in README.md → Port notes, not here.
+decisions live in README.md → Provenance, not here.
+
+Upstream paths and commands below describe the upstream checkout, not this package.
+In this repo `@effected/walker` is `@beep/walker` at `packages/foundation/capability/walker`:
+upstream `packages/walker/src/<Module>.ts` maps to `src/<Module>.ts` for `Walker`,
+`Descend`, `Expand` and the `index.ts` entrypoint, and upstream `__test__/` maps to
+`test/`, with `__test__/fixtures.ts` at `test/support/fixtures.ts`. Other names:
+`@effected/glob` is `@beep/glob`, `@effected/memfs` is `@beep/memfs`. The upstream
+`pnpm vitest` / `pnpm build` commands map to `bun run test` / `bun run build` in the
+package, or `bun run beep quality package-verify @beep/walker` from the repository root.
 
 ---
 <!-- packages/walker/CLAUDE.md -->

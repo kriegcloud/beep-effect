@@ -3,25 +3,15 @@
   "groups": [
     {
       "id": "g1",
-      "files": [
-        "scratchpad/effected/walker/Walker.ts"
-      ],
-      "tests": [
-        "scratchpad/test/walker/Walker.test.ts"
-      ],
-      "findings": [
-        "req-1"
-      ]
+      "files": ["scratchpad/effected/walker/Walker.ts"],
+      "tests": ["scratchpad/test/walker/Walker.test.ts"],
+      "findings": ["req-1"]
     },
     {
       "id": "g2",
-      "files": [
-        "scratchpad/effected/walker/Descend.ts"
-      ],
+      "files": ["scratchpad/effected/walker/Descend.ts"],
       "tests": [],
-      "findings": [
-        "req-2"
-      ]
+      "findings": ["req-2"]
     }
   ],
   "findings": {

@@ -3,6 +3,7 @@ import { findRepoRoot } from "@beep/repo-utils/Root";
 import { it } from "@beep/test-runner";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import { describe, expect } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Fs from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -54,6 +55,39 @@ describe("Root", () => {
             Effect.catchTag("NoSuchFileError", (e) => Effect.succeed(`caught: ${e._tag}`))
           );
           expect(result).toBe("caught: NoSuchFileError");
+        })
+      );
+    });
+
+    describe("lexical ascent", () => {
+      const onlyMarkers = (...markers: ReadonlyArray<string>) =>
+        Effect.provideService(
+          Fs.FileSystem,
+          Fs.makeNoop({ exists: (candidate) => Effect.succeed(A.contains(markers, candidate)) })
+        );
+
+      it.effect(
+        "stops a relative start at '.' instead of jumping to the filesystem root",
+        Effect.fn(function* () {
+          const error = yield* findRepoRoot("a/b").pipe(onlyMarkers("/.git", "/bun.lock"), Effect.flip);
+          expect(error._tag).toBe("NoSuchFileError");
+          expect(error.message).toBe('Could not find repository root (looked for .git, bun.lock) starting from "a/b"');
+        })
+      );
+
+      it.effect(
+        "finds a marker in the relative root '.'",
+        Effect.fn(function* () {
+          const root = yield* findRepoRoot("a/b").pipe(onlyMarkers(".git"));
+          expect(root).toBe(".");
+        })
+      );
+
+      it.effect(
+        "returns the marked directory without a trailing separator",
+        Effect.fn(function* () {
+          const root = yield* findRepoRoot("/repo/").pipe(onlyMarkers("/repo/bun.lock"));
+          expect(root).toBe("/repo");
         })
       );
     });

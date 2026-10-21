@@ -1,5 +1,5 @@
+import { parentRealPath, walkFrames } from "@beep/walker/internal/worklist";
 import { assert, describe, it } from "@effect/vitest";
-import { parentRealPath, walkFrames } from "../../effected/walker/internal/worklist.ts";
 
 describe("head-index traversal worklist", () => {
   it("visits appended frames in queue order without consuming the array", () => {

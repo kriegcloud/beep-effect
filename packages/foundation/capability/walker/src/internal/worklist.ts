@@ -1,4 +1,17 @@
+/**
+ * The head-index worklist the downward walk iterates, and its parent real-path lookup.
+ *
+ * **Details**
+ *
+ * The descent is a worklist, not a recursion, so it cannot overflow the
+ * stack; it is dequeued by head index, never `Array.shift()`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 
 /**
  * Iterate a growing worklist by head index, stopping at a missing frame.
@@ -6,7 +19,7 @@ import { dual } from "effect/Function";
  * **Example** (Visit queued frames)
  *
  * ```ts
- * import { walkFrames } from "@beep/scratchpad/effected/walker/internal/worklist";
+ * import { walkFrames } from "@beep/walker/internal/worklist";
  * console.log([...walkFrames(["root", "child"])]) // ["root", "child"]
  * ```
  *
@@ -29,7 +42,7 @@ export function* walkFrames<T>(frames: ReadonlyArray<T | undefined>): Generator<
  * **Example** (Resolve an empty ancestor chain)
  *
  * ```ts
- * import { parentRealPath } from "@beep/scratchpad/effected/walker/internal/worklist";
+ * import { parentRealPath } from "@beep/walker/internal/worklist";
  * console.log(parentRealPath([], "/repo")) // "/repo"
  * ```
  *
@@ -40,4 +53,5 @@ export const parentRealPath: {
   (absolute: string): (ancestors: ReadonlyArray<string>) => string;
   (ancestors: ReadonlyArray<string>, absolute: string): string;
 } = dual(2, (ancestors: ReadonlyArray<string>, absolute: string): string =>
-  ancestors[ancestors.length - 1] ?? absolute);
+  O.getOrElse(A.last(ancestors), () => absolute)
+);
