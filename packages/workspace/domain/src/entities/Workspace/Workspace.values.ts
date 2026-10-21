@@ -21,12 +21,14 @@ const isAbsoluteVaultRootPath = (value: string): boolean =>
   S.is(FilePath)(value) &&
   (Str.startsWith("/")(value) || isAbsoluteWindowsDrivePath(value) || S.is(WindowsUncPath)(value));
 
-const WorkspaceVaultRootPathChecks = S.makeFilter(isAbsoluteVaultRootPath, {
-  identifier: $I`WorkspaceVaultRootPathAbsoluteCheck`,
-  title: "Workspace Vault Root Absolute Path",
-  description: "A workspace vault root path must be an absolute POSIX, Windows drive, or Windows UNC path.",
-  message: "Workspace vault root path must be absolute.",
-});
+const WorkspaceVaultRootPathChecks = S.makeFilter(
+  isAbsoluteVaultRootPath,
+  $I.annote("WorkspaceVaultRootPathAbsoluteCheck", {
+    title: "Workspace Vault Root Absolute Path",
+    description: "A workspace vault root path must be an absolute POSIX, Windows drive, or Windows UNC path.",
+    message: "Workspace vault root path must be absolute.",
+  })
+);
 
 // Trailing separators are dropped only after a non-separator segment character,
 // so bare roots ("/", "C:\", "\\host\share") keep their existing rejection path.

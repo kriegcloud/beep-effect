@@ -46,12 +46,11 @@ export const ProviderTokenUsage = (() => {
     },
   });
   const schema = definition.check(
-    S.makeFilter((usage) => usage._tag !== "Partial" || usage.missingAttempts <= usage.attemptCount, {
-      identifier: $I`ProviderTokenUsageAttemptCheck`,
+    S.makeFilter((usage) => usage._tag !== "Partial" || usage.missingAttempts <= usage.attemptCount, $I.annote("ProviderTokenUsageAttemptCheck", {
       title: "Provider Token Usage Attempt Counts",
       description: "Partial usage cannot report more missing attempts than total attempts.",
       message: "Expected missingAttempts to be less than or equal to attemptCount.",
-    })
+    }))
   );
   return schema.pipe(
     $I.annoteSchema("ProviderTokenUsage", {

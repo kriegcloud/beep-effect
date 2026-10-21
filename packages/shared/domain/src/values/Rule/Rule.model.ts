@@ -14,12 +14,14 @@ const ruleTokenPattern = /^[a-z][a-z0-9:_-]*$/u;
 const ruleResourcePattern = /^[a-z][a-z0-9:_-]*(?:\.[a-z][a-z0-9:_-]*)*$/u;
 
 const RuleAction = S.NonEmptyString.check(
-  S.isPattern(ruleTokenPattern, {
-    identifier: $I`RuleActionPattern`,
-    title: "Rule action token pattern",
-    description: "Lowercase rule action token.",
-    message: "Expected a lowercase rule action token",
-  })
+  S.isPattern(
+    ruleTokenPattern,
+    $I.annote("RuleActionPattern", {
+      title: "Rule action token pattern",
+      description: "Lowercase rule action token.",
+      message: "Expected a lowercase rule action token",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RuleAction", {
     description: "Lowercase action token used by shared rule values.",
@@ -27,12 +29,14 @@ const RuleAction = S.NonEmptyString.check(
 );
 
 const RuleResource = S.NonEmptyString.check(
-  S.isPattern(ruleResourcePattern, {
-    identifier: $I`RuleResourcePattern`,
-    title: "Rule resource token pattern",
-    description: "Lowercase dot-separated resource token.",
-    message: "Expected a lowercase rule resource token",
-  })
+  S.isPattern(
+    ruleResourcePattern,
+    $I.annote("RuleResourcePattern", {
+      title: "Rule resource token pattern",
+      description: "Lowercase dot-separated resource token.",
+      message: "Expected a lowercase rule resource token",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RuleResource", {
     description: "Lowercase resource token used by shared rule values.",

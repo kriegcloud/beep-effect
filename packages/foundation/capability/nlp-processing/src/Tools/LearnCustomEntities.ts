@@ -13,8 +13,8 @@ import * as S from "effect/Schema";
 import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/LearnCustomEntities");
-const LearnCustomEntitiesModeKit = LiteralKit(["append", "replace"]).annotate(
-  $I.annote("LearnCustomEntitiesModeKit", {
+const LearnCustomEntitiesModeKit = LiteralKit(["append", "replace"]).pipe(
+  $I.annoteSchema("LearnCustomEntitiesModeKit", {
     description: "LiteralKit backing schema for custom entity learning merge modes.",
   })
 );

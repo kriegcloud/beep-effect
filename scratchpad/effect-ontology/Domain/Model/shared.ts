@@ -200,13 +200,12 @@ export const ENTITY_ID_PATTERN = /^[a-z][a-z0-9_]*$/;
  * @since 0.0.0
  */
 export const EntityId = S.String.check(
-  S.isPattern(ENTITY_ID_PATTERN, {
-    identifier: $I`EntityIdPatternCheck`,
+  S.isPattern(ENTITY_ID_PATTERN, $I.annote("EntityIdPatternCheck", {
     title: "Entity Identifier",
     description:
       "A local entity identifier beginning with a lowercase ASCII letter and continuing with lowercase letters, digits, or underscores.",
     message: "Entity ID must begin with a lowercase letter and contain only lowercase letters, digits, or underscores.",
-  })
+  }))
 ).pipe(
     S.brand("EntityId"),
     $I.annoteSchema("EntityId", {

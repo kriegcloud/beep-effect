@@ -36,12 +36,11 @@ const FixtureDeclarationCheck = S.makeFilter(
       parses: () => Option.isNone(declaration.degradedKind),
       degraded: () => Option.isSome(declaration.degradedKind),
     }),
-  {
-    identifier: $I`FixtureDeclarationCheck`,
+  $I.annote("FixtureDeclarationCheck", {
     title: "Fixture origin declaration",
     description: "Requires degraded fixture origins to name a degradation and parsing origins to omit one.",
     message: "Fixture origin degradedKind must be Some exactly when expectation is degraded.",
-  }
+  })
 );
 
 /**
@@ -104,13 +103,12 @@ const OriginKind = LiteralKit(["W1Paper", "Fixture"]);
  * @category schemas
  * @since 0.0.0
  */
-export const Origin = OriginKind.mapMembers(Tuple.evolve([() => W1PaperOrigin, () => FixtureOrigin]))
-  .annotate(
-    $I.annote("Origin", {
-      description: "Tagged source origin for a W1 paper or synthetic F1 fixture.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+export const Origin = OriginKind.mapMembers(Tuple.evolve([() => W1PaperOrigin, () => FixtureOrigin])).pipe(
+  $I.annoteSchema("Origin", {
+    description: "Tagged source origin for a W1 paper or synthetic F1 fixture.",
+  }),
+  S.toTaggedUnion("kind")
+);
 
 /**
  * Decoded source-document origin.
@@ -148,12 +146,11 @@ const SourceDocumentFields = S.Struct({
 
 const SourceDocumentIdentityCheck = S.makeFilter(
   (document: typeof SourceDocumentFields.Type) => Str.Equivalence(document.id, document.sha256),
-  {
-    identifier: $I`SourceDocumentIdentityCheck`,
+  $I.annote("SourceDocumentIdentityCheck", {
     title: "Source document identity",
     description: "Requires the document id to equal the full SHA-256 digest of its source bytes.",
     message: "SourceDocument sha256 must equal id.",
-  }
+  })
 );
 
 /**

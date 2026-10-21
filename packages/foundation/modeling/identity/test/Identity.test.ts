@@ -11,7 +11,7 @@ import {
   $WorkspaceDomainId,
 } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
-import { describe, expect } from "@effect/vitest";
+import { describe, expect, expectTypeOf } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Equal from "effect/Equal";
@@ -120,6 +120,57 @@ describe("@beep/identity", () => {
     expect(annotation.default).toEqual({ version: 1 });
     expect(annotation.description).toBe("Tenant schema");
     expect(annotation.version).toBe(1);
+  });
+
+  it("lets a caller-supplied title win over the derived title", () => {
+    const $SchemaId = make("beep").$BeepId.create("schema");
+    const annotation = $SchemaId.annote("CatalogSlugPattern", {
+      title: "Catalog slug syntax",
+      description: "Lowercase slug segments.",
+    });
+
+    expect(annotation.title).toBe("Catalog slug syntax");
+    expect(annotation.identifier).toBe("@beep/schema/CatalogSlugPattern");
+    expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/CatalogSlugPattern"));
+    expect(annotation.description).toBe("Lowercase slug segments.");
+  });
+
+  it("keeps identity-owned keys over forged extras while honoring the caller title", () => {
+    const $SchemaId = make("beep").$BeepId.create("schema");
+    const forged: Record<string, unknown> = {
+      title: "Human title",
+      identifier: "forged",
+      schemaId: Symbol.for("forged"),
+    };
+    const annotation = $SchemaId.annote("Owned", forged);
+
+    expect(annotation.title).toBe("Human title");
+    expect(annotation.identifier).toBe("@beep/schema/Owned");
+    expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/Owned"));
+    expectTypeOf(annotation.title).toEqualTypeOf<string>();
+  });
+
+  it("types the title as the caller literal, the derived title, or string when it may be either", () => {
+    const $SchemaId = make("beep").$BeepId.create("schema");
+    const maybeTitled: { readonly title?: string; readonly description: string } = { description: "d" };
+
+    expectTypeOf($SchemaId.annote("Slug", { title: "URL slug" }).title).toEqualTypeOf<"URL slug">();
+    expectTypeOf(
+      $SchemaId.annote("tenant_profile-name", { description: "d" }).title
+    ).toEqualTypeOf<"Tenant Profile Name">();
+    expectTypeOf($SchemaId.annote("Slug", maybeTitled).title).toEqualTypeOf<string>();
+    expect($SchemaId.annote("Slug", maybeTitled).title).toBe("Slug");
+  });
+
+  it("applies the caller title through annoteSchema and annoteKey", () => {
+    const $SchemaId = make("beep").$BeepId.create("schema");
+    const Slug = S.String.pipe($SchemaId.annoteSchema("Slug", { title: "URL slug", description: "A slug." }));
+    const Field = S.String.pipe($SchemaId.annoteKey("Page.slug", { title: "Page slug", description: "The slug." }));
+    const Derived = S.String.pipe($SchemaId.annoteSchema("tenant_profile-name", { description: "No title given." }));
+
+    expect(S.resolveAnnotations(Slug)?.title).toBe("URL slug");
+    expect(S.resolveAnnotationsKey(Field)?.title).toBe("Page slug");
+    expect(S.resolveAnnotations(Derived)?.title).toBe("Tenant Profile Name");
   });
 
   it("creates class annotations through the same runtime merge path as annote", () => {

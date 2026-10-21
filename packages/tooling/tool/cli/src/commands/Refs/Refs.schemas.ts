@@ -17,8 +17,8 @@ const $I = $RepoCliId.create("commands/Refs/Refs.schemas");
 const MemberName = S.NonEmptyString.check(S.isPattern(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/u));
 const MemberBranch = S.NonEmptyString.check(
   S.isPattern(/^[a-zA-Z0-9][a-zA-Z0-9_-]*(?:\/[a-zA-Z0-9][a-zA-Z0-9_-]*)*$/u)
-).annotate(
-  $I.annote("MemberBranch", {
+).pipe(
+  $I.annoteSchema("MemberBranch", {
     description: "Reference branch with safe slash-separated alphanumeric, dash, and underscore components.",
   })
 );
@@ -124,13 +124,12 @@ export class ReferenceWorkspaceManifest extends S.Opaque<
     members: S.Array(ReferenceMember).check(
       S.makeFilter(
         (members) => HashSet.size(HashSet.fromIterable(A.map(members, (member) => member.name))) === A.length(members),
-        {
-          identifier: $I`UniqueMembers`,
+        $I.annote("UniqueMembers", {
           title: "Unique members",
           description: "Member names identify distinct directories.",
           message: "Member names must be unique.",
           arbitraryConstraint: { uniqueBy: (member: ReferenceMember) => member.name },
-        }
+        })
       )
     ),
     workspaceLink: S.tag(".repos/effect-workspace"),

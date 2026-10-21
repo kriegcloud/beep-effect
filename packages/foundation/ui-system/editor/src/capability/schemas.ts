@@ -18,12 +18,14 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 const $I = $EditorId.create("capability/schemas");
 const dottedIdPattern = /^[a-z][a-z0-9-]*(\.[a-z0-9-]+)+$/u;
 
-const dottedIdCheck = S.isPattern(dottedIdPattern, {
-  identifier: $I`DottedIdCheck`,
-  title: "Dotted capability identifier",
-  description: "A lowercase dot-separated identifier with at least two segments.",
-  message: "Expected a lowercase dot-separated identifier",
-});
+const dottedIdCheck = S.isPattern(
+  dottedIdPattern,
+  $I.annote("DottedIdCheck", {
+    title: "Dotted capability identifier",
+    description: "A lowercase dot-separated identifier with at least two segments.",
+    message: "Expected a lowercase dot-separated identifier",
+  })
+);
 
 /**
  * Stable identifier for a catalog capability.
@@ -136,8 +138,8 @@ export const CapabilityCategory = LiteralKit([
   "transformer",
   "authoring",
   "interchange",
-]).annotate(
-  $I.annote("CapabilityCategory", {
+]).pipe(
+  $I.annoteSchema("CapabilityCategory", {
     title: "Capability category",
     description: "P1 subset of the editor capability atlas taxonomy.",
   })
@@ -165,8 +167,8 @@ export type CapabilityCategory = typeof CapabilityCategory.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CapabilityDisposition = LiteralKit(["implement", "generalize", "development-only"]).annotate(
-  $I.annote("CapabilityDisposition", {
+export const CapabilityDisposition = LiteralKit(["implement", "generalize", "development-only"]).pipe(
+  $I.annoteSchema("CapabilityDisposition", {
     title: "Capability disposition",
     description: "P1 implementation disposition used by profile resolution policy.",
   })
@@ -194,8 +196,8 @@ export type CapabilityDisposition = typeof CapabilityDisposition.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CanonicalCompatibility = LiteralKit(["lossless", "lossy", "unsupported", "not-applicable"]).annotate(
-  $I.annote("CanonicalCompatibility", {
+export const CanonicalCompatibility = LiteralKit(["lossless", "lossy", "unsupported", "not-applicable"]).pipe(
+  $I.annoteSchema("CanonicalCompatibility", {
     title: "Canonical compatibility",
     description: "Loss behavior when an editor semantic crosses the canonical document codec.",
   })
@@ -223,8 +225,8 @@ export type CanonicalCompatibility = typeof CanonicalCompatibility.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ReadOnlyFallback = LiteralKit(["render-canonical", "hide-controls", "inert-reference"]).annotate(
-  $I.annote("ReadOnlyFallback", {
+export const ReadOnlyFallback = LiteralKit(["render-canonical", "hide-controls", "inert-reference"]).pipe(
+  $I.annoteSchema("ReadOnlyFallback", {
     title: "Read-only fallback",
     description: "Fallback presentation used for a capability whose authoring controls are disabled.",
   })
@@ -252,8 +254,8 @@ export type ReadOnlyFallback = typeof ReadOnlyFallback.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ActivationSurface = LiteralKit(["toolbar", "slash-menu", "floating-toolbar", "context-menu"]).annotate(
-  $I.annote("ActivationSurface", {
+export const ActivationSurface = LiteralKit(["toolbar", "slash-menu", "floating-toolbar", "context-menu"]).pipe(
+  $I.annoteSchema("ActivationSurface", {
     title: "Activation surface",
     description: "User-visible affordance surface generated from a resolved command.",
   })
@@ -281,8 +283,8 @@ export type ActivationSurface = typeof ActivationSurface.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const Platform = LiteralKit(["windows-linux", "apple"]).annotate(
-  $I.annote("Platform", {
+export const Platform = LiteralKit(["windows-linux", "apple"]).pipe(
+  $I.annoteSchema("Platform", {
     title: "Keybinding platform",
     description: "Platform family used to resolve authored keyboard bindings.",
   })
@@ -310,8 +312,8 @@ export type Platform = typeof Platform.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const Modifier = LiteralKit(["control", "meta", "alt", "shift"]).annotate(
-  $I.annote("Modifier", {
+export const Modifier = LiteralKit(["control", "meta", "alt", "shift"]).pipe(
+  $I.annoteSchema("Modifier", {
     title: "Key chord modifier",
     description: "Canonical modifier vocabulary in deterministic chord order.",
   })
@@ -325,8 +327,8 @@ export const Modifier = LiteralKit(["control", "meta", "alt", "shift"]).annotate
  */
 export type Modifier = typeof Modifier.Type;
 
-const ModifierToken = LiteralKit(["ctrl", "control", "cmd", "meta", "win", "alt", "option", "shift"]).annotate(
-  $I.annote("ModifierToken", {
+const ModifierToken = LiteralKit(["ctrl", "control", "cmd", "meta", "win", "alt", "option", "shift"]).pipe(
+  $I.annoteSchema("ModifierToken", {
     title: "Authored modifier token",
     description: "Case-normalized modifier spellings accepted by authored chord strings.",
   })
@@ -365,11 +367,10 @@ const uniqueModifiers = S.makeFilter<ReadonlyArray<Modifier>>(
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueModifiers`,
+  $I.annote("UniqueModifiers", {
     title: "Unique key chord modifiers",
     description: "A key chord contains each canonical modifier at most once.",
-  }
+  })
 );
 
 const sortedModifiers = S.makeFilter<ReadonlyArray<Modifier>>(
@@ -377,11 +378,10 @@ const sortedModifiers = S.makeFilter<ReadonlyArray<Modifier>>(
     Equal.equals(modifiers, sortModifiers(modifiers))
       ? undefined
       : "Expected modifiers in control, meta, alt, shift order",
-  {
-    identifier: $I`SortedModifiers`,
+  $I.annote("SortedModifiers", {
     title: "Sorted key chord modifiers",
     description: "A key chord stores modifiers in canonical declaration order.",
-  }
+  })
 );
 
 /**
@@ -493,7 +493,6 @@ export class Keybinding extends S.Opaque<Keybinding, { readonly brand: unique sy
     chord: KeyChordFromString.annotateKey({ description: "Canonical chord decoded from its authored string." }),
   }).pipe(
     $I.annoteSchema("Keybinding", {
-      title: "Keybinding",
       description: "A platform-specific keyboard chord attached to a command.",
     })
   )
@@ -529,8 +528,8 @@ export const NodeRegistrationKey = LiteralKit([
   "TableCellNode",
   "YouTubeNode",
   "ArtifactRefNode",
-]).annotate(
-  $I.annote("NodeRegistrationKey", {
+]).pipe(
+  $I.annoteSchema("NodeRegistrationKey", {
     title: "Node registration key",
     description: "Closed registry of Lexical node constructors owned by P1 descriptors.",
   })
@@ -567,8 +566,8 @@ export const ExtensionKey = LiteralKit([
   "ToolbarProjection",
   "SlashPickerProjection",
   "ShortcutHelpProjection",
-]).annotate(
-  $I.annote("ExtensionKey", {
+]).pipe(
+  $I.annoteSchema("ExtensionKey", {
     title: "Extension key",
     description: "Closed registry of runtime editor extensions owned by P1 descriptors.",
   })
@@ -613,8 +612,8 @@ export const TransformerKey = LiteralKit([
   "HIGHLIGHT",
   "STRIKETHROUGH",
   "LINK",
-]).annotate(
-  $I.annote("TransformerKey", {
+]).pipe(
+  $I.annoteSchema("TransformerKey", {
     title: "Transformer key",
     description: "Closed registry of Markdown transformers owned by P1 descriptors.",
   })
@@ -640,11 +639,10 @@ const uniqueValues = <Value>(name: string) =>
         return Result.fail(undefined);
       });
     },
-    {
-      identifier: $I`UniqueValues`,
+    $I.annote("UniqueValues", {
       title: `Unique ${name}s`,
       description: `Every ${name} in the collection must be unique.`,
-    }
+    })
   );
 
 const uniqueNodeKeys = uniqueValues<NodeRegistrationKey>("node registration key");
@@ -697,11 +695,10 @@ const uniqueBindingPlatforms = S.makeFilter<ReadonlyArray<Keybinding>>(
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueBindingPlatforms`,
+  $I.annote("UniqueBindingPlatforms", {
     title: "Unique keybinding platforms",
     description: "A command declares at most one binding for each platform family.",
-  }
+  })
 );
 
 /**
@@ -839,11 +836,10 @@ const catalogRelationships = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
         )
       )
     ),
-  {
-    identifier: $I`CatalogRelationships`,
+  $I.annote("CatalogRelationships", {
     title: "Valid catalog relationships",
     description: "Capability descriptors cannot depend on or conflict with themselves.",
-  }
+  })
 );
 
 const uniqueCatalogIds = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
@@ -857,11 +853,10 @@ const uniqueCatalogIds = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueCatalogIds`,
+  $I.annote("UniqueCatalogIds", {
     title: "Unique catalog capability identifiers",
     description: "Every descriptor in the capability catalog has a unique identifier.",
-  }
+  })
 );
 
 const uniqueCatalogCommandIds = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
@@ -880,11 +875,10 @@ const uniqueCatalogCommandIds = S.makeFilter<ReadonlyArray<CapabilityDescriptor>
       })
     );
   },
-  {
-    identifier: $I`UniqueCatalogCommandIds`,
+  $I.annote("UniqueCatalogCommandIds", {
     title: "Unique catalog command identifiers",
     description: "Every command identifier is owned by exactly one catalog descriptor.",
-  }
+  })
 );
 
 const uniqueCatalogRegistrationKeys = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
@@ -912,11 +906,10 @@ const uniqueCatalogRegistrationKeys = S.makeFilter<ReadonlyArray<CapabilityDescr
       });
     });
   },
-  {
-    identifier: $I`UniqueCatalogRegistrationKeys`,
+  $I.annote("UniqueCatalogRegistrationKeys", {
     title: "Unique catalog registration keys",
     description: "Every node, extension, and transformer key is owned by exactly one descriptor.",
-  }
+  })
 );
 
 /**
@@ -966,8 +959,8 @@ export type CapabilityCatalog = typeof CapabilityCatalog.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ProfileKind = LiteralKit(["production", "development-reference"]).annotate(
-  $I.annote("ProfileKind", {
+export const ProfileKind = LiteralKit(["production", "development-reference"]).pipe(
+  $I.annoteSchema("ProfileKind", {
     title: "Profile kind",
     description: "Profile ownership class used to gate development-only capabilities.",
   })
@@ -1021,11 +1014,10 @@ const uniqueOverrideCommandIds = S.makeFilter<ReadonlyArray<KeybindingOverride>>
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueOverrideCommandIds`,
+  $I.annote("UniqueOverrideCommandIds", {
     title: "Unique override command identifiers",
     description: "A profile contains at most one keybinding override per command.",
-  }
+  })
 );
 
 /**
@@ -1078,8 +1070,8 @@ export class EditorProfile extends S.Opaque<EditorProfile, { readonly brand: uni
  * @category schemas
  * @since 0.0.0
  */
-export const CapabilityMode = LiteralKit(["authoring", "read-only"]).annotate(
-  $I.annote("CapabilityMode", {
+export const CapabilityMode = LiteralKit(["authoring", "read-only"]).pipe(
+  $I.annoteSchema("CapabilityMode", {
     title: "Capability mode",
     description: "Whether a catalog capability is authoring-enabled or readable only.",
   })

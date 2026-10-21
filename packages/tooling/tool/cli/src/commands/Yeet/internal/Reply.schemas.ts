@@ -139,11 +139,10 @@ const ReplyTargetPresenceCheck = S.makeFilter(
           path: ["threadId"],
           issue: "A reply target must carry a GraphQL thread id (PRRT_...) or a numeric REST comment id.",
         },
-  {
-    identifier: $I`ReplyTargetPresenceCheck`,
+  $I.annote("ReplyTargetPresenceCheck", {
     title: "Reply target presence",
     description: "A reply target must carry a GraphQL thread id or a numeric REST comment id.",
-  }
+  })
 );
 
 /**

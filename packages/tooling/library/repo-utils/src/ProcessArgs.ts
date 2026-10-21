@@ -268,12 +268,14 @@ export const guardLiteralArgs: (
  * @since 0.0.0
  */
 export const LiteralArg = S.String.check(
-  S.makeFilter(isNotOptionLike, {
-    identifier: $I`LiteralArgNotOptionLikeCheck`,
-    title: "Literal Arg Not Option Like",
-    description: "A child-process argument value that is not shaped like a command-line option/flag.",
-    message: "Child-process argument must not be shaped like a command-line option",
-  })
+  S.makeFilter(
+    isNotOptionLike,
+    $I.annote("LiteralArgNotOptionLikeCheck", {
+      title: "Literal Arg Not Option Like",
+      description: "A child-process argument value that is not shaped like a command-line option/flag.",
+      message: "Child-process argument must not be shaped like a command-line option",
+    })
+  )
 ).pipe(
   $I.annoteSchema("LiteralArg", {
     description:

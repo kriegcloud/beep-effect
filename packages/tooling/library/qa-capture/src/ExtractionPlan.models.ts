@@ -180,12 +180,14 @@ export class ExtractionRule extends S.Opaque<ExtractionRule, { readonly brand: u
       })
     ),
     gifFps: S.Finite.check(
-      S.isGreaterThan(0, {
-        identifier: $I`ExtractionRuleGifFpsPositiveCheck`,
-        title: "Extraction Rule Gif Fps Positive",
-        description: "GIF frame rates are strictly positive.",
-        message: "Expected a positive GIF frame rate",
-      })
+      S.isGreaterThan(
+        0,
+        $I.annote("ExtractionRuleGifFpsPositiveCheck", {
+          title: "Extraction Rule Gif Fps Positive",
+          description: "GIF frame rates are strictly positive.",
+          message: "Expected a positive GIF frame rate",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(10)),
       S.withDecodingDefaultTypeKey(Effect.succeed(10)),
@@ -199,12 +201,14 @@ export class ExtractionRule extends S.Opaque<ExtractionRule, { readonly brand: u
       })
     ),
     minDistancePx: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`ExtractionRuleMinDistanceMinimumCheck`,
-        title: "Extraction Rule Min Distance Minimum",
-        description: "Distance thresholds are zero or greater.",
-        message: "Expected a non-negative distance threshold",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("ExtractionRuleMinDistanceMinimumCheck", {
+          title: "Extraction Rule Min Distance Minimum",
+          description: "Distance thresholds are zero or greater.",
+          message: "Expected a non-negative distance threshold",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
@@ -249,24 +253,27 @@ export class ExtractionRule extends S.Opaque<ExtractionRule, { readonly brand: u
       S.Finite.check(
         S.makeFilterGroup(
           [
-            S.isGreaterThanOrEqualTo(0, {
-              identifier: $I`ExtractionRuleStripFractionMinimumCheck`,
-              title: "Extraction Rule Strip Fraction Minimum",
-              description: "Strip fractions are zero or greater.",
-              message: "Expected a strip fraction of at least zero",
-            }),
-            S.isLessThanOrEqualTo(1, {
-              identifier: $I`ExtractionRuleStripFractionMaximumCheck`,
-              title: "Extraction Rule Strip Fraction Maximum",
-              description: "Strip fractions do not exceed one.",
-              message: "Expected a strip fraction of at most one",
-            }),
+            S.isGreaterThanOrEqualTo(
+              0,
+              $I.annote("ExtractionRuleStripFractionMinimumCheck", {
+                title: "Extraction Rule Strip Fraction Minimum",
+                description: "Strip fractions are zero or greater.",
+                message: "Expected a strip fraction of at least zero",
+              })
+            ),
+            S.isLessThanOrEqualTo(
+              1,
+              $I.annote("ExtractionRuleStripFractionMaximumCheck", {
+                title: "Extraction Rule Strip Fraction Maximum",
+                description: "Strip fractions do not exceed one.",
+                message: "Expected a strip fraction of at most one",
+              })
+            ),
           ],
-          {
-            identifier: $I`ExtractionRuleStripFractionChecks`,
+          $I.annote("ExtractionRuleStripFractionChecks", {
             title: "Extraction Rule Strip Fraction",
             description: "Checks for window-relative strip fractions.",
-          }
+          })
         )
       )
     ).pipe(
@@ -425,12 +432,14 @@ export const defaultExtractionRules: ExtractionRuleSet = [
 export class ArtifactBudget extends S.Opaque<ArtifactBudget, { readonly brand: unique symbol }>()(
   S.Struct({
     maxGifSeconds: S.Finite.check(
-      S.isGreaterThan(0, {
-        identifier: $I`ArtifactBudgetMaxGifSecondsPositiveCheck`,
-        title: "Artifact Budget Max Gif Seconds Positive",
-        description: "GIF duration caps are strictly positive.",
-        message: "Expected a positive GIF duration cap",
-      })
+      S.isGreaterThan(
+        0,
+        $I.annote("ArtifactBudgetMaxGifSecondsPositiveCheck", {
+          title: "Artifact Budget Max Gif Seconds Positive",
+          description: "GIF duration caps are strictly positive.",
+          message: "Expected a positive GIF duration cap",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(6)),
       S.withDecodingDefaultTypeKey(Effect.succeed(6)),
@@ -439,12 +448,14 @@ export class ArtifactBudget extends S.Opaque<ArtifactBudget, { readonly brand: u
       })
     ),
     maxTotalBytes: S.Int.check(
-      S.isGreaterThan(0, {
-        identifier: $I`ArtifactBudgetMaxTotalBytesPositiveCheck`,
-        title: "Artifact Budget Max Total Bytes Positive",
-        description: "Round byte budgets are strictly positive.",
-        message: "Expected a positive byte budget",
-      })
+      S.isGreaterThan(
+        0,
+        $I.annote("ArtifactBudgetMaxTotalBytesPositiveCheck", {
+          title: "Artifact Budget Max Total Bytes Positive",
+          description: "Round byte budgets are strictly positive.",
+          message: "Expected a positive byte budget",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(20971520)),
       S.withDecodingDefaultTypeKey(Effect.succeed(20971520)),
@@ -478,24 +489,28 @@ export class ArtifactBudget extends S.Opaque<ArtifactBudget, { readonly brand: u
 export class GifSpec extends S.Opaque<GifSpec, { readonly brand: unique symbol }>()(
   S.Struct({
     fps: S.Finite.check(
-      S.isGreaterThan(0, {
-        identifier: $I`GifSpecFpsPositiveCheck`,
-        title: "Gif Spec Fps Positive",
-        description: "GIF frame rates are strictly positive.",
-        message: "Expected a positive GIF frame rate",
-      })
+      S.isGreaterThan(
+        0,
+        $I.annote("GifSpecFpsPositiveCheck", {
+          title: "Gif Spec Fps Positive",
+          description: "GIF frame rates are strictly positive.",
+          message: "Expected a positive GIF frame rate",
+        })
+      )
     ).pipe(
       $I.annoteKey("GifSpec.fps", {
         description: "GIF frame rate.",
       })
     ),
     width: S.Int.check(
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`GifSpecWidthMinimumCheck`,
-        title: "Gif Spec Width Minimum",
-        description: "GIF widths are positive integer pixel counts.",
-        message: "Expected a positive GIF width",
-      })
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("GifSpecWidthMinimumCheck", {
+          title: "Gif Spec Width Minimum",
+          description: "GIF widths are positive integer pixel counts.",
+          message: "Expected a positive GIF width",
+        })
+      )
     ).pipe(
       $I.annoteKey("GifSpec.width", {
         description: "GIF pixel width; height follows the source aspect ratio.",
@@ -677,12 +692,14 @@ export class ExtractionPlan extends S.Opaque<ExtractionPlan, { readonly brand: u
       })
     ),
     estimatedTotalBytes: S.Int.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`ExtractionPlanEstimatedTotalBytesMinimumCheck`,
-        title: "Extraction Plan Estimated Total Bytes Minimum",
-        description: "Estimated totals are zero or greater.",
-        message: "Expected a non-negative estimated byte total",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("ExtractionPlanEstimatedTotalBytesMinimumCheck", {
+          title: "Extraction Plan Estimated Total Bytes Minimum",
+          description: "Estimated totals are zero or greater.",
+          message: "Expected a non-negative estimated byte total",
+        })
+      )
     ).pipe(
       $I.annoteKey("ExtractionPlan.estimatedTotalBytes", {
         description: "Deterministic byte estimate of all planned artifacts.",

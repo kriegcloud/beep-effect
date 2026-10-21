@@ -20,17 +20,19 @@ import type * as Stream from "effect/Stream";
 import type { ManagedLaunchProfile } from "./AiProviderCliSession.models.ts";
 
 const $I = $AiProviderCliId.create("AiProviderCliSession.profile.service");
-const ProtocolJson = S.fromJsonString(S.Unknown).annotate(
-  $I.annote("ProtocolJson", { description: "Serialized native protocol payload without provider-specific decoding." })
+const ProtocolJson = S.fromJsonString(S.Unknown).pipe(
+  $I.annoteSchema("ProtocolJson", {
+    description: "Serialized native protocol payload without provider-specific decoding.",
+  })
 );
 const encodeProtocolJson = S.encodeEffect(ProtocolJson);
-const CommonEnvironmentKey = LiteralKit(["HOME", "PATH"]).annotate(
-  $I.annote("CommonEnvironmentKey", {
+const CommonEnvironmentKey = LiteralKit(["HOME", "PATH"]).pipe(
+  $I.annoteSchema("CommonEnvironmentKey", {
     description: "Owned home and executable lookup required by managed subscription launches.",
   })
 );
-const CodexEnvironmentKey = LiteralKit([...CommonEnvironmentKey.literals, "CODEX_HOME"]).annotate(
-  $I.annote("CodexEnvironmentKey", {
+const CodexEnvironmentKey = LiteralKit([...CommonEnvironmentKey.literals, "CODEX_HOME"]).pipe(
+  $I.annoteSchema("CodexEnvironmentKey", {
     description: "Managed Codex launch essentials, including its verified owned configuration root.",
   })
 );
@@ -57,8 +59,8 @@ export const failure = {
   make: (operation: string, reason: ManagedSessionError["reason"], message: string) =>
     ManagedSessionError.make({ operation, reason, message }),
 };
-const EndedRuntime = S.Union([AcpErrors.AcpProcessExitedError, AcpErrors.AcpInputStreamEndedError]).annotate(
-  $I.annote("EndedRuntime", { description: "ACP failure raised because the native process or its output ended." })
+const EndedRuntime = S.Union([AcpErrors.AcpProcessExitedError, AcpErrors.AcpInputStreamEndedError]).pipe(
+  $I.annoteSchema("EndedRuntime", { description: "ACP failure raised because the native process or its output ended." })
 );
 const isEndedRuntime = S.is(EndedRuntime);
 /**

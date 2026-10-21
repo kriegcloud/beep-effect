@@ -120,30 +120,36 @@ const isValidYouTubeBlock = (block: YouTubeBlock): boolean =>
   pipe(block.videoId, Str.match(youtubeVideoIdPattern), O.isSome);
 
 const CheckedCodeBlock = CodeBlock.check(
-  S.makeFilter(isValidMermaidCodeBlock, {
-    identifier: $I`CheckedMermaidCodeBlock`,
-    title: "Checked Mermaid Code Block",
-    description: "Checks mermaid code blocks for a non-empty recognized mermaid diagram declaration.",
-    message: `Mermaid code blocks must start with one of: ${A.join(MermaidDiagramType.literals, ", ")}`,
-  })
+  S.makeFilter(
+    isValidMermaidCodeBlock,
+    $I.annote("CheckedMermaidCodeBlock", {
+      title: "Checked Mermaid Code Block",
+      description: "Checks mermaid code blocks for a non-empty recognized mermaid diagram declaration.",
+      message: `Mermaid code blocks must start with one of: ${A.join(MermaidDiagramType.literals, ", ")}`,
+    })
+  )
 );
 
 const CheckedTableBlock = TableBlock.check(
-  S.makeFilter(isValidTableBlock, {
-    identifier: $I`CheckedTableBlock`,
-    title: "Checked Table Block",
-    description: "Checks assistant table blocks for at least one row, one cell, and rectangular row arity.",
-    message: "Tables must contain at least one row, at least one cell, and every row must have the same cell count.",
-  })
+  S.makeFilter(
+    isValidTableBlock,
+    $I.annote("CheckedTableBlock", {
+      title: "Checked Table Block",
+      description: "Checks assistant table blocks for at least one row, one cell, and rectangular row arity.",
+      message: "Tables must contain at least one row, at least one cell, and every row must have the same cell count.",
+    })
+  )
 );
 
 const CheckedYouTubeBlock = YouTubeBlock.check(
-  S.makeFilter(isValidYouTubeBlock, {
-    identifier: $I`CheckedYouTubeBlock`,
-    title: "Checked YouTube Block",
-    description: "Checks assistant YouTube blocks for a bare 11-character YouTube video id.",
-    message: "YouTube blocks must use the bare 11-character video id, not a URL.",
-  })
+  S.makeFilter(
+    isValidYouTubeBlock,
+    $I.annote("CheckedYouTubeBlock", {
+      title: "Checked YouTube Block",
+      description: "Checks assistant YouTube blocks for a bare 11-character YouTube video id.",
+      message: "YouTube blocks must use the bare 11-character video id, not a URL.",
+    })
+  )
 );
 
 const CheckedAssistantBlock = S.Union([

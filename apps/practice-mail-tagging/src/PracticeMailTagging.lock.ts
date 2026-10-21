@@ -42,11 +42,11 @@ const $I = $PracticeMailTaggingId.create("PracticeMailTagging.lock");
  */
 export const stateLockFileName = "writer.lock";
 
-const ProcessId = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive process id" })).annotate({
-  identifier: $I`ProcessId`,
-  title: "ProcessId",
-  description: "Operating-system id of a running process; an integer greater than zero.",
-});
+const ProcessId = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive process id" })).pipe(
+  $I.annoteSchema("ProcessId", {
+    description: "Operating-system id of a running process; an integer greater than zero.",
+  })
+);
 
 /**
  * Who holds the state directory: the content of the lock file.

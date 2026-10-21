@@ -79,12 +79,11 @@ const PgliteTcpPort = S.Int.check(
       maximum: 65_535,
       minimum: 1,
     },
-    {
+    $I.annote("PgliteTcpPortRangeCheck", {
       description: "A TCP port number accepted by Docker and PostgreSQL clients.",
-      identifier: $I`PgliteTcpPortRangeCheck`,
       message: "PGLite TCP ports must be between 1 and 65535",
       title: "PGLite TCP Port Range",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("PgliteTcpPort", {
@@ -93,12 +92,14 @@ const PgliteTcpPort = S.Int.check(
 );
 
 const PglitePositiveInteger = S.Int.check(
-  S.isGreaterThan(0, {
-    description: "A positive integer accepted by the PGLite Testcontainers SQL test driver.",
-    identifier: $I`PglitePositiveIntegerCheck`,
-    message: "PGLite numeric configuration values must be greater than zero",
-    title: "PGLite Positive Integer",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("PglitePositiveIntegerCheck", {
+      description: "A positive integer accepted by the PGLite Testcontainers SQL test driver.",
+      message: "PGLite numeric configuration values must be greater than zero",
+      title: "PGLite Positive Integer",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PglitePositiveInteger", {
     description: "Positive integer used by the PGLite Testcontainers SQL test driver.",
@@ -106,12 +107,14 @@ const PglitePositiveInteger = S.Int.check(
 );
 
 const PgExternalSchemaPrefix = S.String.check(
-  S.isPattern(/^[A-Za-z_][A-Za-z0-9_]*$/, {
-    description: "A PostgreSQL identifier-safe prefix for generated integration-test schemas.",
-    identifier: $I`PgExternalSchemaPrefixPattern`,
-    message: "PostgreSQL test schema prefixes must be valid unquoted identifiers",
-    title: "PostgreSQL External Schema Prefix",
-  })
+  S.isPattern(
+    /^[A-Za-z_][A-Za-z0-9_]*$/,
+    $I.annote("PgExternalSchemaPrefixPattern", {
+      description: "A PostgreSQL identifier-safe prefix for generated integration-test schemas.",
+      message: "PostgreSQL test schema prefixes must be valid unquoted identifiers",
+      title: "PostgreSQL External Schema Prefix",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PgExternalSchemaPrefix", {
     description: "Identifier-safe prefix used when creating external PostgreSQL test schemas.",
@@ -134,12 +137,14 @@ const PgExternalSchemaPrefix = S.String.check(
  * @since 0.0.0
  */
 export const PgExternalConnectionUri = S.NonEmptyString.check(
-  S.isPattern(/^postgres(?:ql)?:\/\//, {
-    description: "A PostgreSQL connection URI must use the postgres or postgresql protocol.",
-    identifier: $I`PgExternalConnectionUriProtocol`,
-    message: "External PostgreSQL connection URIs must start with postgres:// or postgresql://",
-    title: "PostgreSQL External Connection URI",
-  })
+  S.isPattern(
+    /^postgres(?:ql)?:\/\//,
+    $I.annote("PgExternalConnectionUriProtocol", {
+      description: "A PostgreSQL connection URI must use the postgres or postgresql protocol.",
+      message: "External PostgreSQL connection URIs must start with postgres:// or postgresql://",
+      title: "PostgreSQL External Connection URI",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PgExternalConnectionUri", {
     description: "PostgreSQL-compatible connection URI accepted by the external SQL test driver.",

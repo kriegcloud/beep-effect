@@ -619,8 +619,8 @@ export const githubCheckPrePushExternalLanes = (repoRoot: string): ReadonlyArray
   githubCheckLane("quality:nix", "pre-push", "environment", "preflight", ciLaneStep(repoRoot, "quality:nix", "nix")),
 ];
 
-const CheapGateConcurrency = LiteralKit(["1", "2", "3", "4"]).annotate(
-  $RepoCliId.create("commands/Quality/internal/GithubChecks").annote("CheapGateConcurrency", {
+const CheapGateConcurrency = LiteralKit(["1", "2", "3", "4"]).pipe(
+  $RepoCliId.create("commands/Quality/internal/GithubChecks").annoteSchema("CheapGateConcurrency", {
     description: "Explicit cheap-gate lane widths, bounded by the workstation default of four.",
   })
 );

@@ -82,8 +82,8 @@ export class TabPlacement extends S.Opaque<TabPlacement, { readonly brand: uniqu
  * @category models
  * @since 0.0.0
  */
-export const DockSide = LiteralKit(["left", "right", "top", "bottom"]).annotate(
-  $I.annote("DockSide", {
+export const DockSide = LiteralKit(["left", "right", "top", "bottom"]).pipe(
+  $I.annoteSchema("DockSide", {
     description: "Semantic side on which a new tab group is inserted.",
   })
 );
@@ -244,13 +244,12 @@ const DockPlacementKind = LiteralKit(["root", "tab", "split", "rootSplit"]);
  */
 export const DockPlacement = DockPlacementKind.mapMembers(
   Tuple.evolve([() => RootPlacement, () => TabPlacement, () => SplitPlacement, () => RootSplitPlacement])
-)
-  .annotate(
-    $I.annote("DockPlacement", {
-      description: "Semantic panel placement independent from DOM coordinates.",
-    })
-  )
-  .pipe(S.toTaggedUnion("kind"));
+).pipe(
+  $I.annoteSchema("DockPlacement", {
+    description: "Semantic panel placement independent from DOM coordinates.",
+  }),
+  S.toTaggedUnion("kind")
+);
 /**
  * Decoded panel-opening destination.
  *

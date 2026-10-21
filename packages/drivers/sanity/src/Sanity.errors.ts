@@ -19,30 +19,34 @@ const $I = $SanityId.create("Sanity.errors");
 const SanityHttpStatus = S.Finite.check(
   S.makeFilterGroup(
     [
-      S.isInt({
-        identifier: $I`SanityHttpStatusInteger`,
-        title: "Sanity HTTP status integer",
-        description: "Sanity HTTP status values must be integer status codes.",
-        message: "Sanity HTTP status values must be integers",
-      }),
-      S.isGreaterThanOrEqualTo(100, {
-        identifier: $I`SanityHttpStatusMinimum`,
-        title: "Sanity HTTP status minimum",
-        description: "Sanity HTTP status values start at 100.",
-        message: "Sanity HTTP status values must be at least 100",
-      }),
-      S.isLessThanOrEqualTo(599, {
-        identifier: $I`SanityHttpStatusMaximum`,
-        title: "Sanity HTTP status maximum",
-        description: "Sanity HTTP status values end at 599.",
-        message: "Sanity HTTP status values must be at most 599",
-      }),
+      S.isInt(
+        $I.annote("SanityHttpStatusInteger", {
+          title: "Sanity HTTP status integer",
+          description: "Sanity HTTP status values must be integer status codes.",
+          message: "Sanity HTTP status values must be integers",
+        })
+      ),
+      S.isGreaterThanOrEqualTo(
+        100,
+        $I.annote("SanityHttpStatusMinimum", {
+          title: "Sanity HTTP status minimum",
+          description: "Sanity HTTP status values start at 100.",
+          message: "Sanity HTTP status values must be at least 100",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        599,
+        $I.annote("SanityHttpStatusMaximum", {
+          title: "Sanity HTTP status maximum",
+          description: "Sanity HTTP status values end at 599.",
+          message: "Sanity HTTP status values must be at most 599",
+        })
+      ),
     ],
-    {
-      identifier: $I`SanityHttpStatusChecks`,
+    $I.annote("SanityHttpStatusChecks", {
       title: "Sanity HTTP status",
       description: "Checks for numeric HTTP status codes retained in Sanity driver errors.",
-    }
+    })
   )
 );
 

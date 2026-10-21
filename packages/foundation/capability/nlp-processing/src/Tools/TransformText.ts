@@ -22,8 +22,8 @@ const TransformOperationKit = LiteralKit([
   "removeSpecialChars",
   "retainAlphaNums",
   "removeElisions",
-]).annotate(
-  $I.annote("TransformOperationKit", {
+]).pipe(
+  $I.annoteSchema("TransformOperationKit", {
     description: "LiteralKit backing schema for text transformation operations.",
   })
 );

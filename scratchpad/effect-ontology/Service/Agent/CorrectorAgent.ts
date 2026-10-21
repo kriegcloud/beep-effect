@@ -77,8 +77,8 @@ export const CorrectionStrategy = LiteralKit([
   "reclassify-entity", // Wrong type/class
   "reformat-value", // Pattern mismatch
   "skip", // Cannot be corrected automatically
-]).annotate(
-  $I.annote("CorrectionStrategy", {
+]).pipe(
+  $I.annoteSchema("CorrectionStrategy", {
     description: "Closed set of SHACL correction strategies emitted by the corrector agent.",
   })
 );

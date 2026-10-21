@@ -42,12 +42,14 @@ const matterCategoryPrefix = "M: ";
  * @since 0.0.0
  */
 export const MatterClientKey = S.String.check(
-  S.isPattern(matterClientKeyPattern, {
-    identifier: $I`MatterClientKeyPatternCheck`,
-    title: "Matter Client Key",
-    description: "A single non-empty token without whitespace or dots.",
-    message: "Client key must be one non-empty token without whitespace or dots.",
-  })
+  S.isPattern(
+    matterClientKeyPattern,
+    $I.annote("MatterClientKeyPatternCheck", {
+      title: "Matter Client Key",
+      description: "A single non-empty token without whitespace or dots.",
+      message: "Client key must be one non-empty token without whitespace or dots.",
+    })
+  )
 ).pipe(
   S.brand("MatterClientKey"),
   $I.annoteSchema("MatterClientKey", {
@@ -87,12 +89,14 @@ export type MatterClientKey = typeof MatterClientKey.Type;
  * @since 0.0.0
  */
 export const MatterKey = S.String.check(
-  S.isPattern(matterKeyPattern, {
-    identifier: $I`MatterKeyPatternCheck`,
-    title: "Matter Key",
-    description: "Two non-empty dot-separated segments without whitespace: <client>.<family>.",
-    message: "Matter key must be <client>.<family> with no whitespace.",
-  })
+  S.isPattern(
+    matterKeyPattern,
+    $I.annote("MatterKeyPatternCheck", {
+      title: "Matter Key",
+      description: "Two non-empty dot-separated segments without whitespace: <client>.<family>.",
+      message: "Matter key must be <client>.<family> with no whitespace.",
+    })
+  )
 ).pipe(
   S.brand("MatterKey"),
   $I.annoteSchema("MatterKey", {
@@ -454,18 +458,22 @@ export const practiceCategoryPreset: (category: PracticeCategory) => OutlookCate
  * @since 0.0.0
  */
 export const MailDomain = S.String.check(
-  S.isMaxLength(253, {
-    identifier: $I`MailDomainLengthCheck`,
-    title: "Mail Domain Length",
-    description: "A DNS domain of at most 253 characters.",
-    message: "Mail domain must not exceed 253 characters.",
-  }),
-  S.isPattern(mailDomainPattern, {
-    identifier: $I`MailDomainPatternCheck`,
-    title: "Mail Domain",
-    description: "A lowercase DNS domain with at least two labels.",
-    message: "Mail domain must be a lowercase DNS domain such as example.test.",
-  })
+  S.isMaxLength(
+    253,
+    $I.annote("MailDomainLengthCheck", {
+      title: "Mail Domain Length",
+      description: "A DNS domain of at most 253 characters.",
+      message: "Mail domain must not exceed 253 characters.",
+    })
+  ),
+  S.isPattern(
+    mailDomainPattern,
+    $I.annote("MailDomainPatternCheck", {
+      title: "Mail Domain",
+      description: "A lowercase DNS domain with at least two labels.",
+      message: "Mail domain must be a lowercase DNS domain such as example.test.",
+    })
+  )
 ).pipe(
   S.brand("MailDomain"),
   $I.annoteSchema("MailDomain", {

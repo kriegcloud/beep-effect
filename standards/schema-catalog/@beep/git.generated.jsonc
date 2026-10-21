@@ -34,7 +34,7 @@
     {"file":"packages/drivers/git/src/GitConfig.ts","symbol":"GitConfigInclude","kind":"struct-const","owner":"@beep/git","identity":"GitConfigInclude","description":"One `include` / `includeIf` directive found in the document."},
     {"file":"packages/drivers/git/src/GitConfig.ts","symbol":"GitConfigParseError","kind":"tagged-error","owner":"@beep/git","identity":"GitConfigParseError"},
     {"file":"packages/drivers/git/src/GitConfig.ts","symbol":"GitConfigSection","kind":"struct-const","owner":"@beep/git","identity":"GitConfigSection","description":"One section of a git-config document."},
-    {"file":"packages/drivers/git/src/Gitmodules.ts","symbol":"Gitmodules","kind":"schema-class","owner":"@beep/git","identity":"UniqueSubmoduleNames","description":"Submodule entries must have distinct case-sensitive names."},
+    {"file":"packages/drivers/git/src/Gitmodules.ts","symbol":"Gitmodules","kind":"schema-class","owner":"@beep/git","identity":"Gitmodules","description":"The typed view over a `.gitmodules` document: the decoded submodule entries, in first-appearance order."},
     {"file":"packages/drivers/git/src/Gitmodules.ts","symbol":"GitmodulesDecodeError","kind":"tagged-error","owner":"@beep/git","identity":"GitmodulesDecodeError"},
     {"file":"packages/drivers/git/src/Gitmodules.ts","symbol":"GitmodulesEntry","kind":"union","owner":"@beep/git","identity":"GitmodulesEntry","description":"One `[submodule \"<name>\"]` entry of a `.gitmodules` document, decoded into typed fields."},
     {"file":"packages/drivers/git/src/internal/config.ts","symbol":"GitConfigDiagnosticCode","kind":"literal-kit","owner":"@beep/git","identity":"GitConfigDiagnosticCode","description":"The diagnostic codes emitted by the git-config scanner."},

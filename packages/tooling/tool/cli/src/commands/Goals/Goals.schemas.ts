@@ -1073,12 +1073,14 @@ export class GoalCompletionGate extends S.Opaque<GoalCompletionGate, { readonly 
     grandfatheredNote: S.optionalKey(S.String),
     pullRequests: S.optionalKey(
       S.Array(GoalPullRequestRef).check(
-        S.makeFilter((refs) => A.length(A.filter(refs, (ref) => ref.role === "final")) <= 1, {
-          identifier: $I`OneFinalPullRequest`,
-          title: "One final PR",
-          description: "A goal declares at most one final delivery PR.",
-          message: "At most one final PR is allowed",
-        })
+        S.makeFilter(
+          (refs) => A.length(A.filter(refs, (ref) => ref.role === "final")) <= 1,
+          $I.annote("OneFinalPullRequest", {
+            title: "One final PR",
+            description: "A goal declares at most one final delivery PR.",
+            message: "At most one final PR is allowed",
+          })
+        )
       )
     ),
     acceptanceEvidence: GoalAcceptanceEvidenceRef.pipe(S.Array, S.optionalKey),
@@ -1160,18 +1162,22 @@ export class GoalPhase extends S.Opaque<GoalPhase, { readonly brand: unique symb
 ) {}
 
 const CapabilitySegment = S.String.check(
-  S.isPattern(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/, {
-    identifier: $I`CapabilitySegmentPatternCheck`,
-    title: "Capability Segment Pattern",
-    description: "Lowercase ASCII capability segment with internal single hyphens only.",
-    message: "Expected a lowercase capability segment with internal single hyphens only",
-  }),
-  S.isMaxLength(32, {
-    identifier: $I`CapabilitySegmentLengthCheck`,
-    title: "Capability Segment Length",
-    description: "Capability namespace and name segments are at most 32 characters.",
-    message: "Expected a capability segment with at most 32 characters",
-  })
+  S.isPattern(
+    /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/,
+    $I.annote("CapabilitySegmentPatternCheck", {
+      title: "Capability Segment Pattern",
+      description: "Lowercase ASCII capability segment with internal single hyphens only.",
+      message: "Expected a lowercase capability segment with internal single hyphens only",
+    })
+  ),
+  S.isMaxLength(
+    32,
+    $I.annote("CapabilitySegmentLengthCheck", {
+      title: "Capability Segment Length",
+      description: "Capability namespace and name segments are at most 32 characters.",
+      message: "Expected a capability segment with at most 32 characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CapabilitySegment", {
     description: "One constrained namespace or name segment in a capability slug.",
@@ -1206,12 +1212,14 @@ const CapabilitySegment = S.String.check(
  */
 export const CapabilitySlug = S.TemplateLiteral([CapabilitySegment, "/", CapabilitySegment])
   .check(
-    S.isMaxLength(64, {
-      identifier: $I`CapabilitySlugLengthCheck`,
-      title: "Capability Slug Length",
-      description: "A complete capability slug is at most 64 characters.",
-      message: "Expected a capability slug with at most 64 characters",
-    })
+    S.isMaxLength(
+      64,
+      $I.annote("CapabilitySlugLengthCheck", {
+        title: "Capability Slug Length",
+        description: "A complete capability slug is at most 64 characters.",
+        message: "Expected a capability slug with at most 64 characters",
+      })
+    )
   )
   .pipe(
     $I.annoteSchema("CapabilitySlug", {
@@ -1264,12 +1272,11 @@ const CapabilitySlugList = S.Array(CapabilitySlug).pipe(
 const GoalManifestCapabilitySelfCycleCheck = S.makeFilter(
   (manifest: { readonly provides: ReadonlyArray<CapabilitySlug>; readonly requires: ReadonlyArray<CapabilitySlug> }) =>
     !A.some(manifest.provides, (capability) => A.contains(manifest.requires, capability)),
-  {
-    identifier: $I`GoalManifestCapabilitySelfCycleCheck`,
+  $I.annote("GoalManifestCapabilitySelfCycleCheck", {
     title: "Goal Manifest Capability Self-Cycle",
     description: "A goal manifest cannot both provide and require the same capability.",
     message: "A goal manifest cannot list the same capability in both provides and requires (self-cycle)",
-  }
+  })
 );
 
 /**
@@ -1343,13 +1350,12 @@ const GoalProposedCloseoutCheck = S.makeFilter(
       !O.exists(final, (ref) => ref.number !== proposal.finalPullRequest)
     );
   },
-  {
-    identifier: $I`GoalProposedCloseoutCheck`,
+  $I.annote("GoalProposedCloseoutCheck", {
     title: "Prospective Closeout Identity",
     description: "A closeout proposal retains active or paused operative status and matches any declared final PR.",
     message:
       "Proposed closeout requires active/paused status, a non-grandfathered gate and a matching final PR and gating Yeet readiness evidence",
-  }
+  })
 );
 
 /**

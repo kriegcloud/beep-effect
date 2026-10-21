@@ -31,12 +31,14 @@ const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/u;
 const footnoteIdentifierPattern = /^[A-Za-z0-9][A-Za-z0-9_.:-]*$/u;
 // This check never rejects a document. Effect's arbitrary compiler alone reads
 // the maxLength hint, keeping recursive child-list breadth bounded.
-const MarkdownArbitraryArraySizeHint = S.makeFilter<ReadonlyArray<unknown>>(() => true, {
-  identifier: $I`MarkdownArbitraryArraySizeHint`,
-  title: "Markdown arbitrary array size hint",
-  description: "Caps derived arbitrary child arrays at two elements without constraining decoded Markdown documents.",
-  arbitraryConstraint: { maxLength: 2 },
-});
+const MarkdownArbitraryArraySizeHint = S.makeFilter<ReadonlyArray<unknown>>(
+  () => true,
+  $I.annote("MarkdownArbitraryArraySizeHint", {
+    title: "Markdown arbitrary array size hint",
+    description: "Caps derived arbitrary child arrays at two elements without constraining decoded Markdown documents.",
+    arbitraryConstraint: { maxLength: 2 },
+  })
+);
 
 /**
  * Single safe Markdown fenced-code info-string token.
@@ -56,12 +58,14 @@ const MarkdownArbitraryArraySizeHint = S.makeFilter<ReadonlyArray<unknown>>(() =
  * @since 0.0.0
  */
 export const CodeFenceLanguage = S.NonEmptyString.check(
-  S.isPattern(codeFenceLanguagePattern, {
-    identifier: $I`CodeFenceLanguageCheck`,
-    title: "Code Fence Language",
-    description: "A single safe Markdown fenced-code info-string token.",
-    message: "Code fence language must be a single alphanumeric token with _, +, ., or - separators",
-  })
+  S.isPattern(
+    codeFenceLanguagePattern,
+    $I.annote("CodeFenceLanguageCheck", {
+      title: "Code Fence Language",
+      description: "A single safe Markdown fenced-code info-string token.",
+      message: "Code fence language must be a single alphanumeric token with _, +, ., or - separators",
+    })
+  )
 ).pipe(
   $I.annoteSchema("CodeFenceLanguage", {
     description: "Single safe Markdown fenced-code info-string token.",
@@ -113,12 +117,14 @@ const decodeCodeFenceLanguageOption = S.decodeUnknownOption(CodeFenceLanguage);
  * @since 0.0.0
  */
 export const YouTubeVideoId = S.String.check(
-  S.isPattern(youtubeVideoIdPattern, {
-    identifier: $I`YouTubeVideoIdPatternCheck`,
-    title: "YouTube Video ID",
-    description: "Checks that a YouTube embed references only the bare 11-character video id.",
-    message: "YouTube video id must be the bare 11-character id, not a URL or arbitrary string.",
-  })
+  S.isPattern(
+    youtubeVideoIdPattern,
+    $I.annote("YouTubeVideoIdPatternCheck", {
+      title: "YouTube Video ID",
+      description: "Checks that a YouTube embed references only the bare 11-character video id.",
+      message: "YouTube video id must be the bare 11-character id, not a URL or arbitrary string.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("YouTubeVideoId", {
     description: "Bare 11-character YouTube video id accepted by Md YouTube embeds.",
@@ -142,13 +148,15 @@ export const YouTubeVideoId = S.String.check(
  * @since 0.0.0
  */
 export const FootnoteIdentifier = S.NonEmptyString.check(
-  S.isPattern(footnoteIdentifierPattern, {
-    identifier: $I`FootnoteIdentifierPatternCheck`,
-    title: "Footnote Identifier",
-    description: "Checks that a footnote identifier can be rendered inside Markdown footnote brackets.",
-    message:
-      "Footnote identifier must start with an alphanumeric character and contain only letters, digits, _, ., :, or -.",
-  })
+  S.isPattern(
+    footnoteIdentifierPattern,
+    $I.annote("FootnoteIdentifierPatternCheck", {
+      title: "Footnote Identifier",
+      description: "Checks that a footnote identifier can be rendered inside Markdown footnote brackets.",
+      message:
+        "Footnote identifier must start with an alphanumeric character and contain only letters, digits, _, ., :, or -.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("FootnoteIdentifier", {
     description: "Safe Markdown footnote identifier.",

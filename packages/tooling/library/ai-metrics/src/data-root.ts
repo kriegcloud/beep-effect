@@ -47,12 +47,11 @@ const isWindowsAbsoluteDrivePath = (value: FilePath): boolean =>
 const AiMetricsAbsoluteDataRootCheck = S.makeFilter(
   (value: FilePath) =>
     pipe(value, Str.startsWith("/")) || isWindowsAbsoluteDrivePath(value) || S.is(WindowsUncPath)(value),
-  {
-    identifier: $I`AiMetricsAbsoluteDataRootCheck`,
+  $I.annote("AiMetricsAbsoluteDataRootCheck", {
     title: "AI Metrics Absolute Data Root",
     description: "A non-root absolute POSIX, Windows drive, or Windows UNC file path.",
     message: "AI metrics data root must be an absolute path with a non-root leaf segment",
-  }
+  })
 );
 
 /**

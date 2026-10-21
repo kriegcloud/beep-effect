@@ -89,8 +89,8 @@ export const FileType = LiteralKit([
   "ogg",
   "swf",
   "webm",
-]).annotate(
-  $I.annote("FileType", {
+]).pipe(
+  $I.annoteSchema("FileType", {
     description: "A file extension supported by the file type checker.",
   })
 );
@@ -124,13 +124,12 @@ export type FileType = typeof FileType.Type;
 export const Byte = S.Int.check(
   S.isBetween(
     { minimum: 0, maximum: 255 },
-    {
+    $I.annote("ByteCheck", {
       expected: "an integer between 0 and 255",
-      identifier: $I`ByteCheck`,
       title: "Byte",
       description: "An integer in the inclusive unsigned-byte range from 0 through 255.",
       message: "Expected an integer between 0 and 255",
-    }
+    })
   )
 ).pipe(
   $I.annoteSchema("Byte", {
@@ -148,13 +147,15 @@ export const Byte = S.Int.check(
 export type Byte = typeof Byte.Type;
 
 const ChunkSize = S.Int.check(
-  S.isGreaterThan(0, {
-    expected: "a positive integer",
-    identifier: $I`ChunkSizeCheck`,
-    title: "File inspection chunk size",
-    description: "A positive integer count of leading bytes inspected during file detection.",
-    message: "Expected a positive file inspection chunk size",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("ChunkSizeCheck", {
+      expected: "a positive integer",
+      title: "File inspection chunk size",
+      description: "A positive integer count of leading bytes inspected during file detection.",
+      message: "Expected a positive file inspection chunk size",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ChunkSize", {
     description: "The positive number of leading file bytes to inspect.",
@@ -167,14 +168,16 @@ const ChunkSize = S.Int.check(
 const isNotDetached = (buffer: globalThis.ArrayBuffer): boolean =>
   Result.isSuccess(Result.try(() => new globalThis.Uint8Array(buffer)));
 
-const NotDetached = S.makeFilter(isNotDetached, {
-  identifier: $I`NotDetachedCheck`,
-  title: "Attached ArrayBuffer",
-  description:
-    "A detached ArrayBuffer has transferred its memory elsewhere: byteLength reads 0 and constructing any view over it throws.",
-  expected: "an ArrayBuffer that has not been detached",
-  message: "Expected an ArrayBuffer that has not been detached by transfer",
-});
+const NotDetached = S.makeFilter(
+  isNotDetached,
+  $I.annote("NotDetachedCheck", {
+    title: "Attached ArrayBuffer",
+    description:
+      "A detached ArrayBuffer has transferred its memory elsewhere: byteLength reads 0 and constructing any view over it throws.",
+    expected: "an ArrayBuffer that has not been detached",
+    message: "Expected an ArrayBuffer that has not been detached by transfer",
+  })
+);
 
 const arrayBufferByteEquivalence = (self: globalThis.ArrayBuffer, that: globalThis.ArrayBuffer): boolean =>
   self === that ||
@@ -277,8 +280,8 @@ const CatalogOnlyFileMediaType = LiteralKit([
   "video/x-m4v",
   "video/x-matroska",
   "video/x-msvideo",
-]).annotate(
-  $I.annote("CatalogOnlyFileMediaType", {
+]).pipe(
+  $I.annoteSchema("CatalogOnlyFileMediaType", {
     description: "A legacy or experimental media type used by the file signature catalog.",
   })
 );
@@ -320,8 +323,8 @@ const CatalogOnlyCompatibleExtension = LiteralKit([
   "vsdx",
   "vxd",
   "wiz",
-]).annotate(
-  $I.annote("CatalogOnlyCompatibleExtension", {
+]).pipe(
+  $I.annoteSchema("CatalogOnlyCompatibleExtension", {
     description: "A compatible catalog extension absent from the shared FileExtension domain.",
   })
 );
@@ -364,13 +367,12 @@ const FileSignatureInvariantsCheck = S.makeFilter<typeof FileSignatureStruct.Typ
       compatibleExtensionsArrayEquivalence(compatibleExtensions, A.sort(compatibleExtensions, Order.String))
     );
   },
-  {
+  $I.annote("FileSignatureInvariantsCheck", {
     expected: "valid canonically ordered signature metadata",
-    identifier: $I`FileSignatureInvariantsCheck`,
     title: "File signature invariants",
     description: "Skipped positions and compatible extensions are unique and sorted in ascending order.",
     message: "Expected valid canonically ordered signature metadata",
-  }
+  })
 );
 
 const FileSignatureModel = FileSignatureStruct.check(FileSignatureInvariantsCheck);
@@ -463,13 +465,12 @@ const FileTypeInfoInvariantsCheck = S.makeFilter<typeof FileTypeInfoStruct.Type>
       signatures,
       (signature) => !A.some(signature.compatibleExtensions, (compatible) => Str.Equivalence(compatible, extension))
     ),
-  {
+  $I.annote("FileTypeInfoInvariantsCheck", {
     expected: "unique signatures without self-compatible extensions",
-    identifier: $I`FileTypeInfoInvariantsCheck`,
     title: "File type metadata invariants",
     description: "Signatures are unique and never list their owning extension as a compatible alternative.",
     message: "Expected unique signatures without the owning extension in compatibility metadata",
-  }
+  })
 );
 
 const FileTypeInfoModel = FileTypeInfoStruct.check(FileTypeInfoInvariantsCheck);
@@ -531,13 +532,12 @@ const DetectedFileInfoStruct = S.Struct({
 
 const DetectedFileInfoSignatureCheck = S.makeFilter<typeof DetectedFileInfoStruct.Type>(
   ({ info, signature }) => A.some(info.signatures, (candidate) => fileSignatureEquivalence(candidate, signature)),
-  {
+  $I.annote("DetectedFileInfoSignatureCheck", {
     expected: "a signature owned by the detected file type",
-    identifier: $I`DetectedFileInfoSignatureCheck`,
     title: "Detected file signature ownership",
     description: "The matched signature belongs to the detected file type's canonical signature set.",
     message: "Expected the detected signature to belong to the detected file type",
-  }
+  })
 );
 
 const DetectedFileInfoModel = DetectedFileInfoStruct.check(DetectedFileInfoSignatureCheck);

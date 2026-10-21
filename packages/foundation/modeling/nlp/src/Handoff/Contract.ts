@@ -187,8 +187,8 @@ export type RelationId = typeof RelationId.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ChunkKind = LiteralKit(["document", "paragraph", "sentence", "token"]).annotate(
-  $I.annote("ChunkKind", { description: "Granularity of a text chunk (document/paragraph/sentence/token)." })
+export const ChunkKind = LiteralKit(["document", "paragraph", "sentence", "token"]).pipe(
+  $I.annoteSchema("ChunkKind", { description: "Granularity of a text chunk (document/paragraph/sentence/token)." })
 );
 
 /**

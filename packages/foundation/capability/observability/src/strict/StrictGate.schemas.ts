@@ -267,12 +267,14 @@ export const coarsenMetricValue = (value: number): number => {
  * @since 0.0.0
  */
 export const HmacTraceId = S.String.check(
-  S.isPattern(/^[0-9a-f]{32}$/, {
-    identifier: $I`HmacTraceIdPatternCheck`,
-    title: "Keyed Trace Id",
-    description: "32 lowercase hex characters.",
-    message: "Expected a 32-character lowercase hex trace id",
-  })
+  S.isPattern(
+    /^[0-9a-f]{32}$/,
+    $I.annote("HmacTraceIdPatternCheck", {
+      title: "Keyed Trace Id",
+      description: "32 lowercase hex characters.",
+      message: "Expected a 32-character lowercase hex trace id",
+    })
+  )
 ).pipe(
   S.brand("HmacTraceId"),
   $I.annoteSchema("HmacTraceId", {
@@ -305,12 +307,14 @@ export type HmacTraceId = typeof HmacTraceId.Type;
  * @since 0.0.0
  */
 export const HmacSpanId = S.String.check(
-  S.isPattern(/^[0-9a-f]{16}$/, {
-    identifier: $I`HmacSpanIdPatternCheck`,
-    title: "Keyed Span Id",
-    description: "16 lowercase hex characters.",
-    message: "Expected a 16-character lowercase hex span id",
-  })
+  S.isPattern(
+    /^[0-9a-f]{16}$/,
+    $I.annote("HmacSpanIdPatternCheck", {
+      title: "Keyed Span Id",
+      description: "16 lowercase hex characters.",
+      message: "Expected a 16-character lowercase hex span id",
+    })
+  )
 ).pipe(
   S.brand("HmacSpanId"),
   $I.annoteSchema("HmacSpanId", {
@@ -327,12 +331,14 @@ export const HmacSpanId = S.String.check(
 export type HmacSpanId = typeof HmacSpanId.Type;
 
 const UnixNanos = S.String.check(
-  S.isPattern(/^\d+$/, {
-    identifier: $I`UnixNanosPatternCheck`,
-    title: "Unix Nanoseconds",
-    description: "Decimal digits of a Unix time in nanoseconds.",
-    message: "Expected decimal Unix nanoseconds",
-  })
+  S.isPattern(
+    /^\d+$/,
+    $I.annote("UnixNanosPatternCheck", {
+      title: "Unix Nanoseconds",
+      description: "Decimal digits of a Unix time in nanoseconds.",
+      message: "Expected decimal Unix nanoseconds",
+    })
+  )
 ).pipe(
   $I.annoteSchema("UnixNanos", {
     description: "Unix time in nanoseconds as OTLP JSON writes it.",

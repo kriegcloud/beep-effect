@@ -48,8 +48,8 @@ const $I = $RepoCliId.create("commands/Laws/RetiredIriAuthorities.model");
  * @category models
  * @since 0.0.0
  */
-export const RetiredIriAuthorityRule = LiteralKit(["retired-authority", "public-origin-literal"]).annotate(
-  $I.annote("RetiredIriAuthorityRule", {
+export const RetiredIriAuthorityRule = LiteralKit(["retired-authority", "public-origin-literal"]).pipe(
+  $I.annoteSchema("RetiredIriAuthorityRule", {
     description: "Rule that detected a retired IRI authority or a hand-written public origin.",
   })
 );

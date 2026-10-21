@@ -73,12 +73,11 @@ const ServerConfigValue = S.Struct({
             issue: "ENTITY_REGISTRY_ENABLED requires POSTGRES_HOST.",
           }
         : undefined,
-    {
-      identifier: $I`EntityRegistryRequiresPostgres`,
+    $I.annote("EntityRegistryRequiresPostgres", {
       title: "Entity Registry Requires PostgreSQL",
       description: "Server configuration that never enables the persistent entity registry without PostgreSQL.",
       message: "ENTITY_REGISTRY_ENABLED requires POSTGRES_HOST.",
-    }
+    })
   )
 );
 const decodeServerConfigValue = S.decodeEffect(ServerConfigValue);

@@ -208,11 +208,10 @@ const uniqueSlashItemKeys = S.makeFilter<ReadonlyArray<SlashItem>>(
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueSlashItemKeys`,
+  $I.annote("UniqueSlashItemKeys", {
     title: "Unique slash-command keys",
     description: "Every slash command must have a unique key.",
-  }
+  })
 );
 
 /**
@@ -308,11 +307,10 @@ const uniqueMentionOptionIds = S.makeFilter<ReadonlyArray<MentionOption>>(
       return Result.fail(undefined);
     });
   },
-  {
-    identifier: $I`UniqueMentionOptionIds`,
+  $I.annote("UniqueMentionOptionIds", {
     title: "Unique mention-option ids",
     description: "Every mention option must have a unique id.",
-  }
+  })
 );
 
 /**

@@ -161,8 +161,8 @@ export const SystemErrorReason = LiteralKit([
   "Unknown",
   "WouldBlock",
   "WriteZero",
-]).annotate(
-  $I.annote("SystemErrorReason", {
+]).pipe(
+  $I.annoteSchema("SystemErrorReason", {
     description: "A Reason for a platform system error",
   })
 );
@@ -176,8 +176,8 @@ export const HttpClientErrorReason = LiteralKit([
   "StatusCode", // Non-successful HTTP status
   "Decode", // Response body decoding failure
   "EmptyBody", // Expected body but got none
-]).annotate(
-  $I.annote("HttpClientErrorReason", {
+]).pipe(
+  $I.annoteSchema("HttpClientErrorReason", {
     description: "A Reason for a platform HTTP client error",
   })
 );
@@ -187,8 +187,8 @@ export type HttpClientErrorReason = typeof HttpClientErrorReason.Type;
 export const EncodingErrorReason = LiteralKit([
   "Decode", // Failed to decode from format
   "Encode", // Failed to encode to format
-]).annotate(
-  $I.annote("EncodingErrorReason", {
+]).pipe(
+  $I.annoteSchema("EncodingErrorReason", {
     description: "Encoding errors (from Body.ts, Schema)",
   })
 );
@@ -203,8 +203,8 @@ export const HttpErrorReason = LiteralKit([
   "InternalServerError",
   "BadGateway",
   "ServiceUnavailable",
-]).annotate(
-  $I.annote("HttpErrorReason", {
+]).pipe(
+  $I.annoteSchema("HttpErrorReason", {
     description: "HTTP API status errors",
   })
 );
@@ -217,8 +217,8 @@ export const ValidationErrorReason = LiteralKit([
   "Required",
   "TooLong",
   "TooShort",
-]).annotate(
-  $I.annote("ValidationErrorReason", {
+]).pipe(
+  $I.annoteSchema("ValidationErrorReason", {
     description: "Validation errors",
   })
 );
@@ -280,13 +280,11 @@ export class ResponseError extends S.TaggedError<ResponseError>($I`ResponseError
 export const HttpClientError = S.Union([
   RequestError,
   ResponseError
-])
-.annotate($I.annote(
-  "HttpClientError",
-  {
+]).pipe(
+  $I.annoteSchema("HttpClientError", {
     description: "A meaningful description"
-  }
-));
+  })
+);
 
 export type HttpClientError = typeof HttpClientError.Type;
 

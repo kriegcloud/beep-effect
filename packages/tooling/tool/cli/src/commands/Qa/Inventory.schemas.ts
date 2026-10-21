@@ -241,12 +241,14 @@ export type QaEvidenceKind = typeof QaEvidenceKind.Type;
  * @since 0.0.0
  */
 export const QaFindingOrdinal = S.String.check(
-  S.isPattern(/^[0-9]{2}$/, {
-    identifier: $I`QaFindingOrdinalPatternCheck`,
-    title: "Qa Finding Ordinal Pattern",
-    description: "Finding ordinals are zero-padded two-digit numbers.",
-    message: "Expected a zero-padded two-digit finding ordinal",
-  })
+  S.isPattern(
+    /^[0-9]{2}$/,
+    $I.annote("QaFindingOrdinalPatternCheck", {
+      title: "Qa Finding Ordinal Pattern",
+      description: "Finding ordinals are zero-padded two-digit numbers.",
+      message: "Expected a zero-padded two-digit finding ordinal",
+    })
+  )
 ).pipe(
   $I.annoteSchema("QaFindingOrdinal", {
     description: "Zero-padded two-digit ordinal inside a finding identifier.",
@@ -507,12 +509,11 @@ const RequiredCountCoherenceCheck = S.makeFilter(
     readonly findings: ReadonlyArray<{ readonly severity: QaSeverity }>;
     readonly requiredCount: number;
   }) => inventory.requiredCount === requiredFindingCount(inventory.findings),
-  {
-    identifier: $I`RequiredCountCoherenceCheck`,
+  $I.annote("RequiredCountCoherenceCheck", {
     title: "Required Count Coherence",
     description: "requiredCount must equal the number of P0 and P1 findings.",
     message: "requiredCount disagrees with the P0/P1 findings in the inventory",
-  }
+  })
 );
 
 /**
@@ -550,12 +551,14 @@ export class QaInventory extends S.Opaque<QaInventory, { readonly brand: unique 
       })
     ),
     requiredCount: S.Int.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`QaInventoryRequiredCountMinimumCheck`,
-        title: "Qa Inventory Required Count Minimum",
-        description: "Required counts are zero or greater.",
-        message: "Expected a non-negative required count",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("QaInventoryRequiredCountMinimumCheck", {
+          title: "Qa Inventory Required Count Minimum",
+          description: "Required counts are zero or greater.",
+          message: "Expected a non-negative required count",
+        })
+      )
     ).pipe(
       $I.annoteKey("QaInventory.requiredCount", {
         description: "Number of P0 and P1 findings; checked against the findings array.",

@@ -31,12 +31,14 @@ const $I = $TechnicalDrawingId.create("Manifest.schemas");
  * @since 0.0.0
  */
 export const Sha256Hex = S.String.check(
-  S.isPattern(/^[0-9a-f]{64}$/, {
-    identifier: $I`Sha256HexCheck`,
-    title: "SHA-256 Hex",
-    description: "64 lowercase hex characters.",
-    message: "Expected a lowercase hex SHA-256 digest",
-  })
+  S.isPattern(
+    /^[0-9a-f]{64}$/,
+    $I.annote("Sha256HexCheck", {
+      title: "SHA-256 Hex",
+      description: "64 lowercase hex characters.",
+      message: "Expected a lowercase hex SHA-256 digest",
+    })
+  )
 ).pipe(
   $I.annoteSchema("Sha256Hex", {
     description: "Lowercase hex SHA-256 digest.",

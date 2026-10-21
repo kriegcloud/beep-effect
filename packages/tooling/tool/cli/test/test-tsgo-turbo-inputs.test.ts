@@ -75,8 +75,8 @@ const TurboConfiguration = S.Struct({
       inputs: S.Array(S.String),
     }),
   }),
-}).annotate(
-  $I.annote("TurboConfiguration", {
+}).pipe(
+  $I.annoteSchema("TurboConfiguration", {
     description: "Tsgo tests input declaration decoded from the repository Turbo configuration.",
   })
 );

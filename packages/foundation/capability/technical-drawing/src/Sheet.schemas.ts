@@ -57,12 +57,14 @@ export const SheetFormat = SheetFormatBase.pipe(
 export type SheetFormat = typeof SheetFormat.Type;
 
 const PositiveFinite = S.Finite.check(
-  S.isGreaterThan(0, {
-    identifier: $I`PositiveFiniteCheck`,
-    title: "Positive Finite",
-    description: "Page dimensions are strictly positive.",
-    message: "Expected a strictly positive number",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("PositiveFiniteCheck", {
+      title: "Positive Finite",
+      description: "Page dimensions are strictly positive.",
+      message: "Expected a strictly positive number",
+    })
+  )
 );
 
 /**
@@ -436,22 +438,26 @@ export const LabelRender = LabelRenderBase.pipe(
 export type LabelRender = typeof LabelRender.Type;
 
 const AbsolutePath = S.NonEmptyString.check(
-  S.makeFilter(Str.startsWith("/"), {
-    identifier: $I`AbsolutePathCheck`,
-    title: "Absolute Path",
-    description: "A font location is an absolute path, so a render does not depend on its working directory.",
-    message: "Expected an absolute path",
-  })
+  S.makeFilter(
+    Str.startsWith("/"),
+    $I.annote("AbsolutePathCheck", {
+      title: "Absolute Path",
+      description: "A font location is an absolute path, so a render does not depend on its working directory.",
+      message: "Expected an absolute path",
+    })
+  )
 );
 
 const AbsoluteFontFile = S.NonEmptyString.check(
-  S.makeFilter(Str.startsWith("/"), {
-    identifier: $I`LabelFontFileAbsoluteCheck`,
-    title: "Label Font File",
-    description:
-      "A label font file is named by an absolute path, so a render does not depend on its working directory.",
-    message: "Expected an absolute font file path",
-  })
+  S.makeFilter(
+    Str.startsWith("/"),
+    $I.annote("LabelFontFileAbsoluteCheck", {
+      title: "Label Font File",
+      description:
+        "A label font file is named by an absolute path, so a render does not depend on its working directory.",
+      message: "Expected an absolute font file path",
+    })
+  )
 );
 
 /**
@@ -503,36 +509,46 @@ export class LabelStyle extends S.Opaque<LabelStyle, { readonly brand: unique sy
     ),
   })
     .check(
-      S.makeFilter((style) => labelCapHeightCm(style) >= MIN_LETTER_HEIGHT_CM, {
-        identifier: $I`LabelStyleCapHeightCheck`,
-        title: "Label Cap Height",
-        description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
-        message: "Expected a label size whose cap height is at least 0.32 cm",
-      }),
-      S.makeFilter((style) => style.typeface !== "stroke" || O.isNone(style.fontFile), {
-        identifier: $I`LabelStyleFontFileCheck`,
-        title: "Label Font File Typeface",
-        description: "Only outlined typefaces read a font file.",
-        message: "Expected no font file on a stroke label",
-      }),
-      S.makeFilter((style) => style.render === "outline" || style.typeface !== "stroke", {
-        identifier: $I`LabelStyleTextTypefaceCheck`,
-        title: "Label Text Typeface",
-        description: "A text label is set in a font, so it needs the sans or serif typeface.",
-        message: "Expected the sans or serif typeface on a text label",
-      }),
-      S.makeFilter((style) => style.render === "outline" || O.isNone(style.fontFile), {
-        identifier: $I`LabelStyleTextFontFileCheck`,
-        title: "Label Text Font File",
-        description: "A text label takes its font from the sheet's font directory, not from a font file.",
-        message: "Expected no font file on a text label",
-      }),
-      S.makeFilter((style) => style.render === "text" || O.isNone(style.fontFamily), {
-        identifier: $I`LabelStyleFontFamilyCheck`,
-        title: "Label Font Family",
-        description: "Only a text label requests a font family.",
-        message: "Expected no font family on an outline label",
-      })
+      S.makeFilter(
+        (style) => labelCapHeightCm(style) >= MIN_LETTER_HEIGHT_CM,
+        $I.annote("LabelStyleCapHeightCheck", {
+          title: "Label Cap Height",
+          description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
+          message: "Expected a label size whose cap height is at least 0.32 cm",
+        })
+      ),
+      S.makeFilter(
+        (style) => style.typeface !== "stroke" || O.isNone(style.fontFile),
+        $I.annote("LabelStyleFontFileCheck", {
+          title: "Label Font File Typeface",
+          description: "Only outlined typefaces read a font file.",
+          message: "Expected no font file on a stroke label",
+        })
+      ),
+      S.makeFilter(
+        (style) => style.render === "outline" || style.typeface !== "stroke",
+        $I.annote("LabelStyleTextTypefaceCheck", {
+          title: "Label Text Typeface",
+          description: "A text label is set in a font, so it needs the sans or serif typeface.",
+          message: "Expected the sans or serif typeface on a text label",
+        })
+      ),
+      S.makeFilter(
+        (style) => style.render === "outline" || O.isNone(style.fontFile),
+        $I.annote("LabelStyleTextFontFileCheck", {
+          title: "Label Text Font File",
+          description: "A text label takes its font from the sheet's font directory, not from a font file.",
+          message: "Expected no font file on a text label",
+        })
+      ),
+      S.makeFilter(
+        (style) => style.render === "text" || O.isNone(style.fontFamily),
+        $I.annote("LabelStyleFontFamilyCheck", {
+          title: "Label Font Family",
+          description: "Only a text label requests a font family.",
+          message: "Expected no font family on an outline label",
+        })
+      )
     )
     .pipe(
       $I.annoteSchema("LabelStyle", {
@@ -703,36 +719,42 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
       S.annotateKey({ description: "Page format. Defaults to letter." })
     ),
     lineWeightMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0.2, {
-        identifier: $I`LineWeightCheck`,
-        title: "Line Weight",
-        description: "Strokes thinner than 0.2 mm fade when the sheet is reduced to two-thirds.",
-        message: "Expected a line weight of at least 0.2 mm",
-      })
+      S.isGreaterThanOrEqualTo(
+        0.2,
+        $I.annote("LineWeightCheck", {
+          title: "Line Weight",
+          description: "Strokes thinner than 0.2 mm fade when the sheet is reduced to two-thirds.",
+          message: "Expected a line weight of at least 0.2 mm",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0.35)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0.35)),
       S.annotateKey({ description: "Uniform stroke width in mm. Defaults to 0.35." })
     ),
     letterHeightCm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(MIN_LETTER_HEIGHT_CM, {
-        identifier: $I`LetterHeightCheck`,
-        title: "Letter Height",
-        description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
-        message: "Expected lettering at least 0.32 cm high",
-      })
+      S.isGreaterThanOrEqualTo(
+        MIN_LETTER_HEIGHT_CM,
+        $I.annote("LetterHeightCheck", {
+          title: "Letter Height",
+          description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
+          message: "Expected lettering at least 0.32 cm high",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0.45)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0.45)),
       S.annotateKey({ description: "Cap height of `FIG. n` and `n/N` lettering in cm. Defaults to 0.45." })
     ),
     safetyMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`SafetyCheck`,
-        title: "Safety Gap",
-        description: "Extra clearance kept inside the legal margins.",
-        message: "Expected a non-negative safety gap",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("SafetyCheck", {
+          title: "Safety Gap",
+          description: "Extra clearance kept inside the legal margins.",
+          message: "Expected a non-negative safety gap",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(3)),
       S.withDecodingDefaultTypeKey(Effect.succeed(3)),
@@ -745,12 +767,14 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
     ),
     labelGapMm: S.OptionFromOptionalKey(
       S.Finite.check(
-        S.isGreaterThanOrEqualTo(0, {
-          identifier: $I`LabelGapCheck`,
-          title: "Label Gap",
-          description: "Gap between a page margin and the nearest label ink.",
-          message: "Expected a non-negative label gap",
-        })
+        S.isGreaterThanOrEqualTo(
+          0,
+          $I.annote("LabelGapCheck", {
+            title: "Label Gap",
+            description: "Gap between a page margin and the nearest label ink.",
+            message: "Expected a non-negative label gap",
+          })
+        )
       )
     ).pipe(
       S.withConstructorDefault(Effect.succeedNone),
@@ -781,24 +805,28 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
       })
     ),
     shadingWeightMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0.15, {
-        identifier: $I`ShadingWeightCheck`,
-        title: "Shading Weight",
-        description: "Shading strokes thinner than 0.15 mm break up when the sheet is reduced to two-thirds.",
-        message: "Expected a shading weight of at least 0.15 mm",
-      })
+      S.isGreaterThanOrEqualTo(
+        0.15,
+        $I.annote("ShadingWeightCheck", {
+          title: "Shading Weight",
+          description: "Shading strokes thinner than 0.15 mm break up when the sheet is reduced to two-thirds.",
+          message: "Expected a shading weight of at least 0.15 mm",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0.2)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0.2)),
       S.annotateKey({ description: "Stroke width of surface-shading lines in mm. Defaults to 0.2." })
     ),
     shadingMinPitchMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0.5, {
-        identifier: $I`ShadingMinPitchCheck`,
-        title: "Shading Minimum Pitch",
-        description: "Shading lines closer than 0.5 mm read as a solid black area.",
-        message: "Expected a minimum shading pitch of at least 0.5 mm",
-      })
+      S.isGreaterThanOrEqualTo(
+        0.5,
+        $I.annote("ShadingMinPitchCheck", {
+          title: "Shading Minimum Pitch",
+          description: "Shading lines closer than 0.5 mm read as a solid black area.",
+          message: "Expected a minimum shading pitch of at least 0.5 mm",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(1.2)),
       S.withDecodingDefaultTypeKey(Effect.succeed(1.2)),
@@ -808,30 +836,36 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
       })
     ),
     shadingMaxPitchMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0.5, {
-        identifier: $I`ShadingMaxPitchCheck`,
-        title: "Shading Maximum Pitch",
-        description: "Shading lines closer than 0.5 mm read as a solid black area.",
-        message: "Expected a maximum shading pitch of at least 0.5 mm",
-      })
+      S.isGreaterThanOrEqualTo(
+        0.5,
+        $I.annote("ShadingMaxPitchCheck", {
+          title: "Shading Maximum Pitch",
+          description: "Shading lines closer than 0.5 mm read as a solid black area.",
+          message: "Expected a maximum shading pitch of at least 0.5 mm",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(2.5)),
       S.withDecodingDefaultTypeKey(Effect.succeed(2.5)),
       S.annotateKey({ description: "Line pitch on the faintest shaded faces, in mm on the sheet. Defaults to 2.5." })
     ),
     shadingLitThreshold: S.Finite.check(
-      S.isGreaterThanOrEqualTo(-1, {
-        identifier: $I`ShadingLitThresholdMinCheck`,
-        title: "Shading Lit Threshold Minimum",
-        description: "Exposure is a cosine; a threshold below -1 has no effect.",
-        message: "Expected a lit threshold of at least -1",
-      }),
-      S.isLessThanOrEqualTo(1, {
-        identifier: $I`ShadingLitThresholdMaxCheck`,
-        title: "Shading Lit Threshold Maximum",
-        description: "Exposure is a cosine; a threshold above 1 shades every face.",
-        message: "Expected a lit threshold of at most 1",
-      })
+      S.isGreaterThanOrEqualTo(
+        -1,
+        $I.annote("ShadingLitThresholdMinCheck", {
+          title: "Shading Lit Threshold Minimum",
+          description: "Exposure is a cosine; a threshold below -1 has no effect.",
+          message: "Expected a lit threshold of at least -1",
+        })
+      ),
+      S.isLessThanOrEqualTo(
+        1,
+        $I.annote("ShadingLitThresholdMaxCheck", {
+          title: "Shading Lit Threshold Maximum",
+          description: "Exposure is a cosine; a threshold above 1 shades every face.",
+          message: "Expected a lit threshold of at most 1",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0.55)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0.55)),
@@ -857,12 +891,14 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
       })
     ),
     shadingMinFaceSpanMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`ShadingMinFaceSpanMmCheck`,
-        title: "Shading Minimum Face Span",
-        description: "A face narrower than this on the sheet is a sliver and gets no shading lines.",
-        message: "Expected a non-negative minimum face span",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("ShadingMinFaceSpanMmCheck", {
+          title: "Shading Minimum Face Span",
+          description: "A face narrower than this on the sheet is a sliver and gets no shading lines.",
+          message: "Expected a non-negative minimum face span",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
@@ -872,12 +908,14 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
       })
     ),
     shadingMinStrokeMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`ShadingMinStrokeMmCheck`,
-        title: "Shading Minimum Stroke",
-        description: "A shading stroke shorter than this on the sheet is not drawn.",
-        message: "Expected a non-negative minimum stroke length",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("ShadingMinStrokeMmCheck", {
+          title: "Shading Minimum Stroke",
+          description: "A shading stroke shorter than this on the sheet is not drawn.",
+          message: "Expected a non-negative minimum stroke length",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
@@ -887,24 +925,28 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
       })
     ),
     brokenDashMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`BrokenDashCheck`,
-        title: "Broken-Line Dash",
-        description: "Dashes shorter than 1 mm read as dots once the sheet is reduced to two-thirds.",
-        message: "Expected a broken-line dash of at least 1 mm",
-      })
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("BrokenDashCheck", {
+          title: "Broken-Line Dash",
+          description: "Dashes shorter than 1 mm read as dots once the sheet is reduced to two-thirds.",
+          message: "Expected a broken-line dash of at least 1 mm",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(3)),
       S.withDecodingDefaultTypeKey(Effect.succeed(3)),
       S.annotateKey({ description: "Dash length of broken (unclaimed) lines, in mm on the sheet. Defaults to 3." })
     ),
     brokenGapMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0.75, {
-        identifier: $I`BrokenGapCheck`,
-        title: "Broken-Line Gap",
-        description: "Gaps narrower than 0.75 mm close up once round line caps and two-thirds reduction are applied.",
-        message: "Expected a broken-line gap of at least 0.75 mm",
-      })
+      S.isGreaterThanOrEqualTo(
+        0.75,
+        $I.annote("BrokenGapCheck", {
+          title: "Broken-Line Gap",
+          description: "Gaps narrower than 0.75 mm close up once round line caps and two-thirds reduction are applied.",
+          message: "Expected a broken-line gap of at least 0.75 mm",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(1.5)),
       S.withDecodingDefaultTypeKey(Effect.succeed(1.5)),
@@ -914,12 +956,14 @@ export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: uniqu
       })
     ),
     emphasisWeightMm: S.Finite.check(
-      S.isGreaterThanOrEqualTo(0.35, {
-        identifier: $I`EmphasisWeightCheck`,
-        title: "Emphasis Weight",
-        description: "An emphasis line must not read lighter than the default outline weight of 0.35 mm.",
-        message: "Expected an emphasis weight of at least 0.35 mm",
-      })
+      S.isGreaterThanOrEqualTo(
+        0.35,
+        $I.annote("EmphasisWeightCheck", {
+          title: "Emphasis Weight",
+          description: "An emphasis line must not read lighter than the default outline weight of 0.35 mm.",
+          message: "Expected an emphasis weight of at least 0.35 mm",
+        })
+      )
     ).pipe(
       S.withConstructorDefault(Effect.succeed(0.7)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0.7)),

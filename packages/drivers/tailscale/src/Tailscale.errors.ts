@@ -10,13 +10,13 @@ import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $TailscaleId.create("Tailscale.errors");
-const TailscaleExecutable = LiteralKit(["tailscale"]).annotate(
-  $I.annote("TailscaleExecutable", {
+const TailscaleExecutable = LiteralKit(["tailscale"]).pipe(
+  $I.annoteSchema("TailscaleExecutable", {
     description: "Executable name used to invoke the Tailscale CLI.",
   })
 );
-const TailscaleSubcommand = LiteralKit(["status", "serve"]).annotate(
-  $I.annote("TailscaleSubcommand", {
+const TailscaleSubcommand = LiteralKit(["status", "serve"]).pipe(
+  $I.annoteSchema("TailscaleSubcommand", {
     description: "Tailscale CLI subcommand executed by this driver.",
   })
 );

@@ -222,12 +222,14 @@ const isTaskScriptName = S.is(TaskScriptName);
 const isImplScriptName = S.is(ImplScriptName);
 
 const ExtraScriptName = S.String.check(
-  S.makeFilter((key) => !isTaskScriptName(key) && !isImplScriptName(key), {
-    identifier: $I`ExtraScriptName`,
-    title: "Extra script name",
-    description: "A script key outside the task and implementation tiers.",
-    message: "Extra scripts cannot overlap task or implementation keys.",
-  })
+  S.makeFilter(
+    (key) => !isTaskScriptName(key) && !isImplScriptName(key),
+    $I.annote("ExtraScriptName", {
+      title: "Extra script name",
+      description: "A script key outside the task and implementation tiers.",
+      message: "Extra scripts cannot overlap task or implementation keys.",
+    })
+  )
 );
 /**
  * Disjoint task, implementation, and extra tiers of a manifest scripts record.

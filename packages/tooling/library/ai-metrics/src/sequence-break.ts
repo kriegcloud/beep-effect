@@ -89,8 +89,8 @@ export const sequenceBreakDampingDir = (root: string): string => `${root}/dampin
  * @category schemas
  * @since 0.0.0
  */
-export const SequenceBreakNotificationSchemaVersion = LiteralKit(["sequence-break-notification/v1"]).annotate(
-  $I.annote("SequenceBreakNotificationSchemaVersion", {
+export const SequenceBreakNotificationSchemaVersion = LiteralKit(["sequence-break-notification/v1"]).pipe(
+  $I.annoteSchema("SequenceBreakNotificationSchemaVersion", {
     description: "Version identifiers accepted by the sequence-break notification ledger.",
   })
 );
@@ -118,8 +118,8 @@ export type SequenceBreakNotificationSchemaVersion = typeof SequenceBreakNotific
  * @category schemas
  * @since 0.0.0
  */
-export const SequenceBreakDampingSchemaVersion = LiteralKit(["sequence-break-damping/v1"]).annotate(
-  $I.annote("SequenceBreakDampingSchemaVersion", {
+export const SequenceBreakDampingSchemaVersion = LiteralKit(["sequence-break-damping/v1"]).pipe(
+  $I.annoteSchema("SequenceBreakDampingSchemaVersion", {
     description: "Version identifiers accepted by the sequence-break storm-damping state.",
   })
 );
@@ -153,8 +153,8 @@ export type SequenceBreakDampingSchemaVersion = typeof SequenceBreakDampingSchem
  * @category schemas
  * @since 0.0.0
  */
-export const SequenceBreakTarget = LiteralKit(["human-input", "plan-approval", "tool-permission"]).annotate(
-  $I.annote("SequenceBreakTarget", {
+export const SequenceBreakTarget = LiteralKit(["human-input", "plan-approval", "tool-permission"]).pipe(
+  $I.annoteSchema("SequenceBreakTarget", {
     description: "Content-free wait populations that the sequence-break notifier can address.",
   })
 );
@@ -182,8 +182,8 @@ export type SequenceBreakTarget = typeof SequenceBreakTarget.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const SequenceBreakNotificationStage = LiteralKit(["initial", "reminder", "urgent"]).annotate(
-  $I.annote("SequenceBreakNotificationStage", {
+export const SequenceBreakNotificationStage = LiteralKit(["initial", "reminder", "urgent"]).pipe(
+  $I.annoteSchema("SequenceBreakNotificationStage", {
     description: "Escalation stages emitted while a human-wait bracket remains open.",
   })
 );
@@ -211,8 +211,8 @@ export type SequenceBreakNotificationStage = typeof SequenceBreakNotificationSta
  * @category schemas
  * @since 0.0.0
  */
-export const SequenceBreakNotificationTransport = LiteralKit(["desktop", "ntfy"]).annotate(
-  $I.annote("SequenceBreakNotificationTransport", {
+export const SequenceBreakNotificationTransport = LiteralKit(["desktop", "ntfy"]).pipe(
+  $I.annoteSchema("SequenceBreakNotificationTransport", {
     description: "Bounded delivery transports used by the sequence-break notifier.",
   })
 );
@@ -248,8 +248,8 @@ export const SequenceBreakDeliverySkipReason = LiteralKit([
   "bracket-unattributed",
   "coordination-unavailable",
   "instrument-disarmed",
-]).annotate(
-  $I.annote("SequenceBreakDeliverySkipReason", {
+]).pipe(
+  $I.annoteSchema("SequenceBreakDeliverySkipReason", {
     description: "Bounded reasons a sequence-break notification transport was deliberately skipped.",
   })
 );
@@ -282,8 +282,8 @@ export const SequenceBreakDeliveryFailureReason = LiteralKit([
   "command-failed",
   "timeout",
   "unknown",
-]).annotate(
-  $I.annote("SequenceBreakDeliveryFailureReason", {
+]).pipe(
+  $I.annoteSchema("SequenceBreakDeliveryFailureReason", {
     description: "Bounded failure reasons that retain no transport response or command content.",
   })
 );

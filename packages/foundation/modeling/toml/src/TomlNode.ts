@@ -396,8 +396,9 @@ export class TomlDateTimeLiteral extends S.Opaque<TomlDateTimeLiteral, { readonl
  */
 export class TomlArray extends S.Opaque<TomlArray, { readonly brand: unique symbol }>()(
   S.TaggedStruct("TomlArray", {
-    items: S.Array(S.suspend((): S.Codec<TomlValueNode, TomlValueNode.Encoded> => TomlValueNode)).annotateKey(
-      $I.annote("TomlArray.items", {
+    items: S.suspend((): S.Codec<TomlValueNode, TomlValueNode.Encoded> => TomlValueNode).pipe(
+      S.Array,
+      $I.annoteKey("TomlArray.items", {
         description: "Parsed array values in source order, allowing mixed TOML value kinds",
       })
     ),
@@ -474,11 +475,9 @@ export class TomlInlineEntry extends S.Opaque<TomlInlineEntry, { readonly brand:
           "Ordered key segments locating the entry within its inline table, with multiple segments for dotted keys",
       })
     ),
-    value: S.suspend((): S.Codec<TomlValueNode, TomlValueNode.Encoded> => TomlValueNode).annotateKey(
-      $I.annote("TomlInlineEntry.value", {
-        description: "Parsed TOML value assigned to the entry's key path inside the inline table",
-      })
-    ),
+    value: $I.annoteKey("TomlInlineEntry.value", {
+      description: "Parsed TOML value assigned to the entry's key path inside the inline table",
+    })(S.suspend((): S.Codec<TomlValueNode, TomlValueNode.Encoded> => TomlValueNode)),
     offset: S.Finite.pipe(
       $I.annoteKey("TomlInlineEntry.offset", {
         description: "Zero-based start of the entry's first key in the source, measured in UTF-16 code units",
@@ -693,9 +692,9 @@ export class TomlKeyValue extends S.Opaque<TomlKeyValue, { readonly brand: uniqu
           "Ordered key segments locating the assignment relative to the current table, with multiple segments for dotted keys",
       })
     ),
-    value: S.suspend((): S.Codec<TomlValueNode, TomlValueNode.Encoded> => TomlValueNode).annotateKey(
-      $I.annote("TomlKeyValue.value", { description: "Parsed TOML value assigned to the expression's key path" })
-    ),
+    value: $I.annoteKey("TomlKeyValue.value", {
+      description: "Parsed TOML value assigned to the expression's key path",
+    })(S.suspend((): S.Codec<TomlValueNode, TomlValueNode.Encoded> => TomlValueNode)),
     comment: S.optionalKey(S.String).pipe(
       $I.annoteKey("TomlKeyValue.comment", {
         description: "Optional trailing comment text with `#` removed and one leading space stripped",

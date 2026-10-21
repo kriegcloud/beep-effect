@@ -57,12 +57,14 @@ const BoxByteInputValue = S.Union([S.Uint8Array, BoxNodeReadableInput, BoxByteEf
 const isBoxByteInputValue = S.is(BoxByteInputValue);
 
 const LastPartIndex = S.Int.check(
-  S.isGreaterThanOrEqualTo(-1, {
-    identifier: $I`LastPartIndexMinimumCheck`,
-    title: "Last part index minimum",
-    description: "Chunked upload part indexes use -1 as the pre-upload sentinel and non-negative values thereafter.",
-    message: "Expected an upload part index greater than or equal to -1",
-  })
+  S.isGreaterThanOrEqualTo(
+    -1,
+    $I.annote("LastPartIndexMinimumCheck", {
+      title: "Last part index minimum",
+      description: "Chunked upload part indexes use -1 as the pre-upload sentinel and non-negative values thereafter.",
+      message: "Expected an upload part index greater than or equal to -1",
+    })
+  )
 ).pipe(
   $I.annoteSchema("LastPartIndex", {
     description: "Chunked upload part index, with -1 representing the pre-upload sentinel.",

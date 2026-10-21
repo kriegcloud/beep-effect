@@ -105,18 +105,19 @@ const isCanonicalCryptoWalletAddress = P.some([
 ]);
 const CryptoWalletAddressChecks = S.makeFilterGroup(
   [
-    S.makeFilter(isCanonicalCryptoWalletAddress, {
-      identifier: $I`CryptoWalletAddressFormatCheck`,
-      title: "CryptoWalletAddress Format",
-      description: "A canonical mainnet EVM, Bitcoin, or Solana wallet address.",
-      message: "CryptoWalletAddress must be a canonical mainnet EVM, Bitcoin, or Solana wallet address",
-    }),
+    S.makeFilter(
+      isCanonicalCryptoWalletAddress,
+      $I.annote("CryptoWalletAddressFormatCheck", {
+        title: "CryptoWalletAddress Format",
+        description: "A canonical mainnet EVM, Bitcoin, or Solana wallet address.",
+        message: "CryptoWalletAddress must be a canonical mainnet EVM, Bitcoin, or Solana wallet address",
+      })
+    ),
   ],
-  {
-    identifier: $I`CryptoWalletAddressChecks`,
+  $I.annote("CryptoWalletAddressChecks", {
     title: "CryptoWalletAddress",
     description: "Checks for canonical mainnet wallet addresses across EVM, Bitcoin, and Solana families.",
-  }
+  })
 );
 
 /**

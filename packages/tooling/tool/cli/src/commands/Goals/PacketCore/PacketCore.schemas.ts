@@ -171,12 +171,14 @@ export type PacketEventType = typeof PacketEventType.Type;
  * @since 0.0.0
  */
 export const PacketEventId = S.String.check(
-  S.isPattern(/^[0-9a-f]{64}$/, {
-    identifier: $I`PacketEventIdPatternCheck`,
-    title: "Packet Event Id Pattern",
-    description: "Lowercase sha-256 hex digest of the event's canonical JSON encoding.",
-    message: "Expected a lowercase 64-character sha-256 hex digest",
-  })
+  S.isPattern(
+    /^[0-9a-f]{64}$/,
+    $I.annote("PacketEventIdPatternCheck", {
+      title: "Packet Event Id Pattern",
+      description: "Lowercase sha-256 hex digest of the event's canonical JSON encoding.",
+      message: "Expected a lowercase 64-character sha-256 hex digest",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PacketEventId", {
     description: "Content-addressed packet-event identity (sha-256 of the canonical encoding).",
@@ -217,18 +219,22 @@ export type PacketEventId = typeof PacketEventId.Type;
  * @since 0.0.0
  */
 export const PacketSlug = S.String.check(
-  S.isPattern(/^[a-z0-9][a-z0-9-]*$/, {
-    identifier: $I`PacketSlugPatternCheck`,
-    title: "Packet Slug Pattern",
-    description: "Lowercase packet directory slug with internal hyphens only.",
-    message: "Expected a lowercase packet slug with internal hyphens only",
-  }),
-  S.isMaxLength(64, {
-    identifier: $I`PacketSlugLengthCheck`,
-    title: "Packet Slug Length",
-    description: "Packet slugs are at most 64 characters.",
-    message: "Expected a packet slug with at most 64 characters",
-  })
+  S.isPattern(
+    /^[a-z0-9][a-z0-9-]*$/,
+    $I.annote("PacketSlugPatternCheck", {
+      title: "Packet Slug Pattern",
+      description: "Lowercase packet directory slug with internal hyphens only.",
+      message: "Expected a lowercase packet slug with internal hyphens only",
+    })
+  ),
+  S.isMaxLength(
+    64,
+    $I.annote("PacketSlugLengthCheck", {
+      title: "Packet Slug Length",
+      description: "Packet slugs are at most 64 characters.",
+      message: "Expected a packet slug with at most 64 characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PacketSlug", {
     description: "Lowercase packet directory slug under a packet root.",
@@ -293,18 +299,22 @@ export const isPacketSlug = S.is(PacketSlug);
  * @since 0.0.0
  */
 export const PacketStage = S.String.check(
-  S.isPattern(/^[A-Za-z0-9]+(?:[-_.][A-Za-z0-9]+)*$/, {
-    identifier: $I`PacketStagePatternCheck`,
-    title: "Packet Stage Pattern",
-    description: "Stage token from the packet's own vocabulary (goal phase id or exploration stage).",
-    message: "Expected an alphanumeric stage token with internal -_. separators only",
-  }),
-  S.isMaxLength(40, {
-    identifier: $I`PacketStageLengthCheck`,
-    title: "Packet Stage Length",
-    description: "Stage tokens are at most 40 characters.",
-    message: "Expected a stage token with at most 40 characters",
-  })
+  S.isPattern(
+    /^[A-Za-z0-9]+(?:[-_.][A-Za-z0-9]+)*$/,
+    $I.annote("PacketStagePatternCheck", {
+      title: "Packet Stage Pattern",
+      description: "Stage token from the packet's own vocabulary (goal phase id or exploration stage).",
+      message: "Expected an alphanumeric stage token with internal -_. separators only",
+    })
+  ),
+  S.isMaxLength(
+    40,
+    $I.annote("PacketStageLengthCheck", {
+      title: "Packet Stage Length",
+      description: "Stage tokens are at most 40 characters.",
+      message: "Expected a stage token with at most 40 characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PacketStage", {
     description: "One stage token inside a packet's own stage vocabulary.",
@@ -369,18 +379,22 @@ export const isPacketStage = S.is(PacketStage);
  * @since 0.0.0
  */
 export const PacketStatusToken = S.String.check(
-  S.isPattern(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/, {
-    identifier: $I`PacketStatusTokenPatternCheck`,
-    title: "Packet Status Token Pattern",
-    description: "Lowercase lifecycle-status token with internal single hyphens only.",
-    message: "Expected a lowercase status token with internal single hyphens only",
-  }),
-  S.isMaxLength(40, {
-    identifier: $I`PacketStatusTokenLengthCheck`,
-    title: "Packet Status Token Length",
-    description: "Status tokens are at most 40 characters.",
-    message: "Expected a status token with at most 40 characters",
-  })
+  S.isPattern(
+    /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/,
+    $I.annote("PacketStatusTokenPatternCheck", {
+      title: "Packet Status Token Pattern",
+      description: "Lowercase lifecycle-status token with internal single hyphens only.",
+      message: "Expected a lowercase status token with internal single hyphens only",
+    })
+  ),
+  S.isMaxLength(
+    40,
+    $I.annote("PacketStatusTokenLengthCheck", {
+      title: "Packet Status Token Length",
+      description: "Status tokens are at most 40 characters.",
+      message: "Expected a status token with at most 40 characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PacketStatusToken", {
     description: "Lifecycle-status token recorded by packet events (writer enforces the domain).",
@@ -421,12 +435,14 @@ export type PacketStatusToken = typeof PacketStatusToken.Type;
  * @since 0.0.0
  */
 export const PacketRevision = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`PacketRevisionRangeCheck`,
-    title: "Packet Revision Range",
-    description: "Stream revisions are non-negative integers (0 = empty stream).",
-    message: "Expected a non-negative integer revision",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("PacketRevisionRangeCheck", {
+      title: "Packet Revision Range",
+      description: "Stream revisions are non-negative integers (0 = empty stream).",
+      message: "Expected a non-negative integer revision",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PacketRevision", {
     description: "Number of events on the linear chain (0 = empty stream).",
@@ -466,12 +482,14 @@ export type PacketRevision = typeof PacketRevision.Type;
  * @since 0.0.0
  */
 export const PacketStageOrdinal = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`PacketStageOrdinalRangeCheck`,
-    title: "Packet Stage Ordinal Range",
-    description: "Stage ordinals are non-negative integers in the packet's declared order.",
-    message: "Expected a non-negative integer stage ordinal",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("PacketStageOrdinalRangeCheck", {
+      title: "Packet Stage Ordinal Range",
+      description: "Stage ordinals are non-negative integers in the packet's declared order.",
+      message: "Expected a non-negative integer stage ordinal",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PacketStageOrdinal", {
     description: "Position of a stage inside the packet's declared stage order.",
@@ -559,12 +577,11 @@ export const isPacketRiskTier = S.is(PacketRiskTier);
 const PacketCreatedBodyStagePairCheck = S.makeFilter(
   (body: { readonly stage?: PacketStage; readonly ordinal?: PacketStageOrdinal }) =>
     (body.stage === undefined) === (body.ordinal === undefined),
-  {
-    identifier: $I`PacketCreatedBodyStagePairCheck`,
+  $I.annote("PacketCreatedBodyStagePairCheck", {
     title: "Packet Created Body Stage Pair",
     description: "Genesis stage and ordinal are recorded together or not at all.",
     message: "Expected stage and ordinal to be present together or absent together",
-  }
+  })
 );
 
 /**
@@ -680,12 +697,14 @@ export class StatusSetBody extends S.Opaque<StatusSetBody, { readonly brand: uni
  * @since 0.0.0
  */
 export const RiskTierOverrideReason = S.String.check(
-  S.isMinLength(1, {
-    identifier: $I`RiskTierOverrideReasonLengthCheck`,
-    title: "Risk Tier Override Reason Length",
-    description: "Every risk-tier override records a non-empty operator reason.",
-    message: "Expected a non-empty override reason",
-  })
+  S.isMinLength(
+    1,
+    $I.annote("RiskTierOverrideReasonLengthCheck", {
+      title: "Risk Tier Override Reason Length",
+      description: "Every risk-tier override records a non-empty operator reason.",
+      message: "Expected a non-empty override reason",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RiskTierOverrideReason", {
     description: "Non-empty recorded reason for an operator risk-tier override.",
@@ -794,12 +813,14 @@ export type PacketEventBody = typeof PacketEventBody.Type;
  * @since 0.0.0
  */
 export const PacketEventTimestamp = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/, {
-    identifier: $I`PacketEventAtPatternCheck`,
-    title: "Packet Event Timestamp Pattern",
-    description: "Event timestamps are ISO-8601 date-time strings.",
-    message: "Expected an ISO-8601 date-time string",
-  })
+  S.isPattern(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/,
+    $I.annote("PacketEventAtPatternCheck", {
+      title: "Packet Event Timestamp Pattern",
+      description: "Event timestamps are ISO-8601 date-time strings.",
+      message: "Expected an ISO-8601 date-time string",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PacketEventTimestamp", {
     description: "ISO-8601 date-time string recorded on packet events and writer requests.",
@@ -823,12 +844,14 @@ export const PacketEventTimestamp = S.String.check(
  * @since 0.0.0
  */
 export const PacketEventActor = S.String.check(
-  S.isMinLength(1, {
-    identifier: $I`PacketEventActorLengthCheck`,
-    title: "Packet Event Actor Length",
-    description: "The recording actor is a non-empty string.",
-    message: "Expected a non-empty actor",
-  })
+  S.isMinLength(
+    1,
+    $I.annote("PacketEventActorLengthCheck", {
+      title: "Packet Event Actor Length",
+      description: "The recording actor is a non-empty string.",
+      message: "Expected a non-empty actor",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PacketEventActor", {
     description: "Non-empty actor recorded on packet events and writer requests.",
@@ -854,22 +877,20 @@ export type PacketEventActor = typeof PacketEventActor.Type;
 const PacketEventGenesisParentCheck = S.makeFilter(
   (event: { readonly seq: number; readonly parent?: PacketEventId }) =>
     (event.seq === 1) === (event.parent === undefined),
-  {
-    identifier: $I`PacketEventGenesisParentCheck`,
+  $I.annote("PacketEventGenesisParentCheck", {
     title: "Packet Event Genesis Parent",
     description: "Only the genesis event (seq 1) omits the parent digest.",
     message: "Expected parent to be absent exactly when seq is 1",
-  }
+  })
 );
 
 const PacketEventCasRevisionCheck = S.makeFilter(
   (event: { readonly seq: number; readonly expectedRevision: number }) => event.expectedRevision === event.seq - 1,
-  {
-    identifier: $I`PacketEventCasRevisionCheck`,
+  $I.annote("PacketEventCasRevisionCheck", {
     title: "Packet Event CAS Revision",
     description: "The declared expected revision is always the sequence number minus one.",
     message: "Expected expectedRevision to equal seq - 1",
-  }
+  })
 );
 
 /**
@@ -912,12 +933,14 @@ export class PacketEvent extends S.Opaque<PacketEvent, { readonly brand: unique 
     packet: PacketSlug,
     root: PacketRoot,
     seq: S.Int.check(
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`PacketEventSeqRangeCheck`,
-        title: "Packet Event Seq Range",
-        description: "Event sequence numbers start at 1.",
-        message: "Expected a positive integer sequence number",
-      })
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("PacketEventSeqRangeCheck", {
+          title: "Packet Event Seq Range",
+          description: "Event sequence numbers start at 1.",
+          message: "Expected a positive integer sequence number",
+        })
+      )
     ),
     parent: S.optionalKey(PacketEventId),
     expectedRevision: PacketRevision,
@@ -1011,12 +1034,14 @@ export class StoredPacketEvent extends S.Opaque<StoredPacketEvent, { readonly br
 export class PacketTip extends S.Opaque<PacketTip, { readonly brand: unique symbol }>()(
   S.Struct({
     seq: S.Int.check(
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`PacketTipSeqRangeCheck`,
-        title: "Packet Tip Seq Range",
-        description: "A tip's sequence number is at least 1.",
-        message: "Expected a positive integer tip sequence number",
-      })
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("PacketTipSeqRangeCheck", {
+          title: "Packet Tip Seq Range",
+          description: "A tip's sequence number is at least 1.",
+          message: "Expected a positive integer tip sequence number",
+        })
+      )
     ),
     id: PacketEventId,
   }).pipe(
@@ -1342,12 +1367,14 @@ export const PACKET_PROJECTOR_VERSION = 2;
 export class PacketTraceEntry extends S.Opaque<PacketTraceEntry, { readonly brand: unique symbol }>()(
   S.Struct({
     seq: S.Int.check(
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`PacketTraceEntrySeqRangeCheck`,
-        title: "Packet Trace Entry Seq Range",
-        description: "Timeline entries carry their event's positive sequence number.",
-        message: "Expected a positive integer sequence number",
-      })
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("PacketTraceEntrySeqRangeCheck", {
+          title: "Packet Trace Entry Seq Range",
+          description: "Timeline entries carry their event's positive sequence number.",
+          message: "Expected a positive integer sequence number",
+        })
+      )
     ),
     id: PacketEventId,
     at: PacketEventTimestamp,
@@ -1393,12 +1420,14 @@ export class PacketTraceProjection extends S.Opaque<PacketTraceProjection, { rea
   S.Struct({
     schemaVersion: S.tag("packet-trace/v1"),
     projectorVersion: S.Int.check(
-      S.isGreaterThanOrEqualTo(1, {
-        identifier: $I`PacketTraceProjectorVersionCheck`,
-        title: "Packet Trace Projector Version",
-        description: "Projector versions start at 1.",
-        message: "Expected a positive integer projector version",
-      })
+      S.isGreaterThanOrEqualTo(
+        1,
+        $I.annote("PacketTraceProjectorVersionCheck", {
+          title: "Packet Trace Projector Version",
+          description: "Projector versions start at 1.",
+          message: "Expected a positive integer projector version",
+        })
+      )
     ),
     sourceTip: S.optionalKey(PacketTip),
     timeline: S.Array(PacketTraceEntry),

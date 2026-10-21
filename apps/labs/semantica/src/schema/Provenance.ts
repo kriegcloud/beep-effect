@@ -184,12 +184,11 @@ const ProvenanceEventIdCheck = S.makeFilter(
         onSuccess: (digest) => Str.Equivalence(digest, event.id),
       })
     ),
-  {
-    identifier: $I`ProvenanceEventIdCheck`,
+  $I.annote("ProvenanceEventIdCheck", {
     title: "Provenance event identity",
     description: "Requires id to hash canonical JSON of only prev and body, with no wall-clock field.",
     message: "ProvenanceEvent id must match the canonical prev-and-body digest.",
-  }
+  })
 );
 
 /**

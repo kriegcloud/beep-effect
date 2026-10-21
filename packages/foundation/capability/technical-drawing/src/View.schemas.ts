@@ -93,18 +93,22 @@ const TWO_POINT_ELEVATION_DEG = 20;
 const TWO_POINT_MAX_ELEVATION_DEG = 30;
 
 const PictorialElevationDeg = S.Finite.check(
-  S.isGreaterThan(0, {
-    identifier: $I`PictorialElevationMinCheck`,
-    title: "Pictorial Elevation Minimum",
-    description: "A pictorial looks at the top (or bottom) from above (or below) it, never level with it.",
-    message: "Expected a pictorial elevation above 0 degrees",
-  }),
-  S.isLessThan(90, {
-    identifier: $I`PictorialElevationMaxCheck`,
-    title: "Pictorial Elevation Maximum",
-    description: "A pictorial at 90 degrees would be a plan view.",
-    message: "Expected a pictorial elevation below 90 degrees",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("PictorialElevationMinCheck", {
+      title: "Pictorial Elevation Minimum",
+      description: "A pictorial looks at the top (or bottom) from above (or below) it, never level with it.",
+      message: "Expected a pictorial elevation above 0 degrees",
+    })
+  ),
+  S.isLessThan(
+    90,
+    $I.annote("PictorialElevationMaxCheck", {
+      title: "Pictorial Elevation Maximum",
+      description: "A pictorial at 90 degrees would be a plan view.",
+      message: "Expected a pictorial elevation below 90 degrees",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PictorialElevationDeg", {
     description:
@@ -113,13 +117,15 @@ const PictorialElevationDeg = S.Finite.check(
 );
 
 const PictorialFocusDiagonals = S.Finite.check(
-  S.isGreaterThanOrEqualTo(1, {
-    identifier: $I`PictorialFocusDiagonalsCheck`,
-    title: "Pictorial Focus Diagonals",
-    description:
-      "A converging pictorial's eye stands at least one box diagonal from the box centre, clear of the model.",
-    message: "Expected a pictorial focus of at least 1 box diagonal",
-  })
+  S.isGreaterThanOrEqualTo(
+    1,
+    $I.annote("PictorialFocusDiagonalsCheck", {
+      title: "Pictorial Focus Diagonals",
+      description:
+        "A converging pictorial's eye stands at least one box diagonal from the box centre, clear of the model.",
+      message: "Expected a pictorial focus of at least 1 box diagonal",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PictorialFocusDiagonals", {
     description: "Eye distance of a converging pictorial in box diagonals, at least 1.",
@@ -326,12 +332,14 @@ export class CameraForViewInput extends S.Opaque<CameraForViewInput, { readonly 
     ),
   })
     .check(
-      S.makeFilter(twoPointFieldInCone, {
-        identifier: $I`CameraForViewInputTwoPointElevationCheck`,
-        title: "Two-Point Elevation",
-        description: "A two-point pictorial's field stays within half the 60° cone of vision.",
-        message: "Expected a two-point pictorial elevation of at most 30 degrees",
-      })
+      S.makeFilter(
+        twoPointFieldInCone,
+        $I.annote("CameraForViewInputTwoPointElevationCheck", {
+          title: "Two-Point Elevation",
+          description: "A two-point pictorial's field stays within half the 60° cone of vision.",
+          message: "Expected a two-point pictorial elevation of at most 30 degrees",
+        })
+      )
     )
     .pipe(
       $I.annoteSchema("CameraForViewInput", {
@@ -505,12 +513,14 @@ export class FigureSpec extends S.Opaque<FigureSpec, { readonly brand: unique sy
   S.Struct({
     view: ViewName.annotateKey({ description: "View shown by this figure." }),
     description: S.Trimmed.check(
-      S.isMinLength(1, {
-        identifier: $I`FigureDescriptionCheck`,
-        title: "Figure Description",
-        description: "Every figure carries its own description sentence (the 1:1 FIG ↔ description rule).",
-        message: "Expected a non-empty figure description",
-      })
+      S.isMinLength(
+        1,
+        $I.annote("FigureDescriptionCheck", {
+          title: "Figure Description",
+          description: "Every figure carries its own description sentence (the 1:1 FIG ↔ description rule).",
+          message: "Expected a non-empty figure description",
+        })
+      )
     ).annotateKey({ description: "Description sentence for the figure, without the leading `FIG. n`." }),
     projection: PictorialProjection.pipe(
       S.withConstructorDefault(Effect.succeed("perspective" as const)),
@@ -679,25 +689,31 @@ export class FigureSetSpec extends S.Opaque<FigureSetSpec, { readonly brand: uni
     model: ModelSpec.annotateKey({ description: "Parametric model every figure is projected from." }),
     figures: S.Array(FigureSpec)
       .check(
-        S.isMinLength(1, {
-          identifier: $I`FigureSetFiguresCheck`,
-          title: "Figure Set Figures",
-          description: "A figure set claims at least one figure.",
-          message: "Expected at least one figure",
-        }),
-        S.makeFilter(viewsAreUnique, {
-          identifier: $I`FigureSetUniqueViewsCheck`,
-          title: "Figure Set Unique Views",
-          description: "No view appears twice in a figure set.",
-          message: "Expected every figure to show a different view",
-        }),
-        S.makeFilter(projectionsFitViews, {
-          identifier: $I`FigureSetProjectionsCheck`,
-          title: "Figure Set Projections",
-          description: "Only the pictorial views take a projection other than the default.",
-          message:
-            "Expected `projection: isometric` or `projection: two-point` only on top-perspective or bottom-perspective figures",
-        })
+        S.isMinLength(
+          1,
+          $I.annote("FigureSetFiguresCheck", {
+            title: "Figure Set Figures",
+            description: "A figure set claims at least one figure.",
+            message: "Expected at least one figure",
+          })
+        ),
+        S.makeFilter(
+          viewsAreUnique,
+          $I.annote("FigureSetUniqueViewsCheck", {
+            title: "Figure Set Unique Views",
+            description: "No view appears twice in a figure set.",
+            message: "Expected every figure to show a different view",
+          })
+        ),
+        S.makeFilter(
+          projectionsFitViews,
+          $I.annote("FigureSetProjectionsCheck", {
+            title: "Figure Set Projections",
+            description: "Only the pictorial views take a projection other than the default.",
+            message:
+              "Expected `projection: isometric` or `projection: two-point` only on top-perspective or bottom-perspective figures",
+          })
+        )
       )
       .annotateKey({ description: "Figures in FIG. 1..n order." }),
     omissions: S.Array(OmissionClaim).pipe(
@@ -714,18 +730,22 @@ export class FigureSetSpec extends S.Opaque<FigureSetSpec, { readonly brand: uni
     ),
     pictorialAzimuthDeg: S.OptionFromOptionalKey(
       S.Finite.check(
-        S.isGreaterThanOrEqualTo(-180, {
-          identifier: $I`PictorialAzimuthMinCheck`,
-          title: "Pictorial Azimuth Minimum",
-          description: "An azimuth is an angle in degrees within one turn.",
-          message: "Expected a pictorial azimuth of at least -180 degrees",
-        }),
-        S.isLessThanOrEqualTo(180, {
-          identifier: $I`PictorialAzimuthMaxCheck`,
-          title: "Pictorial Azimuth Maximum",
-          description: "An azimuth is an angle in degrees within one turn.",
-          message: "Expected a pictorial azimuth of at most 180 degrees",
-        })
+        S.isGreaterThanOrEqualTo(
+          -180,
+          $I.annote("PictorialAzimuthMinCheck", {
+            title: "Pictorial Azimuth Minimum",
+            description: "An azimuth is an angle in degrees within one turn.",
+            message: "Expected a pictorial azimuth of at least -180 degrees",
+          })
+        ),
+        S.isLessThanOrEqualTo(
+          180,
+          $I.annote("PictorialAzimuthMaxCheck", {
+            title: "Pictorial Azimuth Maximum",
+            description: "An azimuth is an angle in degrees within one turn.",
+            message: "Expected a pictorial azimuth of at most 180 degrees",
+          })
+        )
       )
     ).pipe(
       S.withConstructorDefault(Effect.succeedNone),
@@ -765,27 +785,33 @@ export class FigureSetSpec extends S.Opaque<FigureSetSpec, { readonly brand: uni
     ),
   })
     .check(
-      S.makeFilter(elevationIsRead, {
-        identifier: $I`FigureSetElevationReadCheck`,
-        title: "Figure Set Pictorial Elevation",
-        description:
-          "A set elevation needs an isometric or two-point pictorial to read it; a perspective ignores it, so the set would render unchanged.",
-        message: "Expected `pictorialElevationDeg` only with an isometric or two-point pictorial",
-      }),
-      S.makeFilter(focusIsRead, {
-        identifier: $I`FigureSetFocusReadCheck`,
-        title: "Figure Set Pictorial Focus",
-        description:
-          "A set focus needs a perspective or two-point pictorial to read it; an isometric has no focus, so the set would render unchanged.",
-        message: "Expected `pictorialFocusDiagonals` only with a perspective or two-point pictorial",
-      }),
-      S.makeFilter(twoPointElevationInCone, {
-        identifier: $I`FigureSetTwoPointElevationCheck`,
-        title: "Figure Set Two-Point Elevation",
-        description:
-          "A two-point pictorial's field stays within half the 60° cone of vision; above it the article falls outside the cone whatever the focus.",
-        message: "Expected `pictorialElevationDeg` of at most 30 degrees with a two-point pictorial",
-      })
+      S.makeFilter(
+        elevationIsRead,
+        $I.annote("FigureSetElevationReadCheck", {
+          title: "Figure Set Pictorial Elevation",
+          description:
+            "A set elevation needs an isometric or two-point pictorial to read it; a perspective ignores it, so the set would render unchanged.",
+          message: "Expected `pictorialElevationDeg` only with an isometric or two-point pictorial",
+        })
+      ),
+      S.makeFilter(
+        focusIsRead,
+        $I.annote("FigureSetFocusReadCheck", {
+          title: "Figure Set Pictorial Focus",
+          description:
+            "A set focus needs a perspective or two-point pictorial to read it; an isometric has no focus, so the set would render unchanged.",
+          message: "Expected `pictorialFocusDiagonals` only with a perspective or two-point pictorial",
+        })
+      ),
+      S.makeFilter(
+        twoPointElevationInCone,
+        $I.annote("FigureSetTwoPointElevationCheck", {
+          title: "Figure Set Two-Point Elevation",
+          description:
+            "A two-point pictorial's field stays within half the 60° cone of vision; above it the article falls outside the cone whatever the focus.",
+          message: "Expected `pictorialElevationDeg` of at most 30 degrees with a two-point pictorial",
+        })
+      )
     )
     .pipe(
       $I.annoteSchema("FigureSetSpec", {

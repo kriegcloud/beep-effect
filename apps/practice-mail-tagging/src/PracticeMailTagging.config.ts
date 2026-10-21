@@ -27,11 +27,11 @@ const defaultMaxBackoff = Duration.hours(1);
 const minimumPollInterval = Duration.minutes(1);
 const stateDirectoryUnderHome = ".local/state/beep/practice-mail-tagging";
 
-const PageSize = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive page size" })).annotate({
-  identifier: $I`PageSize`,
-  title: "PageSize",
-  description: "Messages requested per mailbox listing page; an integer greater than zero.",
-});
+const PageSize = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive page size" })).pipe(
+  $I.annoteSchema("PageSize", {
+    description: "Messages requested per mailbox listing page; an integer greater than zero.",
+  })
+);
 
 /**
  * Every setting of the mail-tagging job that this app owns.

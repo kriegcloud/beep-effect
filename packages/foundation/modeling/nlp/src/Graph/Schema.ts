@@ -39,8 +39,8 @@ const $I = $NlpId.create("Graph/Schema");
  * @category schemas
  * @since 0.0.0
  */
-export const TextNodeType = LiteralKit(["sentence", "token", "paragraph", "document"]).annotate(
-  $I.annote("TextNodeType", {
+export const TextNodeType = LiteralKit(["sentence", "token", "paragraph", "document"]).pipe(
+  $I.annoteSchema("TextNodeType", {
     description: "Structural text-graph node kind (document/paragraph/sentence/token).",
   })
 );
@@ -89,8 +89,8 @@ export const TextEdgeRelation = LiteralKit([
   "dependent-of",
   "entity-mention",
   "relates-to",
-]).annotate(
-  $I.annote("TextEdgeRelation", {
+]).pipe(
+  $I.annoteSchema("TextEdgeRelation", {
     description: "Text-graph edge relation (structural lineage + linguistic-annotation links).",
   })
 );

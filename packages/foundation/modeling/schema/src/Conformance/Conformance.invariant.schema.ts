@@ -156,12 +156,14 @@ export class TypeLevelEnforcement extends S.Opaque<TypeLevelEnforcement, { reado
 ) {}
 
 const RuntimeValidatorIdentifier = S.String.check(
-  S.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*$/u, {
-    identifier: $I`RuntimeValidatorIdentifierPattern`,
-    title: "Runtime validator identifier",
-    description: "An executable JavaScript identifier or dot-separated property path naming one runtime validator.",
-    message: "Expected one executable validator identifier such as inspectConformance or Heading.validateOutline",
-  })
+  S.isPattern(
+    /^[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*$/u,
+    $I.annote("RuntimeValidatorIdentifierPattern", {
+      title: "Runtime validator identifier",
+      description: "An executable JavaScript identifier or dot-separated property path naming one runtime validator.",
+      message: "Expected one executable validator identifier such as inspectConformance or Heading.validateOutline",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RuntimeValidatorIdentifier", {
     description: "Executable JavaScript identifier or property path naming one runtime conformance validator.",
@@ -421,13 +423,12 @@ const InvariantDescriptorConsistency = S.makeFilter(
     A.dedupe(descriptor.references).length === descriptor.references.length &&
     A.dedupe(descriptor.enforcement).length === descriptor.enforcement.length &&
     hasCoherentEnforcement(descriptor),
-  {
-    identifier: $I`InvariantDescriptorConsistency`,
+  $I.annote("InvariantDescriptorConsistency", {
     title: "Invariant enforcement consistency",
     description:
       "Test identifiers, exact references, and enforcement evidence are unique, and enforcement agrees with the invariant's decidability boundary.",
     message: "Expected unique testIds, references, and enforcement evidence coherent with decidability",
-  }
+  })
 );
 
 const InvariantDescriptorValue = InvariantDescriptorFields.check(InvariantDescriptorConsistency);

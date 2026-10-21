@@ -16,13 +16,15 @@ const canonicalPatentDocumentNumberPattern =
   /^(?:[0-9]{1,3}|[0-9]{1,3},[0-9]{3}|[0-9]{1,3},[0-9]{3},[0-9]{3}|[0-9]{1,3},[0-9]{3},[0-9]{3},[0-9]{3}|[0-9],[0-9]{3},[0-9]{3},[0-9]{3},[0-9]{3})$/u;
 
 const CanonicalPatentDocumentNumber = S.String.check(
-  S.isPattern(canonicalPatentDocumentNumberPattern, {
-    identifier: $I`CanonicalPatentDocumentNumberPatternCheck`,
-    title: "Canonical Patent Document Number",
-    description:
-      "A display-form WIPO ST.6 publication number using comma digit grouping and at most 13 digits when commas are removed.",
-    message: "Patent document number must be comma-grouped with at most 13 digits.",
-  })
+  S.isPattern(
+    canonicalPatentDocumentNumberPattern,
+    $I.annote("CanonicalPatentDocumentNumberPatternCheck", {
+      title: "Canonical Patent Document Number",
+      description:
+        "A display-form WIPO ST.6 publication number using comma digit grouping and at most 13 digits when commas are removed.",
+      message: "Patent document number must be comma-grouped with at most 13 digits.",
+    })
+  )
 );
 
 /**

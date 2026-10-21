@@ -17,13 +17,15 @@ const isProtobufDoubleValue = (value: number) =>
   value === globalThis.Number.NEGATIVE_INFINITY ||
   (value >= -globalThis.Number.MAX_VALUE && value <= globalThis.Number.MAX_VALUE);
 
-const DoubleChecks = S.makeFilter(isProtobufDoubleValue, {
-  identifier: $I`DoubleValueCheck`,
-  title: "Protobuf double Value",
-  description: "A protobuf double value is any IEEE-754 binary64 JavaScript number, including NaN and infinities.",
-  expected: "a protobuf double number",
-  message: "Expected a protobuf double number",
-});
+const DoubleChecks = S.makeFilter(
+  isProtobufDoubleValue,
+  $I.annote("DoubleValueCheck", {
+    title: "Protobuf double Value",
+    description: "A protobuf double value is any IEEE-754 binary64 JavaScript number, including NaN and infinities.",
+    expected: "a protobuf double number",
+    message: "Expected a protobuf double number",
+  })
+);
 
 /**
  * Branded schema for protobuf `double` values.
