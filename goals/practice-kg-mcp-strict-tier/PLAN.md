@@ -88,15 +88,13 @@ Before marking the packet closed:
   `src/runtime/ProcessMetrics.ts` (10 s Bun sampler port, 5-minute windows,
   5% / 32 MiB floors) on two label-free gauges in the app instruments file,
   wired into the host telemetry; TestClock tests with a scripted sampler in
-  `test/ProcessMetrics.test.ts`. Acceptance #3 and #5 met; #4 still waits on
-  the operator smoke below, so the goal cannot close until it is recorded.
-- Operator smoke for acceptance #4 (not run by an agent; recorded in
+  `test/ProcessMetrics.test.ts`. Acceptance #3 and #5 met in P3.
+- DPAPI smoke for acceptance #4 (runbook:
   `goals/practice-kg-mcp/research/install-runbook.md`, "Telemetry key smoke"):
-  on `tom-pc-1`, as the attorney's Windows user in the desktop session, from the
-  unpacked extension folder run `practice-kg-mcp.exe --self-check-telemetry`.
-  Pass: exit 0 and `{"ok":true,"keyPath":"dpapi-ffi"|"dpapi-powershell",…}`;
-  record the `keyPath` (a `dpapi-powershell` result records the fallback).
-- Acceptance #4 (2026-10-20): the smoke passed on `tom-pc-1`: exit 0,
+  `practice-kg-mcp.exe --self-check-telemetry` on `tom-pc-1` as the attorney's
+  Windows user in the desktop session; pass is exit 0 and
+  `{"ok":true,"keyPath":"dpapi-ffi"|"dpapi-powershell",…}`.
+  Passed 2026-10-20: exit 0,
   `{"ok":true,"keyPath":"dpapi-ffi",…}` in the attorney's console session,
   run through a one-shot interactive scheduled task from a fresh build of main
   in a hand-off folder (the installed 0.4.0 extension predates the flag).
