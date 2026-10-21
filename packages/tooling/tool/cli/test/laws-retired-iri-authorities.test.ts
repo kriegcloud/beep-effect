@@ -18,7 +18,8 @@ import { pipe } from "effect/Function";
 
 // Hosts are assembled from labels so this file never spells a retired host or
 // the public origin; a repository-wide text search for them stays clean.
-const host = (...labels: ReadonlyArray<string>): string => labels.join(".");
+const host = (...labels: ReadonlyArray<string>): string => A.join(labels, ".");
+const joinLines = (lines: ReadonlyArray<string>): string => A.join(lines, "\n");
 const NS_HOST = host("ns", "beep", "sh");
 const APEX_SH = host("beep", "sh");
 const DEV_HOST = host("beep", "dev");
@@ -180,7 +181,7 @@ describe("retired IRI authority law", () => {
 
     it.effect("keeps the host table free of spelled-out hosts", () =>
       Effect.sync(() => {
-        expect(A.map(retiredIriAuthorities, (row) => row.labels.join("."))).toEqual([
+        expect(A.map(retiredIriAuthorities, (row) => A.join(row.labels, "."))).toEqual([
           EFFECT_DEV_HOST,
           NS_HOST,
           DEV_HOST,
@@ -236,12 +237,12 @@ describe("retired IRI authority law", () => {
 
     it.effect("reports the origin in template heads, middles, tails, and no-substitution templates", () =>
       Effect.sync(() => {
-        const source = [
+        const source = joinLines([
           `const a = \`${ORIGIN}/ns/\${x}\`;`,
           `const b = \`\${x}${ORIGIN}/y\`;`,
           `const c = \`\${x}/\${y}${ORIGIN}\`;`,
           `const d = \`${ORIGIN}\`;`,
-        ].join("\n");
+        ]);
         expect(A.length(scanPublicOriginLiterals("packages/x/src/a.ts", source))).toBe(4);
       })
     );

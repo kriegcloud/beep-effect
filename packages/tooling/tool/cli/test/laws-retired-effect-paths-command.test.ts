@@ -23,8 +23,8 @@ const withEmptyConfig = Effect.provideService(ConfigProvider.ConfigProvider, Con
 const failureText = <A, E>(exit: Exit.Exit<A, E>): string => (Exit.isFailure(exit) ? String(exit.cause) : "");
 
 // Assembled from labels so this file never spells a retired host or the public origin.
-const RETIRED_IRI = `https://${["beep", "dev"].join(".")}/epistemic/Claim`;
-const ORIGIN = `https://${["beep-effect", "com"].join(".")}`;
+const RETIRED_IRI = `https://${A.join(["beep", "dev"], ".")}/epistemic/Claim`;
+const ORIGIN = `https://${A.join(["beep-effect", "com"], ".")}`;
 
 const git = Effect.fnUntraced(function* (cwd: string, args: ReadonlyArray<string>) {
   const handle = yield* ChildProcess.make("git", args, { cwd, stdin: "ignore", stdout: "ignore", stderr: "ignore" });

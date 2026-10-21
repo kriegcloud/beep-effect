@@ -166,10 +166,11 @@ const listTrackedRegularFiles = Effect.fn("TrackedTextFiles.listTrackedRegularFi
  *
  * **Details**
  *
- * Locates the repository root, lists index entries with `git ls-files
- * --stage`, keeps regular files, splits off the files `isSkipped` accepts,
- * reads the rest concurrently, skips index entries deleted from the working
- * tree and any file containing a NUL byte, and hands the decoded text to
+ * Locates the repository root, lists index entries with
+ * `git ls-files --stage`, keeps regular files, splits off the files
+ * `isSkipped` accepts, reads the rest concurrently, skips index entries
+ * deleted from the working tree and any file containing a NUL byte, and
+ * hands the decoded text to
  * `scan`. `mapError` maps the root lookup and read failures into the law's
  * own error with a message prefix.
  *

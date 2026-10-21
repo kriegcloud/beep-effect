@@ -21,6 +21,8 @@ import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import type { IsDnsLabel, LabLabelOf } from "@beep/public-site";
 
+const isDecodedLabLabel = S.is(S.toType(LabLabel));
+
 const D3_ROUTES = [
   "ns",
   "taxonomy",
@@ -203,7 +205,7 @@ describe("labRoute", () => {
   });
 
   it("agrees with the LabPortlessName schema on the same names", () => {
-    const decodes = S.is(S.toType(LabLabel));
+    const decodes = isDecodedLabLabel;
     const rejected = [
       "Api-Docs",
       "api_docs.labs.beep.localhost",
