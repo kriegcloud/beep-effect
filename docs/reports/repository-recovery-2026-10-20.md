@@ -371,8 +371,10 @@ these source or test facts.
 
 The completed coverage job at 072beac062 reached the comparator after every
 producer succeeded. Six reported metric failures refer to the former
-`apps/practice-kg-mcp/src/runtime/DuckDb.ts` and `Pglite.ts` paths. PR #1771
-(8086a42233) deleted those files when it moved their live resource constructors
+[`DuckDb.ts`](https://github.com/beep-effect/beep-effect/blob/0afe8b218f6f064cf37d4b1e884f8ea5ad8d0a1d/apps/practice-kg-mcp/src/runtime/DuckDb.ts)
+and [`Pglite.ts`](https://github.com/beep-effect/beep-effect/blob/0afe8b218f6f064cf37d4b1e884f8ea5ad8d0a1d/apps/practice-kg-mcp/src/runtime/Pglite.ts)
+files in the app runtime. PR #1771 (8086a42233) deleted those files when it moved
+their live resource constructors
 into `packages/law-practice/server/src/PracticeKgHost/PracticeKgHost.layers.ts`.
 The app's `runtime/Host.ts` consumes that layer. The old paths are absent from
 the current source tree; their baseline identities remained.
