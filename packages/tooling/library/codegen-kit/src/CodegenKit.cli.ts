@@ -105,22 +105,20 @@ const runCli = (
  * ```ts
  * import { GenerateConfig, runGenerateCli } from "@beep/codegen-kit"
  *
- * const shared = {
- *   packageName: "@beep/example",
- *   dialect: "json-schema-2020-12",
- *   format: "schemas"
- * } as const
- *
  * const v2 = GenerateConfig.make({
- *   ...shared,
+ *   packageName: "@beep/example",
  *   identity: { composer: "$ExampleId", moduleId: "_generated/schema.gen" },
  *   source: { _tag: "file", path: "spec/v2/schema.json" },
+ *   dialect: "json-schema-2020-12",
+ *   format: "schemas",
  *   output: { path: "src/_generated/schema.gen.ts" }
  * })
  * const v1 = GenerateConfig.make({
- *   ...shared,
+ *   packageName: "@beep/example",
  *   identity: { composer: "$ExampleId", moduleId: "_generated/schema-v1.gen" },
  *   source: { _tag: "file", path: "spec/v1/schema.json" },
+ *   dialect: "json-schema-2020-12",
+ *   format: "schemas",
  *   output: { path: "src/_generated/schema-v1.gen.ts", exampleImport: "@beep/example/schema-v1" }
  * })
  *

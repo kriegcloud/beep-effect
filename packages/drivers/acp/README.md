@@ -232,9 +232,22 @@ follows this repository's laws (schema-first models, `Effect.fn` spans,
 | D13 | `Compat` is authored as schemas; the v1/v2 projections live in `src/internal/normalize.ts` and decide with `S.is` and `Match`, without casts. | Zero schema-first inventory growth; removes about 70 type assertions present upstream. | — |
 | D14 / O3 | No changeset and no goal packet; the decision record lives in the PR body and this section. | Private package. | — |
 | D15 | Codegen kit transforms are opt-in; ecfr, govinfo and runpod output stays byte-identical. | Kit law. | — |
-| D16 | `AcpClientOptions.protocolGeneration` (`negotiate` by default). ai-provider-cli pins `"v1"` for cursor-agent and negotiates for grok. | cursor-agent's reply to a negotiating `initialize` is unproven; grok answers v1. | Drop the cursor pin after a live cursor-agent smoke under `negotiate`. |
+| D16 | `AcpClientOptions.protocolGeneration` (`negotiate` by default). ai-provider-cli picks the mode per provider; see the table below. | Each managed CLI answers `initialize` differently. | Per provider, below. |
 | D17 / O4 | A v2 idle with `stopReason: "error"` still resolves `prompt`. A generation-1 client fails `deleteSession`, `listProviders`, `setProvider` and `disableProvider` locally. `PROTOCOL_METHODS` is not generated; there is no `-32800` constructor. | t3 parity. | Gate generation-1 calls on advertised capabilities; revisit the error idle with the session runtime. |
 | O5 | `provider-acp` and `provider-acp-registry` are not ported. | Scope. | Follow-up PRs. |
+
+D16 per provider in `@beep/ai-provider-cli`
+(`AiProviderCliSession.stdio.service.ts`, `openStdio`):
+
+| Provider | `protocolGeneration` | Reason | Reversal |
+| --- | --- | --- | --- |
+| grok | `"negotiate"` (default) | t3code's recorded grok 1.0.41 transcript answers a negotiating `initialize` with v1 (`protocolVersion: 1`, `agentCapabilities`), so the client settles on generation 1 and `models`, `stopReason` and the v1 `authenticate` keep working. The grok fixture answers the same way, so the session tests cover negotiate → generation 1. | If grok starts answering v2, the managed path needs generation-2 idle handling; pin `"v1"` until it has it. |
+| cursor | `"v1"` | cursor-agent's reply to a negotiating `initialize` is unproven, and the managed Cursor path needs generation 1 (`session/set_mode`, which generation 2 fails locally, and the legacy `models` readback). `"v1"` sends the same pure v1 `initialize` as before the port. | Drop the pin after a live cursor-agent smoke under `"negotiate"`. |
+| codex | n/a (`"negotiate"` is passed but unused) | Codex never calls `agent.initialize`; it speaks its own app-server methods through `raw.request` and `raw.notify`. | — |
+| claude | n/a | Claude runs through its own stream-json transport (`openClaude`), not the ACP client. | — |
+
+No live smoke of the real `grok` or `cursor-agent` binaries ran for this
+port; the rows above rest on the recorded transcript and the fixtures.
 
 Further deviations from t3, each deliberate:
 
@@ -248,8 +261,12 @@ Further deviations from t3, each deliberate:
   dropped.
 - `callRpc` is a `dual` with data-first order `(effect, method)`.
 - ai-provider-cli classifies `AcpProcessExitedError` and
-  `AcpInputStreamEndedError` as a `closed` runtime instead of a transport
-  failure.
+  `AcpInputStreamEndedError` as a `closed` runtime ("Native runtime ended
+  before the request completed") instead of a `transport` failure. Both mean
+  the native process or its output ended, which the Claude path already
+  reports as `closed`; other ACP failures stay `transport` with only the
+  JSON-RPC code. To reverse, drop the `EndedRuntime` arm in
+  `transportFailure` (`AiProviderCliSession.profile.service.ts`).
 
 ## Development
 

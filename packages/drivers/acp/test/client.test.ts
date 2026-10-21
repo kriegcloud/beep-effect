@@ -37,6 +37,8 @@ const encodeUnknownJsonText = S.encodeUnknownEffect(AcpJson.fromJsonText(S.Unkno
 const decodeWireRequest = S.decodeEffect(AcpJson.fromJsonText(WireRequest));
 const decodeWireResponse = S.decodeEffect(AcpJson.fromJsonText(WireResponse));
 const decodeWireError = S.decodeEffect(AcpJson.fromJsonText(WireError));
+const decodeProtocolVersion = S.decodeUnknownOption(S.Struct({ protocolVersion: S.Finite }));
+const isNegotiatingInitialize = S.is(S.Struct({ clientCapabilities: S.Unknown, info: S.Unknown }));
 
 type Input = Queue.Queue<Uint8Array, Cause.Done>;
 type Output = Queue.Queue<string>;
@@ -350,13 +352,13 @@ it.effect.prop(
     const { stdio, input, output } = yield* makeInMemoryStdio();
     const acp = yield* AcpClient.make(stdio, { protocolGeneration });
     const { outbound } = yield* exchange(input, output, acp.agent.initialize(v1Initialize), v2InitializeResult);
-    const params = S.decodeUnknownOption(S.Struct({ protocolVersion: S.Finite }))(outbound.params);
+    const params = decodeProtocolVersion(outbound.params);
     assert.deepEqual(
       O.map(params, ({ protocolVersion }) => protocolVersion),
       O.some(AcpClient.AcpClientProtocolGeneration.is.v1(protocolGeneration) ? 1 : 2)
     );
     assert.equal(
-      S.is(S.Struct({ clientCapabilities: S.Unknown, info: S.Unknown }))(outbound.params),
+      isNegotiatingInitialize(outbound.params),
       AcpClient.AcpClientProtocolGeneration.is.negotiate(protocolGeneration)
     );
   }),

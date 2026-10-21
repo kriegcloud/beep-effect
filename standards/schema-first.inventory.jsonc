@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-10-20",
+  "generatedOn": "2026-10-21",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -416,22 +416,6 @@
       "status": "exception",
       "owner": "@beep/acp",
       "reason": "Mixed protocol wiring: logging flags are modeled by AcpProtocolLoggingOptions and serverRequestMethods is in-memory routing data, while callbacks, Stdio, and Effects are live runtime handles."
-    },
-    {
-      "file": "packages/drivers/acp/src/AcpTerminal.models.ts",
-      "symbol": "AcpTerminal",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/acp",
-      "reason": "Live terminal handle whose Effect operations stay coupled to sessionId and terminalId; those identifiers are already modeled by the generated ACP request schemas."
-    },
-    {
-      "file": "packages/drivers/acp/src/AcpTerminal.models.ts",
-      "symbol": "MakeTerminalOptions",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/acp",
-      "reason": "Terminal constructor contract intentionally binds schema-modeled ACP identifiers to live request Effects."
     },
     {
       "file": "packages/drivers/ai-provider-cli/test/fixtures/managed-claude-peer.ts",

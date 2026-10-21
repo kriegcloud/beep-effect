@@ -151,15 +151,6 @@ export type OutputFormat = typeof OutputFormat.Type;
 /**
  * Registered JSON Schema transforms available to consumers.
  *
- * **Example** (Select the ACP transform set)
- *
- * ```ts
- * import { NamedTransform } from "@beep/codegen-kit"
- *
- * console.log(NamedTransform.is.flattenAllOfRefVariants("flattenAllOfRefVariants"))
- * console.log(NamedTransform.is.distributeAllOf("distributeAllOf"))
- * ```
- *
  * **Details**
  *
  * Every transform is opt-in and pure. `notDiscriminatorPattern` rewrites a forward-compatible
@@ -169,6 +160,15 @@ export type OutputFormat = typeof OutputFormat.Type;
  * discriminators into the equivalent `anyOf`. `distributeAllOf` merges `allOf` parts and distributes
  * object intersections over `anyOf` unions, inlining `$ref` targets after applying the other selected
  * transforms to them. Unsupported shapes fail with a `CodegenTransformError`.
+ *
+ * **Example** (Select the ACP transform set)
+ *
+ * ```ts
+ * import { NamedTransform } from "@beep/codegen-kit"
+ *
+ * console.log(NamedTransform.is.flattenAllOfRefVariants("flattenAllOfRefVariants"))
+ * console.log(NamedTransform.is.distributeAllOf("distributeAllOf"))
+ * ```
  *
  * @category configuration
  * @since 0.0.0
@@ -345,6 +345,11 @@ export class GeneratePatch extends S.Opaque<GeneratePatch, { readonly brand: uni
 /**
  * Primary generated module path and optional package-specific header.
  *
+ * **Details**
+ *
+ * `exampleImport` replaces the module specifier used by generated `**Example**` blocks. When omitted,
+ * struct-style schemas import from `<packageName>/schema` and class-style schemas from `<packageName>`.
+ *
  * **Example** (Prefix the generated module with a do-not-edit banner)
  *
  * ```ts
@@ -370,11 +375,6 @@ export class GeneratePatch extends S.Opaque<GeneratePatch, { readonly brand: uni
  *
  * console.log(output.exampleImport) // => "@beep/acp/schema-v1"
  * ```
- *
- * **Details**
- *
- * `exampleImport` replaces the module specifier used by generated `**Example**` blocks. When omitted,
- * struct-style schemas import from `<packageName>/schema` and class-style schemas from `<packageName>`.
  *
  * @category models
  * @since 0.0.0

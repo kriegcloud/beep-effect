@@ -847,6 +847,25 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
         })
       );
       expect(nonString.message).toContain("string const");
+
+      const propertyless = yield* transformFailure(() =>
+        hook({ type: "object", properties: { type: { type: "string" } }, not: { anyOf: [{ const: "a" }] } })
+      );
+      expect(propertyless.message).toContain("expected an object with properties");
+
+      const compound = yield* transformFailure(() =>
+        hook({
+          type: "object",
+          properties: { type: { type: "string" } },
+          not: { anyOf: [{ properties: { type: { const: "a" }, kind: { const: "b" } } }] },
+        })
+      );
+      expect(compound.message).toContain("expected exactly one discriminator property");
+
+      const unshaped = yield* transformFailure(() =>
+        hook({ type: "object", not: { anyOf: [{ properties: { type: { const: "a" } } }] } })
+      );
+      expect(unshaped.message).toContain("missing properties for discriminator type");
     })
   );
 
@@ -930,6 +949,24 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
       });
       expect(keyword.properties).toEqual({ anyOf: { type: "array" }, allOf: { type: "string" } });
 
+      const distributed = hook({
+        allOf: [
+          {
+            anyOf: [
+              { type: "object", properties: { a: { type: "string" } } },
+              { type: "object", properties: { b: { type: "string" } } },
+            ],
+          },
+          { type: "object", properties: { c: { type: "string" } } },
+        ],
+      });
+      expect(distributed).toEqual({
+        anyOf: [
+          { type: "object", properties: { a: { type: "string" }, c: { type: "string" } } },
+          { type: "object", properties: { b: { type: "string" }, c: { type: "string" } } },
+        ],
+      });
+
       const conflict = yield* transformFailure(() =>
         hook({ type: "object", properties: {}, allOf: [{ type: "string" }] })
       );
@@ -945,6 +982,9 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
         hook({ type: "object", properties: {}, allOf: [{ $ref: "#/$defs/Missing" }] })
       );
       expect(missing.message).toContain("Missing definition #/$defs/Missing");
+
+      const scalar = yield* transformFailure(() => hook({ type: "object", properties: {}, allOf: [true] }));
+      expect(scalar.message).toContain("intersection of non-object schemas");
     })
   );
 

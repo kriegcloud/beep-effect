@@ -1,6 +1,8 @@
 /**
  * Typed technical errors for the ACP driver boundary.
  *
+ * **Details**
+ *
  * Error messages are authored text only: a failure cause, a schema payload
  * value or a peer-supplied string never becomes part of `message`. Schema
  * decode failures are summarized by path and issue kind, without values.
@@ -258,6 +260,8 @@ const NonNegativeInt = S.Int.check(S.isGreaterThanOrEqualTo(0));
 /**
  * Optional request-correlation diagnostics attached to an {@link AcpRequestError}.
  *
+ * **Details**
+ *
  * Diagnostics stay in-process: {@link AcpRequestError.toProtocolError} never
  * puts them on the wire.
  *
@@ -443,6 +447,8 @@ export class AcpSpawnError extends S.TaggedError<AcpSpawnError, { readonly brand
 /**
  * Failure raised when an ACP process exits before the protocol completes.
  *
+ * **Details**
+ *
  * The message names the exit signal or code and appends the trimmed `stderr`
  * excerpt when one was captured.
  *
@@ -503,6 +509,8 @@ export class AcpProcessExitedError extends S.TaggedError<AcpProcessExitedError, 
 
 /**
  * Failure raised when ACP wire data cannot be encoded or decoded.
+ *
+ * **Details**
  *
  * Schema failures carry value-free diagnostics: issue count, issue kinds,
  * maximum path depth and an `issueSummary` that names paths and reasons only.
@@ -649,6 +657,8 @@ export class AcpProtocolParseError extends S.TaggedError<AcpProtocolParseError, 
 /**
  * Failure raised by the ACP transport boundary.
  *
+ * **Details**
+ *
  * The message names the operation, method and authored `detail`; it never
  * includes the `cause`.
  *
@@ -749,6 +759,8 @@ export class AcpInputStreamEndedError extends S.TaggedError<
 
 /**
  * JSON-RPC request failure returned by, or sent to, an ACP peer.
+ *
+ * **Details**
  *
  * Only `code`, `errorMessage` and `data` reach the wire through
  * {@link AcpRequestError.toProtocolError}; the correlation diagnostics and the

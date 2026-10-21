@@ -24,6 +24,7 @@
     {"name":"CodegenKit.refreshJson","owner":"@beep/codegen-kit","family":"tooling","conforms":true},
     {"name":"CodegenKit.renderExtras","owner":"@beep/codegen-kit","family":"tooling","conforms":true},
     {"name":"CodegenKit.run","owner":"@beep/codegen-kit","family":"tooling","conforms":true},
+    {"name":"CodegenKit.runAll","owner":"@beep/codegen-kit","family":"tooling","conforms":true},
     {"name":"CodegenKit.unifiedDiff","owner":"@beep/codegen-kit","family":"tooling","conforms":true},
     {"name":"CodegenKit.validateInfoVersionPin","owner":"@beep/codegen-kit","family":"tooling","conforms":true},
     {"name":"CodegenKit.validateSourcePin","owner":"@beep/codegen-kit","family":"tooling","conforms":true},
