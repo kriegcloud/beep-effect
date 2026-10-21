@@ -859,9 +859,10 @@ export type IdentityAnyAnnotationExtras<
  * **Details**
  *
  * Contains a full-path `identifier` string, an interned `schemaId` symbol, and a
- * human-readable `title` derived from the local identifier segment. The `iri`
- * and `curie` members are present only when the composer was bound to an
- * authority and prefix.
+ * human-readable `title`: `Title` when the caller supplied one, otherwise the
+ * title derived from the local identifier segment. The `iri` and `curie`
+ * members are present only when the composer was bound to an authority and
+ * prefix.
  *
  * **Example** (Name a resolved annotation record)
  *
@@ -879,10 +880,11 @@ export type IdentityAnnotation<
   Identifier extends string,
   Authority extends string | undefined = undefined,
   Prefix extends string | undefined = undefined,
+  Title extends string = TitleFromIdentifier<Identifier>,
 > = S.Annotations.Annotations & {
   readonly identifier: IdentityString<Value>;
   readonly schemaId: IdentitySymbol<Value>;
-  readonly title: TitleFromIdentifier<Identifier>;
+  readonly title: Title;
 } & IdentityProjection<Value, Authority, Prefix>;
 
 type IdentityProjection<
@@ -914,9 +916,17 @@ type BoundComposerCurie<Prefix extends string | undefined, Value extends string>
 
 type IdentityAnnotationMetadataKeys = "identifier" | "schemaId" | "title" | "iri" | "curie";
 
+type ResolvedTitle<Extras, Identifier extends string> = Extras extends { readonly title: infer Title extends string }
+  ? Title
+  : TitleFromIdentifier<Identifier>;
+
 /**
- * Result of calling `annote` -- the identity annotation merged with any caller-supplied extras,
- * with identity metadata keys taking precedence.
+ * Result of calling `annote` -- the identity annotation merged with any caller-supplied extras.
+ *
+ * **Details**
+ *
+ * `identifier`, `schemaId`, `iri` and `curie` always come from the identity. A caller-supplied
+ * `title` wins over the one derived from the identifier, as it does for `annoteError`.
  *
  * **Example** (Name a merged annotation result)
  *
@@ -935,7 +945,8 @@ export type IdentityAnnotationResult<
   Extras extends object = {},
   Authority extends string | undefined = undefined,
   Prefix extends string | undefined = undefined,
-> = IdentityAnnotation<Value, Identifier, Authority, Prefix> & Omit<Extras, IdentityAnnotationMetadataKeys>;
+> = IdentityAnnotation<Value, Identifier, Authority, Prefix, ResolvedTitle<Extras, Identifier>> &
+  Omit<Extras, IdentityAnnotationMetadataKeys>;
 
 type SchemaPath<Struct extends object> = Extract<Paths<Struct>, string>;
 
@@ -1055,12 +1066,15 @@ export interface IdentityComposer<
    * **When to use**
    *
    * Use with `S.Class`, `S.TaggedError`, or similar constructors that accept an
-   * annotation record.
+   * annotation record, and as the annotation argument of a check
+   * (`S.isPattern(re, $I.annote("Slug", {...}))`, `S.makeFilter(f, $I.annote(...))`).
+   * Non-class schemas use `annoteSchema` instead.
    *
    * **Details**
    *
    * The result carries `schemaId`, `identifier`, and `title` alongside any
-   * caller-supplied extras; identity metadata wins on key collisions.
+   * caller-supplied extras. `identifier`, `schemaId`, `iri` and `curie` always
+   * come from the identity; a caller-supplied `title` replaces the derived one.
    *
    * **Example** (Annotate a domain event)
    *
@@ -1881,7 +1895,10 @@ const createComposer = <
                   iri: annotation.iri,
                   curie: annotation.curie,
                 }),
-            title: annotation.title,
+            title:
+              P.hasProperty(currentExtras, "title") && P.isString(currentExtras.title)
+                ? currentExtras.title
+                : annotation.title,
           }) as unknown as IdentityAnnotationResult<
             `${Value}/${SegmentValue<Next>}`,
             SegmentValue<Next>,
