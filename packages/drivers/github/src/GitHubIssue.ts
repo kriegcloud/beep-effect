@@ -1,0 +1,677 @@
+/**
+ * Issues through GitHub's REST and GraphQL APIs.
+ *
+ * **Details**
+ *
+ * Reads, lists and closes issues, comments on them, posts a marked comment at
+ * most once, and answers which issues a pull request closes and whether one
+ * issue is cross-referenced by another.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $GithubId } from "@beep/identity/packages";
+import * as O from "@beep/utils/Option";
+import * as A from "effect/Array";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as HashSet from "effect/HashSet";
+import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import { GitHubClient } from "./GitHubClient.ts";
+import { GitHubError } from "./GitHubError.ts";
+import { GraphQLDocument } from "./GraphQL.ts";
+import { numericId } from "./internal/ids.ts";
+import { unstubbedFor } from "./internal/unstubbed.ts";
+import { CommentRecord } from "./PullRequestComment.ts";
+import { Repo } from "./Repo.ts";
+import type { GitHubGraphQLError } from "./GraphQL.ts";
+import type { CommentMarker } from "./PullRequestComment.ts";
+import type { PageOptions } from "./Rest.ts";
+
+const $I = $GithubId.create("GitHubIssue");
+
+/**
+ * An issue, projected to what callers read.
+ *
+ * **Example** (Construct a readable issue projection)
+ *
+ * ```ts
+ * import { IssueInfo } from "@beep/github/GitHubIssue";
+ *
+ * const issue = IssueInfo.make({
+ *   number: 42, title: "Fix startup", state: "open", labels: ["bug"],
+ *   url: "https://github.com/acme/app/issues/42", nodeId: "I_42",
+ * });
+ * console.log(issue.state) // open
+ * ```
+ *
+ * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class IssueInfo extends S.Opaque<IssueInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
+    number: S.Int.pipe(
+      $I.annoteKey("IssueInfo.number", {
+        description: "The issue's repository-local number, used to read, close and comment on it",
+      })
+    ),
+    title: S.String.pipe($I.annoteKey("IssueInfo.title", { description: "The issue's heading as reported by GitHub" })),
+    state: S.Literals(["open", "closed"]).pipe(
+      $I.annoteKey("IssueInfo.state", { description: "Whether the issue is `open` or `closed`" })
+    ),
+    /** Label names, normalized from GitHub's `string | { name }` union. */
+    labels: S.Array(S.String).pipe(
+      $I.annoteKey("IssueInfo.labels", {
+        description: "Label names, normalized from GitHub's `string | { name }` union.",
+      })
+    ),
+    url: S.String.pipe($I.annoteKey("IssueInfo.url", { description: "The web URL of the issue on GitHub" })),
+    /** The GraphQL node id. */
+    nodeId: S.String.pipe($I.annoteKey("IssueInfo.nodeId", { description: "The GraphQL node id." })),
+  }).pipe($I.annoteSchema("IssueInfo", { description: "An issue, projected to what callers read." }))
+) {}
+
+/**
+ * An issue a pull request closes.
+ *
+ * **Example** (Identify a manually linked issue)
+ *
+ * ```ts
+ * import { LinkedIssue } from "@beep/github/GitHubIssue";
+ *
+ * const issue = LinkedIssue.make({
+ *   number: 42, title: "Fix startup", state: "OPEN", userLinked: true,
+ *   url: "https://github.com/acme/app/issues/42", nodeId: "I_42",
+ * });
+ * console.log(issue.userLinked) // true
+ * ```
+ *
+ * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class LinkedIssue extends S.Opaque<LinkedIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
+    number: S.Int.pipe(
+      $I.annoteKey("LinkedIssue.number", {
+        description: "The repository-local number of an issue the pull request closes",
+      })
+    ),
+    title: S.String.pipe(
+      $I.annoteKey("LinkedIssue.title", {
+        description: "The heading of an issue the pull request closes, as reported by GitHub",
+      })
+    ),
+    state: S.String.pipe(
+      $I.annoteKey("LinkedIssue.state", {
+        description:
+          "The linked issue's state as returned by GitHub's GraphQL closing references, without normalization",
+      })
+    ),
+    url: S.String.pipe(
+      $I.annoteKey("LinkedIssue.url", { description: "The web URL of an issue the pull request closes" })
+    ),
+    nodeId: S.String.pipe(
+      $I.annoteKey("LinkedIssue.nodeId", {
+        description: "GitHub's GraphQL node identifier for an issue the pull request closes",
+      })
+    ),
+    /**
+     * Whether a human wrote the link, rather than GitHub inferring it from the
+     * branch or commit messages.
+     *
+     * **Details**
+     *
+     * Resolved by querying the pull request's closing references twice, once with
+     * `userLinkedOnly`, and marking the issues present in the second result.
+     */
+    userLinked: S.Boolean.pipe(
+      $I.annoteKey("LinkedIssue.userLinked", {
+        description:
+          "Whether a human wrote the link, rather than GitHub inferring it from the branch or commit messages.",
+      })
+    ),
+  }).pipe($I.annoteSchema("LinkedIssue", { description: "An issue a pull request closes." }))
+) {}
+
+/**
+ * What {@link GitHubIssueShape.commentOnce} found or wrote.
+ *
+ * **Details**
+ *
+ * `wrote` is the field the caller branches on: `true` means this call created
+ * the comment, `false` means the marker was already on the issue and nothing
+ * was posted. Either way `comment` is the marked comment itself.
+ *
+ * **Example** (Inspect a skipped marked comment)
+ *
+ * ```ts
+ * import { CommentOnceResult } from "@beep/github/GitHubIssue";
+ * import { CommentRecord } from "@beep/github/PullRequestComment";
+ *
+ * const result = CommentOnceResult.make({
+ *   wrote: false,
+ *   comment: CommentRecord.make({ id: 7, body: "Already posted", url: "https://github.com/acme/app/issues/42#issuecomment-7" }),
+ * });
+ * console.log(result.wrote) // false
+ * ```
+ *
+ * @public
+ * @category models
+ * @since 0.0.0
+ */
+export class CommentOnceResult extends S.Opaque<CommentOnceResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Did this call post the comment (`true`), or find it already there (`false`)? */
+    wrote: S.Boolean.pipe(
+      $I.annoteKey("CommentOnceResult.wrote", {
+        description: "Did this call post the comment (`true`), or find it already there (`false`)?",
+      })
+    ),
+    /** The marked comment — the one created, or the one that made us skip. */
+    comment: CommentRecord,
+  }).pipe($I.annoteSchema("CommentOnceResult", { description: "What GitHubIssueShape.commentOnce found or wrote." }))
+) {}
+
+const IssueNodes = S.Struct({
+  id: S.String,
+  number: S.Int,
+  title: S.String,
+  state: S.String,
+  url: S.String,
+});
+
+const LinkedIssuesResponse = S.Struct({
+  repository: S.Struct({
+    pullRequest: S.Struct({
+      allLinked: S.Struct({ nodes: S.Array(IssueNodes) }),
+      manuallyLinked: S.Struct({ nodes: S.Array(IssueNodes) }),
+    }),
+  }),
+});
+
+const LinkedIssuesDocument = GraphQLDocument.make({
+  name: "linkedIssues",
+  document: `query ($owner: String!, $repo: String!, $prNumber: Int!) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $prNumber) {
+      allLinked: closingIssuesReferences(first: 50) { nodes { id number title state url } }
+      manuallyLinked: closingIssuesReferences(first: 50, userLinkedOnly: true) { nodes { id number title state url } }
+    }
+  }
+}`,
+  response: LinkedIssuesResponse,
+})<{ readonly owner: string; readonly repo: string; readonly prNumber: number }>();
+
+const CrossReferencedResponse = S.Struct({
+  repository: S.Struct({
+    issue: S.Struct({
+      timelineItems: S.Struct({
+        pageInfo: S.optionalKey(
+          S.Struct({
+            hasPreviousPage: S.Boolean,
+            startCursor: S.NullOr(S.String),
+          })
+        ),
+        nodes: S.Array(
+          S.Struct({
+            source: S.optionalKey(
+              S.Struct({
+                __typename: S.optionalKey(S.String),
+                number: S.optionalKey(S.Int),
+              })
+            ),
+          })
+        ),
+      }),
+    }),
+  }),
+});
+
+const CrossReferencedDocument = GraphQLDocument.make({
+  name: "issueCrossReferences",
+  document: `query ($owner: String!, $repo: String!, $issueNumber: Int!, $before: String) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $issueNumber) {
+      timelineItems(last: 50, before: $before, itemTypes: CROSS_REFERENCED_EVENT) {
+        pageInfo { hasPreviousPage startCursor }
+        nodes {
+          __typename
+          ... on CrossReferencedEvent { source { __typename ... on PullRequest { number } } }
+        }
+      }
+    }
+  }
+}`,
+  response: CrossReferencedResponse,
+})<{ readonly owner: string; readonly repo: string; readonly issueNumber: number; readonly before?: string }>();
+
+/**
+ * Read, list, close and comment on issues, and resolve the issues a pull
+ * request closes.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export interface GitHubIssueShape {
+  /** Close an issue. `reason` is sent as `state_reason` when given; unset, GitHub chooses. */
+  readonly close: {
+    (number: number, reason?: "completed" | "not_planned"): Effect.Effect<void, GitHubError, Repo>;
+    (reason?: "completed" | "not_planned"): (number: number) => Effect.Effect<void, GitHubError, Repo>;
+  };
+  /** Post a comment and return its id. */
+  readonly comment: {
+    (number: number, body: string): Effect.Effect<number, GitHubError, Repo>;
+    (body: string): (number: number) => Effect.Effect<number, GitHubError, Repo>;
+  };
+  /**
+   * Post a marked comment once: create it, or skip if it already exists.
+   *
+   * **Gotchas**
+   *
+   * Create-or-skip, **never edit** — the counterpart to
+   * `PullRequestComment.upsert`, which edits in place. The marker is appended
+   * to the body exactly as `upsert` formats it, so a comment either member
+   * writes stays findable by the other.
+   *
+   * The check-then-create is **not atomic** — GitHub offers no conditional
+   * create, so two callers racing the same issue can both observe no marker
+   * and both post. The guard is idempotence across *sequential* invocations
+   * (a re-run workflow, the motivating case), not mutual exclusion across
+   * concurrent ones; a caller needing the latter must serialize externally.
+   *
+   * The existence check is the comment itself: the issue's comments are
+   * paginated and the first body carrying the marker means skip. That is the
+   * guard {@link GitHubIssueShape.isCrossReferencedBy}'s docstring tells you
+   * to build — an issue reached via `linkedIssues` is cross-referenced from
+   * the outset, so only the marker answers "have I commented yet?".
+   */
+  readonly commentOnce: {
+    (issueNumber: number, marker: CommentMarker, body: string): Effect.Effect<CommentOnceResult, GitHubError, Repo>;
+    (marker: CommentMarker, body: string): (issueNumber: number) => Effect.Effect<CommentOnceResult, GitHubError, Repo>;
+  };
+  /** Read one issue. Fails `notFound` when it does not exist. */
+  readonly get: (number: number) => Effect.Effect<IssueInfo, GitHubError, Repo>;
+  /**
+   * Has `prNumber` already been cross-referenced on this issue?
+   *
+   * **Gotchas**
+   *
+   * An idempotence guard over the issue's timeline, so that re-running a
+   * workflow does not comment twice.
+   *
+   * Two hazards before building on it:
+   *
+   * - **An issue obtained from `linkedIssues(pr)` answers `true` from the
+   *   outset** — the closing link itself puts a cross-reference on the
+   *   issue's timeline. As a "have I commented yet?" guard on those issues
+   *   the answer is always yes, and the comment is never posted. Guard a
+   *   comment by looking for the comment (a marker in its body), not for a
+   *   cross-reference.
+   * - **It observes `CROSS_REFERENCED_EVENT` only, not `ConnectedEvent`** —
+   *   an issue a human attached through the sidebar's Development section is
+   *   connected, not cross-referenced, and reads `false` here even though
+   *   GitHub's UI shows the link.
+   */
+  readonly isCrossReferencedBy: {
+    (issueNumber: number, prNumber: number): Effect.Effect<boolean, GitHubGraphQLError, Repo>;
+    (prNumber: number): (issueNumber: number) => Effect.Effect<boolean, GitHubGraphQLError, Repo>;
+  };
+  /** The issues a pull request closes, with `userLinked` telling you who linked them. */
+  readonly linkedIssues: (prNumber: number) => Effect.Effect<ReadonlyArray<LinkedIssue>, GitHubGraphQLError, Repo>;
+  /**
+   * List issues, paginated. `state` is omitted from the request when unset, so GitHub's default applies.
+   *
+   * **Gotchas**
+   *
+   * GitHub's issues endpoint also returns pull requests; this does not filter them out.
+   */
+  readonly list: (options?: {
+    readonly state?: "open" | "closed" | "all" | undefined;
+    readonly labels?: ReadonlyArray<string> | undefined;
+    readonly page?: PageOptions | undefined;
+  }) => Effect.Effect<ReadonlyArray<IssueInfo>, GitHubError, Repo>;
+}
+
+/**
+ * Read, list, close and comment on issues, and resolve the issues a pull
+ * request closes.
+ *
+ * **Details**
+ *
+ * Provide it with {@link GitHubIssue.layer}, which needs a `GitHubClient`; each
+ * method also needs a `Repo` in `R`.
+ *
+ * **Example** (Comment on an issue and close it as not planned)
+ *
+ * ```ts
+ * import { GitHubIssue } from "@beep/github/GitHubIssue";
+ * import * as Effect from "effect/Effect";
+ *
+ * const closeWontFix = (number: number) =>
+ *   Effect.gen(function* () {
+ *     const issues = yield* GitHubIssue;
+ *     yield* issues.comment(number, "Closing as not planned.");
+ *     yield* issues.close(number, "not_planned");
+ *   });
+ * console.log(Effect.isEffect(closeWontFix(42))) // true
+ * ```
+ *
+ * @public
+ * @category services
+ * @since 0.0.0
+ */
+export class GitHubIssue extends Context.Service<GitHubIssue, GitHubIssueShape>()($I`GitHubIssue`) {
+  /**
+   * The live service, built over a `GitHubClient`.
+   *
+   * **Example** (Inspect the live issue layer)
+   *
+   * ```ts
+   * import { GitHubIssue } from "@beep/github/GitHubIssue";
+   * import * as Layer from "effect/Layer";
+   *
+   * console.log(Layer.isLayer(GitHubIssue.layer)) // true
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layer: Layer.Layer<GitHubIssue, never, GitHubClient> = Layer.effect(
+    this,
+    Effect.map(GitHubClient, (client) => make(client))
+  );
+
+  /**
+   * An in-memory double; unstubbed members die naming themselves.
+   *
+   * **Example** (Stub issue closing without running it)
+   *
+   * ```ts
+   * import { GitHubIssue } from "@beep/github/GitHubIssue";
+   * import * as Effect from "effect/Effect";
+   * import { dual } from "effect/Function";
+   * import * as P from "effect/Predicate";
+   *
+   * const issues = GitHubIssue.makeTest({
+   *   close: dual((args) => P.isNumber(args[0]), (_number: number, _reason?: string) => Effect.void),
+   * });
+   * console.log(Effect.isEffect(issues.close(42))) // true
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly makeTest = (overrides: Partial<GitHubIssueShape> = {}): GitHubIssueShape => ({
+    get: overrides.get ?? (() => unstubbed("get")),
+    list: overrides.list ?? (() => unstubbed("list")),
+    close: overrides.close ?? (() => unstubbed("close")),
+    comment: overrides.comment ?? (() => unstubbed("comment")),
+    commentOnce: overrides.commentOnce ?? (() => unstubbed("commentOnce")),
+    linkedIssues: overrides.linkedIssues ?? (() => unstubbed("linkedIssues")),
+    isCrossReferencedBy: overrides.isCrossReferencedBy ?? (() => unstubbed("isCrossReferencedBy")),
+  });
+
+  /**
+   * {@link GitHubIssue.makeTest} behind a `Layer`.
+   *
+   * **Example** (Provide a test service to an issue program)
+   *
+   * ```ts
+   * import { GitHubIssue } from "@beep/github/GitHubIssue";
+   * import * as Effect from "effect/Effect";
+   * import { dual } from "effect/Function";
+   * import * as P from "effect/Predicate";
+   *
+   * const close = dual((args) => P.isNumber(args[0]), (_number: number, _reason?: string) => Effect.void);
+   * const program = Effect.gen(function* () {
+   *   const issues = yield* GitHubIssue;
+   *   return Effect.isEffect(issues.close(42));
+   * }).pipe(Effect.provide(GitHubIssue.layerTest({ close })));
+   * console.log(Effect.runSync(program)) // true
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layerTest = (overrides: Partial<GitHubIssueShape> = {}): Layer.Layer<GitHubIssue> =>
+    Layer.succeed(GitHubIssue, GitHubIssue.makeTest(overrides));
+}
+
+const unstubbed = unstubbedFor({ service: "GitHubIssue" });
+
+/**
+ * The REST calendar version this module's requests pin.
+ *
+ * **Details**
+ *
+ * The routes are not deprecated — the **default api-version** is. When no
+ * `x-github-api-version` header is sent (octokit sends none), GitHub serves
+ * calendar version 2022-11-28, which it deprecated when 2026-03-10 shipped and
+ * sunsets on 2028-03-10. Every response from an endpoint the new version
+ * changed then carries a `Deprecation` header, which `@octokit/request` prints
+ * straight to the consumer's console — the constructor's `log` option cannot
+ * silence it, because the fetch wrapper resolves `request.log ?? console`.
+ * `PATCH /repos/{owner}/{repo}/issues/{issue_number}` is on that list (the
+ * singular `assignee` parameter was removed), so every `close` warned once per
+ * issue in consumer workflow logs.
+ *
+ * Nothing this module sends or reads changed in 2026-03-10: `state` and
+ * `state_reason` are untouched, and the projections read only fields both
+ * versions carry. Pinning the current version is therefore the whole fix, and
+ * it deliberately does **not** hide future deprecations — when GitHub
+ * deprecates 2026-03-10 in turn, the header comes back and octokit warns
+ * again.
+ */
+const API_VERSION_HEADERS = { "x-github-api-version": "2026-03-10" } as const;
+
+/** GitHub sends a label as either a string or an object; callers want the name. */
+const labelNames = (labels: ReadonlyArray<string | { name?: string | undefined }>): ReadonlyArray<string> =>
+  A.flatMap(labels, (label) => (P.isString(label) ? [label] : O.toArray(O.fromUndefinedOr(label.name))));
+
+const RawIssue = S.Struct({
+  number: S.Int,
+  title: S.String,
+  state: S.String,
+  labels: S.Array(S.Union([S.String, S.Struct({ name: S.optionalKey(S.String) })])),
+  html_url: S.String,
+  node_id: S.String,
+}).pipe($I.annoteSchema("RawIssue", { description: "The REST issue fields consumed by the issue projection." }));
+
+const project: {
+  (input: unknown, operation: string): Effect.Effect<IssueInfo, GitHubError>;
+  (operation: string): (input: unknown) => Effect.Effect<IssueInfo, GitHubError>;
+} = dual(
+  2,
+  Effect.fn("GitHubIssue.project")(function* (input: unknown, operation: string) {
+    const raw = yield* S.decodeUnknownEffect(RawIssue)(input).pipe(
+      Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected issue", error))
+    );
+    return IssueInfo.make({
+      number: raw.number,
+      title: raw.title,
+      state: raw.state === "closed" ? "closed" : "open",
+      labels: labelNames(raw.labels),
+      url: raw.html_url,
+      nodeId: raw.node_id,
+    });
+  })
+);
+
+const CommentBody = S.Struct({ body: S.String.pipe(S.NullOr, S.optional) }).pipe(
+  $I.annoteSchema("CommentBody", { description: "The nullable REST comment body inspected for a marker." })
+);
+
+const RawComment = S.Struct({
+  id: S.Union([S.Finite, S.BigInt]),
+  body: S.String.pipe(S.NullOr, S.optional),
+  html_url: S.String,
+}).pipe(
+  $I.annoteSchema("RawComment", { description: "The REST comment fields consumed by a selected or created comment." })
+);
+
+const recordOf = Effect.fn("GitHubIssue.recordOf")(
+  function* (input: unknown) {
+    const raw = yield* S.decodeUnknownEffect(RawComment)(input);
+    return yield* S.decodeEffect(CommentRecord)({ id: numericId(raw.id), body: raw.body ?? "", url: raw.html_url });
+  },
+  Effect.mapError((error) =>
+    GitHubError.decode("GitHubIssue.commentOnce", "GitHub returned an unexpected comment", error)
+  )
+);
+
+const make = (client: GitHubClient["Service"]): GitHubIssueShape => ({
+  get: Effect.fn("GitHubIssue.get")(function* (number: number) {
+    const { owner, repo } = yield* Repo;
+    yield* Effect.annotateCurrentSpan({ owner, repo, number });
+    const raw = yield* client.request("GET /repos/{owner}/{repo}/issues/{issue_number}", {
+      owner,
+      repo,
+      issue_number: number,
+      headers: API_VERSION_HEADERS,
+    });
+    return yield* project(raw, "GitHubIssue.get");
+  }),
+
+  list: Effect.fn("GitHubIssue.list")(function* (options?: {
+    readonly state?: "open" | "closed" | "all" | undefined;
+    readonly labels?: ReadonlyArray<string> | undefined;
+    readonly page?: PageOptions | undefined;
+  }) {
+    const { owner, repo } = yield* Repo;
+    yield* Effect.annotateCurrentSpan({ owner, repo });
+    const raw = yield* client.paginate(
+      "GET /repos/{owner}/{repo}/issues",
+      {
+        owner,
+        repo,
+        ...O.getSomesStruct({
+          state: O.fromUndefinedOr(options?.state),
+          labels: O.map(O.fromUndefinedOr(options?.labels), A.join(",")),
+        }),
+        headers: API_VERSION_HEADERS,
+      },
+      options?.page
+    );
+    return yield* Effect.forEach(raw, project("GitHubIssue.list"));
+  }),
+
+  close: dual(
+    (args) => P.isNumber(args[0]),
+    Effect.fn("GitHubIssue.close")(function* (number: number, reason?: "completed" | "not_planned") {
+      const { owner, repo } = yield* Repo;
+      yield* Effect.annotateCurrentSpan({ owner, repo, number });
+      yield* client.request("PATCH /repos/{owner}/{repo}/issues/{issue_number}", {
+        owner,
+        repo,
+        issue_number: number,
+        state: "closed",
+        ...O.getSomesStruct({ state_reason: O.fromUndefinedOr(reason) }),
+        headers: API_VERSION_HEADERS,
+      });
+    })
+  ),
+
+  comment: dual(
+    2,
+    Effect.fn("GitHubIssue.comment")(function* (number: number, body: string) {
+      const { owner, repo } = yield* Repo;
+      yield* Effect.annotateCurrentSpan({ owner, repo, number });
+      const created = yield* client.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
+        owner,
+        repo,
+        issue_number: number,
+        body,
+        headers: API_VERSION_HEADERS,
+      });
+      return numericId(created.id);
+    })
+  ),
+
+  commentOnce: dual(
+    3,
+    Effect.fn("GitHubIssue.commentOnce")(function* (issueNumber: number, marker: CommentMarker, body: string) {
+      const { owner, repo } = yield* Repo;
+      yield* Effect.annotateCurrentSpan({ owner, repo, issueNumber, marker: marker.key });
+      const comments = yield* client.paginate("GET /repos/{owner}/{repo}/issues/{issue_number}/comments", {
+        owner,
+        repo,
+        issue_number: issueNumber,
+        headers: API_VERSION_HEADERS,
+      });
+      for (const candidate of comments) {
+        const inspected = yield* S.decodeEffect(CommentBody)(candidate).pipe(
+          Effect.mapError((error) =>
+            GitHubError.decode("GitHubIssue.commentOnce", "GitHub returned an unexpected comment", error)
+          )
+        );
+        if (marker.matches(inspected.body ?? "")) {
+          return CommentOnceResult.make({ wrote: false, comment: yield* recordOf(candidate) });
+        }
+      }
+      const created = yield* client.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
+        owner,
+        repo,
+        issue_number: issueNumber,
+        body: `${body}\n\n${marker.html}`,
+        headers: API_VERSION_HEADERS,
+      });
+      return CommentOnceResult.make({
+        wrote: true,
+        comment: yield* recordOf(created),
+      });
+    })
+  ),
+
+  linkedIssues: Effect.fn("GitHubIssue.linkedIssues")(function* (prNumber: number) {
+    const { owner, repo } = yield* Repo;
+    yield* Effect.annotateCurrentSpan({ owner, repo, prNumber });
+    const result = yield* client.graphql(LinkedIssuesDocument, { owner, repo, prNumber });
+    const manual = HashSet.fromIterable(
+      A.map(result.repository.pullRequest.manuallyLinked.nodes, (node) => node.number)
+    );
+    return A.map(result.repository.pullRequest.allLinked.nodes, (node) =>
+      LinkedIssue.make({
+        number: node.number,
+        title: node.title,
+        state: node.state,
+        url: node.url,
+        nodeId: node.id,
+        userLinked: HashSet.has(manual, node.number),
+      })
+    );
+  }),
+
+  isCrossReferencedBy: dual(
+    2,
+    Effect.fn("GitHubIssue.isCrossReferencedBy")(function* (issueNumber: number, prNumber: number) {
+      const { owner, repo } = yield* Repo;
+      yield* Effect.annotateCurrentSpan({ owner, repo, issueNumber, prNumber });
+      let before: string | undefined;
+      while (true) {
+        const result = yield* client.graphql(CrossReferencedDocument, {
+          owner,
+          repo,
+          issueNumber,
+          ...O.getSomesStruct({ before: O.fromUndefinedOr(before) }),
+        });
+        const timeline = result.repository.issue.timelineItems;
+        if (
+          A.some(timeline.nodes, (node) => node.source?.__typename === "PullRequest" && node.source.number === prNumber)
+        ) {
+          return true;
+        }
+        const cursor = O.fromNullishOr(timeline.pageInfo?.startCursor);
+        if (timeline.pageInfo?.hasPreviousPage !== true || O.isNone(cursor)) {
+          return false;
+        }
+        before = cursor.value;
+      }
+    })
+  ),
+});

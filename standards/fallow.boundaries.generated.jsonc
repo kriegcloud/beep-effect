@@ -348,6 +348,12 @@
         ]
       },
       {
+        "name": "@beep/github",
+        "patterns": [
+          "packages/drivers/github/src/**"
+        ]
+      },
+      {
         "name": "@beep/github-commands",
         "patterns": [
           "packages/foundation/modeling/github-commands/src/**"
@@ -2313,6 +2319,25 @@
         ]
       },
       {
+        "from": "@beep/github",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/github",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/github",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/github-commands",
         "allow": [
           "@beep/fc-runs",
@@ -4037,6 +4062,7 @@
           "@beep/fc-runs",
           "@beep/ffmpeg",
           "@beep/file-processing",
+          "@beep/github",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4079,6 +4105,7 @@
           "@beep/fc-runs",
           "@beep/ffmpeg",
           "@beep/file-processing",
+          "@beep/github",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4263,6 +4290,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/git",
+          "@beep/github",
           "@beep/github-commands",
           "@beep/github-references",
           "@beep/glob",
@@ -4308,6 +4336,7 @@
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/git",
+          "@beep/github",
           "@beep/github-commands",
           "@beep/github-references",
           "@beep/glob",

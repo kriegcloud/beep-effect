@@ -73,6 +73,7 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/commands",
 	"@beep/git",
+	"@beep/github",
 	"@beep/github-commands",
 	"@beep/github-references",
 	"@beep/glob",
