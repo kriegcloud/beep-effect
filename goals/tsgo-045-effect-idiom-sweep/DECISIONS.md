@@ -27,9 +27,11 @@ rather than a hard-coded string comparison:
 1. `vitest.setup.ts` root Bun-compat shim (6 skip-files: nodeBuiltinImport,
    asyncFunction, newPromise, processEnv, globalTimers, globalRandom). It runs
    before any Effect runtime exists and implements `Bun.*` over node builtins.
-2. `packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts`
-   `strictEffectProvide:skip-file`, the effect-vitest-canon D14 provide-rule
-   exception.
+2. test-utils FileSystemConformance.ts `strictEffectProvide:skip-file`, the
+   effect-vitest-canon D14 provide-rule exception. Retired 2026-10-21 by
+   effected-promotion D-25: the file was deleted with the test-utils
+   MemoryFileSystem, and `packages/tooling/test-kit/memfs/test/FileSystemContract.ts`
+   replaces it.
 
 Everything else is fixed: 78 scratchpad directives and the 2
 `nodeBuiltinImport:off` lines in `vitest.shared.ts`.

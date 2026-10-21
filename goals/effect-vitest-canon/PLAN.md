@@ -669,7 +669,8 @@ Gate: each charter cites only tag-pinned APIs; the instrumented `it` passes its 
    layer under test is the subject, so per-test provide is correct here — record this as a D14
    exception with reason).
 2. Run it against `NodeFileSystem.layer`, `BunFileSystem.layer` and `MemoryFileSystem.layer`.
-3. Promote `scratchpad/MemoryFileSystem/**` to `packages/tooling/test-kit/test-utils/src/MemoryFileSystem/`
+3. Promote `scratchpad/MemoryFileSystem/**` into test-utils as its MemoryFileSystem module (retired
+   2026-10-21 by effected-promotion D-25; the engine now lives in `packages/tooling/test-kit/memfs/src/internal/volume.ts`)
    (`$TestUtilsId` instead of `$ScratchpadId`, JSDoc per `.patterns/jsdoc-documentation.md`), move
    its test, keep the fresh-volume-per-`it.layer` gotcha in the docs.
 4. Delete the scratchpad copies (pending Benjamin's answer); if `memfs`'s seed / fault / inspect
