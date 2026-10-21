@@ -23,6 +23,9 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
+// Optional on insert: the column's SQL default supplies the first version.
+const insertedRowVersion = (rowVersion: number | undefined): number => rowVersion ?? 1;
+
 const ThreadEquivalence = S.toEquivalence(ThreadModel);
 
 const MessageEquivalence = S.toEquivalence(MessageModel);
@@ -147,6 +150,7 @@ describe("WorkspaceTables", () => {
           ...threadInsert,
           deletedAt: threadInsert.deletedAt ?? null,
           deletedByPrincipal: threadInsert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(threadInsert.rowVersion),
           id: 10,
         })
       );
@@ -168,6 +172,7 @@ describe("WorkspaceTables", () => {
           ...messageInsert,
           deletedAt: messageInsert.deletedAt ?? null,
           deletedByPrincipal: messageInsert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(messageInsert.rowVersion),
           id: 20,
         })
       );
@@ -190,6 +195,7 @@ describe("WorkspaceTables", () => {
           ...turnInsert,
           deletedAt: turnInsert.deletedAt ?? null,
           deletedByPrincipal: turnInsert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(turnInsert.rowVersion),
           id: 30,
           // $inferInsert types parentTurnId as optional (number | null | undefined);
           // the select-row converter expects number | null, so resolve the absent
@@ -229,6 +235,7 @@ describe("WorkspaceTables", () => {
           ...workspaceInsert,
           deletedAt: workspaceInsert.deletedAt ?? null,
           deletedByPrincipal: workspaceInsert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(workspaceInsert.rowVersion),
           id: 40,
           vaultRootPath: workspaceInsert.vaultRootPath ?? null,
         })
@@ -252,6 +259,7 @@ describe("WorkspaceTables", () => {
           ...threadInsert,
           deletedAt: threadInsert.deletedAt ?? null,
           deletedByPrincipal: threadInsert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(threadInsert.rowVersion),
           id: thread.id,
         })
       );
@@ -260,6 +268,7 @@ describe("WorkspaceTables", () => {
           ...messageInsert,
           deletedAt: messageInsert.deletedAt ?? null,
           deletedByPrincipal: messageInsert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(messageInsert.rowVersion),
           id: message.id,
         })
       );
@@ -268,6 +277,7 @@ describe("WorkspaceTables", () => {
           ...turnInsert,
           deletedAt: turnInsert.deletedAt ?? null,
           deletedByPrincipal: turnInsert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(turnInsert.rowVersion),
           id: turn.id,
           parentTurnId: absentAsNull(turnInsert.parentTurnId),
         })
@@ -277,6 +287,7 @@ describe("WorkspaceTables", () => {
           ...workspaceInsert,
           deletedAt: workspaceInsert.deletedAt ?? null,
           deletedByPrincipal: workspaceInsert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(workspaceInsert.rowVersion),
           id: workspace.id,
           vaultRootPath: absentAsNull(workspaceInsert.vaultRootPath),
         })

@@ -462,7 +462,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
             "EV009"
           )
         );
-      assertTrue(yield* hasRule('import { currentTimeMillis } from "./fixtures";\n' + namedRead, "EV009"));
+      assertTrue(yield* hasRule(`import { currentTimeMillis } from "./fixtures";\n${namedRead}`, "EV009"));
     })
   );
 

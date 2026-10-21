@@ -254,6 +254,8 @@ it("preserves migrated PostgreSQL fixture compile contracts", () => {
   type AccountInsert = (typeof Account.insert)["Type"];
   type AccountUpdate = (typeof Account.update)["Type"];
   type AccountJson = (typeof Account.json)["Type"];
+  type AccountJsonCreate = (typeof Account.jsonCreate)["Type"];
+  type AccountJsonUpdate = (typeof Account.jsonUpdate)["Type"];
   type MechanicalSelect = typeof mechanicalTable.$inferSelect;
   type MechanicalInsert = typeof mechanicalTable.$inferInsert;
   type ArraySelect = typeof arrayTable.$inferSelect;
@@ -297,6 +299,8 @@ it("preserves migrated PostgreSQL fixture compile contracts", () => {
       'entityId<"user">'
     >;
     readonly generatedJsonCreateAbsent: Equal<"searchName" extends keyof UserJsonCreate ? true : false, false>;
+    readonly versionJsonCreateAbsent: Equal<"rowVersion" extends keyof AccountJsonCreate ? true : false, false>;
+    readonly versionJsonUpdateRequired: Equal<AccountJsonUpdate["rowVersion"], number>;
     readonly kitSelectCreatedAt: MutualExtends<
       AccountSelect["createdAt"],
       (typeof EffectModel.DateTimeInsert.schemas.select)["Type"]
