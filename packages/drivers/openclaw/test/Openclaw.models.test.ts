@@ -50,6 +50,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeOpenclawAgentTurnJsonResult = S.decodeResult(S.fromJsonString(OpenclawAgentTurn));
 const decodeOpenclawChannelAccountStatusJsonResult = S.decodeResult(S.fromJsonString(OpenclawChannelAccountStatus));
@@ -286,13 +287,13 @@ describe("@beep/openclaw models", () => {
       "secrets.reload failed"
     );
 
-    const capped = Result.getOrThrow(S.decodeResult(OpenclawDiagnosticText)("x".repeat(5_000)));
+    const capped = Result.getOrThrow(S.decodeResult(OpenclawDiagnosticText)(Str.repeat(5_000)("x")));
     expect(capped.length).toBe(2_000);
 
     const trimmedAfterCap = Result.getOrThrow(
-      S.decodeResult(OpenclawDiagnosticText)(`${"a".repeat(1_999)} ${"b".repeat(3_000)}`)
+      S.decodeResult(OpenclawDiagnosticText)(`${Str.repeat(1_999)("a")} ${Str.repeat(3_000)("b")}`)
     );
-    expect(trimmedAfterCap).toBe("a".repeat(1_999));
+    expect(trimmedAfterCap).toBe(Str.repeat(1_999)("a"));
   });
 
   it("derives known systemd active states from raw values", () => {

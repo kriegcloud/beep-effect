@@ -66,7 +66,7 @@ export const UsptoApplicationNumber = S.String.check(
  */
 export type UsptoApplicationNumber = typeof UsptoApplicationNumber.Type;
 
-const normalizeApplicationNumberText = (text: string): string => text.replaceAll(/[\s/,.-]/gu, "");
+const normalizeApplicationNumberText = (text: string): string => Str.replaceAll(/[\s/,.-]/gu, "")(text);
 
 const decodeUsptoApplicationNumberFromText = (
   value: string

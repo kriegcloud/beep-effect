@@ -35,6 +35,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
+import * as Str from "effect/String";
 import * as replicad from "replicad";
 import type { EdgeSet } from "@beep/occt";
 import type { StretchPiece } from "@beep/occt/internal/shading";
@@ -82,7 +83,7 @@ const sha256Of = (text: string) =>
     Effect.map((digest) =>
       pipe(
         A.fromIterable(new Uint8Array(digest)),
-        A.map((b) => b.toString(16).padStart(2, "0")),
+        A.map((b) => Str.padStart(2, "0")(b.toString(16))),
         A.join("")
       )
     )

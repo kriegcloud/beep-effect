@@ -44,6 +44,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // A 40 × 30 × 20 box with an off-centre wedge on top, so no two principal
 // views coincide and the top/bottom distinction is observable.
@@ -189,7 +190,7 @@ const sha256Hex = (text: string) =>
     Effect.map((digest) =>
       pipe(
         A.fromIterable(new Uint8Array(digest)),
-        A.map((b) => b.toString(16).padStart(2, "0")),
+        A.map((b) => Str.padStart(2, "0")(b.toString(16))),
         A.join("")
       )
     )
@@ -300,7 +301,7 @@ const tube = {
 const figureSegmentsMm = (svg: string): ReadonlyArray<Segment2> =>
   pipe(
     /<path id="figure" d="([^"]*)"/.exec(svg)?.[1] ?? "",
-    (d) => [...d.matchAll(/M(-?\d+\.\d+) (-?\d+\.\d+)L(-?\d+\.\d+) (-?\d+\.\d+)/g)],
+    (d) => [...Str.matchAll(/M(-?\d+\.\d+) (-?\d+\.\d+)L(-?\d+\.\d+) (-?\d+\.\d+)/g)(d)],
     A.map((m) =>
       Segment2.make([
         Number(m[1]) / PT_PER_MM,

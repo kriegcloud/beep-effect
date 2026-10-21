@@ -1,4 +1,11 @@
 #!/usr/bin/env bun
+import { A, R } from "@beep/utils";
+import { NodeRuntime, NodeServices } from "@effect/platform-node";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 /**
  * Generator for `src/internal/LabelGlyphs.ts`, the vendored sheet-label glyph
  * outlines of one sans and one serif face.
@@ -16,13 +23,7 @@
  *
  * @since 0.0.0
  */
-import { A, R } from "@beep/utils";
-import { NodeRuntime, NodeServices } from "@effect/platform-node";
-import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
-import * as Layer from "effect/Layer";
-import * as Path from "effect/Path";
+import * as Str from "effect/String";
 import { outlineFontFile } from "../src/internal/LabelOutline.ts";
 import type { LabelFace } from "../src/internal/LabelOutline.ts";
 
@@ -32,7 +33,7 @@ const DEFAULT_SERIF = "/usr/share/fonts/liberation/LiberationSerif-Regular.ttf";
 const hexOf = (bytes: ArrayBuffer): string =>
   pipe(
     A.fromIterable(new Uint8Array(bytes)),
-    A.map((b) => b.toString(16).padStart(2, "0")),
+    A.map((b) => Str.padStart(2, "0")(b.toString(16))),
     A.join("")
   );
 

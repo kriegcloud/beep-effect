@@ -41,6 +41,7 @@ import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeArtifactId = S.decodeEffect(ArtifactId);
 const decodeContentDigest = S.decodeEffect(ContentDigest);
@@ -130,7 +131,7 @@ describe("@beep/file-processing", () => {
         const childId = yield* deriveArtifactId([ids.artifactId, "children/synthetic-message.txt"]);
 
         expect(childId).not.toBe(ids.artifactId);
-        expect(childId.startsWith("artifact:")).toBe(true);
+        expect(Str.startsWith("artifact:")(childId)).toBe(true);
       })
     );
   });

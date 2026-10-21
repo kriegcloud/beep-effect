@@ -3,6 +3,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 /**
  * Property test: the incremental block extractor must produce exactly the
  * envelope's elements regardless of how the structured-output text is chunked,
@@ -23,7 +24,7 @@ const scanAll = (text: string, cuts: ReadonlyArray<number>): Array<string> => {
   let position = 0;
   for (const cut of [...cuts, text.length]) {
     const end = Math.min(Math.max(cut, position), text.length);
-    const [next, completed] = scanChunk(state, text.slice(position, end));
+    const [next, completed] = scanChunk(state, Str.slice(position, end)(text));
     state = next;
     out.push(...completed);
     position = end;

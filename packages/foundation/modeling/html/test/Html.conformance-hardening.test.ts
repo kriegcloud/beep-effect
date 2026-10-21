@@ -596,7 +596,7 @@ describe("@beep/html track language conformance", () => {
     ],
     ([language]) => {
       expect(languageIssues(language, O.some("captions"))).toStrictEqual([]);
-      expect(languageIssues(language.replaceAll("-", "_"), O.some("captions"))).toContainEqual(
+      expect(languageIssues(Str.replaceAll("-", "_")(language), O.some("captions"))).toContainEqual(
         expect.objectContaining({ rule: "attributeRelationship" })
       );
 

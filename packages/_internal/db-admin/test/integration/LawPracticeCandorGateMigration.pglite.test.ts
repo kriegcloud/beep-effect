@@ -24,6 +24,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as SqlError from "effect/sql/SqlError";
 
@@ -74,7 +75,7 @@ const expectedTriggerNames: ReadonlyArray<string> = [
   "law_practice_patent_citation_event_block_truncate",
 ];
 
-const digest = `sha256:${"a".repeat(64)}`;
+const digest = `sha256:${Str.repeat(64)("a")}`;
 const citingApplication = { applicationNumber: "16138242", kind: "UsptoNormalized" } as const;
 
 const sourceIdentity = {
