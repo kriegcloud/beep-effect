@@ -46,7 +46,7 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
     ),
   },
   "prefer-identity-annote-pipe": {
-    invalidCount: 10,
+    invalidCount: 11,
     messageIncludes: "identity annotations go through",
     invalid: A.join(
       [
@@ -59,6 +59,7 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
         "export const TypedAnnote = S.Number.annotate($I.annote<number>('TypedAnnote'));",
         "export const TypedAnnotate = S.Number.annotate<number>($I.annote('TypedAnnotate'));",
         "export const CheckAnnotate = S.Number.check(S.isInt().annotate($I.annote('CheckAnnotate')));",
+        "export const Chained = S.String.annotate($Pkg.create('internal/x').annote('Chained'));",
         "export const Key = S.Struct({ a: S.String.annotateKey($I.annote('Key.a')) });",
         "export const SuspendKey = S.Struct({ a: S.suspend(() => S.String).annotateKey($I.annote('SuspendKey.a')) });",
         "export class BaseKey extends S.Opaque<BaseKey>()(S.Struct({ a: S.String.annotateKey($I.annote('BaseKey.a')) })) {}",
@@ -97,7 +98,7 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
     ),
   },
   "no-hand-built-identity-annotation": {
-    invalidCount: 6,
+    invalidCount: 10,
     messageIncludes: "hand-built",
     invalid: A.join(
       [
@@ -109,6 +110,14 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
         "  'identifier': $I`Declared`,",
         "});",
         "export const Interpolated = S.Number.check(S.isInt({ identifier: $I`Interpolated.${'x'}` }));",
+        "export const Made = S.Number.check(S.isInt({ identifier: $I.make('Made') }));",
+        "export const CreatedMade = S.Number.check(S.isInt({ identifier: $I.create(id).make('CreatedMade') }));",
+        "export const CreatedTag = S.Number.check(S.isInt({ identifier: $Pkg.create('internal/x')`CreatedTag` }));",
+        "export const Broken = S.Number.check(S.isInt({",
+        "  identifier: $Pkg",
+        "    .create('internal/x')",
+        "    .make('Broken'),",
+        "}));",
       ],
       "\n"
     ),
@@ -118,6 +127,10 @@ export const SOURCES: { readonly [K in RuleName]: RuleSource } = {
         "export const Untagged = S.String.annotate({ identifier: `Untagged` });",
         "export const NotComposer = S.String.annotate({ identifier: I`NotComposer` });",
         "export const OtherKey = S.String.annotate({ title: $I`OtherKey` });",
+        "export const OtherMake = S.String.annotate({ identifier: I.make('OtherMake') });",
+        "export const SchemaMake = S.String.annotate({ identifier: S.String.make('x') });",
+        "export const MadeTitle = S.String.annotate({ title: $I.make('MadeTitle') });",
+        "export const CreatedAnnote = S.Number.check(S.isInt($I.create(id).annote('CreatedAnnote')));",
         "export const Piped = S.String.pipe($I.annoteSchema('Piped'));",
         "export const Checked = S.Number.check(S.isInt($I.annote('Checked')));",
         "export const FieldKey = S.Struct({ a: S.String.annotateKey({ description: 'raw key annotation' }) });",

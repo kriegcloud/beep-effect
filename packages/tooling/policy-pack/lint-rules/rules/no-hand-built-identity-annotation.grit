@@ -1,15 +1,22 @@
 language js
 
 // EF-12 (standards/effect-first-development.md): identity annotations come from
-// the composer helpers, never from an object literal whose `identifier` is a
-// `$`-prefixed IdentityComposer template (`{ identifier: $I`Name`, ... }`).
-// That covers check and filter arguments (`S.isPattern`, `S.makeFilter`,
-// `S.makeFilterGroup`, `S.is*`), `S.declare` annotations and `.annotate({...})`.
+// the composer helpers, never from an object literal that hand-builds the
+// `identifier` from a `$`-prefixed IdentityComposer, whether as a template
+// (`$I`Name``, `$I.create(id)`Name``) or a `.make(...)` call (`$I.make("Name")`,
+// `$I.create(id).make("Name")`). That covers check and filter arguments
+// (`S.isPattern`, `S.makeFilter`, `S.makeFilterGroup`, `S.is*`), `S.declare`
+// annotations, `.annotate({...})` and expected values in tests.
 //
 //   S.isPattern(re, { identifier: $I`X`, ... })  ->  S.isPattern(re, $I.annote("X", { ... }))
 //   X.annotate({ identifier: $I`X`, ... })       ->  X.pipe($I.annoteSchema("X", { ... }))
 //
 // String-literal identifiers (`identifier: "Foo"`) are out of scope.
+
+// Source text that starts with a `$`-prefixed identifier token: `$I`,
+// `$I.create(id)`, `$Pkg.compose("a").$AId`, including member chains that
+// break across lines.
+pattern composer_rooted() { r"^[$][A-Za-z0-9_]*(?:[^A-Za-z0-9_$][\s\S]*)?$" }
 
 JsPropertyObjectMember(name=$name, value=$value) as $member where {
   $name <: or {
@@ -17,7 +24,9 @@ JsPropertyObjectMember(name=$name, value=$value) as $member where {
     `"identifier"`,
     `'identifier'`
   },
-  $value <: JsTemplateExpression(tag=$tag),
-  $tag <: r"^[$][A-Za-z0-9_]*$",
-  register_diagnostic(span=$member, message="Rule: identity annotations come from `$I.annote`, not a hand-built `{ identifier: $I`Name` }` object. Why: the object skips the schema id, IRI and CURIE the composer writes (EF-12). Fix: pass `$I.annote('Name', {...})` as the check, filter or `S.declare` argument; on a schema, write `X.pipe($I.annoteSchema('Name', {...}))`.", severity="error")
+  $value <: or {
+    JsTemplateExpression(tag=$tag) where { $tag <: composer_rooted() },
+    `$receiver.make($...)` where { $receiver <: composer_rooted() }
+  },
+  register_diagnostic(span=$member, message="Rule: identity annotations come from `$I.annote`, not a hand-built `{ identifier: $I`Name` }` or `{ identifier: $I.make('Name') }` object. Why: the object skips the schema id, IRI and CURIE the composer writes (EF-12 in standards/effect-first-development.md). Fix: pass `$I.annote('Name', {...})` as the check, filter or `S.declare` argument; on a schema, write `X.pipe($I.annoteSchema('Name', {...}))`.", severity="error")
 }
