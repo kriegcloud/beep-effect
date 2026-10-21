@@ -10,6 +10,7 @@ import {
   inotifyWatchTarget,
   ProcessTable,
   ProcessTableEntry,
+  processName,
   processTableWithLineage,
   procProcessTable,
 } from "@beep/repo-cli/test/RepoRun";
@@ -355,9 +356,11 @@ describe("worktree remove archive fence", { concurrent: false }, () => {
         // lane and no handle, standing outside it. Started outside the lane too,
         // so no exemption applies: the watch alone never refuses.
         const watcher = yield* spawnInotifyWatcher(lane, path.dirname(repoRoot));
+        // The kernel name of the Bun binary on PATH (`bun`, or `bun.native` behind a shim).
+        const name = O.getOrThrow(yield* processName(watcher.pid));
         const output = yield* captureOutput(remove(repoRoot)).pipe(Effect.ensuring(Effect.ignore(watcher.kill())));
         expect(output).toContain(`Worktree retirement complete: ${lane}`);
-        expect(output).toContain(`warning: pid ${watcher.pid} (bun) held only an inotify watch on the worktree`);
+        expect(output).toContain(`warning: pid ${watcher.pid} (${name}) held only an inotify watch on the worktree`);
         expect(yield* fs.exists(lane)).toBe(false);
         expect(yield* runGitText(repoRoot, ["branch", "--list", "claude/lane"])).toBe("");
       })
@@ -371,8 +374,9 @@ describe("worktree remove archive fence", { concurrent: false }, () => {
         const path = yield* Path.Path;
         // The watch alone would be advisory, but an open file is a handle.
         const watcher = yield* spawnInotifyWatcher(lane, path.dirname(repoRoot), path.join(lane, "README.md"));
+        const name = O.getOrThrow(yield* processName(watcher.pid));
         const error = yield* Effect.flip(remove(repoRoot)).pipe(Effect.ensuring(Effect.ignore(watcher.kill())));
-        expect(failureMessage(error)).toContain(`pid ${watcher.pid} (bun) via descriptor still hold it`);
+        expect(failureMessage(error)).toContain(`pid ${watcher.pid} (${name}) via descriptor still hold it`);
         expect(failureMessage(error)).not.toContain("still walking");
         expect(yield* fs.exists(lane)).toBe(true);
       })

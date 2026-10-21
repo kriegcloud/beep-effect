@@ -31,7 +31,7 @@ import {
   resolveFallowAuditCacheSettings,
   runRepoCommandCapture,
 } from "../../../internal/repo-run/index.ts";
-import { invokerExemption } from "../../Worktree/Worktree.command.ts";
+import { describeInotifyWatcher, invokerExemption } from "../../Worktree/Worktree.command.ts";
 import { WorktreeRemovalRequest } from "../../Worktree/Worktree.schemas.ts";
 import { WorktreeRemovalService } from "../../Worktree/Worktree.service.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
@@ -621,7 +621,7 @@ export const renderRetirement: {
       ...A.map(
         receipt.inotifyWatchers,
         (watcher) =>
-          `  warning: pid ${watcher.pid}${O.match(watcher.command, { onNone: () => "", onSome: (command) => ` (${command})` })} held only an inotify watch on the lane, which cannot write into it, so the lane was removed under it; an editor watching the clone (WebStorm's fsnotifier, for one) stops doing this once \`.claude/worktrees\` is excluded from its project`
+          `  warning: ${describeInotifyWatcher(watcher)} held only an inotify watch on the lane, which cannot write into it, so the lane was removed under it; an editor watching the clone (WebStorm's fsnotifier, for one) stops doing this once \`.claude/worktrees\` is excluded from its project`
       ),
     ],
     "\n"

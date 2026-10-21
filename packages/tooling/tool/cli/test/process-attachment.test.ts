@@ -5,8 +5,12 @@ import {
   invokerAncestryPids,
   ProcessAttachmentKind,
   ProcessHandleKind,
+  ProcessInotifyWatch,
+  ProcessTable,
+  ProcessTableEntry,
   processEnvironmentValue,
   processName,
+  processTableFromEntries,
   procProcessTable,
   scanProcessAttachments,
   sessionRootOf,
@@ -106,6 +110,44 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("scanProcessAttachments"
       yield* Effect.ignore(watcher.kill());
     })
   );
+
+  it.effect("names watchers only while the directory's inotify identity can be read", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "process-attachment-identity-" });
+      const missing = path.join(root, "missing");
+      const watched = O.getOrThrow(yield* inotifyWatchTarget(root));
+      const table = processTableFromEntries({
+        self: 100,
+        entries: [
+          ProcessTableEntry.make({ pid: 200, parent: 1, command: "fsnotifier", watches: [watched] }),
+          ProcessTableEntry.make({
+            pid: 300,
+            parent: 1,
+            command: "bun",
+            watches: [ProcessInotifyWatch.make({ device: watched.device, inode: watched.inode + BigInt(1) })],
+          }),
+        ],
+      });
+      const scan = scanProcessAttachments({ directory: root, kinds: ["watch"] }).pipe(
+        Effect.provideService(ProcessTable, table)
+      );
+      expect(A.map(O.getOrThrow(yield* scan), (attachment) => [attachment.pid, attachment.kind])).toEqual([
+        [200, "watch"],
+      ]);
+
+      // Without mountinfo the directory has no inotify identity: watchers go
+      // unnamed, and the scan still completes rather than withholding its result.
+      const blind = FileSystem.makeNoop({
+        ...fs,
+        readFileString: (target, encoding) =>
+          fs.readFileString(target === "/proc/self/mountinfo" ? missing : target, encoding),
+      });
+      expect(yield* scan.pipe(Effect.provideService(FileSystem.FileSystem, blind))).toEqual(O.some([]));
+      expect(O.isNone(yield* inotifyWatchTarget(missing))).toBe(true);
+    })
+  );
 });
 
 describe("superblockDeviceOf", () => {
@@ -127,6 +169,10 @@ describe("superblockDeviceOf", () => {
     expect(superblockDeviceOf(mountinfo, "/var/lib")).toEqual(O.some(36n));
     expect(superblockDeviceOf(mountinfo, "/home/me/database")).toEqual(O.some(33n));
     expect(superblockDeviceOf(mountinfo, "/home/me/data/set")).toEqual(O.some(56n));
+    // A deeper mount listed before a shallower one still wins.
+    const deeperFirst =
+      "60 58 252:1 / /home/me/data rw - ext4 /dev/mapper/data rw\n58 23 0:33 /@home /home rw - btrfs x rw\n";
+    expect(superblockDeviceOf("/home/me/data/set")(deeperFirst)).toEqual(O.some(0xfc00001n));
   });
 
   it("encodes the device as the kernel dev_t an fdinfo line prints and unescapes mount points", () => {

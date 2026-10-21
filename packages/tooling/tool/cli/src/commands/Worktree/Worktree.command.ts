@@ -53,7 +53,7 @@ import {
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { WorktreeDirtyError, WorktreePreservationError } from "./Worktree.errors.ts";
-import type { WorktreeRemovalReceipt, WorktreeUnpushedInspection } from "./Worktree.schemas.ts";
+import type { WorktreeInotifyWatcher, WorktreeRemovalReceipt, WorktreeUnpushedInspection } from "./Worktree.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Worktree/Worktree.command");
 const decodeWorktreeName = S.decodeUnknownEffect(WorktreeRemovalRequest.fields.name);
@@ -126,6 +126,27 @@ export const invokerExemption = Effect.fn("Worktree.invokerExemption")(function*
   const sessionMarker = yield* invokerSessionMarker;
   return WorktreeInvokerExemption.make({ sessionMarker, selfRetirement });
 });
+
+/**
+ * Name an inotify watcher the archive fence left running, as the removal reports print it.
+ *
+ * **Example** (Name a watcher with and without its command)
+ *
+ * ```ts
+ * import { describeInotifyWatcher, WorktreeInotifyWatcher } from "@beep/repo-cli/commands/Worktree"
+ * import * as O from "effect/Option"
+ *
+ * console.log(describeInotifyWatcher(WorktreeInotifyWatcher.make({ pid: 2966722, command: O.some("fsnotifier") }))) // "pid 2966722 (fsnotifier)"
+ * console.log(describeInotifyWatcher(WorktreeInotifyWatcher.make({ pid: 4242, command: O.none() }))) // "pid 4242"
+ * ```
+ *
+ * @param watcher - The watcher a removal receipt names.
+ * @returns The pid, followed by the command name when it was read.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const describeInotifyWatcher = (watcher: WorktreeInotifyWatcher): string =>
+  `pid ${watcher.pid}${O.match(watcher.command, { onNone: () => "", onSome: (command) => ` (${command})` })}`;
 
 /**
  * Local-only files copied from the main checkout into a fresh worktree.
@@ -916,7 +937,7 @@ const renderRemovalReceipt = Effect.fn("Worktree.renderRemovalReceipt")(function
     receipt.inotifyWatchers,
     (watcher) =>
       Console.log(
-        `  warning: pid ${watcher.pid}${O.match(watcher.command, { onNone: () => "", onSome: (command) => ` (${command})` })} held only an inotify watch on the worktree, which cannot write into it, so the worktree was removed under it; an editor watching the clone (WebStorm's fsnotifier, for one) stops doing this once the worktree root is excluded from its project`
+        `  warning: ${describeInotifyWatcher(watcher)} held only an inotify watch on the worktree, which cannot write into it, so the worktree was removed under it; an editor watching the clone (WebStorm's fsnotifier, for one) stops doing this once the worktree root is excluded from its project`
       ),
     { discard: true }
   );

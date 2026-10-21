@@ -44,8 +44,9 @@ CLONE="$(git rev-parse --path-format=absolute --git-common-dir)/.." && bun run b
   own rename makes such a watcher walk the renamed tree again, holding
   directories open as it goes; the fence rescans every 250 ms until the walk
   ends and refuses only if it outlasts 40 scans (about ten seconds), naming
-  the watcher `still walking the tree`. Excluding `.claude/worktrees` from
-  the editor's project stops both. Any other holder (a panel shell running a
+  the watcher `still walking the tree`. Excluding the folder that holds the
+  `.claude/worktrees/<name>` lanes from the editor's project stops both. Any
+  other holder (a panel shell running a
   command, any panel shell under `--lane`, an editor with a file in the lane
   open or standing in it, another session) still refuses it and is named in
   the error: `cd ~` in it (closing a panel
