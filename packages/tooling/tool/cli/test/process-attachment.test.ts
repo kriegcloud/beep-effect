@@ -1,22 +1,27 @@
 import {
   ancestryChainOf,
   ancestryPidsOf,
+  inotifyWatchTarget,
   invokerAncestryPids,
   ProcessAttachmentKind,
+  ProcessHandleKind,
   processEnvironmentValue,
   processName,
+  procProcessTable,
   scanProcessAttachments,
   sessionRootOf,
+  superblockDeviceOf,
 } from "@beep/repo-cli/test/RepoRun";
 import { it } from "@beep/test-runner";
 import { A, O, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { expect } from "@effect/vitest";
+import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as HashSet from "effect/HashSet";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
+import { spawnInotifyWatcher } from "./support/InotifyWatcher.ts";
 import type { ProcessAttachment } from "@beep/repo-cli/test/RepoRun";
 
 const ownAttachments = (scan: O.Option<ReadonlyArray<ProcessAttachment>>): ReadonlyArray<ProcessAttachment> =>
@@ -73,6 +78,65 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("scanProcessAttachments"
       expect(O.isNone(scan)).toBe(true);
     })
   );
+
+  it.effect("finds an inotify watcher through its watch and never as a handle", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "process-attachment-watch-" });
+      const watched = path.join(root, "watched");
+      yield* fs.makeDirectory(watched);
+      const resolved = yield* fs.realPath(watched);
+      // The watcher stands outside the tree, so its watch is its only hold on it.
+      const watcher = yield* spawnInotifyWatcher(watched, root);
+      const ofWatcher = (scan: O.Option<ReadonlyArray<ProcessAttachment>>) =>
+        A.filter(O.getOrThrow(scan), (attachment) => attachment.pid === watcher.pid);
+
+      const watches = ofWatcher(yield* scanProcessAttachments({ directory: watched, kinds: ["watch"] }));
+      expect(A.map(watches, (attachment) => [attachment.kind, attachment.target])).toEqual([["watch", resolved]]);
+
+      const handles = yield* scanProcessAttachments({ directory: watched, kinds: ProcessHandleKind.literals });
+      expect(ofWatcher(handles)).toEqual([]);
+
+      // The table finds the same identity in the watcher's fdinfo, and only that one.
+      const target = O.getOrThrow(yield* inotifyWatchTarget(watched));
+      expect(yield* procProcessTable.watching(watcher.pid, target)).toBe(true);
+      const sibling = O.getOrThrow(yield* inotifyWatchTarget(root));
+      expect(yield* procProcessTable.watching(watcher.pid, sibling)).toBe(false);
+      yield* Effect.ignore(watcher.kill());
+    })
+  );
+});
+
+describe("superblockDeviceOf", () => {
+  const mountinfo = A.join(
+    [
+      "23 1 0:36 /@ / rw,relatime shared:1 - btrfs /dev/nvme0n1p2 rw",
+      "58 23 0:33 /@home /home rw,relatime shared:28 - btrfs /dev/nvme0n1p2 rw",
+      "60 58 252:1 / /home/me/data rw,relatime shared:30 - ext4 /dev/mapper/data rw",
+      "61 58 0:55 / /home/me/my\\040files rw shared:31 - tmpfs tmpfs rw",
+      "62 58 0:56 / /home/me/data rw shared:32 - tmpfs tmpfs rw",
+      "not a mountinfo row",
+    ],
+    "\n"
+  );
+
+  it("takes the longest mount point covering the path, the later row winning a tie", () => {
+    expect(superblockDeviceOf(mountinfo, "/home/me/repo")).toEqual(O.some(33n));
+    expect(superblockDeviceOf(mountinfo, "/home")).toEqual(O.some(33n));
+    expect(superblockDeviceOf(mountinfo, "/var/lib")).toEqual(O.some(36n));
+    expect(superblockDeviceOf(mountinfo, "/home/me/database")).toEqual(O.some(33n));
+    expect(superblockDeviceOf(mountinfo, "/home/me/data/set")).toEqual(O.some(56n));
+  });
+
+  it("encodes the device as the kernel dev_t an fdinfo line prints and unescapes mount points", () => {
+    // 252:1 is 0xfc00001: the major sits above the 20 minor bits.
+    expect(superblockDeviceOf(A.join(A.take(Str.split(mountinfo, "\n"), 3), "\n"), "/home/me/data")).toEqual(
+      O.some(0xfc00001n)
+    );
+    expect(superblockDeviceOf(mountinfo, "/home/me/my files/x")).toEqual(O.some(55n));
+    expect(superblockDeviceOf("not a mountinfo row\n", "/home")).toEqual(O.none());
+  });
 });
 
 const spawnSleeper = ChildProcess.make("sleep", ["60"], { stdin: "ignore", stdout: "ignore", stderr: "ignore" });

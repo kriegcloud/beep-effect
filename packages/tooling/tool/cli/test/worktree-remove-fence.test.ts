@@ -1,10 +1,13 @@
 import {
   CLAUDE_WORKTREES_RELATIVE_ROOT,
   invokerExemption,
+  WorktreeFenceSettle,
+  WorktreeFenceSettlePolicy,
   WorktreeRemovalServiceLive,
   worktreeCommand,
 } from "@beep/repo-cli/commands/Worktree";
 import {
+  inotifyWatchTarget,
   ProcessTable,
   ProcessTableEntry,
   processTableWithLineage,
@@ -19,6 +22,7 @@ import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -26,10 +30,13 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
+import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
+import { spawnInotifyWatcher } from "./support/InotifyWatcher.ts";
+import type { ProcessTableShape } from "@beep/repo-cli/test/RepoRun";
 
 // The same fence `yeet sweep --retire` runs behind, reached through
 // `worktree remove --archive --delete-branch`: the invoker's ancestry and its
@@ -202,6 +209,51 @@ const desktopPanelTable = (holder: number) =>
     ],
   });
 
+// A real process standing outside the lane, dressed through a scripted table
+// as an editor's file watcher answering the fence's rename: it watches the
+// lane's inode throughout and, for its first `walkingScans` scans, holds the
+// renamed lane open the way a recursive watcher's `opendir` walk does.
+const walkingWatcherTable = Effect.fn("WorktreeRemoveFenceTest.walkingWatcherTable")(function* (
+  walker: number,
+  lane: string,
+  walkingScans: number
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const watch = O.getOrThrow(yield* inotifyWatchTarget(lane));
+  const scans = yield* Ref.make(0);
+  const fencedCopy = fs.readDirectory(path.dirname(lane)).pipe(
+    Effect.map(A.findFirst(Str.startsWith(`${path.basename(lane)}.retiring-`))),
+    Effect.flatMap(
+      O.match({
+        onNone: () => Effect.succeed(A.empty<string>()),
+        onSome: (name) => Effect.map(fs.realPath(path.join(path.dirname(lane), name)), A.of),
+      })
+    ),
+    Effect.orDie
+  );
+  const table: ProcessTableShape = {
+    ...procProcessTable,
+    descriptors: (pid) =>
+      pid === walker
+        ? Effect.flatMap(
+            Ref.updateAndGet(scans, (count) => count + 1),
+            (count) => (count <= walkingScans ? fencedCopy : Effect.succeed(A.empty<string>()))
+          )
+        : procProcessTable.descriptors(pid),
+    // The fence asks about the renamed copy, which keeps the lane's inode.
+    watching: (pid, target) =>
+      pid === walker
+        ? Effect.succeed(target.inode === watch.inode && target.device === watch.device)
+        : procProcessTable.watching(pid, target),
+  };
+  return table;
+});
+
+// A zero interval rescans at once, so the settle loop runs under the test clock
+// without advancing it.
+const quickSettle = (attempts: number) => WorktreeFenceSettlePolicy.make({ interval: Duration.zero, attempts });
+
 const WORKTREE_REMOVE_FENCE_INVOKER = new URL("./support/WorktreeRemoveFenceInvoker.ts", import.meta.url).pathname;
 
 const RemoveInvokerOutcome = S.Struct({ ok: S.Boolean, message: S.String });
@@ -289,6 +341,77 @@ describe("worktree remove archive fence", { concurrent: false }, () => {
         const error = yield* Effect.flip(remove(lane)).pipe(Effect.ensuring(Effect.ignore(holder.kill())));
         expect(failureMessage(error)).toContain("still hold it");
         expect(failureMessage(error)).toContain("(sleep) via cwd");
+        expect(yield* fs.exists(lane)).toBe(true);
+      })
+    )
+  );
+
+  it.effect("removes the lane under a process that only watches it and names the watcher", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        // An editor's file watcher once its walk is done: an inotify watch on the
+        // lane and no handle, standing outside it. Started outside the lane too,
+        // so no exemption applies: the watch alone never refuses.
+        const watcher = yield* spawnInotifyWatcher(lane, path.dirname(repoRoot));
+        const output = yield* captureOutput(remove(repoRoot)).pipe(Effect.ensuring(Effect.ignore(watcher.kill())));
+        expect(output).toContain(`Worktree retirement complete: ${lane}`);
+        expect(output).toContain(`warning: pid ${watcher.pid} (bun) held only an inotify watch on the worktree`);
+        expect(yield* fs.exists(lane)).toBe(false);
+        expect(yield* runGitText(repoRoot, ["branch", "--list", "claude/lane"])).toBe("");
+      })
+    )
+  );
+
+  it.effect("refuses a watcher that also holds a file in the lane open", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        // The watch alone would be advisory, but an open file is a handle.
+        const watcher = yield* spawnInotifyWatcher(lane, path.dirname(repoRoot), path.join(lane, "README.md"));
+        const error = yield* Effect.flip(remove(repoRoot)).pipe(Effect.ensuring(Effect.ignore(watcher.kill())));
+        expect(failureMessage(error)).toContain(`pid ${watcher.pid} (bun) via descriptor still hold it`);
+        expect(failureMessage(error)).not.toContain("still walking");
+        expect(yield* fs.exists(lane)).toBe(true);
+      })
+    )
+  );
+
+  it.effect("waits out a watcher's walk of the renamed lane, then removes it and names the watcher", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const walker = yield* spawnSleepIn(path.dirname(repoRoot));
+        const output = yield* captureOutput(remove(repoRoot)).pipe(
+          Effect.provideService(ProcessTable, yield* walkingWatcherTable(walker.pid, lane, 2)),
+          Effect.provideService(WorktreeFenceSettle, quickSettle(5)),
+          Effect.ensuring(Effect.ignore(walker.kill()))
+        );
+        expect(output).toContain(`Worktree retirement complete: ${lane}`);
+        expect(output).toContain(`warning: pid ${walker.pid} (sleep) held only an inotify watch on the worktree`);
+        expect(yield* fs.exists(lane)).toBe(false);
+      })
+    )
+  );
+
+  it.effect("refuses a watcher whose walk outlasts the settle budget and restores the lane", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const walker = yield* spawnSleepIn(path.dirname(repoRoot));
+        const error = yield* Effect.flip(remove(repoRoot)).pipe(
+          Effect.provideService(ProcessTable, yield* walkingWatcherTable(walker.pid, lane, Number.POSITIVE_INFINITY)),
+          Effect.provideService(WorktreeFenceSettle, quickSettle(3)),
+          Effect.ensuring(Effect.ignore(walker.kill()))
+        );
+        expect(failureMessage(error)).toContain(
+          `pid ${walker.pid} (sleep) via descriptor (an inotify watcher still walking the tree) still hold it after 3 scans`
+        );
+        expect(failureMessage(error)).toContain("exclude `.claude/worktrees` from the editor's project");
         expect(yield* fs.exists(lane)).toBe(true);
       })
     )

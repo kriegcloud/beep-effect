@@ -912,6 +912,14 @@ const renderRemovalReceipt = Effect.fn("Worktree.renderRemovalReceipt")(function
       ),
     { discard: true }
   );
+  yield* Effect.forEach(
+    receipt.inotifyWatchers,
+    (watcher) =>
+      Console.log(
+        `  warning: pid ${watcher.pid}${O.match(watcher.command, { onNone: () => "", onSome: (command) => ` (${command})` })} held only an inotify watch on the worktree, which cannot write into it, so the worktree was removed under it; an editor watching the clone (WebStorm's fsnotifier, for one) stops doing this once the worktree root is excluded from its project`
+      ),
+    { discard: true }
+  );
   if (receipt.branchDeleted) {
     yield* Console.log(`  branch deleted: ${O.getOrElse(receipt.branch, () => "(detached HEAD)")}`);
     return;

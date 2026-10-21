@@ -618,6 +618,11 @@ export const renderRetirement: {
         (pid) =>
           `  note: the idle Claude Desktop Terminal panel shell (pid ${pid}) stood in the lane and was left running; the lane was removed under it, so run \`cd ~\` in that Terminal tab before using it`
       ),
+      ...A.map(
+        receipt.inotifyWatchers,
+        (watcher) =>
+          `  warning: pid ${watcher.pid}${O.match(watcher.command, { onNone: () => "", onSome: (command) => ` (${command})` })} held only an inotify watch on the lane, which cannot write into it, so the lane was removed under it; an editor watching the clone (WebStorm's fsnotifier, for one) stops doing this once \`.claude/worktrees\` is excluded from its project`
+      ),
     ],
     "\n"
   )
