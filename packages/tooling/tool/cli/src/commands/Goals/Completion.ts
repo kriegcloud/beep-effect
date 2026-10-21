@@ -20,10 +20,15 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { appendContainedFileString, readContainedFileStringNoFollow } from "../../internal/cli/FsGuards.ts";
+import { repoRunArtifactId } from "../../internal/repo-run/RepoRunArtifacts.ts";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
+import { UUID } from "../../internal/schema/Uuid.ts";
 import { resolveProofLedgerLocation } from "../Yeet/internal/ArtifactPaths.ts";
-import { decideYeetReviewWindow, YEET_REVIEW_WINDOW_DEFAULT } from "../Yeet/internal/ReviewWindow.ts";
-import { YeetVerdict } from "../Yeet/internal/Verdict.ts";
+import { deriveYeetMergeReady } from "../Yeet/internal/MergeReadiness.policy.ts";
+import { ProofJobRecord } from "../Yeet/internal/ProofJob.ts";
+import { decideYeetReviewWindow, YEET_REVIEW_WINDOW_DEFAULT, YeetReviewWindow } from "../Yeet/internal/ReviewWindow.ts";
+import { YeetMergeReadyFromEncoded, YeetVerdict } from "../Yeet/internal/Verdict.ts";
+import { YeetWatchCheck } from "../Yeet/internal/WatchStream.ts";
 import { YeetCommandError } from "../Yeet/Yeet.errors.ts";
 import {
   GoalCompletionEvidenceInput,
@@ -315,10 +320,150 @@ const evidenceCheck = (
   detail: string
 ) => GoalEvidenceCheck.make({ ref, outcome, observedHead: head, detail });
 
+// Explicit recovery never rewrites the declared verdict: the receipt retains
+// that reference and records which independently validated producer proved readiness.
+const Recovery = S.Struct({
+  jobId: UUID,
+  prNumber: S.Int,
+  mergedAt: S.DateTimeUtcFromString,
+}).pipe(
+  $I.annoteSchema("ReadinessRecovery", {
+    description: "Explicit merged-PR readiness recovery bound to a terminal monitor job.",
+  })
+);
+// Status keeps legacy summaries decodable; recovery requires explicit facts
+// rather than letting legacy missing counters be interpreted as zero.
+const RecoveryFacts = S.Struct({
+  schemaVersion: S.Literal("yeet-status/v1"),
+  base: S.String,
+  branch: S.String,
+  runId: S.String,
+  statusPath: S.String,
+  createdAt: S.String,
+  mergeReady: YeetMergeReadyFromEncoded.pipe(S.OptionFromOptionalKey),
+  remote: S.Struct({
+    available: S.Boolean,
+    checked: S.Boolean,
+    number: S.Int,
+    state: S.String,
+    isDraft: S.Boolean,
+    mergeable: S.String,
+    mergeStateStatus: S.String,
+    reviewDecision: S.optionalKey(S.String),
+    headSha: S.String.pipe(S.OptionFromOptionalKey),
+    reviewWindow: YeetReviewWindow.pipe(S.OptionFromOptionalKey),
+    checks: S.Array(YeetWatchCheck),
+    checkCount: S.Natural,
+    failingCheckCount: S.Natural,
+    pendingCheckCount: S.Natural,
+    requiredCheckCount: S.Natural,
+    failingRequiredCheckCount: S.Natural,
+    pendingRequiredCheckCount: S.Natural,
+    optionalCheckCount: S.Natural,
+    failingOptionalCheckCount: S.Natural,
+    pendingOptionalCheckCount: S.Natural,
+    unresolvedReviewThreadCount: S.Natural,
+    followUpThreadCount: S.Natural,
+  }),
+  closeout: S.Struct({
+    issueCount: S.Natural,
+    gateIssues: S.Array(S.String),
+    path: S.String,
+    state: S.Literal("present"),
+    reviewedHeadSha: S.String.pipe(S.OptionFromOptionalKey),
+    greptileScore: S.String.pipe(S.OptionFromOptionalKey),
+  }),
+}).pipe(
+  $I.annoteSchema("RecoveryFacts", {
+    description: "Complete nonnegative hard-gate counters required for historical readiness recovery.",
+  })
+);
+const decodeRecoveryStatus = JsonStringCodec(RecoveryFacts).decode;
+const decodeJob = JsonStringCodec(ProofJobRecord).decode;
+const decodeRecoveryTime = S.decodeUnknownEffect(S.DateTimeUtcFromString);
+const decodeRecoveryJobId = S.decodeUnknownEffect(UUID);
+
+const recoverReadiness = Effect.fn("Goals.Completion.recoverReadiness")(function* (
+  root: string,
+  ref: GoalAcceptanceEvidenceRef,
+  head: string,
+  branch: string,
+  recovery: typeof Recovery.Type
+) {
+  const path = yield* Path.Path;
+  const runId = yield* repoRunArtifactId(branch);
+  const runRoot = path.join(root, ".beep", "yeet", "runs", runId);
+  if (path.resolve(root, ref.ref) !== path.join(runRoot, "verdict.json")) return false;
+  const jobFile = path.join(root, ".beep", "yeet", "jobs", `${recovery.jobId}.json`);
+  const jobRead = yield* readContainedFileStringNoFollow(root, jobFile);
+  const statusFile = path.join(runRoot, "status.json");
+  const statusRead = yield* readContainedFileStringNoFollow(root, statusFile);
+  const job = yield* decodeJob(yield* Effect.fromOption(jobRead.contents));
+  const status = yield* decodeRecoveryStatus(yield* Effect.fromOption(statusRead.contents));
+  const runner = yield* Effect.fromOption(job.runner);
+  const outcome = yield* Effect.fromOption(job.outcome);
+  const systemd = yield* Effect.fromOption(job.systemd);
+  const start = yield* decodeRecoveryTime(runner.startedAt);
+  const observed = yield* decodeRecoveryTime(status.createdAt);
+  const end = yield* decodeRecoveryTime(outcome.endedAt);
+  const submitted = yield* decodeRecoveryTime(job.submittedAt);
+  const finalized = yield* decodeRecoveryTime(systemd.finalizedAt);
+  const millis = DateTime.toEpochMillis;
+  const matches = A.every(
+    [
+      job.jobId === recovery.jobId,
+      job.phase === "finished",
+      outcome.verdictOutcome === "success",
+      systemd.serviceResult === "success",
+      O.contains("exited")(systemd.exitCode),
+      O.contains("0")(systemd.exitStatus),
+      O.isNone(job.terminationReason),
+      O.isNone(job.cancelRequestedAt),
+      job.request.mode === "monitor",
+      A.contains(job.request.argv, "--until-ready"),
+      !A.some(job.request.argv, (arg) => arg === "--until-merged" || arg === "--watch"),
+      path.resolve(job.request.checkout) === path.resolve(root),
+      job.request.branch === branch,
+      job.request.base === status.base,
+      O.contains(recovery.prNumber)(job.prNumber),
+      job.unit.unitName === `beep-proof-${recovery.jobId}.service`,
+      job.unit.logPath === path.join(root, ".beep", "yeet", "jobs", `${recovery.jobId}.log`),
+      status.runId === runId,
+      status.branch === branch,
+      status.statusPath === statusFile,
+      status.remote.number === recovery.prNumber,
+      O.contains(head)(status.remote.headSha),
+      O.contains(head)(status.closeout.reviewedHeadSha),
+      status.closeout.path === path.join(runRoot, "pr-closeout.json"),
+      millis(submitted) <= millis(start),
+      millis(start) <= millis(observed),
+      millis(observed) <= millis(end),
+      millis(end) <= millis(finalized),
+      millis(finalized) <= millis(recovery.mergedAt),
+      O.exists(status.mergeReady, (ready) => ready.ready),
+      O.exists(deriveYeetMergeReady(status.closeout, status.remote), (ready) => ready.ready),
+    ],
+    identity
+  );
+  return matches;
+});
+
+const canRecoverReadiness = (verdict: YeetVerdict, head: string): boolean =>
+  A.every(
+    [
+      verdict.mode === "publish",
+      verdict.outcome === "success",
+      O.contains(head)(verdict.resolvedHeadSha),
+      O.isNone(verdict.mergeReady),
+    ],
+    identity
+  );
+
 const readLocalEvidence = Effect.fn("Goals.Completion.localEvidence")(function* (
   root: string,
   ref: GoalAcceptanceEvidenceRef,
-  head: string
+  head: string,
+  recovery: O.Option<typeof Recovery.Type>
 ) {
   if (ref.kind !== "yeet-verdict")
     return evidenceCheck(
@@ -335,6 +480,18 @@ const readLocalEvidence = Effect.fn("Goals.Completion.localEvidence")(function* 
   if (O.isNone(verdict)) return evidenceCheck(ref, "unknown", O.none(), "Yeet verdict absent, invalid or unreadable.");
   const observedHead = verdict.value.resolvedHeadSha;
   const ready = O.map(verdict.value.mergeReady, (value) => value.ready);
+  if (O.isSome(recovery) && canRecoverReadiness(verdict.value, head)) {
+    const recovered = yield* recoverReadiness(root, ref, head, verdict.value.branch, recovery.value).pipe(
+      Effect.orElseSucceed(() => false)
+    );
+    if (recovered)
+      return evidenceCheck(
+        ref,
+        "verified",
+        O.some(head),
+        `Readiness recovered from canonical status.json and successful monitor job ${recovery.value.jobId}; verdict bytes unchanged.`
+      );
+  }
   const outcome = Match.value({ observedHead, ready }).pipe(
     Match.when(
       ({ observedHead, ready }) => O.exists(observedHead, (value) => value !== head) || O.contains(false)(ready),
@@ -382,7 +539,8 @@ const readDeclaredEvidence = Effect.fn("Goals.Completion.declaredEvidence")(func
   manifest: GoalManifest,
   head: string,
   gatingOutcome: GoalCompletionOutcome,
-  initial: ReadonlyArray<GoalEvidenceCheck>
+  initial: ReadonlyArray<GoalEvidenceCheck>,
+  recovery: O.Option<typeof Recovery.Type>
 ) {
   let evidence = initial;
   for (const ref of manifest.completionGate.acceptanceEvidence ?? []) {
@@ -390,7 +548,7 @@ const readDeclaredEvidence = Effect.fn("Goals.Completion.declaredEvidence")(func
       evidence,
       ref.kind === "hosted-required-checks"
         ? evidenceCheck(ref, gatingOutcome, O.some(head), "Hosted required checks at accepted head.")
-        : yield* readLocalEvidence(root, ref, head)
+        : yield* readLocalEvidence(root, ref, head, recovery)
     );
   }
   return evidence;
@@ -421,6 +579,14 @@ const hostedRequiredOutcome = (
  * console.log(typeof observeGoalCompletion)
  * ```
  *
+ * **Details**
+ *
+ * `readinessJob` explicitly permits recovery from the same run's retained status
+ * snapshot and a successfully finalized monitor job. It never alters the
+ * declared evidence reference or verdict bytes, and does not bypass hosted
+ * merge-time checks. The snapshot's remote head, rather than the submission
+ * head (a monitor may follow pushes), must match the accepted head.
+ *
  * @category queries
  * @since 0.0.0
  */
@@ -428,7 +594,8 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
   root: string,
   slug: string,
   manifest: GoalManifest,
-  final: GoalPullRequestRef
+  final: GoalPullRequestRef,
+  readinessJob: O.Option<string> = O.none()
 ) {
   const providedVerifier = yield* Effect.serviceOption(GoalCompletionVerifier);
   const resolve = O.getOrElse(
@@ -533,7 +700,15 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
         `Required contexts observed at accepted head before merge; ${O.getOrElse(O.map(required, A.length), () => 0)} contexts. ${describeGoalCompletionEvidence(verdict)} The merge-push rule suite supplies the merge-time ruleset inventory, including rulesets deleted since then; GitHub lists rule suites for one month.`
       )
     );
-    const evidence = yield* readDeclaredEvidence(root, manifest, head, gatingOutcome, hostedEvidence);
+    const recovery = yield* O.match(readinessJob, {
+      onNone: () => Effect.succeedNone,
+      onSome: (jobId) =>
+        decodeRecoveryJobId(jobId).pipe(
+          Effect.map((jobId) => Recovery.make({ jobId, prNumber: final.number, mergedAt })),
+          Effect.option
+        ),
+    });
+    const evidence = yield* readDeclaredEvidence(root, manifest, head, gatingOutcome, hostedEvidence, recovery);
     const conclusion = (check: GoalObservedCheckRun, atMerge: boolean): GoalCheckConclusion =>
       atMerge &&
       !O.exists(check.completed_at, (time) => DateTime.toEpochMillis(time) <= DateTime.toEpochMillis(mergedAt))
@@ -912,7 +1087,8 @@ const refreshRecord = Effect.fn("Goals.Completion.refreshRecord")(function* (
   root: string,
   record: GoalPacketRecord,
   explicit: boolean,
-  location: { readonly ledgerRoot: string; readonly file: string }
+  location: { readonly ledgerRoot: string; readonly file: string },
+  readinessJob: O.Option<string>
 ) {
   const decoded = readRefreshManifest(record);
   const manifest = yield* explicit ? decoded.pipe(Effect.asSome) : decoded.pipe(Effect.option);
@@ -926,7 +1102,7 @@ const refreshRecord = Effect.fn("Goals.Completion.refreshRecord")(function* (
   ).pipe(Effect.mapError(() => YeetCommandError.make({ message: "Requested goal has no final pull request" })));
   const final = yield* explicit ? finalRead.pipe(Effect.asSome) : finalRead.pipe(Effect.option);
   if (O.isNone(final)) return;
-  const receipt = yield* observeGoalCompletion(root, record.slug, manifest.value, final.value);
+  const receipt = yield* observeGoalCompletion(root, record.slug, manifest.value, final.value, readinessJob);
   if (O.isNone(receipt.merge)) {
     yield* Console.log(
       `[goals:completion] ${record.slug} #${final.value.number}: ${receipt.outcome} (no post-merge receipt written)`
@@ -936,7 +1112,12 @@ const refreshRecord = Effect.fn("Goals.Completion.refreshRecord")(function* (
   yield* appendContainedFileString(location.ledgerRoot, location.file, `${yield* ReceiptJson.encode(receipt)}\n`);
   yield* Console.log(`[goals:completion] ${record.slug} #${final.value.number}: ${receipt.outcome}`);
 });
-const refresh = Effect.fn("Goals.Completion.refresh")(function* (slug: O.Option<string>) {
+const refresh = Effect.fn("Goals.Completion.refresh")(function* (
+  slug: O.Option<string>,
+  readinessJob: O.Option<string>
+) {
+  if (O.isSome(readinessJob) && O.isNone(slug))
+    return yield* YeetCommandError.make({ message: "--readiness-job requires --slug" });
   const root = yield* findRepoRoot();
   const records = yield* listGoalPackets(root);
   const location = yield* receiptLocation(root);
@@ -946,7 +1127,7 @@ const refresh = Effect.fn("Goals.Completion.refresh")(function* (slug: O.Option<
     onNone: () => records,
     onSome: (value) => A.filter(records, (record) => record.slug === value),
   });
-  yield* Effect.forEach(selected, (record) => refreshRecord(root, record, O.isSome(slug), location));
+  yield* Effect.forEach(selected, (record) => refreshRecord(root, record, O.isSome(slug), location, readinessJob));
 });
 /**
  * Explicit sole writer for derived completion receipts; doctor never calls this command.
@@ -963,8 +1144,18 @@ const refresh = Effect.fn("Goals.Completion.refresh")(function* (slug: O.Option<
  */
 export const goalsCompletionCommand = Command.make("completion").pipe(
   Command.withSubcommands([
-    Command.make("refresh", { slug: Flag.String("slug").pipe(Flag.optional) }, ({ slug }) => refresh(slug)).pipe(
-      Command.withDescription("Explicitly observe GitHub and append clone-scoped goal completion receipts")
-    ),
+    Command.make(
+      "refresh",
+      {
+        slug: Flag.String("slug").pipe(Flag.optional),
+        readinessJob: Flag.String("readiness-job").pipe(
+          Flag.withDescription(
+            "Recover pre-merge readiness from a retained successful --until-ready job and canonical status snapshot; requires --slug"
+          ),
+          Flag.optional
+        ),
+      },
+      ({ slug, readinessJob }) => refresh(slug, readinessJob)
+    ).pipe(Command.withDescription("Explicitly observe GitHub and append clone-scoped goal completion receipts")),
   ])
 );

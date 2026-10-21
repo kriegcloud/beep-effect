@@ -16,6 +16,7 @@ import {
   runGoalsDoctor,
   storedGoalCompletion,
 } from "@beep/repo-cli/test/Goals";
+import { repoRunArtifactId } from "@beep/repo-cli/test/RepoRun";
 import { YeetCommandError } from "@beep/repo-cli/test/Yeet";
 import { LiteralKit } from "@beep/schema";
 import { it } from "@beep/test-runner";
@@ -271,6 +272,163 @@ const completeReceipt = Effect.fn("CompletionTest.completeReceipt")(function* ()
     })
   );
 });
+
+const RecoveryFixture = S.Struct({
+  root: S.String,
+  branch: S.String,
+  runId: S.String,
+  runRoot: S.String,
+  jobsRoot: S.String,
+  ref: S.String,
+  jobId: S.String,
+});
+type RecoveryFixture = typeof RecoveryFixture.Type;
+
+const recoveryVerdictFixture = (variant: string, fixture: RecoveryFixture, criteria: typeof readinessCriteria) => {
+  const { branch, runId } = fixture;
+  return encode({
+    schemaVersion: "yeet-verdict/v2",
+    base: "origin/main",
+    branch,
+    committed: true,
+    createdAt: "2026-10-06T00:00:00Z",
+    head: "HEAD",
+    resolvedHeadSha: "accepted-head",
+    lanes: [],
+    message: "publish succeeded",
+    mode: "publish",
+    outcome: variant === "failed-verdict" ? "failure" : "success",
+    packetPaths: [],
+    pushed: true,
+    runId,
+    ...(variant === "explicit-not-ready"
+      ? { mergeReady: { ready: false, failing: "pr-open", criteria: { ...criteria, prOpen: false } } }
+      : {}),
+  });
+};
+const recoveryRemoteFixture = (variant: string) => ({
+  available: true,
+  checked: true,
+  detail: "PR OPEN",
+  number: variant === "wrong-pr" ? 8 : 7,
+  headSha: variant === "wrong-head" ? "older-head" : "accepted-head",
+  state: "OPEN",
+  isDraft: false,
+  mergeable: "MERGEABLE",
+  mergeStateStatus: "CLEAN",
+  unresolvedReviewThreadCount: 0,
+  ...(variant === "missing-thread-facts" ? {} : { followUpThreadCount: 0 }),
+  optionalCheckCount: 0,
+  failingOptionalCheckCount: 0,
+  pendingOptionalCheckCount: 0,
+  checks: [],
+  checkCount: 1,
+  requiredCheckCount: 1,
+  failingCheckCount: variant === "contradictory-ready" ? 1 : 0,
+  pendingCheckCount: 0,
+  ...(variant === "missing-check-facts" ? {} : { failingRequiredCheckCount: 0 }),
+  pendingRequiredCheckCount: 0,
+  reviewWindow: {
+    _tag: "elapsed",
+    anchor: "head-push",
+    anchoredAt: "2026-10-06T00:00:00Z",
+    windowMs: 1200000,
+  },
+});
+const recoveryStatusFixture = (variant: string, fixture: RecoveryFixture, criteria: typeof readinessCriteria) => {
+  const { branch, runId, runRoot, ref } = fixture;
+  return encode({
+    schemaVersion: "yeet-status/v1",
+    base: "origin/main",
+    branch: variant === "wrong-branch" ? "other" : branch,
+    createdAt:
+      variant === "after-merge"
+        ? "2026-10-06T01:01:00Z"
+        : variant === "outside-job"
+          ? "2026-10-05T23:00:00Z"
+          : "2026-10-06T00:40:00Z",
+    head: "HEAD",
+    runId,
+    statusPath: `${runRoot}/status.json`,
+    nextCommand: "merge",
+    closeout: {
+      state: "present",
+      path: `${runRoot}/pr-closeout.json`,
+      detail: "reviewed",
+      issueCount: 0,
+      gateIssues: [],
+      reviewedHeadSha: variant === "wrong-closeout" ? "older-head" : "accepted-head",
+    },
+    verdict: { state: "present", path: ref, detail: "published" },
+    worktree: { clean: true, staged: 0, unstaged: 0, untracked: 0 },
+    mergeReady: {
+      ready: variant !== "not-ready",
+      ...(variant === "not-ready" ? { failing: "pr-open" } : {}),
+      criteria: variant === "not-ready" ? { ...criteria, prOpen: false } : criteria,
+    },
+    remote: recoveryRemoteFixture(variant),
+  });
+};
+const recoveryJobFixture = (variant: string, fixture: RecoveryFixture) => {
+  const { root, branch, jobsRoot, jobId } = fixture;
+  return encode({
+    schemaVersion: "yeet-proof-job/v1",
+    jobId,
+    phase: "finished",
+    submittedAt: "2026-10-06T00:00:00Z",
+    request: {
+      mode: "monitor",
+      argv: ["monitor", "--until-ready"],
+      checkout: root,
+      branch,
+      base: "origin/main",
+      head: "old-submission-head",
+      forwardedEnvNames: [],
+    },
+    submitter: { pid: 1, cwd: root },
+    unit: {
+      unitName: `beep-proof-${jobId}.service`,
+      slice: "agent-runs.slice",
+      description: "monitor",
+      logPath: `${jobsRoot}/${jobId}.log`,
+      execStart: [],
+      execStopPost: [],
+    },
+    runner: { pid: 2, startedAt: "2026-10-06T00:01:00Z" },
+    prNumber: 7,
+    ...(variant === "missing-finalization"
+      ? {}
+      : {
+          systemd: {
+            serviceResult: variant === "failed-finalization" ? "exit-code" : "success",
+            exitCode: "exited",
+            exitStatus: variant === "failed-finalization" ? "1" : "0",
+            finalizedAt: "2026-10-06T00:42:00Z",
+          },
+        }),
+    outcome: {
+      verdictOutcome: variant === "failed-job" ? "failure" : "success",
+      endedAt: "2026-10-06T00:41:00Z",
+    },
+  });
+};
+const recoveryExpectedOutcome = (variant: string) => {
+  if (variant === "valid" || variant === "hosted-red") return "verified";
+  return variant === "explicit-not-ready" ? "unsatisfied" : "unknown";
+};
+const recoveryJobOption = (variant: string, jobId: string) =>
+  variant === "without-opt-in" ? O.none<string>() : O.some(variant === "path-escape" ? "../../outside" : jobId);
+const readinessCriteria = {
+  prOpen: true,
+  notDraft: true,
+  closeoutRun: true,
+  requiredChecksGreen: true,
+  threadsResolved: true,
+  mergeable: true,
+  mergeStateAcceptable: true,
+  reviewDecisionAcceptable: true,
+  reviewWindowElapsed: true,
+};
 
 it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations and storage", (it) => {
   it.effect.prop(
@@ -710,4 +868,82 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       expect(exit._tag).toBe("Failure");
     })
   );
+  for (const variant of [
+    "valid",
+    "without-opt-in",
+    "wrong-head",
+    "wrong-pr",
+    "after-merge",
+    "outside-job",
+    "failed-job",
+    "failed-finalization",
+    "missing-finalization",
+    "missing-thread-facts",
+    "missing-check-facts",
+    "not-ready",
+    "contradictory-ready",
+    "path-escape",
+    "status-symlink",
+    "wrong-branch",
+    "wrong-closeout",
+    "failed-verdict",
+    "explicit-not-ready",
+    "hosted-red",
+  ]) {
+    it.effect(`recovers only canonical pre-merge monitor readiness: ${variant}`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped();
+        const branch = "codex/recovery-test";
+        const runId = yield* repoRunArtifactId(branch);
+        const runRoot = path.join(root, ".beep", "yeet", "runs", runId);
+        const jobsRoot = path.join(root, ".beep", "yeet", "jobs");
+        const jobId = "aabbccdd-1234-4567-89ab-123456789abc";
+        yield* fs.makeDirectory(runRoot, { recursive: true });
+        yield* fs.makeDirectory(jobsRoot, { recursive: true });
+        const ref = path.join(runRoot, "verdict.json");
+        const value = yield* decodeGoalManifest({
+          initiative: { id: "demo", status: "active" },
+          proposedCloseout: { status: "completed-retained", finalPullRequest: 7 },
+          completionGate: {
+            operator: "yeet",
+            requiresPullRequest: true,
+            requiresMergeable: true,
+            statement: "Ship via yeet",
+            grandfathered: false,
+            pullRequests: [{ number: 7, role: "final" }],
+            acceptanceEvidence: [{ kind: "yeet-verdict", ref, gating: true }],
+          },
+        });
+        const fixture = RecoveryFixture.make({ root, branch, runId, runRoot, jobsRoot, ref, jobId });
+        const verdictText = recoveryVerdictFixture(variant, fixture, readinessCriteria);
+        yield* fs.writeFileString(ref, verdictText);
+        const statusText = recoveryStatusFixture(variant, fixture, readinessCriteria);
+        if (variant === "status-symlink") {
+          const outside = yield* fs.makeTempDirectoryScoped();
+          yield* fs.writeFileString(path.join(outside, "status.json"), statusText);
+          yield* fs.symlink(path.join(outside, "status.json"), path.join(runRoot, "status.json"));
+        } else yield* fs.writeFileString(path.join(runRoot, "status.json"), statusText);
+        yield* fs.writeFileString(path.join(jobsRoot, `${jobId}.json`), recoveryJobFixture(variant, fixture));
+        const job = recoveryJobOption(variant, jobId);
+        const receipt = yield* observeGoalCompletion(root, "demo", value, final, job).pipe(
+          Effect.provideService(
+            GoalCompletionIo,
+            fixtureIo(yield* encodeGoalManifestJson(value), { red: variant === "hosted-red" })
+          )
+        );
+        const evidence = A.findFirst(
+          receipt.evidence,
+          (item) => item.ref.kind === "yeet-verdict" && item.ref.ref === ref
+        );
+        assertSome(
+          O.map(evidence, (item) => item.outcome),
+          recoveryExpectedOutcome(variant)
+        );
+        if (variant === "hosted-red") expect(receipt.outcome).not.toBe("verified");
+        expect(yield* fs.readFileString(ref)).toBe(verdictText);
+      })
+    );
+  }
 });
