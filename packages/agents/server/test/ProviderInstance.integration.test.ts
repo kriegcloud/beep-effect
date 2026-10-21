@@ -38,6 +38,7 @@ import { A, Str } from "@beep/utils";
 import * as HostPath from "@beep/utils/Path";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import { sql } from "drizzle-orm";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -261,7 +262,7 @@ describe("ProviderInstance PGLite integration", { concurrent: false }, () => {
         // The configuration update survived; the stale probe did not revert it.
         const stored = yield* useCases.get(GetProviderInstanceQuery.make({ id: added.id }));
         expect([stored.label, stored.rowVersion]).toEqual(["Renamed mid-probe", 2]);
-        expect(O.isNone(stored.lastProbe)).toBe(true);
+        assertNone(stored.lastProbe);
 
         const stale = yield* Effect.flip(repository.save(added));
         expect(stale).toMatchObject({ _tag: "ProviderInstanceVersionConflict", actualRowVersion: 2 });

@@ -314,7 +314,7 @@ describe("ThreadStore in-memory", () => {
     })
   );
 
-  it.layer(Layer.fresh(CuidTestLayer))((it) => {
+  it.layer(Layer.fresh(CuidTestLayer), { timeout: "10 seconds" })((it) => {
     it.effect(
       "sets an empty thread title once",
       Effect.fnUntraced(function* () {

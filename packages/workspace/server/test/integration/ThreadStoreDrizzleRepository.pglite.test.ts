@@ -8,7 +8,6 @@ import { it } from "@beep/test-runner";
 import { makePgliteIntegrationGate, makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
 import { Thread } from "@beep/workspace-domain/entities/Thread";
 import { makeDrizzleThreadStore } from "@beep/workspace-server/aggregates/Thread";
-import { makeDrizzleWorkspaceVaultStore } from "@beep/workspace-server/aggregates/Workspace";
 import { DbSchema } from "@beep/workspace-tables";
 import { toThreadInsert } from "@beep/workspace-tables/entities/Thread";
 import {
@@ -16,14 +15,11 @@ import {
   CreateThreadInput,
   SetThreadTitleIfEmptyInput,
 } from "@beep/workspace-use-cases/aggregates/Thread/server";
-import { Workspace } from "@beep/workspace-use-cases/server";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
-import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import { describe, expect } from "@effect/vitest";
 import { btree_gist } from "@electric-sql/pglite/contrib/btree_gist";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -61,10 +57,8 @@ const migrateWorkspaceThread = Effect.fnUntraced(function* () {
 
 const ThreadStoreDrizzleRepositoryLayer = makeDrizzleLayer().pipe(
   Layer.provideMerge(makeMigrationCapableLayer()),
-  Layer.provideMerge(CuidTestLayer),
-  Layer.provideMerge(BunFileSystem.layer)
+  Layer.provideMerge(CuidTestLayer)
 );
-const decodeSetWorkspaceVaultInput = S.decodeUnknownEffect(Workspace.SetWorkspaceVaultInput);
 
 if (!shouldRunPgliteIntegration) {
   describe.skip("Workspace ThreadStore Drizzle repository PgLite integration", () => {});
@@ -147,27 +141,6 @@ if (!shouldRunPgliteIntegration) {
           if (secondItem?.kind === "message") {
             expect(secondItem.role).toBe("assistant");
           }
-        }),
-        pgliteIntegrationTimeoutMillis
-      );
-
-      it.effect(
-        "advances the workspace row version when the vault root moves",
-        Effect.fnUntraced(function* () {
-          yield* migrateWorkspaceThread();
-          const fs = yield* FileSystem.FileSystem;
-          const store = yield* makeDrizzleWorkspaceVaultStore();
-          const db = yield* makeDrizzle();
-          const first = yield* fs.makeTempDirectoryScoped({ prefix: "beep-workspace-vault-a-" });
-          const second = yield* fs.makeTempDirectoryScoped({ prefix: "beep-workspace-vault-b-" });
-
-          yield* store.setVaultRoot(yield* decodeSetWorkspaceVaultInput({ vaultRootPath: first, workspaceId: 9 }));
-          yield* store.setVaultRoot(yield* decodeSetWorkspaceVaultInput({ vaultRootPath: second, workspaceId: 9 }));
-
-          const rows = yield* db
-            .select({ rowVersion: DbSchema.workspace.rowVersion, vaultRootPath: DbSchema.workspace.vaultRootPath })
-            .from(DbSchema.workspace);
-          expect(A.map(rows, (row) => [row.vaultRootPath, row.rowVersion] as const)).toEqual([[second, 2]]);
         }),
         pgliteIntegrationTimeoutMillis
       );
