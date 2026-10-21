@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 48,
     "symbol": "FirecrawlSdkWatcher",
     "smell": "Exported type literal with function members matches the schema-first-inventory detector surface.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 71,
     "symbol": "FirecrawlSdkClient",
     "smell": "Exported type literal with many Promise-returning function members matches the schema-first-inventory detector surface.",
@@ -31,7 +31,7 @@
   },
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 156,
     "symbol": "FirecrawlShape",
     "smell": "Exported type literal with Effect-returning service methods matches the schema-first-inventory detector surface.",
@@ -46,7 +46,7 @@
   },
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.models.ts",
+    "file": "retired:firecrawl/src/Firecrawl.models.ts",
     "line": 84,
     "symbol": "FirecrawlSdkAgentRequest",
     "smell": "Local pure-object type literal backs an exported request schema via `typedUnknown<FirecrawlSdkAgentRequest>`.",
@@ -61,7 +61,7 @@
   },
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.models.ts",
+    "file": "retired:firecrawl/src/Firecrawl.models.ts",
     "line": 96,
     "symbol": "FirecrawlSdkAgentWaitRequest",
     "smell": "Local intersection type extends the opaque SDK request with polling fields and backs an exported request schema via `typedUnknown<FirecrawlSdkAgentWaitRequest>`.",
@@ -76,7 +76,7 @@
   },
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 276,
     "symbol": "decodeWith",
     "smell": "Local decode helper matches the decode-helper-wall smell textually (`S.decodeUnknownEffect(schema)(value)`).",
@@ -91,7 +91,7 @@
   },
   {
     "ruleId": "schema-first-inventory",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 350,
     "symbol": "emitWatcherEvent",
     "smell": "Local decode helper matches the decode-helper-wall smell textually (`S.decodeUnknownResult(schema)(value)`).",

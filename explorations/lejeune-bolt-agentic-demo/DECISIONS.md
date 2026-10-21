@@ -197,7 +197,7 @@ asking for a mailbox export before consent and pilot terms exist.
 
 **Answer:** Use the already API-key-wired `@beep/anthropic` hosted driver for extraction and
 reasoning over public and synthetic content. If it fails proving, keep the `openai-compat`,
-`venice-ai`, and `xai` drivers as fallback candidates. Keep a fixed local replay of successful
+`retired:venice-ai`, and `retired:xai` drivers as fallback candidates. Keep a fixed local replay of successful
 outputs as the fully offline fallback.
 
 **Reasoning:** Hosted providers are allowed for this data boundary. The repo has several model
@@ -419,7 +419,7 @@ renegotiation.
 **Question:** When must the live model path be proven, and what happens if it fails?
 
 **Answer:** Make one live `@beep/anthropic` extraction call a day-1 acceptance item. On failure,
-fall to `openai-compat`, `venice-ai`, or `xai` the same day.
+fall to `openai-compat`, `retired:venice-ai`, or `retired:xai` the same day.
 
 **Reasoning:** The provider path is settled on day 1 instead of consuming later schedule margin.
 

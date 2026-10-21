@@ -183,8 +183,8 @@ The `@beep/*` bricks this dispatch Layer composes (from bundle `secondaryTargets
 | --- | --- | --- |
 | `@beep/anthropic` driver (`makeAnthropicLanguageModelLayer`, `AnthropicTurnPlan`, `ANTHROPIC_DEFAULT_MODEL`, `AI_ANTHROPIC_API_KEY`) | `packages/drivers/anthropic` | **reuse** (registry reads its constants; no `.model()`) |
 | `@beep/openai-compat` driver (top-level `layer`/`model`; broker-ready `apiUrl`+conditional bearer) | `packages/drivers/openai-compat` | **reuse** (V1 fallback step) |
-| `@beep/xai` driver (`XAiLanguageModel.layer`/`.model`) | `packages/drivers/xai` | **reuse** (V1 fallback step) |
-| `@beep/venice-ai` driver (`VeniceAiLanguageModel.layer`/`.model`, `VENICE_CHAT_MODEL`) | `packages/drivers/venice-ai` | **reuse** |
+| `retired:xai` driver (`XAiLanguageModel.layer`/`.model`) | `retired:xai` | **reuse** (V1 fallback step) |
+| `retired:venice-ai` driver (`VeniceAiLanguageModel.layer`/`.model`, `VENICE_CHAT_MODEL`) | `retired:venice-ai` | **reuse** |
 | `@beep/nlp-mcp` (Tool/Toolkit single-source tool schema) | `packages/drivers/nlp-mcp` | **reuse** (tool-schema, supersedes `mike#10`) |
 | `@beep/agents/server` consumer (`AnthropicTurnKernel.ts:129` `Stream.withExecutionPlan`) | `packages/agents/server` | **extend** (first consumer; swap single→multi-provider plan) |
 | `@beep/langextract` capability | `packages/foundation/capability/langextract` | **reuse** (downstream extraction consumer) |

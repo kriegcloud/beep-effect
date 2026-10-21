@@ -12,7 +12,7 @@ explicitly marked NET-NEW.
 | Candidate | Disposition | Mission | Trigger / dependency | Capabilities cited |
 | --- | --- | --- | --- | --- |
 | [`llm-provider-subscription-auth`](../../goals/llm-provider-subscription-auth/README.md) | **GRADUATED** (shipped 2026-07-11) | Delegate Claude/Codex subscription authentication to vendor CLIs without storing provider tokens. | Shipped auth leg; it is not a dispatchable endpoint or credential source. | `@beep/ai-provider-cli`; agents `ProviderInstance` domain/use-cases/server surfaces |
-| `llm-runtime-dispatch` | **DEMAND-GATED** — no goal scaffold | Construct/select ordered `ExecutionPlan`s over configured, eligible provider targets for an owning runtime consumer. | **Trigger:** a real consumer requires two compatible, credential-resolvable runtime targets. Consumer candidate: `AnthropicTurnKernel` successor work. | Vendored `ExecutionPlan`; public barrels of `@beep/anthropic`, `@beep/openai-compat`, `@beep/xai`, `@beep/venice-ai`; `LanguageModel.generateObject`; secret-governance credential-resolution port |
+| `llm-runtime-dispatch` | **DEMAND-GATED** — no goal scaffold | Construct/select ordered `ExecutionPlan`s over configured, eligible provider targets for an owning runtime consumer. | **Trigger:** a real consumer requires two compatible, credential-resolvable runtime targets. Consumer candidate: `AnthropicTurnKernel` successor work. | Vendored `ExecutionPlan`; public barrels of `@beep/anthropic`, `@beep/openai-compat`, `retired:xai`, `retired:venice-ai`; `LanguageModel.generateObject`; secret-governance credential-resolution port |
 
 ## Sequencing
 

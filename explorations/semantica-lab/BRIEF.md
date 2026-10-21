@@ -221,7 +221,7 @@ Each is patched here or graduates as an explicit constraint the goal packet inhe
    slice"; live search finds no `EmbeddingModel` Layer anywhere in `packages/**/src` or `apps`.
    The contract itself is Effect's own: `effect/ai/EmbeddingModel` (v4 rc.111 —
    `embed`/`embedMany`, `EmbedResponse`, `Dimensions`, `EmbeddingRequest` resolver). Patch: the
-   lab builds one hosted Layer with `EmbeddingModel.make({ embedMany })` over `@beep/venice-ai`'s
+   lab builds one hosted Layer with `EmbeddingModel.make({ embedMany })` over `retired:venice-ai`'s
    existing `createEmbedding` operation (any openai-compat provider is one more Layer), and
    wraps `EmbedResponse` into the shared schema's `EmbeddingVector` + `ModelIdentity` so a
    vector without model identity stays unrepresentable. Graduation home for the Layer is the

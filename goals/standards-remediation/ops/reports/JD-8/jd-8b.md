@@ -24,7 +24,7 @@ apply would have mishandled.
 | `@beep/oip-web` | 4 | 4 | 0 | n/a** | 48/48 | 1 pre-existing failure elsewhere*** |
 | `@beep/repo-ai-metrics` | 4 | 4 | 0 | 259 | 57/57 | clean |
 | `@beep/law-practice-domain` | 3 | 3 | 0 | 82 | 14/14 | clean |
-| `@beep/firecrawl` | 3 | 3 | 0 | 268 | 10/10 | clean |
+| `retired:firecrawl` | 3 | 3 | 0 | 268 | 10/10 | clean |
 | `@beep/ffmpeg` | 3 | 3 | 0 | 51 | 7/7 | clean |
 | `@beep/agents-client` | 3 | 3† | 0 | 25 | 2/2 | clean |
 | `@beep/libpff` | 2 | 2 | 0 | 16 | 9/9 | clean |
@@ -123,7 +123,7 @@ entries above it, then route the two classes' third argument through
 - `apps/oip-web/src/{app/api/contact/ContactRouteResponse.ts,app/layout.tsx,app/page.tsx,components/HeroVideo.tsx}`
 - `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts`
 - `packages/law-practice/domain/src/values/{ApplicationNumber/ApplicationNumber.model.ts,PatentDocumentTriplet/PatentDocumentTriplet.model.ts,PatentNumber/PatentNumber.model.ts}`
-- `packages/drivers/firecrawl/src/Firecrawl.models.ts`
+- `retired:firecrawl/src/Firecrawl.models.ts`
 - `packages/drivers/ffmpeg/src/FFmpeg.models.ts`
 - `packages/agents/client/src/Chat.atoms.ts`
 - `packages/drivers/libpff/src/Libpff.pffexport.ts`

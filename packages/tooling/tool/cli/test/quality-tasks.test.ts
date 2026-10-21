@@ -8115,8 +8115,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               "  console.error(`Failed:    ${packageName}#build`);",
               "  process.exit(2);",
               "};",
-              'if (invocation === 0 && filter === undefined) failTs2589("@beep/xai");',
-              'if (invocation === 1 && filter === "--filter=@beep/xai") process.exit(0);',
+              'if (invocation === 0 && filter === undefined) failTs2589("@beep/quarantine-fixture");',
+              'if (invocation === 1 && filter === "--filter=@beep/quarantine-fixture") process.exit(0);',
               'if (invocation === 2 && filter === undefined) failTs2589("@beep/ui");',
               'if (invocation === 3 && filter === "--filter=@beep/ui") process.exit(0);',
               "if (invocation === 4 && filter === undefined) process.exit(0);",
@@ -8139,7 +8139,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           );
           const artifact = yield* FlakeQuarantineArtifactJson.decode(artifactText);
           expect(A.map(artifact.incidents, (incident) => incident.taskId)).toEqual([
-            "@beep/xai#build",
+            "@beep/quarantine-fixture#build",
             "@beep/ui#build",
           ]);
           expect(yield* fs.readFileString(statePath)).toBe("5");
@@ -8174,12 +8174,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               "await Bun.write(statePath, String(invocation + 1));",
               'const filter = process.argv.find((arg) => arg.startsWith("--filter="));',
               "const failTs2589 = () => {",
-              '  console.error("@beep/xai:build: error TS2589: Type instantiation is excessively deep and possibly infinite.");',
-              '  console.error("Failed:    @beep/xai#build");',
+              '  console.error("@beep/quarantine-fixture:build: error TS2589: Type instantiation is excessively deep and possibly infinite.");',
+              '  console.error("Failed:    @beep/quarantine-fixture#build");',
               "  process.exit(2);",
               "};",
               "if (invocation === 0 && filter === undefined) failTs2589();",
-              'if (invocation === 1 && filter === "--filter=@beep/xai") process.exit(0);',
+              'if (invocation === 1 && filter === "--filter=@beep/quarantine-fixture") process.exit(0);',
               "if (invocation === 2 && filter === undefined) failTs2589();",
               "process.exit(9);",
             ],
@@ -8205,7 +8205,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 
           const logText = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
           expect(logText).toContain(
-            "[flake-quarantine] test:quarantine-repeat: lane rerun repeated the flake for @beep/xai#build; keeping failure hard"
+            "[flake-quarantine] test:quarantine-repeat: lane rerun repeated the flake for @beep/quarantine-fixture#build; keeping failure hard"
           );
         })
       ).pipe(

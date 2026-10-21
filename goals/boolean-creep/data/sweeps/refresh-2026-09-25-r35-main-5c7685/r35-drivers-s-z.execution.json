@@ -13,7 +13,7 @@
   "reportRecords": 2,
   "qualifiedCandidates": 2,
   "errors": [],
-  "completionSummary": "`goals/boolean-creep/data/sweeps/refresh-2026-09-25-r35-main-5c7685/r35-drivers-s-z.jsonl`\n\n**Counts:** 2 confirmed, 0 disqualified. The validator passed.\n\n**Coverage:** Every assigned root was scanned (`sanity`, `shacl`, `tailscale`, `tika`, `uspto`, `uspto-mcp`, `venice-ai`, `wink`, `xai`). The five seeded clusters are unchanged, so they were not rewritten.\n\n**Unresolved:** `XAiWebSocketEvent.isBinary` stays out of the report. It is one optional boolean; the documented message example carries `text` without it, and close/error events omit it, so it is not an exclusive flag-plus-payload pair.",
+  "completionSummary": "`goals/boolean-creep/data/sweeps/refresh-2026-09-25-r35-main-5c7685/r35-drivers-s-z.jsonl`\n\n**Counts:** 2 confirmed, 0 disqualified. The validator passed.\n\n**Coverage:** Every assigned root was scanned (`sanity`, `shacl`, `tailscale`, `tika`, `uspto`, `uspto-mcp`, `retired:venice-ai`, `wink`, `retired:xai`). The five seeded clusters are unchanged, so they were not rewritten.\n\n**Unresolved:** `XAiWebSocketEvent.isBinary` stays out of the report. It is one optional boolean; the documented message example carries `text` without it, and close/error events omit it, so it is not an exclusive flag-plus-payload pair.",
   "transcriptSha256": "82965e77a033cb5c326031e77857fd347df3f3f8b9504c1c942ee2a9f4708df3",
   "runnerSha256": "d10cfc3561b1ae51721442c089e8bb1fe3255daedb8fa5a74a687c0497530fb2",
   "seedSha256": "127da91de2e94a53abf52c53cdc57b42ea9aa93780571aa80f2d2407759061c4",

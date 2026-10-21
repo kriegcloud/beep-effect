@@ -182,7 +182,7 @@ extract→titles→apply→verify pipeline in one place.
 
 **Rejected.** `claudeg` Workflow batched at ~4 files per agent (~490 agents; fits the cap, but
 adds harness overhead to a pure data transform and resumes per run). Workflow split across
-multiple runs (manual bookkeeping, highest spend). Extending `packages/drivers/xai` (driver
+multiple runs (manual bookkeeping, highest spend). Extending `retired:xai` (driver
 surface growth for a one-shot migration).
 
 ## D9 — Residue is data; gate, law, and baseline flip inside P3

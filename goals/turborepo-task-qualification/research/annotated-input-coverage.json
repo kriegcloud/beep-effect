@@ -118,7 +118,7 @@
     "goals/domain-kernel-hardening": 3,
     "goals/epistemic-claim-lifecycle-gate": 3,
     "goals/file-processing-capability": 3,
-    "goals/firecrawl-driver": 3,
+    "retired-packet:firecrawl-driver": 3,
     "goals/goal-portfolio-driver": 3,
     "goals/gov-legal-data-driver-codegen": 3,
     "goals/identity-iri-core": 3,

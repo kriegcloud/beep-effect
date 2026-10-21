@@ -355,7 +355,7 @@ verified via `ls`/`rg` on 2026-06-29; package names resolved from each `package.
   `goals/repo-codegraph-jsdoc` research prose, never executable). NET-NEW, and this packet is
   the designated single owner (k=60, literal-floor, empty-channel renorm).
 - **Local text-embedding pipeline** — **NOT FOUND**. No `feature-extraction`/transformers.js/
-  text-embedding pipeline in `packages/**`; the only ONNX usage is `@beep/face-detection`
+  text-embedding pipeline in `packages/**`; the only ONNX usage is `retired:face-detection`
   (image, not text). NET-NEW: runtime-neutral encoder port, provisional
   `nomic-embed-text-v1.5` adapter, model identity, and asymmetric-prefix strategy.
 - **Offset-preserving char-span chunker** — **NOT FOUND** as a standalone capability (the

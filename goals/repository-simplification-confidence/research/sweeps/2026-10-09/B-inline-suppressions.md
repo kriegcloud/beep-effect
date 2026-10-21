@@ -82,10 +82,10 @@ Notes:
 | `packages/tooling/tool/cli` | 66 | 0 | 9 | 3 | 0 | 6 | 84 |
 | `apps/professional-desktop` | 6 | 0 | 4 | 0 | 0 | 6 | 16 |
 | `packages/foundation/ui-system/ui` | 10 | 2 | 2 | 0 | 0 | 2 | 16 |
-| `packages/drivers/venice-ai` | 10 | 0 | 0 | 0 | 0 | 0 | 10 |
+| `retired:venice-ai` | 10 | 0 | 0 | 0 | 0 | 0 | 10 |
 | `(root)` | 8 | 0 | 1 | 0 | 0 | 0 | 9 |
 | `packages/foundation/ui-system/editor` | 4 | 0 | 1 | 2 | 0 | 2 | 9 |
-| `packages/drivers/xai` | 8 | 0 | 0 | 0 | 0 | 0 | 8 |
+| `retired:xai` | 8 | 0 | 0 | 0 | 0 | 0 | 8 |
 | `packages/drivers/ffmpeg` | 7 | 0 | 0 | 0 | 0 | 0 | 7 |
 | `packages/foundation/modeling/rdf` | 6 | 0 | 0 | 0 | 0 | 1 | 7 |
 | `packages/foundation/ui-system/dock-react` | 7 | 0 | 0 | 0 | 0 | 0 | 7 |
@@ -112,7 +112,7 @@ Notes:
 | `packages/agents/server` | 1 | 0 | 0 | 0 | 0 | 1 | 2 |
 | `packages/agents/use-cases` | 1 | 0 | 0 | 0 | 0 | 1 | 2 |
 | `packages/drivers/acp` | 2 | 0 | 0 | 0 | 0 | 0 | 2 |
-| `packages/drivers/firecrawl` | 2 | 0 | 0 | 0 | 0 | 0 | 2 |
+| `retired:firecrawl` | 2 | 0 | 0 | 0 | 0 | 0 | 2 |
 | `packages/drivers/govinfo` | 2 | 0 | 0 | 0 | 0 | 0 | 2 |
 | `packages/drivers/m365` | 2 | 0 | 0 | 0 | 0 | 0 | 2 |
 | `packages/drivers/occt` | 2 | 0 | 0 | 0 | 0 | 0 | 2 |
@@ -370,8 +370,8 @@ Consumer-local `PosInt.ts` copies each carrying a `fallow-ignore-file code-dupli
 | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:2352` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
 | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:2388` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
 | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:2467` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/firecrawl/src/Firecrawl.errors.ts:423` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/firecrawl/src/Firecrawl.errors.ts:428` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:firecrawl/src/Firecrawl.errors.ts:423` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:firecrawl/src/Firecrawl.errors.ts:428` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
 | `packages/drivers/govinfo/src/domain/contracts/Search/Search.contract.ts:214` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
 | `packages/drivers/govinfo/src/internal/PosInt.ts:14` | fallow-ignore-file | `code-duplication` | yes (same-line --) |
 | `packages/drivers/graph-3d/stories/graph3d.stories.tsx:54` | fallow-ignore-next-line | `complexity` | yes (same-line --) |
@@ -396,24 +396,24 @@ Consumer-local `PosInt.ts` copies each carrying a `fallow-ignore-file code-dupli
 | `packages/drivers/tesseract/src/Tesseract.service.ts:7` | fallow-ignore-file | `code-duplication` | yes (same-line --) |
 | `packages/drivers/tika/src/internal/PosInt.ts:14` | fallow-ignore-file | `code-duplication` | yes (same-line --) |
 | `packages/drivers/uspto-mcp/src/internal/PosInt.ts:14` | fallow-ignore-file | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAI.service.ts:70` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAI.service.ts:918` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAI.service.ts:934` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAI.service.ts:954` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAI.service.ts:1595` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAI.service.ts:1635` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAI.service.ts:1764` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAI.service.ts:1880` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts:92` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts:297` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/xai/src/XAi.errors.ts:162` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/xai/src/XAi.errors.ts:191` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/xai/src/XAi.service.ts:245` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/xai/src/XAi.service.ts:306` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/xai/src/XAi.service.ts:425` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/xai/src/XAi.service.ts:584` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/xai/src/XAiLanguageModel.service.ts:121` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
-| `packages/drivers/xai/src/XAiLanguageModel.service.ts:298` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAI.service.ts:70` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAI.service.ts:918` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAI.service.ts:934` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAI.service.ts:954` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAI.service.ts:1595` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAI.service.ts:1635` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAI.service.ts:1764` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAI.service.ts:1880` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAiLanguageModel.service.ts:92` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:venice-ai/src/VeniceAiLanguageModel.service.ts:297` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:xai/src/XAi.errors.ts:162` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:xai/src/XAi.errors.ts:191` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:xai/src/XAi.service.ts:245` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:xai/src/XAi.service.ts:306` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:xai/src/XAi.service.ts:425` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:xai/src/XAi.service.ts:584` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:xai/src/XAiLanguageModel.service.ts:121` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
+| `retired:xai/src/XAiLanguageModel.service.ts:298` | fallow-ignore-next-line | `code-duplication` | yes (same-line --) |
 | `packages/ecosystem/effect-drizzle/src/core/Field.ts:50` | biome-ignore | `lint/suspicious/noExplicitAny` | yes (same-line :) |
 | `packages/ecosystem/effect-drizzle/src/core/variant.ts:150` | biome-ignore | `lint/suspicious/noExplicitAny` | yes (same-line :) |
 | `packages/ecosystem/effect-drizzle/src/pg/combinators.ts:14` | fallow-ignore-file | `code-duplication` | yes (same-line --) |

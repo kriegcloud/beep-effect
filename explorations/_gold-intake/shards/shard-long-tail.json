@@ -216,15 +216,15 @@
     "secondaryTargets": [
       "packages/drivers/anthropic",
       "packages/drivers/openai-compat",
-      "packages/drivers/xai",
-      "packages/drivers/venice-ai",
+      "retired:xai",
+      "retired:venice-ai",
       "multi-provider-llm-dispatch-fallback"
     ],
     "disposition": "netNew",
     "wave": "P1",
     "wedgeHint": "effect-orchestration-patterns",
     "goldSynthesisSection": "Effect & advanced TypeScript",
-    "rationale": "Layer.unwrapEffect lazy provider selection has zero occurrences anywhere under packages/**/src (provider wiring is static Layer composition today); the seed routes this net-new effectful provider-selection layer over anthropic|openai-compat|xai|venice-ai to effect-orchestration-patterns, cross-linking the multi-provider-llm-dispatch-fallback split.",
+    "rationale": "Layer.unwrapEffect lazy provider selection has zero occurrences anywhere under packages/**/src (provider wiring is static Layer composition today); the seed routes this net-new effectful provider-selection layer over anthropic|openai-compat|retired:xai|retired:venice-ai to effect-orchestration-patterns, cross-linking the multi-provider-llm-dispatch-fallback split.",
     "cautions": [
       "validate Layer.unwrapEffect against the vendored effect-v4 API before adopting",
       "fallback-chain strand overlaps the multi-provider-llm-dispatch-fallback split — coordinate"

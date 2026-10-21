@@ -32,8 +32,6 @@ import {
   renderCropBordersPlanEntry as renderCropBordersPlanEntryImpl,
   renderDetectBordersEntry as renderDetectBordersEntryImpl,
   renderDetectBordersSkippedEntry as renderDetectBordersSkippedEntryImpl,
-  renderDetectFacesEntry as renderDetectFacesEntryImpl,
-  renderDetectFacesSkippedEntry as renderDetectFacesSkippedEntryImpl,
   renderNormalizePlanEntry as renderNormalizePlanEntryImpl,
   renderNormalizeSkippedEntry as renderNormalizeSkippedEntryImpl,
   renderPlanEntry as renderPlanEntryImpl,
@@ -383,38 +381,6 @@ export const renderDetectBordersEntry = renderDetectBordersEntryImpl;
  * @since 0.0.0
  */
 export const renderDetectBordersSkippedEntry = renderDetectBordersSkippedEntryImpl;
-
-/**
- * Render a face-detection report entry.
- *
- * **Example** (Render face detection report entry)
- *
- * ```ts
- * import { renderDetectFacesEntry } from "@beep/repo-cli/commands/Files"
- *
- * const example: typeof renderDetectFacesEntry = renderDetectFacesEntry
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const renderDetectFacesEntry = renderDetectFacesEntryImpl;
-
-/**
- * Render a skipped face-detection source entry.
- *
- * **Example** (Render skipped face detection entry)
- *
- * ```ts
- * import { renderDetectFacesSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
- * const example: typeof renderDetectFacesSkippedEntry = renderDetectFacesSkippedEntry
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const renderDetectFacesSkippedEntry = renderDetectFacesSkippedEntryImpl;
 
 /**
  * Render a border crop plan entry.

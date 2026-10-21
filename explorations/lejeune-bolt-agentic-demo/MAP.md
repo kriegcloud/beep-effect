@@ -145,7 +145,7 @@ day-3 extraction slice at exactly two RFQ layouts.
 - The recorded replay-first golden run is the lunch demo artifact, and every beat is
   deterministic from the fixed local bundle.
 - One live `@beep/anthropic` extraction call is a day-1 acceptance item. On failure, fall to
-  `openai-compat`, `venice-ai`, or `xai` the same day.
+  `openai-compat`, `retired:venice-ai`, or `retired:xai` the same day.
 - `@beep/cosmos` gets a half-day browser timebox on day 2. If the demo graph does not render in
   the browser inside the box, the lunch ships table and source with no renegotiation and no
   static-image stand-in.

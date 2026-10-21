@@ -29,7 +29,7 @@ Note: `.codex/**`, `.cursor/**`, `.agents/**`, `.github/workflows/**`, `scripts/
 | `packages/tooling/tool/cli/src/commands/Qa/JudgePack.ts:935` | `gpt-6-astra` + `--effort medium` | emitted next-step command for the QA judge (codex-companion) |
 | `packages/tooling/library/ai-metrics/test/hook-pulse-writer.test.ts` | `composer-2.5` | fixture for Cursor transcript parsing |
 
-Open-typed (no enumeration — nothing to sync): `XAiModelName` = `S.NonEmptyString` (`packages/drivers/xai/src/XAiLanguageModel.service.ts:53`);
+Open-typed (no enumeration — nothing to sync): `XAiModelName` = `S.NonEmptyString` (`retired:xai/src/XAiLanguageModel.service.ts:53`);
 `QaJudgeRef.model`/`.effort` = `S.String` (`.../Qa/Inventory.schemas.ts:295-306`);
 `GraftDeepRefreshOptions.model` / `GraftDeepStatus.model` = `S.optional(S.String)` / `S.String`
 (`.../Graft/Graft.schemas.ts:401,480`, default sentinel `"(env default)"`).
@@ -54,7 +54,7 @@ None. `.github/workflows/**` has no model ids; Heavy/Tier lanes are model-free.
 | `apps/labs/semantica/src/runtime/Config.ts`, `test/Canary.test.ts`, `test/ProviderCache.test.ts` | 4 | `grok-4.6` (must match the gold fixtures) |
 | `packages/tooling/tool/cli/test/*` (qa-*, docgen, yeet-pr-provenance*, codex-security-dispatch, graft-deep-refresh) | 28 | gpt-daybreak-blue, gpt-5.4, gpt-6-astra, grok-4.6 — parsing fixtures |
 | `packages/drivers/anthropic/src/Anthropic.{config,repair}.ts`, `packages/documents/server/.../FilingDecisionLlm.config.ts` | 5 | `claude-haiku-4-5` — product runtime defaults (different concept: product inference, not agent routing) |
-| `packages/drivers/venice-ai/swagger.yaml` | 1 | `gemini-3` (vendor spec) |
+| `retired:venice-ai/swagger.yaml` | 1 | `gemini-3` (vendor spec) |
 | `A_LETTER_FROM_THE_OTHER_SIDE_OF_THE_LOOP.md`, `.claude/skills/ontology-foundational-auditor/REVIEW-HISTORY.md` | 3 | provenance prose |
 | `scratchpad/**` (11 files) | 18 | claude-haiku-4-5, claude-sonnet-5 — untracked scratch, out of scope |
 

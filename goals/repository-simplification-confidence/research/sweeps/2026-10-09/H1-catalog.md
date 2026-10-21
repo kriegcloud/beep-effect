@@ -85,7 +85,7 @@ reason found in commit bodies, `osv-scanner.toml`, or repo docs.
 | `@opentelemetry/exporter-trace-otlp-proto` | 326 | `packages/foundation/capability/observability`, `packages/tooling/library/ai-metrics`; lock parent `@arizeai/phoenix-otel` | no recorded failure found | retain; record reason (single exporter version across Phoenix and own OTel) or prove removal |
 | `next` | 341 | `apps/oip-web`, `apps/todox`, `packages/foundation/ui-system/ui`, `packages/tooling/policy-pack/repo-configs`; lock parents `@serwist/next`, `@vercel/analytics`, `@vercel/speed-insights` | #1359 (c16f6bd5bf): GHSA-vcvr-r3jv-pc5j fixed in 16.3.6; catalog now `16.5.0-canary.3` | retain; record canary reason and exit to stable |
 | `pdfjs-dist` | 345 | only `scratchpad/package.json:63` (unused) and lock parent `officeparser` | added in #882 (3435c24f94), no reason in body | remove with `officeparser` |
-| `sharp` | 350 | `packages/drivers/face-detection`, `packages/tooling/tool/cli`; lock parents `next`, `@xenova/transformers` | no recorded failure found | retain; record (native binary single copy) |
+| `sharp` | 350 | `retired:face-detection`, `packages/tooling/tool/cli`; lock parents `next`, `@xenova/transformers` | no recorded failure found | retain; record (native binary single copy) |
 | `tar` | 353 | `packages/tooling/tool/cli`; lock parents `node-gyp`, `pacote` | `.changeset/otel-ghsa-8988-dep-bump.md` context; security floor | retain as security floor |
 
 ### Transitive security floors and pins (plain versions)
@@ -122,7 +122,7 @@ reason found in commit bodies, `osv-scanner.toml`, or repo docs.
 | patch | consumer | evidence | exit condition |
 |---|---|---|---|
 | `knip@6.40.0` | root devDependency `knip` | adds `.ts -> [.ts, .tsx]` extension alias in `dist/util/resolve.js`; family introduced with relative-import-extension lint in #435 (abd0c901d7) | depends on workstream A's Knip decision; if Knip is retired, remove with it |
-| `onnxruntime-node@1.30.0` | `packages/drivers/face-detection` (via onnxruntime-node) | `patches/onnxruntime-node@1.30.0.md`; test `packages/drivers/face-detection/test/OnnxRuntimeInstall.test.ts`; `scripts/test-onnxruntime-installer-patch.mjs` | upstream release removing the vulnerable extraction path (recorded) |
+| `onnxruntime-node@1.30.0` | `retired:face-detection` (via onnxruntime-node) | `patches/onnxruntime-node@1.30.0.md`; test `retired:face-detection/test/OnnxRuntimeInstall.test.ts`; `scripts/test-onnxruntime-installer-patch.mjs` | upstream release removing the vulnerable extraction path (recorded) |
 | `@effect/platform-node-shared@4.0.2` | Effect platform stack | `NodeFileSystem.js` `write`/`writeAllChunk` pass `0, buffer.length` explicitly; family since #1047 (03faddd538), re-keyed in #1234 | no written exit condition found; record upstream issue/fix version |
 | `drizzle-orm@1.0.0-rc.5-ab785fc` | drizzle drivers | #1234 (308a3855aa): declaration patch pointing the Effect adapter at `effect/sql/SqlError` | drizzle release built against the current Effect module layout |
 | `effect@4.0.2` | everything on Effect | #1234 body: Bun/JSC `Error` own `line`/`column`/`sourceURL`/`originalLine`/`originalColumn` break `Equal`/`Hash.structure`; "retire the patch with the effect bump that carries the upstream fix" | effect release with upstream fix |

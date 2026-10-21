@@ -188,8 +188,8 @@ on 2026-06-29.
   `@effect/ai-openai` and `@effect/ai-openrouter` are ABSENT from the current
   checkout (verified `ls node_modules/@effect/`, 2026-06-29). Treat the trio as a
   *root-manifest/catalog* declaration, NOT a verified-installed-vendored inventory.
-  V1 implementation must target the existing `@beep/openai-compat` / `@beep/xai` /
-  `@beep/venice-ai` drivers, NOT the un-installed `@effect/ai-openai` /
+  V1 implementation must target the existing `@beep/openai-compat` / `retired:xai` /
+  `retired:venice-ai` drivers, NOT the un-installed `@effect/ai-openai` /
   `@effect/ai-openrouter` packages.
 - **`ExecutionPlan`** (`ExecutionPlan.make` / `.merge` / `CurrentMetadata`) +
   `Effect.withExecutionPlan` / `Stream.withExecutionPlan` (with
@@ -244,17 +244,17 @@ service-path imports are NOT public aliases — usage below is verified against 
   `S.optionalKey` (defaults `https://api.openai.com/v1`) and the bearer is
   conditional — `options.apiKey === undefined ? identity :
   HttpClientRequest.bearerToken(...)` (`OpenAiCompatClient.service.ts:55-56,173-174`).
-- `@beep/xai` (`packages/drivers/xai`): namespaced `export * as XAiLanguageModel`
+- `retired:xai` (`retired:xai`): namespaced `export * as XAiLanguageModel`
   exposes both `XAiLanguageModel.layer` →
   `Layer.Layer<LanguageModel.LanguageModel, never, XAi>` (service.ts:208) and
   `XAiLanguageModel.model(name)` → `AiModel.Model<"xai", LanguageModel, XAi>`
-  (`XAiLanguageModel.service.ts:226`); reads `XAI_API_KEY`.
-- `@beep/venice-ai` (`packages/drivers/venice-ai`): namespaced
+  (`retired:xai/src/XAiLanguageModel.service.ts:226`); reads `XAI_API_KEY`.
+- `retired:venice-ai` (`retired:venice-ai`): namespaced
   `export * as VeniceAiLanguageModel` exposes `VeniceAiLanguageModel.layer` →
   `Layer.Layer<LanguageModel.LanguageModel, never, VeniceAI>` (service.ts:201) and
   `VeniceAiLanguageModel.model(name)` → `AiModel.Model<"venice", LanguageModel,
-  VeniceAI>` (`VeniceAiLanguageModel.service.ts:219`);
-  `VENICE_CHAT_MODEL = "venice-uncensored-1-2"` (`VeniceAI.service.ts:55`).
+  VeniceAI>` (`retired:venice-ai/src/VeniceAiLanguageModel.service.ts:219`);
+  `VENICE_CHAT_MODEL = "venice-uncensored-1-2"` (`retired:venice-ai/src/VeniceAI.service.ts:55`).
 - **The `.model(name)` → `AiModel.Model<provider, ...>` model-identity carrier (the
   per-step carrier that structurally prevents the #778 model-inheritance bug) exists
   ONLY on xai/venice.** Anthropic and openai-compat expose only Layer constructors
@@ -275,7 +275,7 @@ single-provider plan for a multi-provider one.
   `api_key_required`/`ProviderApiKeyMissing` error must be a `TaggedErrorClass`,
   not a bare throw.
 - `LiteralKit` + `S.toTaggedUnion` (driver error-reason enums, e.g.
-  `packages/drivers/venice-ai/src/VeniceAI.service.ts`) — the provider-name union
+  `retired:venice-ai/src/VeniceAI.service.ts`) — the provider-name union
   and key-source enum (`user`|`env`|`cli`) should be `LiteralKit` literals.
 - `@beep/onepassword-cli` driver (`packages/drivers/onepassword-cli`) + the
   `onepassword-secret-refs` skill — a third local credential option (`op://`
@@ -309,7 +309,7 @@ single-provider plan for a multi-provider one.
   own a minimal local config-to-`Schedule` adapter that can later be promoted without
   changing the dispatch contract.
 - **NOT FOUND**: a Gemini/Google driver — `packages/drivers/` has no Gemini entry
-  (anthropic, openai-compat, xai, venice-ai, ai-provider-cli only). A registry
+  (anthropic, openai-compat, retired:xai, retired:venice-ai, ai-provider-cli only). A registry
   `gemini` entry is net-new driver work (non-bearer `x-goog-api-key` auth + 2026
   key transition → highest-maintenance; defer past V1).
 - **NOT FOUND**: a `GeminiStructuredOutput` transformer in vendored
@@ -457,13 +457,13 @@ recommendations, the 2026-07-14 locked decisions control.
   `make`, `layer`, and `model` from
   `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts`.
   This corrects the June snapshot that described it as layer-only.
-- xAI public barrel: `packages/drivers/xai/src/index.ts`; it exposes the
+- xAI public barrel: `retired:xai/src/index.ts`; it exposes the
   `XAiLanguageModel` namespace backed by
-  `packages/drivers/xai/src/XAiLanguageModel.service.ts` (`make`, `layer`,
+  `retired:xai/src/XAiLanguageModel.service.ts` (`make`, `layer`,
   `model`).
-- Venice AI public barrel: `packages/drivers/venice-ai/src/index.ts`; it
+- Venice AI public barrel: `retired:venice-ai/src/index.ts`; it
   exposes the `VeniceAiLanguageModel` namespace backed by
-  `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts` (`make`,
+  `retired:venice-ai/src/VeniceAiLanguageModel.service.ts` (`make`,
   `layer`, `model`).
 
 These are four live provider drivers, not one uniform driver interface. The

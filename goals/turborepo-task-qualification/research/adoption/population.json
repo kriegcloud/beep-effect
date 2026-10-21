@@ -992,12 +992,12 @@
         "packages/drivers/duckdb/src/**",
         "packages/drivers/exiftool/package.json",
         "packages/drivers/exiftool/src/**",
-        "packages/drivers/face-detection/package.json",
-        "packages/drivers/face-detection/src/**",
+        "retired:face-detection/package.json",
+        "retired:face-detection/src/**",
         "packages/drivers/ffmpeg/package.json",
         "packages/drivers/ffmpeg/src/**",
-        "packages/drivers/firecrawl/package.json",
-        "packages/drivers/firecrawl/src/**",
+        "retired:firecrawl/package.json",
+        "retired:firecrawl/src/**",
         "packages/drivers/libpff/package.json",
         "packages/drivers/libpff/src/**",
         "packages/drivers/obs/package.json",
@@ -1231,8 +1231,8 @@
         "!outputs/agent-reliability/**",
         "!packages/drivers/*/openapi.json",
         "!packages/drivers/*/spec/*.json",
-        "!packages/drivers/venice-ai/swagger.yaml",
-        "!packages/drivers/venice-ai/test/fixtures/swagger.json",
+        "!retired:venice-ai/swagger.yaml",
+        "!retired:venice-ai/test/fixtures/swagger.json",
         "!packages/foundation/modeling/html/data/**",
         "!packages/foundation/modeling/html/src/internal/Html.language-tag-registry.generated.ts",
         "!packages/law-practice/domain/src/internal/generated/free-law-project/**",
@@ -28520,7 +28520,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#audit",
+      "computation": "retired:face-detection#audit",
       "execution": "executable",
       "configurationId": "daf5e84360e50300988bda475e214c8821c410d391c5d8238a0b340a0beb9bcf",
       "dependencies": [
@@ -28546,7 +28546,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#build",
+      "computation": "retired:face-detection#build",
       "execution": "executable",
       "configurationId": "333b1637e02feadfc31202bcf76f9b19186696e73ae0c7100ddec7085428f307",
       "dependencies": [
@@ -28569,7 +28569,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#check",
+      "computation": "retired:face-detection#check",
       "execution": "executable",
       "configurationId": "fc03680a3e2878089db840ff900092d03400c72e56fffdd977f8a6045e5b7a25",
       "dependencies": [
@@ -28591,7 +28591,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#codegen",
+      "computation": "retired:face-detection#codegen",
       "execution": "graph-only",
       "configurationId": "e2d1bbd96d901032d2e62e227998ae9b84208435d1b04d035e4e3b34901ada49",
       "dependencies": [
@@ -28604,7 +28604,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#coverage",
+      "computation": "retired:face-detection#coverage",
       "execution": "executable",
       "configurationId": "a586bfee4285980faf93b7c28b9ddcb90511017b4a26ff488cc199abd94c38dc",
       "dependencies": [
@@ -28626,7 +28626,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#dev",
+      "computation": "retired:face-detection#dev",
       "execution": "graph-only",
       "configurationId": "53f1c8236acff9d9e2c8d2aa6d6ec5350b59e869f21d1d72677846b2abee74df",
       "dependencies": [
@@ -28639,11 +28639,11 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#docgen",
+      "computation": "retired:face-detection#docgen",
       "execution": "executable",
       "configurationId": "20c06f36bc8184d1f68ca93e3199accc613df13d9b9ab3ef350bbf9bd64972fd",
       "dependencies": [
-        "@beep/face-detection#transit",
+        "retired:face-detection#transit",
         "@beep/repo-docgen#transit"
       ],
       "semanticProfileIds": [
@@ -28658,7 +28658,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#doctest",
+      "computation": "retired:face-detection#doctest",
       "execution": "graph-only",
       "configurationId": "61f837a2e1ef7cfda0327a0e008b3db4a2314ff9dba6c03a3bd88700c2add0ee",
       "dependencies": [
@@ -28672,7 +28672,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#lint",
+      "computation": "retired:face-detection#lint",
       "execution": "executable",
       "configurationId": "e94eeb0d16b8b63108fb5efc5b0042833407728a93c5ff5a4fe745559a87d478",
       "dependencies": [],
@@ -28688,7 +28688,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#lint:deprecated-apis",
+      "computation": "retired:face-detection#lint:deprecated-apis",
       "execution": "executable",
       "configurationId": "d94f28019956a187498d0480625d3b21627254d2c3aa4dc80587961005be9ce1",
       "dependencies": [
@@ -28711,7 +28711,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#lint:fix",
+      "computation": "retired:face-detection#lint:fix",
       "execution": "executable",
       "configurationId": "918a953232fe61b7ac1ee1b0499bf0a8993eba2a7f36f89ddec73e24634e7f2e",
       "dependencies": [],
@@ -28727,7 +28727,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#lint:jsdoc",
+      "computation": "retired:face-detection#lint:jsdoc",
       "execution": "executable",
       "configurationId": "c9177a2087dcac0959ebabebd647650076b3d6f03947ad94bf016d0eb9865ea1",
       "dependencies": [
@@ -28745,7 +28745,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#lint:laws",
+      "computation": "retired:face-detection#lint:laws",
       "execution": "executable",
       "configurationId": "c7d93f01330339a0a9ea2f8dd7838386b880cdbf8ee9d42e583ea8d30ace0c65",
       "dependencies": [
@@ -28763,7 +28763,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#package-test-typecheck",
+      "computation": "retired:face-detection#package-test-typecheck",
       "execution": "executable",
       "configurationId": "9210234f331e04b290de806e326ab14a2c36e5b9a37db12b46c3088f79cf50b2",
       "dependencies": [
@@ -28785,14 +28785,14 @@
       }
     },
     {
-      "computation": "@beep/face-detection#storybook",
+      "computation": "retired:face-detection#storybook",
       "execution": "graph-only",
       "configurationId": "f4c42529bbc070aad728c97c0ff9537932b515cd74899256512851ed35469293",
       "dependencies": [],
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#storybook:build",
+      "computation": "retired:face-detection#storybook:build",
       "execution": "graph-only",
       "configurationId": "ac18653259cccd519eefd6d41e5cddc52fdfbaf7d40dc12c59aacf6615ba92d4",
       "dependencies": [
@@ -28805,16 +28805,16 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#storybook:start",
+      "computation": "retired:face-detection#storybook:start",
       "execution": "graph-only",
       "configurationId": "4b76334a3cbcf179e4ec1d6cfc952ef7f79fce47ae31c0e033c136fdd1c5b9df",
       "dependencies": [
-        "@beep/face-detection#storybook:build"
+        "retired:face-detection#storybook:build"
       ],
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#test",
+      "computation": "retired:face-detection#test",
       "execution": "executable",
       "configurationId": "c525189f7e123983c082627f7f6c123620738407d4eaf9184ef0454726bc76b8",
       "dependencies": [
@@ -28837,7 +28837,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#test:integration",
+      "computation": "retired:face-detection#test:integration",
       "execution": "executable",
       "configurationId": "70cac4580f697e2f6caad0ad3ff0ffdc44fade75f9b7ecb7b26a16908ddf03e8",
       "dependencies": [
@@ -28859,7 +28859,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#test:integration:parallel",
+      "computation": "retired:face-detection#test:integration:parallel",
       "execution": "graph-only",
       "configurationId": "e7884e282d456fe817c6e1a228bb11fbcd059e635e2604a91c546eed0882af3e",
       "dependencies": [
@@ -28872,7 +28872,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#test:integration:serial",
+      "computation": "retired:face-detection#test:integration:serial",
       "execution": "graph-only",
       "configurationId": "21a117650332f4133a51af01e58187f03097aa18ad687e6c35f7076553ac0434",
       "dependencies": [
@@ -28885,7 +28885,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#test:property",
+      "computation": "retired:face-detection#test:property",
       "execution": "executable",
       "configurationId": "740416a26ebcfad4de18aff154315f903555b01104d5b65d3163abd8ade76f7e",
       "dependencies": [
@@ -28908,7 +28908,7 @@
       }
     },
     {
-      "computation": "@beep/face-detection#test:storybook",
+      "computation": "retired:face-detection#test:storybook",
       "execution": "graph-only",
       "configurationId": "d1855e0cbd462c6448b9dc5714c5600c464f69a135f3ee638bb695e831a457a1",
       "dependencies": [
@@ -28921,7 +28921,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/face-detection#transit",
+      "computation": "retired:face-detection#transit",
       "execution": "graph-only",
       "configurationId": "b299226b737865142eb005969fbf0baf26e603da3edab5974482b0da1ff91217",
       "dependencies": [
@@ -30129,7 +30129,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#audit",
+      "computation": "retired:firecrawl#audit",
       "execution": "executable",
       "configurationId": "daf5e84360e50300988bda475e214c8821c410d391c5d8238a0b340a0beb9bcf",
       "dependencies": [
@@ -30155,7 +30155,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#build",
+      "computation": "retired:firecrawl#build",
       "execution": "executable",
       "configurationId": "333b1637e02feadfc31202bcf76f9b19186696e73ae0c7100ddec7085428f307",
       "dependencies": [
@@ -30178,7 +30178,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#check",
+      "computation": "retired:firecrawl#check",
       "execution": "executable",
       "configurationId": "fc03680a3e2878089db840ff900092d03400c72e56fffdd977f8a6045e5b7a25",
       "dependencies": [
@@ -30200,7 +30200,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#codegen",
+      "computation": "retired:firecrawl#codegen",
       "execution": "graph-only",
       "configurationId": "e2d1bbd96d901032d2e62e227998ae9b84208435d1b04d035e4e3b34901ada49",
       "dependencies": [
@@ -30213,7 +30213,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#coverage",
+      "computation": "retired:firecrawl#coverage",
       "execution": "executable",
       "configurationId": "a586bfee4285980faf93b7c28b9ddcb90511017b4a26ff488cc199abd94c38dc",
       "dependencies": [
@@ -30235,7 +30235,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#dev",
+      "computation": "retired:firecrawl#dev",
       "execution": "graph-only",
       "configurationId": "53f1c8236acff9d9e2c8d2aa6d6ec5350b59e869f21d1d72677846b2abee74df",
       "dependencies": [
@@ -30248,11 +30248,11 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#docgen",
+      "computation": "retired:firecrawl#docgen",
       "execution": "executable",
       "configurationId": "20c06f36bc8184d1f68ca93e3199accc613df13d9b9ab3ef350bbf9bd64972fd",
       "dependencies": [
-        "@beep/firecrawl#transit",
+        "retired:firecrawl#transit",
         "@beep/repo-docgen#transit"
       ],
       "semanticProfileIds": [
@@ -30267,7 +30267,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#doctest",
+      "computation": "retired:firecrawl#doctest",
       "execution": "graph-only",
       "configurationId": "61f837a2e1ef7cfda0327a0e008b3db4a2314ff9dba6c03a3bd88700c2add0ee",
       "dependencies": [
@@ -30281,7 +30281,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#lint",
+      "computation": "retired:firecrawl#lint",
       "execution": "executable",
       "configurationId": "e94eeb0d16b8b63108fb5efc5b0042833407728a93c5ff5a4fe745559a87d478",
       "dependencies": [],
@@ -30297,7 +30297,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#lint:deprecated-apis",
+      "computation": "retired:firecrawl#lint:deprecated-apis",
       "execution": "executable",
       "configurationId": "d94f28019956a187498d0480625d3b21627254d2c3aa4dc80587961005be9ce1",
       "dependencies": [
@@ -30320,7 +30320,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#lint:fix",
+      "computation": "retired:firecrawl#lint:fix",
       "execution": "executable",
       "configurationId": "918a953232fe61b7ac1ee1b0499bf0a8993eba2a7f36f89ddec73e24634e7f2e",
       "dependencies": [],
@@ -30336,7 +30336,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#lint:jsdoc",
+      "computation": "retired:firecrawl#lint:jsdoc",
       "execution": "executable",
       "configurationId": "c9177a2087dcac0959ebabebd647650076b3d6f03947ad94bf016d0eb9865ea1",
       "dependencies": [
@@ -30354,7 +30354,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#lint:laws",
+      "computation": "retired:firecrawl#lint:laws",
       "execution": "executable",
       "configurationId": "c7d93f01330339a0a9ea2f8dd7838386b880cdbf8ee9d42e583ea8d30ace0c65",
       "dependencies": [
@@ -30372,7 +30372,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#package-test-typecheck",
+      "computation": "retired:firecrawl#package-test-typecheck",
       "execution": "executable",
       "configurationId": "9210234f331e04b290de806e326ab14a2c36e5b9a37db12b46c3088f79cf50b2",
       "dependencies": [
@@ -30394,14 +30394,14 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#storybook",
+      "computation": "retired:firecrawl#storybook",
       "execution": "graph-only",
       "configurationId": "f4c42529bbc070aad728c97c0ff9537932b515cd74899256512851ed35469293",
       "dependencies": [],
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#storybook:build",
+      "computation": "retired:firecrawl#storybook:build",
       "execution": "graph-only",
       "configurationId": "ac18653259cccd519eefd6d41e5cddc52fdfbaf7d40dc12c59aacf6615ba92d4",
       "dependencies": [
@@ -30414,16 +30414,16 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#storybook:start",
+      "computation": "retired:firecrawl#storybook:start",
       "execution": "graph-only",
       "configurationId": "4b76334a3cbcf179e4ec1d6cfc952ef7f79fce47ae31c0e033c136fdd1c5b9df",
       "dependencies": [
-        "@beep/firecrawl#storybook:build"
+        "retired:firecrawl#storybook:build"
       ],
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#test",
+      "computation": "retired:firecrawl#test",
       "execution": "executable",
       "configurationId": "c525189f7e123983c082627f7f6c123620738407d4eaf9184ef0454726bc76b8",
       "dependencies": [
@@ -30446,7 +30446,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#test:integration",
+      "computation": "retired:firecrawl#test:integration",
       "execution": "executable",
       "configurationId": "70cac4580f697e2f6caad0ad3ff0ffdc44fade75f9b7ecb7b26a16908ddf03e8",
       "dependencies": [
@@ -30468,7 +30468,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#test:integration:parallel",
+      "computation": "retired:firecrawl#test:integration:parallel",
       "execution": "executable",
       "configurationId": "70cac4580f697e2f6caad0ad3ff0ffdc44fade75f9b7ecb7b26a16908ddf03e8",
       "dependencies": [
@@ -30490,7 +30490,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#test:integration:serial",
+      "computation": "retired:firecrawl#test:integration:serial",
       "execution": "graph-only",
       "configurationId": "21a117650332f4133a51af01e58187f03097aa18ad687e6c35f7076553ac0434",
       "dependencies": [
@@ -30503,7 +30503,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#test:property",
+      "computation": "retired:firecrawl#test:property",
       "execution": "executable",
       "configurationId": "740416a26ebcfad4de18aff154315f903555b01104d5b65d3163abd8ade76f7e",
       "dependencies": [
@@ -30526,7 +30526,7 @@
       }
     },
     {
-      "computation": "@beep/firecrawl#test:storybook",
+      "computation": "retired:firecrawl#test:storybook",
       "execution": "graph-only",
       "configurationId": "d1855e0cbd462c6448b9dc5714c5600c464f69a135f3ee638bb695e831a457a1",
       "dependencies": [
@@ -30539,7 +30539,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/firecrawl#transit",
+      "computation": "retired:firecrawl#transit",
       "execution": "graph-only",
       "configurationId": "b299226b737865142eb005969fbf0baf26e603da3edab5974482b0da1ff91217",
       "dependencies": [
@@ -36403,7 +36403,7 @@
         "@beep/test-runner#audit",
         "@beep/test-utils#audit",
         "@beep/ui#audit",
-        "@beep/venice-ai#audit"
+        "retired:venice-ai#audit"
       ],
       "semanticProfileIds": [
         "application-build",
@@ -36440,7 +36440,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": [
         "application-build"
@@ -36474,7 +36474,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": [
         "compiler"
@@ -36508,7 +36508,7 @@
         "@beep/test-runner#codegen",
         "@beep/test-utils#codegen",
         "@beep/ui#codegen",
-        "@beep/venice-ai#codegen"
+        "retired:venice-ai#codegen"
       ],
       "semanticProfileIds": []
     },
@@ -36533,7 +36533,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": []
     },
@@ -36558,7 +36558,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": [
         "shell-expression"
@@ -36603,7 +36603,7 @@
         "@beep/test-utils#transit",
         "@beep/ui#transit",
         "@beep/utils#transit",
-        "@beep/venice-ai#transit"
+        "retired:venice-ai#transit"
       ],
       "semanticProfileIds": []
     },
@@ -36645,7 +36645,7 @@
         "@beep/test-runner#transit",
         "@beep/test-utils#transit",
         "@beep/ui#transit",
-        "@beep/venice-ai#transit"
+        "retired:venice-ai#transit"
       ],
       "semanticProfileIds": [
         "repository-dispatch"
@@ -36722,7 +36722,7 @@
         "@beep/test-runner#transit",
         "@beep/test-utils#transit",
         "@beep/ui#transit",
-        "@beep/venice-ai#transit"
+        "retired:venice-ai#transit"
       ],
       "semanticProfileIds": [
         "repository-dispatch"
@@ -36763,7 +36763,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": []
     },
@@ -36798,7 +36798,7 @@
         "@beep/test-utils#transit",
         "@beep/ui#transit",
         "@beep/utils#transit",
-        "@beep/venice-ai#transit"
+        "retired:venice-ai#transit"
       ],
       "semanticProfileIds": [
         "test"
@@ -36832,7 +36832,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": []
     },
@@ -36857,7 +36857,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": []
     },
@@ -36882,7 +36882,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": []
     },
@@ -36908,7 +36908,7 @@
         "@beep/test-utils#transit",
         "@beep/ui#transit",
         "@beep/utils#transit",
-        "@beep/venice-ai#transit"
+        "retired:venice-ai#transit"
       ],
       "semanticProfileIds": []
     },
@@ -36933,7 +36933,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/ui#build",
-        "@beep/venice-ai#build"
+        "retired:venice-ai#build"
       ],
       "semanticProfileIds": []
     },
@@ -36958,7 +36958,7 @@
         "@beep/test-runner#transit",
         "@beep/test-utils#transit",
         "@beep/ui#transit",
-        "@beep/venice-ai#transit"
+        "retired:venice-ai#transit"
       ],
       "semanticProfileIds": []
     },
@@ -54485,10 +54485,10 @@
         "@beep/colors#audit",
         "@beep/duckdb#audit",
         "@beep/exiftool#audit",
-        "@beep/face-detection#audit",
+        "retired:face-detection#audit",
         "@beep/ffmpeg#audit",
         "@beep/file-processing#audit",
-        "@beep/firecrawl#audit",
+        "retired:firecrawl#audit",
         "@beep/identity#audit",
         "@beep/libpff#audit",
         "@beep/md#audit",
@@ -54532,10 +54532,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -54576,10 +54576,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -54619,10 +54619,10 @@
         "@beep/colors#codegen",
         "@beep/duckdb#codegen",
         "@beep/exiftool#codegen",
-        "@beep/face-detection#codegen",
+        "retired:face-detection#codegen",
         "@beep/ffmpeg#codegen",
         "@beep/file-processing#codegen",
-        "@beep/firecrawl#codegen",
+        "retired:firecrawl#codegen",
         "@beep/identity#codegen",
         "@beep/libpff#codegen",
         "@beep/md#codegen",
@@ -54653,10 +54653,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -54696,10 +54696,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -54749,10 +54749,10 @@
         "@beep/colors#transit",
         "@beep/duckdb#transit",
         "@beep/exiftool#transit",
-        "@beep/face-detection#transit",
+        "retired:face-detection#transit",
         "@beep/ffmpeg#transit",
         "@beep/file-processing#transit",
-        "@beep/firecrawl#transit",
+        "retired:firecrawl#transit",
         "@beep/identity#transit",
         "@beep/libpff#transit",
         "@beep/md#transit",
@@ -54810,10 +54810,10 @@
         "@beep/colors#transit",
         "@beep/duckdb#transit",
         "@beep/exiftool#transit",
-        "@beep/face-detection#transit",
+        "retired:face-detection#transit",
         "@beep/ffmpeg#transit",
         "@beep/file-processing#transit",
-        "@beep/firecrawl#transit",
+        "retired:firecrawl#transit",
         "@beep/identity#transit",
         "@beep/libpff#transit",
         "@beep/md#transit",
@@ -54905,10 +54905,10 @@
         "@beep/colors#transit",
         "@beep/duckdb#transit",
         "@beep/exiftool#transit",
-        "@beep/face-detection#transit",
+        "retired:face-detection#transit",
         "@beep/ffmpeg#transit",
         "@beep/file-processing#transit",
-        "@beep/firecrawl#transit",
+        "retired:firecrawl#transit",
         "@beep/identity#transit",
         "@beep/libpff#transit",
         "@beep/md#transit",
@@ -54955,10 +54955,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -54998,10 +54998,10 @@
         "@beep/colors#transit",
         "@beep/duckdb#transit",
         "@beep/exiftool#transit",
-        "@beep/face-detection#transit",
+        "retired:face-detection#transit",
         "@beep/ffmpeg#transit",
         "@beep/file-processing#transit",
-        "@beep/firecrawl#transit",
+        "retired:firecrawl#transit",
         "@beep/identity#transit",
         "@beep/libpff#transit",
         "@beep/md#transit",
@@ -55042,10 +55042,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -55076,10 +55076,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -55110,10 +55110,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -55144,10 +55144,10 @@
         "@beep/colors#transit",
         "@beep/duckdb#transit",
         "@beep/exiftool#transit",
-        "@beep/face-detection#transit",
+        "retired:face-detection#transit",
         "@beep/ffmpeg#transit",
         "@beep/file-processing#transit",
-        "@beep/firecrawl#transit",
+        "retired:firecrawl#transit",
         "@beep/identity#transit",
         "@beep/libpff#transit",
         "@beep/md#transit",
@@ -55188,10 +55188,10 @@
         "@beep/colors#build",
         "@beep/duckdb#build",
         "@beep/exiftool#build",
-        "@beep/face-detection#build",
+        "retired:face-detection#build",
         "@beep/ffmpeg#build",
         "@beep/file-processing#build",
-        "@beep/firecrawl#build",
+        "retired:firecrawl#build",
         "@beep/identity#build",
         "@beep/libpff#build",
         "@beep/md#build",
@@ -55222,10 +55222,10 @@
         "@beep/colors#transit",
         "@beep/duckdb#transit",
         "@beep/exiftool#transit",
-        "@beep/face-detection#transit",
+        "retired:face-detection#transit",
         "@beep/ffmpeg#transit",
         "@beep/file-processing#transit",
-        "@beep/firecrawl#transit",
+        "retired:firecrawl#transit",
         "@beep/identity#transit",
         "@beep/libpff#transit",
         "@beep/md#transit",
@@ -58867,7 +58867,7 @@
         "@beep/test-runner#audit",
         "@beep/test-utils#audit",
         "@beep/wink#audit",
-        "@beep/xai#audit"
+        "retired:xai#audit"
       ],
       "semanticProfileIds": [
         "application-build",
@@ -58907,7 +58907,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": [
         "application-build"
@@ -58944,7 +58944,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": [
         "compiler"
@@ -58981,7 +58981,7 @@
         "@beep/test-runner#codegen",
         "@beep/test-utils#codegen",
         "@beep/wink#codegen",
-        "@beep/xai#codegen"
+        "retired:xai#codegen"
       ],
       "semanticProfileIds": []
     },
@@ -59009,7 +59009,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": []
     },
@@ -59037,7 +59037,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": [
         "shell-expression"
@@ -59085,7 +59085,7 @@
         "@beep/test-utils#transit",
         "@beep/utils#transit",
         "@beep/wink#transit",
-        "@beep/xai#transit"
+        "retired:xai#transit"
       ],
       "semanticProfileIds": []
     },
@@ -59130,7 +59130,7 @@
         "@beep/test-runner#transit",
         "@beep/test-utils#transit",
         "@beep/wink#transit",
-        "@beep/xai#transit"
+        "retired:xai#transit"
       ],
       "semanticProfileIds": [
         "repository-dispatch"
@@ -59210,7 +59210,7 @@
         "@beep/test-runner#transit",
         "@beep/test-utils#transit",
         "@beep/wink#transit",
-        "@beep/xai#transit"
+        "retired:xai#transit"
       ],
       "semanticProfileIds": [
         "repository-dispatch"
@@ -59254,7 +59254,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": []
     },
@@ -59292,7 +59292,7 @@
         "@beep/test-utils#transit",
         "@beep/utils#transit",
         "@beep/wink#transit",
-        "@beep/xai#transit"
+        "retired:xai#transit"
       ],
       "semanticProfileIds": [
         "test"
@@ -59329,7 +59329,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": []
     },
@@ -59357,7 +59357,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": []
     },
@@ -59385,7 +59385,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": []
     },
@@ -59414,7 +59414,7 @@
         "@beep/test-utils#transit",
         "@beep/utils#transit",
         "@beep/wink#transit",
-        "@beep/xai#transit"
+        "retired:xai#transit"
       ],
       "semanticProfileIds": []
     },
@@ -59442,7 +59442,7 @@
         "@beep/test-runner#build",
         "@beep/test-utils#build",
         "@beep/wink#build",
-        "@beep/xai#build"
+        "retired:xai#build"
       ],
       "semanticProfileIds": []
     },
@@ -59470,7 +59470,7 @@
         "@beep/test-runner#transit",
         "@beep/test-utils#transit",
         "@beep/wink#transit",
-        "@beep/xai#transit"
+        "retired:xai#transit"
       ],
       "semanticProfileIds": []
     },
@@ -66276,7 +66276,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#audit",
+      "computation": "retired:venice-ai#audit",
       "execution": "executable",
       "configurationId": "daf5e84360e50300988bda475e214c8821c410d391c5d8238a0b340a0beb9bcf",
       "dependencies": [
@@ -66303,7 +66303,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#build",
+      "computation": "retired:venice-ai#build",
       "execution": "executable",
       "configurationId": "333b1637e02feadfc31202bcf76f9b19186696e73ae0c7100ddec7085428f307",
       "dependencies": [
@@ -66327,7 +66327,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#check",
+      "computation": "retired:venice-ai#check",
       "execution": "executable",
       "configurationId": "fc03680a3e2878089db840ff900092d03400c72e56fffdd977f8a6045e5b7a25",
       "dependencies": [
@@ -66350,7 +66350,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#codegen",
+      "computation": "retired:venice-ai#codegen",
       "execution": "graph-only",
       "configurationId": "e2d1bbd96d901032d2e62e227998ae9b84208435d1b04d035e4e3b34901ada49",
       "dependencies": [
@@ -66364,7 +66364,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#coverage",
+      "computation": "retired:venice-ai#coverage",
       "execution": "executable",
       "configurationId": "a586bfee4285980faf93b7c28b9ddcb90511017b4a26ff488cc199abd94c38dc",
       "dependencies": [
@@ -66387,7 +66387,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#dev",
+      "computation": "retired:venice-ai#dev",
       "execution": "graph-only",
       "configurationId": "53f1c8236acff9d9e2c8d2aa6d6ec5350b59e869f21d1d72677846b2abee74df",
       "dependencies": [
@@ -66401,12 +66401,12 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#docgen",
+      "computation": "retired:venice-ai#docgen",
       "execution": "executable",
       "configurationId": "20c06f36bc8184d1f68ca93e3199accc613df13d9b9ab3ef350bbf9bd64972fd",
       "dependencies": [
         "@beep/repo-docgen#transit",
-        "@beep/venice-ai#transit"
+        "retired:venice-ai#transit"
       ],
       "semanticProfileIds": [
         "docgen"
@@ -66420,7 +66420,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#doctest",
+      "computation": "retired:venice-ai#doctest",
       "execution": "graph-only",
       "configurationId": "61f837a2e1ef7cfda0327a0e008b3db4a2314ff9dba6c03a3bd88700c2add0ee",
       "dependencies": [
@@ -66435,7 +66435,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#lint",
+      "computation": "retired:venice-ai#lint",
       "execution": "executable",
       "configurationId": "e94eeb0d16b8b63108fb5efc5b0042833407728a93c5ff5a4fe745559a87d478",
       "dependencies": [],
@@ -66451,7 +66451,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#lint:deprecated-apis",
+      "computation": "retired:venice-ai#lint:deprecated-apis",
       "execution": "executable",
       "configurationId": "d94f28019956a187498d0480625d3b21627254d2c3aa4dc80587961005be9ce1",
       "dependencies": [
@@ -66475,7 +66475,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#lint:fix",
+      "computation": "retired:venice-ai#lint:fix",
       "execution": "executable",
       "configurationId": "918a953232fe61b7ac1ee1b0499bf0a8993eba2a7f36f89ddec73e24634e7f2e",
       "dependencies": [],
@@ -66491,7 +66491,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#lint:jsdoc",
+      "computation": "retired:venice-ai#lint:jsdoc",
       "execution": "executable",
       "configurationId": "c9177a2087dcac0959ebabebd647650076b3d6f03947ad94bf016d0eb9865ea1",
       "dependencies": [
@@ -66509,7 +66509,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#lint:laws",
+      "computation": "retired:venice-ai#lint:laws",
       "execution": "executable",
       "configurationId": "c7d93f01330339a0a9ea2f8dd7838386b880cdbf8ee9d42e583ea8d30ace0c65",
       "dependencies": [
@@ -66527,7 +66527,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#package-test-typecheck",
+      "computation": "retired:venice-ai#package-test-typecheck",
       "execution": "executable",
       "configurationId": "9210234f331e04b290de806e326ab14a2c36e5b9a37db12b46c3088f79cf50b2",
       "dependencies": [
@@ -66550,14 +66550,14 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#storybook",
+      "computation": "retired:venice-ai#storybook",
       "execution": "graph-only",
       "configurationId": "f4c42529bbc070aad728c97c0ff9537932b515cd74899256512851ed35469293",
       "dependencies": [],
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#storybook:build",
+      "computation": "retired:venice-ai#storybook:build",
       "execution": "graph-only",
       "configurationId": "ac18653259cccd519eefd6d41e5cddc52fdfbaf7d40dc12c59aacf6615ba92d4",
       "dependencies": [
@@ -66571,16 +66571,16 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#storybook:start",
+      "computation": "retired:venice-ai#storybook:start",
       "execution": "graph-only",
       "configurationId": "4b76334a3cbcf179e4ec1d6cfc952ef7f79fce47ae31c0e033c136fdd1c5b9df",
       "dependencies": [
-        "@beep/venice-ai#storybook:build"
+        "retired:venice-ai#storybook:build"
       ],
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#test",
+      "computation": "retired:venice-ai#test",
       "execution": "executable",
       "configurationId": "c525189f7e123983c082627f7f6c123620738407d4eaf9184ef0454726bc76b8",
       "dependencies": [
@@ -66604,7 +66604,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#test:integration",
+      "computation": "retired:venice-ai#test:integration",
       "execution": "executable",
       "configurationId": "70cac4580f697e2f6caad0ad3ff0ffdc44fade75f9b7ecb7b26a16908ddf03e8",
       "dependencies": [
@@ -66627,7 +66627,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#test:integration:parallel",
+      "computation": "retired:venice-ai#test:integration:parallel",
       "execution": "executable",
       "configurationId": "70cac4580f697e2f6caad0ad3ff0ffdc44fade75f9b7ecb7b26a16908ddf03e8",
       "dependencies": [
@@ -66650,7 +66650,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#test:integration:serial",
+      "computation": "retired:venice-ai#test:integration:serial",
       "execution": "graph-only",
       "configurationId": "21a117650332f4133a51af01e58187f03097aa18ad687e6c35f7076553ac0434",
       "dependencies": [
@@ -66664,7 +66664,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#test:property",
+      "computation": "retired:venice-ai#test:property",
       "execution": "executable",
       "configurationId": "740416a26ebcfad4de18aff154315f903555b01104d5b65d3163abd8ade76f7e",
       "dependencies": [
@@ -66688,7 +66688,7 @@
       }
     },
     {
-      "computation": "@beep/venice-ai#test:storybook",
+      "computation": "retired:venice-ai#test:storybook",
       "execution": "graph-only",
       "configurationId": "d1855e0cbd462c6448b9dc5714c5600c464f69a135f3ee638bb695e831a457a1",
       "dependencies": [
@@ -66702,7 +66702,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/venice-ai#transit",
+      "computation": "retired:venice-ai#transit",
       "execution": "graph-only",
       "configurationId": "b299226b737865142eb005969fbf0baf26e603da3edab5974482b0da1ff91217",
       "dependencies": [
@@ -69038,7 +69038,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#audit",
+      "computation": "retired:xai#audit",
       "execution": "executable",
       "configurationId": "daf5e84360e50300988bda475e214c8821c410d391c5d8238a0b340a0beb9bcf",
       "dependencies": [
@@ -69065,7 +69065,7 @@
       }
     },
     {
-      "computation": "@beep/xai#build",
+      "computation": "retired:xai#build",
       "execution": "executable",
       "configurationId": "333b1637e02feadfc31202bcf76f9b19186696e73ae0c7100ddec7085428f307",
       "dependencies": [
@@ -69089,7 +69089,7 @@
       }
     },
     {
-      "computation": "@beep/xai#check",
+      "computation": "retired:xai#check",
       "execution": "executable",
       "configurationId": "fc03680a3e2878089db840ff900092d03400c72e56fffdd977f8a6045e5b7a25",
       "dependencies": [
@@ -69112,7 +69112,7 @@
       }
     },
     {
-      "computation": "@beep/xai#codegen",
+      "computation": "retired:xai#codegen",
       "execution": "graph-only",
       "configurationId": "e2d1bbd96d901032d2e62e227998ae9b84208435d1b04d035e4e3b34901ada49",
       "dependencies": [
@@ -69126,7 +69126,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#coverage",
+      "computation": "retired:xai#coverage",
       "execution": "executable",
       "configurationId": "a586bfee4285980faf93b7c28b9ddcb90511017b4a26ff488cc199abd94c38dc",
       "dependencies": [
@@ -69149,7 +69149,7 @@
       }
     },
     {
-      "computation": "@beep/xai#dev",
+      "computation": "retired:xai#dev",
       "execution": "graph-only",
       "configurationId": "53f1c8236acff9d9e2c8d2aa6d6ec5350b59e869f21d1d72677846b2abee74df",
       "dependencies": [
@@ -69163,12 +69163,12 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#docgen",
+      "computation": "retired:xai#docgen",
       "execution": "executable",
       "configurationId": "20c06f36bc8184d1f68ca93e3199accc613df13d9b9ab3ef350bbf9bd64972fd",
       "dependencies": [
         "@beep/repo-docgen#transit",
-        "@beep/xai#transit"
+        "retired:xai#transit"
       ],
       "semanticProfileIds": [
         "docgen"
@@ -69182,7 +69182,7 @@
       }
     },
     {
-      "computation": "@beep/xai#doctest",
+      "computation": "retired:xai#doctest",
       "execution": "graph-only",
       "configurationId": "61f837a2e1ef7cfda0327a0e008b3db4a2314ff9dba6c03a3bd88700c2add0ee",
       "dependencies": [
@@ -69197,7 +69197,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#lint",
+      "computation": "retired:xai#lint",
       "execution": "executable",
       "configurationId": "e94eeb0d16b8b63108fb5efc5b0042833407728a93c5ff5a4fe745559a87d478",
       "dependencies": [],
@@ -69213,7 +69213,7 @@
       }
     },
     {
-      "computation": "@beep/xai#lint:deprecated-apis",
+      "computation": "retired:xai#lint:deprecated-apis",
       "execution": "executable",
       "configurationId": "d94f28019956a187498d0480625d3b21627254d2c3aa4dc80587961005be9ce1",
       "dependencies": [
@@ -69237,7 +69237,7 @@
       }
     },
     {
-      "computation": "@beep/xai#lint:fix",
+      "computation": "retired:xai#lint:fix",
       "execution": "executable",
       "configurationId": "918a953232fe61b7ac1ee1b0499bf0a8993eba2a7f36f89ddec73e24634e7f2e",
       "dependencies": [],
@@ -69253,7 +69253,7 @@
       }
     },
     {
-      "computation": "@beep/xai#lint:jsdoc",
+      "computation": "retired:xai#lint:jsdoc",
       "execution": "executable",
       "configurationId": "c9177a2087dcac0959ebabebd647650076b3d6f03947ad94bf016d0eb9865ea1",
       "dependencies": [
@@ -69271,7 +69271,7 @@
       }
     },
     {
-      "computation": "@beep/xai#lint:laws",
+      "computation": "retired:xai#lint:laws",
       "execution": "executable",
       "configurationId": "c7d93f01330339a0a9ea2f8dd7838386b880cdbf8ee9d42e583ea8d30ace0c65",
       "dependencies": [
@@ -69289,7 +69289,7 @@
       }
     },
     {
-      "computation": "@beep/xai#package-test-typecheck",
+      "computation": "retired:xai#package-test-typecheck",
       "execution": "executable",
       "configurationId": "9210234f331e04b290de806e326ab14a2c36e5b9a37db12b46c3088f79cf50b2",
       "dependencies": [
@@ -69312,14 +69312,14 @@
       }
     },
     {
-      "computation": "@beep/xai#storybook",
+      "computation": "retired:xai#storybook",
       "execution": "graph-only",
       "configurationId": "f4c42529bbc070aad728c97c0ff9537932b515cd74899256512851ed35469293",
       "dependencies": [],
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#storybook:build",
+      "computation": "retired:xai#storybook:build",
       "execution": "graph-only",
       "configurationId": "ac18653259cccd519eefd6d41e5cddc52fdfbaf7d40dc12c59aacf6615ba92d4",
       "dependencies": [
@@ -69333,16 +69333,16 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#storybook:start",
+      "computation": "retired:xai#storybook:start",
       "execution": "graph-only",
       "configurationId": "4b76334a3cbcf179e4ec1d6cfc952ef7f79fce47ae31c0e033c136fdd1c5b9df",
       "dependencies": [
-        "@beep/xai#storybook:build"
+        "retired:xai#storybook:build"
       ],
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#test",
+      "computation": "retired:xai#test",
       "execution": "executable",
       "configurationId": "c525189f7e123983c082627f7f6c123620738407d4eaf9184ef0454726bc76b8",
       "dependencies": [
@@ -69366,7 +69366,7 @@
       }
     },
     {
-      "computation": "@beep/xai#test:integration",
+      "computation": "retired:xai#test:integration",
       "execution": "executable",
       "configurationId": "70cac4580f697e2f6caad0ad3ff0ffdc44fade75f9b7ecb7b26a16908ddf03e8",
       "dependencies": [
@@ -69389,7 +69389,7 @@
       }
     },
     {
-      "computation": "@beep/xai#test:integration:parallel",
+      "computation": "retired:xai#test:integration:parallel",
       "execution": "graph-only",
       "configurationId": "e7884e282d456fe817c6e1a228bb11fbcd059e635e2604a91c546eed0882af3e",
       "dependencies": [
@@ -69403,7 +69403,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#test:integration:serial",
+      "computation": "retired:xai#test:integration:serial",
       "execution": "graph-only",
       "configurationId": "21a117650332f4133a51af01e58187f03097aa18ad687e6c35f7076553ac0434",
       "dependencies": [
@@ -69417,7 +69417,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#test:property",
+      "computation": "retired:xai#test:property",
       "execution": "executable",
       "configurationId": "740416a26ebcfad4de18aff154315f903555b01104d5b65d3163abd8ade76f7e",
       "dependencies": [
@@ -69441,7 +69441,7 @@
       }
     },
     {
-      "computation": "@beep/xai#test:storybook",
+      "computation": "retired:xai#test:storybook",
       "execution": "graph-only",
       "configurationId": "d1855e0cbd462c6448b9dc5714c5600c464f69a135f3ee638bb695e831a457a1",
       "dependencies": [
@@ -69455,7 +69455,7 @@
       "semanticProfileIds": []
     },
     {
-      "computation": "@beep/xai#transit",
+      "computation": "retired:xai#transit",
       "execution": "graph-only",
       "configurationId": "b299226b737865142eb005969fbf0baf26e603da3edab5974482b0da1ff91217",
       "dependencies": [

@@ -67,25 +67,25 @@ metadata and qualification fields must remain identical to the merge base.
 - `@beep/openai-compat#test`
 - `@beep/openai-compat#test:integration`
 - `@beep/openai-compat#test:property`
-- `@beep/venice-ai#audit`
-- `@beep/venice-ai#build`
-- `@beep/venice-ai#check`
-- `@beep/venice-ai#coverage`
-- `@beep/venice-ai#lint:deprecated-apis`
-- `@beep/venice-ai#package-test-typecheck`
-- `@beep/venice-ai#test`
-- `@beep/venice-ai#test:integration`
-- `@beep/venice-ai#test:integration:parallel`
-- `@beep/venice-ai#test:property`
-- `@beep/xai#audit`
-- `@beep/xai#build`
-- `@beep/xai#check`
-- `@beep/xai#coverage`
-- `@beep/xai#lint:deprecated-apis`
-- `@beep/xai#package-test-typecheck`
-- `@beep/xai#test`
-- `@beep/xai#test:integration`
-- `@beep/xai#test:property`
+- `retired:venice-ai#audit`
+- `retired:venice-ai#build`
+- `retired:venice-ai#check`
+- `retired:venice-ai#coverage`
+- `retired:venice-ai#lint:deprecated-apis`
+- `retired:venice-ai#package-test-typecheck`
+- `retired:venice-ai#test`
+- `retired:venice-ai#test:integration`
+- `retired:venice-ai#test:integration:parallel`
+- `retired:venice-ai#test:property`
+- `retired:xai#audit`
+- `retired:xai#build`
+- `retired:xai#check`
+- `retired:xai#coverage`
+- `retired:xai#lint:deprecated-apis`
+- `retired:xai#package-test-typecheck`
+- `retired:xai#test`
+- `retired:xai#test:integration`
+- `retired:xai#test:property`
 
 ## Incoming 3d79b3530aa77ccf6d3af7005a8cf9e02db5d489
 
@@ -158,15 +158,15 @@ metadata and qualification fields must remain identical to the merge base.
 - `@beep/exiftool#test`
 - `@beep/exiftool#test:integration`
 - `@beep/exiftool#test:integration:parallel`
-- `@beep/face-detection#audit`
-- `@beep/face-detection#build`
-- `@beep/face-detection#check`
-- `@beep/face-detection#coverage`
-- `@beep/face-detection#lint:deprecated-apis`
-- `@beep/face-detection#package-test-typecheck`
-- `@beep/face-detection#test`
-- `@beep/face-detection#test:integration`
-- `@beep/face-detection#test:property`
+- `retired:face-detection#audit`
+- `retired:face-detection#build`
+- `retired:face-detection#check`
+- `retired:face-detection#coverage`
+- `retired:face-detection#lint:deprecated-apis`
+- `retired:face-detection#package-test-typecheck`
+- `retired:face-detection#test`
+- `retired:face-detection#test:integration`
+- `retired:face-detection#test:property`
 
 ## Incoming 9ab680a91284e255bc389cc70980ef502f0af6d3
 

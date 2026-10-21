@@ -13,7 +13,7 @@
   "reportRecords": 0,
   "qualifiedCandidates": 0,
   "errors": [],
-  "completionSummary": "`goals/boolean-creep/data/sweeps/refresh-2026-09-25-r34-main-339da1/r34-drivers-s-z.jsonl`. Confirmed 0, disqualified 0 (validator: 0 records).\n\nEvery assigned root was covered (`sanity`, `shacl`, `tailscale`, `tika`, `uspto`, `uspto-mcp`, `venice-ai`, `wink`, `xai`). The five seeded clusters still match current owners, members, and D1 rulings, so they were not rewritten. No seed drift and no unresolved source question.",
+  "completionSummary": "`goals/boolean-creep/data/sweeps/refresh-2026-09-25-r34-main-339da1/r34-drivers-s-z.jsonl`. Confirmed 0, disqualified 0 (validator: 0 records).\n\nEvery assigned root was covered (`sanity`, `shacl`, `tailscale`, `tika`, `uspto`, `uspto-mcp`, `retired:venice-ai`, `wink`, `retired:xai`). The five seeded clusters still match current owners, members, and D1 rulings, so they were not rewritten. No seed drift and no unresolved source question.",
   "transcriptSha256": "cbbc96b22239a7894da6ec3dfafce06438addc1d75a4b728fd93f74c29dc7ed0",
   "runnerSha256": "d8db401443b10416f1050ee73177d43d17c459a516226969361b40537a1ca0f7",
   "seedSha256": "274513d2bea4dc0ba1868af0e0dc0832fd78b5a13e80955af98d47f2f90869cf",

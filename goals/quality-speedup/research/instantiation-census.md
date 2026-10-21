@@ -164,7 +164,7 @@ Post-fix measurements (same method, independently run twice):
 | --- | ---: | ---: |
 | Barrel floor probe check time | 17.79s | **0.445–0.465s** |
 | Barrel floor probe peak RSS | 1.39 GB | 0.63 GB |
-| `@beep/xai` package check time | 17.94s | **0.488s** |
+| `retired:xai` package check time | 17.94s | **0.488s** |
 
 Instantiations barely moved (1.73M → 1.63M floor) — confirming §2's
 diagnosis that MimeType was a check-time bomb, not an instantiation bomb.

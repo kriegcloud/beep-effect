@@ -18,7 +18,7 @@ Location: `research/sweeps/2026-10-09/A-patches.md`
 
 - **Effect patch (JSC error keys):** no focused test. The only detector is the incidental, flaky equality test in effect-drizzle `test/unit.test.ts`; it builds both errors through `.make()`, so it usually passes unpatched. The fix has not landed upstream: the Effect reference checkout at head 66257d2922 still deletes only `stack`. The platform-node-shared write fix has not landed upstream either.
 - **Drizzle and xstate patches:** both change type declarations only, and no current test would catch their absence. `tsconfig.base.json:39` sets `skipLibCheck: true`, so an unpatched drizzle `SqlError` import silently becomes `any`. The xstate TS4023 error needs declaration emit, but every check and test config sets `declaration: false`; whether any lane runs declaration emit over the exported desktop intake machines is still an open question.
-- **ONNX override:** declared in `package.json:342-344` as `"onnxruntime-node@1.30.0": {"adm-zip": "npm:fflate@0.8.3"}` and mirrored in `bun.lock`. The catalog allows `^1.30.0`, but the override and patch keys are exact, so a 1.30.x bump would silently drop both. The 7 cases in face-detection `OnnxRuntimeInstall.test.ts` cover the 3 cases in `scripts/test-onnxruntime-installer-patch.mjs`, so the script can move into the package. The script is wired into `check.yml:1073-1076` and `runSecurityScan` in `Quality.command.ts:1282`.
+- **ONNX override:** declared in `package.json:342-344` as `"onnxruntime-node@1.30.0": {"adm-zip": "npm:fflate@0.8.3"}` and mirrored in `bun.lock`. The catalog allows `^1.30.0`, but the override and patch keys are exact, so a 1.30.x bump would silently drop both. The 7 cases in retired:face-detection `OnnxRuntimeInstall.test.ts` cover the 3 cases in `scripts/test-onnxruntime-installer-patch.mjs`, so the script can move into the package. The script is wired into `check.yml:1073-1076` and `runSecurityScan` in `Quality.command.ts:1282`.
 - **Docs out of date:** the xstate runbook (item 1) still cites the alpha.5 import-rewrite patch. The CI step name mentions an "OSV exception" that the ONNX `.md` says does not exist.
 
 ## A-retained-tools
@@ -64,7 +64,7 @@ Counts across 22 rows (21 checklist entries plus scripts/graft): 8 retain, 10 po
 2. Dead or superseded code:
    - `yeet-inbox-grok-tail.sh` has zero callers.
    - `cloud-session-setup.sh` is referenced only by the active `goals/cloud-agent-readiness` manifest's verification commands.
-   - The ONNX script's 3 tests are a subset of the 7 in `packages/drivers/face-detection/test/OnnxRuntimeInstall.test.ts`.
+   - The ONNX script's 3 tests are a subset of the 7 in `retired:face-detection/test/OnnxRuntimeInstall.test.ts`.
    - Refs already has `plan` and `linkInto` but nothing that clones. The 5 `enable-turbo-remote-reads` tests are in `setup-effect-ref.test.ts`.
 3. Drift:
    - The knowledge rewrite dry-run at head prints "3 applied, 224 already-applied" and exits 1: rules #0-#2 would re-apply to the portless and shadcn skill files, and rule #34 targets the git-ignored, missing `explorations/ATLAS.md`. `knowledge refs --check` still shows 0 live gated observations.

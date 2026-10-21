@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-null-return",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 274,
     "symbol": "optionOrUndefined",
     "smell": "`const optionOrUndefined = <A>(option: O.Option<A>): A | undefined => O.getOrUndefined(option);` is a helper whose return type includes `undefined`.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+    "file": "retired:firecrawl/src/Firecrawl.service.ts",
     "line": 347,
     "symbol": "watcherErrorText",
     "smell": "`O.getOrElse(() => (P.isString(payload) ? payload : \"watcher error\"))` terminates a best-effort extraction from unknown watcher error payloads with a diagnostic string default.",
@@ -31,7 +31,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+    "file": "retired:firecrawl/src/Firecrawl.errors.ts",
     "line": 344,
     "symbol": "causeLabel",
     "smell": "`O.getOrElse(() => (P.isString(cause) ? \"String\" : \"Unknown\"))` defaults a best-effort diagnostic label extracted from unknown thrown causes.",

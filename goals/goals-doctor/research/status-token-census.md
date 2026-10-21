@@ -258,7 +258,7 @@ goals/trustgraph-doc-ontology/ops/manifest.json
   goals/effect-native-migration
   goals/fallow-quality-enforcement
   goals/file-processing-capability
-  goals/firecrawl-driver
+  retired-packet:firecrawl-driver
   goals/ip-law-knowledge-graph
   goals/jsdoc-worker-eval
   goals/knowledge-workspace

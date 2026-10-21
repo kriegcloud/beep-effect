@@ -934,8 +934,8 @@
           "packages/foundation/capability/langextract/src/Service/index.ts",
           "packages/law-practice/server/src/Layer.ts",
           "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
-          "packages/drivers/xai/src/XAiLanguageModel.service.ts",
-          "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts"
+          "retired:xai/src/XAiLanguageModel.service.ts",
+          "retired:venice-ai/src/VeniceAiLanguageModel.service.ts"
         ],
         "confidence": "high",
         "completedAt": "2026-07-08T10:47:35.912Z"

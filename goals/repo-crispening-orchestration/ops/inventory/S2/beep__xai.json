@@ -1,7 +1,7 @@
 [
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/xai/src/XAi.service.ts",
+    "file": "retired:xai/src/XAi.service.ts",
     "line": 305,
     "symbol": "addRequestHeaders",
     "smell": "`HttpClientRequest.accept(options.accept ?? defaultAcceptHeader(descriptor))` is a `??` fallback over an optional request field.",
@@ -16,7 +16,7 @@
   },
   {
     "ruleId": "SFV4-normalization",
-    "file": "packages/drivers/xai/src/XAi.service.ts",
+    "file": "retired:xai/src/XAi.service.ts",
     "line": 423,
     "symbol": "contentMediaType",
     "smell": "`contentMediaType` splits an HTTP Content-Type header, defaults a missing first segment to `\"\"`, then trims/lowercases it in a function body.",
@@ -31,7 +31,7 @@
   },
   {
     "ruleId": "SFV4-normalization",
-    "file": "packages/drivers/xai/src/XAi.service.ts",
+    "file": "retired:xai/src/XAi.service.ts",
     "line": 538,
     "symbol": "dataLine",
     "smell": "`dataLine` trims `data:` payload lines and `sseBlockData` trims the joined SSE data block before checking emptiness.",
@@ -46,7 +46,7 @@
   },
   {
     "ruleId": "SFV4-defaults",
-    "file": "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+    "file": "retired:xai/src/XAiLanguageModel.service.ts",
     "line": 74,
     "symbol": "networkTransportError",
     "smell": "`hash: undefined`, `method: error.method ?? \"POST\"`, and `url: error.path ?? \"/\"` build fallback request metadata for Effect AI network errors.",

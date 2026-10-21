@@ -229,7 +229,7 @@ inline suppression marker.
 
 The first full Yeet verification passed every quality lane except the coverage
 ratchet. V8 denominator changes from the named helper extractions moved floors
-under six owners: `@beep/face-detection`, `@beep/html`, `@beep/rdf`,
+under six owners: `retired:face-detection`, `@beep/html`, `@beep/rdf`,
 `@beep/repo-cli`, `@beep/repo-utils`, and `@beep/ui`. Exact-main controls
 separated inherited movements from the campaign delta; no package test was
 deleted or failed.
@@ -249,7 +249,7 @@ writer ran. Its merged-tree proof passed:
   `maxWorkers=2`;
 - `@beep/repo-utils`: 222 passed with `maxWorkers=1`, including Graph branch
   coverage of 88.46%;
-- `@beep/face-detection`, `@beep/html`, `@beep/rdf`, and `@beep/ui`: 7, 190,
+- `retired:face-detection`, `@beep/html`, `@beep/rdf`, and `@beep/ui`: 7, 190,
   89, and 40 tests passed with `maxWorkers=1`.
 
 The writer merged those six measured owners into the 132-owner baseline and

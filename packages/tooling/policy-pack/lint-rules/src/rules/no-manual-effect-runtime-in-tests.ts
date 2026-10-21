@@ -65,7 +65,6 @@ const LEGACY_BASELINE = HashMap.fromIterable<string, number>([
   ["packages/drivers/acp/test/protocol.test.ts", 6],
   ["packages/drivers/libpff/test/Libpff.service.test.ts", 6],
   ["packages/drivers/tika/test/Tika.service.test.ts", 6],
-  ["packages/drivers/venice-ai/test/VeniceAI.service.test.ts", 6],
   ["packages/drivers/wink/test/Layers.test.ts", 1],
   ["packages/drivers/wink/test/ParityTools.test.ts", 4],
   ["packages/drivers/wink/test/ToolValidation.test.ts", 2],

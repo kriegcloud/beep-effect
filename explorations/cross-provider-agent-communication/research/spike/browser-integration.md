@@ -10,11 +10,11 @@ could provide that capability.
 
 | Source anchor | Existing behavior | Reuse boundary |
 | --- | --- | --- |
-| `packages/drivers/firecrawl/src/Firecrawl.service.ts:173` | Effect service includes browser creation, execution, listing and deletion | Operational SDK wrapper, not QA alone; candidate for a separately qualified Firecrawl-backed browser route |
-| `packages/drivers/firecrawl/src/Firecrawl.service.ts:505` | `makeService` wraps `client.browser`, `browserExecute`, `deleteBrowser` and `listBrowsers` with decoded requests/results and typed failures | Reuse SDK/error/codec service patterns; does not enroll a local Chrome conversation |
-| `packages/drivers/firecrawl/src/Firecrawl.models.ts:4040` | Browser execution payload has explicit session ID and SDK request | Browser service session ID is distinct from provider conversation identity |
-| `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:328` and `:356` | Browser creation/list response shapes include CDP and live-view URLs | Endpoints describe Firecrawl browser sessions; no local authenticated-profile attach demonstrated |
-| `packages/drivers/firecrawl/src/Firecrawl.config.ts:128` and `Firecrawl.service.ts:473` | Configurable service API URL and API-key resolution; service client construction | A deployment/authentication boundary remains. No new paid Firecrawl route is authorized or required by this spike |
+| `retired:firecrawl/src/Firecrawl.service.ts:173` | Effect service includes browser creation, execution, listing and deletion | Operational SDK wrapper, not QA alone; candidate for a separately qualified Firecrawl-backed browser route |
+| `retired:firecrawl/src/Firecrawl.service.ts:505` | `makeService` wraps `client.browser`, `browserExecute`, `deleteBrowser` and `listBrowsers` with decoded requests/results and typed failures | Reuse SDK/error/codec service patterns; does not enroll a local Chrome conversation |
+| `retired:firecrawl/src/Firecrawl.models.ts:4040` | Browser execution payload has explicit session ID and SDK request | Browser service session ID is distinct from provider conversation identity |
+| `retired:firecrawl/src/internal/Firecrawl.responses.ts:328` and `:356` | Browser creation/list response shapes include CDP and live-view URLs | Endpoints describe Firecrawl browser sessions; no local authenticated-profile attach demonstrated |
+| `retired:firecrawl/src/Firecrawl.config.ts:128` and `retired:firecrawl/src/Firecrawl.service.ts:473` | Configurable service API URL and API-key resolution; service client construction | A deployment/authentication boundary remains. No new paid Firecrawl route is authorized or required by this spike |
 | `packages/drivers/openclaw/src/OpenclawCli.service.ts:456` | Existing gateway CLI shape supports health, agent turns and Telegram message sending | Useful gateway lifecycle patterns, but no browser-control or web conversation enrollment API in this driver |
 
 Firecrawl is a real operational browser-control surface in repository code.
@@ -60,7 +60,7 @@ Discovery used Graft before source reads:
 
 - `graft ask "browser control gateway session enrollment reusable runtime driver conversation bridge" --source -n 8`
 - `graft grep "playwright|BrowserSession|browserGateway|cua|chrome-devtools" --in packages -i`
-- `graft grep "browser|Browser" --in packages/drivers/firecrawl`
+- `graft grep "browser|Browser" --in retired:firecrawl`
 - `graft grep "connectOverCDP|launchPersistentContext|enroll|browser-use|BrowserControl|BrowserGateway|mcp__cua|cua\\." -i`
 - `graft grep "chromium|cdpUrl|BrowserType|browserExecute" -i`
 - `graft grep "browser|gateway|session" --in packages/drivers/openclaw -i`

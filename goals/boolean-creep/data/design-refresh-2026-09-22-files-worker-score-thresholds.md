@@ -12,7 +12,7 @@ Source HEAD `f5e1d4c64f37e0a8c42e217eee5f06841220c161`. No canonical or product 
 - `packages/tooling/tool/cli/src/commands/Files/internal/MatchPerson.schemas.ts`: `2fd505c8179cbf84c77819d027290157e573d3e74ebaff069211799b11c02059`
 - `packages/tooling/tool/cli/src/commands/Files/Files.command.ts`: `f748ea79103eaef766a3f539ef2fce5d782881c33c35420e0c8212bf3b4e2f04`
 - `packages/tooling/tool/cli/src/commands/Files/internal/MatchPerson.worker-service.ts`: `d0b73f79a59a31c7c36dacd555ff5756c1b01c6601a53ed0cfd27e5afe0ec60a`
-- `packages/drivers/face-detection/src/FaceDetection.models.ts`: `691690763032ad9967f849d24731e5d1ab1e2e357931f90b17b30690a0d1161d`
+- `retired:face-detection/src/FaceDetection.models.ts`: `691690763032ad9967f849d24731e5d1ab1e2e357931f90b17b30690a0d1161d`
 
 ## Findings
 

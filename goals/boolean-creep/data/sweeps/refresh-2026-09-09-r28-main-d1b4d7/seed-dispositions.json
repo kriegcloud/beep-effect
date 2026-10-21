@@ -997,7 +997,7 @@
       "presentAtFrozenHead": true,
       "comparisonOnlyNoSemanticRescan": true
     },
-    "packages/drivers/firecrawl/src/Firecrawl.errors.ts": {
+    "retired:firecrawl/src/Firecrawl.errors.ts": {
       "oldSourceSha256": "94a65e581f745dd62199871c560baa36a5a494f5ea2ec5be82147f9bd7045a65",
       "sourceSha256": "94a65e581f745dd62199871c560baa36a5a494f5ea2ec5be82147f9bd7045a65",
       "workingSha256": "94a65e581f745dd62199871c560baa36a5a494f5ea2ec5be82147f9bd7045a65",
@@ -1005,7 +1005,7 @@
       "presentAtFrozenHead": true,
       "comparisonOnlyNoSemanticRescan": true
     },
-    "packages/drivers/firecrawl/src/Firecrawl.models.ts": {
+    "retired:firecrawl/src/Firecrawl.models.ts": {
       "oldSourceSha256": "0e4b60edf451afe0b2d8f4a4469ab05ce7d7c7523b54e6c8e4cb8e23de35002c",
       "sourceSha256": "0e4b60edf451afe0b2d8f4a4469ab05ce7d7c7523b54e6c8e4cb8e23de35002c",
       "workingSha256": "0e4b60edf451afe0b2d8f4a4469ab05ce7d7c7523b54e6c8e4cb8e23de35002c",
@@ -1013,7 +1013,7 @@
       "presentAtFrozenHead": true,
       "comparisonOnlyNoSemanticRescan": true
     },
-    "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts": {
+    "retired:firecrawl/src/internal/Firecrawl.responses.ts": {
       "oldSourceSha256": "9749c6bcdd917fe5385578d84b4f16fce9f4fcead914567a5b94503c1c1db81c",
       "sourceSha256": "9749c6bcdd917fe5385578d84b4f16fce9f4fcead914567a5b94503c1c1db81c",
       "workingSha256": "9749c6bcdd917fe5385578d84b4f16fce9f4fcead914567a5b94503c1c1db81c",
@@ -1293,7 +1293,7 @@
       "presentAtFrozenHead": true,
       "comparisonOnlyNoSemanticRescan": true
     },
-    "packages/drivers/venice-ai/src/VeniceAI.service.ts": {
+    "retired:venice-ai/src/VeniceAI.service.ts": {
       "oldSourceSha256": "4e9faff72bfecf5c10a2ad7761402653639475abb26574addf72ad0c6d1c0964",
       "sourceSha256": "4e9faff72bfecf5c10a2ad7761402653639475abb26574addf72ad0c6d1c0964",
       "workingSha256": "4e9faff72bfecf5c10a2ad7761402653639475abb26574addf72ad0c6d1c0964",
@@ -1341,7 +1341,7 @@
       "presentAtFrozenHead": true,
       "comparisonOnlyNoSemanticRescan": true
     },
-    "packages/drivers/xai/src/XAi.config.ts": {
+    "retired:xai/src/XAi.config.ts": {
       "oldSourceSha256": "ed87605952037fef2283d8101d1cc36965a9148c2a3a6d906a04bd74fda16c50",
       "sourceSha256": "ed87605952037fef2283d8101d1cc36965a9148c2a3a6d906a04bd74fda16c50",
       "workingSha256": "ed87605952037fef2283d8101d1cc36965a9148c2a3a6d906a04bd74fda16c50",
@@ -1349,7 +1349,7 @@
       "presentAtFrozenHead": true,
       "comparisonOnlyNoSemanticRescan": true
     },
-    "packages/drivers/xai/src/XAi.models.ts": {
+    "retired:xai/src/XAi.models.ts": {
       "oldSourceSha256": "1f2d223ead2bc1d501dadee3153095a7d3d05d0fb32d7f5b9a5390cd579073d6",
       "sourceSha256": "1f2d223ead2bc1d501dadee3153095a7d3d05d0fb32d7f5b9a5390cd579073d6",
       "workingSha256": "1f2d223ead2bc1d501dadee3153095a7d3d05d0fb32d7f5b9a5390cd579073d6",
@@ -1357,7 +1357,7 @@
       "presentAtFrozenHead": true,
       "comparisonOnlyNoSemanticRescan": true
     },
-    "packages/drivers/xai/src/XAi.service.ts": {
+    "retired:xai/src/XAi.service.ts": {
       "oldSourceSha256": "79576b76274219d65ac32ae1bf7e41f1942bc7941f28db576e4d607fc783f277",
       "sourceSha256": "79576b76274219d65ac32ae1bf7e41f1942bc7941f28db576e4d607fc783f277",
       "workingSha256": "79576b76274219d65ac32ae1bf7e41f1942bc7941f28db576e4d607fc783f277",
@@ -4515,9 +4515,9 @@
         "packages/drivers/duckdb/src",
         "packages/drivers/ecfr/src",
         "packages/drivers/exiftool/src",
-        "packages/drivers/face-detection/src",
+        "retired:face-detection/src",
         "packages/drivers/ffmpeg/src",
-        "packages/drivers/firecrawl/src",
+        "retired:firecrawl/src",
         "packages/drivers/freshbooks/src"
       ],
       "receipt": "data/sweeps/refresh-2026-09-09-r28-main-d1b4d7/r28-drivers-a-f.execution.json",
@@ -4596,16 +4596,16 @@
         "packages/drivers/tika/src",
         "packages/drivers/uspto/src",
         "packages/drivers/uspto-mcp/src",
-        "packages/drivers/venice-ai/src",
+        "retired:venice-ai/src",
         "packages/drivers/wink/src",
-        "packages/drivers/xai/src"
+        "retired:xai/src"
       ],
       "receipt": "data/sweeps/refresh-2026-09-09-r28-main-d1b4d7/r28-drivers-s-z.execution.json",
       "receiptSha256": "a38a93747173910e1dd5a416b5b3a616df1cc26c0d0c29192eb46cb0c32ca9e8",
       "sourceSha": "93217d998f851e2e93d9864e2b5315552eaa58a7",
       "footerSha256": "ae1667611ea1eb40763fc24653c4295c04c02d80c7b4b7db9cf2819a6ed172b5",
       "exactCoverageParagraphs": [
-        "Every assigned root was covered (`sanity`, `shacl`, `tailscale`, `tika`, `uspto`, `uspto-mcp`, `venice-ai`, `wink`, `xai`)."
+        "Every assigned root was covered (`sanity`, `shacl`, `tailscale`, `tika`, `uspto`, `uspto-mcp`, `retired:venice-ai`, `wink`, `retired:xai`)."
       ],
       "exactRetentionAssertions": [
         "Unchanged and not re-recorded: `CorpusStatsParams` D1, `XAiServerSentEvent` E3+E2, `VeniceAIServerSentEvent` E3+E2, `XAiWebSocketEvent` E3+E1, `WinkBackend.capabilities` D1, `ReportShape` D2, `tokenToAi` D1, `makeToken` D1, `validateShacl.resultFlags` D1.",
@@ -13097,7 +13097,7 @@
     },
     {
       "id": "firecrawl-monitor-email-notification",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "MonitorEmailNotificationShape",
       "seedLine": 178,
       "seedStatus": "disqualified",
@@ -13110,7 +13110,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "c0c9084440589b415e8c24fc7fcb58e34870411e551234bc6c77681706559a1d",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -13123,7 +13123,7 @@
             {
               "line": 204,
               "section": "complete retained census disposition",
-              "excerpt": "| `firecrawl-monitor-email-notification` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:177-184` declares the two optional Booleans; the nested Monitor wire schema is exported against external `Monitor` at `:452-456`. |"
+              "excerpt": "| `firecrawl-monitor-email-notification` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:177-184` declares the two optional Booleans; the nested Monitor wire schema is exported against external `Monitor` at `:452-456`. |"
             }
           ]
         }
@@ -13133,7 +13133,7 @@
     },
     {
       "id": "firecrawl-monitor-search-target-result",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "MonitorSearchTargetResultShape",
       "seedLine": 253,
       "seedStatus": "disqualified",
@@ -13146,7 +13146,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "159ffda22345dc9877f360dda638f959d1a660537b22665e40a3441ecbc614e4",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -13159,7 +13159,7 @@
             {
               "line": 205,
               "section": "complete retained census disposition",
-              "excerpt": "| `firecrawl-monitor-search-target-result` | Retain D2. The optional Boolean facts are declared at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:253` and `:257`, used in the target-result union at `:263-267`, then external MonitorCheck exports at `:462-475`. |"
+              "excerpt": "| `firecrawl-monitor-search-target-result` | Retain D2. The optional Boolean facts are declared at `retired:firecrawl/src/internal/Firecrawl.responses.ts:253` and `:257`, used in the target-result union at `:263-267`, then external MonitorCheck exports at `:462-475`. |"
             }
           ]
         }
@@ -13169,7 +13169,7 @@
     },
     {
       "id": "firecrawl-browser-execute-shape",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "BrowserExecuteShape",
       "seedLine": 342,
       "seedStatus": "disqualified",
@@ -13182,7 +13182,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "193076e4fefe232c567e7a179327864c43d44d727440437e1184df3908595b56",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -13195,7 +13195,7 @@
             {
               "line": 206,
               "section": "complete retained census disposition",
-              "excerpt": "| `firecrawl-browser-execute-shape` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:342` declares optional Boolean killed, and `:348` declares required Boolean success. The response is exported against external BrowserExecuteResponse at `:502-506`, and external ScrapeExecuteResponse at `:547-551`. |"
+              "excerpt": "| `firecrawl-browser-execute-shape` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:342` declares optional Boolean killed, and `:348` declares required Boolean success. The response is exported against external BrowserExecuteResponse at `:502-506`, and external ScrapeExecuteResponse at `:547-551`. |"
             }
           ]
         }
@@ -13927,7 +13927,7 @@
     },
     {
       "id": "xai-sse-done-payload",
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "symbol": "XAiServerSentEvent",
       "seedLine": 384,
       "seedStatus": "reviewed",
@@ -13940,7 +13940,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-s-z",
-      "originalOwnerSourceHashKey": "packages/drivers/xai/src/XAi.models.ts",
+      "originalOwnerSourceHashKey": "retired:xai/src/XAi.models.ts",
       "seedRationaleSha256": "1e8c156279b93f75176e4391937d255cca6d504adedc504402ffe72051143d83",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -13972,7 +13972,7 @@
     },
     {
       "id": "venice-sse-done-payload",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "symbol": "VeniceAIServerSentEvent",
       "seedLine": 649,
       "seedStatus": "reviewed",
@@ -13985,7 +13985,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-s-z",
-      "originalOwnerSourceHashKey": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "originalOwnerSourceHashKey": "retired:venice-ai/src/VeniceAI.service.ts",
       "seedRationaleSha256": "089da6f79ad5c188eb44016bc1af5241429f7d827922fe1a72129eba824f54d0",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -14003,7 +14003,7 @@
             {
               "line": 352,
               "section": "canonical inventory citation map",
-              "excerpt": "| `venice-sse-done-payload` | yes | `packages/drivers/venice-ai/src/VeniceAI.service.ts` P `648` -> `649`; E3 `1899` -> `1900` |"
+              "excerpt": "| `venice-sse-done-payload` | yes | `retired:venice-ai/src/VeniceAI.service.ts` P `648` -> `649`; E3 `1899` -> `1900` |"
             }
           ]
         },
@@ -14897,7 +14897,7 @@
     },
     {
       "id": "xai-websocket-message-binary",
-      "file": "packages/drivers/xai/src/XAi.models.ts",
+      "file": "retired:xai/src/XAi.models.ts",
       "symbol": "XAiWebSocketEvent",
       "seedLine": 469,
       "seedStatus": "designed",
@@ -14910,7 +14910,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-s-z",
-      "originalOwnerSourceHashKey": "packages/drivers/xai/src/XAi.models.ts",
+      "originalOwnerSourceHashKey": "retired:xai/src/XAi.models.ts",
       "seedRationaleSha256": "b1abb389affa34d7c394d6ac344ef8968b31728cf250408350fae4d504e2b75c",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -19680,7 +19680,7 @@
     },
     {
       "id": "firecrawl-agent-response-shape",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "AgentResponseShape",
       "seedLine": 314,
       "seedStatus": "disqualified",
@@ -19693,7 +19693,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "feed0a7df5a73315eac53ea4c814ee9782566134c4031da18aa5866c9efd1ecc",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -19706,7 +19706,7 @@
             {
               "line": 208,
               "section": "complete retained census disposition",
-              "excerpt": "| `firecrawl-agent-response-shape` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:313-317` declares required success plus optional error; the external AgentResponse export is at `:487-491`. |"
+              "excerpt": "| `firecrawl-agent-response-shape` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:313-317` declares required success plus optional error; the external AgentResponse export is at `:487-491`. |"
             }
           ]
         }
@@ -19716,7 +19716,7 @@
     },
     {
       "id": "firecrawl-agent-status-shape",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "AgentStatusShape",
       "seedLine": 325,
       "seedStatus": "disqualified",
@@ -19729,7 +19729,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "bdbb8d29624f2c7df53bf3e292de6f362f2c8ab017a9116609821ff1897052e3",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -19742,7 +19742,7 @@
             {
               "line": 209,
               "section": "complete retained census disposition",
-              "excerpt": "| `firecrawl-agent-status-shape` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:318-326` declares optional data/error, required success, and the complete `processing | completed | failed` status literal. The external AgentStatusResponse export is at `:492-496`. Do not erase optional payloads or invent a local independence proof from the schema. |"
+              "excerpt": "| `firecrawl-agent-status-shape` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:318-326` declares optional data/error, required success, and the complete `processing | completed | failed` status literal. The external AgentStatusResponse export is at `:492-496`. Do not erase optional payloads or invent a local independence proof from the schema. |"
             },
             {
               "line": 267,
@@ -19757,7 +19757,7 @@
     },
     {
       "id": "firecrawl-browser-create-shape",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "BrowserCreateShape",
       "seedLine": 335,
       "seedStatus": "disqualified",
@@ -19770,7 +19770,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "0ddebb81fc284aa069419f9eb99449f729cf5918c9e0912e6ec1b54d5381a4d4",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -19783,7 +19783,7 @@
             {
               "line": 210,
               "section": "complete retained census disposition",
-              "excerpt": "| `firecrawl-browser-create-shape` | Retain D2. Actual optional error and required success at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:330` and `:335`; external BrowserCreateResponse export at `:497-501`. |"
+              "excerpt": "| `firecrawl-browser-create-shape` | Retain D2. Actual optional error and required success at `retired:firecrawl/src/internal/Firecrawl.responses.ts:330` and `:335`; external BrowserCreateResponse export at `:497-501`. |"
             }
           ]
         }
@@ -19793,7 +19793,7 @@
     },
     {
       "id": "firecrawl-browser-delete-shape",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "BrowserDeleteShape",
       "seedLine": 354,
       "seedStatus": "disqualified",
@@ -19806,7 +19806,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "ee4d75d5d37d30a674daabf1b128c988288b1a21ae7cab6eb1483d53452558a9",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -19819,7 +19819,7 @@
             {
               "line": 211,
               "section": "complete retained census disposition",
-              "excerpt": "| `firecrawl-browser-delete-shape` | Retain D2. Actual optional error and required success at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:352` and `:354`; external BrowserDeleteResponse export at `:507-511`. |"
+              "excerpt": "| `firecrawl-browser-delete-shape` | Retain D2. Actual optional error and required success at `retired:firecrawl/src/internal/Firecrawl.responses.ts:352` and `:354`; external BrowserDeleteResponse export at `:507-511`. |"
             }
           ]
         }
@@ -19829,7 +19829,7 @@
     },
     {
       "id": "firecrawl-browser-list-shape",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "BrowserListShape",
       "seedLine": 369,
       "seedStatus": "disqualified",
@@ -19842,7 +19842,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "ec1a0494ea753ddefd567832d6a5c11c872021c1d3d9a5d5c9a53cada11ac71b",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -19855,7 +19855,7 @@
             {
               "line": 212,
               "section": "complete retained census disposition",
-              "excerpt": "| `firecrawl-browser-list-shape` | Retain D2. Actual optional error and required success at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:367-369`; external BrowserListResponse export at `:512-516`. |"
+              "excerpt": "| `firecrawl-browser-list-shape` | Retain D2. Actual optional error and required success at `retired:firecrawl/src/internal/Firecrawl.responses.ts:367-369`; external BrowserListResponse export at `:512-516`. |"
             }
           ]
         }
@@ -21846,7 +21846,7 @@
     },
     {
       "id": "venice-response-content-type-classifiers",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "symbol": "isJsonContentType/isTextContentType",
       "seedLine": 1524,
       "seedStatus": "disqualified",
@@ -21859,7 +21859,7 @@
       "coverage": "installed-source-backed-adjudication",
       "coverageReason": "Bound actual installed integration and exact prior-row archive override primary footer assertions.",
       "lane": "r28-drivers-s-z",
-      "originalOwnerSourceHashKey": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "originalOwnerSourceHashKey": "retired:venice-ai/src/VeniceAI.service.ts",
       "seedRationaleSha256": "e778ee68c666bdd76b173dd27bc8a18792f1de16eb58c89f9b388470af62e654",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [
@@ -21881,7 +21881,7 @@
             {
               "line": 29,
               "section": "r28 architecture and driver callable withdrawals",
-              "excerpt": "| `venice-response-content-type-classifiers` | `packages/drivers/venice-ai/src/VeniceAI.service.ts`: VeniceAI.service.ts:1524-1527 declares Content-Type predicate functions. |"
+              "excerpt": "| `venice-response-content-type-classifiers` | `retired:venice-ai/src/VeniceAI.service.ts`: retired:venice-ai/src/VeniceAI.service.ts:1524-1527 declares Content-Type predicate functions. |"
             }
           ]
         }
@@ -21894,7 +21894,7 @@
             {
               "line": 396,
               "section": "canonical inventory citation map",
-              "excerpt": "| `venice-response-content-type-classifiers` | no | `packages/drivers/venice-ai/src/VeniceAI.service.ts` P `1523` -> `1524` |"
+              "excerpt": "| `venice-response-content-type-classifiers` | no | `retired:venice-ai/src/VeniceAI.service.ts` P `1523` -> `1524` |"
             }
           ]
         }
@@ -21904,7 +21904,7 @@
     },
     {
       "id": "xai-response-content-type-classifiers",
-      "file": "packages/drivers/xai/src/XAi.service.ts",
+      "file": "retired:xai/src/XAi.service.ts",
       "symbol": "isJsonContentType/isTextContentType",
       "seedLine": 236,
       "seedStatus": "disqualified",
@@ -21917,7 +21917,7 @@
       "coverage": "installed-source-backed-adjudication",
       "coverageReason": "Bound actual installed integration and exact prior-row archive override primary footer assertions.",
       "lane": "r28-drivers-s-z",
-      "originalOwnerSourceHashKey": "packages/drivers/xai/src/XAi.service.ts",
+      "originalOwnerSourceHashKey": "retired:xai/src/XAi.service.ts",
       "seedRationaleSha256": "e778ee68c666bdd76b173dd27bc8a18792f1de16eb58c89f9b388470af62e654",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [
@@ -21939,7 +21939,7 @@
             {
               "line": 30,
               "section": "r28 architecture and driver callable withdrawals",
-              "excerpt": "| `xai-response-content-type-classifiers` | `packages/drivers/xai/src/XAi.service.ts`: XAi.service.ts:236-239 declares Content-Type predicate functions. |"
+              "excerpt": "| `xai-response-content-type-classifiers` | `retired:xai/src/XAi.service.ts`: retired:xai/src/XAi.service.ts:236-239 declares Content-Type predicate functions. |"
             }
           ]
         }
@@ -29738,7 +29738,7 @@
     },
     {
       "id": "r3-drivers-arch-xai-http-ws-base-url",
-      "file": "packages/drivers/xai/src/XAi.config.ts",
+      "file": "retired:xai/src/XAi.config.ts",
       "symbol": "isXAiHttpBaseUrl/isXAiWebSocketBaseUrl",
       "seedLine": 25,
       "seedStatus": "disqualified",
@@ -29751,7 +29751,7 @@
       "coverage": "installed-source-backed-adjudication",
       "coverageReason": "Bound actual installed integration and exact prior-row archive override primary footer assertions.",
       "lane": "r28-drivers-s-z",
-      "originalOwnerSourceHashKey": "packages/drivers/xai/src/XAi.config.ts",
+      "originalOwnerSourceHashKey": "retired:xai/src/XAi.config.ts",
       "seedRationaleSha256": "20ea2aabbb5f61ed22e7a1a495845120dd9ea33c8f74a0abf1264f69334b6b15",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [
@@ -29773,7 +29773,7 @@
             {
               "line": 32,
               "section": "r28 architecture and driver callable withdrawals",
-              "excerpt": "| `r3-drivers-arch-xai-http-ws-base-url` | `packages/drivers/xai/src/XAi.config.ts`: XAi.config.ts:25-26 derives protocol predicates and passes them into S.makeFilter at 45/79. |"
+              "excerpt": "| `r3-drivers-arch-xai-http-ws-base-url` | `retired:xai/src/XAi.config.ts`: retired:xai/src/XAi.config.ts:25-26 derives protocol predicates and passes them into S.makeFilter at 45/79. |"
             }
           ]
         }
@@ -31839,7 +31839,7 @@
     },
     {
       "id": "r3-drivers-arch-venice-content-type-probes",
-      "file": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "file": "retired:venice-ai/src/VeniceAI.service.ts",
       "symbol": "hasRequestContentType/isSseContentType",
       "seedLine": 1529,
       "seedStatus": "disqualified",
@@ -31852,7 +31852,7 @@
       "coverage": "installed-source-backed-adjudication",
       "coverageReason": "Bound actual installed integration and exact prior-row archive override primary footer assertions.",
       "lane": "r28-drivers-s-z",
-      "originalOwnerSourceHashKey": "packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "originalOwnerSourceHashKey": "retired:venice-ai/src/VeniceAI.service.ts",
       "seedRationaleSha256": "7045733e2f0898d44d2a2d6c97614e4e6368feb3bf9c9f7376b5f07ab8a3b45d",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [
@@ -31874,7 +31874,7 @@
             {
               "line": 33,
               "section": "r28 architecture and driver callable withdrawals",
-              "excerpt": "| `r3-drivers-arch-venice-content-type-probes` | `packages/drivers/venice-ai/src/VeniceAI.service.ts`: VeniceAI.service.ts:1529-1530 and 1717 declares functions on operation descriptors and response content types. |"
+              "excerpt": "| `r3-drivers-arch-venice-content-type-probes` | `retired:venice-ai/src/VeniceAI.service.ts`: retired:venice-ai/src/VeniceAI.service.ts:1529-1530 and 1717 declares functions on operation descriptors and response content types. |"
             }
           ]
         }
@@ -31887,7 +31887,7 @@
             {
               "line": 432,
               "section": "canonical inventory citation map",
-              "excerpt": "| `r3-drivers-arch-venice-content-type-probes` | no | `packages/drivers/venice-ai/src/VeniceAI.service.ts` P `1528` -> `1529` |"
+              "excerpt": "| `r3-drivers-arch-venice-content-type-probes` | no | `retired:venice-ai/src/VeniceAI.service.ts` P `1528` -> `1529` |"
             }
           ]
         }
@@ -32558,7 +32558,7 @@
     },
     {
       "id": "r24-drivers-a-f-firecrawl-browser-execute-success-error",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "BrowserExecuteShape",
       "seedLine": 339,
       "seedStatus": "disqualified",
@@ -32571,7 +32571,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "02b6e2267188a643cd4c50678b285c42a49799c92c0b5de001d8390ee75e923b",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -32584,7 +32584,7 @@
             {
               "line": 216,
               "section": "complete retained census disposition",
-              "excerpt": "| `r24-drivers-a-f-firecrawl-browser-execute-success-error` | Retain D2. Actual optional error and required success at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:339` and `:348`; external BrowserExecuteResponse wrapper at `:502-506`. |"
+              "excerpt": "| `r24-drivers-a-f-firecrawl-browser-execute-success-error` | Retain D2. Actual optional error and required success at `retired:firecrawl/src/internal/Firecrawl.responses.ts:339` and `:348`; external BrowserExecuteResponse wrapper at `:502-506`. |"
             }
           ]
         }
@@ -32594,7 +32594,7 @@
     },
     {
       "id": "r24-drivers-a-f-firecrawl-monitor-search-judge-degraded-reason",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "MonitorSearchTargetResultShape",
       "seedLine": 251,
       "seedStatus": "disqualified",
@@ -32607,7 +32607,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "3da180661284e3a9d411aafb65d92ef35e86d6fd9d2d4e94ae99a41430b81b69",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -32620,7 +32620,7 @@
             {
               "line": 217,
               "section": "complete retained census disposition",
-              "excerpt": "| `r24-drivers-a-f-firecrawl-monitor-search-judge-degraded-reason` | Retain D2. `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:251` is optional nullable string, not required string; `:253` is optional Boolean. Both remain nested external MonitorCheck facts via `:263-267` and `:462-475`. |"
+              "excerpt": "| `r24-drivers-a-f-firecrawl-monitor-search-judge-degraded-reason` | Retain D2. `retired:firecrawl/src/internal/Firecrawl.responses.ts:251` is optional nullable string, not required string; `:253` is optional Boolean. Both remain nested external MonitorCheck facts via `:263-267` and `:462-475`. |"
             }
           ]
         }
@@ -33232,7 +33232,7 @@
     },
     {
       "id": "r25-drivers-a-f-firecrawl-error-options-retryable",
-      "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "file": "retired:firecrawl/src/Firecrawl.errors.ts",
       "symbol": "FirecrawlErrorOptions",
       "seedLine": 272,
       "seedStatus": "disqualified",
@@ -33245,7 +33245,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/Firecrawl.errors.ts",
       "seedRationaleSha256": "09031605e47add043e1c974d48103889997a270e8302703ddf5c08a7809b2d4c",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -33258,7 +33258,7 @@
             {
               "line": 218,
               "section": "complete retained census disposition",
-              "excerpt": "| `r25-drivers-a-f-firecrawl-error-options-retryable` | Retain D1. Named Option model at `packages/drivers/firecrawl/src/Firecrawl.errors.ts:266-279`; six structural states as detailed above. Its decoded fields align with the supported `fromReason` constructor's independent projections at `:353-354`. |"
+              "excerpt": "| `r25-drivers-a-f-firecrawl-error-options-retryable` | Retain D1. Named Option model at `retired:firecrawl/src/Firecrawl.errors.ts:266-279`; six structural states as detailed above. Its decoded fields align with the supported `fromReason` constructor's independent projections at `:353-354`. |"
             }
           ]
         }
@@ -33268,7 +33268,7 @@
     },
     {
       "id": "r25-drivers-a-f-firecrawl-error-options-input-retryable",
-      "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "file": "retired:firecrawl/src/Firecrawl.errors.ts",
       "symbol": "FirecrawlErrorOptionsInput",
       "seedLine": 287,
       "seedStatus": "disqualified",
@@ -33281,7 +33281,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/Firecrawl.errors.ts",
       "seedRationaleSha256": "09031605e47add043e1c974d48103889997a270e8302703ddf5c08a7809b2d4c",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -33294,7 +33294,7 @@
             {
               "line": 219,
               "section": "complete retained census disposition",
-              "excerpt": "| `r25-drivers-a-f-firecrawl-error-options-input-retryable` | Retain D1. Named input model at `packages/drivers/firecrawl/src/Firecrawl.errors.ts:281-294`; the actual supported constructor consumes it at `:342-357` without retryability/delay coupling. |"
+              "excerpt": "| `r25-drivers-a-f-firecrawl-error-options-input-retryable` | Retain D1. Named input model at `retired:firecrawl/src/Firecrawl.errors.ts:281-294`; the actual supported constructor consumes it at `:342-357` without retryability/delay coupling. |"
             }
           ]
         }
@@ -33304,7 +33304,7 @@
     },
     {
       "id": "r25-drivers-a-f-firecrawl-error-retryable",
-      "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "file": "retired:firecrawl/src/Firecrawl.errors.ts",
       "symbol": "FirecrawlError",
       "seedLine": 319,
       "seedStatus": "disqualified",
@@ -33317,7 +33317,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/Firecrawl.errors.ts",
       "seedRationaleSha256": "09031605e47add043e1c974d48103889997a270e8302703ddf5c08a7809b2d4c",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -33330,7 +33330,7 @@
             {
               "line": 220,
               "section": "complete retained census disposition",
-              "excerpt": "| `r25-drivers-a-f-firecrawl-error-retryable` | Retain D1. Actual tagged error data at `packages/drivers/firecrawl/src/Firecrawl.errors.ts:311-326`, constructed independently at `:348-357`. A method on the error does not make its data fields callable-only. |"
+              "excerpt": "| `r25-drivers-a-f-firecrawl-error-retryable` | Retain D1. Actual tagged error data at `retired:firecrawl/src/Firecrawl.errors.ts:311-326`, constructed independently at `:348-357`. A method on the error does not make its data fields callable-only. |"
             }
           ]
         }
@@ -33432,7 +33432,7 @@
     },
     {
       "id": "r25-drivers-a-f-firecrawl-browser-execute-killed-error",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "BrowserExecuteShape",
       "seedLine": 342,
       "seedStatus": "disqualified",
@@ -33445,7 +33445,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "0cac6726e6724947b86c9a8463230764c5ae47112a78a2c5dd72eb7f3cb7429f",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -33458,7 +33458,7 @@
             {
               "line": 223,
               "section": "complete retained census disposition",
-              "excerpt": "| `r25-drivers-a-f-firecrawl-browser-execute-killed-error` | Retain D2. Actual optional killed and optional error at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:339-342`; external BrowserExecuteResponse wrapper at `:502-506`. |"
+              "excerpt": "| `r25-drivers-a-f-firecrawl-browser-execute-killed-error` | Retain D2. Actual optional killed and optional error at `retired:firecrawl/src/internal/Firecrawl.responses.ts:339-342`; external BrowserExecuteResponse wrapper at `:502-506`. |"
             }
           ]
         }
@@ -39609,7 +39609,7 @@
     },
     {
       "id": "r26-drivers-a-f-firecrawl-sdk-agent-request",
-      "file": "packages/drivers/firecrawl/src/Firecrawl.models.ts",
+      "file": "retired:firecrawl/src/Firecrawl.models.ts",
       "symbol": "FirecrawlSdkAgentRequest",
       "seedLine": 59,
       "seedStatus": "disqualified",
@@ -39622,7 +39622,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/Firecrawl.models.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/Firecrawl.models.ts",
       "seedRationaleSha256": "f9e8f3355bdd2f9cf5c021e12ae2f8430e67670cef0cc040696ae40b0d5d6eb7",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -39635,7 +39635,7 @@
             {
               "line": 224,
               "section": "complete retained census disposition",
-              "excerpt": "| `r26-drivers-a-f-firecrawl-sdk-agent-request` | Retain D2. Actual named type at `packages/drivers/firecrawl/src/Firecrawl.models.ts:59-69`, with optional Boolean and optional URLs at `:66-67`. Named external request codec at `:958-961`; forwarded directly to SDK `startAgent` at `packages/drivers/firecrawl/src/Firecrawl.service.ts:686-689`. Optional URLs are a real payload axis; empty/nonempty would be an additional invented axis. |"
+              "excerpt": "| `r26-drivers-a-f-firecrawl-sdk-agent-request` | Retain D2. Actual named type at `retired:firecrawl/src/Firecrawl.models.ts:59-69`, with optional Boolean and optional URLs at `:66-67`. Named external request codec at `:958-961`; forwarded directly to SDK `startAgent` at `retired:firecrawl/src/Firecrawl.service.ts:686-689`. Optional URLs are a real payload axis; empty/nonempty would be an additional invented axis. |"
             }
           ]
         }
@@ -39645,7 +39645,7 @@
     },
     {
       "id": "r26-drivers-a-f-browser-session-shape",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "BrowserSessionShape",
       "seedLine": 356,
       "seedStatus": "disqualified",
@@ -39658,7 +39658,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "dfa575c7d688c854342a518f1a5a33317baec22b7b8a7b2ac0df8faab23bcf94",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -39671,7 +39671,7 @@
             {
               "line": 225,
               "section": "complete retained census disposition",
-              "excerpt": "| `r26-drivers-a-f-browser-session-shape` | Retain D2. Actual optional interactive URL at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:360`, and Boolean at `:364`. Required liveViewUrl at `:362` is not an alternative presence axis. BrowserSessionShape is nested in BrowserListShape at `:368` and external BrowserListResponse at `:512-516`. |"
+              "excerpt": "| `r26-drivers-a-f-browser-session-shape` | Retain D2. Actual optional interactive URL at `retired:firecrawl/src/internal/Firecrawl.responses.ts:360`, and Boolean at `:364`. Required liveViewUrl at `:362` is not an alternative presence axis. BrowserSessionShape is nested in BrowserListShape at `:368` and external BrowserListResponse at `:512-516`. |"
             }
           ]
         }
@@ -39681,7 +39681,7 @@
     },
     {
       "id": "r26-drivers-a-f-queue-status-shape",
-      "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "symbol": "QueueStatusShape",
       "seedLine": 408,
       "seedStatus": "disqualified",
@@ -39694,7 +39694,7 @@
       "coverage": "retained-historical-proof-unchanged-bytes-current-lane",
       "coverageReason": "Frozen seed rationale/evidence and available P2 owner proof, exact unchanged owner-file bytes, and explicit current-source lane retention assertion.",
       "lane": "r28-drivers-a-f",
-      "originalOwnerSourceHashKey": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "originalOwnerSourceHashKey": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "seedRationaleSha256": "70269966a8b3792033620f8ce800d67725bf6d7a05e2888ef73bae068d86bd4f",
       "explicitAuditedRetentionReceipts": [],
       "installedArchiveEvidence": [],
@@ -39712,7 +39712,7 @@
             {
               "line": 226,
               "section": "complete retained census disposition",
-              "excerpt": "| `r26-drivers-a-f-queue-status-shape` | Retain D2. Required nullable timestamp at `packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts:412`, Boolean at `:413`, external QueueStatusResponse wrapper at `:542-546`, and actual SDK call at `packages/drivers/firecrawl/src/Firecrawl.service.ts:630-633`. |"
+              "excerpt": "| `r26-drivers-a-f-queue-status-shape` | Retain D2. Required nullable timestamp at `retired:firecrawl/src/internal/Firecrawl.responses.ts:412`, Boolean at `:413`, external QueueStatusResponse wrapper at `:542-546`, and actual SDK call at `retired:firecrawl/src/Firecrawl.service.ts:630-633`. |"
             }
           ]
         }

@@ -179,7 +179,7 @@ Package audited:
 
 Packages scanned:
 
-- `@beep/firecrawl` (`packages/drivers/firecrawl`)
+- `retired:firecrawl` (`retired:firecrawl`)
 - `@beep/runpod` (`packages/drivers/runpod`)
 - `@beep/wink` (`packages/drivers/wink`)
 
@@ -188,7 +188,7 @@ Packages scanned:
 - Keep the core heuristic: exported functions in schema-modeled files are candidates only when their parameter or return contract is a plain object/function shape that duplicates, or plainly warrants, a schema.
 - Do not flag a function only because it is exported from a schema-modeled file when its parameter and return contracts are already schema classes, schema-derived literal domains, primitives with no extra invariant, or service/runtime handles.
 - For effectful parser-style functions with stable input/output/error contracts, prefer an `Fn({ input, output, error })` schema plus `.implementEffect(...)`. `@beep/runpod` has a good fixture candidate: `packages/drivers/runpod/src/RunpodDocs.service.ts:205` `parseRunpodDocsIndex`.
-- For static constructors on schema classes, consider a follow-up detector branch only when a plain object alias duplicates nearby schema fields. `@beep/firecrawl` fixture candidate: `packages/drivers/firecrawl/src/Firecrawl.errors.ts:269` `FirecrawlError.fromReason` accepts `FirecrawlErrorOptionsInput` next to `FirecrawlErrorOptions`.
+- For static constructors on schema classes, consider a follow-up detector branch only when a plain object alias duplicates nearby schema fields. `retired:firecrawl` fixture candidate: `retired:firecrawl/src/Firecrawl.errors.ts:269` `FirecrawlError.fromReason` accepts `FirecrawlErrorOptionsInput` next to `FirecrawlErrorOptions`.
 
 ## Escape Hatches From This Batch
 
@@ -256,7 +256,7 @@ Packages scanned:
 - Treat exported service shapes and adapter ports as escape hatches, even when they contain Effect- or Promise-returning function members. This batch had `FFmpegShape`, `PhoenixSdkShape`, `PhoenixShape`, `LoadedFaceDetector`, `FaceDetectionServiceShape`, `DrizzleClient`, `DrizzleShape`, `DuckDbClient`, `DuckDbShape`, and `HubSpotShape`.
 - Treat higher-order resource/service callbacks as escape hatches. Examples: `FFmpegEventSink`, `FaceDetection.withDetector`, DuckDB transaction callbacks, and Drizzle transaction callbacks. The payloads may be schema classes, but the callback itself is a runtime port with generic Effect channels.
 - Treat SDK/native-handle aliases as escape hatches, not schema candidates. Examples: DuckDB query parameters over `@duckdb/node-api` `DuckDBValue`, Drizzle `TableFor`/column-builder type projections, and Drizzle `columns = getColumns`.
-- Treat direct schema-derived boundary decoders as non-actionable when they centralize error mapping at an external boundary: `decodeFfprobeOutput`, DuckDB `decodeRows`, HubSpot request/response decoders, and face-detection public model decoders. The detector should prefer walls that bypass schemas or duplicate logic, not one-line schema adapters at trust boundaries.
+- Treat direct schema-derived boundary decoders as non-actionable when they centralize error mapping at an external boundary: `decodeFfprobeOutput`, DuckDB `decodeRows`, HubSpot request/response decoders, and retired:face-detection public model decoders. The detector should prefer walls that bypass schemas or duplicate logic, not one-line schema adapters at trust boundaries.
 - Actionable positive examples from this batch: `FFmpeg.formatFrameFileName` and `FFmpeg.buildExtractFramesArgs` accept inline first-party option objects in a schema-modeled file. These should become named S.Class option schemas plus `Fn({ input, output }).implementSync(...)`.
 - Static tagged-error constructors need a split heuristic: `PhoenixError.operation` is actionable because one overload accepts a plain `{ cause?: unknown }` object beside `PhoenixErrorOptions`; `HubSpotError.fromReason` is an escape hatch because both parameters are already schema-carried.
 

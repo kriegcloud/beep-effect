@@ -392,7 +392,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#babel",
+          "definition": "retired:face-detection#babel",
           "step": 0
         },
         {
@@ -408,7 +408,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#babel",
+          "definition": "retired:firecrawl#babel",
           "step": 0
         },
         {
@@ -672,7 +672,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#babel",
+          "definition": "retired:venice-ai#babel",
           "step": 0
         },
         {
@@ -692,7 +692,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#babel",
+          "definition": "retired:xai#babel",
           "step": 0
         },
         {
@@ -914,7 +914,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#beep:build",
+          "definition": "retired:face-detection#beep:build",
           "step": 0
         },
         {
@@ -930,7 +930,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#beep:build",
+          "definition": "retired:firecrawl#beep:build",
           "step": 0
         },
         {
@@ -1218,7 +1218,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#beep:build",
+          "definition": "retired:venice-ai#beep:build",
           "step": 0
         },
         {
@@ -1242,7 +1242,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#beep:build",
+          "definition": "retired:xai#beep:build",
           "step": 0
         },
         {
@@ -1518,7 +1518,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#beep:check",
+          "definition": "retired:face-detection#beep:check",
           "step": 0
         },
         {
@@ -1534,7 +1534,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#beep:check",
+          "definition": "retired:firecrawl#beep:check",
           "step": 0
         },
         {
@@ -1850,7 +1850,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#beep:check",
+          "definition": "retired:venice-ai#beep:check",
           "step": 0
         },
         {
@@ -1874,7 +1874,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#beep:check",
+          "definition": "retired:xai#beep:check",
           "step": 0
         },
         {
@@ -2165,7 +2165,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#beep:check:tests",
+          "definition": "retired:face-detection#beep:check:tests",
           "step": 0
         },
         {
@@ -2181,7 +2181,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#beep:check:tests",
+          "definition": "retired:firecrawl#beep:check:tests",
           "step": 0
         },
         {
@@ -2457,7 +2457,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#beep:check:tests",
+          "definition": "retired:venice-ai#beep:check:tests",
           "step": 0
         },
         {
@@ -2481,7 +2481,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#beep:check:tests",
+          "definition": "retired:xai#beep:check:tests",
           "step": 0
         },
         {
@@ -2834,7 +2834,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#coverage",
+          "definition": "retired:face-detection#coverage",
           "step": 0
         },
         {
@@ -2850,7 +2850,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#coverage",
+          "definition": "retired:firecrawl#coverage",
           "step": 0
         },
         {
@@ -3014,7 +3014,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#coverage",
+          "definition": "retired:venice-ai#coverage",
           "step": 0
         },
         {
@@ -3034,7 +3034,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#coverage",
+          "definition": "retired:xai#coverage",
           "step": 0
         },
         {
@@ -3285,7 +3285,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#beep:docgen",
+          "definition": "retired:face-detection#beep:docgen",
           "step": 0
         },
         {
@@ -3301,7 +3301,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#beep:docgen",
+          "definition": "retired:firecrawl#beep:docgen",
           "step": 0
         },
         {
@@ -3593,7 +3593,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#beep:docgen",
+          "definition": "retired:venice-ai#beep:docgen",
           "step": 0
         },
         {
@@ -3617,7 +3617,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#beep:docgen",
+          "definition": "retired:xai#beep:docgen",
           "step": 0
         },
         {
@@ -4095,7 +4095,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#beep:test:integration",
+          "definition": "retired:face-detection#beep:test:integration",
           "step": 0
         },
         {
@@ -4111,7 +4111,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#beep:test:integration",
+          "definition": "retired:firecrawl#beep:test:integration",
           "step": 0
         },
         {
@@ -4271,7 +4271,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#beep:test:integration",
+          "definition": "retired:venice-ai#beep:test:integration",
           "step": 0
         },
         {
@@ -4291,7 +4291,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#beep:test:integration",
+          "definition": "retired:xai#beep:test:integration",
           "step": 0
         },
         {
@@ -4561,7 +4561,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#lint:deprecated-apis",
+          "definition": "retired:face-detection#lint:deprecated-apis",
           "step": 0
         },
         {
@@ -4577,7 +4577,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#lint:deprecated-apis",
+          "definition": "retired:firecrawl#lint:deprecated-apis",
           "step": 0
         },
         {
@@ -4897,7 +4897,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#lint:deprecated-apis",
+          "definition": "retired:venice-ai#lint:deprecated-apis",
           "step": 0
         },
         {
@@ -4921,7 +4921,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#lint:deprecated-apis",
+          "definition": "retired:xai#lint:deprecated-apis",
           "step": 0
         },
         {
@@ -5128,7 +5128,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#lint:jsdoc",
+          "definition": "retired:face-detection#lint:jsdoc",
           "step": 0
         },
         {
@@ -5144,7 +5144,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#lint:jsdoc",
+          "definition": "retired:firecrawl#lint:jsdoc",
           "step": 0
         },
         {
@@ -5452,7 +5452,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#lint:jsdoc",
+          "definition": "retired:venice-ai#lint:jsdoc",
           "step": 0
         },
         {
@@ -5476,7 +5476,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#lint:jsdoc",
+          "definition": "retired:xai#lint:jsdoc",
           "step": 0
         },
         {
@@ -5702,7 +5702,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#lint:laws",
+          "definition": "retired:face-detection#lint:laws",
           "step": 0
         },
         {
@@ -5718,7 +5718,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#lint:laws",
+          "definition": "retired:firecrawl#lint:laws",
           "step": 0
         },
         {
@@ -6038,7 +6038,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#lint:laws",
+          "definition": "retired:venice-ai#lint:laws",
           "step": 0
         },
         {
@@ -6062,7 +6062,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#lint:laws",
+          "definition": "retired:xai#lint:laws",
           "step": 0
         },
         {
@@ -6288,7 +6288,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#package-test-typecheck",
+          "definition": "retired:face-detection#package-test-typecheck",
           "step": 0
         },
         {
@@ -6304,7 +6304,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#package-test-typecheck",
+          "definition": "retired:firecrawl#package-test-typecheck",
           "step": 0
         },
         {
@@ -6624,7 +6624,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#package-test-typecheck",
+          "definition": "retired:venice-ai#package-test-typecheck",
           "step": 0
         },
         {
@@ -6648,7 +6648,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#package-test-typecheck",
+          "definition": "retired:xai#package-test-typecheck",
           "step": 0
         },
         {
@@ -7413,7 +7413,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#beep:lint",
+          "definition": "retired:face-detection#beep:lint",
           "step": 0
         },
         {
@@ -7429,7 +7429,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#beep:lint",
+          "definition": "retired:firecrawl#beep:lint",
           "step": 0
         },
         {
@@ -7733,7 +7733,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#beep:lint",
+          "definition": "retired:venice-ai#beep:lint",
           "step": 0
         },
         {
@@ -7757,7 +7757,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#beep:lint",
+          "definition": "retired:xai#beep:lint",
           "step": 0
         },
         {
@@ -8001,7 +8001,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#beep:lint:fix",
+          "definition": "retired:face-detection#beep:lint:fix",
           "step": 0
         },
         {
@@ -8017,7 +8017,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#beep:lint:fix",
+          "definition": "retired:firecrawl#beep:lint:fix",
           "step": 0
         },
         {
@@ -8321,7 +8321,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#beep:lint:fix",
+          "definition": "retired:venice-ai#beep:lint:fix",
           "step": 0
         },
         {
@@ -8345,7 +8345,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#beep:lint:fix",
+          "definition": "retired:xai#beep:lint:fix",
           "step": 0
         },
         {
@@ -8781,7 +8781,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/face-detection#beep:test",
+          "definition": "retired:face-detection#beep:test",
           "step": 0
         },
         {
@@ -8797,7 +8797,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/firecrawl#beep:test",
+          "definition": "retired:firecrawl#beep:test",
           "step": 0
         },
         {
@@ -8957,7 +8957,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/venice-ai#beep:test",
+          "definition": "retired:venice-ai#beep:test",
           "step": 0
         },
         {
@@ -8977,7 +8977,7 @@
           "step": 0
         },
         {
-          "definition": "@beep/xai#beep:test",
+          "definition": "retired:xai#beep:test",
           "step": 0
         },
         {
@@ -13569,7 +13569,7 @@
       ]
     },
     {
-      "computation": "@beep/face-detection#audit",
+      "computation": "retired:face-detection#audit",
       "families": [
         "compiled-output-rewrite",
         "compiler",
@@ -13579,80 +13579,80 @@
       ]
     },
     {
-      "computation": "@beep/face-detection#build",
+      "computation": "retired:face-detection#build",
       "families": [
         "compiled-output-rewrite",
         "compiler"
       ]
     },
     {
-      "computation": "@beep/face-detection#check",
+      "computation": "retired:face-detection#check",
       "families": [
         "compiler"
       ]
     },
     {
-      "computation": "@beep/face-detection#coverage",
+      "computation": "retired:face-detection#coverage",
       "families": [
         "coverage"
       ]
     },
     {
-      "computation": "@beep/face-detection#docgen",
+      "computation": "retired:face-detection#docgen",
       "families": [
         "docgen"
       ]
     },
     {
-      "computation": "@beep/face-detection#lint",
+      "computation": "retired:face-detection#lint",
       "families": [
         "source-check"
       ]
     },
     {
-      "computation": "@beep/face-detection#lint:deprecated-apis",
+      "computation": "retired:face-detection#lint:deprecated-apis",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/face-detection#lint:fix",
+      "computation": "retired:face-detection#lint:fix",
       "families": [
         "source-fix"
       ]
     },
     {
-      "computation": "@beep/face-detection#lint:jsdoc",
+      "computation": "retired:face-detection#lint:jsdoc",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/face-detection#lint:laws",
+      "computation": "retired:face-detection#lint:laws",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/face-detection#package-test-typecheck",
+      "computation": "retired:face-detection#package-test-typecheck",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/face-detection#test",
+      "computation": "retired:face-detection#test",
       "families": [
         "test"
       ]
     },
     {
-      "computation": "@beep/face-detection#test:integration",
+      "computation": "retired:face-detection#test:integration",
       "families": [
         "integration-test"
       ]
     },
     {
-      "computation": "@beep/face-detection#test:property",
+      "computation": "retired:face-detection#test:property",
       "families": [
         "test"
       ]
@@ -13931,7 +13931,7 @@
       ]
     },
     {
-      "computation": "@beep/firecrawl#audit",
+      "computation": "retired:firecrawl#audit",
       "families": [
         "compiled-output-rewrite",
         "compiler",
@@ -13941,86 +13941,86 @@
       ]
     },
     {
-      "computation": "@beep/firecrawl#build",
+      "computation": "retired:firecrawl#build",
       "families": [
         "compiled-output-rewrite",
         "compiler"
       ]
     },
     {
-      "computation": "@beep/firecrawl#check",
+      "computation": "retired:firecrawl#check",
       "families": [
         "compiler"
       ]
     },
     {
-      "computation": "@beep/firecrawl#coverage",
+      "computation": "retired:firecrawl#coverage",
       "families": [
         "coverage"
       ]
     },
     {
-      "computation": "@beep/firecrawl#docgen",
+      "computation": "retired:firecrawl#docgen",
       "families": [
         "docgen"
       ]
     },
     {
-      "computation": "@beep/firecrawl#lint",
+      "computation": "retired:firecrawl#lint",
       "families": [
         "source-check"
       ]
     },
     {
-      "computation": "@beep/firecrawl#lint:deprecated-apis",
+      "computation": "retired:firecrawl#lint:deprecated-apis",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/firecrawl#lint:fix",
+      "computation": "retired:firecrawl#lint:fix",
       "families": [
         "source-fix"
       ]
     },
     {
-      "computation": "@beep/firecrawl#lint:jsdoc",
+      "computation": "retired:firecrawl#lint:jsdoc",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/firecrawl#lint:laws",
+      "computation": "retired:firecrawl#lint:laws",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/firecrawl#package-test-typecheck",
+      "computation": "retired:firecrawl#package-test-typecheck",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/firecrawl#test",
+      "computation": "retired:firecrawl#test",
       "families": [
         "test"
       ]
     },
     {
-      "computation": "@beep/firecrawl#test:integration",
+      "computation": "retired:firecrawl#test:integration",
       "families": [
         "integration-test"
       ]
     },
     {
-      "computation": "@beep/firecrawl#test:integration:parallel",
+      "computation": "retired:firecrawl#test:integration:parallel",
       "families": [
         "integration-test"
       ]
     },
     {
-      "computation": "@beep/firecrawl#test:property",
+      "computation": "retired:firecrawl#test:property",
       "families": [
         "test"
       ]
@@ -20838,7 +20838,7 @@
       ]
     },
     {
-      "computation": "@beep/venice-ai#audit",
+      "computation": "retired:venice-ai#audit",
       "families": [
         "compiled-output-rewrite",
         "compiler",
@@ -20848,86 +20848,86 @@
       ]
     },
     {
-      "computation": "@beep/venice-ai#build",
+      "computation": "retired:venice-ai#build",
       "families": [
         "compiled-output-rewrite",
         "compiler"
       ]
     },
     {
-      "computation": "@beep/venice-ai#check",
+      "computation": "retired:venice-ai#check",
       "families": [
         "compiler"
       ]
     },
     {
-      "computation": "@beep/venice-ai#coverage",
+      "computation": "retired:venice-ai#coverage",
       "families": [
         "coverage"
       ]
     },
     {
-      "computation": "@beep/venice-ai#docgen",
+      "computation": "retired:venice-ai#docgen",
       "families": [
         "docgen"
       ]
     },
     {
-      "computation": "@beep/venice-ai#lint",
+      "computation": "retired:venice-ai#lint",
       "families": [
         "source-check"
       ]
     },
     {
-      "computation": "@beep/venice-ai#lint:deprecated-apis",
+      "computation": "retired:venice-ai#lint:deprecated-apis",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/venice-ai#lint:fix",
+      "computation": "retired:venice-ai#lint:fix",
       "families": [
         "source-fix"
       ]
     },
     {
-      "computation": "@beep/venice-ai#lint:jsdoc",
+      "computation": "retired:venice-ai#lint:jsdoc",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/venice-ai#lint:laws",
+      "computation": "retired:venice-ai#lint:laws",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/venice-ai#package-test-typecheck",
+      "computation": "retired:venice-ai#package-test-typecheck",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/venice-ai#test",
+      "computation": "retired:venice-ai#test",
       "families": [
         "test"
       ]
     },
     {
-      "computation": "@beep/venice-ai#test:integration",
+      "computation": "retired:venice-ai#test:integration",
       "families": [
         "integration-test"
       ]
     },
     {
-      "computation": "@beep/venice-ai#test:integration:parallel",
+      "computation": "retired:venice-ai#test:integration:parallel",
       "families": [
         "integration-test"
       ]
     },
     {
-      "computation": "@beep/venice-ai#test:property",
+      "computation": "retired:venice-ai#test:property",
       "families": [
         "test"
       ]
@@ -21375,7 +21375,7 @@
       ]
     },
     {
-      "computation": "@beep/xai#audit",
+      "computation": "retired:xai#audit",
       "families": [
         "compiled-output-rewrite",
         "compiler",
@@ -21385,80 +21385,80 @@
       ]
     },
     {
-      "computation": "@beep/xai#build",
+      "computation": "retired:xai#build",
       "families": [
         "compiled-output-rewrite",
         "compiler"
       ]
     },
     {
-      "computation": "@beep/xai#check",
+      "computation": "retired:xai#check",
       "families": [
         "compiler"
       ]
     },
     {
-      "computation": "@beep/xai#coverage",
+      "computation": "retired:xai#coverage",
       "families": [
         "coverage"
       ]
     },
     {
-      "computation": "@beep/xai#docgen",
+      "computation": "retired:xai#docgen",
       "families": [
         "docgen"
       ]
     },
     {
-      "computation": "@beep/xai#lint",
+      "computation": "retired:xai#lint",
       "families": [
         "source-check"
       ]
     },
     {
-      "computation": "@beep/xai#lint:deprecated-apis",
+      "computation": "retired:xai#lint:deprecated-apis",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/xai#lint:fix",
+      "computation": "retired:xai#lint:fix",
       "families": [
         "source-fix"
       ]
     },
     {
-      "computation": "@beep/xai#lint:jsdoc",
+      "computation": "retired:xai#lint:jsdoc",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/xai#lint:laws",
+      "computation": "retired:xai#lint:laws",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/xai#package-test-typecheck",
+      "computation": "retired:xai#package-test-typecheck",
       "families": [
         "repository-dispatch"
       ]
     },
     {
-      "computation": "@beep/xai#test",
+      "computation": "retired:xai#test",
       "families": [
         "test"
       ]
     },
     {
-      "computation": "@beep/xai#test:integration",
+      "computation": "retired:xai#test:integration",
       "families": [
         "integration-test"
       ]
     },
     {
-      "computation": "@beep/xai#test:property",
+      "computation": "retired:xai#test:property",
       "families": [
         "test"
       ]

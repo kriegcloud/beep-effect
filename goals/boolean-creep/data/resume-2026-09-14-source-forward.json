@@ -74,7 +74,7 @@
       "packages/drivers/box-provisioning/src/BoxProvisioningPlanner.ts",
       "packages/drivers/box/src/Box.config.ts",
       "packages/drivers/ecfr/src/Ecfr.service.ts",
-      "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "retired:firecrawl/src/Firecrawl.service.ts",
       "packages/drivers/freshbooks/src/Freshbooks.config.ts",
       "packages/drivers/freshbooks/src/Freshbooks.service.ts",
       "packages/drivers/govinfo/src/Govinfo.service.ts",
@@ -110,12 +110,12 @@
       "packages/drivers/uspto/src/Uspto.config.ts",
       "packages/drivers/uspto/src/Uspto.models.ts",
       "packages/drivers/uspto/src/Uspto.service.ts",
-      "packages/drivers/venice-ai/src/VeniceAI.service.ts",
-      "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts",
+      "retired:venice-ai/src/VeniceAI.service.ts",
+      "retired:venice-ai/src/VeniceAiLanguageModel.service.ts",
       "packages/drivers/wink/src/Wink.models.ts",
-      "packages/drivers/xai/src/XAi.config.ts",
-      "packages/drivers/xai/src/XAi.service.ts",
-      "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+      "retired:xai/src/XAi.config.ts",
+      "retired:xai/src/XAi.service.ts",
+      "retired:xai/src/XAiLanguageModel.service.ts",
       "packages/ecosystem/effect-drizzle/src/core/Meta.ts",
       "packages/ecosystem/effect-drizzle/src/core/classification.ts",
       "packages/ecosystem/effect-drizzle/src/core/model.ts",
@@ -969,16 +969,16 @@
         "id": "xai-sse-done-payload",
         "status": "reviewed",
         "files": [
-          "packages/drivers/xai/src/XAi.service.ts",
-          "packages/drivers/xai/src/XAiLanguageModel.service.ts"
+          "retired:xai/src/XAi.service.ts",
+          "retired:xai/src/XAiLanguageModel.service.ts"
         ]
       },
       {
         "id": "venice-sse-done-payload",
         "status": "reviewed",
         "files": [
-          "packages/drivers/venice-ai/src/VeniceAI.service.ts",
-          "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts"
+          "retired:venice-ai/src/VeniceAI.service.ts",
+          "retired:venice-ai/src/VeniceAiLanguageModel.service.ts"
         ]
       },
       {
@@ -998,7 +998,7 @@
       {
         "id": "xai-websocket-message-binary",
         "status": "designed",
-        "files": ["packages/drivers/xai/src/XAi.service.ts"]
+        "files": ["retired:xai/src/XAi.service.ts"]
       },
       {
         "id": "goals-repair-fork-mode",

@@ -69,7 +69,7 @@ out explicitly.
 | `@beep/drizzle` | `makePgliteLayer` consumes the root external URI and shared server. | **serial-sql** | manifest `packages/drivers/drizzle/package.json:35`; `test/integration/Drizzle.pglite.test.ts:11`, `:64` |
 | `@beep/exiftool` | Local executable plus uniquely allocated temp directories/files. | parallel | manifest `packages/drivers/exiftool/package.json:35`; `test/integration/Exiftool.live.test.ts:52-55`, `:152-165` |
 | `@beep/ffmpeg` | Local ffmpeg/ffprobe subprocesses plus per-test temp directories. | parallel | manifest `packages/drivers/ffmpeg/package.json:35`; `test/integration/FFmpeg.capture.integration.test.ts:43-59`, `:118-126` |
-| `@beep/firecrawl` | Conditional, authenticated **read-only** queue/credit calls; skips without a resolved key. | parallel-live-read | manifest `packages/drivers/firecrawl/package.json:36`; `test/integration/Firecrawl.live.test.ts:7-25`, `:27-46` |
+| `retired:firecrawl` | Conditional, authenticated **read-only** queue/credit calls; skips without a resolved key. | parallel-live-read | manifest `retired:firecrawl/package.json:36`; `retired:firecrawl/test/integration/Firecrawl.live.test.ts:7-25`, `:27-46` |
 | `@beep/libpff` | Conditional local PST input and local `pffexport`; writes only a scoped temp export root. | parallel | manifest `packages/drivers/libpff/package.json:36`; `test/integration/Libpff.pffexport.live.test.ts:21-43`, `:81-99` |
 | `@beep/m365` | Conditional, authenticated **read-only** Graph list/download/get calls and a shared token-cache file. | parallel-live-read, but add token-cache lock if multiple M365 packages acquire this suite | manifest `packages/drivers/m365/package.json:36`; `test/integration/M365.live.test.ts:15-33`, `:46-78` |
 | `@beep/nlp-mcp` | Per-test temp directories/files; no MCP server is opened. | parallel | manifest `packages/drivers/nlp-mcp/package.json:36`; `test/integration/Streaming.test.ts:14-40` |
@@ -79,7 +79,7 @@ out explicitly.
 | `@beep/postgres` | `makePgliteLayer` consumes the root external URI and shared server. | **serial-sql** | manifest `packages/drivers/postgres/package.json:35`; `test/integration/Postgres.pglite.test.ts:24`, `:62-66` |
 | `@beep/runpod` | Conditional, authenticated **read-only** pod list/OpenAPI calls. | parallel-live-read | manifest `packages/drivers/runpod/package.json:37`; `test/integration/Runpod.live.test.ts:7-19`, `:26-52` |
 | `@beep/tika` | Conditional shared Tika server, read-only extraction requests; fixture files are temp-scoped. | parallel-live-read | manifest `packages/drivers/tika/package.json:36`; `test/integration/Tika.server.live.test.ts:27-38`, `:46-76` |
-| `@beep/venice-ai` | Conditional, authenticated **read-only** model listing. | parallel-live-read | manifest `packages/drivers/venice-ai/package.json:36`; `test/integration/VeniceAI.integration.test.ts:9-23`, `:25-46` |
+| `retired:venice-ai` | Conditional, authenticated **read-only** model listing. | parallel-live-read | manifest `retired:venice-ai/package.json:36`; `retired:venice-ai/test/integration/VeniceAI.integration.test.ts:9-23`, `:25-46` |
 | `@beep/epistemic-server` | Six default suites use explicit in-process/temp-backed PGLite. Two real-Postgres race suites use separate opt-in URLs and skip when absent; they use fixed migration-schema names, so a second concurrent run against the same opt-in servers is unsafe. | parallel in the normal root lane; give the two opt-in `.pg` files their own future external-PG task | manifest `packages/epistemic/server/package.json:31`; in-process examples `test/integration/EdgeAuthority.pglite.test.ts:41-47`, `ContradictionTriage.p0.pglite.test.ts:25-31`; opt-in gates `EdgeAuthority.pg.test.ts:41-59`, `:207-208`, `ContradictionTriage.pg.test.ts:63-87`, `:292-293` |
 | `@beep/pandoc-ast` | Read-only committed fixtures; no subprocess/server. | parallel | manifest `packages/foundation/modeling/pandoc-ast/package.json:37`; `test/integration/Pandoc.integration.test.ts:1-22` |
 | `@beep/qa-capture` | Conditional local ffmpeg subprocess and a unique temp video directory. | parallel | manifest `packages/tooling/library/qa-capture/package.json:36`; `test/integration/ClockCorrelator.integration.test.ts:94-130` |
@@ -115,16 +115,16 @@ not receive either root Turbo group script until a real suite is added.
   (`packages/documents/domain/package.json:32`, `tables/package.json:32`,
   `use-cases/package.json:32`)
 - `@beep/ai-provider-cli`, `@beep/courtlistener`, `@beep/discord`,
-  `@beep/doc-text`, `@beep/dol`, `@beep/ecfr`, `@beep/face-detection`,
+  `@beep/doc-text`, `@beep/dol`, `@beep/ecfr`, `retired:face-detection`,
   `@beep/federal-register`, `@beep/gov-legal-mcp`, `@beep/govinfo`,
   `@beep/hubspot`, `@beep/m365-mcp`, `@beep/onepassword-cli`,
   `@beep/openai-compat`, `@beep/pacer`, `@beep/phoenix`, `@beep/pretext`,
   `@beep/protobuf`, `@beep/sanity`, `@beep/tailscale`, `@beep/uspto-mcp`,
-  `@beep/uspto`, `@beep/wink`, `@beep/xai` (their script anchors are respectively
+  `@beep/uspto`, `@beep/wink`, `retired:xai` (their script anchors are respectively
   `packages/drivers/ai-provider-cli/package.json:35`,
   `courtlistener/package.json:35`, `discord/package.json:35`,
   `doc-text/package.json:36`, `dol/package.json:35`, `ecfr/package.json:39`,
-  `face-detection/package.json:35`, `federal-register/package.json:35`,
+  `retired:face-detection/package.json:35`, `federal-register/package.json:35`,
   `gov-legal-mcp/package.json:37`, `govinfo/package.json:36`,
   `hubspot/package.json:35`, `m365-mcp/package.json:36`,
   `onepassword-cli/package.json:35`, `openai-compat/package.json:35`,

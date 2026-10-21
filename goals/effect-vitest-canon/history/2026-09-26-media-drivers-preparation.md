@@ -1,7 +1,7 @@
 # ExifTool and Face Detection preparation
 
 This wave consumes the existing 61 inventory rows for seven files in
-`@beep/exiftool` and `@beep/face-detection`. Five files changed since the frozen
+`@beep/exiftool` and `retired:face-detection`. Five files changed since the frozen
 census; current membership remains the same. Source preparation follows D12
 and must preserve the real native resource subjects. No source migration is
 included in this baseline checkpoint.
@@ -25,8 +25,8 @@ timing directories. These samples do not establish a performance improvement.
 
 - exiftool node: 17 passed, 0 skipped; 4.653 seconds
 - exiftool bun: 17 passed, 0 skipped; 2.423 seconds
-- face-detection node: 14 passed, 0 skipped; 4.471 seconds
-- face-detection bun: 14 passed, 0 skipped; 2.612 seconds
+- retired:face-detection node: 14 passed, 0 skipped; 4.471 seconds
+- retired:face-detection bun: 14 passed, 0 skipped; 2.612 seconds
 
 ## Scope checkpoint
 
