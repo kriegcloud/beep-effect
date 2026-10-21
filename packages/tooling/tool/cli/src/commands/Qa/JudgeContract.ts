@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { $RepoCliId } from "@beep/identity/packages";
+import { $I as $BeepId, $QaId, $RepoCliId } from "@beep/identity/packages";
 import { RoundNumber } from "@beep/qa-capture";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
@@ -51,17 +51,15 @@ const declaredRoundCoherentGateId = QaJudgeGateId.make("declared-round-coherent"
 const evidenceCrossCheckCleanGateId = QaJudgeGateId.make("evidence-cross-check-clean");
 const judgeOutputInventoryDecodesGateId = QaJudgeGateId.make("judge-output-inventory-decodes");
 
-const citedEventIdExistsPredicateType = EvidencePredicateType.make(
-  "https://beep-effect.dev/qa/evidence/cited-event-id-exists/v1"
-);
+const $QaEvidence = $QaId.create("evidence");
+
+const citedEventIdExistsPredicateType = EvidencePredicateType.make($QaEvidence.create("cited-event-id-exists/v2").iri);
 const declaredRoundCoherentPredicateType = EvidencePredicateType.make(
-  "https://beep-effect.dev/qa/evidence/declared-round-coherent/v1"
+  $QaEvidence.create("declared-round-coherent/v2").iri
 );
-const evidenceCrossCheckPredicateType = EvidencePredicateType.make(
-  "https://beep-effect.dev/qa/evidence/evidence-cross-check/v1"
-);
+const evidenceCrossCheckPredicateType = EvidencePredicateType.make($QaEvidence.create("evidence-cross-check/v2").iri);
 const judgeOutputInventoryPredicateType = EvidencePredicateType.make(
-  "https://beep-effect.dev/qa/evidence/judge-output-inventory/v1"
+  $QaEvidence.create("judge-output-inventory/v2").iri
 );
 
 const alwaysBlockingGate = (id: QaJudgeGateId, predicateType: EvidencePredicateType): GateDeclaration =>
@@ -760,10 +758,11 @@ export const evaluateJudgeOutputInventoryDecodes: GateEvaluator<
 });
 
 const qaReceiptType = (name: string): EvidencePredicateType =>
-  EvidencePredicateType.make(`https://beep-effect.dev/qa/receipts/${name}/v1`);
+  EvidencePredicateType.make($QaId.create(`receipts/${name}/v2`).iri);
 
-const qaJudgeContractId = SkillContractId.make("https://beep-effect.dev/contracts/qa-inventory/v1");
-const qaJudgeContractVersion = SemanticVersion.make("1.0.0");
+const qaJudgeContractId = SkillContractId.make($BeepId.create("contracts").create("qa-inventory/v1").iri);
+const $QaJudgeSchemas = $BeepId.create("schemas");
+const qaJudgeContractVersion = SemanticVersion.make("2.0.0");
 
 /**
  * Evidence subject every gate summary for the judge contract must be bound to.
@@ -780,7 +779,7 @@ const qaJudgeContractVersion = SemanticVersion.make("1.0.0");
  * ```ts
  * import { QaJudgeContractSubject } from "@beep/repo-cli/commands/Qa"
  *
- * console.log(QaJudgeContractSubject.name) // "https://beep-effect.dev/contracts/qa-inventory/v1@1.0.0"
+ * console.log(QaJudgeContractSubject.name) // "https://beep-effect.com/ns/contracts/qa-inventory/v1@2.0.0"
  * ```
  *
  * @category models
@@ -788,7 +787,7 @@ const qaJudgeContractVersion = SemanticVersion.make("1.0.0");
  */
 export const QaJudgeContractSubject = EvidenceSubject.make({
   digest: EvidenceDigest.make({
-    sha256: Sha256Hex.make("607c532eaa5180a3c2d2018fbfc0d82cc1daa6dd20597967cfae6f82f2d809ae"),
+    sha256: Sha256Hex.make("6a41c1628f333f0eb40897417655ee86d39b786cc065ec92590aa8d64a07b371"),
   }),
   name: `${qaJudgeContractId}@${qaJudgeContractVersion}`,
 });
@@ -830,10 +829,10 @@ export const QaJudgeContract = SkillContract.make({
   }),
   id: qaJudgeContractId,
   input: SchemaReference.make({
-    schemaId: SchemaReferenceId.make("https://beep-effect.dev/schemas/qa-judge-input/v1"),
+    schemaId: SchemaReferenceId.make($QaJudgeSchemas.create("qa-judge-input/v1").iri),
   }),
   output: SchemaReference.make({
-    schemaId: SchemaReferenceId.make("https://beep-effect.dev/schemas/qa-judge-settlement/v1"),
+    schemaId: SchemaReferenceId.make($QaJudgeSchemas.create("qa-judge-settlement/v1").iri),
   }),
   promise: "Validate a qa-inventory/v1 value against its declared round and cited evidence.",
   receiptTypes: ReceiptTypeBindings.make({

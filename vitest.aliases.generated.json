@@ -2056,5 +2056,9 @@
   ],
   "@beep/acp/compat": ["./packages/drivers/acp/src/AcpCompat.models.ts"],
   "@beep/acp/internal/*": ["./packages/drivers/acp/src/internal/*"],
-  "@beep/acp/schema-v1": ["./packages/drivers/acp/src/AcpV1.models.ts"]
+  "@beep/acp/schema-v1": ["./packages/drivers/acp/src/AcpV1.models.ts"],
+  "@beep/public-site": [
+    "./packages/foundation/modeling/public-site/src/index.ts"
+  ],
+  "@beep/public-site/*": ["./packages/foundation/modeling/public-site/src/*"]
 }

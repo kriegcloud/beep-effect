@@ -141,18 +141,18 @@ describe("PnLocal", () => {
     expect(
       prefixedNameOrIri("Ontology.models/HttpUrl", {
         prefix: "beep",
-        fullIri: "https://ns.beep.sh/ontology/Ontology.models/HttpUrl",
+        fullIri: "https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl",
       })
-    ).toBe("<https://ns.beep.sh/ontology/Ontology.models/HttpUrl>");
+    ).toBe("<https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl>");
   });
 
   it("does not interpolate unsafe prefixes or full IRI delimiters into Turtle", () => {
     expect(
       prefixedNameOrIri("safe", {
         prefix: "bad:prefix",
-        fullIri: 'https://ns.beep.sh/x"> <urn:evil>',
+        fullIri: 'https://beep-effect.com/ns/x"> <urn:evil>',
       })
-    ).toBe("<https://ns.beep.sh/x%22%3E%20%3Curn:evil%3E>");
+    ).toBe("<https://beep-effect.com/ns/x%22%3E%20%3Curn:evil%3E>");
   });
 });
 

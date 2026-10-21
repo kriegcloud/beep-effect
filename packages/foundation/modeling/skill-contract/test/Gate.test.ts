@@ -43,7 +43,7 @@ const AllowedArtifactDetail = S.Struct({ checkedPaths: S.Array(S.String) });
 const DeniedArtifactDetail = S.Struct({ missingPaths: S.NonEmptyArray(S.String) });
 const ArtifactExistsVerdict = GateVerdict("ArtifactExistsVerdict", AllowedArtifactDetail, DeniedArtifactDetail);
 const decodeUnknownArtifactExistsVerdict = S.decodeUnknownEffect(ArtifactExistsVerdict);
-const predicateType = EvidencePredicateType.make("https://beep.dev/evidence/artifact-exists/v1");
+const predicateType = EvidencePredicateType.make("https://example.test/evidence/artifact-exists/v1");
 const declaration = GateDeclaration.make({
   applicability: AlwaysGateApplicability.make({}),
   evidence: GateEvidenceRequirement.make({ predicateType }),

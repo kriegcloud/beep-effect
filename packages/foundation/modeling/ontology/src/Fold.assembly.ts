@@ -55,13 +55,10 @@ import type {
  *
  * **Example** (Usage)
  * ```ts
- * import { make } from "@beep/identity"
+ * import { $I } from "@beep/identity/packages"
  * import type { BoundComposer } from "@beep/ontology"
  *
- * const composer: BoundComposer = make("beep", {
- *   authority: "https://ns.beep.sh/",
- *   prefix: "beep",
- * }).$BeepId.create("patent")
+ * const composer: BoundComposer = $I.create("patent")
  * console.log(composer.iri)
  * ```
  *
@@ -859,12 +856,12 @@ const composerPrefix = (composer: BoundComposer): string =>
  *
  * **Example** (Usage)
  * ```ts
- * import { make } from "@beep/identity"
+ * import { $I as $BeepId } from "@beep/identity/packages"
  * import { fold } from "@beep/ontology"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"
  *
- * const $I = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("patent")
+ * const $I = $BeepId.create("patent")
  *
  * class Claim extends S.Class<Claim>($I`Claim`)(
  *   {
@@ -881,7 +878,7 @@ const composerPrefix = (composer: BoundComposer): string =>
  *     triples: [[Claim, "rdfs:subClassOf", "owl:Thing"]],
  *   })
  * )
- * console.log(assembled.classes[0]?.iri) // "https://ns.beep.sh/patent/Claim"
+ * console.log(assembled.classes[0]?.iri) // "https://beep-effect.com/ns/patent/Claim"
  * ```
  *
  * @category constructors

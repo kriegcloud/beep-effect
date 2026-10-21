@@ -145,7 +145,7 @@ the value proof).
 ## 2026-08-27 — namespace domain (operator directive, mid-R5)
 
 **Question:** Which domain mints the ontology namespace? (Provisional had been
-`https://beep-effect.dev/ontology/ci-ops#`.)
+`https://beep-effect[.]dev/ontology/ci-ops#`, a retired host, written defanged.)
 
 **Answer:** `https://oip.law/ontology/ci-ops#`, prefix `ciops:` — operator ruling
 ("just do oip.law"), path shape retained. oip.law is a domain the operator actually

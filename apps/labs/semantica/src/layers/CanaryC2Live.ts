@@ -18,6 +18,7 @@ import * as Str from "effect/String";
 import { writeJsonArtifact } from "@/canary/Artifact";
 import { CanaryOptions } from "@/canary/Command";
 import { p95 } from "@/layers/CanaryC0Live";
+import { semanticaOntologyIri } from "@/layers/RdfProjectionLive";
 import { LabConfig } from "@/runtime/Config";
 import { contentDigest, digestOmitting } from "@/schema/Digest";
 import { ReasoningFailed } from "@/schema/Errors";
@@ -53,8 +54,7 @@ const C2_INTERACTIVE_QUERY: A.NonEmptyReadonlyArray<SparqlExpectation> = [
   SparqlExpectation.make({
     expectedCount: C2_INTERACTIVE_QUERY_LIMIT,
     id: "c2-full-projection-page",
-    query:
-      "SELECT ?claim WHERE { ?claim a <https://beep.sh/semantica/ontology/EvidenceClaim> } ORDER BY ?claim LIMIT 20",
+    query: `SELECT ?claim WHERE { ?claim a <${semanticaOntologyIri("EvidenceClaim")}> } ORDER BY ?claim LIMIT 20`,
   }),
 ];
 

@@ -6,14 +6,14 @@ workspaces: retired:venice-ai, retired:xai, retired:firecrawl and retired:face-d
 The cheap-gates cache audit reported fifteen blocking `configuration-drift` findings and one
 `configuration-source-drift` review for `turbo.json`. A complete comparison of the executable
 projection against the previous baseline (SHA-256
-`ddfbe1f171f713400bd693465ceda9760e809335ec316f4d586ddd584db0b93d`, the baseline on `main` at
-`280275e205`, which this branch merged) finds only subtractive changes:
+`11ccbe77a50fb5c9fad0d70e575163109a17887901838502e670b6b70ee7674c`, the baseline on `main` at
+`eba755d935`, which this branch merged) finds only subtractive changes:
 
 - 58 computations are removed, all owned by the four deleted workspaces (15 + 15 + 14 + 14). Their
   four review records are dropped with them. No computation is added.
 - 25 computations change only their resolved dependency lists. Each list loses the edges to the
   deleted workspaces and gains nothing.
-- 130 computations change only their effective configuration. Each one loses entries and gains
+- 131 computations change only their effective configuration. Each one loses entries and gains
   nothing.
 - The global configuration is unchanged. The only configuration source whose bytes change is
   `turbo.json`, from SHA-256 `6a81f3b809fd6990a9db45868be59b860f8f3f2aeaa15b3caba429720044bb1c` to
@@ -68,7 +68,7 @@ Anthropic only. The manifest is now SHA-256
   and firecrawl drivers. The CLI's policy computation no longer imports them. No input is added.
 - `//#lint:typos` loses its two exclusions for the Venice OpenAPI documents, which were deleted with
   that driver. No input is added.
-- 128 `test:integration` and `test:integration:parallel` computations lose the environment names
+- 129 `test:integration` and `test:integration:parallel` computations lose the environment names
   `AI_VENICE_API_KEY` and `FIRECRAWL_API_KEY` from their shared root task definition. These tasks
   are not cached, so this changes no reuse decision.
 
@@ -100,9 +100,9 @@ definition. No cached computation of theirs changes, so no reuse decision change
 - `@beep/commands`
 - `@beep/db-admin`
 - `@beep/discord`
-- `@beep/doc-text`
 - `@beep/dock`
 - `@beep/dock-react`
+- `@beep/doc-text`
 - `@beep/documents-domain`
 - `@beep/documents-server`
 - `@beep/documents-tables`
@@ -123,8 +123,8 @@ definition. No cached computation of theirs changes, so no reuse decision change
 - `@beep/freshbooks`
 - `@beep/github-commands`
 - `@beep/github-references`
-- `@beep/gov-legal-mcp`
 - `@beep/govinfo`
+- `@beep/gov-legal-mcp`
 - `@beep/html`
 - `@beep/hubspot`
 - `@beep/jsonc`
@@ -134,8 +134,8 @@ definition. No cached computation of theirs changes, so no reuse decision change
 - `@beep/libpff`
 - `@beep/m365`
 - `@beep/m365-mcp`
-- `@beep/mcp-kit`
 - `@beep/mcpb-kit`
+- `@beep/mcp-kit`
 - `@beep/nlp-mcp`
 - `@beep/obs`
 - `@beep/occt`
@@ -160,6 +160,7 @@ definition. No cached computation of theirs changes, so no reuse decision change
 - `@beep/postgres`
 - `@beep/pretext`
 - `@beep/professional-desktop`
+- `@beep/public-site`
 - `@beep/qa-capture`
 - `@beep/runpod`
 - `@beep/sanity`

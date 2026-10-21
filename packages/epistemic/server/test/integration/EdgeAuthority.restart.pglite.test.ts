@@ -20,6 +20,7 @@ import {
   SupersedeEdgeFact,
   SupersessionConflict,
 } from "@beep/epistemic-use-cases/EdgeAuthority";
+import { $EpistemicId } from "@beep/identity/packages";
 import * as Pglite from "@beep/pglite";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { it } from "@beep/test-runner";
@@ -187,9 +188,9 @@ const writeHistory = Effect.fnUntraced(function* () {
         verdict: "rejected",
         violations: [
           {
-            focusNode: "https://beep.dev/epistemic/claim/restart",
+            focusNode: $EpistemicId.create("claim/restart").iri,
             message: "Expected at least 1 value(s) for evidence.",
-            path: "https://beep.dev/epistemic/hasEvidenceQuote",
+            path: $EpistemicId.create("hasEvidenceQuote").iri,
             severity: "violation",
           },
         ],

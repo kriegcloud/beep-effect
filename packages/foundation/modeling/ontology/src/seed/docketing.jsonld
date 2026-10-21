@@ -6,16 +6,16 @@
   },
   "@graph": [
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing",
       "@type": "skos:ConceptScheme",
       "dct:title": "Docketing vocabulary",
       "owl:versionInfo": "1.0.0"
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "Deadline",
       "skos:prefLabel": "Deadline",
@@ -27,10 +27,10 @@
       "skos:scopeNote": "Authority periods are contextual; no date is calculated."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/DocketingEvent",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/DocketingEvent",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "DocketingEvent",
       "skos:prefLabel": "Docketing event",
@@ -42,17 +42,17 @@
       "skos:scopeNote": "An occurrence differs from a planned deadline."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "StatutoryDueDate",
       "skos:prefLabel": "Statutory due date",
       "skos:definition": "A docket target anchored in an applicable statute or rule.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -61,17 +61,17 @@
       "skos:scopeNote": "35 USC 133 and applicable procedural rules; jurisdiction must be supplied."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/SoftDueDate",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/SoftDueDate",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "SoftDueDate",
       "skos:prefLabel": "Soft due date",
       "skos:definition": "An internal planning target chosen before an applicable external due date.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -80,17 +80,17 @@
       "skos:scopeNote": "Repository planning concept; not a statutory obligation."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/OfficeActionResponseDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/OfficeActionResponseDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "OfficeActionResponseDeadline",
       "skos:prefLabel": "Patent office-action response deadline",
       "skos:definition": "A target for responding to an office action in patent prosecution.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
         }
       ],
       "dct:source": {
@@ -99,17 +99,17 @@
       "skos:scopeNote": "35 USC 133; 37 CFR 1.134 and 1.136."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/MaintenanceFeeDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/MaintenanceFeeDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "MaintenanceFeeDeadline",
       "skos:prefLabel": "Maintenance fee deadline",
       "skos:definition": "A target for paying a fee required to maintain an eligible patent.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
         }
       ],
       "dct:source": {
@@ -118,17 +118,17 @@
       "skos:scopeNote": "35 USC 41(b); 37 CFR 1.362."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/AnnuityDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/AnnuityDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "AnnuityDeadline",
       "skos:prefLabel": "Annuity deadline",
       "skos:definition": "A jurisdiction-specific target for a periodic patent renewal fee.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -137,17 +137,17 @@
       "skos:scopeNote": "National-phase jurisdiction and applicable national law are required; no US annual-fee inference."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/IDSDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/IDSDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "IDSDeadline",
       "skos:prefLabel": "IDS deadline",
       "skos:definition": "A target for submitting an information disclosure statement in patent prosecution.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -156,17 +156,17 @@
       "skos:scopeNote": "37 CFR 1.97 and 1.98; timing depends on prosecution context."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/RCEDueDate",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/RCEDueDate",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "RCEDueDate",
       "skos:prefLabel": "RCE due date",
       "skos:definition": "A target for requesting continued examination in a pending patent matter.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -175,17 +175,17 @@
       "skos:scopeNote": "37 CFR 1.114; context determines whether and when an RCE is appropriate."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/AppealDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/AppealDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "AppealDeadline",
       "skos:prefLabel": "Appeal deadline",
       "skos:definition": "A target for initiating or progressing an appeal in a patent matter.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -194,17 +194,17 @@
       "skos:scopeNote": "37 CFR 41.31; the particular appeal action is recorded by the consumer."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/ContinuationDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/ContinuationDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "ContinuationDeadline",
       "skos:prefLabel": "Continuation deadline",
       "skos:definition": "A target for filing a continuing patent application while the relevant benefit conditions remain available.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -213,17 +213,17 @@
       "skos:scopeNote": "35 USC 120; 37 CFR 1.78; no pendency calculation."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/NationalStageDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/NationalStageDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "NationalStageDeadline",
       "skos:prefLabel": "National-stage deadline",
       "skos:definition": "A target for completing national-stage entry requirements for an international application.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
         }
       ],
       "dct:source": {
@@ -232,17 +232,17 @@
       "skos:scopeNote": "35 USC 371; jurisdiction and applicable requirements must be pinned."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatementOfUseDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatementOfUseDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "StatementOfUseDeadline",
       "skos:prefLabel": "Statement-of-use deadline",
       "skos:definition": "A target for submitting a statement of use for an intent-to-use trademark application.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
         }
       ],
       "dct:source": {
@@ -251,17 +251,17 @@
       "skos:scopeNote": "15 USC 1051(d); 37 CFR 2.88 and 2.89."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Section8Deadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Section8Deadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "Section8Deadline",
       "skos:prefLabel": "Section 8 deadline",
       "skos:definition": "A target for a declaration of use or excusable nonuse to maintain a trademark registration.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
         }
       ],
       "dct:source": {
@@ -270,17 +270,17 @@
       "skos:scopeNote": "15 USC 1058; distinct from renewal and incontestability."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Section9RenewalDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Section9RenewalDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "Section9RenewalDeadline",
       "skos:prefLabel": "Section 9 renewal deadline",
       "skos:definition": "A target for an application to renew a trademark registration.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkRenewalDeadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkRenewalDeadline"
         }
       ],
       "dct:source": {
@@ -289,17 +289,17 @@
       "skos:scopeNote": "15 USC 1059; combined filings do not merge the obligation types."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Section15DeclarationDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Section15DeclarationDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "Section15DeclarationDeadline",
       "skos:prefLabel": "Section 15 declaration target",
       "skos:definition": "A chosen docket target for an elective declaration of incontestability when eligibility conditions apply.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -308,17 +308,17 @@
       "skos:scopeNote": "15 USC 1065; not a universally mandatory statutory filing deadline."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkOfficeActionResponseDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkOfficeActionResponseDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "TrademarkOfficeActionResponseDeadline",
       "skos:prefLabel": "Trademark office-action response deadline",
       "skos:definition": "A target for responding to an office action in trademark examination.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
         }
       ],
       "dct:source": {
@@ -327,17 +327,17 @@
       "skos:scopeNote": "37 CFR 2.62; the issued action and application basis determine the period."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/OppositionDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/OppositionDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "OppositionDeadline",
       "skos:prefLabel": "Trademark opposition deadline",
       "skos:definition": "A target for opposing publication of a trademark application or requesting an applicable extension.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
         }
       ],
       "dct:source": {
@@ -346,17 +346,17 @@
       "skos:scopeNote": "15 USC 1063; no opposition-period arithmetic."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkRenewalDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkRenewalDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "TrademarkRenewalDeadline",
       "skos:prefLabel": "Trademark renewal deadline",
       "skos:definition": "A jurisdiction-specific target for renewing a trademark registration.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/StatutoryDueDate"
         }
       ],
       "dct:source": {
@@ -365,17 +365,17 @@
       "skos:scopeNote": "US renewal is under 15 USC 1059; other jurisdictions require their own authority."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkApplicationDeadline",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/TrademarkApplicationDeadline",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "TrademarkApplicationDeadline",
       "skos:prefLabel": "Trademark application deadline",
       "skos:definition": "A docket target for a trademark application filing or application-stage requirement.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/Deadline"
         }
       ],
       "dct:source": {
@@ -384,10 +384,10 @@
       "skos:scopeNote": "A specific filing basis and authority are required; no universal application deadline is asserted."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "DeadlineState",
       "skos:prefLabel": "Deadline state",
@@ -399,17 +399,17 @@
       "skos:scopeNote": "Repository status vocabulary; no legal conclusion is derived. Status descriptors may overlap; no exclusive state partition is asserted."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/OpenDeadlineState",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/OpenDeadlineState",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "OpenDeadlineState",
       "skos:prefLabel": "Open deadline state",
       "skos:definition": "A recorded target awaiting its specified action, whether mandatory or elective.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState"
         }
       ],
       "dct:source": {
@@ -418,17 +418,17 @@
       "skos:scopeNote": "Repository state label; does not establish remaining time. Status descriptors may overlap; no exclusive state partition is asserted."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/ExtendedDeadlineState",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/ExtendedDeadlineState",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "ExtendedDeadlineState",
       "skos:prefLabel": "Extended deadline state",
       "skos:definition": "A recorded target whose authority or evidence supports an extension.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState"
         }
       ],
       "dct:source": {
@@ -437,17 +437,17 @@
       "skos:scopeNote": "Extension evidence is required; the vocabulary itself grants no extension. Status descriptors may overlap; no exclusive state partition is asserted."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/FinalDeadlineState",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/FinalDeadlineState",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "FinalDeadlineState",
       "skos:prefLabel": "Final deadline state",
       "skos:definition": "A recorded target identified by supporting evidence as the final applicable target.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState"
         }
       ],
       "dct:source": {
@@ -456,17 +456,17 @@
       "skos:scopeNote": "Deadline finality differs from a final office action; neither is inferred from this label. Status descriptors may overlap; no exclusive state partition is asserted."
     },
     {
-      "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/MissedDeadlineState",
+      "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/MissedDeadlineState",
       "@type": "skos:Concept",
       "skos:inScheme": {
-        "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing"
+        "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing"
       },
       "skos:notation": "MissedDeadlineState",
       "skos:prefLabel": "Missed deadline state",
       "skos:definition": "A recorded target whose supporting observation reports that the action was not timely completed.",
       "skos:broader": [
         {
-          "@id": "https://ns.beep.sh/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState"
+          "@id": "https://beep-effect.com/ns/ontology/semantic-foundation/vocabulary/docketing/concept/DeadlineState"
         }
       ],
       "dct:source": {

@@ -1879,7 +1879,7 @@
       "line": 1096,
       "endLine": 1096,
       "symbol": "provideScopedLayer",
-      "occurrence": "v2:f067064da22298892301e1e46663a3319f2a35088ed3ce43e5b83cb52942213a",
+      "occurrence": "v2:9651c7b57d8e4cfbf0dde5d0ff0257dd9a3f56b488af9ec28f81f152d1b14c28",
       "class": "unresolved-layer-provide",
       "evidence": "provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(firstOut, \"kg.pglite\") }))",
       "replacement": {
@@ -1900,7 +1900,7 @@
       "line": 1297,
       "endLine": 1297,
       "symbol": "provideScopedLayer",
-      "occurrence": "v2:bd914ae3508b5c917d4ae8b267184193cd6f8f68d28b12373247ca1c729e2ef6",
+      "occurrence": "v2:7ae24f46b2daa1acce4b9b2ec86fb4efccf4debb93bb6123f8125feb59aeba87",
       "class": "unresolved-layer-provide",
       "evidence": "provideScopedLayer(host)",
       "replacement": {
