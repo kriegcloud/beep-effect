@@ -55,8 +55,7 @@ const $I = $ScratchpadId.create("beep/AccountCutover");
  */
 export const accountCutoverSchemaVersion = 1;
 
-const schemaVersionLiteral = S.Literal(accountCutoverSchemaVersion).pipe(
-  S.withConstructorDefault(Effect.succeed(accountCutoverSchemaVersion)),
+const schemaVersionLiteral = S.tag(accountCutoverSchemaVersion).pipe(
   pg.integer(),
   pg.columnName("schema_version"),
 );

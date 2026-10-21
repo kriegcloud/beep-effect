@@ -442,9 +442,7 @@ export class YeetWatchSnapshot extends S.Opaque<YeetWatchSnapshot, { readonly br
 export class YeetWatchStarted extends S.Opaque<YeetWatchStarted, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("watch-started"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     headSha: S.NonEmptyString,
     checks: S.Finite,
@@ -470,9 +468,7 @@ export class YeetWatchStarted extends S.Opaque<YeetWatchStarted, { readonly bran
 export class YeetCheckTransition extends S.Opaque<YeetCheckTransition, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("check-transition"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     headSha: S.NonEmptyString,
     name: S.NonEmptyString,
@@ -562,9 +558,7 @@ export type YeetThreadTransitionTarget = typeof YeetThreadTransitionTarget.Type;
 export class YeetThreadTransition extends S.Opaque<YeetThreadTransition, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("thread-transition"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     headSha: S.NonEmptyString,
     threadId: S.NonEmptyString,
@@ -586,9 +580,7 @@ export class YeetThreadTransition extends S.Opaque<YeetThreadTransition, { reado
 export class YeetMergeabilityChanged extends S.Opaque<YeetMergeabilityChanged, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("mergeability-changed"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     headSha: S.NonEmptyString,
     from: S.String,
@@ -624,9 +616,7 @@ export class YeetMergeReadyCriterionChanged extends S.Opaque<
 >()(
   S.Struct({
     kind: S.tag("merge-ready-criterion-changed"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     headSha: S.NonEmptyString,
     criterion: YeetMergeReadyCriterion,
@@ -648,9 +638,7 @@ export class YeetMergeReadyCriterionChanged extends S.Opaque<
 export class YeetHeadChanged extends S.Opaque<YeetHeadChanged, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("head-changed"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     from: S.NonEmptyString,
     to: S.NonEmptyString,
@@ -695,9 +683,7 @@ const yeetSettleChangedGatedDefault = A.empty<string>();
 export class YeetSettleChanged extends S.Opaque<YeetSettleChanged, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("settle-changed"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     headSha: S.NonEmptyString,
     from: S.NullOr(YeetSettleReason),
@@ -750,9 +736,7 @@ export class YeetSettleChanged extends S.Opaque<YeetSettleChanged, { readonly br
 export class YeetCommentPosted extends S.Opaque<YeetCommentPosted, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("comment-posted"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     headSha: S.NonEmptyString,
     source: LiteralKit(["review", "issue"]),
@@ -904,9 +888,7 @@ export type YeetWatchEndReason = typeof YeetWatchEndReason.Type;
 export class YeetWatchEnded extends S.Opaque<YeetWatchEnded, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("watch-ended"),
-    schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_WATCH_SCHEMA_VERSION),
     at: S.String,
     headSha: S.NonEmptyString,
     reason: YeetWatchEndReason,

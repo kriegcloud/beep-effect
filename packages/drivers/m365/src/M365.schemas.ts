@@ -250,7 +250,7 @@ export class GraphSiteCollection extends S.Opaque<GraphSiteCollection, { readonl
  */
 export class GraphUniqueTextBody extends S.Opaque<GraphUniqueTextBody, { readonly brand: unique symbol }>()(
   S.Struct({
-    contentType: S.Literal("text").annotateKey({ description: "Must be plain text; HTML is refused." }),
+    contentType: S.tag("text").annotateKey({ description: "Must be plain text; HTML is refused." }),
     content: S.String.annotateKey({ description: "Text the sender wrote, without the quoted thread." }),
   }).pipe($I.annoteSchema("GraphUniqueTextBody", { description: "A plain-text Graph uniqueBody." }))
 ) {}

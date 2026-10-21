@@ -114,7 +114,7 @@ const COVERAGE_DIAGNOSTIC_CONTENT_MAX_CHARS = COVERAGE_DIAGNOSTIC_MAX_CHARS - 3;
 const COVERAGE_PATH_FRAGMENT_MAX_CHARS = 512;
 const DISALLOWED_COVERAGE_CONTROL_PATTERN = /[\u0000-\u001F\u007F-\u009F]/gu;
 
-const SupportedCoverageRegressionEpsilon = S.Literal(coverageRegressionEpsilon).pipe(
+const SupportedCoverageRegressionEpsilon = S.tag(coverageRegressionEpsilon).pipe(
   $I.annoteSchema("SupportedCoverageRegressionEpsilon", {
     description: "Exact percentage-point tolerance supported by the coverage regression comparator.",
   })
@@ -370,7 +370,7 @@ export class CoverageRegressionBaseline extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schema_version: S.Literal(2),
+    schema_version: S.tag(2),
     generated_at: S.String,
     git_sha: S.String,
     command: S.String,
@@ -412,7 +412,7 @@ const LegacyCoveragePackageBaselineForMigration = S.Struct({
 );
 
 const LegacyCoverageRegressionBaselineForMigration = S.Struct({
-  schema_version: S.Literal(1),
+  schema_version: S.tag(1),
   generated_at: S.String,
   git_sha: S.String,
   command: S.String,

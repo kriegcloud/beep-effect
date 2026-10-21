@@ -50,8 +50,8 @@ export class CacheProtocolReadFailure extends S.Opaque<CacheProtocolReadFailure,
     case: LiteralKit(["truncated-body", "unavailable", "throttled"]),
     taskHash: S.NonEmptyString,
     summary: Sha256Hex,
-    exitCode: S.Literal(42),
-    restoredOutputs: S.Literal(0),
+    exitCode: S.tag(42),
+    restoredOutputs: S.tag(0),
   }).pipe(
     $I.annoteSchema("CacheProtocolReadFailure", {
       description: "A native fallback denied before output, with independently recorded wire events.",

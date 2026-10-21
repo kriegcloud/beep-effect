@@ -518,8 +518,7 @@ export declare namespace ClientSummary {
  */
 export class ClientProcessing extends Model<ClientProcessing>("ClientProcessing")(
   {
-    schemaVersion: S.Literal(1).pipe(
-      S.withConstructorDefault(Effect.succeed<1>(1)),
+    schemaVersion: S.tag(1).pipe(
       pg.integer(),
       pg.columnName("schema_version"),
     ),

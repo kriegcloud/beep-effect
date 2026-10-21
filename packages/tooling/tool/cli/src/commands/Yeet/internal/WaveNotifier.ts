@@ -254,9 +254,7 @@ export type YeetPrWaveUrgency = typeof YeetPrWaveUrgency.Type;
  */
 export class YeetPrWaveDescriptor extends S.Opaque<YeetPrWaveDescriptor, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(YEET_PR_WAVE_DESCRIPTOR_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_PR_WAVE_DESCRIPTOR_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_PR_WAVE_DESCRIPTOR_SCHEMA_VERSION),
     waveKey: S.String,
     prNumber: PrNumber,
     headSha: S.NonEmptyString,

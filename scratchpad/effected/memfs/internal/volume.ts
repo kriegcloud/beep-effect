@@ -132,20 +132,17 @@ const InodeMetadata = S.Struct({
  birthtime: S.DateTimeUtc.pipe($I.annoteKey("InodeMetadata.birthtime", { description: "The creation time." }))
 }).pipe($I.annoteSchema("InodeMetadata", { description: "The engine InodeMetadata data." }));
 type InodeMetadata = typeof InodeMetadata.Type;
-const FileInode = S.Struct({
- _tag: S.tag("File").pipe($I.annoteKey("FileInode._tag", { description: "The inode variant." })),
+const FileInode = S.TaggedStruct("File", {
  ...InodeMetadata.fields,
  data: S.Uint8Array.pipe($I.annoteKey("FileInode.data", { description: "The live file bytes." }))
 }).pipe($I.annoteSchema("FileInode", { description: "The engine FileInode data." }));
 type FileInode = typeof FileInode.Type;
-const DirectoryInode = S.Struct({
- _tag: S.tag("Directory").pipe($I.annoteKey("DirectoryInode._tag", { description: "The inode variant." })),
+const DirectoryInode = S.TaggedStruct("Directory", {
  ...InodeMetadata.fields,
  entries: S.HashMap(S.String, Inode).pipe($I.annoteKey("DirectoryInode.entries", { description: "The stored directory entry names and inode numbers." }))
 }).pipe($I.annoteSchema("DirectoryInode", { description: "The engine DirectoryInode data." }));
 type DirectoryInode = typeof DirectoryInode.Type;
-const SymbolicLinkInode = S.Struct({
- _tag: S.tag("SymbolicLink").pipe($I.annoteKey("SymbolicLinkInode._tag", { description: "The inode variant." })),
+const SymbolicLinkInode = S.TaggedStruct("SymbolicLink", {
  ...InodeMetadata.fields,
  target: S.String.pipe($I.annoteKey("SymbolicLinkInode.target", { description: "The stored link target." }))
 }).pipe($I.annoteSchema("SymbolicLinkInode", { description: "The engine SymbolicLinkInode data." }));
@@ -2449,21 +2446,17 @@ const makeTempFileScoped =
 
 const MAX_BRACE_EXPANSIONS = 256;
 
-const GlobLiteral = S.Struct({
- _tag: S.tag("Literal").pipe($I.annoteKey("GlobLiteral._tag", { description: "The glob token variant." })),
+const GlobLiteral = S.TaggedStruct("Literal", {
  value: S.String.pipe($I.annoteKey("GlobLiteral.value", { description: "The literal character." }))
 }).pipe($I.annoteSchema("GlobLiteral", { description: "The engine GlobLiteral data." }));
 type GlobLiteral = typeof GlobLiteral.Type;
-const GlobStar = S.Struct({
- _tag: S.tag("Star").pipe($I.annoteKey("GlobStar._tag", { description: "The glob token variant." }))
+const GlobStar = S.TaggedStruct("Star", {
 }).pipe($I.annoteSchema("GlobStar", { description: "The engine GlobStar data." }));
 type GlobStar = typeof GlobStar.Type;
-const GlobOne = S.Struct({
- _tag: S.tag("One").pipe($I.annoteKey("GlobOne._tag", { description: "The glob token variant." }))
+const GlobOne = S.TaggedStruct("One", {
 }).pipe($I.annoteSchema("GlobOne", { description: "The engine GlobOne data." }));
 type GlobOne = typeof GlobOne.Type;
-const GlobCharacterClass = S.Struct({
- _tag: S.tag("CharacterClass").pipe($I.annoteKey("GlobCharacterClass._tag", { description: "The glob token variant." })),
+const GlobCharacterClass = S.TaggedStruct("CharacterClass", {
  negated: S.Boolean.pipe($I.annoteKey("GlobCharacterClass.negated", { description: "Whether the class is negated." })),
  ranges: S.Array(S.Tuple([S.String, S.String])).pipe($I.annoteKey("GlobCharacterClass.ranges", { description: "The inclusive character ranges." })),
  literals: S.Array(S.String).pipe($I.annoteKey("GlobCharacterClass.literals", { description: "The class literal characters." }))
@@ -2473,14 +2466,12 @@ const GlobToken = S.Union([GlobLiteral, GlobStar, GlobOne, GlobCharacterClass]).
  S.toTaggedUnion("_tag"), $I.annoteSchema("GlobToken", { description: "A compiled glob token." }),
 );
 type GlobToken = typeof GlobToken.Type;
-const GlobSegment = S.Struct({
- _tag: S.tag("Segment").pipe($I.annoteKey("GlobSegment._tag", { description: "The segment variant." })),
+const GlobSegment = S.TaggedStruct("Segment", {
  tokens: S.Array(GlobToken).pipe($I.annoteKey("GlobSegment.tokens", { description: "The compiled tokens." })),
  startsWithDot: S.Boolean.pipe($I.annoteKey("GlobSegment.startsWithDot", { description: "Whether the segment explicitly starts with a dot." }))
 }).pipe($I.annoteSchema("GlobSegment", { description: "The engine GlobSegment data." }));
 type GlobSegment = typeof GlobSegment.Type;
-const GlobGlobstar = S.Struct({
- _tag: S.tag("Globstar").pipe($I.annoteKey("GlobGlobstar._tag", { description: "A recursive globstar segment." }))
+const GlobGlobstar = S.TaggedStruct("Globstar", {
 }).pipe($I.annoteSchema("GlobGlobstar", { description: "The engine GlobGlobstar data." }));
 type GlobGlobstar = typeof GlobGlobstar.Type;
 const CompiledGlobSegment = S.Union([GlobSegment, GlobGlobstar]).pipe(

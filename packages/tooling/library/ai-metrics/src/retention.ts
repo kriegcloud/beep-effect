@@ -553,9 +553,7 @@ export class AiMetricsRetentionInventory extends S.Opaque<
     explicitWindow: S.Boolean,
     rawArchiveObjects: S.Array(AiMetricsRetentionRawArchiveItem),
     reports: S.Array(AiMetricsRetentionFileItem),
-    schemaVersion: S.Literal("beep.ai_metrics.retention_inventory.v1").pipe(
-      S.withConstructorDefault(Effect.succeed("beep.ai_metrics.retention_inventory.v1"))
-    ),
+    schemaVersion: S.tag("beep.ai_metrics.retention_inventory.v1"),
     selectedDerivedExportCount: S.Natural,
     selectedRawArchiveObjectCount: S.Natural,
     selectedReportCount: S.Natural,
@@ -611,9 +609,7 @@ export class AiMetricsRetentionMutationResult extends S.Opaque<
     dryRun: S.Boolean,
     explicitWindow: S.Boolean,
     mode: AiMetricsRetentionMutationMode,
-    schemaVersion: S.Literal("beep.ai_metrics.retention_mutation.v1").pipe(
-      S.withConstructorDefault(Effect.succeed("beep.ai_metrics.retention_mutation.v1"))
-    ),
+    schemaVersion: S.tag("beep.ai_metrics.retention_mutation.v1"),
   }).pipe(
     $I.annoteSchema("AiMetricsRetentionMutationResult", {
       description: "Summary for an AI metrics retention delete or compaction run.",
@@ -709,9 +705,7 @@ export class AiMetricsRetentionEnforcementResult extends S.Opaque<
     dryRun: S.Boolean,
     keptDerivedExportCount: S.Natural,
     maxSnapshotExports: S.Natural,
-    schemaVersion: S.Literal("beep.ai_metrics.retention_enforcement.v1").pipe(
-      S.withConstructorDefault(Effect.succeed("beep.ai_metrics.retention_enforcement.v1"))
-    ),
+    schemaVersion: S.tag("beep.ai_metrics.retention_enforcement.v1"),
   }).pipe(
     $I.annoteSchema("AiMetricsRetentionEnforcementResult", {
       description: "Summary for preventive AI metrics Parquet snapshot retention enforcement.",
@@ -817,9 +811,7 @@ export class AiMetricsRetentionRestoreDrillResult extends S.Opaque<
     hashMatches: S.Boolean,
     replayedObjectCount: S.Natural,
     restoreRoot: S.String,
-    schemaVersion: S.Literal("beep.ai_metrics.retention_restore_drill.v1").pipe(
-      S.withConstructorDefault(Effect.succeed("beep.ai_metrics.retention_restore_drill.v1"))
-    ),
+    schemaVersion: S.tag("beep.ai_metrics.retention_restore_drill.v1"),
     transcriptTextPrinted: S.Boolean,
   }).pipe(
     $I.annoteSchema("AiMetricsRetentionRestoreDrillResult", {

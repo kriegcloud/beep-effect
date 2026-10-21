@@ -115,8 +115,7 @@ const defaultMember = <Point extends string, Fiber extends S.Top>(
   point: Point,
   fiber: Fiber
 ): FiberMember<Point, Fiber> =>
-  S.Struct({
-    _tag: S.tag(point),
+  S.TaggedStruct(point, {
     value: fiber,
   });
 

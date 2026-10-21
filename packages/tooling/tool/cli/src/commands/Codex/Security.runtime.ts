@@ -21,10 +21,10 @@ import { SECURITY_PACKAGE_VERSION, SECURITY_PLUGIN_VERSION } from "./Security.sc
 
 const INSTALL_PREFIX = `~/.cache/beep/codex-security/${SECURITY_PACKAGE_VERSION}`;
 const PackageMetadata = S.fromJsonString(
-  S.Struct({ name: S.Literal("@openai/codex-security"), version: S.Literal(SECURITY_PACKAGE_VERSION) })
+  S.Struct({ name: S.tag("@openai/codex-security"), version: S.tag(SECURITY_PACKAGE_VERSION) })
 );
 const PluginMetadata = S.fromJsonString(
-  S.Struct({ name: S.Literal("codex-security"), version: S.Literal(SECURITY_PLUGIN_VERSION) })
+  S.Struct({ name: S.tag("codex-security"), version: S.tag(SECURITY_PLUGIN_VERSION) })
 );
 
 const decodePackageMetadata = S.decodeEffect(PackageMetadata);

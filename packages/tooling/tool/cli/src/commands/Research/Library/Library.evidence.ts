@@ -204,7 +204,7 @@ class WebRedirectProof extends S.Opaque<
     resolvedUrl: S.String,
     status: S.Finite,
     providerSourceUrl: S.String,
-    identityMerged: S.Literal(false),
+    identityMerged: S.tag(false),
   }).pipe(
     $I.annoteSchema("WebRedirectProof", {
       description:

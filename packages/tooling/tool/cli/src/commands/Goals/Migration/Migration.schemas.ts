@@ -174,7 +174,7 @@ export class ManifestTranslation extends S.Opaque<ManifestTranslation, { readonl
     slug: S.String,
     manifestPath: S.String,
     beforeVersion: S.optionalKey(S.String),
-    afterVersion: S.Literal("initiative-manifest/v2"),
+    afterVersion: S.tag("initiative-manifest/v2"),
     drift: S.Array(DriftClassification),
     edits: S.Array(S.String),
     content: S.String,
@@ -346,7 +346,7 @@ export class PacketGenesisSeed extends S.Opaque<PacketGenesisSeed, { readonly br
  */
 export class TranslationReport extends S.Opaque<TranslationReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("packet-convention-report/v1"),
+    schemaVersion: S.tag("packet-convention-report/v1"),
     mode: LiteralKit(["preview", "apply"]),
     probes: S.Array(ManifestShapeProbe),
     translations: S.Array(ManifestTranslation),

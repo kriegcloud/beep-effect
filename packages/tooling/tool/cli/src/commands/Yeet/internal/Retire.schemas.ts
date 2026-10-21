@@ -122,7 +122,7 @@ export type YeetRetireVerdict = typeof YeetRetireVerdict.Type;
  */
 export class YeetRetireSweepPlan extends S.Opaque<YeetRetireSweepPlan, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-retire-sweep-plan/v2"),
+    schemaVersion: S.tag("yeet-retire-sweep-plan/v2"),
     retire: YeetRetirePlan,
     verdict: YeetRetireVerdict,
     activePackets: S.Array(S.String),
@@ -159,7 +159,7 @@ export const YeetRetireSweepPlanJson = JsonStringCodec(YeetRetireSweepPlan);
  */
 export class YeetRetireSweepReport extends S.Opaque<YeetRetireSweepReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-retire-sweep-report/v2"),
+    schemaVersion: S.tag("yeet-retire-sweep-report/v2"),
     retire: YeetRetirePlan,
     verdict: YeetRetireVerdict,
     receipt: WorktreeRemovalReceipt,

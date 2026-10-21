@@ -69,7 +69,7 @@ export class SparqlExpectation extends S.Opaque<SparqlExpectation, { readonly br
  * ```ts
  * import { GProjectionExpectation } from "@/schema/Projection"
  *
- * console.log(GProjectionExpectation.fields.schemaVersion.literals[0]) // "g-projection/v1"
+ * console.log(GProjectionExpectation.fields.schemaVersion.schema.literal) // "g-projection/v1"
  * ```
  *
  * @category models
@@ -77,7 +77,7 @@ export class SparqlExpectation extends S.Opaque<SparqlExpectation, { readonly br
  */
 export class GProjectionExpectation extends S.Opaque<GProjectionExpectation, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("g-projection/v1"),
+    schemaVersion: S.tag("g-projection/v1"),
     model: ModelIdentity,
     paper: CorpusPaperId,
     knn: KnnExpectation,
@@ -410,11 +410,11 @@ export class ProjectionWitness extends S.Opaque<ProjectionWitness, { readonly br
 ) {}
 
 const C1EvalReportFields = S.Struct({
-  schemaVersion: S.Literal("c1-eval-report/v1"),
+  schemaVersion: S.tag("c1-eval-report/v1"),
   base: EvalReport,
   projection: ProjectionWitness,
   reportDigest: Sha256Hex,
-  stage: S.Literal("c1"),
+  stage: S.tag("c1"),
 });
 
 const C1EvalReportChecks = S.makeFilterGroup([
@@ -493,7 +493,7 @@ export class C1EvalReport extends S.Opaque<C1EvalReport, { readonly brand: uniqu
  */
 export class C1EvalTelemetry extends S.Opaque<C1EvalTelemetry, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("c1-eval-telemetry/v1"),
+    schemaVersion: S.tag("c1-eval-telemetry/v1"),
     embeddingMs: S.Natural,
     mode: ProjectionMode,
     rdfRebuildMs: S.Natural,

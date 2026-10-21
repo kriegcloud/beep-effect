@@ -7,7 +7,6 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
-import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import { identity } from "effect/Function";
 import * as Num from "effect/Number";
@@ -560,7 +559,7 @@ export class SequenceBreakNotificationV1 extends S.Class<
     waitReason: HookPulseWaitReason,
     stage: SequenceBreakNotificationStage,
     ageMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-    evidenceTier: S.Literal("derived").pipe(S.withConstructorDefault(Effect.succeed("derived"))),
+    evidenceTier: S.tag("derived"),
     transport: SequenceBreakNotificationTransport,
     delivery: SequenceBreakDeliveryOutcome,
   }).check(

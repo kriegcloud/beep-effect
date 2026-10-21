@@ -46,11 +46,7 @@ const revisionCheck = (name: "expected_trigger_revision_ge" | "applied_trigger_r
   pg.Table.check(name)(sql<boolean>`${column} >= ${sql.raw("1")}`);
 
 const commonFields = () => ({
-  schemaVersion: S.Literal(schemaVersion).pipe(
-    S.withConstructorDefault(Effect.succeed(schemaVersion)),
-    pg.text(),
-    pg.columnName("schema_version"),
-  ),
+  schemaVersion: S.tag(schemaVersion).pipe(pg.text(), pg.columnName("schema_version")),
   uid: identifier.pipe(pg.text(), pg.columnName("uid")),
   feedbackId: hashText.pipe(pg.text(), pg.columnName("feedback_id")),
   eventId: hashText.pipe(pg.text(), pg.columnName("event_id")),

@@ -172,14 +172,14 @@ const prShapeOptions = CiLaneRunOptions.make({
 });
 
 const BranchProtectionContextSnapshot = S.Struct({
-  schemaVersion: S.Literal("branch-protection-contexts/v1"),
+  schemaVersion: S.tag("branch-protection-contexts/v1"),
   capturedAt: S.String,
-  repository: S.Literal("beep-effect/beep-effect"),
-  branch: S.Literal("main"),
-  rulesetId: S.Literal(10240248),
+  repository: S.tag("beep-effect/beep-effect"),
+  branch: S.tag("main"),
+  rulesetId: S.tag(10240248),
   rulesetName: S.String,
-  enforcement: S.Literal("active"),
-  strictRequiredStatusChecksPolicy: S.Literal(false),
+  enforcement: S.tag("active"),
+  strictRequiredStatusChecksPolicy: S.tag(false),
   requiredStatusChecks: S.Array(S.String),
 });
 const decodeBranchProtectionContextSnapshot = S.decodeUnknownEffect(S.fromJsonString(BranchProtectionContextSnapshot));

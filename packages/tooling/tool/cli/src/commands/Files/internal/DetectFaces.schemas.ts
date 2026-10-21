@@ -274,7 +274,7 @@ export class DetectFacesReport extends S.Opaque<DetectFacesReport, { readonly br
     manifestPath: S.String,
     manifestWritten: S.Boolean,
     options: DetectFacesReportOptions,
-    schemaVersion: S.Literal("beep.files.detect-faces.v1"),
+    schemaVersion: S.tag("beep.files.detect-faces.v1"),
     skipped: S.Array(DetectFacesSkippedEntry),
     summary: DetectFacesSummary,
   }).pipe(

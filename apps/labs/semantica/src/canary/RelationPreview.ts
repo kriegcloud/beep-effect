@@ -52,7 +52,7 @@ class RelationPreviewCase extends S.Opaque<RelationPreviewCase, { readonly brand
 export class RelationPreviewManifest extends S.Opaque<RelationPreviewManifest, { readonly brand: unique symbol }>()(
   S.Struct({
     cases: S.NonEmptyArray(RelationPreviewCase),
-    schemaVersion: S.Literal("semantica-relation-preview/v1"),
+    schemaVersion: S.tag("semantica-relation-preview/v1"),
   }).pipe(
     $I.annoteSchema("RelationPreviewManifest", {
       description: "Committed E5 cache-preview case set with a versioned wire contract.",
@@ -106,8 +106,8 @@ class RelationPreviewReport extends S.Opaque<RelationPreviewReport, { readonly b
     cases: S.NonEmptyArray(RelationPreviewCaseResult),
     groundedPapers: S.Natural,
     groundedRelations: S.Natural,
-    passed: S.Literal(true),
-    schemaVersion: S.Literal("semantica-relation-preview-report/v1"),
+    passed: S.tag(true),
+    schemaVersion: S.tag("semantica-relation-preview-report/v1"),
   }).pipe(
     $I.annoteSchema("RelationPreviewReport", {
       description: "Successful zero-spend preview with at least one grounded relation on at least one paper.",

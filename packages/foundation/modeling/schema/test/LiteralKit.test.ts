@@ -20,8 +20,8 @@ const isCheckedDirection = S.is(CheckedDirection);
 const isPipedDirection = S.is(PipedDirection);
 const EventKind = LiteralKit(["created", "deleted"]);
 const Event = EventKind.toTaggedUnion("kind")({
-  created: { value: S.Literal(1) },
-  deleted: { value: S.Literal(2) },
+  created: { value: S.tag(1) },
+  deleted: { value: S.tag(2) },
 });
 const decodeEventEffect = S.decodeEffect(Event);
 
@@ -253,10 +253,10 @@ describe("LiteralKit toTaggedUnion (number keys)", () => {
   const NumberKind = LiteralKit([1, 2]);
   const NumberEvent = NumberKind.toTaggedUnion("kind")({
     number1: {
-      value: S.Literal("one"),
+      value: S.tag("one"),
     },
     number2: {
-      value: S.Literal("two"),
+      value: S.tag("two"),
     },
   });
 

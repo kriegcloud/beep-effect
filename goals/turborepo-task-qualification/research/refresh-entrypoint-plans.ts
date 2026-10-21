@@ -23,7 +23,7 @@ import * as S from "effect/Schema";
 const Step = QualityTaskStep;
 const Variant = S.Struct({ label: S.String, options: CiLaneRunOptions });
 const Report = S.Struct({
-  schemaVersion: S.Literal("cache-entrypoint-plans/v2"),
+  schemaVersion: S.tag("cache-entrypoint-plans/v2"),
   authority: S.String,
   context: S.Struct({ ci: S.Boolean, githubActions: S.Boolean }),
   variants: S.Array(Variant),

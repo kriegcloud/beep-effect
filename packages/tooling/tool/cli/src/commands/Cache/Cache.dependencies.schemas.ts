@@ -42,8 +42,8 @@ export class CacheDependencyMaterialization extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("cache-dependency-materialization/v1"),
-    authority: S.Literal("local-installed-tree-snapshot"),
+    schemaVersion: S.tag("cache-dependency-materialization/v1"),
+    authority: S.tag("local-installed-tree-snapshot"),
     directory: S.NonEmptyString,
     lockfileSha256: Sha256Hex,
     rootManifestSha256: Sha256Hex,

@@ -98,13 +98,13 @@ const readKey = (record: {
  */
 export class TrustedMemoryStateHead extends Model<TrustedMemoryStateHead>("TrustedMemoryStateHead")(
   {
-    schemaVersion: S.Literal(MEMORY_STATE_HEAD_SCHEMA_VERSION)
+    schemaVersion: S.tag(MEMORY_STATE_HEAD_SCHEMA_VERSION)
       .annotateKey({ description: "Trusted head schema version. The only legal value is 1." })
       .pipe(pg.integer(), pg.columnName("schema_version")),
     uid: S.String.check(S.isMinLength(1))
       .annotateKey({ description: "Account uid. Empty is rejected; surrounding spaces are preserved." })
       .pipe(pg.text(), pg.columnName("uid")),
-    source: S.Literal(MEMORY_STATE_HEAD_SOURCE)
+    source: S.tag(MEMORY_STATE_HEAD_SOURCE)
       .annotateKey({ description: "Trusted head source marker." })
       .pipe(pg.text(), pg.columnName("source")),
     accountGeneration: NonNegativeInt.annotateKey({

@@ -176,7 +176,7 @@ class RankedCorpusDocument extends S.Opaque<RankedCorpusDocument, { readonly bra
 class QueryCorpusResult extends S.Opaque<QueryCorpusResult, { readonly brand: unique symbol }>()(
   S.Struct({
     corpusId: S.String,
-    method: S.Literal("vector.cosine"),
+    method: S.tag("vector.cosine"),
     query: S.String,
     ranked: S.Array(RankedCorpusDocument),
     returned: S.Natural,

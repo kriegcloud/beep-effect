@@ -397,8 +397,7 @@ const encodeMemoryBackwardSycnedEvent = S.encodeEffect(MemoryBackwardSycnedEvent
  */
 export class MessageServiceStatusEvent extends Model<MessageServiceStatusEvent>("MessageServiceStatusEvent")(
   {
-    eventType: S.Literal("service_status").pipe(
-      S.withConstructorDefault(Effect.succeed<"service_status">("service_status")),
+    eventType: S.tag("service_status").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -447,8 +446,7 @@ const isMessageServiceStatusEvent = S.is(MessageServiceStatusEvent);
  */
 export class ConversationSessionEvent extends Model<ConversationSessionEvent>("ConversationSessionEvent")(
   {
-    eventType: S.Literal("conversation_session").pipe(
-      S.withConstructorDefault(Effect.succeed<"conversation_session">("conversation_session")),
+    eventType: S.tag("conversation_session").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -501,8 +499,7 @@ const isConversationSessionEvent = S.is(ConversationSessionEvent);
  * @since 0.0.0
  */
 export class PingEvent extends Model<PingEvent>("PingEvent")(
-  { eventType: S.Literal("ping").pipe(
-      S.withConstructorDefault(Effect.succeed<"ping">("ping")),
+  { eventType: S.tag("ping").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ) },
@@ -546,8 +543,7 @@ const isPingEvent = S.is(PingEvent);
  */
 export class LastConversationEvent extends Model<LastConversationEvent>("LastConversationEvent")(
   {
-    eventType: S.Literal("last_memory").pipe(
-      S.withConstructorDefault(Effect.succeed<"last_memory">("last_memory")),
+    eventType: S.tag("last_memory").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -589,8 +585,7 @@ const isLastConversationEvent = S.is(LastConversationEvent);
  */
 export class TranslationEvent extends Model<TranslationEvent>("TranslationEvent")(
   {
-    eventType: S.Literal("translating").pipe(
-      S.withConstructorDefault(Effect.succeed<"translating">("translating")),
+    eventType: S.tag("translating").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -634,8 +629,7 @@ const isTranslationEvent = S.is(TranslationEvent);
  */
 export class PhotoProcessingEvent extends Model<PhotoProcessingEvent>("PhotoProcessingEvent")(
   {
-    eventType: S.Literal("photo_processing").pipe(
-      S.withConstructorDefault(Effect.succeed<"photo_processing">("photo_processing")),
+    eventType: S.tag("photo_processing").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -678,8 +672,7 @@ const isPhotoProcessingEvent = S.is(PhotoProcessingEvent);
  */
 export class PhotoDescribedEvent extends Model<PhotoDescribedEvent>("PhotoDescribedEvent")(
   {
-    eventType: S.Literal("photo_described").pipe(
-      S.withConstructorDefault(Effect.succeed<"photo_described">("photo_described")),
+    eventType: S.tag("photo_described").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -732,8 +725,7 @@ const isPhotoDescribedEvent = S.is(PhotoDescribedEvent);
  */
 export class SpeakerLabelSuggestionEvent extends Model<SpeakerLabelSuggestionEvent>("SpeakerLabelSuggestionEvent")(
   {
-    eventType: S.Literal("speaker_label_suggestion").pipe(
-      S.withConstructorDefault(Effect.succeed<"speaker_label_suggestion">("speaker_label_suggestion")),
+    eventType: S.tag("speaker_label_suggestion").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -789,8 +781,7 @@ export class FreemiumThresholdReachedEvent extends Model<FreemiumThresholdReache
   "FreemiumThresholdReachedEvent",
 )(
   {
-    eventType: S.Literal("freemium_threshold_reached").pipe(
-      S.withConstructorDefault(Effect.succeed<"freemium_threshold_reached">("freemium_threshold_reached")),
+    eventType: S.tag("freemium_threshold_reached").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -839,8 +830,7 @@ const isFreemiumThresholdReachedEvent = S.is(FreemiumThresholdReachedEvent);
  */
 export class SegmentsDeletedEvent extends Model<SegmentsDeletedEvent>("SegmentsDeletedEvent")(
   {
-    eventType: S.Literal("segments_deleted").pipe(
-      S.withConstructorDefault(Effect.succeed<"segments_deleted">("segments_deleted")),
+    eventType: S.tag("segments_deleted").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),
@@ -885,8 +875,7 @@ const isSegmentsDeletedEvent = S.is(SegmentsDeletedEvent);
  */
 export class ProactiveMessageEvent extends Model<ProactiveMessageEvent>("ProactiveMessageEvent")(
   {
-    eventType: S.Literal("proactive_message").pipe(
-      S.withConstructorDefault(Effect.succeed<"proactive_message">("proactive_message")),
+    eventType: S.tag("proactive_message").pipe(
       pg.text(),
       pg.columnName("event_type"),
     ),

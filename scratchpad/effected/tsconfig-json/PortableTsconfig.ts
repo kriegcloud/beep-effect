@@ -196,8 +196,8 @@ const isResolvedTsconfig = (input: ResolvedTsconfig | CompilerOptions.Type): inp
 const PortableCompilerOptions = S.Struct({
 	...Struct.pick(CompilerOptions.schema.fields, PRESERVED_OPTIONS),
 	types: CompilerOptions.schema.fields.types,
-	noEmit: S.Literal(true).pipe($I.annoteKey("PortableCompilerOptions.noEmit", { description: "Portable environments control emission externally." })),
-	composite: S.Literal(false).pipe($I.annoteKey("PortableCompilerOptions.composite", { description: "Portable configs do not orchestrate project-reference builds." })),
+	noEmit: S.tag(true).pipe($I.annoteKey("PortableCompilerOptions.noEmit", { description: "Portable environments control emission externally." })),
+	composite: S.tag(false).pipe($I.annoteKey("PortableCompilerOptions.composite", { description: "Portable configs do not orchestrate project-reference builds." })),
 }).pipe($I.annoteSchema("PortableCompilerOptions", {
 	description: "Only portable compiler options, with optional type packages and required non-emitting, non-composite flags.",
 }));
@@ -212,7 +212,7 @@ const PortableCompilerOptions = S.Struct({
  */
 const PortableTsconfigData = S.Struct({
 	/** The tsconfig JSON Schema URL, stamped for IDE support. */
-	$schema: S.Literal(TSCONFIG_SCHEMA_URL).pipe($I.annoteKey("PortableTsconfigData.$schema", { description: "The tsconfig JSON Schema URL." })),
+	$schema: S.tag(TSCONFIG_SCHEMA_URL).pipe($I.annoteKey("PortableTsconfigData.$schema", { description: "The tsconfig JSON Schema URL." })),
 	/** The allow-listed, forced-flag-applied compiler options. */
 	compilerOptions: PortableCompilerOptions.pipe($I.annoteKey("PortableTsconfigData.compilerOptions", { description: "Allow-listed options with forced portable flags." })),
 }).pipe($I.annoteSchema("PortableTsconfig", {

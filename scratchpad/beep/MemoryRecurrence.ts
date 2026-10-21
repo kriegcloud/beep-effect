@@ -98,7 +98,7 @@ export class RecurrenceEvidenceRef extends Model<RecurrenceEvidenceRef>("Recurre
       pg.columnName("kind"),
     ),
     id: stableId("id"),
-    scope: S.Literal("canonical").annotateKey({ description: "Canonical scope. Device-local evidence is rejected." }).pipe(
+    scope: S.tag("canonical").annotateKey({ description: "Canonical scope. Device-local evidence is rejected." }).pipe(
       pg.text(),
       pg.columnName("scope"),
     ),

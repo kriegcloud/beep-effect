@@ -81,8 +81,8 @@ const isActiveCompletionState = S.is(
 );
 const isResolvableAttemptState = S.is(
   S.Union([
-    S.Struct({ state: S.Literal("ambiguous") }),
-    S.Struct({ state: S.Literal("acknowledged"), dispatch_active: S.Literal(2) }),
+    S.Struct({ state: S.tag("ambiguous") }),
+    S.Struct({ state: S.tag("acknowledged"), dispatch_active: S.tag(2) }),
   ]).pipe(
     $I.annoteSchema("ResolvableAttemptState", {
       description: "Ordinary ambiguity or participant acknowledgement retaining an ambiguous native dispatch hold.",
@@ -90,7 +90,7 @@ const isResolvableAttemptState = S.is(
   )
 );
 const isUsableSendEvidence = S.is(
-  S.Struct({ capability: S.Literal("send"), disposition: S.Literals(["verified", "advertised"]) })
+  S.Struct({ capability: S.tag("send"), disposition: S.Literals(["verified", "advertised"]) })
 );
 const ReceiptRows = S.Array(
   S.Struct({

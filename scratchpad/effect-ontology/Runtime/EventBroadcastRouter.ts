@@ -302,7 +302,7 @@ class PubSubSubscriptionError extends S.TaggedError<PubSubSubscriptionError, { r
   })
 ) {}
 
-const isSubscriptionAlreadyExists = S.is(S.Struct({ code: S.Literal(6) }));
+const isSubscriptionAlreadyExists = S.is(S.Struct({ code: S.tag(6) }));
 
 class PubSubCreateError extends S.TaggedError<PubSubCreateError, { readonly brand: unique symbol }>($I`PubSubCreateError`)("PubSubCreateError", {
   alreadyExists: S.Boolean,
