@@ -169,11 +169,23 @@ const [
   V2CompactionSummaryChunk,
 ] = V2.SessionUpdate.members;
 const [V2RunningState, V2IdleState, V2RequiresActionState] = V2StateUpdate.members;
-const [V1UserMessageChunk, V1AgentMessageChunk, V1AgentThoughtChunk, V1ToolCall, V1ToolCallUpdate, V1Plan] =
-  V1.SessionUpdate.members;
-const V1AvailableCommandsUpdate = V1.SessionUpdate.members[8];
-const V1CurrentModeUpdate = V1.SessionUpdate.members[9];
-const V1ConfigOptionUpdate = V1.SessionUpdate.members[10];
+const [
+  V1UserMessageChunk,
+  V1AgentMessageChunk,
+  V1AgentThoughtChunk,
+  V1ToolCall,
+  V1ToolCallUpdate,
+  V1Plan,
+  V1PlanUpdate,
+  V1PlanRemoved,
+  V1AvailableCommandsUpdate,
+  V1CurrentModeUpdate,
+  V1ConfigOptionUpdate,
+  V1SessionInfoUpdate,
+  V1UsageUpdate,
+  V1CompactionUpdate,
+  V1CompactionSummaryChunk,
+] = V1.SessionUpdate.members;
 
 const isMessageChunk = S.is(
   S.Union([
@@ -191,6 +203,9 @@ const isToolCallUpdate = S.is(S.Union([V2ToolCallUpdate, V1ToolCallUpdate]));
 const isToolCallContentChunk = S.is(V2ToolCallContentChunk);
 const isCompatIdleState = S.is(Compat.IdleStateUpdate);
 const isV2IdleState = S.is(V2IdleState);
+// A kind both generations define is matched against both members: generation 2 tightens some
+// shared fields (`Cost.currency`, `Annotations.priority`), so a valid generation-1 update can fail
+// the generation-2 member.
 const isPassThroughUpdate = S.is(
   S.Union([
     V2RunningState,
@@ -202,8 +217,12 @@ const isPassThroughUpdate = S.is(
     V2SessionInfoUpdate,
     V2UsageUpdate,
     V1Plan,
+    V1PlanUpdate,
+    V1PlanRemoved,
     V1CurrentModeUpdate,
     V1ConfigOptionUpdate,
+    V1SessionInfoUpdate,
+    V1UsageUpdate,
   ])
 );
 const isAvailableCommandsUpdate = S.is(S.Union([V2AvailableCommandsUpdate, V1AvailableCommandsUpdate]));
@@ -215,8 +234,8 @@ const isCompatConfigOptionUpdate = S.is(
     V2ConfigOptionUpdate.records
   )
 );
-const isCompactionUpdate = S.is(V2CompactionUpdate);
-const isCompactionSummaryChunk = S.is(V2CompactionSummaryChunk);
+const isCompactionUpdate = S.is(S.Union([V2CompactionUpdate, V1CompactionUpdate]));
+const isCompactionSummaryChunk = S.is(S.Union([V2CompactionSummaryChunk, V1CompactionSummaryChunk]));
 const isUnknownSessionUpdate = S.is(Compat.UnknownSessionUpdate);
 
 const Generation1OnlySessionUpdateKindBase = LiteralKit(["tool_call", "plan", "current_mode_update"]);
@@ -305,10 +324,12 @@ const isGeneration1OnlySessionUpdateKind = S.is(Generation1OnlySessionUpdateKind
  * **Details**
  *
  * Content blocks and tool-call content are normalized, generation-2 config options are renamed
- * to `id`, and command inputs follow the generation's rules. The generation-1-only kinds
- * (`tool_call`, `plan`, `current_mode_update`) and every kind the client does not know become
- * `UnknownSessionUpdate` on a generation-2 connection. Normalizing an already normalized update
- * returns an equal update.
+ * to `id`, and command inputs follow the generation's rules. A kind both generations define is
+ * kept when either generation's member accepts it, so a valid generation-1 `usage_update` whose
+ * currency code generation 2 would reject keeps its kind. The generation-1-only kinds
+ * (`tool_call`, `plan`, `current_mode_update`) become `UnknownSessionUpdate` on a generation-2
+ * connection, and so does every kind the client does not know. Normalizing an already normalized
+ * update returns an equal update.
  *
  * @since 0.0.0
  */
@@ -372,18 +393,62 @@ export const promptResponseFromIdle = (idle: Compat.IdleStateUpdate): Compat.Pro
   ...O.getSomesStruct({ usage: O.fromUndefinedOr(idle.usage), _meta: O.fromUndefinedOr(idle._meta) }),
 });
 
-const isV1PromptResponse = S.is(V1.PromptResponse);
+const isCompatPromptResponse = S.is(Compat.PromptResponse);
+const isUsage = S.is(V2.Usage);
 
 /**
- * Keeps a generation-1 prompt result. A generation-2 result carries no stop reason, so it becomes
- * `end_turn`.
+ * Projects the result a generation-1 agent returns from `session/prompt` onto the client shape.
+ *
+ * **Details**
+ *
+ * A result the client shape accepts (any stop reason string) is kept. Any other result was
+ * decoded through the open generation-2 acknowledgement member; its stop reason is still kept when
+ * it is a string, a malformed `usage` is dropped, and only a missing or non-string stop reason
+ * becomes `end_turn`.
  *
  * @since 0.0.0
  */
-export const normalizePromptResponse = (response: V1.PromptResponse | V2.PromptResponse): Compat.PromptResponse =>
-  isV1PromptResponse(response)
+export const normalizePromptResponse = (response: Compat.PromptResponse | V2.PromptResponse): Compat.PromptResponse =>
+  isCompatPromptResponse(response)
     ? response
-    : { stopReason: "end_turn", ...O.getSomesStruct({ _meta: O.fromUndefinedOr(response._meta) }) };
+    : {
+        stopReason: O.getOrElse(O.liftPredicate(response.stopReason, P.isString), () => "end_turn"),
+        ...O.getSomesStruct({
+          usage: O.liftPredicate(response.usage, isUsage),
+          _meta: O.fromUndefinedOr(response._meta),
+        }),
+      };
+
+const isUnknownContent = S.is(Compat.UnknownContent);
+const isWireContentBlock = S.is(S.Union([V2.ContentBlock, V1.ContentBlock]));
+
+/**
+ * Projects a content block the caller sends back onto the wire.
+ *
+ * **Details**
+ *
+ * A caller may re-send content the client delivered. An `UnknownContent` becomes the original
+ * block it carries in `raw`, and a known block is kept. `None` when `raw` is not a content block
+ * or is itself an `_acp_unknown` sentinel, so the sentinel never reaches the agent.
+ *
+ * @since 0.0.0
+ */
+export const toWireContentBlock = (content: Compat.ContentBlock): O.Option<V2.ContentBlock | V1.ContentBlock> =>
+  isUnknownContent(content)
+    ? pipe(
+        O.liftPredicate(content.raw, isWireContentBlock),
+        O.filter((block) => block.type !== Compat.ACP_UNKNOWN)
+      )
+    : O.some(content);
+
+/**
+ * Projects a `session/prompt` payload onto the wire (see {@link toWireContentBlock}); `None` when a
+ * prompt block has no wire form.
+ *
+ * @since 0.0.0
+ */
+export const toWirePromptRequest = (request: Compat.PromptRequest): O.Option<V2.PromptRequest> =>
+  O.map(O.all(A.map(request.prompt, toWireContentBlock)), (prompt) => ({ ...request, prompt }));
 
 // --- Initialize ----------------------------------------------------------------------------------
 

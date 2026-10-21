@@ -299,9 +299,12 @@ const CompatCloseSessionRpc = Rpc.make(AGENT_METHODS.session_close, {
   error: AcpSchema.Error,
 });
 
+// A generation-1 prompt result decodes as the compat result (open stop reason) before the open
+// generation-2 acknowledgement member, which accepts any object; the client keeps the stop reason
+// of a result that still falls through to that member.
 const CompatPromptRpc = Rpc.make(AGENT_METHODS.session_prompt, {
   payload: S.Union([AcpSchema.PromptRequest, AcpSchemaV1.PromptRequest, AcpCompat.PromptRequest]),
-  success: S.Union([AcpSchemaV1.PromptResponse, AcpSchema.PromptResponse]),
+  success: S.Union([AcpCompat.PromptResponse, AcpSchema.PromptResponse]),
   error: AcpSchema.Error,
 });
 

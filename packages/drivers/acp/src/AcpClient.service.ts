@@ -183,7 +183,9 @@ type Handler<Request, Response> = AcpProtocol.AcpRequestHandler<Request, Respons
  * On a generation-1 connection `deleteSession` and the provider methods fail locally with
  * `methodNotFound`; on a generation-2 connection `setSessionModel` and `setSessionMode` do.
  * A generation-2 `prompt` resolves when the agent reports the idle `state_update` that ends the
- * turn, and a second prompt on the same session fails while one is running.
+ * turn, and a second prompt on the same session fails while one is running. A prompt block that
+ * is a delivered `UnknownContent` is sent as the original block in its `raw`; one that carries no
+ * content block fails locally with `invalidParams`.
  *
  * **Example** (Read the prompt method)
  *
@@ -405,7 +407,8 @@ const makeClientState = Effect.fnUntraced(function* (mode: AcpClientProtocolGene
     elicitationCompletions: yield* makeNotificationChannel<Compat.CompleteElicitationNotification>(),
     extNotificationHandlers: yield* Ref.make(HashMap.empty<string, ExtNotificationHandler>()),
     extRequestHandlers: yield* Ref.make(HashMap.empty<string, ExtRequestHandler>()),
-    // Before `initialize` answers, a negotiating client takes the generation-2 paths (t3code parity).
+    // Before `initialize` answers, a negotiating client takes the generation-2 paths (upstream
+    // parity, see README "Provenance and design decisions").
     generation: MutableRef.make(initialGeneration(mode)),
     mode,
     prompts: yield* Ref.make(HashMap.empty<string, PromptCompletion>()),
@@ -436,7 +439,7 @@ const finishPrompt = (prompts: PromptRegistry, sessionId: string, completion: Pr
   );
 
 // An idle `state_update` ends the generation-2 turn of its session, whether or not a session-update
-// handler is registered yet. An idle that reports an error still completes the prompt (t3code
+// handler is registered yet. An idle that reports an error still completes the prompt (upstream
 // parity); the error stays visible to session-update handlers.
 const completePrompt = (prompts: PromptRegistry, notification: Compat.SessionNotification) => {
   const update = notification.update;
@@ -824,7 +827,7 @@ const sessionManagementMethods = ({ rpc, state }: AgentMethodContext) =>
   }) satisfies Pick<AcpClientAgent, "listSessions" | "closeSession" | "deleteSession" | "setSessionConfigOption">;
 
 // Generation 1 defines `session/delete` and `providers/*`, but the client fails them locally
-// there (t3code parity, decision O4).
+// there (upstream parity, decision O4).
 const providerMethods = ({ rpc, state }: AgentMethodContext) =>
   ({
     listProviders: (payload) =>
@@ -862,7 +865,7 @@ const legacyModeMethods = ({ rpc, state }: AgentMethodContext) =>
 
 // A generation-2 `session/prompt` result only acknowledges the turn; the idle `state_update`
 // completes it. A generation-1 result is the prompt result itself.
-const promptGeneration2 = ({ rpc, state }: AgentMethodContext, payload: Compat.PromptRequest) =>
+const promptGeneration2 = ({ rpc, state }: AgentMethodContext, payload: V2.PromptRequest) =>
   Effect.flatMap(beginPrompt(state.prompts, payload.sessionId), (completion) =>
     rpc[AGENT_METHODS.session_prompt](payload).pipe(
       callRpc(AGENT_METHODS.session_prompt),
@@ -871,17 +874,28 @@ const promptGeneration2 = ({ rpc, state }: AgentMethodContext, payload: Compat.P
     )
   );
 
+// A re-sent `UnknownContent` block goes out as the original block in its `raw`; one without a wire
+// form fails locally, so the `_acp_unknown` sentinel never reaches the agent.
+const toWirePrompt = (payload: Compat.PromptRequest) =>
+  Effect.fromOption(Normalize.toWirePromptRequest(payload), () =>
+    AcpError.AcpRequestError.invalidParams(
+      "ACP prompt content has an unknown block that carries no original content block."
+    )
+  );
+
 const turnMethods = (context: AgentMethodContext) =>
   ({
     prompt: (payload) =>
-      byGeneration(
-        context.state,
-        () =>
-          context.rpc[AGENT_METHODS.session_prompt](payload).pipe(
-            callRpc(AGENT_METHODS.session_prompt),
-            Effect.map(Normalize.normalizePromptResponse)
-          ),
-        () => promptGeneration2(context, payload)
+      Effect.flatMap(toWirePrompt(payload), (wire) =>
+        byGeneration(
+          context.state,
+          () =>
+            context.rpc[AGENT_METHODS.session_prompt](wire).pipe(
+              callRpc(AGENT_METHODS.session_prompt),
+              Effect.map(Normalize.normalizePromptResponse)
+            ),
+          () => promptGeneration2(context, wire)
+        )
       ),
     cancel: context.transport.notify(AGENT_METHODS.session_cancel),
   }) satisfies Pick<AcpClientAgent, "prompt" | "cancel">;

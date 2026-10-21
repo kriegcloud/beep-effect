@@ -1111,6 +1111,13 @@ export type ForkSessionResponse = typeof ForkSessionResponse.Type;
 /**
  * Payload of `session/prompt`.
  *
+ * **Details**
+ *
+ * `prompt` accepts every content block the client delivers, so a caller can re-send what it
+ * received. The client sends an `UnknownContent` block as the original block in its `raw` and
+ * fails the prompt locally when `raw` holds no content block; the `_acp_unknown` sentinel never
+ * reaches the agent.
+ *
  * **Example** (Check a prompt request)
  *
  * ```ts
@@ -1343,6 +1350,8 @@ const [
 const [V2RunningState, V2IdleState, V2RequiresActionState] = V2StateUpdate.members;
 const [V1UserMessageChunk, V1AgentMessageChunk, V1AgentThoughtChunk, V1ToolCall, , V1Plan] = V1.SessionUpdate.members;
 const V1CurrentModeUpdate = V1.SessionUpdate.members[9];
+// Generation 1 accepts any `Cost.currency`; generation 2 requires `^[A-Z]{3}$`.
+const V1UsageUpdate = V1.SessionUpdate.members[12];
 
 const ContentField = ContentBlock.annotateKey({ description: "Content of this update." });
 const ContentListField = ContentBlock.pipe(S.Array, S.NullOr, S.optionalKey).annotateKey({
@@ -1480,7 +1489,8 @@ export type IdleStateUpdate = typeof IdleStateUpdate.Type;
  * optional), complete messages, tool calls and tool-call content chunks, `running`, `idle` and
  * `requires_action` state updates, terminal, plan, command, config-option, session-info, usage
  * and compaction updates, the generation-1 `plan` and `current_mode_update`, and
- * `UnknownSessionUpdate` for any other kind.
+ * `UnknownSessionUpdate` for any other kind. A usage update may take either generation's shape:
+ * generation 1 accepts any currency code, generation 2 only an upper-case ISO 4217 code.
  *
  * **Example** (Check an agent message chunk)
  *
@@ -1516,6 +1526,7 @@ export const SessionUpdate = S.Union([
   AvailableCommandsUpdate,
   V2SessionInfoUpdate,
   V2UsageUpdate,
+  V1UsageUpdate,
   CompactionUpdate,
   CompactionSummaryChunk,
   S.StructWithRest(
@@ -1664,31 +1675,25 @@ export const RequestPermissionRequest = S.StructWithRest(
 export type RequestPermissionRequest = typeof RequestPermissionRequest.Type;
 
 // --- Re-exports ----------------------------------------------------------------------------------
+// Biome's import organizer merges re-exports from one module into a single statement, and docgen
+// reads only the last JSDoc block of a statement, so each statement carries exactly one block.
 
 /**
  * Generation-2 schemas the client surface uses unchanged.
  *
- * **Example** (Check a stop reason)
+ * **Details**
+ *
+ * The auth, logout and cancel schemas are re-exported under their generation-1 names:
+ * `AuthenticateRequest` and `AuthenticateResponse` are `auth/login`, `LogoutRequest` and
+ * `LogoutResponse` are `auth/logout`, and `CancelNotification` is `session/cancel`.
+ *
+ * **Example** (Check a stop reason and an authenticate request)
  *
  * ```ts
- * import { StopReason } from "@beep/acp/compat"
+ * import { AuthenticateRequest, StopReason } from "@beep/acp/compat"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(StopReason)("end_turn")) // true
- * ```
- *
- * @category schemas
- * @since 0.0.0
- */
-/**
- * Generation-2 auth, logout and cancel schemas under their generation-1 names.
- *
- * **Example** (Check an authenticate request)
- *
- * ```ts
- * import { AuthenticateRequest } from "@beep/acp/compat"
- * import * as S from "effect/Schema"
- *
  * console.log(S.is(AuthenticateRequest)({ methodId: "login" })) // true
  * ```
  *

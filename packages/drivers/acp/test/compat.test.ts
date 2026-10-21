@@ -7,6 +7,8 @@ import * as AcpProtocol from "@beep/acp/protocol";
 import * as V2 from "@beep/acp/schema";
 import * as V1 from "@beep/acp/schema-v1";
 import { fcRuns } from "@beep/test-utils";
+import { A } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
@@ -26,12 +28,16 @@ const decodeCompatLoadSessionRequest = S.decodeUnknownEffect(Compat.LoadSessionR
 const decodeCompatConfigOptionRequest = S.decodeUnknownEffect(Compat.SetSessionConfigOptionRequest);
 const decodeCompatNewSessionResponse = S.decodeUnknownEffect(Compat.NewSessionResponse);
 const decodeV2NewSessionResponse = S.decodeUnknownEffect(V2.NewSessionResponse);
+// The client's prompt success union (`AcpRpc.models.ts`).
+const decodePromptResult = S.decodeUnknownEffect(S.Union([Compat.PromptResponse, V2.PromptResponse]));
 
 const isCompatSessionNotification = S.is(Compat.SessionNotification);
 const isCompatInitializeResponse = S.is(Compat.InitializeResponse);
+const isCompatPromptResponse = S.is(Compat.PromptResponse);
 const isCompatPermissionRequest = S.is(Compat.RequestPermissionRequest);
 const isV2McpServer = S.is(V2.McpServer);
 const isV2InitializeRequest = S.is(V2.InitializeRequest);
+const isGeneration1OnlyKind = S.is(S.Literals(["tool_call", "plan", "current_mode_update"]));
 
 const permissionContext = AcpProtocol.AcpRequestContext.make({
   method: "session/request_permission",
@@ -92,6 +98,38 @@ describe("compat session updates", () => {
         originalSessionUpdate: "plan",
         raw: plan.update,
       });
+    })
+  );
+
+  // Generation 2 tightens fields the kinds share (`Cost.currency` must match `^[A-Z]{3}$`,
+  // `Annotations.priority` must lie in [0, 1]), so these updates decode only as generation 1.
+  it.effect("keeps shared kinds that only the generation-1 member accepts, on either generation", () =>
+    Effect.gen(function* () {
+      const lowerCaseCurrency = {
+        sessionUpdate: "usage_update",
+        used: 53000,
+        size: 200000,
+        cost: { amount: 0.045, currency: "usd" },
+      } as const;
+      const highPriority = { type: "text", text: "Summary", annotations: { priority: 5 } } as const;
+      const summaryChunk = {
+        sessionUpdate: "compaction_summary_chunk",
+        compactionId: "c1",
+        content: highPriority,
+      } as const;
+      const compaction = {
+        sessionUpdate: "compaction_update",
+        compactionId: "c1",
+        status: "completed",
+        summary: [highPriority],
+      } as const;
+      for (const update of [lowerCaseCurrency, summaryChunk, compaction]) {
+        for (const generation of [1, 2] as const) {
+          const normalized = yield* normalizeWireUpdate(generation, { sessionId: "session-1", update });
+          assert.deepStrictEqual(normalized, update);
+          assert.isTrue(isCompatSessionNotification({ sessionId: "session-1", update: normalized }));
+        }
+      }
     })
   );
 
@@ -261,6 +299,30 @@ describe("compat session updates", () => {
       assert.deepStrictEqual(Normalize.normalizePromptResponse({}), { stopReason: "end_turn" });
     })
   );
+
+  // A generation-1 result outside the closed v1.21 schema decodes through the open generation-2
+  // member; its stop reason must survive, and only the malformed usage is dropped.
+  it.effect("keeps the stop reason of an off-schema generation-1 prompt result", () =>
+    Effect.gen(function* () {
+      const partialUsage = { inputTokens: 10, outputTokens: 5 };
+      const usage = { totalTokens: 15, inputTokens: 10, outputTokens: 5 };
+      const cases = [
+        [{ stopReason: "cancelled", usage: partialUsage }, { stopReason: "cancelled" }],
+        [
+          { stopReason: "refusal", usage: partialUsage, _meta: { trace: "t" } },
+          { stopReason: "refusal", _meta: { trace: "t" } },
+        ],
+        [
+          { stopReason: "_vendor_rate_limited", usage },
+          { stopReason: "_vendor_rate_limited", usage },
+        ],
+        [{ stopReason: 7 }, { stopReason: "end_turn" }],
+      ] as const;
+      for (const [wire, expected] of cases) {
+        assert.deepStrictEqual(Normalize.normalizePromptResponse(yield* decodePromptResult(wire)), expected);
+      }
+    })
+  );
 });
 
 describe("compat initialize", () => {
@@ -420,6 +482,42 @@ describe("compat session setup", () => {
   );
 });
 
+describe("compat prompt requests", () => {
+  it.effect("sends a delivered unknown content block as the original block it carries", () =>
+    Effect.gen(function* () {
+      const chart = { type: "chart", points: [] };
+      const text = { type: "text", text: "hi" } as const;
+      const resent = Compat.UnknownContent.make({ type: Compat.ACP_UNKNOWN, originalType: "chart", raw: chart });
+      assert.deepStrictEqual(
+        Normalize.toWirePromptRequest({ sessionId: "session-1", prompt: [text, resent], _meta: { trace: "t" } }),
+        O.some({ sessionId: "session-1", prompt: [text, chart], _meta: { trace: "t" } })
+      );
+
+      // A sentinel whose `raw` is no content block (or is itself a sentinel) has no wire form.
+      for (const raw of [5, { points: [] }, { type: Compat.ACP_UNKNOWN, originalType: "chart", raw: chart }]) {
+        const opaque = Compat.UnknownContent.make({ type: Compat.ACP_UNKNOWN, originalType: "chart", raw });
+        assertNone(Normalize.toWirePromptRequest({ sessionId: "session-1", prompt: [text, opaque] }));
+      }
+    })
+  );
+
+  it.prop(
+    "never puts the unknown sentinel on the wire",
+    [Arbitrary.schema(Compat.PromptRequest)],
+    ([request]) => {
+      const wire = Normalize.toWirePromptRequest(request);
+      assert.isTrue(
+        O.match(wire, {
+          onNone: () => A.some(request.prompt, (block) => block.type === Compat.ACP_UNKNOWN),
+          onSome: ({ prompt }) =>
+            prompt.length === request.prompt.length && !A.some(prompt, (block) => block.type === Compat.ACP_UNKNOWN),
+        })
+      );
+    },
+    { arbitrary: fcRuns(50) }
+  );
+});
+
 describe("compat peer requests", () => {
   it.effect("always delivers a tool call with a permission request", () =>
     Effect.gen(function* () {
@@ -502,6 +600,32 @@ describe("compat projections (properties)", () => {
       const normalized = Normalize.normalizeSessionNotification(notification, generation);
       assert.isTrue(isCompatSessionNotification(normalized));
       assert.deepStrictEqual(Normalize.normalizeSessionNotification(normalized, generation), normalized);
+    },
+    { arbitrary: fcRuns(50) }
+  );
+
+  // A valid generation-1 update keeps its kind; only the generation-1-only kinds become
+  // `_acp_unknown`, and only on a generation-2 connection.
+  it.prop(
+    "keeps the kind of every generation-1 update",
+    [Arbitrary.schema(V1.SessionNotification), Arbitrary.schema(Normalize.ProtocolGeneration)],
+    ([notification, generation]) => {
+      const kind = notification.update.sessionUpdate;
+      assert.strictEqual(
+        Normalize.normalizeSessionNotification(notification, generation).update.sessionUpdate,
+        generation === 2 && isGeneration1OnlyKind(kind) ? Compat.ACP_UNKNOWN : kind
+      );
+    },
+    { arbitrary: fcRuns(200) }
+  );
+
+  // Every v1.21 prompt result is already a compat result, so the client returns it unchanged.
+  it.prop(
+    "returns every generation-1 prompt result unchanged",
+    [Arbitrary.schema(V1.PromptResponse)],
+    ([response]) => {
+      assert.isTrue(isCompatPromptResponse(response));
+      assert.deepStrictEqual(Normalize.normalizePromptResponse(response), response);
     },
     { arbitrary: fcRuns(50) }
   );

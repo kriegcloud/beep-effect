@@ -463,6 +463,59 @@ it.effect(
   })
 );
 
+// The closed v1.21 result rejects a partial usage and a custom stop reason; the open generation-2
+// acknowledgement member must not swallow such a result and report `end_turn`.
+it.effect(
+  "keeps the stop reason of a generation-1 prompt result outside the v1.21 schema",
+  Effect.fnUntraced(function* () {
+    const { stdio, input, output } = yield* makeInMemoryStdio();
+    const acp = yield* AcpClient.make(stdio, { protocolGeneration: "v1" });
+    const prompt = { sessionId: "session-1", prompt: [{ type: "text" as const, text: "hello" }] };
+    const usage = { totalTokens: 3, inputTokens: 1, outputTokens: 2 };
+
+    const cancelled = yield* exchange(input, output, acp.agent.prompt(prompt), {
+      stopReason: "cancelled",
+      usage: { inputTokens: 1, outputTokens: 2 },
+    });
+    assert.deepEqual(cancelled.answer, { stopReason: "cancelled" });
+    const custom = yield* exchange(input, output, acp.agent.prompt(prompt), { stopReason: "_vendor_limited", usage });
+    assert.deepEqual(custom.answer, { stopReason: "_vendor_limited", usage });
+    const missing = yield* exchange(input, output, acp.agent.prompt(prompt), {});
+    assert.deepEqual(missing.answer, { stopReason: "end_turn" });
+  })
+);
+
+// A caller may re-send content the client delivered; the agent gets the original block, never the
+// sentinel, on either generation's prompt path.
+A.forEach(["v1", "v2"] as const, (protocolGeneration) =>
+  it.effect(
+    `sends a re-sent unknown content block as the original block on ${protocolGeneration}`,
+    Effect.fnUntraced(function* () {
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const acp = yield* AcpClient.make(stdio, { protocolGeneration });
+      const chart = { type: "chart", points: [] };
+      const text = { type: "text", text: "hi" } as const;
+      const resent = Compat.UnknownContent.make({ type: Compat.ACP_UNKNOWN, originalType: "chart", raw: chart });
+
+      const promptFiber = yield* Effect.forkScoped(
+        acp.agent.prompt({ sessionId: "session-1", prompt: [text, resent] })
+      );
+      const outbound = yield* takeRequest(output);
+      assert.deepEqual(outbound.params, { sessionId: "session-1", prompt: [text, chart] });
+      yield* protocolGeneration === "v1"
+        ? send(input, result(outbound.id, { stopReason: "end_turn" }))
+        : sendAll(input, [result(outbound.id, {}), idle("session-1")]);
+      assert.deepEqual(yield* Fiber.join(promptFiber), { stopReason: "end_turn" });
+
+      // A sentinel without an original content block fails locally instead of reaching the agent.
+      const opaque = Compat.UnknownContent.make({ type: Compat.ACP_UNKNOWN, originalType: "chart", raw: 5 });
+      const rejected = yield* expectFailure(acp.agent.prompt({ sessionId: "session-1", prompt: [opaque] }));
+      assert.equal(AcpError.AcpRequestError.is(rejected) ? rejected.code : 0, -32602);
+      assert.equal(yield* Queue.size(output), 0);
+    })
+  )
+);
+
 it.effect(
   "fails a pending generation-2 prompt and later calls with the terminal error",
   Effect.fnUntraced(function* () {
