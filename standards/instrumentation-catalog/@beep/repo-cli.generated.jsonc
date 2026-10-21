@@ -2722,6 +2722,8 @@
     {"name":"Resume.transcriptFallback","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"RetiredEffectPaths.listTrackedRegularFiles","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"RetiredEffectPaths.runRetiredEffectPaths","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"RetiredIriAuthorities.listTrackedRegularFiles","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"RetiredIriAuthorities.runRetiredIriAuthorities","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Reviewer.activeCheck","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Reviewer.cancel","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Reviewer.complete","owner":"@beep/repo-cli","family":"tooling","conforms":true},
