@@ -29,6 +29,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { vi } from "vitest";
@@ -109,7 +110,7 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
           name: entry.packageName,
           version: "0.0.0",
           scripts: {
-            coverage: `${Str.replaceAll("--bun ", "")(script)} --coverage`,
+            coverage: `${Str.replaceAll("--bun ", "")(Str.split(script, " && ")[0] ?? "")} --coverage`,
             "beep:test": script,
             "test:lambda": "bun --version",
             ...(hasTest === true ? { test: "bun run beep:test" } : {}),
@@ -117,14 +118,30 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
         })
       );
     }
-    mocks.discover.mockImplementation(({ cwd, command }: { readonly cwd: string; readonly command: string }) =>
-      command !== "bunx"
-        ? Effect.succeed({ output: command === "bun" ? "1.4.3" : "22.22.3", exitCode: 0, truncated: false })
-        : encode([
-            { file: path.join(cwd, "test/b.test.ts") },
-            { file: path.join(cwd, "test/a.test.ts") },
-            { file: path.join(cwd, "test/a.test.ts") },
-          ]).pipe(Effect.map((output) => ({ output, exitCode: 0, truncated: false })))
+    mocks.discover.mockImplementation(
+      ({
+        cwd,
+        command,
+        args,
+      }: {
+        readonly cwd: string;
+        readonly command: string;
+        readonly args: ReadonlyArray<string>;
+      }) =>
+        command !== "bunx"
+          ? Effect.succeed({ output: command === "bun" ? "1.4.3" : "22.22.3", exitCode: 0, truncated: false })
+          : encode(
+              A.some(args, (arg) => /^test\/[^*]+\.test\.ts$/u.test(arg))
+                ? A.map(
+                    A.filter(args, (arg) => /^test\/[^*]+\.test\.ts$/u.test(arg)),
+                    (file) => ({ file: path.join(cwd, file) })
+                  )
+                : [
+                    { file: path.join(cwd, "test/b.test.ts") },
+                    { file: path.join(cwd, "test/a.test.ts") },
+                    { file: path.join(cwd, "test/a.test.ts") },
+                  ]
+            ).pipe(Effect.map((output) => ({ output, exitCode: 0, truncated: false })))
     );
     mocks.plan.mockReturnValue(Effect.succeed(plan(entries)));
     return { fs, path, root };
@@ -251,10 +268,13 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
       const check = QualityTaskStep.make({ label: "checks", command: "bunx", args: ["check", "lint"], cwd: root });
       yield* runCiLabsCoverage(root, options(), [check]);
       expect(mocks.run).toHaveBeenNthCalledWith(1, "ci:labs:checks", [check]);
-      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:labs:test", [
+      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:coverage:compound-prerequisites", [
         expect.objectContaining({
-          args: expect.arrayContaining(["@beep/ciops#test", "--only", "--force", "--coverage"]),
+          args: expect.arrayContaining(["build", "--filter=@beep/ciops^..."]),
         }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(3, "ci:test:@beep/ciops:0", [
+        expect.objectContaining({ args: expect.arrayContaining(["vitest", "run", "--coverage.provider=v8"]) }),
       ]);
       expect(mocks.write).toHaveBeenCalledWith(
         root,
@@ -417,7 +437,11 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
         yield* encode({
           name: entry.packageName,
           version: "0.0.0",
-          scripts: { test: "bun run beep:test", "beep:test": "bunx --bun vitest run && bun run test:lambda" },
+          scripts: {
+            coverage: "bunx vitest run --coverage",
+            test: "bun run beep:test",
+            "beep:test": "bunx --bun vitest run && bun run test:lambda",
+          },
         })
       );
       const error = yield* Effect.flip(runCiCoverageComparison(root, options()));
@@ -463,10 +487,19 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
           name: entry.packageName,
           scripts: {
             coverage: "bun run beep:coverage",
+            "beep:coverage": "bun run --cwd node_modules/@pulumi/gharunners build && bunx vitest run --coverage",
             test: "bun run beep:test",
             "beep:test": "bunx --bun vitest run --passWithNoTests && bun run test:lambda",
             "test:lambda": `bun -e 'require("node:fs").appendFileSync("lambda.log", "called\\n")'`,
           },
+        })
+      );
+      const preparationRoot = path.join(root, "infra/node_modules/@pulumi/gharunners");
+      yield* fs.makeDirectory(preparationRoot, { recursive: true });
+      yield* fs.writeFileString(
+        path.join(preparationRoot, "package.json"),
+        yield* encode({
+          scripts: { build: `bun -e 'require("node:fs").appendFileSync("preparation.log", "called\\n")'` },
         })
       );
       mocks.run.mockImplementation((_label: string, steps: ReadonlyArray<QualityTaskStep>) =>
@@ -500,19 +533,30 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
       });
       yield* runCiCoveragePartition(root, options(), plan([entry]), proof, step);
       expect(yield* fs.readFileString(path.join(root, "infra/lambda.log"))).toBe("called\n");
-      expect(mocks.run).toHaveBeenCalledTimes(3);
-      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:test:@beep/infra:0", [
+      expect(yield* fs.readFileString(path.join(preparationRoot, "preparation.log"))).toBe("called\n");
+      expect(mocks.run).toHaveBeenCalledTimes(4);
+      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:test:@beep/infra:0:prepare", [
+        expect.objectContaining({ command: "bun", args: ["run", "--cwd", "node_modules/@pulumi/gharunners", "build"] }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(3, "ci:test:@beep/infra:0", [
         expect.objectContaining({
           command: "bunx",
-          args: expect.arrayContaining(["--bun", "vitest", "run", "--coverage"]),
+          args: expect.arrayContaining(["vitest", "run", "--coverage", "--coverage.provider=v8"]),
         }),
       ]);
-      expect(mocks.run).toHaveBeenNthCalledWith(3, "ci:test:@beep/infra:0:test:lambda", [
+      expect(mocks.run).toHaveBeenNthCalledWith(4, "ci:test:@beep/infra:0:test:lambda", [
         expect.objectContaining({ command: "bun", args: ["run", "test:lambda"] }),
       ]);
       expect(mocks.write).toHaveBeenCalledWith(
         root,
-        expect.objectContaining({ packages: [expect.objectContaining({ continuationScripts: ["test:lambda"] })] })
+        expect.objectContaining({
+          packages: [
+            expect.objectContaining({
+              preparationCommands: [["bun", "run", "--cwd", "node_modules/@pulumi/gharunners", "build"]],
+              continuationScripts: ["test:lambda"],
+            }),
+          ],
+        })
       );
     })
   );
@@ -527,6 +571,7 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
           name: entry.packageName,
           scripts: {
             coverage: "bun run beep:coverage",
+            "beep:coverage": "bunx vitest run --coverage",
             test: "bun run beep:test",
             "beep:test": "bunx --bun vitest run && bun run test:lambda",
             "test:lambda": "bun -e 'process.exit(7)'",
@@ -631,6 +676,328 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
     })
   );
 
+  it.effect(
+    "discovers the real legacy integration/config census and adds only disjoint Unit files",
+    () =>
+      Effect.gen(function* () {
+        const entry = owner("@beep/mcpb-kit", "packages/tool");
+        const { root, fs, path } = yield* fixture([entry]);
+        const directory = path.join(root, entry.packagePath);
+        yield* fs.makeDirectory(path.join(directory, "test/integration"), { recursive: true });
+        for (const file of ["test/shared.test.ts", "test/unit-only.test.ts", "test/integration/repo.test.ts"])
+          yield* fs.writeFileString(
+            path.join(directory, file),
+            'throw new Error("discovery must never execute tests");'
+          );
+        yield* fs.writeFileString(
+          path.join(directory, "vitest.config.ts"),
+          'export default { test: { include: ["test/**/*.test.ts"], exclude: ["test/integration/**"] } };'
+        );
+        yield* fs.writeFileString(
+          path.join(directory, "vitest.coverage.config.ts"),
+          'export default { test: { include: ["test/shared.test.ts", "test/integration/*.test.ts"] } };'
+        );
+        yield* fs.writeFileString(
+          path.join(directory, "package.json"),
+          yield* encode({
+            name: entry.packageName,
+            scripts: {
+              test: "bun run beep:test",
+              "beep:test": "MODE=unit bunx --bun vitest run --exclude=test/integration/** && bun run test:lambda",
+              "test:lambda": "bun --version",
+              coverage: "bunx vitest run --config vitest.coverage.config.ts --coverage",
+            },
+          })
+        );
+        const vitest = path.resolve(import.meta.dirname, "../../../../../node_modules/vitest/vitest.mjs");
+        mocks.discover.mockImplementation((input: Parameters<typeof nativeRunCaptured>[0]) =>
+          input.command === "bunx"
+            ? nativeRunCaptured({
+                ...input,
+                command: input.args?.[0] === "--bun" ? "bun" : "node",
+                args: [vitest, ...A.drop(input.args ?? [], input.args?.[0] === "--bun" ? 2 : 1)],
+              })
+            : nativeRunCaptured(input)
+        );
+        yield* runCiCoverageComparison(root, options());
+        const compared = mocks.compare.mock.calls[0]?.[1];
+        assertDefined(compared);
+        const selected = A.flatMap(compared.expectedPartitions, (partition) => partition.packages);
+        expect(A.map(selected, (invocation) => invocation.expectedTestFiles)).toEqual([
+          ["packages/tool/test/integration/repo.test.ts", "packages/tool/test/shared.test.ts"],
+          ["packages/tool/test/unit-only.test.ts"],
+        ]);
+        expect(
+          A.every(selected, (invocation) => invocation.testRuntime === "node" && invocation.provider === "v8")
+        ).toBe(true);
+        expect(selected[0]?.testCommand).toContain("vitest.coverage.config.ts");
+        expect(selected[1]?.testEnvironment).toEqual({ MODE: "unit" });
+        expect(selected[1]?.testCommand).toContain("--exclude=test/shared.test.ts");
+        expect(A.map(selected, (invocation) => invocation.continuationScripts)).toEqual([[], ["test:lambda"]]);
+        expect(mocks.run).not.toHaveBeenCalled();
+        expect(mocks.write).not.toHaveBeenCalled();
+      }),
+    { timeout: 30_000 }
+  );
+
+  for (const [name, scripts] of R.toEntries({
+    cycle: { coverage: "bun run first", first: "bun run coverage", expectedMessage: "Cyclic coverage script" },
+    missing: { coverage: "bun run missing", expectedMessage: "canonical Vitest test script" },
+    escaping: {
+      coverage: "bun run --cwd node_modules/../outside build && bunx vitest run --coverage",
+      expectedMessage: "Invalid preparation command",
+    },
+    shell: {
+      coverage: "bun run --cwd node_modules/helper build; echo bypass && bunx vitest run --coverage",
+      expectedMessage: "canonical Vitest test script",
+    },
+  })) {
+    it.effect(`rejects ${name} coverage aliases or preparation before discovery`, () =>
+      Effect.gen(function* () {
+        const { expectedMessage, ...scriptFields } = scripts;
+        const entry = owner("@beep/mcpb-kit", "packages/tool");
+        const { root, fs, path } = yield* fixture([entry]);
+        yield* fs.writeFileString(
+          path.join(root, entry.packagePath, "package.json"),
+          yield* encode({
+            name: entry.packageName,
+            scripts: { test: "bun run beep:test", "beep:test": "bunx --bun vitest run", ...scriptFields },
+          })
+        );
+        const error = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+        expect(error._tag).toBe("CiCommandError");
+        expect(error.message).toContain(expectedMessage);
+        expect(mocks.discover).not.toHaveBeenCalled();
+        expect(mocks.run).not.toHaveBeenCalled();
+        expect(mocks.compare).not.toHaveBeenCalled();
+      })
+    );
+  }
+
+  for (const scenario of [
+    {
+      name: "mixed provider runtimes",
+      coverage: "bunx --bun vitest run --coverage && bunx vitest run --coverage",
+      message: "Mixed canonical coverage runtimes",
+    },
+    {
+      name: "overlapping coverage invocations",
+      coverage: "bunx vitest run --coverage && bunx vitest run --coverage",
+      message: "Overlapping canonical coverage invocations",
+    },
+  ]) {
+    it.effect(`rejects ${scenario.name} instead of merging incompatible or duplicate execution`, () =>
+      Effect.gen(function* () {
+        const entry = owner("@beep/mcpb-kit", "packages/tool");
+        const { root, fs, path } = yield* fixture([entry]);
+        yield* fs.writeFileString(
+          path.join(root, entry.packagePath, "package.json"),
+          yield* encode({
+            name: entry.packageName,
+            scripts: { test: "bun run beep:test", "beep:test": "bunx --bun vitest run", coverage: scenario.coverage },
+          })
+        );
+        const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+        expect(failure.message).toContain(scenario.message);
+        expect(mocks.run).not.toHaveBeenCalled();
+        expect(mocks.compare).not.toHaveBeenCalled();
+      })
+    );
+  }
+
+  it.effect("rejects a Unit-only rediscovery that still overlaps legacy tests", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/mcpb-kit", "packages/tool");
+      const { root, path } = yield* fixture([entry]);
+      mocks.discover.mockImplementation(({ cwd, args }: Parameters<typeof nativeRunCaptured>[0]) =>
+        encode(
+          A.map(A.contains(args ?? [], "--coverage") ? ["a"] : ["a", "b"], (name) => ({
+            file: path.join(cwd ?? root, `test/${name}.test.ts`),
+          }))
+        ).pipe(Effect.map((output) => ({ output, exitCode: 0, truncated: false })))
+      );
+      const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+      expect(failure.message).toContain("Disjoint unit coverage census differs");
+      expect(mocks.run).not.toHaveBeenCalled();
+      expect(mocks.compare).not.toHaveBeenCalled();
+    })
+  );
+
+  it.effect("retains an explicitly Bun canonical provider for disjoint Unit additions", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/mcpb-kit", "packages/tool");
+      const { root, fs, path } = yield* fixture([entry], "bunx --bun vitest run test/b.test.ts");
+      yield* fs.writeFileString(
+        path.join(root, entry.packagePath, "package.json"),
+        yield* encode({
+          name: entry.packageName,
+          scripts: {
+            test: "bun run beep:test",
+            "beep:test": "bunx --bun vitest run test/b.test.ts",
+            coverage: "bunx --bun vitest run test/a.test.ts --coverage",
+          },
+        })
+      );
+      yield* runCiCoverageComparison(root, options());
+      const compared = mocks.compare.mock.calls[0]?.[1];
+      assertDefined(compared);
+      const selected = A.flatMap(compared.expectedPartitions, (partition) => partition.packages);
+      expect(A.map(selected, (invocation) => invocation.expectedTestFiles)).toEqual([
+        ["packages/tool/test/a.test.ts"],
+        ["packages/tool/test/b.test.ts"],
+      ]);
+      expect(
+        A.every(selected, (invocation) => invocation.testRuntime === "bun" && invocation.provider === "istanbul")
+      ).toBe(true);
+    })
+  );
+
+  it.effect("executes a single Bun coverage invocation with its attested config and environment", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/mcpb-kit", "packages/tool");
+      const { root, fs, path } = yield* fixture([entry]);
+      yield* fs.writeFileString(
+        path.join(root, entry.packagePath, "package.json"),
+        yield* encode({
+          name: entry.packageName,
+          scripts: {
+            test: "bun run beep:test",
+            "beep:test": "MODE=unit bunx --bun vitest run",
+            coverage: "MODE=coverage bunx --bun vitest run --config coverage.config.ts --coverage",
+          },
+        })
+      );
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-b",
+        selectedTaskCount: 1,
+        partitionTaskCount: 1,
+        packages: [entry.packageName],
+      });
+      const step = QualityTaskStep.make({
+        label: "unit",
+        command: "bunx",
+        cwd: root,
+        args: ["turbo", "run", `${entry.packageName}#test`, `--filter=${entry.packageName}`],
+      });
+      yield* runCiCoveragePartition(root, options(), plan([entry]), proof, step);
+      expect(A.map(mocks.run.mock.calls, ([label]) => label)).toEqual([
+        "ci:coverage:compound-prerequisites",
+        "ci:test:@beep/mcpb-kit:0",
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:test:@beep/mcpb-kit:0", [
+        expect.objectContaining({
+          command: "bunx",
+          args: expect.arrayContaining([
+            "--bun",
+            "vitest",
+            "run",
+            "--config",
+            "coverage.config.ts",
+            "--coverage.provider=istanbul",
+          ]),
+          env: expect.objectContaining({ MODE: "coverage", BEEP_COVERAGE_INVOCATION_ID: "0" }),
+        }),
+      ]);
+      expect(mocks.write).toHaveBeenCalledWith(
+        root,
+        expect.objectContaining({
+          packages: [
+            expect.objectContaining({
+              testEnvironment: { MODE: "coverage" },
+              testRuntime: "bun",
+              provider: "istanbul",
+              testCommand: ["bunx", "--bun", "vitest", "run", "--config", "coverage.config.ts", "--coverage"],
+            }),
+          ],
+        })
+      );
+    })
+  );
+
+  it.effect("stops before Vitest and sealing when a canonical preparation fails", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/infra", "infra");
+      const { root, fs, path } = yield* fixture([entry]);
+      yield* fs.writeFileString(
+        path.join(root, entry.packagePath, "package.json"),
+        yield* encode({
+          name: entry.packageName,
+          scripts: {
+            test: "bun run beep:test",
+            "beep:test": "bunx --bun vitest run",
+            coverage: "bun run --cwd node_modules/helper build && bunx vitest run --coverage",
+          },
+        })
+      );
+      mocks.run.mockImplementation((label: string) =>
+        Str.endsWith(":prepare")(label)
+          ? Effect.fail(CiCommandError.make({ message: "Preparation failed" }))
+          : Effect.void
+      );
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-b",
+        selectedTaskCount: 1,
+        partitionTaskCount: 1,
+        packages: [entry.packageName],
+      });
+      const failure = yield* runCiCoveragePartition(root, options(), plan([entry]), proof, undefined).pipe(Effect.flip);
+      expect(failure.message).toBe("Preparation failed");
+      expect(mocks.run).toHaveBeenCalledTimes(2);
+      expect(mocks.write).not.toHaveBeenCalled();
+    })
+  );
+
+  for (const scenario of [
+    {
+      name: "preparation",
+      coverage: "bun run --cwd node_modules/helper build && bunx --bun vitest run --coverage",
+      unit: "bunx --bun vitest run",
+      labels: ["ci:coverage:compound-prerequisites", "ci:test:@beep/infra:0:prepare", "ci:test:@beep/infra:0"],
+    },
+    {
+      name: "continuation",
+      coverage: "bunx --bun vitest run --coverage",
+      unit: "bunx --bun vitest run && bun run test:lambda",
+      labels: ["ci:coverage:compound-prerequisites", "ci:test:@beep/infra:0", "ci:test:@beep/infra:0:test:lambda"],
+    },
+  ]) {
+    it.effect(`preserves an explicit Bun coverage ${scenario.name} instead of routing it through ordinary Unit`, () =>
+      Effect.gen(function* () {
+        const entry = owner("@beep/infra", "infra");
+        const { root, fs, path } = yield* fixture([entry], scenario.unit);
+        yield* fs.writeFileString(
+          path.join(root, "infra/package.json"),
+          yield* encode({
+            name: entry.packageName,
+            scripts: {
+              test: "bun run beep:test",
+              "beep:test": scenario.unit,
+              coverage: scenario.coverage,
+              "test:lambda": "bun --version",
+            },
+          })
+        );
+        const proof = CiLanePartitionProof.make({
+          laneId: "test-unit",
+          partition: "unit-b",
+          selectedTaskCount: 1,
+          partitionTaskCount: 1,
+          packages: [entry.packageName],
+        });
+        yield* runCiCoveragePartition(root, options(), plan([entry]), proof, undefined);
+        expect(A.map(mocks.run.mock.calls, ([label]) => label)).toEqual(scenario.labels);
+        expect(mocks.write).toHaveBeenCalledWith(
+          root,
+          expect.objectContaining({
+            packages: [expect.objectContaining({ testRuntime: "bun", provider: "istanbul" })],
+          })
+        );
+      })
+    );
+  }
+
   it.effect("runs compound commands once after dependency builds with isolated reports and runtime declarations", () =>
     Effect.gen(function* () {
       const entry = owner("@beep/repo-utils", "packages/tool");
@@ -679,9 +1046,9 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
       expect(mocks.run).toHaveBeenNthCalledWith(3, `ci:test:${entry.packageName}:0`, [
         expect.objectContaining({
           args: expect.arrayContaining([
-            "--bun",
             "vitest",
             "run",
+            "--coverage.provider=v8",
             "--exclude=test/TsNativeApi.test.ts",
             "--coverage.reportsDirectory=coverage/invocation-0",
             "--outputFile=coverage/invocation-0/unit-results.json",
@@ -717,8 +1084,9 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
           packages: [
             expect.objectContaining({
               invocationId: "0",
-              testRuntime: "bun",
-              testRuntimeVersion: "1.4.3",
+              testRuntime: "node",
+              provider: "v8",
+              testRuntimeVersion: "22.22.3",
               testEnvironment: { TESTCONTAINERS_RYUK_DISABLED: "true" },
             }),
             expect.objectContaining({
@@ -773,7 +1141,9 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
       yield* runCiCoverageComparison(root, options());
       expect(mocks.discover).toHaveBeenNthCalledWith(
         1,
-        expect.objectContaining({ args: ["vitest", "list", "--filesOnly", "test/TsNativeApi.test.ts", "--json"] })
+        expect.objectContaining({
+          args: ["vitest", "list", "--filesOnly", "test/TsNativeApi.test.ts", "--coverage", "--json"],
+        })
       );
       expect(mocks.run).not.toHaveBeenCalled();
     })
@@ -881,14 +1251,12 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
     },
   ];
   for (const variant of scriptVariants) {
-    it.effect(`discovers ${variant.name} without changing runtime or evaluating a shell`, () =>
+    it.effect(`discovers ${variant.name} unit census while preserving canonical coverage runtime without a shell`, () =>
       Effect.gen(function* () {
         const { root } = yield* fixture([owner("@beep/mcpb-kit", "packages/tool")], variant.script);
         yield* runCiCoverageComparison(root, options());
-        expect(mocks.discover).toHaveBeenCalledTimes(variant.runtimes.length * 2);
-        for (const { index, bun } of A.map(variant.runtimes, (bun, index) => ({ bun, index }))) {
-          expect(mocks.discover).toHaveBeenNthCalledWith(
-            index * 2 + 1,
+        for (const bun of variant.runtimes) {
+          expect(mocks.discover).toHaveBeenCalledWith(
             expect.objectContaining({
               command: "bunx",
               args: expect.arrayContaining(
@@ -898,20 +1266,12 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
               extendEnv: true,
             })
           );
-          expect(mocks.discover).toHaveBeenNthCalledWith(
-            index * 2 + 1,
-            expect.objectContaining({
-              args: expect.not.arrayContaining(["run", "&&"]),
-            })
-          );
-          if (bun === false)
-            expect(mocks.discover).toHaveBeenNthCalledWith(
-              index * 2 + 1,
-              expect.objectContaining({
-                args: expect.not.arrayContaining(["--bun"]),
-              })
-            );
         }
+        const compared = mocks.compare.mock.calls[0]?.[1];
+        assertDefined(compared);
+        const selected = A.flatMap(compared.expectedPartitions, (partition) => partition.packages);
+        expect(selected.length).toBeGreaterThan(0);
+        expect(A.every(selected, (entry) => entry.testRuntime === "node" && entry.provider === "v8")).toBe(true);
         expect(mocks.run).not.toHaveBeenCalled();
       })
     );

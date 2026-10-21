@@ -71,6 +71,15 @@ export class CoverageProducerPackage extends S.Opaque<CoverageProducerPackage, {
     runtimeReportPath: RelativePath.pipe(S.withConstructorDefault(Effect.succeed("coverage/runtime.json"))),
     testCommand: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
     continuationScripts: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
+    preparationCommands: S.Array(
+      S.Tuple([
+        S.Literal("bun"),
+        S.Literal("run"),
+        S.Literal("--cwd"),
+        RelativePath,
+        S.String.check(S.isPattern(/^[A-Za-z0-9_@][A-Za-z0-9_:@./-]*$/u)),
+      ])
+    ).pipe(S.withConstructorDefault(Effect.succeed([])), S.withDecodingDefaultTypeKey(Effect.succeed([]))),
     testEnvironment: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed<Readonly<Record<string, string>>>({}))
     ),

@@ -30,6 +30,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
 import { parse } from "vite";
 import { hostNodeExecutable } from "./helpers/native-node.ts";
 
@@ -1078,6 +1079,18 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
     );
   });
   describe("manifest and raw counter validation", () => {
+    it.effect("decodes an older sealed manifest with no preparation commands as an empty preparation", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        const manifest = yield* decodeManifest(
+          yield* encode({
+            ...f.manifest,
+            packages: [{ ...f.entry, selection: Struct.omit(f.entry.selection, ["preparationCommands"]) }],
+          })
+        );
+        expect(manifest.packages[0]?.selection.preparationCommands).toEqual([]);
+      })
+    );
     it.effect("selects the newest sealed attempt per partition without replaying successful older partitions", () =>
       Effect.gen(function* () {
         const f = yield* sealedFixture();
@@ -1213,6 +1226,13 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
       );
     }
     const packagePatches = {
+      preparation: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
+        ...entry,
+        selection: CoverageProducerPackage.make({
+          ...entry.selection,
+          preparationCommands: [["bun", "run", "--cwd", "node_modules/unexpected", "build"]],
+        }),
+      }),
       continuation: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
         ...entry,
         selection: CoverageProducerPackage.make({ ...entry.selection, continuationScripts: ["test:unexpected"] }),
