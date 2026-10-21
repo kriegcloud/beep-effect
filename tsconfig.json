@@ -2184,7 +2184,8 @@
         "./packages/drivers/windows-secrets/src/internal/*"
       ],
       "@beep/acp/compat": ["./packages/drivers/acp/src/AcpCompat.models.ts"],
-      "@beep/acp/schema-v1": ["./packages/drivers/acp/src/AcpV1.models.ts"]
+      "@beep/acp/schema-v1": ["./packages/drivers/acp/src/AcpV1.models.ts"],
+      "@beep/acp/internal/*": ["./packages/drivers/acp/src/internal/*"]
     }
   }
 }
