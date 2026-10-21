@@ -23,7 +23,7 @@ const resolve = (ref: Parameters<(typeof IdentityRegistry)["Service"]["resolve"]
 const entryWith = (overrides: Partial<IdentityEntry.Encoded>): IdentityEntry =>
   IdentityEntry.make({
     identity: "@beep/identity/First",
-    iri: "https://ns.beep.sh/identity/First",
+    iri: "https://beep-effect.com/ns/identity/First",
     curie: "beep:identity/First",
     fibers: {},
     ...overrides,
@@ -60,7 +60,7 @@ describe("IdentityRegistry", () => {
     Effect.fnUntraced(function* () {
       const first = entryWith({});
       const second = entryWith({
-        iri: "https://ns.beep.sh/identity/Second",
+        iri: "https://beep-effect.com/ns/identity/Second",
         curie: "beep:identity/Second",
       });
       const error = yield* layerConflict([first, second]);
@@ -90,7 +90,7 @@ describe("IdentityRegistry", () => {
       const first = entryWith({});
       const second = entryWith({
         identity: "@beep/identity/Second",
-        iri: "https://ns.beep.sh/identity/Second",
+        iri: "https://beep-effect.com/ns/identity/Second",
       });
       const error = yield* layerConflict([first, second]);
 

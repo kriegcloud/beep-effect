@@ -1,6 +1,6 @@
 {
   "@context": {
-    "beep": "https://ns.beep.sh/ontology/semantic-foundation/",
+    "beep": "https://beep-effect.com/ns/ontology/semantic-foundation/",
     "dcterms": "http://purl.org/dc/terms/",
     "skos": "http://www.w3.org/2004/02/skos/core#"
   },

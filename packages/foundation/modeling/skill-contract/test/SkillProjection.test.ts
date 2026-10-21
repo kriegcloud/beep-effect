@@ -33,7 +33,7 @@ import * as Str from "effect/String";
 
 const decodeUnknownSkillArtifactVerdict = S.decodeUnknownEffect(SkillArtifactVerdict);
 
-const rungType = (name: string) => EvidencePredicateType.make(`https://beep.dev/evidence/${name}/v1`);
+const rungType = (name: string) => EvidencePredicateType.make(`https://example.test/evidence/${name}/v1`);
 const contract = SkillContract.make({
   evidenceSubject: EvidenceSubject.make({
     digest: EvidenceDigest.make({
@@ -72,7 +72,7 @@ describe("@beep/skill-contract SkillProjection", () => {
 
       expect(Str.startsWith("---json\n")(rendered)).toBe(true);
       expect(Str.includes("\n# `qa-inventory-judge@1.0.0`\n")(rendered)).toBe(true);
-      expect(Str.includes("| `accepted` | `https://beep.dev/evidence/accepted/v1` |")(rendered)).toBe(true);
+      expect(Str.includes("| `accepted` | `https://example.test/evidence/accepted/v1` |")(rendered)).toBe(true);
       expect(decoded.projection).toBe("skill-contract/skill-md/v1");
       expect(
         S.toEquivalence(SkillMarkdownProjection)(

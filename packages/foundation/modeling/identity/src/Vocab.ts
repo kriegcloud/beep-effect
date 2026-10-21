@@ -7,7 +7,7 @@
 
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
-import { make } from "./Id.ts";
+import { IdentityAuthority, make } from "./Id.ts";
 import { SparTerms } from "./internal/generated/SparTerms.ts";
 
 const { $IdentityId } = make("identity");
@@ -488,7 +488,7 @@ export const mergeVocab: {
  * ```ts import.meta.vitest name="Access beep foundation terms"
  * import { SemanticFoundationVocab } from "@beep/identity"
  *
- * SemanticFoundationVocab.beep.iri // => "https://ns.beep.sh/"
+ * SemanticFoundationVocab.beep.iri // => "https://beep-effect.com/ns/"
  * SemanticFoundationVocab.beep.terms.includes("ontology/semantic-foundation") // => true
  * ```
  *
@@ -497,7 +497,7 @@ export const mergeVocab: {
  */
 export const SemanticFoundationVocab = mergeVocab(CoreVocab, {
   beep: {
-    iri: "https://ns.beep.sh/",
+    iri: IdentityAuthority,
     terms: [
       "ontology/semantic-foundation",
       "ontology/semantic-foundation/taxonomy/legal-intake",

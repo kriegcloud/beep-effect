@@ -418,22 +418,6 @@
       "reason": "Mixed protocol wiring: logging flags are modeled by AcpProtocolLoggingOptions and serverRequestMethods is in-memory routing data, while callbacks, Stdio, and Effects are live runtime handles."
     },
     {
-      "file": "packages/drivers/acp/src/AcpTerminal.models.ts",
-      "symbol": "AcpTerminal",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/acp",
-      "reason": "Live terminal handle whose Effect operations stay coupled to sessionId and terminalId; those identifiers are already modeled by the generated ACP request schemas."
-    },
-    {
-      "file": "packages/drivers/acp/src/AcpTerminal.models.ts",
-      "symbol": "MakeTerminalOptions",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/acp",
-      "reason": "Terminal constructor contract intentionally binds schema-modeled ACP identifiers to live request Effects."
-    },
-    {
       "file": "packages/drivers/ai-provider-cli/test/fixtures/managed-claude-peer.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
@@ -741,7 +725,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 60,
+      "line": 61,
       "owner": "@beep/epistemic-server",
       "reason": "Bitemporal behavior regression decodes fixed commands to drive the real repository transaction and assert exact as-of answers at named instants; schema-derived arbitrary round-trips for LogicalEdgeIdentity, the EdgeAuthority commands, and the EdgeVersion entity live with the domain and use-cases model tests."
     },
@@ -751,7 +735,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 56,
+      "line": 57,
       "owner": "@beep/epistemic-server",
       "reason": "Restart regression decodes fixed commands to write history in one PGlite scope and re-read it in a second over the same dataDir; what is under test is that the data files carry history, lineage, dispositions, and live constraints across a process boundary, not schema laws."
     },

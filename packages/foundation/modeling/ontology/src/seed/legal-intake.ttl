@@ -1,4 +1,4 @@
-@prefix beep: <https://ns.beep.sh/ontology/semantic-foundation/> .
+@prefix beep: <https://beep-effect.com/ns/ontology/semantic-foundation/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 

@@ -650,7 +650,6 @@
   "@beep/acp/protocol": ["./packages/drivers/acp/src/AcpProtocol.service.ts"],
   "@beep/acp/rpc": ["./packages/drivers/acp/src/AcpRpc.models.ts"],
   "@beep/acp/schema": ["./packages/drivers/acp/src/Acp.models.ts"],
-  "@beep/acp/terminal": ["./packages/drivers/acp/src/AcpTerminal.models.ts"],
   "@beep/postgres/client": [
     "./packages/drivers/postgres/src/PostgresClient.service.ts"
   ],
@@ -2060,5 +2059,12 @@
   "@beep/spdx/*": ["./packages/foundation/modeling/spdx/src/*"],
   "@beep/spdx/internal/*": [
     "./packages/foundation/modeling/spdx/src/internal/*"
-  ]
+  ],
+  "@beep/acp/compat": ["./packages/drivers/acp/src/AcpCompat.models.ts"],
+  "@beep/acp/internal/*": ["./packages/drivers/acp/src/internal/*"],
+  "@beep/acp/schema-v1": ["./packages/drivers/acp/src/AcpV1.models.ts"],
+  "@beep/public-site": [
+    "./packages/foundation/modeling/public-site/src/index.ts"
+  ],
+  "@beep/public-site/*": ["./packages/foundation/modeling/public-site/src/*"]
 }

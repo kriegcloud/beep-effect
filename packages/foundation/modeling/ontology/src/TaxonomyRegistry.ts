@@ -26,7 +26,7 @@ const $I = $OntologyId.create("TaxonomyRegistry");
  * ```ts
  * import { LibrarianInput } from "@beep/ontology/TaxonomyRegistry"
  * import { IRIReference } from "@beep/rdf"
- * const input = LibrarianInput.make({ client: "acme", conceptIri: IRIReference.make("https://ns.beep.sh/example"), documentClass: "received", fileName: "mail.eml", matter: "aurora" })
+ * const input = LibrarianInput.make({ client: "acme", conceptIri: IRIReference.make("https://example.test/example"), documentClass: "received", fileName: "mail.eml", matter: "aurora" })
  * console.log(input.documentClass)
  * ```
  *
@@ -101,7 +101,7 @@ export class LibrarianOutput extends S.Opaque<LibrarianOutput, { readonly brand:
  * ```ts
  * import { TaxonomyConceptNotFound } from "@beep/ontology/TaxonomyRegistry"
  * import { IRIReference } from "@beep/rdf"
- * console.log(TaxonomyConceptNotFound.make({ conceptIri: IRIReference.make("https://ns.beep.sh/missing") })._tag)
+ * console.log(TaxonomyConceptNotFound.make({ conceptIri: IRIReference.make("https://example.test/missing") })._tag)
  * ```
  *
  * @category errors
@@ -125,7 +125,7 @@ export class TaxonomyConceptNotFound extends S.TaggedError<TaxonomyConceptNotFou
  * ```ts
  * import { UnsupportedDocumentClass } from "@beep/ontology/TaxonomyRegistry"
  * import { IRIReference } from "@beep/rdf"
- * console.log(UnsupportedDocumentClass.make({ conceptIri: IRIReference.make("https://ns.beep.sh/example"), documentClass: "filed" }).documentClass)
+ * console.log(UnsupportedDocumentClass.make({ conceptIri: IRIReference.make("https://example.test/example"), documentClass: "filed" }).documentClass)
  * ```
  *
  * @category errors
@@ -155,10 +155,11 @@ const pathFor = (input: LibrarianInput, concept: TaxonomyConcept, rootSegment: s
  *
  * ```ts import.meta.vitest name="Run loop returning Effect"
  * import * as Effect from "effect/Effect";
+ * import { $SemanticFoundationId } from "@beep/identity/packages"
  * import { IRIReference } from "@beep/rdf"
  * import { SemanticFoundationSeed } from "@beep/ontology/SemanticFoundation.seed"
  * import { LibrarianInput, runLibrarianLoop } from "@beep/ontology/TaxonomyRegistry"
- * const result = runLibrarianLoop(SemanticFoundationSeed, LibrarianInput.make({ client: "acme", conceptIri: IRIReference.make("https://ns.beep.sh/ontology/semantic-foundation/concept/correspondence"), documentClass: "received", fileName: "mail.eml", matter: "aurora" }))
+ * const result = runLibrarianLoop(SemanticFoundationSeed, LibrarianInput.make({ client: "acme", conceptIri: IRIReference.make($SemanticFoundationId.create("concept/correspondence").iri), documentClass: "received", fileName: "mail.eml", matter: "aurora" }))
  * Effect.isEffect(result) // => true
  * ```
  *

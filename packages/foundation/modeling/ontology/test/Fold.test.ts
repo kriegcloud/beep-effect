@@ -13,7 +13,7 @@ import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import type { AssembledClass, AssembledPredicate, Triple } from "@beep/ontology";
 
-const $I = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("patent");
+const $I = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" }).$BeepId.create("patent");
 
 class Claim extends S.Opaque<Claim, { readonly brand: unique symbol }>()(
   S.Struct({
@@ -71,32 +71,32 @@ describe("Ontology.fold", () => {
       const claim = pipe(findClass(assembled.classes, "Claim"), O.getOrThrow);
       const spec = pipe(findClass(assembled.classes, "Spec"), O.getOrThrow);
 
-      expect(claim.iri).toBe("https://ns.beep.sh/patent/Claim");
-      expect(spec.iri).toBe("https://ns.beep.sh/patent/Spec");
+      expect(claim.iri).toBe("https://beep-effect.com/ns/patent/Claim");
+      expect(spec.iri).toBe("https://beep-effect.com/ns/patent/Spec");
       expect(A.map(assembled.facts, (fact) => [fact.subjectIri, fact.predicateIri, fact.object, fact.reverse])).toEqual(
         [
           [
-            "https://ns.beep.sh/patent/Claim",
+            "https://beep-effect.com/ns/patent/Claim",
             "http://www.w3.org/2000/01/rdf-schema#subClassOf",
             "http://www.w3.org/2002/07/owl#Thing",
             false,
           ],
           [
-            "https://ns.beep.sh/patent/Claim",
+            "https://beep-effect.com/ns/patent/Claim",
             "http://www.w3.org/2002/07/owl#sameAs",
             "https://schema.org/CreativeWork",
             false,
           ],
           [
-            "https://ns.beep.sh/patent/Spec",
+            "https://beep-effect.com/ns/patent/Spec",
             "http://www.w3.org/2004/02/skos/core#related",
-            "https://ns.beep.sh/patent/Claim",
+            "https://beep-effect.com/ns/patent/Claim",
             false,
           ],
           [
-            "https://ns.beep.sh/patent/Claim",
+            "https://beep-effect.com/ns/patent/Claim",
             "http://www.w3.org/2000/01/rdf-schema#subClassOf",
-            "https://ns.beep.sh/patent/Spec",
+            "https://beep-effect.com/ns/patent/Spec",
             true,
           ],
         ]
@@ -119,13 +119,13 @@ describe("Ontology.fold", () => {
       expect(prefLabel.termIri).toBe("http://www.w3.org/2004/02/skos/core#prefLabel");
       expect(text.kind).toBe("datatype");
       expect(text.term).toBe("text");
-      expect(text.termIri).toBe("https://ns.beep.sh/patent/text");
+      expect(text.termIri).toBe("https://beep-effect.com/ns/patent/text");
       expect(O.getOrThrow(text.description)).toBe("Claim text.");
       expect(children.kind).toBe("datatype");
       pipe(children.reverse, assertTrue);
       expect(children.termIri).toBe("http://www.w3.org/2000/01/rdf-schema#subClassOf");
       expect(claimRef.kind).toBe("object");
-      expect(O.getOrThrow(claimRef.rangeIri)).toBe("https://ns.beep.sh/patent/Claim");
+      expect(O.getOrThrow(claimRef.rangeIri)).toBe("https://beep-effect.com/ns/patent/Claim");
     })
   );
 
@@ -157,7 +157,7 @@ describe("Ontology.fold", () => {
 
   it.effect("fails with a typed unknownTerm for unknown CURIE prefixes", () =>
     Effect.gen(function* () {
-      const badTriple = ["https://ns.beep.sh/patent/Claim", "nope:term", "owl:Thing"] as unknown as Triple;
+      const badTriple = ["https://beep-effect.com/ns/patent/Claim", "nope:term", "owl:Thing"] as unknown as Triple;
       const error = yield* Effect.flip(
         fold($I, {
           label: "Broken",
@@ -187,15 +187,15 @@ describe("Ontology.fold projections", () => {
       const jsonLd = toJsonLd(yield* assemble);
       const claimNode = pipe(
         jsonLd["@graph"],
-        A.findFirst((node) => node["@id"] === "https://ns.beep.sh/patent/Claim"),
+        A.findFirst((node) => node["@id"] === "https://beep-effect.com/ns/patent/Claim"),
         O.getOrUndefined
       );
 
       expect(claimNode).toMatchObject({
-        "@id": "https://ns.beep.sh/patent/Claim",
+        "@id": "https://beep-effect.com/ns/patent/Claim",
         "owl:sameAs": [{ "@id": "https://schema.org/CreativeWork" }],
         "@reverse": {
-          "rdfs:subClassOf": [{ "@id": "https://ns.beep.sh/patent/Spec" }],
+          "rdfs:subClassOf": [{ "@id": "https://beep-effect.com/ns/patent/Spec" }],
         },
       });
     })
@@ -217,7 +217,7 @@ describe("Ontology.fold projections", () => {
 
       expect(externalNode).toMatchObject({
         "@id": externalSubject,
-        "rdfs:seeAlso": [{ "@id": "https://ns.beep.sh/patent/Claim" }],
+        "rdfs:seeAlso": [{ "@id": "https://beep-effect.com/ns/patent/Claim" }],
       });
     })
   );
@@ -252,7 +252,7 @@ describe("Ontology.fold projections", () => {
       });
       const claimNode = pipe(
         toJsonLd(assembled)["@graph"],
-        A.findFirst((node) => node["@id"] === "https://ns.beep.sh/patent/Claim"),
+        A.findFirst((node) => node["@id"] === "https://beep-effect.com/ns/patent/Claim"),
         O.getOrUndefined
       );
 
@@ -270,10 +270,10 @@ describe("Ontology.fold projections", () => {
       const second = yield* assemble;
       const turtle = toTurtle(first);
 
-      expect(turtle).toContain("@prefix beep: <https://ns.beep.sh/patent/> .");
+      expect(turtle).toContain("@prefix beep: <https://beep-effect.com/ns/patent/> .");
       expect(turtle).toContain("a rdfs:Class");
       expect(turtle).toContain("beep:Claim owl:sameAs <https://schema.org/CreativeWork> .");
-      expect(turtle).toContain("<https://ns.beep.sh/patent/Ontology.models/HttpUrl> a rdfs:Class");
+      expect(turtle).toContain("<https://beep-effect.com/ns/patent/Ontology.models/HttpUrl> a rdfs:Class");
       expect(turtle).toContain('rdfs:comment "Patent claim\\nwith escaped text."');
       expect(toTurtle(first)).toBe(toTurtle(first));
       expect(toTurtle(first)).toBe(toTurtle(second));
@@ -286,7 +286,7 @@ describe("Ontology.fold projections", () => {
       const markdown = toMarkdown(assembled);
 
       pipe(markdown.startsWith("# Patent Core"), assertTrue);
-      expect(markdown).toContain("{#ns-beep-sh-patent-claim}");
+      expect(markdown).toContain("{#beep-effect-com-ns-patent-claim}");
       expect(markdown).toContain("`prefLabel`");
       expect(markdown).toContain("`rdfs:subClassOf`");
       expect(toMarkdown(assembled)).toBe(markdown);
@@ -295,7 +295,7 @@ describe("Ontology.fold projections", () => {
 });
 
 describe("Ontology.fold SKOS gate", () => {
-  const $Skos = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("vocab");
+  const $Skos = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" }).$BeepId.create("vocab");
 
   class Concept extends S.Opaque<Concept, { readonly brand: unique symbol }>()(
     S.Struct({
@@ -326,7 +326,7 @@ describe("Ontology.fold SKOS gate", () => {
       const jsonLd = toJsonLd(assembled);
       const conceptNode = pipe(
         jsonLd["@graph"],
-        A.findFirst((node) => node["@id"] === "https://ns.beep.sh/vocab/Concept"),
+        A.findFirst((node) => node["@id"] === "https://beep-effect.com/ns/vocab/Concept"),
         O.getOrUndefined
       );
       const turtle = toTurtle(assembled);
@@ -370,8 +370,8 @@ describe("Ontology.fold SKOS gate", () => {
 
       expect(error.reason).toBe("skosIntegrity");
       expect(pipe([O.getOrThrow(error.subjectIri), O.getOrThrow(error.objectIri)], A.sort(Order.String))).toEqual([
-        "https://ns.beep.sh/vocab/Concept",
-        "https://ns.beep.sh/vocab/Scheme",
+        "https://beep-effect.com/ns/vocab/Concept",
+        "https://beep-effect.com/ns/vocab/Scheme",
       ]);
     })
   );
@@ -465,7 +465,7 @@ describe("Ontology.fold SKOS gate", () => {
 });
 
 describe("Ontology.fold negative fixtures", () => {
-  const $Neg = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" }).$BeepId.create("negative");
+  const $Neg = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" }).$BeepId.create("negative");
 
   class LeftDocument extends S.Opaque<LeftDocument, { readonly brand: unique symbol }>()(
     S.Struct({
@@ -634,7 +634,7 @@ describe("Ontology.fold negative fixtures", () => {
 describe("Ontology.fold rebase", () => {
   it.effect("renders a rebased hash-namespace vocabulary with prefixed names in every projection", () =>
     Effect.gen(function* () {
-      const $Patent = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" })
+      const $Patent = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" })
         .$BeepId.create("ontology")
         .create("patent")
         .rebase({ iri: "https://opip.law/ns/patent#", prefix: "patent" });
@@ -722,7 +722,7 @@ describe("Ontology.fold FOLIO-derived module", () => {
       expect(toContext(assembled)).toEqual(toContext(second));
 
       const claimClass = O.getOrThrow(A.head(assembled.classes));
-      strictEqual(claimClass.iri, "https://ns.beep.sh/ontology/Ontology.models/OWLClass");
+      expect(claimClass.iri).toBe("https://beep-effect.com/ns/ontology/Ontology.models/OWLClass");
       const predicate = (key: string) =>
         O.getOrThrow(A.findFirst(claimClass.predicates, (candidate) => candidate.key === key));
       const subClassOf = predicate("sub_class_of");
