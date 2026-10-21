@@ -970,6 +970,7 @@
     {"name":"CoverageArtifacts.gitRef","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.loadManifest","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.loadSlice","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"CoverageArtifacts.newestProducerPartitions","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.normalizedRaw","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.readText","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.relativeFile","owner":"@beep/repo-cli","family":"tooling","conforms":true},
