@@ -28,7 +28,7 @@ import * as Str from "effect/String";
 import { CorpusPaperId } from "@/corpus/Manifest";
 import { verifyGNeighbors, verifyGSparql } from "@/layers/CanaryC1Live";
 import { ActiveEmbeddingIdentityLive, EmbedderRuntimeLive } from "@/layers/EmbedderLive";
-import { RdfProjectionLive } from "@/layers/RdfProjectionLive";
+import { RdfProjectionLive, semanticaOntologyIri } from "@/layers/RdfProjectionLive";
 import { VectorProjectionLive } from "@/layers/VectorProjectionLive";
 import { LabConfig } from "@/runtime/Config";
 import { ClaimBody, EvidenceBatch, EvidenceClaim, ExtractOutcome, makeBatchId, makeClaimId } from "@/schema/Evidence";
@@ -349,18 +349,19 @@ describe("C1 RDF projection", () => {
     it.effect("rebuilds ledger claims into non-empty timeout-bounded SPARQL results identically", () =>
       Effect.gen(function* () {
         const projection = yield* RdfProjection;
+        expect(semanticaOntologyIri("EvidenceClaim")).toBe(
+          "https://beep-effect.com/ns/semantica/ontology/EvidenceClaim"
+        );
         const expectations = [
           SparqlExpectation.make({
             expectedCount: PosInt.make(3),
             id: "all",
-            query:
-              "SELECT ?claim WHERE { ?claim a <https://beep.sh/semantica/ontology/EvidenceClaim> } ORDER BY ?claim",
+            query: `SELECT ?claim WHERE { ?claim a <${semanticaOntologyIri("EvidenceClaim")}> } ORDER BY ?claim`,
           }),
           SparqlExpectation.make({
             expectedCount: PosInt.make(1),
             id: "relations",
-            query:
-              "SELECT ?claim WHERE { ?claim a <https://beep.sh/semantica/ontology/RelationClaim> } ORDER BY ?claim",
+            query: `SELECT ?claim WHERE { ?claim a <${semanticaOntologyIri("RelationClaim")}> } ORDER BY ?claim`,
           }),
         ];
         const first = yield* projection.rebuild(snapshot);

@@ -21,6 +21,7 @@ import {
   SupersedeEdgeFact,
   SupersessionConflict,
 } from "@beep/epistemic-use-cases/EdgeAuthority";
+import { $EpistemicId } from "@beep/identity/packages";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { it } from "@beep/test-runner";
 import {
@@ -571,9 +572,9 @@ if (!shouldRunPgliteIntegration) {
             verdict: "rejected",
             violations: [
               {
-                focusNode: "https://beep.dev/epistemic/claim/patentability",
+                focusNode: $EpistemicId.create("claim/patentability").iri,
                 message: "Expected at least 1 value(s) for evidence.",
-                path: "https://beep.dev/epistemic/hasEvidenceQuote",
+                path: $EpistemicId.create("hasEvidenceQuote").iri,
                 severity: "violation",
               },
             ],

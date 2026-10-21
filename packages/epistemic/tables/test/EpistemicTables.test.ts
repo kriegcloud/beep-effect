@@ -10,6 +10,7 @@ import * as ClaimDisposition from "@beep/epistemic-tables/entities/ClaimDisposit
 import * as EdgeVersion from "@beep/epistemic-tables/entities/EdgeVersion";
 import * as Evidence from "@beep/epistemic-tables/entities/Evidence";
 import * as UsageRecord from "@beep/epistemic-tables/entities/UsageRecord";
+import { $EpistemicId } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
 import { fcRuns, productEntityFixtureInput, systemPrincipal } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
@@ -132,9 +133,9 @@ const claimDispositionInput = (id: number) => ({
   status: "rejected",
   violations: [
     {
-      focusNode: "https://beep.dev/epistemic/claim/patentability",
+      focusNode: $EpistemicId.create("claim/patentability").iri,
       message: "Expected at least 1 value(s) for evidence.",
-      path: "https://beep.dev/epistemic/hasEvidenceQuote",
+      path: $EpistemicId.create("hasEvidenceQuote").iri,
       severity: "violation",
     },
   ],
@@ -663,9 +664,9 @@ describe("EpistemicTables", () => {
       expect(insert.resolvedBy).toStrictEqual(systemPrincipal);
       expect(insert.violations).toStrictEqual([
         {
-          focusNode: "https://beep.dev/epistemic/claim/patentability",
+          focusNode: $EpistemicId.create("claim/patentability").iri,
           message: "Expected at least 1 value(s) for evidence.",
-          path: "https://beep.dev/epistemic/hasEvidenceQuote",
+          path: $EpistemicId.create("hasEvidenceQuote").iri,
           severity: "violation",
         },
       ]);

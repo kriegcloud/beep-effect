@@ -9,7 +9,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
 const emptySha256 = Sha256Hex.make("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
-const predicateType = EvidencePredicateType.make("https://beep.dev/evidence/artifact-exists/v1");
+const predicateType = EvidencePredicateType.make("https://example.test/evidence/artifact-exists/v1");
 const Predicate = S.Struct({ checkedPaths: S.Array(S.String), passed: S.Boolean });
 const Receipt = EvidenceReceipt(predicateType, Predicate);
 const decodeReceipt = S.decodeEffect(Receipt);
@@ -37,7 +37,7 @@ describe("@beep/skill-contract EvidenceReceipt", () => {
 
       expect(encoded).toEqual({
         predicate: { checkedPaths: ["frames/drag.png"], passed: true },
-        predicateType: "https://beep.dev/evidence/artifact-exists/v1",
+        predicateType: "https://example.test/evidence/artifact-exists/v1",
         subject: [
           {
             digest: { sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" },
@@ -53,7 +53,7 @@ describe("@beep/skill-contract EvidenceReceipt", () => {
     Effect.gen(function* () {
       const unrelatedTypeInput: unknown = {
         predicate: { checkedPaths: [], passed: true },
-        predicateType: "https://beep.dev/evidence/other/v1",
+        predicateType: "https://example.test/evidence/other/v1",
         subject: [{ digest: { sha256: emptySha256 }, name: "frames/drag.png" }],
       };
       const emptySubjectInput: unknown = {
@@ -78,7 +78,7 @@ describe("@beep/skill-contract EvidenceReceipt", () => {
   );
 
   it("gives every pinned factory instance a distinct schema identity and supports data-last construction", () => {
-    const otherType = EvidencePredicateType.make("https://beep.dev/evidence/other/v1");
+    const otherType = EvidencePredicateType.make("https://example.test/evidence/other/v1");
     const OtherReceipt = EvidenceReceipt(Predicate)(otherType);
 
     expect(S.resolveAnnotations(Receipt)?.identifier).not.toBe(S.resolveAnnotations(OtherReceipt)?.identifier);

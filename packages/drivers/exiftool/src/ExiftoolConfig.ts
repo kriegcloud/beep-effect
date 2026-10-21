@@ -14,7 +14,7 @@
  * @since 0.0.0
  */
 
-import { $ExiftoolId } from "@beep/identity/packages";
+import { $ExiftoolId, $QaId } from "@beep/identity/packages";
 import { Fn, LiteralKit } from "@beep/schema";
 import { A, N, O, P, pipe, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
@@ -30,6 +30,12 @@ const $I = $ExiftoolId.create("ExiftoolConfig");
 /**
  * Canonical XMP namespace URI for beep QA provenance.
  *
+ * **Details**
+ *
+ * Derived from the `@beep/identity` QA vocabulary composer (`$QaId`), so the
+ * namespace follows the repository identity authority: the value is the
+ * `qa/1.0` vocabulary IRI with a trailing slash.
+ *
  * **Example** (Log XMP namespace URI)
  *
  * ```ts
@@ -41,7 +47,7 @@ const $I = $ExiftoolId.create("ExiftoolConfig");
  * @category constants
  * @since 0.0.0
  */
-export const BEEP_QA_XMP_NAMESPACE_URI = "https://ns.beep.sh/qa/1.0/";
+export const BEEP_QA_XMP_NAMESPACE_URI = `${$QaId.create("1.0").iri}/` as const;
 
 /**
  * XMP namespace prefix registered by the rendered exiftool config.
@@ -223,9 +229,9 @@ export type XmpPropertyName = typeof XmpPropertyName.Type;
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { XmpNamespaceUri } from "@beep/exiftool"
+ * import { BEEP_QA_XMP_NAMESPACE_URI, XmpNamespaceUri } from "@beep/exiftool"
  *
- * const uri = S.decodeUnknownSync(XmpNamespaceUri)("https://ns.beep.sh/qa/1.0/")
+ * const uri = S.decodeUnknownSync(XmpNamespaceUri)(BEEP_QA_XMP_NAMESPACE_URI)
  * console.log(uri)
  * ```
  *
@@ -252,9 +258,9 @@ export const XmpNamespaceUri = S.String.check(
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { XmpNamespaceUri } from "@beep/exiftool"
+ * import { BEEP_QA_XMP_NAMESPACE_URI, XmpNamespaceUri } from "@beep/exiftool"
  *
- * const uri: XmpNamespaceUri = S.decodeUnknownSync(XmpNamespaceUri)("https://ns.beep.sh/qa/1.0/")
+ * const uri: XmpNamespaceUri = S.decodeUnknownSync(XmpNamespaceUri)(BEEP_QA_XMP_NAMESPACE_URI)
  * console.log(uri)
  * ```
  *

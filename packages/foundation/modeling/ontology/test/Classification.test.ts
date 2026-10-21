@@ -1,3 +1,4 @@
+import { $I as $BeepId } from "@beep/identity/packages";
 import {
   ClassificationConcept,
   ClassificationError,
@@ -120,7 +121,7 @@ it.layer(Layer.merge(ClassificationRegistry.layer, fixtureLayer), { timeout: "30
         expect((yield* registry.resolve(snapshot, nicePin, "350001")).prefLabel).toBe("Synthetic service term");
         expect(A.map(yield* registry.broader(snapshot, nicePin, "350001"), (value) => value.notation)).toEqual(["35"]);
         expect(A.map(yield* registry.narrower(snapshot, nicePin, "1"), (value) => value.notation)).toEqual(["010001"]);
-        expect(A.every(snapshot.concepts, (concept) => Str.startsWith("https://ns.beep.sh/")(concept.iri))).toBe(true);
+        expect(A.every(snapshot.concepts, (concept) => Str.startsWith($BeepId.iri)(concept.iri))).toBe(true);
       })
     );
 

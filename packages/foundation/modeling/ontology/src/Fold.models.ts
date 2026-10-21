@@ -143,9 +143,10 @@ export type TupleObject = Subject | TypedLiteral;
  *
  * **Example** (Usage)
  * ```ts
+ * import { $I } from "@beep/identity/packages"
  * import type { Triple } from "@beep/ontology"
  *
- * const triple: Triple = ["https://ns.beep.sh/patent/Claim", "rdfs:subClassOf", "owl:Thing"]
+ * const triple: Triple = [$I.create("patent/Claim").iri, "rdfs:subClassOf", "owl:Thing"]
  * console.log(triple[1])
  * ```
  *
@@ -443,11 +444,12 @@ export type FactObject = typeof FactObject.Type;
  *
  * **Example** (Usage)
  * ```ts
+ * import { $I } from "@beep/identity/packages"
  * import { AssembledFact } from "@beep/ontology"
  * import * as S from "effect/Schema"
  *
  * const fact = S.decodeUnknownSync(AssembledFact)({
- *   subjectIri: "https://ns.beep.sh/patent/Claim",
+ *   subjectIri: $I.create("patent/Claim").iri,
  *   predicateIri: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
  *   object: "http://www.w3.org/2002/07/owl#Thing",
  *   reverse: false,
@@ -513,12 +515,13 @@ export class AssembledPredicate extends S.Opaque<AssembledPredicate, { readonly 
  *
  * **Example** (Usage)
  * ```ts
+ * import { $I } from "@beep/identity/packages"
  * import { AssembledClass } from "@beep/ontology"
  * import * as S from "effect/Schema"
  *
  * const assembled = S.decodeUnknownSync(AssembledClass)({
  *   name: "Claim",
- *   iri: "https://ns.beep.sh/patent/Claim",
+ *   iri: $I.create("patent/Claim").iri,
  *   curie: "beep:patent/Claim",
  *   predicates: [],
  * })
@@ -621,12 +624,13 @@ export class OntologyValidationWarning extends S.Opaque<OntologyValidationWarnin
  *
  * **Example** (Usage)
  * ```ts
+ * import { $I } from "@beep/identity/packages"
  * import { AssembledOntology } from "@beep/ontology"
  * import * as S from "effect/Schema"
  *
  * const assembled = S.decodeUnknownSync(AssembledOntology)({
  *   label: "Patent Core",
- *   baseIri: "https://ns.beep.sh/patent",
+ *   baseIri: $I.create("patent").iri,
  *   prefix: "beep",
  *   classes: [],
  *   facts: [],

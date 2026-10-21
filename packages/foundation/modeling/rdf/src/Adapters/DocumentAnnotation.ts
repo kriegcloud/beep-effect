@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { $RdfId } from "@beep/identity/packages";
+import { $I as $BeepId, $RdfId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { PoPattern } from "@beep/schema/PatternOntology";
 import * as Effect from "effect/Effect";
@@ -16,6 +16,9 @@ import { DOCO_NAMESPACE, DOCO_TERMS } from "../Vocab/Doco.ts";
 import { FABIO_NAMESPACE, FABIO_TERMS } from "../Vocab/Fabio.ts";
 import { MdNodeId } from "./MdSections.ts";
 import { WebAnnotationFragmentSelector, WebAnnotationTarget } from "./WebAnnotation.ts";
+
+const documentPatternIri = $BeepId.create("document/pattern").iri;
+const documentCitationIri = $BeepId.create("document/citation").iri;
 
 /**
  * JSON-LD context for the OA/SPAR/PROV document profile.
@@ -36,8 +39,8 @@ export const DOCUMENT_ANNOTATION_CONTEXT = [
     rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     prov: "http://www.w3.org/ns/prov#",
     discourseType: { "@id": "rdf:type", "@type": "@id" },
-    pattern: "https://ns.beep.sh/document/pattern",
-    citation: "https://ns.beep.sh/document/citation",
+    pattern: documentPatternIri,
+    citation: documentCitationIri,
     subject: { "@id": "rdf:subject", "@type": "@id" },
     predicate: { "@id": "rdf:predicate", "@type": "@id" },
     object: { "@id": "rdf:object", "@type": "@id" },
@@ -167,8 +170,8 @@ export class DocumentAnnotation extends S.Opaque<DocumentAnnotation, { readonly 
         rdf: S.Literal("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
         prov: S.Literal("http://www.w3.org/ns/prov#"),
         discourseType: S.Struct({ "@id": S.Literal("rdf:type"), "@type": S.Literal("@id") }),
-        pattern: S.Literal("https://ns.beep.sh/document/pattern"),
-        citation: S.Literal("https://ns.beep.sh/document/citation"),
+        pattern: S.Literal(documentPatternIri),
+        citation: S.Literal(documentCitationIri),
         subject: S.Struct({ "@id": S.Literal("rdf:subject"), "@type": S.Literal("@id") }),
         predicate: S.Struct({ "@id": S.Literal("rdf:predicate"), "@type": S.Literal("@id") }),
         object: S.Struct({ "@id": S.Literal("rdf:object"), "@type": S.Literal("@id") }),
