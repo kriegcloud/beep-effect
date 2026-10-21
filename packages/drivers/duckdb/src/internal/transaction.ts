@@ -81,9 +81,11 @@ const CONTROL_RULES: ReadonlyArray<readonly [TransactionControl, RegExp]> = [
 // One lexeme of DuckDB SQL text: a line comment, the opening of a (nestable)
 // block comment, an escape string, a quoted string or identifier, a
 // dollar-quote tag, a statement separator, a run of ordinary text, or any
-// single character. Unterminated quotes run to the end of the text.
+// single character. Unterminated quotes run to the end of the text. A `$`
+// that continues an identifier (`a$b$c`) never opens a dollar quote, so it
+// cannot hide a trailing statement from the multi-statement refusal.
 const LEXEME_SOURCE =
-  /--[^\n]*|\/\*|(?<![\w$])[Ee]'(?:[^'\\]|\\[\s\S]|'')*'?|'(?:[^']|'')*'?|"(?:[^"]|"")*"?|\$(?:[A-Za-z_]\w*)?\$|;|[^-'"$/;Ee]+|[\s\S]/
+  /--[^\n]*|\/\*|(?<![\w$])[Ee]'(?:[^'\\]|\\[\s\S]|'')*'?|'(?:[^']|'')*'?|"(?:[^"]|"")*"?|(?<![\w$])\$(?:[A-Za-z_]\w*)?\$|;|[^-'"$/;Ee]+|[\s\S]/
     .source;
 
 const BLOCK_COMMENT_EDGE_SOURCE = /\/\*|\*\//.source;

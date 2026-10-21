@@ -230,6 +230,23 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
     );
 
     it.effect(
+      "refuses multi-statement COMMIT text hidden behind a dollar sign inside an identifier",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_multi_dollar_ident (id INTEGER PRIMARY KEY)`;
+        yield* sql.unsafe("BEGIN");
+        yield* sql`insert into tx_multi_dollar_ident values (1)`;
+        yield* sql`insert into tx_multi_dollar_ident values (1)`.pipe(Effect.ignore);
+        // `a$b$c` is an identifier, not the `$b$` dollar-quote opener.
+        const hidden = yield* sql.unsafe("select 1 as a$b$c; COMMIT").pipe(Effect.flip);
+        expectRefusedMultiStatement(hidden);
+        const error = yield* sql.unsafe("COMMIT").pipe(Effect.flip);
+        expectRefusedCommit(error, ABORTED_MESSAGE);
+        expect(yield* countRows(sql, "tx_multi_dollar_ident")).toBe(0);
+      })
+    );
+
+    it.effect(
       "runs multi-statement text whose control keywords sit in strings or comments",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
