@@ -12,6 +12,8 @@
  * transactions, and guards every `COMMIT` (the one `withTransaction` issues and
  * raw `COMMIT`/`END` text sent inside a transaction) so it is refused when
  * DuckDB already aborted the transaction or it lost a nested rollback.
+ * Multi-statement text that contains transaction control is refused before
+ * it reaches DuckDB (D59).
  *
  * @packageDocumentation
  * @internal
@@ -47,6 +49,7 @@ import {
   decideCommit,
   isAbortedTransactionError,
   refusedCommit,
+  refusedMultiStatementControl,
   TransactionPhase,
 } from "./transaction.ts";
 import type {
@@ -321,6 +324,9 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
     Effect.suspend(() => {
       const control = classifyControl(sql);
       const active = isTransaction();
+      if (control === "multiStatementControl") {
+        return Effect.fail(refusedMultiStatementControl(operation));
+      }
       if (active && control === "savepoint") {
         return Effect.succeed(empty);
       }
@@ -406,7 +412,10 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
       Stream.unwrap(
         Effect.suspend(
           (): Effect.Effect<Stream.Stream<Row, SqlError>, SqlError, Scope.Scope> =>
-            isTransaction()
+            // Transaction control and catalog-context text take the tracked path
+            // even outside a transaction, so the phase and the prepared cache
+            // stay in step with DuckDB.
+            isTransaction() || classifyControl(sql) !== "statement"
               ? Effect.succeed(
                   runRows(sql, params, "executeStream", false, transformRows).pipe(Stream.fromIterableEffect)
                 )

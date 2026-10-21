@@ -206,7 +206,12 @@ its connection only after a statement still running at teardown settles. A file 
   anything and still commits. The same guard covers raw `COMMIT`/`END` text
   sent inside a transaction you opened with raw `BEGIN`: when it is refused,
   the client runs `ROLLBACK` itself and the `COMMIT` fails with the same
-  `UnknownError`.
+  `UnknownError`. Raw control text is tracked when it is the only statement in
+  the text, with or without comments: `/* tx */ BEGIN`, `-- note` then
+  `COMMIT`, `END TRANSACTION;`. Text with several statements that includes
+  `BEGIN`, `COMMIT`, `ROLLBACK` or a savepoint (`BEGIN; INSERT ...`,
+  `COMMIT; SELECT 1`) fails with an `UnknownError` before anything runs.
+  Send each transaction control statement in its own call.
 - **Write conflicts** classify as `SerializationError` and are retryable: commit-time
   conflicts and statement-time ones (`Conflict on update!`, `Transaction conflict:`
   after another transaction altered or dropped the table).

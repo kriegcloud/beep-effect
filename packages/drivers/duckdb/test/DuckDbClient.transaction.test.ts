@@ -7,6 +7,7 @@ import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as Ref from "effect/Ref";
 import * as Reactivity from "effect/reactivity/Reactivity";
+import * as Stream from "effect/Stream";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as TestClock from "effect/testing/TestClock";
 import type { DuckDBConnection } from "@duckdb/node-api";
@@ -16,6 +17,9 @@ const NESTED_MESSAGE =
   "DuckDB cannot roll back a nested transaction on its own; COMMIT refused and the whole transaction rolled back";
 const ABORTED_MESSAGE =
   "DuckDB aborted this transaction after an earlier statement failed; COMMIT refused because DuckDB would roll it back silently";
+
+const MULTI_STATEMENT_MESSAGE =
+  "DuckDB transaction control (BEGIN, COMMIT, ROLLBACK, SAVEPOINT) must be sent as its own statement; multi-statement text containing it was refused without running";
 
 const LONG_QUERY = "select count(*) from range(20000000000)";
 
@@ -31,6 +35,11 @@ const expectRefusedCommit = (error: SqlError, message: string): void => {
   expect(error.reason._tag).toBe("UnknownError");
   expect(error.reason.operation).toBe("commitTransaction");
   expect(error.reason.message).toBe(message);
+};
+
+const expectRefusedMultiStatement = (error: SqlError): void => {
+  expect(error.reason._tag).toBe("UnknownError");
+  expect(error.reason.message).toBe(MULTI_STATEMENT_MESSAGE);
 };
 
 const expectUsable = (sql: SqlClient.SqlClient): Effect.Effect<void, SqlError> =>
@@ -152,6 +161,97 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
         expect(yield* countRows(sql, "tx_raw_commit")).toBe(0);
         yield* sql`insert into tx_raw_commit values (2)`;
         expect(yield* countRows(sql, "tx_raw_commit")).toBe(1);
+      })
+    );
+
+    it.effect(
+      "refuses a comment-prefixed raw COMMIT after a comment-prefixed BEGIN and a swallowed error",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_comment_raw (id INTEGER PRIMARY KEY)`;
+        yield* sql.unsafe("/* tx */ BEGIN");
+        yield* sql`insert into tx_comment_raw values (1)`;
+        yield* sql`insert into tx_comment_raw values (1)`.pipe(Effect.ignore);
+        const error = yield* sql.unsafe("-- note\nCOMMIT").pipe(Effect.flip);
+        expectRefusedCommit(error, ABORTED_MESSAGE);
+        expect(yield* countRows(sql, "tx_comment_raw")).toBe(0);
+        yield* expectUsable(sql);
+      })
+    );
+
+    it.effect(
+      "tracks raw control text behind line and nested block comments",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_comment_nested (id INTEGER PRIMARY KEY)`;
+        yield* sql.unsafe("-- open\n  BEGIN TRANSACTION -- trailing");
+        yield* sql`insert into tx_comment_nested values (1)`;
+        yield* sql`insert into tx_comment_nested values (1)`.pipe(Effect.ignore);
+        const error = yield* sql.unsafe("/* outer /* inner */ still outer */ COMMIT;").pipe(Effect.flip);
+        expectRefusedCommit(error, ABORTED_MESSAGE);
+        expect(yield* countRows(sql, "tx_comment_nested")).toBe(0);
+      })
+    );
+
+    it.effect(
+      "refuses multi-statement text that opens a transaction without running it",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_multi_begin (id INTEGER PRIMARY KEY)`;
+        const open = yield* sql.unsafe("BEGIN; insert into tx_multi_begin values (1)").pipe(Effect.flip);
+        const whole = yield* sql.unsafe("BEGIN; insert into tx_multi_begin values (2); COMMIT").pipe(Effect.flip);
+        expectRefusedMultiStatement(open);
+        expectRefusedMultiStatement(whole);
+        expect(yield* countRows(sql, "tx_multi_begin")).toBe(0);
+        // Nothing ran: DuckDB is still in autocommit, so a raw BEGIN opens a fresh transaction.
+        yield* sql.unsafe("BEGIN");
+        yield* sql`insert into tx_multi_begin values (3)`;
+        yield* sql.unsafe("COMMIT");
+        expect(yield* countRows(sql, "tx_multi_begin")).toBe(1);
+      })
+    );
+
+    it.effect(
+      "refuses multi-statement COMMIT text after a swallowed error so the guarded COMMIT still decides",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_multi_commit (id INTEGER PRIMARY KEY)`;
+        yield* sql.unsafe("BEGIN");
+        yield* sql`insert into tx_multi_commit values (1)`;
+        yield* sql`insert into tx_multi_commit values (1)`.pipe(Effect.ignore);
+        const head = yield* sql.unsafe("COMMIT; select 1").pipe(Effect.flip);
+        const tail = yield* sql.unsafe("select 1; COMMIT").pipe(Effect.flip);
+        expectRefusedMultiStatement(head);
+        expectRefusedMultiStatement(tail);
+        const error = yield* sql.unsafe("COMMIT").pipe(Effect.flip);
+        expectRefusedCommit(error, ABORTED_MESSAGE);
+        expect(yield* countRows(sql, "tx_multi_commit")).toBe(0);
+      })
+    );
+
+    it.effect(
+      "runs multi-statement text whose control keywords sit in strings or comments",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_multi_quoted (id INTEGER, note VARCHAR)`;
+        yield* sql.unsafe(
+          "insert into tx_multi_quoted values (1, 'BEGIN; COMMIT'); insert into tx_multi_quoted values (2, $$x; ROLLBACK$$); -- COMMIT"
+        );
+        yield* sql.unsafe("/* a /* b */ BEGIN */ insert into tx_multi_quoted values (3, 'c')");
+        // Neither text opened a transaction, so every row is already committed.
+        yield* sql.unsafe("BEGIN");
+        yield* sql.unsafe("ROLLBACK");
+        expect(yield* countRows(sql, "tx_multi_quoted")).toBe(3);
+      })
+    );
+
+    it.effect(
+      "refuses multi-statement control text sent as a stream",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        const error = yield* sql.unsafe("BEGIN; select 1 as one").stream.pipe(Stream.runCollect, Effect.flip);
+        expectRefusedMultiStatement(error);
+        yield* expectUsable(sql);
       })
     );
 
