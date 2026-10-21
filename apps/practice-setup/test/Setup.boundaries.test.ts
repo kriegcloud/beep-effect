@@ -39,7 +39,8 @@ const platform = Layer.mergeAll(
 it.layer(platform, { concurrent: false, timeout: "5 seconds" })(
   "Windows setup boundaries without native execution",
   (it) => {
-    const exercise = Effect.fnUntraced(function* (
+    const exercise = <E>(
+      name: string,
       options: {
         readonly executable?: boolean;
         readonly registry?: boolean;
@@ -49,95 +50,95 @@ it.layer(platform, { concurrent: false, timeout: "5 seconds" })(
       use: (
         host: SetupHost["Service"],
         calls: ReadonlyArray<ChildProcess.StandardCommand>
-      ) => Effect.Effect<void, unknown, FileSystem.FileSystem>
-    ) {
-      const fs = yield* FileSystem.FileSystem;
-      yield* fs.remove("/local", { recursive: true, force: true });
-      if (options.executable) {
-        yield* fs.makeDirectory("/local/AnthropicClaude", { recursive: true });
-        yield* fs.writeFileString("/local/AnthropicClaude/claude.exe", "fixture executable");
-      }
+      ) => Effect.Effect<void, E, FileSystem.FileSystem>
+    ) => {
       const calls: Array<ChildProcess.StandardCommand> = [];
       const spawner = ChildProcessSpawner.ChildProcessSpawner.of(
         ChildProcessSpawner.make((command) => {
           if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected piped command");
           calls.push(command);
-          if (command.command === "reg.exe") return Effect.succeed(handle("", options.registry ? 0 : 1));
+          if (command.command === "reg.exe") return Effect.succeed(handle("", options.registry === true ? 0 : 1));
           if (
             A.contains(command.args, "Get-AppxPackage -Name Claude | Select-Object -ExpandProperty PackageFamilyName")
           ) {
-            return Effect.succeed(handle(options.msix ? "Claude_pzs8sxrjxfjjc\r\n" : "OtherPackage\r\n", 0));
+            return Effect.succeed(handle(options.msix === true ? "Claude_pzs8sxrjxfjjc\r\n" : "OtherPackage\r\n", 0));
           }
           return Effect.succeed(handle("", options.shellExit ?? 0));
         })
       );
-      return yield* Effect.gen(function* () {
-        yield* use(yield* SetupHost, calls);
-      }).pipe(Effect.provide(SetupHost.layer), Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner));
-    });
+      const host = SetupHost.layer.pipe(Layer.provide(Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, spawner)));
+      it.layer(host, { timeout: "5 seconds" })(name, (it) => {
+        it.effect(name, () =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            yield* fs.remove("/local", { recursive: true, force: true });
+            if (options.executable === true) {
+              yield* fs.makeDirectory("/local/AnthropicClaude", { recursive: true });
+              yield* fs.writeFileString("/local/AnthropicClaude/claude.exe", "fixture executable");
+            }
+            yield* use(yield* SetupHost, calls);
+          })
+        );
+      });
+    };
 
-    it.effect("detects a per-user executable without querying registry or MSIX", () =>
-      exercise(
-        { executable: true },
-        Effect.fnUntraced(function* (host, calls) {
-          expect(yield* host.claudeInstall).toBe("per-user");
-          expect(calls).toEqual([]);
-        })
-      )
+    exercise(
+      "detects a per-user executable without querying registry or MSIX",
+      { executable: true },
+      Effect.fnUntraced(function* (host, calls) {
+        expect(yield* host.claudeInstall).toBe("per-user");
+        expect(calls).toEqual([]);
+      })
     );
-    it.effect("accepts registry detection before querying MSIX", () =>
-      exercise(
-        { registry: true },
-        Effect.fnUntraced(function* (host, calls) {
-          expect(yield* host.claudeInstall).toBe("per-user");
-          expect(A.map(calls, (call) => call.command)).toEqual(["reg.exe"]);
-        })
-      )
+    exercise(
+      "accepts registry detection before querying MSIX",
+      { registry: true },
+      Effect.fnUntraced(function* (host, calls) {
+        expect(yield* host.claudeInstall).toBe("per-user");
+        expect(A.map(calls, (call) => call.command)).toEqual(["reg.exe"]);
+      })
     );
     for (const msix of [true, false]) {
-      it.effect(`distinguishes MSIX=${msix} from a missing install`, () =>
-        exercise(
-          { msix },
-          Effect.fnUntraced(function* (host, calls) {
-            expect(yield* host.claudeInstall).toBe(msix ? "msix" : "missing");
-            expect(A.map(calls, (call) => call.command)).toEqual(["reg.exe", "powershell.exe"]);
-          })
-        )
+      exercise(
+        `distinguishes MSIX=${msix} from a missing install`,
+        { msix },
+        Effect.fnUntraced(function* (host, calls) {
+          expect(yield* host.claudeInstall).toBe(msix ? "msix" : "missing");
+          expect(A.map(calls, (call) => call.command)).toEqual(["reg.exe", "powershell.exe"]);
+        })
       );
     }
-    it.effect("passes installer arguments and shell text without parsing user text as PowerShell", () =>
-      exercise(
-        { shellExit: 1 },
-        Effect.fnUntraced(function* (host, calls) {
-          expect(yield* host.runInstaller("/fixture/setup.exe", ["/S"])).toBe(1);
-          // Explorer's nonzero exit is allowed because it can already have opened the file.
-          yield* host.open("/fixture/bundle.mcpb");
-          const text = "text with 'quotes'; $(not a command)";
-          expect((yield* host.openLink(text).pipe(Effect.result))._tag).toBe("Failure");
-          expect((yield* host.copyToClipboard(text).pipe(Effect.result))._tag).toBe("Failure");
-          expect(A.map(calls, (call) => call.command)).toEqual([
-            "/fixture/setup.exe",
-            "explorer.exe",
-            "powershell.exe",
-            "powershell.exe",
-          ]);
-          expect(calls[0]?.args).toEqual(["/S"]);
-          expect(calls[2]?.options.env).toMatchObject({ BEEP_SETUP_TEXT: text });
-          expect(calls[2]?.args).not.toContain(text);
-          expect(yield* host.stateDir).toBe("/local/beep/practice-setup");
-          const fs = yield* FileSystem.FileSystem;
-          expect(yield* fs.exists("/local/beep/practice-setup")).toBe(true);
-        })
-      )
+    exercise(
+      "passes installer arguments and shell text without parsing user text as PowerShell",
+      { shellExit: 1 },
+      Effect.fnUntraced(function* (host, calls) {
+        expect(yield* host.runInstaller("/fixture/setup.exe", ["/S"])).toBe(1);
+        // Explorer's nonzero exit is allowed because it can already have opened the file.
+        yield* host.open("/fixture/bundle.mcpb");
+        const text = "text with 'quotes'; $(not a command)";
+        expect((yield* host.openLink(text).pipe(Effect.result))._tag).toBe("Failure");
+        expect((yield* host.copyToClipboard(text).pipe(Effect.result))._tag).toBe("Failure");
+        expect(A.map(calls, (call) => call.command)).toEqual([
+          "/fixture/setup.exe",
+          "explorer.exe",
+          "powershell.exe",
+          "powershell.exe",
+        ]);
+        expect(calls[0]?.args).toEqual(["/S"]);
+        expect(calls[2]?.options.env).toMatchObject({ BEEP_SETUP_TEXT: text });
+        expect(calls[2]?.args).not.toContain(text);
+        expect(yield* host.stateDir).toBe("/local/beep/practice-setup");
+        const fs = yield* FileSystem.FileSystem;
+        expect(yield* fs.exists("/local/beep/practice-setup")).toBe(true);
+      })
     );
-    it.effect("accepts successful link and clipboard commands", () =>
-      exercise(
-        {},
-        Effect.fnUntraced(function* (host) {
-          yield* host.openLink("claude://new");
-          yield* host.copyToClipboard("synthetic onboarding");
-        })
-      )
+    exercise(
+      "accepts successful link and clipboard commands",
+      {},
+      Effect.fnUntraced(function* (host) {
+        yield* host.openLink("claude://new");
+        yield* host.copyToClipboard("synthetic onboarding");
+      })
     );
     it.layer(GatewayBundle.fromFile("/bundle.mcpb", O.some("1.2.3")), { timeout: "5 seconds" })(
       "bundled asset",
