@@ -61,7 +61,7 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 };
 
 /**
- * The kit modules waves 1a, 1b and 2a of the effected promotion moved out of the lab
+ * The kit modules waves 1a, 1b, 2a and 2b of the effected promotion moved out of the lab
  * into `@beep/*` packages (`templates` became `@beep/managed-section`; the pure
  * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`). Upstream
  * reached each as a bare `@effected/*` edge and the lab as a relative sibling
@@ -73,6 +73,7 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/commands",
 	"@beep/git",
+	"@beep/github",
 	"@beep/github-commands",
 	"@beep/github-references",
 	"@beep/glob",

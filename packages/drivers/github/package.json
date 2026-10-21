@@ -42,7 +42,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
-    "./internal/*": null,
+    "./internal/*": "./src/internal/*.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -59,14 +59,26 @@
     "exports": {
       ".": "./dist/index.js",
       "./*": "./dist/*.js",
-      "./internal/*": null,
+      "./internal/*": "./dist/internal/*.js",
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
-    "effect": "catalog:"
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/semver": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@noble/hashes": "catalog:",
+    "@octokit/core": "catalog:",
+    "@octokit/plugin-paginate-rest": "catalog:",
+    "@octokit/types": "catalog:",
+    "effect": "catalog:",
+    "tweetnacl": "catalog:",
+    "universal-github-app-jwt": "catalog:"
   },
   "devDependencies": {
+    "@beep/fc-runs": "workspace:^",
+    "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
     "bun-types": "catalog:"

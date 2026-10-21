@@ -2256,7 +2256,8 @@
       ],
       "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"],
       "@beep/github": ["./packages/drivers/github/src/index.ts"],
-      "@beep/github/*": ["./packages/drivers/github/src/*"]
+      "@beep/github/*": ["./packages/drivers/github/src/*"],
+      "@beep/github/internal/*": ["./packages/drivers/github/src/internal/*"]
     }
   }
 }
