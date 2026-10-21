@@ -464,7 +464,7 @@ pub trait ToGlibPtrMut<'a, P: Copy> {
     ///
     /// The pointer in the `Stash` is only valid for the lifetime of the `Stash`.
     #[allow(clippy::wrong_self_convention)]
-    fn to_glib_none_mut(&'a mut self) -> StashMut<P, Self>;
+    fn to_glib_none_mut(&'a mut self) -> StashMut<'a, P, Self>;
 }
 
 impl<'a, P: Ptr, T: ToGlibPtr<'a, P>> ToGlibPtr<'a, P> for Option<T> {

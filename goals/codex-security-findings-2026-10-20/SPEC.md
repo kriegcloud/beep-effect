@@ -8,8 +8,8 @@ Remediate every open Codex Cloud security finding visible at
 the work through Yeet, reach mergeable hosted state, merge, then resolve the
 exact captured findings until no packet-applicable finding remains open.
 
-The operator expanded this same single-PR goal to include all 104 open GitHub
-Dependabot alerts captured in `ops/dependabot.json` (50 unique advisories).
+The operator expanded this same single-PR goal to include all 123 captured GitHub
+Dependabot alerts captured in `ops/dependabot.json` (63 unique advisories after the post-publication refresh).
 Keep this separate from the exact eight Cloud identities. Every captured alert
 requires a source-backed disposition and merged-revision closure evidence;
 fixture location alone does not establish an invalid alert.

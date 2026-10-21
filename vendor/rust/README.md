@@ -11,7 +11,11 @@ GTK-rs GLib crate. Both desktop Cargo roots use it through `[patch.crates-io]`:
 The patch fixes [GHSA-wrw7-89jp-8q8g](https://github.com/advisories/GHSA-wrw7-89jp-8q8g)
 without changing the 0.18 crate version, public API, features, or GTK ABI. See
 [the backport receipt](glib-0.18.5/SECURITY-BACKPORT.md) for source provenance.
-The original upstream README, COPYRIGHT, LICENSE, and source are retained.
+The upstream source is retained with the two-line security fix, four iterator
+regressions, 34 mechanical Rust 1.99 production warning fixes and two test-only
+constant updates documented in the receipt.
+The original upstream README, COPYRIGHT and full LICENSE text are retained
+(LICENSE final blank line normalized).
 No build outputs, registry cache metadata, or local Cargo credentials belong
 in this directory.
 

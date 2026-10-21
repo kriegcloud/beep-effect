@@ -840,7 +840,7 @@ impl Variant {
     /// }
     /// # Ok::<(), Box<dyn std::error::Error>>(())
     /// ```
-    pub fn array_iter_str(&self) -> Result<VariantStrIter, VariantTypeMismatchError> {
+    pub fn array_iter_str(&self) -> Result<VariantStrIter<'_>, VariantTypeMismatchError> {
         let child_ty = String::static_variant_type();
         let actual_ty = self.type_();
         let expected_ty = child_ty.as_array();
@@ -2198,7 +2198,7 @@ mod tests {
         ($name:ident, $ty:ident) => {
             #[test]
             fn $name() {
-                let mut n = $ty::max_value();
+                let mut n = <$ty>::MAX;
                 while n > 0 {
                     let v = n.to_variant();
                     assert_eq!(v.get(), Some(n));
@@ -2212,7 +2212,7 @@ mod tests {
         ($name:ident, $ty:ident) => {
             #[test]
             fn $name() {
-                let mut n = $ty::max_value();
+                let mut n = <$ty>::MAX;
                 while n > 0 {
                     let v = n.to_variant();
                     assert_eq!(v.get(), Some(n));

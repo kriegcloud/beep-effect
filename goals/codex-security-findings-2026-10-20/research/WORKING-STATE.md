@@ -188,3 +188,40 @@ checks remain enabled. Yeet residue stash `d3f5787c39f301d0bc542db2e62f68f076d39
 is retained. Its restore encountered a formatting-only triage conflict with
 Biome; kept the formatted stage-two JSON after parsing it. No source conflict
 remains; both recovery stashes are preserved.
+
+## Publication and added-alert wave
+
+Yeet committed and pushed `6fc9bbcafd`; draft PR #1930 is open and attached.
+Committed cheap gates and frozen head installation passed. Initial detached
+monitor submission could not reach the user manager; retry uses command-local
+XDG_RUNTIME_DIR/DBUS settings. Publication restored its residue stash.
+CLI full audit retained 6900 passing tests and one environmental inventory
+failure: the new goal existed on disk but was absent from then-HEAD. Stable
+committed rerun passed 14/14, and separate source/scripts checks, lint and
+docgen passed (research/cli-package-proof.md).
+
+Fresh GitHub read found 123 open alerts, 19 new since the initial capture: nine Vite
+fixture alerts and ten Python Pillow/certifi alerts. Inventory expanded to 123
+without replacing original IDs. The dependency worker owns compatible Python
+fixes and proof. Keep the PR draft until content-final; the next push consolidates
+the added alerts and final evidence. No Cloud or Dependabot status has changed.
+
+Readiness monitor successfully submitted with the user-manager environment:
+job `5a634b17-4a8e-4ce2-a99c-079e7ba96907`, two-hour ceiling. Parent is waiting
+on that same job; do not duplicate it. GitHub checks are pending and the PR
+is intentionally draft during the added-alert wave. Generated untracked
+fontconfig caches were preserved outside the checkout under
+`~/.cache/beep/security-findings-2026-10-20/fontconfig-residue` to avoid false
+gate-staleness reports; no tracked baseline was changed.
+
+## Content-final added-alert and CI repair wave
+
+Pillow13.0.0 andcertifi2026.10.19 lock updates passed default53+3expected
+skips, CPU56, ROCm56, codec roundtrips, CA distrust/verifiedHTTPS andnative
+ROCm graph probes. The strict Rust1.99.1 CI policy now passes professional
+check/clippy, Semantica check and15optimizedGLibiterator tests after mechanical
+lifetime/parenthesis/constant compatibility fixes; no warning policy changed.
+The next publish consolidates these changes and final proof receipts in PR1930.
+After successful push, flipready and wait on job5a634b17-4a8e-4ce2-a99c-079e7ba96907
+(the same existing monitor). Labs had an unchanged-source hook timeout on
+the first head and needs a fresh-head result. No exact findings closed yet.

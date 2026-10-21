@@ -275,3 +275,66 @@ Final staging normalized the extra blank line at the end of the upstream MIT
 LICENSE to satisfy git whitespace checks. License text and grant are unchanged;
 this is an explicit formatting exception to the published-byte comparison,
 beside the documented Rust source patch and added backport receipt.
+
+## Hosted IPC red: path-source warning visibility
+
+The PR #1930 `Professional Desktop IPC Stdio` job 119021316807 failed its
+`cargo check --locked`, not the IPC protocol tests. The exact completed log is
+retained in ignored `raw/ci-ipc-119021316807.log`. It identifies Cargo 1.99.1
+and `CARGO_BUILD_WARNINGS=deny`; line 2524 reports glib's 34 warnings and the
+next line states that `build.warnings` denies them. Earlier local checks ran
+without that CI configuration and therefore succeeded despite the warnings.
+
+Attribution: introduced integration failure. The warnings originate in old
+upstream source, but converting a registry dependency into a local path
+uncapped their lint visibility in this PR. The source safety fix remains
+necessary; relaxing CI policy would hide this integration problem.
+
+Applied the 34 compiler-proposed mechanical corrections using pinned
+`cargo +1.99.1 fix --lib` against the standalone vendored manifest:
+31 explicit lifetime arguments (inferred `'_` or the existing named `'a`),
+plus removal of three redundant trait-object type parentheses. Exactly 12
+files change: `collections/list.rs`, `collections/slist.rs`, `enums.rs`,
+`main_context.rs`, `object.rs`, `param_spec.rs`, `subclass/types.rs`,
+`translate.rs`, `value.rs`, `value_array.rs`, `variant.rs`, `variant_type.rs`.
+No behavior, intended lifetime, crate version, feature, or public API changes.
+No warning-policy change, blanket cap, or added allow attribute was made.
+
+The current published-archive difference is therefore the security fix and
+four tests in `variant_iter.rs`, these 34 mechanical compatibility edits,
+LICENSE final-blank-line normalization, and the added receipt; the published
+VCS metadata remains omitted. Earlier source-only comparison receipts above
+refer to the state before CI exposed this integration requirement. The
+vendored SECURITY-BACKPORT receipt now enumerates the complete current delta.
+
+Reproduced the actual check with pinned `cargo +1.99.1`, unchanged default
+features and the hosted environment: `CARGO_INCREMENTAL=0`,
+`CARGO_PROFILE_DEV_DEBUG=0`, `CARGO_TERM_COLOR=always`, `RUST_BACKTRACE=short`,
+`CARGO_BUILD_WARNINGS=deny`, `CARGO_UNSTABLE_SPARSE_REGISTRY=true`, and
+`CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse`.
+
+- Professional `cargo check --locked`: passed, 33.93s, zero warnings.
+- Professional `cargo clippy --locked -- -D warnings`: passed, 2.03s,
+  zero warnings, with the same hosted environment.
+- Semantica `CARGO_BUILD_WARNINGS=deny cargo +1.99.1 check --locked`:
+  passed, 34.57s, zero warnings.
+
+Adding the same deny-warnings setting to standalone optimized iterator proof
+exposed seven deprecated `max_value()` warnings from two retained upstream
+integer test macros. Replaced those two test-only expressions with the exactly
+equivalent `<$ty>::MAX` constant. This adds two mechanical test lines in
+`variant.rs` to the 34 production compatibility lines; no exception is needed.
+The standalone test initially failed under the strict setting; that failure
+was attributed to retained test-code compatibility and corrected directly.
+Logs: ignored `raw/glib-warning-fixes.log`,
+`raw/glib-fixed-professional-ci-check.log`,
+`raw/glib-fixed-professional-ci-clippy.log`,
+`raw/glib-fixed-semantica-check.log`, and
+`raw/glib-fixed-release-iterators.log`.
+
+Final strict optimized iterator proof passed: `CARGO_BUILD_WARNINGS=deny cargo
++1.99.1 test --release --manifest-path vendor/rust/glib-0.18.5/Cargo.toml --lib
+variant_iter::tests`: 15 passed, zero failures, zero warnings. Parsed final logs
+confirm zero warnings/errors across both application checks, professional
+Clippy, and optimized iterator proof. Parent owns P0 inbox acknowledgment after
+the actual combined fix commit; this lane neither waived nor acknowledged it.

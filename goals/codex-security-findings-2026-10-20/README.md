@@ -52,8 +52,8 @@ materially invalid.
 
 ## Expanded Dependabot scope
 
-The same single PR also covers all 104 captured open GitHub Dependabot alerts
-(50 unique advisories). See `ops/dependabot.json` for exact identities and
+The same single PR also covers all 123 captured open GitHub Dependabot alerts
+(63 unique advisories after the post-publication refresh). See `ops/dependabot.json` for exact identities and
 `research/DEPENDABOT.md` for triage/history, with separate fixture, Python and
 Rust reports. The original eight-item Cloud manifest remains unchanged.
 Verification, lock regeneration and publication are held until #1928 merges.

@@ -262,3 +262,87 @@ are retained; real-weight validation remains a separate acceptance boundary.
 Sanitized command/output logs and the native synthetic script are retained in
 `~/.cache/beep/security-dependency-proof-20261020/`. This source/lock/runtime
 proof does not claim merged-head graph ingestion or automatic alert closure.
+
+## New-alert proof: Pillow and certifi (post-publication refresh)
+
+The parent's refreshed default-branch inventory expanded the captured scope to
+123 open alerts. Ten newly identified pip alerts target this same worker lock:
+
+| Alerts | Advisory | Fixed pin |
+| --- | --- | --- |
+| 440 | [GHSA-58r4-6rv3-gfh8](https://github.com/advisories/GHSA-58r4-6rv3-gfh8) | Pillow 13.0.0 |
+| 439 | [GHSA-65qm-jvmh-6pqg](https://github.com/advisories/GHSA-65qm-jvmh-6pqg) | Pillow 13.0.0 |
+| 438 | [GHSA-vx6w-vv9f-6gvg](https://github.com/advisories/GHSA-vx6w-vv9f-6gvg) | Pillow 13.0.0 |
+| 437 | [GHSA-q45j-58j2-45rg](https://github.com/advisories/GHSA-q45j-58j2-45rg) | Pillow 13.0.0 |
+| 436 | [GHSA-pchr-8j38-3x4p](https://github.com/advisories/GHSA-pchr-8j38-3x4p) | Pillow 13.0.0 |
+| 435 | [GHSA-p4wg-p73j-c528](https://github.com/advisories/GHSA-p4wg-p73j-c528) | Pillow 13.0.0 |
+| 434 | [GHSA-462x-pgg6-55fp](https://github.com/advisories/GHSA-462x-pgg6-55fp) | Pillow 13.0.0 |
+| 433 | [GHSA-c6hw-5grf-ff96](https://github.com/advisories/GHSA-c6hw-5grf-ff96) | Pillow 13.0.0 |
+| 432 | [GHSA-8g5g-8vmr-9782](https://github.com/advisories/GHSA-8g5g-8vmr-9782) | Pillow 13.0.0 |
+| 431 | [GHSA-6q48-6c7w-9gw2](https://github.com/advisories/GHSA-6q48-6c7w-9gw2) | certifi 2026.10.19 |
+
+Fetched each advisory afresh with GitHub's supported `/advisories/{ghsa}` API;
+all nine Pillow records name 13.0.0 as first patched, certifi names 2026.10.19.
+Raw responses are retained in ignored `raw/python-new-advisories-official.json`.
+These are version-based dependency remediations, without an exploit attempt or
+reachability dismissal.
+
+[Pillow official release notes](https://pillow.readthedocs.io/en/stable/releasenotes/13.0.0.html)
+confirm the relevant image parser/native fixes. Compatibility review considered
+the Python 3.10 removal, removed dtype-changing `Image.fromarray(mode=...)`
+behavior and I-mode PNG writes. The worker targets Python 3.12 and directly
+uses OpenCV `cv2.imread` for collection decoding, `warpAffine` for alignment,
+and `cvtColor` for channels; it contains no direct Pillow call. Pillow is still
+installed through imageio/scikit-image, so direct OpenCV usage is not used as an
+unsupported claim of transitive unreachability.
+
+Official PyPI metadata confirms [Pillow 13.0.0](https://pypi.org/pypi/pillow/13.0.0/json)
+requires Python >=3.11 and provides CPython 3.12 Linux x64 wheels;
+[certifi 2026.10.19](https://pypi.org/pypi/certifi/2026.10.19/json) requires >=3.7.
+The locked imageio 2.37.4 requires Pillow >=8.3.2 and scikit-image 0.26.0
+requires >=10.1, with no incompatible upper cap. certifi's advisory specifically
+identifies the affected `emSign ECC Root CA - G3`; 2026.10.19 restores unaffected
+emSign roots after their blanket removal in 2026.10.18. Proof checks the affected
+G3's absence, rather than incorrectly requiring removal of all emSign roots.
+Metadata and selected published wheel hashes are retained in ignored
+`raw/python-new-advisory-metadata.json`.
+
+Extended `tool.uv.constraint-dependencies` with exact `pillow==13.0.0` and
+`certifi==2026.10.19`, preserving the direct dependency shape and existing
+urllib3 pin. Ran `uv lock --upgrade-package pillow --upgrade-package certifi`.
+A parsed comparison with published HEAD confirms exactly two version changes:
+Pillow 12.3.0 → 13.0.0 and certifi 2026.7.22 → 2026.10.19. Both torch cohorts,
+triton provider, urllib3 and all other package versions/hashes remain unchanged.
+uv generated every new archive URL/checksum; no hand-edited lock artifacts.
+
+Reused the existing disposable default/CPU/ROCm environments and frozen-synced
+the new lock without re-downloading torch or touching live environments/models:
+
+- Default: 53 tests passed, three intentional absent-torch skips.
+- AdaFace CPU: 56 tests passed, zero skipped.
+- AdaFace ROCm: 56 tests passed, zero skipped.
+- `ruff check .` and `uv lock --check`: passed.
+- Synthetic PNG/JPEG/TIFF/GIF round trips decoded successfully through Pillow,
+  imageio and scikit-image's Pillow adapter. RGB ndarray export also passed.
+- certifi CA bundle parsed with a nonempty CA store, affected G3 label absent;
+  certificate-verified HTTPS requests to PyPI passed through both urllib with
+  the explicit certifi bundle and requests' normal trust configuration.
+- Repeated native gfx1201 probe and both vendored aligner/recognizer synthetic
+  graphs with the ROCm cohort; all passed with finite outputs and unchanged
+  torch/HIP/triton provenance. Existing native discovery diagnostics persisted
+  without a failed import/probe/forward pass.
+
+The initial disposable compatibility probe assumed a single GIF frame returned
+as a three-dimensional array; imageio's default returns a leading frame axis.
+Corrected the probe to accept its documented one-frame shape. Its first trust
+assertion was also too broad (all emSign); corrected it against the exact
+advisory to exclude only G3. These were proof-script mistakes; no production
+behavior was changed to satisfy them.
+
+Final ignored logs: `raw/python-new-alerts-{default,cpu,rocm}-tests.log`,
+`raw/python-new-alerts-compatibility.log`, and
+`raw/python-new-alerts-rocm-native.log`. No full CLI proof was repeated for
+these two transitive-only pins; its previous 135-test proof and parent-owned
+package verification remain separate receipts. No new runtime/model/real-photo
+or real-weight inference claim is made. Parent owns the single follow-up push
+wave and eventual merged-head alert refresh.

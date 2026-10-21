@@ -47,3 +47,21 @@ PR merges, refresh every captured alert: retain automatic-fixed evidence, or
 record a source-backed supported disposition for any remaining graph alert.
 Do not mark the vendored GLib fix as an upstream version upgrade or claim that
 a vulnerable-version scanner automatically recognizes the backport.
+
+## Post-publication refresh — 2026-10-21
+
+Default-branch API now reports 123 open alerts. Captured the 19 new exact IDs
+in the inventory without changing the original 104 identities: alerts 441–449
+are three new Vite advisories across the same historical fixture paths; alerts
+432–440 are nine Pillow advisories, and 431 is a certifi advisory in photo-face.
+The existing fixture representation covers the nine historical-input alerts.
+Pillow 13.0.0 and certifi 2026.10.19 are the reported fixed floors; compatibility,
+resolution and execution proof are required before the next single-PR wave.
+PR #1930 remains draft while this work is in progress. No statuses changed.
+
+The added Python advisory wave now has supported lock updates and passing
+default/CPU/ROCm, codec round-trip and certificate trust-store proof; see the
+Python report. Current inventory: 103 fixture alerts, 16 Python alerts and four
+Rust alerts, over 63 unique advisories. Hosted IPC exposed warning visibility
+in the path-patched GLib dependency; source warning fixes and CI reproduction
+are in progress without changing the warning-denial policy.

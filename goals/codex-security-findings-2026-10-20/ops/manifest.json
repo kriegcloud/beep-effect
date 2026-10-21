@@ -10,14 +10,14 @@
   },
   "packetPath": "goals/codex-security-findings-2026-10-20",
   "lifecycle": "active",
-  "mission": "Remediate and close the eight captured Codex Cloud findings and all 104 captured Dependabot alerts through one PR.",
+  "mission": "Remediate and close the eight captured Codex Cloud findings and all 123 captured Dependabot alerts through one PR.",
   "executionCapable": true,
   "reflectionRequired": true,
   "completionGate": {
     "operator": "yeet",
     "requiresPullRequest": true,
     "requiresMergeable": true,
-    "statement": "One combined Yeet PR merged through repository gates; exact eight Cloud IDs and104 Dependabot alert IDs resolved with merged-revision evidence.",
+    "statement": "One combined Yeet PR merged through repository gates; exact eight Cloud IDs and123 Dependabot alert IDs resolved with merged-revision evidence.",
     "grandfathered": false
   },
   "branch": "codex/security-findings-2026-10-20",
@@ -163,5 +163,5 @@
     "A remediation requires an architecture or product decision outside packet scope.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "PR #1928 merged and main is integrated. Scoped security/dependency proof and collected cheap gates passed. Preparing one combined PR; broad CLI package audit and hosted/merged closure proof remain pending."
+  "statusNote": "PR #1930 added-alert wave is content-final: all 123 captured Dependabot alerts have scoped remediation/proof, strict Rust warning repair passed, and eight Cloud fixes passed scoped proof. Publication, hosted checks/review, merge and exact-ID closure remain required."
 }

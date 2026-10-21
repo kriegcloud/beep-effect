@@ -22,8 +22,8 @@ adaface-cpu = [
 ]
 
 [tool.uv]
-# Security floor for requests' transitive HTTP transport; preserve a reproducible pin.
-constraint-dependencies = ["urllib3==2.8.0"]
+# Reproducible security pins for transitive transport, trust roots and image decoding.
+constraint-dependencies = ["urllib3==2.8.0", "certifi==2026.10.19", "pillow==13.0.0"]
 conflicts = [
   [
     { extra = "adaface" },

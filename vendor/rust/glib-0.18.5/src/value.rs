@@ -542,7 +542,7 @@ impl Value {
     ///
     /// Returns `Ok` if the type is correct.
     #[inline]
-    pub fn get<'a, T>(&'a self) -> Result<T, <<T as FromValue>::Checker as ValueTypeChecker>::Error>
+    pub fn get<'a, T>(&'a self) -> Result<T, <<T as FromValue<'a>>::Checker as ValueTypeChecker>::Error>
     where
         T: FromValue<'a>,
     {
@@ -555,7 +555,7 @@ impl Value {
     // rustdoc-stripper-ignore-next
     /// Tries to get a value of an owned type `T`.
     #[inline]
-    pub fn get_owned<T>(&self) -> Result<T, <<T as FromValue>::Checker as ValueTypeChecker>::Error>
+    pub fn get_owned<T>(&self) -> Result<T, <<T as FromValue<'_>>::Checker as ValueTypeChecker>::Error>
     where
         T: for<'b> FromValue<'b> + 'static,
     {

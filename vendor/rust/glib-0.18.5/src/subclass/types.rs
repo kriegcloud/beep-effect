@@ -707,7 +707,7 @@ pub trait ObjectSubclassExt: ObjectSubclass {
     /// Returns the corresponding object instance.
     #[doc(alias = "get_instance")]
     #[deprecated = "Use obj() instead"]
-    fn instance(&self) -> crate::BorrowedObject<Self::Type>;
+    fn instance(&self) -> crate::BorrowedObject<'_, Self::Type>;
 
     // rustdoc-stripper-ignore-next
     /// Returns the implementation from an instance.
@@ -719,7 +719,7 @@ pub trait ObjectSubclassExt: ObjectSubclass {
     ///
     /// Shorter alias for `instance()`.
     #[doc(alias = "get_instance")]
-    fn obj(&self) -> crate::BorrowedObject<Self::Type>;
+    fn obj(&self) -> crate::BorrowedObject<'_, Self::Type>;
 
     // rustdoc-stripper-ignore-next
     /// Returns the implementation from an instance.
@@ -741,7 +741,7 @@ pub trait ObjectSubclassExt: ObjectSubclass {
 
 impl<T: ObjectSubclass> ObjectSubclassExt for T {
     #[inline]
-    fn instance(&self) -> crate::BorrowedObject<Self::Type> {
+    fn instance(&self) -> crate::BorrowedObject<'_, Self::Type> {
         self.obj()
     }
 
@@ -751,7 +751,7 @@ impl<T: ObjectSubclass> ObjectSubclassExt for T {
     }
 
     #[inline]
-    fn obj(&self) -> crate::BorrowedObject<Self::Type> {
+    fn obj(&self) -> crate::BorrowedObject<'_, Self::Type> {
         unsafe {
             let data = Self::type_data();
             let type_ = data.as_ref().type_();
