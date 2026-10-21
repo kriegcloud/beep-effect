@@ -1,4 +1,5 @@
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   AiMetricsDeployTarget,
   AiMetricsDerivedStorageWriteInput,
@@ -24,7 +25,6 @@ import {
 } from "@beep/repo-ai-metrics";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { expect } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

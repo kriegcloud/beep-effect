@@ -13,7 +13,7 @@ import * as Command from "effect/cli/Command";
 import * as Terminal from "effect/Terminal";
 import * as Stdio from "effect/Stdio";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import type { Document } from "../../../effected/cli/index.ts";
 import { CliEnv, CliLinks, Doc } from "../../../effected/cli/index.ts";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";

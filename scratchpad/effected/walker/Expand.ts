@@ -13,7 +13,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { GlobPattern, GlobPatternError, GlobPatternOptions } from "../glob/index.ts";
+import { GlobPattern, GlobPatternError, GlobPatternOptions } from "@beep/glob/GlobPattern";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
 import * as Effect from "effect/Effect";
@@ -48,7 +48,7 @@ const encodeJsonString = S.encodeResult(JsonString);
 *
 * ```ts
 * import { CompileAndExpandOptions } from "@beep/scratchpad/effected/walker/Expand";
-* import { GlobPatternOptions } from "@beep/scratchpad/effected/glob/index";
+* import { GlobPatternOptions } from "@beep/glob/GlobPattern";
 *
 * const options = CompileAndExpandOptions.make({ cwd: "/repo", glob: GlobPatternOptions.make({ dot: true }) });
 * console.log(options.glob.dot) // true
@@ -208,7 +208,7 @@ export class GlobExpansionError extends S.TaggedError<GlobExpansionError, { read
 * **Example** (Compile and expand a TypeScript glob)
 *
 * ```ts
-* import { GlobPatternOptions } from "@beep/scratchpad/effected/glob/index";
+* import { GlobPatternOptions } from "@beep/glob/GlobPattern";
 * import { compileAndExpand } from "@beep/scratchpad/effected/walker/Expand";
 * import * as Effect from "effect/Effect";
 *
@@ -227,8 +227,9 @@ export const compileAndExpand: {
 	(pattern: string, options: CompileAndExpandOptions): Effect.Effect<ReadonlyArray<string>, GlobExpansionError, FileSystem.FileSystem | Path.Path>;
 } = dual(2, Effect.fn("Walker.compileAndExpand")(function* (pattern: string, options: CompileAndExpandOptions) {
 	// compileResult is the pure primitive; there is no reason to cross an Effect
-	// boundary twice just to reach it.
-	return yield* Effect.fromResult(GlobPattern.compileResult(pattern, options.glob)).pipe(
+	// boundary twice just to reach it. Annotating the opaque `glob` field rebuilds
+	// its struct, so the brand is restored here with `make`.
+	return yield* Effect.fromResult(GlobPattern.compileResult(pattern, GlobPatternOptions.make(options.glob))).pipe(
 		Effect.flatMap((compiled) => descend(compiled, options)),
 		Effect.mapError((cause) => GlobExpansionError.make({ pattern, cause })),
 	);

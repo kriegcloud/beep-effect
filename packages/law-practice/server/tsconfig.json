@@ -87,6 +87,9 @@
       "path": "../../shared/use-cases/tsconfig.json"
     },
     {
+      "path": "../../tooling/test-kit/memfs/tsconfig.json"
+    },
+    {
       "path": "../../tooling/test-kit/test-runner/tsconfig.json"
     },
     {

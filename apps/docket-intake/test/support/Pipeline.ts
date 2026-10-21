@@ -26,8 +26,8 @@ import {
   ParalegalRevision,
   SecretaryReview,
 } from "@beep/law-practice-use-cases/DocketIntake";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { LocalDate } from "@beep/schema/LocalDate";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";

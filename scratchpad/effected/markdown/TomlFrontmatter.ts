@@ -1,4 +1,4 @@
-import { Toml } from "../toml/index.ts";
+import { Toml } from "@beep/toml";
 import * as Effect from "effect/Effect";
 import type { FrontmatterCodec } from "./Frontmatter.ts";
 import { FrontmatterDecodeError, FrontmatterEncodeError, FrontmatterFormatMismatchError } from "./Frontmatter.ts";

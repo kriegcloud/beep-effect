@@ -15,7 +15,7 @@ import * as HttpClientError from "effect/http/HttpClientError";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as TestClock from "effect/testing/TestClock";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
 import { ToolInstaller, ToolInstallerError } from "../../effected/github-actions/ToolInstaller.ts";
 import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";

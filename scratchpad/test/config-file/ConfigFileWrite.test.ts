@@ -1,6 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
-import type { MemoryFileSystemSeed } from "../../effected/memfs/index.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import type { MemoryFileSystemSeed } from "@beep/memfs";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";

@@ -22,7 +22,7 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import type { CommandOutput } from "@beep/commands";
 import { Run } from "@beep/commands";
-import { Yaml } from "../yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 import type { PackedManifest } from "./internal/packedInstallPlan.ts";
 import {
     binConflict,

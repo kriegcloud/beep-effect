@@ -1,6 +1,6 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";

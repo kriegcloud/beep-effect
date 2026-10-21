@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { Package } from "../../effected/package-json/Package.ts";
 import { PackageJsonFile, PackageJsonReadError, PackageJsonNotFoundError, PackageJsonParseError, PackageJsonWriteError } from "../../effected/package-json/PackageJsonFile.ts";
 it.effect("file errors report their operation and target", () => Effect.sync(() => {

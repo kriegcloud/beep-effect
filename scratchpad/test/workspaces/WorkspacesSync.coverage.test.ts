@@ -3,7 +3,7 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
 import * as Path from "effect/Path";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { findWorkspaceRootSync, getWorkspacePackagesSync } from "../../effected/workspaces/WorkspacesSync.ts";
 import type { SyncFileSystem, WorkspaceDiscoverySkip } from "../../effected/workspaces/WorkspacesSync.ts";
 

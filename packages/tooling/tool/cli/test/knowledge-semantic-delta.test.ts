@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   decodeKnowledgeUtf8,
   encodeKnowledgeSemanticDeltaReportJson,
@@ -23,7 +24,6 @@ import {
 } from "@beep/repo-cli/test/Knowledge";
 import { findRepoRoot } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, describe, expect } from "@effect/vitest";

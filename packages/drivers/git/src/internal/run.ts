@@ -1,0 +1,119 @@
+import { $GitId } from "@beep/identity/packages";
+import * as Effect from "effect/Effect";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
+import type * as PlatformError from "effect/PlatformError";
+import type * as ChildProcess from "effect/process/ChildProcess";
+import type * as Scope from "effect/Scope";
+
+const $I = $GitId.create("internal/run");
+
+/**
+ * The stdout, stderr, and exit code of one completed run of a `Command`,
+ * collected separately (never interleaved).
+ *
+ * **Example** (Make a collected run)
+ *
+ * ```ts
+ * import { Collected } from "@beep/git/internal/run";
+ *
+ * const collected = Collected.make({ exitCode: 0, stderr: "", stdout: "ok\n" });
+ * console.log(collected.exitCode); // 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class Collected extends S.Opaque<Collected, { readonly brand: unique symbol }>()(
+  S.Struct({
+    exitCode: S.Finite.pipe($I.annoteKey("Collected.exitCode", { description: "The run's process exit code." })),
+    stderr: S.String.pipe($I.annoteKey("Collected.stderr", { description: "The run's decoded stderr text." })),
+    stdout: S.String.pipe($I.annoteKey("Collected.stdout", { description: "The run's decoded stdout text." })),
+  }).pipe(
+    $I.annoteSchema("Collected", {
+      description: "The stdout, stderr, and exit code of one completed run, collected separately.",
+    })
+  )
+) {}
+
+/**
+ * Spawns `command` and collects its stdout, stderr, and exit code as a single
+ * triple.
+ *
+ * **Gotchas**
+ *
+ * Collection is concurrent (`{ concurrency: "unbounded" }`) — this is
+ * load-bearing, not a style choice. Reading stdout, stderr, and exit code
+ * sequentially can deadlock the moment either pipe's OS buffer fills:
+ * upstream `git` blocks writing to a full pipe while nothing is draining it,
+ * and the sequential reader that would drain it is still waiting on the
+ * *other* stream to finish first.
+ *
+ * **Example** (Construct a command-output collection effect)
+ *
+ * ```ts
+ * import { runCollected } from "@beep/git/internal/run"
+ * import * as Effect from "effect/Effect"
+ * import * as ChildProcess from "effect/process/ChildProcess";
+ * const program = runCollected(ChildProcess.make("git", ["--version"]))
+ *
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ *
+ * @category processes
+ * @since 0.0.0
+ */
+export const runCollected = Effect.fnUntraced(function* (
+  command: ChildProcess.Command
+): Effect.fn.Return<Collected, PlatformError.PlatformError, ChildProcessSpawner.ChildProcessSpawner | Scope.Scope> {
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const handle = yield* spawner.spawn(command);
+  // { concurrency: "unbounded" } is load-bearing: collecting these three
+  // sequentially would deadlock the moment a real OS pipe buffer fills
+  // (upstream git blocks writing while nothing drains it, and the
+  // sequential reader that would drain it is still waiting on the other
+  // stream). No mock test can regress this — it needs a real pipe. The
+  // regression guard is the dedicated "runCollected drains stdout and
+  // stderr concurrently under simultaneous backpressure on both pipes"
+  // test in __test__/integration/Git.int.test.ts (G5) — it puts pressure
+  // on BOTH pipes at once, which is what actually discriminates this
+  // option; a large-output-on-one-stream case does not.
+  const [stdout, stderr, exitCode] = yield* Effect.all(
+    [
+      handle.stdout.pipe(Stream.decodeText, Stream.mkString),
+      handle.stderr.pipe(Stream.decodeText, Stream.mkString),
+      handle.exitCode,
+    ],
+    { concurrency: "unbounded" }
+  );
+  return Collected.make({ stdout, stderr, exitCode: Number(exitCode) });
+}, Effect.scoped);
+
+/**
+ * Whether `command` can be run at all — any COMPLETED run, regardless of exit
+ * code, proves the command exists. Only a `PlatformError` (spawn itself
+ * failing — e.g. the executable is not found) means `command` is
+ * unavailable.
+ *
+ * **Example** (Construct an executable availability check)
+ *
+ * ```ts
+ * import { available } from "@beep/git/internal/run"
+ * import * as Effect from "effect/Effect"
+ * import * as ChildProcess from "effect/process/ChildProcess";
+ * const program = available(ChildProcess.make("git", ["--version"]))
+ *
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const available = (
+  command: ChildProcess.Command
+): Effect.Effect<boolean, never, ChildProcessSpawner.ChildProcessSpawner> =>
+  runCollected(command).pipe(
+    Effect.map(() => true),
+    Effect.orElseSucceed(() => false)
+  );

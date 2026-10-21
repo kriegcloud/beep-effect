@@ -7,7 +7,7 @@ import * as Num from "effect/Number";
 import * as Order from "effect/Order";
 import * as Str from "effect/String";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { GlobSet } from "../glob/index.ts";
+import { GlobSet } from "@beep/glob";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";

@@ -5,7 +5,7 @@ import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { getWorkspacePackagesSync } from "../../effected/workspaces/WorkspacesSync.ts";
 import type { SyncFileSystem } from "../../effected/workspaces/WorkspacesSync.ts";
 import * as Effect from "effect/Effect";

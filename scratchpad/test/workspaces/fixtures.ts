@@ -13,7 +13,7 @@ import { dual } from "effect/Function";
 // A suite-boundary `layer(...)` cannot vary per test, so each distinct tree
 // gets its own `layer(...)` block — that is the house shape.
 
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import type * as FileSystem from "effect/FileSystem";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

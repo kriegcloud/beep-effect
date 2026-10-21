@@ -1,6 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import type { ConfigCodec } from "../../effected/config-file/ConfigCodec.ts";
 import { ConfigEvents } from "../../effected/config-file/ConfigEvent.ts";
 import * as A from "effect/Array";

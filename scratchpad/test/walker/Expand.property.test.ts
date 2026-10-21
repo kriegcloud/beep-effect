@@ -8,7 +8,7 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { CompileAndExpandOptions, GlobExpansionError, compileAndExpand } from "../../effected/walker/Expand.ts";
 
-import { GlobPattern, GlobPatternOptions } from "../../effected/glob/index.ts";
+import { GlobPattern, GlobPatternOptions } from "@beep/glob";
 import { platform } from "./fixtures.ts";
 
 const runs = { arbitrary: fcRuns(100) };

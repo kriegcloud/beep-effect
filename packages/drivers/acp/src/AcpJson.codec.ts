@@ -8,6 +8,7 @@
 import { $AcpId } from "@beep/identity";
 import { A } from "@beep/utils";
 import * as O from "@beep/utils/Option";
+import * as R from "@beep/utils/Record";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Result from "effect/Result";
@@ -130,14 +131,6 @@ class Cursor {
     this.depth -= 1;
   }
 }
-
-const assignOwnProperty = (target: Record<string, unknown>, key: string, value: unknown): void => {
-  if (key === "__proto__") {
-    Object.defineProperty(target, key, { value, writable: true, enumerable: true, configurable: true });
-  } else {
-    target[key] = value;
-  }
-};
 
 const readLiteral = <A>(cursor: Cursor, literal: string, value: A): A => {
   if (!Str.startsWith(literal, cursor.index)(cursor.text)) {
@@ -266,7 +259,7 @@ const readObject = (cursor: Cursor): Record<string, unknown> => {
   }
   while (!closed) {
     const key = readMemberKey(cursor);
-    assignOwnProperty(out, key, readValue(cursor));
+    R.setOwnProperty(out, key, readValue(cursor));
     closed = readSeparator(cursor, RIGHT_BRACE, "Expected , or } after property value");
   }
   cursor.leave();

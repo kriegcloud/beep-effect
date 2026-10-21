@@ -26,7 +26,7 @@ import { layer } from "@effect/vitest";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { CompilerOptions } from "../../effected/tsconfig-json/CompilerOptions.ts";
 import { TsconfigJsonFromString } from "../../effected/tsconfig-json/TsconfigJson.ts";
 import { ResolvedTsconfig } from "../../effected/tsconfig-json/ResolvedTsconfig.ts";

@@ -26,20 +26,27 @@ const LAB = join(REPO, "scratchpad", "effected");
 const TESTS = join(REPO, "scratchpad", "test");
 const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 
-// Kit modules wave 1a of the effected promotion moved out of the lab into
-// `@beep/*` packages keep their lab layer: an import of the package
+// Kit modules waves 1a and 1b of the effected promotion moved out of the lab
+// into `@beep/*` packages keep their lab layer: an import of the package
 // (`@beep/<pkg>` or `@beep/<pkg>/<File>`) is an edge to the lab module it was,
 // and the package's own `src` and `test` are scanned as that module's source and
-// tests were. Every other kit module is still a lab directory reached relatively.
+// tests were. `templates` was promoted under the name `@beep/managed-section`.
+// Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
+	"@beep/git": "git",
 	"@beep/github-commands": "github-commands",
 	"@beep/github-references": "github-references",
+	"@beep/glob": "glob",
 	"@beep/jsonc": "jsonc",
 	"@beep/jsonl": "jsonl",
+	"@beep/managed-section": "templates",
+	"@beep/memfs": "memfs",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",
 	"@beep/spdx": "spdx",
+	"@beep/toml": "toml",
+	"@beep/yaml": "yaml",
 };
 // Each package's directory, resolved the way the lab's own imports resolve it.
 const labRequire = createRequire(join(REPO, "scratchpad", "package.json"));

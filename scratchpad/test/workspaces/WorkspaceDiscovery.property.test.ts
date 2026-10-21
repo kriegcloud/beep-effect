@@ -25,7 +25,7 @@ describe("WorkspaceDiscovery property floor", () => {
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
 import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
 

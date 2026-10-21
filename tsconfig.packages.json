@@ -148,6 +148,9 @@
       "path": "packages/drivers/freshbooks"
     },
     {
+      "path": "packages/drivers/git"
+    },
+    {
       "path": "packages/drivers/gov-legal-mcp"
     },
     {
@@ -316,6 +319,9 @@
       "path": "packages/foundation/modeling/github-references"
     },
     {
+      "path": "packages/foundation/modeling/glob"
+    },
+    {
       "path": "packages/foundation/modeling/html"
     },
     {
@@ -329,6 +335,9 @@
     },
     {
       "path": "packages/foundation/modeling/lexical"
+    },
+    {
+      "path": "packages/foundation/modeling/managed-section"
     },
     {
       "path": "packages/foundation/modeling/md"
@@ -367,7 +376,13 @@
       "path": "packages/foundation/modeling/spdx"
     },
     {
+      "path": "packages/foundation/modeling/toml"
+    },
+    {
       "path": "packages/foundation/modeling/utils"
+    },
+    {
+      "path": "packages/foundation/modeling/yaml"
     },
     {
       "path": "packages/foundation/primitive/data"
@@ -458,6 +473,9 @@
     },
     {
       "path": "packages/tooling/test-kit/fc-runs"
+    },
+    {
+      "path": "packages/tooling/test-kit/memfs"
     },
     {
       "path": "packages/tooling/test-kit/test-runner"

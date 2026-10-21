@@ -1,6 +1,6 @@
 import { $JsonlId } from "@beep/identity/packages";
 import { Envelope, Journal, JsonlEvent } from "@beep/jsonl";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
