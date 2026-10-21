@@ -157,3 +157,37 @@ and TypeScript representation. No upstream endorsement is implied.
 - **Deo** — Deo by David Shotton and Silvio Peroni. Contributors: Sebastian Barzaghi. CC BY 4.0. Commit `dfaa0904b1b7905cd8293dc2f1b9992c2871d0d4`; artifact `docs/2026-08-14/deo.ttl`; version `1.2.0`. [Pinned artifact](https://raw.githubusercontent.com/SPAROntologies/deo/dfaa0904b1b7905cd8293dc2f1b9992c2871d0d4/docs/2026-08-14/deo.ttl); [repository license](https://raw.githubusercontent.com/SPAROntologies/deo/dfaa0904b1b7905cd8293dc2f1b9992c2871d0d4/LICENSE.md).
 - **Fabio** — Fabio by David Shotton and Silvio Peroni. Contributors: Paolo Ciccarese, Sebastian Barzaghi and Tim Clark. CC BY 4.0. Commit `ea5b2cd49a7a8f4dc695d633c76bb05608c085db`; artifact `docs/2026-09-03/fabio.ttl`; version `2.3.1`. [Pinned artifact](https://raw.githubusercontent.com/SPAROntologies/fabio/ea5b2cd49a7a8f4dc695d633c76bb05608c085db/docs/2026-09-03/fabio.ttl); [repository license](https://raw.githubusercontent.com/SPAROntologies/fabio/ea5b2cd49a7a8f4dc695d633c76bb05608c085db/LICENSE.md).
 - **Cito** — Cito by David Shotton and Silvio Peroni. Contributors: Paolo Ciccarese, Sebastian Barzaghi and Tim Clark. CC BY 4.0. Commit `d34b42e8d4d1c9d45bc530599328897805116994`; artifact `docs/2026-09-03/cito.ttl`; version `2.9.0`. [Pinned artifact](https://raw.githubusercontent.com/SPAROntologies/cito/d34b42e8d4d1c9d45bc530599328897805116994/docs/2026-09-03/cito.ttl); [repository license](https://raw.githubusercontent.com/SPAROntologies/cito/d34b42e8d4d1c9d45bc530599328897805116994/LICENSE.md).
+
+## T3 Tools Inc. (t3code) — MIT material
+
+Upstream repository: <https://github.com/pingdotgg/t3code>
+
+- `packages/effect-acp`
+  - Pinned commit: [`31dcc7c51309697af5fd5584d507a1359e0fb62f`](https://github.com/pingdotgg/t3code/commit/31dcc7c51309697af5fd5584d507a1359e0fb62f)
+  - Affected material: the `@beep/acp` driver (`packages/drivers/acp`), including
+    its JSON-RPC transport, protocol, client, agent, error model, ACP v1/v2
+    compatibility layer, RPC groups, schema normalization in its code
+    generator, and ported test cases and fixtures. The material is adapted to
+    this repository's schema-first and Effect conventions.
+
+MIT License
+
+Copyright (c) 2026 T3 Tools Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
