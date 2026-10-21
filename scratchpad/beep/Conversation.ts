@@ -19,11 +19,13 @@
 import { $ScratchpadId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Arr from "effect/Array";
+import type * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import type { PlatformError } from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Tuple from "effect/Tuple";
@@ -866,12 +868,15 @@ const decodeUnknownEffectConversation = S.decodeUnknownEffect(Conversation);
 
 const decodeConversation = S.decodeUnknownEffect(Conversation);
 
-const backfillSegmentIds = (conversationId: string, segments: ReadonlyArray<unknown>): ReadonlyArray<unknown> =>
-  segments.map((segment, index) => {
-    if (!isRecord(segment)) return segment;
+const backfillSegmentIds = (
+  conversationId: string,
+  segments: ReadonlyArray<unknown>,
+): Effect.Effect<ReadonlyArray<unknown>, PlatformError, Crypto.Crypto> =>
+  Effect.forEach(segments, (segment, index): Effect.Effect<unknown, PlatformError, Crypto.Crypto> => {
+    if (!isRecord(segment)) return Effect.succeed(segment);
     const id = segment.id;
-    if (P.isString(id) && id.length > 0) return segment;
-    return { ...segment, id: legacyConversationSegmentId(conversationId, index) };
+    if (P.isString(id) && id.length > 0) return Effect.succeed(segment);
+    return Effect.map(legacyConversationSegmentId(conversationId, index), (legacyId) => ({ ...segment, id: legacyId }));
   });
 
 /**
@@ -885,6 +890,7 @@ const backfillSegmentIds = (conversationId: string, segments: ReadonlyArray<unkn
  * **Example** (Copy the processing id)
  *
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import * as DateTime from "effect/DateTime"
  * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
@@ -900,20 +906,27 @@ const backfillSegmentIds = (conversationId: string, segments: ReadonlyArray<unkn
  *     processingConversationId: O.some("mem-1"),
  *   }),
  * )
- * const conversation = Effect.runSync(initializeConversation(stored))
+ * const conversation = Effect.runSync(initializeConversation(stored).pipe(Effect.provide(BunCrypto.layer)))
  * console.log(O.getOrElse(conversation.processingMemoryId, () => "")) // "mem-1"
  * ```
  *
  * @category decoding
  * @since 0.0.0
  */
-export const initializeConversation = (input: unknown) => {
+export const initializeConversation = (
+  input: unknown,
+): Effect.Effect<Conversation, S.SchemaError | PlatformError, Crypto.Crypto> => {
   if (!isRecord(input)) return decodeConversation(input);
   const prepared: { [key: string]: unknown } = { ...input };
-  if (P.isString(prepared.id) && Arr.isArray(prepared.transcriptSegments)) {
-    prepared.transcriptSegments = backfillSegmentIds(prepared.id, prepared.transcriptSegments);
-  }
-  return decodeUnknownEffectConversation(prepared).pipe(
+  const backfilled: Effect.Effect<{ readonly [key: string]: unknown }, PlatformError, Crypto.Crypto> =
+    P.isString(prepared.id) && Arr.isArray(prepared.transcriptSegments)
+      ? Effect.map(backfillSegmentIds(prepared.id, prepared.transcriptSegments), (transcriptSegments) => ({
+          ...prepared,
+          transcriptSegments,
+        }))
+      : Effect.succeed(prepared);
+  return backfilled.pipe(
+    Effect.flatMap(decodeUnknownEffectConversation),
     Effect.map((decoded) =>
       Conversation.make({
         ...decoded,
