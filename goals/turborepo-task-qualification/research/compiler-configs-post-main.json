@@ -540,12 +540,12 @@
     },
     {
       "site": {
-        "definition": "@beep/face-detection#beep:build",
+        "definition": "retired:face-detection#beep:build",
         "step": 0
       },
       "command": "tsc -p tsconfig.json",
-      "workspace": "@beep/face-detection",
-      "config": "packages/drivers/face-detection/tsconfig.json",
+      "workspace": "retired:face-detection",
+      "config": "retired:face-detection/tsconfig.json",
       "buildMode": false,
       "explicitNoEmit": false
     },
@@ -584,12 +584,12 @@
     },
     {
       "site": {
-        "definition": "@beep/firecrawl#beep:build",
+        "definition": "retired:firecrawl#beep:build",
         "step": 0
       },
       "command": "tsc -p tsconfig.json",
-      "workspace": "@beep/firecrawl",
-      "config": "packages/drivers/firecrawl/tsconfig.json",
+      "workspace": "retired:firecrawl",
+      "config": "retired:firecrawl/tsconfig.json",
       "buildMode": false,
       "explicitNoEmit": false
     },
@@ -1365,12 +1365,12 @@
     },
     {
       "site": {
-        "definition": "@beep/venice-ai#beep:build",
+        "definition": "retired:venice-ai#beep:build",
         "step": 0
       },
       "command": "tsc -p tsconfig.json",
-      "workspace": "@beep/venice-ai",
-      "config": "packages/drivers/venice-ai/tsconfig.json",
+      "workspace": "retired:venice-ai",
+      "config": "retired:venice-ai/tsconfig.json",
       "buildMode": false,
       "explicitNoEmit": false
     },
@@ -1431,12 +1431,12 @@
     },
     {
       "site": {
-        "definition": "@beep/xai#beep:build",
+        "definition": "retired:xai#beep:build",
         "step": 0
       },
       "command": "tsc -p tsconfig.json",
-      "workspace": "@beep/xai",
-      "config": "packages/drivers/xai/tsconfig.json",
+      "workspace": "retired:xai",
+      "config": "retired:xai/tsconfig.json",
       "buildMode": false,
       "explicitNoEmit": false
     },
@@ -2102,12 +2102,12 @@
     },
     {
       "site": {
-        "definition": "@beep/face-detection#beep:check",
+        "definition": "retired:face-detection#beep:check",
         "step": 0
       },
       "command": "tsgo -p tsconfig.check.json",
-      "workspace": "@beep/face-detection",
-      "config": "packages/drivers/face-detection/tsconfig.check.json",
+      "workspace": "retired:face-detection",
+      "config": "retired:face-detection/tsconfig.check.json",
       "buildMode": false,
       "explicitNoEmit": false
     },
@@ -2146,12 +2146,12 @@
     },
     {
       "site": {
-        "definition": "@beep/firecrawl#beep:check",
+        "definition": "retired:firecrawl#beep:check",
         "step": 0
       },
       "command": "tsgo -p tsconfig.check.json",
-      "workspace": "@beep/firecrawl",
-      "config": "packages/drivers/firecrawl/tsconfig.check.json",
+      "workspace": "retired:firecrawl",
+      "config": "retired:firecrawl/tsconfig.check.json",
       "buildMode": false,
       "explicitNoEmit": false
     },
@@ -3004,12 +3004,12 @@
     },
     {
       "site": {
-        "definition": "@beep/venice-ai#beep:check",
+        "definition": "retired:venice-ai#beep:check",
         "step": 0
       },
       "command": "tsgo -p tsconfig.check.json",
-      "workspace": "@beep/venice-ai",
-      "config": "packages/drivers/venice-ai/tsconfig.check.json",
+      "workspace": "retired:venice-ai",
+      "config": "retired:venice-ai/tsconfig.check.json",
       "buildMode": false,
       "explicitNoEmit": false
     },
@@ -3070,12 +3070,12 @@
     },
     {
       "site": {
-        "definition": "@beep/xai#beep:check",
+        "definition": "retired:xai#beep:check",
         "step": 0
       },
       "command": "tsgo -p tsconfig.check.json",
-      "workspace": "@beep/xai",
-      "config": "packages/drivers/xai/tsconfig.check.json",
+      "workspace": "retired:xai",
+      "config": "retired:xai/tsconfig.check.json",
       "buildMode": false,
       "explicitNoEmit": false
     },
@@ -3763,12 +3763,12 @@
     },
     {
       "site": {
-        "definition": "@beep/face-detection#beep:check:tests",
+        "definition": "retired:face-detection#beep:check:tests",
         "step": 0
       },
       "command": "tsgo -p tsconfig.test.json --noEmit",
-      "workspace": "@beep/face-detection",
-      "config": "packages/drivers/face-detection/tsconfig.test.json",
+      "workspace": "retired:face-detection",
+      "config": "retired:face-detection/tsconfig.test.json",
       "buildMode": false,
       "explicitNoEmit": true
     },
@@ -3807,12 +3807,12 @@
     },
     {
       "site": {
-        "definition": "@beep/firecrawl#beep:check:tests",
+        "definition": "retired:firecrawl#beep:check:tests",
         "step": 0
       },
       "command": "tsgo -p tsconfig.test.json --noEmit",
-      "workspace": "@beep/firecrawl",
-      "config": "packages/drivers/firecrawl/tsconfig.test.json",
+      "workspace": "retired:firecrawl",
+      "config": "retired:firecrawl/tsconfig.test.json",
       "buildMode": false,
       "explicitNoEmit": true
     },
@@ -4555,12 +4555,12 @@
     },
     {
       "site": {
-        "definition": "@beep/venice-ai#beep:check:tests",
+        "definition": "retired:venice-ai#beep:check:tests",
         "step": 0
       },
       "command": "tsgo -p tsconfig.test.json --noEmit",
-      "workspace": "@beep/venice-ai",
-      "config": "packages/drivers/venice-ai/tsconfig.test.json",
+      "workspace": "retired:venice-ai",
+      "config": "retired:venice-ai/tsconfig.test.json",
       "buildMode": false,
       "explicitNoEmit": true
     },
@@ -4621,12 +4621,12 @@
     },
     {
       "site": {
-        "definition": "@beep/xai#beep:check:tests",
+        "definition": "retired:xai#beep:check:tests",
         "step": 0
       },
       "command": "tsgo -p tsconfig.test.json --noEmit",
-      "workspace": "@beep/xai",
-      "config": "packages/drivers/xai/tsconfig.test.json",
+      "workspace": "retired:xai",
+      "config": "retired:xai/tsconfig.test.json",
       "buildMode": false,
       "explicitNoEmit": true
     }
@@ -4825,7 +4825,7 @@
             "path": "../../../packages/drivers/pglite/tsconfig.json"
           },
           {
-            "path": "../../../packages/drivers/venice-ai/tsconfig.json"
+            "path": "retired:venice-ai/tsconfig.json"
           },
           {
             "path": "../../../packages/foundation/capability/file-processing/tsconfig.json"
@@ -4897,7 +4897,7 @@
             "path": "../../../packages/drivers/wink/tsconfig.json"
           },
           {
-            "path": "../../../packages/drivers/xai/tsconfig.json"
+            "path": "retired:xai/tsconfig.json"
           },
           {
             "path": "../../../packages/epistemic/domain/tsconfig.json"
@@ -8428,7 +8428,7 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "path": "packages/drivers/face-detection/tsconfig.check.json",
+      "path": "retired:face-detection/tsconfig.check.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "./tsconfig.json",
@@ -8458,7 +8458,7 @@
       "sha256": "f0a3feef358629fb839ee453dc07cfc6ef5c953294dea4e5ca92b894c1212d51"
     },
     {
-      "path": "packages/drivers/face-detection/tsconfig.json",
+      "path": "retired:face-detection/tsconfig.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "../../../tsconfig.base.json",
@@ -8490,7 +8490,7 @@
       "sha256": "bdfa01466bec92c9b36266c29b48d5795d343ca18bd7789cfb3e0636743a3063"
     },
     {
-      "path": "packages/drivers/face-detection/tsconfig.test.json",
+      "path": "retired:face-detection/tsconfig.test.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "../../../tsconfig.base.json",
@@ -8610,7 +8610,7 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "path": "packages/drivers/firecrawl/tsconfig.check.json",
+      "path": "retired:firecrawl/tsconfig.check.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "./tsconfig.json",
@@ -8640,7 +8640,7 @@
       "sha256": "f0a3feef358629fb839ee453dc07cfc6ef5c953294dea4e5ca92b894c1212d51"
     },
     {
-      "path": "packages/drivers/firecrawl/tsconfig.json",
+      "path": "retired:firecrawl/tsconfig.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "../../../tsconfig.base.json",
@@ -8672,7 +8672,7 @@
       "sha256": "bdfa01466bec92c9b36266c29b48d5795d343ca18bd7789cfb3e0636743a3063"
     },
     {
-      "path": "packages/drivers/firecrawl/tsconfig.test.json",
+      "path": "retired:firecrawl/tsconfig.test.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "../../../tsconfig.base.json",
@@ -11436,7 +11436,7 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "path": "packages/drivers/venice-ai/tsconfig.check.json",
+      "path": "retired:venice-ai/tsconfig.check.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "./tsconfig.json",
@@ -11469,7 +11469,7 @@
       "sha256": "dd1bff5f694c5d1bce5b512fb90c3f274ed2e12aeb9040605f504a6569d36bfb"
     },
     {
-      "path": "packages/drivers/venice-ai/tsconfig.json",
+      "path": "retired:venice-ai/tsconfig.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "../../../tsconfig.base.json",
@@ -11504,7 +11504,7 @@
       "sha256": "49f94e8e0af4f5e62737e225dd22197f40720eec09814dea0e3102d109071ebd"
     },
     {
-      "path": "packages/drivers/venice-ai/tsconfig.test.json",
+      "path": "retired:venice-ai/tsconfig.test.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "../../../tsconfig.base.json",
@@ -11636,7 +11636,7 @@
       "sha256": "a97186ec871fcc1e1aef22a52f300485cd9cf0beeaeb21b558caca896276832a"
     },
     {
-      "path": "packages/drivers/xai/tsconfig.check.json",
+      "path": "retired:xai/tsconfig.check.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "./tsconfig.json",
@@ -11669,7 +11669,7 @@
       "sha256": "dd1bff5f694c5d1bce5b512fb90c3f274ed2e12aeb9040605f504a6569d36bfb"
     },
     {
-      "path": "packages/drivers/xai/tsconfig.json",
+      "path": "retired:xai/tsconfig.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "../../../tsconfig.base.json",
@@ -11704,7 +11704,7 @@
       "sha256": "49f94e8e0af4f5e62737e225dd22197f40720eec09814dea0e3102d109071ebd"
     },
     {
-      "path": "packages/drivers/xai/tsconfig.test.json",
+      "path": "retired:xai/tsconfig.test.json",
       "declared": {
         "$schema": "https://json.schemastore.org/tsconfig",
         "extends": "../../../tsconfig.base.json",
@@ -17845,13 +17845,13 @@
             "path": "../../../drivers/exiftool/tsconfig.json"
           },
           {
-            "path": "../../../drivers/face-detection/tsconfig.json"
+            "path": "retired:face-detection/tsconfig.json"
           },
           {
             "path": "../../../drivers/ffmpeg/tsconfig.json"
           },
           {
-            "path": "../../../drivers/firecrawl/tsconfig.json"
+            "path": "retired:firecrawl/tsconfig.json"
           },
           {
             "path": "../../../drivers/libpff/tsconfig.json"
@@ -17953,13 +17953,13 @@
             "path": "../../../drivers/exiftool/tsconfig.json"
           },
           {
-            "path": "../../../drivers/face-detection/tsconfig.json"
+            "path": "retired:face-detection/tsconfig.json"
           },
           {
             "path": "../../../drivers/ffmpeg/tsconfig.json"
           },
           {
-            "path": "../../../drivers/firecrawl/tsconfig.json"
+            "path": "retired:firecrawl/tsconfig.json"
           },
           {
             "path": "../../../drivers/libpff/tsconfig.json"

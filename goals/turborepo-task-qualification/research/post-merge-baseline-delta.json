@@ -1683,38 +1683,38 @@
     "@beep/exiftool#test:integration:parallel": [
       "commandDigest"
     ],
-    "@beep/face-detection#audit": [
+    "retired:face-detection#audit": [
       "commandDigest"
     ],
-    "@beep/face-detection#build": [
+    "retired:face-detection#build": [
       "commandDigest"
     ],
-    "@beep/face-detection#check": [
+    "retired:face-detection#check": [
       "commandDigest"
     ],
-    "@beep/face-detection#coverage": [
+    "retired:face-detection#coverage": [
       "commandDigest"
     ],
-    "@beep/face-detection#docgen": [
+    "retired:face-detection#docgen": [
       "command",
       "commandDigest"
     ],
-    "@beep/face-detection#lint": [
+    "retired:face-detection#lint": [
       "commandDigest"
     ],
-    "@beep/face-detection#lint:fix": [
+    "retired:face-detection#lint:fix": [
       "commandDigest"
     ],
-    "@beep/face-detection#package-test-typecheck": [
+    "retired:face-detection#package-test-typecheck": [
       "commandDigest"
     ],
-    "@beep/face-detection#test": [
+    "retired:face-detection#test": [
       "commandDigest"
     ],
-    "@beep/face-detection#test:integration": [
+    "retired:face-detection#test:integration": [
       "commandDigest"
     ],
-    "@beep/face-detection#test:property": [
+    "retired:face-detection#test:property": [
       "commandDigest"
     ],
     "@beep/fc-runs#audit": [
@@ -1819,41 +1819,41 @@
     "@beep/file-processing#test:property": [
       "commandDigest"
     ],
-    "@beep/firecrawl#audit": [
+    "retired:firecrawl#audit": [
       "commandDigest"
     ],
-    "@beep/firecrawl#build": [
+    "retired:firecrawl#build": [
       "commandDigest"
     ],
-    "@beep/firecrawl#check": [
+    "retired:firecrawl#check": [
       "commandDigest"
     ],
-    "@beep/firecrawl#coverage": [
+    "retired:firecrawl#coverage": [
       "commandDigest"
     ],
-    "@beep/firecrawl#docgen": [
+    "retired:firecrawl#docgen": [
       "command",
       "commandDigest"
     ],
-    "@beep/firecrawl#lint": [
+    "retired:firecrawl#lint": [
       "commandDigest"
     ],
-    "@beep/firecrawl#lint:fix": [
+    "retired:firecrawl#lint:fix": [
       "commandDigest"
     ],
-    "@beep/firecrawl#package-test-typecheck": [
+    "retired:firecrawl#package-test-typecheck": [
       "commandDigest"
     ],
-    "@beep/firecrawl#test": [
+    "retired:firecrawl#test": [
       "commandDigest"
     ],
-    "@beep/firecrawl#test:integration": [
+    "retired:firecrawl#test:integration": [
       "commandDigest"
     ],
-    "@beep/firecrawl#test:integration:parallel": [
+    "retired:firecrawl#test:integration:parallel": [
       "commandDigest"
     ],
-    "@beep/firecrawl#test:property": [
+    "retired:firecrawl#test:property": [
       "commandDigest"
     ],
     "@beep/freshbooks#audit": [
@@ -4377,41 +4377,41 @@
     "@beep/utils#test:property": [
       "commandDigest"
     ],
-    "@beep/venice-ai#audit": [
+    "retired:venice-ai#audit": [
       "commandDigest"
     ],
-    "@beep/venice-ai#build": [
+    "retired:venice-ai#build": [
       "commandDigest"
     ],
-    "@beep/venice-ai#check": [
+    "retired:venice-ai#check": [
       "commandDigest"
     ],
-    "@beep/venice-ai#coverage": [
+    "retired:venice-ai#coverage": [
       "commandDigest"
     ],
-    "@beep/venice-ai#docgen": [
+    "retired:venice-ai#docgen": [
       "command",
       "commandDigest"
     ],
-    "@beep/venice-ai#lint": [
+    "retired:venice-ai#lint": [
       "commandDigest"
     ],
-    "@beep/venice-ai#lint:fix": [
+    "retired:venice-ai#lint:fix": [
       "commandDigest"
     ],
-    "@beep/venice-ai#package-test-typecheck": [
+    "retired:venice-ai#package-test-typecheck": [
       "commandDigest"
     ],
-    "@beep/venice-ai#test": [
+    "retired:venice-ai#test": [
       "commandDigest"
     ],
-    "@beep/venice-ai#test:integration": [
+    "retired:venice-ai#test:integration": [
       "commandDigest"
     ],
-    "@beep/venice-ai#test:integration:parallel": [
+    "retired:venice-ai#test:integration:parallel": [
       "commandDigest"
     ],
-    "@beep/venice-ai#test:property": [
+    "retired:venice-ai#test:property": [
       "commandDigest"
     ],
     "@beep/wink#audit": [
@@ -4584,38 +4584,38 @@
     "@beep/workspace-use-cases#test:property": [
       "commandDigest"
     ],
-    "@beep/xai#audit": [
+    "retired:xai#audit": [
       "commandDigest"
     ],
-    "@beep/xai#build": [
+    "retired:xai#build": [
       "commandDigest"
     ],
-    "@beep/xai#check": [
+    "retired:xai#check": [
       "commandDigest"
     ],
-    "@beep/xai#coverage": [
+    "retired:xai#coverage": [
       "commandDigest"
     ],
-    "@beep/xai#docgen": [
+    "retired:xai#docgen": [
       "command",
       "commandDigest"
     ],
-    "@beep/xai#lint": [
+    "retired:xai#lint": [
       "commandDigest"
     ],
-    "@beep/xai#lint:fix": [
+    "retired:xai#lint:fix": [
       "commandDigest"
     ],
-    "@beep/xai#package-test-typecheck": [
+    "retired:xai#package-test-typecheck": [
       "commandDigest"
     ],
-    "@beep/xai#test": [
+    "retired:xai#test": [
       "commandDigest"
     ],
-    "@beep/xai#test:integration": [
+    "retired:xai#test:integration": [
       "commandDigest"
     ],
-    "@beep/xai#test:property": [
+    "retired:xai#test:property": [
       "commandDigest"
     ]
   },

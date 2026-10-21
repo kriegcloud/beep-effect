@@ -25,8 +25,8 @@ bunx --bun vitest run --reporter=json --outputFile=<private-report>
 | @beep/anthropic | 6.865 s / 9 passed | 2.623 s / 9 passed |
 | @beep/openai | 4.942 s / 12 passed | 2.439 s / 12 passed |
 | @beep/openai-compat | 4.925 s / 19 passed | 2.872 s / 19 passed |
-| @beep/venice-ai | 5.497 s / 17 passed | 3.051 s / 17 passed |
-| @beep/xai | 5.148 s / 14 passed | 3.120 s / 14 passed |
+| retired:venice-ai | 5.497 s / 17 passed | 3.051 s / 17 passed |
+| retired:xai | 5.148 s / 14 passed | 3.120 s / 14 passed |
 
 Every run exited zero with unchanged package source, test, manifest and
 lockfile hashes. Private receipts include runtime versions, resource limits,

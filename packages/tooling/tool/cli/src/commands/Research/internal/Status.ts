@@ -50,7 +50,9 @@ export const statusImpl = Effect.fn("Research.statusImpl")(function* (
     .pipe(ResearchCommandError.mapError(`Failed checking catalog at "${databasePath}".`));
 
   if (!hasCatalog) {
-    yield* Console.log(`research status: vault "${options.vaultRoot}" has no catalog yet; run a capture first.`);
+    yield* Console.log(
+      `research status: vault "${options.vaultRoot}" has no catalog yet; run research history-sift, notion-pull or repo-card first.`
+    );
     return yield* decodeStatusSummary({
       bySourceType: [],
       inboxCards: 0,

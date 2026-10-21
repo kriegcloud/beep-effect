@@ -57,7 +57,7 @@ The single most important framing for this synthesis: **beep already owns the su
 | NLP tools + pluggable backend | `@beep/nlp` (Tokenize/Stem/Entities/NGrams/Pattern/cosine…) + `@beep/wink` backend | Reuse for regex/pattern legal extractors |
 | File-extraction pipeline | `@beep/file-processing` (Artifact, Extraction, manifests) + drivers/tika + drivers/libpff | Harden (OCR gating, layout), don't rebuild |
 | Two Effect-native MCP servers | `@beep/nlp-mcp`, `@beep/m365-mcp` (Toolkit + McpServer.layerStdio, Tools/Handlers split, bin.ts) | Add conditional/auth-gated registration; don't re-scaffold |
-| Four LLM drivers + forced-tool/repair | `@beep/anthropic` (AnthropicTurnPlan, generateAnthropicToolJson repair), `@beep/openai-compat`, `@beep/xai`, `@beep/venice-ai` | Add a shared multi-provider fallback layer over them |
+| Four LLM drivers + forced-tool/repair | `@beep/anthropic` (AnthropicTurnPlan, generateAnthropicToolJson repair), `@beep/openai-compat`, `retired:xai`, `retired:venice-ai` | Add a shared multi-provider fallback layer over them |
 | Rich-text structured-output turn + streaming kernel + block repair | `@beep/agents-*` (AssistantContent, AnthropicTurnKernel, BlockRepair, ScanState) | Dup — reference only |
 | Thread/turn/message persistence + timeline | `@beep/workspace-*` (ThreadStore in-memory + Drizzle, ThreadTimeline) | Dup |
 | `@beep/uspto` ODP driver | `Uspto.{service,models,config,errors}.ts` (download/getApplication/getContinuity) | Extend depth (continuity types, PEDS/File-Wrapper, status codes), don't restart |
@@ -183,7 +183,7 @@ const buckets = { odp:{tokens:10,maxTokens:10,refillRate:10,...},
 
 #### Declarative gov-data driver base: auth + retry + Retry-After + Redacted
 relevance: direct · partial · recommend: port · P1
-A `createClient(config)` factory builds an HTTP client from a declarative `ClientConfig` (auth.type query|header|body with env→param mapping, per-source rate limit, disk TTL cache, exponential-backoff-with-jitter honoring `Retry-After` on 429/502/503/504); paired with the Effect `HttpClient.mapRequest` + Redacted-header + `retryTransient` pattern already proven in `@beep/uspto`/`@beep/xai`. Use the config-object shape + Retry-After parsing to give the six legal/gov skeleton drivers a single shared base instead of one-off clients.
+A `createClient(config)` factory builds an HTTP client from a declarative `ClientConfig` (auth.type query|header|body with env→param mapping, per-source rate limit, disk TTL cache, exponential-backoff-with-jitter honoring `Retry-After` on 429/502/503/504); paired with the Effect `HttpClient.mapRequest` + Redacted-header + `retryTransient` pattern already proven in `@beep/uspto`/`retired:xai`. Use the config-object shape + Retry-After parsing to give the six legal/gov skeleton drivers a single shared base instead of one-off clients.
 - source: `us-gov-open-data-mcp/src/shared/client.ts:22-65`
 - source: `TalentScore/packages/server/src/public/files/upload-thing-api.ts:70-102`
 - source: `google-patents-mcp/src/index.ts:335-348`
@@ -1433,9 +1433,9 @@ export const networkRetry = Schedule.exponential(Duration.millis(200), 2.0)
 
 #### Lazy provider selection via `Layer.unwrapEffect`
 direct · partial · recommend: adopt · P1
-Reads config at layer-build time and constructs ONLY the selected provider's layer (`brave`/`exa`/...) via `Layer.unwrapEffect`, mapping a provider-specific tag onto a provider-agnostic `WebSearchService` tag, with `Layer.die` for unimplemented providers. beep has the four LLM drivers (`@beep/anthropic`/`openai-compat`/`xai`/`venice-ai`) implemented as separate Effect-AI adapters, but no single swappable tag that selects one at build time without initializing the others. `Layer.unwrapEffect` is already used elsewhere (`@beep/m365`), so adopt this exact shape for a unified LLM-provider tag and, later, swappable legal-data-source drivers behind one ingestion tag.
+Reads config at layer-build time and constructs ONLY the selected provider's layer (`brave`/`exa`/...) via `Layer.unwrapEffect`, mapping a provider-specific tag onto a provider-agnostic `WebSearchService` tag, with `Layer.die` for unimplemented providers. beep has the four LLM drivers (`@beep/anthropic`/`openai-compat`/`retired:xai`/`retired:venice-ai`) implemented as separate Effect-AI adapters, but no single swappable tag that selects one at build time without initializing the others. `Layer.unwrapEffect` is already used elsewhere (`@beep/m365`), so adopt this exact shape for a unified LLM-provider tag and, later, swappable legal-data-source drivers behind one ingestion tag.
 - source: `research-squad/src/services/WebSearchService.ts:119-145`
-- beep-target: unified LLM-provider selection Layer over `@beep/anthropic|openai-compat|xai|venice-ai`; swappable data-source driver tag
+- beep-target: unified LLM-provider selection Layer over `@beep/anthropic|openai-compat|retired:xai|retired:venice-ai`; swappable data-source driver tag
 ```ts
 export const WebSearchServiceLive = Layer.unwrapEffect(Effect.gen(function* () {
   const config = yield* ConfigService;
@@ -1648,14 +1648,14 @@ export const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-
 ```
 
 #### Multi-provider LLM dispatch with key precedence + automatic fallback
-What it is: a single dispatch entrypoint resolving a per-provider key (user map > CLI > env), switch/registry-dispatching across providers, and on failure retrying a default provider — with each provider resolving its OWN default model so a fallback never inherits an incompatible model name (a documented bug that 404'd every call and tripped the breaker). beep has the four LLM drivers implemented (`@beep/anthropic`/`openai-compat`/`xai`/`venice-ai`) but no shared fallback/round-robin/circuit-breaker orchestration — port the registry+precedence+resilience as an Effect Layer using `Layer.orElse`/typed config errors instead of try/catch, with per-provider default-model resolution.
+What it is: a single dispatch entrypoint resolving a per-provider key (user map > CLI > env), switch/registry-dispatching across providers, and on failure retrying a default provider — with each provider resolving its OWN default model so a fallback never inherits an incompatible model name (a documented bug that 404'd every call and tripped the breaker). beep has the four LLM drivers implemented (`@beep/anthropic`/`openai-compat`/`retired:xai`/`retired:venice-ai`) but no shared fallback/round-robin/circuit-breaker orchestration — port the registry+precedence+resilience as an Effect Layer using `Layer.orElse`/typed config errors instead of try/catch, with per-provider default-model resolution.
 - source: `harvest-mcp/src/core/providers/ProviderFactory.ts:17`
 - source: `agentmemory/src/providers/index.ts:35`
 - source: `Juris.AI/src/lib/ai-services.ts:381`
 - source: `TalentScore/packages/server/baml_src/clients.baml:112`
 - source: `courtlistener/cl/lib/llm.py:8`
 - source: `research-squad/baml_src/clients.baml:38`
-- beep-target: shared multi-provider LLM dispatch/fallback Layer over `@beep/anthropic` + `@beep/openai-compat` + `@beep/xai` + `@beep/venice-ai` (key precedence, per-provider default model, `Layer.orElse` fallback + retry policy)
+- beep-target: shared multi-provider LLM dispatch/fallback Layer over `@beep/anthropic` + `@beep/openai-compat` + `retired:xai` + `retired:venice-ai` (key precedence, per-provider default model, `Layer.orElse` fallback + retry policy)
 - gapStatus: partial · recommend: port · P2
 ```ts
 const PROVIDER_REGISTRY = {

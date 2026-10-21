@@ -48,7 +48,6 @@
     "@beep/schema": "workspace:^",
     "@beep/semantic-web": "workspace:^",
     "@beep/ui": "workspace:^",
-    "@beep/venice-ai": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "effect": "catalog:",
     "fflate": "catalog:",

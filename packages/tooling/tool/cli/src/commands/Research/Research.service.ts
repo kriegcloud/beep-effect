@@ -9,7 +9,6 @@ import { $RepoCliId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { captureUrlImpl } from "./internal/Capture.ts";
 import { cognifyImpl } from "./internal/Cognify.ts";
 import { dailyImpl } from "./internal/Daily.ts";
 import { digestImpl } from "./internal/Digest.ts";
@@ -25,8 +24,6 @@ import type * as Path from "effect/Path";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { ResearchCommandError } from "./Research.errors.ts";
 import type {
-  ResearchCaptureOptions,
-  ResearchCaptureSummary,
   ResearchCognifyOptions,
   ResearchCognifySummary,
   ResearchDailyOptions,
@@ -83,13 +80,6 @@ export type ResearchCommandServiceRequirements =
  * @since 0.0.0
  */
 export interface ResearchCommandServiceShape {
-  /**
-   * Scrape a URL to markdown and file it as a knowledge card.
-   *
-   * @since 0.0.0
-   */
-  readonly captureUrl: (options: ResearchCaptureOptions) => Effect.Effect<ResearchCaptureSummary, ResearchCommandError>;
-
   /**
    * Push pending cards into Cognee datasets and start cognify.
    *
@@ -169,9 +159,6 @@ const makeResearchCommandService = Effect.fn("ResearchCommandService.make")(func
   const runtimeContext = yield* Effect.context<ResearchCommandServiceRequirements>();
 
   return ResearchCommandService.of({
-    captureUrl: Effect.fn("ResearchCommandService.captureUrl")((options) =>
-      captureUrlImpl(options).pipe(Effect.provide(runtimeContext))
-    ),
     cognify: Effect.fn("ResearchCommandService.cognify")((options) =>
       cognifyImpl(options).pipe(Effect.provide(runtimeContext))
     ),
@@ -238,36 +225,6 @@ export const ResearchCommandServiceLive: Layer.Layer<
  * @since 0.0.0
  */
 export const resolveResearchVaultRoot = resolveVaultRoot;
-
-/**
- * Scrape a URL to markdown and file it as a knowledge card in the vault.
- *
- * **Example** (Capture URL to card path)
- *
- * ```ts
- * import { captureResearchUrl, ResearchCaptureOptions } from "@beep/repo-cli/commands/Research"
- * import * as Effect from "effect/Effect";
- * const options = ResearchCaptureOptions.make({
- *   tags: [],
- *   url: "https://example.com/post",
- *   vaultRoot: "/home/user/knowledge"
- * })
- * const cardPath = captureResearchUrl(options).pipe(Effect.map((summary) => summary.cardPath))
- * console.log(cardPath.pipe !== undefined) // true
- * ```
- *
- * @param options - Capture options naming the vault root, URL, and tags.
- * @returns Summary describing the written (or skipped) card.
- * @effects Delegates to `ResearchCommandService`; the live service scrapes via Firecrawl, writes the markdown card, and records catalog rows.
- * @category use-cases
- * @since 0.0.0
- */
-export const captureResearchUrl = Effect.fn("Research.captureResearchUrl")(function* (
-  options: ResearchCaptureOptions
-): Effect.fn.Return<ResearchCaptureSummary, ResearchCommandError, ResearchCommandService> {
-  const research = yield* ResearchCommandService;
-  return yield* research.captureUrl(options);
-});
 
 /**
  * Report vault catalog counts and pipeline state.

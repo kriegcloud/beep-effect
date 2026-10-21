@@ -328,20 +328,6 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
-      "ruleId": "@beep/face-detection",
-      "generatedRuleFrom": "@beep/face-detection",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/drivers/face-detection/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
       "ruleId": "@beep/ffmpeg",
       "generatedRuleFrom": "@beep/ffmpeg",
       "sourceClass": "manifest-derived",
@@ -362,20 +348,6 @@
       "sourceRefs": [
         "package.json",
         "packages/foundation/capability/file-processing/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
-      "ruleId": "@beep/firecrawl",
-      "generatedRuleFrom": "@beep/firecrawl",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/drivers/firecrawl/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
@@ -902,20 +874,6 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
-      "ruleId": "@beep/venice-ai",
-      "generatedRuleFrom": "@beep/venice-ai",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/drivers/venice-ai/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
       "ruleId": "@beep/wink",
       "generatedRuleFrom": "@beep/wink",
       "sourceClass": "manifest-derived",
@@ -950,20 +908,6 @@
       "sourceRefs": [
         "package.json",
         "packages/workspace/tables/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
-      "ruleId": "@beep/xai",
-      "generatedRuleFrom": "@beep/xai",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/drivers/xai/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],

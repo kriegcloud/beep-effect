@@ -19,7 +19,7 @@
   {
     "id": "firecrawl-agent-response-shape",
     "symbol": "AgentResponseShape",
-    "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+    "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
     "completeOwnerLines": [
       313,
       317
@@ -36,7 +36,7 @@
   {
     "id": "firecrawl-agent-status-shape",
     "symbol": "AgentStatusShape",
-    "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+    "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
     "completeOwnerLines": [
       318,
       326
@@ -53,7 +53,7 @@
   {
     "id": "firecrawl-browser-create-shape",
     "symbol": "BrowserCreateShape",
-    "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+    "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
     "completeOwnerLines": [
       328,
       336
@@ -70,7 +70,7 @@
   {
     "id": "firecrawl-browser-delete-shape",
     "symbol": "BrowserDeleteShape",
-    "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+    "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
     "completeOwnerLines": [
       350,
       355
@@ -87,7 +87,7 @@
   {
     "id": "firecrawl-browser-list-shape",
     "symbol": "BrowserListShape",
-    "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+    "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
     "completeOwnerLines": [
       366,
       370
@@ -104,7 +104,7 @@
   {
     "id": "r25-drivers-a-f-firecrawl-error-options-retryable",
     "symbol": "FirecrawlErrorOptions",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+    "file": "retired:firecrawl/src/Firecrawl.errors.ts",
     "completeOwnerLines": [
       266,
       279
@@ -121,7 +121,7 @@
   {
     "id": "r25-drivers-a-f-firecrawl-error-options-input-retryable",
     "symbol": "FirecrawlErrorOptionsInput",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+    "file": "retired:firecrawl/src/Firecrawl.errors.ts",
     "completeOwnerLines": [
       281,
       294
@@ -138,7 +138,7 @@
   {
     "id": "r25-drivers-a-f-firecrawl-error-retryable",
     "symbol": "FirecrawlError",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+    "file": "retired:firecrawl/src/Firecrawl.errors.ts",
     "completeOwnerLines": [
       311,
       398
@@ -172,7 +172,7 @@
   {
     "id": "r26-drivers-a-f-firecrawl-sdk-agent-request",
     "symbol": "FirecrawlSdkAgentRequest",
-    "file": "packages/drivers/firecrawl/src/Firecrawl.models.ts",
+    "file": "retired:firecrawl/src/Firecrawl.models.ts",
     "completeOwnerLines": [
       59,
       69
@@ -189,7 +189,7 @@
   {
     "id": "r26-drivers-a-f-browser-session-shape",
     "symbol": "BrowserSessionShape",
-    "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+    "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
     "completeOwnerLines": [
       356,
       365
@@ -206,7 +206,7 @@
   {
     "id": "r26-drivers-a-f-queue-status-shape",
     "symbol": "QueueStatusShape",
-    "file": "packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+    "file": "retired:firecrawl/src/internal/Firecrawl.responses.ts",
     "completeOwnerLines": [
       408,
       415

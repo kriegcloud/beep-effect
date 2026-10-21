@@ -230,7 +230,7 @@ Lifecycle status distribution for the 108 real tracked packets:
 - `agent-effectiveness-loop`, `agent-pipeline-velocity`, `agent-reflection-loop`, `beep-schema-topology`, `box-driver`, `canonical-slice-factory`
 - `chat-input-and-theming`, `chat-surface-parity`, `codex-security-findings-2026-06`, `codex-security-findings-2026-06-17`, `codex-security-findings-2026-07-08`, `desktop-chat-surface`
 - `domain-kernel-hardening`, `effect-native-migration`, `epistemic-claim-lifecycle-gate`, `fallow-advisory-ratchets`, `fallow-quality-enforcement`, `fallow-zero-dead-code`
-- `file-processing-capability`, `firecrawl-driver`, `form`, `gov-legal-data-driver-codegen`, `gov-legal-data-driver-delivery`, `identity-iri-core`
+- `file-processing-capability`, `retired-packet:firecrawl-driver`, `form`, `gov-legal-data-driver-codegen`, `gov-legal-data-driver-delivery`, `identity-iri-core`
 - `langextract-capability`, `law-practice-office-action-extraction-rung`, `law-practice-office-action-spike`, `legal-document-intake`, `lint-advisory-hardening`, `lint-toolchain-modernization`
 - `m365-driver`, `m365-mcp`, `mcp-host-retrofit`, `mcp-kit`, `official-data-sync-foundation`, `one-round-loop`
 - `ontology-agent-surface`, `ontology-interop-roadmap`, `ontology-workbench`, `oppold-corpus-pipeline`, `oppold-corpus-refresh`, `pandoc-ast-foundation`
@@ -363,7 +363,7 @@ These names are proposed as stable gate classes.
 | `skill-lock-coverage-drift` | 4 skills | Tracked skill directory missing from lock | `browser-qa-loop`; `exif-provenance`; `motion-evidence-review`; `qa-session-ops` |
 | `unresolvable-skill-source` | 21 skills | Lock says only local `repo-local`, so upstream repo+commit is absent | `oracle`; `portless`; `turborepo` |
 | `floating-github-skill-source` | 5 skills | Repo/path known but only floating `main`, with no commit SHA | `grill-me`; `ponytail`; `shadcn` |
-| `manifest-v1-legacy` | 57 manifests | Explicit `initiative-manifest/v1` holdout | `agent-effectiveness-loop`; `firecrawl-driver`; `yeet-agent-ergonomics` |
+| `manifest-v1-legacy` | 57 manifests | Explicit `initiative-manifest/v1` holdout | `agent-effectiveness-loop`; `retired-packet:firecrawl-driver`; `yeet-agent-ergonomics` |
 | `manifest-schema-version-gap` | 9 manifests | Five `1.0.0` plus four missing-version manifests | `ai-metrics-stack`; `nlp-adjunct-port`; `trustgraph-doc-ontology` |
 | `index-drift` | 2 rows | INDEX packet/status row absent from tracked manifest truth | `coding-agent-effectiveness-evidence-loop`; `knowledge-surface-automation` in `goals/INDEX.md` |
 | `exploration-goal-provenance-asymmetry` | 7 directed pairs | Link exists on only one side of exploration↔goal metadata | `agent-effectiveness-pulse`/`coding-agent-effectiveness-evidence-loop`; `agent-chat-interface`/`chat-surface-parity`; `computable-workspace-geometry`/`ontology-workbench-migration` |

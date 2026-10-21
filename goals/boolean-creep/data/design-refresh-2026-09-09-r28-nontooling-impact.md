@@ -171,7 +171,7 @@ The impact map contains no canonical rows for the face-detection service or
 three theme files. Their changed spans were inspected for the assigned impact
 review; this statement is not an independent empty census for those files.
 
-- `packages/drivers/face-detection/src/FaceDetection.service.ts:370–431` extracts
+- `retired:face-detection/src/FaceDetection.service.ts:370–431` extracts
   geometry and a test seam. The returned scale/padding/offsets388–394 are required
   numeric payloads. `inputDimensions` remains a real Option<ModelInputDimensions>
   (schema155–162); None pads the original image and Some preserves both supplied

@@ -309,11 +309,9 @@
           "files": ["packages/drivers/exiftool/test/Exiftool.models.test.ts"]
         },
         {
-          "packageName": "@beep/face-detection",
-          "workspaceRoot": "packages/drivers/face-detection",
-          "files": [
-            "packages/drivers/face-detection/test/FaceDetection.service.test.ts"
-          ]
+          "packageName": "retired:face-detection",
+          "workspaceRoot": "retired:face-detection",
+          "files": ["retired:face-detection/test/FaceDetection.service.test.ts"]
         },
         {
           "packageName": "@beep/ffmpeg",
@@ -333,11 +331,11 @@
           ]
         },
         {
-          "packageName": "@beep/firecrawl",
-          "workspaceRoot": "packages/drivers/firecrawl",
+          "packageName": "retired:firecrawl",
+          "workspaceRoot": "retired:firecrawl",
           "files": [
-            "packages/drivers/firecrawl/src/Firecrawl.service.ts",
-            "packages/drivers/firecrawl/test/Firecrawl.service.test.ts"
+            "retired:firecrawl/src/Firecrawl.service.ts",
+            "retired:firecrawl/test/Firecrawl.service.test.ts"
           ]
         },
         {
@@ -1127,9 +1125,9 @@
           ]
         },
         {
-          "packageName": "@beep/venice-ai",
-          "workspaceRoot": "packages/drivers/venice-ai",
-          "files": ["packages/drivers/venice-ai/src/VeniceAI.service.ts"]
+          "packageName": "retired:venice-ai",
+          "workspaceRoot": "retired:venice-ai",
+          "files": ["retired:venice-ai/src/VeniceAI.service.ts"]
         },
         {
           "packageName": "@beep/wink",
@@ -1168,9 +1166,9 @@
           "files": ["packages/workspace/use-cases/test/ThreadTimeline.test.ts"]
         },
         {
-          "packageName": "@beep/xai",
-          "workspaceRoot": "packages/drivers/xai",
-          "files": ["packages/drivers/xai/test/XAi.service.test.ts"]
+          "packageName": "retired:xai",
+          "workspaceRoot": "retired:xai",
+          "files": ["retired:xai/test/XAi.service.test.ts"]
         }
       ],
       "unownedPaths": [
@@ -1286,10 +1284,10 @@
     "@beep/epistemic-ui",
     "@beep/epistemic-use-cases",
     "@beep/exiftool",
-    "@beep/face-detection",
+    "retired:face-detection",
     "@beep/ffmpeg",
     "@beep/file-processing",
-    "@beep/firecrawl",
+    "retired:firecrawl",
     "@beep/freshbooks",
     "@beep/gov-legal-mcp",
     "@beep/govinfo",
@@ -1349,12 +1347,12 @@
     "@beep/uspto",
     "@beep/uspto-mcp",
     "@beep/utils",
-    "@beep/venice-ai",
+    "retired:venice-ai",
     "@beep/wink",
     "@beep/workspace-domain",
     "@beep/workspace-server",
     "@beep/workspace-tables",
     "@beep/workspace-use-cases",
-    "@beep/xai"
+    "retired:xai"
   ]
 }

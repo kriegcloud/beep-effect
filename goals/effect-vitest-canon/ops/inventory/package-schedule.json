@@ -301,8 +301,8 @@
     {
       "scc": 50,
       "wave": 6,
-      "members": ["@beep/face-detection"],
-      "censusOwners": ["@beep/face-detection"],
+      "members": ["retired:face-detection"],
+      "censusOwners": ["retired:face-detection"],
       "cyclic": false,
       "dependencySccs": [61, 114, 125, 134],
       "internalEdges": []
@@ -310,8 +310,8 @@
     {
       "scc": 54,
       "wave": 6,
-      "members": ["@beep/firecrawl"],
-      "censusOwners": ["@beep/firecrawl"],
+      "members": ["retired:firecrawl"],
+      "censusOwners": ["retired:firecrawl"],
       "cyclic": false,
       "dependencySccs": [61, 114, 125, 134],
       "internalEdges": []
@@ -679,8 +679,8 @@
     {
       "scc": 135,
       "wave": 7,
-      "members": ["@beep/venice-ai"],
-      "censusOwners": ["@beep/venice-ai"],
+      "members": ["retired:venice-ai"],
+      "censusOwners": ["retired:venice-ai"],
       "cyclic": false,
       "dependencySccs": [61, 92, 114, 125, 134],
       "internalEdges": []
@@ -688,8 +688,8 @@
     {
       "scc": 141,
       "wave": 7,
-      "members": ["@beep/xai"],
-      "censusOwners": ["@beep/xai"],
+      "members": ["retired:xai"],
+      "censusOwners": ["retired:xai"],
       "cyclic": false,
       "dependencySccs": [61, 92, 114, 125, 134],
       "internalEdges": []
@@ -3288,30 +3288,30 @@
     },
     {
       "id": "batch-037",
-      "package": "@beep/face-detection",
-      "root": "packages/drivers/face-detection",
+      "package": "retired:face-detection",
+      "root": "retired:face-detection",
       "scc": 50,
       "wave": 6,
       "part": 1,
       "parts": 1,
       "files": [
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.equivalence.test.ts",
-          "package": "@beep/face-detection",
+          "file": "retired:face-detection/test/FaceDetection.equivalence.test.ts",
+          "package": "retired:face-detection",
           "kind": "test",
           "bytes": 1269,
           "lines": 36
         },
         {
-          "file": "packages/drivers/face-detection/test/FaceDetection.service.test.ts",
-          "package": "@beep/face-detection",
+          "file": "retired:face-detection/test/FaceDetection.service.test.ts",
+          "package": "retired:face-detection",
           "kind": "test",
           "bytes": 9482,
           "lines": 266
         },
         {
-          "file": "packages/drivers/face-detection/test/OnnxRuntimeInstall.test.ts",
-          "package": "@beep/face-detection",
+          "file": "retired:face-detection/test/OnnxRuntimeInstall.test.ts",
+          "package": "retired:face-detection",
           "kind": "test",
           "bytes": 7982,
           "lines": 176
@@ -3324,30 +3324,30 @@
     },
     {
       "id": "batch-038",
-      "package": "@beep/firecrawl",
-      "root": "packages/drivers/firecrawl",
+      "package": "retired:firecrawl",
+      "root": "retired:firecrawl",
       "scc": 54,
       "wave": 6,
       "part": 1,
       "parts": 1,
       "files": [
         {
-          "file": "packages/drivers/firecrawl/test/Firecrawl.equivalence.test.ts",
-          "package": "@beep/firecrawl",
+          "file": "retired:firecrawl/test/Firecrawl.equivalence.test.ts",
+          "package": "retired:firecrawl",
           "kind": "test",
           "bytes": 715,
           "lines": 16
         },
         {
-          "file": "packages/drivers/firecrawl/test/Firecrawl.service.test.ts",
-          "package": "@beep/firecrawl",
+          "file": "retired:firecrawl/test/Firecrawl.service.test.ts",
+          "package": "retired:firecrawl",
           "kind": "test",
           "bytes": 21751,
           "lines": 544
         },
         {
-          "file": "packages/drivers/firecrawl/test/integration/Firecrawl.live.test.ts",
-          "package": "@beep/firecrawl",
+          "file": "retired:firecrawl/test/integration/Firecrawl.live.test.ts",
+          "package": "retired:firecrawl",
           "kind": "test",
           "bytes": 1873,
           "lines": 51
@@ -5683,30 +5683,30 @@
     },
     {
       "id": "batch-080",
-      "package": "@beep/venice-ai",
-      "root": "packages/drivers/venice-ai",
+      "package": "retired:venice-ai",
+      "root": "retired:venice-ai",
       "scc": 135,
       "wave": 7,
       "part": 1,
       "parts": 1,
       "files": [
         {
-          "file": "packages/drivers/venice-ai/test/VeniceAI.equivalence.test.ts",
-          "package": "@beep/venice-ai",
+          "file": "retired:venice-ai/test/VeniceAI.equivalence.test.ts",
+          "package": "retired:venice-ai",
           "kind": "test",
           "bytes": 595,
           "lines": 16
         },
         {
-          "file": "packages/drivers/venice-ai/test/VeniceAI.service.test.ts",
-          "package": "@beep/venice-ai",
+          "file": "retired:venice-ai/test/VeniceAI.service.test.ts",
+          "package": "retired:venice-ai",
           "kind": "test",
           "bytes": 39883,
           "lines": 1107
         },
         {
-          "file": "packages/drivers/venice-ai/test/integration/VeniceAI.integration.test.ts",
-          "package": "@beep/venice-ai",
+          "file": "retired:venice-ai/test/integration/VeniceAI.integration.test.ts",
+          "package": "retired:venice-ai",
           "kind": "test",
           "bytes": 1708,
           "lines": 50
@@ -5719,23 +5719,23 @@
     },
     {
       "id": "batch-081",
-      "package": "@beep/xai",
-      "root": "packages/drivers/xai",
+      "package": "retired:xai",
+      "root": "retired:xai",
       "scc": 141,
       "wave": 7,
       "part": 1,
       "parts": 1,
       "files": [
         {
-          "file": "packages/drivers/xai/test/XAi.equivalence.test.ts",
-          "package": "@beep/xai",
+          "file": "retired:xai/test/XAi.equivalence.test.ts",
+          "package": "retired:xai",
           "kind": "test",
           "bytes": 825,
           "lines": 24
         },
         {
-          "file": "packages/drivers/xai/test/XAi.service.test.ts",
-          "package": "@beep/xai",
+          "file": "retired:xai/test/XAi.service.test.ts",
+          "package": "retired:xai",
           "kind": "test",
           "bytes": 28903,
           "lines": 772

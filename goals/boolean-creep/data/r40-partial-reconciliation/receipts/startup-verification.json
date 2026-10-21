@@ -2095,19 +2095,19 @@
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/face-detection/src/FaceDetection.errors.ts",
+      "check": "overlapping binding retired:face-detection/src/FaceDetection.errors.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/face-detection/src/FaceDetection.models.ts",
+      "check": "overlapping binding retired:face-detection/src/FaceDetection.models.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/face-detection/src/FaceDetection.service.ts",
+      "check": "overlapping binding retired:face-detection/src/FaceDetection.service.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/face-detection/src/index.ts",
+      "check": "overlapping binding retired:face-detection/src/index.ts",
       "passed": true
     },
     {
@@ -2131,27 +2131,27 @@
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/firecrawl/src/Firecrawl.config.ts",
+      "check": "overlapping binding retired:firecrawl/src/Firecrawl.config.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/firecrawl/src/Firecrawl.errors.ts",
+      "check": "overlapping binding retired:firecrawl/src/Firecrawl.errors.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/firecrawl/src/Firecrawl.models.ts",
+      "check": "overlapping binding retired:firecrawl/src/Firecrawl.models.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "check": "overlapping binding retired:firecrawl/src/Firecrawl.service.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/firecrawl/src/index.ts",
+      "check": "overlapping binding retired:firecrawl/src/index.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/firecrawl/src/internal/Firecrawl.responses.ts",
+      "check": "overlapping binding retired:firecrawl/src/internal/Firecrawl.responses.ts",
       "passed": true
     },
     {
@@ -2935,15 +2935,15 @@
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/venice-ai/src/VeniceAI.service.ts",
+      "check": "overlapping binding retired:venice-ai/src/VeniceAI.service.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts",
+      "check": "overlapping binding retired:venice-ai/src/VeniceAiLanguageModel.service.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/venice-ai/src/index.ts",
+      "check": "overlapping binding retired:venice-ai/src/index.ts",
       "passed": true
     },
     {
@@ -3011,31 +3011,31 @@
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/xai/src/XAi.config.ts",
+      "check": "overlapping binding retired:xai/src/XAi.config.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/xai/src/XAi.errors.ts",
+      "check": "overlapping binding retired:xai/src/XAi.errors.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/xai/src/XAi.models.ts",
+      "check": "overlapping binding retired:xai/src/XAi.models.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/xai/src/XAi.service.ts",
+      "check": "overlapping binding retired:xai/src/XAi.service.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/xai/src/XAiEndpoints.models.ts",
+      "check": "overlapping binding retired:xai/src/XAiEndpoints.models.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/xai/src/XAiLanguageModel.service.ts",
+      "check": "overlapping binding retired:xai/src/XAiLanguageModel.service.ts",
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/xai/src/index.ts",
+      "check": "overlapping binding retired:xai/src/index.ts",
       "passed": true
     },
     {
@@ -13163,7 +13163,7 @@
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/face-detection/package.json",
+      "check": "overlapping binding retired:face-detection/package.json",
       "passed": true
     },
     {
@@ -13171,7 +13171,7 @@
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/firecrawl/package.json",
+      "check": "overlapping binding retired:firecrawl/package.json",
       "passed": true
     },
     {
@@ -13291,7 +13291,7 @@
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/venice-ai/package.json",
+      "check": "overlapping binding retired:venice-ai/package.json",
       "passed": true
     },
     {
@@ -13299,7 +13299,7 @@
       "passed": true
     },
     {
-      "check": "overlapping binding packages/drivers/xai/package.json",
+      "check": "overlapping binding retired:xai/package.json",
       "passed": true
     },
     {

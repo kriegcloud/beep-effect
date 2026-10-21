@@ -1,6 +1,6 @@
 # effect-fallback-execution-plan-survey
 
-> Scope: inventory what `effect/ai` + vendored `effect@4.0.0-beta.91` already give us for provider fallback/retry/load-balancing, fix the reuse-vs-build boundary so the dispatch Layer wraps existing `@beep/{anthropic,openai-compat,xai,venice-ai}` drivers without duplicating retry code, and map BAML/Instructor/agentmemory fallback+circuit-breaker idioms onto Effect primitives.
+> Scope: inventory what `effect/ai` + vendored `effect@4.0.0-beta.91` already give us for provider fallback/retry/load-balancing, fix the reuse-vs-build boundary so the dispatch Layer wraps existing `@beep/{anthropic,openai-compat}`, `retired:xai` and `retired:venice-ai` drivers without duplicating retry code, and map BAML/Instructor/agentmemory fallback+circuit-breaker idioms onto Effect primitives.
 
 ## Findings
 
@@ -22,7 +22,7 @@
 
 ### All four drivers already expose `LanguageModel` Layers — the dispatch Layer wires them, does not touch internals
 
-- Each driver already returns `Layer.Layer<LanguageModel.LanguageModel, …>` from a `.layer(options)` factory: anthropic `makeAnthropicLanguageModelLayer` (via `@effect/ai-anthropic`), `openai-compat` `OpenAiCompatLanguageModel.layer` (`Layer.Layer<LanguageModel.LanguageModel, never, OpenAiCompatClient>`), `xai` `XAiLanguageModel.layer` (`…never, XAi`), `venice-ai` `VeniceAiLanguageModel.layer` (`…never, VeniceAI`). Sources: `packages/drivers/anthropic/src/Anthropic.service.ts` lines 57-66 ; `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts` lines 951, 1002 ; `packages/drivers/xai/src/XAiLanguageModel.service.ts` line 208 ; `packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts` line 201.
+- Each driver already returns `Layer.Layer<LanguageModel.LanguageModel, …>` from a `.layer(options)` factory: anthropic `makeAnthropicLanguageModelLayer` (via `@effect/ai-anthropic`), `openai-compat` `OpenAiCompatLanguageModel.layer` (`Layer.Layer<LanguageModel.LanguageModel, never, OpenAiCompatClient>`), `retired:xai` `XAiLanguageModel.layer` (`…never, XAi`), `retired:venice-ai` `VeniceAiLanguageModel.layer` (`…never, VeniceAI`). Sources: `packages/drivers/anthropic/src/Anthropic.service.ts` lines 57-66 ; `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts` lines 951, 1002 ; `retired:xai/src/XAiLanguageModel.service.ts` line 208 ; `retired:venice-ai/src/VeniceAiLanguageModel.service.ts` line 201.
 - Because every step in `ExecutionPlan.make` takes `provide: Layer`, the dispatch layer is literally `ExecutionPlan.make({ provide: anthropicLayer, … }, { provide: openaiCompatLayer, … }, …)` — **REUSE the existing driver layers as steps; do not duplicate their retry/HTTP code.** (Confirms CAPTURE alreadyCovered + caution "reuse anthropic/openai-compat retry code, do not duplicate".)
 - No multi-provider router/registry exists yet (grep for `ProviderRegistry|dispatchLanguageModel|fallbackChain|LanguageModelRouter` across `packages/**` returns nothing) — so this is a genuine net-new Layer, not a dup. Only the single-provider Anthropic kernel uses `withExecutionPlan` today.
 
@@ -65,7 +65,7 @@
 - `/home/elpresidank/YeeBois/projects/beep-effect/node_modules/effect/dist/Effect.d.ts` + `Schedule.d.ts` (`withExecutionPlan`, `retry`, `Schedule.exponential/spaced/jittered/recurs`)
 - `/home/elpresidank/YeeBois/projects/beep-effect/node_modules/effect/dist/ai/{Model,AiError,Toolkit,LanguageModel}.d.ts` (Model.make + ProviderName/ModelName; AiError.isRetryable taxonomy; Toolkit; generateText/generateObject/streamText)
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/drivers/anthropic/src/{Anthropic.service.ts,Anthropic.repair.ts}` (existing ExecutionPlan usage + driver layer factory)
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/drivers/{openai-compat,xai,venice-ai}/src/*LanguageModel.service.ts` (each exposes `Layer.Layer<LanguageModel.LanguageModel, …>`)
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/drivers/openai-compat/src/*LanguageModel.service.ts`, `retired:xai/src/*LanguageModel.service.ts`, `retired:venice-ai/src/*LanguageModel.service.ts` (each exposes `Layer.Layer<LanguageModel.LanguageModel, …>`)
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts` (consumer wiring of `Stream.withExecutionPlan`)
 - `/home/elpresidank/YeeBois/projects/beep-effect/package.json` (effect + `@effect/ai-*` pinned to `4.0.0-beta.91`)
 - https://effect.website/docs/ai/planning-llm-interactions/ (ExecutionPlan AI fallback canonical doc)

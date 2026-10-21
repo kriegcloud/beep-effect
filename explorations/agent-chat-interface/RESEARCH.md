@@ -177,7 +177,7 @@ Recorded 2026-06-12 from a full stack exploration (agent sweeps + doc reads).
   errors).
 - `@beep/ai-provider-cli` — Claude/Codex CLI capability wrapper.
 - Model drivers: `@beep/openai-compat` (chat completion + streaming schemas),
-  `@beep/xai`, `@beep/venice-ai`; catalog: `@effect/ai-anthropic|openai|
+  `retired:xai`, `retired:venice-ai`; catalog: `@effect/ai-anthropic|openai|
   openrouter` 4.0.0-beta.79.
 - SDK contracts: `GetContextPacket`, `ProposeCandidateOutputSet` in
   `@beep/agent-capability-use-cases/public`.

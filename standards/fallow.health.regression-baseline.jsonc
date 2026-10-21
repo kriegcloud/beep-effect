@@ -82,30 +82,6 @@
         "count": 1
       }
     },
-    "packages/drivers/venice-ai/src/VeniceAI.service.ts": {
-      "complexity_moderate": {
-        "count": 1
-      }
-    },
-    "packages/drivers/venice-ai/test/VeniceAI.service.test.ts": {
-      "crap_moderate": {
-        "count": 1
-      }
-    },
-    "packages/drivers/xai/test/XAi.service.test.ts": {
-      "complexity_high": {
-        "count": 1
-      },
-      "complexity_moderate": {
-        "count": 1
-      },
-      "crap_high": {
-        "count": 1
-      },
-      "crap_moderate": {
-        "count": 1
-      }
-    },
     "packages/foundation/capability/nlp-processing/src/Backend/Composition.ts": {
       "complexity_moderate": {
         "count": 1

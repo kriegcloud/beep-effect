@@ -1342,8 +1342,8 @@
       }
     },
     {
-      "name": "@beep/face-detection",
-      "directory": "packages/drivers/face-detection",
+      "name": "retired:face-detection",
+      "directory": "retired:face-detection",
       "scripts": {
         "audit": "bun run --if-present beep:audit",
         "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -1444,8 +1444,8 @@
       }
     },
     {
-      "name": "@beep/firecrawl",
-      "directory": "packages/drivers/firecrawl",
+      "name": "retired:firecrawl",
+      "directory": "retired:firecrawl",
       "scripts": {
         "audit": "bun run --if-present beep:audit",
         "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -3448,8 +3448,8 @@
       }
     },
     {
-      "name": "@beep/venice-ai",
-      "directory": "packages/drivers/venice-ai",
+      "name": "retired:venice-ai",
+      "directory": "retired:venice-ai",
       "scripts": {
         "audit": "bun run --if-present beep:audit",
         "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -3599,8 +3599,8 @@
       }
     },
     {
-      "name": "@beep/xai",
-      "directory": "packages/drivers/xai",
+      "name": "retired:xai",
+      "directory": "retired:xai",
       "scripts": {
         "audit": "bun run --if-present beep:audit",
         "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -6209,9 +6209,9 @@
       "@beep/epistemic-ui#audit",
       "@beep/epistemic-use-cases#audit",
       "@beep/exiftool#audit",
-      "@beep/face-detection#audit",
+      "retired:face-detection#audit",
       "@beep/ffmpeg#audit",
-      "@beep/firecrawl#audit",
+      "retired:firecrawl#audit",
       "@beep/freshbooks#audit",
       "@beep/gov-legal-mcp#audit",
       "@beep/govinfo#audit",
@@ -6257,13 +6257,13 @@
       "@beep/trustgraph-workbench#audit",
       "@beep/uspto#audit",
       "@beep/uspto-mcp#audit",
-      "@beep/venice-ai#audit",
+      "retired:venice-ai#audit",
       "@beep/wink#audit",
       "@beep/workspace-domain#audit",
       "@beep/workspace-server#audit",
       "@beep/workspace-tables#audit",
       "@beep/workspace-use-cases#audit",
-      "@beep/xai#audit"
+      "retired:xai#audit"
     ],
     "20091f3d116238ea715098f6e15c657a3b41846d0be3266371c6d705fe181c46": [
       "@beep/acp#build",
@@ -6304,9 +6304,9 @@
       "@beep/epistemic-ui#build",
       "@beep/epistemic-use-cases#build",
       "@beep/exiftool#build",
-      "@beep/face-detection#build",
+      "retired:face-detection#build",
       "@beep/ffmpeg#build",
-      "@beep/firecrawl#build",
+      "retired:firecrawl#build",
       "@beep/freshbooks#build",
       "@beep/gov-legal-mcp#build",
       "@beep/govinfo#build",
@@ -6352,13 +6352,13 @@
       "@beep/trustgraph-workbench#build",
       "@beep/uspto#build",
       "@beep/uspto-mcp#build",
-      "@beep/venice-ai#build",
+      "retired:venice-ai#build",
       "@beep/wink#build",
       "@beep/workspace-domain#build",
       "@beep/workspace-server#build",
       "@beep/workspace-tables#build",
       "@beep/workspace-use-cases#build",
-      "@beep/xai#build"
+      "retired:xai#build"
     ],
     "da8b57b07ccf63b7beea524161d61a40b7a520c31a419108e3826897cc8b957d": [
       "@beep/acp#check",
@@ -6400,9 +6400,9 @@
       "@beep/epistemic-ui#check",
       "@beep/epistemic-use-cases#check",
       "@beep/exiftool#check",
-      "@beep/face-detection#check",
+      "retired:face-detection#check",
       "@beep/ffmpeg#check",
-      "@beep/firecrawl#check",
+      "retired:firecrawl#check",
       "@beep/freshbooks#check",
       "@beep/gov-legal-mcp#check",
       "@beep/govinfo#check",
@@ -6448,13 +6448,13 @@
       "@beep/trustgraph-workbench#check",
       "@beep/uspto#check",
       "@beep/uspto-mcp#check",
-      "@beep/venice-ai#check",
+      "retired:venice-ai#check",
       "@beep/wink#check",
       "@beep/workspace-domain#check",
       "@beep/workspace-server#check",
       "@beep/workspace-tables#check",
       "@beep/workspace-use-cases#check",
-      "@beep/xai#check"
+      "retired:xai#check"
     ],
     "0a736fc90563541152711c0a1c01599705987075416fdb1d705c3c68aef90c44": [
       "@beep/acp#codegen",
@@ -6508,9 +6508,9 @@
       "@beep/epistemic-ui#coverage",
       "@beep/epistemic-use-cases#coverage",
       "@beep/exiftool#coverage",
-      "@beep/face-detection#coverage",
+      "retired:face-detection#coverage",
       "@beep/ffmpeg#coverage",
-      "@beep/firecrawl#coverage",
+      "retired:firecrawl#coverage",
       "@beep/freshbooks#coverage",
       "@beep/gov-legal-mcp#coverage",
       "@beep/govinfo#coverage",
@@ -6553,13 +6553,13 @@
       "@beep/tika#coverage",
       "@beep/uspto#coverage",
       "@beep/uspto-mcp#coverage",
-      "@beep/venice-ai#coverage",
+      "retired:venice-ai#coverage",
       "@beep/wink#coverage",
       "@beep/workspace-domain#coverage",
       "@beep/workspace-server#coverage",
       "@beep/workspace-tables#coverage",
       "@beep/workspace-use-cases#coverage",
-      "@beep/xai#coverage"
+      "retired:xai#coverage"
     ],
     "53f1c8236acff9d9e2c8d2aa6d6ec5350b59e869f21d1d72677846b2abee74df": [
       "@beep/acp#dev",
@@ -6610,11 +6610,11 @@
       "@beep/epistemic-ui#dev",
       "@beep/epistemic-use-cases#dev",
       "@beep/exiftool#dev",
-      "@beep/face-detection#dev",
+      "retired:face-detection#dev",
       "@beep/fc-runs#dev",
       "@beep/ffmpeg#dev",
       "@beep/file-processing#dev",
-      "@beep/firecrawl#dev",
+      "retired:firecrawl#dev",
       "@beep/freshbooks#dev",
       "@beep/gov-legal-mcp#dev",
       "@beep/govinfo#dev",
@@ -6689,13 +6689,13 @@
       "@beep/uspto#dev",
       "@beep/uspto-mcp#dev",
       "@beep/utils#dev",
-      "@beep/venice-ai#dev",
+      "retired:venice-ai#dev",
       "@beep/wink#dev",
       "@beep/workspace-domain#dev",
       "@beep/workspace-server#dev",
       "@beep/workspace-tables#dev",
       "@beep/workspace-use-cases#dev",
-      "@beep/xai#dev"
+      "retired:xai#dev"
     ],
     "339b7197a6741c7fd6f3dea3958cc28b6a280333d12dc13517ed1d982e80def5": [
       "@beep/acp#docgen",
@@ -6735,9 +6735,9 @@
       "@beep/epistemic-ui#docgen",
       "@beep/epistemic-use-cases#docgen",
       "@beep/exiftool#docgen",
-      "@beep/face-detection#docgen",
+      "retired:face-detection#docgen",
       "@beep/ffmpeg#docgen",
-      "@beep/firecrawl#docgen",
+      "retired:firecrawl#docgen",
       "@beep/freshbooks#docgen",
       "@beep/gov-legal-mcp#docgen",
       "@beep/govinfo#docgen",
@@ -6780,13 +6780,13 @@
       "@beep/tika#docgen",
       "@beep/uspto#docgen",
       "@beep/uspto-mcp#docgen",
-      "@beep/venice-ai#docgen",
+      "retired:venice-ai#docgen",
       "@beep/wink#docgen",
       "@beep/workspace-domain#docgen",
       "@beep/workspace-server#docgen",
       "@beep/workspace-tables#docgen",
       "@beep/workspace-use-cases#docgen",
-      "@beep/xai#docgen"
+      "retired:xai#docgen"
     ],
     "f4312c551c3911d05a381235c4f34e4998195367e925e6b38d6b231f120bd23a": [
       "@beep/acp#lint",
@@ -6828,9 +6828,9 @@
       "@beep/epistemic-ui#lint",
       "@beep/epistemic-use-cases#lint",
       "@beep/exiftool#lint",
-      "@beep/face-detection#lint",
+      "retired:face-detection#lint",
       "@beep/ffmpeg#lint",
-      "@beep/firecrawl#lint",
+      "retired:firecrawl#lint",
       "@beep/freshbooks#lint",
       "@beep/gov-legal-mcp#lint",
       "@beep/govinfo#lint",
@@ -6876,13 +6876,13 @@
       "@beep/trustgraph-workbench#lint",
       "@beep/uspto#lint",
       "@beep/uspto-mcp#lint",
-      "@beep/venice-ai#lint",
+      "retired:venice-ai#lint",
       "@beep/wink#lint",
       "@beep/workspace-domain#lint",
       "@beep/workspace-server#lint",
       "@beep/workspace-tables#lint",
       "@beep/workspace-use-cases#lint",
-      "@beep/xai#lint"
+      "retired:xai#lint"
     ],
     "0e2ab067e40be33e956ea0796c9646ca9426a18c0f28a9b1e47132d397b820b2": [
       "@beep/acp#lint:fix",
@@ -6923,9 +6923,9 @@
       "@beep/epistemic-ui#lint:fix",
       "@beep/epistemic-use-cases#lint:fix",
       "@beep/exiftool#lint:fix",
-      "@beep/face-detection#lint:fix",
+      "retired:face-detection#lint:fix",
       "@beep/ffmpeg#lint:fix",
-      "@beep/firecrawl#lint:fix",
+      "retired:firecrawl#lint:fix",
       "@beep/freshbooks#lint:fix",
       "@beep/gov-legal-mcp#lint:fix",
       "@beep/govinfo#lint:fix",
@@ -6971,13 +6971,13 @@
       "@beep/trustgraph-workbench#lint:fix",
       "@beep/uspto#lint:fix",
       "@beep/uspto-mcp#lint:fix",
-      "@beep/venice-ai#lint:fix",
+      "retired:venice-ai#lint:fix",
       "@beep/wink#lint:fix",
       "@beep/workspace-domain#lint:fix",
       "@beep/workspace-server#lint:fix",
       "@beep/workspace-tables#lint:fix",
       "@beep/workspace-use-cases#lint:fix",
-      "@beep/xai#lint:fix"
+      "retired:xai#lint:fix"
     ],
     "9210234f331e04b290de806e326ab14a2c36e5b9a37db12b46c3088f79cf50b2": [
       "@beep/acp#package-test-typecheck",
@@ -7019,9 +7019,9 @@
       "@beep/epistemic-ui#package-test-typecheck",
       "@beep/epistemic-use-cases#package-test-typecheck",
       "@beep/exiftool#package-test-typecheck",
-      "@beep/face-detection#package-test-typecheck",
+      "retired:face-detection#package-test-typecheck",
       "@beep/ffmpeg#package-test-typecheck",
-      "@beep/firecrawl#package-test-typecheck",
+      "retired:firecrawl#package-test-typecheck",
       "@beep/freshbooks#package-test-typecheck",
       "@beep/gov-legal-mcp#package-test-typecheck",
       "@beep/govinfo#package-test-typecheck",
@@ -7067,13 +7067,13 @@
       "@beep/trustgraph-workbench#package-test-typecheck",
       "@beep/uspto#package-test-typecheck",
       "@beep/uspto-mcp#package-test-typecheck",
-      "@beep/venice-ai#package-test-typecheck",
+      "retired:venice-ai#package-test-typecheck",
       "@beep/wink#package-test-typecheck",
       "@beep/workspace-domain#package-test-typecheck",
       "@beep/workspace-server#package-test-typecheck",
       "@beep/workspace-tables#package-test-typecheck",
       "@beep/workspace-use-cases#package-test-typecheck",
-      "@beep/xai#package-test-typecheck"
+      "retired:xai#package-test-typecheck"
     ],
     "f4c42529bbc070aad728c97c0ff9537932b515cd74899256512851ed35469293": [
       "@beep/acp#storybook",
@@ -7126,11 +7126,11 @@
       "@beep/epistemic-ui#storybook",
       "@beep/epistemic-use-cases#storybook",
       "@beep/exiftool#storybook",
-      "@beep/face-detection#storybook",
+      "retired:face-detection#storybook",
       "@beep/fc-runs#storybook",
       "@beep/ffmpeg#storybook",
       "@beep/file-processing#storybook",
-      "@beep/firecrawl#storybook",
+      "retired:firecrawl#storybook",
       "@beep/freshbooks#storybook",
       "@beep/gov-legal-mcp#storybook",
       "@beep/govinfo#storybook",
@@ -7210,13 +7210,13 @@
       "@beep/uspto#storybook",
       "@beep/uspto-mcp#storybook",
       "@beep/utils#storybook",
-      "@beep/venice-ai#storybook",
+      "retired:venice-ai#storybook",
       "@beep/wink#storybook",
       "@beep/workspace-domain#storybook",
       "@beep/workspace-server#storybook",
       "@beep/workspace-tables#storybook",
       "@beep/workspace-use-cases#storybook",
-      "@beep/xai#storybook"
+      "retired:xai#storybook"
     ],
     "65ec5517f8845064eb4bc0c82e11e7b1048f755ad5909ace503636843f1588bf": [
       "@beep/acp#storybook:build",
@@ -7258,9 +7258,9 @@
       "@beep/epistemic-ui#storybook:build",
       "@beep/epistemic-use-cases#storybook:build",
       "@beep/exiftool#storybook:build",
-      "@beep/face-detection#storybook:build",
+      "retired:face-detection#storybook:build",
       "@beep/ffmpeg#storybook:build",
-      "@beep/firecrawl#storybook:build",
+      "retired:firecrawl#storybook:build",
       "@beep/freshbooks#storybook:build",
       "@beep/gov-legal-mcp#storybook:build",
       "@beep/govinfo#storybook:build",
@@ -7306,13 +7306,13 @@
       "@beep/trustgraph-workbench#storybook:build",
       "@beep/uspto#storybook:build",
       "@beep/uspto-mcp#storybook:build",
-      "@beep/venice-ai#storybook:build",
+      "retired:venice-ai#storybook:build",
       "@beep/wink#storybook:build",
       "@beep/workspace-domain#storybook:build",
       "@beep/workspace-server#storybook:build",
       "@beep/workspace-tables#storybook:build",
       "@beep/workspace-use-cases#storybook:build",
-      "@beep/xai#storybook:build"
+      "retired:xai#storybook:build"
     ],
     "4b76334a3cbcf179e4ec1d6cfc952ef7f79fce47ae31c0e033c136fdd1c5b9df": [
       "@beep/acp#storybook:start",
@@ -7365,11 +7365,11 @@
       "@beep/epistemic-ui#storybook:start",
       "@beep/epistemic-use-cases#storybook:start",
       "@beep/exiftool#storybook:start",
-      "@beep/face-detection#storybook:start",
+      "retired:face-detection#storybook:start",
       "@beep/fc-runs#storybook:start",
       "@beep/ffmpeg#storybook:start",
       "@beep/file-processing#storybook:start",
-      "@beep/firecrawl#storybook:start",
+      "retired:firecrawl#storybook:start",
       "@beep/freshbooks#storybook:start",
       "@beep/gov-legal-mcp#storybook:start",
       "@beep/govinfo#storybook:start",
@@ -7449,13 +7449,13 @@
       "@beep/uspto#storybook:start",
       "@beep/uspto-mcp#storybook:start",
       "@beep/utils#storybook:start",
-      "@beep/venice-ai#storybook:start",
+      "retired:venice-ai#storybook:start",
       "@beep/wink#storybook:start",
       "@beep/workspace-domain#storybook:start",
       "@beep/workspace-server#storybook:start",
       "@beep/workspace-tables#storybook:start",
       "@beep/workspace-use-cases#storybook:start",
-      "@beep/xai#storybook:start"
+      "retired:xai#storybook:start"
     ],
     "9d413d0ae0a1515ff0a353034d9547041b81f01a884ca0e20f37b0604282bb17": [
       "@beep/acp#test",
@@ -7497,9 +7497,9 @@
       "@beep/epistemic-ui#test",
       "@beep/epistemic-use-cases#test",
       "@beep/exiftool#test",
-      "@beep/face-detection#test",
+      "retired:face-detection#test",
       "@beep/ffmpeg#test",
-      "@beep/firecrawl#test",
+      "retired:firecrawl#test",
       "@beep/freshbooks#test",
       "@beep/gov-legal-mcp#test",
       "@beep/govinfo#test",
@@ -7545,13 +7545,13 @@
       "@beep/trustgraph-workbench#test",
       "@beep/uspto#test",
       "@beep/uspto-mcp#test",
-      "@beep/venice-ai#test",
+      "retired:venice-ai#test",
       "@beep/wink#test",
       "@beep/workspace-domain#test",
       "@beep/workspace-server#test",
       "@beep/workspace-tables#test",
       "@beep/workspace-use-cases#test",
-      "@beep/xai#test"
+      "retired:xai#test"
     ],
     "584c1e9674adafa03be7d473d08284cb68648c6d1e201a35036b42a792617d32": [
       "@beep/acp#test:integration",
@@ -7592,11 +7592,11 @@
       "@beep/epistemic-ui#test:integration",
       "@beep/exiftool#test:integration",
       "@beep/exiftool#test:integration:parallel",
-      "@beep/face-detection#test:integration",
+      "retired:face-detection#test:integration",
       "@beep/ffmpeg#test:integration",
       "@beep/ffmpeg#test:integration:parallel",
-      "@beep/firecrawl#test:integration",
-      "@beep/firecrawl#test:integration:parallel",
+      "retired:firecrawl#test:integration",
+      "retired:firecrawl#test:integration:parallel",
       "@beep/freshbooks#test:integration",
       "@beep/gov-legal-mcp#test:integration",
       "@beep/govinfo#test:integration",
@@ -7638,14 +7638,14 @@
       "@beep/tika#test:integration:parallel",
       "@beep/uspto#test:integration",
       "@beep/uspto-mcp#test:integration",
-      "@beep/venice-ai#test:integration",
-      "@beep/venice-ai#test:integration:parallel",
+      "retired:venice-ai#test:integration",
+      "retired:venice-ai#test:integration:parallel",
       "@beep/wink#test:integration",
       "@beep/workspace-server#test:integration",
       "@beep/workspace-server#test:integration:parallel",
       "@beep/workspace-tables#test:integration",
       "@beep/workspace-use-cases#test:integration",
-      "@beep/xai#test:integration"
+      "retired:xai#test:integration"
     ],
     "40df193822ea8fc38a0bb303c7b4686a8daf44123cb697c25085ef75e42a3f0f": [
       "@beep/acp#test:integration:serial",
@@ -7686,9 +7686,9 @@
       "@beep/epistemic-ui#test:integration:serial",
       "@beep/epistemic-use-cases#test:integration:serial",
       "@beep/exiftool#test:integration:serial",
-      "@beep/face-detection#test:integration:serial",
+      "retired:face-detection#test:integration:serial",
       "@beep/ffmpeg#test:integration:serial",
-      "@beep/firecrawl#test:integration:serial",
+      "retired:firecrawl#test:integration:serial",
       "@beep/freshbooks#test:integration:serial",
       "@beep/gov-legal-mcp#test:integration:serial",
       "@beep/govinfo#test:integration:serial",
@@ -7733,13 +7733,13 @@
       "@beep/trustgraph-workbench#test:integration:serial",
       "@beep/uspto#test:integration:serial",
       "@beep/uspto-mcp#test:integration:serial",
-      "@beep/venice-ai#test:integration:serial",
+      "retired:venice-ai#test:integration:serial",
       "@beep/wink#test:integration:serial",
       "@beep/workspace-domain#test:integration:serial",
       "@beep/workspace-server#test:integration:serial",
       "@beep/workspace-tables#test:integration:serial",
       "@beep/workspace-use-cases#test:integration:serial",
-      "@beep/xai#test:integration:serial"
+      "retired:xai#test:integration:serial"
     ],
     "38cbb86b2a8f35bffc4f3ce920815b3045fcf5e18db08b4879a496afc8aa2d36": [
       "@beep/acp#test:property",
@@ -7767,9 +7767,9 @@
       "@beep/epistemic-domain#test:property",
       "@beep/epistemic-tables#test:property",
       "@beep/epistemic-use-cases#test:property",
-      "@beep/face-detection#test:property",
+      "retired:face-detection#test:property",
       "@beep/ffmpeg#test:property",
-      "@beep/firecrawl#test:property",
+      "retired:firecrawl#test:property",
       "@beep/govinfo#test:property",
       "@beep/graph-3d#test:property",
       "@beep/hubspot#test:property",
@@ -7798,13 +7798,13 @@
       "@beep/tika#test:property",
       "@beep/uspto#test:property",
       "@beep/uspto-mcp#test:property",
-      "@beep/venice-ai#test:property",
+      "retired:venice-ai#test:property",
       "@beep/wink#test:property",
       "@beep/workspace-domain#test:property",
       "@beep/workspace-server#test:property",
       "@beep/workspace-tables#test:property",
       "@beep/workspace-use-cases#test:property",
-      "@beep/xai#test:property"
+      "retired:xai#test:property"
     ],
     "387b47b9fa24edf7a465a202655b0ed57d0d39ca24e075f1fb857789792ea26b": [
       "@beep/acp#test:storybook",
@@ -7846,9 +7846,9 @@
       "@beep/epistemic-ui#test:storybook",
       "@beep/epistemic-use-cases#test:storybook",
       "@beep/exiftool#test:storybook",
-      "@beep/face-detection#test:storybook",
+      "retired:face-detection#test:storybook",
       "@beep/ffmpeg#test:storybook",
-      "@beep/firecrawl#test:storybook",
+      "retired:firecrawl#test:storybook",
       "@beep/freshbooks#test:storybook",
       "@beep/gov-legal-mcp#test:storybook",
       "@beep/govinfo#test:storybook",
@@ -7894,13 +7894,13 @@
       "@beep/trustgraph-workbench#test:storybook",
       "@beep/uspto#test:storybook",
       "@beep/uspto-mcp#test:storybook",
-      "@beep/venice-ai#test:storybook",
+      "retired:venice-ai#test:storybook",
       "@beep/wink#test:storybook",
       "@beep/workspace-domain#test:storybook",
       "@beep/workspace-server#test:storybook",
       "@beep/workspace-tables#test:storybook",
       "@beep/workspace-use-cases#test:storybook",
-      "@beep/xai#test:storybook"
+      "retired:xai#test:storybook"
     ],
     "b299226b737865142eb005969fbf0baf26e603da3edab5974482b0da1ff91217": [
       "@beep/acp#transit",
@@ -7953,11 +7953,11 @@
       "@beep/epistemic-ui#transit",
       "@beep/epistemic-use-cases#transit",
       "@beep/exiftool#transit",
-      "@beep/face-detection#transit",
+      "retired:face-detection#transit",
       "@beep/fc-runs#transit",
       "@beep/ffmpeg#transit",
       "@beep/file-processing#transit",
-      "@beep/firecrawl#transit",
+      "retired:firecrawl#transit",
       "@beep/freshbooks#transit",
       "@beep/gov-legal-mcp#transit",
       "@beep/govinfo#transit",
@@ -8038,13 +8038,13 @@
       "@beep/uspto#transit",
       "@beep/uspto-mcp#transit",
       "@beep/utils#transit",
-      "@beep/venice-ai#transit",
+      "retired:venice-ai#transit",
       "@beep/wink#transit",
       "@beep/workspace-domain#transit",
       "@beep/workspace-server#transit",
       "@beep/workspace-tables#transit",
       "@beep/workspace-use-cases#transit",
-      "@beep/xai#transit"
+      "retired:xai#transit"
     ],
     "00073645ab7f6225bf26614e63cf20c9c341362ea74f18ef5046a8cb486d53b7": [
       "@beep/agents-client#codegen",
@@ -8088,11 +8088,11 @@
       "@beep/epistemic-ui#codegen",
       "@beep/epistemic-use-cases#codegen",
       "@beep/exiftool#codegen",
-      "@beep/face-detection#codegen",
+      "retired:face-detection#codegen",
       "@beep/fc-runs#codegen",
       "@beep/ffmpeg#codegen",
       "@beep/file-processing#codegen",
-      "@beep/firecrawl#codegen",
+      "retired:firecrawl#codegen",
       "@beep/freshbooks#codegen",
       "@beep/graph-3d#codegen",
       "@beep/html#codegen",
@@ -8148,13 +8148,13 @@
       "@beep/ui#codegen",
       "@beep/uspto#codegen",
       "@beep/uspto-mcp#codegen",
-      "@beep/venice-ai#codegen",
+      "retired:venice-ai#codegen",
       "@beep/wink#codegen",
       "@beep/workspace-domain#codegen",
       "@beep/workspace-server#codegen",
       "@beep/workspace-tables#codegen",
       "@beep/workspace-use-cases#codegen",
-      "@beep/xai#codegen"
+      "retired:xai#codegen"
     ],
     "e44c319594a5146df368b4c9c97932e3626942f55cc68d61b22debb6d5c8cbfd": [
       "@beep/agents-client#test:integration:parallel",
@@ -8197,7 +8197,7 @@
       "@beep/epistemic-ui#test:integration:parallel",
       "@beep/epistemic-use-cases#test:integration",
       "@beep/epistemic-use-cases#test:integration:parallel",
-      "@beep/face-detection#test:integration:parallel",
+      "retired:face-detection#test:integration:parallel",
       "@beep/freshbooks#test:integration:parallel",
       "@beep/gov-legal-mcp#test:integration:parallel",
       "@beep/govinfo#test:integration:parallel",
@@ -8252,7 +8252,7 @@
       "@beep/workspace-domain#test:integration:parallel",
       "@beep/workspace-tables#test:integration:parallel",
       "@beep/workspace-use-cases#test:integration:parallel",
-      "@beep/xai#test:integration:parallel"
+      "retired:xai#test:integration:parallel"
     ],
     "b70f23ebe1779293051b0cf5344f94ec306e49f7d7df31e0e7d15d50cb175bf8": [
       "@beep/agents-tables#test:property",
@@ -9454,7 +9454,7 @@
       "sha256": "8afd32bd94296176b7fc07cdeccdf55240d2d029a9f23d722b8623f3d0ab2a12"
     },
     {
-      "path": "packages/drivers/face-detection/package.json",
+      "path": "retired:face-detection/package.json",
       "sha256": "f38d66c1501ec4b80f5426d777017495763d05e5e0330a8ae11673b062846c33"
     },
     {
@@ -9462,7 +9462,7 @@
       "sha256": "52a26afbee21e9652353322eed424aa8ac264b2427074a38460dd10fbedf9759"
     },
     {
-      "path": "packages/drivers/firecrawl/package.json",
+      "path": "retired:firecrawl/package.json",
       "sha256": "e6f373e85c691e99f2519f42676132c4088d145c4e6a51f9fb44b1dc5f406d9c"
     },
     {
@@ -9582,7 +9582,7 @@
       "sha256": "797c58940f3f62b3090c93ba9c24b14be3e9a37bedc7a68d14b6757a653835cc"
     },
     {
-      "path": "packages/drivers/venice-ai/package.json",
+      "path": "retired:venice-ai/package.json",
       "sha256": "1b2c4e2f087158012c846c97fb0d3929d47484747213238d193fe13d76eb5e71"
     },
     {
@@ -9590,7 +9590,7 @@
       "sha256": "93b2715d65e2c6291d58b98547f6c9c9ae25c5023ef6983268877a3ae03fd209"
     },
     {
-      "path": "packages/drivers/xai/package.json",
+      "path": "retired:xai/package.json",
       "sha256": "cec1e48449ad35a925c4206ca2f846b3c16502cd2d0b02548c98503ccc0e48c1"
     },
     {

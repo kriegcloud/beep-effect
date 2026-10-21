@@ -172,7 +172,7 @@ packages/drivers/box-provisioning/src/internal/canonical.ts
 packages/drivers/box-provisioning/src/internal/live.ts
 packages/drivers/box/src/Box.streaming.ts
 packages/drivers/drizzle/src/Drizzle.errors.ts
-packages/drivers/firecrawl/src/Firecrawl.service.ts
+retired:firecrawl/src/Firecrawl.service.ts
 packages/drivers/freshbooks/src/Freshbooks.service.ts
 packages/drivers/hubspot/src/HubSpot.service.ts
 packages/drivers/libpff/src/Libpff.pffexport.ts
@@ -188,7 +188,7 @@ packages/drivers/pretext/src/Pretext.models.ts
 packages/drivers/rdf-canonize/src/adapters/canonicalization.ts
 packages/drivers/runpod/src/Runpod.service.ts
 packages/drivers/tika/src/Tika.server.ts
-packages/drivers/venice-ai/src/VeniceAI.service.ts
+retired:venice-ai/src/VeniceAI.service.ts
 packages/drivers/wink/src/WinkCorpus.service.ts
 packages/drivers/wink/src/WinkTools.service.ts
 packages/drivers/wink/src/WinkVectorizer.service.ts
@@ -349,7 +349,7 @@ can prioritize authored design refresh separately from inventory-only records.
 | `ci-local-step-plan` | no | `packages/tooling/tool/cli/src/commands/Ci/CiLane.ts` P `2389` -> `2391` |
 | `quality-test-lane-selection` | no | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts` P `232` -> `233` |
 | `quality-coverage-task-options` | no | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts` P `249` -> `250` |
-| `venice-sse-done-payload` | yes | `packages/drivers/venice-ai/src/VeniceAI.service.ts` P `648` -> `649`; E3 `1899` -> `1900` |
+| `venice-sse-done-payload` | yes | `retired:venice-ai/src/VeniceAI.service.ts` P `648` -> `649`; E3 `1899` -> `1900` |
 | `r3-foundation-img-responsive-presence` | no | `packages/foundation/modeling/html/src/Html.conformance.ts` P `1061` -> `1065` |
 | `r3-foundation-link-responsive-presence` | no | `packages/foundation/modeling/html/src/Html.conformance.ts` P `1107` -> `1111` |
 | `r3-foundation-glob-entry-facts` | no | `packages/foundation/modeling/utils/src/Glob.ts` P `398` -> `399` |
@@ -393,7 +393,7 @@ can prioritize authored design refresh separately from inventory-only records.
 | `chat-timeline-refresh-latch` | no | `packages/agents/client/src/Chat.atoms.ts` P `959` -> `961` |
 | `wink-token-punctuation-word-like` | no | `packages/drivers/wink/src/WinkTools.service.ts` P `49` -> `51` |
 | `wink-token-to-ai-flags` | no | `packages/drivers/wink/src/WinkTools.service.ts` P `121` -> `123` |
-| `venice-response-content-type-classifiers` | no | `packages/drivers/venice-ai/src/VeniceAI.service.ts` P `1523` -> `1524` |
+| `venice-response-content-type-classifiers` | no | `retired:venice-ai/src/VeniceAI.service.ts` P `1523` -> `1524` |
 | `rdf-canonize-budget-failure-heuristics` | no | `packages/drivers/rdf-canonize/src/adapters/canonicalization.ts` P `168` -> `170` |
 | `r3-foundation-attribute-requirement-gates` | no | `packages/foundation/modeling/html/src/Html.conformance.ts` P `1315` -> `1319` |
 | `with-codec-statics-install-on-owned-schema` | no | `packages/foundation/modeling/schema/src/SchemaUtils/withCodecStatics.ts` P `351` -> `352` |
@@ -429,7 +429,7 @@ can prioritize authored design refresh separately from inventory-only records.
 | `r3-tooling-judge-pack-green-gates` | no | `packages/tooling/tool/cli/src/commands/Qa/JudgePack.ts` P `374` -> `376` |
 | `r3-tooling-coverage-selected-steps-options` | no | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts` P `2723` -> `2726` |
 | `r3-tooling-create-package-literal-guards` | no | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts` P `222` -> `222` |
-| `r3-drivers-arch-venice-content-type-probes` | no | `packages/drivers/venice-ai/src/VeniceAI.service.ts` P `1528` -> `1529` |
+| `r3-drivers-arch-venice-content-type-probes` | no | `retired:venice-ai/src/VeniceAI.service.ts` P `1528` -> `1529` |
 | `r3-drivers-arch-m365-path-extension-probes` | no | `packages/drivers/m365/src/M365.service.ts` P `121` -> `124` |
 | `r3-tooling-ci-lane-docgen-input-kind` | no | `packages/tooling/tool/cli/src/commands/Ci/CiLane.ts` P `1570` -> `1572` |
 | `r3-tooling-lane-timings-window-row-guards` | no | `packages/tooling/tool/cli/src/commands/Ci/LaneTimings.ts` P `1768` -> `1768` |

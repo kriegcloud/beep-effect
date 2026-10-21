@@ -48,7 +48,6 @@ export class LabConfigValue extends S.Opaque<LabConfigValue, { readonly brand: u
     extractorModel: S.NonEmptyString,
     goldDirectory: S.NonEmptyString,
     goldGenerationTimeout: S.Duration,
-    goldModel: S.NonEmptyString,
     ledgerRoot: S.NonEmptyString,
     mode: RuntimeMode,
     offline: S.Boolean,
@@ -68,9 +67,8 @@ export class LabConfigValue extends S.Opaque<LabConfigValue, { readonly brand: u
  *
  * `SEMANTICA_CORPUS_ROOT` is optional so the shell can start in a typed degraded
  * mode. `SEMANTICA_PROVIDER_CACHE_DIR` defaults to the repository-local cache
- * directory, `SEMANTICA_XAI_MODEL` defaults to `grok-4.6`,
- * `SEMANTICA_GOLD_GENERATION_TIMEOUT` defaults to 45 minutes, the C1 embedding
- * identity freezes `text-embedding-3-small` at 1,536 dimensions,
+ * directory, `SEMANTICA_GOLD_GENERATION_TIMEOUT` defaults to 45 minutes, the
+ * C1 embedding identity freezes `text-embedding-3-small` at 1,536 dimensions,
  * `SEMANTICA_EXTRACTION_TIMEOUT` bounds one hosted extraction generation and
  * defaults to 15 minutes, `SEMANTICA_PROJECTION_TIMEOUT` bounds every
  * Oxigraph call at 30 seconds, and `SEMANTICA_OFFLINE` selects explicit
@@ -107,7 +105,6 @@ const labConfig = Config.all({
   goldGenerationTimeout: Config.Duration("SEMANTICA_GOLD_GENERATION_TIMEOUT").pipe(
     Config.withDefault(Duration.minutes(45))
   ),
-  goldModel: Config.NonEmptyString("SEMANTICA_XAI_MODEL").pipe(Config.withDefault("grok-4.6")),
   ledgerRoot: Config.NonEmptyString("SEMANTICA_LEDGER_ROOT").pipe(Config.withDefault(".beep/semantica/ledger")),
   offline: Config.Boolean("SEMANTICA_OFFLINE").pipe(Config.withDefault(false)),
   projectionTimeout: Config.Duration("SEMANTICA_PROJECTION_TIMEOUT").pipe(Config.withDefault(Duration.seconds(30))),

@@ -315,7 +315,7 @@ prototypes fail.
 | 1Password CLI driver | `packages/drivers/onepassword-cli` (`probeReference`, `read` → `Redacted`, `whoami`; `ChildProcessSpawner` + driver-local concurrent stdout/stderr/exit collection) | Deploy-time secret probe/read; style model for the openclaw CLI wrapper | reuse |
 | Typed op:// reference value | `packages/shared/domain/src/values/OnePasswordReference/OnePasswordReference.model.ts` (pattern-validated `op://vault/item/field[/section]`) | Upgrade over AIMetrics' raw `S.String` secret refs — use for every `*SecretRef` field | reuse |
 | Tailscale driver | `packages/drivers/tailscale` (status/serve surfaces, `magicDnsName`, `baseUrl`) | dankserver-migration phase (remote executor); not needed for workstation v1 | reuse later |
-| Provider drivers | `packages/drivers/{anthropic,openai-compat,xai,venice-ai,ai-provider-cli}` | Not consumed by the deploy stack; relevant to the later SDK-adapter path only | out of scope |
+| Provider drivers | `packages/drivers/{anthropic,openai-compat,ai-provider-cli}`, `retired:xai`, `retired:venice-ai` | Not consumed by the deploy stack; relevant to the later SDK-adapter path only | out of scope |
 | Discord driver | `packages/drivers/discord` | Not needed — channel config is just OpenClaw config + a bot-token secret ref | out of scope |
 | Schema kits | `@beep/schema` (`LiteralKit`, `SchemaUtils.withKeyDefaults`/`withNoneDefault`/`withStatics`, `TaggedErrorClass`, `Model.Class`) | Everything schema-shaped in driver + stack | reuse |
 | Identity composers | `@beep/identity` (`$InfraId`, `$I.create`/`annote`/`annoteSchema`; new `$OpenclawId` needed) | Driver + stack identity | reuse/extend |

@@ -119,7 +119,7 @@ cluster into recognizable families (enumerated, not deeply summarized, per focus
   `schema-first-zero-actionables`, `effect-native-migration`.
 - **Ontology / KG platform:** `ontology-modeling-foundation`,
   `ontology-interop-roadmap`, `agentic-cad-patent-tooling`.
-- **Drivers / infra:** `box-driver`, `firecrawl-driver`, `stack-installer`,
+- **Drivers / infra:** `box-driver`, `retired-packet:firecrawl-driver`, `stack-installer`,
   `storybook-app`, `canvas`, `oip-web-launch`, `oip-web-production-hardening`.
 
 This breadth confirms the planning surface spans far beyond the IP-law product;

@@ -135,7 +135,7 @@ and the tooling agent-effectiveness, AI-metrics, and files command pilots in
 `packages/tooling/tool/cli/test/files-command.test.ts`, plus the Libpff/Tika
 driver pilots in `packages/drivers/libpff/test/Libpff.service.test.ts` and
 `packages/drivers/tika/test/Tika.service.test.ts`, and the Venice AI driver
-pilot in `packages/drivers/venice-ai/test/VeniceAI.service.test.ts`, the ACP
+pilot in `retired:venice-ai/test/VeniceAI.service.test.ts`, the ACP
 driver pilots in `packages/drivers/acp/test/agent.test.ts` and
 `packages/drivers/acp/test/protocol.test.ts`, and the architecture-lab PgLite
 pilot in

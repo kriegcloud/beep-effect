@@ -85,5 +85,5 @@ amendments require a superseding entry in
 `standards/architecture/DECISIONS.md`. Sibling seam: this packet edits
 tooling, CI, and test infrastructure only — the sole product-adjacent
 edits are the three wire-preserving `withNormalizedCheck` migrations
-(venice-ai, phoenix, m365; uspto optional as a noted tightening —
+(retired:venice-ai, phoenix, m365; uspto optional as a noted tightening —
 SPEC fence 4).

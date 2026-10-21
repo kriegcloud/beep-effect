@@ -12,7 +12,7 @@ closeout).
   lane — where a *different* package (`@beep/box#build`) flaked with the
   same signature, and the quarantine kept the failure hard
   ("lane rerun failed with exit 2; keeping failure hard"). The same class
-  hit `@beep/xai#check` in the check lane and was quarantined green there.
+  hit `retired:xai#check` in the check lane and was quarantined green there.
   Manual recovery: standalone builds of both packages passed instantly,
   full `bun run build` green (131/131), soft-reset the unpushed commit,
   republish — second proof fully green. Net cost: one full ~50-minute proof
