@@ -201,7 +201,7 @@ export class JSDocTotalsRegressionBaseline extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schema_version: S.Literal(1),
+    schema_version: S.tag(1),
     source_inventory: S.String,
     regeneration_command: S.String,
     snapshot_command: S.String,

@@ -568,7 +568,7 @@ export class DocgenQualityRemediationPacket extends S.Opaque<
  */
 export class DocgenQualityReport extends S.Opaque<DocgenQualityReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(QUALITY_SCHEMA_VERSION),
+    schemaVersion: S.tag(QUALITY_SCHEMA_VERSION),
     rubricVersion: S.String,
     generatedAt: S.String,
     scope: DocgenQualityScopeMode,

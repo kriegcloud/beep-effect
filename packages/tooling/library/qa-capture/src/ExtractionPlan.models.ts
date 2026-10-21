@@ -688,7 +688,7 @@ export class ExtractionPlan extends S.Opaque<ExtractionPlan, { readonly brand: u
         description: "Deterministic byte estimate of all planned artifacts.",
       })
     ),
-    schemaVersion: S.Literal("beep.qa.extraction-plan.v1").pipe(
+    schemaVersion: S.tag("beep.qa.extraction-plan.v1").pipe(
       $I.annoteKey("ExtractionPlan.schemaVersion", {
         description: "Extraction plan schema version literal.",
       })

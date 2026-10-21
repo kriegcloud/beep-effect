@@ -60,7 +60,7 @@ const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.Sc
 export class SerializedCodeBlockNode extends S.Opaque<SerializedCodeBlockNode, { readonly brand: unique symbol }>()(
   S.Struct({
     type: S.tag("codeblock"),
-    version: S.Literal(1),
+    version: S.tag(1),
     format: ElementFormat,
     code: S.String,
     language: S.String,

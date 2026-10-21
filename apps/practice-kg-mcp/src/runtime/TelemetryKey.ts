@@ -114,7 +114,7 @@ export class PracticeKgTelemetryKeyFile extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    version: S.Literal(1),
+    version: S.tag(1),
     epoch: S.Int.check(S.isGreaterThan(0)),
     protection: StrictKeyProtection,
     wrappedBase64: S.String,

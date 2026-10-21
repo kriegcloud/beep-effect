@@ -143,7 +143,7 @@ export class SinceLastCheckInput extends S.Opaque<SinceLastCheckInput, { readonl
  * @since 0.0.0
  */
 export class SessionCursor extends S.Opaque<SessionCursor, { readonly brand: unique symbol }>()(
-  S.Struct({ schemaVersion: S.Literal("palantiri-cursor/v1"), checkedAt: S.DateTimeUtcFromString }).pipe(
+  S.Struct({ schemaVersion: S.tag("palantiri-cursor/v1"), checkedAt: S.DateTimeUtcFromString }).pipe(
     $I.annoteSchema("SessionCursor", { description: "When a session last read the since-last-check parcel." })
   )
 ) {}

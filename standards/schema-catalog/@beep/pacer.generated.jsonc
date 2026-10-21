@@ -11,6 +11,8 @@
     {"file":"packages/drivers/pacer/src/Pacer.config.ts","symbol":"PacerConfig","kind":"tagged-union","owner":"@beep/pacer","identity":"PacerConfig","description":"PACER configuration consumed by the auth + PCL services"},
     {"file":"packages/drivers/pacer/src/Pacer.config.ts","symbol":"PacerConfigBase","kind":"schema-class","owner":"@beep/pacer","identity":"PacerConfigBase","description":"Base PACER configuration consumed by the auth + PCL services"},
     {"file":"packages/drivers/pacer/src/Pacer.config.ts","symbol":"PacerConfigLoadOptions","kind":"struct-const","owner":"@beep/pacer","identity":"PacerConfigLoadOptions","description":"Options used when loading PACER config from an Effect ConfigProvider."},
+    {"file":"packages/drivers/pacer/src/Pacer.config.ts","symbol":"PacerConfigProd","kind":"schema-const","owner":"@beep/pacer","identity":"PacerConfigProd","description":"Production PACER configuration consumed by the auth + PCL services"},
+    {"file":"packages/drivers/pacer/src/Pacer.config.ts","symbol":"PacerConfigQA","kind":"schema-const","owner":"@beep/pacer","identity":"PacerConfigQA","description":"QA PACER configuration consumed by the auth + PCL services"},
     {"file":"packages/drivers/pacer/src/Pacer.errors.ts","symbol":"PacerAuthError","kind":"tagged-error","owner":"@beep/pacer","identity":"PacerAuthError"},
     {"file":"packages/drivers/pacer/src/Pacer.errors.ts","symbol":"PacerAuthErrorReason","kind":"literal-kit","owner":"@beep/pacer","identity":"PacerAuthErrorReason","description":"Reasons the PACER cso-auth / cso-logout flow can fail."},
     {"file":"packages/drivers/pacer/src/Pacer.errors.ts","symbol":"PacerConfigError","kind":"tagged-error","owner":"@beep/pacer","identity":"PacerConfigError"},

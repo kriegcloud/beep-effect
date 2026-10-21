@@ -319,7 +319,7 @@ export class PackageQualityReport extends S.Opaque<PackageQualityReport, { reado
  */
 export class QualityIssueIndex extends S.Opaque<QualityIssueIndex, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-quality-issue-index/v1"),
+    schemaVersion: S.tag("yeet-quality-issue-index/v1"),
     issues: S.Array(QualityIssue),
     packages: S.Array(PackageQualityReport),
     rawOutputRefs: S.Array(S.String),

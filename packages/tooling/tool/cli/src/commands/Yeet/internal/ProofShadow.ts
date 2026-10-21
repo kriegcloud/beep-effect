@@ -223,7 +223,7 @@ export class ProofShadowMissCount extends S.Opaque<ProofShadowMissCount, { reado
  */
 export class ProofShadowReport extends S.Opaque<ProofShadowReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(PROOF_SHADOW_REPORT_SCHEMA_VERSION),
+    schemaVersion: S.tag(PROOF_SHADOW_REPORT_SCHEMA_VERSION),
     generatedAt: S.NonEmptyString,
     ledgerPath: S.NonEmptyString,
     shadowRows: ProofCount,

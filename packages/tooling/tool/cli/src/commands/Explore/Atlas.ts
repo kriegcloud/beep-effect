@@ -244,7 +244,7 @@ export class ExplorationManifestEntry extends S.Opaque<ExplorationManifestEntry,
  */
 export class ExplorationManifest extends S.Opaque<ExplorationManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("exploration-manifest/v1"),
+    schemaVersion: S.tag("exploration-manifest/v1"),
     exploration: ExplorationManifestEntry,
   }).pipe(
     $I.annoteSchema("ExplorationManifest", {

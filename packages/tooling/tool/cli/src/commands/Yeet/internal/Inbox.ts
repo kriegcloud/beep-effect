@@ -213,9 +213,7 @@ export class YeetFailureCapsule extends S.Opaque<YeetFailureCapsule, { readonly 
 export class YeetCheckFailedRow extends S.Opaque<YeetCheckFailedRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("check-failed"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
     severity: YeetInboxSeverity,
     checkout: S.NonEmptyString,
@@ -288,11 +286,9 @@ export class YeetSiblingCollisionCapsule extends S.Opaque<
 export class YeetSiblingCollisionRow extends S.Opaque<YeetSiblingCollisionRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("sibling-collision"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
-    severity: S.Literal("P0"),
+    severity: S.tag("P0"),
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetSiblingCollisionCapsule,
@@ -354,11 +350,9 @@ export class YeetReviewThreadCapsule extends S.Opaque<YeetReviewThreadCapsule, {
 export class YeetReviewThreadRow extends S.Opaque<YeetReviewThreadRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("review-thread"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
-    severity: S.Literal("P1"),
+    severity: S.tag("P1"),
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetReviewThreadCapsule,
@@ -417,11 +411,9 @@ export class YeetBaseDriftCapsule extends S.Opaque<YeetBaseDriftCapsule, { reado
 export class YeetBaseDriftRow extends S.Opaque<YeetBaseDriftRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("base-drift"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
-    severity: S.Literal("P2"),
+    severity: S.tag("P2"),
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetBaseDriftCapsule,
@@ -530,11 +522,9 @@ export class YeetBaseConflictCapsule extends S.Opaque<YeetBaseConflictCapsule, {
 export class YeetBaseConflictRow extends S.Opaque<YeetBaseConflictRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("base-conflict"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
-    severity: S.Literal("P0"),
+    severity: S.tag("P0"),
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetBaseConflictCapsule,
@@ -667,11 +657,9 @@ export class YeetPrCommentCapsule extends S.Opaque<YeetPrCommentCapsule, { reado
 export class YeetPrCommentRow extends S.Opaque<YeetPrCommentRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("pr-comment"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
-    severity: S.Literal("P1"),
+    severity: S.tag("P1"),
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetPrCommentCapsule,
@@ -738,11 +726,9 @@ export class YeetLocalShardFailureCapsule extends S.Opaque<
 export class YeetLocalShardFailedRow extends S.Opaque<YeetLocalShardFailedRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("local-shard-failed"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
-    severity: S.Literal("P0"),
+    severity: S.tag("P0"),
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetLocalShardFailureCapsule,
@@ -840,11 +826,9 @@ export class YeetPrMergeReadyCapsule extends S.Opaque<YeetPrMergeReadyCapsule, {
 export class YeetPrMergeReadyRow extends S.Opaque<YeetPrMergeReadyRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("pr-merge-ready"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
-    severity: S.Literal("P1"),
+    severity: S.tag("P1"),
     checkout: S.NonEmptyString,
     ts: S.String,
     capsule: YeetPrMergeReadyCapsule,
@@ -870,9 +854,7 @@ export class YeetPrMergeReadyRow extends S.Opaque<YeetPrMergeReadyRow, { readonl
 export class YeetProofJobFinishedRow extends S.Opaque<YeetProofJobFinishedRow, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("proof-job-finished"),
-    schemaVersion: S.Literal(YEET_INBOX_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_SCHEMA_VERSION),
     id: S.NonEmptyString,
     severity: ProofJobRowSeverity,
     checkout: S.NonEmptyString,

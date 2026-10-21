@@ -560,7 +560,7 @@ export class DocumentOutcome extends S.Opaque<DocumentOutcome, { readonly brand:
 ) {}
 
 const EvalReportFields = S.Struct({
-  schemaVersion: S.Literal("eval-report/v1"),
+  schemaVersion: S.tag("eval-report/v1"),
   run: EvalRun,
   documents: S.NonEmptyArray(DocumentOutcome),
   metrics: S.NonEmptyArray(MetricScore),

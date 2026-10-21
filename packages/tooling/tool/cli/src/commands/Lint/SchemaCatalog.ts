@@ -152,8 +152,8 @@ export class SchemaCatalogEntry extends S.Opaque<SchemaCatalogEntry, { readonly 
  */
 export class SchemaCatalogDocument extends S.Opaque<SchemaCatalogDocument, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("schema-catalog/v1"),
-    generatedBy: S.Literal(SCHEMA_CATALOG_GENERATED_BY),
+    schemaVersion: S.tag("schema-catalog/v1"),
+    generatedBy: S.tag(SCHEMA_CATALOG_GENERATED_BY),
     entries: S.Array(SchemaCatalogEntry),
   }).pipe(
     $I.annoteSchema("SchemaCatalogDocument", {
@@ -218,8 +218,8 @@ export const SchemaCatalogOwner = S.String.check(
  */
 export class SchemaCatalogShard extends S.Opaque<SchemaCatalogShard, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("schema-catalog-shard/v1"),
-    generatedBy: S.Literal(SCHEMA_CATALOG_GENERATED_BY),
+    schemaVersion: S.tag("schema-catalog-shard/v1"),
+    generatedBy: S.tag(SCHEMA_CATALOG_GENERATED_BY),
     owner: SchemaCatalogOwner,
     entries: S.Array(SchemaCatalogEntry),
   }).pipe(
@@ -419,6 +419,7 @@ const SCHEMA_CONST_MEMBER_NAMES = [
   "Tuple",
   "Undefined",
   "Unknown",
+  "tag",
 ] as const;
 
 const SCHEMA_TRANSFORMATION_MEMBER_NAMES = [

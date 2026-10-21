@@ -333,7 +333,7 @@ export class OntologyJsonSchemaDocument extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    dialect: S.Literal("draft-2020-12"),
+    dialect: S.tag("draft-2020-12"),
     schema: S.Record(S.String, S.Unknown),
     definitions: S.Record(S.String, S.Record(S.String, S.Unknown)),
   }).pipe(

@@ -51,7 +51,7 @@ const fingerprintSeparator = new Uint8Array([0]);
 
 class YeetRunState extends S.Opaque<YeetRunState, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-run-state/v1"),
+    schemaVersion: S.tag("yeet-run-state/v1"),
     artifactDir: S.String,
     base: S.String,
     branch: S.String,
@@ -84,7 +84,7 @@ const proofLockOwnerFields = {
 
 class YeetProofLockStateV2 extends S.Opaque<YeetProofLockStateV2, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-proof-lock/v2"),
+    schemaVersion: S.tag("yeet-proof-lock/v2"),
     ...proofLockOwnerFields,
   }).pipe(
     $I.annoteSchema("YeetProofLockStateV2", {
@@ -101,7 +101,7 @@ class YeetProofLockStateV2 extends S.Opaque<YeetProofLockStateV2, { readonly bra
  */
 class YeetProofLockState extends S.Opaque<YeetProofLockState, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-proof-lock/v3"),
+    schemaVersion: S.tag("yeet-proof-lock/v3"),
     ...proofLockOwnerFields,
   }).pipe(
     $I.annoteSchema("YeetProofLockState", {
@@ -112,8 +112,8 @@ class YeetProofLockState extends S.Opaque<YeetProofLockState, { readonly brand: 
 
 class YeetProofLockRetirementState extends S.Opaque<YeetProofLockRetirementState, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-proof-lock/v4"),
-    coordination: S.Literal("quality-scheduler/v1"),
+    schemaVersion: S.tag("yeet-proof-lock/v4"),
+    coordination: S.tag("quality-scheduler/v1"),
     retiredAt: S.String,
   }).pipe(
     $I.annoteSchema("YeetProofLockRetirementState", {
@@ -125,7 +125,7 @@ class YeetProofLockRetirementState extends S.Opaque<YeetProofLockRetirementState
 
 class YeetProofLockReapClaim extends S.Opaque<YeetProofLockReapClaim, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-proof-lock-reap-claim/v1"),
+    schemaVersion: S.tag("yeet-proof-lock-reap-claim/v1"),
     pid: S.Finite,
     startedAt: S.String,
   }).pipe(

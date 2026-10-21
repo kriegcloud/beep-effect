@@ -593,7 +593,7 @@ export class AiMetricsForwarderOtlpExported extends S.Opaque<
     ingestRunId: S.String,
     sessionSpanCount: S.Natural,
     spanCount: S.Natural,
-    status: S.Literal("exported").pipe(S.withConstructorDefault(Effect.succeed("exported"))),
+    status: S.tag("exported"),
     target: AiMetricsDeployTarget,
     turnSpanCount: S.Natural,
   }).pipe(
@@ -647,7 +647,7 @@ export class AiMetricsForwarderOtlpExportFailed extends S.Opaque<
     endpointTraceUrl: S.String,
     ingestRunId: S.String,
     message: S.String,
-    status: S.Literal("failed").pipe(S.withConstructorDefault(Effect.succeed("failed"))),
+    status: S.tag("failed"),
     target: AiMetricsDeployTarget,
   }).pipe(
     $I.annoteSchema("AiMetricsForwarderOtlpExportFailed", {

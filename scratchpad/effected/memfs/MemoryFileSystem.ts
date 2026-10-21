@@ -546,8 +546,7 @@ export interface MemoryFileSystemPortOptions<Faults> {
  * @category schemas
  * @since 0.0.0
  */
-export const MemoryFileSystemSeedFile = S.Struct({
- _tag: S.tag("MemoryFileSystemSeedFile").pipe($I.annoteKey("MemoryFileSystemSeedFile._tag", { description: "The seed file variant." })),
+export const MemoryFileSystemSeedFile = S.TaggedStruct("MemoryFileSystemSeedFile", {
  /** File contents; strings are UTF-8 encoded, `Uint8Array`s written verbatim. */
  content: S.Union([S.String, S.Uint8Array]).pipe($I.annoteKey("MemoryFileSystemSeedFile.content", { description: "UTF-8 text or verbatim file bytes." })),
  /** Initial permission bits (defaults to the volume's `0o644`). */
@@ -587,8 +586,7 @@ export type MemoryFileSystemSeedFile = typeof MemoryFileSystemSeedFile.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const MemoryFileSystemSeedDirectory = S.Struct({
- _tag: S.tag("MemoryFileSystemSeedDirectory").pipe($I.annoteKey("MemoryFileSystemSeedDirectory._tag", { description: "The seed directory variant." })),
+export const MemoryFileSystemSeedDirectory = S.TaggedStruct("MemoryFileSystemSeedDirectory", {
  /** Initial permission bits (defaults to the volume's `0o755`). */
  mode: S.optionalKey(S.Finite).pipe($I.annoteKey("MemoryFileSystemSeedDirectory.mode", { description: "Initial permission bits." }))
 }).pipe($I.annoteSchema("MemoryFileSystemSeedDirectory", { description: "The upstream MemoryFileSystemSeedDirectory plain-object payload." }));
@@ -618,8 +616,7 @@ export type MemoryFileSystemSeedDirectory = typeof MemoryFileSystemSeedDirectory
  * @category schemas
  * @since 0.0.0
  */
-export const MemoryFileSystemSeedSymlink = S.Struct({
- _tag: S.tag("MemoryFileSystemSeedSymlink").pipe($I.annoteKey("MemoryFileSystemSeedSymlink._tag", { description: "The seed symlink variant." })),
+export const MemoryFileSystemSeedSymlink = S.TaggedStruct("MemoryFileSystemSeedSymlink", {
  /** The link target, stored verbatim; it may dangle. */
  target: S.String.pipe($I.annoteKey("MemoryFileSystemSeedSymlink.target", { description: "The stored link target." }))
 }).pipe($I.annoteSchema("MemoryFileSystemSeedSymlink", { description: "The upstream MemoryFileSystemSeedSymlink plain-object payload." }));

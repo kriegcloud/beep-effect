@@ -443,9 +443,7 @@ export const renderYeetAckResolution = (resolution: YeetAckResolution): string =
  */
 export class YeetAckReceipt extends S.Opaque<YeetAckReceipt, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(YEET_ACK_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_ACK_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_ACK_SCHEMA_VERSION),
     id: S.NonEmptyString,
     resolution: YeetAckResolution,
     ackedAt: S.String,

@@ -100,11 +100,11 @@ export class CacheSignedPilotProtection extends S.Opaque<
 >()(
   S.Struct({
     mechanism: S.tag("nested-reader-denial/v1"),
-    protectedFiles: S.Literal(2),
-    readsDenied: S.Literal(true),
-    writesDenied: S.Literal(true),
-    writerEnvironmentHidden: S.Literal(true),
-    protectedBytesUnchanged: S.Literal(true),
+    protectedFiles: S.tag(2),
+    readsDenied: S.tag(true),
+    writesDenied: S.tag(true),
+    writerEnvironmentHidden: S.tag(true),
+    protectedBytesUnchanged: S.tag(true),
     issuerMaterialDenied: S.OptionFromOptionalKey(S.Literal(true)).pipe(S.withConstructorDefault(Effect.succeedNone)),
   }).pipe(
     $I.annoteSchema("CacheSignedPilotProtection", {
@@ -131,7 +131,7 @@ export class CacheSignedPilotArchive extends S.Opaque<CacheSignedPilotArchive, {
     archiveSha256: Sha256Hex,
     archiveBytes: S.Natural,
     decodedBytes: S.Natural,
-    path: S.Literal("packages/foundation/modeling/identity/.turbo/turbo-lint.log"),
+    path: S.tag("packages/foundation/modeling/identity/.turbo/turbo-lint.log"),
     logSha256: Sha256Hex,
     logBytes: S.Natural,
   }).pipe(
@@ -372,19 +372,19 @@ export class CacheSignedPilotPolicyRefusal extends S.Opaque<
 >()(
   S.Struct({
     reason: S.tag("missing-child-config"),
-    removedPath: S.Literal("packages/foundation/modeling/identity/turbo.json"),
+    removedPath: S.tag("packages/foundation/modeling/identity/turbo.json"),
     isolationRoot: Sha256Hex,
     computation: CachePilotTask.fields.computation,
     taskHash: CachePilotTask.fields.taskHash,
     inputsDigest: Sha256Hex,
     configuration: CacheTaskConfiguration,
     dryPlanSha256: Sha256Hex,
-    planExitCode: S.Literal(0),
-    nativeRuntimeKeyObserved: S.Literal(false),
-    nativeExecutionObserved: S.Literal(false),
-    executionSummaries: S.Literal(0),
-    selectedLogFiles: S.Literal(0),
-    guardRejected: S.Literal(true),
+    planExitCode: S.tag(0),
+    nativeRuntimeKeyObserved: S.tag(false),
+    nativeExecutionObserved: S.tag(false),
+    executionSummaries: S.tag(0),
+    selectedLogFiles: S.tag(0),
+    guardRejected: S.tag(true),
   }).pipe(
     $I.annoteSchema("CacheSignedPilotPolicyRefusal", {
       description:
@@ -415,8 +415,8 @@ export class CacheSignedPilotCaptureControl extends S.Opaque<
     summarySha256: Sha256Hex,
     probeSha256: Sha256Hex,
     taskHash: S.NonEmptyString,
-    selectedExitCode: S.Literal(0),
-    origin: S.Literal("fresh"),
+    selectedExitCode: S.tag(0),
+    origin: S.tag("fresh"),
     diagnostic: S.NonEmptyString,
   }).pipe(
     $I.annoteSchema("CacheSignedPilotCaptureControl", {

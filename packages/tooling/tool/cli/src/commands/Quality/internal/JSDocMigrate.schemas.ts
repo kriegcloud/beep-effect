@@ -464,7 +464,7 @@ export type JSDocMigrateMode = typeof JSDocMigrateMode.Type;
  */
 export class JSDocMigrateProofManifest extends S.Opaque<JSDocMigrateProofManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    schema_version: S.Literal(1),
+    schema_version: S.tag(1),
     generated_at: S.String,
     mode: JSDocMigrateMode,
     files: S.Int,

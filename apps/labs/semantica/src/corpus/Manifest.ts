@@ -179,8 +179,8 @@ export class CorpusManifestSelection extends S.Opaque<CorpusManifestSelection, {
 ) {}
 
 const CorpusManifestFields = S.Struct({
-  schemaVersion: S.Literal("w1-manifest/v1"),
-  corpusId: S.Literal("academia-2026-07"),
+  schemaVersion: S.tag("w1-manifest/v1"),
+  corpusId: S.tag("academia-2026-07"),
   selection: CorpusManifestSelection,
   rows: S.NonEmptyArray(CorpusManifestRow),
   corpusHash: Sha256Hex,

@@ -63,7 +63,7 @@ export type RequestKind = typeof RequestKind.Type;
  */
 export class ProviderCacheKey extends S.Opaque<ProviderCacheKey, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("provider-cache/v1"),
+    schemaVersion: S.tag("provider-cache/v1"),
     model: ModelIdentity,
     requestKind: RequestKind,
     inputDigest: Sha256Hex,

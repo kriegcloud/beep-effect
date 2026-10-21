@@ -202,7 +202,7 @@ export class TestTypecheckBlindSpotBaseline extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schema_version: S.Literal(1),
+    schema_version: S.tag(1),
     command: S.String,
     regeneration_command: S.String,
     comparison: S.String,

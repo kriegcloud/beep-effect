@@ -110,8 +110,8 @@ const CommandOptions = S.Struct({
  stdout: S.optionalKey(S.Union([CommandOutput, S.Struct({ stream: S.optionalKey(CommandOutput) })])),
  stderr: S.optionalKey(S.Union([CommandOutput, S.Struct({ stream: S.optionalKey(CommandOutput) })])),
  additionalFds: S.optionalKey(S.Record(AdditionalFdKey, S.Union([
-  S.Struct({ type: S.Literal("input"), stream: S.optionalKey(InputStream) }),
-  S.Struct({ type: S.Literal("output"), sink: S.optionalKey(OutputSink) }),
+  S.Struct({ type: S.tag("input"), stream: S.optionalKey(InputStream) }),
+  S.Struct({ type: S.tag("output"), sink: S.optionalKey(OutputSink) }),
  ]))),
 }).pipe(S.is, S.declare<ChildProcess.CommandOptions>, $I.annoteSchema("CommandOptions", { description: "Opaque complete platform command options checked against their known shape." }));
 

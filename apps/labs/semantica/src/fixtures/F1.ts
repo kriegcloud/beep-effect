@@ -274,7 +274,7 @@ export class F1Fixture extends S.Opaque<F1Fixture, { readonly brand: unique symb
 ) {}
 
 const F1IndexFields = S.Struct({
-  schemaVersion: S.Literal("f1-index/v1"),
+  schemaVersion: S.tag("f1-index/v1"),
   fixtures: S.NonEmptyArray(F1Fixture),
 });
 
@@ -333,7 +333,7 @@ const F1IndexDefinition = F1IndexFields.check(F1IndexChecks);
  * ```ts
  * import { F1Index } from "@/fixtures/F1"
  *
- * console.log(F1Index.fields.schemaVersion.literal) // "f1-index/v1"
+ * console.log(F1Index.fields.schemaVersion.schema.literal) // "f1-index/v1"
  * ```
  *
  * @category fixtures

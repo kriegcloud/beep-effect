@@ -522,8 +522,8 @@ const OXLINT_CIRCULAR_CONFIG = ".oxlintrc.circular.json";
 
 class CircularDiagnostic extends S.Opaque<CircularDiagnostic, { readonly brand: unique symbol }>()(
   S.Struct({
-    code: S.Literal("import(no-cycle)"),
-    severity: S.Literal("error"),
+    code: S.tag("import(no-cycle)"),
+    severity: S.tag("error"),
     filename: S.String,
     message: S.String,
     note: S.OptionFromOptionalKey(S.String),
@@ -534,7 +534,7 @@ class CircularLintReport extends S.Opaque<CircularLintReport, { readonly brand: 
   S.Struct({
     diagnostics: S.Array(CircularDiagnostic),
     number_of_files: PosInt,
-    number_of_rules: S.Literal(1),
+    number_of_rules: S.tag(1),
   }).pipe(
     $I.annoteSchema("CircularLintReport", {
       description: "Single-rule oxlint cycle report proving that at least one source file was checked.",
@@ -886,7 +886,7 @@ const rootConfigs = [
  */
 export class PolicyToolsFingerprint extends S.Opaque<PolicyToolsFingerprint, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("policy-tools-fingerprint/v1"),
+    schemaVersion: S.tag("policy-tools-fingerprint/v1"),
     inputs: S.Array(S.String),
   }).pipe(
     $I.annoteSchema("PolicyToolsFingerprint", {

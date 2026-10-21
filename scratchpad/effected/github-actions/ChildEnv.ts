@@ -32,7 +32,7 @@ export const PathPrependEnv = S.Struct({
 	 * `extendEnv: true` silently replaces the child's entire environment with
 	 * this one entry. See {@link ChildEnv.prependPath}.
 	 */
-	extendEnv: S.Literal(true).pipe($I.annoteKey("PathPrependEnv.extendEnv", { description: "Merge additions rather than replacing the child environment." })),
+	extendEnv: S.tag(true).pipe($I.annoteKey("PathPrependEnv.extendEnv", { description: "Merge additions rather than replacing the child environment." })),
 }).pipe($I.annoteSchema("PathPrependEnv", { description: "Plain-object PATH additions paired with the required environment merge flag." }));
 
 /**

@@ -360,7 +360,7 @@ export class ProofDag extends S.Opaque<ProofDag, { readonly brand: unique symbol
   )
 ) {}
 
-const InferenceEngine = S.Literal("semantica-rhodf/1");
+const InferenceEngine = S.tag("semantica-rhodf/1");
 
 const InferenceEventBody = S.Struct({
   conclusion: StatementId,
@@ -470,11 +470,11 @@ export class ReasoningResult extends S.Opaque<ReasoningResult, { readonly brand:
 
 class EyeOracleIdentity extends S.Opaque<EyeOracleIdentity, { readonly brand: unique symbol }>()(
   S.Struct({
-    engine: S.Literal("EYE"),
+    engine: S.tag("EYE"),
     eyeVersion: S.NonEmptyString,
-    package: S.Literal("eyereasoner"),
+    package: S.tag("eyereasoner"),
     packageVersion: S.NonEmptyString,
-    restricted: S.Literal(true),
+    restricted: S.tag(true),
   }).pipe(
     $I.annoteSchema("EyeOracleIdentity", {
       description: "Pinned EYE and eye-js identities used to produce the committed C2 gold.",
@@ -524,7 +524,7 @@ class GEntailmentCase extends S.Opaque<GEntailmentCase, { readonly brand: unique
  */
 export class GEntailmentExpectation extends S.Opaque<GEntailmentExpectation, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("g-entailment-rdfs/v1"),
+    schemaVersion: S.tag("g-entailment-rdfs/v1"),
     oracle: EyeOracleIdentity,
     rulesSha256: Sha256Hex,
     cases: S.NonEmptyArray(GEntailmentCase),
@@ -609,7 +609,7 @@ export class CrashIdentityWitness extends S.Opaque<CrashIdentityWitness, { reado
   S.Struct({
     afterRestartDigest: Sha256Hex,
     beforeCrashDigest: Sha256Hex,
-    checkpoint: S.Literal("after-ledger-commit-before-projection"),
+    checkpoint: S.tag("after-ledger-commit-before-projection"),
   }).pipe(
     $I.annoteSchema("CrashIdentityWitness", {
       description: "Equal projection digests around the exact C2 process-kill checkpoint.",
@@ -672,11 +672,11 @@ export class ReasoningWitness extends S.Opaque<ReasoningWitness, { readonly bran
 ) {}
 
 const C2EvalReportFields = S.Struct({
-  schemaVersion: S.Literal("c2-eval-report/v1"),
+  schemaVersion: S.tag("c2-eval-report/v1"),
   base: C1EvalReport,
   reasoning: ReasoningWitness,
   reportDigest: Sha256Hex,
-  stage: S.Literal("c2"),
+  stage: S.tag("c2"),
 });
 
 const C2EvalReportChecks = S.makeFilterGroup([

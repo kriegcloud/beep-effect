@@ -47,7 +47,7 @@ export { YeetAttemptJournalCompacted, YeetAttemptTerminationReason };
  */
 export class YeetAttemptStarted extends S.Opaque<YeetAttemptStarted, { readonly brand: unique symbol }>()(
   S.TaggedStruct("attempt-started", {
-    schemaVersion: S.Literal("yeet-attempt-journal/v1"),
+    schemaVersion: S.tag("yeet-attempt-journal/v1"),
 
     attemptId: UUID,
     runId: S.String,
@@ -87,7 +87,7 @@ export class YeetAttemptStarted extends S.Opaque<YeetAttemptStarted, { readonly 
  */
 export class YeetAttemptFinished extends S.Opaque<YeetAttemptFinished, { readonly brand: unique symbol }>()(
   S.TaggedStruct("attempt-finished", {
-    schemaVersion: S.Literal("yeet-attempt-journal/v1"),
+    schemaVersion: S.tag("yeet-attempt-journal/v1"),
 
     attemptId: UUID,
     recordedAt: S.String,
@@ -122,7 +122,7 @@ export class YeetAttemptFinished extends S.Opaque<YeetAttemptFinished, { readonl
  */
 export class YeetAttemptTerminated extends S.Opaque<YeetAttemptTerminated, { readonly brand: unique symbol }>()(
   S.TaggedStruct("attempt-terminated", {
-    schemaVersion: S.Literal("yeet-attempt-journal/v1"),
+    schemaVersion: S.tag("yeet-attempt-journal/v1"),
 
     attemptId: UUID,
     recordedAt: S.String,

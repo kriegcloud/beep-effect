@@ -130,7 +130,7 @@ const hasUniqueSubjectIds = (subjects: ReadonlyArray<IngestSubject>): boolean =>
  */
 export class IngestEnumeration extends S.Opaque<IngestEnumeration, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(ingestEnumerationSchemaVersion),
+    schemaVersion: S.tag(ingestEnumerationSchemaVersion),
     enumerationId: Sha256Hex,
     ingestRunId: Sha256Hex,
     enumeratedAt: S.DateTimeUtcFromString,
@@ -286,7 +286,7 @@ export class TombstonedIngestDisposition extends S.Opaque<
     status: S.tag(IngestDispositionStatus.Enum.tombstoned),
     subject: IngestSubject,
     tombstoneEvidenceDigest: Sha256Hex,
-    evidenceTier: S.Literal(EvidenceTier.Enum.reconstructed),
+    evidenceTier: S.tag(EvidenceTier.Enum.reconstructed),
   }).pipe(
     $I.annoteSchema("TombstonedIngestDisposition", {
       description: "Enumerated-but-recordless subject recovered as an explicit reconstructed tombstone.",
@@ -545,7 +545,7 @@ const manifestHasUniqueSubjectIds = (dispositions: ReadonlyArray<IngestDispositi
  */
 export class IngestManifest extends S.Opaque<IngestManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(ingestManifestSchemaVersion),
+    schemaVersion: S.tag(ingestManifestSchemaVersion),
     enumerationId: Sha256Hex,
     ingestRunId: Sha256Hex,
     attestedAt: S.DateTimeUtcFromString,

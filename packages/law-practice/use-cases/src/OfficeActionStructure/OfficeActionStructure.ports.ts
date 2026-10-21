@@ -185,7 +185,7 @@ export class OfficeActionStructureAttempt extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal("1"),
+    schemaVersion: S.tag("1"),
     attemptId: S.NonEmptyString,
     previousAttemptId: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     document: DocStructureDocument,

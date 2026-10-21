@@ -25,7 +25,7 @@ class NodePathUnavailableError extends S.TaggedError<NodePathUnavailableError, {
 )(
   "NodePathUnavailableError",
   {
-    module: S.Literal("node:path"),
+    module: S.tag("node:path"),
   },
   $I.annoteError<NodePathUnavailableError>("NodePathUnavailableError", {
     description: "Thrown when node:path is unavailable to path helpers.",

@@ -112,7 +112,7 @@ export class RecycleBinOriginal extends S.Opaque<RecycleBinOriginal, { readonly 
 export class MatchedRestorationRecord extends S.Opaque<MatchedRestorationRecord, { readonly brand: unique symbol }>()(
   S.Struct({
     contentRelativePath: S.NonEmptyString,
-    matchStatus: S.Literal("matched"),
+    matchStatus: S.tag("matched"),
     metadataRelativePath: S.NonEmptyString,
     original: RecycleBinOriginal,
     pairKey: S.NonEmptyString,
@@ -158,7 +158,7 @@ export class UnmatchedMetadataRestorationRecord extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    matchStatus: S.Literal("unmatched-metadata"),
+    matchStatus: S.tag("unmatched-metadata"),
     metadataRelativePath: S.NonEmptyString,
     original: RecycleBinOriginal,
     pairKey: S.NonEmptyString,
@@ -196,7 +196,7 @@ export class UnmatchedContentRestorationRecord extends S.Opaque<
 >()(
   S.Struct({
     contentRelativePath: S.NonEmptyString,
-    matchStatus: S.Literal("unmatched-content"),
+    matchStatus: S.tag("unmatched-content"),
     pairKey: S.NonEmptyString,
     sourceLabel: S.NonEmptyString,
   }).pipe(

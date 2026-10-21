@@ -494,11 +494,11 @@ export class LibraryIntake extends S.Opaque<LibraryIntake, { readonly brand: uni
  */
 export class LibraryManifest extends S.Opaque<LibraryManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    schema: S.Literal("beep.research.library-manifest/v1"),
+    schema: S.tag("beep.research.library-manifest/v1"),
     createdAt: S.String,
-    catalogPath: S.Literal("catalog/library.json"),
-    objectRoot: S.Literal("objects/sha256"),
-    intakeRoot: S.Literal("intakes"),
+    catalogPath: S.tag("catalog/library.json"),
+    objectRoot: S.tag("objects/sha256"),
+    intakeRoot: S.tag("intakes"),
   }).pipe($I.annoteSchema("LibraryManifest", { description: "Portable library layout and creation provenance." }))
 ) {}
 
@@ -516,7 +516,7 @@ export class LibraryManifest extends S.Opaque<LibraryManifest, { readonly brand:
  */
 export class LibraryCatalog extends S.Opaque<LibraryCatalog, { readonly brand: unique symbol }>()(
   S.Struct({
-    schema: S.Literal("beep.research.library/v1"),
+    schema: S.tag("beep.research.library/v1"),
     documents: S.Array(LibraryDocument),
     artifacts: S.Array(LibraryArtifact).pipe(
       S.withConstructorDefault(Effect.succeed([])),

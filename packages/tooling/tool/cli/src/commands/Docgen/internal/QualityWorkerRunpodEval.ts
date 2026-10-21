@@ -257,7 +257,7 @@ export class DocgenQualityWorkerRunpodEvalReport extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    schemaVersion: S.Literal(QUALITY_WORKER_RUNPOD_EVAL_SCHEMA_VERSION),
+    schemaVersion: S.tag(QUALITY_WORKER_RUNPOD_EVAL_SCHEMA_VERSION),
     bootstrap: DocgenQualityWorkerRunpodEvalBootstrap,
     cleanup: DocgenQualityWorkerRunpodEvalCleanup,
     generatedAt: S.String,

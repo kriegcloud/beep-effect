@@ -2058,7 +2058,7 @@ const failureFields = {
   details: optionalUnknown,
   error: S.String,
   status: optionalNumber,
-  success: S.Literal(false),
+  success: S.tag(false),
 };
 
 /**
@@ -5026,7 +5026,7 @@ export class FirecrawlWatcherDocumentEvent extends S.Opaque<
   S.Struct({
     document: FirecrawlDocument,
     id: optionalString,
-    type: S.Literal("document"),
+    type: S.tag("document"),
   }).pipe($I.annoteSchema("FirecrawlWatcherDocumentEvent", { description: "Firecrawl watcher document event." }))
 ) {}
 
@@ -5050,7 +5050,7 @@ export class FirecrawlWatcherSnapshotEvent extends S.Opaque<
 >()(
   S.Struct({
     snapshot: S.Unknown,
-    type: S.Literal("snapshot"),
+    type: S.tag("snapshot"),
   }).pipe($I.annoteSchema("FirecrawlWatcherSnapshotEvent", { description: "Firecrawl watcher snapshot event." }))
 ) {}
 
@@ -5078,7 +5078,7 @@ export class FirecrawlWatcherDoneEvent extends S.Opaque<FirecrawlWatcherDoneEven
     id: optionalString,
     status: optionalString,
     total: optionalNumber,
-    type: S.Literal("done"),
+    type: S.tag("done"),
   }).pipe($I.annoteSchema("FirecrawlWatcherDoneEvent", { description: "Firecrawl watcher terminal done event." }))
 ) {}
 
@@ -5104,7 +5104,7 @@ export class FirecrawlWatcherErrorEvent extends S.Opaque<
     error: S.String,
     id: optionalString,
     status: optionalString,
-    type: S.Literal("error"),
+    type: S.tag("error"),
   }).pipe($I.annoteSchema("FirecrawlWatcherErrorEvent", { description: "Firecrawl watcher error event." }))
 ) {}
 

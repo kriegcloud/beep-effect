@@ -38,13 +38,11 @@ export const KeyName = LiteralKit([
  */
 export type KeyName = typeof KeyName.Type;
 
-const Named = S.Struct({
-	_tag: S.tag("Named"),
+const Named = S.TaggedStruct("Named", {
 	name: KeyName.pipe($I.annoteKey("Named.name", { description: "The named key reported by the terminal." })),
 }).pipe($I.annoteSchema("Named", { description: "A named terminal key as a plain payload." }));
 
-const Char = S.Struct({
-	_tag: S.tag("Char"),
+const Char = S.TaggedStruct("Char", {
 	char: S.String.pipe($I.annoteKey("Char.char", { description: "The typed text, including a whole pasted input." })),
 }).pipe($I.annoteSchema("Char", { description: "Typed terminal text as a plain payload." }));
 

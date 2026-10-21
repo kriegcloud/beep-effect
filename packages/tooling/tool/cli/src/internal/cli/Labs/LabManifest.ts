@@ -86,7 +86,7 @@ export const isLabPostgresSchemaName = S.is(LabPostgresSchemaName);
  */
 export class LabManifest extends S.Opaque<LabManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("lab-manifest/v1"),
+    schemaVersion: S.tag("lab-manifest/v1"),
     purpose: S.NonEmptyString,
     created: LocalDateFromString,
     disposition: LabDisposition,

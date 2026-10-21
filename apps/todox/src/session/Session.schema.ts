@@ -299,7 +299,7 @@ export class Receipt extends S.Opaque<Receipt, { readonly brand: unique symbol }
     policyBasis: S.String,
     state: RecordState,
     time: S.String,
-    producer: S.Literal(PRODUCER),
+    producer: S.tag(PRODUCER),
   }).pipe($I.annoteSchema("Receipt", { description: "Activity receipt fields for one record." }))
 ) {}
 

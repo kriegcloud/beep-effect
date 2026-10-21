@@ -28,9 +28,9 @@ class ExpectedScrub extends S.Opaque<ExpectedScrub, { readonly brand: unique sym
     coverage: S.Literals(["known", "unknown"]),
     residue: S.Literals(["clear", "present", "unresolved"]),
     safeForPrompt: S.Boolean,
-    evidence: S.Literal("mask-offsets-version-retention-only"),
-    persistenceCanaryCount: S.Literal(0),
-    logCanaryCount: S.Literal(0),
+    evidence: S.tag("mask-offsets-version-retention-only"),
+    persistenceCanaryCount: S.tag(0),
+    logCanaryCount: S.tag(0),
     actionAuthorized: S.Boolean,
   }).annotate({ identifier: "SecretScrubFixtureExpected" })
 ) {}

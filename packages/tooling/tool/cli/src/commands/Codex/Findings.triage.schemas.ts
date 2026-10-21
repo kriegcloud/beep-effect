@@ -416,7 +416,7 @@ export class CodexTriageLane extends S.Opaque<CodexTriageLane, { readonly brand:
  */
 export class CodexTriageMeta extends S.Opaque<CodexTriageMeta, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("codex-triage/v1"),
+    schemaVersion: S.tag("codex-triage/v1"),
     repository: GitHubRepoSlug,
     findingsView: S.String,
     branch: CodexPacketBranch,

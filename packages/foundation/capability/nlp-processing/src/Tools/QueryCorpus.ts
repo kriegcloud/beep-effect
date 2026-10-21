@@ -39,7 +39,7 @@ class QueryCorpusSuccess extends S.Opaque<QueryCorpusSuccess, { readonly brand: 
     corpusId: S.String.annotateKey({
       description: "Corpus identifier used for the query.",
     }),
-    method: S.Literal("vector.cosine").annotateKey({
+    method: S.tag("vector.cosine").annotateKey({
       description: "Similarity method used to rank corpus documents.",
     }),
     query: S.String.annotateKey({

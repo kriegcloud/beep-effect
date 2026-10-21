@@ -399,7 +399,7 @@ export class McpbPackageSpec extends S.Opaque<McpbPackageSpec, { readonly brand:
  * ```ts
  * import { McpbManifest } from "@beep/mcpb-kit"
  *
- * console.log(McpbManifest.fields.manifest_version.literal) // "0.3"
+ * console.log(McpbManifest.fields.manifest_version.schema.literal) // "0.3"
  * ```
  *
  * @category models
@@ -407,17 +407,17 @@ export class McpbPackageSpec extends S.Opaque<McpbPackageSpec, { readonly brand:
  */
 export class McpbManifest extends S.Opaque<McpbManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    manifest_version: S.Literal("0.3"),
+    manifest_version: S.tag("0.3"),
     name: S.String,
     display_name: S.String,
     version: S.String,
     description: S.String,
     author: S.Struct({ name: S.String }),
-    repository: S.Struct({ type: S.Literal("git"), url: S.String }),
+    repository: S.Struct({ type: S.tag("git"), url: S.String }),
     license: S.String,
     compatibility: S.Struct({ platforms: S.Array(McpbPlatform) }),
     server: S.Struct({
-      type: S.Literal("binary"),
+      type: S.tag("binary"),
       entry_point: S.String,
       mcp_config: S.Struct({ command: S.String, env: S.Record(S.String, S.String) }),
     }),
