@@ -118,7 +118,7 @@ export type JournalReadError = JournalNotFound | InvalidSlice | InvalidUtf8 | Pl
  *
  * **Example** (Select an append partition)
  * ```ts import.meta.vitest name="Select an append partition"
- * import { AppendOptions } from "@beep/jsonl";
+ * import { AppendOptions } from "@beep/jsonl/Journal";
  * AppendOptions.make({ scope: "mail" }).scope // => "mail"
  * ```
  *
@@ -427,7 +427,7 @@ const Capacity = S.Int.check(S.isGreaterThan(0)).pipe(
  *
  * **Example** (Bound journal shutdown)
  * ```ts import.meta.vitest name="Bound journal shutdown"
- * import { JournalConfig } from "@beep/jsonl";
+ * import { JournalConfig } from "@beep/jsonl/Journal";
  * import * as Duration from "effect/Duration";
  * const config = JournalConfig.make({ path: "events.jsonl", shutdownPublishTimeout: Duration.seconds(2) });
  * config.path // => "events.jsonl"
@@ -1562,7 +1562,8 @@ export interface JournalClass<Self, Id extends string, R extends JsonlEvent.Regi
    *
    * ```ts
    * import { $JsonlId } from "@beep/identity/packages";
-   * import { Journal, JsonlEvent } from "@beep/jsonl";
+   * import { Journal } from "@beep/jsonl/Journal";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
    * import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
    * import * as Effect from "effect/Effect";
    * import * as Layer from "effect/Layer";
@@ -1607,7 +1608,8 @@ export interface JournalClass<Self, Id extends string, R extends JsonlEvent.Regi
  * **Example** (Define a registry-specific service)
  * ```ts
  * import { $JsonlId } from "@beep/identity/packages";
- * import { Journal, JsonlEvent } from "@beep/jsonl";
+ * import { Journal } from "@beep/jsonl/Journal";
+ * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
  * import * as S from "effect/Schema";
  * const $I = $JsonlId.create("examples/jsonl");
  * class MailJournal extends Journal.Service<MailJournal>()($I`MailJournal`, {

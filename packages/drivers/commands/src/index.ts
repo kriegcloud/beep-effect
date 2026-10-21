@@ -14,7 +14,10 @@
  * **Example** (Resolve Biome through pnpm and run a check)
  *
  * ```ts
- * import { LocalExec, Run, Tool, ToolDiscovery } from "@beep/commands";
+ * import { LocalExec } from "@beep/commands/LocalExec";
+ * import { Run } from "@beep/commands/Run";
+ * import { Tool } from "@beep/commands/Tool";
+ * import { ToolDiscovery } from "@beep/commands/ToolDiscovery";
  * import { NodeServices } from "@effect/platform-node";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
@@ -34,6 +37,7 @@
  * ```
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export { ExecContext, Launcher, LocalExec, LocalExecError } from "./LocalExec.ts";

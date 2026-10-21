@@ -1,9 +1,16 @@
-// Pure JSONC formatting: compute the minimal set of whitespace edits that
-// bring a document to canonical shape, or apply them in one step.
-//
-// Kept as its own concept module (rather than folded into the `Jsonc` facade)
-// so the format surface stays symmetric with sibling document codecs. Both
-// statics are pure and total: computing edits never fails.
+/**
+ * Pure JSONC formatting: compute the minimal set of whitespace edits that
+ * bring a document to canonical shape, or apply them in one step.
+ *
+ * **Details**
+ *
+ * Kept as its own concept module (rather than folded into the `Jsonc` facade)
+ * so the format surface stays symmetric with sibling document codecs. Both
+ * statics are pure and total: computing edits never fails.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { thunk0 } from "@beep/utils/thunk";
 import { dual } from "effect/Function";
@@ -29,7 +36,7 @@ const isComment = S.is(SyntaxKind.pick(["LineComment", "BlockComment"]));
  * **Example** (Reflow a compact document)
  *
  * ```ts
- * import { JsoncFormatter } from "@beep/jsonc"
+ * import { JsoncFormatter } from "@beep/jsonc/JsoncFormatter"
  *
  * console.log(JsoncFormatter.formatToString('{"a":1,"b":[1,2]} // keep'))
  * // '{\n  "a": 1,\n  "b": [\n    1,\n    2\n  ]\n} // keep'
@@ -51,7 +58,7 @@ export abstract class JsoncFormatter {
    * **Example** (Compute edits for a compact object)
    *
    * ```ts
-   * import { JsoncFormatter } from "@beep/jsonc"
+   * import { JsoncFormatter } from "@beep/jsonc/JsoncFormatter"
    *
    * const edits = JsoncFormatter.format('{"a":1}')
    *
@@ -78,7 +85,7 @@ export abstract class JsoncFormatter {
    * **Example** (Format with a final newline)
    *
    * ```ts
-   * import { JsoncFormatter } from "@beep/jsonc"
+   * import { JsoncFormatter } from "@beep/jsonc/JsoncFormatter"
    *
    * console.log(JsoncFormatter.formatToString('{"a":1}', undefined, { insertFinalNewline: true })) // '{\n  "a": 1\n}\n'
    * ```

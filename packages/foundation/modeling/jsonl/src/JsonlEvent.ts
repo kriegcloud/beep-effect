@@ -53,7 +53,7 @@ export type JsonlEventTypeId = "~effected/jsonl/JsonlEvent";
  *
  * **Example** (Identify an event definition)
  * ```ts import.meta.vitest name="Identify an event definition"
- * import { JsonlEvent, JsonlEventTypeId } from "@beep/jsonl";
+ * import { JsonlEvent, JsonlEventTypeId } from "@beep/jsonl/JsonlEvent";
  * import * as S from "effect/Schema";
  * const event = JsonlEvent.make("started", { data: S.String });
  * event[JsonlEventTypeId] === JsonlEventTypeId // => true
@@ -205,7 +205,7 @@ export declare namespace JsonlEvent {
  *
  * **Example** (Define payload and lifecycle contracts)
  * ```ts import.meta.vitest name="Define payload and lifecycle contracts"
- * import { JsonlEvent } from "@beep/jsonl";
+ * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
  * import * as S from "effect/Schema";
  * const updated = JsonlEvent.make("updated", { data: S.Struct({ count: S.Finite }) });
  * const closed = JsonlEvent.make("closed", { data: S.Null, terminal: true });

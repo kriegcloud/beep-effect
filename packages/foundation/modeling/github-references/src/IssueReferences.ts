@@ -1,3 +1,35 @@
+/**
+ * GitHub's closing-keyword issue-reference grammar, as pure functions.
+ *
+ * **Details**
+ *
+ * GitHub links an issue to a pull request when the PR's description carries
+ * `<keyword> #<number>` for one of nine documented keywords. Consumers speak
+ * that grammar in two distinct dialects, and this module models exactly those
+ * two — no service, no layer, nothing but strings in and values out:
+ *
+ * - **Inline-in-prose** (`harvestIssueReferences`): a reference may appear anywhere in
+ *   running text — `"fixes #12 and closes #13"` — with mandatory whitespace
+ *   and **no colon**, because that is the spelling GitHub itself scans PR
+ *   bodies for. This is the dialect a release pipeline harvests from commit
+ *   subjects and PR descriptions.
+ * - **Bare-line** (`parseBareLineReference`): the whole line, after trimming, *is*
+ *   the reference — `"Closes: #12"` — with an **optional colon**, because a
+ *   generated references region writes one reference per line and a colon
+ *   reads better there. GitHub does not require the colon; the region format
+ *   allows it, so the parser must too. The dialects differ because their
+ *   producers do: prose is written by humans for GitHub's scanner, the region
+ *   is written by tooling for humans.
+ *
+ * Deliberately out of scope: cross-repo references (`owner/repo#N`) and
+ * full-URL references (`https://github.com/owner/repo/issues/N`). Both are
+ * real GitHub spellings, but neither dialect's producers emit them, and
+ * guessing at their shape here would freeze an API nobody has driven.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubReferencesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
@@ -7,31 +39,6 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $GithubReferencesId.create("IssueReferences");
-
-// GitHub's closing-keyword issue-reference grammar, as pure functions.
-//
-// GitHub links an issue to a pull request when the PR's description carries
-// `<keyword> #<number>` for one of nine documented keywords. Consumers speak
-// that grammar in two distinct dialects, and this module models exactly those
-// two — no service, no layer, nothing but strings in and values out:
-//
-// - **Inline-in-prose** (`harvestIssueReferences`): a reference may appear anywhere in
-//   running text — `"fixes #12 and closes #13"` — with mandatory whitespace
-//   and **no colon**, because that is the spelling GitHub itself scans PR
-//   bodies for. This is the dialect a release pipeline harvests from commit
-//   subjects and PR descriptions.
-// - **Bare-line** (`parseBareLineReference`): the whole line, after trimming, *is*
-//   the reference — `"Closes: #12"` — with an **optional colon**, because a
-//   generated references region writes one reference per line and a colon
-//   reads better there. GitHub does not require the colon; the region format
-//   allows it, so the parser must too. The dialects differ because their
-//   producers do: prose is written by humans for GitHub's scanner, the region
-//   is written by tooling for humans.
-//
-// Deliberately out of scope: cross-repo references (`owner/repo#N`) and
-// full-URL references (`https://github.com/owner/repo/issues/N`). Both are
-// real GitHub spellings, but neither dialect's producers emit them, and
-// guessing at their shape here would freeze an API nobody has driven.
 
 /**
  * One of the nine documented closing keywords, in canonical lowercase form.

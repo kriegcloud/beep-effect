@@ -1,3 +1,12 @@
+/**
+ * Offline conformance checking of a JSON-LD graph against the vendored
+ * schema.org vocabulary: the issue taxonomy, the failure error, and the
+ * validator options.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";

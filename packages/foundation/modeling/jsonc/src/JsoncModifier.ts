@@ -1,9 +1,16 @@
-// Structural JSONC modification: compute the edits needed to set, replace or
-// delete a value at a path, without mutating the source.
-//
-// Navigation goes through the scanner-based `internal/navigate.ts`; this
-// module owns only edit synthesis and the `JsoncModificationError` it raises
-// on a navigation miss.
+/**
+ * Structural JSONC modification: compute the edits needed to set, replace or
+ * delete a value at a path, without mutating the source.
+ *
+ * **Details**
+ *
+ * Navigation goes through the scanner-based `internal/navigate.ts`; this
+ * module owns only edit synthesis and the `JsoncModificationError` it raises
+ * on a navigation miss.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $JsoncId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -39,7 +46,7 @@ const $I = $JsoncId.create("JsoncModifier");
  *
  * ```ts
  * import * as Effect from "effect/Effect"
- * import { JsoncModifier } from "@beep/jsonc"
+ * import { JsoncModifier } from "@beep/jsonc/JsoncModifier"
  *
  * const error = Effect.runSync(Effect.flip(JsoncModifier.modify('{ "a": 1 }', ["a", "b"], 2)))
  *
@@ -71,7 +78,7 @@ export class JsoncModificationError extends S.TaggedError<JsoncModificationError
    * **Example** (Read the rendered message)
    *
    * ```ts
-   * import { JsoncModificationError } from "@beep/jsonc"
+   * import { JsoncModificationError } from "@beep/jsonc/JsoncModifier"
    *
    * const error = JsoncModificationError.make({ path: ["a", 0], expected: "array", depth: 2 })
    * const located = JsoncModificationError.make({ path: ["a", 0], expected: "array", depth: 2, offset: 7 })
@@ -102,7 +109,8 @@ export class JsoncModificationError extends S.TaggedError<JsoncModificationError
  *
  * ```ts
  * import * as Effect from "effect/Effect"
- * import { JsoncEdit, JsoncModifier } from "@beep/jsonc"
+ * import { JsoncEdit } from "@beep/jsonc/JsoncEdit"
+ * import { JsoncModifier } from "@beep/jsonc/JsoncModifier"
  *
  * const edits = Effect.runSync(JsoncModifier.modify("{}", ["a"], { b: 1 }, { formattingOptions: { insertSpaces: false } }))
  *
@@ -153,7 +161,8 @@ type Modify = Effect.Effect<ReadonlyArray<JsoncEdit>, JsoncStringifyError | Json
  *
  * ```ts
  * import * as Effect from "effect/Effect"
- * import { JsoncEdit, JsoncModifier } from "@beep/jsonc"
+ * import { JsoncEdit } from "@beep/jsonc/JsoncEdit"
+ * import { JsoncModifier } from "@beep/jsonc/JsoncModifier"
  *
  * const text = '{\n  // dev port\n  "port": 3000\n}'
  * const edits = Effect.runSync(JsoncModifier.modify(text, ["port"], 8080))
@@ -184,7 +193,8 @@ export abstract class JsoncModifier {
    *
    * ```ts
    * import * as Effect from "effect/Effect"
-   * import { JsoncEdit, JsoncModifier } from "@beep/jsonc"
+   * import { JsoncEdit } from "@beep/jsonc/JsoncEdit"
+   * import { JsoncModifier } from "@beep/jsonc/JsoncModifier"
    *
    * const text = '{ "port": 3000, "debug": true }'
    * const inserted = JsoncEdit.applyAll(text, Effect.runSync(JsoncModifier.modify(text, ["host"], "localhost")))

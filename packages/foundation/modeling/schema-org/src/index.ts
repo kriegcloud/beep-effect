@@ -7,13 +7,16 @@
  * Assemble nodes with {@link JsonLdDocument}, link them with {@link NodeRef},
  * and write the result with `toScriptBody()`, the escaped serializer. Offline
  * conformance checking against schema.org's vocabulary lives in the separate
- * `@effected/schema-org/validate` entrypoint so a graph-only consumer never
+ * `@beep/schema-org/conformance-entry` entrypoint so a graph-only consumer never
  * loads the vocabulary table.
  *
  * **Example** (Serialize linked source code and documentation nodes)
  *
  * ```ts
- * import { JsonLdDocument, NodeRef, SoftwareSourceCode, TechArticle } from "@beep/schema-org";
+ * import { JsonLdDocument } from "@beep/schema-org/JsonLdDocument";
+ * import { NodeRef } from "@beep/schema-org/NodeRef";
+ * import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
+ * import { TechArticle } from "@beep/schema-org/TechArticle";
  * import * as Result from "effect/Result";
  *
  * const built = JsonLdDocument.buildResult([
@@ -29,6 +32,7 @@
  * ```
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export { APIReference } from "./APIReference.ts";

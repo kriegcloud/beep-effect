@@ -1,3 +1,11 @@
+/**
+ * Node identifiers and `@id` references that link nodes inside one JSON-LD
+ * graph.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";

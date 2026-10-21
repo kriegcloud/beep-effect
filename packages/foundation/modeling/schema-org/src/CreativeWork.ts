@@ -1,3 +1,11 @@
+/**
+ * The schema.org `CreativeWork` node and the shared field set that its
+ * subtypes extend.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { NodeRef } from "./NodeRef.ts";
@@ -53,7 +61,7 @@ export const CreativeWorkFields = {
    * wrong: `MIT AND Apache-2.0` is a real dual-license. A consumer holding
    * SPDX identifiers maps them onto the `https://spdx.org/licenses/<id>`
    * reference URL — this package deliberately does not depend on
-   * `@effected/spdx`, because schema.org's `license` range is
+   * `@beep/spdx`, because schema.org's `license` range is
    * `CreativeWork | URL`, not an SPDX expression.
    */
   license: S.String.pipe(S.Array, S.optional),

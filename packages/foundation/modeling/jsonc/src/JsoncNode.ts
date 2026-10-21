@@ -1,10 +1,17 @@
-// The recursive JSONC AST node and the path vocabulary used to navigate it.
-//
-// `JsoncNode` is a `S.Class` with a `S.suspend` self-reference for `children`;
-// it deliberately carries no parent pointers (circular references would break
-// structural equality, serialization and Schema encode/decode). Navigation
-// methods walk `children` locally and return `Option`, never a `NotFound`
-// error. Value extraction (`toValue`) is a pure total function.
+/**
+ * The recursive JSONC AST node and the path vocabulary used to navigate it.
+ *
+ * **Details**
+ *
+ * `JsoncNode` is a `S.Class` with a `S.suspend` self-reference for `children`;
+ * it deliberately carries no parent pointers (circular references would break
+ * structural equality, serialization and Schema encode/decode). Navigation
+ * methods walk `children` locally and return `Option`, never a `NotFound`
+ * error. Value extraction (`toValue`) is a pure total function.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $JsoncId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -27,7 +34,7 @@ const $I = $JsoncId.create("JsoncNode");
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { JsoncSegment } from "@beep/jsonc"
+ * import { JsoncSegment } from "@beep/jsonc/JsoncNode"
  *
  * console.log(S.is(JsoncSegment)("port")) // true
  * console.log(S.is(JsoncSegment)(1.5)) // false
@@ -59,7 +66,7 @@ export type JsoncSegment = typeof JsoncSegment.Type;
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { JsoncPath } from "@beep/jsonc"
+ * import { JsoncPath } from "@beep/jsonc/JsoncNode"
  *
  * console.log(S.is(JsoncPath)(["servers", 0, "port"])) // true
  * console.log(S.is(JsoncPath)([-1])) // false
@@ -90,7 +97,7 @@ export type JsoncPath = typeof JsoncPath.Type;
  * **Example** (Branch on a node type with the kit matcher)
  *
  * ```ts
- * import { JsoncNodeType } from "@beep/jsonc"
+ * import { JsoncNodeType } from "@beep/jsonc/JsoncNode"
  *
  * const describe = JsoncNodeType.$match({
  *   object: () => "container",
@@ -152,7 +159,7 @@ export type JsoncNodeType = typeof JsoncNodeType.Type;
  * ```ts
  * import * as O from "effect/Option"
  * import * as Result from "effect/Result"
- * import { Jsonc } from "@beep/jsonc"
+ * import { Jsonc } from "@beep/jsonc/Jsonc"
  *
  * const root = O.getOrThrow(Result.getOrThrow(Jsonc.parseTreeResult('{ "a": [10, 20] }')))
  *
@@ -191,7 +198,7 @@ export class JsoncNode extends S.Class<JsoncNode, { readonly brand: unique symbo
    * ```ts
    * import * as O from "effect/Option"
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const root = O.getOrThrow(Result.getOrThrow(Jsonc.parseTreeResult('{ "a": { "b": [10, 20] } }')))
    *
@@ -218,7 +225,7 @@ export class JsoncNode extends S.Class<JsoncNode, { readonly brand: unique symbo
    * ```ts
    * import * as O from "effect/Option"
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const text = '{ "a": { "b": 42 } }'
    * const root = O.getOrThrow(Result.getOrThrow(Jsonc.parseTreeResult(text)))
@@ -243,7 +250,7 @@ export class JsoncNode extends S.Class<JsoncNode, { readonly brand: unique symbo
    * ```ts
    * import * as O from "effect/Option"
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const text = '{ "a": { "b": 42 } }'
    * const root = O.getOrThrow(Result.getOrThrow(Jsonc.parseTreeResult(text)))
@@ -268,7 +275,7 @@ export class JsoncNode extends S.Class<JsoncNode, { readonly brand: unique symbo
    * ```ts
    * import * as O from "effect/Option"
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const root = O.getOrThrow(Result.getOrThrow(Jsonc.parseTreeResult('{ "x": [1, { "y": true }] }')))
    *

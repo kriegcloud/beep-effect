@@ -1,3 +1,9 @@
+/**
+ * SPDX license-expression AST nodes and the parse/serialize facade over them.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SpdxId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

@@ -1,3 +1,10 @@
+/**
+ * An in-memory Effect service that stores versions and resolves ranges against
+ * them, with its typed lookup errors.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SemverId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";

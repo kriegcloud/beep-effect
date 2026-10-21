@@ -1,3 +1,11 @@
+/**
+ * The schema.org `Organization` node, used as an author, publisher or
+ * maintainer of a creative work.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { ThingFields } from "./Thing.ts";

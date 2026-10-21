@@ -58,7 +58,7 @@ export type ByteCount = typeof ByteCount.Type;
  * **Example** (Locate a terminated line in UTF-8 bytes)
  * ```ts import.meta.vitest name="Locate a terminated line in UTF-8 bytes"
  * import { pipe } from "effect/Function";
- * import { Line } from "@beep/jsonl";
+ * import { Line } from "@beep/jsonl/Line";
  * import * as A from "effect/Array";
  * import * as O from "effect/Option";
  * const first = pipe(Line.split('{"a":1}\r\n{"b":2}\n'), A.head);

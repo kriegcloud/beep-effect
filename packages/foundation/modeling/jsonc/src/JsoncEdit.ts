@@ -1,9 +1,16 @@
-// The non-mutating text-edit vocabulary shared by the formatter and modifier:
-// `JsoncEdit`, `JsoncRange` and `JsoncFormattingOptions`.
-//
-// Edits describe replacements as `offset`/`length`/`content`; applying them in
-// reverse-offset order is byte-minimal and preserves comments and whitespace,
-// the core value proposition over a parse-and-stringify round trip.
+/**
+ * The non-mutating text-edit vocabulary shared by the formatter and modifier:
+ * `JsoncEdit`, `JsoncRange` and `JsoncFormattingOptions`.
+ *
+ * **Details**
+ *
+ * Edits describe replacements as `offset`/`length`/`content`; applying them in
+ * reverse-offset order is byte-minimal and preserves comments and whitespace,
+ * the core value proposition over a parse-and-stringify round trip.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $JsoncId } from "@beep/identity/packages";
 import * as A from "effect/Array";
@@ -28,7 +35,7 @@ const $I = $JsoncId.create("JsoncEdit");
  * **Example** (Describe the first four characters)
  *
  * ```ts
- * import { JsoncRange } from "@beep/jsonc"
+ * import { JsoncRange } from "@beep/jsonc/JsoncEdit"
  *
  * const range = JsoncRange.make({ offset: 0, length: 4 })
  *
@@ -70,7 +77,8 @@ export class JsoncRange extends S.Opaque<JsoncRange, { readonly brand: unique sy
  * **Example** (Format with tabs)
  *
  * ```ts
- * import { JsoncFormatter, JsoncFormattingOptions } from "@beep/jsonc"
+ * import { JsoncFormattingOptions } from "@beep/jsonc/JsoncEdit"
+ * import { JsoncFormatter } from "@beep/jsonc/JsoncFormatter"
  *
  * const options = JsoncFormattingOptions.make({ insertSpaces: false })
  *
@@ -113,7 +121,7 @@ export class JsoncFormattingOptions extends S.Opaque<JsoncFormattingOptions, { r
  * **Example** (Normalize a literal into the canonical class)
  *
  * ```ts
- * import { JsoncFormattingOptions, JsoncFormattingOptionsLike } from "@beep/jsonc"
+ * import { JsoncFormattingOptions, JsoncFormattingOptionsLike } from "@beep/jsonc/JsoncEdit"
  * import * as S from "effect/Schema"
  *
  * const like: JsoncFormattingOptionsLike = { eol: "\r\n" }
@@ -148,7 +156,7 @@ export type JsoncFormattingOptionsLike = typeof JsoncFormattingOptionsLike.Type;
  * **Example** (Read the conflicting offsets)
  *
  * ```ts
- * import { JsoncEditOverlapError } from "@beep/jsonc"
+ * import { JsoncEditOverlapError } from "@beep/jsonc/JsoncEdit"
  *
  * const error = JsoncEditOverlapError.make({ lower: 0, upper: 2 })
  *
@@ -176,7 +184,7 @@ export class JsoncEditOverlapError extends S.TaggedError<JsoncEditOverlapError, 
    * **Example** (Read the rendered message)
    *
    * ```ts
-   * import { JsoncEditOverlapError } from "@beep/jsonc"
+   * import { JsoncEditOverlapError } from "@beep/jsonc/JsoncEdit"
    *
    * console.log(JsoncEditOverlapError.make({ lower: 0, upper: 2 }).message.endsWith("offsets 0 and 2")) // true
    * ```
@@ -195,7 +203,7 @@ const byOffsetDescending = Order.flip(Order.mapInput(Order.Number, (edit: JsoncE
  * **Example** (Apply a single replacement)
  *
  * ```ts
- * import { JsoncEdit } from "@beep/jsonc"
+ * import { JsoncEdit } from "@beep/jsonc/JsoncEdit"
  *
  * const edit = JsoncEdit.make({ offset: 7, length: 1, content: "2" })
  *
@@ -230,7 +238,7 @@ export class JsoncEdit extends S.Opaque<JsoncEdit, { readonly brand: unique symb
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { JsoncEdit } from "@beep/jsonc"
+   * import { JsoncEdit } from "@beep/jsonc/JsoncEdit"
    *
    * const first = JsoncEdit.make({ offset: 0, length: 4, content: "x" })
    * const second = JsoncEdit.make({ offset: 2, length: 3, content: "y" })
@@ -278,7 +286,7 @@ export class JsoncEdit extends S.Opaque<JsoncEdit, { readonly brand: unique symb
    * **Example** (Apply edits in any order)
    *
    * ```ts
-   * import { JsoncEdit } from "@beep/jsonc"
+   * import { JsoncEdit } from "@beep/jsonc/JsoncEdit"
    *
    * const edits = [
    *   JsoncEdit.make({ offset: 0, length: 1, content: "X" }),

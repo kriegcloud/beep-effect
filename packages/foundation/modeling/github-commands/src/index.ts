@@ -12,7 +12,8 @@
  * **Example** (Render a command and protect ordinary log text)
  *
  * ```ts
- * import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
+ * import { CommandNeutralizer } from "@beep/github-commands/CommandNeutralizer";
+ * import { WorkflowCommand } from "@beep/github-commands/WorkflowCommand";
  *
  * console.log(WorkflowCommand.notice("ready")) // ::notice::ready
  * console.log(CommandNeutralizer.text("::error::x") === "\u200b::error::x") // true

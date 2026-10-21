@@ -37,7 +37,7 @@ const $I = $JsonlId.create("Line");
  * **Example** (Inspect a parsed value and its source)
  * ```ts import.meta.vitest name="Inspect a parsed value and its source"
  * import { pipe } from "effect/Function";
- * import { Line } from "@beep/jsonl";
+ * import { Line } from "@beep/jsonl/Line";
  * import * as A from "effect/Array";
  * import * as O from "effect/Option";
  * import * as Result from "effect/Result";
@@ -89,7 +89,7 @@ const decodeJson = S.decodeResult(S.fromJsonString(S.Unknown));
  *
  * **Example** (Recover the last valid JSON value)
  * ```ts import.meta.vitest name="Recover the last valid JSON value"
- * import { Line } from "@beep/jsonl";
+ * import { Line } from "@beep/jsonl/Line";
  * import * as O from "effect/Option";
  * Line.byteLength("😀") // => 4
  * Line.lastValid('42\n{').pipe(O.map((line) => line.value)) // => O.some(42)
@@ -130,7 +130,7 @@ export const Line = {
    *
    * **Example** (Measure encoded bytes)
    * ```ts import.meta.vitest name="Measure encoded bytes"
-   * import { Line } from "@beep/jsonl";
+   * import { Line } from "@beep/jsonl/Line";
    *
    * Line.byteLength("\u{1F600}") // => 4
    * ```
@@ -159,7 +159,7 @@ export const Line = {
    * **Example** (Track CRLF byte boundaries)
    *
    * ```ts import.meta.vitest name="Track CRLF byte boundaries"
-   * import { Line } from "@beep/jsonl";
+   * import { Line } from "@beep/jsonl/Line";
    * const slices = Line.split("42\r\ntrue\n");
    * slices[1]?.offset // => 4
    * ```
@@ -205,7 +205,7 @@ export const Line = {
    * **Example** (Resume before an incomplete tail)
    *
    * ```ts import.meta.vitest name="Resume before an incomplete tail"
-   * import { Line } from "@beep/jsonl";
+   * import { Line } from "@beep/jsonl/Line";
    * Line.consumedOffset("42\n{") // => 3
    * ```
    *
@@ -233,7 +233,7 @@ export const Line = {
    * **Example** (Parse one candidate line)
    *
    * ```ts import.meta.vitest name="Parse one candidate line"
-   * import { Line } from "@beep/jsonl";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as A from "effect/Array";
    * import * as O from "effect/Option";
    * import * as Result from "effect/Result";
@@ -273,7 +273,7 @@ export const Line = {
    * **Example** (Retain malformed interior lines)
    *
    * ```ts import.meta.vitest name="Retain malformed interior lines"
-   * import { Line } from "@beep/jsonl";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as A from "effect/Array";
    * import * as Result from "effect/Result";
    * A.map(Line.parseAll("42\nbad\ntrue\n"), Result.isSuccess) // => [true, false, true]
@@ -313,7 +313,7 @@ export const Line = {
    * **Example** (Recover from a torn object tail)
    *
    * ```ts import.meta.vitest name="Recover from a torn object tail"
-   * import { Line } from "@beep/jsonl";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as O from "effect/Option";
    * Line.lastValid("42\n{").pipe(O.map((parsed) => parsed.value)) // => O.some(42)
    * ```

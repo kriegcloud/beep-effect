@@ -1,3 +1,9 @@
+/**
+ * Validated SPDX license identifiers and the package's single typed error.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SpdxId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

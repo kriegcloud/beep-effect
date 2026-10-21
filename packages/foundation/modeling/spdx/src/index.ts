@@ -18,7 +18,7 @@
  * **Example** (Parse and serialize a license choice and reject an incomplete conjunction)
  *
  * ```ts
- * import { isValidExpression, SpdxExpression } from "@beep/spdx";
+ * import { isValidExpression, SpdxExpression } from "@beep/spdx/SpdxExpression";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -33,6 +33,7 @@
  * ```
  *
  * @packageDocumentation
+ * @since 0.0.0
  * @see {@link https://spdx.github.io/spdx-spec/v2.3/SPDX-license-expressions/ | SPDX License Expressions} for the SPDX expression grammar
  * @see {@link https://effect.website | Effect} for the Effect framework
  */

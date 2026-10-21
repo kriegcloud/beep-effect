@@ -1,3 +1,10 @@
+/**
+ * Strict SemVer 2.0.0 versions, version bumping and their typed parse and
+ * overflow errors.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SemverId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";

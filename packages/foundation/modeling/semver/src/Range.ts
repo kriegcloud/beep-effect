@@ -1,3 +1,10 @@
+/**
+ * SemVer ranges as unions of comparator sets, with satisfaction, intersection
+ * and their typed errors.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SemverId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

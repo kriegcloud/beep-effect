@@ -1,15 +1,22 @@
-// The `JsoncFingerprint` facade: canonical JSON serialization (RFC 8785, the
-// JSON Canonicalization Scheme) and SHA-256 content fingerprints over it.
-//
-// The pure core is the JCS emitter: compact output, object keys sorted by
-// UTF-16 code units, ECMAScript number serialization, with the package's
-// usual `Result` primitive / spanned `Effect` twin arrangement. Hashing is the
-// one effectful edge: it requires core's `Crypto.Crypto` service and owns no
-// backend, so consumers provide a `Crypto` layer at the application edge.
-//
-// This is a deliberately different contract from `Jsonc.stringify`:
-// fingerprints must never silently alter the document, so every non-JSON
-// value is a typed failure carrying the JSON-pointer path to fix.
+/**
+ * The `JsoncFingerprint` facade: canonical JSON serialization (RFC 8785, the
+ * JSON Canonicalization Scheme) and SHA-256 content fingerprints over it.
+ *
+ * **Details**
+ *
+ * The pure core is the JCS emitter: compact output, object keys sorted by
+ * UTF-16 code units, ECMAScript number serialization, with the package's
+ * usual `Result` primitive / spanned `Effect` twin arrangement. Hashing is the
+ * one effectful edge: it requires core's `Crypto.Crypto` service and owns no
+ * backend, so consumers provide a `Crypto` layer at the application edge.
+ *
+ * This is a deliberately different contract from `Jsonc.stringify`:
+ * fingerprints must never silently alter the document, so every non-JSON
+ * value is a typed failure carrying the JSON-pointer path to fix.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $JsoncId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -53,7 +60,7 @@ const $I = $JsoncId.create("JsoncFingerprint");
  * **Example** (Guard a code with the kit)
  *
  * ```ts
- * import { JsoncCanonicalizeErrorCode } from "@beep/jsonc"
+ * import { JsoncCanonicalizeErrorCode } from "@beep/jsonc/JsoncFingerprint"
  *
  * console.log(JsoncCanonicalizeErrorCode.is.LoneSurrogate("LoneSurrogate")) // true
  * ```
@@ -93,7 +100,7 @@ export type JsoncCanonicalizeErrorCode = typeof JsoncCanonicalizeErrorCode.Type;
  *
  * ```ts
  * import * as Result from "effect/Result"
- * import { JsoncFingerprint } from "@beep/jsonc"
+ * import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint"
  *
  * const result = JsoncFingerprint.canonicalizeResult({ a: { b: undefined } })
  *
@@ -126,7 +133,7 @@ export class JsoncCanonicalizeError extends S.TaggedError<JsoncCanonicalizeError
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { JsoncFingerprint } from "@beep/jsonc"
+   * import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint"
    *
    * const result = JsoncFingerprint.canonicalizeResult({ n: 1n })
    *
@@ -152,7 +159,7 @@ export class JsoncCanonicalizeError extends S.TaggedError<JsoncCanonicalizeError
  * **Example** (Construct the normalizing options)
  *
  * ```ts
- * import { JsoncTextHashOptions } from "@beep/jsonc"
+ * import { JsoncTextHashOptions } from "@beep/jsonc/JsoncFingerprint"
  *
  * console.log(JsoncTextHashOptions.make({}).normalizeEol) // false
  * console.log(JsoncTextHashOptions.make({ normalizeEol: true }).normalizeEol) // true
@@ -436,7 +443,7 @@ const prepareText: {
  *
  * ```ts
  * import * as Result from "effect/Result"
- * import { JsoncFingerprint } from "@beep/jsonc"
+ * import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint"
  *
  * const a = JsoncFingerprint.canonicalizeResult({ b: 2, a: 1 })
  * const b = JsoncFingerprint.canonicalizeResult({ a: 1, b: 2 })
@@ -467,7 +474,7 @@ export abstract class JsoncFingerprint {
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { JsoncFingerprint } from "@beep/jsonc"
+   * import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint"
    *
    * console.log(Result.getOrThrow(JsoncFingerprint.canonicalizeResult({ b: { d: 2, c: [1] }, a: null })))
    * // '{"a":null,"b":{"c":[1],"d":2}}'
@@ -493,7 +500,7 @@ export abstract class JsoncFingerprint {
    *
    * ```ts
    * import * as Effect from "effect/Effect"
-   * import { JsoncFingerprint } from "@beep/jsonc"
+   * import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint"
    *
    * console.log(Effect.runSync(JsoncFingerprint.canonicalize([1, "x", true]))) // '[1,"x",true]'
    * ```
@@ -516,7 +523,7 @@ export abstract class JsoncFingerprint {
    * **Example** (Normalize mixed endings)
    *
    * ```ts
-   * import { JsoncFingerprint } from "@beep/jsonc"
+   * import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint"
    *
    * console.log(JsoncFingerprint.normalizeEol("a\r\nb\rc\nd")) // "a\nb\nc\nd"
    * ```
@@ -542,7 +549,7 @@ export abstract class JsoncFingerprint {
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { JsoncFingerprint } from "@beep/jsonc"
+   * import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint"
    *
    * const digest = (bytes: Uint8Array): Uint8Array => new Uint8Array(32).fill(bytes.length)
    *
@@ -580,7 +587,7 @@ export abstract class JsoncFingerprint {
    * ```ts
    * import * as Crypto from "effect/Crypto"
    * import * as Effect from "effect/Effect"
-   * import { JsoncFingerprint } from "@beep/jsonc"
+   * import { JsoncFingerprint } from "@beep/jsonc/JsoncFingerprint"
    *
    * const WebCrypto = Crypto.make({
    *   randomBytes: (size) => globalThis.crypto.getRandomValues(new Uint8Array(size)),
@@ -609,7 +616,7 @@ export abstract class JsoncFingerprint {
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { JsoncFingerprint, JsoncTextHashOptions } from "@beep/jsonc"
+   * import { JsoncFingerprint, JsoncTextHashOptions } from "@beep/jsonc/JsoncFingerprint"
    *
    * const digest = (bytes: Uint8Array): Uint8Array => new Uint8Array(32).fill(bytes.length)
    * const options = JsoncTextHashOptions.make({ normalizeEol: true })
@@ -655,7 +662,7 @@ export abstract class JsoncFingerprint {
    * ```ts
    * import * as Crypto from "effect/Crypto"
    * import * as Effect from "effect/Effect"
-   * import { JsoncFingerprint, JsoncTextHashOptions } from "@beep/jsonc"
+   * import { JsoncFingerprint, JsoncTextHashOptions } from "@beep/jsonc/JsoncFingerprint"
    *
    * const WebCrypto = Crypto.make({
    *   randomBytes: (size) => globalThis.crypto.getRandomValues(new Uint8Array(size)),

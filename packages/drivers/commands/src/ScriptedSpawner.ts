@@ -1,3 +1,11 @@
+/**
+ * A scripted `ChildProcessSpawner` test double that answers commands from a
+ * script and records every spawn.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $CommandsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Effect from "effect/Effect";

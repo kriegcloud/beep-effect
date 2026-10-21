@@ -1,3 +1,11 @@
+/**
+ * Project-local tool execution: launcher argv prefixes and the `LocalExec`
+ * service that maps a package manager to its exec command.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $CommandsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";

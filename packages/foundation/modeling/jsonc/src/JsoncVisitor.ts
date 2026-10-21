@@ -1,12 +1,19 @@
-// SAX-style visitor: a demand-driven `Stream` of typed events over a JSONC
-// document, enabling early termination (`Stream.take`) without building an
-// AST.
-//
-// The event union is a `S.TaggedUnion`: serializable tagged values with
-// structural equality, consistent with the rest of the library. Malformed
-// input surfaces as `Error` events inside the union, so the stream stays
-// infallible at the type level. There is no collecting variant:
-// `Stream.filter` plus `Stream.runCollect` cover it.
+/**
+ * SAX-style visitor: a demand-driven `Stream` of typed events over a JSONC
+ * document, enabling early termination (`Stream.take`) without building an
+ * AST.
+ *
+ * **Details**
+ *
+ * The event union is a `S.TaggedUnion`: serializable tagged values with
+ * structural equality, consistent with the rest of the library. Malformed
+ * input surfaces as `Error` events inside the union, so the stream stays
+ * infallible at the type level. There is no collecting variant:
+ * `Stream.filter` plus `Stream.runCollect` cover it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $JsoncId } from "@beep/identity/packages";
 import * as A from "effect/Array";
@@ -50,7 +57,7 @@ const Span = { offset: S.Finite, length: S.Finite };
  * **Example** (Construct and guard events)
  *
  * ```ts
- * import { JsoncVisitorEvent } from "@beep/jsonc"
+ * import { JsoncVisitorEvent } from "@beep/jsonc/JsoncVisitor"
  *
  * const event = JsoncVisitorEvent.cases.Comment.make({ offset: 0, length: 3 })
  *
@@ -95,7 +102,7 @@ export type JsoncVisitorEvent = typeof JsoncVisitorEvent.Type;
  * ```ts
  * import * as Effect from "effect/Effect"
  * import * as Stream from "effect/Stream"
- * import { JsoncVisitor, JsoncVisitorEvent } from "@beep/jsonc"
+ * import { JsoncVisitor, JsoncVisitorEvent } from "@beep/jsonc/JsoncVisitor"
  *
  * const keys = JsoncVisitor.visit('{ "a": 1, "b": 2 }').pipe(
  *   Stream.filter(JsoncVisitorEvent.guards.ObjectProperty),
@@ -126,7 +133,7 @@ export abstract class JsoncVisitor {
    * ```ts
    * import * as Effect from "effect/Effect"
    * import * as Stream from "effect/Stream"
-   * import { JsoncVisitor, JsoncVisitorEvent } from "@beep/jsonc"
+   * import { JsoncVisitor, JsoncVisitorEvent } from "@beep/jsonc/JsoncVisitor"
    *
    * const first = JsoncVisitor.visit('{ "a": 1, "b": 2 }').pipe(
    *   Stream.filter(JsoncVisitorEvent.guards.LiteralValue),

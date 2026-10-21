@@ -1,3 +1,11 @@
+/**
+ * Secret redaction for command argv and captured output before it reaches
+ * errors, logs or traces.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";

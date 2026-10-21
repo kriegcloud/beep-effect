@@ -1,3 +1,9 @@
+/**
+ * The tagged classification of the change between two SemVer versions.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SemverId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";

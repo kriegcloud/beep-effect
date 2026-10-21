@@ -59,9 +59,9 @@ const SchemaErrorFromSelf = S.declare(S.isSchemaError).pipe(
  *
  * **Example** (Construct a MalformedLine failure)
  * ```ts import.meta.vitest name="Construct a MalformedLine failure"
- * import { LineSlice } from "@beep/jsonl";
+ * import { LineSlice } from "@beep/jsonl/LineSlice";
  * const line = LineSlice.make({ offset: 0, end: 1, length: 1, text: "{", terminated: false });
- * import { MalformedLine } from "@beep/jsonl";
+ * import { MalformedLine } from "@beep/jsonl/JsonlError";
  * MalformedLine.make({ line }).message // => "JSONL unterminated final line at byte offset 0"
  * ```
  *
@@ -90,9 +90,9 @@ export class MalformedLine extends S.TaggedError<MalformedLine, { readonly brand
    *
    * **Example** (Read the malformed-line message)
    * ```ts import.meta.vitest name="Read the malformed-line message"
-   * import { LineSlice } from "@beep/jsonl";
+   * import { LineSlice } from "@beep/jsonl/LineSlice";
    * const line = LineSlice.make({ offset: 0, end: 1, length: 1, text: "{", terminated: false });
-   * import { MalformedLine } from "@beep/jsonl";
+   * import { MalformedLine } from "@beep/jsonl/JsonlError";
    * MalformedLine.make({ line }).message // => "JSONL unterminated final line at byte offset 0"
    * ```
    *
@@ -116,9 +116,9 @@ export class MalformedLine extends S.TaggedError<MalformedLine, { readonly brand
  *
  * **Example** (Report an unknown event tag)
  * ```ts import.meta.vitest name="Report an unknown event tag"
- * import { LineSlice } from "@beep/jsonl";
+ * import { LineSlice } from "@beep/jsonl/LineSlice";
  * const line = LineSlice.make({ offset: 0, end: 1, length: 1, text: "{", terminated: false });
- * import { UnknownEvent } from "@beep/jsonl";
+ * import { UnknownEvent } from "@beep/jsonl/JsonlError";
  * const error = UnknownEvent.make({ line, event: "foreign", known: ["started"] });
  * error.known // => ["started"]
  * ```
@@ -161,9 +161,9 @@ export class UnknownEvent extends S.TaggedError<UnknownEvent, { readonly brand: 
    *
    * **Example** (Read the unknown-event message)
    * ```ts import.meta.vitest name="Read the unknown-event message"
-   * import { LineSlice } from "@beep/jsonl";
+   * import { LineSlice } from "@beep/jsonl/LineSlice";
    * const line = LineSlice.make({ offset: 0, end: 1, length: 1, text: "{", terminated: false });
-   * import { UnknownEvent } from "@beep/jsonl";
+   * import { UnknownEvent } from "@beep/jsonl/JsonlError";
    * const error = UnknownEvent.make({ line, event: "foreign", known: ["started"] });
    * error.message // => 'unknown JSONL event "foreign" at byte offset 0'
    * ```
@@ -191,7 +191,9 @@ export class UnknownEvent extends S.TaggedError<UnknownEvent, { readonly brand: 
  * **Example** (Inspect invalid payload details)
  * ```ts import.meta.vitest name="Inspect invalid payload details"
  * import { pipe } from "effect/Function";
- * import { Envelope, JsonlEvent, Line } from "@beep/jsonl";
+ * import { Envelope } from "@beep/jsonl/Envelope";
+ * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
+ * import { Line } from "@beep/jsonl/Line";
  * import * as A from "effect/Array";
  * import * as O from "effect/Option";
  * import * as Result from "effect/Result";
@@ -244,7 +246,9 @@ export class InvalidData extends S.TaggedError<InvalidData, { readonly brand: un
    * **Example** (Read the invalid-payload message)
    * ```ts import.meta.vitest name="Read the invalid-payload message"
    * import { pipe } from "effect/Function";
-   * import { Envelope, JsonlEvent, Line } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as A from "effect/Array";
    * import * as O from "effect/Option";
    * import * as Result from "effect/Result";
@@ -273,7 +277,7 @@ export class InvalidData extends S.TaggedError<InvalidData, { readonly brand: un
  *
  * **Example** (Construct a TerminalViolation failure)
  * ```ts import.meta.vitest name="Construct a TerminalViolation failure"
- * import { TerminalViolation } from "@beep/jsonl";
+ * import { TerminalViolation } from "@beep/jsonl/JsonlError";
  * const error = TerminalViolation.make({ event: "updated", terminal: "closed" });
  * error.terminal // => "closed"
  * ```
@@ -309,7 +313,7 @@ export class TerminalViolation extends S.TaggedError<TerminalViolation, { readon
    *
    * **Example** (Read the terminal-journal message)
    * ```ts import.meta.vitest name="Read the terminal-journal message"
-   * import { TerminalViolation } from "@beep/jsonl";
+   * import { TerminalViolation } from "@beep/jsonl/JsonlError";
    * const error = TerminalViolation.make({ event: "updated", terminal: "closed" });
    * error.message // => 'cannot append "updated": the journal is terminal at "closed"'
    * ```
@@ -334,7 +338,7 @@ export class TerminalViolation extends S.TaggedError<TerminalViolation, { readon
  *
  * **Example** (Construct a JournalNotFound failure)
  * ```ts import.meta.vitest name="Construct a JournalNotFound failure"
- * import { JournalNotFound } from "@beep/jsonl";
+ * import { JournalNotFound } from "@beep/jsonl/JsonlError";
  * JournalNotFound.make({ path: "events.jsonl" }).path // => "events.jsonl"
  * ```
  *
@@ -363,7 +367,7 @@ export class JournalNotFound extends S.TaggedError<JournalNotFound, { readonly b
    *
    * **Example** (Read the missing-journal message)
    * ```ts import.meta.vitest name="Read the missing-journal message"
-   * import { JournalNotFound } from "@beep/jsonl";
+   * import { JournalNotFound } from "@beep/jsonl/JsonlError";
    * JournalNotFound.make({ path: "events.jsonl" }).message // => "journal not found: events.jsonl"
    * ```
    *
@@ -387,7 +391,8 @@ export class JournalNotFound extends S.TaggedError<JournalNotFound, { readonly b
  *
  * **Example** (Report a nonserializable payload)
  * ```ts import.meta.vitest name="Report a nonserializable payload"
- * import { Envelope, JsonlEvent } from "@beep/jsonl";
+ * import { Envelope } from "@beep/jsonl/Envelope";
+ * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
  * import * as DateTime from "effect/DateTime";
  * import * as Result from "effect/Result";
  * import * as S from "effect/Schema";
@@ -429,7 +434,8 @@ export class UnserializableData extends S.TaggedError<UnserializableData, { read
    *
    * **Example** (Read the serialization message)
    * ```ts import.meta.vitest name="Read the serialization message"
-   * import { Envelope, JsonlEvent } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
    * import * as DateTime from "effect/DateTime";
    * import * as Result from "effect/Result";
    * import * as S from "effect/Schema";
@@ -465,7 +471,7 @@ export class UnserializableData extends S.TaggedError<UnserializableData, { read
  *
  * **Example** (Construct a JournalClosed failure)
  * ```ts import.meta.vitest name="Construct a JournalClosed failure"
- * import { JournalClosed } from "@beep/jsonl";
+ * import { JournalClosed } from "@beep/jsonl/JsonlError";
  * JournalClosed.make({ event: "updated" }).event // => "updated"
  * ```
  *
@@ -494,7 +500,7 @@ export class JournalClosed extends S.TaggedError<JournalClosed, { readonly brand
    *
    * **Example** (Read the closed-journal message)
    * ```ts import.meta.vitest name="Read the closed-journal message"
-   * import { JournalClosed } from "@beep/jsonl";
+   * import { JournalClosed } from "@beep/jsonl/JsonlError";
    * JournalClosed.make({ event: "updated" }).message // => 'cannot append "updated": the journal is closed'
    * ```
    *
@@ -558,7 +564,7 @@ export type JournalResyncReason = typeof JournalResyncReason.Type;
  *
  * **Example** (Construct a JournalResync failure)
  * ```ts import.meta.vitest name="Construct a JournalResync failure"
- * import { JournalResync, JournalResyncReason } from "@beep/jsonl";
+ * import { JournalResync, JournalResyncReason } from "@beep/jsonl/JsonlError";
  * const error = JournalResync.make({ path: "events.jsonl", reason: JournalResyncReason.Enum.truncated, expected: 100, actual: 0 });
  * error.reason // => "truncated"
  * ```
@@ -606,7 +612,7 @@ export class JournalResync extends S.TaggedError<JournalResync, { readonly brand
    *
    * **Example** (Read the resync message)
    * ```ts import.meta.vitest name="Read the resync message"
-   * import { JournalResync, JournalResyncReason } from "@beep/jsonl";
+   * import { JournalResync, JournalResyncReason } from "@beep/jsonl/JsonlError";
    * const error = JournalResync.make({ path: "events.jsonl", reason: JournalResyncReason.Enum.truncated, expected: 100, actual: 0 });
    * error.message // => "journal truncated beneath the reader at events.jsonl: consumed 100, file is now 0"
    * ```
@@ -915,7 +921,7 @@ export class JournalUnterminated extends S.TaggedError<JournalUnterminated, { re
  *
  * **Example** (Recognize a journal domain failure)
  * ```ts import.meta.vitest name="Recognize a journal domain failure"
- * import { JsonlError, JournalClosed } from "@beep/jsonl";
+ * import { JsonlError, JournalClosed } from "@beep/jsonl/JsonlError";
  * const error = JournalClosed.make({ event: "updated" });
  * JsonlError.guards.JournalClosed(error) // => true
  * ```

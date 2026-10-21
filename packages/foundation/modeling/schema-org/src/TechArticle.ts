@@ -1,3 +1,11 @@
+/**
+ * The schema.org `TechArticle` node and the field set that its
+ * `APIReference` subtype extends.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { CreativeWorkFields } from "./CreativeWork.ts";

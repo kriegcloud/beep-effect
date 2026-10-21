@@ -1,3 +1,16 @@
+/**
+ * Rendering of GitHub Actions workflow commands (`::name key=value::message`).
+ *
+ * **Details**
+ *
+ * {@link WorkflowCommand} applies the runner's escaping rules to command
+ * properties and messages, and {@link AnnotationProperties} models the title and
+ * source location carried by `notice`, `warning` and `error` annotations.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubCommandsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual, flow, pipe } from "effect/Function";

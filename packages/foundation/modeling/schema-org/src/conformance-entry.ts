@@ -1,11 +1,11 @@
 /**
- * The offline conformance half of `@effected/schema-org`: the vendored
+ * The offline conformance half of `@beep/schema-org`: the vendored
  * schema.org vocabulary and the validator that reads it.
  *
  * **Details**
  *
  * This is a **separate entrypoint on purpose**. The vocabulary table is the
- * whole of what a graph-only consumer avoids: importing `@effected/schema-org`
+ * whole of what a graph-only consumer avoids: importing `@beep/schema-org`
  * loads the node classes and the serializer and nothing else, while the table
  * is reachable only from here. An unbundled Node consumer that imported one
  * barrel would otherwise load 73 KB of vocabulary literals it never reads, and
@@ -20,7 +20,8 @@
  *
  * ```ts
  * import { Conformance, Vocabulary } from "@beep/schema-org/conformance-entry";
- * import { JsonLdDocument, SoftwareSourceCode } from "@beep/schema-org";
+ * import { JsonLdDocument } from "@beep/schema-org/JsonLdDocument";
+ * import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
  * import * as Result from "effect/Result";
  *
  * const graph = Result.getOrThrow(
@@ -32,6 +33,7 @@
  * ```
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export {

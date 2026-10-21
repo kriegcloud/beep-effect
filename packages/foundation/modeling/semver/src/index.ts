@@ -12,7 +12,8 @@
  * **Example** (Bump a version and test range membership)
  *
  * ```ts
- * import { Range, SemVer } from "@beep/semver";
+ * import { Range } from "@beep/semver/Range";
+ * import { SemVer } from "@beep/semver/SemVer";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function* () {
@@ -27,6 +28,7 @@
  * ```
  *
  * @packageDocumentation
+ * @since 0.0.0
  * @see {@link https://semver.org | SemVer 2.0.0 Specification} for the version grammar
  * @see {@link https://effect.website | Effect} for the Effect framework
  */

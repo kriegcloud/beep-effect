@@ -1,15 +1,22 @@
-// The `Jsonc` facade: parsing, comment stripping, semantic equality and the
-// flagship schema factories, plus the parse-error vocabulary they raise.
-//
-// `Jsonc` is a namespace of statics over the internal parser and the schema
-// layer, not itself a schema class. `parse`/`parseTree` and schema decoding
-// carry a real `JsoncParseError` channel; `stripComments`/`equals`/
-// `equalsValue` are pure total functions.
-//
-// Cycle firewall: the internal parser returns raw error records and this
-// module maps them into `JsoncParseErrorDetail` (deriving `line`/`character`
-// from `offset`) and builds the aggregate `JsoncParseError`. The dependency
-// edge runs facade to parser only.
+/**
+ * The `Jsonc` facade: parsing, comment stripping, semantic equality and the
+ * flagship schema factories, plus the parse-error vocabulary they raise.
+ *
+ * **Details**
+ *
+ * `Jsonc` is a namespace of statics over the internal parser and the schema
+ * layer, not itself a schema class. `parse`/`parseTree` and schema decoding
+ * carry a real `JsoncParseError` channel; `stripComments`/`equals`/
+ * `equalsValue` are pure total functions.
+ *
+ * Cycle firewall: the internal parser returns raw error records and this
+ * module maps them into `JsoncParseErrorDetail` (deriving `line`/`character`
+ * from `offset`) and builds the aggregate `JsoncParseError`. The dependency
+ * edge runs facade to parser only.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 
 import { $JsoncId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -44,7 +51,7 @@ const $I = $JsoncId.create("Jsonc");
  * **Example** (Guard a code with the kit)
  *
  * ```ts
- * import { JsoncParseErrorCode } from "@beep/jsonc"
+ * import { JsoncParseErrorCode } from "@beep/jsonc/Jsonc"
  *
  * console.log(JsoncParseErrorCode.is.CommaExpected("CommaExpected")) // true
  * ```
@@ -75,7 +82,7 @@ export type JsoncParseErrorCode = typeof JsoncParseErrorCode.Type;
  *
  * ```ts
  * import * as Result from "effect/Result"
- * import { Jsonc } from "@beep/jsonc"
+ * import { Jsonc } from "@beep/jsonc/Jsonc"
  *
  * const result = Jsonc.parseResult('{ "a": }')
  *
@@ -117,7 +124,7 @@ export class JsoncParseErrorDetail extends S.Opaque<JsoncParseErrorDetail, { rea
  *
  * ```ts
  * import * as Result from "effect/Result"
- * import { Jsonc } from "@beep/jsonc"
+ * import { Jsonc } from "@beep/jsonc/Jsonc"
  *
  * const result = Jsonc.parseResult('{ "a": }')
  *
@@ -149,7 +156,7 @@ export class JsoncParseError extends S.TaggedError<JsoncParseError, { readonly b
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const result = Jsonc.parseResult("[1 2]")
    *
@@ -184,7 +191,7 @@ export class JsoncParseError extends S.TaggedError<JsoncParseError, { readonly b
  *
  * ```ts
  * import * as Result from "effect/Result"
- * import { Jsonc, JsoncParseOptions } from "@beep/jsonc"
+ * import { Jsonc, JsoncParseOptions } from "@beep/jsonc/Jsonc"
  *
  * const strict = JsoncParseOptions.make({ disallowComments: true })
  *
@@ -233,7 +240,7 @@ export class JsoncParseOptions extends S.Opaque<JsoncParseOptions, { readonly br
  * **Example** (Guard a code with the kit)
  *
  * ```ts
- * import { JsoncStringifyErrorCode } from "@beep/jsonc"
+ * import { JsoncStringifyErrorCode } from "@beep/jsonc/Jsonc"
  *
  * console.log(JsoncStringifyErrorCode.is.BigIntValue("BigIntValue")) // true
  * ```
@@ -277,7 +284,7 @@ export type JsoncStringifyErrorCode = typeof JsoncStringifyErrorCode.Type;
  *
  * ```ts
  * import * as Result from "effect/Result"
- * import { Jsonc, JsoncStringifyOptions } from "@beep/jsonc"
+ * import { Jsonc, JsoncStringifyOptions } from "@beep/jsonc/Jsonc"
  *
  * const compact = JsoncStringifyOptions.make({ tabSize: 0 })
  *
@@ -317,7 +324,7 @@ export class JsoncStringifyOptions extends S.Opaque<JsoncStringifyOptions, { rea
  *
  * ```ts
  * import * as Result from "effect/Result"
- * import { Jsonc } from "@beep/jsonc"
+ * import { Jsonc } from "@beep/jsonc/Jsonc"
  *
  * const result = Jsonc.stringifyResult({ n: 1n })
  *
@@ -349,7 +356,7 @@ export class JsoncStringifyError extends S.TaggedError<JsoncStringifyError, { re
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const result = Jsonc.stringifyResult(undefined)
    *
@@ -507,7 +514,7 @@ export interface JsoncBoundCodec<T, RD = never, RE = never> {
  *
  * ```ts
  * import * as Result from "effect/Result"
- * import { Jsonc } from "@beep/jsonc"
+ * import { Jsonc } from "@beep/jsonc/Jsonc"
  *
  * console.log(Result.getOrThrow(Jsonc.parseResult('{ "port": 3000 // dev\n }'))) // { port: 3000 }
  * ```
@@ -536,7 +543,7 @@ export abstract class Jsonc {
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * console.log(Result.getOrThrow(Jsonc.parseResult("[1, 2, ]"))) // [1, 2]
    * console.log(Result.isFailure(Jsonc.parseResult("{ bad }"))) // true
@@ -572,7 +579,7 @@ export abstract class Jsonc {
    *
    * ```ts
    * import * as Effect from "effect/Effect"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const program = Jsonc.parse('{ "a": [1, 2] }')
    *
@@ -607,7 +614,7 @@ export abstract class Jsonc {
    * ```ts
    * import * as O from "effect/Option"
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const root = Result.getOrThrow(Jsonc.parseTreeResult('{ "port": 3000 }'))
    *
@@ -647,7 +654,7 @@ export abstract class Jsonc {
    * ```ts
    * import * as Effect from "effect/Effect"
    * import * as O from "effect/Option"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const program = Effect.map(Jsonc.parseTree('{ "a": [10, 20] }'), (root) =>
    *   O.flatMap(root, (node) => node.find(["a", 1]))
@@ -691,7 +698,7 @@ export abstract class Jsonc {
    *
    * ```ts
    * import * as Result from "effect/Result"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * console.log(Result.getOrThrow(Jsonc.stringifyResult({ port: 3000 }))) // '{\n  "port": 3000\n}'
    *
@@ -779,7 +786,7 @@ export abstract class Jsonc {
    *
    * ```ts
    * import * as Effect from "effect/Effect"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * console.log(Effect.runSync(Jsonc.stringify([1, 2]))) // '[\n  1,\n  2\n]'
    * ```
@@ -803,7 +810,7 @@ export abstract class Jsonc {
    * **Example** (Strip and blank out comments)
    *
    * ```ts
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * console.log(Jsonc.stripComments('{ "a": 1 /* c *\/ }')) // '{ "a": 1  }'
    * console.log(Jsonc.stripComments('{ "a": 1 /* c *\/ }', " ")) // '{ "a": 1         }'
@@ -849,7 +856,7 @@ export abstract class Jsonc {
    * **Example** (Ignore formatting and key order)
    *
    * ```ts
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * console.log(Jsonc.equals('{ "a": 1, "b": 2 } // c', '{"b":2,"a":1}')) // true
    * console.log(Jsonc.equals("[1, 2]", "[2, 1]")) // false
@@ -875,7 +882,7 @@ export abstract class Jsonc {
    * **Example** (Compare against a value)
    *
    * ```ts
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * console.log(Jsonc.equalsValue('{ "port": 3000 }', { port: 3000 })) // true
    * console.log(Jsonc.equalsValue("{ bad }", {})) // false
@@ -909,7 +916,7 @@ export abstract class Jsonc {
    * ```ts
    * import * as Result from "effect/Result"
    * import * as S from "effect/Schema"
-   * import { Jsonc, JsoncParseOptions } from "@beep/jsonc"
+   * import { Jsonc, JsoncParseOptions } from "@beep/jsonc/Jsonc"
    *
    * const Strict = Jsonc.fromString(JsoncParseOptions.make({ allowTrailingComma: false }))
    *
@@ -951,7 +958,7 @@ export abstract class Jsonc {
    * ```ts
    * import * as Result from "effect/Result"
    * import * as S from "effect/Schema"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * console.log(Result.getOrThrow(S.decodeResult(Jsonc.JsoncFromString)('{ "k": 42 // c\n}'))) // { k: 42 }
    * ```
@@ -971,7 +978,7 @@ export abstract class Jsonc {
    * ```ts
    * import * as Result from "effect/Result"
    * import * as S from "effect/Schema"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const Config = S.Struct({ port: S.Finite })
    * const ConfigFromJsonc = Jsonc.schema(Config)
@@ -1014,7 +1021,7 @@ export abstract class Jsonc {
    * ```ts
    * import * as Effect from "effect/Effect"
    * import * as S from "effect/Schema"
-   * import { Jsonc } from "@beep/jsonc"
+   * import { Jsonc } from "@beep/jsonc/Jsonc"
    *
    * const config = Jsonc.bind(S.Struct({ port: S.Finite }))
    *

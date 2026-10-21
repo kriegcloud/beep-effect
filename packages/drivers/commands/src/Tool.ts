@@ -1,3 +1,11 @@
+/**
+ * CLI tool descriptions: names, version probes, source requirements and
+ * version-mismatch policy.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $CommandsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";

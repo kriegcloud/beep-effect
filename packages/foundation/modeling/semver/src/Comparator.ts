@@ -1,3 +1,10 @@
+/**
+ * Single SemVer comparators (an operator paired with a version) and their
+ * typed parse error.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SemverId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";

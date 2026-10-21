@@ -33,13 +33,15 @@
  * **Example** (Harvest and categorize an inline closing reference)
  *
  * ```ts
- * import { harvestIssueReferences, keywordFamily } from "@beep/github-references";
+ * import { harvestIssueReferences } from "@beep/github-references/IssueReferences";
+ * import { keywordFamily } from "@beep/github-references/KeywordFamily";
  *
  * const references = harvestIssueReferences("fixes #12");
  * console.log(references.map((reference) => keywordFamily(reference.keyword)).join(",")) // fix
  * ```
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 export {

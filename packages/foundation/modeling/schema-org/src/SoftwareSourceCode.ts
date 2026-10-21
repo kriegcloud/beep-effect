@@ -1,3 +1,11 @@
+/**
+ * The schema.org `SoftwareSourceCode` node: a package or repository's source
+ * code as a {@link CreativeWork}.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { CreativeWorkFields } from "./CreativeWork.ts";

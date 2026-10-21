@@ -1,3 +1,11 @@
+/**
+ * CLI tool discovery: resolving a described tool to a runnable command with
+ * its version and source.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $CommandsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";

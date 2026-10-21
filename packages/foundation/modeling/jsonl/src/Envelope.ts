@@ -531,7 +531,9 @@ const encode: {
  *
  * **Example** (Decode in a pipeline)
  * ```ts import.meta.vitest name="Decode in a pipeline"
- * import { Envelope, JsonlEvent, Line } from "@beep/jsonl";
+ * import { Envelope } from "@beep/jsonl/Envelope";
+ * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
+ * import { Line } from "@beep/jsonl/Line";
  * import { pipe } from "effect/Function";
  * import * as A from "effect/Array";
  * import * as O from "effect/Option";
@@ -549,7 +551,8 @@ export const Envelope = {
    *
    * **Example** (Keep caller mutation outside the registry)
    * ```ts
-   * import { Envelope, JsonlEvent } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
    * import * as S from "effect/Schema";
    * const events = [JsonlEvent.make("started", { data: S.String })];
    * const owned = Envelope.registry(events);
@@ -581,7 +584,8 @@ export const Envelope = {
    * **Example** (Validate a decoded envelope)
    *
    * ```ts import.meta.vitest name="Validate a decoded envelope"
-   * import { Envelope, Line } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as A from "effect/Array";
    * import * as O from "effect/Option";
    * import * as S from "effect/Schema";
@@ -602,7 +606,8 @@ export const Envelope = {
    * **Example** (Read a frame without its registry)
    *
    * ```ts import.meta.vitest name="Read a frame without its registry"
-   * import { Envelope, Line } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as A from "effect/Array";
    * import * as O from "effect/Option";
    * const text = '{"at":"2026-10-06T00:00:00Z","event":"started","data":"ready"}';
@@ -621,7 +626,9 @@ export const Envelope = {
    * **Example** (Pipe a line through its registry)
    *
    * ```ts import.meta.vitest name="Pipe a line through its registry"
-   * import { Envelope, JsonlEvent, Line } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as A from "effect/Array";
    * import * as O from "effect/Option";
    * import * as S from "effect/Schema";
@@ -643,7 +650,9 @@ export const Envelope = {
    * **Example** (Exclude a frame before payload validation)
    *
    * ```ts import.meta.vitest name="Exclude a frame before payload validation"
-   * import { Envelope, JsonlEvent, Line } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as A from "effect/Array";
    * import * as O from "effect/Option";
    * import * as S from "effect/Schema";
@@ -663,7 +672,8 @@ export const Envelope = {
    * **Example** (Preserve a malformed interior line)
    *
    * ```ts import.meta.vitest name="Preserve a malformed interior line"
-   * import { Envelope, JsonlEvent } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
    * import * as A from "effect/Array";
    * import * as S from "effect/Schema";
    * const events = [JsonlEvent.make("started", { data: S.String })];
@@ -682,7 +692,8 @@ export const Envelope = {
    * **Example** (Walk back past a scalar torn tail)
    *
    * ```ts import.meta.vitest name="Walk back past a scalar torn tail"
-   * import { Envelope, JsonlEvent } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
    * import * as O from "effect/Option";
    * import * as S from "effect/Schema";
    * const events = [JsonlEvent.make("started", { data: S.String })];
@@ -700,7 +711,8 @@ export const Envelope = {
    * **Example** (Encode a correlated payload with a terminator)
    *
    * ```ts import.meta.vitest name="Encode a correlated payload with a terminator"
-   * import { Envelope, JsonlEvent } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
    * import * as S from "effect/Schema";
    * const events = [JsonlEvent.make("started", { data: S.String })];
    * import * as DateTime from "effect/DateTime";
@@ -720,7 +732,8 @@ export const Envelope = {
    *
    * **Example** (Encode patched class fields before decoding)
    * ```ts
-   * import { Envelope, JsonlEvent } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
    * import * as DateTime from "effect/DateTime";
    * import * as S from "effect/Schema";
    * import { $JsonlId } from "@beep/identity/packages";
@@ -739,7 +752,9 @@ export const Envelope = {
    * **Example** (Decode a line in Effect)
    *
    * ```ts import.meta.vitest name="Decode a line in Effect"
-   * import { Envelope, JsonlEvent, Line } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
+   * import { Line } from "@beep/jsonl/Line";
    * import * as A from "effect/Array";
    * import * as O from "effect/Option";
    * import * as S from "effect/Schema";
@@ -764,7 +779,8 @@ export const Envelope = {
    * **Example** (Encode a payload lazily)
    *
    * ```ts import.meta.vitest name="Encode a payload lazily"
-   * import { Envelope, JsonlEvent } from "@beep/jsonl";
+   * import { Envelope } from "@beep/jsonl/Envelope";
+   * import { JsonlEvent } from "@beep/jsonl/JsonlEvent";
    * import * as S from "effect/Schema";
    * const events = [JsonlEvent.make("started", { data: S.String })];
    * import * as Effect from "effect/Effect";

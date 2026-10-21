@@ -13,7 +13,7 @@
  *
  * **Example** (Read the last valid snapshot)
  * ```ts import.meta.vitest name="Read the last valid snapshot"
- * import { Line } from "@beep/jsonl";
+ * import { Line } from "@beep/jsonl/Line";
  * import * as O from "effect/Option";
  * const state = Line.lastValid('{"count":1}\n{');
  * state.pipe(O.map((parsed) => parsed.value)) // => O.some({ count: 1 })

@@ -1,3 +1,11 @@
+/**
+ * The schema.org `Thing` field set, the root every node schema in this
+ * package builds on.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as S from "effect/Schema";
 
 /**

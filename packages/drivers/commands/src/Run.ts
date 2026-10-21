@@ -1,3 +1,11 @@
+/**
+ * Command running over the `ChildProcessSpawner` contract: collected output,
+ * typed failures, timeouts and output budgets.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $CommandsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

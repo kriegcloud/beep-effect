@@ -1,3 +1,11 @@
+/**
+ * The JSON-LD graph container: the node union it holds, the errors raised
+ * while assembling it, and the escaped `<script>` serializer.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

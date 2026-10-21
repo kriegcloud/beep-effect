@@ -1,3 +1,16 @@
+/**
+ * Neutralization of GitHub Actions workflow commands in arbitrary log text.
+ *
+ * **Details**
+ *
+ * Text written to a runner log can be read back by the runner as a workflow
+ * command; {@link CommandNeutralizer} rewrites it line by line so that no line
+ * is accepted by either of the runner's command parsers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as Str from "effect/String";

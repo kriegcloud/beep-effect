@@ -1,3 +1,11 @@
+/**
+ * The vendored schema.org vocabulary table: type and property names, the
+ * subclass hierarchy, property domains and superseded terms.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
@@ -346,7 +354,7 @@ export class Vocabulary {
    *
    * Deprecated terms are kept in the table and are **valid but flagged**,
    * never reported unknown and never rejected by default, exactly as
-   * `@effected/spdx` treats a deprecated license id.
+   * `@beep/spdx` treats a deprecated license id.
    *
    * One lookup covers classes and properties because the two namespaces are
    * disjoint in release 30.0 — every class name begins uppercase and every property

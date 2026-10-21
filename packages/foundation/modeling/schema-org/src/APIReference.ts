@@ -1,3 +1,11 @@
+/**
+ * The schema.org `APIReference` node: a {@link TechArticle} that documents a
+ * programmatic interface.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { TechArticleFields } from "./TechArticle.ts";

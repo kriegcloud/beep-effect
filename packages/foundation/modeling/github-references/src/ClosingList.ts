@@ -1,3 +1,48 @@
+/**
+ * The closing-list dialect: one whole line naming several issues at once.
+ *
+ * **Details**
+ *
+ * The list dialect, alongside the two in `IssueReferences`: after trimming,
+ * the **entire** line must be `<keyword>[:] <list>` — keyword
+ * case-insensitive (lowercased to canonical form in the result), colon
+ * optional, and the list one or more `#<digits>` items separated by `,`,
+ * `and`, or the Oxford `, and`. Whitespace inside the line is `[ \t]` only,
+ * so an embedded newline cannot smuggle two lines past a parser whose
+ * contract is one — the same posture as the bare-line pattern. Any trailing
+ * content after the list rejects the line; duplicates are preserved in order,
+ * because whether `#1, #1` means one issue or two is the caller's business.
+ *
+ * Two keyword sets play here. `parseClosingList` accepts only the nine
+ * closing keywords and yields a `ClosingList`; `parseReferenceList`
+ * additionally accepts the non-closing `REFERENCE_KEYWORDS` (`ref`,
+ * `refs`, `references`) and reports which set matched via
+ * `ReferenceList`'s `closing` flag.
+ *
+ * An item whose digits exceed `Number.MAX_SAFE_INTEGER` rejects the **whole
+ * line**, where `harvestIssueReferences` merely skips the one match. The
+ * asymmetry is deliberate: a harvest drops one reference out of running
+ * prose, but a list line is a single claim about a set of issues, and
+ * returning the parseable subset would misrepresent the line as claiming
+ * less than it does.
+ *
+ * Complexity posture: parsing is a single left-to-right character scan —
+ * this module contains **no regular expressions at all** — so worst-case
+ * time is linear in the line length by construction. There is no
+ * backtracking engine to feed, no polynomial blow-up for a scanner to flag,
+ * and therefore no input truncation.
+ *
+ * Beyond the whole-line parsers, `harvestReferenceLists` generalizes
+ * the same list grammar to the inline-in-prose posture — several lists on
+ * one line of running text — and `parseClosingLists` /
+ * `parseReferenceLists` apply the whole-line parsers per line of a
+ * multi-line text. All of them ride the same character scan; the no-regex
+ * promise above covers every export here.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubReferencesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { dual } from "effect/Function";
@@ -10,44 +55,6 @@ import { ClosingKeyword } from "./IssueReferences.ts";
 import type * as A from "effect/Array";
 
 const $I = $GithubReferencesId.create("ClosingList");
-
-// The closing-list dialect: one whole line naming several issues at once.
-//
-// The list dialect, alongside the two in `IssueReferences`: after trimming,
-// the **entire** line must be `<keyword>[:] <list>` — keyword
-// case-insensitive (lowercased to canonical form in the result), colon
-// optional, and the list one or more `#<digits>` items separated by `,`,
-// `and`, or the Oxford `, and`. Whitespace inside the line is `[ \t]` only,
-// so an embedded newline cannot smuggle two lines past a parser whose
-// contract is one — the same posture as the bare-line pattern. Any trailing
-// content after the list rejects the line; duplicates are preserved in order,
-// because whether `#1, #1` means one issue or two is the caller's business.
-//
-// Two keyword sets play here. `parseClosingList` accepts only the nine
-// closing keywords and yields a `ClosingList`; `parseReferenceList`
-// additionally accepts the non-closing `REFERENCE_KEYWORDS` (`ref`,
-// `refs`, `references`) and reports which set matched via
-// `ReferenceList`'s `closing` flag.
-//
-// An item whose digits exceed `Number.MAX_SAFE_INTEGER` rejects the **whole
-// line**, where `harvestIssueReferences` merely skips the one match. The
-// asymmetry is deliberate: a harvest drops one reference out of running
-// prose, but a list line is a single claim about a set of issues, and
-// returning the parseable subset would misrepresent the line as claiming
-// less than it does.
-//
-// Complexity posture: parsing is a single left-to-right character scan —
-// this module contains **no regular expressions at all** — so worst-case
-// time is linear in the line length by construction. There is no
-// backtracking engine to feed, no polynomial blow-up for a scanner to flag,
-// and therefore no input truncation.
-//
-// Beyond the whole-line parsers, `harvestReferenceLists` generalizes
-// the same list grammar to the inline-in-prose posture — several lists on
-// one line of running text — and `parseClosingLists` /
-// `parseReferenceLists` apply the whole-line parsers per line of a
-// multi-line text. All of them ride the same character scan; the no-regex
-// promise above covers every export here.
 
 /**
  * The non-closing reference keywords the list dialect accepts, lowercased.

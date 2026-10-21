@@ -1,3 +1,11 @@
+/**
+ * The schema.org `Person` node, used as an author, contributor or maintainer
+ * of a creative work.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaOrgId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { NodeRef } from "./NodeRef.ts";

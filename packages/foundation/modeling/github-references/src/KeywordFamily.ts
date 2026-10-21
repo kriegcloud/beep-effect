@@ -1,18 +1,25 @@
+/**
+ * The keyword-family projection: every keyword's tense-collapsed stem.
+ *
+ * **Details**
+ *
+ * The twelve keywords across both sets are four stems conjugated —
+ * `close`/`closes`/`closed` are one intent spelled three ways — and
+ * consumers that categorize harvested references can key a map by family
+ * rather than by all twelve spellings. This module is that projection: an
+ * explicit total record from keyword to family, so a keyword added to
+ * either constant without a family entry is a **type error**, not a silent
+ * miscategorization at runtime.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubReferencesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import type { ListKeyword } from "./ClosingList.ts";
 
 const $I = $GithubReferencesId.create("KeywordFamily");
-
-// The keyword-family projection: every keyword's tense-collapsed stem.
-//
-// The twelve keywords across both sets are four stems conjugated —
-// `close`/`closes`/`closed` are one intent spelled three ways — and
-// consumers that categorize harvested references can key a map by family
-// rather than by all twelve spellings. This module is that projection: an
-// explicit total record from keyword to family, so a keyword added to
-// either constant without a family entry is a **type error**, not a silent
-// miscategorization at runtime.
 
 /**
  * The four keyword families: the twelve keywords collapsed to their stems.

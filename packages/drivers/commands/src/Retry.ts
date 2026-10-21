@@ -1,3 +1,10 @@
+/**
+ * Transient-failure classification and retry schedules for command runs.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import { dual } from "effect/Function";
