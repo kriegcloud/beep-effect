@@ -151,7 +151,9 @@ export const splitStatements = (sql: string): ReadonlyArray<string> => {
   let index = 0;
   while (index < sql.length) {
     lexeme.lastIndex = index;
-    const token = O.getOrElse(O.fromNullishOr(lexeme.exec(sql)?.[0]), () => sql.slice(index));
+    // The final `[\s\S]` alternative matches any character, so the sticky match
+    // never fails while `index` is inside the text; the fallback only types it.
+    const token = lexeme.exec(sql)?.[0] ?? sql.slice(index);
     const next = index + token.length;
     if (Str.startsWith("--")(token)) {
       current += " ";

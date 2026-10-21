@@ -256,6 +256,23 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
     );
 
     it.effect(
+      "sends text with an unterminated block comment or dollar quote to DuckDB as one statement",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        // The unterminated comment and dollar quote run to the end of the text, so the
+        // control keywords inside them are not statements and nothing is refused.
+        const comment = yield* sql.unsafe("select 1 as one; /* BEGIN; COMMIT").pipe(Effect.flip);
+        const dollar = yield* sql.unsafe("select $q$BEGIN; COMMIT").pipe(Effect.flip);
+        expect(comment.reason.message).not.toBe(MULTI_STATEMENT_MESSAGE);
+        expect(dollar.reason.message).not.toBe(MULTI_STATEMENT_MESSAGE);
+        // Neither text opened a transaction, so a raw BEGIN still opens a fresh one.
+        yield* sql.unsafe("BEGIN");
+        yield* sql.unsafe("ROLLBACK");
+        yield* expectUsable(sql);
+      })
+    );
+
+    it.effect(
       "commits a raw transaction after a swallowed parser error",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;

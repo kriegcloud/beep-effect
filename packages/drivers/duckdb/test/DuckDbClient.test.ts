@@ -530,6 +530,9 @@ describe("DuckDbClient", { concurrent: false }, () => {
         const sql = yield* SqlClient.SqlClient;
         assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [1e20])))._tag, "UnknownError");
         assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[1, "a"]])))._tag, "UnknownError");
+        // A ragged list (a list item next to a scalar item) mixes kinds too.
+        assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[[1], 2]])))._tag, "UnknownError");
+        assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[2, [1]]])))._tag, "UnknownError");
       })
     );
 
@@ -587,6 +590,26 @@ describe("DuckDbClient", { concurrent: false }, () => {
         yield* sql`RESET search_path`;
         assert.deepStrictEqual(yield* select, main);
         yield* client.detach("use_aux");
+      })
+    );
+
+    it.effect(
+      "re-resolves cached bound statements after multi-statement text that sets the schema",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE SCHEMA memory.multi_ctx_s`;
+        yield* sql`CREATE TABLE memory.main.multi_ctx_t (src VARCHAR)`;
+        yield* sql`INSERT INTO memory.main.multi_ctx_t VALUES ('main')`;
+        yield* sql`CREATE TABLE memory.multi_ctx_s.multi_ctx_t (src INTEGER)`;
+        yield* sql`INSERT INTO memory.multi_ctx_s.multi_ctx_t VALUES (7)`;
+        const select = sql`SELECT src FROM multi_ctx_t WHERE ${1} = 1`;
+        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+        // A catalog-context statement inside multi-statement text is not transaction
+        // control, so the text runs and the context switch is still tracked.
+        yield* sql.unsafe("SET schema = 'multi_ctx_s'; SELECT 1");
+        assert.deepStrictEqual(yield* select, [{ src: 7 }]);
+        yield* sql.unsafe("SELECT 1; RESET schema");
+        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
       })
     );
 
