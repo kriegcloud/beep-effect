@@ -226,11 +226,11 @@
       }
     },
     "@beep/commands": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 1a, feat/effected-promotion-w1a)",
-      "reason": "Record the eight new wave-1a workspaces scaffolded by create-package with the generated task set; no qualification is granted.",
+      "reviewer": "GPT-6.1-Sol medium (independent promoted package coverage receipt cache-input review)",
+      "reason": "Reconcile only the eight promoted package test tasks with the existing root coverage receipt environment contract; preserve all other task fields, prior reviews, scope, profile, epoch and qualification ledger. No cache reuse qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w1a.md",
-        "sha256": "badc5e3031a6e9e055e97835cd7cbb213a6a12f020b9a06f39fcafce5a2aabee"
+        "path": "docs/reports/coverage-promoted-package-cache-input-review-2026-10-21.md",
+        "sha256": "e301e1de01ecbcc6e8733403f5f8c0a79d23d505c2547642b19adf92001d3f11"
       }
     },
     "@beep/cosmos": {
@@ -482,19 +482,19 @@
       }
     },
     "@beep/github-commands": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 1a, feat/effected-promotion-w1a)",
-      "reason": "Record the eight new wave-1a workspaces scaffolded by create-package with the generated task set; no qualification is granted.",
+      "reviewer": "GPT-6.1-Sol medium (independent promoted package coverage receipt cache-input review)",
+      "reason": "Reconcile only the eight promoted package test tasks with the existing root coverage receipt environment contract; preserve all other task fields, prior reviews, scope, profile, epoch and qualification ledger. No cache reuse qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w1a.md",
-        "sha256": "badc5e3031a6e9e055e97835cd7cbb213a6a12f020b9a06f39fcafce5a2aabee"
+        "path": "docs/reports/coverage-promoted-package-cache-input-review-2026-10-21.md",
+        "sha256": "e301e1de01ecbcc6e8733403f5f8c0a79d23d505c2547642b19adf92001d3f11"
       }
     },
     "@beep/github-references": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 1a, feat/effected-promotion-w1a)",
-      "reason": "Record the eight new wave-1a workspaces scaffolded by create-package with the generated task set; no qualification is granted.",
+      "reviewer": "GPT-6.1-Sol medium (independent promoted package coverage receipt cache-input review)",
+      "reason": "Reconcile only the eight promoted package test tasks with the existing root coverage receipt environment contract; preserve all other task fields, prior reviews, scope, profile, epoch and qualification ledger. No cache reuse qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w1a.md",
-        "sha256": "badc5e3031a6e9e055e97835cd7cbb213a6a12f020b9a06f39fcafce5a2aabee"
+        "path": "docs/reports/coverage-promoted-package-cache-input-review-2026-10-21.md",
+        "sha256": "e301e1de01ecbcc6e8733403f5f8c0a79d23d505c2547642b19adf92001d3f11"
       }
     },
     "@beep/gov-legal-mcp": {
@@ -554,19 +554,19 @@
       }
     },
     "@beep/jsonc": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 1a, feat/effected-promotion-w1a)",
-      "reason": "Record the eight new wave-1a workspaces scaffolded by create-package with the generated task set; no qualification is granted.",
+      "reviewer": "GPT-6.1-Sol medium (independent promoted package coverage receipt cache-input review)",
+      "reason": "Reconcile only the eight promoted package test tasks with the existing root coverage receipt environment contract; preserve all other task fields, prior reviews, scope, profile, epoch and qualification ledger. No cache reuse qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w1a.md",
-        "sha256": "badc5e3031a6e9e055e97835cd7cbb213a6a12f020b9a06f39fcafce5a2aabee"
+        "path": "docs/reports/coverage-promoted-package-cache-input-review-2026-10-21.md",
+        "sha256": "e301e1de01ecbcc6e8733403f5f8c0a79d23d505c2547642b19adf92001d3f11"
       }
     },
     "@beep/jsonl": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 1a, feat/effected-promotion-w1a)",
-      "reason": "Record the eight new wave-1a workspaces scaffolded by create-package with the generated task set; no qualification is granted.",
+      "reviewer": "GPT-6.1-Sol medium (independent promoted package coverage receipt cache-input review)",
+      "reason": "Reconcile only the eight promoted package test tasks with the existing root coverage receipt environment contract; preserve all other task fields, prior reviews, scope, profile, epoch and qualification ledger. No cache reuse qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w1a.md",
-        "sha256": "badc5e3031a6e9e055e97835cd7cbb213a6a12f020b9a06f39fcafce5a2aabee"
+        "path": "docs/reports/coverage-promoted-package-cache-input-review-2026-10-21.md",
+        "sha256": "e301e1de01ecbcc6e8733403f5f8c0a79d23d505c2547642b19adf92001d3f11"
       }
     },
     "@beep/langextract": {
@@ -1082,11 +1082,11 @@
       }
     },
     "@beep/schema-org": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 1a, feat/effected-promotion-w1a)",
-      "reason": "Record the eight new wave-1a workspaces scaffolded by create-package with the generated task set; no qualification is granted.",
+      "reviewer": "GPT-6.1-Sol medium (independent promoted package coverage receipt cache-input review)",
+      "reason": "Reconcile only the eight promoted package test tasks with the existing root coverage receipt environment contract; preserve all other task fields, prior reviews, scope, profile, epoch and qualification ledger. No cache reuse qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w1a.md",
-        "sha256": "badc5e3031a6e9e055e97835cd7cbb213a6a12f020b9a06f39fcafce5a2aabee"
+        "path": "docs/reports/coverage-promoted-package-cache-input-review-2026-10-21.md",
+        "sha256": "e301e1de01ecbcc6e8733403f5f8c0a79d23d505c2547642b19adf92001d3f11"
       }
     },
     "@beep/scratchpad": {
@@ -1114,11 +1114,11 @@
       }
     },
     "@beep/semver": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 1a, feat/effected-promotion-w1a)",
-      "reason": "Record the eight new wave-1a workspaces scaffolded by create-package with the generated task set; no qualification is granted.",
+      "reviewer": "GPT-6.1-Sol medium (independent promoted package coverage receipt cache-input review)",
+      "reason": "Reconcile only the eight promoted package test tasks with the existing root coverage receipt environment contract; preserve all other task fields, prior reviews, scope, profile, epoch and qualification ledger. No cache reuse qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w1a.md",
-        "sha256": "badc5e3031a6e9e055e97835cd7cbb213a6a12f020b9a06f39fcafce5a2aabee"
+        "path": "docs/reports/coverage-promoted-package-cache-input-review-2026-10-21.md",
+        "sha256": "e301e1de01ecbcc6e8733403f5f8c0a79d23d505c2547642b19adf92001d3f11"
       }
     },
     "@beep/shacl": {
@@ -1162,11 +1162,11 @@
       }
     },
     "@beep/spdx": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 1a, feat/effected-promotion-w1a)",
-      "reason": "Record the eight new wave-1a workspaces scaffolded by create-package with the generated task set; no qualification is granted.",
+      "reviewer": "GPT-6.1-Sol medium (independent promoted package coverage receipt cache-input review)",
+      "reason": "Reconcile only the eight promoted package test tasks with the existing root coverage receipt environment contract; preserve all other task fields, prior reviews, scope, profile, epoch and qualification ledger. No cache reuse qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w1a.md",
-        "sha256": "badc5e3031a6e9e055e97835cd7cbb213a6a12f020b9a06f39fcafce5a2aabee"
+        "path": "docs/reports/coverage-promoted-package-cache-input-review-2026-10-21.md",
+        "sha256": "e301e1de01ecbcc6e8733403f5f8c0a79d23d505c2547642b19adf92001d3f11"
       }
     },
     "@beep/storybook": {
@@ -21614,6 +21614,8 @@
             ".env.*"
           ],
           "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
             "BEEP_FC_NUM_RUNS",
             "BEEP_FC_SEED"
           ],
@@ -43431,6 +43433,8 @@
             ".env.*"
           ],
           "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
             "BEEP_FC_NUM_RUNS",
             "BEEP_FC_SEED"
           ],
@@ -44048,6 +44052,8 @@
             ".env.*"
           ],
           "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
             "BEEP_FC_NUM_RUNS",
             "BEEP_FC_SEED"
           ],
@@ -49414,6 +49420,8 @@
             ".env.*"
           ],
           "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
             "BEEP_FC_NUM_RUNS",
             "BEEP_FC_SEED"
           ],
@@ -50098,6 +50106,8 @@
             ".env.*"
           ],
           "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
             "BEEP_FC_NUM_RUNS",
             "BEEP_FC_SEED"
           ],
@@ -94709,6 +94719,8 @@
             ".env.*"
           ],
           "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
             "BEEP_FC_NUM_RUNS",
             "BEEP_FC_SEED"
           ],
@@ -96722,6 +96734,8 @@
             ".env.*"
           ],
           "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
             "BEEP_FC_NUM_RUNS",
             "BEEP_FC_SEED"
           ],
@@ -100510,6 +100524,8 @@
             ".env.*"
           ],
           "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
             "BEEP_FC_NUM_RUNS",
             "BEEP_FC_SEED"
           ],
