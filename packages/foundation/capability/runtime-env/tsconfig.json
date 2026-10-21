@@ -6,5 +6,16 @@
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src"
-  }
+  },
+  "references": [
+    {
+      "path": "../../modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../modeling/schema/tsconfig.json"
+    },
+    {
+      "path": "../../../tooling/test-kit/fc-runs/tsconfig.json"
+    }
+  ]
 }

@@ -2,8 +2,8 @@ import * as Data from "effect/Data";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import type { AudienceKind } from "../../effected/env/index.ts";
-import { Audience, TerminalEnv } from "../../effected/env/index.ts";
+import type { AudienceKind } from "@beep/runtime-env";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -17,6 +17,8 @@ import type { DocPrintOptions, Document, FailureDetails, ReportFailuresOptions }
 import { CliDoc, CliLinks, CliLogger, CliRuntime, CliTheme, Doc, Render } from "../../effected/cli/index.ts";
 import { commandLines } from "./helpers/runnerCommands.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
+import { StreamEnv, TerminalSnapshot } from "@beep/runtime-env/TerminalEnv";
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -132,7 +134,7 @@ it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
 		const print = Effect.fn("print")(function* (audience: AudienceKind, options: DocPrintOptions | undefined) {
 			const { double, out } = capturing();
 			yield* Doc.print(doc, options).pipe(
-				Effect.provideService(Audience, { kind: audience, source: "override" }),
+				Effect.provideService(Audience, AudienceShape.make({ kind: audience, source: "override" })),
 				Effect.provideService(Console.Console, double),
 			);
 			return out.join("\n");
@@ -467,11 +469,9 @@ describe("main's env.stackFrames (A3)", () => {
 });
 
 describe("a report target that cannot be built falls back to plain", () => {
-	const stream = { isTerminal: true, color: "none" as const, hyperlinks: false, columns: O.none<number>() };
+	const stream = StreamEnv.make({ isTerminal: true, color: "none", hyperlinks: false, columns: O.none<number>() });
 	const hostileTerminal = Layer.succeed(TerminalEnv, {
-		stdinIsTerminal: true,
-		stdout: stream,
-		stderr: stream,
+		...TerminalSnapshot.make({ stdinIsTerminal: true, stdout: stream, stderr: stream }),
 		width: () => {
 			throw new Error("width exploded");
 		},

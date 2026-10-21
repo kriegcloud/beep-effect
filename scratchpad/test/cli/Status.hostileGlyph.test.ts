@@ -1,7 +1,7 @@
 // @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file
 import { assert, describe, it } from "@effect/vitest";
-import type { AudienceKind } from "../../effected/env/index.ts";
-import { Audience } from "../../effected/env/index.ts";
+import type { AudienceKind } from "@beep/runtime-env";
+import { Audience } from "@beep/runtime-env";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

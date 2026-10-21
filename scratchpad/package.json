@@ -53,6 +53,7 @@
     "@beep/provenance": "workspace:^",
     "@beep/rdf": "workspace:^",
     "@beep/repo-utils": "workspace:^",
+    "@beep/runtime-env": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/semantic-web": "workspace:^",
     "@beep/semver": "workspace:^",

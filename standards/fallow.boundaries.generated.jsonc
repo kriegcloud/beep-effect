@@ -1562,6 +1562,7 @@
         "allow": [
           "@beep/chalk",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1570,6 +1571,7 @@
         "allowTypeOnly": [
           "@beep/chalk",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1616,6 +1618,7 @@
           "@beep/colors",
           "@beep/fc-runs",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/utils"
@@ -1624,6 +1627,7 @@
           "@beep/colors",
           "@beep/fc-runs",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/utils"
@@ -4207,10 +4211,16 @@
       {
         "from": "@beep/runtime-env",
         "allow": [
-          "@beep/runtime-env"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/runtime-env",
+          "@beep/schema"
         ],
         "allowTypeOnly": [
-          "@beep/runtime-env"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/runtime-env",
+          "@beep/schema"
         ]
       },
       {
@@ -4299,6 +4309,7 @@
           "@beep/rdf",
           "@beep/repo-cli",
           "@beep/repo-utils",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
@@ -4344,6 +4355,7 @@
           "@beep/rdf",
           "@beep/repo-cli",
           "@beep/repo-utils",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",

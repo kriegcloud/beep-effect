@@ -2088,5 +2088,8 @@
   "@beep/runtime-env": [
     "./packages/foundation/capability/runtime-env/src/index.ts"
   ],
-  "@beep/runtime-env/*": ["./packages/foundation/capability/runtime-env/src/*"]
+  "@beep/runtime-env/*": ["./packages/foundation/capability/runtime-env/src/*"],
+  "@beep/runtime-env/internal/*": [
+    "./packages/foundation/capability/runtime-env/src/internal/*"
+  ]
 }

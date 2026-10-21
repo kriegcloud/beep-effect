@@ -48,7 +48,7 @@ describe("supportsColor", () => {
     ).toBe(false);
   });
 
-  it("treats NO_COLOR as an override even when the value is empty", () => {
+  it("lets a present FORCE_COLOR decide over NO_COLOR", () => {
     expect(
       supportsColor(
         ProcessLike.make({
@@ -58,13 +58,44 @@ describe("supportsColor", () => {
             NO_COLOR: "",
             TERM: "xterm-256color",
           },
-          platform: "win32",
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
+    ).toBe(true);
+  });
+
+  it("treats a non-empty NO_COLOR as disabled on a color-capable TTY", () => {
+    expect(
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            NO_COLOR: "1",
+            TERM: "xterm-256color",
+          },
           stdout: ProcessLikeStdout.make({
             isTTY: true,
           }),
         })
       )
     ).toBe(false);
+  });
+
+  it("ignores an empty NO_COLOR", () => {
+    expect(
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            NO_COLOR: "",
+            TERM: "xterm-256color",
+          },
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
+    ).toBe(true);
   });
 
   it("treats --no-color as an override", () => {
@@ -81,6 +112,19 @@ describe("supportsColor", () => {
         })
       )
     ).toBe(false);
+  });
+
+  it("lets a present FORCE_COLOR decide over --no-color", () => {
+    expect(
+      supportsColor(
+        ProcessLike.make({
+          argv: ["--no-color"],
+          env: {
+            FORCE_COLOR: "2",
+          },
+        })
+      )
+    ).toBe(true);
   });
 
   it("treats FORCE_COLOR=0 as disabled", () => {
@@ -107,7 +151,7 @@ describe("supportsColor", () => {
     ).toBe(true);
   });
 
-  it("enables colors in CI environments", () => {
+  it("does not enable colors from a CI environment alone", () => {
     expect(
       supportsColor(
         ProcessLike.make({
@@ -116,7 +160,70 @@ describe("supportsColor", () => {
           },
         })
       )
+    ).toBe(false);
+  });
+
+  it("keeps piped GitHub Actions output plain", () => {
+    expect(
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            CI: "true",
+            GITHUB_ACTIONS: "true",
+          },
+          stdout: ProcessLikeStdout.make({
+            isTTY: false,
+          }),
+        })
+      )
+    ).toBe(false);
+  });
+
+  it("enables colors for a known CI vendor attached to a TTY", () => {
+    expect(
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            CI: "true",
+            GITHUB_ACTIONS: "true",
+          },
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
     ).toBe(true);
+  });
+
+  it("drops a runtime platform when decoding and does not enable colors from it", () => {
+    assertSome(O.map(ProcessLike.decodeOption({ platform: "win32" }), supportsColor), false);
+  });
+
+  it("enables colors for a Windows TTY identified by OS=Windows_NT", () => {
+    expect(
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            OS: "Windows_NT",
+          },
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
+    ).toBe(true);
+  });
+
+  it("requires a recognized terminal capability on a TTY", () => {
+    expect(
+      supportsColor(
+        ProcessLike.make({
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
+    ).toBe(false);
   });
 
   it("decodes process-like inputs through the schema model", () => {
@@ -148,7 +255,7 @@ describe("supportsColor", () => {
   );
 
   it.prop(
-    "honors disable overrides for generated process-like values",
+    "honors disable overrides for generated process-like values without FORCE_COLOR",
     [Arbitrary.schema(ProcessLike)],
     ([processLike]) => {
       expect(
@@ -156,7 +263,8 @@ describe("supportsColor", () => {
           ...processLike,
           env: {
             ...processLike.env,
-            NO_COLOR: "",
+            FORCE_COLOR: undefined,
+            NO_COLOR: "1",
           },
         })
       ).toBe(false);
@@ -164,8 +272,34 @@ describe("supportsColor", () => {
         supportsColor({
           ...processLike,
           argv: A.append(processLike.argv ?? A.empty(), "--no-color"),
+          env: {
+            ...processLike.env,
+            FORCE_COLOR: undefined,
+          },
         })
       ).toBe(false);
+    },
+    { arbitrary: fcRuns(100) }
+  );
+
+  it.prop(
+    "lets a present FORCE_COLOR decide alone for generated process-like values",
+    [Arbitrary.schema(ProcessLike)],
+    ([processLike]) => {
+      const withForceColor = (value: string) =>
+        supportsColor({
+          ...processLike,
+          argv: A.append(processLike.argv ?? A.empty(), "--no-color"),
+          env: {
+            ...processLike.env,
+            FORCE_COLOR: value,
+            NO_COLOR: "1",
+          },
+        });
+
+      expect(withForceColor("0")).toBe(false);
+      expect(withForceColor("1")).toBe(true);
+      expect(withForceColor("3")).toBe(true);
     },
     { arbitrary: fcRuns(100) }
   );

@@ -11,7 +11,7 @@ import * as TestClock from "effect/testing/TestClock";
 import { createElement } from "react";
 import { Text } from "ink";
 import { Doc } from "../../../effected/cli/Doc.ts";
-import { CurrentRuntimeEnv } from "../../../effected/env/index.ts";
+import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
 import type { Ev } from "../helpers/live.ts";
 import { End, Start, capturing, liveOn, optionsOf, tick, until, warningsIn } from "../helpers/live.ts";

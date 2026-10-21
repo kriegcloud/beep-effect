@@ -5,7 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 const runs = { arbitrary: fcRuns(100) };
-import { AudienceKind } from "../../../effected/env/Audience.ts";
+import { AudienceKind } from "@beep/runtime-env/Audience";
 import { scanAudience, tallyAudience } from "../../../effected/cli/internal/scanAudience.ts";
 it.effect.prop("audience scanner: canonical argv is idempotent and parse/stringify preserves tally and conflicts", [AudienceKind.pipe(S.Array, Arbitrary.schema), S.Boolean.pipe(S.Array, Arbitrary.schema)], ([audience, enabled]) => Effect.sync(() => {
   const values = { audience, human: enabled, agent: [], ci: [] };

@@ -1,7 +1,7 @@
 import * as S from "effect/Schema";
 import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { AudienceKind } from "../../env/Audience.ts";
+import { AudienceKind } from "@beep/runtime-env/Audience";
 import { pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/cli/internal/scanAudience");

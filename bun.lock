@@ -2214,6 +2214,7 @@
       "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/runtime-env": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
@@ -2230,6 +2231,7 @@
       "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/runtime-env": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
@@ -2348,9 +2350,12 @@
       "name": "@beep/runtime-env",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -3876,6 +3881,7 @@
         "@beep/provenance": "workspace:^",
         "@beep/rdf": "workspace:^",
         "@beep/repo-utils": "workspace:^",
+        "@beep/runtime-env": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/semantic-web": "workspace:^",
         "@beep/semver": "workspace:^",

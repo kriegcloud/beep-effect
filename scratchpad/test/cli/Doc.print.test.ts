@@ -1,6 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
-import type { AudienceKind, StreamEnv } from "../../effected/env/index.ts";
-import { Audience, CurrentRuntimeEnv, TerminalEnv } from "../../effected/env/index.ts";
+import type { AudienceKind, StreamEnv } from "@beep/runtime-env";
+import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

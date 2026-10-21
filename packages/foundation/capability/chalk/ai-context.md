@@ -21,7 +21,7 @@ data domains schema-first.
 | `Chalk.ts` | Node/runtime Chalk surface and exports |
 | `internal/ChalkSchema.ts` | Schema-backed public data models |
 | `internal/ChalkRuntime.ts` | Chainable callable builder implementation |
-| `internal/SupportsColor.ts` | Runtime stdout/stderr color detection |
+| `internal/SupportsColor.ts` | Runtime stdout/stderr color detection: argv flags over `@beep/runtime-env` `ColorLevel.fromEnv` |
 
 ## Usage Patterns
 
@@ -42,7 +42,7 @@ console.log(plain.red("offline"))
 
 ## Dependencies
 
-**Internal**: `@beep/identity`, `@beep/schema`
+**Internal**: `@beep/identity`, `@beep/runtime-env`, `@beep/schema`, `@beep/utils`
 **External**: `effect`
 
 ## Related

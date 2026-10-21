@@ -1,7 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
-import { Audience } from "../../../effected/env/index.ts";
+import { Audience } from "@beep/runtime-env";
 import type * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -18,6 +18,7 @@ import { screenAfter } from "../../../effected/cli/ui/testing/terminalModel.ts";
 import { Select, Styled, Tabs, useTerminalSize, useTheme } from "../../../effected/cli/ui.ts";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
 import type { State } from "../helpers/live.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 import {
 	End,
 	SHOW_CURSOR,
@@ -514,7 +515,7 @@ describe("CliUi.live: a stream that dies, a fallback that throws, an agent audie
 			const handle = yield* liveOn(fake, optionsOf(Stream.fromIterable([Start, End]), { render: Styledframe }), {
 				interactive: false,
 				color: "truecolor",
-			}).pipe(Effect.provideService(Audience, Audience.of({ kind: "agent", source: "override" })));
+			}).pipe(Effect.provideService(Audience, Audience.of(AudienceShape.make({ kind: "agent", source: "override" }))));
 			yield* handle.done.pipe(Effect.timeout("2 seconds"), TestClock.withLive);
 			assert.include(fake.stdout(), "ended");
 			assert.notInclude(fake.stdout(), ESC, "no escape of any kind for an agent");
@@ -582,7 +583,7 @@ describe("CliUi.live and CliUi.run for an agent: the provided theme is colourles
 				fake,
 				optionsOf(Stream.fromIterable([Start, End]), { render: () => createElement(AgentProbe) }),
 				{ interactive: false, color: "truecolor" },
-			).pipe(Effect.provideService(Audience, Audience.of({ kind: "agent", source: "override" })));
+			).pipe(Effect.provideService(Audience, Audience.of(AudienceShape.make({ kind: "agent", source: "override" }))));
 			yield* handle.done.pipe(Effect.timeout("2 seconds"), TestClock.withLive);
 			const written = fake.stdout();
 			assert.notInclude(written, ESC, "no escape of any kind for an agent");
@@ -595,7 +596,7 @@ describe("CliUi.live and CliUi.run for an agent: the provided theme is colourles
 	it.effect("a CliUi.run screen for an agent (forced interactive by the harness) gets the same colourless theme", () =>
 		Effect.gen(function* () {
 			const handle = yield* CliUiTest.render(() => createElement(AgentProbe), { color: "truecolor" }).pipe(
-				Effect.provideService(Audience, Audience.of({ kind: "agent", source: "override" })),
+				Effect.provideService(Audience, Audience.of(AudienceShape.make({ kind: "agent", source: "override" }))),
 			);
 			const raw = yield* handle.rawFrame;
 			assert.notMatch(raw, SGR, "no colour escape for an agent");

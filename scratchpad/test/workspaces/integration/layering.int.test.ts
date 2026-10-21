@@ -35,7 +35,7 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // Wave 2a split two modules: the pure halves of `npm` and `tsconfig-json` are
 // `@beep/npm-spec` and `@beep/tsconfig`, and their IO halves stay lab
 // directories, so each package and its lab half fold into the one lab module.
-// Wave 2b promoted `walker` whole as `@beep/walker`.
+// Wave 2b promoted `walker` whole as `@beep/walker` and `env` whole as `@beep/runtime-env`.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
@@ -48,6 +48,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/managed-section": "templates",
 	"@beep/memfs": "memfs",
 	"@beep/npm-spec": "npm",
+	"@beep/runtime-env": "env",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",
 	"@beep/spdx": "spdx",
