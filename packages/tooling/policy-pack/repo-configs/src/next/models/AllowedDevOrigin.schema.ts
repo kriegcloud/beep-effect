@@ -29,12 +29,14 @@ const allowedDevOriginPattern =
  * @since 0.0.0
  */
 export const AllowedDevOrigin = S.Trim.check(
-  S.isPattern(allowedDevOriginPattern, {
-    identifier: $I`AllowedDevOriginPatternCheck`,
-    title: "Allowed Dev Origin",
-    description: "A Next.js dev origin entry must be a hostname or a hostname prefixed with '*.'.",
-    message: "Expected a Next.js allowedDevOrigins hostname entry",
-  })
+  S.isPattern(
+    allowedDevOriginPattern,
+    $I.annote("AllowedDevOriginPatternCheck", {
+      title: "Allowed Dev Origin",
+      description: "A Next.js dev origin entry must be a hostname or a hostname prefixed with '*.'.",
+      message: "Expected a Next.js allowedDevOrigins hostname entry",
+    })
+  )
 ).pipe(
   S.brand("AllowedDevOrigin"),
   $I.annoteSchema("AllowedDevOrigin", {

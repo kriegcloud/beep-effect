@@ -18,13 +18,12 @@ const decodeUrlStringOption = S.decodeUnknownOption(S.URLFromString);
 
 const HttpUrlFormatCheck = S.makeFilter<string>(
   (value) => O.exists(decodeUrlStringOption(value), (url) => url.protocol === "http:" || url.protocol === "https:"),
-  {
-    identifier: $I`HttpUrlFormatCheck`,
+  $I.annote("HttpUrlFormatCheck", {
     title: "HTTP URL Format",
     description: "HTTP URL values must be valid absolute URL strings using the http or https scheme.",
     message: "HTTP URL must be a valid absolute URL using the http or https scheme.",
     arbitraryConstraint: { patterns: [/^https?:\/\/example\.test\/resource\/[a-z0-9]{1,32}$/] },
-  }
+  })
 );
 
 const FolioIriToken = S.NonEmptyString.pipe(
@@ -72,16 +71,20 @@ export type SourceType = typeof SourceType.Type;
 
 const HttpUrlDefinition = S.String.check(
   HttpUrlFormatCheck,
-  S.isMinLength(1, {
-    identifier: $I`HttpUrlMinLengthCheck`,
-    title: "HTTP URL Min Length",
-    description: "HTTP URL values must contain at least one character.",
-  }),
-  S.isMaxLength(2083, {
-    identifier: $I`HttpUrlMaxLengthCheck`,
-    title: "HTTP URL Max Length",
-    description: "HTTP URL values must not exceed 2083 characters.",
-  })
+  S.isMinLength(
+    1,
+    $I.annote("HttpUrlMinLengthCheck", {
+      title: "HTTP URL Min Length",
+      description: "HTTP URL values must contain at least one character.",
+    })
+  ),
+  S.isMaxLength(
+    2083,
+    $I.annote("HttpUrlMaxLengthCheck", {
+      title: "HTTP URL Max Length",
+      description: "HTTP URL values must not exceed 2083 characters.",
+    })
+  )
 );
 
 /**
@@ -139,22 +142,26 @@ export type HttpUrl = typeof HttpUrl.Type;
 export class GraphInfo extends S.Opaque<GraphInfo, { readonly brand: unique symbol }>()(
   S.Struct({
     num_classes: S.Int.check(
-      S.isGreaterThan(0, {
-        identifier: $I`GraphInfoNumClassesPositiveCheck`,
-        title: "FOLIO Graph Class Count Positive",
-        description: "The FOLIO graph class count must be greater than zero.",
-      })
+      S.isGreaterThan(
+        0,
+        $I.annote("GraphInfoNumClassesPositiveCheck", {
+          title: "FOLIO Graph Class Count Positive",
+          description: "The FOLIO graph class count must be greater than zero.",
+        })
+      )
     ).annotateKey({
       title: "Num Classes",
       description: "Total number of ontology classes in the graph",
       examples: [1025],
     }),
     num_properties: S.Int.check(
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`GraphInfoNumPropertiesNonNegativeCheck`,
-        title: "FOLIO Graph Property Count Non-Negative",
-        description: "The FOLIO graph object-property count must be zero or greater.",
-      })
+      S.isGreaterThanOrEqualTo(
+        0,
+        $I.annote("GraphInfoNumPropertiesNonNegativeCheck", {
+          title: "FOLIO Graph Property Count Non-Negative",
+          description: "The FOLIO graph object-property count must be zero or greater.",
+        })
+      )
     ).annotateKey({
       title: "Num Properties",
       description: "Total number of OWL object properties in the graph",

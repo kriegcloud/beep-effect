@@ -10,6 +10,7 @@ import {
 import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { PacketDocument } from "@beep/repo-cli/test/Codex";
 
@@ -205,7 +206,7 @@ describe("codex findings packet neutralizes hostile titles", () => {
 
       // Only unescaped pipes delimit cells. A 5-column row has exactly 6 of them,
       // and the title's own pipe must survive as an escaped literal instead.
-      expect(A.length(row.value.match(/(?<!\\)\|/g) ?? [])).toBe(6);
+      expect(A.length(O.getOrNull(Str.match(/(?<!\\)\|/g)(row.value)) ?? [])).toBe(6);
       expect(row.value).toContain("\\|");
     })
   );
@@ -256,7 +257,7 @@ describe("codex findings packet is deterministic and scan-clean", () => {
 describe("Security Cloud packet guidance", () => {
   it.effect("requires detail enrichment and Fixed closeout without a Chrome dependency", () =>
     Effect.gen(function* () {
-      const record = CodexFindingRecord.make({ ...recordAt(1), codexId: `commit:${"a".repeat(32)}` });
+      const record = CodexFindingRecord.make({ ...recordAt(1), codexId: `commit:${Str.repeat(32)("a")}` });
       const plan = CodexPacketPlan.make({
         ...planWith([record]),
         source: "security-cloud-csv",

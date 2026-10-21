@@ -22,18 +22,19 @@ const dateTimeRegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\
 
 const provObjectRefChecks = S.makeFilterGroup(
   [
-    S.makeFilter((value: string) => iriRegExp.test(value) || curieRegExp.test(value) || localPartRegExp.test(value), {
-      identifier: $I`ProvObjectRefPatternCheck`,
-      title: "PROV Object Reference Pattern",
-      description: "A PROV object reference encoded as an IRI, CURIE, or local identifier.",
-      message: "Object references must be valid IRIs, CURIEs, or local identifiers",
-    }),
+    S.makeFilter(
+      (value: string) => iriRegExp.test(value) || curieRegExp.test(value) || localPartRegExp.test(value),
+      $I.annote("ProvObjectRefPatternCheck", {
+        title: "PROV Object Reference Pattern",
+        description: "A PROV object reference encoded as an IRI, CURIE, or local identifier.",
+        message: "Object references must be valid IRIs, CURIEs, or local identifiers",
+      })
+    ),
   ],
-  {
-    identifier: $I`ProvObjectRefChecks`,
+  $I.annote("ProvObjectRefChecks", {
     title: "PROV Object Reference",
     description: "Checks for PROV object references.",
-  }
+  })
 );
 
 const provDateTimeCanonicalYearCheck = S.makeIsBetween<DateTime.Utc>({
@@ -44,34 +45,36 @@ const provDateTimeCanonicalYearCheck = S.makeIsBetween<DateTime.Utc>({
     minimum: DateTime.makeUnsafe("0000-01-01T00:00:00.000Z"),
     maximum: DateTime.makeUnsafe("9999-12-31T23:59:59.999Z"),
   },
-  {
-    identifier: $I`ProvDateTimeCanonicalYearCheck`,
+  $I.annote("ProvDateTimeCanonicalYearCheck", {
     title: "PROV Canonical Timestamp Year",
     description: "A UTC instant whose canonical encoding fits the existing four-digit PROV timestamp wire format.",
     message: "Expected a UTC instant with a canonical year from 0000 through 9999",
-  }
+  })
 );
 
 const provDateTimeChecks = S.makeFilterGroup(
   [
-    S.isPattern(dateTimeRegExp, {
-      identifier: $I`ProvDateTimePatternCheck`,
-      title: "PROV Date Time Pattern",
-      description: "An ISO 8601 date-time with optional fractional seconds and timezone offset.",
-      message: "Expected an ISO 8601 date-time string",
-    }),
-    S.makeFilter((value: string) => O.isSome(DateTime.make(value)), {
-      identifier: $I`ProvDateTimeParseableCheck`,
-      title: "PROV Date Time Parseable",
-      description: "A date-time string that can be parsed into an Effect DateTime value.",
-      message: "Expected a parseable date-time string",
-    }),
+    S.isPattern(
+      dateTimeRegExp,
+      $I.annote("ProvDateTimePatternCheck", {
+        title: "PROV Date Time Pattern",
+        description: "An ISO 8601 date-time with optional fractional seconds and timezone offset.",
+        message: "Expected an ISO 8601 date-time string",
+      })
+    ),
+    S.makeFilter(
+      (value: string) => O.isSome(DateTime.make(value)),
+      $I.annote("ProvDateTimeParseableCheck", {
+        title: "PROV Date Time Parseable",
+        description: "A date-time string that can be parsed into an Effect DateTime value.",
+        message: "Expected a parseable date-time string",
+      })
+    ),
   ],
-  {
-    identifier: $I`ProvDateTimeChecks`,
+  $I.annote("ProvDateTimeChecks", {
     title: "PROV Date Time",
     description: "Checks for PROV timestamp fields.",
-  }
+  })
 );
 
 /**

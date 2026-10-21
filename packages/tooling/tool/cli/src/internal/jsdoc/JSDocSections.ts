@@ -3,7 +3,7 @@ import { extractFencedCodeBlocks } from "@beep/repo-docgen/Core";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { getSomesStruct } from "@beep/utils/Option";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Regex from "effect/RegExp";
@@ -78,15 +78,17 @@ export const fencedLineState: {
 const jsdocCommentEnd = (sourceText: string, start: number): number => {
   let cursor = start + 3;
   let openFence: string | undefined;
+  const lineBreak = /\n/g;
   while (cursor < sourceText.length) {
-    const nextLineBreak = sourceText.indexOf("\n", cursor);
-    const lineEnd = nextLineBreak === -1 ? sourceText.length : nextLineBreak;
-    const rawLine = sourceText.slice(cursor, lineEnd);
+    lineBreak.lastIndex = cursor;
+    const lineBreakMatch = lineBreak.exec(sourceText);
+    const lineEnd = lineBreakMatch === null ? sourceText.length : lineBreakMatch.index;
+    const rawLine = Str.slice(cursor, lineEnd)(sourceText);
     const line = Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(rawLine));
     const [nextOpenFence, isFenced] = fencedLineState(line, openFence);
     openFence = nextOpenFence;
     if (!isFenced) {
-      const closingOffset = rawLine.indexOf("*/");
+      const closingOffset = O.getOrElse(Str.indexOf("*/")(rawLine), constant(-1));
       if (closingOffset !== -1) {
         return cursor + closingOffset + 2;
       }
@@ -94,6 +96,16 @@ const jsdocCommentEnd = (sourceText: string, start: number): number => {
     cursor = lineEnd + 1;
   }
   return sourceText.length;
+};
+
+// Index of the first character on the line holding `index`, found by walking back to the previous
+// line break (the same result as a positional `lastIndexOf("\n", index - 1) + 1`).
+const lineStartBefore = (sourceText: string, index: number): number => {
+  let lineStart = index;
+  while (lineStart > 0 && sourceText[lineStart - 1] !== "\n") {
+    lineStart -= 1;
+  }
+  return lineStart;
 };
 
 /**
@@ -113,14 +125,16 @@ const jsdocCommentEnd = (sourceText: string, start: number): number => {
 export const jsdocCommentsFromSource = (sourceText: string): ReadonlyArray<string> => {
   const comments: Array<string> = [];
   let cursor = 0;
+  const openers = /\/\*\*/g;
   while (cursor < sourceText.length) {
-    const relativeStart = sourceText.slice(cursor).indexOf("/**");
-    if (relativeStart === -1) {
+    openers.lastIndex = cursor;
+    const openerMatch = openers.exec(sourceText);
+    if (openerMatch === null) {
       break;
     }
-    const start = cursor + relativeStart;
-    const lineStart = sourceText.lastIndexOf("\n", start - 1) + 1;
-    const linePrefix = sourceText.slice(lineStart, start);
+    const start = openerMatch.index;
+    const lineStart = lineStartBefore(sourceText, start);
+    const linePrefix = Str.slice(lineStart, start)(sourceText);
     const afterOpener = sourceText[start + 3];
     const lineLeading = /^[ \t]*$/.test(linePrefix);
     const plausibleBody =
@@ -135,7 +149,7 @@ export const jsdocCommentsFromSource = (sourceText: string): ReadonlyArray<strin
       continue;
     }
     const end = jsdocCommentEnd(sourceText, start);
-    A.appendInPlace(comments, sourceText.slice(start, end));
+    A.appendInPlace(comments, Str.slice(start, end)(sourceText));
     cursor = end;
   }
   return comments;
@@ -159,10 +173,14 @@ export const rawJSDocSpans = (sourceText: string): ReadonlyArray<RawJSDocSpan> =
   const spans: Array<RawJSDocSpan> = [];
   let cursor = 0;
   for (const text of jsdocCommentsFromSource(sourceText)) {
-    const start = sourceText.indexOf(text, cursor);
-    if (start === -1) {
+    // An escaped global pattern finds `text` at or after `cursor`, like a positional indexOf.
+    const occurrence = new RegExp(Regex.escape(text), "g");
+    occurrence.lastIndex = cursor;
+    const match = occurrence.exec(sourceText);
+    if (match === null) {
       break;
     }
+    const start = match.index;
     A.appendInPlace(spans, RawJSDocSpan.make({ start, end: start + text.length, text }));
     cursor = start + text.length;
   }

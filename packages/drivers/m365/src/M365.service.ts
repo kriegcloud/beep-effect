@@ -209,13 +209,15 @@ const isGraphPathSegment = (value: string): boolean =>
  * @since 0.0.0
  */
 export const GraphPathSegment = S.String.check(
-  S.makeFilter(isGraphPathSegment, {
-    identifier: $I`GraphPathSegment`,
-    title: "Graph path segment",
-    description: "A Microsoft Graph path identifier that cannot traverse or inject URL path segments.",
-    message:
-      "Graph path identifiers must be non-empty and must not contain URL delimiters, controls, '..', or percent-encoded input.",
-  })
+  S.makeFilter(
+    isGraphPathSegment,
+    $I.annote("GraphPathSegment", {
+      title: "Graph path segment",
+      description: "A Microsoft Graph path identifier that cannot traverse or inject URL path segments.",
+      message:
+        "Graph path identifiers must be non-empty and must not contain URL delimiters, controls, '..', or percent-encoded input.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("GraphPathSegment", {
     description: "Microsoft Graph path identifier safe for URL path interpolation, excluding pre-encoded segments.",
@@ -2744,12 +2746,14 @@ const UPLOAD_CHUNK_RESOURCE = "attachmentUploadChunks";
 // The session URL carries its own short-lived token in the query string and the bytes
 // go to it unsigned, so anything other than https is refused.
 const GraphUploadUrl = S.String.check(
-  S.makeFilter(Str.startsWith("https://"), {
-    identifier: $I`GraphUploadUrl`,
-    title: "Graph upload URL",
-    description: "An https upload-session URL returned by Microsoft Graph.",
-    message: "Upload session URLs must use https.",
-  })
+  S.makeFilter(
+    Str.startsWith("https://"),
+    $I.annote("GraphUploadUrl", {
+      title: "Graph upload URL",
+      description: "An https upload-session URL returned by Microsoft Graph.",
+      message: "Upload session URLs must use https.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("GraphUploadUrl", {
     description: "Pre-authenticated https upload-session URL returned by Microsoft Graph (never logged).",

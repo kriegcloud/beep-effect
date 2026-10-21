@@ -19,18 +19,19 @@ const rgbaColorPattern = new RegExp(
 
 const RgbaColorStringChecks = S.makeFilterGroup(
   [
-    S.isPattern(rgbaColorPattern, {
-      identifier: $I`RgbaColorStringPatternCheck`,
-      title: "RGBA Color String Pattern",
-      description: "A CSS rgba color string in the form rgba(r, g, b, a).",
-      message: "RGBA colors must look like rgba(255, 255, 255, 1)",
-    }),
+    S.isPattern(
+      rgbaColorPattern,
+      $I.annote("RgbaColorStringPatternCheck", {
+        title: "RGBA Color String Pattern",
+        description: "A CSS rgba color string in the form rgba(r, g, b, a).",
+        message: "RGBA colors must look like rgba(255, 255, 255, 1)",
+      })
+    ),
   ],
-  {
-    identifier: $I`RgbaColorStringChecks`,
+  $I.annote("RgbaColorStringChecks", {
     title: "RGBA Color String",
     description: "Checks for CSS rgba color strings produced by with-alpha transformations.",
-  }
+  })
 );
 
 const mixColorsValue = ({ color1, color2, amount }: MixColorsInput): HexColor => {
@@ -139,12 +140,11 @@ export type RgbaColorString = typeof RgbaColorString.Type;
 export const ColorAmount = S.Finite.check(
   S.isBetween(
     { minimum: 0, maximum: 1 },
-    {
-      identifier: $I`ColorAmountRangeCheck`,
+    $I.annote("ColorAmountRangeCheck", {
       title: "Color Amount Range",
       description: "A normalized color transformation amount from 0 through 1.",
       message: "Color amounts must be between 0 and 1",
-    }
+    })
   )
 ).pipe(
   S.brand("ColorAmount"),

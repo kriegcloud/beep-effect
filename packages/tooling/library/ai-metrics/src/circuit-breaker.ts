@@ -85,8 +85,8 @@ export const circuitBreakerOpenStateDir = (root: string): string => `${root}/ope
  * @category schemas
  * @since 0.0.0
  */
-export const CircuitBreakerProbe = LiteralKit(["op", "gh", "network"]).annotate(
-  $I.annote("CircuitBreakerProbe", {
+export const CircuitBreakerProbe = LiteralKit(["op", "gh", "network"]).pipe(
+  $I.annoteSchema("CircuitBreakerProbe", {
     description: "External dependency classes whose identical retries share breaker state across clones.",
   })
 );
@@ -114,8 +114,8 @@ export type CircuitBreakerProbe = typeof CircuitBreakerProbe.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CircuitBreakerCaller = LiteralKit(["claude-code", "codex-cli", "hook", "operator"]).annotate(
-  $I.annote("CircuitBreakerCaller", {
+export const CircuitBreakerCaller = LiteralKit(["claude-code", "codex-cli", "hook", "operator"]).pipe(
+  $I.annoteSchema("CircuitBreakerCaller", {
     description: "Content-free caller identities admitted by the shared command breaker.",
   })
 );
@@ -143,8 +143,8 @@ export type CircuitBreakerCaller = typeof CircuitBreakerCaller.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CircuitBreakerEventSchemaVersion = LiteralKit(["circuit-breaker-event/v1"]).annotate(
-  $I.annote("CircuitBreakerEventSchemaVersion", {
+export const CircuitBreakerEventSchemaVersion = LiteralKit(["circuit-breaker-event/v1"]).pipe(
+  $I.annoteSchema("CircuitBreakerEventSchemaVersion", {
     description: "Version identifiers accepted by the circuit-breaker event ledger.",
   })
 );
@@ -172,8 +172,8 @@ export type CircuitBreakerEventSchemaVersion = typeof CircuitBreakerEventSchemaV
  * @category schemas
  * @since 0.0.0
  */
-export const CircuitBreakerOpenStateSchemaVersion = LiteralKit(["circuit-breaker-open/v1"]).annotate(
-  $I.annote("CircuitBreakerOpenStateSchemaVersion", {
+export const CircuitBreakerOpenStateSchemaVersion = LiteralKit(["circuit-breaker-open/v1"]).pipe(
+  $I.annoteSchema("CircuitBreakerOpenStateSchemaVersion", {
     description: "Version identifiers accepted by atomic circuit-breaker open state.",
   })
 );

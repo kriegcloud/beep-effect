@@ -335,7 +335,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
         parsedDocument(yield* fs.readFileString(path.join(repoRoot, ".github/workflows/check.yml")))
       );
       expect(jobs.verify?.permissions).toEqual({ contents: "read" });
-      expect(jobs.security?.permissions).toEqual({ contents: "read", actions: "read", "pull-requests": "write" });
+      expect(jobs.security?.permissions).toEqual({ contents: "read", actions: "read" });
       const securitySteps = jobSteps(jobs, "security");
       const hosted = stepByName(securitySteps, "Check hosted settings policy");
       expect(hosted.env).toEqual({ GH_TOKEN: "${{ github.token }}" });
@@ -350,6 +350,50 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       const localPolicy = stepByName(jobSteps(jobs, "verify"), "Check workflow policy");
       expect(localPolicy.env).toBeUndefined();
       expect(localPolicy.run).toBe("bun run beep ci workflow-lint");
+    })
+  );
+
+  // #1882: the dependency review runs PR code on every pull request, forks
+  // included, so it may only ever hold the read-only job token. `pull_request`
+  // (never `pull_request_target`) is what keeps fork tokens read-only and
+  // secrets out of fork runs.
+  it.effect(
+    "runs the manifest-aware dependency review on every pull request with only a read token",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* findRepoRoot();
+      const workflow = parsedDocument(yield* fs.readFileString(path.join(repoRoot, ".github/workflows/check.yml")));
+      const triggers = R.keys(workflow.toJS().on);
+      expect(triggers).toContain("pull_request");
+      expect(triggers).not.toContain("pull_request_target");
+      expect(workflow.toJS().permissions).toEqual({ contents: "read" });
+      expect(workflow.toJS().jobs.security.name).toBe("Security");
+      expect(workflow.toJS().jobs.security.if).toBeUndefined();
+      const jobs = yield* workflowJobs(workflow);
+      expect(jobs.security?.permissions).toEqual({ contents: "read", actions: "read" });
+      const review = stepByName(jobSteps(jobs, "security"), "Dependency review");
+      expect(review.if).toBe("github.event_name == 'pull_request'");
+      expect(review.uses).toBeUndefined();
+      expect(review.with).toBeUndefined();
+      expect(review.env).toEqual({
+        GH_TOKEN: "${{ github.token }}",
+        GH_REPO: "${{ github.repository }}",
+        BASE_SHA: "${{ github.event.pull_request.base.sha }}",
+        HEAD_SHA: "${{ github.event.pull_request.head.sha }}",
+      });
+      expect(review.run).toBe('bun run beep ci dependency-review --base "$BASE_SHA" --head "$HEAD_SHA"');
+      const checkout = stepByName(jobSteps(jobs, "security"), "Checkout repository");
+      expect(stepInputs(checkout)["persist-credentials"]).toBe(false);
+      const text = S.decodeUnknownOption(S.String);
+      assertTrue(
+        A.every(jobSteps(jobs, "security"), (step) =>
+          A.every(
+            [...R.values(stepInputs(step)), ...R.values(stepEnvironment(step)), step.run],
+            (value) => !O.exists(text(value), Str.includes("secrets."))
+          )
+        )
+      );
     })
   );
 

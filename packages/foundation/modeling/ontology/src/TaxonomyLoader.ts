@@ -52,12 +52,14 @@ const $I = $OntologyId.create("TaxonomyLoader");
  * @since 0.0.0
  */
 export const VendorSlicePath = S.NonEmptyString.check(
-  S.makeFilter((path: string) => A.every(Str.split(path, "/"), isFilingSegment), {
-    identifier: $I`VendorSlicePathCheck`,
-    title: "Vendor Slice Path",
-    description: "A vendor-root-relative path whose every component is a safe filing segment.",
-    message: "Vendor slice path must stay inside the vendor root",
-  })
+  S.makeFilter(
+    (path: string) => A.every(Str.split(path, "/"), isFilingSegment),
+    $I.annote("VendorSlicePathCheck", {
+      title: "Vendor Slice Path",
+      description: "A vendor-root-relative path whose every component is a safe filing segment.",
+      message: "Vendor slice path must stay inside the vendor root",
+    })
+  )
 ).pipe(
   $I.annoteSchema("VendorSlicePath", {
     description: "Vendor-root-relative slice path that cannot escape the configured directory.",
@@ -117,21 +119,25 @@ export const VendorLoadKind = LiteralKit(["concept-alignment", "classification-s
 export type VendorLoadKind = typeof VendorLoadKind.Type;
 
 const HttpsIriReference = IRIReference.check(
-  S.makeFilter(Str.startsWith("https://"), {
-    identifier: $I`HttpsIriReferenceCheck`,
-    title: "HTTPS IRI Reference",
-    description: "An absolute IRI reference constrained to the HTTPS scheme.",
-    message: "Expected an absolute HTTPS IRI",
-  })
+  S.makeFilter(
+    Str.startsWith("https://"),
+    $I.annote("HttpsIriReferenceCheck", {
+      title: "HTTPS IRI Reference",
+      description: "An absolute IRI reference constrained to the HTTPS scheme.",
+      message: "Expected an absolute HTTPS IRI",
+    })
+  )
 );
 
 const RepoConceptIri = HttpsIriReference.check(
-  S.makeFilter(Str.startsWith($BeepId.iri), {
-    identifier: $I`RepoConceptIriCheck`,
-    title: "Repository Concept IRI",
-    description: "An absolute concept IRI under the repository identity authority.",
-    message: `Expected a repository concept IRI under ${$BeepId.iri}`,
-  })
+  S.makeFilter(
+    Str.startsWith($BeepId.iri),
+    $I.annote("RepoConceptIriCheck", {
+      title: "Repository Concept IRI",
+      description: "An absolute concept IRI under the repository identity authority.",
+      message: `Expected a repository concept IRI under ${$BeepId.iri}`,
+    })
+  )
 );
 
 /**
@@ -245,12 +251,11 @@ const VendorAlignmentManifestEntryBoundary = VendorAlignmentManifestEntry.check(
         Str.startsWith(entry.namespaceIri)(entry.conceptIri),
         Str.startsWith(entry.namespaceIri)(entry.fetchUrl)
       ),
-    {
-      identifier: $I`VendorAlignmentAuthorityCheck`,
+    $I.annote("VendorAlignmentAuthorityCheck", {
       title: "Vendor Alignment Authority",
       description: "A vendor alignment whose concept and source IRIs remain under its manifested namespace.",
       message: "Vendor concept and source IRIs must remain under the manifested namespace",
-    }
+    })
   )
 );
 

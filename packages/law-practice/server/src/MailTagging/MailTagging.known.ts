@@ -55,12 +55,14 @@ const $I = $LawPracticeServerId.create("MailTagging/MailTagging.known");
 export class KnownDocument extends S.Opaque<KnownDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     sha256: S.String.check(
-      S.isPattern(/^[0-9a-fA-F]{64}$/u, {
-        identifier: $I`KnownDocumentSha256PatternCheck`,
-        title: "Known Document SHA-256",
-        description: "A SHA-256 digest as 64 hexadecimal characters in either case.",
-        message: "Known-document hash must be 64 hexadecimal characters.",
-      })
+      S.isPattern(
+        /^[0-9a-fA-F]{64}$/u,
+        $I.annote("KnownDocumentSha256PatternCheck", {
+          title: "Known Document SHA-256",
+          description: "A SHA-256 digest as 64 hexadecimal characters in either case.",
+          message: "Known-document hash must be 64 hexadecimal characters.",
+        })
+      )
     ).annotateKey({
       description: "SHA-256 of the file's content.",
     }),

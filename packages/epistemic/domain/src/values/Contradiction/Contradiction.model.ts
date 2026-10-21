@@ -350,12 +350,14 @@ class ContradictionBeliefPairStruct extends S.Opaque<
   )
 ) {}
 
-const DistinctBeliefPairCheck = S.makeFilter(beliefsAreDistinct, {
-  identifier: $I`DistinctBeliefPairCheck`,
-  title: "Distinct Contradiction Belief Pair",
-  description: "Checks that the two sides reference different immutable edge-version rows.",
-  message: "Expected left and right to reference different edge versions.",
-});
+const DistinctBeliefPairCheck = S.makeFilter(
+  beliefsAreDistinct,
+  $I.annote("DistinctBeliefPairCheck", {
+    title: "Distinct Contradiction Belief Pair",
+    description: "Checks that the two sides reference different immutable edge-version rows.",
+    message: "Expected left and right to reference different edge versions.",
+  })
+);
 
 const ContradictionBeliefPairSchema = ContradictionBeliefPairStruct.mapFields(identity).check(DistinctBeliefPairCheck);
 
@@ -391,12 +393,11 @@ export class ContradictionBeliefPair extends S.Opaque<ContradictionBeliefPair, {
 const CanonicalBeliefPairCheck = S.makeFilter(
   ({ left, right }: S.Struct.Type<typeof ContradictionBeliefPair.fields>) =>
     beliefRefComesBefore(BeliefVersionRef.make(left), BeliefVersionRef.make(right)),
-  {
-    identifier: $I`CanonicalBeliefPairCheck`,
+  $I.annote("CanonicalBeliefPairCheck", {
     title: "Canonical Contradiction Belief Pair",
     description: "Checks that a persisted contradiction pair is ordered by its stable encoded belief references.",
     message: "Expected the distinct left belief reference to sort before the right belief reference.",
-  }
+  })
 );
 
 const CanonicalContradictionBeliefPairSchema = ContradictionBeliefPair.mapFields(identity)
@@ -524,13 +525,15 @@ export const CONTRADICTION_EVIDENCE_SET_MAX_COUNT = 32;
 export const CONTRADICTION_DETECTOR_MAX_LENGTH = 256;
 
 const ContradictionDetectorIdentity = TrimmedText.check(
-  S.isMaxLength(CONTRADICTION_DETECTOR_MAX_LENGTH, {
-    identifier: $I`ContradictionDetectorIdentityMaximumLengthCheck`,
-    arbitraryConstraint: { patterns: [{ source: "^[a-zA-Z0-9_-]{1,256}$", flags: "" }] },
-    title: "Contradiction Detector Identity Maximum Length",
-    description: "Checks that a contradiction detector identity contains at most 256 UTF-16 code units.",
-    message: "Expected contradiction detector identity to contain at most 256 UTF-16 code units.",
-  })
+  S.isMaxLength(
+    CONTRADICTION_DETECTOR_MAX_LENGTH,
+    $I.annote("ContradictionDetectorIdentityMaximumLengthCheck", {
+      arbitraryConstraint: { patterns: [{ source: "^[a-zA-Z0-9_-]{1,256}$", flags: "" }] },
+      title: "Contradiction Detector Identity Maximum Length",
+      description: "Checks that a contradiction detector identity contains at most 256 UTF-16 code units.",
+      message: "Expected contradiction detector identity to contain at most 256 UTF-16 code units.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ContradictionDetectorIdentity", {
     description: "Trimmed non-empty stable detector identity containing at most 256 UTF-16 code units.",
@@ -539,20 +542,24 @@ const ContradictionDetectorIdentity = TrimmedText.check(
 
 const UniqueNonEmptyEvidenceIds = S.NonEmptyArray(EpistemicIdentity.EvidenceId)
   .check(
-    S.isMaxLength(CONTRADICTION_EVIDENCE_SET_MAX_COUNT, {
-      identifier: $I`UniqueNonEmptyEvidenceIdsMaximumLengthCheck`,
-      title: "Contradiction Evidence Set Maximum Count",
-      description: "Checks that either side of one contradiction retains at most 32 evidence identifiers.",
-      message: "Expected at most 32 EvidenceIds in either contradiction evidence set.",
-    })
+    S.isMaxLength(
+      CONTRADICTION_EVIDENCE_SET_MAX_COUNT,
+      $I.annote("UniqueNonEmptyEvidenceIdsMaximumLengthCheck", {
+        title: "Contradiction Evidence Set Maximum Count",
+        description: "Checks that either side of one contradiction retains at most 32 evidence identifiers.",
+        message: "Expected at most 32 EvidenceIds in either contradiction evidence set.",
+      })
+    )
   )
   .check(
-    S.makeFilter(hasUniqueEvidenceIds, {
-      identifier: $I`UniqueNonEmptyEvidenceIdsCheck`,
-      title: "Unique Non-Empty Evidence IDs",
-      description: "Checks that an evidence set contains at least one id and never repeats an id.",
-      message: "Expected every EvidenceId in the non-empty evidence set to be unique.",
-    })
+    S.makeFilter(
+      hasUniqueEvidenceIds,
+      $I.annote("UniqueNonEmptyEvidenceIdsCheck", {
+        title: "Unique Non-Empty Evidence IDs",
+        description: "Checks that an evidence set contains at least one id and never repeats an id.",
+        message: "Expected every EvidenceId in the non-empty evidence set to be unique.",
+      })
+    )
   )
   .pipe(
     $I.annoteSchema("UniqueNonEmptyEvidenceIds", {
@@ -604,12 +611,11 @@ const IndependentEvidenceSetsCheck = S.makeFilter(
       "independent-evidence": () => evidenceSetsAreDisjoint(basis),
       "same-source-overlap": () => true,
     }),
-  {
-    identifier: $I`IndependentEvidenceSetsCheck`,
+  $I.annote("IndependentEvidenceSetsCheck", {
     title: "Independent Contradiction Evidence Sets",
     description: "Checks that independent-evidence candidates never reuse one EvidenceId on both sides.",
     message: "Expected left and right evidence sets to be disjoint for an independent-evidence match.",
-  }
+  })
 );
 
 const ContradictionMatchBasisSchema =
@@ -718,13 +724,15 @@ const isBoundedProposalFact = (fact: S.JsonObject): boolean => {
 };
 
 const ContradictionProposalFact = S.JsonObject.check(
-  S.makeFilter(isBoundedProposalFact, {
-    identifier: $I`ContradictionProposalFactBoundsCheck`,
-    title: "Bounded Contradiction Proposal Fact",
-    description:
-      "Checks replacement facts before digesting: at most 64 KiB canonical UTF-8, 4,096 JSON nodes, and 32 levels.",
-    message: "Expected a bounded contradiction proposal fact.",
-  })
+  S.makeFilter(
+    isBoundedProposalFact,
+    $I.annote("ContradictionProposalFactBoundsCheck", {
+      title: "Bounded Contradiction Proposal Fact",
+      description:
+        "Checks replacement facts before digesting: at most 64 KiB canonical UTF-8, 4,096 JSON nodes, and 32 levels.",
+      message: "Expected a bounded contradiction proposal fact.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ContradictionProposalFact", {
     description: "JSON-safe replacement fact bounded before canonicalization, hashing, persistence, and display.",
@@ -732,13 +740,15 @@ const ContradictionProposalFact = S.JsonObject.check(
 );
 
 const ContradictionProposalRationale = TrimmedText.check(
-  S.isMaxLength(CONTRADICTION_PROPOSAL_RATIONALE_MAX_LENGTH, {
-    identifier: $I`ContradictionProposalRationaleMaximumLengthCheck`,
-    arbitraryConstraint: { patterns: [{ source: "^[a-zA-Z0-9_-]{1,2000}$", flags: "" }] },
-    title: "Contradiction Proposal Rationale Maximum Length",
-    description: "Checks that a detector-supplied proposal rationale contains at most 2,000 characters.",
-    message: "Expected contradiction proposal rationale to contain at most 2,000 characters.",
-  })
+  S.isMaxLength(
+    CONTRADICTION_PROPOSAL_RATIONALE_MAX_LENGTH,
+    $I.annote("ContradictionProposalRationaleMaximumLengthCheck", {
+      arbitraryConstraint: { patterns: [{ source: "^[a-zA-Z0-9_-]{1,2000}$", flags: "" }] },
+      title: "Contradiction Proposal Rationale Maximum Length",
+      description: "Checks that a detector-supplied proposal rationale contains at most 2,000 characters.",
+      message: "Expected contradiction proposal rationale to contain at most 2,000 characters.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ContradictionProposalRationale", {
     description: "Trimmed non-empty detector-supplied proposal rationale containing at most 2,000 characters.",
@@ -832,11 +842,12 @@ type ValidInterval = {
 };
 
 const ContradictionResolutionProposalSchema = ContradictionResolutionProposalStruct.mapFields(identity).check(
-  makeValidIntervalCheck({
-    identifier: $I`ContradictionResolutionProposalValidIntervalCheck`,
-    title: "Contradiction Resolution Proposal Valid Interval",
-    description: "Checks that a closed proposal validity interval is a non-empty forward half-open range.",
-  })
+  makeValidIntervalCheck(
+    $I.annote("ContradictionResolutionProposalValidIntervalCheck", {
+      title: "Contradiction Resolution Proposal Valid Interval",
+      description: "Checks that a closed proposal validity interval is a non-empty forward half-open range.",
+    })
+  )
 );
 
 /**
@@ -888,20 +899,24 @@ export const CONTRADICTION_PROPOSAL_MAX_COUNT = 32;
 
 const UniqueNonEmptyContradictionProposals = S.NonEmptyArray(ContradictionResolutionProposal)
   .check(
-    S.isMaxLength(CONTRADICTION_PROPOSAL_MAX_COUNT, {
-      identifier: $I`UniqueNonEmptyContradictionProposalsMaximumLengthCheck`,
-      title: "Contradiction Proposal Maximum Count",
-      description: "Checks that one candidate retains at most 32 human-reviewable proposals.",
-      message: "Expected at most 32 contradiction proposals.",
-    })
+    S.isMaxLength(
+      CONTRADICTION_PROPOSAL_MAX_COUNT,
+      $I.annote("UniqueNonEmptyContradictionProposalsMaximumLengthCheck", {
+        title: "Contradiction Proposal Maximum Count",
+        description: "Checks that one candidate retains at most 32 human-reviewable proposals.",
+        message: "Expected at most 32 contradiction proposals.",
+      })
+    )
   )
   .check(
-    S.makeFilter(hasUniqueProposalIds, {
-      identifier: $I`UniqueNonEmptyContradictionProposalsCheck`,
-      title: "Unique Non-Empty Contradiction Proposals",
-      description: "Checks that an assessment has at least one proposal and never repeats a proposal id.",
-      message: "Expected every proposalId in the non-empty proposal collection to be unique.",
-    })
+    S.makeFilter(
+      hasUniqueProposalIds,
+      $I.annote("UniqueNonEmptyContradictionProposalsCheck", {
+        title: "Unique Non-Empty Contradiction Proposals",
+        description: "Checks that an assessment has at least one proposal and never repeats a proposal id.",
+        message: "Expected every proposalId in the non-empty proposal collection to be unique.",
+      })
+    )
   )
   .pipe(
     $I.annoteSchema("UniqueNonEmptyContradictionProposals", {
@@ -1025,12 +1040,14 @@ export const CONTRADICTION_REVIEW_REASON_MAX_LENGTH = 2_000;
  * @since 0.0.0
  */
 export const ContradictionReviewReason = TrimmedText.check(
-  S.isMaxLength(CONTRADICTION_REVIEW_REASON_MAX_LENGTH, {
-    identifier: $I`ContradictionReviewReasonMaximumLengthCheck`,
-    title: "Contradiction Review Reason Maximum Length",
-    description: "Checks that a normalized contradiction review reason contains at most 2,000 characters.",
-    message: "Expected contradiction review reason to contain at most 2,000 characters",
-  })
+  S.isMaxLength(
+    CONTRADICTION_REVIEW_REASON_MAX_LENGTH,
+    $I.annote("ContradictionReviewReasonMaximumLengthCheck", {
+      title: "Contradiction Review Reason Maximum Length",
+      description: "Checks that a normalized contradiction review reason contains at most 2,000 characters.",
+      message: "Expected contradiction review reason to contain at most 2,000 characters",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ContradictionReviewReason", {
     description: "Trimmed non-empty human review rationale containing at most 2,000 characters.",
@@ -1458,11 +1475,12 @@ class ContradictionCandidateContentStruct extends S.Opaque<
 ) {}
 
 const ContradictionCandidateContentSchema = ContradictionCandidateContentStruct.mapFields(identity).check(
-  makeValidIntervalCheck({
-    identifier: $I`ContradictionCandidateContentValidIntervalCheck`,
-    title: "Contradiction Candidate Valid Interval",
-    description: "Checks that a closed candidate validity interval is a non-empty forward half-open range.",
-  })
+  makeValidIntervalCheck(
+    $I.annote("ContradictionCandidateContentValidIntervalCheck", {
+      title: "Contradiction Candidate Valid Interval",
+      description: "Checks that a closed candidate validity interval is a non-empty forward half-open range.",
+    })
+  )
 );
 
 /**

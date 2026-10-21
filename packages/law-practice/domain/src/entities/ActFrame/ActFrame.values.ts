@@ -189,13 +189,15 @@ export type PositionDerivationKind = typeof PositionDerivationKind.Type;
 const hasDerivationKind = (kinds: HashSet.HashSet<PositionDerivationKind>): boolean => !HashSet.isEmpty(kinds);
 
 const PositionDerivationKinds = PositionDerivationKind.pipe(S.HashSet, S.toCodecJson).check(
-  S.makeFilter(hasDerivationKind, {
-    identifier: $I`PositionDerivationKindsCheck`,
-    arbitraryConstraint: { minSize: 1 },
-    title: "Position Derivation Kinds",
-    description: "An act frame must record at least one way it derives positions.",
-    message: "Expected at least one position derivation kind.",
-  })
+  S.makeFilter(
+    hasDerivationKind,
+    $I.annote("PositionDerivationKindsCheck", {
+      arbitraryConstraint: { minSize: 1 },
+      title: "Position Derivation Kinds",
+      description: "An act frame must record at least one way it derives positions.",
+      message: "Expected at least one position derivation kind.",
+    })
+  )
 );
 
 /**
@@ -518,26 +520,32 @@ export class PositionTransition extends S.Opaque<PositionTransition, { readonly 
  * @since 0.0.0
  */
 export const ActFrameSlots = S.NonEmptyArray(ActFrameSlot).check(
-  S.makeFilter(hasDistinctLabels, {
-    identifier: $I`ActFrameElementLabelsCheck`,
+  S.makeFilter(
+    hasDistinctLabels,
+    $I.annote("ActFrameElementLabelsCheck", {
+      title: "Act Frame Element Labels",
+      description: "An act frame's elements must carry distinct labels within the part they belong to.",
+      message: "Expected act frame element labels within a part to be distinct.",
+    })
+  ),
+  S.makeFilter(
+    hasActorSlot,
+    $I.annote("ActFrameActorSlotCheck", {
+      title: "Act Frame Actor Slot",
+      description: "An act frame must name the slot the act is done by.",
+      message: "Expected an act frame to carry a slot of kind actor.",
+    })
+  )
+);
+
+const DistinctLabels = S.makeFilter(
+  hasDistinctLabels,
+  $I.annote("ActFrameElementLabelsCheck", {
     title: "Act Frame Element Labels",
     description: "An act frame's elements must carry distinct labels within the part they belong to.",
     message: "Expected act frame element labels within a part to be distinct.",
-  }),
-  S.makeFilter(hasActorSlot, {
-    identifier: $I`ActFrameActorSlotCheck`,
-    title: "Act Frame Actor Slot",
-    description: "An act frame must name the slot the act is done by.",
-    message: "Expected an act frame to carry a slot of kind actor.",
   })
 );
-
-const DistinctLabels = S.makeFilter(hasDistinctLabels, {
-  identifier: $I`ActFrameElementLabelsCheck`,
-  title: "Act Frame Element Labels",
-  description: "An act frame's elements must carry distinct labels within the part they belong to.",
-  message: "Expected act frame element labels within a part to be distinct.",
-});
 
 /**
  * Frame preconditions constrained to distinct element labels.

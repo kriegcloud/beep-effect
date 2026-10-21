@@ -27,7 +27,7 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
@@ -43,7 +43,7 @@ const summaryEquivalent = S.toEquivalence(TurboRunSummary);
 const task = (taskId: string, hash: string, status: "HIT" | "MISS", exitCode: number | null = 0) =>
   TurboSummaryTask.make({
     taskId,
-    task: taskId.slice(taskId.indexOf("#") + 1),
+    task: Str.slice(O.getOrElse(Str.indexOf("#")(taskId), constant(-1)) + 1)(taskId),
     hash,
     cache: { status },
     ...(status === "HIT" ? {} : { execution: { exitCode } }),

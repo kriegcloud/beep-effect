@@ -79,8 +79,8 @@ export class WorktreeListEntry extends S.Opaque<WorktreeListEntry, { readonly br
  * @category models
  * @since 0.0.0
  */
-export const WorktreeResidueReason = LiteralKit(["dirty", "unpushed-commits", "dirty+unpushed", "clean"]).annotate(
-  $I.annote("WorktreeResidueReason", {
+export const WorktreeResidueReason = LiteralKit(["dirty", "unpushed-commits", "dirty+unpushed", "clean"]).pipe(
+  $I.annoteSchema("WorktreeResidueReason", {
     description: "Reason a worktree retirement did or did not require residue preservation.",
   })
 );
@@ -120,8 +120,8 @@ export const WorktreePreservationStep = LiteralKit([
   "write-tracked-patch",
   "copy-untracked-files",
   "write-manifest",
-]).annotate(
-  $I.annote("WorktreePreservationStep", {
+]).pipe(
+  $I.annoteSchema("WorktreePreservationStep", {
     description: "Named preservation step that can abort archive retirement before worktree removal.",
   })
 );
@@ -153,12 +153,14 @@ const worktreeRepositoryHashPattern = /^[0-9a-f]{12}$/u;
  * @since 0.0.0
  */
 export const WorktreeRepositoryHash = S.String.check(
-  S.isPattern(worktreeRepositoryHashPattern, {
-    identifier: $I`WorktreeRepositoryHashCheck`,
-    title: "Worktree repository hash",
-    description: "A lowercase 12-hex prefix of the absolute main-checkout SHA-256 digest.",
-    message: "Worktree repository hash must contain exactly 12 lowercase hexadecimal characters",
-  })
+  S.isPattern(
+    worktreeRepositoryHashPattern,
+    $I.annote("WorktreeRepositoryHashCheck", {
+      title: "Worktree repository hash",
+      description: "A lowercase 12-hex prefix of the absolute main-checkout SHA-256 digest.",
+      message: "Worktree repository hash must contain exactly 12 lowercase hexadecimal characters",
+    })
+  )
 ).pipe(
   S.brand("WorktreeRepositoryHash"),
   $I.annoteSchema("WorktreeRepositoryHash", {
@@ -723,7 +725,7 @@ type PorcelainAccumulator = {
 };
 
 const stripRefsHeads = (ref: string): string =>
-  Str.startsWith(REFS_HEADS_PREFIX)(ref) ? ref.slice(REFS_HEADS_PREFIX.length) : ref;
+  Str.startsWith(REFS_HEADS_PREFIX)(ref) ? Str.slice(REFS_HEADS_PREFIX.length)(ref) : ref;
 
 const accumulatorEntry = (accumulator: PorcelainAccumulator): WorktreeListEntry =>
   WorktreeListEntry.make({
@@ -737,9 +739,9 @@ const accumulatorEntry = (accumulator: PorcelainAccumulator): WorktreeListEntry 
 
 const applyPorcelainAttribute = (current: PorcelainAccumulator, line: string): void => {
   if (Str.startsWith("HEAD ")(line)) {
-    current.head = line.slice("HEAD ".length);
+    current.head = Str.slice("HEAD ".length)(line);
   } else if (Str.startsWith("branch ")(line)) {
-    current.branch = stripRefsHeads(line.slice("branch ".length));
+    current.branch = stripRefsHeads(Str.slice("branch ".length)(line));
   } else if (line === "detached") {
     current.detached = true;
   } else if (line === "locked" || Str.startsWith("locked ")(line)) {
@@ -759,7 +761,7 @@ const porcelainBlocks = (lines: ReadonlyArray<string>): ReadonlyArray<PorcelainB
   const blocks: Array<PorcelainBlock> = [];
   for (const line of lines) {
     if (Str.startsWith(WORKTREE_PREFIX)(line)) {
-      blocks.push({ path: line.slice(WORKTREE_PREFIX.length), attributes: [] });
+      blocks.push({ path: Str.slice(WORKTREE_PREFIX.length)(line), attributes: [] });
       continue;
     }
     const current = blocks[blocks.length - 1];

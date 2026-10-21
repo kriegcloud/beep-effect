@@ -61,7 +61,9 @@ Keep `Schema` as the source of truth for pure data models.
   `standards/architecture/DECISIONS.md` "Upstream-First Foundation/Modeling").
 - Move normalization, defaults, nullable handling, and JSON parsing into the
   schema.
-- Annotate reusable schemas with `$I.annote(...)`.
+- Annotate reusable non-class schemas with `.pipe($I.annoteSchema(...))`
+  (`LiteralKit` included); classes take `$I.annote(...)` as their trailing
+  argument.
 - Derive guards, equivalence, arbitraries, codecs, tagged-union helpers, and
   literal helpers from the schema instead of writing parallel helpers.
 - Prefer Effect schema codecs; map schema errors with `Effect.mapError(...)`

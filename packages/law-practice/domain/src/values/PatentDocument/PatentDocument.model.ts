@@ -107,8 +107,8 @@ export const PatentClaimTransition = LiteralKit([
  */
 export type PatentClaimTransition = typeof PatentClaimTransition.Type;
 
-const PatentClaimType = LiteralKit(["independent", "dependent"]).annotate(
-  $I.annote("PatentClaimType", {
+const PatentClaimType = LiteralKit(["independent", "dependent"]).pipe(
+  $I.annoteSchema("PatentClaimType", {
     description: "Independent and dependent patent claim variants.",
   })
 );
@@ -402,11 +402,10 @@ export const inspectPatentClaimDependencies = (
 const PatentClaimStructureCheck = S.makeFilter(
   (claims: ReadonlyArray<PatentClaim>): S.FilterOutput =>
     A.map(inspectPatentClaimDependencies(claims), dependencyIssueMessage),
-  {
-    identifier: $I`PatentClaimStructureCheck`,
+  $I.annote("PatentClaimStructureCheck", {
     title: "Valid patent claim dependency graph",
     description: "Patent claims are consecutively numbered and form an acyclic graph over existing prior claims.",
-  }
+  })
 );
 
 /**
@@ -551,11 +550,10 @@ const sectionIssueMessage = (issue: typeof PatentApplicationSectionIssue.Type): 
 const PatentApplicationSectionOrderCheck = S.makeFilter(
   (sections: ReadonlyArray<PatentApplicationSection>): S.FilterOutput =>
     A.map(inspectPatentApplicationSections(sections), sectionIssueMessage),
-  {
-    identifier: $I`PatentApplicationSectionOrderCheck`,
+  $I.annote("PatentApplicationSectionOrderCheck", {
     title: "Ordered patent application sections",
     description: "Patent application section roles are unique and retain their relative 37 CFR 1.77(b) order.",
-  }
+  })
 );
 
 /**
@@ -627,12 +625,11 @@ const PatentApplicationDocumentCoherenceCheck = S.makeFilter(
       claimsAlign ? O.none<string>() : O.some("Every patent claim must align to the normalized source text."),
     ]);
   },
-  {
-    identifier: $I`PatentApplicationDocumentCoherenceCheck`,
+  $I.annote("PatentApplicationDocumentCoherenceCheck", {
     title: "Coherent patent application document",
     description:
       "A patent application has a claims section and every typed claim aligns to its normalized source text.",
-  }
+  })
 );
 
 /**

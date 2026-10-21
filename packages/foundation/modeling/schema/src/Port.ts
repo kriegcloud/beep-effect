@@ -20,23 +20,24 @@ const PortRange = S.isBetween(
     minimum: portMinimum,
     maximum: portMaximum,
   },
-  {
-    identifier: $I`PortRangeCheck`,
+  $I.annote("PortRangeCheck", {
     title: "Port Range",
     description: "A transport-layer port number in the inclusive range 1 through 65535.",
     expected: "a transport protocol port number",
     message: "Expected a valid transport port number between 1 and 65535",
-  }
+  })
 );
 
 const PortDecimalString = S.String.check(
-  S.isPattern(decimalIntegerPattern, {
-    identifier: $I`PortDecimalStringCheck`,
-    title: "Port Decimal String",
-    description: "A base-10 integer string used to decode a transport-layer port number.",
-    expected: "a decimal integer string",
-    message: "Port strings must contain only ASCII decimal digits",
-  })
+  S.isPattern(
+    decimalIntegerPattern,
+    $I.annote("PortDecimalStringCheck", {
+      title: "Port Decimal String",
+      description: "A base-10 integer string used to decode a transport-layer port number.",
+      expected: "a decimal integer string",
+      message: "Port strings must contain only ASCII decimal digits",
+    })
+  )
 ).pipe(
   $I.annoteSchema("PortDecimalString", {
     description: "A decimal integer string accepted before port number decoding.",

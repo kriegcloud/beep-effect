@@ -140,12 +140,14 @@ export class CiLanePartitionShard extends S.Opaque<CiLanePartitionShard, { reado
     total: S.Int.check(S.isGreaterThanOrEqualTo(2)),
   })
     .check(
-      S.makeFilter((shard: { readonly index: number; readonly total: number }) => shard.index <= shard.total, {
-        identifier: $I`CiLanePartitionShardIndexBoundCheck`,
-        title: "CI Lane Partition Shard Index Bound",
-        description: "Checks that a Vitest shard index never exceeds its shard total.",
-        message: "Shard index must not exceed the shard total.",
-      })
+      S.makeFilter(
+        (shard: { readonly index: number; readonly total: number }) => shard.index <= shard.total,
+        $I.annote("CiLanePartitionShardIndexBoundCheck", {
+          title: "CI Lane Partition Shard Index Bound",
+          description: "Checks that a Vitest shard index never exceeds its shard total.",
+          message: "Shard index must not exceed the shard total.",
+        })
+      )
     )
     .pipe(
       $I.annoteSchema("CiLanePartitionShard", {

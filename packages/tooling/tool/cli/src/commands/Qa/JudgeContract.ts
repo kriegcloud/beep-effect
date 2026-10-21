@@ -392,12 +392,11 @@ const EvidenceCrossCheckCleanDeniedFields = S.Struct({
 const EvidenceCrossCheckHasMissingCitation = S.makeFilter(
   (detail: typeof EvidenceCrossCheckCleanDeniedFields.Type) =>
     A.isReadonlyArrayNonEmpty(detail.missingPaths) || A.isReadonlyArrayNonEmpty(detail.missingEventIds),
-  {
-    identifier: $I`EvidenceCrossCheckHasMissingCitation`,
+  $I.annote("EvidenceCrossCheckHasMissingCitation", {
     title: "Evidence cross-check has a missing citation",
     description: "A denied aggregate cross-check names at least one missing artifact or event id.",
     message: "Expected at least one missing artifact path or event id",
-  }
+  })
 );
 
 class EvidenceCrossCheckCleanDenied extends S.Opaque<

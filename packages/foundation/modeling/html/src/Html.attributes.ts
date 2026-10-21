@@ -88,12 +88,14 @@ export const makeAsciiCaseInsensitiveEnumerated = <const Values extends readonly
   const findCanonical = (value: string) =>
     A.findFirst(values, flow(toAsciiLowerCase, Eq.equals(toAsciiLowerCase(value))));
   const Input = S.String.check(
-    S.makeFilter(flow(findCanonical, O.isSome), {
-      identifier: $I`AsciiCaseInsensitiveEnumeratedCheck`,
-      title: "ASCII Case-Insensitive HTML Enumerated Attribute",
-      description: "Checks a keyword against an explicit HTML enumerated-attribute domain.",
-      message: "Expected a permitted HTML enumerated-attribute keyword",
-    })
+    S.makeFilter(
+      flow(findCanonical, O.isSome),
+      $I.annote("AsciiCaseInsensitiveEnumeratedCheck", {
+        title: "ASCII Case-Insensitive HTML Enumerated Attribute",
+        description: "Checks a keyword against an explicit HTML enumerated-attribute domain.",
+        message: "Expected a permitted HTML enumerated-attribute keyword",
+      })
+    )
   );
 
   return Input.pipe(
@@ -868,12 +870,14 @@ const BuiltInButtonCommand = makeAsciiCaseInsensitiveEnumerated([
   "show-modal",
 ]);
 const CustomButtonCommand = S.String.check(
-  S.makeFilter(Str.startsWith("--"), {
-    identifier: $I`CustomButtonCommandCheck`,
-    title: "Custom Button Command",
-    description: "Checks a case-preserving custom button command beginning with two hyphens.",
-    message: "Expected a custom command beginning with --",
-  })
+  S.makeFilter(
+    Str.startsWith("--"),
+    $I.annote("CustomButtonCommandCheck", {
+      title: "Custom Button Command",
+      description: "Checks a case-preserving custom button command beginning with two hyphens.",
+      message: "Expected a custom command beginning with --",
+    })
+  )
 );
 
 /**
@@ -976,12 +980,14 @@ export type HeadingOffset = typeof HeadingOffset.Type;
  * @since 0.0.0
  */
 export const HtmlNonNegativeInteger = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`HtmlNonNegativeIntegerCheck`,
-    title: "HTML Non-Negative Integer",
-    description: "Checks the HTML non-negative integer microsyntax.",
-    message: "Expected a non-negative integer",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("HtmlNonNegativeIntegerCheck", {
+      title: "HTML Non-Negative Integer",
+      description: "Checks the HTML non-negative integer microsyntax.",
+      message: "Expected a non-negative integer",
+    })
+  )
 ).pipe(
   $I.annoteSchema("HtmlNonNegativeInteger", {
     description: "Integer accepted by the HTML non-negative integer microsyntax.",
@@ -1021,12 +1027,14 @@ export type HtmlNonNegativeInteger = typeof HtmlNonNegativeInteger.Type;
  * @since 0.0.0
  */
 export const HtmlPositiveInteger = S.Int.check(
-  S.isGreaterThan(0, {
-    identifier: $I`HtmlPositiveIntegerCheck`,
-    title: "HTML Positive Integer",
-    description: "Checks the HTML positive integer microsyntax.",
-    message: "Expected a positive integer",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("HtmlPositiveIntegerCheck", {
+      title: "HTML Positive Integer",
+      description: "Checks the HTML positive integer microsyntax.",
+      message: "Expected a positive integer",
+    })
+  )
 ).pipe(
   $I.annoteSchema("HtmlPositiveInteger", {
     description: "Integer accepted by the HTML positive integer microsyntax.",
@@ -1106,12 +1114,14 @@ export type HtmlFiniteNumber = typeof HtmlFiniteNumber.Type;
  * @since 0.0.0
  */
 export const HtmlNonNegativeNumber = HtmlFiniteNumber.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`HtmlNonNegativeNumberCheck`,
-    title: "HTML Non-Negative Number",
-    description: "Checks a finite HTML number greater than or equal to zero.",
-    message: "Expected a non-negative finite number",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("HtmlNonNegativeNumberCheck", {
+      title: "HTML Non-Negative Number",
+      description: "Checks a finite HTML number greater than or equal to zero.",
+      message: "Expected a non-negative finite number",
+    })
+  )
 ).pipe(
   $I.annoteSchema("HtmlNonNegativeNumber", {
     description: "Non-negative finite number accepted by an HTML numeric attribute.",
@@ -1152,12 +1162,14 @@ export type HtmlNonNegativeNumber = typeof HtmlNonNegativeNumber.Type;
  * @since 0.0.0
  */
 export const HtmlPositiveNumber = HtmlFiniteNumber.check(
-  S.isGreaterThan(0, {
-    identifier: $I`HtmlPositiveNumberCheck`,
-    title: "HTML Positive Number",
-    description: "Checks a finite HTML number greater than zero.",
-    message: "Expected a positive finite number",
-  })
+  S.isGreaterThan(
+    0,
+    $I.annote("HtmlPositiveNumberCheck", {
+      title: "HTML Positive Number",
+      description: "Checks a finite HTML number greater than zero.",
+      message: "Expected a positive finite number",
+    })
+  )
 ).pipe(
   $I.annoteSchema("HtmlPositiveNumber", {
     description: "Positive finite number accepted by an HTML numeric attribute.",
@@ -1305,20 +1317,24 @@ export const makeSpaceSeparatedTokenList = <const Tokens extends readonly [strin
   );
 
   const Input = S.String.check(
-    S.makeFilter(isAllowed, {
-      identifier: $I`SpaceSeparatedTokenListCheck`,
-      title: "Space-Separated HTML Token List",
-      description: "Checks a whitespace-separated list against an explicit token domain.",
-      message: "Expected a space-separated list of unique permitted tokens",
-    })
+    S.makeFilter(
+      isAllowed,
+      $I.annote("SpaceSeparatedTokenListCheck", {
+        title: "Space-Separated HTML Token List",
+        description: "Checks a whitespace-separated list against an explicit token domain.",
+        message: "Expected a space-separated list of unique permitted tokens",
+      })
+    )
   );
   const Canonical = S.String.check(
-    S.makeFilter((value) => value === normalize(value), {
-      identifier: $I`CanonicalSpaceSeparatedTokenListCheck`,
-      title: "Canonical Space-Separated HTML Token List",
-      description: "Checks lowercase tokens in registry order with one separating space.",
-      message: "Expected canonical token order and spacing",
-    })
+    S.makeFilter(
+      (value) => value === normalize(value),
+      $I.annote("CanonicalSpaceSeparatedTokenListCheck", {
+        title: "Canonical Space-Separated HTML Token List",
+        description: "Checks lowercase tokens in registry order with one separating space.",
+        message: "Expected canonical token order and spacing",
+      })
+    )
   );
 
   return Input.pipe(
@@ -1349,20 +1365,24 @@ const makeOpenSpaceSeparatedTokenList = (
     return A.dedupe(tokens).length === tokens.length && (rawIsAllowed === undefined || rawIsAllowed(value));
   };
   const Input = S.String.check(
-    S.makeFilter(hasUniqueTokens, {
-      identifier: $I`OpenSpaceSeparatedTokenListCheck`,
-      title: "Open Space-Separated HTML Token List",
-      description: "Checks an open HTML token list for duplicate tokens.",
-      message: "Expected a space-separated list of unique tokens",
-    })
+    S.makeFilter(
+      hasUniqueTokens,
+      $I.annote("OpenSpaceSeparatedTokenListCheck", {
+        title: "Open Space-Separated HTML Token List",
+        description: "Checks an open HTML token list for duplicate tokens.",
+        message: "Expected a space-separated list of unique tokens",
+      })
+    )
   );
   const Canonical = S.String.check(
-    S.makeFilter((value) => value === normalize(value) && hasUniqueTokens(value), {
-      identifier: $I`CanonicalOpenSpaceSeparatedTokenListCheck`,
-      title: "Canonical Open Space-Separated HTML Token List",
-      description: "Checks an open HTML token list at its canonical whitespace and case fixed point.",
-      message: "Expected canonical token spelling and spacing",
-    })
+    S.makeFilter(
+      (value) => value === normalize(value) && hasUniqueTokens(value),
+      $I.annote("CanonicalOpenSpaceSeparatedTokenListCheck", {
+        title: "Canonical Open Space-Separated HTML Token List",
+        description: "Checks an open HTML token list at its canonical whitespace and case fixed point.",
+        message: "Expected canonical token spelling and spacing",
+      })
+    )
   );
   return Input.pipe(
     S.decodeTo(
@@ -1516,20 +1536,24 @@ export const HtmlIdReferenceList = makeOpenSpaceSeparatedTokenList(false).pipe(
 export type HtmlIdReferenceList = typeof HtmlIdReferenceList.Type;
 
 const MetadataNameInput = S.String.check(
-  S.isPattern(/^[^\t\n\f\r ]+$/u, {
-    identifier: $I`MetadataNameInputCheck`,
-    title: "HTML Metadata Name",
-    description: "Checks a non-empty HTML metadata name token.",
-    message: "Expected a non-empty metadata name without ASCII whitespace",
-  })
+  S.isPattern(
+    /^[^\t\n\f\r ]+$/u,
+    $I.annote("MetadataNameInputCheck", {
+      title: "HTML Metadata Name",
+      description: "Checks a non-empty HTML metadata name token.",
+      message: "Expected a non-empty metadata name without ASCII whitespace",
+    })
+  )
 );
 const CanonicalMetadataName = MetadataNameInput.check(
-  S.makeFilter((value) => value === toAsciiLowerCase(value), {
-    identifier: $I`CanonicalMetadataNameCheck`,
-    title: "Canonical HTML Metadata Name",
-    description: "Checks the ASCII-lowercase fixed point of a metadata name.",
-    message: "Expected an ASCII-lowercase metadata name",
-  })
+  S.makeFilter(
+    (value) => value === toAsciiLowerCase(value),
+    $I.annote("CanonicalMetadataNameCheck", {
+      title: "Canonical HTML Metadata Name",
+      description: "Checks the ASCII-lowercase fixed point of a metadata name.",
+      message: "Expected an ASCII-lowercase metadata name",
+    })
+  )
 );
 
 /**
@@ -1592,21 +1616,25 @@ const normalizeAutocompleteAttribute: (value: string) => string = flow(
 );
 
 const AutocompleteAttributeInput = S.String.check(
-  S.makeFilter((value) => autocompleteAttributePattern.test(normalizeAutocompleteAttribute(value)), {
-    identifier: $I`AutocompleteAttributeInputCheck`,
-    title: "HTML Autocomplete Attribute Input",
-    description: "Checks the ordered token-list grammar of the HTML autocomplete attribute.",
-    message: "Expected a valid autocomplete token sequence",
-  })
+  S.makeFilter(
+    (value) => autocompleteAttributePattern.test(normalizeAutocompleteAttribute(value)),
+    $I.annote("AutocompleteAttributeInputCheck", {
+      title: "HTML Autocomplete Attribute Input",
+      description: "Checks the ordered token-list grammar of the HTML autocomplete attribute.",
+      message: "Expected a valid autocomplete token sequence",
+    })
+  )
 );
 
 const CanonicalAutocompleteAttribute = S.String.check(
-  S.makeFilter((value) => value === normalizeAutocompleteAttribute(value) && autocompleteAttributePattern.test(value), {
-    identifier: $I`CanonicalAutocompleteAttributeCheck`,
-    title: "Canonical HTML Autocomplete Attribute",
-    description: "Checks lowercase autocomplete tokens separated by one space.",
-    message: "Expected a canonical autocomplete token sequence",
-  })
+  S.makeFilter(
+    (value) => value === normalizeAutocompleteAttribute(value) && autocompleteAttributePattern.test(value),
+    $I.annote("CanonicalAutocompleteAttributeCheck", {
+      title: "Canonical HTML Autocomplete Attribute",
+      description: "Checks lowercase autocomplete tokens separated by one space.",
+      message: "Expected a canonical autocomplete token sequence",
+    })
+  )
 );
 
 /**
@@ -1680,12 +1708,14 @@ export type AutocompleteAttribute = typeof AutocompleteAttribute.Type;
  * @since 0.0.0
  */
 export const ForeignElementName = S.String.check(
-  S.isPattern(/^(?:(?:svg|mathml):[_\p{L}]|[A-Za-z])[\p{L}\p{N}_.-]*$/u, {
-    identifier: $I`ForeignElementNameCheck`,
-    title: "Foreign Element Name",
-    description: "Checks an SVG or MathML element name that the HTML tokenizer can open as a tag.",
-    message: "Expected a valid foreign element name",
-  })
+  S.isPattern(
+    /^(?:(?:svg|mathml):[_\p{L}]|[A-Za-z])[\p{L}\p{N}_.-]*$/u,
+    $I.annote("ForeignElementNameCheck", {
+      title: "Foreign Element Name",
+      description: "Checks an SVG or MathML element name that the HTML tokenizer can open as a tag.",
+      message: "Expected a valid foreign element name",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ForeignElementName", {
     description: "SVG or MathML element name with an ASCII start accepted by HTML tag tokenization.",
@@ -1725,12 +1755,14 @@ export type ForeignElementName = typeof ForeignElementName.Type;
  * @since 0.0.0
  */
 export const ForeignAttributeName = S.String.check(
-  S.isPattern(/^(?:xmlns|(?:(?:xlink|xml|xmlns):)?[_\p{L}][\p{L}\p{N}_.-]*)$/u, {
-    identifier: $I`ForeignAttributeNameCheck`,
-    title: "Foreign Attribute Name",
-    description: "Checks a serializable SVG or MathML attribute name.",
-    message: "Expected a valid foreign attribute name",
-  })
+  S.isPattern(
+    /^(?:xmlns|(?:(?:xlink|xml|xmlns):)?[_\p{L}][\p{L}\p{N}_.-]*)$/u,
+    $I.annote("ForeignAttributeNameCheck", {
+      title: "Foreign Attribute Name",
+      description: "Checks a serializable SVG or MathML attribute name.",
+      message: "Expected a valid foreign attribute name",
+    })
+  )
 ).pipe(
   $I.annoteSchema("ForeignAttributeName", {
     description: "Serializable SVG or MathML attribute name.",
@@ -1776,12 +1808,14 @@ export type ForeignAttributeName = typeof ForeignAttributeName.Type;
  * @since 0.0.0
  */
 export const HtmlIdValue = S.String.check(
-  S.isPattern(/^[^\t\n\f\r ]+$/u, {
-    identifier: $I`HtmlIdValueCheck`,
-    title: "HTML ID Value",
-    description: "Checks a non-empty HTML id without ASCII whitespace.",
-    message: "Expected a non-empty HTML id without ASCII whitespace",
-  })
+  S.isPattern(
+    /^[^\t\n\f\r ]+$/u,
+    $I.annote("HtmlIdValueCheck", {
+      title: "HTML ID Value",
+      description: "Checks a non-empty HTML id without ASCII whitespace.",
+      message: "Expected a non-empty HTML id without ASCII whitespace",
+    })
+  )
 ).pipe(
   $I.annoteSchema("HtmlIdValue", {
     description: "Lexically conforming HTML id value; root-wide uniqueness is checked separately.",
@@ -1913,12 +1947,14 @@ export const StandardGlobalAttributes = readonlyStruct({
  * @since 0.0.0
  */
 export const DatasetKey = S.String.check(
-  S.isPattern(/^[^A-Z\u0000\t\n\f\r "'<>/=]+$/u, {
-    identifier: $I`DatasetKeyCheck`,
-    title: "HTML Dataset Key",
-    description: "Checks a key that can be safely serialized after the `data-` prefix.",
-    message: "Expected a serializable data-* attribute key",
-  })
+  S.isPattern(
+    /^[^A-Z\u0000\t\n\f\r "'<>/=]+$/u,
+    $I.annote("DatasetKeyCheck", {
+      title: "HTML Dataset Key",
+      description: "Checks a key that can be safely serialized after the `data-` prefix.",
+      message: "Expected a serializable data-* attribute key",
+    })
+  )
 ).pipe(
   $I.annoteSchema("DatasetKey", {
     description: "ASCII-case-fixed browser-stable suffix in the AST data-* attribute bag.",

@@ -764,28 +764,31 @@ const makeTrimmedSyntaxChecks = (
   predicate: (value: string) => boolean
 ) =>
   [
-    S.isTrimmed({
-      identifier: $I.create(identifier).make("TrimmedCheck"),
-      title: `${title} Trimmed`,
-      description: `${description} without leading or trailing whitespace.`,
-      message: `${title} values must not contain leading or trailing whitespace`,
-      // The syntax check supplies a constructive IRI pattern. The generic trimmed
-      // pattern would also be sampled, then mostly rejected by the syntax check.
-      arbitraryConstraint: {},
-    }),
-    S.makeFilter(predicate, {
-      identifier: $I.create(identifier).make("SyntaxCheck"),
-      title: `${title} Syntax`,
-      description,
-      message,
-      arbitraryConstraint: {
-        patterns: [
-          Str.startsWith(identifier, "Relative")
-            ? /^[a-z][a-z0-9/]{0,30}$/
-            : /^https:\/\/example\.org\/[a-z0-9]{1,30}$/,
-        ],
-      },
-    }),
+    S.isTrimmed(
+      $I.create(identifier).annote("TrimmedCheck", {
+        title: `${title} Trimmed`,
+        description: `${description} without leading or trailing whitespace.`,
+        message: `${title} values must not contain leading or trailing whitespace`,
+        // The syntax check supplies a constructive IRI pattern. The generic trimmed
+        // pattern would also be sampled, then mostly rejected by the syntax check.
+        arbitraryConstraint: {},
+      })
+    ),
+    S.makeFilter(
+      predicate,
+      $I.create(identifier).annote("SyntaxCheck", {
+        title: `${title} Syntax`,
+        description,
+        message,
+        arbitraryConstraint: {
+          patterns: [
+            Str.startsWith(identifier, "Relative")
+              ? /^[a-z][a-z0-9/]{0,30}$/
+              : /^https:\/\/example\.org\/[a-z0-9]{1,30}$/,
+          ],
+        },
+      })
+    ),
   ] as const;
 
 const makeReferenceChecks = (
@@ -795,11 +798,13 @@ const makeReferenceChecks = (
   message: string,
   predicate: (value: string) => boolean
 ) =>
-  S.makeFilterGroup(makeTrimmedSyntaxChecks(identifier, title, description, message, predicate), {
-    identifier: $I.create(identifier).make("Checks"),
-    title,
-    description,
-  });
+  S.makeFilterGroup(
+    makeTrimmedSyntaxChecks(identifier, title, description, message, predicate),
+    $I.create(identifier).annote("Checks", {
+      title,
+      description,
+    })
+  );
 
 const makeNonEmptyReferenceChecks = (
   identifier: string,
@@ -810,19 +815,19 @@ const makeNonEmptyReferenceChecks = (
 ) =>
   S.makeFilterGroup(
     [
-      S.isNonEmpty({
-        identifier: $I.create(identifier).make("NonEmptyCheck"),
-        title: `${title} Non Empty`,
-        description: `${description} that is not empty.`,
-        message: `${title} values must not be empty`,
-      }),
+      S.isNonEmpty(
+        $I.create(identifier).annote("NonEmptyCheck", {
+          title: `${title} Non Empty`,
+          description: `${description} that is not empty.`,
+          message: `${title} values must not be empty`,
+        })
+      ),
       ...makeTrimmedSyntaxChecks(identifier, title, description, message, predicate),
     ],
-    {
-      identifier: $I.create(identifier).make("Checks"),
+    $I.create(identifier).annote("Checks", {
       title,
       description,
-    }
+    })
   );
 
 const iriReferenceChecks = makeReferenceChecks(

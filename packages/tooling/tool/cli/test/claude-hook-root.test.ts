@@ -8,6 +8,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const settingsPath = NodeURL.fileURLToPath(new URL("../../../../../.claude/settings.json", import.meta.url));
 
@@ -27,7 +28,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook launch project con
       );
       const guarded = A.filter(
         commands,
-        (command) => command.includes(".claude/hooks/") || command.includes("graft-hooks.cjs")
+        (command) => Str.includes(".claude/hooks/")(command) || Str.includes("graft-hooks.cjs")(command)
       );
       expect(guarded.length).toBeGreaterThan(0);
       for (const command of guarded) {
@@ -55,10 +56,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook launch project con
           `console.log("${label}-node");\n`
         );
       }
-      const shellCommand = A.findFirst(guarded, (command) => command.includes("hook-pulse.sh")).pipe(
+      const shellCommand = A.findFirst(guarded, (command) => Str.includes("hook-pulse.sh")(command)).pipe(
         O.getOrElse(() => "")
       );
-      const nodeCommand = A.findFirst(guarded, (command) => command.includes("graft-hooks.cjs")).pipe(
+      const nodeCommand = A.findFirst(guarded, (command) => Str.includes("graft-hooks.cjs")(command)).pipe(
         O.getOrElse(() => "")
       );
       expect(shellCommand).not.toBe("");

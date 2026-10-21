@@ -30,8 +30,8 @@ import type { ModelsExchangeSystemShape } from "@beep/repo-cli/commands/Models/M
 // A real ModelsApply in its own process, against a disposable target tree. It
 // halts at one named crash point and waits for its parent's SIGKILL.
 const $I = $RepoCliId.create("test/fixtures/models/exchange-crash-writer");
-const Mode = LiteralKit(["apply", "restore", "recover"]).annotate(
-  $I.annote("Mode", { description: "Which ModelsApply operation the crash writer runs." })
+const Mode = LiteralKit(["apply", "restore", "recover"]).pipe(
+  $I.annoteSchema("Mode", { description: "Which ModelsApply operation the crash writer runs." })
 );
 const HaltPoint = LiteralKit([
   "none",
@@ -43,8 +43,8 @@ const HaltPoint = LiteralKit([
   "verified",
   "completed",
   "recovering",
-]).annotate(
-  $I.annote("HaltPoint", {
+]).pipe(
+  $I.annoteSchema("HaltPoint", {
     description: "Durable journal state, or the return of the publication exchange, at which the writer halts.",
   })
 );

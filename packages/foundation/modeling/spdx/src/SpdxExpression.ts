@@ -264,12 +264,12 @@ export class AndNode extends S.TaggedClass<AndNode, { readonly brand: unique sym
   "And",
   {
     /** The left operand. */
-    left: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey(
-      $I.annote("AndNode.left", { description: "The left operand." })
+    left: $I.annoteKey("AndNode.left", { description: "The left operand." })(
+      S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion)
     ),
     /** The right operand. */
-    right: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey(
-      $I.annote("AndNode.right", { description: "The right operand." })
+    right: $I.annoteKey("AndNode.right", { description: "The right operand." })(
+      S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion)
     ),
   },
   $I.annote("AndNode", {
@@ -324,12 +324,12 @@ export class OrNode extends S.TaggedClass<OrNode, { readonly brand: unique symbo
   "Or",
   {
     /** The left operand. */
-    left: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey(
-      $I.annote("OrNode.left", { description: "The left operand." })
+    left: $I.annoteKey("OrNode.left", { description: "The left operand." })(
+      S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion)
     ),
     /** The right operand. */
-    right: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey(
-      $I.annote("OrNode.right", { description: "The right operand." })
+    right: $I.annoteKey("OrNode.right", { description: "The right operand." })(
+      S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion)
     ),
   },
   $I.annote("OrNode", {

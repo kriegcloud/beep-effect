@@ -1,0 +1,253 @@
+[
+  [
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "debug",
+      "version": "2.6.9",
+      "package_url": "pkg:npm/debug@2.6.9",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/debug-js/debug",
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "js-tokens",
+      "version": "4.0.0",
+      "package_url": "pkg:npm/js-tokens@4.0.0",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/lydell/js-tokens",
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "loose-envify",
+      "version": "1.4.0",
+      "package_url": "pkg:npm/loose-envify@1.4.0",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/zertosh/loose-envify",
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "ms",
+      "version": "2.0.0",
+      "package_url": "pkg:npm/ms@2.0.0",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/vercel/ms",
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "ms",
+      "version": "2.1.3",
+      "package_url": "pkg:npm/ms@2.1.3",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/vercel/ms",
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "object-assign",
+      "version": "4.1.1",
+      "package_url": "pkg:npm/object-assign@4.1.1",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/sindresorhus/object-assign",
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "packages/app",
+      "version": "1.0.0",
+      "package_url": "pkg:npm/packages/app@1.0.0",
+      "license": null,
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "packages/lib",
+      "version": "1.0.0",
+      "package_url": "pkg:npm/packages/lib@1.0.0",
+      "license": null,
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "react",
+      "version": "17.0.2",
+      "package_url": "pkg:npm/react@17.0.2",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/momentum-design/momentum-ui",
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/workspaces/fixtures/peers/npm-root/package-lock.json",
+      "ecosystem": "npm",
+      "name": "react",
+      "version": "18.3.1",
+      "package_url": "pkg:npm/react@18.3.1",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/react/react",
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/lockfiles/fixtures/npm/v1/package-lock.json",
+      "ecosystem": "npm",
+      "name": "lodash",
+      "version": "4.17.23",
+      "package_url": "pkg:npm/lodash@4.17.23",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/lodash/lodash",
+      "scope": "runtime",
+      "vulnerabilities": [
+        {
+          "severity": "high",
+          "advisory_ghsa_id": "GHSA-r5fr-rjxr-66jc",
+          "advisory_summary": "lodash vulnerable to Code Injection via `_.template` imports key names",
+          "advisory_url": "https://github.com/advisories/GHSA-r5fr-rjxr-66jc"
+        },
+        {
+          "severity": "moderate",
+          "advisory_ghsa_id": "GHSA-f23m-r3pf-42rh",
+          "advisory_summary": "lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit`",
+          "advisory_url": "https://github.com/advisories/GHSA-f23m-r3pf-42rh"
+        }
+      ]
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/lockfiles/fixtures/pnpm/v2/pnpm-lock.yaml",
+      "ecosystem": "npm",
+      "name": "tinypool",
+      "version": "1.1.1",
+      "package_url": "pkg:npm/tinypool@1.1.1",
+      "license": "MIT",
+      "source_repository_url": "https://github.com/tinylibs/tinypool",
+      "scope": "runtime",
+      "vulnerabilities": [
+        {
+          "severity": "critical",
+          "advisory_ghsa_id": "GHSA-85c8-ppgw-ccpr",
+          "advisory_summary": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+          "advisory_url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr"
+        },
+        {
+          "severity": "critical",
+          "advisory_ghsa_id": "GHSA-5gmw-xhrv-c9v3",
+          "advisory_summary": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+          "advisory_url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3"
+        }
+      ]
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/package-json/integration/fixtures/full/package.json",
+      "ecosystem": "npm",
+      "name": "vitest",
+      "version": "^1.0.0",
+      "package_url": "pkg:npm/vitest",
+      "license": "Apache-2.0 AND BSD-3-Clause AND ISC AND MIT",
+      "source_repository_url": null,
+      "scope": "development",
+      "vulnerabilities": [
+        {
+          "severity": "critical",
+          "advisory_ghsa_id": "GHSA-5xrq-8626-4rwp",
+          "advisory_summary": "When Vitest UI server is listening, arbitrary file can be read and executed",
+          "advisory_url": "https://github.com/advisories/GHSA-5xrq-8626-4rwp"
+        }
+      ]
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/package-json/integration/fixtures/full/package.json",
+      "ecosystem": "npm",
+      "name": "effect",
+      "version": "^3.0.0",
+      "package_url": "pkg:npm/effect",
+      "license": "MIT",
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/package-json/integration/fixtures/full/package.json",
+      "ecosystem": "npm",
+      "name": "lodash",
+      "version": "^4.0.0",
+      "package_url": "pkg:npm/lodash",
+      "license": "MIT",
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/test/package-json/integration/fixtures/full/package.json",
+      "ecosystem": "npm",
+      "name": "typescript",
+      "version": "^5.0.0",
+      "package_url": "pkg:npm/typescript",
+      "license": "Apache-2.0",
+      "source_repository_url": null,
+      "scope": "development",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/effected/github/package.json",
+      "ecosystem": "npm",
+      "name": "@beep/identity",
+      "version": "workspace:^",
+      "package_url": "pkg:npm/%40beep/identity",
+      "license": null,
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": []
+    },
+    {
+      "change_type": "added",
+      "manifest": "scratchpad/effected/github/package.json",
+      "ecosystem": "npm",
+      "name": "@beep/schema",
+      "version": "workspace:^",
+      "package_url": "pkg:npm/%40beep/schema",
+      "license": null,
+      "source_repository_url": null,
+      "scope": "runtime",
+      "vulnerabilities": []
+    }
+  ]
+]

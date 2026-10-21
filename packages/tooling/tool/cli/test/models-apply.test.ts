@@ -27,6 +27,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { modelsTestExchangeLayer } from "./helpers/models-atomic-exchange.ts";
 import type { Locator, LocatorRender } from "@beep/repo-cli/commands/Models/Models.manifest.schemas";
 
@@ -301,7 +302,7 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
     Effect.gen(function* () {
       const spans = yield* modelsWriteSpans(native, topLevel);
       expect(spans).toHaveLength(1);
-      expect(yield* modelsApplySpans(native, spans)).toBe(native.replace('"old"', '"gpt-6.1-sol"'));
+      expect(yield* modelsApplySpans(native, spans)).toBe(Str.replace('"old"', '"gpt-6.1-sol"')(native));
     })
   );
 
@@ -569,7 +570,9 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
           chmod: Effect.fn("ModelsApplyTest.chmod")((target, mode) =>
             fs
               .chmod(target, mode)
-              .pipe(Effect.andThen(phase === "planned" && target.endsWith(".tmp") ? replace(competitor) : Effect.void))
+              .pipe(
+                Effect.andThen(phase === "planned" && Str.endsWith(".tmp")(target) ? replace(competitor) : Effect.void)
+              )
           ),
         });
         const wrappedExchange = ModelsAtomicExchange.of({
@@ -595,18 +598,21 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
         );
         expect(error._tag).toBe("ModelsLocatorError");
         const entries = yield* fs.readDirectory(backups);
-        const journals = A.filter(entries, (entry) => entry.endsWith(".json"));
+        const journals = A.filter(entries, (entry) => Str.endsWith(".json")(entry));
         expect(journals).toHaveLength(1);
-        expect(error.message).toContain(journals[0]?.slice(0, -5));
-        expect(A.fromIterable(error.message.matchAll(/Journal:/g))).toHaveLength(1);
+        expect(error.message).toContain(journals[0] === undefined ? undefined : Str.slice(0, -5)(journals[0]));
+        expect(A.fromIterable(Str.matchAll(/Journal:/g)(error.message))).toHaveLength(1);
         expect(
           A.filter(
             entries,
-            (entry) => entry.startsWith(journals[0]?.slice(0, -5) ?? "missing") && entry.endsWith(".concurrent")
+            (entry) =>
+              Str.startsWith((journals[0] === undefined ? undefined : Str.slice(0, -5)(journals[0])) ?? "missing")(
+                entry
+              ) && Str.endsWith(".concurrent")(entry)
           )
         ).toHaveLength(expectedMarkers);
         expect(yield* fs.readFileString(file)).toBe(expected);
-        expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.endsWith(".preimage"))).toHaveLength(
+        expect(A.filter(yield* fs.readDirectory(root), (entry) => Str.endsWith(".preimage")(entry))).toHaveLength(
           expectedRetained
         );
       })
@@ -890,7 +896,10 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
         if (A.contains(["introduced-link", "moved-target", "retargeted-link"], phase))
           expect(yield* fs.readFileString(relocated)).toBe(applied);
         expect(
-          A.filter(yield* fs.readDirectory(directory), (entry) => entry.endsWith(".tmp") || entry.endsWith(".preimage"))
+          A.filter(
+            yield* fs.readDirectory(directory),
+            (entry) => Str.endsWith(".tmp")(entry) || Str.endsWith(".preimage")(entry)
+          )
         ).toHaveLength(0);
       })
     );
@@ -955,7 +964,7 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
           )
         );
         const error = yield* Effect.flip(writer.restore(journalFile, backups));
-        expect(error.message.toLowerCase()).toContain("targets are check-only");
+        expect(Str.toLowerCase(error.message)).toContain("targets are check-only");
         expect(error.message).toContain(`Journal: ${journal.id}`);
         expect(yield* fs.readFileString(file)).toBe(applied);
         expect(yield* fs.readDirectory(backups)).toHaveLength(2);
@@ -974,7 +983,7 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
       const wrapped = FileSystem.FileSystem.of({
         ...fs,
         stat: Effect.fn("ModelsApplyTest.stat")((target) =>
-          fs.stat(target.endsWith(".preimage") ? path.join(root, "missing") : target)
+          fs.stat(Str.endsWith(".preimage")(target) ? path.join(root, "missing") : target)
         ),
       });
       const writer = yield* writerWithFs(wrapped);
@@ -983,7 +992,10 @@ layer(modelsTestExchangeLayer.pipe(Layer.provideMerge(Layer.mergeAll(NodeService
       expect(error.message).toContain("Journal:");
       expect(yield* fs.readFileString(file)).toBe(native);
       expect(
-        A.filter(yield* fs.readDirectory(root), (entry) => entry.endsWith(".preimage") || entry.endsWith(".tmp"))
+        A.filter(
+          yield* fs.readDirectory(root),
+          (entry) => Str.endsWith(".preimage")(entry) || Str.endsWith(".tmp")(entry)
+        )
       ).toHaveLength(0);
     })
   );

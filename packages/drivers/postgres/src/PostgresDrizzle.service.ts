@@ -232,12 +232,14 @@ export const migrate: {
 );
 
 const MigrationBundleEntryName = S.String.check(
-  S.isPattern(/^\d{14}/, {
-    identifier: $I`MigrationBundleEntryNameCheck`,
-    title: "Timestamped migration bundle entry name",
-    description: "A Drizzle migration folder name beginning with a 14-digit UTC timestamp.",
-    message: "Expected a migration folder name beginning with a 14-digit UTC timestamp.",
-  })
+  S.isPattern(
+    /^\d{14}/,
+    $I.annote("MigrationBundleEntryNameCheck", {
+      title: "Timestamped migration bundle entry name",
+      description: "A Drizzle migration folder name beginning with a 14-digit UTC timestamp.",
+      message: "Expected a migration folder name beginning with a 14-digit UTC timestamp.",
+    })
+  )
 );
 
 /**
@@ -276,12 +278,11 @@ const MigrationBundleLegacyNames = S.NonEmptyArray(MigrationBundleEntryName)
   .check(
     S.makeFilter(
       (names: ReadonlyArray<string>) => A.length(A.dedupeWith(migrationNameEquivalence)(names)) === A.length(names),
-      {
-        identifier: $I`MigrationBundleLegacyNamesUniqueItemsCheck`,
+      $I.annote("MigrationBundleLegacyNamesUniqueItemsCheck", {
         title: "Unique legacy migration names",
         description: "One compatibility set must not repeat a legacy journal name.",
         message: "Legacy migration names must be unique within a compatibility set.",
-      }
+      })
     )
   )
   .pipe(
@@ -368,12 +369,14 @@ const MigrationJournalNameRow = S.Struct({ name: S.NullOr(S.String) }).pipe(
 );
 const decodeUnknownMigrationJournalNameRowArray = S.decodeUnknownEffect(S.Array(MigrationJournalNameRow));
 const MigrationJournalCreatedAtText = S.String.check(
-  S.isPattern(/^\d{4,}$/u, {
-    identifier: $I`MigrationJournalCreatedAtTextCheck`,
-    title: "Legacy migration created-at text",
-    description: "Legacy Drizzle created_at values must be decimal integers with a millisecond suffix.",
-    message: "Expected a decimal legacy migration timestamp.",
-  })
+  S.isPattern(
+    /^\d{4,}$/u,
+    $I.annote("MigrationJournalCreatedAtTextCheck", {
+      title: "Legacy migration created-at text",
+      description: "Legacy Drizzle created_at values must be decimal integers with a millisecond suffix.",
+      message: "Expected a decimal legacy migration timestamp.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("MigrationJournalCreatedAtText", {
     description: "Text projection of a legacy Drizzle journal created_at bigint.",

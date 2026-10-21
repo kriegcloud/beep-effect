@@ -47,12 +47,14 @@ const $I = $QaCaptureId.create("SessionStore.service");
  * @since 0.0.0
  */
 export const RoundDirName = S.String.check(
-  S.isPattern(/^round-[0-9]+$/, {
-    identifier: $I`RoundDirNamePatternCheck`,
-    title: "Round Directory Name Pattern",
-    description: "Round directories are named round-N with a positive integer N.",
-    message: "Expected a round-N directory name",
-  })
+  S.isPattern(
+    /^round-[0-9]+$/,
+    $I.annote("RoundDirNamePatternCheck", {
+      title: "Round Directory Name Pattern",
+      description: "Round directories are named round-N with a positive integer N.",
+      message: "Expected a round-N directory name",
+    })
+  )
 ).pipe(
   $I.annoteSchema("RoundDirName", {
     description: "Directory name of one QA round (round-N).",

@@ -34,12 +34,14 @@ const isWholeMillisDuration = (duration: Duration.Duration): boolean => {
   return Number.isSafeInteger(millis) && millis >= 0 && Duration.Equivalence(Duration.millis(millis), duration);
 };
 
-const BudgetDurationCheck = S.makeFilter(isWholeMillisDuration, {
-  identifier: $I`BudgetDurationCheck`,
-  title: "Recovery budget duration",
-  description: "Recovery budget durations must be whole non-negative milliseconds within the safe-integer range.",
-  message: "Recovery budget durations must be whole non-negative milliseconds",
-});
+const BudgetDurationCheck = S.makeFilter(
+  isWholeMillisDuration,
+  $I.annote("BudgetDurationCheck", {
+    title: "Recovery budget duration",
+    description: "Recovery budget durations must be whole non-negative milliseconds within the safe-integer range.",
+    message: "Recovery budget durations must be whole non-negative milliseconds",
+  })
+);
 
 /**
  * Whole non-negative millisecond duration encoded as a JSON number.
@@ -293,11 +295,10 @@ const RecoveryBudgetCoherenceCheck = S.makeFilter(
             "Recovery history, consumed resources, per-attempt timing, and terminal reason must agree with the declared budget.",
         };
   },
-  {
-    identifier: $I`RecoveryBudgetCoherenceCheck`,
+  $I.annote("RecoveryBudgetCoherenceCheck", {
     title: "Recovery budget coherence",
     description: "Recovery attempt history, consumed resources, timing, and terminal reason agree with the budget.",
-  }
+  })
 );
 
 /**

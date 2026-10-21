@@ -19,18 +19,19 @@ const ethereumValidatorPublicKeyPattern = /^0x[0-9a-f]{96}$/;
 
 const EthereumValidatorPublicKeyChecks = S.makeFilterGroup(
   [
-    S.isPattern(ethereumValidatorPublicKeyPattern, {
-      identifier: $I`EthereumValidatorPublicKeyPatternCheck`,
-      title: "Ethereum Validator Public Key Pattern",
-      description: "A lowercase 0x-prefixed 48-byte compressed BLS12-381 public key.",
-      message: "EthereumValidatorPublicKey must be a lowercase 0x-prefixed 48-byte public key",
-    }),
+    S.isPattern(
+      ethereumValidatorPublicKeyPattern,
+      $I.annote("EthereumValidatorPublicKeyPatternCheck", {
+        title: "Ethereum Validator Public Key Pattern",
+        description: "A lowercase 0x-prefixed 48-byte compressed BLS12-381 public key.",
+        message: "EthereumValidatorPublicKey must be a lowercase 0x-prefixed 48-byte public key",
+      })
+    ),
   ],
-  {
-    identifier: $I`EthereumValidatorPublicKeyChecks`,
+  $I.annote("EthereumValidatorPublicKeyChecks", {
     title: "EthereumValidatorPublicKey",
     description: "Checks for canonical Ethereum validator public keys.",
-  }
+  })
 );
 
 /**

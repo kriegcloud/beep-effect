@@ -361,11 +361,10 @@ const UniqueGateIdsCheck = S.makeFilter(
           issue: "Gate registry declarations must use unique gate ids.",
         };
   },
-  {
-    identifier: $I`UniqueGateIdsCheck`,
+  $I.annote("UniqueGateIdsCheck", {
     title: "Unique gate ids",
     description: "A gate registry preserves declaration order while rejecting duplicate gate ids.",
-  }
+  })
 );
 
 /**
@@ -444,21 +443,24 @@ export type GateOutcome = typeof GateOutcome.Type;
  */
 export const IsoDateTimeString = S.Trim.check(
   S.isNonEmpty({ message: "String must not be empty" }),
-  S.makeFilter((value: string) => O.isSome(DateTime.make(value)), {
-    identifier: $I`IsoDateTimeStringCheck`,
-    title: "ISO DateTime String",
-    description: "Accepts any string DateTime.make parses; generation stays inside a constructive ISO 8601 UTC shape.",
-    // The predicate is parse-based, so native generation would rejection-sample
-    // arbitrary strings; the day range 01-28 keeps every candidate a valid date.
-    arbitraryConstraint: {
-      patterns: [
-        {
-          source: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$",
-          flags: "",
-        },
-      ],
-    },
-  })
+  S.makeFilter(
+    (value: string) => O.isSome(DateTime.make(value)),
+    $I.annote("IsoDateTimeStringCheck", {
+      title: "ISO DateTime String",
+      description:
+        "Accepts any string DateTime.make parses; generation stays inside a constructive ISO 8601 UTC shape.",
+      // The predicate is parse-based, so native generation would rejection-sample
+      // arbitrary strings; the day range 01-28 keeps every candidate a valid date.
+      arbitraryConstraint: {
+        patterns: [
+          {
+            source: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d\\.\\d{3}Z$",
+            flags: "",
+          },
+        ],
+      },
+    })
+  )
 ).pipe(
   $I.annoteSchema("IsoDateTimeString", {
     description: "Trimmed, non-empty datetime string that DateTime.make parses, kept verbatim.",

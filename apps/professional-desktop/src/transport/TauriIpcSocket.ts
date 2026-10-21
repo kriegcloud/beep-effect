@@ -245,8 +245,8 @@ const toSidecarSendError = (cause: unknown): SidecarSendError => {
 export const InboundEvent = S.TaggedUnion({
   Closed: { payload: S.Unknown },
   Rx: { payload: S.Unknown },
-}).annotate(
-  $I.annote("InboundEvent", {
+}).pipe(
+  $I.annoteSchema("InboundEvent", {
     description: "A raw inbound sidecar event tagged by its Tauri channel.",
   })
 );

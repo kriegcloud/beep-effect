@@ -17,20 +17,24 @@ const DERIVED_THREAD_TITLE_MAX_CHARS = 64;
 
 const DerivedThreadTitleCanonical = S.NonEmptyString.pipe(
   S.check(
-    S.isMaxLength(DERIVED_THREAD_TITLE_MAX_CHARS, {
-      identifier: $I`DerivedThreadTitleMaxLength`,
-      title: "Derived Thread Title Max Length",
-      description: "Derived thread titles are capped to the chat sidebar display limit.",
-      message: `Expected title to be at most ${DERIVED_THREAD_TITLE_MAX_CHARS} characters`,
-    })
+    S.isMaxLength(
+      DERIVED_THREAD_TITLE_MAX_CHARS,
+      $I.annote("DerivedThreadTitleMaxLength", {
+        title: "Derived Thread Title Max Length",
+        description: "Derived thread titles are capped to the chat sidebar display limit.",
+        message: `Expected title to be at most ${DERIVED_THREAD_TITLE_MAX_CHARS} characters`,
+      })
+    )
   ),
   S.check(
-    S.isPattern(/^\S(?:[\s\S]*\S)?$/, {
-      identifier: $I`DerivedThreadTitleTrimmed`,
-      title: "Derived Thread Title Trimmed",
-      description: "Derived thread titles are stored without leading or trailing whitespace.",
-      message: "Expected title to be trimmed",
-    })
+    S.isPattern(
+      /^\S(?:[\s\S]*\S)?$/,
+      $I.annote("DerivedThreadTitleTrimmed", {
+        title: "Derived Thread Title Trimmed",
+        description: "Derived thread titles are stored without leading or trailing whitespace.",
+        message: "Expected title to be trimmed",
+      })
+    )
   )
 );
 

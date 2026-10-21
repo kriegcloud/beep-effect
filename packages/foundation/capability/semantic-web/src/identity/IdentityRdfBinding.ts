@@ -66,12 +66,11 @@ const IdentityRdfPredicatePathsDistinct = S.makeFilter<typeof IdentityRdfBinding
         onSome: (collision) => collision,
       })
     ),
-  {
-    identifier: $I`IdentityRdfPredicatePathsDistinct`,
+  $I.annote("IdentityRdfPredicatePathsDistinct", {
     title: "Distinct Identity RDF Predicate Paths",
     description: "Requires identifier, CURIE, and fiber RDF predicate paths to be pairwise distinct.",
     message: "Identity RDF predicate paths must be pairwise distinct.",
-  }
+  })
 );
 
 const CheckedIdentityRdfBindingFields = IdentityRdfBindingFields.pipe(S.check(IdentityRdfPredicatePathsDistinct));

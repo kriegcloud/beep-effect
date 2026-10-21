@@ -28,8 +28,8 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Model/EntityResolution")
  * @category schemas
  * @since 0.0.0
  */
-export const ResolutionMethod = LiteralKit(["exact", "similarity", "containment", "neighbor"]).annotate(
-    $I.annote("ResolutionMethod", {
+export const ResolutionMethod = LiteralKit(["exact", "similarity", "containment", "neighbor"]).pipe(
+    $I.annoteSchema("ResolutionMethod", {
       description: "Closed set of evidence strategies used by entity resolution.",
     })
   );

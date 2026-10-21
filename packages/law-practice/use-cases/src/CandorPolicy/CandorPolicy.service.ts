@@ -32,12 +32,14 @@ const $I = $LawPracticeUseCasesId.create("CandorPolicy/CandorPolicy.service");
 
 const IdentifiedPatentReference = PatentReference.pipe(
   S.check(
-    S.makeFilter((reference) => O.isSome(reference.number), {
-      identifier: $I`IdentifiedPatentReferenceCheck`,
-      title: "Identified patent reference",
-      description: "A patent reference carrying the publication number that identifies its document.",
-      message: "Expected a patent reference with a publication number",
-    })
+    S.makeFilter(
+      (reference) => O.isSome(reference.number),
+      $I.annote("IdentifiedPatentReferenceCheck", {
+        title: "Identified patent reference",
+        description: "A patent reference carrying the publication number that identifies its document.",
+        message: "Expected a patent reference with a publication number",
+      })
+    )
   ),
   $I.annoteSchema("IdentifiedPatentReference", {
     description: "Patent reference with a present publication number suitable for identity comparisons.",

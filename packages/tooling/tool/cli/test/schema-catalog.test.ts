@@ -10,7 +10,7 @@ import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
-import { assertTrue } from "@effect/vitest/utils";
+import { assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -90,6 +90,15 @@ const writeSchemaCatalogFixture = Effect.fn("SchemaCatalogTest.writeFixture")(fu
         '  $I.annoteSchema("FixtureStatus", { description: "Fixture status values." })',
         ");",
         "",
+        "export const FixtureSlug = S.String.check(",
+        '  S.isPattern(/^[a-z]+$/, $I.annote("FixtureSlugPattern", { description: "Lowercase letters only." }))',
+        ').pipe(S.brand("FixtureSlug"), $I.annoteSchema("FixtureSlug", { description: "Fixture slug." }));',
+        "",
+        "export class FixtureNode extends S.Class<FixtureNode>($I`FixtureNode`)(",
+        '  { kind: LiteralKit(["leaf"]).pipe($I.annoteSchema("FixtureNodeKind", { description: "Nested field." })) },',
+        '  $I.annote("FixtureNode", { description: "Fixture node schema." })',
+        ") {}",
+        "",
         "class PrivateModel extends S.Class<PrivateModel>($I`PrivateModel`)(",
         "  { id: S.String },",
         '  $I.annote("PrivateModel", { description: "Module-local helper schema." })',
@@ -151,6 +160,14 @@ layer(testLayer)("schema catalog command", (it) => {
               expect(entry.value.identity).toBe("FixtureModel");
               expect(entry.value.description).toBe("Fixture model schema.");
             }
+
+            // A declaration is named by its own annotation, never by a nested check argument or field schema.
+            const identityOf = (symbol: string) =>
+              A.findFirst(document.entries, (candidate) => candidate.symbol === symbol).pipe(
+                O.map(({ identity, description }) => ({ identity, description }))
+              );
+            assertSome(identityOf("FixtureSlug"), { identity: "FixtureSlug", description: "Fixture slug." });
+            assertSome(identityOf("FixtureNode"), { identity: "FixtureNode", description: "Fixture node schema." });
 
             // Non-exported declarations are private helpers, not catalog surface.
             const symbols = A.map(document.entries, (candidate) => candidate.symbol);
