@@ -29,7 +29,7 @@ calendar. This runbook is the manual install.
 
 Run the hub from the pinned deploy checkout the practice services use
 ([practice services](practice-services.md), section 1). An upgrade there
-upgrades the hub too (section 7).
+upgrades the hub too (section 9).
 
 Pick the data directory and write its absolute path wherever this runbook
 says `<data-dir>`, for example `$HOME/.local/state/beep/practice-review-hub`
@@ -287,7 +287,52 @@ The hub tolerates in-progress appends: a last line that has no line break yet
 is left for the next read, so docket intake can store questions while the hub
 reads them.
 
-## 8. Upgrade
+## 8. Connect Claude Code on the attorney's Windows device
+
+Claude Code sends the bearer token through a `headersHelper`: a command it runs
+on every connection, whose output is a JSON object of headers. The token stays
+in a DPAPI (CurrentUser) file, so it never sits in `.claude.json`, in shell
+history or in a command line. The sample scripts are in
+`apps/practice-review-hub/deploy/windows/`. On Windows, Claude Code runs the
+helper through `cmd.exe`.
+
+1. Put `headers.ps1` in `%LOCALAPPDATA%\beep\practice-review-hub\` on the
+   device and replace its `REPLACE_WITH_HUB_URL` with the hub URL. The helper
+   refuses to answer for any other server URL, so the token never goes
+   elsewhere.
+2. Store the token. Start `receive-token.ps1` in the attorney's desktop session
+   (for example a one-shot `schtasks /it` task, since an SSH session may not be
+   able to use DPAPI). It listens on a named pipe that only that Windows user
+   can open, with a random pipe name, and writes
+   `%LOCALAPPDATA%\beep\practice-review-hub\api-token.dpapi`. Then send the
+   token from the workstation on SSH standard input:
+
+   ```bash
+   op read -n 'op://<vault>/<item>/<field>' \
+     | ssh <user>@<device> 'powershell -NoProfile -ExecutionPolicy Bypass -File <dir>\send-token.ps1 -PipeName <pipe>'
+   ```
+
+   The receiver's status file reports the token length and the first 12 hex
+   characters of its SHA-256. Compare them with
+   `op read -n 'op://<vault>/<item>/<field>' | sha256sum`.
+3. Register the hub at user scope with the helper and no static `headers`. In
+   Windows PowerShell 5.1, escape the JSON's double quotes as `\"`: it drops
+   unescaped inner quotes when it calls a native command.
+
+   ```powershell
+   claude mcp add-json -s user practice-review-hub '{\"type\":\"http\",\"url\":\"https://<workstation>.<tailnet>.ts.net:8787/mcp\",\"headersHelper\":\"powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:/Users/<user>/AppData/Local/beep/practice-review-hub/headers.ps1\"}'
+   ```
+
+4. `claude mcp get practice-review-hub` reports `Connected`. Check that the
+   token appears neither in `.claude.json` nor in the PowerShell history.
+
+To rotate the token, change the 1Password field, restart the hub and repeat
+step 2. Nothing in the device's Claude Code configuration changes.
+
+Claude Desktop's chat does not read this registration. It would reach the hub
+through the practice gateway extension, which does not include the hub yet.
+
+## 9. Upgrade
 
 The hub runs from the practice-services deploy checkout, so upgrade it with
 the practice services ([practice services](practice-services.md), section 4),
@@ -305,7 +350,7 @@ use the same stop/update/start sequence. When rolling back to a revision before
 this authentication fix, keep `practice-review-hub.service` stopped: restarting
 that revision restores the vulnerable header-only authorization boundary.
 
-## 9. Remove
+## 10. Remove
 
 ```bash
 systemctl --user disable --now practice-review-notice.timer practice-review-hub.service
