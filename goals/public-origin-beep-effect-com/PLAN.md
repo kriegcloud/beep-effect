@@ -10,10 +10,10 @@ parallel in one lane and the orchestrator commits.
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Packet and decisions | complete | Record the operator brief, the D1 to D6 decisions and the I1 to I17 rulings; land the doctrine entries. | Brief recorded in `history/`; SPEC Decision Log complete; architecture DECISIONS, GLOSSARY, ARCHITECTURE principle 8, the identity-as-iri supersession entry and the knowledge-endgame trail note written. |
-| P1 `@beep/public-site` | in-progress | Ship `PublicOrigin`, `SiteRoute`, `hostedUrl` and `labRoute` (D4, I10). | Drift test proves `hostedUrl("ns") + "/"` equals the identity authority; `package-verify` green. |
-| P2 Authority move and residue | in-progress | Move the authority (I1), fold the drift authorities (D5, I2, I3, I11), rewrite seeds and every remaining retired-host literal (D6, I15, I16). | Retired hosts appear only under `**/history/**` and the root `research/` tree; `package-verify` green for every affected package. |
-| P3 Law and lane | in-progress | Add `bun run beep laws retired-iri-authorities` and its `lint:retired-iri-authorities` lane (I5, I6, I13). | `--check` green on the tree; a seeded scratch violation turns it red; lane registration tests green. |
-| P4 Closeout | pending | Publish through Yeet, declare the closeout, write the reflection (I17). | `proposedCloseout` and gating `yeet-verdict` evidence in the manifest; reflection lint green; PR mergeable at the gate. |
+| P1 `@beep/public-site` | complete | Ship `PublicOrigin`, `SiteRoute`, `hostedUrl` and `labRoute` (D4, I10). | Drift test proves `hostedUrl("ns") + "/"` equals the identity authority; `package-verify` green. |
+| P2 Authority move and residue | complete | Move the authority (I1), fold the drift authorities (D5, I2, I3, I11), rewrite seeds and every remaining retired-host literal (D6, I15, I16). | Retired hosts appear only under `**/history/**` and the root `research/` tree; `package-verify` green for every affected package. |
+| P3 Law and lane | complete | Add `bun run beep laws retired-iri-authorities` and its `lint:retired-iri-authorities` lane (I5, I6, I13). | `--check` green on the tree; a seeded scratch violation turns it red; lane registration tests green. |
+| P4 Closeout | in-progress | Publish through Yeet, declare the closeout, write the reflection (I17). | `proposedCloseout` and gating `yeet-verdict` evidence in the manifest; reflection lint green; PR mergeable at the gate. |
 
 ## Closeout Checklist
 

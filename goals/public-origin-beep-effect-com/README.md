@@ -35,12 +35,26 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 is complete: the packet, the decision record and the doctrine entries are
-written. P1 to P3 (`@beep/public-site`, the authority move and residue
-rewrite, the `retired-iri-authorities` law) run in parallel in the same lane.
-P4 closeout follows publish.
+P0 to P3 are complete: the packet and doctrine, `@beep/public-site`, the
+authority move with the drift folding and residue rewrite, and the
+`retired-iri-authorities` law with its lane. P4 closeout is in progress: the
+reflection is written and the closeout proposal rides the final PR.
 
 ## Latest Evidence
+
+Proof on the final branch (2026-10-21):
+
+- `bun run beep laws retired-iri-authorities --check`: 36,895 tracked files,
+  0 findings; a seeded tracked violation turns it red in
+  `laws-retired-iri-authorities.test.ts`.
+- `bun run beep quality package-verify` green for all 19 touched workspaces,
+  run through `beep-heavy`.
+- `bun run beep cache audit`: 0 blocking findings after the reviewed re-record
+  in `research/retired-iri-authorities-baseline-request.json`.
+- `knowledge refs --check`, `knowledge doctor ci` and
+  `knowledge semantic-delta`: 0 introduced; `goals doctor`: no new blocking
+  findings; `lint reflection-artifacts`: 0 findings.
+- Reflection: `history/reflections/2026-10-21-claude.md`.
 
 Doctrine landed with this packet:
 

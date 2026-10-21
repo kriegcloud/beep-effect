@@ -6,7 +6,7 @@
     "title": "Single public origin beep-effect.com",
     "status": "active",
     "created": "2026-10-20",
-    "updated": "2026-10-20",
+    "updated": "2026-10-21",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/public-origin-beep-effect-com",
@@ -55,25 +55,25 @@
     {
       "id": "P1",
       "name": "@beep/public-site",
-      "status": "in-progress",
+      "status": "complete",
       "exit": "PublicOrigin, SiteRoute, hostedUrl and labRoute exported; drift test against the identity authority green; package-verify green."
     },
     {
       "id": "P2",
       "name": "Identity authority move, drift folding, seed and residue rewrite",
-      "status": "in-progress",
+      "status": "complete",
       "exit": "Retired hosts only under **/history/** and the root research/ tree; package-verify green for every affected package."
     },
     {
       "id": "P3",
       "name": "retired-iri-authorities law and lane",
-      "status": "in-progress",
+      "status": "complete",
       "exit": "beep laws retired-iri-authorities --check green; a seeded violation turns it red; lint:retired-iri-authorities lane registered."
     },
     {
       "id": "P4",
       "name": "Closeout",
-      "status": "pending",
+      "status": "in-progress",
       "exit": "proposedCloseout and gating yeet-verdict evidence declared; reflection lint green; PR mergeable at the gate."
     }
   ],
