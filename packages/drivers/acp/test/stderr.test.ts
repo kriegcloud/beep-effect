@@ -13,6 +13,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const encoder = new TextEncoder();
 const bytes = (...chunks: ReadonlyArray<string>) =>
@@ -52,7 +53,7 @@ describe("sanitizeStderrExcerpt", () => {
       "ghp_abcdefghijklmnopqrstuvwxyz0123456789",
       "github_pat_11ABCDEFG0123456789_abcdefghijklmnop",
       "xoxb-1234-5678-abcdefghijkl",
-      `ops_${"eyJzaWduSW5BZGRyZXNzIjoibXkuMXBhc3N3b3JkLmNvbSJ9".repeat(2)}`,
+      `ops_${Str.repeat(2)("eyJzaWduSW5BZGRyZXNzIjoibXkuMXBhc3N3b3JkLmNvbSJ9")}`,
     ];
     const excerpt = sanitizeStderrExcerpt(
       A.join([...secrets, "Authorization: Basic dXNlcjpwYXNz", "x-api-key: ant-api-key-value"], "\n"),
@@ -83,10 +84,10 @@ describe("sanitizeStderrExcerpt", () => {
 
 describe("appendStderrTail", () => {
   it("keeps the last characters once the bound is exceeded", () => {
-    const tail = appendStderrTail(`${"a".repeat(ACP_STDERR_TAIL_MAX_CHARS)}TAIL`)(AcpStderrTail.empty);
+    const tail = appendStderrTail(`${Str.repeat(ACP_STDERR_TAIL_MAX_CHARS)("a")}TAIL`)(AcpStderrTail.empty);
 
     assert.strictEqual(tail.text.length, ACP_STDERR_TAIL_MAX_CHARS);
-    assert.isTrue(tail.text.endsWith("TAIL"));
+    assert.isTrue(Str.endsWith("TAIL")(tail.text));
     assert.isTrue(tail.truncated);
   });
 
@@ -117,13 +118,13 @@ describe("collectStderrTail", () => {
     Effect.fnUntraced(function* () {
       // The 4096-character tail starts 18 characters into the first line, inside the token.
       const credential = "Bearer SECRETTOKENVALUE123\n";
-      const filler = "z".repeat(ACP_STDERR_TAIL_MAX_CHARS - (credential.length - 18));
+      const filler = Str.repeat(ACP_STDERR_TAIL_MAX_CHARS - (credential.length - 18))("z");
       const collector = yield* collectStderrTail(bytes(credential, filler));
       yield* collector.drained;
 
       const tail = yield* collector.tail;
       assert.isTrue(tail.truncated);
-      assert.isTrue(tail.text.startsWith("VALUE123\n"));
+      assert.isTrue(Str.startsWith("VALUE123\n")(tail.text));
       assertSome(yield* collector.excerpt, filler);
     })
   );

@@ -9,7 +9,7 @@
 import { assert, describe, it, layer } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import { Lockfile, ResolvedPackage } from "../../effected/lockfiles/index.ts";
-import { ReleaseAgeGate } from "../../effected/npm/index.ts";
+import { ReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

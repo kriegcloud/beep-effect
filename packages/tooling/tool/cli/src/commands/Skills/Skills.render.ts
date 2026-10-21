@@ -15,6 +15,7 @@ import { SkillsLockMigrationPlan, SkillsLockWriteReceipt } from "./SkillsLock.sc
 import type { SkillProvenanceReport } from "./Skills.schemas.ts";
 import type { SkillMigrationRow, UnresolvedMigrationRow, VendoredMigrationRow } from "./SkillsLock.schemas.ts";
 import type { SkillMaterializeReport, SkillMaterializeRow } from "./SkillsMaterialize.schemas.ts";
+import type { SkillRecoveryReport } from "./SkillsPublication.schemas.ts";
 
 const encodeUnknownJson = S.encodeUnknownResult(S.fromJsonString(S.Unknown));
 
@@ -397,3 +398,41 @@ export const renderSkillMaterializeSummary = (report: SkillMaterializeReport): s
   )}`;
   return A.join([headline, ...A.map(report.rows, describeMaterializeRow)], "\n");
 };
+
+/**
+ * Renders one skills recovery decision as a single line.
+ *
+ * **Details**
+ *
+ * The line names the journal and the result: `recovered` with the content it
+ * left live, `refused` with the typed reason and detail, `skipped` with why
+ * the journal was left alone, or `abandoned` with why a create was dropped.
+ *
+ * **Example** (Render a recovery)
+ *
+ * ```ts
+ * import { ModelsRecoveryResult } from "@beep/repo-cli/commands/Models/Models.exchange.schemas"
+ * import { renderSkillRecoveryReport } from "@beep/repo-cli/commands/Skills/Skills.render"
+ * import { SkillRecoveryReport } from "@beep/repo-cli/commands/Skills/SkillsPublication.schemas"
+ *
+ * const report = SkillRecoveryReport.make({
+ *   journal: "skills-1",
+ *   result: ModelsRecoveryResult.cases.recovered.make({ outcome: "intended" })
+ * })
+ * console.log(renderSkillRecoveryReport(report)) // "recovered skills-1 (intended)"
+ * ```
+ *
+ * @param report - One recovery decision.
+ * @returns The rendered line.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderSkillRecoveryReport = (report: SkillRecoveryReport): string =>
+  Match.value(report.result).pipe(
+    Match.tagsExhaustive({
+      recovered: ({ outcome }) => `recovered ${report.journal} (${outcome})`,
+      refused: ({ detail, reason }) => `refused ${report.journal} (${reason}): ${detail}`,
+      skipped: ({ reason }) => `skipped ${report.journal} (${reason})`,
+      abandoned: ({ detail }) => `abandoned ${report.journal} (${detail})`,
+    })
+  );

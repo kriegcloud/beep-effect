@@ -32,7 +32,7 @@
 // - An empty list matches nothing.
 
 import * as A from "effect/Array";
-import { ReleaseAgeGate } from "../../npm/index.ts";
+import { ReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
 
 /**
  * A predicate over a peer name.

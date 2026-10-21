@@ -35,8 +35,8 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { pathToFileURL } from "node:url";
 import { Run } from "@beep/commands";
-import { PartialReleaseAgeGate } from "../npm/index.ts";
-import { CatalogAssemblyError } from "../npm/index.ts";
+import { PartialReleaseAgeGate } from "@beep/npm-spec/ReleaseAgeGate";
+import { CatalogAssemblyError } from "@beep/npm-spec/CatalogAssemblyError";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -547,10 +547,11 @@ const peerRulesOf = (config: HookConfig): PeerDependencyRules => config.peerDepe
  * contribution, omitting a key the hooks never set (never an explicit
  * `undefined` — the fields are `optionalKey`).
  */
-const releaseAgeOf = (config: HookConfig): PartialReleaseAgeGate => ({
-	...O.getSomesStruct({ ageMinutes: O.fromUndefinedOr(config.minimumReleaseAge) }),
-	...O.getSomesStruct({ exclude: O.fromUndefinedOr(config.minimumReleaseAgeExclude) }),
-});
+const releaseAgeOf = (config: HookConfig): PartialReleaseAgeGate =>
+	PartialReleaseAgeGate.make({
+		...O.getSomesStruct({ ageMinutes: O.fromUndefinedOr(config.minimumReleaseAge) }),
+		...O.getSomesStruct({ exclude: O.fromUndefinedOr(config.minimumReleaseAgeExclude) }),
+	});
 
 /** Fold the hook config back into the normalized `catalog name → dependency → range` record. */
 const configToEntries = (config: HookConfig): CatalogEntries => {

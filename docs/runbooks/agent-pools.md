@@ -539,10 +539,21 @@ stop on a mismatch. A visible composer label is not runtime policy evidence.
 
 `bun run beep models apply` validates owned spans and native syntax before writing.
 `bun run beep models restore --journal <id>` uses the same publication protocol.
-Both require GNU `mv --exchange --no-copy` (Linux `renameat2(RENAME_EXCHANGE)`);
-the service probes support once using disposable files. Unsupported exchange
-fails closed with a typed `ModelsLocatorError`; there is no unverified-concurrency
-fallback for home or repository files.
+Both require Linux `renameat2(RENAME_EXCHANGE)`: GNU `mv --exchange --no-copy
+--no-target-directory`, or, when the host `mv` predates `--exchange` (GNU
+coreutils before 9.5, such as Ubuntu 24.04 and Amazon Linux 2023), the glibc
+`renameat2` wrapper through `python3`. The service probes support once using
+disposable files. For `beep models`, unsupported exchange fails closed with a
+typed `ModelsLocatorError` (`exchange-unsupported` or `exchange-probe-failed`);
+there is no unverified-concurrency fallback for home or repository files.
+
+`beep skills update` publishes `skills-lock.json`, `.codex/config.toml` and
+`.claude/skills/<name>` through the same capability and journals them under
+`.beep/skills-backups/journals`; `beep skills recover` reconciles interrupted
+skill publications. For `beep skills`, an existing target on a filesystem that
+cannot exchange fails closed, before any backup or journal, with a typed
+`SkillPublicationError` whose reason is `exchange-unsupported` or
+`exchange-probe-failed`.
 
 Publication atomically exchanges the staged file and live path, then checks the
 actual displaced entry kind, inode and hash against the planned pre-image. A

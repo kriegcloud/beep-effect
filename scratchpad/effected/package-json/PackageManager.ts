@@ -21,7 +21,7 @@
 // `PackageManager` class remarks carry that decision and its evidence.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import { CorepackIntegrityHash } from "../npm/index.ts";
+import { CorepackIntegrityHash } from "@beep/npm-spec/IntegrityHash";
 import { SemVer } from "@beep/semver";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

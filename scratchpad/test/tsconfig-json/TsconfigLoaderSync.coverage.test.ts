@@ -5,7 +5,7 @@ import * as Layer from "effect/Layer";
 import * as Context from "effect/Context";
 import * as S from "effect/Schema";
 import { MemoryFileSystem } from "@beep/memfs";
-import { TsconfigJson } from "../../effected/tsconfig-json/TsconfigJson.ts";
+import { TsconfigJson } from "@beep/tsconfig/TsconfigJson";
 import { TsconfigLoader } from "../../effected/tsconfig-json/TsconfigLoader.ts";
 import { TsconfigLoaderSync } from "../../effected/tsconfig-json/TsconfigLoaderSync.ts";
 

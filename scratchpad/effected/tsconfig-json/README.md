@@ -1,5 +1,7 @@
 # tsconfig-json (lab port of @effected/tsconfig-json)
 
+The pure document model of this port (`CompilerOptions`, `CompilerOptionsFromProgrammatic`, `JsxConfig`, `PortableTsconfig`, `ResolvedTsconfig`, `TsconfigJson`, `TsEnumCodec`) was promoted to `@beep/tsconfig` (`packages/foundation/modeling/tsconfig`) in effected-promotion wave 2a; import those modules from `@beep/tsconfig/<Module>`. This directory keeps the filesystem half (`TsconfigLoader`, `TsconfigLoaderSync`, `TsconfigDiscovery`, `internal/extendsTarget`) until wave 3 promotes it as `@beep/repo-tsconfig`.
+
 
 Composable tsconfig.json handling for Effect: document and compiler-option schemas, `extends`-chain resolution with tsc's own merge semantics, nearest-config discovery and a portable-config filter for virtual TypeScript environments. Every parse is JSONC — comments and trailing commas are legal everywhere, exactly as tsc treats them — and options the schemas do not know pass through decode and encode untouched instead of being dropped.
 
@@ -49,7 +51,8 @@ console.log(Effect.isEffect(nearest)); // true
 Hand the result to a real compiler by encoding the enum families to their numeric form, or narrow it to the portable subset a virtual TypeScript environment can safely reuse:
 
 ```ts
-import { PortableTsconfig, TsEnumCodec } from "@beep/scratchpad/effected/tsconfig-json";
+import { PortableTsconfig } from "@beep/tsconfig/PortableTsconfig";
+import { TsEnumCodec } from "@beep/tsconfig/TsEnumCodec";
 
 console.log(TsEnumCodec.encodeCompilerOptions({ target: "es2023", strict: true, lib: ["esnext"] }));
 // { target: 10, strict: true, lib: [ 'lib.esnext.d.ts' ] }
@@ -111,7 +114,7 @@ export default defineConfig({
 
 ```ts
 import { dirname } from "node:path";
-import { TsEnumCodec } from "@beep/scratchpad/effected/tsconfig-json";
+import { TsEnumCodec } from "@beep/tsconfig/TsEnumCodec";
 import { createDefaultMapFromNodeModules } from "@typescript/vfs";
 import ts from "typescript";
 
@@ -161,16 +164,16 @@ None.
 
 One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
 
-- **native-runtime** — Lab replaces upstream Map/Set and Object helper sites with MutableHashMap, HashSet and Record helpers, and replaces the sync adapter native Error with a schema error while preserving lookup and filtering contracts (scratchpad/test/tsconfig-json/TsEnumCodec.test.ts:114; scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts:137; scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:364; module suite scratchpad/test/tsconfig-json/**).
-- **tagged-errors** — Lab gives the upstream sync adapter error a schema tag and preserves diagnostic stacks in parse-error cause encoding that upstream omitted (scratchpad/test/tsconfig-json/TsconfigJson.test.ts:189; scratchpad/test/tsconfig-json/TsconfigLoaderSync.test.ts:94; scratchpad/test/tsconfig-json/TsconfigLoaderSync.test.ts:108).
-- **schema-first** — Lab replaces upstream handwritten models and literal domains with schemas and LiteralKit, retains facade statics through S.Opaque, and requires automatic JSX importSource while stripping it from classic variants (scratchpad/test/tsconfig-json/JsxConfig.test.ts:49; scratchpad/test/tsconfig-json/JsxConfig.test.ts:63; scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts:26; scratchpad/test/tsconfig-json/PortableTsconfig.test.ts:9; scratchpad/test/tsconfig-json/TsconfigDiscovery.test.ts:13; scratchpad/test/tsconfig-json/TsEnumCodec.assignability.test.ts:35).
-- **numeric-domains** — Lab narrows upstream maxNodeModuleJsDepth from Number to Finite and uses finite enum fields in the new programmatic runtime schema (scratchpad/test/tsconfig-json/CompilerOptions.test.ts:70; scratchpad/test/tsconfig-json/CompilerOptions.test.ts:144; scratchpad/test/tsconfig-json/TsEnumCodec.assignability.test.ts:35; no dedicated non-finite rejection test).
-- **type-safety** — Lab removes upstream unsafe casts and full-record compiler assignability, preserves unknown passthrough, and restores cast-free assignability of the known enum/lib subset (scratchpad/test/tsconfig-json/TsEnumCodec.assignability.test.ts:35; scratchpad/test/tsconfig-json/TsEnumCodec.assignability.test.ts:52; scratchpad/test/tsconfig-json/TsEnumCodec.assignability.test.ts:66; scratchpad/test/tsconfig-json/TsEnumCodec.test.ts:204; module suite scratchpad/test/tsconfig-json/**).
+- **native-runtime** — Lab replaces upstream Map/Set and Object helper sites with MutableHashMap, HashSet and Record helpers, and replaces the sync adapter native Error with a schema error while preserving lookup and filtering contracts (packages/foundation/modeling/tsconfig/test/TsEnumCodec.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:364; module suite scratchpad/test/tsconfig-json/**).
+- **tagged-errors** — Lab gives the upstream sync adapter error a schema tag and preserves diagnostic stacks in parse-error cause encoding that upstream omitted (packages/foundation/modeling/tsconfig/test/TsconfigJson.test.ts; scratchpad/test/tsconfig-json/TsconfigLoaderSync.test.ts:94; scratchpad/test/tsconfig-json/TsconfigLoaderSync.test.ts:108).
+- **schema-first** — Lab replaces upstream handwritten models and literal domains with schemas and LiteralKit, retains facade statics through S.Opaque, and requires automatic JSX importSource while stripping it from classic variants (packages/foundation/modeling/tsconfig/test/JsxConfig.test.ts; packages/foundation/modeling/tsconfig/test/JsxConfig.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/PortableTsconfig.test.ts; scratchpad/test/tsconfig-json/TsconfigDiscovery.test.ts:13; packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts).
+- **numeric-domains** — Lab narrows upstream maxNodeModuleJsDepth from Number to Finite and uses finite enum fields in the new programmatic runtime schema (packages/foundation/modeling/tsconfig/test/CompilerOptions.test.ts; packages/foundation/modeling/tsconfig/test/CompilerOptions.test.ts; packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts; no dedicated non-finite rejection test).
+- **type-safety** — Lab removes upstream unsafe casts and full-record compiler assignability, preserves unknown passthrough, and restores cast-free assignability of the known enum/lib subset (packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts; packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts; packages/foundation/modeling/tsconfig/test/TsEnumCodec.assignability.test.ts; packages/foundation/modeling/tsconfig/test/TsEnumCodec.test.ts; module suite scratchpad/test/tsconfig-json/**).
 - **tsgo-diagnostics** — Lab adds diagnostic-required dual overloads to the two upstream data-first exports-resolution helpers without changing their full-arity results (scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:66; scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:364; module suite scratchpad/test/tsconfig-json/**).
-- **effect-first** — Lab uses Effect functions and helpers and adds pipeable static combinators while retaining upstream internal tracing behavior and existing data-first results (scratchpad/test/tsconfig-json/TsEnumCodec.test.ts:114; scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts:40; scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts:49; scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts:59; scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:22; scratchpad/test/tsconfig-json/JsxConfig.test.ts:15).
+- **effect-first** — Lab uses Effect functions and helpers and adds pipeable static combinators while retaining upstream internal tracing behavior and existing data-first results (packages/foundation/modeling/tsconfig/test/TsEnumCodec.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/ResolvedTsconfig.test.ts; scratchpad/test/tsconfig-json/TsconfigLoader.test.ts:22; packages/foundation/modeling/tsconfig/test/JsxConfig.test.ts).
 - **effect-imports** — Lab uses individual effect/* imports throughout source, tests and examples where upstream used the root Effect barrel (module suite scratchpad/test/tsconfig-json/**).
 - **identity-annotations** — Lab attaches canonical file-local identity annotations and field metadata to upstream unannotated schema and codec surfaces (module suite scratchpad/test/tsconfig-json/**).
-- **schema-first** — The lab uses a precise portable-options schema and public type that enforce flag and field constraints and strip nonportable codec keys, while upstream exposes Record<string, unknown> and enforces portability only through make (scratchpad/test/tsconfig-json/PortableTsconfig.test.ts:22; scratchpad/test/tsconfig-json/PortableTsconfig.test.ts:38; scratchpad/test/tsconfig-json/PortableTsconfig.test.ts:53; scratchpad/test/tsconfig-json/PortableTsconfig.property.test.ts:43).
+- **schema-first** — The lab uses a precise portable-options schema and public type that enforce flag and field constraints and strip nonportable codec keys, while upstream exposes Record<string, unknown> and enforces portability only through make (packages/foundation/modeling/tsconfig/test/PortableTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/PortableTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/PortableTsconfig.test.ts; packages/foundation/modeling/tsconfig/test/PortableTsconfig.property.test.ts).
 
 ### Dependency backlog
 

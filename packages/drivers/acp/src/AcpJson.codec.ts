@@ -10,6 +10,7 @@ import { A } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as R from "@beep/utils/Record";
 import * as Effect from "effect/Effect";
+import { constant, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -19,29 +20,30 @@ import * as Str from "effect/String";
 
 const $I = $AcpId.create("json");
 
-// UTF-16 code units of the JSON structural, whitespace, and escape characters (RFC 8259).
-const QUOTATION_MARK = 0x22;
-const REVERSE_SOLIDUS = 0x5c;
-const SOLIDUS = 0x2f;
-const COLON = 0x3a;
-const COMMA = 0x2c;
-const LEFT_BRACE = 0x7b;
-const RIGHT_BRACE = 0x7d;
-const LEFT_BRACKET = 0x5b;
-const RIGHT_BRACKET = 0x5d;
-const HYPHEN_MINUS = 0x2d;
-const DIGIT_ZERO = 0x30;
-const DIGIT_NINE = 0x39;
-const SPACE = 0x20;
-const CHARACTER_TABULATION = 0x09;
-const LINE_FEED = 0x0a;
-const CARRIAGE_RETURN = 0x0d;
-const LATIN_SMALL_B = 0x62;
-const LATIN_SMALL_F = 0x66;
-const LATIN_SMALL_N = 0x6e;
-const LATIN_SMALL_R = 0x72;
-const LATIN_SMALL_T = 0x74;
-const LATIN_SMALL_U = 0x75;
+// The JSON structural, whitespace, and escape characters (RFC 8259). The scanner reads one UTF-16
+// code unit at a time by index, so `text[i]` is `undefined` past the end of the text.
+const QUOTATION_MARK = '"';
+const REVERSE_SOLIDUS = "\\";
+const SOLIDUS = "/";
+const COLON = ":";
+const COMMA = ",";
+const LEFT_BRACE = "{";
+const RIGHT_BRACE = "}";
+const LEFT_BRACKET = "[";
+const RIGHT_BRACKET = "]";
+const HYPHEN_MINUS = "-";
+const DIGIT_ZERO = "0";
+const DIGIT_NINE = "9";
+const SPACE = " ";
+const CHARACTER_TABULATION = "\t";
+const LINE_FEED = "\n";
+const CARRIAGE_RETURN = "\r";
+const LATIN_SMALL_B = "b";
+const LATIN_SMALL_F = "f";
+const LATIN_SMALL_N = "n";
+const LATIN_SMALL_R = "r";
+const LATIN_SMALL_T = "t";
+const LATIN_SMALL_U = "u";
 const MAX_DEPTH = 1024;
 const numberPattern = /-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/y;
 const unicodeEscapePattern = /^[0-9a-fA-F]{4}$/;
@@ -56,10 +58,11 @@ const singleCharacterEscapes = HashMap.make(
   [LATIN_SMALL_T, "\t"]
 );
 
-const isWhitespace = (code: number): boolean =>
+const isWhitespace = (code: string | undefined): boolean =>
   code === SPACE || code === LINE_FEED || code === CARRIAGE_RETURN || code === CHARACTER_TABULATION;
-const isDigit = (code: number): boolean => code >= DIGIT_ZERO && code <= DIGIT_NINE;
-const describeCharacter = (code: number): string => `U+${code.toString(16).toUpperCase().padStart(4, "0")}`;
+const isDigit = (code: string | undefined): boolean => code !== undefined && code >= DIGIT_ZERO && code <= DIGIT_NINE;
+const describeCharacter = (code: string): string =>
+  `U+${pipe(O.getOrElse(Str.charCodeAt(0)(code), constant(0)).toString(16), Str.toUpperCase, Str.padStart(4, "0"))}`;
 
 /**
  * Failure raised when a JSON text does not satisfy the JSON grammar.
@@ -106,8 +109,8 @@ class Cursor {
     this.text = text;
   }
 
-  peek(): number {
-    return this.text.charCodeAt(this.index);
+  peek(): string | undefined {
+    return this.text[this.index];
   }
 
   fail(reason: string): never {
@@ -115,7 +118,7 @@ class Cursor {
   }
 
   skipWhitespace(): void {
-    while (isWhitespace(this.text.charCodeAt(this.index))) {
+    while (isWhitespace(this.text[this.index])) {
       this.index += 1;
     }
   }
@@ -155,16 +158,16 @@ const readNumber = (cursor: Cursor): number => {
 // and the index just past the sequence.
 const readEscapeSequence = (cursor: Cursor, index: number): readonly [decoded: string, next: number] => {
   const text = cursor.text;
-  const escape = text.charCodeAt(index + 1);
+  const escape = text[index + 1];
   if (escape === LATIN_SMALL_U) {
-    const hex = text.slice(index + 2, index + 6);
+    const hex = pipe(text, Str.slice(index + 2, index + 6));
     if (!unicodeEscapePattern.test(hex)) {
       cursor.index = index;
       return cursor.fail("Invalid unicode escape sequence");
     }
     return [String.fromCharCode(Number.parseInt(hex, 16)), index + 6];
   }
-  return O.match(HashMap.get(singleCharacterEscapes, escape), {
+  return O.match(escape === undefined ? O.none() : HashMap.get(singleCharacterEscapes, escape), {
     onNone: () => {
       cursor.index = index;
       return cursor.fail("Invalid escape sequence");
@@ -174,11 +177,11 @@ const readEscapeSequence = (cursor: Cursor, index: number): readonly [decoded: s
 };
 
 // Rejects the end of text and unescaped control characters inside a string.
-const ensureStringCharacter = (cursor: Cursor, index: number, code: number): void => {
-  if (Number.isNaN(code) || code < SPACE) {
+const ensureStringCharacter = (cursor: Cursor, index: number, code: string | undefined): void => {
+  if (code === undefined || code < SPACE) {
     cursor.index = index;
     cursor.fail(
-      Number.isNaN(code) ? "Unterminated string" : `Unescaped control character ${describeCharacter(code)} in string`
+      code === undefined ? "Unterminated string" : `Unescaped control character ${describeCharacter(code)} in string`
     );
   }
 };
@@ -189,14 +192,14 @@ const readString = (cursor: Cursor): string => {
   let start = index;
   let out = "";
   while (true) {
-    const code = text.charCodeAt(index);
+    const code = text[index];
     if (code === QUOTATION_MARK) {
       cursor.index = index + 1;
-      return out + text.slice(start, index);
+      return out + pipe(text, Str.slice(start, index));
     }
     if (code === REVERSE_SOLIDUS) {
       const [decoded, next] = readEscapeSequence(cursor, index);
-      out += text.slice(start, index) + decoded;
+      out += pipe(text, Str.slice(start, index)) + decoded;
       index = next;
       start = next;
       continue;
@@ -207,7 +210,7 @@ const readString = (cursor: Cursor): string => {
 };
 
 // Consumes the separator after an element; returns whether `closing` ended the collection.
-const readSeparator = (cursor: Cursor, closing: number, expected: string): boolean => {
+const readSeparator = (cursor: Cursor, closing: string, expected: string): boolean => {
   cursor.skipWhitespace();
   const code = cursor.peek();
   if (code === COMMA || code === closing) {
@@ -281,10 +284,10 @@ const readValue = (cursor: Cursor): unknown => {
   if (code === HYPHEN_MINUS || isDigit(code)) {
     return readNumber(cursor);
   }
-  return O.match(HashMap.get(valueReaders, code), {
+  return O.match(code === undefined ? O.none() : HashMap.get(valueReaders, code), {
     onNone: () =>
       cursor.fail(
-        Number.isNaN(code) ? "Unexpected end of JSON text" : `Unexpected character ${describeCharacter(code)}`
+        code === undefined ? "Unexpected end of JSON text" : `Unexpected character ${describeCharacter(code)}`
       ),
     onSome: (read) => read(cursor),
   });
@@ -316,7 +319,7 @@ const scanString = (text: string, start: number): readonly [end: number, escaped
   let escaped = false;
   let end = start + 1;
   while (end < Str.length(text)) {
-    const code = text.charCodeAt(end);
+    const code = text[end];
     if (code === QUOTATION_MARK) {
       return [end, escaped];
     }
@@ -328,10 +331,10 @@ const scanString = (text: string, start: number): readonly [end: number, escaped
 
 const isPropertyKeyEnd = (text: string, end: number): boolean => {
   let next = end + 1;
-  while (isWhitespace(text.charCodeAt(next))) {
+  while (isWhitespace(text[next])) {
     next += 1;
   }
-  return text.charCodeAt(next) === COLON;
+  return text[next] === COLON;
 };
 
 /**
@@ -361,8 +364,12 @@ const isPropertyKeyEnd = (text: string, end: number): boolean => {
  * @since 0.0.0
  */
 export const hasEscapedPropertyKey = (text: string): boolean => {
-  let index = text.indexOf('"');
-  while (index !== -1) {
+  let index = 0;
+  while (index < Str.length(text)) {
+    if (text[index] !== QUOTATION_MARK) {
+      index += 1;
+      continue;
+    }
     const [end, escaped] = scanString(text, index);
     if (end === -1) {
       return false;
@@ -370,7 +377,7 @@ export const hasEscapedPropertyKey = (text: string): boolean => {
     if (escaped && isPropertyKeyEnd(text, end)) {
       return true;
     }
-    index = text.indexOf('"', end + 1);
+    index = end + 1;
   }
   return false;
 };

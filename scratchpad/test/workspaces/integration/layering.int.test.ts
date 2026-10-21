@@ -8,7 +8,8 @@ import { fileURLToPath } from "node:url";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { assert, describe, layer } from "@effect/vitest";
 import { platform, type Tree } from "../fixtures.ts";
-import type { DependencyField } from "../../../effected/npm/index.ts";
+import type { DependencyField } from "@beep/npm-spec/DependencySection";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -26,11 +27,14 @@ const LAB = join(REPO, "scratchpad", "effected");
 const TESTS = join(REPO, "scratchpad", "test");
 const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 
-// Kit modules waves 1a and 1b of the effected promotion moved out of the lab
+// Kit modules waves 1a, 1b and 2a of the effected promotion moved out of the lab
 // into `@beep/*` packages keep their lab layer: an import of the package
 // (`@beep/<pkg>` or `@beep/<pkg>/<File>`) is an edge to the lab module it was,
 // and the package's own `src` and `test` are scanned as that module's source and
 // tests were. `templates` was promoted under the name `@beep/managed-section`.
+// Wave 2a split two modules: the pure halves of `npm` and `tsconfig-json` are
+// `@beep/npm-spec` and `@beep/tsconfig`, and their IO halves stay lab
+// directories, so each package and its lab half fold into the one lab module.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
@@ -42,10 +46,12 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/jsonl": "jsonl",
 	"@beep/managed-section": "templates",
 	"@beep/memfs": "memfs",
+	"@beep/npm-spec": "npm",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",
 	"@beep/spdx": "spdx",
 	"@beep/toml": "toml",
+	"@beep/tsconfig": "tsconfig-json",
 	"@beep/yaml": "yaml",
 };
 // Each package's directory, resolved the way the lab's own imports resolve it.
@@ -59,7 +65,7 @@ const moduleGraph = (): LayeringGraph => {
 	const labModules = readdirSync(LAB, { withFileTypes: true })
 		.filter((entry) => entry.isDirectory() && readdirSync(join(LAB, entry.name)).includes("index.ts"))
 		.map((entry) => entry.name);
-	const modules = [...labModules, ...Object.values(PROMOTED)];
+	const modules = A.dedupe([...labModules, ...R.values(PROMOTED)]);
 	const edges: Array<LayerEdge> = [];
 	const scan = (directory: string, from: string, field: DependencyField): void => {
 		for (const entry of readdirSync(directory, { withFileTypes: true })) {

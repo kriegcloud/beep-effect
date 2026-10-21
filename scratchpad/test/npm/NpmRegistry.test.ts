@@ -16,7 +16,9 @@ import * as S from "effect/Schema";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientError from "effect/http/HttpClientError";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
-import { DEFAULT_REGISTRY, NpmRegistry, PublishedVersion, RegistryReadError, type RegistrySeed } from "../../effected/npm/NpmRegistry.ts";
+import { BasicCredential, TokenCredential } from "@beep/npm-spec/RegistryCredential";
+import { DEFAULT_REGISTRY } from "@beep/npm-spec/RegistryKind";
+import { NpmRegistry, PublishedVersion, RegistryReadError, type RegistrySeed } from "../../effected/npm/NpmRegistry.ts";
 
 const WireCause = S.Struct({ name: S.String, message: S.String, stack: S.String });
 
@@ -245,7 +247,7 @@ describe("NpmRegistry — the registry dimension", () => {
 				Effect.gen(function* () {
 					const r = yield* registry;
 					yield* r.version("pkg", "1.1.0", {
-						credential: { kind: "basic", encoded: Redacted.make("dXNlcjpwYXNz") },
+						credential: BasicCredential.make({ kind: "basic", encoded: Redacted.make("dXNlcjpwYXNz") }),
 					});
 					assert.strictEqual(client.requests[0]?.authorization, "Basic dXNlcjpwYXNz");
 				}),
@@ -260,7 +262,7 @@ describe("NpmRegistry — the registry dimension", () => {
 				Effect.gen(function* () {
 					const r = yield* registry;
 					yield* r.version("pkg", "1.1.0");
-					yield* r.version("pkg", "1.1.0", { credential: { kind: "token", token: Redacted.make("s3cr3t") } });
+					yield* r.version("pkg", "1.1.0", { credential: TokenCredential.make({ kind: "token", token: Redacted.make("s3cr3t") }) });
 					assert.strictEqual(client.requests[0]?.authorization, undefined);
 					assert.strictEqual(client.requests[1]?.authorization, "Bearer s3cr3t");
 				}),
@@ -305,7 +307,7 @@ describe("NpmRegistry.version — registries without the per-version endpoint", 
 					const found = yield* Effect.flatMap(registry, (r) =>
 						r.version("@savvy-web/standalone-package", "0.10.9", {
 							registry: "https://npm.pkg.github.com",
-							credential: { kind: "token", token: Redacted.make("ghp_token") },
+							credential: TokenCredential.make({ kind: "token", token: Redacted.make("ghp_token") }),
 						}),
 					);
 					assertSome(found, O.getOrThrow(found));

@@ -236,7 +236,7 @@ export type YamlErrorCode = typeof YamlErrorCode.Type;
  * **Details**
  *
  * The five-field positional core (`code`/`offset`/`length`/`line`/`character`)
- * is structurally identical to `@effected/jsonc`'s parse-error detail shape;
+ * is structurally identical to `@beep/jsonc`'s parse-error detail shape;
  * `message` is this package's additive extra.
  *
  * **Example** (Construct a positioned diagnostic)
