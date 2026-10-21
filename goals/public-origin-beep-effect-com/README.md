@@ -25,7 +25,7 @@ Use this command for execution-capable sessions:
 
 1. [`GOAL.md`](./GOAL.md) - compact `/goal` launcher.
 2. [`SPEC.md`](./SPEC.md) - normative source of truth, including the D1 to D6
-   operator decisions and the I1 to I17 rulings.
+   operator decisions and the I1 to I18 rulings.
 3. [`PLAN.md`](./PLAN.md) - phases and closeout checklist.
 4. [`ops/manifest.json`](./ops/manifest.json) - machine-readable routing.
 5. [`history/2026-10-20-operator-brief.md`](./history/2026-10-20-operator-brief.md) -

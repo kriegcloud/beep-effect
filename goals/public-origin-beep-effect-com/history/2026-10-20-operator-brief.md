@@ -14,7 +14,7 @@ the lane header above the brief and the file census below its Acceptance
 section are left out. Everything between the markers is otherwise byte for
 byte.
 
-Later agent rulings that refine this brief (I1 to I17, including no changesets
+Later agent rulings that refine this brief (I1 to I18, including no changesets
 and the closeout shape) are in the [`SPEC.md`](../SPEC.md) Decision Log.
 
 <!-- brief:begin -->

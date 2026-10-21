@@ -85,6 +85,14 @@ describe("retired IRI authority law", () => {
       })
     );
 
+    it.effect("reports a bare subdomain of a retired host with no path", () =>
+      Effect.sync(() => {
+        expect(matchesOf(`see docs.${DEV_HOST} for more`)).toEqual([`docs.${DEV_HOST}`]);
+        expect(matchesOf(`host: api.${EFFECT_DEV_HOST}`)).toEqual([`api.${EFFECT_DEV_HOST}`]);
+        expect(matchesOf(`config.${DEV_HOST}`)).toEqual([`config.${DEV_HOST}`]);
+      })
+    );
+
     it.effect("reports JSON-escaped and percent-encoded IRIs", () =>
       Effect.sync(() => {
         expect(matchesOf(`{"iri":"https:\\/\\/${NS_HOST}\\/a"} ?u=https%3A%2F%2F${DEV_HOST}%2Fb`)).toEqual([
@@ -129,7 +137,6 @@ describe("retired IRI authority law", () => {
           `scripts/${APEX_SH}`,
           `./${APEX_SH}`,
           `https://example.com/${DEV_HOST}`,
-          `config.${DEV_HOST}`,
           `@beep/identity`,
           `https://${ORIGIN_HOST}/ns/`,
         ]) {

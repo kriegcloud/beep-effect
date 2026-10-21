@@ -36,6 +36,14 @@ const $I = $ExiftoolId.create("ExiftoolConfig");
  * namespace follows the repository identity authority: the value is the
  * `qa/1.0` vocabulary IRI with a trailing slash.
  *
+ * **Gotchas**
+ *
+ * The 2026-10-20 authority move (goal public-origin-beep-effect-com, D6) is a
+ * hard cut with no alias. ExifTool binds the `beepQA` prefix to this URI
+ * through the rendered `-config`, so a file stamped under the retired
+ * namespace URI reads back under a temporary prefix (`XMP-tmp0:*`) and its
+ * provenance decodes as `None`. Re-stamp such files instead of reading them.
+ *
  * **Example** (Log XMP namespace URI)
  *
  * ```ts

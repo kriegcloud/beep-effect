@@ -70,13 +70,12 @@ const RETIRED_HOSTS = A.join(
 
 /**
  * Rule 1: a retired host, or any subdomain of one, after an authority prefix or
- * after `@` (an email domain); a retired host standing alone where it cannot be
- * part of a longer name, a property chain, or a file path (`scripts/<host>`); or
- * a bare subdomain of one followed by a path (`docs.<host>/page`).
+ * after `@` (an email domain), or standing alone (`<host>`, `docs.<host>`,
+ * `docs.<host>/page`) where it cannot be part of a longer name or a file path
+ * (`scripts/<host>`).
  */
 const RETIRED_AUTHORITY_PATTERN = new RegExp(
-  String.raw`(?:(?:${AUTHORITY_PREFIX}|@)(?:[\w-]+\.)*(?:${RETIRED_HOSTS})${HOST_END}` +
-    String.raw`|(?<![\w.@/\\-])(?:(?:${RETIRED_HOSTS})${HOST_END}|(?:[\w-]+\.)+(?:${RETIRED_HOSTS})(?=\/)))`,
+  String.raw`(?:(?:${AUTHORITY_PREFIX}|@)|(?<![\w.@/\\-]))(?:[\w-]+\.)*(?:${RETIRED_HOSTS})${HOST_END}`,
   "giu"
 );
 
