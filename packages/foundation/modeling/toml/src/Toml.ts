@@ -111,7 +111,7 @@ export class TomlParseError extends S.TaggedError<TomlParseError, { readonly bra
   },
   $I.annoteError<TomlParseError>("TomlParseError", {
     description:
-      "Parse failure: the TomlDiagnostic entries describing why the document was rejected (first violation wins, so there is one today; the array shape matches `@effected/yaml`'s aggregate contract). Raised by Toml.parse and the decode direction of the schema factories.",
+      "Parse failure: the TomlDiagnostic entries describing why the document was rejected (first violation wins, so there is one today; the array shape matches `@beep/yaml`'s aggregate contract). Raised by Toml.parse and the decode direction of the schema factories.",
   })
 ) {
   /**

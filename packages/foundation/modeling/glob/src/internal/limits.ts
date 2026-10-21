@@ -342,6 +342,4 @@ export const isGuardExceeded = S.is(GuardExceeded);
  * @category assertions
  * @since 0.0.0
  */
-export const assertCap: N.CapAssertion = N.makeCapAssertion("@effected/glob", (message) =>
-  InvalidCap.make({ message })
-);
+export const assertCap: N.CapAssertion = N.makeCapAssertion("@beep/glob", (message) => InvalidCap.make({ message }));

@@ -171,6 +171,4 @@ export const isGuardExceeded = S.is(GuardExceeded);
  * @category assertions
  * @since 0.0.0
  */
-export const assertCap: N.CapAssertion = N.makeCapAssertion("@effected/toml", (message) =>
-  TomlCapError.make({ message })
-);
+export const assertCap: N.CapAssertion = N.makeCapAssertion("@beep/toml", (message) => TomlCapError.make({ message }));
