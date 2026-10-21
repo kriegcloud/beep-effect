@@ -2380,6 +2380,18 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/capability/walker": {
+      "name": "@beep/walker",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/github-commands": {
       "name": "@beep/github-commands",
       "version": "0.0.0",
@@ -4640,6 +4652,8 @@
     "@beep/uspto-mcp": ["@beep/uspto-mcp@workspace:packages/drivers/uspto-mcp"],
 
     "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
+
+    "@beep/walker": ["@beep/walker@workspace:packages/foundation/capability/walker"],
 
     "@beep/windows-secrets": ["@beep/windows-secrets@workspace:packages/drivers/windows-secrets"],
 

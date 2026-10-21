@@ -2274,7 +2274,9 @@
       "@beep/tsconfig": [
         "./packages/foundation/modeling/tsconfig/src/index.ts"
       ],
-      "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"]
+      "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"],
+      "@beep/walker": ["./packages/foundation/capability/walker/src/index.ts"],
+      "@beep/walker/*": ["./packages/foundation/capability/walker/src/*"]
     }
   }
 }

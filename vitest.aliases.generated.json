@@ -2097,5 +2097,7 @@
   "@beep/npm-spec": ["./packages/foundation/modeling/npm-spec/src/index.ts"],
   "@beep/npm-spec/*": ["./packages/foundation/modeling/npm-spec/src/*"],
   "@beep/tsconfig": ["./packages/foundation/modeling/tsconfig/src/index.ts"],
-  "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"]
+  "@beep/tsconfig/*": ["./packages/foundation/modeling/tsconfig/src/*"],
+  "@beep/walker": ["./packages/foundation/capability/walker/src/index.ts"],
+  "@beep/walker/*": ["./packages/foundation/capability/walker/src/*"]
 }

@@ -1002,6 +1002,12 @@
         ]
       },
       {
+        "name": "@beep/walker",
+        "patterns": [
+          "packages/foundation/capability/walker/src/**"
+        ]
+      },
+      {
         "name": "@beep/windows-secrets",
         "patterns": [
           "packages/drivers/windows-secrets/src/**"
@@ -4817,6 +4823,15 @@
           "@beep/test-runner",
           "@beep/types",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/walker",
+        "allow": [
+          "@beep/walker"
+        ],
+        "allowTypeOnly": [
+          "@beep/walker"
         ]
       },
       {
