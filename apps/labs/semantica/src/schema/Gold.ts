@@ -43,34 +43,31 @@ const GoldSubsetChecks = S.makeFilterGroup([
   S.makeFilter(
     (subsets: GoldSubsetFields) =>
       hasUniqueIds(subsets.structure) && hasUniqueIds(subsets.entity) && hasUniqueIds(subsets.relation),
-    {
-      identifier: $I`GoldSubsetUniqueIds`,
+    $I.annote("GoldSubsetUniqueIds", {
       title: "Gold subset identity uniqueness",
       description: "Requires every paper id to appear at most once within each scored subset.",
       message: "GoldSubset arrays must contain unique paper ids.",
-    }
+    })
   ),
   S.makeFilter(
     (subsets: GoldSubsetFields) =>
       isProperSubset(subsets.entity, subsets.structure) && isProperSubset(subsets.relation, subsets.entity),
-    {
-      identifier: $I`GoldSubsetContainment`,
+    $I.annote("GoldSubsetContainment", {
       title: "Gold subset strict containment",
       description: "Requires relation to be a proper subset of entity and entity to be a proper subset of structure.",
       message: "GoldSubset must satisfy relation ⊂ entity ⊂ structure.",
-    }
+    })
   ),
   S.makeFilter(
     (subsets: GoldSubsetFields) =>
       Equal.equals(A.length(subsets.structure), 10) &&
       Equal.equals(A.length(subsets.entity), 5) &&
       Equal.equals(A.length(subsets.relation), 3),
-    {
-      identifier: $I`GoldSubsetExactSizes`,
+    $I.annote("GoldSubsetExactSizes", {
       title: "Gold subset exact sizes",
       description: "Requires structure, entity, and relation subsets to contain exactly ten, five, and three papers.",
       message: "GoldSubset sizes must equal structure=10, entity=5, and relation=3.",
-    }
+    })
   ),
 ]);
 
@@ -109,12 +106,11 @@ const GoldRefFields = S.Struct({
 
 const GoldRefProposerCheck = S.makeFilter(
   (gold: typeof GoldRefFields.Type) => gold.proposer.taskType === "gold-proposal",
-  {
-    identifier: $I`GoldRefProposerCheck`,
+  $I.annote("GoldRefProposerCheck", {
     title: "Gold proposer task",
     description: "Requires the pinned proposer model identity to carry the gold-proposal task role.",
     message: "GoldRef proposer.taskType must equal gold-proposal.",
-  }
+  })
 );
 
 /**
@@ -221,12 +217,11 @@ const GoldRelationEndpointWidthCheck = S.makeFilter(
   (label: typeof GoldRelationLabelFields.Type) =>
     N.isLessThan(label.subjectStartChar, label.subjectEndChar) &&
     N.isLessThan(label.objectStartChar, label.objectEndChar),
-  {
-    identifier: $I`GoldRelationEndpointWidthCheck`,
+  $I.annote("GoldRelationEndpointWidthCheck", {
     title: "Gold relation endpoint widths",
     description: "Requires subject and object endpoint anchors to have positive UTF-16 widths.",
     message: "Gold relation endpoint anchors must satisfy startChar < endChar.",
-  }
+  })
 );
 
 /**
@@ -551,12 +546,11 @@ const GoldFileDefinition = GoldFileSubset.mapMembers(
 
 const GoldFileProposerCheck = S.makeFilter(
   (file: typeof GoldFileDefinition.Type) => file.proposer.taskType === "gold-proposal",
-  {
-    identifier: $I`GoldFileProposerCheck`,
+  $I.annote("GoldFileProposerCheck", {
     title: "Gold file proposer task",
     description: "Requires every gold label file to record a model with the gold-proposal task role.",
     message: "GoldFile proposer.taskType must equal gold-proposal.",
-  }
+  })
 );
 
 /**
@@ -617,12 +611,11 @@ const GoldFileEncodedDefinition = S.toEncoded(GoldFile);
 
 const GoldFileEncodedProposerCheck = S.makeFilter(
   (file: typeof GoldFileEncodedDefinition.Type) => file.proposer.taskType === "gold-proposal",
-  {
-    identifier: $I`GoldFileEncodedProposerCheck`,
+  $I.annote("GoldFileEncodedProposerCheck", {
     title: "Encoded gold file proposer task",
     description: "Requires every persisted gold label file to retain the gold-proposal task role.",
     message: "GoldFileEncoded proposer.taskType must equal gold-proposal.",
-  }
+  })
 );
 
 /**

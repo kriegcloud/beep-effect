@@ -476,12 +476,11 @@ export const makeClaimId = (claim: ClaimIdSource): Result.Result<ClaimId, S.Sche
 const EvidenceClaimReceiptCheck = S.makeFilter(
   (claim: typeof EvidenceClaimFields.Type) =>
     S.toEquivalence(TextAnchor)(claim.receipt.anchor, TextAnchor.make(claim.body)),
-  {
-    identifier: $I`EvidenceClaimReceiptCheck`,
+  $I.annote("EvidenceClaimReceiptCheck", {
     title: "Evidence claim anchor receipt",
     description: "Requires the verification receipt to contain the evidence body's exact anchor.",
     message: "EvidenceClaim receipt.anchor must equal the anchor carried by body.",
-  }
+  })
 );
 
 const EvidenceClaimIdentityCheck = S.makeFilter(
@@ -492,20 +491,21 @@ const EvidenceClaimIdentityCheck = S.makeFilter(
         onSuccess: (id) => Str.Equivalence(id, claim.id),
       })
     ),
-  {
-    identifier: $I`EvidenceClaimIdentityCheck`,
+  $I.annote("EvidenceClaimIdentityCheck", {
     title: "Evidence claim content identity",
     description: "Requires id to hash the canonical encoded document, chunk, body, method, and model.",
     message: "EvidenceClaim id must match the canonical claim preimage digest.",
-  }
+  })
 );
 
-const EvidenceClaimChecks = S.makeFilterGroup([EvidenceClaimReceiptCheck, EvidenceClaimIdentityCheck], {
-  identifier: $I`EvidenceClaimChecks`,
-  title: "Evidence claim",
-  description: "Checks the anchor receipt and canonical content identity of an evidence claim.",
-  message: "EvidenceClaim must have a matching receipt and content id.",
-});
+const EvidenceClaimChecks = S.makeFilterGroup(
+  [EvidenceClaimReceiptCheck, EvidenceClaimIdentityCheck],
+  $I.annote("EvidenceClaimChecks", {
+    title: "Evidence claim",
+    description: "Checks the anchor receipt and canonical content identity of an evidence claim.",
+    message: "EvidenceClaim must have a matching receipt and content id.",
+  })
+);
 
 /**
  * Content-addressed grounded evidence claim and its verification receipt.
@@ -691,49 +691,60 @@ const batchIdMatchesPreimage = (batch: EvidenceBatchFields): boolean =>
 
 const EvidenceBatchChecks = S.makeFilterGroup(
   [
-    S.makeFilter(claimIdsAreUnique, {
-      identifier: $I`EvidenceBatchClaimIdsUnique`,
-      title: "Evidence batch claim identity uniqueness",
-      description: "Requires every evidence claim in a batch to have a unique content-addressed id.",
-      message: "EvidenceBatch claims must have unique ids.",
-    }),
-    S.makeFilter(claimsMatchBatch, {
-      identifier: $I`EvidenceBatchClaimCoherence`,
-      title: "Evidence batch claim coherence",
-      description: "Requires each claim's document, extraction method, and model to equal its batch.",
-      message: "EvidenceBatch claims must match the batch document, method, and model.",
-    }),
-    S.makeFilter(outputsReferenceInputs, {
-      identifier: $I`EvidenceBatchOutputInputBinding`,
-      title: "Evidence batch output input binding",
-      description: "Requires every claim and degraded claim to reference a chunk listed in batch inputs.",
-      message: "EvidenceBatch claim and degraded chunk ids must belong to inputs.",
-    }),
-    S.makeFilter(relationEndpointsAreEntityClaims, {
-      identifier: $I`EvidenceBatchRelationEndpoints`,
-      title: "Evidence batch relation endpoints",
-      description: "Requires each relation endpoint to identify an entity claim in the same batch.",
-      message: "EvidenceBatch relation subject and object must identify same-batch entity claims.",
-    }),
-    S.makeFilter(lossesMatchMethod, {
-      identifier: $I`EvidenceBatchDeclaredLosses`,
-      title: "Evidence batch declared losses",
-      description: "Requires lossy to equal the method's declared capability-loss set without duplicates.",
-      message: "EvidenceBatch lossy must exactly match declaredLosses for method.",
-    }),
-    S.makeFilter(batchIdMatchesPreimage, {
-      identifier: $I`EvidenceBatchIdentity`,
-      title: "Evidence batch content identity",
-      description: "Requires id to hash the canonical encoded document, method, model, and ordered inputs.",
-      message: "EvidenceBatch id must match the canonical batch preimage digest.",
-    }),
+    S.makeFilter(
+      claimIdsAreUnique,
+      $I.annote("EvidenceBatchClaimIdsUnique", {
+        title: "Evidence batch claim identity uniqueness",
+        description: "Requires every evidence claim in a batch to have a unique content-addressed id.",
+        message: "EvidenceBatch claims must have unique ids.",
+      })
+    ),
+    S.makeFilter(
+      claimsMatchBatch,
+      $I.annote("EvidenceBatchClaimCoherence", {
+        title: "Evidence batch claim coherence",
+        description: "Requires each claim's document, extraction method, and model to equal its batch.",
+        message: "EvidenceBatch claims must match the batch document, method, and model.",
+      })
+    ),
+    S.makeFilter(
+      outputsReferenceInputs,
+      $I.annote("EvidenceBatchOutputInputBinding", {
+        title: "Evidence batch output input binding",
+        description: "Requires every claim and degraded claim to reference a chunk listed in batch inputs.",
+        message: "EvidenceBatch claim and degraded chunk ids must belong to inputs.",
+      })
+    ),
+    S.makeFilter(
+      relationEndpointsAreEntityClaims,
+      $I.annote("EvidenceBatchRelationEndpoints", {
+        title: "Evidence batch relation endpoints",
+        description: "Requires each relation endpoint to identify an entity claim in the same batch.",
+        message: "EvidenceBatch relation subject and object must identify same-batch entity claims.",
+      })
+    ),
+    S.makeFilter(
+      lossesMatchMethod,
+      $I.annote("EvidenceBatchDeclaredLosses", {
+        title: "Evidence batch declared losses",
+        description: "Requires lossy to equal the method's declared capability-loss set without duplicates.",
+        message: "EvidenceBatch lossy must exactly match declaredLosses for method.",
+      })
+    ),
+    S.makeFilter(
+      batchIdMatchesPreimage,
+      $I.annote("EvidenceBatchIdentity", {
+        title: "Evidence batch content identity",
+        description: "Requires id to hash the canonical encoded document, method, model, and ordered inputs.",
+        message: "EvidenceBatch id must match the canonical batch preimage digest.",
+      })
+    ),
   ],
-  {
-    identifier: $I`EvidenceBatchChecks`,
+  $I.annote("EvidenceBatchChecks", {
     title: "Evidence batch",
     description: "Checks evidence-batch coherence, provenance, declared losses, endpoints, and content identity.",
     message: "EvidenceBatch must satisfy every batch coherence and identity check.",
-  }
+  })
 );
 
 /**
@@ -890,20 +901,21 @@ const encodeConflictWitnessPreimageResult = S.encodeResult(ConflictWitnessPreima
 
 const ConflictWitnessChecks = S.makeFilterGroup(
   [
-    S.makeFilter((witness: typeof ConflictWitnessFields.Type) => !Str.Equivalence(witness.left, witness.right), {
-      identifier: $I`ConflictWitnessDistinctEndpoints`,
-      title: "Conflict witness distinct endpoints",
-      description: "Requires a conflict witness to connect two different evidence claims.",
-      message: "ConflictWitness left and right must differ.",
-    }),
+    S.makeFilter(
+      (witness: typeof ConflictWitnessFields.Type) => !Str.Equivalence(witness.left, witness.right),
+      $I.annote("ConflictWitnessDistinctEndpoints", {
+        title: "Conflict witness distinct endpoints",
+        description: "Requires a conflict witness to connect two different evidence claims.",
+        message: "ConflictWitness left and right must differ.",
+      })
+    ),
     S.makeFilter(
       (witness: typeof ConflictWitnessFields.Type) => Order.isLessThan(Order.String)(witness.left, witness.right),
-      {
-        identifier: $I`ConflictWitnessCanonicalOrder`,
+      $I.annote("ConflictWitnessCanonicalOrder", {
         title: "Conflict witness canonical order",
         description: "Requires conflict endpoints to use ascending string order for one canonical preimage.",
         message: "ConflictWitness left must sort before right.",
-      }
+      })
     ),
     S.makeFilter(
       (witness: typeof ConflictWitnessFields.Type) =>
@@ -918,20 +930,18 @@ const ConflictWitnessChecks = S.makeFilterGroup(
             onSuccess: (id) => Str.Equivalence(id, witness.id),
           })
         ),
-      {
-        identifier: $I`ConflictWitnessIdentity`,
+      $I.annote("ConflictWitnessIdentity", {
         title: "Conflict witness content identity",
         description: "Requires id to hash the canonical encoded left, right, and conflict basis.",
         message: "ConflictWitness id must match the canonical conflict preimage digest.",
-      }
+      })
     ),
   ],
-  {
-    identifier: $I`ConflictWitnessChecks`,
+  $I.annote("ConflictWitnessChecks", {
     title: "Conflict witness",
     description: "Checks distinct ordered endpoints and the canonical conflict-witness content id.",
     message: "ConflictWitness must have distinct ordered endpoints and a matching content id.",
-  }
+  })
 );
 
 /**

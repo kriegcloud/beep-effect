@@ -32,12 +32,14 @@ const MAX_INTAKE_FILE_BYTES = 25 * 1024 * 1024;
 const formatMegabytes = (bytes: number): string => `${N.round(bytes / (1024 * 1024), 1)} MB`;
 
 const IntakeFileSize = S.Int.check(
-  S.isGreaterThanOrEqualTo(0, {
-    identifier: $I`IntakeFileSizeNonNegativeCheck`,
-    title: "Non-negative intake file size",
-    description: "Browser file sizes are whole byte counts greater than or equal to zero.",
-    message: "Expected a non-negative file size.",
-  })
+  S.isGreaterThanOrEqualTo(
+    0,
+    $I.annote("IntakeFileSizeNonNegativeCheck", {
+      title: "Non-negative intake file size",
+      description: "Browser file sizes are whole byte counts greater than or equal to zero.",
+      message: "Expected a non-negative file size.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("IntakeFileSize", {
     description: "Non-negative whole byte count reported by a browser File.",

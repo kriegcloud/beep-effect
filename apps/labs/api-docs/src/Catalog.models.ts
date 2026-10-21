@@ -80,12 +80,14 @@ const catalogSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
  * @since 0.0.0
  */
 export const CatalogSlug = S.String.check(
-  S.isPattern(catalogSlugPattern, {
-    identifier: $I`CatalogSlugPattern`,
-    title: "Catalog slug syntax",
-    description: "A non-empty lowercase kebab-case API catalog identifier.",
-    message: "Catalog slugs must use lowercase kebab-case syntax.",
-  })
+  S.isPattern(
+    catalogSlugPattern,
+    $I.annote("CatalogSlugPattern", {
+      title: "Catalog slug syntax",
+      description: "A non-empty lowercase kebab-case API catalog identifier.",
+      message: "Catalog slugs must use lowercase kebab-case syntax.",
+    })
+  )
 ).pipe(
   S.brand("CatalogSlug"),
   $I.annoteSchema("CatalogSlug", {

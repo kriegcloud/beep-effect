@@ -33,18 +33,23 @@ const corpusPaperIdPattern = /^[0-9a-f]{12}$/;
  */
 export const CorpusPaperId = S.String.check(
   S.makeFilterGroup([
-    S.isBetweenLength(12, 12, {
-      identifier: $I`CorpusPaperIdLength`,
-      title: "Corpus paper id length",
-      description: "A corpus paper id containing exactly twelve characters.",
-      message: "Corpus paper id must contain exactly twelve characters.",
-    }),
-    S.isPattern(corpusPaperIdPattern, {
-      identifier: $I`CorpusPaperIdPattern`,
-      title: "Corpus paper id syntax",
-      description: "A corpus paper id containing only lowercase hexadecimal characters.",
-      message: "Corpus paper id must contain only lowercase hexadecimal characters.",
-    }),
+    S.isBetweenLength(
+      12,
+      12,
+      $I.annote("CorpusPaperIdLength", {
+        title: "Corpus paper id length",
+        description: "A corpus paper id containing exactly twelve characters.",
+        message: "Corpus paper id must contain exactly twelve characters.",
+      })
+    ),
+    S.isPattern(
+      corpusPaperIdPattern,
+      $I.annote("CorpusPaperIdPattern", {
+        title: "Corpus paper id syntax",
+        description: "A corpus paper id containing only lowercase hexadecimal characters.",
+        message: "Corpus paper id must contain only lowercase hexadecimal characters.",
+      })
+    ),
   ])
 ).pipe(
   S.brand("CorpusPaperId"),
@@ -89,12 +94,11 @@ const CorpusManifestRowFields = S.Struct({
 const CorpusManifestRowRelativePathCheck = S.makeFilter(
   (row: typeof CorpusManifestRowFields.Type) =>
     Str.Equivalence(row.relativePath, `${row.id}.pdf`) || "relativePath must equal the paper id plus .pdf",
-  {
-    identifier: $I`CorpusManifestRowRelativePathCheck`,
+  $I.annote("CorpusManifestRowRelativePathCheck", {
     title: "Corpus manifest row relative path",
     description: "Requires every W1 relative path to equal its corpus paper id with a .pdf suffix.",
     message: "Corpus manifest row relativePath must equal `${id}.pdf`.",
-  }
+  })
 );
 
 const CorpusManifestRowDefinition = CorpusManifestRowFields.check(CorpusManifestRowRelativePathCheck);
@@ -140,13 +144,12 @@ const CorpusManifestSelectionDefinition = CorpusManifestSelectionFields.check(
   S.makeFilter(
     (selection: typeof CorpusManifestSelectionFields.Type) =>
       N.isGreaterThanOrEqualTo(selection.onDisk, selection.take),
-    {
-      identifier: $I`CorpusManifestSelectionSourceCensus`,
+    $I.annote("CorpusManifestSelectionSourceCensus", {
       title: "Corpus manifest source census",
       description:
         "Requires the source PDF census to contain at least as many papers as the committed selection takes.",
       message: "Corpus manifest selection.onDisk must be greater than or equal to selection.take.",
-    }
+    })
   )
 );
 
@@ -203,30 +206,38 @@ const manifestHashMatchesRows = (manifest: CorpusManifestFields): boolean =>
   Str.Equivalence(manifest.corpusHash, Hex.encode(sha256(new TextEncoder().encode(canonicalJson(manifest.rows)))));
 
 const CorpusManifestChecks = S.makeFilterGroup([
-  S.makeFilter(rowsAreStrictlyAscending, {
-    identifier: $I`CorpusManifestRowsAscending`,
-    title: "Corpus manifest row order",
-    description: "Requires W1 rows to be strictly ascending by corpus paper id.",
-    message: "Corpus manifest rows must be strictly ascending by id.",
-  }),
-  S.makeFilter(rowIdsAreUnique, {
-    identifier: $I`CorpusManifestRowIdsUnique`,
-    title: "Corpus manifest row id uniqueness",
-    description: "Requires every W1 row to carry a unique corpus paper id.",
-    message: "Corpus manifest row ids must be unique.",
-  }),
-  S.makeFilter(rowCountMatchesSelection, {
-    identifier: $I`CorpusManifestSelectionCount`,
-    title: "Corpus manifest selection count",
-    description: "Requires the number of W1 rows to match selection.take.",
-    message: "Corpus manifest row count must equal selection.take.",
-  }),
-  S.makeFilter(manifestHashMatchesRows, {
-    identifier: $I`CorpusManifestHash`,
-    title: "Corpus manifest hash",
-    description: "Requires corpusHash to equal SHA-256 over compact canonical JSON of rows.",
-    message: "Corpus manifest corpusHash must match the canonical rows digest.",
-  }),
+  S.makeFilter(
+    rowsAreStrictlyAscending,
+    $I.annote("CorpusManifestRowsAscending", {
+      title: "Corpus manifest row order",
+      description: "Requires W1 rows to be strictly ascending by corpus paper id.",
+      message: "Corpus manifest rows must be strictly ascending by id.",
+    })
+  ),
+  S.makeFilter(
+    rowIdsAreUnique,
+    $I.annote("CorpusManifestRowIdsUnique", {
+      title: "Corpus manifest row id uniqueness",
+      description: "Requires every W1 row to carry a unique corpus paper id.",
+      message: "Corpus manifest row ids must be unique.",
+    })
+  ),
+  S.makeFilter(
+    rowCountMatchesSelection,
+    $I.annote("CorpusManifestSelectionCount", {
+      title: "Corpus manifest selection count",
+      description: "Requires the number of W1 rows to match selection.take.",
+      message: "Corpus manifest row count must equal selection.take.",
+    })
+  ),
+  S.makeFilter(
+    manifestHashMatchesRows,
+    $I.annote("CorpusManifestHash", {
+      title: "Corpus manifest hash",
+      description: "Requires corpusHash to equal SHA-256 over compact canonical JSON of rows.",
+      message: "Corpus manifest corpusHash must match the canonical rows digest.",
+    })
+  ),
 ]);
 
 const CorpusManifestDefinition = CorpusManifestFields.check(CorpusManifestChecks);

@@ -326,7 +326,7 @@ const evidenceSpecificationAnnotations: S.Annotations.Declaration<
 
 class EvidenceSpecification extends S.Opaque<EvidenceSpecification, { readonly brand: unique symbol }>()(
   S.Struct(evidenceSpecificationFields)
-    .annotate({ identifier: $I`EvidenceSpecification` })
+    .pipe($I.annoteSchema("EvidenceSpecification"))
     .annotate(evidenceSpecificationAnnotations)
 ) {
   static readonly deadlineVerified = EvidenceSpecification.make({

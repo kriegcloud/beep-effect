@@ -37,12 +37,14 @@ const f1FixtureRelativePathPattern = /^documents\/(?!\.{1,2}$)[^/\\]+$/u;
  * @since 0.0.0
  */
 export const F1FixtureId = S.String.check(
-  S.isPattern(fixtureIdPattern, {
-    identifier: $I`F1FixtureIdPattern`,
-    title: "F1 fixture id syntax",
-    description: "A non-empty lowercase kebab-case synthetic fixture identifier.",
-    message: "F1 fixture id must use lowercase kebab-case syntax.",
-  })
+  S.isPattern(
+    fixtureIdPattern,
+    $I.annote("F1FixtureIdPattern", {
+      title: "F1 fixture id syntax",
+      description: "A non-empty lowercase kebab-case synthetic fixture identifier.",
+      message: "F1 fixture id must use lowercase kebab-case syntax.",
+    })
+  )
 ).pipe(
   S.brand("F1FixtureId"),
   $I.annoteSchema("F1FixtureId", {
@@ -199,12 +201,14 @@ export const FixtureDegradedKind = LiteralKit(
 export type FixtureDegradedKind = typeof FixtureDegradedKind.Type;
 
 const F1FixtureRelativePath = S.String.check(
-  S.isPattern(f1FixtureRelativePathPattern, {
-    identifier: $I`F1FixtureRelativePathPattern`,
-    title: "F1 fixture relative path",
-    description: "A path to one file exactly one directory level beneath the F1 documents root.",
-    message: "F1 fixture relativePath must match documents/<file> without traversal or backslashes.",
-  })
+  S.isPattern(
+    f1FixtureRelativePathPattern,
+    $I.annote("F1FixtureRelativePathPattern", {
+      title: "F1 fixture relative path",
+      description: "A path to one file exactly one directory level beneath the F1 documents root.",
+      message: "F1 fixture relativePath must match documents/<file> without traversal or backslashes.",
+    })
+  )
 ).pipe(
   $I.annoteSchema("F1FixtureRelativePath", {
     description: "Safe relative path to one file directly beneath the F1 documents root.",
@@ -228,12 +232,11 @@ const F1FixtureExpectationCheck = S.makeFilter(
       parses: () => O.isNone(fixture.degradedKind),
       degraded: () => O.isSome(fixture.degradedKind),
     }),
-  {
-    identifier: $I`F1FixtureExpectationCheck`,
+  $I.annote("F1FixtureExpectationCheck", {
     title: "F1 fixture expected outcome",
     description: "Requires degraded fixtures to name a degradation and parsing fixtures to omit one.",
     message: "F1 degradedKind must be Some exactly when expectation is degraded.",
-  }
+  })
 );
 
 const F1FixtureDefinition = F1FixtureFields.check(F1FixtureExpectationCheck);
@@ -303,24 +306,30 @@ const f1HasTwoParsingFixturesPerMediaType = (index: F1IndexFields): boolean =>
   );
 
 const F1IndexChecks = S.makeFilterGroup([
-  S.makeFilter(f1FixtureIdsAreUnique, {
-    identifier: $I`F1FixtureIdsUnique`,
-    title: "F1 fixture id uniqueness",
-    description: "Requires every synthetic F1 document to carry a unique fixture id.",
-    message: "F1 fixture ids must be unique.",
-  }),
-  S.makeFilter(f1HasOneDegradedPerMediaType, {
-    identifier: $I`F1OneDegradedPerMediaType`,
-    title: "F1 degraded media coverage",
-    description: "Requires exactly one declared degraded fixture for each F1 media type.",
-    message: "F1 must contain exactly one degraded fixture per media type.",
-  }),
-  S.makeFilter(f1HasTwoParsingFixturesPerMediaType, {
-    identifier: $I`F1TwoParsingPerMediaType`,
-    title: "F1 parsing media coverage",
-    description: "Requires at least two parsing fixtures for each F1 media type.",
-    message: "F1 must contain at least two parsing fixtures per media type.",
-  }),
+  S.makeFilter(
+    f1FixtureIdsAreUnique,
+    $I.annote("F1FixtureIdsUnique", {
+      title: "F1 fixture id uniqueness",
+      description: "Requires every synthetic F1 document to carry a unique fixture id.",
+      message: "F1 fixture ids must be unique.",
+    })
+  ),
+  S.makeFilter(
+    f1HasOneDegradedPerMediaType,
+    $I.annote("F1OneDegradedPerMediaType", {
+      title: "F1 degraded media coverage",
+      description: "Requires exactly one declared degraded fixture for each F1 media type.",
+      message: "F1 must contain exactly one degraded fixture per media type.",
+    })
+  ),
+  S.makeFilter(
+    f1HasTwoParsingFixturesPerMediaType,
+    $I.annote("F1TwoParsingPerMediaType", {
+      title: "F1 parsing media coverage",
+      description: "Requires at least two parsing fixtures for each F1 media type.",
+      message: "F1 must contain at least two parsing fixtures per media type.",
+    })
+  ),
 ]);
 
 const F1IndexDefinition = F1IndexFields.check(F1IndexChecks);

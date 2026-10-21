@@ -36,12 +36,11 @@ const FixtureDeclarationCheck = S.makeFilter(
       parses: () => Option.isNone(declaration.degradedKind),
       degraded: () => Option.isSome(declaration.degradedKind),
     }),
-  {
-    identifier: $I`FixtureDeclarationCheck`,
+  $I.annote("FixtureDeclarationCheck", {
     title: "Fixture origin declaration",
     description: "Requires degraded fixture origins to name a degradation and parsing origins to omit one.",
     message: "Fixture origin degradedKind must be Some exactly when expectation is degraded.",
-  }
+  })
 );
 
 /**
@@ -147,12 +146,11 @@ const SourceDocumentFields = S.Struct({
 
 const SourceDocumentIdentityCheck = S.makeFilter(
   (document: typeof SourceDocumentFields.Type) => Str.Equivalence(document.id, document.sha256),
-  {
-    identifier: $I`SourceDocumentIdentityCheck`,
+  $I.annote("SourceDocumentIdentityCheck", {
     title: "Source document identity",
     description: "Requires the document id to equal the full SHA-256 digest of its source bytes.",
     message: "SourceDocument sha256 must equal id.",
-  }
+  })
 );
 
 /**
