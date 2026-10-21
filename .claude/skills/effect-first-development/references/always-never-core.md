@@ -261,8 +261,7 @@ export const JobState = JobStateTag
     () => JobRunning,
     () => JobFailed
   ]))
-  .pipe(S.toTaggedUnion("state"))
-  .annotate($I.annote("JobState", { description: "Job lifecycle state union." }))
+  .pipe(S.toTaggedUnion("state"), $I.annoteSchema("JobState", { description: "Job lifecycle state union." }))
 
 export type JobState = typeof JobState.Type
 
@@ -300,7 +299,7 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 export const TaskEvent = S.TaggedUnion({
   Created: { id: S.String },
   Completed: { id: S.String, at: S.String }
-}).annotate($I.annote("TaskEvent", {
+}).pipe($I.annoteSchema("TaskEvent", {
   description: "Canonical internal event union discriminated by `_tag`."
 }))
 
@@ -331,10 +330,12 @@ export const ExternalTaskEvent = ExternalTaskKind
     () => ExternalTaskCreated,
     () => ExternalTaskCompleted
   ]))
-  .pipe(S.toTaggedUnion("kind"))
-  .annotate($I.annote("ExternalTaskEvent", {
-    description: "External task events discriminated by `kind`."
-  }))
+  .pipe(
+    S.toTaggedUnion("kind"),
+    $I.annoteSchema("ExternalTaskEvent", {
+      description: "External task events discriminated by `kind`."
+    })
+  )
 ```
 
 ### 9) Effect-returning functions

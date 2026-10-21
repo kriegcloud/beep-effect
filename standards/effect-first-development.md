@@ -263,7 +263,20 @@ export class MyService extends Context.Service<MyService, {
 
 ### EF-12: Schema annotation is required
 
-- New schemas must include meaningful annotation metadata via canonical `$I.annote(...)`.
+- New schemas must include meaningful annotation metadata from the file's
+  identity composer `$I`.
+- Non-class schemas (structs, literals and `LiteralKit`, brands, unions,
+  tagged unions) annotate with `.pipe($I.annoteSchema("Name", {...}))`, never
+  `.annotate($I.annote(...))`. `annoteSchema` writes the same identifier, title
+  and schema id, types its extras against the schema, and keeps the schema's
+  statics: a raw `.annotate` on an `S.toTaggedUnion(...)` result drops `match`,
+  `cases`, `guards` and `isAnyOf` at runtime.
+- Classes keep their trailing annotation argument: `$I.annote(...)` for
+  `S.Class` / `S.Opaque`, `$I.annoteError<X>(...)` for errors.
+- Struct fields use `.pipe($I.annoteKey(...))`. One exception: an
+  `S.suspend(...)` field inside a recursive class's own base expression keeps
+  `.annotateKey($I.annote(...))`, because the generic pipe form makes
+  TypeScript resolve the class inside its own base (TS2310).
 - Annotation descriptions should encode intent, not repeat the symbol name.
 
 Example:
@@ -274,8 +287,8 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export const Tenant = S.String.annotate(
-  $I.annote("Tenant", {
+export const Tenant = S.String.pipe(
+  $I.annoteSchema("Tenant", {
     description: "Logical tenant identifier used for request and storage partitioning."
   })
 )
@@ -355,17 +368,19 @@ export const ExternalJobEvent = ExternalJobKind
       () => ExternalJobCompleted
     ])
   )
-  .pipe(S.toTaggedUnion("kind"))
-  .annotate($I.annote("ExternalJobEvent", {
-    description: "External job event union discriminated by `kind`."
-  }))
+  .pipe(
+    S.toTaggedUnion("kind"),
+    $I.annoteSchema("ExternalJobEvent", {
+      description: "External job event union discriminated by `kind`."
+    })
+  )
 
 export type ExternalJobEvent = typeof ExternalJobEvent.Type
 
 export const InternalJobEvent = S.TaggedUnion({
   Created: { id: S.String },
   Completed: { id: S.String, at: S.String }
-}).annotate($I.annote("InternalJobEvent", {
+}).pipe($I.annoteSchema("InternalJobEvent", {
   description: "Canonical internal union discriminated by `_tag`."
 }))
 ```

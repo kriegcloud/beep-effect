@@ -73,15 +73,28 @@ const MySchema = S.String.pipe(
 
 ## LiteralKit schemas
 
-Use `.annotate($I.annote(...))`:
+Same as every non-class schema: `$I.annoteSchema` via `.pipe(...)`. The kit's
+helpers (`.Enum`, `.is`, `$match`) survive it:
 
 ```ts
-const Status = LiteralKit(["active", "inactive"]).annotate(
-  $I.annote("Status", {
+const Status = LiteralKit(["active", "inactive"]).pipe(
+  $I.annoteSchema("Status", {
     description: "Entity lifecycle status."
   })
 )
 ```
+
+Never write `.annotate($I.annote(...))` on a non-class schema. It writes the
+same annotations, but its extras are untyped against the schema and it keeps
+no statics: on an `S.toTaggedUnion(...)` result it drops `match`, `cases`,
+`guards` and `isAnyOf` at runtime.
+
+## Struct fields
+
+Use `$I.annoteKey(...)` inside `.pipe(...)`. The one exception is an
+`S.suspend(...)` field inside a recursive class's own base expression: keep
+`.annotateKey($I.annote(...))` there, because the generic pipe form makes
+TypeScript resolve the class inside its own base (TS2310, TS2506).
 
 ## Union, TemplateLiteral, and composed schemas
 

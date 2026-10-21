@@ -280,13 +280,11 @@ export class ResponseError extends S.TaggedError<ResponseError>($I`ResponseError
 export const HttpClientError = S.Union([
   RequestError,
   ResponseError
-])
-.annotate($I.annote(
-  "HttpClientError",
-  {
+]).pipe(
+  $I.annoteSchema("HttpClientError", {
     description: "A meaningful description"
-  }
-));
+  })
+);
 
 export type HttpClientError = typeof HttpClientError.Type;
 

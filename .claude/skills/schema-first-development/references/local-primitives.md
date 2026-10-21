@@ -30,8 +30,9 @@ Create a file-local composer and use it for schema identifiers and annotations.
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 ```
 
-Use `$I\`Name\`` for class or service identifiers and `$I.annote(...)` for
-annotation metadata.
+Use `$I\`Name\`` for class or service identifiers. Annotation metadata comes
+from `.pipe($I.annoteSchema(...))` on non-class schemas and from `$I.annote(...)`
+as a class's trailing argument.
 
 ## Prefer `LiteralKit` for Internal Literal Domains
 
