@@ -572,13 +572,6 @@ const hostedRequiredOutcome = (
 /**
  * Observes a final PR on GitHub without writing receipt or manifest state.
  *
- * **Example** (Inspect the read-only adapter)
- *
- * ```ts
- * import { observeGoalCompletion } from "@beep/repo-cli/commands/Goals/Completion"
- * console.log(typeof observeGoalCompletion)
- * ```
- *
  * **Details**
  *
  * `readinessJob` explicitly permits recovery from the same run's retained status
@@ -586,6 +579,13 @@ const hostedRequiredOutcome = (
  * declared evidence reference or verdict bytes, and does not bypass hosted
  * merge-time checks. The snapshot's remote head, rather than the submission
  * head (a monitor may follow pushes), must match the accepted head.
+ *
+ * **Example** (Inspect the read-only adapter)
+ *
+ * ```ts
+ * import { observeGoalCompletion } from "@beep/repo-cli/commands/Goals/Completion"
+ * console.log(typeof observeGoalCompletion)
+ * ```
  *
  * @category queries
  * @since 0.0.0
@@ -1118,6 +1118,10 @@ const refresh = Effect.fn("Goals.Completion.refresh")(function* (
 ) {
   if (O.isSome(readinessJob) && O.isNone(slug))
     return yield* YeetCommandError.make({ message: "--readiness-job requires --slug" });
+  if (O.isSome(readinessJob))
+    yield* decodeRecoveryJobId(readinessJob.value).pipe(
+      Effect.mapError(() => YeetCommandError.make({ message: "--readiness-job must be a job UUID" }))
+    );
   const root = yield* findRepoRoot();
   const records = yield* listGoalPackets(root);
   const location = yield* receiptLocation(root);

@@ -855,6 +855,17 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       expect((yield* run(["completion", "refresh", "--slug", "no-final"]).pipe(Effect.exit))._tag).toBe("Failure");
     })
   );
+  it.effect("refresh rejects malformed readiness-job values at the CLI boundary", () =>
+    Effect.gen(function* () {
+      const run = Command.runWith(goalsCommand, { version: "0.0.0" });
+      for (const job of ["not-a-uuid", "../../outside"]) {
+        const error = yield* run(["completion", "refresh", "--slug", "demo", "--readiness-job", job]).pipe(Effect.flip);
+        expect(error).toEqual(YeetCommandError.make({ message: "--readiness-job must be a job UUID" }));
+      }
+      const error = yield* run(["completion", "refresh", "--readiness-job", "not-a-uuid"]).pipe(Effect.flip);
+      expect(error).toEqual(YeetCommandError.make({ message: "--readiness-job requires --slug" }));
+    })
+  );
   it.effect("refresh refuses an unknown slug", () =>
     Effect.gen(function* () {
       yield* temporaryWorkingDirectory;
