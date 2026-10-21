@@ -21,7 +21,9 @@
     {"file":"packages/drivers/govinfo/src/domain/values/SearchResponse/SearchResponse.model.ts","symbol":"SearchResponse","kind":"schema-class","owner":"@beep/govinfo","identity":"SearchResponse","description":"GovInfo search response with a result count, cursor, and hits."},
     {"file":"packages/drivers/govinfo/src/domain/values/SearchResult/SearchResult.model.ts","symbol":"SearchResult","kind":"struct-const","owner":"@beep/govinfo","identity":"SearchResult","description":"Single GovInfo search hit with package, granule, and download metadata."},
     {"file":"packages/drivers/govinfo/src/domain/values/Sort/Sort.model.ts","symbol":"Sort","kind":"tagged-union","owner":"@beep/govinfo","identity":"Sort","description":"GovInfo search sort directive tagged by sortOrder."},
+    {"file":"packages/drivers/govinfo/src/domain/values/Sort/Sort.model.ts","symbol":"SortASC","kind":"schema-const","owner":"@beep/govinfo","identity":"SortASC","description":"Ascending GovInfo search sort directive."},
     {"file":"packages/drivers/govinfo/src/domain/values/Sort/Sort.model.ts","symbol":"SortBase","kind":"schema-class","owner":"@beep/govinfo","identity":"SortBase","description":"Shared GovInfo search sort field."},
+    {"file":"packages/drivers/govinfo/src/domain/values/Sort/Sort.model.ts","symbol":"SortDESC","kind":"schema-const","owner":"@beep/govinfo","identity":"SortDESC","description":"Descending GovInfo search sort directive."},
     {"file":"packages/drivers/govinfo/src/domain/values/SummaryItem/SummaryItem.model.ts","symbol":"SummaryItem","kind":"struct-const","owner":"@beep/govinfo","identity":"SummaryItem","description":"GovInfo collection summary row with collection identifiers and counts."}
   ]
 }

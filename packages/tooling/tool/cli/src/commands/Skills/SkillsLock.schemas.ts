@@ -159,7 +159,7 @@ export type SkillsLockEntry = typeof SkillsLockEntry.Type;
  */
 export class SkillsLockDocument extends S.Opaque<SkillsLockDocument, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal(2),
+    version: S.tag(2),
     skills: S.Record(S.String, SkillsLockEntry),
   }).pipe(
     $I.annoteSchema("SkillsLockDocument", {

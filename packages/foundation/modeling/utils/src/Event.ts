@@ -57,13 +57,11 @@ type EventShape<TTag extends TString.NonEmpty, TFields extends S.Struct.Fields> 
  * @since 0.0.0
  */
 const makeEventSchema = <TTag extends TString.NonEmpty, TFields extends S.Struct.Fields>(payload: TFields, tag: TTag) =>
-  S.Class<EventShape<TTag, TFields>>($I`Event`)(
+  S.TaggedClass<EventShape<TTag, TFields>>($I`Event`)(
+    tag,
     {
       kind: S.tag("Event").annotateKey({
         description: "Envelope family discriminator for server-sent events.",
-      }),
-      _tag: S.tag(tag).annotateKey({
-        description: "Caller-provided event variant discriminator.",
       }),
       payload: S.Struct({ ...payload }).annotateKey({
         description: "Caller-provided event payload fields.",

@@ -89,7 +89,7 @@ export type ParcelItem = typeof ParcelItem.Type;
  */
 export class ParcelEnvelope extends S.Opaque<ParcelEnvelope, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("palantiri-parcel/v1"),
+    schemaVersion: S.tag("palantiri-parcel/v1"),
     parcel: ParcelId,
     key: ParcelKey,
     readAt: S.DateTimeUtcFromString,

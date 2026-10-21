@@ -43,7 +43,7 @@ import type { ManagedLaunchProfile, ManagedSessionMessage } from "./AiProviderCl
 import type { ManagedSession } from "./AiProviderCliSession.service.ts";
 
 const $I = $AiProviderCliId.create("AiProviderCliSession.claude.service");
-const InitializationNotice = S.Struct({ subtype: S.Literal("init") }).annotate(
+const InitializationNotice = S.Struct({ subtype: S.tag("init") }).annotate(
   $I.annote("InitializationNotice", {
     description: "Partial Claude initialization notice used to detect rejected readback.",
   })

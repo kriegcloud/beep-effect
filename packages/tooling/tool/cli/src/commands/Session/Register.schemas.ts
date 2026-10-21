@@ -151,7 +151,7 @@ export type RegisterUnitState = typeof RegisterUnitState.Type;
  */
 export class RegisterRow extends S.Opaque<RegisterRow, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("orchestrator-register/v1"),
+    schemaVersion: S.tag("orchestrator-register/v1"),
     repository: PrRepository,
     kind: RegisterUnitKind,
     address: S.NonEmptyString,
@@ -208,7 +208,7 @@ export const RegisterRowJson = JsonStringCodec(RegisterRow);
  */
 export class RegisterReport extends S.Opaque<RegisterReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("orchestrator-register-report/v1"),
+    schemaVersion: S.tag("orchestrator-register-report/v1"),
     repository: PrRepository,
     rows: S.Array(RegisterRow),
   }).pipe(

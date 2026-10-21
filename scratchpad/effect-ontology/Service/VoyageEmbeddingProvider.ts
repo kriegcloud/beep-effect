@@ -215,7 +215,7 @@ export const DEFAULT_RETRY_AFTER = Duration.minutes(1);
 // =============================================================================
 
 const VoyageEmbeddingData = S.Struct({
-  object: S.Literal("embedding"),
+  object: S.tag("embedding"),
   embedding: S.Array(S.Finite),
   index: S.Natural,
 });

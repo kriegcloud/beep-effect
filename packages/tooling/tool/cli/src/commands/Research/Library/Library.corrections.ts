@@ -32,11 +32,11 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.corrections");
  */
 export class LibraryCaptureCorrection extends S.Opaque<LibraryCaptureCorrection, { readonly brand: unique symbol }>()(
   S.Struct({
-    schema: S.Literal("beep.research.capture-correction/v1"),
+    schema: S.tag("beep.research.capture-correction/v1"),
     captureId: S.String,
     sourceId: S.String,
     recordedAt: S.String,
-    validator: S.Literal("librarySourceEvidenceValid"),
+    validator: S.tag("librarySourceEvidenceValid"),
     reason: S.String,
     before: LibraryArtifact,
     after: LibraryCapture,

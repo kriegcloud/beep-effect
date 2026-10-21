@@ -44,7 +44,7 @@ const TestLayer = Layer.mergeAll(
   Layer.succeed(MemoryStats, MemoryStats.of({ availableGib: Effect.succeed(50), totalGib: Effect.succeed(128) }))
 );
 const HostileProvenanceJson = JsonStringCodec(
-  S.Struct({ schemaVersion: S.Literal(2), agents: S.Array(S.Struct({ command: S.String })) })
+  S.Struct({ schemaVersion: S.tag(2), agents: S.Array(S.Struct({ command: S.String })) })
 );
 const MemoryLayer = Layer.mergeAll(MemoryFileSystem.layer, NodePath.layer, TestConsole.layer);
 const decodePrRefResult = S.decodeResult(PrRef);

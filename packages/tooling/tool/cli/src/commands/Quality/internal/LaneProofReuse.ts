@@ -54,7 +54,7 @@ class LaneProofRecord extends S.Opaque<LaneProofRecord, { readonly brand: unique
 
 class LaneProofStore extends S.Opaque<LaneProofStore, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-lane-proofs/v2"),
+    schemaVersion: S.tag("yeet-lane-proofs/v2"),
     records: S.Array(LaneProofRecord),
   }).pipe(
     $I.annoteSchema("LaneProofStore", {

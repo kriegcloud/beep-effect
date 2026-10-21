@@ -566,7 +566,7 @@ export type HookPulseEvidenceTier = typeof HookPulseEvidenceTier.Type;
 export class HookPulseDisarmSentinel extends S.Opaque<HookPulseDisarmSentinel, { readonly brand: unique symbol }>()(
   S.Struct({
     disarmedAt: HookPulseUtcTimestamp,
-    evidenceTier: S.Literal(HookPulseEvidenceTier.Enum.unknown),
+    evidenceTier: S.tag(HookPulseEvidenceTier.Enum.unknown),
     reason: S.String,
   }).pipe(
     $I.annoteSchema("HookPulseDisarmSentinel", {
@@ -605,7 +605,7 @@ export class HookPulseDisarmSentinel extends S.Opaque<HookPulseDisarmSentinel, {
 export class HookPulseDisarmWindow extends S.Opaque<HookPulseDisarmWindow, { readonly brand: unique symbol }>()(
   S.Struct({
     disarmedAt: S.OptionFromNullOr(HookPulseUtcTimestamp),
-    evidenceTier: S.Literal(HookPulseEvidenceTier.Enum.unknown),
+    evidenceTier: S.tag(HookPulseEvidenceTier.Enum.unknown),
     reason: S.OptionFromNullOr(S.String),
     rearmedAt: HookPulseUtcTimestamp,
     schemaVersion: HookPulseDisarmWindowSchemaVersion,
@@ -1510,7 +1510,7 @@ export const HookPulseV1Arbitrary = Arbitrary.schema(S.Struct(HookPulseV1.fields
 // what a pre-pseudonymization row actually contains, and this codec exists to
 // hash them on the way in.
 const HookPulseLegacyV1Record = S.Struct({
-  schemaVersion: S.Literal(HookPulseSchemaVersion.Enum["hook-pulse/v1"]),
+  schemaVersion: S.tag(HookPulseSchemaVersion.Enum["hook-pulse/v1"]),
   ts: S.String,
   sessionId: S.String,
   agentKind: HookPulseAgentKind,

@@ -541,15 +541,15 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
  */
 export const TagClassification = S.Union([
 	S.Struct({
-		kind: S.Literal("release").pipe($I.annoteKey("TagClassification.kind", { description: "An immutable release tag." })),
+		kind: S.tag("release").pipe($I.annoteKey("TagClassification.kind", { description: "An immutable release tag." })),
 		tag: ReleaseTag.pipe($I.annoteKey("TagClassification.tag", { description: "The recognized release tag." })),
 	}),
 	S.Struct({
-		kind: S.Literal("tracking").pipe($I.annoteKey("TagClassification.kind", { description: "A floating tracking alias." })),
+		kind: S.tag("tracking").pipe($I.annoteKey("TagClassification.kind", { description: "A floating tracking alias." })),
 		tag: TrackingTag.pipe($I.annoteKey("TagClassification.tag", { description: "The recognized tracking tag." })),
 	}),
 	S.Struct({
-		kind: S.Literal("unrecognized").pipe($I.annoteKey("TagClassification.kind", { description: "A tag outside both supported grammars." })),
+		kind: S.tag("unrecognized").pipe($I.annoteKey("TagClassification.kind", { description: "A tag outside both supported grammars." })),
 	}),
 ]).pipe(
 	S.toTaggedUnion("kind"),

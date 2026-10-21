@@ -48,7 +48,7 @@ const $I = $FileProcessingId.create("Operation");
 export class DetectFileOperation extends S.Opaque<DetectFileOperation, { readonly brand: unique symbol }>()(
   S.Struct({
     operationId: OperationId,
-    operationKind: S.Literal("detect"),
+    operationKind: S.tag("detect"),
     preference: StrategyPreference,
     source: SourceArtifact,
   }).pipe(
@@ -134,7 +134,7 @@ export class ExtractFileOperation extends S.Opaque<ExtractFileOperation, { reado
     format: FileFormatFamily,
     maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
-    operationKind: S.Literal("extract"),
+    operationKind: S.tag("extract"),
     preference: StrategyPreference,
     source: SourceArtifact,
   }).pipe(
@@ -181,7 +181,7 @@ export class ExportArchiveOperation extends S.Opaque<ExportArchiveOperation, { r
     format: FileFormatFamily,
     maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
-    operationKind: S.Literal("export-archive"),
+    operationKind: S.tag("export-archive"),
     preference: StrategyPreference,
     source: SourceArtifact,
   }).pipe(
@@ -229,7 +229,7 @@ export class ProcessFileOperation extends S.Opaque<ProcessFileOperation, { reado
     exportChildren: S.Boolean,
     maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
-    operationKind: S.Literal("process"),
+    operationKind: S.tag("process"),
     preference: StrategyPreference,
     source: SourceArtifact,
   }).pipe(

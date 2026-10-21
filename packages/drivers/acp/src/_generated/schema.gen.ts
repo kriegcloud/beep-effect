@@ -4769,7 +4769,7 @@ export type SessionConfigSelectOption = typeof SessionConfigSelectOption.Type;
 export const SetSessionConfigOptionRequest = S.Union([
   S.StructWithRest(
     S.Struct({
-      type: S.Literal("boolean"),
+      type: S.tag("boolean"),
       value: S.Boolean.annotateKey({ description: "The boolean value." }),
       _meta: S.optionalKey(
         S.Union([
@@ -4997,7 +4997,7 @@ export type PermissionOption = typeof PermissionOption.Type;
  */
 export const RequestPermissionOutcome = S.Union(
   [
-    S.StructWithRest(S.Struct({ outcome: S.Literal("cancelled") }), [
+    S.StructWithRest(S.Struct({ outcome: S.tag("cancelled") }), [
       S.Record(S.String, S.Json.annotate({ expected: "JSON value" })),
     ]).annotateKey({
       description:
@@ -5022,7 +5022,7 @@ export const RequestPermissionOutcome = S.Union(
         ).annotateKey({
           description: "The ID of the option the user selected.",
         }),
-        outcome: S.Literal("selected"),
+        outcome: S.tag("selected"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -5363,7 +5363,7 @@ export const AuthMethod = S.Union([
       vars: S.Array(AuthEnvVar).annotateKey({
         description: "The environment variables the client should set.",
       }),
-      type: S.Literal("env_var"),
+      type: S.tag("env_var"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
@@ -5411,7 +5411,7 @@ export const AuthMethod = S.Union([
       name: S.String.annotateKey({
         description: "Human-readable name of the authentication method.",
       }),
-      type: S.Literal("terminal"),
+      type: S.tag("terminal"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
@@ -5866,14 +5866,14 @@ export const ElicitationAction = S.Union(
             S.Null,
           ]),
         ),
-        action: S.Literal("accept"),
+        action: S.tag("accept"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({ description: "The user accepted and provided content." }),
-    S.StructWithRest(S.Struct({ action: S.Literal("decline") }), [
+    S.StructWithRest(S.Struct({ action: S.tag("decline") }), [
       S.Record(S.String, S.Json.annotate({ expected: "JSON value" })),
     ]).annotateKey({ description: "The user declined the elicitation." }),
-    S.StructWithRest(S.Struct({ action: S.Literal("cancel") }), [
+    S.StructWithRest(S.Struct({ action: S.tag("cancel") }), [
       S.Record(S.String, S.Json.annotate({ expected: "JSON value" })),
     ]).annotateKey({ description: "The elicitation was cancelled." }),
   ],
@@ -6090,7 +6090,7 @@ export const ContentBlock = S.Union(
         ),
         annotations: S.optionalKey(S.Union([Annotations, S.Null])),
         text: S.String,
-        type: S.Literal("text"),
+        type: S.tag("text"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -6115,7 +6115,7 @@ export const ContentBlock = S.Union(
         data: S.String,
         mimeType: S.String,
         uri: S.optionalKey(S.Union([S.String, S.Null])),
-        type: S.Literal("image"),
+        type: S.tag("image"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -6139,7 +6139,7 @@ export const ContentBlock = S.Union(
         annotations: S.optionalKey(S.Union([Annotations, S.Null])),
         data: S.String,
         mimeType: S.String,
-        type: S.Literal("audio"),
+        type: S.tag("audio"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -6169,7 +6169,7 @@ export const ContentBlock = S.Union(
         ),
         title: S.optionalKey(S.Union([S.String, S.Null])),
         uri: S.String,
-        type: S.Literal("resource_link"),
+        type: S.tag("resource_link"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -6192,7 +6192,7 @@ export const ContentBlock = S.Union(
         ),
         annotations: S.optionalKey(S.Union([Annotations, S.Null])),
         resource: EmbeddedResourceResource,
-        type: S.Literal("resource"),
+        type: S.tag("resource"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -6511,7 +6511,7 @@ export const McpServer = S.Union([
         description: "Human-readable name identifying this MCP server.",
       }),
       url: S.String.annotateKey({ description: "URL to the MCP server." }),
-      type: S.Literal("http"),
+      type: S.tag("http"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
@@ -6540,7 +6540,7 @@ export const McpServer = S.Union([
         description: "Human-readable name identifying this MCP server.",
       }),
       url: S.String.annotateKey({ description: "URL to the MCP server." }),
-      type: S.Literal("sse"),
+      type: S.tag("sse"),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
@@ -6956,7 +6956,7 @@ export const ToolCallContent = S.Union(
         content: S.suspend(
           (): S.Codec<ContentBlock> => ContentBlock,
         ).annotateKey({ description: "The actual content block." }),
-        type: S.Literal("content"),
+        type: S.tag("content"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -6990,7 +6990,7 @@ export const ToolCallContent = S.Union(
         path: S.String.annotateKey({
           description: "The file path being modified.",
         }),
-        type: S.Literal("diff"),
+        type: S.tag("diff"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({ description: "File modification shown as a diff." }),
@@ -7009,7 +7009,7 @@ export const ToolCallContent = S.Union(
           ]),
         ),
         terminalId: S.String,
-        type: S.Literal("terminal"),
+        type: S.tag("terminal"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -7516,7 +7516,7 @@ export const ElicitationPropertySchema = S.Union(
             S.Null,
           ]),
         ),
-        type: S.Literal("string"),
+        type: S.tag("string"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -7568,7 +7568,7 @@ export const ElicitationPropertySchema = S.Union(
             S.Null,
           ]),
         ),
-        type: S.Literal("number"),
+        type: S.tag("number"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({ description: "Number (floating-point) property." }),
@@ -7617,7 +7617,7 @@ export const ElicitationPropertySchema = S.Union(
             S.Null,
           ]),
         ),
-        type: S.Literal("integer"),
+        type: S.tag("integer"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({ description: "Integer property." }),
@@ -7645,7 +7645,7 @@ export const ElicitationPropertySchema = S.Union(
             S.Null,
           ]),
         ),
-        type: S.Literal("boolean"),
+        type: S.tag("boolean"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({ description: "Boolean property." }),
@@ -7706,7 +7706,7 @@ export const ElicitationPropertySchema = S.Union(
             S.Null,
           ]),
         ),
-        type: S.Literal("array"),
+        type: S.tag("array"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({ description: "Multi-select array property." }),
@@ -7943,7 +7943,7 @@ export const SessionConfigOption = S.Union(
         options: S.suspend(
           (): S.Codec<SessionConfigSelectOptions> => SessionConfigSelectOptions,
         ).annotateKey({ description: "The set of selectable options." }),
-        type: S.Literal("select"),
+        type: S.tag("select"),
         _meta: S.optionalKey(
           S.Union([
             S.Record(
@@ -7987,7 +7987,7 @@ export const SessionConfigOption = S.Union(
         currentValue: S.Boolean.annotateKey({
           description: "The current value of the boolean option.",
         }),
-        type: S.Literal("boolean"),
+        type: S.tag("boolean"),
         _meta: S.optionalKey(
           S.Union([
             S.Record(
@@ -8243,7 +8243,7 @@ export const SessionUpdate = S.Union(
             S.Null,
           ]),
         ),
-        sessionUpdate: S.Literal("user_message_chunk"),
+        sessionUpdate: S.tag("user_message_chunk"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8275,7 +8275,7 @@ export const SessionUpdate = S.Union(
             S.Null,
           ]),
         ),
-        sessionUpdate: S.Literal("agent_message_chunk"),
+        sessionUpdate: S.tag("agent_message_chunk"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8307,7 +8307,7 @@ export const SessionUpdate = S.Union(
             S.Null,
           ]),
         ),
-        sessionUpdate: S.Literal("agent_thought_chunk"),
+        sessionUpdate: S.tag("agent_thought_chunk"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8371,7 +8371,7 @@ export const SessionUpdate = S.Union(
           description:
             "Unique identifier for this tool call within the session.",
         }),
-        sessionUpdate: S.Literal("tool_call"),
+        sessionUpdate: S.tag("tool_call"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8442,7 +8442,7 @@ export const SessionUpdate = S.Union(
         ).annotateKey({
           description: "The ID of the tool call being updated.",
         }),
-        sessionUpdate: S.Literal("tool_call_update"),
+        sessionUpdate: S.tag("tool_call_update"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8466,7 +8466,7 @@ export const SessionUpdate = S.Union(
           description:
             "The list of tasks to be accomplished.\n\nWhen updating a plan, the agent must send a complete list of all entries\nwith their current status. The client replaces the entire plan with each update.",
         }),
-        sessionUpdate: S.Literal("plan"),
+        sessionUpdate: S.tag("plan"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8490,7 +8490,7 @@ export const SessionUpdate = S.Union(
         availableCommands: S.Array(AvailableCommand).annotateKey({
           description: "Commands the agent can execute",
         }),
-        sessionUpdate: S.Literal("available_commands_update"),
+        sessionUpdate: S.tag("available_commands_update"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8513,7 +8513,7 @@ export const SessionUpdate = S.Union(
         currentModeId: S.suspend(
           (): S.Codec<SessionModeId> => SessionModeId,
         ).annotateKey({ description: "The ID of the current mode" }),
-        sessionUpdate: S.Literal("current_mode_update"),
+        sessionUpdate: S.tag("current_mode_update"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8538,7 +8538,7 @@ export const SessionUpdate = S.Union(
           description:
             "The full set of configuration options and their current values.",
         }),
-        sessionUpdate: S.Literal("config_option_update"),
+        sessionUpdate: S.tag("config_option_update"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8576,7 +8576,7 @@ export const SessionUpdate = S.Union(
             S.Null,
           ]),
         ),
-        sessionUpdate: S.Literal("session_info_update"),
+        sessionUpdate: S.tag("session_info_update"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -8618,7 +8618,7 @@ export const SessionUpdate = S.Union(
             expected: "a value greater than or equal to 0",
           }),
         ),
-        sessionUpdate: S.Literal("usage_update"),
+        sessionUpdate: S.tag("usage_update"),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
@@ -9045,7 +9045,7 @@ export const ElicitationRequest = S.Union(
           description:
             "A JSON Schema describing the form fields to present to the user.",
         }),
-        mode: S.Literal("form"),
+        mode: S.tag("form"),
         _meta: S.optionalKey(
           S.Union([
             S.Record(
@@ -9082,7 +9082,7 @@ export const ElicitationRequest = S.Union(
           description: "The URL to direct the user to.",
           format: "uri",
         }),
-        mode: S.Literal("url"),
+        mode: S.tag("url"),
         _meta: S.optionalKey(
           S.Union([
             S.Record(

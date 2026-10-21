@@ -32,9 +32,7 @@ const encodeJsonEffect = S.encodeEffect(S.fromJsonString(S.Unknown));
 const decodeUnknownCandorDisposition = S.decodeUnknownEffect(CandorDisposition);
 const decodeUnknownIdsSubmissionFact = S.decodeUnknownEffect(IdsSubmissionFact);
 const decodeUnknownPatentCitationEvent = S.decodeUnknownEffect(PatentCitationEvent);
-const decodeUnknownStructInlineSchema = S.decodeUnknownEffect(
-  S.Struct({ code: S.Literal("23514"), constraint: S.String })
-);
+const decodeUnknownStructInlineSchema = S.decodeUnknownEffect(S.Struct({ code: S.tag("23514"), constraint: S.String }));
 const isPatentCitationEvent = S.is(PatentCitationEvent);
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();

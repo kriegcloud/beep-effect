@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
 const Document = S.Record(S.String, S.Unknown);
 const decodeDocument = S.decodeUnknownEffect(Document);
 const Report = S.Struct({
-  schemaVersion: S.Literal("cache-workflow-source-snapshot/v1"),
+  schemaVersion: S.tag("cache-workflow-source-snapshot/v1"),
   authority: S.String,
   files: S.NonEmptyArray(S.Struct({ path: S.NonEmptyString, sha256: Sha256Hex, document: Document })),
 });

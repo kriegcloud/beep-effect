@@ -1232,8 +1232,8 @@ export declare namespace ScreenFrameJudgement {
  */
 export class ScreenFrameApprovalClaims extends Model<ScreenFrameApprovalClaims>("ScreenFrameApprovalClaims")(
   {
-    iss: S.Literal("omi-screen-frame-adjudicator").pipe(pg.text(), pg.columnName("iss")),
-    aud: S.Literal("omi-screen-frame-writer").pipe(pg.text(), pg.columnName("aud")),
+    iss: S.tag("omi-screen-frame-adjudicator").pipe(pg.text(), pg.columnName("iss")),
+    aud: S.tag("omi-screen-frame-writer").pipe(pg.text(), pg.columnName("aud")),
     jti: uuid("jti"),
     uid: text("uid"),
     purpose: text("purpose"),
@@ -1244,7 +1244,7 @@ export class ScreenFrameApprovalClaims extends Model<ScreenFrameApprovalClaims>(
     policyVersion: text("policy_version"),
     promptVersion: text("prompt_version"),
     retention: text("retention"),
-    decision: S.Literal("approved_clean").pipe(pg.text(), pg.columnName("decision")),
+    decision: S.tag("approved_clean").pipe(pg.text(), pg.columnName("decision")),
     labelsDigest: text("labels_digest"),
     issuedAt: timestamp("issued_at"),
     expiresAt: timestamp("expires_at"),

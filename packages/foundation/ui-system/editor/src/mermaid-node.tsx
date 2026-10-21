@@ -59,7 +59,7 @@ const decodeSerializedMermaidNode = (input: unknown) => decodeUnknownSerializedM
 export class SerializedMermaidNode extends S.Opaque<SerializedMermaidNode, { readonly brand: unique symbol }>()(
   S.Struct({
     type: S.tag("mermaid"),
-    version: S.Literal(1),
+    version: S.tag(1),
     format: ElementFormat,
     source: S.String,
   }).pipe(

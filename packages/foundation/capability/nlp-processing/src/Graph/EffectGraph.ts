@@ -213,7 +213,7 @@ export interface GraphNode<A> {
  */
 export class GraphEdge extends S.Opaque<GraphEdge, { readonly brand: unique symbol }>()(
   S.Struct({
-    relation: S.Literal("child"),
+    relation: S.tag("child"),
   }).pipe(
     $I.annoteSchema("GraphEdge", {
       description: "Represents a directed edge in the graph, indicating a 'child' relationship.",

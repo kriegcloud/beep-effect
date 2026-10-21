@@ -323,7 +323,7 @@ export class Graph3DRenderStats extends S.Opaque<Graph3DRenderStats, { readonly 
  */
 export class Graph3DRenderHandle extends S.Opaque<Graph3DRenderHandle, { readonly brand: unique symbol }>()(
   S.Struct({
-    backend: S.Literal("three-instanced"),
+    backend: S.tag("three-instanced"),
     destroy: Fn({ output: S.Void }),
     fps: Fn({ output: S.Finite }),
     update: Fn({

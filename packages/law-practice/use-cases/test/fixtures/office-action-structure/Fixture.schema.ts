@@ -3,13 +3,13 @@ import * as S from "effect/Schema";
 
 const Outcome = S.Union([
   S.Struct({
-    status: S.Literal("recognized"),
+    status: S.tag("recognized"),
     finality: S.Literals(["FINAL", "NON-FINAL"]),
     finalityQuote: S.NonEmptyString,
     periodQuote: S.NonEmptyString,
   }),
   S.Struct({
-    status: S.Literal("abstained"),
+    status: S.tag("abstained"),
     code: S.Literals(["absent", "ambiguous", "unsupported", "low-quality-source", "rule-not-covered"]),
   }),
 ]);

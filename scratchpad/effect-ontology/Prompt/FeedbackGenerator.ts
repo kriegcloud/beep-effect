@@ -345,7 +345,7 @@ const matchesAny = (message: string, patterns: ReadonlyArray<RegExp>): boolean =
  * import * as S from "effect/Schema"
  * import { isRetryable } from "@effect-ontology/Prompt/FeedbackGenerator"
  *
- * const result = S.decodeUnknownResult(S.Struct({ status: S.Literal("valid") }))({ status: "invalid" })
+ * const result = S.decodeUnknownResult(S.Struct({ status: S.tag("valid") }))({ status: "invalid" })
  * if (Result.isFailure(result)) console.log(isRetryable(result.failure))
  * ```
  *

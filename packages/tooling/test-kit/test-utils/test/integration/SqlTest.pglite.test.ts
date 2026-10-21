@@ -158,7 +158,7 @@ const schemaExists = Effect.fn("SqlTestIntegration.schemaExists")(function* (sch
   return A.isReadonlyArrayNonEmpty(rows);
 });
 
-const isMissingContainer = S.is(S.Struct({ statusCode: S.Literal(404) }));
+const isMissingContainer = S.is(S.Struct({ statusCode: S.tag(404) }));
 const inspectContainer = (inspect: () => Promise<unknown>) =>
   Effect.tryPromise({
     try: inspect,

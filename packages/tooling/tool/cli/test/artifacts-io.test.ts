@@ -30,7 +30,7 @@ const withTempDir = Effect.fn("withTempDir")(function* <A, E, R>(use: (dir: stri
   return yield* use(dir);
 });
 
-const ExampleDocument = S.Struct({ schema_version: S.Literal(1), total: S.Finite });
+const ExampleDocument = S.Struct({ schema_version: S.tag(1), total: S.Finite });
 
 describe("internal/artifacts/ArtifactIo formatJsonc", () => {
   it.effect(

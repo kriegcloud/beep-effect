@@ -121,7 +121,7 @@ export class SparqlQueryRequest extends S.Opaque<SparqlQueryRequest, { readonly 
  */
 export class SparqlSelectResult extends S.Opaque<SparqlSelectResult, { readonly brand: unique symbol }>()(
   S.Struct({
-    profile: S.Literal("select"),
+    profile: S.tag("select"),
     rows: S.Array(S.Record(S.String, Term)),
   }).pipe(
     $I.annoteSchema("SparqlSelectResult", {
@@ -149,7 +149,7 @@ export class SparqlSelectResult extends S.Opaque<SparqlSelectResult, { readonly 
  */
 export class SparqlAskResult extends S.Opaque<SparqlAskResult, { readonly brand: unique symbol }>()(
   S.Struct({
-    profile: S.Literal("ask"),
+    profile: S.tag("ask"),
     value: S.Boolean,
   }).pipe(
     $I.annoteSchema("SparqlAskResult", {
@@ -181,7 +181,7 @@ export class SparqlAskResult extends S.Opaque<SparqlAskResult, { readonly brand:
  */
 export class SparqlConstructResult extends S.Opaque<SparqlConstructResult, { readonly brand: unique symbol }>()(
   S.Struct({
-    profile: S.Literal("construct"),
+    profile: S.tag("construct"),
     dataset: Dataset,
   }).pipe(
     $I.annoteSchema("SparqlConstructResult", {

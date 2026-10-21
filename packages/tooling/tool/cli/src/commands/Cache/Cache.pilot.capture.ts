@@ -28,11 +28,11 @@ const ArchiveLogSize = S.Natural.check(S.isLessThanOrEqualTo(64 * 1024)).annotat
   $I.annote("ArchiveLogSize", { description: "The native pilot log's maximum uncompressed byte count." })
 );
 const ArchiveLogHeader = S.Struct({
-  cksumValid: S.Literal(true),
-  nullBlock: S.Literal(false),
-  needPax: S.Literal(false),
-  type: S.Literal("File"),
-  path: S.Literal(archiveLogPath),
+  cksumValid: S.tag(true),
+  nullBlock: S.tag(false),
+  needPax: S.tag(false),
+  type: S.tag("File"),
+  path: S.tag(archiveLogPath),
   linkpath: S.optionalKey(S.Union([S.Undefined, S.Literal("")])),
   size: ArchiveLogSize,
 }).annotate(

@@ -40,7 +40,7 @@ class CaptionProvenance extends S.Opaque<CaptionProvenance, { readonly brand: un
   S.Struct({
     language: S.String,
     url: S.String,
-    format: S.Literal("vtt"),
+    format: S.tag("vtt"),
     origin: S.Literals(["creator", "automatic"]),
     downloadedFilename: S.String,
   }).pipe(

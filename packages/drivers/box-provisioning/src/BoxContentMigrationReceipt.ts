@@ -410,9 +410,7 @@ export class BoxContentMigrationReceipt extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    version: S.Literal("box-content-migration-receipt/v1").pipe(
-      S.withConstructorDefault(Effect.succeed("box-content-migration-receipt/v1"))
-    ),
+    version: S.tag("box-content-migration-receipt/v1"),
     planDigest: Sha256Hex,
     attemptId: BoxApplyAttemptId,
     appliedAt: S.DateTimeUtcFromString,

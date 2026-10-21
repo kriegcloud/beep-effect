@@ -376,7 +376,7 @@ const BoxErrorDiagnosticFields = {
   code: S.OptionFromOptionalKey(BoxErrorCode).pipe(S.withConstructorDefault(Effect.succeedNone)),
   context: S.OptionFromOptionalKey(BoxApiFailureContext).pipe(S.withConstructorDefault(Effect.succeedNone)),
   method: S.OptionFromOptionalKey(BoxMethodName).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  provider: S.Literal("box"),
+  provider: S.tag("box"),
   reason: BoxErrorReason,
   requestId: S.OptionFromOptionalKey(BoxRequestId).pipe(S.withConstructorDefault(Effect.succeedNone)),
   sdkVersion: S.OptionFromOptionalKey(BoxSdkVersion).pipe(S.withConstructorDefault(Effect.succeedNone)),

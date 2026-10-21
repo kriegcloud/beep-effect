@@ -104,7 +104,7 @@ class EffectLawsAllowlistEntry extends S.Opaque<EffectLawsAllowlistEntry, { read
 // fallow-ignore-next-line code-duplication -- CLI allowlist checks intentionally keep a command-local schema boundary.
 class EffectLawsAllowlistDocument extends S.Opaque<EffectLawsAllowlistDocument, { readonly brand: unique symbol }>()(
   S.Struct({
-    version: S.Literal(1),
+    version: S.tag(1),
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
       S.withDecodingDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>()))

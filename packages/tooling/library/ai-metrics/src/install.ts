@@ -858,7 +858,7 @@ export class AiMetricsInstallApplyDryRunResult extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    dryRun: S.Literal(true).pipe(S.withConstructorDefault(Effect.succeed(true))),
+    dryRun: S.tag(true),
     message: S.NonEmptyString,
     plan: AiMetricsInstallPlan,
     target: AiMetricsDeployTarget,

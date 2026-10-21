@@ -200,11 +200,7 @@ const dayCheck = textBoundsCheck("budget_day", { pattern: "^[0-9]{4}-[0-9]{2}-[0
 const zoneCheck = textBoundsCheck("budget_timezone", { minLength: 1, maxLength: 64 });
 
 const commonFields = () => ({
-  schemaVersion: S.Literal(schemaVersion).pipe(
-    S.withConstructorDefault(Effect.succeed(schemaVersion)),
-    pg.text(),
-    pg.columnName("schema_version"),
-  ),
+  schemaVersion: S.tag(schemaVersion).pipe(pg.text(), pg.columnName("schema_version")),
   uid: boundedId(128).pipe(pg.text(), pg.columnName("uid")),
   eventId: contentFreeId.pipe(pg.text(), pg.columnName("event_id")),
   candidateId: contentFreeId.pipe(pg.text(), pg.columnName("candidate_id")),

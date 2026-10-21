@@ -352,7 +352,7 @@ export const PackageScriptsDrift = S.TaggedUnion({
   "unexpected-task": { name: TaskScriptName },
   "wrong-binding": { name: TaskScriptName, expected: S.String, actual: S.String },
   "missing-impl": { name: ImplScriptName },
-  placeholder: { name: S.Literal("codegen"), actual: S.String },
+  placeholder: { name: S.tag("codegen"), actual: S.String },
   "derivation-conflict": { name: S.Literals(["doctest", "build"]), reason: S.String },
 }).pipe(
   $I.annoteSchema("PackageScriptsDrift", {
@@ -418,7 +418,7 @@ export type ManifestCount = typeof ManifestCount.Type;
  */
 export class PackageScriptsReportWire extends S.Opaque<PackageScriptsReportWire, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("package-scripts-report/v1"),
+    schemaVersion: S.tag("package-scripts-report/v1"),
     rules: PackageScriptsRuleVersion,
     manifests: ManifestCount,
     drift: S.Record(S.String, S.Array(PackageScriptsDrift)),
@@ -449,7 +449,7 @@ export class PackageScriptsReportWire extends S.Opaque<PackageScriptsReportWire,
  */
 export class PackageScriptsReport extends S.Opaque<PackageScriptsReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("package-scripts-report/v1"),
+    schemaVersion: S.tag("package-scripts-report/v1"),
     rules: PackageScriptsRuleVersion,
     manifests: ManifestCount,
     drift: S.HashMap(S.String, S.Array(PackageScriptsDrift)),

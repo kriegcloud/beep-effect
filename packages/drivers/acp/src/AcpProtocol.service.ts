@@ -301,7 +301,7 @@ export class AcpProtocolLoggingOptions extends S.Opaque<AcpProtocolLoggingOption
 type AcpProtocolLoggingFields = typeof AcpProtocolLoggingOptions.Encoded;
 
 const AcpSessionUpdateNotification = S.TaggedStruct("SessionUpdate", {
-  method: S.Literal(CLIENT_METHODS.session_update).annotateKey({
+  method: S.tag(CLIENT_METHODS.session_update).annotateKey({
     description: "ACP `session/update` method name.",
   }),
   params: AcpSchema.SessionNotification.annotateKey({
@@ -310,7 +310,7 @@ const AcpSessionUpdateNotification = S.TaggedStruct("SessionUpdate", {
 });
 
 const AcpElicitationCompleteNotification = S.TaggedStruct("ElicitationComplete", {
-  method: S.Literal(CLIENT_METHODS.session_elicitation_complete).annotateKey({
+  method: S.tag(CLIENT_METHODS.session_elicitation_complete).annotateKey({
     description: "ACP `session/elicitation/complete` method name.",
   }),
   params: AcpSchema.ElicitationCompleteNotification.annotateKey({

@@ -272,9 +272,7 @@ export class YeetInboxEntry extends S.Opaque<YeetInboxEntry, { readonly brand: u
  */
 export class YeetInboxView extends S.Opaque<YeetInboxView, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(YEET_INBOX_VIEW_SCHEMA_VERSION).pipe(
-      S.withConstructorDefault(Effect.succeed(YEET_INBOX_VIEW_SCHEMA_VERSION))
-    ),
+    schemaVersion: S.tag(YEET_INBOX_VIEW_SCHEMA_VERSION),
     entries: S.Array(YeetInboxEntry),
     skippedLines: S.Finite,
     unreadable: S.Boolean,
@@ -755,7 +753,7 @@ const yeetHookSessionStateFirstSeenAtDefault = {};
  */
 export class YeetHookSessionState extends S.Opaque<YeetHookSessionState, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal(YEET_HOOK_SESSION_SCHEMA_VERSION),
+    schemaVersion: S.tag(YEET_HOOK_SESSION_SCHEMA_VERSION),
     seenIds: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(yeetHookSessionStateSeenIdsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(yeetHookSessionStateSeenIdsDefault))

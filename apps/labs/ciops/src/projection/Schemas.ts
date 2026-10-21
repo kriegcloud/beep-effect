@@ -928,9 +928,8 @@ export const admissionRowCustody = (row: OwnerCarrier): AdmissionRowCustody =>
  * @since 0.0.0
  */
 export class AdmissionJournalAdmitted extends S.Opaque<AdmissionJournalAdmitted, { readonly brand: unique symbol }>()(
-  S.Struct({
-    schemaVersion: S.Literal("yeet-admission-journal/v1"),
-    _tag: S.tag("admission-admitted"),
+  S.TaggedStruct("admission-admitted", {
+    schemaVersion: S.tag("yeet-admission-journal/v1"),
     nonce: S.NonEmptyString,
     pid: S.OptionFromOptionalKey(S.Natural),
     procStart: S.OptionFromOptionalKey(S.String),
@@ -959,9 +958,8 @@ export class AdmissionJournalAdmitted extends S.Opaque<AdmissionJournalAdmitted,
  * @since 0.0.0
  */
 class AdmissionJournalReleased extends S.Opaque<AdmissionJournalReleased, { readonly brand: unique symbol }>()(
-  S.Struct({
-    schemaVersion: S.Literal("yeet-admission-journal/v1"),
-    _tag: S.tag("admission-released"),
+  S.TaggedStruct("admission-released", {
+    schemaVersion: S.tag("yeet-admission-journal/v1"),
     nonce: S.NonEmptyString,
     pid: S.OptionFromOptionalKey(S.Natural),
     ownerRef: optionalSurrogateRef,
@@ -998,9 +996,8 @@ const AdmissionTicketEvictionReason = LiteralKit(["queued-submitter-death"]).pip
  * @since 0.0.0
  */
 class AdmissionJournalLeaseEvicted extends S.Opaque<AdmissionJournalLeaseEvicted, { readonly brand: unique symbol }>()(
-  S.Struct({
-    schemaVersion: S.Literal("yeet-admission-journal/v2"),
-    _tag: S.tag("admission-lease-evicted"),
+  S.TaggedStruct("admission-lease-evicted", {
+    schemaVersion: S.tag("yeet-admission-journal/v2"),
     nonce: S.NonEmptyString,
     pid: S.OptionFromOptionalKey(S.Natural),
     ownerRef: optionalSurrogateRef,
@@ -1021,9 +1018,8 @@ class AdmissionJournalTicketEvicted extends S.Opaque<
   AdmissionJournalTicketEvicted,
   { readonly brand: unique symbol }
 >()(
-  S.Struct({
-    schemaVersion: S.Literal("yeet-admission-journal/v2"),
-    _tag: S.tag("admission-ticket-evicted"),
+  S.TaggedStruct("admission-ticket-evicted", {
+    schemaVersion: S.tag("yeet-admission-journal/v2"),
     nonce: S.NonEmptyString,
     pid: S.OptionFromOptionalKey(S.Natural),
     ownerRef: optionalSurrogateRef,
@@ -1049,7 +1045,7 @@ class AdmissionJournalV3Identity extends S.Class<AdmissionJournalV3Identity, { r
   $I`AdmissionJournalV3Identity`
 )(
   S.Struct({
-    schemaVersion: S.Literal("yeet-admission-journal/v3"),
+    schemaVersion: S.tag("yeet-admission-journal/v3"),
     nonce: S.String,
     pid: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     ownerRef: optionalSurrogateRef,
@@ -1458,7 +1454,7 @@ const hasCoherentRanks = (lanes: ReadonlyArray<HandoffLane>): boolean =>
  */
 export class GateOrderHandoffView extends S.Opaque<GateOrderHandoffView, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("gate-order-handoff/v1"),
+    schemaVersion: S.tag("gate-order-handoff/v1"),
     scope: LaneScope,
     orderRule: LaneOrderRule,
     lanes: S.NonEmptyArray(HandoffLane).check(
