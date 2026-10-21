@@ -25,6 +25,7 @@ import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
 
 const TestLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, AiProviderCliSession.layer);
+const decodeReceivedParams = S.decodeUnknownEffect(S.fromJsonString(S.Unknown));
 const syntheticProfile = Effect.fn("SessionTest.profile")(function* (
   provider: ManagedLaunchProfile["provider"],
   mode = "echo"
@@ -187,6 +188,49 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
               : "Upgrade your plan to continue"
           );
         }
+        yield* session.close;
+      }
+    })
+  );
+
+  it.effect(
+    "sends Grok and Cursor a pure generation-1 ACP handshake",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      // The v1 fixtures write each inbound request's params to `received-<method>.json` in HOME.
+      const received = (profile: ManagedLaunchProfile, file: string) =>
+        fs
+          .readFileString(path.join(profile.profileRoot, `received-${file}.json`))
+          .pipe(Effect.flatMap(decodeReceivedParams));
+      for (const provider of ["grok", "cursor"] as const) {
+        const profile = ManagedLaunchProfile.make({
+          ...(yield* syntheticProfile(provider)),
+          tools: [{ name: "peer", command: "synthetic-mcp", args: ["--stdio"], env: { MODE: "fixture" } }],
+        });
+        const session = yield* (yield* AiProviderCliSession).open(profile);
+        // Exact equality rules out the generation-2 negotiation fields `info` and `capabilities`.
+        assert.deepStrictEqual(yield* received(profile, "initialize"), {
+          protocolVersion: 1,
+          clientCapabilities: { fs: { readTextFile: false, writeTextFile: false }, terminal: false },
+          clientInfo: { name: "beep-managed-session", version: "1" },
+        });
+        assert.deepStrictEqual(yield* received(profile, "session-new"), {
+          cwd: profile.workspace,
+          mcpServers: [
+            { name: "peer", command: "synthetic-mcp", args: ["--stdio"], env: [{ name: "MODE", value: "fixture" }] },
+          ],
+        });
+        if (provider === "grok")
+          assert.deepStrictEqual(yield* received(profile, "authenticate"), {
+            methodId: "cached_token",
+            _meta: { headless: true },
+          });
+        else
+          assert.deepStrictEqual(yield* received(profile, "session-set_mode"), {
+            sessionId: session.identity.sessionId,
+            modeId: "ask",
+          });
         yield* session.close;
       }
     })

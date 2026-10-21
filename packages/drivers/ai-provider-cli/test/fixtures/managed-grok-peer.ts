@@ -1,10 +1,11 @@
+import { AcpRequestError } from "@beep/acp/errors";
 import * as SchemaV1 from "@beep/acp/schema-v1";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Ref from "effect/Ref";
 import * as Str from "effect/String";
-import { decodeV1, replyV1, runManagedV1Peer } from "./managed-acp-v1-peer.ts";
+import { decodeV1, initializeV1, replyV1, runManagedV1Peer } from "./managed-acp-v1-peer.ts";
 import { fixtureMode } from "./session-options.ts";
 import type { ManagedV1Peer, ManagedV1Route } from "./managed-acp-v1-peer.ts";
 
@@ -43,28 +44,25 @@ const routes = Effect.fnUntraced(function* (peer: ManagedV1Peer) {
     }
     return yield* replyV1(SchemaV1.PromptResponse)({ stopReason: "end_turn" });
   });
+  // Grok's headless managed login is the generation-1 `cached_token` method; anything else is refused.
+  const authenticate: ManagedV1Route = (params) =>
+    peer.checkpoint("authenticate").pipe(
+      Effect.andThen(decodeV1(SchemaV1.AuthenticateRequest)(params)),
+      Effect.filterOrFail(
+        (request) => request.methodId === "cached_token",
+        () => AcpRequestError.invalidParams("Unsupported authentication method.")
+      ),
+      Effect.andThen(Ref.set(authenticated, true)),
+      Effect.andThen(replyV1(SchemaV1.AuthenticateResponse)({}))
+    );
   return HashMap.make(
-    [
-      "initialize",
-      () =>
-        peer
-          .checkpoint("initialize")
-          .pipe(Effect.andThen(replyV1(SchemaV1.InitializeResponse)({ protocolVersion: 1, agentCapabilities: {} }))),
-    ],
-    [
-      "authenticate",
-      () =>
-        peer
-          .checkpoint("authenticate")
-          .pipe(
-            Effect.andThen(Ref.set(authenticated, true)),
-            Effect.andThen(replyV1(SchemaV1.AuthenticateResponse)({}))
-          ),
-    ],
+    ["initialize", initializeV1(peer)],
+    ["authenticate", authenticate],
     [
       "session/new",
-      () =>
+      (params: unknown) =>
         peer.checkpoint("session/new").pipe(
+          Effect.andThen(decodeV1(SchemaV1.NewSessionRequest)(params)),
           Effect.andThen(Ref.get(authenticated)),
           Effect.flatMap((isAuthenticated) =>
             replyV1(SchemaV1.NewSessionResponse)({
@@ -89,7 +87,13 @@ const routes = Effect.fnUntraced(function* (peer: ManagedV1Peer) {
     ],
     [
       "session/set_mode",
-      () => peer.checkpoint("session/set_mode").pipe(Effect.andThen(replyV1(SchemaV1.SetSessionModeResponse)({}))),
+      (params: unknown) =>
+        peer
+          .checkpoint("session/set_mode")
+          .pipe(
+            Effect.andThen(decodeV1(SchemaV1.SetSessionModeRequest)(params)),
+            Effect.andThen(replyV1(SchemaV1.SetSessionModeResponse)({}))
+          ),
     ],
     ["session/prompt", prompt]
   );

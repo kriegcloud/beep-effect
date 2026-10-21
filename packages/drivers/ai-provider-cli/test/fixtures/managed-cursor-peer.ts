@@ -2,7 +2,7 @@ import * as SchemaV1 from "@beep/acp/schema-v1";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
-import { decodeV1, replyV1, runManagedV1Peer } from "./managed-acp-v1-peer.ts";
+import { decodeV1, initializeV1, replyV1, runManagedV1Peer } from "./managed-acp-v1-peer.ts";
 import { fixtureMode } from "./session-options.ts";
 import type { ManagedV1Peer, ManagedV1Route } from "./managed-acp-v1-peer.ts";
 
@@ -20,17 +20,12 @@ const routes = (peer: ManagedV1Peer) => {
   });
   return Effect.succeed(
     HashMap.make(
-      [
-        "initialize",
-        () =>
-          peer
-            .checkpoint("initialize")
-            .pipe(Effect.andThen(replyV1(SchemaV1.InitializeResponse)({ protocolVersion: 1, agentCapabilities: {} }))),
-      ],
+      ["initialize", initializeV1(peer)],
       [
         "session/new",
-        () =>
+        (params: unknown) =>
           peer.checkpoint("session/new").pipe(
+            Effect.andThen(decodeV1(SchemaV1.NewSessionRequest)(params)),
             Effect.andThen(
               replyV1(SchemaV1.NewSessionResponse)({
                 sessionId: "owned-cursor",
@@ -45,7 +40,13 @@ const routes = (peer: ManagedV1Peer) => {
       ],
       [
         "session/set_mode",
-        () => peer.checkpoint("session/set_mode").pipe(Effect.andThen(replyV1(SchemaV1.SetSessionModeResponse)({}))),
+        (params: unknown) =>
+          peer
+            .checkpoint("session/set_mode")
+            .pipe(
+              Effect.andThen(decodeV1(SchemaV1.SetSessionModeRequest)(params)),
+              Effect.andThen(replyV1(SchemaV1.SetSessionModeResponse)({}))
+            ),
       ],
       ["session/prompt", prompt]
     )

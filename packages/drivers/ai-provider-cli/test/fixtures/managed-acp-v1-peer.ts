@@ -5,6 +5,10 @@
  * These fixtures therefore speak v1 directly over the JSON-RPC transport: every inbound request
  * reaches `onExtRequest` (no typed RPC methods are registered) and is answered with JSON encoded
  * through the generated `SchemaV1` schemas, so the client takes its generation-1 path end to end.
+ *
+ * The peer writes the params of every inbound request to `received-<method>.json` in its HOME
+ * (`/` becomes `-`; the latest request of a method wins), so tests can assert the exact handshake
+ * wire. Handshake routes decode their params through the generated v1 request schemas.
  */
 import { AcpRequestError } from "@beep/acp/errors";
 import * as Protocol from "@beep/acp/protocol";
@@ -20,8 +24,10 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Str from "effect/String";
 import { fixtureStallAt } from "./session-options.ts";
 import type * as AcpErrors from "@beep/acp/errors";
 
@@ -57,6 +63,26 @@ export const decodeV1 =
 const encodePermissionRequest = replyV1(SchemaV1.RequestPermissionRequest);
 const decodePermissionResponse = decodeV1(SchemaV1.RequestPermissionResponse);
 const encodeSessionNotification = replyV1(SchemaV1.SessionNotification);
+const decodeInitializeRequest = decodeV1(SchemaV1.InitializeRequest);
+const encodeReceivedParams = replyV1(S.fromJsonString(S.Unknown));
+
+/**
+ * Answers `initialize` only for a pure generation-1 request: `protocolVersion: 1` and neither of the
+ * generation-2 negotiation fields `info` and `capabilities`. Anything else is answered with -32602,
+ * so a managed path that stops pinning generation 1 fails to open instead of passing on a v1 reply.
+ */
+export const initializeV1 =
+  (peer: ManagedV1Peer): ManagedV1Route =>
+  (params) =>
+    peer.checkpoint("initialize").pipe(
+      Effect.andThen(decodeInitializeRequest(params)),
+      Effect.filterOrFail(
+        (request) =>
+          request.protocolVersion === 1 && !P.hasProperty(params, "info") && !P.hasProperty(params, "capabilities"),
+        () => AcpRequestError.invalidParams("Expected a pure ACP v1 initialize request.")
+      ),
+      Effect.andThen(replyV1(SchemaV1.InitializeResponse)({ protocolVersion: 1, agentCapabilities: {} }))
+    );
 
 /**
  * Serves a raw v1 peer on this process's stdio until the parent closes it.
@@ -94,6 +120,19 @@ export const runManagedV1Peer = (
       });
       yield* protocol.notify("session/update", payload);
     });
+    const recordParams = (method: string, params: unknown) =>
+      encodeReceivedParams(params).pipe(
+        Effect.flatMap((text) =>
+          fs
+            .makeDirectory(home, { recursive: true })
+            .pipe(
+              Effect.andThen(
+                fs.writeFileString(path.join(home, `received-${Str.replaceAll("/", "-")(method)}.json`), text)
+              )
+            )
+        ),
+        Effect.orDie
+      );
     const routes = yield* makeRoutes({ checkpoint, requestPermission, sendText });
     const protocol = yield* Protocol.makeAcpPatchedProtocol({
       stdio: yield* Stdio.Stdio,
@@ -101,7 +140,7 @@ export const runManagedV1Peer = (
       onExtRequest: (method, params) =>
         O.match(HashMap.get(routes, method), {
           onNone: () => Effect.fail(AcpRequestError.methodNotFound(method)),
-          onSome: (route) => route(params),
+          onSome: (route) => recordParams(method, params).pipe(Effect.andThen(route(params))),
         }),
     });
     yield* Deferred.succeed(ready, protocol);

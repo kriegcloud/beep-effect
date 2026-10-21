@@ -3,9 +3,19 @@
  *
  * **Details**
  *
- * Error messages are authored text only: a failure cause, a schema payload
- * value or a peer-supplied string never becomes part of `message`. Schema
- * decode failures are summarized by path and issue kind, without values.
+ * A failure `cause` and schema payload values never become part of `message`:
+ * schema decode failures are summarized by path and issue kind, without values.
+ * Some messages do carry text that the ACP peer controls, so treat `message` as
+ * untrusted before logging or displaying it:
+ *
+ * - `AcpProcessExitedError` appends the trimmed `stderr` excerpt of the peer
+ *   process.
+ * - `AcpRequestError.fromProtocolError` keeps the peer's JSON-RPC error message
+ *   verbatim as `errorMessage`, which is the error's `message`.
+ * - Method names that the peer sends appear in `AcpRequestError` messages
+ *   (such as `methodNotFound`) and in `AcpProtocolParseError` messages. A
+ *   schema issue summary can also name identifier-like object keys taken from
+ *   the payload.
  *
  * @packageDocumentation
  * @since 0.0.0

@@ -79,9 +79,12 @@ The agent serves generation 2 only. Core handlers take the request and an
 
 ```ts
 import * as AcpAgent from "@beep/acp/agent"
+import * as NodeRuntime from "@effect/platform-node/NodeRuntime"
+import * as NodeServices from "@effect/platform-node/NodeServices"
 import * as Effect from "effect/Effect"
+import * as Layer from "effect/Layer"
 
-const program = Effect.gen(function* () {
+const registerHandlers = Effect.gen(function* () {
   const agent = yield* AcpAgent.AcpAgent
   yield* agent.handleInitialize(() =>
     Effect.succeed({ protocolVersion: 2, capabilities: {}, info: { name: "my-agent", version: "0.0.0" } })
@@ -89,9 +92,21 @@ const program = Effect.gen(function* () {
   yield* agent.handleCreateSession(() => Effect.succeed({ sessionId: "session-1" }))
 })
 
-// Serve over the process stdio.
-const runnable = program.pipe(Effect.provide(AcpAgent.layerStdio()))
+// Serve over the process stdio until the process is stopped.
+const main = Layer.effectDiscard(registerHandlers).pipe(
+  Layer.provide(AcpAgent.layerStdio()),
+  Layer.provide(NodeServices.layer),
+  Layer.launch
+)
+
+NodeRuntime.runMain(main)
 ```
+
+The agent serves only while the scope of its layer stays open. `Layer.launch`
+keeps that scope open. `registerHandlers.pipe(Effect.provide(AcpAgent.layerStdio()))`
+would close the scope, and stop the agent, as soon as the handlers are
+registered. `layerStdio` needs a `Stdio` service; `NodeServices.layer`
+provides one on Node.
 
 ### Protocol (`@beep/acp/protocol`)
 
@@ -224,15 +239,15 @@ follows this repository's laws (schema-first models, `Effect.fn` spans,
 | D5 | Delete `AcpTerminal.models.ts`, `./terminal`, the `Terminal` namespace and the agent's fs/terminal client calls; the client keeps the v1 handlers. | v2 has no client fs/terminal methods; upstream deleted the module. | Reintroduce as a client terminal host kit. |
 | D6 | Keep the beep file names, `Json`, the object-form `layerChildProcess({ handle, ... })` and `layer({ stdio, ... })`, `HashSet` `serverRequestMethods`, curried `request`/`notify`, `AcpExtensionRegistrars` (now with `context`), `AcpProtocolLoggingOptions`, `AcpProtocolLogEvent`. | Keeps inventory keys, Markdown paths and the ai-provider-cli call site stable. | — |
 | D7 | Typed RPC ids are numbers from `2 ** 30`; ext ids are numbers from 1; inbound ids pass through verbatim; `AcpRequestContext.requestId` is the raw id. | int32-safe ids for strict peers; fixes the `"req-1" -> id: null` bug. | — |
-| D8 | Inbound extension requests run forked in a scoped `FiberSet` under a 64-permit semaphore. (Deviation from t3, which runs them inline.) | Removes the reentrancy deadlock when an ext handler awaits an outbound request. | Revert to inline and use RpcServer-based fixtures. |
-| D9 | Server, client and outgoing queues stay `bounded(1024)`; notifications use a `sliding(1024)` queue (t3: 32); the 16 MiB line cap and the client's 256-entry pending-notification cap stay. | Removes the 1,024-notification deadlock without unbounded memory. | Tune the capacities. |
+| D8 | Inbound extension requests run forked in a scoped `FiberSet`, at most 64 at once; past the bound a request is answered `-32603` at once, so the reader never waits for a permit. Each notification handler runs on its own fiber, and the reader waits for it until it finishes or sends a request on the same connection; at most 64 handlers may wait on the peer that way, past which the handler's request fails with `AcpTransportError`. Handlers still start in arrival order. (Deviation from t3, which runs both inline.) | Removes the reentrancy deadlocks when an extension or notification handler awaits an outbound request. | Revert to inline dispatch and use RpcServer-based fixtures. |
+| D9 | Server, client and outgoing queues stay `bounded(1024)`; notifications use a `sliding(32)` queue (t3 parity); the 16 MiB line cap and the client's 256-entry pending-notification cap stay. When the stdout writer fails, senders parked on the full outgoing queue fail with the writer's error. | Removes the 1,024-notification deadlock without unbounded memory, and no production consumer drains `incoming`. | Tune the capacities. |
 | D10 | Keep the NDJSON frame decoder and the escaped-key guard; skip whitespace-only lines; a protocol-shaped `Die` becomes `Fail`. | The V8 escaped-key bug reproduces locally; blank lines are harmless. | — |
 | D11 | Product-neutral strings: `_acp_unknown`, client info `{ name: "@beep/acp", version: "unknown" }`, `x/*` test methods, MCP server id `test-server`. | Package law. | — |
 | D12 | `XxxRpc` constants are module-private; only groups and method tables are exported. | No consumer imports them; fewer exports to document. | Re-export when needed. |
 | D13 | `Compat` is authored as schemas; the v1/v2 projections live in `src/internal/normalize.ts` and decide with `S.is` and `Match`, without casts. | Zero schema-first inventory growth; removes about 70 type assertions present upstream. | — |
 | D14 / O3 | No changeset and no goal packet; the decision record lives in the PR body and this section. | Private package. | — |
 | D15 | Codegen kit transforms are opt-in; ecfr, govinfo and runpod output stays byte-identical. | Kit law. | — |
-| D16 | `AcpClientOptions.protocolGeneration` (`negotiate` by default). ai-provider-cli picks the mode per provider; see the table below. | Each managed CLI answers `initialize` differently. | Per provider, below. |
+| D16 | `AcpClientOptions.protocolGeneration` (`negotiate` by default). ai-provider-cli picks the mode per provider; see the table below. | Each managed path is written against the methods of one protocol generation. | Per provider, below. |
 | D17 / O4 | A v2 idle with `stopReason: "error"` still resolves `prompt`. A generation-1 client fails `deleteSession`, `listProviders`, `setProvider` and `disableProvider` locally. `PROTOCOL_METHODS` is not generated; there is no `-32800` constructor. | t3 parity. | Gate generation-1 calls on advertised capabilities; revisit the error idle with the session runtime. |
 | O5 | `provider-acp` and `provider-acp-registry` are not ported. | Scope. | Follow-up PRs. |
 
@@ -241,13 +256,20 @@ D16 per provider in `@beep/ai-provider-cli`
 
 | Provider | `protocolGeneration` | Reason | Reversal |
 | --- | --- | --- | --- |
-| grok | `"negotiate"` (default) | t3code's recorded grok 1.0.41 transcript answers a negotiating `initialize` with v1 (`protocolVersion: 1`, `agentCapabilities`), so the client settles on generation 1 and `models`, `stopReason` and the v1 `authenticate` keep working. The grok fixture answers the same way, so the session tests cover negotiate → generation 1. | If grok starts answering v2, the managed path needs generation-2 idle handling; pin `"v1"` until it has it. |
-| cursor | `"v1"` | cursor-agent's reply to a negotiating `initialize` is unproven, and the managed Cursor path needs generation 1 (`session/set_mode`, which generation 2 fails locally, and the legacy `models` readback). `"v1"` sends the same pure v1 `initialize` as before the port. | Drop the pin after a live cursor-agent smoke under `"negotiate"`. |
+| grok | `"v1"` | The managed Grok path is written against generation 1: `authenticate` with `cached_token`, the legacy `models` readback and the v1 `stopReason`. Generation 2 removed the first two, so a generation-2 answer would break every managed Grok open. `"v1"` sends the same pure v1 `initialize` as before the port. | Switch to `"negotiate"` once the managed Grok path supports generation 2. |
+| cursor | `"v1"` | The managed Cursor path needs generation 1: `session/set_mode`, which generation 2 fails locally, and the legacy `models` readback. | Switch to `"negotiate"` once the managed Cursor path supports generation 2. |
 | codex | n/a (`"negotiate"` is passed but unused) | Codex never calls `agent.initialize`; it speaks its own app-server methods through `raw.request` and `raw.notify`. | — |
 | claude | n/a | Claude runs through its own stream-json transport (`openClaude`), not the ACP client. | — |
 
-No live smoke of the real `grok` or `cursor-agent` binaries ran for this
-port; the rows above rest on the recorded transcript and the fixtures.
+A live smoke on 2026-10-21 ran the ported client against the real `grok`
+(`grok-4.7`) and `cursor-agent` binaries. Both answered a negotiating
+`initialize` with `protocolVersion: 1`, and `initialize`, `authenticate`,
+`session/new`, `session/set_mode` and `prompt` all completed. Negotiation
+would therefore work today; the pin rules out a later generation-2 answer
+moving these paths onto methods they do not support. The grok and cursor
+test fixtures answer `initialize` only for a pure v1 request
+(`protocolVersion: 1`, no `info` or `capabilities`), and a session test
+asserts the exact handshake params each provider sends.
 
 Further deviations from t3, each deliberate:
 
@@ -260,6 +282,28 @@ Further deviations from t3, each deliberate:
   generation 2; normalization keeps rest keys; a malformed idle `error` is
   dropped.
 - `callRpc` is a `dual` with data-first order `(effect, method)`.
+- Peer `@effect/rpc/*` frames (`Eof`, `Ping`, `Ack`, `Interrupt`) are read as
+  ordinary JSON-RPC notifications or requests, not as effect-rpc control
+  messages, so a peer cannot close the writer or interrupt typed handlers with
+  them. The frame decoder differs from effect's NDJSON parser here on purpose.
+- Typed requests carry JSON-RPC members only (`jsonrpc`, `method`, `params`,
+  `id`); effect-rpc trace fields and headers never reach the wire.
+- A typed request handler that dies answers `-32603` with a generic message;
+  the defect is logged, never sent. A request that the RPC server rejects
+  (for example a reused in-flight id) is skipped with a warning instead of
+  stopping the server.
+- Classifying a connection's termination is bounded at 5 seconds and falls
+  back to `AcpInputStreamEndedError`, so a peer that closes stdout without
+  exiting cannot park callers. Termination also interrupts running extension
+  request handlers.
+- Decode-failure warnings are deduplicated by kind with array indices folded,
+  at most 64 kinds per connection.
+- A generation-1 prompt result outside the v1.21 schema keeps its string
+  `stopReason` (and `_meta`, and `usage` when valid); `end_turn` is used only
+  when `stopReason` is missing or not a string.
+- A re-sent `UnknownContent` block goes on the wire as the original block it
+  carries; a block with no wire form fails locally with `-32602`. The
+  `_acp_unknown` sentinel is never sent.
 - ai-provider-cli classifies `AcpProcessExitedError` and
   `AcpInputStreamEndedError` as a `closed` runtime ("Native runtime ended
   before the request completed") instead of a `transport` failure. Both mean
