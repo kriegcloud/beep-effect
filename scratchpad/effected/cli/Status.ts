@@ -13,9 +13,9 @@ const $I = $ScratchpadId.create("effected/cli/Status");
 class UnknownStatusError extends S.TaggedError<UnknownStatusError, { readonly brand: unique symbol }>($I`UnknownStatusError`)(
 	"UnknownStatusError",
 	{
-		message: S.String.annotate({ description: "The unknown status name and the available names in the vocabulary." }),
+		message: S.String.pipe($I.annoteKey("UnknownStatusError.message", { description: "The unknown status name and the available names in the vocabulary." })),
 	},
-	$I.annote("UnknownStatusError", { description: "A status name was not present in the CLI status vocabulary." }),
+	$I.annoteError<UnknownStatusError>("UnknownStatusError", { description: "A status name was not present in the CLI status vocabulary." }),
 ) {}
 
 /**
@@ -40,34 +40,26 @@ export const StatusDef = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	glyph: S.String.annotate(
-		$I.annote("StatusDef.glyph", { description: "The glyph field of StatusDef." }),
-	),
+	glyph: S.String.pipe($I.annoteKey("StatusDef.glyph", { description: "The glyph field of StatusDef." })),
 	/**
 	 * The ASCII fallback, used when the theme's glyphs are ASCII.
 	 *
 	 * @since 0.0.0
 	 */
-	ascii: S.String.annotate(
-		$I.annote("StatusDef.ascii", { description: "The ascii field of StatusDef." }),
-	),
+	ascii: S.String.pipe($I.annoteKey("StatusDef.ascii", { description: "The ascii field of StatusDef." })),
 	/**
 	 * The semantic token, or an explicit style, the glyph is painted with.
 	 *
 	 * @since 0.0.0
 	 */
-	token: S.Union([TokenName, Style]).annotate(
-		$I.annote("StatusDef.token", { description: "The token field of StatusDef." }),
-	),
+	token: S.Union([TokenName, Style]).pipe($I.annoteKey("StatusDef.token", { description: "The token field of StatusDef." })),
 	/**
 	 * Severity for {@link Status.worst}: the highest rank wins.
 	 *
 	 * @since 0.0.0
 	 */
-	rank: S.Finite.annotate($I.annote("StatusDef.rank", { description: "The rank field of StatusDef." })),
-}).annotate(
-	$I.annote("StatusDef", { description: "The resolved appearance and rank of a status." }),
-);
+	rank: S.Finite.pipe($I.annoteKey("StatusDef.rank", { description: "The rank field of StatusDef." })),
+}).pipe($I.annoteSchema("StatusDef", { description: "The resolved appearance and rank of a status." }));
 /**
  * The plain resolved appearance and severity of a status.
  *
@@ -92,9 +84,7 @@ export type StatusDef = typeof StatusDef.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CoreStatusName = LiteralKit(["success", "failure", "warning", "info", "skip", "pending"]).annotate(
-	$I.annote("CoreStatusName", { description: "The six built-in names in the CLI status vocabulary." }),
-);
+export const CoreStatusName = LiteralKit(["success", "failure", "warning", "info", "skip", "pending"]).pipe($I.annoteSchema("CoreStatusName", { description: "The six built-in names in the CLI status vocabulary." }));
 /**
  * A name accepted by the built-in status vocabulary.
  *
@@ -229,7 +219,7 @@ export class Status<Names extends string> {
 	def(name: Names | CoreStatusName): StatusDef {
 		if (!R.has(this.defs, name)) {
 			throw UnknownStatusError.make({
-				message: `Unknown status "${name}"; this vocabulary has: ${R.keys(this.defs).join(", ")}`,
+				message: `Unknown status "${name}"; this vocabulary has: ${Arr.join(R.keys(this.defs), ", ")}`,
 			});
 		}
 		return this.defs[name];

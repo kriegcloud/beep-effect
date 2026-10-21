@@ -5,7 +5,7 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Str from "effect/String";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
@@ -145,8 +145,8 @@ describe("paths", () => {
 describe("specifier rewrites", () => {
   const resolver = {
     resolveRelative: (specifier: string) => (specifier === "../src/index.js" ? O.some("../../effected/glob/index.js") : O.none()),
-    resolveKit: (dep: string, subpath: string) =>
-      dep === "memfs" ? O.some(subpath === "." ? "../memfs/index.ts" : "../memfs/NodeSyncFileSystem.ts") : O.none(),
+    resolveKit: dual(2, (dep: string, subpath: string): O.Option<string> =>
+      dep === "memfs" ? O.some(subpath === "." ? "../memfs/index.ts" : "../memfs/NodeSyncFileSystem.ts") : O.none()),
   };
   it("normalizes .js and .jsx extensions only", () => {
     assert.strictEqual(tsExtension("./a.js"), "./a.ts");
@@ -531,6 +531,28 @@ describe("editorTsgoVerdict", () => {
     assert.isTrue(verdict.red);
     assert.deepStrictEqual(verdict.errors, ["src/a.ts(1,7): error TS2322: Type 'string' is not assignable to type 'number'."]);
     assert.strictEqual(verdict.advisories, 1);
+  });
+
+  // Verbatim pinned @effect/tsgo 0.51.1 output for a module tsconfig extending effected/tsconfig.lab.json:
+  // it exits 1 on unknown-rule warnings alone, and bun appends its own `error: "tsgo" exited` line.
+  const PINNED_UNKNOWN_RULES = A.join([
+    "warning TS377134: Unknown Effect diagnostic rule `preferEffectArray` in `diagnosticSeverity`. effect(unknownRuleName)",
+    "warning TS377134: Unknown Effect diagnostic rule `preferEffectRecord` in `diagnosticSeverity`. effect(unknownRuleName)",
+    'error: "tsgo" exited with code 1',
+  ], "\n");
+
+  it("stays clean when the pinned tsgo exits 1 on unknown-rule warnings only", () => {
+    const verdict = editorTsgoVerdict({ exitCode: 1, output: PINNED_UNKNOWN_RULES });
+    assert.isFalse(verdict.red);
+    assert.strictEqual(verdict.advisories, 2);
+    assert.deepStrictEqual(verdict.errors, []);
+  });
+
+  it("is red when the pinned tsgo prints an error next to unknown-rule warnings", () => {
+    const verdict = editorTsgoVerdict({ exitCode: 1, output: `src/a.ts(1,7): error TS2322: Type 'string' is not assignable to type 'number'.\n${PINNED_UNKNOWN_RULES}` });
+    assert.isTrue(verdict.red);
+    assert.deepStrictEqual(verdict.errors, ["src/a.ts(1,7): error TS2322: Type 'string' is not assignable to type 'number'."]);
+    assert.strictEqual(verdict.advisories, 2);
   });
 
   it("is red on a global error without a position", () => {

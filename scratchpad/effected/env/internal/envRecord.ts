@@ -3,6 +3,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import type { Env } from "./types.ts";
+import * as A from "effect/Array";
 
 /**
  * Drop an absent or empty value from a plain record, so it carries non-empty values only: the normalisation
@@ -23,7 +24,7 @@ import type { Env } from "./types.ts";
  * @since 0.0.0
  */
 export const normalizeEnv = (record: Env): Env =>
-	R.fromEntries(R.toEntries(record).filter(([, value]) => value !== undefined && value !== ""));
+	R.fromEntries(A.filter(R.toEntries(record), ([, value]) => value !== undefined && value !== ""));
 
 /**
  * Read a fixed key set from the ambient `ConfigProvider` into a plain {@link Env} record.
@@ -57,7 +58,7 @@ export const readEnv = (keys: ReadonlyArray<string>): Effect.Effect<Env> =>
 	).pipe(
 		Effect.map((entries) =>
 			R.fromEntries(
-				entries.flatMap(([key, value]) => (O.isSome(value) && value.value !== "" ? [[key, value.value]] : [])),
+				A.flatMap(entries, ([key, value]) => (O.isSome(value) && value.value !== "" ? [[key, value.value]] : [])),
 			),
 		),
 	);

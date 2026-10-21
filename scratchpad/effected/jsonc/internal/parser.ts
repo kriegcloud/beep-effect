@@ -17,6 +17,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { JsoncNodeType } from "../JsoncNode.ts";
 import { JsoncNode, makeNodeUnsafe } from "../JsoncNode.ts";
@@ -62,8 +63,8 @@ export const ParseCode = LiteralKit([
   "InvalidEscapeCharacter",
   "InvalidCharacter",
   "NestingDepthExceeded",
-]).annotate(
-  $I.annote("ParseCode", {
+]).pipe(
+  $I.annoteSchema("ParseCode", {
     description: "Parse-error codes the recovering JSONC parser can report.",
   })
 );
@@ -261,7 +262,10 @@ interface Internal {
   readonly errors: ReadonlyArray<RawParseError>;
 }
 
-const run = (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
+const run: {
+  (text: string, flags: ParseFlags, buildTree: boolean): Internal;
+  (flags: ParseFlags, buildTree: boolean): (text: string) => Internal;
+} = dual(3, (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
   const scanner = createScanner(text, false);
   // Local accumulators below grow in place: an immutable append copies the
   // whole array per element and makes wide containers quadratic.
@@ -331,16 +335,25 @@ const run = (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
 
   // Record `code` and resynchronize: advance until one of `skipUntil` is the
   // current token (left in place) or EOF.
-  const pushError = (code: ParseCode, skipUntil: ReadonlyArray<SyntaxKind> = A.empty()): void => {
-    record(code);
-    if (A.isReadonlyArrayNonEmpty(skipUntil)) {
-      while (token() !== "EOF" && !A.contains(skipUntil, token())) {
-        scanNext();
+  const pushError: {
+    (code: ParseCode, skipUntil?: ReadonlyArray<SyntaxKind>): void;
+    (skipUntil?: ReadonlyArray<SyntaxKind>): (code: ParseCode) => void;
+  } = dual(
+    (args) => P.isString(args[0]),
+    (code: ParseCode, skipUntil: ReadonlyArray<SyntaxKind> = A.empty()): void => {
+      record(code);
+      if (A.isReadonlyArrayNonEmpty(skipUntil)) {
+        while (token() !== "EOF" && !A.contains(skipUntil, token())) {
+          scanNext();
+        }
       }
     }
-  };
+  );
 
-  const guardDepth = <T>(placeholder: () => T, body: () => T): T => {
+  const guardDepth: {
+    <T>(placeholder: () => T, body: () => T): T;
+    <T>(body: () => T): (placeholder: () => T) => T;
+  } = dual(2, <T>(placeholder: () => T, body: () => T): T => {
     if (depth >= MAX_NESTING_DEPTH) {
       pushDepthError();
       skipContainer();
@@ -352,12 +365,15 @@ const run = (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
     } finally {
       depth--;
     }
-  };
+  });
 
   // Shared container-loop step: handles the separator before an entry and
   // reports a missing comma. Returns `false` when a trailing comma closed the
   // container.
-  const separator = (closer: SyntaxKind, missingValue: ParseCode, needsComma: boolean): boolean => {
+  const separator: {
+    (closer: SyntaxKind, missingValue: ParseCode, needsComma: boolean): boolean;
+    (missingValue: ParseCode, needsComma: boolean): (closer: SyntaxKind) => boolean;
+  } = dual(3, (closer: SyntaxKind, missingValue: ParseCode, needsComma: boolean): boolean => {
     if (token() === "Comma") {
       if (!needsComma) {
         pushError(missingValue);
@@ -370,7 +386,7 @@ const run = (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
       pushError("CommaExpected");
     }
     return true;
-  };
+  });
 
   // ── Value mode ──────────────────────────────────────────────────────────
 
@@ -467,12 +483,15 @@ const run = (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
 
   // ── Tree mode ───────────────────────────────────────────────────────────
 
-  const leafTree = (type: LeafNodeType, value: unknown): JsoncNode => {
+  const leafTree: {
+    (type: LeafNodeType, value: unknown): JsoncNode;
+    (value: unknown): (type: LeafNodeType) => JsoncNode;
+  } = dual(2, (type: LeafNodeType, value: unknown): JsoncNode => {
     const offset = scanner.getTokenOffset();
     const end = tokenEnd();
     scanNext();
     return makeNodeUnsafe({ type, offset, length: end - offset, value });
-  };
+  });
 
   const parseValueTree = (): O.Option<JsoncNode> =>
     Match.value(token()).pipe(
@@ -488,7 +507,10 @@ const run = (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
 
   // The container end offset: the closer's tight end when present, otherwise
   // the start of whatever token the recovery stopped on.
-  const closeContainer = (closer: SyntaxKind, missing: ParseCode): number => {
+  const closeContainer: {
+    (closer: SyntaxKind, missing: ParseCode): number;
+    (missing: ParseCode): (closer: SyntaxKind) => number;
+  } = dual(2, (closer: SyntaxKind, missing: ParseCode): number => {
     if (token() === closer) {
       const end = tokenEnd();
       scanNext();
@@ -496,7 +518,7 @@ const run = (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
     }
     pushError(missing);
     return scanner.getTokenOffset();
-  };
+  });
 
   const parseArrayTree = (): JsoncNode => {
     const offset = scanner.getTokenOffset();
@@ -609,7 +631,7 @@ const run = (text: string, flags: ParseFlags, buildTree: boolean): Internal => {
   const value = parseValue();
   finish(value.pipe(O.isSome));
   return { value: value.pipe(O.getOrUndefined), root: O.none(), errors };
-};
+});
 
 /**
  * Parse JSONC into a plain JavaScript value, recovering from and collecting

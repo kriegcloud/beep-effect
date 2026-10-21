@@ -159,7 +159,10 @@ export const navigate: {
 
   const skipValue = (): number => skipBalancedValue(skipCursor);
 
-  const located = (
+  const located: {
+    (container: NavigateContainer, keyStart: number, commaBefore: O.Option<number>): NavigateResult;
+    (keyStart: number, commaBefore: O.Option<number>): (container: NavigateContainer) => NavigateResult;
+  } = dual(3, (
     container: NavigateContainer,
     keyStart: number,
     commaBefore: O.Option<number>
@@ -174,7 +177,7 @@ export const navigate: {
       commaBefore,
       commaAfter: currentToken === "Comma" ? O.some(scanner.getTokenOffset()) : O.none(),
     });
-  };
+  });
 
   // Walk an object's entries until `segment` is found; the cursor is left on
   // the matching value, or on the closer when the key is absent.
@@ -239,10 +242,10 @@ export const navigate: {
   };
 
   const mismatch = (segment: JsoncSegment): NavigateResult =>
-    NavigateResult.cases.Mismatch.make({ depth, expected: P.isString(segment) ? "object" : "array" });
+    NavigateResult.cases.Mismatch.make({ depth, expected: P.isString(segment) === true ? "object" : "array" });
 
   const canEnter = (segment: JsoncSegment): boolean =>
-    P.isString(segment) ? currentToken === "OpenBrace" : currentToken === "OpenBracket";
+    P.isString(segment) === true ? currentToken === "OpenBrace" : currentToken === "OpenBracket";
 
   // Intermediate segments only need to position the cursor on the next value.
   // A miss leaves the cursor on the closer, which the next segment reports.
@@ -251,7 +254,7 @@ export const navigate: {
     if (!canEnter(segment)) {
       return mismatch(segment);
     }
-    if (P.isString(segment)) {
+    if (P.isString(segment) === true) {
       scanObject(segment);
     } else {
       scanArray(segment);
@@ -263,7 +266,7 @@ export const navigate: {
   if (!canEnter(last)) {
     return mismatch(last);
   }
-  if (P.isString(last)) {
+  if (P.isString(last) === true) {
     const { found, lastValueEnd, isFirst } = scanObject(last);
     return O.match(found, {
       onSome: ({ keyStart, commaBefore }) => located("object", keyStart, commaBefore),

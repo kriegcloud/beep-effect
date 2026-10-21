@@ -138,6 +138,9 @@ function mergeRecords(
 }
 
 /** Create an own data property, never invoking a setter inherited from the prototype chain. */
-const define = (target: Record<PropertyKey, unknown>, key: PropertyKey, value: unknown): void => {
+const define: {
+	(target: Record<PropertyKey, unknown>, key: PropertyKey, value: unknown): void;
+	(key: PropertyKey, value: unknown): (target: Record<PropertyKey, unknown>) => void;
+} = dual(3, (target: Record<PropertyKey, unknown>, key: PropertyKey, value: unknown): void => {
 	Object.defineProperty(target, key, { value, writable: true, enumerable: true, configurable: true });
-};
+});

@@ -97,30 +97,25 @@ const EMPTY_EDGE_NAMES: ReadonlyArray<string> = [];
  * @since 0.0.0
  */
 export class ResolvedPackage extends S.Class<ResolvedPackage, { readonly brand: unique symbol }>($I`ResolvedPackage`)({
-	name: S.NonEmptyString.annotateKey({ description: "Resolved package name; pnpm workspace entries initially carry importer paths until rewritten with manifest names" }),
-	version: S.String.annotateKey({ description: "Resolved package version; pnpm workspace entries use `0.0.0` because their actual versions are absent from the lockfile" }),
-	instanceId: S.NonEmptyString.annotateKey({ description: "Opaque, verbatim lockfile identity distinguishing this package instance, including separate peer-resolved variants" }),
-	integrity: S.optionalKey(IntegrityHash).annotateKey({ description: "Package integrity recorded by the lockfile, including SRI hashes and yarn Berry cache checksums" }),
-	isWorkspace: S.Boolean.annotateKey({ description: "Whether this instance represents a workspace-local package" }),
-	relativePath: S.optionalKey(S.String).annotateKey({ description: "Workspace-relative package directory, when recorded by the lockfile" }),
+	name: S.NonEmptyString.pipe($I.annoteKey("ResolvedPackage.name", { description: "Resolved package name; pnpm workspace entries initially carry importer paths until rewritten with manifest names" })),
+	version: S.String.pipe($I.annoteKey("ResolvedPackage.version", { description: "Resolved package version; pnpm workspace entries use `0.0.0` because their actual versions are absent from the lockfile" })),
+	instanceId: S.NonEmptyString.pipe($I.annoteKey("ResolvedPackage.instanceId", { description: "Opaque, verbatim lockfile identity distinguishing this package instance, including separate peer-resolved variants" })),
+	integrity: S.optionalKey(IntegrityHash).pipe($I.annoteKey("ResolvedPackage.integrity", { description: "Package integrity recorded by the lockfile, including SRI hashes and yarn Berry cache checksums" })),
+	isWorkspace: S.Boolean.pipe($I.annoteKey("ResolvedPackage.isWorkspace", { description: "Whether this instance represents a workspace-local package" })),
+	relativePath: S.optionalKey(S.String).pipe($I.annoteKey("ResolvedPackage.relativePath", { description: "Workspace-relative package directory, when recorded by the lockfile" })),
 	dependencies: S.Record(S.String, S.String).pipe(
 		S.withDecodingDefaultKey(Effect.succeed(EMPTY_DEPENDENCIES)),
-		S.withConstructorDefault(Effect.succeed(EMPTY_DEPENDENCIES)),
-	).annotateKey({ description: "Package dependency entries recorded by the lockfile, keyed by dependency name and defaulting to an empty map" }),
+		S.withConstructorDefault(Effect.succeed(EMPTY_DEPENDENCIES)), $I.annoteKey("ResolvedPackage.dependencies", { description: "Package dependency entries recorded by the lockfile, keyed by dependency name and defaulting to an empty map" })),
 	peerDependencies: S.Record(S.String, S.String).pipe(
 		S.withDecodingDefaultKey(Effect.succeed(EMPTY_DEPENDENCIES)),
-		S.withConstructorDefault(Effect.succeed(EMPTY_DEPENDENCIES)),
-	).annotateKey({ description: "Declared peer dependency ranges keyed by package name, independently of which instances actually resolved" }),
+		S.withConstructorDefault(Effect.succeed(EMPTY_DEPENDENCIES)), $I.annoteKey("ResolvedPackage.peerDependencies", { description: "Declared peer dependency ranges keyed by package name, independently of which instances actually resolved" })),
 	peerDependenciesMeta: S.Record(S.String, S.Struct({ optional: S.Boolean })).pipe(
 		S.withDecodingDefaultKey(Effect.succeed(EMPTY_PEER_META)),
-		S.withConstructorDefault(Effect.succeed(EMPTY_PEER_META)),
-	).annotateKey({ description: "Per-peer optionality flags normalized across lockfile formats; peers without metadata are required" }),
+		S.withConstructorDefault(Effect.succeed(EMPTY_PEER_META)), $I.annoteKey("ResolvedPackage.peerDependenciesMeta", { description: "Per-peer optionality flags normalized across lockfile formats; peers without metadata are required" })),
 	resolved: S.Record(S.String, S.String).pipe(
 		S.withDecodingDefaultKey(Effect.succeed(EMPTY_DEPENDENCIES)),
-		S.withConstructorDefault(Effect.succeed(EMPTY_DEPENDENCIES)),
-	).annotateKey({ description: "Dependency and recorded peer names mapped to verified target instance identities in this package's resolution context" }),
+		S.withConstructorDefault(Effect.succeed(EMPTY_DEPENDENCIES)), $I.annoteKey("ResolvedPackage.resolved", { description: "Dependency and recorded peer names mapped to verified target instance identities in this package's resolution context" })),
 	unresolvedEdges: S.Array(S.String).pipe(
 		S.withDecodingDefaultKey(Effect.succeed(EMPTY_EDGE_NAMES)),
-		S.withConstructorDefault(Effect.succeed(EMPTY_EDGE_NAMES)),
-	).annotateKey({ description: "Dependency names with recorded lockfile edges whose target instances could not be identified, excluding genuinely absent edges" }),
+		S.withConstructorDefault(Effect.succeed(EMPTY_EDGE_NAMES)), $I.annoteKey("ResolvedPackage.unresolvedEdges", { description: "Dependency names with recorded lockfile edges whose target instances could not be identified, excluding genuinely absent edges" })),
 }, $I.annote("ResolvedPackage", { description: "A package resolved from a lockfile." })) {}

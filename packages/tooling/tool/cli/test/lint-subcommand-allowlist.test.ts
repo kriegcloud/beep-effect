@@ -222,6 +222,7 @@ it.layer(CommandTestLayer, { timeout: "5 seconds" })((it) => {
           }
 
           expect(inspectModuleLoads(project, binMainSource, true)).toEqual([
+            "import:effect/Result",
             "import:./internal/cli/FailureRendering.ts",
             "import:./internal/cli/LintRouting.ts",
             "import():@beep/utils",

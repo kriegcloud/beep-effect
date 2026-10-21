@@ -172,7 +172,7 @@ const functionOf = (node: ESTree.Node): O.Option<ESTree.Function | ESTree.ArrowF
       VariableDeclarator: (value) => O.flatMap(O.fromNullishOr(value.init), functionOf),
     }),
     Match.when({ type: "MethodDefinition" }, (value) => O.some(value.value)),
-    Match.orElse(() => O.none<ESTree.Function | ESTree.ArrowFunctionExpression>())
+    Match.orElse(O.none<ESTree.Function | ESTree.ArrowFunctionExpression>)
   );
 const parameterName = (node: ESTree.Node): O.Option<string> => {
   if (node.type === "Identifier") return O.some(node.name);

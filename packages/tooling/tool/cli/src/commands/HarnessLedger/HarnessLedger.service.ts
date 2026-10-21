@@ -47,7 +47,7 @@ import { enumeratePruneCandidates, observeSessionWindow, reconcileTranscripts } 
 import type { HarnessFingerprint, HarnessHash, HookPulseAgentKind } from "@beep/repo-ai-metrics";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { HarnessLedgerCommandError } from "./HarnessLedger.errors.ts";
 import type {
   HarnessLedgerDispositionOptions,

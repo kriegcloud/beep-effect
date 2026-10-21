@@ -14,6 +14,7 @@
  */
 
 import { isCanonicalJSDocCategory } from "@beep/repo-utils/schemas/JSDocCategories";
+import { dual } from "effect/Function";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -27,7 +28,10 @@ const SECTION_ORDER = ["When to use", "Details", "Gotchas", "Example"] as const;
 const commentLines = (text: string): ReadonlyArray<string> =>
   A.map(Str.split("\n")(text), (line) => Str.replace(/^\s*\/?\*+\/?\s?/, "")(line));
 
-const lineOf = (sourceFile: SourceFile, position: number): number => sourceFile.getLineAndColumnAtPos(position).line;
+const lineOf: {
+  (sourceFile: SourceFile, position: number): number;
+  (position: number): (sourceFile: SourceFile) => number;
+} = dual(2, (sourceFile: SourceFile, position: number): number => sourceFile.getLineAndColumnAtPos(position).line);
 
 /**
  * The structural findings of one JSDoc block, as `rule: detail` strings.
@@ -134,7 +138,10 @@ export const blockFindings = (text: string): ReadonlyArray<string> => {
   return findings;
 };
 
-const hasTag = (doc: JSDoc, tag: string): boolean => A.some(doc.getTags(), (candidate) => candidate.getTagName() === tag);
+const hasTag: {
+  (doc: JSDoc, tag: string): boolean;
+  (tag: string): (doc: JSDoc) => boolean;
+} = dual(2, (doc: JSDoc, tag: string): boolean => A.some(doc.getTags(), (candidate) => candidate.getTagName() === tag));
 
 const docsOf = (node: Node): ReadonlyArray<JSDoc> => {
   if (Node.isVariableDeclaration(node)) {
@@ -210,7 +217,7 @@ export const jsdocLawFindings = (scope: JsdocScope): ReadonlyArray<string> => {
     }
     if (A.contains(scope.entries, label)) {
       const first = A.head(A.filter(sourceFile.getDescendants(), Node.isJSDoc));
-      const packaged = O.exists(first, (doc) => hasTag(doc, "packageDocumentation"));
+      const packaged = O.exists(first, hasTag("packageDocumentation"));
       if (!packaged) fileFindings.push(`${label}:1 package-documentation: entry file lacks @packageDocumentation`);
     }
     return fileFindings;

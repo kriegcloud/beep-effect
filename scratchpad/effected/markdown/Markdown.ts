@@ -53,7 +53,7 @@ const $I = $ScratchpadId.create("effected/markdown/Markdown");
  * @category schemas
  * @since 0.0.0
  */
-export const MarkdownDialect = RawMarkdownDialect.annotate($I.annote("MarkdownDialect", { description: "The markdown dialects the parser can be pointed at. `\"gfm\"` — CommonMark 0.31.2 plus the GitHub extensions (tables, strikethrough, autolink literals, task-list items, footnotes, and the tagfilter's output contract) — is the default; `\"commonmark\"` opts out of every extension. A dialect is a registry composition in the engine, so widening this union is additive and never changes an existing dialect's behavior." }));
+export const MarkdownDialect = RawMarkdownDialect.pipe($I.annoteSchema("MarkdownDialect", { description: "The markdown dialects the parser can be pointed at. `\"gfm\"` — CommonMark 0.31.2 plus the GitHub extensions (tables, strikethrough, autolink literals, task-list items, footnotes, and the tagfilter's output contract) — is the default; `\"commonmark\"` opts out of every extension. A dialect is a registry composition in the engine, so widening this union is additive and never changes an existing dialect's behavior." }));
 
 /**
  * The union of all markdown dialect string literals.
@@ -96,8 +96,8 @@ export type MarkdownDialect = typeof MarkdownDialect.Type;
  * @since 0.0.0
  */
 export class MarkdownParseOptions extends S.Class<MarkdownParseOptions, { readonly brand: unique symbol }>($I`MarkdownParseOptions`)({
-	dialect: S.optionalKey(MarkdownDialect).annotateKey({ description: "Markdown grammar to apply: `gfm` by default, or `commonmark` without GitHub extensions" }),
-	frontmatter: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to capture an opening YAML, TOML or JSON frontmatter block as a raw node; disabled by default" }),
+	dialect: S.optionalKey(MarkdownDialect).pipe($I.annoteKey("MarkdownParseOptions.dialect", { description: "Markdown grammar to apply: `gfm` by default, or `commonmark` without GitHub extensions" })),
+	frontmatter: S.optionalKey(S.Boolean).pipe($I.annoteKey("MarkdownParseOptions.frontmatter", { description: "Whether to capture an opening YAML, TOML or JSON frontmatter block as a raw node; disabled by default" })),
 }, $I.annote("MarkdownParseOptions", { description: "Options controlling parse behavior: `dialect` (omitted, `\"gfm\"`) and `frontmatter` (omitted, `false` — capture is opt-in)." })) {}
 
 /**
@@ -137,8 +137,8 @@ export class MarkdownParseOptions extends S.Class<MarkdownParseOptions, { readon
  * @since 0.0.0
  */
 export class MarkdownParseError extends S.TaggedError<MarkdownParseError, { readonly brand: unique symbol }>($I`MarkdownParseError`)("MarkdownParseError", {
-	diagnostic: MarkdownDiagnostic.annotateKey({ description: "Fatal parse condition and its source position, currently a nesting-depth guard violation" }),
-}, $I.annote("MarkdownParseError", { description: "Parse failure: the MarkdownDiagnostic describing why the document was rejected." })) {
+	diagnostic: MarkdownDiagnostic.pipe($I.annoteKey("MarkdownParseError.diagnostic", { description: "Fatal parse condition and its source position, currently a nesting-depth guard violation" })),
+}, $I.annoteError<MarkdownParseError>("MarkdownParseError", { description: "Parse failure: the MarkdownDiagnostic describing why the document was rejected." })) {
 	/**
 	 * Formats the parse diagnostic with one-based line and character positions for readers.
 	 *
@@ -198,8 +198,8 @@ export class MarkdownParseError extends S.TaggedError<MarkdownParseError, { read
  * @since 0.0.0
  */
 export class MarkdownStringifyError extends S.TaggedError<MarkdownStringifyError, { readonly brand: unique symbol }>($I`MarkdownStringifyError`)("MarkdownStringifyError", {
-	diagnostic: MarkdownDiagnostic.annotateKey({ description: "Nesting-depth guard violation preventing serialization, carrying the offending node's claimed offset and zero line and character positions" }),
-}, $I.annote("MarkdownStringifyError", { description: "Stringify failure: the MarkdownDiagnostic describing why the tree was refused." })) {
+	diagnostic: MarkdownDiagnostic.pipe($I.annoteKey("MarkdownStringifyError.diagnostic", { description: "Nesting-depth guard violation preventing serialization, carrying the offending node's claimed offset and zero line and character positions" })),
+}, $I.annoteError<MarkdownStringifyError>("MarkdownStringifyError", { description: "Stringify failure: the MarkdownDiagnostic describing why the tree was refused." })) {
 	/**
 	 * Formats the stringify diagnostic without a source position.
 	 *
@@ -276,26 +276,25 @@ export const parsePassResult: {
 	text: string,
 	options?: MarkdownParseOptions,
 ): Result.Result<BlockPassResult, MarkdownParseError> => {
-	try {
-		return Result.succeed(parseBlocks(text, { dialect: dialectOf(options), frontmatter: frontmatterOf(options) }));
-	} catch (caught) {
-		if (isGuardExceeded(caught)) {
-			return Result.fail(
-				MarkdownParseError.make({
+	return Result.try({
+		try: () => parseBlocks(text, { dialect: dialectOf(options), frontmatter: frontmatterOf(options) }),
+		catch: (caught) => {
+			if (isGuardExceeded(caught)) {
+				return MarkdownParseError.make({
 					diagnostic: MarkdownDiagnostic.fromRaw(text, {
 						code: caught.reason,
 						message: caught.message,
 						offset: caught.offset,
 						length: 0,
 					}),
-				}),
-			);
-		}
-		if (isRawMarkdownError(caught)) {
-			return Result.fail(MarkdownParseError.make({ diagnostic: MarkdownDiagnostic.fromRaw(text, caught.diagnostic) }));
-		}
-		throw caught;
-	}
+				});
+			}
+			if (isRawMarkdownError(caught)) {
+				return MarkdownParseError.make({ diagnostic: MarkdownDiagnostic.fromRaw(text, caught.diagnostic) });
+			}
+			throw caught;
+		},
+	});
 });
 
 /**
@@ -357,9 +356,10 @@ export class Markdown {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static parseResult(text: string, options?: MarkdownParseOptions): Result.Result<Root, MarkdownParseError> {
-		return Result.map(parsePassResult(text, options), (pass) => pass.root);
-	}
+	static readonly parseResult: {
+		(text: string, options?: MarkdownParseOptions): Result.Result<Root, MarkdownParseError>;
+		(options?: MarkdownParseOptions): (text: string) => Result.Result<Root, MarkdownParseError>;
+	} = dual((args) => P.isString(args[0]), (text: string, options?: MarkdownParseOptions): Result.Result<Root, MarkdownParseError> => Result.map(parsePassResult(text, options), (pass) => pass.root));
 
 	/**
 	 * Parse markdown into a {@link Root} tree. Defined in terms of
@@ -384,9 +384,12 @@ export class Markdown {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parse = Effect.fn("Markdown.parse")((text: string, options?: MarkdownParseOptions) =>
+	static readonly parse: {
+		(text: string, options?: MarkdownParseOptions): Effect.Effect<Root, MarkdownParseError, never>;
+		(options?: MarkdownParseOptions): (text: string) => Effect.Effect<Root, MarkdownParseError, never>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("Markdown.parse")((text: string, options?: MarkdownParseOptions) =>
 		Effect.fromResult(Markdown.parseResult(text, options)),
-	);
+	));
 
 	/**
 	 * Parse a text fragment as a single paragraph's inline content,
@@ -440,28 +443,26 @@ export class Markdown {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static parsePhrasingResult(
-		text: string,
-		options?: MarkdownParseOptions,
-	): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError> {
-		try {
-			return Result.succeed(parsePhrasingText(text, dialectOf(options)));
-		} catch (caught) {
-			if (isGuardExceeded(caught)) {
-				return Result.fail(
-					MarkdownParseError.make({
+	static readonly parsePhrasingResult: {
+		(text: string, options?: MarkdownParseOptions): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError>;
+		(options?: MarkdownParseOptions): (text: string) => Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError>;
+	} = dual((args) => P.isString(args[0]), (text: string, options?: MarkdownParseOptions): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError> =>
+		Result.try({
+			try: () => parsePhrasingText(text, dialectOf(options)),
+			catch: (caught) => {
+				if (isGuardExceeded(caught)) {
+					return MarkdownParseError.make({
 						diagnostic: MarkdownDiagnostic.fromRaw(text, {
 							code: caught.reason,
 							message: caught.message,
 							offset: caught.offset,
 							length: 0,
 						}),
-					}),
-				);
-			}
-			throw caught;
-		}
-	}
+					});
+				}
+				throw caught;
+			},
+		}));
 
 	/**
 	 * Parse a text fragment as a single paragraph's inline content. Defined
@@ -487,9 +488,12 @@ export class Markdown {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parsePhrasing = Effect.fn("Markdown.parsePhrasing")((text: string, options?: MarkdownParseOptions) =>
+	static readonly parsePhrasing: {
+		(text: string, options?: MarkdownParseOptions): Effect.Effect<ReadonlyArray<PhrasingContent>, MarkdownParseError, never>;
+		(options?: MarkdownParseOptions): (text: string) => Effect.Effect<ReadonlyArray<PhrasingContent>, MarkdownParseError, never>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("Markdown.parsePhrasing")((text: string, options?: MarkdownParseOptions) =>
 		Effect.fromResult(Markdown.parsePhrasingResult(text, options)),
-	);
+	));
 
 	/**
 	 * Serialize a {@link Root} tree to canonical markdown, synchronously, as a
@@ -602,12 +606,11 @@ export class Markdown {
 	 * @since 0.0.0
 	 */
 	static stringifyResult(root: Root): Result.Result<string, MarkdownStringifyError> {
-		try {
-			return Result.succeed(stringifyTree(root));
-		} catch (caught) {
-			if (isGuardExceeded(caught)) {
-				return Result.fail(
-					MarkdownStringifyError.make({
+		return Result.try({
+			try: () => stringifyTree(root),
+			catch: (caught) => {
+				if (isGuardExceeded(caught)) {
+					return MarkdownStringifyError.make({
 						diagnostic: MarkdownDiagnostic.make({
 							code: caught.reason,
 							message: caught.message,
@@ -616,11 +619,11 @@ export class Markdown {
 							line: 0,
 							character: 0,
 						}),
-					}),
-				);
-			}
-			throw caught;
-		}
+					});
+				}
+				throw caught;
+			},
+		});
 	}
 
 	/**

@@ -1,5 +1,7 @@
 import type * as Schedule from "effect/Schedule";
+import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
+import { dual } from "effect/Function";
 import * as PlatformError from "effect/PlatformError";
 import * as Sched from "effect/Schedule";
 import type { CommandFailedError } from "./Run.ts";
@@ -47,14 +49,17 @@ const haystack = (error: CommandFailedError): string => {
 	if (error.cause instanceof PlatformError.PlatformError) {
 		parts.push(error.cause.message);
 	}
-	return parts.join("\n").toLowerCase();
+	return A.join(parts, "\n").toLowerCase();
 };
 
 /** Whether `error` matches any of `patterns`. */
-const matches = (error: CommandFailedError, patterns: ReadonlyArray<string>): boolean => {
+const matches: {
+	(error: CommandFailedError, patterns: ReadonlyArray<string>): boolean;
+	(patterns: ReadonlyArray<string>): (error: CommandFailedError) => boolean;
+} = dual(2, (error: CommandFailedError, patterns: ReadonlyArray<string>): boolean => {
 	const text = haystack(error);
-	return patterns.some((pattern) => text.includes(pattern.toLowerCase()));
-};
+	return A.some(patterns, (pattern) => text.includes(pattern.toLowerCase()));
+});
 
 // Implementation of Retry.isTransient; the public contract lives on the static.
 const isTransient = (error: CommandFailedError): boolean => {

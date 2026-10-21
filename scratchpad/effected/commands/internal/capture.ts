@@ -11,11 +11,13 @@ const $I = $ScratchpadId.create("effected/commands/internal/capture");
 
 /** Non-finite sentinels cannot be Schema literals; this guard accepts only negative infinity. */
 const NegativeInfinity = S.declare((input): input is number => input === Number.NEGATIVE_INFINITY).pipe(
- S.annotate({ toCodecArbitrary: () => S.link<number>()(S.Literal("-Infinity"), {
-  decode: SchemaGetter.transform(() => Number.NEGATIVE_INFINITY),
-  encode: SchemaGetter.forbiddenEncoding,
- }) }),
- $I.annoteSchema("NegativeInfinity", { description: "The intentional negative-infinity capture-budget sentinel." }),
+ $I.annoteSchema("NegativeInfinity", {
+  description: "The intentional negative-infinity capture-budget sentinel.",
+  toCodecArbitrary: () => S.link<number>()(S.Literal("-Infinity"), {
+   decode: SchemaGetter.transform(() => Number.NEGATIVE_INFINITY),
+   encode: SchemaGetter.forbiddenEncoding,
+  }),
+ }),
 );
 
 /**
@@ -34,8 +36,8 @@ const NegativeInfinity = S.declare((input): input is number => input === Number.
  * @since 0.0.0
  */
 export class OutputTooLarge extends S.TaggedError<OutputTooLarge, { readonly brand: unique symbol }>($I`OutputTooLarge`)("OutputTooLarge", {
- limit: S.Union([S.Finite, NegativeInfinity]).annotateKey({ description: "The configured byte budget, including the negative-infinity sentinel." }),
-}, $I.annote("OutputTooLarge", { description: "A captured stream exceeded its byte budget." })) {}
+ limit: S.Union([S.Finite, NegativeInfinity]).pipe($I.annoteKey("OutputTooLarge.limit", { description: "The configured byte budget, including the negative-infinity sentinel." })),
+}, $I.annoteError<OutputTooLarge>("OutputTooLarge", { description: "A captured stream exceeded its byte budget." })) {}
 
 /**
  * Collects a byte stream into a string, failing once more than `limit` bytes

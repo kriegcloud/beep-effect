@@ -2,6 +2,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
@@ -27,7 +28,7 @@ const $I = $ScratchpadId.create("effected/semver/VersionCache");
  * @category errors
  * @since 0.0.0
  */
-export class EmptyCacheError extends S.TaggedError<EmptyCacheError, { readonly brand: unique symbol }>($I`EmptyCacheError`)("EmptyCacheError", {}, $I.annote("EmptyCacheError", { description: "Indicates that an extremum (`latest`/`oldest`) was requested from an empty cache." })) {
+export class EmptyCacheError extends S.TaggedError<EmptyCacheError, { readonly brand: unique symbol }>($I`EmptyCacheError`)("EmptyCacheError", {}, $I.annoteError<EmptyCacheError>("EmptyCacheError", { description: "Indicates that an extremum (`latest`/`oldest`) was requested from an empty cache." })) {
 	/**
 	 * Returns the diagnostic message for this cache failure.
 	 *
@@ -65,8 +66,8 @@ export class EmptyCacheError extends S.TaggedError<EmptyCacheError, { readonly b
  */
 export class VersionNotFoundError extends S.TaggedError<VersionNotFoundError, { readonly brand: unique symbol }>($I`VersionNotFoundError`)("VersionNotFoundError", {
 	/** The version that was not found. */
-	version: SemVer.annotateKey({ description: "The version that was not found." }),
-}, $I.annote("VersionNotFoundError", { description: "Indicates that a navigation operation (`diff`/`next`/`prev`) referenced a version that is not in the cache." })) {
+	version: SemVer.pipe($I.annoteKey("VersionNotFoundError.version", { description: "The version that was not found." })),
+}, $I.annoteError<VersionNotFoundError>("VersionNotFoundError", { description: "Indicates that a navigation operation (`diff`/`next`/`prev`) referenced a version that is not in the cache." })) {
 	/**
 	 * Returns the diagnostic message for this cache failure.
 	 *
@@ -109,10 +110,10 @@ export class VersionNotFoundError extends S.TaggedError<VersionNotFoundError, { 
  */
 export class UnsatisfiedRangeError extends S.TaggedError<UnsatisfiedRangeError, { readonly brand: unique symbol }>($I`UnsatisfiedRangeError`)("UnsatisfiedRangeError", {
 	/** The range that could not be satisfied. */
-	range: Range.annotateKey({ description: "The range that could not be satisfied." }),
+	range: Range.pipe($I.annoteKey("UnsatisfiedRangeError.range", { description: "The range that could not be satisfied." })),
 	/** The versions that were available for matching. */
-	available: S.Array(SemVer).annotateKey({ description: "The versions that were available for matching." }),
-}, $I.annote("UnsatisfiedRangeError", { description: "Indicates that the cache contains versions but none satisfies the requested range. Carries the range and the versions that were available, and is fully serializable — both payload fields are schema classes." })) {
+	available: S.Array(SemVer).pipe($I.annoteKey("UnsatisfiedRangeError.available", { description: "The versions that were available for matching." })),
+}, $I.annoteError<UnsatisfiedRangeError>("UnsatisfiedRangeError", { description: "Indicates that the cache contains versions but none satisfies the requested range. Carries the range and the versions that were available, and is fully serializable — both payload fields are schema classes." })) {
 	/**
 	 * Returns the diagnostic message for this cache failure.
 	 *
@@ -177,7 +178,10 @@ export interface VersionCacheShape {
 	/** All cached versions satisfying a range; `[]` when empty or none match. */
 	readonly filter: (range: Range) => Effect.Effect<ReadonlyArray<SemVer>>;
 	/** Diff two cached versions. Fails with {@link VersionNotFoundError} when either is missing. */
-	readonly diff: (a: SemVer, b: SemVer) => Effect.Effect<VersionDiff, VersionNotFoundError>;
+	readonly diff: {
+		(a: SemVer, b: SemVer): Effect.Effect<VersionDiff, VersionNotFoundError>;
+		(b: SemVer): (a: SemVer) => Effect.Effect<VersionDiff, VersionNotFoundError>;
+	};
 	/** The next higher cached version, `Option.none()` at the upper boundary. */
 	readonly next: (version: SemVer) => Effect.Effect<O.Option<SemVer>, VersionNotFoundError>;
 	/** The next lower cached version, `Option.none()` at the lower boundary. */
@@ -187,7 +191,10 @@ export interface VersionCacheShape {
 // Membership and ordering follow SemVer precedence (build metadata ignored):
 // versions differing only in build metadata occupy one slot.
 
-const search = (arr: ReadonlyArray<SemVer>, target: SemVer): { readonly found: boolean; readonly index: number } => {
+const search: {
+	(arr: ReadonlyArray<SemVer>, target: SemVer): { readonly found: boolean; readonly index: number };
+	(target: SemVer): (arr: ReadonlyArray<SemVer>) => { readonly found: boolean; readonly index: number };
+} = dual(2, (arr: ReadonlyArray<SemVer>, target: SemVer): { readonly found: boolean; readonly index: number } => {
 	let lo = 0;
 	let hi = arr.length - 1;
 	while (lo <= hi) {
@@ -198,11 +205,11 @@ const search = (arr: ReadonlyArray<SemVer>, target: SemVer): { readonly found: b
 		else hi = mid - 1;
 	}
 	return { found: false, index: lo };
-};
+});
 
 const dedupeSorted = (versions: ReadonlyArray<SemVer>): ReadonlyArray<SemVer> => {
 	const sorted = SemVer.sort(versions);
-	return sorted.filter((v, i) => i === 0 || v.neq(A.getUnsafe(sorted, i - 1)));
+	return A.filter(sorted, (v, i) => i === 0 || v.neq(A.getUnsafe(sorted, i - 1)));
 };
 
 /**
@@ -283,10 +290,13 @@ export class VersionCache extends Context.Service<VersionCache, VersionCacheShap
 				return yield* UnsatisfiedRangeError.make({ range, available: arr });
 			});
 
-			const locate = (arr: ReadonlyArray<SemVer>, version: SemVer) => {
+			const locate: {
+				(arr: ReadonlyArray<SemVer>, version: SemVer): O.Option<number>;
+				(version: SemVer): (arr: ReadonlyArray<SemVer>) => O.Option<number>;
+			} = dual(2, (arr: ReadonlyArray<SemVer>, version: SemVer): O.Option<number> => {
 				const result = search(arr, version);
 				return result.found ? O.some(result.index) : O.none();
-			};
+			});
 
 			return {
 				load: (versions) => Ref.set(ref, dedupeSorted(versions)),
@@ -318,9 +328,9 @@ export class VersionCache extends Context.Service<VersionCache, VersionCacheShap
 					return yield* resolve(range);
 				}),
 
-				filter: (range) => Effect.map(Ref.get(ref), (arr) => arr.filter((v) => range.test(v))),
+				filter: (range) => Effect.map(Ref.get(ref), (arr) => A.filter(arr, (v) => range.test(v))),
 
-				diff: Effect.fn("VersionCache.diff")(function* (a: SemVer, b: SemVer) {
+				diff: dual(2, Effect.fn("VersionCache.diff")(function* (a: SemVer, b: SemVer) {
 					const arr = yield* Ref.get(ref);
 					if (O.isNone(locate(arr, a))) {
 						return yield* VersionNotFoundError.make({ version: a });
@@ -329,7 +339,7 @@ export class VersionCache extends Context.Service<VersionCache, VersionCacheShap
 						return yield* VersionNotFoundError.make({ version: b });
 					}
 					return VersionDiff.between(a, b);
-				}),
+				})),
 
 				next: Effect.fn("VersionCache.next")(function* (version: SemVer) {
 					const arr = yield* Ref.get(ref);

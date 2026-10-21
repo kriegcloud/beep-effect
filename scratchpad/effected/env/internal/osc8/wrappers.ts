@@ -27,7 +27,7 @@ export const WrapperInfo = S.Struct({
 	 * conservatively report `false` since we cannot verify without spawning.
 	 */
 	passesThrough: S.Boolean.pipe($I.annoteKey("WrapperInfo.passesThrough", { description: "Whether the wrapper passes OSC8 through to the outer terminal. Conservatively false without subprocess verification." })),
-}).annotate($I.annote("WrapperInfo", { description: "Multiplexer info, when detected." }));
+}).pipe($I.annoteSchema("WrapperInfo", { description: "Multiplexer info, when detected." }));
 /**
  * The decoded multiplexer name and OSC8 passthrough flag.
  *

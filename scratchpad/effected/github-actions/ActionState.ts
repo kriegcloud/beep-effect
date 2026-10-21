@@ -11,6 +11,7 @@ import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { ActionOutputs } from "./ActionOutputs.ts";
 import { heredocBlock, isUsableName } from "./internal/runnerFile.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/ActionState");
 
@@ -31,7 +32,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionState");
  */
 export class InvalidActionStateNameError extends S.TaggedError<InvalidActionStateNameError, { readonly brand: unique symbol }>($I`InvalidActionStateNameError`)("InvalidActionStateNameError", {
 	message: S.String,
-}, $I.annote("InvalidActionStateNameError", { description: "An invalid name cannot head an action-state runner-file entry." })) {}
+}, $I.annoteError<InvalidActionStateNameError>("InvalidActionStateNameError", { description: "An invalid name cannot head an action-state runner-file entry." })) {}
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -62,12 +63,12 @@ export class ActionStateError extends S.TaggedError<ActionStateError, { readonly
 	 * no pointer to the cause. `writeFailed` — the state file could not be
 	 * appended to.
 	 */
-	reason: S.Literals(["missing", "malformed", "notPlainJson", "writeFailed"]).annotateKey({ description: "`missing` — no value was saved under this key in an earlier phase. `malformed` — a value is there but is not JSON, or does not satisfy the schema it was read with. `notPlainJson` — caught at SAVE time: the schema's encoded form does not survive `JSON.stringify`/`JSON.parse`, so persisting it would present one phase later as a `malformed` mystery with no pointer to the cause. `writeFailed` — the state file could not be appended to." }),
+	reason: S.Literals(["missing", "malformed", "notPlainJson", "writeFailed"]).pipe($I.annoteKey("ActionStateError.reason", { description: "`missing` — no value was saved under this key in an earlier phase. `malformed` — a value is there but is not JSON, or does not satisfy the schema it was read with. `notPlainJson` — caught at SAVE time: the schema's encoded form does not survive `JSON.stringify`/`JSON.parse`, so persisting it would present one phase later as a `malformed` mystery with no pointer to the cause. `writeFailed` — the state file could not be appended to." })),
 	/** The state key that was being saved or read. */
-	key: S.String.annotateKey({ description: "The state key that was being saved or read." }),
+	key: S.String.pipe($I.annoteKey("ActionStateError.key", { description: "The state key that was being saved or read." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("ActionStateError", { description: "Raised when action state cannot be saved, read or decoded across the phase boundary." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("ActionStateError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<ActionStateError>("ActionStateError", { description: "Raised when action state cannot be saved, read or decoded across the phase boundary." })) {
 	/**
 	 * Explains the state failure using its reason and the affected key.
 	 *
@@ -121,14 +122,20 @@ export interface ActionStateShape {
   * `main` believed it saved. Action state is small by protocol, so the
   * per-save round-trip costs effectively nothing.
   */
-	readonly save: <A, I>(key: string, value: A, schema: S.Codec<A, I>) => Effect.Effect<void, ActionStateError>;
+	readonly save: {
+		<A, I>(key: string, value: A, schema: S.Codec<A, I>): Effect.Effect<void, ActionStateError>;
+		<A, I>(value: A, schema: S.Codec<A, I>): (key: string) => Effect.Effect<void, ActionStateError>;
+	};
 	/** Read a value saved by an earlier phase. */
-	readonly get: <A, I>(key: string, schema: S.Codec<A, I>) => Effect.Effect<A, ActionStateError>;
+	readonly get: {
+		<A, I>(key: string, schema: S.Codec<A, I>): Effect.Effect<A, ActionStateError>;
+		<A, I>(schema: S.Codec<A, I>): (key: string) => Effect.Effect<A, ActionStateError>;
+	};
 	/** Read a value that may not have been saved. */
-	readonly getOptional: <A, I>(
-		key: string,
-		schema: S.Codec<A, I>,
-	) => Effect.Effect<O.Option<A>, ActionStateError>;
+	readonly getOptional: {
+		<A, I>(key: string, schema: S.Codec<A, I>): Effect.Effect<O.Option<A>, ActionStateError>;
+		<A, I>(schema: S.Codec<A, I>): (key: string) => Effect.Effect<O.Option<A>, ActionStateError>;
+	};
 	/**
   * Persist a secret, masking it in the runner log first.
   *
@@ -138,7 +145,10 @@ export interface ActionStateShape {
   * survive that boundary by design — so masking is the only available
   * defense, and coupling it to the write is what makes it unforgettable.
   */
-	readonly saveSecret: (key: string, secret: string) => Effect.Effect<void, ActionStateError>;
+	readonly saveSecret: {
+		(key: string, secret: string): Effect.Effect<void, ActionStateError>;
+		(secret: string): (key: string) => Effect.Effect<void, ActionStateError>;
+	};
 }
 
 /** The runner republishes saved state as `STATE_<key>`. */
@@ -153,7 +163,10 @@ const make = Effect.gen(function* () {
 		onFalse: () => "\n" as const,
 	});
 
-	const write = Effect.fnUntraced(function* (key: string, serialized: string) {
+	const write: {
+		(key: string, serialized: string): Effect.Effect<void, ActionStateError>;
+		(serialized: string): (key: string) => Effect.Effect<void, ActionStateError>;
+	} = dual(2, Effect.fnUntraced(function* (key: string, serialized: string) {
 			const writeFailed = (cause: unknown) => ActionStateError.make({ reason: "writeFailed", key, cause });
 			// The same heredoc protocol as ActionOutputs (`internal/runnerFile.ts`):
 			// a key that cannot head a block would corrupt every entry after it.
@@ -162,9 +175,9 @@ const make = Effect.gen(function* () {
 			}
 			const path = yield* env.get("GITHUB_STATE").pipe(Effect.mapError(writeFailed));
 			yield* fs.writeFileString(path, heredocBlock({ name: key, value: serialized, lineEnding }), { flag: "a" }).pipe(Effect.mapError(writeFailed));
-		});
+		}));
 
-	const read = Effect.fnUntraced(function* <A, I>(key: string, schema: S.Codec<A, I>) {
+	const read: ActionStateShape["getOptional"] = dual(2, Effect.fnUntraced(function* <A, I>(key: string, schema: S.Codec<A, I>) {
 			const raw = yield* env.getOptional(stateVariable(key));
 			if (O.isNone(raw)) {
 				return O.none<A>();
@@ -173,9 +186,9 @@ const make = Effect.gen(function* () {
 				Effect.mapError((cause) => ActionStateError.make({ reason: "malformed", key, cause })),
 			);
 			return O.some(decoded);
-		});
+		}));
 
-	const save = Effect.fn("save")(function*<A, I>(key: string, value: A, schema: S.Codec<A, I>) {
+	const save: ActionStateShape["save"] = dual(3, Effect.fn("save")(function*<A, I>(key: string, value: A, schema: S.Codec<A, I>) {
 			const encoded = yield* S.encodeUnknownEffect(schema)(value).pipe(
 				Effect.mapError((cause) => ActionStateError.make({ reason: "malformed", key, cause })),
 			);
@@ -194,22 +207,22 @@ const make = Effect.gen(function* () {
 				Effect.mapError((cause) => ActionStateError.make({ reason: "notPlainJson", key, cause })),
 			);
 			yield* write(key, serialized);
-		});
+		}));
 
 	return {
 		save,
 		getOptional: read,
-		get: <A, I>(key: string, schema: S.Codec<A, I>) =>
+		get: dual(2, <A, I>(key: string, schema: S.Codec<A, I>): Effect.Effect<A, ActionStateError> =>
 			Effect.flatMap(read(key, schema), (found) =>
 				Effect.fromOption(found, () => ActionStateError.make({ reason: "missing", key })),
-			),
-		saveSecret: Effect.fnUntraced(function* (key: string, secret: string) {
+			)),
+		saveSecret: dual(2, Effect.fnUntraced(function* (key: string, secret: string) {
 			// Mask first, then persist. The ordering is the guarantee.
 			yield* outputs.setSecret(secret);
 			// A string always has a JSON representation; there is no typed encode failure.
 			const serialized = yield* S.encodeEffect(Json)(secret).pipe(Effect.orDie);
 			yield* write(key, serialized);
-		}),
+		})),
 	} satisfies ActionStateShape;
 });
 
@@ -287,9 +300,10 @@ export class ActionState extends Context.Service<ActionState, ActionStateShape>(
  * ```ts
  * import { ActionState } from "@beep/scratchpad/effected/github-actions/ActionState";
  * import * as Effect from "effect/Effect";
+ * import { dual } from "effect/Function";
  * import * as S from "effect/Schema";
  *
- * const state = ActionState.makeTest({ get: (_key, schema) => S.decodeUnknownEffect(schema)(4242) });
+ * const state = ActionState.makeTest({ get: dual(2, <A, I>(_key: string, schema: S.Codec<A, I>) => S.decodeUnknownEffect(schema)(4242)) });
  * console.log(Effect.runSync(state.get("server-pid", S.Finite))) // 4242
  * ```
  *
@@ -297,10 +311,11 @@ export class ActionState extends Context.Service<ActionState, ActionStateShape>(
  * @since 0.0.0
  */
 	static readonly makeTest = (overrides: Partial<ActionStateShape> = {}): ActionStateShape => ({
-		save: () => dies("save"),
-		get: () => dies("get"),
-		getOptional: () => dies("getOptional"),
-		saveSecret: () => dies("saveSecret"),
+		save: dual(3, <A, I>(_key: string, _value: A, _schema: S.Codec<A, I>): Effect.Effect<void, ActionStateError> => dies("save")),
+		get: dual(2, <A, I>(_key: string, _schema: S.Codec<A, I>): Effect.Effect<A, ActionStateError> => dies("get")),
+		getOptional: dual(2, <A, I>(_key: string, _schema: S.Codec<A, I>): Effect.Effect<O.Option<A>, ActionStateError> =>
+			dies("getOptional")),
+		saveSecret: dual(2, (_key: string, _secret: string): Effect.Effect<void, ActionStateError> => dies("saveSecret")),
 		...overrides,
 	});
 
@@ -312,10 +327,11 @@ export class ActionState extends Context.Service<ActionState, ActionStateShape>(
  * ```ts
  * import { ActionState } from "@beep/scratchpad/effected/github-actions/ActionState";
  * import * as Effect from "effect/Effect";
+ * import { dual } from "effect/Function";
  * import * as S from "effect/Schema";
  *
  * const program = Effect.flatMap(ActionState, (state) => state.get("server-pid", S.Finite));
- * const layer = ActionState.layerTest({ get: (_key, schema) => S.decodeUnknownEffect(schema)(4242) });
+ * const layer = ActionState.layerTest({ get: dual(2, <A, I>(_key: string, schema: S.Codec<A, I>) => S.decodeUnknownEffect(schema)(4242)) });
  * console.log(Effect.runSync(Effect.provide(program, layer))) // 4242
  * ```
  *

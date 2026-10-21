@@ -1726,15 +1726,15 @@ const makeHeadingValueMember = <Level extends HeadingLevel>({ literal }: S.Liter
  * @category models
  * @since 0.0.0
  */
-export const HeadingValue = HeadingLevel.mapMembers(
-  Tuple.evolve([
-    makeHeadingValueMember,
-    makeHeadingValueMember,
-    makeHeadingValueMember,
-    makeHeadingValueMember,
-    makeHeadingValueMember,
-    makeHeadingValueMember,
-  ])
+export const HeadingValue = HeadingLevel.mapMembers(([h1, h2, h3, h4, h5, h6]) =>
+  Tuple.make(
+    makeHeadingValueMember(h1),
+    makeHeadingValueMember(h2),
+    makeHeadingValueMember(h3),
+    makeHeadingValueMember(h4),
+    makeHeadingValueMember(h5),
+    makeHeadingValueMember(h6)
+  )
 ).pipe(
   S.toTaggedUnion("level"),
   $I.annoteSchema("HeadingValue", {

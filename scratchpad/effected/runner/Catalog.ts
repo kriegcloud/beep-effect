@@ -17,6 +17,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { MODULE_NAMES, ModuleName, ProvisionalHome } from "./Ledger.schema.ts";
 
@@ -58,7 +59,18 @@ export class CatalogEntry extends S.Class<CatalogEntry, { readonly brand: unique
   $I.annote("CatalogEntry", { description: "Wave, dependencies and provisional home of one module." })
 ) {}
 
-const entry = (
+const entry: {
+  (module: ModuleName, wave: number, position: number, provisionalHome: ProvisionalHome, options?: {
+    readonly kitDeps?: ReadonlyArray<ModuleName>;
+    readonly runtimeDeps?: ReadonlyArray<string>;
+    readonly oracleDeps?: ReadonlyArray<string>;
+  }): CatalogEntry;
+  (wave: number, position: number, provisionalHome: ProvisionalHome, options?: {
+    readonly kitDeps?: ReadonlyArray<ModuleName>;
+    readonly runtimeDeps?: ReadonlyArray<string>;
+    readonly oracleDeps?: ReadonlyArray<string>;
+  }): (module: ModuleName) => CatalogEntry;
+} = dual((args) => P.isString(args[0]), (
   module: ModuleName,
   wave: number,
   position: number,
@@ -77,7 +89,7 @@ const entry = (
     runtimeDeps: options.runtimeDeps ?? [],
     oracleDeps: options.oracleDeps ?? [],
     provisionalHome,
-  });
+  }));
 
 /**
  * The section-4 inventory in ledger order.

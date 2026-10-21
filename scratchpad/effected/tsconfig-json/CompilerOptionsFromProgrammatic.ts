@@ -57,9 +57,7 @@ const $I = $ScratchpadId.create("effected/tsconfig-json/CompilerOptionsFromProgr
  * @category schemas
  * @since 0.0.0
  */
-export const ProgrammaticRecord = S.Record(S.String, S.Unknown).annotate(
-	$I.annote("ProgrammaticRecord", { description: "Unvalidated programmatic compiler options, including invalid known fields and unknown passthrough values." }),
-);
+export const ProgrammaticRecord = S.Record(S.String, S.Unknown).pipe($I.annoteSchema("ProgrammaticRecord", { description: "Unvalidated programmatic compiler options, including invalid known fields and unknown passthrough values." }));
 
 /**
  * The decoded shape of {@link (ProgrammaticRecord:variable)}.
@@ -126,7 +124,7 @@ export const CompilerOptionsFromProgrammatic: S.Codec<CompilerOptions, Programma
 					),
 			}),
 		),
-		S.annotate($I.annote("CompilerOptionsFromProgrammatic", { description: "A validating codec between programmatic numeric compiler options and canonical string compiler options." })),
+		$I.annoteSchema("CompilerOptionsFromProgrammatic", { description: "A validating codec between programmatic numeric compiler options and canonical string compiler options." }),
 	);
 
 /**

@@ -1,5 +1,5 @@
-import { Buffer } from "node:buffer";
-import { text as readableText } from "node:stream/consumers";
+import * as NodeBuffer from "node:buffer";
+import * as NodeStreamConsumers from "node:stream/consumers";
 import { Box } from "@beep/box";
 import { RemoteItemId } from "@beep/documents-domain/values/Sync";
 import {
@@ -244,7 +244,7 @@ const makeFakeBox = (overrides: FakeBoxOverrides = {}) => {
     uploads: {
       uploadFile: (requestBody) => {
         counts.uploadFile += 1;
-        return readableText(requestBody.file).then((content) => {
+        return NodeStreamConsumers.text(requestBody.file).then((content) => {
           const id = nextId("file");
           const item: FakeItem = {
             content,
@@ -261,7 +261,7 @@ const makeFakeBox = (overrides: FakeBoxOverrides = {}) => {
       uploadFileVersion: (fileId, requestBody) => {
         counts.uploadFileVersion += 1;
         return requireItem(fileId).then((item) =>
-          readableText(requestBody.file).then((content) => {
+          NodeStreamConsumers.text(requestBody.file).then((content) => {
             item.content = content;
             item.name = requestBody.attributes.name;
             item.version += 1;
@@ -508,14 +508,14 @@ describe("@beep/documents-server DmsMirrorBox", () => {
         const parent = yield* mirror.ensureFolder(EnsureFolderInput.make({ name: "matters" }));
         const nested = yield* mirror.uploadFile(
           UploadFileInput.make({
-            content: Buffer.from("complaint-v1"),
+            content: NodeBuffer.Buffer.from("complaint-v1"),
             name: "complaint.pdf",
             parentRemoteId: O.some(parent.remoteId),
           })
         );
         const rooted = yield* mirror.uploadFile(
           UploadFileInput.make({
-            content: Buffer.from("note-v1"),
+            content: NodeBuffer.Buffer.from("note-v1"),
             name: "note.txt",
           })
         );
@@ -540,13 +540,13 @@ describe("@beep/documents-server DmsMirrorBox", () => {
         const mirror = yield* DmsMirror;
         const initial = yield* mirror.uploadFile(
           UploadFileInput.make({
-            content: Buffer.from("complaint-v1"),
+            content: NodeBuffer.Buffer.from("complaint-v1"),
             name: "complaint.pdf",
           })
         );
         const next = yield* mirror.uploadFileVersion(
           UploadFileVersionInput.make({
-            content: Buffer.from("complaint-v2"),
+            content: NodeBuffer.Buffer.from("complaint-v2"),
             name: "complaint.pdf",
             remoteId: initial.remoteId,
           })
@@ -574,7 +574,7 @@ describe("@beep/documents-server DmsMirrorBox", () => {
       const versioned = yield* Effect.gen(function* () {
         const mirror = yield* DmsMirror;
         return yield* mirror.uploadFile(
-          UploadFileInput.make({ content: Buffer.from("complaint-v2"), name: "complaint.pdf" })
+          UploadFileInput.make({ content: NodeBuffer.Buffer.from("complaint-v2"), name: "complaint.pdf" })
         );
       }).pipe(provideScopedLayer(mirrorLayer(fake)));
 
@@ -598,7 +598,7 @@ describe("@beep/documents-server DmsMirrorBox", () => {
         const target = yield* mirror.ensureFolder(EnsureFolderInput.make({ name: "archive" }));
         const file = yield* mirror.uploadFile(
           UploadFileInput.make({
-            content: Buffer.from("complaint-v1"),
+            content: NodeBuffer.Buffer.from("complaint-v1"),
             name: "complaint.pdf",
             parentRemoteId: O.some(source.remoteId),
           })
@@ -652,7 +652,7 @@ describe("@beep/documents-server DmsMirrorBox", () => {
         const parent = yield* mirror.ensureFolder(EnsureFolderInput.make({ name: "matters" }));
         const file = yield* mirror.uploadFile(
           UploadFileInput.make({
-            content: Buffer.from("complaint-v1"),
+            content: NodeBuffer.Buffer.from("complaint-v1"),
             name: "complaint.pdf",
             parentRemoteId: O.some(parent.remoteId),
           })
@@ -804,7 +804,7 @@ describe("@beep/documents-server DmsMirrorBox", () => {
       const uploadError = yield* Effect.gen(function* () {
         const mirror = yield* DmsMirror;
         return yield* mirror.uploadFile(
-          UploadFileInput.make({ content: Buffer.from("complaint-v1"), name: "complaint.pdf" })
+          UploadFileInput.make({ content: NodeBuffer.Buffer.from("complaint-v1"), name: "complaint.pdf" })
         );
       }).pipe(provideScopedLayer(mirrorLayer(rateLimited)), Effect.flip);
 
@@ -845,7 +845,7 @@ describe("@beep/documents-server DmsMirrorBox", () => {
       const uploadError = yield* Effect.gen(function* () {
         const mirror = yield* DmsMirror;
         return yield* mirror.uploadFile(
-          UploadFileInput.make({ content: Buffer.from("complaint-v1"), name: "complaint.pdf" })
+          UploadFileInput.make({ content: NodeBuffer.Buffer.from("complaint-v1"), name: "complaint.pdf" })
         );
       }).pipe(provideScopedLayer(mirrorLayer(rejected)), Effect.flip);
 

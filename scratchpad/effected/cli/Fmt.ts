@@ -1,3 +1,5 @@
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import { displayWidth, graphemes, stripAnsi } from "./internal/displayWidth.ts";
 
 /**
@@ -142,7 +144,10 @@ export abstract class Fmt {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly truncate = (text: string, width: number, options?: TruncateOptions): string => {
+	static readonly truncate: {
+		(text: string, width: number, options?: TruncateOptions): string;
+		(width: number, options?: TruncateOptions): (text: string) => string;
+	} = dual((args) => P.isString(args[0]), (text: string, width: number, options?: TruncateOptions): string => {
 		const limit = Number.isFinite(width) ? Math.floor(width) : width === Number.POSITIVE_INFINITY ? Infinity : 0;
 		if (limit <= 0) return "";
 		if (displayWidth(text) <= limit) return text;
@@ -162,7 +167,7 @@ export abstract class Fmt {
 			used += w;
 		}
 		return useEllipsis ? `${out}${ellipsis}` : out;
-	};
+	});
 
 	/**
 	 * A duration in milliseconds as short human text: `250ms`, `1.2s`, `2s`, `1m 3s`, `2m`, `1h 2m`, `2h`.
@@ -226,11 +231,14 @@ export abstract class Fmt {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly percent = (n: number, options?: PercentOptions): string => {
+	static readonly percent: {
+		(n: number, options?: PercentOptions): string;
+		(options?: PercentOptions): (n: number) => string;
+	} = dual((args) => P.isNumber(args[0]), (n: number, options?: PercentOptions): string => {
 		const digits = Math.min(10, Math.max(0, Math.floor(options?.digits ?? 1)));
 		const percent = options?.scale === 100 ? n : n * 100;
 		return `${Number(percent.toFixed(digits))}%`;
-	};
+	});
 
 	/**
 	 * A count with its noun: `1 test`, `2 tests`, `0 tests`.
@@ -249,6 +257,9 @@ export abstract class Fmt {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly plural = (n: number, singular: string, plural?: string): string =>
-		`${n} ${n === 1 ? singular : (plural ?? `${singular}s`)}`;
+	static readonly plural: {
+		(n: number, singular: string, plural?: string): string;
+		(singular: string, plural?: string): (n: number) => string;
+	} = dual((args) => P.isNumber(args[0]), (n: number, singular: string, plural?: string): string =>
+		`${n} ${n === 1 ? singular : (plural ?? `${singular}s`)}`);
 }

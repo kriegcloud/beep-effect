@@ -21,6 +21,7 @@ import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
 import { deepStrictEqual } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -61,7 +62,7 @@ describe("PracticeProfile", () => {
       expect(encoded.choices[1]).toEqual({ kind: "gap", capability: "practice-billing", namedProvider: "Clio" });
 
       const decoded = yield* decodeProfile(encoded);
-      expect(decoded.choices.map((choice) => choice.kind)).toEqual(["supported", "gap", "gap"]);
+      expect(A.map(decoded.choices, (choice) => choice.kind)).toEqual(["supported", "gap", "gap"]);
       expect(CapabilityChoice.guards.gap(decoded.choices[2])).toBe(true);
     })
   );

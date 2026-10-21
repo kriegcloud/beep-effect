@@ -1,6 +1,7 @@
+import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
@@ -44,9 +45,9 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/sourceText");
  */
 export const SourceLiteral = S.Struct({
 	/** Offset of the opening quote. */
-	start: S.Finite.annotateKey({ description: "The opening quote offset in original UTF-16 code units." }),
+	start: S.Finite.pipe($I.annoteKey("SourceLiteral.start", { description: "The opening quote offset in original UTF-16 code units." })),
 	/** The characters between the quotes, escapes left as written. */
-	value: S.String.annotateKey({ description: "The characters between the quotes, with escapes left as written by the lexer." }),
+	value: S.String.pipe($I.annoteKey("SourceLiteral.value", { description: "The characters between the quotes, with escapes left as written by the lexer." })),
 }).pipe($I.annoteSchema("SourceLiteral", { description: "A plain-object literal payload retaining the original quote offset and raw text." }));
 /**
  * Payload accepted by {@link SourceLiteral}.
@@ -77,11 +78,11 @@ export type SourceLiteral = typeof SourceLiteral.Type;
  */
 export const LexedSource = S.Struct({
 	/** Comments blanked to spaces; every literal intact. */
-	withoutComments: S.String.annotateKey({ description: "Comments blanked to spaces, with literals, original UTF-16 width and line breaks intact." }),
+	withoutComments: S.String.pipe($I.annoteKey("LexedSource.withoutComments", { description: "Comments blanked to spaces, with literals, original UTF-16 width and line breaks intact." })),
 	/** Comments AND every literal's contents blanked: only code, plus quote and delimiter characters. */
-	code: S.String.annotateKey({ description: "Comments and literal contents blanked, preserving original UTF-16 width, quotes, delimiters and line breaks." }),
+	code: S.String.pipe($I.annoteKey("LexedSource.code", { description: "Comments and literal contents blanked, preserving original UTF-16 width, quotes, delimiters and line breaks." })),
 	/** Every string literal and substitution-free template literal, in source order. */
-	literals: S.Array(SourceLiteral).annotateKey({ description: "Raw strings and substitution-free templates in source order." }),
+	literals: S.Array(SourceLiteral).pipe($I.annoteKey("LexedSource.literals", { description: "Raw strings and substitution-free templates in source order." })),
 }).pipe($I.annoteSchema("LexedSource", { description: "Plain-object lexer views aligned with the original source and its ordered raw literals." }));
 /**
  * Payload accepted by {@link LexedSource}.
@@ -270,15 +271,18 @@ export const lex = (text: string): LexedSource => {
 
 	const blank = (char: string): string => (isLineTerminator(char) ? char : " ");
 	/** Emit one input character: `keep` for the comment-free view, `live` for the code view. */
-	const emit = (char: string, keep: boolean, live: boolean): void => {
+	const emit: {
+		(char: string, keep: boolean, live: boolean): void;
+		(keep: boolean, live: boolean): (char: string) => void;
+	} = dual(3, (char: string, keep: boolean, live: boolean): void => {
 		kept.push(keep ? char : blank(char));
 		code.push(live ? char : blank(char));
-	};
+	});
 
 	/** The last non-space offset in the code view at or before `from`; `-1` when there is none. */
 	const lastCode = (from: number): number => {
 		let j = from;
-		while (j >= 0 && SPACE.test(code.slice(j, j + 1).join(""))) j--;
+		while (j >= 0 && SPACE.test(A.join(code.slice(j, j + 1), ""))) j--;
 		return j;
 	};
 
@@ -287,7 +291,7 @@ export const lex = (text: string): LexedSource => {
 		let start = end;
 		while (start >= 0 && isIdentifierChar(codePointBefore(code, start + 1)))
 			start -= O.getOrThrow(O.fromUndefinedOr(codePointBefore(code, start + 1))).length;
-		return code.slice(start + 1, end + 1).join("");
+		return A.join(code.slice(start + 1, end + 1), "");
 	};
 
 	/**
@@ -296,7 +300,7 @@ export const lex = (text: string): LexedSource => {
 	 * keyword nor itself a keyword (`for (x in of / 2)` divides).
 	 */
 	const endsBinding = (j: number): boolean => {
-		const char = code.slice(j, j + 1).join("");
+		const char = A.join(code.slice(j, j + 1), "");
 		if (char === "]" || char === "}") return true;
 		return isIdentifierChar(codePointBefore(code, j + 1)) && !MutableHashSet.has(DECLARATIONS, wordAt(j)) && !isRegexKeyword(j);
 	};
@@ -323,7 +327,7 @@ export const lex = (text: string): LexedSource => {
 	const regexAllowed = (): boolean => {
 		const j = lastCode(code.length - 1);
 		if (j < 0) return true;
-		const last = code.slice(j, j + 1).join("");
+		const last = A.join(code.slice(j, j + 1), "");
 		if (isIdentifierChar(codePointBefore(code, j + 1))) return isRegexKeyword(j);
 		// Postfix assertions may be repeated or separated from their operand by comments or spaces.
 		if (last === "!") {
@@ -512,7 +516,7 @@ export const lex = (text: string): LexedSource => {
 			i++;
 		}
 	}
-	return { withoutComments: kept.join(""), code: code.join(""), literals };
+	return { withoutComments: A.join(kept, ""), code: A.join(code, ""), literals };
 };
 
 /**
@@ -521,7 +525,10 @@ export const lex = (text: string): LexedSource => {
  * previous code character (at `before`) is `{`, `,` or `;` and the next one is
  * `:` or `?:`. A ternary branch (`ok ? process : x`) follows `?`, so it still counts.
  */
-const isPropertyKey = (code: string, before: number, after: number): boolean => {
+const isPropertyKey: {
+	(code: string, before: number, after: number): boolean;
+	(before: number, after: number): (code: string) => boolean;
+} = dual(3, (code: string, before: number, after: number): boolean => {
 	if (before < 0 || !"{,;".includes(code.charAt(before))) return false;
 	let k = after;
 	while (k < code.length && SPACE.test(code.charAt(k))) k++;
@@ -530,7 +537,7 @@ const isPropertyKey = (code: string, before: number, after: number): boolean => 
 		while (k < code.length && SPACE.test(code.charAt(k))) k++;
 	}
 	return code[k] === ":";
-};
+});
 
 /**
  * Finds offsets where `name` is referenced in lexed `code` as a free identifier, a
@@ -583,7 +590,10 @@ export const references: {
 });
 
 /** Raw start of the identifier ending immediately before `end`, including Unicode escapes. */
-const identifierStartBefore = (code: string, end: number): number => {
+const identifierStartBefore: {
+	(code: string, end: number): number;
+	(end: number): (code: string) => number;
+} = dual(2, (code: string, end: number): number => {
 	let start = end;
 	while (start > 0) {
 		const point = codePointBefore(code, start);
@@ -602,10 +612,13 @@ const identifierStartBefore = (code: string, end: number): number => {
 		}
 	}
 	return start;
-};
+});
 
 /** Require every receiver in the chain to be a global object, ending at a free or spread reference. */
-const isGlobalReceiver = (code: string, end: number): boolean => {
+const isGlobalReceiver: {
+	(code: string, end: number): boolean;
+	(end: number): (code: string) => boolean;
+} = dual(2, (code: string, end: number): boolean => {
 	while (end >= 0) {
 		const start = identifierStartBefore(code, end + 1);
 		const receiver = cookIdentifier(code.slice(start, end + 1));
@@ -618,17 +631,20 @@ const isGlobalReceiver = (code: string, end: number): boolean => {
 		while (end >= 0 && SPACE.test(code.charAt(end))) end--;
 	}
 	return false;
-};
+});
 
 /** The cooked identifier ending at or before `end`; empty for member calls or invalid escapes. */
-const wordEndingAt = (code: string, end: number): string => {
+const wordEndingAt: {
+	(code: string, end: number): string;
+	(end: number): (code: string) => string;
+} = dual(2, (code: string, end: number): string => {
 	let j = end;
 	while (j >= 0 && SPACE.test(code.charAt(j))) j--;
 	const start = identifierStartBefore(code, j + 1);
 	let before = start - 1;
 	while (before >= 0 && SPACE.test(code.charAt(before))) before--;
 	return code[before] === "." || code[before] === "#" ? "" : cookIdentifier(code.slice(start, j + 1)) ?? "";
-};
+});
 
 /**
  * Cooks Unicode identifier escapes; malformed or non-identifier escapes match no name.
@@ -698,7 +714,7 @@ const cookSpecifier = (raw: string): string => raw.replace(/\r\n?/gu, "\n").repl
  * @since 0.0.0
  */
 export const specifierLiterals = (lexed: LexedSource): ReadonlyArray<SourceLiteral> =>
-	lexed.literals.filter((literal) => {
+	pipe(lexed.literals, A.filter((literal) => {
 		let j = literal.start - 1;
 		while (j >= 0 && SPACE.test(lexed.code.charAt(j))) j--;
 		if (lexed.code[j] === "(") {
@@ -713,7 +729,7 @@ export const specifierLiterals = (lexed: LexedSource): ReadonlyArray<SourceLiter
 		}
 		const keyword = wordEndingAt(lexed.code, j);
 		return keyword === "from" || keyword === "import";
-	}).map((literal) => ({ start: literal.start, value: cookSpecifier(literal.value) }));
+	}), A.map((literal) => ({ start: literal.start, value: cookSpecifier(literal.value) })));
 
 /**
  * Builds a lookup from an offset in `text` to its 1-based line and UTF-16 column.

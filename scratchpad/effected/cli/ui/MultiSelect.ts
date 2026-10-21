@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -38,10 +39,10 @@ const $I = $ScratchpadId.create("effected/cli/ui/MultiSelect");
  */
 export class DuplicateItemKey extends S.TaggedError<DuplicateItemKey, { readonly brand: unique symbol }>($I`DuplicateItemKey`)(
 	"DuplicateItemKey",
-	{ message: S.String.annotate($I.annote("DuplicateItemKey.message", {
+	{ message: S.String.pipe($I.annoteKey("DuplicateItemKey.message", {
 		description: "Identifies the item key repeated across multi-select sections.",
 	})) },
-	$I.annote("DuplicateItemKey", { description: "Two multi-select items share a row key." }),
+	$I.annoteError<DuplicateItemKey>("DuplicateItemKey", { description: "Two multi-select items share a row key." }),
 ) {
 	override readonly name = "Error";
 }
@@ -67,16 +68,16 @@ export class DuplicateItemKey extends S.TaggedError<DuplicateItemKey, { readonly
  */
 export const MultiSelectItem = <Value extends S.Top>(value: Value) =>
 	S.Struct({
-		key: S.String.annotateKey($I.annote("MultiSelectItem.key", { description: "Identifies the item; unique across sections." })),
-		label: S.String.annotateKey($I.annote("MultiSelectItem.label", { description: "What the row shows." })),
+		key: S.String.pipe($I.annoteKey("MultiSelectItem.key", { description: "Identifies the item; unique across sections." })),
+		label: S.String.pipe($I.annoteKey("MultiSelectItem.label", { description: "What the row shows." })),
 		value,
-		detail: S.optionalKey(S.String).annotateKey($I.annote("MultiSelectItem.detail", {
+		detail: S.optionalKey(S.String).pipe($I.annoteKey("MultiSelectItem.detail", {
 			description: "A line shown, muted, beneath the list while this item is highlighted.",
 		})),
-		selected: S.optionalKey(S.Boolean).annotateKey($I.annote("MultiSelectItem.selected", {
+		selected: S.optionalKey(S.Boolean).pipe($I.annoteKey("MultiSelectItem.selected", {
 			description: "Whether it starts selected.",
 		})),
-	}).annotate($I.annote("MultiSelectItem", { description: "One keyed, labelled item of a multi-selection section." }));
+	}).pipe($I.annoteSchema("MultiSelectItem", { description: "One keyed, labelled item of a multi-selection section." }));
 
 /**
  * Plain payload accepted by {@link MultiSelectItem}; reducers retain this structural representation.
@@ -105,11 +106,11 @@ export type MultiSelectItem<A> = ReturnType<typeof MultiSelectItem<S.Codec<A>>>[
  */
 export const MultiSelectSection = <Value extends S.Top>(value: Value) =>
 	S.Struct({
-		title: S.String.annotateKey($I.annote("MultiSelectSection.title", { description: "The header." })),
-		items: value.pipe(MultiSelectItem, S.Array).annotateKey($I.annote("MultiSelectSection.items", {
+		title: S.String.pipe($I.annoteKey("MultiSelectSection.title", { description: "The header." })),
+		items: value.pipe(MultiSelectItem, S.Array, $I.annoteKey("MultiSelectSection.items", {
 			description: "The items, in order.",
 		})),
-	}).annotate($I.annote("MultiSelectSection", { description: "A titled group of multi-selection items." }));
+	}).pipe($I.annoteSchema("MultiSelectSection", { description: "A titled group of multi-selection items." }));
 
 /**
  * Plain payload accepted by {@link MultiSelectSection}; reducers retain this structural representation.
@@ -145,17 +146,17 @@ export type MultiSelectSection<A> = ReturnType<typeof MultiSelectSection<S.Codec
  */
 export const MultiSelectState = <Value extends S.Top>(value: Value) =>
 	S.Struct({
-		sections: value.pipe(MultiSelectSection, S.Array).annotateKey($I.annote("MultiSelectState.sections", {
+		sections: value.pipe(MultiSelectSection, S.Array, $I.annoteKey("MultiSelectState.sections", {
 			description: "The sections.",
 		})),
-		chosen: S.HashSet(S.Finite).annotateKey($I.annote("MultiSelectState.chosen", {
+		chosen: S.HashSet(S.Finite).pipe($I.annoteKey("MultiSelectState.chosen", {
 			description: "The selected items, by their number across all sections.",
 		})),
-		viewport: ViewportState.annotateKey($I.annote("MultiSelectState.viewport", {
+		viewport: ViewportState.pipe($I.annoteKey("MultiSelectState.viewport", {
 			description: "The highlighted item and the window over the list; it counts items only, never headers.",
 		})),
-		submitted: S.Boolean.annotateKey($I.annote("MultiSelectState.submitted", { description: "Whether enter was pressed." })),
-	}).annotate($I.annote("MultiSelectState", { description: "The plain reducer state of a sectioned multi-selection." }));
+		submitted: S.Boolean.pipe($I.annoteKey("MultiSelectState.submitted", { description: "Whether enter was pressed." })),
+	}).pipe($I.annoteSchema("MultiSelectState", { description: "The plain reducer state of a sectioned multi-selection." }));
 
 /**
  * Plain payload accepted by {@link MultiSelectState}; reducers retain this structural representation.
@@ -182,9 +183,7 @@ export type MultiSelectState<A> = ReturnType<typeof MultiSelectState<S.Codec<A>>
  */
 export const MultiSelectAction = LiteralKit([
 	"up", "down", "home", "end", "pageup", "pagedown", "toggle", "toggleSection", "submit", "cancel",
-]).annotate(
-	$I.annote("MultiSelectAction", { description: "The viewport, item, section and submission actions of a multi-selection." }),
-);
+]).pipe($I.annoteSchema("MultiSelectAction", { description: "The viewport, item, section and submission actions of a multi-selection." }));
 
 /**
  * A viewport or interaction action accepted by {@link MultiSelectAction}.
@@ -239,7 +238,7 @@ export interface MultiSelectViewProps<A> extends MultiSelectScreenOptions<A> {
 const flatten = <A>(
 	sections: ReadonlyArray<MultiSelectSection<A>>,
 ): ReadonlyArray<{ readonly section: number; readonly item: MultiSelectItem<A> }> =>
-	sections.flatMap((section, index) => section.items.map((item) => ({ section: index, item })));
+	A.flatMap(sections, (section, index) => A.map(section.items, (item) => ({ section: index, item })));
 
 /** Throws when two items, in any sections, share a key: keys identify rows. */
 const assertUniqueKeys = <A>(sections: ReadonlyArray<MultiSelectSection<A>>): void => {
@@ -252,17 +251,23 @@ const assertUniqueKeys = <A>(sections: ReadonlyArray<MultiSelectSection<A>>): vo
 	}
 };
 
-const init = <A>(
+const init: {
+	<A>(sections: ReadonlyArray<MultiSelectSection<A>>, options?: MultiSelectInitOptions): MultiSelectState<A>;
+	<A>(options?: MultiSelectInitOptions): (sections: ReadonlyArray<MultiSelectSection<A>>) => MultiSelectState<A>;
+} = dual((args) => A.isArray(args[0]), <A>(
 	sections: ReadonlyArray<MultiSelectSection<A>>,
 	options: MultiSelectInitOptions = {},
 ): MultiSelectState<A> => {
 	assertUniqueKeys(sections);
 	const items = flatten(sections);
-	const chosen = HashSet.fromIterable(items.flatMap((entry, index) => (entry.item.selected === true ? [index] : [])));
+	const chosen = HashSet.fromIterable(A.flatMap(items, (entry, index) => (entry.item.selected === true ? [index] : [])));
 	return { sections, chosen, viewport: Viewport.init(items.length, options.height ?? 10), submitted: false };
-};
+});
 
-const step = <A>(state: MultiSelectState<A>, action: MultiSelectAction): MultiSelectState<A> => {
+const step: {
+	<A>(state: MultiSelectState<A>, action: MultiSelectAction): MultiSelectState<A>;
+	<A>(action: MultiSelectAction): (state: MultiSelectState<A>) => MultiSelectState<A>;
+} = dual(2, <A>(state: MultiSelectState<A>, action: MultiSelectAction): MultiSelectState<A> => {
 	if (state.submitted) return state;
 	const items = flatten(state.sections);
 	const cursor = state.viewport.cursor;
@@ -279,18 +284,18 @@ const step = <A>(state: MultiSelectState<A>, action: MultiSelectAction): MultiSe
 		Match.when("toggleSection", () => {
 			const section = items[cursor]?.section;
 			if (section === undefined) return state;
-			const members = items.flatMap((entry, index) => (entry.section === section ? [index] : []));
+			const members = A.flatMap(items, (entry, index) => (entry.section === section ? [index] : []));
 			// Any unselected member selects the whole section; a fully selected section is cleared.
-			const fill = members.some((index) => !HashSet.has(state.chosen, index));
+			const fill = A.some(members, (index) => !HashSet.has(state.chosen, index));
 			const chosen = A.reduce(members, state.chosen, fill ? HashSet.add<number> : HashSet.remove<number>);
 			return { ...state, chosen };
 		}),
 		Match.orElse((move) => ({ ...state, viewport: Viewport.step(state.viewport, move) })),
 	);
-};
+});
 
 const selected = <A>(state: MultiSelectState<A>): ReadonlyArray<A> =>
-	flatten(state.sections).flatMap((entry, index) => (HashSet.has(state.chosen, index) ? [entry.item.value] : []));
+	A.flatMap(flatten(state.sections), (entry, index) => (HashSet.has(state.chosen, index) ? [entry.item.value] : []));
 
 /** ↑/↓ shown; the page, home and end moves bound but hidden, so the line names space, a, enter and esc at 80 columns. */
 const KEYS: KeyTable<MultiSelectAction> = KeyTable.make<MultiSelectAction>([
@@ -369,10 +374,10 @@ export abstract class MultiSelect {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly init: <A>(
-		sections: ReadonlyArray<MultiSelectSection<A>>,
-		options?: MultiSelectInitOptions,
-	) => MultiSelectState<A> = init;
+	static readonly init: {
+		<A>(sections: ReadonlyArray<MultiSelectSection<A>>, options?: MultiSelectInitOptions): MultiSelectState<A>;
+		<A>(options?: MultiSelectInitOptions): (sections: ReadonlyArray<MultiSelectSection<A>>) => MultiSelectState<A>;
+	} = init;
 
 	/**
 	 * Apply an action: a viewport move over the items; `"toggle"` flips the highlighted item; `"toggleSection"`
@@ -394,7 +399,10 @@ export abstract class MultiSelect {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	static readonly step: <A>(state: MultiSelectState<A>, action: MultiSelectAction) => MultiSelectState<A> = step;
+	static readonly step: {
+		<A>(state: MultiSelectState<A>, action: MultiSelectAction): MultiSelectState<A>;
+		<A>(action: MultiSelectAction): (state: MultiSelectState<A>) => MultiSelectState<A>;
+	} = step;
 
 	/**
 	 * The selected values, in section order and then item order, however they were toggled.
@@ -472,16 +480,19 @@ export abstract class MultiSelect {
 		});
 		const items = flatten(state.sections);
 		// Rows are keyed by the item's own key (unique, checked at init), which is also the React key of the row.
-		const numberOf = MutableHashMap.fromIterable(items.map((entry, index) => [entry.item.key, index] as const));
-		const rows: ReadonlyArray<ViewportRow> = state.sections.flatMap((section) => [
+		const numberOf = MutableHashMap.fromIterable(A.map(items, (entry, index) => [entry.item.key, index] as const));
+		const rows: ReadonlyArray<ViewportRow> = A.flatMap(state.sections, (section) => [
 			{ _tag: "Header" as const, label: section.title },
-			...section.items.map((item) => ({ _tag: "Item" as const, key: item.key })),
+			...A.map(section.items, (item) => ({ _tag: "Item" as const, key: item.key })),
 		]);
 		const on = glyphs.kind === "unicode" ? "◉" : "[x]";
 		const off = glyphs.kind === "unicode" ? "◯" : "[ ]";
 		const blank = " ".repeat(Fmt.width(glyphs.arrow));
 		const ellipsis = { ellipsis: glyphs.ellipsis };
-		const renderRow = (row: ViewportRow, highlighted: boolean): ReactElement => {
+		const renderRow: {
+			(row: ViewportRow, highlighted: boolean): ReactElement;
+			(highlighted: boolean): (row: ViewportRow) => ReactElement;
+		} = dual(2, (row: ViewportRow, highlighted: boolean): ReactElement => {
 			if (row._tag === "Header")
 				return react.createElement(Styled, { token: "emphasis" }, Fmt.truncate(lineText(row.label), columns, ellipsis));
 			const index = O.getOrThrow(MutableHashMap.get(numberOf, row.key));
@@ -494,7 +505,7 @@ export abstract class MultiSelect {
 			return highlighted
 				? react.createElement(Styled, { token: "accent" }, text)
 				: react.createElement(ink.Text, null, text);
-		};
+		});
 		const detail = items[state.viewport.cursor]?.item.detail;
 		// One row each, clipped at layout time with the cursor column reserved: during Ink's immediate resize repaint the
 		// width above is one paint stale, and an unclipped row would wrap past the screen's row budget.

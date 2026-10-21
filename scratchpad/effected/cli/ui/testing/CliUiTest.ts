@@ -18,6 +18,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
+import { dual, pipe } from "effect/Function";
 import * as Inspectable from "effect/Inspectable";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
@@ -31,6 +32,7 @@ import type { Style, TokenName } from "../../Token.ts";
 import { CliUi } from "../CliUi.ts";
 import { holder, holderSlot } from "../internal/Holder.ts";
 import { inkModules } from "../internal/ink.ts";
+import { screenElement } from "../internal/screenElement.ts";
 import { UiRenderOptions } from "../internal/renderOptions.ts";
 import { UiStreams } from "../UiStreams.ts";
 import { KeyName } from "../UiKey.ts";
@@ -42,8 +44,8 @@ const $I = $ScratchpadId.create("effected/cli/ui/testing/CliUiTest");
 
 class CliUiTestError extends S.TaggedError<CliUiTestError, { readonly brand: unique symbol }>($I`CliUiTestError`)(
 	"CliUiTestError",
-	{ message: S.String.annotate({ description: "The invalid test interaction or failed screen wait and its context." }) },
-	$I.annote("CliUiTestError", { description: "Invalid test interaction with a CLI screen." }),
+	{ message: S.String.pipe($I.annoteKey("CliUiTestError.message", { description: "The invalid test interaction or failed screen wait and its context." })) },
+	$I.annoteError<CliUiTestError>("CliUiTestError", { description: "Invalid test interaction with a CLI screen." }),
 ) {}
 
 /**
@@ -133,7 +135,10 @@ export interface CliUiTestScreen {
   */
 	readonly chunk: (...keys: ReadonlyArray<KeyName | { readonly char: string }>) => Effect.Effect<void>;
 	/** Resize the terminal and emit `resize`, as a real one does, settling like a key. */
-	readonly resize: (columns: number, rows: number) => Effect.Effect<void>;
+	readonly resize: {
+		(columns: number, rows: number): Effect.Effect<void>;
+		(rows: number): (columns: number) => Effect.Effect<void>;
+	};
 	/** The latest frame as token markup ({@link CliUiTest.styled}), each line's trailing spaces trimmed. */
 	readonly frame: Effect.Effect<string>;
 	/** The latest frame as Ink wrote it, escapes included. */
@@ -319,7 +324,10 @@ export interface CliUiTestLive<E, S> {
 	 */
 	readonly advance: (duration: Duration.Input) => Effect.Effect<void>;
 	/** Resize the terminal, then wait as `publish` does. */
-	readonly resize: (columns: number, rows: number) => Effect.Effect<void>;
+	readonly resize: {
+		(columns: number, rows: number): Effect.Effect<void>;
+		(rows: number): (columns: number) => Effect.Effect<void>;
+	};
 	/**
   * The last frame drawn, as token markup (see {@link CliUiTest.styled}); empty before the first.
   *
@@ -370,10 +378,10 @@ const TOKENS: ReadonlyArray<TokenName> = [
 
 /** The marker palette: token N (1-based) paints in `#0000NN`, so a frame decodes back to the token. */
 const MARKER_STYLES: Record<TokenName, Style> = R.fromEntries(
-	TOKENS.map((token, index): [TokenName, Style] => [token, { fg: `#0000${(index + 1).toString(16).padStart(2, "0")}` }]),
+	A.map(TOKENS, (token, index): [TokenName, Style] => [token, { fg: `#0000${(index + 1).toString(16).padStart(2, "0")}` }]),
 );
 
-const TOKEN_BY_BLUE = HashMap.fromIterable(TOKENS.map((token, index) => [index + 1, token] as const));
+const TOKEN_BY_BLUE = HashMap.fromIterable(A.map(TOKENS, (token, index) => [index + 1, token] as const));
 
 const NAMED = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"] as const;
 
@@ -402,13 +410,31 @@ const isKeyName = S.is(KeyName);
 // biome-ignore lint/suspicious/noControlCharactersInRegex: SGR, other CSI and OSC sequences all start with ESC
 const ESCAPES = /\u001b\[([0-9;]*)m|\u001b\[[0-9;?]*[A-Za-z]|\u001b\][^\u0007\u001b]*(?:\u0007|\u001b\\)/g;
 
-const hex = (r: number, g: number, b: number): string =>
-	`#${[r, g, b].map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+const hex: {
+	(r: number, g: number, b: number): string;
+	(g: number, b: number): (r: number) => string;
+} = dual(3, (r: number, g: number, b: number): string =>
+	`#${pipe([r, g, b], A.map((channel) => channel.toString(16).padStart(2, "0")), A.join(""))}`);
 
 type Kind = "fg" | "bg" | "b" | "dim" | "i" | "u" | "inverse" | "s";
+type OpenStyles = Array<{ readonly kind: Kind; readonly close: string }>;
+
+/** The render path a terminal's screens mount on. */
+type TerminalSettings = { readonly screens: "debug" | "production" };
+
+/** A mounted screen: its handle, how to rerender it, the run's fiber, and the crash-surfacing wrapper. */
+type Mounted<A> = {
+	readonly handle: CliUiTestScreen;
+	readonly rerender: (next: Screen<A>) => Effect.Effect<void>;
+	readonly fiber: Fiber.Fiber<A, Cli.Cancelled | Cli.NotInteractive>;
+	readonly surfaced: <X>(effect: Effect.Effect<X>) => Effect.Effect<X>;
+};
 
 /** Decode one run of SGR parameters into markup, against the stack of open styles. */
-const decodeSgr = (params: string, open: Array<{ readonly kind: Kind; readonly close: string }>): string => {
+const decodeSgr: {
+	(params: string, open: OpenStyles): string;
+	(open: OpenStyles): (params: string) => string;
+} = dual(2, (params: string, open: Array<{ readonly kind: Kind; readonly close: string }>): string => {
 	let out = "";
 	const close = (kind: Kind): void => {
 		for (let index = open.length - 1; index >= 0; index--) {
@@ -420,12 +446,18 @@ const decodeSgr = (params: string, open: Array<{ readonly kind: Kind; readonly c
 			}
 		}
 	};
-	const push = (kind: Kind, tag: string, closeTag: string): void => {
+	const push: {
+		(kind: Kind, tag: string, closeTag: string): void;
+		(tag: string, closeTag: string): (kind: Kind) => void;
+	} = dual(3, (kind: Kind, tag: string, closeTag: string): void => {
 		if (kind === "fg" || kind === "bg") close(kind);
 		out += tag;
 		open.push({ kind, close: closeTag });
-	};
-	const colour = (kind: "fg" | "bg", codes: ReadonlyArray<number>, at: number): number => {
+	});
+	const colour: {
+		(kind: "fg" | "bg", codes: ReadonlyArray<number>, at: number): number;
+		(codes: ReadonlyArray<number>, at: number): (kind: "fg" | "bg") => number;
+	} = dual(3, (kind: "fg" | "bg", codes: ReadonlyArray<number>, at: number): number => {
 		if (codes[at + 1] === 2) {
 			const [r, g, b] = [codes[at + 2] ?? 0, codes[at + 3] ?? 0, codes[at + 4] ?? 0];
 			const token = kind === "fg" && r === 0 && g === 0 ? O.getOrUndefined(HashMap.get(TOKEN_BY_BLUE, b)) : undefined;
@@ -438,8 +470,8 @@ const decodeSgr = (params: string, open: Array<{ readonly kind: Kind; readonly c
 			return at + 2;
 		}
 		return at;
-	};
-	const codes = params === "" ? [0] : params.split(";").map(Number);
+	});
+	const codes = params === "" ? [0] : A.map(params.split(";"), Number);
 	for (let at = 0; at < codes.length; at++) {
 		const code = Number(codes[at]);
 		if (code === 0) {
@@ -468,7 +500,7 @@ const decodeSgr = (params: string, open: Array<{ readonly kind: Kind; readonly c
 		else if (code === 49) close("bg");
 	}
 	return out;
-};
+});
 
 const styled = (ansi: string): string => {
 	const open: Array<{ readonly kind: Kind; readonly close: string }> = [];
@@ -485,16 +517,13 @@ const styled = (ansi: string): string => {
 };
 
 const trimLines = (text: string): string =>
-	text
-		.split("\n")
-		.map((line) => line.trimEnd())
-		.join("\n");
+	pipe(text.split("\n"), A.map((line) => line.trimEnd()), A.join("\n"));
 
 /**
  * Markup only this harness writes: a token tag opened and closed (`[info]…[/info]`), or a colour tag. A lone
  * `[info]` is a log prefix, and style-only tags (`[b]`, `[i]`) are too common in unrelated data, so neither is claimed.
  */
-const MARKUP = new RegExp(`\\[(${TOKENS.join("|")})\\][\\s\\S]*?\\[/\\1\\]|\\[(?:fg|bg):[^\\]\\s]+\\]`);
+const MARKUP = new RegExp(`\\[(${A.join(TOKENS, "|")})\\][\\s\\S]*?\\[/\\1\\]|\\[(?:fg|bg):[^\\]\\s]+\\]`);
 
 /** Run `register`'s check on native timers, which a `TestClock` cannot hold, until it says done. */
 const realTime = (poll: () => boolean): Effect.Effect<void> =>
@@ -535,19 +564,28 @@ const RERENDER_BEFORE_MOUNT =
 const SCREEN_ENDED =
 	"@effected/cli/ui/testing: a key was sent to a screen that has ended; take the screen mounted now with session.next()";
 
-const NEXT_DIED = (index: number, contains: string | undefined, mounted: number, why: string): string =>
+const NEXT_DIED: {
+	(index: number, contains: string | undefined, mounted: number, why: string): string;
+	(contains: string | undefined, mounted: number, why: string): (index: number) => string;
+} = dual(4, (index: number, contains: string | undefined, mounted: number, why: string): string =>
 	`@effected/cli/ui/testing: next waited for screen ${index + 1} to mount and ${
 		contains === undefined ? "draw" : `show "${contains}"`
-	}, but ${why}; ${mounted} mounted so far`;
+	}, but ${why}; ${mounted} mounted so far`);
 
-const NOT_A_KEY = (method: string, text: string): string =>
-	`@effected/cli/ui/testing: ${method}(${JSON.stringify(text)}): ${JSON.stringify(text)} is not a key name; send text with type(${JSON.stringify(text)}) or ${method}({ char: ${JSON.stringify(text)} })`;
+const NOT_A_KEY: {
+	(method: string, text: string): string;
+	(text: string): (method: string) => string;
+} = dual(2, (method: string, text: string): string =>
+	`@effected/cli/ui/testing: ${method}(${JSON.stringify(text)}): ${JSON.stringify(text)} is not a key name; send text with type(${JSON.stringify(text)}) or ${method}({ char: ${JSON.stringify(text)} })`);
 
 /** The bytes of a named key or a `{ char }`; a bare string that names no key is a defect saying how to send text. */
-const bytesOf = (key: KeyName | { readonly char: string }, method: "press" | "chunk"): Effect.Effect<string> => {
+const bytesOf: {
+	(key: KeyName | { readonly char: string }, method: "press" | "chunk"): Effect.Effect<string>;
+	(method: "press" | "chunk"): (key: KeyName | { readonly char: string }) => Effect.Effect<string>;
+} = dual(2, (key: KeyName | { readonly char: string }, method: "press" | "chunk"): Effect.Effect<string> => {
 	if (!P.isString(key)) return Effect.succeed(key.char);
 	return isKeyName(key) ? Effect.succeed(KEY_BYTES[key]) : Effect.die(CliUiTestError.make({ message: NOT_A_KEY(method, key) }));
-};
+});
 
 /** A `Cancelled` from the root entrypoint, matched by shape: this entry may carry its own copy of the class. */
 const cancelledReason = (value: unknown): "escape" | "interrupt" | undefined => {
@@ -590,10 +628,7 @@ const LEADING_MOVES = /^(?:\u001b\[[0-9;?]*[A-Za-ln-z])+/;
  * streams, each read alone, and `fake.written` is both in the order written: one terminal, for `written` and the
  * transcript.
  */
-const makeTerminal = (
-	options: CliUiTestOptions,
-	settings: { readonly screens: "debug" | "production" } = { screens: "debug" },
-) => {
+const terminalOf = ({ options, settings }: { readonly options: CliUiTestOptions; readonly settings: TerminalSettings }) => {
 	const columns = options.columns ?? 80;
 	const rows = options.rows ?? 24;
 	const color = options.color ?? "truecolor";
@@ -659,12 +694,15 @@ const makeTerminal = (
 	 * counted from that frame rather than from `since`, so a loaded machine that was slow to draw it still gets the
 	 * time to see the reaction that follows it.
 	 */
-	const settle = (
+	const settle: {
+		(before: number, raws: () => ReadonlyArray<string>, ended: () => boolean, since: number, limitMs?: number): Effect.Effect<void>;
+		(raws: () => ReadonlyArray<string>, ended: () => boolean, since: number, limitMs?: number): (before: number) => Effect.Effect<void>;
+	} = dual((args) => P.isNumber(args[0]), (
+		before: number,
 		raws: () => ReadonlyArray<string>,
 		ended: () => boolean,
-		before: number,
 		since: number,
-		limitMs = QUIET_MS,
+		limitMs: number = QUIET_MS,
 	): Effect.Effect<void> =>
 		Effect.suspend(() => {
 			let firstFrameAt: number | undefined;
@@ -688,7 +726,7 @@ const makeTerminal = (
 				);
 			});
 			return confirmed;
-		});
+		}));
 
 	/**
 	 * Drive and read the screen whose capture `capture` returns (none yet: no frames), ended when `ended` says. A crash
@@ -709,8 +747,14 @@ const makeTerminal = (
 				return cause === undefined ? effect : cause.pipe(Cause.squash, Effect.die);
 			});
 		const raws = (): ReadonlyArray<string> => capture()?.raws ?? [];
-		const after = (before: number, since: number) => settle(raws, ended, before, since);
-		const send = (bytes: string, flushMs = 0): Effect.Effect<void> =>
+		const after: {
+			(before: number, since: number): Effect.Effect<void>;
+			(since: number): (before: number) => Effect.Effect<void>;
+		} = dual(2, (before: number, since: number): Effect.Effect<void> => settle(before, raws, ended, since));
+		const send: {
+			(bytes: string, flushMs?: number): Effect.Effect<void>;
+			(flushMs?: number): (bytes: string) => Effect.Effect<void>;
+		} = dual((args) => P.isString(args[0]), (bytes: string, flushMs: number = 0): Effect.Effect<void> =>
 			Effect.suspend(() => {
 				// A key for an ended screen would land in whichever screen is mounted now: a test that does that has lost
 				// track of its screens, so it is a defect, not a key.
@@ -720,7 +764,7 @@ const makeTerminal = (
 				const sent = Clock.Clock.defaultValue().currentTimeMillisUnsafe();
 				const flushed = flushMs === 0 ? Effect.void : realTime(() => Clock.Clock.defaultValue().currentTimeMillisUnsafe() - sent >= flushMs);
 				return Effect.andThen(flushed, after(before, Clock.Clock.defaultValue().currentTimeMillisUnsafe()));
-			});
+			}));
 		const handle: CliUiTestScreen = {
 			press: (...keys) =>
 				Effect.forEach(
@@ -736,10 +780,10 @@ const makeTerminal = (
 				surfaced(
 					Effect.flatMap(
 						Effect.forEach(keys, (key) => bytesOf(key, "chunk")),
-						(bytes) => send(bytes.join(""), keys.at(-1) === "escape" ? ESCAPE_FLUSH_MS : 0),
+						(bytes) => send(A.join(bytes, ""), keys.at(-1) === "escape" ? ESCAPE_FLUSH_MS : 0),
 					),
 				),
-			resize: (nextColumns, nextRows) =>
+			resize: dual(2, (nextColumns: number, nextRows: number): Effect.Effect<void> =>
 				surfaced(
 					Effect.suspend(() => {
 						// The terminal is shared by a session's screens: an ended screen's resize would reach the mounted one.
@@ -749,11 +793,11 @@ const makeTerminal = (
 						fake.resize(nextColumns, nextRows);
 						return after(before, since);
 					}),
-				),
+				)),
 			frame: surfaced(Effect.sync(() => trimLines(styled(raws().at(-1) ?? "")))),
 			rawFrame: surfaced(Effect.sync(() => raws().at(-1) ?? "")),
 			plainFrame: surfaced(Effect.sync(() => trimLines((raws().at(-1) ?? "").replace(ESCAPES, "")))),
-			frames: surfaced(Effect.sync(() => raws().map((raw) => trimLines(styled(raw))))),
+			frames: surfaced(Effect.sync(() => A.map(raws(), (raw) => trimLines(styled(raw))))),
 		};
 		return { handle, raws, after, surfaced };
 	};
@@ -761,13 +805,28 @@ const makeTerminal = (
 	return { fake, layer, captures, screen, settle };
 };
 
+/** What `terminalOf` builds: the fake streams, the layer, the captures, and the screen and settle drivers. */
+type Terminal = ReturnType<typeof terminalOf>;
+
+/** `terminalOf` for options and settings; the settings alone carry `screens`, which tells the two apart. */
+const makeTerminal: {
+	(options: CliUiTestOptions, settings?: TerminalSettings): Terminal;
+	(settings?: TerminalSettings): (options: CliUiTestOptions) => Terminal;
+} = dual(
+	(args) => P.isObjectKeyword(args[0]) && !P.hasProperty(args[0], "screens"),
+	(options: CliUiTestOptions, settings: TerminalSettings = { screens: "debug" }): Terminal => terminalOf({ options, settings }),
+);
+
 /**
  * Mount `screen` on a fresh terminal for the enclosing scope, held in a swappable holder so a rerender changes only its
  * subtree under the same control: what `render` and `view` share. Ready once the first frame is drawn, the screen has
  * ended, or 2 s have passed. A crash surfaces on every read and send, as on a session's screen; with `refusal`, so does
  * a run refused as not interactive, for a view, which has no `result` to carry it.
  */
-const mount = Effect.fn("mount")(function*<A> (screen: Screen<A>, options: CliUiTestOptions, refusal: boolean) {
+const mount: {
+	<A>(screen: Screen<A>, options: CliUiTestOptions, refusal: boolean): Effect.Effect<Mounted<A>, never, Scope.Scope>;
+	<A>(options: CliUiTestOptions, refusal: boolean): (screen: Screen<A>) => Effect.Effect<Mounted<A>, never, Scope.Scope>;
+} = dual(3, Effect.fn("mount")(function*<A> (screen: Screen<A>, options: CliUiTestOptions, refusal: boolean) {
 		const terminal = makeTerminal(options);
 		let ended = false;
 		// How the run ended when it failed or died (a crash, `NotInteractive`), never for the scope's own interrupt nor a
@@ -777,7 +836,8 @@ const mount = Effect.fn("mount")(function*<A> (screen: Screen<A>, options: CliUi
 		let control: ScreenControl<A> | undefined;
 		const held: Screen<A> = (given) => {
 			control = given;
-			return Promise.resolve(screen(given)).then((initial) => inkModules().react.createElement(holder(), { initial, bind: slot.bind }));
+			return Effect.map(Effect.flatMap(Effect.sync(() => screen(given)), screenElement), (initial) =>
+				inkModules().react.createElement(holder(), { initial, bind: slot.bind }));
 		};
 		const fiber = yield* Effect.forkScoped(
 			CliUi.run(held).pipe(
@@ -789,7 +849,7 @@ const mount = Effect.fn("mount")(function*<A> (screen: Screen<A>, options: CliUi
 						if (
 							Exit.isFailure(exit) &&
 							!Cause.hasInterruptsOnly(exit.cause) &&
-							(exit.cause.reasons.some(Cause.isDieReason) || exit.cause.pipe(Cause.squash, cancelledReason) === undefined)
+							(A.some(exit.cause.reasons, Cause.isDieReason) || exit.cause.pipe(Cause.squash, cancelledReason) === undefined)
 						) {
 							failure = exit.cause;
 						}
@@ -815,7 +875,7 @@ const mount = Effect.fn("mount")(function*<A> (screen: Screen<A>, options: CliUi
 				return yield* Effect.die(CliUiTestError.make({ message: RERENDER_BEFORE_MOUNT }));
 			}
 			const given = control;
-			const element = yield* Effect.promise(() => Promise.resolve(next(given)));
+			const element = yield* Effect.flatMap(Effect.sync(() => next(given)), screenElement);
 			const before = raws().length;
 			const since = Clock.Clock.defaultValue().currentTimeMillisUnsafe();
 			// The screen ended while the element was built (unbound: it is unmounting). Wait for the end to be
@@ -831,7 +891,7 @@ const mount = Effect.fn("mount")(function*<A> (screen: Screen<A>, options: CliUi
 		const rerender = (next: Screen<A>): Effect.Effect<void> =>
 			surfaced(Effect.andThen(swapTo(next), surfaced(Effect.void)));
 		return { handle, rerender, fiber, surfaced };
-	});
+	}));
 
 /** A `Console` that keeps what is written: `log`, `info` and `debug` as stdout, `error`, `warn` and `trace` as stderr. */
 const capturingConsole = (ambient: Console.Console) => {
@@ -841,7 +901,7 @@ const capturingConsole = (ambient: Console.Console) => {
 		(sink: Array<string>) =>
 		(...args: ReadonlyArray<unknown>): void => {
 			// Formatted as data, as a console would show it: an object as JSON, never "[object Object]".
-			sink.push(`${args.map((arg) => Inspectable.toStringUnknown(arg, 0)).join(" ")}\n`);
+			sink.push(`${pipe(args, A.map((arg) => Inspectable.toStringUnknown(arg, 0)), A.join(" "))}\n`);
 		};
 	// Resolve delegates at call time, retaining the ambient receiver and live method replacements.
 	const writer: Console.Console = {
@@ -953,7 +1013,10 @@ export class CliUiTest {
 	 * @category testing
 	 * @since 0.0.0
 	 */
-	static readonly render = <A>(
+	static readonly render: {
+		<A>(screen: Screen<A>, options?: CliUiTestOptions): Effect.Effect<CliUiTestHandle<A>, never, Scope.Scope>;
+		<A>(options?: CliUiTestOptions): (screen: Screen<A>) => Effect.Effect<CliUiTestHandle<A>, never, Scope.Scope>;
+	} = dual((args) => P.isFunction(args[0]), <A>(
 		screen: Screen<A>,
 		options: CliUiTestOptions = {},
 	): Effect.Effect<CliUiTestHandle<A>, never, Scope.Scope> =>
@@ -961,7 +1024,7 @@ export class CliUiTest {
 			...handle,
 			rerender,
 			result: Fiber.join(fiber),
-		}));
+		})));
 
 	/**
 	 * Mount a display-only element on in-memory terminal streams for the enclosing scope: a status line, a live view,
@@ -1000,7 +1063,10 @@ export class CliUiTest {
 	 * @category testing
 	 * @since 0.0.0
 	 */
-	static readonly view = (
+	static readonly view: {
+		(element: ReactElement, options?: CliUiTestOptions): Effect.Effect<CliUiTestView, never, Scope.Scope>;
+		(options?: CliUiTestOptions): (element: ReactElement) => Effect.Effect<CliUiTestView, never, Scope.Scope>;
+	} = dual((args) => P.hasProperty(args[0], "$$typeof"), (
 		element: ReactElement,
 		options: CliUiTestOptions = {},
 	): Effect.Effect<CliUiTestView, never, Scope.Scope> =>
@@ -1011,7 +1077,7 @@ export class CliUiTest {
 				const view: CliUiTestView = { ...handle, rerender: (next) => rerender(() => next) };
 				return surfaced(Effect.succeed(view));
 			},
-		);
+		));
 
 	/**
      * A terminal for a whole program that runs screens of its own (a wizard, a handler calling `CliUi.prompt` several
@@ -1104,7 +1170,7 @@ export class CliUiTest {
 				const shows = (): boolean =>
 					contains === undefined
 						? raws().length > 0
-						: raws().some((raw) => raw.replace(ESCAPES, "").includes(contains));
+						: A.some(raws(), (raw) => raw.replace(ESCAPES, "").includes(contains));
 				const by = Clock.Clock.defaultValue().currentTimeMillisUnsafe() + MOUNT_LIMIT_MS;
 				yield* realTime(() => shows() || capture()?.ended === true || Clock.Clock.defaultValue().currentTimeMillisUnsafe() >= by);
 				// A screen that crashed dies with its crash, whatever `next` waited for.
@@ -1125,19 +1191,19 @@ export class CliUiTest {
 				layer: Layer.merge(terminal.layer, Layer.succeed(Console.Console, output.writer)),
 				next,
 				mounts: Effect.sync(() => terminal.captures.length),
-				stdout: Effect.sync(() => output.out.join("")),
-				stderr: Effect.sync(() => output.err.join("")),
+				stdout: Effect.sync(() => A.join(output.out, "")),
+				stderr: Effect.sync(() => A.join(output.err, "")),
 				transcript: Effect.sync(() =>
-					screenAfter(terminal.fake.written(), terminal.fake.streams.stdout.rows).join("\n"),
+					A.join(screenAfter(terminal.fake.written(), terminal.fake.streams.stdout.rows), "\n"),
 				),
 				written: Effect.sync(() => terminal.fake.written()),
 				stdoutWritten: Effect.sync(() => terminal.fake.stdout()),
 				stderrWritten: Effect.sync(() => terminal.fake.stderr()),
 				stdoutTranscript: Effect.sync(() =>
-					screenAfter(terminal.fake.stdout(), terminal.fake.streams.stdout.rows).join("\n"),
+					A.join(screenAfter(terminal.fake.stdout(), terminal.fake.streams.stdout.rows), "\n"),
 				),
 				stderrTranscript: Effect.sync(() =>
-					screenAfter(terminal.fake.stderr(), terminal.fake.streams.stdout.rows).join("\n"),
+					A.join(screenAfter(terminal.fake.stderr(), terminal.fake.streams.stdout.rows), "\n"),
 				),
 			} satisfies CliUiTestSession;
 		});
@@ -1213,14 +1279,14 @@ export class CliUiTest {
 		const handle = yield* CliUi.live<E, S>({ ...view, events: Stream.fromQueue(queue) }).pipe(
 			(self) => Effect.scopedWith((scope) => Effect.flatMap(Layer.buildWithScope(terminal.layer, scope), (context) => Effect.provideContext(self, context))),
 		);
-		const raws = (): ReadonlyArray<string> => terminal.captures.flatMap((capture) => capture.raws);
+		const raws = (): ReadonlyArray<string> => A.flatMap(terminal.captures, (capture) => capture.raws);
 		const settled = <X>(effect: Effect.Effect<X>): Effect.Effect<void> =>
 			Effect.suspend(() => {
 				const before = raws().length;
 				const since = Clock.Clock.defaultValue().currentTimeMillisUnsafe();
 				return Effect.andThen(
 					effect,
-					terminal.settle(raws, () => false, before, since),
+					terminal.settle(before, raws, () => false, since),
 				);
 			});
 		const last = (): string => raws().at(-1) ?? "";
@@ -1228,13 +1294,14 @@ export class CliUiTest {
 			publish: (event) => settled(Queue.offer(queue, event)),
 			end: Effect.andThen(Queue.end(queue), handle.done),
 			advance: (duration) => settled(TestClock.adjust(duration)),
-			resize: (nextColumns, nextRows) => settled(Effect.sync(() => terminal.fake.resize(nextColumns, nextRows))),
+			resize: dual(2, (nextColumns: number, nextRows: number): Effect.Effect<void> =>
+				settled(Effect.sync(() => terminal.fake.resize(nextColumns, nextRows)))),
 			frame: Effect.sync(() => trimLines(styled(last()))),
 			rawFrame: Effect.sync(last),
 			plainFrame: Effect.sync(() => trimLines(last().replace(ESCAPES, ""))),
-			frames: Effect.sync(() => raws().map((raw) => trimLines(styled(raw)))),
+			frames: Effect.sync(() => A.map(raws(), (raw) => trimLines(styled(raw)))),
 			transcript: Effect.sync(() =>
-				screenAfter(terminal.fake.written(), terminal.fake.streams.stdout.rows).join("\n"),
+				A.join(screenAfter(terminal.fake.written(), terminal.fake.streams.stdout.rows), "\n"),
 			),
 			written: Effect.sync(() => terminal.fake.written()),
 			handle,

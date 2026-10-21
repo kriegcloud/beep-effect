@@ -56,6 +56,6 @@ describe("bridge and test-runtime error metadata", () => {
 		assert.isString(error.schema.ast.annotations?.title);
 		assert.isNotEmpty(error.schema.ast.annotations?.title);
 		assert.strictEqual(error.schema.ast.annotations?.description, description);
-		assert.strictEqual(error.message.ast.annotations?.description, message);
+		assert.strictEqual(S.resolveAnnotationsKey(error.message)?.description, message);
 	});
 });

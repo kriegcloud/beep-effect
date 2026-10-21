@@ -5,6 +5,7 @@ import type { AudienceShape } from "../env/index.ts";
 import { Audience, TerminalEnv } from "../env/index.ts";
 import type * as Terminal from "effect/Terminal";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Stdio from "effect/Stdio";
 import type * as Command from "effect/cli/Command";
@@ -18,15 +19,16 @@ import { canPrompt } from "./internal/canPrompt.ts";
 import { refreshFailureTarget } from "./internal/failureTarget.ts";
 import { AudienceFlagValues, scanAudience, tallyAudience } from "./internal/scanAudience.ts";
 import { WizardDropped } from "./internal/wizardGate.ts";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/cli/CliAudience");
 
 class AudienceConflictError extends S.TaggedError<AudienceConflictError, { readonly brand: unique symbol }>($I`AudienceConflictError`)(
 	"AudienceConflictError",
 	{
-		message: S.String.annotate({ description: "The usage guidance for conflicting or repeated audience flags." }),
+		message: S.String.pipe($I.annoteKey("AudienceConflictError.message", { description: "The usage guidance for conflicting or repeated audience flags." })),
 	},
-	$I.annote("AudienceConflictError", { description: "More than one audience flag occurrence was supplied to a CLI run." }),
+	$I.annoteError<AudienceConflictError>("AudienceConflictError", { description: "More than one audience flag occurrence was supplied to a CLI run." }),
 ) {}
 
 /**
@@ -40,11 +42,14 @@ class AudienceConflictError extends S.TaggedError<AudienceConflictError, { reado
  * flag can WIDEN: `--human` under a detected agent on real terminals prompts, and in a pipe it still cannot. With no
  * `TerminalEnv` there is nothing to decide from and the flag only narrows.
  */
-const interactiveWhenFlagged = (kind: AudienceKind, current: boolean): Effect.Effect<boolean> =>
+const interactiveWhenFlagged: {
+	(kind: AudienceKind, current: boolean): Effect.Effect<boolean>;
+	(current: boolean): (kind: AudienceKind) => Effect.Effect<boolean>;
+} = dual(2, (kind: AudienceKind, current: boolean): Effect.Effect<boolean> =>
 	Effect.flatMap(Effect.serviceOption(TerminalEnv), (terminal) => {
 		if (kind !== "human") return Effect.succeed(false);
 		return O.isSome(terminal) ? canPrompt(terminal.value) : Effect.succeed(current);
-	});
+	}));
 
 /**
  * The four parsed audience flags a root command carries once {@link CliAudience.flags} is shared onto it.
@@ -62,9 +67,7 @@ const interactiveWhenFlagged = (kind: AudienceKind, current: boolean): Effect.Ef
  * @category models
  * @since 0.0.0
  */
-export const AudienceFlagInput = S.Struct(AudienceFlagValues.fields).annotate(
-	$I.annote("AudienceFlagInput", { description: "The four audience flag arrays shared onto a root command." }),
-);
+export const AudienceFlagInput = S.Struct(AudienceFlagValues.fields).pipe($I.annoteSchema("AudienceFlagInput", { description: "The four audience flag arrays shared onto a root command." }));
 
 /**
  * The plain audience flags carried by a root command.
@@ -95,8 +98,8 @@ export const CliAudienceFlagsOptions = S.Struct({
 	 * Hide all four flags from every help screen. They still parse and resolve; describe them in the root
 	 * command's description instead.
 	 */
-	hidden: S.optional(S.Boolean).annotate($I.annote("CliAudienceFlagsOptions.hidden", { description: "Hide the audience flags without changing parsing or resolution." })),
-}).annotate($I.annote("CliAudienceFlagsOptions", { description: "Presentation options for shared audience flags." }));
+	hidden: S.optionalKey(S.Boolean).pipe($I.annoteKey("CliAudienceFlagsOptions.hidden", { description: "Hide the audience flags without changing parsing or resolution." })),
+}).pipe($I.annoteSchema("CliAudienceFlagsOptions", { description: "Presentation options for shared audience flags." }));
 
 /**
  * The plain audience flag presentation options.
@@ -293,36 +296,58 @@ export class CliAudience {
 		);
 
 	/**
-     * Run a command the way `Command.runWith` does, with the audience flag resolved BEFORE core parses.
-     *
-     * **Details**
-     *
-     * It scans `argv` for the four audience flags first, then runs core around a provided `Audience` (when exactly
-     * one is given: `{ kind, source: "flag" }`) and a `CliInteractive` decided from it: `--human` is interactive when
-     * `TerminalEnv` reports a terminal on stdin and stdout and `TERM` is not `dumb` (it can turn prompting on under a detected agent), a
-     * non-human flag or a conflict makes it false. A fallback prompt fires while core parses, earlier than
-     * anything `CliAudience.provide` can reach, so `--agent init` on a terminal would otherwise still prompt. No
-     * flag leaves the ambient values untouched. A conflict still gets core's own usage error, exit `64`, from
-     * `CliAudience.provide`'s resolver.
-     *
-     * **Example** (Construct a run with explicit arguments)
-     *
-     * ```ts
-     * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
-     * import * as Command from "effect/cli/Command";
-     * import * as Effect from "effect/Effect";
-     *
-     * const root = Command.make("tool").pipe(Command.withSharedFlags(CliAudience.flags()));
-     * const program = CliAudience.runWith(root, { version: "1.0.0" })(["--agent"]);
-     * console.log(Effect.isEffect(program)); // true
-     * ```
-     *
-     * @param command - the composite root, with the flags shared and `CliAudience.provide` piped on
-     * @param config - the same `version` and `renderErrors` as core's
-     * @category commands
-     * @since 0.0.0
-     */
-	static readonly runWith = <const Name extends string, Input, E, R, ContextInput>(
+ * Run a command the way `Command.runWith` does, with the audience flag resolved BEFORE core parses.
+ *
+ * **Details**
+ *
+ * It scans `argv` for the four audience flags first, then runs core around a provided `Audience` (when exactly
+ * one is given: `{ kind, source: "flag" }`) and a `CliInteractive` decided from it: `--human` is interactive when
+ * `TerminalEnv` reports a terminal on stdin and stdout and `TERM` is not `dumb` (it can turn prompting on under a detected agent), a
+ * non-human flag or a conflict makes it false. A fallback prompt fires while core parses, earlier than
+ * anything `CliAudience.provide` can reach, so `--agent init` on a terminal would otherwise still prompt. No
+ * flag leaves the ambient values untouched. A conflict still gets core's own usage error, exit `64`, from
+ * `CliAudience.provide`'s resolver.
+ *
+ * **Example** (Construct a run with explicit arguments)
+ *
+ * ```ts
+ * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
+ * import * as Command from "effect/cli/Command";
+ * import * as Effect from "effect/Effect";
+ *
+ * const root = Command.make("tool").pipe(Command.withSharedFlags(CliAudience.flags()));
+ * const program = CliAudience.runWith(root, { version: "1.0.0" })(["--agent"]);
+ * console.log(Effect.isEffect(program)); // true
+ * ```
+ *
+ * @param command - the composite root, with the flags shared and `CliAudience.provide` piped on
+ * @param config - the same `version` and `renderErrors` as core's
+ * @category commands
+ * @since 0.0.0
+ */
+	static readonly runWith: {
+		<const Name extends string, Input, E, R, ContextInput>(
+			command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
+			config: { readonly version: string; readonly renderErrors?: boolean | undefined },
+		): (
+			input: ReadonlyArray<string>,
+		) => Effect.Effect<
+			void,
+			Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+			Exclude<R, Audience> | Audience | Command.Environment
+		>;
+		<const Name extends string, Input, E, R, ContextInput>(
+			config: { readonly version: string; readonly renderErrors?: boolean | undefined },
+		): (
+			command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
+		) => (
+			input: ReadonlyArray<string>,
+		) => Effect.Effect<
+			void,
+			Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+			Exclude<R, Audience> | Audience | Command.Environment
+		>;
+	} = dual(2, <const Name extends string, Input, E, R, ContextInput>(
 		command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
 		config: { readonly version: string; readonly renderErrors?: boolean | undefined },
 	): ((
@@ -361,33 +386,51 @@ export class CliAudience {
 			if (!restore && !drop) return yield* decided;
 			const builtIns = interactive
 				? [...ambient.builtIns, GlobalFlag.Wizard]
-				: ambient.builtIns.filter((flag) => flag !== GlobalFlag.Wizard);
+				: A.filter(ambient.builtIns, (flag) => flag !== GlobalFlag.Wizard);
 			return yield* Effect.provideService(decided, CliConfig.CliConfig, CliConfig.make({ builtIns }));
 		});
-	};
+	});
 
 	/**
-     * `Command.run` with the audience flag resolved before parsing: reads `Stdio.args` and calls
-     * {@link CliAudience.runWith}.
-     *
-     * **Example** (Construct a run that reads standard arguments)
-     *
-     * ```ts
-     * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
-     * import * as Command from "effect/cli/Command";
-     * import * as Effect from "effect/Effect";
-     *
-     * const root = Command.make("tool").pipe(Command.withSharedFlags(CliAudience.flags()));
-     * const program = CliAudience.run(root, { version: "1.0.0" });
-     * console.log(Effect.isEffect(program)); // true
-     * ```
-     *
-     * @param command - the composite root
-     * @param config - the same `version` and `renderErrors` as core's
-     * @category commands
-     * @since 0.0.0
-     */
-	static readonly run = <const Name extends string, Input, E, R, ContextInput>(
+ * `Command.run` with the audience flag resolved before parsing: reads `Stdio.args` and calls
+ * {@link CliAudience.runWith}.
+ *
+ * **Example** (Construct a run that reads standard arguments)
+ *
+ * ```ts
+ * import { CliAudience } from "@beep/scratchpad/effected/cli/CliAudience";
+ * import * as Command from "effect/cli/Command";
+ * import * as Effect from "effect/Effect";
+ *
+ * const root = Command.make("tool").pipe(Command.withSharedFlags(CliAudience.flags()));
+ * const program = CliAudience.run(root, { version: "1.0.0" });
+ * console.log(Effect.isEffect(program)); // true
+ * ```
+ *
+ * @param command - the composite root
+ * @param config - the same `version` and `renderErrors` as core's
+ * @category commands
+ * @since 0.0.0
+ */
+	static readonly run: {
+		<const Name extends string, Input, E, R, ContextInput>(
+			command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
+			config: { readonly version: string; readonly renderErrors?: boolean | undefined },
+		): Effect.Effect<
+			void,
+			Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+			Exclude<R, Audience> | Audience | Command.Environment
+		>;
+		<const Name extends string, Input, E, R, ContextInput>(
+			config: { readonly version: string; readonly renderErrors?: boolean | undefined },
+		): (
+			command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
+		) => Effect.Effect<
+			void,
+			Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
+			Exclude<R, Audience> | Audience | Command.Environment
+		>;
+	} = dual(2, <const Name extends string, Input, E, R, ContextInput>(
 		command: Command.Command<Name, Input, ContextInput, E, R> & RequiresAudienceFlags<Input>,
 		config: { readonly version: string; readonly renderErrors?: boolean | undefined },
 	): Effect.Effect<
@@ -395,5 +438,5 @@ export class CliAudience {
 		Exclude<E | CliError.UserError, Terminal.QuitError> | CliError.CliError,
 		Exclude<R, Audience> | Audience | Command.Environment
 	> =>
-		Stdio.Stdio.use(({ args }) => Effect.flatMap(args, (argv) => CliAudience.runWith(command, config)(argv)));
+		Stdio.Stdio.use(({ args }) => Effect.flatMap(args, (argv) => CliAudience.runWith(command, config)(argv))));
 }

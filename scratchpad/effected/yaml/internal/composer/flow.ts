@@ -1,5 +1,5 @@
 import * as MutableHashSet from "effect/MutableHashSet";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -39,16 +39,10 @@ import * as O from "@beep/utils/Option";
 const $I = $ScratchpadId.create("effected/yaml/internal/composer/flow");
 
 const PendingFlowComment = S.Struct({
-	text: S.mutableKey(S.String).annotate(
-		$I.annote("PendingFlowComment.text", { description: "Raw comment text awaiting attribution." }),
-	),
-	offset: S.mutableKey(S.Finite).annotate(
-		$I.annote("PendingFlowComment.offset", { description: "Source offset of the pending comment." }),
-	),
-	blankAbove: S.mutableKey(S.Boolean).annotate(
-		$I.annote("PendingFlowComment.blankAbove", { description: "Whether a blank line precedes this comment." }),
-	),
-}).annotate($I.annote("PendingFlowComment", { description: "Own-line flow comment awaiting its following item." }));
+	text: S.mutableKey(S.String).pipe($I.annoteKey("PendingFlowComment.text", { description: "Raw comment text awaiting attribution." })),
+	offset: S.mutableKey(S.Finite).pipe($I.annoteKey("PendingFlowComment.offset", { description: "Source offset of the pending comment." })),
+	blankAbove: S.mutableKey(S.Boolean).pipe($I.annoteKey("PendingFlowComment.blankAbove", { description: "Whether a blank line precedes this comment." })),
+}).pipe($I.annoteSchema("PendingFlowComment", { description: "Own-line flow comment awaiting its following item." }));
 type PendingFlowComment = typeof PendingFlowComment.Type;
 
 /**
@@ -61,12 +55,10 @@ type PendingFlowComment = typeof PendingFlowComment.Type;
  * like `{multi\n  line: value}` (consecutive scalars without colon between).
  * State machine: idle → saw-colon → saw-value → error-if-no-comma
  */
-function validateFlowSeparators(
-	children: readonly CstNode[],
-	state: ComposerState,
-	openBracket: string,
-	closeBracket: string,
-): void {
+const validateFlowSeparators: {
+	(children: readonly CstNode[], state: ComposerState, openBracket: string, closeBracket: string): void;
+	(state: ComposerState, openBracket: string, closeBracket: string): (children: readonly CstNode[]) => void;
+} = dual(4, (children: readonly CstNode[], state: ComposerState, openBracket: string, closeBracket: string): void => {
 	// Track: after seeing "scalar : scalar", the next scalar without comma is an error
 	let colonCount = 0; // number of colons seen since last comma
 	let contentAfterColon = 0; // content tokens after the most recent colon
@@ -155,7 +147,7 @@ function validateFlowSeparators(
 			sawContent = true;
 		}
 	}
-}
+});
 
 /**
  * 9C9N, VJP3/00: continuation lines of multi-line flow content must be
@@ -163,7 +155,10 @@ function validateFlowSeparators(
  * column; for document-root flow content (no parent block) the caller
  * omits it and the check is skipped.
  */
-function validateFlowContentIndent(cst: CstNode, state: ComposerState, parentBlockColumn?: number): void {
+const validateFlowContentIndent: {
+	(state: ComposerState, parentBlockColumn?: number): (cst: CstNode) => void;
+	(cst: CstNode, state: ComposerState, parentBlockColumn?: number): void;
+} = dual((args) => P.hasProperty(args[0], "source"), (cst: CstNode, state: ComposerState, parentBlockColumn?: number): void => {
 	if (parentBlockColumn === undefined || parentBlockColumn < 0) return;
 	const text = state.text;
 	const start = cst.offset;
@@ -203,7 +198,7 @@ function validateFlowContentIndent(cst: CstNode, state: ComposerState, parentBlo
 		}
 		i++;
 	}
-}
+});
 
 /**
  * True when everything from `start` to the end of that line (bounded by `end`)
@@ -211,7 +206,10 @@ function validateFlowContentIndent(cst: CstNode, state: ComposerState, parentBlo
  * Such a line closes the collection rather than carrying content, so the
  * continuation-indent floor does not apply to it.
  */
-function isClosersOnly(text: string, start: number, end: number): boolean {
+const isClosersOnly: {
+	(text: string, start: number, end: number): boolean;
+	(start: number, end: number): (text: string) => boolean;
+} = dual(3, (text: string, start: number, end: number): boolean => {
 	let sawCloser = false;
 	for (let i = start; i < end && i < text.length; i++) {
 		const ch = text[i];
@@ -224,7 +222,7 @@ function isClosersOnly(text: string, start: number, end: number): boolean {
 		return false;
 	}
 	return sawCloser;
-}
+});
 
 // ---------------------------------------------------------------------------
 // Compose flow map
@@ -273,13 +271,16 @@ export const composeFlowMap: {
 	}
 });
 
-function composeFlowMapInner(cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): YamlMap {
+const composeFlowMapInner: {
+	(state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): (cst: CstNode) => YamlMap;
+	(cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): YamlMap;
+} = dual((args) => P.hasProperty(args[0], "source"), (cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): YamlMap => {
 	const children = cst.children ?? [];
 	const pairs: YamlPair[] = [];
 
 	// Validate bracket balance
-	const hasOpen = children.some((c) => c.type === "whitespace" && c.source === "{");
-	const hasClose = children.some((c) => c.type === "whitespace" && c.source === "}");
+	const hasOpen = A.some(children, (c) => c.type === "whitespace" && c.source === "{");
+	const hasClose = A.some(children, (c) => c.type === "whitespace" && c.source === "}");
 	if (hasOpen && !hasClose) {
 		state.errors.push({
 			code: "MalformedFlowCollection",
@@ -300,8 +301,11 @@ function composeFlowMapInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 
 	// Filter out brackets and blank whitespace, but KEEP commas and newlines
 	// so that flattenFlowChildren can respect segment boundaries for multi-line keys.
-	const content = children.filter(
-		(c) => !(c.type === "whitespace" && (c.source === "{" || c.source.trim() === "")),
+	// `A.filter` visits holes in a sparse `children` array (native `filter` skipped
+	// them), so the guard drops them explicitly.
+	const content = A.filter(
+		children,
+		(c) => P.isNotUndefined(c) && !(c.type === "whitespace" && (c.source === "{" || c.source.trim() === "")),
 	);
 
 	const items = flattenFlowChildren(content, state);
@@ -329,7 +333,7 @@ function composeFlowMapInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 
 	if (meta?.anchor !== undefined && meta?.anchor !== "") registerAnchor(map, meta.anchor, state, cst.offset);
 	return map;
-}
+});
 
 /**
  * Transforms flow CST children into semantic nodes, keys, value separators, and comments.
@@ -664,7 +668,10 @@ export const composeFlowSeq: {
 	}
 });
 
-function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): YamlSeq {
+const composeFlowSeqInner: {
+	(state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): (cst: CstNode) => YamlSeq;
+	(cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): YamlSeq;
+} = dual((args) => P.hasProperty(args[0], "source"), (cst: CstNode, state: ComposerState, meta?: NodeMeta, parentBlockColumn?: number): YamlSeq => {
 	const children = cst.children ?? [];
 	const items: YamlNode[] = [];
 
@@ -676,8 +683,8 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 	validateFlowSeparators(children, state, "[", "]");
 
 	// Validate bracket balance: check that the flow sequence has matching brackets.
-	const hasOpen = children.some((c) => c.type === "whitespace" && c.source === "[");
-	const hasClose = children.some((c) => c.type === "whitespace" && c.source === "]");
+	const hasOpen = A.some(children, (c) => c.type === "whitespace" && c.source === "[");
+	const hasClose = A.some(children, (c) => c.type === "whitespace" && c.source === "]");
 	if (hasOpen && !hasClose) {
 		state.errors.push({
 			code: "MalformedFlowCollection",
@@ -703,9 +710,7 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 		// Split on commas
 		if (child.type === "whitespace" && child.source === ",") {
 			// Detect leading comma or consecutive commas (empty flow entry)
-			const hasContentInSegment = current.some(
-				(c) => c.type !== "whitespace" && c.type !== "newline" && c.type !== "comment",
-			);
+			const hasContentInSegment = A.some(current, (c) => c.type !== "whitespace" && c.type !== "newline" && c.type !== "comment");
 			if (!hasContentInSegment && (lastWasComma || !seenContent)) {
 				state.errors.push({
 					code: "MalformedFlowCollection",
@@ -761,13 +766,16 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 	// and breaking format idempotence.
 	const blankIsBetweenItems = (anchorOffset: number): boolean =>
 		blankLineAboveStart(state.text, anchorOffset) >= lastItemEnd;
-	const acceptOwnLineComment = (cText: string, cOff: number): void => {
+	const acceptOwnLineComment: {
+		(cText: string, cOff: number): void;
+		(cOff: number): (cText: string) => void;
+	} = dual(2, (cText: string, cOff: number): void => {
 		const blankAbove = cOff >= 0 && hasBlankLineAbove(state.text, cOff);
 		if (blankAbove && pending.length === 0 && lastItemEnd >= 0 && blankIsBetweenItems(cOff)) {
 			pendingSpace = true;
 		}
 		pending.push({ text: cText, offset: cOff, blankAbove: blankAbove && pending.length > 0 });
-	};
+	});
 	/** The pending comment fields for the item being pushed, then reset. */
 	const takePendingFields = (anchorOffset: number): CommentFields => {
 		let commentBefore = joinPending(pending);
@@ -791,18 +799,18 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 
 	for (const segment of segments) {
 		// Check if this segment contains a value separator (implicit mapping)
-		const hasValueSep = segment.some((c) => c.type === "whitespace" && c.source === ":");
+		const hasValueSep = A.some(segment, (c) => c.type === "whitespace" && c.source === ":");
 
 		if (hasValueSep) {
 			// Process as a single-pair implicit mapping
 			// Keep newlines so flattenFlowChildren can merge multi-line plain scalars
-			const content = segment.filter((c) => !(c.type === "whitespace" && c.source.trim() === ""));
+			const content = A.filter(segment, (c) => !(c.type === "whitespace" && c.source.trim() === ""));
 			const semItems = flattenFlowChildren(content, state);
 			const pairs: YamlPair[] = [];
 			const segTrailing = buildPairs(semItems, pairs, state.text);
 			// Only check multiline keys for implicit mappings (no `?` marker).
 			// Explicit keys (with `?`) are allowed to span multiple lines.
-			const hasExplicitKey = segment.some((c) => c.type === "whitespace" && c.source === "?");
+			const hasExplicitKey = A.some(segment, (c) => c.type === "whitespace" && c.source === "?");
 			if (!hasExplicitKey) {
 				checkMultilineImplicitKeys(pairs, state, semItems);
 			}
@@ -833,7 +841,7 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 			// segment lead it (`commentBefore`); comments after the segment's
 			// item trail it (`comment`).
 			// Keep newlines so flattenFlowChildren can merge multi-line plain scalars
-			const content = segment.filter((c) => !(c.type === "whitespace" && c.source.trim() === ""));
+			const content = A.filter(segment, (c) => !(c.type === "whitespace" && c.source.trim() === ""));
 			const semItems = flattenFlowChildren(content, state);
 			for (const si of semItems) {
 				if (si.kind === "comment") {
@@ -867,9 +875,7 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 	// between the last item and the terminal run embeds as a LEADING empty
 	// line in the joined string.
 	for (const first of pending.slice(0, 1)) {
-		const joined = first.text + pending.slice(1).map(
-			(part) => part.blankAbove ? `\n\n${part.text}` : `\n${part.text}`,
-		).join("");
+		const joined = first.text + pipe(pending.slice(1), A.map((part) => part.blankAbove ? `\n\n${part.text}` : `\n${part.text}`), A.join(""));
 		const withLead =
 			lastItemEnd >= 0 && first.offset >= 0 && hasBlankLineAbove(state.text, first.offset)
 				? `\n${joined}`
@@ -897,4 +903,4 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 
 	if (meta?.anchor !== undefined && meta?.anchor !== "") registerAnchor(seq, meta.anchor, state, cst.offset);
 	return seq;
-}
+});

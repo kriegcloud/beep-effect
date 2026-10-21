@@ -9,7 +9,7 @@ const $I = $ScratchpadId.create("effected/yaml/internal/cst");
 const CstNodeType = LiteralKit([
 	"document", "directive", "comment", "block-map", "block-seq", "flow-map", "flow-seq",
 	"block-scalar", "flow-scalar", "alias", "anchor", "tag", "whitespace", "newline", "error",
-]).annotate($I.annote("CstNodeType", { description: "The fifteen categories produced by the YAML CST parser." }));
+]).pipe($I.annoteSchema("CstNodeType", { description: "The fifteen categories produced by the YAML CST parser." }));
 
 /**
  * The 15 node types produced by the YAML CST parser.
@@ -20,11 +20,11 @@ const CstNodeType = LiteralKit([
 export type CstNodeType = typeof CstNodeType.Type;
 
 const CstNodeFields = S.Struct({
-	type: CstNodeType.annotateKey({ description: "Syntactic category of the raw node." }),
-	source: S.String.annotateKey({ description: "Uninterpreted source slice, including structural punctuation." }),
-	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 offset in the input source." }),
-	length: S.Finite.annotateKey({ description: "Length of the source slice in UTF-16 code units." }),
-}).annotate($I.annote("CstNodeFields", { description: "Non-recursive fields of a concrete syntax node." }));
+	type: CstNodeType.pipe($I.annoteKey("CstNodeFields.type", { description: "Syntactic category of the raw node." })),
+	source: S.String.pipe($I.annoteKey("CstNodeFields.source", { description: "Uninterpreted source slice, including structural punctuation." })),
+	offset: S.Finite.pipe($I.annoteKey("CstNodeFields.offset", { description: "Zero-based UTF-16 offset in the input source." })),
+	length: S.Finite.pipe($I.annoteKey("CstNodeFields.length", { description: "Length of the source slice in UTF-16 code units." })),
+}).pipe($I.annoteSchema("CstNodeFields", { description: "Non-recursive fields of a concrete syntax node." }));
 
 // The recursive knot gives suspend a concrete return type; all other fields
 // and the exported node type are inferred from the structural schemas.
@@ -48,9 +48,8 @@ type RecursiveCstNode = typeof CstNodeFields.Type & {
  */
 export const CstNode = S.Struct({
 	...CstNodeFields.fields,
-	children: S.suspend((): S.Codec<RecursiveCstNode> => CstNode).pipe(S.Array, S.optionalKey)
-		.annotateKey({ description: "Ordered raw children of a container; absent on leaf nodes." }),
-}).annotate($I.annote("CstNode", { description: "Recursive concrete syntax tree preserving every raw source span." }));
+	children: S.suspend((): S.Codec<RecursiveCstNode> => CstNode).pipe(S.Array, S.optionalKey, $I.annoteKey("CstNode.children", { description: "Ordered raw children of a container; absent on leaf nodes." })),
+}).pipe($I.annoteSchema("CstNode", { description: "Recursive concrete syntax tree preserving every raw source span." }));
 
 /**
  * A single YAML CST node: its type, raw source slice, span, and optional

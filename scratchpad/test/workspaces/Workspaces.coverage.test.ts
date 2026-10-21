@@ -1,3 +1,5 @@
+import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
 import { assert, it, vi } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
@@ -12,10 +14,10 @@ it.layer(
   Workspaces.localExecLayer().pipe(
     Layer.provide(
       Layer.succeed(WorkspaceRoot, {
-        find: Effect.fn("WorkspaceRoot.find")((cwd: string) => {
+        find: dual((args) => P.isString(args[0]), Effect.fn("WorkspaceRoot.find")((cwd: string) => {
           calls.push(cwd);
           return Effect.fail(WorkspaceRootNotFoundError.make({ searchPath: cwd, markers: [] }));
-        }),
+        })),
       }),
     ),
     Layer.provide(PackageManagerDetector.layerTest()),

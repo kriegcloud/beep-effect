@@ -43,8 +43,8 @@ const $I = $ScratchpadId.create("effected/lockfiles/ConfigDependencyLock");
  * @since 0.0.0
  */
 export class ConfigDependencyLock extends S.Class<ConfigDependencyLock, { readonly brand: unique symbol }>($I`ConfigDependencyLock`)({
-	name: S.String.annotateKey({ description: "Config dependency package recorded in the pnpm lockfile's env preamble" }),
-	specifier: S.String.annotateKey({ description: "Config dependency specifier recorded verbatim by pnpm, without the legacy inline integrity suffix" }),
-	version: S.String.annotateKey({ description: "Exact config dependency version resolved by pnpm" }),
-	integrity: S.String.annotateKey({ description: "SRI checksum recorded in the env preamble for the resolved config dependency package" }),
+	name: S.String.pipe($I.annoteKey("ConfigDependencyLock.name", { description: "Config dependency package recorded in the pnpm lockfile's env preamble" })),
+	specifier: S.String.pipe($I.annoteKey("ConfigDependencyLock.specifier", { description: "Config dependency specifier recorded verbatim by pnpm, without the legacy inline integrity suffix" })),
+	version: S.String.pipe($I.annoteKey("ConfigDependencyLock.version", { description: "Exact config dependency version resolved by pnpm" })),
+	integrity: S.String.pipe($I.annoteKey("ConfigDependencyLock.integrity", { description: "SRI checksum recorded in the env preamble for the resolved config dependency package" })),
 }, $I.annote("ConfigDependencyLock", { description: "One config dependency a `pnpm-lock.yaml` records, with the integrity pnpm recorded for it — read from the lockfile's env preamble by `PnpmEnvLockfile.configDependencies`." })) {}

@@ -3,7 +3,8 @@ import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import type { Block, RenderContext } from "../../effected/cli/index.ts";
+import { dual } from "effect/Function";
+import type { Block, LinkTarget, RenderContext, Style, TokenName } from "../../effected/cli/index.ts";
 import { Doc, Glyphs, Render, Status } from "../../effected/cli/index.ts";
 import { displayWidth } from "../../effected/cli/internal/displayWidth.ts";
 import { ESC, composite } from "./helpers/hostileDoc.ts";
@@ -54,14 +55,14 @@ describe("Render.plain: no escapes of any kind", () => {
 		Effect.gen(function* () {
 			const calls: Array<string> = [];
 			const out = yield* plain(composite({ codeAndPath: true }), {
-				paint: (_token, text) => {
+				paint: dual(2, (_token: TokenName | Style, text: string): string => {
 					calls.push("paint");
 					return `${ESC}[1m${text}${ESC}[0m`;
-				},
-				link: (_target, label) => {
+				}),
+				link: dual(2, (_target: LinkTarget, label: string): string => {
 					calls.push("link");
 					return `${ESC}]8;;u\u0007${label}${ESC}]8;;\u0007`;
-				},
+				}),
 			});
 			assert.deepStrictEqual(calls, []);
 			assert.notInclude(out, ESC);

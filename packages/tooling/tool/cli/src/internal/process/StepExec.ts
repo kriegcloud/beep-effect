@@ -420,7 +420,7 @@ export const collectBoundedText =
 export const collectText = <E, R>(stream: Stream.Stream<Uint8Array, E, R>): Effect.Effect<string, E, R> =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
+    Stream.runFold(thunkEmptyStr, (acc: string, chunk) => `${acc}${chunk}`)
   );
 
 /**

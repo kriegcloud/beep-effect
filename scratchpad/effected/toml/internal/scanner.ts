@@ -59,9 +59,12 @@ const UPPER_U = 0x55;
 const LOWER_X = 0x78;
 const BOM = 0xfeff;
 
-const raise = (code: TomlErrorCodeRaw, message: string, offset: number, length: number): never => {
+const raise: {
+	(code: TomlErrorCodeRaw, message: string, offset: number, length: number): never;
+	(message: string, offset: number, length: number): (code: TomlErrorCodeRaw) => never;
+} = dual(4, (code: TomlErrorCodeRaw, message: string, offset: number, length: number): never => {
 	throw RawTomlError.make({ code, message, offset, length });
-};
+});
 
 /** `U+XXXX` display form of a char code. */
 const codeLabel = (code: number): string => `U+${code.toString(16).toUpperCase().padStart(4, "0")}`;
@@ -295,7 +298,10 @@ const ESCAPE_LETTERS = { 2: "x", 4: "u", 8: "U" } as const;
  * grammar-sibling of `basic-unescaped`, so the decoded character bypasses the
  * control-character ban by design.
  */
-const decodeUnicodeEscape = (
+const decodeUnicodeEscape: {
+	(source: string, backslash: number, width: 2 | 4 | 8): { readonly codePoint: number; readonly end: number };
+	(backslash: number, width: 2 | 4 | 8): (source: string) => { readonly codePoint: number; readonly end: number };
+} = dual(3, (
 	source: string,
 	backslash: number,
 	width: 2 | 4 | 8,
@@ -315,7 +321,7 @@ const decodeUnicodeEscape = (
 		return raise("InvalidUnicodeEscape", `${codeLabel(codePoint)} is not a Unicode scalar value`, backslash, width + 2);
 	}
 	return { codePoint, end: start + width };
-};
+});
 
 /** The escape width for a unicode-style escape letter, or undefined. */
 const unicodeEscapeWidth = (code: number): 2 | 4 | 8 | undefined =>
@@ -425,7 +431,10 @@ export const scanLiteralString: {
 });
 
 /** Skip a newline immediately after a multiline opening delimiter. */
-const skipLeadingNewline = (source: string, pos: number): number => {
+const skipLeadingNewline: {
+	(source: string, pos: number): number;
+	(pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
 	if (source.charCodeAt(pos) === LF) {
 		return pos + 1;
 	}
@@ -433,10 +442,13 @@ const skipLeadingNewline = (source: string, pos: number): number => {
 		return pos + 2;
 	}
 	return pos;
-};
+});
 
 /** Skip whitespace and newlines after a line-ending backslash's newline. */
-const skipLineEndingTrim = (source: string, pos: number): number => {
+const skipLineEndingTrim: {
+	(source: string, pos: number): number;
+	(pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
 	let i = pos;
 	while (i < source.length) {
 		const code = source.charCodeAt(i);
@@ -454,7 +466,7 @@ const skipLineEndingTrim = (source: string, pos: number): number => {
 		break;
 	}
 	return i;
-};
+});
 
 /**
  * Scan a multiline basic string starting at the opening `"""`.
@@ -615,7 +627,10 @@ export const scanMultilineLiteralString: {
 });
 
 /** Scan one raw token span; NUL anywhere is a lex error. */
-const scanTokenSpan = (source: string, pos: number): number => {
+const scanTokenSpan: {
+	(source: string, pos: number): number;
+	(pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
 	let i = pos;
 	while (i < source.length) {
 		const code = source.charCodeAt(i);
@@ -637,7 +652,7 @@ const scanTokenSpan = (source: string, pos: number): number => {
 		i += 1;
 	}
 	return i;
-};
+});
 
 // Classification regexes (anchored). TOML 1.1 makes seconds optional:
 // `partial-time = time-hour ":" time-minute [ ":" time-second [ time-secfrac ] ]`
@@ -705,27 +720,39 @@ const INT64_MAX = 2n ** 63n - 1n;
 const MAX_SAFE_BIG = 2n ** 53n - 1n;
 
 /** Range-check against int64 and narrow to number when within 2^53-1. */
-const narrowInteger = (big: bigint, token: string, offset: number): number | bigint => {
+const narrowInteger: {
+	(big: bigint, token: string, offset: number): number | bigint;
+	(token: string, offset: number): (big: bigint) => number | bigint;
+} = dual(3, (big: bigint, token: string, offset: number): number | bigint => {
 	if (big < INT64_MIN || big > INT64_MAX) {
 		return raise("IntegerOutOfRange", `${token} does not fit in a signed 64-bit integer`, offset, token.length);
 	}
 	return big >= -MAX_SAFE_BIG && big <= MAX_SAFE_BIG ? Number(big) : big;
-};
+});
 
-const decodeDecimalInteger = (token: string, offset: number): number | bigint => {
+const decodeDecimalInteger: {
+	(token: string, offset: number): number | bigint;
+	(offset: number): (token: string) => number | bigint;
+} = dual(2, (token: string, offset: number): number | bigint => {
 	let digits = token.replace(/_/g, "");
 	if (digits.startsWith("+")) {
 		digits = digits.slice(1);
 	}
 	return narrowInteger(BigInt(digits), token, offset);
-};
+});
 
-const decodePrefixedInteger = (token: string, offset: number): number | bigint =>
-	narrowInteger(BigInt(token.replace(/_/g, "")), token, offset);
+const decodePrefixedInteger: {
+	(token: string, offset: number): number | bigint;
+	(offset: number): (token: string) => number | bigint;
+} = dual(2, (token: string, offset: number): number | bigint =>
+	narrowInteger(BigInt(token.replace(/_/g, "")), token, offset));
 
 const isLeapYear = (year: number): boolean => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
-const validateDate = (year: number, month: number, day: number, offset: number, length: number): void => {
+const validateDate: {
+	(year: number, month: number, day: number, offset: number, length: number): void;
+	(month: number, day: number, offset: number, length: number): (year: number) => void;
+} = dual(5, (year: number, month: number, day: number, offset: number, length: number): void => {
 	if (month < 1 || month > 12) {
 		raise("InvalidDateTime", `month ${month} is out of range 1-12`, offset, length);
 	}
@@ -734,9 +761,12 @@ const validateDate = (year: number, month: number, day: number, offset: number, 
 	if (day < 1 || day > max) {
 		raise("InvalidDateTime", `day ${day} does not exist in month ${month} of ${year}`, offset, length);
 	}
-};
+});
 
-const validateTime = (hour: number, minute: number, second: number, offset: number, length: number): void => {
+const validateTime: {
+	(hour: number, minute: number, second: number, offset: number, length: number): void;
+	(minute: number, second: number, offset: number, length: number): (hour: number) => void;
+} = dual(5, (hour: number, minute: number, second: number, offset: number, length: number): void => {
 	if (hour > 23) {
 		raise("InvalidDateTime", `hour ${hour} is out of range 0-23`, offset, length);
 	}
@@ -746,14 +776,17 @@ const validateTime = (hour: number, minute: number, second: number, offset: numb
 	if (second > 60) {
 		raise("InvalidDateTime", `second ${second} is out of range 0-60`, offset, length);
 	}
-};
+});
 
 /** Right-pad or truncate fractional-second digits to exactly nine → nanoseconds. */
 const decodeNanosecond = (fraction: string | undefined): number =>
 	fraction === undefined ? 0 : Number(`${fraction}000000000`.slice(0, 9));
 
 /** Decode `Z` / `z` / `[+-]hh:mm` to signed minutes, validating hh and mm. */
-const decodeOffsetMinutes = (text: string, offset: number, length: number): number => {
+const decodeOffsetMinutes: {
+	(text: string, offset: number, length: number): number;
+	(offset: number, length: number): (text: string) => number;
+} = dual(3, (text: string, offset: number, length: number): number => {
 	if (text === "Z" || text === "z") {
 		return 0;
 	}
@@ -770,7 +803,7 @@ const decodeOffsetMinutes = (text: string, offset: number, length: number): numb
 		return 0;
 	}
 	return text.charCodeAt(0) === HYPHEN ? -total : total;
-};
+});
 
 /**
  * Classify a scanned value token: booleans, the four datetime

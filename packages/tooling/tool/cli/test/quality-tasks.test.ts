@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   CiLaneRunOptions,
   CiLocalStepPlan,
@@ -381,9 +381,7 @@ const withEnvVarEffect = <Out, E, R>(
 const isTurboConcurrencyArg = (arg: string): boolean =>
   arg === "--concurrency" || Str.startsWith("--concurrency=")(arg);
 
-// lab-apps-lifecycle P2 (ratified row 9): the exact filter literal every
-// excluded root turbo task must carry, inserted before any `--` passthrough
-// tail so it stays a turbo option instead of leaking into the child task argv.
+// The retired exclusion must never return to root task command plans.
 const LABS_EXCLUDE_FILTER = "--filter=!./apps/labs/**";
 
 const policyTurboStep = (
@@ -408,32 +406,6 @@ const expectSweepConfigurationFailure = Effect.fnUntraced(function* (root: strin
   expect(error.message).toContain(`${root}/standards/lint-policy.sweeps.jsonc`);
 });
 const policyTurboScmBase = (step: QualityTaskStep): string | undefined => step.env?.TURBO_SCM_BASE;
-const LABS_EXCLUDED_TASKS: ReadonlyArray<string> = [
-  "check",
-  "lint",
-  "lint:fix",
-  "test",
-  "test:integration",
-  "test:integration:parallel",
-  "test:integration:serial",
-  "coverage",
-];
-const withExpectedLabsExclude = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> => {
-  if (!A.contains(LABS_EXCLUDED_TASKS, task) || A.contains(args, LABS_EXCLUDE_FILTER)) {
-    return args;
-  }
-  return pipe(
-    A.findFirstIndex(args, (arg) => arg === "--"),
-    O.match({
-      onNone: (): ReadonlyArray<string> => [...args, LABS_EXCLUDE_FILTER],
-      onSome: (index) => {
-        const [head, tail] = A.splitAt(args, index);
-        return [...head, LABS_EXCLUDE_FILTER, ...tail];
-      },
-    })
-  );
-};
-
 // The cache posture itself is proven in `turbo-cache.test.ts`; these step
 // assertions prove that whatever the resolver decides is what reaches turbo.
 // Deriving it keeps them green on a checkout configured for remote reads
@@ -445,7 +417,7 @@ const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyA
   "run",
   task,
   ...expectedTurboCacheArgs(args),
-  ...withExpectedLabsExclude(task, args),
+  ...args,
 ];
 const expectedRootTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> =>
   expectedTurboArgs(
@@ -577,7 +549,7 @@ const policyStepCommand = (step: QualityTaskStep) => {
       ? [
           "bun",
           "--no-env-file",
-          fileURLToPath(new URL("../src/bin.ts", import.meta.url)),
+          NodeURL.fileURLToPath(new URL("../src/bin.ts", import.meta.url)),
           "cache",
           "execute",
           "--",
@@ -5168,6 +5140,31 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(A.map(result.followUpDebt, (entry) => entry.packageName)).toEqual(["@beep/debt"]);
     });
 
+    it("enforces committed coverage floors for labs above the repository minimum", () => {
+      const packageName = "@beep/lab";
+      const packagePath = "apps/labs/lab";
+      const baseline = CoverageRegressionBaseline.make({
+        ...coverageRegressionBaseline,
+        packages: { [packageName]: coveragePackageBaseline(packagePath, 90) },
+      });
+      const result = compareCoverageRegressionSnapshotsForTesting(
+        baseline,
+        [
+          CoverageSnapshotEntry.make({
+            packageName,
+            baseline: CoveragePackageBaseline.make({
+              ...coveragePackageBaseline(packagePath, 80),
+              uncovered: coverageUncovered(1),
+            }),
+          }),
+        ],
+        false
+      );
+
+      expect(result.minimumFailures).toEqual([]);
+      expect(A.map(result.failures, (failure) => failure._tag)).toEqual(A.makeBy(4, () => "baseline-drop"));
+    });
+
     it("requires every workspace package to have coverage or a named exemption", () => {
       expect(
         coverageDispositionGapsForTesting(
@@ -5268,7 +5265,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         });
       });
 
-      it("walks through lab and coverage-less dependents without selecting them, and never seeds from a lab", () => {
+      it("includes labs while walking through coverage-less dependents", () => {
         const owners = [
           owner("core"),
           owner("no-coverage", { hasCoverage: false, dependsOn: ["core"] }),
@@ -5277,8 +5274,16 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           owner("showcase", { dependsOn: ["demo"] }),
         ];
 
-        expect(coverageDependentOwners(owners, ["@beep/core"])).toEqual(["@beep/product", "@beep/showcase"]);
-        expect(planCoverageAffectedScope(owners, ["apps/labs/demo/src/App.tsx"])).toEqual({ _tag: "noop" });
+        expect(coverageDependentOwners(owners, ["@beep/core"])).toEqual([
+          "@beep/demo",
+          "@beep/product",
+          "@beep/showcase",
+        ]);
+        expect(planCoverageAffectedScope(owners, ["apps/labs/demo/src/App.tsx"])).toEqual({
+          _tag: "selected",
+          packageNames: ["@beep/demo", "@beep/showcase"],
+          dependentPackageNames: ["@beep/showcase"],
+        });
       });
 
       it("does not seed dependents from a repository fixture owned by a package's tests", () => {
@@ -5437,7 +5442,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         ).toBe("noop");
       });
 
-      it("rejects a registered fixture consumer in labs even with a coverage script", () => {
+      it("selects a registered fixture consumer in labs with a coverage script", () => {
         const owners = [
           CoverageScopeOwner.make({
             packageName: "@beep/repo-cli",
@@ -5446,8 +5451,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           }),
         ];
         const files = ["goals/fallow-quality-enforcement/research/feature-matrix.jsonc"];
-        expect(planCoverageAffectedScope(owners, files)._tag).toBe("full");
-        expect(changedCoverageOwners(owners, files)).toEqual([]);
+        expect(planCoverageAffectedScope(owners, files)).toEqual({
+          _tag: "selected",
+          packageNames: ["@beep/repo-cli"],
+          dependentPackageNames: [],
+        });
+        expect(changedCoverageOwners(owners, files)).toEqual(["@beep/repo-cli"]);
       });
 
       it("registers only coverage-executed drizzle fixture consumers", () => {
@@ -5565,7 +5574,6 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             "build",
             "--concurrency=4",
             "--summarize",
-            LABS_EXCLUDE_FILTER,
             "--filter=@beep/repo-cli",
             "--filter=@beep/a",
             "--filter=@beep/b",
@@ -6857,7 +6865,6 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "build",
           "--concurrency=4",
           "--summarize",
-          LABS_EXCLUDE_FILTER,
           "--force",
           "--remote-only",
           "--output-logs=errors-only",
@@ -8405,16 +8412,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
     );
   });
 
-  // lab-apps-lifecycle P2 (ratified row 9): the labs exclude filter is injected
-  // at the Tasks.ts turboRunArgs funnel AFTER owned-arg parsing, so it must
-  // appear in every excluded task's final argv without demoting repo-wide steps,
-  // flipping coverage into its scoped shape, or leaking past a `--` passthrough.
-  describe("labs turbo exclusion", () => {
+  describe("labs in root quality tasks", () => {
     const argsOf = (step: QualityTaskStep | undefined): ReadonlyArray<string> => [...(step?.args ?? [])];
-
-    const expectEndsWithLabsExclude = (step: QualityTaskStep | undefined): void => {
-      expect(A.takeRight(argsOf(step), 1)).toEqual([LABS_EXCLUDE_FILTER]);
-    };
 
     const argIndexOf = (args: ReadonlyArray<string>, target: string): number =>
       pipe(
@@ -8422,46 +8421,51 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         O.getOrElse(() => -1)
       );
 
-    it("ends check argvs with the labs exclude while repo-wide tsgo steps survive", () => {
+    it("includes labs in check while repo-wide tsgo steps survive", () => {
       for (const argv of [["check", "--affected", "--summarize"], ["check"]]) {
         const steps = rootQualityStepsForTesting("/repo", getInvocation(argv));
         expect(A.map(steps, (step) => step.label)).toEqual(["check", "quality:test-tsgo", "quality:tsgo-smoke"]);
-        expectEndsWithLabsExclude(steps[0]);
+        expect(argsOf(steps[0])).not.toContain(LABS_EXCLUDE_FILTER);
       }
     });
 
-    it("ends lint and scoped coverage argvs with the labs exclude", () => {
-      expectEndsWithLabsExclude(
-        rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]))[0]
-      );
-      expectEndsWithLabsExclude(rootQualityStepsForTesting("/repo", getInvocation(["lint"]))[0]);
+    it("includes labs in check, lint and lint:fix, including explicit labs selections", () => {
+      for (const argv of [["check"], ["lint"], ["lint", "--fix"]]) {
+        for (const options of [[], ["--affected", "--summarize"], ["--filter=./apps/labs/**"]]) {
+          const steps = rootQualityStepsForTesting("/repo", getInvocation([...argv, ...options]));
+          const args = argsOf(steps[0]);
+          expect(args).not.toContain(LABS_EXCLUDE_FILTER);
+          for (const option of options) {
+            expect(args).toContain(option);
+          }
+        }
+      }
+    });
 
-      // Coverage argvs end with the Vitest topology passthrough, so the labs
-      // exclude is the last turbo-owned argument instead of the last argument.
+    it("includes labs in scoped coverage argvs", () => {
       const coverage = withEnvVar("BEEP_FC_SEED", undefined, () =>
         withEnvVar("NODE_OPTIONS", undefined, () => [coverageStepOf([])])
       );
       const coverageArgs = argsOf(coverage[0]);
-      expect(argIndexOf(coverageArgs, LABS_EXCLUDE_FILTER)).toBeGreaterThan(-1);
-      expect(argIndexOf(coverageArgs, "--")).toBe(argIndexOf(coverageArgs, LABS_EXCLUDE_FILTER) + 1);
+      expect(coverageArgs).not.toContain(LABS_EXCLUDE_FILTER);
+      expect(argIndexOf(coverageArgs, "--")).toBeGreaterThan(-1);
     });
 
-    it("composes an explicit user filter with the labs exclude while still dropping repo-wide steps", () => {
+    it("preserves an explicit check filter while still dropping repo-wide steps", () => {
       const steps = rootQualityStepsForTesting("/repo", getInvocation(["check", "--filter=@beep/schema"]));
       expect(steps).toHaveLength(1);
       expect(argsOf(steps[0])).toContain("--filter=@beep/schema");
-      expectEndsWithLabsExclude(steps[0]);
+      expect(argsOf(steps[0])).not.toContain(LABS_EXCLUDE_FILTER);
     });
 
-    it("keeps the labs exclude ahead of the coverage vitest passthrough and inside every shard", () => {
+    it("includes labs in coverage prebuilds and every shard", () => {
       const baseline = withEnvVar("BEEP_FC_SEED", undefined, () =>
         withEnvVar("NODE_OPTIONS", undefined, () => [coverageStepOf(["--", "--write-baseline", "--concurrency=1"])])
       );
       const baselineArgs = argsOf(baseline[0]);
-      const filterIndex = argIndexOf(baselineArgs, LABS_EXCLUDE_FILTER);
       const delimiterIndex = argIndexOf(baselineArgs, "--");
-      expect(filterIndex).toBeGreaterThan(-1);
-      expect(delimiterIndex).toBeGreaterThan(filterIndex);
+      expect(baselineArgs).not.toContain(LABS_EXCLUDE_FILTER);
+      expect(delimiterIndex).toBeGreaterThan(-1);
 
       const fullSteps = coverageFullStepsForTesting(
         "/repo",
@@ -8479,13 +8483,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         ],
         []
       );
-      expect(argsOf(fullSteps[0])).toContain(LABS_EXCLUDE_FILTER);
+      expect(argsOf(fullSteps[0])).not.toContain(LABS_EXCLUDE_FILTER);
       for (const step of A.drop(fullSteps, 1)) {
         const shardArgs = argsOf(step);
-        const shardFilterIndex = argIndexOf(shardArgs, LABS_EXCLUDE_FILTER);
         const shardDelimiterIndex = argIndexOf(shardArgs, "--");
-        expect(shardFilterIndex).toBeGreaterThan(-1);
-        expect(shardDelimiterIndex).toBeGreaterThan(shardFilterIndex);
+        expect(shardArgs).not.toContain(LABS_EXCLUDE_FILTER);
+        expect(shardDelimiterIndex).toBeGreaterThan(-1);
         expect(A.some(shardArgs, Str.startsWith("--filter=@beep/"))).toBe(true);
       }
     });

@@ -25,11 +25,10 @@ describe("PackageManagerRange.FromString", () => {
 	it("annotates the reusable range check without broadening component validation", () => {
 		const $I = $ScratchpadId.create("effected/package-json/PackageManagerRange");
 		const range = PackageManagerRange.fields.range;
-		assert.deepStrictEqual(range.ast.checks?.[0]?.annotations, {
-			identifier: $I`SemVerRangeStringCheck`,
-			title: "Non-empty SemVer Range",
+		assert.deepStrictEqual(range.ast.checks?.[0]?.annotations, $I.annote("SemVerRangeStringCheck", {
+			message: "Non-empty SemVer Range",
 			description: "A non-empty string that parses as a semver range, including exact versions, caret or tilde ranges, and comparator sets.",
-		});
+		}));
 		for (const value of ["11.2.0", "^11.20.0", ">=10 <12", "*"]) {
 			assert.isTrue(S.is(range)(value), value);
 		}

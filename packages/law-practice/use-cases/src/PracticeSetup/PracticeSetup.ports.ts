@@ -196,13 +196,13 @@ export class SetupApprovalsShape extends S.Opaque<SetupApprovalsShape, { readonl
  * **Example** (Approve every repair in a test)
  *
  * ```ts
- * import { SetupApprovals, SetupApprovalsShape } from "@beep/law-practice-use-cases/PracticeSetup"
+ * import { RepairDecision, SetupApprovals, SetupApprovalsShape } from "@beep/law-practice-use-cases/PracticeSetup"
  * import * as Effect from "effect/Effect"
  * import * as Layer from "effect/Layer"
  *
  * const ApproveAll = Layer.succeed(
  *   SetupApprovals,
- *   SetupApprovalsShape.make({ approveRepair: () => Effect.succeed("approved" as const) })
+ *   SetupApprovalsShape.make({ approveRepair: () => Effect.succeed<RepairDecision>("approved") })
  * )
  * console.log(Layer.isLayer(ApproveAll))
  * ```
@@ -218,10 +218,10 @@ export class SetupApprovals extends Context.Service<SetupApprovals, SetupApprova
  * **Example** (Always decline)
  *
  * ```ts
- * import { makeSetupApprovals } from "@beep/law-practice-use-cases/PracticeSetup"
+ * import { makeSetupApprovals, RepairDecision } from "@beep/law-practice-use-cases/PracticeSetup"
  * import * as Effect from "effect/Effect"
  *
- * const shape = makeSetupApprovals(() => Effect.succeed("declined" as const))
+ * const shape = makeSetupApprovals(() => Effect.succeed<RepairDecision>("declined"))
  * console.log(typeof shape.approveRepair)
  * ```
  *

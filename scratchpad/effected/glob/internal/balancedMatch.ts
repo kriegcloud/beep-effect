@@ -44,10 +44,13 @@ export interface BalancedResult {
 	readonly post: string;
 }
 
-const maybeMatch = (reg: RegExp, str: string): string | null => {
+const maybeMatch: {
+	(reg: RegExp, str: string): string | null;
+	(str: string): (reg: RegExp) => string | null;
+} = dual(2, (reg: RegExp, str: string): string | null => {
 	const m = str.match(reg);
 	return m !== null ? m[0] : null;
-};
+});
 
 /**
  * Finds the first balanced `a ... b` section of `str`, including its delimiter

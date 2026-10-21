@@ -25,9 +25,9 @@ const $I = $ScratchpadId.create("effected/cli/internal/ExitRequested");
 export class ExitRequested extends S.TaggedError<ExitRequested, { readonly brand: unique symbol }>($I`ExitRequested`)(
 	"ExitRequested",
 	{
-		code: S.Finite.annotate({ description: "The non-zero exit code recorded by a successful CLI program." }),
+		code: S.Finite.pipe($I.annoteKey("ExitRequested.code", { description: "The non-zero exit code recorded by a successful CLI program." })),
 	},
-	$I.annote("ExitRequested", { description: "A successful CLI program requested a non-zero process exit without a failure report." }),
+	$I.annoteError<ExitRequested>("ExitRequested", { description: "A successful CLI program requested a non-zero process exit without a failure report." }),
 ) {
 	override readonly name = "ExitRequested";
 	override readonly [Runtime.errorReported] = false;

@@ -6,7 +6,7 @@
  * @since 0.0.0
  */
 
-import { createRequire } from "node:module";
+import * as NodeModule from "node:module";
 import { $OcctId } from "@beep/identity/packages";
 import { A } from "@beep/utils";
 import * as Context from "effect/Context";
@@ -25,7 +25,7 @@ import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { EdgeSet, ModelSummary } from "./Occt.models.ts";
 
 const $I = $OcctId.create("Occt.service");
-const require = createRequire(import.meta.url);
+const require = NodeModule.createRequire(import.meta.url);
 const validateProjectionRequest = S.decodeUnknownEffect(S.toType(ProjectionRequest));
 const validateModelSpec = S.decodeUnknownEffect(S.toType(ModelSpec));
 const PackageVersion = S.fromJsonString(S.Struct({ version: S.NonEmptyString }));

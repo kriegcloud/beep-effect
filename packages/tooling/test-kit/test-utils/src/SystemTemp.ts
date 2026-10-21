@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import { platform } from "node:os";
-import { env } from "node:process";
+import * as NodeProcess from "node:process";
+import { currentHostPlatform } from "@beep/utils";
 
 const WINDOWS_SYSTEM_ROOT_FALLBACK = "C:\\Windows";
 const POSIX_SYSTEM_TEMP_ROOT = "/tmp";
@@ -83,4 +83,4 @@ export const privacySafeSystemTempRootForTesting = (options: PrivacySafeSystemTe
  * @since 0.0.0
  */
 export const privacySafeSystemTempRoot = (): string =>
-  privacySafeSystemTempRootForTesting({ environment: env, runtimePlatform: platform() });
+  privacySafeSystemTempRootForTesting({ environment: NodeProcess.env, runtimePlatform: currentHostPlatform });

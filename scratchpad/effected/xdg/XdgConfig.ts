@@ -7,6 +7,7 @@ import * as Path from "effect/Path";
 import { AppDirs } from "./AppDirs.ts";
 import { NativeDirs } from "./NativeDirs.ts";
 import { CurrentPlatform, Xdg } from "./Xdg.ts";
+import * as A from "effect/Array";
 
 // Implementation of XdgConfig.resolver; the public contract lives on the static.
 const resolver = (options: {
@@ -17,7 +18,7 @@ const resolver = (options: {
 		const appDirs = yield* AppDirs;
 		const path = yield* Path.Path;
 		const fs = yield* FileSystem.FileSystem;
-		const candidates = appDirs.dirs.configSearchPath.map((dir) => path.join(dir, options.filename));
+		const candidates = A.map(appDirs.dirs.configSearchPath, (dir) => path.join(dir, options.filename));
 		return yield* Walker.firstMatch(candidates, (candidate) => fs.exists(candidate));
 	}),
 });

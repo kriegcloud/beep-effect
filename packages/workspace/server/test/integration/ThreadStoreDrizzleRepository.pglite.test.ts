@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { Document, P, Text } from "@beep/md";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { CuidState } from "@beep/schema/Cuid";
@@ -28,7 +28,7 @@ import * as Str from "effect/String";
 
 const decodeThread = S.decodeEffect(Thread);
 
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
 
 // The db-admin drizzle folder now contains `CREATE EXTENSION btree_gist`, which

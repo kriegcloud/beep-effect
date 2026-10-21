@@ -20,7 +20,7 @@ import * as Result from "effect/Result";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as SchemaAST from "effect/SchemaAST";
-import { flow } from "effect/Function";
+import { flow, dual } from "effect/Function";
 import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/github-actions/GitHubMarkdown");
@@ -79,8 +79,8 @@ export const GitHubListOptions = S.Struct({
 	 *  Render `1.`-numbered items instead of bullets.
 	 * @since 0.0.0
 	 */
-	ordered: S.optional(S.Boolean).annotateKey({ description: "Render numbered items instead of bullets." }),
-}).annotate($I.annote("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }));
+	ordered: S.optionalKey(S.Boolean).pipe($I.annoteKey("GitHubListOptions.ordered", { description: "Render numbered items instead of bullets." })),
+}).pipe($I.annoteSchema("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }));
 /**
  * Decoded list options, with an optional flag for numbered items.
  *
@@ -352,7 +352,10 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static table(headers: ReadonlyArray<string>, rows: ReadonlyArray<ReadonlyArray<string>>): string {
+	static readonly table: {
+		(headers: ReadonlyArray<string>, rows: ReadonlyArray<ReadonlyArray<string>>): string;
+		(rows: ReadonlyArray<ReadonlyArray<string>>): (headers: ReadonlyArray<string>) => string;
+	} = dual(2, (headers: ReadonlyArray<string>, rows: ReadonlyArray<ReadonlyArray<string>>): string => {
 		// A raw newline inside a cell terminates the GFM row — the same
 		// corruption class the pipe escaping exists to prevent, reachable
 		// through a multi-line `format` result or a multi-line value. GitHub
@@ -364,8 +367,8 @@ export abstract class GitHubMarkdown {
 					TableCell.make({ children: [passthrough(inline(values[index] ?? ""))] }),
 				),
 			});
-		return block(Table.make({ children: [cells(headers), ...rows.map(cells)] }));
-	}
+		return block(Table.make({ children: [cells(headers), ...A.map(rows, cells)] }));
+	});
 
 	/**
 	 * A GFM table whose columns are defined ONCE by a row schema.
@@ -434,7 +437,7 @@ export abstract class GitHubMarkdown {
 			: [options: GitHubSchemaTableOptions<RowSchema["fields"]>]
 	): GitHubSchemaTable<RowSchema["Type"]> {
 		const overrides: unknown = options[0]?.columns ?? {};
-		const columns: ReadonlyArray<ColumnRuntime> = R.toEntries(schema.fields).map(([key, field]) => {
+		const columns: ReadonlyArray<ColumnRuntime> = A.map(R.toEntries(schema.fields), ([key, field]) => {
 			const column = P.hasProperty(overrides, key) ? overrides[key] : undefined;
 			const format = P.hasProperty(column, "format") && P.isFunction(column.format) ? column.format : undefined;
 			const header = P.hasProperty(column, "header") && P.isString(column.header) ? column.header : undefined;
@@ -455,12 +458,12 @@ export abstract class GitHubMarkdown {
 				cell: (value: unknown): string => (value === undefined ? "" : project(value)),
 			};
 		});
-		const headers = columns.map((column) => column.header);
+		const headers = A.map(columns, (column) => column.header);
 		return {
 			render: (rows: ReadonlyArray<RowSchema["Type"]>): string =>
 				GitHubMarkdown.table(
 					headers,
-					rows.map((row) => columns.map((column) => column.cell(P.hasProperty(row, column.key) ? row[column.key] : undefined))),
+					A.map(rows, (row) => A.map(columns, (column) => column.cell(P.hasProperty(row, column.key) ? row[column.key] : undefined))),
 				),
 		};
 	}
@@ -478,9 +481,13 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static heading(text: string, level: GitHubHeadingDepth = 2): string {
-		return `${Str.repeat(level)("#")} ${Str.replace(/\r\n|\r|\n/g, "<br>")(text)}`;
-	}
+	static readonly heading: {
+		(text: string, level?: GitHubHeadingDepth): string;
+		(level?: GitHubHeadingDepth): (text: string) => string;
+	} = dual(
+		(args) => P.isString(args[0]),
+		(text: string, level: GitHubHeadingDepth = 2): string => `${Str.repeat(level)("#")} ${Str.replace(/\r\n|\r|\n/g, "<br>")(text)}`,
+	);
 
 	/**
 	 *  A link. URLs the destination cannot carry raw are angle-bracketed.
@@ -495,9 +502,11 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static link(text: string, url: string): string {
-		return block(Paragraph.make({ children: [Link.make({ url, children: [passthrough(escapeLinkLabel(text))] })] }));
-	}
+	static readonly link: {
+		(text: string, url: string): string;
+		(url: string): (text: string) => string;
+	} = dual(2, (text: string, url: string): string =>
+		block(Paragraph.make({ children: [Link.make({ url, children: [passthrough(escapeLinkLabel(text))] })] })));
 
 	/**
 	 *  Inline code. Content containing backticks widens the delimiter.
@@ -562,7 +571,10 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static list(items: ReadonlyArray<string>, options?: GitHubListOptions): string {
+	static readonly list: {
+		(items: ReadonlyArray<string>, options?: GitHubListOptions): string;
+		(options?: GitHubListOptions): (items: ReadonlyArray<string>) => string;
+	} = dual((args) => A.isArray(args[0]), (items: ReadonlyArray<string>, options?: GitHubListOptions): string => {
 		const ordered = options?.ordered ?? false;
 		return block(
 			List.make({
@@ -571,7 +583,7 @@ export abstract class GitHubMarkdown {
 				children: A.map(items, (item) => ListItem.make({ children: [passthrough(Str.replace(/\r\n|\r/g, "\n")(item))] })),
 			}),
 		);
-	}
+	});
 
 	/**
 	 * A collapsible `<details>` block.
@@ -594,9 +606,10 @@ export abstract class GitHubMarkdown {
 	 *
 	 * @since 0.0.0
 	 */
-	static details(summary: string, body: string): string {
-		return `<details>\n<summary>${summary}</summary>\n\n${body}\n\n</details>`;
-	}
+	static readonly details: {
+		(summary: string, body: string): string;
+		(body: string): (summary: string) => string;
+	} = dual(2, (summary: string, body: string): string => `<details>\n<summary>${summary}</summary>\n\n${body}\n\n</details>`);
 
 	/**
 	 * Pre-rendered markdown, passed through by name.

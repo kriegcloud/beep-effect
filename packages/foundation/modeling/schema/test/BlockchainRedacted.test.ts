@@ -8,8 +8,10 @@ import {
 import { EvmAddressRedacted } from "@beep/schema/EvmAddress";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
@@ -26,6 +28,24 @@ const validatorPublicKey =
 const transactionHash = "0xabababababababababababababababababababababababababababababababab";
 
 describe("blockchain redacted schemas", () => {
+  it.effect(
+    "rejects a Bitcoin witness address with a corrupted checksum before redacting it",
+    Effect.fnUntraced(function* () {
+      const invalidChecksum = "bc1qqypqxpq9qcrsszg2pvxq6rs0zqg3yyc5fcj4z4";
+      const result = yield* Effect.exit(decodeCryptoWalletAddressRedactedEffect(invalidChecksum));
+
+      result.pipe(Exit.isFailure, assertTrue);
+    })
+  );
+
+  it("constructs redacted wallet addresses only after validating the canonical address", () => {
+    const walletAddress = CryptoWalletAddressRedacted.makeRedacted(bitcoinAddress);
+
+    expect(Redacted.value(walletAddress)).toBe(bitcoinAddress);
+    expect(String(walletAddress)).toBe("<redacted>");
+    expect(() => CryptoWalletAddressRedacted.makeRedacted("invalid-wallet-address")).toThrow();
+  });
+
   it.effect(
     "decode canonical blockchain identifiers into redacted values",
     Effect.fnUntraced(function* () {

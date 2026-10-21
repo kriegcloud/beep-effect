@@ -6,13 +6,13 @@ import { Section, SectionId } from "./Section.ts";
 const $I = $ScratchpadId.create("effected/templates/SectionOutcome");
 
 const syncVariants = S.TaggedUnion({
-	Created: { section: S.suspend(() => Section).annotateKey({ description: "The section added to the document." }) },
+	Created: { section: S.suspend(() => Section).pipe($I.annoteKey("SyncOutcome.Created.section", { description: "The section added to the document." })) },
 	Updated: {
-		before: S.suspend(() => Section).annotateKey({ description: "The previous section." }),
-		after: S.suspend(() => Section).annotateKey({ description: "The declared replacement." }),
+		before: S.suspend(() => Section).pipe($I.annoteKey("SyncOutcome.Updated.before", { description: "The previous section." })),
+		after: S.suspend(() => Section).pipe($I.annoteKey("SyncOutcome.Updated.after", { description: "The declared replacement." })),
 	},
-	Unchanged: { section: S.suspend(() => Section).annotateKey({ description: "The section already matching the declaration." }) },
-}).annotate($I.annote("SyncOutcome", { description: "What a sync did to one declared section." }));
+	Unchanged: { section: S.suspend(() => Section).pipe($I.annoteKey("SyncOutcome.Unchanged.section", { description: "The section already matching the declaration." })) },
+}).pipe($I.annoteSchema("SyncOutcome", { description: "What a sync did to one declared section." }));
 
 /**
  * What a sync did to one declared section.
@@ -55,13 +55,13 @@ class SyncOutcomeStatics extends syncBase {
 export const SyncOutcome = SyncOutcomeStatics;
 
 const checkVariants = S.TaggedUnion({
-	Absent: { id: S.suspend(() => SectionId).annotateKey({ description: "The absent section identity." }) },
-	UpToDate: { section: S.suspend(() => Section).annotateKey({ description: "The section already matching the declaration." }) },
+	Absent: { id: S.suspend(() => SectionId).pipe($I.annoteKey("CheckOutcome.Absent.id", { description: "The absent section identity." })) },
+	UpToDate: { section: S.suspend(() => Section).pipe($I.annoteKey("CheckOutcome.UpToDate.section", { description: "The section already matching the declaration." })) },
 	Drifted: {
-		onDisk: S.suspend(() => Section).annotateKey({ description: "The current section in the document." }),
-		expected: S.suspend(() => Section).annotateKey({ description: "The expected declaration." }),
+		onDisk: S.suspend(() => Section).pipe($I.annoteKey("CheckOutcome.Drifted.onDisk", { description: "The current section in the document." })),
+		expected: S.suspend(() => Section).pipe($I.annoteKey("CheckOutcome.Drifted.expected", { description: "The expected declaration." })),
 	},
-}).annotate($I.annote("CheckOutcome", { description: "What a check found without changing the document." }));
+}).pipe($I.annoteSchema("CheckOutcome", { description: "What a check found without changing the document." }));
 
 /**
  * What a check found without changing the document.

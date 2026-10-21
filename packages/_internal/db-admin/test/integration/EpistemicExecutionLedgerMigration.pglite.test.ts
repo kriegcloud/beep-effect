@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { DbSchema as EpistemicDbSchema } from "@beep/epistemic-tables";
 import { makeDrizzle, migrate } from "@beep/postgres";
 import { it } from "@beep/test-runner";
@@ -15,7 +15,7 @@ import * as Order from "effect/Order";
 import * as SqlClient from "effect/sql/SqlClient";
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../drizzle", import.meta.url));
 
 // The drizzle folder contains `CREATE EXTENSION btree_gist` (the epistemic edge
 // migration's gist exclusion constraint), which the shared external
@@ -152,7 +152,7 @@ if (!shouldRunPgliteIntegration) {
             UPDATE epistemic_execution_decision SET destination_digest = ${digest("9")} WHERE seq = 0
           `);
 
-          expect(inspect(mutation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");
         }),
         120_000
       );

@@ -25,7 +25,7 @@ import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { constFalse, dual, pipe } from "effect/Function";
+import { constFalse, dual, flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
@@ -121,13 +121,11 @@ type EditRow = typeof ExplorationManifestEdit.Encoded;
 const conflictRow = (reason: ConflictRow["reason"], message: string, child?: string): ConflictRow =>
   child === undefined ? { reason, message } : { reason, child, message };
 
-const provenanceOf = (manifestText: O.Option<string>): O.Option<string> =>
-  pipe(
-    manifestText,
-    O.flatMap(parseGoalManifestText),
-    O.flatMap(decodeProvenance),
-    O.map((probe) => probe.provenance.exploration)
-  );
+const provenanceOf: (manifestText: O.Option<string>) => O.Option<string> = flow(
+  O.flatMap(parseGoalManifestText),
+  O.flatMap(decodeProvenance),
+  O.map((probe) => probe.provenance.exploration)
+);
 
 const readOptionalBytes = Effect.fn("Explore.readOptionalManifestBytes")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;

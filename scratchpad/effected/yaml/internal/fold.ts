@@ -3,6 +3,10 @@
 // scalars, plus the whitespace analyses that decide when block styles cannot
 // represent a value faithfully.
 
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
+
 /**
  * Folds a logical scalar line at safe spaces while preserving its YAML value.
  *
@@ -145,7 +149,7 @@ export function foldRenderedScalar(
 				out.push(line);
 			}
 		}
-		return out.join("\n");
+		return A.join(out, "\n");
 	}
 	if (first === '"') {
 		const inner = rendered.slice(1, -1);
@@ -378,9 +382,9 @@ export function renderBlockLiteral(
 	//   ambiguous without an explicit indicator. Block-seq items (JEF9) do
 	//   not get the indicator — there the `-` already anchors the entry.
 	let indentIndicator = "";
-	const firstContent = lines.find((l) => l !== "");
-	const hasContent = firstContent !== undefined;
-	if (firstContent?.startsWith(" ") === true || (lines.length > 0 && lines[0] === "" && hasContent)) {
+	const firstContent = A.findFirst(lines, (l) => l !== "");
+	const hasContent = O.isSome(firstContent);
+	if (O.exists(firstContent, (l) => l.startsWith(" ")) || (lines.length > 0 && lines[0] === "" && hasContent)) {
 		indentIndicator = String(indent.length);
 	} else if (!hasContent && chomp === "+" && parentPosition === "block-map-value" && indent.length > 0) {
 		indentIndicator = String(indent.length);
@@ -391,7 +395,7 @@ export function renderBlockLiteral(
 		indentIndicator = String(explicitIndent);
 	}
 	if (indentIndicator !== "" && (indent.length < 1 || indent.length > 9)) return null;
-	return `|${indentIndicator}${chomp}\n${lines.map((l) => (l === "" ? "" : `${indent}${l}`)).join("\n")}`;
+	return `|${indentIndicator}${chomp}\n${pipe(lines, A.map((l) => (l === "" ? "" : `${indent}${l}`)), A.join("\n"))}`;
 }
 
 /**
@@ -460,10 +464,10 @@ export function renderBlockFolded(
 	// the indent, but multiple leading blanks introduce enough ambiguity
 	// that libyaml's canonical form emits the explicit indicator.
 	let indentIndicator = "";
-	const firstContent = valueLines.find((l) => l !== "");
+	const firstContent = A.findFirst(valueLines, (l) => l !== "");
 	if (
-		firstContent?.startsWith(" ") === true ||
-		(valueLines.length >= 2 && valueLines[0] === "" && valueLines[1] === "" && firstContent !== undefined)
+		O.exists(firstContent, (l) => l.startsWith(" ")) ||
+		(valueLines.length >= 2 && valueLines[0] === "" && valueLines[1] === "" && O.isSome(firstContent))
 	) {
 		indentIndicator = String(indent.length);
 	} else if (explicitIndent !== undefined && explicitIndent === indent.length) {
@@ -540,5 +544,5 @@ export function renderBlockFolded(
 		}
 	}
 
-	return `>${indentIndicator}${chomp}\n${outputLines.join("\n")}`;
+	return `>${indentIndicator}${chomp}\n${A.join(outputLines, "\n")}`;
 }

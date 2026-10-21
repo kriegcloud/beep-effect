@@ -56,6 +56,7 @@ import * as Stream from "effect/Stream";
 // `fileURLToPath`, not `URL.pathname`: the latter is percent-encoded, so a
 // checkout path containing a space or `#` would yield an unspawnable writer path.
 const repoRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
+const decodeHookPulseRefusalJson = S.decodeEffect(S.fromJsonString(HookPulseRefusal));
 const writerPath = `${repoRoot}.claude/hooks/hook-pulse.sh`;
 const codexWriterPath = `${repoRoot}.codex/hooks/hook-pulse.sh`;
 // The Cursor adapter renames camelCase events into the ledger vocabulary, tags rows
@@ -68,7 +69,6 @@ const notifierPath = `${repoRoot}.claude/hooks/sequence-break-notifier.sh`;
 const switchPath = `${repoRoot}.claude/hooks/hook-pulse-switch.sh`;
 
 // Module scope: the compiled guard is built once, as the oxlint hoist rule requires.
-const decodeHookPulseRefusalJson = S.decodeEffect(S.fromJsonString(HookPulseRefusal));
 const isHookPulseAgentKind = S.is(HookPulseAgentKind);
 
 // Two guards exit before the writer reads stdin: the kill switch and an agent kind

@@ -29,8 +29,8 @@ const $I = $ScratchpadId.create("effected/jsonl/LineSlice");
  * @category schemas
  * @since 0.0.0
  */
-export const ByteCount = S.Int.check(S.isGreaterThanOrEqualTo(0)).annotate(
-  $I.annote("ByteCount", { description: "A non-negative integer UTF-8 byte count or offset." })
+export const ByteCount = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
+  $I.annoteSchema("ByteCount", { description: "A non-negative integer UTF-8 byte count or offset." })
 );
 
 /**

@@ -13,6 +13,7 @@ import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -80,14 +81,20 @@ const audit = Command.make("audit", { target: targetArgument }, ({ target }) =>
   Effect.flatMap(Audit, (service) => Effect.asVoid(service.audit(target)))
 ).pipe(Command.withDescription("Every gate in order for the target's stage; stops at the first red"));
 
-const moduleAt = (rest: ReadonlyArray<string>, index: number) =>
+const moduleAt: {
+  (rest: ReadonlyArray<string>, index: number): Effect.Effect<"jsonl" | "jsonc" | "memfs" | "yaml" | "toml" | "glob" | "semver" | "spdx" | "schema-org" | "github-references" | "github-commands" | "commands" | "templates" | "env" | "engine" | "git" | "walker" | "npm" | "markdown" | "github" | "lockfiles" | "tsconfig-json" | "config-file" | "package-json" | "xdg" | "sbom" | "workspaces" | "cli" | "github-actions", CliUsageError, never>;
+  (index: number): (rest: ReadonlyArray<string>) => Effect.Effect<"jsonl" | "jsonc" | "memfs" | "yaml" | "toml" | "glob" | "semver" | "spdx" | "schema-org" | "github-references" | "github-commands" | "commands" | "templates" | "env" | "engine" | "git" | "walker" | "npm" | "markdown" | "github" | "lockfiles" | "tsconfig-json" | "config-file" | "package-json" | "xdg" | "sbom" | "workspaces" | "cli" | "github-actions", CliUsageError, never>;
+} = dual(2, (rest: ReadonlyArray<string>, index: number): Effect.Effect<"jsonl" | "jsonc" | "memfs" | "yaml" | "toml" | "glob" | "semver" | "spdx" | "schema-org" | "github-references" | "github-commands" | "commands" | "templates" | "env" | "engine" | "git" | "walker" | "npm" | "markdown" | "github" | "lockfiles" | "tsconfig-json" | "config-file" | "package-json" | "xdg" | "sbom" | "workspaces" | "cli" | "github-actions", CliUsageError, never> =>
   decodeModule(rest[index]).pipe(
     Effect.mapError(() =>
       CliUsageError.make({ detail: `expected a module name at position ${index + 1}, got ${rest[index] ?? "nothing"}` })
     )
-  );
+  ));
 
-const tail = (rest: ReadonlyArray<string>, from: number): string => A.join(A.drop(rest, from), " ");
+const tail: {
+  (rest: ReadonlyArray<string>, from: number): string;
+  (from: number): (rest: ReadonlyArray<string>) => string;
+} = dual(2, (rest: ReadonlyArray<string>, from: number): string => A.join(A.drop(rest, from), " "));
 
 const ledger = Command.make(
   "ledger",

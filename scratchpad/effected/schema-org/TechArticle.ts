@@ -34,7 +34,7 @@ export const TechArticleFields = {
 	 *
 	 * @since 0.0.0
 	 */
-	headline: S.optional(S.String),
+	headline: S.optionalKey(S.String),
 	/**
 	 * Sections the article belongs to. Repeatable.
 	 *
@@ -46,13 +46,13 @@ export const TechArticleFields = {
 	 *
 	 * @since 0.0.0
 	 */
-	proficiencyLevel: S.optional(S.String),
+	proficiencyLevel: S.optionalKey(S.String),
 	/**
 	 * Prerequisites the article depends on. Single-valued.
 	 *
 	 * @since 0.0.0
 	 */
-	dependencies: S.optional(S.String),
+	dependencies: S.optionalKey(S.String),
 } as const;
 
 /**
@@ -85,5 +85,5 @@ export class TechArticle extends S.Class<TechArticle, { readonly brand: unique s
 	 *
 	 * @since 0.0.0
 	 */
-	"@type": S.tag("TechArticle").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),
+	"@type": S.tag("TechArticle").pipe($I.annoteKey("TechArticle.@type", { description: "The JSON-LD type discriminator, populated automatically." })),
 }, $I.annote("TechArticle", { description: "A schema.org `TechArticle` — a piece of technical documentation." })) {}

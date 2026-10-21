@@ -1,6 +1,8 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
+import * as A from "effect/Array";
+import { dual, pipe } from "effect/Function";
 import * as Stream from "effect/Stream";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as P from "effect/Predicate";
@@ -47,9 +49,7 @@ export interface GitInvocation {
 /** The mask every whole-value sensitive positional is replaced with. */
 const REDACTED = "<redacted>";
 
-const GitArgRedaction = LiteralKit(["value", "url"]).annotate(
-	$I.annote("GitArgRedaction", { description: "The mask applied to a sensitive Git argv segment." }),
-);
+const GitArgRedaction = LiteralKit(["value", "url"]).pipe($I.annoteSchema("GitArgRedaction", { description: "The mask applied to a sensitive Git argv segment." }));
 
 /**
  * One argv segment: a plain string, or a sensitive positional tagged with the
@@ -59,10 +59,10 @@ const GitArgRedaction = LiteralKit(["value", "url"]).annotate(
 const GitArg = S.Union([
 	S.String,
 	S.Struct({
-		redact: GitArgRedaction.annotateKey({ description: "The redaction policy for this segment." }),
-		value: S.String.annotateKey({ description: "The raw argv segment passed to Git." }),
-	}).annotate($I.annote("SensitiveGitArg", { description: "A private sensitive Git argv carrier." })),
-]).annotate($I.annote("GitArg", { description: "A plain or sensitive Git argv segment." }));
+		redact: GitArgRedaction.pipe($I.annoteKey("SensitiveGitArg.redact", { description: "The redaction policy for this segment." })),
+		value: S.String.pipe($I.annoteKey("SensitiveGitArg.value", { description: "The raw argv segment passed to Git." })),
+	}).pipe($I.annoteSchema("SensitiveGitArg", { description: "A private sensitive Git argv carrier." })),
+]).pipe($I.annoteSchema("GitArg", { description: "A plain or sensitive Git argv segment." }));
 type GitArg = typeof GitArg.Type;
 
 // Tags a whole-value sensitive positional (a config value that may be a secret).
@@ -118,11 +118,13 @@ const redactUrlUserinfo = (value: string): string =>
  * running a custom command, and `Git`'s classification guarantees do not
  * travel with the argv.
  */
-const git = (args: ReadonlyArray<GitArg>, stdin?: string): GitInvocation => {
-	const raw = args.map((arg) => (P.isString(arg) ? arg : arg.value));
-	const redactedArgs = args.map((arg) =>
-		P.isString(arg) ? arg : arg.redact === GitArgRedaction.Enum.value ? REDACTED : redactUrlUserinfo(arg.value),
-	);
+const git: {
+	(args: ReadonlyArray<GitArg>, stdin?: string): GitInvocation;
+	(stdin?: string): (args: ReadonlyArray<GitArg>) => GitInvocation;
+} = dual((args) => A.isArray(args[0]), (args: ReadonlyArray<GitArg>, stdin?: string): GitInvocation => {
+	const raw = A.map(args, (arg) => (P.isString(arg) ? arg : arg.value));
+	const redactedArgs = A.map(args, (arg) =>
+    		P.isString(arg) ? arg : arg.redact === GitArgRedaction.Enum.value ? REDACTED : redactUrlUserinfo(arg.value));
 	return {
 		command: ChildProcess.make("git", raw, {
 			extendEnv: true,
@@ -135,14 +137,20 @@ const git = (args: ReadonlyArray<GitArg>, stdin?: string): GitInvocation => {
 		}),
 		redactedArgs,
 	};
-};
+});
 
 // Implementation of GitCommand.show; the public contract lives on the static.
-const show = (ref: string, path: string): GitInvocation => git(["show", `${ref}:${path}`]);
+const show: {
+	(ref: string, path: string): GitInvocation;
+	(path: string): (ref: string) => GitInvocation;
+} = dual(2, (ref: string, path: string): GitInvocation => git(["show", `${ref}:${path}`]));
 
 // Implementation of GitCommand.lsTree; the public contract lives on the static.
-const lsTree = (ref: string, pathspec: ReadonlyArray<string> = []): GitInvocation =>
-	git(["ls-tree", "-r", "-z", ref, ...(pathspec.length > 0 ? ["--", ...pathspec] : [])]);
+const lsTree: {
+	(ref: string, pathspec?: ReadonlyArray<string>): GitInvocation;
+	(pathspec?: ReadonlyArray<string>): (ref: string) => GitInvocation;
+} = dual((args) => P.isString(args[0]), (ref: string, pathspec: ReadonlyArray<string> = []): GitInvocation =>
+	git(["ls-tree", "-r", "-z", ref, ...(pathspec.length > 0 ? ["--", ...pathspec] : [])]));
 
 // Implementation of GitCommand.refExists; the public contract lives on the static.
 const refExists = (ref: string): GitInvocation => git(["cat-file", "-e", ref]);
@@ -151,7 +159,10 @@ const refExists = (ref: string): GitInvocation => git(["cat-file", "-e", ref]);
 // One builder backs BOTH Git.mergeBase (loud on no ancestor) and
 // Git.mergeBaseOption (silent exit 1 → Option.none) — the argv is identical;
 // only the service's classify kind differs.
-const mergeBase = (a: string, b: string): GitInvocation => git(["merge-base", a, b]);
+const mergeBase: {
+	(a: string, b: string): GitInvocation;
+	(b: string): (a: string) => GitInvocation;
+} = dual(2, (a: string, b: string): GitInvocation => git(["merge-base", a, b]));
 
 // Implementation of GitCommand.changedFiles; the public contract lives on the static.
 const changedFiles = (base: string, head: string, relative = false): GitInvocation =>
@@ -173,8 +184,11 @@ const untrackedFiles = (relative = false): GitInvocation =>
 const revParse = (ref: string): GitInvocation => git(["rev-parse", "--verify", ref]);
 
 // Implementation of GitCommand.checkout; the public contract lives on the static.
-const checkout = (ref: string, detach = false): GitInvocation =>
-	git(["checkout", ...(detach ? ["--detach"] : []), ref]);
+const checkout: {
+	(ref: string, detach?: boolean): GitInvocation;
+	(detach?: boolean): (ref: string) => GitInvocation;
+} = dual((args) => P.isString(args[0]), (ref: string, detach: boolean = false): GitInvocation =>
+	git(["checkout", ...(detach ? ["--detach"] : []), ref]));
 
 // Implementation of GitCommand.fetch; the public contract lives on the static.
 const fetch = (remote: string, ref: string, depth?: number, tag = false, unshallow = false): GitInvocation =>
@@ -218,8 +232,11 @@ const submoduleAdd = (url: string, path: string, depth?: number): GitInvocation 
 	git(["submodule", "add", ...(depth !== undefined ? ["--depth", String(depth)] : []), "--", secretUrl(url), path]);
 
 // Implementation of GitCommand.sparseCheckoutSet; the public contract lives on the static.
-const sparseCheckoutSet = (patterns: ReadonlyArray<string>, cone: boolean): GitInvocation =>
-	git(["sparse-checkout", "set", cone ? "--cone" : "--no-cone", ...patterns]);
+const sparseCheckoutSet: {
+	(patterns: ReadonlyArray<string>, cone: boolean): GitInvocation;
+	(cone: boolean): (patterns: ReadonlyArray<string>) => GitInvocation;
+} = dual(2, (patterns: ReadonlyArray<string>, cone: boolean): GitInvocation =>
+	git(["sparse-checkout", "set", cone ? "--cone" : "--no-cone", ...patterns]));
 
 // Implementation of GitCommand.configSet; the public contract lives on the static.
 const configSet = (key: string, value: string, file?: string): GitInvocation =>
@@ -243,7 +260,10 @@ const clean = (directories = false, ignored = false, paths: ReadonlyArray<string
 	]);
 
 // Implementation of GitCommand.restore; the public contract lives on the static.
-const restore = (paths: ReadonlyArray<string>, source?: string, staged = false, worktree = false): GitInvocation =>
+const restore: {
+	(paths: ReadonlyArray<string>, source?: string, staged?: boolean, worktree?: boolean): GitInvocation;
+	(source?: string, staged?: boolean, worktree?: boolean): (paths: ReadonlyArray<string>) => GitInvocation;
+} = dual((args) => A.isArray(args[0]), (paths: ReadonlyArray<string>, source?: string, staged: boolean = false, worktree: boolean = false): GitInvocation =>
 	git([
 		"restore",
 		...(source !== undefined ? ["--source", source] : []),
@@ -251,7 +271,7 @@ const restore = (paths: ReadonlyArray<string>, source?: string, staged = false, 
 		...(worktree ? ["--worktree"] : []),
 		"--",
 		...paths,
-	]);
+	]));
 
 // Implementation of GitCommand.branchCreate; the public contract lives on the static.
 const branchCreate = (name: string, startPoint?: string, checkout = false, force = false): GitInvocation =>
@@ -260,7 +280,10 @@ const branchCreate = (name: string, startPoint?: string, checkout = false, force
 		: git(["branch", ...(force ? ["-f"] : []), name, ...(startPoint !== undefined ? [startPoint] : [])]);
 
 // Implementation of GitCommand.branchDelete; the public contract lives on the static.
-const branchDelete = (name: string, force = false): GitInvocation => git(["branch", force ? "-D" : "-d", name]);
+const branchDelete: {
+	(name: string, force?: boolean): GitInvocation;
+	(force?: boolean): (name: string) => GitInvocation;
+} = dual((args) => P.isString(args[0]), (name: string, force: boolean = false): GitInvocation => git(["branch", force ? "-D" : "-d", name]));
 
 // Implementation of GitCommand.isShallow; the public contract lives on the static.
 const isShallow = (): GitInvocation => git(["rev-parse", "--is-shallow-repository"]);
@@ -353,9 +376,7 @@ const log = (
  * @category schemas
  * @since 0.0.0
  */
-export const GitConfigScope = LiteralKit(["local", "global", "system", "worktree"]).annotate(
-  $I.annote("GitConfigScope", { description: "Which Git configuration file a read is scoped to." }),
-);
+export const GitConfigScope = LiteralKit(["local", "global", "system", "worktree"]).pipe($I.annoteSchema("GitConfigScope", { description: "Which Git configuration file a read is scoped to." }));
 /**
  * Selects the configuration file used by scoped configuration reads.
  *
@@ -388,16 +409,22 @@ const submoduleInit = (paths: ReadonlyArray<string> = []): GitInvocation =>
 	git(["submodule", "init", ...(paths.length > 0 ? ["--", ...paths] : [])]);
 
 // Implementation of GitCommand.submoduleDeinit; the public contract lives on the static.
-const submoduleDeinit = (paths: ReadonlyArray<string>, all = false, force = false): GitInvocation =>
-	git(["submodule", "deinit", ...(force ? ["--force"] : []), ...(all ? ["--all"] : ["--", ...paths])]);
+const submoduleDeinit: {
+	(paths: ReadonlyArray<string>, all?: boolean, force?: boolean): GitInvocation;
+	(all?: boolean, force?: boolean): (paths: ReadonlyArray<string>) => GitInvocation;
+} = dual((args) => A.isArray(args[0]), (paths: ReadonlyArray<string>, all: boolean = false, force: boolean = false): GitInvocation =>
+	git(["submodule", "deinit", ...(force ? ["--force"] : []), ...(all ? ["--all"] : ["--", ...paths])]));
 
 // Implementation of GitCommand.submoduleSync; the public contract lives on the static.
 const submoduleSync = (paths: ReadonlyArray<string> = [], recursive = false): GitInvocation =>
 	git(["submodule", "sync", ...(recursive ? ["--recursive"] : []), ...(paths.length > 0 ? ["--", ...paths] : [])]);
 
 // Implementation of GitCommand.submoduleSetUrl; the public contract lives on the static.
-const submoduleSetUrl = (path: string, url: string): GitInvocation =>
-	git(["submodule", "set-url", "--", path, secretUrl(url)]);
+const submoduleSetUrl: {
+	(path: string, url: string): GitInvocation;
+	(url: string): (path: string) => GitInvocation;
+} = dual(2, (path: string, url: string): GitInvocation =>
+	git(["submodule", "set-url", "--", path, secretUrl(url)]));
 
 // Implementation of GitCommand.submoduleSetBranch; the public contract lives on the static.
 const submoduleSetBranch = (path: string, branch?: string): GitInvocation =>
@@ -408,21 +435,33 @@ const submoduleAbsorbgitdirs = (paths: ReadonlyArray<string> = []): GitInvocatio
 	git(["submodule", "absorbgitdirs", ...(paths.length > 0 ? ["--", ...paths] : [])]);
 
 // Implementation of GitCommand.submoduleForeach; the public contract lives on the static.
-const submoduleForeach = (command: string, recursive = false): GitInvocation =>
-	git(["submodule", "foreach", ...(recursive ? ["--recursive"] : []), command]);
+const submoduleForeach: {
+	(command: string, recursive?: boolean): GitInvocation;
+	(recursive?: boolean): (command: string) => GitInvocation;
+} = dual((args) => P.isString(args[0]), (command: string, recursive: boolean = false): GitInvocation =>
+	git(["submodule", "foreach", ...(recursive ? ["--recursive"] : []), command]));
 
 // Implementation of GitCommand.lsRemote; the public contract lives on the static.
-const lsRemote = (remote: string, heads = false, tags = false, patterns: ReadonlyArray<string> = []): GitInvocation =>
-	git(["ls-remote", ...(heads ? ["--heads"] : []), ...(tags ? ["--tags"] : []), secretUrl(remote), ...patterns]);
+const lsRemote: {
+	(remote: string, heads?: boolean, tags?: boolean, patterns?: ReadonlyArray<string>): GitInvocation;
+	(heads?: boolean, tags?: boolean, patterns?: ReadonlyArray<string>): (remote: string) => GitInvocation;
+} = dual((args) => P.isString(args[0]), (remote: string, heads: boolean = false, tags: boolean = false, patterns: ReadonlyArray<string> = []): GitInvocation =>
+	git(["ls-remote", ...(heads ? ["--heads"] : []), ...(tags ? ["--tags"] : []), secretUrl(remote), ...patterns]));
 
 // Implementation of GitCommand.remoteAdd; the public contract lives on the static.
-const remoteAdd = (name: string, url: string): GitInvocation => git(["remote", "add", name, secretUrl(url)]);
+const remoteAdd: {
+	(name: string, url: string): GitInvocation;
+	(url: string): (name: string) => GitInvocation;
+} = dual(2, (name: string, url: string): GitInvocation => git(["remote", "add", name, secretUrl(url)]));
 
 // Implementation of GitCommand.remoteRemove; the public contract lives on the static.
 const remoteRemove = (name: string): GitInvocation => git(["remote", "remove", name]);
 
 // Implementation of GitCommand.remoteSetUrl; the public contract lives on the static.
-const remoteSetUrl = (name: string, url: string): GitInvocation => git(["remote", "set-url", name, secretUrl(url)]);
+const remoteSetUrl: {
+	(name: string, url: string): GitInvocation;
+	(url: string): (name: string) => GitInvocation;
+} = dual(2, (name: string, url: string): GitInvocation => git(["remote", "set-url", name, secretUrl(url)]));
 
 // Renders a stash index into git's reflog-style stash ref. The interpolation is
 // injection-safe by construction: the service refuses a non-integer index
@@ -486,16 +525,22 @@ const forEachRef = (patterns: ReadonlyArray<string> = []): GitInvocation =>
 	git(["for-each-ref", "--format=%(refname)%00%(objectname)%00%(objecttype)", ...patterns]);
 
 // Implementation of GitCommand.revList; the public contract lives on the static.
-const revList = (ref: string, limit?: number, firstParent = false): GitInvocation =>
+const revList: {
+	(ref: string, limit?: number, firstParent?: boolean): GitInvocation;
+	(limit?: number, firstParent?: boolean): (ref: string) => GitInvocation;
+} = dual((args) => P.isString(args[0]), (ref: string, limit?: number, firstParent: boolean = false): GitInvocation =>
 	git([
 		"rev-list",
 		...(limit !== undefined ? [`--max-count=${limit}`] : []),
 		...(firstParent ? ["--first-parent"] : []),
 		ref,
-	]);
+	]));
 
 // Implementation of GitCommand.commit; the public contract lives on the static.
-const commit = (message: string, all = false, allowEmpty = false, amend = false, author?: string): GitInvocation =>
+const commit: {
+	(message: string, all?: boolean, allowEmpty?: boolean, amend?: boolean, author?: string): GitInvocation;
+	(all?: boolean, allowEmpty?: boolean, amend?: boolean, author?: string): (message: string) => GitInvocation;
+} = dual((args) => P.isString(args[0]), (message: string, all: boolean = false, allowEmpty: boolean = false, amend: boolean = false, author?: string): GitInvocation =>
 	git([
 		"commit",
 		...(all ? ["--all"] : []),
@@ -504,7 +549,7 @@ const commit = (message: string, all = false, allowEmpty = false, amend = false,
 		...(author !== undefined ? [`--author=${author}`] : []),
 		"-m",
 		message,
-	]);
+	]));
 
 // Implementation of GitCommand.push; the public contract lives on the static.
 const push = (
@@ -556,7 +601,10 @@ const configRenameSection = (oldName: string, newName: string, file?: string): G
 	git(["config", ...(file !== undefined ? ["-f", file] : []), "--rename-section", oldName, newName]);
 
 // Implementation of GitCommand.rm; the public contract lives on the static.
-const rm = (paths: ReadonlyArray<string>, cached = false, recursive = false, force = false): GitInvocation =>
+const rm: {
+	(paths: ReadonlyArray<string>, cached?: boolean, recursive?: boolean, force?: boolean): GitInvocation;
+	(cached?: boolean, recursive?: boolean, force?: boolean): (paths: ReadonlyArray<string>) => GitInvocation;
+} = dual((args) => A.isArray(args[0]), (paths: ReadonlyArray<string>, cached: boolean = false, recursive: boolean = false, force: boolean = false): GitInvocation =>
 	git([
 		"rm",
 		...(cached ? ["--cached"] : []),
@@ -564,7 +612,7 @@ const rm = (paths: ReadonlyArray<string>, cached = false, recursive = false, for
 		...(force ? ["--force"] : []),
 		"--",
 		...paths,
-	]);
+	]));
 
 // Implementation of GitCommand.mv; the public contract lives on the static.
 const mv = (source: string, destination: string, force = false): GitInvocation =>
@@ -572,7 +620,7 @@ const mv = (source: string, destination: string, force = false): GitInvocation =
 
 // Implementation of GitCommand.checkIgnore; the public contract lives on the static.
 const checkIgnore = (paths: ReadonlyArray<string>): GitInvocation =>
-	git(["check-ignore", "-z", "--stdin"], paths.map((path) => `${path}\0`).join(""));
+	git(["check-ignore", "-z", "--stdin"], pipe(paths, A.map((path) => `${path}\0`), A.join("")));
 
 // Implementation of GitCommand.worktreeAdd; the public contract lives on the static.
 const worktreeAdd = (path: string, ref?: string, detach = false, force = false): GitInvocation =>
@@ -589,8 +637,11 @@ const worktreeAdd = (path: string, ref?: string, detach = false, force = false):
 const worktreeList = (): GitInvocation => git(["worktree", "list", "--porcelain", "-z"]);
 
 // Implementation of GitCommand.worktreeRemove; the public contract lives on the static.
-const worktreeRemove = (path: string, force = false): GitInvocation =>
-	git(["worktree", "remove", ...(force ? ["--force"] : []), path]);
+const worktreeRemove: {
+	(path: string, force?: boolean): GitInvocation;
+	(force?: boolean): (path: string) => GitInvocation;
+} = dual((args) => P.isString(args[0]), (path: string, force: boolean = false): GitInvocation =>
+	git(["worktree", "remove", ...(force ? ["--force"] : []), path]));
 
 // Implementation of GitCommand.lsFiles; the public contract lives on the static.
 const lsFiles = (pathspec: ReadonlyArray<string> = []): GitInvocation =>

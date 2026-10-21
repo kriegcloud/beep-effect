@@ -15,6 +15,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import * as OptionUtils from "@beep/utils/Option";
 import { GitHubClient, GitHubError, GraphQLDocument, Repo } from "@effected/github";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -48,7 +49,7 @@ export const graphqlErrorToGitHubError = (error: GitHubGraphQLError): GitHubErro
     kind: error.kind,
     operation: error.operation,
     reason: error.reason,
-    ...(error.retryAfterMillis === undefined ? {} : { retryAfterMillis: error.retryAfterMillis }),
+    ...OptionUtils.getSomesStruct({ retryAfterMillis: O.fromUndefinedOr(error.retryAfterMillis) }),
   });
 
 const MarkReadyData = S.Struct({

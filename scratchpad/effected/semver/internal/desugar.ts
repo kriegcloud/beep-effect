@@ -4,6 +4,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { type ComparatorOperator, type ComparatorParts, VersionParts } from "./order.ts";
 
@@ -29,10 +30,10 @@ const $I = $ScratchpadId.create("effected/semver/internal/desugar");
  */
 export const PartialParts = S.Struct({
 	...VersionParts.fields,
-	major: S.NullOr(S.Finite).annotateKey({ description: "The numeric major component, or null for a wildcard or omission." }),
-	minor: S.NullOr(S.Finite).annotateKey({ description: "The numeric minor component, or null for a wildcard or omission." }),
-	patch: S.NullOr(S.Finite).annotateKey({ description: "The numeric patch component, or null for a wildcard or omission." }),
-}).annotate($I.annote("PartialParts", { description: "Plain partial version parts preserving numeric and null intermediate components for range desugaring." }));
+	major: S.NullOr(S.Finite).pipe($I.annoteKey("PartialParts.major", { description: "The numeric major component, or null for a wildcard or omission." })),
+	minor: S.NullOr(S.Finite).pipe($I.annoteKey("PartialParts.minor", { description: "The numeric minor component, or null for a wildcard or omission." })),
+	patch: S.NullOr(S.Finite).pipe($I.annoteKey("PartialParts.patch", { description: "The numeric patch component, or null for a wildcard or omission." })),
+}).pipe($I.annoteSchema("PartialParts", { description: "Plain partial version parts preserving numeric and null intermediate components for range desugaring." }));
 
 /**
  * The partial version data described by {@link PartialParts}.
@@ -42,15 +43,21 @@ export const PartialParts = S.Struct({
  */
 export type PartialParts = typeof PartialParts.Type;
 
-const sv = (
+const sv: {
+	(major: number, minor: number, patch: number, prerelease?: ReadonlyArray<string | number>, build?: ReadonlyArray<string>): VersionParts;
+	(minor: number, patch: number, prerelease?: ReadonlyArray<string | number>, build?: ReadonlyArray<string>): (major: number) => VersionParts;
+} = dual((args) => P.isNumber(args[2]), (
 	major: number,
 	minor: number,
 	patch: number,
 	prerelease: ReadonlyArray<string | number> = [],
 	build: ReadonlyArray<string> = [],
-): VersionParts => ({ major, minor, patch, prerelease, build });
+): VersionParts => ({ major, minor, patch, prerelease, build }));
 
-const comp = (operator: ComparatorOperator, version: VersionParts): ComparatorParts => ({ operator, version });
+const comp: {
+	(operator: ComparatorOperator, version: VersionParts): ComparatorParts;
+	(version: VersionParts): (operator: ComparatorOperator) => ComparatorParts;
+} = dual(2, (operator: ComparatorOperator, version: VersionParts): ComparatorParts => ({ operator, version }));
 
 /**
  * Desugar a tilde range (`~1.2.3`, `~1.2`, `~1`) into a `>=`/`<` comparator

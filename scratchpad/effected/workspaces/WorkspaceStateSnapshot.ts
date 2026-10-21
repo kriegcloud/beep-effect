@@ -9,6 +9,8 @@
 // set it captured. It also hands back `@effected/npm` resolver layers bound to
 // itself, so code written to those contracts can run "as of" a ref.
 
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { CatalogResolver, DependencyResolutionError, DependencySpecifier, WorkspaceResolver } from "../npm/index.ts";
 import * as Effect from "effect/Effect";
@@ -84,7 +86,7 @@ const SnapshotVersion = S.optionalKey(S.String).pipe(
  */
 export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readonly brand: unique symbol }>($I`PackageStateSnapshot`)({
 	/** The package name. */
-	name: S.NonEmptyString.annotateKey({ description: "The package name." }),
+	name: S.NonEmptyString.pipe($I.annoteKey("PackageStateSnapshot.name", { description: "The package name." })),
 	/**
   * The raw `version` string, as recorded at the captured moment — absent for
   * a manifest that declared none.
@@ -103,17 +105,17 @@ export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readon
   * to `Option.none()`, and fails its snapshot-bound `WorkspaceResolver`'s
   * `versionOf` typed.
   */
-	version: SnapshotVersion.annotateKey({ description: "The raw `version` string, as recorded at the captured moment — absent for a manifest that declared none." }),
+	version: SnapshotVersion.pipe($I.annoteKey("PackageStateSnapshot.version", { description: "The raw `version` string, as recorded at the captured moment — absent for a manifest that declared none." })),
 	/** POSIX path relative to the workspace root; `"."` for the root package. */
-	relativePath: S.String.annotateKey({ description: "POSIX path relative to the workspace root; `\".\"` for the root package." }),
+	relativePath: S.String.pipe($I.annoteKey("PackageStateSnapshot.relativePath", { description: "POSIX path relative to the workspace root; `\".\"` for the root package." })),
 	/** Production dependencies. */
-	dependencies: DependencyMap.annotateKey({ description: "Production dependencies." }),
+	dependencies: DependencyMap.pipe($I.annoteKey("PackageStateSnapshot.dependencies", { description: "Production dependencies." })),
 	/** Development dependencies. */
-	devDependencies: DependencyMap.annotateKey({ description: "Development dependencies." }),
+	devDependencies: DependencyMap.pipe($I.annoteKey("PackageStateSnapshot.devDependencies", { description: "Development dependencies." })),
 	/** Peer dependencies. */
-	peerDependencies: DependencyMap.annotateKey({ description: "Peer dependencies." }),
+	peerDependencies: DependencyMap.pipe($I.annoteKey("PackageStateSnapshot.peerDependencies", { description: "Peer dependencies." })),
 	/** Optional dependencies. */
-	optionalDependencies: DependencyMap.annotateKey({ description: "Optional dependencies." }),
+	optionalDependencies: DependencyMap.pipe($I.annoteKey("PackageStateSnapshot.optionalDependencies", { description: "Optional dependencies." })),
 }, $I.annote("PackageStateSnapshot", { description: "One workspace member as captured in a WorkspaceStateSnapshot — the serializable slice a snapshot diff reads: identity, version, location, and the four dependency records." })) {
 	/**
  * Every dependency, merged across the four kinds.
@@ -186,9 +188,9 @@ export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readon
  */
 export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { readonly brand: unique symbol }>($I`WorkspaceStateSnapshot`)({
 	/** Every workspace package captured at this moment. */
-	packages: S.Array(PackageStateSnapshot).annotateKey({ description: "Every workspace package captured at this moment." }),
+	packages: S.Array(PackageStateSnapshot).pipe($I.annoteKey("WorkspaceStateSnapshot.packages", { description: "Every workspace package captured at this moment." })),
 	/** The catalog set assembled at this moment. */
-	catalogs: CatalogSet.annotateKey({ description: "The catalog set assembled at this moment." }),
+	catalogs: CatalogSet.pipe($I.annoteKey("WorkspaceStateSnapshot.catalogs", { description: "The catalog set assembled at this moment." })),
 	/**
   * Each importer's dependency-name → resolved-version map, as the manager's
   * lockfile recorded it at this moment.
@@ -199,7 +201,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
   * `catalog:` fallback in {@link WorkspaceStateSnapshot.resolve} inert. Only
   * pnpm records importer versions; bun and npm yield an empty index.
   */
-	importerVersions: S.optionalKey(ImporterVersions).annotateKey({ description: "Each importer's dependency-name → resolved-version map, as the manager's lockfile recorded it at this moment." }),
+	importerVersions: S.optionalKey(ImporterVersions).pipe($I.annoteKey("WorkspaceStateSnapshot.importerVersions", { description: "Each importer's dependency-name → resolved-version map, as the manager's lockfile recorded it at this moment." })),
 	/**
   * Which version each declared config dependency's hook was replayed from at
   * this moment, keyed by name.
@@ -216,7 +218,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
   * value that omits it. Carried through `withSeededCatalogs` and `crossSeed`
   * unchanged, like `importerVersions`.
   */
-	hookReplays: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Which version each declared config dependency's hook was replayed from at this moment, keyed by name." }),
+	hookReplays: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceStateSnapshot.hookReplays", { description: "Which version each declared config dependency's hook was replayed from at this moment, keyed by name." })),
 	/**
   * Catalogs supplied from OUTSIDE this moment, consulted only when
   * `catalogs` cannot answer.
@@ -242,7 +244,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
   *
   * Defaults to absent, which makes the seed inert.
   */
-	seededCatalogs: S.optionalKey(CatalogSet).annotateKey({ description: "Catalogs supplied from OUTSIDE this moment, consulted only when `catalogs` cannot answer." }),
+	seededCatalogs: S.optionalKey(CatalogSet).pipe($I.annoteKey("WorkspaceStateSnapshot.seededCatalogs", { description: "Catalogs supplied from OUTSIDE this moment, consulted only when `catalogs` cannot answer." })),
 }, $I.annote("WorkspaceStateSnapshot", { description: "The state of a whole workspace at one moment — its packages and its assembled catalog set — as a serializable value." })) {
 	/**
  * Caches the name-to-version index outside the serializable schema.
@@ -390,7 +392,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
  */
 	#packages(): HashMap.HashMap<string, PackageStateSnapshot> {
 		if (this.#packageIndex === undefined) {
-			this.#packageIndex = HashMap.fromIterable(this.packages.map((pkg) => [pkg.name, pkg] as const));
+			this.#packageIndex = HashMap.fromIterable(A.map(this.packages, (pkg) => [pkg.name, pkg] as const));
 		}
 		return this.#packageIndex;
 	}
@@ -743,10 +745,13 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
   *   catalogs as its seed.
  * @since 0.0.0
  */
-	static crossSeed(
+	static readonly crossSeed: {
+		(before: WorkspaceStateSnapshot, after: WorkspaceStateSnapshot): readonly [WorkspaceStateSnapshot, WorkspaceStateSnapshot];
+		(after: WorkspaceStateSnapshot): (before: WorkspaceStateSnapshot) => readonly [WorkspaceStateSnapshot, WorkspaceStateSnapshot];
+	} = dual(2, (
 		before: WorkspaceStateSnapshot,
 		after: WorkspaceStateSnapshot,
-	): readonly [WorkspaceStateSnapshot, WorkspaceStateSnapshot] {
+	): readonly [WorkspaceStateSnapshot, WorkspaceStateSnapshot] => {
 		// A seed already on the receiver is KEPT, beneath the other side's
 		// catalogs. `withSeededCatalogs` replaces, and `WorkspaceSnapshots` applies
 		// a layer-level `seedCatalogs` to every snapshot it returns — so a
@@ -755,13 +760,16 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { re
 		// The other ref's committed declaration still outranks the carried seed,
 		// which is the whole point of cross-seeding; the carried seed only answers
 		// what neither ref declared.
-		const seedFor = (self: WorkspaceStateSnapshot, other: WorkspaceStateSnapshot): CatalogSet =>
-			self.seededCatalogs === undefined ? other.catalogs : CatalogSet.merge(self.seededCatalogs, other.catalogs);
+		const seedFor: {
+			(self: WorkspaceStateSnapshot, other: WorkspaceStateSnapshot): CatalogSet;
+			(other: WorkspaceStateSnapshot): (self: WorkspaceStateSnapshot) => CatalogSet;
+		} = dual(2, (self: WorkspaceStateSnapshot, other: WorkspaceStateSnapshot): CatalogSet =>
+			self.seededCatalogs === undefined ? other.catalogs : CatalogSet.merge(self.seededCatalogs, other.catalogs));
 		return [
 			before.withSeededCatalogs(seedFor(before, after)),
 			after.withSeededCatalogs(seedFor(after, before)),
 		] as const;
-	}
+	});
 
 	/**
  * A `CatalogResolver` layer implementing `@effected/npm`'s contract against

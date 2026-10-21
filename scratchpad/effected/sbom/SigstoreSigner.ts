@@ -16,6 +16,7 @@ import type { IdentityProvider, Signer, Witness } from "@sigstore/sign";
 import { DSSEBundleBuilder, FulcioSigner, RekorWitness } from "@sigstore/sign";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
@@ -103,10 +104,10 @@ export type SigningErrorKind = typeof SigningErrorKind.Type;
  */
 export class SigningError extends S.TaggedError<SigningError, { readonly brand: unique symbol }>($I`SigningError`)("SigningError", {
 	/** Which step failed. */
-	kind: SigningErrorKind.annotateKey({ description: "Which step failed." }),
+	kind: SigningErrorKind.pipe($I.annoteKey("SigningError.kind", { description: "Which step failed." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("SigningError", { description: "Raised when a statement cannot be signed." })) {
+	cause: S.Defect().pipe($I.annoteKey("SigningError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<SigningError>("SigningError", { description: "Raised when a statement cannot be signed." })) {
 	/**
 	 * Describes the signing step that failed without flattening the underlying cause.
 	 *
@@ -205,7 +206,10 @@ export interface SigstoreSignerShape {
 	readonly sign: (statement: InTotoStatement) => Effect.Effect<SigstoreBundle, SigningError>;
 }
 
-const make = (identity: IdentityTokenShape, options: SigstoreSignerOptions): SigstoreSignerShape => ({
+const make: {
+	(identity: IdentityTokenShape, options: SigstoreSignerOptions): SigstoreSignerShape;
+	(options: SigstoreSignerOptions): (identity: IdentityTokenShape) => SigstoreSignerShape;
+} = dual(2, (identity: IdentityTokenShape, options: SigstoreSignerOptions): SigstoreSignerShape => ({
 	sign: Effect.fn("SigstoreSigner.sign")(function* (statement: InTotoStatement) {
 		const token = yield* identity
 			.token(SIGSTORE_OIDC_AUDIENCE)
@@ -244,13 +248,13 @@ const make = (identity: IdentityTokenShape, options: SigstoreSignerOptions): Sig
 			catch: (cause) => SigningError.make({ kind: "bundle", cause }),
 		});
 	}),
-});
+}));
 
 /** Raised when a signer test double has no signing override. */
 class UnstubbedSigstoreSignerError extends S.TaggedError<UnstubbedSigstoreSignerError, { readonly brand: unique symbol }>($I`UnstubbedSigstoreSignerError`)(
 	"UnstubbedSigstoreSignerError",
-	{ message: S.String.annotateKey({ description: "Explains why the signer test double requires an explicit signing override." }) },
-	$I.annote("UnstubbedSigstoreSignerError", { description: "Raised when a signer test double has no signing override." }),
+	{ message: S.String.pipe($I.annoteKey("UnstubbedSigstoreSignerError.message", { description: "Explains why the signer test double requires an explicit signing override." })) },
+	$I.annoteError<UnstubbedSigstoreSignerError>("UnstubbedSigstoreSignerError", { description: "Raised when a signer test double has no signing override." }),
 ) {}
 
 const unstubbed = (): never => {
@@ -315,7 +319,7 @@ export class SigstoreSigner extends Context.Service<SigstoreSigner, SigstoreSign
 	 */
 	static readonly layer: Layer.Layer<SigstoreSigner, never, IdentityToken> = Layer.effect(
 		this,
-		Effect.map(IdentityToken, (identity) => make(identity, {})),
+		Effect.map(IdentityToken, make({})),
 	);
 
 	/**
@@ -336,7 +340,7 @@ export class SigstoreSigner extends Context.Service<SigstoreSigner, SigstoreSign
 	static readonly layerWith = (options: SigstoreSignerOptions): Layer.Layer<SigstoreSigner, never, IdentityToken> =>
 		Layer.effect(
 			SigstoreSigner,
-			Effect.map(IdentityToken, (identity) => make(identity, options)),
+			Effect.map(IdentityToken, make(options)),
 		);
 
 	/**

@@ -5,6 +5,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import type { AudienceKind } from "./Audience.ts";
 import { Audience } from "./Audience.ts";
+import * as A from "effect/Array";
 
 const isProvider = (
 	source: Readonly<Record<string, string | undefined>> | ConfigProvider.ConfigProvider,
@@ -126,9 +127,9 @@ export class EnvOverride {
 			return { audience: kind, accepted: O.none(), rejected: O.none() };
 		}
 		const accepts: ReadonlyArray<M[AudienceKind][number]> = options.accepts[kind];
-		const match = accepts.find((literal) => literal.toLowerCase() === raw.value.toLowerCase());
-		if (match !== undefined) {
-			return { audience: kind, accepted: O.some(match), rejected: O.none() };
+		const match = A.findFirst(accepts, (literal) => literal.toLowerCase() === raw.value.toLowerCase());
+		if (O.isSome(match)) {
+			return { audience: kind, accepted: match, rejected: O.none() };
 		}
 		return {
 			audience: kind,
@@ -174,7 +175,7 @@ export class EnvOverride {
 		if (O.isSome(rejected)) {
 			const { value, audience, accepts } = rejected.value;
 			yield* Effect.logWarning(
-				`${options.envVar}=${value} is not accepted for the ${audience} audience (accepts ${accepts.join("|")}); ignoring it`,
+				`${options.envVar}=${value} is not accepted for the ${audience} audience (accepts ${A.join(accepts, "|")}); ignoring it`,
 			);
 		}
 		return accepted;

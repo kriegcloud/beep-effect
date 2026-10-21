@@ -34,14 +34,14 @@ import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { ChildProcess } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { decodeYeetGhOutput, yeetGh } from "./GhCall.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { RepoRunContext } from "../../../internal/repo-run/index.ts";
 import type { YeetCommandError } from "../Yeet.errors.ts";
 
@@ -560,7 +560,7 @@ const namedErrorRules = (output: string): ReadonlyArray<string> =>
     Result.fromNullishOr(COMMITLINT_ERROR_RULE.exec(line)?.[1], () => undefined)
   );
 
-// The exemption @commitlint/ensure applies to every max-line-length rule.
+// Body and footer max-line-length rules exempt URL lines; the header never does.
 const COMMITLINT_URL_LINE = /\bhttps?:\/\/\S+/u;
 
 /**
@@ -568,9 +568,8 @@ const COMMITLINT_URL_LINE = /\bhttps?:\/\/\S+/u;
  *
  * **Details**
  *
- * A line carrying a URL is never an offender: `@commitlint/ensure` exempts
- * lines matching `/\bhttps?:\/\/\S+/` from every max-line-length rule, so
- * naming one would point at a line commitlint did not fail.
+ * Body and footer lines carrying URLs are exempt under `@commitlint/ensure`.
+ * The header has no URL exemption and is reported whenever it exceeds the limit.
  *
  * **Example** (Find the long bullet)
  *
@@ -592,7 +591,7 @@ export const squashCommitlintOffendingLines = (
   message: SquashCommitMessage
 ): ReadonlyArray<SquashCommitlintOffendingLine> =>
   A.filterMap(Str.split("\n")(renderSquashCommitMessage(message)), (text, index) =>
-    Str.length(text) > COMMITLINT_MAX_LINE_LENGTH && !COMMITLINT_URL_LINE.test(text)
+    Str.length(text) > COMMITLINT_MAX_LINE_LENGTH && (index === 0 || !COMMITLINT_URL_LINE.test(text))
       ? Result.succeed(SquashCommitlintOffendingLine.make({ line: index + 1, length: Str.length(text), text }))
       : Result.failVoid
   );

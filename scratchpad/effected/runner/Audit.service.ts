@@ -17,6 +17,7 @@ import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -57,6 +58,7 @@ import { resolveOracle } from "./Oracle.ts";
 import { runCliSeats, writeBrief } from "./Review.ts";
 import { codemodImports, type ImportRewrite } from "./Codemod.ts";
 import { type ApplyReport, applyDocBlockData, type DocBlock, extractDocBlocks } from "./DocsMigrate.ts";
+import type { ManifestInvalid } from "./Audit.errors.ts";
 
 const $I = $ScratchpadId.create("effected/runner/Audit.service");
 
@@ -124,13 +126,19 @@ export interface AuditShape {
   /** S0 verbatim copy of one module. @since 0.0.0 */
   readonly copy: (module: ModuleName) => Effect.Effect<CopyReport, RunnerError>;
   /** Export parity, foreign specifiers and D15 assertions. @since 0.0.0 */
-  readonly parity: (module: ModuleName, strict: boolean) => Effect.Effect<ParityReport, RunnerError>;
+  readonly parity: {
+    (module: ModuleName, strict: boolean): Effect.Effect<ParityReport, RunnerError>;
+    (strict: boolean): (module: ModuleName) => Effect.Effect<ParityReport, RunnerError>;
+  };
   /** tsgo gate. @since 0.0.0 */
   readonly check: (target: AuditTarget) => Effect.Effect<void, RunnerError>;
   /** oxlint and laws gate. @since 0.0.0 */
   readonly lint: (target: AuditTarget) => Effect.Effect<void, RunnerError>;
   /** vitest gate. @since 0.0.0 */
-  readonly test: (target: AuditTarget, coverage: boolean) => Effect.Effect<void, RunnerError>;
+  readonly test: {
+    (target: AuditTarget, coverage: boolean): Effect.Effect<void, RunnerError>;
+    (coverage: boolean): (target: AuditTarget) => Effect.Effect<void, RunnerError>;
+  };
   /** docgen gate. @since 0.0.0 */
   readonly docgen: (target: AuditTarget) => Effect.Effect<void, RunnerError>;
   /** Every gate in order for the target's stage, stopping at the first red. @since 0.0.0 */
@@ -142,38 +150,46 @@ export interface AuditShape {
   /** Verify completion and print `ledger: <done>/<total> done`. @since 0.0.0 */
   readonly ledgerVerify: Effect.Effect<VerifyReport, RunnerError>;
   /** Move a row to the stage it reached. @since 0.0.0 */
-  readonly ledgerSet: (module: ModuleName, stage: Stage, note: string) => Effect.Effect<LedgerRow, RunnerError>;
+  readonly ledgerSet: {
+    (module: ModuleName, stage: Stage, note: string): Effect.Effect<LedgerRow, RunnerError>;
+    (stage: Stage, note: string): (module: ModuleName) => Effect.Effect<LedgerRow, RunnerError>;
+  };
   /** Block a row at its stage. @since 0.0.0 */
-  readonly ledgerBlock: (
-    module: ModuleName,
-    reason: string,
-    findings: ReadonlyArray<string>
-  ) => Effect.Effect<LedgerRow, RunnerError>;
+  readonly ledgerBlock: {
+    (module: ModuleName, reason: string, findings: ReadonlyArray<string>): Effect.Effect<LedgerRow, RunnerError>;
+    (reason: string, findings: ReadonlyArray<string>): (module: ModuleName) => Effect.Effect<LedgerRow, RunnerError>;
+  };
   /** Append a note to a row. @since 0.0.0 */
-  readonly ledgerNote: (module: ModuleName, note: string) => Effect.Effect<LedgerRow, RunnerError>;
+  readonly ledgerNote: {
+    (module: ModuleName, note: string): Effect.Effect<LedgerRow, RunnerError>;
+    (note: string): (module: ModuleName) => Effect.Effect<LedgerRow, RunnerError>;
+  };
   /** Fill a row from upstream without copying files. @since 0.0.0 */
   readonly ledgerAdd: (module: ModuleName) => Effect.Effect<LedgerRow, RunnerError>;
   /** Append schema-validated records to an accumulating row field. @since 0.0.0 */
-  readonly ledgerAppend: (
-    module: ModuleName,
-    payload: { readonly field: AppendField; readonly json: string }
-  ) => Effect.Effect<LedgerRow, RunnerError>;
+  readonly ledgerAppend: {
+    (module: ModuleName, payload: { readonly field: AppendField; readonly json: string }): Effect.Effect<LedgerRow, RunnerError>;
+    (payload: { readonly field: AppendField; readonly json: string }): (module: ModuleName) => Effect.Effect<LedgerRow, RunnerError>;
+  };
   /** Rewrite root effect imports to per-module imports with the A/O/P/R/S aliases. @since 0.0.0 */
   readonly codemodImports: (target: AuditTarget) => Effect.Effect<ReadonlyArray<ImportRewrite>, RunnerError>;
   /** Every legacy-carrier JSDoc block of a module, for the S2 title pass. @since 0.0.0 */
   readonly docsExtract: (module: ModuleName) => Effect.Effect<ReadonlyArray<DocBlock>, RunnerError>;
   /** Apply S2 titles and routing through the conservation-checked rewriter. @since 0.0.0 */
-  readonly docsApply: (module: ModuleName, json: string) => Effect.Effect<ApplyReport, RunnerError>;
+  readonly docsApply: {
+    (module: ModuleName, json: string): Effect.Effect<ApplyReport, RunnerError>;
+    (json: string): (module: ModuleName) => Effect.Effect<ApplyReport, RunnerError>;
+  };
   /** Write the reviewer brief for a round on HEAD. @since 0.0.0 */
-  readonly reviewBrief: (
-    module: ModuleName,
-    round: number
-  ) => Effect.Effect<{ readonly directory: string; readonly commit: string; readonly brief: string }, RunnerError>;
+  readonly reviewBrief: {
+    (module: ModuleName, round: number): Effect.Effect<{ readonly directory: string; readonly commit: string; readonly brief: string }, RunnerError>;
+    (round: number): (module: ModuleName) => Effect.Effect<{ readonly directory: string; readonly commit: string; readonly brief: string }, RunnerError>;
+  };
   /** Run the Grok and Sol seats on a round's brief and report reviewer edits. @since 0.0.0 */
-  readonly reviewSeats: (
-    module: ModuleName,
-    round: number
-  ) => Effect.Effect<{ readonly directory: string; readonly edits: ReadonlyArray<string> }, RunnerError>;
+  readonly reviewSeats: {
+    (module: ModuleName, round: number): Effect.Effect<{ readonly directory: string; readonly edits: ReadonlyArray<string> }, RunnerError>;
+    (round: number): (module: ModuleName) => Effect.Effect<{ readonly directory: string; readonly edits: ReadonlyArray<string> }, RunnerError>;
+  };
 }
 
 /**
@@ -204,7 +220,10 @@ const renderRow = (row: LedgerRow): string => {
 
 const STAGES: ReadonlyArray<Stage> = [0, 1, 2, 3, 4, 5];
 
-const verifyExports = Effect.fn("Audit.verifyExports")(function* (config: RunnerConfig, row: LedgerRow) {
+const verifyExports: {
+  (config: RunnerConfig, row: LedgerRow): Effect.Effect<Array<string>, ManifestInvalid | PlatformError.PlatformError, FileSystem.FileSystem | Path.Path>;
+  (row: LedgerRow): (config: RunnerConfig) => Effect.Effect<Array<string>, ManifestInvalid | PlatformError.PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Audit.verifyExports")(function* (config: RunnerConfig, row: LedgerRow) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const entries = yield* upstreamEntries(config.upstreamRoot, row.module);
@@ -226,9 +245,12 @@ const verifyExports = Effect.fn("Audit.verifyExports")(function* (config: Runner
       }
     )
   );
-});
+}));
 
-const verifyRow = Effect.fn("Audit.verifyRow")(function* (config: RunnerConfig, row: LedgerRow) {
+const verifyRow: {
+  (config: RunnerConfig, row: LedgerRow): Effect.Effect<Array<string>, ManifestInvalid | PlatformError.PlatformError | CommandFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner>;
+  (row: LedgerRow): (config: RunnerConfig) => Effect.Effect<Array<string>, ManifestInvalid | PlatformError.PlatformError | CommandFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner>;
+} = dual(2, Effect.fn("Audit.verifyRow")(function* (config: RunnerConfig, row: LedgerRow) {
   const missingCommits =
     row.status === "done"
       ? A.getSomes(
@@ -245,7 +267,7 @@ const verifyRow = Effect.fn("Audit.verifyRow")(function* (config: RunnerConfig, 
     ? [`${row.module} has stage commits git cannot resolve`]
     : [];
   return [...missingCommits, ...exportProblems, ...unresolved];
-});
+}));
 
 const makeAudit = Effect.fn("Audit.make")(function* () {
   const { oracle, config } = yield* resolveOracle(yield* resolveRunnerConfig());
@@ -324,18 +346,18 @@ const makeAudit = Effect.fn("Audit.make")(function* () {
     copy: Effect.fn("Audit.copy")(function* (module: ModuleName) {
       return yield* copyModule(config, module, yield* upstreamCommit);
     }, provide),
-    parity: Effect.fn("Audit.parity")(function* (module: ModuleName, strict: boolean) {
+    parity: dual(2, Effect.fn("Audit.parity")(function* (module: ModuleName, strict: boolean) {
       return yield* parity(config, module, strict);
-    }, provide),
+    }, provide)),
     check: Effect.fn("Audit.check")(function* (target: AuditTarget) {
       return yield* check(config, target);
     }, provide),
     lint: Effect.fn("Audit.lint")(function* (target: AuditTarget) {
       return yield* lint(config, target);
     }, provide),
-    test: Effect.fn("Audit.test")(function* (target: AuditTarget, coverage: boolean) {
+    test: dual(2, Effect.fn("Audit.test")(function* (target: AuditTarget, coverage: boolean) {
       return yield* test(config, target, coverage);
-    }, provide),
+    }, provide)),
     docgen: Effect.fn("Audit.docgen")(function* (target: AuditTarget) {
       return yield* docgen(config, target);
     }, provide),
@@ -347,45 +369,45 @@ const makeAudit = Effect.fn("Audit.make")(function* () {
       return yield* ledgerShow(module);
     }, provide),
     ledgerVerify: provided(ledgerVerify),
-    ledgerSet: Effect.fn("Audit.ledgerSet")(function* (module: ModuleName, stage: Stage, note: string) {
+    ledgerSet: dual(3, Effect.fn("Audit.ledgerSet")(function* (module: ModuleName, stage: Stage, note: string) {
       return yield* setStage(config, module, stage, note);
-    }, provide),
-    ledgerBlock: Effect.fn("Audit.ledgerBlock")(function* (
+    }, provide)),
+    ledgerBlock: dual(3, Effect.fn("Audit.ledgerBlock")(function* (
       module: ModuleName,
       reason: string,
       findings: ReadonlyArray<string>
     ) {
       return yield* blockRow(config, module, reason, findings);
-    }, provide),
-    ledgerNote: Effect.fn("Audit.ledgerNote")(function* (module: ModuleName, note: string) {
+    }, provide)),
+    ledgerNote: dual(2, Effect.fn("Audit.ledgerNote")(function* (module: ModuleName, note: string) {
       return yield* noteRow(config, module, note);
-    }, provide),
+    }, provide)),
     ledgerAdd: Effect.fn("Audit.ledgerAdd")(function* (module: ModuleName) {
       return yield* registerExisting(config, module);
     }, provide),
-    ledgerAppend: Effect.fn("Audit.ledgerAppend")(function* (
+    ledgerAppend: dual(2, Effect.fn("Audit.ledgerAppend")(function* (
       module: ModuleName,
       payload: { readonly field: AppendField; readonly json: string }
     ) {
       return yield* appendToRow(config, module, payload);
-    }, provide),
+    }, provide)),
     codemodImports: Effect.fn("Audit.codemodImports")(function* (target: AuditTarget) {
       return yield* codemodImports(config, target);
     }, provide),
     docsExtract: Effect.fn("Audit.docsExtract")(function* (module: ModuleName) {
       return yield* extractDocBlocks(config, module);
     }, provide),
-    docsApply: Effect.fn("Audit.docsApply")(function* (module: ModuleName, json: string) {
+    docsApply: dual(2, Effect.fn("Audit.docsApply")(function* (module: ModuleName, json: string) {
       return yield* applyDocBlockData(config, module, json);
-    }, provide),
-    reviewBrief: Effect.fn("Audit.reviewBrief")(function* (module: ModuleName, round: number) {
+    }, provide)),
+    reviewBrief: dual(2, Effect.fn("Audit.reviewBrief")(function* (module: ModuleName, round: number) {
       const stage = (yield* findRow(yield* readLedger(config), module)).stage;
       return yield* writeBrief(config, module, round, stage);
-    }, provide),
-    reviewSeats: Effect.fn("Audit.reviewSeats")(function* (module: ModuleName, round: number) {
+    }, provide)),
+    reviewSeats: dual(2, Effect.fn("Audit.reviewSeats")(function* (module: ModuleName, round: number) {
       const result = yield* runCliSeats(config, module, round);
       return { directory: result.directory, edits: result.edits };
-    }, provide),
+    }, provide)),
   });
 });
 

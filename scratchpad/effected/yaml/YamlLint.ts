@@ -26,6 +26,7 @@ import type { LintContext, LintLine, StyleObservation, YamlLintSeverity, YamlRul
 import { YamlLintDiagnostic } from "./YamlLintRule.ts";
 import { YamlTokens } from "./YamlToken.ts";
 import * as R from "effect/Record";
+import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlLint");
 
@@ -133,7 +134,7 @@ const validateRulesMap = (rules: { readonly [id: string]: YamlLintRuleSetting })
  * @since 0.0.0
  */
 export class YamlLintConfig extends S.Class<YamlLintConfig, { readonly brand: unique symbol }>($I`YamlLintConfig`)({
-	rules: S.Record(S.String, YamlLintRuleSetting).pipe(S.check(S.makeFilter(validateRulesMap))).annotateKey({ description: "Rule identifiers mapped to severities, `off`, or per-rule options, with built-in options validated and `parse-validity` always enforced" }),
+	rules: S.Record(S.String, YamlLintRuleSetting).pipe(S.check(S.makeFilter(validateRulesMap)), $I.annoteKey("YamlLintConfig.rules", { description: "Rule identifiers mapped to severities, `off`, or per-rule options, with built-in options validated and `parse-validity` always enforced" })),
 }, $I.annote("YamlLintConfig", { description: "The lint configuration: a `rules` map keying rule ids (built-in or custom) to a severity literal or a typed per-rule options object." })) {
 	/**
 	 * The default preset: the built-in rules at their default settings. The
@@ -273,14 +274,14 @@ const encodeStyleCandidateJson = S.encodeResult(S.fromJsonString(StyleCandidateV
  * @since 0.0.0
  */
 export class StyleVoteTally extends S.Class<StyleVoteTally, { readonly brand: unique symbol }>($I`StyleVoteTally`)({
-	rule: S.String.annotateKey({ description: "Identifier of the lint rule that supplied the accumulated style observations" }),
-	dimension: S.String.annotateKey({ description: "Rule option key whose observed choices are being tallied" }),
-	value: StyleCandidateValue.annotateKey({ description: "Observed option choice shared by the occurrences counted in this tally" }),
-	count: S.Finite.annotateKey({ description: "Number of observations supporting this option choice for the rule and dimension" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 source offset of the first occurrence supporting this option choice" }),
-	length: S.Finite.annotateKey({ description: "Source span length in UTF-16 code units of the first occurrence supporting this option choice" }),
-	line: S.Finite.annotateKey({ description: "Zero-based source line of the first occurrence supporting this option choice" }),
-	character: S.Finite.annotateKey({ description: "Zero-based UTF-16 column of the first occurrence supporting this option choice" }),
+	rule: S.String.pipe($I.annoteKey("StyleVoteTally.rule", { description: "Identifier of the lint rule that supplied the accumulated style observations" })),
+	dimension: S.String.pipe($I.annoteKey("StyleVoteTally.dimension", { description: "Rule option key whose observed choices are being tallied" })),
+	value: StyleCandidateValue.pipe($I.annoteKey("StyleVoteTally.value", { description: "Observed option choice shared by the occurrences counted in this tally" })),
+	count: S.Finite.pipe($I.annoteKey("StyleVoteTally.count", { description: "Number of observations supporting this option choice for the rule and dimension" })),
+	offset: S.Finite.pipe($I.annoteKey("StyleVoteTally.offset", { description: "Zero-based UTF-16 source offset of the first occurrence supporting this option choice" })),
+	length: S.Finite.pipe($I.annoteKey("StyleVoteTally.length", { description: "Source span length in UTF-16 code units of the first occurrence supporting this option choice" })),
+	line: S.Finite.pipe($I.annoteKey("StyleVoteTally.line", { description: "Zero-based source line of the first occurrence supporting this option choice" })),
+	character: S.Finite.pipe($I.annoteKey("StyleVoteTally.character", { description: "Zero-based UTF-16 column of the first occurrence supporting this option choice" })),
 }, $I.annote("StyleVoteTally", { description: "An accumulated tally of one StyleVote spelling: how many times a `value` was voted for a `(rule, dimension)` pair, and the position of the FIRST occurrence seen (merging keeps the left operand's position, so on a multi-file merge the first file that exhibited the spelling names it)." })) {}
 
 /**
@@ -303,9 +304,9 @@ export class StyleVoteTally extends S.Class<StyleVoteTally, { readonly brand: un
  * @since 0.0.0
  */
 export class StyleFloorTally extends S.Class<StyleFloorTally, { readonly brand: unique symbol }>($I`StyleFloorTally`)({
-	rule: S.String.annotateKey({ description: "Identifier of the lint rule that supplied the measured lower bound" }),
-	dimension: S.String.annotateKey({ description: "Rule option key whose lower bound is measured from the observed sources" }),
-	value: S.Finite.annotateKey({ description: "Largest observed lower bound for the rule option; retained as evidence without setting the configured limit" }),
+	rule: S.String.pipe($I.annoteKey("StyleFloorTally.rule", { description: "Identifier of the lint rule that supplied the measured lower bound" })),
+	dimension: S.String.pipe($I.annoteKey("StyleFloorTally.dimension", { description: "Rule option key whose lower bound is measured from the observed sources" })),
+	value: S.Finite.pipe($I.annoteKey("StyleFloorTally.value", { description: "Largest observed lower bound for the rule option; retained as evidence without setting the configured limit" })),
 }, $I.annote("StyleFloorTally", { description: "An accumulated StyleFloor for a `(rule, dimension)` pair: the largest value the observed sources prove the limit is AT LEAST. Merging takes the maximum. Floors are informational — never resolved into config options (see StyleFloor)." })) {}
 
 /** Canonical histogram key for a vote value — type-discriminating (`"2"` ≠ `2`, `"true"` ≠ `true`). */
@@ -316,26 +317,30 @@ const valueKey = (value: string | number | boolean): string =>
 const encodeVoteKey = S.encodeResult(S.fromJsonString(S.Tuple([S.String, S.String, S.String])));
 const encodeFloorKey = S.encodeResult(S.fromJsonString(S.Tuple([S.String, S.String])));
 
-const accumulateVote = (votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>, tally: StyleVoteTally): void => {
+const accumulateVote: {
+	(votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>, tally: StyleVoteTally): void;
+	(tally: StyleVoteTally): (votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>) => void;
+} = dual(2, (votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>, tally: StyleVoteTally): void => {
 	const key = Result.getOrThrow(encodeVoteKey([tally.rule, tally.dimension, valueKey(tally.value)]));
 	const seen = MutableHashMap.get(votes, key);
 	MutableHashMap.set(votes, key, O.isSome(seen)
 		? StyleVoteTally.make({ ...seen.value, count: seen.value.count + tally.count })
 		: tally);
-};
+});
 
-const accumulateFloor = (floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>, floor: StyleFloorTally): void => {
+const accumulateFloor: {
+	(floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>, floor: StyleFloorTally): void;
+	(floor: StyleFloorTally): (floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>) => void;
+} = dual(2, (floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>, floor: StyleFloorTally): void => {
 	const key = Result.getOrThrow(encodeFloorKey([floor.rule, floor.dimension]));
 	const seen = MutableHashMap.get(floors, key);
 	MutableHashMap.set(floors, key, O.isSome(seen) && seen.value.value >= floor.value ? seen.value : floor);
-};
+});
 
-const accumulateObservations = (
-	votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>,
-	floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>,
-	rule: string,
-	observations: Iterable<StyleObservation>,
-): void => {
+const accumulateObservations: {
+	(votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>, floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>, rule: string, observations: Iterable<StyleObservation>): void;
+	(floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>, rule: string, observations: Iterable<StyleObservation>): (votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>) => void;
+} = dual(4, (votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>, floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>, rule: string, observations: Iterable<StyleObservation>): void => {
 	for (const observation of observations) {
 		if (observation._tag === "StyleVote") {
 			accumulateVote(votes, StyleVoteTally.make({
@@ -346,15 +351,15 @@ const accumulateObservations = (
 			accumulateFloor(floors, StyleFloorTally.make({ rule, dimension: observation.dimension, value: observation.value }));
 		}
 	}
-};
+});
 
-const materializeEvidence = (
-	votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>,
-	floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>,
-): StyleEvidence => StyleEvidence.make({
+const materializeEvidence: {
+	(votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>, floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>): StyleEvidence;
+	(floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>): (votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>) => StyleEvidence;
+} = dual(2, (votes: MutableHashMap.MutableHashMap<string, StyleVoteTally>, floors: MutableHashMap.MutableHashMap<string, StyleFloorTally>): StyleEvidence => StyleEvidence.make({
 	votes: A.sort(MutableHashMap.values(votes), byVoteOrder),
 	floors: A.sort(MutableHashMap.values(floors), byTallyOrder),
-});
+}));
 
 const byTallyOrder = Order.make<{ readonly rule: string; readonly dimension: string }>(
 	(a, b) => Order.String(a.rule, b.rule) || Order.String(a.dimension, b.dimension),
@@ -398,8 +403,8 @@ const byDescendingCount = Order.mapInput(Order.flip(Order.Number), (tally: Style
  * @since 0.0.0
  */
 export class StyleEvidence extends S.Class<StyleEvidence, { readonly brand: unique symbol }>($I`StyleEvidence`)({
-	votes: S.Array(StyleVoteTally).annotateKey({ description: "Accumulated option-choice counts and first-seen source positions used to resolve inferred lint settings" }),
-	floors: S.Array(StyleFloorTally).annotateKey({ description: "Measured lower bounds per rule option, retained for inspection without resolving them into configuration" }),
+	votes: S.Array(StyleVoteTally).pipe($I.annoteKey("StyleEvidence.votes", { description: "Accumulated option-choice counts and first-seen source positions used to resolve inferred lint settings" })),
+	floors: S.Array(StyleFloorTally).pipe($I.annoteKey("StyleEvidence.floors", { description: "Measured lower bounds per rule option, retained for inspection without resolving them into configuration" })),
 }, $I.annote("StyleEvidence", { description: "Per-dimension style evidence: what the observed sources say about each inferable `(rule, dimension)` — vote histograms with first-seen positions, and measured floors." })) {
 	/**
 	 * The monoid identity: no observations.
@@ -435,7 +440,10 @@ export class StyleEvidence extends S.Class<StyleEvidence, { readonly brand: uniq
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	static combine(a: StyleEvidence, b: StyleEvidence): StyleEvidence {
+	static readonly combine: {
+		(a: StyleEvidence, b: StyleEvidence): StyleEvidence;
+		(b: StyleEvidence): (a: StyleEvidence) => StyleEvidence;
+	} = dual(2, (a: StyleEvidence, b: StyleEvidence): StyleEvidence => {
 		const votes = MutableHashMap.empty<string, StyleVoteTally>();
 		const floors = MutableHashMap.empty<string, StyleFloorTally>();
 		for (const tally of a.votes) accumulateVote(votes, tally);
@@ -443,7 +451,7 @@ export class StyleEvidence extends S.Class<StyleEvidence, { readonly brand: uniq
 		for (const floor of a.floors) accumulateFloor(floors, floor);
 		for (const floor of b.floors) accumulateFloor(floors, floor);
 		return materializeEvidence(votes, floors);
-	}
+	});
 
 	/**
 	 * Build canonical evidence from one rule's raw observations — the
@@ -468,12 +476,15 @@ export class StyleEvidence extends S.Class<StyleEvidence, { readonly brand: uniq
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static fromObservations(rule: string, observations: Iterable<StyleObservation>): StyleEvidence {
+	static readonly fromObservations: {
+		(rule: string, observations: Iterable<StyleObservation>): StyleEvidence;
+		(observations: Iterable<StyleObservation>): (rule: string) => StyleEvidence;
+	} = dual(2, (rule: string, observations: Iterable<StyleObservation>): StyleEvidence => {
 		const votes = MutableHashMap.empty<string, StyleVoteTally>();
 		const floors = MutableHashMap.empty<string, StyleFloorTally>();
 		accumulateObservations(votes, floors, rule, observations);
 		return materializeEvidence(votes, floors);
-	}
+	});
 }
 
 /**
@@ -497,9 +508,9 @@ export class StyleEvidence extends S.Class<StyleEvidence, { readonly brand: uniq
  * @since 0.0.0
  */
 export class StyleConflict extends S.Class<StyleConflict, { readonly brand: unique symbol }>($I`StyleConflict`)({
-	rule: S.String.annotateKey({ description: "Identifier of the lint rule whose observed option choices disagree" }),
-	dimension: S.String.annotateKey({ description: "Rule option key with multiple conflicting observed choices" }),
-	candidates: S.Array(StyleVoteTally).annotateKey({ description: "All conflicting option choices with counts and first-seen positions, ordered by descending count" }),
+	rule: S.String.pipe($I.annoteKey("StyleConflict.rule", { description: "Identifier of the lint rule whose observed option choices disagree" })),
+	dimension: S.String.pipe($I.annoteKey("StyleConflict.dimension", { description: "Rule option key with multiple conflicting observed choices" })),
+	candidates: S.Array(StyleVoteTally).pipe($I.annoteKey("StyleConflict.candidates", { description: "All conflicting option choices with counts and first-seen positions, ordered by descending count" })),
 }, $I.annote("StyleConflict", { description: "One strict-resolution conflict: a `(rule, dimension)` whose observed spellings disagree. `candidates` carries every spelling with its count and first-seen position, ordered by count descending (dominant first)." })) {}
 
 /**
@@ -531,8 +542,8 @@ export class StyleConflict extends S.Class<StyleConflict, { readonly brand: uniq
  * @since 0.0.0
  */
 export class YamlStyleConflictError extends S.TaggedError<YamlStyleConflictError, { readonly brand: unique symbol }>($I`YamlStyleConflictError`)("YamlStyleConflictError", {
-	conflicts: S.Array(StyleConflict).annotateKey({ description: "Every rule option with disagreeing observations that prevents strict configuration inference" }),
-}, $I.annote("YamlStyleConflictError", { description: "Raised by strict config inference when observed evidence is not unanimous: carries every conflicting `(rule, dimension)` as a structured StyleConflict — dimension, all spellings, counts and positions — never a collapsed `reason` string (the structure-preserving-errors house rule). Unobserved dimensions never conflict: they fall back to the base config's defaults." })) {
+	conflicts: S.Array(StyleConflict).pipe($I.annoteKey("YamlStyleConflictError.conflicts", { description: "Every rule option with disagreeing observations that prevents strict configuration inference" })),
+}, $I.annoteError<YamlStyleConflictError>("YamlStyleConflictError", { description: "Raised by strict config inference when observed evidence is not unanimous: carries every conflicting `(rule, dimension)` as a structured StyleConflict — dimension, all spellings, counts and positions — never a collapsed `reason` string (the structure-preserving-errors house rule). Unobserved dimensions never conflict: they fall back to the base config's defaults." })) {
 	/**
 	 * Renders conflicts with spelling counts and human-readable first-seen positions.
 	 *
@@ -556,14 +567,8 @@ export class YamlStyleConflictError extends S.TaggedError<YamlStyleConflictError
 	 * @since 0.0.0
 	 */
 	override get message(): string {
-		return this.conflicts
-			.map(
-				(conflict) =>
-					`Conflicting style for ${conflict.rule}.${conflict.dimension}: ${conflict.candidates
-						.map((c) => `${Result.getOrThrow(encodeStyleCandidateJson(c.value))} (${c.count}×, first at ${c.line + 1}:${c.character + 1})`)
-						.join(" vs ")}`,
-			)
-			.join("; ");
+		return pipe(this.conflicts, A.map((conflict) =>
+					`Conflicting style for ${conflict.rule}.${conflict.dimension}: ${pipe(conflict.candidates, A.map((c) => `${Result.getOrThrow(encodeStyleCandidateJson(c.value))} (${c.count}×, first at ${c.line + 1}:${c.character + 1})`), A.join(" vs "))}`), A.join("; "));
 	}
 }
 
@@ -586,10 +591,10 @@ const groupVotes = (evidence: StyleEvidence): MutableHashMap.MutableHashMap<stri
  * an explicit `"off"` outranks inference and is left untouched; a rule the
  * base does not mention is added as a plain options entry.
  */
-const overlayConfig = (
-	base: YamlLintConfig,
-	picks: MutableHashMap.MutableHashMap<string, MutableHashMap.MutableHashMap<string, string | number | boolean>>,
-): YamlLintConfig => {
+const overlayConfig: {
+	(base: YamlLintConfig, picks: MutableHashMap.MutableHashMap<string, MutableHashMap.MutableHashMap<string, string | number | boolean>>): YamlLintConfig;
+	(picks: MutableHashMap.MutableHashMap<string, MutableHashMap.MutableHashMap<string, string | number | boolean>>): (base: YamlLintConfig) => YamlLintConfig;
+} = dual(2, (base: YamlLintConfig, picks: MutableHashMap.MutableHashMap<string, MutableHashMap.MutableHashMap<string, string | number | boolean>>): YamlLintConfig => {
 	const rules = R.fromEntries(R.toEntries(base.rules));
 	for (const [ruleId, dims] of picks) {
 		const entry = O.getOrUndefined(R.get(rules, ruleId));
@@ -600,10 +605,13 @@ const overlayConfig = (
 		R.assignProperty(rules, ruleId, merged);
 	}
 	return YamlLintConfig.make({ rules });
-};
+});
 
 /** The observation loop shared by `observe` and the infer conveniences. */
-const observeContext = (ctx: LintContext, rules: ReadonlyArray<YamlRule>): StyleEvidence => {
+const observeContext: {
+	(ctx: LintContext, rules: ReadonlyArray<YamlRule>): StyleEvidence;
+	(rules: ReadonlyArray<YamlRule>): (ctx: LintContext) => StyleEvidence;
+} = dual(2, (ctx: LintContext, rules: ReadonlyArray<YamlRule>): StyleEvidence => {
 	const votes = MutableHashMap.empty<string, StyleVoteTally>();
 	const floors = MutableHashMap.empty<string, StyleFloorTally>();
 	for (const rule of rules) {
@@ -611,12 +619,12 @@ const observeContext = (ctx: LintContext, rules: ReadonlyArray<YamlRule>): Style
 		accumulateObservations(votes, floors, rule.id, rule.infer(ctx));
 	}
 	return materializeEvidence(votes, floors);
-};
+});
 
-const resolveStrictEvidence = (
-	evidence: StyleEvidence,
-	base: YamlLintConfig,
-): Result.Result<YamlLintConfig, YamlStyleConflictError> => {
+const resolveStrictEvidence: {
+	(evidence: StyleEvidence, base: YamlLintConfig): Result.Result<YamlLintConfig, YamlStyleConflictError>;
+	(base: YamlLintConfig): (evidence: StyleEvidence) => Result.Result<YamlLintConfig, YamlStyleConflictError>;
+} = dual(2, (evidence: StyleEvidence, base: YamlLintConfig): Result.Result<YamlLintConfig, YamlStyleConflictError> => {
 	const conflicts: Array<StyleConflict> = [];
 	const picks = MutableHashMap.empty<string, MutableHashMap.MutableHashMap<string, string | number | boolean>>();
 	for (const [ruleId, dims] of groupVotes(evidence)) {
@@ -640,9 +648,12 @@ const resolveStrictEvidence = (
 	}
 	if (conflicts.length > 0) return Result.fail(YamlStyleConflictError.make({ conflicts }));
 	return Result.succeed(overlayConfig(base, picks));
-};
+});
 
-const resolveLenientEvidence = (evidence: StyleEvidence, base: YamlLintConfig): YamlLintConfig => {
+const resolveLenientEvidence: {
+	(evidence: StyleEvidence, base: YamlLintConfig): YamlLintConfig;
+	(base: YamlLintConfig): (evidence: StyleEvidence) => YamlLintConfig;
+} = dual(2, (evidence: StyleEvidence, base: YamlLintConfig): YamlLintConfig => {
 	const picks = MutableHashMap.empty<string, MutableHashMap.MutableHashMap<string, string | number | boolean>>();
 	for (const [ruleId, dims] of groupVotes(evidence)) {
 		for (const [dimension, tallies] of dims) {
@@ -658,7 +669,7 @@ const resolveLenientEvidence = (evidence: StyleEvidence, base: YamlLintConfig): 
 		}
 	}
 	return overlayConfig(base, picks);
-};
+});
 
 /**
  * A lenient inference report: the inferred config plus the residual — the
@@ -680,8 +691,8 @@ const resolveLenientEvidence = (evidence: StyleEvidence, base: YamlLintConfig): 
  * @since 0.0.0
  */
 export const YamlLintInference = S.Struct({
-	config: YamlLintConfig.annotateKey({ description: "Lint configuration inferred from observed source style and the base settings" }),
-	residual: S.Array(YamlLintDiagnostic).annotateKey({ description: "Diagnostics that remain when the inferred configuration is applied to the observed text" }),
+	config: YamlLintConfig.pipe($I.annoteKey("YamlLintInference.config", { description: "Lint configuration inferred from observed source style and the base settings" })),
+	residual: S.Array(YamlLintDiagnostic).pipe($I.annoteKey("YamlLintInference.residual", { description: "Diagnostics that remain when the inferred configuration is applied to the observed text" })),
 }).pipe($I.annoteSchema("YamlLintInference", { description: "Plain lenient inference report containing inferred configuration and remaining diagnostics" }));
 
 /**
@@ -711,11 +722,10 @@ const byPosition = Order.make<YamlLintDiagnostic>(
  * The rule loop shared by `run` and `fix` over one already-built context —
  * `fix` must not tokenize and compose the same input twice.
  */
-const runRules = (
-	ctx: LintContext,
-	rules: ReadonlyArray<YamlRule>,
-	config: YamlLintConfig,
-): ReadonlyArray<YamlLintDiagnostic> => {
+const runRules: {
+	(ctx: LintContext, rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): ReadonlyArray<YamlLintDiagnostic>;
+	(rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): (ctx: LintContext) => ReadonlyArray<YamlLintDiagnostic>;
+} = dual(3, (ctx: LintContext, rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): ReadonlyArray<YamlLintDiagnostic> => {
 	const out: Array<YamlLintDiagnostic> = [];
 	for (const rule of rules) {
 		const alwaysOn = rule.id === "parse-validity";
@@ -730,7 +740,9 @@ const runRules = (
 		}
 	}
 	return A.sort(out, byPosition);
-};
+});
+
+const isStyleEvidence = S.is(StyleEvidence);
 
 /**
  * Lints YAML text against a rule set, applies the rules' non-overlapping
@@ -818,9 +830,10 @@ export class YamlLint {
 	 * @category validation
 	 * @since 0.0.0
 	 */
-	static run(text: string, rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): ReadonlyArray<YamlLintDiagnostic> {
-		return runRules(buildContext(text), rules, config);
-	}
+	static readonly run: {
+		(text: string, rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): ReadonlyArray<YamlLintDiagnostic>;
+		(rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): (text: string) => ReadonlyArray<YamlLintDiagnostic>;
+	} = dual(3, (text: string, rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): ReadonlyArray<YamlLintDiagnostic> => runRules(buildContext(text), rules, config));
 
 	/**
 	 * Run `rules` and apply every non-overlapping surgical fix, returning the
@@ -855,17 +868,16 @@ export class YamlLint {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static fix(
-		text: string,
-		rules: ReadonlyArray<YamlRule>,
-		config: YamlLintConfig,
-	): Result.Result<string, YamlParseError> {
+	static readonly fix: {
+		(text: string, rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): Result.Result<string, YamlParseError>;
+		(rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): (text: string) => Result.Result<string, YamlParseError>;
+	} = dual(3, (text: string, rules: ReadonlyArray<YamlRule>, config: YamlLintConfig): Result.Result<string, YamlParseError> => {
 		// One context serves both the fatal-parse gate and the rule loop —
 		// tokenize once, compose once. DuplicateKey is not a fatal code, so the
 		// context's uniqueKeys-disabled compose sees the same fatal set the
 		// default compose would.
 		const ctx = buildContext(text);
-		const fatal = ctx.document.errors.filter((e) => isFatalCode(e.code));
+		const fatal = A.filter(ctx.document.errors, (e) => isFatalCode(e.code));
 		if (fatal.length > 0) {
 			return Result.fail(YamlParseError.make({ diagnostics: fatal, input: text }));
 		}
@@ -882,7 +894,7 @@ export class YamlLint {
 			fixes.push(fix);
 		}
 		return Result.succeed(YamlEdit.applyAll(text, fixes));
-	}
+	});
 
 	/**
 	 * Observe the style `text` already follows: run every rule's
@@ -904,9 +916,10 @@ export class YamlLint {
 	 * @category diagnostics
 	 * @since 0.0.0
 	 */
-	static observe(text: string, rules: ReadonlyArray<YamlRule>): StyleEvidence {
-		return observeContext(buildContext(text), rules);
-	}
+	static readonly observe: {
+		(text: string, rules: ReadonlyArray<YamlRule>): StyleEvidence;
+		(rules: ReadonlyArray<YamlRule>): (text: string) => StyleEvidence;
+	} = dual(2, (text: string, rules: ReadonlyArray<YamlRule>): StyleEvidence => observeContext(buildContext(text), rules));
 
 	/**
 	 * Strict resolution: every OBSERVED dimension must be unanimous, and the
@@ -932,12 +945,10 @@ export class YamlLint {
 	 * @category configuration
 	 * @since 0.0.0
 	 */
-	static resolveStrict(
-		evidence: StyleEvidence,
-		base: YamlLintConfig = YamlLintConfig.default,
-	): Result.Result<YamlLintConfig, YamlStyleConflictError> {
-		return resolveStrictEvidence(evidence, base);
-	}
+	static readonly resolveStrict: {
+		(base?: YamlLintConfig): (evidence: StyleEvidence) => Result.Result<YamlLintConfig, YamlStyleConflictError>;
+		(evidence: StyleEvidence, base?: YamlLintConfig): Result.Result<YamlLintConfig, YamlStyleConflictError>;
+	} = dual((args) => isStyleEvidence(args[0]), (evidence: StyleEvidence, base: YamlLintConfig = YamlLintConfig.default): Result.Result<YamlLintConfig, YamlStyleConflictError> => resolveStrictEvidence(evidence, base));
 
 	/**
 	 * Lenient resolution: the dominant (plurality) spelling per observed
@@ -960,9 +971,10 @@ export class YamlLint {
 	 * @category configuration
 	 * @since 0.0.0
 	 */
-	static resolveLenient(evidence: StyleEvidence, base: YamlLintConfig = YamlLintConfig.default): YamlLintConfig {
-		return resolveLenientEvidence(evidence, base);
-	}
+	static readonly resolveLenient: {
+		(base?: YamlLintConfig): (evidence: StyleEvidence) => YamlLintConfig;
+		(evidence: StyleEvidence, base?: YamlLintConfig): YamlLintConfig;
+	} = dual((args) => isStyleEvidence(args[0]), (evidence: StyleEvidence, base: YamlLintConfig = YamlLintConfig.default): YamlLintConfig => resolveLenientEvidence(evidence, base));
 
 	/**
 	 * Single-text strict inference: `observe` then {@link YamlLint.resolveStrict}
@@ -982,13 +994,10 @@ export class YamlLint {
 	 * @category configuration
 	 * @since 0.0.0
 	 */
-	static inferStrict(
-		text: string,
-		rules: ReadonlyArray<YamlRule>,
-		base: YamlLintConfig = YamlLintConfig.default,
-	): Result.Result<YamlLintConfig, YamlStyleConflictError> {
-		return resolveStrictEvidence(YamlLint.observe(text, rules), base);
-	}
+	static readonly inferStrict: {
+		(rules: ReadonlyArray<YamlRule>, base?: YamlLintConfig): (text: string) => Result.Result<YamlLintConfig, YamlStyleConflictError>;
+		(text: string, rules: ReadonlyArray<YamlRule>, base?: YamlLintConfig): Result.Result<YamlLintConfig, YamlStyleConflictError>;
+	} = dual((args) => P.isString(args[0]), (text: string, rules: ReadonlyArray<YamlRule>, base: YamlLintConfig = YamlLintConfig.default): Result.Result<YamlLintConfig, YamlStyleConflictError> => resolveStrictEvidence(YamlLint.observe(text, rules), base));
 
 	/**
 	 * Single-text lenient inference: `observe`, resolve dominant picks over
@@ -1011,13 +1020,12 @@ export class YamlLint {
 	 * @category configuration
 	 * @since 0.0.0
 	 */
-	static inferLenient(
-		text: string,
-		rules: ReadonlyArray<YamlRule>,
-		base: YamlLintConfig = YamlLintConfig.default,
-	): YamlLintInference {
+	static readonly inferLenient: {
+		(rules: ReadonlyArray<YamlRule>, base?: YamlLintConfig): (text: string) => YamlLintInference;
+		(text: string, rules: ReadonlyArray<YamlRule>, base?: YamlLintConfig): YamlLintInference;
+	} = dual((args) => P.isString(args[0]), (text: string, rules: ReadonlyArray<YamlRule>, base: YamlLintConfig = YamlLintConfig.default): YamlLintInference => {
 		const ctx = buildContext(text);
 		const config = resolveLenientEvidence(observeContext(ctx, rules), base);
 		return { config, residual: runRules(ctx, rules, config) };
-	}
+	});
 }

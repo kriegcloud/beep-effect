@@ -10,8 +10,11 @@ import {
   Prism,
   ProjectionRequest,
   Rotation,
+  Segment2,
   ShadingPlan,
 } from "@beep/occt";
+import { retapered, settleRedrawnInk } from "@beep/occt/internal/kernel";
+import { hatchCompound } from "@beep/occt/internal/shading";
 import {
   cameraForView,
   nearestOutlineDistance,
@@ -32,7 +35,9 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
+import * as replicad from "replicad";
 import type { EdgeSet } from "@beep/occt";
+import type { StretchPiece } from "@beep/occt/internal/shading";
 
 type Segment = readonly [number, number, number, number];
 
@@ -134,6 +139,69 @@ const TestLayer = Occt.layer.pipe(Layer.provide(NodeServices.layer));
 
 describe("@beep/occt shading", () => {
   it.layer(TestLayer, { timeout: "120 seconds" })((it) => {
+    it.effect(
+      "projects an overlay without a facing from both sides",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const model = ModelSpec.make({
+          ...box([-10, -10, 0], [10, 10, 20]),
+          overlays: [
+            OverlayLine.make({
+              name: "unfaced",
+              points: [
+                [-5, -15, 5],
+                [5, -15, 5],
+              ],
+              style: "emphasis",
+            }),
+          ],
+        });
+        const views = yield* occt.project(
+          ProjectionRequest.make({ solid: model, cameras: [front, Camera.make({ eye: [0, -1, 1], up: [0, 0, 1] })] })
+        );
+        expect(A.map(views, (view) => A.length(view.emphasis))).toEqual([1, 1]);
+      })
+    );
+
+    it.effect(
+      "counts nested probe cells once and reports an unconstructably short visible band",
+      Effect.fnUntraced(function* () {
+        yield* Occt;
+        const shape = replicad.makeBox([-10, -10, 0], [10, 10, 20]);
+        const base = {
+          oc: replicad.getOC(),
+          shape,
+          camera: front,
+          plan: graded(),
+          rooms: () => O.none(),
+          isBrokenFace: () => false,
+          claimedOf: () => O.none(),
+          viewedLength: ([a, b]: readonly [readonly [number, number, number], readonly [number, number, number]]) =>
+            Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]),
+          neighbours: [],
+          groupBeyond: () => O.none(),
+        };
+        const nested: A.NonEmptyReadonlyArray<StretchPiece<never>> = [
+          { row: 0, from: 0, to: 10, low: 2, high: 4, probes: [] },
+          { row: 1, from: 2, to: 8, low: 0, high: 6, probes: [] },
+          { row: 2, from: 3, to: 7, low: 1, high: 5, probes: [] },
+        ];
+        const small: A.NonEmptyReadonlyArray<StretchPiece<never>> = [
+          { row: 0, from: 0, to: 20, low: 0, high: 1e-7, probes: [] },
+        ];
+        try {
+          const counted = hatchCompound({ ...base, regions: O.some(() => [nested]) });
+          expect(A.some(counted.faces, (face) => Math.abs(face.seen - 44) < 1e-9)).toBe(true);
+          A.forEach(counted.faces, (face) => A.forEach(face.stretches, (stretch) => stretch.shape.delete()));
+          const skipped = hatchCompound({ ...base, regions: O.some(() => [small]) });
+          expect(A.some(skipped.faces, (face) => A.some(face.skipped, (skip) => skip.reason === "no-room"))).toBe(true);
+          A.forEach(skipped.faces, (face) => A.forEach(face.stretches, (stretch) => stretch.shape.delete()));
+        } finally {
+          shape.delete();
+        }
+      })
+    );
+
     it.effect(
       "reproduces the original hatch byte for byte under the default style, axis and span",
       Effect.fnUntraced(function* () {
@@ -1640,5 +1708,53 @@ describe("@beep/occt shading", () => {
         expect(banded?.shading.length).toBeLessThanOrEqual(all?.shading.length ?? 0);
       })
     );
+  });
+});
+
+describe("projected band ink order", () => {
+  it("steps a rescued lit band to two tapered ranks, then leaves it bare only when it still out-inks its neighbour", () => {
+    const runs = [
+      { run: Segment2.make([0, 0, 0, 10]), extent: 1, rank: 0 },
+      { run: Segment2.make([1, 0, 1, 10]), extent: 1, rank: 1 },
+      { run: Segment2.make([2, 0, 2, 10]), extent: 1, rank: 2 },
+    ];
+    const lit = {
+      index: 0,
+      sliver: false,
+      segments: A.map(runs, (run) => run.run),
+      relaxed: O.some(runs),
+      redrawn: true,
+      inkOrder: false,
+      fits: true,
+    };
+    const dark = (length: number) => ({
+      ...lit,
+      index: 1,
+      segments: [Segment2.make([5, 0, 5, length])],
+      relaxed: O.none(),
+      redrawn: false,
+    });
+    const faces = [
+      { exposure: 0.5, seen: 100 },
+      { exposure: -0.4, seen: 100 },
+    ];
+    const plan = graded();
+    const floored = settleRedrawnInk({ stretches: [lit, dark(15)], faces, neighbours: [[0, 1]], plan });
+    expect(floored[0]?.segments).toEqual([
+      [0, 2, 0, 8],
+      [1, 3, 1, 7],
+    ]);
+    expect(floored[0]?.inkOrder).toBe(false);
+    expect(floored[1]?.segments).toEqual([[5, 0, 5, 15]]);
+    const bare = settleRedrawnInk({ stretches: [lit, dark(5)], faces, neighbours: [[0, 1]], plan });
+    expect(bare[0]?.segments).toEqual([]);
+    expect(bare[0]?.inkOrder).toBe(true);
+    expect(bare[1]?.segments).toEqual([[5, 0, 5, 5]]);
+    const ordinary = { ...lit, relaxed: O.none() };
+    const retained = settleRedrawnInk({ stretches: [ordinary, dark(5)], faces, neighbours: [[0, 1]], plan });
+    expect(retained[0]).toBe(ordinary);
+    expect(retapered({ runs: [{ run: Segment2.make([0, 0, 0, 0]), extent: 0.6, rank: 0 }], minStroke: 0 })).toEqual([
+      [0, 0, 0, 0],
+    ]);
   });
 });

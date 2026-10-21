@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { installRegenerateMergeDriver } from "@beep/repo-cli/commands/Worktree";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
@@ -16,7 +16,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
 import * as Stream from "effect/Stream";
 
-const sourceRoot = fileURLToPath(new URL("../../../../../", import.meta.url));
+const sourceRoot = NodeURL.fileURLToPath(new URL("../../../../../", import.meta.url));
 const driverPath = `${sourceRoot}scripts/regenerate-merge-driver.sh`;
 const mergeDriverScenario = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;

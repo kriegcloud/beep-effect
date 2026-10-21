@@ -1,3 +1,7 @@
+import * as A from "effect/Array";
+import { dual, identity, pipe } from "effect/Function";
+import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 // Strict SemVer 2.0.0 recursive-descent parser and printer.
 //
 // Plain synchronous code: parsing is pure and total, so an Effect wrapper would
@@ -43,9 +47,12 @@ class ParseFailure {
 	}
 }
 
-const fail = (s: ParserState, position?: number): never => {
+const fail: {
+	(s: ParserState, position?: number): never;
+	(position?: number): (s: ParserState) => never;
+} = dual((args) => P.isObjectKeyword(args[0]), (s: ParserState, position?: number): never => {
 	throw new ParseFailure(position ?? s.pos);
-};
+});
 
 const peek = (s: ParserState): string | undefined => (s.pos < s.len ? s.input[s.pos] : undefined);
 
@@ -268,14 +275,12 @@ export const parseVersion = (raw: string): ParseResult<VersionParts> => {
 	}
 
 	const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-	try {
-		return { ok: true, value: parseVersionCore(s) };
-	} catch (failure) {
+	return Result.getOrElse(Result.try((): ParseResult<VersionParts> => ({ ok: true, value: parseVersionCore(s) })), (failure): ParseResult<VersionParts> => {
 		if (failure instanceof ParseFailure) {
 			return { ok: false, input: trimmed, position: failure.position };
 		}
 		throw failure;
-	}
+	});
 };
 
 // ---------------------------------------------------------------------------
@@ -422,7 +427,7 @@ const parseRangeComparators = (s: ParserState): ReadonlyArray<ComparatorParts> =
 
 	// Try hyphen range first, backtracking on failure
 	const savedPos = s.pos;
-	try {
+	const hyphen = Result.try(() => {
 		const lower = parsePartial(s);
 		if (!isHyphenRange(s)) {
 			return fail(s);
@@ -432,13 +437,13 @@ const parseRangeComparators = (s: ParserState): ReadonlyArray<ComparatorParts> =
 		advance(s); // space
 		const upper = parsePartial(s);
 		return desugarHyphen(lower, upper);
-	} catch (failure) {
-		if (!(failure instanceof ParseFailure)) {
-			throw failure;
-		}
-		// Not a hyphen range — reset and parse space-separated simples
-		s.pos = savedPos;
+	});
+	if (Result.isSuccess(hyphen)) return hyphen.success;
+	if (!(hyphen.failure instanceof ParseFailure)) {
+		return Result.getOrThrowWith(hyphen, identity);
 	}
+	// Not a hyphen range — reset and parse space-separated simples
+	s.pos = savedPos;
 
 	const comparators: Array<ComparatorParts> = [];
 
@@ -505,7 +510,7 @@ export const parseRange = (raw: string): ParseResult<ReadonlyArray<ReadonlyArray
 	}
 
 	const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-	try {
+	return Result.getOrElse(Result.try((): ParseResult<ReadonlyArray<ReadonlyArray<ComparatorParts>>> => {
 		const sets: Array<ReadonlyArray<ComparatorParts>> = [];
 
 		sets.push(parseRangeComparators(s));
@@ -524,12 +529,12 @@ export const parseRange = (raw: string): ParseResult<ReadonlyArray<ReadonlyArray
 		}
 
 		return { ok: true, value: sets };
-	} catch (failure) {
+	}), (failure): ParseResult<ReadonlyArray<ReadonlyArray<ComparatorParts>>> => {
 		if (failure instanceof ParseFailure) {
 			return { ok: false, input: trimmed, position: failure.position };
 		}
 		throw failure;
-	}
+	});
 };
 
 // ---------------------------------------------------------------------------
@@ -618,14 +623,12 @@ export const parseComparator = (raw: string): ParseResult<ComparatorParts> => {
 	}
 
 	const s: ParserState = { input: trimmed, pos: 0, len: trimmed.length };
-	try {
-		return { ok: true, value: parseComparatorCore(s) };
-	} catch (failure) {
+	return Result.getOrElse(Result.try((): ParseResult<ComparatorParts> => ({ ok: true, value: parseComparatorCore(s) })), (failure): ParseResult<ComparatorParts> => {
 		if (failure instanceof ParseFailure) {
 			return { ok: false, input: trimmed, position: failure.position };
 		}
 		throw failure;
-	}
+	});
 };
 
 // ---------------------------------------------------------------------------
@@ -656,10 +659,10 @@ export const parseComparator = (raw: string): ParseResult<ComparatorParts> => {
 export const formatVersion = (v: VersionParts): string => {
 	let s = `${v.major}.${v.minor}.${v.patch}`;
 	if (v.prerelease.length > 0) {
-		s += `-${v.prerelease.join(".")}`;
+		s += `-${pipe(v.prerelease, A.map(String), A.join("."))}`;
 	}
 	if (v.build.length > 0) {
-		s += `+${v.build.join(".")}`;
+		s += `+${A.join(v.build, ".")}`;
 	}
 	return s;
 };
@@ -708,4 +711,4 @@ export const formatComparator = (c: ComparatorParts): string => {
  * @since 0.0.0
  */
 export const formatRange = (sets: ReadonlyArray<ReadonlyArray<ComparatorParts>>): string =>
-	sets.map((set) => set.map(formatComparator).join(" ")).join(" || ");
+	pipe(sets, A.map((set) => pipe(set, A.map(formatComparator), A.join(" "))), A.join(" || "));

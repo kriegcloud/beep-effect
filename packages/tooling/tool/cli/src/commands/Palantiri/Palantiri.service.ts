@@ -55,7 +55,7 @@ import { ProofJobLauncher } from "../Yeet/internal/ProofJobLauncher.ts";
 import type { ParcelId, SessionKey } from "@beep/palantiri";
 import type * as Crypto from "effect/Crypto";
 import type * as HttpClient from "effect/http/HttpClient";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { AccountsStatusReport } from "../Accounts/Accounts.schemas.ts";
 import type { SessionLedgerError } from "../Session/Session.errors.ts";
 import type { SessionCheckoutFacts } from "../Session/SessionLedger.service.ts";

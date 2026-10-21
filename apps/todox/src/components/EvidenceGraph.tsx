@@ -334,9 +334,8 @@ export function EvidenceGraph() {
         </g>
       </svg>
       <div className="graph-detail" aria-live="polite">
-        {O.match(current, {
-          onNone: () => <p className="graph-detail__id">SELECT A NODE</p>,
-          onSome: (node) => (
+        {O.getOrElse(
+          O.map(current, (node) => (
             <>
               <p className="graph-detail__id">
                 <strong>{node.title}</strong>
@@ -351,8 +350,11 @@ export function EvidenceGraph() {
                 Open the full session
               </a>
             </>
-          ),
-        })}
+          )),
+          () => (
+            <p className="graph-detail__id">SELECT A NODE</p>
+          )
+        )}
       </div>
     </div>
   );

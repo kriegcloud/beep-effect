@@ -5,6 +5,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import type { Section, SectionId } from "./Section.ts";
@@ -48,20 +49,20 @@ export class SectionFileError extends S.TaggedError<SectionFileError, { readonly
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.String.annotateKey({ description: "The file the operation was against." }),
+	path: S.String.pipe($I.annoteKey("SectionFileError.path", { description: "The file the operation was against." })),
 	/**
 	 * Which half of the read-modify-write failed.
 	 *
 	 * @since 0.0.0
 	 */
-	operation: S.Literals(["read", "write"]).annotateKey({ description: "Which half of the read-modify-write failed." }),
+	operation: S.Literals(["read", "write"]).pipe($I.annoteKey("SectionFileError.operation", { description: "Which half of the read-modify-write failed." })),
 	/**
 	 * The underlying failure, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("SectionFileError", { description: "Raised when the file behind a managed-section operation could not be read or written." })) {
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("SectionFileError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<SectionFileError>("SectionFileError", { description: "Raised when the file behind a managed-section operation could not be read or written." })) {
 	/**
 	 * Describes which file operation failed and the path it targeted.
 	 *
@@ -105,10 +106,10 @@ export interface ManagedSectionShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly read: (
-		path: string,
-		id: SectionId,
-	) => Effect.Effect<O.Option<Section>, SectionParseError | SectionFileError>;
+	readonly read: {
+		(path: string, id: SectionId): Effect.Effect<O.Option<Section>, SectionParseError | SectionFileError>;
+		(id: SectionId): (path: string) => Effect.Effect<O.Option<Section>, SectionParseError | SectionFileError>;
+	};
 
 	/**
 	 * Every managed section in the file, in document order.
@@ -122,17 +123,20 @@ export interface ManagedSectionShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly isManaged: (path: string, id: SectionId) => Effect.Effect<boolean, SectionParseError | SectionFileError>;
+	readonly isManaged: {
+		(path: string, id: SectionId): Effect.Effect<boolean, SectionParseError | SectionFileError>;
+		(id: SectionId): (path: string) => Effect.Effect<boolean, SectionParseError | SectionFileError>;
+	};
 
 	/**
 	 * Make one section say what it should, writing only if that changes the file.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly sync: (
-		path: string,
-		section: Section,
-	) => Effect.Effect<SyncOutcome, SectionParseError | SectionRenderError | SectionFileError>;
+	readonly sync: {
+		(path: string, section: Section): Effect.Effect<SyncOutcome, SectionParseError | SectionRenderError | SectionFileError>;
+		(section: Section): (path: string) => Effect.Effect<SyncOutcome, SectionParseError | SectionRenderError | SectionFileError>;
+	};
 
 	/**
 	 * Make a whole set of sections say what they should, in declared order.
@@ -144,34 +148,45 @@ export interface ManagedSectionShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly syncAll: (
-		path: string,
-		sections: ReadonlyArray<Section>,
-	) => Effect.Effect<ReadonlyArray<SyncOutcome>, SectionParseError | SectionRenderError | SectionFileError>;
+	readonly syncAll: {
+		(
+			path: string,
+			sections: ReadonlyArray<Section>,
+		): Effect.Effect<ReadonlyArray<SyncOutcome>, SectionParseError | SectionRenderError | SectionFileError>;
+		(
+			sections: ReadonlyArray<Section>,
+		): (path: string) => Effect.Effect<ReadonlyArray<SyncOutcome>, SectionParseError | SectionRenderError | SectionFileError>;
+	};
 
 	/**
 	 * Compare one section against the file, changing nothing.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly check: (path: string, section: Section) => Effect.Effect<CheckOutcome, SectionParseError | SectionFileError>;
+	readonly check: {
+		(path: string, section: Section): Effect.Effect<CheckOutcome, SectionParseError | SectionFileError>;
+		(section: Section): (path: string) => Effect.Effect<CheckOutcome, SectionParseError | SectionFileError>;
+	};
 
 	/**
 	 * Compare a set of sections against the file from a single read.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly checkAll: (
-		path: string,
-		sections: ReadonlyArray<Section>,
-	) => Effect.Effect<ReadonlyArray<CheckOutcome>, SectionParseError | SectionFileError>;
+	readonly checkAll: {
+		(path: string, sections: ReadonlyArray<Section>): Effect.Effect<ReadonlyArray<CheckOutcome>, SectionParseError | SectionFileError>;
+		(sections: ReadonlyArray<Section>): (path: string) => Effect.Effect<ReadonlyArray<CheckOutcome>, SectionParseError | SectionFileError>;
+	};
 
 	/**
 	 * Remove a section. `false` when it was not there.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly remove: (path: string, id: SectionId) => Effect.Effect<boolean, SectionParseError | SectionFileError>;
+	readonly remove: {
+		(path: string, id: SectionId): Effect.Effect<boolean, SectionParseError | SectionFileError>;
+		(id: SectionId): (path: string) => Effect.Effect<boolean, SectionParseError | SectionFileError>;
+	};
 }
 
 /**
@@ -233,21 +248,24 @@ const make: (options?: ManagedSectionOptions) => Effect.Effect<ManagedSectionSha
 				),
 				Effect.flatMap((text) =>
 					Effect.fromResult(SectionDocument.parseResult(text, dialect)).pipe(
-						Effect.mapError((error) => SectionParseError.at(path, error)),
+						Effect.mapError(SectionParseError.at(path)),
 					),
 				),
 			);
 
-		const store = (path: string, text: string): Effect.Effect<void, SectionFileError> =>
+		const store: {
+			(path: string, text: string): Effect.Effect<void, SectionFileError>;
+			(text: string): (path: string) => Effect.Effect<void, SectionFileError>;
+		} = dual(2, (path: string, text: string): Effect.Effect<void, SectionFileError> =>
 			fs
 				.writeFileString(path, text)
 				.pipe(
 					Effect.catchTag("PlatformError", (error) =>
 						Effect.fail(SectionFileError.make({ path, operation: "write", cause: error })),
 					),
-				);
+				));
 
-		const syncAll: ManagedSectionShape["syncAll"] = Effect.fn("ManagedSection.syncAll")(function* (
+		const syncAll: ManagedSectionShape["syncAll"] = dual(2, Effect.fn("ManagedSection.syncAll")(function* (
 			path: string,
 			sections: ReadonlyArray<Section>,
 		) {
@@ -260,48 +278,48 @@ const make: (options?: ManagedSectionOptions) => Effect.Effect<ManagedSectionSha
 				yield* store(path, reconciled.text);
 			}
 			return reconciled.outcomes;
-		});
+		}));
 
 		return {
-			read: Effect.fn("ManagedSection.read")(function* (path: string, id: SectionId) {
+			read: dual(2, Effect.fn("ManagedSection.read")(function* (path: string, id: SectionId) {
 				yield* Effect.annotateCurrentSpan({ path, key: id.key });
 				return (yield* load(path)).read(id);
-			}),
+			})),
 
 			readAll: Effect.fn("ManagedSection.readAll")(function* (path: string) {
 				yield* Effect.annotateCurrentSpan({ path });
-				return (yield* load(path)).sections.map((placed) => placed.section);
+				return A.map((yield* load(path)).sections, (placed) => placed.section);
 			}),
 
-			isManaged: Effect.fn("ManagedSection.isManaged")(function* (path: string, id: SectionId) {
+			isManaged: dual(2, Effect.fn("ManagedSection.isManaged")(function* (path: string, id: SectionId) {
 				yield* Effect.annotateCurrentSpan({ path, key: id.key });
 				return (yield* load(path)).has(id);
-			}),
+			})),
 
 			// `sync` IS `syncAll` with one element: with a single declared section
 			// there is nothing to reorder, so the two agree exactly. A second
 			// implementation would be a second ordering rule waiting to drift.
-			sync: Effect.fn("ManagedSection.sync")(function* (path: string, section: Section) {
+			sync: dual(2, Effect.fn("ManagedSection.sync")(function* (path: string, section: Section) {
 				yield* Effect.annotateCurrentSpan({ path, key: section.key });
 				const outcomes = yield* syncAll(path, [section]);
 				// syncAll returns one outcome per declared section.
 				return O.getOrThrow(A.head(outcomes));
-			}),
+			})),
 
 			syncAll,
 
-			check: Effect.fn("ManagedSection.check")(function* (path: string, section: Section) {
+			check: dual(2, Effect.fn("ManagedSection.check")(function* (path: string, section: Section) {
 				yield* Effect.annotateCurrentSpan({ path, key: section.key });
 				return (yield* load(path)).check(section);
-			}),
+			})),
 
-			checkAll: Effect.fn("ManagedSection.checkAll")(function* (path: string, sections: ReadonlyArray<Section>) {
+			checkAll: dual(2, Effect.fn("ManagedSection.checkAll")(function* (path: string, sections: ReadonlyArray<Section>) {
 				yield* Effect.annotateCurrentSpan({ path, sections: sections.length });
 				const document = yield* load(path);
-				return sections.map((section) => document.check(section));
-			}),
+				return A.map(sections, (section) => document.check(section));
+			})),
 
-			remove: Effect.fn("ManagedSection.remove")(function* (path: string, id: SectionId) {
+			remove: dual(2, Effect.fn("ManagedSection.remove")(function* (path: string, id: SectionId) {
 				yield* Effect.annotateCurrentSpan({ path, key: id.key });
 				const document = yield* load(path);
 				const next = document.remove(id);
@@ -310,7 +328,7 @@ const make: (options?: ManagedSectionOptions) => Effect.Effect<ManagedSectionSha
 				}
 				yield* store(path, next.value);
 				return true;
-			}),
+			})),
 		} satisfies ManagedSectionShape;
 	});
 
@@ -332,7 +350,7 @@ const make: (options?: ManagedSectionOptions) => Effect.Effect<ManagedSectionSha
 export class ManagedSectionTestError extends S.TaggedError<ManagedSectionTestError, { readonly brand: unique symbol }>($I`ManagedSectionTestError`)(
 	"ManagedSectionTestError",
 	{ message: S.String },
-	$I.annote("ManagedSectionTestError", { description: "A defect raised when a managed-section test double calls an unstubbed member." }),
+	$I.annoteError<ManagedSectionTestError>("ManagedSectionTestError", { description: "A defect raised when a managed-section test double calls an unstubbed member." }),
 ) {}
 
 const unimplemented = (member: string): never => {
@@ -340,6 +358,12 @@ const unimplemented = (member: string): never => {
 		message: `ManagedSection.makeTest: ${member}() was called but not stubbed — pass a \`${member}\` override.`,
 	});
 };
+
+/** An unstubbed two-argument member: both the data-first and the data-last call die when run. */
+const unstubbed = (member: string): {
+	(path: string, arg: unknown): Effect.Effect<never>;
+	(arg: unknown): (path: string) => Effect.Effect<never>;
+} => dual(2, (_path: string, _arg: unknown): Effect.Effect<never> => Effect.sync(() => unimplemented(member)));
 
 /**
  * Managed sections in files: read, compare, sync and remove delimited blocks
@@ -444,14 +468,14 @@ export class ManagedSection extends Context.Service<ManagedSection, ManagedSecti
 	 * @since 0.0.0
 	 */
 	static readonly makeTest = (overrides: Partial<ManagedSectionShape> = {}): ManagedSectionShape => ({
-		read: () => Effect.sync(() => unimplemented("read")),
+		read: unstubbed("read"),
 		readAll: () => Effect.sync(() => unimplemented("readAll")),
-		isManaged: () => Effect.sync(() => unimplemented("isManaged")),
-		sync: () => Effect.sync(() => unimplemented("sync")),
-		syncAll: () => Effect.sync(() => unimplemented("syncAll")),
-		check: () => Effect.sync(() => unimplemented("check")),
-		checkAll: () => Effect.sync(() => unimplemented("checkAll")),
-		remove: () => Effect.sync(() => unimplemented("remove")),
+		isManaged: unstubbed("isManaged"),
+		sync: unstubbed("sync"),
+		syncAll: unstubbed("syncAll"),
+		check: unstubbed("check"),
+		checkAll: unstubbed("checkAll"),
+		remove: unstubbed("remove"),
 		...overrides,
 	});
 

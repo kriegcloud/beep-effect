@@ -343,9 +343,8 @@ const CrashSoon = (): ReactElement => {
 	return createElement(Text, null, "steady");
 };
 
-// Screen thunks return a Promise; this boundary keeps the 150 ms element-build delay on the live clock.
-const delayedNext: Screen<never> = () =>
-	Effect.runPromise(Effect.as(Effect.sleep("150 millis"), createElement(Text, null, "next")));
+// The element takes 150 ms to build, on the live clock this test runs on.
+const delayedNext: Screen<never> = () => Effect.as(Effect.sleep("150 millis"), createElement(Text, null, "next"));
 
 describe("a rerender racing a crash", () => {
 	// Live clock: React crashes after 30 ms while the rerender waits 150 ms on real timers.

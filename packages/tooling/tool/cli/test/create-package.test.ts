@@ -113,6 +113,7 @@ const DriverPackageMetadata = S.Struct({
     family: S.Literal("drivers"),
   }),
   scripts: S.Record(S.String, S.String),
+  publishConfig: S.Struct({ exports: S.Record(S.String, S.NullOr(S.String)) }),
 });
 const EcosystemPackageMetadata = S.Struct({
   private: S.Literal(true),
@@ -212,7 +213,7 @@ const withSanctionedEcosystemDiagnosticDelta = Effect.fnUntraced(function* (
   );
 });
 const NoEmitTurboConfig = {
-  $schema: "https://v2-11-7.turborepo.dev/schema.json",
+  $schema: "https://v2-11-8.turborepo.dev/schema.json",
   extends: ["//"],
   tasks: { build: { outputs: [] } },
 };
@@ -327,11 +328,13 @@ it.layer(CommandTestLayer, { concurrent: false, timeout: "30 seconds" })((it) =>
         "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
         "beep:build": "tsc-rs -p tsconfig.check.json",
         "beep:check": "tsc-rs -p tsconfig.check.json",
+        "beep:coverage": "bunx vitest run --coverage --exclude=test/integration/**",
         "beep:lint": "biome check .",
         "beep:lint:fix": "biome check . --write",
         "beep:test": "bunx --bun vitest run",
         build: "bun run beep:build",
         check: "bun run beep:check",
+        coverage: "bun run beep:coverage",
         lint: "bun run beep:lint",
         "lint:fix": "bun run beep:lint:fix",
         "lint:deprecated-apis": "beep-cli lint deprecated-apis --package .",
@@ -1420,6 +1423,8 @@ export const $IdentityId: Identity.IdentityComposer<"@beep/identity"> = composer
               expect(generatedPackage.beep).toEqual({
                 family: "drivers",
               });
+              expect(generatedPackage.publishConfig.exports["."]).toBe("./dist/index.js");
+              expect(generatedPackage.publishConfig.exports["./*"]).toBe("./dist/*.js");
               expect(generatedPackage.scripts).toMatchObject(ExpectedGeneratedQualityScripts);
               expect(generatedPackage.scripts.docgen).toBe("bun run beep:docgen");
 

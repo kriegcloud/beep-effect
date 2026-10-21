@@ -1,5 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -25,14 +26,14 @@ const $I = $ScratchpadId.create("effected/github-actions/ChildEnv");
  */
 export const PathPrependEnv = S.Struct({
 	/** The additions to hand a child, ready to merge over the parent's block. */
-	env: S.Record(S.String, S.String).annotateKey({ description: "The additions to merge over the parent environment." }),
+	env: S.Record(S.String, S.String).pipe($I.annoteKey("PathPrependEnv.env", { description: "The additions to merge over the parent environment." })),
 	/**
 	 * Always `true`, and part of the answer on purpose: `env` **without**
 	 * `extendEnv: true` silently replaces the child's entire environment with
 	 * this one entry. See {@link ChildEnv.prependPath}.
 	 */
-	extendEnv: S.Literal(true).annotateKey({ description: "Merge additions rather than replacing the child environment." }),
-}).annotate($I.annote("PathPrependEnv", { description: "Plain-object PATH additions paired with the required environment merge flag." }));
+	extendEnv: S.Literal(true).pipe($I.annoteKey("PathPrependEnv.extendEnv", { description: "Merge additions rather than replacing the child environment." })),
+}).pipe($I.annoteSchema("PathPrependEnv", { description: "Plain-object PATH additions paired with the required environment merge flag." }));
 
 /**
  * The environment additions type accepted by {@link PathPrependEnv}.
@@ -69,13 +70,13 @@ export const PathPrependOptions = S.Struct({
   * {@link ChildEnv} — which is also what makes the Windows casing branch
   * exercisable from a test on any host.
   */
-	base: S.Record(S.String, S.UndefinedOr(S.String)).annotateKey({ description: "The explicitly supplied parent environment, including undefined values." }),
+	base: S.Record(S.String, S.UndefinedOr(S.String)).pipe($I.annoteKey("PathPrependOptions.base", { description: "The explicitly supplied parent environment, including undefined values." })),
 	/**
 	 * The platform the child runs on, `process.platform`-shaped. Decides the
 	 * `PATH` entry delimiter: `;` on `win32`, `:` everywhere else.
 	 */
-	platform: S.String.annotateKey({ description: "The platform selecting PATH casing and its entry delimiter." }),
-}).annotate($I.annote("PathPrependOptions", { description: "Plain-object inputs for constructing child PATH additions without ambient defaults." }));
+	platform: S.String.pipe($I.annoteKey("PathPrependOptions.platform", { description: "The platform selecting PATH casing and its entry delimiter." })),
+}).pipe($I.annoteSchema("PathPrependOptions", { description: "Plain-object inputs for constructing child PATH additions without ambient defaults." }));
 
 /**
  * The options type accepted by {@link PathPrependOptions}.
@@ -168,57 +169,61 @@ export abstract class ChildEnv {
 	}
 
 	/**
-     * The environment additions that prepend `dirs` to the child's `PATH`,
-     * paired with the `extendEnv: true` that keeps them a *prepend*.
-     *
-     * **Details**
-     *
-     * `dirs` are joined ahead of the inherited value **in the order given** —
-     * order is the caller's policy, because the first directory wins any name
-     * collision (a package manager's shim directory leads so it beats a runtime
-     * of the same name). POSIX uses the exact `PATH` key. On Windows, the
-     * entry is written under the base's own `PATH`
-     * spelling ({@link ChildEnv.pathKeyOf}), so a Windows child never receives
-     * `PATH` beside its inherited `Path`. An absent or empty inherited value
-     * appends nothing — deliberately not an empty trailing entry, which both
-     * platforms historically read as "the current directory".
-     *
-     * Two consumers, two compositions, and the difference is exactly trap 1:
-     *
-     * - A spawner call takes the **whole pair** — spread it into the command
-     *   options, as in the example below, so the `extendEnv: true` that makes
-     *   `env` a merge rather than a replacement cannot be forgotten.
-     * - An API that already merges additions over the parent itself —
-     *   `DetachedProcess.spawn`, whose `env` is documented as merged — takes
-     *   `.env` alone; `extendEnv` would be meaningless there.
-     *
-     * On a runner, pass `{ base: process.env, platform: process.platform }`.
-     *
-     * **Example** (Prepend a pnpm directory to the child environment)
-     *
-     * ```ts
-     * import { ChildEnv } from "@beep/scratchpad/effected/github-actions/ChildEnv";
-     * import * as ChildProcess from "effect/process/ChildProcess";
-     * const command = ChildProcess.make("pnpm", ["install"], {
-     *   ...ChildEnv.prependPath(["/opt/hostedtoolcache/pnpm/10.13.1/x64/bin"], {
-     *     base: { PATH: "/usr/bin" },
-     *     platform: "linux",
-     *   }),
-     *   ...(ChildEnv.needsShell("linux") ? { shell: true } : {}),
-     * });
-     * console.log(command.options.extendEnv) // true
-     * ```
-     *
-     * @category utilities
-     * @since 0.0.0
-     */
-	static prependPath(dirs: readonly [string, ...ReadonlyArray<string>], options: PathPrependOptions): PathPrependEnv {
+	 * The environment additions that prepend `dirs` to the child's `PATH`,
+	 * paired with the `extendEnv: true` that keeps them a *prepend*.
+	 *
+	 * **Details**
+	 *
+	 * `dirs` are joined ahead of the inherited value **in the order given** —
+	 * order is the caller's policy, because the first directory wins any name
+	 * collision (a package manager's shim directory leads so it beats a runtime
+	 * of the same name). POSIX uses the exact `PATH` key. On Windows, the
+	 * entry is written under the base's own `PATH`
+	 * spelling ({@link ChildEnv.pathKeyOf}), so a Windows child never receives
+	 * `PATH` beside its inherited `Path`. An absent or empty inherited value
+	 * appends nothing — deliberately not an empty trailing entry, which both
+	 * platforms historically read as "the current directory".
+	 *
+	 * Two consumers, two compositions, and the difference is exactly trap 1:
+	 *
+	 * - A spawner call takes the **whole pair** — spread it into the command
+	 *   options, as in the example below, so the `extendEnv: true` that makes
+	 *   `env` a merge rather than a replacement cannot be forgotten.
+	 * - An API that already merges additions over the parent itself —
+	 *   `DetachedProcess.spawn`, whose `env` is documented as merged — takes
+	 *   `.env` alone; `extendEnv` would be meaningless there.
+	 *
+	 * On a runner, pass `{ base: process.env, platform: process.platform }`.
+	 *
+	 * **Example** (Prepend a pnpm directory to the child environment)
+	 *
+	 * ```ts
+	 * import { ChildEnv } from "@beep/scratchpad/effected/github-actions/ChildEnv";
+	 * import * as ChildProcess from "effect/process/ChildProcess";
+	 *
+	 * const command = ChildProcess.make("pnpm", ["install"], {
+	 *   ...ChildEnv.prependPath(["/opt/hostedtoolcache/pnpm/10.13.1/x64/bin"], {
+	 *     base: { PATH: "/usr/bin" },
+	 *     platform: "linux",
+	 *   }),
+	 *   ...(ChildEnv.needsShell("linux") ? { shell: true } : {}),
+	 * });
+	 * console.log(command.options.extendEnv) // true
+	 * ```
+	 *
+	 * @category utilities
+	 * @since 0.0.0
+	 */
+	static readonly prependPath: {
+		(dirs: readonly [string, ...ReadonlyArray<string>], options: PathPrependOptions): PathPrependEnv;
+		(options: PathPrependOptions): (dirs: readonly [string, ...ReadonlyArray<string>]) => PathPrependEnv;
+	} = dual(2, (dirs: readonly [string, ...ReadonlyArray<string>], options: PathPrependOptions): PathPrependEnv => {
 		const delimiter = options.platform === "win32" ? ";" : ":";
 		const key = options.platform === "win32" ? ChildEnv.pathKeyOf(options.base) : "PATH";
 		const inherited = O.getOrUndefined(R.get(options.base, key));
 		const entries = inherited === undefined || inherited === "" ? dirs : [...dirs, inherited];
 		return { env: { [key]: A.join(entries, delimiter) }, extendEnv: true };
-	}
+	});
 
 	/**
 	 * Whether a bare-name command must be launched through a shell on this

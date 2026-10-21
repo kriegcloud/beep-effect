@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { createRequire } from "node:module";
+import * as NodeModule from "node:module";
 import { $WinkId } from "@beep/identity";
 import { A } from "@beep/utils";
 import * as Clock from "effect/Clock";
@@ -22,7 +22,7 @@ import { observeWinkWorkflow, textLengthAttribute } from "./WinkObservability.ts
 import type { AsHelpers, ItemToken, ItsHelpers, Model, Document as WinkDocument, WinkMethods } from "wink-nlp";
 
 const $I = $WinkId.create("Wink/WinkEngine");
-const require = createRequire(import.meta.url);
+const require = NodeModule.createRequire(import.meta.url);
 
 type WinkEngineShape = {
   readonly as: Effect.Effect<AsHelpers, WinkEngineError>;

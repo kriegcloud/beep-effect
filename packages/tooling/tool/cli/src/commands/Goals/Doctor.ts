@@ -586,7 +586,7 @@ const explorationBacklinkFindings = Effect.fn("Goals.explorationBacklinkFindings
   }
   const state = yield* reader.explorationPath(exploration.value);
   return GoalExplorationPathState.$match(state, {
-    present: () => A.empty<GoalDoctorFinding>(),
+    present: A.empty<GoalDoctorFinding>,
     escapes: () =>
       A.of(
         finding(
@@ -745,8 +745,11 @@ const CITATION_SEPARATOR = /[^A-Za-z0-9#-]+/;
 const citationTokens = (subjects: ReadonlyArray<string>): HashSet.HashSet<string> =>
   HashSet.fromIterable(A.flatMap(subjects, (subject) => Str.split(subject, CITATION_SEPARATOR)));
 
-const subjectLines = (subjectsText: string): ReadonlyArray<string> =>
-  pipe(subjectsText, Str.split("\n"), A.map(Str.trim), A.filter(Str.isNonEmpty));
+const subjectLines: (subjectsText: string) => ReadonlyArray<string> = flow(
+  Str.split("\n"),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty)
+);
 
 const recordedPullRequest = (packet: DoctorPacket): O.Option<string> =>
   pipe(
@@ -848,7 +851,8 @@ const completedManifest = (packet: DoctorPacket) =>
   O.filter(
     packet.manifest,
     (manifest) =>
-      GoalStatus.is["completed-retained"](manifest.initiative.status) && !manifest.completionGate.grandfathered
+      (GoalStatus.is["completed-retained"](manifest.initiative.status) || manifest.proposedCloseout !== undefined) &&
+      !manifest.completionGate.grandfathered
   );
 
 const completionGateAdvisories = (
@@ -858,7 +862,10 @@ const completionGateAdvisories = (
   A.flatMap(packets, (packet) =>
     completedManifest(packet).pipe(
       O.filter(
-        (manifest) => manifest.completionGate.pullRequests === undefined && !citedAnywhere(packet, subjectsText)
+        (manifest) =>
+          manifest.proposedCloseout === undefined &&
+          manifest.completionGate.pullRequests === undefined &&
+          !citedAnywhere(packet, subjectsText)
       ),
       O.map(() =>
         A.of(
@@ -1096,7 +1103,13 @@ const completionEvidenceAdvisory = Effect.fn("Goals.completionEvidenceAdvisory")
   const receipt = online
     ? O.some(yield* observeGoalCompletion(root, packet.record.slug, manifest, final))
     : yield* storedGoalCompletion(root, packet.record.slug, manifest, final).pipe(Effect.orElseSucceed(O.none));
-  if (O.isNone(receipt) && manifest.completionGate.pullRequests === undefined && !online) return O.none();
+  if (
+    O.isNone(receipt) &&
+    manifest.proposedCloseout === undefined &&
+    manifest.completionGate.pullRequests === undefined &&
+    !online
+  )
+    return O.none();
   const findings = completionReceiptFindings(packet.record.slug, final, receipt);
   return O.some({ slug: packet.record.slug, findings });
 });

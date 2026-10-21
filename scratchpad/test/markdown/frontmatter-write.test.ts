@@ -35,7 +35,7 @@ import { YamlFrontmatter } from "../../effected/markdown/YamlFrontmatter.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 const withFrontmatter = MarkdownParseOptions.make({ frontmatter: true });
-const parseDoc = (source: string) => MarkdownDocument.parse(source, withFrontmatter);
+const parseDoc = MarkdownDocument.parse(withFrontmatter);
 
 const Meta = S.Struct({
 	title: S.String,

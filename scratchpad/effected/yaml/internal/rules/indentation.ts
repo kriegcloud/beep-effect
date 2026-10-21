@@ -22,6 +22,7 @@ import { LintLine, StyleVote, YamlLintDiagnostic, YamlLintSeverity } from "../..
 import type { YamlScalar } from "../../YamlNode.ts";
 import { coveringToken, isScalarContinuationLine, nonNegativeIntegerOption, walkScalars } from "./util.ts";
 import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/indentation");
 
@@ -48,17 +49,17 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/indentation");
  * @since 0.0.0
  */
 export const indentationOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("indentationOptions.severity", {
 		description: "Reporting level for block-indentation style findings, defaulting to `error`",
-	}),
-	spaces: S.optionalKey(S.Union([nonNegativeIntegerOption, S.Literals(["consistent"])])).annotateKey({
+	})),
+	spaces: S.optionalKey(S.Union([nonNegativeIntegerOption, S.Literals(["consistent"])])).pipe($I.annoteKey("indentationOptions.spaces", {
 		description:
 			"Spaces per block-indentation level, or `consistent` to use the first observed increase; defaults to `consistent`",
-	}),
-	indentSequences: S.optionalKey(S.Union([S.Boolean, S.Literals(["consistent"])])).annotateKey({
+	})),
+	indentSequences: S.optionalKey(S.Union([S.Boolean, S.Literals(["consistent"])])).pipe($I.annoteKey("indentationOptions.indentSequences", {
 		description:
 			"Whether sequences indent beneath mapping keys, or `consistent` to follow the first observed placement; defaults to `consistent`",
-	}),
+	})),
 }).pipe(
 	$I.annoteSchema("indentationOptions", {
 		description:
@@ -75,15 +76,15 @@ export const indentationOptions = S.Struct({
 export type indentationOptions = typeof indentationOptions.Type;
 
 const ContentLine = S.Struct({
-	line: LintLine.annotateKey({ description: "Positioned source line contributing block structure" }),
-	prefixWidth: nonNegativeIntegerOption.annotateKey({ description: "Initial stream BOM width excluded from indentation" }),
-	propertiesOnly: S.Boolean.annotateKey({ description: "Whether the line contains only node anchors and tags" }),
-	indent: nonNegativeIntegerOption.annotateKey({ description: "Leading indentation column of the line" }),
-	firstChar: S.String.annotateKey({ description: "First non-whitespace character on the line" }),
-	indents: S.NonEmptyArray(nonNegativeIntegerOption).annotateKey({
+	line: LintLine.pipe($I.annoteKey("ContentLine.line", { description: "Positioned source line contributing block structure" })),
+	prefixWidth: nonNegativeIntegerOption.pipe($I.annoteKey("ContentLine.prefixWidth", { description: "Initial stream BOM width excluded from indentation" })),
+	propertiesOnly: S.Boolean.pipe($I.annoteKey("ContentLine.propertiesOnly", { description: "Whether the line contains only node anchors and tags" })),
+	indent: nonNegativeIntegerOption.pipe($I.annoteKey("ContentLine.indent", { description: "Leading indentation column of the line" })),
+	firstChar: S.String.pipe($I.annoteKey("ContentLine.firstChar", { description: "First non-whitespace character on the line" })),
+	indents: S.NonEmptyArray(nonNegativeIntegerOption).pipe($I.annoteKey("ContentLine.indents", {
 		description: "Line indentation followed by the innermost same-line compact collection columns",
-	}),
-	opensKey: S.Boolean.annotateKey({ description: "Whether the mapping separator has no same-line value content" }),
+	})),
+	opensKey: S.Boolean.pipe($I.annoteKey("ContentLine.opensKey", { description: "Whether the mapping separator has no same-line value content" })),
 }).pipe($I.annoteSchema("ContentLine", { description: "A structural line with a nonempty progression of nonnegative indentation columns" }));
 type ContentLine = typeof ContentLine.Type;
 
@@ -197,12 +198,10 @@ const contentLines = (ctx: LintContext): ReadonlyArray<ContentLine> => {
  * followed by a sequence entry — the pair the `indentSequences` policy is
  * about. Shared by the check and the inference hook.
  */
-const isKeyThenSeqEntry = (
-	ctx: LintContext,
-	prev: ContentLine,
-	curr: ContentLine,
-	unit: number,
-): boolean => {
+const isKeyThenSeqEntry: {
+	(ctx: LintContext, prev: ContentLine, curr: ContentLine, unit: number): boolean;
+	(prev: ContentLine, curr: ContentLine, unit: number): (ctx: LintContext) => boolean;
+} = dual(4, (ctx: LintContext, prev: ContentLine, curr: ContentLine, unit: number): boolean => {
 	if (curr.firstChar !== "-") return false;
 	// A leading `-` is not necessarily a sequence entry: `-5` and `--flag`
 	// are plain scalars (YAML 1.2 §7.1). The lexer already knows — only a
@@ -211,7 +210,7 @@ const isKeyThenSeqEntry = (
 	if (!prev.opensKey) return false;
 	const keyIndent = A.getUnsafe(prev.indents, prev.indents.length - 1);
 	return curr.indent === keyIndent || curr.indent === keyIndent + unit;
-};
+});
 
 /**
  * Check block-structure indentation style.
@@ -247,7 +246,7 @@ const isKeyThenSeqEntry = (
  */
 export const indentation: YamlRule = {
 	id: "indentation",
-	check: (ctx, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const spacesOpt =
 			P.hasProperty(options, "spaces") && S.is(indentationOptions.fields.spaces.schema)(options.spaces)
 				? options.spaces
@@ -328,7 +327,7 @@ export const indentation: YamlRule = {
 		}
 
 		return out;
-	},
+	}),
 	// Inference: every indent INCREASE votes its delta for `spaces`,
 	// and every key-then-sequence-entry pair votes whether the sequence is
 	// indented for `indentSequences` — the same content lines and the same

@@ -65,7 +65,7 @@ import type { JsonlEvent } from "./JsonlEvent.ts";
 import { Line } from "./Line.ts";
 import { LineSlice } from "./LineSlice.ts";
 import { CursoredSlice, matchesFrame } from "./Slice.ts";
-import { flow } from "effect/Function";
+import { dual, flow } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/jsonl/Journal");
 
@@ -120,8 +120,8 @@ export type JournalReadError = JournalNotFound | InvalidSlice | InvalidUtf8 | Pl
  * @since 0.0.0
  */
 // Structs keep configuration as plain data at the service-construction boundary.
-export const AppendOptions = S.Struct({ scope: S.optionalKey(S.String) }).annotate(
-  $I.annote("AppendOptions", { description: "Partition selection for one append." })
+export const AppendOptions = S.Struct({ scope: S.optionalKey(S.String) }).pipe(
+  $I.annoteSchema("AppendOptions", { description: "Partition selection for one append." })
 );
 
 /**
@@ -335,41 +335,37 @@ const isDurationText = S.is(DurationText);
 /** The string members of `Duration.Input`. */
 type DurationString = Extract<Duration.Input, string>;
 
-const DurationString = S.declare((input: unknown): input is DurationString => isDurationText(input))
-  .annotate({
+const DurationString = S.declare((input: unknown): input is DurationString => isDurationText(input)).pipe(
+  $I.annoteSchema("DurationString", {
+    description: "A duration string accepted by Duration.fromInput, including signed decimals and infinities.",
     toCodecArbitrary: () => S.link<DurationString>()(DurationText, SchemaTransformation.passthroughSupertype()),
   })
-  .pipe(
-    $I.annoteSchema("DurationString", {
-      description: "A duration string accepted by Duration.fromInput, including signed decimals and infinities.",
-    })
-  );
+);
 
 /**
  * Any JavaScript number. `Duration.Input` deliberately admits `NaN` and the
  * infinities (`Infinity` milliseconds is an unbounded wait), so this is not a
  * finite domain number; generation draws from finite numbers.
  */
-const DurationNumber = S.declare(P.isNumber)
-  .annotate({ toCodecArbitrary: () => S.link<number>()(S.Finite, SchemaTransformation.passthrough()) })
-  .pipe(
-    $I.annoteSchema("DurationNumber", {
-      description: "A JavaScript number, including the special values Duration.fromInput accepts.",
-    })
-  );
+const DurationNumber = S.declare(P.isNumber).pipe(
+  $I.annoteSchema("DurationNumber", {
+    description: "A JavaScript number, including the special values Duration.fromInput accepts.",
+    toCodecArbitrary: () => S.link<number>()(S.Finite, SchemaTransformation.passthrough()),
+  })
+);
 
 /** The object member of `Duration.Input`; every component is optional and additive. */
 const DurationObject = S.Struct({
-  weeks: S.optional(DurationNumber),
-  days: S.optional(DurationNumber),
-  hours: S.optional(DurationNumber),
-  minutes: S.optional(DurationNumber),
-  seconds: S.optional(DurationNumber),
-  milliseconds: S.optional(DurationNumber),
-  microseconds: S.optional(DurationNumber),
-  nanoseconds: S.optional(DurationNumber),
-}).annotate(
-  $I.annote("DurationObject", { description: "Additive duration components accepted by Duration.fromInput." })
+  weeks: S.optionalKey(DurationNumber),
+  days: S.optionalKey(DurationNumber),
+  hours: S.optionalKey(DurationNumber),
+  minutes: S.optionalKey(DurationNumber),
+  seconds: S.optionalKey(DurationNumber),
+  milliseconds: S.optionalKey(DurationNumber),
+  microseconds: S.optionalKey(DurationNumber),
+  nanoseconds: S.optionalKey(DurationNumber),
+}).pipe(
+  $I.annoteSchema("DurationObject", { description: "Additive duration components accepted by Duration.fromInput." })
 );
 
 /**
@@ -383,7 +379,7 @@ const DurationInput = S.Union([
   S.Tuple([DurationNumber, DurationNumber]),
   DurationString,
   DurationObject,
-]).annotate($I.annote("DurationInput", { description: "Every input shape Duration.fromInput accepts." }));
+]).pipe($I.annoteSchema("DurationInput", { description: "Every input shape Duration.fromInput accepts." }));
 
 /**
  * A `Duration.Input` decoded into a `Duration`.
@@ -410,8 +406,8 @@ const DurationFromInput = DurationInput.pipe(
 );
 
 /** Subscriber hub capacity: a positive integer. */
-const Capacity = S.Int.check(S.isGreaterThan(0)).annotate(
-  $I.annote("JournalCapacity", { description: "A positive integer subscriber hub capacity." })
+const Capacity = S.Int.check(S.isGreaterThan(0)).pipe(
+  $I.annoteSchema("JournalCapacity", { description: "A positive integer subscriber hub capacity." })
 );
 
 /**
@@ -443,12 +439,12 @@ export const JournalConfig = S.Struct({
   /** Journal path; construction permits a missing file. */
   path: S.String,
   /** Directory to watch until creation; defaults to the parent of path. */
-  directory: S.optional(S.String),
+  directory: S.optionalKey(S.String),
   /** Backpressured subscriber capacity; defaults to 64. */
-  capacity: S.optional(Capacity),
+  capacity: S.optionalKey(Capacity),
   /** Bound on graceful shutdown publication, as any Duration.Input; defaults to five seconds. */
-  shutdownPublishTimeout: S.optional(DurationInput),
-}).annotate($I.annote("JournalConfig", { description: "File and subscription settings for one journal layer." }));
+  shutdownPublishTimeout: S.optionalKey(DurationInput),
+}).pipe($I.annoteSchema("JournalConfig", { description: "File and subscription settings for one journal layer." }));
 
 /**
  * Configuration accepted by a journal layer.
@@ -474,8 +470,8 @@ const JournalSettings = S.Struct({
   ...JournalConfig.fields,
   capacity: Capacity.pipe(S.withDecodingDefault(Effect.succeed(64))),
   shutdownPublishTimeout: DurationFromInput.pipe(S.withDecodingDefaultType(Effect.succeed(SHUTDOWN_PUBLISH_TIMEOUT))),
-}).annotate(
-  $I.annote("JournalSettings", { description: "Validated journal settings with buffering and shutdown defaults." })
+}).pipe(
+  $I.annoteSchema("JournalSettings", { description: "Validated journal settings with buffering and shutdown defaults." })
 );
 const decodeSettings = S.decodeEffect(JournalSettings);
 
@@ -566,16 +562,37 @@ const textEncoder = new TextEncoder();
  * adds is the one thing the pure core cannot know: the window's text begins at
  * `window.start`, so every offset inside it is relative to that.
  */
-const decodeWindow = <R extends JsonlEvent.Registry>(
-  events: ReturnType<typeof Envelope.registry<R>>,
-  window: TailWindow
+// The window is the subject: the tail reader pipes each widened window into it.
+const decodeWindow: {
+  <R extends JsonlEvent.Registry>(
+    window: TailWindow,
+    events: ReturnType<typeof Envelope.registry<R>>
+  ): O.Option<EnvelopeUnion<R>>;
+  <R extends JsonlEvent.Registry>(
+    events: ReturnType<typeof Envelope.registry<R>>
+  ): (window: TailWindow) => O.Option<EnvelopeUnion<R>>;
+} = dual(2, <R extends JsonlEvent.Registry>(
+  window: TailWindow,
+  events: ReturnType<typeof Envelope.registry<R>>
 ): O.Option<EnvelopeUnion<R>> =>
   O.map(Envelope.lastValidResult(window.text, events), (envelope) => ({
     ...envelope,
     line: LineSlice.rebase(envelope.line, window.start),
-  }));
+  })));
 
-const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEvent.Registry>(
+const makeEngine: {
+  <R extends JsonlEvent.Registry>(
+    events: ReturnType<typeof Envelope.registry<R>>,
+    config: typeof JournalSettings.Type,
+    fs: FileSystem.FileSystem
+  ): Effect.Effect<JournalShape<R>, PlatformError.PlatformError | InvalidUtf8, Scope.Scope>;
+  (
+    config: typeof JournalSettings.Type,
+    fs: FileSystem.FileSystem
+  ): <R extends JsonlEvent.Registry>(
+    events: ReturnType<typeof Envelope.registry<R>>
+  ) => Effect.Effect<JournalShape<R>, PlatformError.PlatformError | InvalidUtf8, Scope.Scope>;
+} = dual(3, Effect.fn("Journal.makeEngine")(function* <R extends JsonlEvent.Registry>(
   events: ReturnType<typeof Envelope.registry<R>>,
   config: typeof JournalSettings.Type,
   fs: FileSystem.FileSystem
@@ -644,7 +661,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
       fs,
       config.path,
       bomBytes,
-      (window) => decodeWindow(events, window),
+      decodeWindow(events),
       DEFAULT_WINDOW,
       true
     );
@@ -678,7 +695,15 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
    * a foreign writer's unknown tag must not blind this reader to the lines
    * after it.
    */
-  const decodeRange = Effect.fn("Journal.decodeRange")(function* (from: number, to: number) {
+  type DecodedRange = {
+    readonly decoded: Array<EnvelopeUnion<R>>;
+    readonly advanced: number;
+    readonly torn: O.Option<JournalUnterminated>;
+  };
+  const decodeRange: {
+    (from: number, to: number): Effect.Effect<DecodedRange, PlatformError.PlatformError | InvalidUtf8>;
+    (to: number): (from: number) => Effect.Effect<DecodedRange, PlatformError.PlatformError | InvalidUtf8>;
+  } = dual(2, Effect.fn("Journal.decodeRange")(function* (from: number, to: number) {
     const window = yield* readRangeWindow(fs, config.path, from + bomBytes, to - from, bomBytes);
     const advanced = window.start + utf8Length(window.text);
     let decoded = Chunk.empty<EnvelopeUnion<R>>();
@@ -696,7 +721,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
           ? O.some(JournalUnterminated.make({ path: config.path, offset: advanced, end: window.size }))
           : O.none<JournalUnterminated>(),
     };
-  });
+  }));
 
   const identityOf = (info: FileSystem.File.Info): O.Option<string> => O.map(info.ino, (ino) => `${info.dev}:${ino}`);
 
@@ -786,16 +811,30 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
     };
   });
 
-  const publish = Effect.fn("Journal.publish")(function* (
+  const publish: {
+    (entries: ReadonlyArray<Take.Take<EnvelopeUnion<R>, JsonlError>>, predecessor: Deferred.Deferred<void>): Effect.Effect<void>;
+    (predecessor: Deferred.Deferred<void>): (entries: ReadonlyArray<Take.Take<EnvelopeUnion<R>, JsonlError>>) => Effect.Effect<void>;
+  } = dual(2, Effect.fn("Journal.publish")(function* (
     entries: ReadonlyArray<Take.Take<EnvelopeUnion<R>, JsonlError>>,
     predecessor: Deferred.Deferred<void>
   ) {
     yield* Deferred.await(predecessor);
     for (const entry of entries) yield* PubSub.publish(hub, entry);
-  });
+  }));
 
   /** Reconcile the actual tail before deriving or validating a local write. */
-  const appendWith = Effect.fn("Journal.appendWith")(function* (
+  // `scope` is a required (possibly undefined) argument, so arity dispatch is exact.
+  const appendWith: {
+    (
+      event: string,
+      build: (current: O.Option<EnvelopeUnion<R>>) => { readonly data: unknown; readonly patch: boolean },
+      scope: string | undefined
+    ): Effect.Effect<EnvelopeUnion<R>, JournalWriteError>;
+    (
+      build: (current: O.Option<EnvelopeUnion<R>>) => { readonly data: unknown; readonly patch: boolean },
+      scope: string | undefined
+    ): (event: string) => Effect.Effect<EnvelopeUnion<R>, JournalWriteError>;
+  } = dual(3, Effect.fn("Journal.appendWith")(function* (
     event: string,
     build: (current: O.Option<EnvelopeUnion<R>>) => { readonly data: unknown; readonly patch: boolean },
     scope: string | undefined
@@ -881,7 +920,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
       yield* publish(staged.entries, staged.predecessor);
       return yield* staged.outcome;
     }).pipe(Effect.ensuring(Deferred.done(mine, Exit.void)));
-  });
+  }));
 
   const decodeSelection = S.decodeUnknownEffect(S.UndefinedOr(CursoredSlice(S.String)));
   const validateSelection = Effect.fn("Journal.validateSelection")((slice: unknown) =>
@@ -948,7 +987,10 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
         // move its start or extend its end. The preceding byte establishes
         // whether the cursor is at a boundary or inside a partial line.
         const start = Math.max(0, from - 1);
-        const readPage = (position: number, length: number) =>
+        const readPage: {
+          (position: number, length: number): Effect.Effect<TailWindow, PlatformError.PlatformError | InvalidUtf8 | JournalResync>;
+          (length: number): (position: number) => Effect.Effect<TailWindow, PlatformError.PlatformError | InvalidUtf8 | JournalResync>;
+        } = dual(2, (position: number, length: number): Effect.Effect<TailWindow, PlatformError.PlatformError | InvalidUtf8 | JournalResync> =>
           readSampledWindow(file, {
             path: config.path,
             from: position + bom,
@@ -956,7 +998,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
             bomBytes: bom,
             sampledEnd: logicalSize,
             skipPartialLine: position === start && start > 0,
-          });
+          }));
         return Stream.paginate(
           start,
           Effect.fn("Journal.readPage")(function* (position) {
@@ -997,7 +1039,15 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
    * The public read overloads require an events filter when T is narrower
    * than the registry. Without that filter they expose the complete union.
    */
-  const matchesEnvelope = <T extends JsonlEvent.Tag<R>>(
+  const matchesEnvelope: {
+    <T extends JsonlEvent.Tag<R>>(
+      envelope: EnvelopeUnion<R>,
+      slice: CursoredSlice<R, T> | undefined
+    ): envelope is EnvelopeWithTag<R, T>;
+    <T extends JsonlEvent.Tag<R>>(
+      slice: CursoredSlice<R, T> | undefined
+    ): (envelope: EnvelopeUnion<R>) => envelope is EnvelopeWithTag<R, T>;
+  } = dual(2, <T extends JsonlEvent.Tag<R>>(
     envelope: EnvelopeUnion<R>,
     slice: CursoredSlice<R, T> | undefined
   ): envelope is EnvelopeWithTag<R, T> =>
@@ -1009,7 +1059,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
         data: envelope.data,
       },
       slice
-    );
+    ));
 
   const isTerminalEnvelope = (envelope: EnvelopeUnion<R>): boolean => HashSet.has(terminalTags, envelope.event);
 
@@ -1140,7 +1190,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
   function query(
     slice?: CursoredSlice<R, JsonlEvent.Tag<R>>
   ): Stream.Stream<EnvelopeUnion<R>, JournalReadError | JsonlError> {
-    return readFrom(slice).pipe(Stream.filter((envelope) => matchesEnvelope(envelope, slice)));
+    return readFrom(slice).pipe(Stream.filter(matchesEnvelope(slice)));
   }
 
   function changes<T extends JsonlEvent.Tag<R>>(
@@ -1152,7 +1202,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
   function changes(
     slice?: CursoredSlice<R, JsonlEvent.Tag<R>>
   ): Stream.Stream<EnvelopeUnion<R>, JournalReadError | JsonlError> {
-    return changesStream(slice).pipe(Stream.filter((envelope) => matchesEnvelope(envelope, slice)));
+    return changesStream(slice).pipe(Stream.filter(matchesEnvelope(slice)));
   }
 
   function projection<State, T extends JsonlEvent.Tag<R>>(
@@ -1171,7 +1221,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
     slice?: CursoredSlice<R, T>
   ): Stream.Stream<State, JournalReadError | JsonlError> {
     return changesStream(slice).pipe(
-      Stream.filter((envelope): envelope is EnvelopeWithTag<R, T> => matchesEnvelope(envelope, slice)),
+      Stream.filter(matchesEnvelope(slice)),
       Stream.scan(() => initial, fold)
     );
   }
@@ -1409,7 +1459,7 @@ const makeEngine = Effect.fn("Journal.makeEngine")(function* <R extends JsonlEve
   );
 
   return shape;
-});
+}));
 
 /**
  * A per-registry `Journal` service class.

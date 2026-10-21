@@ -15,6 +15,7 @@ import * as Flag from "effect/cli/Flag";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -32,7 +33,9 @@ import {
 } from "./AgentMessage.models.ts";
 import { EndpointDispatch, makeAgentMessageRouter } from "./AgentMessage.service.ts";
 import { AgentMessageStore } from "./AgentMessage.store.ts";
+import type { ManagedTurnResult } from "@beep/ai-provider-cli";
 import type { Claim } from "./AgentMessage.models.ts";
+import type { AgentMessageStoreShape } from "./AgentMessage.store.ts";
 
 const ReceiptJson = S.fromJsonString(Receipt);
 const EnvelopeJson = S.fromJsonString(Envelope);
@@ -40,6 +43,57 @@ const ProfileJson = S.fromJsonString(ManagedLaunchProfile);
 const BindingJson = S.fromJsonString(EndpointBinding);
 const GrantJson = S.fromJsonString(LaunchGrant);
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.runtime");
+/**
+ * Persist an already correlated native result before reporting delivery, retrying only mailbox lock contention.
+ *
+ * **Example** (Persist an original result without repeating inference)
+ * ```ts
+ * import { ManagedTerminalEvidence, ManagedTurnResult } from "@beep/ai-provider-cli"
+ * import { AgentMessageStore, Claim } from "@beep/repo-cli/commands/AgentMessage"
+ * import { recordNativeSettlement } from "@beep/repo-cli/commands/AgentMessage/AgentMessage.runtime"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * const persist = Effect.gen(function* () {
+ *   const store = yield* AgentMessageStore
+ *   const envelope = yield* store.message("owned-message")
+ *   const claim = Claim.make({ envelope, ownerId: "owner", generation: 1, leaseUntil: 1000 })
+ *   const response = ManagedTurnResult.make({
+ *     messageId: envelope.messageId, text: "", stopReason: "completed",
+ *     terminalEvidence: O.some(ManagedTerminalEvidence.make({
+ *       adapter: "codex", sessionId: "original-session", messageId: envelope.messageId,
+ *       turnId: "original-turn", outcome: "delivered", stopReason: "completed",
+ *     })),
+ *   })
+ *   return yield* recordNativeSettlement(store, claim, response)
+ * })
+ * console.log(Effect.isEffect(persist)) // true; no inference or database write runs here
+ * ```
+ *
+ * @category processes
+ * @since 0.0.0
+ * @internal
+ */
+export const recordNativeSettlement = Effect.fn("AgentMessage.recordNativeSettlement")(function* (
+  store: AgentMessageStoreShape,
+  claim: Claim,
+  response: ManagedTurnResult
+): Effect.fn.Return<"delivered", RouterError> {
+  if (response.messageId !== claim.envelope.messageId || O.isNone(response.terminalEvidence))
+    return yield* RouterError.make({
+      code: "conflict",
+      message: "Native response lacks original correlated terminal evidence; retain the dispatch hold.",
+    });
+  if (response.stopReason !== response.terminalEvidence.value.stopReason)
+    return yield* RouterError.make({
+      code: "conflict",
+      message: "Native response contradicts its terminal evidence; retain the dispatch hold.",
+    });
+  yield* retryMailboxLock(
+    store.recordSettlement(claim, response.terminalEvidence.value, yield* Clock.currentTimeMillis)
+  );
+  return "delivered";
+});
 const ownsReceivingGrant = (
   grant: LaunchGrant,
   endpointId: string,
@@ -66,6 +120,68 @@ const retryMailboxLock = <A, R>(operation: Effect.Effect<A, RouterError, R>) =>
     ),
     Effect.retry({ while: isMailboxLockTimeout, times: 8, schedule: Schedule.spaced(Duration.millis(250)) })
   );
+
+/**
+ * Complete a dispatch while preserving a pinned receiving-grant failure.
+ *
+ * **Details**
+ * Invalid-grant completion gets bounded storage retries. Exhaustion logs the
+ * unsaved receipt and fails with the original grant error, retaining the claim
+ * for reconciliation. Only successfully persisted receipts are printed.
+ *
+ * **Example** (Compose completion with an invalidation reference)
+ * ```ts
+ * import { AgentMessageStore, makeAgentMessageCompletion, RouterError } from "@beep/repo-cli/commands/AgentMessage"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ * import * as Ref from "effect/Ref"
+ * const program = Effect.gen(function* () {
+ *   const store = yield* AgentMessageStore
+ *   const invalid = yield* Ref.make(O.none<RouterError>())
+ *   return { ...store, complete: makeAgentMessageCompletion(store, invalid) }
+ * })
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ *
+ * @internal
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeAgentMessageCompletion: {
+  (
+    invalidReceivingGrant: Ref.Ref<O.Option<RouterError>>
+  ): (store: AgentMessageStoreShape) => AgentMessageStoreShape["complete"];
+  (
+    store: AgentMessageStoreShape,
+    invalidReceivingGrant: Ref.Ref<O.Option<RouterError>>
+  ): AgentMessageStoreShape["complete"];
+} = dual(2, (store: AgentMessageStoreShape, invalidReceivingGrant: Ref.Ref<O.Option<RouterError>>) =>
+  Effect.fn("AgentMessage.complete")(function* (
+    claim: Claim,
+    status: "ambiguous" | "delivered" | "failed",
+    at: number,
+    detail?: O.Option<string>
+  ) {
+    const invalid = yield* Ref.get(invalidReceivingGrant);
+    const operation = store.complete(
+      claim,
+      status,
+      at,
+      O.isSome(invalid) ? O.some("invalidGrant: receiving grant expired or enrollment replaced.") : detail
+    );
+    if (O.isNone(invalid)) return yield* operation;
+    const receipt = yield* retryMailboxLock(operation).pipe(
+      Effect.catch((storageFailure) =>
+        Effect.logWarning(
+          "Invalid-grant receipt was not persisted; the dispatch claim is retained.",
+          storageFailure
+        ).pipe(Effect.andThen(invalid.value))
+      )
+    );
+    yield* Console.log(yield* S.encodeEffect(ReceiptJson)(receipt));
+    return yield* invalid.value;
+  })
+);
 
 /**
  * Keep an owned dispatcher alive across classified mailbox contention.
@@ -286,32 +402,10 @@ export const agentMessageServeCommand = Command.make(
               })
             )
           );
-        if (response.stopReason === "completed" || response.stopReason === "end_turn") return "delivered";
-        return yield* RouterError.make({
-          code: "storage",
-          message: "Native turn ended without a successful terminal status; reconciliation is required before retry.",
-        });
+        return yield* recordNativeSettlement(store, claim, response);
       });
       yield* Console.log(yield* S.encodeEffect(BindingJson)(binding));
-      const complete = Effect.fn("AgentMessage.complete")(function* (
-        claim: Claim,
-        status: "ambiguous" | "delivered" | "failed",
-        at: number,
-        detail?: O.Option<string>
-      ) {
-        const invalid = yield* Ref.get(invalidReceivingGrant);
-        const receipt = yield* store.complete(
-          claim,
-          status,
-          at,
-          O.isSome(invalid) ? O.some("invalidGrant: receiving grant expired or enrollment replaced.") : detail
-        );
-        if (O.isSome(invalid)) {
-          yield* Console.log(yield* S.encodeEffect(ReceiptJson)(receipt));
-          return yield* invalid.value;
-        }
-        return receipt;
-      });
+      const complete = makeAgentMessageCompletion(store, invalidReceivingGrant);
       return yield* runAgentMessageDispatchLoop(endpointId, ownerId).pipe(
         Effect.provideService(EndpointDispatch, { submit }),
         Effect.provideService(AgentMessageStore, { ...store, complete })

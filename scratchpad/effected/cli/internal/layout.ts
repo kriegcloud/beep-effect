@@ -1,6 +1,6 @@
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import { type Inline, LinkTarget } from "../Doc.ts";
 import * as S from "effect/Schema";
 import { sanitize } from "../Fmt.ts";
@@ -62,7 +62,10 @@ const safeTarget = (target: LinkTarget): LinkTarget =>
 			...O.getSomesStruct({ line: O.fromUndefinedOr(target.line), col: O.fromUndefinedOr(target.col) }),
 		};
 
-const spansOf = (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
+const spansOf: {
+	(inline: Inline, ctx: RenderContext): ReadonlyArray<Span>;
+	(ctx: RenderContext): (inline: Inline) => ReadonlyArray<Span>;
+} = dual(2, (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
 	Match.valueTags(inline, {
 		Text: (inline) =>
 			[{ text: sanitize(inline.value), ...O.getSomesStruct({ token: O.fromUndefinedOr(inline.token) }) }],
@@ -72,7 +75,7 @@ const spansOf = (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
 			// since a control character in a URL ends an OSC 8 early; one copy is shared by every span of the link.
 			const link = safeTarget(inline.target);
 			const suffix = inline.suffix === undefined ? {} : { suffix: inline.suffix };
-			return inline.label.flatMap((part) => spansOf(part, ctx)).map((span) => ({ ...span, link, ...suffix }));
+			return pipe(inline.label, A.flatMap(spansOf(ctx)), A.map((span) => ({ ...span, link, ...suffix })));
 		},
 		StatusMark: (inline): ReadonlyArray<Span> =>
 			[
@@ -82,13 +85,13 @@ const spansOf = (inline: Inline, ctx: RenderContext): ReadonlyArray<Span> =>
 					glyph: true,
 				},
 			],
-		Path: (inline) => [{ text: inline.segments.map(sanitize).join(pathSeparator(ctx)) }],
+		Path: (inline) => [{ text: pipe(inline.segments, A.map(sanitize), A.join(pathSeparator(ctx))) }],
 		Strong: (inline) =>
-			inline.content.flatMap((part) => spansOf(part, ctx)).map((span) => ({ ...span, strong: true as const })),
+			pipe(inline.content, A.flatMap(spansOf(ctx)), A.map((span) => ({ ...span, strong: true as const }))),
 		Emphasis: (inline) =>
-			inline.content.flatMap((part) => spansOf(part, ctx)).map((span) => ({ ...span, em: true as const })),
+			pipe(inline.content, A.flatMap(spansOf(ctx)), A.map((span) => ({ ...span, em: true as const }))),
 		File: (inline) => [{ text: safeTargetText(ctx.displayPath(inline.path)) }],
-	});
+	}));
 
 /**
  * Flatten inline nodes into spans.
@@ -118,7 +121,7 @@ export const flatten: {
 	(ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
 	(inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
 } = dual(2, (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> =>
-	inlines.flatMap((inline) => spansOf(inline, ctx)).filter((span) => span.text !== ""));
+	pipe(inlines, A.flatMap(spansOf(ctx)), A.filter((span) => span.text !== "")));
 
 /**
  * The display width of spans in terminal columns.
@@ -142,7 +145,7 @@ export const flatten: {
  * @since 0.0.0
  */
 export const widthOf = (spans: ReadonlyArray<Span>): number =>
-	spans.reduce((sum, span) => sum + displayWidth(span.text), 0);
+	A.reduce(spans, 0, (sum, span) => sum + displayWidth(span.text));
 
 /** One grapheme with its width and the span it came from. */
 interface Cell {
@@ -152,7 +155,7 @@ interface Cell {
 }
 
 const cellsOf = (spans: ReadonlyArray<Span>): ReadonlyArray<Cell> =>
-	spans.flatMap((span) => graphemes(span.text).map((grapheme) => ({ grapheme, width: displayWidth(grapheme), span })));
+	A.flatMap(spans, (span) => A.map(graphemes(span.text), (grapheme) => ({ grapheme, width: displayWidth(grapheme), span })));
 
 /** Rebuild spans from cells, merging a run that came from the same span. */
 const spansFromCells = (cells: ReadonlyArray<Cell>): ReadonlyArray<Span> => {
@@ -284,7 +287,7 @@ export const paintSpans: {
 
 const isLineBreak = (grapheme: string): boolean => grapheme === "\n" || grapheme === "\r\n" || grapheme === "\r";
 
-const cellsWidth = (cells: ReadonlyArray<Cell>): number => cells.reduce((sum, cell) => sum + cell.width, 0);
+const cellsWidth = (cells: ReadonlyArray<Cell>): number => A.reduce(cells, 0, (sum, cell) => sum + cell.width);
 
 /**
  * Options for {@link wrapSpans}.
@@ -386,5 +389,5 @@ export const wrapSpans: {
 		}
 	}
 	if (line.length > 0 || lines.length === 0) flush();
-	return lines.map(spansFromCells);
+	return A.map(lines, spansFromCells);
 });

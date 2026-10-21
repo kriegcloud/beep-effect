@@ -23,6 +23,7 @@ import { ExtractOptions, ProvisionFileOptions, ProvisionedFile } from "../../eff
 import * as TestClock from "effect/testing/TestClock";
 import { ActionEnvironment, ToolInstaller, ToolInstallerError } from "../../effected/github-actions/index.ts";
 import { settle } from "./results.ts";
+import { dual } from "effect/Function";
 
 const alwaysFails: typeof globalThis.fetch = Object.assign(() => Promise.resolve(new Response("no", { status: 500 })), {
 	preconnect: () => {},
@@ -1075,7 +1076,7 @@ describe("ToolInstaller", () => {
 				const found = yield* Effect.flatMap(ToolInstaller, (installer) => installer.find("node", "1"));
 				assertSome(found, "/cached");
 			}).pipe(
-				Effect.provideService(ToolInstaller, ToolInstaller.makeTest({ find: () => Effect.succeedSome("/cached") })),
+				Effect.provideService(ToolInstaller, ToolInstaller.makeTest({ find: dual(2, (_tool: string, _version: string) => Effect.succeedSome("/cached")) })),
 			),
 		);
 
@@ -1093,7 +1094,7 @@ describe("ToolInstaller", () => {
 						ToolInstaller.cachePath({ root, tool: "node", version: "22.11.0", arch: process.arch }),
 					);
 					assert.strictEqual(
-						ToolInstaller.makeTest({ cachePath: () => "/elsewhere" }).cachePath("node", "1"),
+						ToolInstaller.makeTest({ cachePath: dual(2, (_tool: string, _version: string) => "/elsewhere") }).cachePath("node", "1"),
 						"/elsewhere",
 					);
 				}),

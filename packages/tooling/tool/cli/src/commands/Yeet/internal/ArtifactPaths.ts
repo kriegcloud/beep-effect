@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { hostname, userInfo } from "node:os";
+import * as NodeOS from "node:os";
 import { $RepoCliId } from "@beep/identity/packages";
 import { sha256Hex } from "@beep/repo-utils/Sha256Hex";
 import { LiteralKit } from "@beep/schema";
@@ -138,7 +138,7 @@ const artifactNameHash = Effect.fnUntraced(function* (value: string) {
   );
 });
 
-const effectiveUserId = (): number => userInfo().uid;
+const effectiveUserId = (): number => NodeOS.userInfo().uid;
 
 // Locks keep their historical scoped leaf directly under the invariant
 // platform base, so launcher environment and transient runtime-directory probes
@@ -152,7 +152,7 @@ const proofCoordinatorRuntimeRoot = Effect.fnUntraced(function* (): Effect.fn.Re
 });
 
 const proofCoordinatorDirectoryName = Effect.fnUntraced(function* () {
-  return `beep-yeet-proof-locks-${yield* artifactNameHash(hostname())}-uid-${effectiveUserId()}`;
+  return `beep-yeet-proof-locks-${yield* artifactNameHash(NodeOS.hostname())}-uid-${effectiveUserId()}`;
 });
 
 /**

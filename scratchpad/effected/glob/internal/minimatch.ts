@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 // Ported from minimatch@10.2.5 (https://github.com/isaacs/minimatch)
 // Copyright: Isaac Z. Schlueter and Contributors
 // License: BlueOak-1.0.0 (https://blueoakcouncil.org/license/1.0.0)
@@ -27,7 +28,7 @@
 //   unchanged behind optimizationLevel.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as S from "effect/Schema";
 import * as P from "effect/Predicate";
@@ -62,9 +63,8 @@ const $I = $ScratchpadId.create("effected/glob/internal/minimatch");
  * @since 0.0.0
  */
 export class MinimatchError extends S.TaggedError<MinimatchError, { readonly brand: unique symbol }>($I`MinimatchError`)("MinimatchError", {
-	message: S.String.annotateKey({ description: "Describes the internal matching invariant that was violated." }),
-}, $I.annote("MinimatchError", {
-	title: "Minimatch engine invariant violation",
+	message: S.String.pipe($I.annoteKey("MinimatchError.message", { description: "Describes the internal matching invariant that was violated." })),
+}, $I.annoteError<MinimatchError>("MinimatchError", {
 	description: "Programmer error raised when the internal matcher reaches an impossible state while matching a path against a compiled pattern.",
 })) {}
 
@@ -650,12 +650,12 @@ export class Minimatch {
 		// First, we preprocess to make the glob pattern sets a bit simpler
 		// and deduped.  There are some perf-killing patterns that can cause
 		// problems with a glob walk, but we can simplify them down a bit.
-		const rawGlobParts = this.globSet.map((s) => this.slashSplit(s));
+		const rawGlobParts = A.map(this.globSet, (s) => this.slashSplit(s));
 		this.globParts = this.preprocess(rawGlobParts);
 		this.debug(this.pattern, this.globParts);
 
 		// glob --> regexps
-		const set = this.globParts.map((s) => {
+		const set = A.map(this.globParts, (s) => {
 			if (this.isWindows && this.windowsNoMagicRoot) {
 				// check if it's a drive or unc path.
 				const isUNC =
@@ -667,19 +667,19 @@ export class Minimatch {
 				const root = s[0];
 				const isDrive = root !== undefined && /^[a-z]:/i.test(root);
 				if (isUNC) {
-					return [...s.slice(0, 4), ...s.slice(4).map((ss) => this.parse(ss))];
+					return [...s.slice(0, 4), ...A.map(s.slice(4), (ss) => this.parse(ss))];
 				}
 				if (isDrive) {
-					return [root, ...s.slice(1).map((ss) => this.parse(ss))];
+					return [root, ...A.map(s.slice(1), (ss) => this.parse(ss))];
 				}
 			}
-			return s.map((ss) => this.parse(ss));
+			return A.map(s, (ss) => this.parse(ss));
 		});
 
 		this.debug(this.pattern, set);
 
 		// filter out everything that didn't compile properly.
-		this.set = set.filter((s): s is Array<ParseReturnFiltered> => s.every((p) => p !== false));
+		this.set = A.filter(set, (s): s is Array<ParseReturnFiltered> => A.every(s, (p) => p !== false));
 
 		// do not treat the ? in UNC paths as magic
 		if (this.isWindows) {
@@ -779,7 +779,7 @@ export class Minimatch {
 	 * @since 0.0.0
 	 */
 	adjascentGlobstarOptimize(globParts: Array<Array<string>>) {
-		return globParts.map((parts) => {
+		return A.map(globParts, (parts) => {
 			let gs = parts.indexOf("**");
 			while (gs !== -1) {
 				let i = gs;
@@ -813,8 +813,8 @@ export class Minimatch {
 	 * @since 0.0.0
 	 */
 	levelOneOptimize(globParts: Array<Array<string>>) {
-		return globParts.map((partsInput) => {
-			const parts = partsInput.reduce((set: Array<string>, part) => {
+		return A.map(globParts, (partsInput) => {
+			const parts = A.reduce(partsInput, [] as Array<string>, (set: Array<string>, part) => {
 				const prev = set[set.length - 1];
 				if (part === "**" && prev === "**") {
 					return set;
@@ -827,7 +827,7 @@ export class Minimatch {
 				}
 				set.push(part);
 				return set;
-			}, []);
+			});
 			return parts.length === 0 ? [""] : parts;
 		});
 	}
@@ -1048,7 +1048,8 @@ export class Minimatch {
 				}
 			}
 		}
-		return globParts.filter((gs) => gs.length);
+		// A.filter visits sparse holes that native filter skipped; a hole stays dropped
+		return A.filter(globParts, (gs: Array<string> | undefined) => gs !== undefined && gs.length > 0);
 	}
 
 	/**
@@ -1660,15 +1661,16 @@ export class Minimatch {
 		// if ** is last, append (\/twoStar|) to previous
 		// if ** is in the middle, append (\/|\/twoStar\/) to previous
 		// then filter out GLOBSTAR symbols
-		let re = set
-			.map((pattern) => {
-				const pp: Array<string | typeof GLOBSTAR | undefined> = pattern.map((p) => {
+		let re = pipe(
+			set,
+			A.map((pattern) => {
+				const pp: Array<string | typeof GLOBSTAR | undefined> = A.map(pattern, (p) => {
 					if (p instanceof RegExp) {
 						for (const f of p.flags.split("")) MutableHashSet.add(flags, f);
 					}
 					return P.isString(p) ? regExpEscape(p) : p === GLOBSTAR ? GLOBSTAR : p._src;
 				});
-				pp.forEach((p, i) => {
+				A.forEach(pp, (p, i) => {
 					const next = pp[i + 1];
 					const prev = pp[i - 1];
 					if (p !== GLOBSTAR || prev === GLOBSTAR) {
@@ -1687,7 +1689,13 @@ export class Minimatch {
 						pp[i + 1] = GLOBSTAR;
 					}
 				});
-				const filtered = pp.filter((p) => p !== GLOBSTAR);
+				// native filter skipped sparse holes (A.filter visits them) and native join
+				// rendered a remaining undefined as "", so keep both explicit
+				const filtered = pipe(
+					pp,
+					A.filter((p, i): p is string | undefined => p !== GLOBSTAR && i in pp),
+					A.map((p) => p ?? ""),
+				);
 
 				// For partial matches, we need to make the pattern match
 				// any prefix of the full path. We do this by generating
@@ -1695,14 +1703,15 @@ export class Minimatch {
 				if (this.partial && filtered.length >= 1) {
 					const prefixes: Array<string> = [];
 					for (let i = 1; i <= filtered.length; i++) {
-						prefixes.push(filtered.slice(0, i).join("/"));
+						prefixes.push(A.join(filtered.slice(0, i), "/"));
 					}
-					return `(?:${prefixes.join("|")})`;
+					return `(?:${A.join(prefixes, "|")})`;
 				}
 
-				return filtered.join("/");
-			})
-			.join("|");
+				return A.join(filtered, "/");
+			}),
+			A.join("|"),
+		);
 
 		// need to wrap in parens if we had more than one thing with |,
 		// otherwise only the first will be anchored to ^ and the last to $
@@ -1719,12 +1728,11 @@ export class Minimatch {
 		// can match anything, as long as it's not this.
 		if (this.negate) re = `^(?!${re}).+$`;
 
-		try {
-			this.regexp = new RegExp(re, [...flags].join(""));
-		} catch {
+		this.regexp = Result.getOrElse(
+			Result.try(() => new RegExp(re, A.join(flags, ""))),
 			// should be impossible
-			this.regexp = false;
-		}
+			(): false => false,
+		);
 		return this.regexp;
 	}
 
@@ -1805,7 +1813,7 @@ export class Minimatch {
 		// windows: need to use /, not \
 		let f = fInput;
 		if (this.isWindows) {
-			f = f.split("\\").join("/");
+			f = A.join(f.split("\\"), "/");
 		}
 
 		// treat the test path as a set of pathparts.

@@ -1,3 +1,5 @@
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { GlobSet } from "../glob/index.ts";
 import { DependencyField } from "../npm/index.ts";
@@ -10,6 +12,7 @@ import { isPlainObject } from "./PackageManagerName.ts";
 import * as R from "effect/Record";
 import * as O from "@beep/utils/Option";
 import * as Match from "effect/Match";
+import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/workspaces/LayerPolicy");
 
@@ -18,10 +21,13 @@ const JsonValue = S.fromJsonString(S.Unknown);
 const REQUIRED_EDGE = /^\S+ -> \S+$/u;
 
 /** `input` without `keys`, when it is a plain object; anything else passes through for the schema to reject. */
-const withoutKeys = (input: unknown, keys: ReadonlyArray<string>): unknown => {
+const withoutKeys: {
+	(input: unknown, keys: ReadonlyArray<string>): unknown;
+	(keys: ReadonlyArray<string>): (input: unknown) => unknown;
+} = dual(2, (input: unknown, keys: ReadonlyArray<string>): unknown => {
 	if (!isPlainObject(input)) return input;
-	return R.fromEntries(R.toEntries(input).filter(([key]) => !keys.includes(key)));
-};
+	return R.fromEntries(A.filter(R.toEntries(input), ([key]) => !keys.includes(key)));
+});
 
 /**
  * Raised when a layer policy cannot be read, parsed or decoded.
@@ -41,12 +47,12 @@ const withoutKeys = (input: unknown, keys: ReadonlyArray<string>): unknown => {
  */
 export class LayerPolicyError extends S.TaggedError<LayerPolicyError, { readonly brand: unique symbol }>($I`LayerPolicyError`)("LayerPolicyError", {
 	/** `read`: the file could not be read. `json`: it is not JSON. `decode`: it is not a `LayerPolicy`. */
-	reason: S.Literals(["read", "json", "decode"]).annotateKey({ description: "`read`: the file could not be read. `json`: it is not JSON. `decode`: it is not a `LayerPolicy`." }),
+	reason: S.Literals(["read", "json", "decode"]).pipe($I.annoteKey("LayerPolicyError.reason", { description: "`read`: the file could not be read. `json`: it is not JSON. `decode`: it is not a `LayerPolicy`." })),
 	/** The file, when the policy came from one. */
-	path: S.optionalKey(S.String).annotateKey({ description: "The file, when the policy came from one." }),
+	path: S.optionalKey(S.String).pipe($I.annoteKey("LayerPolicyError.path", { description: "The file, when the policy came from one." })),
 	/** The originating failure. */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The originating failure." }),
-}, $I.annote("LayerPolicyError", { description: "Raised when a layer policy cannot be read, parsed or decoded." })) {
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("LayerPolicyError.cause", { description: "The originating failure." })),
+}, $I.annoteError<LayerPolicyError>("LayerPolicyError", { description: "Raised when a layer policy cannot be read, parsed or decoded." })) {
 	/**
 	 * Renders the failure kind and the file into one line.
 	 *
@@ -119,21 +125,20 @@ export class LayerPolicyError extends S.TaggedError<LayerPolicyError, { readonly
  */
 export class LayerPolicy extends S.Class<LayerPolicy, { readonly brand: unique symbol }>($I`LayerPolicy`)({
 	/** Exact package names (never relative paths) per layer, top layer first. */
-	layers: S.String.pipe(S.Array, S.Array).annotateKey({ description: "Exact package names (never relative paths) per layer, top layer first." }),
+	layers: S.String.pipe(S.Array, S.Array, $I.annoteKey("LayerPolicy.layers", { description: "Exact package names (never relative paths) per layer, top layer first." })),
 	/** Exact package names (never relative paths) any layer may depend on that never depend on a layer. */
-	tooling: S.Array(S.String).annotateKey({ description: "Exact package names (never relative paths) any layer may depend on that never depend on a layer." }),
+	tooling: S.Array(S.String).pipe($I.annoteKey("LayerPolicy.tooling", { description: "Exact package names (never relative paths) any layer may depend on that never depend on a layer." })),
 	/** Globs matched against package names (never relative paths) for packages whose own edges are not checked. */
 	unconstrained: S.Array(S.String).check(
-		S.makeFilter((patterns) => Result.isSuccess(GlobSet.compileResult(patterns)), {
-			identifier: $I`CompilableGlobPatterns`,
-			title: "compilable glob patterns",
+		S.makeFilter((patterns) => Result.isSuccess(GlobSet.compileResult(patterns)), $I.annote("CompilableGlobPatterns", {
+			message: "compilable glob patterns",
 			description: "Every unconstrained package pattern must compile as a glob.",
-		}),
-	).annotateKey({ description: "Globs matched against package names (never relative paths) for packages whose own edges are not checked." }),
+		})),
+	).pipe($I.annoteKey("LayerPolicy.unconstrained", { description: "Globs matched against package names (never relative paths) for packages whose own edges are not checked." })),
 	/** The dependency maps to check. Absent means all four. */
-	fields: DependencyField.pipe(S.Array, S.optionalKey).annotateKey({ description: "The dependency maps to check. Absent means all four." }),
+	fields: DependencyField.pipe(S.Array, S.optionalKey, $I.annoteKey("LayerPolicy.fields", { description: "The dependency maps to check. Absent means all four." })),
 	/** Edges that must exist, written `"a -> b"`. */
-	requiredEdges: S.String.check(S.isPattern(REQUIRED_EDGE)).pipe(S.Array, S.optionalKey).annotateKey({ description: "Edges that must exist, written `\"a -> b\"`." }),
+	requiredEdges: S.String.check(S.isPattern(REQUIRED_EDGE)).pipe(S.Array, S.optionalKey, $I.annoteKey("LayerPolicy.requiredEdges", { description: "Edges that must exist, written `\"a -> b\"`." })),
 }, $I.annote("LayerPolicy", { description: "A committed dependency-layering policy (`layers.json`)." })) {
 	/**
 	 * The dependency maps a check reads: `fields`, or all four.
@@ -211,15 +216,23 @@ export class LayerPolicy extends S.Class<LayerPolicy, { readonly brand: unique s
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly load = Effect.fn("LayerPolicy.load")(function* (
+	static readonly load: {
+		(
+			path: string,
+			options?: { readonly allowKeys?: ReadonlyArray<string> | undefined },
+		): Effect.Effect<LayerPolicy, LayerPolicyError, FileSystem.FileSystem>;
+		(
+			options?: { readonly allowKeys?: ReadonlyArray<string> | undefined },
+		): (path: string) => Effect.Effect<LayerPolicy, LayerPolicyError, FileSystem.FileSystem>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("LayerPolicy.load")(function* (
 		path: string,
 		options?: { readonly allowKeys?: ReadonlyArray<string> | undefined },
-	) {
+	): Effect.fn.Return<LayerPolicy, LayerPolicyError, FileSystem.FileSystem> {
 		const fs = yield* FileSystem.FileSystem;
 		const text = yield* fs
 			.readFileString(path)
 			.pipe(Effect.mapError((cause) => LayerPolicyError.make({ reason: "read", path, cause })));
 		const json = yield* S.decodeEffect(JsonValue)(text).pipe(Effect.mapError((cause) => LayerPolicyError.make({ reason: "json", path, cause })));
 		return yield* LayerPolicy.decode(json, { path, allowKeys: options?.allowKeys });
-	});
+	}));
 }

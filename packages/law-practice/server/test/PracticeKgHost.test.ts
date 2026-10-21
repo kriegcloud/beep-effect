@@ -20,6 +20,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 
 const TestServices = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
@@ -182,6 +183,59 @@ describe("@beep/law-practice-server PracticeKgHost self-check refusals", () => {
           `Practice KG graph store (kg.pglite) at "${bundleDir}" is missing or not an initialised store; install the bundle that matches this server.`
         );
         expect(yield* fs.exists(path.join(bundleDir, "kg.pglite"))).toBe(false);
+      })
+    );
+
+    it.effect(
+      "refuses a file in place of the graph directory without opening either store",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-self-check-" });
+        yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), yield* encodeManifest(manifest));
+        yield* fs.writeFileString(path.join(bundleDir, "kg.pglite"), "not a directory");
+        const error = yield* Effect.flip(runPracticeKgSelfCheck({ extensionVersion: "0.4.0", bundleDir }));
+        expect(error.message).toContain("graph store (kg.pglite)");
+        expect(error.message).toContain("missing or not an initialised store");
+        expect(yield* fs.readFileString(path.join(bundleDir, "kg.pglite"))).toBe("not a directory");
+        expect(yield* fs.exists(path.join(bundleDir, "practice.duckdb"))).toBe(false);
+      })
+    );
+
+    it.effect(
+      "distinguishes an unreadable graph store from a bundle that needs replacement",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const bundleDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-practice-kg-host-self-check-" });
+        const graphStore = path.join(bundleDir, "kg.pglite");
+        yield* fs.writeFileString(path.join(bundleDir, "bundle.manifest.json"), yield* encodeManifest(manifest));
+        yield* fs.makeDirectory(graphStore);
+        yield* fs.writeFileString(path.join(graphStore, "PG_VERSION"), "17\n");
+        const denied = PlatformError.systemError({
+          _tag: "PermissionDenied",
+          module: "PracticeKgHostTest",
+          method: "stat",
+          pathOrDescriptor: graphStore,
+        });
+        const unreadableStore = FileSystem.FileSystem.of({
+          ...fs,
+          stat: Effect.fn("PracticeKgHostTest.stat")((file) =>
+            file === graphStore ? Effect.fail(denied) : fs.stat(file)
+          ),
+        });
+        const error = yield* runPracticeKgSelfCheck({ extensionVersion: "0.4.0", bundleDir }).pipe(
+          Effect.provideService(FileSystem.FileSystem, unreadableStore),
+          Effect.flip
+        );
+        expect(error).toBeInstanceOf(PracticeKgHostError);
+        expect(error.cause).toBe(denied);
+        expect(error.message).toBe(
+          `Practice KG graph store (kg.pglite) at "${bundleDir}" could not be opened; check that no other process holds the bundle (close Claude Desktop) and that the store is readable and not corrupt.`
+        );
+        expect(error.message).not.toContain("install the bundle");
+        expect(yield* fs.readFileString(path.join(graphStore, "PG_VERSION"))).toBe("17\n");
+        expect(yield* fs.exists(path.join(bundleDir, "practice.duckdb"))).toBe(false);
       })
     );
 

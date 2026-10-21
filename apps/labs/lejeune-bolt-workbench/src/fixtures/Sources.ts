@@ -23,6 +23,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Tuple from "effect/Tuple";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { PROVIDER_RECORDING_SOURCE_TEXT, SourceDocument } from "@/domain/Bundle";
@@ -173,27 +174,29 @@ const makeXlsxBytes = Effect.fn("LeJeuneFixtures.makeXlsxBytes")(() =>
   })
 );
 
-const makePdfBytes = Effect.fn("LeJeuneFixtures.makePdfBytes")(function* () {
-  return yield* Effect.tryPromise({
-    try: () =>
-      PDFDocument.create().then((document) => {
-        document.setAuthor("beep synthetic fixture generator");
-        document.setCreationDate(FIXED_PDF_DATE);
-        document.setCreator("@beep/lejeune-bolt-workbench");
-        document.setModificationDate(FIXED_PDF_DATE);
-        document.setProducer("@beep/lejeune-bolt-workbench");
-        document.setSubject("SYNTHETIC RFQ B schedule");
-        document.setTitle("SYNTHETIC RFQ B schedule");
-        return document.embedFont(StandardFonts.Helvetica).then((font) => {
-          const page = document.addPage([1_200, 300]);
-          page.drawText(PDF_SCHEDULE_TEXT, { font, size: 11, x: 24, y: 220 });
-          return document.save({ addDefaultPage: false, useObjectStreams: false });
-        });
-      }),
-    catch: (cause) =>
-      fixtureErrorWithCause("pdf-generate", "Failed to generate the deterministic synthetic PDF fixture.", cause),
-  });
-});
+const makePdfBytes = Effect.fn("LeJeuneFixtures.makePdfBytes")(
+  function* () {
+    const document = yield* Effect.tryPromise(() => PDFDocument.create());
+    yield* Effect.try(() => {
+      document.setAuthor("beep synthetic fixture generator");
+      document.setCreationDate(FIXED_PDF_DATE);
+      document.setCreator("@beep/lejeune-bolt-workbench");
+      document.setModificationDate(FIXED_PDF_DATE);
+      document.setProducer("@beep/lejeune-bolt-workbench");
+      document.setSubject("SYNTHETIC RFQ B schedule");
+      document.setTitle("SYNTHETIC RFQ B schedule");
+    });
+    const font = yield* Effect.tryPromise(() => document.embedFont(StandardFonts.Helvetica));
+    yield* Effect.try(() => {
+      const page = document.addPage([1_200, 300]);
+      page.drawText(PDF_SCHEDULE_TEXT, { font, size: 11, x: 24, y: 220 });
+    });
+    return yield* Effect.tryPromise(() => document.save({ addDefaultPage: false, useObjectStreams: false }));
+  },
+  Effect.mapError((cause) =>
+    fixtureErrorWithCause("pdf-generate", "Failed to generate the deterministic synthetic PDF fixture.", cause.cause)
+  )
+);
 
 const parseXlsx = Effect.fn("LeJeuneFixtures.parseXlsx")(function* (bytes: Uint8Array) {
   const files = yield* Effect.try({
@@ -251,20 +254,20 @@ const parsePdf = Effect.fn("LeJeuneFixtures.parsePdf")(function* (id: string, di
       fixtureErrorWithCause("pdf-parse", "The synthetic PDF text layer could not be extracted.", cause)
     )
   );
-  const text = O.fromUndefinedOr(result.text);
-  return yield* O.match(text, {
-    onNone: () => Effect.fail(fixtureError("pdf-parse", "The synthetic PDF fixture has no text layer.")),
-    onSome: (value) =>
-      Str.includes(PDF_SCHEDULE_TEXT)(value)
-        ? Effect.succeed(PDF_SCHEDULE_TEXT)
-        : Effect.fail(fixtureError("pdf-parse", "The synthetic PDF text layer changed from the frozen layout.")),
-  });
+  const text = yield* O.fromUndefinedOr(result.text).pipe(
+    Effect.fromOption(() => fixtureError("pdf-parse", "The synthetic PDF fixture has no text layer."))
+  );
+  yield* Effect.fail(fixtureError("pdf-parse", "The synthetic PDF text layer changed from the frozen layout.")).pipe(
+    Effect.when(Effect.succeed(!Str.includes(PDF_SCHEDULE_TEXT)(text)))
+  );
+  return PDF_SCHEDULE_TEXT;
 });
 
-const hashBytes = (bytes: Uint8Array) =>
+const hashBytes = Effect.fn("LeJeuneFixtures.hashBytes")((bytes: Uint8Array) =>
   S.decodeEffect(Sha256HexFromBytes)(bytes).pipe(
     Effect.mapError((cause) => fixtureErrorWithCause("sha256", "Failed to hash synthetic fixture bytes.", cause))
-  );
+  )
+);
 
 /**
  * Generate both Office fixture pairs, parse the XLSX and PDF, and freeze source hashes.
@@ -296,7 +299,7 @@ export const buildFixtureArtifacts = Effect.gen(function* () {
   );
   const xlsxText = yield* parseXlsx(rfqAXlsx);
   const pdfText = yield* parsePdf("rfq-b-schedule", rfqBPdfHash, rfqBPdf);
-  const sources = [
+  const sources = Tuple.make(
     SourceDocument.make({
       format: "outlook-body-table",
       id: EntityId.make("rfq-a-outlook-body"),
@@ -328,8 +331,8 @@ export const buildFixtureArtifacts = Effect.gen(function* () {
       mediaType: "application/pdf",
       sha256: rfqBPdfHash,
       text: pdfText,
-    }),
-  ] as const;
+    })
+  );
   yield* Effect.logInfo("Built deterministic synthetic Office fixture pairs.").pipe(
     Effect.annotateLogs({
       "lejeune.fixture_count": A.length(sources),

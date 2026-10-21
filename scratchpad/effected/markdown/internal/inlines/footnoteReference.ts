@@ -36,7 +36,7 @@ import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import { insertAfter, makeInlineNode, unlink } from "../inlineNode.ts";
 import { normalizeLabelText } from "../references.ts";
-import type { LinkCloseFallback } from "./link.ts";
+import type { Bracket, InlineScanner } from "../inlineTypes.ts";
 import { makeImageOpenConstruct, makeLinkCloseConstruct } from "./link.ts";
 
 const C_CARET = 0x5e;
@@ -54,8 +54,11 @@ const C_CARET = 0x5e;
  * lands in a text node, and "more content" is precisely "the `]` is not the
  * next character".
  */
-const looksLikeFootnote = (subject: string, openerIndex: number, bracketPos: number): boolean =>
-	subject.charCodeAt(openerIndex + 1) === C_CARET && bracketPos > openerIndex + 2;
+const looksLikeFootnote: {
+	(subject: string, openerIndex: number, bracketPos: number): boolean;
+	(openerIndex: number, bracketPos: number): (subject: string) => boolean;
+} = dual(3, (subject: string, openerIndex: number, bracketPos: number): boolean =>
+	subject.charCodeAt(openerIndex + 1) === C_CARET && bracketPos > openerIndex + 2);
 
 /**
  * cmark-gfm's footnote branch: form a reference, or leave the whole span as
@@ -83,9 +86,9 @@ const looksLikeFootnote = (subject: string, openerIndex: number, bracketPos: num
  * @since 0.0.0
  */
 export const footnoteReferenceFallback: {
-	(scanner: Parameters<LinkCloseFallback>[0], opener: Parameters<LinkCloseFallback>[1], bracketPos: number, afterBracket: number): boolean;
-	(opener: Parameters<LinkCloseFallback>[1], bracketPos: number, afterBracket: number): (scanner: Parameters<LinkCloseFallback>[0]) => boolean;
-} = dual(4, (scanner: Parameters<LinkCloseFallback>[0], opener: Parameters<LinkCloseFallback>[1], bracketPos: number, afterBracket: number): boolean => {
+	(scanner: InlineScanner, opener: Bracket, bracketPos: number, afterBracket: number): boolean;
+	(opener: Bracket, bracketPos: number, afterBracket: number): (scanner: InlineScanner) => boolean;
+} = dual(4, (scanner: InlineScanner, opener: Bracket, bracketPos: number, afterBracket: number): boolean => {
 	if (!looksLikeFootnote(scanner.subject, opener.index, bracketPos)) {
 		return false;
 	}

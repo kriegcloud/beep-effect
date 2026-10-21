@@ -15,7 +15,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { identity } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as Result from "effect/Result";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
@@ -51,10 +51,13 @@ const serializePerson = (person: Person): string => {
 /** The verbatim wire value a person was decoded from: shorthand text or the raw object. */
 type PersonWire = string | { readonly [k: string]: unknown };
 
-const rememberWire = (person: Person, wire: PersonWire): Person => {
+const rememberWire: {
+	(person: Person, wire: PersonWire): Person;
+	(wire: PersonWire): (person: Person) => Person;
+} = dual(2, (person: Person, wire: PersonWire): Person => {
 	Person.rememberWire(person, wire);
 	return person;
-};
+});
 
 const KNOWN_KEYS = HashSet.make("name", "email", "url");
 
@@ -62,7 +65,10 @@ const KNOWN_KEYS = HashSet.make("name", "email", "url");
 // equality: replay is permitted only while the rest still has the same wire form.
 const encodeRestJson = S.encodeResult(S.fromJsonString(S.Unknown));
 const restJsonOf = (value: unknown): string => Result.getOrThrowWith(encodeRestJson(value ?? {}), identity);
-const sameRest = (a: unknown, b: unknown): boolean => restJsonOf(a) === restJsonOf(b);
+const sameRest: {
+	(a: unknown, b: unknown): boolean;
+	(b: unknown): (a: unknown) => boolean;
+} = dual(2, (a: unknown, b: unknown): boolean => restJsonOf(a) === restJsonOf(b));
 
 // A remembered wire value is replayed only while it still describes the person
 // faithfully. A person whose fields were changed after decoding re-encodes
@@ -79,7 +85,10 @@ const sameRest = (a: unknown, b: unknown): boolean => restJsonOf(a) === restJson
 const isShorthandExpressible = (person: Person): boolean =>
 	person.rest === undefined || R.isEmptyRecord(person.rest);
 
-const isFaithful = (wire: PersonWire, person: Person): boolean => {
+const isFaithful: {
+	(wire: PersonWire, person: Person): boolean;
+	(person: Person): (wire: PersonWire) => boolean;
+} = dual(2, (wire: PersonWire, person: Person): boolean => {
 	if (P.isString(wire)) {
 		const parsed = parsePersonString(wire);
 		return (
@@ -100,7 +109,7 @@ const isFaithful = (wire: PersonWire, person: Person): boolean => {
 		wire.url === person.url &&
 		sameRest(rest, person.rest)
 	);
-};
+});
 
 // The modeled fields alone, used to validate the object wire form. Decoding
 // through this rather than the class keeps the issue tree identical to what a
@@ -149,13 +158,13 @@ const encodePersonObject = (person: Person): { readonly [k: string]: unknown } =
  */
 export class Person extends S.Class<Person, { readonly brand: unique symbol }>($I`Person`)({
 	/** The person's name. */
-	name: S.String.annotateKey({ description: "The person's name." }),
+	name: S.String.pipe($I.annoteKey("Person.name", { description: "The person's name." })),
 	/** The optional email address. */
-	email: S.optionalKey(S.String).annotateKey({ description: "The optional email address." }),
+	email: S.optionalKey(S.String).pipe($I.annoteKey("Person.email", { description: "The optional email address." })),
 	/** The optional homepage URL. */
-	url: S.optionalKey(S.String).annotateKey({ description: "The optional homepage URL." }),
+	url: S.optionalKey(S.String).pipe($I.annoteKey("Person.url", { description: "The optional homepage URL." })),
 	/** Any additional keys, preserved verbatim and flattened back on encode. */
-	rest: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Any additional keys, preserved verbatim and flattened back on encode." }),
+	rest: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("Person.rest", { description: "Any additional keys, preserved verbatim and flattened back on encode." })),
 }, $I.annote("Person", { description: "A structured person object with `name`, optional `email` / `url`, and a `rest` catch-all preserving any additional keys across a read/write cycle." })) {
 	/**
 	 * Retains the original wire spelling on this instance without exposing it as schema data.
@@ -211,9 +220,12 @@ export class Person extends S.Class<Person, { readonly brand: unique symbol }>($
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static rememberWire(person: Person, wire: PersonWire): void {
+	static readonly rememberWire: {
+		(person: Person, wire: PersonWire): void;
+		(wire: PersonWire): (person: Person) => void;
+	} = dual(2, (person: Person, wire: PersonWire): void => {
 		person.#wire = wire;
-	}
+	});
 
 	/**
 	 * The object wire codec: an open JSON object ↔ a {@link Person}, partitioning

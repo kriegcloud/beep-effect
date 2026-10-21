@@ -31,6 +31,7 @@
 //   everything — order matters).
 // - An empty list matches nothing.
 
+import * as A from "effect/Array";
 import { ReleaseAgeGate } from "../../npm/index.ts";
 
 /**
@@ -80,14 +81,13 @@ const isNegation = (pattern: string): boolean => pattern.startsWith("!");
  */
 export const peerNameMatcher = (patterns: ReadonlyArray<string>): PeerNameMatcher => {
 	if (patterns.length === 0) return () => false;
-	const compiled = patterns.map((pattern) =>
+	const compiled = A.map(patterns, (pattern) =>
 		isNegation(pattern)
 			? { negation: true, match: matcherFromPattern(pattern.slice(1)) }
-			: { negation: false, match: matcherFromPattern(pattern) },
-	);
-	const negations = compiled.filter((entry) => entry.negation);
-	if (negations.length === 0) return (name) => compiled.some((entry) => entry.match(name));
-	if (negations.length === compiled.length) return (name) => !negations.some((entry) => entry.match(name));
+			: { negation: false, match: matcherFromPattern(pattern) });
+	const negations = A.filter(compiled, (entry) => entry.negation);
+	if (negations.length === 0) return (name) => A.some(compiled, (entry) => entry.match(name));
+	if (negations.length === compiled.length) return (name) => !A.some(negations, (entry) => entry.match(name));
 	return (name) => {
 		let matched = false;
 		for (const entry of compiled) {

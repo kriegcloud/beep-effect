@@ -887,7 +887,7 @@ const provenanceMessagesCommand = Command.make(
       ProvenanceMessagesOptions.make({
         corpusRoot,
         trees,
-        ...O.match(outputDir, { onNone: () => ({}), onSome: (outputDir) => ({ outputDir }) }),
+        ...O.getSomesStruct({ outputDir: outputDir }),
       })
     );
   })
@@ -920,8 +920,8 @@ const provenanceAttachmentsCommand = Command.make(
         trees,
         mode,
         fileCommand,
-        ...O.match(outputDir, { onNone: () => ({}), onSome: (outputDir) => ({ outputDir }) }),
-        ...O.match(journal, { onNone: () => ({}), onSome: (journalPath) => ({ journalPath }) }),
+        ...O.getSomesStruct({ outputDir: outputDir }),
+        ...O.getSomesStruct({ journalPath: journal }),
       })
     );
   })
@@ -948,7 +948,7 @@ const provenanceMetadataCommand = Command.make(
   Effect.fn(function* ({ outputDir, ...options }) {
     const decoded = yield* S.decodeEffect(MetadataCensusOptions)({
       ...options,
-      ...O.match(outputDir, { onNone: () => ({}), onSome: (outputDir) => ({ outputDir }) }),
+      ...O.getSomesStruct({ outputDir: outputDir }),
     }).pipe(CorpusCommandError.mapError("Invalid metadata census options."));
     yield* runMetadataCensus(decoded);
   })

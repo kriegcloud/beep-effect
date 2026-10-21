@@ -22,6 +22,7 @@
  * @since 0.0.0
  */
 
+import * as OptionUtils from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -659,7 +660,7 @@ export const runYeetWatchLoop = Effect.fn("Yeet.runWatchLoopCommand")(function* 
   const ended = yield* (dependencies.watchStream ?? runYeetWatchStream)(context, {
     intervalMillis: YEET_WATCH_INTERVAL_MILLIS,
     rulesetRead: dependencies.rulesetRead,
-    ...(dependencies.settleTimeoutMs === undefined ? {} : { settleTimeoutMs: dependencies.settleTimeoutMs }),
+    ...OptionUtils.getSomesStruct({ settleTimeoutMs: O.fromUndefinedOr(dependencies.settleTimeoutMs) }),
     untilEvent,
   });
   const verdict = `yeet watch ended ${ended.reason} with ${ended.failing} failing check(s).`;

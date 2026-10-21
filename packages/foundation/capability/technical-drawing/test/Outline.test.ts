@@ -36,6 +36,43 @@ const offLine = ([x, y]: readonly [number, number], [x1, y1, x2, y2]: Segment2):
 const round = (segment: Segment2): ReadonlyArray<number> => A.map(segment, (v) => Math.round(v * 1e9) / 1e9 + 0);
 
 describe("separateCloseOutlines", () => {
+  it("leaves degenerate points intact while separating the surrounding drawn outlines", () => {
+    const point: Segment2 = [10, 0.34, 10, 0.34];
+    const result = separate([[0, 0, 100, 0], [0, 0.34, 90, 0.34], point]);
+    expect(result.segments[2]).toEqual(point);
+    expect(gaps(result.segments)).toEqual([]);
+    expect(result.moves).toHaveLength(1);
+  });
+
+  it("returns an unchanged drawing when transitive coincidence leaves no distinct line to move", () => {
+    const input: ReadonlyArray<Segment2> = [
+      [0, 0, 10, 0],
+      [0, 0.12, 10, 0.12],
+      [0, 0.24, 10, 0.24],
+    ];
+    const result = separate(input);
+    expect(result.segments).toBe(input);
+    expect(result.moves).toEqual([]);
+    expect(gaps(result.segments)).toEqual(gaps(input));
+  });
+
+  it("separates near-vertical outlines across the angle ordering boundary", () => {
+    const input: ReadonlyArray<Segment2> = [
+      [0, 0, 0.01, 10],
+      [0.34, 0, 0.33, 10],
+    ];
+    expect(gaps(input)).toHaveLength(1);
+    const result = separate(input);
+    expect(gaps(result.segments)).toEqual([]);
+    expect(result.moves).toHaveLength(1);
+    expect(A.length(result.segments)).toBe(2);
+    A.forEach(result.segments, (segment, index) => {
+      const original = A.getUnsafe(input, index);
+      expect(segment[2] - segment[0]).toBeCloseTo(original[2] - original[0], 9);
+      expect(segment[3] - segment[1]).toBeCloseTo(original[3] - original[1], 9);
+    });
+  });
+
   it("opens a board edge drawn 0.34 apart to 0.7, keeping both lines, its break, its T-end and its connector", () => {
     // A long outline, and beside it 0.34 above a line broken by a 3-wide crossing gap (B1, B2), with a partial
     // duplicate on it, a T-end standing on it and a short connector from its break down to the long line.

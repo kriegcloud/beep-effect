@@ -1,7 +1,9 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import type { SectionParseError } from "../templates/index.ts";
 import { CommentStyle, SectionDialect, SectionDocument, SectionId } from "../templates/index.ts";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as O from "@beep/utils/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -26,7 +28,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ManagedDocument");
  */
 export class RejectedRegionDialectError extends S.TaggedError<RejectedRegionDialectError, { readonly brand: unique symbol }>($I`RejectedRegionDialectError`)("RejectedRegionDialectError", {
 	message: S.String,
-}, $I.annote("RejectedRegionDialectError", { description: "The region dialect rejected its own comment style." })) {}
+}, $I.annoteError<RejectedRegionDialectError>("RejectedRegionDialectError", { description: "The region dialect rejected its own comment style." })) {}
 
 /**
  * The grammar shared by a document's `namespace`, its `key` and every region
@@ -106,26 +108,26 @@ export class ManagedDocumentError extends S.TaggedError<ManagedDocumentError, { 
 		"duplicateDeclaration",
 		"invalidAttribute",
 		"trailingCarriageReturn",
-	]).annotateKey({ description: "Which ambiguity or refusal was found." }),
+	]).pipe($I.annoteKey("ManagedDocumentError.kind", { description: "Which ambiguity or refusal was found." })),
 	/**
 	 * 1-based line of the offending marker, for the structural kinds.
 	 *
 	 * @since 0.0.0
 	 */
-	line: S.optionalKey(S.Finite).annotateKey({ description: "1-based line of the offending marker, for the structural kinds." }),
+	line: S.optionalKey(S.Finite).pipe($I.annoteKey("ManagedDocumentError.line", { description: "1-based line of the offending marker, for the structural kinds." })),
 	/**
 	 * The region key involved, when the failure names one.
 	 *
 	 * @since 0.0.0
 	 */
-	key: S.optionalKey(S.String).annotateKey({ description: "The region key involved, when the failure names one." }),
+	key: S.optionalKey(S.String).pipe($I.annoteKey("ManagedDocumentError.key", { description: "The region key involved, when the failure names one." })),
 	/**
 	 * The offending metadata attribute's name, for `invalidAttribute`.
 	 *
 	 * @since 0.0.0
 	 */
-	attribute: S.optionalKey(S.String).annotateKey({ description: "The offending metadata attribute's name, for `invalidAttribute`." }),
-}, $I.annote("ManagedDocumentError", { description: "Raised when a managed document cannot be read or regenerated without guessing." })) {
+	attribute: S.optionalKey(S.String).pipe($I.annoteKey("ManagedDocumentError.attribute", { description: "The offending metadata attribute's name, for `invalidAttribute`." })),
+}, $I.annoteError<ManagedDocumentError>("ManagedDocumentError", { description: "Raised when a managed document cannot be read or regenerated without guessing." })) {
 	/**
 	 * Explains the refusal, including the region key, attribute and line when supplied.
 	 *
@@ -210,13 +212,13 @@ export const ManagedDocumentSource = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	namespace: S.String.annotateKey({ description: "Whose document this is, such as the action's name." }),
+	namespace: S.String.pipe($I.annoteKey("ManagedDocumentSource.namespace", { description: "Whose document this is, such as the action's name." })),
 	/**
 	 * Which document, within that namespace.
 	 *
 	 * @since 0.0.0
 	 */
-	key: S.String.annotateKey({ description: "Which document, within the namespace." }),
+	key: S.String.pipe($I.annoteKey("ManagedDocumentSource.key", { description: "Which document, within the namespace." })),
 	/**
 	 * The current text — a fetched comment body, a PR description — or absent
 	 * when there is nothing yet. An absent text and an empty one mean the same
@@ -224,8 +226,8 @@ export const ManagedDocumentSource = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	text: S.optional(S.String).annotateKey({ description: "The current text; absent and empty text both start a fresh document." }),
-}).annotate($I.annote("ManagedDocumentSource", { description: "Source text and identity of a managed document." }));
+	text: S.optionalKey(S.String).pipe($I.annoteKey("ManagedDocumentSource.text", { description: "The current text; absent and empty text both start a fresh document." })),
+}).pipe($I.annoteSchema("ManagedDocumentSource", { description: "Source text and identity of a managed document." }));
 /**
  * Decoded document identity and optional source text accepted by ManagedDocument.
  *
@@ -284,19 +286,19 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
 	 *
 	 * @since 0.0.0
 	 */
-	namespace: NamePart.annotateKey({ description: "Whose document this is." }),
+	namespace: NamePart.pipe($I.annoteKey("ManagedDocument.namespace", { description: "Whose document this is." })),
 	/**
 	 * Which document, within that namespace.
 	 *
 	 * @since 0.0.0
 	 */
-	key: NamePart.annotateKey({ description: "Which document, within that namespace." }),
+	key: NamePart.pipe($I.annoteKey("ManagedDocument.key", { description: "Which document, within that namespace." })),
 	/**
 	 * The document's full text, sentinel and regions included.
 	 *
 	 * @since 0.0.0
 	 */
-	text: S.String.annotateKey({ description: "The document's full text, sentinel and regions included." }),
+	text: S.String.pipe($I.annoteKey("ManagedDocument.text", { description: "The document's full text, sentinel and regions included." })),
 }, $I.annote("ManagedDocument", { description: "A marker-delimited document: named regions a tool owns, inside text a human may also edit." })) {
 	/**
 	 * Read a document out of existing text, or begin a fresh one.
@@ -438,8 +440,10 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
 	 * @since 0.0.0
 	 */
 	entry(key: string): O.Option<{ readonly content: string; readonly meta: Readonly<Record<string, string>> }> {
-		const found = this.ownRegions().find((candidate) => candidate.key === key);
-		return found === undefined ? O.none() : O.some({ content: found.content, meta: found.meta });
+		return O.map(A.findFirst(this.ownRegions(), (candidate) => candidate.key === key), (found) => ({
+			content: found.content,
+			meta: found.meta,
+		}));
 	}
 
 	/**
@@ -524,7 +528,7 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
 		if (Result.isFailure(parsed)) {
 			return parsed.failure.pipe(structural, Result.fail);
 		}
-		const declared = entries.map(([key, content, meta]) =>
+		const declared = A.map(entries, ([key, content, meta]) =>
 			SectionId.make({ key: this.wireKey(key), commentStyle: CommentStyle.html }).section(content, meta),
 		);
 		const reconciled = parsed.success.reconcile(declared);
@@ -719,13 +723,15 @@ export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: 
 			return [];
 		}
 		const prefix = this.wirePrefix;
-		return parsed.success.sections
-			.filter((placed) => placed.section.key.startsWith(prefix))
-			.map((placed) => ({
+		return pipe(
+			parsed.success.sections,
+			A.filter((placed) => placed.section.key.startsWith(prefix)),
+			A.map((placed) => ({
 				key: placed.section.key.slice(prefix.length),
 				content: placed.section.content,
 				meta: placed.section.attributes,
-			}));
+			})),
+		);
 	}
 
 	/**

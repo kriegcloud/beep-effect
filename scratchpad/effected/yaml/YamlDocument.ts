@@ -23,6 +23,8 @@ import { YamlNode } from "./YamlNode.ts";
 import { dual } from "effect/Function";
 import * as O from "@beep/utils/Option";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as P from "effect/Predicate";
+import * as A from "effect/Array";
 
 const isStringifyFailure = S.is(StringifyFailure);
 const isStringifyDepthExceeded = S.is(StringifyDepthExceeded);
@@ -49,8 +51,8 @@ const $I = $ScratchpadId.create("effected/yaml/YamlDocument");
  * @since 0.0.0
  */
 export class YamlDirective extends S.Class<YamlDirective, { readonly brand: unique symbol }>($I`YamlDirective`)({
-	name: S.String.annotateKey({ description: "Directive identifier without the leading `%`, such as `YAML`, `TAG`, or a reserved directive" }),
-	parameters: S.Array(S.String).annotateKey({ description: "Ordered whitespace-separated arguments following the directive identifier, excluding any trailing comment" }),
+	name: S.String.pipe($I.annoteKey("YamlDirective.name", { description: "Directive identifier without the leading `%`, such as `YAML`, `TAG`, or a reserved directive" })),
+	parameters: S.Array(S.String).pipe($I.annoteKey("YamlDirective.parameters", { description: "Ordered whitespace-separated arguments following the directive identifier, excluding any trailing comment" })),
 }, $I.annote("YamlDirective", { description: "A YAML directive appearing before a document (e.g. `%YAML 1.2` or `%TAG ! tag:example.com,2000:`). `\"YAML\"` and `\"TAG\"` are the YAML 1.2 spec-defined directives; any other name is a reserved directive preserved for round-trip fidelity." })) {}
 
 /**
@@ -88,15 +90,15 @@ export class YamlDirective extends S.Class<YamlDirective, { readonly brand: uniq
  * @since 0.0.0
  */
 export class YamlDocument extends S.Class<YamlDocument, { readonly brand: unique symbol }>($I`YamlDocument`)({
-	contents: S.NullOr(S.suspend((): typeof YamlNode => YamlNode)).annotateKey({ description: "Root YAML syntax node, or `null` for an empty document" }),
-	errors: S.Array(YamlDiagnostic).annotateKey({ description: "Error diagnostics retained during document composition; successful parsing retains only non-fatal errors" }),
-	warnings: S.Array(YamlDiagnostic).annotateKey({ description: "Warning diagnostics retained during document composition" }),
-	directives: S.Array(YamlDirective).annotateKey({ description: "Ordered directives preceding the document, including YAML version, tag declarations, and reserved directives" }),
-	commentBefore: S.optionalKey(S.String).annotateKey({ description: "Document header comment block preceding the `---` marker" }),
-	comment: S.optionalKey(S.String).annotateKey({ description: "Trailing document comment block after the contents or `...` marker" }),
-	hasDocumentStart: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the document has an explicit `---` start marker; absence means `false`" }),
-	hasDocumentEnd: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the document has an explicit `...` end marker; absence means `false`" }),
-	hasDocumentStartTab: S.optionalKey(S.Boolean).annotateKey({ description: "Whether a tab immediately followed the source `---` marker, prompting a terminator during canonical stringification" }),
+	contents: S.NullOr(S.suspend((): typeof YamlNode => YamlNode)).pipe($I.annoteKey("YamlDocument.contents", { description: "Root YAML syntax node, or `null` for an empty document" })),
+	errors: S.Array(YamlDiagnostic).pipe($I.annoteKey("YamlDocument.errors", { description: "Error diagnostics retained during document composition; successful parsing retains only non-fatal errors" })),
+	warnings: S.Array(YamlDiagnostic).pipe($I.annoteKey("YamlDocument.warnings", { description: "Warning diagnostics retained during document composition" })),
+	directives: S.Array(YamlDirective).pipe($I.annoteKey("YamlDocument.directives", { description: "Ordered directives preceding the document, including YAML version, tag declarations, and reserved directives" })),
+	commentBefore: S.optionalKey(S.String).pipe($I.annoteKey("YamlDocument.commentBefore", { description: "Document header comment block preceding the `---` marker" })),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("YamlDocument.comment", { description: "Trailing document comment block after the contents or `...` marker" })),
+	hasDocumentStart: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlDocument.hasDocumentStart", { description: "Whether the document has an explicit `---` start marker; absence means `false`" })),
+	hasDocumentEnd: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlDocument.hasDocumentEnd", { description: "Whether the document has an explicit `...` end marker; absence means `false`" })),
+	hasDocumentStartTab: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlDocument.hasDocumentStartTab", { description: "Whether a tab immediately followed the source `---` marker, prompting a terminator during canonical stringification" })),
 }, $I.annote("YamlDocument", { description: "A parsed YAML document: the root (YamlNode:type) (or `null` when empty), recovered `errors` and `warnings` as YamlDiagnostic data, the YamlDirective list, the optional document-level comments and the `---`/`...` framing flags (absent flags read as `false`)." })) {
 	/**
 	 * Parse a single YAML document, keeping the full AST, directives and
@@ -122,10 +124,13 @@ export class YamlDocument extends S.Class<YamlDocument, { readonly brand: unique
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parse = Effect.fn("YamlDocument.parse")(function* (text: string, options?: YamlParseOptions) {
+	static readonly parse: {
+		(options?: YamlParseOptions): (text: string) => Effect.Effect<YamlDocument, YamlParseError>;
+		(text: string, options?: YamlParseOptions): Effect.Effect<YamlDocument, YamlParseError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("YamlDocument.parse")(function* (text: string, options?: YamlParseOptions) {
 		const index = YamlDiagnostic.positionIndex(text);
 		const raw = composeFirstDocument(text, toParseInput(options));
-		const fatal = raw.errors.filter((e) => isFatalCode(e.code));
+		const fatal = A.filter(raw.errors, (e) => isFatalCode(e.code));
 		if (fatal.length > 0) {
 			return yield* YamlParseError.make({
 				diagnostics: YamlDiagnostic.fromRawBatch(fatal, text, index),
@@ -133,7 +138,7 @@ export class YamlDocument extends S.Class<YamlDocument, { readonly brand: unique
 			});
 		}
 		return fromRawDocument(raw, text, index);
-	});
+	}));
 
 	/**
 	 * Parse a multi-document YAML stream into one {@link YamlDocument} per
@@ -158,12 +163,15 @@ export class YamlDocument extends S.Class<YamlDocument, { readonly brand: unique
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parseAll = Effect.fn("YamlDocument.parseAll")(function* (text: string, options?: YamlParseOptions) {
+	static readonly parseAll: {
+		(options?: YamlParseOptions): (text: string) => Effect.Effect<Array<YamlDocument>, YamlParseError>;
+		(text: string, options?: YamlParseOptions): Effect.Effect<Array<YamlDocument>, YamlParseError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("YamlDocument.parseAll")(function* (text: string, options?: YamlParseOptions) {
 		const index = YamlDiagnostic.positionIndex(text);
 		const { documents, streamErrors } = composeAllDocuments(text, toParseInput(options));
 		const fatal = [
-			...streamErrors.filter((e) => isFatalCode(e.code)),
-			...documents.flatMap((d) => d.errors.filter((e) => isFatalCode(e.code))),
+			...A.filter(streamErrors, (e) => isFatalCode(e.code)),
+			...A.flatMap(documents, (d) => A.filter(d.errors, (e) => isFatalCode(e.code))),
 		];
 		if (fatal.length > 0) {
 			return yield* YamlParseError.make({
@@ -171,8 +179,8 @@ export class YamlDocument extends S.Class<YamlDocument, { readonly brand: unique
 				input: text,
 			});
 		}
-		return documents.map((raw) => fromRawDocument(raw, text, index));
-	});
+		return A.map(documents, fromRawDocument(text, index));
+	}));
 
 	/**
 	 * A `Schema<YamlDocument, string>` decoding YAML text into a full
@@ -330,25 +338,25 @@ const toParseInput = (options?: YamlParseOptions) =>
 	options === undefined
 		? {}
 		: {
-				strict: options.strict,
-				maxAliasCount: options.maxAliasCount,
-				uniqueKeys: options.uniqueKeys,
+				...O.getSomesStruct({ strict: O.fromUndefinedOr(options.strict) }),
+				...O.getSomesStruct({ maxAliasCount: O.fromUndefinedOr(options.maxAliasCount) }),
+				...O.getSomesStruct({ uniqueKeys: O.fromUndefinedOr(options.uniqueKeys) }),
 			};
 
 const toStringifyInput = (options?: YamlStringifyOptions) =>
 	options === undefined
 		? {}
 		: {
-				indent: options.indent,
-				lineWidth: options.lineWidth,
-				defaultScalarStyle: options.defaultScalarStyle,
-				defaultCollectionStyle: options.defaultCollectionStyle,
-				sortKeys: options.sortKeys,
-				indentSequences: options.indentSequences,
-				quoteStyle: options.quoteStyle,
-				quoteCompat: options.quoteCompat,
-				finalNewline: options.finalNewline,
-				forceDefaultStyles: options.forceDefaultStyles,
+				...O.getSomesStruct({ indent: O.fromUndefinedOr(options.indent) }),
+				...O.getSomesStruct({ lineWidth: O.fromUndefinedOr(options.lineWidth) }),
+				...O.getSomesStruct({ defaultScalarStyle: O.fromUndefinedOr(options.defaultScalarStyle) }),
+				...O.getSomesStruct({ defaultCollectionStyle: O.fromUndefinedOr(options.defaultCollectionStyle) }),
+				...O.getSomesStruct({ sortKeys: O.fromUndefinedOr(options.sortKeys) }),
+				...O.getSomesStruct({ indentSequences: O.fromUndefinedOr(options.indentSequences) }),
+				...O.getSomesStruct({ quoteStyle: O.fromUndefinedOr(options.quoteStyle) }),
+				...O.getSomesStruct({ quoteCompat: O.fromUndefinedOr(options.quoteCompat) }),
+				...O.getSomesStruct({ finalNewline: O.fromUndefinedOr(options.finalNewline) }),
+				...O.getSomesStruct({ forceDefaultStyles: O.fromUndefinedOr(options.forceDefaultStyles) }),
 			};
 
 /**
@@ -380,19 +388,20 @@ export const documentFromRaw: {
 } = dual(2, (raw: RawYamlDocument, text: string): YamlDocument => fromRawDocument(raw, text));
 
 /** Materialize a raw engine document into the public class. */
-function fromRawDocument(raw: RawYamlDocument, text: string, index = YamlDiagnostic.positionIndex(text)): YamlDocument {
-	return YamlDocument.make({
+const fromRawDocument: {
+	(text: string, index?: ReturnType<typeof YamlDiagnostic.positionIndex>): (raw: RawYamlDocument) => YamlDocument;
+	(raw: RawYamlDocument, text: string, index?: ReturnType<typeof YamlDiagnostic.positionIndex>): YamlDocument;
+} = dual((args) => P.isObjectKeyword(args[0]), (raw: RawYamlDocument, text: string, index: ReturnType<typeof YamlDiagnostic.positionIndex> = YamlDiagnostic.positionIndex(text)): YamlDocument => YamlDocument.make({
 		contents: raw.contents,
 		errors: YamlDiagnostic.fromRawBatch(raw.errors, text, index),
 		warnings: YamlDiagnostic.fromRawBatch(raw.warnings, text, index),
-		directives: raw.directives.map((d) => YamlDirective.make({ name: d.name, parameters: d.parameters })),
+		directives: A.map(raw.directives, (d) => YamlDirective.make({ name: d.name, parameters: d.parameters })),
 		...O.getSomesStruct({ commentBefore: O.fromUndefinedOr(raw.commentBefore) }),
 		...O.getSomesStruct({ comment: O.fromUndefinedOr(raw.comment) }),
 		hasDocumentStart: raw.hasDocumentStart,
 		hasDocumentEnd: raw.hasDocumentEnd,
 		hasDocumentStartTab: raw.hasDocumentStartTab,
-	});
-}
+	}));
 
 /** Project the public class back onto the raw shape the engine consumes. */
 function toRawDocument(doc: YamlDocument): RawYamlDocument {

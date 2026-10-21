@@ -450,7 +450,7 @@ describe("SourceBoundary on the real tree", () => {
 			[],
 		);
 		assert.notInclude(SourceBoundary.importSpecifiers(text), "url");
-		assert.include(SourceBoundary.importSpecifiers(text), "effect/process");
+		assert.include(SourceBoundary.importSpecifiers(text), "effect/process/ChildProcess");
 	});
 });
 

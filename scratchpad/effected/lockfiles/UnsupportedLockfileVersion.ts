@@ -12,7 +12,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/lockfiles/UnsupportedLockfileVersion");
-const GatedFormat = LiteralKit(["npm", "pnpm"]).annotate($I.annote("GatedFormat", { description: "Lockfile formats with a minimum supported version" }));
+const GatedFormat = LiteralKit(["npm", "pnpm"]).pipe($I.annoteSchema("GatedFormat", { description: "Lockfile formats with a minimum supported version" }));
 
 /**
  * The cause a {@link LockfileParseError} carries when a lockfile predates the
@@ -36,13 +36,13 @@ const GatedFormat = LiteralKit(["npm", "pnpm"]).annotate($I.annote("GatedFormat"
  * @public
  */
 const UnsupportedLockfileVersion = S.TaggedStruct("UnsupportedLockfileVersion", {
-	format: GatedFormat.annotateKey({ description: "Gated npm or pnpm format that rejected the recorded version" }),
+	format: GatedFormat.pipe($I.annoteKey("UnsupportedLockfileVersion.format", { description: "Gated npm or pnpm format that rejected the recorded version" })),
 	// Non-finite recorded versions fail boundary validation before the version gate.
-	lockfileVersion: S.Union([S.String, S.Finite]).annotateKey({ description: "Recorded format version, preserved verbatim before gating or string conversion" }),
+	lockfileVersion: S.Union([S.String, S.Finite]).pipe($I.annoteKey("UnsupportedLockfileVersion.lockfileVersion", { description: "Recorded format version, preserved verbatim before gating or string conversion" })),
 	// Supported minimum versions are finite domain numbers.
-	minimumSupported: S.Finite.annotateKey({ description: "Lowest format version supported by the rejecting parser" }),
-	message: S.String.annotateKey({ description: "Human-readable explanation of the unsupported version" }),
-}).annotate($I.annote("UnsupportedLockfileVersion", { description: "Complete structural cause for a rejected npm or pnpm lockfile version" }));
+	minimumSupported: S.Finite.pipe($I.annoteKey("UnsupportedLockfileVersion.minimumSupported", { description: "Lowest format version supported by the rejecting parser" })),
+	message: S.String.pipe($I.annoteKey("UnsupportedLockfileVersion.message", { description: "Human-readable explanation of the unsupported version" })),
+}).pipe($I.annoteSchema("UnsupportedLockfileVersion", { description: "Complete structural cause for a rejected npm or pnpm lockfile version" }));
 /**
  * Structural version-gate cause distinguishing unsupported formats from malformed input.
  *

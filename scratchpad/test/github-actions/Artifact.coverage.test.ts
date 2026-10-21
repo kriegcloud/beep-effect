@@ -16,6 +16,7 @@ import { BlobTransferError } from "../../effected/github-actions/BlobTransfer.ts
 import type { FileBlobTransfer } from "../../effected/github-actions/BlobTransfer.ts";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import { json, resultsEnv, runtimeToken, twirpFetch } from "./results.ts";
+import { dual } from "effect/Function";
 
 const fault = PlatformError.badArgument({ module: "FileSystem", method: "test", description: "injected failure" });
 const handlers = {
@@ -54,10 +55,10 @@ const fixture = (options: FixtureOptions = {}) => {
     })))).pipe(Layer.provide(fsLayer));
   const artifact = options.azure === true ? Artifact.layer : Layer.unwrap(Effect.map(FileSystem.FileSystem, (fs) => {
     const transfer: FileBlobTransfer = {
-      uploadFile: () => options.transferFails === true ? Effect.fail(BlobTransferError.make({ reason: "uploadFailed" })) : Effect.void,
-      downloadToFile: (_url, destination) => options.transferFails === true
+      uploadFile: dual(2, (_url: string, _file: string) => options.transferFails === true ? Effect.fail(BlobTransferError.make({ reason: "uploadFailed" })) : Effect.void),
+      downloadToFile: dual(2, (_url: string, destination: string) => options.transferFails === true
         ? Effect.fail(BlobTransferError.make({ reason: "downloadFailed" }))
-        : fs.writeFileString(destination, "archive bytes").pipe(Effect.mapError((cause) => BlobTransferError.make({ reason: "downloadFailed", cause }))),
+        : fs.writeFileString(destination, "archive bytes").pipe(Effect.mapError((cause) => BlobTransferError.make({ reason: "downloadFailed", cause })))),
     };
     return Artifact.layerWith(transfer);
   }));

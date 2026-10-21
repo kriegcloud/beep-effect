@@ -8,7 +8,18 @@ import type { Block, CliLinksShape, RenderContext } from "../../effected/cli/ind
 import { Doc, Glyphs, Render, Status } from "../../effected/cli/index.ts";
 import { displayWidth, stripAnsi } from "../../effected/cli/internal/displayWidth.ts";
 import { composite } from "./helpers/hostileDoc.ts";
-import { contextOf, decodeTokens, link, linksOf, sgrProblems, tokenPaint } from "./helpers/renderContext.ts";
+import { dual } from "effect/Function";
+import type { LinkTarget } from "../../effected/cli/index.ts";
+import {
+	contextOf,
+	decodeTokens,
+	labelLink,
+	link,
+	linksOf,
+	plainPaint,
+	sgrProblems,
+	tokenPaint,
+} from "./helpers/renderContext.ts";
 import { LINE_BREAK, isCommand } from "./helpers/runnerCommands.ts";
 
 const Json = S.fromJsonString(S.Unknown);
@@ -19,11 +30,11 @@ const plain = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}
 	Effect.map(contextOf(overrides), (ctx) => Render.plain(doc, ctx));
 
 /** A context whose paint marks tokens, so a test decodes them; hyperlinks are off unless a test turns them on. */
-const TOKENS = { paint: tokenPaint, link: (_target: unknown, label: string) => label } as const;
+const TOKENS = { paint: tokenPaint, link: labelLink } as const;
 const OFF = {
 	color: "none",
-	paint: (_token: unknown, text: string) => text,
-	link: (_target: unknown, label: string) => label,
+	paint: plainPaint,
+	link: labelLink,
 } as const;
 
 const tokensOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
@@ -418,11 +429,11 @@ describe("Render.ansi: layout under colour (paint after cut)", () => {
 		Effect.gen(function* () {
 			const seen: Array<string> = [];
 			const out = yield* ansi([Doc.paragraph(Doc.link({ url: "https://example.test/a\nb" }, "docs"))], {
-				paint: (_t, text) => text,
-				link: (target, label) => {
+				paint: plainPaint,
+				link: dual(2, (target: LinkTarget, label: string): string => {
 					seen.push("url" in target ? target.url : target.file);
 					return label;
-				},
+				}),
 			});
 			assert.strictEqual(out, "docs (https://example.test/ab)");
 			assert.isTrue(

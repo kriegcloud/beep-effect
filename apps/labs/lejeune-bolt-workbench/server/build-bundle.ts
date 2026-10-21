@@ -196,8 +196,9 @@ const bundleBuildErrorWithCause = (stage: string, message: string, cause: unknow
  *
  * ```ts
  * import { verifyPublicationReadback } from "../server/build-bundle"
+ * import * as P from "effect/Predicate"
  *
- * console.log(typeof verifyPublicationReadback === "function") // true
+ * console.log(P.isFunction(verifyPublicationReadback)) // true
  * ```
  *
  * @category validation
@@ -658,6 +659,31 @@ const buildBundleAt = Effect.fn("LeJeuneBundle.buildAt")(function* (
   return receipt;
 });
 
+/**
+ * Publishes a verified offline replay bundle into new sibling bundle and review directories.
+ *
+ * **Details**
+ *
+ * The current clock governs retention enforcement. Existing publication roots are rejected;
+ * staging is removed on failure and published only after durable read-back succeeds.
+ *
+ * **Example** (Prepare a publication without running it)
+ *
+ * ```ts
+ * import { buildBundle, BundleBuildInput } from "../server/build-bundle"
+ * import * as Effect from "effect/Effect"
+ *
+ * const publication = buildBundle(BundleBuildInput.make({
+ *   bundleRoot: ".beep/lejeune-demo-publication/bundle",
+ *   mutableRoot: ".beep/lejeune-demo-publication/review",
+ *   recordingPath: "src/fixtures/provider-recording.json",
+ * }))
+ * console.log(Effect.isEffect(publication)) // true
+ * ```
+ *
+ * @category workflows
+ * @since 0.0.0
+ */
 export const buildBundle = Effect.fn("LeJeuneBundle.build")(function* (input: BundleBuildInput) {
   const currentTimeMillis = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
   return yield* buildBundleAt(input, currentTimeMillis);

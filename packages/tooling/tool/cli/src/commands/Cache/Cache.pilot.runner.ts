@@ -27,6 +27,7 @@ import {
   hashCacheExperimentExecutable,
   readCacheEvidenceBytes,
   readCacheExperimentBytes,
+  requireCacheLinuxX64,
 } from "./Cache.evidence.ts";
 import { CacheSignedPilotReceipt, CacheSignedPilotRequest } from "./Cache.pilot.signed.schemas.ts";
 import { validateCacheSignedPilotReceipt } from "./Cache.pilot.signed.ts";
@@ -76,8 +77,7 @@ export const runCacheSignedPilotExperiment = Effect.fn("CachePilot.signedExperim
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        if (process.platform !== "linux" || process.arch !== "x64")
-          return yield* CacheCommandError.new("Signed pilot supervisor requires Linux x64.");
+        yield* requireCacheLinuxX64("Signed pilot supervisor requires Linux x64.");
         if ((yield* hashCacheExperimentExecutable(request.pilot.executable)) !== request.pilot.client.sha256)
           return yield* CacheCommandError.new("Signed pilot executable differs from its requested binary pin.");
         const hashIssuerMaterial = Effect.fn("CachePilot.hashIssuerMaterial")(function* (file: string) {

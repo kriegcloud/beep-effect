@@ -29,9 +29,7 @@ import { parentRealPath, walkFrames } from "./internal/worklist.ts";
 
 const $I = $ScratchpadId.create("effected/walker/Descend");
 
-const OnUnreadable = LiteralKit(["fail", "skip", "record"]).annotate(
-	$I.annote("OnUnreadable", { description: "How unreadable traversal directories are handled." }),
-);
+const OnUnreadable = LiteralKit(["fail", "skip", "record"]).pipe($I.annoteSchema("OnUnreadable", { description: "How unreadable traversal directories are handled." }));
 type OnUnreadable = typeof OnUnreadable.Type;
 /**
  * Unreadable-directory modes that return a plain array of matches.
@@ -59,17 +57,14 @@ export const OnUnreadableArray = OnUnreadable.pick(["fail", "skip"]);
 export type OnUnreadableArray = typeof OnUnreadableArray.Type;
 const OnUnreadableRecord = OnUnreadable.pick(["record"]);
 
-const DescendErrorReason = LiteralKit(["unreadableDirectory", "depthExceeded"]).annotate(
-	$I.annote("DescendErrorReason", { description: "Why downward traversal failed." }),
-);
+const DescendErrorReason = LiteralKit(["unreadableDirectory", "depthExceeded"]).pipe($I.annoteSchema("DescendErrorReason", { description: "Why downward traversal failed." }));
 const DescendFailure = DescendErrorReason.mapMembers(([unreadable, depth]) => [
 	S.Struct({ reason: unreadable }),
 	S.Struct({
 		reason: depth,
-		limit: S.Option(S.Finite).annotateKey({ description: "The optional cap for depth exhaustion." }),
+		limit: S.Option(S.Finite).pipe($I.annoteKey("DescendFailure.limit", { description: "The optional cap for depth exhaustion." })),
 	}),
-] as const).annotate($I.annote("DescendFailure", { description: "Internal case-specific descent failure payload." }))
-	.pipe(S.toTaggedUnion("reason"));
+] as const).pipe($I.annoteSchema("DescendFailure", { description: "Internal case-specific descent failure payload." }), S.toTaggedUnion("reason"));
 type DescendFailure = typeof DescendFailure.Type;
 
 const JsonString = S.fromJsonString(S.String);
@@ -79,7 +74,7 @@ const encodeJsonString = S.encodeResult(JsonString);
 class DescendDefect extends S.TaggedError<DescendDefect, { readonly brand: unique symbol }>($I`DescendDefect`)(
 	"DescendDefect",
 	{ message: S.String },
-	$I.annote("DescendDefect", { description: "Invalid downward traversal wiring." }),
+	$I.annoteError<DescendDefect>("DescendDefect", { description: "Invalid downward traversal wiring." }),
 ) {}
 
 /**
@@ -186,10 +181,10 @@ export const UnreadableDirectory = S.Struct({
 * `{ matches: [], unreadable: [{ path: "", cause }] }`. Code matching
 * these entries as ordinary paths will not expect that; special-case it.
 */
-	path: S.String.annotateKey({ description: "The cwd-relative POSIX directory path; the base is an empty string." }),
+	path: S.String.pipe($I.annoteKey("UnreadableDirectory.path", { description: "The cwd-relative POSIX directory path; the base is an empty string." })),
 /** The `readDirectory` (or, for a link under `followSymlinks`, `realPath`) failure, never `NotFound` (a vanished directory is a benign race and is not recorded). */
-	cause: S.instanceOf(PlatformError.PlatformError).annotateKey({ description: "The absorbed readDirectory or realPath failure." }),
-}).annotate($I.annote("UnreadableDirectory", { description: "An unreadable directory and its original filesystem failure." }));
+	cause: S.instanceOf(PlatformError.PlatformError).pipe($I.annoteKey("UnreadableDirectory.cause", { description: "The absorbed readDirectory or realPath failure." })),
+}).pipe($I.annoteSchema("UnreadableDirectory", { description: "An unreadable directory and its original filesystem failure." }));
 /**
 * Decoded directory path and original filesystem failure collected in record mode.
 *
@@ -221,10 +216,10 @@ export type UnreadableDirectory = typeof UnreadableDirectory.Type;
 */
 export const DescendResult = S.Struct({
 /** Matching FILE paths relative to `cwd`, POSIX separators, sorted — identical in shape to the `"fail"`/`"skip"` success value. */
-	matches: S.Array(S.String).annotateKey({ description: "Matching cwd-relative POSIX file paths, in lexical order." }),
+	matches: S.Array(S.String).pipe($I.annoteKey("DescendResult.matches", { description: "Matching cwd-relative POSIX file paths, in lexical order." })),
 /** Directories that could not be read, each with its cause, in walk order. */
-	unreadable: S.Array(UnreadableDirectory).annotateKey({ description: "Unreadable directories and their causes, in walk order." }),
-}).annotate($I.annote("DescendResult", { description: "Matches and unreadable directories collected in record mode." }));
+	unreadable: S.Array(UnreadableDirectory).pipe($I.annoteKey("DescendResult.unreadable", { description: "Unreadable directories and their causes, in walk order." })),
+}).pipe($I.annoteSchema("DescendResult", { description: "Matches and unreadable directories collected in record mode." }));
 /**
 * Decoded matched paths and unreadable directories returned by record-mode descent.
 *
@@ -254,14 +249,14 @@ export type DescendResult = typeof DescendResult.Type;
 */
 export class DescendError extends S.TaggedError<DescendError, { readonly brand: unique symbol }>($I`DescendError`)("DescendError", {
 	/** The glob pattern's source text. */
-	pattern: S.String.annotateKey({ description: "The glob pattern's source text." }),
+	pattern: S.String.pipe($I.annoteKey("DescendError.pattern", { description: "The glob pattern's source text." })),
 	/** Why the walk failed: a directory could not be read, or the walk went past `maxDepth`. */
-	reason: DescendErrorReason.annotateKey({ description: "Why the walk failed: a directory could not be read, or the walk went past `maxDepth`." }),
+	reason: DescendErrorReason.pipe($I.annoteKey("DescendError.reason", { description: "Why the walk failed: a directory could not be read, or the walk went past `maxDepth`." })),
 	/** The offending directory, relative to `cwd` (`""` is the walk's base). */
-	path: S.String.annotateKey({ description: "The offending directory, relative to `cwd` (`\"\"` is the walk's base)." }),
+	path: S.String.pipe($I.annoteKey("DescendError.path", { description: "The offending directory, relative to `cwd` (`\"\"` is the walk's base)." })),
 	/** The depth cap, present when `reason` is `"depthExceeded"`. */
-	limit: S.optionalKey(S.Finite).annotateKey({ description: "The depth cap, present when `reason` is `\"depthExceeded\"`." }),
-}, $I.annote("DescendError", { description: "Typed failure raised by `descend`: a directory mid-walk was unreadable (under `onUnreadable: \"fail\"`), or the walk descended past `maxDepth`. Depth exhaustion is a typed failure, never a truncation — silent truncation silently changes match semantics." })) {
+	limit: S.optionalKey(S.Finite).pipe($I.annoteKey("DescendError.limit", { description: "The depth cap, present when `reason` is `\"depthExceeded\"`." })),
+}, $I.annoteError<DescendError>("DescendError", { description: "Typed failure raised by `descend`: a directory mid-walk was unreadable (under `onUnreadable: \"fail\"`), or the walk descended past `maxDepth`. Depth exhaustion is a typed failure, never a truncation — silent truncation silently changes match semantics." })) {
 	/**
 	* Formats the pattern and offending directory into a readable descent failure.
 	*
@@ -329,11 +324,11 @@ const NO_ANCESTORS: ReadonlyArray<string> = [];
 * one target both enumerate.
 */
 const DescendFrame = S.Struct({
-	relative: S.String.annotateKey({ description: "The cwd-relative POSIX path." }),
-	absolute: S.String.annotateKey({ description: "The absolute directory path to read." }),
-	depth: S.Finite.annotateKey({ description: "Directory depth below the walk base." }),
-	ancestors: S.Array(S.String).annotateKey({ description: "Real paths on this branch's ancestor chain." }),
-}).annotate($I.annote("DescendFrame", { description: "A queued directory and its per-branch cycle guard." }));
+	relative: S.String.pipe($I.annoteKey("DescendFrame.relative", { description: "The cwd-relative POSIX path." })),
+	absolute: S.String.pipe($I.annoteKey("DescendFrame.absolute", { description: "The absolute directory path to read." })),
+	depth: S.Finite.pipe($I.annoteKey("DescendFrame.depth", { description: "Directory depth below the walk base." })),
+	ancestors: S.Array(S.String).pipe($I.annoteKey("DescendFrame.ancestors", { description: "Real paths on this branch's ancestor chain." })),
+}).pipe($I.annoteSchema("DescendFrame", { description: "A queued directory and its per-branch cycle guard." }));
 type DescendFrame = typeof DescendFrame.Type;
 
 /**
@@ -398,7 +393,10 @@ const descendImpl: (
 * answer with nothing reporting it, which is the failure `"fail"` exists
 * to prevent.
 */
-	const realPathOf = (absolute: string, relative: string): Effect.Effect<O.Option<string>, DescendError> =>
+	const realPathOf: {
+		(absolute: string, relative: string): Effect.Effect<O.Option<string>, DescendError>;
+		(relative: string): (absolute: string) => Effect.Effect<O.Option<string>, DescendError>;
+	} = dual(2, (absolute: string, relative: string): Effect.Effect<O.Option<string>, DescendError> =>
 		fs.realPath(absolute).pipe(
 			Effect.asSome,
 			Effect.catch((error) => {
@@ -411,7 +409,7 @@ const descendImpl: (
 				if (OnUnreadable.is.record(onUnreadable)) unreadable.push({ path: relative, cause: error });
 				return Effect.succeedNone;
 			}),
-		);
+		));
 
 /** Wrap the walk's success value per `onUnreadable`: a plain array unless "record" asked for the pair. */
 	const finish = (matches: ReadonlyArray<string>): ReadonlyArray<string> | DescendResult =>

@@ -1,3 +1,5 @@
+import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -16,7 +18,7 @@ import { PackageStateSnapshot } from "../../effected/workspaces/WorkspaceStateSn
 const runs = { arbitrary: fcRuns(100) };
 const PackageText = S.fromJsonString(PackageStateSnapshot);
 const platform = Layer.mergeAll(
-  Layer.succeed(WorkspaceRoot, { find: Effect.fn("WorkspaceRoot.find")(() => Effect.succeed("/repo")) }),
+  Layer.succeed(WorkspaceRoot, { find: dual((args) => P.isString(args[0]), Effect.fn("WorkspaceRoot.find")(() => Effect.succeed("/repo"))) }),
   WorkspaceDiscovery.layerTest(),
   WorkspaceCatalogs.layerTest(),
   ConfigDependencyHooks.layerNoop,

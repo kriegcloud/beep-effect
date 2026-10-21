@@ -1,7 +1,9 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
+import { dual } from "effect/Function";
 import * as O from "@beep/utils/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -12,6 +14,7 @@ import { PlacedSection } from "./Section.ts";
 import type { SectionRenderError } from "./SectionDialect.ts";
 import { Eol, SectionDialect } from "./SectionDialect.ts";
 import { CheckOutcome } from "./SectionOutcome.ts";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/templates/SectionDocument");
 
@@ -47,26 +50,26 @@ export class SectionParseError extends S.TaggedError<SectionParseError, { readon
 	 *
 	 * @since 0.0.0
 	 */
-	reason: ScanFailureReason.annotateKey({ description: "Which ambiguity was found." }),
+	reason: ScanFailureReason.pipe($I.annoteKey("SectionParseError.reason", { description: "Which ambiguity was found." })),
 	/**
 	 * 1-based line of the offending marker.
 	 *
 	 * @since 0.0.0
 	 */
-	line: S.Finite.annotateKey({ description: "1-based line of the offending marker." }),
+	line: S.Finite.pipe($I.annoteKey("SectionParseError.line", { description: "1-based line of the offending marker." })),
 	/**
 	 * The section key involved, when the failure names one.
 	 *
 	 * @since 0.0.0
 	 */
-	key: S.optionalKey(S.String).annotateKey({ description: "The section key involved, when the failure names one." }),
+	key: S.optionalKey(S.String).pipe($I.annoteKey("SectionParseError.key", { description: "The section key involved, when the failure names one." })),
 	/**
 	 * The file the document came from. Absent for a document parsed from a string.
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.optionalKey(S.String).annotateKey({ description: "The file the document came from. Absent for a document parsed from a string." }),
-}, $I.annote("SectionParseError", { description: "Raised when a document's managed-section structure cannot be read without guessing." })) {
+	path: S.optionalKey(S.String).pipe($I.annoteKey("SectionParseError.path", { description: "The file the document came from. Absent for a document parsed from a string." })),
+}, $I.annoteError<SectionParseError>("SectionParseError", { description: "Raised when a document's managed-section structure cannot be read without guessing." })) {
 	/**
 	 * Explains the ambiguity, identifying its section and source location when available.
 	 *
@@ -102,21 +105,23 @@ export class SectionParseError extends S.TaggedError<SectionParseError, { readon
 	 * import { SectionParseError } from "@beep/scratchpad/effected/templates/SectionDocument";
 	 *
 	 * const error = SectionParseError.make({ reason: "orphanedEnd", line: 3 });
-	 * const attributed = SectionParseError.at("config.sh", error);
+	 * const attributed = SectionParseError.at(error, "config.sh");
 	 * console.log(attributed.message) // End marker closes no open section at config.sh:3
 	 * ```
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static at(path: string, error: SectionParseError): SectionParseError {
-		return SectionParseError.make({
+	static readonly at: {
+		(error: SectionParseError, path: string): SectionParseError;
+		(path: string): (error: SectionParseError) => SectionParseError;
+	} = dual(2, (error: SectionParseError, path: string): SectionParseError =>
+		SectionParseError.make({
 			reason: error.reason,
 			line: error.line,
 			// An `optionalKey` field must be OMITTED rather than set to undefined.
 			...O.getSomesStruct({ key: O.fromUndefinedOr(error.key) }),
 			path,
-		});
-	}
+		}));
 }
 
 const REASON_PROSE: Record<ScanFailureReason, string> = {
@@ -190,25 +195,25 @@ export class SectionDocument extends S.Class<SectionDocument, { readonly brand: 
 	 *
 	 * @since 0.0.0
 	 */
-	text: S.String.annotateKey({ description: "The document's source text, exactly as parsed." }),
+	text: S.String.pipe($I.annoteKey("SectionDocument.text", { description: "The document's source text, exactly as parsed." })),
 	/**
 	 * The marker vocabulary this document was read with.
 	 *
 	 * @since 0.0.0
 	 */
-	dialect: SectionDialect.annotateKey({ description: "The marker vocabulary this document was read with." }),
+	dialect: SectionDialect.pipe($I.annoteKey("SectionDocument.dialect", { description: "The marker vocabulary this document was read with." })),
 	/**
 	 * Every managed section found, in document order.
 	 *
 	 * @since 0.0.0
 	 */
-	sections: S.Array(PlacedSection).annotateKey({ description: "Every managed section found, in document order." }),
+	sections: S.Array(PlacedSection).pipe($I.annoteKey("SectionDocument.sections", { description: "Every managed section found, in document order." })),
 	/**
 	 * The document's dominant line ending.
 	 *
 	 * @since 0.0.0
 	 */
-	eol: Eol.annotateKey({ description: "The document's dominant line ending." }),
+	eol: Eol.pipe($I.annoteKey("SectionDocument.eol", { description: "The document's dominant line ending." })),
 }, $I.annote("SectionDocument", { description: "A parsed document: its text, the dialect it was read with, and every managed section found in it." })) {
 	/**
 	 * Parse a document. The synchronous primitive.
@@ -232,17 +237,20 @@ export class SectionDocument extends S.Class<SectionDocument, { readonly brand: 
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static parseResult(
+	static readonly parseResult: {
+		(text: string, dialect?: SectionDialect): Result.Result<SectionDocument, SectionParseError>;
+		(dialect?: SectionDialect): (text: string) => Result.Result<SectionDocument, SectionParseError>;
+	} = dual((args) => P.isString(args[0]), (
 		text: string,
 		dialect: SectionDialect = SectionDialect.default,
-	): Result.Result<SectionDocument, SectionParseError> {
+	): Result.Result<SectionDocument, SectionParseError> => {
 		const scanned = scan(text, dialect);
 		if (!scanned.ok) {
 			const { reason, line, key } = scanned.failure;
 			return Result.fail(SectionParseError.make({ reason, line, ...O.getSomesStruct({ key: O.fromUndefinedOr(key) }) }));
 		}
 		return Result.succeed(SectionDocument.make({ text, dialect, sections: scanned.sections, eol: detectEol(text) }));
-	}
+	});
 
 	/**
 	 * Parse a document, in `Effect`.
@@ -264,10 +272,13 @@ export class SectionDocument extends S.Class<SectionDocument, { readonly brand: 
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parse = Effect.fn("SectionDocument.parse")(
-		(text: string, dialect: SectionDialect = SectionDialect.default) =>
+	static readonly parse: {
+		(text: string, dialect?: SectionDialect): Effect.Effect<SectionDocument, SectionParseError>;
+		(dialect?: SectionDialect): (text: string) => Effect.Effect<SectionDocument, SectionParseError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("SectionDocument.parse")(
+		(text: string, dialect: SectionDialect = SectionDialect.default): Effect.Effect<SectionDocument, SectionParseError> =>
 			Effect.fromResult(SectionDocument.parseResult(text, dialect)),
-	);
+	));
 
 	/**
 	 * The section with this identity, if the document has one.
@@ -293,10 +304,10 @@ export class SectionDocument extends S.Class<SectionDocument, { readonly brand: 
 	 */
 	read(id: SectionId): O.Option<Section> {
 		const identity = identityOf(id.key, id.commentStyle);
-		const found = this.sections.find(
-			(placed) => identityOf(placed.section.key, placed.section.commentStyle) === identity,
+		return O.map(
+			A.findFirst(this.sections, (placed) => identityOf(placed.section.key, placed.section.commentStyle) === identity),
+			(placed) => placed.section,
 		);
-		return found === undefined ? O.none() : O.some(found.section);
 	}
 
 	/**
@@ -388,7 +399,7 @@ export class SectionDocument extends S.Class<SectionDocument, { readonly brand: 
 		return reconcile({
 			text: this.text,
 			placed: this.sections,
-			declared: sections.map((section) => section.withContent(normalizeEol(section.content))),
+			declared: A.map(sections, (section) => section.withContent(normalizeEol(section.content))),
 			dialect: this.dialect,
 			eol: this.eol,
 		});
@@ -422,12 +433,11 @@ export class SectionDocument extends S.Class<SectionDocument, { readonly brand: 
 	 */
 	remove(id: SectionId): O.Option<string> {
 		const identity = identityOf(id.key, id.commentStyle);
-		const found = this.sections.find(
-			(placed) => identityOf(placed.section.key, placed.section.commentStyle) === identity,
-		);
-		if (found === undefined) {
+		const placed = A.findFirst(this.sections, (candidate) => identityOf(candidate.section.key, candidate.section.commentStyle) === identity);
+		if (O.isNone(placed)) {
 			return O.none();
 		}
+		const found = placed.value;
 		const eol: Eol = this.eol;
 		const bom = Str.startsWith("\uFEFF")(this.text) ? "\uFEFF" : "";
 		const before = Str.replace(/(?:\r?\n)+$/, "")(Str.slice(bom.length, found.start)(this.text));

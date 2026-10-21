@@ -8,6 +8,7 @@ import type { CstNode } from "../cst.ts";
 import type { ComposerState, NodeMeta } from "./state.ts";
 import * as S from "effect/Schema";
 import * as MutableHashMap from "effect/MutableHashMap";
+import { dual } from "effect/Function";
 
 const isScalar = S.is(YamlScalar);
 const isMap = S.is(YamlMap);
@@ -286,7 +287,10 @@ export function buildAnchorMap(node: YamlNode | null): MutableHashMap.MutableHas
 	return anchors;
 }
 
-function collectAnchors(node: YamlNode | null, anchors: MutableHashMap.MutableHashMap<string, YamlNode>): void {
+const collectAnchors: {
+	(node: YamlNode | null, anchors: MutableHashMap.MutableHashMap<string, YamlNode>): void;
+	(anchors: MutableHashMap.MutableHashMap<string, YamlNode>): (node: YamlNode | null) => void;
+} = dual(2, (node: YamlNode | null, anchors: MutableHashMap.MutableHashMap<string, YamlNode>): void => {
 	if (node === null) return;
 	if (isScalar(node)) {
 		if (node.anchor !== undefined) MutableHashMap.set(anchors, node.anchor, node);
@@ -303,7 +307,7 @@ function collectAnchors(node: YamlNode | null, anchors: MutableHashMap.MutableHa
 		}
 	}
 	// YamlAlias has no anchor field — it references one.
-}
+});
 
 /**
  * Extract a plain JavaScript value from a YAML AST node.

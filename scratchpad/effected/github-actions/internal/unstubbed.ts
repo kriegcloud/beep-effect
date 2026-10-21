@@ -29,7 +29,7 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/unstubbed");
  */
 export class UnstubbedMemberError extends S.TaggedError<UnstubbedMemberError, { readonly brand: unique symbol }>($I`UnstubbedMemberError`)("UnstubbedMemberError", {
 	message: S.String,
-}, $I.annote("UnstubbedMemberError", { description: "A test-double member was called without an override." })) {}
+}, $I.annoteError<UnstubbedMemberError>("UnstubbedMemberError", { description: "A test-double member was called without an override." })) {}
 
 /**
  * The die-on-call members of `<double>.makeTest`: `dies("save")` is an

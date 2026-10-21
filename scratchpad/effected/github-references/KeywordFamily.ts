@@ -30,9 +30,7 @@ const $I = $ScratchpadId.create("effected/github-references/KeywordFamily");
  * @category schemas
  * @since 0.0.0
  */
-export const KeywordFamily = LiteralKit(["close", "fix", "resolve", "ref"]).annotate(
-	$I.annote("KeywordFamily", { description: "The tense-collapsed stem of a closing or reference keyword." }),
-);
+export const KeywordFamily = LiteralKit(["close", "fix", "resolve", "ref"]).pipe($I.annoteSchema("KeywordFamily", { description: "The tense-collapsed stem of a closing or reference keyword." }));
 
 /**
  * Tense-collapsed stem used to categorize closing and reference keywords.

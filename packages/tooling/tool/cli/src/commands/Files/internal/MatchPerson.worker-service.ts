@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
@@ -50,7 +50,7 @@ import type {
 
 const $I = $RepoCliId.create("commands/Files/internal/MatchPerson.worker-service");
 
-const workerProjectDirectory = fileURLToPath(new URL("../../../../python/photo-face/", import.meta.url));
+const workerProjectDirectory = NodeURL.fileURLToPath(new URL("../../../../python/photo-face/", import.meta.url));
 const workerReportOutputBound = OutputBound.make({
   maxChars: 67_108_864,
   truncatedNotice: "\n[files match-person JSON truncated]",

@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -43,26 +44,26 @@ export class ConfigMigrationError extends S.TaggedError<ConfigMigrationError, { 
 	 */
 	version: S.declare(P.isNumber).annotate({
     toCodecArbitrary: () => new SchemaAST.Link(S.Finite.ast, SchemaTransformation.passthrough()),
-  }).annotateKey({ description: "The target version of the step that failed. `0` when reading the version failed." }),
+  }).pipe($I.annoteKey("ConfigMigrationError.version", { description: "The target version of the step that failed. `0` when reading the version failed." })),
 	/**
 	 * The name of the step that failed; empty when reading the version failed.
 	 *
 	 * @since 0.0.0
 	 */
-	name: S.String.annotateKey({ description: "The name of the step that failed; empty when reading the version failed." }),
+	name: S.String.pipe($I.annoteKey("ConfigMigrationError.name", { description: "The name of the step that failed; empty when reading the version failed." })),
 	/**
 	 * Which stage of a migration step failed.
 	 *
 	 * @since 0.0.0
 	 */
-	phase: S.Literals(["read-version", "apply", "write-version"]).annotateKey({ description: "Which stage of a migration step failed." }),
+	phase: S.Literals(["read-version", "apply", "write-version"]).pipe($I.annoteKey("ConfigMigrationError.phase", { description: "Which stage of a migration step failed." })),
 	/**
 	 * The underlying failure, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("ConfigMigrationError", { description: "Indicates that a versioned config migration failed." })) {
+	cause: S.Defect().pipe($I.annoteKey("ConfigMigrationError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<ConfigMigrationError>("ConfigMigrationError", { description: "Indicates that a versioned config migration failed." })) {
 	/**
 	 * Describes a version-read failure or identifies the step and phase that failed.
 	 *
@@ -139,12 +140,20 @@ export interface VersionAccess<E = unknown> {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly set: (raw: unknown, version: number) => Effect.Effect<unknown, E>;
+	readonly set: {
+		(raw: unknown, version: number): Effect.Effect<unknown, E>;
+		(version: number): (raw: unknown) => Effect.Effect<unknown, E>;
+	};
 }
 
-class VersionAccessError extends S.TaggedError<VersionAccessError, { readonly brand: unique symbol }>($I`VersionAccessError`)("VersionAccessError", { message: S.String.annotateKey({ description: "Why the parsed config cannot supply its current version: it is not an object or lacks a numeric `version`" }) }, $I.annote("VersionAccessError", { description: "The default version reader could not read a numeric top-level `version` from the parsed config" })) {
+class VersionAccessError extends S.TaggedError<VersionAccessError, { readonly brand: unique symbol }>($I`VersionAccessError`)("VersionAccessError", { message: S.String.pipe($I.annoteKey("VersionAccessError.message", { description: "Why the parsed config cannot supply its current version: it is not an object or lacks a numeric `version`" })) }, $I.annoteError<VersionAccessError>("VersionAccessError", { description: "The default version reader could not read a numeric top-level `version` from the parsed config" })) {
 	override name = "Error";
 }
+
+const setDefaultVersion: {
+	(raw: unknown, version: number): Effect.Effect<unknown>;
+	(version: number): (raw: unknown) => Effect.Effect<unknown>;
+} = dual(2, (raw: unknown, version: number): Effect.Effect<unknown> => Effect.succeed({ ...(P.isObjectKeyword(raw) ? raw : P.isString(raw) && Str.isNonEmpty(raw) ? Str.split(raw, "") : {}), version }));
 
 const defaultVersionAccess = {
 	get: (raw: unknown) => {
@@ -154,7 +163,7 @@ const defaultVersionAccess = {
 			? Effect.succeed(version)
 			: Effect.fail(VersionAccessError.make({ message: "version field is missing or not a number" }));
 	},
-	set: (raw: unknown, version: number) => Effect.succeed({ ...(P.isObjectKeyword(raw) ? raw : P.isString(raw) && Str.isNonEmpty(raw) ? Str.split(raw, "") : {}), version }),
+	set: setDefaultVersion,
 };
 
 /**
@@ -216,13 +225,25 @@ export interface ConfigMigrationOptions<EM = unknown, EV = unknown> {
  * swallow it. `Effect.suspend` ensures a throw raised while constructing the
  * effect dies exactly like a throw raised while running it.
  */
-const runPhase = <A, E>(
+const runPhase: {
+	<A, E>(
+		phase: "read-version" | "apply" | "write-version",
+		version: number,
+		name: string,
+		run: () => Effect.Effect<A, E>,
+	): Effect.Effect<A, ConfigMigrationError>;
+	<A, E>(
+		version: number,
+		name: string,
+		run: () => Effect.Effect<A, E>,
+	): (phase: "read-version" | "apply" | "write-version") => Effect.Effect<A, ConfigMigrationError>;
+} = dual(4, <A, E>(
 	phase: "read-version" | "apply" | "write-version",
 	version: number,
 	name: string,
 	run: () => Effect.Effect<A, E>,
 ): Effect.Effect<A, ConfigMigrationError> =>
-	Effect.suspend(run).pipe(Effect.mapError((cause) => ConfigMigrationError.make({ version, name, phase, cause })));
+	Effect.suspend(run).pipe(Effect.mapError((cause) => ConfigMigrationError.make({ version, name, phase, cause }))));
 
 // Implementation of ConfigMigration.make; the public contract lives on the static.
 const make: (options: ConfigMigrationOptions) => ConfigCodec<ConfigCodecError | ConfigMigrationError> = <EM, EV>(options: ConfigMigrationOptions<EM, EV>): ConfigCodec<ConfigCodecError | ConfigMigrationError> => {
@@ -238,7 +259,7 @@ const make: (options: ConfigMigrationOptions) => ConfigCodec<ConfigCodecError | 
 
 				const current = yield* runPhase<number, EV | VersionAccessError>("read-version", 0, "", () => access.get(parsed));
 
-				for (const migration of sorted.filter((m) => m.version > current)) {
+				for (const migration of A.filter(sorted, (m) => m.version > current)) {
 					parsed = yield* runPhase("apply", migration.version, migration.name, () => migration.up(parsed));
 					parsed = yield* runPhase("write-version", migration.version, migration.name, () =>
 						access.set(parsed, migration.version),

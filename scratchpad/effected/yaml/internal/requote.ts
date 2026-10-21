@@ -55,13 +55,13 @@ const $I = $ScratchpadId.create("effected/yaml/internal/requote");
  * @since 0.0.0
  */
 export const RequoteScalarInput = S.Struct({
-	value: S.Unknown.annotateKey({ description: "Parsed scalar value considered for quote conversion." }),
-	style: ScalarStyle.annotateKey({ description: "Presentation style of the source scalar." }),
-	tag: S.optional(S.String).annotateKey({ description: "Optional tag preventing quote conversion when present." }),
-	anchor: S.optional(S.String).annotateKey({ description: "Optional anchor preventing quote conversion when present." }),
-	offset: S.Finite.annotateKey({ description: "Start of the raw scalar span in UTF-16 code units." }),
-	length: S.Finite.annotateKey({ description: "Length of the raw scalar span in UTF-16 code units." }),
-}).annotate($I.annote("RequoteScalarInput", {
+	value: S.Unknown.pipe($I.annoteKey("RequoteScalarInput.value", { description: "Parsed scalar value considered for quote conversion." })),
+	style: ScalarStyle.pipe($I.annoteKey("RequoteScalarInput.style", { description: "Presentation style of the source scalar." })),
+	tag: S.optional(S.String).pipe($I.annoteKey("RequoteScalarInput.tag", { description: "Optional tag preventing quote conversion when present." })),
+	anchor: S.optional(S.String).pipe($I.annoteKey("RequoteScalarInput.anchor", { description: "Optional anchor preventing quote conversion when present." })),
+	offset: S.Finite.pipe($I.annoteKey("RequoteScalarInput.offset", { description: "Start of the raw scalar span in UTF-16 code units." })),
+	length: S.Finite.pipe($I.annoteKey("RequoteScalarInput.length", { description: "Length of the raw scalar span in UTF-16 code units." })),
+}).pipe($I.annoteSchema("RequoteScalarInput", {
 	description: "Structural scalar payload accepted without per-call decoding by quote conversion.",
 }));
 
@@ -91,7 +91,7 @@ export type RequoteScalarInput = typeof RequoteScalarInput.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const RequoteMode = LiteralKit(["conservative", "escaping"]).annotate($I.annote("RequoteMode", {
+export const RequoteMode = LiteralKit(["conservative", "escaping"]).pipe($I.annoteSchema("RequoteMode", {
 	description: "Safety policies for byte-preserving or value-preserving quote conversion.",
 }));
 

@@ -397,7 +397,7 @@ layer(testLayer, { timeout: 30_000 })("restoration transformation semantic helpe
             .stat(filePath)
             .pipe(
               Effect.map((info) =>
-                filePath === identityDestination ? { ...info, ino: O.map(info.ino, (inode) => inode + 1) } : info
+                filePath === identityDestination ? { ...info, ino: O.map(info.ino, (inode) => inode + 1n) } : info
               )
             ),
       };

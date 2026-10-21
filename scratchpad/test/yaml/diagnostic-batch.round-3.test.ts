@@ -70,7 +70,7 @@ describe("indexed diagnostic batches", () => {
     assert.deepStrictEqual(diagnostics.map((d) => [d.offset, d.line, d.character]), [
       [11, 5, 0], [2, 1, 0], [0, 0, 0], [3, 1, 0], [5, 2, 0], [7, 3, 0], [9, 4, 0], [1, 0, 1], [99, 5, 88],
     ]);
-    assert.deepStrictEqual(diagnostics, records.map((raw) => YamlDiagnostic.fromRaw(raw, text)));
+    assert.deepStrictEqual(diagnostics, records.map(YamlDiagnostic.fromRaw(text)));
     const index = YamlDiagnostic.positionIndex(text);
     for (const offset of [-1, 0.5, 1.5, 2.5, 3.5, 99]) {
       const raw = { code: "UnexpectedToken", message: "fractional position", offset, length: 0 } as const;

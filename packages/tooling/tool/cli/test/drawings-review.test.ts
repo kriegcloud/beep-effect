@@ -39,7 +39,7 @@ import { Sha256Hex } from "@beep/schema";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect } from "@effect/vitest";
+import { describe, expect, vi } from "@effect/vitest";
 import { assertFailure, assertInstanceOf, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -641,6 +641,43 @@ const TestLayer = Layer.mergeAll(
 
 describe("beep drawings review", () => {
   it.layer(TestLayer, { timeout: "180 seconds" })((it) => {
+    it.effect("fails the review guard before reading rounds when its render manifest is invalid", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        yield* fs.writeFileString(corpus.sent.manifest, "not a render manifest");
+        const error = yield* review.guard(corpus.sent.manifest, O.none()).pipe(Effect.flip);
+        expect(error.message).toBe(`Invalid render manifest "${corpus.sent.manifest}".`);
+      })
+    );
+
+    it.effect("cleans staged output after a failed durable write and permits a clean retry", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const request = ReviewOpenRequest.make({
+          location: corpus.location,
+          manifestPath: corpus.sent.manifest,
+          deliveryPath: O.none(),
+        });
+        const sync = vi.spyOn(process.getBuiltinModule("node:fs"), "fsyncSync").mockImplementationOnce(() => {
+          throw DrawingsCommandError.make({ message: "Synthetic durable-write failure" });
+        });
+        const error = yield* review
+          .open(request)
+          .pipe(Effect.flip, Effect.ensuring(Effect.sync(() => sync.mockRestore())));
+        expect(error.message).toContain("Could not safely write review file");
+        const roundDir = path.join(corpus.matter, "review", "round-1");
+        expect(yield* fs.readDirectory(roundDir)).toEqual([]);
+        const opened = yield* review.open(request);
+        expect(opened.round.status).toBe("open");
+        expect(yield* fs.readDirectory(roundDir)).toEqual(["round.json"]);
+      })
+    );
+
     it.effect("refuses a symlinked review directory before creating a round outside the corpus", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;

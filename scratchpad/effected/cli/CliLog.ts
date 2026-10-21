@@ -7,7 +7,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import type * as Fiber from "effect/Fiber";
 import type * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
@@ -55,20 +55,14 @@ export const CliLogStatusOptions = S.Struct({
 	 * The level the line is logged at. By default it follows the status's rank in its vocabulary: `Error` at or above
 	 * `failure`'s rank, `Warn` at or above `warning`'s, and `Info` below that.
 	 */
-	level: S.optional(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).annotate(
-		$I.annote("CliLogStatusOptions.level", { description: "The message severity overriding the status vocabulary's rank." }),
-	),
+	level: S.optionalKey(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).pipe($I.annoteKey("CliLogStatusOptions.level", { description: "The message severity overriding the status vocabulary's rank." })),
 	/**
 	 * What the line starts with, before the glyph, so an indented report line keeps its place in a block: a number of
 	 * spaces (floored, at most 64; zero, a negative or a non-finite number is none), or a string. A string is sanitised as text is (escapes and controls removed, a tab a space) and its line
 	 * breaks dropped, so the indent can never carry an escape onto the trusted line. None by default.
 	 */
-	indent: S.optional(S.Union([S.declare(P.isNumber).annotate(
-		$I.annote("CliLogStatusOptions.NumericIndent", { description: "Every JavaScript number, including non-finite values that the status renderer treats as no indent." }),
-	), S.String])).annotate(
-		$I.annote("CliLogStatusOptions.indent", { description: "Spaces or sanitized text before the glyph; non-finite numbers produce no indent." }),
-	),
-}).annotate($I.annote("CliLogStatusOptions", { description: "Plain optional severity and indentation settings for a status log line." }));
+	indent: S.optionalKey(S.Union([S.declare(P.isNumber).pipe($I.annoteSchema("CliLogStatusOptions.NumericIndent", { description: "Every JavaScript number, including non-finite values that the status renderer treats as no indent." })), S.String])).pipe($I.annoteKey("CliLogStatusOptions.indent", { description: "Spaces or sanitized text before the glyph; non-finite numbers produce no indent." })),
+}).pipe($I.annoteSchema("CliLogStatusOptions", { description: "Plain optional severity and indentation settings for a status log line." }));
 
 /**
  * Plain options validated by {@link CliLogStatusOptions}.
@@ -198,12 +192,12 @@ export interface CliLogOptions {
 }
 
 const CliLogFilePath = S.Struct({
-	path: S.String.annotate($I.annote("CliLogFile.Path.path", { description: "The literal log path; an empty path disables file logging." })),
-}).annotate($I.annote("CliLogFile.Path", { description: "A directly supplied file-sink location." }));
+	path: S.String.pipe($I.annoteKey("CliLogFile.Path.path", { description: "The literal log path; an empty path disables file logging." })),
+}).pipe($I.annoteSchema("CliLogFile.Path", { description: "A directly supplied file-sink location." }));
 
 const CliLogFileEnvironment = S.Struct({
-	envVar: S.String.annotate($I.annote("CliLogFile.Environment.envVar", { description: "The variable holding the log path; unset or empty disables file logging." })),
-}).annotate($I.annote("CliLogFile.Environment", { description: "A file-sink location read from an environment variable." }));
+	envVar: S.String.pipe($I.annoteKey("CliLogFile.Environment.envVar", { description: "The variable holding the log path; unset or empty disables file logging." })),
+}).pipe($I.annoteSchema("CliLogFile.Environment", { description: "A file-sink location read from an environment variable." }));
 
 /**
  * Where the file sink writes: a literal path, or the environment variable that holds it.
@@ -224,7 +218,7 @@ const CliLogFileEnvironment = S.Struct({
 export const CliLogFile = S.Union([
 	CliLogFilePath,
 	CliLogFileEnvironment,
-]).annotate($I.annote("CliLogFile", { description: "A plain file-sink configuration using a path or an environment variable." }));
+]).pipe($I.annoteSchema("CliLogFile", { description: "A plain file-sink configuration using a path or an environment variable." }));
 
 /**
  * The plain configuration cases validated by {@link CliLogFile}.
@@ -286,7 +280,10 @@ const LEVEL_STYLES: Readonly<Record<string, Style>> = {
 };
 
 /** The diagnostics level: the option when given, else the env var, and the raw text when that is not a level. */
-const readLevel = Effect.fn("readLevel")(function* (
+const readLevel: {
+	(explicit: LogLevel.LogLevel | undefined, envVar: string | undefined): Effect.Effect<{ readonly level: LogLevel.LogLevel; readonly invalid: string | undefined }>;
+	(envVar: string | undefined): (explicit: LogLevel.LogLevel | undefined) => Effect.Effect<{ readonly level: LogLevel.LogLevel; readonly invalid: string | undefined }>;
+} = dual(2, Effect.fn("readLevel")(function* (
 	explicit: LogLevel.LogLevel | undefined,
 	envVar: string | undefined,
 ): Effect.fn.Return<{ readonly level: LogLevel.LogLevel; readonly invalid: string | undefined }> {
@@ -299,16 +296,18 @@ const readLevel = Effect.fn("readLevel")(function* (
 	if (level !== undefined) return { level, invalid: undefined };
 	return {
 		level: "None",
-		invalid: `${envVar}=${raw.value} is not a log level (${R.keys(LEVELS).join("|")}); ignoring it`,
+		invalid: `${envVar}=${raw.value} is not a log level (${A.join(R.keys(LEVELS), "|")}); ignoring it`,
 	};
-});
+}));
 
 /**
  * Whether a record's line is neutralized: the `neutralize` option when it is a boolean, else whether the logging
  * fiber's `CurrentRuntimeEnv`, or `fallback` where the fiber has none, says GitHub Actions.
  */
-const actionsDecision =
-	(neutralize: boolean | "auto", fallback: O.Option<RuntimeEnv>) =>
+const actionsDecision: {
+	(neutralize: boolean | "auto", fallback: O.Option<RuntimeEnv>): (fiber: Fiber.Fiber<unknown, unknown>) => boolean;
+	(fallback: O.Option<RuntimeEnv>): (neutralize: boolean | "auto") => (fiber: Fiber.Fiber<unknown, unknown>) => boolean;
+} = dual(2, (neutralize: boolean | "auto", fallback: O.Option<RuntimeEnv>): ((fiber: Fiber.Fiber<unknown, unknown>) => boolean) =>
 	(fiber: Fiber.Fiber<unknown, unknown>): boolean => {
 		if (neutralize !== "auto") return neutralize;
 		const inFiber = Context.getOption(fiber.context, CurrentRuntimeEnv);
@@ -317,7 +316,7 @@ const actionsDecision =
 			O.flatMap(runtime, (env) => env.ci),
 			"github-actions",
 		);
-	};
+	});
 
 /**
  * Diagnostics kept apart from a program's output: a level, a format and a place to write.
@@ -623,7 +622,7 @@ export class CliLog {
 					// The program's text is sanitised before anything is painted, and the line is neutralized last.
 					const component = annotations.component === undefined ? "" : ` [${sanitize(String(annotations.component))}]`;
 					const message = sanitize(
-						A.isArray(record.message) ? record.message.map(String).join(" ") : String(record.message),
+						A.isArray(record.message) ? pipe(record.message, A.map(String), A.join(" ")) : String(record.message),
 					);
 					const name = record.logLevel.toUpperCase();
 					const levelText = paintStyle(LEVEL_STYLES[name] ?? {}, color, name);
@@ -649,7 +648,7 @@ export class CliLog {
 						: inner;
 				// The same decision as the sink's, so the plain line and the diagnostics line are neutralized alike.
 				const cliLogger = floor(makeCliLogger(options.logger, underActionsIn));
-				const extras = (options.extraLoggers ?? []).map(floor);
+				const extras = A.map((options.extraLoggers ?? []), floor);
 
 				// An invalid level warns through the CliLogger only, never through the sink.
 				if (invalid !== undefined) {
@@ -734,7 +733,10 @@ export class CliLog {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly status = Effect.fn("status")(function* <N extends string>(
+	static readonly status: {
+		<N extends string>(vocab: Status<N>, name: N, text: string, options?: CliLogStatusOptions): Effect.Effect<void, never, CliTheme>;
+		<N extends string>(name: N, text: string, options?: CliLogStatusOptions): (vocab: Status<N>) => Effect.Effect<void, never, CliTheme>;
+	} = dual((args) => P.isObjectKeyword(args[0]), Effect.fn("status")(function* <N extends string>(
 		vocab: Status<N>,
 		name: N,
 		text: string,
@@ -752,7 +754,7 @@ export class CliLog {
 			options?.level ??
 			(rank >= core.def("failure").rank ? "Error" : rank >= core.def("warning").rank ? "Warn" : "Info");
 		yield* Effect.logWithLevel(level)(line).pipe(Effect.provideService(TrustedLine, true));
-	});
+	}));
 
 	/**
 	 * Mark the log records an effect emits as coming from `name`.
@@ -786,7 +788,10 @@ export class CliLog {
  * argv with), else the override variable, else detection from the environment. No terminal is consulted. Silent: the
  * environment layer warns about an invalid override value itself, once.
  */
-const buildTimeAudience = (
+const buildTimeAudience: {
+	(argv: ReadonlyArray<string> | undefined, audienceEnvVar: string | undefined, detected: RuntimeEnv): Effect.Effect<AudienceKind>;
+	(audienceEnvVar: string | undefined, detected: RuntimeEnv): (argv: ReadonlyArray<string> | undefined) => Effect.Effect<AudienceKind>;
+} = dual(3, (
 	argv: ReadonlyArray<string> | undefined,
 	audienceEnvVar: string | undefined,
 	detected: RuntimeEnv,
@@ -803,10 +808,13 @@ const buildTimeAudience = (
 			Effect.flatMap(Layer.buildWithScope(Logger.layer([]), scope), (context) => Effect.provideContext(self, context)),
 		),
 	);
-};
+});
 
 /** What the build-time loggers decide from, read once: the format and the runtime environment to neutralize by. */
-const buildTimeDecision = Effect.fn("buildTimeDecision")(function* (
+const buildTimeDecision: {
+	(options: CliLogOptions | CliLogFileOptions, audienceEnvVar: string | undefined): Effect.Effect<{ readonly ndjson: boolean; readonly runtimeEnv: RuntimeEnv }>;
+	(audienceEnvVar: string | undefined): (options: CliLogOptions | CliLogFileOptions) => Effect.Effect<{ readonly ndjson: boolean; readonly runtimeEnv: RuntimeEnv }>;
+} = dual(2, Effect.fn("buildTimeDecision")(function* (
 	options: CliLogOptions | CliLogFileOptions,
 	audienceEnvVar: string | undefined,
 ): Effect.fn.Return<{ readonly ndjson: boolean; readonly runtimeEnv: RuntimeEnv }> {
@@ -818,7 +826,7 @@ const buildTimeDecision = Effect.fn("buildTimeDecision")(function* (
 		format === "json" ||
 		(format === "auto" && (yield* buildTimeAudience(options.argv, audienceEnvVar, detected)) !== "human");
 	return { ndjson, runtimeEnv: options.runtimeEnv ?? detected };
-});
+}));
 
 /**
  * The logger the platform is built under by `CliRuntime.main` with `env.log`: the log level and env var apply to

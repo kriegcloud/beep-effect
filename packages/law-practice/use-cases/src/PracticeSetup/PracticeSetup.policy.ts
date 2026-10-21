@@ -121,7 +121,10 @@ export class SetupGraphInvalid extends S.TaggedError<SetupGraphInvalid, { readon
  *   const installed = yield* id("box-drive-installed")
  *   const signedIn = yield* id("box-drive-signed-in")
  *   const remediation = HumanRemediation.make({ step: "sign-in", instruction: "Sign in to Box Drive." })
- *   const base = { capability: "documents", provider: "box-drive", remediation, explain: "Box Drive." } as const
+ *   const base = SetupRequirement.make({
+ *     id: installed, capability: "documents", provider: "box-drive",
+ *     remediation, explain: "Box Drive.", dependsOn: [],
+ *   })
  *   const ordered = yield* orderRequirements([
  *     SetupRequirement.make({ ...base, id: signedIn, dependsOn: [installed] }),
  *     SetupRequirement.make({ ...base, id: installed, dependsOn: [] }),

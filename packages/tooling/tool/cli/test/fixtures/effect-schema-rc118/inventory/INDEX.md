@@ -1,8 +1,8 @@
 # Schema inventory index
 
-Pin: `e17ecdbe902aa7108f775c8ab9c0ddf9f38801ab` (inventoryPin: root package.json catalog `effect` or `config.effectSource`; sources read with `git -C .repos/effect show <pin>:<file>`). TypeScript parser: `6.0.2`. Counts include direct public members at one level; barrel namespace re-exports are one row each and are not expanded. Module list: `packages/tooling/tool/cli/src/commands/Lint/internal/EffectSchemaInventoryModules.ts`.
+Pin: `7f524e25cfb49a71ac39b0f44278d08d40dda5de` (inventoryPin: root package.json catalog `effect` or `config.effectSource`; sources read with `git -C .repos/effect show <pin>:<file>`). TypeScript parser: `6.0.2`. Counts include direct public members at one level; barrel namespace re-exports are one row each and are not expanded. Module list: `packages/tooling/tool/cli/src/commands/Lint/internal/EffectSchemaInventoryModules.ts`.
 
-Row digest: `a1708d66eee58f8493b1b6bfe69299cc607bdf6ab1ed2bcdfa339183c2f0abb0` (SHA-256 over the module JSONL files concatenated byte for byte in Module totals order).
+Row digest: `408166b7cbc3195569698ee010de8d468c45ab201b8a533feb4a9424c807d785` (SHA-256 over the module JSONL files concatenated byte for byte in Module totals order).
 
 Regenerate from repo root (offline):
 

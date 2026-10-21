@@ -2,6 +2,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -469,5 +470,24 @@ describe("Gitmodules round-1 codec regressions", () => {
 			assert.strictEqual(modules.entries[0]?.ignore, ignore);
 			assert.deepStrictEqual(modules.entries[0], GitmodulesEntry.make({ name: "a", path: "p", url: "u", ignore }));
 		}
+	});
+});
+
+describe("Gitmodules setters, data-last", () => {
+	const text = '[submodule "lib"]\n\tpath = lib\n\turl = ../lib.git\n';
+
+	it("pipes a document through the fixed-arity setters", () => {
+		const edited = ok(pipe(ok(GitConfig.parseResult(text)), Gitmodules.setUrl("lib", "../new.git")));
+		assert.strictEqual(O.getOrNull(edited.get("submodule", "lib", "url")), "../new.git");
+	});
+
+	it("dispatches the optional setters on a GitConfig subject, so omitting the value still removes it", () => {
+		const config = ok(GitConfig.parseResult(text));
+		const withBranch = ok(pipe(config, Gitmodules.setBranch("lib", "main")));
+		assert.strictEqual(O.getOrNull(withBranch.get("submodule", "lib", "branch")), "main");
+		const cleared = ok(Gitmodules.setBranch(withBranch, "lib"));
+		assert.isTrue(O.isNone(cleared.get("submodule", "lib", "branch")));
+		const piped = ok(pipe(withBranch, Gitmodules.setBranch("lib")));
+		assert.isTrue(O.isNone(piped.get("submodule", "lib", "branch")));
 	});
 });

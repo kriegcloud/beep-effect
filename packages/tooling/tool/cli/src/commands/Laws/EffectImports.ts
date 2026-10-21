@@ -23,6 +23,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { glob } from "tinyglobby";
 import { Node, Project, SyntaxKind } from "ts-morph";
@@ -1559,13 +1560,8 @@ const tryTransformSourceFile = (
   mappings: RootImportMappings,
   file: string,
   sourceFile: SourceFile
-): O.Option<ReturnType<typeof transformSourceFile>> => {
-  try {
-    return O.some(transformSourceFile(mappings, file, sourceFile));
-  } catch {
-    return O.none();
-  }
-};
+): O.Option<ReturnType<typeof transformSourceFile>> =>
+  Result.getSuccess(Result.try(() => transformSourceFile(mappings, file, sourceFile)));
 
 const transformFencedContent = (
   mappings: RootImportMappings,

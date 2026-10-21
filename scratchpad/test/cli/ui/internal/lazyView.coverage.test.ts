@@ -32,7 +32,7 @@ describe("lazy view invalid module diagnostics", () => {
   it.effect("rejects malformed loader metadata and accepts missing metadata", () => Effect.gen(function* () {
     const failure = yield* Effect.flip(loadView({ [Symbol.for("@effected/cli/ui/lazyView")]: 42 }));
     assert.instanceOf(failure.cause, Error);
-    if (failure.cause instanceof Error) assert.strictEqual(failure.cause.message, "lazy view loader is not a function");
+    if (failure.cause instanceof Error) assert.strictEqual(failure.cause.message, "lazy view loader is not an Effect");
     yield* loadView(null); yield* loadView({ [Symbol.for("@effected/cli/ui/lazyView")]: undefined });
     const view = lazyView(() => Promise.resolve({ default: (state: string, frame: number) => createElement("text", null, `${state}:${frame}`) }));
     assert.throws(() => view("early", 0), /before its module loaded/);

@@ -5,6 +5,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import type { Document } from "../../effected/cli/index.ts";
 import { CliLinks, CliTheme, Doc, Render, Status } from "../../effected/cli/index.ts";
 
 const ESC = String.fromCharCode(0x1b);
@@ -37,7 +38,7 @@ const env = (audience: AudienceKind, isTerminal: boolean, color: "none" | "truec
 	);
 };
 
-const printed = Effect.fn("printed")(function* (doc: Parameters<typeof Doc.print>[0]) {
+const printed = Effect.fn("printed")(function* (doc: Document) {
 	const out: Array<string> = [];
 	const double: Console.Console = Object.assign(Object.create(console), {
 		log: (...args: ReadonlyArray<unknown>) => out.push(args.map(String).join(" ")),

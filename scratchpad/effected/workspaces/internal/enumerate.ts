@@ -26,7 +26,7 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/enumerate");
 
 class EnumerationOptionsError extends S.TaggedError<EnumerationOptionsError, { readonly brand: unique symbol }>($I`EnumerationOptionsError`)("EnumerationOptionsError", {
 	message: S.String,
-}, $I.annote("EnumerationOptionsError", { description: "An invalid workspace enumeration depth bound." })) {}
+}, $I.annoteError<EnumerationOptionsError>("EnumerationOptionsError", { description: "An invalid workspace enumeration depth bound." })) {}
 
 /**
  * A directory the enumerator accepted: its root-relative POSIX path and its absolute path.
@@ -44,9 +44,9 @@ class EnumerationOptionsError extends S.TaggedError<EnumerationOptionsError, { r
  * @since 0.0.0
  */
 export const EnumeratedDirectory = S.Struct({
-	relativePath: S.String.annotateKey($I.annote("EnumeratedDirectory.relativePath", { description: "The root-relative POSIX package directory." })),
-	path: S.String.annotateKey($I.annote("EnumeratedDirectory.path", { description: "The absolute package directory." })),
-}).annotate($I.annote("EnumeratedDirectory", { description: "A plain package directory accepted by workspace enumeration." }));
+	relativePath: S.String.pipe($I.annoteKey("EnumeratedDirectory.relativePath", { description: "The root-relative POSIX package directory." })),
+	path: S.String.pipe($I.annoteKey("EnumeratedDirectory.path", { description: "The absolute package directory." })),
+}).pipe($I.annoteSchema("EnumeratedDirectory", { description: "A plain package directory accepted by workspace enumeration." }));
 /**
  * The readonly directory result described by {@link EnumeratedDirectory}.
  *
@@ -75,9 +75,7 @@ export type EnumeratedDirectory = typeof EnumeratedDirectory.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const EnumerationFailureKind = LiteralKit(["missingBaseDir", "depthExceeded", "budgetExceeded", "unreadableDirectory"]).annotate(
-	$I.annote("EnumerationFailureKind", { description: "The caller-visible reasons workspace enumeration can fail." }),
-);
+export const EnumerationFailureKind = LiteralKit(["missingBaseDir", "depthExceeded", "budgetExceeded", "unreadableDirectory"]).pipe($I.annoteSchema("EnumerationFailureKind", { description: "The caller-visible reasons workspace enumeration can fail." }));
 /**
  * The caller-visible reason recorded when workspace enumeration fails.
  *
@@ -90,10 +88,10 @@ export type EnumerationFailureKind = typeof EnumerationFailureKind.Type;
 const enumerationFailureCase = <const Kind extends EnumerationFailureKind>(kind: S.Literal<Kind>) => {
 	const identifier: string = `EnumerationFailure.${kind.literal}`;
 	return S.Struct({
-		kind: kind.annotateKey($I.annote("EnumerationFailure.kind", { description: "The existing caller-visible failure reason." })),
-		pattern: S.String.annotateKey($I.annote("EnumerationFailure.pattern", { description: "The workspace pattern that could not be enumerated." })),
-		detail: S.String.annotateKey($I.annote("EnumerationFailure.detail", { description: "The caller-visible enumeration diagnostic." })),
-	}).annotate($I.annote(identifier, { description: `The existing ${kind.literal} failure record.` }));
+		kind: kind.pipe($I.annoteKey("EnumerationFailure.kind", { description: "The existing caller-visible failure reason." })),
+		pattern: S.String.pipe($I.annoteKey("EnumerationFailure.pattern", { description: "The workspace pattern that could not be enumerated." })),
+		detail: S.String.pipe($I.annoteKey("EnumerationFailure.detail", { description: "The caller-visible enumeration diagnostic." })),
+	}).pipe($I.annoteSchema(identifier, { description: `The existing ${kind.literal} failure record.` }));
 };
 
 /**
@@ -116,7 +114,7 @@ export const EnumerationFailure = EnumerationFailureKind.mapMembers(([missingBas
 	enumerationFailureCase(depthExceeded),
 	enumerationFailureCase(budgetExceeded),
 	enumerationFailureCase(unreadableDirectory),
-]).pipe(S.toTaggedUnion("kind")).annotate($I.annote("EnumerationFailure", { description: "A plain enumeration failure record materialized by the facade." }));
+]).pipe(S.toTaggedUnion("kind"), $I.annoteSchema("EnumerationFailure", { description: "A plain enumeration failure record materialized by the facade." }));
 /**
  * The readonly enumeration failure described by {@link EnumerationFailure}.
  *
@@ -142,8 +140,8 @@ export type EnumerationFailure = typeof EnumerationFailure.Type;
  */
 export const EnumerateOptions = S.Struct({
 	/** Descent cap below a wildcard's enumeration prefix. Defaults to 32 at use. */
-	maxDepth: S.optionalKey(S.declare(P.isNumber)).annotateKey($I.annote("EnumerateOptions.maxDepth", { description: "An optional numeric descent cap, validated and defaulted only by enumeration." })),
-}).annotate($I.annote("EnumerateOptions", { description: "Plain enumeration options retaining the lazy depth default." }));
+	maxDepth: S.optionalKey(S.declare(P.isNumber)).pipe($I.annoteKey("EnumerateOptions.maxDepth", { description: "An optional numeric descent cap, validated and defaulted only by enumeration." })),
+}).pipe($I.annoteSchema("EnumerateOptions", { description: "Plain enumeration options retaining the lazy depth default." }));
 /**
  * The optional descent cap described by {@link EnumerateOptions}.
  *
@@ -216,13 +214,16 @@ export const enumerate: {
 	const isExcluded =
 		excludes.length === 0
 			? (_: string): boolean => false
-			: (relative: string): boolean => excludes.some((exclude) => exclude.matches(relative));
+			: (relative: string): boolean => A.some(excludes, (exclude) => exclude.matches(relative));
 
 	const included = MutableHashMap.empty<string, string>();
 
 	/** A shared-traversal stop, materialized as this module's failure record. */
-	const failureOf = (stop: { readonly kind: EnumerationFailureKind; readonly detail: string }, pattern: string): EnumerationFailure =>
-		({ kind: stop.kind, pattern, detail: stop.detail });
+	const failureOf: {
+		(stop: { readonly kind: EnumerationFailureKind; readonly detail: string }, pattern: string): EnumerationFailure;
+		(pattern: string): (stop: { readonly kind: EnumerationFailureKind; readonly detail: string }) => EnumerationFailure;
+	} = dual(2, (stop: { readonly kind: EnumerationFailureKind; readonly detail: string }, pattern: string): EnumerationFailure =>
+		({ kind: stop.kind, pattern, detail: stop.detail }));
 
 	// Literals: an exact lookup, no directory read at all.
 	//

@@ -1,4 +1,6 @@
 import type { FunctionComponent, ReactElement } from "react";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import { fromReact } from "./ink.ts";
 
 /**
@@ -8,7 +10,13 @@ import { fromReact } from "./ink.ts";
  * @category type-level
  * @since 0.0.0
  */
-export type HolderSwap = (next: ReactElement, committed?: () => void) => void;
+export type HolderSwap = {
+	(next: ReactElement, committed?: () => void): void;
+	(committed?: () => void): (next: ReactElement) => void;
+};
+
+/** Whether a swap's first argument is the element, not the commit callback of a data-last call. */
+const isElementFirst = (args: IArguments): boolean => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]);
 
 /** What the holder shows, and who is waiting for it to be committed. */
 interface Shown {
@@ -63,7 +71,10 @@ export const holder: () => FunctionComponent<HolderProps> = fromReact((react) =>
 	const Holder = (props: HolderProps): ReactElement => {
 		const [shown, setShown] = react.useState<Shown>(() => ({ element: props.initial, committed: undefined }));
 		react.useLayoutEffect(() => {
-			props.bind((element, committed) => setShown({ element, committed }));
+			props.bind(
+				dual(isElementFirst, (element: ReactElement, committed?: () => void): void =>
+					setShown({ element, committed })),
+			);
 			return () => props.bind(undefined);
 		}, [props.bind]);
 		react.useLayoutEffect(() => shown.committed?.(), [shown]);
@@ -90,7 +101,10 @@ export interface HolderSlot {
 	 * `committed` is called once React has committed the element, or a later swap's, or at once when nothing was
 	 * swapped, and also when the holder unmounts first: every waiter is released exactly once.
 	 */
-	readonly swap: (next: ReactElement, committed?: () => void) => boolean;
+	readonly swap: {
+		(next: ReactElement, committed?: () => void): boolean;
+		(committed?: () => void): (next: ReactElement) => boolean;
+	};
 }
 
 /**
@@ -122,7 +136,7 @@ export const holderSlot = (): HolderSlot => {
 			if (swap === undefined) release(pending.length - 1);
 		},
 		isBound: () => bound !== undefined,
-		swap: (next, committed) => {
+		swap: dual(isElementFirst, (next: ReactElement, committed?: () => void): boolean => {
 			if (bound === undefined) {
 				committed?.();
 				return false;
@@ -138,6 +152,6 @@ export const holderSlot = (): HolderSlot => {
 				if (at !== -1) release(at);
 			});
 			return true;
-		},
+		}),
 	};
 };

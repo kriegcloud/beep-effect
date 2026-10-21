@@ -15,7 +15,6 @@
     {"file":"packages/shared/domain/src/entity/EntityId.ts","symbol":"EntityIdValue","kind":"brand","owner":"@beep/shared-domain","identity":"EntityIdValue","description":"Storage-neutral positive integer used by shared-kernel persisted entity ids."},
     {"file":"packages/shared/domain/src/entity/EntityId.ts","symbol":"Options","kind":"struct-const","owner":"@beep/shared-domain","identity":"Options","description":"Constrained metadata overrides accepted by EntityId.factory."},
     {"file":"packages/shared/domain/src/entity/EntityId.ts","symbol":"factory","kind":"brand","owner":"@beep/shared-domain"},
-    {"file":"packages/shared/domain/src/entity/EntityKit.ts","symbol":"auditColumns","kind":"schema-const","owner":"@beep/shared-domain"},
     {"file":"packages/shared/domain/src/entity/EntityRef.errors.ts","symbol":"EntityRefError","kind":"union","owner":"@beep/shared-domain","identity":"EntityRefError","description":"Union of entity-reference invariant failures."},
     {"file":"packages/shared/domain/src/entity/EntityRef.errors.ts","symbol":"EntityRefInvariantError","kind":"tagged-error","owner":"@beep/shared-domain","identity":"EntityRefInvariantError"},
     {"file":"packages/shared/domain/src/entity/EntityRef.ts","symbol":"EntityRef","kind":"struct-const","owner":"@beep/shared-domain","identity":"EntityRef","description":"Storage-neutral polymorphic entity reference."},

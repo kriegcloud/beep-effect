@@ -15,7 +15,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { identity } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as HashMap from "effect/HashMap";
@@ -138,11 +138,17 @@ const KNOWN_BUGS_KEYS = HashSet.make("url", "email");
 // The comparison remains sensitive to JSON key order and defaults nullish rest to {}.
 const encodeRestJson = S.encodeResult(S.fromJsonString(S.Unknown));
 const restJsonOf = (value: unknown): string => Result.getOrThrowWith(encodeRestJson(value ?? {}), identity);
-const sameRest = (a: unknown, b: unknown): boolean => restJsonOf(a) === restJsonOf(b);
+const sameRest: {
+	(a: unknown, b: unknown): boolean;
+	(b: unknown): (a: unknown) => boolean;
+} = dual(2, (a: unknown, b: unknown): boolean => restJsonOf(a) === restJsonOf(b));
 
 /** The keys of `wire` outside the documented set, which is what `rest` holds. */
-const restOf = (wire: { readonly [k: string]: unknown }, known: HashSet.HashSet<string>): Record<string, unknown> =>
-	R.fromEntries(A.filter(R.toEntries(wire), ([key]) => !HashSet.has(known, key)));
+const restOf: {
+	(wire: { readonly [k: string]: unknown }, known: HashSet.HashSet<string>): Record<string, unknown>;
+	(known: HashSet.HashSet<string>): (wire: { readonly [k: string]: unknown }) => Record<string, unknown>;
+} = dual(2, (wire: { readonly [k: string]: unknown }, known: HashSet.HashSet<string>): Record<string, unknown> =>
+	R.fromEntries(A.filter(R.toEntries(wire), ([key]) => !HashSet.has(known, key))));
 
 /**
  * Whether the shorthand string can still carry everything this value holds.
@@ -170,16 +176,22 @@ const isStringExpressibleRepository = (repository: Repository): boolean =>
 const isStringExpressibleBugs = (bugs: Bugs): boolean =>
 	bugs.email === undefined && R.isEmptyRecord(bugs.rest ?? {});
 
-const isFaithfulRepository = (wire: { readonly [k: string]: unknown }, repository: Repository): boolean =>
+const isFaithfulRepository: {
+	(wire: { readonly [k: string]: unknown }, repository: Repository): boolean;
+	(repository: Repository): (wire: { readonly [k: string]: unknown }) => boolean;
+} = dual(2, (wire: { readonly [k: string]: unknown }, repository: Repository): boolean =>
 	wire.url === repository.url &&
 	wire.type === repository.type &&
 	wire.directory === repository.directory &&
-	sameRest(restOf(wire, KNOWN_REPOSITORY_KEYS), repository.rest);
+	sameRest(restOf(wire, KNOWN_REPOSITORY_KEYS), repository.rest));
 
-const isFaithfulBugs = (wire: { readonly [k: string]: unknown }, bugs: Bugs): boolean =>
+const isFaithfulBugs: {
+	(wire: { readonly [k: string]: unknown }, bugs: Bugs): boolean;
+	(bugs: Bugs): (wire: { readonly [k: string]: unknown }) => boolean;
+} = dual(2, (wire: { readonly [k: string]: unknown }, bugs: Bugs): boolean =>
 	wire.url === bugs.url &&
 	wire.email === bugs.email &&
-	sameRest(restOf(wire, KNOWN_BUGS_KEYS), bugs.rest);
+	sameRest(restOf(wire, KNOWN_BUGS_KEYS), bugs.rest));
 
 /**
  * Where a package's source lives.
@@ -210,13 +222,13 @@ const isFaithfulBugs = (wire: { readonly [k: string]: unknown }, bugs: Bugs): bo
  */
 export class Repository extends S.Class<Repository, { readonly brand: unique symbol }>($I`Repository`)({
 	/** The `type` field, when the object form carried one (`"git"`, …). */
-	type: S.optionalKey(S.String).annotateKey({ description: "The `type` field, when the object form carried one (`\"git\"`, …)." }),
+	type: S.optionalKey(S.String).pipe($I.annoteKey("Repository.type", { description: "The `type` field, when the object form carried one (`\"git\"`, …)." })),
 	/** The reference exactly as written: a shorthand, a git URL, or an https URL. */
-	url: S.String.annotateKey({ description: "The reference exactly as written: a shorthand, a git URL, or an https URL." }),
+	url: S.String.pipe($I.annoteKey("Repository.url", { description: "The reference exactly as written: a shorthand, a git URL, or an https URL." })),
 	/** The subdirectory within the repository, for a monorepo member. */
-	directory: S.optionalKey(S.String).annotateKey({ description: "The subdirectory within the repository, for a monorepo member." }),
+	directory: S.optionalKey(S.String).pipe($I.annoteKey("Repository.directory", { description: "The subdirectory within the repository, for a monorepo member." })),
 	/** Keys outside the documented set, preserved so encoding does not drop them. */
-	rest: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Keys outside the documented set, preserved so encoding does not drop them." }),
+	rest: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("Repository.rest", { description: "Keys outside the documented set, preserved so encoding does not drop them." })),
 }, $I.annote("Repository", { description: "Where a package's source lives." })) {
 	// Private instance provenance never enters schema data, equality or object spreads.
 	/**
@@ -439,11 +451,11 @@ export class Repository extends S.Class<Repository, { readonly brand: unique sym
  */
 export class Bugs extends S.Class<Bugs, { readonly brand: unique symbol }>($I`Bugs`)({
 	/** The issue-tracker URL. */
-	url: S.optionalKey(S.String).annotateKey({ description: "The issue-tracker URL." }),
+	url: S.optionalKey(S.String).pipe($I.annoteKey("Bugs.url", { description: "The issue-tracker URL." })),
 	/** The address to mail instead of, or alongside, filing an issue. */
-	email: S.optionalKey(S.String).annotateKey({ description: "The address to mail instead of, or alongside, filing an issue." }),
+	email: S.optionalKey(S.String).pipe($I.annoteKey("Bugs.email", { description: "The address to mail instead of, or alongside, filing an issue." })),
 	/** Keys outside the documented set, preserved so encoding does not drop them. */
-	rest: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Keys outside the documented set, preserved so encoding does not drop them." }),
+	rest: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("Bugs.rest", { description: "Keys outside the documented set, preserved so encoding does not drop them." })),
 }, $I.annote("Bugs", { description: "Where to report problems with a package." })) {
 	// Private instance provenance never enters schema data, equality or object spreads.
 	/**

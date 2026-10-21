@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
@@ -176,7 +176,7 @@ const decodeJsoncRecord = decodeJsoncTextAs(JsonRecord);
  * @category configuration
  * @since 0.0.0
  */
-export const defaultRepoRoot = fileURLToPath(new URL("../../../../../../../..", import.meta.url));
+export const defaultRepoRoot = NodeURL.fileURLToPath(new URL("../../../../../../../..", import.meta.url));
 
 /**
  * Source file extensions scanned by Quality artifact generators.

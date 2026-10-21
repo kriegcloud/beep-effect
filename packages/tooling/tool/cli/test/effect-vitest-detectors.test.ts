@@ -563,6 +563,22 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("keeps fixed-layer fixtures under resource review without treating their data arguments as layers", () =>
+    Effect.gen(function* () {
+      const rows = yield* findings(
+        'const callTool = Fx.fn(function* (grant, input) { const context = yield* L.build(HandlersLive); return yield* handle(input).pipe(Fx.provide(context)); }); it.effect("send", () => callTool("grant-a", { body: "private" }));'
+      );
+      assertFalse(A.some(rows, (row) => row.ruleId === "EV002"));
+      assertTrue(A.some(rows, (row) => row.ruleId === "EV003"));
+      assertTrue(
+        yield* hasRule(
+          'const supply = (layer, effect) => L.build(layer).pipe(Fx.flatMap(context => effect.pipe(Fx.provide(context)))); it.effect("resource", () => supply(L.effect(Service, acquire), program));',
+          "EV002"
+        )
+      );
+    })
+  );
+
   it.effect("judges imported and unknown layer constructors but permits proven pure compositions", () =>
     Effect.gen(function* () {
       for (const layer of [
@@ -1333,6 +1349,33 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("permits only the direct vi import required by Vitest mock hoisting", () =>
+    Effect.gen(function* () {
+      for (const body of [
+        'import { vi } from "vitest"; vi.mock("react-dom/client", () => ({ createRoot: vi.fn() }));',
+        'import { vi as mocks } from "vitest"; const fake = mocks.hoisted(() => mocks.fn());',
+      ])
+        assertFalse(
+          A.some(
+            yield* findingsWithHarness('import { it, expect } from "@effect/vitest";', body),
+            (row) => row.ruleId === "EV011"
+          )
+        );
+      for (const body of [
+        'import { vi, it } from "vitest"; vi.mock("subject");',
+        'import { vi } from "vitest"; vi.fn();',
+        'import { vi } from "vitest"; function f(vi) { vi.mock("subject"); }',
+        'import * as Vitest from "vitest"; Vitest.vi.mock("subject");',
+      ])
+        assertTrue(
+          A.some(
+            yield* findingsWithHarness('import { it, expect } from "@effect/vitest";', body),
+            (row) => row.ruleId === "EV011"
+          )
+        );
+    })
+  );
+
   it.effect("narrows root platform and CommonJS imports to filesystem provenance and explicit opaque residue", () =>
     Effect.gen(function* () {
       for (const body of [
@@ -1424,6 +1467,95 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `${harness} import * as Platform from "@effect/platform-node"; use(Platform); layer(Platform.NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
       ])
         deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
+    })
+  );
+
+  it.effect("retains native filesystem provenance through the instrumented layer harness", () =>
+    Effect.gen(function* () {
+      for (const module of ["@beep/test-runner", "@beep/test-utils/Vitest", "@effect/vitest"]) {
+        const rows = yield* findingsWithHarness(
+          `import { it as instrumentedIt } from "${module}";`,
+          'import { NodeServices } from "@effect/platform-node"; instrumentedIt.layer(NodeServices.layer, { timeout: "10 seconds" })("native", (it) => { it.effect("physical root", () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.realPath("fixture"); })); });'
+        );
+        assertFalse(A.some(rows, (row) => row.ruleId === "EV010"));
+      }
+    })
+  );
+
+  it.effect("keeps the TsNativeApi subject opaque when platform filesystem provenance is unproven", () =>
+    Effect.gen(function* () {
+      for (const module of ["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"]) {
+        const rows = yield* findingsWithHarness(
+          `import { it } from "${module}";`,
+          `import { TsNativeApi, TsNativeConfig } from "@beep/repo-utils/TsNativeApi";
+import { NodeServices } from "@effect/platform-node";
+const subject = TsNativeApi.layer(TsNativeConfig.make({ cwd: fixture })).pipe(L.provide(NodeServices.layer));
+it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
+  it.layer(subject, { timeout: "30 seconds" })((it) => {
+    it.effect("program", () => Fx.gen(function* () { const api = yield* TsNativeApi; yield* api.program(); }));
+  });
+  it.effect("spawn failure", () => Fx.gen(function* () {
+    const unavailable = TsNativeApi.layer(config).pipe(L.provide(NodeServices.layer));
+    yield* L.build(unavailable);
+  }));
+  it.effect("explicit teardown", () => Fx.gen(function* () { yield* L.buildWithScope(L.fresh(subject), scope); }));
+});`
+        );
+        const platform = A.filter(rows, (row) => row.ruleId === "EV010");
+        deepStrictEqual(
+          A.map(platform, (row) => [row.class, row.mechanization]),
+          [["platform-resource-provenance-review", "judgment"]]
+        );
+        assertTrue(A.every(platform, (row) => row.replacement.sketch.includes("unproven")));
+      }
+    })
+  );
+
+  it.effect("does not borrow native filesystem evidence from a nested layer with a different owner", () =>
+    Effect.gen(function* () {
+      for (const module of ["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"]) {
+        for (const callback of ["(it) =>", "function (it)"]) {
+          const rows = yield* findingsWithHarness(
+            `import { it } from "${module}";`,
+            `import { NodeServices } from "@effect/platform-node";
+it.layer(NodeServices.layer)((it) => {
+  it.layer(FakeFileSystemLive)(${callback} {
+    it.effect("fake native operation", () => Fx.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.realPath("fixture");
+    }));
+  });
+});`
+          );
+          deepStrictEqual(
+            A.map(
+              A.filter(rows, (row) => row.ruleId === "EV010"),
+              (row) => row.class
+            ),
+            ["platform-resource-provenance-review"]
+          );
+        }
+      }
+    })
+  );
+
+  it.effect("retains per-test resource findings beside an owned native platform layer", () =>
+    Effect.gen(function* () {
+      for (const module of ["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"]) {
+        const rows = yield* findingsWithHarness(
+          `import { it } from "${module}";`,
+          `import { NodeServices } from "@effect/platform-node";
+it.layer(NodeServices.layer)((it) => {
+  it.effect("native boundary", () => Fx.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    yield* fs.realPath("fixture");
+    yield* program.pipe(Fx.provide(L.effect(Service, acquire)));
+  }));
+});`
+        );
+        assertFalse(A.some(rows, (row) => row.ruleId === "EV010"));
+        assertTrue(A.some(rows, (row) => row.ruleId === "EV002" && row.class === "per-test-layer-provide"));
+      }
     })
   );
 

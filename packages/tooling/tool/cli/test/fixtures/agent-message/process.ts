@@ -1,6 +1,7 @@
 /** Synthetic process-crash boundary; no providers, credentials or tools. */
 import {
   AmbiguityResolution,
+  Claim,
   Envelope,
   makeAgentMessageSqliteClient,
   makeAgentMessageStore,
@@ -49,6 +50,22 @@ const program = Effect.scoped(
         .pipe(Effect.repeat({ schedule: Schedule.spaced("10 millis"), until: identity<boolean> }));
       yield* client`ROLLBACK`;
       return;
+    }
+    if (stage === "settle") {
+      const input = yield* Config.String("BEEP_MESSAGE_FIXTURE_ENVELOPE");
+      const request = yield* fs.readFileString(input).pipe(Effect.flatMap(decodeAmbiguityResolutionJson));
+      yield* store.recordSettlement(
+        Claim.make({
+          envelope: yield* store.message(request.messageId),
+          ownerId: request.attemptOwnerId,
+          generation: request.attemptGeneration,
+          leaseUntil: 201,
+        }),
+        request.runtimeEvidence,
+        102
+      );
+      yield* writeCheckpoint(checkpoint, "settled");
+      return yield* Effect.never;
     }
     if (stage === "resolve") {
       const input = yield* Config.String("BEEP_MESSAGE_FIXTURE_ENVELOPE");

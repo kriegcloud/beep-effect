@@ -9,7 +9,8 @@
  * @since 0.0.0
  */
 
-import { platform, tmpdir } from "node:os";
+import * as NodeOS from "node:os";
+import { HostProcessPlatform } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -52,7 +53,7 @@ const runScopeCommand = Effect.fnUntraced(function* (
   never,
   Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
-  return yield* runRepoCommandCapture(command, args, tmpdir(), yield* commandEnvironment()).pipe(Effect.option);
+  return yield* runRepoCommandCapture(command, args, NodeOS.tmpdir(), yield* commandEnvironment()).pipe(Effect.option);
 });
 
 /**
@@ -157,7 +158,7 @@ export const detectRunScopeSupport = Effect.fn("RunScope.detectRunScopeSupport")
   if (O.exists(configured, (value) => A.contains(["0", "false"], value))) {
     return "disabled";
   }
-  if (platform() !== "linux") {
+  if ((yield* HostProcessPlatform) !== "linux") {
     return "unsupported";
   }
   const probe = yield* runScopeCommand("busctl", getUnitByPidArguments("--timeout=2"));

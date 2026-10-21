@@ -14,6 +14,7 @@ import {
 	GitHubCacheBlobStore,
 } from "../../effected/github-actions/index.ts";
 import { json, resultsEnv, settle, twirpFetch } from "./results.ts";
+import { dual } from "effect/Function";
 
 class AlternateBlobStore extends Context.Service<AlternateBlobStore, Context.Service.Shape<typeof BlobStore>>()(
 	"@beep/scratchpad/test/github-actions/BlobStore.githubCache.test/AlternateBlobStore",
@@ -25,10 +26,10 @@ class Meta extends S.Class<Meta, { readonly brand: unique symbol }>("Meta")({ ta
 const memoryTransfer = () => {
 	const blobs = new Map<string, Uint8Array>();
 	const transfer: DataBlobTransfer = {
-		uploadData: (url, data) =>
+		uploadData: dual(2, (url: string, data: Uint8Array) =>
 			Effect.sync(() => {
 				blobs.set(url, data);
-			}),
+			})),
 		downloadToBuffer: (url) =>
 			Effect.suspend(() => {
 				const found = blobs.get(url);

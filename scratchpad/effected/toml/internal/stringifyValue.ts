@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -26,8 +26,8 @@ const $I = $ScratchpadId.create("effected/toml/internal/stringifyValue");
 
 class TomlStringifyInvariantError extends S.TaggedError<TomlStringifyInvariantError, { readonly brand: unique symbol }>($I`TomlStringifyInvariantError`)(
 	"TomlStringifyInvariantError",
-	{ message: S.String.annotateKey({ description: "Explanation of the violated stringify engine invariant." }) },
-	$I.annote("TomlStringifyInvariantError", { description: "An impossible state in the TOML value emitter." }),
+	{ message: S.String.pipe($I.annoteKey("TomlStringifyInvariantError.message", { description: "Explanation of the violated stringify engine invariant." })) },
+	$I.annoteError<TomlStringifyInvariantError>("TomlStringifyInvariantError", { description: "An impossible state in the TOML value emitter." }),
 ) {}
 
 const INT64_MIN = -(2n ** 63n);
@@ -40,9 +40,12 @@ const BARE_KEY = /^[A-Za-z0-9_-]+$/;
 /** Error path segments: keys are strings, array indices are numbers. */
 type Path = ReadonlyArray<string | number>;
 
-const raise = (code: TomlStringifyErrorCodeRaw, message: string): never => {
+const raise: {
+	(code: TomlStringifyErrorCodeRaw, message: string): never;
+	(message: string): (code: TomlStringifyErrorCodeRaw) => never;
+} = dual(2, (code: TomlStringifyErrorCodeRaw, message: string): never => {
 	throw RawTomlError.make({ code, message, offset: 0, length: 0 });
-};
+});
 
 const guardDepth = (depth: number): void => {
 	if (depth > MAX_NESTING_DEPTH) {
@@ -123,7 +126,7 @@ const renderString = (value: string): string => {
 export const renderKey = (key: string): string => (BARE_KEY.test(key) ? key : renderString(key));
 
 /** A dotted header path, quoting per-segment by the key rule. */
-const renderHeaderPath = (path: ReadonlyArray<string>): string => path.map(renderKey).join(".");
+const renderHeaderPath = (path: ReadonlyArray<string>): string => pipe(path, A.map(renderKey), A.join("."));
 
 /**
  * A `number`: integral values inside the int64 range emit as decimal integers
@@ -179,14 +182,20 @@ const renderScalar = Match.fn((value: unknown, _path: Path) => value).pipe(
 	Match.orElse(() => undefined),
 );
 
-const checkCircular = (value: object, ancestors: ReadonlyArray<object>, path: Path): void => {
+const checkCircular: {
+	(value: object, ancestors: ReadonlyArray<object>, path: Path): void;
+	(ancestors: ReadonlyArray<object>, path: Path): (value: object) => void;
+} = dual(3, (value: object, ancestors: ReadonlyArray<object>, path: Path): void => {
 	if (A.some(ancestors, (ancestor) => ancestor === value)) {
 		raise("CircularReference", `circular reference at ${renderPath(path)}`);
 	}
-};
+});
 
 /** One value as an inline fragment: scalars, inline arrays, inline tables. */
-const renderInline = (value: unknown, path: Path, depth: number, ancestors: ReadonlyArray<object>): string => {
+const renderInline: {
+	(value: unknown, path: Path, depth: number, ancestors: ReadonlyArray<object>): string;
+	(path: Path, depth: number, ancestors: ReadonlyArray<object>): (value: unknown) => string;
+} = dual(4, (value: unknown, path: Path, depth: number, ancestors: ReadonlyArray<object>): string => {
 	// Guard on container DESCENT only, never on a scalar leaf — mirroring the
 	// parse side, which checks parseArray/parseInlineTable at the opening
 	// bracket and never guards the leaf. Guarding the leaf too would give
@@ -197,24 +206,25 @@ const renderInline = (value: unknown, path: Path, depth: number, ancestors: Read
 		guardDepth(depth);
 		checkCircular(value, ancestors, path);
 		const nextAncestors = [...ancestors, value];
-		const items = value.map((item, index) => renderInline(item, [...path, index], depth + 1, nextAncestors));
-		return `[${items.join(", ")}]`;
+		const items = A.map(value, (item, index) => renderInline(item, [...path, index], depth + 1, nextAncestors));
+		return `[${A.join(items, ", ")}]`;
 	}
 	if (isPlainObject(value)) {
 		guardDepth(depth);
 		checkCircular(value, ancestors, path);
 		const nextAncestors = [...ancestors, value];
-		const parts = R.keys(value).map(
+		const parts = A.map(
+			R.keys(value),
 			(key) => `${renderKey(key)} = ${renderInline(value[key], [...path, key], depth + 1, nextAncestors)}`,
 		);
-		return parts.length === 0 ? "{}" : `{ ${parts.join(", ")} }`;
+		return parts.length === 0 ? "{}" : `{ ${A.join(parts, ", ")} }`;
 	}
 	const scalar = renderScalar(value, path);
 	if (scalar !== undefined) {
 		return scalar;
 	}
 	return raise("UnsupportedValue", `unsupported ${jsTypeName(value)} value at ${renderPath(path)}`);
-};
+});
 
 /**
  * Render a single value as an inline TOML fragment (scalars, arrays and
@@ -252,7 +262,7 @@ const classify = (table: Record<string, unknown>): Classified => {
 		const value = table[key];
 		if (isPlainObject(value)) {
 			tables.push(key);
-		} else if (A.isArray(value) && value.length > 0 && value.every(isPlainObject)) {
+		} else if (A.isArray(value) && value.length > 0 && A.every(value, isPlainObject)) {
 			arrayTables.push(key);
 		} else {
 			pairs.push(key);
@@ -262,19 +272,25 @@ const classify = (table: Record<string, unknown>): Classified => {
 };
 
 /** Push a header line, preceded by a blank line except at document start. */
-const pushHeader = (lines: Array<string>, header: string): void => {
+const pushHeader: {
+	(lines: Array<string>, header: string): void;
+	(header: string): (lines: Array<string>) => void;
+} = dual(2, (lines: Array<string>, header: string): void => {
 	if (lines.length > 0) {
 		lines.push("");
 	}
 	lines.push(header);
-};
+});
 
 /**
  * Emit one table's body: pairs, then sub-table sections, then
  * array-of-tables sections. `headerPath` carries the dotted section path
  * (strings only); `errorPath` additionally carries array indices.
  */
-const emitTable = (
+const emitTable: {
+	(table: Record<string, unknown>, headerPath: ReadonlyArray<string>, errorPath: Path, lines: Array<string>, depth: number, ancestors: ReadonlyArray<object>): void;
+	(headerPath: ReadonlyArray<string>, errorPath: Path, lines: Array<string>, depth: number, ancestors: ReadonlyArray<object>): (table: Record<string, unknown>) => void;
+} = dual(6, (
 	table: Record<string, unknown>,
 	headerPath: ReadonlyArray<string>,
 	errorPath: Path,
@@ -306,7 +322,7 @@ const emitTable = (
 	}
 	for (const key of arrayTables) {
 		const array = table[key];
-		if (!A.isArray(array) || !array.every(isPlainObject)) {
+		if (!A.isArray(array) || !A.every(array, isPlainObject)) {
 			return raise("UnsupportedValue", `unsupported ${jsTypeName(array)} value at ${renderPath([...errorPath, key])}`);
 		}
 		checkCircular(array, tableAncestors, [...errorPath, key]);
@@ -320,7 +336,7 @@ const emitTable = (
 			emitTable(element, [...headerPath, key], [...errorPath, key, index], lines, depth + 1, arrayAncestors);
 		}
 	}
-};
+});
 
 /**
  * Stringify a plain value as a canonical TOML document.
@@ -356,5 +372,5 @@ export const stringifyValue: {
 	}
 	const lines: Array<string> = [];
 	emitTable(value, [], [], lines, 0, []);
-	return lines.length === 0 ? "" : `${lines.join(newline)}${newline}`;
+	return lines.length === 0 ? "" : `${A.join(lines, newline)}${newline}`;
 });

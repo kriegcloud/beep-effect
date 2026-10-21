@@ -13,6 +13,7 @@ import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import { runEntrypoint } from "./entrypoint.ts";
 import { SelfCheckFailure } from "./PracticeKgMcp.errors.ts";
@@ -22,8 +23,8 @@ import {
   printPracticeKgPrivacyReceipt,
   printPracticeKgSelfCheck,
   printPracticeKgTelemetrySelfCheck,
-  runPracticeKgPrivacyReceipt,
   runPracticeKgMcpSelfCheck,
+  runPracticeKgPrivacyReceipt,
   runPracticeKgTelemetrySelfCheck,
 } from "./runtime/index.ts";
 import "../../../node_modules/@electric-sql/pglite/dist/initdb.wasm" with { type: "file" };
@@ -102,15 +103,14 @@ const check = (flags: BundleFlags) =>
 const serverCommand = Command.make(
   "practice-kg-mcp",
   { bundleDir, corpusRoot, selfCheck, selfCheckTelemetry, privacyReceipt },
-  Effect.fnUntraced(function* (flags) {
-    if (flags.privacyReceipt) {
-      return yield* printPracticeKgPrivacyReceipt(runPracticeKgPrivacyReceipt());
-    }
-    if (flags.selfCheckTelemetry) {
-      return yield* printPracticeKgTelemetrySelfCheck(runPracticeKgTelemetrySelfCheck());
-    }
-    return yield* Bool.match(flags.selfCheck, { onFalse: () => serve(flags), onTrue: () => check(flags) });
-  })
+  (flags) =>
+    Match.value(flags).pipe(
+      Match.when({ privacyReceipt: true }, () => printPracticeKgPrivacyReceipt(runPracticeKgPrivacyReceipt())),
+      Match.when({ selfCheckTelemetry: true }, () =>
+        printPracticeKgTelemetrySelfCheck(runPracticeKgTelemetrySelfCheck())
+      ),
+      Match.orElse(() => Bool.match(flags.selfCheck, { onFalse: () => serve(flags), onTrue: () => check(flags) }))
+    )
 );
 
 const program = Command.run(serverCommand, { version: "0.0.0" });

@@ -22,12 +22,13 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/MarkdownEdit");
 
 class OverlappingMarkdownEditsError extends S.TaggedError<OverlappingMarkdownEditsError, { readonly brand: unique symbol }>($I`OverlappingMarkdownEditsError`)("OverlappingMarkdownEditsError", {
-	message: S.String.annotateKey({ description: "Explanation identifying the overlapping edit offsets and the programmer-error contract" }),
-}, $I.annote("OverlappingMarkdownEditsError", { description: "Rejects intersecting source edits before MarkdownEdit.applyAll can splice ambiguous replacements." })) {}
+	message: S.String.pipe($I.annoteKey("OverlappingMarkdownEditsError.message", { description: "Explanation identifying the overlapping edit offsets and the programmer-error contract" })),
+}, $I.annoteError<OverlappingMarkdownEditsError>("OverlappingMarkdownEditsError", { description: "Rejects intersecting source edits before MarkdownEdit.applyAll can splice ambiguous replacements." })) {}
 
 /**
  * A single path segment: a `number` for child indices in the node tree, or a
@@ -68,8 +69,8 @@ export type MarkdownPath = ReadonlyArray<MarkdownSegment>;
  * @since 0.0.0
  */
 export class MarkdownRange extends S.Class<MarkdownRange, { readonly brand: unique symbol }>($I`MarkdownRange`)({
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the formatting region in the source string, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Extent of the formatting region in UTF-16 code units, used to select intersecting nodes" }),
+	offset: S.Finite.pipe($I.annoteKey("MarkdownRange.offset", { description: "Zero-based start of the formatting region in the source string, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("MarkdownRange.length", { description: "Extent of the formatting region in UTF-16 code units, used to select intersecting nodes" })),
 }, $I.annote("MarkdownRange", { description: "A range within a markdown document, expressed as a zero-based character `offset` and a `length` in UTF-16 code units. Pass to `MarkdownFormat.format` to restrict formatting to a region." })) {}
 
 /**
@@ -98,9 +99,9 @@ export class MarkdownRange extends S.Class<MarkdownRange, { readonly brand: uniq
  * @since 0.0.0
  */
 export class MarkdownEdit extends S.Class<MarkdownEdit, { readonly brand: unique symbol }>($I`MarkdownEdit`)({
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the span to replace in the original source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Number of UTF-16 code units to replace in the original source; `0` inserts without removing text" }),
-	content: S.String.annotateKey({ description: "Replacement text for the source span; an empty string deletes the span" }),
+	offset: S.Finite.pipe($I.annoteKey("MarkdownEdit.offset", { description: "Zero-based start of the span to replace in the original source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("MarkdownEdit.length", { description: "Number of UTF-16 code units to replace in the original source; `0` inserts without removing text" })),
+	content: S.String.pipe($I.annoteKey("MarkdownEdit.content", { description: "Replacement text for the source span; an empty string deletes the span" })),
 }, $I.annote("MarkdownEdit", { description: "A non-mutating text edit: replace the span `[offset, offset + length)` with `content`. Set `length` to `0` to insert, `content` to `\"\"` to delete." })) {
 	/**
 	 * Apply `edits` to `text`, producing a new string. Edits are applied in
@@ -130,7 +131,10 @@ export class MarkdownEdit extends S.Class<MarkdownEdit, { readonly brand: unique
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static applyAll(text: string, edits: ReadonlyArray<MarkdownEdit>): string {
+	static readonly applyAll: {
+		(text: string, edits: ReadonlyArray<MarkdownEdit>): string;
+		(edits: ReadonlyArray<MarkdownEdit>): (text: string) => string;
+	} = dual(2, (text: string, edits: ReadonlyArray<MarkdownEdit>): string => {
 		const sorted = A.sort(edits, Order.mapInput(Order.flip(Order.Number), (edit: MarkdownEdit) => edit.offset));
 		for (let i = 0; i + 1 < sorted.length; i++) {
 			const upper = sorted[i];
@@ -146,5 +150,5 @@ export class MarkdownEdit extends S.Class<MarkdownEdit, { readonly brand: unique
 			result = result.slice(0, edit.offset) + edit.content + result.slice(edit.offset + edit.length);
 		}
 		return result;
-	}
+	});
 }

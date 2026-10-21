@@ -5,7 +5,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import type { Document } from "../../effected/cli/index.ts";
+import type { DocPrintOptions, Document } from "../../effected/cli/index.ts";
 import { CliLinks, CliTheme, Doc, Glyphs, Render } from "../../effected/cli/index.ts";
 import { composite } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
@@ -75,7 +75,7 @@ const doc: Document = [
 	Doc.collapsible("Details", [Doc.paragraph("inside")]),
 ];
 
-const print = (setup: Setup, options?: Parameters<typeof Doc.print>[1]) => under(setup, Doc.print(doc, options));
+const print = (setup: Setup, options?: DocPrintOptions) => under(setup, Doc.print(doc, options));
 
 describe("Doc.print: each audience picks its renderer", () => {
 	it.effect("an agent gets plain text: no escape of any kind, no group, wherever the terminal could do more", () =>

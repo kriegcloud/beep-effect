@@ -279,7 +279,7 @@ export const postfixThunk: {
  * const routes: A.NonEmptyReadonlyArray<string> = ["users", "posts"]
  *
  * // Data-first
- * const prefixed = Str.mapPrefix("/api/", routes)
+ * const prefixed = Str.mapPrefix(routes, "/api/")
  *
  * // Data-last (pipeable)
  * const piped = pipe(routes, Str.mapPrefix("/api/"))
@@ -291,20 +291,15 @@ export const postfixThunk: {
  * @category combinators
  * @since 0.0.0
  */
-export function mapPrefix<const Pre extends string>(
-  prefix: Pre
-): <Arr extends A.NonEmptyReadonlyArray<string>>(arr: Arr) => A.NonEmptyReadonlyArray<`${Pre}${Arr[number]}`>;
-export function mapPrefix<const Pre extends string, Arr extends A.NonEmptyReadonlyArray<string>>(
-  prefix: Pre,
-  arr: Arr
-): A.NonEmptyReadonlyArray<`${Pre}${Arr[number]}`>;
-export function mapPrefix(
-  affix: string,
-  arr?: A.NonEmptyReadonlyArray<string>
-): A.NonEmptyReadonlyArray<string> | ((values: A.NonEmptyReadonlyArray<string>) => A.NonEmptyReadonlyArray<string>) {
-  const map = (values: A.NonEmptyReadonlyArray<string>) => A.mapNonEmptyReadonly(values, prefix(affix));
-  return arr === undefined ? map : map(arr);
-}
+export const mapPrefix: {
+  <const Pre extends string>(
+    prefix: Pre
+  ): <Arr extends A.NonEmptyReadonlyArray<string>>(arr: Arr) => A.NonEmptyReadonlyArray<`${Pre}${Arr[number]}`>;
+  <Arr extends A.NonEmptyReadonlyArray<string>, const Pre extends string>(
+    arr: Arr,
+    prefix: Pre
+  ): A.NonEmptyReadonlyArray<`${Pre}${Arr[number]}`>;
+} = dual(2, (arr: A.NonEmptyReadonlyArray<string>, affix: string) => A.mapNonEmptyReadonly(arr, prefix(affix)));
 
 /**
  * Maps a non-empty string array by appending each element with `postfix`.
@@ -324,7 +319,7 @@ export function mapPrefix(
  * const files: A.NonEmptyReadonlyArray<string> = ["index", "main"]
  *
  * // Data-first
- * const withExt = Str.mapPostfix(".ts", files)
+ * const withExt = Str.mapPostfix(files, ".ts")
  *
  * // Data-last (pipeable)
  * const piped = pipe(files, Str.mapPostfix(".ts"))
@@ -336,20 +331,15 @@ export function mapPrefix(
  * @category combinators
  * @since 0.0.0
  */
-export function mapPostfix<const Post extends string>(
-  postfix: Post
-): <Arr extends A.NonEmptyReadonlyArray<string>>(arr: Arr) => A.NonEmptyReadonlyArray<`${Arr[number]}${Post}`>;
-export function mapPostfix<const Post extends string, Arr extends A.NonEmptyReadonlyArray<string>>(
-  postfix: Post,
-  arr: Arr
-): A.NonEmptyReadonlyArray<`${Arr[number]}${Post}`>;
-export function mapPostfix(
-  affix: string,
-  arr?: A.NonEmptyReadonlyArray<string>
-): A.NonEmptyReadonlyArray<string> | ((values: A.NonEmptyReadonlyArray<string>) => A.NonEmptyReadonlyArray<string>) {
-  const map = (values: A.NonEmptyReadonlyArray<string>) => A.mapNonEmptyReadonly(values, postfix(affix));
-  return arr === undefined ? map : map(arr);
-}
+export const mapPostfix: {
+  <const Post extends string>(
+    postfix: Post
+  ): <Arr extends A.NonEmptyReadonlyArray<string>>(arr: Arr) => A.NonEmptyReadonlyArray<`${Arr[number]}${Post}`>;
+  <Arr extends A.NonEmptyReadonlyArray<string>, const Post extends string>(
+    arr: Arr,
+    postfix: Post
+  ): A.NonEmptyReadonlyArray<`${Arr[number]}${Post}`>;
+} = dual(2, (arr: A.NonEmptyReadonlyArray<string>, affix: string) => A.mapNonEmptyReadonly(arr, postfix(affix)));
 
 /**
  * Converts a string to `camelCase` with a type-level `CamelCase` return.

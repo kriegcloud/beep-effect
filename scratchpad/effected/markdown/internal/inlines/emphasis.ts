@@ -51,10 +51,10 @@ const reUnicodeWhitespaceChar = /^\s/;
  * @since 0.0.0
  */
 export const DelimiterRun = S.Struct({
-	numdelims: S.Int.check(S.isGreaterThanOrEqualTo(1)).annotateKey({ description: "Positive integer length of the delimiter run in UTF-16 code units." }),
-	canOpen: S.Boolean.annotateKey({ description: "Whether the run satisfies the opening flanking rule." }),
-	canClose: S.Boolean.annotateKey({ description: "Whether the run satisfies the closing flanking rule." }),
-}).annotate($I.annote("DelimiterRun", {
+	numdelims: S.Int.check(S.isGreaterThanOrEqualTo(1)).pipe($I.annoteKey("DelimiterRun.numdelims", { description: "Positive integer length of the delimiter run in UTF-16 code units." })),
+	canOpen: S.Boolean.pipe($I.annoteKey("DelimiterRun.canOpen", { description: "Whether the run satisfies the opening flanking rule." })),
+	canClose: S.Boolean.pipe($I.annoteKey("DelimiterRun.canClose", { description: "Whether the run satisfies the closing flanking rule." })),
+}).pipe($I.annoteSchema("DelimiterRun", {
 	description: "The length and flanking capabilities shared by emphasis and strikethrough.",
 }));
 
@@ -140,7 +140,10 @@ const markerCharOf = (cc: number): EmphasisChar => (cc === C_UNDERSCORE ? "_" : 
  * Consume a delimiter run as literal text and, when it could open or close
  * emphasis, push it onto the delimiter stack for `processEmphasis` to pair up.
  */
-const handleDelim = (scanner: InlineScanner, cc: number): boolean => {
+const handleDelim: {
+	(scanner: InlineScanner, cc: number): boolean;
+	(cc: number): (scanner: InlineScanner) => boolean;
+} = dual(2, (scanner: InlineScanner, cc: number): boolean => {
 	// The construct passes the current peek code, so at least one delimiter matches.
 	const run = O.getOrThrow(scanDelims(scanner, cc));
 	const startpos = scanner.pos;
@@ -166,7 +169,7 @@ const handleDelim = (scanner: InlineScanner, cc: number): boolean => {
 	}
 
 	return true;
-};
+});
 
 /**
  * Consumes `*` and `_` runs for emphasis and strong emphasis pairing.

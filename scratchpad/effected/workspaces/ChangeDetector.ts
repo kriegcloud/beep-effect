@@ -11,6 +11,7 @@ import type { GitCommandError, NotARepositoryError, UnknownRefError } from "../g
 import { Git } from "../git/index.ts";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as A from "effect/Array";
@@ -52,8 +53,8 @@ export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions, { re
 	 */
 	base: S.String.pipe(
 		S.withDecodingDefaultKey(Effect.succeed("HEAD~1")),
-		S.withConstructorDefault(Effect.succeed("HEAD~1")),
-	).annotateKey({ description: "The ref to compare against." }),
+		S.withConstructorDefault(Effect.succeed("HEAD~1")), $I.annoteKey("ChangeDetectionOptions.base", { description: "The ref to compare against." }),
+	),
 	/**
 	 * The ref to compare to.
 	 *
@@ -61,8 +62,8 @@ export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions, { re
 	 */
 	head: S.String.pipe(
 		S.withDecodingDefaultKey(Effect.succeed("HEAD")),
-		S.withConstructorDefault(Effect.succeed("HEAD")),
-	).annotateKey({ description: "The ref to compare to." }),
+		S.withConstructorDefault(Effect.succeed("HEAD")), $I.annoteKey("ChangeDetectionOptions.head", { description: "The ref to compare to." }),
+	),
 	/**
 	 * Whether to include staged, unstaged and untracked working-tree changes on
 	 * top of the committed range.
@@ -71,8 +72,8 @@ export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions, { re
 	 */
 	includeUncommitted: S.Boolean.pipe(
 		S.withDecodingDefaultKey(Effect.succeed(false)),
-		S.withConstructorDefault(Effect.succeed(false)),
-	).annotateKey({ description: "Whether to include staged, unstaged and untracked working-tree changes on top of the committed range." }),
+		S.withConstructorDefault(Effect.succeed(false)), $I.annoteKey("ChangeDetectionOptions.includeUncommitted", { description: "Whether to include staged, unstaged and untracked working-tree changes on top of the committed range." }),
+	),
 }, $I.annote("ChangeDetectionOptions", { description: "Which git refs to compare, and whether to fold in the working tree." })) {}
 
 /**
@@ -102,10 +103,10 @@ export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions, { re
  */
 export class ChangeDetectionError extends S.TaggedError<ChangeDetectionError, { readonly brand: unique symbol }>($I`ChangeDetectionError`)("ChangeDetectionError", {
 	/** The operation that could not run. */
-	operation: S.String.annotateKey({ description: "The operation that could not run." }),
+	operation: S.String.pipe($I.annoteKey("ChangeDetectionError.operation", { description: "The operation that could not run." })),
 	/** The originating failure. */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The originating failure." }),
-}, $I.annote("ChangeDetectionError", { description: "Raised when change detection cannot proceed for a reason that is not one of git's own typed failures — the wrapper for \"detection has no ground to stand on\"." })) {
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("ChangeDetectionError.cause", { description: "The originating failure." })),
+}, $I.annoteError<ChangeDetectionError>("ChangeDetectionError", { description: "Raised when change detection cannot proceed for a reason that is not one of git's own typed failures — the wrapper for \"detection has no ground to stand on\"." })) {
 	/**
 	 * Renders the failed operation into a one-line message.
 	 *
@@ -232,7 +233,15 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
 		 * nothing under the workspace root. `Git` owns the `--relative` mechanics;
 		 * this detector only asks for the relative mode.
 		 */
-		const filesOf = Effect.fnUntraced(function* (
+		const filesOf: {
+			(
+				root: string,
+				options: ChangeDetectionOptions,
+			): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+			(
+				options: ChangeDetectionOptions,
+			): (root: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+		} = dual(2, Effect.fnUntraced(function* (
 			root: string,
 			options: ChangeDetectionOptions,
 		): Effect.fn.Return<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError> {
@@ -245,7 +254,7 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
 
 			const working = yield* git.workingChanges(root, { relative: true });
 			return A.sort(A.fromIterable(MutableHashSet.fromIterable([...committed, ...working])), Str.Order);
-		});
+		}));
 
 		/**
 		 * Every git query above reports paths relative to `cwd` — the workspace
@@ -262,7 +271,7 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
 		): Effect.fn.Return<ReadonlyArray<WorkspacePackage>, ChangeDetectionFailure> {
 			const root = yield* rootOf();
 			const files = yield* filesOf(root, options);
-			const absolute = files.map((file) => (file.startsWith("/") ? file : `${root}/${file}`));
+			const absolute = A.map(files, (file) => (file.startsWith("/") ? file : `${root}/${file}`));
 			return yield* discovery.resolveFiles(absolute);
 		});
 
@@ -288,11 +297,9 @@ export class ChangeDetector extends Context.Service<ChangeDetector, ChangeDetect
 				const changed = yield* packagesOf(options ?? ChangeDetectionOptions.make({}));
 				const all = yield* discovery.listPackages;
 				const graph = DependencyGraph.make({ packages: all });
-				const names = yield* graph.affectedBy(changed.map((pkg) => pkg.name));
-				const byName = MutableHashMap.fromIterable(all.map((pkg) => [pkg.name, pkg] as const));
-				const affected = names
-					.map((name) => O.getOrUndefined(MutableHashMap.get(byName, name)))
-					.filter((pkg): pkg is WorkspacePackage => pkg !== undefined);
+				const names = yield* graph.affectedBy(A.map(changed, (pkg) => pkg.name));
+				const byName = MutableHashMap.fromIterable(A.map(all, (pkg) => [pkg.name, pkg] as const));
+				const affected = pipe(names, A.map((name) => O.getOrUndefined(MutableHashMap.get(byName, name))), A.filter((pkg): pkg is WorkspacePackage => pkg !== undefined));
 				yield* Effect.logDebug("Affected packages detected").pipe(
 					Effect.annotateLogs("workspace.packages.count", affected.length),
 				);

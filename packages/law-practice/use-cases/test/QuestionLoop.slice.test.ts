@@ -39,7 +39,7 @@ import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { TestClock } from "effect/testing";
+import * as TestClock from "effect/testing/TestClock";
 import type { QuestionReviewItem } from "@beep/law-practice-use-cases/QuestionQueue";
 import type { ProposedWrite } from "@beep/law-practice-use-cases/QuestionWrites";
 

@@ -1,6 +1,8 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import * as A from "effect/Array";
+import { dual, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import type { ReactElement } from "react";
 import { Fmt } from "../Fmt.ts";
 import { inkModules } from "./internal/ink.ts";
@@ -12,8 +14,8 @@ import { Styled, useGlyphs, useTerminalSize, useTheme } from "./UiTheme.ts";
 const $I = $ScratchpadId.create("effected/cli/ui/Tabs");
 
 const Jump = S.Struct({
-	jump: S.Finite.annotateKey($I.annote("Jump.jump", { description: "The zero-based tab index requested by a digit key." })),
-}).annotate($I.annote("Jump", { description: "A plain request to jump to a tab index." }));
+	jump: S.Finite.pipe($I.annoteKey("Jump.jump", { description: "The zero-based tab index requested by a digit key." })),
+}).pipe($I.annoteSchema("Jump", { description: "A plain request to jump to a tab index." }));
 /**
  * What a key does to a {@link Tabs} row: move to the previous or next tab (wrapping), or jump to one by index.
  *
@@ -31,7 +33,7 @@ const Jump = S.Struct({
  * @since 0.0.0
  */
 export const TabsAction = S.Union([S.Literals(["prev", "next"]), Jump])
-	.annotate($I.annote("TabsAction", { description: "A wrapping tab move or an indexed jump, preserving the key-table payload." }));
+	.pipe($I.annoteSchema("TabsAction", { description: "A wrapping tab move or an indexed jump, preserving the key-table payload." }));
 /**
  * Plain payload accepted by {@link TabsAction}; reducers retain this structural representation.
  *
@@ -83,32 +85,42 @@ export interface TabsProps<N extends string> {
 	readonly direction?: "row" | "column";
 }
 
-const step = (index: number, count: number, action: TabsAction): number => {
+const step: {
+	(index: number, count: number, action: TabsAction): number;
+	(count: number, action: TabsAction): (index: number) => number;
+} = dual(3, (index: number, count: number, action: TabsAction): number => {
 	if (count <= 0) return index;
 	if (action === "prev") return (index - 1 + count) % count;
 	if (action === "next") return (index + 1) % count;
 	return action.jump >= 0 && action.jump < count ? action.jump : index;
-};
+});
 
 /** Plain digits jump: 1 is the first tab, 9 the ninth, 0 the tenth. Bound, but left out of the help line. */
-const DIGITS: ReadonlyArray<Binding<TabsAction>> = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].map(
+const DIGITS: ReadonlyArray<Binding<TabsAction>> = A.map(
+	["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
 	(digit, index) => ({ keys: [{ char: digit }], action: { jump: index }, help: "jump", hidden: true }),
 );
 
-const table = (prev: "left" | "up", next: "right" | "down"): KeyTable<TabsAction> =>
+const table: {
+	(prev: "left" | "up", next: "right" | "down"): KeyTable<TabsAction>;
+	(next: "right" | "down"): (prev: "left" | "up") => KeyTable<TabsAction>;
+} = dual(2, (prev: "left" | "up", next: "right" | "down"): KeyTable<TabsAction> =>
 	KeyTable.make<TabsAction>([
 		{ keys: [prev], action: "prev", help: "switch" },
 		{ keys: [next], action: "next", help: "switch" },
 		{ keys: ["tab"], action: "next", help: "switch" },
 		{ keys: ["shift+tab"], action: "prev", help: "switch" },
 		...DIGITS,
-	]);
+	]));
 
 const ROW_KEYS = table("left", "right");
 const COLUMN_KEYS = table("up", "down");
 
 /** The tabs from `from` to `to` that fit `width` around `active`, widening right then left in turn. */
-const fitAround = (widths: ReadonlyArray<number>, active: number, gap: number, width: number) => {
+const fitAround: {
+	(widths: ReadonlyArray<number>, active: number, gap: number, width: number): { from: number; to: number };
+	(active: number, gap: number, width: number): (widths: ReadonlyArray<number>) => { from: number; to: number };
+} = dual(4, (widths: ReadonlyArray<number>, active: number, gap: number, width: number): { from: number; to: number } => {
 	let from = active;
 	let to = active;
 	// The nonempty overflow row supplies an active index clamped to its tab range.
@@ -130,7 +142,7 @@ const fitAround = (widths: ReadonlyArray<number>, active: number, gap: number, w
 		}
 	}
 	return { from, to };
-};
+});
 
 /**
  * A row (or column) of tabs, for a consumer's own screen.
@@ -176,7 +188,10 @@ export abstract class Tabs {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	static readonly step: (index: number, count: number, action: TabsAction) => number = step;
+	static readonly step: {
+		(index: number, count: number, action: TabsAction): number;
+		(count: number, action: TabsAction): (index: number) => number;
+	} = step;
 
 	/**
 	 *  The keys of a row: `←`/`→` and Tab/Shift-Tab switch, plain digits 1–9 jump, 0 is the tenth tab.
@@ -239,12 +254,17 @@ export abstract class Tabs {
 		const glyphs = useGlyphs();
 		const theme = useTheme();
 		const { columns } = useTerminalSize();
+		// The named tab's position; the first tab when no name is given or none matches.
 		const indexOf = (name: N | undefined): number =>
-			name === undefined ? -1 : props.tabs.findIndex((tab) => tab.name === name);
-		const [own, setOwn] = react.useState(() => Math.max(0, indexOf(props.defaultValue)));
+			pipe(
+				O.fromUndefinedOr(name),
+				O.flatMap((wanted) => A.findFirstIndex(props.tabs, (tab) => tab.name === wanted)),
+				O.getOrElse(() => 0),
+			);
+		const [own, setOwn] = react.useState(() => indexOf(props.defaultValue));
 		const controlled = props.value !== undefined;
 		// Uncontrolled, a list that shrank under the active tab clamps it to the last remaining tab.
-		const index = controlled ? Math.max(0, indexOf(props.value)) : Math.min(own, Math.max(0, props.tabs.length - 1));
+		const index = controlled ? indexOf(props.value) : Math.min(own, Math.max(0, props.tabs.length - 1));
 		const focused = props.isFocused ?? true;
 		const column = props.direction === "column";
 		const { onChange } = props;
@@ -289,9 +309,15 @@ export abstract class Tabs {
 		// padded a space each side so a tab's width does not change as it becomes active.
 		const plain = theme.color === "none";
 		const marks = plain ? 2 : 0;
-		const marked = (position: number, text: string): string =>
-			plain ? (position === index ? `[${text}]` : ` ${text} `) : text;
-		const draw = (position: number, text: string): ReactElement => {
+		const marked: {
+			(position: number, text: string): string;
+			(text: string): (position: number) => string;
+		} = dual(2, (position: number, text: string): string =>
+			plain ? (position === index ? `[${text}]` : ` ${text} `) : text);
+		const draw: {
+			(position: number, text: string): ReactElement;
+			(text: string): (position: number) => ReactElement;
+		} = dual(2, (position: number, text: string): ReactElement => {
 			if (!focused) {
 				return react.createElement(
 					Styled,
@@ -306,12 +332,12 @@ export abstract class Tabs {
 						text,
 					)
 				: react.createElement(ink.Text, { key: position }, text);
-		};
+		});
 		if (column) {
 			return react.createElement(
 				ink.Box,
 				{ flexDirection: "column", marginRight: 1 },
-				...props.tabs.map((_, position) =>
+				...A.map(props.tabs, (_, position) =>
 					react.createElement(
 						ink.Box,
 						{ key: position, height: 1, overflow: "hidden" },
@@ -322,20 +348,19 @@ export abstract class Tabs {
 								Fmt.truncate(labelOf(position), Math.max(1, columns - marks), { ellipsis: glyphs.ellipsis }),
 							),
 						),
-					),
-				),
+					)),
 			);
 		}
 		const separator = lineText(props.separator ?? (glyphs.kind === "unicode" ? " │ " : " | "));
-		const labels = props.tabs.map((_, position) => marked(position, labelOf(position)));
+		const labels = A.map(props.tabs, (_, position) => marked(position, labelOf(position)));
 		const mark = Fmt.width(glyphs.ellipsis);
-		const total = labels.reduce((sum, label) => sum + Fmt.width(label), 0) + Fmt.width(separator) * (labels.length - 1);
+		const total = A.reduce(labels, 0, (sum, label) => sum + Fmt.width(label)) + Fmt.width(separator) * (labels.length - 1);
 		// Too wide: show the tabs that fit around the active one, keeping room for an ellipsis at each cut edge.
 		const { from, to } =
 			total <= columns
 				? { from: 0, to: labels.length - 1 }
 				: fitAround(
-						labels.map((label) => Fmt.width(label)),
+						A.map(labels, (label) => Fmt.width(label)),
 						index,
 						Fmt.width(separator),
 						Math.max(1, columns - 2 * mark),

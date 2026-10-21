@@ -18,6 +18,7 @@ import * as Effect from "effect/Effect";
 import { identity } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 
@@ -32,12 +33,10 @@ const isHttpsNoQueryRedirect = (value: unknown): value is string => {
   if (!P.isString(value)) {
     return false;
   }
-  try {
+  return Result.try(() => {
     const url = new URL(value);
     return url.protocol === "https:" && url.search === "" && url.hash === "";
-  } catch {
-    return false;
-  }
+  }).pipe(Result.getOrElse(() => false));
 };
 const FreshbooksRedirectUri = S.NonEmptyString.check(
   S.makeFilter(isHttpsNoQueryRedirect, {

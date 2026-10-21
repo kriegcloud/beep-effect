@@ -1,4 +1,5 @@
-import { ManagedLaunchProfile } from "@beep/ai-provider-cli";
+import { fileURLToPath } from "node:url";
+import { ManagedLaunchProfile, ManagedTerminalEvidence, ManagedTurnResult } from "@beep/ai-provider-cli";
 import {
   AgentMessageStore,
   agentMessageServeCommand,
@@ -6,17 +7,21 @@ import {
   EndpointDispatch,
   Envelope,
   LaunchGrant,
+  makeAgentMessageCompletion,
   makeAgentMessageStore,
+  PolicySnapshot,
   Receipt,
   RouterError,
   runAgentMessageDispatchLoop,
 } from "@beep/repo-cli/commands/AgentMessage";
+import { recordNativeSettlement } from "@beep/repo-cli/commands/AgentMessage/AgentMessage.runtime";
 import { agentMessageStoreLayer, makeAgentMessageSqliteClient } from "@beep/repo-cli/test/AgentMessage";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
@@ -38,6 +43,7 @@ import * as Reactivity from "effect/reactivity/Reactivity";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -177,7 +183,10 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer,
     Effect.gen(function* () {
       const f = yield* managedCommandFixture();
       yield* f.write(
-        ManagedLaunchProfile.make({ ...f.profile, env: { ...f.profile.env, FIXTURE_MODE: "wrong-policy" } })
+        ManagedLaunchProfile.make({
+          ...f.profile,
+          prefixArgs: [...f.profile.prefixArgs, "--beep-fixture-mode=wrong-policy"],
+        })
       );
       const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
       const started = yield* Deferred.make<ChildProcessHandle>();
@@ -310,6 +319,15 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer,
         sequence: 6,
       });
       expect((yield* store.receipts("native-delivery"))[2]?.status).toBe("delivered");
+      assertSome(yield* store.settlement("native-delivery"), {
+        adapter: "codex",
+        sessionId: "owned-thread",
+        messageId: "native-delivery",
+        turnId: "owned-turn-1",
+        outcome: "delivered",
+        stopReason: "completed",
+      });
+      assertNone(yield* store.settlement("outside-conversation"));
       expect((yield* store.receipts("outside-conversation"))[2]?.status).toBe("failed");
       // Advance the persisted grant past expiry without waiting an hour of wall time.
       const sql = yield* makeAgentMessageSqliteClient(path.join(f.state, "messages.sqlite"));
@@ -349,7 +367,8 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer,
   );
 });
 const fixture = Effect.fnUntraced(function* <A, E, R>(
-  run: (store: AgentMessageStoreShape, filename: string) => Effect.Effect<A, E, R>
+  run: (store: AgentMessageStoreShape, filename: string) => Effect.Effect<A, E, R>,
+  provider: PolicySnapshot["provider"] = "injected"
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -373,7 +392,7 @@ const fixture = Effect.fnUntraced(function* <A, E, R>(
       supported: true,
       capabilityEvidence: [{ capability: "send", disposition: "verified", source: "injected fixture", observedAt: 0 }],
       policy: {
-        provider: "injected",
+        provider,
         modelId: "fixture",
         effort: "medium",
         sandbox: "no-tools",
@@ -452,6 +471,187 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
       )
     );
 
+    it.effect("rejects missing, foreign and contradictory native settlement evidence without changing the hold", () =>
+      fixture(
+        (store) =>
+          Effect.gen(function* () {
+            const now = yield* Clock.currentTimeMillis;
+            const claim = O.getOrThrow(yield* store.claimNext("target", "target-owner", now, now + 30000));
+            const absent = ManagedTurnResult.make({
+              messageId: claim.envelope.messageId,
+              text: "",
+              stopReason: "completed",
+            });
+            const correlated = ManagedTurnResult.make({
+              ...absent,
+              terminalEvidence: O.some(
+                ManagedTerminalEvidence.make({
+                  adapter: "codex",
+                  sessionId: "target-session",
+                  messageId: claim.envelope.messageId,
+                  turnId: "synthetic-original-turn",
+                  outcome: "delivered",
+                  stopReason: "completed",
+                })
+              ),
+            });
+            const foreign = ManagedTurnResult.make({ ...correlated, messageId: "foreign-message" });
+            const contradictory = ManagedTurnResult.make({ ...correlated, stopReason: "interrupted" });
+            const failures = yield* Effect.forEach([absent, foreign, contradictory], (response) =>
+              recordNativeSettlement(store, claim, response).pipe(Effect.flip)
+            );
+            expect(A.map(failures, (failure) => failure.code)).toEqual(["conflict", "conflict", "conflict"]);
+            expect(failures[2]?.message).toBe(
+              "Native response contradicts its terminal evidence; retain the dispatch hold."
+            );
+            assertNone(yield* store.settlement(claim.envelope.messageId));
+            expect(A.map(yield* store.receipts(claim.envelope.messageId), (receipt) => receipt.status)).toEqual([
+              "accepted",
+              "claimed",
+            ]);
+          }),
+        "codex"
+      )
+    );
+
+    it.effect("native settlement retries one mailbox lock before delivery and does not retry other errors", () =>
+      Effect.gen(function* () {
+        const clock = yield* TestClock.make();
+        return yield* fixture((store) =>
+          Effect.gen(function* () {
+            const original = yield* store.endpoint("target");
+            yield* store.register(
+              EndpointBinding.make({
+                ...original,
+                endpointId: "native",
+                participantId: "native",
+                ownerId: "native-owner",
+                sessionId: "native-session",
+                policy: PolicySnapshot.make({ ...original.policy, provider: "codex" }),
+              })
+            );
+            const now = yield* Clock.currentTimeMillis;
+            const envelope = Envelope.make({
+              ...(yield* store.message("message")),
+              messageId: "native-message",
+              idempotencyKey: "native-message",
+              to: { kind: "direct", endpointId: "native" },
+            });
+            yield* store.accept(envelope, now);
+            const claim = O.getOrThrow(yield* store.claimNext("native", "native-owner", now, now + 30000));
+            const evidence = ManagedTerminalEvidence.make({
+              adapter: "codex",
+              sessionId: "native-session",
+              messageId: envelope.messageId,
+              turnId: "original-native-turn",
+              outcome: "delivered",
+              stopReason: "completed",
+            });
+            const response = ManagedTurnResult.make({
+              messageId: envelope.messageId,
+              text: "",
+              stopReason: "completed",
+              terminalEvidence: O.some(evidence),
+            });
+            let writes = 0;
+            const attempted = yield* Deferred.make<void>();
+            const wrapped: AgentMessageStoreShape = {
+              ...store,
+              recordSettlement: Effect.fnUntraced(function* (
+                ...args: Parameters<AgentMessageStoreShape["recordSettlement"]>
+              ) {
+                writes++;
+                if (writes === 1) {
+                  yield* Deferred.succeed(attempted, undefined);
+                  return yield* lockTimeout;
+                }
+                return yield* store.recordSettlement(...args);
+              }),
+            };
+            const recording = yield* recordNativeSettlement(wrapped, claim, response).pipe(Effect.forkChild);
+            yield* Deferred.await(attempted);
+            assertNone(yield* store.settlement(envelope.messageId));
+            expect(A.map(yield* store.receipts(envelope.messageId), (receipt) => receipt.status)).toEqual([
+              "accepted",
+              "claimed",
+            ]);
+            yield* clock.adjust(Duration.millis(250));
+            const status = yield* Fiber.join(recording);
+            expect(status).toBe("delivered");
+            expect(writes).toBe(2);
+            assertSome(yield* store.settlement(envelope.messageId), evidence);
+            expect((yield* store.complete(claim, status, yield* Clock.currentTimeMillis)).status).toBe("delivered");
+            const failure = RouterError.make({ code: "conflict", message: "Synthetic non-lock settlement failure." });
+            let failures = 0;
+            const rejected = yield* recordNativeSettlement(
+              {
+                ...store,
+                recordSettlement: Effect.fnUntraced(function* () {
+                  failures++;
+                  return yield* failure;
+                }),
+              },
+              claim,
+              response
+            ).pipe(Effect.flip);
+            expect(rejected).toEqual(failure);
+            expect(failures).toBe(1);
+          })
+        ).pipe(Effect.provideService(Clock.Clock, clock));
+      })
+    );
+
+    it.effect("an invalid receiving grant remains fatal when completion exhausts its lock retries", () =>
+      Effect.gen(function* () {
+        const clock = yield* TestClock.make();
+        return yield* fixture((store) =>
+          Effect.gen(function* () {
+            const invalid = RouterError.make({ code: "invalidGrant", message: "Pinned receiving grant expired." });
+            const priorLogs = (yield* TestConsole.logLines).length;
+            const invalidReceivingGrant = yield* Ref.make(O.none<RouterError>());
+            let completions = 0;
+            let submissions = 0;
+            const wrapped: AgentMessageStoreShape = {
+              ...store,
+              complete: makeAgentMessageCompletion(
+                {
+                  ...store,
+                  complete: Effect.fnUntraced(function* () {
+                    completions++;
+                    return yield* lockTimeout;
+                  }),
+                },
+                invalidReceivingGrant
+              ),
+            };
+            const fiber = yield* runAgentMessageDispatchLoop("target", "target-owner").pipe(
+              Effect.provideService(AgentMessageStore, wrapped),
+              Effect.provideService(EndpointDispatch, {
+                submit: Effect.fnUntraced(function* () {
+                  submissions++;
+                  yield* Ref.set(invalidReceivingGrant, O.some(invalid));
+                  return yield* invalid;
+                }),
+              }),
+              Effect.forkChild
+            );
+            yield* clock.adjust(Duration.seconds(3));
+            expect(yield* Fiber.join(fiber).pipe(Effect.flip)).toEqual(invalid);
+            expect(completions).toBe(9);
+            expect(submissions).toBe(1);
+            expect(A.map(yield* store.receipts("message"), (receipt) => receipt.status)).toEqual([
+              "accepted",
+              "claimed",
+            ]);
+            assertNone(yield* store.claimNext("target", "target-owner", 3000, 4000));
+            const logs = A.filter(A.drop(yield* TestConsole.logLines, priorLogs), S.is(S.String));
+            expect(A.filterMap(logs, (line) => S.decodeResult(ReceiptJson)(line))).toEqual([]);
+            expect(A.some(logs, Str.includes("receipt was not persisted"))).toBe(true);
+          })
+        ).pipe(Effect.provideService(Clock.Clock, clock));
+      })
+    );
+
     it.effect("exhausted completion retries retain the claim and owned process until cancellation", () =>
       fixture((store) =>
         Effect.gen(function* () {
@@ -498,12 +698,55 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
       )
     );
 
+    it.effect("late terminal completion keeps the worker alive for ambiguity recovery without another submission", () =>
+      fixture((store) =>
+        Effect.gen(function* () {
+          const recovered = yield* Deferred.make<void>();
+          let elapsed = 0;
+          let submissions = 0;
+          const wrapped: AgentMessageStoreShape = {
+            ...store,
+            complete: (claim, status, now, detail) => store.complete(claim, status, now + elapsed, detail),
+            recover: Effect.fnUntraced(function* (now: number) {
+              const count = yield* store.recover(now + elapsed);
+              if (count === 1) yield* Deferred.succeed(recovered, undefined);
+              return count;
+            }),
+          };
+          const fiber = yield* runAgentMessageDispatchLoop("target", "target-owner").pipe(
+            Effect.provideService(AgentMessageStore, wrapped),
+            Effect.provideService(EndpointDispatch, {
+              submit: () =>
+                Effect.sync(() => {
+                  submissions++;
+                  elapsed = 190000;
+                  return "delivered";
+                }),
+            }),
+            Effect.forkChild
+          );
+          yield* Deferred.await(recovered);
+          expect(fiber.pollUnsafe()).toBeUndefined();
+          expect(submissions).toBe(1);
+          expect(A.map(yield* store.receipts("message"), (receipt) => receipt.status)).toEqual([
+            "accepted",
+            "claimed",
+            "ambiguous",
+          ]);
+          const now = yield* Clock.currentTimeMillis;
+          assertNone(yield* store.claimNext("target", "target-owner", now + elapsed, now + elapsed + 1000));
+          yield* Fiber.interrupt(fiber);
+        })
+      ).pipe(TestClock.withLive)
+    );
+
     it.effect("permanent storage and policy errors remain fatal and finalize the scope", () =>
       fixture((store) =>
         Effect.forEach(
           [
             RouterError.make({ code: "storage", message: "Agent message storage decoding failed: SchemaError." }),
             RouterError.make({ code: "policyMismatch", message: "Synthetic fatal policy mismatch." }),
+            RouterError.make({ code: "staleClaim", message: "Dispatch lease expired before its result was recorded." }),
           ],
           (failure) =>
             Effect.gen(function* () {
@@ -574,7 +817,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
                   submits++;
                   const lock = yield* ChildProcess.make(
                     process.execPath,
-                    [new URL("./fixtures/agent-message/process.ts", import.meta.url).pathname],
+                    [fileURLToPath(new URL("./fixtures/agent-message/process.ts", import.meta.url))],
                     {
                       env: {
                         BEEP_MESSAGE_FIXTURE_DATABASE: filename,

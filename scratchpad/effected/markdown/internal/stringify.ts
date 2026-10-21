@@ -90,6 +90,7 @@ import { GuardExceeded } from "./carriers.ts";
 import { MAX_NESTING_DEPTH } from "./limits.ts";
 import { ENTITY } from "./unescape.ts";
 import * as P from "effect/Predicate";
+import { dual, pipe } from "effect/Function";
 
 /**
  * How inline content is being assembled.
@@ -155,12 +156,15 @@ interface StringifyState {
 	readonly mdx: boolean;
 }
 
-const guard = (state: StringifyState, node: { position: { start: { offset: number } } }): void => {
+const guard: {
+	(state: StringifyState, node: { position: { start: { offset: number } } }): void;
+	(node: { position: { start: { offset: number } } }): (state: StringifyState) => void;
+} = dual(2, (state: StringifyState, node: { position: { start: { offset: number } } }): void => {
 	state.depth += 1;
 	if (state.depth > MAX_NESTING_DEPTH) {
 		throw new GuardExceeded("NestingDepthExceeded", MAX_NESTING_DEPTH, state.depth, node.position.start.offset);
 	}
-};
+});
 
 const unguard = (state: StringifyState): void => {
 	state.depth -= 1;
@@ -171,29 +175,38 @@ const unguard = (state: StringifyState): void => {
 /**
  * Whether `value[index]` ends a `www` run preceded by a word boundary.
  */
-const isWwwDot = (value: string, index: number): boolean => {
+const isWwwDot: {
+	(value: string, index: number): boolean;
+	(index: number): (value: string) => boolean;
+} = dual(2, (value: string, index: number): boolean => {
 	if (value.slice(Math.max(0, index - 3), index).toLowerCase() !== "www") return false;
 	if (index - 3 <= 0) return true;
 	const before = value[index - 4];
 	return before === undefined || !/[\p{L}\p{N}]/u.test(before);
-};
+});
 
 /**
  * Whether the run of letters ending at `value[index]` is a scheme word.
  */
-const isSchemeColon = (value: string, index: number): boolean => {
+const isSchemeColon: {
+	(value: string, index: number): boolean;
+	(index: number): (value: string) => boolean;
+} = dual(2, (value: string, index: number): boolean => {
 	let start = index;
 	while (start > 0 && /[a-zA-Z]/.test(value.charAt(start - 1))) start -= 1;
 	return HashSet.has(SCHEME_WORDS, value.slice(start, index).toLowerCase());
-};
+});
 
 /**
  * Whether `value[index]` is a Unicode letter or number (`undefined` is not).
  */
-const isAlphanumericAt = (value: string, index: number): boolean => {
+const isAlphanumericAt: {
+	(value: string, index: number): boolean;
+	(index: number): (value: string) => boolean;
+} = dual(2, (value: string, index: number): boolean => {
 	const char = value[index];
 	return char !== undefined && reAlphanumeric.test(char);
-};
+});
 
 /**
  * Whether the `#` at `value[index]` heads a run that would read as an ATX
@@ -202,14 +215,17 @@ const isAlphanumericAt = (value: string, index: number): boolean => {
  * plus `followingText`). A non-text sibling after that may contribute only
  * blank content, so it keeps the escape (conservative).
  */
-const isClosingHashRun = (value: string, index: number, followingText: string, nonTextFollows: boolean): boolean => {
+const isClosingHashRun: {
+	(value: string, index: number, followingText: string, nonTextFollows: boolean): boolean;
+	(index: number, followingText: string, nonTextFollows: boolean): (value: string) => boolean;
+} = dual(4, (value: string, index: number, followingText: string, nonTextFollows: boolean): boolean => {
 	const before = value[index - 1];
 	if (before !== undefined && before !== " " && before !== "\t") return false;
 	const rest = value.slice(index) + followingText;
 	let end = 0;
 	while (rest[end] === "#") end += 1;
 	return nonTextFollows || /^[ \t\n]*$/.test(rest.slice(end));
-};
+});
 
 /**
  * A run that a later sibling could still complete into a character reference.
@@ -224,14 +240,32 @@ const reEntityPrefix = /^&[#a-z0-9]*$/i;
  * non-text inline comes after those; together they decide the value-end
  * cases (`&`, and `#` in a heading) against what will actually be emitted.
  */
-const escapeText = (
+const escapeText: {
+	(
+		value: string,
+		context: InlineContext,
+		atLineStart: boolean,
+		mdx: boolean,
+		followingText: string,
+		nonTextFollows: boolean,
+		precedingText?: string,
+	): { text: string; atLineStart: boolean };
+	(
+		context: InlineContext,
+		atLineStart: boolean,
+		mdx: boolean,
+		followingText: string,
+		nonTextFollows: boolean,
+		precedingText?: string,
+	): (value: string) => { text: string; atLineStart: boolean };
+} = dual((args) => P.isString(args[0]), (
 	value: string,
 	context: InlineContext,
 	atLineStart: boolean,
 	mdx: boolean,
 	followingText: string,
 	nonTextFollows: boolean,
-	precedingText = "",
+	precedingText: string = "",
 ): { text: string; atLineStart: boolean } => {
 	let out = "";
 	let lineStart = atLineStart;
@@ -349,7 +383,7 @@ const escapeText = (
 		out += char;
 	}
 	return { text: out, atLineStart: lineStart };
-};
+});
 
 // --- literal text (`escapeStyle: "literal"`) ---------------------------------
 //
@@ -371,8 +405,11 @@ const isSpaceOrTab = (char: string | undefined): boolean => char === " " || char
 /**
  * Every character of `line` is `marker` or space/tab — a thematic-break or setext-shaped run.
  */
-const isRunOf = (line: string, marker: string): boolean =>
-	line.length > 0 && [...line].every((char) => char === marker || char === " " || char === "\t");
+const isRunOf: {
+	(line: string, marker: string): boolean;
+	(marker: string): (line: string) => boolean;
+} = dual(2, (line: string, marker: string): boolean =>
+	line.length > 0 && A.every([...line], (char) => char === marker || char === " " || char === "\t"));
 
 /**
  * Only the characters a GFM delimiter row is made of (re2c's `spacechar` included).
@@ -400,14 +437,14 @@ const literalLineOpensBlockDispatch = Match.type<{ char: string | undefined; lin
 	// A fence is 3+ of either; an open line of only 1-2 could be completed.
 	Match.when(
 		{ char: Match.is("`", "~") },
-		({ char, line, open }) => line.startsWith(char.repeat(3)) || (open && [...line].every((each) => each === char)),
+		({ char, line, open }) => line.startsWith(char.repeat(3)) || (open && A.every([...line], (each) => each === char)),
 	),
 	// A setext underline, kept escaped even on a paragraph's first line.
 	Match.when({ char: "=" }, ({ line }) => /^=+[ \t]*$/.test(line)),
 	Match.when({ char: Match.is("+", "-", "*", "_") }, ({ char, line, open }) => {
 		const bullet = char !== "_" && (line.length === 1 || isSpaceOrTab(line[1]));
 		const breakRun = char !== "+" && isRunOf(line, char);
-		const thematic = breakRun && (open || [...line].filter((each) => each === char).length >= 3);
+		const thematic = breakRun && (open || A.filter([...line], (each) => each === char).length >= 3);
 		// `---`/`+++` open frontmatter at the document head (`---json`
 		// too). A dash line may be a setext underline or a delimiter row;
 		// the delimiter-row shape covers both.
@@ -418,15 +455,21 @@ const literalLineOpensBlockDispatch = Match.type<{ char: string | undefined; lin
 	Match.orElse(() => false),
 );
 
-const literalLineOpensBlock = (line: string, open: boolean): boolean =>
-	literalLineOpensBlockDispatch({ char: line[0], line, open });
+const literalLineOpensBlock: {
+	(line: string, open: boolean): boolean;
+	(open: boolean): (line: string) => boolean;
+} = dual(2, (line: string, open: boolean): boolean =>
+	literalLineOpensBlockDispatch({ char: line[0], line, open }));
 
 /**
  * ASCII punctuation: what a backslash escapes, so `\x` is one cell character.
  */
 const reAsciiPunctuation = /[!-/:-@[-`{-~]/;
 
-const literalText = (
+const literalText: {
+	(value: string, context: InlineContext, atLineStart: boolean, mdx: boolean, followingText: string, nonTextFollows: boolean): { text: string; atLineStart: boolean };
+	(context: InlineContext, atLineStart: boolean, mdx: boolean, followingText: string, nonTextFollows: boolean): (value: string) => { text: string; atLineStart: boolean };
+} = dual(6, (
 	value: string,
 	context: InlineContext,
 	atLineStart: boolean,
@@ -518,17 +561,20 @@ const literalText = (
 		out += char;
 	}
 	return { text: out, atLineStart: lineStart };
-};
+});
 
 // --- inline serialization ---------------------------------------------------
 
 /**
  * Pick the effective emphasis marker, flipping away from a forbidden char.
  */
-const emphasisMarker = (fidelity: EmphasisChar | undefined, forbidden: string | undefined): EmphasisChar => {
+const emphasisMarker: {
+	(fidelity: EmphasisChar | undefined, forbidden: string | undefined): EmphasisChar;
+	(forbidden: string | undefined): (fidelity: EmphasisChar | undefined) => EmphasisChar;
+} = dual(2, (fidelity: EmphasisChar | undefined, forbidden: string | undefined): EmphasisChar => {
 	const chosen = fidelity ?? "*";
 	return chosen === forbidden ? (chosen === "*" ? "_" : "*") : chosen;
-};
+});
 
 /**
  * Emit a reference label for its bracket. Labels (and identifiers) in this
@@ -630,7 +676,10 @@ const flipMarker = (marker: EmphasisChar): EmphasisChar => (marker === "*" ? "_"
 /**
  * The edge-marker choice for a nested emphasis-family child.
  */
-const nestedMarker = (
+const nestedMarker: {
+	(child: "emphasis" | "strong", fidelity: EmphasisChar | undefined, guard: JunctionGuard): EmphasisChar;
+	(fidelity: EmphasisChar | undefined, guard: JunctionGuard): (child: "emphasis" | "strong") => EmphasisChar;
+} = dual(3, (
 	child: "emphasis" | "strong",
 	fidelity: EmphasisChar | undefined,
 	guard: JunctionGuard,
@@ -639,7 +688,7 @@ const nestedMarker = (
 		return child === "strong" ? guard.marker : flipMarker(guard.marker);
 	}
 	return child === "emphasis" ? flipMarker(guard.marker) : (fidelity ?? guard.marker);
-};
+});
 
 /**
  * Serialize a run of phrasing children. `junctionGuard` carries the marker
@@ -796,7 +845,21 @@ const serializeInline = Match.type<PhrasingContent>().pipe(
 	Match.exhaustive,
 );
 
-const serializeInlines = (
+const serializeInlines: {
+	(
+		children: ReadonlyArray<PhrasingContent>,
+		context: InlineContext,
+		state: StringifyState,
+		startsLine: boolean,
+		junctionGuard?: JunctionGuard,
+	): string;
+	(
+		context: InlineContext,
+		state: StringifyState,
+		startsLine: boolean,
+		junctionGuard?: JunctionGuard,
+	): (children: ReadonlyArray<PhrasingContent>) => string;
+} = dual((args) => A.isArray(args[0]), (
 	children: ReadonlyArray<PhrasingContent>,
 	context: InlineContext,
 	state: StringifyState,
@@ -830,7 +893,7 @@ const serializeInlines = (
 		unguard(state);
 	}
 	return run.out;
-};
+});
 // --- MDX serialization ------------------------------------------------------
 //
 // Oracle parity: mdast-util-mdx-jsx@3.2.0's `mdxJsxToMarkdown` with its
@@ -853,7 +916,7 @@ const MdxNodeType = LiteralKit([
 	"mdxFlowExpression",
 	"mdxTextExpression",
 	"mdxjsEsm",
-]).annotate($I.annote("MdxNodeType", { description: "Node kinds that enable MDX text escaping." }));
+]).pipe($I.annoteSchema("MdxNodeType", { description: "Node kinds that enable MDX text escaping." }));
 const isMdxNodeType = S.is(MdxNodeType);
 
 /**
@@ -889,7 +952,10 @@ const treeContainsMdx = (root: WalkableNode): boolean => {
  * mapped lines, and `blank` meaning an empty line — so a blank CRLF line
  * stays bare instead of having a retained `\r` treated as content.
  */
-const mapMdxLines = (value: string, map: (line: string, index: number, blank: boolean) => string): string => {
+const mapMdxLines: {
+	(value: string, map: (line: string, index: number, blank: boolean) => string): string;
+	(map: (line: string, index: number, blank: boolean) => string): (value: string) => string;
+} = dual(2, (value: string, map: (line: string, index: number, blank: boolean) => string): string => {
 	const eol = /\r?\n|\r/g;
 	const result: string[] = [];
 	let start = 0;
@@ -902,8 +968,8 @@ const mapMdxLines = (value: string, map: (line: string, index: number, blank: bo
 	}
 	const last = value.slice(start);
 	result.push(map(last, index, last === ""));
-	return result.join("");
-};
+	return A.join(result, "");
+});
 
 /**
  * Serialize an MDX expression body between braces. Continuation lines take
@@ -935,12 +1001,15 @@ const serializeMdxAttribute = (attribute: MdxJsxAttributeContent): string => {
 /**
  * Serialize a text (phrasing) JSX element.
  */
-const serializeMdxJsxText = (node: MdxJsxTextElement, context: InlineContext, state: StringifyState): string => {
-	const attributes = node.attributes.map(serializeMdxAttribute);
+const serializeMdxJsxText: {
+	(node: MdxJsxTextElement, context: InlineContext, state: StringifyState): string;
+	(context: InlineContext, state: StringifyState): (node: MdxJsxTextElement) => string;
+} = dual(3, (node: MdxJsxTextElement, context: InlineContext, state: StringifyState): string => {
+	const attributes = A.map(node.attributes, serializeMdxAttribute);
 	const selfClosing = node.name !== null && node.children.length === 0;
 	let out = `<${node.name ?? ""}`;
 	if (attributes.length > 0) {
-		out += ` ${attributes.join(" ")}`;
+		out += ` ${A.join(attributes, " ")}`;
 	}
 	if (selfClosing) {
 		return `${out} />`;
@@ -949,30 +1018,36 @@ const serializeMdxJsxText = (node: MdxJsxTextElement, context: InlineContext, st
 	out += serializeInlines(node.children, context, state, false);
 	out += `</${node.name ?? ""}>`;
 	return out;
-};
+});
 
 /**
  * Prefix every line of a rendered child block; blank lines stay bare.
  */
-const indentBlockLines = (content: string, indent: string): string =>
-	mapMdxLines(content, (line, _index, blank) => (blank ? line : `${indent}${line}`));
+const indentBlockLines: {
+	(content: string, indent: string): string;
+	(indent: string): (content: string) => string;
+} = dual(2, (content: string, indent: string): string =>
+	mapMdxLines(content, (line, _index, blank) => (blank ? line : `${indent}${line}`)));
 
 /**
  * Serialize a flow (block) JSX element: opening tag (attributes on their own
  * lines when one carries a line ending), children as indented block layout,
  * closing tag — the oracle's `mdxElement` flow branch.
  */
-const serializeMdxJsxFlow = (node: MdxJsxFlowElement, state: StringifyState): string => {
+const serializeMdxJsxFlow: {
+	(node: MdxJsxFlowElement, state: StringifyState): string;
+	(state: StringifyState): (node: MdxJsxFlowElement) => string;
+} = dual(2, (node: MdxJsxFlowElement, state: StringifyState): string => {
 	const currentIndent = "  ".repeat(state.jsxDepth);
-	const attributes = node.attributes.map(serializeMdxAttribute);
+	const attributes = A.map(node.attributes, serializeMdxAttribute);
 	const selfClosing = node.name !== null && node.children.length === 0;
-	const attributesOnOneLine = attributes.join(" ");
+	const attributesOnOneLine = A.join(attributes, " ");
 	const attributesOnTheirOwnLine = /[\r\n]/.test(attributesOnOneLine);
 	let value = `${currentIndent}<${node.name ?? ""}`;
 	if (attributesOnTheirOwnLine) {
 		// Only the first line of each attribute is indented — attribute
 		// VALUES cannot be re-indented without changing them.
-		value += `\n${attributes.map((attribute) => `${currentIndent}  ${attribute}`).join("\n")}\n${currentIndent}`;
+		value += `\n${pipe(attributes, A.map((attribute) => `${currentIndent}  ${attribute}`), A.join("\n"))}\n${currentIndent}`;
 	} else if (attributesOnOneLine !== "") {
 		value += ` ${attributesOnOneLine}`;
 	}
@@ -983,7 +1058,7 @@ const serializeMdxJsxFlow = (node: MdxJsxFlowElement, state: StringifyState): st
 	if (node.children.length > 0) {
 		state.jsxDepth += 1;
 		const childIndent = "  ".repeat(state.jsxDepth);
-		const parts = node.children.map((child) => {
+		const parts = A.map(node.children, (child) => {
 			// A nested flow element indents itself (it reads the deeper
 			// jsxDepth); every other block is rendered flush and indented
 			// here, blank lines excepted — the oracle's containerFlow.
@@ -996,50 +1071,58 @@ const serializeMdxJsxFlow = (node: MdxJsxFlowElement, state: StringifyState): st
 			return indentBlockLines(serializeBlocks([child], state), childIndent);
 		});
 		state.jsxDepth -= 1;
-		value += `\n${parts.join("\n\n")}\n`;
+		value += `\n${A.join(parts, "\n\n")}\n`;
 	}
 	if (!selfClosing) {
 		value += `${currentIndent}</${node.name ?? ""}>`;
 	}
 	return value;
-};
+});
 
 // --- block serialization ----------------------------------------------------
 
 /**
  * Prefix every line of `content`; blank lines take the trimmed prefix.
  */
-const prefixLines = (content: string, prefix: string, blankPrefix: string): string =>
-	content
-		.split("\n")
-		.map((line) => (line === "" ? blankPrefix : `${prefix}${line}`))
-		.join("\n");
+const prefixLines: {
+	(content: string, prefix: string, blankPrefix: string): string;
+	(prefix: string, blankPrefix: string): (content: string) => string;
+} = dual(3, (content: string, prefix: string, blankPrefix: string): string =>
+	pipe(content
+		.split("\n"), A.map((line) => (line === "" ? blankPrefix : `${prefix}${line}`)), A.join("\n")));
 
 /**
  * First line gets `marker`, continuation lines get spaces of its width.
  */
-const hangingIndent = (content: string, marker: string): string => {
+const hangingIndent: {
+	(content: string, marker: string): string;
+	(marker: string): (content: string) => string;
+} = dual(2, (content: string, marker: string): string => {
 	const lines = content.split("\n");
 	const indent = " ".repeat(marker.length);
-	return lines
-		.map((line, index) => {
+	return pipe(lines, A.map((line, index) => {
 			if (index === 0) return `${marker}${line}`;
 			return line === "" ? "" : `${indent}${line}`;
-		})
-		.join("\n");
-};
+		}), A.join("\n"));
+});
 
 /** Encode decoded info without introducing fence syntax or token boundaries. */
-const encodeCodeInfo = (value: string, language: boolean, fenceChar: Code["fenceChar"]): string => {
+const encodeCodeInfo: {
+	(value: string, language: boolean, fenceChar: Code["fenceChar"]): string;
+	(language: boolean, fenceChar: Code["fenceChar"]): (value: string) => string;
+} = dual(3, (value: string, language: boolean, fenceChar: Code["fenceChar"]): string => {
 	const encoded = value
 		.replace(/&/g, "&amp;")
 		.replace(/\\/g, "&#92;")
 		.replace(/`/g, "&#96;")
 		.replace(language ? /\s/g : /[\t\r\n\v\f]|^\s|\s$/g, (char) => `&#${char.charCodeAt(0)};`);
 	return language && fenceChar === "~" ? Str.replace(/^~/, "&#126;")(encoded) : encoded;
-};
+});
 
-const serializeCode = (node: Code, forceFence: boolean): string => {
+const serializeCode: {
+	(node: Code, forceFence: boolean): string;
+	(forceFence: boolean): (node: Code) => string;
+} = dual(2, (node: Code, forceFence: boolean): string => {
 	// The parser's code values end with the block's final line terminator;
 	// it belongs to block structure, not content, on the way back out.
 	const value = node.value.endsWith("\n") ? node.value.slice(0, -1) : node.value;
@@ -1053,7 +1136,7 @@ const serializeCode = (node: Code, forceFence: boolean): string => {
 		lines[0] !== "" &&
 		lines[lines.length - 1] !== "";
 	if (indentedRepresentable) {
-		return lines.map((line) => (line === "" ? "" : `    ${line}`)).join("\n");
+		return pipe(lines, A.map((line) => (line === "" ? "" : `    ${line}`)), A.join("\n"));
 	}
 	const char = node.fenceChar ?? "`";
 	let longest = 0;
@@ -1064,15 +1147,21 @@ const serializeCode = (node: Code, forceFence: boolean): string => {
 	const info = node.lang === undefined ? "" : `${encodeCodeInfo(node.lang, true, char)}${node.meta !== undefined ? ` ${encodeCodeInfo(node.meta, false, char)}` : ""}`;
 	const body = value === "" ? "" : `${value}\n`;
 	return `${fence}${info}\n${body}${fence}`;
-};
+});
 
-const setextUnderline = (heading: Heading, content: string): string => {
+const setextUnderline: {
+	(heading: Heading, content: string): string;
+	(content: string): (heading: Heading) => string;
+} = dual(2, (heading: Heading, content: string): string => {
 	const lastLine = content.slice(content.lastIndexOf("\n") + 1);
 	const char = heading.depth === 1 ? "=" : "-";
 	return char.repeat(Math.max(1, lastLine.length));
-};
+});
 
-const serializeHeading = (heading: Heading, state: StringifyState): string => {
+const serializeHeading: {
+	(heading: Heading, state: StringifyState): string;
+	(state: StringifyState): (heading: Heading) => string;
+} = dual(2, (heading: Heading, state: StringifyState): string => {
 	// Setext content IS a line start (nothing precedes it on its line), so
 	// the line-start escapes apply; ATX content follows the `# ` prefix.
 	const setext = heading.headingStyle === "setext" && heading.depth <= 2;
@@ -1082,12 +1171,15 @@ const serializeHeading = (heading: Heading, state: StringifyState): string => {
 	}
 	const hashes = "#".repeat(heading.depth);
 	return content === "" ? hashes : `${hashes} ${content}`;
-};
+});
 
 const serializeDefinition = (node: Definition): string =>
 	`[${escapeLabel(node.label ?? node.identifier)}]: ${destination(node.url)}${titleSuffix(node.title)}`;
 
-const serializeFootnoteDefinition = (node: FootnoteDefinition, state: StringifyState): string => {
+const serializeFootnoteDefinition: {
+	(node: FootnoteDefinition, state: StringifyState): string;
+	(state: StringifyState): (node: FootnoteDefinition) => string;
+} = dual(2, (node: FootnoteDefinition, state: StringifyState): string => {
 	// The definition's four-space continuation indent stacks UNDER the JSX
 	// indent: the oracle's inferDepth breaks only at blockquote and listItem,
 	// so a flow element nested through a footnote definition keeps counting
@@ -1100,15 +1192,13 @@ const serializeFootnoteDefinition = (node: FootnoteDefinition, state: StringifyS
 	// paragraph. The bare-marker form starts the content on its own line.
 	const bareMarker = node.children[0]?.type === "code";
 	if (bareMarker) {
-		return [marker, ...lines.map((line) => (line === "" ? "" : `    ${line}`))].join("\n");
+		return A.join([marker, ...A.map(lines, (line) => (line === "" ? "" : `    ${line}`))], "\n");
 	}
-	return lines
-		.map((line, index) => {
+	return pipe(lines, A.map((line, index) => {
 			if (index === 0) return `${marker} ${line}`;
 			return line === "" ? "" : `    ${line}`;
-		})
-		.join("\n");
-};
+		}), A.join("\n"));
+});
 
 const alignCell = (align: TableAlign | null | undefined): string =>
 	Match.value(align).pipe(
@@ -1136,11 +1226,14 @@ const escapeCellPipes = (content: string): string => {
 	return out;
 };
 
-const serializeTable = (table: Table, state: StringifyState): string => {
+const serializeTable: {
+	(table: Table, state: StringifyState): string;
+	(state: StringifyState): (table: Table) => string;
+} = dual(2, (table: Table, state: StringifyState): string => {
 	const columnCount = A.reduce(table.children, 1, (count, row) => Math.max(count, row.children.length));
-	const rows = table.children.map((row) => {
+	const rows = A.map(table.children, (row) => {
 		guard(state, row);
-		const cells = row.children.map((cell) => {
+		const cells = A.map(row.children, (cell) => {
 			guard(state, cell);
 			// Text-level pipes are escaped by the cell context; anything a
 			// nested emission smuggled through raw (a code span, raw HTML, a
@@ -1152,26 +1245,32 @@ const serializeTable = (table: Table, state: StringifyState): string => {
 		});
 		unguard(state);
 		while (cells.length < columnCount) cells.push("");
-		return `| ${cells.join(" | ")} |`;
+		return `| ${A.join(cells, " | ")} |`;
 	});
-	const alignRow = `| ${A.makeBy(columnCount, (column) => alignCell(table.align?.[column])).join(" | ")} |`;
+	const alignRow = `| ${A.join(A.makeBy(columnCount, (column) => alignCell(table.align?.[column])), " | ")} |`;
 	const [header, ...body] = rows;
-	return [header ?? `| ${A.makeBy(columnCount, () => "").join(" | ")} |`, alignRow, ...body].join("\n");
-};
+	return A.join([header ?? `| ${A.join(A.makeBy(columnCount, () => ""), " | ")} |`, alignRow, ...body], "\n");
+});
 
 /**
  * The marker actually used by a list, for adjacency comparison.
  */
-const effectiveListMarker = (list: List, flipped: boolean): string => {
+const effectiveListMarker: {
+	(list: List, flipped: boolean): string;
+	(flipped: boolean): (list: List) => string;
+} = dual(2, (list: List, flipped: boolean): string => {
 	if (list.ordered === true) {
 		const delimiter = list.delimiter ?? ".";
 		return flipped ? (delimiter === "." ? ")" : ".") : delimiter;
 	}
 	const bullet = list.bulletChar ?? "-";
 	return flipped ? (bullet === "-" ? "*" : "-") : bullet;
-};
+});
 
-const serializeListItem = (item: ListItem, marker: string, state: StringifyState, tight: boolean): string => {
+const serializeListItem: {
+	(item: ListItem, marker: string, state: StringifyState, tight: boolean): string;
+	(marker: string, state: StringifyState, tight: boolean): (item: ListItem) => string;
+} = dual(4, (item: ListItem, marker: string, state: StringifyState, tight: boolean): string => {
 	guard(state, item);
 	// In a tight list a blank line anywhere inside an item would loosen the
 	// whole list on re-parse, so same-item block pairs join with a bare
@@ -1188,19 +1287,22 @@ const serializeListItem = (item: ListItem, marker: string, state: StringifyState
 	const content = `${checkbox}${inner}`;
 	if (content === "") return marker.trimEnd();
 	return hangingIndent(content, marker);
-};
+});
 
-const serializeList = (list: List, state: StringifyState, flipped: boolean): string => {
+const serializeList: {
+	(list: List, state: StringifyState, flipped: boolean): string;
+	(state: StringifyState, flipped: boolean): (list: List) => string;
+} = dual(3, (list: List, state: StringifyState, flipped: boolean): string => {
 	const tight = !(list.spread ?? false);
-	const items = list.children.map((item, index) => {
+	const items = A.map(list.children, (item, index) => {
 		const marker =
 			list.ordered === true
 				? `${(list.start ?? 1) + index}${effectiveListMarker(list, flipped)} `
 				: `${effectiveListMarker(list, flipped)} `;
 		return serializeListItem(item, marker, state, tight);
 	});
-	return items.join(tight ? "\n" : "\n\n");
-};
+	return A.join(items, tight ? "\n" : "\n\n");
+});
 
 type Block = FlowContent | Frontmatter | MdxjsEsm | Paragraph;
 
@@ -1238,7 +1340,10 @@ const canJoinWithoutBlankDispatch = Match.type<{ prev: Block; next: Block }>().p
 	Match.orElse(() => false),
 );
 
-const canJoinWithoutBlank = (prev: Block, next: Block): boolean => canJoinWithoutBlankDispatch({ prev, next });
+const canJoinWithoutBlank: {
+	(prev: Block, next: Block): boolean;
+	(next: Block): (prev: Block) => boolean;
+} = dual(2, (prev: Block, next: Block): boolean => canJoinWithoutBlankDispatch({ prev, next }));
 
 /**
  * Serialize a sequence of flow blocks, handling sibling adjacency. With
@@ -1326,7 +1431,10 @@ const serializeBlock = Match.type<Block>().pipe(
 	Match.exhaustive,
 );
 
-const serializeBlocks = (children: ReadonlyArray<Block>, state: StringifyState, tight = false): string => {
+const serializeBlocks: {
+	(children: ReadonlyArray<Block>, state: StringifyState, tight?: boolean): string;
+	(state: StringifyState, tight?: boolean): (children: ReadonlyArray<Block>) => string;
+} = dual((args) => A.isArray(args[0]), (children: ReadonlyArray<Block>, state: StringifyState, tight: boolean = false): string => {
 	const parts: string[] = [];
 	const nodes: Block[] = [];
 	let previous: Block | undefined;
@@ -1338,7 +1446,7 @@ const serializeBlocks = (children: ReadonlyArray<Block>, state: StringifyState, 
 		nodes.push(child);
 		unguard(state);
 	}
-	if (!tight) return parts.join("\n\n");
+	if (!tight) return A.join(parts, "\n\n");
 	let out = "";
 	previous = undefined;
 	for (const [node, part] of A.zip(nodes, parts)) {
@@ -1349,7 +1457,7 @@ const serializeBlocks = (children: ReadonlyArray<Block>, state: StringifyState, 
 		previous = node;
 	}
 	return out;
-};
+});
 
 /**
  * Serialize a document tree to canonical markdown source.

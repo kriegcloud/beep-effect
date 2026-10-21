@@ -19,6 +19,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as Result from "effect/Result";
 import * as AsyncResult from "effect/reactivity/AsyncResult";
 import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
@@ -381,25 +382,26 @@ const isSafeStyleRule = (rule: CSSStyleRule, root: Element, rootSelector: string
 const isSafeMermaidStyles = (styles: string, root: Element, renderId: string): boolean => {
   if (unsafeStylesheetToken.test(normalizeCssTokens(styles))) return false;
 
-  let style: HTMLStyleElement | undefined;
+  let style = O.none<HTMLStyleElement>();
   try {
-    style = globalThis.document.createElement("style");
-    // The live document supplies a CSSOM sheet in browsers and jsdom. `not all`
-    // keeps untrusted selectors inactive while their parsed rules are inspected.
-    style.media = "not all";
-    style.textContent = styles;
-    globalThis.document.head.append(style);
-    const rules = style.sheet?.cssRules;
-    if (rules === undefined) return false;
+    return Result.try(() => {
+      const element = globalThis.document.createElement("style");
+      style = O.some(element);
+      // The live document supplies a CSSOM sheet in browsers and jsdom. `not all`
+      // keeps untrusted selectors inactive while their parsed rules are inspected.
+      element.media = "not all";
+      element.textContent = styles;
+      globalThis.document.head.append(element);
+      const rules = element.sheet?.cssRules;
+      if (rules === undefined) return false;
 
-    for (const rule of rules) {
-      if (!(rule instanceof CSSStyleRule) || !isSafeStyleRule(rule, root, `#${renderId}`)) return false;
-    }
-    return true;
-  } catch {
-    return false;
+      for (const rule of rules) {
+        if (!(rule instanceof CSSStyleRule) || !isSafeStyleRule(rule, root, `#${renderId}`)) return false;
+      }
+      return true;
+    }).pipe(Result.getOrElse(() => false));
   } finally {
-    style?.remove();
+    O.map(style, (element) => element.remove());
   }
 };
 

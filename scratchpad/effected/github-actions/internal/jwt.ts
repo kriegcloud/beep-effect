@@ -20,10 +20,8 @@ import * as Base64Url from "effect/encoding/Base64Url";
 
 const Json = S.fromJsonString(S.Unknown);
 const $I = $ScratchpadId.create("effected/github-actions/internal/jwt");
-const JwtPayloadFailureKind = LiteralKit(["segments", "payload"]).annotate(
-	$I.annote("JwtPayloadFailureKind", { description: "Whether token framing or payload decoding failed." }),
-);
-const PayloadFailureDetail = S.String.annotateKey({ description: "Why the token payload could not be read." });
+const JwtPayloadFailureKind = LiteralKit(["segments", "payload"]).pipe($I.annoteSchema("JwtPayloadFailureKind", { description: "Whether token framing or payload decoding failed." }));
+const PayloadFailureDetail = S.String.pipe($I.annoteKey("JwtPayloadFailure.detail", { description: "Why the token payload could not be read." }));
 
 /**
  * Why a token's payload could not be read.
@@ -46,17 +44,15 @@ const PayloadFailureDetail = S.String.annotateKey({ description: "Why the token 
  */
 export const JwtPayloadFailure = S.Union([
 	S.Struct({
-		kind: JwtPayloadFailureKind.members[0].annotateKey({ description: "Invalid token framing." }),
+		kind: JwtPayloadFailureKind.members[0].pipe($I.annoteKey("JwtPayloadFailure.segments.kind", { description: "Invalid token framing." })),
 		detail: PayloadFailureDetail,
 	}),
 	S.Struct({
-		kind: JwtPayloadFailureKind.members[1].annotateKey({ description: "Invalid base64url or JSON payload." }),
+		kind: JwtPayloadFailureKind.members[1].pipe($I.annoteKey("JwtPayloadFailure.payload.kind", { description: "Invalid base64url or JSON payload." })),
 		detail: PayloadFailureDetail,
-		cause: S.Unknown.annotateKey({ description: "The underlying codec failure, including explicit undefined." }),
+		cause: S.Unknown.pipe($I.annoteKey("JwtPayloadFailure.payload.cause", { description: "The underlying codec failure, including explicit undefined." })),
 	}),
-]).pipe(S.toTaggedUnion("kind")).annotate(
-	$I.annote("JwtPayloadFailure", { description: "A plain-object JWT failure with a cause required only for payload failures." }),
-);
+]).pipe(S.toTaggedUnion("kind"), $I.annoteSchema("JwtPayloadFailure", { description: "A plain-object JWT failure with a cause required only for payload failures." }));
 
 /**
  * The failure variants accepted by {@link JwtPayloadFailure}.

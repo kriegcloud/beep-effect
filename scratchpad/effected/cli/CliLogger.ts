@@ -1,4 +1,4 @@
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import { CommandNeutralizer } from "../github-commands/index.ts";
 import type * as Fiber from "effect/Fiber";
 import type * as Layer from "effect/Layer";
@@ -53,7 +53,7 @@ export interface CliLoggerOptions {
 }
 
 const defaultRender = (message: unknown): string =>
-	A.isArray(message) ? message.map(String).join(" ") : String(message);
+	A.isArray(message) ? pipe(message, A.map(String), A.join(" ")) : String(message);
 
 /**
  * A `Logger` that renders CLI output rather than service logs: no timestamp, level or fiber id, with every level

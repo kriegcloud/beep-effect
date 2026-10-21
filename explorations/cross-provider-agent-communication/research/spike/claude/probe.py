@@ -8,6 +8,7 @@ import signal,uuid
 p=subprocess.Popen(args,cwd=root/'workspace',env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,bufsize=0,start_new_session=True)
 raw=root/'probe-private.jsonl';raw.touch(mode=0o600);os.chmod(raw,0o600)
 sel=selectors.DefaultSelector();sel.register(p.stdout,selectors.EVENT_READ,'stdout');sel.register(p.stderr,selectors.EVENT_READ,'stderr')
+pending=[]
 bufs={'stdout':b'','stderr':b''};events=[];session_ids=set();init_summary={};start=time.monotonic();receipts=[]
 def send(o):
  p.stdin.write((json.dumps(o)+'\n').encode());p.stdin.flush()
@@ -25,11 +26,18 @@ def read(timeout=1):
    if o.get('session_id'):session_ids.add(o['session_id'])
    if o.get('type')=='system' and o.get('subtype')=='init':
     init_summary.update({'model':o.get('model'),'permissionMode':o.get('permissionMode'),'toolsCount':len(o.get('tools',[])),'mcpServerCount':len(o.get('mcp_servers',[])),'pluginCount':len(o.get('plugins',[])),'skillCount':len(o.get('skills',[]))})
+ pending.extend(out)
  return out
+def observed_busy(batch, stream_types):
+ # A terminal event in a consumed batch means the turn is no longer observed busy.
+ return (not any(o.get('type')=='result' for o in batch)
+         and any(o.get('type')=='stream_event' and o.get('event',{}).get('type') in stream_types for o in batch))
 def until_result(timeout=45):
  deadline=time.monotonic()+timeout;text=[]
- while time.monotonic()<deadline and p.poll() is None:
-  for o in read():
+ while pending or (time.monotonic()<deadline and p.poll() is None):
+  if not pending:read()
+  while pending:
+   o=pending.pop(0)
    if o.get('type')=='assistant':
     for c in o.get('message',{}).get('content',[]):
      if c.get('type')=='text':text.append(c['text'])
@@ -52,25 +60,29 @@ with raw.open('wb') as log:
    result,txt=until_result();receipts.append({'case':'idle','index':i+1,'nonce':nonce,'nonceEcho':nonce in (txt+' '+str(result.get('result',''))),'elapsedMs':round((time.monotonic()-t)*1000),'sameSession':len(session_ids)==1})
   for i in range(5):
    nonce='busy-'+uuid.uuid4().hex[:12];user('Write a neutral 300-word explanation of counting, without tools. End with BUSY_TASK_DONE.')
-   deadline=time.monotonic()+40;busy=False;first_done=False
+   deadline=time.monotonic()+40;busy=False
    while time.monotonic()<deadline:
     rs=read()
-    if any(o.get('type')=='stream_event' and o.get('event',{}).get('type') in ('message_start','content_block_delta') for o in rs):busy=True;break
-    if any(o.get('type')=='result' for o in rs):first_done=True;break
+    # A terminal event in this batch defeats a still-active overlap claim.
+    if any(o.get('type')=='result' for o in rs):break
+    if observed_busy(rs,('message_start','content_block_delta')):busy=True;break
    t=time.monotonic();user('After your current response, reply with exactly this nonce and no other text: '+nonce)
    results=[]
-   for j in range(1 if first_done else 2):results.append(until_result())
+   for j in range(2):results.append(until_result())
    alltxt=' '.join(txt+' '+str(r.get('result','')) for r,txt in results)
    receipts.append({'case':'busy-followup','index':i+1,'nonce':nonce,'sentDuringObservedStream':busy,'nonceEcho':nonce in alltxt,'resultCount':len(results),'elapsedMs':round((time.monotonic()-t)*1000),'sameSession':len(session_ids)==1,'deliveryMode':'queued followup; active steering not claimed'})
   user('Write a neutral 2000-word explanation of arithmetic without tools.')
   deadline=time.monotonic()+40;observed=False
   while time.monotonic()<deadline:
    rs=read()
-   if any(o.get('type')=='stream_event' and o.get('event',{}).get('type')=='content_block_delta' for o in rs):observed=True;break
+   if any(o.get('type')=='result' for o in rs):break
+   if observed_busy(rs,('content_block_delta',)):observed=True;break
   send({'type':'control_request','request_id':'probe-interrupt','request':{'subtype':'interrupt'}})
   deadline=time.monotonic()+15;control=None;interrupted=None
   while time.monotonic()<deadline:
-   for o in read():
+   read()
+   rs=pending[:];pending.clear()
+   for o in rs:
     if o.get('type')=='control_response' and o.get('response',{}).get('request_id')=='probe-interrupt':control=o.get('response',{}).get('subtype')
     if o.get('type')=='result':interrupted=o.get('subtype')
    if control and interrupted:break

@@ -13,6 +13,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { CosmosBackend, probeWebGl2, selectCosmosBackend } from "./Cosmos.backend.ts";
 import { CosmosDriverError } from "./Cosmos.errors.ts";
@@ -606,20 +607,21 @@ const renderWithCosmos = Effect.fn("Cosmos.renderWithCosmos")(function* (
   // So a failure here stops the loop and marks the layer, which is visible in the
   // DOM and in a test, instead of failing in a place no one can look.
   const tick = (): void => {
-    try {
-      positionLabels();
-    } catch (cause) {
-      pipe(
-        layer,
-        O.match({
-          onNone: () => undefined,
-          onSome: (current) => current.fail(cause instanceof Error ? cause.message : String(cause)),
-        })
-      );
-      frame = undefined;
-      return;
-    }
-    frame = globalThis.requestAnimationFrame(tick);
+    Result.match(Result.try(positionLabels), {
+      onFailure: (cause) => {
+        pipe(
+          layer,
+          O.match({
+            onNone: () => undefined,
+            onSome: (current) => current.fail(cause instanceof Error ? cause.message : String(cause)),
+          })
+        );
+        frame = undefined;
+      },
+      onSuccess: () => {
+        frame = globalThis.requestAnimationFrame(tick);
+      },
+    });
   };
   if (O.isSome(layer)) {
     tick();

@@ -3,6 +3,8 @@ import * as Cause from "effect/Cause";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Exit from "effect/Exit";
@@ -36,10 +38,11 @@ it.effect("unstubbed methods name the member, while the list defect is deferred"
 it.effect("test layers retain every supplied method and result", () => Effect.gen(function* () {
   const run = WorkflowRunStatus.make({ id: 1, status: "completed", url: "run/1" });
   const overrides = {
-    dispatch: (workflow: string, ref: string) => Effect.sync(() => assert.deepStrictEqual([workflow, ref], ["ci.yml", "main"])),
+    dispatch: dual((args) => P.isString(args[1]), (workflow: string, ref: string, _inputs?: Record<string, string>) =>
+      Effect.sync(() => assert.deepStrictEqual([workflow, ref], ["ci.yml", "main"]))),
     runStatus: (id: number) => Effect.sync(() => { assert.strictEqual(id, 1); return run; }),
     list: Effect.succeed([{ id: 1, name: "CI", path: "ci.yml", state: "active" }]),
-    dispatchAndWait: () => Effect.succeed(run),
+    dispatchAndWait: dual((args) => P.isString(args[1]), (_workflow: string, _ref: string, _options?: object) => Effect.succeed(run)),
   };
   yield* Effect.scopedWith(scope => Effect.gen(function* () {
     const context = yield* Layer.buildWithScope(Layer.merge(WorkflowDispatch.layerTest(overrides), Repo.layer(REPO)), scope);

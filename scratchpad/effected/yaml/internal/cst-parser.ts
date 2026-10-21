@@ -11,6 +11,8 @@ import * as S from "effect/Schema";
 import type { CstNode, CstNodeType } from "./cst.ts";
 import { lexAll } from "./lexer.ts";
 import { YamlToken, type YamlTokenKind } from "./token.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 // ---------------------------------------------------------------------------
 // Internal parser state
@@ -18,11 +20,11 @@ import { YamlToken, type YamlTokenKind } from "./token.ts";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/cst-parser");
 const ParserState = S.Struct({
-	tokens: S.Array(YamlToken).annotateKey({ description: "Dense lexer token stream being consumed." }),
-	text: S.String.annotateKey({ description: "Original YAML source used to preserve exact CST spans." }),
-	pos: S.mutableKey(S.Finite).annotateKey({ description: "Writable cursor pointing to the next token." }),
-	depth: S.mutableKey(S.Finite).annotateKey({ description: "Writable collection-nesting depth checked by guardDepth." }),
-}).annotate($I.annote("ParserState", {
+	tokens: S.Array(YamlToken).pipe($I.annoteKey("ParserState.tokens", { description: "Dense lexer token stream being consumed." })),
+	text: S.String.pipe($I.annoteKey("ParserState.text", { description: "Original YAML source used to preserve exact CST spans." })),
+	pos: S.mutableKey(S.Finite).pipe($I.annoteKey("ParserState.pos", { description: "Writable cursor pointing to the next token." })),
+	depth: S.mutableKey(S.Finite).pipe($I.annoteKey("ParserState.depth", { description: "Writable collection-nesting depth checked by guardDepth." })),
+}).pipe($I.annoteSchema("ParserState", {
 	description: "Structural parser state constructed directly without per-step validation.",
 }));
 type ParserState = typeof ParserState.Type;
@@ -81,7 +83,10 @@ function isDocumentBoundary(token: YamlToken): boolean {
 }
 
 /** Build a CstNode from collected children, computing source from the text. */
-function makeContainerNode(type: CstNodeType, children: CstNode[], text: string): CstNode {
+const makeContainerNode: {
+	(type: CstNodeType, children: CstNode[], text: string): CstNode;
+	(children: CstNode[], text: string): (type: CstNodeType) => CstNode;
+} = dual(3, (type: CstNodeType, children: CstNode[], text: string): CstNode => {
 	if (children.length === 0) {
 		return { type, source: "", offset: 0, length: 0, children };
 	}
@@ -91,7 +96,7 @@ function makeContainerNode(type: CstNodeType, children: CstNode[], text: string)
 	const end = last.offset + last.length;
 	const source = text.slice(offset, end);
 	return { type, source, offset, length: end - offset, children };
-}
+});
 
 /**
  * Create a leaf CstNode from a token, using the raw source text.
@@ -103,14 +108,15 @@ function makeContainerNode(type: CstNodeType, children: CstNode[], text: string)
  * and escape sequences resolved in `value`), but the CST must preserve
  * the raw source text exactly as written.
  */
-function makeLeafNode(type: CstNodeType, token: YamlToken, text: string): CstNode {
-	return {
+const makeLeafNode: {
+	(type: CstNodeType, token: YamlToken, text: string): CstNode;
+	(token: YamlToken, text: string): (type: CstNodeType) => CstNode;
+} = dual(3, (type: CstNodeType, token: YamlToken, text: string): CstNode => ({
 		type,
 		source: text.slice(token.offset, token.offset + token.length),
 		offset: token.offset,
 		length: token.length,
-	};
-}
+	}));
 
 // ---------------------------------------------------------------------------
 // Recursive descent parser
@@ -314,7 +320,10 @@ function findFirstSeqEntryColumn(state: ParserState): number {
 /**
  * Parse a block mapping at the given indentation level.
  */
-function parseBlockMapping(state: ParserState, indent: number): CstNode {
+const parseBlockMapping: {
+	(state: ParserState, indent: number): CstNode;
+	(indent: number): (state: ParserState) => CstNode;
+} = dual(2, (state: ParserState, indent: number): CstNode => {
 	const guarded = guardDepth(state);
 	if (guarded !== null) return guarded;
 	state.depth++;
@@ -323,9 +332,12 @@ function parseBlockMapping(state: ParserState, indent: number): CstNode {
 	} finally {
 		state.depth--;
 	}
-}
+});
 
-function parseBlockMappingInner(state: ParserState, indent: number): CstNode {
+const parseBlockMappingInner: {
+	(state: ParserState, indent: number): CstNode;
+	(indent: number): (state: ParserState) => CstNode;
+} = dual(2, (state: ParserState, indent: number): CstNode => {
 	const children: CstNode[] = [];
 	let sawExplicitKey = false;
 
@@ -471,12 +483,15 @@ function parseBlockMappingInner(state: ParserState, indent: number): CstNode {
 	}
 
 	return makeContainerNode("block-map", children, state.text);
-}
+});
 
 /**
  * Parse the value part after a ":" in a block mapping.
  */
-function parseBlockValue(state: ParserState, parentIndent: number, explicitKey = false): CstNode[] {
+const parseBlockValue: {
+	(parentIndent: number, explicitKey?: boolean): (state: ParserState) => CstNode[];
+	(state: ParserState, parentIndent: number, explicitKey?: boolean): CstNode[];
+} = dual((args) => P.isObjectKeyword(args[0]), (state: ParserState, parentIndent: number, explicitKey: boolean = false): CstNode[] => {
 	const nodes: CstNode[] = [];
 
 	while (!atEnd(state)) {
@@ -562,12 +577,15 @@ function parseBlockValue(state: ParserState, parentIndent: number, explicitKey =
 	}
 
 	return nodes;
-}
+});
 
 /**
  * Parse a block sequence at the given indentation level.
  */
-function parseBlockSequence(state: ParserState, indent: number): CstNode {
+const parseBlockSequence: {
+	(state: ParserState, indent: number): CstNode;
+	(indent: number): (state: ParserState) => CstNode;
+} = dual(2, (state: ParserState, indent: number): CstNode => {
 	const guarded = guardDepth(state);
 	if (guarded !== null) return guarded;
 	state.depth++;
@@ -576,9 +594,12 @@ function parseBlockSequence(state: ParserState, indent: number): CstNode {
 	} finally {
 		state.depth--;
 	}
-}
+});
 
-function parseBlockSequenceInner(state: ParserState, indent: number): CstNode {
+const parseBlockSequenceInner: {
+	(state: ParserState, indent: number): CstNode;
+	(indent: number): (state: ParserState) => CstNode;
+} = dual(2, (state: ParserState, indent: number): CstNode => {
 	const children: CstNode[] = [];
 
 	// Consume the block-seq-start token
@@ -616,14 +637,17 @@ function parseBlockSequenceInner(state: ParserState, indent: number): CstNode {
 	}
 
 	return makeContainerNode("block-seq", children, state.text);
-}
+});
 
 /**
  * Look ahead (without consuming) to see if a block-map-value token exists
  * before the next newline / sequence entry at this indent.
  * Document boundaries are line-start tokens, so their preceding newline stops the scan.
  */
-function hasImplicitMapAhead(state: ParserState, seqIndent: number): boolean {
+const hasImplicitMapAhead: {
+	(state: ParserState, seqIndent: number): boolean;
+	(seqIndent: number): (state: ParserState) => boolean;
+} = dual(2, (state: ParserState, seqIndent: number): boolean => {
 	let flowDepth = 0;
 	for (let i = state.pos; i < state.tokens.length; i++) {
 		const t = A.getUnsafe(state.tokens, i);
@@ -643,12 +667,15 @@ function hasImplicitMapAhead(state: ParserState, seqIndent: number): boolean {
 		if (t.kind === "block-map-value") return true;
 	}
 	return false;
-}
+});
 
 /**
  * Parse the content of a sequence entry (after the `-`).
  */
-function parseSequenceEntryContent(state: ParserState, seqIndent: number): CstNode[] {
+const parseSequenceEntryContent: {
+	(state: ParserState, seqIndent: number): CstNode[];
+	(seqIndent: number): (state: ParserState) => CstNode[];
+} = dual(2, (state: ParserState, seqIndent: number): CstNode[] => {
 	const nodes: CstNode[] = [];
 
 	// If the immediate next non-trivia token is a nested seq entry (deeper
@@ -739,13 +766,16 @@ function parseSequenceEntryContent(state: ParserState, seqIndent: number): CstNo
 	}
 
 	return nodes;
-}
+});
 
 /**
  * Parse an implicit block mapping (no block-map-start token from the lexer).
  * This occurs inside sequence entries like `- a: 1`.
  */
-function parseImplicitBlockMapping(state: ParserState, seqIndent: number): CstNode {
+const parseImplicitBlockMapping: {
+	(state: ParserState, seqIndent: number): CstNode;
+	(seqIndent: number): (state: ParserState) => CstNode;
+} = dual(2, (state: ParserState, seqIndent: number): CstNode => {
 	const guarded = guardDepth(state);
 	if (guarded !== null) return guarded;
 	state.depth++;
@@ -754,9 +784,12 @@ function parseImplicitBlockMapping(state: ParserState, seqIndent: number): CstNo
 	} finally {
 		state.depth--;
 	}
-}
+});
 
-function parseImplicitBlockMappingInner(state: ParserState, seqIndent: number): CstNode {
+const parseImplicitBlockMappingInner: {
+	(state: ParserState, seqIndent: number): CstNode;
+	(seqIndent: number): (state: ParserState) => CstNode;
+} = dual(2, (state: ParserState, seqIndent: number): CstNode => {
 	const children: CstNode[] = [];
 	// Track the indent of the first key in this implicit mapping so we can
 	// distinguish "same-level block-map-start" (continuation) from "deeper"
@@ -849,7 +882,7 @@ function parseImplicitBlockMappingInner(state: ParserState, seqIndent: number): 
 	}
 
 	return makeContainerNode("block-map", children, state.text);
-}
+});
 
 /**
  * Parse a single document from the token stream.
@@ -971,7 +1004,10 @@ function findNextNonTrivia(state: ParserState): YamlToken | undefined {
 /**
  * Parse all documents from the token stream.
  */
-function parseDocuments(tokens: ReadonlyArray<YamlToken>, text: string): CstNode[] {
+const parseDocuments: {
+	(tokens: ReadonlyArray<YamlToken>, text: string): CstNode[];
+	(text: string): (tokens: ReadonlyArray<YamlToken>) => CstNode[];
+} = dual(2, (tokens: ReadonlyArray<YamlToken>, text: string): CstNode[] => {
 	const state: ParserState = { tokens, text, pos: 0, depth: 0 };
 	const documents: CstNode[] = [];
 
@@ -987,17 +1023,19 @@ function parseDocuments(tokens: ReadonlyArray<YamlToken>, text: string): CstNode
 		// A document is content-free if it only contains trivia (whitespace,
 		// newline, comment) and document-end nodes. Per YAML spec, a standalone
 		// `...` without preceding content does not produce a document.
-		const hasDocStart = doc.children?.some((c) => c.type === "whitespace" && c.source === "---");
-		const hasContent = doc.children?.some(
+		const docChildren = doc.children ?? [];
+		const hasDocStart = A.some(docChildren, (c) => c.type === "whitespace" && c.source === "---");
+		const hasContent = A.some(
+			docChildren,
 			(c) => c.type !== "whitespace" && c.type !== "newline" && c.type !== "comment" && c.type !== "error",
 		);
-		if ((hasDocStart === true) || (hasContent === true) || documents.length === 0) {
+		if (hasDocStart || hasContent || documents.length === 0) {
 			documents.push(doc);
 		}
 	}
 
 	return documents;
-}
+});
 
 // ---------------------------------------------------------------------------
 // Engine API

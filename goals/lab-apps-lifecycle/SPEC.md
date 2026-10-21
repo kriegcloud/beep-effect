@@ -250,7 +250,7 @@ packet.
 | # | Decision | Choice |
 | --- | --- | --- |
 | D1 | Naming | `apps/labs/*`; glossary term "lab app"; portless `<name>.labs.beep.localhost`; NOT "experiments" (doctrine-11 collision). Command stays `beep delete-package`. |
-| D2 | Law posture | Code laws full (typecheck, lint-policy, schema-first/effect-first, import boundaries, portless). Ceremony exempt by path-scoped construction: docgen coverage, coverage ratchet, changesets, storybook. Lab CI lanes not required-check blockers. |
+| D2 | Law posture | Code laws full (typecheck, lint-policy, schema-first/effect-first, import boundaries, portless). Original ceremony exemptions: docgen coverage, coverage ratchet, changesets, storybook. D15 supersedes the coverage exemption and required root-command exclusions; hosted lab-lane admission remains path-scoped. |
 | D3 | Delete scope | General command, any workspace package/app; refuses on reverse dependencies (leaf-only guard); slice packages defer to doctrine-11 retirement. |
 | D4 | Variants v1 | nextjs + vite + service (pure Effect `effect/http-api` server). Tauri = phase 2 (P3) with a toolchain/CI spike, landing as a variant on the same AppKind abstraction. |
 | D5 | Registration | Zero-root-churn hard requirement: one-time `apps/labs/*` glob + path-scoped gate entries; afterward create/delete touches no shared config by hand. |
@@ -263,6 +263,7 @@ packet.
 | D12 | Storage | Per-lab Postgres schema declared in the manifest, dropped by delete's data phase; labs never touch `packages/*/tables`; pglite/in-memory trivially allowed. |
 | D13 | First wave | trustgraph/ts workbench (P2 acceptance proof), effect-ontology, cognee, semantica. Sources under `~/YeeBois/dev` and `~/YeeBois/workstation_apps`. |
 | D14 | Retirement class | Labs are pre-v1 (Stack Installer DECISIONS waiver pattern): same-PR consumer migration, no sunset window; a DECISIONS entry only when a lab promoted a shared export. |
+| D15 | Operator amendment, 2026-10-20 | Root lint/check/test/coverage include labs. Every lab defines generated coverage scripts and enters coverage disposition, minimums, and per-file ratchets. Measured baseline rows are writer-owned. Hosted product lint/test partitioning may retain the row-9 filter for the separate labs lane; docgen/JSDoc, changeset, Storybook, and root-solution-reference exemptions remain. |
 
 Research amendments adopted with the decisions (from the fan-out, not
 re-decided): nextjs/tauri app kinds already exist — v1 adds vite +
@@ -302,3 +303,13 @@ last resort (`research/05` §5.2).
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
 | None | N/A | N/A | N/A | N/A |
+
+
+### D15 supersession of registration row 9
+
+The operator requested root lint/check/test inclusion and explicitly confirmed
+coverage and its ratchet on 2026-10-20 in the repository recovery task (PR #1928).
+This supersedes the root-command and coverage exclusions described by the
+original row-9 registration plan. `CiLane` still uses the filter for hosted
+product partitioning; it is not an exclusion in `Quality/Tasks.ts`. Historical
+research and draft standards retain their original dated posture.

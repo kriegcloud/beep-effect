@@ -70,9 +70,9 @@ const $I = $ScratchpadId.create("effected/markdown/internal/blockParser");
 class BlockParserError extends S.TaggedError<BlockParserError, { readonly brand: unique symbol }>($I`BlockParserError`)(
 	"BlockParserError",
 	{
-		message: S.String.annotateKey({ description: "The block-parser invariant failure message." }),
+		message: S.String.pipe($I.annoteKey("BlockParserError.message", { description: "The block-parser invariant failure message." })),
 	},
-	$I.annote("BlockParserError", { description: "A block-parser invariant was violated." }),
+	$I.annoteError<BlockParserError>("BlockParserError", { description: "A block-parser invariant was violated." }),
 ) {}
 
 /** Upstream's cheap pre-filter: a line that cannot start any block. */
@@ -168,7 +168,7 @@ class BlockParser implements BlockScanner {
 		// `text.length`, and unist point mapping (vfile, mdast-util) places the
 		// end-of-input offset on it (`line N+1, column 1`) rather than clamping
 		// into the last content line. Only the root's end point can sit there.
-		const starts = this.lines.map((line) => line.start);
+		const starts = A.map(this.lines, (line) => line.start);
 		if (text.endsWith("\n")) {
 			starts.push(text.length);
 		}
@@ -202,7 +202,7 @@ class BlockParser implements BlockScanner {
 
 	// --- scanner ------------------------------------------------------------
 
-	advanceOffset(count: number, columns = false): void {
+	readonly advanceOffset: BlockScanner["advanceOffset"] = dual((args) => P.isNumber(args[0]), (count: number, columns: boolean = false): void => {
 		const line = this.currentLine;
 		let remaining = count;
 		let char = line.charAt(this.offset);
@@ -231,7 +231,7 @@ class BlockParser implements BlockScanner {
 			}
 			char = line.charAt(this.offset);
 		}
-	}
+	});
 
 	advanceNextNonspace(): void {
 		this.offset = this.nextNonspace;
@@ -285,7 +285,7 @@ class BlockParser implements BlockScanner {
 		tip.stringContent += `${content}\n`;
 	}
 
-	addChild(type: BlockType, offsetInLine: number): BlockNode {
+	readonly addChild: BlockScanner["addChild"] = dual(2, (type: BlockType, offsetInLine: number): BlockNode => {
 		while (!this.constructOf(this.tip.type).canContain(type)) {
 			this.finalizeBlock(this.tip, this.lineNumber - 1);
 		}
@@ -306,18 +306,18 @@ class BlockParser implements BlockScanner {
 		parent.children.push(child);
 		this.tipNode = child;
 		return child;
-	}
+	});
 
-	setScanPosition(offset: number, column: number): void {
+	readonly setScanPosition: BlockScanner["setScanPosition"] = dual(2, (offset: number, column: number): void => {
 		this.offset = offset;
 		this.column = column;
-	}
+	});
 
 	setLastLineLength(length: number): void {
 		this.lastLineLength = length;
 	}
 
-	replaceBlock(block: BlockNode, type: BlockType): BlockNode {
+	readonly replaceBlock: BlockScanner["replaceBlock"] = dual(2, (block: BlockNode, type: BlockType): BlockNode => {
 		const parent = block.parent;
 		const replacement = makeBlockNode(type, block.startOffset, block.startLine, block.depth);
 		replacement.parent = parent;
@@ -340,9 +340,9 @@ class BlockParser implements BlockScanner {
 		block.open = false;
 		this.tipNode = replacement;
 		return replacement;
-	}
+	});
 
-	insertBefore(block: BlockNode, type: BlockType): BlockNode {
+	readonly insertBefore: BlockScanner["insertBefore"] = dual(2, (block: BlockNode, type: BlockType): BlockNode => {
 		const parent = block.parent;
 		const sibling = makeBlockNode(type, block.startOffset, block.startLine, block.depth);
 		sibling.parent = parent;
@@ -360,7 +360,7 @@ class BlockParser implements BlockScanner {
 			}
 		}
 		return sibling;
-	}
+	});
 
 	closeUnmatchedBlocks(): void {
 		if (this.allClosed) {
@@ -374,14 +374,14 @@ class BlockParser implements BlockScanner {
 		this.allClosed = true;
 	}
 
-	finalizeBlock(block: BlockNode, lineNumber: number): void {
+	readonly finalizeBlock: BlockScanner["finalizeBlock"] = dual(2, (block: BlockNode, lineNumber: number): void => {
 		const above = block.parent;
 		block.open = false;
 		block.endLine = lineNumber;
 		block.endOffset = this.endOfLine(lineNumber, this.lastLineLength);
 		this.constructOf(block.type).finalize?.(this, block);
 		this.tipNode = above;
-	}
+	});
 
 	/**
 	 * The absolute offset `length` characters into line `lineNumber` — the
@@ -664,18 +664,20 @@ class BlockParser implements BlockScanner {
 		const definitionNodes = MutableHashMap.empty<number, Definition>();
 		const rawInlines: RawInlineSlice[] = [];
 
+		const positionOf: MaterializeContext["position"] = dual(2, (start: number, end: number): Position =>
+			this.position(start, end),
+		);
 		const context: MaterializeContext = {
-			position: (start, end) => this.position(start, end),
-			inlineSlice: (block) =>
-				prepareInline(block, (start, end) => this.position(start, end), refmap, this.dialectName, footnoteLabels),
-			registerInline: (parent: InlineHost, prepared: PreparedInline) => {
+			position: positionOf,
+			inlineSlice: (block) => prepareInline(block, positionOf, refmap, this.dialectName, footnoteLabels),
+			registerInline: dual(2, (parent: InlineHost, prepared: PreparedInline): void => {
 				rawInlines.push({
 					parent,
 					text: prepared.text,
 					startOffset: prepared.startOffset,
 					segments: prepared.segments,
 				});
-			},
+			}),
 		};
 
 		footnoteLabels = this.collectReferences(this.doc, context, definitionNodes, definitionIndex, definitionOrder, footnoteLabels);
@@ -708,9 +710,9 @@ class BlockParser implements BlockScanner {
  * @since 0.0.0
  */
 export const BlockParseOptions = S.Struct({
-	dialect: S.optionalKey(MarkdownDialect).annotateKey({ description: "Registry dialect to apply; defaults to commonmark" }),
-	frontmatter: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to capture an opening frontmatter block; defaults to false" }),
-}).annotate($I.annote("BlockParseOptions", { description: "Engine parse options that distinguish curried configuration from document text." }));
+	dialect: S.optionalKey(MarkdownDialect).pipe($I.annoteKey("BlockParseOptions.dialect", { description: "Registry dialect to apply; defaults to commonmark" })),
+	frontmatter: S.optionalKey(S.Boolean).pipe($I.annoteKey("BlockParseOptions.frontmatter", { description: "Whether to capture an opening frontmatter block; defaults to false" })),
+}).pipe($I.annoteSchema("BlockParseOptions", { description: "Engine parse options that distinguish curried configuration from document text." }));
 
 /**
  * Describes schema-derived engine block-pass options.

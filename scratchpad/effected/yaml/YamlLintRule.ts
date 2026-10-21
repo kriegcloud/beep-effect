@@ -79,14 +79,14 @@ export type YamlLintSeverity = typeof YamlLintSeverity.Type;
  * @since 0.0.0
  */
 export class YamlLintDiagnostic extends S.Class<YamlLintDiagnostic, { readonly brand: unique symbol }>($I`YamlLintDiagnostic`)({
-	rule: S.String.annotateKey({ description: "Identifier of the lint rule reporting the finding" }),
-	severity: YamlLintSeverity.annotateKey({ description: "Effective reporting level, either `error` or `warning`; disabled rules produce no findings" }),
-	message: S.String.annotateKey({ description: "Human-readable explanation of the reported lint finding" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 source offset where the reported span begins" }),
-	length: S.Finite.annotateKey({ description: "Length of the reported source span in UTF-16 code units" }),
-	line: S.Finite.annotateKey({ description: "Zero-based source line where the reported span begins" }),
-	character: S.Finite.annotateKey({ description: "Zero-based UTF-16 column where the reported span begins" }),
-	fix: S.optionalKey(YamlEdit).annotateKey({ description: "Optional source replacement supplied by the rule to repair the finding" }),
+	rule: S.String.pipe($I.annoteKey("YamlLintDiagnostic.rule", { description: "Identifier of the lint rule reporting the finding" })),
+	severity: YamlLintSeverity.pipe($I.annoteKey("YamlLintDiagnostic.severity", { description: "Effective reporting level, either `error` or `warning`; disabled rules produce no findings" })),
+	message: S.String.pipe($I.annoteKey("YamlLintDiagnostic.message", { description: "Human-readable explanation of the reported lint finding" })),
+	offset: S.Finite.pipe($I.annoteKey("YamlLintDiagnostic.offset", { description: "Zero-based UTF-16 source offset where the reported span begins" })),
+	length: S.Finite.pipe($I.annoteKey("YamlLintDiagnostic.length", { description: "Length of the reported source span in UTF-16 code units" })),
+	line: S.Finite.pipe($I.annoteKey("YamlLintDiagnostic.line", { description: "Zero-based source line where the reported span begins" })),
+	character: S.Finite.pipe($I.annoteKey("YamlLintDiagnostic.character", { description: "Zero-based UTF-16 column where the reported span begins" })),
+	fix: S.optionalKey(YamlEdit).pipe($I.annoteKey("YamlLintDiagnostic.fix", { description: "Optional source replacement supplied by the rule to repair the finding" })),
 }, $I.annote("YamlLintDiagnostic", { description: "A single lint finding: the reporting rule, its severity, a positioned span and optionally a surgical fix." })) {}
 
 /**
@@ -108,9 +108,9 @@ export class YamlLintDiagnostic extends S.Class<YamlLintDiagnostic, { readonly b
  * @since 0.0.0
  */
 export const LintLine = S.Struct({
-	text: S.String.annotateKey({ description: "Source line text excluding its LF, CR, or CRLF terminator" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 source offset of the line's first character" }),
-	number: S.Finite.annotateKey({ description: "Zero-based source line number" }),
+	text: S.String.pipe($I.annoteKey("LintLine.text", { description: "Source line text excluding its LF, CR, or CRLF terminator" })),
+	offset: S.Finite.pipe($I.annoteKey("LintLine.offset", { description: "Zero-based UTF-16 source offset of the line's first character" })),
+	number: S.Finite.pipe($I.annoteKey("LintLine.number", { description: "Zero-based source line number" })),
 }).pipe($I.annoteSchema("LintLine", { description: "A positioned source line without its line terminator" }));
 
 /**
@@ -143,14 +143,16 @@ export type LintLine = typeof LintLine.Type;
  * **Example** (Validate the shared lint context)
  *
  * ```ts
+ * import type { YamlLintDiagnostic } from "@beep/scratchpad/effected/yaml/YamlLintRule";
  * import { LintContext } from "@beep/scratchpad/effected/yaml/YamlLintRule";
  * import { YamlLint, YamlLintConfig } from "@beep/scratchpad/effected/yaml/YamlLint";
+ * import { dual } from "effect/Function";
  * import * as S from "effect/Schema";
  *
- * YamlLint.run("a: 1\n", [{ id: "context", check: (ctx) => {
+ * YamlLint.run("a: 1\n", [{ id: "context", check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
  *   console.log(S.is(LintContext)(ctx)); // true
  *   return [];
- * } }], YamlLintConfig.make({ rules: { context: "error" } }));
+ * }) }], YamlLintConfig.make({ rules: { context: "error" } }));
  * ```
  *
  * @public
@@ -158,10 +160,10 @@ export type LintLine = typeof LintLine.Type;
  * @since 0.0.0
  */
 export const LintContext = S.Struct({
-	text: S.String.annotateKey({ description: "Complete original YAML source text" }),
-	lines: S.Array(LintLine).annotateKey({ description: "Positioned source lines covering the complete stream" }),
-	tokens: S.Array(YamlToken).annotateKey({ description: "Materialized positioned tokens shared by every lint rule" }),
-	document: YamlDocument.annotateKey({ description: "Recovered first document, including parse errors and warnings" }),
+	text: S.String.pipe($I.annoteKey("LintContext.text", { description: "Complete original YAML source text" })),
+	lines: S.Array(LintLine).pipe($I.annoteKey("LintContext.lines", { description: "Positioned source lines covering the complete stream" })),
+	tokens: S.Array(YamlToken).pipe($I.annoteKey("LintContext.tokens", { description: "Materialized positioned tokens shared by every lint rule" })),
+	document: YamlDocument.pipe($I.annoteKey("LintContext.document", { description: "Recovered first document, including parse errors and warnings" })),
 }).pipe($I.annoteSchema("LintContext", { description: "Shared eager lint input with source, positioned lines, tokens, and the recovered first document" }));
 
 /**
@@ -215,12 +217,12 @@ export type LintContext = typeof LintContext.Type;
  * @since 0.0.0
  */
 export class StyleVote extends S.TaggedClass<StyleVote, { readonly brand: unique symbol }>($I`StyleVote`)("StyleVote", {
-	dimension: S.String.annotateKey({ description: "Rule option key supported by this source observation, such as `quoteType`, `spaces`, or `present`" }),
-	value: S.Union([S.String, S.Finite, S.Boolean]).annotateKey({ description: "Option choice supported by this source occurrence, used when resolving inferred configuration" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based UTF-16 source offset of the occurrence supporting this option choice" }),
-	length: S.Finite.annotateKey({ description: "Source span length in UTF-16 code units of the occurrence supporting this option choice" }),
-	line: S.Finite.annotateKey({ description: "Zero-based source line of the occurrence supporting this option choice" }),
-	character: S.Finite.annotateKey({ description: "Zero-based UTF-16 column of the occurrence supporting this option choice" }),
+	dimension: S.String.pipe($I.annoteKey("StyleVote.dimension", { description: "Rule option key supported by this source observation, such as `quoteType`, `spaces`, or `present`" })),
+	value: S.Union([S.String, S.Finite, S.Boolean]).pipe($I.annoteKey("StyleVote.value", { description: "Option choice supported by this source occurrence, used when resolving inferred configuration" })),
+	offset: S.Finite.pipe($I.annoteKey("StyleVote.offset", { description: "Zero-based UTF-16 source offset of the occurrence supporting this option choice" })),
+	length: S.Finite.pipe($I.annoteKey("StyleVote.length", { description: "Source span length in UTF-16 code units of the occurrence supporting this option choice" })),
+	line: S.Finite.pipe($I.annoteKey("StyleVote.line", { description: "Zero-based source line of the occurrence supporting this option choice" })),
+	character: S.Finite.pipe($I.annoteKey("StyleVote.character", { description: "Zero-based UTF-16 column of the occurrence supporting this option choice" })),
 }, $I.annote("StyleVote", { description: "One categorical style observation: a single occurrence of a style choice in the source, voting a `value` for an inference `dimension`." })) {}
 
 /**
@@ -255,8 +257,8 @@ export class StyleVote extends S.TaggedClass<StyleVote, { readonly brand: unique
  * @since 0.0.0
  */
 export class StyleFloor extends S.TaggedClass<StyleFloor, { readonly brand: unique symbol }>($I`StyleFloor`)("StyleFloor", {
-	dimension: S.String.annotateKey({ description: "Rule option key for which the source establishes a measured lower bound" }),
-	value: S.Finite.annotateKey({ description: "Measured lower bound established by the source, such as longest line length; never resolved into a configured limit" }),
+	dimension: S.String.pipe($I.annoteKey("StyleFloor.dimension", { description: "Rule option key for which the source establishes a measured lower bound" })),
+	value: S.Finite.pipe($I.annoteKey("StyleFloor.value", { description: "Measured lower bound established by the source, such as longest line length; never resolved into a configured limit" })),
 }, $I.annote("StyleFloor", { description: "One measured style floor: a value the source PROVES is at least `value`, without proving what the configured limit should be — the longest observed line proves `line-length.max` is at least that long, not what it is. Floors are carried in the evidence for callers that want them and are never resolved into config options; fabricating a max from the largest value one happened to see would be lying with a straight face." })) {}
 
 /**
@@ -294,6 +296,9 @@ export type StyleObservation = StyleVote | StyleFloor;
  */
 export interface YamlRule {
 	readonly id: string;
-	readonly check: (ctx: LintContext, options: unknown) => Iterable<YamlLintDiagnostic>;
+	readonly check: {
+		(ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic>;
+		(options: unknown): (ctx: LintContext) => Iterable<YamlLintDiagnostic>;
+	};
 	readonly infer?: (ctx: LintContext) => Iterable<StyleObservation>;
 }

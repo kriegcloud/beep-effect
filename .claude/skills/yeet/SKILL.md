@@ -460,12 +460,7 @@ check is known to be failing, and every review thread is answered. Pending
 checks and optional lanes (`Heavy / *`) never hold it. Otherwise it refuses
 with the first blocker named (`pr-open`, `no-required-red`,
 `threads-resolved`). There is no `--force`. Flip only when no further push is
-planned: a push after the flip restarts the review window. It also lints the
-squash message GitHub will write as an advisory (budgets: commit subjects 98,
-PR title 100 minus ` (#n)`); `merge-gate` holds on it (`references/gh-rest.md`). The flip is the
-GraphQL-only `markPullRequestReadyForReview`, spent through the GraphQL budget
-guard: when the shared budget is spent it waits (bounded, logged) for the
-hourly reset instead of failing the way `gh pr ready` did.
+planned: a push after the flip restarts the review window. Squash-message advice: [`gh-rest.md`](references/gh-rest.md).
 
 The merge gate carries the wait instead. `merge-ready: yes` needs the
 `review-window-elapsed` criterion: 20 minutes since the later of the latest

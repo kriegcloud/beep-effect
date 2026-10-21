@@ -369,7 +369,7 @@ describe("attribute constraint review regressions", () => {
   it("identifies the reusable name check and documents its grammar", () => {
     assert.deepInclude(AttributeName.ast.checks?.[0]?.annotations, {
       identifier: $ScratchpadId.create("effected/templates/internal/attributes")`AttributeNameCheck`,
-      title: "Attribute name",
+      title: "AttributeNameCheck",
       description: "An ASCII letter followed by ASCII letters, digits, underscores or hyphens, with JavaScript dollar-anchor semantics.",
       message: "Expected an attribute name starting with an ASCII letter, followed by ASCII letters, digits, underscores or hyphens",
     });
@@ -378,7 +378,7 @@ describe("attribute constraint review regressions", () => {
   it("identifies the reusable value check and documents its exclusions", () => {
     assert.deepInclude(AttributeValue.ast.checks?.[0]?.annotations, {
       identifier: $ScratchpadId.create("effected/templates/internal/attributes")`AttributeValueCheck`,
-      title: "Attribute value",
+      title: "AttributeValueCheck",
       description: "Text rendered verbatim inside double quotes, excluding double quotes, carriage returns and line feeds.",
       message: "Expected an attribute value without double quotes, carriage returns or line feeds",
     });

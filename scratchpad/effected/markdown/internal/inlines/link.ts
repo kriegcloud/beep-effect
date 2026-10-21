@@ -28,6 +28,7 @@ import type { InlineNode } from "../inlineNode.ts";
 import { appendChild, childrenOf, insertAfter, makeInlineNode, unlink } from "../inlineNode.ts";
 import type { Bracket, InlineConstruct, InlineScanner } from "../inlineTypes.ts";
 import { ReferenceScanner, normalizeReference } from "../references.ts";
+import { dual } from "effect/Function";
 
 const C_BANG = 0x21;
 const C_CARET = 0x5e;
@@ -47,13 +48,16 @@ const reWhitespaceChar = /^[ \t\n\v\f\r]/;
  * The destination, title and label grammars are identical wherever they
  * appear, so a link reuses exactly what a definition parsed with.
  */
-const withReferenceScanner = <A>(scanner: InlineScanner, run: (reference: ReferenceScanner) => A): A => {
+const withReferenceScanner: {
+	<A>(scanner: InlineScanner, run: (reference: ReferenceScanner) => A): A;
+	<A>(run: (reference: ReferenceScanner) => A): (scanner: InlineScanner) => A;
+} = dual(2, <A>(scanner: InlineScanner, run: (reference: ReferenceScanner) => A): A => {
 	const reference = new ReferenceScanner(scanner.subject);
 	reference.pos = scanner.pos;
 	const result = run(reference);
 	scanner.pos = reference.pos;
 	return result;
-};
+});
 
 /**
  * The plain-text flattening of a node list — an image's `alt`.
@@ -207,14 +211,14 @@ export const imageOpenConstruct: InlineConstruct = makeImageOpenConstruct(true);
  * @category type-level
  * @since 0.0.0
  */
-export type LinkCloseFallback = (
-	scanner: InlineScanner,
-	opener: Bracket,
-	/** The index of the `]` in the subject. */
-	bracketPos: number,
-	/** The index just past the `]`, where the cursor must end up. */
-	afterBracket: number,
-) => boolean;
+export type LinkCloseFallback = {
+	/**
+	 * `bracketPos` is the index of the `]` in the subject; `afterBracket` is
+	 * the index just past it, where the cursor must end up.
+	 */
+	(scanner: InlineScanner, opener: Bracket, bracketPos: number, afterBracket: number): boolean;
+	(opener: Bracket, bracketPos: number, afterBracket: number): (scanner: InlineScanner) => boolean;
+};
 
 /**
  * Build the `]` construct — closes a link or image, or stays literal.

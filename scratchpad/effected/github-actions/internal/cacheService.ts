@@ -46,7 +46,10 @@ export const CACHE_SERVICE = "github.actions.results.api.v1.CacheService";
  * @since 0.0.0
  */
 export interface CacheServiceClient<E> {
-	readonly call: (method: string, body: Record<string, unknown>) => Effect.Effect<TwirpResult<unknown>, E>;
+	readonly call: {
+		(method: string, body: Record<string, unknown>): Effect.Effect<TwirpResult<unknown>, E>;
+		(body: Record<string, unknown>): (method: string) => Effect.Effect<TwirpResult<unknown>, E>;
+	};
 	readonly refused: (detail: string) => E;
 }
 
@@ -61,9 +64,10 @@ export interface CacheServiceClient<E> {
  * import * as O from "effect/Option";
  * import * as Effect from "effect/Effect";
  * import { CONFLICT } from "@beep/scratchpad/effected/github-actions/internal/twirp";
+ * import { dual } from "effect/Function";
  *
  * const client = {
- *   call: () => Effect.succeed(CONFLICT),
+ *   call: dual(2, (_method: string, _body: Record<string, unknown>) => Effect.succeed(CONFLICT)),
  *   refused: (detail: string) => new Error(detail)
  * };
  *
@@ -103,9 +107,10 @@ export const reserveUpload: {
  * import { finalizeUpload } from "@beep/scratchpad/effected/github-actions/internal/cacheService";
  * import * as Effect from "effect/Effect";
  * import { CONFLICT } from "@beep/scratchpad/effected/github-actions/internal/twirp";
+ * import { dual } from "effect/Function";
  *
  * const client = {
- *   call: () => Effect.succeed(CONFLICT),
+ *   call: dual(2, (_method: string, _body: Record<string, unknown>) => Effect.succeed(CONFLICT)),
  *   refused: (detail: string) => new Error(detail)
  * };
  *
@@ -154,10 +159,10 @@ export const finalizeUpload: {
  * @since 0.0.0
  */
 export const CacheHit = S.Struct({
-	url: S.String.annotateKey({ description: "The signed download URL." }),
+	url: S.String.pipe($I.annoteKey("CacheHit.url", { description: "The signed download URL." })),
 	/** Absent when the backend did not say; a caller treats that as the primary key. */
-	matchedKey: S.UndefinedOr(S.String).annotateKey({ description: "The matched cache key; explicitly undefined when the backend did not say." }),
-}).annotate($I.annote("CacheHit", { description: "A plain-object cache download location and the key that matched." }));
+	matchedKey: S.UndefinedOr(S.String).pipe($I.annoteKey("CacheHit.matchedKey", { description: "The matched cache key; explicitly undefined when the backend did not say." })),
+}).pipe($I.annoteSchema("CacheHit", { description: "A plain-object cache download location and the key that matched." }));
 
 /**
  * The plain-object hit accepted by {@link CacheHit}.
@@ -176,9 +181,10 @@ export type CacheHit = typeof CacheHit.Type;
  * import * as O from "effect/Option";
  * import * as Effect from "effect/Effect";
  * import { CONFLICT } from "@beep/scratchpad/effected/github-actions/internal/twirp";
+ * import { dual } from "effect/Function";
  *
  * const client = {
- *   call: () => Effect.succeed(CONFLICT),
+ *   call: dual(2, (_method: string, _body: Record<string, unknown>) => Effect.succeed(CONFLICT)),
  *   refused: (detail: string) => new Error(detail)
  * };
  *

@@ -20,6 +20,7 @@ import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironme
 import { ToolInstaller, ToolInstallerError } from "../../effected/github-actions/ToolInstaller.ts";
 import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
 import { settle } from "./results.ts";
+import { dual } from "effect/Function";
 const refused = PlatformError.badArgument({ module: "FileSystem", method: "test", description: "refused" });
 const successHttp = HttpClient.make((request) =>
   Effect.succeed(HttpClientResponse.fromWeb(request, new Response("payload"))),
@@ -219,7 +220,7 @@ it.effect("every unstubbed installer member dies with its member-specific diagno
       );
   }),
 );
-it.layer(ToolInstaller.layerTest({ find: () => Effect.succeedNone }), { timeout: "30 seconds" })((it) => {
+it.layer(ToolInstaller.layerTest({ find: dual(2, (_tool: string, _version: string) => Effect.succeedNone) }), { timeout: "30 seconds" })((it) => {
   it.effect("layerTest provides the requested override", () =>
     Effect.gen(function* () {
       assertNone(yield* (yield* ToolInstaller).find("tool", "1"));

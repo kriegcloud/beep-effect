@@ -1,11 +1,13 @@
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertDefined, assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import { MarkdownDocument } from "../../effected/markdown/MarkdownDocument.ts";
-import { Markdown } from "../../effected/markdown/Markdown.ts";
+import { Markdown, type MarkdownParseError, type MarkdownParseOptions } from "../../effected/markdown/Markdown.ts";
 import { MarkdownFormat, MarkdownFormattingOptions, MarkdownModificationError } from "../../effected/markdown/MarkdownFormat.ts";
-import { Blockquote, type FlowContent, Paragraph, Text } from "../../effected/markdown/MarkdownNode.ts";
+import { Blockquote, type FlowContent, Paragraph, type Root, Text } from "../../effected/markdown/MarkdownNode.ts";
 import { MAX_NESTING_DEPTH } from "../../effected/markdown/internal/limits.ts";
 
 describe("MarkdownFormat coverage", () => {
@@ -24,11 +26,11 @@ describe("MarkdownFormat coverage", () => {
     const parse = Markdown.parseResult;
     const spy = vi.spyOn(Markdown, "parseResult");
     try {
-      spy.mockImplementation((source, options) => source === "* a\n" ? parse(source, options) : rejected);
+      spy.mockImplementation(dual((args) => P.isString(args[0]), (source: string, options?: MarkdownParseOptions): Result.Result<Root, MarkdownParseError> => source === "* a\n" ? parse(source, options) : rejected));
       assert.strictEqual(MarkdownFormat.formatToString("* a\n", undefined, MarkdownFormattingOptions.make({ bulletChar: "-" })), "* a\n");
       const result = yield* Effect.result(MarkdownFormat.modify(doc, target, "replacement"));
       assertFailure(Result.mapError(result, (error) => error.code), "UnsupportedTarget");
-      spy.mockImplementation((source, options) => source === "replacement" ? parse(source, options) : rejected);
+      spy.mockImplementation(dual((args) => P.isString(args[0]), (source: string, options?: MarkdownParseOptions): Result.Result<Root, MarkdownParseError> => source === "replacement" ? parse(source, options) : rejected));
       const contextual = yield* Effect.result(MarkdownFormat.modify(doc, target, "replacement"));
       assertFailure(Result.mapError(contextual, (error) => error.code), "UnsupportedTarget");
     } finally {

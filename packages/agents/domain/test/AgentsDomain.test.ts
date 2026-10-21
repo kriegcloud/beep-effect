@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   Agent,
   AgentMode,
@@ -61,7 +61,7 @@ const decodeUnknownTaggedAgentResult = S.decodeUnknownResult(TaggedAgent);
 
 const AgentModeArbitrary = Arbitrary.schema(AgentMode);
 
-const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
+const repoRoot = NodeURL.fileURLToPath(new URL("../../../..", import.meta.url));
 const roundTrip = <Schema extends S.Codec<unknown>>(schema: Schema, value: Schema["Type"]): void => {
   const encoded = Result.getOrThrow(S.encodeResult(schema)(value));
   const decoded = Result.getOrThrow(S.decodeUnknownResult(schema)(encoded));

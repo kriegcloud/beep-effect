@@ -9,14 +9,16 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/toml/TomlDateTime");
 
 /** Zero-pad `value` to `width` digits (never truncates a wider value). */
-function pad(value: number, width: number): string {
-	return String(value).padStart(width, "0");
-}
+const pad: {
+	(value: number, width: number): string;
+	(width: number): (value: number) => string;
+} = dual(2, (value: number, width: number): string => String(value).padStart(width, "0"));
 
 /** Whether `year` is a Gregorian leap year (div-4, except centuries unless div-400). */
 function isLeapYear(year: number): boolean {
@@ -26,12 +28,15 @@ function isLeapYear(year: number): boolean {
 const MONTH_LENGTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 /** The number of days in `month` (1-12) of `year`, accounting for leap years. */
-function daysInMonth(year: number, month: number): number {
+const daysInMonth: {
+	(year: number, month: number): number;
+	(month: number): (year: number) => number;
+} = dual(2, (year: number, month: number): number => {
 	if (month === 2 && isLeapYear(year)) {
 		return 29;
 	}
 	return A.getUnsafe(MONTH_LENGTHS, month - 1);
-}
+});
 
 /** Class-level filter shared by every class carrying a `{ year, month, day }` triple. */
 const isRealCalendarDate = S.makeFilter(
@@ -39,53 +44,38 @@ const isRealCalendarDate = S.makeFilter(
 		const max = daysInMonth(year, month);
 		return day <= max || `day ${day} does not exist in ${pad(year, 4)}-${pad(month, 2)} (month has ${max} days)`;
 	},
-	{
-		identifier: $I`isRealCalendarDate`,
-		title: "a real calendar date",
+	$I.annote("isRealCalendarDate", {
+		message: "a real calendar date",
 		description: "The day must exist in the given Gregorian month and year, accounting for leap years.",
-	},
+	}),
 );
 
 const dateFields = {
-	year: S.Int.check(S.isBetween({ minimum: 0, maximum: 9999 }, {
-		identifier: $I`YearRange`,
-		title: "Gregorian year range",
+	year: S.Int.check(S.isBetween({ minimum: 0, maximum: 9999 }, $I.annote("YearRange", {
 		description: "The Gregorian calendar year must be from 0 through 9999, inclusive.",
-	})).annotateKey({ description: "Gregorian calendar year from 0000 through 9999." }),
-	month: S.Int.check(S.isBetween({ minimum: 1, maximum: 12 }, {
-		identifier: $I`MonthRange`,
-		title: "Gregorian month range",
+	}))).pipe($I.annoteKey("dateFields.year", { description: "Gregorian calendar year from 0000 through 9999." })),
+	month: S.Int.check(S.isBetween({ minimum: 1, maximum: 12 }, $I.annote("MonthRange", {
 		description: "The Gregorian calendar month must be from 1 (January) through 12 (December), inclusive.",
-	})).annotateKey({ description: "Gregorian calendar month from 1 (January) through 12 (December)." }),
-	day: S.Int.check(S.isBetween({ minimum: 1, maximum: 31 }, {
-		identifier: $I`DayRange`,
-		title: "Day of month range",
+	}))).pipe($I.annoteKey("dateFields.month", { description: "Gregorian calendar month from 1 (January) through 12 (December)." })),
+	day: S.Int.check(S.isBetween({ minimum: 1, maximum: 31 }, $I.annote("DayRange", {
 		description: "The day of the month must be from 1 through 31, inclusive; the calendar filter additionally validates it against the month and year.",
-	})).annotateKey({ description: "Day of the month from 1 through 31, additionally validated against the month and year." }),
+	}))).pipe($I.annoteKey("dateFields.day", { description: "Day of the month from 1 through 31, additionally validated against the month and year." })),
 };
 
 const timeFields = {
-	hour: S.Int.check(S.isBetween({ minimum: 0, maximum: 23 }, {
-		identifier: $I`HourRange`,
-		title: "Local hour range",
+	hour: S.Int.check(S.isBetween({ minimum: 0, maximum: 23 }, $I.annote("HourRange", {
 		description: "The hour of the local time must be from 0 through 23, inclusive.",
-	})).annotateKey({ description: "Hour of the local time from 0 through 23." }),
-	minute: S.Int.check(S.isBetween({ minimum: 0, maximum: 59 }, {
-		identifier: $I`MinuteRange`,
-		title: "Local minute range",
+	}))).pipe($I.annoteKey("timeFields.hour", { description: "Hour of the local time from 0 through 23." })),
+	minute: S.Int.check(S.isBetween({ minimum: 0, maximum: 59 }, $I.annote("MinuteRange", {
 		description: "The minute of the local time must be from 0 through 59, inclusive.",
-	})).annotateKey({ description: "Minute of the local time from 0 through 59." }),
+	}))).pipe($I.annoteKey("timeFields.minute", { description: "Minute of the local time from 0 through 59." })),
 	// 60 tolerates the RFC 3339 leap second; TOML does not itself validate it.
-	second: S.Int.check(S.isBetween({ minimum: 0, maximum: 60 }, {
-		identifier: $I`SecondRange`,
-		title: "Local second range",
+	second: S.Int.check(S.isBetween({ minimum: 0, maximum: 60 }, $I.annote("SecondRange", {
 		description: "The second of the local time must be from 0 through 60, inclusive, tolerating the RFC 3339 leap second.",
-	})).annotateKey({ description: "Second of the local time from 0 through 60, tolerating the RFC 3339 leap second." }),
-	nanosecond: S.Int.check(S.isBetween({ minimum: 0, maximum: 999_999_999 }, {
-		identifier: $I`NanosecondRange`,
-		title: "Fractional nanosecond range",
+	}))).pipe($I.annoteKey("timeFields.second", { description: "Second of the local time from 0 through 60, tolerating the RFC 3339 leap second." })),
+	nanosecond: S.Int.check(S.isBetween({ minimum: 0, maximum: 999_999_999 }, $I.annote("NanosecondRange", {
 		description: "The fractional second must be from 0 through 999999999 nanoseconds, inclusive.",
-	})).annotateKey({ description: "Fractional second expressed as nanoseconds from 0 through 999999999." }),
+	}))).pipe($I.annoteKey("timeFields.nanosecond", { description: "Fractional second expressed as nanoseconds from 0 through 999999999." })),
 };
 
 /** `YYYY-MM-DD`. */
@@ -263,9 +253,9 @@ export class TomlOffsetDateTime extends S.Class<TomlOffsetDateTime, {}>($I`TomlO
 	S.Struct({
 		...dateFields,
 		...timeFields,
-		offsetMinutes: S.Int.check(S.isBetween({ minimum: -1439, maximum: 1439 })).annotateKey({
+		offsetMinutes: S.Int.check(S.isBetween({ minimum: -1439, maximum: 1439 })).pipe($I.annoteKey("TomlOffsetDateTime.offsetMinutes", {
 			description: "Signed UTC offset in minutes from -1439 through 1439, inclusive; positive values are east of UTC, negative values are west, and zero renders as Z.",
-		}),
+		})),
 	}).check(isRealCalendarDate), $I.annote("TomlOffsetDateTime", { description: "A TOML offset date-time: a TomlLocalDateTime plus `offsetMinutes` (-1439-1439). Parsing enforces `hh <= 23` / `mm <= 59` before construction; this class only bounds the combined minute count." }),
 ) {
 	/**

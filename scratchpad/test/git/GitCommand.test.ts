@@ -1,5 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Stream from "effect/Stream";
 import * as S from "effect/Schema";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -908,5 +909,22 @@ describe("GitCommand", () => {
 				".repos/r",
 			]);
 		});
+	});
+});
+
+describe("GitCommand data-last (pipeable) forms", () => {
+	it("a fixed-arity constructor curries on argument count", () => {
+		assert.deepStrictEqual(pipe("HEAD", GitCommand.show("package.json")).command.args, GitCommand.show("HEAD", "package.json").command.args);
+		assert.deepStrictEqual(pipe("a", GitCommand.mergeBase("b")).command.args, ["merge-base", "a", "b"]);
+	});
+
+	it("an optional-parameter constructor dispatches on the subject's type, not the argument count", () => {
+		// Data-first with the optional omitted still builds the invocation.
+		assert.deepStrictEqual(GitCommand.checkout("main").command.args, ["checkout", "main"]);
+		assert.deepStrictEqual(pipe("main", GitCommand.checkout(true)).command.args, ["checkout", "--detach", "main"]);
+		assert.deepStrictEqual(pipe("main", GitCommand.checkout()).command.args, ["checkout", "main"]);
+		assert.deepStrictEqual(pipe(["a.txt"], GitCommand.rm(true)).command.args, ["rm", "--cached", "--", "a.txt"]);
+		assert.deepStrictEqual(GitCommand.rm(["a.txt"]).command.args, ["rm", "--", "a.txt"]);
+		assert.deepStrictEqual(pipe("msg", GitCommand.commit(true)).command.args, ["commit", "--all", "-m", "msg"]);
 	});
 });

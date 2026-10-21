@@ -72,6 +72,7 @@ import {
 } from "@beep/repo-cli/test/Yeet";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { fcRuns } from "@beep/test-utils";
+import { currentHostPlatform, HostProcessPlatform } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
@@ -212,7 +213,7 @@ it.layer(Layer.mergeAll(PlatformLayer, SchedulerCommandLayer), { concurrent: fal
 
         identity.pipe(O.isSome, assertTrue);
         if (O.isSome(identity)) {
-          expect(Str.startsWith(process.platform === "win32" ? "win:" : "ps:")(identity.value)).toBe(true);
+          expect(Str.startsWith((yield* HostProcessPlatform) === "win32" ? "win:" : "ps:")(identity.value)).toBe(true);
           expect(
             yield* processIdentityStatus({ pid: process.pid, procStart: identity.value }).pipe(
               Effect.provideService(FileSystem.FileSystem, withoutProcfs)
@@ -220,7 +221,7 @@ it.layer(Layer.mergeAll(PlatformLayer, SchedulerCommandLayer), { concurrent: fal
           ).toBe("alive");
         }
         (yield* processStartIdentityForPid(DEAD_PID)).pipe(assertNone);
-      })
+      }).pipe(Effect.provideService(HostProcessPlatform, currentHostPlatform))
     );
 
     it.effect("classifies a recorded identity as unknown when the current process start is unreadable", () =>
@@ -2341,9 +2342,9 @@ it.layer(Layer.mergeAll(PlatformLayer, SchedulerCommandLayer), { concurrent: fal
             const systemGeneration = yield* fs
               .readFileString(systemLockPath)
               .pipe(Effect.flatMap(decodeJournalLockGeneration));
-            expect(Str.startsWith(process.platform === "win32" ? "win:" : "ps:")(systemGeneration.procStart)).toBe(
-              true
-            );
+            expect(
+              Str.startsWith((yield* HostProcessPlatform) === "win32" ? "win:" : "ps:")(systemGeneration.procStart)
+            ).toBe(true);
             expect(yield* acquireJournalFileLock(systemLockPath, `${process.pid}:proc-contender`, 1)).toBe(false);
             expect(Str.includes(systemOwner)(yield* fs.readFileString(systemLockPath))).toBe(true);
             yield* releaseAdmissionJournalLockForTesting(systemLockPath, systemOwner);
@@ -2364,6 +2365,7 @@ it.layer(Layer.mergeAll(PlatformLayer, SchedulerCommandLayer), { concurrent: fal
             expect(Str.includes(procOwner)(yield* fs.readFileString(procLockPath))).toBe(true);
             yield* releaseAdmissionJournalLockForTesting(procLockPath, procOwner);
           }).pipe(
+            Effect.provideService(HostProcessPlatform, currentHostPlatform),
             provideRuntimeRootForTesting(RuntimeRootChoice.make({ kind: "test-override", root: runtimeDir })),
             Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ BEEP_RUN_SCOPES: "0" })),
             Effect.provideService(MemoryStats, memoryStats(gibRef))
@@ -2745,17 +2747,12 @@ it.layer(Layer.mergeAll(PlatformLayer, SchedulerCommandLayer), { concurrent: fal
                 Str.startsWith("/proc/")(target) ? Effect.succeed("") : fs.readFileString(target, encoding)
               ),
             });
-            const platform = Object.getOwnPropertyDescriptor(process, "platform");
-            Object.defineProperty(process, "platform", { configurable: true, value: "win32" });
-            try {
-              expect(
-                yield* acquireJournalFileLock(unavailableLockPath, `${process.pid}:unavailable`, 1).pipe(
-                  Effect.provideService(FileSystem.FileSystem, unavailableFileSystem)
-                )
-              ).toBe(false);
-            } finally {
-              Object.defineProperty(process, "platform", platform ?? { configurable: true, value: "linux" });
-            }
+            expect(
+              yield* acquireJournalFileLock(unavailableLockPath, `${process.pid}:unavailable`, 1).pipe(
+                Effect.provideService(FileSystem.FileSystem, unavailableFileSystem),
+                Effect.provideService(HostProcessPlatform, "win32")
+              )
+            ).toBe(false);
 
             const unavailableAdopterPath = path.join(tempRoot.root, "unavailable-adopter-identity.lock");
             const unavailableAdopterToken = `${DEAD_PID}:unavailable-adopter-generation`;
@@ -2771,19 +2768,15 @@ it.layer(Layer.mergeAll(PlatformLayer, SchedulerCommandLayer), { concurrent: fal
                 return readCount === 1 ? yield* fs.readFileString(target, encoding) : Str.empty;
               }),
             });
-            Object.defineProperty(process, "platform", { configurable: true, value: "win32" });
-            try {
-              expect(
-                yield* withProcessPath(
-                  Str.empty,
-                  acquireJournalFileLock(unavailableAdopterPath, `${process.pid}:adopter-unavailable`, 1).pipe(
-                    Effect.provideService(FileSystem.FileSystem, unavailableAdopterFileSystem)
-                  )
+            expect(
+              yield* withProcessPath(
+                Str.empty,
+                acquireJournalFileLock(unavailableAdopterPath, `${process.pid}:adopter-unavailable`, 1).pipe(
+                  Effect.provideService(FileSystem.FileSystem, unavailableAdopterFileSystem),
+                  Effect.provideService(HostProcessPlatform, "win32")
                 )
-              ).toBe(false);
-            } finally {
-              Object.defineProperty(process, "platform", platform ?? { configurable: true, value: "linux" });
-            }
+              )
+            ).toBe(false);
             expect(yield* fs.readFileString(unavailableAdopterPath)).toBe(unavailableAdopterToken);
 
             const vanishedLockPath = path.join(tempRoot.root, "vanished-contention.lock");

@@ -30,9 +30,9 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/layerRoot");
  * @since 0.0.0
  */
 export const LayerRootOptions = S.Struct({
-	cwd: S.optionalKey(S.String).annotateKey($I.annote("LayerRootOptions.cwd", { description: "The starting directory, with ambient cwd read only on use when omitted." })),
-	stopAt: S.optional(S.String).annotateKey($I.annote("LayerRootOptions.stopAt", { description: "The inclusive root-search boundary, accepting absence or explicit undefined." })),
-}).annotate($I.annote("LayerRootOptions", { description: "Plain shared root options with an unresolved ambient cwd default." }));
+	cwd: S.optionalKey(S.String).pipe($I.annoteKey("LayerRootOptions.cwd", { description: "The starting directory, with ambient cwd read only on use when omitted." })),
+	stopAt: S.optional(S.String).pipe($I.annoteKey("LayerRootOptions.stopAt", { description: "The inclusive root-search boundary, accepting absence or explicit undefined." })),
+}).pipe($I.annoteSchema("LayerRootOptions", { description: "Plain shared root options with an unresolved ambient cwd default." }));
 /**
  * The root lookup configuration described by {@link LayerRootOptions}.
  *
@@ -55,8 +55,9 @@ export type LayerRootOptions = typeof LayerRootOptions.Type;
  * import { findLayerRoot } from "@beep/scratchpad/effected/workspaces/internal/layerRoot";
  * import type { WorkspaceRootShape } from "@beep/scratchpad/effected/workspaces/WorkspaceRoot";
  * import * as Effect from "effect/Effect";
+ * import { dual } from "effect/Function";
  *
- * const roots: WorkspaceRootShape = { find: (cwd) => Effect.succeed(cwd) };
+ * const roots: WorkspaceRootShape = { find: dual((args) => typeof args[0] === "string", (cwd: string) => Effect.succeed(cwd)) };
  * const program = findLayerRoot(roots, { cwd: "/repo" });
  * console.log(Effect.runSync(program)); // /repo
  * ```

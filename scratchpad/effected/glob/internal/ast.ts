@@ -28,6 +28,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
+import { dual, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
@@ -57,9 +58,8 @@ const $I = $ScratchpadId.create("effected/glob/internal/ast");
  * @since 0.0.0
  */
 export class ASTError extends S.TaggedError<ASTError, { readonly brand: unique symbol }>($I`ASTError`)("ASTError", {
-	message: S.String.annotateKey({ description: "The violated invariant in the extglob syntax tree." }),
-}, $I.annote("ASTError", {
-	title: "Extglob syntax tree invariant violation",
+	message: S.String.pipe($I.annoteKey("ASTError.message", { description: "The violated invariant in the extglob syntax tree." })),
+}, $I.annoteError<ASTError>("ASTError", {
 	description: "An internal syntax-tree operation encountered an invalid extglob structure.",
 })) {}
 
@@ -120,8 +120,7 @@ export class ASTError extends S.TaggedError<ASTError, { readonly brand: unique s
  * @category schemas
  * @since 0.0.0
  */
-export const ExtglobType = LiteralKit(["!", "?", "+", "*", "@"]).annotate($I.annote("ExtglobType", {
-	title: "Extended glob operator",
+export const ExtglobType = LiteralKit(["!", "?", "+", "*", "@"]).pipe($I.annoteSchema("ExtglobType", {
 	description: "The negation, optional, one-or-more, zero-or-more and exactly-one extglob operators.",
 }));
 /**
@@ -630,9 +629,9 @@ export class AST {
 	toString(): string {
 		if (this.#toString !== undefined) return this.#toString;
 		if (this.type === null) {
-			this.#toString = this.#parts.map((p) => String(p)).join("");
+			this.#toString = pipe(this.#parts, A.map((p) => String(p)), A.join(""));
 		} else {
-			this.#toString = `${this.type}(${this.#parts.map((p) => String(p)).join("|")})`;
+			this.#toString = `${this.type}(${pipe(this.#parts, A.map((p) => String(p)), A.join("|"))})`;
 		}
 		return this.#toString;
 	}
@@ -744,8 +743,8 @@ export class AST {
 	toJSON() {
 		const ret: Array<unknown> =
 			this.type === null
-				? this.#parts.slice().map((p) => (P.isString(p) ? p : p.toJSON()))
-				: [this.type, ...this.#parts.map((p) => {
+				? A.map(this.#parts, (p) => (P.isString(p) ? p : p.toJSON()))
+				: [this.type, ...A.map(this.#parts, (p) => {
 					if (P.isString(p)) throw ASTError.make({ message: "p.toJSON is not a function" });
 					return p.toJSON();
 				})];
@@ -891,14 +890,17 @@ export class AST {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static #parseAST(
+	static readonly #parseAST: {
+		(str: string, ast: AST, pos: number, opt: EngineOptions, extDepth: number, structDepth: number): number;
+		(ast: AST, pos: number, opt: EngineOptions, extDepth: number, structDepth: number): (str: string) => number;
+	} = dual(6, (
 		str: string,
 		ast: AST,
 		pos: number,
 		opt: EngineOptions,
 		extDepth: number,
 		structDepth: number,
-	): number {
+	): number => {
 		// Structural backstop (port note 1): actual recursion depth, counted on
 		// EVERY descent, unlike extDepth which adoption resets.
 		guardDepth(structDepth);
@@ -1029,7 +1031,7 @@ export class AST {
 		ast.#hasMagic = undefined;
 		ast.#parts = [str.substring(pos - 1)];
 		return i;
-	}
+	});
 
 	/**
 	 * Checks whether a nested extglob can be flattened by adding an empty alternative.
@@ -1264,14 +1266,17 @@ export class AST {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static fromGlob(pattern: string, options: EngineOptions = {}): AST {
+	static readonly fromGlob: {
+		(pattern: string, options?: EngineOptions): AST;
+		(options?: EngineOptions): (pattern: string) => AST;
+	} = dual((args) => P.isString(args[0]), (pattern: string, options: EngineOptions = {}): AST => {
 		if (options.maxExtglobRecursion !== undefined) {
 			assertCap("maxExtglobRecursion", options.maxExtglobRecursion);
 		}
 		const ast = new AST(null, undefined, options);
 		AST.#parseAST(pattern, ast, 0, options, 0, 0);
 		return ast;
-	}
+	});
 
 	// returns the regular expression if there's magic, or the unescaped
 	// string if not.
@@ -1344,7 +1349,7 @@ export class AST {
 	 */
 	#hasRepeat(): boolean {
 		return this.type === "*" || this.type === "+" ||
-			this.#parts.some((part) => part instanceof AST && part.#hasRepeat());
+			A.some(this.#parts, (part) => part instanceof AST && part.#hasRepeat());
 	}
 
 	/**
@@ -1373,17 +1378,20 @@ export class AST {
 		// Compile once with the regexp owner. Each invocation memoizes node,
 		// offset and dot mode; repeated alternatives visit each offset once.
 		type Memo = MutableHashMap.MutableHashMap<string, ReadonlyArray<number>>;
-		type Step = (candidate: string, start: number, allowDot: boolean, memo: Memo) => ReadonlyArray<number>;
+		type Step = {
+			(candidate: string, start: number, allowDot: boolean, memo: Memo): ReadonlyArray<number>;
+			(start: number, allowDot: boolean, memo: Memo): (candidate: string) => ReadonlyArray<number>;
+		};
 		let nextId = 0;
 		const compile = (node: AST): Step => {
 			const id = nextId++;
 			const sources = [node.toRegExpSource(), node.toRegExpSource(true)] as const;
-			const leaf = node.type === null && node.#parts.every(P.isString);
+			const leaf = node.type === null && A.every(node.#parts, P.isString);
 			const compileRegexp = ([source, , , unicode]: ReturnType<AST["toRegExpSource"]>): RegExp =>
 				new RegExp(`^(?:${source.replace(startNoTraversal, "").replace(startNoDot, "")})$`, (node.#options.nocase === true ? "i" : "") + (unicode ? "u" : ""));
 			const regexps = [compileRegexp(sources[0]), compileRegexp(sources[1])] as const;
 			const branches: Array<readonly [AST, Step]> = [];
-			const children = node.#parts.map((part): Step => {
+			const children = A.map(node.#parts, (part): Step => {
 				if (part instanceof AST) {
 					const step = compile(part);
 					branches.push([part, step]);
@@ -1391,16 +1399,16 @@ export class AST {
 				}
 				const [source, body, magic, unicode] = AST.#parseGlob(part, undefined);
 				const regexp = new RegExp(`^(?:${source})$`, (node.#options.nocase === true ? "i" : "") + (unicode ? "u" : ""));
-				return (candidate, start) => {
+				return dual(4, (candidate: string, start: number, _allowDot: boolean, _memo: Memo): ReadonlyArray<number> => {
 					if (!magic) return regexp.test(candidate.slice(start, start + body.length)) ? [start + body.length] : [];
 					const ends: Array<number> = [];
 					for (let end = start; end <= candidate.length; end++) {
 						if (regexp.test(candidate.slice(start, end))) ends.push(end);
 					}
 					return ends;
-				};
+				});
 			});
-			return (candidate, start, allowDot, memo) => {
+			return dual(4, (candidate: string, start: number, allowDot: boolean, memo: Memo): ReadonlyArray<number> => {
 				const key = `${id}:${start}:${allowDot}`;
 				const cached = MutableHashMap.get(memo, key);
 				if (O.isSome(cached)) return cached.value;
@@ -1442,14 +1450,17 @@ export class AST {
 						if (node.isEnd() && node.#parent?.type === "!") ends = HashSet.filter(ends, (end) => end === candidate.length);
 					}
 				} else {
-					const alternatives = (offset: number, dot: boolean): HashSet.HashSet<number> => {
+					const alternatives: {
+						(offset: number, dot: boolean): HashSet.HashSet<number>;
+						(dot: boolean): (offset: number) => HashSet.HashSet<number>;
+					} = dual(2, (offset: number, dot: boolean): HashSet.HashSet<number> => {
 						let result = HashSet.empty<number>();
 						for (const [part, child] of branches) {
 							if (node.isStart() && node.isEnd() && part.toRegExpSource(dot)[0] === "") continue;
 							for (const end of child(candidate, offset, dot, memo)) result = HashSet.add(result, end);
 						}
 						return result;
-					};
+					});
 					ends = alternatives(start, allowDot);
 					if (node.type === "!") {
 						const forbidden = node.#emptyExt === false && HashSet.has(ends, candidate.length);
@@ -1471,7 +1482,7 @@ export class AST {
 				const result = A.fromIterable(ends);
 				MutableHashMap.set(memo, key, result);
 				return result;
-			};
+			});
 		};
 		const step = compile(this);
 		return (candidate) => !candidate.includes("/") && step(candidate, 0, false, MutableHashMap.empty()).includes(candidate.length);
@@ -1542,16 +1553,18 @@ export class AST {
 			this.#fillNegs();
 		}
 		if (this.type === null) {
-			const noEmpty = this.isStart() && this.isEnd() && !this.#parts.some((s) => !P.isString(s));
-			const src = this.#parts
-				.map((p) => {
+			const noEmpty = this.isStart() && this.isEnd() && A.every(this.#parts, P.isString);
+			const src = pipe(
+				this.#parts,
+				A.map((p) => {
 					const [re, _, hasMagic, uflag] =
 						P.isString(p) ? AST.#parseGlob(p, this.#hasMagic, noEmpty) : p.toRegExpSource(allowDot, depth + 1);
 					this.#hasMagic = this.#hasMagic || hasMagic;
 					this.#uflag = this.#uflag || uflag;
 					return re;
-				})
-				.join("");
+				}),
+				A.join(""),
+			);
 
 			let start = "";
 			if (this.isStart()) {
@@ -1732,8 +1745,9 @@ export class AST {
 	 * @since 0.0.0
 	 */
 	#partsToRegExp(dot: boolean, depth: number) {
-		return this.#parts
-			.map((p) => {
+		return pipe(
+			this.#parts,
+			A.map((p) => {
 				// extglob ASTs should only contain parent ASTs
 				if (P.isString(p)) {
 					throw ASTError.make({ message: "string type in extglob ast??" });
@@ -1742,9 +1756,10 @@ export class AST {
 				const [re, _, _hasMagic, uflag] = p.toRegExpSource(dot, depth + 1);
 				this.#uflag = this.#uflag || uflag;
 				return re;
-			})
-			.filter((p) => !(this.isStart() && this.isEnd()) || p !== "")
-			.join("|");
+			}),
+			A.filter((p) => !(this.isStart() && this.isEnd()) || p !== ""),
+			A.join("|"),
+		);
 	}
 
 	/**
@@ -1768,11 +1783,14 @@ export class AST {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static #parseGlob(
+	static readonly #parseGlob: {
+		(glob: string, hasMagicInput: boolean | undefined, noEmpty?: boolean): [re: string, body: string, hasMagic: boolean, uflag: boolean];
+		(hasMagicInput: boolean | undefined, noEmpty?: boolean): (glob: string) => [re: string, body: string, hasMagic: boolean, uflag: boolean];
+	} = dual((args) => P.isString(args[0]), (
 		glob: string,
 		hasMagicInput: boolean | undefined,
-		noEmpty = false,
-	): [re: string, body: string, hasMagic: boolean, uflag: boolean] {
+		noEmpty: boolean = false,
+	): [re: string, body: string, hasMagic: boolean, uflag: boolean] => {
 		let hasMagic = hasMagicInput;
 		let escaping = false;
 		let re = "";
@@ -1820,5 +1838,5 @@ export class AST {
 			re += regExpEscape(c);
 		}
 		return [re, unescapePattern(glob), hasMagic === true, uflag];
-	}
+	});
 }

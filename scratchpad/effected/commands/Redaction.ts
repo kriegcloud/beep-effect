@@ -1,4 +1,5 @@
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Order from "effect/Order";
 import * as Redacted from "effect/Redacted";
@@ -78,42 +79,62 @@ const prepare = (secrets: ReadonlyArray<Redacted.Redacted<string>>): ReadonlyArr
 	);
 
 /** Replaces each prepared value with {@link REDACTED}, literally (never as a pattern). */
-const replaceAll = (text: string, values: ReadonlyArray<string>): string => {
+const replaceAll: {
+	(text: string, values: ReadonlyArray<string>): string;
+	(values: ReadonlyArray<string>): (text: string) => string;
+} = dual(2, (text: string, values: ReadonlyArray<string>): string => {
 	let out = text;
 	for (const value of values) {
 		// split/join is a literal replace on both sides: no regex compilation of
 		// the needle, and no `$&`-style expansion of the replacement.
-		out = out.split(value).join(REDACTED);
+		out = A.join(out.split(value), REDACTED);
 	}
 	return out;
-};
+});
 
 // Implementation of Redaction.apply; the public contract lives on the static.
-const apply = (text: string, secrets: ReadonlyArray<Redacted.Redacted<string>>): string =>
-	secrets.length === 0 ? text : replaceAll(text, prepare(secrets));
+const apply: {
+	(text: string, secrets: ReadonlyArray<Redacted.Redacted<string>>): string;
+	(secrets: ReadonlyArray<Redacted.Redacted<string>>): (text: string) => string;
+} = dual(
+	2,
+	(text: string, secrets: ReadonlyArray<Redacted.Redacted<string>>): string =>
+		secrets.length === 0 ? text : replaceAll(text, prepare(secrets)),
+);
 
 // Implementation of Redaction.applyArgs; the public contract lives on the static.
-const applyArgs = (
-	args: ReadonlyArray<string>,
-	secrets: ReadonlyArray<Redacted.Redacted<string>>,
-): ReadonlyArray<string> => {
-	if (secrets.length === 0) return args;
-	const values = prepare(secrets);
-	return args.map((arg) => replaceAll(arg, values));
-};
+const applyArgs: {
+	(args: ReadonlyArray<string>, secrets: ReadonlyArray<Redacted.Redacted<string>>): ReadonlyArray<string>;
+	(secrets: ReadonlyArray<Redacted.Redacted<string>>): (args: ReadonlyArray<string>) => ReadonlyArray<string>;
+} = dual(
+	2,
+	(args: ReadonlyArray<string>, secrets: ReadonlyArray<Redacted.Redacted<string>>): ReadonlyArray<string> => {
+		if (secrets.length === 0) return args;
+		return A.map(args, replaceAll(prepare(secrets)));
+	},
+);
 
 /** Whether `name` introduces a credential value. */
-const isSecretName = (name: string, extra: HashSet.HashSet<string>): boolean => {
+const isSecretName: {
+	(name: string, extra: HashSet.HashSet<string>): boolean;
+	(extra: HashSet.HashSet<string>): (name: string) => boolean;
+} = dual(2, (name: string, extra: HashSet.HashSet<string>): boolean => {
 	const lower = name.toLowerCase();
 	return HashSet.has(SECRET_FLAGS, lower) || HashSet.has(extra, lower) || AUTH_KEY.test(name);
-};
+});
 
 // Implementation of Redaction.scrubArgs; the public contract lives on the static.
-const scrubArgs = (
+const scrubArgs: {
+	(
+		args: ReadonlyArray<string>,
+		options?: { readonly flags?: ReadonlyArray<string> | undefined },
+	): ReadonlyArray<string>;
+	(options?: { readonly flags?: ReadonlyArray<string> | undefined }): (args: ReadonlyArray<string>) => ReadonlyArray<string>;
+} = dual((args) => A.isArray(args[0]), (
 	args: ReadonlyArray<string>,
 	options?: { readonly flags?: ReadonlyArray<string> | undefined },
 ): ReadonlyArray<string> => {
-	const extra = HashSet.fromIterable((options?.flags ?? []).map((flag) => flag.toLowerCase()));
+	const extra = HashSet.fromIterable(A.map(options?.flags ?? [], (flag) => flag.toLowerCase()));
 	const out: Array<string> = [];
 	for (let index = 0; index < args.length; index++) {
 		const arg = args[index] ?? "";
@@ -131,7 +152,7 @@ const scrubArgs = (
 		}
 	}
 	return out;
-};
+});
 
 /**
  * Secret scrubbing for command arguments and captured output.

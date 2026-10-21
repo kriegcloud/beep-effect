@@ -39,17 +39,17 @@ export class Organization extends S.Class<Organization, { readonly brand: unique
 	 *
 	 * @since 0.0.0
 	 */
-	"@type": S.tag("Organization").annotateKey({ description: "The JSON-LD type discriminator, populated automatically." }),
+	"@type": S.tag("Organization").pipe($I.annoteKey("Organization.@type", { description: "The JSON-LD type discriminator, populated automatically." })),
 	/**
 	 * The organization's registered legal name. Single-valued.
 	 *
 	 * @since 0.0.0
 	 */
-	legalName: S.optional(S.String).annotateKey({ description: "The organization's registered legal name. Single-valued." }),
+	legalName: S.optionalKey(S.String).pipe($I.annoteKey("Organization.legalName", { description: "The organization's registered legal name. Single-valued." })),
 	/**
 	 * A URL for the organization's logo. Single-valued.
 	 *
 	 * @since 0.0.0
 	 */
-	logo: S.optional(S.String).annotateKey({ description: "A URL for the organization's logo. Single-valued." }),
+	logo: S.optionalKey(S.String).pipe($I.annoteKey("Organization.logo", { description: "A URL for the organization's logo. Single-valued." })),
 }, $I.annote("Organization", { description: "A schema.org `Organization` — a company, project or team that authors or publishes a work." })) {}

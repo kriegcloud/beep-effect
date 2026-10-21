@@ -16,17 +16,15 @@ import type { CompilerOptions } from "./CompilerOptions.ts";
 
 const $I = $ScratchpadId.create("effected/tsconfig-json/JsxConfig");
 
-const JsxRuntime = LiteralKit(["automatic", "classic"]).annotate(
-	$I.annote("JsxRuntime", { description: "The automatic or classic JSX transform runtime." }),
-);
+const JsxRuntime = LiteralKit(["automatic", "classic"]).pipe($I.annoteSchema("JsxRuntime", { description: "The automatic or classic JSX transform runtime." }));
 
 const JsxVariants = JsxRuntime.toTaggedUnion("runtime")({
 	automatic: {
 		/** The automatic runtime's import source (`jsxImportSource`, defaulted to `"react"`). */
-		importSource: S.String.annotateKey({ description: "The automatic runtime's required import source." }),
+		importSource: S.String.pipe($I.annoteKey("JsxConfig.automatic.importSource", { description: "The automatic runtime's required import source." })),
 	},
 	classic: {},
-}).annotate($I.annote("JsxConfig", {
+}).pipe($I.annoteSchema("JsxConfig", {
 	description: "The JSX transform configuration, with a required import source only for the automatic runtime.",
 }));
 

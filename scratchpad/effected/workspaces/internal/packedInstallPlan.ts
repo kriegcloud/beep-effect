@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { dual, flow, identity } from "effect/Function";
+import { dual, flow, identity, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -22,22 +22,16 @@ import { RUNTIME_DEPENDENCY_FIELDS } from "./dependencyFields.ts";
 
 const $I = $ScratchpadId.create("effected/workspaces/internal/packedInstallPlan");
 
-const JsonValue = S.fromJsonString(S.Unknown).annotate(
-	$I.annote("JsonValue", { description: "A JSON value inspected with tolerant packed-manifest checks." }),
-);
-const JsonString = S.fromJsonString(S.String).annotate(
-	$I.annote("JsonString", { description: "A JSON-quoted YAML scalar retaining its exact string value." }),
-);
-const ConsumerDocument = S.fromJsonString(S.JsonObject, { space: 2 }).annotate(
-	$I.annote("ConsumerDocument", { description: "The formatted JSON object written as the consumer package.json." }),
-);
+const JsonValue = S.fromJsonString(S.Unknown).pipe($I.annoteSchema("JsonValue", { description: "A JSON value inspected with tolerant packed-manifest checks." }));
+const JsonString = S.fromJsonString(S.String).pipe($I.annoteSchema("JsonString", { description: "A JSON-quoted YAML scalar retaining its exact string value." }));
+const ConsumerDocument = S.fromJsonString(S.JsonObject, { space: 2 }).pipe($I.annoteSchema("ConsumerDocument", { description: "The formatted JSON object written as the consumer package.json." }));
 const decodeJson = S.decodeResult(JsonValue);
 const quote = flow(S.encodeResult(JsonString), Result.getOrThrowWith(identity));
 const encodeConsumerDocument = flow(S.encodeResult(ConsumerDocument), Result.getOrThrowWith(identity));
 
 class PackedManifestError extends S.TaggedError<PackedManifestError, { readonly brand: unique symbol }>($I`PackedManifestError`)("PackedManifestError", {
 	message: S.String,
-}, $I.annote("PackedManifestError", { description: "A packed package.json is not an object." })) {}
+}, $I.annoteError<PackedManifestError>("PackedManifestError", { description: "A packed package.json is not an object." })) {}
 
 /** Variables that carry the PARENT run's context into a child package manager. */
 const TRAPS = MutableHashSet.make("CI", "INIT_CWD", "NODE_V8_COVERAGE", "PNPM_SCRIPT_SRC_DIR", "PNPM_PACKAGE_NAME");
@@ -139,14 +133,14 @@ export const closureOf: {
 	carrier: string,
 	closure: ReadonlyArray<string> | "auto",
 ): Result.Result<ReadonlyArray<WorkspacePackage>, string> => {
-	const byName = MutableHashMap.fromIterable(packages.map((pkg) => [pkg.name, pkg] as const));
+	const byName = MutableHashMap.fromIterable(A.map(packages, (pkg) => [pkg.name, pkg] as const));
 	const root = O.getOrUndefined(MutableHashMap.get(byName, carrier));
 	if (root === undefined) return Result.fail(carrier);
 	if (closure !== "auto") {
-		const unknown = closure.find((name) => !MutableHashMap.has(byName, name));
-		if (unknown !== undefined) return Result.fail(unknown);
-		const rest = A.dedupe(closure).filter((name) => name !== carrier);
-		return Result.succeed([root, ...rest.flatMap((name) => O.toArray(MutableHashMap.get(byName, name)))]);
+		const unknown = A.findFirst(closure, (name) => !MutableHashMap.has(byName, name));
+		if (O.isSome(unknown)) return Result.fail(unknown.value);
+		const rest = A.filter(A.dedupe(closure), (name) => name !== carrier);
+		return Result.succeed([root, ...A.flatMap(rest, (name) => O.toArray(MutableHashMap.get(byName, name)))]);
 	}
 	const ordered: Array<WorkspacePackage> = [root];
 	const seen = MutableHashSet.make(carrier);
@@ -181,14 +175,14 @@ export const closureOf: {
  * @since 0.0.0
  */
 export const ConsumerInput = S.Struct({
-	manager: PackageManagerName.annotateKey($I.annote("manager", { description: "The consumer package manager." })),
+	manager: PackageManagerName.pipe($I.annoteKey("ConsumerInput.manager", { description: "The consumer package manager." })),
 	/** The version `--version` reported, pinned so the consumer runs the manager that was probed. */
-	version: S.String.annotateKey($I.annote("version", { description: "The probed package manager version to pin." })),
-	carrier: S.Struct({ name: S.String, tarball: S.String }).annotateKey($I.annote("carrier", { description: "The carrier package to install directly." })),
+	version: S.String.pipe($I.annoteKey("ConsumerInput.version", { description: "The probed package manager version to pin." })),
+	carrier: S.Struct({ name: S.String, tarball: S.String }).pipe($I.annoteKey("ConsumerInput.carrier", { description: "The carrier package to install directly." })),
 	/** Every packed package except the carrier: name to absolute tarball path. */
-	overrides: S.Record(S.String, S.String).annotateKey($I.annote("overrides", { description: "External replacements keyed by package name." })),
-	dependencies: S.Record(S.String, S.String).annotateKey($I.annote("dependencies", { description: "Additional consumer dependency specifiers." })),
-}).annotate($I.annote("ConsumerInput", { description: "Package manager, packed carrier and dependency inputs for a scratch consumer." }));
+	overrides: S.Record(S.String, S.String).pipe($I.annoteKey("ConsumerInput.overrides", { description: "External replacements keyed by package name." })),
+	dependencies: S.Record(S.String, S.String).pipe($I.annoteKey("ConsumerInput.dependencies", { description: "Additional consumer dependency specifiers." })),
+}).pipe($I.annoteSchema("ConsumerInput", { description: "Package manager, packed carrier and dependency inputs for a scratch consumer." }));
 
 /**
  * Supplies the package manager, packed carrier, replacements, and dependencies for a scratch consumer.
@@ -225,7 +219,7 @@ const pnpmWorkspaceYaml = (specs: Readonly<Record<string, string>>): string => {
 	const entries = R.toEntries(specs);
 	return entries.length === 0
 		? "minimumReleaseAge: 0\noverrides: {}\n"
-		: `minimumReleaseAge: 0\noverrides:\n${entries.map(([name, spec]) => `  ${quote(name)}: ${quote(spec)}`).join("\n")}\n`;
+		: `minimumReleaseAge: 0\noverrides:\n${pipe(entries, A.map(([name, spec]) => `  ${quote(name)}: ${quote(spec)}`), A.join("\n"))}\n`;
 };
 
 /**
@@ -268,12 +262,10 @@ const pnpmWorkspaceYaml = (specs: Readonly<Record<string, string>>): string => {
 export const consumerFiles = (
 	input: ConsumerInput,
 ): ReadonlyArray<{ readonly file: string; readonly content: string }> => {
-	const specs = R.fromEntries(R.toEntries(input.overrides).map(([name, tarball]) => [name, `file:${tarball}`] as const));
+	const specs = R.fromEntries(A.map(R.toEntries(input.overrides), ([name, tarball]) => [name, `file:${tarball}`] as const));
 	const carrierSpec = `file:${input.carrier.tarball}`;
 	const extra = R.fromEntries(
-		R.toEntries(input.dependencies)
-			.filter(([name]) => name !== input.carrier.name)
-			.map(([name, spec]) => [name, O.getOrElse(R.get(specs, name), () => spec)] as const),
+		pipe(R.toEntries(input.dependencies), A.filter(([name]) => name !== input.carrier.name), A.map(([name, spec]) => [name, O.getOrElse(R.get(specs, name), () => spec)] as const)),
 	);
 	const manifest = {
 		name: `packed-install-${input.manager}`,
@@ -352,15 +344,15 @@ const UNRESOLVABLE = /^(?:workspace:|catalog:|link:|file:(?!\/))/;
  */
 export const PackedManifest = S.Struct({
 	/** Its `name`, when that is a string. */
-	name: S.UndefinedOr(S.String).annotateKey($I.annote("name", { description: "The packed package name, or explicit undefined." })),
+	name: S.UndefinedOr(S.String).pipe($I.annoteKey("PackedManifest.name", { description: "The packed package name, or explicit undefined." })),
 	/** Every runtime specifier only the workspace could resolve (see `UNRESOLVABLE`), as `field.name: spec`. */
-	unresolved: S.Array(S.String).annotateKey($I.annote("unresolved", { description: "Runtime specifiers requiring workspace resolution." })),
+	unresolved: S.Array(S.String).pipe($I.annoteKey("PackedManifest.unresolved", { description: "Runtime specifiers requiring workspace resolution." })),
 	/**
 	 * The bin names it declares: the keys of a `bin` object, or for a `bin`
 	 * string the package name without its scope, as npm links it.
 	 */
-	bins: S.Array(S.String).annotateKey($I.annote("bins", { description: "Declared executable names." })),
-}).annotate($I.annote("PackedManifest", { description: "Tolerant packed manifest facts used to check runtime specifiers and bins." }));
+	bins: S.Array(S.String).pipe($I.annoteKey("PackedManifest.bins", { description: "Declared executable names." })),
+}).pipe($I.annoteSchema("PackedManifest", { description: "Tolerant packed manifest facts used to check runtime specifiers and bins." }));
 
 /**
  * Retains the package name, executable names, and unresolved runtime specifiers from a packed manifest.
@@ -395,12 +387,10 @@ export const readPackedManifest = (manifestJson: string): Result.Result<PackedMa
 		return Result.fail(PackedManifestError.make({ message: "package.json is not an object" }));
 	const record = manifest;
 	const name = P.isString(record.name) ? record.name : undefined;
-	const unresolved = RUNTIME_DEPENDENCY_FIELDS.flatMap((field) => {
+	const unresolved = A.flatMap(RUNTIME_DEPENDENCY_FIELDS, (field) => {
 		const block = record[field];
 		if (!P.isObjectOrArray(block)) return [];
-		return R.toEntries({ ...block })
-			.filter(([, spec]) => P.isString(spec) && UNRESOLVABLE.test(spec))
-			.map(([dependency, spec]) => `${field}.${dependency}: ${String(spec)}`);
+		return pipe(R.toEntries({ ...block }), A.filter(([, spec]) => P.isString(spec) && UNRESOLVABLE.test(spec)), A.map(([dependency, spec]) => `${field}.${dependency}: ${String(spec)}`));
 	});
 	const bin = record.bin;
 	const bins =
@@ -501,8 +491,8 @@ export const binConflict: {
 	others: ReadonlyArray<{ readonly name: string; readonly bins: ReadonlyArray<string> }>,
 ): { readonly bin: string; readonly package: string } | undefined => {
 	for (const bin of carrier.bins) {
-		const other = others.find((pkg) => pkg.name !== carrier.name && pkg.bins.includes(bin));
-		if (other !== undefined) return { bin, package: other.name };
+		const other = A.findFirst(others, (pkg) => pkg.name !== carrier.name && pkg.bins.includes(bin));
+		if (O.isSome(other)) return { bin, package: other.value.name };
 	}
 	return undefined;
 });
@@ -551,9 +541,8 @@ export const fileOverridesOf = (document: unknown): Record<string, string> => {
 			order.push(name);
 		}
 	}
-	return R.fromEntries(A.getSomes(order.map((name) =>
-		O.map(HashMap.get(out, name), (spec) => [name, spec] as const),
-	)));
+	return R.fromEntries(A.getSomes(A.map(order, (name) =>
+		O.map(HashMap.get(out, name), (spec) => [name, spec] as const))));
 };
 
 /**

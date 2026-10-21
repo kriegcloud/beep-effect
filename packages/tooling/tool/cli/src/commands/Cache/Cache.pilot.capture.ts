@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import { Buffer } from "node:buffer";
-import { zstdDecompressSync } from "node:zlib";
+import * as NodeBuffer from "node:buffer";
+import * as NodeZlib from "node:zlib";
 import { $RepoCliId } from "@beep/identity/packages";
 import { Sha256HexFromBytes } from "@beep/schema";
 import * as A from "effect/Array";
@@ -68,13 +68,13 @@ export const inspectCacheSignedPilotArchive = Effect.fn("CachePilot.inspectSigne
   if (archive.byteLength === 0 || archive.byteLength > 1024 * 1024)
     return yield* CacheCommandError.new("Signed pilot archive exceeds its compressed bound.");
   const bytes = yield* Effect.try({
-    try: () => zstdDecompressSync(archive, { maxOutputLength: 128 * 1024 }),
+    try: () => NodeZlib.zstdDecompressSync(archive, { maxOutputLength: 128 * 1024 }),
     catch: () => CacheCommandError.new("Signed pilot archive decompression failed or exceeded its bound."),
   });
   if (bytes.byteLength < 1536)
     return yield* CacheCommandError.new("Signed pilot archive lacks its complete tar framing.");
   const header = yield* Effect.try({
-    try: () => new Header(Buffer.from(bytes.subarray(0, 512))),
+    try: () => new Header(NodeBuffer.Buffer.from(bytes.subarray(0, 512))),
     catch: () => CacheCommandError.new("Signed pilot archive header is invalid."),
   });
   if (!isArchiveLogHeader(header))

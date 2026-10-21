@@ -35,6 +35,9 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { capture } from "./Process.ts";
 import type { RunnerConfig } from "./Paths.ts";
+import type { CommandFailed } from "./Audit.errors.ts";
+import type { ChildProcessSpawner } from "effect/process/ChildProcessSpawner";
+import type { PlatformError } from "effect/PlatformError";
 
 /**
  * Repo-relative path of the ledger file.
@@ -146,14 +149,17 @@ export const readLedger = Effect.fn("Ledger.read")(function* (config: RunnerConf
  * @category commands
  * @since 0.0.0
  */
-export const writeLedger = Effect.fn("Ledger.write")(function* (config: RunnerConfig, ledger: Ledger) {
+export const writeLedger: {
+  (config: RunnerConfig, ledger: Ledger): Effect.Effect<void, LedgerInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+  (ledger: Ledger): (config: RunnerConfig) => Effect.Effect<void, LedgerInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Ledger.write")(function* (config: RunnerConfig, ledger: Ledger) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const text = yield* encodeLedger(ledger).pipe(
     Effect.mapError((issue) => LedgerInvalid.make({ path: LEDGER_PATH, detail: String(issue) }))
   );
   yield* fs.writeFileString(path.join(config.repoRoot, LEDGER_PATH), `${text}\n`);
-});
+}));
 
 /**
  * Creates the ledger with one pending row per catalog module, recording the
@@ -173,7 +179,10 @@ export const writeLedger = Effect.fn("Ledger.write")(function* (config: RunnerCo
  * @category commands
  * @since 0.0.0
  */
-export const initLedger = Effect.fn("Ledger.init")(function* (config: RunnerConfig, effectedCommit: string) {
+export const initLedger: {
+  (config: RunnerConfig, effectedCommit: string): Effect.Effect<Ledger, LedgerInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+  (effectedCommit: string): (config: RunnerConfig) => Effect.Effect<Ledger, LedgerInvalid | PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Ledger.init")(function* (config: RunnerConfig, effectedCommit: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const file = path.join(config.repoRoot, LEDGER_PATH);
@@ -190,7 +199,7 @@ export const initLedger = Effect.fn("Ledger.init")(function* (config: RunnerConf
   });
   yield* writeLedger(config, ledger);
   return ledger;
-});
+}));
 
 /**
  * The row for a module, or {@link LedgerRowMissing}.
@@ -223,8 +232,11 @@ export const findRow: {
     )
 );
 
-const replaceRow = (ledger: Ledger, row: LedgerRow): Ledger =>
-  Ledger.make({ ...ledger, rows: A.map(ledger.rows, (existing) => (existing.module === row.module ? row : existing)) });
+const replaceRow: {
+  (ledger: Ledger, row: LedgerRow): Ledger;
+  (row: LedgerRow): (ledger: Ledger) => Ledger;
+} = dual(2, (ledger: Ledger, row: LedgerRow): Ledger =>
+  Ledger.make({ ...ledger, rows: A.map(ledger.rows, (existing) => (existing.module === row.module ? row : existing)) }));
 
 /**
  * Reads the ledger, applies `update` to one row, writes the result, and
@@ -247,7 +259,10 @@ const replaceRow = (ledger: Ledger, row: LedgerRow): Ledger =>
  * @category commands
  * @since 0.0.0
  */
-export const updateRow = Effect.fn("Ledger.updateRow")(function* <E, R>(
+export const updateRow: {
+  <E, R>(config: RunnerConfig, module: ModuleName, update: (row: LedgerRow, ledger: Ledger) => Effect.Effect<LedgerRow, E, R>): Effect.Effect<LedgerRow, PlatformError | LedgerInvalid | LedgerMissing | LedgerRowMissing | E, FileSystem.FileSystem | Path.Path | R>;
+  <E, R>(module: ModuleName, update: (row: LedgerRow, ledger: Ledger) => Effect.Effect<LedgerRow, E, R>): (config: RunnerConfig) => Effect.Effect<LedgerRow, PlatformError | LedgerInvalid | LedgerMissing | LedgerRowMissing | E, FileSystem.FileSystem | Path.Path | R>;
+} = dual(3, Effect.fn("Ledger.updateRow")(function* <E, R>(
   config: RunnerConfig,
   module: ModuleName,
   update: (row: LedgerRow, ledger: Ledger) => Effect.Effect<LedgerRow, E, R>
@@ -257,7 +272,7 @@ export const updateRow = Effect.fn("Ledger.updateRow")(function* <E, R>(
   const next = yield* update(row, ledger);
   yield* writeLedger(config, replaceRow(ledger, next));
   return next;
-});
+}));
 
 const escapeRegex = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -279,7 +294,10 @@ const escapeRegex = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g
  * @category queries
  * @since 0.0.0
  */
-export const findStageCommit = Effect.fn("Ledger.findStageCommit")(function* (
+export const findStageCommit: {
+  (repoRoot: string, module: ModuleName, stage: Stage): Effect.Effect<O.Option<string>, PlatformError | CommandFailed, ChildProcessSpawner>;
+  (module: ModuleName, stage: Stage): (repoRoot: string) => Effect.Effect<O.Option<string>, PlatformError | CommandFailed, ChildProcessSpawner>;
+} = dual(3, Effect.fn("Ledger.findStageCommit")(function* (
   repoRoot: string,
   module: ModuleName,
   stage: Stage
@@ -300,7 +318,7 @@ export const findStageCommit = Effect.fn("Ledger.findStageCommit")(function* (
     cwd: repoRoot,
   });
   return sha.length === 0 ? O.none<string>() : O.some(sha);
-});
+}));
 
 /**
  * Fills every `sha: null` stage commit of a row that git can now resolve.
@@ -325,7 +343,10 @@ export const findStageCommit = Effect.fn("Ledger.findStageCommit")(function* (
  * @category commands
  * @since 0.0.0
  */
-export const backfillCommits = Effect.fn("Ledger.backfillCommits")(function* (repoRoot: string, row: LedgerRow) {
+export const backfillCommits: {
+  (repoRoot: string, row: LedgerRow): Effect.Effect<LedgerRow, PlatformError | CommandFailed, ChildProcessSpawner>;
+  (row: LedgerRow): (repoRoot: string) => Effect.Effect<LedgerRow, PlatformError | CommandFailed, ChildProcessSpawner>;
+} = dual(2, Effect.fn("Ledger.backfillCommits")(function* (repoRoot: string, row: LedgerRow) {
   const commits = yield* Effect.forEach(row.commits, (commit) =>
     commit.sha === null
       ? Effect.map(findStageCommit(repoRoot, row.module, commit.stage), (sha) =>
@@ -334,7 +355,7 @@ export const backfillCommits = Effect.fn("Ledger.backfillCommits")(function* (re
       : Effect.succeed(commit)
   );
   return LedgerRow.make({ ...row, commits });
-});
+}));
 
 /**
  * Moves a row to `stage`: one step forward records a pending commit for the
@@ -355,7 +376,10 @@ export const backfillCommits = Effect.fn("Ledger.backfillCommits")(function* (re
  * @category commands
  * @since 0.0.0
  */
-export const setStage = Effect.fn("Ledger.setStage")(function* (
+export const setStage: {
+  (config: RunnerConfig, module: ModuleName, stage: Stage, note: string): Effect.Effect<LedgerRow, LedgerInvalid | PlatformError | LedgerMissing | LedgerRowMissing | CommandFailed | LedgerStageSkip, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+  (module: ModuleName, stage: Stage, note: string): (config: RunnerConfig) => Effect.Effect<LedgerRow, LedgerInvalid | PlatformError | LedgerMissing | LedgerRowMissing | CommandFailed | LedgerStageSkip, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+} = dual(4, Effect.fn("Ledger.setStage")(function* (
   config: RunnerConfig,
   module: ModuleName,
   stage: Stage,
@@ -398,7 +422,7 @@ export const setStage = Effect.fn("Ledger.setStage")(function* (
   });
   yield* writeLedger(config, Ledger.make({ ...ledger, lastCheckpoint: checkpoint }));
   return updated;
-});
+}));
 
 /**
  * Marks a row blocked at its current stage with a reason and open findings.
@@ -417,7 +441,10 @@ export const setStage = Effect.fn("Ledger.setStage")(function* (
  * @category commands
  * @since 0.0.0
  */
-export const blockRow = Effect.fn("Ledger.blockRow")(function* (
+export const blockRow: {
+  (config: RunnerConfig, module: ModuleName, reason: string, findings: ReadonlyArray<string>): Effect.Effect<LedgerRow, LedgerInvalid | PlatformError | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, reason: string, findings: ReadonlyArray<string>): (config: RunnerConfig) => Effect.Effect<LedgerRow, LedgerInvalid | PlatformError | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+} = dual(4, Effect.fn("Ledger.blockRow")(function* (
   config: RunnerConfig,
   module: ModuleName,
   reason: string,
@@ -432,7 +459,7 @@ export const blockRow = Effect.fn("Ledger.blockRow")(function* (
       })
     )
   );
-});
+}));
 
 /**
  * Appends a timestamped note to a row.
@@ -451,12 +478,15 @@ export const blockRow = Effect.fn("Ledger.blockRow")(function* (
  * @category commands
  * @since 0.0.0
  */
-export const noteRow = Effect.fn("Ledger.noteRow")(function* (config: RunnerConfig, module: ModuleName, note: string) {
+export const noteRow: {
+  (config: RunnerConfig, module: ModuleName, note: string): Effect.Effect<LedgerRow, LedgerInvalid | PlatformError | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, note: string): (config: RunnerConfig) => Effect.Effect<LedgerRow, LedgerInvalid | PlatformError | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+} = dual(3, Effect.fn("Ledger.noteRow")(function* (config: RunnerConfig, module: ModuleName, note: string) {
   const at = yield* nowIso;
   return yield* updateRow(config, module, (row) =>
     Effect.succeed(LedgerRow.make({ ...row, notes: [...row.notes, `${at} ${note}`] }))
   );
-});
+}));
 
 /**
  * The rows that are not done, in ledger order.
@@ -493,8 +523,8 @@ const $I = $ScratchpadId.create("effected/runner/LedgerStore");
  * @category schemas
  * @since 0.0.0
  */
-export const AppendField = LiteralKit(["deviations", "backlog", "reviewRounds", "exportsAdded"]).annotate(
-  $I.annote("AppendField", { description: "A ledger row field that accumulates records." })
+export const AppendField = LiteralKit(["deviations", "backlog", "reviewRounds", "exportsAdded"]).pipe(
+  $I.annoteSchema("AppendField", { description: "A ledger row field that accumulates records." })
 );
 
 /**
@@ -529,7 +559,10 @@ const decodeExports = S.decodeUnknownEffect(S.fromJsonString(S.Array(ExportEntry
  * @category commands
  * @since 0.0.0
  */
-export const appendToRow = Effect.fn("Ledger.appendToRow")(function* (
+export const appendToRow: {
+  (config: RunnerConfig, module: ModuleName, payload: { readonly field: AppendField; readonly json: string }): Effect.Effect<LedgerRow, LedgerInvalid | PlatformError | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, payload: { readonly field: AppendField; readonly json: string }): (config: RunnerConfig) => Effect.Effect<LedgerRow, LedgerInvalid | PlatformError | LedgerMissing | LedgerRowMissing, FileSystem.FileSystem | Path.Path>;
+} = dual(3, Effect.fn("Ledger.appendToRow")(function* (
   config: RunnerConfig,
   module: ModuleName,
   payload: { readonly field: AppendField; readonly json: string }
@@ -561,4 +594,4 @@ export const appendToRow = Effect.fn("Ledger.appendToRow")(function* (
         ),
     })
   );
-});
+}));

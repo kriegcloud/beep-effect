@@ -1339,13 +1339,16 @@ const failWithRerunGuidance = Effect.fn("Yeet.failWithRerunGuidance")(function* 
 });
 
 const threadDescriptors = (threads: O.Option<ReadonlyArray<YeetStatusReviewThread>>): ReadonlyArray<string> =>
-  O.match(threads, {
-    onNone: A.empty<string>,
-    onSome: A.map(
-      (thread) =>
-        `${thread.threadId}${O.match(thread.path, { onNone: () => Str.empty, onSome: (path) => ` (${path})` })}`
+  O.getOrElse(
+    O.map(
+      threads,
+      A.map(
+        (thread) =>
+          `${thread.threadId}${O.match(thread.path, { onNone: () => Str.empty, onSome: (path) => ` (${path})` })}`
+      )
     ),
-  });
+    A.empty<string>
+  );
 
 // The gate is the COUNTS, not the id list: a snapshot can report a thread
 // count it has no triage rows for (a legacy artifact, a listing that decoded

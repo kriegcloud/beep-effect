@@ -1,7 +1,7 @@
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Order from "effect/Order";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { GlobSet } from "../glob/index.ts";
 import { DependencyField } from "../npm/index.ts";
@@ -38,11 +38,11 @@ const $I = $ScratchpadId.create("effected/workspaces/WorkspaceLayering");
  */
 export class LayerEdge extends S.Class<LayerEdge, { readonly brand: unique symbol }>($I`LayerEdge`)({
 	/** The dependent package. */
-	from: S.String.annotateKey({ description: "The dependent package." }),
+	from: S.String.pipe($I.annoteKey("LayerEdge.from", { description: "The dependent package." })),
 	/** The package depended on. */
-	to: S.String.annotateKey({ description: "The package depended on." }),
+	to: S.String.pipe($I.annoteKey("LayerEdge.to", { description: "The package depended on." })),
 	/** The manifest map that declares it. */
-	field: DependencyField.annotateKey({ description: "The manifest map that declares it." }),
+	field: DependencyField.pipe($I.annoteKey("LayerEdge.field", { description: "The manifest map that declares it." })),
 }, $I.annote("LayerEdge", { description: "One dependency edge between two workspace packages, in one field." })) {
 	/**
 	 * Renders the dependent, dependency and declaring field as `from -> to (field)`.
@@ -83,10 +83,10 @@ import * as P from "effect/Predicate";
  */
 export const LayeringGraph = S.Struct({
 	/** Every workspace package name, the root included. */
-	names: S.Array(S.String).annotateKey($I.annote("names", { description: "Workspace package names in input order, including the root." })),
+	names: S.Array(S.String).pipe($I.annoteKey("LayeringGraph.names", { description: "Workspace package names in input order, including the root." })),
 	/** One edge per declaring field. */
-	edges: S.Array(LayerEdge).annotateKey($I.annote("edges", { description: "Dependency edges in input order, one per declaring field." })),
-}).annotate($I.annote("LayeringGraph", { description: "The plain-object input package names and dependency edges for a layering check." }));
+	edges: S.Array(LayerEdge).pipe($I.annoteKey("LayeringGraph.edges", { description: "Dependency edges in input order, one per declaring field." })),
+}).pipe($I.annoteSchema("LayeringGraph", { description: "The plain-object input package names and dependency edges for a layering check." }));
 
 /** The readonly graph input described by {@link LayeringGraph}.
  * @category type-level
@@ -119,24 +119,24 @@ type OffenceReason = typeof OffenceReason.Type;
  */
 export class LayeringReport extends S.Class<LayeringReport, { readonly brand: unique symbol }>($I`LayeringReport`)({
 	/** Packages the policy declares more than once, or declares and also matches with an unconstrained glob. */
-	duplicates: S.Array(S.String).annotateKey({ description: "Packages the policy declares more than once, or declares and also matches with an unconstrained glob." }),
+	duplicates: S.Array(S.String).pipe($I.annoteKey("LayeringReport.duplicates", { description: "Packages the policy declares more than once, or declares and also matches with an unconstrained glob." })),
 	/** Workspace packages the policy does not classify. */
-	unclassified: S.Array(S.String).annotateKey({ description: "Workspace packages the policy does not classify." }),
+	unclassified: S.Array(S.String).pipe($I.annoteKey("LayeringReport.unclassified", { description: "Workspace packages the policy does not classify." })),
 	/** Edges that break the policy, each with why. */
 	offenders: S.Array(
 		S.Struct({
 			edge: LayerEdge,
 			reason: OffenceReason,
 		}),
-	).annotateKey({ description: "Edges that break the policy, each with why." }),
+	).pipe($I.annoteKey("LayeringReport.offenders", { description: "Edges that break the policy, each with why." })),
 	/** The members of every dependency cycle in the checked fields, or none. */
-	cycle: S.String.pipe(S.Array, S.Option).annotateKey({ description: "The members of every dependency cycle in the checked fields, or none." }),
+	cycle: S.String.pipe(S.Array, S.Option, $I.annoteKey("LayeringReport.cycle", { description: "The members of every dependency cycle in the checked fields, or none." })),
 	/** Packages the policy names that the workspace does not contain. */
-	missingDeclared: S.Array(S.String).annotateKey({ description: "Packages the policy names that the workspace does not contain." }),
+	missingDeclared: S.Array(S.String).pipe($I.annoteKey("LayeringReport.missingDeclared", { description: "Packages the policy names that the workspace does not contain." })),
 	/** Required edges absent from the checked fields. */
-	missingRequiredEdges: S.Array(S.String).annotateKey({ description: "Required edges absent from the checked fields." }),
+	missingRequiredEdges: S.Array(S.String).pipe($I.annoteKey("LayeringReport.missingRequiredEdges", { description: "Required edges absent from the checked fields." })),
 	/** Edges in the checked fields; `0` is itself a violation. */
-	edgeCount: S.Finite.annotateKey({ description: "Edges in the checked fields; `0` is itself a violation." }),
+	edgeCount: S.Finite.pipe($I.annoteKey("LayeringReport.edgeCount", { description: "Edges in the checked fields; `0` is itself a violation." })),
 }, $I.annote("LayeringReport", { description: "What a layering check found." })) {
 	/**
 	 * One line per violation: `[]` means the graph honours the policy and the check was not vacuous.
@@ -159,46 +159,50 @@ export class LayeringReport extends S.Class<LayeringReport, { readonly brand: un
 	 */
 	get violations(): ReadonlyArray<string> {
 		return [
-			...this.duplicates.map((name) => `classified more than once: ${name}`),
-			...this.unclassified.map((name) => `not classified by the policy: ${name}`),
-			...this.offenders.map(({ edge, reason }) => `${reason}: ${edge.label}`),
+			...A.map(this.duplicates, (name) => `classified more than once: ${name}`),
+			...A.map(this.unclassified, (name) => `not classified by the policy: ${name}`),
+			...A.map(this.offenders, ({ edge, reason }) => `${reason}: ${edge.label}`),
 			...O.match(this.cycle, {
 				onNone: () => [],
-				onSome: (members) => [`dependency cycle among: ${members.join(", ")}`],
+				onSome: (members) => [`dependency cycle among: ${A.join(members, ", ")}`],
 			}),
-			...this.missingDeclared.map((name) => `declared but not in the workspace: ${name}`),
-			...this.missingRequiredEdges.map((edge) => `required edge missing: ${edge}`),
+			...A.map(this.missingDeclared, (name) => `declared but not in the workspace: ${name}`),
+			...A.map(this.missingRequiredEdges, (edge) => `required edge missing: ${edge}`),
 			...(this.edgeCount === 0 ? ["no workspace edges in the checked fields: the check is vacuous"] : []),
 		];
 	}
 }
 
-const PlaceKind = LiteralKit(["layer", "tooling", "unconstrained", "unclassified"]).annotate(
-	$I.annote("PlaceKind", { description: "A package classification under a layering policy." }),
-);
+const PlaceKind = LiteralKit(["layer", "tooling", "unconstrained", "unclassified"]).pipe($I.annoteSchema("PlaceKind", { description: "A package classification under a layering policy." }));
 const Place = PlaceKind.toTaggedUnion("kind")({
-	layer: { index: S.declare(P.isNumber).annotateKey($I.annote("index", { description: "The declared layer index." })) },
+	layer: { index: S.declare(P.isNumber).pipe($I.annoteKey("Place.layer.index", { description: "The declared layer index." })) },
 	tooling: {},
 	unconstrained: {},
 	unclassified: {},
-}).annotate($I.annote("Place", { description: "A plain-object policy classification retaining its kind discriminator." }));
+}).pipe($I.annoteSchema("Place", { description: "A plain-object policy classification retaining its kind discriminator." }));
 type Place = typeof Place.Type;
 
-const offence = (from: Place, to: Place): OffenceReason | undefined => {
+const offence: {
+	(from: Place, to: Place): OffenceReason | undefined;
+	(to: Place): (from: Place) => OffenceReason | undefined;
+} = dual(2, (from: Place, to: Place): OffenceReason | undefined => {
 	if (from.kind === "unconstrained" || from.kind === "unclassified") return undefined;
 	if (to.kind === "unconstrained") return "intoUnconstrained";
 	if (to.kind === "unclassified") return "intoUnclassified";
 	if (from.kind === "tooling") return to.kind === "layer" ? "toolingReachesLayer" : undefined;
 	if (to.kind === "tooling") return undefined;
 	return to.index > from.index ? undefined : to.index === from.index ? "sameLayer" : "upward";
-};
+});
 
 /** The sorted members of every strongly connected component larger than one (cf. `DependencyGraph.ts` `cycleMembers`). */
-const cycleOf = (
+const cycleOf: {
+	(names: ReadonlyArray<string>, edges: ReadonlyArray<LayerEdge>): O.Option<ReadonlyArray<string>>;
+	(edges: ReadonlyArray<LayerEdge>): (names: ReadonlyArray<string>) => O.Option<ReadonlyArray<string>>;
+} = dual(2, (
 	names: ReadonlyArray<string>,
 	edges: ReadonlyArray<LayerEdge>,
 ): O.Option<ReadonlyArray<string>> => {
-	const sorted = A.sort(A.fromIterable(MutableHashSet.fromIterable([...names, ...edges.flatMap((e) => [e.from, e.to])])), Order.String);
+	const sorted = A.sort(A.fromIterable(MutableHashSet.fromIterable([...names, ...A.flatMap(edges, (e) => [e.from, e.to])])), Order.String);
 	const graph = Graph.directed<string, string>((mutable) => {
 		const index = MutableHashMap.empty<string, Graph.NodeIndex>();
 		for (const name of sorted) MutableHashMap.set(index, name, Graph.addNode(mutable, name));
@@ -216,7 +220,7 @@ const cycleOf = (
 		}
 	}
 	return MutableHashSet.size(members) === 0 ? O.none() : O.some(A.sort(A.fromIterable(members), Order.String));
-};
+});
 
 /**
  * Holds a workspace's package graph to a committed {@link LayerPolicy}.
@@ -272,16 +276,19 @@ export abstract class WorkspaceLayering {
 	 * @category validation
 	 * @since 0.0.0
 	 */
-	static readonly check = (graph: LayeringGraph, policy: LayerPolicy): LayeringReport => {
+	static readonly check: {
+		(graph: LayeringGraph, policy: LayerPolicy): LayeringReport;
+		(policy: LayerPolicy): (graph: LayeringGraph) => LayeringReport;
+	} = dual(2, (graph: LayeringGraph, policy: LayerPolicy): LayeringReport => {
 		const fields = MutableHashSet.fromIterable<DependencyField>(policy.effectiveFields);
-		const edges = graph.edges.filter((e) => MutableHashSet.has(fields, e.field));
+		const edges = A.filter(graph.edges, (e) => MutableHashSet.has(fields, e.field));
 		const unconstrained = GlobSet.make({ patterns: policy.unconstrained });
 		const layerOf = MutableHashMap.empty<string, number>();
 		const declared = MutableHashMap.empty<string, number>();
 		const count = (name: string): void => {
 			MutableHashMap.set(declared, name, O.getOrElse(MutableHashMap.get(declared, name), () => 0) + 1);
 		};
-		policy.layers.forEach((members, index) => {
+		A.forEach(policy.layers, (members, index) => {
 			for (const name of members) {
 				count(name);
 				if (!MutableHashMap.has(layerOf, name)) MutableHashMap.set(layerOf, name, index);
@@ -301,7 +308,7 @@ export abstract class WorkspaceLayering {
 			if (reason !== undefined) offenders.push({ edge: e, reason });
 		}
 		const names = MutableHashSet.fromIterable(graph.names);
-		const present = MutableHashSet.fromIterable(edges.map((e) => `${e.from} -> ${e.to}`));
+		const present = MutableHashSet.fromIterable(A.map(edges, (e) => `${e.from} -> ${e.to}`));
 		return LayeringReport.make({
 			duplicates: pipe(
 				A.fromIterable(declared),
@@ -318,10 +325,10 @@ export abstract class WorkspaceLayering {
 				A.filter((name) => !MutableHashSet.has(names, name)),
 				A.sort(Order.String),
 			),
-			missingRequiredEdges: (policy.requiredEdges ?? []).filter((required) => !MutableHashSet.has(present, required)),
+			missingRequiredEdges: A.filter((policy.requiredEdges ?? []), (required) => !MutableHashSet.has(present, required)),
 			edgeCount: edges.length,
 		});
-	};
+	});
 
 	/**
 	 * One edge per declaring field between workspace packages; self-edges dropped.
@@ -348,15 +355,13 @@ export abstract class WorkspaceLayering {
 	 * @since 0.0.0
 	 */
 	static readonly edgesOf = (packages: ReadonlyArray<WorkspacePackage>): ReadonlyArray<LayerEdge> => {
-		const names = MutableHashSet.fromIterable(packages.map((pkg) => pkg.name));
-		return packages.flatMap((pkg) =>
-			ALL_DEPENDENCY_FIELDS.flatMap((field) =>
+		const names = MutableHashSet.fromIterable(A.map(packages, (pkg) => pkg.name));
+		return A.flatMap(packages, (pkg) =>
+			A.flatMap(ALL_DEPENDENCY_FIELDS, (field) =>
 				A.map(
 					A.sort(A.filter(R.keys(pkg[field]), (name) => MutableHashSet.has(names, name) && name !== pkg.name), Order.String),
 					(to) => LayerEdge.make({ from: pkg.name, to, field }),
-				),
-			),
-		);
+				)));
 	};
 
 	/**
@@ -381,7 +386,7 @@ export abstract class WorkspaceLayering {
 		const discovery = yield* WorkspaceDiscovery;
 		const packages = yield* discovery.listPackages;
 		return WorkspaceLayering.check(
-			{ names: packages.map((pkg) => pkg.name), edges: WorkspaceLayering.edgesOf(packages) },
+			{ names: A.map(packages, (pkg) => pkg.name), edges: WorkspaceLayering.edgesOf(packages) },
 			policy,
 		);
 	});

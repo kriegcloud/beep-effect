@@ -7,7 +7,7 @@ import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "@beep/utils/Option";
 import * as Path from "effect/Path";
 import type * as PlatformError from "effect/PlatformError";
@@ -80,8 +80,8 @@ const JsonValue = S.fromJsonString(S.Unknown);
  */
 export const PackSource = S.Union([
 	S.Literal("source"),
-	S.Struct({ directory: S.String.annotateKey({ description: "The publish-ready subdirectory to pack." }) }),
-]).annotate($I.annote("PackSource", { description: "Pack from source or a publish-ready package subdirectory." }));
+	S.Struct({ directory: S.String.pipe($I.annoteKey("PackSource.directory", { description: "The publish-ready subdirectory to pack." })) }),
+]).pipe($I.annoteSchema("PackSource", { description: "Pack from source or a publish-ready package subdirectory." }));
 
 /**
  * Selects a workspace source directory or publish-ready package subdirectory for packing.
@@ -122,7 +122,7 @@ export const PackedInstallClosureOptions = S.Struct({
 	 * `optionalDependencies`, `peerDependencies`). `PackedInstall.closure`
 	 * defaults it to `"auto"`.
 	 */
-	closure: S.optional(S.Union([S.Array(S.String), S.Literal("auto")])).annotateKey($I.annote("closure", { description: "Other packages to pack, or automatic runtime dependency closure." })),
+	closure: S.optionalKey(S.Union([S.Array(S.String), S.Literal("auto")])).pipe($I.annoteKey("PackedInstallClosureOptions.closure", { description: "Other packages to pack, or automatic runtime dependency closure." })),
 	/**
   * Packages from outside the workspace that replace registry resolution in
   * every scratch consumer: package name to a local package directory or a
@@ -147,7 +147,7 @@ export const PackedInstallClosureOptions = S.Struct({
   * `package.json` nor a `.tgz` file, or a manifest named otherwise fails
   * `InvalidOverride`. Entries here win over `workspaceOverrides` ones.
   */
-	overrides: S.optional(S.Record(S.String, S.String)).annotateKey($I.annote("overrides", { description: "External replacements keyed by package name." })),
+	overrides: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PackedInstallClosureOptions.overrides", { description: "External replacements keyed by package name." })),
 	/**
 	 * Also read the workspace root's `pnpm-workspace.yaml` and take every
 	 * `overrides:` entry of the link shape `"@scope/name": "file:<dir>"` as if
@@ -157,8 +157,8 @@ export const PackedInstallClosureOptions = S.Struct({
 	 * no readable `pnpm-workspace.yaml`, or one that is not YAML, fails
 	 * `InvalidOverride`.
 	 */
-	workspaceOverrides: S.optional(S.Boolean).annotateKey($I.annote("workspaceOverrides", { description: "Whether to read file overrides from the workspace configuration." })),
-}).annotate($I.annote("PackedInstallClosureOptions", { description: "The workspace closure and external replacements a packed proof uses." }));
+	workspaceOverrides: S.optionalKey(S.Boolean).pipe($I.annoteKey("PackedInstallClosureOptions.workspaceOverrides", { description: "Whether to read file overrides from the workspace configuration." })),
+}).pipe($I.annoteSchema("PackedInstallClosureOptions", { description: "The workspace closure and external replacements a packed proof uses." }));
 
 /**
  * Specifies the workspace closure and external package replacements included in a packed proof.
@@ -312,18 +312,18 @@ export class PackedInstallError extends S.TaggedError<PackedInstallError, { read
 		"UnownedBin",
 		"Discovery",
 		"Io",
-	]).annotateKey({ description: "What failed." }),
+	]).pipe($I.annoteKey("PackedInstallError.reason", { description: "What failed." })),
 	/** One line, naming the package or manager involved. */
-	message: S.String.annotateKey({ description: "One line, naming the package or manager involved." }),
+	message: S.String.pipe($I.annoteKey("PackedInstallError.message", { description: "One line, naming the package or manager involved." })),
 	/** The package manager involved. */
-	manager: S.optionalKey(PackageManagerName).annotateKey({ description: "The package manager involved." }),
+	manager: S.optionalKey(PackageManagerName).pipe($I.annoteKey("PackedInstallError.manager", { description: "The package manager involved." })),
 	/** The workspace package involved. */
-	package: S.optionalKey(S.String).annotateKey({ description: "The workspace package involved." }),
+	package: S.optionalKey(S.String).pipe($I.annoteKey("PackedInstallError.package", { description: "The workspace package involved." })),
 	/** The tail of the failing command's output. */
-	output: S.optionalKey(S.String).annotateKey({ description: "The tail of the failing command's output." }),
+	output: S.optionalKey(S.String).pipe($I.annoteKey("PackedInstallError.output", { description: "The tail of the failing command's output." })),
 	/** The originating failure. */
-	cause: S.optionalKey(S.Defect({ includeStack: true })).annotateKey({ description: "The originating failure." }),
-}, $I.annote("PackedInstallError", { description: "Why a packed install could not be proven." })) {}
+	cause: S.optionalKey(S.Defect({ includeStack: true })).pipe($I.annoteKey("PackedInstallError.cause", { description: "The originating failure." })),
+}, $I.annoteError<PackedInstallError>("PackedInstallError", { description: "Why a packed install could not be proven." })) {}
 
 /**
  * Options for {@link InstalledConsumer.command}: how the bin's environment
@@ -351,10 +351,10 @@ export const BinCommandOptions = S.Struct({
 	 * manager's context is stripped, so an explicit entry always wins: pass
 	 * `CI: "true"` to run a bin as if under CI.
 	 */
-	env: S.optional(S.Record(S.String, S.UndefinedOr(S.String))).annotateKey($I.annote("env", { description: "Explicit environment entries; undefined removes a variable." })),
+	env: S.optionalKey(S.Record(S.String, S.UndefinedOr(S.String))).pipe($I.annoteKey("BinCommandOptions.env", { description: "Explicit environment entries; undefined removes a variable." })),
 	/** The working directory. Defaults to the consumer's `directory`. */
-	cwd: S.optional(S.String).annotateKey($I.annote("cwd", { description: "Optional working directory, resolved lazily." })),
-}).annotate($I.annote("BinCommandOptions", { description: "Environment entries and working directory layered onto an installed bin command." }));
+	cwd: S.optionalKey(S.String).pipe($I.annoteKey("BinCommandOptions.cwd", { description: "Optional working directory, resolved lazily." })),
+}).pipe($I.annoteSchema("BinCommandOptions", { description: "Environment entries and working directory layered onto an installed bin command." }));
 
 /**
  * Supplies the environment and working directory for an installed executable.
@@ -427,10 +427,10 @@ const isNotALink = (error: PlatformError.PlatformError): boolean =>
  */
 export const BinProvenance = S.Struct({
 	/** The `name` from the nearest `package.json` above the link's target. */
-	package: S.String.annotateKey($I.annote("package", { description: "The name of the installed package owning the bin." })),
+	package: S.String.pipe($I.annoteKey("BinProvenance.package", { description: "The name of the installed package owning the bin." })),
 	/** The link's target, realpath'd. */
-	target: S.String.annotateKey($I.annote("target", { description: "The resolved bin link target." })),
-}).annotate($I.annote("BinProvenance", { description: "The installed package owning a bin and its resolved link target." }));
+	target: S.String.pipe($I.annoteKey("BinProvenance.target", { description: "The resolved bin link target." })),
+}).pipe($I.annoteSchema("BinProvenance", { description: "The installed package owning a bin and its resolved link target." }));
 
 /**
  * Identifies the installed package that owns an executable and its resolved link target.
@@ -463,23 +463,23 @@ export type BinProvenance = typeof BinProvenance.Type;
  */
 export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly brand: unique symbol }>($I`InstalledConsumer`)({
 	/** The package manager that installed it. */
-	manager: PackageManagerName.annotateKey({ description: "The package manager that installed it." }),
+	manager: PackageManagerName.pipe($I.annoteKey("InstalledConsumer.manager", { description: "The package manager that installed it." })),
 	/** The version it reported and was pinned to. */
-	managerVersion: S.String.annotateKey({ description: "The version it reported and was pinned to." }),
+	managerVersion: S.String.pipe($I.annoteKey("InstalledConsumer.managerVersion", { description: "The version it reported and was pinned to." })),
 	/** The consumer project directory (realpath'd). */
-	directory: S.String.annotateKey({ description: "The consumer project directory (realpath'd)." }),
+	directory: S.String.pipe($I.annoteKey("InstalledConsumer.directory", { description: "The consumer project directory (realpath'd)." })),
 	/**
 	 * The scrubbed environment the install ran under, which {@link InstalledConsumer.runBin}
 	 * starts from. Redacted, so printing a consumer never prints a token.
 	 * `PackedInstall.run` always sets it; a hand-made consumer without it runs
 	 * its bins under only `RunBinOptions.env`.
 	 */
-	env: S.Record(S.String, S.String).pipe(S.Redacted, S.optionalKey).annotateKey({ description: "The scrubbed environment the install ran under, which InstalledConsumer.runBin starts from. Redacted, so printing a consumer never prints a token. `PackedInstall.run` always sets it; a hand-made consumer without it runs its bins under only `RunBinOptions.env`." }),
+	env: S.Record(S.String, S.String).pipe(S.Redacted, S.optionalKey, $I.annoteKey("InstalledConsumer.env", { description: "The scrubbed environment the install ran under, which InstalledConsumer.runBin starts from. Redacted, so printing a consumer never prints a token. `PackedInstall.run` always sets it; a hand-made consumer without it runs its bins under only `RunBinOptions.env`." })),
 	/**
 	 * The carrier the consumer depends on, which {@link InstalledConsumer.carrierCommand}
 	 * resolves bins through. `PackedInstall.run` always sets it.
 	 */
-	carrier: S.optionalKey(S.String).annotateKey({ description: "The carrier the consumer depends on, which InstalledConsumer.carrierCommand resolves bins through. `PackedInstall.run` always sets it." }),
+	carrier: S.optionalKey(S.String).pipe($I.annoteKey("InstalledConsumer.carrier", { description: "The carrier the consumer depends on, which InstalledConsumer.carrierCommand resolves bins through. `PackedInstall.run` always sets it." })),
 }, $I.annote("InstalledConsumer", { description: "One scratch project, outside the workspace, with the carrier installed." })) {
 	/**
 	 * The installed bin `name`, in `node_modules/.bin`. POSIX: `PackedInstall` runs only there.
@@ -772,20 +772,23 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
 	> {
 		const manager = this.manager;
 		return this.carrierCommand(name, args, options).pipe(
-			Effect.flatMap((command) => collectBin(command, manager, name, options)),
+			Effect.flatMap(collectBin(manager, name, options)),
 		);
 	}
 }
 
 /** The install's scrubbed environment with the caller's entries layered on after the scrub: a deliberate CI=true must survive it. */
-const layeredEnv = (consumer: InstalledConsumer, options: BinCommandOptions): Record<string, string> => {
+const layeredEnv: {
+	(consumer: InstalledConsumer, options: BinCommandOptions): Record<string, string>;
+	(options: BinCommandOptions): (consumer: InstalledConsumer) => Record<string, string>;
+} = dual(2, (consumer: InstalledConsumer, options: BinCommandOptions): Record<string, string> => {
 	const env = scrubEnv(consumer.env === undefined ? {} : Redacted.value(consumer.env));
 	for (const [key, value] of R.toEntries(options.env ?? {})) {
 		if (value === undefined) delete env[key];
 		else R.assignProperty(env, key, value);
 	}
 	return env;
-};
+});
 
 /** A bin's stdin as `ChildProcess` takes it: absent or `""` is the null device (immediate end of input), anything else is written and closed. */
 const stdinOf = (stdin: RunBinOptions["stdin"]): ChildProcess.CommandInput => {
@@ -796,7 +799,19 @@ const stdinOf = (stdin: RunBinOptions["stdin"]): ChildProcess.CommandInput => {
 };
 
 /** Run a bin's command to completion with `options.stdin` as its input (the null device when omitted), mapping a failed spawn or an expired ceiling to `BinFailed`. */
-const collectBin = (
+const collectBin: {
+	(
+		command: ChildProcess.StandardCommand,
+		manager: PackageManagerName,
+		name: string,
+		options: RunBinOptions,
+	): Effect.Effect<CommandOutput, PackedInstallError, ChildProcessSpawner.ChildProcessSpawner>;
+	(
+		manager: PackageManagerName,
+		name: string,
+		options: RunBinOptions,
+	): (command: ChildProcess.StandardCommand) => Effect.Effect<CommandOutput, PackedInstallError, ChildProcessSpawner.ChildProcessSpawner>;
+} = dual(4, (
 	command: ChildProcess.StandardCommand,
 	manager: PackageManagerName,
 	name: string,
@@ -817,7 +832,7 @@ const collectBin = (
 			),
 		),
 	);
-};
+});
 
 /**
  * What a packed install produced.
@@ -842,18 +857,18 @@ const collectBin = (
  */
 export class PackedInstallResult extends S.Class<PackedInstallResult, { readonly brand: unique symbol }>($I`PackedInstallResult`)({
 	/** One consumer per available manager, in the order requested. */
-	consumers: S.Array(InstalledConsumer).annotateKey({ description: "One consumer per available manager, in the order requested." }),
+	consumers: S.Array(InstalledConsumer).pipe($I.annoteKey("PackedInstallResult.consumers", { description: "One consumer per available manager, in the order requested." })),
 	/** The requested managers that did not answer `--version`. */
-	unavailable: S.Array(PackageManagerName).annotateKey({ description: "The requested managers that did not answer `--version`." }),
+	unavailable: S.Array(PackageManagerName).pipe($I.annoteKey("PackedInstallResult.unavailable", { description: "The requested managers that did not answer `--version`." })),
 	/** Every packed package: name to absolute tarball path. */
-	tarballs: S.Record(S.String, S.String).annotateKey({ description: "Every packed package: name to absolute tarball path." }),
+	tarballs: S.Record(S.String, S.String).pipe($I.annoteKey("PackedInstallResult.tarballs", { description: "Every packed package: name to absolute tarball path." })),
 	/**
 	 * The scratch root (realpath'd) holding the tarballs and every consumer.
 	 * It is removed when the scope that ran `PackedInstall.run` closes, so a
 	 * directory made under it, such as an `XDG_DATA_HOME` for the bins, is
 	 * cleaned up with it.
 	 */
-	scratch: S.String.annotateKey({ description: "The scratch root (realpath'd) holding the tarballs and every consumer. It is removed when the scope that ran `PackedInstall.run` closes, so a directory made under it, such as an `XDG_DATA_HOME` for the bins, is cleaned up with it." }),
+	scratch: S.String.pipe($I.annoteKey("PackedInstallResult.scratch", { description: "The scratch root (realpath'd) holding the tarballs and every consumer. It is removed when the scope that ran `PackedInstall.run` closes, so a directory made under it, such as an `XDG_DATA_HOME` for the bins, is cleaned up with it." })),
 }, $I.annote("PackedInstallResult", { description: "What a packed install produced." })) {}
 
 /**
@@ -907,10 +922,10 @@ export interface PackedInstallBudget {
 export const PackedInstallPreflightOptions = S.Struct({
 	...PackedInstallClosureOptions.fields,
 	/** The carrier, as the run's `carrier`. */
-	carrier: S.String.annotateKey($I.annote("carrier", { description: "The carrier package to install directly." })),
+	carrier: S.String.pipe($I.annoteKey("PackedInstallPreflightOptions.carrier", { description: "The carrier package to install directly." })),
 	/** Where the run packs from; defaults as the run's does, to `{ directory: "dist/prod/npm/pkg" }`. */
-	packFrom: S.optional(PackSource).annotateKey($I.annote("packFrom", { description: "Optional pack source, defaulted by the operation." })),
-}).annotate($I.annote("PackedInstallPreflightOptions", { description: "The carrier, closure and pack source checked before a packed proof." }));
+	packFrom: S.optionalKey(PackSource).pipe($I.annoteKey("PackedInstallPreflightOptions.packFrom", { description: "Optional pack source, defaulted by the operation." })),
+}).pipe($I.annoteSchema("PackedInstallPreflightOptions", { description: "The carrier, closure and pack source checked before a packed proof." }));
 
 /**
  * Selects the carrier, closure, and pack source checked before a packed proof.
@@ -939,10 +954,10 @@ export type PackedInstallPreflightOptions = typeof PackedInstallPreflightOptions
  */
 export const PackedInstallPreflight = S.Struct({
 	/** `true` when every package the run packs has its pack source in place. */
-	ready: S.Boolean.annotateKey($I.annote("ready", { description: "Whether all pack sources are present." })),
+	ready: S.Boolean.pipe($I.annoteKey("PackedInstallPreflight.ready", { description: "Whether all pack sources are present." })),
 	/** The absolute `package.json` paths that do not exist, in pack order; empty exactly when `ready`. */
-	missing: S.Array(S.String).annotateKey($I.annote("missing", { description: "Missing package manifests in pack order." })),
-}).annotate($I.annote("PackedInstallPreflight", { description: "Readiness and ordered missing manifest paths for a packed proof." }));
+	missing: S.Array(S.String).pipe($I.annoteKey("PackedInstallPreflight.missing", { description: "Missing package manifests in pack order." })),
+}).pipe($I.annoteSchema("PackedInstallPreflight", { description: "Readiness and ordered missing manifest paths for a packed proof." }));
 
 /**
  * Reports readiness and the ordered manifest paths missing from a packed proof.
@@ -952,9 +967,7 @@ export const PackedInstallPreflight = S.Struct({
  */
 export type PackedInstallPreflight = typeof PackedInstallPreflight.Type;
 
-const PackedInstallGateAction = LiteralKit(["run", "skip", "fail"]).annotate(
-	$I.annote("PackedInstallGateAction", { description: "Run a ready proof, skip locally, or fail under CI." }),
-);
+const PackedInstallGateAction = LiteralKit(["run", "skip", "fail"]).pipe($I.annoteSchema("PackedInstallGateAction", { description: "Run a ready proof, skip locally, or fail under CI." }));
 
 /**
  * What a test suite should do about a {@link PackedInstallPreflight}.
@@ -978,10 +991,10 @@ export const PackedInstallGate = S.Struct({
 	 * `"run"` when the pack source is there; `"skip"` when it is missing and
 	 * the run is not under CI; `"fail"` when it is missing under CI.
 	 */
-	action: PackedInstallGateAction.annotateKey($I.annote("action", { description: "Run, skip locally, or fail under CI." })),
+	action: PackedInstallGateAction.pipe($I.annoteKey("PackedInstallGate.action", { description: "Run, skip locally, or fail under CI." })),
 	/** Why, naming the missing paths and the build to run. Empty when `action` is `"run"`. */
-	message: S.String.annotateKey($I.annote("message", { description: "The explanation of the preflight action." })),
-}).annotate($I.annote("PackedInstallGate", { description: "The action and explanation for a packed proof preflight." }));
+	message: S.String.pipe($I.annoteKey("PackedInstallGate.message", { description: "The explanation of the preflight action." })),
+}).pipe($I.annoteSchema("PackedInstallGate", { description: "The action and explanation for a packed proof preflight." }));
 
 /**
  * Carries the run, skip, or fail decision and its preflight explanation.
@@ -1013,43 +1026,65 @@ const CLEANUP_ALLOWANCE: Duration.Input = "1 minute";
 const describeDuration = (input: Duration.Input): string =>
 	Duration.format(Duration.fromInputUnsafe(input));
 
-const failure = (
-	reason: PackedInstallError["reason"],
-	message: string,
-	extra: { manager?: PackageManagerName; package?: string; output?: string; cause?: unknown } = {},
-): PackedInstallError => PackedInstallError.make({ reason, message, ...extra });
-
-/** A package from outside the workspace that replaces registry resolution: where it is and how to get a tarball of it. */
-const ReplacementKind = LiteralKit(["directory", "tarball"]).annotate(
-	$I.annote("ReplacementKind", { description: "Whether a replacement is packed from a directory or uses an existing tarball." }),
+const failure: {
+	(
+		reason: PackedInstallError["reason"],
+		message: string,
+		extra?: { manager?: PackageManagerName; package?: string; output?: string; cause?: unknown },
+	): PackedInstallError;
+	(
+		message: string,
+		extra?: { manager?: PackageManagerName; package?: string; output?: string; cause?: unknown },
+	): (reason: PackedInstallError["reason"]) => PackedInstallError;
+} = dual(
+	(args) => S.is(PackedInstallError.fields.reason)(args[0]),
+	(
+		reason: PackedInstallError["reason"],
+		message: string,
+		extra: { manager?: PackageManagerName; package?: string; output?: string; cause?: unknown } = {},
+	): PackedInstallError => PackedInstallError.make({ reason, message, ...extra }),
 );
 
+/** A package from outside the workspace that replaces registry resolution: where it is and how to get a tarball of it. */
+const ReplacementKind = LiteralKit(["directory", "tarball"]).pipe($I.annoteSchema("ReplacementKind", { description: "Whether a replacement is packed from a directory or uses an existing tarball." }));
+
 const Replacement = S.Struct({
-	name: S.String.annotate({ description: "The package name the replacement must pack." }),
-	source: S.String.annotate({ description: "The absolute, realpath-resolved replacement source." }),
+	name: S.String.pipe($I.annoteKey("Replacement.name", { description: "The package name the replacement must pack." })),
+	source: S.String.pipe($I.annoteKey("Replacement.source", { description: "The absolute, realpath-resolved replacement source." })),
 	kind: ReplacementKind,
-}).annotate($I.annote("Replacement", { description: "An external package source replacing registry resolution." }));
+}).pipe($I.annoteSchema("Replacement", { description: "An external package source replacing registry resolution." }));
 
 type Replacement = typeof Replacement.Type;
 
 /** Everything a run packs, in the order it packs it: the carrier, the rest of the closure, then the replacements by name. */
 const ClosurePlan = S.Struct({
-	closure: S.Array(WorkspacePackage).annotate({ description: "The carrier followed by the remaining workspace closure, in pack order." }),
-	replacements: S.Array(Replacement).annotate({ description: "External replacements in package-name order, packed after the workspace closure." }),
-}).annotate($I.annote("ClosurePlan", { description: "The ordered workspace closure and external replacements a run packs." }));
+	closure: S.Array(WorkspacePackage).pipe($I.annoteKey("ClosurePlan.closure", { description: "The carrier followed by the remaining workspace closure, in pack order." })),
+	replacements: S.Array(Replacement).pipe($I.annoteKey("ClosurePlan.replacements", { description: "External replacements in package-name order, packed after the workspace closure." })),
+}).pipe($I.annoteSchema("ClosurePlan", { description: "The ordered workspace closure and external replacements a run packs." }));
 
 type ClosurePlan = typeof ClosurePlan.Type;
 
 const namesOf = (plan: ClosurePlan): ReadonlyArray<string> => [
-	...plan.closure.map((pkg) => pkg.name),
-	...plan.replacements.map((replacement) => replacement.name),
+	...A.map(plan.closure, (pkg) => pkg.name),
+	...A.map(plan.replacements, (replacement) => replacement.name),
 ];
 
 /**
  * The one implementation of "what does this run pack", behind both
  * `PackedInstall.closure` and `PackedInstall.run`, so the two cannot drift.
  */
-const planClosure = Effect.fn("planClosure")(function* (carrier: string, options: PackedInstallClosureOptions) {
+const planClosure: {
+	(
+		carrier: string,
+		options: PackedInstallClosureOptions,
+	): Effect.Effect<ClosurePlan, PackedInstallError, FileSystem.FileSystem | Path.Path | WorkspaceDiscovery>;
+	(
+		options: PackedInstallClosureOptions,
+	): (carrier: string) => Effect.Effect<ClosurePlan, PackedInstallError, FileSystem.FileSystem | Path.Path | WorkspaceDiscovery>;
+} = dual(2, Effect.fn("planClosure")(function* (
+	carrier: string,
+	options: PackedInstallClosureOptions,
+): Effect.fn.Return<ClosurePlan, PackedInstallError, FileSystem.FileSystem | Path.Path | WorkspaceDiscovery> {
 		const fs = yield* FileSystem.FileSystem;
 		const path = yield* Path.Path;
 		const discovery = yield* WorkspaceDiscovery;
@@ -1062,11 +1097,9 @@ const planClosure = Effect.fn("planClosure")(function* (carrier: string, options
 			});
 		}
 
-		const requested = R.toEntries(options.overrides ?? {}).map(
-			([name, spec]) => [name, overridePath(spec)] as const,
-		);
+		const requested = A.map(R.toEntries(options.overrides ?? {}), ([name, spec]) => [name, overridePath(spec)] as const);
 		// The root is read only when something needs it: a double that answers only listPackages still plans.
-		const needsRoot = options.workspaceOverrides === true || requested.some(([, spec]) => !path.isAbsolute(spec));
+		const needsRoot = options.workspaceOverrides === true || A.some(requested, ([, spec]) => !path.isAbsolute(spec));
 		const root = needsRoot ? (yield* discovery.info.pipe(Effect.mapError(discoveryFailed))).root : "/";
 		const wanted = MutableHashMap.empty<string, string>();
 		if (options.workspaceOverrides === true) {
@@ -1085,7 +1118,7 @@ const planClosure = Effect.fn("planClosure")(function* (carrier: string, options
 		}
 		for (const [name, spec] of requested) MutableHashMap.set(wanted, name, spec);
 
-		const packed = MutableHashSet.fromIterable(closure.success.map((pkg) => pkg.name));
+		const packed = MutableHashSet.fromIterable(A.map(closure.success, (pkg) => pkg.name));
 		const replacements: Array<Replacement> = [];
 		for (const name of pipe(wanted, MutableHashMap.keys, A.fromIterable, A.sort(Str.Order))) {
 			const invalid = (message: string, cause?: unknown) =>
@@ -1126,7 +1159,7 @@ const planClosure = Effect.fn("planClosure")(function* (carrier: string, options
 			}
 		}
 		return { closure: closure.success, replacements } satisfies ClosurePlan;
-	});
+	}));
 
 /**
  * Prove a carrier's bins reach a consumer that is not part of the workspace,
@@ -1251,13 +1284,11 @@ export class PackedInstall {
 	 * @since 0.0.0
 	 */
 	static readonly timeoutBudget = (budget: PackedInstallBudget): Duration.Duration => {
-		const perManager = [
+		const perManager = pipe([
 			PROBE_TIMEOUT,
 			budget.installTimeout ?? DEFAULT_INSTALL_TIMEOUT,
 			budget.perConsumer ?? DEFAULT_BIN_TIMEOUT,
-		]
-			.map(Duration.fromInputUnsafe)
-			.reduce((total, step) => Duration.sum(total, step), Duration.zero);
+		], A.map(Duration.fromInputUnsafe), A.reduce(Duration.zero, (total, step) => Duration.sum(total, step)));
 		const perPackage = Duration.sum(
 			Duration.fromInputUnsafe(budget.packTimeout ?? DEFAULT_PACK_TIMEOUT),
 			Duration.fromInputUnsafe(MANIFEST_TIMEOUT),
@@ -1304,11 +1335,19 @@ export class PackedInstall {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly closure = (
+	static readonly closure: {
+		(
+			carrier: string,
+			options?: PackedInstallClosureOptions,
+		): Effect.Effect<ReadonlyArray<string>, PackedInstallError, WorkspaceDiscovery | FileSystem.FileSystem | Path.Path>;
+		(
+			options?: PackedInstallClosureOptions,
+		): (carrier: string) => Effect.Effect<ReadonlyArray<string>, PackedInstallError, WorkspaceDiscovery | FileSystem.FileSystem | Path.Path>;
+	} = dual((args) => P.isString(args[0]), (
 		carrier: string,
 		options: PackedInstallClosureOptions = {},
 	): Effect.Effect<ReadonlyArray<string>, PackedInstallError, WorkspaceDiscovery | FileSystem.FileSystem | Path.Path> =>
-		planClosure(carrier, options).pipe(Effect.map(namesOf), Effect.withSpan("PackedInstall.closure"));
+		planClosure(carrier, options).pipe(Effect.map(namesOf), Effect.withSpan("PackedInstall.closure")));
 
 	/**
 	 * {@link PackedInstall.timeoutBudget} for exactly the run `options`
@@ -1351,7 +1390,15 @@ export class PackedInstall {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly timeoutBudgetFor = (
+	static readonly timeoutBudgetFor: {
+		(
+			options: PackedInstallOptions,
+			extra?: { readonly perConsumer?: Duration.Input | undefined },
+		): Effect.Effect<Duration.Duration, PackedInstallError, WorkspaceDiscovery | FileSystem.FileSystem | Path.Path>;
+		(
+			extra?: { readonly perConsumer?: Duration.Input | undefined },
+		): (options: PackedInstallOptions) => Effect.Effect<Duration.Duration, PackedInstallError, WorkspaceDiscovery | FileSystem.FileSystem | Path.Path>;
+	} = dual((args) => P.hasProperty(args[0], "carrier"), (
 		options: PackedInstallOptions,
 		extra: { readonly perConsumer?: Duration.Input | undefined } = {},
 	): Effect.Effect<Duration.Duration, PackedInstallError, WorkspaceDiscovery | FileSystem.FileSystem | Path.Path> =>
@@ -1365,7 +1412,7 @@ export class PackedInstall {
 					...O.getSomesStruct({ perConsumer: O.fromUndefinedOr(extra.perConsumer) }),
 				}),
 			),
-		);
+		));
 
 	/**
 	 * Whether the pack source {@link PackedInstall.run} would read is on disk,
@@ -1466,7 +1513,7 @@ export class PackedInstall {
 			if (preflight.ready) return { action: "run", message: "" } satisfies PackedInstallGate;
 			const ci = yield* Config.option(Config.String("CI")).pipe(Effect.orElseSucceed(O.none<string>));
 			const underCi = O.isSome(ci) && !["", "0", "false"].includes(ci.value.toLowerCase());
-			const message = `the pack source is missing: ${preflight.missing.join(", ")}; run the prod build (build:prod) before the packed-install tests`;
+			const message = `the pack source is missing: ${A.join(preflight.missing, ", ")}; run the prod build (build:prod) before the packed-install tests`;
 			return (
 				underCi
 					? { action: "fail", message: `${message}; it must not be skipped under CI` }
@@ -1515,8 +1562,11 @@ export class PackedInstall {
 		}
 		const env = scrubEnv(options.env);
 		const io = (message: string) => (cause: unknown) => failure("Io", message, { cause });
-		const command = (executable: string, args: ReadonlyArray<string>, cwd: string) =>
-			ChildProcess.make(executable, args, { cwd, env, extendEnv: false, stdin: "ignore" });
+		const command: {
+			(executable: string, args: ReadonlyArray<string>, cwd: string): ChildProcess.StandardCommand;
+			(args: ReadonlyArray<string>, cwd: string): (executable: string) => ChildProcess.StandardCommand;
+		} = dual(3, (executable: string, args: ReadonlyArray<string>, cwd: string): ChildProcess.StandardCommand =>
+			ChildProcess.make(executable, args, { cwd, env, extendEnv: false, stdin: "ignore" }));
 
 		const scratch = yield* fs.makeTempDirectoryScoped({ prefix: "effected-packed-install-" }).pipe(
 			Effect.flatMap((directory) => fs.realPath(directory)),
@@ -1530,10 +1580,10 @@ export class PackedInstall {
 				Effect.map((version) => ({ manager, version })),
 			),
 		);
-		const available = probes.flatMap(({ manager, version }) => (version === undefined ? [] : [{ manager, version }]));
-		const unavailable = probes.flatMap(({ manager, version }) => (version === undefined ? [manager] : []));
+		const available = A.flatMap(probes, ({ manager, version }) => (version === undefined ? [] : [{ manager, version }]));
+		const unavailable = A.flatMap(probes, ({ manager, version }) => (version === undefined ? [manager] : []));
 		if (available.length === 0) {
-			return yield* failure("NoManagerAvailable", `none of ${managers.join(", ")} answered --version from ${scratch}`);
+			return yield* failure("NoManagerAvailable", `none of ${A.join(managers, ", ")} answered --version from ${scratch}`);
 		}
 		const missing = unavailable[0];
 		if (options.require === "all" && missing !== undefined) {
@@ -1547,7 +1597,24 @@ export class PackedInstall {
 		const source = options.packFrom ?? DEFAULT_PACK_FROM;
 		const packTimeout = options.packTimeout ?? DEFAULT_PACK_TIMEOUT;
 		/** `npm pack` or `pnpm pack` in `cwd` into an empty `destination`; the one tarball it wrote. */
-		const pack = Effect.fn("pack")(function* (name: string, cwd: string, packer: "npm" | "pnpm", destination: string) {
+		const pack: {
+			(
+				name: string,
+				cwd: string,
+				packer: "npm" | "pnpm",
+				destination: string,
+			): Effect.Effect<string, PackedInstallError, ChildProcessSpawner.ChildProcessSpawner>;
+			(
+				cwd: string,
+				packer: "npm" | "pnpm",
+				destination: string,
+			): (name: string) => Effect.Effect<string, PackedInstallError, ChildProcessSpawner.ChildProcessSpawner>;
+		} = dual(4, Effect.fn("pack")(function* (
+			name: string,
+			cwd: string,
+			packer: "npm" | "pnpm",
+			destination: string,
+		): Effect.fn.Return<string, PackedInstallError, ChildProcessSpawner.ChildProcessSpawner> {
 				yield* fs
 					.makeDirectory(destination, { recursive: true })
 					.pipe(Effect.mapError(io(`could not create ${destination}`)));
@@ -1578,9 +1645,9 @@ export class PackedInstall {
 						{ package: name, output: tail(`${output.stdout}\n${output.stderr}`) },
 					);
 				}
-				const found = (yield* fs
+				const found = A.filter((yield* fs
 					.readDirectory(destination)
-					.pipe(Effect.mapError(io(`could not list ${destination}`)))).filter((file) => file.endsWith(".tgz"));
+					.pipe(Effect.mapError(io(`could not list ${destination}`)))), (file) => file.endsWith(".tgz"));
 				const [only] = found;
 				if (only === undefined || found.length !== 1) {
 					return yield* failure(
@@ -1590,9 +1657,26 @@ export class PackedInstall {
 					);
 				}
 				return path.join(destination, only);
-			});
+			}));
 		/** The packed manifest, read with `tar` from `cwd`, refused if only a workspace could resolve it. */
-		const inspect = Effect.fn("inspect")(function* (name: string, tarball: string, cwd: string, workspace: boolean = false) {
+		const inspect: {
+			(
+				name: string,
+				tarball: string,
+				cwd: string,
+				workspace?: boolean,
+			): Effect.Effect<PackedManifest, PackedInstallError, ChildProcessSpawner.ChildProcessSpawner>;
+			(
+				tarball: string,
+				cwd: string,
+				workspace?: boolean,
+			): (name: string) => Effect.Effect<PackedManifest, PackedInstallError, ChildProcessSpawner.ChildProcessSpawner>;
+		} = dual((args) => P.isString(args[2]), Effect.fn("inspect")(function* (
+			name: string,
+			tarball: string,
+			cwd: string,
+			workspace: boolean = false,
+		): Effect.fn.Return<PackedManifest, PackedInstallError, ChildProcessSpawner.ChildProcessSpawner> {
 				const text = yield* Run.text(command("tar", ["-xzOf", tarball, "package/package.json"], cwd), {
 					timeout: MANIFEST_TIMEOUT,
 				}).pipe(
@@ -1617,12 +1701,12 @@ export class PackedInstall {
 				if (manifest.success.unresolved.length > 0) {
 					return yield* failure(
 						"UnresolvedProtocol",
-						`${name}'s packed manifest still carries ${manifest.success.unresolved.join(", ")}, which no consumer outside the workspace can resolve; pack from "source" so pnpm rewrites workspace: and catalog:, or fix the build`,
+						`${name}'s packed manifest still carries ${A.join(manifest.success.unresolved, ", ")}, which no consumer outside the workspace can resolve; pack from "source" so pnpm rewrites workspace: and catalog:, or fix the build`,
 						{ package: name },
 					);
 				}
 				return manifest.success;
-			});
+			}));
 
 		const packed: Array<{ readonly name: string; readonly tarball: string; readonly manifest: PackedManifest }> = [];
 		for (const [index, pkg] of plan.closure.entries()) {
@@ -1669,7 +1753,7 @@ export class PackedInstall {
 				? undefined
 				: binConflict(
 						{ name: carrier.name, bins: carrier.manifest.bins },
-						rest.map(({ name, manifest }) => ({ name, bins: manifest.bins })),
+						A.map(rest, ({ name, manifest }) => ({ name, bins: manifest.bins })),
 					);
 		if (conflict !== undefined) {
 			return yield* failure(
@@ -1678,7 +1762,7 @@ export class PackedInstall {
 				{ package: conflict.package },
 			);
 		}
-		const overrides = R.fromEntries(rest.map(({ name, tarball }) => [name, tarball]));
+		const overrides = R.fromEntries(A.map(rest, ({ name, tarball }) => [name, tarball]));
 
 		const consumers = yield* Effect.forEach(available, Effect.fnUntraced(function* ({ manager, version }) {
 				const directory = path.join(scratch, `consumer-${manager}`);
@@ -1732,7 +1816,7 @@ export class PackedInstall {
 							Effect.map((names) =>
 								names.length === 0
 									? "node_modules/.bin is empty"
-									: `node_modules/.bin holds: ${A.sort(names, Str.Order).join(", ")}`,
+									: `node_modules/.bin holds: ${A.join(A.sort(names, Str.Order), ", ")}`,
 							),
 							Effect.orElseSucceed(() => "node_modules/.bin does not exist or cannot be listed"),
 						);
@@ -1750,13 +1834,25 @@ export class PackedInstall {
 		return PackedInstallResult.make({
 			consumers,
 			unavailable,
-			tarballs: R.fromEntries(packed.map(({ name, tarball }) => [name, tarball])),
+			tarballs: R.fromEntries(A.map(packed, ({ name, tarball }) => [name, tarball])),
 			scratch,
 		});
 	});
 }
 
-const binProvenance = Effect.fn("binProvenance")(function* (bin: string, directory: string, manager: PackageManagerName, entry: string): Effect.fn.Return<BinProvenance | undefined, PackedInstallError, FileSystem.FileSystem | Path.Path> {
+const binProvenance: {
+	(
+		bin: string,
+		directory: string,
+		manager: PackageManagerName,
+		entry: string,
+	): Effect.Effect<BinProvenance | undefined, PackedInstallError, FileSystem.FileSystem | Path.Path>;
+	(
+		directory: string,
+		manager: PackageManagerName,
+		entry: string,
+	): (bin: string) => Effect.Effect<BinProvenance | undefined, PackedInstallError, FileSystem.FileSystem | Path.Path>;
+} = dual(4, Effect.fn("binProvenance")(function* (bin: string, directory: string, manager: PackageManagerName, entry: string): Effect.fn.Return<BinProvenance | undefined, PackedInstallError, FileSystem.FileSystem | Path.Path> {
 	const fs = yield* FileSystem.FileSystem;
 	const path = yield* Path.Path;
 	const io = (message: string) => (cause: unknown) => failure("Io", message, { manager, cause });
@@ -1801,9 +1897,23 @@ const binProvenance = Effect.fn("binProvenance")(function* (bin: string, directo
 		`${manager}: ${entry} links to ${target}, which lies in no named package inside ${root}`,
 		{ manager },
 	);
-});
+}));
 
-const carrierCommand = Effect.fn("carrierCommand")(function* (consumer: InstalledConsumer, manager: PackageManagerName, name: string, args: ReadonlyArray<string>, options: BinCommandOptions): Effect.fn.Return<ChildProcess.StandardCommand, PackedInstallError, FileSystem.FileSystem | Path.Path> {
+const carrierCommand: {
+	(
+		consumer: InstalledConsumer,
+		manager: PackageManagerName,
+		name: string,
+		args: ReadonlyArray<string>,
+		options: BinCommandOptions,
+	): Effect.Effect<ChildProcess.StandardCommand, PackedInstallError, FileSystem.FileSystem | Path.Path>;
+	(
+		manager: PackageManagerName,
+		name: string,
+		args: ReadonlyArray<string>,
+		options: BinCommandOptions,
+	): (consumer: InstalledConsumer) => Effect.Effect<ChildProcess.StandardCommand, PackedInstallError, FileSystem.FileSystem | Path.Path>;
+} = dual(5, Effect.fn("carrierCommand")(function* (consumer: InstalledConsumer, manager: PackageManagerName, name: string, args: ReadonlyArray<string>, options: BinCommandOptions): Effect.fn.Return<ChildProcess.StandardCommand, PackedInstallError, FileSystem.FileSystem | Path.Path> {
 	const fs = yield* FileSystem.FileSystem;
 	const path = yield* Path.Path;
 	const missing = (why: string) =>
@@ -1839,4 +1949,4 @@ const carrierCommand = Effect.fn("carrierCommand")(function* (consumer: Installe
 		env: layeredEnv(consumer, options),
 		extendEnv: false,
 	});
-});
+}));

@@ -30,13 +30,13 @@ const $I = $ScratchpadId.create("effected/xdg/NativeDirs");
  */
 export class NativeDirs extends S.Class<NativeDirs, { readonly brand: unique symbol }>($I`NativeDirs`)({
 	/** Where configuration lives. */
-	config: S.String.annotateKey({ description: "Where configuration lives." }),
+	config: S.String.pipe($I.annoteKey("NativeDirs.config", { description: "Where configuration lives." })),
 	/** Where application data lives. */
-	data: S.String.annotateKey({ description: "Where application data lives." }),
+	data: S.String.pipe($I.annoteKey("NativeDirs.data", { description: "Where application data lives." })),
 	/** Where discardable cached data lives. */
-	cache: S.String.annotateKey({ description: "Where discardable cached data lives." }),
+	cache: S.String.pipe($I.annoteKey("NativeDirs.cache", { description: "Where discardable cached data lives." })),
 	/** Where persistent-but-regenerable state lives. */
-	state: S.String.annotateKey({ description: "Where persistent-but-regenerable state lives." }),
+	state: S.String.pipe($I.annoteKey("NativeDirs.state", { description: "Where persistent-but-regenerable state lives." })),
 }, $I.annote("NativeDirs", { description: "The OS-native application directories for one namespace." })) {
 	/**
 	 * Map a platform and an environment onto the native directories for a namespace.

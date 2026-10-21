@@ -6,9 +6,10 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { YamlEdit } from "../../YamlEdit.ts";
-import type { YamlRule } from "../../YamlLintRule.ts";
+import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
 import { insideScalarSpan } from "./util.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/trailing-spaces");
 
@@ -32,7 +33,7 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/trailing-spaces");
  * @since 0.0.0
  */
 export const trailingSpacesOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({ description: "Reporting level for trailing-whitespace findings, defaulting to `error`" }),
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("trailingSpacesOptions.severity", { description: "Reporting level for trailing-whitespace findings, defaulting to `error`" })),
 }).pipe($I.annoteSchema("trailingSpacesOptions", { description: "Options for `trailing-spaces` (severity only — nothing to tune)." }));
 /**
  * The decoded reporting options accepted by the trailing-spaces rule.
@@ -70,7 +71,7 @@ export type trailingSpacesOptions = typeof trailingSpacesOptions.Type;
  */
 export const trailingSpaces: YamlRule = {
 	id: "trailing-spaces",
-	check: (ctx) => {
+	check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
 		const out: Array<YamlLintDiagnostic> = [];
 		for (const line of ctx.lines) {
 			// Line text excludes the terminator (CRLF's `\r` included), so a
@@ -95,5 +96,5 @@ export const trailingSpaces: YamlRule = {
 			);
 		}
 		return out;
-	},
+	}),
 };

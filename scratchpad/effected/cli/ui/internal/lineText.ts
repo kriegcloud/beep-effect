@@ -31,7 +31,10 @@ const SANITIZE_SPAN = /\u001B\][^\u0007\u001B]*(?:\u0007|\u001B\\)|\u001B\[[0-?]
 const LINE_BREAK = /\r\n|\r|\n/g;
 
 /** Replace complete spans, mapping an interior cursor to the span's output position. */
-const mappedText = (text: string, cursor: number, spans: RegExp, replacement: (span: string) => string): readonly [string, number] => {
+const mappedText: {
+	(text: string, cursor: number, spans: RegExp, replacement: (span: string) => string): readonly [string, number];
+	(cursor: number, spans: RegExp, replacement: (span: string) => string): (text: string) => readonly [string, number];
+} = dual(4, (text: string, cursor: number, spans: RegExp, replacement: (span: string) => string): readonly [string, number] => {
 	let raw = 0;
 	let shown = "";
 	let mapped = Math.max(0, Math.min(cursor, text.length));
@@ -47,7 +50,7 @@ const mappedText = (text: string, cursor: number, spans: RegExp, replacement: (s
 		raw = end;
 	}
 	return [shown + Str.slice(raw)(text), mapped];
-};
+});
 const sanitizedSpan = (span: string): string => span === "\t" ? " " : "";
 const foldedBreak = (): string => " ";
 

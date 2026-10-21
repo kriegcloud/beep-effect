@@ -1,5 +1,5 @@
-import { Buffer } from "node:buffer";
-import { zstdCompressSync } from "node:zlib";
+import * as NodeBuffer from "node:buffer";
+import * as NodeZlib from "node:zlib";
 import { inspectCacheSignedPilotArchive } from "@beep/repo-cli/test/Cache";
 import { NodeCrypto } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
@@ -11,14 +11,14 @@ import { Header } from "tar";
 
 const path = "packages/foundation/modeling/identity/.turbo/turbo-lint.log";
 const makeTar = (text = "safe task output\n", fields: ConstructorParameters<typeof Header>[0] = {}) => {
-  const body = Buffer.from(text);
-  const bytes = Buffer.alloc(512 + Math.ceil(body.length / 512) * 512 + 1024);
+  const body = NodeBuffer.Buffer.from(text);
+  const bytes = NodeBuffer.Buffer.alloc(512 + Math.ceil(body.length / 512) * 512 + 1024);
   const header = new Header({ path, type: "File", size: body.length, mode: 0o644, ...fields });
   header.encode(bytes);
   body.copy(bytes, 512);
   return bytes;
 };
-const inspect = (tar: Uint8Array) => inspectCacheSignedPilotArchive(zstdCompressSync(tar), []);
+const inspect = (tar: Uint8Array) => inspectCacheSignedPilotArchive(NodeZlib.zstdCompressSync(tar), []);
 
 it.layer(NodeCrypto.layer, { timeout: "30 seconds" })("bounded signed pilot archive", (it) => {
   it.effect("inspects the sole task log without extraction", () =>
@@ -42,7 +42,7 @@ it.layer(NodeCrypto.layer, { timeout: "30 seconds" })("bounded signed pilot arch
         makeTar("safe", { type: "ExtendedHeader" }),
         makeTar("safe", { size: 65537 }),
         invalidChecksum,
-        Buffer.alloc(2048),
+        NodeBuffer.Buffer.alloc(2048),
       ])
         (yield* inspect(bytes).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
     })
@@ -53,13 +53,13 @@ it.layer(NodeCrypto.layer, { timeout: "30 seconds" })("bounded signed pilot arch
       nonzeroPadding[600] = 1;
       for (const bytes of [
         nonzeroPadding,
-        Buffer.concat([makeTar(), makeTar()]),
-        Buffer.concat([makeTar(), Buffer.alloc(512)]),
+        NodeBuffer.Buffer.concat([makeTar(), makeTar()]),
+        NodeBuffer.Buffer.concat([makeTar(), NodeBuffer.Buffer.alloc(512)]),
         makeTar().subarray(0, 1024),
-        Buffer.alloc(256 * 1024),
+        NodeBuffer.Buffer.alloc(256 * 1024),
       ])
         (yield* inspect(bytes).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
-      (yield* inspectCacheSignedPilotArchive(Buffer.from("invalid"), []).pipe(Effect.result)).pipe(
+      (yield* inspectCacheSignedPilotArchive(NodeBuffer.Buffer.from("invalid"), []).pipe(Effect.result)).pipe(
         Result.isFailure,
         assertTrue
       );
@@ -67,7 +67,7 @@ it.layer(NodeCrypto.layer, { timeout: "30 seconds" })("bounded signed pilot arch
   );
   it.effect("rejects empty or oversized compressed inputs before decompression", () =>
     Effect.gen(function* () {
-      for (const archive of [Buffer.alloc(0), Buffer.alloc(1024 * 1024 + 1)]) {
+      for (const archive of [NodeBuffer.Buffer.alloc(0), NodeBuffer.Buffer.alloc(1024 * 1024 + 1)]) {
         const failure = yield* inspectCacheSignedPilotArchive(archive, []).pipe(Effect.flip);
         expect(failure.message).toBe("Signed pilot archive exceeds its compressed bound.");
       }
@@ -85,7 +85,7 @@ it.layer(NodeCrypto.layer, { timeout: "30 seconds" })("bounded signed pilot arch
     Effect.gen(function* () {
       const secret = Redacted.make("synthetic-archive-credential");
       for (const bytes of [secret.pipe(Redacted.value, makeTar), makeTar("safe", { uname: Redacted.value(secret) })])
-        (yield* inspectCacheSignedPilotArchive(zstdCompressSync(bytes), [secret]).pipe(Effect.result)).pipe(
+        (yield* inspectCacheSignedPilotArchive(NodeZlib.zstdCompressSync(bytes), [secret]).pipe(Effect.result)).pipe(
           Result.isFailure,
           assertTrue
         );

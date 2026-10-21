@@ -16,6 +16,7 @@ import * as Stream from "effect/Stream";
 import { lexAll } from "./internal/lexer.ts";
 import { YamlTokenKind as InternalTokenKind, type YamlToken as InternalToken } from "./internal/token.ts";
 import type { YamlParseError } from "./Yaml.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlToken");
 
@@ -74,12 +75,12 @@ export type YamlTokenKind = typeof YamlTokenKind.Type;
  * @since 0.0.0
  */
 export class YamlToken extends S.Class<YamlToken, { readonly brand: unique symbol }>($I`YamlToken`)({
-	kind: YamlTokenKind.annotateKey({ description: "Lexical category assigned by the YAML tokenizer" }),
-	text: S.String.annotateKey({ description: "Raw source slice covered by the token, preserving quotes and whitespace" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start position in the YAML source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span covered by the token, measured in UTF-16 code units" }),
-	line: S.Finite.annotateKey({ description: "Zero-based source line where the token starts" }),
-	character: S.Finite.annotateKey({ description: "Zero-based position within the source line where the token starts, measured in UTF-16 code units" }),
+	kind: YamlTokenKind.pipe($I.annoteKey("YamlToken.kind", { description: "Lexical category assigned by the YAML tokenizer" })),
+	text: S.String.pipe($I.annoteKey("YamlToken.text", { description: "Raw source slice covered by the token, preserving quotes and whitespace" })),
+	offset: S.Finite.pipe($I.annoteKey("YamlToken.offset", { description: "Zero-based start position in the YAML source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("YamlToken.length", { description: "Source span covered by the token, measured in UTF-16 code units" })),
+	line: S.Finite.pipe($I.annoteKey("YamlToken.line", { description: "Zero-based source line where the token starts" })),
+	character: S.Finite.pipe($I.annoteKey("YamlToken.character", { description: "Zero-based position within the source line where the token starts, measured in UTF-16 code units" })),
 }, $I.annote("YamlToken", { description: "A single positioned YAML lexical token." })) {}
 
 /**
@@ -97,7 +98,10 @@ export class YamlToken extends S.Class<YamlToken, { readonly brand: unique symbo
  * contract is byte fidelity — the corpus conformance suite pins the tokens
  * tiling the source exactly.
  */
-const promoteAll = (text: string, tokens: ReadonlyArray<InternalToken>): ReadonlyArray<YamlToken> => {
+const promoteAll: {
+	(text: string, tokens: ReadonlyArray<InternalToken>): ReadonlyArray<YamlToken>;
+	(tokens: ReadonlyArray<InternalToken>): (text: string) => ReadonlyArray<YamlToken>;
+} = dual(2, (text: string, tokens: ReadonlyArray<InternalToken>): ReadonlyArray<YamlToken> => {
 	const lineStarts = [0];
 	for (let i = 0; i < text.length; i++) {
 		if (text[i] === "\r") {
@@ -108,7 +112,7 @@ const promoteAll = (text: string, tokens: ReadonlyArray<InternalToken>): Readonl
 	// Tokens arrive in offset order, so a monotone cursor resolves positions
 	// in one pass.
 	let line = 0;
-	return tokens.map((token) => {
+	return A.map(tokens, (token) => {
 		let nextStart = lineStarts[line + 1];
 		while (nextStart !== undefined && nextStart <= token.offset) {
 			line++;
@@ -126,7 +130,7 @@ const promoteAll = (text: string, tokens: ReadonlyArray<InternalToken>): Readonl
 			character: token.offset - A.getUnsafe(lineStarts, line),
 		});
 	});
-};
+});
 
 /**
  * Tokenizes YAML text into positioned tokens, as a complete array or a lazy

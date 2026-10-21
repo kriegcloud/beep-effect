@@ -12,7 +12,7 @@
  * @since 0.0.0
  */
 
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { migrate, PostgresDrizzle } from "@beep/postgres";
 import * as Effect from "effect/Effect";
 import type { PostgresError } from "@beep/postgres";
@@ -33,7 +33,7 @@ import type { PostgresError } from "@beep/postgres";
  * @category configuration
  * @since 0.0.0
  */
-export const migrationsFolder: string = fileURLToPath(new URL("../drizzle", import.meta.url));
+export const migrationsFolder: string = NodeURL.fileURLToPath(new URL("../drizzle", import.meta.url));
 
 /**
  * Default schema the db-admin drizzle migration journal is applied into.

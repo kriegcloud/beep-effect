@@ -182,6 +182,36 @@ describe("package scripts policy", () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
+      "requires a turbo.json build.outputs override for noEmit builds",
+      Effect.fnUntraced(function* () {
+        const noEmit = { ...base, "beep:build": "tsc-rs -p tsconfig.check.json" };
+        const root = yield* fixture({
+          "package.json": { name: "root", workspaces: ["apps/*"] },
+          "apps/bare/package.json": { name: "@beep/bare", scripts: noEmit },
+          "apps/stale/package.json": { name: "@beep/stale", scripts: noEmit },
+          "apps/stale/turbo.json": { extends: ["//"], tasks: { build: { outputs: ["dist/**"] } } },
+          "apps/covered/package.json": { name: "@beep/covered", scripts: noEmit },
+          "apps/covered/turbo.json": { extends: ["//"], tasks: { build: { outputs: [] } } },
+          "apps/emitting/package.json": { name: "@beep/emitting", scripts: base },
+        });
+        const policy = yield* PackageScriptsPolicy.make(root);
+        const report = yield* policy.write(root);
+        const conflict = {
+          _tag: "derivation-conflict",
+          name: "build",
+          reason: "noEmit build needs turbo.json with tasks.build.outputs: [] (bun run beep create-package emits it)",
+        };
+        expect(HashMap.get(report.drift, "apps/bare/package.json").pipe(O.getOrElse(() => []))).toContainEqual(
+          conflict
+        );
+        expect(HashMap.get(report.drift, "apps/stale/package.json").pipe(O.getOrElse(() => []))).toContainEqual(
+          conflict
+        );
+        expect(HashMap.has(report.drift, "apps/covered/package.json")).toBe(false);
+        expect(HashMap.has(report.drift, "apps/emitting/package.json")).toBe(false);
+      })
+    );
+    it.effect(
       "keeps impl differences advisory in check and write while ignoring matching, missing and exempt impls",
       Effect.fnUntraced(function* () {
         const root = yield* fixture({

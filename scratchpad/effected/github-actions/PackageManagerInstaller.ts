@@ -6,6 +6,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import type { IntegrityHashBrand } from "../npm/index.ts";
 import { CorepackIntegrityHash, IntegrityHash, DEFAULT_REGISTRY, PackageManagerPin, PackageManagerPinName } from "../npm/index.ts";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -28,30 +29,28 @@ import { isWindowsRunner } from "./internal/runner.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 import type { ToolInstallerError } from "./ToolInstaller.ts";
 import { ToolInstaller } from "./ToolInstaller.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/PackageManagerInstaller");
 
 const Json = S.fromJsonString(S.Unknown);
 
-const BinName = S.String.check(S.isPattern(/^(?!\.{1,2}$)[^/\\:\x00]+$/, {
-	identifier: "BinName",
-	title: "Package manager bin name",
+const BinName = S.String.check(S.isPattern(/^(?!\.{1,2}$)[^/\\:\x00]+$/, $I.annote("BinNamePattern", {
+	message: "Package manager bin name",
 	description: "A nonempty filename component without path separators, drive prefixes or NUL bytes.",
-})).pipe($I.annoteSchema("BinName", { description: "A package manager command name confined to one shim filename." }));
+}))).pipe($I.annoteSchema("BinName", { description: "A package manager command name confined to one shim filename." }));
 const isBinName = S.is(BinName);
 
-const WindowsDeviceName = S.String.check(S.isPattern(/^(?:CON|PRN|AUX|NUL|COM[1-9¹²³]|LPT[1-9¹²³])(?:\.|$)/i, {
-	identifier: "WindowsDeviceName",
-	title: "Windows reserved device name",
+const WindowsDeviceName = S.String.check(S.isPattern(/^(?:CON|PRN|AUX|NUL|COM[1-9¹²³]|LPT[1-9¹²³])(?:\.|$)/i, $I.annote("WindowsDeviceNamePattern", {
+	message: "Windows reserved device name",
 	description: "A reserved Win32 device stem, including names with extensions.",
-})).pipe($I.annoteSchema("WindowsDeviceName", { description: "A command name that Windows resolves as a device." }));
+}))).pipe($I.annoteSchema("WindowsDeviceName", { description: "A command name that Windows resolves as a device." }));
 const isWindowsDeviceName = S.is(WindowsDeviceName);
 
-const WindowsShimTarget = S.String.check(S.isPattern(/^[^"%!\x00-\x1f\x7f]+$/, {
-	identifier: "WindowsShimTarget",
-	title: "Literal Windows shim target",
+const WindowsShimTarget = S.String.check(S.isPattern(/^[^"%!\x00-\x1f\x7f]+$/, $I.annote("WindowsShimTargetPattern", {
+	message: "Literal Windows shim target",
 	description: "A complete target without quotes, cmd expansion markers or control bytes; path separators are allowed.",
-})).pipe($I.annoteSchema("WindowsShimTarget", { description: "A complete path safe inside a quoted cmd argument." }));
+}))).pipe($I.annoteSchema("WindowsShimTarget", { description: "A complete path safe inside a quoted cmd argument." }));
 const isWindowsShimTarget = S.is(WindowsShimTarget);
 
 /**
@@ -104,20 +103,20 @@ export class PackageManagerInstallerError extends S.TaggedError<PackageManagerIn
 			"unsupportedPlatform",
 			"layoutUnexpected",
 			"cacheFailed",
-		]).annotateKey({ description: "`downloadFailed`, `extractFailed` and `cacheFailed` mirror the ToolInstallerError that caused them, preserved on `cause` (`cacheFailed` also covers a shim that could not be written into the entry). `integrityMismatch` — the downloaded artifact does not hash to what the pin or the `integrity` option (or, for pnpm 12's native binary, the registry or the caller's `nativeIntegrity`) declares; nothing was cached. Also raised before anything runs when the `integrity` option is malformed or disagrees with the pin (see PackageManagerInstallOptions.integrity). `integrityMissing` — neither the pin nor the `integrity` option carries integrity and the caller asked for `requireIntegrity`, or — with `subject` naming the package — the caller supplied `nativeIntegrity` without an entry for the host's `@pnpm/exe.*` package. `unsupportedPlatform` — no build exists for this runner's OS/architecture pair: bun publishes none, or pnpm 12 ships no `@pnpm/exe.*` native binary for it. `layoutUnexpected` — the artifact extracted, but its contents are not shaped like the package manager it claims to be." }),
+		]).pipe($I.annoteKey("PackageManagerInstallerError.reason", { description: "`downloadFailed`, `extractFailed` and `cacheFailed` mirror the ToolInstallerError that caused them, preserved on `cause` (`cacheFailed` also covers a shim that could not be written into the entry). `integrityMismatch` — the downloaded artifact does not hash to what the pin or the `integrity` option (or, for pnpm 12's native binary, the registry or the caller's `nativeIntegrity`) declares; nothing was cached. Also raised before anything runs when the `integrity` option is malformed or disagrees with the pin (see PackageManagerInstallOptions.integrity). `integrityMissing` — neither the pin nor the `integrity` option carries integrity and the caller asked for `requireIntegrity`, or — with `subject` naming the package — the caller supplied `nativeIntegrity` without an entry for the host's `@pnpm/exe.*` package. `unsupportedPlatform` — no build exists for this runner's OS/architecture pair: bun publishes none, or pnpm 12 ships no `@pnpm/exe.*` native binary for it. `layoutUnexpected` — the artifact extracted, but its contents are not shaped like the package manager it claims to be." })),
 		/** The package manager being installed. */
-		name: PackageManagerPinName.annotateKey({ description: "The package manager being installed." }),
+		name: PackageManagerPinName.pipe($I.annoteKey("PackageManagerInstallerError.name", { description: "The package manager being installed." })),
 		/** The exact version being installed, in string form. */
-		version: S.String.annotateKey({ description: "The exact version being installed, in string form." }),
+		version: S.String.pipe($I.annoteKey("PackageManagerInstallerError.version", { description: "The exact version being installed, in string form." })),
 		/** What was being worked on — a url, a path, or an OS/arch pair. */
-		subject: S.optionalKey(S.String).annotateKey({ description: "What was being worked on — a url, a path, or an OS/arch pair." }),
+		subject: S.optionalKey(S.String).pipe($I.annoteKey("PackageManagerInstallerError.subject", { description: "What was being worked on — a url, a path, or an OS/arch pair." })),
 		/** The integrity the pin declares (`<algo>.<hex>`), on a mismatch. */
-		expected: S.optionalKey(S.String).annotateKey({ description: "The integrity the pin declares (`<algo>.<hex>`), on a mismatch." }),
+		expected: S.optionalKey(S.String).pipe($I.annoteKey("PackageManagerInstallerError.expected", { description: "The integrity the pin declares (`<algo>.<hex>`), on a mismatch." })),
 		/** The integrity the artifact actually hashed to, on a mismatch. */
-		actual: S.optionalKey(S.String).annotateKey({ description: "The integrity the artifact actually hashed to, on a mismatch." }),
+		actual: S.optionalKey(S.String).pipe($I.annoteKey("PackageManagerInstallerError.actual", { description: "The integrity the artifact actually hashed to, on a mismatch." })),
 		/** The underlying failure, preserved structurally. */
-		cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-	}, $I.annote("PackageManagerInstallerError", { description: "Raised when a package manager cannot be provisioned on the runner." }),
+		cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("PackageManagerInstallerError.cause", { description: "The underlying failure, preserved structurally." })),
+	}, $I.annoteError<PackageManagerInstallerError>("PackageManagerInstallerError", { description: "Raised when a package manager cannot be provisioned on the runner." }),
 ) {
 	/**
 	 * Explains the provisioning failure using the manager pin and available diagnostic fields.
@@ -189,7 +188,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	requireIntegrity: S.optional(S.Boolean).annotateKey({ description: "Require an integrity authority before provisioning." }),
+	requireIntegrity: S.optionalKey(S.Boolean).pipe($I.annoteKey("PackageManagerInstallOptions.requireIntegrity", { description: "Require an integrity authority before provisioning." })),
 	/**
 	 * The expected integrity of the manager's own artifact, supplied beside
 	 * the pin rather than through its `+<integrity>` tail — for a caller whose
@@ -220,7 +219,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	integrity: S.optional(IntegrityHash).annotateKey({ description: "The existing branded integrity hash supplied alongside the pin." }),
+	integrity: S.optionalKey(IntegrityHash).pipe($I.annoteKey("PackageManagerInstallOptions.integrity", { description: "The existing branded integrity hash supplied alongside the pin." })),
 	/**
 	 * The npm registry host the npm, pnpm and yarn tarballs download from.
 	 * Defaults to `https://registry.npmjs.org`. A corporate mirror qualifies
@@ -235,7 +234,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	registry: S.optional(S.String).annotateKey({ description: "The optional registry override; the install operation supplies its default." }),
+	registry: S.optionalKey(S.String).pipe($I.annoteKey("PackageManagerInstallOptions.registry", { description: "The optional registry override; the install operation supplies its default." })),
 	/**
 	 * The expected Subresource Integrity of each pnpm native-binary package,
 	 * keyed by bare package name with no version (`"@pnpm/exe.linux-x64"`) —
@@ -259,7 +258,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	nativeIntegrity: S.optional(S.Record(S.String, S.String)).annotateKey({ description: "Native package names mapped to caller-supplied SRI strings." }),
+	nativeIntegrity: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PackageManagerInstallOptions.nativeIntegrity", { description: "Native package names mapped to caller-supplied SRI strings." })),
 	/**
 	 * Whether an npm pin may be answered by the runner's own ambient npm.
 	 * Defaults to `true`.
@@ -278,8 +277,8 @@ export const PackageManagerInstallOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	allowAmbient: S.optional(S.Boolean).annotateKey({ description: "Whether the install operation may use the runner ambient npm." }),
-}).annotate($I.annote("PackageManagerInstallOptions", { description: "Structural provisioning options, with absent and explicit undefined fields preserved." }));
+	allowAmbient: S.optionalKey(S.Boolean).pipe($I.annoteKey("PackageManagerInstallOptions.allowAmbient", { description: "Whether the install operation may use the runner ambient npm." })),
+}).pipe($I.annoteSchema("PackageManagerInstallOptions", { description: "Structural provisioning options, with absent and explicit undefined fields preserved." }));
 
 /**
  * The plain-object input accepted by {@link PackageManagerInstallOptions}.
@@ -315,13 +314,13 @@ export type PackageManagerInstallOptions = typeof PackageManagerInstallOptions.T
  */
 export class AmbientPackageManager extends S.Class<AmbientPackageManager, { readonly brand: unique symbol }>($I`AmbientPackageManager`)({
 	/** The discriminant: the runner's own toolchain answered. */
-	source: S.tag("ambient").annotateKey({ description: "The discriminant: the runner's own toolchain answered." }),
+	source: S.tag("ambient").pipe($I.annoteKey("AmbientPackageManager.source", { description: "The discriminant: the runner's own toolchain answered." })),
 	/** The package-manager name (`npm`, `pnpm`, `yarn` or `bun`). */
-	name: PackageManagerPinName.annotateKey({ description: "The package-manager name (`npm`, `pnpm`, `yarn` or `bun`)." }),
+	name: PackageManagerPinName.pipe($I.annoteKey("AmbientPackageManager.name", { description: "The package-manager name (`npm`, `pnpm`, `yarn` or `bun`)." })),
 	/** The exact installed version, in string form. */
-	version: S.String.annotateKey({ description: "The exact installed version, in string form." }),
+	version: S.String.pipe($I.annoteKey("AmbientPackageManager.version", { description: "The exact installed version, in string form." })),
 	/** Bin name → the ambient command name that invokes it. */
-	bins: S.Record(S.String, S.String).annotateKey({ description: "Bin name → the ambient command name that invokes it." }),
+	bins: S.Record(S.String, S.String).pipe($I.annoteKey("AmbientPackageManager.bins", { description: "Bin name → the ambient command name that invokes it." })),
 }, $I.annote("AmbientPackageManager", { description: "A package manager the runner's own toolchain already had: nothing was downloaded and nothing was cached, so there is no directory to publish." })) {}
 
 /**
@@ -365,17 +364,17 @@ export class AmbientPackageManager extends S.Class<AmbientPackageManager, { read
  */
 export class CachedPackageManager extends S.Class<CachedPackageManager, { readonly brand: unique symbol }>($I`CachedPackageManager`)({
 	/** The discriminant: the manager lives in the tool cache. */
-	source: S.tag("tool-cache").annotateKey({ description: "The discriminant: the manager lives in the tool cache." }),
+	source: S.tag("tool-cache").pipe($I.annoteKey("CachedPackageManager.source", { description: "The discriminant: the manager lives in the tool cache." })),
 	/** The package-manager name (`npm`, `pnpm`, `yarn` or `bun`). */
-	name: PackageManagerPinName.annotateKey({ description: "The package-manager name (`npm`, `pnpm`, `yarn` or `bun`)." }),
+	name: PackageManagerPinName.pipe($I.annoteKey("CachedPackageManager.name", { description: "The package-manager name (`npm`, `pnpm`, `yarn` or `bun`)." })),
 	/** The exact installed version, in string form. */
-	version: S.String.annotateKey({ description: "The exact installed version, in string form." }),
+	version: S.String.pipe($I.annoteKey("CachedPackageManager.version", { description: "The exact installed version, in string form." })),
 	/** The cached entry: `<tool-cache>/<name>/<version>/<arch>`. */
-	directory: S.String.annotateKey({ description: "The cached entry: `<tool-cache>/<name>/<version>/<arch>`." }),
+	directory: S.String.pipe($I.annoteKey("CachedPackageManager.directory", { description: "The cached entry: `<tool-cache>/<name>/<version>/<arch>`." })),
 	/** The directory to `addPath` — executable shims, or bun's own directory. */
-	binDir: S.String.annotateKey({ description: "The directory to `addPath` — executable shims, or bun's own directory." }),
+	binDir: S.String.pipe($I.annoteKey("CachedPackageManager.binDir", { description: "The directory to `addPath` — executable shims, or bun's own directory." })),
 	/** Bin name → the absolute path of the underlying entry point. */
-	bins: S.Record(S.String, S.String).annotateKey({ description: "Bin name → the absolute path of the underlying entry point." }),
+	bins: S.Record(S.String, S.String).pipe($I.annoteKey("CachedPackageManager.bins", { description: "Bin name → the absolute path of the underlying entry point." })),
 }, $I.annote("CachedPackageManager", { description: "A package manager living in the runner's tool cache — found there, or installed into it by this call." })) {}
 
 /**
@@ -438,10 +437,10 @@ export interface PackageManagerInstallerShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly install: (
-		pin: PackageManagerPin,
-		options?: PackageManagerInstallOptions,
-	) => Effect.Effect<InstalledPackageManager, PackageManagerInstallerError>;
+	readonly install: {
+		(pin: PackageManagerPin, options?: PackageManagerInstallOptions): Effect.Effect<InstalledPackageManager, PackageManagerInstallerError>;
+		(options?: PackageManagerInstallOptions): (pin: PackageManagerPin) => Effect.Effect<InstalledPackageManager, PackageManagerInstallerError>;
+	};
 }
 
 /** Where the npm-registry managers' artifacts come from, resolved once by `install`. */
@@ -508,11 +507,14 @@ const PNPM_NATIVE_BIN_NAMES: ReadonlyArray<string> = ["pnpm", "pn", "pnpx", "pnx
  */
 const BUN_OS: Readonly<Record<string, string>> = { linux: "linux", macos: "darwin", windows: "windows" };
 const BUN_CPU: Readonly<Record<string, string>> = { x64: "x64", arm64: "aarch64" };
-const bunTarget = (runnerOs: string, arch: string): O.Option<string> => {
+const bunTarget: {
+	(runnerOs: string, arch: string): O.Option<string>;
+	(arch: string): (runnerOs: string) => O.Option<string>;
+} = dual(2, (runnerOs: string, arch: string): O.Option<string> => {
 	const os = BUN_OS[runnerOs.toLowerCase()];
 	const cpu = BUN_CPU[arch];
 	return os === undefined || cpu === undefined ? O.none() : O.some(`bun-${os}-${cpu}`);
-};
+});
 
 /**
  * The registry tarball url for an npm-registry-distributed manager.
@@ -523,13 +525,19 @@ const bunTarget = (runnerOs: string, arch: string): O.Option<string> => {
  * (Berry) ships as `@yarnpkg/cli-dist` — a scoped package, whose tarball
  * basename drops the scope (`/@yarnpkg/cli-dist/-/cli-dist-<v>.tgz`).
  */
-const registryTarballUrl = (name: string, version: string, major: number, registry: string): string =>
+const registryTarballUrl: {
+	(name: string, version: string, major: number, registry: string): string;
+	(version: string, major: number, registry: string): (name: string) => string;
+} = dual(4, (name: string, version: string, major: number, registry: string): string =>
 	name === "yarn" && major >= 2
 		? `${registry}/@yarnpkg/cli-dist/-/cli-dist-${version}.tgz`
-		: `${registry}/${name}/-/${name}-${version}.tgz`;
+		: `${registry}/${name}/-/${name}-${version}.tgz`);
 
 /** Normalize a package.json `bin` value into name → relative path entries. */
-const normalizeBins = (bin: unknown, fallbackName: string): O.Option<Record<string, string>> => {
+const normalizeBins: {
+	(bin: unknown, fallbackName: string): O.Option<Record<string, string>>;
+	(fallbackName: string): (bin: unknown) => O.Option<Record<string, string>>;
+} = dual(2, (bin: unknown, fallbackName: string): O.Option<Record<string, string>> => {
 	if (P.isString(bin)) {
 		return O.some({ [fallbackName]: bin.replace(/^\.\//, "") });
 	}
@@ -545,7 +553,7 @@ const normalizeBins = (bin: unknown, fallbackName: string): O.Option<Record<stri
 		R.assignProperty(entries, name, value.replace(/^\.\//, ""));
 	}
 	return R.keys(entries).length === 0 ? O.none() : O.some(entries);
-};
+});
 
 /** Map a `RUNNER_ARCH` value (`X64`, `ARM64`) onto the Node arch spelling. */
 const archFromRunner = (runnerArch: string): string => {
@@ -601,7 +609,10 @@ const make = Effect.gen(function* () {
 			});
 
 	/** The hex digest of a file's bytes, streamed rather than buffered. */
-	const hashFile = (
+	const hashFile: {
+		(pin: PackageManagerPin, file: string, algorithm: string): Effect.Effect<string, PackageManagerInstallerError>;
+		(file: string, algorithm: string): (pin: PackageManagerPin) => Effect.Effect<string, PackageManagerInstallerError>;
+	} = dual(3, (
 		pin: PackageManagerPin,
 		file: string,
 		algorithm: string,
@@ -610,7 +621,7 @@ const make = Effect.gen(function* () {
 		// `node:crypto` supports.
 		digestFileHex(fs, file, algorithm).pipe(
 			Effect.mapError((cause) => errorFor(pin)({ reason: "integrityMismatch", subject: file, cause })),
-		);
+		));
 
 	/**
 	 * Verify a downloaded artifact against the settled pin's integrity,
@@ -622,7 +633,10 @@ const make = Effect.gen(function* () {
 	 * `devEngines` pins routinely carry none, and the opt-in strictness lives in
 	 * `requireIntegrity`, checked before anything is downloaded.
 	 */
-	const verifyIntegrity = Effect.fnUntraced(function* (pin: PackageManagerPin, file: string): Effect.fn.Return<void, PackageManagerInstallerError> {
+	const verifyIntegrity: {
+		(pin: PackageManagerPin, file: string): Effect.Effect<void, PackageManagerInstallerError>;
+		(file: string): (pin: PackageManagerPin) => Effect.Effect<void, PackageManagerInstallerError>;
+	} = dual(2, Effect.fnUntraced(function* (pin: PackageManagerPin, file: string): Effect.fn.Return<void, PackageManagerInstallerError> {
 		const integrity = pin.integrity;
 		if (integrity === undefined) {
 			yield* Effect.logWarning(
@@ -642,7 +656,7 @@ const make = Effect.gen(function* () {
 					actual: `${algorithm}.${actualHex}`,
 				});
 		}
-	});
+	}));
 
 	/**
 	 * The ambient `npm --version`, or `None` when the probe cannot answer.
@@ -657,7 +671,10 @@ const make = Effect.gen(function* () {
 		(result) => (result._tag === "Success" ? O.some(result.success.trim()) : O.none()),
 	);
 
-	const assertFile = Effect.fnUntraced(function* (
+	const assertFile: {
+		(pin: PackageManagerPin, file: string, subject: string): Effect.Effect<void, PackageManagerInstallerError>;
+		(file: string, subject: string): (pin: PackageManagerPin) => Effect.Effect<void, PackageManagerInstallerError>;
+	} = dual(3, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		file: string,
 		subject: string,
@@ -665,7 +682,7 @@ const make = Effect.gen(function* () {
 		if ((yield* typeAt(fs, file)) !== "File") {
 			return yield* errorFor(pin)({ reason: "layoutUnexpected", subject });
 		}
-	});
+	}));
 
 	/** Resolve missing destinations through their existing parent without following dangling links. */
 	const resolvedDestination = Effect.fnUntraced(function* (file: string): Effect.fn.Return<string, PlatformError.PlatformError> {
@@ -683,7 +700,10 @@ const make = Effect.gen(function* () {
 	});
 
 	/** Package roots must be real directories; bins may follow links only within that root. */
-	const containedPackagePath = Effect.fnUntraced(function* (
+	const containedPackagePath: {
+		(pin: PackageManagerPin, packageDir: string, file: string): Effect.Effect<void, PackageManagerInstallerError>;
+		(packageDir: string, file: string): (pin: PackageManagerPin) => Effect.Effect<void, PackageManagerInstallerError>;
+	} = dual(3, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		packageDir: string,
 		file: string,
@@ -699,9 +719,12 @@ const make = Effect.gen(function* () {
 		if (relative === "" || relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative)) {
 			return yield* errorFor(pin)({ reason: "layoutUnexpected", subject: `${file} escapes the real package directory` });
 		}
-	});
+	}));
 
-	const validateShimDestinations = Effect.fnUntraced(function* (
+	const validateShimDestinations: {
+		(pin: PackageManagerPin, into: string, bins: Record<string, string>): Effect.Effect<void, PackageManagerInstallerError>;
+		(into: string, bins: Record<string, string>): (pin: PackageManagerPin) => Effect.Effect<void, PackageManagerInstallerError>;
+	} = dual(3, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		into: string,
 		bins: Record<string, string>,
@@ -718,7 +741,7 @@ const make = Effect.gen(function* () {
 				});
 			}
 		}
-	});
+	}));
 
 	/**
 	 * What a package directory's own manifest says about its entry points: the
@@ -734,7 +757,10 @@ const make = Effect.gen(function* () {
 	 * package. Both maps are attacker-supplied bytes and are normalized to
 	 * string → string before anything downstream reads them.
 	 */
-	const readPackageManifest = Effect.fnUntraced(function* (
+	const readPackageManifest: {
+		(pin: PackageManagerPin, packageDir: string): Effect.Effect<PackageManifest, PackageManagerInstallerError>;
+		(packageDir: string): (pin: PackageManagerPin) => Effect.Effect<PackageManifest, PackageManagerInstallerError>;
+	} = dual(2, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		packageDir: string,
 	): Effect.fn.Return<PackageManifest, PackageManagerInstallerError> {
@@ -775,7 +801,7 @@ const make = Effect.gen(function* () {
 			bins,
 			nativePackages: nativePackagesOf(P.hasProperty(manifest, "optionalDependencies") ? manifest.optionalDependencies : undefined),
 		};
-	});
+	}));
 
 	/**
 	 * The `@pnpm/exe.<target>` → version entries of an `optionalDependencies`
@@ -804,7 +830,7 @@ const make = Effect.gen(function* () {
 	 */
 	const nativeWindowsBins = (bins: Record<string, string>): Record<string, string> =>
 		R.fromEntries(
-			R.toEntries(bins).map(([name, relative]): [string, string] =>
+			A.map(R.toEntries(bins), ([name, relative]): [string, string] =>
 				[name, PNPM_NATIVE_BIN_NAMES.includes(name) ? `${relative}.exe` : relative],
 			),
 		);
@@ -827,8 +853,11 @@ const make = Effect.gen(function* () {
 			Effect.orElseSucceed(() => false),
 		);
 
-	const rootBins = (bins: Record<string, string>, directory: string): Record<string, string> =>
-		R.fromEntries(R.toEntries(bins).map(([name, relative]): [string, string] => [name, path.join(directory, relative)]));
+	const rootBins: {
+		(bins: Record<string, string>, directory: string): Record<string, string>;
+		(directory: string): (bins: Record<string, string>) => Record<string, string>;
+	} = dual(2, (bins: Record<string, string>, directory: string): Record<string, string> =>
+		R.fromEntries(A.map(R.toEntries(bins), ([name, relative]): [string, string] => [name, path.join(directory, relative)])));
 
 	/**
   * Write one executable shim per bin into `<into>/.bin`, each invoking
@@ -844,7 +873,21 @@ const make = Effect.gen(function* () {
   * When `skipExisting` is set, a shim already present is left untouched — the
   * regeneration path must not rewrite a shared cache entry another writer owns.
   */
-	const writeShims = Effect.fnUntraced(function* (
+	const writeShims: {
+		(
+			pin: PackageManagerPin,
+			into: string,
+			finalDirectory: string,
+			bins: Record<string, string>,
+			options: { readonly skipExisting: boolean },
+		): Effect.Effect<void, PackageManagerInstallerError>;
+		(
+			into: string,
+			finalDirectory: string,
+			bins: Record<string, string>,
+			options: { readonly skipExisting: boolean },
+		): (pin: PackageManagerPin) => Effect.Effect<void, PackageManagerInstallerError>;
+	} = dual(5, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		into: string,
 		finalDirectory: string,
@@ -890,7 +933,7 @@ const make = Effect.gen(function* () {
 				yield* fs.chmod(shim, 0o755).pipe(Effect.mapError(cacheError(shim)));
 			}
 		}
-	});
+	}));
 
 	/**
 	 * The record for a directory already in the cache, regenerating absent
@@ -899,7 +942,10 @@ const make = Effect.gen(function* () {
 	 * reinstalls over it through the ordinary install path (ToolInstaller's
 	 * swap removes the old entry and renames the complete new one into place).
 	 */
-	const cachedRecord = Effect.fnUntraced(function* (
+	const cachedRecord: {
+		(pin: PackageManagerPin, directory: string): Effect.Effect<O.Option<InstalledPackageManager>, PackageManagerInstallerError>;
+		(directory: string): (pin: PackageManagerPin) => Effect.Effect<O.Option<InstalledPackageManager>, PackageManagerInstallerError>;
+	} = dual(2, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		directory: string,
 	): Effect.fn.Return<O.Option<InstalledPackageManager>, PackageManagerInstallerError> {
@@ -953,19 +999,22 @@ const make = Effect.gen(function* () {
 				bins: rootBins(bins, directory),
 			}),
 		);
-	});
+	}));
 
 	/**
 	 * The strongest digest an SRI value lists — or, when it is not a string or
 	 * lists no usable algorithm, the could-not-verify arm of
 	 * `integrityMismatch` naming `subject`.
 	 */
-	const expectedFromSri = (
+	const expectedFromSri: {
+		(pin: PackageManagerPin, sri: unknown, subject: string): Effect.Effect<ExpectedDigest, PackageManagerInstallerError>;
+		(sri: unknown, subject: string): (pin: PackageManagerPin) => Effect.Effect<ExpectedDigest, PackageManagerInstallerError>;
+	} = dual(3, (
 		pin: PackageManagerPin,
 		sri: unknown,
 		subject: string,
 	): Effect.Effect<ExpectedDigest, PackageManagerInstallerError> =>
-		Effect.fromOption(P.isString(sri) ? strongestSri(sri) : O.none(), () => errorFor(pin)({ reason: "integrityMismatch", subject }));
+		Effect.fromOption(P.isString(sri) ? strongestSri(sri) : O.none(), () => errorFor(pin)({ reason: "integrityMismatch", subject })));
 
 	/**
 	 * The expected integrity of a native package as its registry packument
@@ -973,7 +1022,10 @@ const make = Effect.gen(function* () {
 	 * be read, parsed, or that lists no usable SRI is the could-not-verify arm
 	 * of `integrityMismatch`, naming the packument url.
 	 */
-	const registryIntegrity = Effect.fnUntraced(function* (
+	const registryIntegrity: {
+		(pin: PackageManagerPin, packageName: string, version: string, registry: string): Effect.Effect<ExpectedDigest, PackageManagerInstallerError>;
+		(packageName: string, version: string, registry: string): (pin: PackageManagerPin) => Effect.Effect<ExpectedDigest, PackageManagerInstallerError>;
+	} = dual(4, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		packageName: string,
 		version: string,
@@ -989,7 +1041,7 @@ const make = Effect.gen(function* () {
 		);
 		const dist = P.hasProperty(packument, "dist") ? packument.dist : undefined;
 		return yield* expectedFromSri(pin, P.hasProperty(dist, "integrity") ? dist.integrity : undefined, packumentUrl);
-	});
+	}));
 
 	/**
 	 * The expected integrity of a native package as the caller's
@@ -998,7 +1050,10 @@ const make = Effect.gen(function* () {
 	 * gap means the map is inconsistent), and an entry with no usable SRI is
 	 * the could-not-verify arm of `integrityMismatch`, both naming the package.
 	 */
-	const suppliedIntegrity = (
+	const suppliedIntegrity: {
+		(pin: PackageManagerPin, packageName: string, nativeIntegrity: Readonly<Record<string, string>>): Effect.Effect<ExpectedDigest, PackageManagerInstallerError>;
+		(packageName: string, nativeIntegrity: Readonly<Record<string, string>>): (pin: PackageManagerPin) => Effect.Effect<ExpectedDigest, PackageManagerInstallerError>;
+	} = dual(3, (
 		pin: PackageManagerPin,
 		packageName: string,
 		nativeIntegrity: Readonly<Record<string, string>>,
@@ -1009,7 +1064,7 @@ const make = Effect.gen(function* () {
 		return P.isString(supplied)
 			? expectedFromSri(pin, supplied, packageName)
 			: Effect.fail(errorFor(pin)({ reason: "integrityMissing", subject: packageName }));
-	};
+	});
 
 	/**
 	 * pnpm 12's native overlay, done here because the installer never runs the
@@ -1023,7 +1078,10 @@ const make = Effect.gen(function* () {
 	 * sits beside it as the binary expects. Answers the bins as they should be
 	 * shimmed and recorded — retargeted to `.exe` on Windows, as upstream does.
 	 */
-	const overlayNativeBinary = Effect.fnUntraced(function* (
+	const overlayNativeBinary: {
+		(pin: PackageManagerPin, packageDir: string, manifest: PackageManifest, source: RegistrySource): Effect.Effect<Record<string, string>, PackageManagerInstallerError>;
+		(packageDir: string, manifest: PackageManifest, source: RegistrySource): (pin: PackageManagerPin) => Effect.Effect<Record<string, string>, PackageManagerInstallerError>;
+	} = dual(4, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		packageDir: string,
 		{ bins, nativePackages }: PackageManifest,
@@ -1111,7 +1169,7 @@ const make = Effect.gen(function* () {
 			}
 		}
 		return bins;
-	});
+	}));
 
 	/** Download bun's per-platform zip from GitHub releases and cache the binary. */
 	const installBun = Effect.fnUntraced(function* (pin: PackageManagerPin): Effect.fn.Return<InstalledPackageManager, PackageManagerInstallerError> {
@@ -1149,7 +1207,10 @@ const make = Effect.gen(function* () {
 	});
 
 	/** Download a registry tarball, verify, extract, shim, and cache the package dir. */
-	const installFromRegistry = Effect.fnUntraced(function* (
+	const installFromRegistry: {
+		(pin: PackageManagerPin, source: RegistrySource): Effect.Effect<InstalledPackageManager, PackageManagerInstallerError>;
+		(source: RegistrySource): (pin: PackageManagerPin) => Effect.Effect<InstalledPackageManager, PackageManagerInstallerError>;
+	} = dual(2, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		source: RegistrySource,
 	): Effect.fn.Return<InstalledPackageManager, PackageManagerInstallerError> {
@@ -1201,7 +1262,7 @@ const make = Effect.gen(function* () {
 			binDir: path.join(directory, SHIM_DIR),
 			bins: rootBins(bins, directory),
 		});
-	});
+	}));
 
 	/**
 	 * Fold the `integrity` option into the pin, answering the one pin every
@@ -1218,7 +1279,10 @@ const make = Effect.gen(function* () {
 	 * `integrityMissing` would misreport it, and a value that cannot be
 	 * compared is exactly what that arm means.
 	 */
-	const settlePin = Effect.fnUntraced(function* (
+	const settlePin: {
+		(pin: PackageManagerPin, integrity: IntegrityHashBrand | undefined): Effect.Effect<PackageManagerPin, PackageManagerInstallerError>;
+		(integrity: IntegrityHashBrand | undefined): (pin: PackageManagerPin) => Effect.Effect<PackageManagerPin, PackageManagerInstallerError>;
+	} = dual(2, Effect.fnUntraced(function* (
 		pin: PackageManagerPin,
 		integrity: IntegrityHashBrand | undefined,
 	): Effect.fn.Return<PackageManagerPin, PackageManagerInstallerError> {
@@ -1242,9 +1306,9 @@ const make = Effect.gen(function* () {
 				});
 		}
 		return PackageManagerPin.make({ name: pin.name, version: pin.version, integrity: option });
-	});
+	}));
 
-	const install = Effect.fn("PackageManagerInstaller.install")(function* (
+	const install: PackageManagerInstallerShape["install"] = dual((args) => S.is(PackageManagerPin)(args[0]), Effect.fn("PackageManagerInstaller.install")(function* (
 		pin: PackageManagerPin,
 		options?: PackageManagerInstallOptions,
 	) {
@@ -1297,7 +1361,7 @@ const make = Effect.gen(function* () {
 			registry: (options?.registry ?? DEFAULT_REGISTRY).replace(/\/+$/, ""),
 			nativeIntegrity: options?.nativeIntegrity,
 		});
-	});
+	}));
 
 	return { install } satisfies PackageManagerInstallerShape;
 });
@@ -1397,13 +1461,16 @@ export class PackageManagerInstaller extends Context.Service<PackageManagerInsta
 	 *
 	 * ```ts
 	 * import { AmbientPackageManager, PackageManagerInstaller } from "@beep/scratchpad/effected/github-actions/PackageManagerInstaller";
+	 * import { PackageManagerPin } from "@beep/scratchpad/effected/npm/PackageManagerPin";
 	 * import * as Effect from "effect/Effect";
+	 * import { dual } from "effect/Function";
+	 * import * as S from "effect/Schema";
 	 *
 	 * const manager = AmbientPackageManager.make({
 	 *   name: "npm", version: "11.0.0", bins: { npm: "npm", npx: "npx" },
 	 * });
 	 * const installer = PackageManagerInstaller.makeTest({
-	 *   install: () => Effect.succeed(manager),
+	 *   install: dual((args) => S.is(PackageManagerPin)(args[0]), (_pin: PackageManagerPin, _options?: unknown) => Effect.succeed(manager)),
 	 * });
 	 * console.log(typeof installer.install) // function
 	 * ```
@@ -1412,7 +1479,11 @@ export class PackageManagerInstaller extends Context.Service<PackageManagerInsta
 	 * @since 0.0.0
 	 */
 	static readonly makeTest = (overrides: Partial<PackageManagerInstallerShape> = {}): PackageManagerInstallerShape => ({
-		install: () => dies("install"),
+		install: dual(
+			(args) => S.is(PackageManagerPin)(args[0]),
+			(_pin: PackageManagerPin, _options?: PackageManagerInstallOptions): Effect.Effect<InstalledPackageManager, PackageManagerInstallerError> =>
+				dies("install"),
+		),
 		...overrides,
 	});
 

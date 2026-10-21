@@ -9,7 +9,8 @@ import { $PracticeGatewayId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { GatewaySettings } from "./GatewaySettings.ts";
 import { BrowserOpenFailure } from "./PracticeGateway.errors.ts";
 

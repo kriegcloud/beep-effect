@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { Evidence } from "@beep/epistemic-domain/entities/Evidence";
 import { EvidenceVerification as EvidenceVerificationModel } from "@beep/epistemic-domain/entities/EvidenceVerification";
 import {
@@ -31,7 +31,7 @@ import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../drizzle", import.meta.url));
 const makeMigrationProofLayer = () =>
   Layer.fresh(makePgliteSqlTestLayer({ inProcess: { extensions: { btree_gist } }, mode: "in-process" }));
 
@@ -160,7 +160,7 @@ if (!shouldRunPgliteIntegration) {
             SET manifestation_key = ${"b".repeat(64)}
             WHERE evidence_id = 1
           `);
-          expect(inspect(mutation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");
         }),
         120_000
       );
@@ -225,7 +225,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_candidate_aduplicate'
             )
           `);
-          expect(inspect(duplicateCandidate, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(duplicateCandidate, { depth: 10 })).toContain(
             "epistemic_contradiction_candidate_org_key_unique_idx"
           );
 
@@ -241,7 +241,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_receipt_aduplicate'
             )
           `);
-          expect(inspect(duplicateReceipt, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(duplicateReceipt, { depth: 10 })).toContain(
             "epistemic_contradiction_receipt_org_id_receipt_key_unique_idx"
           );
 
@@ -300,7 +300,9 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_receipt_awrongorg'
             )
           `);
-          expect(inspect(wrongOrgReceipt, { depth: 10 })).toContain("epistemic_contradiction_receipt_candidate_fk");
+          expect(NodeUtil.inspect(wrongOrgReceipt, { depth: 10 })).toContain(
+            "epistemic_contradiction_receipt_candidate_fk"
+          );
 
           const wrongOrgDisposition = yield* Effect.flip(sql`
             INSERT INTO epistemic_contradiction_disposition (
@@ -315,7 +317,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_disposition_awrongorg'
             )
           `);
-          expect(inspect(wrongOrgDisposition, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(wrongOrgDisposition, { depth: 10 })).toContain(
             "epistemic_contradiction_disposition_candidate_fk"
           );
 
@@ -332,7 +334,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_disposition_amissingstatus'
             )
           `);
-          expect(inspect(missingDispositionStatus, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(missingDispositionStatus, { depth: 10 })).toContain(
             "epistemic_contradiction_disposition_decision_valid"
           );
 
@@ -349,7 +351,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_disposition_amissingreason'
             )
           `);
-          expect(inspect(missingRejectedReason, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(missingRejectedReason, { depth: 10 })).toContain(
             "epistemic_contradiction_disposition_decision_valid"
           );
 
@@ -366,7 +368,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_disposition_aincompletesupersession'
             )
           `);
-          expect(inspect(incompleteSupersession, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(incompleteSupersession, { depth: 10 })).toContain(
             "epistemic_contradiction_disposition_decision_valid"
           );
 
@@ -386,7 +388,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_disposition_aecmascriptwhitespace'
             )
           `);
-          expect(inspect(ecmascriptWhitespaceReason, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(ecmascriptWhitespaceReason, { depth: 10 })).toContain(
             "epistemic_contradiction_disposition_decision_valid"
           );
 
@@ -417,7 +419,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_disposition_aoversizedutf16reason'
             )
           `);
-          expect(inspect(oversizedUtf16DispositionReason, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(oversizedUtf16DispositionReason, { depth: 10 })).toContain(
             "epistemic_contradiction_disposition_decision_valid"
           );
 
@@ -434,7 +436,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_disposition_aoversizedreason'
             )
           `);
-          expect(inspect(oversizedDispositionReason, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(oversizedDispositionReason, { depth: 10 })).toContain(
             "epistemic_contradiction_disposition_decision_valid"
           );
 
@@ -464,7 +466,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_disposition_aduplicate'
             )
           `);
-          expect(inspect(duplicateDisposition, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(duplicateDisposition, { depth: 10 })).toContain(
             "epistemic_contradiction_disposition_candidate_id_unique_idx"
           );
 
@@ -481,7 +483,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_candidate_abadkey'
             )
           `);
-          expect(inspect(malformedCandidateKey, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(malformedCandidateKey, { depth: 10 })).toContain(
             "epistemic_contradiction_candidate_key_sha256"
           );
 
@@ -498,7 +500,7 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_candidate_abaddigest'
             )
           `);
-          expect(inspect(malformedCandidateDigest, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(malformedCandidateDigest, { depth: 10 })).toContain(
             "epistemic_contradiction_candidate_digest_sha256"
           );
 
@@ -514,7 +516,9 @@ if (!shouldRunPgliteIntegration) {
               'epistemic_contradiction_receipt_abadkey'
             )
           `);
-          expect(inspect(malformedReceiptKey, { depth: 10 })).toContain("epistemic_contradiction_receipt_key_sha256");
+          expect(NodeUtil.inspect(malformedReceiptKey, { depth: 10 })).toContain(
+            "epistemic_contradiction_receipt_key_sha256"
+          );
 
           const mutations = [
             sql`UPDATE epistemic_contradiction_candidate SET source = 'User' WHERE id = ${candidateId}`,
@@ -529,7 +533,7 @@ if (!shouldRunPgliteIntegration) {
           ];
           const mutationFailures = yield* Effect.forEach(
             mutations,
-            (mutation) => Effect.map(Effect.flip(mutation), (failure) => inspect(failure, { depth: 10 })),
+            (mutation) => Effect.map(Effect.flip(mutation), (failure) => NodeUtil.inspect(failure, { depth: 10 })),
             { concurrency: 1 }
           );
           pipe(A.every(mutationFailures, Str.includes("append-only")), assertTrue);

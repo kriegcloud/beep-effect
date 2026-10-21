@@ -27,6 +27,11 @@ import { isModuleTarget, labPaths, type RunnerConfig, upstreamPaths } from "./Pa
 import { captureExit, heavy, runInherited } from "./Process.ts";
 import { jsdocLawFindings } from "./JsdocLaw.ts";
 import { canonFindings, coverageGaps } from "./Canon.ts";
+import type { ChildProcessSpawner } from "effect/process/ChildProcessSpawner";
+import type { PlatformError } from "effect/PlatformError";
+import type * as Crypto from "effect/Crypto";
+import type { EffectVitestLintError } from "@beep/repo-cli/commands/Lint";
+import type { ManifestInvalid } from "./Audit.errors.ts";
 
 const $I = $ScratchpadId.create("effected/runner/Gates");
 
@@ -67,12 +72,15 @@ export const verdict: {
     )
 );
 
-const gateExit = Effect.fn("Gates.gateExit")(function* (target: AuditTarget, gate: GateName, exitCode: number) {
+const gateExit: {
+  (target: AuditTarget, gate: GateName, exitCode: number): Effect.Effect<undefined, GateFailed, never>;
+  (gate: GateName, exitCode: number): (target: AuditTarget) => Effect.Effect<undefined, GateFailed, never>;
+} = dual(3, Effect.fn("Gates.gateExit")(function* (target: AuditTarget, gate: GateName, exitCode: number) {
   yield* verdict(target, { gate, exitCode });
   if (exitCode !== 0) {
     return yield* GateFailed.make({ target, gate, exitCode, problems: [] });
   }
-});
+}));
 
 /**
  * Every repo-relative TypeScript file a target owns: its source tree, its
@@ -90,12 +98,15 @@ const gateExit = Effect.fn("Gates.gateExit")(function* (target: AuditTarget, gat
  * @category queries
  * @since 0.0.0
  */
-export const targetFiles = Effect.fn("Gates.targetFiles")(function* (repoRoot: string, target: AuditTarget) {
+export const targetFiles: {
+  (repoRoot: string, target: AuditTarget): Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (target: AuditTarget): (repoRoot: string) => Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Gates.targetFiles")(function* (repoRoot: string, target: AuditTarget) {
   const lab = labPaths(target);
   const sources = yield* listTsFiles(repoRoot, lab.sourceDir);
   const tests = yield* listTsFiles(repoRoot, lab.testDir);
   return [...sources, ...lab.extraSources, ...tests, ...lab.extraTests];
-});
+}));
 
 /**
  * What the parity gate found.
@@ -143,7 +154,10 @@ const describe = (entry: ExportEntry): string => `${entry.entry} ${entry.name} (
  * @category validation
  * @since 0.0.0
  */
-export const parity = Effect.fn("Gates.parity")(function* (config: RunnerConfig, module: ModuleName, strict: boolean) {
+export const parity: {
+  (config: RunnerConfig, module: ModuleName, strict: boolean): Effect.Effect<ParityReport, ManifestInvalid | PlatformError | GateFailed, FileSystem.FileSystem | Path.Path>;
+  (module: ModuleName, strict: boolean): (config: RunnerConfig) => Effect.Effect<ParityReport, ManifestInvalid | PlatformError | GateFailed, FileSystem.FileSystem | Path.Path>;
+} = dual(3, Effect.fn("Gates.parity")(function* (config: RunnerConfig, module: ModuleName, strict: boolean) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const lab = labPaths(module);
@@ -160,8 +174,11 @@ export const parity = Effect.fn("Gates.parity")(function* (config: RunnerConfig,
     })
   );
   const actual = A.flatMap(actualPerEntry, (result) => result.facets);
-  const find = (haystack: ReadonlyArray<ExportEntry>, needle: ExportEntry): O.Option<ExportEntry> =>
-    A.findFirst(haystack, (candidate) => candidate.entry === needle.entry && candidate.name === needle.name);
+  const find: {
+    (haystack: ReadonlyArray<ExportEntry>, needle: ExportEntry): O.Option<ExportEntry>;
+    (needle: ExportEntry): (haystack: ReadonlyArray<ExportEntry>) => O.Option<ExportEntry>;
+  } = dual(2, (haystack: ReadonlyArray<ExportEntry>, needle: ExportEntry): O.Option<ExportEntry> =>
+    A.findFirst(haystack, (candidate) => candidate.entry === needle.entry && candidate.name === needle.name));
   const missingFiles = A.map(A.getSomes(A.map(actualPerEntry, (result) => result.missingFile)), (file) => `missing entry file ${file}`);
   const missing = A.filterMap(expected, (entry) =>
     O.isNone(find(actual, entry)) ? Result.succeed(`missing export ${describe(entry)}`) : Result.failVoid
@@ -211,7 +228,7 @@ export const parity = Effect.fn("Gates.parity")(function* (config: RunnerConfig,
   }
   yield* verdict(module, { gate: "parity", exitCode: 0 });
   return report;
-});
+}));
 
 /**
  * Effect diagnostics the canary file must provoke; each is a rule whose
@@ -249,7 +266,10 @@ export const CANARY_DIAGNOSTICS = ["effect(missingPipeableSignature)", "effect(s
 export const missingCanaryDiagnostics = (report: string): ReadonlyArray<string> =>
   A.filter(CANARY_DIAGNOSTICS, (code) => !Str.includes(code)(report));
 
-const canary = Effect.fn("Gates.canary")(function* (config: RunnerConfig, target: AuditTarget) {
+const canary: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<undefined, GateFailed | PlatformError, ChildProcessSpawner>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<undefined, GateFailed | PlatformError, ChildProcessSpawner>;
+} = dual(2, Effect.fn("Gates.canary")(function* (config: RunnerConfig, target: AuditTarget) {
   const result = yield* captureExit(
     heavy({
       command: "bun",
@@ -271,7 +291,7 @@ const canary = Effect.fn("Gates.canary")(function* (config: RunnerConfig, target
     });
   }
   yield* Console.log(`[effected] ${target} check: effect diagnostics live (canary flagged ${CANARY_DIAGNOSTICS.length} rules)`);
-});
+}));
 
 const EDITOR_TSGO_ROOT = /^(\d+)\.(\d+)\.(\d+)$/;
 
@@ -352,10 +372,10 @@ const stageEditorTsgo = Effect.fn("Gates.stageEditorTsgo")(function* (config: Ru
 });
 
 const EDITOR_ERROR = /(?:\(\d+,\d+\): |^)error TS\d+:/;
-const EDITOR_ADVISORY = /\(\d+,\d+\): (?:warning|suggestion|message) TS\d+:/;
+const EDITOR_ADVISORY = /(?:\(\d+,\d+\): |^)(?:warning|suggestion|message) TS\d+:/;
 
 /**
- * What the editor's tsgo run means for the check gate.
+ * What one tsgo run (the editor's or the pinned one) means for the check gate.
  *
  * **Example** (Decode a clean verdict with advisories)
  *
@@ -371,10 +391,10 @@ const EDITOR_ADVISORY = /\(\d+,\d+\): (?:warning|suggestion|message) TS\d+:/;
  * @since 0.0.0
  */
 export const EditorTsgoVerdict = S.Struct({
-  red: S.Boolean.annotateKey({ description: "Whether the editor run fails the check gate." }),
-  errors: S.Array(S.String).annotateKey({ description: "The error-category diagnostic lines." }),
-  advisories: S.Finite.annotateKey({ description: "The count of suggestion, warning and message diagnostics." }),
-}).annotate($I.annote("EditorTsgoVerdict", { description: "The check gate's reading of one editor tsgo run." }));
+  red: S.Boolean.pipe($I.annoteKey("EditorTsgoVerdict.red", { description: "Whether the editor run fails the check gate." })),
+  errors: S.Array(S.String).pipe($I.annoteKey("EditorTsgoVerdict.errors", { description: "The error-category diagnostic lines." })),
+  advisories: S.Finite.pipe($I.annoteKey("EditorTsgoVerdict.advisories", { description: "The count of suggestion, warning and message diagnostics." })),
+}).pipe($I.annoteSchema("EditorTsgoVerdict", { description: "The check gate's reading of one editor tsgo run." }));
 
 /**
  * The editor tsgo verdict, inferred from its schema.
@@ -385,14 +405,17 @@ export const EditorTsgoVerdict = S.Struct({
 export type EditorTsgoVerdict = typeof EditorTsgoVerdict.Type;
 
 /**
- * Reads an editor tsgo run: red on any error-category diagnostic, or on a non-zero exit that printed no
- * diagnostic at all (a crash); clean when the only output is suggestion, warning or message diagnostics.
+ * Reads a tsgo run, editor or pinned: red on any error-category diagnostic, or on a non-zero exit that
+ * printed no diagnostic at all (a crash); clean when the only output is suggestion, warning or message
+ * diagnostics.
  *
  * **Details**
  *
  * Newer editor tsgo builds exit non-zero when they report suggestion-level Effect diagnostics (0.52.0 does
- * for `TS377141`), which the pinned tsgo never fails on. Exit codes alone would turn advisory output into a
- * red gate, so the verdict classifies the printed diagnostics instead.
+ * for `TS377141`). The pinned tsgo exits 1 on a `warning TS377134` (an Effect diagnostic rule name it
+ * does not know yet, e.g. one only newer builds ship), even with zero errors and with
+ * `ignoreEffectSuggestionsInTscExitCode`. Exit codes alone would turn advisory output into a red gate, so
+ * both check-gate steps classify the printed diagnostics instead.
  *
  * **Example** (Advisory output stays clean)
  *
@@ -436,7 +459,10 @@ export const editorTsgoVerdict = (run: { readonly exitCode: number; readonly out
  * @category validation
  * @since 0.0.0
  */
-export const check = Effect.fn("Gates.check")(function* (config: RunnerConfig, target: AuditTarget) {
+export const check: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<undefined, GateFailed | PlatformError, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<undefined, GateFailed | PlatformError, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+} = dual(2, Effect.fn("Gates.check")(function* (config: RunnerConfig, target: AuditTarget) {
   const path = yield* Path.Path;
   yield* canary(config, target);
   const editor = yield* stageEditorTsgo(config);
@@ -461,15 +487,26 @@ export const check = Effect.fn("Gates.check")(function* (config: RunnerConfig, t
   } else {
     yield* Console.log(`[effected] ${target} check: no editor tsgo cache found; pinned tsgo only`);
   }
-  const exitCode = yield* runInherited(
+  const pinnedRun = yield* captureExit(
     heavy({
       command: "bun",
       args: ["run", "--cwd", "scratchpad", "tsgo", "-p", `effected/${target}/tsconfig.json`, "--noEmit", "--pretty", "false"],
       cwd: config.repoRoot,
     })
   );
-  yield* gateExit(target, "check", exitCode);
-});
+  if (Str.isNonEmpty(Str.trim(pinnedRun.output))) yield* Console.log(Str.trimEnd(pinnedRun.output));
+  // Read like the editor step: a non-zero exit whose only diagnostics are warnings (TS377134 for a rule
+  // name this tsgo does not know) is clean, with the warnings reported as advisories.
+  const pinned = editorTsgoVerdict(pinnedRun);
+  if (pinned.red) {
+    yield* Console.log(`[effected] ${target} check: pinned tsgo red`);
+    return yield* gateExit(target, "check", pinnedRun.exitCode === 0 ? 1 : pinnedRun.exitCode);
+  }
+  if (pinned.advisories > 0) {
+    yield* Console.log(`[effected] ${target} check: pinned tsgo clean (${pinned.advisories} advisory diagnostic(s))`);
+  }
+  yield* gateExit(target, "check", 0);
+}));
 
 /**
  * The repo law canary: one file violating oxlint and each of the four laws,
@@ -555,7 +592,10 @@ export const judgeReport: {
   return { live: mentions(scope.canaryPath), offenders: A.filter(scope.targets, mentions) };
 });
 
-const judged = Effect.fn("Gates.judged")(function* (
+const judged: {
+  (target: AuditTarget, tool: string, report: string, verdictOf: ReportVerdict): Effect.Effect<undefined, GateFailed, never>;
+  (tool: string, report: string, verdictOf: ReportVerdict): (target: AuditTarget) => Effect.Effect<undefined, GateFailed, never>;
+} = dual(4, Effect.fn("Gates.judged")(function* (
   target: AuditTarget,
   tool: string,
   report: string,
@@ -581,9 +621,12 @@ const judged = Effect.fn("Gates.judged")(function* (
     });
   }
   yield* Console.log(`[effected] ${target} lint: ${tool} clean (canary flagged)`);
-});
+}));
 
-const mirrorForImports = Effect.fn("Gates.mirrorForImports")(function* (
+const mirrorForImports: {
+  (config: RunnerConfig, target: AuditTarget, files: ReadonlyArray<string>): Effect.Effect<{ root: string; mirrored: Array<string>; }, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (target: AuditTarget, files: ReadonlyArray<string>): (config: RunnerConfig) => Effect.Effect<{ root: string; mirrored: Array<string>; }, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(3, Effect.fn("Gates.mirrorForImports")(function* (
   config: RunnerConfig,
   target: AuditTarget,
   files: ReadonlyArray<string>
@@ -600,7 +643,7 @@ const mirrorForImports = Effect.fn("Gates.mirrorForImports")(function* (
     })
   );
   return { root, mirrored };
-});
+}));
 
 /**
  * The lint gate: oxlint, then the four beep laws, each run together with the
@@ -627,7 +670,10 @@ const mirrorForImports = Effect.fn("Gates.mirrorForImports")(function* (
  * @category validation
  * @since 0.0.0
  */
-export const lint = Effect.fn("Gates.lint")(function* (config: RunnerConfig, target: AuditTarget) {
+export const lint: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<void, PlatformError | GateFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<void, PlatformError | GateFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+} = dual(2, Effect.fn("Gates.lint")(function* (config: RunnerConfig, target: AuditTarget) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const lab = labPaths(target);
@@ -672,7 +718,7 @@ export const lint = Effect.fn("Gates.lint")(function* (config: RunnerConfig, tar
     })
   );
   yield* gateExit(target, "lint", 0);
-});
+}));
 
 /**
  * The test gate: Node vitest through the shared effected config, with the
@@ -694,7 +740,10 @@ export const lint = Effect.fn("Gates.lint")(function* (config: RunnerConfig, tar
  * @category validation
  * @since 0.0.0
  */
-export const test = Effect.fn("Gates.test")(function* (config: RunnerConfig, target: AuditTarget, coverage: boolean) {
+export const test: {
+  (config: RunnerConfig, target: AuditTarget, coverage: boolean): Effect.Effect<undefined, ManifestInvalid | PlatformError | EffectVitestLintError | GateFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner | Crypto.Crypto>;
+  (target: AuditTarget, coverage: boolean): (config: RunnerConfig) => Effect.Effect<undefined, ManifestInvalid | PlatformError | EffectVitestLintError | GateFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner | Crypto.Crypto>;
+} = dual(3, Effect.fn("Gates.test")(function* (config: RunnerConfig, target: AuditTarget, coverage: boolean) {
   const lab = labPaths(target);
   const exitCode = yield* runInherited(
     heavy({
@@ -730,7 +779,7 @@ export const test = Effect.fn("Gates.test")(function* (config: RunnerConfig, tar
   }
   yield* Console.log(`[effected] ${target} test: coverage summary complete at 100 percent; canon detectors clean`);
   yield* gateExit(target, "test", 0);
-});
+}));
 
 const TEMPLATE_PATH = "scratchpad/docgen.effected.template.json";
 
@@ -769,7 +818,10 @@ export const DOCGEN_CANARY_SRC = "effected/.canary/docgen";
  * @category commands
  * @since 0.0.0
  */
-export const writeDocgenConfig = Effect.fn("Gates.writeDocgenConfig")(function* (
+export const writeDocgenConfig: {
+  (config: RunnerConfig, options: { readonly srcDir: string; readonly configFile: string }): Effect.Effect<void, PlatformError, FileSystem.FileSystem | Path.Path>;
+  (options: { readonly srcDir: string; readonly configFile: string }): (config: RunnerConfig) => Effect.Effect<void, PlatformError, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Gates.writeDocgenConfig")(function* (
   config: RunnerConfig,
   options: { readonly srcDir: string; readonly configFile: string }
 ) {
@@ -781,18 +833,24 @@ export const writeDocgenConfig = Effect.fn("Gates.writeDocgenConfig")(function* 
     .replaceAll("effected/__MODULE__", options.srcDir)
     .replaceAll("generated-docs/__MODULE__", `generated-docs/${outDirName}`);
   yield* fs.writeFileString(path.join(config.repoRoot, "scratchpad", options.configFile), rendered);
-});
+}));
 
-const runDocgen = (config: RunnerConfig, configFile: string) =>
+const runDocgen: {
+  (config: RunnerConfig, configFile: string): Effect.Effect<{ exitCode: number; output: string; }, PlatformError, ChildProcessSpawner>;
+  (configFile: string): (config: RunnerConfig) => Effect.Effect<{ exitCode: number; output: string; }, PlatformError, ChildProcessSpawner>;
+} = dual(2, (config: RunnerConfig, configFile: string): Effect.Effect<{ exitCode: number; output: string; }, PlatformError, ChildProcessSpawner> =>
   captureExit(
     heavy({
       command: "bun",
       args: ["run", "--cwd", "scratchpad", "docgen", "--config-file", configFile],
       cwd: config.repoRoot,
     })
-  );
+  ));
 
-const docgenCanary = Effect.fn("Gates.docgenCanary")(function* (config: RunnerConfig, target: AuditTarget) {
+const docgenCanary: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<undefined, GateFailed | PlatformError, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<undefined, GateFailed | PlatformError, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+} = dual(2, Effect.fn("Gates.docgenCanary")(function* (config: RunnerConfig, target: AuditTarget) {
   yield* writeDocgenConfig(config, { srcDir: DOCGEN_CANARY_SRC, configFile: "docgen.effected-canary.json" });
   const result = yield* runDocgen(config, "docgen.effected-canary.json");
   const live = result.exitCode !== 0 && Str.includes("DocgenCanary")(result.output) && Str.includes("TS2345")(result.output);
@@ -806,11 +864,14 @@ const docgenCanary = Effect.fn("Gates.docgenCanary")(function* (config: RunnerCo
     });
   }
   yield* Console.log(`[effected] ${target} docgen: example typechecking live (canary rejected)`);
-});
+}));
 
 const DOCTEST_FILES = /doctest: (\d+) file\(s\)/;
 
-const jsdocLaw = Effect.fn("Gates.jsdocLaw")(function* (config: RunnerConfig, target: AuditTarget) {
+const jsdocLaw: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<undefined, ManifestInvalid | PlatformError | GateFailed, FileSystem.FileSystem | Path.Path>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<undefined, ManifestInvalid | PlatformError | GateFailed, FileSystem.FileSystem | Path.Path>;
+} = dual(2, Effect.fn("Gates.jsdocLaw")(function* (config: RunnerConfig, target: AuditTarget) {
   const path = yield* Path.Path;
   const lab = labPaths(target);
   const sources = [...(yield* listTsFiles(config.repoRoot, lab.sourceDir)), ...lab.extraSources];
@@ -826,7 +887,7 @@ const jsdocLaw = Effect.fn("Gates.jsdocLaw")(function* (config: RunnerConfig, ta
     return yield* GateFailed.make({ target, gate: "docgen", exitCode: 1, problems: findings });
   }
   yield* Console.log(`[effected] ${target} docgen: JSDoc law clean over ${sources.length} file(s)`);
-});
+}));
 
 /**
  * The docgen gate: proves example typechecking is live with the canary, runs
@@ -852,7 +913,10 @@ const jsdocLaw = Effect.fn("Gates.jsdocLaw")(function* (config: RunnerConfig, ta
  * @category validation
  * @since 0.0.0
  */
-export const docgen = Effect.fn("Gates.docgen")(function* (config: RunnerConfig, target: AuditTarget) {
+export const docgen: {
+  (config: RunnerConfig, target: AuditTarget): Effect.Effect<undefined, ManifestInvalid | PlatformError | GateFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+  (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<undefined, ManifestInvalid | PlatformError | GateFailed, FileSystem.FileSystem | Path.Path | ChildProcessSpawner>;
+} = dual(2, Effect.fn("Gates.docgen")(function* (config: RunnerConfig, target: AuditTarget) {
   yield* docgenCanary(config, target);
   yield* jsdocLaw(config, target);
   const configFile = `docgen.${target}.json`;
@@ -885,7 +949,7 @@ export const docgen = Effect.fn("Gates.docgen")(function* (config: RunnerConfig,
     );
   }
   yield* gateExit(target, "docgen", verified.exitCode);
-});
+}));
 
 /**
  * Which gates `audit` runs for a target at a stage: parity is strict from S1,

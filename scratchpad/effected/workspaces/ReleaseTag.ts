@@ -10,6 +10,9 @@
 // convention passes `versionPrefix: "v"` explicitly. Git tag history is not an
 // API, so changing a default here would not rewrite a consumer's existing tags.
 
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as S from "effect/Schema";
@@ -76,7 +79,7 @@ export const TagFormatOptions = S.Struct({
 	 * as `actions/checkout`'s ref resolution and third-party changelog
 	 * generators expect.
 	 */
-	versionPrefix: S.optionalKey(S.String).annotateKey({ description: "The version segment prefix; defaults to an empty string when formatting." }),
+	versionPrefix: S.optionalKey(S.String).pipe($I.annoteKey("TagFormatOptions.versionPrefix", { description: "The version segment prefix; defaults to an empty string when formatting." })),
 }).pipe($I.annoteSchema("TagFormatOptions", { description: "Optional version prefix overrides for release tag formatting." }));
 
 /**
@@ -96,9 +99,9 @@ export type TagFormatOptions = typeof TagFormatOptions.Type;
 // minor segments and the presence of a prerelease. A dependency edge for that
 // is disproportionate; real semver *comparison* would justify one.
 const VersionCore = S.Struct({
-	major: S.Finite.annotateKey({ description: "The parsed major version segment." }),
-	minor: S.Finite.annotateKey({ description: "The parsed minor version segment." }),
-	prerelease: S.Boolean.annotateKey({ description: "Whether the version carries a prerelease suffix." }),
+	major: S.Finite.pipe($I.annoteKey("VersionCore.major", { description: "The parsed major version segment." })),
+	minor: S.Finite.pipe($I.annoteKey("VersionCore.minor", { description: "The parsed minor version segment." })),
+	prerelease: S.Boolean.pipe($I.annoteKey("VersionCore.prerelease", { description: "Whether the version carries a prerelease suffix." })),
 }).pipe($I.annoteSchema("VersionCore", { description: "The numeric segments and prerelease presence needed to derive tracking aliases." }));
 type VersionCore = typeof VersionCore.Type;
 
@@ -111,11 +114,10 @@ const NUMERIC_IDENTIFIER = /^(?:0|[1-9]\d*)$/;
  * Complete SemVer grammar, including non-empty prerelease and build identifiers.
  */
 const VersionText = S.String.check(
-	S.isPattern(/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$(?![\s\S])/, {
-		identifier: $I`VersionTextPattern`,
-		title: "SemVer text",
+	S.isPattern(/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$(?![\s\S])/, $I.annote("VersionTextPattern", {
+		message: "SemVer text",
 		description: "A complete SemVer version with no leading zeros in numeric identifiers and valid non-empty prerelease and build identifiers.",
-	}),
+	})),
 ).pipe($I.annoteSchema("VersionText", { description: "A complete SemVer version with valid prerelease and build identifiers." }));
 const isVersionText = S.is(VersionText);
 
@@ -162,17 +164,17 @@ export const TrackingTagOptions = S.Struct({
 	 * Prefix the alias with a package name, for a monorepo that namespaces its
 	 * tags: `@scope/pkg@v1`. Omit it for a single-package repo's bare `v1`.
 	 */
-	packageName: S.optionalKey(S.String).annotateKey({ description: "An optional package name prefix for tracking aliases." }),
+	packageName: S.optionalKey(S.String).pipe($I.annoteKey("TrackingTagOptions.packageName", { description: "An optional package name prefix for tracking aliases." })),
 	/**
 	 * Which aliases to derive. `"both"` (the default) gives `v1` and `v1.2`;
 	 * `"major"` gives only the broad `v1`.
 	 */
-	precision: S.optionalKey(S.Literals(["major", "both"])).annotateKey({ description: "Derive only the major alias or both major and minor aliases; defaults to both during derivation." }),
+	precision: S.optionalKey(S.Literals(["major", "both"])).pipe($I.annoteKey("TrackingTagOptions.precision", { description: "Derive only the major alias or both major and minor aliases; defaults to both during derivation." })),
 	/**
 	 * Derive aliases for a prerelease version too. **Off by default, and you
 	 * almost certainly want it off** — see {@link TrackingTag.forVersion}.
 	 */
-	includePrerelease: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to derive aliases for prereleases; disabled by default during derivation." }),
+	includePrerelease: S.optionalKey(S.Boolean).pipe($I.annoteKey("TrackingTagOptions.includePrerelease", { description: "Whether to derive aliases for prereleases; disabled by default during derivation." })),
 }).pipe($I.annoteSchema("TrackingTagOptions", { description: "Optional package prefix, precision and prerelease policy for tracking alias derivation." }));
 
 /**
@@ -221,19 +223,19 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
 	/**
 	 * The tag string exactly as it appears in git.
 	 */
-	value: S.NonEmptyString.annotateKey({ description: "The tag string exactly as it appears in git." }),
+	value: S.NonEmptyString.pipe($I.annoteKey("TrackingTag.value", { description: "The tag string exactly as it appears in git." })),
 	/**
 	 * The package the alias namespaces; absent on a bare `v1`.
 	 */
-	packageName: S.optionalKey(S.NonEmptyString).annotateKey({ description: "The package the alias namespaces; absent on a bare `v1`." }),
+	packageName: S.optionalKey(S.NonEmptyString).pipe($I.annoteKey("TrackingTag.packageName", { description: "The package the alias namespaces; absent on a bare `v1`." })),
 	/**
 	 * The major version the alias tracks.
 	 */
-	major: S.Int.annotateKey({ description: "The major version the alias tracks." }),
+	major: S.Int.pipe($I.annoteKey("TrackingTag.major", { description: "The major version the alias tracks." })),
 	/**
 	 * The minor version, on a `v1.2`-precision alias; absent on `v1`.
 	 */
-	minor: S.optionalKey(S.Int).annotateKey({ description: "The minor version, on a `v1.2`-precision alias; absent on `v1`." }),
+	minor: S.optionalKey(S.Int).pipe($I.annoteKey("TrackingTag.minor", { description: "The minor version, on a `v1.2`-precision alias; absent on `v1`." })),
 }, $I.annote("TrackingTag", { description: "A floating alias tag — `v1`, `v1.2` — that a repo re-points at its newest matching release." })) {
 	/**
 	 * Whether this alias tracks a whole major line, or one minor line inside it.
@@ -286,7 +288,10 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static forVersion(version: string, options?: TrackingTagOptions): ReadonlyArray<TrackingTag> {
+	static readonly forVersion: {
+		(version: string, options?: TrackingTagOptions): ReadonlyArray<TrackingTag>;
+		(options?: TrackingTagOptions): (version: string) => ReadonlyArray<TrackingTag>;
+	} = dual((args) => P.isString(args[0]), (version: string, options?: TrackingTagOptions): ReadonlyArray<TrackingTag> => {
 		const core = versionCore(version);
 		if (core === undefined) return [];
 		if (!S.is(TrackingTag.fields.major)(core.major) || !S.is(TrackingTag.fields.minor)(core.minor)) return [];
@@ -295,18 +300,21 @@ export class TrackingTag extends S.Class<TrackingTag, { readonly brand: unique s
 		const packageName = options?.packageName;
 		if (packageName !== undefined && !S.is(TrackingTag.fields.packageName)(packageName)) return [];
 		const prefix = packageName === undefined ? "" : `${packageName}@`;
-		const named = (suffix: string, fields: { readonly major: number; readonly minor?: number }): TrackingTag =>
+		const named: {
+			(suffix: string, fields: { readonly major: number; readonly minor?: number }): TrackingTag;
+			(fields: { readonly major: number; readonly minor?: number }): (suffix: string) => TrackingTag;
+		} = dual(2, (suffix: string, fields: { readonly major: number; readonly minor?: number }): TrackingTag =>
 			TrackingTag.make({
 				value: `${prefix}v${suffix}`,
 				...(packageName !== undefined && { packageName }),
 				major: fields.major,
 				...(fields.minor !== undefined && { minor: fields.minor }),
-			});
+			}));
 
 		const major = named(`${core.major}`, { major: core.major });
 		if (options?.precision === "major") return [major];
 		return [major, named(`${core.major}.${core.minor}`, { major: core.major, minor: core.minor })];
-	}
+	});
 }
 
 /**
@@ -381,7 +389,7 @@ export const classifyTag = (tag: string): TagClassification => {
 	// One or two numeric segments behind a `v` is a tracking alias.
 	if (!hasV) return { kind: "unrecognized" };
 	const segments = withoutV.split(".");
-	if (segments.length > 2 || !segments.every((segment) => NUMERIC_IDENTIFIER.test(segment))) {
+	if (segments.length > 2 || !A.every(segments, (segment) => NUMERIC_IDENTIFIER.test(segment))) {
 		return { kind: "unrecognized" };
 	}
 
@@ -435,19 +443,19 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
 	/**
 	 * The tag string exactly as it appears in git.
 	 */
-	value: S.NonEmptyString.annotateKey({ description: "The tag string exactly as it appears in git." }),
+	value: S.NonEmptyString.pipe($I.annoteKey("ReleaseTag.value", { description: "The tag string exactly as it appears in git." })),
 	/**
 	 * The package the tag names; absent on a workspace-wide single tag.
 	 */
-	packageName: S.optionalKey(S.NonEmptyString).annotateKey({ description: "The package the tag names; absent on a workspace-wide single tag." }),
+	packageName: S.optionalKey(S.NonEmptyString).pipe($I.annoteKey("ReleaseTag.packageName", { description: "The package the tag names; absent on a workspace-wide single tag." })),
 	/**
 	 * The version the tag names, without any prefix.
 	 */
-	version: S.NonEmptyString.annotateKey({ description: "The version the tag names, without any prefix." }),
+	version: S.NonEmptyString.pipe($I.annoteKey("ReleaseTag.version", { description: "The version the tag names, without any prefix." })),
 	/**
 	 * Which style produced it.
 	 */
-	style: TagStyle.annotateKey({ description: "Which style produced it." }),
+	style: TagStyle.pipe($I.annoteKey("ReleaseTag.style", { description: "Which style produced it." })),
 }, $I.annote("ReleaseTag", { description: "A git tag naming a release, and the parts it was built from." })) {
 	/**
 	 * One shared tag for a whole release: `1.2.3`.
@@ -465,14 +473,17 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static single(version: string, options?: TagFormatOptions): ReleaseTag {
+	static readonly single: {
+		(version: string, options?: TagFormatOptions): ReleaseTag;
+		(options?: TagFormatOptions): (version: string) => ReleaseTag;
+	} = dual((args) => P.isString(args[0]), (version: string, options?: TagFormatOptions): ReleaseTag => {
 		const prefix = options?.versionPrefix ?? "";
 		return ReleaseTag.make({
 			value: `${prefix}${version}`,
 			version,
 			style: "single",
 		});
-	}
+	});
 
 	/**
 	 * A per-package tag: `<packageName>@<version>` — `@scope/pkg@1.2.3` for a
@@ -492,7 +503,10 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static scoped(packageName: string, version: string, options?: TagFormatOptions): ReleaseTag {
+	static readonly scoped: {
+		(packageName: string, version: string, options?: TagFormatOptions): ReleaseTag;
+		(version: string, options?: TagFormatOptions): (packageName: string) => ReleaseTag;
+	} = dual((args) => P.isString(args[1]), (packageName: string, version: string, options?: TagFormatOptions): ReleaseTag => {
 		const prefix = options?.versionPrefix ?? "";
 		return ReleaseTag.make({
 			value: `${packageName}@${prefix}${version}`,
@@ -500,7 +514,7 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
 			version,
 			style: "scoped",
 		});
-	}
+	});
 }
 
 /**
@@ -527,15 +541,15 @@ export class ReleaseTag extends S.Class<ReleaseTag, { readonly brand: unique sym
  */
 export const TagClassification = S.Union([
 	S.Struct({
-		kind: S.Literal("release").annotateKey({ description: "An immutable release tag." }),
-		tag: ReleaseTag.annotateKey({ description: "The recognized release tag." }),
+		kind: S.Literal("release").pipe($I.annoteKey("TagClassification.kind", { description: "An immutable release tag." })),
+		tag: ReleaseTag.pipe($I.annoteKey("TagClassification.tag", { description: "The recognized release tag." })),
 	}),
 	S.Struct({
-		kind: S.Literal("tracking").annotateKey({ description: "A floating tracking alias." }),
-		tag: TrackingTag.annotateKey({ description: "The recognized tracking tag." }),
+		kind: S.Literal("tracking").pipe($I.annoteKey("TagClassification.kind", { description: "A floating tracking alias." })),
+		tag: TrackingTag.pipe($I.annoteKey("TagClassification.tag", { description: "The recognized tracking tag." })),
 	}),
 	S.Struct({
-		kind: S.Literal("unrecognized").annotateKey({ description: "A tag outside both supported grammars." }),
+		kind: S.Literal("unrecognized").pipe($I.annoteKey("TagClassification.kind", { description: "A tag outside both supported grammars." })),
 	}),
 ]).pipe(
 	S.toTaggedUnion("kind"),

@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import {
   ActFrame,
   CorrectionDelta,
@@ -39,7 +39,7 @@ const decodeUnknownLegalPositionRelator = S.decodeUnknownEffect(LegalPositionRel
 const decodeUnknownPowerExercise = S.decodeUnknownEffect(PowerExercise);
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../drizzle", import.meta.url));
 
 // The drizzle folder contains `CREATE EXTENSION btree_gist` (the epistemic edge
 // migration), which the shared external pglite-socket lane cannot load, so this
@@ -323,7 +323,7 @@ if (!shouldRunPgliteIntegration) {
             UPDATE law_practice_legal_position_relator SET position_kind = 'claim' WHERE id = ${RELATOR_PRIVILEGE_ID}
           `);
 
-          expect(inspect(mutation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");
         }),
         120_000
       );
@@ -341,7 +341,7 @@ if (!shouldRunPgliteIntegration) {
             DELETE FROM law_practice_power_exercise WHERE id = ${EXERCISE_ID}
           `);
 
-          expect(inspect(mutation, { depth: 10 })).toContain("append-only");
+          expect(NodeUtil.inspect(mutation, { depth: 10 })).toContain("append-only");
         }),
         120_000
       );

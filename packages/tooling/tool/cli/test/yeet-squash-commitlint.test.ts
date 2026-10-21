@@ -30,7 +30,8 @@ import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -163,11 +164,11 @@ describe("squash commit message prediction", () => {
     expect(unknown).toContain("reword commit subjects");
   });
 
-  it("never names a URL line as an offender (commitlint exempts them from max-line-length)", () => {
+  it("exempts body URL lines while still reporting an overlong URL header", () => {
     const url = `* docs: see https://github.com/beep-effect/beep-effect/pull/1915#issuecomment-${"9".repeat(80)}`;
     expect(Str.length(url)).toBeGreaterThan(COMMITLINT_MAX_LINE_LENGTH);
-    const message = SquashCommitMessage.make({ header: "fix(x): y (#7)", body: `${url}\n\n* ${longSubject}` });
-    expect(A.map(squashCommitlintOffendingLines(message), (line) => line.line)).toEqual([5]);
+    const message = SquashCommitMessage.make({ header: `fix(docs): ${url} (#7)`, body: `${url}\n\n* ${longSubject}` });
+    expect(A.map(squashCommitlintOffendingLines(message), (line) => line.line)).toEqual([1, 5]);
   });
 
   it("budgets the PR title at the line limit minus its (#n) suffix", () => {
@@ -341,27 +342,34 @@ it.layer(platform, { timeout: "60 seconds" })("squash commitlint against the rep
     )
   );
 
-  it.effect("a 102-character bullet from a 100-character subject fails footer-max-line-length (ep47)", () =>
-    withScripted(
-      {
-        commits: [
-          commit("docs(doctrine): admit Codex", "Why."),
-          commit("chore(doctrine): re-request review"),
-          commit(longSubject, "Every Codex selection point."),
-        ],
-      },
-      (_calls, context) =>
-        Effect.gen(function* () {
-          const report = yield* readSquashCommitlint(context, pullFacts);
-          expect(report.verdict._tag).toBe("fail");
-          if (report.verdict._tag === "fail") {
-            expect(report.verdict.rules).toEqual(["footer-max-line-length"]);
-            expect(A.map(report.verdict.offendingLines, (line) => [line.length, line.text])).toEqual([
-              [102, `* ${longSubject}`],
-            ]);
-          }
-          expect(renderSquashCommitlintVerdict(report.verdict)).toContain(`"* ${longSubject}"`);
-        })
+  it.effect("honors the repo's 150-character footer budget for squash bullets", () =>
+    Effect.forEach(
+      [
+        { subject: longSubject, expected: "pass" },
+        { subject: `${longSubject} ${longSubject}`, expected: "fail" },
+      ],
+      ({ subject, expected }) =>
+        withScripted(
+          {
+            commits: [
+              commit("docs(doctrine): admit Codex", "Why."),
+              commit("chore(doctrine): re-request review"),
+              commit(subject, "Every Codex selection point."),
+            ],
+          },
+          (_calls, context) =>
+            Effect.gen(function* () {
+              const report = yield* readSquashCommitlint(context, pullFacts);
+              expect(report.verdict._tag).toBe(expected);
+              if (report.verdict._tag === "fail") {
+                expect(report.verdict.rules).toEqual(["footer-max-line-length"]);
+                expect(A.map(report.verdict.offendingLines, (line) => [line.length, line.text])).toEqual([
+                  [Str.length(subject) + 2, `* ${subject}`],
+                ]);
+                expect(renderSquashCommitlintVerdict(report.verdict)).toContain(`"* ${subject}"`);
+              }
+            })
+        )
     )
   );
 

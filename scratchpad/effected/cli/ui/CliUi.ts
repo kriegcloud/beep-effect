@@ -9,6 +9,9 @@ import * as Cause from "effect/Cause";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as Result from "effect/Result";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import type * as Param from "effect/cli/Param";
 import * as Prompt from "effect/cli/Prompt";
 import * as O from "@beep/utils/Option";
@@ -26,12 +29,14 @@ import { errorBoundary } from "./internal/ErrorBoundary.ts";
 import { inkModules, loadInk, withInkColour } from "./internal/ink.ts";
 import { lazyView } from "./internal/lazyView.ts";
 import { mountPermit } from "./internal/mountPermit.ts";
+import { screenElement } from "./internal/screenElement.ts";
 import { UiRenderOptions } from "./internal/renderOptions.ts";
 import { useScreenGuard } from "./internal/ScreenContext.ts";
 import { uiProviders } from "./internal/UiProviders.ts";
 import { KeyTable, useKeys } from "./KeyTable.ts";
 import type { UiContextValue } from "./UiProvider.ts";
 import { UiStreams } from "./UiStreams.ts";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/cli/ui/CliUi");
 
@@ -52,10 +57,10 @@ const $I = $ScratchpadId.create("effected/cli/ui/CliUi");
  */
 export class ScreenExited extends S.TaggedError<ScreenExited, { readonly brand: unique symbol }>($I`ScreenExited`)(
 	"ScreenExited",
-	{ message: S.String.annotate($I.annote("ScreenExited.message", {
+	{ message: S.String.pipe($I.annoteKey("ScreenExited.message", {
 		description: "Reports that Ink exited before the screen produced an answer or cancellation.",
 	})) },
-	$I.annote("ScreenExited", { description: "Ink exited without resolving or cancelling the screen." }),
+	$I.annoteError<ScreenExited>("ScreenExited", { description: "Ink exited without resolving or cancelling the screen." }),
 ) {
 	override readonly name = "Error";
 }
@@ -79,7 +84,12 @@ export interface ScreenControl<A> {
 }
 
 /**
- * A screen: given its control, the React element to mount, or a promise of one.
+ * A screen: given its control, the React element to mount, or an effect that builds it (a lazy screen's, say).
+ *
+ * **Details**
+ *
+ * The effect cannot fail: a screen that cannot be built, such as a lazy screen whose import fails, is a defect of the
+ * run, as a screen that throws is.
  *
  * **Gotchas**
  *
@@ -90,7 +100,7 @@ export interface ScreenControl<A> {
  * @category type-level
  * @since 0.0.0
  */
-export type Screen<A> = (control: ScreenControl<A>) => ReactElement | Promise<ReactElement>;
+export type Screen<A> = (control: ScreenControl<A>) => ReactElement | Effect.Effect<ReactElement>;
 
 /**
  * Controls whether {@link CliUi.run} leaves the completed screen visible on the terminal.
@@ -167,7 +177,10 @@ interface CrashCell {
 	current: { readonly defect: unknown } | undefined;
 }
 
-const mount = Effect.fn("mount")(function* <A>(
+const mount: {
+	<A>(screen: Screen<A>, theme: Cli.StreamTheme, clear: boolean, crash: CrashCell, neutralize: boolean): Effect.Effect<A, Cli.Cancelled, Scope.Scope>;
+	<A>(theme: Cli.StreamTheme, clear: boolean, crash: CrashCell, neutralize: boolean): (screen: Screen<A>) => Effect.Effect<A, Cli.Cancelled, Scope.Scope>;
+} = dual(5, Effect.fn("mount")(function* <A>(
 	screen: Screen<A>,
 	theme: Cli.StreamTheme,
 	clear: boolean,
@@ -181,10 +194,10 @@ const mount = Effect.fn("mount")(function* <A>(
 		Effect.sync(() => overrides.onMount?.("screen")),
 		(_, exit) =>
 			Effect.sync(() => {
-				const died = Exit.isFailure(exit) ? exit.cause.reasons.find(Cause.isDieReason) : undefined;
+				const died = Exit.isFailure(exit) ? A.findFirst(exit.cause.reasons, Cause.isDieReason) : O.none();
 				// An interrupt stays an interrupt, as `run` reports it: a crash recorded while it unmounts is not reported.
 				const interrupted = Exit.isFailure(exit) && Cause.hasInterruptsOnly(exit.cause);
-				overrides.onUnmount?.(died !== undefined ? { defect: died.defect } : interrupted ? undefined : crash.current);
+				overrides.onUnmount?.(O.isSome(died) ? { defect: died.value.defect } : interrupted ? undefined : crash.current);
 			}),
 	);
 	const { ink, react } = yield* loadInk;
@@ -199,7 +212,7 @@ const mount = Effect.fn("mount")(function* <A>(
 			Deferred.doneUnsafe(result, Exit.fail(Cancelled.make({ reason })));
 		},
 	};
-	const element = yield* Effect.promise(() => Promise.resolve(screen(control)));
+	const element = yield* Effect.flatMap(Effect.sync(() => screen(control)), screenElement);
 	const die = (error: unknown): void => {
 		// Recorded even when the result is already settled: a crash in the same tick as a cancel or a resolve wins.
 		if (crash.current === undefined) crash.current = { defect: error };
@@ -233,14 +246,15 @@ const mount = Effect.fn("mount")(function* <A>(
 			}),
 		),
 		(instance) =>
-			Effect.promise(() => {
+			Effect.suspend(() => {
 				// Erases the last frame and marks it written, so the unmount's final render draws nothing over it.
 				if (clear) instance.clear();
 				// Taken before `unmount()`, which removes the `beforeExit` listener this registers; taken after, the listener
 				// would outlive the instance and hold it, one more per screen.
 				const exited = instance.waitUntilExit();
 				instance.unmount();
-				return exited.then(() => undefined, () => undefined);
+				// Ink's exit is awaited only to know the unmount finished; how it ended is not this release's concern.
+				return Effect.ignore(Effect.tryPromise(() => exited));
 			}),
 	);
 	// Completing the Deferred wakes its side of the race synchronously. Ink's exit can win only before an answer.
@@ -248,7 +262,7 @@ const mount = Effect.fn("mount")(function* <A>(
 		Effect.flatMap(() => Effect.die(ScreenExited.make({ message: SCREEN_EXITED }))),
 	);
 	return yield* Effect.raceFirst(Deferred.await(result), exited);
-});
+}));
 
 /**
  * Interactive screens drawn with Ink, mounted as scoped resources.
@@ -323,7 +337,10 @@ export class CliUi {
 	 * @category resource-management
 	 * @since 0.0.0
 	 */
-	static readonly run = Effect.fn("run")(function* <A>(
+	static readonly run: {
+		<A>(screen: Screen<A>, options?: CliUiRunOptions): Effect.Effect<A, Cli.Cancelled | Cli.NotInteractive, Cli.CliTheme>;
+		(options?: CliUiRunOptions): <A>(screen: Screen<A>) => Effect.Effect<A, Cli.Cancelled | Cli.NotInteractive, Cli.CliTheme>;
+	} = dual((args) => P.isFunction(args[0]), Effect.fn("run")(function* <A>(
 		screen: Screen<A>,
 		options?: CliUiRunOptions,
 	): Effect.fn.Return<A, Cli.Cancelled | Cli.NotInteractive, Cli.CliTheme> {
@@ -342,13 +359,13 @@ export class CliUi {
 		const crashed = crash.current;
 		const interrupted = Exit.isFailure(exit) && Cause.hasInterruptsOnly(exit.cause);
 		if (crashed === undefined || interrupted) return yield* exit;
-		const dies = Exit.isFailure(exit) ? exit.cause.reasons.filter(Cause.isDieReason) : [];
+		const dies = Exit.isFailure(exit) ? A.filter(exit.cause.reasons, Cause.isDieReason) : [];
 		// A run that died of the crash keeps its whole cause, a failing finalizer's defect included.
-		if (dies.some((reason) => reason.defect === crashed.defect)) return yield* exit;
+		if (A.some(dies, (reason) => reason.defect === crashed.defect)) return yield* exit;
 		// Otherwise the crash replaces the end it beat, and any defect already there (a kit finalizer that failed)
 		// stays beside it.
 		return yield* Effect.failCause(Cause.fromReasons<never>([Cause.makeDieReason(crashed.defect), ...dies]));
-		});
+		}));
 
 	/**
 	 * The kit's context for an Ink tree the kit did not mount: stdout's theme and glyph set.
@@ -531,7 +548,12 @@ export class CliUi {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly prompt = <A>(
+	static readonly prompt: {
+		<A>(screen: Screen<A>, options?: CliUiPromptOptions<A>): Effect.Effect<A, Cli.Cancelled | Cli.NotInteractive, Cli.CliTheme>;
+		<B = never>(
+			options?: CliUiPromptOptions<B>,
+		): <A>(screen: Screen<A>) => Effect.Effect<A | B, Cli.Cancelled | Cli.NotInteractive, Cli.CliTheme>;
+	} = dual((args) => P.isFunction(args[0]), <A>(
 		screen: Screen<A>,
 		options?: CliUiPromptOptions<A>,
 	): Effect.Effect<A, Cli.Cancelled | Cli.NotInteractive, Cli.CliTheme> =>
@@ -541,7 +563,7 @@ export class CliUi {
 				const otherwise = options?.otherwise;
 				return otherwise === undefined ? Effect.fail(error) : Effect.succeed(otherwise);
 			}),
-		);
+		));
 
 	/**
 	 * A fallback for `Flag.withFallbackPrompt` or `Argument.withFallbackPrompt` that shows a screen when the run is
@@ -592,7 +614,10 @@ export class CliUi {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly fallback = <A>(screen: Screen<A>, options: CliUiFallbackOptions<A>): Param.FallbackPrompt<A> => {
+	static readonly fallback: {
+		<A>(screen: Screen<A>, options: CliUiFallbackOptions<A>): Param.FallbackPrompt<A>;
+		<A>(options: CliUiFallbackOptions<A>): (screen: Screen<A>) => Param.FallbackPrompt<A>;
+	} = dual(2, <A>(screen: Screen<A>, options: CliUiFallbackOptions<A>): Param.FallbackPrompt<A> => {
 		// Said once per fallback: a parse that retries must not repeat it.
 		let explained = false;
 		return Effect.gen(function* () {
@@ -613,7 +638,7 @@ export class CliUi {
 				Effect.catchTags({ Cancelled: Effect.die, NotInteractive: () => answerWithoutPerson(options) }),
 			);
 		}).pipe(Effect.withSpan("fallback"));
-	};
+	});
 
 	/**
 	 * A screen whose module is loaded only when it mounts, so importing the command that uses it loads neither the
@@ -637,7 +662,13 @@ export class CliUi {
 	 */
 	static readonly lazy =
 		<A>(load: () => Promise<{ readonly default: Screen<A> }>): Screen<A> =>
-		(control) => Promise.try(load).then((module) => module.default(control));
+		(control) => {
+			// The loader runs as the screen is called, as an `import()` does; a loader that throws is the run's defect.
+			const loading = Result.try(load);
+			return Result.isFailure(loading)
+				? Effect.die(loading.failure)
+				: Effect.flatMap(Effect.promise(() => loading.success), (module) => screenElement(module.default(control)));
+		};
 
 	/**
 	 * A live view's `render` whose module is loaded only when a run first draws it, so importing the command that uses
@@ -701,43 +732,48 @@ export class CliUi {
 	) => (state: S, frame: number) => ReactElement = lazyView;
 
 	/**
-     * A screen whose answer is `f` of `screen`'s: it mounts `screen` and resolves with `f(value)` when `screen` resolves
-     * with `value`.
-     *
-     * **Details**
-     *
-     * Only the resolve is mapped. A cancel passes through unchanged, as the same `Cancelled`, and so does everything
-     * else about the screen: what it draws, its keys, a lazy load. `f` runs when the screen resolves; what it throws is
-     * thrown from the screen's resolve, so it is a defect of the run, as any other throw in a key handler is.
-     *
-     * The mapped screen is a `Screen` like any other, so it goes wherever a screen goes: `CliUi.run`, `CliUi.prompt`,
-     * `CliUi.fallback`, or around a `CliUi.lazy` one. The commonest use is a `Confirm` behind a boolean flag, where the
-     * fallback needs a `Screen<boolean>` and `Confirm` answers a whole `ConfirmResult`:
-     *
-     * **Example** (Use a confirmation answer for a boolean flag)
-     *
-     * ```ts
-     * import { CliUi } from "@beep/scratchpad/effected/cli/ui/CliUi"
-     * import { Confirm } from "@beep/scratchpad/effected/cli/ui/Confirm"
-     * import * as Flag from "effect/cli/Flag";
-     * const yes = Flag.Boolean("yes").pipe(
-     *   Flag.withFallbackPrompt(
-     *     CliUi.fallback(
-     *       CliUi.map(Confirm.screen({ message: "Publish?" }), (result) => result.confirmed),
-     *       { flag: "yes", otherwise: false },
-     *     ),
-     *   ),
-     * )
-     * console.log(yes.kind) // flag
-     * ```
-     *
-     * @param screen - the screen to show
-     * @param f - turns its answer into the mapped screen's
-     * @category mapping
-     * @since 0.0.0
-     */
-	static readonly map =
+	 * A screen whose answer is `f` of `screen`'s: it mounts `screen` and resolves with `f(value)` when `screen` resolves
+	 * with `value`.
+	 *
+	 * **Details**
+	 *
+	 * Only the resolve is mapped. A cancel passes through unchanged, as the same `Cancelled`, and so does everything
+	 * else about the screen: what it draws, its keys, a lazy load. `f` runs when the screen resolves; what it throws is
+	 * thrown from the screen's resolve, so it is a defect of the run, as any other throw in a key handler is.
+	 *
+	 * The mapped screen is a `Screen` like any other, so it goes wherever a screen goes: `CliUi.run`, `CliUi.prompt`,
+	 * `CliUi.fallback`, or around a `CliUi.lazy` one. The commonest use is a `Confirm` behind a boolean flag, where the
+	 * fallback needs a `Screen<boolean>` and `Confirm` answers a whole `ConfirmResult`:
+	 *
+	 * **Example** (Use a confirmation answer for a boolean flag)
+	 *
+	 * ```ts
+	 * import { CliUi } from "@beep/scratchpad/effected/cli/ui/CliUi"
+	 * import { Confirm } from "@beep/scratchpad/effected/cli/ui/Confirm"
+	 * import * as Flag from "effect/cli/Flag";
+	 * const yes = Flag.Boolean("yes").pipe(
+	 *   Flag.withFallbackPrompt(
+	 *     CliUi.fallback(
+	 *       CliUi.map(Confirm.screen({ message: "Publish?" }), (result) => result.confirmed),
+	 *       { flag: "yes", otherwise: false },
+	 *     ),
+	 *   ),
+	 * )
+	 * console.log(yes.kind) // flag
+	 * ```
+	 *
+	 * @param screen - the screen to show
+	 * @param f - turns its answer into the mapped screen's
+	 * @category mapping
+	 * @since 0.0.0
+	 */
+	static readonly map: {
+		<A, B>(screen: Screen<A>, f: (value: A) => B): Screen<B>;
+		<A, B>(f: (value: A) => B): (screen: Screen<A>) => Screen<B>;
+	} = dual(
+		2,
 		<A, B>(screen: Screen<A>, f: (value: A) => B): Screen<B> =>
-		(control) =>
-			screen({ resolve: (value) => control.resolve(f(value)), cancel: control.cancel });
+			(control) =>
+				screen({ resolve: (value) => control.resolve(f(value)), cancel: control.cancel }),
+	);
 }

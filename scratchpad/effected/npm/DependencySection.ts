@@ -32,7 +32,7 @@ const $I = $ScratchpadId.create("effected/npm/DependencySection");
  * @category schemas
  * @since 0.0.0
  */
-export const DependencyKind = LiteralKit(["prod", "dev", "peer", "optional"]).annotate($I.annote("DependencyKind", { description: "The short dependency kind: which dependency map an entry came from, named the way consumers branch on it." }));
+export const DependencyKind = LiteralKit(["prod", "dev", "peer", "optional"]).pipe($I.annoteSchema("DependencyKind", { description: "The short dependency kind: which dependency map an entry came from, named the way consumers branch on it." }));
 
 /**
  * The union of short dependency kinds.
@@ -65,7 +65,7 @@ export const DependencyField = LiteralKit([
 	"devDependencies",
 	"peerDependencies",
 	"optionalDependencies",
-]).annotate($I.annote("DependencyField", { description: "The manifest field name a dependency is declared under, matching the `package.json` / `package-lock.json` key exactly." }));
+]).pipe($I.annoteSchema("DependencyField", { description: "The manifest field name a dependency is declared under, matching the `package.json` / `package-lock.json` key exactly." }));
 
 /**
  * The union of manifest dependency-map field names.

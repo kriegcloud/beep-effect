@@ -109,7 +109,7 @@ export const thunkVoid = thunk(void 0);
  * @category utilities
  * @since 0.0.0
  */
-export const thunkTrue = thunk(true as const);
+export const thunkTrue = thunk<true>(true);
 
 /**
  * A thunk that always yields `false`.
@@ -128,7 +128,7 @@ export const thunkTrue = thunk(true as const);
  * @category utilities
  * @since 0.0.0
  */
-export const thunkFalse = thunk(false as const);
+export const thunkFalse = thunk<false>(false);
 
 /**
  * A thunk that always yields the empty string.
@@ -147,7 +147,7 @@ export const thunkFalse = thunk(false as const);
  * @category utilities
  * @since 0.0.0
  */
-export const thunkEmptyStr = thunk("");
+export const thunkEmptyStr = thunk<"">("");
 
 /**
  * A thunk that always yields `0`.
@@ -166,7 +166,7 @@ export const thunkEmptyStr = thunk("");
  * @category utilities
  * @since 0.0.0
  */
-export const thunk0 = thunk(0);
+export const thunk0 = thunk<0>(0);
 
 /**
  * A thunk that always yields `1`.
@@ -185,7 +185,7 @@ export const thunk0 = thunk(0);
  * @category utilities
  * @since 0.0.0
  */
-export const thunk1 = thunk(1);
+export const thunk1 = thunk<1>(1);
 
 /**
  * Returns a thunk that yields a fresh empty mutable array on each call.
@@ -409,7 +409,7 @@ export const thunkSome =
  * @category utilities
  * @since 0.0.0
  */
-export const thunkSomeEmptyStr = thunkSome("");
+export const thunkSomeEmptyStr = thunkSome<"">("");
 
 /**
  * A thunk yielding `-1`.
@@ -428,7 +428,7 @@ export const thunkSomeEmptyStr = thunkSome("");
  * @category utilities
  * @since 0.0.0
  */
-export const thunkNegative1 = thunk(-1);
+export const thunkNegative1 = thunk<-1>(-1);
 
 /**
  * A thunk yielding `Option.some(false)`.
@@ -447,7 +447,7 @@ export const thunkNegative1 = thunk(-1);
  * @category utilities
  * @since 0.0.0
  */
-export const thunkSomeFalse = thunkSome(false);
+export const thunkSomeFalse = thunkSome<false>(false);
 
 /**
  * A thunk yielding `Option.some(true)`.
@@ -466,7 +466,7 @@ export const thunkSomeFalse = thunkSome(false);
  * @category utilities
  * @since 0.0.0
  */
-export const thunkSomeTrue = thunkSome(true as const);
+export const thunkSomeTrue = thunkSome<true>(true);
 
 /**
  * Returns a thunk yielding `Option.some([])`.

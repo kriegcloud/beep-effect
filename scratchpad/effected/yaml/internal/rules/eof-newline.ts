@@ -9,8 +9,9 @@ import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import { walkScalars } from "./util.ts";
 import { YamlEdit } from "../../YamlEdit.ts";
-import type { YamlRule } from "../../YamlLintRule.ts";
+import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/eof-newline");
 
@@ -35,7 +36,7 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/eof-newline");
  * @since 0.0.0
  */
 export const eofNewlineOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({ description: "Reporting level for missing final-newline findings, defaulting to `error`" }),
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("eofNewlineOptions.severity", { description: "Reporting level for missing final-newline findings, defaulting to `error`" })),
 }).pipe($I.annoteSchema("eofNewlineOptions", { description: "Options for `eof-newline` (severity only — nothing to tune)." }));
 /**
  * Decoded options for the `eof-newline` lint rule.
@@ -73,7 +74,7 @@ export type eofNewlineOptions = typeof eofNewlineOptions.Type;
  */
 export const eofNewline: YamlRule = {
 	id: "eof-newline",
-	check: (ctx) => {
+	check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
 		if (ctx.text.length === 0 || ctx.text.endsWith("\n")) return [];
 		const lastLine = ctx.lines[ctx.lines.length - 1];
 		if (lastLine === undefined) return [];
@@ -116,5 +117,5 @@ export const eofNewline: YamlRule = {
 				...O.getSomesStruct({ fix: O.fromUndefinedOr(fix) }),
 			}),
 		];
-	},
+	}),
 };

@@ -52,7 +52,7 @@ export const InlineNodeType = LiteralKit([
 	"linkReference",
 	"imageReference",
 	"footnoteReference",
-]).annotate($I.annote("InlineNodeType", { description: "Inline node kinds built by the engine." }));
+]).pipe($I.annoteSchema("InlineNodeType", { description: "Inline node kinds built by the engine." }));
 
 /** The engine kind domain derived from its schema.
  * @category type-level

@@ -353,7 +353,7 @@ export const PackageScriptsDrift = S.TaggedUnion({
   "wrong-binding": { name: TaskScriptName, expected: S.String, actual: S.String },
   "missing-impl": { name: ImplScriptName },
   placeholder: { name: S.Literal("codegen"), actual: S.String },
-  "derivation-conflict": { name: S.Literal("doctest"), reason: S.String },
+  "derivation-conflict": { name: S.Literals(["doctest", "build"]), reason: S.String },
 }).pipe(
   $I.annoteSchema("PackageScriptsDrift", {
     description: "Six actionable deviations from the canonical scripts contract.",
@@ -883,7 +883,12 @@ export const taskScriptRules: ReadonlyArray<TaskScriptRule> = [
     binding: { _tag: "owned" },
   }),
   TaskScriptRule.make({ kind: "app", name: "coverage", presence: { _tag: "optional" }, binding: { _tag: "owned" } }),
-  TaskScriptRule.make({ kind: "lab", name: "coverage", presence: { _tag: "absent" }, binding: { _tag: "owned" } }),
+  TaskScriptRule.make({
+    kind: "lab",
+    name: "coverage",
+    presence: { _tag: "required" },
+    binding: { _tag: "indirection", impl: "beep:coverage", ifPresent: false },
+  }),
   TaskScriptRule.make({
     kind: "infra",
     name: "coverage",
@@ -1328,6 +1333,11 @@ export const implScriptDefaults: ReadonlyArray<ImplScriptDefault> = [
   ImplScriptDefault.make({ kind: "lab", name: "beep:lint", value: "biome check ." }),
   ImplScriptDefault.make({ kind: "lab", name: "beep:lint:fix", value: "biome check . --write" }),
   ImplScriptDefault.make({ kind: "lab", name: "beep:test", value: "bunx --bun vitest run" }),
+  ImplScriptDefault.make({
+    kind: "lab",
+    name: "beep:coverage",
+    value: "bunx vitest run --coverage --exclude=test/integration/**",
+  }),
   ImplScriptDefault.make({
     kind: "lab",
     name: "beep:test:integration",

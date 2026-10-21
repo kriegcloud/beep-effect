@@ -1,6 +1,6 @@
 # Agent Session Bridges: inherited sources and provenance
 
-Graduation snapshot: 2026-10-09. The [source exploration ledger](../../../explorations/cross-provider-agent-communication/research/SOURCES.md) is primary; the corpus below is reproduced for implementation convenience, with links resolved back to the source packet. Its dated historical state statements describe the original research phases, not this goal's lifecycle. This goal remains `paused` and has no completed implementation proof.
+Graduation snapshot: 2026-10-09. The [source exploration ledger](../../../explorations/cross-provider-agent-communication/research/SOURCES.md) is primary; the corpus below is reproduced for implementation convenience, with links resolved back to the source packet. Its dated historical state statements describe the original research phases, not this goal's lifecycle. At graduation on 2026-10-09, this goal was `paused` and had no completed implementation proof. Later implementation evidence and the packet's conditional lifecycle are recorded in the [goal README](../README.md) and [reflection index](../history/reflections/README.md); this inherited ledger does not establish current execution or hosted readiness.
 
 Implementation decisions follow [SPEC.md](../SPEC.md). Related promised-now goal: [other contract](../../agent-message-router/SPEC.md). Production app enrollment/browser/federation remain named gated candidates in the source map. Use exact source dates and license dispositions below; no upstream code has been copied into package implementations.
 

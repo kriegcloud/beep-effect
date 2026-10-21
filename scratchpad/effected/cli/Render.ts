@@ -2,6 +2,8 @@ import type { AudienceKind, ColorLevel } from "../env/index.ts";
 import { Audience, TerminalEnv } from "../env/index.ts";
 import { CommandNeutralizer } from "../github-commands/index.ts";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import type { CliLinksShape } from "./CliLinks.ts";
 import { CliLinks } from "./CliLinks.ts";
 import { CliTheme } from "./CliTheme.ts";
@@ -48,7 +50,10 @@ export interface RenderContext {
 	/** The colour level of the stream being written. */
 	readonly color: ColorLevel;
 	/** Paints text in a token or a style; the identity at colour `none`. */
-	readonly paint: (token: TokenName | Style, text: string) => string;
+	readonly paint: {
+		(token: TokenName | Style, text: string): string;
+		(text: string): (token: TokenName | Style) => string;
+	};
 	/** The glyph set: status glyphs, separators, the ellipsis. */
 	readonly glyphs: GlyphSet;
 	/**
@@ -61,7 +66,10 @@ export interface RenderContext {
   * after the label), and again when it paints, with the painted label. So it must decide on whether links are
   * allowed, not on the label's content, and it must not count or record its calls.
   */
-	readonly link: (target: LinkTarget, label: string) => string;
+	readonly link: {
+		(target: LinkTarget, label: string): string;
+		(label: string): (target: LinkTarget) => string;
+	};
 	/** Turns an absolute path into its display form; the identity by default. */
 	readonly displayPath: (absolute: string) => string;
 	/**
@@ -120,8 +128,11 @@ export interface RenderContextOfOptions {
 }
 
 /** A renderer's text, with workflow commands neutralized when the context says the runner is reading it. */
-const guarded = (text: string, ctx: RenderContext): string =>
-	ctx.neutralizeWorkflowCommands === true ? CommandNeutralizer.text(text) : text;
+const guarded: {
+	(text: string, ctx: RenderContext): string;
+	(ctx: RenderContext): (text: string) => string;
+} = dual(2, (text: string, ctx: RenderContext): string =>
+	ctx.neutralizeWorkflowCommands === true ? CommandNeutralizer.text(text) : text);
 
 /**
  * Options for {@link Render.context}.
@@ -202,7 +213,15 @@ export class Render {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly context = Effect.fn("context")(function* (
+	static readonly context: {
+		(
+			stream: "stdout" | "stderr",
+			options?: RenderContextOptions,
+		): Effect.Effect<RenderContext, never, CliTheme | TerminalEnv | Audience | CliLinks>;
+		(
+			options?: RenderContextOptions,
+		): (stream: "stdout" | "stderr") => Effect.Effect<RenderContext, never, CliTheme | TerminalEnv | Audience | CliLinks>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("context")(function* (
 		stream: "stdout" | "stderr",
 		options?: RenderContextOptions,
 	): Effect.fn.Return<RenderContext, never, CliTheme | TerminalEnv | Audience | CliLinks> {
@@ -229,7 +248,7 @@ export class Render {
 			link: CliLinks.linker({ links, hyperlinks: terminal[stream].hyperlinks, audience: kind }),
 			displayPath: options?.displayPath ?? ((absolute: string) => absolute),
 		};
-	});
+	}));
 
 	/**
 	 * A {@link RenderContext} from plain options, for a caller outside Effect, such as a test reporter or an Ink tree.
@@ -264,12 +283,12 @@ export class Render {
 			color,
 			paint:
 				color === "none"
-					? (_token: TokenName | Style, text: string) => text
-					: (token: TokenName | Style, text: string) => paintStyle(Token.resolve(token), color, text),
+					? dual(2, (_token: TokenName | Style, text: string): string => text)
+					: dual(2, (token: TokenName | Style, text: string): string => paintStyle(Token.resolve(token), color, text)),
 			glyphs: options.glyphs ?? Glyphs.unicode,
 			link:
 				links === "off"
-					? (_target: LinkTarget, label: string) => label
+					? dual(2, (_target: LinkTarget, label: string): string => label)
 					: CliLinks.linker({ links, hyperlinks: true, audience: options.audience }),
 			displayPath: options.displayPath ?? ((absolute: string) => absolute),
 			// A ci audience may be read by the Actions runner, and neutralizing is harmless anywhere else.
@@ -329,7 +348,10 @@ export class Render {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly plain = (doc: Document, ctx: RenderContext): string => guarded(renderPlain(doc, ctx), ctx);
+	static readonly plain: {
+		(doc: Document, ctx: RenderContext): string;
+		(ctx: RenderContext): (doc: Document) => string;
+	} = dual(2, (doc: Document, ctx: RenderContext): string => guarded(renderPlain(doc, ctx), ctx));
 
 	/**
 	 * Render a document for a person: the same layout as {@link Render.plain}, painted and linked.
@@ -373,7 +395,10 @@ export class Render {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly ansi = (doc: Document, ctx: RenderContext): string => guarded(renderAnsi(doc, ctx), ctx);
+	static readonly ansi: {
+		(doc: Document, ctx: RenderContext): string;
+		(ctx: RenderContext): (doc: Document) => string;
+	} = dual(2, (doc: Document, ctx: RenderContext): string => guarded(renderAnsi(doc, ctx), ctx));
 
 	/**
 	 * Render a document as GitHub-flavoured markdown, for a step summary or a file.
@@ -438,7 +463,10 @@ export class Render {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly markdown = (doc: Document, ctx: RenderContext): string => guarded(renderMarkdown(doc, ctx), ctx);
+	static readonly markdown: {
+		(doc: Document, ctx: RenderContext): string;
+		(ctx: RenderContext): (doc: Document) => string;
+	} = dual(2, (doc: Document, ctx: RenderContext): string => guarded(renderMarkdown(doc, ctx), ctx));
 
 	/**
 	 * Render a document for a GitHub Actions log.
@@ -479,5 +507,8 @@ export class Render {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly githubLog = (doc: Document, ctx: RenderContext): string => renderGithubLog(doc, ctx);
+	static readonly githubLog: {
+		(doc: Document, ctx: RenderContext): string;
+		(ctx: RenderContext): (doc: Document) => string;
+	} = dual(2, (doc: Document, ctx: RenderContext): string => renderGithubLog(doc, ctx));
 }

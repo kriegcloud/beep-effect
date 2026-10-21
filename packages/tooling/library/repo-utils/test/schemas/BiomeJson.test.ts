@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { it } from "@beep/test-runner";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
@@ -99,7 +99,7 @@ const EmptyOutputSpawnerLayer = Layer.effect(
 const MockFileSystemLayer = Layer.effectDiscard(
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    const moduleDir = fileURLToPath(new URL("../../src/schemas", import.meta.url));
+    const moduleDir = NodeURL.fileURLToPath(new URL("../../src/schemas", import.meta.url));
     yield* fs.makeDirectory(moduleDir, { recursive: true });
     yield* fs.writeFileString(`${moduleDir}/bun.lock`, "");
   })

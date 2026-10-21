@@ -36,6 +36,7 @@ import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as A from "effect/Array";
 import type { SourceLine } from "../preprocess.ts";
 
 const $I = $ScratchpadId.create("effected/markdown/internal/blocks/frontmatter");
@@ -54,9 +55,7 @@ const $I = $ScratchpadId.create("effected/markdown/internal/blocks/frontmatter")
  * @category schemas
  * @since 0.0.0
  */
-export const FrontmatterFormat = LiteralKit(["yaml", "toml", "json"]).annotate(
-	$I.annote("FrontmatterFormat", { description: "The frontmatter formats selected by the YAML, TOML and JSON opening fences." }),
-);
+export const FrontmatterFormat = LiteralKit(["yaml", "toml", "json"]).pipe($I.annoteSchema("FrontmatterFormat", { description: "The frontmatter formats selected by the YAML, TOML and JSON opening fences." }));
 /**
  * The schema-derived FrontmatterFormat value type.
  *
@@ -67,9 +66,9 @@ export type FrontmatterFormat = typeof FrontmatterFormat.Type;
 
 /** What the fence's opening line commits the scan to. */
 const FenceRule = S.Struct({
-	format: FrontmatterFormat.annotateKey({ description: "The format selected by the opening fence." }),
-	close: S.String.annotateKey({ description: "The exact closing fence line." }),
-}).annotate($I.annote("FenceRule", { description: "The format and exact closing fence committed to by an opening line." }));
+	format: FrontmatterFormat.pipe($I.annoteKey("FenceRule.format", { description: "The format selected by the opening fence." })),
+	close: S.String.pipe($I.annoteKey("FenceRule.close", { description: "The exact closing fence line." })),
+}).pipe($I.annoteSchema("FenceRule", { description: "The format and exact closing fence committed to by an opening line." }));
 type FenceRule = typeof FenceRule.Type;
 
 const FENCES = HashMap.fromIterable<string, FenceRule>([
@@ -94,11 +93,11 @@ const FENCES = HashMap.fromIterable<string, FenceRule>([
  * @since 0.0.0
  */
 export const FrontmatterCapture = S.Struct({
-	format: FrontmatterFormat.annotateKey({ description: "The metadata format selected by the opening fence." }),
-	value: S.String.annotateKey({ description: "Raw text between fences with original interior terminators and no fence lines." }),
-	lineCount: S.Finite.annotateKey({ description: "Number of source lines spanned, including both fences." }),
-	endOffset: S.Finite.annotateKey({ description: "Exclusive absolute offset of the closing fence's last character." }),
-}).annotate($I.annote("FrontmatterCapture", { description: "A preprocessed frontmatter capture with raw interior terminators and source boundaries." }));
+	format: FrontmatterFormat.pipe($I.annoteKey("FrontmatterCapture.format", { description: "The metadata format selected by the opening fence." })),
+	value: S.String.pipe($I.annoteKey("FrontmatterCapture.value", { description: "Raw text between fences with original interior terminators and no fence lines." })),
+	lineCount: S.Finite.pipe($I.annoteKey("FrontmatterCapture.lineCount", { description: "Number of source lines spanned, including both fences." })),
+	endOffset: S.Finite.pipe($I.annoteKey("FrontmatterCapture.endOffset", { description: "Exclusive absolute offset of the closing fence's last character." })),
+}).pipe($I.annoteSchema("FrontmatterCapture", { description: "A preprocessed frontmatter capture with raw interior terminators and source boundaries." }));
 /**
  * The schema-derived FrontmatterCapture value type.
  *
@@ -172,7 +171,7 @@ export const scanFrontmatter: {
 
 		return {
 			format: rule.format,
-			value: parts.join(""),
+			value: A.join(parts, ""),
 			lineCount: index + 1,
 			endOffset: line.start + line.text.length,
 		};
@@ -196,9 +195,7 @@ export const scanFrontmatter: {
  * @category schemas
  * @since 0.0.0
  */
-export const RawNewline = LiteralKit(["\n", "\r\n", "\r"]).annotate(
-	$I.annote("RawNewline", { description: "The three raw line terminators recognized by the frontmatter scanners." }),
-);
+export const RawNewline = LiteralKit(["\n", "\r\n", "\r"]).pipe($I.annoteSchema("RawNewline", { description: "The three raw line terminators recognized by the frontmatter scanners." }));
 
 /**
  * A raw line terminator spelling derived from the shared literal domain.
@@ -228,11 +225,11 @@ export type RawNewline = typeof RawNewline.Type;
  * @since 0.0.0
  */
 export const RawFrontmatterCapture = S.Struct({
-	format: FrontmatterFormat.annotateKey({ description: "The metadata format selected by the opening fence." }),
-	value: S.String.annotateKey({ description: "Exact source between fences, including each value line's terminator; empty and a blank value line stay distinct." }),
-	newline: RawNewline.annotateKey({ description: "The line terminator following the opening fence." }),
-	bodyOffset: S.Finite.annotateKey({ description: "Absolute offset after the closing fence and its terminator, where the body begins." }),
-}).annotate($I.annote("RawFrontmatterCapture", { description: "An exact raw frontmatter capture retaining value bytes, opening newline and body boundary." }));
+	format: FrontmatterFormat.pipe($I.annoteKey("RawFrontmatterCapture.format", { description: "The metadata format selected by the opening fence." })),
+	value: S.String.pipe($I.annoteKey("RawFrontmatterCapture.value", { description: "Exact source between fences, including each value line's terminator; empty and a blank value line stay distinct." })),
+	newline: RawNewline.pipe($I.annoteKey("RawFrontmatterCapture.newline", { description: "The line terminator following the opening fence." })),
+	bodyOffset: S.Finite.pipe($I.annoteKey("RawFrontmatterCapture.bodyOffset", { description: "Absolute offset after the closing fence and its terminator, where the body begins." })),
+}).pipe($I.annoteSchema("RawFrontmatterCapture", { description: "An exact raw frontmatter capture retaining value bytes, opening newline and body boundary." }));
 /**
  * The schema-derived RawFrontmatterCapture value type.
  *
@@ -242,7 +239,10 @@ export const RawFrontmatterCapture = S.Struct({
 export type RawFrontmatterCapture = typeof RawFrontmatterCapture.Type;
 
 /** The terminator starting at `offset`, or null when none does. */
-const terminatorAt = (source: string, offset: number): RawNewline | null => {
+const terminatorAt: {
+	(source: string, offset: number): RawNewline | null;
+	(offset: number): (source: string) => RawNewline | null;
+} = dual(2, (source: string, offset: number): RawNewline | null => {
 	const code = source.charCodeAt(offset);
 	if (code === 0x0a) {
 		return "\n";
@@ -251,7 +251,7 @@ const terminatorAt = (source: string, offset: number): RawNewline | null => {
 		return source.charCodeAt(offset + 1) === 0x0a ? "\r\n" : "\r";
 	}
 	return null;
-};
+});
 
 /**
  * Captures frontmatter from raw source with exact offsets for string-level

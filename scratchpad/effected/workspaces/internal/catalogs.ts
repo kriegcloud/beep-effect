@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -43,9 +44,9 @@ export type CatalogEntries = Record<string, Record<string, string>>;
  * @since 0.0.0
  */
 export const CatalogMisconfiguration = S.Struct({
-	catalogName: S.String.annotateKey($I.annote("CatalogMisconfiguration.catalogName", { description: "The catalog containing the unresolved dependency." })),
-	detail: S.String.annotateKey($I.annote("CatalogMisconfiguration.detail", { description: "The catalog resolver's original diagnostic." })),
-}).annotate($I.annote("CatalogMisconfiguration", { description: "A plain catalog misconfiguration record reported by the resolver." }));
+	catalogName: S.String.pipe($I.annoteKey("CatalogMisconfiguration.catalogName", { description: "The catalog containing the unresolved dependency." })),
+	detail: S.String.pipe($I.annoteKey("CatalogMisconfiguration.detail", { description: "The catalog resolver's original diagnostic." })),
+}).pipe($I.annoteSchema("CatalogMisconfiguration", { description: "A plain catalog misconfiguration record reported by the resolver." }));
 /**
  * The readonly catalog failure described by {@link CatalogMisconfiguration}.
  *
@@ -76,11 +77,10 @@ export const inlineCatalogs = (manifest: {
 	// pnpm throws when the default catalog is defined twice (a top-level
 	// `catalog:` *and* a `catalogs.default`). That is a malformed workspace file,
 	// which is a data condition, so it must not escape as a defect.
-	try {
-		return getCatalogsFromWorkspaceManifest({ catalog: manifest.catalog, catalogs: manifest.catalogs });
-	} catch {
-		return {};
-	}
+	return Result.getOrElse(
+		Result.try(() => getCatalogsFromWorkspaceManifest({ catalog: manifest.catalog, catalogs: manifest.catalogs })),
+		() => ({}),
+	);
 };
 
 /**

@@ -21,6 +21,7 @@ import {
   EndpointBinding,
   Envelope,
   LaunchGrant,
+  OriginalRuntimeEvidence,
   Receipt,
   RouterError,
 } from "./AgentMessage.models.ts";
@@ -141,6 +142,22 @@ const inspect = Command.make(
   Command.withDescription("Read ordered durable delivery receipts")
 );
 
+const settlement = Command.make(
+  "settlement",
+  { stateDir, messageId },
+  Effect.fnUntraced(function* ({ messageId }) {
+    const evidence = yield* (yield* AgentMessageStore).settlement(messageId);
+    yield* print(
+      O.isSome(evidence)
+        ? { evidence: yield* S.encodeEffect(OriginalRuntimeEvidence)(evidence.value) }
+        : { evidence: null, recovery: "No original terminal proof is recorded; retain this hold." }
+    );
+  })
+).pipe(
+  Command.provide(({ stateDir }) => agentMessageStoreLayer(stateDir)),
+  Command.withDescription("Inspect immutable original-runtime terminal proof without changing a dispatch hold")
+);
+
 const acknowledge = Command.make(
   "acknowledge",
   { stateDir, messageId, endpointId },
@@ -174,7 +191,7 @@ const resolveAmbiguity = Command.make(
 ).pipe(
   Command.provide(({ stateDir }) => agentMessageStoreLayer(stateDir)),
   Command.withDescription(
-    "Record an audited operator decision for an exact ambiguous attempt; no provider verification or resend"
+    "Reconcile an exact ambiguous attempt against immutable original-runtime proof; no inference or resend"
   )
 );
 
@@ -246,6 +263,7 @@ export const agentMessageCommand = Command.make("agent-message").pipe(
     reply,
     inbox,
     inspect,
+    settlement,
     acknowledge,
     resolveAmbiguity,
     recover,

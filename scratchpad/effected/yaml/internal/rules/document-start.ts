@@ -15,6 +15,9 @@ import { YamlEdit } from "../../YamlEdit.ts";
 import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { StyleVote, YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
 import type { YamlToken } from "../../YamlToken.ts";
+import { dual } from "effect/Function";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/document-start");
 
@@ -35,8 +38,8 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/document-start");
  * @since 0.0.0
  */
 export const documentStartOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({ description: "Reporting level for document-start marker findings, defaulting to `error`" }),
-	present: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the stream's initial `---` marker is required (`true`, default) or forbidden (`false`)" }),
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("documentStartOptions.severity", { description: "Reporting level for document-start marker findings, defaulting to `error`" })),
+	present: S.optionalKey(S.Boolean).pipe($I.annoteKey("documentStartOptions.present", { description: "Whether the stream's initial `---` marker is required (`true`, default) or forbidden (`false`)" })),
 }).pipe($I.annoteSchema("documentStartOptions", { description: "Options for `document-start`: require (`true`, default) or forbid the marker." }));
 
 /**
@@ -50,10 +53,10 @@ export type documentStartOptions = typeof documentStartOptions.Type;
 const TRIVIA = HashSet.fromIterable(["newline", "whitespace", "comment", "byte-order-mark", "directive"]);
 
 /** True when the stream carries `%YAML`/`%TAG` directives — which REQUIRE `---`. */
-const hasDirectives = (ctx: LintContext): boolean => ctx.tokens.some((t) => t.kind === "directive");
+const hasDirectives = (ctx: LintContext): boolean => A.some(ctx.tokens, (t) => t.kind === "directive");
 
 /** The first non-trivia token: it decides whether the stream is headed by `---`. */
-const headToken = (ctx: LintContext): YamlToken | undefined => ctx.tokens.find((t) => !HashSet.has(TRIVIA, t.kind));
+const headToken = (ctx: LintContext): O.Option<YamlToken> => A.findFirst(ctx.tokens, (t) => !HashSet.has(TRIVIA, t.kind));
 
 /**
  * Checks the `---` marker at the head of the stream.
@@ -88,12 +91,12 @@ const headToken = (ctx: LintContext): YamlToken | undefined => ctx.tokens.find((
  */
 export const documentStart: YamlRule = {
 	id: "document-start",
-	check: (ctx, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const opts = P.isObject(options) ? options : {};
 		const present = S.is(S.Boolean)(opts.present) ? opts.present : true;
 		// The first non-trivia token decides: is the stream headed by `---`?
 		const directives = hasDirectives(ctx);
-		const first = headToken(ctx);
+		const first = O.getOrUndefined(headToken(ctx));
 		const headed = first?.kind === "document-start";
 		if (present && !headed && ctx.text.trim() !== "") {
 			return [
@@ -139,15 +142,16 @@ export const documentStart: YamlRule = {
 			];
 		}
 		return [];
-	},
+	}),
 	// Inference: a non-empty stream votes `present` — headed by `---`
 	// or not. An unmarked file IS evidence of the no-marker style (the
 	// workflow-file corpus above all), so absence votes `false` rather than
 	// saying nothing.
 	infer: (ctx) => {
 		if (ctx.text.trim() === "") return [];
-		const first = headToken(ctx);
-		if (first === undefined) return [];
+		const head = headToken(ctx);
+		if (O.isNone(head)) return [];
+		const first = head.value;
 		const headed = first.kind === "document-start";
 		// A %directive-headed stream REQUIRES the marker (check refuses to
 		// synthesize or remove one there): an unmarked directive stream is

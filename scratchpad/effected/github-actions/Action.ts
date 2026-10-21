@@ -19,6 +19,7 @@ import { ActionInput } from "./ActionInput.ts";
 import { ActionLogger } from "./ActionLogger.ts";
 import { ActionOutputs } from "./ActionOutputs.ts";
 import { ActionState } from "./ActionState.ts";
+import { dual } from "effect/Function";
 
 /**
  * Everything {@link ActionRuntime.layer} provides.
@@ -327,7 +328,10 @@ export class Action {
 	 * @category workflows
 	 * @since 0.0.0
 	 */
-	static readonly run = <E, R = never>(
+	static readonly run: {
+		<E, R = never>(program: Effect.Effect<void, E, ActionServices | R>, options?: ActionRunOptions<R>): Promise<void>;
+		<R = never>(options?: ActionRunOptions<R>): <E>(program: Effect.Effect<void, E, ActionServices | R>) => Promise<void>;
+	} = dual((args) => Effect.isEffect(args[0]), <E, R = never>(
 		program: Effect.Effect<void, E, ActionServices | R>,
 		options: ActionRunOptions<R> = {},
 	): Promise<void> => {
@@ -372,5 +376,5 @@ export class Action {
 			// available here.
 			process.exitCode = 1;
 		});
-	};
+	});
 }

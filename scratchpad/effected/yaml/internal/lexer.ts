@@ -9,6 +9,8 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import type { YamlToken, YamlTokenKind } from "./token.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 /** YAML's single-character escape substitutions; other escapes require scanning. */
 const simpleEscapes: Readonly<Record<string, string>> = {
@@ -293,23 +295,17 @@ export function createScanner(text: string): YamlScanner {
 		}
 	}
 
-	function makeToken(
-		kind: YamlTokenKind,
-		value: string,
-		offset: number,
-		tokenLine: number,
-		tokenCol: number,
-		rawLength?: number,
-	): YamlToken {
-		return {
+	const makeToken: {
+		(value: string, offset: number, tokenLine: number, tokenCol: number, rawLength?: number): (kind: YamlTokenKind) => YamlToken;
+		(kind: YamlTokenKind, value: string, offset: number, tokenLine: number, tokenCol: number, rawLength?: number): YamlToken;
+	} = dual((args) => P.isString(args[1]), (kind: YamlTokenKind, value: string, offset: number, tokenLine: number, tokenCol: number, rawLength?: number): YamlToken => ({
 			kind,
 			value,
 			offset,
 			length: rawLength ?? value.length,
 			line: tokenLine,
 			column: tokenCol,
-		};
-	}
+		}));
 
 	function isWhitespace(ch: string): boolean {
 		return ch === " " || ch === "\t";
@@ -352,7 +348,10 @@ export function createScanner(text: string): YamlScanner {
 	// Block-structure helpers
 	// -----------------------------------------------------------------------
 
-	function ensureBlockMap(indent: number, offset: number, tokLine: number, _tokCol: number): void {
+	const ensureBlockMap: {
+		(indent: number, offset: number, tokLine: number, _tokCol: number): void;
+		(offset: number, tokLine: number, _tokCol: number): (indent: number) => void;
+	} = dual(4, (indent: number, offset: number, tokLine: number, _tokCol: number): void => {
 		if (flowDepth > 0) return;
 		const started = O.getOrUndefined(MutableHashMap.get(blockStarted, indent));
 		if (started === "map") return;
@@ -365,15 +364,18 @@ export function createScanner(text: string): YamlScanner {
 		// block-map-start marker so the parser can correctly determine which
 		// block scope this mapping belongs to.
 		pending.push(makeToken("block-map-start", "", offset, tokLine, indent));
-	}
+	});
 
-	function ensureBlockSeq(indent: number, offset: number, tokLine: number, _tokCol: number): void {
+	const ensureBlockSeq: {
+		(indent: number, offset: number, tokLine: number, _tokCol: number): void;
+		(offset: number, tokLine: number, _tokCol: number): (indent: number) => void;
+	} = dual(4, (indent: number, offset: number, tokLine: number, _tokCol: number): void => {
 		const started = O.getOrUndefined(MutableHashMap.get(blockStarted, indent));
 		if (started === "seq") return;
 		MutableHashMap.set(blockStarted, indent, "seq");
 		// Use `indent` as the column for consistency with ensureBlockMap.
 		pending.push(makeToken("block-seq-start", "", offset, tokLine, indent));
-	}
+	});
 
 	// -----------------------------------------------------------------------
 	// Scanning methods
@@ -1073,7 +1075,7 @@ export function createScanner(text: string): YamlScanner {
 			value = result;
 		} else {
 			// Literal: join lines with newlines
-			value = lines.join("\n");
+			value = A.join(lines, "\n");
 			if (chomp === "strip") {
 				// no trailing newline
 			} else if (chomp === "keep") {

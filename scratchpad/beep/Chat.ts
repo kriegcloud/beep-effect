@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 /**
  * Chat messages, sessions, and the document types a chat file may carry.
  *
@@ -1278,12 +1279,11 @@ export const repairMessageRecord = (input: unknown): unknown => {
   if (!hasBlocks) {
     const metadata = data.metadata;
     if (P.isString(metadata)) {
-      try {
+      // Legacy metadata that is not JSON stays a string.
+      Result.getOrElse(Result.try(() => {
         const parsed: unknown = JSON.parse(metadata);
         if (isRecord(parsed) && Arr.isArray(parsed.content_blocks)) data.contentBlocks = parsed.content_blocks;
-      } catch {
-        // Legacy metadata that is not JSON stays a string.
-      }
+      }), () => undefined);
     }
   }
   return data;

@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { $VeniceAiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
@@ -179,7 +179,7 @@ const descriptorIds = () => sortStrings(A.map(VENICE_AI_OPERATION_DESCRIPTORS, (
 // JSON snapshot of `swagger.yaml`, so the fixture loads on Node and Bun without a YAML parser.
 // `x-beep-source-sha256` records the SHA-256 of the swagger.yaml bytes it was generated from.
 const readSwagger = decodeOpenApiSpec(swaggerFixture);
-const swaggerSourcePath = fileURLToPath(new URL("../swagger.yaml", import.meta.url));
+const swaggerSourcePath = NodeURL.fileURLToPath(new URL("../swagger.yaml", import.meta.url));
 const hashSwaggerSource = S.decodeEffect(Sha256HexFromBytes);
 const regenerateSwaggerSnapshot =
   "test/fixtures/swagger.json is stale for swagger.yaml: regenerate it from swagger.yaml (JSON with the jwt.io example token redacted) and set x-beep-source-sha256 to the new sha256 of swagger.yaml";

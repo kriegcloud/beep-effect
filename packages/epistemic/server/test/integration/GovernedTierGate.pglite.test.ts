@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { EpistemicConfig } from "@beep/epistemic-config/server";
 import { testEpistemicConfig } from "@beep/epistemic-config/test";
 import {
@@ -34,7 +34,7 @@ import * as S from "effect/Schema";
 import * as SqlClient from "effect/sql/SqlClient";
 import type { TierGateShape } from "@beep/mcp-kit";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
 
 // Pinned to the in-process pglite driver with the bundled btree_gist

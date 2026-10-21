@@ -122,8 +122,8 @@ export type CatalogSlug = typeof CatalogSlug.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CatalogEntryMeta = ApiAudience.mapMembers(
-  Tuple.evolve([ApiAudience.makeCatalogEntryMetaMember, ApiAudience.makeCatalogEntryMetaMember])
+export const CatalogEntryMeta = ApiAudience.mapMembers(([served, consumed]) =>
+  Tuple.make(ApiAudience.makeCatalogEntryMetaMember(served), ApiAudience.makeCatalogEntryMetaMember(consumed))
 ).pipe(
   S.toTaggedUnion("audience"),
   $I.annoteSchema("CatalogEntryMeta", {

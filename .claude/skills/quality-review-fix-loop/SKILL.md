@@ -50,7 +50,8 @@ reviewing; never review from generic taste:
 - inventories/allowlists: `standards/schema-first.inventory.jsonc`,
   `standards/jsdoc-documentation.inventory.md`,
   `standards/effect-laws.allowlist.jsonc`
-- package READMEs; `packages/architecture-lab/*` as executable proof
+- package READMEs; `packages/architecture-lab/*` and
+  `apps/architecture-lab-proof/test/` as executable proof
 
 Architecture docs are target doctrine. Classify code/doctrine disagreements as
 `target-doctrine-violation` | `transitional-compatibility` |

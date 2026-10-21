@@ -11,7 +11,7 @@ import { CacheClientPin, CacheQualificationKey, CacheTaskConfiguration } from "@
 import { LiteralKit, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { GitObjectId } from "@beep/schema/Conformance";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { O } from "@beep/utils";
+import { HostProcessArchitecture, HostProcessPlatform, O } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as Duration from "effect/Duration";
@@ -363,7 +363,7 @@ const runPilot = Effect.fn("CachePilot.run")(
     protectedIssuerMaterial: O.Option<string> = O.none()
   ) {
     const verifyPilotEnvironment = Effect.fn("CachePilot.verifyPilotEnvironment")(function* () {
-      if (process.platform !== "linux" || process.arch !== "x64")
+      if ((yield* HostProcessPlatform) !== "linux" || (yield* HostProcessArchitecture) !== "x64")
         return yield* CacheCommandError.new("The real pilot sandbox requires Linux x64.");
       if (mode === "signed") yield* assertCachePrivateNetwork;
     });

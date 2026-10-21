@@ -603,9 +603,8 @@ const regionsOf = (options: {
     readonly ends: readonly [End, End];
   };
   const pieces: ReadonlyArray<Piece> = A.flatMap(options.probes, ({ probe, pieces }) =>
-    pipe(
-      projectedProbe(options.camera, probe),
-      O.map((line): ReadonlyArray<Piece> => {
+    O.getOrElse(
+      O.map(projectedProbe(options.camera, probe), (line): ReadonlyArray<Piece> => {
         // each visible piece as a run along the step, its lower end first; the probe went through the pass in
         // short pieces, so the runs that touch are joined again
         type Span = { readonly from: number; readonly to: number; readonly ends: readonly [End, End] };
@@ -649,7 +648,7 @@ const regionsOf = (options: {
           })
         );
       }),
-      O.getOrElse(A.empty<Piece>)
+      A.empty<Piece>
     )
   );
   // the point of a piece at an offset inside its range
@@ -701,10 +700,8 @@ const regionsOf = (options: {
     );
     const rowed: ReadonlyArray<Rowed> = A.map(group, (piece) => ({
       ...piece,
-      row: O.getOrElse(
-        A.findFirstIndex(heights, (h) => h === piece.height),
-        () => 0
-      ),
+      // Every height came from this same group; an absent row is an invariant failure, never row zero.
+      row: O.getOrThrow(A.findFirstIndex(heights, (h) => h === piece.height)),
     }));
     const graph = Graph.undirected<Rowed, null>((mutable) => {
       const nodes = A.map(rowed, (piece) => Graph.addNode(mutable, piece));
@@ -1101,12 +1098,36 @@ const cutTo = (run: Segment2, length: number): Segment2 => {
 
 // The runs of a redrawn band cut back to the band's taper, measured against the band's longest run so runs of unequal
 // length keep the taper's order (review loop 4, K-08, R4-07, F11-05: `bandRunLengths`).
-const retapered = (runs: ReadonlyArray<RedrawnRun>, minStroke: number): ReadonlyArray<Segment2> =>
+/**
+ * Retaper projected whole-chord runs without rebuilding their kernel edges.
+ *
+ * **Example** (Centre a shortened projected stroke)
+ * ```ts
+ * import { Segment2 } from "../Occt.models.ts"
+ * import { retapered } from "./kernel.ts"
+ *
+ * const strokes = retapered({
+ *   runs: [{ run: Segment2.make([0, 0, 0, 10]), extent: 0.6, rank: 0 }],
+ *   minStroke: 0,
+ * })
+ * console.log(strokes) // [[0, 2, 0, 8]]
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ * @internal
+ */
+export const retapered = (options: {
+  readonly runs: ReadonlyArray<RedrawnRun>;
+  readonly minStroke: number;
+}): ReadonlyArray<Segment2> =>
   A.zipWith(
-    runs,
+    options.runs,
     bandRunLengths({
-      runs: A.map(runs, (run) => BandRun.make({ length: segmentLength(run.run), extent: run.extent, rank: run.rank })),
-      minStroke,
+      runs: A.map(options.runs, (run) =>
+        BandRun.make({ length: segmentLength(run.run), extent: run.extent, rank: run.rank })
+      ),
+      minStroke: options.minStroke,
     }),
     (run, length) => cutTo(run.run, length)
   );
@@ -1121,8 +1142,8 @@ const litFloorOf = (runs: ReadonlyArray<RedrawnRun>, minStroke: number): Readonl
     A.take(2)
   );
   const extents = gradedExtents({ count: 2, fullLines: 0 });
-  return retapered(
-    pipe(
+  return retapered({
+    runs: pipe(
       runs,
       A.map((run) =>
         pipe(
@@ -1133,8 +1154,8 @@ const litFloorOf = (runs: ReadonlyArray<RedrawnRun>, minStroke: number): Readonl
       ),
       A.getSomes
     ),
-    minStroke
-  );
+    minStroke,
+  });
 };
 
 // One planned stretch as the sheet draws it: its face, whether it lacked planned room for a band (a sliver, bare by
@@ -1198,7 +1219,7 @@ const bandedShading = (
 // Each face's drawn ink, as the planner reads planned ink: the length of its drawn strokes on the view plane times the
 // minimum pitch, over its visible area on the view plane.
 const drawnInkOf = (
-  faces: ReadonlyArray<HatchedFace<ProbeLine>>,
+  faces: ReadonlyArray<Pick<HatchedFace<ProbeLine>, "seen" | "exposure">>,
   stretches: ReadonlyArray<DrawnStretch>,
   minPitch: number
 ): ReadonlyArray<BandInk> =>
@@ -1222,9 +1243,48 @@ const drawnInkOf = (
 // the tapers were settled on planned ink (review loop 4, K-08). The ink order is checked again on drawn ink: a face with
 // such a band that out-inks a darker neighbour has that band stepped to the lit floor, and, when it still out-inks the
 // neighbour, left bare as a planned skip.
-const settleRedrawnInk = (input: {
+/**
+ * Restore drawn light-to-dark ink order after whole-chord rescue.
+ *
+ * **Example** (Leave an over-inked rescued band bare)
+ * ```ts
+ * import * as A from "effect/Array"
+ * import * as O from "effect/Option"
+ * import { Segment2, ShadingPlan } from "../Occt.models.ts"
+ * import { settleRedrawnInk } from "./kernel.ts"
+ *
+ * const runs = [
+ *   { run: Segment2.make([0, 0, 0, 10]), extent: 1, rank: 0 },
+ *   { run: Segment2.make([1, 0, 1, 10]), extent: 1, rank: 1 },
+ *   { run: Segment2.make([2, 0, 2, 10]), extent: 1, rank: 2 },
+ * ]
+ * const lit = {
+ *   index: 0, sliver: false, segments: A.map(runs, (run) => run.run),
+ *   relaxed: O.some(runs), redrawn: true, inkOrder: false, fits: true,
+ * }
+ * const settled = settleRedrawnInk({
+ *   stretches: [lit, {
+ *     ...lit, index: 1, segments: [Segment2.make([5, 0, 5, 5])],
+ *     relaxed: O.none(), redrawn: false,
+ *   }],
+ *   faces: [{ seen: 100, exposure: 0.5 }, { seen: 100, exposure: -0.4 }],
+ *   neighbours: [[0, 1]],
+ *   plan: ShadingPlan.make({
+ *     style: "graded", axis: "surface-class", minPitch: 1, maxPitch: 3,
+ *     litThreshold: 0.55, minFaceSpan: 0, minStroke: 0,
+ *   }),
+ * })
+ * console.log(settled[0]?.segments) // []
+ * console.log(settled[0]?.inkOrder) // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ * @internal
+ */
+export const settleRedrawnInk = (input: {
   readonly stretches: ReadonlyArray<DrawnStretch>;
-  readonly faces: ReadonlyArray<HatchedFace<ProbeLine>>;
+  readonly faces: ReadonlyArray<Pick<HatchedFace<ProbeLine>, "seen" | "exposure">>;
   readonly neighbours: ReadonlyArray<readonly [number, number]>;
   readonly plan: ShadingPlan;
 }): ReadonlyArray<DrawnStretch> => {
@@ -1621,7 +1681,7 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
     return {
       index: stretch.index,
       sliver,
-      segments: O.match(relaxed, { onNone: () => segments, onSome: (runs) => retapered(runs, minStroke) }),
+      segments: O.match(relaxed, { onNone: () => segments, onSome: (runs) => retapered({ runs, minStroke }) }),
       relaxed,
       redrawn: false,
       inkOrder: false,
@@ -1672,7 +1732,7 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
       onNone: () => stretch,
       onSome: (runs): DrawnStretch => ({
         ...stretch,
-        segments: retapered(runs, minStroke),
+        segments: retapered({ runs, minStroke }),
         relaxed: O.some(runs),
         redrawn: true,
       }),

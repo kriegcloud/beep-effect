@@ -1233,8 +1233,10 @@ const schemaUtilsWrapper = (name: string): O.Option<ParityWrapper> =>
     O.orElse(() => pipe(name, O.liftPredicate(isCodecStaticWrapper), O.map(codecStaticWrapper)))
   );
 
-const opaqueWrapperNamed = (name: string): O.Option<ParityWrapper> =>
-  pipe(name, O.liftPredicate(isOpaqueSchemaWrapper), O.map(opaqueWrapper));
+const opaqueWrapperNamed: (name: string) => O.Option<ParityWrapper> = flow(
+  O.liftPredicate(isOpaqueSchemaWrapper),
+  O.map(opaqueWrapper)
+);
 
 const wrapperDeclaredAt = (name: string, sourcePath: string): O.Option<ParityWrapper> =>
   SCHEMA_UTILS_SOURCE_PATTERN.test(sourcePath)

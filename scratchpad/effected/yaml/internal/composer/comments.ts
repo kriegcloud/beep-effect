@@ -72,16 +72,10 @@ const $I = $ScratchpadId.create("effected/yaml/internal/composer/comments");
  * @since 0.0.0
  */
 export const CommentFields = S.Struct({
-	commentBefore: S.String.pipe(S.optionalKey, S.mutableKey).annotate(
-		$I.annote("CommentFields.commentBefore", { description: "Own-line comments leading the node." }),
-	),
-	comment: S.String.pipe(S.optionalKey, S.mutableKey).annotate(
-		$I.annote("CommentFields.comment", { description: "Comments trailing the node." }),
-	),
-	spaceBefore: S.Boolean.pipe(S.optionalKey, S.mutableKey).annotate(
-		$I.annote("CommentFields.spaceBefore", { description: "A stylistic blank line preceding the node." }),
-	),
-}).annotate($I.annote("CommentFields", { description: "Optional node comment fields merged during composition." }));
+	commentBefore: S.String.pipe(S.optionalKey, S.mutableKey, $I.annoteKey("CommentFields.commentBefore", { description: "Own-line comments leading the node." })),
+	comment: S.String.pipe(S.optionalKey, S.mutableKey, $I.annoteKey("CommentFields.comment", { description: "Comments trailing the node." })),
+	spaceBefore: S.Boolean.pipe(S.optionalKey, S.mutableKey, $I.annoteKey("CommentFields.spaceBefore", { description: "A stylistic blank line preceding the node." })),
+}).pipe($I.annoteSchema("CommentFields", { description: "Optional node comment fields merged during composition." }));
 /**
  * Comment fields accepted by {@link withCommentFields} after schema decoding.
  *
@@ -499,11 +493,9 @@ export const columnAt: {
  * @since 0.0.0
  */
 export const EscapedComment = S.Struct({
-	text: S.String.annotate($I.annote("EscapedComment.text", { description: "Raw post-indicator comment text." })),
-	offset: S.Finite.annotate(
-		$I.annote("EscapedComment.offset", { description: "Source offset of the disowned comment." }),
-	),
-}).annotate($I.annote("EscapedComment", { description: "Comment disowned by a collection for its enclosing scope." }));
+	text: S.String.pipe($I.annoteKey("EscapedComment.text", { description: "Raw post-indicator comment text." })),
+	offset: S.Finite.pipe($I.annoteKey("EscapedComment.offset", { description: "Source offset of the disowned comment." })),
+}).pipe($I.annoteSchema("EscapedComment", { description: "Comment disowned by a collection for its enclosing scope." }));
 /**
  * Decoded text and source offset of a comment passed to an enclosing composer.
  *
@@ -595,7 +587,10 @@ export const withCommentFields: {
 	});
 });
 
-function mergedCommentFields(existing: CommentFields, incoming: CommentFields) {
+const mergedCommentFields: {
+	(existing: CommentFields, incoming: CommentFields): { commentBefore: O.Option<string>; comment: O.Option<string>; spaceBefore: O.Option<boolean>; };
+	(incoming: CommentFields): (existing: CommentFields) => { commentBefore: O.Option<string>; comment: O.Option<string>; spaceBefore: O.Option<boolean>; };
+} = dual(2, (existing: CommentFields, incoming: CommentFields): { commentBefore: O.Option<string>; comment: O.Option<string>; spaceBefore: O.Option<boolean>; } => {
 	const commentBefore =
 		incoming.commentBefore !== undefined
 			? existing.commentBefore !== undefined
@@ -614,4 +609,4 @@ function mergedCommentFields(existing: CommentFields, incoming: CommentFields) {
 		comment: O.fromUndefinedOr(comment),
 		spaceBefore: O.fromUndefinedOr(spaceBefore),
 	};
-}
+});

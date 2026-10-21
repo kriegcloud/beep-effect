@@ -45,9 +45,9 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/spawn");
  * @since 0.0.0
  */
 export const SpawnOnceResult = S.Struct({
-	output: S.String.annotateKey({ description: "The interleaved stdout and stderr from one spawn." }),
-	code: S.Finite.annotateKey({ description: "The same spawn's finite exit code, without applying caller policy." }),
-}).annotate($I.annote("SpawnOnceResult", { description: "The plain-object output and exit code collected from one spawn handle." }));
+	output: S.String.pipe($I.annoteKey("SpawnOnceResult.output", { description: "The interleaved stdout and stderr from one spawn." })),
+	code: S.Finite.pipe($I.annoteKey("SpawnOnceResult.code", { description: "The same spawn's finite exit code, without applying caller policy." })),
+}).pipe($I.annoteSchema("SpawnOnceResult", { description: "The plain-object output and exit code collected from one spawn handle." }));
 
 /**
  * The plain-object result accepted by {@link SpawnOnceResult}.

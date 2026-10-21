@@ -2,6 +2,8 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { CommentMarker, CommentRecord, PullRequestComment } from "../../effected/github/PullRequestComment.ts";
@@ -25,9 +27,10 @@ describe("PullRequestComment coverage", () => {
     }));
   });
   it.layer(Layer.mergeAll(PullRequestComment.layerTest({
-    create: (issue, body) => Effect.succeed(CommentRecord.make({ ...record, id: issue, body })),
-    upsert: (issue, suppliedMarker, body) => Effect.succeed(CommentRecord.make({ ...record, id: issue, body: `${body}\n\n${suppliedMarker.html}` })),
-    find: () => Effect.succeedSome(record),
+    create: dual(2, (issue: number, body: string) => Effect.succeed(CommentRecord.make({ ...record, id: issue, body }))),
+    upsert: dual(3, (issue: number, suppliedMarker: CommentMarker, body: string) =>
+      Effect.succeed(CommentRecord.make({ ...record, id: issue, body: `${body}\n\n${suppliedMarker.html}` }))),
+    find: dual((args) => P.isNumber(args[0]), (_issue: number, _marker: CommentMarker, _options?: object) => Effect.succeedSome(record)),
     delete: () => Effect.void,
   }), Repo.layer(REPO)), { timeout: "30 seconds" })((it) => {
     it.effect("layerTest retains every supplied override and its arguments", () => Effect.gen(function* () {

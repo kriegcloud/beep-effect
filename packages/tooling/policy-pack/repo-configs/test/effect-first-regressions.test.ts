@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/laws/EffectLawsAllowlistSnapshotCodegen";
 import { it } from "@beep/test-runner";
 import { Str } from "@beep/utils";
@@ -7,17 +7,17 @@ import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 
-const allowlistRuntimePath = fileURLToPath(new URL("../src/laws/EffectLawsAllowlist.ts", import.meta.url));
-const snapshotCodegenPath = fileURLToPath(
+const allowlistRuntimePath = NodeURL.fileURLToPath(new URL("../src/laws/EffectLawsAllowlist.ts", import.meta.url));
+const snapshotCodegenPath = NodeURL.fileURLToPath(
   new URL("../src/internal/laws/EffectLawsAllowlistSnapshotCodegen.ts", import.meta.url)
 );
-const allowlistSchemasPath = fileURLToPath(
+const allowlistSchemasPath = NodeURL.fileURLToPath(
   new URL("../src/internal/laws/EffectLawsAllowlistSchemas.ts", import.meta.url)
 );
-const generatedSnapshotPath = fileURLToPath(
+const generatedSnapshotPath = NodeURL.fileURLToPath(
   new URL("../src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts", import.meta.url)
 );
-const allowlistJsoncPath = fileURLToPath(
+const allowlistJsoncPath = NodeURL.fileURLToPath(
   new URL("../../../../../standards/effect-laws.allowlist.jsonc", import.meta.url)
 );
 

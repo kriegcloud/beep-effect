@@ -10,7 +10,7 @@
  * @since 0.0.0
  */
 
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
 import {
   DomainError,
@@ -119,7 +119,7 @@ const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<
  * @since 0.0.0
  */
 export const resolveCreatePackageTemplateDir = Effect.fn(function* (
-  baseDir: string = fileURLToPath(new URL(".", import.meta.url))
+  baseDir: string = NodeURL.fileURLToPath(new URL(".", import.meta.url))
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -2101,7 +2101,7 @@ const generatePackageJson: (
         provenance: true,
         exports: {
           "./package.json": "./package.json",
-          ".": "./dist/index.ts",
+          ".": "./dist/index.js",
           "./*": "./dist/*.js",
           "./internal/*": null,
         },

@@ -2,6 +2,8 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -66,7 +68,7 @@ describe("GitHubIssue coverage", () => {
     const service = GitHubIssue.makeTest();
     const calls = [["get", () => service.get(1)], ["list", () => service.list()], ["close", () => service.close(1)], ["comment", () => service.comment(1, "text")], ["commentOnce", () => service.commentOnce(1, marker, "text")], ["linkedIssues", () => service.linkedIssues(1)], ["isCrossReferencedBy", () => service.isCrossReferencedBy(1, 2)]] as const;
     for (const [name, call] of calls) assert.throws(call, `GitHubIssue.makeTest: ${name}() was called but not stubbed`);
-    const stub = GitHubIssue.makeTest({ get: () => Effect.succeed(issue), list: () => Effect.succeed([issue]), close: () => Effect.void, comment: () => Effect.succeed(2), commentOnce: () => Effect.succeed(once), linkedIssues: () => Effect.succeed([linked]), isCrossReferencedBy: () => Effect.succeed(false) });
+    const stub = GitHubIssue.makeTest({ get: () => Effect.succeed(issue), list: () => Effect.succeed([issue]), close: dual((args) => P.isNumber(args[0]), (_number: number, _reason?: string) => Effect.void), comment: dual(2, (_number: number, _body: string) => Effect.succeed(2)), commentOnce: dual(3, (_number: number, _marker: CommentMarker, _body: string) => Effect.succeed(once)), linkedIssues: () => Effect.succeed([linked]), isCrossReferencedBy: dual(2, (_issue: number, _pr: number) => Effect.succeed(false)) });
     assert.deepStrictEqual(yield* stub.get(1), issue);
     assert.deepStrictEqual(yield* stub.list(), [issue]);
     assert.strictEqual(yield* stub.close(1), undefined);

@@ -18,6 +18,7 @@ import { YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
 import { positionAt, walkScalars } from "./util.ts";
 import * as P from "effect/Predicate";
 import * as O from "@beep/utils/Option";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/truthy");
 
@@ -43,16 +44,16 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/truthy");
  * @since 0.0.0
  */
 export const truthyOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("truthyOptions.severity", {
 		description: "Reporting level for disallowed boolean-spelling findings, defaulting to `error`",
-	}),
-	allowed: S.String.pipe(S.Array, S.optionalKey).annotateKey({
+	})),
+	allowed: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("truthyOptions.allowed", {
 		description:
 			"Case-sensitive spellings exempted from YAML 1.1 boolean-family checks, defaulting to `true` and `false`",
-	}),
-	checkKeys: S.optionalKey(S.Boolean).annotateKey({
+	})),
+	checkKeys: S.optionalKey(S.Boolean).pipe($I.annoteKey("truthyOptions.checkKeys", {
 		description: "Whether mapping keys are checked for disallowed YAML 1.1 boolean spellings, defaulting to `true`",
-	}),
+	})),
 }).pipe(
 	$I.annoteSchema("truthyOptions", {
 		description:
@@ -122,7 +123,7 @@ const TRUE_SET = HashSet.fromIterable(["yes", "on", "true"]);
  */
 export const truthy: YamlRule = {
 	id: "truthy",
-	check: (ctx: LintContext, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const allowed = HashSet.fromIterable(
 			P.hasProperty(options, "allowed") && S.is(truthyOptions.fields.allowed.schema)(options.allowed)
 				? options.allowed
@@ -162,5 +163,5 @@ export const truthy: YamlRule = {
 			);
 		}, !checkKeys);
 		return out;
-	},
+	}),
 };

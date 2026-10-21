@@ -16,7 +16,8 @@ import { CommandNeutralizer } from "../../github-commands/index.ts";
 import { CliFailure } from "../CliFailure.ts";
 import { CliLinks } from "../CliLinks.ts";
 import { CliTheme } from "../CliTheme.ts";
-import type { Block, Document, Inline } from "../Doc.ts";
+import type { Block, Document, Inline, LinkTarget } from "../Doc.ts";
+import type { Style, TokenName } from "../Token.ts";
 import { sanitize } from "../Fmt.ts";
 import { Glyphs } from "../Glyphs.ts";
 import type { RenderContext } from "../Render.ts";
@@ -107,9 +108,9 @@ export const fallbackTarget: FailureTarget = {
 		width: Number.POSITIVE_INFINITY,
 		audience: "agent",
 		color: "none",
-		paint: (_token, text) => text,
+		paint: dual(2, (_token: TokenName | Style, text: string): string => text),
 		glyphs: Glyphs.ascii,
-		link: (_target, label) => label,
+		link: dual(2, (_target: LinkTarget, label: string): string => label),
 		displayPath: (absolute) => absolute,
 		// Nothing is known about the runner here, so the report refuses to emit a workflow command: a zero-width space
 		// in front of a line that starts with `::` or `##` costs nothing anywhere else.
@@ -230,7 +231,7 @@ const dropStatus = (content: ReadonlyArray<Inline>): ReadonlyArray<Inline> => {
  * tree label; nothing else in the document carries one.
  */
 const withoutStatus = (doc: Document): Document =>
-	doc.map((block): Block => {
+	A.map(doc, (block): Block => {
 		if (block._tag === "Paragraph") return { ...block, content: dropStatus(block.content) };
 		if (block._tag === "Tree") return { ...block, root: { ...block.root, label: dropStatus(block.root.label) } };
 		return block;
@@ -315,9 +316,9 @@ export const guardConsumerLines = (lines: ReadonlyArray<string>): Effect.Effect<
 		// An agent or a CI gets no escape of any kind (the kit's own output for them is already escape-free); only a person
 		// keeps what the consumer wrote.
 		const noEscapes = target.assumed !== true && (target.ctx.audience === "agent" || target.ctx.audience === "ci");
-		const stripped = noEscapes ? lines.map(sanitize) : lines;
+		const stripped = noEscapes ? A.map(lines, sanitize) : lines;
 		return target.ctx.neutralizeWorkflowCommands === true
-			? stripped.flatMap((line) => CommandNeutralizer.lines(line))
+			? A.flatMap(stripped, (line) => CommandNeutralizer.lines(line))
 			: stripped;
 	});
 
@@ -346,9 +347,7 @@ export const plainFailureLines: {
 		linesOf(cause, fallbackTarget, status, spans),
 );
 
-const SpanSetting = LiteralKit(["app", "all", "off"]).annotate(
-	$I.annote("SpanSetting", { description: "The span trail visibility setting." }),
-);
+const SpanSetting = LiteralKit(["app", "all", "off"]).pipe($I.annoteSchema("SpanSetting", { description: "The span trail visibility setting." }));
 type SpanSetting = typeof SpanSetting.Type;
 const isSpanSetting = S.is(SpanSetting);
 

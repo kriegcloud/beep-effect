@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { createRequire } from "node:module";
+import * as NodeModule from "node:module";
 import { $WinkId } from "@beep/identity";
 import { SchemaUtils } from "@beep/schema";
 import { A } from "@beep/utils";
@@ -20,7 +20,7 @@ import * as S from "effect/Schema";
 import { observeWinkWorkflow, textLengthAttribute } from "./WinkObservability.ts";
 
 const $I = $WinkId.create("Wink/WinkUtils");
-const require = createRequire(import.meta.url);
+const require = NodeModule.createRequire(import.meta.url);
 
 type StringUtilities = {
   readonly bagOfNGrams: {

@@ -18,6 +18,7 @@ import { ambientLinksLayer } from "./CliLinks.ts";
 import type { CliLogFileOptions, CliLogOptions } from "./CliLog.ts";
 import { CliPrompt } from "./CliPrompt.ts";
 import { CliTheme, CliThemeOptions } from "./CliTheme.ts";
+import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/cli/CliEnv");
 
@@ -142,21 +143,21 @@ export type CliEnvServices = CurrentRuntimeEnv | TerminalEnv | Audience | CliThe
  */
 export const CliEnvTestOptions = S.Struct({
 	/** Whether standard input, output and error are all terminals; `false` by default, as for a pipe. */
-	tty: S.optional(S.Boolean).annotate($I.annote("CliEnvTestOptions.tty", { description: "Whether all three standard streams are terminals." })),
+	tty: S.optionalKey(S.Boolean).pipe($I.annoteKey("CliEnvTestOptions.tty", { description: "Whether all three standard streams are terminals." })),
 	/**
 	 * The `TERM` the layer's own builds read: `dumb` makes a terminal not interactive and, with the theme's glyphs at
 	 * `auto`, draws ASCII. Unset by default, whatever the host's `TERM` is.
 	 */
-	term: S.optional(S.String).annotate($I.annote("CliEnvTestOptions.term", { description: "The TERM answer read by this test environment." })),
+	term: S.optionalKey(S.String).pipe($I.annoteKey("CliEnvTestOptions.term", { description: "The TERM answer read by this test environment." })),
 	/** The audience; `human` by default. */
-	audience: S.optional(AudienceKind).annotate($I.annote("CliEnvTestOptions.audience", { description: "The fixed audience of the test run." })),
+	audience: S.optionalKey(AudienceKind).pipe($I.annoteKey("CliEnvTestOptions.audience", { description: "The fixed audience of the test run." })),
 	/** The width of the terminal, in columns; none by default, so a width falls back to the reader's (80). */
-	columns: S.optional(S.Finite).annotate($I.annote("CliEnvTestOptions.columns", { description: "The terminal width answer, preserved exactly as supplied." })),
+	columns: S.optionalKey(S.Finite).pipe($I.annoteKey("CliEnvTestOptions.columns", { description: "The terminal width answer, preserved exactly as supplied." })),
 	/** The colour level of both stdout and stderr; `none` by default. Fixed as given: `term` does not change it. */
-	color: S.optional(ColorLevel).annotate($I.annote("CliEnvTestOptions.color", { description: "Fixed colour support for stdout and stderr." })),
+	color: S.optionalKey(ColorLevel).pipe($I.annoteKey("CliEnvTestOptions.color", { description: "Fixed colour support for stdout and stderr." })),
 	/** Options for the theme, as {@link CliEnvOptions.theme}; its glyphs are `auto` by default, so `term` decides. */
-	theme: S.optional(CliThemeOptions).annotate($I.annote("CliEnvTestOptions.theme", { description: "Token and glyph overrides for the test theme." })),
-}).annotate($I.annote("CliEnvTestOptions", { description: "Plain terminal, audience and theme answers for a CLI test environment." }));
+	theme: S.optionalKey(CliThemeOptions).pipe($I.annoteKey("CliEnvTestOptions.theme", { description: "Token and glyph overrides for the test theme." })),
+}).pipe($I.annoteSchema("CliEnvTestOptions", { description: "Plain terminal, audience and theme answers for a CLI test environment." }));
 
 /**
  * The plain answers accepted by the test environment layer.
@@ -297,16 +298,16 @@ export class CliEnv {
  * @category layers
  * @since 0.0.0
  */
-	static readonly layerTest = (options: CliEnvTestOptions = {}): Layer.Layer<CliEnvTestServices> => {
+	static readonly layerTest = (options: CliEnvTestOptions = R.empty()): Layer.Layer<CliEnvTestServices> => {
 		const tty = options.tty ?? false;
 		const stream: Partial<StreamEnv> = {
 			isTerminal: tty,
-			color: options.color ?? "none",
-			columns: options.columns === undefined ? O.none() : O.some(options.columns),
+			color: options.color ?? ColorLevel.Enum.none,
+			columns: O.fromUndefinedOr(options.columns),
 		};
 		const facts = LayerModule.mergeAll(
 			TerminalEnv.layerTest({ stdinIsTerminal: tty, stdout: stream, stderr: stream }),
-			Audience.layerTest(options.audience ?? "human"),
+			Audience.layerTest(options.audience ?? AudienceKind.Enum.human),
 		);
 		// Only these two builds read TERM, and only while they are built: they get it from a provider of their own.
 		const term = ConfigProvider.layer(

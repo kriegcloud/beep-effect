@@ -11,6 +11,7 @@ import { dual } from "effect/Function";
 import { toStringUnknown } from "effect/Inspectable";
 import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type * as Console from "effect/Console";
 
@@ -124,11 +125,9 @@ export const writeChunkOnce: {
     MutableRef.set(called, true);
     onDone(failure);
   };
-  try {
+  Result.try(() => {
     stream.write(chunk, (error?: Error | null) => settle(O.map(O.fromNullishOr(error), (cause) => cause.message)));
-  } catch (cause) {
-    settle(O.some(causeMessage(cause)));
-  }
+  }).pipe(Result.getOrElse((cause) => settle(O.some(causeMessage(cause)))));
 });
 
 // Count queued lines, including the active line until its final chunk callback fires.
@@ -318,19 +317,12 @@ const currentFailure = (): O.Option<StreamWriteFailure> =>
 export const writeBestEffortLine: {
   (fallback: NodeJS.WriteStream, line: string): (preferred: NodeJS.WriteStream) => boolean;
   (preferred: NodeJS.WriteStream, fallback: NodeJS.WriteStream, line: string): boolean;
-} = dual(3, (preferred: NodeJS.WriteStream, fallback: NodeJS.WriteStream, line: string): boolean => {
-  try {
+} = dual(3, (preferred: NodeJS.WriteStream, fallback: NodeJS.WriteStream, line: string): boolean =>
+  Result.try(() => {
     preferred.write(line);
     return true;
-  } catch {
-    try {
-      fallback.write(line);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-});
+  }).pipe(Result.getOrElse(() => Result.isSuccess(Result.try(() => fallback.write(line)))))
+);
 
 /**
  * Records an external writer's first failure and sends the existing marker to the sibling stream.

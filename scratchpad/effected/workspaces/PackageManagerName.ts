@@ -7,6 +7,8 @@
 // parse), and because `@effected/package-json` already exports a
 // `PackageManager` class for the corepack `pnpm@10.33.0` field.
 
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { PackageManager } from "../package-json/index.ts";
@@ -26,7 +28,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
 
 class PackageManagerDetectorDefect extends S.TaggedError<PackageManagerDetectorDefect, { readonly brand: unique symbol }>($I`PackageManagerDetectorDefect`)("PackageManagerDetectorDefect", {
 	message: S.String,
-}, $I.annote("PackageManagerDetectorDefect", { description: "An invalid manifest value or unstubbed package manager detector." })) {}
+}, $I.annoteError<PackageManagerDetectorDefect>("PackageManagerDetectorDefect", { description: "An invalid manifest value or unstubbed package manager detector." })) {}
 
 /**
  * The four package managers this package understands.
@@ -156,13 +158,13 @@ export type PackageManagerEvidence = typeof PackageManagerEvidence.Type;
  */
 export class DetectedPackageManager extends S.Class<DetectedPackageManager, { readonly brand: unique symbol }>($I`DetectedPackageManager`)({
 	/** The detected manager. */
-	name: PackageManagerName.annotateKey({ description: "The detected manager." }),
+	name: PackageManagerName.pipe($I.annoteKey("DetectedPackageManager.name", { description: "The detected manager." })),
 	/** Its version, when a manifest field agrees on the manager and carries one. */
-	version: S.Option(S.String).annotateKey({ description: "Its version, when a manifest field agrees on the manager and carries one." }),
+	version: S.Option(S.String).pipe($I.annoteKey("DetectedPackageManager.version", { description: "Its version, when a manifest field agrees on the manager and carries one." })),
 	/** The JavaScript runtime the manager implies. */
-	runtime: S.Literals(["node", "bun"]).annotateKey({ description: "The JavaScript runtime the manager implies." }),
+	runtime: S.Literals(["node", "bun"]).pipe($I.annoteKey("DetectedPackageManager.runtime", { description: "The JavaScript runtime the manager implies." })),
 	/** The rung of the priority order that decided the name. */
-	evidence: PackageManagerEvidence.annotateKey({ description: "The rung of the priority order that decided the name." }),
+	evidence: PackageManagerEvidence.pipe($I.annoteKey("DetectedPackageManager.evidence", { description: "The rung of the priority order that decided the name." })),
 }, $I.annote("DetectedPackageManager", { description: "The outcome of package-manager detection at a workspace root." })) {}
 
 /**
@@ -170,8 +172,8 @@ export class DetectedPackageManager extends S.Class<DetectedPackageManager, { re
  * version when the field carries one that parses.
  */
 const ManagerHint = S.Struct({
-	name: S.String.annotateKey({ description: "The manager name declared by the manifest." }),
-	version: S.Option(S.String).annotateKey({ description: "The exact parsed version, or none when absent or invalid." }),
+	name: S.String.pipe($I.annoteKey("ManagerHint.name", { description: "The manager name declared by the manifest." })),
+	version: S.Option(S.String).pipe($I.annoteKey("ManagerHint.version", { description: "The exact parsed version, or none when absent or invalid." })),
 }).pipe($I.annoteSchema("ManagerHint", { description: "A normalized manifest manager hint whose invalid version does not discard its name." }));
 
 type ManagerHint = typeof ManagerHint.Type;
@@ -231,8 +233,11 @@ export const isPlainObject = S.is(JsonObject);
  * top-level field reports — and a *range* (`^11`, `11.x`) yields none, because a
  * range is not a version and corepack will not run one either.
  */
-const exactVersionOf = (name: string, version: string): O.Option<string> =>
-	S.decodeOption(PackageManager.FromString)(`${name}@${version}`).pipe(O.map((pm) => pm.version));
+const exactVersionOf: {
+	(name: string, version: string): O.Option<string>;
+	(version: string): (name: string) => O.Option<string>;
+} = dual(2, (name: string, version: string): O.Option<string> =>
+	S.decodeOption(PackageManager.FromString)(`${name}@${version}`).pipe(O.map((pm) => pm.version)));
 
 /**
  * The `devEngines.packageManager` hint, or none.
@@ -297,10 +302,10 @@ export class PackageManagerDetectionError extends S.TaggedError<PackageManagerDe
 	"PackageManagerDetectionError",
 	{
 		/** The workspace root that was probed. */
-		root: S.String.annotateKey({ description: "The workspace root that was probed." }),
+		root: S.String.pipe($I.annoteKey("PackageManagerDetectionError.root", { description: "The workspace root that was probed." })),
 		/** The marker files probed, in the order they were probed. */
-		checked: S.Array(S.String).annotateKey({ description: "The marker files probed, in the order they were probed." }),
-	}, $I.annote("PackageManagerDetectionError", { description: "Raised when a directory carries no lockfile and no workspace configuration, so no package manager can be attributed to it." }),
+		checked: S.Array(S.String).pipe($I.annoteKey("PackageManagerDetectionError.checked", { description: "The marker files probed, in the order they were probed." })),
+	}, $I.annoteError<PackageManagerDetectionError>("PackageManagerDetectionError", { description: "Raised when a directory carries no lockfile and no workspace configuration, so no package manager can be attributed to it." }),
 ) {
 	/**
 	 * Renders the root and probed markers into a one-line message.
@@ -322,7 +327,7 @@ export class PackageManagerDetectionError extends S.TaggedError<PackageManagerDe
 	 * @since 0.0.0
 	 */
 	override get message(): string {
-		return `No package manager detected at ${this.root} (checked ${this.checked.join(", ")})`;
+		return `No package manager detected at ${this.root} (checked ${A.join(this.checked, ", ")})`;
 	}
 }
 
@@ -463,8 +468,11 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
 		const fs = yield* FileSystem.FileSystem;
 		const path = yield* Path.Path;
 
-		const has = (root: string, file: string): Effect.Effect<boolean> =>
-			fs.exists(path.join(root, file)).pipe(Effect.orElseSucceed(() => false));
+		const has: {
+			(root: string, file: string): Effect.Effect<boolean>;
+			(file: string): (root: string) => Effect.Effect<boolean>;
+		} = dual(2, (root: string, file: string): Effect.Effect<boolean> =>
+			fs.exists(path.join(root, file)).pipe(Effect.orElseSucceed(() => false)));
 
 		/**
 		 * The root manifest, read and parsed **once** per detection.
@@ -516,10 +524,18 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
 			);
 
 		/** Whether the manifest declares `name` as its manager. */
-		const namesManager = (
+		const namesManager: {
+			(
+				hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> },
+				name: PackageManagerName,
+			): boolean;
+			(
+				name: PackageManagerName,
+			): (hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> }) => boolean;
+		} = dual(2, (
 			hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> },
 			name: PackageManagerName,
-		): boolean => O.contains(declaredName(hints), name);
+		): boolean => O.contains(declaredName(hints), name));
 
 		/**
 		 * The version to report for the manager that was detected — none unless a
@@ -531,7 +547,15 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
 		 * is the field carrying the integrity hash; `devEngines` supplies the version
 		 * when it does not.
 		 */
-		const versionFor = (
+		const versionFor: {
+			(
+				hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> },
+				name: PackageManagerName,
+			): O.Option<string>;
+			(
+				name: PackageManagerName,
+			): (hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> }) => O.Option<string>;
+		} = dual(2, (
 			hints: { readonly devEngines: O.Option<ManagerHint>; readonly corepack: O.Option<ManagerHint> },
 			name: PackageManagerName,
 		): O.Option<string> => {
@@ -542,7 +566,7 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
 			return O.orElse(fromCorepack, () =>
 				O.flatMap(hints.devEngines, (hint) => hint.version),
 			);
-		};
+		});
 
 		const detect = Effect.fn("PackageManagerDetector.detect")(function* (root: string) {
 			const manifest = yield* manifestOf(root);

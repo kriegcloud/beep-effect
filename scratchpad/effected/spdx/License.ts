@@ -1,9 +1,11 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ACTIVE_LICENSE_IDS, DEPRECATED_LICENSE_ID_LIST, DEPRECATED_LICENSE_IDS } from "./internal/licenseIds.ts";
@@ -55,8 +57,8 @@ export class InvalidSpdxExpressionError extends S.TaggedError<InvalidSpdxExpress
 		 * @category models
 		 * @since 0.0.0
 		 */
-		input: S.String.annotateKey({ description: "The raw input string that failed to validate." }),
-	}, $I.annote("InvalidSpdxExpressionError", { description: "Indicates that a string is not a valid SPDX expression fragment: an unrecognized license or exception identifier, or a malformed `LicenseRef-`/`DocumentRef-` reference." }),
+		input: S.String.pipe($I.annoteKey("InvalidSpdxExpressionError.input", { description: "The raw input string that failed to validate." })),
+	}, $I.annoteError<InvalidSpdxExpressionError>("InvalidSpdxExpressionError", { description: "Indicates that a string is not a valid SPDX expression fragment: an unrecognized license or exception identifier, or a malformed `LicenseRef-`/`DocumentRef-` reference." }),
 ) {
 	/**
 	 * Formats the rejected input as the validation error's diagnostic message.
@@ -152,7 +154,7 @@ export class License extends S.Class<License, { readonly brand: unique symbol }>
 	 * @category models
 	 * @since 0.0.0
 	 */
-	id: S.String.annotateKey({ description: "The SPDX short identifier (e.g. `\"MIT\"`) or a `LicenseRef-`/`DocumentRef-` reference string." }),
+	id: S.String.pipe($I.annoteKey("License.id", { description: "The SPDX short identifier (e.g. `\"MIT\"`) or a `LicenseRef-`/`DocumentRef-` reference string." })),
 	/**
 	 * Whether `id` is a deprecated SPDX identifier. Always `false` for a
 	 * `LicenseRef`/`DocumentRef` reference.
@@ -168,7 +170,7 @@ export class License extends S.Class<License, { readonly brand: unique symbol }>
 	 * @category models
 	 * @since 0.0.0
 	 */
-	deprecated: S.Boolean.annotateKey({ description: "Whether `id` is a deprecated SPDX identifier. Always `false` for a `LicenseRef`/`DocumentRef` reference." }),
+	deprecated: S.Boolean.pipe($I.annoteKey("License.deprecated", { description: "Whether `id` is a deprecated SPDX identifier. Always `false` for a `LicenseRef`/`DocumentRef` reference." })),
 }, $I.annote("License", { description: "A validated SPDX license identifier: an Effect `Schema.Class` whose `id` is either a member of the SPDX License List or a well-formed `LicenseRef-`/`DocumentRef-` reference. The class doubles as its own schema — there is no `*Schema` suffix." })) {
 	// ── Catalog ─────────────────────────────────────────────────────────
 
@@ -345,9 +347,13 @@ export class License extends S.Class<License, { readonly brand: unique symbol }>
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static of(id: string, deprecated = false): License {
-		return License.make({ id, deprecated });
-	}
+	static readonly of: {
+		(id: string, deprecated?: boolean): License;
+		(deprecated?: boolean): (id: string) => License;
+	} = dual(
+		(args) => P.isString(args[0]),
+		(id: string, deprecated = false): License => License.make({ id, deprecated })
+	);
 
 	// ── Catalog metadata ────────────────────────────────────────────────
 

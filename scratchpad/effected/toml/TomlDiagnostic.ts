@@ -8,6 +8,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import {
 	TOML_LEX_ERROR_CODES,
@@ -188,12 +189,12 @@ export type TomlErrorCode = typeof TomlErrorCode.Type;
  * @since 0.0.0
  */
 export class TomlDiagnostic extends S.Class<TomlDiagnostic, { readonly brand: unique symbol }>($I`TomlDiagnostic`)({
-	code: TomlErrorCode.annotateKey({ description: "Failure category emitted during TOML lexing, parsing, semantic validation, or stringification" }),
-	message: S.String.annotateKey({ description: "Human-readable explanation supplied by the TOML engine for the failure" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start position of the diagnostic span in source UTF-16 code units, or zero for stringification failures" }),
-	length: S.Finite.annotateKey({ description: "Diagnostic span length in source UTF-16 code units, with zero used for position-only or stringification failures" }),
-	line: S.Finite.annotateKey({ description: "Zero-based source line derived from the diagnostic offset, counting CRLF as one line break" }),
-	character: S.Finite.annotateKey({ description: "Zero-based position within the source line in UTF-16 code units, derived from the diagnostic offset" }),
+	code: TomlErrorCode.pipe($I.annoteKey("TomlDiagnostic.code", { description: "Failure category emitted during TOML lexing, parsing, semantic validation, or stringification" })),
+	message: S.String.pipe($I.annoteKey("TomlDiagnostic.message", { description: "Human-readable explanation supplied by the TOML engine for the failure" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlDiagnostic.offset", { description: "Zero-based start position of the diagnostic span in source UTF-16 code units, or zero for stringification failures" })),
+	length: S.Finite.pipe($I.annoteKey("TomlDiagnostic.length", { description: "Diagnostic span length in source UTF-16 code units, with zero used for position-only or stringification failures" })),
+	line: S.Finite.pipe($I.annoteKey("TomlDiagnostic.line", { description: "Zero-based source line derived from the diagnostic offset, counting CRLF as one line break" })),
+	character: S.Finite.pipe($I.annoteKey("TomlDiagnostic.character", { description: "Zero-based position within the source line in UTF-16 code units, derived from the diagnostic offset" })),
 }, $I.annote("TomlDiagnostic", { description: "One structured diagnostic: its (TomlErrorCode:type), a human-readable `message`, and its exact position (`offset`/`length`, plus zero-based `line`/`character`)." })) {
 	/**
 	 * Materialize an engine record, deriving `line`/`character` (0-based)
@@ -217,10 +218,13 @@ export class TomlDiagnostic extends S.Class<TomlDiagnostic, { readonly brand: un
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static fromRaw(
+	static readonly fromRaw: {
+		(source: string, raw: { readonly code: TomlErrorCode; readonly message: string; readonly offset: number; readonly length: number }): TomlDiagnostic;
+		(raw: { readonly code: TomlErrorCode; readonly message: string; readonly offset: number; readonly length: number }): (source: string) => TomlDiagnostic;
+	} = dual(2, (
 		source: string,
 		raw: { readonly code: TomlErrorCode; readonly message: string; readonly offset: number; readonly length: number },
-	): TomlDiagnostic {
+	): TomlDiagnostic => {
 		const { line, character } = lineChar(source, raw.offset);
 		return TomlDiagnostic.make({
 			code: raw.code,
@@ -230,7 +234,7 @@ export class TomlDiagnostic extends S.Class<TomlDiagnostic, { readonly brand: un
 			line,
 			character,
 		});
-	}
+	});
 }
 
 /**
@@ -238,7 +242,10 @@ export class TomlDiagnostic extends S.Class<TomlDiagnostic, { readonly brand: un
  * Recognizes `\n`, `\r` and `\r\n` as line breaks (TOML's newline grammar);
  * a CRLF pair counts as a single newline.
  */
-function lineChar(text: string, offset: number): { line: number; character: number } {
+const lineChar: {
+	(text: string, offset: number): { line: number; character: number };
+	(offset: number): (text: string) => { line: number; character: number };
+} = dual(2, (text: string, offset: number): { line: number; character: number } => {
 	let line = 0;
 	let lineStart = 0;
 	const limit = Math.min(offset, text.length);
@@ -256,4 +263,4 @@ function lineChar(text: string, offset: number): { line: number; character: numb
 		}
 	}
 	return { line, character: offset - lineStart };
-}
+});

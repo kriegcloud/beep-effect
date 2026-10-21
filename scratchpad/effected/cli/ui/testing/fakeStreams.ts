@@ -1,4 +1,6 @@
 import type { UiStreamsShape } from "../UiStreams.ts";
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 
 // Effect Stream cannot provide Ink's Node stream events, raw-mode methods and write-callback barriers.
@@ -44,7 +46,7 @@ abstract class MemorySocket extends Socket {
 			// Synchronous completions resume this loop; only a held callback starts a new drain.
 			if (draining) return;
 			draining = true;
-			while (waiting === false && finished === false) {
+			while (!waiting && !finished) {
 				const next = remaining.next();
 				if (next.done === true) {
 					finished = true;
@@ -185,23 +187,32 @@ export interface FakeStreams {
 	/** Feed raw bytes to stdin, as a terminal in raw mode would deliver a key. */
 	readonly input: (data: string) => void;
 	/** Resize the terminal: set both outputs' size and emit `resize` on stdout, as a terminal does. */
-	readonly resize: (columns: number, rows: number) => void;
+	readonly resize: {
+		(columns: number, rows: number): void;
+		(rows: number): (columns: number) => void;
+	};
 }
 
-const capture = (
+type Captured = { readonly stream: MemoryOutput; readonly text: () => string };
+
+/** Captured output into `both`, the shared transcript; the transcript is the subject, so the size can follow it. */
+const capture: {
+	(both: Array<string>, columns: number, rows: number, onWrite?: (chunk: string) => void): Captured;
+	(columns: number, rows: number, onWrite?: (chunk: string) => void): (both: Array<string>) => Captured;
+} = dual((args) => A.isArray(args[0]), (
+	both: Array<string>,
 	columns: number,
 	rows: number,
-	both: Array<string>,
 	onWrite?: (chunk: string) => void,
-): { readonly stream: MemoryOutput; readonly text: () => string } => {
+): Captured => {
 	const chunks: Array<string> = [];
 	const stream = new MemoryOutput(columns, rows, (text) => {
 		chunks.push(text);
 		both.push(text);
 		onWrite?.(text);
 	});
-	return { stream, text: () => chunks.join("") };
-};
+	return { stream, text: () => A.join(chunks, "") };
+});
 
 /**
  * Make in-memory stdin, stdout and stderr that satisfy Ink's stream contract: TTYs with a size, a recorded
@@ -233,8 +244,8 @@ export const makeFakeStreams = (options: FakeStreamsOptions = {}): FakeStreams =
 	const rawModes: Array<boolean> = [];
 	const stdin = new MemoryInput(rawModes);
 	const both: Array<string> = [];
-	const stdout = capture(columns, rows, both, options.onStdoutWrite);
-	const stderr = capture(columns, rows, both);
+	const stdout = capture(both, columns, rows, options.onStdoutWrite);
+	const stderr = capture(both, columns, rows);
 	return {
 		streams: {
 			stdin,
@@ -244,16 +255,16 @@ export const makeFakeStreams = (options: FakeStreamsOptions = {}): FakeStreams =
 		rawModes,
 		stdout: stdout.text,
 		stderr: stderr.text,
-		written: () => both.join(""),
+		written: () => A.join(both, ""),
 		input: (data) => {
 			stdin.write(data);
 		},
-		resize: (nextColumns, nextRows) => {
+		resize: dual(2, (nextColumns: number, nextRows: number): void => {
 			stdout.stream.columns = nextColumns;
 			stdout.stream.rows = nextRows;
 			stderr.stream.columns = nextColumns;
 			stderr.stream.rows = nextRows;
 			stdout.stream.emit("resize");
-		},
+		}),
 	};
 };

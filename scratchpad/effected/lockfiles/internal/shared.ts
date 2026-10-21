@@ -178,7 +178,10 @@ export const splitNameVersion = (key: string): { readonly name: string; readonly
  *
  * @internal
  */
-const buildImporterDependency = (
+const buildImporterDependency: {
+	(name: string, specifier: string, depType: DependencyField, version: string | undefined): ImporterDependency | undefined;
+	(specifier: string, depType: DependencyField, version: string | undefined): (name: string) => ImporterDependency | undefined;
+} = dual(4, (
 	name: string,
 	specifier: string,
 	depType: DependencyField,
@@ -199,7 +202,7 @@ const buildImporterDependency = (
 				}
 			: {}),
 	});
-};
+});
 
 /**
  * A single importer entry's four dependency sections, keyed by field name. The
@@ -271,9 +274,9 @@ export const importerDependencies: {
  * @since 0.0.0
  */
 export const PeerDeclarations = S.Struct({
-	peerDependencies: S.Record(S.String, S.String).annotateKey({ description: "Declared peer dependencies keyed by package name" }),
-	peerDependenciesMeta: S.Record(S.String, S.Struct({ optional: S.Boolean.annotateKey({ description: "Whether this peer dependency is optional" }) })).annotateKey({ description: "Optionality metadata keyed by peer dependency name" }),
-}).annotate($I.annote("PeerDeclarations", { description: "Normalized peer ranges and optional flags shared by all lockfile formats" }));
+	peerDependencies: S.Record(S.String, S.String).pipe($I.annoteKey("PeerDeclarations.peerDependencies", { description: "Declared peer dependencies keyed by package name" })),
+	peerDependenciesMeta: S.Record(S.String, S.Struct({ optional: S.Boolean.pipe($I.annoteKey("PeerDeclarations.peerDependenciesMeta.optional", { description: "Whether this peer dependency is optional" })) })).pipe($I.annoteKey("PeerDeclarations.peerDependenciesMeta", { description: "Optionality metadata keyed by peer dependency name" })),
+}).pipe($I.annoteSchema("PeerDeclarations", { description: "Normalized peer ranges and optional flags shared by all lockfile formats" }));
 /**
  * Decoded representation of {@link PeerDeclarations} for internal parser composition.
  *
@@ -322,7 +325,7 @@ const EMPTY_PEERS: PeerDeclarations = { peerDependencies: {}, peerDependenciesMe
  * @since 0.0.0
  */
 export const peerDeclarations: {
-	(meta: Readonly<Record<string, { readonly optional?: boolean }>> | undefined, optionalPeers?: ReadonlyArray<string> | undefined): (peers: Readonly<Record<string, string>> | undefined) => PeerDeclarations;
+	(meta: Readonly<Record<string, { readonly optional?: boolean }>> | undefined, optionalPeers: ReadonlyArray<string> | undefined): (peers: Readonly<Record<string, string>> | undefined) => PeerDeclarations;
 	(peers: Readonly<Record<string, string>> | undefined, meta: Readonly<Record<string, { readonly optional?: boolean }>> | undefined, optionalPeers: ReadonlyArray<string> | undefined): PeerDeclarations;
 } = dual(3, (
 	peers: Readonly<Record<string, string>> | undefined,
@@ -373,7 +376,7 @@ export const peerDeclarations: {
 export const MINIMUM_LOCKFILE_VERSION = { pnpm: 9, npm: 3 } as const;
 
 // Render finite version scalars through the same JSON codec as string versions.
-const VersionMessage = S.fromJsonString(S.Union([S.String, S.Finite])).annotate($I.annote("VersionMessage", {
+const VersionMessage = S.fromJsonString(S.Union([S.String, S.Finite])).pipe($I.annoteSchema("VersionMessage", {
 	description: "JSON scalar rendering of a recorded string or finite number",
 }));
 const encodeVersionMessage = S.encodeResult(VersionMessage);
@@ -443,8 +446,8 @@ export const requireLockfileVersion: {
  */
 const PnpmVersionProbe = S.Struct({
 	// Reject non-finite numbers at the version boundary before gating supported versions.
-	lockfileVersion: S.Union([S.String, S.Finite]).annotateKey({ description: "Recorded format version, preserved verbatim before gating or string conversion" }),
-}).annotate($I.annote("PnpmVersionProbe", { description: "Version-only pnpm boundary read before decoding the supported importer-map shape" }));
+	lockfileVersion: S.Union([S.String, S.Finite]).pipe($I.annoteKey("PnpmVersionProbe.lockfileVersion", { description: "Recorded format version, preserved verbatim before gating or string conversion" })),
+}).pipe($I.annoteSchema("PnpmVersionProbe", { description: "Version-only pnpm boundary read before decoding the supported importer-map shape" }));
 
 /**
  * Gate a located pnpm document (lockfile or env preamble) on its format
@@ -495,7 +498,7 @@ export const gatePnpmVersion = (document: unknown): Effect.Effect<string, ParseF
  * @since 0.0.0
  */
 export const FramingReason = LiteralKit(["noLockfileDocument", "noImporters", "unexpectedDocuments"])
-	.annotate($I.annote("FramingReason", { description: "Reasons a parsed YAML stream has no unique lockfile document" }));
+	.pipe($I.annoteSchema("FramingReason", { description: "Reasons a parsed YAML stream has no unique lockfile document" }));
 /**
  * Decoded representation of {@link FramingReason} for internal parser composition.
  *
@@ -523,9 +526,9 @@ export type FramingReason = typeof FramingReason.Type;
  * @since 0.0.0
  */
 export const ContentFailure = S.Union([
-	S.Struct({ stage: S.Literal("syntax").annotateKey({ description: "Parser stage at which this failure occurred" }), cause: S.Unknown.annotateKey({ description: "Original engine throwable or structural validation cause, retained without narrowing" }) }),
-	S.Struct({ stage: S.Literal("validation").annotateKey({ description: "Parser stage at which this failure occurred" }), cause: S.Unknown.annotateKey({ description: "Original engine throwable or structural validation cause, retained without narrowing" }) }),
-]).annotate($I.annote("ContentFailure", { description: "Syntax or validation failure preserving the original engine throwable without transformation" }));
+	S.Struct({ stage: S.Literal("syntax").pipe($I.annoteKey("ContentFailure.Syntax.stage", { description: "Parser stage at which this failure occurred" })), cause: S.Unknown.pipe($I.annoteKey("ContentFailure.Syntax.cause", { description: "Original engine throwable or structural validation cause, retained without narrowing" })) }),
+	S.Struct({ stage: S.Literal("validation").pipe($I.annoteKey("ContentFailure.Validation.stage", { description: "Parser stage at which this failure occurred" })), cause: S.Unknown.pipe($I.annoteKey("ContentFailure.Validation.cause", { description: "Original engine throwable or structural validation cause, retained without narrowing" })) }),
+]).pipe($I.annoteSchema("ContentFailure", { description: "Syntax or validation failure preserving the original engine throwable without transformation" }));
 /**
  * Decoded representation of {@link ContentFailure} for internal parser composition.
  *
@@ -554,10 +557,10 @@ export type ContentFailure = typeof ContentFailure.Type;
  * @since 0.0.0
  */
 export const FramingFailure = S.Struct({
-	stage: S.Literal("framing").annotateKey({ description: "Parser stage at which this failure occurred" }),
-	reason: FramingReason.annotateKey({ description: "Reason a lockfile document could not be uniquely located" }),
-	documents: S.Finite.annotateKey({ description: "Number of parsed documents in the YAML stream" }),
-}).annotate($I.annote("FramingFailure", { description: "Synthetic document-framing failure with a reason and the parsed document count" }));
+	stage: S.Literal("framing").pipe($I.annoteKey("FramingFailure.stage", { description: "Parser stage at which this failure occurred" })),
+	reason: FramingReason.pipe($I.annoteKey("FramingFailure.reason", { description: "Reason a lockfile document could not be uniquely located" })),
+	documents: S.Finite.pipe($I.annoteKey("FramingFailure.documents", { description: "Number of parsed documents in the YAML stream" })),
+}).pipe($I.annoteSchema("FramingFailure", { description: "Synthetic document-framing failure with a reason and the parsed document count" }));
 /**
  * Decoded representation of {@link FramingFailure} for internal parser composition.
  *
@@ -586,8 +589,7 @@ export type FramingFailure = typeof FramingFailure.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ParseFailure = S.Union([...ContentFailure.members, FramingFailure]).pipe(S.toTaggedUnion("stage"))
-	.annotate($I.annote("ParseFailure", { description: "Parser failure discriminated by syntax, validation or framing stage" }));
+export const ParseFailure = S.Union([...ContentFailure.members, FramingFailure]).pipe(S.toTaggedUnion("stage"), $I.annoteSchema("ParseFailure", { description: "Parser failure discriminated by syntax, validation or framing stage" }));
 /**
  * Decoded representation of {@link ParseFailure} for internal parser composition.
  *
@@ -673,12 +675,12 @@ export const framingFailure: {
  * @since 0.0.0
  */
 export const LockfileFields = S.Struct({
-	lockfileVersion: S.String.annotateKey({ description: "Recorded format version, preserved verbatim before gating or string conversion" }),
-	packages: S.Array(ResolvedPackage).annotateKey({ description: "Resolved package entries in lockfile traversal order" }),
-	workspaceDependencies: S.Array(WorkspaceDependency).annotateKey({ description: "Inter-workspace dependency edges in workspace and dependency-section traversal order" }),
-	importers: S.Array(LockfileImporter).annotateKey({ description: "Workspace importer entries recorded by the lockfile" }),
-	extension: S.optionalKey(S.Union([PnpmExtension, BunExtension])).annotateKey({ description: "Optional format-specific extension fields" }),
-}).annotate($I.annote("LockfileFields", { description: "Plain field bundle normalized by a format parser before constructing the public Lockfile" }));
+	lockfileVersion: S.String.pipe($I.annoteKey("LockfileFields.lockfileVersion", { description: "Recorded format version, preserved verbatim before gating or string conversion" })),
+	packages: S.Array(ResolvedPackage).pipe($I.annoteKey("LockfileFields.packages", { description: "Resolved package entries in lockfile traversal order" })),
+	workspaceDependencies: S.Array(WorkspaceDependency).pipe($I.annoteKey("LockfileFields.workspaceDependencies", { description: "Inter-workspace dependency edges in workspace and dependency-section traversal order" })),
+	importers: S.Array(LockfileImporter).pipe($I.annoteKey("LockfileFields.importers", { description: "Workspace importer entries recorded by the lockfile" })),
+	extension: S.optionalKey(S.Union([PnpmExtension, BunExtension])).pipe($I.annoteKey("LockfileFields.extension", { description: "Optional format-specific extension fields" })),
+}).pipe($I.annoteSchema("LockfileFields", { description: "Plain field bundle normalized by a format parser before constructing the public Lockfile" }));
 /**
  * Decoded representation of {@link LockfileFields} for internal parser composition.
  *
@@ -706,11 +708,11 @@ export type LockfileFields = typeof LockfileFields.Type;
  * @since 0.0.0
  */
 export const WorkspaceEntry = S.Struct({
-	dependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared runtime dependencies keyed by package name" }),
-	devDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared development dependencies keyed by package name" }),
-	peerDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared peer dependencies keyed by package name" }),
-	optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Declared optional dependencies keyed by package name" }),
-}).annotate($I.annote("WorkspaceEntry", { description: "Optional dependency sections of a workspace entry shared across the four formats" }));
+	dependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceEntry.dependencies", { description: "Declared runtime dependencies keyed by package name" })),
+	devDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceEntry.devDependencies", { description: "Declared development dependencies keyed by package name" })),
+	peerDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceEntry.peerDependencies", { description: "Declared peer dependencies keyed by package name" })),
+	optionalDependencies: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("WorkspaceEntry.optionalDependencies", { description: "Declared optional dependencies keyed by package name" })),
+}).pipe($I.annoteSchema("WorkspaceEntry", { description: "Optional dependency sections of a workspace entry shared across the four formats" }));
 /**
  * Decoded representation of {@link WorkspaceEntry} for internal parser composition.
  *

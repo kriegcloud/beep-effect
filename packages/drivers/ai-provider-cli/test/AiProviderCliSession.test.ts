@@ -8,6 +8,7 @@ import { it } from "@beep/test-runner";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Config from "effect/Config";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
@@ -15,7 +16,10 @@ import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
@@ -34,15 +38,160 @@ const syntheticProfile = Effect.fn("SessionTest.profile")(function* (
   return ManagedLaunchProfile.make({
     provider,
     executable: "bun",
-    prefixArgs: ["run", path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`)],
+    prefixArgs: [
+      "run",
+      path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`),
+      `--beep-fixture-mode=${mode}`,
+    ],
     workspace,
     profileRoot: home,
-    env: { HOME: home, PATH: yield* Config.String("PATH"), FIXTURE_MODE: mode, CODEX_HOME: path.join(home, ".codex") },
+    env: {
+      HOME: home,
+      PATH: yield* Config.String("PATH"),
+      ...(provider === "codex" ? { CODEX_HOME: path.join(home, ".codex") } : {}),
+    },
     authLane: "existing-subscription",
     tools: [],
   });
 });
 it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed native sessions", (it) => {
+  it.effect("rejects unreviewed environment keys before creating a process or provider home", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const sessions = yield* AiProviderCliSession;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const launches = yield* Ref.make(0);
+      const watched = ChildProcessSpawner.make((command) =>
+        Ref.update(launches, (count) => count + 1).pipe(Effect.andThen(spawner.spawn(command)))
+      );
+      for (const provider of ["claude", "codex", "cursor", "grok"] as const) {
+        const profile = yield* syntheticProfile(provider);
+        for (const key of [
+          "CURSOR_API_KEY",
+          "CODEX_API_KEY",
+          "OPENAI_API_KEY",
+          "ANTHROPIC_API_KEY",
+          "XAI_API_KEY",
+          "OPENAI_BASE_URL",
+          "ANTHROPIC_BASE_URL",
+          "GROK_BASE_URL",
+          "NODE_OPTIONS",
+          "BUN_OPTIONS",
+          "LD_PRELOAD",
+          "LC_ALL",
+          "TMPDIR",
+          "XDG_CONFIG_HOME",
+          "FIXTURE_MODE",
+          "STALL_AT",
+          "UNKNOWN_KEY",
+          ...(provider === "codex" ? [] : ["CODEX_HOME"]),
+        ]) {
+          const rejected = yield* sessions
+            .open(
+              ManagedLaunchProfile.make({
+                ...profile,
+                env: { ...profile.env, [key]: "synthetic-private-value" },
+              })
+            )
+            .pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched), Effect.flip);
+          assert.equal(rejected.reason, "invalid-profile");
+          assert.notInclude(rejected.message, "synthetic-private-value");
+        }
+        assert.equal(yield* fs.exists(profile.profileRoot), false);
+      }
+      assert.equal(yield* Ref.get(launches), 0);
+    })
+  );
+
+  it.effect("fences prompts after idle Claude EOF and finalizes only once", () =>
+    Effect.gen(function* () {
+      const profile = yield* syntheticProfile("claude", "idle-exit");
+      const session = yield* (yield* AiProviderCliSession).open(profile);
+      const ended = yield* Deferred.make<void>();
+      let closedEvents = 0;
+      yield* session.events.pipe(
+        Stream.runForEach((event) =>
+          event.kind === "closed"
+            ? Effect.sync(() => {
+                closedEvents++;
+              }).pipe(Effect.andThen(Deferred.succeed(ended, undefined)))
+            : Effect.void
+        ),
+        Effect.forkChild
+      );
+      yield* Effect.yieldNow;
+      const first = yield* session.prompt(ManagedSessionMessage.make({ messageId: "first", text: "first" }));
+      assert.equal(first.text, "first");
+      yield* Deferred.await(ended);
+      const later = yield* session
+        .prompt(ManagedSessionMessage.make({ messageId: "later", text: "later" }))
+        .pipe(Effect.flip);
+      assert.equal(later.reason, "closed");
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      assert.equal(yield* fs.readFileString(path.join(profile.profileRoot, "received-prompt")), "first");
+      yield* session.close;
+      yield* session.close;
+      yield* Effect.yieldNow;
+      assert.equal(closedEvents, 1);
+    }).pipe(Effect.timeout("5 seconds"), TestClock.withLive)
+  );
+
+  it.effect("fences both the active and queued prompt when Claude terminates without a result", () =>
+    Effect.gen(function* () {
+      const profile = yield* syntheticProfile("claude", "active-exit");
+      const session = yield* (yield* AiProviderCliSession).open(profile);
+      const started = yield* Deferred.make<void>();
+      const queued = yield* Deferred.make<void>();
+      yield* session.events.pipe(
+        Stream.runForEach((event) =>
+          event.kind === "update"
+            ? Deferred.succeed(started, undefined)
+            : event.kind === "deferred"
+              ? Deferred.succeed(queued, undefined)
+              : Effect.void
+        ),
+        Effect.forkChild
+      );
+      yield* Effect.yieldNow;
+      const active = yield* session
+        .prompt(ManagedSessionMessage.make({ messageId: "first", text: "first" }))
+        .pipe(Effect.flip, Effect.forkChild);
+      yield* Deferred.await(started);
+      const waiting = yield* session
+        .prompt(ManagedSessionMessage.make({ messageId: "queued", text: "queued" }))
+        .pipe(Effect.flip, Effect.forkChild);
+      yield* Deferred.await(queued);
+      yield* session.cancel;
+      assert.equal((yield* Fiber.join(active)).reason, "closed");
+      assert.equal((yield* Fiber.join(waiting)).reason, "closed");
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      assert.equal(yield* fs.readFileString(path.join(profile.profileRoot, "received-prompt")), "first");
+    }).pipe(Effect.timeout("5 seconds"), TestClock.withLive)
+  );
+
+  it.effect("preserves successful denial-phrase responses and subsequent session health", () =>
+    Effect.gen(function* () {
+      for (const provider of ["claude", "codex", "grok", "cursor"] as const) {
+        const profile = yield* syntheticProfile(provider, "quoted-denial");
+        const session = yield* (yield* AiProviderCliSession).open(profile);
+        for (const messageId of ["first", "second"]) {
+          const result = yield* session.prompt(
+            ManagedSessionMessage.make({ messageId, text: "Upgrade your plan to continue" })
+          );
+          assert.equal(
+            result.text,
+            provider === "cursor"
+              ? 'The documentation says "Upgrade your plan to continue"; this is quoted output.'
+              : "Upgrade your plan to continue"
+          );
+        }
+        yield* session.close;
+      }
+    })
+  );
+
   it.effect(
     "writes scoped Codex tool configuration and denies steering after disposal",
     Effect.fnUntraced(function* () {
@@ -262,6 +411,14 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
       );
       assert.equal(result.text, "synthetic-only-echo");
       assert.equal(result.stopReason, "completed");
+      assertSome(result.terminalEvidence, {
+        adapter: "codex",
+        sessionId: session.identity.sessionId,
+        messageId: "synthetic",
+        turnId: "owned-turn-1",
+        outcome: "delivered",
+        stopReason: "completed",
+      });
       yield* session.close;
       const error = yield* session
         .prompt(ManagedSessionMessage.make({ messageId: "late", text: "must-not-send" }))
@@ -283,14 +440,17 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
         ManagedLaunchProfile.make({
           provider: "codex",
           executable: "bun",
-          prefixArgs: ["run", path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts")],
+          prefixArgs: [
+            "run",
+            path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts"),
+            "--beep-fixture-mode=wrong-resume",
+          ],
           workspace,
           profileRoot: home,
           env: {
             HOME: home,
             CODEX_HOME: path.join(home, ".codex"),
             PATH: yield* Config.String("PATH"),
-            FIXTURE_MODE: "wrong-resume",
           },
           authLane: "existing-subscription",
           tools: [],
@@ -305,6 +465,25 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
         .prompt(ManagedSessionMessage.make({ messageId: "fenced", text: "synthetic" }))
         .pipe(Effect.flip);
       assert.equal(after.reason, "closed");
+    })
+  );
+
+  it.effect("retains Claude terminal evidence when a successful result omits printable text", () =>
+    Effect.gen(function* () {
+      const sessions = yield* AiProviderCliSession;
+      const session = yield* sessions.open(yield* syntheticProfile("claude", "empty-result"));
+      const result = yield* session.prompt(
+        ManagedSessionMessage.make({ messageId: "empty-result", text: "synthetic-only" })
+      );
+      assert.equal(result.text, "");
+      assertSome(result.terminalEvidence, {
+        adapter: "claude",
+        sessionId: session.identity.sessionId,
+        messageId: "empty-result",
+        outcome: "delivered",
+        stopReason: "completed",
+      });
+      yield* session.close;
     })
   );
 
@@ -337,10 +516,23 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
         );
         assert.equal(result.text, "synthetic-only-echo");
         assert.equal(result.stopReason, provider === "claude" ? "completed" : "end_turn");
+        assertSome(
+          O.map(result.terminalEvidence, (evidence) => ({
+            adapter: evidence.adapter,
+            sessionId: evidence.sessionId,
+            messageId: evidence.messageId,
+            outcome: evidence.outcome,
+          })),
+          { adapter: provider, sessionId: session.identity.sessionId, messageId: "synthetic", outcome: "delivered" }
+        );
         const second = yield* session.prompt(
           ManagedSessionMessage.make({ messageId: "second", text: "synthetic-second" })
         );
         assert.equal(second.text, "synthetic-second");
+        assertSome(
+          O.map(second.terminalEvidence, (evidence) => evidence.messageId),
+          "second"
+        );
         yield* session.close;
       })
     );
@@ -360,14 +552,17 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
           ManagedLaunchProfile.make({
             provider: "codex",
             executable: "bun",
-            prefixArgs: ["run", path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts")],
+            prefixArgs: [
+              "run",
+              path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts"),
+              "--beep-fixture-mode=wrong-policy",
+            ],
             workspace,
             profileRoot: home,
             env: {
               HOME: home,
               CODEX_HOME: path.join(home, ".codex"),
               PATH: yield* Config.String("PATH"),
-              FIXTURE_MODE: "wrong-policy",
             },
             authLane: "existing-subscription",
             tools: [],
@@ -451,10 +646,14 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
         ManagedLaunchProfile.make({
           provider: "claude",
           executable: "bun",
-          prefixArgs: ["run", path.join(import.meta.dirname, "fixtures/managed-claude-peer.ts")],
+          prefixArgs: [
+            "run",
+            path.join(import.meta.dirname, "fixtures/managed-claude-peer.ts"),
+            "--beep-fixture-mode=oversized",
+          ],
           workspace,
           profileRoot: home,
-          env: { HOME: home, PATH: yield* Config.String("PATH"), FIXTURE_MODE: "oversized" },
+          env: { HOME: home, PATH: yield* Config.String("PATH") },
           authLane: "existing-subscription",
           tools: [],
         })
@@ -523,14 +722,17 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
           ManagedLaunchProfile.make({
             provider: "codex",
             executable: "bun",
-            prefixArgs: ["run", path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts")],
+            prefixArgs: [
+              "run",
+              path.join(import.meta.dirname, "fixtures/managed-codex-peer.ts"),
+              "--beep-fixture-mode=busy",
+            ],
             workspace,
             profileRoot: home,
             env: {
               HOME: home,
               CODEX_HOME: path.join(home, ".codex"),
               PATH: yield* Config.String("PATH"),
-              FIXTURE_MODE: "busy",
             },
             authLane: "existing-subscription",
             tools: [],
@@ -605,8 +807,10 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
             return;
           }
           assert.equal(result._tag, "Success");
-          if (result._tag === "Success")
+          if (result._tag === "Success") {
             assert.equal(result.success.stopReason, control === "steer" ? "completed" : "interrupted");
+            if (control === "cancel") assertNone(result.success.terminalEvidence);
+          }
         });
         yield* verifyTerminal();
       })
@@ -635,10 +839,14 @@ it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed nativ
             ManagedLaunchProfile.make({
               provider,
               executable: "bun",
-              prefixArgs: ["run", path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`)],
+              prefixArgs: [
+                "run",
+                path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`),
+                `--beep-fixture-stall-at=${operation}`,
+              ],
               workspace,
               profileRoot: home,
-              env: { HOME: home, PATH: yield* Config.String("PATH"), STALL_AT: operation },
+              env: { HOME: home, PATH: yield* Config.String("PATH") },
               authLane: "existing-subscription",
               tools: [],
             })

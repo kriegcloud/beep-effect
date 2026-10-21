@@ -1,4 +1,26 @@
-# Module Organization Patterns - Effect Library
+# Upstream Effect module organization reference
+
+## Scope and authority
+
+This file is retained as an upstream Effect library reference. It was copied
+and later adapted from library-internal guidance; it does not define Beep's
+package topology or override repository laws. For work in this repository,
+follow [the architecture standard](../standards/ARCHITECTURE.md),
+[Effect-first development](../standards/effect-first-development.md), and the
+applicable package's `AGENTS.md`.
+
+The examples below include partial snippets and deliberately incorrect examples.
+They have not all been compiled as written. A displayed API or directory tree
+must be checked against the current Effect reference before reuse; the earlier
+guidance scan is not a current API or compilation guarantee. The local reference
+is provisioned with `bun run beep refs provision`; its own `AGENTS.md` governs
+work inside that checkout. Upstream commands and relative paths apply there.
+
+Disposition recorded 2026-10-20 for #1856: keep as a labeled upstream reference.
+The local Effect checkout was inspected at
+`1b740862e3d25ec5d4b6f86b9fe792b6dabbf84c` for its source/test layout and
+validation instructions. This is provenance for that inspection, not a claim
+that every example below was revalidated at that revision.
 
 ## OVERVIEW
 

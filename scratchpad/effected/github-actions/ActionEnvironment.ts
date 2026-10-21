@@ -7,6 +7,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as R from "effect/Record";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/ActionEnvironment");
 
@@ -41,18 +42,18 @@ export class ActionEnvironmentError extends S.TaggedError<ActionEnvironmentError
 	 * `missing` — absent or empty; `malformed` — present but unusable.
 	 * @since 0.0.0
 	 */
-	reason: S.Literals(["missing", "malformed"]).annotateKey({ description: "`missing` — absent or empty; `malformed` — present but unusable." }),
+	reason: S.Literals(["missing", "malformed"]).pipe($I.annoteKey("ActionEnvironmentError.reason", { description: "`missing` — absent or empty; `malformed` — present but unusable." })),
 	/**
 	 * The environment variable involved.
 	 * @since 0.0.0
 	 */
-	name: S.String.annotateKey({ description: "The environment variable involved." }),
+	name: S.String.pipe($I.annoteKey("ActionEnvironmentError.name", { description: "The environment variable involved." })),
 	/**
 	 * What was wrong, when the reason is `malformed`.
 	 * @since 0.0.0
 	 */
-	detail: S.optionalKey(S.String).annotateKey({ description: "What was wrong, when the reason is `malformed`." }),
-}, $I.annote("ActionEnvironmentError", { description: "Raised when the runner environment does not say what an action needs." })) {
+	detail: S.optionalKey(S.String).pipe($I.annoteKey("ActionEnvironmentError.detail", { description: "What was wrong, when the reason is `malformed`." })),
+}, $I.annoteError<ActionEnvironmentError>("ActionEnvironmentError", { description: "Raised when the runner environment does not say what an action needs." })) {
 	/**
 	 * Explains the failure reason with the available diagnostic fields.
 	 *
@@ -98,22 +99,22 @@ export class GitHubContext extends S.Class<GitHubContext, { readonly brand: uniq
 	 * `owner/repo`.
 	 * @since 0.0.0
 	 */
-	repository: S.String.annotateKey({ description: "`owner/repo`." }),
+	repository: S.String.pipe($I.annoteKey("GitHubContext.repository", { description: "`owner/repo`." })),
 	/**
 	 * The repository owner's login.
 	 * @since 0.0.0
 	 */
-	repositoryOwner: S.String.annotateKey({ description: "The repository owner's login." }),
+	repositoryOwner: S.String.pipe($I.annoteKey("GitHubContext.repositoryOwner", { description: "The repository owner's login." })),
 	/**
 	 * The full ref, e.g. `refs/heads/main`.
 	 * @since 0.0.0
 	 */
-	ref: S.String.annotateKey({ description: "The full ref, e.g. `refs/heads/main`." }),
+	ref: S.String.pipe($I.annoteKey("GitHubContext.ref", { description: "The full ref, e.g. `refs/heads/main`." })),
 	/**
 	 * The short ref, e.g. `main`.
 	 * @since 0.0.0
 	 */
-	refName: S.String.annotateKey({ description: "The short ref, e.g. `main`." }),
+	refName: S.String.pipe($I.annoteKey("GitHubContext.refName", { description: "The short ref, e.g. `main`." })),
 	/**
 	 * The source branch of the pull request, when the event has one.
 	 *
@@ -131,62 +132,62 @@ export class GitHubContext extends S.Class<GitHubContext, { readonly brand: uniq
 	 * an encoded context stays plain JSON.
 	 * @since 0.0.0
 	 */
-	headRef: S.OptionFromNullOr(S.String).annotateKey({ description: "The source branch of the pull request, when the event has one." }),
+	headRef: S.OptionFromNullOr(S.String).pipe($I.annoteKey("GitHubContext.headRef", { description: "The source branch of the pull request, when the event has one." })),
 	/**
 	 * The commit SHA that triggered the workflow.
 	 * @since 0.0.0
 	 */
-	sha: S.String.annotateKey({ description: "The commit SHA that triggered the workflow." }),
+	sha: S.String.pipe($I.annoteKey("GitHubContext.sha", { description: "The commit SHA that triggered the workflow." })),
 	/**
 	 * The workflow's name.
 	 * @since 0.0.0
 	 */
-	workflow: S.String.annotateKey({ description: "The workflow's name." }),
+	workflow: S.String.pipe($I.annoteKey("GitHubContext.workflow", { description: "The workflow's name." })),
 	/**
 	 * The current job's id.
 	 * @since 0.0.0
 	 */
-	job: S.String.annotateKey({ description: "The current job's id." }),
+	job: S.String.pipe($I.annoteKey("GitHubContext.job", { description: "The current job's id." })),
 	/**
 	 * The run's unique number, decoded from `GITHUB_RUN_ID`.
 	 * @since 0.0.0
 	 */
-	runId: S.Finite.annotateKey({ description: "The run's unique number, decoded from `GITHUB_RUN_ID`." }),
+	runId: S.Finite.pipe($I.annoteKey("GitHubContext.runId", { description: "The run's unique number, decoded from `GITHUB_RUN_ID`." })),
 	/**
 	 * The attempt number of this run, starting at 1.
 	 * @since 0.0.0
 	 */
-	runAttempt: S.Finite.annotateKey({ description: "The attempt number of this run, starting at 1." }),
+	runAttempt: S.Finite.pipe($I.annoteKey("GitHubContext.runAttempt", { description: "The attempt number of this run, starting at 1." })),
 	/**
 	 * The name of the event that triggered the workflow, e.g. `push`.
 	 * @since 0.0.0
 	 */
-	eventName: S.String.annotateKey({ description: "The name of the event that triggered the workflow, e.g. `push`." }),
+	eventName: S.String.pipe($I.annoteKey("GitHubContext.eventName", { description: "The name of the event that triggered the workflow, e.g. `push`." })),
 	/**
 	 * The login of the user that triggered the run.
 	 * @since 0.0.0
 	 */
-	actor: S.String.annotateKey({ description: "The login of the user that triggered the run." }),
+	actor: S.String.pipe($I.annoteKey("GitHubContext.actor", { description: "The login of the user that triggered the run." })),
 	/**
 	 * The GitHub server URL, e.g. `https://github.com`.
 	 * @since 0.0.0
 	 */
-	serverUrl: S.String.annotateKey({ description: "The GitHub server URL, e.g. `https://github.com`." }),
+	serverUrl: S.String.pipe($I.annoteKey("GitHubContext.serverUrl", { description: "The GitHub server URL, e.g. `https://github.com`." })),
 	/**
 	 * The REST API URL, e.g. `https://api.github.com`.
 	 * @since 0.0.0
 	 */
-	apiUrl: S.String.annotateKey({ description: "The REST API URL, e.g. `https://api.github.com`." }),
+	apiUrl: S.String.pipe($I.annoteKey("GitHubContext.apiUrl", { description: "The REST API URL, e.g. `https://api.github.com`." })),
 	/**
 	 * The GraphQL API URL.
 	 * @since 0.0.0
 	 */
-	graphqlUrl: S.String.annotateKey({ description: "The GraphQL API URL." }),
+	graphqlUrl: S.String.pipe($I.annoteKey("GitHubContext.graphqlUrl", { description: "The GraphQL API URL." })),
 	/**
 	 * The default working directory on the runner for steps.
 	 * @since 0.0.0
 	 */
-	workspace: S.String.annotateKey({ description: "The default working directory on the runner for steps." }),
+	workspace: S.String.pipe($I.annoteKey("GitHubContext.workspace", { description: "The default working directory on the runner for steps." })),
 }, $I.annote("GitHubContext", { description: "The workflow's GitHub context, projected from the `GITHUB_*` variables." })) {
 	/**
 	 * The branch a human means: `headRef` when present (a pull request, where
@@ -242,27 +243,27 @@ export class RunnerContext extends S.Class<RunnerContext, { readonly brand: uniq
 	 * The runner's operating system: `Linux`, `Windows` or `macOS`.
 	 * @since 0.0.0
 	 */
-	os: S.String.annotateKey({ description: "The runner's operating system: `Linux`, `Windows` or `macOS`." }),
+	os: S.String.pipe($I.annoteKey("RunnerContext.os", { description: "The runner's operating system: `Linux`, `Windows` or `macOS`." })),
 	/**
 	 * The runner's architecture, e.g. `X64` or `ARM64`.
 	 * @since 0.0.0
 	 */
-	arch: S.String.annotateKey({ description: "The runner's architecture, e.g. `X64` or `ARM64`." }),
+	arch: S.String.pipe($I.annoteKey("RunnerContext.arch", { description: "The runner's architecture, e.g. `X64` or `ARM64`." })),
 	/**
 	 * The runner's name.
 	 * @since 0.0.0
 	 */
-	name: S.String.annotateKey({ description: "The runner's name." }),
+	name: S.String.pipe($I.annoteKey("RunnerContext.name", { description: "The runner's name." })),
 	/**
 	 * A scratch directory emptied between jobs.
 	 * @since 0.0.0
 	 */
-	temp: S.String.annotateKey({ description: "A scratch directory emptied between jobs." }),
+	temp: S.String.pipe($I.annoteKey("RunnerContext.temp", { description: "A scratch directory emptied between jobs." })),
 	/**
 	 * Where `ToolInstaller` caches toolchains.
 	 * @since 0.0.0
 	 */
-	toolCache: S.String.annotateKey({ description: "Where `ToolInstaller` caches toolchains." }),
+	toolCache: S.String.pipe($I.annoteKey("RunnerContext.toolCache", { description: "Where `ToolInstaller` caches toolchains." })),
 }, $I.annote("RunnerContext", { description: "The runner's own context, projected from the `RUNNER_*` variables." })) {}
 
 /**
@@ -340,19 +341,22 @@ export interface ActionEnvironmentShape {
 	 * targets *subsequent* steps rather than the running one.
 	 * @since 0.0.0
 	 */
-	readonly withEnv: <A, E, R>(
-		overrides: Readonly<Record<string, string>>,
-		effect: Effect.Effect<A, E, R>,
-	) => Effect.Effect<A, E, R>;
+	readonly withEnv: {
+		<A, E, R>(overrides: Readonly<Record<string, string>>, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
+		<A, E, R>(effect: Effect.Effect<A, E, R>): (overrides: Readonly<Record<string, string>>) => Effect.Effect<A, E, R>;
+	};
 }
 
-const numeric = (name: string, raw: string): Effect.Effect<number, ActionEnvironmentError> => {
+const numeric: {
+	(raw: string, name: string): Effect.Effect<number, ActionEnvironmentError>;
+	(name: string): (raw: string) => Effect.Effect<number, ActionEnvironmentError>;
+} = dual(2, (raw: string, name: string): Effect.Effect<number, ActionEnvironmentError> => {
 	const parsed = Number(raw);
 	return Bool.match(Number.isFinite(parsed), {
 		onTrue: () => Effect.succeed(parsed),
 		onFalse: () => Effect.fail(ActionEnvironmentError.make({ reason: "malformed", name, detail: `expected a number, got "${raw}"` })),
 	});
-};
+});
 
 const make = Effect.fn("make")(function* (base: Readonly<Record<string, string | undefined>>) {
 		const fs = yield* FileSystem.FileSystem;
@@ -387,8 +391,8 @@ const make = Effect.fn("make")(function* (base: Readonly<Record<string, string |
 					sha: get("GITHUB_SHA"),
 					workflow: get("GITHUB_WORKFLOW"),
 					job: get("GITHUB_JOB"),
-					runId: Effect.flatMap(get("GITHUB_RUN_ID"), (raw) => numeric("GITHUB_RUN_ID", raw)),
-					runAttempt: Effect.flatMap(get("GITHUB_RUN_ATTEMPT"), (raw) => numeric("GITHUB_RUN_ATTEMPT", raw)),
+					runId: Effect.flatMap(get("GITHUB_RUN_ID"), numeric("GITHUB_RUN_ID")),
+					runAttempt: Effect.flatMap(get("GITHUB_RUN_ATTEMPT"), numeric("GITHUB_RUN_ATTEMPT")),
 					eventName: get("GITHUB_EVENT_NAME"),
 					actor: get("GITHUB_ACTOR"),
 					serverUrl: get("GITHUB_SERVER_URL"),
@@ -433,10 +437,10 @@ const make = Effect.fn("make")(function* (base: Readonly<Record<string, string |
 				);
 			}),
 
-			withEnv: (overrides, effect) =>
+			withEnv: dual(2, <A, E, R>(overrides: Readonly<Record<string, string>>, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
 				Effect.flatMap(EnvOverrides, (current) =>
 					Effect.provideService(effect, EnvOverrides, { ...current, ...overrides }),
-				),
+				)),
 		} satisfies ActionEnvironmentShape;
 	});
 

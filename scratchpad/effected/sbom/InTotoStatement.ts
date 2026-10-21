@@ -7,8 +7,10 @@
 // serialize a statement in a test with no layers at all.
 
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import type * as Brand from "effect/Brand";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import type { SbomJsonOptions } from "./Sbom.ts";
@@ -87,8 +89,8 @@ export class InvalidSha256DigestError extends S.TaggedError<InvalidSha256DigestE
 	"InvalidSha256DigestError",
 	{
 		/** The offending input, preserved verbatim. */
-		input: S.String.annotateKey({ description: "The offending input, preserved verbatim." }),
-	}, $I.annote("InvalidSha256DigestError", { description: "Raised when a string is not a SHA-256 digest." }),
+		input: S.String.pipe($I.annoteKey("InvalidSha256DigestError.input", { description: "The offending input, preserved verbatim." })),
+	}, $I.annoteError<InvalidSha256DigestError>("InvalidSha256DigestError", { description: "Raised when a string is not a SHA-256 digest." }),
 ) {
 	/**
 	 * Explains the digest format required for the rejected input.
@@ -296,9 +298,9 @@ export type Sha256Digest = string & Brand.Brand<"Sha256Digest">;
  */
 export class InTotoSubject extends S.Class<InTotoSubject, { readonly brand: unique symbol }>($I`InTotoSubject`)({
 	/** How the subject is identified — a purl for an npm package. */
-	name: S.String.annotateKey({ description: "How the subject is identified — a purl for an npm package." }),
+	name: S.String.pipe($I.annoteKey("InTotoSubject.name", { description: "How the subject is identified — a purl for an npm package." })),
 	/** Algorithm to hex digest. */
-	digest: S.Record(S.String, S.String).annotateKey({ description: "Algorithm to hex digest." }),
+	digest: S.Record(S.String, S.String).pipe($I.annoteKey("InTotoSubject.digest", { description: "Algorithm to hex digest." })),
 }, $I.annote("InTotoSubject", { description: "A content-addressed artifact an attestation is about." })) {
 	/**
 	 * A subject identified by a SHA-256 digest.
@@ -320,9 +322,10 @@ export class InTotoSubject extends S.Class<InTotoSubject, { readonly brand: uniq
 	 *
 	 * @since 0.0.0
 	 */
-	static forSha256(name: string, digest: Sha256Digest): InTotoSubject {
-		return InTotoSubject.make({ name, digest: { sha256: digest } });
-	}
+	static readonly forSha256: {
+		(name: string, digest: Sha256Digest): InTotoSubject;
+		(digest: Sha256Digest): (name: string) => InTotoSubject;
+	} = dual(2, (name: string, digest: Sha256Digest): InTotoSubject => InTotoSubject.make({ name, digest: { sha256: digest } }));
 }
 
 /**
@@ -352,11 +355,11 @@ export class InTotoSubject extends S.Class<InTotoSubject, { readonly brand: uniq
  */
 export const InTotoStatementInput = S.Struct({
 	/** The artifacts the statement is about. */
-	subject: S.Array(InTotoSubject).annotateKey({ description: "The artifacts the statement is about." }),
+	subject: S.Array(InTotoSubject).pipe($I.annoteKey("InTotoStatementInput.subject", { description: "The artifacts the statement is about." })),
 	/** What the statement asserts. */
-	predicateType: S.String.annotateKey({ description: "What the statement asserts." }),
+	predicateType: S.String.pipe($I.annoteKey("InTotoStatementInput.predicateType", { description: "What the statement asserts." })),
 	/** The assertion's body — a `SlsaProvenance`, a BOM, or a caller's own shape. */
-	predicate: S.Unknown.annotateKey({ description: "The assertion's body — a SlsaProvenance, a BOM, or a caller's own shape." }),
+	predicate: S.Unknown.pipe($I.annoteKey("InTotoStatementInput.predicate", { description: "The assertion's body — a SlsaProvenance, a BOM, or a caller's own shape." })),
 }).pipe($I.annoteSchema("InTotoStatementInput", { description: "Input to InTotoStatement.of." }));
 
 /**
@@ -393,13 +396,13 @@ export type InTotoStatementInput = typeof InTotoStatementInput.Type;
  */
 export const InTotoSubjectInput = S.Struct({
 	/** How the single subject is identified. */
-	name: S.String.annotateKey({ description: "How the single subject is identified." }),
+	name: S.String.pipe($I.annoteKey("InTotoSubjectInput.name", { description: "How the single subject is identified." })),
 	/** Its SHA-256 digest. */
-	digest: Sha256Digest.annotateKey({ description: "Its SHA-256 digest." }),
+	digest: Sha256Digest.pipe($I.annoteKey("InTotoSubjectInput.digest", { description: "Its SHA-256 digest." })),
 	/** What the statement asserts. */
-	predicateType: S.String.annotateKey({ description: "What the statement asserts." }),
+	predicateType: S.String.pipe($I.annoteKey("InTotoSubjectInput.predicateType", { description: "What the statement asserts." })),
 	/** The assertion's body — a `SlsaProvenance`, a BOM, or a caller's own shape. */
-	predicate: S.Unknown.annotateKey({ description: "The assertion's body — a SlsaProvenance, a BOM, or a caller's own shape." }),
+	predicate: S.Unknown.pipe($I.annoteKey("InTotoSubjectInput.predicate", { description: "The assertion's body — a SlsaProvenance, a BOM, or a caller's own shape." })),
 }).pipe($I.annoteSchema("InTotoSubjectInput", { description: "Input to InTotoStatement.forSubject." }));
 
 /**
@@ -443,13 +446,13 @@ export type InTotoSubjectInput = typeof InTotoSubjectInput.Type;
  */
 export class InTotoStatement extends S.Class<InTotoStatement, { readonly brand: unique symbol }>($I`InTotoStatement`)({
 	/** Always the in-toto Statement v1 URI. */
-	_type: S.Literal(IN_TOTO_STATEMENT_V1).annotateKey({ description: "Always the in-toto Statement v1 URI." }),
+	_type: S.Literal(IN_TOTO_STATEMENT_V1).pipe($I.annoteKey("InTotoStatement._type", { description: "Always the in-toto Statement v1 URI." })),
 	/** The artifacts attested. */
-	subject: S.Array(InTotoSubject).annotateKey({ description: "The artifacts attested." }),
+	subject: S.Array(InTotoSubject).pipe($I.annoteKey("InTotoStatement.subject", { description: "The artifacts attested." })),
 	/** What is being asserted about them. */
-	predicateType: S.String.annotateKey({ description: "What is being asserted about them." }),
+	predicateType: S.String.pipe($I.annoteKey("InTotoStatement.predicateType", { description: "What is being asserted about them." })),
 	/** The assertion body. */
-	predicate: S.Unknown.annotateKey({ description: "The assertion body." }),
+	predicate: S.Unknown.pipe($I.annoteKey("InTotoStatement.predicate", { description: "The assertion body." })),
 }, $I.annote("InTotoStatement", { description: "An in-toto Statement v1." })) {
 	/**
 	 * A statement over any number of subjects. **Total.**
@@ -522,7 +525,7 @@ export class InTotoStatement extends S.Class<InTotoStatement, { readonly brand: 
 		return Result.getOrThrow(
 			S.encodeResult(S.fromJsonString(S.Unknown, { space: options?.space ?? 0 }))({
 				_type: this._type,
-				subject: this.subject.map((subject) => ({ name: subject.name, digest: subject.digest })),
+				subject: A.map(this.subject, (subject) => ({ name: subject.name, digest: subject.digest })),
 				predicateType: this.predicateType,
 				predicate: this.predicate,
 			}),

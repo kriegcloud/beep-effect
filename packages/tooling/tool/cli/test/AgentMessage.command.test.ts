@@ -250,6 +250,11 @@ it.layer(
       yield* f.store.accept(f.envelope("operator-resolution"), f.now);
       const claim = O.getOrThrow(yield* f.store.claimNext("b", "b-owner", f.now, f.now + 1000));
       yield* f.store.complete(claim, "ambiguous", f.now + 1);
+      const before = yield* f.store.receipts(claim.envelope.messageId);
+      expect(yield* f.execute(["settlement", "--message-id", claim.envelope.messageId])).toEqual([
+        { evidence: null, recovery: "No original terminal proof is recorded; retain this hold." },
+      ]);
+      expect(yield* f.store.receipts(claim.envelope.messageId)).toEqual(before);
       const resolution = AmbiguityResolution.make({
         resolutionId: "fixture-resolution",
         messageId: "operator-resolution",
@@ -259,9 +264,20 @@ it.layer(
         attemptOwnerId: claim.ownerId,
         operatorId: "fixture-operator",
         disposition: "delivered",
+        runtimeEvidence: {
+          adapter: "injected",
+          sessionId: "b-session",
+          terminalId: "fixture-terminal",
+          outcome: "delivered",
+          source: "Synthetic original runtime terminal record",
+        },
         evidence: "Fixture-only original attempt terminal receipt",
         reason: "The fixture operator confirmed the original attempt finished",
       });
+      yield* f.store.recordSettlement(claim, resolution.runtimeEvidence, f.now + 2);
+      expect(yield* f.execute(["settlement", "--message-id", resolution.messageId])).toEqual([
+        { evidence: resolution.runtimeEvidence },
+      ]);
       const filename = yield* f.write("resolution.json", yield* S.encodeEffect(AmbiguityResolution)(resolution));
       const invoke = () => f.execute(["resolve-ambiguity", "--file", filename]);
       const first = yield* A.head(yield* invoke()).pipe(O.getOrThrow, S.decodeUnknownEffect(Receipt));
@@ -289,6 +305,13 @@ it.layer(
           attemptOwnerId: claim.ownerId,
           operatorId: "fixture-operator",
           disposition: "failed",
+          runtimeEvidence: {
+            adapter: "injected",
+            sessionId: "b-session",
+            terminalId: "fixture-terminal",
+            outcome: "failed",
+            source: "Synthetic original runtime terminal record",
+          },
           evidence: "Fixture-only evidence with a wrong enrollment generation",
           reason: "Reject stale evidence",
         });

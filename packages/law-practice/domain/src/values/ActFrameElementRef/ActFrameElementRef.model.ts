@@ -136,13 +136,13 @@ const makeActFrameElementRefMember = <T extends ActFramePart>(literal: S.Literal
  * @category models
  * @since 0.0.0
  */
-export const ActFrameElementRef = ActFramePart.mapMembers(
-  Tuple.evolve([
-    makeActFrameElementRefMember,
-    makeActFrameElementRefMember,
-    makeActFrameElementRefMember,
-    makeActFrameElementRefMember,
-  ])
+export const ActFrameElementRef = ActFramePart.mapMembers(([slot, precondition, creates, terminates]) =>
+  Tuple.make(
+    makeActFrameElementRefMember(slot),
+    makeActFrameElementRefMember(precondition),
+    makeActFrameElementRefMember(creates),
+    makeActFrameElementRefMember(terminates)
+  )
 ).pipe(
   S.toTaggedUnion("part"),
   $I.annoteSchema("ActFrameElementRef", {

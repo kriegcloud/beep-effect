@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { DocumentsDbSchema } from "@beep/db-admin/schema";
 import { SyncConflict } from "@beep/documents-domain/entities/SyncConflict";
 import { SyncCursor } from "@beep/documents-domain/entities/SyncCursor";
@@ -28,7 +28,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../drizzle", import.meta.url));
 
 // The drizzle folder now contains `CREATE EXTENSION btree_gist`, which the
 // shared external pglite-socket lane cannot load. Migration proofs are
@@ -157,7 +157,7 @@ if (!shouldRunPgliteIntegration) {
           // driver transaction semantics — implicit-transaction pglite hosts
           // roll the whole session chain back — so no statement may follow the
           // intentional failure.
-          expect(inspect(uniqueViolation, { depth: 10 })).toContain(
+          expect(NodeUtil.inspect(uniqueViolation, { depth: 10 })).toContain(
             "documents_sync_operation_idempotency_key_unique_idx"
           );
         }),

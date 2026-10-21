@@ -56,7 +56,7 @@ import type {
 } from "@beep/observability/strict";
 import type * as FileSystem from "effect/FileSystem";
 import type * as OtlpExporter from "effect/observability/OtlpExporter";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 // Span-name prefixes that carry a tool id: the MCP kit dispatch span and the
 // practice KG handler span.

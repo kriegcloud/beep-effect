@@ -164,12 +164,12 @@ const ALLOWED: ReadonlyArray<readonly [string, string, string]> = [
 	],
 	[
 		"ToolInstaller.ts",
-		"ToolInstaller.cachePath({ root, tool, version, arch: process.arch });",
+		"ToolInstaller.cachePath({ root, tool, version, arch: process.arch }));",
 		"the tool-cache layout's arch segment is Node's spelling by contract with the runner",
 	],
 	[
 		"ToolInstaller.ts",
-		"cachePath: (tool, version) => ToolInstaller.cachePath({ root: testRoot(), tool, version, arch: process.arch }),",
+		"ToolInstaller.cachePath({ root: testRoot(), tool, version, arch: process.arch })),",
 		"makeTest's cachePath default — the same arch segment `make` writes, for the same reason",
 	],
 	[

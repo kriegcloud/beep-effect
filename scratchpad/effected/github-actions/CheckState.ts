@@ -22,7 +22,7 @@ const $I = $ScratchpadId.create("effected/github-actions/CheckState");
  */
 export class UnhandledCheckStateError extends S.TaggedError<UnhandledCheckStateError, { readonly brand: unique symbol }>($I`UnhandledCheckStateError`)("UnhandledCheckStateError", {
 	message: S.String,
-}, $I.annote("UnhandledCheckStateError", { description: "A check state outside the vocabulary was projected." })) {}
+}, $I.annoteError<UnhandledCheckStateError>("UnhandledCheckStateError", { description: "A check state outside the vocabulary was projected." })) {}
 
 /**
  * The kit's check-state vocabulary.
@@ -62,7 +62,7 @@ export const CheckState = LiteralKit([
 	"user_interaction_required",
 	"skipped",
 	"timeout",
-]).annotate($I.annote("CheckState", { description: "The kit's check-state vocabulary." }));
+]).pipe($I.annoteSchema("CheckState", { description: "The kit's check-state vocabulary." }));
 
 /**
  * The type of `CheckState`.
@@ -99,7 +99,7 @@ export type CheckState = typeof CheckState.Type;
  */
 export const CheckRunConclusion = LiteralKit([
 	"success", "failure", "neutral", "skipped", "timed_out", "action_required",
-]).annotate($I.annote("CheckRunConclusion", { description: "The GitHub check-run conclusions the kit vocabulary can produce." }));
+]).pipe($I.annoteSchema("CheckRunConclusion", { description: "The GitHub check-run conclusions the kit vocabulary can produce." }));
 
 /**
  * The conclusion type accepted by {@link CheckRunConclusion}.
@@ -110,9 +110,7 @@ export const CheckRunConclusion = LiteralKit([
  */
 export type CheckRunConclusion = typeof CheckRunConclusion.Type;
 
-const CheckRunStatus = LiteralKit(["in_progress", "completed"]).annotate(
-	$I.annote("CheckRunStatus", { description: "The statuses produced by a kit check-state projection." }),
-);
+const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe($I.annoteSchema("CheckRunStatus", { description: "The statuses produced by a kit check-state projection." }));
 
 /**
  * A `CheckState` on GitHub's check-run wire: a status, and a conclusion
@@ -139,15 +137,13 @@ const CheckRunStatus = LiteralKit(["in_progress", "completed"]).annotate(
  */
 export const CheckRunProjection = S.Union([
 	S.Struct({
-		status: S.Literal(CheckRunStatus.Enum.in_progress).annotateKey({ description: "An active check without a conclusion." }),
+		status: S.Literal(CheckRunStatus.Enum.in_progress).pipe($I.annoteKey("CheckRunProjection.in_progress.status", { description: "An active check without a conclusion." })),
 	}),
 	S.Struct({
-		status: S.Literal(CheckRunStatus.Enum.completed).annotateKey({ description: "A finished check carrying its conclusion." }),
-		conclusion: CheckRunConclusion.annotateKey({ description: "The completed check's wire conclusion." }),
+		status: S.Literal(CheckRunStatus.Enum.completed).pipe($I.annoteKey("CheckRunProjection.completed.status", { description: "A finished check carrying its conclusion." })),
+		conclusion: CheckRunConclusion.pipe($I.annoteKey("CheckRunProjection.completed.conclusion", { description: "The completed check's wire conclusion." })),
 	}),
-]).pipe(S.toTaggedUnion("status")).annotate(
-	$I.annote("CheckRunProjection", { description: "A plain-object wire projection with a conclusion exactly for completed checks." }),
-);
+]).pipe(S.toTaggedUnion("status"), $I.annoteSchema("CheckRunProjection", { description: "A plain-object wire projection with a conclusion exactly for completed checks." }));
 
 /**
  * The wire projection type accepted by {@link CheckRunProjection}.

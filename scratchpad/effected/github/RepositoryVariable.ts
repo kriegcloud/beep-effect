@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { GitHubClient } from "./GitHubClient.ts";
@@ -12,7 +13,7 @@ const $I = $ScratchpadId.create("effected/github/RepositoryVariable");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * A variable's name and value, as listing returns it.
@@ -39,8 +40,8 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  * @since 0.0.0
  */
 export const VariableInfo = S.Struct({
-  name: S.String.annotateKey({ description: "The variable's name." }),
-  value: S.String.annotateKey({ description: "The variable's current readable value." }),
+  name: S.String.pipe($I.annoteKey("VariableInfo.name", { description: "The variable's name." })),
+  value: S.String.pipe($I.annoteKey("VariableInfo.value", { description: "The variable's current readable value." })),
 }).pipe($I.annoteSchema("VariableInfo", { description: "A variable name and value returned by repository or environment listings." }));
 
 /**
@@ -89,7 +90,10 @@ export interface RepositoryVariableShape {
    *
    * @since 0.0.0
    */
-  readonly set: (name: string, value: string) => Effect.Effect<void, GitHubError, Repo>;
+  readonly set: {
+    (name: string, value: string): Effect.Effect<void, GitHubError, Repo>;
+    (value: string): (name: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /**
    * The repository's variables, with their values.
    *
@@ -108,11 +112,10 @@ export interface RepositoryVariableShape {
    *
    * @since 0.0.0
    */
-  readonly setForEnvironment: (
-    environment: string,
-    name: string,
-    value: string,
-  ) => Effect.Effect<void, GitHubError, Repo>;
+  readonly setForEnvironment: {
+    (environment: string, name: string, value: string): Effect.Effect<void, GitHubError, Repo>;
+    (name: string, value: string): (environment: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /**
    * One environment's variables, with their values.
    *
@@ -124,7 +127,10 @@ export interface RepositoryVariableShape {
    *
    * @since 0.0.0
    */
-  readonly deleteForEnvironment: (environment: string, name: string) => Effect.Effect<void, GitHubError, Repo>;
+  readonly deleteForEnvironment: {
+    (environment: string, name: string): Effect.Effect<void, GitHubError, Repo>;
+    (name: string): (environment: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
 }
 
 /**
@@ -196,8 +202,9 @@ export class RepositoryVariable extends Context.Service<RepositoryVariable, Repo
    * ```ts
    * import { RepositoryVariable } from "@beep/scratchpad/effected/github/RepositoryVariable";
    * import * as Effect from "effect/Effect";
+   * import { dual } from "effect/Function";
    *
-   * const service = RepositoryVariable.makeTest({ set: () => Effect.void });
+   * const service = RepositoryVariable.makeTest({ set: dual(2, (_name: string, _value: string) => Effect.void) });
    * console.log(Effect.isEffect(service.set("REGION", "eu-west-1"))) // true
    * ```
    *
@@ -249,16 +256,19 @@ const make = (client: GitHubClient["Service"]): RepositoryVariableShape => {
    * which a blanket "treat any error as absent" would destroy, turning a
    * permissions problem into a spurious create.
    */
-  const exists = (route: "GET /repos/{owner}/{repo}/actions/variables/{name}", params: Rest.Params<"GET /repos/{owner}/{repo}/actions/variables/{name}">) =>
+  const exists: {
+    (route: "GET /repos/{owner}/{repo}/actions/variables/{name}", params: Rest.Params<"GET /repos/{owner}/{repo}/actions/variables/{name}">): Effect.Effect<boolean, GitHubError>;
+    (params: Rest.Params<"GET /repos/{owner}/{repo}/actions/variables/{name}">): (route: "GET /repos/{owner}/{repo}/actions/variables/{name}") => Effect.Effect<boolean, GitHubError>;
+  } = dual(2, (route: "GET /repos/{owner}/{repo}/actions/variables/{name}", params: Rest.Params<"GET /repos/{owner}/{repo}/actions/variables/{name}">): Effect.Effect<boolean, GitHubError> =>
     client.request(route, params).pipe(
       Effect.as(true),
       Effect.catchIf(
         (error) => error.kind === "notFound",
         () => Effect.succeed(false),
       ),
-    );
+    ));
 
-  const set = Effect.fn("RepositoryVariable.set")(function* (name: string, value: string) {
+  const set: RepositoryVariableShape["set"] = dual(2, Effect.fn("RepositoryVariable.set")(function* (name: string, value: string) {
     const { owner, repo } = yield* Repo;
     yield* Effect.annotateCurrentSpan({ owner, repo, variable: name });
 
@@ -281,7 +291,7 @@ const make = (client: GitHubClient["Service"]): RepositoryVariableShape => {
       name,
       value,
     });
-  });
+  }));
 
   const list = Effect.suspend(Effect.fn("RepositoryVariable.list")(function* () {
     const { owner, repo } = yield* Repo;
@@ -308,7 +318,7 @@ const make = (client: GitHubClient["Service"]): RepositoryVariableShape => {
     });
   });
 
-  const setForEnvironment = Effect.fn("RepositoryVariable.setForEnvironment")(function* (
+  const setForEnvironment: RepositoryVariableShape["setForEnvironment"] = dual(3, Effect.fn("RepositoryVariable.setForEnvironment")(function* (
     environment: string,
     name: string,
     value: string,
@@ -356,7 +366,7 @@ const make = (client: GitHubClient["Service"]): RepositoryVariableShape => {
       name,
       value,
     });
-  });
+  }));
 
   const listForEnvironment = Effect.fn("RepositoryVariable.listForEnvironment")(function* (environment: string) {
     const { owner, repo } = yield* Repo;
@@ -373,7 +383,7 @@ const make = (client: GitHubClient["Service"]): RepositoryVariableShape => {
     }).pipe(Effect.mapError((error) => GitHubError.decode("RepositoryVariable.listForEnvironment", "GitHub returned an unexpected variable", error))));
   });
 
-  const deleteForEnvironment = Effect.fn("RepositoryVariable.deleteForEnvironment")(function* (
+  const deleteForEnvironment: RepositoryVariableShape["deleteForEnvironment"] = dual(2, Effect.fn("RepositoryVariable.deleteForEnvironment")(function* (
     environment: string,
     name: string,
   ) {
@@ -391,7 +401,7 @@ const make = (client: GitHubClient["Service"]): RepositoryVariableShape => {
     environment_name: environment,
     name,
 });
-  });
+  }));
 
   return {
     set,

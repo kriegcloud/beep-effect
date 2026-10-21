@@ -3,9 +3,11 @@ import type * as Redacted from "effect/Redacted";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
@@ -22,12 +24,12 @@ import type { PageOptions } from "./Rest.ts";
 const $I = $ScratchpadId.create("effected/github/GitHubClient");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
-	message: S.String.pipe(S.annotateKey({ description: "The test-double member that was called without an override." })),
-}, $I.annote("UnstubbedError", { description: "An unconfigured GitHubClient test-double member was called." })) {}
+	message: S.String.pipe($I.annoteKey("UnstubbedError.message", { description: "The test-double member that was called without an override." })),
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured GitHubClient test-double member was called." })) {}
 
 class FixtureError extends S.TaggedError<FixtureError, { readonly brand: unique symbol }>($I`FixtureError`)("FixtureError", {
-	message: S.String.pipe(S.annotateKey({ description: "The requested route or GraphQL document missing from the fixture." })),
-}, $I.annote("FixtureError", { description: "A GitHubClient fixture has no response for the requested operation." })) {}
+	message: S.String.pipe($I.annoteKey("FixtureError.message", { description: "The requested route or GraphQL document missing from the fixture." })),
+}, $I.annoteError<FixtureError>("FixtureError", { description: "A GitHubClient fixture has no response for the requested operation." })) {}
 
 /** GitHub's own maximum page size, and the default this package requests. */
 const DEFAULT_PER_PAGE = 100;
@@ -66,10 +68,10 @@ export interface GitHubClientShape {
   * console.log(Effect.isEffect(defaultBranch)) // true
   * ```
   */
-	readonly request: <R extends Rest.Route>(
-		route: R,
-		params: Rest.Params<R>,
-	) => Effect.Effect<Rest.Data<R>, GitHubError>;
+	readonly request: {
+		<R extends Rest.Route>(route: R, params: Rest.Params<R>): Effect.Effect<Rest.Data<R>, GitHubError>;
+		<R extends Rest.Route>(params: Rest.Params<R>): (route: R) => Effect.Effect<Rest.Data<R>, GitHubError>;
+	};
 
 	/**
   * A route GitHub does not describe in its OpenAPI schema, or one whose live
@@ -84,11 +86,17 @@ export interface GitHubClientShape {
   * `X-GitHub-Api-Version` puts the response on a contract the generated types
   * do not describe.
   */
-	readonly requestDecoded: <A, I>(
-		route: string,
-		params: Record<string, unknown> & Rest.RequestExtras,
-		schema: S.Codec<A, I>,
-	) => Effect.Effect<A, GitHubError>;
+	readonly requestDecoded: {
+		<A, I>(
+			route: string,
+			params: Record<string, unknown> & Rest.RequestExtras,
+			schema: S.Codec<A, I>,
+		): Effect.Effect<A, GitHubError>;
+		<A, I>(
+			params: Record<string, unknown> & Rest.RequestExtras,
+			schema: S.Codec<A, I>,
+		): (route: string) => Effect.Effect<A, GitHubError>;
+	};
 
 	/**
   * Collect every page of a paginating route, honoring {@link PageOptions}.
@@ -97,11 +105,17 @@ export interface GitHubClientShape {
   *
   * Handing this a non-paginating route is a compile error.
   */
-	readonly paginate: <R extends Rest.PaginatingRoute>(
-		route: R,
-		params: Rest.Params<R>,
-		options?: PageOptions,
-	) => Effect.Effect<ReadonlyArray<Rest.Item<R>>, GitHubError>;
+	readonly paginate: {
+		<R extends Rest.PaginatingRoute>(
+			route: R,
+			params: Rest.Params<R>,
+			options?: PageOptions,
+		): Effect.Effect<ReadonlyArray<Rest.Item<R>>, GitHubError>;
+		<R extends Rest.PaginatingRoute>(
+			params: Rest.Params<R>,
+			options?: PageOptions,
+		): (route: R) => Effect.Effect<ReadonlyArray<Rest.Item<R>>, GitHubError>;
+	};
 
 	/**
   * The same traversal as a `Stream`, for when the caller decides where to stop.
@@ -111,17 +125,23 @@ export interface GitHubClientShape {
   * Lazy in requests: a downstream `Stream.take` stops the walk rather than
   * filtering pages that were already fetched.
   */
-	readonly paginateStream: <R extends Rest.PaginatingRoute>(
-		route: R,
-		params: Rest.Params<R>,
-		options?: PageOptions,
-	) => Stream.Stream<Rest.Item<R>, GitHubError>;
+	readonly paginateStream: {
+		<R extends Rest.PaginatingRoute>(
+			route: R,
+			params: Rest.Params<R>,
+			options?: PageOptions,
+		): Stream.Stream<Rest.Item<R>, GitHubError>;
+		<R extends Rest.PaginatingRoute>(
+			params: Rest.Params<R>,
+			options?: PageOptions,
+		): (route: R) => Stream.Stream<Rest.Item<R>, GitHubError>;
+	};
 
 	/** Run an owned GraphQL document and decode its answer. */
-	readonly graphql: <A, V extends Record<string, unknown>>(
-		document: GraphQLDocument<A, V>,
-		variables: V,
-	) => Effect.Effect<A, GitHubGraphQLError>;
+	readonly graphql: {
+		<A, V extends Record<string, unknown>>(document: GraphQLDocument<A, V>, variables: V): Effect.Effect<A, GitHubGraphQLError>;
+		<A, V extends Record<string, unknown>>(variables: V): (document: GraphQLDocument<A, V>) => Effect.Effect<A, GitHubGraphQLError>;
+	};
 
 	/**
   * What GitHub's rate-limit headers said on the most recent response.
@@ -485,16 +505,16 @@ export const makeClientShape = Effect.fn("makeClientShape")(function* (
 			fetch: options.fetch,
 		});
 
-		const request = Effect.fn("GitHubClient.request")(function* <R extends Rest.Route>(
+		const request: GitHubClientShape["request"] = dual(2, Effect.fn("GitHubClient.request")(function* <R extends Rest.Route>(
 			route: R,
 			params: Rest.Params<R>,
 		) {
 			yield* Effect.annotateCurrentSpan({ route });
 			const response = yield* transport.request<Rest.Data<R>>(route, route, { ...params });
 			return response.data;
-		});
+		}));
 
-		const requestDecoded = Effect.fn("GitHubClient.requestDecoded")(function* <A, I>(
+		const requestDecoded: GitHubClientShape["requestDecoded"] = dual(3, Effect.fn("GitHubClient.requestDecoded")(function* <A, I>(
 			route: string,
 			params: Record<string, unknown> & Rest.RequestExtras,
 			schema: S.Codec<A, I>,
@@ -506,9 +526,9 @@ export const makeClientShape = Effect.fn("makeClientShape")(function* (
 					Effect.fail(GitHubError.decode(route, "response did not match its schema", error)),
 				),
 			);
-		});
+		}));
 
-		const paginateStream = <R extends Rest.PaginatingRoute>(
+		const paginateStream: GitHubClientShape["paginateStream"] = dual((args) => P.isString(args[0]), <R extends Rest.PaginatingRoute>(
 			route: R,
 			params: Rest.Params<R>,
 			options?: PageOptions,
@@ -520,18 +540,18 @@ export const makeClientShape = Effect.fn("makeClientShape")(function* (
 						...params,
 					}),
 				options?.maxPages,
-			);
+			));
 
-		const paginateAll = Effect.fn("GitHubClient.paginate")(function* <R extends Rest.PaginatingRoute>(
+		const paginateAll: GitHubClientShape["paginate"] = dual((args) => P.isString(args[0]), Effect.fn("GitHubClient.paginate")(function* <R extends Rest.PaginatingRoute>(
 			route: R,
 			params: Rest.Params<R>,
 			options?: PageOptions,
 		) {
 			yield* Effect.annotateCurrentSpan({ route, perPage: perPageOf(options), maxPages: options?.maxPages ?? -1 });
 			return yield* Stream.runCollect(paginateStream(route, params, options));
-		});
+		}));
 
-		const graphql = Effect.fn("GitHubClient.graphql")(function* <A, V extends Record<string, unknown>>(
+		const graphql: GitHubClientShape["graphql"] = dual(2, Effect.fn("GitHubClient.graphql")(function* <A, V extends Record<string, unknown>>(
 			document: GraphQLDocument<A, V>,
 			variables: V,
 		) {
@@ -544,7 +564,7 @@ export const makeClientShape = Effect.fn("makeClientShape")(function* (
 					Effect.fail(GitHubGraphQLError.decode(document.name, "response did not match its schema", error)),
 				),
 			);
-		});
+		}));
 
 		return {
 			request,
@@ -558,7 +578,7 @@ export const makeClientShape = Effect.fn("makeClientShape")(function* (
 
 const makeFixture = (fixtures: GitHubFixtures): GitHubClientShape => {
 	const requested = fixtures.requested;
-	const paginateStream = <R extends Rest.PaginatingRoute>(
+	const paginateStream: GitHubClientShape["paginateStream"] = dual((args) => P.isString(args[0]), <R extends Rest.PaginatingRoute>(
 		route: R,
 		_params: Rest.Params<R>,
 		options?: PageOptions,
@@ -582,26 +602,29 @@ const makeFixture = (fixtures: GitHubFixtures): GitHubClientShape => {
 		}
 		if (Result.isFailure(recorded)) return Stream.fail(recorded.failure);
 		return paginate<Rest.Item<R>>(() => fromArray(recorded.success, perPage), options?.maxPages);
-	};
+	});
 
 	// A missing fixture is wiring, not a domain condition — see `unstubbed`.
-	const missing = (method: string, route: string): Effect.Effect<never, GitHubError> =>
+	const missing: {
+		(method: string, route: string): Effect.Effect<never, GitHubError>;
+		(route: string): (method: string) => Effect.Effect<never, GitHubError>;
+	} = dual(2, (method: string, route: string): Effect.Effect<never, GitHubError> =>
 		Match.value(fixtures.unstubbed ?? "die").pipe(
 			Match.when(Match.is("fail", "empty"), () => Effect.fail(GitHubError.notFound(method, `fixture for ${route}`))),
 			Match.when("die", () => Effect.die(FixtureError.make({ message: `${method}: no fixture for ${route}` }))),
 			Match.exhaustive,
-		);
+		));
 
 	return {
-		request: <R extends Rest.Route>(route: R, params: Rest.Params<R>) => {
+		request: dual(2, <R extends Rest.Route>(route: R, params: Rest.Params<R>): Effect.Effect<Rest.Data<R>, GitHubError> => {
 			requested?.push({ kind: "request", route, params: { ...params } });
 			const data: Result.Result<Rest.Data<R>, GitHubError> | undefined = fixtures.request?.[route];
 			if (data === undefined) return missing("GitHubClient.request", route);
 			// A recorded Result failure is the response: this is how a suite stubs a
 			// 404 deliberately, rather than relying on a route's absence.
 			return Effect.fromResult(data);
-		},
-		requestDecoded: <A, I>(route: string, params: Record<string, unknown>, schema: S.Codec<A, I>) => {
+		}),
+		requestDecoded: dual(3, <A, I>(route: string, params: Record<string, unknown>, schema: S.Codec<A, I>): Effect.Effect<A, GitHubError> => {
 			requested?.push({ kind: "requestDecoded", route, params });
 			const data = fixtures.requestDecoded?.[route];
 			if (data === undefined) return missing("GitHubClient.requestDecoded", route);
@@ -611,10 +634,17 @@ const makeFixture = (fixtures: GitHubFixtures): GitHubClientShape => {
 					Effect.fail(GitHubError.decode(route, "fixture did not match its schema", error)),
 				),
 			);
-		},
-		paginate: (route, params, options) => Stream.runCollect(paginateStream(route, params, options)),
+		}),
+		paginate: dual(
+			(args) => P.isString(args[0]),
+			<R extends Rest.PaginatingRoute>(
+				route: R,
+				params: Rest.Params<R>,
+				options?: PageOptions,
+			): Effect.Effect<ReadonlyArray<Rest.Item<R>>, GitHubError> => Stream.runCollect(paginateStream(route, params, options)),
+		),
 		paginateStream,
-		graphql: <A, V extends Record<string, unknown>>(document: GraphQLDocument<A, V>, variables: V) => {
+		graphql: dual(2, <A, V extends Record<string, unknown>>(document: GraphQLDocument<A, V>, variables: V): Effect.Effect<A, GitHubGraphQLError> => {
 			requested?.push({ kind: "graphql", route: document.name, params: variables });
 			const raw = fixtures.graphql?.[document.name];
 			return raw === undefined
@@ -626,7 +656,7 @@ const makeFixture = (fixtures: GitHubFixtures): GitHubClientShape => {
 								Effect.fail(GitHubGraphQLError.decode(document.name, "fixture did not match its schema", error)),
 							),
 						);
-		},
+		}),
 		rateLimit: Effect.succeed(O.fromUndefinedOr(fixtures.rateLimit)),
 	};
 };

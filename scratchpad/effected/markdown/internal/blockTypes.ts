@@ -23,6 +23,7 @@ import * as S from "effect/Schema";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import { Heading, Paragraph, PhrasingContent, TableCell } from "../MarkdownNode.ts";
+import * as A from "effect/Array";
 import type {
 	BulletChar,
 	FenceChar,
@@ -77,7 +78,7 @@ export const BlockType = LiteralKit([
 	"table",
 	"tableRow",
 	"tableCell",
-]).annotate($I.annote("BlockType", { description: "Block construct kinds recognized by the engine." }));
+]).pipe($I.annoteSchema("BlockType", { description: "Block construct kinds recognized by the engine." }));
 
 /** The engine kind domain derived from its schema.
  * @category type-level
@@ -111,10 +112,10 @@ export type BlockType = typeof BlockType.Type;
  * @since 0.0.0
  */
 export const RawInlineSegment = S.Struct({
-	textOffset: S.Finite.annotateKey({ description: "Index into the accumulated block content where this run starts." }),
-	sourceOffset: S.Finite.annotateKey({ description: "Absolute source offset of the run's first character." }),
-	length: S.Finite.annotateKey({ description: "Length of the verbatim source run in characters." }),
-}).annotate($I.annote("RawInlineSegment", { description: "A contiguous source run copied into a leaf block's inline text." }));
+	textOffset: S.Finite.pipe($I.annoteKey("RawInlineSegment.textOffset", { description: "Index into the accumulated block content where this run starts." })),
+	sourceOffset: S.Finite.pipe($I.annoteKey("RawInlineSegment.sourceOffset", { description: "Absolute source offset of the run's first character." })),
+	length: S.Finite.pipe($I.annoteKey("RawInlineSegment.length", { description: "Length of the verbatim source run in characters." })),
+}).pipe($I.annoteSchema("RawInlineSegment", { description: "A contiguous source run copied into a leaf block's inline text." }));
 
 /** The source-run payload derived from its executable schema.
  * @category type-level
@@ -160,11 +161,11 @@ export type InlineHost = Paragraph | Heading | TableCell;
  * @since 0.0.0
  */
 export const RawInlineSlice = S.Struct({
-	parent: S.Union([Paragraph, Heading, TableCell]).annotateKey({ description: "The materialized node that will own the parsed inline children." }),
-	text: S.String.annotateKey({ description: "Trimmed inline text prepared by the block pass." }),
-	startOffset: S.Finite.annotateKey({ description: "Absolute source offset where the inline text begins." }),
-	segments: S.Array(RawInlineSegment).annotateKey({ description: "Source runs mapping the inline text back to the document." }),
-}).annotate($I.annote("RawInlineSlice", { description: "A leaf block's raw inline text and its materialized parent." }));
+	parent: S.Union([Paragraph, Heading, TableCell]).pipe($I.annoteKey("RawInlineSlice.parent", { description: "The materialized node that will own the parsed inline children." })),
+	text: S.String.pipe($I.annoteKey("RawInlineSlice.text", { description: "Trimmed inline text prepared by the block pass." })),
+	startOffset: S.Finite.pipe($I.annoteKey("RawInlineSlice.startOffset", { description: "Absolute source offset where the inline text begins." })),
+	segments: S.Array(RawInlineSegment).pipe($I.annoteKey("RawInlineSlice.segments", { description: "Source runs mapping the inline text back to the document." })),
+}).pipe($I.annoteSchema("RawInlineSlice", { description: "A leaf block's raw inline text and its materialized parent." }));
 
 /** The immutable RawInlineSlice payload derived from its schema.
  * @category type-level
@@ -188,12 +189,12 @@ export type RawInlineSlice = typeof RawInlineSlice.Type;
  * @since 0.0.0
  */
 export const PreparedInline = S.Struct({
-	text: S.String.annotateKey({ description: "Inline text prepared for materialization." }),
-	startOffset: S.Finite.annotateKey({ description: "Absolute source offset where the inline text begins." }),
-	endOffset: S.Finite.annotateKey({ description: "Absolute source offset where the inline text ends." }),
-	segments: S.Array(RawInlineSegment).annotateKey({ description: "Source runs mapping the inline text back to the document." }),
-	children: S.Array(PhrasingContent).annotateKey({ description: "The temporary passthrough children (see `rawInline.ts`)." }),
-}).annotate($I.annote("PreparedInline", { description: "A leaf's inline text prepared for materialization before it has a parent." }));
+	text: S.String.pipe($I.annoteKey("PreparedInline.text", { description: "Inline text prepared for materialization." })),
+	startOffset: S.Finite.pipe($I.annoteKey("PreparedInline.startOffset", { description: "Absolute source offset where the inline text begins." })),
+	endOffset: S.Finite.pipe($I.annoteKey("PreparedInline.endOffset", { description: "Absolute source offset where the inline text ends." })),
+	segments: S.Array(RawInlineSegment).pipe($I.annoteKey("PreparedInline.segments", { description: "Source runs mapping the inline text back to the document." })),
+	children: S.Array(PhrasingContent).pipe($I.annoteKey("PreparedInline.children", { description: "The temporary passthrough children (see `rawInline.ts`)." })),
+}).pipe($I.annoteSchema("PreparedInline", { description: "A leaf's inline text prepared for materialization before it has a parent." }));
 
 /** The immutable PreparedInline payload derived from its schema.
  * @category type-level
@@ -283,12 +284,12 @@ export interface TableData {
  * @since 0.0.0
  */
 export const DefinitionData = S.Struct({
-	key: S.String.annotateKey({ description: "The case-folded lookup key." }),
-	identifier: S.String.annotateKey({ description: "mdast's identifier: the normalized label, lowercased." }),
-	label: S.String.annotateKey({ description: "mdast's label: the raw label text." }),
-	url: S.String.annotateKey({ description: "The decoded destination, never percent-encoded (see `references.ts`)." }),
-	title: S.optionalKey(S.String).annotateKey({ description: "The definition's title, absent when no title was provided." }),
-}).annotate($I.annote("DefinitionData", { description: "A parsed link reference definition awaiting materialization." }));
+	key: S.String.pipe($I.annoteKey("DefinitionData.key", { description: "The case-folded lookup key." })),
+	identifier: S.String.pipe($I.annoteKey("DefinitionData.identifier", { description: "mdast's identifier: the normalized label, lowercased." })),
+	label: S.String.pipe($I.annoteKey("DefinitionData.label", { description: "mdast's label: the raw label text." })),
+	url: S.String.pipe($I.annoteKey("DefinitionData.url", { description: "The decoded destination, never percent-encoded (see `references.ts`)." })),
+	title: S.optionalKey(S.String).pipe($I.annoteKey("DefinitionData.title", { description: "The definition's title, absent when no title was provided." })),
+}).pipe($I.annoteSchema("DefinitionData", { description: "A parsed link reference definition awaiting materialization." }));
 
 /** The immutable DefinitionData payload derived from its schema.
  * @category type-level
@@ -319,8 +320,8 @@ export type DefinitionData = typeof DefinitionData.Type;
 export const FootnoteData = S.Struct({
 	key: DefinitionData.fields.key,
 	identifier: DefinitionData.fields.identifier,
-	label: DefinitionData.fields.label.annotateKey({ description: "mdast's label: the raw label text, as written." }),
-}).annotate($I.annote("FootnoteData", { description: "A GFM footnote definition's label carried on the block." }));
+	label: DefinitionData.fields.label.pipe($I.annoteKey("FootnoteData.label", { description: "mdast's label: the raw label text, as written." })),
+}).pipe($I.annoteSchema("FootnoteData", { description: "A GFM footnote definition's label carried on the block." }));
 
 /** The immutable FootnoteData payload derived from its schema.
  * @category type-level
@@ -394,9 +395,7 @@ export interface BlockNode {
  * @category schemas
  * @since 0.0.0
  */
-export const BlockContinueResult = LiteralKit([0, 1, 2]).annotate(
-	$I.annote("BlockContinueResult", { description: "The numeric verdicts returned by a block continue scanner." }),
-);
+export const BlockContinueResult = LiteralKit([0, 1, 2]).pipe($I.annoteSchema("BlockContinueResult", { description: "The numeric verdicts returned by a block continue scanner." }));
 
 /** The block continue verdict domain derived from its schema.
  * @category type-level
@@ -425,9 +424,7 @@ export type BlockContinueResult = typeof BlockContinueResult.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const BlockStartResult = LiteralKit([0, 1, 2]).annotate(
-	$I.annote("BlockStartResult", { description: "The numeric verdicts returned by a block start scanner." }),
-);
+export const BlockStartResult = LiteralKit([0, 1, 2]).pipe($I.annoteSchema("BlockStartResult", { description: "The numeric verdicts returned by a block start scanner." }));
 
 /** The block start verdict domain derived from its schema.
  * @category type-level
@@ -469,7 +466,10 @@ export interface BlockScanner {
 	/** Whether every open block matched this line. */
 	readonly allClosed: boolean;
 	/** Advance `count` characters, or `count` columns when `columns` is true. */
-	advanceOffset(count: number, columns?: boolean): void;
+	readonly advanceOffset: {
+		(count: number, columns?: boolean): void;
+		(columns?: boolean): (count: number) => void;
+	};
 	/** Jump the scan position to `nextNonspace`. */
 	advanceNextNonspace(): void;
 	/**
@@ -488,14 +488,20 @@ export interface BlockScanner {
 	/** Finalize every open block that failed to match this line. */
 	closeUnmatchedBlocks(): void;
 	/** Open a block of `type` as a child of the tip, starting at `offsetInLine`. */
-	addChild(type: BlockType, offsetInLine: number): BlockNode;
+	readonly addChild: {
+		(type: BlockType, offsetInLine: number): BlockNode;
+		(offsetInLine: number): (type: BlockType) => BlockNode;
+	};
 	/**
 	 * Rewind the scan position, upstream's direct `parser.offset`/
 	 * `parser.column` assignment in `parseListMarker`. Deliberately does NOT
 	 * clear the partially-consumed-tab flag: upstream's assignment does not
 	 * either, and the caller re-establishes it on the next `advanceOffset`.
 	 */
-	setScanPosition(offset: number, column: number): void;
+	readonly setScanPosition: {
+		(offset: number, column: number): void;
+		(column: number): (offset: number) => void;
+	};
 	/**
 	 * Override the length the next `finalize` treats the current line as
 	 * having — upstream's `parser.lastLineLength` write in the closing-fence
@@ -507,7 +513,10 @@ export interface BlockScanner {
 	 * and segments, and make it the tip. Upstream's
 	 * `insertAfter` + `unlink` pair in the setext-heading start.
 	 */
-	replaceBlock(block: BlockNode, type: BlockType): BlockNode;
+	readonly replaceBlock: {
+		(block: BlockNode, type: BlockType): BlockNode;
+		(type: BlockType): (block: BlockNode) => BlockNode;
+	};
 	/**
 	 * Open a closed block of `type` as `block`'s immediately preceding sibling,
 	 * without disturbing the tip.
@@ -518,9 +527,15 @@ export interface BlockScanner {
 	 * a paragraph becomes a table, the lines above the header row have to go
 	 * back into the tree as the paragraph they were.
 	 */
-	insertBefore(block: BlockNode, type: BlockType): BlockNode;
+	readonly insertBefore: {
+		(block: BlockNode, type: BlockType): BlockNode;
+		(type: BlockType): (block: BlockNode) => BlockNode;
+	};
 	/** Close `block`, ending it at the end of `lineNumber`. */
-	finalizeBlock(block: BlockNode, lineNumber: number): void;
+	readonly finalizeBlock: {
+		(block: BlockNode, lineNumber: number): void;
+		(lineNumber: number): (block: BlockNode) => void;
+	};
 	/** Append the rest of the current line to the tip's content. */
 	addLine(): void;
 }
@@ -542,11 +557,17 @@ export type MaterializedBlock = Root | FlowContent | ListItem | TableRow | Table
  */
 export interface MaterializeContext {
 	/** Build a {@link Position} from an absolute source range. */
-	position(startOffset: number, endOffset: number): Position;
+	readonly position: {
+		(startOffset: number, endOffset: number): Position;
+		(endOffset: number): (startOffset: number) => Position;
+	};
 	/** Trim and prepare a leaf's accumulated content for the inline pass. */
 	inlineSlice(block: BlockNode): PreparedInline;
 	/** Record a leaf's raw inline text against the node that will own it. */
-	registerInline(parent: InlineHost, prepared: PreparedInline): void;
+	readonly registerInline: {
+		(parent: InlineHost, prepared: PreparedInline): void;
+		(prepared: PreparedInline): (parent: InlineHost) => void;
+	};
 }
 
 /**
@@ -564,18 +585,23 @@ export interface BlockConstruct {
 	/** Whether a block of `child` may be opened inside this one. */
 	canContain(child: BlockType): boolean;
 	/** Whether this block continues on the scanner's current line. */
-	continue(scanner: BlockScanner, block: BlockNode): BlockContinueResult;
+	readonly continue: {
+		(scanner: BlockScanner, block: BlockNode): BlockContinueResult;
+		(block: BlockNode): (scanner: BlockScanner) => BlockContinueResult;
+	};
 	/** Post-processing when the block closes. */
-	finalize?(scanner: BlockScanner, block: BlockNode): void;
+	readonly finalize?: {
+		(scanner: BlockScanner, block: BlockNode): void;
+		(block: BlockNode): (scanner: BlockScanner) => void;
+	};
 	/**
 	 * Build the immutable node. Returning `undefined` drops the block from the
 	 * tree (an emptied paragraph, for instance).
 	 */
-	materialize(
-		block: BlockNode,
-		children: ReadonlyArray<MaterializedBlock>,
-		context: MaterializeContext,
-	): MaterializedBlock | undefined;
+	readonly materialize: {
+		(block: BlockNode, children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined;
+		(children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): (block: BlockNode) => MaterializedBlock | undefined;
+	};
 }
 
 /**
@@ -603,10 +629,8 @@ export interface BlockConstruct {
  * @since 0.0.0
  */
 export const flowChildren = (children: ReadonlyArray<MaterializedBlock>): ReadonlyArray<FlowContent> =>
-	children.filter(
-		(child): child is FlowContent =>
-			child.type !== "root" && child.type !== "listItem" && child.type !== "tableRow" && child.type !== "tableCell",
-	);
+	A.filter(children, (child): child is FlowContent =>
+			child.type !== "root" && child.type !== "listItem" && child.type !== "tableRow" && child.type !== "tableCell");
 
 /**
  *  Narrow materialized children to the list items a list contains.
@@ -633,7 +657,7 @@ export const flowChildren = (children: ReadonlyArray<MaterializedBlock>): Readon
  * @since 0.0.0
  */
 export const listItemChildren = (children: ReadonlyArray<MaterializedBlock>): ReadonlyArray<ListItem> =>
-	children.filter((child): child is ListItem => child.type === "listItem");
+	A.filter(children, (child): child is ListItem => child.type === "listItem");
 
 /**
  *  Narrow materialized children to the rows a table contains.
@@ -660,7 +684,7 @@ export const listItemChildren = (children: ReadonlyArray<MaterializedBlock>): Re
  * @since 0.0.0
  */
 export const tableRowChildren = (children: ReadonlyArray<MaterializedBlock>): ReadonlyArray<TableRow> =>
-	children.filter((child): child is TableRow => child.type === "tableRow");
+	A.filter(children, (child): child is TableRow => child.type === "tableRow");
 
 /**
  *  Narrow materialized children to the cells a table row contains.
@@ -687,7 +711,7 @@ export const tableRowChildren = (children: ReadonlyArray<MaterializedBlock>): Re
  * @since 0.0.0
  */
 export const tableCellChildren = (children: ReadonlyArray<MaterializedBlock>): ReadonlyArray<TableCell> =>
-	children.filter((child): child is TableCell => child.type === "tableCell");
+	A.filter(children, (child): child is TableCell => child.type === "tableCell");
 
 /**
  *  One entry of a dialect's ordered block-start table.
@@ -698,7 +722,10 @@ export const tableCellChildren = (children: ReadonlyArray<MaterializedBlock>): R
 export interface BlockStart {
 	/** Diagnostic name; the table's order is what the algorithm depends on. */
 	readonly name: string;
-	trigger(scanner: BlockScanner, container: BlockNode): BlockStartResult;
+	readonly trigger: {
+		(scanner: BlockScanner, container: BlockNode): BlockStartResult;
+		(container: BlockNode): (scanner: BlockScanner) => BlockStartResult;
+	};
 }
 
 /**
@@ -721,7 +748,10 @@ export interface BlockDialect {
 	 * table row starts on anything at all — says so here, and the loop tries
 	 * its starts anyway. Absent means the CommonMark filter is the whole truth.
 	 */
-	readonly mayStartBlock?: (rest: string, container: BlockNode) => boolean;
+	readonly mayStartBlock?: {
+		(rest: string, container: BlockNode): boolean;
+		(container: BlockNode): (rest: string) => boolean;
+	};
 }
 
 /**

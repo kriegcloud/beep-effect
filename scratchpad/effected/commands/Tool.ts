@@ -2,6 +2,8 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/commands/Tool");
@@ -92,7 +94,7 @@ export type MismatchPolicy = typeof MismatchPolicy.Type;
  */
 export class VersionFlag extends S.TaggedClass<VersionFlag, { readonly brand: unique symbol }>($I`VersionFlag`)("VersionFlag", {
 	/** The flag to pass, e.g. `"--version"`. Split on spaces into argv. */
-	flag: S.String.annotateKey({ description: "The flag to pass, e.g. `\"--version\"`. Split on spaces into argv." }),
+	flag: S.String.pipe($I.annoteKey("VersionFlag.flag", { description: "The flag to pass, e.g. `\"--version\"`. Split on spaces into argv." })),
 	/**
   * A regular-expression source whose **first capture group** is the version.
   *
@@ -103,7 +105,7 @@ export class VersionFlag extends S.TaggedClass<VersionFlag, { readonly brand: un
   * `v22.1.0`) without configuration. The pattern is developer-supplied and
   * therefore trusted; it is never built from a tool's output.
   */
-	pattern: S.optionalKey(S.String).annotateKey({ description: "A regular-expression source whose **first capture group** is the version." }),
+	pattern: S.optionalKey(S.String).pipe($I.annoteKey("VersionFlag.pattern", { description: "A regular-expression source whose **first capture group** is the version." })),
 }, $I.annote("VersionFlag", { description: "Ask the tool for its version with a flag and read the answer out of stdout." })) {}
 
 /**
@@ -125,9 +127,9 @@ export class VersionFlag extends S.TaggedClass<VersionFlag, { readonly brand: un
  */
 export class VersionJson extends S.TaggedClass<VersionJson, { readonly brand: unique symbol }>($I`VersionJson`)("VersionJson", {
 	/** The flag(s) to pass, e.g. `"info --json"`. Split on spaces into argv. */
-	flag: S.String.annotateKey({ description: "The flag(s) to pass, e.g. `\"info --json\"`. Split on spaces into argv." }),
+	flag: S.String.pipe($I.annoteKey("VersionJson.flag", { description: "The flag(s) to pass, e.g. `\"info --json\"`. Split on spaces into argv." })),
 	/** Dotted path to the version, e.g. `"deno.version"`. */
-	path: S.String.annotateKey({ description: "Dotted path to the version, e.g. `\"deno.version\"`." }),
+	path: S.String.pipe($I.annoteKey("VersionJson.path", { description: "Dotted path to the version, e.g. `\"deno.version\"`." })),
 }, $I.annote("VersionJson", { description: "Ask the tool for JSON and read the version from a dotted path within it." })) {}
 
 /**
@@ -208,15 +210,16 @@ export type VersionProbe = typeof VersionProbe.Type;
  */
 export class Tool extends S.Class<Tool, { readonly brand: unique symbol }>($I`Tool`)({
 	/** The executable name, e.g. `"biome"`. */
-	name: S.String.annotateKey({ description: "The executable name, e.g. `\"biome\"`." }),
+	name: S.String.pipe($I.annoteKey("Tool.name", { description: "The executable name, e.g. `\"biome\"`." })),
 	/** How to learn its version. */
 	version: VersionProbe.pipe(
 		S.withConstructorDefault(Effect.sync(() => VersionFlag.make({ flag: "--version" }))),
-	).annotateKey({ description: "How to learn its version." }),
+		$I.annoteKey("Tool.version", { description: "How to learn its version." }),
+	),
 	/** Where it must be found. */
-	source: ToolSource.pipe(S.withConstructorDefault(Effect.succeed("any"))).annotateKey({ description: "Where it must be found." }),
+	source: ToolSource.pipe(S.withConstructorDefault(Effect.succeed("any")), $I.annoteKey("Tool.source", { description: "Where it must be found." })),
 	/** What to do when the two locations disagree on the version. */
-	onMismatch: MismatchPolicy.pipe(S.withConstructorDefault(Effect.succeed("preferLocal"))).annotateKey({ description: "What to do when the two locations disagree on the version." }),
+	onMismatch: MismatchPolicy.pipe(S.withConstructorDefault(Effect.succeed("preferLocal")), $I.annoteKey("Tool.onMismatch", { description: "What to do when the two locations disagree on the version." })),
 }, $I.annote("Tool", { description: "A CLI tool to resolve, and the constraints resolution must satisfy." })) {
 	/**
   * Builds a `Tool` from a name, with defaults for everything else
@@ -237,7 +240,18 @@ export class Tool extends S.Class<Tool, { readonly brand: unique symbol }>($I`To
   * @category constructors
   * @since 0.0.0
   */
-	static readonly named = (
+	static readonly named: {
+		(name: string, overrides?: {
+			readonly version?: VersionProbe | undefined;
+			readonly source?: ToolSource | undefined;
+			readonly onMismatch?: MismatchPolicy | undefined;
+		}): Tool;
+		(overrides?: {
+			readonly version?: VersionProbe | undefined;
+			readonly source?: ToolSource | undefined;
+			readonly onMismatch?: MismatchPolicy | undefined;
+		}): (name: string) => Tool;
+	} = dual((args) => P.isString(args[0]), (
 		name: string,
 		overrides?: {
 			readonly version?: VersionProbe | undefined;
@@ -252,5 +266,5 @@ export class Tool extends S.Class<Tool, { readonly brand: unique symbol }>($I`To
 				source: O.fromNullishOr(overrides?.source),
 				onMismatch: O.fromNullishOr(overrides?.onMismatch),
 			}),
-		});
+		}));
 }

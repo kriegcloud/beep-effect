@@ -7,6 +7,7 @@ import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
 import * as P from "effect/Predicate";
@@ -20,15 +21,18 @@ import githubAppJwt from "universal-github-app-jwt";
 import type { GitHubClientShape } from "./GitHubClient.ts";
 import { GitHubClient, makeClientShape } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
+import type { GraphQLDocument } from "./GraphQL.ts";
 import { GitHubGraphQLError } from "./GraphQL.ts";
 import { numericId } from "./internal/ids.ts";
 import type { RetryPolicy } from "./Resilience.ts";
+import type * as Rest from "./Rest.ts";
+import type { PageOptions } from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/GitHubApp");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * A GitHub App call failed.
@@ -55,12 +59,12 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  */
 export class GitHubAppError extends S.TaggedError<GitHubAppError, { readonly brand: unique symbol }>($I`GitHubAppError`)("GitHubAppError", {
 	/** Which step failed. */
-	kind: S.Literals(["jwt", "token", "revoke", "identity", "installation"]).annotateKey({ description: "Which step failed." }),
+	kind: S.Literals(["jwt", "token", "revoke", "identity", "installation"]).pipe($I.annoteKey("GitHubAppError.kind", { description: "Which step failed." })),
 	/** Human-readable cause. */
-	reason: S.String.annotateKey({ description: "Human-readable cause." }),
+	reason: S.String.pipe($I.annoteKey("GitHubAppError.reason", { description: "Human-readable cause." })),
 	/** The underlying failure, when there is one. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, when there is one." }),
-}, $I.annote("GitHubAppError", { description: "A GitHub App call failed." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("GitHubAppError.cause", { description: "The underlying failure, when there is one." })),
+}, $I.annoteError<GitHubAppError>("GitHubAppError", { description: "A GitHub App call failed." })) {
 	/**
 	 * Formats the failed authentication step and its human-readable cause.
 	 *
@@ -183,19 +187,19 @@ export interface TokenRequest extends AppCredentials {
  */
 export class InstallationToken extends S.Class<InstallationToken, { readonly brand: unique symbol }>($I`InstallationToken`)({
 	/** The token. Decodes to `Redacted`, encodes back to the raw string. */
-	token: S.RedactedFromValue(S.String).annotateKey({ description: "The token. Decodes to `Redacted`, encodes back to the raw string." }),
+	token: S.RedactedFromValue(S.String).pipe($I.annoteKey("InstallationToken.token", { description: "The token. Decodes to `Redacted`, encodes back to the raw string." })),
 	/** When GitHub will stop accepting it — about an hour out. */
-	expiresAt: S.DateTimeUtcFromString.annotateKey({ description: "When GitHub will stop accepting it — about an hour out." }),
+	expiresAt: S.DateTimeUtcFromString.pipe($I.annoteKey("InstallationToken.expiresAt", { description: "When GitHub will stop accepting it — about an hour out." })),
 	/** The installation it is scoped to. */
-	installationId: S.Int.annotateKey({ description: "The installation it is scoped to." }),
+	installationId: S.Int.pipe($I.annoteKey("InstallationToken.installationId", { description: "The installation it is scoped to." })),
 	/** The permissions GitHub actually granted, which may be narrower than requested. */
-	permissions: S.Record(S.String, S.String).annotateKey({ description: "The permissions GitHub actually granted, which may be narrower than requested." }),
+	permissions: S.Record(S.String, S.String).pipe($I.annoteKey("InstallationToken.permissions", { description: "The permissions GitHub actually granted, which may be narrower than requested." })),
 	/** The app's slug, when identity was resolved. */
-	appSlug: S.optionalKey(S.String).annotateKey({ description: "The app's slug, when identity was resolved." }),
+	appSlug: S.optionalKey(S.String).pipe($I.annoteKey("InstallationToken.appSlug", { description: "The app's slug, when identity was resolved." })),
 	/** The app's bot user id, when identity was resolved. */
-	appUserId: S.optionalKey(S.Int).annotateKey({ description: "The app's bot user id, when identity was resolved." }),
+	appUserId: S.optionalKey(S.Int).pipe($I.annoteKey("InstallationToken.appUserId", { description: "The app's bot user id, when identity was resolved." })),
 	/** The app's display name, when identity was resolved. */
-	appName: S.optionalKey(S.String).annotateKey({ description: "The app's display name, when identity was resolved." }),
+	appName: S.optionalKey(S.String).pipe($I.annoteKey("InstallationToken.appName", { description: "The app's display name, when identity was resolved." })),
 }, $I.annote("InstallationToken", { description: "An installation access token and what GitHub said about it." })) {
 	/**
 	 * Whether this token is spent, `skew` before its stated expiry.
@@ -281,9 +285,9 @@ const DEFAULT_SKEW = Duration.seconds(60);
  */
 export class BotIdentity extends S.Class<BotIdentity, { readonly brand: unique symbol }>($I`BotIdentity`)({
 	/** The git author/committer name, e.g. `"my-app[bot]"`. */
-	name: S.String.annotateKey({ description: "The git author/committer name, e.g. `\"my-app[bot]\"`." }),
+	name: S.String.pipe($I.annoteKey("BotIdentity.name", { description: "The git author/committer name, e.g. `\"my-app[bot]\"`." })),
 	/** The no-reply address GitHub attributes to that account. */
-	email: S.String.annotateKey({ description: "The no-reply address GitHub attributes to that account." }),
+	email: S.String.pipe($I.annoteKey("BotIdentity.email", { description: "The no-reply address GitHub attributes to that account." })),
 }, $I.annote("BotIdentity", { description: "Who a bot commits as." })) {
 	/**
 	 * The identity for an app, given whatever of its identity is known.
@@ -377,11 +381,11 @@ export class BotIdentity extends S.Class<BotIdentity, { readonly brand: unique s
  */
 export class AppIdentity extends S.Class<AppIdentity, { readonly brand: unique symbol }>($I`AppIdentity`)({
 	/** The URL slug, e.g. `"my-app"`. */
-	slug: S.String.annotateKey({ description: "The URL slug, e.g. `\"my-app\"`." }),
+	slug: S.String.pipe($I.annoteKey("AppIdentity.slug", { description: "The URL slug, e.g. `\"my-app\"`." })),
 	/** The display name. */
-	name: S.String.annotateKey({ description: "The display name." }),
+	name: S.String.pipe($I.annoteKey("AppIdentity.name", { description: "The display name." })),
 	/** The bot user's numeric id, when it could be resolved. */
-	userId: S.optionalKey(S.Int).annotateKey({ description: "The bot user's numeric id, when it could be resolved." }),
+	userId: S.optionalKey(S.Int).pipe($I.annoteKey("AppIdentity.userId", { description: "The bot user's numeric id, when it could be resolved." })),
 }, $I.annote("AppIdentity", { description: "What GitHub knows about the app itself." })) {
 	/**
 	 * The committer identity for this app.
@@ -423,9 +427,9 @@ export class AppIdentity extends S.Class<AppIdentity, { readonly brand: unique s
  */
 export class Installation extends S.Class<Installation, { readonly brand: unique symbol }>($I`Installation`)({
 	/** The installation id, which is what a token is minted against. */
-	id: S.Int.annotateKey({ description: "The installation id, which is what a token is minted against." }),
+	id: S.Int.pipe($I.annoteKey("Installation.id", { description: "The installation id, which is what a token is minted against." })),
 	/** The account the app is installed on, when GitHub reported one. */
-	account: S.optionalKey(S.String).annotateKey({ description: "The account the app is installed on, when GitHub reported one." }),
+	account: S.optionalKey(S.String).pipe($I.annoteKey("Installation.account", { description: "The account the app is installed on, when GitHub reported one." })),
 }, $I.annote("Installation", { description: "One installation of the app." })) {}
 
 /**
@@ -445,6 +449,126 @@ export interface GitHubAppOptions {
 	/** A replacement `fetch`, for tests and proxies. */
 	readonly fetch?: typeof globalThis.fetch | undefined;
 }
+
+/**
+ * Build the app service shape; `observe` sees every minted credential.
+ *
+ * **Details**
+ *
+ * Declared above {@link GitHubApp} because the class's `layer` static calls it
+ * while the class is being defined.
+ */
+const makeApp: {
+	(
+		options: GitHubAppOptions,
+		observe?: (credential: Redacted.Redacted<string>) => Effect.Effect<void>,
+	): Effect.Effect<GitHubAppShape>;
+	(
+		observe?: (credential: Redacted.Redacted<string>) => Effect.Effect<void>,
+	): (options: GitHubAppOptions) => Effect.Effect<GitHubAppShape>;
+} = dual((args) => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]), (
+	options: GitHubAppOptions,
+	observe: (credential: Redacted.Redacted<string>) => Effect.Effect<void> = () => Effect.void,
+): Effect.Effect<GitHubAppShape> =>
+	Effect.sync(() => {
+		const installations = Effect.fn("GitHubApp.installations")(function* (credentials: AppCredentials) {
+			const client = yield* asApp(credentials, options);
+			const raw = yield* client.paginate("GET /app/installations", {}).pipe(Effect.catch(appFailure("installation")));
+			return yield* Effect.forEach(raw, Effect.fnUntraced(function* (entry) {
+				const wire = yield* S.decodeEffect(InstallationResponse)(entry);
+				return yield* S.decodeEffect(Installation)({
+					id: numericId(wire.id),
+					...O.getSomesStruct({ account: O.fromNullishOr(wire.account?.login) }),
+				});
+			}, Effect.mapError(decodeFailure("installation"))));
+		});
+
+		const resolveInstallationId = (request: TokenRequest): Effect.Effect<number, GitHubAppError> =>
+			request.installationId !== undefined
+				? Effect.succeed(request.installationId)
+				: Effect.gen(function* () {
+						const all = yield* installations(request);
+						if (request.owner !== undefined) {
+							const wanted = request.owner.toLowerCase();
+							const match = A.findFirst(all, (entry) => entry.account?.toLowerCase() === wanted);
+							if (O.isSome(match)) return match.value.id;
+							return yield*
+								GitHubAppError.of(
+									"installation",
+									`the app is not installed on ${request.owner} (installed on: ${pipe(all, A.map((entry) => entry.account ?? String(entry.id)), A.join(", ")) || "nothing"})`,
+								);
+						}
+						const only = all[0];
+						if (all.length === 1 && only !== undefined) return only.id;
+						return yield*
+							GitHubAppError.of(
+								"installation",
+								all.length === 0
+									? "the app has no installations"
+									: `the app has ${all.length} installations; pass installationId or owner`,
+							);
+					});
+
+		const token = Effect.fn("GitHubApp.token")((request: TokenRequest) =>
+			Effect.uninterruptibleMask(Effect.fnUntraced(function* (restore) {
+				const installationId = yield* restore(resolveInstallationId(request));
+				const client = yield* restore(asApp(request, options));
+				const minted = yield* restore(client
+					.request("POST /app/installations/{installation_id}/access_tokens", { installation_id: installationId })
+					.pipe(Effect.catch(appFailure("token"))));
+				// Only the HTTP wait is restored above. Own a received string credential
+				// while masked, even if its other fields fail decoding or decoding yields.
+				const observed = S.decodeOption(ObservedCredential)(minted);
+				if (O.isSome(observed)) yield* observe(Redacted.make(observed.value.token));
+				return yield* restore(Effect.gen(function* () {
+					const wire = yield* S.decodeEffect(TokenResponse)(minted);
+					return yield* S.decodeEffect(InstallationToken)({
+						token: wire.token,
+						expiresAt: wire.expires_at,
+						installationId,
+						permissions: normalizePermissions(wire.permissions),
+					});
+				}).pipe(Effect.mapError(decodeFailure("token"))));
+			})),
+		);
+
+		const revoke = Effect.fn("GitHubApp.revoke")(function* (value: Redacted.Redacted<string>) {
+			const client = yield* asBearer(value, options);
+			yield* client.request("DELETE /installation/token", {}).pipe(Effect.catch(appFailure("revoke")));
+		});
+
+		const scopedToken = (request: TokenRequest): Effect.Effect<InstallationToken, GitHubAppError, Scope.Scope> =>
+			Effect.acquireRelease(token(request), (minted) => minted.token.pipe(revoke, Effect.ignore));
+
+		const identity = Effect.fn("GitHubApp.identity")(function* (
+			request: AppCredentials & { readonly installationToken?: Redacted.Redacted<string> | undefined },
+		) {
+			const appClient = yield* asApp(request, options);
+			const app = yield* appClient.request("GET /app", {}).pipe(Effect.catch(appFailure("identity")));
+			if (app === null) {
+				return yield*GitHubAppError.of("identity", "GET /app returned no app");
+			}
+			const wire = yield* S.decodeEffect(IdentityResponse)(app)
+				.pipe(Effect.mapError(decodeFailure("identity")));
+			const slug = wire.slug ?? "";
+			const name = wire.name;
+			// `GET /users/{slug}[bot]` rejects an app JWT, so this bears the
+			// installation token when one was supplied and otherwise runs
+			// unauthenticated — 60 requests per hour per IP.
+			const userClient = yield* asBearer(request.installationToken, options);
+			const user = yield* userClient.request("GET /users/{username}", { username: `${slug}[bot]` }).pipe(Effect.option);
+			const bot = O.isSome(user)
+				? O.some(yield* S.decodeEffect(BotResponse)(user.value).pipe(Effect.mapError(decodeFailure("identity"))))
+				: O.none();
+			return yield* S.decodeEffect(AppIdentity)({
+				slug,
+				name,
+				...O.getSomesStruct({ userId: O.map(bot, (value) => numericId(value.id)) }),
+			}).pipe(Effect.mapError(decodeFailure("identity")));
+		});
+
+		return { token, scopedToken, revoke, identity, installations };
+	}));
 
 /**
  * GitHub App authentication: mint, revoke and identify.
@@ -578,14 +702,17 @@ export class GitHubApp extends Context.Service<GitHubApp, GitHubAppShape>()($I`G
 	 * @category layers
 	 * @since 0.0.0
 	 */
-	static readonly clientLayer = (
-		request: TokenRequest,
-		options: GitHubAppOptions = {},
-	): Layer.Layer<GitHubClient, GitHubAppError> =>
-		Layer.effect(
-			GitHubClient,
-			makeRotatingClient(request, options),
-		);
+	static readonly clientLayer: {
+		(request: TokenRequest, options?: GitHubAppOptions): Layer.Layer<GitHubClient, GitHubAppError>;
+		(options?: GitHubAppOptions): (request: TokenRequest) => Layer.Layer<GitHubClient, GitHubAppError>;
+	} = dual(
+		(args) => P.hasProperty(args[0], "appId"),
+		(request: TokenRequest, options: GitHubAppOptions = {}): Layer.Layer<GitHubClient, GitHubAppError> =>
+			Layer.effect(
+				GitHubClient,
+				makeRotatingClient(request, options),
+			),
+	);
 
 	/**
 	 * An in-memory double; unstubbed members die naming themselves.
@@ -698,17 +825,23 @@ const mintJwt = (credentials: AppCredentials): Effect.Effect<Redacted.Redacted<s
 	}).pipe(Effect.map((result) => Redacted.make(result.token)));
 
 /** A client speaking as the app itself. */
-const asApp = (
+const asApp: {
+	(credentials: AppCredentials, options: GitHubAppOptions): Effect.Effect<GitHubClientShape, GitHubAppError>;
+	(options: GitHubAppOptions): (credentials: AppCredentials) => Effect.Effect<GitHubClientShape, GitHubAppError>;
+} = dual(2, (
 	credentials: AppCredentials,
 	options: GitHubAppOptions,
 ): Effect.Effect<GitHubClientShape, GitHubAppError> =>
-	Effect.flatMap(mintJwt(credentials), (jwt) => makeClientShape({ ...options, token: jwt }));
+	Effect.flatMap(mintJwt(credentials), (jwt) => makeClientShape({ ...options, token: jwt })));
 
 /** A client speaking as a holder of `token`, or as nobody when there is none. */
-const asBearer = (
+const asBearer: {
+	(token: Redacted.Redacted<string> | undefined, options: GitHubAppOptions): Effect.Effect<GitHubClientShape>;
+	(options: GitHubAppOptions): (token: Redacted.Redacted<string> | undefined) => Effect.Effect<GitHubClientShape>;
+} = dual(2, (
 	token: Redacted.Redacted<string> | undefined,
 	options: GitHubAppOptions,
-): Effect.Effect<GitHubClientShape> => makeClientShape({ ...options, token: token ?? Redacted.make("") });
+): Effect.Effect<GitHubClientShape> => makeClientShape({ ...options, token: token ?? Redacted.make("") }));
 
 const appFailure = (kind: GitHubAppError["kind"]) => (error: GitHubError) =>
 	Effect.fail(GitHubAppError.of(kind, error.reason, error));
@@ -716,129 +849,25 @@ const appFailure = (kind: GitHubAppError["kind"]) => (error: GitHubError) =>
 // Selected wire fields are decoded before projection; unrelated response fields stay ignored.
 const InstallationResponse = S.Struct({
 	id: S.Union([S.Finite, S.BigInt]),
-	account: S.Struct({ login: S.optional(S.String) }).pipe(S.NullOr, S.optional),
-}).annotate($I.annote("InstallationResponse", { description: "Selected GitHub installation fields." }));
+	account: S.Struct({ login: S.optionalKey(S.String) }).pipe(S.NullOr, S.optional),
+}).pipe($I.annoteSchema("InstallationResponse", { description: "Selected GitHub installation fields." }));
 const IdentityResponse = S.Struct({
 	slug: S.String.pipe(S.NullOr, S.optional),
 	name: S.String,
-}).annotate($I.annote("IdentityResponse", { description: "Selected GitHub App identity fields." }));
+}).pipe($I.annoteSchema("IdentityResponse", { description: "Selected GitHub App identity fields." }));
 const BotResponse = S.Struct({ id: S.Union([S.Finite, S.BigInt]) })
-	.annotate($I.annote("BotResponse", { description: "The GitHub App bot identifier." }));
+	.pipe($I.annoteSchema("BotResponse", { description: "The GitHub App bot identifier." }));
 const ObservedCredential = S.Struct({ token: S.String })
-	.annotate($I.annote("ObservedCredential", { description: "A received credential that can be revoked." }));
+	.pipe($I.annoteSchema("ObservedCredential", { description: "A received credential that can be revoked." }));
 const TokenResponse = S.Struct({
 	token: S.String,
 	expires_at: S.String,
 	permissions: S.optionalKey(S.Unknown),
-}).annotate($I.annote("TokenResponse", { description: "Selected installation-token response fields." }));
+}).pipe($I.annoteSchema("TokenResponse", { description: "Selected installation-token response fields." }));
 
 const decodeFailure = (kind: GitHubAppError["kind"]) => (error: S.SchemaError) =>
 	GitHubAppError.of(kind, `GitHub returned an unexpected ${kind} payload`, error);
 
-function makeApp(
-	options: GitHubAppOptions,
-	observe: (credential: Redacted.Redacted<string>) => Effect.Effect<void> = () => Effect.void,
-): Effect.Effect<GitHubAppShape> {
-	return Effect.sync(() => {
-		const installations = Effect.fn("GitHubApp.installations")(function* (credentials: AppCredentials) {
-			const client = yield* asApp(credentials, options);
-			const raw = yield* client.paginate("GET /app/installations", {}).pipe(Effect.catch(appFailure("installation")));
-			return yield* Effect.forEach(raw, Effect.fnUntraced(function* (entry) {
-				const wire = yield* S.decodeEffect(InstallationResponse)(entry);
-				return yield* S.decodeEffect(Installation)({
-					id: numericId(wire.id),
-					...O.getSomesStruct({ account: O.fromNullishOr(wire.account?.login) }),
-				});
-			}, Effect.mapError(decodeFailure("installation"))));
-		});
-
-		const resolveInstallationId = (request: TokenRequest): Effect.Effect<number, GitHubAppError> =>
-			request.installationId !== undefined
-				? Effect.succeed(request.installationId)
-				: Effect.gen(function* () {
-						const all = yield* installations(request);
-						if (request.owner !== undefined) {
-							const wanted = request.owner.toLowerCase();
-							const match = all.find((entry) => entry.account?.toLowerCase() === wanted);
-							if (match !== undefined) return match.id;
-							return yield*
-								GitHubAppError.of(
-									"installation",
-									`the app is not installed on ${request.owner} (installed on: ${all.map((entry) => entry.account ?? entry.id).join(", ") || "nothing"})`,
-								);
-						}
-						const only = all[0];
-						if (all.length === 1 && only !== undefined) return only.id;
-						return yield*
-							GitHubAppError.of(
-								"installation",
-								all.length === 0
-									? "the app has no installations"
-									: `the app has ${all.length} installations; pass installationId or owner`,
-							);
-					});
-
-		const token = Effect.fn("GitHubApp.token")((request: TokenRequest) =>
-			Effect.uninterruptibleMask(Effect.fnUntraced(function* (restore) {
-				const installationId = yield* restore(resolveInstallationId(request));
-				const client = yield* restore(asApp(request, options));
-				const minted = yield* restore(client
-					.request("POST /app/installations/{installation_id}/access_tokens", { installation_id: installationId })
-					.pipe(Effect.catch(appFailure("token"))));
-				// Only the HTTP wait is restored above. Own a received string credential
-				// while masked, even if its other fields fail decoding or decoding yields.
-				const observed = S.decodeOption(ObservedCredential)(minted);
-				if (O.isSome(observed)) yield* observe(Redacted.make(observed.value.token));
-				return yield* restore(Effect.gen(function* () {
-					const wire = yield* S.decodeEffect(TokenResponse)(minted);
-					return yield* S.decodeEffect(InstallationToken)({
-						token: wire.token,
-						expiresAt: wire.expires_at,
-						installationId,
-						permissions: normalizePermissions(wire.permissions),
-					});
-				}).pipe(Effect.mapError(decodeFailure("token"))));
-			})),
-		);
-
-		const revoke = Effect.fn("GitHubApp.revoke")(function* (value: Redacted.Redacted<string>) {
-			const client = yield* asBearer(value, options);
-			yield* client.request("DELETE /installation/token", {}).pipe(Effect.catch(appFailure("revoke")));
-		});
-
-		const scopedToken = (request: TokenRequest): Effect.Effect<InstallationToken, GitHubAppError, Scope.Scope> =>
-			Effect.acquireRelease(token(request), (minted) => minted.token.pipe(revoke, Effect.ignore));
-
-		const identity = Effect.fn("GitHubApp.identity")(function* (
-			request: AppCredentials & { readonly installationToken?: Redacted.Redacted<string> | undefined },
-		) {
-			const appClient = yield* asApp(request, options);
-			const app = yield* appClient.request("GET /app", {}).pipe(Effect.catch(appFailure("identity")));
-			if (app === null) {
-				return yield*GitHubAppError.of("identity", "GET /app returned no app");
-			}
-			const wire = yield* S.decodeEffect(IdentityResponse)(app)
-				.pipe(Effect.mapError(decodeFailure("identity")));
-			const slug = wire.slug ?? "";
-			const name = wire.name;
-			// `GET /users/{slug}[bot]` rejects an app JWT, so this bears the
-			// installation token when one was supplied and otherwise runs
-			// unauthenticated — 60 requests per hour per IP.
-			const userClient = yield* asBearer(request.installationToken, options);
-			const user = yield* userClient.request("GET /users/{username}", { username: `${slug}[bot]` }).pipe(Effect.option);
-			const bot = O.isSome(user)
-				? O.some(yield* S.decodeEffect(BotResponse)(user.value).pipe(Effect.mapError(decodeFailure("identity"))))
-				: O.none();
-			return yield* S.decodeEffect(AppIdentity)({
-				slug,
-				name,
-				...O.getSomesStruct({ userId: O.map(bot, (value) => numericId(value.id)) }),
-			}).pipe(Effect.mapError(decodeFailure("identity")));
-		});
-
-		return { token, scopedToken, revoke, identity, installations };
-	});
-}
 
 /** GitHub's permission values are strings; anything else is not a permission. */
 const normalizePermissions = (raw: unknown): Record<string, string> => {
@@ -857,7 +886,10 @@ const normalizePermissions = (raw: unknown): Record<string, string> => {
  * expiry". Rotating revokes the token it replaces, so at most one live token
  * exists at a time and the scope's release revokes the last of them.
  */
-const makeRotatingClient = Effect.fn("makeRotatingClient")(function* (
+const makeRotatingClient: {
+	(request: TokenRequest, options: GitHubAppOptions): Effect.Effect<GitHubClientShape, GitHubAppError, Scope.Scope>;
+	(options: GitHubAppOptions): (request: TokenRequest) => Effect.Effect<GitHubClientShape, GitHubAppError, Scope.Scope>;
+} = dual(2, Effect.fn("makeRotatingClient")(function* (
 	request: TokenRequest,
 	options: GitHubAppOptions,
 ): Effect.fn.Return<GitHubClientShape, GitHubAppError, Scope.Scope> {
@@ -948,17 +980,32 @@ const makeRotatingClient = Effect.fn("makeRotatingClient")(function* (
 	);
 
 	return {
-		request: (route, params) => Effect.flatMap(current, (client) => client.request(route, params)),
-		requestDecoded: (route, params, schema) =>
-			Effect.flatMap(current, (client) => client.requestDecoded(route, params, schema)),
-		paginate: (route, params, pageOptions) =>
-			Effect.flatMap(current, (client) => client.paginate(route, params, pageOptions)),
-		paginateStream: (route, params, pageOptions) =>
-			Stream.unwrap(Effect.map(current, (client) => client.paginateStream(route, params, pageOptions))),
-		graphql: (document, variables) =>
-			Effect.flatMap(currentForGraphQL, (client) => client.graphql(document, variables)),
+		request: dual(2, <R extends Rest.Route>(route: R, params: Rest.Params<R>): Effect.Effect<Rest.Data<R>, GitHubError> =>
+			Effect.flatMap(current, (client) => client.request(route, params))),
+		requestDecoded: dual(3, <A, I>(
+			route: string,
+			params: Record<string, unknown> & Rest.RequestExtras,
+			schema: S.Codec<A, I>,
+		): Effect.Effect<A, GitHubError> => Effect.flatMap(current, (client) => client.requestDecoded(route, params, schema))),
+		paginate: dual((args) => P.isString(args[0]), <R extends Rest.PaginatingRoute>(
+			route: R,
+			params: Rest.Params<R>,
+			pageOptions?: PageOptions,
+		): Effect.Effect<ReadonlyArray<Rest.Item<R>>, GitHubError> =>
+			Effect.flatMap(current, (client) => client.paginate(route, params, pageOptions))),
+		paginateStream: dual((args) => P.isString(args[0]), <R extends Rest.PaginatingRoute>(
+			route: R,
+			params: Rest.Params<R>,
+			pageOptions?: PageOptions,
+		): Stream.Stream<Rest.Item<R>, GitHubError> =>
+			Stream.unwrap(Effect.map(current, (client) => client.paginateStream(route, params, pageOptions)))),
+		graphql: dual(2, <A, V extends Record<string, unknown>>(
+			document: GraphQLDocument<A, V>,
+			variables: V,
+		): Effect.Effect<A, GitHubGraphQLError> =>
+			Effect.flatMap(currentForGraphQL, (client) => client.graphql(document, variables))),
 		rateLimit: Effect.flatMap(Ref.get(held), (state) =>
 			O.getOrThrow(state).client.rateLimit,
 		),
 	} satisfies GitHubClientShape;
-});
+}));

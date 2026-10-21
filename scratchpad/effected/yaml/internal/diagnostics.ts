@@ -249,10 +249,10 @@ export type YamlErrorCode = typeof YamlErrorCode.Type;
  * @since 0.0.0
  */
 export const RawDiagnostic = S.Struct({
-	code: YamlErrorCode.annotate({ description: "The pipeline error or warning code." }),
-	message: S.String.annotate({ description: "The human-readable diagnostic message." }),
-	offset: S.Finite.annotate({ description: "The source offset at which the diagnostic starts." }),
-	length: S.Finite.annotate({ description: "The length of the diagnostic's source span." }),
+	code: YamlErrorCode.pipe($I.annoteKey("RawDiagnostic.code", { description: "The pipeline error or warning code." })),
+	message: S.String.pipe($I.annoteKey("RawDiagnostic.message", { description: "The human-readable diagnostic message." })),
+	offset: S.Finite.pipe($I.annoteKey("RawDiagnostic.offset", { description: "The source offset at which the diagnostic starts." })),
+	length: S.Finite.pipe($I.annoteKey("RawDiagnostic.length", { description: "The length of the diagnostic's source span." })),
 }).pipe($I.annoteSchema("RawDiagnostic", { description: "A plain, offset-based diagnostic emitted by the engine before facade materialization." }));
 
 /**

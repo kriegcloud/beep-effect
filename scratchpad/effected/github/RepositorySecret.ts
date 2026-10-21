@@ -1,7 +1,9 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
@@ -14,7 +16,7 @@ const $I = $ScratchpadId.create("effected/github/RepositorySecret");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * Which secret store an operation acts on.
@@ -55,7 +57,7 @@ export type SecretScope = "actions" | "dependabot" | "codespaces";
  * @since 0.0.0
  */
 export const SecretInfo = S.Struct({
-  name: S.String.annotateKey({ description: "The secret's name; its value is never returned by GitHub." }),
+  name: S.String.pipe($I.annoteKey("SecretInfo.name", { description: "The secret's name; its value is never returned by GitHub." })),
 }).pipe($I.annoteSchema("SecretInfo", { description: "A secret name returned by repository or environment listings." }));
 
 /**
@@ -80,11 +82,10 @@ export interface RepositorySecretShape {
    *
    * @since 0.0.0
    */
-  readonly set: (
-    name: string,
-    value: Redacted.Redacted<string>,
-    scope?: SecretScope,
-  ) => Effect.Effect<void, GitHubError, Repo>;
+  readonly set: {
+    (name: string, value: Redacted.Redacted<string>, scope?: SecretScope): Effect.Effect<void, GitHubError, Repo>;
+    (value: Redacted.Redacted<string>, scope?: SecretScope): (name: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /**
    * The names of the repository's secrets in the given store.
    *
@@ -103,11 +104,10 @@ export interface RepositorySecretShape {
    *
    * @since 0.0.0
    */
-  readonly setForEnvironment: (
-    environment: string,
-    name: string,
-    value: Redacted.Redacted<string>,
-  ) => Effect.Effect<void, GitHubError, Repo>;
+  readonly setForEnvironment: {
+    (environment: string, name: string, value: Redacted.Redacted<string>): Effect.Effect<void, GitHubError, Repo>;
+    (name: string, value: Redacted.Redacted<string>): (environment: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
   /**
    * The names of one environment's secrets.
    *
@@ -119,7 +119,10 @@ export interface RepositorySecretShape {
    *
    * @since 0.0.0
    */
-  readonly deleteForEnvironment: (environment: string, name: string) => Effect.Effect<void, GitHubError, Repo>;
+  readonly deleteForEnvironment: {
+    (environment: string, name: string): Effect.Effect<void, GitHubError, Repo>;
+    (name: string): (environment: string) => Effect.Effect<void, GitHubError, Repo>;
+  };
 }
 
 const ROUTES = {
@@ -271,14 +274,17 @@ const unstubbed = (member: string): never => {
  * typed rather than thrown — so this maps it onto the same `GitHubError` a
  * caller already handles, naming the route it came from.
  */
-const seal = (route: string, publicKey: string, value: Redacted.Redacted<string>): Effect.Effect<string, GitHubError> =>
+const seal: {
+  (route: string, publicKey: string, value: Redacted.Redacted<string>): Effect.Effect<string, GitHubError>;
+  (publicKey: string, value: Redacted.Redacted<string>): (route: string) => Effect.Effect<string, GitHubError>;
+} = dual(3, (route: string, publicKey: string, value: Redacted.Redacted<string>): Effect.Effect<string, GitHubError> =>
   Result.match(encryptSecret(publicKey, Redacted.value(value)), {
     onSuccess: Effect.succeed,
     onFailure: () => Effect.fail(GitHubError.decode(route, "the secrets public key was not valid base64 encoding of a 32-byte key")),
-  });
+  }));
 
 const make = (client: GitHubClient["Service"]): RepositorySecretShape => {
-  const set = Effect.fn("RepositorySecret.set")(function* (
+  const set: RepositorySecretShape["set"] = dual((args) => P.isString(args[0]), Effect.fn("RepositorySecret.set")(function* (
     name: string,
     value: Redacted.Redacted<string>,
     scope: SecretScope = "actions",
@@ -298,7 +304,7 @@ const make = (client: GitHubClient["Service"]): RepositorySecretShape => {
       encrypted_value: yield* seal(routes.publicKey, publicKey.key, value),
       key_id: publicKey.key_id,
     });
-  });
+  }));
 
   const list = Effect.fn("RepositorySecret.list")(function* (scope: SecretScope = "actions") {
     const { owner, repo } = yield* Repo;
@@ -324,7 +330,7 @@ const make = (client: GitHubClient["Service"]): RepositorySecretShape => {
     });
   });
 
-  const setForEnvironment = Effect.fn("RepositorySecret.setForEnvironment")(function* (
+  const setForEnvironment: RepositorySecretShape["setForEnvironment"] = dual(3, Effect.fn("RepositorySecret.setForEnvironment")(function* (
     environment: string,
     name: string,
     value: Redacted.Redacted<string>,
@@ -354,7 +360,7 @@ const make = (client: GitHubClient["Service"]): RepositorySecretShape => {
       ),
       key_id: publicKey.key_id,
     });
-  });
+  }));
 
   const listForEnvironment = Effect.fn("RepositorySecret.listForEnvironment")(function* (environment: string) {
     const { owner, repo } = yield* Repo;
@@ -370,7 +376,7 @@ const make = (client: GitHubClient["Service"]): RepositorySecretShape => {
     }).pipe(Effect.mapError((error) => GitHubError.decode("RepositorySecret.listForEnvironment", "GitHub returned an unexpected secret", error))));
   });
 
-  const deleteForEnvironment = Effect.fn("RepositorySecret.deleteForEnvironment")(function* (
+  const deleteForEnvironment: RepositorySecretShape["deleteForEnvironment"] = dual(2, Effect.fn("RepositorySecret.deleteForEnvironment")(function* (
     environment: string,
     name: string,
   ) {
@@ -388,7 +394,7 @@ const make = (client: GitHubClient["Service"]): RepositorySecretShape => {
       environment_name: environment,
       secret_name: name,
     });
-  });
+  }));
 
   return {
     set,

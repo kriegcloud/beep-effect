@@ -1,3 +1,4 @@
+import * as Effect from "effect/Effect";
 import { handler as shimHandler } from "turborepo-remote-cache/aws-lambda";
 import { signedRequestFromEvent } from "./event.ts";
 import { verifyRequestSignature } from "./hmac.ts";
@@ -55,14 +56,16 @@ export const createWriterHandler =
     const signature = writerSignature(event);
     if (signature === undefined) return forbidden();
 
-    try {
-      const secret = await loadSecret();
-      if (!verifyRequestSignature(secret, signedRequestFromEvent(event), signature)) {
-        return forbidden();
-      }
-    } catch {
-      return forbidden();
-    }
+    const verified = await Effect.runPromise(
+      Effect.tryPromise({
+        try: async () => {
+          const secret = await loadSecret();
+          return verifyRequestSignature(secret, signedRequestFromEvent(event), signature);
+        },
+        catch: () => undefined,
+      }).pipe(Effect.orElseSucceed(() => false))
+    );
+    if (!verified) return forbidden();
     return await delegate(event, ...args);
   };
 

@@ -4,9 +4,9 @@ import { Position, TableCell, TableRow } from "../../../../effected/markdown/Mar
 import { makeBlockNode, type BlockNode, type BlockScanner, type MaterializeContext } from "../../../../effected/markdown/internal/blockTypes.ts";
 
 const context: MaterializeContext = {
-  position: (start, end) => Position.make({ start: { line: 1, column: start + 1, offset: start }, end: { line: 1, column: end + 1, offset: end } }),
+  position: dual(2, (start: number, end: number): Position => Position.make({ start: { line: 1, column: start + 1, offset: start }, end: { line: 1, column: end + 1, offset: end } })),
   inlineSlice: (block) => ({ text: block.stringContent, startOffset: block.startOffset, endOffset: block.endOffset, segments: block.segments, children: [] }),
-  registerInline: () => {},
+  registerInline: dual(2, (_parent: InlineHost, _prepared: PreparedInline): void => {}),
 };
 const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScanner => {
   let offset = 0;
@@ -17,18 +17,21 @@ const scannerFor = (currentLine: string, tip: BlockNode, indent = 0): BlockScann
     get offset() { return offset; }, get column() { return column; },
     nextNonspace: indent, nextNonspaceColumn: indent, indent, indented: indent >= 4,
     blank: currentLine.trim().length === 0, get tip() { return currentTip; }, allClosed: true,
-    advanceOffset: (count) => { offset += count; column += count; },
+    advanceOffset: dual((args) => P.isNumber(args[0]), (count: number, _columns?: boolean): void => { offset += count; column += count; }),
     advanceNextNonspace: () => { offset = indent; column = indent; },
     findNextNonspace: () => {}, closeUnmatchedBlocks: () => {},
-    setScanPosition: (at, col) => { offset = at; column = col; }, setLastLineLength: () => {}, addLine: () => {},
-    addChild: (type, at) => { const node = makeBlockNode(type, at, 2); node.parent = currentTip; currentTip.children.push(node); currentTip = node; return node; },
-    replaceBlock: (block, type) => { const node = makeBlockNode(type, block.startOffset, block.startLine); node.stringContent = block.stringContent; node.segments.push(...block.segments); currentTip = node; return node; },
-    insertBefore: (block, type) => { const node = makeBlockNode(type, block.startOffset, block.startLine); node.parent = block.parent; block.parent?.children.unshift(node); return node; },
-    finalizeBlock: (block) => { block.open = false; currentTip = block.parent ?? tip; },
+    setScanPosition: dual(2, (at: number, col: number): void => { offset = at; column = col; }), setLastLineLength: () => {}, addLine: () => {},
+    addChild: dual(2, (type: BlockType, at: number): BlockNode => { const node = makeBlockNode(type, at, 2); node.parent = currentTip; currentTip.children.push(node); currentTip = node; return node; }),
+    replaceBlock: dual(2, (block: BlockNode, type: BlockType): BlockNode => { const node = makeBlockNode(type, block.startOffset, block.startLine); node.stringContent = block.stringContent; node.segments.push(...block.segments); currentTip = node; return node; }),
+    insertBefore: dual(2, (block: BlockNode, type: BlockType): BlockNode => { const node = makeBlockNode(type, block.startOffset, block.startLine); node.parent = block.parent; block.parent?.children.unshift(node); return node; }),
+    finalizeBlock: dual(2, (block: BlockNode, _lineNumber: number): void => { block.open = false; currentTip = block.parent ?? tip; }),
   };
 };
 import { parseBlocks } from "../../../../effected/markdown/internal/blockParser.ts";
 import { tableCellConstruct, tableConstruct, tableHeaderStart, tableRowConstruct, tableRowStart } from "../../../../effected/markdown/internal/blocks/table.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
+import type { BlockType, InlineHost, PreparedInline } from "../../../../effected/markdown/internal/blockTypes.ts";
 
 describe("table construct coverage", () => {
   it.effect("checks containment and closed row/cell continuation", () => Effect.sync(() => {

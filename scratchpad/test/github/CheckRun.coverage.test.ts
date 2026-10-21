@@ -1,10 +1,13 @@
 import { assert, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { Annotation, CheckRun, CheckRunOutput, CheckRunRef } from "../../effected/github/CheckRun.ts";
+import type { ConcludeCheckRun } from "../../effected/github/CheckRun.ts";
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
 import { harness } from "./harness.ts";
 
@@ -28,7 +31,17 @@ it.layer(Repo.layer(RepoRef.make({ owner: "acme", repo: "widget" })), { timeout:
       assert.throws(() => service.get(3), /CheckRun.makeTest: get/);
     }));
   });
-  it.layer(CheckRun.layerTest({ create: () => Effect.succeed(ref), get: () => Effect.succeed(ref), update: () => Effect.void, complete: () => Effect.void, withCheckRun: (_name, _sha, use) => use(3, () => Effect.void) }), { timeout: "30 seconds" })((it) => {
+  it.layer(CheckRun.layerTest({
+    create: dual(2, (_name: string, _sha: string) => Effect.succeed(ref)),
+    get: () => Effect.succeed(ref),
+    update: dual(2, (_id: number, _output: CheckRunOutput) => Effect.void),
+    complete: dual((args) => P.isNumber(args[0]), (_id: number, _conclusion: string, _output?: CheckRunOutput) => Effect.void),
+    withCheckRun: dual(3, <A, E, R>(
+      _name: string,
+      _sha: string,
+      use: (id: number, conclude: ConcludeCheckRun) => Effect.Effect<A, E, R>,
+    ) => use(3, dual((args) => P.isString(args[0]), (_conclusion: string, _output?: CheckRunOutput) => Effect.void))),
+  }), { timeout: "30 seconds" })((it) => {
     it.effect("all supplied overrides are preserved", () => Effect.gen(function* () {
       const service = yield* CheckRun;
       assert.strictEqual(yield* service.create("lint", "sha"), ref);

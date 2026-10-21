@@ -1,5 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { ExitCode, RunOptions } from "./Run.ts";
@@ -16,7 +17,7 @@ const $I = $ScratchpadId.create("effected/commands/ScriptedSpawner");
 class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError, { readonly brand: unique symbol }>($I`ScriptedPipelineError`)(
 	"ScriptedPipelineError",
 	{ message: S.String },
-	$I.annote("ScriptedPipelineError", { description: "A piped command reached the standard-command-only scripted spawner." }),
+	$I.annoteError<ScriptedPipelineError>("ScriptedPipelineError", { description: "A piped command reached the standard-command-only scripted spawner." }),
 ) {}
 
 /**
@@ -48,10 +49,10 @@ class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError, { reado
 export const ScriptResult = S.Union([
  S.instanceOf(PlatformError.PlatformError),
  S.Struct({
-  stdout: S.optional(S.String).annotateKey({ description: "Scripted standard output." }),
-  stderr: S.optional(S.String).annotateKey({ description: "Scripted standard error." }),
-  exit: S.optional(ExitCode).annotateKey({ description: "Scripted integer process exit code." }),
-  hang: S.optional(S.Boolean).annotateKey({ description: "Whether exitCode remains unresolved." }),
+  stdout: S.optionalKey(S.String).pipe($I.annoteKey("ScriptResult.stdout", { description: "Scripted standard output." })),
+  stderr: S.optionalKey(S.String).pipe($I.annoteKey("ScriptResult.stderr", { description: "Scripted standard error." })),
+  exit: S.optionalKey(ExitCode).pipe($I.annoteKey("ScriptResult.exit", { description: "Scripted integer process exit code." })),
+  hang: S.optionalKey(S.Boolean).pipe($I.annoteKey("ScriptResult.hang", { description: "Whether exitCode remains unresolved." })),
  }),
 ]).pipe($I.annoteSchema("ScriptResult", { description: "A scripted completed run or an opaque platform spawn failure." }));
 /**
@@ -97,20 +98,20 @@ const Environment = S.Record(S.String, S.UndefinedOr(S.String)).pipe(
 /** Core's numeric-template keys include whitespace and radix spellings, unlike Schema's numeric template matcher. */
 const AdditionalFdKey = S.TemplateLiteral(["fd", S.String.check(S.isPattern(
  /^\s*(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?|0[xX][\da-fA-F]+|0[bB][01]+|0[oO][0-7]+|\s)\s*$/u,
- { identifier: $I`AdditionalFdNumber`, title: "Additional FD number", description: "A numeric-template spelling, including whitespace, radix prefixes and exponents." },
+ $I.annote("AdditionalFdNumber", { message: "Additional FD number", description: "A numeric-template spelling, including whitespace, radix prefixes and exponents." }),
 ))]).pipe($I.annoteSchema("AdditionalFdKey", { description: "Core fd${number} option keys without narrowing their numeric spellings." }));
 /** Validate all known platform options while retaining the original external object. */
 const CommandOptions = S.Struct({
- killSignal: S.optional(Signal),
+ killSignal: S.optionalKey(Signal),
  forceKillAfter: RunOptions.fields.timeout,
- cwd: S.optional(S.String), env: S.optional(Environment), extendEnv: S.optional(S.Boolean),
- shell: S.optional(S.Union([S.Boolean, S.String])), detached: S.optional(S.Boolean), windowsHide: S.optional(S.Boolean),
- stdin: S.optional(S.Union([CommandInput, S.Struct({ stream: CommandInput, endOnDone: S.optional(S.Boolean), encoding: S.optional(Encoding) })])),
- stdout: S.optional(S.Union([CommandOutput, S.Struct({ stream: S.optional(CommandOutput) })])),
- stderr: S.optional(S.Union([CommandOutput, S.Struct({ stream: S.optional(CommandOutput) })])),
- additionalFds: S.optional(S.Record(AdditionalFdKey, S.Union([
-  S.Struct({ type: S.Literal("input"), stream: S.optional(InputStream) }),
-  S.Struct({ type: S.Literal("output"), sink: S.optional(OutputSink) }),
+ cwd: S.optionalKey(S.String), env: S.optionalKey(Environment), extendEnv: S.optionalKey(S.Boolean),
+ shell: S.optionalKey(S.Union([S.Boolean, S.String])), detached: S.optionalKey(S.Boolean), windowsHide: S.optionalKey(S.Boolean),
+ stdin: S.optionalKey(S.Union([CommandInput, S.Struct({ stream: CommandInput, endOnDone: S.optionalKey(S.Boolean), encoding: S.optionalKey(Encoding) })])),
+ stdout: S.optionalKey(S.Union([CommandOutput, S.Struct({ stream: S.optionalKey(CommandOutput) })])),
+ stderr: S.optionalKey(S.Union([CommandOutput, S.Struct({ stream: S.optionalKey(CommandOutput) })])),
+ additionalFds: S.optionalKey(S.Record(AdditionalFdKey, S.Union([
+  S.Struct({ type: S.Literal("input"), stream: S.optionalKey(InputStream) }),
+  S.Struct({ type: S.Literal("output"), sink: S.optionalKey(OutputSink) }),
  ]))),
 }).pipe(S.is, S.declare<ChildProcess.CommandOptions>, $I.annoteSchema("CommandOptions", { description: "Opaque complete platform command options checked against their known shape." }));
 
@@ -141,19 +142,19 @@ const CommandOptions = S.Struct({
  */
 export const SpawnRecord = S.Struct({
  /** The executable. */
- command: S.String.annotateKey({ description: "The spawned executable." }),
+ command: S.String.pipe($I.annoteKey("SpawnRecord.command", { description: "The spawned executable." })),
  /** The argv, exactly as spawned. */
- args: S.Array(S.String).annotateKey({ description: "Arguments exactly as spawned." }),
+ args: S.Array(S.String).pipe($I.annoteKey("SpawnRecord.args", { description: "Arguments exactly as spawned." })),
  /** The working directory, when set. */
- cwd: S.UndefinedOr(S.String).annotateKey({ description: "The working directory, when set." }),
+ cwd: S.UndefinedOr(S.String).pipe($I.annoteKey("SpawnRecord.cwd", { description: "The working directory, when set." })),
  /** The environment, when set. */
- env: S.UndefinedOr(Environment).annotateKey({ description: "The environment, when set." }),
+ env: S.UndefinedOr(Environment).pipe($I.annoteKey("SpawnRecord.env", { description: "The environment, when set." })),
  /** Whether parent environment extension was requested. */
- extendEnv: S.UndefinedOr(S.Boolean).annotateKey({ description: "Whether parent environment extension was requested." }),
+ extendEnv: S.UndefinedOr(S.Boolean).pipe($I.annoteKey("SpawnRecord.extendEnv", { description: "Whether parent environment extension was requested." })),
  /** The full options exactly as received. */
- options: CommandOptions.annotateKey({ description: "The complete platform command options." }),
+ options: CommandOptions.pipe($I.annoteKey("SpawnRecord.options", { description: "The complete platform command options." })),
  /** Set when the handle's unref effect actually runs. */
- unrefed: S.Boolean.annotateKey({ description: "Live state set when unref actually runs." }),
+ unrefed: S.Boolean.pipe($I.annoteKey("SpawnRecord.unrefed", { description: "Live state set when unref actually runs." })),
 }).pipe($I.annoteSchema("SpawnRecord", { description: "An observed spawn with its full options and live unref state." }));
 /**
  * Decoded spawn observation including live unref state.
@@ -168,13 +169,19 @@ const bytes = (text: string): Stream.Stream<Uint8Array, PlatformError.PlatformEr
 	text === "" ? Stream.empty : Stream.make(new TextEncoder().encode(text));
 
 // Implementation of ScriptedSpawner.notFound / permissionDenied.
-const spawnError = (tag: "NotFound" | "PermissionDenied", command: string, code: string): PlatformError.PlatformError =>
-	PlatformError.systemError({
-		_tag: tag,
-		module: "ChildProcess",
-		method: "spawn",
-		description: `spawn ${command} ${code}`,
-	});
+const spawnError: {
+	(tag: "NotFound" | "PermissionDenied", command: string, code: string): PlatformError.PlatformError;
+	(command: string, code: string): (tag: "NotFound" | "PermissionDenied") => PlatformError.PlatformError;
+} = dual(
+	3,
+	(tag: "NotFound" | "PermissionDenied", command: string, code: string): PlatformError.PlatformError =>
+		PlatformError.systemError({
+			_tag: tag,
+			module: "ChildProcess",
+			method: "spawn",
+			description: `spawn ${command} ${code}`,
+		}),
+);
 
 /**
  * A scripted `ChildProcessSpawner` test double: script each spawn's outcome,

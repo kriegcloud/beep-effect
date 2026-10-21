@@ -17,6 +17,7 @@ import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
+import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/ActionLogger");
 
@@ -32,17 +33,23 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionLogger");
  */
 const formatMessage = (message: unknown): string => {
 	const parts = A.isArray(message) ? message : [message];
-	return parts.map((part) => Inspectable.toStringUnknown(part, 0)).join(" ");
+	return pipe(parts, A.map((part) => Inspectable.toStringUnknown(part, 0)), A.join(" "));
 };
 
 /** A log annotation read as text, when it is text. */
-const textAnnotation = (record: Readonly<Record<string, unknown>>, key: string): string | undefined => {
+const textAnnotation: {
+	(record: Readonly<Record<string, unknown>>, key: string): string | undefined;
+	(key: string): (record: Readonly<Record<string, unknown>>) => string | undefined;
+} = dual(2, (record: Readonly<Record<string, unknown>>, key: string): string | undefined => {
 	const value = record[key];
 	return P.isString(value) ? value : undefined;
-};
+});
 
 /** A log annotation read as a number, accepting the string form the runner produces. */
-const numericAnnotation = (record: Readonly<Record<string, unknown>>, key: string): number | undefined => {
+const numericAnnotation: {
+	(record: Readonly<Record<string, unknown>>, key: string): number | undefined;
+	(key: string): (record: Readonly<Record<string, unknown>>) => number | undefined;
+} = dual(2, (record: Readonly<Record<string, unknown>>, key: string): number | undefined => {
 	const value = record[key];
 	if (P.isNumber(value)) {
 		return Number.isFinite(value) ? value : undefined;
@@ -52,7 +59,7 @@ const numericAnnotation = (record: Readonly<Record<string, unknown>>, key: strin
 		return Number.isFinite(parsed) ? parsed : undefined;
 	}
 	return undefined;
-};
+});
 
 /**
  * Project log annotations onto the annotation vocabulary.
@@ -102,11 +109,10 @@ const annotationRecord = (properties: AnnotationProperties): Record<string, unkn
  * render AS a command escape their data instead, and a line that starts `::` is
  * read by the runner as that command alone.
  */
-const renderEntry = (
-	level: LogLevel.LogLevel,
-	message: unknown,
-	annotations: Readonly<Record<string, unknown>>,
-): string => {
+const renderEntry: {
+	(level: LogLevel.LogLevel, message: unknown, annotations: Readonly<Record<string, unknown>>): string;
+	(message: unknown, annotations: Readonly<Record<string, unknown>>): (level: LogLevel.LogLevel) => string;
+} = dual(3, (level: LogLevel.LogLevel, message: unknown, annotations: Readonly<Record<string, unknown>>): string => {
 	const text = formatMessage(message);
 	if (LogLevel.isGreaterThanOrEqualTo(level, "Warn")) {
 		const properties = readAnnotations(annotations);
@@ -115,7 +121,7 @@ const renderEntry = (
 			: WorkflowCommand.warning(text, properties);
 	}
 	return LogLevel.isGreaterThanOrEqualTo(level, "Info") ? CommandNeutralizer.text(text) : WorkflowCommand.debug(text);
-};
+});
 
 /** The line the runner should see for one log event, with the fiber's annotations. */
 const renderLogger: Logger.Logger<unknown, string> = Logger.make((options) =>
@@ -169,9 +175,7 @@ const flush = (state: BufferState): Effect.Effect<void> =>
 		return Effect.forEach(body, (line) => Console.log(CommandNeutralizer.text(line)), { discard: true });
 	});
 
-const BufferSuccessPolicy = LiteralKit(["flush", "discard"]).annotate(
-	$I.annote("BufferSuccessPolicy", { description: "Whether to replay or discard a successful step's buffered transcript." }),
-);
+const BufferSuccessPolicy = LiteralKit(["flush", "discard"]).pipe($I.annoteSchema("BufferSuccessPolicy", { description: "Whether to replay or discard a successful step's buffered transcript." }));
 
 /**
  * Options for {@link ActionLoggerShape.withBuffer}.
@@ -216,8 +220,8 @@ export const WithBufferOptions = S.Struct({
 	 * @category configuration
 	 * @since 0.0.0
 	 */
-	onSuccess: S.optionalKey(BufferSuccessPolicy).annotateKey({ description: "Replay or discard successful transcripts; omitted means flush." }),
-}).annotate($I.annote("WithBufferOptions", { description: "Plain-object options controlling successful buffered step transcripts." }));
+	onSuccess: S.optionalKey(BufferSuccessPolicy).pipe($I.annoteKey("WithBufferOptions.onSuccess", { description: "Replay or discard successful transcripts; omitted means flush." })),
+}).pipe($I.annoteSchema("WithBufferOptions", { description: "Plain-object options controlling successful buffered step transcripts." }));
 
 /**
  * The plain-object options accepted by {@link ActionLoggerShape.withBuffer}.
@@ -267,8 +271,8 @@ export const WithStepOptions = S.Struct({
 	 * @category configuration
 	 * @since 0.0.0
 	 */
-	summary: S.optionalKey(S.String).annotateKey({ description: "The success summary; omitted means the default check-mark line naming the step." }),
-}).annotate($I.annote("WithStepOptions", { description: "Plain-object options customizing a successful action step's summary." }));
+	summary: S.optionalKey(S.String).pipe($I.annoteKey("WithStepOptions.summary", { description: "The success summary; omitted means the default check-mark line naming the step." })),
+}).pipe($I.annoteSchema("WithStepOptions", { description: "Plain-object options customizing a successful action step's summary." }));
 
 /**
  * The plain-object options accepted by {@link ActionLoggerShape.withStep}.
@@ -304,7 +308,10 @@ export interface ActionLoggerShape {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	readonly group: <A, E, R>(name: string, effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+	readonly group: {
+		<A, E, R>(name: string, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
+		<A, E, R>(effect: Effect.Effect<A, E, R>): (name: string) => Effect.Effect<A, E, R>;
+	};
 	/**
 	 * Run an effect with its verbose output captured and replayed on exit.
 	 *
@@ -341,11 +348,10 @@ export interface ActionLoggerShape {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	readonly withBuffer: <A, E, R>(
-		label: string,
-		effect: Effect.Effect<A, E, R>,
-		options?: WithBufferOptions,
-	) => Effect.Effect<A, E, R>;
+	readonly withBuffer: {
+		<A, E, R>(label: string, effect: Effect.Effect<A, E, R>, options?: WithBufferOptions): Effect.Effect<A, E, R>;
+		<A, E, R>(effect: Effect.Effect<A, E, R>, options?: WithBufferOptions): (label: string) => Effect.Effect<A, E, R>;
+	};
 	/**
 	 * Run a named step: quiet when it succeeds, its full transcript when it does
 	 * not.
@@ -393,11 +399,10 @@ export interface ActionLoggerShape {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	readonly withStep: <A, E, R>(
-		name: string,
-		effect: Effect.Effect<A, E, R>,
-		options?: WithStepOptions,
-	) => Effect.Effect<A, E, R>;
+	readonly withStep: {
+		<A, E, R>(name: string, effect: Effect.Effect<A, E, R>, options?: WithStepOptions): Effect.Effect<A, E, R>;
+		<A, E, R>(effect: Effect.Effect<A, E, R>, options?: WithStepOptions): (name: string) => Effect.Effect<A, E, R>;
+	};
 	/**
 	 * Emit a `::notice::` annotation.
 	 *
@@ -419,7 +424,10 @@ export interface ActionLoggerShape {
 	 * @category observability
 	 * @since 0.0.0
 	 */
-	readonly notice: (message: string, properties?: AnnotationProperties) => Effect.Effect<void>;
+	readonly notice: {
+		(message: string, properties?: AnnotationProperties): Effect.Effect<void>;
+		(properties?: AnnotationProperties): (message: string) => Effect.Effect<void>;
+	};
 	/**
 	 * Attach source annotations to every `Effect.log*` inside an effect.
 	 *
@@ -443,10 +451,10 @@ export interface ActionLoggerShape {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	readonly annotated: <A, E, R>(
-		properties: AnnotationProperties,
-		effect: Effect.Effect<A, E, R>,
-	) => Effect.Effect<A, E, R>;
+	readonly annotated: {
+		<A, E, R>(properties: AnnotationProperties, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
+		<A, E, R>(effect: Effect.Effect<A, E, R>): (properties: AnnotationProperties) => Effect.Effect<A, E, R>;
+	};
 }
 
 const make = Effect.gen(function* () {
@@ -454,7 +462,10 @@ const make = Effect.gen(function* () {
 
 	const flushActive = Effect.flatMap(ActiveBuffer, (state) => (state === null ? Effect.void : flush(state)));
 
-	const withBuffer = Effect.fn("withBuffer")(function*<A, E, R>(label: string, effect: Effect.Effect<A, E, R>, options?: WithBufferOptions) {
+	const withBuffer: {
+		<A, E, R>(label: string, effect: Effect.Effect<A, E, R>, options?: WithBufferOptions): Effect.Effect<A, E, R>;
+		<A, E, R>(effect: Effect.Effect<A, E, R>, options?: WithBufferOptions): (label: string) => Effect.Effect<A, E, R>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("withBuffer")(function*<A, E, R>(label: string, effect: Effect.Effect<A, E, R>, options?: WithBufferOptions) {
 		const minimum = yield* References.MinimumLogLevel;
 		const stepDebug = yield* env.isDebug;
 		return yield* Bool.match(stepDebug || LogLevel.isLessThanOrEqualTo(minimum, "Debug"), {
@@ -488,10 +499,10 @@ const make = Effect.gen(function* () {
 				);
 			},
 		});
-	});
+	}));
 
 	return {
-		group: <A, E, R>(name: string, effect: Effect.Effect<A, E, R>) =>
+		group: dual(2, <A, E, R>(name: string, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
 			Effect.acquireUseRelease(
 				Console.log(WorkflowCommand.group(name)),
 				() =>
@@ -500,11 +511,11 @@ const make = Effect.gen(function* () {
 					// rather than after it.
 					Effect.tapCause(effect, () => flushActive),
 				() => Console.log(WorkflowCommand.endGroup()),
-			),
+			)),
 
 		withBuffer,
 
-		withStep: <A, E, R>(name: string, effect: Effect.Effect<A, E, R>, options?: WithStepOptions) =>
+		withStep: dual((args) => P.isString(args[0]), <A, E, R>(name: string, effect: Effect.Effect<A, E, R>, options?: WithStepOptions): Effect.Effect<A, E, R> =>
 			withBuffer(
 				name,
 				// Written through `Console` rather than `Effect.logError`, so it lands
@@ -517,13 +528,13 @@ const make = Effect.gen(function* () {
 				// Outside the buffered region on purpose: a line emitted inside it is
 				// discarded with the transcript it was meant to replace.
 				Effect.tap(() => Effect.logInfo(options?.summary ?? `✅ ${name}`)),
-			),
+			)),
 
-		notice: (message: string, properties: AnnotationProperties = {}) =>
-			Console.log(WorkflowCommand.notice(message, properties)),
+		notice: dual((args) => P.isString(args[0]), (message: string, properties: AnnotationProperties = {}): Effect.Effect<void> =>
+			Console.log(WorkflowCommand.notice(message, properties))),
 
-		annotated: <A, E, R>(properties: AnnotationProperties, effect: Effect.Effect<A, E, R>) =>
-			Effect.annotateLogs(effect, annotationRecord(properties)),
+		annotated: dual(2, <A, E, R>(properties: AnnotationProperties, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+			Effect.annotateLogs(effect, annotationRecord(properties))),
 	} satisfies ActionLoggerShape;
 });
 
@@ -660,11 +671,17 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
 	 * @since 0.0.0
 	 */
 	static readonly makeTest = (overrides: Partial<ActionLoggerShape> = {}): ActionLoggerShape => ({
-		group: <A, E, R>(_name: string, effect: Effect.Effect<A, E, R>) => effect,
-		withBuffer: <A, E, R>(_label: string, effect: Effect.Effect<A, E, R>) => effect,
-		withStep: <A, E, R>(_name: string, effect: Effect.Effect<A, E, R>) => effect,
-		notice: () => Effect.void,
-		annotated: <A, E, R>(_properties: AnnotationProperties, effect: Effect.Effect<A, E, R>) => effect,
+		group: dual(2, <A, E, R>(_name: string, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> => effect),
+		withBuffer: dual(
+			(args) => P.isString(args[0]),
+			<A, E, R>(_label: string, effect: Effect.Effect<A, E, R>, _options?: WithBufferOptions): Effect.Effect<A, E, R> => effect,
+		),
+		withStep: dual(
+			(args) => P.isString(args[0]),
+			<A, E, R>(_name: string, effect: Effect.Effect<A, E, R>, _options?: WithStepOptions): Effect.Effect<A, E, R> => effect,
+		),
+		notice: dual((args) => P.isString(args[0]), (_message: string, _properties?: AnnotationProperties): Effect.Effect<void> => Effect.void),
+		annotated: dual(2, <A, E, R>(_properties: AnnotationProperties, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> => effect),
 		...overrides,
 	});
 

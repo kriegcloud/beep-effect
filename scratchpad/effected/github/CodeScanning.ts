@@ -12,7 +12,7 @@ const $I = $ScratchpadId.create("effected/github/CodeScanning");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * A CodeQL default-setup configuration.
@@ -40,18 +40,18 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  */
 export const CodeScanningSetup = S.Struct({
 	/** Whether default setup is `configured` or `not-configured`. */
-	state: S.optional(S.Literals(["configured", "not-configured"])).annotateKey({ description: "Whether default setup is configured or not-configured." }),
+	state: S.optionalKey(S.Literals(["configured", "not-configured"])).pipe($I.annoteKey("CodeScanningSetup.state", { description: "Whether default setup is configured or not-configured." })),
 	/** The CodeQL languages to analyse. */
-	languages: S.String.pipe(S.Array, S.optional).annotateKey({ description: "The CodeQL languages to analyse." }),
+	languages: S.String.pipe(S.Array, S.optional, $I.annoteKey("CodeScanningSetup.languages", { description: "The CodeQL languages to analyse." })),
 	/** `default` or `extended`. */
-	query_suite: S.optional(S.String).annotateKey({ description: "The query suite; accepts GitHub's evolving string vocabulary." }),
+	query_suite: S.optionalKey(S.String).pipe($I.annoteKey("CodeScanningSetup.query_suite", { description: "The query suite; accepts GitHub's evolving string vocabulary." })),
 	/** `remote` or `remote_and_local`. */
-	threat_model: S.optional(S.String).annotateKey({ description: "The threat model; accepts GitHub's evolving string vocabulary." }),
+	threat_model: S.optionalKey(S.String).pipe($I.annoteKey("CodeScanningSetup.threat_model", { description: "The threat model; accepts GitHub's evolving string vocabulary." })),
 	/** `standard` or `labeled`. */
-	runner_type: S.optional(S.String).annotateKey({ description: "The runner type; accepts GitHub's evolving string vocabulary." }),
+	runner_type: S.optionalKey(S.String).pipe($I.annoteKey("CodeScanningSetup.runner_type", { description: "The runner type; accepts GitHub's evolving string vocabulary." })),
 	/** The runner label, when `runner_type` is `labeled`. */
-	runner_label: S.optional(S.String).annotateKey({ description: "The runner label, when runner_type is labeled." }),
-}).annotate($I.annote("CodeScanningSetup", { description: "A partial CodeQL default-setup configuration preserving omitted fields." }));
+	runner_label: S.optionalKey(S.String).pipe($I.annoteKey("CodeScanningSetup.runner_label", { description: "The runner label, when runner_type is labeled." })),
+}).pipe($I.annoteSchema("CodeScanningSetup", { description: "A partial CodeQL default-setup configuration preserving omitted fields." }));
 
 /**
  * The structural configuration owned by {@link CodeScanningSetup}.

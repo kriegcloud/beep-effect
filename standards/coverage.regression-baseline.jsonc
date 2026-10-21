@@ -1532,6 +1532,93 @@
         }
       }
     },
+    "@beep/api-docs": {
+      "path": "apps/labs/api-docs",
+      "lines": 93.97,
+      "statements": 94.56,
+      "branches": 100,
+      "functions": 94.87,
+      "uncovered": {
+        "lines": 5,
+        "statements": 5,
+        "branches": 0,
+        "functions": 2
+      },
+      "files": {
+        "apps/labs/api-docs/src/Api.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/api-docs/src/Catalog.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/api-docs/src/Catalog.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/api-docs/src/Docs.routes.ts": {
+          "lines": 98.11,
+          "statements": 98.36,
+          "branches": 100,
+          "functions": 96.66,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/api-docs/src/main.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 100,
+          "functions": 0,
+          "uncovered": {
+            "lines": 4,
+            "statements": 4,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/api-docs/src/runtime/Layer.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
     "@beep/api-transport": {
       "path": "packages/foundation/capability/api-transport",
       "lines": 62.74,
@@ -3115,6 +3202,261 @@
             "statements": 1,
             "branches": 0,
             "functions": 1
+          }
+        }
+      }
+    },
+    "@beep/ciops": {
+      "path": "apps/labs/ciops",
+      "lines": 96.32,
+      "statements": 95.99,
+      "branches": 94.97,
+      "functions": 92.58,
+      "uncovered": {
+        "lines": 45,
+        "statements": 54,
+        "branches": 12,
+        "functions": 47
+      },
+      "files": {
+        "apps/labs/ciops/src/Api.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/ciops/src/kpi/ChangeEvents.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/ciops/src/kpi/CiOpsKpi.ts": {
+          "lines": 88.23,
+          "statements": 89.01,
+          "branches": 75,
+          "functions": 75,
+          "uncovered": {
+            "lines": 10,
+            "statements": 10,
+            "branches": 2,
+            "functions": 8
+          }
+        },
+        "apps/labs/ciops/src/kpi/Fold.ts": {
+          "lines": 98.85,
+          "statements": 99,
+          "branches": 98.52,
+          "functions": 98.33,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 1,
+            "functions": 3
+          }
+        },
+        "apps/labs/ciops/src/kpi/Pins.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/ciops/src/kpi/Render.ts": {
+          "lines": 95.91,
+          "statements": 96.49,
+          "branches": 87.5,
+          "functions": 94.59,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 2,
+            "functions": 2
+          }
+        },
+        "apps/labs/ciops/src/kpi/Schemas.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/ciops/src/kpi/Script.ts": {
+          "lines": 90,
+          "statements": 85.71,
+          "branches": 100,
+          "functions": 70,
+          "uncovered": {
+            "lines": 2,
+            "statements": 3,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "apps/labs/ciops/src/kpi/Sources.ts": {
+          "lines": 93.51,
+          "statements": 92.43,
+          "branches": 95.45,
+          "functions": 83.92,
+          "uncovered": {
+            "lines": 7,
+            "statements": 9,
+            "branches": 1,
+            "functions": 9
+          }
+        },
+        "apps/labs/ciops/src/main.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 100,
+          "functions": 0,
+          "uncovered": {
+            "lines": 4,
+            "statements": 4,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/ciops/src/projection/AboxPolicy.ts": {
+          "lines": 76.19,
+          "statements": 72.72,
+          "branches": 100,
+          "functions": 40,
+          "uncovered": {
+            "lines": 5,
+            "statements": 6,
+            "branches": 0,
+            "functions": 6
+          }
+        },
+        "apps/labs/ciops/src/projection/CiOpsProjection.ts": {
+          "lines": 97.05,
+          "statements": 97.05,
+          "branches": 100,
+          "functions": 90,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/ciops/src/projection/Engine.ts": {
+          "lines": 96.15,
+          "statements": 94.54,
+          "branches": 86.95,
+          "functions": 92.59,
+          "uncovered": {
+            "lines": 2,
+            "statements": 3,
+            "branches": 3,
+            "functions": 2
+          }
+        },
+        "apps/labs/ciops/src/projection/Evidence.ts": {
+          "lines": 98.17,
+          "statements": 96.41,
+          "branches": 95.45,
+          "functions": 91.25,
+          "uncovered": {
+            "lines": 3,
+            "statements": 7,
+            "branches": 1,
+            "functions": 7
+          }
+        },
+        "apps/labs/ciops/src/projection/LanePlan.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/ciops/src/projection/PosInt.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/ciops/src/projection/Replay.ts": {
+          "lines": 97.55,
+          "statements": 97.67,
+          "branches": 96.77,
+          "functions": 96.06,
+          "uncovered": {
+            "lines": 6,
+            "statements": 6,
+            "branches": 2,
+            "functions": 5
+          }
+        },
+        "apps/labs/ciops/src/projection/Schemas.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/ciops/src/projection/Turtle.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/ciops/src/runtime/Layer.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         }
       }
@@ -16142,6 +16484,177 @@
         }
       }
     },
+    "@beep/lejeune-bolt-workbench": {
+      "path": "apps/labs/lejeune-bolt-workbench",
+      "lines": 93.03,
+      "statements": 92.72,
+      "branches": 79.06,
+      "functions": 84.09,
+      "uncovered": {
+        "lines": 39,
+        "statements": 43,
+        "branches": 9,
+        "functions": 35
+      },
+      "files": {
+        "apps/labs/lejeune-bolt-workbench/src/App.tsx": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/domain/Bundle.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/domain/Ontology.ts": {
+          "lines": 87.5,
+          "statements": 88.88,
+          "branches": 100,
+          "functions": 66.66,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/domain/PosInt.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/domain/ReferenceData.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/fixtures/FixtureManifest.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/fixtures/Sources.ts": {
+          "lines": 85.52,
+          "statements": 86.41,
+          "branches": 50,
+          "functions": 62.06,
+          "uncovered": {
+            "lines": 11,
+            "statements": 11,
+            "branches": 1,
+            "functions": 11
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/main.tsx": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 0,
+          "functions": 100,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 2,
+            "functions": 0
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/runtime/Projections.ts": {
+          "lines": 92.17,
+          "statements": 92.24,
+          "branches": 50,
+          "functions": 84.9,
+          "uncovered": {
+            "lines": 9,
+            "statements": 9,
+            "branches": 2,
+            "functions": 8
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/workflows/Normalize.ts": {
+          "lines": 86,
+          "statements": 86.27,
+          "branches": 50,
+          "functions": 69.23,
+          "uncovered": {
+            "lines": 7,
+            "statements": 7,
+            "branches": 3,
+            "functions": 4
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/workflows/ProviderRecording.ts": {
+          "lines": 90.9,
+          "statements": 91.42,
+          "branches": 91.66,
+          "functions": 84.61,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 1,
+            "functions": 2
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/workflows/Replay.ts": {
+          "lines": 90.9,
+          "statements": 90.9,
+          "branches": 100,
+          "functions": 66.66,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "apps/labs/lejeune-bolt-workbench/src/workflows/Rules.ts": {
+          "lines": 96.07,
+          "statements": 89.65,
+          "branches": 100,
+          "functions": 80.64,
+          "uncovered": {
+            "lines": 2,
+            "statements": 6,
+            "branches": 0,
+            "functions": 6
+          }
+        }
+      }
+    },
     "@beep/lexical-schema": {
       "path": "packages/foundation/modeling/lexical",
       "lines": 91.61,
@@ -20966,6 +21479,273 @@
         }
       }
     },
+    "@beep/palantiri": {
+      "path": "packages/tooling/library/palantiri",
+      "lines": 97.81,
+      "statements": 97.77,
+      "branches": 95,
+      "functions": 95.63,
+      "uncovered": {
+        "lines": 9,
+        "statements": 10,
+        "branches": 4,
+        "functions": 10
+      },
+      "files": {
+        "packages/tooling/library/palantiri/src/AccountHeadroom.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/AccountHeadroom.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/AppErrorClasses.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Freshness.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/GaugeSeries.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 75,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 1,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/HostPressure.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/HostPressure.ts": {
+          "lines": 98.55,
+          "statements": 98.57,
+          "branches": 90,
+          "functions": 97.56,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 2,
+            "functions": 1
+          }
+        },
+        "packages/tooling/library/palantiri/src/LaneReds.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/LaneReds.ts": {
+          "lines": 96.66,
+          "statements": 95.58,
+          "branches": 100,
+          "functions": 92.1,
+          "uncovered": {
+            "lines": 2,
+            "statements": 3,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "packages/tooling/library/palantiri/src/Palantiri.instruments.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Parcel.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/ParcelEnvelope.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Parcels.api.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Parcels.errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/Parcels.service.ts": {
+          "lines": 95.71,
+          "statements": 95.94,
+          "branches": 100,
+          "functions": 92.5,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "packages/tooling/library/palantiri/src/Redaction.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/SinceLastCheck.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/SinceLastCheck.ts": {
+          "lines": 98.14,
+          "statements": 98.38,
+          "branches": 95,
+          "functions": 97.29,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 1,
+            "functions": 1
+          }
+        },
+        "packages/tooling/library/palantiri/src/TraceParent.ts": {
+          "lines": 85.71,
+          "statements": 87.5,
+          "branches": 100,
+          "functions": 80,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "packages/tooling/library/palantiri/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/palantiri/src/internal/Plural.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
     "@beep/pandoc-ast": {
       "path": "packages/foundation/modeling/pandoc-ast",
       "lines": 90.63,
@@ -21500,6 +22280,117 @@
         }
       }
     },
+    "@beep/practice-claude-mod": {
+      "path": "apps/practice-claude-mod",
+      "lines": 82.7,
+      "statements": 82.92,
+      "branches": 68.85,
+      "functions": 83.62,
+      "uncovered": {
+        "lines": 64,
+        "statements": 70,
+        "branches": 38,
+        "functions": 28
+      },
+      "files": {
+        "apps/practice-claude-mod/src/PracticeMod.hooks.ts": {
+          "lines": 95.2,
+          "statements": 94.08,
+          "branches": 84.21,
+          "functions": 89.28,
+          "uncovered": {
+            "lines": 8,
+            "statements": 11,
+            "branches": 6,
+            "functions": 9
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.host.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.matters.ts": {
+          "lines": 95.83,
+          "statements": 96.42,
+          "branches": 100,
+          "functions": 92.3,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.phrases.ts": {
+          "lines": 76.66,
+          "statements": 76.66,
+          "branches": 38.46,
+          "functions": 61.11,
+          "uncovered": {
+            "lines": 7,
+            "statements": 7,
+            "branches": 24,
+            "functions": 7
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.timers.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.values.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-claude-mod/src/PracticeMod.verdicts.ts": {
+          "lines": 98.46,
+          "statements": 97.29,
+          "branches": 83.33,
+          "functions": 92.85,
+          "uncovered": {
+            "lines": 1,
+            "statements": 2,
+            "branches": 4,
+            "functions": 2
+          }
+        },
+        "apps/practice-claude-mod/src/build-plugin.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 0,
+          "functions": 0,
+          "uncovered": {
+            "lines": 47,
+            "statements": 49,
+            "branches": 4,
+            "functions": 9
+          }
+        }
+      }
+    },
     "@beep/practice-identify": {
       "path": "apps/practice-identify",
       "lines": 92.9,
@@ -21648,18 +22539,6 @@
             "functions": 33
           }
         },
-        "apps/practice-kg-mcp/src/runtime/DuckDb.ts": {
-          "lines": 50,
-          "statements": 50,
-          "branches": 100,
-          "functions": 0,
-          "uncovered": {
-            "lines": 1,
-            "statements": 1,
-            "branches": 0,
-            "functions": 1
-          }
-        },
         "apps/practice-kg-mcp/src/runtime/Host.ts": {
           "lines": 73.33,
           "statements": 73.33,
@@ -21680,18 +22559,6 @@
           "uncovered": {
             "lines": 2,
             "statements": 2,
-            "branches": 0,
-            "functions": 1
-          }
-        },
-        "apps/practice-kg-mcp/src/runtime/Pglite.ts": {
-          "lines": 100,
-          "statements": 50,
-          "branches": 100,
-          "functions": 0,
-          "uncovered": {
-            "lines": 0,
-            "statements": 1,
             "branches": 0,
             "functions": 1
           }
@@ -22012,6 +22879,69 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        }
+      }
+    },
+    "@beep/practice-review-hub": {
+      "path": "apps/practice-review-hub",
+      "lines": 72.97,
+      "statements": 71.79,
+      "branches": 100,
+      "functions": 69.23,
+      "uncovered": {
+        "lines": 10,
+        "statements": 11,
+        "branches": 0,
+        "functions": 4
+      },
+      "files": {
+        "apps/practice-review-hub/src/Config.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-review-hub/src/Notice.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-review-hub/src/main.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 100,
+          "functions": 0,
+          "uncovered": {
+            "lines": 9,
+            "statements": 10,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "apps/practice-review-hub/src/runtime/Layer.ts": {
+          "lines": 92.3,
+          "statements": 92.85,
+          "branches": 100,
+          "functions": 85.71,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
           }
         }
       }
@@ -38045,6 +38975,861 @@
         }
       }
     },
+    "@beep/semantica": {
+      "path": "apps/labs/semantica",
+      "lines": 80.07,
+      "statements": 79.94,
+      "branches": 76.07,
+      "functions": 72.18,
+      "uncovered": {
+        "lines": 597,
+        "statements": 628,
+        "branches": 145,
+        "functions": 334
+      },
+      "files": {
+        "apps/labs/semantica/src/App.tsx": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/canary/Artifact.ts": {
+          "lines": 100,
+          "statements": 60,
+          "branches": 100,
+          "functions": 33.33,
+          "uncovered": {
+            "lines": 0,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "apps/labs/semantica/src/canary/Command.ts": {
+          "lines": 75.47,
+          "statements": 75.92,
+          "branches": 50,
+          "functions": 72.22,
+          "uncovered": {
+            "lines": 13,
+            "statements": 13,
+            "branches": 1,
+            "functions": 5
+          }
+        },
+        "apps/labs/semantica/src/canary/Gold.ts": {
+          "lines": 88.67,
+          "statements": 88.97,
+          "branches": 76.74,
+          "functions": 76.04,
+          "uncovered": {
+            "lines": 29,
+            "statements": 29,
+            "branches": 20,
+            "functions": 23
+          }
+        },
+        "apps/labs/semantica/src/canary/RelationPreview.ts": {
+          "lines": 15.71,
+          "statements": 14.86,
+          "branches": 0,
+          "functions": 0,
+          "uncovered": {
+            "lines": 59,
+            "statements": 63,
+            "branches": 10,
+            "functions": 24
+          }
+        },
+        "apps/labs/semantica/src/canary/RuntimeProbeChild.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 100,
+          "functions": 0,
+          "uncovered": {
+            "lines": 48,
+            "statements": 51,
+            "branches": 0,
+            "functions": 20
+          }
+        },
+        "apps/labs/semantica/src/corpus/ByteWitness.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/corpus/Canonical.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 85.71,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 2,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/corpus/Manifest.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 50,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 1,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/corpus/ManifestBuilder.ts": {
+          "lines": 79.45,
+          "statements": 79.45,
+          "branches": 50,
+          "functions": 62.5,
+          "uncovered": {
+            "lines": 15,
+            "statements": 15,
+            "branches": 7,
+            "functions": 9
+          }
+        },
+        "apps/labs/semantica/src/fixtures/F1.ts": {
+          "lines": 92.85,
+          "statements": 93.1,
+          "branches": 100,
+          "functions": 80.95,
+          "uncovered": {
+            "lines": 4,
+            "statements": 4,
+            "branches": 0,
+            "functions": 4
+          }
+        },
+        "apps/labs/semantica/src/gold/Prompts.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/layers/CanaryC0Live.ts": {
+          "lines": 90.97,
+          "statements": 90,
+          "branches": 85.71,
+          "functions": 69.76,
+          "uncovered": {
+            "lines": 13,
+            "statements": 15,
+            "branches": 4,
+            "functions": 13
+          }
+        },
+        "apps/labs/semantica/src/layers/CanaryC1Live.ts": {
+          "lines": 26.38,
+          "statements": 26.47,
+          "branches": 15.15,
+          "functions": 23.21,
+          "uncovered": {
+            "lines": 120,
+            "statements": 125,
+            "branches": 28,
+            "functions": 43
+          }
+        },
+        "apps/labs/semantica/src/layers/CanaryC2Live.ts": {
+          "lines": 20.42,
+          "statements": 20.42,
+          "branches": 0,
+          "functions": 4.76,
+          "uncovered": {
+            "lines": 113,
+            "statements": 113,
+            "branches": 16,
+            "functions": 40
+          }
+        },
+        "apps/labs/semantica/src/layers/CanonicalizerLive.ts": {
+          "lines": 91.66,
+          "statements": 91.66,
+          "branches": 100,
+          "functions": 80,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/semantica/src/layers/ChunkerLive.ts": {
+          "lines": 94.95,
+          "statements": 95,
+          "branches": 92.59,
+          "functions": 91.66,
+          "uncovered": {
+            "lines": 6,
+            "statements": 6,
+            "branches": 2,
+            "functions": 3
+          }
+        },
+        "apps/labs/semantica/src/layers/DocumentSourceLive.ts": {
+          "lines": 71.23,
+          "statements": 68.42,
+          "branches": 77.77,
+          "functions": 40.62,
+          "uncovered": {
+            "lines": 21,
+            "statements": 24,
+            "branches": 2,
+            "functions": 19
+          }
+        },
+        "apps/labs/semantica/src/layers/EmbedderLive.ts": {
+          "lines": 83.95,
+          "statements": 82.35,
+          "branches": 62.5,
+          "functions": 72.34,
+          "uncovered": {
+            "lines": 13,
+            "statements": 15,
+            "branches": 3,
+            "functions": 13
+          }
+        },
+        "apps/labs/semantica/src/layers/EvaluatorLive.ts": {
+          "lines": 92.67,
+          "statements": 92.45,
+          "branches": 87.69,
+          "functions": 89.42,
+          "uncovered": {
+            "lines": 14,
+            "statements": 16,
+            "branches": 8,
+            "functions": 11
+          }
+        },
+        "apps/labs/semantica/src/layers/ExtractorLive.ts": {
+          "lines": 91.71,
+          "statements": 92.02,
+          "branches": 84.21,
+          "functions": 80,
+          "uncovered": {
+            "lines": 13,
+            "statements": 13,
+            "branches": 6,
+            "functions": 12
+          }
+        },
+        "apps/labs/semantica/src/layers/GoldSourceLive.ts": {
+          "lines": 81.66,
+          "statements": 82.25,
+          "branches": 85.71,
+          "functions": 68,
+          "uncovered": {
+            "lines": 11,
+            "statements": 11,
+            "branches": 3,
+            "functions": 8
+          }
+        },
+        "apps/labs/semantica/src/layers/LanguageModelLive.ts": {
+          "lines": 96.62,
+          "statements": 96.77,
+          "branches": 80,
+          "functions": 94.44,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 2,
+            "functions": 2
+          }
+        },
+        "apps/labs/semantica/src/layers/LedgerLive.ts": {
+          "lines": 96.2,
+          "statements": 95.12,
+          "branches": 83.33,
+          "functions": 90.32,
+          "uncovered": {
+            "lines": 3,
+            "statements": 4,
+            "branches": 1,
+            "functions": 3
+          }
+        },
+        "apps/labs/semantica/src/layers/ParserLive.ts": {
+          "lines": 85.71,
+          "statements": 83.72,
+          "branches": 72.22,
+          "functions": 77.77,
+          "uncovered": {
+            "lines": 12,
+            "statements": 14,
+            "branches": 5,
+            "functions": 10
+          }
+        },
+        "apps/labs/semantica/src/layers/ProviderCacheLive.ts": {
+          "lines": 81.43,
+          "statements": 81.39,
+          "branches": 73.68,
+          "functions": 56.52,
+          "uncovered": {
+            "lines": 31,
+            "statements": 32,
+            "branches": 15,
+            "functions": 20
+          }
+        },
+        "apps/labs/semantica/src/layers/RdfProjectionLive.ts": {
+          "lines": 89.47,
+          "statements": 88.88,
+          "branches": 100,
+          "functions": 75,
+          "uncovered": {
+            "lines": 6,
+            "statements": 7,
+            "branches": 0,
+            "functions": 7
+          }
+        },
+        "apps/labs/semantica/src/layers/ReasonerLive.ts": {
+          "lines": 88.79,
+          "statements": 89.51,
+          "branches": 85,
+          "functions": 83.82,
+          "uncovered": {
+            "lines": 13,
+            "statements": 13,
+            "branches": 3,
+            "functions": 11
+          }
+        },
+        "apps/labs/semantica/src/layers/VectorProjectionLive.ts": {
+          "lines": 81.81,
+          "statements": 79.41,
+          "branches": 100,
+          "functions": 53.33,
+          "uncovered": {
+            "lines": 6,
+            "statements": 7,
+            "branches": 0,
+            "functions": 7
+          }
+        },
+        "apps/labs/semantica/src/main.tsx": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 0,
+          "functions": 100,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 2,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/parse/Html.ts": {
+          "lines": 94.53,
+          "statements": 93.98,
+          "branches": 92.3,
+          "functions": 92.68,
+          "uncovered": {
+            "lines": 7,
+            "statements": 8,
+            "branches": 4,
+            "functions": 3
+          }
+        },
+        "apps/labs/semantica/src/runtime/Config.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/runtime/Layer.ts": {
+          "lines": 94.44,
+          "statements": 94.44,
+          "branches": 100,
+          "functions": 50,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/semantica/src/runtime/Version.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Degraded.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Digest.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Document.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Eval.ts": {
+          "lines": 93.81,
+          "statements": 93.13,
+          "branches": 100,
+          "functions": 88.52,
+          "uncovered": {
+            "lines": 6,
+            "statements": 7,
+            "branches": 0,
+            "functions": 7
+          }
+        },
+        "apps/labs/semantica/src/schema/Evidence.ts": {
+          "lines": 92.59,
+          "statements": 93.1,
+          "branches": 100,
+          "functions": 85.71,
+          "uncovered": {
+            "lines": 6,
+            "statements": 6,
+            "branches": 0,
+            "functions": 6
+          }
+        },
+        "apps/labs/semantica/src/schema/Execution.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Gold.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Ids.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Ledger.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/MediaType.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Model.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/PosInt.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Projection.ts": {
+          "lines": 94.11,
+          "statements": 94.11,
+          "branches": 100,
+          "functions": 87.5,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/semantica/src/schema/Provenance.ts": {
+          "lines": 94.44,
+          "statements": 94.44,
+          "branches": 100,
+          "functions": 90,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/semantica/src/schema/ProviderCache.ts": {
+          "lines": 90,
+          "statements": 90,
+          "branches": 100,
+          "functions": 75,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/semantica/src/schema/Reasoning.ts": {
+          "lines": 94.23,
+          "statements": 94.82,
+          "branches": 100,
+          "functions": 85.71,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 0,
+            "functions": 3
+          }
+        },
+        "apps/labs/semantica/src/schema/Telemetry.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/schema/Text.ts": {
+          "lines": 95,
+          "statements": 95.65,
+          "branches": 100,
+          "functions": 90,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/labs/semantica/src/services/CanaryC0.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/CanaryC1.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/CanaryC2.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/Canonicalizer.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/Chunker.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/DocumentSource.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/Embedder.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/Evaluator.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/Extractor.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/GoldSource.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/LanguageModel.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/Ledger.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/Parser.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/ProviderCache.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/RdfProjection.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/Reasoner.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/semantica/src/services/VectorProjection.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
     "@beep/shacl": {
       "path": "packages/drivers/shacl",
       "lines": 75.62,
@@ -39704,6 +41489,69 @@
         }
       }
     },
+    "@beep/t3-code": {
+      "path": "packages/drivers/t3-code",
+      "lines": 96.46,
+      "statements": 87.87,
+      "branches": 83.92,
+      "functions": 71.05,
+      "uncovered": {
+        "lines": 4,
+        "statements": 16,
+        "branches": 9,
+        "functions": 11
+      },
+      "files": {
+        "packages/drivers/t3-code/src/T3Code.errors.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/t3-code/src/T3Code.models.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/drivers/t3-code/src/T3Code.service.ts": {
+          "lines": 96.19,
+          "statements": 87.09,
+          "branches": 83.92,
+          "functions": 71.05,
+          "uncovered": {
+            "lines": 4,
+            "statements": 16,
+            "branches": 9,
+            "functions": 11
+          }
+        },
+        "packages/drivers/t3-code/src/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
     "@beep/tailscale": {
       "path": "packages/drivers/tailscale",
       "lines": 79.76,
@@ -40696,6 +42544,45 @@
           }
         },
         "apps/todox/src/session/session.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        }
+      }
+    },
+    "@beep/trustgraph-workbench": {
+      "path": "apps/labs/trustgraph-workbench",
+      "lines": 100,
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "uncovered": {
+        "lines": 0,
+        "statements": 0,
+        "branches": 0,
+        "functions": 0
+      },
+      "files": {
+        "apps/labs/trustgraph-workbench/src/App.tsx": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/labs/trustgraph-workbench/src/main.tsx": {
           "lines": 100,
           "statements": 100,
           "branches": 100,

@@ -1,4 +1,5 @@
 import { assert, describe, it } from "@effect/vitest";
+import * as S from "effect/Schema";
 import type { NamedColor, Style, TokenName } from "../../effected/cli/index.ts";
 import { Token } from "../../effected/cli/index.ts";
 import { Style as StyleSchema } from "../../effected/cli/Token.ts";
@@ -14,7 +15,7 @@ describe("Token", () => {
 
 	it("annotates every Style field with its contract rather than its name", () => {
 		const description = (field: keyof typeof StyleSchema.fields) =>
-			StyleSchema.fields[field].ast.annotations?.description;
+			S.resolveAnnotationsKey(StyleSchema.fields[field])?.description;
 		assert.strictEqual(
 			description("fg"),
 			"The foreground colour: a named ANSI colour or a `#`-prefixed hex spelling; a hex that is not `#rgb` or `#rrggbb` is accepted and ignored when rendered.",

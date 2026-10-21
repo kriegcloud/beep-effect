@@ -47,7 +47,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
 	 * @category getters
 	 * @since 0.0.0
 	 */
-	name: S.String.annotateKey({ description: "The package name." }),
+	name: S.String.pipe($I.annoteKey("Dependency.name", { description: "The package name." })),
 	/**
 	 * The raw version specifier.
 	 *
@@ -63,7 +63,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
 	 * @category getters
 	 * @since 0.0.0
 	 */
-	specifier: S.String.annotateKey({ description: "The raw version specifier." }),
+	specifier: S.String.pipe($I.annoteKey("Dependency.specifier", { description: "The raw version specifier." })),
 	/**
 	 * Which dependency map this entry came from.
 	 *
@@ -79,7 +79,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
 	 * @category getters
 	 * @since 0.0.0
 	 */
-	kind: DependencyKind.annotateKey({ description: "Which dependency map this entry came from." }),
+	kind: DependencyKind.pipe($I.annoteKey("Dependency.kind", { description: "Which dependency map this entry came from." })),
 	/**
 	 * For `peer` dependencies, whether the peer is optional (from `peerDependenciesMeta`).
 	 *
@@ -95,7 +95,7 @@ export class Dependency extends S.Class<Dependency, { readonly brand: unique sym
 	 * @category getters
 	 * @since 0.0.0
 	 */
-	isOptional: S.optionalKey(S.Boolean).annotateKey({ description: "For `peer` dependencies, whether the peer is optional (from `peerDependenciesMeta`)." }),
+	isOptional: S.optionalKey(S.Boolean).pipe($I.annoteKey("Dependency.isOptional", { description: "For `peer` dependencies, whether the peer is optional (from `peerDependenciesMeta`)." })),
 }, $I.annote("Dependency", { description: "A resolved dependency entry pairing a package name with its version specifier and the `kind` of map it came from (`@effected/npm`'s `DependencyKind`). The protocol predicates delegate to `DependencySpecifier`." })) {
 	/**
 	 * The classified protocol, or `None` for an empty specifier.

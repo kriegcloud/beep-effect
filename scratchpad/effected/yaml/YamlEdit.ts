@@ -15,6 +15,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlEdit");
 
@@ -22,9 +23,9 @@ const $I = $ScratchpadId.create("effected/yaml/YamlEdit");
 class YamlEditFailure extends S.TaggedError<YamlEditFailure, { readonly brand: unique symbol }>($I`YamlEditFailure`)(
 	"YamlEditFailure",
 	{
-		message: S.String.annotateKey({ description: "The overlapping edit ranges that prevent applying the YAML edits." }),
+		message: S.String.pipe($I.annoteKey("YamlEditFailure.message", { description: "The overlapping edit ranges that prevent applying the YAML edits." })),
 	},
-	$I.annote("YamlEditFailure", {
+	$I.annoteError<YamlEditFailure>("YamlEditFailure", {
 		description: "A defect raised when overlapping YAML text edits cannot be applied consistently.",
 	}),
 ) {}
@@ -68,8 +69,8 @@ export type YamlPath = ReadonlyArray<YamlSegment>;
  * @since 0.0.0
  */
 export class YamlRange extends S.Class<YamlRange, { readonly brand: unique symbol }>($I`YamlRange`)({
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the source region to format, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Extent of the source region to format, measured in UTF-16 code units" }),
+	offset: S.Finite.pipe($I.annoteKey("YamlRange.offset", { description: "Zero-based start of the source region to format, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("YamlRange.length", { description: "Extent of the source region to format, measured in UTF-16 code units" })),
 }, $I.annote("YamlRange", { description: "A range within a YAML document, expressed as a zero-based character `offset` and a `length` in UTF-16 code units. Pass to `YamlFormat.format` to restrict formatting to a region." })) {}
 
 /**
@@ -97,9 +98,9 @@ export class YamlRange extends S.Class<YamlRange, { readonly brand: unique symbo
  * @since 0.0.0
  */
 export class YamlEdit extends S.Class<YamlEdit, { readonly brand: unique symbol }>($I`YamlEdit`)({
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the replacement span in the original source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Number of source UTF-16 code units to replace; `0` inserts without removing text" }),
-	content: S.String.annotateKey({ description: "Replacement text for the selected source span; an empty string deletes the span" }),
+	offset: S.Finite.pipe($I.annoteKey("YamlEdit.offset", { description: "Zero-based start of the replacement span in the original source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("YamlEdit.length", { description: "Number of source UTF-16 code units to replace; `0` inserts without removing text" })),
+	content: S.String.pipe($I.annoteKey("YamlEdit.content", { description: "Replacement text for the selected source span; an empty string deletes the span" })),
 }, $I.annote("YamlEdit", { description: "A non-mutating text edit: replace the span `[offset, offset + length)` with `content`. Set `length` to `0` to insert, `content` to `\"\"` to delete." })) {
 	/**
 	 * Apply `edits` to `text`, producing a new string.
@@ -133,7 +134,10 @@ export class YamlEdit extends S.Class<YamlEdit, { readonly brand: unique symbol 
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static applyAll(text: string, edits: ReadonlyArray<YamlEdit>): string {
+	static readonly applyAll: {
+		(text: string, edits: ReadonlyArray<YamlEdit>): string;
+		(edits: ReadonlyArray<YamlEdit>): (text: string) => string;
+	} = dual(2, (text: string, edits: ReadonlyArray<YamlEdit>): string => {
 		const sorted = A.sort(edits, Order.flip(Order.mapInput(Order.Number, (edit: YamlEdit) => edit.offset)));
 		for (const [upper, lower] of A.zip(sorted, A.drop(sorted, 1))) {
 			if (lower.offset + lower.length > upper.offset) {
@@ -147,5 +151,5 @@ export class YamlEdit extends S.Class<YamlEdit, { readonly brand: unique symbol 
 			result = result.substring(0, edit.offset) + edit.content + result.substring(edit.offset + edit.length);
 		}
 		return result;
-	}
+	});
 }

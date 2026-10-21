@@ -3,6 +3,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { LockfileImporter } from "../LockfileImporter.ts";
 import { ResolvedPackage } from "../ResolvedPackage.ts";
@@ -23,25 +24,25 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/npm");
 
 // ── Raw schema (permissive validation scaffolding, not API) ────────────────
 
-const DepRecord = S.optionalKey(S.Record(S.String, S.String)).annotate($I.annote("DepRecord", { description: "Optional dependency names and their declared specifier strings" }));
+const DepRecord = S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteSchema("DepRecord", { description: "Optional dependency names and their declared specifier strings" }));
 
 const PeerMetaRecord = S.optionalKey(
-	S.Record(S.String, S.Struct({ optional: S.optionalKey(S.Boolean).annotateKey({ description: "Whether this peer dependency is optional" }) })),
-).annotate($I.annote("PeerMetaRecord", { description: "Optional per-peer metadata recording whether a peer is optional" }));
+	S.Record(S.String, S.Struct({ optional: S.optionalKey(S.Boolean).pipe($I.annoteKey("PeerMetaRecord.optional", { description: "Whether this peer dependency is optional" })) })),
+).pipe($I.annoteSchema("PeerMetaRecord", { description: "Optional per-peer metadata recording whether a peer is optional" }));
 
 const NpmPackageEntry = S.Struct({
-	name: S.optionalKey(S.String).annotateKey({ description: "Recorded package or workspace name" }),
-	version: S.optionalKey(S.String).annotateKey({ description: "Recorded package version or resolved dependency version" }),
-	resolved: S.optionalKey(S.String).annotateKey({ description: "Recorded resolution location or resolved instance ids keyed by dependency name" }),
-	integrity: S.optionalKey(S.String).annotateKey({ description: "Recorded subresource integrity hash" }),
-	link: S.optionalKey(S.Boolean).annotateKey({ description: "Whether this package entry links to a workspace" }),
-	dev: S.optionalKey(S.Boolean).annotateKey({ description: "Whether npm marks the package as development-only" }),
-	dependencies: DepRecord.annotateKey({ description: "Declared runtime dependencies keyed by package name" }),
-	devDependencies: DepRecord.annotateKey({ description: "Declared development dependencies keyed by package name" }),
-	peerDependencies: DepRecord.annotateKey({ description: "Declared peer dependencies keyed by package name" }),
-	peerDependenciesMeta: PeerMetaRecord.annotateKey({ description: "Optionality metadata keyed by peer dependency name" }),
-	optionalDependencies: DepRecord.annotateKey({ description: "Declared optional dependencies keyed by package name" }),
-}).annotate($I.annote("NpmPackageEntry", { description: "Permissive npm package entry with identity, resolution and dependency sections" }));
+	name: S.optionalKey(S.String).pipe($I.annoteKey("NpmPackageEntry.name", { description: "Recorded package or workspace name" })),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("NpmPackageEntry.version", { description: "Recorded package version or resolved dependency version" })),
+	resolved: S.optionalKey(S.String).pipe($I.annoteKey("NpmPackageEntry.resolved", { description: "Recorded resolution location or resolved instance ids keyed by dependency name" })),
+	integrity: S.optionalKey(S.String).pipe($I.annoteKey("NpmPackageEntry.integrity", { description: "Recorded subresource integrity hash" })),
+	link: S.optionalKey(S.Boolean).pipe($I.annoteKey("NpmPackageEntry.link", { description: "Whether this package entry links to a workspace" })),
+	dev: S.optionalKey(S.Boolean).pipe($I.annoteKey("NpmPackageEntry.dev", { description: "Whether npm marks the package as development-only" })),
+	dependencies: DepRecord.pipe($I.annoteKey("NpmPackageEntry.dependencies", { description: "Declared runtime dependencies keyed by package name" })),
+	devDependencies: DepRecord.pipe($I.annoteKey("NpmPackageEntry.devDependencies", { description: "Declared development dependencies keyed by package name" })),
+	peerDependencies: DepRecord.pipe($I.annoteKey("NpmPackageEntry.peerDependencies", { description: "Declared peer dependencies keyed by package name" })),
+	peerDependenciesMeta: PeerMetaRecord.pipe($I.annoteKey("NpmPackageEntry.peerDependenciesMeta", { description: "Optionality metadata keyed by peer dependency name" })),
+	optionalDependencies: DepRecord.pipe($I.annoteKey("NpmPackageEntry.optionalDependencies", { description: "Declared optional dependencies keyed by package name" })),
+}).pipe($I.annoteSchema("NpmPackageEntry", { description: "Permissive npm package entry with identity, resolution and dependency sections" }));
 
 /**
  * The version gate's own input: `lockfileVersion` and nothing else.
@@ -59,17 +60,17 @@ const NpmPackageEntry = S.Struct({
  */
 const NpmVersionProbe = S.Struct({
 	// The version gate owns non-finite rejection and preserves the recorded value in its typed cause.
-	lockfileVersion: S.Union([S.Finite, S.String]).annotateKey({ description: "Recorded format version, preserved verbatim before gating or string conversion" }),
-}).annotate($I.annote("NpmVersionProbe", { description: "Version-only npm boundary read before decoding the supported package-map shape" }));
+	lockfileVersion: S.Union([S.Finite, S.String]).pipe($I.annoteKey("NpmVersionProbe.lockfileVersion", { description: "Recorded format version, preserved verbatim before gating or string conversion" })),
+}).pipe($I.annoteSchema("NpmVersionProbe", { description: "Version-only npm boundary read before decoding the supported package-map shape" }));
 
 const NpmLockfileRaw = S.Struct({
-	name: S.optionalKey(S.String).annotateKey({ description: "Recorded package or workspace name" }),
-	version: S.optionalKey(S.String).annotateKey({ description: "Recorded package version or resolved dependency version" }),
+	name: S.optionalKey(S.String).pipe($I.annoteKey("NpmLockfileRaw.name", { description: "Recorded package or workspace name" })),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("NpmLockfileRaw.version", { description: "Recorded package version or resolved dependency version" })),
 	// The version gate owns non-finite rejection and preserves the recorded value in its typed cause.
-	lockfileVersion: S.Union([S.Finite, S.String]).annotateKey({ description: "Recorded format version, preserved verbatim before gating or string conversion" }),
-	requires: S.optionalKey(S.Boolean).annotateKey({ description: "Whether npm records that this lockfile requires dependencies" }),
-	packages: S.Record(S.String, NpmPackageEntry).annotateKey({ description: "Resolved package entries in lockfile traversal order" }),
-}).annotate($I.annote("NpmLockfileRaw", { description: "Permissive package-lock document containing a version and installed package entries" }));
+	lockfileVersion: S.Union([S.Finite, S.String]).pipe($I.annoteKey("NpmLockfileRaw.lockfileVersion", { description: "Recorded format version, preserved verbatim before gating or string conversion" })),
+	requires: S.optionalKey(S.Boolean).pipe($I.annoteKey("NpmLockfileRaw.requires", { description: "Whether npm records that this lockfile requires dependencies" })),
+	packages: S.Record(S.String, NpmPackageEntry).pipe($I.annoteKey("NpmLockfileRaw.packages", { description: "Resolved package entries in lockfile traversal order" })),
+}).pipe($I.annoteSchema("NpmLockfileRaw", { description: "Permissive package-lock document containing a version and installed package entries" }));
 
 type NpmLockfileRawType = typeof NpmLockfileRaw.Type;
 type NpmPackageEntryType = typeof NpmPackageEntry.Type;
@@ -113,7 +114,10 @@ const packageNameIndex = (key: string): number => {
  *
  * @internal
  */
-const resolveNpmEdges = (
+const resolveNpmEdges: {
+	(start: string, sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>, instanceIds: MutableHashSet.MutableHashSet<string>): Record<string, string>;
+	(sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>, instanceIds: MutableHashSet.MutableHashSet<string>): (start: string) => Record<string, string>;
+} = dual(3, (
 	start: string,
 	sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>,
 	instanceIds: MutableHashSet.MutableHashSet<string>,
@@ -143,10 +147,10 @@ const resolveNpmEdges = (
 			}
 		}
 	}
-	// Map-backed until the last step: `Object.fromEntries` defines own data
+	// Map-backed until the last step: `R.fromEntries` (Object.fromEntries) defines own data
 	// properties, so a "__proto__" dependency name neither pollutes nor drops.
 	return R.fromEntries(edges);
-};
+});
 
 const entrySections = (entry: NpmPackageEntryType | undefined) =>
 	[entry?.dependencies, entry?.devDependencies, entry?.optionalDependencies, entry?.peerDependencies] as const;

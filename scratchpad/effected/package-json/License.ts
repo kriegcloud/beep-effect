@@ -48,8 +48,8 @@ export class InvalidSpdxLicenseError extends S.TaggedError<InvalidSpdxLicenseErr
 	 *
 	 * @since 0.0.0
 	 */
-	input: S.String.annotateKey({ description: "The raw input string that failed validation." }),
-}, $I.annote("InvalidSpdxLicenseError", { description: "Indicates that a string is not a valid SPDX license identifier or expression." })) {
+	input: S.String.pipe($I.annoteKey("InvalidSpdxLicenseError.input", { description: "The raw input string that failed validation." })),
+}, $I.annoteError<InvalidSpdxLicenseError>("InvalidSpdxLicenseError", { description: "Indicates that a string is not a valid SPDX license identifier or expression." })) {
 	/**
 	 * Explains the validation failure and includes the rejected license string.
 	 *
@@ -128,11 +128,10 @@ export const isValidSpdx = (value: string): boolean => {
  */
 export const SpdxLicense = S.String.pipe(
 	S.check(
-		S.makeFilterGroup([S.makeFilter((value) => (isValidSpdx(value) ? undefined : "Expected a valid SPDX license expression"), {
-			identifier: $I`SpdxLicenseCheck`,
-			title: "Manifest SPDX License",
+		S.makeFilterGroup([S.makeFilter((value) => (isValidSpdx(value) ? undefined : "Expected a valid SPDX license expression"), $I.annote("SpdxLicenseCheck", {
+			message: "Manifest SPDX License",
 			description: "A valid SPDX license identifier or expression, UNLICENSED, or SEE LICENSE IN followed by a filename.",
-		})]),
+		}))]),
 	),
 	S.brand("SpdxLicense"),
 	// Identity annotates the group, retaining the SPDX filter's own metadata.

@@ -27,7 +27,7 @@ export const YamlTokenKind = LiteralKit([
 	"block-map-start", "block-map-key", "block-map-value", "block-seq-start", "block-seq-entry",
 	"flow-map-start", "flow-map-end", "flow-seq-start", "flow-seq-end", "flow-separator",
 	"newline", "whitespace", "comment", "byte-order-mark", "error",
-]).annotate($I.annote("YamlTokenKind", { description: "Lexical categories shared by raw and public YAML tokens." }));
+]).pipe($I.annoteSchema("YamlTokenKind", { description: "Lexical categories shared by raw and public YAML tokens." }));
 /**
  * The lexical category of a YAML token, inferred from the token-kind schema.
  *
@@ -59,13 +59,13 @@ export type YamlTokenKind = typeof YamlTokenKind.Type;
  * @since 0.0.0
  */
 export const YamlToken = S.Struct({
-	kind: YamlTokenKind.annotateKey({ description: "Lexical category assigned by the scanner." }),
-	value: S.String.annotateKey({ description: "Processed token value; quoted scalars omit quotes and decode escapes." }),
-	offset: S.Finite.annotateKey({ description: "Zero-based source offset in UTF-16 code units." }),
-	length: S.Finite.annotateKey({ description: "Raw source span length in UTF-16 code units." }),
-	line: S.Finite.annotateKey({ description: "Zero-based source line; CR, LF and CRLF each end one line." }),
-	column: S.Finite.annotateKey({ description: "Zero-based source column, or construct indentation on synthetic start markers." }),
-}).annotate($I.annote("YamlToken", { description: "Raw lexer token payload, constructed without per-token decoding." }));
+	kind: YamlTokenKind.pipe($I.annoteKey("YamlToken.kind", { description: "Lexical category assigned by the scanner." })),
+	value: S.String.pipe($I.annoteKey("YamlToken.value", { description: "Processed token value; quoted scalars omit quotes and decode escapes." })),
+	offset: S.Finite.pipe($I.annoteKey("YamlToken.offset", { description: "Zero-based source offset in UTF-16 code units." })),
+	length: S.Finite.pipe($I.annoteKey("YamlToken.length", { description: "Raw source span length in UTF-16 code units." })),
+	line: S.Finite.pipe($I.annoteKey("YamlToken.line", { description: "Zero-based source line; CR, LF and CRLF each end one line." })),
+	column: S.Finite.pipe($I.annoteKey("YamlToken.column", { description: "Zero-based source column, or construct indentation on synthetic start markers." })),
+}).pipe($I.annoteSchema("YamlToken", { description: "Raw lexer token payload, constructed without per-token decoding." }));
 /**
  * A processed lexer token with its raw source span and zero-based position.
  *

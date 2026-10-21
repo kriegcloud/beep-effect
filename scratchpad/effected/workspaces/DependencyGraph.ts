@@ -4,6 +4,7 @@
 // Cycle detection is ITERATIVE, so a long dependency chain cannot overflow the
 // stack.
 
+import { pipe } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -47,8 +48,8 @@ const $I = $ScratchpadId.create("effected/workspaces/DependencyGraph");
  */
 export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError, { readonly brand: unique symbol }>($I`CyclicDependencyError`)("CyclicDependencyError", {
 	/** The packages participating in the cycle. */
-	cycle: S.Array(S.String).annotateKey({ description: "The packages participating in the cycle." }),
-}, $I.annote("CyclicDependencyError", { description: "Raised when the workspace dependency graph cannot be topologically ordered because it contains a cycle." })) {
+	cycle: S.Array(S.String).pipe($I.annoteKey("CyclicDependencyError.cycle", { description: "The packages participating in the cycle." })),
+}, $I.annoteError<CyclicDependencyError>("CyclicDependencyError", { description: "Raised when the workspace dependency graph cannot be topologically ordered because it contains a cycle." })) {
 	/**
 	 * Renders the cycle members into a one-line message.
 	 *
@@ -65,18 +66,18 @@ export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError, 
 	 * @since 0.0.0
 	 */
 	override get message(): string {
-		return `Cyclic workspace dependencies among: ${this.cycle.join(", ")}`;
+		return `Cyclic workspace dependencies among: ${A.join(this.cycle, ", ")}`;
 	}
 }
 
 const Edges = S.Struct({
 	/** Vertex order, independent of the hash map's iteration order. */
-	order: S.Array(S.String).annotateKey({ description: "Vertex order, independent of the hash map's iteration order." }),
+	order: S.Array(S.String).pipe($I.annoteKey("Edges.order", { description: "Vertex order, independent of the hash map's iteration order." })),
 	/** name → the workspace packages it depends on. */
-	forward: S.HashMap(S.String, S.HashSet(S.String)).annotateKey({ description: "Each workspace package's direct workspace dependencies." }),
+	forward: S.HashMap(S.String, S.HashSet(S.String)).pipe($I.annoteKey("Edges.forward", { description: "Each workspace package's direct workspace dependencies." })),
 	/** name → the workspace packages that depend on it. */
-	reverse: S.HashMap(S.String, S.HashSet(S.String)).annotateKey({ description: "Each workspace package's direct workspace dependents." }),
-}).annotate($I.annote("Edges", { description: "The graph's ordered vertices and immutable forward and reverse dependency indexes." }));
+	reverse: S.HashMap(S.String, S.HashSet(S.String)).pipe($I.annoteKey("Edges.reverse", { description: "Each workspace package's direct workspace dependents." })),
+}).pipe($I.annoteSchema("Edges", { description: "The graph's ordered vertices and immutable forward and reverse dependency indexes." }));
 
 type Edges = typeof Edges.Type;
 
@@ -141,7 +142,7 @@ type Edges = typeof Edges.Type;
  */
 export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: unique symbol }>($I`DependencyGraph`)({
 	/** The workspace packages the graph is drawn over. */
-	packages: S.Array(WorkspacePackage).annotateKey({ description: "The workspace packages the graph is drawn over." }),
+	packages: S.Array(WorkspacePackage).pipe($I.annoteKey("DependencyGraph.packages", { description: "The workspace packages the graph is drawn over." })),
 }, $I.annote("DependencyGraph", { description: "The directed graph of dependencies **between workspace packages**. External npm dependencies are not nodes." })) {
 	/**
 	 * Caches the lazily built forward and reverse edge indexes outside the encoded schema fields.
@@ -185,7 +186,7 @@ export class DependencyGraph extends S.Class<DependencyGraph, { readonly brand: 
 	 */
 	#index(): Edges {
 		if (this.#edges !== undefined) return this.#edges;
-		const names = MutableHashSet.fromIterable(this.packages.map((pkg) => pkg.name));
+		const names = MutableHashSet.fromIterable(A.map(this.packages, (pkg) => pkg.name));
 		let forward = HashMap.empty<string, HashSet.HashSet<string>>();
 		let reverse = HashMap.empty<string, HashSet.HashSet<string>>();
 		for (const name of names) {
@@ -688,7 +689,7 @@ const kahn = (
 	for (const [node, deps] of edges.forward) MutableHashMap.set(remaining, node, HashSet.size(deps));
 
 	const levels: Array<Array<string>> = [];
-	let current = [...remaining].filter(([, count]) => count === 0).map(([node]) => node);
+	let current = pipe([...remaining], A.filter(([, count]) => count === 0), A.map(([node]) => node));
 	current = A.sort(current, Str.Order);
 
 	while (current.length > 0) {

@@ -1,4 +1,5 @@
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -56,9 +57,8 @@ const formatter = SchemaIssue.makeFormatterStandardSchemaV1({
  * @since 0.0.0
  */
 export const formatIssue = (issue: unknown): ReadonlyArray<string> =>
-	issueEntries(issue).map((entry) =>
-		entry.path.length === 0 ? entry.message : `${entry.message} at ${entry.path.join(".")}`,
-	);
+	A.map(issueEntries(issue), (entry) =>
+		entry.path.length === 0 ? entry.message : `${entry.message} at ${A.join(entry.path, ".")}`);
 
 /**
  * One rejected value: what is wrong and where.
@@ -150,16 +150,19 @@ export const issueTreeChildren = (entries: ReadonlyArray<IssueEntry>): ReadonlyA
 		node.messages.push(entry.message);
 	}
 	const leaves = (node: PathNode): ReadonlyArray<IssueTreeNode> =>
-		node.messages.map((message) => ({ label: message }));
-	const named = (segment: string, node: PathNode): IssueTreeNode => {
+		A.map(node.messages, (message) => ({ label: message }));
+	const named: {
+		(segment: string, node: PathNode): IssueTreeNode;
+		(node: PathNode): (segment: string) => IssueTreeNode;
+	} = dual(2, (segment: string, node: PathNode): IssueTreeNode => {
 		if (MutableHashMap.size(node.children) === 0 && node.messages.length === 1)
 			return { label: `${segment}: ${node.messages[0]}` };
 		return {
 			label: segment,
-			children: [...leaves(node), ...[...node.children].map(([name, child]) => named(name, child))],
+			children: [...leaves(node), ...A.map([...node.children], ([name, child]) => named(name, child))],
 		};
-	};
-	return [...leaves(root), ...[...root.children].map(([name, child]) => named(name, child))];
+	});
+	return [...leaves(root), ...A.map([...root.children], ([name, child]) => named(name, child))];
 };
 
 /**

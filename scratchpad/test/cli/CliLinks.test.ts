@@ -24,7 +24,7 @@ const deep = (n: number): string => `/${Array.from({ length: n }, () => "a").joi
 interface Setup {
 	readonly seed?: Record<
 		string,
-		ReturnType<typeof MemoryFileSystem.directory> | ReturnType<typeof MemoryFileSystem.file>
+		typeof dir | typeof file
 	>;
 	readonly options?: { readonly editorLinks?: EditorLinks; readonly envVar?: string; readonly cwd?: string };
 	readonly terminal?: string;

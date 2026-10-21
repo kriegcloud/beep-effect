@@ -46,14 +46,20 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { Table, type TableAlign, TableCell, TableRow } from "../../MarkdownNode.ts";
 import type {
 	BlockConstruct,
+	BlockContinueResult,
 	BlockNode,
 	BlockScanner,
 	BlockStart,
+	BlockStartResult,
+	MaterializeContext,
+	MaterializedBlock,
 	TableData,
 } from "../blockTypes.ts";
 import { RawInlineSegment, tableCellChildren, tableRowChildren } from "../blockTypes.ts";
 import { sliceWithSegments } from "../segments.ts";
 import { ESCAPABLE } from "../unescape.ts";
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/internal/blocks/table");
 
@@ -93,9 +99,9 @@ const isSpaceChar = (char: string): boolean => char === " " || char === "\t" || 
  * @since 0.0.0
  */
 export const RowSource = S.Struct({
-	text: S.String.annotateKey({ description: "Newline-terminated row text, as expected by the scanner." }),
-	segments: S.Array(RawInlineSegment).annotateKey({ description: "Source provenance for the surviving characters of the row text." }),
-}).annotate($I.annote("RowSource", { description: "Row text and its source provenance, including paragraph text reclaimed as a header." }));
+	text: S.String.pipe($I.annoteKey("RowSource.text", { description: "Newline-terminated row text, as expected by the scanner." })),
+	segments: S.Array(RawInlineSegment).pipe($I.annoteKey("RowSource.segments", { description: "Source provenance for the surviving characters of the row text." })),
+}).pipe($I.annoteSchema("RowSource", { description: "Row text and its source provenance, including paragraph text reclaimed as a header." }));
 /**
  * The schema-derived RowSource value type.
  *
@@ -120,10 +126,10 @@ export type RowSource = typeof RowSource.Type;
  * @since 0.0.0
  */
 export const RawCell = S.Struct({
-	start: S.Finite.annotateKey({ description: "Cell start in the row source, just past its opening pipe." }),
-	contentStart: S.Finite.annotateKey({ description: "First content offset after the cell's leading whitespace." }),
-	end: S.Finite.annotateKey({ description: "Exclusive end of the cell in the row source." }),
-}).annotate($I.annote("RawCell", { description: "A cell's source boundaries before unescaping and trimming." }));
+	start: S.Finite.pipe($I.annoteKey("RawCell.start", { description: "Cell start in the row source, just past its opening pipe." })),
+	contentStart: S.Finite.pipe($I.annoteKey("RawCell.contentStart", { description: "First content offset after the cell's leading whitespace." })),
+	end: S.Finite.pipe($I.annoteKey("RawCell.end", { description: "Exclusive end of the cell in the row source." })),
+}).pipe($I.annoteSchema("RawCell", { description: "A cell's source boundaries before unescaping and trimming." }));
 /**
  * The schema-derived RawCell value type.
  *
@@ -148,10 +154,10 @@ export type RawCell = typeof RawCell.Type;
  * @since 0.0.0
  */
 export const ScannedRow = S.Struct({
-	cells: S.Array(RawCell).annotateKey({ description: "Cell boundaries in source order." }),
-	paragraphOffset: S.Finite.annotateKey({ description: "Row start within the source; nonzero for a reclaimed paragraph header." }),
-	complete: S.optionalKey(S.Boolean).annotateKey({ description: "When present, whether the scan consumed the entire row source." }),
-}).annotate($I.annote("ScannedRow", { description: "Scanned cell boundaries and the row's paragraph-relative start." }));
+	cells: S.Array(RawCell).pipe($I.annoteKey("ScannedRow.cells", { description: "Cell boundaries in source order." })),
+	paragraphOffset: S.Finite.pipe($I.annoteKey("ScannedRow.paragraphOffset", { description: "Row start within the source; nonzero for a reclaimed paragraph header." })),
+	complete: S.optionalKey(S.Boolean).pipe($I.annoteKey("ScannedRow.complete", { description: "When present, whether the scan consumed the entire row source." })),
+}).pipe($I.annoteSchema("ScannedRow", { description: "Scanned cell boundaries and the row's paragraph-relative start." }));
 /**
  * The schema-derived ScannedRow value type.
  *
@@ -163,7 +169,10 @@ export type ScannedRow = typeof ScannedRow.Type;
 // --- upstream's scanners --------------------------------------------------
 
 /** `_scan_table_cell_end`: `[|] spacechar*`, the pipe between two cells. */
-const scanCellEnd = (text: string, from: number): number => {
+const scanCellEnd: {
+	(text: string, from: number): number;
+	(from: number): (text: string) => number;
+} = dual(2, (text: string, from: number): number => {
 	if (text.charAt(from) !== "|") {
 		return 0;
 	}
@@ -172,7 +181,7 @@ const scanCellEnd = (text: string, from: number): number => {
 		index += 1;
 	}
 	return index - from;
-};
+});
 
 /**
  * `_scan_table_cell`: `(escaped_char|[^|\r\n])+`.
@@ -183,7 +192,10 @@ const scanCellEnd = (text: string, from: number): number => {
  * the whole mechanism behind escaped pipes: `\|` is one cell character, a bare
  * `|` ends the cell.
  */
-const scanCell = (text: string, from: number): number => {
+const scanCell: {
+	(text: string, from: number): number;
+	(from: number): (text: string) => number;
+} = dual(2, (text: string, from: number): number => {
 	let index = from;
 	while (index < text.length) {
 		const char = text.charAt(index);
@@ -197,10 +209,13 @@ const scanCell = (text: string, from: number): number => {
 		index += 1;
 	}
 	return index - from;
-};
+});
 
 /** `_scan_table_row_end`: `spacechar* newline`. */
-const scanRowEnd = (text: string, from: number): number => {
+const scanRowEnd: {
+	(text: string, from: number): number;
+	(from: number): (text: string) => number;
+} = dual(2, (text: string, from: number): number => {
 	// scanCell and scanCellEnd already consumed all whitespace before this offset.
 	let index = from;
 	if (text.charAt(index) === "\r") {
@@ -210,7 +225,7 @@ const scanRowEnd = (text: string, from: number): number => {
 		return 0;
 	}
 	return index + 1 - from;
-};
+});
 
 /**
  * `_scan_table_start`: `[|]? marker ([|] marker)* [|]? spacechar* newline`,
@@ -223,7 +238,10 @@ const scanRowEnd = (text: string, from: number): number => {
  * backtracking engine goes exponential on, and the pathological corpus feeds
  * this scanner adversarial delimiter rows.
  */
-const scanDelimiterRowLine = (line: string, from: number): boolean => {
+const scanDelimiterRowLine: {
+	(line: string, from: number): boolean;
+	(from: number): (line: string) => boolean;
+} = dual(2, (line: string, from: number): boolean => {
 	let index = from;
 	if (line.charAt(index) === "|") {
 		index += 1;
@@ -266,7 +284,7 @@ const scanDelimiterRowLine = (line: string, from: number): boolean => {
 			return true;
 		}
 	}
-};
+});
 
 // --- upstream's `row_from_string` -----------------------------------------
 
@@ -351,9 +369,9 @@ const rowFromSource = (source: RowSource): ScannedRow | undefined => {
  * @since 0.0.0
  */
 export const CellContent = S.Struct({
-	text: S.String.annotateKey({ description: "Cell text after dropping backslashes that escape delimiter pipes." }),
-	segments: S.Array(RawInlineSegment).annotateKey({ description: "Source provenance rebased to the unescaped cell text." }),
-}).annotate($I.annote("CellContent", { description: "Unescaped cell text with provenance for every surviving character." }));
+	text: S.String.pipe($I.annoteKey("CellContent.text", { description: "Cell text after dropping backslashes that escape delimiter pipes." })),
+	segments: S.Array(RawInlineSegment).pipe($I.annoteKey("CellContent.segments", { description: "Source provenance rebased to the unescaped cell text." })),
+}).pipe($I.annoteSchema("CellContent", { description: "Unescaped cell text with provenance for every surviving character." }));
 /**
  * The schema-derived CellContent value type.
  *
@@ -374,7 +392,10 @@ export type CellContent = typeof CellContent.Type;
  * lookahead stops at `to`, because past it lies the delimiter pipe that ended
  * the cell and unescaping into it would eat a column boundary.
  */
-const cellContent = (source: RowSource, from: number, to: number): CellContent => {
+const cellContent: {
+	(source: RowSource, from: number, to: number): CellContent;
+	(from: number, to: number): (source: RowSource) => CellContent;
+} = dual(3, (source: RowSource, from: number, to: number): CellContent => {
 	const { text } = source;
 	const drops: number[] = [];
 	for (let index = from; index < to; index += 1) {
@@ -427,10 +448,13 @@ const cellContent = (source: RowSource, from: number, to: number): CellContent =
 		cursor = drop + 1;
 	}
 	return { text: content, segments };
-};
+});
 
 /** The absolute source offset of `index` in a row source. */
-const offsetAt = (source: RowSource, index: number, fallback: number): number => {
+const offsetAt: {
+	(source: RowSource, index: number, fallback: number): number;
+	(index: number, fallback: number): (source: RowSource) => number;
+} = dual(3, (source: RowSource, index: number, fallback: number): number => {
 	for (const segment of source.segments) {
 		if (index < segment.textOffset) {
 			return segment.sourceOffset;
@@ -441,7 +465,7 @@ const offsetAt = (source: RowSource, index: number, fallback: number): number =>
 	}
 	const last = source.segments[source.segments.length - 1];
 	return last === undefined ? fallback : last.sourceOffset + last.length;
-};
+});
 
 // --- alignment ------------------------------------------------------------
 
@@ -454,8 +478,11 @@ const offsetAt = (source: RowSource, index: number, fallback: number): number =>
  * Upstream reads the first and last byte of the TRIMMED cell buffer, so the
  * whitespace the scanner allows around a marker never reaches this decision.
  */
-const alignmentsOf = (source: RowSource, row: ScannedRow): ReadonlyArray<TableAlign | null> =>
-	row.cells.map((cell) => {
+const alignmentsOf: {
+	(source: RowSource, row: ScannedRow): ReadonlyArray<TableAlign | null>;
+	(row: ScannedRow): (source: RowSource) => ReadonlyArray<TableAlign | null>;
+} = dual(2, (source: RowSource, row: ScannedRow): ReadonlyArray<TableAlign | null> =>
+	A.map(row.cells, (cell) => {
 		const text = source.text.slice(cell.contentStart, cell.end).trim();
 		const left = Str.startsWith(":")(text);
 		const right = Str.endsWith(":")(text);
@@ -469,7 +496,7 @@ const alignmentsOf = (source: RowSource, row: ScannedRow): ReadonlyArray<TableAl
 			return "right";
 		}
 		return null;
-	});
+	}));
 
 // --- building the block tree ----------------------------------------------
 
@@ -500,17 +527,23 @@ const paragraphSource = (block: BlockNode): RowSource => ({
  * the block to the end of the last line the loop finished — which for a row
  * built inside a block start is the line before. The end is corrected here.
  */
-const closeAt = (scanner: BlockScanner, block: BlockNode, endOffset: number): void => {
+const closeAt: {
+	(scanner: BlockScanner, block: BlockNode, endOffset: number): void;
+	(block: BlockNode, endOffset: number): (scanner: BlockScanner) => void;
+} = dual(3, (scanner: BlockScanner, block: BlockNode, endOffset: number): void => {
 	scanner.finalizeBlock(block, scanner.lineNumber);
 	block.endLine = scanner.lineNumber;
 	block.endOffset = endOffset;
-};
+});
 
 /**
  * Build one row of `table` from `row`, as a `tableRow` block of `tableCell`
  * children, truncated or padded to the table's column count.
  */
-const addRow = (
+const addRow: {
+	(scanner: BlockScanner, data: TableData, source: RowSource, row: ScannedRow, rowStartOffset: number, rowEndOffset: number): void;
+	(data: TableData, source: RowSource, row: ScannedRow, rowStartOffset: number, rowEndOffset: number): (scanner: BlockScanner) => void;
+} = dual(6, (
 	scanner: BlockScanner,
 	data: TableData,
 	source: RowSource,
@@ -545,7 +578,7 @@ const addRow = (
 	data.rows += 1;
 	data.nonemptyCells += used;
 	closeAt(scanner, rowBlock, rowEndOffset);
-};
+});
 
 // --- block starts ---------------------------------------------------------
 
@@ -570,7 +603,7 @@ const addRow = (
  */
 export const tableHeaderStart: BlockStart = {
 	name: "tableHeader",
-	trigger: (scanner, container) => {
+	trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
 		if (scanner.indented || container.type !== "paragraph" || container.data.tableVisited === true) {
 			return 0;
 		}
@@ -630,7 +663,7 @@ export const tableHeaderStart: BlockStart = {
 
 		scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
 		return 2;
-	},
+	}),
 };
 
 /**
@@ -655,7 +688,7 @@ export const tableHeaderStart: BlockStart = {
  */
 export const tableRowStart: BlockStart = {
 	name: "tableRow",
-	trigger: (scanner, container) => {
+	trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
 		if (scanner.indented || scanner.blank || container.type !== "table") {
 			return 0;
 		}
@@ -678,7 +711,7 @@ export const tableRowStart: BlockStart = {
 		addRow(scanner, data, source, row, rowStart, scanner.lineStart + scanner.currentLine.length);
 		scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
 		return 2;
-	},
+	}),
 };
 
 // --- constructs -----------------------------------------------------------
@@ -702,15 +735,15 @@ export const tableConstruct: BlockConstruct = {
 	type: "table",
 	acceptsLines: false,
 	canContain: (child) => child === "tableRow",
-	continue: (scanner) => {
+	continue: dual(2, (scanner: BlockScanner, _block: BlockNode): BlockContinueResult => {
 		// Upstream's `matches`. A blank line yields no cells and so ends the
 		// table, which is the only reason there is no explicit blank check.
 		if (scanner.indented) {
 			return 1;
 		}
 		return rowFromSource(lineSource(scanner)) === undefined ? 1 : 0;
-	},
-	materialize: (block, children, context) => {
+	}),
+	materialize: dual(3, (block: BlockNode, children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const rows = tableRowChildren(children);
 		if (rows.length === 0) {
 			return undefined;
@@ -720,7 +753,7 @@ export const tableConstruct: BlockConstruct = {
 			children: rows,
 			position: context.position(block.startOffset, block.endOffset),
 		});
-	},
+	}),
 };
 
 /**
@@ -742,12 +775,11 @@ export const tableRowConstruct: BlockConstruct = {
 	type: "tableRow",
 	acceptsLines: false,
 	canContain: (child) => child === "tableCell",
-	continue: () => 1,
-	materialize: (block, children, context) =>
-		TableRow.make({
+	continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
+	materialize: dual(3, (block: BlockNode, children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => TableRow.make({
 			children: tableCellChildren(children),
 			position: context.position(block.startOffset, block.endOffset),
-		}),
+		})),
 };
 
 /**
@@ -775,8 +807,8 @@ export const tableCellConstruct: BlockConstruct = {
 	type: "tableCell",
 	acceptsLines: false,
 	canContain: () => false,
-	continue: () => 1,
-	materialize: (block, _children, context) => {
+	continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
+	materialize: dual(3, (block: BlockNode, _children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const inline = context.inlineSlice(block);
 		const node = TableCell.make({
 			children: inline.children,
@@ -784,5 +816,5 @@ export const tableCellConstruct: BlockConstruct = {
 		});
 		context.registerInline(node, inline);
 		return node;
-	},
+	}),
 };

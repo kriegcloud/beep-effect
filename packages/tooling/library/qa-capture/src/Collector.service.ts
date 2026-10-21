@@ -268,14 +268,10 @@ const portOfServer = (server: HttpServer.HttpServer["Service"], fallback: number
 // `process.kill(pid, 0)` probes liveness without signalling; a throw means
 // the pid is gone and its handle file is reclaimable.
 const isPidAlive = (pid: number): Effect.Effect<boolean> =>
-  Effect.sync(() => {
-    try {
-      process.kill(pid, 0);
-      return true;
-    } catch {
-      return false;
-    }
-  });
+  Effect.try(() => {
+    process.kill(pid, 0);
+    return true;
+  }).pipe(Effect.orElseSucceed(() => false));
 
 const makeService = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;

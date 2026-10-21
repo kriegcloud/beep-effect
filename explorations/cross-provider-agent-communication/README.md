@@ -75,8 +75,13 @@ led to disposable managed-provider experiments and synthetic recovery fixtures.
 Claude web idle delivery and reload passed through a controller-mediated UI
 bridge. Later managed implementation and T3 receipts qualify their named autonomous
 reply modes. Other native app attachment remains unverified. The packet graduated
-on 2026-10-09; old packet states are preserved. PR #1571 contains the implementation;
-the latest local correction and T3 qualification await publication.
+on 2026-10-09; old packet states are preserved. The 2026-10-09 pre-publication snapshot recorded the latest local correction
+and T3 qualification as awaiting publication. Publication update verified
+2026-10-20: [PR #1571](https://github.com/beep-effect/beep-effect/pull/1571)
+merged on 2026-10-14 at `479c53e3878946215c957aee54346e9e2a12a32d`.
+See the [managed implementation](../../goals/agent-session-bridges/README.md)
+and [attached T3 qualification](../../goals/agent-session-bridges/research/T3-INTEGRATION.md)
+for their separate evidence boundaries.
 
 ## Trail
 

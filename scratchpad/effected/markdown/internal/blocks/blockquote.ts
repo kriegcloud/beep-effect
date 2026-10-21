@@ -7,9 +7,10 @@
 // first becomes reachable (`addLine` pads the remainder back out).
 
 import { Blockquote } from "../../MarkdownNode.ts";
-import type { BlockConstruct, BlockStart } from "../blockTypes.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, BlockStart, BlockStartResult, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
 import { flowChildren } from "../blockTypes.ts";
 import { isSpaceOrTab, peekCode } from "../preprocess.ts";
+import { dual } from "effect/Function";
 
 const C_GREATERTHAN = 0x3e;
 
@@ -32,7 +33,7 @@ export const blockquoteConstruct: BlockConstruct = {
 	type: "blockquote",
 	acceptsLines: false,
 	canContain: (child) => child !== "listItem",
-	continue: (scanner) => {
+	continue: dual(2, (scanner: BlockScanner, _block: BlockNode): BlockContinueResult => {
 		const line = scanner.currentLine;
 		if (scanner.indented || peekCode(line, scanner.nextNonspace) !== C_GREATERTHAN) {
 			return 1;
@@ -43,12 +44,11 @@ export const blockquoteConstruct: BlockConstruct = {
 			scanner.advanceOffset(1, true);
 		}
 		return 0;
-	},
-	materialize: (block, children, context) =>
-		Blockquote.make({
+	}),
+	materialize: dual(3, (block: BlockNode, children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => Blockquote.make({
 			children: flowChildren(children),
 			position: context.position(block.startOffset, block.endOffset),
-		}),
+		})),
 };
 
 /**
@@ -67,7 +67,7 @@ export const blockquoteConstruct: BlockConstruct = {
  */
 export const blockquoteStart: BlockStart = {
 	name: "blockquote",
-	trigger: (scanner) => {
+	trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
 		if (scanner.indented || peekCode(scanner.currentLine, scanner.nextNonspace) !== C_GREATERTHAN) {
 			return 0;
 		}
@@ -80,5 +80,5 @@ export const blockquoteStart: BlockStart = {
 		scanner.closeUnmatchedBlocks();
 		scanner.addChild("blockquote", scanner.nextNonspace);
 		return 1;
-	},
+	}),
 };

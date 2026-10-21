@@ -12,6 +12,7 @@
 // `worktree()` reuses `WorkspaceDiscovery` and `WorkspaceCatalogs` — the ONE
 // shared read path, never a second manifest/lockfile read.
 
+import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import type { GitCommandError, NotARepositoryError, UnknownRefError } from "../git/index.ts";
 import { Git } from "../git/index.ts";
@@ -46,12 +47,8 @@ import * as Result from "effect/Result";
 
 const $I = $ScratchpadId.create("effected/workspaces/WorkspaceSnapshots");
 const JsonValue = S.fromJsonString(S.Unknown);
-const JsonObject = S.Record(S.String, S.Unknown).annotate(
-	$I.annote("JsonObject", { description: "A non-array JSON object read from a manifest." }),
-);
-const DependencyRecord = S.Record(S.String, S.String).annotate(
-	$I.annote("DependencyRecord", { description: "Manifest dependency names mapped to specifiers." }),
-);
+const JsonObject = S.Record(S.String, S.Unknown).pipe($I.annoteSchema("JsonObject", { description: "A non-array JSON object read from a manifest." }));
+const DependencyRecord = S.Record(S.String, S.String).pipe($I.annoteSchema("DependencyRecord", { description: "Manifest dependency names mapped to specifiers." }));
 
 /**
  * Every failure `WorkspaceSnapshots.at` can surface: git's own typed
@@ -119,7 +116,7 @@ export const WorkspaceSnapshotsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	cwd: S.optionalKey(S.String).annotateKey($I.annote("cwd", { description: "Starting directory, defaulted lazily on use." })),
+	cwd: S.optionalKey(S.String).pipe($I.annoteKey("WorkspaceSnapshotsOptions.cwd", { description: "Starting directory, defaulted lazily on use." })),
 	/**
 	 * A ceiling for the root ascent from `cwd`, passed straight through to the
 	 * `stopAt` of {@link WorkspaceRoot}'s `find`.
@@ -137,7 +134,7 @@ export const WorkspaceSnapshotsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	stopAt: S.optional(S.String).annotateKey($I.annote("stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
+	stopAt: S.optional(S.String).pipe($I.annoteKey("WorkspaceSnapshotsOptions.stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
 	/**
 	 * Catalogs every snapshot this service produces carries as its
 	 * `seededCatalogs` — consulted only where the snapshot's own catalogs cannot
@@ -168,8 +165,8 @@ export const WorkspaceSnapshotsOptions = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	seedCatalogs: S.optionalKey(CatalogSet).annotateKey($I.annote("seedCatalogs", { description: "Fallback catalogs consulted after the snapshot own catalogs." })),
-}).annotate($I.annote("WorkspaceSnapshotsOptions", { description: "Plain-object snapshot root and seed options with defaults applied on use." }));
+	seedCatalogs: S.optionalKey(CatalogSet).pipe($I.annoteKey("WorkspaceSnapshotsOptions.seedCatalogs", { description: "Fallback catalogs consulted after the snapshot own catalogs." })),
+}).pipe($I.annoteSchema("WorkspaceSnapshotsOptions", { description: "Plain-object snapshot root and seed options with defaults applied on use." }));
 
 /** The plain-object options described by {@link WorkspaceSnapshotsOptions}.
  * @category type-level
@@ -236,7 +233,10 @@ const parseJsonObject = (text: string): Record<string, unknown> =>
  * {@link PackageStateSnapshot}. An absent path, unparseable content, or a
  * manifest with no usable name is skipped — never an error.
  */
-const snapshotOf = (content: O.Option<string>, relativePath: string): O.Option<PackageStateSnapshot> => {
+const snapshotOf: {
+	(content: O.Option<string>, relativePath: string): O.Option<PackageStateSnapshot>;
+	(relativePath: string): (content: O.Option<string>) => O.Option<PackageStateSnapshot>;
+} = dual(2, (content: O.Option<string>, relativePath: string): O.Option<PackageStateSnapshot> => {
 	if (O.isNone(content)) return O.none();
 	const parsed = parseJsonObject(content.value);
 	const name = parsed.name;
@@ -256,7 +256,7 @@ const snapshotOf = (content: O.Option<string>, relativePath: string): O.Option<P
 			...(isStringRecord(parsed.optionalDependencies) ? { optionalDependencies: parsed.optionalDependencies } : {}),
 		}),
 	);
-};
+});
 
 /**
  * bun's inline catalogs from the root manifest's top-level and
@@ -284,9 +284,9 @@ const bunInlineCatalogs = (manifest: Record<string, unknown>): CatalogSet => {
  * `at(ref)` performs per snapshot.
  */
 const LockfileRecord = S.Struct({
-	catalogs: CatalogSet.annotateKey($I.annote("catalogs", { description: "Catalogs recorded by the lockfile." })),
-	importerVersions: ImporterVersions.annotateKey($I.annote("importerVersions", { description: "Resolved importer versions from the same lockfile parse." })),
-}).annotate($I.annote("LockfileRecord", { description: "The plain-object contribution of a single lockfile parse." }));
+	catalogs: CatalogSet.pipe($I.annoteKey("LockfileRecord.catalogs", { description: "Catalogs recorded by the lockfile." })),
+	importerVersions: ImporterVersions.pipe($I.annoteKey("LockfileRecord.importerVersions", { description: "Resolved importer versions from the same lockfile parse." })),
+}).pipe($I.annoteSchema("LockfileRecord", { description: "The plain-object contribution of a single lockfile parse." }));
 type LockfileRecord = typeof LockfileRecord.Type;
 
 /** The contribution of an absent or malformed lockfile: nothing, on both counts. */
@@ -294,7 +294,7 @@ const EMPTY_LOCKFILE_RECORD: LockfileRecord = { catalogs: CatalogSet.empty(), im
 
 class WorkspaceSnapshotsTestDoubleError extends S.TaggedError<WorkspaceSnapshotsTestDoubleError, { readonly brand: unique symbol }>($I`WorkspaceSnapshotsTestDoubleError`)("WorkspaceSnapshotsTestDoubleError", {
 	message: S.String,
-}, $I.annote("WorkspaceSnapshotsTestDoubleError", { description: "An unstubbed workspace snapshot test-double method." })) {}
+}, $I.annoteError<WorkspaceSnapshotsTestDoubleError>("WorkspaceSnapshotsTestDoubleError", { description: "An unstubbed workspace snapshot test-double method." })) {}
 
 /** A defect naming the unstubbed test-double method — a test-wiring mistake, not a typed failure. */
 const unstubbed = (method: string): Effect.Effect<never> =>
@@ -381,21 +381,34 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
 			options?.seedCatalogs === undefined ? snapshot : snapshot.withSeededCatalogs(options.seedCatalogs);
 
 		/** A manager's lockfile text at the ref, `none` when the ref has none. */
-		const lockfileText = (
+		const lockfileText: {
+			(
+				root: string,
+				ref: string,
+				format: "pnpm" | "bun",
+			): Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+			(
+				ref: string,
+				format: "pnpm" | "bun",
+			): (root: string) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+		} = dual(3, (
 			root: string,
 			ref: string,
 			format: "pnpm" | "bun",
 		): Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError> =>
 			// `./`-prefixed so git resolves the lockfile relative to `cwd` (the
 			// workspace root), NOT the git repo top-level — see `computeAt`.
-			git.show(root, ref, `./${filenameFor(format)}`);
+			git.show(root, ref, `./${filenameFor(format)}`));
 
 		/**
 		 * What a manager's lockfile records at the ref: its catalog set and its
 		 * importer versions, from ONE parse. Empty on both counts when the
 		 * lockfile is absent or malformed.
 		 */
-		const lockfileRecord = (content: O.Option<string>, format: "pnpm" | "bun"): Effect.Effect<LockfileRecord> =>
+		const lockfileRecord: {
+			(content: O.Option<string>, format: "pnpm" | "bun"): Effect.Effect<LockfileRecord>;
+			(format: "pnpm" | "bun"): (content: O.Option<string>) => Effect.Effect<LockfileRecord>;
+		} = dual(2, (content: O.Option<string>, format: "pnpm" | "bun"): Effect.Effect<LockfileRecord> =>
 			O.match(content, {
 				onNone: () => Effect.succeed(EMPTY_LOCKFILE_RECORD),
 				onSome: (text) =>
@@ -409,9 +422,12 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
 						// the live WorkspaceCatalogs does for an unreadable lockfile.
 						Effect.orElseSucceed(() => EMPTY_LOCKFILE_RECORD),
 					),
-			});
+			}));
 
-		const computeAt = Effect.fnUntraced(function* (
+		const computeAt: {
+			(root: string, ref: string): Effect.Effect<WorkspaceStateSnapshot, WorkspaceSnapshotAtFailure>;
+			(ref: string): (root: string) => Effect.Effect<WorkspaceStateSnapshot, WorkspaceSnapshotAtFailure>;
+		} = dual(2, Effect.fnUntraced(function* (
 			root: string,
 			ref: string,
 		): Effect.fn.Return<WorkspaceStateSnapshot, WorkspaceSnapshotAtFailure> {
@@ -462,7 +478,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
 				// checked against the base side's pins, never the working tree's.
 				const lockfile = yield* lockfileText(root, ref, "pnpm");
 				const replayed = yield* injectFromDocument(hooks, root, document, inline, {
-					lockfile: O.getOrUndefined(lockfile),
+					...O.getSomesStruct({ lockfile }),
 					ref,
 				});
 				injected = replayed.injected;
@@ -520,7 +536,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
 			const members = yield* Effect.forEach(
 				memberDirs,
 				(dir) =>
-					git.show(root, ref, `./${dir}/package.json`).pipe(Effect.map((content) => snapshotOf(content, dir))),
+					git.show(root, ref, `./${dir}/package.json`).pipe(Effect.map(snapshotOf(dir))),
 				{ concurrency: 10 },
 			);
 
@@ -539,7 +555,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
 					hookReplays: hookVersionsOf(hookReplays),
 				}),
 			);
-		});
+		}));
 
 		// Per-`(root, ref)` memo of the success-only invalidating cell. A failed
 		// init invalidates its cell, so the next call recomputes rather than
@@ -586,7 +602,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
 			const importerVersions = yield* catalogsService.importerVersions;
 			// Same memo again: which version each config dependency replayed from.
 			const hookReplays = yield* catalogsService.hookReplays;
-			const snapshotPackages = packages.map((pkg) =>
+			const snapshotPackages = A.map(packages, (pkg) =>
 				PackageStateSnapshot.make({
 					name: pkg.name,
 					// A version-less member omits the key, exactly as `snapshotOf` does
@@ -598,8 +614,7 @@ export class WorkspaceSnapshots extends Context.Service<WorkspaceSnapshots, Work
 					devDependencies: pkg.devDependencies,
 					peerDependencies: pkg.peerDependencies,
 					optionalDependencies: pkg.optionalDependencies,
-				}),
-			);
+				}));
 			return seeded(
 				WorkspaceStateSnapshot.make({
 					packages: snapshotPackages,

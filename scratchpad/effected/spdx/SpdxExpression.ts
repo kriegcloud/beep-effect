@@ -1,4 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -67,9 +68,9 @@ const serialize: (node: SpdxNode) => string = Match.type<SpdxNode>().pipe(
  */
 export class LicenseNode extends S.TaggedClass<LicenseNode, { readonly brand: unique symbol }>($I`LicenseNode`)("License", {
 	/** The SPDX short identifier, e.g. `"MIT"` or `"Apache-2.0"`. */
-	id: S.String.annotateKey({ description: "The SPDX short identifier, e.g. `\"MIT\"` or `\"Apache-2.0\"`." }),
+	id: S.String.pipe($I.annoteKey("LicenseNode.id", { description: "The SPDX short identifier, e.g. `\"MIT\"` or `\"Apache-2.0\"`." })),
 	/** Whether the trailing `+` "or later" marker is present. */
-	plus: S.Boolean.annotateKey({ description: "Whether the trailing `+` \"or later\" marker is present." }),
+	plus: S.Boolean.pipe($I.annoteKey("LicenseNode.plus", { description: "Whether the trailing `+` \"or later\" marker is present." })),
 }, $I.annote("LicenseNode", { description: "A simple-license leaf of an SPDX expression: a license identifier with the trailing `+` (\"or later\") marker. This is the expression-level license node, distinct from the catalog License class, which validates and resolves an identifier but does not model the `+` operator." })) {
 	/**
 	 * The canonical string form: the id, suffixed with `+` when `plus` is set.
@@ -112,9 +113,9 @@ export class LicenseNode extends S.TaggedClass<LicenseNode, { readonly brand: un
  */
 export class LicenseRefNode extends S.TaggedClass<LicenseRefNode, { readonly brand: unique symbol }>($I`LicenseRefNode`)("LicenseRef", {
 	/** The `DocumentRef-` idstring when the reference is document-scoped; absent otherwise. */
-	documentRef: S.optionalKey(S.String).annotateKey({ description: "The `DocumentRef-` idstring when the reference is document-scoped; absent otherwise." }),
+	documentRef: S.optionalKey(S.String).pipe($I.annoteKey("LicenseRefNode.documentRef", { description: "The `DocumentRef-` idstring when the reference is document-scoped; absent otherwise." })),
 	/** The `LicenseRef-` idstring. */
-	ref: S.String.annotateKey({ description: "The `LicenseRef-` idstring." }),
+	ref: S.String.pipe($I.annoteKey("LicenseRefNode.ref", { description: "The `LicenseRef-` idstring." })),
 }, $I.annote("LicenseRefNode", { description: "A `LicenseRef`/`DocumentRef` reference leaf. The `LicenseRef-`/`DocumentRef-` prefixes and the `:` separator are structural and are not stored; only the bare idstrings are kept, so the node round-trips to canonical form without duplicating the grammar." })) {
 	/**
 	 * The canonical string form, re-attaching the `DocumentRef-…:` prefix when present.
@@ -160,9 +161,9 @@ export class LicenseRefNode extends S.TaggedClass<LicenseRefNode, { readonly bra
  */
 export class WithExceptionNode extends S.TaggedClass<WithExceptionNode, { readonly brand: unique symbol }>($I`WithExceptionNode`)("WithException", {
 	/** The license the exception applies to: a simple license (which may carry the `+` marker) or a `LicenseRef` reference. */
-	license: S.Union([LicenseNode, LicenseRefNode]).annotateKey({ description: "The license the exception applies to: a simple license (which may carry the `+` marker) or a `LicenseRef` reference." }),
+	license: S.Union([LicenseNode, LicenseRefNode]).pipe($I.annoteKey("WithExceptionNode.license", { description: "The license the exception applies to: a simple license (which may carry the `+` marker) or a `LicenseRef` reference." })),
 	/** The SPDX exception short identifier, e.g. `"Bison-exception-2.2"`. */
-	exception: S.String.annotateKey({ description: "The SPDX exception short identifier, e.g. `\"Bison-exception-2.2\"`." }),
+	exception: S.String.pipe($I.annoteKey("WithExceptionNode.exception", { description: "The SPDX exception short identifier, e.g. `\"Bison-exception-2.2\"`." })),
 }, $I.annote("WithExceptionNode", { description: "A `license WITH exception` node. Per the SPDX grammar, `WITH` binds to a simple expression — a license identifier (optionally `+`) or a `LicenseRef`/`DocumentRef` reference — never a compound expression, so `license` is a LicenseNode or a LicenseRefNode." })) {
 	/**
 	 * The canonical string form: the license, then `WITH`, then the exception id.
@@ -209,9 +210,9 @@ export class WithExceptionNode extends S.TaggedClass<WithExceptionNode, { readon
  */
 export class AndNode extends S.TaggedClass<AndNode, { readonly brand: unique symbol }>($I`AndNode`)("And", {
 	/** The left operand. */
-	left: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey({ description: "The left operand." }),
+	left: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey($I.annote("AndNode.left", { description: "The left operand." })),
 	/** The right operand. */
-	right: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey({ description: "The right operand." }),
+	right: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey($I.annote("AndNode.right", { description: "The right operand." })),
 }, $I.annote("AndNode", { description: "The conjunction (`AND`) of two sub-expressions. Recursive: its children are any (SpdxExpression:type), expressed via `Schema.suspend`." })) {
 	/**
 	 * The canonical, fully-parenthesized string form `(left AND right)`.
@@ -258,9 +259,9 @@ export class AndNode extends S.TaggedClass<AndNode, { readonly brand: unique sym
  */
 export class OrNode extends S.TaggedClass<OrNode, { readonly brand: unique symbol }>($I`OrNode`)("Or", {
 	/** The left operand. */
-	left: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey({ description: "The left operand." }),
+	left: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey($I.annote("OrNode.left", { description: "The left operand." })),
 	/** The right operand. */
-	right: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey({ description: "The right operand." }),
+	right: S.suspend((): S.Codec<SpdxExpression, SpdxNode> => SpdxExpressionUnion).annotateKey($I.annote("OrNode.right", { description: "The right operand." })),
 }, $I.annote("OrNode", { description: "The disjunction (`OR`) of two sub-expressions. Recursive: its children are any (SpdxExpression:type), expressed via `Schema.suspend`." })) {
 	/**
 	 * The canonical, fully-parenthesized string form `(left OR right)`.
@@ -477,7 +478,7 @@ const licensesOf = (expr: SpdxExpression): ReadonlyArray<License> => {
 	const collected: Array<License> = [];
 	collectLicenses(expr)(collected);
 	const seen = MutableHashSet.empty<string>();
-	return collected.filter((license) => {
+	return A.filter(collected, (license) => {
 		if (MutableHashSet.has(seen, license.id)) return false;
 		MutableHashSet.add(seen, license.id);
 		return true;

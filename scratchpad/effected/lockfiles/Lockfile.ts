@@ -1,3 +1,4 @@
+import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
@@ -54,12 +55,12 @@ const EMPTY_IMPORTERS: ReadonlyArray<LockfileImporter> = [];
  */
 export class LockfileParseError extends S.TaggedError<LockfileParseError, { readonly brand: unique symbol }>($I`LockfileParseError`)("LockfileParseError", {
 	/** The lockfile format that was being parsed. */
-	format: LockfileFormat.annotateKey({ description: "The lockfile format that was being parsed." }),
+	format: LockfileFormat.pipe($I.annoteKey("LockfileParseError.format", { description: "The lockfile format that was being parsed." })),
 	/** Whether the text itself failed to parse (`"syntax"`) or parsed but had the wrong shape (`"validation"`). */
-	stage: S.Literals(["syntax", "validation"]).annotateKey({ description: "Whether the text itself failed to parse (`\"syntax\"`) or parsed but had the wrong shape (`\"validation\"`)." }),
+	stage: S.Literals(["syntax", "validation"]).pipe($I.annoteKey("LockfileParseError.stage", { description: "Whether the text itself failed to parse (`\"syntax\"`) or parsed but had the wrong shape (`\"validation\"`)." })),
 	/** The underlying engine or schema failure, preserved structurally. */
-	cause: S.Defect().annotateKey({ description: "The underlying engine or schema failure, preserved structurally." }),
-}, $I.annote("LockfileParseError", { description: "Failure of `Lockfile.parse`: the given content is not a valid lockfile of the requested format." })) {
+	cause: S.Defect().pipe($I.annoteKey("LockfileParseError.cause", { description: "The underlying engine or schema failure, preserved structurally." })),
+}, $I.annoteError<LockfileParseError>("LockfileParseError", { description: "Failure of `Lockfile.parse`: the given content is not a valid lockfile of the requested format." })) {
 	/**
 	 * Summarizes the failed parsing stage for display.
 	 *
@@ -137,12 +138,12 @@ export class LockfileParseError extends S.TaggedError<LockfileParseError, { read
  */
 export class LockfileFramingError extends S.TaggedError<LockfileFramingError, { readonly brand: unique symbol }>($I`LockfileFramingError`)("LockfileFramingError", {
 	/** The lockfile format that was being parsed. */
-	format: LockfileFormat.annotateKey({ description: "The lockfile format that was being parsed." }),
+	format: LockfileFormat.pipe($I.annoteKey("LockfileFramingError.format", { description: "The lockfile format that was being parsed." })),
 	/** Which framing check failed; see the class remarks for each. */
-	reason: FramingReason.annotateKey({ description: "Which framing check failed; see the class remarks for each." }),
+	reason: FramingReason.pipe($I.annoteKey("LockfileFramingError.reason", { description: "Which framing check failed; see the class remarks for each." })),
 	/** How many YAML documents the stream carried. */
-	documents: S.Int.annotateKey({ description: "How many YAML documents the stream carried." }),
-}, $I.annote("LockfileFramingError", { description: "Failure of `Lockfile.parse`: the content parsed as text, but no single lockfile document could be located in it." })) {
+	documents: S.Int.pipe($I.annoteKey("LockfileFramingError.documents", { description: "How many YAML documents the stream carried." })),
+}, $I.annoteError<LockfileFramingError>("LockfileFramingError", { description: "Failure of `Lockfile.parse`: the content parsed as text, but no single lockfile document could be located in it." })) {
 	/**
 	 * Summarizes the failed document-framing check for display.
 	 *
@@ -201,7 +202,10 @@ export const materializeFailure: {
 		? LockfileFramingError.make({ format, reason: failure.reason, documents: failure.documents })
 		: LockfileParseError.make({ format, stage: failure.stage, cause: failure.cause }));
 
-const dispatch = (
+const dispatch: {
+	(format: LockfileFormat, content: string, configOnly: boolean): Effect.Effect<LockfileFields, ParseFailure>;
+	(content: string, configOnly: boolean): (format: LockfileFormat) => Effect.Effect<LockfileFields, ParseFailure>;
+} = dual(3, (
 	format: LockfileFormat,
 	content: string,
 	configOnly: boolean,
@@ -212,7 +216,7 @@ const dispatch = (
 		Match.when("pnpm", () => parsePnpm(content, configOnly)),
 		Match.when("yarn", () => parseYarn(content)),
 		Match.exhaustive,
-	);
+	));
 
 /**
  * The unified lockfile model all four formats normalize into.
@@ -250,18 +254,17 @@ const dispatch = (
  * @since 0.0.0
  */
 export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol }>($I`Lockfile`)({
-	format: LockfileFormat.annotateKey({ description: "Lockfile format that produced the normalized data: bun, npm, pnpm or yarn Berry" }),
-	lockfileVersion: S.String.annotateKey({ description: "Format version recorded by the lockfile" }),
-	packages: S.Array(ResolvedPackage).annotateKey({ description: "Resolved package instances, including workspace packages and separate instances for different peer contexts" }),
-	workspaceDependencies: S.Array(WorkspaceDependency).annotateKey({ description: "Directed dependency edges between workspace packages, carrying their declared constraints and dependency sections" }),
+	format: LockfileFormat.pipe($I.annoteKey("Lockfile.format", { description: "Lockfile format that produced the normalized data: bun, npm, pnpm or yarn Berry" })),
+	lockfileVersion: S.String.pipe($I.annoteKey("Lockfile.lockfileVersion", { description: "Format version recorded by the lockfile" })),
+	packages: S.Array(ResolvedPackage).pipe($I.annoteKey("Lockfile.packages", { description: "Resolved package instances, including workspace packages and separate instances for different peer contexts" })),
+	workspaceDependencies: S.Array(WorkspaceDependency).pipe($I.annoteKey("Lockfile.workspaceDependencies", { description: "Directed dependency edges between workspace packages, carrying their declared constraints and dependency sections" })),
 	importers: S.Array(LockfileImporter).pipe(
 		// The decoding default is the *encoded* empty array (a fresh `[]` literal,
 		// which is assignable to the encoded side); the constructor default is the
 		// decoded empty array. Both are empty, so the runtime value is identical.
 		S.withDecodingDefaultKey(Effect.succeed([])),
-		S.withConstructorDefault(Effect.succeed(EMPTY_IMPORTERS)),
-	).annotateKey({ description: "Workspace importers and their declared dependencies, identified by root-relative path; empty for yarn" }),
-	extension: S.optionalKey(S.Union([PnpmExtension, BunExtension])).annotateKey({ description: "Optional pnpm- or bun-specific metadata preserved alongside the normalized lockfile model" }),
+		S.withConstructorDefault(Effect.succeed(EMPTY_IMPORTERS)), $I.annoteKey("Lockfile.importers", { description: "Workspace importers and their declared dependencies, identified by root-relative path; empty for yarn" })),
+	extension: S.optionalKey(S.Union([PnpmExtension, BunExtension])).pipe($I.annoteKey("Lockfile.extension", { description: "Optional pnpm- or bun-specific metadata preserved alongside the normalized lockfile model" })),
 }, $I.annote("Lockfile", { description: "The unified lockfile model all four formats normalize into." })) {
 	/**
 	 * Lazily built name → packages index; deliberately outside the schema, never encodes.
@@ -348,7 +351,15 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parse = Effect.fn("Lockfile.parse")(function* (
+	static readonly parse: {
+		(
+			content: string,
+			options: { readonly format: LockfileFormat; readonly configOnly?: boolean | undefined },
+		): Effect.Effect<Lockfile, LockfileParseError | LockfileFramingError>;
+		(
+			options: { readonly format: LockfileFormat; readonly configOnly?: boolean | undefined },
+		): (content: string) => Effect.Effect<Lockfile, LockfileParseError | LockfileFramingError>;
+	} = dual(2, Effect.fn("Lockfile.parse")(function* (
 		content: string,
 		options: { readonly format: LockfileFormat; readonly configOnly?: boolean | undefined },
 	) {
@@ -363,7 +374,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
 			importers: fields.importers,
 			...O.getSomesStruct({ extension: O.fromUndefinedOr(fields.extension) }),
 		});
-	});
+	}));
 
 	/**
 	 * Rewrite pnpm importer-path names to real package names — the explicit
@@ -395,7 +406,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
 	 * @since 0.0.0
 	 */
 	withImporterNames(names: HashMap.HashMap<string, string>): Lockfile {
-		const packages = this.packages.map((pkg) => {
+		const packages = A.map(this.packages, (pkg) => {
 			if (!pkg.isWorkspace || pkg.relativePath === undefined) return pkg;
 			const realName = HashMap.get(names, pkg.relativePath).pipe(O.getOrElse(() => pkg.name));
 			if (realName === "" || realName === pkg.name) return pkg;
@@ -416,7 +427,7 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
 				unresolvedEdges: pkg.unresolvedEdges,
 			});
 		});
-		const workspaceDependencies = this.workspaceDependencies.map((dep) => {
+		const workspaceDependencies = A.map(this.workspaceDependencies, (dep) => {
 			const mappedFrom = HashMap.get(names, dep.from).pipe(O.getOrElse(() => dep.from));
 			const mappedTo = HashMap.get(names, dep.to).pipe(O.getOrElse(() => dep.to));
 			const from = mappedFrom === "" ? dep.from : mappedFrom;
@@ -562,6 +573,6 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
 	 * @since 0.0.0
 	 */
 	get workspacePackages(): ReadonlyArray<ResolvedPackage> {
-		return this.packages.filter((pkg) => pkg.isWorkspace);
+		return A.filter(this.packages, (pkg) => pkg.isWorkspace);
 	}
 }

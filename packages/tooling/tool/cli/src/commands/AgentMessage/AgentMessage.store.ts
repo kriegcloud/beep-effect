@@ -25,6 +25,7 @@ import {
   EndpointBinding,
   Envelope,
   LaunchGrant,
+  OriginalRuntimeEvidence,
   Receipt,
   ReceiptStatus,
   RouterError,
@@ -32,6 +33,22 @@ import {
 
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.store");
 const PayloadRows = S.Array(S.Struct({ payload: S.String }));
+const Settlement = S.Struct({ claim: Claim, evidence: OriginalRuntimeEvidence, endpointGeneration: S.Natural }).pipe(
+  $I.annoteSchema("Settlement", {
+    description: "Immutable original dispatch claim and adapter-correlated terminal evidence.",
+  })
+);
+const SettlementJson = S.fromJsonString(Settlement);
+const encodeSettlement = S.encodeEffect(SettlementJson);
+const decodeSettlement = S.decodeEffect(SettlementJson);
+const equalEvidence = S.toEquivalence(OriginalRuntimeEvidence);
+const equalEnvelope = S.toEquivalence(Envelope);
+const equalAttemptFence = S.toEquivalence(
+  S.Struct({ owner: S.NullOr(S.String), generation: S.Natural, leaseUntil: S.NullOr(S.Natural) })
+);
+const equalEnrollmentFence = S.toEquivalence(
+  S.Struct({ owner: S.String, generation: S.Natural, sessionId: S.String, adapter: S.String })
+);
 const ResolutionRows = S.Array(S.Struct({ payload: S.String, receipt_sequence: S.Natural }));
 const ExistingMessageRows = S.Array(S.Struct({ payload: S.String, sender_generation: S.Natural }));
 const QueueLimit = S.Int.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(100000));
@@ -144,6 +161,11 @@ export interface AgentMessageStoreShape {
   readonly inbox: (endpointId: string) => Effect.Effect<ReadonlyArray<Envelope>, RouterError>;
   readonly message: (messageId: string) => Effect.Effect<Envelope, RouterError>;
   readonly receipts: (messageId: string, afterSequence?: number) => Effect.Effect<ReadonlyArray<Receipt>, RouterError>;
+  readonly recordSettlement: (
+    claim: Claim,
+    evidence: OriginalRuntimeEvidence,
+    now: number
+  ) => Effect.Effect<void, RouterError>;
   readonly recover: (now: number) => Effect.Effect<number, RouterError>;
   readonly register: (binding: EndpointBinding) => Effect.Effect<void, RouterError>;
   readonly registerGrant: (grant: LaunchGrant) => Effect.Effect<void, RouterError>;
@@ -158,6 +180,7 @@ export interface AgentMessageStoreShape {
     grantId: string,
     now: number
   ) => Effect.Effect<ReadonlyArray<Receipt>, RouterError>;
+  readonly settlement: (messageId: string) => Effect.Effect<O.Option<OriginalRuntimeEvidence>, RouterError>;
   readonly subscribe: (messageId: string, afterSequence?: number) => Stream.Stream<Receipt, RouterError>;
   readonly validateGrant: (grantId: string, now: number) => Effect.Effect<LaunchGrant, RouterError>;
 }
@@ -183,7 +206,9 @@ export class AgentMessageStore extends Context.Service<AgentMessageStore, AgentM
  * **Details**
  *
  * Each limit counts retained messages plus active dispatch holds. Omitted limits
- * default to 1000 globally and 100 per endpoint.
+ * default to 1000 globally and 100 per endpoint. All retained messages, including
+ * terminal history, have a separate ceiling of 100000; admission stops without
+ * deleting evidence when that ceiling is reached.
  *
  * **Example** (Tighten the per-endpoint limit)
  *
@@ -199,6 +224,10 @@ export class AgentMessageStore extends Context.Service<AgentMessageStore, AgentM
  */
 export class AgentMessageStoreLimits extends S.Opaque<AgentMessageStoreLimits, { readonly brand: unique symbol }>()(
   S.Struct({
+    maxStoredMessages: QueueLimit.pipe(S.withConstructorDefault(Effect.succeed(100000))).annotateKey({
+      description:
+        "Global ceiling for all retained messages, including terminal history; rejects new admission without deleting audit evidence.",
+    }),
     maxPending: QueueLimit.pipe(S.withConstructorDefault(Effect.succeed(1000))).annotateKey({
       description: "Global maximum of retained messages and active dispatch holds.",
     }),
@@ -235,8 +264,9 @@ export const makeAgentMessageStore = Effect.fn("AgentMessageStore.make")(
     limits: AgentMessageStoreLimits = AgentMessageStoreLimits.make({})
   ): Effect.Effect<AgentMessageStoreShape, RouterError, SqlClient.SqlClient> =>
     Effect.gen(function* () {
-      const { maxPending, maxPendingPerEndpoint } = limits;
+      const { maxPending, maxPendingPerEndpoint, maxStoredMessages } = limits;
       const sql = yield* SqlClient.SqlClient;
+      yield* S.decodeEffect(QueueLimit)(maxStoredMessages);
       yield* S.decodeEffect(QueueLimit)(maxPending);
       yield* S.decodeEffect(QueueLimit)(maxPendingPerEndpoint);
       yield* sql`PRAGMA journal_mode = WAL`;
@@ -264,6 +294,7 @@ export const makeAgentMessageStore = Effect.fn("AgentMessageStore.make")(
       sequence INTEGER PRIMARY KEY AUTOINCREMENT, message_id TEXT NOT NULL,
       status TEXT NOT NULL, at INTEGER NOT NULL, generation INTEGER NOT NULL,
       owner TEXT, detail TEXT)`;
+          yield* sql`CREATE TABLE IF NOT EXISTS agent_message_settlements (message_id TEXT NOT NULL, attempt_generation INTEGER NOT NULL, payload TEXT NOT NULL, settled_at INTEGER NOT NULL, PRIMARY KEY(message_id, attempt_generation))`;
           yield* sql`CREATE TABLE IF NOT EXISTS agent_message_resolutions (
       resolution_id TEXT PRIMARY KEY, message_id TEXT NOT NULL, attempt_generation INTEGER NOT NULL,
       payload TEXT NOT NULL, decided_at INTEGER NOT NULL, receipt_sequence INTEGER NOT NULL UNIQUE,
@@ -432,6 +463,14 @@ export const makeAgentMessageStore = Effect.fn("AgentMessageStore.make")(
         grant: O.Option<LaunchGrant>,
         endpointId: string
       ) {
+        const stored = yield* sql`SELECT count(*) AS count FROM agent_messages`.pipe(
+          Effect.flatMap(S.decodeUnknownEffect(CountRows))
+        );
+        if (A.some(stored, (row) => row.count >= maxStoredMessages))
+          return yield* error(
+            "queueFull",
+            "Retained message history is at the global storage ceiling; archive this store before new admission."
+          );
         const counts =
           yield* sql`SELECT count(*) AS count FROM agent_messages WHERE state IN ('accepted', 'claimed', 'ambiguous', 'delivered') OR dispatch_active != 0`.pipe(
             Effect.flatMap(S.decodeUnknownEffect(CountRows))
@@ -553,15 +592,17 @@ export const makeAgentMessageStore = Effect.fn("AgentMessageStore.make")(
               )
             )
           );
-        if (status !== "ambiguous" && current.dispatch_active === 2)
+        if (status !== "ambiguous")
           return yield* append(
             claim.envelope.messageId,
             status,
             now,
             claim.generation,
             O.some(claim.ownerId),
-            O.some(
-              "Original owned native attempt reached a known terminal result; its dispatch hold is released and participant acknowledgement is retained."
+            O.orElse(detail, () =>
+              O.some(
+                "Original owned native attempt reached a known terminal result; its dispatch hold is released and participant acknowledgement is retained."
+              )
             )
           );
         const last = A.last(yield* receipts(claim.envelope.messageId));
@@ -666,9 +707,106 @@ export const makeAgentMessageStore = Effect.fn("AgentMessageStore.make")(
           return yield* error("conflict", "Only an ambiguous native attempt can receive an operator resolution.");
         return current;
       });
+      const originalSettlement = Effect.fn("AgentMessageStore.originalSettlement")(function* (
+        messageId: string,
+        generation: number
+      ) {
+        const rows =
+          yield* sql`SELECT payload FROM agent_message_settlements WHERE message_id = ${messageId} AND attempt_generation = ${generation}`.pipe(
+            Effect.flatMap(S.decodeUnknownEffect(PayloadRows))
+          );
+        return yield* O.match(A.head(rows), {
+          onNone: () => Effect.succeedNone,
+          onSome: (row) => decodeSettlement(row.payload).pipe(Effect.asSome),
+        });
+      });
+      const validateSettlementOwner = Effect.fn("AgentMessageStore.validateSettlementOwner")(function* (
+        claim: Claim,
+        evidence: OriginalRuntimeEvidence
+      ) {
+        const current = yield* state(claim.envelope.messageId);
+        const original = yield* decodeEnvelope(current.payload);
+        if (original.to.kind !== "direct" || !equalEnvelope(original, claim.envelope))
+          return yield* error("staleClaim", "Terminal settlement does not identify the original message.");
+        const binding = yield* endpoint(original.to.endpointId);
+        if (current.dispatch_active === 0 && current.state !== "ambiguous")
+          return yield* error("staleClaim", "Terminal settlement requires the original unresolved dispatch hold.");
+        if (
+          !equalAttemptFence(
+            { owner: current.owner, generation: current.attempt_generation, leaseUntil: current.lease_until },
+            { owner: claim.ownerId, generation: claim.generation, leaseUntil: claim.leaseUntil }
+          )
+        )
+          return yield* error("staleClaim", "Terminal settlement no longer owns the original dispatch hold.");
+        if (
+          !equalEnrollmentFence(
+            {
+              owner: binding.ownerId,
+              generation: binding.generation,
+              sessionId: binding.sessionId,
+              adapter: binding.policy.provider,
+            },
+            {
+              owner: claim.ownerId,
+              generation: current.target_generation,
+              sessionId: evidence.sessionId,
+              adapter: evidence.adapter,
+            }
+          )
+        )
+          return yield* error(
+            "staleClaim",
+            "Terminal settlement enrollment or runtime no longer owns the original attempt."
+          );
+        if (evidence.adapter !== "injected" && evidence.messageId !== original.messageId)
+          return yield* error("conflict", "Native terminal response does not identify the original prompt.");
+        return binding.generation;
+      });
+      const recordSettlement = Effect.fn("AgentMessageStore.recordSettlement")(function* (
+        claim: Claim,
+        evidence: OriginalRuntimeEvidence,
+        now: number
+      ) {
+        return yield* transaction(
+          Effect.gen(function* () {
+            const verified = yield* S.decodeEffect(OriginalRuntimeEvidence)(evidence);
+            yield* S.decodeEffect(S.Natural)(now);
+            const existing = yield* originalSettlement(claim.envelope.messageId, claim.generation);
+            if (O.isSome(existing)) {
+              if (
+                !equalEnvelope(existing.value.claim.envelope, claim.envelope) ||
+                existing.value.claim.ownerId !== claim.ownerId ||
+                existing.value.claim.leaseUntil !== claim.leaseUntil ||
+                !equalEvidence(existing.value.evidence, verified)
+              )
+                return yield* error("conflict", "Original terminal settlement is immutable.");
+              return;
+            }
+            const endpointGeneration = yield* validateSettlementOwner(claim, verified);
+            const payload = yield* encodeSettlement({ claim, evidence: verified, endpointGeneration });
+            yield* sql`INSERT INTO agent_message_settlements (message_id, attempt_generation, payload, settled_at) VALUES (${claim.envelope.messageId}, ${claim.generation}, ${payload}, ${now})`;
+          })
+        );
+      });
       const validateResolutionEvidence = Effect.fn("AgentMessageStore.validateResolutionEvidence")(function* (
         request: AmbiguityResolution
       ) {
+        const recorded = yield* originalSettlement(request.messageId, request.attemptGeneration);
+        if (O.isNone(recorded))
+          return yield* error("conflict", "No original runtime terminal settlement was persisted; retain this hold.");
+        if (!equalEvidence(recorded.value.evidence, request.runtimeEvidence))
+          return yield* error(
+            "conflict",
+            "Resolution evidence differs from the immutable original terminal settlement."
+          );
+        const binding = yield* endpoint(request.endpointId);
+        if (
+          request.runtimeEvidence.adapter !== binding.policy.provider ||
+          request.runtimeEvidence.sessionId !== binding.sessionId
+        )
+          return yield* error("staleClaim", "Terminal evidence does not identify the original adapter and session.");
+        if (request.runtimeEvidence.outcome !== request.disposition)
+          return yield* error("conflict", "Terminal evidence outcome contradicts the requested disposition.");
         if (request.disposition !== "failed") return;
         const confirmed = A.some(
           yield* receipts(request.messageId),
@@ -860,6 +998,17 @@ export const makeAgentMessageStore = Effect.fn("AgentMessageStore.make")(
         acceptWithGrant: (envelope, grantId, now) => accept(envelope, now, O.some(grantId)),
         recover,
         resolveAmbiguity,
+        recordSettlement,
+        settlement: (messageId) =>
+          transaction(
+            Effect.gen(function* () {
+              const current = yield* state(messageId);
+              return O.map(
+                yield* originalSettlement(messageId, current.attempt_generation),
+                (record) => record.evidence
+              );
+            })
+          ),
         claimNext: (endpointId, ownerId, now, leaseUntil) =>
           transaction(
             Effect.gen(function* () {

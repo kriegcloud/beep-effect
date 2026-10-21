@@ -23,7 +23,7 @@ import * as Str from "effect/String";
 import { codexArguments, negotiateCodex } from "./AiProviderCliSession.codex.service.ts";
 import { cursorArguments, verifyCursor } from "./AiProviderCliSession.cursor.service.ts";
 import { grokArguments, verifyGrok } from "./AiProviderCliSession.grok.service.ts";
-import { ManagedSessionEvent, ManagedTurnResult } from "./AiProviderCliSession.models.ts";
+import { ManagedSessionEvent, ManagedTerminalEvidence, ManagedTurnResult } from "./AiProviderCliSession.models.ts";
 import { failure, transportFailure } from "./AiProviderCliSession.profile.service.ts";
 import {
   AcpText,
@@ -259,6 +259,7 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
     yield* Ref.set(earlyComplete, []);
     const pending = yield* Deferred.make<string, ManagedSessionError>();
     yield* Ref.set(active, O.some(pending));
+    const settledTurn = yield* Ref.make(O.none<string>());
     const executeTurn = Effect.gen(function* () {
       if (profile.provider !== "codex")
         return (yield* client.agent
@@ -294,6 +295,7 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
         Effect.flatMap(S.decodeUnknownEffect(CodexTurn)),
         Effect.mapError(() => failure.make("prompt", "provider-failure", "Codex turn start failed"))
       );
+      yield* Ref.set(settledTurn, O.some(started.turn.id));
       yield* Ref.set(activeTurnId, O.some(started.turn.id));
       yield* publish("update", { sessionId, turnId: started.turn.id });
       for (const item of yield* Ref.getAndSet(earlyItems, [])) {
@@ -324,11 +326,19 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
     const text = yield* Ref.get(chunks);
     if (yield* Ref.get(overflow))
       return yield* failure.make("prompt", "provider-failure", "Model response exceeded the 1 MiB collection bound");
-    if (Str.includes("Upgrade your plan to continue")(text)) {
+    if (profile.provider === "cursor" && Str.startsWith("Upgrade your plan to continue")(Str.trim(text))) {
       yield* close.pipe(Effect.ignore);
       return yield* failure.make("prompt", "access-blocked", "Existing subscription denied model access");
     }
-    return ManagedTurnResult.make({ messageId: message.messageId, text, stopReason });
+    const terminalEvidence = S.decodeUnknownOption(ManagedTerminalEvidence)({
+      adapter: profile.provider,
+      sessionId,
+      messageId: message.messageId,
+      turnId: O.getOrUndefined(yield* Ref.get(settledTurn)),
+      outcome: "delivered",
+      stopReason,
+    });
+    return ManagedTurnResult.make({ messageId: message.messageId, text, stopReason, terminalEvidence });
   });
   const cancel = Effect.gen(function* () {
     if (profile.provider !== "codex")

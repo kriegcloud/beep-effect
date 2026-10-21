@@ -18,6 +18,7 @@ import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { StyleVote, YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
 import type { YamlToken } from "../../YamlToken.ts";
 import { composeFirstDocument } from "../composer/document.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/document-end");
 
@@ -38,8 +39,8 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/document-end");
  * @since 0.0.0
  */
 export const documentEndOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({ description: "Reporting level for document-end marker findings, defaulting to `error`" }),
-	present: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the stream's final `...` marker is required (`true`, default) or forbidden (`false`)" }),
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("documentEndOptions.severity", { description: "Reporting level for document-end marker findings, defaulting to `error`" })),
+	present: S.optionalKey(S.Boolean).pipe($I.annoteKey("documentEndOptions.present", { description: "Whether the stream's final `...` marker is required (`true`, default) or forbidden (`false`)" })),
 }).pipe($I.annoteSchema("documentEndOptions", { description: "Options for `document-end`: require (`true`, default) or forbid the marker." }));
 
 /**
@@ -105,7 +106,7 @@ const endOfStreamPosition = (
  */
 export const documentEnd: YamlRule = {
 	id: "document-end",
-	check: (ctx, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const opts = P.isObject(options) ? options : {};
 		const present = S.is(S.Boolean)(opts.present) ? opts.present : true;
 		// The last non-trivia token decides: does the stream end with `...`?
@@ -159,7 +160,7 @@ export const documentEnd: YamlRule = {
 			];
 		}
 		return [];
-	},
+	}),
 	// Inference: a non-empty stream votes `present` — tailed by `...`
 	// or not; absence votes `false` (mirroring document-start).
 	infer: (ctx) => {

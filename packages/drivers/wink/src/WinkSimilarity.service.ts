@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { createRequire } from "node:module";
+import * as NodeModule from "node:module";
 import { $WinkId } from "@beep/identity";
 import { SimilarityScore } from "@beep/nlp/Core/Similarity";
 import { SchemaUtils } from "@beep/schema";
@@ -23,7 +23,7 @@ import type { DocumentTermSet, TverskyParams } from "@beep/nlp/Core/Similarity";
 import type { BagOfWords, DocumentVector } from "@beep/nlp/Core/Vectorization";
 
 const $I = $WinkId.create("Wink/WinkSimilarity");
-const require = createRequire(import.meta.url);
+const require = NodeModule.createRequire(import.meta.url);
 
 type BowSimilarity = {
   readonly cosine: (left: Record<string, number>, right: Record<string, number>) => number;

@@ -14,6 +14,7 @@ import type { YamlNode } from "../../YamlNode.ts";
 import { YamlMap, YamlScalar, YamlSeq } from "../../YamlNode.ts";
 import { keyIdentity } from "../composer/block.ts";
 import { positionAt } from "./util.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/key-duplicates");
 const isMap = S.is(YamlMap);
@@ -41,7 +42,7 @@ const isSeq = S.is(YamlSeq);
  * @since 0.0.0
  */
 export const keyDuplicatesOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({ description: "Reporting level for duplicate mapping-key findings, defaulting to `error`" }),
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("keyDuplicatesOptions.severity", { description: "Reporting level for duplicate mapping-key findings, defaulting to `error`" })),
 }).pipe($I.annoteSchema("keyDuplicatesOptions", { description: "Options for `key-duplicates` (severity only — duplicates are duplicates)." }));
 /**
  * Decoded options for the `key-duplicates` lint rule.
@@ -51,7 +52,10 @@ export const keyDuplicatesOptions = S.Struct({
  */
 export type keyDuplicatesOptions = typeof keyDuplicatesOptions.Type;
 
-const walk = (node: YamlNode | null, text: string, out: Array<YamlLintDiagnostic>, ctx: LintContext): void => {
+const walk: {
+	(node: YamlNode | null, text: string, out: Array<YamlLintDiagnostic>, ctx: LintContext): void;
+	(text: string, out: Array<YamlLintDiagnostic>, ctx: LintContext): (node: YamlNode | null) => void;
+} = dual(4, (node: YamlNode | null, text: string, out: Array<YamlLintDiagnostic>, ctx: LintContext): void => {
 	if (node === null) return;
 	if (isMap(node)) {
 		const seen = MutableHashSet.empty<string>();
@@ -82,7 +86,7 @@ const walk = (node: YamlNode | null, text: string, out: Array<YamlLintDiagnostic
 	if (isSeq(node)) {
 		for (const item of node.items) walk(item, text, out, ctx);
 	}
-};
+});
 
 /**
  * Report duplicate mapping keys anywhere in the document.
@@ -116,9 +120,9 @@ const walk = (node: YamlNode | null, text: string, out: Array<YamlLintDiagnostic
  */
 export const keyDuplicates: YamlRule = {
 	id: "key-duplicates",
-	check: (ctx) => {
+	check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
 		const out: Array<YamlLintDiagnostic> = [];
 		walk(ctx.document.contents, ctx.text, out, ctx);
 		return out;
-	},
+	}),
 };

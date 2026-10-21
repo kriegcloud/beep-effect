@@ -9,6 +9,7 @@
 // wildcard.
 
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Result from "effect/Result";
@@ -32,12 +33,14 @@ const exclusionTarget = (pattern: string): string | undefined =>
 const allCompileUnderDefaults = (patterns: ReadonlyArray<string>): true | string => {
 	for (const pattern of patterns) {
 		const target = exclusionTarget(pattern) ?? pattern;
-		try {
-			new Minimatch(target, {});
-		} catch (e) {
-			if (isGuardExceeded(e)) return `pattern ${JSON.stringify(pattern.slice(0, 64))}: ${e.message}`;
-			throw e;
-		}
+		const compiled = Result.try({
+			try: () => new Minimatch(target, {}),
+			catch: (e) => {
+				if (isGuardExceeded(e)) return `pattern ${JSON.stringify(pattern.slice(0, 64))}: ${e.message}`;
+				throw e;
+			},
+		});
+		if (Result.isFailure(compiled)) return compiled.failure;
 	}
 	return true;
 };
@@ -87,9 +90,9 @@ interface Classified {
  * @since 0.0.0
  */
 export class GlobSet extends S.Class<GlobSet, { readonly brand: unique symbol }>($I`GlobSet`)(
-	S.Struct({ patterns: S.Array(S.String).annotateKey({ description: "The ordered include and exclusion pattern sources, preserved verbatim." }) }).check(
+	S.Struct({ patterns: S.Array(S.String).pipe($I.annoteKey("GlobSet.patterns", { description: "The ordered include and exclusion pattern sources, preserved verbatim." })) }).check(
 		S.makeFilter((v) => allCompileUnderDefaults(v.patterns), $I.annote("AllCompileUnderDefaults", {
-			title: "compilable glob pattern set",
+			message: "compilable glob pattern set",
 			description: "Requires every member, after stripping its set-level exclusion bang, to compile within the default caps.",
 		})),
 	), $I.annote("GlobSet", { description: "A compiled multi-pattern include/exclude set: `matches(candidate)` is true when some include accepts it and no exclude does. One encoded field, `patterns` — the source text of every member, preserved verbatim; the classified indexes live in a private field the schema never encodes." }),
@@ -156,11 +159,11 @@ export class GlobSet extends S.Class<GlobSet, { readonly brand: unique symbol }>
 				}
 				if (engine.comment) continue;
 				const row = engine.set.length === 1 ? engine.set[0] : undefined;
-				if (engine.negate || row === undefined || !row.every((part) => P.isString(part))) {
+				if (engine.negate || row === undefined || !A.every(row, P.isString)) {
 					wildcards.push(GlobPattern.make({ source: alternative }));
 					continue;
 				}
-				const key = row.join("/");
+				const key = A.join(row, "/");
 				if (!MutableHashSet.has(seenLiterals, key)) {
 					MutableHashSet.add(seenLiterals, key);
 					literals.push(key);
@@ -224,14 +227,16 @@ export class GlobSet extends S.Class<GlobSet, { readonly brand: unique symbol }>
 	static compileResult(patterns: ReadonlyArray<string>): Result.Result<GlobSet, GlobPatternError> {
 		for (const pattern of patterns) {
 			const target = exclusionTarget(pattern) ?? pattern;
-			try {
-				new Minimatch(target, {});
-			} catch (e) {
-				if (isGuardExceeded(e)) {
-					return Result.fail(GlobPatternError.make({ pattern, reason: e.reason, limit: e.limit, actual: e.actual }));
-				}
-				throw e;
-			}
+			const compiled = Result.try({
+				try: () => new Minimatch(target, {}),
+				catch: (e) => {
+					if (isGuardExceeded(e)) {
+						return GlobPatternError.make({ pattern, reason: e.reason, limit: e.limit, actual: e.actual });
+					}
+					throw e;
+				},
+			});
+			if (Result.isFailure(compiled)) return Result.fail(compiled.failure);
 		}
 		return Result.succeed(GlobSet.make({ patterns }));
 	}
@@ -285,9 +290,9 @@ export class GlobSet extends S.Class<GlobSet, { readonly brand: unique symbol }>
 	 */
 	matches(candidate: string): boolean {
 		const { wildcards, excludes } = this.#classify();
-		const included = MutableHashSet.has(this.#literals(), candidate) || wildcards.some((w) => w.matches(candidate));
+		const included = MutableHashSet.has(this.#literals(), candidate) || A.some(wildcards, (w) => w.matches(candidate));
 		if (!included) return false;
-		return !excludes.some((e) => e.matches(candidate));
+		return !A.some(excludes, (e) => e.matches(candidate));
 	}
 
 	/**
@@ -306,7 +311,7 @@ export class GlobSet extends S.Class<GlobSet, { readonly brand: unique symbol }>
 	 * @since 0.0.0
 	 */
 	isExcluded(candidate: string): boolean {
-		return this.#classify().excludes.some((e) => e.matches(candidate));
+		return A.some(this.#classify().excludes, (e) => e.matches(candidate));
 	}
 
 	/**

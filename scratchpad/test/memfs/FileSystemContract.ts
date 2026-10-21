@@ -1100,10 +1100,10 @@ export const suite: {
 						assert.strictEqual(sourceInfo.ino.value, linkedInfo.ino.value);
 					}
 					if (O.isSome(sourceInfo.nlink)) {
-						assert.strictEqual(sourceInfo.nlink.value, 2);
+						assert.strictEqual(sourceInfo.nlink.value, 2n);
 					}
 					if (O.isSome(linkedInfo.nlink)) {
-						assert.strictEqual(linkedInfo.nlink.value, 2);
+						assert.strictEqual(linkedInfo.nlink.value, 2n);
 					}
 				}),
 			);
@@ -1123,7 +1123,7 @@ export const suite: {
 					assert.strictEqual(yield* fs.readFileString(alias), "original");
 					const linkedInfo = yield* fs.stat(alias);
 					if (O.isSome(linkedInfo.nlink)) {
-						assert.strictEqual(linkedInfo.nlink.value, 1);
+						assert.strictEqual(linkedInfo.nlink.value, 1n);
 					}
 
 					yield* fs.remove(alias);

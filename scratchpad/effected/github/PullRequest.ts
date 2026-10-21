@@ -3,8 +3,10 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { GitHubClient } from "./GitHubClient.ts";
 import type { CommitFile } from "./GitHubCommit.ts";
@@ -18,8 +20,8 @@ import { PageOptions } from "./Rest.ts";
 const $I = $ScratchpadId.create("effected/github/PullRequest");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
-	message: S.String.annotateKey({ description: "The test-double member that needs an override." }),
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+	message: S.String.pipe($I.annoteKey("UnstubbedError.message", { description: "The test-double member that needs an override." })),
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * How a pull request is merged.
@@ -78,23 +80,23 @@ export type MergeMethod = typeof MergeMethod.Type;
  */
 export class PullRequestInfo extends S.Class<PullRequestInfo, { readonly brand: unique symbol }>($I`PullRequestInfo`)({
 	/** The number in `#123`. */
-	number: S.Int.annotateKey({ description: "The number in `#123`." }),
+	number: S.Int.pipe($I.annoteKey("PullRequestInfo.number", { description: "The number in `#123`." })),
 	/** The GraphQL node id, which the auto-merge mutations need. */
-	nodeId: S.String.annotateKey({ description: "The GraphQL node id, which the auto-merge mutations need." }),
+	nodeId: S.String.pipe($I.annoteKey("PullRequestInfo.nodeId", { description: "The GraphQL node id, which the auto-merge mutations need." })),
 	/** The web URL. */
-	url: S.String.annotateKey({ description: "The web URL." }),
-	title: S.String.annotateKey({ description: "The pull request's heading as reported by GitHub" }),
-	state: S.Literals(["open", "closed"]).annotateKey({ description: "Whether the pull request is `open` or `closed`, with merge status reported separately" }),
+	url: S.String.pipe($I.annoteKey("PullRequestInfo.url", { description: "The web URL." })),
+	title: S.String.pipe($I.annoteKey("PullRequestInfo.title", { description: "The pull request's heading as reported by GitHub" })),
+	state: S.Literals(["open", "closed"]).pipe($I.annoteKey("PullRequestInfo.state", { description: "Whether the pull request is `open` or `closed`, with merge status reported separately" })),
 	/** The source branch name. */
-	head: S.String.annotateKey({ description: "The source branch name." }),
+	head: S.String.pipe($I.annoteKey("PullRequestInfo.head", { description: "The source branch name." })),
 	/** The sha the source branch pointed at when GitHub answered. */
-	headSha: S.String.annotateKey({ description: "The sha the source branch pointed at when GitHub answered." }),
+	headSha: S.String.pipe($I.annoteKey("PullRequestInfo.headSha", { description: "The sha the source branch pointed at when GitHub answered." })),
 	/** The target branch name. */
-	base: S.String.annotateKey({ description: "The target branch name." }),
+	base: S.String.pipe($I.annoteKey("PullRequestInfo.base", { description: "The target branch name." })),
 	/** The sha the target branch pointed at when GitHub answered — the commit the pull request branches from. */
-	baseSha: S.String.annotateKey({ description: "The sha the target branch pointed at when GitHub answered — the commit the pull request branches from." }),
-	draft: S.Boolean.annotateKey({ description: "Whether GitHub marks the pull request as a draft, defaulting to false when omitted" }),
-	merged: S.Boolean.annotateKey({ description: "Whether the pull request merged, using GitHub's explicit flag or, when absent, the presence of a merge timestamp" }),
+	baseSha: S.String.pipe($I.annoteKey("PullRequestInfo.baseSha", { description: "The sha the target branch pointed at when GitHub answered — the commit the pull request branches from." })),
+	draft: S.Boolean.pipe($I.annoteKey("PullRequestInfo.draft", { description: "Whether GitHub marks the pull request as a draft, defaulting to false when omitted" })),
+	merged: S.Boolean.pipe($I.annoteKey("PullRequestInfo.merged", { description: "Whether the pull request merged, using GitHub's explicit flag or, when absent, the presence of a merge timestamp" })),
 	/**
 	 * When it merged, if it did.
 	 *
@@ -104,11 +106,11 @@ export class PullRequestInfo extends S.Class<PullRequestInfo, { readonly brand: 
 	 * fact GitHub always reports, so modelling it as "maybe absent" would be
 	 * modelling a gap in our fixtures rather than a gap in the domain.
 	 */
-	mergedAt: S.Option(S.DateTimeUtcFromString).annotateKey({ description: "When it merged, if it did." }),
+	mergedAt: S.Option(S.DateTimeUtcFromString).pipe($I.annoteKey("PullRequestInfo.mergedAt", { description: "When it merged, if it did." })),
 	/** The description, when GitHub sent one. */
-	body: S.optionalKey(S.String).annotateKey({ description: "The description, when GitHub sent one." }),
+	body: S.optionalKey(S.String).pipe($I.annoteKey("PullRequestInfo.body", { description: "The description, when GitHub sent one." })),
 	/** The merge commit, once there is one. */
-	mergeCommitSha: S.optionalKey(S.String).annotateKey({ description: "The merge commit, once there is one." }),
+	mergeCommitSha: S.optionalKey(S.String).pipe($I.annoteKey("PullRequestInfo.mergeCommitSha", { description: "The merge commit, once there is one." })),
 }, $I.annote("PullRequestInfo", { description: "A pull request, projected to what callers read." })) {}
 
 /**
@@ -136,9 +138,9 @@ export class PullRequestInfo extends S.Class<PullRequestInfo, { readonly brand: 
  */
 export const UpsertedPullRequest = S.Struct({
 	/** The pull request, as created or as updated. */
-	pullRequest: PullRequestInfo.annotateKey({ description: "The pull request, as created or as updated." }),
+	pullRequest: PullRequestInfo.pipe($I.annoteKey("UpsertedPullRequest.pullRequest", { description: "The pull request, as created or as updated." })),
 	/** `true` when a new pull request was opened, `false` when an open one was updated. */
-	created: S.Boolean.annotateKey({ description: "Whether this operation opened a new pull request rather than updating one." }),
+	created: S.Boolean.pipe($I.annoteKey("UpsertedPullRequest.created", { description: "Whether this operation opened a new pull request rather than updating one." })),
 }).pipe($I.annoteSchema("UpsertedPullRequest", { description: "What PullRequest.upsert did, retaining its plain-object return boundary." }));
 
 /**
@@ -268,10 +270,10 @@ export interface PullRequestShape {
 	 * @category queries
 	 * @since 0.0.0
 	 */
-	readonly listFiles: (
-		number: number,
-		options?: { readonly page?: PageOptions | undefined },
-	) => Effect.Effect<ReadonlyArray<CommitFile>, GitHubError, Repo>;
+	readonly listFiles: {
+		(number: number, options?: { readonly page?: PageOptions | undefined }): Effect.Effect<ReadonlyArray<CommitFile>, GitHubError, Repo>;
+		(options?: { readonly page?: PageOptions | undefined }): (number: number) => Effect.Effect<ReadonlyArray<CommitFile>, GitHubError, Repo>;
+	};
 	/**
 	 * The pull requests associated with a commit.
 	 *
@@ -295,10 +297,10 @@ export interface PullRequestShape {
 	 * @category queries
 	 * @since 0.0.0
 	 */
-	readonly listAssociatedWithCommit: (
-		sha: string,
-		options?: { readonly page?: PageOptions | undefined },
-	) => Effect.Effect<ReadonlyArray<PullRequestInfo>, GitHubError, Repo>;
+	readonly listAssociatedWithCommit: {
+		(sha: string, options?: { readonly page?: PageOptions | undefined }): Effect.Effect<ReadonlyArray<PullRequestInfo>, GitHubError, Repo>;
+		(options?: { readonly page?: PageOptions | undefined }): (sha: string) => Effect.Effect<ReadonlyArray<PullRequestInfo>, GitHubError, Repo>;
+	};
 	/**
 	 * Open a pull request from `head` into `base`.
 	 *
@@ -344,15 +346,25 @@ export interface PullRequestShape {
 	 * @category commands
 	 * @since 0.0.0
 	 */
-	readonly update: (
-		number: number,
-		patch: {
+	readonly update: {
+		(
+			number: number,
+			patch: {
 			readonly title?: string | undefined;
 			readonly body?: string | undefined;
 			readonly state?: "open" | "closed" | undefined;
 			readonly base?: string | undefined;
 		},
-	) => Effect.Effect<PullRequestInfo, GitHubError, Repo>;
+		): Effect.Effect<PullRequestInfo, GitHubError, Repo>;
+		(
+			patch: {
+			readonly title?: string | undefined;
+			readonly body?: string | undefined;
+			readonly state?: "open" | "closed" | undefined;
+			readonly base?: string | undefined;
+		},
+		): (number: number) => Effect.Effect<PullRequestInfo, GitHubError, Repo>;
+	};
 	/**
 	 * Update the open pull request for `head`→`base`, or open one.
 	 *
@@ -403,14 +415,23 @@ export interface PullRequestShape {
 	 * @category commands
 	 * @since 0.0.0
 	 */
-	readonly merge: (
-		number: number,
-		options?: {
+	readonly merge: {
+		(
+			number: number,
+			options?: {
 			readonly method?: MergeMethod | undefined;
 			readonly commitTitle?: string | undefined;
 			readonly commitMessage?: string | undefined;
 		},
-	) => Effect.Effect<string, GitHubError, Repo>;
+		): Effect.Effect<string, GitHubError, Repo>;
+		(
+			options?: {
+			readonly method?: MergeMethod | undefined;
+			readonly commitTitle?: string | undefined;
+			readonly commitMessage?: string | undefined;
+		},
+		): (number: number) => Effect.Effect<string, GitHubError, Repo>;
+	};
 	/**
 	 * Add labels to a pull request (as an issue), keeping the ones already there.
 	 *
@@ -430,7 +451,10 @@ export interface PullRequestShape {
 	 * @category commands
 	 * @since 0.0.0
 	 */
-	readonly addLabels: (number: number, labels: ReadonlyArray<string>) => Effect.Effect<void, GitHubError, Repo>;
+	readonly addLabels: {
+		(number: number, labels: ReadonlyArray<string>): Effect.Effect<void, GitHubError, Repo>;
+		(labels: ReadonlyArray<string>): (number: number) => Effect.Effect<void, GitHubError, Repo>;
+	};
 	/**
 	 * Request reviews from users and/or teams (team slugs).
 	 *
@@ -450,13 +474,21 @@ export interface PullRequestShape {
 	 * @category commands
 	 * @since 0.0.0
 	 */
-	readonly requestReviewers: (
-		number: number,
-		reviewers: {
+	readonly requestReviewers: {
+		(
+			number: number,
+			reviewers: {
 			readonly users?: ReadonlyArray<string> | undefined;
 			readonly teams?: ReadonlyArray<string> | undefined;
 		},
-	) => Effect.Effect<void, GitHubError, Repo>;
+		): Effect.Effect<void, GitHubError, Repo>;
+		(
+			reviewers: {
+			readonly users?: ReadonlyArray<string> | undefined;
+			readonly teams?: ReadonlyArray<string> | undefined;
+		},
+		): (number: number) => Effect.Effect<void, GitHubError, Repo>;
+	};
 	/**
 	 * Turn auto-merge on or off.
 	 *
@@ -490,10 +522,10 @@ export interface PullRequestShape {
 	 * @category commands
 	 * @since 0.0.0
 	 */
-	readonly setAutoMerge: (
-		pullRequest: PullRequestInfo,
-		method: MergeMethod | "off",
-	) => Effect.Effect<void, GitHubGraphQLError, Repo>;
+	readonly setAutoMerge: {
+		(pullRequest: PullRequestInfo, method: MergeMethod | "off"): Effect.Effect<void, GitHubGraphQLError, Repo>;
+		(method: MergeMethod | "off"): (pullRequest: PullRequestInfo) => Effect.Effect<void, GitHubGraphQLError, Repo>;
+	};
 }
 
 /**
@@ -557,8 +589,12 @@ export class PullRequest extends Context.Service<PullRequest, PullRequestShape>(
 	 * ```ts
 	 * import { PullRequest } from "@beep/scratchpad/effected/github/PullRequest";
 	 * import * as Effect from "effect/Effect";
+	 * import { dual } from "effect/Function";
+	 * import * as P from "effect/Predicate";
 	 *
-	 * const pulls = PullRequest.makeTest({ merge: () => Effect.succeed("abc123") });
+	 * const pulls = PullRequest.makeTest({
+	 *   merge: dual((args) => P.isNumber(args[0]), (_number: number, _options?: object) => Effect.succeed("abc123")),
+	 * });
 	 * const program = pulls.merge(123);
 	 * console.log(Effect.isEffect(program)) // true
 	 * ```
@@ -588,13 +624,16 @@ export class PullRequest extends Context.Service<PullRequest, PullRequestShape>(
 	 * ```ts
 	 * import { PullRequest } from "@beep/scratchpad/effected/github/PullRequest";
 	 * import * as Effect from "effect/Effect";
+	 * import { dual } from "effect/Function";
 	 *
 	 * const program = Effect.gen(function* () {
 	 *   const pulls = yield* PullRequest;
 	 *   yield* pulls.addLabels(123, ["bug"]);
 	 *   return "labels added";
 	 * });
-	 * const layer = PullRequest.layerTest({ addLabels: () => Effect.void });
+	 * const layer = PullRequest.layerTest({
+	 *   addLabels: dual(2, (_number: number, _labels: ReadonlyArray<string>) => Effect.void),
+	 * });
 	 * console.log(Effect.runSync(Effect.provide(program, layer))) // labels added
 	 * ```
 	 *
@@ -658,7 +697,10 @@ const project = (raw: RawPull): Effect.Effect<PullRequestInfo, GitHubError> =>
 	});
 
 /** `owner:branch` is what GitHub's `head` filter wants for a cross-fork search. */
-const qualifyHead = (owner: string, head: string): string => (head.includes(":") ? head : `${owner}:${head}`);
+const qualifyHead: {
+	(head: string, owner: string): string;
+	(owner: string): (head: string) => string;
+} = dual(2, (head: string, owner: string): string => (head.includes(":") ? head : `${owner}:${head}`));
 
 const make = (client: GitHubClient["Service"]): PullRequestShape => {
 	const list = Effect.fn("PullRequest.list")(function* (options?: {
@@ -674,7 +716,7 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 				owner,
 				repo,
 				...O.getSomesStruct({ state: O.fromUndefinedOr(options?.state) }),
-				...O.getSomesStruct({ head: O.map(O.fromUndefinedOr(options?.head), (head) => qualifyHead(owner, head)) }),
+				...O.getSomesStruct({ head: O.map(O.fromUndefinedOr(options?.head), qualifyHead(owner)) }),
 				...O.getSomesStruct({ base: O.fromUndefinedOr(options?.base) }),
 			},
 			options?.page,
@@ -703,7 +745,7 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 		return yield* project(created);
 	});
 
-	const update = Effect.fn("PullRequest.update")(function* (
+	const update: PullRequestShape["update"] = dual(2, Effect.fn("PullRequest.update")(function* (
 		number: number,
 		patch: {
 			readonly title?: string | undefined;
@@ -727,7 +769,7 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 			...O.getSomesStruct({ base: O.fromUndefinedOr(patch.base) }),
 		});
 		return yield* project(updated);
-	});
+	}));
 
 	return {
 		list,
@@ -745,7 +787,7 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 			return yield* project(raw);
 		}),
 
-		listFiles: Effect.fn("PullRequest.listFiles")(function* (
+		listFiles: dual((args) => P.isNumber(args[0]), Effect.fn("PullRequest.listFiles")(function* (
 			number: number,
 			options?: { readonly page?: PageOptions | undefined },
 		) {
@@ -758,10 +800,10 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 			);
 			// The same `diff-entry` wire shape the single-commit read answers with,
 			// so the same projection turns it into `CommitFile`s.
-			return yield* Effect.forEach(files, (file) => fileOf(file, "PullRequest.listFiles"));
-		}),
+			return yield* Effect.forEach(files, fileOf("PullRequest.listFiles"));
+		})),
 
-		listAssociatedWithCommit: Effect.fn("PullRequest.listAssociatedWithCommit")(function* (
+		listAssociatedWithCommit: dual((args) => P.isString(args[0]), Effect.fn("PullRequest.listAssociatedWithCommit")(function* (
 			sha: string,
 			options?: { readonly page?: PageOptions | undefined },
 		) {
@@ -773,7 +815,7 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 				options?.page,
 			);
 			return yield* Effect.forEach(raw, project);
-		}),
+		})),
 
 		upsert: Effect.fn("PullRequest.upsert")(function* (input: {
 			readonly title: string;
@@ -799,7 +841,7 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 			return { pullRequest: yield* update(found.number, patch), created: false };
 		}),
 
-		merge: Effect.fn("PullRequest.merge")(function* (
+		merge: dual((args) => P.isNumber(args[0]), Effect.fn("PullRequest.merge")(function* (
 			number: number,
 			options?: {
 				readonly method?: MergeMethod | undefined;
@@ -818,9 +860,9 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 				...O.getSomesStruct({ commit_message: O.fromUndefinedOr(options?.commitMessage) }),
 			});
 			return merged.sha;
-		}),
+		})),
 
-		addLabels: Effect.fn("PullRequest.addLabels")(function* (number: number, labels: ReadonlyArray<string>) {
+		addLabels: dual(2, Effect.fn("PullRequest.addLabels")(function* (number: number, labels: ReadonlyArray<string>) {
 			const { owner, repo } = yield* Repo;
 			yield* Effect.annotateCurrentSpan({ owner, repo, number, labels: labels.length });
 			yield* client.request("POST /repos/{owner}/{repo}/issues/{issue_number}/labels", {
@@ -829,9 +871,9 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 				issue_number: number,
 				labels: [...labels],
 			});
-		}),
+		})),
 
-		requestReviewers: Effect.fn("PullRequest.requestReviewers")(function* (
+		requestReviewers: dual(2, Effect.fn("PullRequest.requestReviewers")(function* (
 			number: number,
 			reviewers: {
 				readonly users?: ReadonlyArray<string> | undefined;
@@ -847,9 +889,9 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 				...O.getSomesStruct({ reviewers: O.map(O.fromUndefinedOr(reviewers.users), (values) => [...values]) }),
 				...O.getSomesStruct({ team_reviewers: O.map(O.fromUndefinedOr(reviewers.teams), (values) => [...values]) }),
 			});
-		}),
+		})),
 
-		setAutoMerge: Effect.fn("PullRequest.setAutoMerge")(function* (
+		setAutoMerge: dual(2, Effect.fn("PullRequest.setAutoMerge")(function* (
 			pullRequest: PullRequestInfo,
 			method: MergeMethod | "off",
 		) {
@@ -862,6 +904,6 @@ const make = (client: GitHubClient["Service"]): PullRequestShape => {
 				pullRequestId: pullRequest.nodeId,
 				mergeMethod: GRAPHQL_MERGE_METHOD[method],
 			});
-		}),
+		})),
 	};
 };

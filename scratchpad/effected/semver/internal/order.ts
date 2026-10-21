@@ -35,12 +35,12 @@ const $I = $ScratchpadId.create("effected/semver/internal/order");
  * @since 0.0.0
  */
 export const VersionParts = S.Struct({
-	major: S.Finite.annotateKey({ description: "The numeric major component before final SemVer validation." }),
-	minor: S.Finite.annotateKey({ description: "The numeric minor component before final SemVer validation." }),
-	patch: S.Finite.annotateKey({ description: "The numeric patch component before final SemVer validation." }),
-	prerelease: S.Array(S.Union([S.String, S.Finite])).annotateKey({ description: "Ordered numeric or text prerelease identifiers; empty for a stable release." }),
-	build: S.Array(S.String).annotateKey({ description: "Ordered build identifiers, ignored by version precedence." }),
-}).annotate($I.annote("VersionParts", { description: "Plain structural version parts shared by the parser and comparison pipeline before final SemVer validation." }));
+	major: S.Finite.pipe($I.annoteKey("VersionParts.major", { description: "The numeric major component before final SemVer validation." })),
+	minor: S.Finite.pipe($I.annoteKey("VersionParts.minor", { description: "The numeric minor component before final SemVer validation." })),
+	patch: S.Finite.pipe($I.annoteKey("VersionParts.patch", { description: "The numeric patch component before final SemVer validation." })),
+	prerelease: S.Array(S.Union([S.String, S.Finite])).pipe($I.annoteKey("VersionParts.prerelease", { description: "Ordered numeric or text prerelease identifiers; empty for a stable release." })),
+	build: S.Array(S.String).pipe($I.annoteKey("VersionParts.build", { description: "Ordered build identifiers, ignored by version precedence." })),
+}).pipe($I.annoteSchema("VersionParts", { description: "Plain structural version parts shared by the parser and comparison pipeline before final SemVer validation." }));
 
 /**
  * The structural version data described by {@link VersionParts}.
@@ -66,11 +66,9 @@ export type VersionParts = typeof VersionParts.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ComparatorOperator = LiteralKit(["=", ">", ">=", "<", "<="]).annotate(
-	$I.annote("ComparatorOperator", {
+export const ComparatorOperator = LiteralKit(["=", ">", ">=", "<", "<="]).pipe($I.annoteSchema("ComparatorOperator", {
 		description: "The five relational operators supported by SemVer comparators.",
-	}),
-);
+	}));
 /**
  * The relational operator literals accepted by the comparator operator schema.
  *
@@ -99,9 +97,9 @@ export type ComparatorOperator = typeof ComparatorOperator.Type;
  * @since 0.0.0
  */
 export const ComparatorParts = S.Struct({
-	operator: ComparatorOperator.annotateKey({ description: "The relational operator applied to the version bound." }),
-	version: VersionParts.annotateKey({ description: "The structural comparison bound before final SemVer validation." }),
-}).annotate($I.annote("ComparatorParts", { description: "A plain structural comparator pairing an operator with its version bound." }));
+	operator: ComparatorOperator.pipe($I.annoteKey("ComparatorParts.operator", { description: "The relational operator applied to the version bound." })),
+	version: VersionParts.pipe($I.annoteKey("ComparatorParts.version", { description: "The structural comparison bound before final SemVer validation." })),
+}).pipe($I.annoteSchema("ComparatorParts", { description: "A plain structural comparator pairing an operator with its version bound." }));
 
 /**
  * The structural comparator data described by {@link ComparatorParts}.

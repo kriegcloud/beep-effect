@@ -646,11 +646,8 @@ const claimedProtocolVersion = (message: JsonRpcMessage): string =>
  */
 export const routingHeaders = (message: JsonRpcMessage): Readonly<Record<string, string>> => ({
   [MCP_PROTOCOL_VERSION_HEADER]: claimedProtocolVersion(message),
-  ...(message.method === undefined ? {} : { [MCP_METHOD_HEADER]: message.method }),
-  ...O.match(routingName(message), {
-    onNone: () => ({}),
-    onSome: (name) => ({ [MCP_NAME_HEADER]: name }),
-  }),
+  ...O.getOrUndefined(O.map(O.fromUndefinedOr(message.method), (method) => ({ [MCP_METHOD_HEADER]: method }))),
+  ...O.getOrUndefined(O.map(routingName(message), (name) => ({ [MCP_NAME_HEADER]: name }))),
 });
 
 /**

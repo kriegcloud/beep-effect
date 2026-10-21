@@ -7,6 +7,8 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { makeInlineNode } from "../../../../effected/markdown/internal/inlineNode.ts";
 import type { InlineScanner } from "../../../../effected/markdown/internal/inlineTypes.ts";
+import { dual } from "effect/Function";
+import type { InlineNode } from "../../../../effected/markdown/internal/inlineNode.ts";
 
 const scannerFor = (subject: string): InlineScanner => {
   const scanner: InlineScanner = {
@@ -21,10 +23,10 @@ const scannerFor = (subject: string): InlineScanner => {
       return value;
     },
     matchAhead: () => undefined, hasAhead: () => false,
-    closingBacktickRun: () => undefined, append: () => {},
-    appendText: (value, from, to) => makeInlineNode("text", from, to, value),
+    closingBacktickRun: dual(2, (_from: number, _length: number): number | undefined => undefined), append: () => {},
+    appendText: dual(3, (value: string, from: number, to: number): InlineNode => makeInlineNode("text", from, to, value)),
     lastChild: () => undefined, unputText: () => false, trimTrailingSpaces: () => 0,
-    removeDelimiter: () => {}, addBracket: () => {}, removeBracket: () => {},
+    removeDelimiter: () => {}, addBracket: dual(3, (_node: InlineNode, _index: number, _image: boolean): void => {}), removeBracket: () => {},
     deactivateLinkOpeners: () => {}, processEmphasis: () => {},
   };
   return scanner;
@@ -33,7 +35,7 @@ const scannerFor = (subject: string): InlineScanner => {
 it.effect("refuses a non-backtick without advancing or emitting text", () => Effect.sync(() => {
   const scanner = scannerFor("ordinary");
   const emitted: string[] = [];
-  scanner.appendText = (value, from, to) => { emitted.push(value); return makeInlineNode("text", from, to, value); };
+  Object.assign(scanner, { appendText: dual(3, (value: string, from: number, to: number): InlineNode => { emitted.push(value); return makeInlineNode("text", from, to, value); }) });
   assert.strictEqual(codeSpanConstruct.parse(scanner), false);
   assert.strictEqual(scanner.pos, 0);
   assert.deepStrictEqual(emitted, []);

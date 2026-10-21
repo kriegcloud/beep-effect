@@ -1,5 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -137,13 +138,13 @@ export type GitHubValidationCode = typeof GitHubValidationCode.Type;
  */
 export class GitHubValidationEntry extends S.Class<GitHubValidationEntry, { readonly brand: unique symbol }>($I`GitHubValidationEntry`)({
 	/** The resource type GitHub validated, e.g. `"Release"`. */
-	resource: S.optionalKey(S.String).annotateKey({ description: "The resource type GitHub validated, e.g. `\"Release\"`." }),
+	resource: S.optionalKey(S.String).pipe($I.annoteKey("GitHubValidationEntry.resource", { description: "The resource type GitHub validated, e.g. `\"Release\"`." })),
 	/** The parameter at fault, e.g. `"tag_name"`. */
-	field: S.optionalKey(S.String).annotateKey({ description: "The parameter at fault, e.g. `\"tag_name\"`." }),
+	field: S.optionalKey(S.String).pipe($I.annoteKey("GitHubValidationEntry.field", { description: "The parameter at fault, e.g. `\"tag_name\"`." })),
 	/** GitHub's validation code — one of {@link GitHubValidationCode} when documented. */
-	code: S.optionalKey(S.String).annotateKey({ description: "GitHub's validation code — one of GitHubValidationCode when documented." }),
+	code: S.optionalKey(S.String).pipe($I.annoteKey("GitHubValidationEntry.code", { description: "GitHub's validation code — one of GitHubValidationCode when documented." })),
 	/** GitHub's prose, when it sent any. */
-	message: S.optionalKey(S.String).annotateKey({ description: "GitHub's prose, when it sent any." }),
+	message: S.optionalKey(S.String).pipe($I.annoteKey("GitHubValidationEntry.message", { description: "GitHub's prose, when it sent any." })),
 }, $I.annote("GitHubValidationEntry", { description: "One entry from a failed response's `data.errors` array, as GitHub sent it." })) {}
 
 /**
@@ -170,13 +171,13 @@ export class GitHubValidationEntry extends S.Class<GitHubValidationEntry, { read
  */
 export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: unique symbol }>($I`GitHubError`)("GitHubError", {
 	/** Structural routing. Branch on this, never on the rendered message. */
-	kind: GitHubErrorKind.annotateKey({ description: "Structural routing. Branch on this, never on the rendered message." }),
+	kind: GitHubErrorKind.pipe($I.annoteKey("GitHubError.kind", { description: "Structural routing. Branch on this, never on the rendered message." })),
 	/** What was attempted: a resource method (`"GitBranch.upsert"`) or a raw route. */
-	operation: S.String.annotateKey({ description: "What was attempted: a resource method (`\"GitBranch.upsert\"`) or a raw route." }),
+	operation: S.String.pipe($I.annoteKey("GitHubError.operation", { description: "What was attempted: a resource method (`\"GitBranch.upsert\"`) or a raw route." })),
 	/** Human-readable cause, for logs and messages. Never a routing surface. */
-	reason: S.String.annotateKey({ description: "Human-readable cause, for logs and messages. Never a routing surface." }),
+	reason: S.String.pipe($I.annoteKey("GitHubError.reason", { description: "Human-readable cause, for logs and messages. Never a routing surface." })),
 	/** GitHub's HTTP status, when the request reached GitHub at all. */
-	status: S.optionalKey(S.Int).annotateKey({ description: "GitHub's HTTP status, when the request reached GitHub at all." }),
+	status: S.optionalKey(S.Int).pipe($I.annoteKey("GitHubError.status", { description: "GitHub's HTTP status, when the request reached GitHub at all." })),
 	/**
   * A server-advised delay before retrying, in milliseconds.
   *
@@ -187,7 +188,7 @@ export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: un
   * information for a caller. Whether a failure is worth retrying at all is the
   * derived `retryable` getter.
   */
-	retryAfterMillis: S.optionalKey(S.Int).annotateKey({ description: "A server-advised delay before retrying, in milliseconds." }),
+	retryAfterMillis: S.optionalKey(S.Int).pipe($I.annoteKey("GitHubError.retryAfterMillis", { description: "A server-advised delay before retrying, in milliseconds." })),
 	/**
   * GitHub's validation entries, when the failed response carried any.
   *
@@ -197,10 +198,10 @@ export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: un
   * rather than on `reason`. Absent when GitHub sent no `errors` array — some
   * 422s ("Update is not a fast forward") are prose only.
   */
-	validation: GitHubValidationEntry.pipe(S.Array, S.optionalKey).annotateKey({ description: "GitHub's validation entries, when the failed response carried any." }),
+	validation: GitHubValidationEntry.pipe(S.Array, S.optionalKey, $I.annoteKey("GitHubError.validation", { description: "GitHub's validation entries, when the failed response carried any." })),
 	/** The underlying throwable, when one exists. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying throwable, when one exists." }),
-}, $I.annote("GitHubError", { description: "Every REST failure this package produces, from every resource." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("GitHubError.cause", { description: "The underlying throwable, when one exists." })),
+}, $I.annoteError<GitHubError>("GitHubError", { description: "Every REST failure this package produces, from every resource." })) {
 	/**
  * Renders the operation, optional HTTP status and reason for logs and messages.
  *
@@ -266,9 +267,11 @@ export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: un
  * @category constructors
  * @since 0.0.0
  */
-	static notFound(operation: string, subject: string): GitHubError {
-		return GitHubError.make({ kind: "notFound", operation, reason: `${subject} not found`, status: 404 });
-	}
+	static readonly notFound: {
+		(operation: string, subject: string): GitHubError;
+		(subject: string): (operation: string) => GitHubError;
+	} = dual(2, (operation: string, subject: string): GitHubError =>
+		GitHubError.make({ kind: "notFound", operation, reason: `${subject} not found`, status: 404 }));
 
 	/**
  * The thing you asked to create is already there.
@@ -284,14 +287,16 @@ export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: un
  * @category constructors
  * @since 0.0.0
  */
-	static alreadyExists(operation: string, subject: string): GitHubError {
-		return GitHubError.make({
-    kind: "alreadyExists",
-    operation,
-    reason: `${subject} already exists`,
-    status: 422,
-});
-	}
+	static readonly alreadyExists: {
+		(operation: string, subject: string): GitHubError;
+		(subject: string): (operation: string) => GitHubError;
+	} = dual(2, (operation: string, subject: string): GitHubError =>
+		GitHubError.make({
+			kind: "alreadyExists",
+			operation,
+			reason: `${subject} already exists`,
+			status: 422,
+		}));
 
 	/**
  * GitHub understood the request and refused it.
@@ -307,9 +312,11 @@ export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: un
  * @category constructors
  * @since 0.0.0
  */
-	static rejected(operation: string, status: number, reason: string): GitHubError {
-		return GitHubError.make({ kind: "rejected", operation, reason, status });
-	}
+	static readonly rejected: {
+		(operation: string, status: number, reason: string): GitHubError;
+		(status: number, reason: string): (operation: string) => GitHubError;
+	} = dual(3, (operation: string, status: number, reason: string): GitHubError =>
+		GitHubError.make({ kind: "rejected", operation, reason, status }));
 
 	/**
  * A response did not match the schema it was decoded against.
@@ -365,7 +372,10 @@ export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: un
  * @category parsing
  * @since 0.0.0
  */
-	static fromOctokit(operation: string, error: unknown, nowMillis: number): GitHubError {
+	static readonly fromOctokit: {
+		(operation: string, error: unknown, nowMillis: number): GitHubError;
+		(error: unknown, nowMillis: number): (operation: string) => GitHubError;
+	} = dual(3, (operation: string, error: unknown, nowMillis: number): GitHubError => {
 		const facts = readThrowable(error);
 		const retryAfterMillis = retryAfterMillisFrom(facts.headers, nowMillis);
 		const kind = classify(facts, retryAfterMillis);
@@ -378,7 +388,7 @@ export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: un
     ...(facts.validation.length > 0 ? { validation: facts.validation } : {}),
     cause: error,
 });
-	}
+	});
 
 	/**
  * A predicate over one or more kinds, for `Effect.catchIf`.
@@ -437,7 +447,8 @@ export class GitHubError extends S.TaggedError<GitHubError, { readonly brand: un
 		...codes: ReadonlyArray<(typeof GitHubValidationCode.literals)[number]>
 	): (error: GitHubError) => boolean {
 		const set = HashSet.fromIterable<string>(codes);
-		return (error) => error.validation?.some((entry) => entry.code !== undefined && HashSet.has(set, entry.code)) ?? false;
+		return (error) =>
+			error.validation !== undefined && A.some(error.validation, (entry) => entry.code !== undefined && HashSet.has(set, entry.code));
 	}
 }
 
@@ -530,15 +541,21 @@ const readValidation = (data: Record<string, unknown> | undefined): ReadonlyArra
 	return entries;
 };
 
-const stringField = (record: Record<string, unknown>, key: string): string | undefined =>
-	P.isString(record[key]) ? record[key] : undefined;
+const stringField: {
+	(record: Record<string, unknown>, key: string): string | undefined;
+	(key: string): (record: Record<string, unknown>) => string | undefined;
+} = dual(2, (record: Record<string, unknown>, key: string): string | undefined =>
+	P.isString(record[key]) ? record[key] : undefined);
 
 const ALREADY_EXISTS = "already exists";
 
 /** GitHub's documented validation-error code for a duplicate resource. */
 const ALREADY_EXISTS_CODE = "already_exists";
 
-const classify = (
+const classify: {
+	(facts: Throwable, retryAfterMillis: number | undefined): (typeof GitHubErrorKind.literals)[number];
+	(retryAfterMillis: number | undefined): (facts: Throwable) => (typeof GitHubErrorKind.literals)[number];
+} = dual(2, (
 	facts: Throwable,
 	retryAfterMillis: number | undefined,
 ): (typeof GitHubErrorKind.literals)[number] => {
@@ -558,7 +575,7 @@ const classify = (
 		return saysAlreadyExists(facts) ? "alreadyExists" : "rejected";
 	}
 	return "rejected";
-};
+});
 
 /**
  * Recognizes duplicate-resource failures from structured validation codes or prose.
@@ -573,10 +590,10 @@ const classify = (
  * @since 0.0.0
  */
 const saysAlreadyExists = (facts: Throwable): boolean => {
-	if (facts.validation.some((entry) => entry.code === ALREADY_EXISTS_CODE)) return true;
+	if (A.some(facts.validation, (entry) => entry.code === ALREADY_EXISTS_CODE)) return true;
 	const reason = facts.reason.toLowerCase();
 	if (reason.includes(ALREADY_EXISTS)) return true;
-	return facts.validation.some((entry) => entry.message?.toLowerCase().includes(ALREADY_EXISTS) ?? false);
+	return A.some(facts.validation, (entry) => entry.message?.toLowerCase().includes(ALREADY_EXISTS) ?? false);
 };
 
 /**

@@ -63,6 +63,18 @@ model/effort. It set server defaults and explicit resume/queue policy together;
 the test does not isolate which setting is independently sufficient. It does
 not erase the failed default case or establish Desktop permission continuity.
 
+## Retained probe qualification, 2026-10-20
+
+The historical Claude nonce echoes remain reply evidence. Its original waiter
+could discard later results decoded in the same read batch, and a batch with
+both a stream event and terminal result could overstate still-active overlap.
+The matrix's five queued replies are historical observations; precise busy
+overlap and replay reproducibility were not established by that waiter.
+The retained probe now queues decoded events across result waiters and busy
+checks, and treats a terminal event in the observed batch as completed.
+Zero-model regressions cover two results and stream-plus-terminal batches.
+No provider was invoked to make these repairs.
+
 ## Actual two-provider exchange
 
 One Codex → Grok → Codex request/reply/acknowledgement passed in **8.54 seconds**.

@@ -642,9 +642,7 @@ const rewriteBlockUnchecked = (
   const paragraphs = splitParagraphs(leadLines);
   const keepCount = data.leadEnd === undefined ? paragraphs.length : Math.max(1, data.leadEnd);
   const keptLead = joinParagraphs(A.take(paragraphs, keepCount));
-  const movedLead = joinParagraphs(A.drop(paragraphs, keepCount));
-
-  let detailsAddition: ReadonlyArray<string> = movedLead;
+  let detailsAddition: ReadonlyArray<string> = joinParagraphs(A.drop(paragraphs, keepCount));
   let gotchasAddition: ReadonlyArray<string> = [];
   const routing = data.remarks ?? "details";
   for (const segment of remarksSegments) {

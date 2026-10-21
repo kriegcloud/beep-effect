@@ -31,8 +31,11 @@ const { createHmac } = process.getBuiltinModule("node:crypto");
 
 const ALGORITHM = "AWS4-HMAC-SHA256";
 
-const hmac = (key: Uint8Array | string, value: string): Uint8Array =>
-	new Uint8Array(createHmac("sha256", key).update(value).digest());
+const hmac: {
+	(key: Uint8Array | string, value: string): Uint8Array;
+	(value: string): (key: Uint8Array | string) => Uint8Array;
+} = Function.dual(2, (key: Uint8Array | string, value: string): Uint8Array =>
+	new Uint8Array(createHmac("sha256", key).update(value).digest()));
 
 /**
  * Percent-encode one path segment the way SigV4 requires.
@@ -79,13 +82,13 @@ export const uriEncode = (value: string): string =>
  * @since 0.0.0
  */
 export const SigV4Credentials = S.Struct({
-	accessKeyId: S.String.annotateKey({ description: "The public access key identifier." }),
-	secretAccessKey: S.String.annotateKey({ description: "The already declassified signing secret." }),
-	sessionToken: S.optional(S.String).annotateKey({ description: "A temporary session token, absent or explicitly undefined otherwise." }),
-	region: S.String.annotateKey({ description: "The signing region." }),
+	accessKeyId: S.String.pipe($I.annoteKey("SigV4Credentials.accessKeyId", { description: "The public access key identifier." })),
+	secretAccessKey: S.String.pipe($I.annoteKey("SigV4Credentials.secretAccessKey", { description: "The already declassified signing secret." })),
+	sessionToken: S.optionalKey(S.String).pipe($I.annoteKey("SigV4Credentials.sessionToken", { description: "A temporary session token, absent or explicitly undefined otherwise." })),
+	region: S.String.pipe($I.annoteKey("SigV4Credentials.region", { description: "The signing region." })),
 	/** Almost always `"s3"` here, but the algorithm is not S3-specific. */
-	service: S.String.annotateKey({ description: "The signing service, usually s3." }),
-}).annotate($I.annote("SigV4Credentials", { description: "Plain-object credentials and coordinates used to sign a request." }));
+	service: S.String.pipe($I.annoteKey("SigV4Credentials.service", { description: "The signing service, usually s3." })),
+}).pipe($I.annoteSchema("SigV4Credentials", { description: "Plain-object credentials and coordinates used to sign a request." }));
 
 /**
  * The credential type derived from the executable contract.
@@ -113,18 +116,18 @@ export type SigV4Credentials = typeof SigV4Credentials.Type;
  * @since 0.0.0
  */
 export const SigV4Request = S.Struct({
-	method: S.String.annotateKey({ description: "The HTTP method, preserved verbatim." }),
+	method: S.String.pipe($I.annoteKey("SigV4Request.method", { description: "The HTTP method, preserved verbatim." })),
 	/** The raw path; every segment is encoded here, preserving empty segments. */
-	path: S.String.annotateKey({ description: "The raw object path, including empty segments." }),
+	path: S.String.pipe($I.annoteKey("SigV4Request.path", { description: "The raw object path, including empty segments." })),
 	/** An already encoded endpoint pathname, without a trailing slash. */
-	encodedPathPrefix: S.optional(S.String).annotateKey({ description: "An already encoded endpoint path prefix; omitted requests retain raw-path signing." }),
-	host: S.String.annotateKey({ description: "The host and optional port sent to the server." }),
+	encodedPathPrefix: S.optionalKey(S.String).pipe($I.annoteKey("SigV4Request.encodedPathPrefix", { description: "An already encoded endpoint path prefix; omitted requests retain raw-path signing." })),
+	host: S.String.pipe($I.annoteKey("SigV4Request.host", { description: "The host and optional port sent to the server." })),
 	/** Headers to sign, in any case and any order. */
-	headers: S.Record(S.String, S.String).annotateKey({ description: "String-valued headers in any case and order." }),
-	body: S.Uint8Array.annotateKey({ description: "The exact payload bytes." }),
+	headers: S.Record(S.String, S.String).pipe($I.annoteKey("SigV4Request.headers", { description: "String-valued headers in any case and order." })),
+	body: S.Uint8Array.pipe($I.annoteKey("SigV4Request.body", { description: "The exact payload bytes." })),
 	/** The signing instant. Explicit so a signature is reproducible in a test. */
-	now: S.instanceOf(Date).annotateKey({ description: "The explicit JavaScript Date signing instant." }),
-}).annotate($I.annote("SigV4Request", { description: "A plain-object request with the exact payload and reproducible signing instant." }));
+	now: S.instanceOf(Date).pipe($I.annoteKey("SigV4Request.now", { description: "The explicit JavaScript Date signing instant." })),
+}).pipe($I.annoteSchema("SigV4Request", { description: "A plain-object request with the exact payload and reproducible signing instant." }));
 
 /**
  * The request type derived from the executable contract.
@@ -241,7 +244,7 @@ export const canonicalize: {
 		signedHeaders,
 		amzDate,
 		dateStamp,
-		canonicalRequest: [request.method, canonicalPath, "", canonicalHeaders, signedHeaders, payloadHash].join("\n"),
+		canonicalRequest: A.join([request.method, canonicalPath, "", canonicalHeaders, signedHeaders, payloadHash], "\n"),
 	};
 });
 
@@ -313,7 +316,7 @@ export const sign: {
 } = Function.dual(2, (request: SigV4Request, credentials: SigV4Credentials): Record<string, string> => {
 	const { headers, canonicalRequest, signedHeaders, amzDate, dateStamp } = canonicalize(request, credentials);
 	const scope = `${dateStamp}/${credentials.region}/${credentials.service}/aws4_request`;
-	const stringToSign = [ALGORITHM, amzDate, scope, sha256Hex(canonicalRequest)].join("\n");
+	const stringToSign = A.join([ALGORITHM, amzDate, scope, sha256Hex(canonicalRequest)], "\n");
 	const key = signingKey(credentials.secretAccessKey, dateStamp, credentials.region, credentials.service);
 	const signature = Buffer.from(hmac(key, stringToSign)).toString("hex");
 

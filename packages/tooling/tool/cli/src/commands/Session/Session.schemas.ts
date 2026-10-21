@@ -9,11 +9,12 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { newestPerKey } from "../../internal/state/JsonLinesStore.ts";
+import { GoalCloseoutView } from "../Goals/Goals.schemas.ts";
 import { PrNumber, PrProvenanceHarness, PrRepository } from "../Yeet/internal/Provenance.ts";
 
 const $I = $RepoCliId.create("commands/Session/Session.schemas");
@@ -168,6 +169,7 @@ export class SessionOpenReport extends S.Opaque<SessionOpenReport, { readonly br
     schemaVersion: S.Literal("session-open/v1"),
     repository: PrRepository,
     rows: S.Array(SessionLedgerRow),
+    goalCloseouts: GoalCloseoutView.pipe(S.Array, S.optionalKey),
   }).pipe(
     $I.annoteSchema("SessionOpenReport", { description: "The newest non-done ledger row per checkout, newest first." })
   )
@@ -207,12 +209,10 @@ export const SessionOpenReportJson = JsonStringCodec(SessionOpenReport);
  * @category utilities
  * @since 0.0.0
  */
-export const openSessionRows = (rows: ReadonlyArray<SessionLedgerRow>): ReadonlyArray<SessionLedgerRow> =>
-  pipe(
-    rows,
-    newestPerKey<SessionLedgerRow>({ key: (row) => row.checkout, at: (row) => row.recordedAt }),
-    A.filter((row) => !SessionLedgerState.is.done(row.state))
-  );
+export const openSessionRows: (rows: ReadonlyArray<SessionLedgerRow>) => ReadonlyArray<SessionLedgerRow> = flow(
+  newestPerKey<SessionLedgerRow>({ key: (row) => row.checkout, at: (row) => row.recordedAt }),
+  A.filter((row) => !SessionLedgerState.is.done(row.state))
+);
 
 /**
  * The session currently holding the orchestrator role, if any live row claims it.

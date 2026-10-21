@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-10-15",
+  "generatedOn": "2026-10-20",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -439,7 +439,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 12,
+      "line": 19,
       "owner": "@beep/ai-provider-cli",
       "reason": "Executable synthetic NDJSON peer used by AiProviderCliSession.test.ts for deterministic launch-policy, persistent-session, and oversized-frame regressions. Its codecs validate fixed startup flags/settings and transport envelopes; this file defines no standalone schema-law test. Arbitrary generation would not exercise those process behaviors. Revisit if reusable domain schemas or schema-law assertions move into this fixture."
     },
@@ -711,7 +711,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 63,
+      "line": 62,
       "owner": "@beep/epistemic-server",
       "reason": "External-Postgres race regression uses deterministic candidate identifiers to prove concurrent repository behavior; arbitrary values would make the race non-reproducible, and schema-derived identifier laws live with the owning domain models."
     },
@@ -731,7 +731,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 73,
+      "line": 71,
       "owner": "@beep/epistemic-server",
       "reason": "External-Postgres race regression decodes fixed commands to drive two genuinely parallel repository writers; what is under test is database contention (row locks, the open-head index, the exclusion constraint), not schema laws, and arbitrary-driven commands would make the race non-reproducible."
     },
@@ -1937,9 +1937,17 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 51,
+      "line": 52,
       "owner": "@beep/test-utils",
       "reason": "Subprocess regression driver: these codecs decode child-runner evidence for explicit watchdog, cancellation and finalizer-order scenarios. Native schema-derived property behavior is exercised by the runtime.test.ts.txt child fixture and Vitest.test.ts; adding a codec round-trip in the parent would not test the process lifecycle contract."
+    },
+    {
+      "file": "packages/tooling/tool/cli/scripts/CreateReviewerApp.ts",
+      "symbol": "Conversion",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Accounts/AccountsSecretsLayout.schemas.ts",
@@ -2306,6 +2314,190 @@
       "reason": "Inline input pairs in-memory block bytes with token allowances the rewriter computed in the same call; nothing crosses an IO boundary and the findings are transient strings consumed by quarantine reporting."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerAnnotation",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerChangedFile",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerCredentials",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerInlineComment",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerInstallationToken",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerResult",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
+      "symbol": "ReviewerReview",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
+      "symbol": "BranchRule",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
+      "symbol": "Check",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
+      "symbol": "Checks",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
+      "symbol": "PrHead",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
+      "symbol": "Repository",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
+      "symbol": "RequiredCheck",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
+      "symbol": "Rule",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
+      "symbol": "RuleSummary",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
+      "symbol": "AppIdentity",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
+      "symbol": "CheckPage",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
+      "symbol": "CheckRun",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
+      "symbol": "ClassifiedPull",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
+      "symbol": "CommentUser",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
+      "symbol": "CreatedResource",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
+      "symbol": "PullRequest",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
+      "symbol": "SummaryComment",
+      "kind": "plain-data-schema-class",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Session/SessionLedger.service.ts",
       "symbol": "SessionCheckoutFacts",
       "kind": "object-struct-schema",
@@ -2421,7 +2613,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 80,
+      "line": 86,
       "owner": "@beep/repo-cli",
       "reason": "Native runtime regressions decode real synthetic-child and SQLite receipts to verify enrollment, policy rejection, delivery, cancellation cleanup and writer-lock behavior. Generated envelope/reference properties live in agent-message-models.test.ts; arbitrary codec round-trips do not exercise these fixed subprocess lifecycle scenarios. Reconsider if reusable schemas or schema-law assertions move into this file."
     },
@@ -2431,7 +2623,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 50,
+      "line": 55,
       "owner": "@beep/repo-cli",
       "reason": "Store regression scenarios use exact SQLite rows, staged process termination and injected audit-write failure to prove transaction, lease and resolution recovery contracts. Arbitrary operator-evidence transport properties live in agent-message-models.test.ts; random codec round-trips cannot replace these deterministic failure points."
     },
@@ -2461,7 +2653,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 15,
+      "line": 14,
       "owner": "@beep/repo-cli",
       "reason": "Turbo input regression encodes fixed JSON fixture documents and decodes turbo summaries through S.fromJsonString codecs; the schemas are external turbo shapes exercised against real output, not domain schemas with a round-trip law."
     },
@@ -2491,7 +2683,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 22,
+      "line": 25,
       "owner": "@beep/repo-cli",
       "reason": "This executable synthetic child is a fixed crash-stage transport fixture, not a schema-law test file. It decodes staged Envelope/AmbiguityResolution documents and emits exact checkpoint receipts for the owning store tests to kill and reopen. Schema-derived transport properties live in agent-message-models.test.ts."
     },
@@ -2524,198 +2716,6 @@
       "line": 35,
       "owner": "@beep/repo-cli",
       "reason": "Hook adapter regression encodes and decodes fixed hook payload JSON through S.fromJsonString codecs to prove adapter wiring; the payloads are fixed fixtures, not a schema law."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
-      "symbol": "ReviewerCredentials",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
-      "symbol": "ReviewerInstallationToken",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
-      "symbol": "ReviewerAnnotation",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
-      "symbol": "ReviewerInlineComment",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
-      "symbol": "ReviewerReview",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
-      "symbol": "ReviewerChangedFile",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerModels.ts",
-      "symbol": "ReviewerResult",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
-      "symbol": "AppIdentity",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
-      "symbol": "CheckRun",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
-      "symbol": "CheckPage",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
-      "symbol": "CommentUser",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
-      "symbol": "SummaryComment",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
-      "symbol": "CreatedResource",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
-      "symbol": "PullRequest",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerService.ts",
-      "symbol": "ClassifiedPull",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "RequiredCheck",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "Rule",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "Repository",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "RuleSummary",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "BranchRule",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "Check",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "Checks",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Reviewer/ReviewerRuleset.ts",
-      "symbol": "PrHead",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
-    },
-    {
-      "file": "packages/tooling/tool/cli/scripts/CreateReviewerApp.ts",
-      "symbol": "Conversion",
-      "kind": "plain-data-schema-class",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "The operator explicitly requires module-scope S.Class schemas for this GitHub App implementation. Retained as a branded S.Class under that task-specific requirement; codecs remain compiled at module scope."
     }
   ],
   "backlog": []

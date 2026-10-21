@@ -314,7 +314,7 @@ const defaultConfig = (input?: FFmpegConfigInputOptions | undefined): FFmpegConf
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
+    Stream.runFold(thunkEmptyStr, (acc: string, chunk) => `${acc}${chunk}`)
   );
 
 const parseNumber = (value: unknown): O.Option<number> => {

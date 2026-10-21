@@ -23,6 +23,8 @@ import { isErrno, typeAt } from "./internal/fsProbe.ts";
 import { isWindowsRunner, toolCacheRoot } from "./internal/runner.ts";
 import { spawnOnce } from "./internal/spawn.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/github-actions/ToolInstaller");
 
@@ -46,16 +48,16 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
 	 * extraction tool refused the archive or is not installed. `cacheFailed` —
 	 * the tool could not be written into the runner's tool cache.
 	 */
-	reason: S.Literals(["downloadFailed", "extractFailed", "cacheFailed"]).annotateKey({ description: "`downloadFailed` — the archive could not be fetched. `extractFailed` — the extraction tool refused the archive or is not installed. `cacheFailed` — the tool could not be written into the runner's tool cache." }),
+	reason: S.Literals(["downloadFailed", "extractFailed", "cacheFailed"]).pipe($I.annoteKey("ToolInstallerError.reason", { description: "`downloadFailed` — the archive could not be fetched. `extractFailed` — the extraction tool refused the archive or is not installed. `cacheFailed` — the tool could not be written into the runner's tool cache." })),
 	/** The HTTP status, when there was one. Drives the retry decision. */
-	status: S.optionalKey(S.Finite).annotateKey({ description: "The HTTP status, when there was one. Drives the retry decision." }),
+	status: S.optionalKey(S.Finite).pipe($I.annoteKey("ToolInstallerError.status", { description: "The HTTP status, when there was one. Drives the retry decision." })),
 	/** What was being worked on — a url, an archive path, or a tool name. */
-	subject: S.String.annotateKey({ description: "What was being worked on — a url, an archive path, or a tool name." }),
+	subject: S.String.pipe($I.annoteKey("ToolInstallerError.subject", { description: "What was being worked on — a url, an archive path, or a tool name." })),
 	/** The extraction tool's own complaint, which is the only useful part of a tar failure. */
-	stderr: S.optionalKey(S.String).annotateKey({ description: "The extraction tool's own complaint, which is the only useful part of a tar failure." }),
+	stderr: S.optionalKey(S.String).pipe($I.annoteKey("ToolInstallerError.stderr", { description: "The extraction tool's own complaint, which is the only useful part of a tar failure." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("ToolInstallerError", { description: "Raised when a tool cannot be downloaded, extracted or cached." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("ToolInstallerError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<ToolInstallerError>("ToolInstallerError", { description: "Raised when a tool cannot be downloaded, extracted or cached." })) {
 	/**
  * Renders the failed operation, subject and available HTTP status or extraction stderr.
  *
@@ -135,7 +137,7 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
  */
 export const ExtractOptions = S.Struct({
 	/** The destination. A fresh temporary directory when omitted. */
-	destination: S.optional(S.String).annotateKey({ description: "Requested extraction destination; omission allocates a temporary directory." }),
+	destination: S.optionalKey(S.String).pipe($I.annoteKey("ExtractOptions.destination", { description: "Requested extraction destination; omission allocates a temporary directory." })),
 	/**
   * Flags for `tar`. Defaults to `["xzf"]`, i.e. a gzipped tarball.
   *
@@ -147,8 +149,8 @@ export const ExtractOptions = S.Struct({
   * is last inside the cluster; a custom set like `["xz", "--strip=1", "-f"]`
   * must end the same way, deliberately rather than by ordering luck.
   */
-	flags: S.String.pipe(S.Array, S.optional).annotateKey({ description: "Custom tar flags in argv order; omission retains the extraction default." }),
-}).annotate($I.annote("ExtractOptions", { description: "Structural archive extraction options, preserving absent and explicit undefined fields." }));
+	flags: S.String.pipe(S.Array, S.optional, $I.annoteKey("ExtractOptions.flags", { description: "Custom tar flags in argv order; omission retains the extraction default." })),
+}).pipe($I.annoteSchema("ExtractOptions", { description: "Structural archive extraction options, preserving absent and explicit undefined fields." }));
 
 /**
  * The plain-object contract represented by {@link ExtractOptions}.
@@ -204,17 +206,17 @@ export interface ToolDownloadOptions {
  */
 export const ProvisionFileOptions = S.Struct({
 	/** The tool-cache name the binary is provisioned under, e.g. `"biome"`. */
-	tool: S.String.annotateKey({ description: "The name under which the binary is cached." }),
+	tool: S.String.pipe($I.annoteKey("ProvisionFileOptions.tool", { description: "The name under which the binary is cached." })),
 	/** The exact version — a tool-cache path segment, so spell it canonically. */
-	version: S.String.annotateKey({ description: "The exact version used in the cache path." }),
+	version: S.String.pipe($I.annoteKey("ProvisionFileOptions.version", { description: "The exact version used in the cache path." })),
 	/** The url the binary downloads from on a cache miss. */
-	url: S.String.annotateKey({ description: "The binary download URL used on a cache miss." }),
+	url: S.String.pipe($I.annoteKey("ProvisionFileOptions.url", { description: "The binary download URL used on a cache miss." })),
 	/**
 	 * The cached file's name — what the tool is invoked as once its directory
 	 * is on the `PATH` (e.g. `"biome"`, or `"biome.exe"` on Windows).
 	 */
-	binary: S.String.annotateKey({ description: "The filename of the binary inside the cache entry." }),
-}).annotate($I.annote("ProvisionFileOptions", { description: "The tool, exact version, download URL and binary filename for single-file provisioning." }));
+	binary: S.String.pipe($I.annoteKey("ProvisionFileOptions.binary", { description: "The filename of the binary inside the cache entry." })),
+}).pipe($I.annoteSchema("ProvisionFileOptions", { description: "The tool, exact version, download URL and binary filename for single-file provisioning." }));
 
 /**
  * The plain-object contract represented by {@link ProvisionFileOptions}.
@@ -252,10 +254,10 @@ export type ProvisionFileOptions = typeof ProvisionFileOptions.Type;
  */
 export const ProvisionedFile = S.Struct({
 	/** The cached entry: `<tool-cache>/<tool>/<version>/<arch>`. */
-	directory: S.String.annotateKey({ description: "The published tool-cache entry directory." }),
+	directory: S.String.pipe($I.annoteKey("ProvisionedFile.directory", { description: "The published tool-cache entry directory." })),
 	/** The directory to `addPath` — for a single binary, the cached directory itself. */
-	binDir: S.String.annotateKey({ description: "The directory to publish on PATH for the provisioned tool." }),
-}).annotate($I.annote("ProvisionedFile", { description: "Structural paths to the published single-file tool entry and its executable directory." }));
+	binDir: S.String.pipe($I.annoteKey("ProvisionedFile.binDir", { description: "The directory to publish on PATH for the provisioned tool." })),
+}).pipe($I.annoteSchema("ProvisionedFile", { description: "Structural paths to the published single-file tool entry and its executable directory." }));
 
 /**
  * The plain-object contract represented by {@link ProvisionedFile}.
@@ -292,7 +294,10 @@ export interface ToolInstallerShape {
   * assumption from your own install path (an archive-wrapper subdirectory,
   * say) may not hold for a foreign entry.
   */
-	readonly find: (tool: string, version: string) => Effect.Effect<O.Option<string>>;
+	readonly find: {
+		(tool: string, version: string): Effect.Effect<O.Option<string>>;
+		(version: string): (tool: string) => Effect.Effect<O.Option<string>>;
+	};
 	/**
   * Where this installer's `cacheDir` / `cacheFile` will land `tool@version`:
   * the final `<root>/<tool>/<version>/<arch>`, over the root this layer
@@ -307,13 +312,25 @@ export interface ToolInstallerShape {
   * two against drifting apart. {@link ToolInstaller.cachePath} is the same
   * layout as a static function of an explicit root.
   */
-	readonly cachePath: (tool: string, version: string) => string;
+	readonly cachePath: {
+		(tool: string, version: string): string;
+		(version: string): (tool: string) => string;
+	};
 	/** Download a url to a temporary file, retrying what is worth retrying. */
-	readonly download: (url: string, options?: ToolDownloadOptions) => Effect.Effect<string, ToolInstallerError>;
+	readonly download: {
+		(url: string, options?: ToolDownloadOptions): Effect.Effect<string, ToolInstallerError>;
+		(options?: ToolDownloadOptions): (url: string) => Effect.Effect<string, ToolInstallerError>;
+	};
 	/** Extract a tarball. Returns the directory its contents landed in. */
-	readonly extractTar: (archive: string, options?: ExtractOptions) => Effect.Effect<string, ToolInstallerError>;
+	readonly extractTar: {
+		(archive: string, options?: ExtractOptions): Effect.Effect<string, ToolInstallerError>;
+		(options?: ExtractOptions): (archive: string) => Effect.Effect<string, ToolInstallerError>;
+	};
 	/** Extract a zip. Returns the directory its contents landed in. */
-	readonly extractZip: (archive: string, options?: ExtractOptions) => Effect.Effect<string, ToolInstallerError>;
+	readonly extractZip: {
+		(archive: string, options?: ExtractOptions): Effect.Effect<string, ToolInstallerError>;
+		(options?: ExtractOptions): (archive: string) => Effect.Effect<string, ToolInstallerError>;
+	};
 	/**
   * Install a directory into the tool cache. Returns its cached path.
   *
@@ -327,14 +344,15 @@ export interface ToolInstallerShape {
   * contain — shims, overlaid binaries — into `source` *before* this call,
   * and read nothing from it afterwards.
   */
-	readonly cacheDir: (source: string, tool: string, version: string) => Effect.Effect<string, ToolInstallerError>;
+	readonly cacheDir: {
+		(source: string, tool: string, version: string): Effect.Effect<string, ToolInstallerError>;
+		(tool: string, version: string): (source: string) => Effect.Effect<string, ToolInstallerError>;
+	};
 	/** Install a single file into the tool cache under `name`. Returns the cached directory. */
-	readonly cacheFile: (
-		source: string,
-		name: string,
-		tool: string,
-		version: string,
-	) => Effect.Effect<string, ToolInstallerError>;
+	readonly cacheFile: {
+		(source: string, name: string, tool: string, version: string): Effect.Effect<string, ToolInstallerError>;
+		(name: string, tool: string, version: string): (source: string) => Effect.Effect<string, ToolInstallerError>;
+	};
 	/**
   * Provision a single-binary tool: the whole `find` → `download` →
   * chmod → `cacheFile` composition as one call.
@@ -374,8 +392,8 @@ const make = Effect.gen(function* () {
 	const root = yield* toolCacheRoot(env, path);
 	const windows = yield* isWindowsRunner(env);
 
-	const cachePath = (tool: string, version: string): string =>
-		ToolInstaller.cachePath({ root, tool, version, arch: process.arch });
+	const cachePath: ToolInstallerShape["cachePath"] = dual(2, (tool: string, version: string): string =>
+		ToolInstaller.cachePath({ root, tool, version, arch: process.arch }));
 
 	const destinationFor = (options: ExtractOptions | undefined): Effect.Effect<string, ToolInstallerError> => {
 		const requested = options?.destination;
@@ -408,14 +426,17 @@ const make = Effect.gen(function* () {
   * `internal/spawn.ts`: a second run fails on Windows because .NET's
   * `ZipFile.ExtractToDirectory` refuses to overwrite.
   */
-	const extractWith = Effect.fnUntraced(function* (command: ChildProcess.Command, archive: string) {
+	const extractWith: {
+		(command: ChildProcess.Command, archive: string): Effect.Effect<void, ToolInstallerError>;
+		(archive: string): (command: ChildProcess.Command) => Effect.Effect<void, ToolInstallerError>;
+	} = dual(2, Effect.fnUntraced(function* (command: ChildProcess.Command, archive: string) {
 			const { output, code } = yield* spawnOnce(spawner, command).pipe(
 				Effect.mapError((cause) => ToolInstallerError.make({ reason: "extractFailed", subject: archive, cause })),
 			);
 			if (code !== 0) {
 				return yield* ToolInstallerError.make({ reason: "extractFailed", subject: archive, stderr: output.trim() });
 			}
-		});
+		}));
 
 	/**
   * Install a staged directory into the tool cache by renaming it into place.
@@ -429,7 +450,10 @@ const make = Effect.gen(function* () {
   * and never re-downloads it. A rename within one filesystem is atomic, so the
   * cache only ever contains complete tools.
   */
-	const swapIntoCache = (staging: string, tool: string, version: string): Effect.Effect<string, ToolInstallerError> =>
+	const swapIntoCache: {
+		(staging: string, tool: string, version: string): Effect.Effect<string, ToolInstallerError>;
+		(tool: string, version: string): (staging: string) => Effect.Effect<string, ToolInstallerError>;
+	} = dual(3, (staging: string, tool: string, version: string): Effect.Effect<string, ToolInstallerError> =>
 		Effect.gen(function* () {
 			const destination = cachePath(tool, version);
 			yield* fs.makeDirectory(path.dirname(destination), { recursive: true });
@@ -439,7 +463,7 @@ const make = Effect.gen(function* () {
 			yield* fs.rename(staging, destination);
 			yield* fs.writeFileString(`${destination}.complete`, "");
 			return destination;
-		}).pipe(Effect.mapError((cause) => ToolInstallerError.make({ reason: "cacheFailed", subject: tool, cause })));
+		}).pipe(Effect.mapError((cause) => ToolInstallerError.make({ reason: "cacheFailed", subject: tool, cause }))));
 
 	/**
   * Move a source tree into the staging directory, consuming the source.
@@ -458,7 +482,10 @@ const make = Effect.gen(function* () {
   * both paths; that removal is best-effort, since the entry is already
   * complete and a leftover temp directory is not worth failing the install.
   */
-	const moveIntoStaging = (source: string, staging: string): Effect.Effect<void, PlatformError.PlatformError> =>
+	const moveIntoStaging: {
+		(source: string, staging: string): Effect.Effect<void, PlatformError.PlatformError>;
+		(staging: string): (source: string) => Effect.Effect<void, PlatformError.PlatformError>;
+	} = dual(2, (source: string, staging: string): Effect.Effect<void, PlatformError.PlatformError> =>
 		fs.remove(staging, { recursive: true, force: true }).pipe(
 			Effect.flatMap(() => fs.rename(source, staging)),
 			Effect.catchIf(
@@ -468,10 +495,13 @@ const make = Effect.gen(function* () {
 						.copy(source, staging, { overwrite: true })
 						.pipe(Effect.andThen(Effect.ignore(fs.remove(source, { recursive: true, force: true })))),
 			),
-		);
+		));
 
 	/** A staging directory beside the cache, so the swap is a rename and not a copy. */
-	const staged = <A>(
+	const staged: {
+		<A>(tool: string, use: (staging: string) => Effect.Effect<A, ToolInstallerError>): Effect.Effect<A, ToolInstallerError>;
+		<A>(use: (staging: string) => Effect.Effect<A, ToolInstallerError>): (tool: string) => Effect.Effect<A, ToolInstallerError>;
+	} = dual(2, <A>(
 		tool: string,
 		use: (staging: string) => Effect.Effect<A, ToolInstallerError>,
 	): Effect.Effect<A, ToolInstallerError> =>
@@ -493,9 +523,9 @@ const make = Effect.gen(function* () {
 					Effect.tapCause(() => Effect.ignore(fs.remove(staging, { recursive: true, force: true }))),
 				),
 			),
-		);
+		));
 
-	const download = Effect.fn("ToolInstaller.download")(function* (url: string, options?: ToolDownloadOptions) {
+	const download: ToolInstallerShape["download"] = dual((args) => P.isString(args[0]), Effect.fn("ToolInstaller.download")(function* (url: string, options?: ToolDownloadOptions) {
 		const attempt = Effect.gen(function* () {
 			const response = yield* http
 				.get(url)
@@ -529,21 +559,24 @@ const make = Effect.gen(function* () {
 				while: (error: ToolInstallerError) => error.retryable,
 			}),
 		);
-	});
+	}));
 
-	const find = (tool: string, version: string): Effect.Effect<O.Option<string>> =>
+	const find: ToolInstallerShape["find"] = dual(2, (tool: string, version: string): Effect.Effect<O.Option<string>> =>
 		Effect.map(typeAt(fs, cachePath(tool, version)), (type) =>
 			type === "Directory" ? O.some(cachePath(tool, version)) : O.none(),
-		);
+		));
 
 	/** Fail before any binary probe or write when its normalized name escapes the entry. */
-	const binaryDestination = (directory: string, name: string): Effect.Effect<string, ToolInstallerError> => {
+	const binaryDestination: {
+		(directory: string, name: string): Effect.Effect<string, ToolInstallerError>;
+		(name: string): (directory: string) => Effect.Effect<string, ToolInstallerError>;
+	} = dual(2, (directory: string, name: string): Effect.Effect<string, ToolInstallerError> => {
 		const destination = path.resolve(directory, name);
 		const relative = path.relative(path.resolve(directory), destination);
 		return relative === "" || relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative)
 			? Effect.fail(ToolInstallerError.make({ reason: "cacheFailed", subject: name }))
 			: Effect.succeed(destination);
-	};
+	});
 
 	/** Resolve a new filename through its existing parent, rejecting dangling links. */
 	const resolvedDestination = Effect.fnUntraced(function* (file: string): Effect.fn.Return<string, PlatformError.PlatformError> {
@@ -560,7 +593,10 @@ const make = Effect.gen(function* () {
 		));
 	});
 
-	const containedBinaryDestination = Effect.fnUntraced(function* (
+	const containedBinaryDestination: {
+		(directory: string, name: string): Effect.Effect<string, ToolInstallerError>;
+		(name: string): (directory: string) => Effect.Effect<string, ToolInstallerError>;
+	} = dual(2, Effect.fnUntraced(function* (
 		directory: string,
 		name: string,
 	): Effect.fn.Return<string, ToolInstallerError> {
@@ -569,9 +605,9 @@ const make = Effect.gen(function* () {
 		const realDestination = yield* resolvedDestination(destination).pipe(Effect.mapError((cause) => ToolInstallerError.make({ reason: "cacheFailed", subject: destination, cause })));
 		yield* binaryDestination(realRoot, path.relative(realRoot, realDestination));
 		return destination;
-	});
+	}));
 
-	const cacheFile = Effect.fn("ToolInstaller.cacheFile")(function* (
+	const cacheFile: ToolInstallerShape["cacheFile"] = dual(4, Effect.fn("ToolInstaller.cacheFile")(function* (
 		source: string,
 		name: string,
 		tool: string,
@@ -585,7 +621,7 @@ const make = Effect.gen(function* () {
 				Effect.flatMap(() => swapIntoCache(staging, tool, version)),
 			),
 		);
-	});
+	}));
 
 	return {
 		find,
@@ -594,13 +630,13 @@ const make = Effect.gen(function* () {
 
 		download,
 
-		extractTar: Effect.fn("ToolInstaller.extractTar")(function* (archive: string, options?: ExtractOptions) {
+		extractTar: dual((args) => P.isString(args[0]), Effect.fn("ToolInstaller.extractTar")(function* (archive: string, options?: ExtractOptions) {
 			const destination = yield* destinationFor(options);
 			yield* extractWith(tarExtractCommand({ archive, destination, flags: options?.flags }), archive);
 			return destination;
-		}),
+		})),
 
-		extractZip: Effect.fn("ToolInstaller.extractZip")(function* (archive: string, options?: ExtractOptions) {
+		extractZip: dual((args) => P.isString(args[0]), Effect.fn("ToolInstaller.extractZip")(function* (archive: string, options?: ExtractOptions) {
 			const destination = yield* destinationFor(options);
 			// The platform comes from `RUNNER_OS` rather than `process.platform`,
 			// which is both the runner's own answer and the only version of this
@@ -608,9 +644,9 @@ const make = Effect.gen(function* () {
 			// the Windows half is belt-and-braces — lives in `internal/archiveCommands.ts`.
 			yield* extractWith(unzipCommand({ windows, source: archive, destination }), archive);
 			return destination;
-		}),
+		})),
 
-		cacheDir: Effect.fn("ToolInstaller.cacheDir")(function* (source: string, tool: string, version: string) {
+		cacheDir: dual(3, Effect.fn("ToolInstaller.cacheDir")(function* (source: string, tool: string, version: string) {
 			yield* Effect.annotateCurrentSpan({ tool, version });
 			return yield* staged(tool, (staging) =>
 				moveIntoStaging(source, staging).pipe(
@@ -618,7 +654,7 @@ const make = Effect.gen(function* () {
 					Effect.flatMap(() => swapIntoCache(staging, tool, version)),
 				),
 			);
-		}),
+		})),
 
 		cacheFile,
 
@@ -791,8 +827,9 @@ export class ToolInstaller extends Context.Service<ToolInstaller, ToolInstallerS
  * import { ToolInstaller } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
+ * import { dual } from "effect/Function";
  *
- * const installer = ToolInstaller.makeTest({ find: () => Effect.succeed(O.some("/tools/node")) });
+ * const installer = ToolInstaller.makeTest({ find: dual(2, (_tool: string, _version: string) => Effect.succeed(O.some("/tools/node"))) });
  * console.log(O.getOrNull(Effect.runSync(installer.find("node", "22.11.0")))) // /tools/node
  * ```
  *
@@ -800,13 +837,25 @@ export class ToolInstaller extends Context.Service<ToolInstaller, ToolInstallerS
  * @since 0.0.0
  */
 	static readonly makeTest = (overrides: Partial<ToolInstallerShape> = {}): ToolInstallerShape => ({
-		find: () => dies("find"),
-		cachePath: (tool, version) => ToolInstaller.cachePath({ root: testRoot(), tool, version, arch: process.arch }),
-		download: () => dies("download"),
-		extractTar: () => dies("extractTar"),
-		extractZip: () => dies("extractZip"),
-		cacheDir: () => dies("cacheDir"),
-		cacheFile: () => dies("cacheFile"),
+		find: dual(2, (_tool: string, _version: string): Effect.Effect<O.Option<string>> => dies("find")),
+		cachePath: dual(2, (tool: string, version: string): string =>
+			ToolInstaller.cachePath({ root: testRoot(), tool, version, arch: process.arch })),
+		download: dual(
+			(args) => P.isString(args[0]),
+			(_url: string, _options?: ToolDownloadOptions): Effect.Effect<string, ToolInstallerError> => dies("download"),
+		),
+		extractTar: dual(
+			(args) => P.isString(args[0]),
+			(_archive: string, _options?: ExtractOptions): Effect.Effect<string, ToolInstallerError> => dies("extractTar"),
+		),
+		extractZip: dual(
+			(args) => P.isString(args[0]),
+			(_archive: string, _options?: ExtractOptions): Effect.Effect<string, ToolInstallerError> => dies("extractZip"),
+		),
+		cacheDir: dual(3, (_source: string, _tool: string, _version: string): Effect.Effect<string, ToolInstallerError> =>
+			dies("cacheDir")),
+		cacheFile: dual(4, (_source: string, _name: string, _tool: string, _version: string): Effect.Effect<string, ToolInstallerError> =>
+			dies("cacheFile")),
 		provisionFile: () => dies("provisionFile"),
 		...overrides,
 	});
@@ -820,11 +869,12 @@ export class ToolInstaller extends Context.Service<ToolInstaller, ToolInstallerS
  * import { ToolInstaller } from "@beep/scratchpad/effected/github-actions/ToolInstaller";
  * import * as Effect from "effect/Effect";
  * import * as O from "effect/Option";
+ * import { dual } from "effect/Function";
  *
  * const program = Effect.gen(function* () {
  *   const installer = yield* ToolInstaller;
  *   return yield* installer.find("node", "22.11.0");
- * }).pipe(Effect.provide(ToolInstaller.layerTest({ find: () => Effect.succeed(O.none()) })));
+ * }).pipe(Effect.provide(ToolInstaller.layerTest({ find: dual(2, (_tool: string, _version: string) => Effect.succeed(O.none())) })));
  * console.log(O.isNone(Effect.runSync(program))) // true
  * ```
  *

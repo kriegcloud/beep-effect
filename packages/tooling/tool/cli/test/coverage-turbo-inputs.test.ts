@@ -1,9 +1,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils/Root";
-import { provideScopedLayer } from "@beep/test-utils";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -27,6 +26,7 @@ const EXPECTED_COVERAGE_INPUTS: ReadonlyArray<string> = [
   "vitest.coverage.config.ts",
   "$TURBO_ROOT$/vitest.aliases.generated.json",
   "$TURBO_ROOT$/vitest.shared.ts",
+  "$TURBO_ROOT$/vite.shared.ts",
   "$TURBO_ROOT$/vitest.setup.ts",
 ];
 
@@ -124,83 +124,85 @@ const coverageHashFromSummary = Effect.fn("CoverageTurboInputsTest.coverageHashF
   );
 });
 
-describe("coverage Turbo inputs", () => {
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage Turbo inputs", (it) => {
   it.effect(
     "keeps docs outside the package hash and invalidates source or test edits",
-    Effect.fnUntraced(
-      function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const repoRoot = yield* findRepoRoot();
-        const root = yield* fs.makeTempDirectoryScoped({ prefix: "coverage-turbo-inputs-" });
-        const turboBinary = path.join(repoRoot, "node_modules", ".bin", "turbo");
-        const turboConfiguration = yield* decodeTurboConfiguration(
-          yield* fs.readFileString(path.join(repoRoot, "turbo.json"))
-        );
-        const coverageTask = turboConfiguration.tasks.coverage;
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* findRepoRoot();
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "coverage-turbo-inputs-" });
+      const turboBinary = path.join(repoRoot, "node_modules", ".bin", "turbo");
+      const turboConfiguration = yield* decodeTurboConfiguration(
+        yield* fs.readFileString(path.join(repoRoot, "turbo.json"))
+      );
+      const coverageTask = turboConfiguration.tasks.coverage;
 
-        expect(coverageTask.cache).toBe(false);
-        expect(coverageTask.inputs).toEqual(EXPECTED_COVERAGE_INPUTS);
+      expect(coverageTask.cache).toBe(false);
+      expect(coverageTask.inputs).toEqual(EXPECTED_COVERAGE_INPUTS);
 
-        yield* writeFixtureJson(root, "package.json", {
-          name: "coverage-turbo-input-fixture",
-          packageManager: "bun@1.4.0",
-          private: true,
-          workspaces: ["packages/*"],
-        });
-        yield* writeFixtureJson(root, "packages/coverage/package.json", {
-          name: "@fixture/coverage",
-          private: true,
-          scripts: { coverage: "echo coverage" },
-        });
-        yield* writeFixtureJson(root, "turbo.json", {
-          tasks: {
-            coverage: {
-              cache: coverageTask.cache,
-              inputs: coverageTask.inputs,
-            },
+      yield* writeFixtureJson(root, "package.json", {
+        name: "coverage-turbo-input-fixture",
+        packageManager: "bun@1.4.0",
+        private: true,
+        workspaces: ["packages/*"],
+      });
+      yield* writeFixtureJson(root, "packages/coverage/package.json", {
+        name: "@fixture/coverage",
+        private: true,
+        scripts: { coverage: "echo coverage" },
+      });
+      yield* writeFixtureJson(root, "turbo.json", {
+        tasks: {
+          coverage: {
+            cache: coverageTask.cache,
+            inputs: coverageTask.inputs,
           },
-        });
-        yield* writeFixtureJson(root, "vitest.aliases.generated.json", {});
-        yield* writeFixtureFile(root, "vitest.shared.ts", "export const shared = true;\n");
-        yield* writeFixtureFile(root, "vitest.setup.ts", "export const setup = true;\n");
-        yield* writeFixtureFile(root, "packages/coverage/server/index.ts", "export const serverValue = 1;\n");
-        yield* writeFixtureFile(root, "packages/coverage/src/index.ts", "export const value = 1;\n");
-        yield* writeFixtureFile(root, "packages/coverage/src-tauri/src/lib.rs", "pub const VALUE: u8 = 1;\n");
-        yield* writeFixtureFile(root, "packages/coverage/test/index.test.ts", "export const expected = 1;\n");
-        yield* writeFixtureFile(root, "packages/coverage/tsconfig.json", "{}\n");
-        yield* writeFixtureFile(root, "packages/coverage/vitest.config.ts", "export default {};\n");
-        yield* writeFixtureFile(root, "packages/coverage/vitest.coverage.config.ts", "export default {};\n");
-        yield* writeFixtureFile(root, "packages/coverage/README.md", "# Initial docs\n");
+        },
+      });
+      yield* writeFixtureJson(root, "vitest.aliases.generated.json", {});
+      yield* writeFixtureFile(root, "vitest.shared.ts", "export const shared = true;\n");
+      yield* writeFixtureFile(root, "vite.shared.ts", "export const browser = true;\n");
+      yield* writeFixtureFile(root, "vitest.setup.ts", "export const setup = true;\n");
+      yield* writeFixtureFile(root, "packages/coverage/server/index.ts", "export const serverValue = 1;\n");
+      yield* writeFixtureFile(root, "packages/coverage/src/index.ts", "export const value = 1;\n");
+      yield* writeFixtureFile(root, "packages/coverage/src-tauri/src/lib.rs", "pub const VALUE: u8 = 1;\n");
+      yield* writeFixtureFile(root, "packages/coverage/test/index.test.ts", "export const expected = 1;\n");
+      yield* writeFixtureFile(root, "packages/coverage/tsconfig.json", "{}\n");
+      yield* writeFixtureFile(root, "packages/coverage/vitest.config.ts", "export default {};\n");
+      yield* writeFixtureFile(root, "packages/coverage/vitest.coverage.config.ts", "export default {};\n");
+      yield* writeFixtureFile(root, "packages/coverage/README.md", "# Initial docs\n");
 
-        const baselineHash = yield* coverageHashFromSummary(root, turboBinary);
+      const baselineHash = yield* coverageHashFromSummary(root, turboBinary);
 
-        yield* writeFixtureFile(root, "packages/coverage/README.md", "# Docs-only edit\n");
-        expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
+      yield* writeFixtureFile(root, "vite.shared.ts", "export const browser = false;\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
+      yield* writeFixtureFile(root, "vite.shared.ts", "export const browser = true;\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
 
-        yield* writeFixtureFile(root, "packages/coverage/src/index.ts", "export const value = 2;\n");
-        expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
+      yield* writeFixtureFile(root, "packages/coverage/README.md", "# Docs-only edit\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
 
-        yield* writeFixtureFile(root, "packages/coverage/src/index.ts", "export const value = 1;\n");
-        expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
+      yield* writeFixtureFile(root, "packages/coverage/src/index.ts", "export const value = 2;\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
 
-        yield* writeFixtureFile(root, "packages/coverage/test/index.test.ts", "export const expected = 2;\n");
-        expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
+      yield* writeFixtureFile(root, "packages/coverage/src/index.ts", "export const value = 1;\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
 
-        yield* writeFixtureFile(root, "packages/coverage/test/index.test.ts", "export const expected = 1;\n");
-        expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
+      yield* writeFixtureFile(root, "packages/coverage/test/index.test.ts", "export const expected = 2;\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
 
-        yield* writeFixtureFile(root, "packages/coverage/vitest.coverage.config.ts", "export default { test: {} };\n");
-        expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
+      yield* writeFixtureFile(root, "packages/coverage/test/index.test.ts", "export const expected = 1;\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
 
-        yield* writeFixtureFile(root, "packages/coverage/vitest.coverage.config.ts", "export default {};\n");
-        expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
+      yield* writeFixtureFile(root, "packages/coverage/vitest.coverage.config.ts", "export default { test: {} };\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
 
-        yield* writeFixtureFile(root, "packages/coverage/server/index.ts", "export const serverValue = 2;\n");
-        expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
-      },
-      Effect.scoped,
-      provideScopedLayer(NodeServices.layer)
-    )
+      yield* writeFixtureFile(root, "packages/coverage/vitest.coverage.config.ts", "export default {};\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).toBe(baselineHash);
+
+      yield* writeFixtureFile(root, "packages/coverage/server/index.ts", "export const serverValue = 2;\n");
+      expect(yield* coverageHashFromSummary(root, turboBinary)).not.toBe(baselineHash);
+    })
   );
 });

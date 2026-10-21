@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { it } from "@beep/test-runner";
 import { Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
@@ -6,7 +6,7 @@ import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 
-const skillFilePath = fileURLToPath(
+const skillFilePath = NodeURL.fileURLToPath(
   new URL("../../../../../.claude/skills/effect-first-development/SKILL.md", import.meta.url)
 );
 

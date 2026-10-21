@@ -153,7 +153,7 @@ it.layer(Subject.layer)("MemoryFileSystem public operation boundaries", (it) => 
       yield* fs.link(file, `${root}/alias`);
       yield* fs.copy(file, `${root}/alias`, { overwrite: true });
       assert.strictEqual(yield* fs.readFileString(file), "keep");
-      assertSome((yield* fs.stat(file)).nlink, 2);
+      assertSome((yield* fs.stat(file)).nlink, 2n);
       assert.deepStrictEqual(yield* fs.readDirectory(tree), ["child"]);
       assert.isFalse(yield* fs.exists(`${root}/absent`));
     })
@@ -172,7 +172,7 @@ it.layer(Subject.layer)("MemoryFileSystem public operation boundaries", (it) => 
       yield* fs.copy(source, destination, { overwrite: true });
       assert.strictEqual(yield* fs.readFileString(destination), "new");
       assertSome(O.map(yield* old.readAlloc(3), decode), "old");
-      assertSome((yield* old.stat).nlink, 0);
+      assertSome((yield* old.stat).nlink, 0n);
       assert.notStrictEqual(yield* Effect.fromOption((yield* fs.stat(destination)).ino), oldInode);
     })
   );
@@ -194,7 +194,7 @@ it.layer(Subject.layer)("MemoryFileSystem public operation boundaries", (it) => 
       assertSome((yield* fs.stat(target)).ino, inode);
       assert.strictEqual((yield* fs.stat(target)).mode, 0o100600);
       yield* fs.copyFile(target, `${root}/hard`);
-      assertSome((yield* fs.stat(target)).nlink, 2);
+      assertSome((yield* fs.stat(target)).nlink, 2n);
       yield* fs.symlink("relative-target", `${root}/relative`);
       yield* fs.symlink(`${root}/absolute-target`, `${root}/absolute`);
       yield* fs.copyFile(source, `${root}/relative`);
@@ -252,11 +252,11 @@ it.layer(Subject.layer)("MemoryFileSystem public operation boundaries", (it) => 
       assertSome((yield* fs.stat(`${root}/right/victim`)).ino, sourceInode);
       assert.strictEqual(yield* fs.readFileString(`${root}/right/victim`), "new");
       assertSome(O.map(yield* victim.readAlloc(3), decode), "old");
-      assertSome((yield* victim.stat).nlink, 0);
+      assertSome((yield* victim.stat).nlink, 0n);
       yield* fs.rename(`${root}/left/subtree`, `${root}/right/empty`);
       assert.strictEqual(yield* fs.readFileString(`${root}/right/empty/child`), "nested");
-      assertSome((yield* fs.stat(`${root}/left`)).nlink, 2);
-      assertSome((yield* fs.stat(`${root}/right`)).nlink, 3);
+      assertSome((yield* fs.stat(`${root}/left`)).nlink, 2n);
+      assertSome((yield* fs.stat(`${root}/right`)).nlink, 3n);
       assert.deepStrictEqual(yield* fs.readDirectory(`${root}/left`), []);
     })
   );
@@ -311,7 +311,7 @@ it.layer(Subject.layer)("MemoryFileSystem public operation boundaries", (it) => 
       assertFailure(yield* Effect.flip(fs.link(file, `${file}/child`)), "BadResource", "link", `${file}/child`);
       assertFailure(yield* Effect.flip(fs.symlink("other", file)), "AlreadyExists", "symlink", file);
       assertArgument(yield* Effect.flip(fs.symlink("bad\0target", `${root}/bad`)), "symlink");
-      assertSome((yield* fs.stat(file)).nlink, 1);
+      assertSome((yield* fs.stat(file)).nlink, 1n);
       assert.strictEqual(yield* fs.readFileString(file), "keep");
       assert.deepStrictEqual(yield* fs.readDirectory(root), ["file"]);
     })
@@ -435,9 +435,9 @@ it.layer(Subject.layer)("MemoryFileSystem public operation boundaries", (it) => 
         Effect.gen(function* () {
           const file = yield* fs.open(path, { flag: "r+" });
           yield* fs.remove(path);
-          assertSome((yield* file.stat).nlink, 1);
+          assertSome((yield* file.stat).nlink, 1n);
           yield* fs.remove(`${root}/alias`);
-          assertSome((yield* file.stat).nlink, 0);
+          assertSome((yield* file.stat).nlink, 0n);
           assertSome(O.map(yield* file.readAlloc(3), decode), "abc");
           yield* file.seek(BigInt(5), "start");
           yield* file.writeAll(encoder.encode("Z"));

@@ -14,6 +14,7 @@ import { colorDepth, colorKeys } from "./internal/colorDepth.ts";
 import { readEnv } from "./internal/envRecord.ts";
 import { allKeys } from "./internal/keys.ts";
 import { detectOsc8 } from "./internal/osc8/detect.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/env/TerminalEnv");
 
@@ -65,7 +66,7 @@ export const StreamEnv = S.Struct({
   */
 	// @effect-diagnostics-next-line schemaNumber:off -- Upstream Option<number> accepts NaN and infinities; S.Finite would narrow its domain.
 	columns: S.Option(S.Number).pipe($I.annoteKey("StreamEnv.columns", { description: "The terminal width in columns, or None when it is unknown." })),
-}).annotate($I.annote("StreamEnv", { description: "What one output stream can do: terminal attachment, colour, hyperlinks and optional columns." }));
+}).pipe($I.annoteSchema("StreamEnv", { description: "What one output stream can do: terminal attachment, colour, hyperlinks and optional columns." }));
 
 /**
  * Describes a stream's terminal attachment, colour, hyperlink support, and optional width.
@@ -87,9 +88,7 @@ export interface TerminalEnvOptions {
 	readonly stderrIsTerminal?: Effect.Effect<boolean>;
 }
 
-const PartialStreamEnv = StreamEnv.mapFields(Struct.map(S.optionalKey)).annotate(
-	$I.annote("PartialStreamEnv", { description: "Optional stream capabilities merged over a quiet terminal snapshot." }),
-);
+const PartialStreamEnv = StreamEnv.mapFields(Struct.map(S.optionalKey)).pipe($I.annoteSchema("PartialStreamEnv", { description: "Optional stream capabilities merged over a quiet terminal snapshot." }));
 
 /**
  * The options {@link TerminalEnv.layerTest} takes: fields to set over the quiet terminal.
@@ -113,7 +112,7 @@ export const TerminalEnvTestOptions = S.Struct({
 	stdout: S.optionalKey(PartialStreamEnv).pipe($I.annoteKey("TerminalEnvTestOptions.stdout", { description: "Fields merged over the quiet stdout." })),
 	/** Fields merged over the quiet stderr. */
 	stderr: S.optionalKey(PartialStreamEnv).pipe($I.annoteKey("TerminalEnvTestOptions.stderr", { description: "Fields merged over the quiet stderr." })),
-}).annotate($I.annote("TerminalEnvTestOptions", { description: "Optional fields to set over the quiet terminal in layerTest." }));
+}).pipe($I.annoteSchema("TerminalEnvTestOptions", { description: "Optional fields to set over the quiet terminal in layerTest." }));
 
 /**
  * The optional fields accepted by {@link TerminalEnv.layerTest}.
@@ -145,7 +144,17 @@ export interface TerminalEnvShape {
 	readonly width: (fallback?: number) => number;
 }
 
-const make = (
+const make: {
+	(
+		env: Readonly<Record<string, string | undefined>>,
+		isTTY: { readonly stdin: boolean; readonly stdout: boolean; readonly stderr: boolean },
+		columns: O.Option<number>,
+	): TerminalEnvShape;
+	(
+		isTTY: { readonly stdin: boolean; readonly stdout: boolean; readonly stderr: boolean },
+		columns: O.Option<number>,
+	): (env: Readonly<Record<string, string | undefined>>) => TerminalEnvShape;
+} = dual(3, (
 	env: Readonly<Record<string, string | undefined>>,
 	isTTY: { readonly stdin: boolean; readonly stdout: boolean; readonly stderr: boolean },
 	columns: O.Option<number>,
@@ -159,10 +168,13 @@ const make = (
 		stderr: { isTerminal: isTTY.stderr, color: colorDepth(env, isTTY.stderr), hyperlinks: links.stderr, columns },
 		width: (fallback = 80) => O.getOrElse(columns, () => fromEnv || fallback),
 	};
-};
+});
 
 /** Read the TTY facts from `Stdio` and the environment from `Config`, with the width the caller already knows. */
-const snapshot = Effect.fn("snapshot")(function* (
+const snapshot: {
+	(options: TerminalEnvOptions | undefined, columns: O.Option<number>): Effect.Effect<TerminalEnvShape, never, StdioModule.Stdio>;
+	(columns: O.Option<number>): (options: TerminalEnvOptions | undefined) => Effect.Effect<TerminalEnvShape, never, StdioModule.Stdio>;
+} = dual(2, Effect.fn("snapshot")(function* (
 	options: TerminalEnvOptions | undefined,
 	columns: O.Option<number>,
 ): Effect.fn.Return<TerminalEnvShape, never, StdioModule.Stdio> {
@@ -172,7 +184,7 @@ const snapshot = Effect.fn("snapshot")(function* (
 	const stderr = yield* options?.stderrIsTerminal ?? Effect.succeed(stdout);
 	const env = yield* readEnv([...allKeys, "COLUMNS"]);
 	return make(env, { stdin, stdout, stderr }, columns);
-});
+}));
 
 /** The quiet terminal {@link TerminalEnv.layerTest} starts from: not a terminal, no colour, no links, no width. */
 const quiet: StreamEnv = { isTerminal: false, color: "none", hyperlinks: false, columns: O.none() };

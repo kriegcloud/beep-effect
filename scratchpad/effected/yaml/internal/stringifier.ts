@@ -31,6 +31,7 @@ import * as S from "effect/Schema";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as O from "@beep/utils/Option";
+import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/stringifier");
 
@@ -58,10 +59,10 @@ const isYamlAlias = S.is(YamlAlias);
 export class StringifyFailure extends S.TaggedError<StringifyFailure, { readonly brand: unique symbol }>($I`StringifyFailure`)(
 	"StringifyFailure",
 	{
-		message: S.String.annotateKey({ description: "The stringification failure message." }),
-		reason: S.String.annotateKey({ description: "The reason the value cannot be rendered." }),
+		message: S.String.pipe($I.annoteKey("StringifyFailure.message", { description: "The stringification failure message." })),
+		reason: S.String.pipe($I.annoteKey("StringifyFailure.reason", { description: "The reason the value cannot be rendered." })),
 	},
-	$I.annote("StringifyFailure", { description: "A value that cannot be rendered as YAML." }),
+	$I.annoteError<StringifyFailure>("StringifyFailure", { description: "A value that cannot be rendered as YAML." }),
 ) {
 	/**
 	 * Identifies this failure by its stable error name.
@@ -125,9 +126,9 @@ export class StringifyFailure extends S.TaggedError<StringifyFailure, { readonly
 export class StringifyDepthExceeded extends S.TaggedError<StringifyDepthExceeded, { readonly brand: unique symbol }>($I`StringifyDepthExceeded`)(
 	"StringifyDepthExceeded",
 	{
-		message: S.String.annotateKey({ description: "The nesting limit exceeded by the value or AST." }),
+		message: S.String.pipe($I.annoteKey("StringifyDepthExceeded.message", { description: "The nesting limit exceeded by the value or AST." })),
 	},
-	$I.annote("StringifyDepthExceeded", { description: "YAML rendering exceeded its nesting-depth limit." }),
+	$I.annoteError<StringifyDepthExceeded>("StringifyDepthExceeded", { description: "YAML rendering exceeded its nesting-depth limit." }),
 ) {
 	/**
 	 * Identifies this failure by its stable error name.
@@ -300,7 +301,10 @@ function wouldBeResolved11(s: string): boolean {
  * lets them through. Without it a plain `p, q` rendered into `[x, y]` reads
  * back as three items.
  */
-function requiresQuoting(s: string, ignoreType = false, quoteCompat?: QuoteCompat, inFlow = false): boolean {
+const requiresQuoting: {
+	(ignoreType?: boolean, quoteCompat?: QuoteCompat, inFlow?: boolean): (s: string) => boolean;
+	(s: string, ignoreType?: boolean, quoteCompat?: QuoteCompat, inFlow?: boolean): boolean;
+} = dual((args) => P.isString(args[0]), (s: string, ignoreType: boolean = false, quoteCompat?: QuoteCompat, inFlow: boolean = false): boolean => {
 	// Empty string must be quoted
 	if (s === "") return true;
 	// Flow context: any flow indicator anywhere terminates or corrupts the
@@ -346,7 +350,7 @@ function requiresQuoting(s: string, ignoreType = false, quoteCompat?: QuoteCompa
 		if (code === 0x09 || code === 0x0d || isControlChar(code)) return true;
 	}
 	return false;
-}
+});
 
 /**
  * Returns true if the string contains any non-ASCII character (code point \> 0x7E).
@@ -454,18 +458,18 @@ const ParentPosition = LiteralKit(["block-map-value", "block-seq-item"]).pipe(
 type ParentPosition = typeof ParentPosition.Type;
 
 const StringRenderContext = S.Struct({
-	s: S.String.annotateKey({ description: "The resolved scalar value to render." }),
-	indent: S.String.annotateKey({ description: "Whitespace prepended to scalar continuation lines." }),
-	ignoreType: S.Boolean.annotateKey({ description: "Whether an explicit tag prevents implicit type coercion." }),
-	canonical: S.Boolean.annotateKey({ description: "Whether canonical presentation rules apply." }),
-	explicitChomp: S.UndefinedOr(ScalarChomp).annotateKey({ description: "The source block chomping indicator, when present." }),
-	parentPosition: S.UndefinedOr(ParentPosition).annotateKey({ description: "The enclosing block entry position, when present." }),
-	quoteStyle: QuoteStyle.annotateKey({ description: "The preferred quoting fallback for plain scalars." }),
-	fidelity: S.Boolean.annotateKey({ description: "Whether redundant source header indicators are preserved." }),
-	fidelityIndent: S.UndefinedOr(S.Finite).annotateKey({ description: "The source indentation indicator preserved in fidelity mode." }),
-	quoteCompat: S.UndefinedOr(QuoteCompat).annotateKey({ description: "The optional foreign dialect whose implicit coercions require quoting." }),
-	inFlow: S.Boolean.annotateKey({ description: "Whether flow collection syntax constrains scalar rendering." }),
-}).annotate($I.annote("StringRenderContext", { description: "Resolved presentation settings for one string scalar." }));
+	s: S.String.pipe($I.annoteKey("StringRenderContext.s", { description: "The resolved scalar value to render." })),
+	indent: S.String.pipe($I.annoteKey("StringRenderContext.indent", { description: "Whitespace prepended to scalar continuation lines." })),
+	ignoreType: S.Boolean.pipe($I.annoteKey("StringRenderContext.ignoreType", { description: "Whether an explicit tag prevents implicit type coercion." })),
+	canonical: S.Boolean.pipe($I.annoteKey("StringRenderContext.canonical", { description: "Whether canonical presentation rules apply." })),
+	explicitChomp: S.UndefinedOr(ScalarChomp).pipe($I.annoteKey("StringRenderContext.explicitChomp", { description: "The source block chomping indicator, when present." })),
+	parentPosition: S.UndefinedOr(ParentPosition).pipe($I.annoteKey("StringRenderContext.parentPosition", { description: "The enclosing block entry position, when present." })),
+	quoteStyle: QuoteStyle.pipe($I.annoteKey("StringRenderContext.quoteStyle", { description: "The preferred quoting fallback for plain scalars." })),
+	fidelity: S.Boolean.pipe($I.annoteKey("StringRenderContext.fidelity", { description: "Whether redundant source header indicators are preserved." })),
+	fidelityIndent: S.UndefinedOr(S.Finite).pipe($I.annoteKey("StringRenderContext.fidelityIndent", { description: "The source indentation indicator preserved in fidelity mode." })),
+	quoteCompat: S.UndefinedOr(QuoteCompat).pipe($I.annoteKey("StringRenderContext.quoteCompat", { description: "The optional foreign dialect whose implicit coercions require quoting." })),
+	inFlow: S.Boolean.pipe($I.annoteKey("StringRenderContext.inFlow", { description: "Whether flow collection syntax constrains scalar rendering." })),
+}).pipe($I.annoteSchema("StringRenderContext", { description: "Resolved presentation settings for one string scalar." }));
 type StringRenderContext = typeof StringRenderContext.Type;
 
 const stringStyleRenderers: Record<ScalarStyle, (input: StringRenderContext) => string> = {
@@ -507,20 +511,10 @@ const stringStyleRenderers: Record<ScalarStyle, (input: StringRenderContext) => 
  * Block literal and block folded styles are always accepted for single-line
  * strings even though the output is unusual.
  */
-function renderString(
-	s: string,
-	style: ScalarStyle,
-	indent: string,
-	ignoreType = false,
-	canonical: boolean = false,
-	explicitChomp?: ScalarChomp,
-	parentPosition?: ParentPosition,
-	quoteStyle: QuoteStyle = "single",
-	explicitIndent?: number,
-	quoteCompat?: QuoteCompat,
-	inFlow = false,
-	nested = false,
-): string {
+const renderString: {
+	(style: ScalarStyle, indent: string, ignoreType?: boolean, canonical?: boolean, explicitChomp?: ScalarChomp, parentPosition?: ParentPosition, quoteStyle?: QuoteStyle, explicitIndent?: number, quoteCompat?: QuoteCompat, inFlow?: boolean, nested?: boolean): (s: string) => string;
+	(s: string, style: ScalarStyle, indent: string, ignoreType?: boolean, canonical?: boolean, explicitChomp?: ScalarChomp, parentPosition?: ParentPosition, quoteStyle?: QuoteStyle, explicitIndent?: number, quoteCompat?: QuoteCompat, inFlow?: boolean, nested?: boolean): string;
+} = dual((args) => P.isString(args[2]), (s: string, style: ScalarStyle, indent: string, ignoreType: boolean = false, canonical: boolean = false, explicitChomp?: ScalarChomp, parentPosition?: ParentPosition, quoteStyle: QuoteStyle = "single", explicitIndent?: number, quoteCompat?: QuoteCompat, inFlow: boolean = false, nested: boolean = false): string => {
 	// Fidelity mode (everything but canonical) re-emits the EXPLICIT header
 	// indicators the source spelled — a redundant `+` keep-chomp or `|2`
 	// indentation indicator is normalized away only under forceDefaultStyles.
@@ -601,7 +595,7 @@ function renderString(
 		quoteCompat,
 		inFlow,
 	});
-}
+});
 
 /**
  * Returns true if the rendered text ends with an open-ended block scalar
@@ -650,30 +644,33 @@ function renderNumber(n: number): string {
 /**
  * Detects circular references by tracking the object ancestor chain.
  */
-function detectCircular(value: object, seen: object[]): void {
+const detectCircular: {
+	(value: object, seen: object[]): void;
+	(seen: object[]): (value: object) => void;
+} = dual(2, (value: object, seen: object[]): void => {
 	if (A.some(seen, (ancestor) => ancestor === value)) {
 		throw StringifyFailure.make({ message: "Circular reference detected", reason: "Circular reference detected" });
 	}
-}
+});
 
 // ---------------------------------------------------------------------------
 // Core stringification
 // ---------------------------------------------------------------------------
 
 const StringifyContext = S.Struct({
-	indent: S.Finite.annotateKey({ description: "The number of spaces per indentation level." }),
-	lineWidth: S.Finite.annotateKey({ description: "The preferred output width, with nonpositive values disabling folding." }),
-	defaultScalarStyle: ScalarStyle.annotateKey({ description: "The presentation style for value-path string scalars." }),
-	defaultCollectionStyle: CollectionStyle.annotateKey({ description: "The default block or flow collection presentation." }),
-	sortKeys: S.Boolean.annotateKey({ description: "Whether mapping entries are sorted lexically." }),
-	indentSequences: S.Boolean.annotateKey({ description: "Whether sequences under mappings receive an extra indentation level." }),
-	quoteStyle: QuoteStyle.annotateKey({ description: "The quoting fallback for plain scalars." }),
-	quoteCompat: S.UndefinedOr(QuoteCompat).annotateKey({ description: "The optional foreign dialect whose coercions require quoting." }),
-	forceDefaultStyles: S.Boolean.annotateKey({ description: "Whether canonical rendering replaces source presentation." }),
-	seen: S.ObjectKeyword.pipe(S.Array, S.mutable).annotateKey({ description: "The mutable ancestor stack scanned by reference for cycle detection." }),
-	parentPosition: S.optionalKey(ParentPosition).annotateKey({ description: "The current node's enclosing block entry position." }),
-	inFlow: S.Boolean.annotateKey({ description: "Whether the current node is inside a flow collection." }),
-}).annotate($I.annote("StringifyContext", { description: "Resolved stringify options and traversal state shared by recursive renderers." }));
+	indent: S.Finite.pipe($I.annoteKey("StringifyContext.indent", { description: "The number of spaces per indentation level." })),
+	lineWidth: S.Finite.pipe($I.annoteKey("StringifyContext.lineWidth", { description: "The preferred output width, with nonpositive values disabling folding." })),
+	defaultScalarStyle: ScalarStyle.pipe($I.annoteKey("StringifyContext.defaultScalarStyle", { description: "The presentation style for value-path string scalars." })),
+	defaultCollectionStyle: CollectionStyle.pipe($I.annoteKey("StringifyContext.defaultCollectionStyle", { description: "The default block or flow collection presentation." })),
+	sortKeys: S.Boolean.pipe($I.annoteKey("StringifyContext.sortKeys", { description: "Whether mapping entries are sorted lexically." })),
+	indentSequences: S.Boolean.pipe($I.annoteKey("StringifyContext.indentSequences", { description: "Whether sequences under mappings receive an extra indentation level." })),
+	quoteStyle: QuoteStyle.pipe($I.annoteKey("StringifyContext.quoteStyle", { description: "The quoting fallback for plain scalars." })),
+	quoteCompat: S.UndefinedOr(QuoteCompat).pipe($I.annoteKey("StringifyContext.quoteCompat", { description: "The optional foreign dialect whose coercions require quoting." })),
+	forceDefaultStyles: S.Boolean.pipe($I.annoteKey("StringifyContext.forceDefaultStyles", { description: "Whether canonical rendering replaces source presentation." })),
+	seen: S.ObjectKeyword.pipe(S.Array, S.mutable, $I.annoteKey("StringifyContext.seen", { description: "The mutable ancestor stack scanned by reference for cycle detection." })),
+	parentPosition: S.optionalKey(ParentPosition).pipe($I.annoteKey("StringifyContext.parentPosition", { description: "The current node's enclosing block entry position." })),
+	inFlow: S.Boolean.pipe($I.annoteKey("StringifyContext.inFlow", { description: "Whether the current node is inside a flow collection." })),
+}).pipe($I.annoteSchema("StringifyContext", { description: "Resolved stringify options and traversal state shared by recursive renderers." }));
 type StringifyContext = typeof StringifyContext.Type;
 
 /** Resolves optional stringify options into a fully-defaulted context. */
@@ -708,7 +705,10 @@ function createContext(options?: StringifyOptionsInput): StringifyContext {
  * responsible for prepending the appropriate indentation prefix to each line.
  * This avoids double-indentation when embedding nested collections.
  */
-function stringifyLines(value: unknown, ctx: StringifyContext, depth: number, allowFold = true): string[] {
+const stringifyLines: {
+	(ctx: StringifyContext, depth: number, allowFold?: boolean): (value: unknown) => string[];
+	(value: unknown, ctx: StringifyContext, depth: number, allowFold?: boolean): string[];
+} = dual((args) => P.isObjectKeyword(args[1]), (value: unknown, ctx: StringifyContext, depth: number, allowFold: boolean = true): string[] => {
 	// Depth guard: the value-stringifier trio (this fn, stringifyArrayLines and
 	// stringifyObjectLines) is mutually recursive with no natural bound, so a
 	// deeply-nested acyclic value would overflow the stack as a RangeError
@@ -779,12 +779,15 @@ function stringifyLines(value: unknown, ctx: StringifyContext, depth: number, al
 
 	// Fallback: coerce to string and quote
 	return [renderDoubleQuoted(String(value))];
-}
+});
 
 /**
  * Stringifies a JavaScript array into YAML sequence lines (no leading indent).
  */
-function stringifyArrayLines(arr: unknown[], ctx: StringifyContext, depth: number): string[] {
+const stringifyArrayLines: {
+	(arr: unknown[], ctx: StringifyContext, depth: number): string[];
+	(ctx: StringifyContext, depth: number): (arr: unknown[]) => string[];
+} = dual(3, (arr: unknown[], ctx: StringifyContext, depth: number): string[] => {
 	if (arr.length === 0) {
 		return ["[]"];
 	}
@@ -792,8 +795,8 @@ function stringifyArrayLines(arr: unknown[], ctx: StringifyContext, depth: numbe
 	if (ctx.defaultCollectionStyle === "flow") {
 		// Flow items are re-joined with spaces, so folding must not run here.
 		const flowCtx: StringifyContext = { ...ctx, inFlow: true };
-		const items = arr.map((item) => stringifyLines(item, flowCtx, depth + 1, false).join(" "));
-		return [`[${items.join(", ")}]`];
+		const items = A.map(arr, (item) => A.join(stringifyLines(item, flowCtx, depth + 1, false), " "));
+		return [`[${A.join(items, ", ")}]`];
 	}
 
 	// Block style — each item rendered relative to depth 0
@@ -825,7 +828,7 @@ function stringifyArrayLines(arr: unknown[], ctx: StringifyContext, depth: numbe
 		}
 	}
 	return lines;
-}
+});
 
 /**
  * Returns true when a value is a non-empty block collection (object or array
@@ -841,7 +844,10 @@ function isBlockCollection(value: unknown): boolean {
 /**
  * Stringifies a JavaScript object into YAML mapping lines (no leading indent).
  */
-function stringifyObjectLines(obj: Record<string, unknown>, ctx: StringifyContext, depth: number): string[] {
+const stringifyObjectLines: {
+	(obj: Record<string, unknown>, ctx: StringifyContext, depth: number): string[];
+	(ctx: StringifyContext, depth: number): (obj: Record<string, unknown>) => string[];
+} = dual(3, (obj: Record<string, unknown>, ctx: StringifyContext, depth: number): string[] => {
 	const keys = ctx.sortKeys ? A.sort(R.keys(obj), Order.String) : R.keys(obj);
 	if (keys.length === 0) {
 		return ["{}"];
@@ -850,8 +856,10 @@ function stringifyObjectLines(obj: Record<string, unknown>, ctx: StringifyContex
 	// Mapping keys render plain-styled, so they take the same `quoteStyle`
 	// fallback as plain values — a key like `@types/acorn` requires quoting and
 	// must honor the caller's preference, not a hardcoded single quote.
-	const renderPlainKey = (k: string, inFlow = false): string =>
-		renderString(
+	const renderPlainKey: {
+		(inFlow?: boolean): (k: string) => string;
+		(k: string, inFlow?: boolean): string;
+	} = dual((args) => P.isString(args[0]), (k: string, inFlow: boolean = false): string => renderString(
 			k,
 			"plain",
 			"",
@@ -863,17 +871,17 @@ function stringifyObjectLines(obj: Record<string, unknown>, ctx: StringifyContex
 			undefined,
 			ctx.quoteCompat,
 			inFlow,
-		);
+		));
 
 	if (ctx.defaultCollectionStyle === "flow") {
 		const flowCtx: StringifyContext = { ...ctx, inFlow: true };
-		const pairs = keys.map((k) => {
+		const pairs = A.map(keys, (k) => {
 			const keyStr = renderPlainKey(k, true);
 			// Flow values are re-joined with spaces, so folding must not run here.
-			const valStr = stringifyLines(obj[k], flowCtx, depth + 1, false).join(" ");
+			const valStr = A.join(stringifyLines(obj[k], flowCtx, depth + 1, false), " ");
 			return `${keyStr}: ${valStr}`;
 		});
-		return [`{${pairs.join(", ")}}`];
+		return [`{${A.join(pairs, ", ")}}`];
 	}
 
 	// Helper: render a mapping key — must be single-line for block mappings,
@@ -953,7 +961,7 @@ function stringifyObjectLines(obj: Record<string, unknown>, ctx: StringifyContex
 		}
 	}
 	return lines;
-}
+});
 
 // ---------------------------------------------------------------------------
 // Tag normalization (for canonical output)
@@ -988,7 +996,10 @@ function buildTagMap(directives: ReadonlyArray<RawDirective>): MutableHashMap.Mu
  * - Simplifies verbatim `!<!XXX>` to `!XXX`
  * - Expands non-standard `!!` redefinitions to verbatim form
  */
-function normalizeTag(tag: string, tagMap: MutableHashMap.MutableHashMap<string, string>): string {
+const normalizeTag: {
+	(tag: string, tagMap: MutableHashMap.MutableHashMap<string, string>): string;
+	(tagMap: MutableHashMap.MutableHashMap<string, string>): (tag: string) => string;
+} = dual(2, (tag: string, tagMap: MutableHashMap.MutableHashMap<string, string>): string => {
 	// Verbatim tag: !<uri>
 	if (tag.startsWith("!<") && tag.endsWith(">")) {
 		const uri = tag.slice(2, -1);
@@ -1048,12 +1059,15 @@ function normalizeTag(tag: string, tagMap: MutableHashMap.MutableHashMap<string,
 
 	// Non-specific tag (! alone) or no matching handle
 	return tag;
-}
+});
 
 /**
  * Recursively normalizes tags on all AST nodes using document directives.
  */
-function normalizeNodeTags(node: YamlNode, tagMap: MutableHashMap.MutableHashMap<string, string>): YamlNode {
+const normalizeNodeTags: {
+	(node: YamlNode, tagMap: MutableHashMap.MutableHashMap<string, string>): YamlNode;
+	(tagMap: MutableHashMap.MutableHashMap<string, string>): (node: YamlNode) => YamlNode;
+} = dual(2, (node: YamlNode, tagMap: MutableHashMap.MutableHashMap<string, string>): YamlNode => {
 	if (isYamlScalar(node)) {
 		return YamlScalar.make({
 			value: node.value,
@@ -1073,12 +1087,11 @@ function normalizeNodeTags(node: YamlNode, tagMap: MutableHashMap.MutableHashMap
 	}
 	if (isYamlMap(node)) {
 		return YamlMap.make({
-			items: node.items.map((pair) =>
+			items: A.map(node.items, (pair) =>
 				YamlPair.make({
 					key: normalizeNodeTags(pair.key, tagMap),
 					value: pair.value !== null ? normalizeNodeTags(pair.value, tagMap) : null,
-				}),
-			),
+				})),
 			style: node.style,
 			...(node.tag !== undefined && node.tag !== "" ? { tag: normalizeTag(node.tag, tagMap) } : {}),
 			...O.getSomesStruct({ anchor: O.fromUndefinedOr(node.anchor) }),
@@ -1092,7 +1105,7 @@ function normalizeNodeTags(node: YamlNode, tagMap: MutableHashMap.MutableHashMap
 	}
 	if (isYamlSeq(node)) {
 		return YamlSeq.make({
-			items: node.items.map((item) => normalizeNodeTags(item, tagMap)),
+			items: A.map(node.items, normalizeNodeTags(tagMap)),
 			style: node.style,
 			...(node.tag !== undefined && node.tag !== "" ? { tag: normalizeTag(node.tag, tagMap) } : {}),
 			...O.getSomesStruct({ anchor: O.fromUndefinedOr(node.anchor) }),
@@ -1105,7 +1118,7 @@ function normalizeNodeTags(node: YamlNode, tagMap: MutableHashMap.MutableHashMap
 		});
 	}
 	return node;
-}
+});
 
 // ---------------------------------------------------------------------------
 // Comment stripping (for canonical output)
@@ -1150,12 +1163,11 @@ export function stripNodeComments(node: YamlNode, ...[depth = 0]: [depth?: numbe
 	}
 	if (isYamlMap(node)) {
 		return YamlMap.make({
-			items: node.items.map((pair) =>
+			items: A.map(node.items, (pair) =>
 				YamlPair.make({
 					key: stripNodeComments(pair.key, depth + 1),
 					value: pair.value !== null ? stripNodeComments(pair.value, depth + 1) : null,
-				}),
-			),
+				})),
 			style: node.style,
 			...O.getSomesStruct({ tag: O.fromUndefinedOr(node.tag) }),
 			...O.getSomesStruct({ anchor: O.fromUndefinedOr(node.anchor) }),
@@ -1166,7 +1178,7 @@ export function stripNodeComments(node: YamlNode, ...[depth = 0]: [depth?: numbe
 	}
 	if (isYamlSeq(node)) {
 		return YamlSeq.make({
-			items: node.items.map((item) => stripNodeComments(item, depth + 1)),
+			items: A.map(node.items, (item) => stripNodeComments(item, depth + 1)),
 			style: node.style,
 			...O.getSomesStruct({ tag: O.fromUndefinedOr(node.tag) }),
 			...O.getSomesStruct({ anchor: O.fromUndefinedOr(node.anchor) }),
@@ -1186,7 +1198,10 @@ export function stripNodeComments(node: YamlNode, ...[depth = 0]: [depth?: numbe
  * Stringifies a YAML AST node into lines (no leading indent), respecting
  * style metadata from the node.
  */
-function stringifyNodeLines(node: YamlNode, ctx: StringifyContext, depth: number): string[] {
+const stringifyNodeLines: {
+	(node: YamlNode, ctx: StringifyContext, depth: number): string[];
+	(ctx: StringifyContext, depth: number): (node: YamlNode) => string[];
+} = dual(3, (node: YamlNode, ctx: StringifyContext, depth: number): string[] => {
 	// Depth guard, symmetric to the value-path trio: the node-path stringifier
 	// (this fn plus its map/seq helpers) is mutually recursive with no natural
 	// bound, so a synthetic AST nested deeper than the composer's cap would
@@ -1207,12 +1222,15 @@ function stringifyNodeLines(node: YamlNode, ctx: StringifyContext, depth: number
 		return stringifySeqNodeLines(node, ctx, depth);
 	}
 	return [`*${node.name}`];
-}
+});
 
 /**
  * Stringifies a YamlScalar node into lines, using the node's style metadata.
  */
-function stringifyScalarNodeLines(node: YamlScalar, ctx: StringifyContext, depth: number): string[] {
+const stringifyScalarNodeLines: {
+	(node: YamlScalar, ctx: StringifyContext, depth: number): string[];
+	(ctx: StringifyContext, depth: number): (node: YamlScalar) => string[];
+} = dual(3, (node: YamlScalar, ctx: StringifyContext, depth: number): string[] => {
 	// When forcing default styles, preserve the node's original style for multiline
 	// strings (block-literal vs block-folded vs double-quoted) since the canonical
 	// output retains scalar presentation style even in normalized form.
@@ -1226,7 +1244,7 @@ function stringifyScalarNodeLines(node: YamlScalar, ctx: StringifyContext, depth
 		const parts: string[] = [];
 		if (node.tag !== undefined && node.tag !== "") parts.push(node.tag);
 		if (node.anchor !== undefined && node.anchor !== "") parts.push(`&${node.anchor}`);
-		return [parts.join(" ")];
+		return [A.join(parts, " ")];
 	}
 
 	let lines: string[];
@@ -1274,7 +1292,7 @@ function stringifyScalarNodeLines(node: YamlScalar, ctx: StringifyContext, depth
 		lines[0] = `&${node.anchor} ${lines[0]}`;
 	}
 	return lines;
-}
+});
 
 /** The YAML merge key. */
 const MERGE_KEY = "<<";
@@ -1315,10 +1333,13 @@ function isPlainMergeKey(node: YamlNode | null | undefined): boolean {
  * falling back to ordinary node rendering. Both the flow and the block
  * mapping branches route through here so the two cannot disagree.
  */
-function stringifyMappingKeyLines(node: YamlNode, ctx: StringifyContext, depth: number): string[] {
+const stringifyMappingKeyLines: {
+	(node: YamlNode, ctx: StringifyContext, depth: number): string[];
+	(ctx: StringifyContext, depth: number): (node: YamlNode) => string[];
+} = dual(3, (node: YamlNode, ctx: StringifyContext, depth: number): string[] => {
 	if (isPlainMergeKey(node)) return [MERGE_KEY];
 	return stringifyNodeLines(node, ctx, depth);
-}
+});
 
 /**
  * Undo the capture-side escape on one stored comment line: a spaces-only
@@ -1336,7 +1357,7 @@ function unescapeCommentLine(line: string): string {
  * renders as `#` + the unescaped slice (`" "` → `#`, `"  "` → `# `).
  */
 function commentBlockLines(comment: string): string[] {
-	return comment.split("\n").map((l) => (l === "" ? "" : `#${unescapeCommentLine(l)}`));
+	return A.map(comment.split("\n"), (l) => (l === "" ? "" : `#${unescapeCommentLine(l)}`));
 }
 
 /**
@@ -1344,12 +1365,15 @@ function commentBlockLines(comment: string): string[] {
  * for a block scalar, the header line, which is the one line of the scalar
  * that legally carries a `#` comment.
  */
-function withHeaderComment(rendered: string, comment: string): string {
+const withHeaderComment: {
+	(rendered: string, comment: string): string;
+	(comment: string): (rendered: string) => string;
+} = dual(2, (rendered: string, comment: string): string => {
 	const nl = rendered.indexOf("\n");
 	return nl === -1
 		? `${rendered}${renderTrailingComment(comment)}`
 		: `${rendered.slice(0, nl)}${renderTrailingComment(comment)}${rendered.slice(nl)}`;
-}
+});
 
 /**
  * The leading comment block of a mapping entry. Under the node-level comment
@@ -1387,7 +1411,10 @@ function pairSpaceBefore(pair: YamlPair): boolean | undefined {
  * comment. Reading it unconditionally emits the same comment twice: once on
  * the entry's line and again as the terminal run.
  */
-function entryTrailing(pair: YamlPair, ctx: StringifyContext): string | undefined {
+const entryTrailing: {
+	(pair: YamlPair, ctx: StringifyContext): string | undefined;
+	(ctx: StringifyContext): (pair: YamlPair) => string | undefined;
+} = dual(2, (pair: YamlPair, ctx: StringifyContext): string | undefined => {
 	// The KEY carries a trailing comment only when the value renders below it,
 	// so the key owns its line and the comment stays where it was written
 	// (`push: # only main`). A comment on its own line above the value is that
@@ -1397,13 +1424,16 @@ function entryTrailing(pair: YamlPair, ctx: StringifyContext): string | undefine
 	const owner = pair.value ?? pair.key;
 	if (rendersAcrossLines(owner, ctx)) return undefined;
 	return owner.comment;
-}
+});
 
 /**
  * True when `node` renders across more than one line, so its own `comment` is
  * a terminal run rather than something that can sit on the entry's line.
  */
-function rendersAcrossLines(node: YamlNode, ctx: StringifyContext): boolean {
+const rendersAcrossLines: {
+	(node: YamlNode, ctx: StringifyContext): boolean;
+	(ctx: StringifyContext): (node: YamlNode) => boolean;
+} = dual(2, (node: YamlNode, ctx: StringifyContext): boolean => {
 	if (!(isYamlMap(node) || isYamlSeq(node))) return false;
 	if (node.items.length === 0) return false;
 	const style = ctx.forceDefaultStyles ? ctx.defaultCollectionStyle : (node.style);
@@ -1414,17 +1444,13 @@ function rendersAcrossLines(node: YamlNode, ctx: StringifyContext): boolean {
 	// it neither swallows anything nor forces the layout, and `a: {b: 1} # t`
 	// stays on one line. Canonical mode emits no comments at all.
 	return isYamlMap(node)
-		? node.items.some(
-				(p) => pairLeading(p) !== undefined || (p.value ?? p.key).comment !== undefined || pairSpaceBefore(p) === true,
-			)
-		: node.items.some(
-				(item) => item.commentBefore !== undefined || item.comment !== undefined || item.spaceBefore === true,
-			);
-}
+		? A.some(node.items, (p) => pairLeading(p) !== undefined || (p.value ?? p.key).comment !== undefined || pairSpaceBefore(p) === true)
+		: A.some(node.items, (item) => item.commentBefore !== undefined || item.comment !== undefined || item.spaceBefore === true);
+});
 
 /** Render a trailing comment for appending after content on the same line. */
 function renderTrailingComment(comment: string): string {
-	const flat = comment.split("\n").map(unescapeCommentLine).join(" ");
+	const flat = pipe(comment.split("\n"), A.map(unescapeCommentLine), A.join(" "));
 	return ` #${flat}`;
 }
 
@@ -1441,13 +1467,10 @@ function renderTrailingComment(comment: string): string {
  * comment (the line where an inline value ends), or `-1` when no line is
  * safe (a compact block collection or a block-scalar header).
  */
-function pushExplicitKeyValueLines(
-	lines: string[],
-	valNode: YamlNode | null,
-	ctx: StringifyContext,
-	depth: number,
-	pad: string,
-): number {
+const pushExplicitKeyValueLines: {
+	(lines: string[], valNode: YamlNode | null, ctx: StringifyContext, depth: number, pad: string): number;
+	(valNode: YamlNode | null, ctx: StringifyContext, depth: number, pad: string): (lines: string[]) => number;
+} = dual(5, (lines: string[], valNode: YamlNode | null, ctx: StringifyContext, depth: number, pad: string): number => {
 	if (valNode === null) {
 		lines.push(":");
 		return lines.length - 1;
@@ -1528,7 +1551,7 @@ function pushExplicitKeyValueLines(
 		lines.push(vl === "" ? "" : `${pad}${vl}`);
 	}
 	return colonIdx;
-}
+});
 
 const pairKeyOrder = Order.mapInput(Order.String, (pair: YamlPair) =>
 	isYamlScalar(pair.key) ? String(pair.key.value) : "",
@@ -1537,7 +1560,10 @@ const pairKeyOrder = Order.mapInput(Order.String, (pair: YamlPair) =>
 /**
  * Stringifies a YamlMap node into lines, using the node's collection style.
  */
-function stringifyMapNodeLines(node: YamlMap, ctx: StringifyContext, depth: number): string[] {
+const stringifyMapNodeLines: {
+	(node: YamlMap, ctx: StringifyContext, depth: number): string[];
+	(ctx: StringifyContext, depth: number): (node: YamlMap) => string[];
+} = dual(3, (node: YamlMap, ctx: StringifyContext, depth: number): string[] => {
 	const style: CollectionStyle = ctx.forceDefaultStyles
 		? ctx.defaultCollectionStyle
 		: (node.style);
@@ -1611,10 +1637,13 @@ function stringifyMapNodeLines(node: YamlMap, ctx: StringifyContext, depth: numb
 	const emitComments = !ctx.forceDefaultStyles;
 	const lines: string[] = [];
 	/** Append a pair's trailing comment to `lines[idx]` (flattened to one line); `-1` drops it. */
-	const appendTrailing = (idx: number, comment: string | undefined): void => {
+	const appendTrailing: {
+		(idx: number, comment: string | undefined): void;
+		(comment: string | undefined): (idx: number) => void;
+	} = dual(2, (idx: number, comment: string | undefined): void => {
 		if (!emitComments || comment === undefined || idx < 0) return;
 		lines[idx] = `${lines[idx]}${renderTrailingComment(comment)}`;
-	};
+	});
 	/** A value node's own leading comment block, or undefined. */
 	const valueLeading = (valNode: YamlNode): string | undefined => (emitComments ? valNode.commentBefore : undefined);
 	for (const pair of items) {
@@ -1662,9 +1691,9 @@ function stringifyMapNodeLines(node: YamlMap, ctx: StringifyContext, depth: numb
 			// align with the first line after `? ` (structural, never
 			// ctx.indent — see EXPLICIT_COMPACT_PAD).
 			const entry9 = A.getUnsafe(keyLines, 0);
-			const firstTokens = entry9.trim().split(/\s+/).filter(Boolean);
+			const firstTokens = A.filter(entry9.trim().split(/\s+/), Boolean);
 			const firstIsMetaOnly =
-				firstTokens.length > 0 && firstTokens.every((t) => t.startsWith("&") || t.startsWith("!"));
+				firstTokens.length > 0 && A.every(firstTokens, (t) => t.startsWith("&") || t.startsWith("!"));
 			const keyIsBlockScalar =
 				isYamlScalar(pair.key) && (pair.key.style === "block-literal" || pair.key.style === "block-folded");
 			const contPad = firstIsMetaOnly || keyIsBlockScalar ? "" : EXPLICIT_COMPACT_PAD;
@@ -1703,7 +1732,7 @@ function stringifyMapNodeLines(node: YamlMap, ctx: StringifyContext, depth: numb
 		) {
 			resolvedKeyStr = pair.key.value;
 		} else {
-			resolvedKeyStr = stringifyMappingKeyLines(pair.key, ctx, depth + 1).join(" ");
+			resolvedKeyStr = A.join(stringifyMappingKeyLines(pair.key, ctx, depth + 1), " ");
 		}
 		const keyStr = resolvedKeyStr;
 		// Rendered key past the implicit-key limit: spill to explicit-key form
@@ -1891,20 +1920,23 @@ function stringifyMapNodeLines(node: YamlMap, ctx: StringifyContext, depth: numb
 		lines.unshift(prefix);
 	}
 	return lines;
-}
+});
 
 /**
  * Builds a metadata prefix string from tag and anchor.
  * Returns the combined prefix or undefined if neither is present.
  */
-function buildMetadataPrefix(tag: string | undefined, anchor: string | undefined): string | undefined {
+const buildMetadataPrefix: {
+	(tag: string | undefined, anchor: string | undefined): string | undefined;
+	(anchor: string | undefined): (tag: string | undefined) => string | undefined;
+} = dual(2, (tag: string | undefined, anchor: string | undefined): string | undefined => {
 	if (!(tag !== undefined && tag !== "") && !(anchor !== undefined && anchor !== "")) return undefined;
 	// Canonical ordering: &anchor !!tag (anchor before tag)
 	const parts: string[] = [];
 	if (anchor !== undefined && anchor !== "") parts.push(`&${anchor}`);
 	if (tag !== undefined && tag !== "") parts.push(tag);
-	return parts.join(" ");
-}
+	return A.join(parts, " ");
+});
 
 /**
  * Strips a leading run of `&anchor`/`!tag` metadata tokens (each followed by
@@ -1929,7 +1961,10 @@ function stripScalarMetadataPrefix(line: string): string {
 /**
  * Stringifies a YamlSeq node into lines, using the node's collection style.
  */
-function stringifySeqNodeLines(node: YamlSeq, ctx: StringifyContext, depth: number): string[] {
+const stringifySeqNodeLines: {
+	(node: YamlSeq, ctx: StringifyContext, depth: number): string[];
+	(ctx: StringifyContext, depth: number): (node: YamlSeq) => string[];
+} = dual(3, (node: YamlSeq, ctx: StringifyContext, depth: number): string[] => {
 	const style: CollectionStyle = ctx.forceDefaultStyles
 		? ctx.defaultCollectionStyle
 		: (node.style);
@@ -1954,7 +1989,7 @@ function stringifySeqNodeLines(node: YamlSeq, ctx: StringifyContext, depth: numb
 	if (style === "flow") {
 		const flowPrefix = buildMetadataPrefix(node.tag, node.anchor);
 		const flowCtx: StringifyContext = { ...ctx, inFlow: true };
-		const rendered = A.map(items, (item) => stringifyNodeLines(item, flowCtx, depth + 1));
+		const rendered = A.map(items, stringifyNodeLines(flowCtx, depth + 1));
 		const flowHasComments =
 			emitComments &&
 			(A.some(items, (item) => itemFields(item) !== undefined) ||
@@ -2053,7 +2088,7 @@ function stringifySeqNodeLines(node: YamlSeq, ctx: StringifyContext, depth: numb
 		lines.unshift(prefix);
 	}
 	return lines;
-}
+});
 
 // ---------------------------------------------------------------------------
 // Engine entry points
@@ -2081,7 +2116,7 @@ function stringifySeqNodeLines(node: YamlSeq, ctx: StringifyContext, depth: numb
  */
 export function stringifyValue(value: unknown, ...[options]: [options?: StringifyOptionsInput]): string {
 	const ctx = createContext(options);
-	const result = stringifyLines(value, ctx, 0).join("\n");
+	const result = A.join(stringifyLines(value, ctx, 0), "\n");
 	return (options?.finalNewline ?? true) ? `${result}\n` : result;
 }
 
@@ -2123,7 +2158,7 @@ export function stringifyDocument(doc: RawYamlDocument, ...[options]: [options?:
 	let contents = doc.contents;
 	const docCommentRaw = ctx.forceDefaultStyles ? undefined : doc.commentBefore;
 	// Multi-line document comments render one `# ` line per stored line.
-	const docComment = docCommentRaw !== undefined ? commentBlockLines(docCommentRaw).join("\n") : undefined;
+	const docComment = docCommentRaw !== undefined ? A.join(commentBlockLines(docCommentRaw), "\n") : undefined;
 	if (ctx.forceDefaultStyles && contents !== null) {
 		contents = stripNodeComments(contents);
 		const tagMap = buildTagMap(doc.directives);
@@ -2154,14 +2189,14 @@ export function stringifyDocument(doc: RawYamlDocument, ...[options]: [options?:
 			if (docComment !== undefined) parts.push(`${docComment}\n`);
 			if (doc.hasDocumentStart) parts.push("---\n");
 			if (doc.hasDocumentEnd) parts.push("...\n");
-			if (doc.comment !== undefined) parts.push(`${commentBlockLines(doc.comment).join("\n")}\n`);
-			const out = parts.join("");
+			if (doc.comment !== undefined) parts.push(`${A.join(commentBlockLines(doc.comment), "\n")}\n`);
+			const out = A.join(parts, "");
 			return finalNewline ? out : out.replace(/\n$/, "");
 		}
 		return finalNewline ? "null\n" : "null";
 	}
 
-	const result = stringifyNodeLines(contents, ctx, 0).join("\n");
+	const result = A.join(stringifyNodeLines(contents, ctx, 0), "\n");
 
 	// A block scalar at the DOCUMENT ROOT carries its captured header
 	// comment on the header line, exactly as the pair, seq-item and
@@ -2223,7 +2258,7 @@ export function stringifyDocument(doc: RawYamlDocument, ...[options]: [options?:
 	// The document's TRAILING comment block renders after the content (and
 	// after the `...` marker when present); canonical mode stays comment-free.
 	const docCommentAfter =
-		ctx.forceDefaultStyles || doc.comment === undefined ? undefined : commentBlockLines(doc.comment).join("\n");
+		ctx.forceDefaultStyles || doc.comment === undefined ? undefined : A.join(commentBlockLines(doc.comment), "\n");
 	const docEndFull = docCommentAfter !== undefined ? `${docEndMarker}${docCommentAfter}\n` : docEndMarker;
 	// `finalNewline` governs the very end of the OUTPUT, not internal
 	// separators: when a `...` marker or trailing comment block follows the
@@ -2242,7 +2277,7 @@ export function stringifyDocument(doc: RawYamlDocument, ...[options]: [options?:
 	// on its first entry instead), and gating dropped it entirely.
 	const rootLeading =
 		!ctx.forceDefaultStyles && contents.commentBefore !== undefined
-			? `${commentBlockLines(contents.commentBefore).join("\n")}\n`
+			? `${A.join(commentBlockLines(contents.commentBefore), "\n")}\n`
 			: "";
 
 	if (doc.hasDocumentStart) {
@@ -2256,7 +2291,7 @@ export function stringifyDocument(doc: RawYamlDocument, ...[options]: [options?:
 			const metaParts: string[] = [];
 			if (rootAnchor !== undefined && rootAnchor !== "") metaParts.push(`&${rootAnchor}`);
 			if (rootTag !== undefined && rootTag !== "") metaParts.push(rootTag);
-			const metaStr = metaParts.join(" ");
+			const metaStr = A.join(metaParts, " ");
 
 			// Strip tag/anchor prefix from body (already prepended by stringifyNodeLines)
 			let bodyClean = body;

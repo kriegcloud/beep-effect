@@ -5,9 +5,11 @@ import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as PubSub from "effect/PubSub";
 import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
@@ -50,7 +52,7 @@ export class ConfigFileNotFoundError extends S.TaggedError<ConfigFileNotFoundErr
 	 *
 	 * @since 0.0.0
 	 */
-	searched: S.Array(S.String).annotateKey({ description: "The names of the resolvers that were probed, in order." }),
+	searched: S.Array(S.String).pipe($I.annoteKey("ConfigFileNotFoundError.searched", { description: "The names of the resolvers that were probed, in order." })),
 	/**
 	 * The candidate paths the chain actually checked on disk, in probe order
 	 * across every resolver — the failure-path mirror of {@link ConfigMatch}.
@@ -65,8 +67,8 @@ export class ConfigFileNotFoundError extends S.TaggedError<ConfigFileNotFoundErr
 	 *
 	 * @since 0.0.0
 	 */
-	candidates: S.Array(S.String).annotateKey({ description: "The candidate paths the chain actually checked on disk, in probe order across every resolver — the failure-path mirror of ConfigMatch." }),
-}, $I.annote("ConfigFileNotFoundError", { description: "Indicates that the resolver chain produced no configuration source." })) {
+	candidates: S.Array(S.String).pipe($I.annoteKey("ConfigFileNotFoundError.candidates", { description: "The candidate paths the chain actually checked on disk, in probe order across every resolver — the failure-path mirror of ConfigMatch." })),
+}, $I.annoteError<ConfigFileNotFoundError>("ConfigFileNotFoundError", { description: "Indicates that the resolver chain produced no configuration source." })) {
 	/**
 	 * Summarizes the searched resolvers and includes the candidate count when paths were probed.
 	 *
@@ -84,7 +86,7 @@ export class ConfigFileNotFoundError extends S.TaggedError<ConfigFileNotFoundErr
 	override get message(): string {
 		const count = this.candidates.length;
 		const probed = count === 0 ? "" : ` — ${count} candidate path${count === 1 ? "" : "s"} checked`;
-		return `No config file found (searched: ${this.searched.join(", ")}${probed})`;
+		return `No config file found (searched: ${A.join(this.searched, ", ")}${probed})`;
 	}
 }
 
@@ -115,14 +117,14 @@ export class ConfigFileReadError extends S.TaggedError<ConfigFileReadError, { re
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.String.annotateKey({ description: "The path that could not be read." }),
+	path: S.String.pipe($I.annoteKey("ConfigFileReadError.path", { description: "The path that could not be read." })),
 	/**
 	 * The underlying failure, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("ConfigFileReadError", { description: "Indicates that a config file could not be read from the filesystem." })) {
+	cause: S.Defect().pipe($I.annoteKey("ConfigFileReadError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<ConfigFileReadError>("ConfigFileReadError", { description: "Indicates that a config file could not be read from the filesystem." })) {
 	/**
 	 * Identifies the config path whose filesystem read failed.
 	 *
@@ -164,14 +166,14 @@ export class ConfigFileWriteError extends S.TaggedError<ConfigFileWriteError, { 
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.String.annotateKey({ description: "The path that could not be written." }),
+	path: S.String.pipe($I.annoteKey("ConfigFileWriteError.path", { description: "The path that could not be written." })),
 	/**
 	 * The underlying failure, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("ConfigFileWriteError", { description: "Indicates that a config file could not be written to the filesystem." })) {
+	cause: S.Defect().pipe($I.annoteKey("ConfigFileWriteError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<ConfigFileWriteError>("ConfigFileWriteError", { description: "Indicates that a config file could not be written to the filesystem." })) {
 	/**
 	 * Identifies the config path whose filesystem write failed.
 	 *
@@ -219,7 +221,7 @@ export class ConfigFileWriteError extends S.TaggedError<ConfigFileWriteError, { 
  */
 export class ConfigDefaultPathMissingError extends S.TaggedError<ConfigDefaultPathMissingError, { readonly brand: unique symbol }>($I`ConfigDefaultPathMissingError`)(
 	"ConfigDefaultPathMissingError",
-	{}, $I.annote("ConfigDefaultPathMissingError", { description: "Indicates that ConfigFileShape.save or ConfigFileShape.update was called on a service configured without a `defaultPath`." }),
+	{}, $I.annoteError<ConfigDefaultPathMissingError>("ConfigDefaultPathMissingError", { description: "Indicates that ConfigFileShape.save or ConfigFileShape.update was called on a service configured without a `defaultPath`." }),
 ) {
 	/**
 	 * Explains that saving and updating require a configured default destination.
@@ -271,14 +273,14 @@ export class ConfigValidationError extends S.TaggedError<ConfigValidationError, 
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.Option(S.String).annotateKey({ description: "The offending file, absent when `validate` was called on an in-memory value." }),
+	path: S.Option(S.String).pipe($I.annoteKey("ConfigValidationError.path", { description: "The offending file, absent when `validate` was called on an in-memory value." })),
 	/**
 	 * The structured schema issue. Never a string.
 	 *
 	 * @since 0.0.0
 	 */
-	issue: S.Defect().annotateKey({ description: "The structured schema issue. Never a string." }),
-}, $I.annote("ConfigValidationError", { description: "Indicates that parsed config content did not satisfy the schema, or that a caller-supplied `validate` rejected it." })) {
+	issue: S.Defect().pipe($I.annoteKey("ConfigValidationError.issue", { description: "The structured schema issue. Never a string." })),
+}, $I.annoteError<ConfigValidationError>("ConfigValidationError", { description: "Indicates that parsed config content did not satisfy the schema, or that a caller-supplied `validate` rejected it." })) {
 	/**
 	 * Describes a validation failure, including the file path when one is present.
 	 *
@@ -479,7 +481,10 @@ export interface ConfigFileShape<A> {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly write: (value: A, path: string, options?: ConfigEncodeOptions) => Effect.Effect<void, ConfigWriteError>;
+	readonly write: {
+		(value: A, path: string, options?: ConfigEncodeOptions): Effect.Effect<void, ConfigWriteError>;
+		(path: string, options?: ConfigEncodeOptions): (value: A) => Effect.Effect<void, ConfigWriteError>;
+	};
 	/**
 	 * Resolve `defaultPath`, `mkdir -p` its parent, encode `value` into it, and
 	 * return the path written.
@@ -498,7 +503,10 @@ export interface ConfigFileShape<A> {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly update: (fn: (current: A) => A, defaultValue?: A) => Effect.Effect<A, ConfigUpdateError>;
+	readonly update: {
+		(fn: (current: A) => A, defaultValue?: A): Effect.Effect<A, ConfigUpdateError>;
+		(defaultValue?: A): (fn: (current: A) => A) => Effect.Effect<A, ConfigUpdateError>;
+	};
 }
 
 /**
@@ -625,7 +633,10 @@ const Service =
  * untouched. The return type admits both the original error and the path-bearing
  * codec error constructed here.
  */
-const withCodecPath = <E>(error: E, target: string): E | ConfigCodecError =>
+const withCodecPath: {
+	<E>(error: E, target: string): E | ConfigCodecError;
+	(target: string): <E>(error: E) => E | ConfigCodecError;
+} = dual(2, <E>(error: E, target: string): E | ConfigCodecError =>
 	S.is(ConfigCodecError)(error) && error.path === undefined
 		? ConfigCodecError.make({
 				codec: error.codec,
@@ -633,7 +644,7 @@ const withCodecPath = <E>(error: E, target: string): E | ConfigCodecError =>
 				cause: error.cause,
 				path: target,
 			})
-		: error;
+		: error);
 
 /**
  * Put `header` in front of `document`, separated by exactly one newline.
@@ -643,10 +654,25 @@ const withCodecPath = <E>(error: E, target: string): E | ConfigCodecError =>
  * A header that already ends in a newline is not given another — a caller who
  * built the line with a trailing `"\n"` and one who did not get the same file.
  */
-const prependHeader = (document: string, header: string | undefined): string =>
-	header === undefined ? document : header.endsWith("\n") ? `${header}${document}` : `${header}\n${document}`;
+const prependHeader: {
+	(document: string, header: string | undefined): string;
+	(header: string | undefined): (document: string) => string;
+} = dual(2, (document: string, header: string | undefined): string =>
+	header === undefined ? document : header.endsWith("\n") ? `${header}${document}` : `${header}\n${document}`);
 
-const makeImpl = <A, I, RR>(
+const makeImpl: {
+	<A, I, RR>(
+		options: ConfigFileOptions<A, I, RR>,
+		fs: FileSystem.FileSystem,
+		path: Path.Path,
+		resolverEnv: Context.Context<RR>,
+	): ConfigFileShape<A>;
+	<RR>(
+		fs: FileSystem.FileSystem,
+		path: Path.Path,
+		resolverEnv: Context.Context<RR>,
+	): <A, I>(options: ConfigFileOptions<A, I, RR>) => ConfigFileShape<A>;
+} = dual(4, <A, I, RR>(
 	options: ConfigFileOptions<A, I, RR>,
 	fs: FileSystem.FileSystem,
 	path: Path.Path,
@@ -691,16 +717,19 @@ const makeImpl = <A, I, RR>(
 	const sourceRefs = (
 		sources: ReadonlyArray<ConfigSource<A>>,
 	): ReadonlyArray<{ readonly path: string; readonly resolver: string }> =>
-		sources.map((s) => ({ path: s.path, resolver: s.resolver }));
+		A.map(sources, (s) => ({ path: s.path, resolver: s.resolver }));
 
-	const decode = (parsed: unknown, at: O.Option<string>): Effect.Effect<A, ConfigValidationError> =>
+	const decode: {
+		(parsed: unknown, at: O.Option<string>): Effect.Effect<A, ConfigValidationError>;
+		(at: O.Option<string>): (parsed: unknown) => Effect.Effect<A, ConfigValidationError>;
+	} = dual(2, (parsed: unknown, at: O.Option<string>): Effect.Effect<A, ConfigValidationError> =>
 		S.decodeUnknownEffect(options.schema)(parsed, options.parseOptions).pipe(
 			// Normalize the schema failure at the boundary. Never leak SchemaError
 			// deeper, never stringify it — carry its structured issue tree instead.
 			Effect.catchTag("SchemaError", (error) =>
 				Effect.fail(ConfigValidationError.make({ path: at, issue: error.issue })),
 			),
-		);
+		));
 
 	const runValidate = (value: A): Effect.Effect<A, ConfigValidationError> =>
 		options.validate !== undefined ? options.validate(value) : Effect.succeed(value);
@@ -711,7 +740,7 @@ const makeImpl = <A, I, RR>(
 			.pipe(Effect.mapError((cause) => ConfigFileReadError.make({ path: target, cause })));
 
 		const parsed = yield* options.codec.parse(raw).pipe(
-			Effect.mapError((error) => withCodecPath(error, target)),
+			Effect.mapError(withCodecPath(target)),
 			Effect.tapError((error) => emit({ _tag: "ParseFailed", path: target, codec: options.codec.name, error })),
 		);
 		yield* emit({ _tag: "Parsed", path: target, codec: options.codec.name });
@@ -761,7 +790,7 @@ const makeImpl = <A, I, RR>(
 		return { sources, candidates };
 	});
 
-	const searched = options.resolvers.map((r) => r.name);
+	const searched = A.map(options.resolvers, (r) => r.name);
 
 	/**
 	 * Merge the discovered sources and announce the result. Shared by `load` and
@@ -818,11 +847,10 @@ const makeImpl = <A, I, RR>(
 	 * only ever used to NAME the file in an error — `encode` passes `none` and
 	 * its errors honestly carry no path.
 	 */
-	const encodeTo: (
-		value: A,
-		target: O.Option<string>,
-		encodeOptions?: ConfigEncodeOptions,
-	) => Effect.Effect<string, ConfigEncodeError> =
+	const encodeTo: {
+		(value: A, target: O.Option<string>, encodeOptions?: ConfigEncodeOptions): Effect.Effect<string, ConfigEncodeError>;
+		(target: O.Option<string>, encodeOptions?: ConfigEncodeOptions): (value: A) => Effect.Effect<string, ConfigEncodeError>;
+	} = dual((args) => O.isOption(args[1]),
 		Effect.fnUntraced(function* (value: A, target: O.Option<string>, encodeOptions?: ConfigEncodeOptions) {
 			const encoded = yield* S.encodeEffect(options.schema)(value).pipe(
 				// Same normalization as `decode`: carry the structured issue, never stringify.
@@ -838,7 +866,7 @@ const makeImpl = <A, I, RR>(
 					),
 				);
 			return prependHeader(serialized, encodeOptions?.header);
-		});
+		}));
 
 	/**
 	 * `encodeTo` a known file, then write it. Shared by `write` and `save`.
@@ -849,11 +877,10 @@ const makeImpl = <A, I, RR>(
 	 * event, and `encode` promises to publish nothing. A subscriber counting
 	 * failed writes must not see a dry run's codec failure.
 	 */
-	const encodeAndWrite: (
-		value: A,
-		target: string,
-		encodeOptions?: ConfigEncodeOptions,
-	) => Effect.Effect<void, ConfigWriteError> =
+	const encodeAndWrite: {
+		(value: A, target: string, encodeOptions?: ConfigEncodeOptions): Effect.Effect<void, ConfigWriteError>;
+		(target: string, encodeOptions?: ConfigEncodeOptions): (value: A) => Effect.Effect<void, ConfigWriteError>;
+	} = dual((args) => P.isString(args[1]),
 		Effect.fnUntraced(function* (value: A, target: string, encodeOptions?: ConfigEncodeOptions) {
 			const serialized = yield* encodeTo(value, O.some(target), encodeOptions).pipe(
 				Effect.tapError((error) =>
@@ -865,7 +892,7 @@ const makeImpl = <A, I, RR>(
 			yield* fs
 				.writeFileString(target, serialized)
 				.pipe(Effect.mapError((cause) => ConfigFileWriteError.make({ path: target, cause })));
-		});
+		}));
 
 	// No event: nothing was written.
 	const encode = Effect.fn("ConfigFile.encode")(function* (value: A, encodeOptions?: ConfigEncodeOptions) {
@@ -897,7 +924,7 @@ const makeImpl = <A, I, RR>(
 			return target;
 		});
 
-	const write = Effect.fn("ConfigFile.write")(function* (
+	const write: ConfigFileShape<A>["write"] = dual((args) => P.isString(args[1]), Effect.fn("ConfigFile.write")(function* (
 		value: A,
 		target: string,
 		encodeOptions?: ConfigEncodeOptions,
@@ -905,7 +932,7 @@ const makeImpl = <A, I, RR>(
 		// No `makeDirectory` here, deliberately: `write` trusts the caller's path.
 		yield* encodeAndWrite(value, target, encodeOptions);
 		yield* emit({ _tag: "Written", path: target });
-	});
+	}));
 
 	const save = Effect.fn("ConfigFile.save")(function* (value: A) {
 		const target = yield* saveTo(value);
@@ -928,7 +955,7 @@ const makeImpl = <A, I, RR>(
 	 */
 	const updateLock = Semaphore.makeUnsafe(1);
 
-	const update = Effect.fn("ConfigFile.update")(function* (fn: (current: A) => A, defaultValue?: A) {
+	const update: ConfigFileShape<A>["update"] = dual((args) => P.isFunction(args[0]), Effect.fn("ConfigFile.update")(function* (fn: (current: A) => A, defaultValue?: A) {
 		return yield* updateLock.withPermits(1)(
 			Effect.gen(function* () {
 				const current = defaultValue !== undefined ? yield* loadOrDefault(defaultValue) : yield* load();
@@ -939,7 +966,7 @@ const makeImpl = <A, I, RR>(
 				return updated;
 			}),
 		);
-	});
+	}));
 
 	return {
 		load: load(),
@@ -952,7 +979,7 @@ const makeImpl = <A, I, RR>(
 		save,
 		update,
 	};
-};
+});
 
 // Implementation of ConfigFile.layer; the public contract lives on the static.
 // `tag` is pinned by three intersected parts. `Context.Key<Self, S>` captures the key's real shape;
@@ -960,7 +987,21 @@ const makeImpl = <A, I, RR>(
 // `MergeStrategy.firstMatch()` in the options needs; the conditional only checks (`NoInfer`), rejecting a
 // shape wider than ConfigFileShape<A>. It cannot see through method-syntax parameter bivariance: a member
 // redeclared as a method with a wider parameter still passes.
-const layer = <Self, A, I, RR = never, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
+const layer: {
+	<Self, A, I, RR = never, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
+		tag: Context.Key<Self, S> &
+			Context.Key<Self, ConfigFileShape<A>> &
+			([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never),
+		options: ConfigFileOptions<A, I, RR>,
+	): Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR>;
+	<A, I, RR = never>(
+		options: ConfigFileOptions<A, I, RR>,
+	): <Self, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
+		tag: Context.Key<Self, S> &
+			Context.Key<Self, ConfigFileShape<A>> &
+			([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never),
+	) => Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR>;
+} = dual(2, <Self, A, I, RR = never, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
 	tag: Context.Key<Self, S> &
 		Context.Key<Self, ConfigFileShape<A>> &
 		([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never),
@@ -975,7 +1016,7 @@ const layer = <Self, A, I, RR = never, S extends ConfigFileShape<A> = ConfigFile
 			const resolverEnv = yield* Effect.context<RR>();
 			return makeImpl(options, fs, path, resolverEnv);
 		}),
-	);
+	));
 
 /**
  * Options for {@link ConfigFile.testLayer}.
@@ -1036,7 +1077,21 @@ export interface ConfigFileTestOptions<A, I> {
 
 // Implementation of ConfigFile.testLayer; the public contract lives on the static.
 // `tag` is pinned exactly as ConfigFile.layer's is; see the note there.
-const testLayer = <Self, A, I, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
+const testLayer: {
+	<Self, A, I, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
+		tag: Context.Key<Self, S> &
+			Context.Key<Self, ConfigFileShape<A>> &
+			([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never),
+		options: ConfigFileTestOptions<A, I>,
+	): Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path>;
+	<A, I>(
+		options: ConfigFileTestOptions<A, I>,
+	): <Self, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
+		tag: Context.Key<Self, S> &
+			Context.Key<Self, ConfigFileShape<A>> &
+			([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never),
+	) => Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path>;
+} = dual(2, <Self, A, I, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
 	tag: Context.Key<Self, S> &
 		Context.Key<Self, ConfigFileShape<A>> &
 		([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never),
@@ -1061,7 +1116,7 @@ const testLayer = <Self, A, I, S extends ConfigFileShape<A> = ConfigFileShape<A>
 				yield* fs.writeFileString(target, content).pipe(Effect.orDie);
 			}
 
-			const resolvers = R.keys(options.files).map((name) => ConfigResolver.staticDir({ dir, filename: name }));
+			const resolvers = A.map(R.keys(options.files), (name) => ConfigResolver.staticDir({ dir, filename: name }));
 
 			return makeImpl(
 				{
@@ -1078,7 +1133,7 @@ const testLayer = <Self, A, I, S extends ConfigFileShape<A> = ConfigFileShape<A>
 				resolverEnv,
 			);
 		}),
-	);
+	));
 
 /**
  * Options for {@link ConfigFile.read}.
@@ -1122,7 +1177,10 @@ export interface ConfigReadOptions<A, I> {
 }
 
 // Implementation of ConfigFile.read; the public contract lives on the static.
-const read = <A, I>(
+const read: {
+	<A, I>(path: string, options: ConfigReadOptions<A, I>): Effect.Effect<A, ConfigReadError, FileSystem.FileSystem>;
+	<A, I>(options: ConfigReadOptions<A, I>): (path: string) => Effect.Effect<A, ConfigReadError, FileSystem.FileSystem>;
+} = dual(2, <A, I>(
 	path: string,
 	options: ConfigReadOptions<A, I>,
 ): Effect.Effect<A, ConfigReadError, FileSystem.FileSystem> =>
@@ -1133,7 +1191,7 @@ const read = <A, I>(
 			.readFileString(path)
 			.pipe(Effect.mapError((cause) => ConfigFileReadError.make({ path, cause })));
 
-		const parsed = yield* options.codec.parse(raw).pipe(Effect.mapError((error) => withCodecPath(error, path)));
+		const parsed = yield* options.codec.parse(raw).pipe(Effect.mapError(withCodecPath(path)));
 
 		return yield* S.decodeUnknownEffect(options.schema)(parsed, options.parseOptions).pipe(
 			// The same boundary normalization the service performs: never leak a
@@ -1142,7 +1200,7 @@ const read = <A, I>(
 				Effect.fail(ConfigValidationError.make({ path: O.some(path), issue: error.issue })),
 			),
 		);
-	}).pipe(Effect.withSpan("ConfigFile.read", { attributes: { path } }));
+	}).pipe(Effect.withSpan("ConfigFile.read", { attributes: { path } })));
 
 /**
  * The config file service: a per-schema service factory, its layers, and the

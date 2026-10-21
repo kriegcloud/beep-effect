@@ -1,6 +1,8 @@
 import { assert, describe, it } from "@effect/vitest";
 import { YamlLint, YamlLintConfig } from "../../../effected/yaml/index.ts";
 import { builtin } from "./harness.ts";
+import { dual } from "effect/Function";
+import type { LintContext, YamlLintDiagnostic } from "../../../effected/yaml/YamlLintRule.ts";
 
 // Let the normal lint pipeline construct the context, but forward options
 // straight to the rule.check boundary, bypassing configuration decoding.
@@ -8,7 +10,7 @@ const directCheck = (id: string, text: string, options: unknown) => {
 	const rule = builtin(id);
 	return YamlLint.run(
 		text,
-		[{ id, check: (ctx) => rule.check(ctx, options) }],
+		[{ id, check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => rule.check(ctx, options)) }],
 		YamlLintConfig.make({ rules: { [id]: "error" } }),
 	).filter((d) => d.rule === id);
 };

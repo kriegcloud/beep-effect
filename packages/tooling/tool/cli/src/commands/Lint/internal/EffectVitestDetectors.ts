@@ -233,6 +233,26 @@ const buildsAndProvidesLayer = (definition: EffectVitestFunctionNode, imports: E
   );
 };
 
+// Only an argument forwarded to Layer.build is a caller-supplied layer.
+// Fixed-layer fixtures are still reviewed at their resource definition (EV003).
+const callerProvidedLayer = (
+  call: CallExpression,
+  definition: EffectVitestFunctionNode,
+  imports: EffectVitestImports
+): O.Option<Expression> => {
+  const parameters = definition.getParameters();
+  for (const build of callbackCalls(definition)) {
+    if (!isProvenanceCall(build, imports, LAYER_MODULES, "Layer", ["build"])) continue;
+    const argument = build.getArguments()[0];
+    if (!Node.isIdentifier(argument)) continue;
+    const index = A.findFirstIndex(parameters, (parameter) =>
+      O.exists(imports.resolveBinding(argument), (binding) => binding === parameter)
+    );
+    if (O.isSome(index)) return O.filter(O.fromUndefinedOr(call.getArguments()[index.value]), Node.isExpression);
+  }
+  return O.none();
+};
+
 const wrapperName = (name: string): boolean => Str.startsWith("with")(name) && O.isSome(Str.match(/^with[A-Z]/u)(name));
 const providedLayer = (call: CallExpression): O.Option<Expression> =>
   O.flatMap(A.last(call.getArguments()), (argument) => (Node.isExpression(argument) ? O.some(argument) : O.none()));
@@ -725,7 +745,7 @@ const callStep = (
   provided: boolean
 ): FlowStep => {
   if (!isArgumentOf(parent, current)) return done(O.none());
-  if (isProvenanceCall(parent, imports, ["@effect/vitest"], "it", ["layer"]))
+  if (isHarnessMethodCall(parent, imports, "layer"))
     return done(parent.getArguments()[0] === current ? O.some([{ harness: parent, subject: provided }]) : O.none());
   if (isDataLastLayerStage(current, imports) && isLayerPipe(parent, imports)) return climb(provided);
   if (!isPreservingLayerCall(parent, imports)) return done(O.none());
@@ -853,17 +873,27 @@ const isNativeFileSystemOperation = (
   );
 };
 
+const harnessCallbackKinds = HashSet.fromIterable([SyntaxKind.ArrowFunction, SyntaxKind.FunctionExpression]);
+
 const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestImports): boolean =>
   O.exists(harnessCallback(flow.harness), (callback) => {
-    const services = A.filter(callback.getDescendantsOfKind(SyntaxKind.VariableDeclaration), (declaration) =>
-      isFileSystemService(declaration, imports)
-    );
+    const services = A.empty<VariableDeclaration>();
+    const calls = A.empty<CallExpression>();
+    callback.forEachDescendant((node, traversal) => {
+      if (Node.isVariableDeclaration(node) && isFileSystemService(node, imports)) services.push(node);
+      if (Node.isCallExpression(node)) calls.push(node);
+      // Only these two syntax kinds can be harness callbacks; other descendants need no provenance lookup.
+      if (!HashSet.has(harnessCallbackKinds, node.getKind())) return;
+      const harness = node.getParentIfKind(SyntaxKind.CallExpression)?.getExpressionIfKind(SyntaxKind.CallExpression);
+      if (harness === undefined) return;
+      // A nested layer owns its callback's services and may replace FileSystem.
+      if (isHarnessMethodCall(harness, imports, "layer") && O.contains(harnessCallback(harness), node)) {
+        traversal.skip();
+      }
+    });
     return (
       !A.isReadonlyArrayEmpty(services) &&
-      (flow.subject ||
-        A.some(callback.getDescendantsOfKind(SyntaxKind.CallExpression), (call) =>
-          isNativeFileSystemOperation(call, services, imports)
-        ))
+      (flow.subject || A.some(calls, (call) => isNativeFileSystemOperation(call, services, imports)))
     );
   });
 
@@ -1123,7 +1153,7 @@ const emitLayerProvision = (
 };
 
 const detectLayerProvision = (
-  { call, member, effectTest, publicProvider, localProvider }: ReturnType<typeof inspectContext>,
+  { call, member, effectTest, publicProvider, localProvider, definition }: ReturnType<typeof inspectContext>,
   state: DetectorState
 ): void => {
   const { imports } = state;
@@ -1133,7 +1163,9 @@ const detectLayerProvision = (
     (publicProvider || localProvider || isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["provide"])) &&
     effectRegistrationBody(call, effectTest, imports)
   ) {
-    const layer = providedLayer(call);
+    const layer = localProvider
+      ? O.flatMap(definition, ({ node }) => callerProvidedLayer(call, node, imports))
+      : providedLayer(call);
     emitLayerProvision(call, layer, member, state);
   }
 };
@@ -1685,6 +1717,29 @@ const detectLayerClockReset = ({ call, member }: ReturnType<typeof inspectContex
   }
 };
 
+// Vitest's transform requires its own vi binding for hoisted module mocks.
+// Registration/assertion imports still belong to the Effect test harness.
+const requiresVitestMockHoisting = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean => {
+  const named = declaration.getNamedImports();
+  if (
+    declaration.getDefaultImport() !== undefined ||
+    declaration.getNamespaceImport() !== undefined ||
+    named.length !== 1 ||
+    named[0]?.getName() !== "vi"
+  )
+    return false;
+  return A.some(imports.calls, (call) => {
+    const callee = call.getExpression();
+    if (!Node.isPropertyAccessExpression(callee)) return false;
+    const receiver = callee.getExpression();
+    return (
+      Node.isIdentifier(receiver) &&
+      A.contains(["mock", "hoisted"], callee.getName()) &&
+      O.exists(imports.resolveBinding(receiver), (binding) => binding === declaration)
+    );
+  });
+};
+
 const appliedStages = (
   call: CallExpression,
   member: string,
@@ -2045,10 +2100,11 @@ export const detectEffectVitestFindings: {
     for (const call of calls) inspectCall(call, state);
 
     for (const definition of definitions) detectResourceDefinition(definition, state);
-    for (const declaration of imports.plainVitestImports) {
-      if (imports.hasEffectImport)
-        findings.push(makeFinding({ ruleId: "EV011", node: declaration, file, owner, symbol: "vitest-import" }));
-    }
+    for (const declaration of A.filter(
+      imports.plainVitestImports,
+      (declaration) => imports.hasEffectImport && !requiresVitestMockHoisting(declaration, imports)
+    ))
+      findings.push(makeFinding({ ruleId: "EV011", node: declaration, file, owner, symbol: "vitest-import" }));
 
     for (const declaration of sourceFile.getImportDeclarations()) detectPlatformImport(declaration, state);
 

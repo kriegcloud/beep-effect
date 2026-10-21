@@ -1,5 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import { dual } from "effect/Function";
 // The composite layers.
 //
 // The composites split on PLATFORM REQUIREMENTS, not on a feature flag:
@@ -12,10 +13,10 @@ import type {
 	CatalogAssemblyError,
 	CatalogResolver,
 	DependencyResolutionError,
-	Manifest,
 	UnresolvedDependencyError,
 	WorkspaceResolver,
 } from "../npm/index.ts";
+import { Manifest } from "../npm/index.ts";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
@@ -69,7 +70,7 @@ export const WorkspacesOptions = S.Struct({
 	 *
 	 * @defaultValue `process.cwd()`, read lazily on first use.
 	 */
-	cwd: WorkspaceCatalogsOptions.fields.cwd.annotateKey($I.annote("cwd", { description: "One uniformly forwarded starting directory, defaulted lazily on use." })),
+	cwd: WorkspaceCatalogsOptions.fields.cwd.pipe($I.annoteKey("WorkspacesOptions.cwd", { description: "One uniformly forwarded starting directory, defaulted lazily on use." })),
 	/**
 	 * A ceiling for the root ascent from `cwd`, forwarded to EVERY
 	 * root-resolving service the composite builds — {@link WorkspaceDiscovery},
@@ -87,8 +88,8 @@ export const WorkspacesOptions = S.Struct({
 	 *
 	 * @defaultValue no ceiling — the ascent runs to the filesystem root.
 	 */
-	stopAt: WorkspaceCatalogsOptions.fields.stopAt.annotateKey($I.annote("stopAt", { description: "One inclusive ceiling uniformly forwarded to all root consumers." })),
-}).annotate($I.annote("WorkspacesOptions", { description: "Plain-object composite options composed from the owning service schemas." }));
+	stopAt: WorkspaceCatalogsOptions.fields.stopAt.pipe($I.annoteKey("WorkspacesOptions.stopAt", { description: "One inclusive ceiling uniformly forwarded to all root consumers." })),
+}).pipe($I.annoteSchema("WorkspacesOptions", { description: "Plain-object composite options composed from the owning service schemas." }));
 
 /** The composite options described by {@link WorkspacesOptions}.
  * @category type-level
@@ -124,7 +125,7 @@ export type WorkspacesOptions = typeof WorkspacesOptions.Type;
 export const WorkspacesGitOptions = S.Struct({
 	...WorkspacesOptions.fields,
 	...WorkspaceSnapshotsOptions.fields,
-}).annotate($I.annote("WorkspacesGitOptions", { description: "Composite root, discovery, lockfile and snapshot options, including fallback seed catalogs." }));
+}).pipe($I.annoteSchema("WorkspacesGitOptions", { description: "Composite root, discovery, lockfile and snapshot options, including fallback seed catalogs." }));
 
 /** The git composite options described by {@link WorkspacesGitOptions}.
  * @category type-level
@@ -157,7 +158,15 @@ export type WorkspacesServices =
 // unchanged. Generic in R so a hooks layer carrying an extra requirement (the
 // subprocess variant's ChildProcessSpawner) threads it through to the
 // composite's R.
-const compose = <R = never>(
+const compose: {
+	<R = never>(
+		options: WorkspacesOptions | undefined,
+		hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
+	): Layer.Layer<WorkspacesServices, never, FileSystem.FileSystem | Path.Path | R>;
+	<R = never>(
+		hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
+	): (options: WorkspacesOptions | undefined) => Layer.Layer<WorkspacesServices, never, FileSystem.FileSystem | Path.Path | R>;
+} = dual(2, <R = never>(
 	options: WorkspacesOptions | undefined,
 	hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
 ): Layer.Layer<WorkspacesServices, never, FileSystem.FileSystem | Path.Path | R> => {
@@ -186,7 +195,7 @@ const compose = <R = never>(
 	// (`VersioningStrategy.detect`, e.g.), which is where unwired programs fail
 	// to compile; a consumer that never asks never supplies a policy.
 	return Layer.mergeAll(roots, detector, discovery, lockfiles, catalogs);
-};
+});
 
 // Implementation of Workspaces.layer; the public contract lives on the static.
 const layer = (
@@ -202,7 +211,25 @@ const layer = (
  * dependencies exactly as the live assembler replays the worktree's: one
  * reference, one memo, one policy for both sides of a diff.
  */
-const withGit = <R = never>(
+const withGit: {
+	<R = never>(
+		hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
+		options?: WorkspacesGitOptions,
+	): Layer.Layer<
+		WorkspacesServices | ChangeDetector | WorkspaceSnapshots | Git,
+		never,
+		FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner | R
+	>;
+	(
+		options?: WorkspacesGitOptions,
+	): <R = never>(
+		hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
+	) => Layer.Layer<
+		WorkspacesServices | ChangeDetector | WorkspaceSnapshots | Git,
+		never,
+		FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner | R
+	>;
+} = dual((args) => Layer.isLayer(args[0]), <R = never>(
 	hooks: Layer.Layer<ConfigDependencyHooks, never, R>,
 	options?: WorkspacesGitOptions,
 ): Layer.Layer<
@@ -218,7 +245,7 @@ const withGit = <R = never>(
 		ChangeDetector.layer.pipe(Layer.provide(git), Layer.provide(core)),
 		WorkspaceSnapshots.layer(options).pipe(Layer.provide(git), Layer.provide(hooks), Layer.provide(core)),
 	);
-};
+});
 
 // Implementation of Workspaces.layerWithGit; the public contract lives on the static.
 const layerWithGit = (
@@ -275,19 +302,30 @@ const resolverLayer = (
 	resolvers.pipe(Layer.provide(layerWithConfigDependencies(options)));
 
 // Implementation of Workspaces.resolveManifest; the public contract lives on the static.
-const resolveManifest: (
-	manifest: Manifest,
-	options?: WorkspacesOptions,
-) => Effect.Effect<
-	Manifest,
-	CatalogAssemblyError | DependencyResolutionError | UnresolvedDependencyError,
-	FileSystem.FileSystem | Path.Path
-> = Effect.fn("Workspaces.resolveManifest")(function* (manifest: Manifest, options?: WorkspacesOptions) {
+const resolveManifest: {
+	(
+		manifest: Manifest,
+		options?: WorkspacesOptions,
+	): Effect.Effect<
+		Manifest,
+		CatalogAssemblyError | DependencyResolutionError | UnresolvedDependencyError,
+		FileSystem.FileSystem | Path.Path
+	>;
+	(
+		options?: WorkspacesOptions,
+	): (
+		manifest: Manifest,
+	) => Effect.Effect<
+		Manifest,
+		CatalogAssemblyError | DependencyResolutionError | UnresolvedDependencyError,
+		FileSystem.FileSystem | Path.Path
+	>;
+} = dual((args) => S.is(Manifest)(args[0]), Effect.fn("Workspaces.resolveManifest")(function* (manifest: Manifest, options?: WorkspacesOptions) {
 	return yield* Layer.build(resolverLayer(options)).pipe(
 		Effect.flatMap((context) => manifest.resolve().pipe(Effect.provideContext(context))),
 		Effect.scoped,
 	);
-});
+}));
 
 // Implementation of Workspaces.localExecLayer; the public contract lives on the static.
 const localExecLayer = (options?: {

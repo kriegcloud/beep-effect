@@ -8,7 +8,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { identity } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as Str from "effect/String";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -238,7 +238,10 @@ export class JsoncEdit extends S.Class<JsoncEdit, { readonly brand: unique symbo
    * @param edits - The edits to apply, in any order.
    * @returns The edited text, or a {@link JsoncEditOverlapError}.
    */
-  static applyAllResult(text: string, edits: ReadonlyArray<JsoncEdit>): Result.Result<string, JsoncEditOverlapError> {
+  static readonly applyAllResult: {
+    (text: string, edits: ReadonlyArray<JsoncEdit>): Result.Result<string, JsoncEditOverlapError>;
+    (edits: ReadonlyArray<JsoncEdit>): (text: string) => Result.Result<string, JsoncEditOverlapError>;
+  } = dual(2, (text: string, edits: ReadonlyArray<JsoncEdit>): Result.Result<string, JsoncEditOverlapError> => {
     const sorted = A.sort(edits, byOffsetDescending);
     const overlap = A.findFirst(A.zip(sorted, A.drop(sorted, 1)), ([upper, lower]) => lower.offset + lower.length > upper.offset);
     return O.match(overlap, {
@@ -250,7 +253,7 @@ export class JsoncEdit extends S.Class<JsoncEdit, { readonly brand: unique symbo
         ),
       onSome: ([upper, lower]) => Result.fail(JsoncEditOverlapError.make({ lower: lower.offset, upper: upper.offset })),
     });
-  }
+  });
 
   /**
    * Apply `edits` to `text`, producing a new string.
@@ -280,7 +283,9 @@ export class JsoncEdit extends S.Class<JsoncEdit, { readonly brand: unique symbo
    * @returns The edited text.
    * @throws A {@link JsoncEditOverlapError} when two edits overlap.
    */
-  static applyAll(text: string, edits: ReadonlyArray<JsoncEdit>): string {
-    return Result.getOrThrowWith(JsoncEdit.applyAllResult(text, edits), identity);
-  }
+  static readonly applyAll: {
+    (text: string, edits: ReadonlyArray<JsoncEdit>): string;
+    (edits: ReadonlyArray<JsoncEdit>): (text: string) => string;
+  } = dual(2, (text: string, edits: ReadonlyArray<JsoncEdit>): string =>
+    Result.getOrThrowWith(JsoncEdit.applyAllResult(text, edits), identity));
 }

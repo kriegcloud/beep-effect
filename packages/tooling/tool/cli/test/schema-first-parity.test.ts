@@ -13,9 +13,10 @@ import {
 import { TSMorphServiceLive } from "@beep/repo-utils";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { provideScopedLayer } from "@beep/test-utils";
-import { A, Str } from "@beep/utils";
+import { Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -1084,6 +1085,31 @@ const grownDefaultWrapperSource = [
 ];
 
 it.layer(testLayer, { timeout: "60 seconds" })("schema-first parity ratchet command", (it) => {
+  it.effect("retains normalization and Option-struct findings through the command scan", () =>
+    Effect.gen(function* () {
+      yield* enterTempWorkingDirectory;
+      yield* writeFixture([
+        'import * as S from "effect/Schema";',
+        'import * as R from "effect/Record";',
+        "const Name = S.String;",
+        "export function normalizeName(input: unknown): string {",
+        "  return S.decodeUnknownSync(Name)(input).trim();",
+        "}",
+        "export function pickSomes() { return R.getSomes({ a: 1, b: 2 }); }",
+      ]);
+      yield* runSchemaFirst(["--write"]);
+      const fs = yield* FileSystem.FileSystem;
+      const inventory = yield* decodeInventory(yield* fs.readFileString("standards/schema-first.inventory.jsonc"));
+      expect(A.map(inventory.entries, (entry) => entry.ruleId)).toContain("SFV4-normalization");
+      expect(A.map(inventory.entries, (entry) => entry.ruleId)).toContain("SFV4-getsomes-struct");
+      const repeated = yield* runSchemaFirst([]);
+      expect(repeated.logLines).toContain("[schema-first] missing_entries=0");
+      yield* writeFixture(["export const clean = true;"]);
+      const repaired = yield* runSchemaFirst([]);
+      expect(repaired.logLines).toContain("[schema-first] stale_entries=2");
+    })
+  );
+
   it.effect("fails the check on an occurrence outside the committed backlog, keyed by its anchor", () =>
     Effect.gen(function* () {
       yield* enterTempWorkingDirectory;
@@ -1119,12 +1145,15 @@ it.layer(testLayer, { timeout: "60 seconds" })("schema-first parity ratchet comm
       yield* fs.makeDirectory("packages/example/test", { recursive: true });
       yield* fs.writeFileString(
         "packages/example/test/Codec.test.ts",
-        [
-          'import * as S from "effect/Schema";',
-          "S.decodeUnknownEffect(S.String);",
-          "S.decodeUnknownResult(S.String);",
-          "S.encodeUnknownEffect(S.String);",
-        ].join("\n")
+        A.join(
+          [
+            'import * as S from "effect/Schema";',
+            "S.decodeUnknownEffect(S.String);",
+            "S.decodeUnknownResult(S.String);",
+            "S.encodeUnknownEffect(S.String);",
+          ],
+          "\n"
+        )
       );
       yield* runSchemaFirst(["--write"]);
       const inventory = yield* decodeInventory(yield* fs.readFileString("standards/schema-first.inventory.jsonc"));

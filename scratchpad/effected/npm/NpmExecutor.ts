@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LocalExec } from "../commands/index.ts";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -9,7 +10,10 @@ import { PublishError } from "./PublishError.ts";
 const $I = $ScratchpadId.create("effected/npm/NpmExecutor");
 
 /** Build the pinned command through the project-local launcher. */
-const command = Effect.fnUntraced(function* (
+const command: {
+	(spec: string, all: ReadonlyArray<string>): Effect.Effect<ChildProcess.StandardCommand, PublishError, LocalExec>;
+	(all: ReadonlyArray<string>): (spec: string) => Effect.Effect<ChildProcess.StandardCommand, PublishError, LocalExec>;
+} = dual(2, Effect.fnUntraced(function* (
 	spec: string,
 	all: ReadonlyArray<string>,
 ): Effect.fn.Return<ChildProcess.StandardCommand, PublishError, LocalExec> {
@@ -25,7 +29,7 @@ const command = Effect.fnUntraced(function* (
 		return yield* PublishError.make({ kind: "executor" });
 	}
 	return dlx;
-});
+}));
 
 /**
  * Which `npm` runs a publish command.
@@ -57,16 +61,16 @@ export class NpmExecutor extends S.Class<NpmExecutor, { readonly brand: unique s
 	 * The npm package spec to fetch and run (`"npm@11"`). Absent means the
 	 * ambient `npm` on `PATH`.
 	 */
-	spec: S.optionalKey(S.String).annotateKey({ description: "The npm package spec to fetch and run (`\"npm@11\"`). Absent means the ambient `npm` on `PATH`." }),
+	spec: S.optionalKey(S.String).pipe($I.annoteKey("NpmExecutor.spec", { description: "The npm package spec to fetch and run (`\"npm@11\"`). Absent means the ambient `npm` on `PATH`." })),
 	/**
 	 * The npm cache directory, emitted as `--cache <dir>` on every invocation.
 	 * Absent uses npm's own default (`~/.npm`).
 	 */
-	cacheDir: S.optionalKey(S.String).annotateKey({ description: "The npm cache directory, emitted as `--cache <dir>` on every invocation. Absent uses npm's own default (`~/.npm`)." }),
+	cacheDir: S.optionalKey(S.String).pipe($I.annoteKey("NpmExecutor.cacheDir", { description: "The npm cache directory, emitted as `--cache <dir>` on every invocation. Absent uses npm's own default (`~/.npm`)." })),
 	/**
 	 * Extra flags appended to every generated invocation, after `--cache`.
 	 */
-	extraArgs: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Extra flags appended to every generated invocation, after `--cache`." }),
+	extraArgs: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("NpmExecutor.extraArgs", { description: "Extra flags appended to every generated invocation, after `--cache`." })),
 }, $I.annote("NpmExecutor", { description: "Which `npm` runs a publish command." })) {
 	/**
 	 * The runner's own `npm`.

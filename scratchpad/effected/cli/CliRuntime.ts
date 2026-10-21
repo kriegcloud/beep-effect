@@ -6,6 +6,7 @@ import type * as Stdio from "effect/Stdio";
 import type * as Terminal from "effect/Terminal";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as MutableRef from "effect/MutableRef";
@@ -39,6 +40,7 @@ import { isExitCode } from "./internal/isExitCode.ts";
 import { TrustedLine } from "./internal/logSafety.ts";
 import { NotInteractive } from "./NotInteractive.ts";
 import * as P from "effect/Predicate";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/cli/CliRuntime");
 
@@ -46,10 +48,10 @@ const $I = $ScratchpadId.create("effected/cli/CliRuntime");
 class CliRuntimeError extends S.TaggedError<CliRuntimeError, { readonly brand: unique symbol }>($I`CliRuntimeError`)(
 	"CliRuntimeError",
 	{
-		message: S.String.annotate({ description: "The runtime invariant or reported failure that needs teardown handling." }),
-		cause: S.optionalKey(S.Defect({ includeStack: true })).annotate({ description: "The original failure when runtime markers could not be installed in place." }),
+		message: S.String.pipe($I.annoteKey("CliRuntimeError.message", { description: "The runtime invariant or reported failure that needs teardown handling." })),
+		cause: S.optionalKey(S.Defect({ includeStack: true })).pipe($I.annoteKey("CliRuntimeError.cause", { description: "The original failure when runtime markers could not be installed in place." })),
 	},
-	$I.annote("CliRuntimeError", { description: "A CLI runtime invariant failed or a non-Error failure was reported." }),
+	$I.annoteError<CliRuntimeError>("CliRuntimeError", { description: "A CLI runtime invariant failed or a non-Error failure was reported." }),
 ) {
 	override readonly name = "Error";
 }
@@ -58,7 +60,7 @@ const isShowHelp = (u: unknown): u is CliError.ShowHelp => CliError.isCliError(u
 
 /** A `UserError` `Command.runWith` already printed: it sets the mark to `false` after rendering. */
 const isRenderedUserError = (u: unknown): u is CliError.UserError =>
-	CliError.isCliError(u) && u._tag === "UserError" && Runtime.getErrorReported(u) === false;
+	CliError.isCliError(u) && u._tag === "UserError" && !Runtime.getErrorReported(u);
 
 /**
  * What `render` is told about a failure beyond the squashed error.
@@ -275,12 +277,7 @@ export interface MainOptions<RP, EP> extends ReportFailuresOptions {
 
 /** The last line of defence of a failure report: the error's text, sanitised and neutralized, whatever else broke. */
 const lastResort = (error: unknown): ReadonlyArray<string> => {
-	let text: string;
-	try {
-		text = String(error);
-	} catch {
-		text = "[unprintable failure]";
-	}
+	const text = Result.getOrElse(Result.try(() => String(error)), () => "[unprintable failure]");
 	return CommandNeutralizer.lines(sanitize(text));
 };
 
@@ -297,10 +294,13 @@ const toLines = (rendered: string | ReadonlyArray<string>): ReadonlyArray<string
  * silently override a deliberate `1`. Testing for the marker keeps "the error
  * chose its code" distinct from "nothing chose".
  */
-const chooseExitCode = (error: unknown, fallback: number | undefined): number =>
+const chooseExitCode: {
+	(error: unknown, fallback: number | undefined): number;
+	(fallback: number | undefined): (error: unknown) => number;
+} = dual(2, (error: unknown, fallback: number | undefined): number =>
 	P.isObjectKeyword(error) && !P.isFunction(error) && Runtime.errorExitCode in error
 		? Runtime.getErrorExitCode(error)
-		: (fallback ?? 1);
+		: (fallback ?? 1));
 
 /**
  * Report a CLI program's failures through the program's own logger.
@@ -425,13 +425,28 @@ export abstract class CliRuntime {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly defaultRender = (
-		error: unknown,
-		details: Pick<FailureDetails, "cause" | "isDefect">,
-		options?: { readonly status?: boolean | undefined },
-	): string | ReadonlyArray<string> =>
-		// `details.cause` is what a report is told; a hand-built `details` with an empty cause renders the error itself.
-		plainFailureLines(details.cause.reasons.length > 0 ? details.cause : Cause.fail(error), options?.status !== false);
+	static readonly defaultRender: {
+		(
+			error: unknown,
+			details: Pick<FailureDetails, "cause" | "isDefect">,
+			options?: { readonly status?: boolean | undefined },
+		): string | ReadonlyArray<string>;
+		(
+			details: Pick<FailureDetails, "cause" | "isDefect">,
+			options?: { readonly status?: boolean | undefined },
+		): (error: unknown) => string | ReadonlyArray<string>;
+	} = dual(
+		// The error is `unknown`, so the dispatch reads the second argument: `details` (it always carries `isDefect`) in
+		// the data-first form, the options or nothing in the data-last one.
+		(args) => P.hasProperty(args[1], "isDefect"),
+		(
+			error: unknown,
+			details: Pick<FailureDetails, "cause" | "isDefect">,
+			options?: { readonly status?: boolean | undefined },
+		): string | ReadonlyArray<string> =>
+			// `details.cause` is what a report is told; a hand-built `details` with an empty cause renders the error itself.
+			plainFailureLines(details.cause.reasons.length > 0 ? details.cause : Cause.fail(error), options?.status !== false),
+	);
 
 	/**
 	 * Catch a program's failure, render it through the ambient logger, and re-fail with the exit code and the
@@ -458,7 +473,7 @@ export abstract class CliRuntime {
 				Effect.catchCause(Effect.fnUntraced(function* (cause: Cause.Cause<E>): Effect.fn.Return<A, Error> {
 					// An interrupt is not a failure anyone wants rendered, and the default
 					// teardown already maps an interrupt-only cause to 130.
-					if (Cause.hasInterruptsOnly(cause)) return yield* Effect.failCause(Cause.fromReasons<Error>(cause.reasons.filter(Cause.isInterruptReason)));
+					if (Cause.hasInterruptsOnly(cause)) return yield* Effect.failCause(Cause.fromReasons<Error>(A.filter(cause.reasons, Cause.isInterruptReason)));
 
 					const error = Cause.squash(cause);
 
@@ -491,17 +506,16 @@ export abstract class CliRuntime {
 					// if that dies too, the message alone, still sanitised and neutralized: the last resort keeps the policy.
 					// The target is built from the services in context when there is no cell: if that dies, the plain fallback.
 					const target = yield* currentTarget.pipe(Effect.catchCause(() => Effect.succeed(fallbackTarget)));
-					const reportLines = (status: boolean, spans?: "app" | "all" | "off"): ReadonlyArray<string> => {
-						try {
-							return linesOf(cause, target, status, spans ?? target.spans);
-						} catch {
-							try {
-								return plainFailureLines(cause, status, spans ?? target.spans);
-							} catch {
-								return lastResort(error);
-							}
-						}
-					};
+					const reportLines: {
+						(status: boolean, spans?: "app" | "all" | "off"): ReadonlyArray<string>;
+						(spans?: "app" | "all" | "off"): (status: boolean) => ReadonlyArray<string>;
+					} = dual((args) => P.isBoolean(args[0]), (status: boolean, spans?: "app" | "all" | "off"): ReadonlyArray<string> =>(Result.getOrElse(
+							Result.try(() => linesOf(cause, target, status, spans ?? target.spans)),
+							() => Result.getOrElse(
+								Result.try(() => plainFailureLines(cause, status, spans ?? target.spans)),
+								() => lastResort(error),
+							),
+						)));
 					const defaultLines = reportLines(true);
 					// Cause.squash prefers a Fail over a Die, so `error` is a defect exactly when there is no Fail.
 					const details: FailureDetails = {

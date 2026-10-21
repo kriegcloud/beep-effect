@@ -17,7 +17,10 @@ import { renderDoc, showsSuffix, targetText } from "./renderDoc.ts";
  * the label in parentheses, muted, unless the label already is the target. That is decided here, before layout, so
  * widths and wrapping count it.
  */
-const inline = (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> => {
+const inline: {
+	(inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span>;
+	(ctx: RenderContext): (inlines: ReadonlyArray<Inline>) => ReadonlyArray<Span>;
+} = dual(2, (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArray<Span> => {
 	const flat = flatten(inlines, ctx);
 	const out: Array<Span> = [];
 	let i = 0;
@@ -36,11 +39,11 @@ const inline = (inlines: ReadonlyArray<Inline>, ctx: RenderContext): ReadonlyArr
 		}
 	}
 	return out;
-};
+});
 
 const ansi: Flavour = {
 	inline,
-	finish: (line, ctx) => paintSpans(line, ctx),
+	finish: paintSpans,
 };
 
 /**

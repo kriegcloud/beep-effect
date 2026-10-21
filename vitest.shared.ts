@@ -3,8 +3,8 @@
 // three declared directive exemptions in `beep quality tsgo-rules` (Quality.command.ts).
 // @effect-diagnostics nodeBuiltinImport:skip-file
 
-import { readdirSync, readFileSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import * as NodeFS from "node:fs";
+import * as NodePath from "node:path";
 import { A, P, Str, Struct } from "@beep/utils";
 import * as Doctest from "@effect/doctest/Plugin";
 import * as Config from "effect/Config";
@@ -12,6 +12,8 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import { mergeConfig } from "vitest/config";
+import { appSourceAlias } from "./vite.shared.ts";
 import generatedAliasPaths from "./vitest.aliases.generated.json" with { type: "json" };
 import type { Plugin } from "vite";
 import type { ViteUserConfig } from "vitest/config";
@@ -128,15 +130,15 @@ const scanSkippedDirectories: ReadonlyArray<string> = ["node_modules", ".context
 const listTestFiles = (directory: string): ReadonlyArray<string> => {
   try {
     return pipe(
-      readdirSync(directory, { withFileTypes: true }),
+      NodeFS.readdirSync(directory, { withFileTypes: true }),
       A.flatMap(
         (entry): ReadonlyArray<string> =>
           entry.isDirectory()
             ? A.contains(scanSkippedDirectories, entry.name)
               ? []
-              : listTestFiles(join(directory, entry.name))
+              : listTestFiles(NodePath.join(directory, entry.name))
             : testFilePattern.test(entry.name)
-              ? [join(directory, entry.name)]
+              ? [NodePath.join(directory, entry.name)]
               : []
       )
     );
@@ -144,11 +146,12 @@ const listTestFiles = (directory: string): ReadonlyArray<string> => {
     return [];
   }
 };
-const toPosixRelative = (root: string, file: string): string => A.join(relative(root, file).split(sep), "/");
+const toPosixRelative = (root: string, file: string): string =>
+  A.join(NodePath.relative(root, file).split(NodePath.sep), "/");
 const propertyTestInclude = (packageRoot: string): ReadonlyArray<string> =>
   pipe(
-    listTestFiles(join(packageRoot, "test")),
-    A.filter((file) => propertyTestMarker.test(readFileSync(file, "utf8"))),
+    listTestFiles(NodePath.join(packageRoot, "test")),
+    A.filter((file) => propertyTestMarker.test(NodeFS.readFileSync(file, "utf8"))),
     A.map((file) => toPosixRelative(packageRoot, file)),
     A.sort(Order.String)
   );
@@ -233,7 +236,7 @@ const config: ViteUserConfig = {
     // the first vitest process of a turbo fan-out wiped the directory while sibling packages were
     // reading entries, failing their suites with `ENOENT ... node_modules/.vitest-cache/<key>`.
     // The vitest root is the package directory (the scripts run vitest from there).
-    fsModuleCachePath: join(process.cwd(), "node_modules", ".vitest-cache"),
+    fsModuleCachePath: NodePath.join(process.cwd(), "node_modules", ".vitest-cache"),
     // The coverage producers pin `--maxWorkers=1` (2 for repo-cli), so with isolation every test file
     // re-evaluates the shared module graph inside that one worker. Measured 2026-09-24 on
     // @beep/schema under the coverage topology: 69s isolated vs 13s shared, 717 tests passing either
@@ -296,5 +299,15 @@ const config: ViteUserConfig = {
     },
   },
 };
+
+/** Shared DOM-test defaults for browser applications with a local source alias. */
+export const browserTestConfig = (moduleUrl: string): ViteUserConfig =>
+  mergeConfig(config, {
+    resolve: { alias: appSourceAlias(moduleUrl) },
+    test: {
+      environment: "jsdom",
+      include: vitestDoctestActive ? [] : ["test/**/*.test.{ts,tsx}"],
+    },
+  });
 
 export default config;

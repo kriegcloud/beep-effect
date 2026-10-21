@@ -1,5 +1,5 @@
-import { fileURLToPath } from "node:url";
-import { inspect } from "node:util";
+import * as NodeURL from "node:url";
+import * as NodeUtil from "node:util";
 import { CandidateClaim, Evidence } from "@beep/epistemic-domain";
 import { unflattenEdgeSource, unflattenEdgeTarget } from "@beep/epistemic-domain/entities/EdgeVersion";
 import { ClaimGateResult, LogicalEdgeIdentity, logicalEdgeKey } from "@beep/epistemic-domain/values";
@@ -43,7 +43,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as TestClock from "effect/testing/TestClock";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 const { shouldRunPgliteIntegration } = makePgliteIntegrationGate();
 
 // The db-admin drizzle folder creates `btree_gist` for the edge exclusion
@@ -549,7 +549,7 @@ if (!shouldRunPgliteIntegration) {
           );
 
           pipe(SupersessionConflict.is(conflict), assertTrue);
-          expect(inspect(conflict, { depth: 12 })).toMatch(/epistemic_edge_(?:open_head_idx|no_overlap)/u);
+          expect(NodeUtil.inspect(conflict, { depth: 12 })).toMatch(/epistemic_edge_(?:open_head_idx|no_overlap)/u);
         }),
         120_000
       );

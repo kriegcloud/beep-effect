@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps";
 import { it } from "@beep/test-runner";
@@ -14,7 +14,7 @@ import * as Order from "effect/Order";
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
 
-const MOCK_ROOT = fileURLToPath(new URL("./fixtures/mock-monorepo", import.meta.url));
+const MOCK_ROOT = NodeURL.fileURLToPath(new URL("./fixtures/mock-monorepo", import.meta.url));
 
 it.layer(TestLayer, { timeout: "10 seconds" })("UniqueDeps", (it) => {
   describe("collectUniqueNpmDependencies", () => {

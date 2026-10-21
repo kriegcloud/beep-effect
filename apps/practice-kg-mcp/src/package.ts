@@ -18,8 +18,8 @@ import {
 } from "@beep/mcpb-kit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { assertBundleGraph } from "./BundleGraph.ts";
 import * as R from "effect/Record";
+import { assertBundleGraph } from "./BundleGraph.ts";
 import { PRACTICE_KG_EXTENSION_VERSION } from "./Version.ts";
 
 /*

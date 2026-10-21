@@ -28,6 +28,7 @@ import { spawnOnce } from "./internal/spawn.ts";
 import { twirpCall, twirpFailureFields } from "./internal/twirp.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 import * as P from "effect/Predicate";
+import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/ActionCache");
 
@@ -56,33 +57,33 @@ export class ActionCacheError extends S.TaggedError<ActionCacheError, { readonly
 	 * `transferFailed` — the archive itself did not move.
 	 * @since 0.0.0
 	 */
-	reason: S.Literals(["misconfigured", "unreachable", "refused", "archiveFailed", "transferFailed"]).annotateKey({ description: "`misconfigured` — the results backend is not reachable from here (see ActionCache). `unreachable` — it could not be contacted, or answered with something that is not a Twirp body. `refused` — it answered, unhappily. `archiveFailed` — `tar` would not pack or unpack the paths. `transferFailed` — the archive itself did not move." }),
+	reason: S.Literals(["misconfigured", "unreachable", "refused", "archiveFailed", "transferFailed"]).pipe($I.annoteKey("ActionCacheError.reason", { description: "`misconfigured` — the results backend is not reachable from here (see ActionCache). `unreachable` — it could not be contacted, or answered with something that is not a Twirp body. `refused` — it answered, unhappily. `archiveFailed` — `tar` would not pack or unpack the paths. `transferFailed` — the archive itself did not move." })),
 	/**
 	 * The cache key involved. A stable identifier, never a value.
 	 * @since 0.0.0
 	 */
-	key: S.optionalKey(S.String).annotateKey({ description: "The cache key involved. A stable identifier, never a value." }),
+	key: S.optionalKey(S.String).pipe($I.annoteKey("ActionCacheError.key", { description: "The cache key involved. A stable identifier, never a value." })),
 	/**
 	 * The HTTP status, when the backend answered.
 	 * @since 0.0.0
 	 */
-	status: S.optionalKey(S.Finite).annotateKey({ description: "The HTTP status, when the backend answered." }),
+	status: S.optionalKey(S.Finite).pipe($I.annoteKey("ActionCacheError.status", { description: "The HTTP status, when the backend answered." })),
 	/**
 	 * What went wrong, when the reason alone does not say.
 	 * @since 0.0.0
 	 */
-	detail: S.optionalKey(S.String).annotateKey({ description: "What went wrong, when the reason alone does not say." }),
+	detail: S.optionalKey(S.String).pipe($I.annoteKey("ActionCacheError.detail", { description: "What went wrong, when the reason alone does not say." })),
 	/**
 	 * `tar`'s own complaint, which is the only useful part of an archive failure.
 	 * @since 0.0.0
 	 */
-	stderr: S.optionalKey(S.String).annotateKey({ description: "`tar`'s own complaint, which is the only useful part of an archive failure." }),
+	stderr: S.optionalKey(S.String).pipe($I.annoteKey("ActionCacheError.stderr", { description: "`tar`'s own complaint, which is the only useful part of an archive failure." })),
 	/**
 	 * The underlying failure, preserved structurally.
 	 * @since 0.0.0
 	 */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("ActionCacheError", { description: "Raised when the runner's cache cannot be read or written." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("ActionCacheError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<ActionCacheError>("ActionCacheError", { description: "Raised when the runner's cache cannot be read or written." })) {
 	/**
 	 * Explains the failure reason with the available diagnostic fields.
 	 *
@@ -152,7 +153,10 @@ export interface ActionCacheShape {
 	 * another job having written it first is the outcome the caller wanted.
 	 * @since 0.0.0
 	 */
-	readonly save: (paths: ReadonlyArray<string>, key: string | CacheKey) => Effect.Effect<void, ActionCacheError>;
+	readonly save: {
+		(paths: ReadonlyArray<string>, key: string | CacheKey): Effect.Effect<void, ActionCacheError>;
+		(key: string | CacheKey): (paths: ReadonlyArray<string>) => Effect.Effect<void, ActionCacheError>;
+	};
 	/**
 	 * Restore `paths` from the first entry that matches, and answer with the key
 	 * that matched.
@@ -169,11 +173,10 @@ export interface ActionCacheShape {
 	 * and `actions/cache` likewise hashes the un-resolved list on both sides.
 	 * @since 0.0.0
 	 */
-	readonly restore: (
-		paths: ReadonlyArray<string>,
-		key: string | CacheKey,
-		restoreKeys?: ReadonlyArray<string>,
-	) => Effect.Effect<O.Option<string>, ActionCacheError>;
+	readonly restore: {
+		(paths: ReadonlyArray<string>, key: string | CacheKey, restoreKeys?: ReadonlyArray<string>): Effect.Effect<O.Option<string>, ActionCacheError>;
+		(key: string | CacheKey, restoreKeys?: ReadonlyArray<string>): (paths: ReadonlyArray<string>) => Effect.Effect<O.Option<string>, ActionCacheError>;
+	};
 }
 
 /**
@@ -196,7 +199,7 @@ export interface ActionCacheShape {
  * version the restore side cannot reproduce, and every save would be an entry
  * no restore ever finds.
  */
-const versionOf = (paths: ReadonlyArray<string>): string => sha256Hex([...paths, "gzip", "1.0"].join("|"));
+const versionOf = (paths: ReadonlyArray<string>): string => sha256Hex(A.join([...paths, "gzip", "1.0"], "|"));
 
 /**
  * The Azure half, duplicated on purpose.
@@ -210,7 +213,7 @@ const versionOf = (paths: ReadonlyArray<string>): string => sha256Hex([...paths,
  * measures that these are the only three.
  */
 const azure: FileBlobTransfer = {
-	uploadFile: (url, file) =>
+	uploadFile: dual(2, (url: string, file: string): Effect.Effect<void, BlobTransferError> =>
 		Effect.tryPromise({
 			try: () =>
 				new BlockBlobClient(url).uploadFile(file, {
@@ -222,21 +225,24 @@ const azure: FileBlobTransfer = {
 					maxSingleShotSize: 128 * 1024 * 1024,
 				}),
 			catch: (cause) => BlobTransferError.make({ reason: "uploadFailed", cause }),
-		}).pipe(Effect.asVoid),
-	downloadToFile: (url, file) =>
+		}).pipe(Effect.asVoid)),
+	downloadToFile: dual(2, (url: string, file: string): Effect.Effect<void, BlobTransferError> =>
 		Effect.tryPromise({
 			try: () => new BlobClient(url).downloadToFile(file),
 			catch: (cause) => BlobTransferError.make({ reason: "downloadFailed", cause }),
-		}).pipe(Effect.asVoid),
+		}).pipe(Effect.asVoid)),
 };
 
 /**
  * The primary key and the ladder to fall back through.
  */
-const ladder = (key: string | CacheKey, restoreKeys: ReadonlyArray<string> | undefined) =>
+const ladder: {
+	(key: string | CacheKey, restoreKeys: ReadonlyArray<string> | undefined): { readonly primary: string; readonly fallbacks: ReadonlyArray<string> };
+	(restoreKeys: ReadonlyArray<string> | undefined): (key: string | CacheKey) => { readonly primary: string; readonly fallbacks: ReadonlyArray<string> };
+} = dual(2, (key: string | CacheKey, restoreKeys: ReadonlyArray<string> | undefined): { readonly primary: string; readonly fallbacks: ReadonlyArray<string> } =>
 	P.isString(key)
 		? { primary: key, fallbacks: restoreKeys ?? [] }
-		: { primary: key.key, fallbacks: restoreKeys ?? key.restoreKeys };
+		: { primary: key.key, fallbacks: restoreKeys ?? key.restoreKeys });
 
 const make = Effect.fn("make")(function* (
 	transfer: FileBlobTransfer,
@@ -273,12 +279,12 @@ const make = Effect.fn("make")(function* (
 		 * The cache service, for one key: every failure names it.
 		 */
 		const cacheService = (key: string): CacheServiceClient<ActionCacheError> => ({
-			call: Effect.fn("call")(function*(method, body) {
+			call: dual(2, Effect.fn("call")(function*(method: string, body: Record<string, unknown>) {
 					const { baseUrl, token } = yield* backend;
 					return yield* twirpCall({ http, baseUrl, service: CACHE_SERVICE, token, method, body }).pipe(
 						Effect.mapError((failure) => ActionCacheError.make({ ...twirpFailureFields(failure), key })),
 					);
-				}),
+				})),
 			refused: (detail) => ActionCacheError.make({ reason: "refused", key, detail }),
 		});
 
@@ -296,20 +302,26 @@ const make = Effect.fn("make")(function* (
 		 * (`internal/spawn.ts` — the spawner's convenience members each spawn
 		 * independently, so reading both from them would run `tar` twice).
 		 */
-		const tar = Effect.fn("tar")(function*(args: ReadonlyArray<string>, key: string, tolerateWarnings: boolean) {
+		const tar: {
+			(args: ReadonlyArray<string>, key: string, tolerateWarnings: boolean): Effect.Effect<void, ActionCacheError>;
+			(key: string, tolerateWarnings: boolean): (args: ReadonlyArray<string>) => Effect.Effect<void, ActionCacheError>;
+		} = dual(3, Effect.fn("tar")(function*(args: ReadonlyArray<string>, key: string, tolerateWarnings: boolean) {
 				const { output, code } = yield* spawnOnce(spawner, ChildProcess.make("tar", [...args])).pipe(
 					Effect.mapError(archiveFailed(key)),
 				);
 				if (code !== 0 && !(tolerateWarnings && code === 1)) {
 					return yield* ActionCacheError.make({ reason: "archiveFailed", key, stderr: output.trim() });
 				}
-			});
+			}));
 
 		/**
 		 * A scratch archive path — plus the scratch directory itself, where the
 		 * save side writes its tar manifest — removed on every exit path.
 		 */
-		const withArchive = <A>(
+		const withArchive: {
+			<A>(key: string, use: (archive: string, scratch: string) => Effect.Effect<A, ActionCacheError>): Effect.Effect<A, ActionCacheError>;
+			<A>(use: (archive: string, scratch: string) => Effect.Effect<A, ActionCacheError>): (key: string) => Effect.Effect<A, ActionCacheError>;
+		} = dual(2, <A>(
 			key: string,
 			use: (archive: string, scratch: string) => Effect.Effect<A, ActionCacheError>,
 		): Effect.Effect<A, ActionCacheError> =>
@@ -317,7 +329,7 @@ const make = Effect.fn("make")(function* (
 				fs.makeTempDirectory({ prefix: "effected-cache-" }).pipe(Effect.mapError(archiveFailed(key))),
 				(directory) => use(path.join(directory, "cache.tar.gz"), directory),
 				(directory) => Effect.ignore(fs.remove(directory, { recursive: true, force: true })),
-			);
+			));
 
 		const moved = (key: string) =>
 			Effect.mapError((cause: BlobTransferError) => ActionCacheError.make({ reason: "transferFailed", key, cause }));
@@ -350,13 +362,16 @@ const make = Effect.fn("make")(function* (
 		 * difference), and the walk does not follow directory symlinks, where
 		 * the toolkit's globber does.
 		 */
-		const resolvePaths = Effect.fnUntraced(function* (
+		const resolvePaths: {
+			(patterns: ReadonlyArray<string>, key: string): Effect.Effect<ReadonlyArray<string>, ActionCacheError>;
+			(key: string): (patterns: ReadonlyArray<string>) => Effect.Effect<ReadonlyArray<string>, ActionCacheError>;
+		} = dual(2, Effect.fnUntraced(function* (
 			patterns: ReadonlyArray<string>,
 			key: string,
 		): Effect.fn.Return<ReadonlyArray<string>, ActionCacheError> {
 				const failed = (detail: string, cause?: unknown) =>
 					ActionCacheError.make({ reason: "archiveFailed", key, detail, ...O.getSomesStruct({ cause: O.fromUndefinedOr(cause) }) });
-				const cleaned = patterns.map((pattern) => pattern.trim()).filter((p) => p !== "" && !p.startsWith("#"));
+				const cleaned = pipe(patterns, A.map(Str.trim), A.filter((p) => p !== "" && !p.startsWith("#")));
 				// The toolkit roots relative patterns at the process working directory
 				// and relativizes matches against GITHUB_WORKSPACE; on a runner the two
 				// are the same directory, and the variable is the one a test controls.
@@ -401,14 +416,17 @@ const make = Effect.fn("make")(function* (
 				// the toolkit-parity descent for the ancestor that absorbed it.
 				const roots: Array<string> = [];
 				const wildcardRoots: Array<string> = [];
-				const addRoot = (root: string, fromWildcard: boolean) => {
+				const addRoot: {
+					(root: string, fromWildcard: boolean): void;
+					(fromWildcard: boolean): (root: string) => void;
+				} = dual(2, (root: string, fromWildcard: boolean): void => {
 					if (!roots.includes(root)) {
 						roots.push(root);
 					}
 					if (fromWildcard && !wildcardRoots.includes(root)) {
 						wildcardRoots.push(root);
 					}
-				};
+				});
 				for (const literal of set.literals) {
 					addRoot(literal, false);
 				}
@@ -418,10 +436,13 @@ const make = Effect.fn("make")(function* (
 					// Every include was rooted above, so its literal prefix contains at least "/".
 					addRoot(prefix === "/" ? "/" : prefix.slice(0, -1), true);
 				}
-				const under = (child: string, parent: string) =>
-					parent === "/" ? child !== "/" : child.startsWith(`${parent}/`);
-				const searchRoots = roots.filter((root) => !roots.some((other) => other !== root && under(root, other)));
-				const needsWalk = (root: string) => wildcardRoots.some((w) => w === root || under(w, root));
+				const under: {
+					(child: string, parent: string): boolean;
+					(parent: string): (child: string) => boolean;
+				} = dual(2, (child: string, parent: string): boolean =>
+					parent === "/" ? child !== "/" : child.startsWith(`${parent}/`));
+				const searchRoots = A.filter(roots, (root) => !A.some(roots, (other) => other !== root && under(root, other)));
+				const needsWalk = (root: string) => A.some(wildcardRoots, (w) => w === root || under(w, root));
 
 				const matched: Array<string> = [];
 				const seen = MutableHashSet.empty<string>();
@@ -455,7 +476,7 @@ const make = Effect.fn("make")(function* (
 					}
 				}
 				if (matched.length === 0) {
-					return yield* failed(`no file or directory matched the cache paths: ${cleaned.join(", ")}`);
+					return yield* failed(`no file or directory matched the cache paths: ${A.join(cleaned, ", ")}`);
 				}
 				// A line is one tar input. Reject every resolved name, including names
 				// later covered by a directory, before writing the manifest or spawning.
@@ -514,10 +535,10 @@ const make = Effect.fn("make")(function* (
 				}
 				// Keep the original resolution order among the surviving inputs.
 				return retained;
-			});
+			}));
 
 		return {
-			save: Effect.fn("ActionCache.save")(function* (paths: ReadonlyArray<string>, key: string | CacheKey) {
+			save: dual(2, Effect.fn("ActionCache.save")(function* (paths: ReadonlyArray<string>, key: string | CacheKey) {
 				const { primary } = ladder(key, undefined);
 				yield* Effect.annotateCurrentSpan({ key: primary });
 				if (paths.length === 0) {
@@ -563,9 +584,9 @@ const make = Effect.fn("make")(function* (
 						yield* finalizeUpload(service, primary, version, size.size);
 					}),
 				);
-			}),
+			})),
 
-			restore: Effect.fn("ActionCache.restore")(function* (
+			restore: dual((args) => A.isArray(args[0]), Effect.fn("ActionCache.restore")(function* (
 				paths: ReadonlyArray<string>,
 				key: string | CacheKey,
 				restoreKeys?: ReadonlyArray<string>,
@@ -585,7 +606,7 @@ const make = Effect.fn("make")(function* (
 				// key is a partial hit, and re-saving under the primary key is the
 				// whole point of knowing the difference.
 				return O.some(hit.value.matchedKey ?? primary);
-			}),
+			})),
 		} satisfies ActionCacheShape;
 	});
 
@@ -679,10 +700,11 @@ export class ActionCache extends Context.Service<ActionCache, ActionCacheShape>(
 	 * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
 	 * import * as Effect from "effect/Effect";
 	 * import * as Layer from "effect/Layer";
+	 * import { dual } from "effect/Function";
 	 *
 	 * const cacheLayer = ActionCache.layerWith({
-	 *   uploadFile: () => Effect.void,
-	 *   downloadToFile: () => Effect.void,
+	 *   uploadFile: dual(2, (_url: string, _file: string) => Effect.void),
+	 *   downloadToFile: dual(2, (_url: string, _file: string) => Effect.void),
 	 * });
 	 * console.log(Layer.isLayer(cacheLayer)) // true
 	 * ```
@@ -708,18 +730,29 @@ export class ActionCache extends Context.Service<ActionCache, ActionCacheShape>(
 	 *
 	 * ```ts
 	 * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
+	 * import * as A from "effect/Array";
 	 * import * as Effect from "effect/Effect";
+	 * import { dual } from "effect/Function";
 	 * import * as O from "effect/Option";
 	 *
-	 * const cache = ActionCache.makeTest({ restore: () => Effect.succeed(O.none()) });
+	 * const cache = ActionCache.makeTest({
+	 *   restore: dual(
+	 *     (args) => A.isArray(args[0]),
+	 *     (_paths: ReadonlyArray<string>, _key: unknown, _restoreKeys?: ReadonlyArray<string>) => Effect.succeed(O.none()),
+	 *   ),
+	 * });
 	 * console.log(O.isNone(Effect.runSync(cache.restore(["dist"], "build-v1")))) // true
 	 * ```
 	 * @category constructors
 	 * @since 0.0.0
 	 */
 	static readonly makeTest = (overrides: Partial<ActionCacheShape> = {}): ActionCacheShape => ({
-		save: () => dies("save"),
-		restore: () => dies("restore"),
+		save: dual(2, (_paths: ReadonlyArray<string>, _key: string | CacheKey): Effect.Effect<void, ActionCacheError> => dies("save")),
+		restore: dual(
+			(args) => A.isArray(args[0]),
+			(_paths: ReadonlyArray<string>, _key: string | CacheKey, _restoreKeys?: ReadonlyArray<string>): Effect.Effect<O.Option<string>, ActionCacheError> =>
+				dies("restore"),
+		),
 		...overrides,
 	});
 
@@ -730,11 +763,18 @@ export class ActionCache extends Context.Service<ActionCache, ActionCacheShape>(
 	 *
 	 * ```ts
 	 * import { ActionCache } from "@beep/scratchpad/effected/github-actions/ActionCache";
+	 * import * as A from "effect/Array";
 	 * import * as Effect from "effect/Effect";
+	 * import { dual } from "effect/Function";
 	 * import * as O from "effect/Option";
 	 *
 	 * const program = Effect.flatMap(ActionCache, (cache) => cache.restore(["dist"], "build-v1"));
-	 * const testLayer = ActionCache.layerTest({ restore: () => Effect.succeed(O.none()) });
+	 * const testLayer = ActionCache.layerTest({
+	 *   restore: dual(
+	 *     (args) => A.isArray(args[0]),
+	 *     (_paths: ReadonlyArray<string>, _key: unknown, _restoreKeys?: ReadonlyArray<string>) => Effect.succeed(O.none()),
+	 *   ),
+	 * });
 	 * console.log(O.isNone(Effect.runSync(Effect.provide(program, testLayer)))) // true
 	 * ```
 	 * @category layers

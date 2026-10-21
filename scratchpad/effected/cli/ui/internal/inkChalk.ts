@@ -1,3 +1,4 @@
+import * as Result from "effect/Result";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -61,11 +62,9 @@ const esmResolve: ((specifier: string) => string) | undefined =
  */
 export const resolveInkEntry = (resolve: ((specifier: string) => string) | undefined = esmResolve): string => {
 	if (resolve !== undefined) {
-		try {
-			return fileURLToPath(resolve("ink"));
-		} catch {
-			// Fall through to CommonJS resolution.
-		}
+		const entry = Result.try(() => fileURLToPath(resolve("ink")));
+		if (Result.isSuccess(entry)) return entry.success;
+		// Fall through to CommonJS resolution.
 	}
 	return createRequire(import.meta.url).resolve("ink");
 };

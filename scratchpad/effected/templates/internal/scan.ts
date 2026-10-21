@@ -40,7 +40,7 @@ const $I = $ScratchpadId.create("effected/templates/internal/scan");
  */
 export const ScanFailureReason = LiteralKit([
 	"unterminatedSection", "orphanedEnd", "overlappingSections", "duplicateSection",
-]).annotate($I.annote("ScanFailureReason", { description: "The ambiguities refused by the managed-section scanner." }));
+]).pipe($I.annoteSchema("ScanFailureReason", { description: "The ambiguities refused by the managed-section scanner." }));
 /**
  * The structural ambiguity reason validated by {@link ScanFailureReason}.
  *
@@ -81,10 +81,10 @@ export const SCAN_FAILURE_REASONS = ScanFailureReason.literals;
  * @since 0.0.0
  */
 export const ScanFailure = S.Struct({
-	reason: ScanFailureReason.annotateKey({ description: "The first structural ambiguity found." }),
-	line: S.Finite.annotateKey({ description: "The one-based line of the offending marker." }),
-	key: S.UndefinedOr(S.String).annotateKey({ description: "The section key, explicitly undefined when unknown." }),
-}).annotate($I.annote("ScanFailure", { description: "A plain scanner failure with its reason and marker location." }));
+	reason: ScanFailureReason.pipe($I.annoteKey("ScanFailure.reason", { description: "The first structural ambiguity found." })),
+	line: S.Finite.pipe($I.annoteKey("ScanFailure.line", { description: "The one-based line of the offending marker." })),
+	key: S.UndefinedOr(S.String).pipe($I.annoteKey("ScanFailure.key", { description: "The section key, explicitly undefined when unknown." })),
+}).pipe($I.annoteSchema("ScanFailure", { description: "A plain scanner failure with its reason and marker location." }));
 /**
  * The failure reason, one-based marker line and explicit key validated by {@link ScanFailure}.
  *
@@ -110,14 +110,14 @@ export type ScanFailure = typeof ScanFailure.Type;
  */
 export const ScanResult = S.Union([
 	S.Struct({
-		ok: S.Literal(true).annotateKey({ description: "The scan succeeded." }),
-		sections: S.Array(S.suspend(() => PlacedSection)).annotateKey({ description: "Located sections in source order." }),
+		ok: S.Literal(true).pipe($I.annoteKey("ScanResult.ok", { description: "The scan succeeded." })),
+		sections: S.Array(S.suspend(() => PlacedSection)).pipe($I.annoteKey("ScanResult.sections", { description: "Located sections in source order." })),
 	}),
 	S.Struct({
-		ok: S.Literal(false).annotateKey({ description: "The scan failed." }),
-		failure: ScanFailure.annotateKey({ description: "The first structural failure." }),
+		ok: S.Literal(false).pipe($I.annoteKey("ScanResult.ok", { description: "The scan failed." })),
+		failure: ScanFailure.pipe($I.annoteKey("ScanResult.failure", { description: "The first structural failure." })),
 	}),
-]).annotate($I.annote("ScanResult", { description: "Either located sections or the first ambiguity, in plain-object form." }));
+]).pipe($I.annoteSchema("ScanResult", { description: "Either located sections or the first ambiguity, in plain-object form." }));
 /**
  * The success or failure shape validated by {@link ScanResult}.
  *
@@ -189,7 +189,10 @@ const lineStarts = (text: string): ReadonlyArray<number> => {
 	return starts;
 };
 
-const lineAt = (starts: ReadonlyArray<number>, offset: number): number => {
+const lineAt: {
+	(starts: ReadonlyArray<number>, offset: number): number;
+	(offset: number): (starts: ReadonlyArray<number>) => number;
+} = dual(2, (starts: ReadonlyArray<number>, offset: number): number => {
 	let low = 0;
 	let high = starts.length - 1;
 	while (low < high) {
@@ -201,7 +204,7 @@ const lineAt = (starts: ReadonlyArray<number>, offset: number): number => {
 		}
 	}
 	return low + 1;
-};
+});
 
 /** A raw marker hit, before any structural interpretation. */
 interface MarkerHit {
@@ -239,7 +242,10 @@ export const identityOf: {
 	(style: CommentStyle): (key: string) => string;
 } = dual(2, (key: string, style: CommentStyle): string => `${key}\u0000${style.id}`);
 
-const collectHits = (text: string, dialect: SectionDialect): ReadonlyArray<MarkerHit> => {
+const collectHits: {
+	(text: string, dialect: SectionDialect): ReadonlyArray<MarkerHit>;
+	(dialect: SectionDialect): (text: string) => ReadonlyArray<MarkerHit>;
+} = dual(2, (text: string, dialect: SectionDialect): ReadonlyArray<MarkerHit> => {
 	const hits: Array<MarkerHit> = [];
 	const seen = MutableHashSet.empty<number>();
 	for (const [style, match, attributes] of dialect.markerMatches(text)) {
@@ -258,7 +264,7 @@ const collectHits = (text: string, dialect: SectionDialect): ReadonlyArray<Marke
 		});
 	}
 	return A.sort(hits, Order.mapInput(Order.Number, (hit: MarkerHit) => hit.start));
-};
+});
 
 /**
  * Locate every managed section, in document order.

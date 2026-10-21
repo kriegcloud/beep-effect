@@ -1,8 +1,10 @@
 import {
   AutomaticRemediation,
+  CapabilityChoice,
   CheckBlocked,
   CheckProbed,
   HumanRemediation,
+  ItLimits,
   PendingHumanStep,
   ProbeMissing,
   ProbeSatisfied,
@@ -17,13 +19,33 @@ import {
   summarizeReport,
 } from "@beep/practice-gateway/SetupTools";
 import { describe, expect, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
+const ChoicesJson = CapabilityChoice.pipe(S.NonEmptyArray, S.fromJsonString);
+const ItLimitsJson = S.fromJsonString(ItLimits);
+
 const id = SetupRequirementId.make;
 
 describe("setup tools", () => {
+  it.effect.prop(
+    "round-trips generated profile choices and IT limits sent as JSON strings",
+    { choices: ChoicesJson, itLimits: ItLimitsJson },
+    ({ choices, itLimits }) =>
+      Effect.gen(function* () {
+        const decoded = yield* S.decodeEffect(SetupProfileSaveInput)({
+          choices: yield* S.encodeEffect(ChoicesJson)(choices),
+          itLimits: yield* S.encodeEffect(ItLimitsJson)(itLimits),
+          recordedAt: 0,
+        });
+        assertTrue(S.toEquivalence(ChoicesJson)(decoded.choices, choices));
+        assertTrue(S.toEquivalence(ItLimitsJson)(decoded.itLimits, itLimits));
+      })
+  );
+
   it("serves exactly the five designed tools", () => {
     expect(R.keys(SetupToolkit.tools)).toEqual([
       "setup_onboarding_guide",
@@ -53,12 +75,15 @@ describe("setup tools", () => {
       complete: false,
     });
     expect(summarizeReport(report, requirements)).toBe(
-      [
-        "1 of 4 checks pass.",
-        "You need to: Open Claude and sign in.",
-        `I can do this for you once you approve it: ${AutomaticRemediation.make({ summary: "Install Box Drive for your Windows account." }).summary}`,
-        "1 more checks wait on the steps above.",
-      ].join("\n")
+      A.join(
+        [
+          "1 of 4 checks pass.",
+          "You need to: Open Claude and sign in.",
+          `I can do this for you once you approve it: ${AutomaticRemediation.make({ summary: "Install Box Drive for your Windows account." }).summary}`,
+          "1 more checks wait on the steps above.",
+        ],
+        "\n"
+      )
     );
   });
 
@@ -77,7 +102,7 @@ describe("setup tools", () => {
       humanSteps: [],
       complete: false,
     });
-    expect(repairableRequirements(report, requirements).map((requirement) => requirement.id)).toEqual([
+    expect(A.map(repairableRequirements(report, requirements), (requirement) => requirement.id)).toEqual([
       "m365-consented",
     ]);
   });
@@ -98,12 +123,12 @@ describe("setup tools", () => {
       };
       const fromPlain = yield* decode(plain);
       const fromStrings = yield* decode({
-        choices: '[{"kind":"supported","capability":"mail-calendar","provider":"microsoft-365"}]',
-        itLimits: '{"adminRights":"available","proxy":"none"}',
+        choices: yield* S.encodeEffect(ChoicesJson)(fromPlain.choices),
+        itLimits: yield* S.encodeEffect(ItLimitsJson)(fromPlain.itLimits),
         recordedAt: "1760000000000",
       });
       expect(fromStrings.itLimits.adminRights).toBe("available");
-      expect(fromStrings.choices.map((choice) => choice.kind)).toEqual(["supported"]);
+      expect(A.map(fromStrings.choices, (choice) => choice.kind)).toEqual(["supported"]);
       expect(fromPlain.recordedAt).toEqual(fromStrings.recordedAt);
     })
   );

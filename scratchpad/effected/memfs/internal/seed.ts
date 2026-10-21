@@ -8,10 +8,11 @@ import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { badArgument } from "effect/PlatformError";
+import { badArgument, type PlatformError } from "effect/PlatformError";
 import { type MemoryFileSystemOptions, MemoryFileSystemSeed, type MemoryFileSystemSeedEntry } from "../MemoryFileSystem.ts";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as A from "effect/Array";
 
 const $I = $ScratchpadId.create("effected/memfs/internal/seed");
 
@@ -39,7 +40,10 @@ const encoder = new TextEncoder();
  * @category utilities
  * @since 0.0.0
  */
-export const seedVolume = Effect.fnUntraced(function* (fs: FileSystem.FileSystem, seed: MemoryFileSystemSeed) {
+export const seedVolume: {
+	(fs: FileSystem.FileSystem, seed: MemoryFileSystemSeed): Effect.Effect<void, PlatformError>;
+	(seed: MemoryFileSystemSeed): (fs: FileSystem.FileSystem) => Effect.Effect<void, PlatformError>;
+} = dual(2, Effect.fnUntraced(function* (fs: FileSystem.FileSystem, seed: MemoryFileSystemSeed) {
 	for (const [path, entry] of R.toEntries(seed)) {
 		const separator = path.lastIndexOf("/");
 		const parent = separator <= 0 ? "/" : path.slice(0, separator);
@@ -81,7 +85,7 @@ export const seedVolume = Effect.fnUntraced(function* (fs: FileSystem.FileSystem
 			MemoryFileSystemSeedSymlink: (entry) => fs.symlink(entry.target, path),
 		});
 	}
-});
+}));
 
 // Lexical-only normalization shared by the seed root and the inspection view:
 // collapses "//" and ".", applies "..", resolves relative paths from the
@@ -119,7 +123,7 @@ export const normalizeAbsolute = (path: string): string => {
 		}
 		segments.push(segment);
 	}
-	return `/${segments.join("/")}`;
+	return `/${A.join(segments, "/")}`;
 };
 
 /**
@@ -254,7 +258,10 @@ export const applyRoot: {
  * @category utilities
  * @since 0.0.0
  */
-export const seedWith = Effect.fnUntraced(function* (
+export const seedWith: {
+	(fs: FileSystem.FileSystem, seed: MemoryFileSystemSeed, options: MemoryFileSystemOptions | undefined): Effect.Effect<undefined, PlatformError>;
+	(seed: MemoryFileSystemSeed, options: MemoryFileSystemOptions | undefined): (fs: FileSystem.FileSystem) => Effect.Effect<undefined, PlatformError>;
+} = dual(3, Effect.fnUntraced(function* (
 	fs: FileSystem.FileSystem,
 	seed: MemoryFileSystemSeed,
 	options: MemoryFileSystemOptions | undefined,
@@ -267,4 +274,4 @@ export const seedWith = Effect.fnUntraced(function* (
 		yield* fs.makeDirectory(applied.success.root, { recursive: true });
 	}
 	yield* seedVolume(fs, applied.success.seed);
-});
+}));

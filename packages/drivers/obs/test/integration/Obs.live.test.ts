@@ -6,12 +6,13 @@ import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Socket from "effect/socket/Socket";
+import type { TestContext } from "@effect/vitest";
 
 const OBS_WEBSOCKET_URL = "ws://127.0.0.1:4455";
 
-// Collection is a separate runtime boundary: the named test's watchdog cannot
-// bound this availability check. Only transport absence/timeouts skip the case;
-// constructor, listener and cleanup defects still fail collection.
+// Probe availability inside the instrumented test before acquiring its live
+// connection. Only transport absence/timeouts skip the case; constructor,
+// listener and cleanup defects still fail the test.
 const probeObsWebSocket = Effect.callback<boolean>((resume) => {
   const ws = new WebSocket(OBS_WEBSOCKET_URL, "obswebsocket.json");
   const cleanup = () => {
@@ -45,8 +46,6 @@ const probeObsWebSocket = Effect.callback<boolean>((resume) => {
   Effect.withSpan("Obs.live.availability")
 );
 
-const obsAvailable = await Effect.runPromise(probeObsWebSocket);
-
 const LiveObsLayer = Layer.unwrap(
   Effect.gen(function* () {
     const password = yield* Config.option(Config.Redacted("OBS_WEBSOCKET_PASSWORD"));
@@ -57,24 +56,32 @@ const LiveObsLayer = Layer.unwrap(
   })
 );
 
-describe.skipIf(!obsAvailable)("Obs live integration", () => {
+describe("Obs live integration", () => {
   // This is a real external service: exclude TestClock/TestConsole while keeping
   // the instrumented layer-owned connection and the original body timeout.
-  it.layer(LiveObsLayer, { excludeTestServices: true, timeout: "30 seconds" })((liveIt) => {
+  it.layer(Layer.empty, { excludeTestServices: true, timeout: "30 seconds" })((liveIt) => {
     liveIt.effect(
       "connects to the live obs-websocket, verifies the version, and reads record status",
-      Effect.fnUntraced(function* () {
-        const obs = yield* Obs;
-        yield* Effect.log("OBS live phase: verify connected server version");
-        const running = yield* obs.ensureRunning;
-        expect(running.spawned).toBe(false);
-        expect(Str.isNonEmpty(running.obsVersion)).toBe(true);
-        expect(Str.isNonEmpty(running.obsWebSocketVersion)).toBe(true);
+      Effect.fnUntraced(function* (ctx: TestContext) {
+        if (!(yield* probeObsWebSocket)) ctx.skip();
+        const body = Effect.gen(function* () {
+          const obs = yield* Obs;
+          yield* Effect.log("OBS live phase: verify connected server version");
+          const running = yield* obs.ensureRunning;
+          expect(running.spawned).toBe(false);
+          expect(Str.isNonEmpty(running.obsVersion)).toBe(true);
+          expect(Str.isNonEmpty(running.obsWebSocketVersion)).toBe(true);
 
-        yield* Effect.log("OBS live phase: read recording status");
-        const status = yield* obs.recordStatus;
-        expect(P.isBoolean(status.outputActive)).toBe(true);
-        expect(P.isBoolean(status.outputPaused)).toBe(true);
+          yield* Effect.log("OBS live phase: read recording status");
+          const status = yield* obs.recordStatus;
+          expect(P.isBoolean(status.outputActive)).toBe(true);
+          expect(P.isBoolean(status.outputPaused)).toBe(true);
+        });
+        yield* LiveObsLayer.pipe(
+          Layer.build,
+          Effect.flatMap((context) => Effect.provideContext(body, context)),
+          Effect.scoped
+        );
       }),
       30_000
     );

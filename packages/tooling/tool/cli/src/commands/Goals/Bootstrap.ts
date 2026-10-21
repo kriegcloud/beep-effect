@@ -326,8 +326,10 @@ irreversible change (a tested down-migration, a backup of deleted state) before
 the change merges, and ship a breaking public API or schema change with a major
 changeset. Escalate only what AGENTS.md "Autonomy" lists.
 
-Done only when the goal reaches \`completed-retained\` (acceptance passes,
-verification is complete, closeout and reflection landed), or when a blocker
+Ship proposedCloseout and the reflection in the final implementation PR while
+initiative.status stays active or paused. A proposal never reports achievement.
+Done only when exact-head hosted readiness and merge evidence verify the proposal
+through \`bun run beep goals completion refresh --slug <slug>\`, or when a blocker
 that needs the operator is reported with file/command evidence.
 `;
 
@@ -423,7 +425,9 @@ Before marking the packet closed:
    validate against \`ReflectionFrontmatter\`.
 2. Run \`bun run beep lint reflection-artifacts\`.
 3. Update \`README.md\` (status, latest evidence) and \`ops/manifest.json\` phase
-   statuses + \`initiative.status\`.
+   statuses and a typed \`proposedCloseout\` with status \`completed-retained\`
+   and finalPullRequest. Keep \`initiative.status\` operative until completion
+   evidence verifies; do not close the external execution/session ledger from a proposal.
 
 ## Execution Notes
 

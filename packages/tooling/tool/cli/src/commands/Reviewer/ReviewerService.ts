@@ -284,7 +284,7 @@ export const ReviewerLive = Layer.effect(
               run.external_id === association
           );
           if (O.isSome(existing)) return existing.value.id;
-          if (page * 100 >= runs.total_count) break;
+          if (A.isReadonlyArrayEmpty(runs.check_runs) || page * 100 >= runs.total_count) break;
           page += 1;
         }
         return (yield* request("POST", "/check-runs", {
@@ -327,7 +327,8 @@ export const ReviewerLive = Layer.effect(
     );
     const cancel = Effect.fn("Reviewer.cancel")(
       function* (id: number, reason: string) {
-        yield* owned(id);
+        const check = yield* owned(id);
+        if (check.status !== "in_progress") return yield* error("Check is no longer active.");
         yield* request("PATCH", `/check-runs/${id}`, {
           status: "completed",
           conclusion: "cancelled",

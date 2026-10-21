@@ -2,7 +2,7 @@
 // `makeFaulty`, `layerFaulty` and `options.faults`: handlers run first, and a
 // handler answering `undefined` delegates to the wrapped filesystem.
 
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as A from "effect/Array";
@@ -72,12 +72,12 @@ export const assertKnownFaultKeys: {
  (faults: object, target: object, subject: string): void;
 } = dual(3, (faults: object, target: object, subject: string): void => {
 	const members = HashSet.fromIterable(
-		R.keys(target).filter((key) => P.hasProperty(target, key) && P.isFunction(target[key])),
+		A.filter(R.keys(target), (key) => P.hasProperty(target, key) && P.isFunction(target[key])),
 	);
-	const unknown = R.keys(faults).filter((key) => !HashSet.has(members, key));
+	const unknown = A.filter(R.keys(faults), (key) => !HashSet.has(members, key));
 	if (unknown.length > 0) {
 		throw UnknownFaultKeyError.make({
-			message: `${subject}: unknown fault key(s) ${unknown.map((key) => `"${key}"`).join(", ")}; expected one of ${A.sort(members, Order.String).join(", ")}`,
+			message: `${subject}: unknown fault key(s) ${pipe(unknown, A.map((key) => `"${key}"`), A.join(", "))}; expected one of ${pipe(A.sort(members, Order.String), A.join(", "))}`,
 		});
 	}
 });
@@ -119,7 +119,12 @@ export const wrapFaulty: {
 	assertKnownFaultKeys(faults, base, "MemoryFileSystem faults");
 	// Each wrapper keeps its method's arguments, success and environment types.
 	// Transient state is armed once here, then consulted on every execution.
-	const intercept = <Args extends ReadonlyArray<unknown>, Value, Requirements>(
+	const intercept: {
+	<Args extends ReadonlyArray<unknown>, Value, Requirements>(target: (...args: Args) => Effect.Effect<Value, PlatformError.PlatformError, Requirements>, fault: ((...args: Args) => Effect.Effect<Value, PlatformError.PlatformError, Requirements> | undefined)
+			| MemoryFileSystemTransientFault | undefined): ((...args: Args) => Effect.Effect<Value, PlatformError.PlatformError, Requirements>);
+	<Args extends ReadonlyArray<unknown>, Value, Requirements>(fault: ((...args: Args) => Effect.Effect<Value, PlatformError.PlatformError, Requirements> | undefined)
+			| MemoryFileSystemTransientFault | undefined): (target: (...args: Args) => Effect.Effect<Value, PlatformError.PlatformError, Requirements>) => ((...args: Args) => Effect.Effect<Value, PlatformError.PlatformError, Requirements>);
+} = dual(2, <Args extends ReadonlyArray<unknown>, Value, Requirements>(
 		target: (...args: Args) => Effect.Effect<Value, PlatformError.PlatformError, Requirements>,
 		fault: ((...args: Args) => Effect.Effect<Value, PlatformError.PlatformError, Requirements> | undefined)
 			| MemoryFileSystemTransientFault | undefined,
@@ -132,12 +137,15 @@ export const wrapFaulty: {
 			remaining -= 1;
 			return Effect.fail(fault.error);
 		});
-	};
+	});
 	// Streams and sinks carry their own laziness; consult these handlers at call time.
-	const interceptLazy = <Args extends ReadonlyArray<unknown>, Value>(
+	const interceptLazy: {
+	<Args extends ReadonlyArray<unknown>, Value>(target: (...args: Args) => Value, fault: ((...args: Args) => Value | undefined) | undefined): ((...args: Args) => Value);
+	<Args extends ReadonlyArray<unknown>, Value>(fault: ((...args: Args) => Value | undefined) | undefined): (target: (...args: Args) => Value) => ((...args: Args) => Value);
+} = dual(2, <Args extends ReadonlyArray<unknown>, Value>(
 		target: (...args: Args) => Value,
 		fault: ((...args: Args) => Value | undefined) | undefined,
-	): ((...args: Args) => Value) => fault === undefined ? target : (...args) => fault(...args) ?? target(...args);
+	): ((...args: Args) => Value) => fault === undefined ? target : (...args) => fault(...args) ?? target(...args));
 	// Rebuilding through FileSystem.make re-derives `exists`, `readFileString`,
 	// `writeFileString`, `stream` and `sink` from the intercepted core methods,
 	// so a fault registered on e.g. `readFile` or `open` propagates coherently

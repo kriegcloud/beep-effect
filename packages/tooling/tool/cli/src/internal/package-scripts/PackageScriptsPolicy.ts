@@ -189,6 +189,21 @@ const taskDrift = (
     : [{ _tag: "wrong-binding", name, expected: after.value, actual: before.value }];
 };
 
+// A `beep:build` that only type-checks (`tsc-rs -p tsconfig.check.json`) writes nothing
+// to disk, so the workspace must override the root `build.outputs` with `[]` in its own
+// `turbo.json`; otherwise Turbo warns "no output files found" on every root build.
+// `bun run beep create-package` emits that override for service apps.
+const NOEMIT_BUILD_CONFIG = "tsconfig.check.json";
+const NOEMIT_BUILD_REASON =
+  "noEmit build needs turbo.json with tasks.build.outputs: [] (bun run beep create-package emits it)";
+const decodeTurboBuildOutputs = S.decodeUnknownOption(
+  S.fromJsonString(S.Struct({ tasks: S.Struct({ build: S.Struct({ outputs: S.Array(S.String) }) }) }))
+);
+const declaresEmptyBuildOutputs = (text: string): boolean =>
+  O.exists(decodeTurboBuildOutputs(text), (turbo) => A.isReadonlyArrayEmpty(turbo.tasks.build.outputs));
+const isNoEmitBuild = (actual: ScriptsBlock): boolean =>
+  O.exists(HashMap.get(actual.impls, "beep:build"), Str.includes(NOEMIT_BUILD_CONFIG));
+
 const derivationConflicts = (evidence: DerivationEvidence, manifestPath: string, expected: ScriptsBlock) => {
   const conflicts: Array<PackageScriptsDrift> = [];
   if (HashSet.has(evidence.bypassingConfigs, manifestPath))
@@ -324,7 +339,6 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
         const manifestPath = `${path.relative(repoRoot, dir)}/package.json`;
         const kind = kindForDirectory(path.relative(repoRoot, dir));
         if (PackageKind.is.exempt(kind)) return { manifestPath, rows: [], implDrift: [], written: false };
-        let didWrite = false;
         const file = path.join(dir, "package.json");
         const text = yield* fs.readFileString(file);
         const manifest = yield* decodeManifest(text);
@@ -336,17 +350,24 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
           generators: HashSet.filter(evidence.generators, (entry) => entry === manifestPath),
         });
         const expected = expectedBlock(kind, actual, local);
-        const conflicts = derivationConflicts(evidence, manifestPath, expected);
-        if (write && A.isReadonlyArrayNonEmpty(diffBlock(actual, expected))) {
-          const scripts = yield* codec.encode(expected);
-          const rendered = `${yield* jsonStringifyPretty({ ...manifest, scripts })}\n`;
-          if (rendered !== text) {
-            yield* fs.writeFileString(file, rendered);
-            didWrite = true;
-          }
-        }
-        const rows = [...diffBlock(write ? expected : actual, expected), ...conflicts];
-        return { manifestPath, rows, implDrift: implementationDrift(write ? expected : actual), written: didWrite };
+        const turboFile = path.join(dir, "turbo.json");
+        const turboText = (yield* fs.exists(turboFile)) ? yield* fs.readFileString(turboFile) : "";
+        const buildConflicts: ReadonlyArray<PackageScriptsDrift> =
+          isNoEmitBuild(actual) && !declaresEmptyBuildOutputs(turboText)
+            ? [{ _tag: "derivation-conflict", name: "build", reason: NOEMIT_BUILD_REASON }]
+            : [];
+        const conflicts = [...derivationConflicts(evidence, manifestPath, expected), ...buildConflicts];
+        const rendered =
+          write && A.isReadonlyArrayNonEmpty(diffBlock(actual, expected))
+            ? `${yield* codec
+                .encode(expected)
+                .pipe(Effect.flatMap((scripts) => jsonStringifyPretty({ ...manifest, scripts })))}\n`
+            : text;
+        const didWrite = rendered !== text;
+        if (didWrite) yield* fs.writeFileString(file, rendered);
+        const effective = write ? expected : actual;
+        const rows = [...diffBlock(effective, expected), ...conflicts];
+        return { manifestPath, rows, implDrift: implementationDrift(effective), written: didWrite };
       });
       const run = Effect.fn("PackageScriptsPolicy.run")(
         function* (repoRoot: string, write: boolean) {

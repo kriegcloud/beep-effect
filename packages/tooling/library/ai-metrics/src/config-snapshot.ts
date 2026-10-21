@@ -16,7 +16,8 @@ import { flow, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Random from "effect/Random";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
@@ -871,9 +872,7 @@ const enumerateSnapshotPaths = Effect.fn("AiMetrics.enumerateConfigSnapshotPaths
     // A `File` the filter rejects falls through to the directory guard below, which
     // returns for any non-`Directory` type — the same early exit the collected branch takes.
     if (info.value.type === "File" && includeFile(pathApi.basename(currentPath))) {
-      return yield* Ref.update(pathsRef, (paths) =>
-        A.contains(paths, currentPath) ? paths : A.append(paths, currentPath)
-      );
+      return yield* Ref.update(pathsRef, A.append(currentPath));
     }
 
     if (info.value.type !== "Directory") {

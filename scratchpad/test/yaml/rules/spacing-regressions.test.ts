@@ -4,11 +4,13 @@ import * as A from "effect/Array";
 import { Yaml, YamlLint, YamlLintConfig } from "../../../effected/yaml/index.ts";
 import type { YamlRule } from "../../../effected/yaml/YamlLintRule.ts";
 import { builtin } from "./harness.ts";
+import { dual } from "effect/Function";
+import type { LintContext, YamlLintDiagnostic } from "../../../effected/yaml/YamlLintRule.ts";
 
 // The wrapper passes unknown options straight to the rule's check, bypassing
 // config validation while retaining the engine's real token/document context.
 const directCheck = (text: string, rule: YamlRule, options: unknown) =>
-	YamlLint.run(text, [{ id: rule.id, check: (ctx) => rule.check(ctx, options) }],
+	YamlLint.run(text, [{ id: rule.id, check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => rule.check(ctx, options)) }],
 		YamlLintConfig.make({ rules: { [rule.id]: "error" } }));
 
 describe("comment spacing at a leading BOM", () => {

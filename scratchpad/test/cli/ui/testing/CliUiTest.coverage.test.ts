@@ -10,6 +10,9 @@ import * as Deferred from "effect/Deferred";
 import * as Clock from "effect/Clock";
 import * as Duration from "effect/Duration";
 import { CliUi } from "../../../../effected/cli/ui/CliUi.ts";
+import type { CliUiRunOptions, Screen } from "../../../../effected/cli/ui/CliUi.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import { TextInput } from "../../../../effected/cli/ui/TextInput.ts";
 import { Text } from "ink";
 import { UiRenderOptions } from "../../../../effected/cli/ui/internal/renderOptions.ts";
@@ -140,13 +143,13 @@ it.effect("rerender observes an unmount before the run records its exit", () => 
   const ending = yield* Deferred.make<void>();
   let resolveElement: ((element: ReactElement) => void) | undefined;
   const original = CliUi.run;
-  const run = vi.spyOn(CliUi, "run").mockImplementation((screen, options) => original(screen, options).pipe(
+  const run = vi.spyOn(CliUi, "run").mockImplementation(dual((args) => P.isFunction(args[0]), (screen: Screen<unknown>, options?: CliUiRunOptions) => original(screen, options).pipe(
     Effect.onExit(() => Effect.gen(function* () {
       resolveElement?.(createElement(Text, null, "late"));
       yield* Deferred.succeed(ending, undefined);
       yield* Deferred.await(released);
     })),
-  ));
+  )));
   try {
     const handle = yield* CliUiTest.render<string>(() => createElement(Text, null, "ready"));
     yield* Effect.forkScoped(ending.pipe(Deferred.await,
@@ -154,10 +157,12 @@ it.effect("rerender observes an unmount before the run records its exit", () => 
       Effect.andThen(Deferred.succeed(released, undefined)),
     ));
     const result = yield* Effect.exit(handle.rerender((control) => {
-      const pending = Promise.withResolvers<ReactElement>();
-      resolveElement = pending.resolve;
+      const pending = Deferred.makeUnsafe<ReactElement>();
+      resolveElement = (element) => {
+        Deferred.doneUnsafe(pending, Effect.succeed(element));
+      };
       control.resolve("done");
-      return pending.promise;
+      return Deferred.await(pending);
     }));
     assert.include(Cause.pretty(Exit.isFailure(result) ? result.cause : Cause.empty), "rerender after the screen ended");
     assert.strictEqual(yield* handle.result, "done");

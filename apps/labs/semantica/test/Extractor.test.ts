@@ -1,3 +1,4 @@
+import { ModelIdentity } from "@/schema/Model";
 // @vitest-environment node
 
 import {
@@ -24,7 +25,7 @@ import { F1FixtureId } from "@/fixtures/F1";
 import { CanonicalizerLive } from "@/layers/CanonicalizerLive";
 import { ChunkerLive } from "@/layers/ChunkerLive";
 import { HostedExtractorLive, PatternExtractorLive } from "@/layers/ExtractorLive";
-import { ActiveModelIdentityLive, AnthropicExtractionModelIdentity } from "@/layers/LanguageModelLive";
+import { ActiveModelIdentityLive } from "@/layers/LanguageModelLive";
 import { FixtureDeclaration, Origin, SourceDocument } from "@/schema/Document";
 import { ClaimBody, FrozenRelationPredicate, RelationExtractionCandidate } from "@/schema/Evidence";
 import { DocumentId, ProvenanceEventId } from "@/schema/Ids";
@@ -56,12 +57,13 @@ const document = SourceDocument.make({
   sha256: documentId,
 });
 
-const model = Effect.runSync(
-  AnthropicExtractionModelIdentity({
-    artifactHash: Sha256Hex.make("3".repeat(64)),
-    model: "stub-extractor-20260826",
-  })
-);
+const model = ModelIdentity.make({
+  artifactHash: Sha256Hex.make("3".repeat(64)),
+  name: "stub-extractor-20260826",
+  provider: "anthropic",
+  revision: "stub-extractor-20260826",
+  taskType: "extraction",
+});
 
 const canonicalizerLayer = CanonicalizerLive.pipe(Layer.provide(BunCrypto.layer));
 const chunkerLayer = ChunkerLive.pipe(Layer.provide(canonicalizerLayer), Layer.provide(BunCrypto.layer));

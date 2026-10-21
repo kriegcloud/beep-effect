@@ -1,3 +1,6 @@
+import { dual } from "effect/Function";
+import * as A from "effect/Array";
+import * as Result from "effect/Result";
 // The public surface over the vendored engine (see internal/volume.ts for the
 // port header): the public types and the MemoryFileSystem class. The machinery
 // lives in internal/ — seeding (seed.ts), the inspection view (view.ts), the
@@ -182,6 +185,10 @@ export interface MemoryFileSystemVolume {
   */
 	readonly lstat: (path: string) => MemoryFileSystemVolumeStat | undefined;
 }
+
+// Tells a volume subject apart from the optional port options in the dual
+// port constructors.
+const isVolume = (u: unknown): u is MemoryFileSystemVolume => P.hasProperty(u, "snapshot") && P.hasProperty(u, "paths");
 
 /**
  * The answer of {@link MemoryFileSystemVolume.lstat}.
@@ -476,7 +483,10 @@ export interface MemoryFileSystemHandle {
 	 * Writes `content` at `path`, creating a missing parent. A relative `path`
 	 * joins {@link MemoryFileSystemHandle.root} (or `/` without one).
 	 */
-	readonly write: (path: string, content: string | Uint8Array) => void;
+	readonly write: {
+		(path: string, content: string | Uint8Array): void;
+		(content: string | Uint8Array): (path: string) => void;
+	};
 	/** Creates the directory at `path` (recursively); a relative `path` joins the root. */
 	readonly mkdir: (path: string) => void;
 	/** Removes `path` (recursively); a relative `path` joins the root. */
@@ -485,7 +495,10 @@ export interface MemoryFileSystemHandle {
 	 * Creates a symbolic link at `path` pointing at `target`, creating a missing
 	 * parent. A relative `path` joins the root; `target` is stored verbatim.
 	 */
-	readonly symlink: (target: string, path: string) => void;
+	readonly symlink: {
+		(target: string, path: string): void;
+		(path: string): (target: string) => void;
+	};
 }
 
 /**
@@ -863,10 +876,10 @@ const handleContext = ({
 // beneath any faults), view, then the optional fault wrapper over the service.
 // The mutators and ports use the RAW filesystem and view — they are setup and
 // inspection, not the code under test.
-const buildHandle: (
-	seed: MemoryFileSystemSeed,
-	options: MemoryFileSystemOptions | undefined,
-) => Effect.Effect<MemoryFileSystemHandle, PlatformError.PlatformError> = Effect.fn("buildHandle")(function* (seed, options) {
+const buildHandle: {
+	(seed: MemoryFileSystemSeed, options: MemoryFileSystemOptions | undefined): Effect.Effect<MemoryFileSystemHandle, PlatformError.PlatformError>;
+	(options: MemoryFileSystemOptions | undefined): (seed: MemoryFileSystemSeed) => Effect.Effect<MemoryFileSystemHandle, PlatformError.PlatformError>;
+} = dual(2, Effect.fn("buildHandle")(function* (seed: MemoryFileSystemSeed, options: MemoryFileSystemOptions | undefined) {
 	const engine = yield* internal.makeInspectableWith(engineOptions(options));
 	const raw = engine.fileSystem;
 	yield* seedWith(raw, seed, options);
@@ -892,14 +905,7 @@ const buildHandle: (
 	// dangling or looping link AS the parent is therefore present, so the
 	// write itself fails ENOENT / ELOOP, as `writeFileSync` does — never a
 	// mkdir over the link (EEXIST).
-	const present = (path: string) => {
-		try {
-			sync.lstat(path);
-			return true;
-		} catch {
-			return false;
-		}
-	};
+	const present = (path: string) => Result.isSuccess(Result.try(() => sync.lstat(path)));
 	// errno fidelity: a recursive mkdir fails with an errno only when some component blocks
 	// it — a non-directory, or a dangling or looping link HIGHER up (which
 	// makes `lstat` of the parent fail too). The call that follows walks
@@ -930,7 +936,7 @@ const buildHandle: (
 				if (!(S.is(ErrnoException)(cause)) || cause.code !== "ENOTDIR") return error;
 				const pieces = path.split("/");
 				for (let index = 1; index < pieces.length; index++) {
-					const prefix = pieces.slice(0, index + 1).join("/");
+					const prefix = A.join(pieces.slice(0, index + 1), "/");
 					const resolved = resolvePath(volume, prefix);
 					const failure = Resolved.match(resolved, {
       Failure: ({ code }) => code === "ENOENT" ? errnoError("makeDirectory", path, "ENOENT", undefined) : error,
@@ -952,7 +958,7 @@ const buildHandle: (
 			sync: MemoryFileSystem.syncFileSystem(volume, { faults: faults.sync }),
 			promises: MemoryFileSystem.promisesFileSystem(volume, { faults: faults.promises }),
 		}),
-		write: (path, content) =>
+		write: dual(2, (path: string, content: string | Uint8Array): void =>
 			runMutation(
 				Effect.andThen(
 					ensureParent(at(path)),
@@ -960,15 +966,15 @@ const buildHandle: (
 				),
 				"writeFile",
 				path,
-			),
+			)),
 		mkdir: (path) => runMutation(mkdirSync(at(path)), "makeDirectory", path),
 		remove: (path) => runMutation(raw.remove(at(path), { recursive: true }), "remove", path),
 		// Only the link's own path resolves against the root; the target text is stored verbatim.
-		symlink: (target, path) =>
-			runMutation(Effect.andThen(ensureParent(at(path)), raw.symlink(target, at(path))), "symlink", path),
+		symlink: dual(2, (target: string, path: string): void =>
+			runMutation(Effect.andThen(ensureParent(at(path)), raw.symlink(target, at(path))), "symlink", path)),
 	};
 	return handle;
-});
+}));
 
 /**
  * An in-memory implementation of core Effect's `FileSystem` service: an
@@ -1153,10 +1159,13 @@ export class MemoryFileSystem {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly makeFaulty = (
+	static readonly makeFaulty: {
+		(base: FileSystem.FileSystem, faults: MemoryFileSystemFaults | MemoryFileSystemFaultsFactory): FileSystem.FileSystem;
+		(faults: MemoryFileSystemFaults | MemoryFileSystemFaultsFactory): (base: FileSystem.FileSystem) => FileSystem.FileSystem;
+	} = dual(2, (
 		base: FileSystem.FileSystem,
 		faults: MemoryFileSystemFaults | MemoryFileSystemFaultsFactory,
-	): FileSystem.FileSystem => wrapFaulty(base, faults);
+	): FileSystem.FileSystem => wrapFaulty(base, faults));
 
 	/**
 	 * A layer that wraps whatever `FileSystem` is provided to it with fault
@@ -1308,12 +1317,15 @@ export class MemoryFileSystem {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly failTimes = (times: number, error: PlatformError.PlatformError): MemoryFileSystemTransientFault => {
+	static readonly failTimes: {
+		(times: number, error: PlatformError.PlatformError): MemoryFileSystemTransientFault;
+		(error: PlatformError.PlatformError): (times: number) => MemoryFileSystemTransientFault;
+	} = dual(2, (times: number, error: PlatformError.PlatformError): MemoryFileSystemTransientFault => {
 		if (!Number.isInteger(times) || times < 0) {
 			throw InvalidFaultCountError.make({ message: `failTimes: times must be a non-negative integer, got ${String(times)}` });
 		}
 		return { _tag: "MemoryFileSystemTransientFault", times, error };
-	};
+	});
 
 	/**
 	 * A fault handler that fails its member as a DEFECT (`Effect.die`) rather
@@ -1380,7 +1392,15 @@ export class MemoryFileSystem {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly file = (
+	static readonly file: {
+		(
+			content: string | Uint8Array,
+			options?: { readonly mode?: number | undefined; readonly mtime?: number | undefined },
+		): MemoryFileSystemSeedFile;
+		(
+			options?: { readonly mode?: number | undefined; readonly mtime?: number | undefined },
+		): (content: string | Uint8Array) => MemoryFileSystemSeedFile;
+	} = dual((args) => P.isString(args[0]) || P.isUint8Array(args[0]), (
 		content: string | Uint8Array,
 		options?: { readonly mode?: number | undefined; readonly mtime?: number | undefined },
 	): MemoryFileSystemSeedFile => ({
@@ -1390,7 +1410,7 @@ export class MemoryFileSystem {
 			mode: O.fromUndefinedOr(options?.mode),
 			mtime: O.fromUndefinedOr(options?.mtime),
 		}),
-	});
+	}));
 
 	/**
 	 * A seed entry for a directory — the way a seed expresses an *empty*
@@ -1617,7 +1637,10 @@ export class MemoryFileSystem {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly syncFileSystem = (
+	static readonly syncFileSystem: {
+		(volume: MemoryFileSystemVolume, options?: MemoryFileSystemPortOptions<MemoryFileSystemSyncFaults>): MemoryFileSystemSyncFileSystem;
+		(options?: MemoryFileSystemPortOptions<MemoryFileSystemSyncFaults>): (volume: MemoryFileSystemVolume) => MemoryFileSystemSyncFileSystem;
+	} = dual((args) => isVolume(args[0]), (
 		volume: MemoryFileSystemVolume,
 		options?: MemoryFileSystemPortOptions<MemoryFileSystemSyncFaults>,
 	): MemoryFileSystemSyncFileSystem =>
@@ -1625,7 +1648,7 @@ export class MemoryFileSystem {
 			makeSyncFileSystem(volume),
 			options?.faults,
 			"MemoryFileSystem.syncFileSystem faults",
-		);
+		));
 
 	/**
 	 * Adapts a {@link MemoryFileSystemVolume} to the read-only
@@ -1657,7 +1680,10 @@ export class MemoryFileSystem {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly promisesFileSystem = (
+	static readonly promisesFileSystem: {
+		(volume: MemoryFileSystemVolume, options?: MemoryFileSystemPortOptions<MemoryFileSystemPromisesFaults>): MemoryFileSystemPromisesFileSystem;
+		(options?: MemoryFileSystemPortOptions<MemoryFileSystemPromisesFaults>): (volume: MemoryFileSystemVolume) => MemoryFileSystemPromisesFileSystem;
+	} = dual((args) => isVolume(args[0]), (
 		volume: MemoryFileSystemVolume,
 		options?: MemoryFileSystemPortOptions<MemoryFileSystemPromisesFaults>,
 	): MemoryFileSystemPromisesFileSystem =>
@@ -1666,7 +1692,7 @@ export class MemoryFileSystem {
 			options?.faults,
 			"MemoryFileSystem.promisesFileSystem faults",
 			true,
-		);
+		));
 
 	/**
 	 * Builds a volume synchronously and returns every view over it as a

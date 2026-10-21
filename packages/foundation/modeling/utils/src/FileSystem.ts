@@ -238,16 +238,16 @@ const toFileInfo = (stats: NodeStats): FileSystem.File.Info => ({
   mtime: Option.fromNullishOr(stats.mtime),
   atime: Option.fromNullishOr(stats.atime),
   birthtime: Option.fromNullishOr(stats.birthtime),
-  dev: stats.dev,
-  rdev: Option.fromNullishOr(stats.rdev),
-  ino: Option.fromNullishOr(stats.ino),
+  dev: BigInt(stats.dev),
+  rdev: Option.map(Option.fromNullishOr(stats.rdev), BigInt),
+  ino: Option.map(Option.fromNullishOr(stats.ino), BigInt),
   mode: stats.mode,
-  nlink: Option.fromNullishOr(stats.nlink),
+  nlink: Option.map(Option.fromNullishOr(stats.nlink), BigInt),
   uid: Option.fromNullishOr(stats.uid),
   gid: Option.fromNullishOr(stats.gid),
   size: ByteSize.bytes(stats.size),
   blksize: pipe(Option.fromUndefinedOr(stats.blksize), Option.map(ByteSize.bytes)),
-  blocks: Option.fromNullishOr(stats.blocks),
+  blocks: Option.map(Option.fromNullishOr(stats.blocks), BigInt),
 });
 
 /**

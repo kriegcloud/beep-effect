@@ -1,7 +1,9 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import { GitHubContent } from "../../effected/github/GitHubContent.ts";
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
 import { harness } from "./harness.ts";
@@ -53,8 +55,8 @@ describe("GitHubContent coverage", () => {
   }));
 
   it.layer(Layer.merge(GitHubContent.layerTest({
-    getFile: () => Effect.succeed("text"),
-    getFileOption: () => Effect.succeedSome("text"),
+    getFile: dual((args) => P.isString(args[0]), (_path: string, _options?: object) => Effect.succeed("text")),
+    getFileOption: dual((args) => P.isString(args[0]), (_path: string, _options?: object) => Effect.succeedSome("text")),
   }), Repo.layer(RepoRef.make({ owner: "o", repo: "r" }))), { timeout: "30 seconds" })((it) => {
   it.effect("test layer preserves both overrides", () => Effect.gen(function* () {
     const content = yield* GitHubContent;

@@ -15,7 +15,7 @@
         ".claude/skills/atom-reactivity-specialist",
         ".agents/skills/atom-reactivity-specialist"
       ],
-      "installedTreeHash": "5547044ef1e8b57cea02b7b9153fd32a12a1d2c164f75e92f7fd986b2e635300"
+      "installedTreeHash": "ca8191d35199ca4e00f9d2047a85927470c6a5c8b85603fb1d97148f17bb8fe7"
     },
     "browser-qa-loop": {
       "_tag": "local",
@@ -23,7 +23,7 @@
         ".claude/skills/browser-qa-loop",
         ".agents/skills/browser-qa-loop"
       ],
-      "installedTreeHash": "b10b089b0ec382af381b3c3d8e60820e44bef4507542d1993d27884ace24979e"
+      "installedTreeHash": "48d217310e22042098a436db4781dc3ba5cd4ab5b38561969653dafd29b80a6b"
     },
     "closeout": {
       "_tag": "local",
@@ -391,7 +391,7 @@
         ".claude/skills/quality-review-fix-loop",
         ".agents/skills/quality-review-fix-loop"
       ],
-      "installedTreeHash": "e8c77f6f518ecea62ea4e73b995b988d37c440ba2fc360c29042098fabcc4040"
+      "installedTreeHash": "bb62274f677d7cccdd46bf044750bc9e79b087b253322fec1654b823e5fcb7db"
     },
     "reflect": {
       "_tag": "local",
@@ -729,7 +729,7 @@
         ".claude/skills/yeet",
         ".agents/skills/yeet"
       ],
-      "installedTreeHash": "464f9f8b0a9da74e69fcbed3f76842aa8a186682445053793367bb24e0a491e0"
+      "installedTreeHash": "23f66340f6671c4d1c51fdca78a25c0333aed79fc6426996524452bed468ffdf"
     }
   }
 }

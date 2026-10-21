@@ -27,9 +27,8 @@ const $I = $ScratchpadId.create("effected/glob/internal/limits");
  * @since 0.0.0
  */
 export class InvalidCap extends S.TaggedError<InvalidCap, { readonly brand: unique symbol }>($I`InvalidCap`)("InvalidCap", {
-	message: S.String.annotateKey({ description: "Why the programmer-supplied internal cap is invalid." }),
-}, $I.annote("InvalidCap", {
-	title: "Invalid internal glob cap",
+	message: S.String.pipe($I.annoteKey("InvalidCap.message", { description: "Why the programmer-supplied internal cap is invalid." })),
+}, $I.annoteError<InvalidCap>("InvalidCap", {
 	description: "A programmer-supplied glob cap is not a positive safe integer.",
 })) {}
 
@@ -144,9 +143,8 @@ export const MAX_NESTING_DEPTH = 256;
  * @category schemas
  * @since 0.0.0
  */
-export const GuardReason = LiteralKit(["PatternTooLong", "ExpansionBudgetExceeded", "NestingDepthExceeded"]).annotate(
-	$I.annote("GuardReason", {
-		title: "Glob compile-time guard reason",
+export const GuardReason = LiteralKit(["PatternTooLong", "ExpansionBudgetExceeded", "NestingDepthExceeded"]).pipe(
+	$I.annoteSchema("GuardReason", {
 		description: "Identifies a pattern-length, brace-expansion-budget or nesting-depth guard failure.",
 	}),
 );
@@ -175,18 +173,16 @@ export type GuardReason = typeof GuardReason.Type;
  */
 export const GuardMeasurement = S.Union([
 	S.Finite,
-	S.declare((value): value is number => value === Infinity, {
-		title: "Positive infinity",
+	S.declare((value): value is number => value === Infinity, $I.annote("PositiveInfinity", {
 		description: "The positive-infinity sentinel produced by expansion-count overflow.",
 		toCodecArbitrary: () => S.link<number>()(S.Null, {
 			decode: SchemaGetter.transform(() => Infinity),
 			encode: SchemaGetter.forbiddenEncoding,
 		}),
 		toEquivalence: Equivalence.strictEqual<number>,
-	}),
-]).annotate(
-	$I.annote("GuardMeasurement", {
-		title: "Glob guard measurement",
+	})),
+]).pipe(
+	$I.annoteSchema("GuardMeasurement", {
 		description: "A finite guard measurement or positive infinity when an expansion count overflows.",
 	}),
 );
@@ -226,13 +222,12 @@ export type GuardMeasurement = typeof GuardMeasurement.Type;
  * @since 0.0.0
  */
 export class GuardExceeded extends S.TaggedError<GuardExceeded, { readonly brand: unique symbol }>($I`GuardExceeded`)("GuardExceeded", {
-	reason: GuardReason.annotateKey({ description: "The compile-time guard whose cap was exceeded." }),
-	limit: S.Finite.annotateKey({ description: "The finite cap enforced by the compile-time guard." }),
+	reason: GuardReason.pipe($I.annoteKey("GuardExceeded.reason", { description: "The compile-time guard whose cap was exceeded." })),
+	limit: S.Finite.pipe($I.annoteKey("GuardExceeded.limit", { description: "The finite cap enforced by the compile-time guard." })),
 	// Expansion arithmetic intentionally overflows to Infinity; retain the oracle measurement.
-	actual: GuardMeasurement.annotateKey({ description: "The measured value, including Infinity when an expansion count overflows." }),
-	message: S.String.annotateKey({ description: "The guard reason, limit and measured value rendered for the caller." }),
-}, $I.annote("GuardExceeded", {
-	title: "Glob compile-time guard exceeded",
+	actual: GuardMeasurement.pipe($I.annoteKey("GuardExceeded.actual", { description: "The measured value, including Infinity when an expansion count overflows." })),
+	message: S.String.pipe($I.annoteKey("GuardExceeded.message", { description: "The guard reason, limit and measured value rendered for the caller." })),
+}, $I.annoteError<GuardExceeded>("GuardExceeded", {
 	description: "The internal compile-time guard signal converted by the facades into GlobPatternError.",
 })) {
 	/**
@@ -269,9 +264,11 @@ export class GuardExceeded extends S.TaggedError<GuardExceeded, { readonly brand
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static fromReason(reason: GuardReason, limit: number, actual: number): GuardExceeded {
-		return GuardExceeded.make({ reason, limit, actual, message: `${reason}: limit ${limit}, actual ${actual}` });
-	}
+	static readonly fromReason: {
+		(reason: GuardReason, limit: number, actual: number): GuardExceeded;
+		(limit: number, actual: number): (reason: GuardReason) => GuardExceeded;
+	} = dual(3, (reason: GuardReason, limit: number, actual: number): GuardExceeded =>
+		GuardExceeded.make({ reason, limit, actual, message: `${reason}: limit ${limit}, actual ${actual}` }));
 }
 
 /**

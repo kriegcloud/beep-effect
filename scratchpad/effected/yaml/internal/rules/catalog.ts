@@ -23,6 +23,7 @@ import { parseValidity, parseValidityOptions } from "./parse-validity.ts";
 import { quotedStrings, quotedStringsOptions } from "./quoted-strings.ts";
 import { trailingSpaces, trailingSpacesOptions } from "./trailing-spaces.ts";
 import { truthy, truthyOptions } from "./truthy.ts";
+import * as A from "effect/Array";
 
 // ONE ordered source of rule/options-schema pairs: deriving both exports
 // from it makes a schema-less built-in unrepresentable — a rule registered
@@ -59,7 +60,7 @@ const catalog: ReadonlyArray<readonly [YamlRule, S.Codec<unknown, unknown>]> = [
  * @category constants
  * @since 0.0.0
  */
-export const builtinRules: ReadonlyArray<YamlRule> = catalog.map(([rule]) => rule);
+export const builtinRules: ReadonlyArray<YamlRule> = A.map(catalog, ([rule]) => rule);
 
 /**
  * Per-rule options schemas in catalog order, matching {@link builtinRules}.
@@ -75,7 +76,7 @@ export const builtinRules: ReadonlyArray<YamlRule> = catalog.map(([rule]) => rul
  * @category constants
  * @since 0.0.0
  */
-export const builtinOptionsEntries: ReadonlyArray<readonly [string, S.Codec<unknown, unknown>]> = catalog.map(([rule, options]) => [rule.id, options]);
+export const builtinOptionsEntries: ReadonlyArray<readonly [string, S.Codec<unknown, unknown>]> = A.map(catalog, ([rule, options]) => [rule.id, options]);
 
 /**
  * Per-rule options schemas — the rule-aware half of config validation.

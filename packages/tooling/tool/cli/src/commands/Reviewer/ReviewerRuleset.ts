@@ -362,7 +362,7 @@ const readReviewerChecks = Effect.fn("Reviewer.readChecks")(function* (sha: stri
       `${ROOT}/commits/${sha}/check-runs?check_name=beep-reviewer&filter=all&per_page=100&page=${page}`
     ).pipe(Effect.flatMap(decodeChecks));
     checks.push(...batch.check_runs);
-    if (page * 100 >= batch.total_count) break;
+    if (A.isReadonlyArrayEmpty(batch.check_runs) || page * 100 >= batch.total_count) break;
     page += 1;
   }
   return checks;

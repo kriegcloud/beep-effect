@@ -5,6 +5,7 @@ import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import type * as LayerType from "effect/Layer";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -41,9 +42,7 @@ const $I = $ScratchpadId.create("effected/cli/CliLinks");
  * @category schemas
  * @since 0.0.0
  */
-export const EditorLinks = LiteralKit(["auto", "vscode", "file", "off"]).annotate(
-	$I.annote("EditorLinks", { description: "Whether file links open in an editor." }),
-);
+export const EditorLinks = LiteralKit(["auto", "vscode", "file", "off"]).pipe($I.annoteSchema("EditorLinks", { description: "Whether file links open in an editor." }));
 
 /**
  * The editor link setting accepted by {@link CliLinks}.
@@ -121,8 +120,13 @@ const parseSetting = (raw: string): EditorLinks | undefined => {
 /** A URL with its control characters and line breaks removed: none is legal in one, and each could end an OSC 8 early. */
 const cleanUrl = (url: string): string => sanitize(url).replace(/[\r\n]/g, "");
 
-const makeTarget =
-	(mode: "vscode" | "file" | "off", absolute: (file: string) => string | undefined) =>
+type LinkMode = "vscode" | "file" | "off";
+type Absolute = (file: string) => string | undefined;
+
+const makeTarget: {
+	(mode: LinkMode, absolute: Absolute): (target: LinkTarget) => O.Option<string>;
+	(absolute: Absolute): (mode: LinkMode) => (target: LinkTarget) => O.Option<string>;
+} = dual(2, (mode: LinkMode, absolute: Absolute): ((target: LinkTarget) => O.Option<string>) =>
 	(target: LinkTarget): O.Option<string> => {
 		if ("url" in target) {
 			const url = cleanUrl(target.url);
@@ -141,16 +145,22 @@ const makeTarget =
 					? `:${target.line}`
 					: `:${target.line}:${target.col}`;
 		return O.some(`vscode://file${path}${position}`);
-	};
+	});
 
-const isDirectory = (fs: FileSystem.FileSystem, path: string): Effect.Effect<boolean> =>
+const isDirectory: {
+	(fs: FileSystem.FileSystem, path: string): Effect.Effect<boolean>;
+	(path: string): (fs: FileSystem.FileSystem) => Effect.Effect<boolean>;
+} = dual(2, (fs: FileSystem.FileSystem, path: string): Effect.Effect<boolean> =>
 	fs.stat(path).pipe(
 		Effect.map((info) => info.type === "Directory"),
 		Effect.orElseSucceed(() => false),
-	);
+	));
 
-const exists = (fs: FileSystem.FileSystem, path: string): Effect.Effect<boolean> =>
-	fs.exists(path).pipe(Effect.orElseSucceed(() => false));
+const exists: {
+	(fs: FileSystem.FileSystem, path: string): Effect.Effect<boolean>;
+	(path: string): (fs: FileSystem.FileSystem) => Effect.Effect<boolean>;
+} = dual(2, (fs: FileSystem.FileSystem, path: string): Effect.Effect<boolean> =>
+	fs.exists(path).pipe(Effect.orElseSucceed(() => false)));
 
 /**
  * The nearest directory, from `cwd` up, that holds `.git` or `pnpm-workspace.yaml`.
@@ -161,7 +171,10 @@ const exists = (fs: FileSystem.FileSystem, path: string): Effect.Effect<boolean>
  * where `dirname` reaches a fixpoint (the filesystem root). `Walker.findRoot` absorbs a failed probe as "not a root",
  * so one unreadable directory never hides a root above it. `None` when there is none.
  */
-const findRoot = (fs: FileSystem.FileSystem, path: Path.Path, cwd: string): Effect.Effect<O.Option<string>> =>
+const findRoot: {
+	(fs: FileSystem.FileSystem, path: Path.Path, cwd: string): Effect.Effect<O.Option<string>>;
+	(path: Path.Path, cwd: string): (fs: FileSystem.FileSystem) => Effect.Effect<O.Option<string>>;
+} = dual(3, (fs: FileSystem.FileSystem, path: Path.Path, cwd: string): Effect.Effect<O.Option<string>> =>
 	Walker.ascend(cwd, { maxDepth: MAX_ASCENT + 1 }).pipe(
 		Effect.provideService(Path.Path, path),
 		Effect.flatMap((directories) =>
@@ -175,7 +188,7 @@ const findRoot = (fs: FileSystem.FileSystem, path: Path.Path, cwd: string): Effe
 				}),
 			),
 		),
-	);
+	));
 
 const readOption = (name: string): Effect.Effect<O.Option<string>> =>
 	Config.option(Config.String(name)).pipe(Effect.orElseSucceed(O.none<string>));
@@ -185,7 +198,10 @@ interface Ambient {
 	readonly path: O.Option<Path.Path>;
 }
 
-const build = Effect.fn("build")(function* (
+const build: {
+	(options: CliLinksOptions, ambient: Ambient): Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
+	(ambient: Ambient): (options: CliLinksOptions) => Effect.Effect<CliLinksShape, never, CurrentRuntimeEnv>;
+} = dual(2, Effect.fn("build")(function* (
 	options: CliLinksOptions,
 	ambient: Ambient,
 ): Effect.fn.Return<CliLinksShape, never, CurrentRuntimeEnv> {
@@ -225,7 +241,7 @@ const build = Effect.fn("build")(function* (
 		mode = (yield* isDirectory(ambient.fs.value, path.join(base, ".vscode"))) ? "vscode" : "file";
 	}
 	return { mode, target: makeTarget(mode, absolute) };
-});
+}));
 
 /**
  * Editor-aware links for file targets: where a link to a file opens.
@@ -312,7 +328,7 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
 	static readonly layerTest = (mode: "vscode" | "file" | "off"): LayerType.Layer<CliLinks> =>
 		Layer.succeed(CliLinks, {
 			mode,
-			target: makeTarget(mode, (file) => (file.startsWith("/") || DRIVE.test(file) ? file : undefined)),
+			target: makeTarget(mode, (file) => (Str.startsWith("/")(file) || DRIVE.test(file) ? file : undefined)),
 		});
 
 	/**
@@ -346,15 +362,18 @@ export class CliLinks extends Context.Service<CliLinks, CliLinksShape>()($I`CliL
 	 * @since 0.0.0
 	 */
 	static readonly linker =
-		(options: CliLinksLinkerOptions) =>
-		(target: LinkTarget, label: string): string => {
+		(options: CliLinksLinkerOptions): {
+			(target: LinkTarget, label: string): string;
+			(label: string): (target: LinkTarget) => string;
+		} =>
+		dual(2, (target: LinkTarget, label: string): string => {
 			if (!options.hyperlinks || options.audience === "agent") return label;
 			const url = options.links.target(target);
 			if (O.isNone(url)) return label;
 			const written = encodeForOsc8(cleanUrl(url.value));
 			if (!isAllowedLinkUrl(written)) return label;
 			return `\u001B]8;;${written}\u001B\\${label}\u001B]8;;\u001B\\`;
-		};
+		});
 }
 
 /**

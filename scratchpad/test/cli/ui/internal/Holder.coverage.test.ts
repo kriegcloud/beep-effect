@@ -1,6 +1,9 @@
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import { createElement } from "react";
+import type { ReactElement } from "react";
 import { holderSlot } from "../../../../effected/cli/ui/internal/Holder.ts";
 
 it.effect("unbound swaps are refused and repeated commit notifications release each waiter only once", () =>
@@ -10,10 +13,10 @@ it.effect("unbound swaps are refused and repeated commit notifications release e
     assert.isFalse(slot.swap(element));
     let notify: (() => void) | undefined;
     let commits = 0;
-    slot.bind((next, committed) => {
+    slot.bind(dual((args) => P.isObjectKeyword(args[0]) && !P.isFunction(args[0]), (next: ReactElement, committed?: () => void): void => {
       assert.strictEqual(next, element);
       notify = committed;
-    });
+    }));
     assert.isTrue(slot.swap(element, () => { commits++; }));
     assert.isDefined(notify);
     notify?.();

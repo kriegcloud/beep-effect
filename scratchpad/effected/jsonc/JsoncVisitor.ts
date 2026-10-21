@@ -10,8 +10,10 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { MAX_NESTING_DEPTH } from "./internal/limits.ts";
@@ -137,12 +139,18 @@ export abstract class JsoncVisitor {
    * @param options - Parse options; only comment handling applies.
    * @returns A lazy stream of visitor events.
    */
-  static visit(text: string, options?: JsoncParseOptions): Stream.Stream<JsoncVisitorEvent> {
-    const disallowComments = options?.disallowComments ?? false;
-    // A generator object iterates once; suspending creates a fresh one per
-    // run so the stream stays a re-runnable description (upstream-bug fix).
-    return Stream.suspend(() => Stream.fromIterable(visitGen(text, disallowComments)));
-  }
+  static readonly visit: {
+    (text: string, options?: JsoncParseOptions): Stream.Stream<JsoncVisitorEvent>;
+    (options?: JsoncParseOptions): (text: string) => Stream.Stream<JsoncVisitorEvent>;
+  } = dual(
+    (args) => P.isString(args[0]),
+    (text: string, options?: JsoncParseOptions): Stream.Stream<JsoncVisitorEvent> => {
+      const disallowComments = options?.disallowComments ?? false;
+      // A generator object iterates once; suspending creates a fresh one per
+      // run so the stream stays a re-runnable description (upstream-bug fix).
+      return Stream.suspend(() => Stream.fromIterable(visitGen(text, disallowComments)));
+    }
+  );
 }
 
 const isTrivia = S.is(SyntaxKind.pick(["Trivia", "LineBreak"]));
@@ -150,14 +158,17 @@ const isComment = S.is(SyntaxKind.pick(["LineComment", "BlockComment"]));
 const isScalar = S.is(SyntaxKind.pick(["String", "Number", "True", "False", "Null"]));
 const isNotConsumable = S.is(SyntaxKind.pick(["CloseBrace", "CloseBracket", "EOF"]));
 
-const literalValue = (kind: SyntaxKind, tokenValue: string): unknown =>
+const literalValue: {
+  (kind: SyntaxKind, tokenValue: string): unknown;
+  (tokenValue: string): (kind: SyntaxKind) => unknown;
+} = dual(2, (kind: SyntaxKind, tokenValue: string): unknown =>
   Match.value(kind).pipe(
     Match.when(SyntaxKind.Enum.String, (): unknown => tokenValue),
     Match.when(SyntaxKind.Enum.Number, (): unknown => Number.parseFloat(tokenValue)),
     Match.when(SyntaxKind.Enum.True, (): unknown => true),
     Match.when(SyntaxKind.Enum.False, (): unknown => false),
     Match.orElse((): unknown => null)
-  );
+  ));
 
 type Events = Generator<JsoncVisitorEvent, void>;
 

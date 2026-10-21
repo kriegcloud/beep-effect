@@ -9,6 +9,14 @@
 /**
  * Body of the shipped `practice-onboarding` skill, without its frontmatter.
  *
+ * **Example** (Read the onboarding instructions)
+ *
+ * ```ts
+ * import { ONBOARDING_SKILL_BODY } from "@beep/practice-gateway/OnboardingSkill.generated"
+ *
+ * console.log(ONBOARDING_SKILL_BODY.includes("setup_profile_save")) // true
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */

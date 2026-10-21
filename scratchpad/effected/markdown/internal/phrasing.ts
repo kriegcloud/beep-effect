@@ -83,10 +83,13 @@ export const parsePhrasingText: {
 
 	const lineIndex = LineIndex.fromLineStarts(
 		text,
-		lines.map((line) => line.start),
+		A.map(lines, (line) => line.start),
 	);
 	const sourceLength = text.length;
-	const positionOf = (start: number, end: number): Position => {
+	const positionOf: {
+		(start: number, end: number): Position;
+		(end: number): (start: number) => Position;
+	} = dual(2, (start: number, end: number): Position => {
 		const clampedStart = Math.min(Math.max(start, 0), sourceLength);
 		const clampedEnd = Math.min(Math.max(end, clampedStart), sourceLength);
 		const startPoint = lineIndex.positionAt(clampedStart);
@@ -95,7 +98,7 @@ export const parsePhrasingText: {
 			start: Point.make({ line: startPoint.line, column: startPoint.column, offset: clampedStart }),
 			end: Point.make({ line: endPoint.line, column: endPoint.column, offset: clampedEnd }),
 		});
-	};
+	});
 
 	return parseInlines(
 		{ text: trimmed.text, startOffset, segments: trimmed.segments },

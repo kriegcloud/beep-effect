@@ -88,7 +88,10 @@ const hasBom = (bytes: Uint8Array): boolean =>
   bytes.length >= 3 && bytes[0] === BOM[0] && bytes[1] === BOM[1] && bytes[2] === BOM[2];
 
 /** Read up to the bounded byte count, tolerating successful short reads. */
-const readBytes = Effect.fn("Jsonl.readBytes")(function* (file: FileSystem.File, length: number) {
+const readBytes: {
+  (file: FileSystem.File, length: number): Effect.Effect<Uint8Array, PlatformError.PlatformError>;
+  (length: number): (file: FileSystem.File) => Effect.Effect<Uint8Array, PlatformError.PlatformError>;
+} = dual(2, Effect.fn("Jsonl.readBytes")(function* (file: FileSystem.File, length: number) {
   const bytes = new Uint8Array(length);
   let offset = 0;
   while (offset < length) {
@@ -98,7 +101,7 @@ const readBytes = Effect.fn("Jsonl.readBytes")(function* (file: FileSystem.File,
     offset += chunk.value.length;
   }
   return bytes.subarray(0, offset);
-});
+}));
 
 /** Index just past the first newline, or the buffer length when it holds none. */
 const afterFirstNewline = (bytes: Uint8Array): number => {
@@ -107,7 +110,23 @@ const afterFirstNewline = (bytes: Uint8Array): number => {
 };
 
 /** Decode the bytes read at `from` into a window with logical offsets. */
-const windowOf = Effect.fn("Jsonl.windowOf")(function* (
+const windowOf: {
+  (
+    path: string,
+    bytes: Uint8Array,
+    from: number,
+    bomBytes: number,
+    skipPartialLine: boolean,
+    completeOnly: boolean,
+  ): Effect.Effect<TailWindow, InvalidUtf8>;
+  (
+    bytes: Uint8Array,
+    from: number,
+    bomBytes: number,
+    skipPartialLine: boolean,
+    completeOnly: boolean,
+  ): (path: string) => Effect.Effect<TailWindow, InvalidUtf8>;
+} = dual(6, Effect.fn("Jsonl.windowOf")(function* (
   path: string,
   bytes: Uint8Array,
   from: number,
@@ -136,9 +155,27 @@ const windowOf = Effect.fn("Jsonl.windowOf")(function* (
     size: from + bytes.length - bomBytes,
     atFileStart: from === bomBytes,
   });
-});
+}));
 
-const readWindow = Effect.fn("Jsonl.readWindow")(function* (
+const readWindow: {
+  (
+    fs: FileSystem.FileSystem,
+    path: string,
+    from: number,
+    length: number,
+    bomBytes: number,
+    skipPartialLine: boolean,
+    completeOnly: boolean,
+  ): Effect.Effect<TailWindow, PlatformError.PlatformError | InvalidUtf8>;
+  (
+    path: string,
+    from: number,
+    length: number,
+    bomBytes: number,
+    skipPartialLine: boolean,
+    completeOnly: boolean,
+  ): (fs: FileSystem.FileSystem) => Effect.Effect<TailWindow, PlatformError.PlatformError | InvalidUtf8>;
+} = dual(7, Effect.fn("Jsonl.readWindow")(function* (
   fs: FileSystem.FileSystem,
   path: string,
   from: number,
@@ -151,7 +188,7 @@ const readWindow = Effect.fn("Jsonl.readWindow")(function* (
   yield* file.seek(BigInt(from), "start");
   const bytes = yield* readBytes(file, length);
   return yield* windowOf(path, bytes, from, bomBytes, skipPartialLine, completeOnly);
-}, Effect.scoped);
+}, Effect.scoped));
 
 /**
  * Decode complete records in a captured absolute byte range.
@@ -243,8 +280,8 @@ export const SampledRange = S.Struct({
   bomBytes: ByteCount,
   sampledEnd: ByteCount,
   skipPartialLine: S.Boolean,
-}).annotate(
-  $I.annote("SampledRange", {
+}).pipe(
+  $I.annoteSchema("SampledRange", {
     description: "One bounded page of a sampled historical range, read through the reader's pinned handle.",
   }),
 );

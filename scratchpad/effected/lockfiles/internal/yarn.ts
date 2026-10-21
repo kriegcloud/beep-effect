@@ -5,6 +5,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ResolvedPackage } from "../ResolvedPackage.ts";
@@ -21,32 +22,32 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/yarn");
 // The top-level shape must be a string-keyed map. Classic (v1) yarn.lock
 // content that happens to YAML-parse produces scalar entry values, which
 // fail YarnEntry validation — Berry-only support exits typed either way.
-const YarnLockfileRaw = S.Record(S.String, S.Unknown).annotate($I.annote("YarnLockfileRaw", { description: "Yarn Berry entry map retaining unknown values for per-entry and metadata decoding" }));
+const YarnLockfileRaw = S.Record(S.String, S.Unknown).pipe($I.annoteSchema("YarnLockfileRaw", { description: "Yarn Berry entry map retaining unknown values for per-entry and metadata decoding" }));
 
-const DepRecord = S.optionalKey(S.Record(S.String, S.String)).annotate($I.annote("DepRecord", { description: "Optional dependency names and their declared specifier strings" }));
+const DepRecord = S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteSchema("DepRecord", { description: "Optional dependency names and their declared specifier strings" }));
 
 const YarnEntry = S.Struct({
-	version: S.optionalKey(S.String).annotateKey({ description: "Recorded package version or resolved dependency version" }),
-	resolution: S.optionalKey(S.String).annotateKey({ description: "Optional package resolution metadata" }),
-	dependencies: DepRecord.annotateKey({ description: "Declared runtime dependencies keyed by package name" }),
-	devDependencies: DepRecord.annotateKey({ description: "Declared development dependencies keyed by package name" }),
-	peerDependencies: DepRecord.annotateKey({ description: "Declared peer dependencies keyed by package name" }),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("YarnEntry.version", { description: "Recorded package version or resolved dependency version" })),
+	resolution: S.optionalKey(S.String).pipe($I.annoteKey("YarnEntry.resolution", { description: "Optional package resolution metadata" })),
+	dependencies: DepRecord.pipe($I.annoteKey("YarnEntry.dependencies", { description: "Declared runtime dependencies keyed by package name" })),
+	devDependencies: DepRecord.pipe($I.annoteKey("YarnEntry.devDependencies", { description: "Declared development dependencies keyed by package name" })),
+	peerDependencies: DepRecord.pipe($I.annoteKey("YarnEntry.peerDependencies", { description: "Declared peer dependencies keyed by package name" })),
 	peerDependenciesMeta: S.optionalKey(
-		S.Record(S.String, S.Struct({ optional: S.optionalKey(S.Boolean).annotateKey({ description: "Whether this peer dependency is optional" }) })),
-	).annotateKey({ description: "Optionality metadata keyed by peer dependency name" }),
-	optionalDependencies: DepRecord.annotateKey({ description: "Declared optional dependencies keyed by package name" }),
-	checksum: S.optionalKey(S.String).annotateKey({ description: "Recorded Yarn package cache checksum" }),
-	languageName: S.optionalKey(S.String).annotateKey({ description: "Recorded Yarn package language" }),
-	linkType: S.optionalKey(S.String).annotateKey({ description: "Recorded Yarn link type, including soft workspace links" }),
-	bin: S.optionalKey(S.Unknown).annotateKey({ description: "Raw Yarn executable metadata left permissive" }),
-}).annotate($I.annote("YarnEntry", { description: "Permissive Yarn Berry package entry with resolution, dependency and checksum data" }));
+		S.Record(S.String, S.Struct({ optional: S.optionalKey(S.Boolean).pipe($I.annoteKey("YarnEntry.peerDependenciesMeta.optional", { description: "Whether this peer dependency is optional" })) })),
+	).pipe($I.annoteKey("YarnEntry.peerDependenciesMeta", { description: "Optionality metadata keyed by peer dependency name" })),
+	optionalDependencies: DepRecord.pipe($I.annoteKey("YarnEntry.optionalDependencies", { description: "Declared optional dependencies keyed by package name" })),
+	checksum: S.optionalKey(S.String).pipe($I.annoteKey("YarnEntry.checksum", { description: "Recorded Yarn package cache checksum" })),
+	languageName: S.optionalKey(S.String).pipe($I.annoteKey("YarnEntry.languageName", { description: "Recorded Yarn package language" })),
+	linkType: S.optionalKey(S.String).pipe($I.annoteKey("YarnEntry.linkType", { description: "Recorded Yarn link type, including soft workspace links" })),
+	bin: S.optionalKey(S.Unknown).pipe($I.annoteKey("YarnEntry.bin", { description: "Raw Yarn executable metadata left permissive" })),
+}).pipe($I.annoteSchema("YarnEntry", { description: "Permissive Yarn Berry package entry with resolution, dependency and checksum data" }));
 
 type YarnEntryType = typeof YarnEntry.Type;
 
 const YarnMetadata = S.Struct({
 	// This ungated format preserves non-finite version numbers by stringifying them upstream.
-	version: S.optionalKey(S.Union([S.String, S.Finite])).annotateKey({ description: "Recorded package version or resolved dependency version" }),
-}).annotate($I.annote("YarnMetadata", { description: "Optional Yarn Berry lockfile version metadata preserved without a finite-number restriction" }));
+	version: S.optionalKey(S.Union([S.String, S.Finite])).pipe($I.annoteKey("YarnMetadata.version", { description: "Recorded package version or resolved dependency version" })),
+}).pipe($I.annoteSchema("YarnMetadata", { description: "Optional Yarn Berry lockfile version metadata preserved without a finite-number restriction" }));
 
 /**
  * Parse yarn Berry `yarn.lock` content into the unified field bundle.
@@ -97,7 +98,10 @@ export const parseYarn = Effect.fn("parseYarn")(function* (content: string): Eff
 
 // ── Transform ──────────────────────────────────────────────────────────────
 
-const toFields = Effect.fn("toFields")(function* (lockfileVersion: string, decoded: MutableHashMap.MutableHashMap<string, YarnEntryType>): Effect.fn.Return<LockfileFields, ParseFailure> {
+const toFields: {
+	(lockfileVersion: string, decoded: MutableHashMap.MutableHashMap<string, YarnEntryType>): Effect.Effect<LockfileFields, ParseFailure>;
+	(decoded: MutableHashMap.MutableHashMap<string, YarnEntryType>): (lockfileVersion: string) => Effect.Effect<LockfileFields, ParseFailure>;
+} = dual(2, Effect.fn("toFields")(function* (lockfileVersion: string, decoded: MutableHashMap.MutableHashMap<string, YarnEntryType>): Effect.fn.Return<LockfileFields, ParseFailure> {
 	const packages: Array<ResolvedPackage> = [];
 	let workspaceNames = HashSet.fromIterable<string>([]);
 	const workspaceEntries = MutableHashMap.empty<string, WorkspaceEntry>();
@@ -173,7 +177,7 @@ const toFields = Effect.fn("toFields")(function* (lockfileVersion: string, decod
 
 	// yarn does not record importers; the field is always empty.
 	return { lockfileVersion, packages, workspaceDependencies, importers: [] };
-});
+}));
 
 /**
  * Resolve one entry's outgoing edges through the descriptor→locator index.
@@ -200,7 +204,10 @@ const toFields = Effect.fn("toFields")(function* (lockfileVersion: string, decod
  *
  * @internal
  */
-const resolveYarnEdges = (
+const resolveYarnEdges: {
+	(entry: YarnEntryType, locators: MutableHashMap.MutableHashMap<string, string>, instanceIds: HashSet.HashSet<string>): { readonly resolved: Record<string, string>; readonly unresolvedEdges: ReadonlyArray<string> };
+	(locators: MutableHashMap.MutableHashMap<string, string>, instanceIds: HashSet.HashSet<string>): (entry: YarnEntryType) => { readonly resolved: Record<string, string>; readonly unresolvedEdges: ReadonlyArray<string> };
+} = dual(3, (
 	entry: YarnEntryType,
 	locators: MutableHashMap.MutableHashMap<string, string>,
 	instanceIds: HashSet.HashSet<string>,
@@ -218,10 +225,10 @@ const resolveYarnEdges = (
 			else MutableHashSet.add(unnameable, name);
 		}
 	}
-	// Map-backed until the last step: `Object.fromEntries` defines own data
+	// Map-backed until the last step: `R.fromEntries` (Object.fromEntries) defines own data
 	// properties, so a "__proto__" dependency name neither pollutes nor drops.
 	return { resolved: R.fromEntries(edges), unresolvedEdges: A.sort(unnameable, Order.String) };
-};
+});
 
 /**
  * Extract the package name from a yarn lockfile key. Handles compound keys
@@ -271,6 +278,6 @@ const cleanYarnDeps = (
 ): Readonly<Record<string, string>> | undefined => {
 	if (deps === undefined) return undefined;
 	return R.fromEntries(
-		R.toEntries(deps).map(([name, value]) => [name, value.startsWith("npm:") ? value.slice(4) : value]),
+		A.map(R.toEntries(deps), ([name, value]): readonly [string, string] => [name, value.startsWith("npm:") ? value.slice(4) : value]),
 	);
 };

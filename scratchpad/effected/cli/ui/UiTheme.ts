@@ -30,9 +30,9 @@ const $I = $ScratchpadId.create("effected/cli/ui/UiTheme");
 export class MissingUiThemeError extends S.TaggedError<MissingUiThemeError, { readonly brand: unique symbol }>($I`MissingUiThemeError`)(
 	"MissingUiThemeError",
 	{
-		message: S.String.annotate($I.annote("MissingUiThemeError.message", { description: "The missing screen or UiProvider context required by a theme hook." })),
+		message: S.String.pipe($I.annoteKey("MissingUiThemeError.message", { description: "The missing screen or UiProvider context required by a theme hook." })),
 	},
-	$I.annote("MissingUiThemeError", { description: "A theme hook was invoked outside its mounted screen context." }),
+	$I.annoteError<MissingUiThemeError>("MissingUiThemeError", { description: "A theme hook was invoked outside its mounted screen context." }),
 ) {}
 
 /**
@@ -258,8 +258,11 @@ export const Styled = (props: StyledProps): ReactElement => {
 };
 
 /** A reported size, or `fallback` when it is unknown: absent, or not positive (a pty `script` opens reports 0x0). */
-const known = (reported: number | undefined, fallback: number): number =>
-	reported !== undefined && reported > 0 ? reported : fallback;
+const known: {
+	(reported: number | undefined, fallback: number): number;
+	(fallback: number): (reported: number | undefined) => number;
+} = dual(2, (reported: number | undefined, fallback: number): number =>
+	reported !== undefined && reported > 0 ? reported : fallback);
 
 /**
  * The usable terminal size: the stdout Ink draws on, less one column and one row, re-read on every render and when

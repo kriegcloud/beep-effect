@@ -6,6 +6,7 @@ import * as HashSet from "effect/HashSet";
 import * as MutableHashSet from "effect/MutableHashSet";
 import { Jsonc } from "../../jsonc/index.ts";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
 import { BunExtension } from "../BunExtension.ts";
@@ -29,21 +30,21 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/bun");
 
 // ── Raw schema (permissive validation scaffolding, not API) ────────────────
 
-const DepRecord = S.optionalKey(S.Record(S.String, S.String)).annotate($I.annote("DepRecord", { description: "Optional dependency names and their declared specifier strings" }));
+const DepRecord = S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteSchema("DepRecord", { description: "Optional dependency names and their declared specifier strings" }));
 
-const OptionalPeers = S.String.pipe(S.Array, S.optionalKey).annotate($I.annote("OptionalPeers", { description: "Optional peer dependency names recorded in bun workspace entries and package tuples" }));
+const OptionalPeers = S.String.pipe(S.Array, S.optionalKey, $I.annoteSchema("OptionalPeers", { description: "Optional peer dependency names recorded in bun workspace entries and package tuples" }));
 
 const BunWorkspaceEntry = S.Struct({
-	name: S.optionalKey(S.String).annotateKey({ description: "Recorded package or workspace name" }),
-	version: S.optionalKey(S.String).annotateKey({ description: "Recorded package version or resolved dependency version" }),
-	dependencies: DepRecord.annotateKey({ description: "Declared runtime dependencies keyed by package name" }),
-	devDependencies: DepRecord.annotateKey({ description: "Declared development dependencies keyed by package name" }),
-	peerDependencies: DepRecord.annotateKey({ description: "Declared peer dependencies keyed by package name" }),
-	optionalDependencies: DepRecord.annotateKey({ description: "Declared optional dependencies keyed by package name" }),
+	name: S.optionalKey(S.String).pipe($I.annoteKey("BunWorkspaceEntry.name", { description: "Recorded package or workspace name" })),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("BunWorkspaceEntry.version", { description: "Recorded package version or resolved dependency version" })),
+	dependencies: DepRecord.pipe($I.annoteKey("BunWorkspaceEntry.dependencies", { description: "Declared runtime dependencies keyed by package name" })),
+	devDependencies: DepRecord.pipe($I.annoteKey("BunWorkspaceEntry.devDependencies", { description: "Declared development dependencies keyed by package name" })),
+	peerDependencies: DepRecord.pipe($I.annoteKey("BunWorkspaceEntry.peerDependencies", { description: "Declared peer dependencies keyed by package name" })),
+	optionalDependencies: DepRecord.pipe($I.annoteKey("BunWorkspaceEntry.optionalDependencies", { description: "Declared optional dependencies keyed by package name" })),
 	// bun spells optional peers as an array of names rather than a meta object,
 	// on workspace entries and package tuples alike.
-	optionalPeers: OptionalPeers.annotateKey({ description: "Peer dependency names bun marks optional" }),
-}).annotate($I.annote("BunWorkspaceEntry", { description: "Permissive bun workspace manifest entry with declared dependencies and optional peer names" }));
+	optionalPeers: OptionalPeers.pipe($I.annoteKey("BunWorkspaceEntry.optionalPeers", { description: "Peer dependency names bun marks optional" })),
+}).pipe($I.annoteSchema("BunWorkspaceEntry", { description: "Permissive bun workspace manifest entry with declared dependencies and optional peer names" }));
 
 /**
  * The info object at package-tuple index 2. bun's tuple shape is
@@ -54,12 +55,12 @@ const BunWorkspaceEntry = S.Struct({
  * @internal
  */
 const BunPackageInfo = S.Struct({
-	dependencies: DepRecord.annotateKey({ description: "Declared runtime dependencies keyed by package name" }),
-	devDependencies: DepRecord.annotateKey({ description: "Declared development dependencies keyed by package name" }),
-	optionalDependencies: DepRecord.annotateKey({ description: "Declared optional dependencies keyed by package name" }),
-	peerDependencies: DepRecord.annotateKey({ description: "Declared peer dependencies keyed by package name" }),
-	optionalPeers: OptionalPeers.annotateKey({ description: "Peer dependency names bun marks optional" }),
-}).annotate($I.annote("BunPackageInfo", { description: "Optional tuple metadata decoded independently so malformed metadata does not discard its package" }));
+	dependencies: DepRecord.pipe($I.annoteKey("BunPackageInfo.dependencies", { description: "Declared runtime dependencies keyed by package name" })),
+	devDependencies: DepRecord.pipe($I.annoteKey("BunPackageInfo.devDependencies", { description: "Declared development dependencies keyed by package name" })),
+	optionalDependencies: DepRecord.pipe($I.annoteKey("BunPackageInfo.optionalDependencies", { description: "Declared optional dependencies keyed by package name" })),
+	peerDependencies: DepRecord.pipe($I.annoteKey("BunPackageInfo.peerDependencies", { description: "Declared peer dependencies keyed by package name" })),
+	optionalPeers: OptionalPeers.pipe($I.annoteKey("BunPackageInfo.optionalPeers", { description: "Peer dependency names bun marks optional" })),
+}).pipe($I.annoteSchema("BunPackageInfo", { description: "Optional tuple metadata decoded independently so malformed metadata does not discard its package" }));
 
 const decodeBunPackageInfo = S.decodeUnknownExit(BunPackageInfo);
 
@@ -70,14 +71,14 @@ const readBunPackageInfo = (value: unknown): typeof BunPackageInfo.Type | undefi
 
 const BunLockfileRaw = S.Struct({
 	// This ungated format preserves non-finite version numbers by stringifying them upstream.
-	lockfileVersion: S.Finite.annotateKey({ description: "Recorded format version, preserved verbatim before gating or string conversion" }),
-	workspaces: S.optionalKey(S.Record(S.String, BunWorkspaceEntry)).annotateKey({ description: "Workspace entries keyed by their recorded directory" }),
-	packages: S.optionalKey(S.Record(S.String, S.Array(S.Unknown))).annotateKey({ description: "Resolved package entries in lockfile traversal order" }),
-	catalog: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Default bun dependency catalog preserved as recorded" }),
-	catalogs: S.optionalKey(S.Record(S.String, S.Record(S.String, S.Unknown))).annotateKey({ description: "Named dependency catalogs preserved as recorded" }),
+	lockfileVersion: S.Finite.pipe($I.annoteKey("BunLockfileRaw.lockfileVersion", { description: "Recorded format version, preserved verbatim before gating or string conversion" })),
+	workspaces: S.optionalKey(S.Record(S.String, BunWorkspaceEntry)).pipe($I.annoteKey("BunLockfileRaw.workspaces", { description: "Workspace entries keyed by their recorded directory" })),
+	packages: S.optionalKey(S.Record(S.String, S.Array(S.Unknown))).pipe($I.annoteKey("BunLockfileRaw.packages", { description: "Resolved package entries in lockfile traversal order" })),
+	catalog: S.optionalKey(S.Record(S.String, S.Unknown)).pipe($I.annoteKey("BunLockfileRaw.catalog", { description: "Default bun dependency catalog preserved as recorded" })),
+	catalogs: S.optionalKey(S.Record(S.String, S.Record(S.String, S.Unknown))).pipe($I.annoteKey("BunLockfileRaw.catalogs", { description: "Named dependency catalogs preserved as recorded" })),
 	overrides: BunExtension.fields.overrides,
-	trustedDependencies: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Dependency names bun trusts to run install scripts" }),
-}).annotate($I.annote("BunLockfileRaw", { description: "Permissive bun JSONC lockfile with workspace entries, package tuples and extension fields" }));
+	trustedDependencies: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("BunLockfileRaw.trustedDependencies", { description: "Dependency names bun trusts to run install scripts" })),
+}).pipe($I.annoteSchema("BunLockfileRaw", { description: "Permissive bun JSONC lockfile with workspace entries, package tuples and extension fields" }));
 
 type BunLockfileRawType = typeof BunLockfileRaw.Type;
 
@@ -128,7 +129,10 @@ export const parseBun = Effect.fn("parseBun")(function* (content: string): Effec
  *
  * @internal
  */
-const resolveBunEdges = (
+const resolveBunEdges: {
+	(key: string, sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>, positionKeys: MutableHashSet.MutableHashSet<string>, instanceIds: MutableHashSet.MutableHashSet<string>): Record<string, string>;
+	(sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>, positionKeys: MutableHashSet.MutableHashSet<string>, instanceIds: MutableHashSet.MutableHashSet<string>): (key: string) => Record<string, string>;
+} = dual(4, (
 	key: string,
 	sections: ReadonlyArray<Readonly<Record<string, string>> | undefined>,
 	positionKeys: MutableHashSet.MutableHashSet<string>,
@@ -159,10 +163,10 @@ const resolveBunEdges = (
 			}
 		}
 	}
-	// Map-backed until the last step: `Object.fromEntries` defines own data
+	// Map-backed until the last step: `R.fromEntries` (Object.fromEntries) defines own data
 	// properties, so a "__proto__" dependency name neither pollutes nor drops.
 	return R.fromEntries(edges);
-};
+});
 
 const infoSections = (info: typeof BunPackageInfo.Type | undefined) =>
 	[info?.dependencies, info?.devDependencies, info?.optionalDependencies, info?.peerDependencies] as const;

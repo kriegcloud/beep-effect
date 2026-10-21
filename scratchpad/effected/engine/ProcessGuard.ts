@@ -1,5 +1,7 @@
+import * as Result from "effect/Result";
 // Only effect/* imports are allowed before the guarded server graph loads.
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -62,7 +64,7 @@ export interface ProcessGuardHost {
  */
 export const ProcessGuardPolicy = S.Struct({
 	onUncaught: UncaughtMode.annotateKey({ description: "The uncaught-exception exit policy." }),
-	onRejection: S.optional(RejectionMode).annotateKey({ description: "The rejection policy; defaults to exit." }),
+	onRejection: S.optionalKey(RejectionMode).annotateKey({ description: "The rejection policy; defaults to exit." }),
 }).annotate({
 	schemaId: Symbol.for("@beep/scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy"),
 	identifier: "@beep/scratchpad/effected/engine/ProcessGuard/ProcessGuardPolicy",
@@ -230,8 +232,22 @@ class InjectedCrash extends S.TaggedError<InjectedCrash, { readonly brand: uniqu
 	description: "A test-only crash delivered through the host event listeners.",
 }) {}
 
+class LoadFailed extends S.TaggedError<LoadFailed, { readonly brand: unique symbol }>()("LoadFailed", {
+	cause: S.Unknown,
+}, {
+	schemaId: Symbol.for("@beep/scratchpad/effected/engine/ProcessGuard/LoadFailed"),
+	identifier: "@beep/scratchpad/effected/engine/ProcessGuard/LoadFailed",
+	iri: "https://ns.beep.sh/scratchpad/effected/engine/ProcessGuard/LoadFailed",
+	curie: "beep:scratchpad/effected/engine/ProcessGuard/LoadFailed",
+	title: "LoadFailed",
+	description: "The guarded load threw or rejected; carries the original value for the startup report.",
+}) {}
+
 /** Emit one injected crash through the host, to the listeners the guard installed there. */
-const emitInjected = (host: ProcessGuardHost, kind: InjectedKind): void => {
+const emitInjected: {
+	(host: ProcessGuardHost, kind: InjectedKind): void;
+	(kind: InjectedKind): (host: ProcessGuardHost) => void;
+} = dual(2, (host: ProcessGuardHost, kind: InjectedKind): void => {
 	const error = InjectedCrash.make({ kind, message: `[injected] ${kind}` });
 	if (kind === "uncaughtException") {
 		host.emit("uncaughtException", error, "uncaughtException");
@@ -241,7 +257,7 @@ const emitInjected = (host: ProcessGuardHost, kind: InjectedKind): void => {
 	// Handled, so only the emitted event reaches a listener, never a real unhandled rejection.
 	promise.catch(() => undefined);
 	host.emit("unhandledRejection", error, promise);
-};
+});
 
 const fallbackFormat = (error: unknown): string =>
 	error instanceof Error ? (error.stack ?? error.message) : String(error);
@@ -361,84 +377,69 @@ export abstract class ProcessGuard {
 	 *
 	 * @since 0.0.0
 	 */
-	static readonly run = (options: ProcessGuardOptions): Promise<void> => {
-		// A plain function over an explicit chain, with an async function's contract: everything up to the first wait
-		// runs on the caller's tick, and a throw anywhere becomes a rejection, never a synchronous throw.
-		try {
-			const { host, label } = options;
-			const onUncaught = options.policy?.onUncaught ?? "exit";
-			const onRejection = options.policy?.onRejection ?? "exit";
-			let connected = false;
-			let format = fallbackFormat;
-			const describe = (error: unknown): string => {
-				try {
-					return format(error);
-				} catch {
-					try {
-						return fallbackFormat(error);
-					} catch {
-						return "<unformattable error value>";
-					}
-				}
-			};
-			const exits = (mode: typeof RejectionMode.Type): boolean =>
-				mode === "exit" || (mode === "exitBeforeConnect" && !connected);
+	static readonly run = (options: ProcessGuardOptions): Promise<void> =>
+		// One Effect program run at the edge. `Effect.runPromise` evaluates the fiber synchronously up to its first
+		// async boundary, so everything up to the first wait runs on the caller's tick (the async-function contract),
+		// and a throw anywhere is a defect that rejects with the original thrown value (v4 squashes a Die to its defect).
+		Effect.runPromise(
+			Effect.suspend(() => {
+				const { host, label } = options;
+				const onUncaught = options.policy?.onUncaught ?? "exit";
+				const onRejection = options.policy?.onRejection ?? "exit";
+				let connected = false;
+				let format = fallbackFormat;
+				const describe = (error: unknown): string =>
+					Result.getOrElse(Result.try(() => format(error)), () =>
+						Result.getOrElse(Result.try(() => fallbackFormat(error)), () => "<unformattable error value>"),
+					);
+				const exits = (mode: typeof RejectionMode.Type): boolean =>
+					mode === "exit" || (mode === "exitBeforeConnect" && !connected);
 
-			host.on("uncaughtException", (error, origin) => {
-				host.stderr.write(`${label}: uncaughtException (${origin}): ${describe(error)}\n`);
-				if (exits(onUncaught)) host.exit(1);
-			});
-			host.on("unhandledRejection", (reason) => {
-				host.stderr.write(`${label}: unhandledRejection: ${describe(reason)}\n`);
-				if (exits(onRejection)) host.exit(1);
-			});
+				host.on("uncaughtException", (error, origin) => {
+					host.stderr.write(`${label}: uncaughtException (${origin}): ${describe(error)}\n`);
+					if (exits(onUncaught)) host.exit(1);
+				});
+				host.on("unhandledRejection", (reason) => {
+					host.stderr.write(`${label}: unhandledRejection: ${describe(reason)}\n`);
+					if (exits(onRejection)) host.exit(1);
+				});
 
-			const inject = options.injectCrash;
-			const injectKind = isInjectedKind(inject?.kind) ? inject.kind : undefined;
+				const inject = options.injectCrash;
+				const injectKind = isInjectedKind(inject?.kind) ? inject.kind : undefined;
+				// A positive sleep uses the timer phase; sleep(0) only yields to the Effect scheduler.
+				const afterTimerPhase = (kind: InjectedKind) =>
+					Effect.andThen(Effect.sleep("1 millis"), Effect.sync(() => emitInjected(host, kind)));
 
-			const control: ProcessGuardControl = {
-				markConnected: () => {
-					if (connected) return;
-					connected = true;
-					if (inject?.at === "connected" && injectKind !== undefined) {
-						// A positive sleep uses the timer phase; sleep(0) only yields to the Effect scheduler.
-						void Effect.runPromise(Effect.sleep("1 millis")).then(() => {
-							try {
-								emitInjected(host, injectKind);
-							} catch {
-								// Only a test double's `exit` throws here; a real one never returns.
-							}
-						});
-					}
-				},
-				useFormat: (next) => {
-					format = next;
-				},
-			};
+				const control: ProcessGuardControl = {
+					markConnected: () => {
+						if (connected) return;
+						connected = true;
+						if (inject?.at === "connected" && injectKind !== undefined) {
+							// Fire and forget: only a test double's `exit` throws here (a real one never returns), and that
+							// defect is swallowed with the fiber.
+							afterTimerPhase(injectKind).pipe(Effect.exit, Effect.runFork);
+						}
+					},
+					useFormat: (next) => {
+						format = next;
+					},
+				};
 
-			const startupFailed = (error: unknown): never => {
-				host.stderr.write(`${label}: startup failed: ${describe(error)}\n`);
-				return host.exit(1);
-			};
-			const start = (): Promise<void> => {
-				let loading: Promise<unknown>;
-				try {
-					loading = Promise.resolve(options.load(control));
-				} catch (error) {
-					return Promise.resolve(startupFailed(error));
-				}
-				return loading.then(() => undefined, startupFailed);
-			};
+				const startupFailed = (error: unknown): never => {
+					host.stderr.write(`${label}: startup failed: ${describe(error)}\n`);
+					return host.exit(1);
+				};
+				// `load` is the consumer's `import()` boundary; a synchronous throw and a rejection both fail here.
+				const start = Effect.tryPromise({
+					try: () => options.load(control),
+					catch: (cause) => LoadFailed.make({ cause }),
+				}).pipe(
+					Effect.asVoid,
+					Effect.catch((failure) => Effect.sync(() => startupFailed(failure.cause))),
+				);
 
-			if (inject?.at === "load" && injectKind !== undefined) {
-				// Keep host exceptions in the Promise boundary, so an exit double rejects with its original error.
-				return Effect.runPromise(Effect.sleep("1 millis"))
-					.then(() => emitInjected(host, injectKind))
-					.then(start);
-			}
-			return start();
-		} catch (error) {
-			return Promise.reject(error);
-		}
-	};
+				// Host exceptions stay defects of the program, so an exit double rejects `run` with its original error.
+				return inject?.at === "load" && injectKind !== undefined ? Effect.andThen(afterTimerPhase(injectKind), start) : start;
+			}),
+		);
 }

@@ -37,13 +37,14 @@ import {
 } from "./blocks/table.ts";
 import { taskListItemStart } from "./blocks/taskListItem.ts";
 import { thematicBreakConstruct, thematicBreakStart } from "./blocks/thematicBreak.ts";
-import type { BlockConstruct, BlockDialect, BlockType } from "./blockTypes.ts";
+import type { BlockConstruct, BlockDialect, BlockNode, BlockType } from "./blockTypes.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/internal/blockRegistry");
 
 class UnknownBlockDialectError extends S.TaggedError<UnknownBlockDialectError, { readonly brand: unique symbol }>($I`UnknownBlockDialectError`)("UnknownBlockDialectError", {
-	message: S.String.annotateKey({ description: "The unknown-dialect invariant failure message." }),
-}, $I.annote("UnknownBlockDialectError", { description: "An unrecognized block registry dialect was requested." })) {}
+	message: S.String.pipe($I.annoteKey("UnknownBlockDialectError.message", { description: "The unknown-dialect invariant failure message." })),
+}, $I.annoteError<UnknownBlockDialectError>("UnknownBlockDialectError", { description: "An unrecognized block registry dialect was requested." })) {}
 
 /**
  * The dialects the block pass can be keyed by.
@@ -65,9 +66,7 @@ class UnknownBlockDialectError extends S.TaggedError<UnknownBlockDialectError, {
  * @category schemas
  * @since 0.0.0
  */
-export const MarkdownDialect = LiteralKit(["commonmark", "gfm"]).annotate(
-	$I.annote("MarkdownDialect", { description: "The grammar names shared by the block and inline registries." }),
-);
+export const MarkdownDialect = LiteralKit(["commonmark", "gfm"]).pipe($I.annoteSchema("MarkdownDialect", { description: "The grammar names shared by the block and inline registries." }));
 
 /** The supported grammar names derived from their schema.
  * @category type-level
@@ -155,8 +154,7 @@ const gfmDialect: BlockDialect = {
 	// row can begin with any character at all, and both a task-list checkbox
 	// and a footnote definition begin with `[`. cmark-gfm has no such filter,
 	// so this restores the lines it would hide — and only those.
-	mayStartBlock: (rest, container) =>
-		container.type === "table" || rest.startsWith("[") || rest.startsWith("|") || rest.startsWith(":"),
+	mayStartBlock: dual(2, (rest: string, container: BlockNode): boolean => container.type === "table" || rest.startsWith("[") || rest.startsWith("|") || rest.startsWith(":")),
 };
 
 const dialects = HashMap.fromIterable<MarkdownDialect, BlockDialect>([

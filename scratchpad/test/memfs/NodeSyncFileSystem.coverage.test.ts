@@ -1,5 +1,5 @@
 import { assert, it, vi } from "@effect/vitest";
-import { assertNone, assertExitFailure } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertExitFailure } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Exit from "effect/Exit";
 import * as Effect from "effect/Effect";
@@ -37,21 +37,21 @@ for (const kind of ["File", "Directory", "SymbolicLink", "BlockDevice", "Charact
     try {
       const info = yield* fs.stat("/virtual");
       assert.strictEqual(info.type, kind);
-      assert.strictEqual(info.dev, Number(stat.dev));
-      assertNone(info.rdev); assertNone(info.ino); assertNone(info.nlink);
+      assert.strictEqual(info.dev, stat.dev);
+      assertNone(info.rdev); assertSome(info.ino, stat.ino); assertNone(info.nlink);
       assertNone(info.uid); assertNone(info.gid); assertNone(info.blksize); assertNone(info.blocks);
     } finally { spy.mockRestore(); }
   }));
 }
 
-it.effect("stat rejects required metadata outside the safe integer range", () => Effect.gen(function* () {
+it.effect("stat rejects numeric mode metadata outside the safe integer range", () => Effect.gen(function* () {
   const stat = node.statSync(import.meta.filename, { bigint: true });
-  stat.dev = 9007199254740992n;
+  stat.mode = 9007199254740992n;
   const spy = vi.spyOn(node, "statSync").mockReturnValue(deliberatelyInvalid<ReturnType<typeof node.statSync>>(stat));
   try {
     const error = yield* Effect.flip(fs.stat("/virtual"));
     assert.strictEqual(error.reason._tag, "BadArgument");
-    if (error.reason._tag === "BadArgument") assert.include(error.reason.description, "dev exceeds the safe integer range");
+    if (error.reason._tag === "BadArgument") assert.include(error.reason.description, "mode exceeds the safe integer range");
   } finally { spy.mockRestore(); }
 }));
 

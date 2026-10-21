@@ -42,7 +42,10 @@ const makeProject = (): Project =>
 
 const byName = Order.mapInput(Order.String, (entry: ExportEntry) => entry.name);
 
-const kindOf = (value: boolean, type: boolean): ExportKind => (value && type ? "both" : type ? "type" : "value");
+const kindOf: {
+  (value: boolean, type: boolean): ExportKind;
+  (type: boolean): (value: boolean) => ExportKind;
+} = dual(2, (value: boolean, type: boolean): ExportKind => (value && type ? "both" : type ? "type" : "value"));
 
 const facetsOf = (declarations: ReadonlyArray<Node>): ExportKind => {
   const value = A.some(
@@ -69,7 +72,10 @@ const facetsOf = (declarations: ReadonlyArray<Node>): ExportKind => {
   return kindOf(value, type);
 };
 
-const addTypeOnlyNames = (declaration: ExportDeclaration, names: MutableHashSet.MutableHashSet<string>): void => {
+const addTypeOnlyNames: {
+  (declaration: ExportDeclaration, names: MutableHashSet.MutableHashSet<string>): void;
+  (names: MutableHashSet.MutableHashSet<string>): (declaration: ExportDeclaration) => void;
+} = dual(2, (declaration: ExportDeclaration, names: MutableHashSet.MutableHashSet<string>): void => {
   const named = declaration.getNamedExports();
   if (declaration.isTypeOnly()) {
     if (A.isReadonlyArrayNonEmpty(named)) {
@@ -91,7 +97,7 @@ const addTypeOnlyNames = (declaration: ExportDeclaration, names: MutableHashSet.
       MutableHashSet.add(names, specifier.getAliasNode()?.getText() ?? specifier.getName());
     }
   }
-};
+});
 
 const typeOnlyNames = (sourceFile: SourceFile): MutableHashSet.MutableHashSet<string> => {
   const names = MutableHashSet.empty<string>();
@@ -155,8 +161,8 @@ export const readExportFacets: {
  * @category schemas
  * @since 0.0.0
  */
-export const UnsafeAssertionKind = LiteralKit(["as", "non-null", "angle-cast", "any", "ts-ignore"]).annotate(
-  $I.annote("UnsafeAssertionKind", { description: "One D15 unsafe assertion class." })
+export const UnsafeAssertionKind = LiteralKit(["as", "non-null", "angle-cast", "any", "ts-ignore"]).pipe(
+  $I.annoteSchema("UnsafeAssertionKind", { description: "One D15 unsafe assertion class." })
 );
 
 /**
@@ -229,15 +235,21 @@ const SANCTIONED_TEST_CAST_FILE = /(?:^|\/)scratchpad\/test\/[^/]+\/deliberately
 // Operator ruling 2026-10-09: a module's tests may hand ill-typed input to a runtime check through one
 // helper, `deliberatelyInvalid = <T>(value: unknown): T => value as T`, in scratchpad/test/<m>/. That one
 // cast is the only assertion D15 lets through, and only in exactly that shape and place.
-const isSanctionedTestCast = (node: Node, label: string): boolean =>
+const isSanctionedTestCast: {
+  (node: Node, label: string): boolean;
+  (label: string): (node: Node) => boolean;
+} = dual(2, (node: Node, label: string): boolean =>
   SANCTIONED_TEST_CAST_FILE.test(label) &&
   Node.isAsExpression(node) &&
   node.getText() === "value as T" &&
   O.exists(O.fromUndefinedOr(node.getFirstAncestorByKind(SyntaxKind.VariableDeclaration)), (declaration) =>
     declaration.getName() === "deliberatelyInvalid"
-  );
+  ));
 
-const scanOne = (sourceFile: SourceFile, label: string): ReadonlyArray<UnsafeAssertion> => {
+const scanOne: {
+  (sourceFile: SourceFile, label: string): ReadonlyArray<UnsafeAssertion>;
+  (label: string): (sourceFile: SourceFile) => ReadonlyArray<UnsafeAssertion>;
+} = dual(2, (sourceFile: SourceFile, label: string): ReadonlyArray<UnsafeAssertion> => {
   const findings: Array<UnsafeAssertion> = [];
   sourceFile.forEachDescendant((node) => {
     const kind = assertionKind(node);
@@ -253,7 +265,7 @@ const scanOne = (sourceFile: SourceFile, label: string): ReadonlyArray<UnsafeAss
     }
   }
   return findings;
-};
+});
 
 /**
  * Every D15 violation in the given files (absolute path, label pairs).
@@ -410,7 +422,10 @@ export const tsExtension = (specifier: string): string =>
  */
 export interface SpecifierResolver {
   readonly resolveRelative: (specifier: string) => O.Option<string>;
-  readonly resolveKit: (dep: string, subpath: string) => O.Option<string>;
+  readonly resolveKit: {
+    (dep: string, subpath: string): O.Option<string>;
+    (subpath: string): (dep: string) => O.Option<string>;
+  };
 }
 
 const KIT = /^@effected\/([^/]+)(?:\/(.+))?$/;
@@ -424,11 +439,12 @@ const KIT = /^@effected\/([^/]+)(?:\/(.+))?$/;
  *
  * ```ts
  * import { rewriteSpecifiers } from "@beep/scratchpad/effected/runner/Exports"
+ * import { dual } from "effect/Function"
  * import * as O from "effect/Option"
  *
  * const out = rewriteSpecifiers('import { Glob } from "@effected/glob";\nimport { x } from "./x.js";', {
  *   resolveRelative: (s) => O.none(),
- *   resolveKit: (dep) => O.some(`../${dep}/index.ts`),
+ *   resolveKit: dual(2, (dep: string, _subpath: string): O.Option<string> => O.some(`../${dep}/index.ts`)),
  * })
  * console.log(out) // 'import { Glob } from "../glob/index.ts";\nimport { x } from "./x.ts";'
  * ```

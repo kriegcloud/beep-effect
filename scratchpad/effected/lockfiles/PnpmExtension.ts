@@ -33,12 +33,12 @@ export const PnpmCatalogs = S.Record(
 		S.mutableKey(S.Union([
 			S.String,
 			S.Struct({
-				specifier: S.String.annotateKey({ description: "Dependency specifier declared by the catalog entry" }),
-				version: S.String.annotateKey({ description: "Pinned version resolved for the catalog entry" }),
+				specifier: S.String.pipe($I.annoteKey("PnpmCatalogs.entry.specifier", { description: "Dependency specifier declared by the catalog entry" })),
+				version: S.String.pipe($I.annoteKey("PnpmCatalogs.entry.version", { description: "Pinned version resolved for the catalog entry" })),
 			}),
 		])),
 	)),
-).annotate($I.annote("PnpmCatalogs", { description: "Catalog names mapped to package versions or specifier/version pairs preserved from the pnpm lockfile" }));
+).pipe($I.annoteSchema("PnpmCatalogs", { description: "Catalog names mapped to package versions or specifier/version pairs preserved from the pnpm lockfile" }));
 
 /**
  * Catalog records described by {@link PnpmCatalogs}.
@@ -73,13 +73,13 @@ export type PnpmCatalogs = typeof PnpmCatalogs.Type;
  * @since 0.0.0
  */
 export class PnpmExtension extends S.Class<PnpmExtension, { readonly brand: unique symbol }>($I`PnpmExtension`)({
-	_tag: S.tag("pnpm").annotateKey({ description: "Identifies extension data preserved from a pnpm lockfile" }),
-	catalogs: S.optionalKey(PnpmCatalogs).annotateKey({ description: "Catalog definitions recorded in the lockfile, mapping catalog and package names to pinned versions or specifier/version pairs" }),
-	overrides: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Dependency version overrides recorded in the pnpm lockfile header" }),
+	_tag: S.tag("pnpm").pipe($I.annoteKey("PnpmExtension._tag", { description: "Identifies extension data preserved from a pnpm lockfile" })),
+	catalogs: S.optionalKey(PnpmCatalogs).pipe($I.annoteKey("PnpmExtension.catalogs", { description: "Catalog definitions recorded in the lockfile, mapping catalog and package names to pinned versions or specifier/version pairs" })),
+	overrides: S.optionalKey(S.Record(S.String, S.String)).pipe($I.annoteKey("PnpmExtension.overrides", { description: "Dependency version overrides recorded in the pnpm lockfile header" })),
 	settings: S.optionalKey(
 		S.Struct({
 			autoInstallPeers: S.optionalKey(S.Boolean),
 			excludeLinksFromLockfile: S.optionalKey(S.Boolean),
 		}),
-	).annotateKey({ description: "Peer auto-installation and link-exclusion settings recorded in the pnpm lockfile header" }),
+	).pipe($I.annoteKey("PnpmExtension.settings", { description: "Peer auto-installation and link-exclusion settings recorded in the pnpm lockfile header" })),
 }, $I.annote("PnpmExtension", { description: "Extension data specific to pnpm lockfiles, attached to `Lockfile.extension` when the format is `\"pnpm\"`." })) {}

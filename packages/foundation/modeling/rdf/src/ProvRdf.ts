@@ -9,6 +9,7 @@ import { $RdfId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as Equal from "effect/Equal";
 import * as Base64Url from "effect/encoding/Base64Url";
 import { dual, flow, pipe } from "effect/Function";
 import * as Match from "effect/Match";
@@ -878,16 +879,46 @@ const decodePrimarySource: RecordDecoder = (quads, subject) =>
   );
 
 const decodeRecordByType = Match.type<string>().pipe(
-  Match.when(PROV_ENTITY.value, () => decodeEntity),
-  Match.when(PROV_ACTIVITY.value, () => decodeActivity),
-  Match.when(PROV_SOFTWARE_AGENT.value, () => decodeSoftwareAgent),
-  Match.when(PROV_AGENT.value, () => decodeAgent),
-  Match.when(PROV_USAGE.value, () => decodeUsage),
-  Match.when(PROV_GENERATION.value, () => decodeGeneration),
-  Match.when(PROV_ASSOCIATION.value, () => decodeAssociation),
-  Match.when(PROV_ATTRIBUTION.value, () => decodeAttribution),
-  Match.when(PROV_DERIVATION.value, () => decodeDerivation),
-  Match.when(PROV_PRIMARY_SOURCE.value, () => decodePrimarySource),
+  Match.when(
+    (type) => Equal.equals(type, PROV_ENTITY.value),
+    () => decodeEntity
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_ACTIVITY.value),
+    () => decodeActivity
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_SOFTWARE_AGENT.value),
+    () => decodeSoftwareAgent
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_AGENT.value),
+    () => decodeAgent
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_USAGE.value),
+    () => decodeUsage
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_GENERATION.value),
+    () => decodeGeneration
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_ASSOCIATION.value),
+    () => decodeAssociation
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_ATTRIBUTION.value),
+    () => decodeAttribution
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_DERIVATION.value),
+    () => decodeDerivation
+  ),
+  Match.when(
+    (type) => Equal.equals(type, PROV_PRIMARY_SOURCE.value),
+    () => decodePrimarySource
+  ),
   Match.orElse(
     (type): RecordDecoder =>
       () =>

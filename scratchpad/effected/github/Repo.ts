@@ -31,8 +31,8 @@ export class InvalidRepoRefError extends S.TaggedError<InvalidRepoRefError, { re
 	 *
 	 * @since 0.0.0
 	 */
-	input: S.String.annotateKey({ description: "What was handed in." }),
-}, $I.annote("InvalidRepoRefError", { description: "A repository slug was not `owner/repo`." })) {
+	input: S.String.pipe($I.annoteKey("InvalidRepoRefError.input", { description: "What was handed in." })),
+}, $I.annoteError<InvalidRepoRefError>("InvalidRepoRefError", { description: "A repository slug was not `owner/repo`." })) {
 	/**
 	 * Explains which input failed repository-slug validation.
 	 *
@@ -74,13 +74,13 @@ export class RepoRef extends S.Class<RepoRef, { readonly brand: unique symbol }>
 	 *
 	 * @since 0.0.0
 	 */
-	owner: S.NonEmptyString.check(S.isPattern(/^[^/]+$/u)).annotateKey({ description: "The user or organization." }),
+	owner: S.NonEmptyString.check(S.isPattern(/^[^/]+$/u)).pipe($I.annoteKey("RepoRef.owner", { description: "The user or organization." })),
 	/**
 	 * The repository name, without the owner.
 	 *
 	 * @since 0.0.0
 	 */
-	repo: S.NonEmptyString.check(S.isPattern(/^[^/]+$/u)).annotateKey({ description: "The repository name, without the owner." }),
+	repo: S.NonEmptyString.check(S.isPattern(/^[^/]+$/u)).pipe($I.annoteKey("RepoRef.repo", { description: "The repository name, without the owner." })),
 }, $I.annote("RepoRef", { description: "Which repository an operation acts on." })) {
 	/**
 	 * Validates an `"owner/repo"` slug synchronously without throwing for invalid input.

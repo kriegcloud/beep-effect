@@ -24,18 +24,10 @@ import { PackageFailure } from "./PracticeKgMcp.errors.ts";
  * Native DuckDB addons the host loads from the unpacked sidecar instead of
  * bundling.
  *
- * **Example** (Count the externals)
- *
- * ```ts
- * import { NativeAddonExternals } from "../../src/BundleGraph.ts"
- *
- * console.log(NativeAddonExternals.length) // 8
- * ```
- *
  * @category constants
  * @since 0.0.0
  */
-export const NativeAddonExternals: ReadonlyArray<string> = [
+const NativeAddonExternals: ReadonlyArray<string> = [
   "@duckdb/node-bindings-linux-x64/duckdb.node",
   "@duckdb/node-bindings-linux-x64-musl/duckdb.node",
   "@duckdb/node-bindings-linux-arm64/duckdb.node",

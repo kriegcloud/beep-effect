@@ -8,7 +8,9 @@
 // facade materializes them into the typed GlobPatternError.
 
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
@@ -16,6 +18,7 @@ import { EXPANSION_MAX, GuardMeasurement, GuardReason, isGuardExceeded } from ".
 import { Platform } from "./internal/types.ts";
 import type { EngineOptions } from "./internal/types.ts";
 import { GLOBSTAR, Minimatch, escape as engineEscape, unescape as engineUnescape } from "./internal/minimatch.ts";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/glob/GlobPattern");
@@ -52,27 +55,27 @@ export class GlobPatternError extends S.TaggedError<GlobPatternError, { readonly
 	 *
 	 * @since 0.0.0
 	 */
-	pattern: S.String.annotateKey({ description: "The pattern source that was rejected." }),
+	pattern: S.String.pipe($I.annoteKey("GlobPatternError.pattern", { description: "The pattern source that was rejected." })),
 	/**
 	 * Which guard tripped: pattern length, brace-expansion budget, or nesting depth.
 	 *
 	 * @since 0.0.0
 	 */
-	reason: GuardReason.annotateKey({ description: "Which guard tripped: pattern length, brace-expansion budget, or nesting depth." }),
+	reason: GuardReason.pipe($I.annoteKey("GlobPatternError.reason", { description: "Which guard tripped: pattern length, brace-expansion budget, or nesting depth." })),
 	/**
 	 * The cap the pattern exceeded.
 	 *
 	 * @since 0.0.0
 	 */
-	limit: S.Finite.annotateKey({ description: "The cap the pattern exceeded." }),
+	limit: S.Finite.pipe($I.annoteKey("GlobPatternError.limit", { description: "The cap the pattern exceeded." })),
 	/**
 	 * The measured value that exceeded `limit`.
 	 *
 	 * @since 0.0.0
 	 */
 	// Expansion arithmetic intentionally overflows to Infinity; preserve the typed failure boundary.
-	actual: GuardMeasurement.annotateKey({ description: "The measured value that exceeded `limit`, including Infinity for an overflowing expansion count." }),
-}, $I.annote("GlobPatternError", { description: "Typed failure raised when a glob pattern trips a compile-time guard: over-length, brace-expansion budget exhaustion, or nesting past the depth cap. Malformed input is never a defect — this is the only failure the package's fallible boundaries (GlobPattern.compile and `GlobSet.compile`) can produce." })) {
+	actual: GuardMeasurement.pipe($I.annoteKey("GlobPatternError.actual", { description: "The measured value that exceeded `limit`, including Infinity for an overflowing expansion count." })),
+}, $I.annoteError<GlobPatternError>("GlobPatternError", { description: "Typed failure raised when a glob pattern trips a compile-time guard: over-length, brace-expansion budget exhaustion, or nesting past the depth cap. Malformed input is never a defect — this is the only failure the package's fallible boundaries (GlobPattern.compile and `GlobSet.compile`) can produce." })) {
 	/**
 	 * Reports the rejected pattern, guard reason, cap and measurement in a diagnostic message.
 	 *
@@ -137,91 +140,91 @@ export class GlobPatternOptions extends S.Class<GlobPatternOptions, { readonly b
 	 *
 	 * @since 0.0.0
 	 */
-	nobrace: S.optionalKey(S.Boolean).annotateKey({ description: "Do not expand `{x,y}` style braces." }),
+	nobrace: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.nobrace", { description: "Do not expand `{x,y}` style braces." })),
 	/**
 	 * Do not treat a pattern starting with `#` as a comment.
 	 *
 	 * @since 0.0.0
 	 */
-	nocomment: S.optionalKey(S.Boolean).annotateKey({ description: "Do not treat a pattern starting with `#` as a comment." }),
+	nocomment: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.nocomment", { description: "Do not treat a pattern starting with `#` as a comment." })),
 	/**
 	 * Do not treat a pattern starting with `!` as a negation.
 	 *
 	 * @since 0.0.0
 	 */
-	nonegate: S.optionalKey(S.Boolean).annotateKey({ description: "Do not treat a pattern starting with `!` as a negation." }),
+	nonegate: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.nonegate", { description: "Do not treat a pattern starting with `!` as a negation." })),
 	/**
 	 * Treat `**` the same as `*`.
 	 *
 	 * @since 0.0.0
 	 */
-	noglobstar: S.optionalKey(S.Boolean).annotateKey({ description: "Treat `**` the same as `*`." }),
+	noglobstar: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.noglobstar", { description: "Treat `**` the same as `*`." })),
 	/**
 	 * Do not expand extglobs like `+(a|b)`.
 	 *
 	 * @since 0.0.0
 	 */
-	noext: S.optionalKey(S.Boolean).annotateKey({ description: "Do not expand extglobs like `+(a|b)`." }),
+	noext: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.noext", { description: "Do not expand extglobs like `+(a|b)`." })),
 	/**
 	 * Allow matches that start with `.` even if the pattern does not.
 	 *
 	 * @since 0.0.0
 	 */
-	dot: S.optionalKey(S.Boolean).annotateKey({ description: "Allow matches that start with `.` even if the pattern does not." }),
+	dot: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.dot", { description: "Allow matches that start with `.` even if the pattern does not." })),
 	/**
 	 * Match case-insensitively.
 	 *
 	 * @since 0.0.0
 	 */
-	nocase: S.optionalKey(S.Boolean).annotateKey({ description: "Match case-insensitively." }),
+	nocase: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.nocase", { description: "Match case-insensitively." })),
 	/**
 	 * Ignore case only in wildcard portions of the pattern.
 	 *
 	 * @since 0.0.0
 	 */
-	nocaseMagicOnly: S.optionalKey(S.Boolean).annotateKey({ description: "Ignore case only in wildcard portions of the pattern." }),
+	nocaseMagicOnly: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.nocaseMagicOnly", { description: "Ignore case only in wildcard portions of the pattern." })),
 	/**
 	 * Consider braces to be "magic" for the purpose of `hasMagic`.
 	 *
 	 * @since 0.0.0
 	 */
-	magicalBraces: S.optionalKey(S.Boolean).annotateKey({ description: "Consider braces to be \"magic\" for the purpose of `hasMagic`." }),
+	magicalBraces: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.magicalBraces", { description: "Consider braces to be \"magic\" for the purpose of `hasMagic`." })),
 	/**
 	 * Match a pattern without slashes against the basename of a path that contains slashes.
 	 *
 	 * @since 0.0.0
 	 */
-	matchBase: S.optionalKey(S.Boolean).annotateKey({ description: "Match a pattern without slashes against the basename of a path that contains slashes." }),
+	matchBase: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.matchBase", { description: "Match a pattern without slashes against the basename of a path that contains slashes." })),
 	/**
 	 * Invert the results of negated matches.
 	 *
 	 * @since 0.0.0
 	 */
-	flipNegate: S.optionalKey(S.Boolean).annotateKey({ description: "Invert the results of negated matches." }),
+	flipNegate: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.flipNegate", { description: "Invert the results of negated matches." })),
 	/**
 	 * Compare a partial path to the pattern: a path is a match as long as the parts present are not contradicted by the pattern.
 	 *
 	 * @since 0.0.0
 	 */
-	partial: S.optionalKey(S.Boolean).annotateKey({ description: "Compare a partial path to the pattern: a path is a match as long as the parts present are not contradicted by the pattern." }),
+	partial: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.partial", { description: "Compare a partial path to the pattern: a path is a match as long as the parts present are not contradicted by the pattern." })),
 	/**
 	 * Do not collapse multiple `/` into a single `/`.
 	 *
 	 * @since 0.0.0
 	 */
-	preserveMultipleSlashes: S.optionalKey(S.Boolean).annotateKey({ description: "Do not collapse multiple `/` into a single `/`." }),
+	preserveMultipleSlashes: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.preserveMultipleSlashes", { description: "Do not collapse multiple `/` into a single `/`." })),
 	/**
 	 * Treat `\\` as a path separator, not an escape character.
 	 *
 	 * @since 0.0.0
 	 */
-	windowsPathsNoEscape: S.optionalKey(S.Boolean).annotateKey({ description: "Treat `\\\\` as a path separator, not an escape character." }),
+	windowsPathsNoEscape: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.windowsPathsNoEscape", { description: "Treat `\\\\` as a path separator, not an escape character." })),
 	/**
 	 * For a pattern starting with a UNC path or drive letter in `nocase` mode, keep the root portions as strings instead of case-insensitive regular expressions.
 	 *
 	 * @since 0.0.0
 	 */
-	windowsNoMagicRoot: S.optionalKey(S.Boolean).annotateKey({ description: "For a pattern starting with a UNC path or drive letter in `nocase` mode, keep the root portions as strings instead of case-insensitive regular expressions." }),
+	windowsNoMagicRoot: S.optionalKey(S.Boolean).pipe($I.annoteKey("GlobPatternOptions.windowsNoMagicRoot", { description: "For a pattern starting with a UNC path or drive letter in `nocase` mode, keep the root portions as strings instead of case-insensitive regular expressions." })),
 	/**
 	 * The level of pre-parse pattern optimization: `0`, `1` or `2`.
 	 *
@@ -229,7 +232,7 @@ export class GlobPatternOptions extends S.Class<GlobPatternOptions, { readonly b
 	 */
 	optimizationLevel: S.optionalKey(
 		S.Finite.check(S.isInt(), S.isBetween({ minimum: 0, maximum: 2 })),
-	).annotateKey({ description: "The level of pre-parse pattern optimization: `0`, `1` or `2`." }),
+	).pipe($I.annoteKey("GlobPatternOptions.optimizationLevel", { description: "The level of pre-parse pattern optimization: `0`, `1` or `2`." })),
 	/**
 	 * The operating system the pattern is interpreted for. Defaults to `"posix"`; only `"win32"` changes behavior, and it is never read from the ambient process.
 	 *
@@ -237,7 +240,7 @@ export class GlobPatternOptions extends S.Class<GlobPatternOptions, { readonly b
 	 */
 	platform: S.optionalKey(
 		Platform,
-	).annotateKey({ description: "The operating system the pattern is interpreted for. Defaults to `\"posix\"`; only `\"win32\"` changes behavior, and it is never read from the ambient process." }),
+	).pipe($I.annoteKey("GlobPatternOptions.platform", { description: "The operating system the pattern is interpreted for. Defaults to `\"posix\"`; only `\"win32\"` changes behavior, and it is never read from the ambient process." })),
 	/**
 	 * Maximum number of `{...}` expansions, from `1` to `100000` (the default and ceiling).
 	 *
@@ -245,19 +248,19 @@ export class GlobPatternOptions extends S.Class<GlobPatternOptions, { readonly b
 	 */
 	braceExpandMax: S.optionalKey(
 		S.Finite.check(S.isInt(), S.isBetween({ minimum: 1, maximum: EXPANSION_MAX })),
-	).annotateKey({ description: "Maximum number of `{...}` expansions, from `1` to `100000` (the default and ceiling)." }),
+	).pipe($I.annoteKey("GlobPatternOptions.braceExpandMax", { description: "Maximum number of `{...}` expansions, from `1` to `100000` (the default and ceiling)." })),
 	/**
 	 * Maximum number of non-adjacent `**` segments the matcher recursively walks down.
 	 *
 	 * @since 0.0.0
 	 */
-	maxGlobstarRecursion: S.optionalKey(S.Finite.check(S.isInt(), S.isGreaterThan(0))).annotateKey({ description: "Maximum number of non-adjacent `**` segments the matcher recursively walks down." }),
+	maxGlobstarRecursion: S.optionalKey(S.Finite.check(S.isInt(), S.isGreaterThan(0))).pipe($I.annoteKey("GlobPatternOptions.maxGlobstarRecursion", { description: "Maximum number of non-adjacent `**` segments the matcher recursively walks down." })),
 	/**
 	 * Maximum depth to traverse for nested extglobs like `*(a|b|c)`.
 	 *
 	 * @since 0.0.0
 	 */
-	maxExtglobRecursion: S.optionalKey(S.Finite.check(S.isInt(), S.isGreaterThan(0))).annotateKey({ description: "Maximum depth to traverse for nested extglobs like `*(a|b|c)`." }),
+	maxExtglobRecursion: S.optionalKey(S.Finite.check(S.isInt(), S.isGreaterThan(0))).pipe($I.annoteKey("GlobPatternOptions.maxExtglobRecursion", { description: "Maximum depth to traverse for nested extglobs like `*(a|b|c)`." })),
 }, $I.annote("GlobPatternOptions", { description: "Matching options for a glob pattern: the full minimatch options surface, schema-validated. Invalid options are a developer wiring error and throw at `make` — a defect at construction; the typed channel stays reserved for malformed patterns." })) {}
 
 // Conditional-spread bridge: a present-but-undefined optionalKey never happens
@@ -291,13 +294,13 @@ const toEngineOptions = (o?: GlobPatternOptions): EngineOptions => ({
 // render as "Expected <filter>"). A non-guard throw is programmer error and
 // stays a defect.
 const compilesUnderDefaults = (source: string): true | string => {
-	try {
-		new Minimatch(source, {});
-		return true;
-	} catch (e) {
-		if (isGuardExceeded(e)) return e.message;
-		throw e;
-	}
+	return Result.match(Result.try({
+		try: () => new Minimatch(source, {}),
+		catch: (e) => {
+			if (isGuardExceeded(e)) return e.message;
+			throw e;
+		},
+	}), { onSuccess: (): true => true, onFailure: (message) => message });
 };
 
 /**
@@ -329,9 +332,9 @@ const compilesUnderDefaults = (source: string): true | string => {
  * @since 0.0.0
  */
 export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique symbol }>($I`GlobPattern`)(
-	S.Struct({ source: S.String.annotateKey({ description: "The glob pattern source, preserved verbatim." }) }).check(
+	S.Struct({ source: S.String.pipe($I.annoteKey("GlobPattern.source", { description: "The glob pattern source, preserved verbatim." })) }).check(
 		S.makeFilter((v) => compilesUnderDefaults(v.source), $I.annote("CompilesUnderDefaults", {
-			title: "compilable glob pattern",
+			message: "compilable glob pattern",
 			description: "Requires the pattern source to compile within the default length, expansion and nesting caps.",
 		})),
 	), $I.annote("GlobPattern", { description: "A compiled glob pattern with a total `matches(candidate)` predicate, plus the metadata a directory walker needs." }),
@@ -436,25 +439,29 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static compileResult(source: string, options?: GlobPatternOptions): Result.Result<GlobPattern, GlobPatternError> {
+	static readonly compileResult: {
+		(source: string, options?: GlobPatternOptions): Result.Result<GlobPattern, GlobPatternError>;
+		(options?: GlobPatternOptions): (source: string) => Result.Result<GlobPattern, GlobPatternError>;
+	} = dual((args) => P.isString(args[0]), (source: string, options?: GlobPatternOptions): Result.Result<GlobPattern, GlobPatternError> => {
 		const engineOptions = toEngineOptions(options);
-		try {
-			// Defaults first (the value invariant), then the effective engine.
-			new Minimatch(source, {});
-			const engine = new Minimatch(source, engineOptions);
-			const pattern = GlobPattern.make({ source });
-			pattern.#engine = engine;
-			pattern.#engineOptions = engineOptions;
-			return Result.succeed(pattern);
-		} catch (e) {
-			if (isGuardExceeded(e)) {
-				return Result.fail(
-					GlobPatternError.make({ pattern: source, reason: e.reason, limit: e.limit, actual: e.actual }),
-				);
-			}
-			throw e;
-		}
-	}
+		return Result.try({
+			try: () => {
+				// Defaults first (the value invariant), then the effective engine.
+				new Minimatch(source, {});
+				const engine = new Minimatch(source, engineOptions);
+				const pattern = GlobPattern.make({ source });
+				pattern.#engine = engine;
+				pattern.#engineOptions = engineOptions;
+				return pattern;
+			},
+			catch: (e) => {
+				if (isGuardExceeded(e)) {
+					return GlobPatternError.make({ pattern: source, reason: e.reason, limit: e.limit, actual: e.actual });
+				}
+				throw e;
+			},
+		});
+	});
 
 	/**
 	 * Compile a pattern under the given options — the package's fallible
@@ -482,9 +489,12 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static readonly compile = Effect.fn("GlobPattern.compile")(function* (source: string, options?: GlobPatternOptions) {
+	static readonly compile: {
+		(source: string, options?: GlobPatternOptions): Effect.Effect<GlobPattern, GlobPatternError>;
+		(options?: GlobPatternOptions): (source: string) => Effect.Effect<GlobPattern, GlobPatternError>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("GlobPattern.compile")(function* (source: string, options?: GlobPatternOptions) {
 		return yield* Effect.fromResult(GlobPattern.compileResult(source, options));
-	});
+	}));
 
 	/**
 	 * Whether `candidate` matches this pattern. Total: never throws, never
@@ -595,7 +605,7 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
 			}
 		}
 		if (common === undefined || common.length === 0) return "";
-		return `${common.join("/")}/`;
+		return `${A.join(common, "/")}/`;
 	}
 
 	/**
@@ -624,10 +634,9 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
 	 * @since 0.0.0
 	 */
 	get crossesSegments(): boolean {
-		return this.#engineOf().set.some((row) => {
+		return A.some(this.#engineOf().set, (row) => {
 			if (row.includes(GLOBSTAR)) return true;
-			const firstMagic = row.findIndex((part) => !P.isString(part));
-			return firstMagic !== -1 && firstMagic < row.length - 1;
+			return O.exists(A.findFirstIndex(row, P.not(P.isString)), (firstMagic) => firstMagic < row.length - 1);
 		});
 	}
 
@@ -648,9 +657,11 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
 	 * @category encoding
 	 * @since 0.0.0
 	 */
-	static escape(literal: string, options?: GlobPatternOptions): string {
-		return engineEscape(literal, toEngineOptions(options));
-	}
+	static readonly escape: {
+		(literal: string, options?: GlobPatternOptions): string;
+		(options?: GlobPatternOptions): (literal: string) => string;
+	} = dual((args) => P.isString(args[0]), (literal: string, options?: GlobPatternOptions): string =>
+		engineEscape(literal, toEngineOptions(options)));
 
 	/**
 	 * Undo {@link GlobPattern.escape}.
@@ -667,9 +678,11 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
 	 * @category decoding
 	 * @since 0.0.0
 	 */
-	static unescape(pattern: string, options?: GlobPatternOptions): string {
-		return engineUnescape(pattern, toEngineOptions(options));
-	}
+	static readonly unescape: {
+		(pattern: string, options?: GlobPatternOptions): string;
+		(options?: GlobPatternOptions): (pattern: string) => string;
+	} = dual((args) => P.isString(args[0]), (pattern: string, options?: GlobPatternOptions): string =>
+		engineUnescape(pattern, toEngineOptions(options)));
 
 	/**
 	 * `Schema.Codec<GlobPattern, string>` — decode a bare pattern string into

@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { ArchitectureLabConfigTest } from "@beep/architecture-lab-config/test";
 import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem";
 import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
@@ -21,7 +21,7 @@ import * as S from "effect/Schema";
 
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis: PgliteIntegrationTimeout } =
   makePgliteIntegrationGate();
-const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
+const migrationsFolder = NodeURL.fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
 
 // The db-admin drizzle folder now contains `CREATE EXTENSION btree_gist`, which
 // the shared external pglite-socket lane cannot load, so suites that apply it

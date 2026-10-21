@@ -5,6 +5,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Result from "effect/Result";
 import * as Fiber from "effect/Fiber";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
@@ -138,9 +139,9 @@ describe("WorkflowDispatch polling deadline", () => {
   it.effect("bounds a blocked dispatch request by the polling deadline", () =>
     Effect.scopedWith((scope) => Effect.gen(function* () {
       const started = yield* Deferred.make<void>();
-      const client = GitHubClient.layerTest({ request: () => Deferred.succeed(started, undefined).pipe(
+      const client = GitHubClient.layerTest({ request: dual(2, (_route: string, _params: unknown) => Deferred.succeed(started, undefined).pipe(
         Effect.andThen(Effect.never),
-      ) });
+      )) });
       const context = yield* Layer.buildWithScope(WorkflowDispatch.layer.pipe(
         Layer.provideMerge(Layer.merge(client, Repo.layer(REPO))),
       ), scope);
@@ -163,7 +164,8 @@ describe("WorkflowDispatch polling deadline", () => {
       const started = yield* Deferred.make<void>();
       const { base } = harness([{ status: 204 }]);
       const blockedClient = Layer.effect(GitHubClient, Effect.map(GitHubClient, (client) => ({
-        ...client, paginate: () => Deferred.succeed(started, undefined).pipe(Effect.andThen(Effect.never)),
+        ...client, paginate: dual((args) => P.isString(args[0]), (_route: string, _params: unknown, _options?: unknown) =>
+          Deferred.succeed(started, undefined).pipe(Effect.andThen(Effect.never))),
       }))).pipe(Layer.provide(base));
       const context = yield* Layer.buildWithScope(WorkflowDispatch.layer.pipe(
         Layer.provideMerge(Layer.merge(blockedClient, Repo.layer(REPO))),

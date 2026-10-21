@@ -5,6 +5,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
 import type { AudienceKind } from "../env/index.ts";
@@ -52,7 +53,10 @@ export interface CliThemeShape extends StreamTheme {
  */
 export interface StreamTheme {
 	/** Render `text` in a token or an explicit style; the identity when colour is `none`. */
-	readonly paint: (token: TokenName | Style, text: string) => string;
+	readonly paint: {
+		(token: TokenName | Style, text: string): string;
+		(text: string): (token: TokenName | Style) => string;
+	};
 	/**
 	 * The resolved {@link Style} of a token or style: the one `paint` renders, whatever the colour level.
 	 *
@@ -72,7 +76,10 @@ export interface StreamTheme {
 	 * Render a status from a vocabulary: its glyph, sanitised (see `Status.glyph`) and painted with its token, then
 	 * `text` when given, as it is: sanitising `text` is the caller's, as `CliMessage` and `CliLog.status` do.
 	 */
-	readonly status: <N extends string>(vocab: Status<N>, name: N, text?: string) => string;
+	readonly status: {
+		<N extends string>(vocab: Status<N>, name: N, text?: string): string;
+		<N extends string>(name: N, text?: string): (vocab: Status<N>) => string;
+	};
 }
 
 /**
@@ -93,10 +100,10 @@ export interface StreamTheme {
  */
 export const CliThemeOptions = S.Struct({
 	/** Styles that replace the default of a token. */
-	tokens: S.optional(S.Record(TokenName, S.optionalKey(Style))).annotate($I.annote("CliThemeOptions.tokens", { description: "Partial replacements for default semantic token styles." })),
+	tokens: S.optionalKey(S.Record(TokenName, S.optionalKey(Style))).pipe($I.annoteKey("CliThemeOptions.tokens", { description: "Partial replacements for default semantic token styles." })),
 	/** The glyph set. `auto`, the default, is ASCII only when `TERM=dumb`. */
-	glyphs: S.optional(S.Literals(["unicode", "ascii", "auto"])).annotate($I.annote("CliThemeOptions.glyphs", { description: "Glyph selection, with auto following TERM." })),
-}).annotate($I.annote("CliThemeOptions", { description: "Plain token overrides and glyph selection for a CLI theme." }));
+	glyphs: S.optionalKey(S.Literals(["unicode", "ascii", "auto"])).pipe($I.annoteKey("CliThemeOptions.glyphs", { description: "Glyph selection, with auto following TERM." })),
+}).pipe($I.annoteSchema("CliThemeOptions", { description: "Plain token overrides and glyph selection for a CLI theme." }));
 
 /**
  * The plain options accepted by the live theme layer.
@@ -124,12 +131,12 @@ export type CliThemeOptions = typeof CliThemeOptions.Type;
  */
 export const CliThemeTestOptions = S.Struct({
 	/** The stdout colour level; `none` by default. */
-	color: S.optional(ColorLevel).annotate($I.annote("CliThemeTestOptions.color", { description: "Fixed stdout colour support." })),
+	color: S.optionalKey(ColorLevel).pipe($I.annoteKey("CliThemeTestOptions.color", { description: "Fixed stdout colour support." })),
 	/** The stderr colour level; the same as `color` by default. */
-	stderrColor: S.optional(ColorLevel).annotate($I.annote("CliThemeTestOptions.stderrColor", { description: "Fixed stderr colour support, defaulting to stdout." })),
+	stderrColor: S.optionalKey(ColorLevel).pipe($I.annoteKey("CliThemeTestOptions.stderrColor", { description: "Fixed stderr colour support, defaulting to stdout." })),
 	/** The glyph set; Unicode by default. */
-	glyphs: S.optional(S.Literals(["unicode", "ascii"])).annotate($I.annote("CliThemeTestOptions.glyphs", { description: "The fixed glyph set used by a test." })),
-}).annotate($I.annote("CliThemeTestOptions", { description: "Plain colour and glyph answers for a test theme layer." }));
+	glyphs: S.optionalKey(S.Literals(["unicode", "ascii"])).pipe($I.annoteKey("CliThemeTestOptions.glyphs", { description: "The fixed glyph set used by a test." })),
+}).pipe($I.annoteSchema("CliThemeTestOptions", { description: "Plain colour and glyph answers for a test theme layer." }));
 
 /**
  * The plain options accepted by the test theme layer.
@@ -165,35 +172,41 @@ export const streamThemeAt: {
 	glyphs: GlyphSet,
 	color: ColorLevel,
 ): StreamTheme => {
-	const paint = (token: TokenName | Style, text: string): string => paintStyle(resolve(token), color, text);
+	const paint: StreamTheme["paint"] = dual(2, (token: TokenName | Style, text: string): string =>
+		paintStyle(resolve(token), color, text));
 	return {
 		paint,
 		style: resolve,
 		sgr: (token) => openSequence(resolve(token), color),
 		glyphs,
 		color,
-		status: (vocab, name, text) => {
+		status: dual((args) => P.isObjectKeyword(args[0]), <N extends string>(vocab: Status<N>, name: N, text?: string): string => {
 			// The glyph comes sanitised from the vocabulary; only the kit's own paint wraps it.
 			const glyph = paint(vocab.def(name).token, vocab.glyph(name, glyphs));
 			return text === undefined || text === "" ? glyph : `${glyph} ${text}`;
-		},
+		}),
 	};
 });
 
 /** The audience rule, shared by `CliTheme.forAudience` and the class's own docs. */
-const forAudience = (theme: StreamTheme, audience: AudienceKind | undefined): StreamTheme =>
-	audience === "agent" && theme.color !== "none" ? streamThemeAt(theme.style, theme.glyphs, "none") : theme;
+const forAudience: {
+	(theme: StreamTheme, audience: AudienceKind | undefined): StreamTheme;
+	(audience: AudienceKind | undefined): (theme: StreamTheme) => StreamTheme;
+} = dual(2, (theme: StreamTheme, audience: AudienceKind | undefined): StreamTheme =>
+	audience === "agent" && theme.color !== "none" ? streamThemeAt(theme.style, theme.glyphs, "none") : theme);
 
-const make = (
-	colors: { readonly stdout: ColorLevel; readonly stderr: ColorLevel },
-	glyphs: GlyphSet,
-	overrides: Partial<Record<TokenName, Style>> | undefined,
-): CliThemeShape => {
+type ThemeColors = { readonly stdout: ColorLevel; readonly stderr: ColorLevel };
+type ThemeOverrides = Partial<Record<TokenName, Style>> | undefined;
+
+const make: {
+	(colors: ThemeColors, glyphs: GlyphSet, overrides: ThemeOverrides): CliThemeShape;
+	(glyphs: GlyphSet, overrides: ThemeOverrides): (colors: ThemeColors) => CliThemeShape;
+} = dual(3, (colors: ThemeColors, glyphs: GlyphSet, overrides: ThemeOverrides): CliThemeShape => {
 	const resolve = (token: TokenName | Style): Style => Token.resolve(token, overrides);
 	const stdout = streamThemeAt(resolve, glyphs, colors.stdout);
 	const stderr = streamThemeAt(resolve, glyphs, colors.stderr);
 	return { ...stdout, forStream: (stream) => (stream === "stdout" ? stdout : stderr) };
-};
+});
 
 /** The prompt glyphs that differ under ASCII; `Prompt.makeTheme` already holds the Unicode ones. */
 const ASCII_PROMPT_GLYPHS = {
@@ -314,7 +327,10 @@ export class CliTheme extends Context.Service<CliTheme, CliThemeShape>()($I`CliT
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly forAudience: (theme: StreamTheme, audience: AudienceKind | undefined) => StreamTheme = forAudience;
+	static readonly forAudience: {
+		(theme: StreamTheme, audience: AudienceKind | undefined): StreamTheme;
+		(audience: AudienceKind | undefined): (theme: StreamTheme) => StreamTheme;
+	} = forAudience;
 
 	/**
 	 * A fixed theme that needs nothing; `none` colour and Unicode glyphs unless told otherwise.

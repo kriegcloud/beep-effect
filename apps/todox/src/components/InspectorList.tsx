@@ -268,13 +268,8 @@ export function InspectorList({
       <p className="row__cursorhint" aria-hidden="true">
         ↑ ↓ MOVE CURSOR · ENTER OPEN RECORD · ESC CLOSE
       </p>
-      {O.match(openRow, {
-        onNone: () => (
-          <p className="inspector__closed" id={inspectorId}>
-            INSPECTOR CLOSED · SELECT A RECORD TO OPEN ITS SOURCE SPAN AND RECEIPT
-          </p>
-        ),
-        onSome: (row) => {
+      {O.getOrElse(
+        O.map(openRow, (row) => {
           const source = O.flatMap(A.head(row.evidence), (ref) => A.findFirst(sources, (s) => s.no === ref.source));
           return (
             <div className="inspector" id={inspectorId} role="region" aria-label={`Record inspector: ${row.no}`}>
@@ -307,8 +302,13 @@ export function InspectorList({
               </div>
             </div>
           );
-        },
-      })}
+        }),
+        () => (
+          <p className="inspector__closed" id={inspectorId}>
+            INSPECTOR CLOSED · SELECT A RECORD TO OPEN ITS SOURCE SPAN AND RECEIPT
+          </p>
+        )
+      )}
     </div>
   );
 }

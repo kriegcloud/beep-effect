@@ -25,7 +25,7 @@ import * as Str from "effect/String";
 import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
-import { constVoid } from "effect/Function";
+import { constVoid, dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/npm/ReleaseAgeGate");
 
@@ -69,13 +69,13 @@ export const PartialReleaseAgeGate = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	ageMinutes: S.optionalKey(S.Finite).annotateKey({ description: "Minutes a release must age; absent means this source sets no age." }),
+	ageMinutes: S.optionalKey(S.Finite).pipe($I.annoteKey("PartialReleaseAgeGate.ageMinutes", { description: "Minutes a release must age; absent means this source sets no age." })),
 	/**
 	 * Exempt package-name patterns; absent means this source adds no exemptions.
 	 *
 	 * @since 0.0.0
 	 */
-	exclude: S.String.pipe(S.Array, S.optionalKey).annotateKey({ description: "Exempt package-name patterns; absent means this source adds no exemptions." }),
+	exclude: S.String.pipe(S.Array, S.optionalKey, $I.annoteKey("PartialReleaseAgeGate.exclude", { description: "Exempt package-name patterns; absent means this source adds no exemptions." })),
 }).pipe($I.annoteSchema("PartialReleaseAgeGate", { description: "A source's partial contribution to a ReleaseAgeGate: the effective gate is assembled from more than one place (inline `pnpm-workspace.yaml` keys, replayed `updateConfig` hooks, `pnpm config get` output), and each source may set the age, the exclude list, both, or neither. Absent fields contribute nothing to the combination." }));
 
 /**
@@ -99,7 +99,10 @@ const AgeMinutes = S.Number.check(S.isGreaterThanOrEqualTo(0), S.isFinite());
 // semantics: an exact-name match, or a `*`-glob where `*` matches ANY run of
 // characters INCLUDING `/`. Every other character matches literally, so `*`
 // is the only wildcard. See the divergence note on `matchesExclude`.
-const matchesPattern = (name: string, pattern: string): boolean => {
+const matchesPattern: {
+	(name: string, pattern: string): boolean;
+	(pattern: string): (name: string) => boolean;
+} = dual(2, (name: string, pattern: string): boolean => {
 	if (pattern === name) return true;
 	if (!Str.includes("*")(pattern)) return false;
 	// Linear two-pointer wildcard scan (greedy `*` with backtrack-to-star):
@@ -129,10 +132,13 @@ const matchesPattern = (name: string, pattern: string): boolean => {
 	}
 	while (pattern[patternIndex] === "*") patternIndex += 1;
 	return patternIndex === pattern.length;
-};
+});
 
-const matchesExclude = (name: string, patterns: readonly string[]): boolean =>
-	A.some(patterns, (pattern) => matchesPattern(name, pattern));
+const matchesExclude: {
+	(name: string, patterns: readonly string[]): boolean;
+	(patterns: readonly string[]): (name: string) => boolean;
+} = dual(2, (name: string, patterns: readonly string[]): boolean =>
+	A.some(patterns, (pattern) => matchesPattern(name, pattern)));
 
 /**
  * pnpm's publish-time release-age gate: the number of minutes a published
@@ -178,13 +184,13 @@ export class ReleaseAgeGate extends S.Class<ReleaseAgeGate, { readonly brand: un
 	 *
 	 * @since 0.0.0
 	 */
-	ageMinutes: AgeMinutes.annotateKey({ description: "Minutes a published version must age before it is eligible (non-negative, finite)." }),
+	ageMinutes: AgeMinutes.pipe($I.annoteKey("ReleaseAgeGate.ageMinutes", { description: "Minutes a published version must age before it is eligible (non-negative, finite)." })),
 	/**
 	 * Package-name patterns exempt from the gate (exact names or `*`-globs).
 	 *
 	 * @since 0.0.0
 	 */
-	exclude: S.Array(S.String).annotateKey({ description: "Package-name patterns exempt from the gate (exact names or `*`-globs)." }),
+	exclude: S.Array(S.String).pipe($I.annoteKey("ReleaseAgeGate.exclude", { description: "Package-name patterns exempt from the gate (exact names or `*`-globs)." })),
 }, $I.annote("ReleaseAgeGate", { description: "pnpm's publish-time release-age gate: the number of minutes a published version must age before it is eligible, and the set of package-name patterns exempt from the gate. Mirrors pnpm's `minimumReleaseAge` / `minimumReleaseAgeExclude` config so a resolver can drop too-young candidate versions before picking, avoiding `ERR_PNPM_NO_MATURE_MATCHING_VERSION`." })) {
 	/**
 	 * Combine partial contributions from multiple sources into one effective
@@ -258,9 +264,10 @@ export class ReleaseAgeGate extends S.Class<ReleaseAgeGate, { readonly brand: un
 	 * @category predicates
 	 * @since 0.0.0
 	 */
-	static matchesExclude(name: string, patterns: readonly string[]): boolean {
-		return matchesExclude(name, patterns);
-	}
+	static readonly matchesExclude: {
+		(name: string, patterns: readonly string[]): boolean;
+		(patterns: readonly string[]): (name: string) => boolean;
+	} = matchesExclude;
 
 	/**
 	 * Whether this gate exempts the given package name from the release-age

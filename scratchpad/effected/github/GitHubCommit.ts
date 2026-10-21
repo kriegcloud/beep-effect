@@ -3,8 +3,10 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
@@ -18,8 +20,8 @@ import type { PageOptions } from "./Rest.ts";
 const $I = $ScratchpadId.create("effected/github/GitHubCommit");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
-	message: S.String.annotateKey({ description: "The test-double member that needs an override." }),
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+	message: S.String.pipe($I.annoteKey("UnstubbedError.message", { description: "The test-double member that needs an override." })),
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * A commit, projected to what callers read.
@@ -45,15 +47,15 @@ class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: uni
  */
 export class CommitSummary extends S.Class<CommitSummary, { readonly brand: unique symbol }>($I`CommitSummary`)({
 	/** The commit sha. */
-	sha: S.String.annotateKey({ description: "The commit sha." }),
+	sha: S.String.pipe($I.annoteKey("CommitSummary.sha", { description: "The commit sha." })),
 	/** The full commit message, untrimmed — this package does not decide what "the message" means. */
-	message: S.String.annotateKey({ description: "The full commit message, untrimmed — this package does not decide what \"the message\" means." }),
+	message: S.String.pipe($I.annoteKey("CommitSummary.message", { description: "The full commit message, untrimmed — this package does not decide what \"the message\" means." })),
 	/** The author's name as git recorded it, or `"Unknown"` when GitHub reports none. */
-	author: S.String.annotateKey({ description: "The author's name as git recorded it, or `\"Unknown\"` when GitHub reports none." }),
+	author: S.String.pipe($I.annoteKey("CommitSummary.author", { description: "The author's name as git recorded it, or `\"Unknown\"` when GitHub reports none." })),
 	/** The GitHub login of the authoring account, when GitHub could attribute one. */
-	authorLogin: S.optionalKey(S.String).annotateKey({ description: "The GitHub login of the authoring account, when GitHub could attribute one." }),
+	authorLogin: S.optionalKey(S.String).pipe($I.annoteKey("CommitSummary.authorLogin", { description: "The GitHub login of the authoring account, when GitHub could attribute one." })),
 	/** The web URL for the commit. */
-	url: S.String.annotateKey({ description: "The web URL for the commit." }),
+	url: S.String.pipe($I.annoteKey("CommitSummary.url", { description: "The web URL for the commit." })),
 	/**
   * The parent commit shas, in the order GitHub lists them.
   *
@@ -63,7 +65,7 @@ export class CommitSummary extends S.Class<CommitSummary, { readonly brand: uniq
   * not an optional one: every commit endpoint this package reads reports
   * `parents`, so "which commit(s) did this come from" never needs a raw route.
   */
-	parents: S.Array(S.String).annotateKey({ description: "The parent commit shas, in the order GitHub lists them." }),
+	parents: S.Array(S.String).pipe($I.annoteKey("CommitSummary.parents", { description: "The parent commit shas, in the order GitHub lists them." })),
 }, $I.annote("CommitSummary", { description: "A commit, projected to what callers read." })) {
 	/**
  * The message's first line.
@@ -153,15 +155,15 @@ export type FileStatus = typeof FileStatus.Type;
  */
 export class CommitFile extends S.Class<CommitFile, { readonly brand: unique symbol }>($I`CommitFile`)({
 	/** Repository-relative path, after any rename. */
-	path: S.String.annotateKey({ description: "Repository-relative path, after any rename." }),
+	path: S.String.pipe($I.annoteKey("CommitFile.path", { description: "Repository-relative path, after any rename." })),
 	/** What happened to it. */
-	status: FileStatus.annotateKey({ description: "What happened to it." }),
+	status: FileStatus.pipe($I.annoteKey("CommitFile.status", { description: "What happened to it." })),
 	/** Lines added. */
-	additions: S.Int.annotateKey({ description: "Lines added." }),
+	additions: S.Int.pipe($I.annoteKey("CommitFile.additions", { description: "Lines added." })),
 	/** Lines removed. */
-	deletions: S.Int.annotateKey({ description: "Lines removed." }),
+	deletions: S.Int.pipe($I.annoteKey("CommitFile.deletions", { description: "Lines removed." })),
 	/** The path before a rename or copy. */
-	previousPath: S.optionalKey(S.String).annotateKey({ description: "The path before a rename or copy." }),
+	previousPath: S.optionalKey(S.String).pipe($I.annoteKey("CommitFile.previousPath", { description: "The path before a rename or copy." })),
 }, $I.annote("CommitFile", { description: "One changed file." })) {}
 
 /**
@@ -188,15 +190,15 @@ export class CommitFile extends S.Class<CommitFile, { readonly brand: unique sym
  */
 export class CommitComparison extends S.Class<CommitComparison, { readonly brand: unique symbol }>($I`CommitComparison`)({
 	/** How head relates to base. */
-	status: S.Literals(["diverged", "ahead", "behind", "identical"]).annotateKey({ description: "How head relates to base." }),
+	status: S.Literals(["diverged", "ahead", "behind", "identical"]).pipe($I.annoteKey("CommitComparison.status", { description: "How head relates to base." })),
 	/** Commits head has that base does not. */
-	aheadBy: S.Int.annotateKey({ description: "Commits head has that base does not." }),
+	aheadBy: S.Int.pipe($I.annoteKey("CommitComparison.aheadBy", { description: "Commits head has that base does not." })),
 	/** Commits base has that head does not. */
-	behindBy: S.Int.annotateKey({ description: "Commits base has that head does not." }),
+	behindBy: S.Int.pipe($I.annoteKey("CommitComparison.behindBy", { description: "Commits base has that head does not." })),
 	/** The commits in the range. */
-	commits: S.Array(CommitSummary).annotateKey({ description: "The commits in the range." }),
+	commits: S.Array(CommitSummary).pipe($I.annoteKey("CommitComparison.commits", { description: "The commits in the range." })),
 	/** The files that differ, subject to GitHub's own 300-file cap on this endpoint. */
-	files: S.Array(CommitFile).annotateKey({ description: "The files that differ, subject to GitHub's own 300-file cap on this endpoint." }),
+	files: S.Array(CommitFile).pipe($I.annoteKey("CommitComparison.files", { description: "The files that differ, subject to GitHub's own 300-file cap on this endpoint." })),
 }, $I.annote("CommitComparison", { description: "The result of comparing two refs." })) {}
 
 /**
@@ -226,12 +228,20 @@ export interface GitHubCommitShape {
   * constraint; use {@link GitHubCommitShape.changedFiles} to page every file
   * of one commit.
   */
-	readonly compare: (base: string, head: string) => Effect.Effect<CommitComparison, GitHubError, Repo>;
+	readonly compare: {
+		(base: string, head: string): Effect.Effect<CommitComparison, GitHubError, Repo>;
+		(head: string): (base: string) => Effect.Effect<CommitComparison, GitHubError, Repo>;
+	};
 	/** The files one commit touched, paginated by file. */
-	readonly changedFiles: (
-		ref: string,
-		options?: { readonly page?: PageOptions | undefined },
-	) => Effect.Effect<ReadonlyArray<CommitFile>, GitHubError, Repo>;
+	readonly changedFiles: {
+		(
+			ref: string,
+			options?: { readonly page?: PageOptions | undefined },
+		): Effect.Effect<ReadonlyArray<CommitFile>, GitHubError, Repo>;
+		(
+			options?: { readonly page?: PageOptions | undefined },
+		): (ref: string) => Effect.Effect<ReadonlyArray<CommitFile>, GitHubError, Repo>;
+	};
 }
 
 /**
@@ -352,11 +362,14 @@ const CommitResponse = S.Struct({
 		message: S.String,
 		author: S.Struct({ name: S.String.pipe(S.NullOr, S.optional) }).pipe(S.NullOr, S.optional),
 	}),
-	author: S.Struct({ login: S.optional(S.String) }).pipe(S.NullOr, S.optional),
+	author: S.Struct({ login: S.optionalKey(S.String) }).pipe(S.NullOr, S.optional),
 	parents: S.Array(S.Struct({ sha: S.String })),
-}).annotate($I.annote("CommitResponse", { description: "The selected fields used to summarize a commit response." }));
+}).pipe($I.annoteSchema("CommitResponse", { description: "The selected fields used to summarize a commit response." }));
 
-const summarize = Effect.fn("GitHubCommit.summarize")(function* (input: unknown, operation: string) {
+const summarize: {
+	(input: unknown, operation: string): Effect.Effect<CommitSummary, GitHubError>;
+	(operation: string): (input: unknown) => Effect.Effect<CommitSummary, GitHubError>;
+} = dual(2, Effect.fn("GitHubCommit.summarize")(function* (input: unknown, operation: string) {
 	const raw = yield* S.decodeUnknownEffect(CommitResponse)(input).pipe(
 		Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected commit", error)),
 	);
@@ -368,7 +381,7 @@ const summarize = Effect.fn("GitHubCommit.summarize")(function* (input: unknown,
 		url: raw.html_url,
 		parents: A.map(raw.parents, (parent) => parent.sha),
 	});
-});
+}));
 
 const ComparisonResponse = S.Struct({
 	status: S.String,
@@ -380,9 +393,9 @@ const ComparisonResponse = S.Struct({
 		status: S.String,
 		additions: S.Finite,
 		deletions: S.Finite,
-		previous_filename: S.optional(S.String),
+		previous_filename: S.optionalKey(S.String),
 	})).pipe(S.NullOr, S.optional),
-}).annotate($I.annote("ComparisonResponse", { description: "The selected comparison fields, including nested commits and diff entries." }));
+}).pipe($I.annoteSchema("ComparisonResponse", { description: "The selected comparison fields, including nested commits and diff entries." }));
 
 /**
  * The minimum of GitHub's `diff-entry` payload the {@link CommitFile}
@@ -423,7 +436,10 @@ export interface RawFile {
  * @category mapping
  * @since 0.0.0
  */
-export const fileOf = Effect.fn("GitHubCommit.fileOf")(function* (raw: RawFile, operation: string) {
+export const fileOf: {
+	(raw: RawFile, operation: string): Effect.Effect<CommitFile, GitHubError>;
+	(operation: string): (raw: RawFile) => Effect.Effect<CommitFile, GitHubError>;
+} = dual(2, Effect.fn("GitHubCommit.fileOf")(function* (raw: RawFile, operation: string) {
 	return yield* S.decodeUnknownEffect(CommitFile)({
 		path: raw.filename,
 		status: raw.status,
@@ -433,7 +449,7 @@ export const fileOf = Effect.fn("GitHubCommit.fileOf")(function* (raw: RawFile, 
 	}).pipe(
 		Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected commit file", error)),
 	);
-});
+}));
 
 const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 	get: Effect.fn("GitHubCommit.get")(function* (ref: string) {
@@ -460,10 +476,10 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 			},
 			options?.page,
 		);
-		return yield* Effect.forEach(commits, (commit) => summarize(commit, "GitHubCommit.list"));
+		return yield* Effect.forEach(commits, summarize("GitHubCommit.list"));
 	}),
 
-	compare: Effect.fn("GitHubCommit.compare")(function* (base: string, head: string) {
+	compare: dual(2, Effect.fn("GitHubCommit.compare")(function* (base: string, head: string) {
 		const { owner, repo } = yield* Repo;
 		yield* Effect.annotateCurrentSpan({ owner, repo, base, head });
 		const comparison = yield* client.request("GET /repos/{owner}/{repo}/compare/{basehead}", {
@@ -478,14 +494,14 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 			status: selected.status,
 			aheadBy: selected.ahead_by,
 			behindBy: selected.behind_by,
-			commits: yield* Effect.forEach(selected.commits, (commit) => summarize(commit, "GitHubCommit.compare")),
-			files: yield* Effect.forEach(selected.files ?? [], (file) => fileOf(file, "GitHubCommit.compare")),
+			commits: yield* Effect.forEach(selected.commits, summarize("GitHubCommit.compare")),
+			files: yield* Effect.forEach(selected.files ?? [], fileOf("GitHubCommit.compare")),
 		}).pipe(
 			Effect.mapError((error) => GitHubError.decode("GitHubCommit.compare", "GitHub returned an unexpected commit comparison", error)),
 		);
-	}),
+	})),
 
-	changedFiles: Effect.fn("GitHubCommit.changedFiles")(function* (
+	changedFiles: dual((args) => P.isString(args[0]), Effect.fn("GitHubCommit.changedFiles")(function* (
 		ref: string,
 		options?: { readonly page?: PageOptions | undefined },
 	) {
@@ -513,12 +529,12 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 								if (files.length < perPage) finished = true;
 								return files.length === 0
 									? Effect.succeedNone
-									: Effect.asSome(Effect.forEach(files, (file) => fileOf(file, "GitHubCommit.changedFiles")));
+									: Effect.asSome(Effect.forEach(files, fileOf("GitHubCommit.changedFiles")));
 							}),
 						);
 				}),
 			};
 		};
 		return yield* Stream.runCollect(paginate(source, options?.page?.maxPages));
-	}),
+	})),
 });

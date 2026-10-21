@@ -98,7 +98,7 @@ describe("native linter process outcomes", () => {
             exitCode: 0,
             stdout: "{}",
             stderr: "",
-            signal: O.fromNullishOr(interrupted.signalCode),
+            signal: O.map(O.fromNullishOr(interrupted.signalCode), String),
             timedOut: name === "timeout",
             outputTruncated: name === "buffer limit",
           })

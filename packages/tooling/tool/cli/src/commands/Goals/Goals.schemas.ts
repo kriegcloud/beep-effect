@@ -1273,6 +1273,86 @@ const GoalManifestCapabilitySelfCycleCheck = S.makeFilter(
 );
 
 /**
+ * Declares the closeout to activate only after hosted readiness and merge proof.
+ *
+ * **Details**
+ *
+ * Keep initiative.status and lifecycle operative while this proposal and its
+ * reflection ship in the final PR. A proposal is never completion evidence.
+ *
+ * **Example** (Propose closeout in the final PR)
+ *
+ * ```ts
+ * import { GoalProposedCloseout } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * const proposal = GoalProposedCloseout.make({ status: "completed-retained", finalPullRequest: 1582 })
+ * console.log(proposal.status)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalProposedCloseout extends S.Opaque<GoalProposedCloseout, { readonly brand: unique symbol }>()(
+  S.Struct({
+    status: S.Literal("completed-retained"),
+    finalPullRequest: S.Int.check(S.isGreaterThan(0)),
+  }).pipe(
+    $I.annoteSchema("GoalProposedCloseout", {
+      description: "Prospective final-PR closeout, separate from operative lifecycle and completion evidence.",
+    })
+  )
+) {}
+
+/**
+ * Shows operative and proposed closeout separately in local session reports.
+ *
+ * **Example** (Read the session projection fields)
+ *
+ * ```ts
+ * import { GoalCloseoutView } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * console.log(GoalCloseoutView.fields.operativeStatus)
+ * ```
+ *
+ * @category read-models
+ * @since 0.0.0
+ */
+export class GoalCloseoutView extends S.Opaque<GoalCloseoutView, { readonly brand: unique symbol }>()(
+  S.Struct({
+    packet: S.NonEmptyString,
+    operativeStatus: GoalStatus,
+    proposedCloseout: GoalProposedCloseout,
+  }).pipe(
+    $I.annoteSchema("GoalCloseoutView", {
+      description: "Local goal session view separating operative lifecycle from a prospective closeout.",
+    })
+  )
+) {}
+
+const GoalProposedCloseoutCheck = S.makeFilter(
+  (manifest: {
+    readonly initiative: GoalInitiative;
+    readonly completionGate: GoalCompletionGate;
+    readonly proposedCloseout?: GoalProposedCloseout;
+  }) => {
+    const proposal = manifest.proposedCloseout;
+    if (proposal === undefined) return true;
+    const final = A.findFirst(manifest.completionGate.pullRequests ?? [], (ref) => ref.role === "final");
+    return (
+      (manifest.initiative.status === "active" || manifest.initiative.status === "paused") &&
+      !manifest.completionGate.grandfathered &&
+      A.some(manifest.completionGate.acceptanceEvidence ?? [], (ref) => ref.kind === "yeet-verdict" && ref.gating) &&
+      !O.exists(final, (ref) => ref.number !== proposal.finalPullRequest)
+    );
+  },
+  {
+    identifier: $I`GoalProposedCloseoutCheck`,
+    title: "Prospective Closeout Identity",
+    description: "A closeout proposal retains active or paused operative status and matches any declared final PR.",
+    message:
+      "Proposed closeout requires active/paused status, a non-grandfathered gate and a matching final PR and gating Yeet readiness evidence",
+  }
+);
+
+/**
  * Canonical goal-packet manifest (`initiative-manifest/v2`).
  *
  * **Details**
@@ -1310,6 +1390,7 @@ export class GoalManifest extends S.Opaque<GoalManifest, { readonly brand: uniqu
     completionGate: GoalCompletionGate,
     schemaVersion: S.optionalKey(GoalManifestSchemaVersion),
     lifecycle: S.optionalKey(GoalStatus),
+    proposedCloseout: S.optionalKey(GoalProposedCloseout),
     mergedPullRequest: S.optionalKey(S.Int.check(S.isGreaterThan(0))),
     mergedPullRequests: S.Int.check(S.isGreaterThan(0)).pipe(S.Array, S.optionalKey),
     packetPath: S.optionalKey(S.String),
@@ -1327,7 +1408,7 @@ export class GoalManifest extends S.Opaque<GoalManifest, { readonly brand: uniqu
     provides: CapabilitySlugList,
     requires: CapabilitySlugList,
   })
-    .check(GoalManifestCapabilitySelfCycleCheck)
+    .check(GoalManifestCapabilitySelfCycleCheck, GoalProposedCloseoutCheck)
     .pipe(
       $I.annoteSchema("GoalManifest", {
         description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
@@ -1370,7 +1451,16 @@ export const decodeGoalManifest: {
  * @since 0.0.0
  */
 export const goalPullRequestRefs = (manifest: GoalManifest): ReadonlyArray<GoalPullRequestRef> => {
-  if (manifest.completionGate.pullRequests !== undefined) return manifest.completionGate.pullRequests;
+  if (manifest.completionGate.pullRequests !== undefined) {
+    const refs = manifest.completionGate.pullRequests;
+    if (manifest.proposedCloseout === undefined || A.some(refs, (ref) => ref.role === "final")) return refs;
+    return A.prepend(
+      refs,
+      GoalPullRequestRef.make({ number: manifest.proposedCloseout.finalPullRequest, role: "final" })
+    );
+  }
+  if (manifest.proposedCloseout !== undefined)
+    return [GoalPullRequestRef.make({ number: manifest.proposedCloseout.finalPullRequest, role: "final" })];
   const numbers = manifest.mergedPullRequests ?? [];
   const final = O.orElse(O.fromUndefinedOr(manifest.mergedPullRequest), () => A.last(numbers));
   return O.match(final, {

@@ -218,19 +218,19 @@ export type ScalarChomp = typeof ScalarChomp.Type;
  * @since 0.0.0
  */
 export class YamlScalar extends S.TaggedClass<YamlScalar, { readonly brand: unique symbol }>($I`YamlScalar`)("YamlScalar", {
-	value: S.Unknown.annotateKey({ description: "Resolved scalar content used when reconstructing the document's plain JavaScript value" }),
-	tag: S.optionalKey(S.String).annotateKey({ description: "Explicit YAML tag attached to the scalar, such as `!!str` or `!!int`" }),
-	style: ScalarStyle.annotateKey({ description: "Scalar presentation in YAML: plain, single-quoted, double-quoted, literal block, or folded block" }),
-	anchor: S.optionalKey(S.String).annotateKey({ description: "Anchor identifier used by aliases to reference this scalar, without the leading `&`" }),
-	commentBefore: S.optionalKey(S.String).annotateKey({ description: "Own-line comment text directly above the scalar, with consecutive comment lines joined by newlines" }),
-	comment: S.optionalKey(S.String).annotateKey({ description: "Trailing comment text on the scalar's line, including header-line comments for block scalars" }),
-	spaceBefore: S.optionalKey(S.Boolean).annotateKey({ description: "Whether a blank line precedes the scalar and any leading comment block in the source" }),
-	chomp: S.optionalKey(ScalarChomp).annotateKey({ description: "Block-scalar trailing newline handling: `strip` removes them, `clip` retains one, and `keep` retains all" }),
-	blockIndent: S.optionalKey(S.Finite).annotateKey({ description: "Explicit indentation-indicator digit from the block-scalar header, absent when indentation is automatically detected" }),
-	raw: S.optionalKey(S.String).annotateKey({ description: "Original scalar spelling retained when resolution changes its representation, preserving numeric forms such as hexadecimal or trailing zeros" }),
-	sourceMultiline: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the scalar's source span contains a line break; absent on synthetic nodes" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the scalar's source span, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Extent of the scalar's source span, measured in UTF-16 code units" }),
+	value: S.Unknown.pipe($I.annoteKey("YamlScalar.value", { description: "Resolved scalar content used when reconstructing the document's plain JavaScript value" })),
+	tag: S.optionalKey(S.String).pipe($I.annoteKey("YamlScalar.tag", { description: "Explicit YAML tag attached to the scalar, such as `!!str` or `!!int`" })),
+	style: ScalarStyle.pipe($I.annoteKey("YamlScalar.style", { description: "Scalar presentation in YAML: plain, single-quoted, double-quoted, literal block, or folded block" })),
+	anchor: S.optionalKey(S.String).pipe($I.annoteKey("YamlScalar.anchor", { description: "Anchor identifier used by aliases to reference this scalar, without the leading `&`" })),
+	commentBefore: S.optionalKey(S.String).pipe($I.annoteKey("YamlScalar.commentBefore", { description: "Own-line comment text directly above the scalar, with consecutive comment lines joined by newlines" })),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("YamlScalar.comment", { description: "Trailing comment text on the scalar's line, including header-line comments for block scalars" })),
+	spaceBefore: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlScalar.spaceBefore", { description: "Whether a blank line precedes the scalar and any leading comment block in the source" })),
+	chomp: S.optionalKey(ScalarChomp).pipe($I.annoteKey("YamlScalar.chomp", { description: "Block-scalar trailing newline handling: `strip` removes them, `clip` retains one, and `keep` retains all" })),
+	blockIndent: S.optionalKey(S.Finite).pipe($I.annoteKey("YamlScalar.blockIndent", { description: "Explicit indentation-indicator digit from the block-scalar header, absent when indentation is automatically detected" })),
+	raw: S.optionalKey(S.String).pipe($I.annoteKey("YamlScalar.raw", { description: "Original scalar spelling retained when resolution changes its representation, preserving numeric forms such as hexadecimal or trailing zeros" })),
+	sourceMultiline: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlScalar.sourceMultiline", { description: "Whether the scalar's source span contains a line break; absent on synthetic nodes" })),
+	offset: S.Finite.pipe($I.annoteKey("YamlScalar.offset", { description: "Zero-based start of the scalar's source span, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("YamlScalar.length", { description: "Extent of the scalar's source span, measured in UTF-16 code units" })),
 }, $I.annote("YamlScalar", { description: "A YAML scalar AST node, representing a leaf value such as a string, number, boolean, or null." })) {
 	/**
 	 * Navigate to a descendant by path (string segments for mapping keys,
@@ -356,12 +356,12 @@ export class YamlScalar extends S.TaggedClass<YamlScalar, { readonly brand: uniq
  * @since 0.0.0
  */
 export class YamlAlias extends S.TaggedClass<YamlAlias, { readonly brand: unique symbol }>($I`YamlAlias`)("YamlAlias", {
-	name: S.String.annotateKey({ description: "Identifier of the previously defined anchor referenced by this alias, without the leading `*`" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the alias's source span, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Extent of the alias's source span, measured in UTF-16 code units" }),
-	commentBefore: S.optionalKey(S.String).annotateKey({ description: "Own-line comment text directly above the alias, with consecutive comment lines joined by newlines" }),
-	comment: S.optionalKey(S.String).annotateKey({ description: "Trailing comment text on the alias's line" }),
-	spaceBefore: S.optionalKey(S.Boolean).annotateKey({ description: "Whether a blank line precedes the alias and any leading comment block in the source" }),
+	name: S.String.pipe($I.annoteKey("YamlAlias.name", { description: "Identifier of the previously defined anchor referenced by this alias, without the leading `*`" })),
+	offset: S.Finite.pipe($I.annoteKey("YamlAlias.offset", { description: "Zero-based start of the alias's source span, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("YamlAlias.length", { description: "Extent of the alias's source span, measured in UTF-16 code units" })),
+	commentBefore: S.optionalKey(S.String).pipe($I.annoteKey("YamlAlias.commentBefore", { description: "Own-line comment text directly above the alias, with consecutive comment lines joined by newlines" })),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("YamlAlias.comment", { description: "Trailing comment text on the alias's line" })),
+	spaceBefore: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlAlias.spaceBefore", { description: "Whether a blank line precedes the alias and any leading comment block in the source" })),
 }, $I.annote("YamlAlias", { description: "A YAML alias AST node, referencing a previously defined anchor by name (without the leading `*`)." })) {
 	/**
 	 * Retain the alias target for one extraction scope so later anchor updates
@@ -578,9 +578,7 @@ export interface YamlAliasEncoded extends S.Codec.Encoded<typeof YamlAlias> {}
 export const YamlNode: S.Codec<
 	YamlScalar | YamlMap | YamlSeq | YamlAlias,
 	YamlScalarEncoded | YamlMapEncoded | YamlSeqEncoded | YamlAliasEncoded
-> = S.suspend(() => S.Union([YamlScalar, YamlMap, YamlSeq, YamlAlias])).pipe(
-	$I.annoteSchema("YamlNode", { description: "Recursive union of YAML scalar, mapping, sequence and alias value nodes." }),
-);
+> = S.suspend(() => S.Union([YamlScalar, YamlMap, YamlSeq, YamlAlias])).pipe($I.annoteSchema("YamlNode", { description: "Recursive union of YAML scalar, mapping, sequence and alias value nodes." }));
 
 /**
  * The union of all YAML AST value node types.
@@ -618,8 +616,8 @@ export type YamlNode = YamlScalar | YamlMap | YamlSeq | YamlAlias;
  * @since 0.0.0
  */
 export class YamlPair extends S.TaggedClass<YamlPair, { readonly brand: unique symbol }>($I`YamlPair`)("YamlPair", {
-	key: S.suspend((): typeof YamlNode => YamlNode).annotateKey({ description: "Node identifying the mapping entry, carrying any own-line comments above that entry" }),
-	value: S.NullOr(S.suspend((): typeof YamlNode => YamlNode)).annotateKey({ description: "Node containing the mapping entry's content, or `null` when no value follows the key" }),
+	key: S.suspend((): typeof YamlNode => YamlNode).annotateKey($I.annote("YamlPair.key", { description: "Node identifying the mapping entry, carrying any own-line comments above that entry" })),
+	value: S.NullOr(S.suspend((): typeof YamlNode => YamlNode)).annotateKey($I.annote("YamlPair.value", { description: "Node containing the mapping entry's content, or `null` when no value follows the key" })),
 }, $I.annote("YamlPair", { description: "A YAML key-value pair AST node, representing one entry within a mapping. `value` is `null` when absent (e.g. `key:` with no value)." })) {}
 
 /**
@@ -651,16 +649,16 @@ export class YamlPair extends S.TaggedClass<YamlPair, { readonly brand: unique s
  * @since 0.0.0
  */
 export class YamlMap extends S.TaggedClass<YamlMap, { readonly brand: unique symbol }>($I`YamlMap`)("YamlMap", {
-	items: S.Array(S.suspend((): typeof YamlPair => YamlPair)).annotateKey({ description: "Key-value entries in their stored order within the YAML mapping" }),
-	tag: S.optionalKey(S.String).annotateKey({ description: "Explicit YAML tag attached to the mapping and retained when emitting it" }),
-	anchor: S.optionalKey(S.String).annotateKey({ description: "Anchor identifier used by aliases to reference this mapping, without the leading `&`" }),
-	style: CollectionStyle.annotateKey({ description: "Mapping presentation as indented block entries or a flow collection enclosed in braces" }),
-	commentBefore: S.optionalKey(S.String).annotateKey({ description: "Own-line comment text directly above the mapping, with consecutive comment lines joined by newlines" }),
-	comment: S.optionalKey(S.String).annotateKey({ description: "Comment text after the last block entry at item indentation, or a same-line trailing comment for a flow mapping" }),
-	spaceBefore: S.optionalKey(S.Boolean).annotateKey({ description: "Whether a blank line precedes the mapping and any leading comment block in the source" }),
-	sourceMultiline: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the mapping's source span contains a line break; used by the canonical stringifier and absent on synthetic nodes" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the mapping's source span, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Extent of the mapping's source span, measured in UTF-16 code units" }),
+	items: S.Array(S.suspend((): typeof YamlPair => YamlPair)).pipe($I.annoteKey("YamlMap.items", { description: "Key-value entries in their stored order within the YAML mapping" })),
+	tag: S.optionalKey(S.String).pipe($I.annoteKey("YamlMap.tag", { description: "Explicit YAML tag attached to the mapping and retained when emitting it" })),
+	anchor: S.optionalKey(S.String).pipe($I.annoteKey("YamlMap.anchor", { description: "Anchor identifier used by aliases to reference this mapping, without the leading `&`" })),
+	style: CollectionStyle.pipe($I.annoteKey("YamlMap.style", { description: "Mapping presentation as indented block entries or a flow collection enclosed in braces" })),
+	commentBefore: S.optionalKey(S.String).pipe($I.annoteKey("YamlMap.commentBefore", { description: "Own-line comment text directly above the mapping, with consecutive comment lines joined by newlines" })),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("YamlMap.comment", { description: "Comment text after the last block entry at item indentation, or a same-line trailing comment for a flow mapping" })),
+	spaceBefore: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlMap.spaceBefore", { description: "Whether a blank line precedes the mapping and any leading comment block in the source" })),
+	sourceMultiline: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlMap.sourceMultiline", { description: "Whether the mapping's source span contains a line break; used by the canonical stringifier and absent on synthetic nodes" })),
+	offset: S.Finite.pipe($I.annoteKey("YamlMap.offset", { description: "Zero-based start of the mapping's source span, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("YamlMap.length", { description: "Extent of the mapping's source span, measured in UTF-16 code units" })),
 }, $I.annote("YamlMap", { description: "A YAML mapping AST node, representing a collection of YamlPair entries." })) {
 	/**
 	 * Navigate to a descendant by mapping-key or sequence-index path.
@@ -794,16 +792,16 @@ export class YamlMap extends S.TaggedClass<YamlMap, { readonly brand: unique sym
  * @since 0.0.0
  */
 export class YamlSeq extends S.TaggedClass<YamlSeq, { readonly brand: unique symbol }>($I`YamlSeq`)("YamlSeq", {
-	items: S.Array(S.suspend((): typeof YamlNode => YamlNode)).annotateKey({ description: "Child nodes in YAML sequence order, addressed by their zero-based positions" }),
-	tag: S.optionalKey(S.String).annotateKey({ description: "Explicit YAML tag attached to the sequence and retained when emitting it" }),
-	anchor: S.optionalKey(S.String).annotateKey({ description: "Anchor identifier used by aliases to reference this sequence, without the leading `&`" }),
-	style: CollectionStyle.annotateKey({ description: "Sequence presentation as dash-prefixed block items or a flow collection enclosed in brackets" }),
-	commentBefore: S.optionalKey(S.String).annotateKey({ description: "Own-line comment text directly above the sequence, with consecutive comment lines joined by newlines" }),
-	comment: S.optionalKey(S.String).annotateKey({ description: "Comment text after the last block item at item indentation, or a same-line trailing comment for a flow sequence" }),
-	spaceBefore: S.optionalKey(S.Boolean).annotateKey({ description: "Whether a blank line precedes the sequence and any leading comment block in the source" }),
-	sourceMultiline: S.optionalKey(S.Boolean).annotateKey({ description: "Whether the sequence's source span contains a line break; used by the canonical stringifier and absent on synthetic nodes" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the sequence's source span, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Extent of the sequence's source span, measured in UTF-16 code units" }),
+	items: S.Array(S.suspend((): typeof YamlNode => YamlNode)).pipe($I.annoteKey("YamlSeq.items", { description: "Child nodes in YAML sequence order, addressed by their zero-based positions" })),
+	tag: S.optionalKey(S.String).pipe($I.annoteKey("YamlSeq.tag", { description: "Explicit YAML tag attached to the sequence and retained when emitting it" })),
+	anchor: S.optionalKey(S.String).pipe($I.annoteKey("YamlSeq.anchor", { description: "Anchor identifier used by aliases to reference this sequence, without the leading `&`" })),
+	style: CollectionStyle.pipe($I.annoteKey("YamlSeq.style", { description: "Sequence presentation as dash-prefixed block items or a flow collection enclosed in brackets" })),
+	commentBefore: S.optionalKey(S.String).pipe($I.annoteKey("YamlSeq.commentBefore", { description: "Own-line comment text directly above the sequence, with consecutive comment lines joined by newlines" })),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("YamlSeq.comment", { description: "Comment text after the last block item at item indentation, or a same-line trailing comment for a flow sequence" })),
+	spaceBefore: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlSeq.spaceBefore", { description: "Whether a blank line precedes the sequence and any leading comment block in the source" })),
+	sourceMultiline: S.optionalKey(S.Boolean).pipe($I.annoteKey("YamlSeq.sourceMultiline", { description: "Whether the sequence's source span contains a line break; used by the canonical stringifier and absent on synthetic nodes" })),
+	offset: S.Finite.pipe($I.annoteKey("YamlSeq.offset", { description: "Zero-based start of the sequence's source span, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("YamlSeq.length", { description: "Extent of the sequence's source span, measured in UTF-16 code units" })),
 }, $I.annote("YamlSeq", { description: "A YAML sequence AST node, representing an ordered list of (YamlNode:type) values." })) {
 	/**
 	 * Navigate to a descendant by mapping-key or sequence-index path.
@@ -919,7 +917,10 @@ const isSeq = S.is(YamlSeq);
 // Module-level so the four union classes share one body each. Declared after
 // the classes; function declarations hoist.
 
-function findByPath(root: YamlNode, path: YamlPath): O.Option<YamlNode> {
+const findByPath: {
+	(root: YamlNode, path: YamlPath): O.Option<YamlNode>;
+	(path: YamlPath): (root: YamlNode) => O.Option<YamlNode>;
+} = dual(2, (root: YamlNode, path: YamlPath): O.Option<YamlNode> => {
 	let current: YamlNode = root;
 
 	for (const segment of path) {
@@ -928,13 +929,14 @@ function findByPath(root: YamlNode, path: YamlPath): O.Option<YamlNode> {
 			if (!isMap(current)) {
 				return O.none();
 			}
-			const pair: YamlPair | undefined = current.items.find(
+			const pair: O.Option<YamlPair> = A.findFirst(
+				current.items,
 				(p: YamlPair) => isScalar(p.key) && P.isString(p.key.value) && p.key.value === segment,
 			);
-			if (pair === undefined || pair.value === null) {
+			if (O.isNone(pair) || pair.value.value === null) {
 				return O.none();
 			}
-			current = pair.value;
+			current = pair.value.value;
 		} else {
 			// Navigate by index — requires a YamlSeq
 			if (!isSeq(current)) {
@@ -949,17 +951,21 @@ function findByPath(root: YamlNode, path: YamlPath): O.Option<YamlNode> {
 	}
 
 	return O.some(current);
-}
+});
 
 /**
  * Half-open interval test `[offset, offset + length)` so a cursor positioned
  * immediately after a node is NOT considered inside it.
  */
-function containsOffset(node: YamlNode, offset: number): boolean {
-	return offset >= node.offset && offset < node.offset + node.length;
-}
+const containsOffset: {
+	(node: YamlNode, offset: number): boolean;
+	(offset: number): (node: YamlNode) => boolean;
+} = dual(2, (node: YamlNode, offset: number): boolean => offset >= node.offset && offset < node.offset + node.length);
 
-function findDeepestAtOffset(node: YamlNode, offset: number): O.Option<YamlNode> {
+const findDeepestAtOffset: {
+	(node: YamlNode, offset: number): O.Option<YamlNode>;
+	(offset: number): (node: YamlNode) => O.Option<YamlNode>;
+} = dual(2, (node: YamlNode, offset: number): O.Option<YamlNode> => {
 	if (!containsOffset(node, offset)) {
 		return O.none();
 	}
@@ -984,12 +990,15 @@ function findDeepestAtOffset(node: YamlNode, offset: number): O.Option<YamlNode>
 
 	// This node contains the offset but no child does — this is the deepest
 	return O.some(node);
-}
+});
 
-function pathToNode(root: YamlNode, target: YamlNode): O.Option<YamlPath> {
+const pathToNode: {
+	(root: YamlNode, target: YamlNode): O.Option<YamlPath>;
+	(target: YamlNode): (root: YamlNode) => O.Option<YamlPath>;
+} = dual(2, (root: YamlNode, target: YamlNode): O.Option<YamlPath> => {
 	const path: Array<string | number> = [];
 	return descendToNode(root, target, path) ? O.some(path) : O.none();
-}
+});
 
 /**
  * Depth-first identity search accumulating mapping-key/sequence-index
@@ -997,7 +1006,10 @@ function pathToNode(root: YamlNode, target: YamlNode): O.Option<YamlPath> {
  * `find`); descendants reachable only through complex keys are not
  * addressable by path.
  */
-function descendToNode(node: YamlNode, target: YamlNode, path: Array<string | number>): boolean {
+const descendToNode: {
+	(node: YamlNode, target: YamlNode, path: Array<string | number>): boolean;
+	(target: YamlNode, path: Array<string | number>): (node: YamlNode) => boolean;
+} = dual(3, (node: YamlNode, target: YamlNode, path: Array<string | number>): boolean => {
 	if (node === target) {
 		return true;
 	}
@@ -1031,12 +1043,15 @@ function descendToNode(node: YamlNode, target: YamlNode, path: Array<string | nu
 	}
 
 	return false;
-}
+});
 
 /** Set a mapping key as an own data property — `__proto__` included. */
-function setOwnProperty(obj: Record<string, unknown>, key: string, value: unknown): void {
+const setOwnProperty: {
+	(obj: Record<string, unknown>, key: string, value: unknown): void;
+	(key: string, value: unknown): (obj: Record<string, unknown>) => void;
+} = dual(3, (obj: Record<string, unknown>, key: string, value: unknown): void => {
 	R.assignProperty(obj, key, value);
-}
+});
 
 /**
  * Thrown by the value-extraction walk when alias expansion materializes more
@@ -1064,8 +1079,8 @@ function setOwnProperty(obj: Record<string, unknown>, key: string, value: unknow
  * @since 0.0.0
  */
 export class AliasExpansionBudgetExceeded extends S.TaggedError<AliasExpansionBudgetExceeded, { readonly brand: unique symbol }>($I`AliasExpansionBudgetExceeded`)("AliasExpansionBudgetExceeded", {
-	message: S.String.annotateKey({ description: "Alias expansion budget failure message, including the output-node limit." }),
-}, $I.annote("AliasExpansionBudgetExceeded", { description: "Value extraction exceeded its alias-expanded output-node budget." })) {
+	message: S.String.pipe($I.annoteKey("AliasExpansionBudgetExceeded.message", { description: "Alias expansion budget failure message, including the output-node limit." })),
+}, $I.annoteError<AliasExpansionBudgetExceeded>("AliasExpansionBudgetExceeded", { description: "Value extraction exceeded its alias-expanded output-node budget." })) {
 	/**
 	 * Identifies an alias-expansion budget failure in error reports.
 	 *
@@ -1116,9 +1131,9 @@ const DEFAULT_ALIAS_EXPANSION_LIMIT = aliasExpansionLimit(100);
 
 /** Mutable counter carried through one value-extraction walk. */
 const ExpansionBudget = S.Struct({
-	count: S.Finite.annotateKey({ description: "Number of output nodes materialized through alias expansion during this walk." }),
-	limit: S.declare(P.isNumber).annotateKey({ description: "Calculated output-node cap; retains the full numeric domain of the existing budget calculation, including overflow." }),
-}).annotate($I.annote("ExpansionBudget", { description: "Shared output-node budget for one recursive value-extraction walk." }));
+	count: S.Finite.pipe($I.annoteKey("ExpansionBudget.count", { description: "Number of output nodes materialized through alias expansion during this walk." })),
+	limit: S.declare(P.isNumber).pipe($I.annoteKey("ExpansionBudget.limit", { description: "Calculated output-node cap; retains the full numeric domain of the existing budget calculation, including overflow." })),
+}).pipe($I.annoteSchema("ExpansionBudget", { description: "Shared output-node budget for one recursive value-extraction walk." }));
 type ExpansionBudget = Omit<typeof ExpansionBudget.Type, "count"> & Mutable<Pick<typeof ExpansionBudget.Type, "count">>;
 
 /** A fresh default budget for a direct `toValue()` call. */
@@ -1153,13 +1168,10 @@ export const nodeToJsValue: {
 	nodeToValue(node, anchors, { count: 0, limit: aliasExpansionLimit(maxAliasCount) }),
 );
 
-function nodeToValue(
-	node: YamlNode | null,
-	anchors?: MutableHashMap.MutableHashMap<string, YamlNode>,
-	budget: ExpansionBudget = defaultBudget(),
-	counting = false,
-	ancestors: ReadonlyArray<YamlNode> = [],
-): unknown {
+const nodeToValue: {
+	(anchors?: MutableHashMap.MutableHashMap<string, YamlNode>, budget?: ExpansionBudget, counting?: boolean, ancestors?: ReadonlyArray<YamlNode>): (node: YamlNode | null) => unknown;
+	(node: YamlNode | null, anchors?: MutableHashMap.MutableHashMap<string, YamlNode>, budget?: ExpansionBudget, counting?: boolean, ancestors?: ReadonlyArray<YamlNode>): unknown;
+} = dual((args) => args[0] === null || P.hasProperty(args[0], "_tag"), (node: YamlNode | null, anchors?: MutableHashMap.MutableHashMap<string, YamlNode>, budget: ExpansionBudget = defaultBudget(), counting: boolean = false, ancestors: ReadonlyArray<YamlNode> = []): unknown => {
 	if (node === null) return null;
 	// Count only nodes materialized *through* an alias expansion (counting=true).
 	// Alias-free content never ticks the counter, so large but benign documents
@@ -1201,7 +1213,7 @@ function nodeToValue(
 		}
 		return result;
 	}
-	if (node._tag === "YamlSeq") return node.items.map((item) => nodeToValue(item, anchors, budget, counting, ancestors));
+	if (node._tag === "YamlSeq") return A.map(node.items, nodeToValue(anchors, budget, counting, ancestors));
 	const resolved = node.resolveTarget(anchors, budget);
 	if (resolved === undefined) return null;
 	// Identity is essential here: structurally equal sibling nodes are not cycles.
@@ -1210,4 +1222,4 @@ function nodeToValue(
 	}
 	// Historical expansion reuses bindings without changing the live anchor map.
 	return nodeToValue(resolved, anchors, budget, true, [...ancestors, resolved]);
-}
+});

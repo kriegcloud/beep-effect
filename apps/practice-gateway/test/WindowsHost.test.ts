@@ -6,14 +6,18 @@ import {
 } from "@beep/practice-gateway/WindowsHost";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 
-const regOutput = [
-  "",
-  "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AnthropicClaude",
-  "    DisplayName    REG_SZ    Claude",
-  "    DisplayVersion    REG_SZ    0.14.10",
-  "",
-].join("\r\n");
+const regOutput = A.join(
+  [
+    "",
+    "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AnthropicClaude",
+    "    DisplayName    REG_SZ    Claude",
+    "    DisplayVersion    REG_SZ    0.14.10",
+    "",
+  ],
+  "\r\n"
+);
 
 describe("Windows command output parsing", () => {
   it("reads one registry value and ignores its neighbours", () => {

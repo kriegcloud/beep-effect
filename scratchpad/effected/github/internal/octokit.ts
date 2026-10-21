@@ -6,7 +6,7 @@ import type { OctokitResponse } from "@octokit/types";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
-import { constVoid } from "effect/Function";
+import { constVoid, dual } from "effect/Function";
 import * as O from "@beep/utils/Option";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
@@ -67,26 +67,27 @@ export interface TransportOptions {
  */
 export interface Transport {
 	/** One request: retried, classified, with its rate-limit headers recorded. */
-	readonly request: <A>(
-		operation: string,
-		route: string,
-		params: Record<string, unknown>,
-	) => Effect.Effect<OctokitResponse<A>, GitHubError>;
+	readonly request: {
+		<A>(operation: string, route: string, params: Record<string, unknown>): Effect.Effect<OctokitResponse<A>, GitHubError>;
+		<A>(route: string, params: Record<string, unknown>): (operation: string) => Effect.Effect<OctokitResponse<A>, GitHubError>;
+	};
 	/** A single-use page cursor over a paginating route. */
-	readonly pageSource: <A>(operation: string, route: string, params: Record<string, unknown>) => PageSource<A>;
+	readonly pageSource: {
+		<A>(operation: string, route: string, params: Record<string, unknown>): PageSource<A>;
+		<A>(route: string, params: Record<string, unknown>): (operation: string) => PageSource<A>;
+	};
 	/** One GraphQL call: retried and classified. */
-	readonly graphql: (
-		operation: string,
-		document: string,
-		variables: Record<string, unknown>,
-	) => Effect.Effect<unknown, GitHubGraphQLError>;
+	readonly graphql: {
+		(operation: string, document: string, variables: Record<string, unknown>): Effect.Effect<unknown, GitHubGraphQLError>;
+		(document: string, variables: Record<string, unknown>): (operation: string) => Effect.Effect<unknown, GitHubGraphQLError>;
+	};
 	/** The most recent rate-limit headers seen, if any. */
 	readonly rateLimit: Effect.Effect<O.Option<RateLimitSnapshot>>;
 }
 
 class TransportFailure extends S.TaggedError<TransportFailure, { readonly brand: unique symbol }>($I`TransportFailure`)("TransportFailure", {
-	error: S.Defect().annotateKey({ description: "The original throwable, preserved for transport classification." }),
-}, $I.annote("TransportFailure", { description: "Carries an Octokit throwable until it is classified." })) {}
+	error: S.Defect().pipe($I.annoteKey("TransportFailure.error", { description: "The original throwable, preserved for transport classification." })),
+}, $I.annoteError<TransportFailure>("TransportFailure", { description: "Carries an Octokit throwable until it is classified." })) {}
 
 const SILENT_LOG = {
 	debug: constVoid,
@@ -165,7 +166,15 @@ export const makeTransport = Effect.fn("makeTransport")(function* (options: Tran
    * `request.signal`, so interrupting the fiber aborts the in-flight HTTP
    * request rather than leaving it running unobserved.
    */
-		const attempt = <A, E>(
+		const attempt: {
+			<A, E>(
+				call: (signal: AbortSignal) => Promise<A>,
+				classify: (error: unknown, nowMillis: number) => E,
+			): Effect.Effect<A, E>;
+			<A, E>(
+				classify: (error: unknown, nowMillis: number) => E,
+			): (call: (signal: AbortSignal) => Promise<A>) => Effect.Effect<A, E>;
+		} = dual(2, <A, E>(
 			call: (signal: AbortSignal) => Promise<A>,
 			classify: (error: unknown, nowMillis: number) => E,
 		): Effect.Effect<A, E> =>
@@ -175,9 +184,12 @@ export const makeTransport = Effect.fn("makeTransport")(function* (options: Tran
 						yield* record(readThrownHeaders(error));
 						return yield* Effect.fail(classify(error, now));
 				})),
-			);
+			));
 
-		const withRetry = <A, E extends RetryableFailure>(
+		const withRetry: {
+			<A, E extends RetryableFailure>(operation: string, effect: Effect.Effect<A, E>): Effect.Effect<A, E>;
+			<A, E extends RetryableFailure>(effect: Effect.Effect<A, E>): (operation: string) => Effect.Effect<A, E>;
+		} = dual(2, <A, E extends RetryableFailure>(
 			operation: string,
 			effect: Effect.Effect<A, E>,
 		): Effect.Effect<A, E> =>
@@ -188,18 +200,22 @@ export const makeTransport = Effect.fn("makeTransport")(function* (options: Tran
 						: Effect.void,
 				),
 				Effect.retry(policy.schedule<E>()),
-			);
+			));
 
-		const request = <A>(operation: string, route: string, params: Record<string, unknown>) =>
+		const request: Transport["request"] = dual(3, <A>(
+			operation: string,
+			route: string,
+			params: Record<string, unknown>,
+		): Effect.Effect<OctokitResponse<A>, GitHubError> =>
 			withRetry(
 				operation,
 				attempt(
 					(signal) => octokit.request<A>({ ...routeOptions(route), ...withSignal(params, signal) }),
 					(error, now) => GitHubError.fromOctokit(operation, error, now),
 				).pipe(Effect.tap((response) => record(response.headers))),
-			);
+			));
 
-		const pageSource = <A>(operation: string, route: string, params: Record<string, unknown>): PageSource<A> => {
+		const pageSource: Transport["pageSource"] = dual(3, <A>(operation: string, route: string, params: Record<string, unknown>): PageSource<A> => {
 			// octokit's iterator advances its cursor only on a SUCCESSFUL page, so
 			// retrying `next()` re-requests the same page rather than skipping it.
 			// That is what makes per-page retry safe, and it is why this uses the
@@ -248,16 +264,20 @@ export const makeTransport = Effect.fn("makeTransport")(function* (options: Tran
 							),
 				),
 			};
-		};
+		});
 
-		const graphql = (operation: string, document: string, variables: Record<string, unknown>) =>
+		const graphql: Transport["graphql"] = dual(3, (
+			operation: string,
+			document: string,
+			variables: Record<string, unknown>,
+		): Effect.Effect<unknown, GitHubGraphQLError> =>
 			withRetry(
 				operation,
 				attempt(
 					(signal) => octokit.graphql<unknown>(document, withSignal(variables, signal)),
 					(error, now) => GitHubGraphQLError.fromThrowable(operation, error, now),
 				),
-			);
+			));
 
 		return { request, pageSource, graphql, rateLimit: Ref.get(snapshot) };
 	});
@@ -275,8 +295,11 @@ const requestOptions = (params: Record<string, unknown>) =>
 	P.isObjectKeyword(params.request) && !P.isFunction(params.request) ? params.request : {};
 
 /** Merge our abort signal into octokit's per-request options without clobbering them. */
-const withSignal = (params: Record<string, unknown>, signal: AbortSignal): Record<string, unknown> =>
-	({ ...params, request: { ...requestOptions(params), signal } });
+const withSignal: {
+	(params: Record<string, unknown>, signal: AbortSignal): Record<string, unknown>;
+	(signal: AbortSignal): (params: Record<string, unknown>) => Record<string, unknown>;
+} = dual(2, (params: Record<string, unknown>, signal: AbortSignal): Record<string, unknown> =>
+	({ ...params, request: { ...requestOptions(params), signal } }));
 
 /** Response headers off a throwable, when it carried any. */
 const readThrownHeaders = (error: unknown): Record<string, unknown> | undefined => {

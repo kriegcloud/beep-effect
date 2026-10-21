@@ -1,3 +1,4 @@
+import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { dual, flow, identity } from "effect/Function";
@@ -63,9 +64,7 @@ import * as R from "effect/Record";
 
 const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencyFetch");
 
-const JsonString = S.fromJsonString(S.String).annotate(
-	$I.annote("JsonString", { description: "A JSON-quoted YAML scalar retaining dependency and registry text." }),
-);
+const JsonString = S.fromJsonString(S.String).pipe($I.annoteSchema("JsonString", { description: "A JSON-quoted YAML scalar retaining dependency and registry text." }));
 const quote = flow(S.encodeResult(JsonString), Result.getOrThrowWith(identity));
 
 // The caller's Effect FileSystem may be virtual; fetching must use the real scratch workspace and store.
@@ -173,8 +172,14 @@ export const FetchFailure = S.Struct({
  */
 export type FetchFailure = typeof FetchFailure.Type;
 
-const fetchFailure = (reason: FetchFailureReason, message: string, cause?: unknown): FetchFailure =>
-	cause === undefined ? { reason, message } : { reason, message, cause };
+const fetchFailure: {
+	(reason: FetchFailureReason, message: string, cause?: unknown): FetchFailure;
+	(message: string, cause?: unknown): (reason: FetchFailureReason) => FetchFailure;
+} = dual(
+	(args) => S.is(FetchFailureReason)(args[0]),
+	(reason: FetchFailureReason, message: string, cause?: unknown): FetchFailure =>
+		cause === undefined ? { reason, message } : { reason, message, cause },
+);
 
 /**
  * The fetch rung: put `<name>@<version>` into the store, verified, and answer
@@ -376,7 +381,7 @@ export const scratchWorkspaceYaml: {
 		lines.push("registries:");
 		for (const [scope, url] of scopes) lines.push(`  ${quote(scope)}: ${quote(url)}`);
 	}
-	return `${lines.join("\n")}\n`;
+	return `${A.join(lines, "\n")}\n`;
 });
 
 /** Whether `error` is a node filesystem "no such file" failure. */
@@ -387,9 +392,12 @@ const isNotFound = (error: unknown): boolean => P.isObject(error) && error.code 
  * write for a lone config dependency, pinned to `integrity`, followed by the
  * empty lockfile document they write when there are no projects.
  */
-const scratchLockfile = (name: string, version: string, integrity: string): string => {
+const scratchLockfile: {
+	(name: string, version: string, integrity: string): string;
+	(version: string, integrity: string): (name: string) => string;
+} = dual(3, (name: string, version: string, integrity: string): string => {
 	const key = quote(`${name}@${version}`);
-	return [
+	return A.join([
 		"---",
 		"lockfileVersion: '9.0'",
 		"",
@@ -412,8 +420,8 @@ const scratchLockfile = (name: string, version: string, integrity: string): stri
 		"",
 		"---",
 		"",
-	].join("\n");
-};
+	], "\n");
+});
 
 /**
  * The `--store-dir` to hand pnpm so it writes into the store the ladder
@@ -468,8 +476,11 @@ export const fetchArgs: {
 });
 
 /** Whether `resolved` sits under a store's `links/<name>/<version>/` tree. */
-const isStoreEntry = (resolved: string, name: string, version: string): boolean =>
-	resolved.split(/[/\\]/).join("/").includes(`/links/${name}/${version}/`);
+const isStoreEntry: {
+	(resolved: string, name: string, version: string): boolean;
+	(name: string, version: string): (resolved: string) => boolean;
+} = dual(3, (resolved: string, name: string, version: string): boolean =>
+	A.join(resolved.split(/[/\\]/), "/").includes(`/links/${name}/${version}/`));
 
 /**
  * Build the fetch rung over a spawner. Wired only by
@@ -498,8 +509,11 @@ export const makeFetchConfigDependency =
 				const { name, version } = request;
 				const key = `${name}@${version}`;
 				const failed = (message: string, cause?: unknown) => fetchFailure("fetchFailed", message, cause);
-				const io = <A>(what: string, run: () => Promise<A>) =>
-					Effect.tryPromise({ try: run, catch: (cause) => failed(`${what} failed: ${messageOf(cause)}`, cause) });
+				const io: {
+					<A>(what: string, run: () => Promise<A>): Effect.Effect<A, FetchFailure>;
+					<A>(run: () => Promise<A>): (what: string) => Effect.Effect<A, FetchFailure>;
+				} = dual(2, <A>(what: string, run: () => Promise<A>): Effect.Effect<A, FetchFailure> =>
+					Effect.tryPromise({ try: run, catch: (cause) => failed(`${what} failed: ${messageOf(cause)}`, cause) }));
 
 				const integrity = yield* expectedIntegrity(request);
 				// The declaring workspace's registry keys, read before anything is
@@ -544,7 +558,7 @@ export const makeFetchConfigDependency =
 					Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
 					Effect.mapError((cause) =>
 						failed(
-							`fetching ${key} with \`pnpm ${fetchArgs("<scratch>", request.stores).join(" ")}\` failed: ${messageOf(cause)}`,
+							`fetching ${key} with \`pnpm ${A.join(fetchArgs("<scratch>", request.stores), " ")}\` failed: ${messageOf(cause)}`,
 							cause,
 						),
 					),

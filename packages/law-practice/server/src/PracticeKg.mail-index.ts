@@ -542,7 +542,7 @@ export const attributePracticeKgMailIndexRows = (
       PracticeKgEmailMessage.make({
         createdAt: message.createdAt,
         digest: message.key,
-        ...O.match(message.messageId, { onNone: () => ({}), onSome: (messageId) => ({ messageId }) }),
+        ...O.getOrUndefined(O.map(message.messageId, (messageId) => ({ messageId }))),
         participants: A.dedupeWith(
           message.parsed.participants,
           (left, right) => participantKey(left) === participantKey(right)

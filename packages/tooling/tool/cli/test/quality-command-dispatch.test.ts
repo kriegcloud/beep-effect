@@ -28,6 +28,8 @@ import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
 
+const decodeUnknownJson = S.decodeResult(S.fromJsonString(S.Unknown));
+
 const FixedMemoryStatsLayer = Layer.succeed(
   MemoryStats,
   MemoryStats.of({ availableGib: Effect.succeed(64), totalGib: Effect.succeed(128) })
@@ -37,7 +39,6 @@ const CommandTestLayer = Layer.mergeAll(
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer)),
   FixedMemoryStatsLayer
 );
-const decodeUnknownJsonResult = S.decodeResult(S.fromJsonString(S.Unknown));
 const encodeUnknownJson = S.encodeEffect(S.fromJsonString(S.Unknown));
 const runQualityCommand = Command.runWith(qualityCommand, { version: "0.0.0" });
 const encoder = new TextEncoder();
@@ -151,7 +152,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
       if (O.isNone(index)) return Effect.die("Missing merged lspconfig");
       const text = command.args[index.value + 1];
       if (text === undefined) return Effect.die("Missing lspconfig value");
-      A.appendInPlace(configs, Result.getOrThrow(decodeUnknownJsonResult(text)));
+      A.appendInPlace(configs, Result.getOrThrow(decodeUnknownJson(text)));
       return Effect.succeed(
         ChildProcessSpawner.makeHandle({ ...successfulHandle, all: Stream.concat(stdout, stderr), stdout, stderr })
       );
@@ -203,7 +204,7 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
       );
       yield* fs.writeFileString(`${dir}/tsconfig.json`, yield* encodeUnknownJson({ extends: "./base.json" }));
       const merged = yield* effectDiagnosticsProjectConfig(`${dir}/tsconfig.json`)(profile);
-      const value = Result.getOrThrow(decodeUnknownJsonResult(merged));
+      const value = Result.getOrThrow(decodeUnknownJson(merged));
       expect(value).toMatchObject({
         ...plugin,
         diagnosticSeverity: {

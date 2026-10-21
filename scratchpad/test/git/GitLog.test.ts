@@ -12,7 +12,7 @@ import * as O from "effect/Option";
 import * as Layer from "effect/Layer";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
-import type { GitShape } from "../../effected/git/Git.ts";
+import type { GitStubs } from "../../effected/git/Git.ts";
 import { CommitLogEntry, Git, GitCommandError, NotARepositoryError } from "../../effected/git/Git.ts";
 import type { ScriptResult } from "./fixtures.ts";
 import { scripted } from "./fixtures.ts";
@@ -25,7 +25,7 @@ const run = <A, E>(program: Effect.Effect<A, E, Git>, byArgs: (args: ReadonlyArr
     (context) => Effect.provideContext(program, context),
   ));
 
-const log = Effect.fn("log")(function* (options?: Parameters<GitShape["log"]>[1]) {
+const log = Effect.fn("log")(function* (options?: Parameters<GitStubs["log"]>[1]) {
 		const git = yield* Git;
 		return yield* git.log(cwd, options);
 	});

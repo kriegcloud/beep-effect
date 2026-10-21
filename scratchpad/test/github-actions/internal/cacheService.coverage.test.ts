@@ -1,6 +1,7 @@
 import { assert, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { CacheHit } from "../../../effected/github-actions/internal/cacheService.ts";
 import {
@@ -14,10 +15,10 @@ it.effect("cache RPCs reject absent upload URLs and unconfirmed finalization and
   Effect.gen(function* () {
     const calls: Array<{ method: string; body: Record<string, unknown> }> = [];
     const client = (response: unknown): CacheServiceClient<string> => ({
-      call: (method, body) => {
+      call: dual(2, (method: string, body: Record<string, unknown>) => {
         calls.push({ method, body });
         return Effect.succeed(response);
-      },
+      }),
       refused: (detail) => detail,
     });
     assertFailure(
@@ -70,7 +71,7 @@ it.effect("upload outcome matching constructs refusal only for rejected response
   Effect.gen(function* () {
     let refusals = 0;
     const client = (response: unknown): CacheServiceClient<string> => ({
-      call: () => Effect.succeed(response),
+      call: dual(2, (_method: string, _body: Record<string, unknown>) => Effect.succeed(response)),
       refused: (detail) => {
         refusals += 1;
         return detail;

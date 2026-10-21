@@ -1,9 +1,11 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ACTIVE_EXCEPTION_IDS, DEPRECATED_EXCEPTION_ID_LIST, DEPRECATED_EXCEPTION_IDS } from "./internal/exceptions.ts";
@@ -59,7 +61,7 @@ export class LicenseException extends S.Class<LicenseException, { readonly brand
 	 * @category models
 	 * @since 0.0.0
 	 */
-	id: S.String.annotateKey({ description: "The SPDX exception short identifier (e.g. `\"Classpath-exception-2.0\"`)." }),
+	id: S.String.pipe($I.annoteKey("LicenseException.id", { description: "The SPDX exception short identifier (e.g. `\"Classpath-exception-2.0\"`)." })),
 	/**
 	 * Whether `id` is a deprecated SPDX exception identifier.
 	 *
@@ -74,7 +76,7 @@ export class LicenseException extends S.Class<LicenseException, { readonly brand
 	 * @category models
 	 * @since 0.0.0
 	 */
-	deprecated: S.Boolean.annotateKey({ description: "Whether `id` is a deprecated SPDX exception identifier." }),
+	deprecated: S.Boolean.pipe($I.annoteKey("LicenseException.deprecated", { description: "Whether `id` is a deprecated SPDX exception identifier." })),
 }, $I.annote("LicenseException", { description: "A validated SPDX license-exception identifier: an Effect `Schema.Class` whose `id` is a member of the SPDX exception list. The class doubles as its own schema." })) {
 	// ── Catalog ─────────────────────────────────────────────────────────
 
@@ -228,9 +230,13 @@ export class LicenseException extends S.Class<LicenseException, { readonly brand
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static of(id: string, deprecated = false): LicenseException {
-		return LicenseException.make({ id, deprecated });
-	}
+	static readonly of: {
+		(id: string, deprecated?: boolean): LicenseException;
+		(deprecated?: boolean): (id: string) => LicenseException;
+	} = dual(
+		(args) => P.isString(args[0]),
+		(id: string, deprecated = false): LicenseException => LicenseException.make({ id, deprecated })
+	);
 
 	// ── Display ─────────────────────────────────────────────────────────
 

@@ -8,8 +8,9 @@
 // keeps the paragraph's content, segments and start position, so the heading
 // spans from the text down to the underline exactly as upstream's does.
 
-import type { BlockStart } from "../blockTypes.ts";
+import type { BlockNode, BlockScanner, BlockStart, BlockStartResult } from "../blockTypes.ts";
 import { extractDefinitions } from "./linkReferenceDefinition.ts";
+import { dual } from "effect/Function";
 
 const reSetextHeadingLine = /^(?:=+|-+)[ \t]*$/;
 
@@ -35,7 +36,7 @@ const reSetextHeadingLine = /^(?:=+|-+)[ \t]*$/;
  */
 export const setextHeadingStart: BlockStart = {
 	name: "setextHeading",
-	trigger: (scanner, container) => {
+	trigger: dual(2, (scanner: BlockScanner, container: BlockNode): BlockStartResult => {
 		if (scanner.indented || container.type !== "paragraph") {
 			return 0;
 		}
@@ -59,5 +60,5 @@ export const setextHeadingStart: BlockStart = {
 		heading.data.headingStyle = "setext";
 		scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
 		return 2;
-	},
+	}),
 };

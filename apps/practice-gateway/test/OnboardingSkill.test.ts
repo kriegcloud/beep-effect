@@ -6,6 +6,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Yaml from "effect/encoding/Yaml";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -26,11 +27,13 @@ const SkillFrontmatter = S.Struct({
 
 const PluginManifest = S.Struct({ name: S.String, version: S.String });
 
+const PluginManifestJson = S.fromJsonString(PluginManifest);
+
 const readText = (url: URL) => Effect.promise(() => Bun.file(url).text());
 
 const splitSkill = (text: string) => {
   const [, frontmatter = "", body = ""] = Str.split(text, "---\n");
-  return { frontmatter: Bun.YAML.parse(frontmatter), body };
+  return { frontmatter: Yaml.parse(frontmatter), body };
 };
 
 const backticked = (body: string) =>
@@ -45,7 +48,7 @@ describe("practice-onboarding skill", () => {
     Effect.gen(function* () {
       const { frontmatter } = splitSkill(yield* readText(skillUrl));
       const skill = yield* S.decodeUnknownEffect(SkillFrontmatter)(frontmatter, { onExcessProperty: "error" });
-      const plugin = yield* S.decodeEffect(S.fromJsonString(PluginManifest))(yield* readText(pluginUrl));
+      const plugin = yield* S.decodeEffect(PluginManifestJson)(yield* readText(pluginUrl));
       expect(skill.name).toBe("practice-onboarding");
       assertSome(R.get(skill.metadata, "version"), plugin.version);
     })

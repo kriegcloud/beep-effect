@@ -311,14 +311,13 @@ describe("CliUi.run", () => {
 				throw failure;
 			});
 			assert.isFalse(called, "constructing a lazy screen does not invoke its loader");
-			// This call itself must not throw, and must invoke the loader before it returns its rejected promise.
+			// This call itself must not throw, and must invoke the loader before it returns its failing effect.
 			const pending = screen({ resolve: () => undefined, cancel: () => undefined });
 			assert.isTrue(called, "invoking the screen calls its loader in the same turn");
-			const rejected = yield* Effect.promise(() => Promise.resolve(pending).then(
-				() => assert.fail("expected the lazy screen's loader to reject"),
-				(cause: unknown) => cause,
-			));
-			assert.strictEqual(rejected, failure, "the rejected promise retains the synchronous exception");
+			assert.isTrue(Effect.isEffect(pending), "a lazy screen returns the effect that builds its element");
+			const exit = yield* Effect.exit(Effect.isEffect(pending) ? pending : Effect.succeed(pending));
+			assert.isTrue(Exit.isFailure(exit), "expected the lazy screen's loader to fail the build");
+			if (Exit.isFailure(exit)) assert.strictEqual(Cause.squash(exit.cause), failure, "the defect is the synchronous exception");
 		}),
 	);
 

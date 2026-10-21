@@ -210,12 +210,15 @@ export class ErrnoException extends S.TaggedError<ErrnoException, { readonly bra
  * @category constructors
  * @since 0.0.0
  */
- static readonly from = (code: ErrnoCode, pathOrDescriptor: string | number | undefined): ErrnoException =>
+ static readonly from: {
+  (code: ErrnoCode, pathOrDescriptor: string | number | undefined): ErrnoException;
+  (pathOrDescriptor: string | number | undefined): (code: ErrnoCode) => ErrnoException;
+ } = dual(2, (code: ErrnoCode, pathOrDescriptor: string | number | undefined): ErrnoException =>
  ErrnoException.make({
   message: `${code}: ${errnoMessages[code]}${P.isString(pathOrDescriptor) ? `, '${pathOrDescriptor}'` : ""}`,
   code,
   path: P.isString(pathOrDescriptor) ? pathOrDescriptor : undefined,
- });
+ }));
 
 }
 

@@ -8,6 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
+import * as OptionUtils from "@beep/utils/Option";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -103,7 +104,9 @@ const rootTaskLane = (repoRoot: string, label: string, task: string, base?: stri
       ),
       "--summarize",
     ]),
-    ...(base === undefined ? {} : { env: { BEEP_PROOF_BASE: base } }),
+    ...OptionUtils.getSomesStruct({
+      env: O.map(O.fromUndefinedOr(base), (base) => ({ BEEP_PROOF_BASE: base })),
+    }),
   });
 
 /**

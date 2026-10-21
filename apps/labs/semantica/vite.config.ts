@@ -1,24 +1,10 @@
-import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { appViteConfig } from "../../../vite.shared.ts";
 
 export default defineConfig({
-  // effect ships both effect/Schema and the promoted effect/schema barrel; their
-  // pre-bundle entry names differ only by case and rolldown dedupes one, which
-  // breaks Vite's optimizer. Serve the barrel unbundled (plain ESM).
+  ...appViteConfig(import.meta.url),
+  // Keep the case-colliding Effect schema barrel out of dependency pre-bundling.
   optimizeDeps: { exclude: ["effect/schema"] },
-  clearScreen: false,
   plugins: [react()],
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
-  },
-  server: {
-    // Port and strictPort come from the portless-wrapped `dev` script
-    // (`--port "${PORT:-1420}" --strictPort`): portless assigns PORT for the
-    // named route, and the 1420 fallback keeps the PORTLESS=0 diagnostic
-    // bypass usable.
-    host: "127.0.0.1",
-  },
 });

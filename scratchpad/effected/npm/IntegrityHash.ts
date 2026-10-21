@@ -63,8 +63,8 @@ const $I = $ScratchpadId.create("effected/npm/IntegrityHash");
  * @category schemas
  * @since 0.0.0
  */
-export const IntegrityAlgorithm = LiteralKit(["sha1", "sha224", "sha256", "sha384", "sha512"]).annotate(
-    $I.annote("IntegrityAlgorithm", { description: "The supported SRI and corepack integrity algorithm vocabulary." }),
+export const IntegrityAlgorithm = LiteralKit(["sha1", "sha224", "sha256", "sha384", "sha512"]).pipe(
+    $I.annoteSchema("IntegrityAlgorithm", { description: "The supported SRI and corepack integrity algorithm vocabulary." }),
 );
 
 /**
@@ -86,19 +86,19 @@ const COREPACK_RE = /^(sha1|sha224|sha256|sha384|sha512)\.[0-9a-f]+$/;
 // a version marker (`<digits>c<digits>`), not an algorithm token.
 const YARN_RE = /^[0-9]+(c[0-9]+)?\/[0-9a-f]+$/;
 
-const SriString = S.String.annotate($I.annote("SriString", { description: "The SRI integrity string grammar, without decoding its digest." })).check(S.isPattern(SRI_RE, $I.annote("SriStringCheck", {
-    title: "SRI integrity shape", description: "An SRI algorithm followed by a base64-shaped digest.",
+const SriString = S.String.pipe($I.annoteSchema("SriString", { description: "The SRI integrity string grammar, without decoding its digest." })).check(S.isPattern(SRI_RE, $I.annote("SriStringCheck", {
+    description: "An SRI algorithm followed by a base64-shaped digest.",
     message: "Expected an SRI (<algo>-<base64>) integrity hash",
 })));
-const CorepackString = S.String.annotate($I.annote("CorepackString", { description: "The corepack integrity string grammar." })).check(S.isPattern(COREPACK_RE, $I.annote("CorepackStringCheck", {
-    title: "Corepack integrity shape", description: "A supported algorithm followed by a lowercase hexadecimal digest.",
+const CorepackString = S.String.pipe($I.annoteSchema("CorepackString", { description: "The corepack integrity string grammar." })).check(S.isPattern(COREPACK_RE, $I.annote("CorepackStringCheck", {
+    description: "A supported algorithm followed by a lowercase hexadecimal digest.",
     message: "Expected a corepack (<algo>.<hex>) integrity hash",
 })));
-const YarnChecksumString = S.String.annotate($I.annote("YarnChecksumString", { description: "The Yarn Berry versioned checksum string grammar." })).check(S.isPattern(YARN_RE, $I.annote("YarnChecksumStringCheck", {
-    title: "Yarn checksum shape", description: "A numeric cache key followed by a lowercase hexadecimal digest.",
+const YarnChecksumString = S.String.pipe($I.annoteSchema("YarnChecksumString", { description: "The Yarn Berry versioned checksum string grammar." })).check(S.isPattern(YARN_RE, $I.annote("YarnChecksumStringCheck", {
+    message: "Yarn checksum shape", description: "A numeric cache key followed by a lowercase hexadecimal digest.",
 })));
-const IntegrityString = S.Union([SriString, CorepackString, YarnChecksumString]).annotate(
-    $I.annote("IntegrityString", { description: "An integrity string in SRI, corepack or Yarn checksum form." }),
+const IntegrityString = S.Union([SriString, CorepackString, YarnChecksumString]).pipe(
+    $I.annoteSchema("IntegrityString", { description: "An integrity string in SRI, corepack or Yarn checksum form." }),
 );
 
 const isSri: (value: string) => boolean = S.is(SriString);
@@ -162,8 +162,8 @@ export class InvalidIntegrityHashError extends S.TaggedError<InvalidIntegrityHas
 	"InvalidIntegrityHashError",
 	{
 		/** The raw input string that failed validation. */
-		input: S.String.annotateKey({ description: "The raw input string that failed validation." }),
-	}, $I.annote("InvalidIntegrityHashError", { description: "Indicates that a string could not be parsed as a valid integrity hash." }),
+		input: S.String.pipe($I.annoteKey("InvalidIntegrityHashError.input", { description: "The raw input string that failed validation." })),
+	}, $I.annoteError<InvalidIntegrityHashError>("InvalidIntegrityHashError", { description: "Indicates that a string could not be parsed as a valid integrity hash." }),
 ) {
 	/**
 	 * Explains the rejected integrity input and the expected format.
@@ -197,7 +197,7 @@ export type IntegrityHashBrand = string & Brand.Brand<"IntegrityHash">;
 
 const IntegrityHashCheck = S.makeFilter<string>((value) =>
     isValidIntegrityHash(value) ? undefined : "Expected an SRI, corepack or yarn integrity hash",
-    $I.annote("IntegrityHashCheck", { title: "Integrity hash", description: "An SRI, corepack or Yarn checksum integrity string." }),
+    $I.annote("IntegrityHashCheck", { message: "Integrity hash", description: "An SRI, corepack or Yarn checksum integrity string." }),
 );
 const brandedIntegrity = S.String.pipe(
     $I.annoteSchema("IntegrityHash", { description: "A branded integrity string in SRI, corepack or Yarn checksum form." }),
@@ -335,7 +335,7 @@ const corepackRestricted = S.String.pipe(
     S.check(
         IntegrityHashCheck,
         S.isPattern(COREPACK_RE, $I.annote("CorepackIntegrityHashCheck", {
-            title: "Corepack integrity hash", description: "An IntegrityHash restricted to the corepack algorithm and hexadecimal digest form.", message: "Expected a corepack (<algo>.<hex>) integrity hash",
+            description: "An IntegrityHash restricted to the corepack algorithm and hexadecimal digest form.", message: "Expected a corepack (<algo>.<hex>) integrity hash",
         })),
     ),
     S.brand("IntegrityHash"),
@@ -345,7 +345,7 @@ const sriRestricted = S.String.pipe(
     S.check(
         IntegrityHashCheck,
         S.isPattern(SRI_RE, $I.annote("SriIntegrityHashCheck", {
-            title: "SRI integrity hash", description: "An IntegrityHash restricted to the SRI algorithm and base64-shaped digest form.", message: "Expected an SRI (<algo>-<base64>) integrity hash",
+            description: "An IntegrityHash restricted to the SRI algorithm and base64-shaped digest form.", message: "Expected an SRI (<algo>-<base64>) integrity hash",
         })),
     ),
     S.brand("IntegrityHash"),
@@ -505,8 +505,8 @@ const SHA512_COREPACK_PREFIX = "sha512.";
 // length cannot be a sha512 digest, and converting it would mint a pin
 // corepack rejects at install time — fail typed here instead.
 const SHA512_DIGEST_BYTES = 64;
-const CorepackSha512String = S.String.annotate($I.annote("CorepackSha512String", { description: "A complete corepack SHA-512 integrity string." })).check(S.isPattern(/^sha512\.[0-9a-f]{128}$/, $I.annote("CorepackSha512StringCheck", {
-    title: "Corepack SHA-512 digest", description: "A corepack SHA-512 hash carrying exactly 128 lowercase hexadecimal digits.",
+const CorepackSha512String = S.String.pipe($I.annoteSchema("CorepackSha512String", { description: "A complete corepack SHA-512 integrity string." })).check(S.isPattern(/^sha512\.[0-9a-f]{128}$/, $I.annote("CorepackSha512StringCheck", {
+    message: "Corepack SHA-512 digest", description: "A corepack SHA-512 hash carrying exactly 128 lowercase hexadecimal digits.",
 })));
 const isCorepackSha512 = S.is(CorepackSha512String);
 
@@ -597,8 +597,8 @@ export class InvalidSriIntegrityHashError extends S.TaggedError<InvalidSriIntegr
 	"InvalidSriIntegrityHashError",
 	{
 		/** The raw input string that failed conversion. */
-		input: S.String.annotateKey({ description: "The raw input string that failed conversion." }),
-	}, $I.annote("InvalidSriIntegrityHashError", { description: "Indicates that a string could not be converted from npm's SRI form to the corepack integrity form." }),
+		input: S.String.pipe($I.annoteKey("InvalidSriIntegrityHashError.input", { description: "The raw input string that failed conversion." })),
+	}, $I.annoteError<InvalidSriIntegrityHashError>("InvalidSriIntegrityHashError", { description: "Indicates that a string could not be converted from npm's SRI form to the corepack integrity form." }),
 ) {
 	/**
 	 * Explains the rejected integrity input and the expected format.

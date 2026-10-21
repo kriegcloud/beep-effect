@@ -7,6 +7,7 @@
 // because building it requires reading every workspace `package.json`, which is
 // IO, which is precisely what a pure package cannot do.
 
+import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
 import type { Lockfile, LockfileFramingError, LockfileParseError, ResolvedPackage } from "../lockfiles/index.ts";
 import { LockfileFormat, LockfileIntegrity, Lockfile as LockfileModel, filenameFor } from "../lockfiles/index.ts";
@@ -59,15 +60,15 @@ const JsonValue = S.fromJsonString(S.Unknown);
  */
 export class LockfileReadError extends S.TaggedError<LockfileReadError, { readonly brand: unique symbol }>($I`LockfileReadError`)("LockfileReadError", {
 	/** Absolute path to the lockfile that could not be read. */
-	lockfilePath: S.String.annotateKey({ description: "Absolute path to the lockfile that could not be read." }),
+	lockfilePath: S.String.pipe($I.annoteKey("LockfileReadError.lockfilePath", { description: "Absolute path to the lockfile that could not be read." })),
 	// `LockfileFormat` is @effected/lockfiles' own schema, not a re-spelling of it.
 	// Hand-rolling `Schema.Literals([...])` here duplicates the source of truth and
 	// would silently disagree the day upstream adds a format.
 	/** The format the detected package manager implies. */
-	format: LockfileFormat.annotateKey({ description: "The format the detected package manager implies." }),
+	format: LockfileFormat.pipe($I.annoteKey("LockfileReadError.format", { description: "The format the detected package manager implies." })),
 	/** The originating failure. */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The originating failure." }),
-}, $I.annote("LockfileReadError", { description: "Raised when the workspace's lockfile cannot be read off disk." })) {
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("LockfileReadError.cause", { description: "The originating failure." })),
+}, $I.annoteError<LockfileReadError>("LockfileReadError", { description: "Raised when the workspace's lockfile cannot be read off disk." })) {
 	/**
 	 * Renders the unreadable path into a one-line message.
 	 *
@@ -166,7 +167,7 @@ export const LockfileReaderOptions = S.Struct({
 	 *
 	 * @defaultValue `process.cwd()`, read lazily on first use.
 	 */
-	cwd: S.optionalKey(S.String).annotateKey({ description: "The directory to resolve the workspace root from; defaults lazily to the current directory on first use." }),
+	cwd: S.optionalKey(S.String).pipe($I.annoteKey("LockfileReaderOptions.cwd", { description: "The directory to resolve the workspace root from; defaults lazily to the current directory on first use." })),
 	/**
   * A ceiling for the root ascent from `cwd`, passed straight through to the
   * `stopAt` of {@link WorkspaceRoot}'s `find`.
@@ -182,7 +183,7 @@ export const LockfileReaderOptions = S.Struct({
   *
   * @defaultValue no ceiling — the ascent runs to the filesystem root.
   */
-	stopAt: S.optional(S.String).annotateKey({ description: "An inclusive ceiling for the workspace-root ascent; absent or undefined means no ceiling." }),
+	stopAt: S.optional(S.String).pipe($I.annoteKey("LockfileReaderOptions.stopAt", { description: "An inclusive ceiling for the workspace-root ascent; absent or undefined means no ceiling." })),
 }).pipe($I.annoteSchema("LockfileReaderOptions", { description: "Root-resolution options for the lockfile reader, leaving current-directory resolution lazy." }));
 
 /**
@@ -194,7 +195,7 @@ export type LockfileReaderOptions = typeof LockfileReaderOptions.Type;
 
 class LockfileReaderTestDoubleError extends S.TaggedError<LockfileReaderTestDoubleError, { readonly brand: unique symbol }>($I`LockfileReaderTestDoubleError`)("LockfileReaderTestDoubleError", {
 	message: S.String,
-}, $I.annote("LockfileReaderTestDoubleError", { description: "An unstubbed lockfile reader test-double method." })) {}
+}, $I.annoteError<LockfileReaderTestDoubleError>("LockfileReaderTestDoubleError", { description: "An unstubbed lockfile reader test-double method." })) {}
 
 /** A defect naming the unstubbed test-double method — a test-wiring mistake, not a typed failure. */
 const unstubbed = (method: string): Effect.Effect<never> =>
@@ -303,10 +304,8 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
 			//
 			// Bounded at concurrency 10, matching `WorkspaceDiscovery`'s per-package
 			// read: a large workspace should not serialize one read per member.
-			const importers = lockfile.packages.filter(
-				(pkg): pkg is typeof pkg & { readonly relativePath: string } =>
-					pkg.isWorkspace && pkg.relativePath !== undefined,
-			);
+			const importers = A.filter(lockfile.packages, (pkg): pkg is typeof pkg & { readonly relativePath: string } =>
+					pkg.isWorkspace && pkg.relativePath !== undefined);
 			const resolved = yield* Effect.forEach(
 				importers,
 				(pkg) =>
@@ -354,7 +353,7 @@ export class LockfileReader extends Context.Service<LockfileReader, LockfileRead
 				const packages = yield* discovery.listPackages;
 				return LockfileIntegrity.compare(
 					lockfile,
-					packages.map((pkg) => pkg.toWorkspaceManifest()),
+					A.map(packages, (pkg) => pkg.toWorkspaceManifest()),
 				);
 			})),
 

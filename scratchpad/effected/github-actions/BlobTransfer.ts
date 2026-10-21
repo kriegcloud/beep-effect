@@ -22,10 +22,10 @@ const $I = $ScratchpadId.create("effected/github-actions/BlobTransfer");
  */
 export class BlobTransferError extends S.TaggedError<BlobTransferError, { readonly brand: unique symbol }>($I`BlobTransferError`)("BlobTransferError", {
 	/** Which direction failed. */
-	reason: S.Literals(["uploadFailed", "downloadFailed"]).annotateKey({ description: "Which direction failed." }),
+	reason: S.Literals(["uploadFailed", "downloadFailed"]).pipe($I.annoteKey("BlobTransferError.reason", { description: "Which direction failed." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("BlobTransferError", { description: "Raised when bytes could not be moved to or from a signed blob url." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("BlobTransferError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<BlobTransferError>("BlobTransferError", { description: "Raised when bytes could not be moved to or from a signed blob url." })) {
 	/**
 	 * Describes whether uploading or downloading the signed blob failed.
 	 *
@@ -71,9 +71,15 @@ export class BlobTransferError extends S.TaggedError<BlobTransferError, { readon
  */
 export interface FileBlobTransfer {
 	/** Upload a file's contents to the url. */
-	readonly uploadFile: (url: string, file: string) => Effect.Effect<void, BlobTransferError>;
+	readonly uploadFile: {
+		(url: string, file: string): Effect.Effect<void, BlobTransferError>;
+		(file: string): (url: string) => Effect.Effect<void, BlobTransferError>;
+	};
 	/** Download the url's contents into a file. */
-	readonly downloadToFile: (url: string, file: string) => Effect.Effect<void, BlobTransferError>;
+	readonly downloadToFile: {
+		(url: string, file: string): Effect.Effect<void, BlobTransferError>;
+		(file: string): (url: string) => Effect.Effect<void, BlobTransferError>;
+	};
 }
 
 /**
@@ -93,7 +99,10 @@ export interface FileBlobTransfer {
  */
 export interface DataBlobTransfer {
 	/** Upload bytes to the url. */
-	readonly uploadData: (url: string, data: Uint8Array) => Effect.Effect<void, BlobTransferError>;
+	readonly uploadData: {
+		(url: string, data: Uint8Array): Effect.Effect<void, BlobTransferError>;
+		(data: Uint8Array): (url: string) => Effect.Effect<void, BlobTransferError>;
+	};
 	/** Download the url's contents. */
 	readonly downloadToBuffer: (url: string) => Effect.Effect<Uint8Array, BlobTransferError>;
 }

@@ -3,6 +3,8 @@ import { assertNone, assertSome, assertExitFailure } from "@effect/vitest/utils"
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { GitHubClient, makeClientShape } from "../../effected/github/GitHubClient.ts";
@@ -36,10 +38,14 @@ describe("GitHubClient coverage", () => {
 
   const snapshot = RateLimitSnapshot.make({ limit: 100, remaining: 99, resetEpochSeconds: 10 });
   it.layer(GitHubClient.layerTest({
-    request: () => Effect.fail(denied),
-    requestDecoded: (_route, _params, schema) => S.decodeUnknownEffect(schema)("decoded").pipe(Effect.orDie),
-    paginate: () => Effect.succeed([]), paginateStream: () => Stream.empty,
-    graphql: (document) => document.decode("graphql").pipe(Effect.orDie), rateLimit: Effect.succeedSome(snapshot),
+    request: dual(2, (_route: string, _params: unknown) => Effect.fail(denied)),
+    requestDecoded: dual(3, <A, I>(_route: string, _params: unknown, schema: S.Codec<A, I>) =>
+      S.decodeUnknownEffect(schema)("decoded").pipe(Effect.orDie)),
+    paginate: dual((args) => P.isString(args[0]), (_route: string, _params: unknown, _options?: unknown) => Effect.succeed([])),
+    paginateStream: dual((args) => P.isString(args[0]), (_route: string, _params: unknown, _options?: unknown) => Stream.empty),
+    graphql: dual(2, <A, V extends Record<string, unknown>>(document: GraphQLDocument<A, V>, _variables: V) =>
+      document.decode("graphql").pipe(Effect.orDie)),
+    rateLimit: Effect.succeedSome(snapshot),
   }), { timeout: "30 seconds" })((it) => {
   it.effect("test layer preserves all provided members", () => Effect.gen(function* () {
     const client = yield* GitHubClient;

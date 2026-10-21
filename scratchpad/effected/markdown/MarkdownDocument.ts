@@ -32,6 +32,7 @@ import type {
 } from "./MarkdownNode.ts";
 import { Definition, Heading, HeadingDepth, Image, ImageReference, Link, LinkReference, Root } from "./MarkdownNode.ts";
 import * as P from "effect/Predicate";
+import { dual, pipe } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/MarkdownDocument");
 
@@ -41,7 +42,7 @@ class DocumentNavigationError extends S.TaggedError<DocumentNavigationError, { r
 	{
 		message: S.String,
 	},
-	$I.annote("DocumentNavigationError", { description: "The document navigation depth guard was exceeded." }),
+	$I.annoteError<DocumentNavigationError>("DocumentNavigationError", { description: "The document navigation depth guard was exceeded." }),
 ) {}
 
 /**
@@ -71,10 +72,10 @@ class DocumentNavigationError extends S.TaggedError<DocumentNavigationError, { r
  * @since 0.0.0
  */
 export const DocumentHeading = S.Struct({
-	node: Heading.annotateKey({ description: "The original heading node in the document tree" }),
-	depth: HeadingDepth.annotateKey({ description: "Heading level used for outline navigation" }),
-	text: S.String.annotateKey({ description: "Plain-text projection of the heading's phrasing content" }),
-}).annotate($I.annote("DocumentHeading", { description: "Plain-object heading navigation entry retaining its source node, depth and derived text." }));
+	node: Heading.pipe($I.annoteKey("DocumentHeading.node", { description: "The original heading node in the document tree" })),
+	depth: HeadingDepth.pipe($I.annoteKey("DocumentHeading.depth", { description: "Heading level used for outline navigation" })),
+	text: S.String.pipe($I.annoteKey("DocumentHeading.text", { description: "Plain-text projection of the heading's phrasing content" })),
+}).pipe($I.annoteSchema("DocumentHeading", { description: "Plain-object heading navigation entry retaining its source node, depth and derived text." }));
 
 /**
  * The schema-derived heading navigation entry.
@@ -352,8 +353,8 @@ export const SectionQueryOptions = S.Struct({
 	 * @category type-level
 	 * @since 0.0.0
 	 */
-	depth: S.optionalKey(HeadingDepth).annotateKey({ description: "Exact heading depth to select; omission admits every heading depth" }),
-}).annotate($I.annote("SectionQueryOptions", { description: "Optional exact-depth restriction for document section navigation." }));
+	depth: S.optionalKey(HeadingDepth).pipe($I.annoteKey("SectionQueryOptions.depth", { description: "Exact heading depth to select; omission admits every heading depth" })),
+}).pipe($I.annoteSchema("SectionQueryOptions", { description: "Optional exact-depth restriction for document section navigation." }));
 
 /**
  * The schema-derived section query configuration.
@@ -414,9 +415,9 @@ export type LinkBearingNode = Link | Image | Definition | LinkReference | ImageR
  * @since 0.0.0
  */
 export const DocumentLink = S.Struct({
-	node: S.Union([Link, Image, Definition, LinkReference, ImageReference]).annotateKey({ description: "Original outbound-link or reference node in the document tree" }),
-	url: S.optionalKey(S.String).annotateKey({ description: "Unmodified outbound URL; absent for unresolved foreign references" }),
-}).annotate($I.annote("DocumentLink", { description: "Plain-object link navigation entry with the original node and an optional resolved URL." }));
+	node: S.Union([Link, Image, Definition, LinkReference, ImageReference]).pipe($I.annoteKey("DocumentLink.node", { description: "Original outbound-link or reference node in the document tree" })),
+	url: S.optionalKey(S.String).pipe($I.annoteKey("DocumentLink.url", { description: "Unmodified outbound URL; absent for unresolved foreign references" })),
+}).pipe($I.annoteSchema("DocumentLink", { description: "Plain-object link navigation entry with the original node and an optional resolved URL." }));
 
 /**
  * The schema-derived link navigation entry.
@@ -432,7 +433,10 @@ export type DocumentLink = typeof DocumentLink.Type;
 // decoded tree; the parser refuses deeper input) is a thrown defect.
 type NavigationNode = Frontmatter | MarkdownNode;
 
-const walkTree = (node: NavigationNode, depth: number, visit: (node: NavigationNode) => void): void => {
+const walkTree: {
+	(node: NavigationNode, depth: number, visit: (node: NavigationNode) => void): void;
+	(depth: number, visit: (node: NavigationNode) => void): (node: NavigationNode) => void;
+} = dual(3, (node: NavigationNode, depth: number, visit: (node: NavigationNode) => void): void => {
 	if (depth > MAX_NESTING_DEPTH) {
 		throw DocumentNavigationError.make({
 			message: `NestingDepthExceeded: limit ${MAX_NESTING_DEPTH} exceeded while walking the document tree`,
@@ -444,12 +448,15 @@ const walkTree = (node: NavigationNode, depth: number, visit: (node: NavigationN
 			walkTree(child, depth + 1, visit);
 		}
 	}
-};
+});
 
 // Depth-guarded pre-order search with early exit — `walkTree`'s visit callback
 // cannot stop the walk, and `find` should not pay for the rest of the tree
 // once it has its match.
-const findInTree = (
+const findInTree: {
+	(node: NavigationNode, depth: number, predicate: (node: MarkdownNode) => boolean): MarkdownNode | undefined;
+	(depth: number, predicate: (node: MarkdownNode) => boolean): (node: NavigationNode) => MarkdownNode | undefined;
+} = dual(3, (
 	node: NavigationNode,
 	depth: number,
 	predicate: (node: MarkdownNode) => boolean,
@@ -471,7 +478,7 @@ const findInTree = (
 		}
 	}
 	return undefined;
-};
+});
 
 /** Normalize a find/findAll selector — a `type` tag or a predicate — to a predicate. */
 const selectorPredicate = (
@@ -557,12 +564,12 @@ const phrasingText = (nodes: ReadonlyArray<PhrasingContent>): string => {
  * @since 0.0.0
  */
 export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand: unique symbol }>($I`MarkdownDocument`)({
-	source: S.String.annotateKey({ description: "Original markdown text retained so tree positions and surgical edits refer to the exact parsed source" }),
-	dialect: MarkdownDialect.pipe(S.withDecodingDefault(Effect.succeed<MarkdownDialect>("gfm")), S.withConstructorDefault(Effect.succeed<MarkdownDialect>("gfm"))).annotateKey({ description: "Resolved grammar used for parsing and contextual modification checks; defaults to gfm" }),
-	root: Root.annotateKey({ description: "Parsed mdast-shaped document tree carrying source positions and fidelity details" }),
-	diagnostics: S.Array(MarkdownDiagnostic).annotateKey({ description: "Non-fatal conditions reported during parsing; currently empty for every accepted document" }),
-	definitions: S.HashMap(S.String, Definition).annotateKey({ description: "Link-reference definitions indexed by normalized, case-folded label, with the first definition winning and nodes retained in the tree" }),
-	definitionOrder: S.Array(S.Tuple([S.String, Definition])).annotateKey({ description: "Winning normalized labels and their original definition nodes in document order; HashMap iteration order is unspecified" }),
+	source: S.String.pipe($I.annoteKey("MarkdownDocument.source", { description: "Original markdown text retained so tree positions and surgical edits refer to the exact parsed source" })),
+	dialect: MarkdownDialect.pipe(S.withDecodingDefault(Effect.succeed<MarkdownDialect>("gfm")), S.withConstructorDefault(Effect.succeed<MarkdownDialect>("gfm")), $I.annoteKey("MarkdownDocument.dialect", { description: "Resolved grammar used for parsing and contextual modification checks; defaults to gfm" })),
+	root: Root.pipe($I.annoteKey("MarkdownDocument.root", { description: "Parsed mdast-shaped document tree carrying source positions and fidelity details" })),
+	diagnostics: S.Array(MarkdownDiagnostic).pipe($I.annoteKey("MarkdownDocument.diagnostics", { description: "Non-fatal conditions reported during parsing; currently empty for every accepted document" })),
+	definitions: S.HashMap(S.String, Definition).pipe($I.annoteKey("MarkdownDocument.definitions", { description: "Link-reference definitions indexed by normalized, case-folded label, with the first definition winning and nodes retained in the tree" })),
+	definitionOrder: S.Array(S.Tuple([S.String, Definition])).pipe($I.annoteKey("MarkdownDocument.definitionOrder", { description: "Winning normalized labels and their original definition nodes in document order; HashMap iteration order is unspecified" })),
 }, $I.annote("MarkdownDocument", { description: "A parsed markdown document: the original `source`, the mdast-shaped Root tree, the non-fatal MarkdownDiagnostics the parse produced, and the link-reference `definitions` index." })) {
 	/**
 	 * The document's frontmatter capture, or `undefined` when there is none.
@@ -746,13 +753,8 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
 					heading: block,
 					depth: block.depth,
 					range: MarkdownRange.make({ offset: start, length: boundary - start }),
-					children: blocks
-						.slice(current.index + 1, end)
-						// Navigation is prose-oriented: the frontmatter block and MDX
-						// ESM statements are metadata, not section content, so both
-						// are excluded — which is also what keeps this predicate's
-						// FlowContent narrowing sound.
-						.filter((child): child is FlowContent => child.type !== "frontmatter" && child.type !== "mdxjsEsm"),
+					children: A.filter(blocks
+						.slice(current.index + 1, end), (child): child is FlowContent => child.type !== "frontmatter" && child.type !== "mdxjsEsm"),
 					text: phrasingText(block.children),
 					// The body starts where the heading NODE ends, which is what makes
 					// this correct for setext headings too: their node span covers the
@@ -793,7 +795,11 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
 	 */
 	firstSection(options?: SectionQueryOptions): DocumentSection | undefined {
 		const depth = options?.depth;
-		return this.sections.find((section) => depth === undefined || section.depth === depth);
+		return pipe(
+			this.sections,
+			A.findFirst((section) => depth === undefined || section.depth === depth),
+			O.getOrUndefined,
+		);
 	}
 
 	/**
@@ -840,7 +846,11 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
 							return match.test(section.text.trim());
 						}
 					: (section) => match(section.text, section);
-		return this.sections.find((section) => (depth === undefined || section.depth === depth) && matches(section));
+		return pipe(
+			this.sections,
+			A.findFirst((section) => (depth === undefined || section.depth === depth) && matches(section)),
+			O.getOrUndefined,
+		);
 	}
 
 	/**
@@ -997,11 +1007,11 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static parseResult(
-		text: string,
-		options?: MarkdownParseOptions,
-	): Result.Result<MarkdownDocument, MarkdownParseError> {
-		return Result.map(parsePassResult(text, options), (pass) =>
+	static readonly parseResult: {
+		(text: string, options?: MarkdownParseOptions): Result.Result<MarkdownDocument, MarkdownParseError>;
+		(options?: MarkdownParseOptions): (text: string) => Result.Result<MarkdownDocument, MarkdownParseError>;
+	} = dual((args) => P.isString(args[0]), (text: string, options?: MarkdownParseOptions): Result.Result<MarkdownDocument, MarkdownParseError> =>
+		Result.map(parsePassResult(text, options), (pass) =>
 			MarkdownDocument.make({
 				source: text,
 				dialect: options?.dialect ?? "gfm",
@@ -1010,8 +1020,7 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
 				definitions: pass.refmap,
 				definitionOrder: pass.definitionOrder,
 			}),
-		);
-	}
+		));
 
 	/**
 	 * Parse markdown into a {@link MarkdownDocument}. Defined in terms of
@@ -1036,7 +1045,10 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static readonly parse = Effect.fn("MarkdownDocument.parse")((text: string, options?: MarkdownParseOptions) =>
+	static readonly parse: {
+		(text: string, options?: MarkdownParseOptions): Effect.Effect<MarkdownDocument, MarkdownParseError, never>;
+		(options?: MarkdownParseOptions): (text: string) => Effect.Effect<MarkdownDocument, MarkdownParseError, never>;
+	} = dual((args) => P.isString(args[0]), Effect.fn("MarkdownDocument.parse")((text: string, options?: MarkdownParseOptions) =>
 		Effect.fromResult(MarkdownDocument.parseResult(text, options)),
-	);
+	));
 }

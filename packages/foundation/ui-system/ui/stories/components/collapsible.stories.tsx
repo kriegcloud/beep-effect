@@ -146,9 +146,12 @@ export const Disabled: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("button", { name: "Toggle details" });
-    expect(trigger).toHaveAttribute("aria-disabled", "true");
-    return userEvent.click(trigger).then(() => {
+    expect(trigger).toBeDisabled();
+    return userEvent.click(trigger, { pointerEventsCheck: 0 }).then(() => {
       expect(args.onOpenChange).not.toHaveBeenCalled();
+      expect(
+        canvas.queryByText("This content cannot be revealed while the collapsible is disabled.")
+      ).not.toBeInTheDocument();
     });
   },
 };

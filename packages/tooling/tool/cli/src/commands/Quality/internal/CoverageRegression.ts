@@ -30,7 +30,6 @@ import * as S from "effect/Schema";
 import * as Tuple from "effect/Tuple";
 import { formatJsonc, readArtifact, writeArtifact } from "../../../internal/artifacts/index.ts";
 import { configStringOption } from "../../../internal/cli/EnvConfig.ts";
-import { isLabsWorkspacePath } from "../../../internal/cli/Labs/index.ts";
 import { runCaptured } from "../../../internal/process/index.ts";
 import { enforceRatchet } from "../../../internal/ratchet/index.ts";
 import { collectChangedFiles, collectDirtyWorktreeFiles } from "../../../internal/repo-run/ChangedFiles.ts";
@@ -212,7 +211,12 @@ const coverageConfigurationError = (message: string, cause: unknown): DomainErro
  * @category models
  * @since 0.0.0
  */
-export class CoverageUncoveredCounts extends S.Opaque<CoverageUncoveredCounts, { readonly brand: unique symbol }>()(
+export class CoverageUncoveredCounts extends S.Opaque<
+  CoverageUncoveredCounts,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     lines: S.Natural,
     statements: S.Natural,
@@ -247,7 +251,12 @@ export class CoverageUncoveredCounts extends S.Opaque<CoverageUncoveredCounts, {
  * @category models
  * @since 0.0.0
  */
-export class CoverageFileBaseline extends S.Opaque<CoverageFileBaseline, { readonly brand: unique symbol }>()(
+export class CoverageFileBaseline extends S.Opaque<
+  CoverageFileBaseline,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     lines: Percentage,
     statements: Percentage,
@@ -305,7 +314,12 @@ const CoverageRepoRelativeFiles = S.Record(S.String, CoverageFileBaseline)
  * @category models
  * @since 0.0.0
  */
-export class CoveragePackageBaseline extends S.Opaque<CoveragePackageBaseline, { readonly brand: unique symbol }>()(
+export class CoveragePackageBaseline extends S.Opaque<
+  CoveragePackageBaseline,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     path: CoverageRepoRelativePackagePath,
     lines: Percentage,
@@ -327,7 +341,12 @@ export class CoveragePackageBaseline extends S.Opaque<CoveragePackageBaseline, {
  * @category models
  * @since 0.0.0
  */
-export class CoverageTieredMinimum extends S.Opaque<CoverageTieredMinimum, { readonly brand: unique symbol }>()(
+export class CoverageTieredMinimum extends S.Opaque<
+  CoverageTieredMinimum,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     lines: Percentage,
     statements: Percentage,
@@ -366,6 +385,7 @@ export class CoverageRegressionBaseline extends S.Opaque<
     })
   )
 ) {}
+
 const encodeCoverageRegressionBaseline = S.encodeEffect(CoverageRegressionBaseline);
 
 const defaultCoverageTieredMinimum = CoverageTieredMinimum.make({
@@ -437,7 +457,12 @@ const baselineDecodeError = (cause: unknown): DomainError =>
  * @category models
  * @since 0.0.0
  */
-export class VitestCoverageMetric extends S.Opaque<VitestCoverageMetric, { readonly brand: unique symbol }>()(
+export class VitestCoverageMetric extends S.Opaque<
+  VitestCoverageMetric,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     total: S.Natural,
     covered: S.Natural,
@@ -516,7 +541,12 @@ type VitestCoverageSummary = typeof VitestCoverageSummary.Type;
  * @category models
  * @since 0.0.0
  */
-export class CoverageSnapshotEntry extends S.Opaque<CoverageSnapshotEntry, { readonly brand: unique symbol }>()(
+export class CoverageSnapshotEntry extends S.Opaque<
+  CoverageSnapshotEntry,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     baseline: CoveragePackageBaseline,
     packageName: S.String,
@@ -592,7 +622,12 @@ export type CoverageBaselineRowDisposition = typeof CoverageBaselineRowDispositi
  * @category models
  * @since 0.0.0
  */
-export class CoverageBaselineChangeSet extends S.Opaque<CoverageBaselineChangeSet, { readonly brand: unique symbol }>()(
+export class CoverageBaselineChangeSet extends S.Opaque<
+  CoverageBaselineChangeSet,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     baseDescription: S.NonEmptyString,
     packageNames: S.Array(S.String),
@@ -640,7 +675,12 @@ export class CoverageBaselineChangeSet extends S.Opaque<CoverageBaselineChangeSe
  * @category models
  * @since 0.0.0
  */
-export class CoverageBaselineWritePlan extends S.Opaque<CoverageBaselineWritePlan, { readonly brand: unique symbol }>()(
+export class CoverageBaselineWritePlan extends S.Opaque<
+  CoverageBaselineWritePlan,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     changeSet: CoverageBaselineChangeSet,
     packages: S.Record(S.String, CoveragePackageBaseline),
@@ -733,7 +773,12 @@ export class CoverageNewUncoveredFileFailure extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class CoverageRaisedRowFailure extends S.Opaque<CoverageRaisedRowFailure, { readonly brand: unique symbol }>()(
+export class CoverageRaisedRowFailure extends S.Opaque<
+  CoverageRaisedRowFailure,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.TaggedStruct("row-raised-beyond-reach", {
     ...CoverageComparisonFailureFields,
     base: Percentage,
@@ -826,7 +871,12 @@ export class CoveragePackageRowRemovedFailure extends S.Opaque<
  * @category models
  * @since 0.0.0
  */
-export class CoverageLoweredFloor extends S.Opaque<CoverageLoweredFloor, { readonly brand: unique symbol }>()(
+export class CoverageLoweredFloor extends S.Opaque<
+  CoverageLoweredFloor,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     packageName: S.String,
     packagePath: CoverageRepoRelativePackagePath,
@@ -957,7 +1007,12 @@ export type CoverageComparisonFailure = typeof CoverageComparisonFailure.Type;
  * @category models
  * @since 0.0.0
  */
-export class CoverageComparisonResult extends S.Opaque<CoverageComparisonResult, { readonly brand: unique symbol }>()(
+export class CoverageComparisonResult extends S.Opaque<
+  CoverageComparisonResult,
+  {
+    readonly brand: unique symbol;
+  }
+>()(
   S.Struct({
     comparedCount: S.Int,
     failures: S.Array(CoverageComparisonFailure),
@@ -1116,9 +1171,7 @@ const workspaceCoverageDispositionGaps = Effect.fn("CoverageRegression.workspace
   );
   const workspacePackages = pipe(
     A.fromIterable(MutableHashMap.values(packageMap)),
-    // Labs never owe a coverage disposition: they are ceremony-exempt
-    // (goals/lab-apps-lifecycle D2) and appear as neither gaps nor exemptions.
-    A.filter((info) => info.path !== "." && !isLabsWorkspacePath(info.path))
+    A.filter((info) => info.path !== ".")
   );
 
   return coverageDispositionGapsForTesting(
@@ -1269,9 +1322,7 @@ const workspaceCoveragePackages = Effect.fn("CoverageRegression.workspaceCoverag
 
   return pipe(
     A.fromIterable(MutableHashMap.values(packageMap)),
-    // A lab that illegally defines a coverage script must never enter the
-    // snapshot/replacement universe (goals/lab-apps-lifecycle D2).
-    A.filter((info) => hasCoverageScript(info) && !isLabsWorkspacePath(info.path)),
+    A.filter(hasCoverageScript),
     A.sort(Order.mapInput(Order.String, (info: WorkspacePackageInfo) => info.name))
   );
 });
@@ -1379,7 +1430,11 @@ export const cleanCoverageRegressionOutputs = Effect.fn("CoverageRegression.clea
 
   yield* Effect.forEach(
     packages,
-    (info) => fs.remove(path.join(info.absolutePath, "coverage"), { force: true, recursive: true }),
+    (info) =>
+      fs.remove(path.join(info.absolutePath, "coverage"), {
+        force: true,
+        recursive: true,
+      }),
     { concurrency: 8, discard: true }
   ).pipe(QualityTaskConfigurationError.mapError("Failed to clean stale coverage outputs."));
 });
@@ -2577,7 +2632,13 @@ export const writeCoverageRegressionBaseline = Effect.fn("CoverageRegression.wri
         Effect.map(A.map((info) => info.name))
       );
       const lost = baselineEntriesLostByReplacement(
-        pipe(previous, O.match({ onNone: A.empty<string>, onSome: (document) => R.keys(document.packages) })),
+        pipe(
+          previous,
+          O.match({
+            onNone: A.empty<string>,
+            onSome: (document) => R.keys(document.packages),
+          })
+        ),
         A.map(entries, (entry) => entry.packageName),
         workspaceNames
       );
@@ -2600,7 +2661,10 @@ export const writeCoverageRegressionBaseline = Effect.fn("CoverageRegression.wri
             currentPrevious.value.packages,
             entries,
             yield* collectCoverageBaselineChangeSet(repoRoot),
-            CoverageBaselineWriteOptions.make({ replaceAll, carryUnmeasured: scoped })
+            CoverageBaselineWriteOptions.make({
+              replaceAll,
+              carryUnmeasured: scoped,
+            })
           )
         )
       : O.none<CoverageBaselineWritePlan>();
@@ -3216,7 +3280,10 @@ const coveragePackageJudgement = (
   packageName: string
 ): CoveragePackageJudgement => {
   const exclusion = O.flatMap(selfJudge, (scope) => coverageSelfJudgeExclusion(scope, packageName));
-  return { exclusion, selfJudgeable: O.isSome(selfJudge) && O.isNone(exclusion) };
+  return {
+    exclusion,
+    selfJudgeable: O.isSome(selfJudge) && O.isNone(exclusion),
+  };
 };
 
 // A measured package whose own document no longer carries the row: the pull
@@ -3227,7 +3294,12 @@ const coveragePackageRowRemoval = (
   proposedPackage: O.Option<CoveragePackageBaseline>
 ): O.Option<CoveragePackageRowRemovedFailure> =>
   O.isSome(context.baselines.proposed) && O.isSome(measured) && O.isNone(proposedPackage)
-    ? O.some(CoveragePackageRowRemovedFailure.make({ packageName: context.packageName, packagePath: context.basePath }))
+    ? O.some(
+        CoveragePackageRowRemovedFailure.make({
+          packageName: context.packageName,
+          packagePath: context.basePath,
+        })
+      )
     : O.none();
 
 // A lowered metric is either a floor this run judges — the package judges
@@ -3471,7 +3543,10 @@ const measuredRowProposals = (
                   })
                 )
               ),
-              O.match({ onNone: A.empty<CoverageMeasuredRowProposal>, onSome: A.of })
+              O.match({
+                onNone: A.empty<CoverageMeasuredRowProposal>,
+                onSome: A.of,
+              })
             )
           )
         ),
@@ -3921,51 +3996,47 @@ const renderCoverageExemptions = (exemptions: Record<string, string>): string =>
 const regressionLines = (
   result: CoverageComparisonResult,
   dispositionGaps: ReadonlyArray<string>
-): ReadonlyArray<string> => {
-  const sections = [
-    ...A.match(result.failures, {
-      onEmpty: A.empty<string>,
-      onNonEmpty: (failures) => [
-        "[coverage-ratchet] coverage regression(s) detected:",
-        ...renderCoverageFailuresForTesting(failures),
-      ],
-    }),
-    ...A.match(result.raisedRowFailures, {
-      onEmpty: A.empty<string>,
-      onNonEmpty: (failures) => [
-        "[coverage-ratchet] baseline row(s) raised beyond hosted reach (judged against this pull request's own rows, not the base floors):",
-        ...renderCoverageFailuresForTesting(failures),
-      ],
-    }),
-    ...renderPackageRowRemovals(result.packageRowRemovals),
-    ...renderCoverageLoweredFloors(result),
-    ...renderCoverageMeasuredRowProposals(result),
-    ...A.match(result.minimumFailures, {
-      onEmpty: A.empty<string>,
-      onNonEmpty: (failures) => [
-        "[coverage-minimum] coverage is below the repository tiered minimum:",
-        ...renderCoverageFailuresForTesting(failures),
-      ],
-    }),
-    ...A.match(result.missingActuals, {
-      onEmpty: A.empty<string>,
-      onNonEmpty: (missing) => [
-        "[coverage-ratchet] missing coverage summaries for required package(s):",
-        ...A.map(missing, (packageName) => `  - ${coverageDiagnosticFragment(packageName)}`),
-      ],
-    }),
-    ...A.match(dispositionGaps, {
-      onEmpty: A.empty<string>,
-      onNonEmpty: (gaps) => [
-        "[coverage-minimum] workspace package(s) without coverage or a named exemption:",
-        ...A.map(gaps, (packageName) => `  - ${coverageDiagnosticFragment(packageName)}`),
-      ],
-    }),
-    ...renderCoverageRemediation(result),
-  ];
-  return sections;
-};
-
+): ReadonlyArray<string> => [
+  ...A.match(result.failures, {
+    onEmpty: A.empty<string>,
+    onNonEmpty: (failures) => [
+      "[coverage-ratchet] coverage regression(s) detected:",
+      ...renderCoverageFailuresForTesting(failures),
+    ],
+  }),
+  ...A.match(result.raisedRowFailures, {
+    onEmpty: A.empty<string>,
+    onNonEmpty: (failures) => [
+      "[coverage-ratchet] baseline row(s) raised beyond hosted reach (judged against this pull request's own rows, not the base floors):",
+      ...renderCoverageFailuresForTesting(failures),
+    ],
+  }),
+  ...renderPackageRowRemovals(result.packageRowRemovals),
+  ...renderCoverageLoweredFloors(result),
+  ...renderCoverageMeasuredRowProposals(result),
+  ...A.match(result.minimumFailures, {
+    onEmpty: A.empty<string>,
+    onNonEmpty: (failures) => [
+      "[coverage-minimum] coverage is below the repository tiered minimum:",
+      ...renderCoverageFailuresForTesting(failures),
+    ],
+  }),
+  ...A.match(result.missingActuals, {
+    onEmpty: A.empty<string>,
+    onNonEmpty: (missing) => [
+      "[coverage-ratchet] missing coverage summaries for required package(s):",
+      ...A.map(missing, (packageName) => `  - ${coverageDiagnosticFragment(packageName)}`),
+    ],
+  }),
+  ...A.match(dispositionGaps, {
+    onEmpty: A.empty<string>,
+    onNonEmpty: (gaps) => [
+      "[coverage-minimum] workspace package(s) without coverage or a named exemption:",
+      ...A.map(gaps, (packageName) => `  - ${coverageDiagnosticFragment(packageName)}`),
+    ],
+  }),
+  ...renderCoverageRemediation(result),
+];
 const failurePackageNames = (failures: ReadonlyArray<CoverageComparisonFailure>): ReadonlyArray<string> =>
   pipe(
     A.map(failures, (failure) => failure.packageName),

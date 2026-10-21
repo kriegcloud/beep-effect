@@ -1,3 +1,5 @@
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 // A lone surrogate makes `encodeURIComponent` throw, so it becomes U+FFFD first.
 const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 
@@ -60,13 +62,12 @@ export const UNC = /^(?:\\\\|\/\/)/;
  * @since 0.0.0
  */
 export const encodePath = (path: string): string =>
-	path
-		.replace(LONE_SURROGATE, "�")
-		.split("/")
-		.map((segment) =>
-			encodeURIComponent(segment).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`),
-		)
-		.join("/");
+	pipe(
+		path.replace(LONE_SURROGATE, "�").split("/"),
+		A.map((segment) =>
+			encodeURIComponent(segment).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)),
+		A.join("/"),
+	);
 
 /**
  * The encoded path part of a `file:` URL for an absolute path (the part after `file://`), or `undefined` for a UNC

@@ -18,9 +18,11 @@ import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { GoalSlug } from "./Bootstrap.schemas.ts";
+import { readGoalLifecycle } from "./Completion.ts";
 import { GoalGraphInputError, GoalGraphOperationalError } from "./Goals.errors.ts";
 import { decodeGoalManifest } from "./Goals.schemas.ts";
 import {
@@ -89,7 +91,15 @@ export const loadCapabilityProjection = Effect.fn("Goals.loadCapabilityProjectio
     Effect.mapError(GoalGraphOperationalError.new("Failed to scan goals/ for the capability graph."))
   );
   const manifests = yield* Effect.forEach(records, decodePacketManifest, { concurrency: 1 });
-  return compileCapabilityProjection(manifests);
+  const statuses = yield* Effect.forEach(
+    manifests,
+    (manifest) =>
+      readGoalLifecycle(repoRoot, manifest.initiative.id, manifest).pipe(
+        Effect.map((status) => [manifest.initiative.id, status] as const)
+      ),
+    { concurrency: 1 }
+  );
+  return compileCapabilityProjection(manifests, R.fromEntries(statuses));
 });
 
 const renderJson = <A, I>(schema: S.ConstraintCodec<A, I>, report: A) =>

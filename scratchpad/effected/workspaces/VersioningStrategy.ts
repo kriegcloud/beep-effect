@@ -76,7 +76,7 @@ export type VersioningStrategyType = typeof VersioningStrategyType.Type;
  */
 export const ClassifyOptions = S.Struct({
 	/** Publishable package names, in any order. Duplicates are collapsed. */
-	packages: S.Array(S.String).annotateKey({ description: "Publishable package names, in any order; duplicates are collapsed." }),
+	packages: S.Array(S.String).pipe($I.annoteKey("ClassifyOptions.packages", { description: "Publishable package names, in any order; duplicates are collapsed." })),
 	/**
   * Groups of packages that version in lockstep.
   *
@@ -90,7 +90,7 @@ export const ClassifyOptions = S.Struct({
   * publishable, or do not exist; only whether some single group covers the
   * whole publishable set matters.
   */
-	fixedGroups: S.String.pipe(S.Array, S.Array, S.optionalKey).annotateKey({ description: "Groups of packages that version in lockstep." }),
+	fixedGroups: S.String.pipe(S.Array, S.Array, S.optionalKey, $I.annoteKey("ClassifyOptions.fixedGroups", { description: "Groups of packages that version in lockstep." })),
 }).pipe($I.annoteSchema("ClassifyOptions", { description: "Publishable package names and optional fixed groups used to classify a workspace." }));
 
 /**
@@ -153,9 +153,9 @@ export type VersioningDetectOptions = typeof VersioningDetectOptions.Type;
  */
 export const PackageRelease = S.Struct({
 	/** The package that was released. */
-	name: S.String.annotateKey({ description: "The package that was released." }),
+	name: S.String.pipe($I.annoteKey("PackageRelease.name", { description: "The package that was released." })),
 	/** The version it was released at. */
-	version: S.String.annotateKey({ description: "The version it was released at." }),
+	version: S.String.pipe($I.annoteKey("PackageRelease.version", { description: "The version it was released at." })),
 }).pipe($I.annoteSchema("PackageRelease", { description: "A structural release batch entry naming a package and its released version." }));
 
 /**
@@ -194,11 +194,11 @@ export type PackageRelease = typeof PackageRelease.Type;
  */
 export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly brand: unique symbol }>($I`VersioningStrategy`)({
 	/** The classification. */
-	type: VersioningStrategyType.annotateKey({ description: "The classification." }),
+	type: VersioningStrategyType.pipe($I.annoteKey("VersioningStrategy.type", { description: "The classification." })),
 	/** The groups classification was performed against, as supplied. */
-	fixedGroups: S.String.pipe(S.Array, S.Array).annotateKey({ description: "The groups classification was performed against, as supplied." }),
+	fixedGroups: S.String.pipe(S.Array, S.Array, $I.annoteKey("VersioningStrategy.fixedGroups", { description: "The groups classification was performed against, as supplied." })),
 	/** The publishable package names, sorted and de-duplicated. */
-	publishablePackages: S.Array(S.String).annotateKey({ description: "The publishable package names, sorted and de-duplicated." }),
+	publishablePackages: S.Array(S.String).pipe($I.annoteKey("VersioningStrategy.publishablePackages", { description: "The publishable package names, sorted and de-duplicated." })),
 }, $I.annote("VersioningStrategy", { description: "How a workspace versions, and the tagging that follows from it." })) {
 	/**
 	 * Whether a release needs one tag per package rather than one shared tag.
@@ -268,7 +268,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
 				? "single"
 				: // Lockstep means ONE group covers the whole publishable set. Two groups
 					// that cover it between them do not: those packages move separately.
-					fixedGroups.some((group) => packages.every((name) => group.includes(name)))
+					A.some(fixedGroups, (group) => A.every(packages, (name) => group.includes(name)))
 					? "fixed-group"
 					: "independent";
 
@@ -365,7 +365,7 @@ export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly b
 	tagsFor(releases: ReadonlyArray<PackageRelease>, options?: TagFormatOptions): ReadonlyArray<ReleaseTag> {
 		if (!A.isReadonlyArrayNonEmpty(releases)) return [];
 		if (this.perPackageTags) {
-			return releases.map((release) => ReleaseTag.scoped(release.name, release.version, options));
+			return A.map(releases, (release) => ReleaseTag.scoped(release.name, release.version, options));
 		}
 		const first = releases[0];
 		return [ReleaseTag.single(first.version, options)];

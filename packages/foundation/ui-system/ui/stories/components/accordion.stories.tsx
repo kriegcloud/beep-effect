@@ -180,8 +180,8 @@ export const Disabled: Story = {
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("button", { name: "This section is locked" });
-    expect(trigger).toHaveAttribute("aria-disabled", "true");
-    return userEvent.click(trigger).then(() => {
+    expect(trigger).toBeDisabled();
+    return userEvent.click(trigger, { pointerEventsCheck: 0 }).then(() => {
       expect(trigger).toHaveAttribute("aria-expanded", "false");
       expect(args.onValueChange).not.toHaveBeenCalled();
     });

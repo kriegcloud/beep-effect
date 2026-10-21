@@ -39,7 +39,7 @@ export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbo
 	 * @category getters
 	 * @since 0.0.0
 	 */
-	name: S.String.annotateKey({ description: "The engine name (e.g. `node`, `pnpm`)." }),
+	name: S.String.pipe($I.annoteKey("DevEngine.name", { description: "The engine name (e.g. `node`, `pnpm`)." })),
 	/**
 	 * The optional version constraint.
 	 *
@@ -55,7 +55,7 @@ export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbo
 	 * @category getters
 	 * @since 0.0.0
 	 */
-	version: S.optionalKey(S.String).annotateKey({ description: "The optional version constraint." }),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("DevEngine.version", { description: "The optional version constraint." })),
 	/**
 	 * The optional behavior when the constraint is unmet.
 	 *
@@ -71,7 +71,7 @@ export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbo
 	 * @category getters
 	 * @since 0.0.0
 	 */
-	onFail: S.optionalKey(S.Literals(["warn", "error", "ignore"])).annotateKey({ description: "The optional behavior when the constraint is unmet." }),
+	onFail: S.optionalKey(S.Literals(["warn", "error", "ignore"])).pipe($I.annoteKey("DevEngine.onFail", { description: "The optional behavior when the constraint is unmet." })),
 }, $I.annote("DevEngine", { description: "A single `devEngines` constraint with a name and optional `version` / `onFail`." })) {}
 
 /**
@@ -97,7 +97,7 @@ export const DevEngineOrArray: S.Union<[typeof DevEngine, S.$Array<typeof DevEng
 >([
 	DevEngine,
 	S.Array(DevEngine),
-]).annotate($I.annote("DevEngineOrArray", { description: "A `devEngines` constraint slot: a single DevEngine or an array of them." }));
+]).pipe($I.annoteSchema("DevEngineOrArray", { description: "A `devEngines` constraint slot: a single DevEngine or an array of them." }));
 
 /**
  * The `devEngines` field schema, modeling runtime and package-manager
@@ -125,11 +125,11 @@ export const DevEnginesSchema: S.Struct<{
 	readonly cpu: S.optionalKey<typeof DevEngineOrArray>;
 	readonly libc: S.optionalKey<typeof DevEngineOrArray>;
 }> = S.Struct({
-	packageManager: S.optionalKey(DevEngineOrArray).annotateKey({ description: "Package-manager constraints for development, with optional versions and behavior when unmet" }),
-	runtime: S.optionalKey(DevEngineOrArray).annotateKey({ description: "Runtime constraints for development, with optional versions and behavior when unmet" }),
-	os: S.optionalKey(DevEngineOrArray).annotateKey({ description: "Operating-system constraints for development, with optional versions and behavior when unmet" }),
-	cpu: S.optionalKey(DevEngineOrArray).annotateKey({ description: "CPU architecture constraints for development, with optional versions and behavior when unmet" }),
-	libc: S.optionalKey(DevEngineOrArray).annotateKey({ description: "C standard library constraints for development, with optional versions and behavior when unmet" }),
+	packageManager: S.optionalKey(DevEngineOrArray).pipe($I.annoteKey("DevEnginesSchema.packageManager", { description: "Package-manager constraints for development, with optional versions and behavior when unmet" })),
+	runtime: S.optionalKey(DevEngineOrArray).pipe($I.annoteKey("DevEnginesSchema.runtime", { description: "Runtime constraints for development, with optional versions and behavior when unmet" })),
+	os: S.optionalKey(DevEngineOrArray).pipe($I.annoteKey("DevEnginesSchema.os", { description: "Operating-system constraints for development, with optional versions and behavior when unmet" })),
+	cpu: S.optionalKey(DevEngineOrArray).pipe($I.annoteKey("DevEnginesSchema.cpu", { description: "CPU architecture constraints for development, with optional versions and behavior when unmet" })),
+	libc: S.optionalKey(DevEngineOrArray).pipe($I.annoteKey("DevEnginesSchema.libc", { description: "C standard library constraints for development, with optional versions and behavior when unmet" })),
 }).pipe($I.annoteSchema("DevEnginesSchema", { description: "The `devEngines` field schema, modeling runtime and package-manager constraints as optional DevEngine slots." }));
 
 /**

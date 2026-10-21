@@ -21,6 +21,7 @@ import type { MarkdownDocument } from "./MarkdownDocument.ts";
 import { MarkdownEdit } from "./MarkdownEdit.ts";
 import type { Frontmatter as FrontmatterNode } from "./MarkdownNode.ts";
 import { FrontmatterFormat } from "./MarkdownNode.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/Frontmatter");
 
@@ -51,10 +52,10 @@ export class FrontmatterFormatMismatchError extends S.TaggedError<FrontmatterFor
 	"FrontmatterFormatMismatchError",
 	{
 		/** The format the codec decodes. */
-		expected: FrontmatterFormat.annotateKey({ description: "The format the codec decodes." }),
+		expected: FrontmatterFormat.pipe($I.annoteKey("FrontmatterFormatMismatchError.expected", { description: "The format the codec decodes." })),
 		/** The format the capture node actually carries. */
-		actual: FrontmatterFormat.annotateKey({ description: "The format the capture node actually carries." }),
-	}, $I.annote("FrontmatterFormatMismatchError", { description: "Indicates that a frontmatter codec was handed a capture of a different format — a yaml codec applied to a `+++` toml capture, for example." }),
+		actual: FrontmatterFormat.pipe($I.annoteKey("FrontmatterFormatMismatchError.actual", { description: "The format the capture node actually carries." })),
+	}, $I.annoteError<FrontmatterFormatMismatchError>("FrontmatterFormatMismatchError", { description: "Indicates that a frontmatter codec was handed a capture of a different format — a yaml codec applied to a `+++` toml capture, for example." }),
 ) {
 	/**
 	 * Describes the incompatible codec and capture formats.
@@ -102,10 +103,10 @@ export class FrontmatterFormatMismatchError extends S.TaggedError<FrontmatterFor
  */
 export class FrontmatterDecodeError extends S.TaggedError<FrontmatterDecodeError, { readonly brand: unique symbol }>($I`FrontmatterDecodeError`)("FrontmatterDecodeError", {
 	/** The format that failed to parse. */
-	format: FrontmatterFormat.annotateKey({ description: "The format that failed to parse." }),
+	format: FrontmatterFormat.pipe($I.annoteKey("FrontmatterDecodeError.format", { description: "The format that failed to parse." })),
 	/** The underlying format-package failure, preserved structurally. */
-	cause: S.Defect().annotateKey({ description: "The underlying format-package failure, preserved structurally." }),
-}, $I.annote("FrontmatterDecodeError", { description: "Indicates that a frontmatter capture's content failed to parse in its declared format." })) {
+	cause: S.Defect().pipe($I.annoteKey("FrontmatterDecodeError.cause", { description: "The underlying format-package failure, preserved structurally." })),
+}, $I.annoteError<FrontmatterDecodeError>("FrontmatterDecodeError", { description: "Indicates that a frontmatter capture's content failed to parse in its declared format." })) {
 	/**
 	 * Describes which frontmatter format failed to parse.
 	 *
@@ -152,10 +153,10 @@ export class FrontmatterDecodeError extends S.TaggedError<FrontmatterDecodeError
  */
 export class FrontmatterEncodeError extends S.TaggedError<FrontmatterEncodeError, { readonly brand: unique symbol }>($I`FrontmatterEncodeError`)("FrontmatterEncodeError", {
 	/** The format that failed to serialize. */
-	format: FrontmatterFormat.annotateKey({ description: "The format that failed to serialize." }),
+	format: FrontmatterFormat.pipe($I.annoteKey("FrontmatterEncodeError.format", { description: "The format that failed to serialize." })),
 	/** The underlying format-package failure, preserved structurally. */
-	cause: S.Defect().annotateKey({ description: "The underlying format-package failure, preserved structurally." }),
-}, $I.annote("FrontmatterEncodeError", { description: "Indicates that frontmatter data failed to serialize in a codec's format." })) {
+	cause: S.Defect().pipe($I.annoteKey("FrontmatterEncodeError.cause", { description: "The underlying format-package failure, preserved structurally." })),
+}, $I.annoteError<FrontmatterEncodeError>("FrontmatterEncodeError", { description: "Indicates that frontmatter data failed to serialize in a codec's format." })) {
 	/**
 	 * Describes which frontmatter format failed to serialize.
 	 *
@@ -242,7 +243,7 @@ export interface FrontmatterCodec {
  * @category schemas
  * @since 0.0.0
  */
-export const FrontmatterMissingReason = LiteralKit(["absent", "captureDisabled"]).annotate($I.annote("FrontmatterMissingReason", { description: "Why a frontmatter decoder found no capture on a document." }));
+export const FrontmatterMissingReason = LiteralKit(["absent", "captureDisabled"]).pipe($I.annoteSchema("FrontmatterMissingReason", { description: "Why a frontmatter decoder found no capture on a document." }));
 
 /**
  * Why a frontmatter decoder found no capture on a document.
@@ -287,8 +288,8 @@ export type FrontmatterMissingReason = typeof FrontmatterMissingReason.Type;
  */
 export class FrontmatterMissingError extends S.TaggedError<FrontmatterMissingError, { readonly brand: unique symbol }>($I`FrontmatterMissingError`)("FrontmatterMissingError", {
 	/** Why there is no capture: no block at all, or capture left off. */
-	reason: FrontmatterMissingReason.annotateKey({ description: "Why there is no capture: no block at all, or capture left off." }),
-}, $I.annote("FrontmatterMissingError", { description: "Indicates that a document handed to a frontmatter decoder carries no frontmatter capture." })) {
+	reason: FrontmatterMissingReason.pipe($I.annoteKey("FrontmatterMissingError.reason", { description: "Why there is no capture: no block at all, or capture left off." })),
+}, $I.annoteError<FrontmatterMissingError>("FrontmatterMissingError", { description: "Indicates that a document handed to a frontmatter decoder carries no frontmatter capture." })) {
 	/**
 	 * Describes whether frontmatter is absent or capture must be enabled.
 	 *
@@ -345,8 +346,8 @@ export class FrontmatterValidationError extends S.TaggedError<FrontmatterValidat
 	"FrontmatterValidationError",
 	{
 		/** The structured schema issue. Never a string. */
-		issue: S.Defect().annotateKey({ description: "The structured schema issue. Never a string." }),
-	}, $I.annote("FrontmatterValidationError", { description: "Indicates that decoded frontmatter data did not satisfy the consumer's schema." }),
+		issue: S.Defect().pipe($I.annoteKey("FrontmatterValidationError.issue", { description: "The structured schema issue. Never a string." })),
+	}, $I.annoteError<FrontmatterValidationError>("FrontmatterValidationError", { description: "Indicates that decoded frontmatter data did not satisfy the consumer's schema." }),
 ) {
 	/**
 	 * Describes the failure to validate decoded frontmatter data.
@@ -423,11 +424,14 @@ const FENCES: Record<FrontmatterFormat, { readonly open: string; readonly close:
  * jsonc does not), and an empty body (toml's encoding of `{}`) collapses to
  * adjacent fence lines.
  */
-const renderBlock = (format: FrontmatterFormat, body: string): string => {
+const renderBlock: {
+	(format: FrontmatterFormat, body: string): string;
+	(body: string): (format: FrontmatterFormat) => string;
+} = dual(2, (format: FrontmatterFormat, body: string): string => {
 	const { open, close } = FENCES[format];
 	const normalized = body === "" || body.endsWith("\n") ? body : `${body}\n`;
 	return `${open}\n${normalized}${close}`;
-};
+});
 
 /**
  * The frontmatter schema composition facade: decodes a parsed document's frontmatter into typed data, and writes typed data back as a frontmatter block.
@@ -515,11 +519,11 @@ export class MarkdownFrontmatter {
 	 * @category parsing
 	 * @since 0.0.0
 	 */
-	static schema<T, E, RD = never, RE = never>(
-		schema: S.Codec<T, E, RD, RE>,
-		codec: FrontmatterCodec,
-	): (document: MarkdownDocument) => Effect.Effect<T, FrontmatterSchemaError, RD> {
-		return (document) => {
+	static readonly schema: {
+		<T, E, RD = never, RE = never>(schema: S.Codec<T, E, RD, RE>, codec: FrontmatterCodec): (document: MarkdownDocument) => Effect.Effect<T, FrontmatterSchemaError, RD>;
+		<T, E, RD = never, RE = never>(codec: FrontmatterCodec): (schema: S.Codec<T, E, RD, RE>) => (document: MarkdownDocument) => Effect.Effect<T, FrontmatterSchemaError, RD>;
+	} = dual(2, <T, E, RD = never, RE = never>(schema: S.Codec<T, E, RD, RE>, codec: FrontmatterCodec): (document: MarkdownDocument) => Effect.Effect<T, FrontmatterSchemaError, RD> =>
+		(document) => {
 			const node = document.frontmatter;
 			return node === undefined
 				? // The discriminant is the document's own structural signal: a source
@@ -541,8 +545,7 @@ export class MarkdownFrontmatter {
 							),
 						),
 					);
-		};
-	}
+		});
 
 	/**
 	 * Compose a consumer schema with a {@link FrontmatterCodec} into a typed
@@ -606,11 +609,11 @@ export class MarkdownFrontmatter {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static set<T, E, RD = never, RE = never>(
-		schema: S.Codec<T, E, RD, RE>,
-		codec: FrontmatterCodec,
-	): (document: MarkdownDocument, data: T) => Effect.Effect<ReadonlyArray<MarkdownEdit>, FrontmatterWriteError, RE> {
-		return (document, data) => {
+	static readonly set: {
+		<T, E, RD = never, RE = never>(schema: S.Codec<T, E, RD, RE>, codec: FrontmatterCodec): (document: MarkdownDocument, data: T) => Effect.Effect<ReadonlyArray<MarkdownEdit>, FrontmatterWriteError, RE>;
+		<T, E, RD = never, RE = never>(codec: FrontmatterCodec): (schema: S.Codec<T, E, RD, RE>) => (document: MarkdownDocument, data: T) => Effect.Effect<ReadonlyArray<MarkdownEdit>, FrontmatterWriteError, RE>;
+	} = dual(2, <T, E, RD = never, RE = never>(schema: S.Codec<T, E, RD, RE>, codec: FrontmatterCodec): (document: MarkdownDocument, data: T) => Effect.Effect<ReadonlyArray<MarkdownEdit>, FrontmatterWriteError, RE> =>
+		(document, data) => {
 			const node = document.frontmatter;
 			if (node !== undefined && node.format !== codec.format) {
 				return Effect.fail(FrontmatterFormatMismatchError.make({ expected: codec.format, actual: node.format }));
@@ -636,8 +639,7 @@ export class MarkdownFrontmatter {
 					return [MarkdownEdit.make({ offset, length: node.position.end.offset - offset, content: block })];
 				}),
 			);
-		};
-	}
+		});
 
 	/**
 	 * Like {@link MarkdownFrontmatter.set}, but applies the edits to the
@@ -676,12 +678,12 @@ export class MarkdownFrontmatter {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static setToString<T, E, RD = never, RE = never>(
-		schema: S.Codec<T, E, RD, RE>,
-		codec: FrontmatterCodec,
-	): (document: MarkdownDocument, data: T) => Effect.Effect<string, FrontmatterWriteError, RE> {
+	static readonly setToString: {
+		<T, E, RD = never, RE = never>(schema: S.Codec<T, E, RD, RE>, codec: FrontmatterCodec): (document: MarkdownDocument, data: T) => Effect.Effect<string, FrontmatterWriteError, RE>;
+		<T, E, RD = never, RE = never>(codec: FrontmatterCodec): (schema: S.Codec<T, E, RD, RE>) => (document: MarkdownDocument, data: T) => Effect.Effect<string, FrontmatterWriteError, RE>;
+	} = dual(2, <T, E, RD = never, RE = never>(schema: S.Codec<T, E, RD, RE>, codec: FrontmatterCodec): (document: MarkdownDocument, data: T) => Effect.Effect<string, FrontmatterWriteError, RE> => {
 		const write = MarkdownFrontmatter.set(schema, codec);
 		return (document, data) =>
 			write(document, data).pipe(Effect.map((edits) => MarkdownEdit.applyAll(document.source, edits)));
-	}
+	});
 }

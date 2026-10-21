@@ -6,8 +6,10 @@
 // statics are pure and total: computing edits never fails.
 
 import { thunk0 } from "@beep/utils/thunk";
+import { dual } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -61,9 +63,14 @@ export abstract class JsoncFormatter {
    * @param options - Formatting options as an instance or a plain literal.
    * @returns The edits that bring `text` to canonical shape.
    */
-  static format(text: string, range?: JsoncRange, options?: JsoncFormattingOptionsLike): ReadonlyArray<JsoncEdit> {
-    return formatImpl(text, O.fromUndefinedOr(range), JsoncFormattingOptions.make(options ?? R.empty()));
-  }
+  static readonly format: {
+    (text: string, range?: JsoncRange, options?: JsoncFormattingOptionsLike): ReadonlyArray<JsoncEdit>;
+    (range?: JsoncRange, options?: JsoncFormattingOptionsLike): (text: string) => ReadonlyArray<JsoncEdit>;
+  } = dual(
+    (args) => P.isString(args[0]),
+    (text: string, range?: JsoncRange, options?: JsoncFormattingOptionsLike): ReadonlyArray<JsoncEdit> =>
+      formatImpl(text, O.fromUndefinedOr(range), JsoncFormattingOptions.make(options ?? R.empty()))
+  );
 
   /**
    * Format `text` and apply the resulting edits in one step.
@@ -81,9 +88,14 @@ export abstract class JsoncFormatter {
    * @param options - Formatting options as an instance or a plain literal.
    * @returns The formatted text.
    */
-  static formatToString(text: string, range?: JsoncRange, options?: JsoncFormattingOptionsLike): string {
-    return JsoncEdit.applyAll(text, JsoncFormatter.format(text, range, options));
-  }
+  static readonly formatToString: {
+    (text: string, range?: JsoncRange, options?: JsoncFormattingOptionsLike): string;
+    (range?: JsoncRange, options?: JsoncFormattingOptionsLike): (text: string) => string;
+  } = dual(
+    (args) => P.isString(args[0]),
+    (text: string, range?: JsoncRange, options?: JsoncFormattingOptionsLike): string =>
+      JsoncEdit.applyAll(text, JsoncFormatter.format(text, range, options))
+  );
 }
 
 interface Gap {
@@ -93,7 +105,10 @@ interface Gap {
   readonly depth: number;
 }
 
-const formatImpl = (
+const formatImpl: {
+  (text: string, range: O.Option<JsoncRange>, options: JsoncFormattingOptions): ReadonlyArray<JsoncEdit>;
+  (range: O.Option<JsoncRange>, options: JsoncFormattingOptions): (text: string) => ReadonlyArray<JsoncEdit>;
+} = dual(3, (
   text: string,
   range: O.Option<JsoncRange>,
   options: JsoncFormattingOptions
@@ -103,7 +118,10 @@ const formatImpl = (
   // indent, so formatting stays total where upstream's `String.prototype.repeat`
   // throws a `RangeError` (a recorded port deviation).
   const newline = (depth: number): string => options.eol + Str.repeat(depth)(indentUnit);
-  const breakOrSpace = (gap: string, depth: number): string => (Str.includes("\n")(gap) ? newline(depth) : " ");
+  const breakOrSpace: {
+    (gap: string, depth: number): string;
+    (depth: number): (gap: string) => string;
+  } = dual(2, (gap: string, depth: number): string => (Str.includes("\n")(gap) ? newline(depth) : " "));
 
   // The canonical gap before a token, given what came before it.
   const gapAtDepth = (g: Gap): string => newline(g.depth);
@@ -130,11 +148,14 @@ const formatImpl = (
   // Edits grow in place: an immutable append copies every earlier edit per
   // token gap and makes reflowing a compact document quadratic.
   const edits: Array<JsoncEdit> = [];
-  const addEdit = (offset: number, length: number, content: string): void => {
+  const addEdit: {
+    (offset: number, length: number, content: string): void;
+    (length: number, content: string): (offset: number) => void;
+  } = dual(3, (offset: number, length: number, content: string): void => {
     if (offset >= rangeStart && offset + length <= rangeEnd && text.substring(offset, offset + length) !== content) {
       edits.push(JsoncEdit.make({ offset, length, content }));
     }
-  };
+  });
 
   const scanner = createScanner(text, false);
   let depth = 0;
@@ -176,4 +197,4 @@ const formatImpl = (
   }
 
   return edits;
-};
+});

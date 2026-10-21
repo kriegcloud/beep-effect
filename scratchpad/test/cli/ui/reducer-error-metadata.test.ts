@@ -20,8 +20,8 @@ describe("reducer and runtime error metadata", () => {
 		it(`${tag} describes its schema and message without changing construction`, () => {
 			assert.include(AST.resolveIdentifier(error.ast) ?? "", tag);
 			assert.isAbove((AST.resolveDescription(error.ast) ?? "").length, 20);
-			assert.include(AST.resolveIdentifier(error.fields.message.ast) ?? "", `${tag}.message`);
-			assert.isAbove((AST.resolveDescription(error.fields.message.ast) ?? "").length, 20);
+			assert.include(S.resolveAnnotationsKey(error.fields.message)?.identifier ?? "", `${tag}.message`);
+			assert.isAbove((S.resolveAnnotationsKey(error.fields.message)?.description ?? "").length, 20);
 			const instance = error.make({ message: "invariant failed" });
 			assert.strictEqual(instance._tag, tag);
 			assert.strictEqual(instance.message, "invariant failed");

@@ -16,6 +16,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
+import { dual } from "effect/Function";
 import * as R from "effect/Record";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -33,7 +34,7 @@ class SchemaRegistryError extends S.TaggedError<SchemaRegistryError, { readonly 
 	{
 		message: S.String,
 	},
-	$I.annote("SchemaRegistryError", { description: "Invalid or conflicting registry configuration." }),
+	$I.annoteError<SchemaRegistryError>("SchemaRegistryError", { description: "Invalid or conflicting registry configuration." }),
 ) {}
 
 /**
@@ -65,7 +66,7 @@ export class SchemaDeclarationByUrl extends S.TaggedClass<SchemaDeclarationByUrl
 	 *
 	 * @since 0.0.0
 	*/
-	url: S.String.annotateKey({ description: "The URL as written in the declaration." }),
+	url: S.String.pipe($I.annoteKey("SchemaDeclarationByUrl.url", { description: "The URL as written in the declaration." })),
 }, $I.annote("SchemaDeclarationByUrl", { description: "A `$schema` declaration referencing a schema by URL — any string containing `://`." })) {}
 
 /**
@@ -95,7 +96,7 @@ export class SchemaDeclarationByPath extends S.TaggedClass<SchemaDeclarationByPa
 	 *
 	 * @since 0.0.0
 	*/
-	path: S.String.annotateKey({ description: "The path as written in the declaration." }),
+	path: S.String.pipe($I.annoteKey("SchemaDeclarationByPath.path", { description: "The path as written in the declaration." })),
 }, $I.annote("SchemaDeclarationByPath", { description: "A `$schema` declaration referencing a schema by path — any string starting `./`, `../` or `/` (a bundle- or file-relative reference)." })) {}
 
 /**
@@ -128,7 +129,7 @@ export class SchemaDeclarationInline extends S.TaggedClass<SchemaDeclarationInli
 	 *
 	 * @since 0.0.0
 	*/
-	document: S.Unknown.annotateKey({ description: "The inline schema document, exactly as decoded from the frontmatter." }),
+	document: S.Unknown.pipe($I.annoteKey("SchemaDeclarationInline.document", { description: "The inline schema document, exactly as decoded from the frontmatter." })),
 }, $I.annote("SchemaDeclarationInline", { description: "A `$schema` declaration carrying an inline JSON-Schema-like document — the declaration value is itself a mapping." })) {}
 
 /**
@@ -164,13 +165,13 @@ export class SchemaDeclarationByName extends S.TaggedClass<SchemaDeclarationByNa
 	 *
 	 * @since 0.0.0
 	*/
-	name: S.String.annotateKey({ description: "The name as written, scope included." }),
+	name: S.String.pipe($I.annoteKey("SchemaDeclarationByName.name", { description: "The name as written, scope included." })),
 	/**
 	 * The version as written, when the declaration carries one.
 	 *
 	 * @since 0.0.0
 	*/
-	version: S.optionalKey(S.String).annotateKey({ description: "The version as written, when the declaration carries one." }),
+	version: S.optionalKey(S.String).pipe($I.annoteKey("SchemaDeclarationByName.version", { description: "The version as written, when the declaration carries one." })),
 }, $I.annote("SchemaDeclarationByName", { description: "A `$schema` declaration referencing a registered schema by name — any other string, with the committed `name[@version]` grammar." })) {}
 
 /**
@@ -236,14 +237,14 @@ export class SchemaDeclarationInvalidError extends S.TaggedError<SchemaDeclarati
 		 *
 		 * @since 0.0.0
 		*/
-		reason: S.String.annotateKey({ description: "Why the value failed to classify." }),
+		reason: S.String.pipe($I.annoteKey("SchemaDeclarationInvalidError.reason", { description: "Why the value failed to classify." })),
 		/**
 		 * The offending value, preserved structurally.
 		 *
 		 * @since 0.0.0
 		*/
-		value: S.Defect().annotateKey({ description: "The offending value, preserved structurally." }),
-	}, $I.annote("SchemaDeclarationInvalidError", { description: "Indicates that a `$schema` value does not classify: not a string or a mapping, an empty string, or a name whose version segment falls outside the committed `X[.Y[.Z]]` grammar." }),
+		value: S.Defect().pipe($I.annoteKey("SchemaDeclarationInvalidError.value", { description: "The offending value, preserved structurally." })),
+	}, $I.annoteError<SchemaDeclarationInvalidError>("SchemaDeclarationInvalidError", { description: "Indicates that a `$schema` value does not classify: not a string or a mapping, an empty string, or a name whose version segment falls outside the committed `X[.Y[.Z]]` grammar." }),
 ) {
 	/**
 	 * Explains why the raw `$schema` value could not be classified.
@@ -284,7 +285,7 @@ export class SchemaDeclarationInvalidError extends S.TaggedError<SchemaDeclarati
  */
 export class SchemaDeclarationMissingError extends S.TaggedError<SchemaDeclarationMissingError, { readonly brand: unique symbol }>($I`SchemaDeclarationMissingError`)(
 	"SchemaDeclarationMissingError",
-	{}, $I.annote("SchemaDeclarationMissingError", { description: "Indicates that frontmatter data carries no `$schema` declaration where one is required — the `requireDeclaration` strictness knob, or a registry resolver that has nothing to dispatch on." }),
+	{}, $I.annoteError<SchemaDeclarationMissingError>("SchemaDeclarationMissingError", { description: "Indicates that frontmatter data carries no `$schema` declaration where one is required — the `requireDeclaration` strictness knob, or a registry resolver that has nothing to dispatch on." }),
 ) {
 	/**
 	 * Explains that required frontmatter schema metadata is absent.
@@ -329,8 +330,8 @@ export class SchemaNameUnknownError extends S.TaggedError<SchemaNameUnknownError
 	 *
 	 * @since 0.0.0
 	*/
-	declaration: S.optionalKey(SchemaDeclaration).annotateKey({ description: "The declaration that failed to resolve, when one exists." }),
-}, $I.annote("SchemaNameUnknownError", { description: "Indicates that a declaration named a schema the resolver does not know — an unregistered name, or a URL/path/inline declaration handed to the name-keyed registry resolver." })) {
+	declaration: S.optionalKey(SchemaDeclaration).pipe($I.annoteKey("SchemaNameUnknownError.declaration", { description: "The declaration that failed to resolve, when one exists." })),
+}, $I.annoteError<SchemaNameUnknownError>("SchemaNameUnknownError", { description: "Indicates that a declaration named a schema the resolver does not know — an unregistered name, or a URL/path/inline declaration handed to the name-keyed registry resolver." })) {
 	/**
 	 * Explains that the declaration identifies no registered schema.
 	 *
@@ -379,14 +380,14 @@ export class SchemaVersionUnresolvableError extends S.TaggedError<SchemaVersionU
 		 *
 		 * @since 0.0.0
 		*/
-		name: S.String.annotateKey({ description: "The registered name whose version could not be satisfied." }),
+		name: S.String.pipe($I.annoteKey("SchemaVersionUnresolvableError.name", { description: "The registered name whose version could not be satisfied." })),
 		/**
 		 * The requested version, when the declaration carried one.
 		 *
 		 * @since 0.0.0
 		*/
-		version: S.optionalKey(S.String).annotateKey({ description: "The requested version, when the declaration carried one." }),
-	}, $I.annote("SchemaVersionUnresolvableError", { description: "Indicates that a declaration's name is registered but its version segments match no registration exactly — distinct from SchemaNameUnknownError by design, so a legal-but-unsatisfied partial version (`skill@2` against a `skill@2.1.0` registration) is diagnosable as a version problem, not an unknown schema." }),
+		version: S.optionalKey(S.String).pipe($I.annoteKey("SchemaVersionUnresolvableError.version", { description: "The requested version, when the declaration carried one." })),
+	}, $I.annoteError<SchemaVersionUnresolvableError>("SchemaVersionUnresolvableError", { description: "Indicates that a declaration's name is registered but its version segments match no registration exactly — distinct from SchemaNameUnknownError by design, so a legal-but-unsatisfied partial version (`skill@2` against a `skill@2.1.0` registration) is diagnosable as a version problem, not an unknown schema." }),
 ) {
 	/**
 	 * Distinguishes an absent version from a requested version with no exact match.
@@ -456,10 +457,10 @@ export interface FrontmatterSchemaResolver<E = never> {
 	 *
 	 * @since 0.0.0
 	*/
-	readonly resolve: (
-		declaration: SchemaDeclaration | undefined,
-		data: unknown,
-	) => Effect.Effect<S.Top, FrontmatterResolveError | E>;
+	readonly resolve: {
+		(declaration: SchemaDeclaration | undefined, data: unknown): Effect.Effect<S.Top, FrontmatterResolveError | E>;
+		(data: unknown): (declaration: SchemaDeclaration | undefined) => Effect.Effect<S.Top, FrontmatterResolveError | E>;
+	};
 }
 
 // The committed version grammar: one to three dot-separated non-negative
@@ -467,12 +468,9 @@ export interface FrontmatterSchemaResolver<E = never> {
 // at every size: "02.1.00" and "2.1.0" carry the same segments, without
 // rounding adjacent large integers. Leading zeros are legal; npm-style
 // prerelease/build/range syntax is not.
-const VersionString = S.String.check(S.isPattern(/^\d+(\.\d+){0,2}$/)).annotate(
-	$I.annote("VersionString", {
-		title: "Schema declaration version",
+const VersionString = S.String.check(S.isPattern(/^\d+(\.\d+){0,2}$/)).pipe($I.annoteSchema("VersionString", {
 		description: "One to three dot-separated non-negative integer segments, with leading zeros allowed.",
-	}),
-);
+	}));
 const isVersionString = S.is(VersionString);
 const canonicalSegments = (version: string): ReadonlyArray<string> =>
 	A.map(Str.split(version, "."), Str.replace(/^0+(?=\d)/, ""));
@@ -673,7 +671,7 @@ export class SchemaResolver {
 			MutableHashMap.set(byName, declaration.name, entry);
 		}
 		return {
-			resolve: Effect.fn("resolve")(
+			resolve: dual(2, Effect.fn("resolve")(
 				(declaration: SchemaDeclaration | undefined, _data: unknown): Effect.Effect<S.Top, FrontmatterResolveError> => {
 					if (declaration === undefined) {
 						return Effect.fail(SchemaDeclarationMissingError.make());
@@ -697,7 +695,7 @@ export class SchemaResolver {
 						? Effect.fail(SchemaVersionUnresolvableError.make({ name: declaration.name, version: declaration.version }))
 						: Effect.succeed(match);
 				},
-			),
+			)),
 		};
 	}
 }

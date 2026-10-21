@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
@@ -9,7 +9,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
-const settingsPath = fileURLToPath(new URL("../../../../../.claude/settings.json", import.meta.url));
+const settingsPath = NodeURL.fileURLToPath(new URL("../../../../../.claude/settings.json", import.meta.url));
 
 const HookSettings = S.Struct({
   hooks: S.Record(S.String, S.Array(S.Struct({ hooks: S.Array(S.Struct({ command: S.String })) }))),

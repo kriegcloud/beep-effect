@@ -1,37 +1,39 @@
 // Structural parser regressions only; no graph writes or model calls.
 // GRAFT_EXTRACT_MODULE must refer to a full disposable patched Graft package.
-import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { homedir } from "node:os";
-import { join } from "node:path";
-import { test } from "node:test";
-import { pathToFileURL } from "node:url";
+import * as NodeAssert from "node:assert/strict";
+import * as NodeChildProcess from "node:child_process";
+import * as NodeOS from "node:os";
+import * as NodePath from "node:path";
+import * as NodeTest from "node:test";
+import * as NodeURL from "node:url";
 
 const modulePath =
   process.env.GRAFT_EXTRACT_MODULE ??
-  join(
-    execFileSync("npm", ["root", "-g", "--prefix", join(homedir(), ".local")], { encoding: "utf8" }).trim(),
+  NodePath.join(
+    NodeChildProcess.execFileSync("npm", ["root", "-g", "--prefix", NodePath.join(NodeOS.homedir(), ".local")], {
+      encoding: "utf8",
+    }).trim(),
     "@nanonets/graft/dist/graph/extract.js"
   );
-const { extractFile } = await import(pathToFileURL(modulePath).href);
+const { extractFile } = await import(NodeURL.pathToFileURL(modulePath).href);
 
-test("a realistic generated IAM union traverses all extraction passes without overflowing", () => {
+NodeTest.test("a realistic generated IAM union traverses all extraction passes without overflowing", () => {
   const source =
     "// Generated IAM action fixture.\nexport type IamAction =\n" +
     Array.from({ length: 20000 }, (_, i) => `  | "service:Action${i}"`).join("\n") +
     "\n  | (string & {});\n";
   const result = extractFile("actions.generated.ts", source, "typescript");
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.nodes.map(({ id, kind }) => ({ id, kind })),
     [
       { id: "actions.generated.ts", kind: "file" },
       { id: "actions.generated.ts#IamAction", kind: "type" },
     ]
   );
-  assert.equal(result.nodes[1].span, "L2-L20003");
-  assert.ok(source.length > 400000);
-  assert.equal(result.nodes[0].chars, source.length);
-  assert.deepEqual(result.rawEdges, [
+  NodeAssert.equal(result.nodes[1].span, "L2-L20003");
+  NodeAssert.ok(source.length > 400000);
+  NodeAssert.equal(result.nodes[0].chars, source.length);
+  NodeAssert.deepEqual(result.rawEdges, [
     {
       source: "actions.generated.ts",
       relation: "contains",
@@ -41,14 +43,14 @@ test("a realistic generated IAM union traverses all extraction passes without ov
   ]);
 });
 
-test("TypeScript aliases, method bindings, and duplicate ids retain document order", () => {
+NodeTest.test("TypeScript aliases, method bindings, and duplicate ids retain document order", () => {
   const source = `import { Service as Base } from './service';
 export class Thing { method() { const local = new Base(); local.run(); } }
 function same() { Thing(); }
 function same() { Base(); }
 export type Flags = 'a' | 'b' | 'c';`;
   const result = extractFile("fixture.ts", source, "typescript");
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.nodes.map((node) => node.id),
     [
       "fixture.ts",
@@ -59,7 +61,7 @@ export type Flags = 'a' | 'b' | 'c';`;
       "fixture.ts#Flags",
     ]
   );
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.rawEdges
       .filter((edge) => edge.relation === "calls")
       .map(({ source, name, recvType }) => [source, name, recvType]),
@@ -69,7 +71,7 @@ export type Flags = 'a' | 'b' | 'c';`;
       ["fixture.ts#same~2", "Base", undefined],
     ]
   );
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.rawEdges.filter((edge) => edge.relation === "references"),
     [
       {
@@ -83,7 +85,7 @@ export type Flags = 'a' | 'b' | 'c';`;
   );
 });
 
-test("Python import aliases and nested function scopes retain their receivers", () => {
+NodeTest.test("Python import aliases and nested function scopes retain their receivers", () => {
   const source = `from pkg import Engine as Driver
 class Outer:
     def method(self):
@@ -94,11 +96,11 @@ class Outer:
         nested()
 `;
   const result = extractFile("fixture.py", source, "python");
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.nodes.map((node) => node.id),
     ["fixture.py", "fixture.py#Outer", "fixture.py#Outer.method", "fixture.py#Outer.method.nested"]
   );
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.rawEdges
       .filter((edge) => edge.relation === "calls")
       .map(({ source, name, recvType }) => [source, name, recvType]),
@@ -111,12 +113,12 @@ class Outer:
   );
 });
 
-test("PHP enum recovery keeps enum methods and following definitions in their own scopes", () => {
+NodeTest.test("PHP enum recovery keeps enum methods and following definitions in their own scopes", () => {
   const source = `<?php enum Color { case Red; public function render() { ping(); } }
 function ping() {}
 class Outer { public function run() { ping(); } }`;
   const result = extractFile("fixture.php", source, "php");
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.nodes.map(({ id, kind }) => ({ id, kind })),
     [
       { id: "fixture.php", kind: "file" },
@@ -127,7 +129,7 @@ class Outer { public function run() { ping(); } }`;
       { id: "fixture.php#Outer.run", kind: "method" },
     ]
   );
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.rawEdges.filter((edge) => edge.relation === "calls").map(({ source, name }) => [source, name]),
     [
       ["fixture.php#Color.render", "ping"],

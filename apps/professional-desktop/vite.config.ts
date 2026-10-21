@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import type { Plugin } from "vite";
@@ -134,13 +134,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@": NodeURL.fileURLToPath(new URL("./src", import.meta.url)),
       // micromark dependency whose `browser` build calls document.createElement
       // at module top level — a ReferenceError if any barrel leaks it into a
       // module worker (vite resolves workers with browser conditions). The
       // default build is DOM-free and behaves identically on the main thread.
-      "decode-named-character-reference": fileURLToPath(
-        new URL("../../node_modules/decode-named-character-reference/index.js", import.meta.url)
+      "decode-named-character-reference": NodeURL.fileURLToPath(
+        import.meta.resolve("decode-named-character-reference")
       ),
     },
   },

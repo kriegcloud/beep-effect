@@ -37,7 +37,7 @@ import { CatalogUsageSource } from "./CatalogUsage.service.ts";
 import { collectWorkspacePackageJsonFiles } from "./ChangesetGraph.ts";
 import { CatalogUsageError } from "./Quality.errors.ts";
 import type * as Crypto from "effect/Crypto";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 /**
  * Public catalog usage error export.

@@ -4,7 +4,8 @@ import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
 import { Markdown } from "../../effected/markdown/index.ts";
 import * as Effect from "effect/Effect";
-import type { Block, RenderContext } from "../../effected/cli/index.ts";
+import { dual } from "effect/Function";
+import type { Block, LinkTarget, RenderContext, Style, TokenName } from "../../effected/cli/index.ts";
 import { Doc, Glyphs, Render, Status } from "../../effected/cli/index.ts";
 import { ESC, composite } from "./helpers/hostileDoc.ts";
 import { contextOf } from "./helpers/renderContext.ts";
@@ -1088,14 +1089,14 @@ describe("Render.markdown: no ANSI, and a hostile document stays inside its own 
 		Effect.gen(function* () {
 			const calls: Array<string> = [];
 			const out = yield* render(composite({ codeAndPath: true }), {
-				paint: (_t, text) => {
+				paint: dual(2, (_t: TokenName | Style, text: string): string => {
 					calls.push("paint");
 					return `${ESC}[1m${text}${ESC}[0m`;
-				},
-				link: (_t, label) => {
+				}),
+				link: dual(2, (_t: LinkTarget, label: string): string => {
 					calls.push("link");
 					return `${ESC}]8;;u\u0007${label}${ESC}]8;;\u0007`;
-				},
+				}),
 			});
 			assert.deepStrictEqual(calls, []);
 			assert.notInclude(out, ESC);

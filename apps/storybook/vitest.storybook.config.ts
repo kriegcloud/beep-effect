@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
@@ -26,12 +26,15 @@ export default defineConfig({
   },
   plugins: [
     storybookTest({
-      configDir: fileURLToPath(new URL(".storybook", import.meta.url)),
+      configDir: NodeURL.fileURLToPath(new URL(".storybook", import.meta.url)),
     }),
   ],
   resolve: {
     alias: [
-      { find: /^@beep\/utils$/, replacement: fileURLToPath(new URL(".storybook/utils-browser.ts", import.meta.url)) },
+      {
+        find: /^@beep\/utils$/,
+        replacement: NodeURL.fileURLToPath(new URL(".storybook/utils-browser.ts", import.meta.url)),
+      },
     ],
   },
   test: {
@@ -42,7 +45,7 @@ export default defineConfig({
     sequence: {
       concurrent: false,
     },
-    setupFiles: [fileURLToPath(new URL("vitest.storybook.setup.ts", import.meta.url))],
+    setupFiles: [NodeURL.fileURLToPath(new URL("vitest.storybook.setup.ts", import.meta.url))],
     browser: {
       enabled: true,
       headless: true,

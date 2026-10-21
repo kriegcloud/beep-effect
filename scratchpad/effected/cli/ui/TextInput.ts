@@ -1,6 +1,8 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
+import type { Key } from "ink";
 import type { ReactElement } from "react";
 import { Fmt } from "../Fmt.ts";
 import { graphemes } from "../internal/displayWidth.ts";
@@ -34,10 +36,10 @@ const $I = $ScratchpadId.create("effected/cli/ui/TextInput");
  * @since 0.0.0
  */
 export const TextInputState = S.Struct({
-	value: S.String.annotateKey($I.annote("TextInputState.value", { description: "The raw text retained for editing, validation and submission." })),
-	cursor: S.Finite.annotateKey($I.annote("TextInputState.cursor", { description: "The raw insertion position in UTF-16 code units; navigation crosses whole graphemes." })),
-	submitted: S.Boolean.annotateKey($I.annote("TextInputState.submitted", { description: "Whether Enter requested submission; validation still decides acceptance." })),
-}).annotate($I.annote("TextInputState", { description: "The plain raw editing state of a one-line text input." }));
+	value: S.String.pipe($I.annoteKey("TextInputState.value", { description: "The raw text retained for editing, validation and submission." })),
+	cursor: S.Finite.pipe($I.annoteKey("TextInputState.cursor", { description: "The raw insertion position in UTF-16 code units; navigation crosses whole graphemes." })),
+	submitted: S.Boolean.pipe($I.annoteKey("TextInputState.submitted", { description: "Whether Enter requested submission; validation still decides acceptance." })),
+}).pipe($I.annoteSchema("TextInputState", { description: "The plain raw editing state of a one-line text input." }));
 /**
  * Plain payload accepted by {@link TextInputState}; reducers retain this structural representation.
  *
@@ -119,29 +121,38 @@ const init = (options: TextInputInitOptions = {}): TextInputState => {
 const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
 
 /** The grapheme boundary before `at`: the start of the grapheme `at` is in or just after; 0 at the start. */
-const previous = (value: string, at: number): number => {
+const previous: {
+	(value: string, at: number): number;
+	(at: number): (value: string) => number;
+} = dual(2, (value: string, at: number): number => {
 	let boundary = 0;
 	for (const { index } of segmenter.segment(value)) {
 		if (index >= at) break;
 		boundary = index;
 	}
 	return boundary;
-};
+});
 
 /** The grapheme boundary after `at`: the end of the grapheme that starts at or contains `at`; the length at the end. */
-const following = (value: string, at: number): number => {
+const following: {
+	(value: string, at: number): number;
+	(at: number): (value: string) => number;
+} = dual(2, (value: string, at: number): number => {
 	for (const { index, segment } of segmenter.segment(value)) {
 		const end = index + segment.length;
 		if (end > at) return end;
 	}
 	return value.length;
-};
+});
 
-const insert = (state: TextInputState, text: string): TextInputState => ({
+const insert: {
+	(state: TextInputState, text: string): TextInputState;
+	(text: string): (state: TextInputState) => TextInputState;
+} = dual(2, (state: TextInputState, text: string): TextInputState => ({
 	value: state.value.slice(0, state.cursor) + text + state.value.slice(state.cursor),
 	cursor: state.cursor + text.length,
 	submitted: false,
-});
+}));
 
 // biome-ignore lint/suspicious/noControlCharactersInRegex: the point is to split typed text at control characters
 const CONTROLS = /([\u0000-\u001f\u007f])/;
@@ -156,7 +167,10 @@ const PASTE_CONTROLS = /[\u0000-\u001f\u007f]/g;
  * space (a pasted line break separates words in a one-line field), and a tab or any other control is dropped. A named
  * key, or a Ctrl or Meta combination, is the one key Ink reported.
  */
-const typedKeys = (input: string, key: Parameters<typeof UiKey.fromInk>[1]): ReadonlyArray<UiKey> => {
+const typedKeys: {
+	(input: string, key: Key): ReadonlyArray<UiKey>;
+	(key: Key): (input: string) => ReadonlyArray<UiKey>;
+} = dual(2, (input: string, key: Key): ReadonlyArray<UiKey> => {
 	const single = UiKey.fromInk(input, key);
 	if (single?._tag === "Named" || key.ctrl || key.meta || !CONTROLS.test(input) || [...input].length < 2) {
 		return single === undefined ? [] : [single];
@@ -172,9 +186,12 @@ const typedKeys = (input: string, key: Parameters<typeof UiKey.fromInk>[1]): Rea
 		else if (!CONTROLS.test(piece)) keys.push(UiKey.char(piece));
 	}
 	return keys;
-};
+});
 
-const step = (state: TextInputState, key: UiKey): TextInputState => {
+const step: {
+	(state: TextInputState, key: UiKey): TextInputState;
+	(key: UiKey): (state: TextInputState) => TextInputState;
+} = dual(2, (state: TextInputState, key: UiKey): TextInputState => {
 	// A submitted input awaits validation: keys read in the same chunk after enter must not cancel or change it. A
 	// rejected value re-enables editing by clearing `submitted`.
 	if (state.submitted) return state;
@@ -197,10 +214,13 @@ const step = (state: TextInputState, key: UiKey): TextInputState => {
 		Match.when("enter", () => ({ ...state, submitted: true })),
 		Match.orElse(() => state),
 	);
-};
+});
 
 /** Take whole graphemes from the end of `text` while they fit in `width` cells. */
-const tail = (text: string, width: number): string => {
+const tail: {
+	(text: string, width: number): string;
+	(width: number): (text: string) => string;
+} = dual(2, (text: string, width: number): string => {
 	const clusters = graphemes(text);
 	let out = "";
 	let used = 0;
@@ -212,10 +232,13 @@ const tail = (text: string, width: number): string => {
 		used += cells;
 	}
 	return out;
-};
+});
 
 /** Take whole graphemes from the start of `text` while they fit in `width` cells. */
-const head = (text: string, width: number): string => {
+const head: {
+	(text: string, width: number): string;
+	(width: number): (text: string) => string;
+} = dual(2, (text: string, width: number): string => {
 	let out = "";
 	let used = 0;
 	for (const cluster of graphemes(text)) {
@@ -225,14 +248,17 @@ const head = (text: string, width: number): string => {
 		used += cells;
 	}
 	return out;
-};
+});
 
 /**
  * The text either side of the cursor, scrolled so the line fits `width` cells and the cursor stays in view: a cut
  * edge is marked with the ellipsis, the text after the cursor keeps up to a third of the room, and the text before
  * it the rest.
  */
-const windowAround = (before: string, after: string, width: number, ellipsis: string): readonly [string, string] => {
+const windowAround: {
+	(before: string, after: string, width: number, ellipsis: string): readonly [string, string];
+	(after: string, width: number, ellipsis: string): (before: string) => readonly [string, string];
+} = dual(4, (before: string, after: string, width: number, ellipsis: string): readonly [string, string] => {
 	if (Fmt.width(before) + Fmt.width(after) <= width) return [before, after];
 	const mark = Fmt.width(ellipsis);
 	const afterRoom = Math.min(Fmt.width(after), Math.floor(width / 3));
@@ -249,13 +275,16 @@ const windowAround = (before: string, after: string, width: number, ellipsis: st
 	const shownAfter =
 		Fmt.width(after) <= room ? after : room > mark ? `${head(after, room - mark)}${ellipsis}` : head(after, room);
 	return [shownBefore, shownAfter];
-};
+});
 
 /**
  * The value masked either side of the cursor, one `mask` per grapheme of the whole value: the graphemes that start
  * before the cursor, then the rest, so the two always add up to the value's graphemes, wherever the cursor is.
  */
-const maskedAround = (value: string, cursor: number, mask: string): readonly [string, string] => {
+const maskedAround: {
+	(value: string, cursor: number, mask: string): readonly [string, string];
+	(cursor: number, mask: string): (value: string) => readonly [string, string];
+} = dual(3, (value: string, cursor: number, mask: string): readonly [string, string] => {
 	let before = 0;
 	let total = 0;
 	for (const { index } of segmenter.segment(value)) {
@@ -263,7 +292,7 @@ const maskedAround = (value: string, cursor: number, mask: string): readonly [st
 		if (index < cursor) before++;
 	}
 	return [mask.repeat(before), mask.repeat(total - before)];
-};
+});
 
 /** Shown in the help line only; the input reads every key itself. */
 const HELP: KeyTable<"submit"> = KeyTable.make<"submit">([{ keys: ["enter"], action: "submit", help: "submit" }]);
@@ -341,7 +370,10 @@ export abstract class TextInput {
 	 * @category combinators
 	 * @since 0.0.0
 	 */
-	static readonly step: (state: TextInputState, key: UiKey) => TextInputState = step;
+	static readonly step: {
+		(state: TextInputState, key: UiKey): TextInputState;
+		(key: UiKey): (state: TextInputState) => TextInputState;
+	} = step;
 
 	/**
 	 * Draw the input: the message, the value with the cursor shown as `▏` (`|` under ASCII glyphs, so it stays visible
@@ -399,15 +431,15 @@ export abstract class TextInput {
 			}),
 		);
 		ink.useInput(
-			guard((input: string, key: Parameters<typeof UiKey.fromInk>[1]) => {
+			guard((input: string, key: Key) => {
 				const keys = typedKeys(input, key);
 				// Esc and Ctrl-C belong to the screen's root keys.
 				if (
-					keys.some((pressed) => pressed._tag === "Named" && (pressed.name === "escape" || pressed.name === "ctrl+c"))
+					A.some(keys, (pressed) => pressed._tag === "Named" && (pressed.name === "escape" || pressed.name === "ctrl+c"))
 				) {
 					return;
 				}
-				if (keys.some((pressed) => !(pressed._tag === "Named" && pressed.name === "enter"))) setError(undefined);
+				if (A.some(keys, (pressed) => !(pressed._tag === "Named" && pressed.name === "enter"))) setError(undefined);
 				for (const pressed of keys) setState((current) => step(current, pressed));
 			}),
 		);

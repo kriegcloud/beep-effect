@@ -15,6 +15,7 @@ import { flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { bytesEqual, decodeCanonicalBase58, isCanonicalEvmAddress } from "../internal/crypto.ts";
 import * as SchemaUtils from "../SchemaUtils/index.ts";
@@ -49,7 +50,7 @@ const isCanonicalBitcoinWitnessCryptoWalletAddress = (input: string): boolean =>
     return false;
   }
 
-  try {
+  return Result.try(() => {
     const decoded = bech32.decode(input);
 
     if (decoded.prefix !== "bc" || A.isReadonlyArrayEmpty(decoded.words)) {
@@ -65,27 +66,27 @@ const isCanonicalBitcoinWitnessCryptoWalletAddress = (input: string): boolean =>
     const program = bech32.fromWords(programWords);
 
     return program.length === 20 || program.length === 32;
-  } catch {}
+  }).pipe(
+    Result.getOrElse(() =>
+      Result.try(() => {
+        const decoded = bech32m.decode(input);
 
-  try {
-    const decoded = bech32m.decode(input);
+        if (decoded.prefix !== "bc" || A.isReadonlyArrayEmpty(decoded.words)) {
+          return false;
+        }
 
-    if (decoded.prefix !== "bc" || A.isReadonlyArrayEmpty(decoded.words)) {
-      return false;
-    }
+        const [version, ...programWords] = decoded.words;
 
-    const [version, ...programWords] = decoded.words;
+        if (version !== 1) {
+          return false;
+        }
 
-    if (version !== 1) {
-      return false;
-    }
+        const program = bech32m.fromWords(programWords);
 
-    const program = bech32m.fromWords(programWords);
-
-    return program.length === 32;
-  } catch {
-    return false;
-  }
+        return program.length === 32;
+      }).pipe(Result.getOrElse(() => false))
+    )
+  );
 };
 
 const isCanonicalBitcoinCryptoWalletAddress = (input: string): boolean =>

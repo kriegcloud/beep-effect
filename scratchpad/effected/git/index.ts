@@ -20,6 +20,7 @@ export {
 	Git,
 	GitCommandError,
 	type GitShape,
+	type GitStubs,
 	LsFilesEntry,
 	LsRemoteEntry,
 	LsTreeEntry,

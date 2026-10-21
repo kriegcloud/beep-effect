@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { CacheClientPin } from "@beep/repo-configs/cache";
 import { Sha256HexFromBytes } from "@beep/schema";
 import * as A from "effect/Array";
@@ -27,6 +28,7 @@ import {
   decodeCacheExperimentText,
   hashCacheExperimentExecutable,
   readCacheExperimentBytes,
+  requireCacheLinuxX64,
 } from "./Cache.evidence.ts";
 import { CacheFixtureCredentials, CacheFixtureScenario } from "./Cache.protocol.fixture.schemas.ts";
 import { makeCacheProtocolFixture } from "./Cache.protocol.fixture.ts";
@@ -438,8 +440,7 @@ export const runCacheProtocolExperiment = Effect.fn("CacheProtocol.experiment")(
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        if (process.platform !== "linux" || process.arch !== "x64")
-          return yield* CacheCommandError.new("Protocol sandbox requires Linux x64.");
+        yield* requireCacheLinuxX64("Protocol sandbox requires Linux x64.");
         const parent = path.join(root, ".beep/cache-protocol");
         yield* fs.makeDirectory(parent, { recursive: true });
         const directory = yield* fs.makeTempDirectoryScoped({ directory: parent, prefix: "run-" });

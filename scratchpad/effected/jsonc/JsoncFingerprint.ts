@@ -17,7 +17,7 @@ import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
-import { flow, identity } from "effect/Function";
+import { dual, flow, identity } from "effect/Function";
 import * as I from "effect/Iterable";
 import * as Order from "effect/Order";
 import type { PlatformError } from "effect/PlatformError";
@@ -69,8 +69,8 @@ export const JsoncCanonicalizeErrorCode = LiteralKit([
   "NonPlainObject",
   "NestingDepthExceeded",
   "InvalidDigest",
-]).annotate(
-  $I.annote("JsoncCanonicalizeErrorCode", {
+]).pipe(
+  $I.annoteSchema("JsoncCanonicalizeErrorCode", {
     description: "Why a value could not be canonicalized or fingerprinted.",
   })
 );
@@ -195,8 +195,11 @@ type Emit = Result.Result<string, JsoncCanonicalizeError>;
 
 const escapePointerSegment = flow(Str.replaceAll("~", "~0"), Str.replaceAll("/", "~1"));
 
-const fail = (code: JsoncCanonicalizeErrorCode, path: string, detail: string): Emit =>
-  Result.fail(JsoncCanonicalizeError.make({ code, path, detail }));
+const fail: {
+  (code: JsoncCanonicalizeErrorCode, path: string, detail: string): Emit;
+  (path: string, detail: string): (code: JsoncCanonicalizeErrorCode) => Emit;
+} = dual(3, (code: JsoncCanonicalizeErrorCode, path: string, detail: string): Emit =>
+  Result.fail(JsoncCanonicalizeError.make({ code, path, detail })));
 
 // RFC 8785 string and number serialization match `JSON.stringify` exactly:
 // the two-character escapes, lowercase `\u00xx` escapes for the remaining
@@ -211,7 +214,10 @@ const emitScalar = (value: string | number | boolean | null): string =>
 // Member and element reads go through this guard. An accessor property is
 // invoked, matching `JSON.stringify` semantics, but a getter that throws must
 // not escape as a raw exception through the `canonicalizeResult` boundary.
-const readProperty = (container: object, key: string | number, path: string): Result.Result<unknown, JsoncCanonicalizeError> =>
+const readProperty: {
+  (container: object, key: string | number, path: string): Result.Result<unknown, JsoncCanonicalizeError>;
+  (key: string | number, path: string): (container: object) => Result.Result<unknown, JsoncCanonicalizeError>;
+} = dual(3, (container: object, key: string | number, path: string): Result.Result<unknown, JsoncCanonicalizeError> =>
   Result.try({
     try: () => Reflect.get(container, key),
     catch: () =>
@@ -220,7 +226,7 @@ const readProperty = (container: object, key: string | number, path: string): Re
         path,
         detail: "the property getter for this value threw; getters must return plain JSON values",
       }),
-  });
+  }));
 
 const isPlainObject = (value: object): boolean => {
   const prototype: unknown = Reflect.getPrototypeOf(value);
@@ -229,14 +235,20 @@ const isPlainObject = (value: object): boolean => {
 
 // One member: read it through the getter guard, then canonicalize the value
 // it produced one level deeper.
-const emitMember = (container: object, key: string | number, memberPath: string, depth: number): Emit =>
-  readProperty(container, key, memberPath).pipe(Result.flatMap((member) => emit(member, memberPath, depth + 1)));
+const emitMember: {
+  (container: object, key: string | number, memberPath: string, depth: number): Emit;
+  (key: string | number, memberPath: string, depth: number): (container: object) => Emit;
+} = dual(4, (container: object, key: string | number, memberPath: string, depth: number): Emit =>
+  readProperty(container, key, memberPath).pipe(Result.flatMap(emit(memberPath, depth + 1))));
 
 // Members are produced lazily and `Result.all` stops pulling at the first
 // failure, as upstream's throw carrier stops its walk: after a member fails no
 // later getter runs, and no later exception can replace the typed failure.
-const emitMembers = <K>(keys: Iterable<K>, member: (key: K) => Emit): Result.Result<Array<string>, JsoncCanonicalizeError> =>
-  Result.all(I.map(keys, member));
+const emitMembers: {
+  <K>(keys: Iterable<K>, member: (key: K) => Emit): Result.Result<Array<string>, JsoncCanonicalizeError>;
+  <K>(member: (key: K) => Emit): (keys: Iterable<K>) => Result.Result<Array<string>, JsoncCanonicalizeError>;
+} = dual(2, <K>(keys: Iterable<K>, member: (key: K) => Emit): Result.Result<Array<string>, JsoncCanonicalizeError> =>
+  Result.all(I.map(keys, member)));
 
 // The indices of an array, counted here and compared against `length` before
 // every step, as upstream's indexed loop does. The array's own `keys`,
@@ -244,14 +256,20 @@ const emitMembers = <K>(keys: Iterable<K>, member: (key: K) => Emit): Result.Res
 // override, and one that names other indices or throws must change nothing.
 const indices = (value: ReadonlyArray<unknown>): Iterable<number> => I.takeWhile(I.range(0), (index) => index < value.length);
 
-const emitArray = (value: ReadonlyArray<unknown>, path: string, depth: number): Emit =>
+const emitArray: {
+  (value: ReadonlyArray<unknown>, path: string, depth: number): Emit;
+  (path: string, depth: number): (value: ReadonlyArray<unknown>) => Emit;
+} = dual(3, (value: ReadonlyArray<unknown>, path: string, depth: number): Emit =>
   // Indexed reads, never `map`: `map` skips holes, which must instead read as
   // `undefined` and fail typed at the hole's index.
-  emitMembers(indices(value), (index) => emitMember(value, index, `${path}/${index}`, depth)).pipe(
+  emitMembers(indices(value), (index: number) => emitMember(value, index, `${path}/${index}`, depth)).pipe(
     Result.map((items) => `[${A.join(items, ",")}]`)
-  );
+  ));
 
-const emitRecord = (value: { readonly [x: PropertyKey]: unknown }, path: string, depth: number): Emit => {
+const emitRecord: {
+  (value: { readonly [x: PropertyKey]: unknown }, path: string, depth: number): Emit;
+  (path: string, depth: number): (value: { readonly [x: PropertyKey]: unknown }) => Emit;
+} = dual(3, (value: { readonly [x: PropertyKey]: unknown }, path: string, depth: number): Emit => {
   if (!isPlainObject(value)) {
     return fail("NonPlainObject", path, "only arrays and plain objects canonicalize; encode domain values to plain JSON first");
   }
@@ -266,11 +284,14 @@ const emitRecord = (value: { readonly [x: PropertyKey]: unknown }, path: string,
       ? emitMember(value, key, memberPath, depth).pipe(Result.map((item) => `${emitScalar(key)}:${item}`))
       : fail("LoneSurrogate", memberPath, "object member key contains an unpaired surrogate; RFC 8785 requires well-formed Unicode");
   }).pipe(Result.map((members) => `{${A.join(members, ",")}}`));
-};
+});
 
 const isFiniteNumber = S.is(S.Finite);
 
-const emit = (value: unknown, path: string, depth: number): Emit => {
+const emit: {
+  (value: unknown, path: string, depth: number): Emit;
+  (path: string, depth: number): (value: unknown) => Emit;
+} = dual(3, (value: unknown, path: string, depth: number): Emit => {
   if (P.isNull(value) || P.isBoolean(value)) {
     return Result.succeed(emitScalar(value));
   }
@@ -294,7 +315,7 @@ const emit = (value: unknown, path: string, depth: number): Emit => {
     return fail("NestingDepthExceeded", path, `nesting exceeds ${MAX_NESTING_DEPTH} levels (a cyclic value also fails here)`);
   }
   return A.isArray(value) ? emitArray(value, path, depth) : emitRecord(value, path, depth);
-};
+});
 
 const encoder = new TextEncoder();
 
@@ -302,7 +323,10 @@ const encoder = new TextEncoder();
 // else; the caller-supplied `JsoncDigest` can, so the sync twins check it.
 const SHA256_DIGEST_BYTES = 32;
 
-const digestHexResult = (text: string, digest: JsoncDigest): Result.Result<string, JsoncCanonicalizeError> =>
+const digestHexResult: {
+  (text: string, digest: JsoncDigest): Result.Result<string, JsoncCanonicalizeError>;
+  (digest: JsoncDigest): (text: string) => Result.Result<string, JsoncCanonicalizeError>;
+} = dual(2, (text: string, digest: JsoncDigest): Result.Result<string, JsoncCanonicalizeError> =>
   Result.try({
     try: () => digest(encoder.encode(text)),
     catch: (thrown) =>
@@ -317,7 +341,7 @@ const digestHexResult = (text: string, digest: JsoncDigest): Result.Result<strin
         ? Result.succeed(Hex.encode(bytes))
         : fail("InvalidDigest", "", `the supplied digest returned ${bytes.length} bytes; SHA-256 produces ${SHA256_DIGEST_BYTES}`)
     )
-  );
+  ));
 
 const digestHex = Effect.fnUntraced(function* (text: string) {
   const crypto = yield* Crypto.Crypto;
@@ -327,8 +351,14 @@ const digestHex = Effect.fnUntraced(function* (text: string) {
 
 const normalizeEol = Str.replace(/\r\n?/g, "\n");
 
-const prepareText = (text: string, options?: JsoncTextHashOptions): string =>
-  (options ?? JsoncTextHashOptions.make({})).normalizeEol ? normalizeEol(text) : text;
+const prepareText: {
+  (text: string, options?: JsoncTextHashOptions): string;
+  (options?: JsoncTextHashOptions): (text: string) => string;
+} = dual(
+  (args) => P.isString(args[0]),
+  (text: string, options?: JsoncTextHashOptions): string =>
+    (options ?? JsoncTextHashOptions.make({})).normalizeEol ? normalizeEol(text) : text
+);
 
 // ── Facade ──────────────────────────────────────────────────────────────────
 
@@ -466,9 +496,11 @@ export abstract class JsoncFingerprint {
    *   {@link JsoncCanonicalizeError} carrying the canonicalization failure or
    *   `InvalidDigest`.
    */
-  static hashResult(value: unknown, digest: JsoncDigest): Result.Result<string, JsoncCanonicalizeError> {
-    return Result.flatMap(JsoncFingerprint.canonicalizeResult(value), (text) => digestHexResult(text, digest));
-  }
+  static readonly hashResult: {
+    (value: unknown, digest: JsoncDigest): Result.Result<string, JsoncCanonicalizeError>;
+    (digest: JsoncDigest): (value: unknown) => Result.Result<string, JsoncCanonicalizeError>;
+  } = dual(2, (value: unknown, digest: JsoncDigest): Result.Result<string, JsoncCanonicalizeError> =>
+    Result.flatMap(JsoncFingerprint.canonicalizeResult(value), digestHexResult(digest)));
 
   /**
    * The content fingerprint of a JSON value: the lowercase-hex SHA-256 of
@@ -532,13 +564,14 @@ export abstract class JsoncFingerprint {
    * @returns The 64-character lowercase-hex SHA-256, or a
    *   {@link JsoncCanonicalizeError} carrying `InvalidDigest`.
    */
-  static hashTextResult(
-    text: string,
-    digest: JsoncDigest,
-    options?: JsoncTextHashOptions
-  ): Result.Result<string, JsoncCanonicalizeError> {
-    return digestHexResult(prepareText(text, options), digest);
-  }
+  static readonly hashTextResult: {
+    (text: string, digest: JsoncDigest, options?: JsoncTextHashOptions): Result.Result<string, JsoncCanonicalizeError>;
+    (digest: JsoncDigest, options?: JsoncTextHashOptions): (text: string) => Result.Result<string, JsoncCanonicalizeError>;
+  } = dual(
+    (args) => P.isString(args[0]),
+    (text: string, digest: JsoncDigest, options?: JsoncTextHashOptions): Result.Result<string, JsoncCanonicalizeError> =>
+      digestHexResult(prepareText(text, options), digest)
+  );
 
   /**
    * The content fingerprint of raw text: the lowercase-hex SHA-256 of its
@@ -572,8 +605,14 @@ export abstract class JsoncFingerprint {
    * @param text - The text content to fingerprint.
    * @param options - Hash options; omitted fields take their defaults.
    */
-  static readonly hashText = Effect.fn("JsoncFingerprint.hashText")(
-    (text: string, options?: JsoncTextHashOptions): Effect.Effect<string, PlatformError, Crypto.Crypto> =>
-      digestHex(prepareText(text, options))
+  static readonly hashText: {
+    (text: string, options?: JsoncTextHashOptions): Effect.Effect<string, PlatformError, Crypto.Crypto>;
+    (options?: JsoncTextHashOptions): (text: string) => Effect.Effect<string, PlatformError, Crypto.Crypto>;
+  } = dual(
+    (args) => P.isString(args[0]),
+    Effect.fn("JsoncFingerprint.hashText")(
+      (text: string, options?: JsoncTextHashOptions): Effect.Effect<string, PlatformError, Crypto.Crypto> =>
+        digestHex(prepareText(text, options))
+    )
   );
 }

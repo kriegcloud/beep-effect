@@ -20,6 +20,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
+import * as Tuple from "effect/Tuple";
 import { NormalizedFixture, ProjectionSnapshot, RuleResult } from "@/domain/Bundle";
 import { LotCertificate, OntologyClassName, SupplierOffer } from "@/domain/Ontology";
 import type { DuckDbError } from "@beep/duckdb";
@@ -46,7 +47,7 @@ const DuckTextHitRow = S.Struct({ id: S.String });
 const DuckCitationRow = S.Struct({ id: S.String, url: S.String });
 const projectionSnapshotEquivalent = S.toEquivalence(ProjectionSnapshot);
 
-const createDuckDbFullTextProjection = [
+const createDuckDbFullTextProjection = Tuple.make(
   `CREATE TEMP TABLE fts_tokens AS
 SELECT id AS doc_id, UNNEST(regexp_extract_all(lower(body), '[a-z0-9]+(?:[-/][a-z0-9]+)*')) AS term
 FROM corpus_documents`,
@@ -68,8 +69,8 @@ SELECT p.term, p.doc_id,
 FROM fts_postings p
 JOIN fts_terms t USING (term)
 JOIN fts_docstats d USING (doc_id)
-CROSS JOIN corpus c`,
-] as const;
+CROSS JOIN corpus c`
+);
 
 /**
  * Collects the fixed fixtures, rule outcomes, and support records consumed by every projection engine.
@@ -205,12 +206,14 @@ export class ProjectionLayerOptions extends S.Opaque<ProjectionLayerOptions, { r
   )
 ) {}
 
-const decodeRows = <Schema extends S.Codec<unknown>>(stage: string, schema: Schema, input: unknown) =>
-  S.decodeUnknownEffect(schema)(input).pipe(
-    Effect.mapError((cause) =>
-      projectionError("snapshot", "decode", `The ${stage} query returned an unexpected row shape.`, cause)
+const decodeRows = Effect.fn("LeJeuneProjection.decodeRows")(
+  <Codec extends S.Codec<unknown>>(stage: string, schema: Codec, input: unknown) =>
+    S.decodeUnknownEffect(schema)(input).pipe(
+      Effect.mapError((cause) =>
+        projectionError("snapshot", "decode", `The ${stage} query returned an unexpected row shape.`, cause)
+      )
     )
-  );
+);
 
 const readPgliteProjection = Effect.fnUntraced(function* () {
   const sql = (yield* SqlClient.SqlClient).withoutTransforms();
@@ -375,10 +378,12 @@ SELECT ?class WHERE { ?class rdf:type owl:Class } ORDER BY ?class`,
   return yield* Effect.forEach(
     rows,
     (row) =>
-      O.match(O.fromUndefinedOr(row.class), {
-        onNone: () => projectionError("oxigraph", "query", "The ontology class query returned an unbound class."),
-        onSome: (term) => Effect.succeed(Str.replace(LEJEUNE_ONTOLOGY_NAMESPACE, "")(term.value)),
-      }),
+      O.fromUndefinedOr(row.class).pipe(
+        Effect.fromOption(() =>
+          projectionError("oxigraph", "query", "The ontology class query returned an unbound class.")
+        ),
+        Effect.map((term) => Str.replace(LEJEUNE_ONTOLOGY_NAMESPACE, "")(term.value))
+      ),
     { concurrency: 1 }
   );
 });
@@ -559,10 +564,10 @@ export const verifyDurableProjectionSnapshot = Effect.fn("lejeune.projection.ver
  * @since 0.0.0
  */
 export const makeProjectionLayer = (options: ProjectionLayerOptions) => {
-  const pgliteLayer = O.match(options.pgliteDataDir, {
-    onNone: makePgliteLayer,
-    onSome: (dataDir) => makePgliteLayer({ dataDir }),
-  });
+  const pgliteLayer = options.pgliteDataDir.pipe(
+    O.map((dataDir) => makePgliteLayer({ dataDir })),
+    O.getOrElse(makePgliteLayer)
+  );
   return Layer.mergeAll(
     pgliteLayer,
     DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: options.duckDbPath })),

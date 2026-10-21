@@ -27,8 +27,8 @@ const $I = $ScratchpadId.create("effected/runner/Audit.errors");
  * @category schemas
  * @since 0.0.0
  */
-export const GateName = LiteralKit(["parity", "check", "lint", "test", "docgen"]).annotate(
-  $I.annote("GateName", { description: "One of the five runner gates." })
+export const GateName = LiteralKit(["parity", "check", "lint", "test", "docgen"]).pipe(
+  $I.annoteSchema("GateName", { description: "One of the five runner gates." })
 );
 
 /**
@@ -504,7 +504,7 @@ export const AuditError = S.Union([
   ManifestInvalid,
   CliUsageError,
   LedgerIncomplete,
-]).annotate($I.annote("AuditError", { description: "The union of effected-port runner failures." }));
+]).pipe($I.annoteSchema("AuditError", { description: "The union of effected-port runner failures." }));
 
 /**
  * The decoded runner error union.

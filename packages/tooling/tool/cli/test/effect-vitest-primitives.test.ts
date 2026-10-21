@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { fcRuns } from "@beep/fc-runs";
 import {
   applyEffectVitestPrimitiveGraph,
@@ -35,9 +35,9 @@ type SourceAnchor = {
   readonly endLine: number;
 };
 
-const repositoryRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
-const packageRoot = fileURLToPath(new URL("..", import.meta.url));
-const fixtureRoot = fileURLToPath(new URL("./fixtures/effect-vitest-404", import.meta.url));
+const repositoryRoot = NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url));
+const packageRoot = NodeURL.fileURLToPath(new URL("..", import.meta.url));
+const fixtureRoot = NodeURL.fileURLToPath(new URL("./fixtures/effect-vitest-405", import.meta.url));
 const indexFile = "packages/vitest/src/index.ts";
 const utilsFile = "packages/vitest/src/utils.ts";
 const readmeFile = "packages/vitest/README.md";
@@ -295,7 +295,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("pinned primitive graph"
   );
 
   it.effect(
-    "compiles every graph example against the installed 4.0.4 package surface",
+    "compiles every graph example against the installed 4.0.5 package surface",
     Effect.fnUntraced(function* () {
       const path = yield* Path.Path;
       const graph = yield* readEffectVitestPrimitiveGraph(repositoryRoot);
@@ -402,7 +402,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("pinned primitive graph"
       );
       const graph = yield* readEffectVitestPrimitiveGraph(repositoryRoot);
       const failure = yield* verifyEffectVitestPin(root, graph).pipe(Effect.flip);
-      assertTrue(Str.includes("does not match graph pin @effect/vitest@4.0.4 (")(failure.message));
+      assertTrue(Str.includes("does not match graph pin @effect/vitest@4.0.5 (")(failure.message));
       assertTrue(Str.includes("Regenerate source anchors")(failure.message));
       assertTrue(Str.includes("review the semantic diff")(failure.message));
       assertTrue(Str.includes("update the graph pin")(failure.message));

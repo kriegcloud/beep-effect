@@ -24,9 +24,12 @@ import { unzipCommand, zipCommand, zipManifest } from "./internal/archiveCommand
 import { digestFileHex } from "./internal/digest.ts";
 import { isWindowsRunner } from "./internal/runner.ts";
 import { spawnOnce } from "./internal/spawn.ts";
+import type { TwirpResult } from "./internal/twirp.ts";
 import { CONFLICT, field, isOk, stringField, twirpCall, twirpFailureFields } from "./internal/twirp.ts";
+import * as P from "effect/Predicate";
 import { unstubbed } from "./internal/unstubbed.ts";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/Artifact");
 
@@ -67,18 +70,18 @@ export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand
 		"archiveFailed",
 		"transferFailed",
 		"invalidOptions",
-	]).annotateKey({ description: "`misconfigured` — the results backend is not reachable from here (see Artifact). `unreachable` — it could not be contacted, or answered with something that is not a Twirp body. `refused` — it answered, unhappily; re-uploading a name that already exists in the run is the common case. `notFound` — no artifact by that name or id exists in this run. `archiveFailed` — `zip` would not pack or unpack the files. `transferFailed` — the archive itself did not move. `invalidOptions` — the call cannot be made as asked." }),
+	]).pipe($I.annoteKey("ArtifactError.reason", { description: "`misconfigured` — the results backend is not reachable from here (see Artifact). `unreachable` — it could not be contacted, or answered with something that is not a Twirp body. `refused` — it answered, unhappily; re-uploading a name that already exists in the run is the common case. `notFound` — no artifact by that name or id exists in this run. `archiveFailed` — `zip` would not pack or unpack the files. `transferFailed` — the archive itself did not move. `invalidOptions` — the call cannot be made as asked." })),
 	/** The artifact's name or id. A stable identifier, never a value. */
-	artifact: S.optionalKey(S.String).annotateKey({ description: "The artifact's name or id. A stable identifier, never a value." }),
+	artifact: S.optionalKey(S.String).pipe($I.annoteKey("ArtifactError.artifact", { description: "The artifact's name or id. A stable identifier, never a value." })),
 	/** The HTTP status, when the backend answered. */
-	status: S.optionalKey(S.Finite).annotateKey({ description: "The HTTP status, when the backend answered." }),
+	status: S.optionalKey(S.Finite).pipe($I.annoteKey("ArtifactError.status", { description: "The HTTP status, when the backend answered." })),
 	/** What went wrong, when the reason alone does not say. */
-	detail: S.optionalKey(S.String).annotateKey({ description: "What went wrong, when the reason alone does not say." }),
+	detail: S.optionalKey(S.String).pipe($I.annoteKey("ArtifactError.detail", { description: "What went wrong, when the reason alone does not say." })),
 	/** `zip`'s own complaint, which is the only useful part of an archive failure. */
-	stderr: S.optionalKey(S.String).annotateKey({ description: "`zip`'s own complaint, which is the only useful part of an archive failure." }),
+	stderr: S.optionalKey(S.String).pipe($I.annoteKey("ArtifactError.stderr", { description: "`zip`'s own complaint, which is the only useful part of an archive failure." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("ArtifactError", { description: "Raised when an artifact cannot be uploaded, listed, downloaded or deleted." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("ArtifactError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<ArtifactError>("ArtifactError", { description: "Raised when an artifact cannot be uploaded, listed, downloaded or deleted." })) {
 	/**
 	 * Explains the artifact failure with the available identifier, status and diagnostic details.
 	 *
@@ -130,13 +133,13 @@ export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand
 // A boundary struct preserves the backend's plain-record public representation.
 export const ArtifactItem = S.Struct({
 	/** The database id, which is what `download` takes. */
-	id: S.Finite.annotateKey({ description: "The database id, which is what download takes." }),
+	id: S.Finite.pipe($I.annoteKey("ArtifactItem.id", { description: "The database id, which is what download takes." })),
 	/** The name the artifact was uploaded under. */
-	name: S.String.annotateKey({ description: "The name the artifact was uploaded under." }),
+	name: S.String.pipe($I.annoteKey("ArtifactItem.name", { description: "The name the artifact was uploaded under." })),
 	/** The size of the stored zip, in bytes. */
-	size: S.Finite.annotateKey({ description: "The size of the stored zip, in bytes." }),
+	size: S.Finite.pipe($I.annoteKey("ArtifactItem.size", { description: "The size of the stored zip, in bytes." })),
 	/** When it was created, ISO-8601, when the backend says. */
-	createdAt: S.String.pipe(S.UndefinedOr, S.optionalKey).annotateKey({ description: "When it was created, ISO-8601, when the backend says." }),
+	createdAt: S.String.pipe(S.UndefinedOr, S.optionalKey, $I.annoteKey("ArtifactItem.createdAt", { description: "When it was created, ISO-8601, when the backend says." })),
 }).pipe($I.annoteSchema("ArtifactItem", { description: "One artifact, as the backend describes it." }));
 
 /**
@@ -182,7 +185,7 @@ export const UploadOptions = S.Struct({
   * being silently corrected, because "delete it immediately" and "keep it for
   * the default period" are too far apart to guess between.
   */
-	retentionDays: S.optional(S.Finite).annotateKey({ description: "Positive finite retention in days; omitted uses the repository default." }),
+	retentionDays: S.optionalKey(S.Finite).pipe($I.annoteKey("UploadOptions.retentionDays", { description: "Positive finite retention in days; omitted uses the repository default." })),
 	/**
   * The zlib level, 0–9, defaulting to 6 as `@actions/artifact` does.
   *
@@ -192,7 +195,7 @@ export const UploadOptions = S.Struct({
   * `CompressionLevel`: `0` is `NoCompression`, `1..3` `Fastest`, `4..8`
   * `Optimal`, `9` `SmallestSize`.
   */
-	compressionLevel: S.optional(S.Finite).annotateKey({ description: "The zlib level, clamped to 0–9; omitted defaults to 6." }),
+	compressionLevel: S.optionalKey(S.Finite).pipe($I.annoteKey("UploadOptions.compressionLevel", { description: "The zlib level, clamped to 0–9; omitted defaults to 6." })),
 }).pipe($I.annoteSchema("UploadOptions", { description: "Plain-object options for artifact retention and compression." }));
 
 /** The plain-object upload options validated by {@link UploadOptions}.
@@ -204,9 +207,9 @@ export type UploadOptions = typeof UploadOptions.Type;
 // A boundary struct keeps the upload's plain-record public representation.
 const UploadResult = S.Struct({
 	/** The new artifact's database id, which `download` takes. */
-	id: S.Finite.annotateKey({ description: "The new artifact's database id, which download takes." }),
+	id: S.Finite.pipe($I.annoteKey("UploadResult.id", { description: "The new artifact's database id, which download takes." })),
 	/** The size of the uploaded zip, in bytes. */
-	size: S.Finite.annotateKey({ description: "The size of the uploaded zip, in bytes." }),
+	size: S.Finite.pipe($I.annoteKey("UploadResult.size", { description: "The size of the uploaded zip, in bytes." })),
 }).pipe($I.annoteSchema("UploadResult", { description: "What an upload produced." }));
 
 /**
@@ -236,7 +239,7 @@ export type UploadResult = typeof UploadResult.Type;
  */
 export const DownloadOptions = S.Struct({
 	/** The destination directory. A fresh temporary directory when omitted. */
-	path: S.optional(S.String).annotateKey({ description: "Destination directory; omitted creates a fresh temporary directory." }),
+	path: S.optionalKey(S.String).pipe($I.annoteKey("DownloadOptions.path", { description: "Destination directory; omitted creates a fresh temporary directory." })),
 }).pipe($I.annoteSchema("DownloadOptions", { description: "Plain-object options specifying where an artifact download lands." }));
 
 /** The plain-object download options validated by {@link DownloadOptions}.
@@ -263,7 +266,7 @@ export type DownloadOptions = typeof DownloadOptions.Type;
  */
 export const DownloadResult = S.Struct({
 	/** The directory the artifact's contents were extracted into. */
-	downloadPath: S.String.annotateKey({ description: "The directory the artifact's contents were extracted into." }),
+	downloadPath: S.String.pipe($I.annoteKey("DownloadResult.downloadPath", { description: "The directory the artifact's contents were extracted into." })),
 }).pipe($I.annoteSchema("DownloadResult", { description: "The plain-object result naming an artifact's extraction directory." }));
 
 /** The plain-object download result validated by {@link DownloadResult}.
@@ -275,7 +278,7 @@ export type DownloadResult = typeof DownloadResult.Type;
 // A boundary struct keeps the deletion's plain-record public representation.
 const ArtifactRef = S.Struct({
 	/** The deleted artifact's database id. */
-	id: S.Finite.annotateKey({ description: "The deleted artifact's database id." }),
+	id: S.Finite.pipe($I.annoteKey("ArtifactRef.id", { description: "The deleted artifact's database id." })),
 }).pipe($I.annoteSchema("ArtifactRef", { description: "The id of an artifact that delete removed." }));
 
 /**
@@ -306,18 +309,19 @@ export interface ArtifactShape {
   * whichever runner produced it. A name already used in this run is refused by
   * the backend: artifacts are immutable within a run.
   */
-	readonly upload: (
-		name: string,
-		files: ReadonlyArray<string>,
-		rootDirectory: string,
-		options?: UploadOptions,
-	) => Effect.Effect<UploadResult, ArtifactError>;
+	readonly upload: {
+		(name: string, files: ReadonlyArray<string>, rootDirectory: string, options?: UploadOptions): Effect.Effect<UploadResult, ArtifactError>;
+		(files: ReadonlyArray<string>, rootDirectory: string, options?: UploadOptions): (name: string) => Effect.Effect<UploadResult, ArtifactError>;
+	};
 	/** Every artifact in the current run. */
 	readonly list: Effect.Effect<ReadonlyArray<ArtifactItem>, ArtifactError>;
 	/** One artifact by name, or nothing — absent is not a failure. */
 	readonly get: (name: string) => Effect.Effect<O.Option<ArtifactItem>, ArtifactError>;
 	/** Download an artifact by id and unzip it. Answers with where it landed. */
-	readonly download: (artifactId: number, options?: DownloadOptions) => Effect.Effect<DownloadResult, ArtifactError>;
+	readonly download: {
+		(artifactId: number, options?: DownloadOptions): Effect.Effect<DownloadResult, ArtifactError>;
+		(options?: DownloadOptions): (artifactId: number) => Effect.Effect<DownloadResult, ArtifactError>;
+	};
 	/** Delete an artifact by name, answering with the id that is now gone. */
 	readonly delete: (name: string) => Effect.Effect<ArtifactRef, ArtifactError>;
 }
@@ -349,7 +353,7 @@ const ARTIFACT_VERSION = 7;
  * measures that these are the only three.
  */
 const azure: FileBlobTransfer = {
-	uploadFile: (url, file) =>
+	uploadFile: dual(2, (url: string, file: string): Effect.Effect<void, BlobTransferError> =>
 		Effect.tryPromise({
 			try: () =>
 				new BlockBlobClient(url).uploadFile(file, {
@@ -358,12 +362,12 @@ const azure: FileBlobTransfer = {
 					maxSingleShotSize: 128 * 1024 * 1024,
 				}),
 			catch: (cause) => BlobTransferError.make({ reason: "uploadFailed", cause }),
-		}).pipe(Effect.asVoid),
-	downloadToFile: (url, file) =>
+		}).pipe(Effect.asVoid)),
+	downloadToFile: dual(2, (url: string, file: string): Effect.Effect<void, BlobTransferError> =>
 		Effect.tryPromise({
 			try: () => new BlobClient(url).downloadToFile(file),
 			catch: (cause) => BlobTransferError.make({ reason: "downloadFailed", cause }),
-		}).pipe(Effect.asVoid),
+		}).pipe(Effect.asVoid)),
 };
 
 /** One row of a `ListArtifacts` answer, read under either field spelling. */
@@ -421,7 +425,10 @@ const make = Effect.fn("make")(function* (
 				),
 			);
 
-		const call = Effect.fn("call")(function*(method: string, body: (ids: BackendIds) => Record<string, unknown>, artifact: string) {
+		const call: {
+			(method: string, body: (ids: BackendIds) => Record<string, unknown>, artifact: string): Effect.Effect<TwirpResult<unknown>, ArtifactError>;
+			(body: (ids: BackendIds) => Record<string, unknown>, artifact: string): (method: string) => Effect.Effect<TwirpResult<unknown>, ArtifactError>;
+		} = dual(3, Effect.fn("call")(function*(method: string, body: (ids: BackendIds) => Record<string, unknown>, artifact: string) {
 				const { baseUrl, ids, token } = yield* backend(artifact);
 				return yield* twirpCall({
 					http,
@@ -431,7 +438,7 @@ const make = Effect.fn("make")(function* (
 					method,
 					body: { ...ids, ...body(ids) },
 				}).pipe(Effect.mapError((failure) => ArtifactError.make({ ...twirpFailureFields(failure), artifact })));
-			});
+			}));
 
 		const listAll = Effect.fnUntraced(function* (artifact: string) {
 			const answer = yield* call("ListArtifacts", () => ({}), artifact);
@@ -450,16 +457,22 @@ const make = Effect.fn("make")(function* (
 		});
 
 		/** Run an archiving command ONCE (`internal/spawn.ts`), keeping its stderr. */
-		const archive = Effect.fn("archive")(function*(command: ChildProcess.Command, artifact: string) {
+		const archive: {
+			(command: ChildProcess.Command, artifact: string): Effect.Effect<void, ArtifactError>;
+			(artifact: string): (command: ChildProcess.Command) => Effect.Effect<void, ArtifactError>;
+		} = dual(2, Effect.fn("archive")(function*(command: ChildProcess.Command, artifact: string) {
 				const { output, code } = yield* spawnOnce(spawner, command).pipe(
 					Effect.mapError((cause) => ArtifactError.make({ reason: "archiveFailed", artifact, cause })),
 				);
 				if (code !== 0) {
 					return yield* ArtifactError.make({ reason: "archiveFailed", artifact, stderr: output.trim() });
 				}
-			});
+			}));
 
-		const scratch = <A>(
+		const scratch: {
+			<A>(artifact: string, use: (directory: string) => Effect.Effect<A, ArtifactError>): Effect.Effect<A, ArtifactError>;
+			<A>(use: (directory: string) => Effect.Effect<A, ArtifactError>): (artifact: string) => Effect.Effect<A, ArtifactError>;
+		} = dual(2, <A>(
 			artifact: string,
 			use: (directory: string) => Effect.Effect<A, ArtifactError>,
 		): Effect.Effect<A, ArtifactError> =>
@@ -469,7 +482,7 @@ const make = Effect.fn("make")(function* (
 					.pipe(Effect.mapError((cause) => ArtifactError.make({ reason: "archiveFailed", artifact, cause }))),
 				use,
 				(directory) => Effect.ignore(fs.remove(directory, { recursive: true, force: true })),
-			);
+			));
 
 		/**
    * The SHA-256 the backend finalizes against.
@@ -480,29 +493,35 @@ const make = Effect.fn("make")(function* (
    * payload in this package with no upper bound on size, and a runner has
    * roughly seven gigabytes of memory for everything.
    */
-		const digestOf = (file: string, artifact: string) =>
+		const digestOf: {
+			(file: string, artifact: string): Effect.Effect<string, ArtifactError>;
+			(artifact: string): (file: string) => Effect.Effect<string, ArtifactError>;
+		} = dual(2, (file: string, artifact: string): Effect.Effect<string, ArtifactError> =>
 			digestFileHex(fs, file, "sha256").pipe(
 				Effect.mapError((cause) => ArtifactError.make({ reason: "archiveFailed", artifact, cause })),
-			);
+			));
 
 		const moved = (artifact: string) =>
 			Effect.mapError((cause: BlobTransferError) => ArtifactError.make({ reason: "transferFailed", artifact, cause }));
 
-		const zip = Effect.fn("zip")(function*(files: ReadonlyArray<string>, root: string, destination: string, level: number, artifact: string)
+		const zip: {
+			(files: ReadonlyArray<string>, root: string, destination: string, level: number, artifact: string): Effect.Effect<void, ArtifactError>;
+			(root: string, destination: string, level: number, artifact: string): (files: ReadonlyArray<string>) => Effect.Effect<void, ArtifactError>;
+		} = dual(5, Effect.fn("zip")(function*(files: ReadonlyArray<string>, root: string, destination: string, level: number, artifact: string)
 			// Stored relative to `rootDirectory`: `zip` records the paths exactly
 			// as given, and the Windows script states each entry name explicitly
 			// from the same relative path, so the two archives have one structure
 			// — and absolute inputs would extract into a tree named after the
 			// runner that produced them.
 			{
-				const relative = files.map((file) => path.relative(root, file));
+				const relative = A.map(files, (file) => path.relative(root, file));
 				// The Windows list travels one path per line (`internal/archiveCommands.ts`
 				// says why), so a path holding a line break cannot be represented.
 				// Rejected on every platform: the same upload must not succeed on one
 				// runner and fail on another.
-				const unrepresentable = relative.find((file) => file.includes("\n") || file.includes("\r"));
-				if (unrepresentable !== undefined) {
-					const quoted = yield* S.encodeEffect(Json)(unrepresentable).pipe(Effect.orDie);
+				const unrepresentable = A.findFirst(relative, (file) => file.includes("\n") || file.includes("\r"));
+				if (O.isSome(unrepresentable)) {
+					const quoted = yield* S.encodeEffect(Json)(unrepresentable.value).pipe(Effect.orDie);
 					return yield* ArtifactError.make({
 							reason: "invalidOptions",
 							artifact,
@@ -520,16 +539,19 @@ const make = Effect.fn("make")(function* (
 						.pipe(Effect.mapError((cause) => ArtifactError.make({ reason: "archiveFailed", artifact, cause })));
 				}
 				yield* archive(zipCommand({ windows, root, files: relative, manifest, destination, level }), artifact);
-			});
+			}));
 
 		// One spelling with ToolInstaller.extractZip (`internal/archiveCommands.ts`):
 		// the Windows half must use the overwrite overload, or a download into a
 		// non-empty path fails with an empty stderr.
-		const unzip = (source: string, destination: string, artifact: string) =>
-			archive(unzipCommand({ windows, source, destination }), artifact);
+		const unzip: {
+			(source: string, destination: string, artifact: string): Effect.Effect<void, ArtifactError>;
+			(destination: string, artifact: string): (source: string) => Effect.Effect<void, ArtifactError>;
+		} = dual(3, (source: string, destination: string, artifact: string): Effect.Effect<void, ArtifactError> =>
+			archive(unzipCommand({ windows, source, destination }), artifact));
 
 		return {
-			upload: Effect.fn("Artifact.upload")(function* (
+			upload: dual((args) => P.isString(args[0]), Effect.fn("Artifact.upload")(function* (
 				name: string,
 				files: ReadonlyArray<string>,
 				rootDirectory: string,
@@ -625,7 +647,7 @@ const make = Effect.fn("make")(function* (
 						})));
 					}),
 				);
-			}),
+			})),
 
 			list: Effect.suspend(Effect.fn("Artifact.list")(function* () {
 				return yield* listAll("*");
@@ -634,20 +656,20 @@ const make = Effect.fn("make")(function* (
 			get: Effect.fn("Artifact.get")(function* (name: string) {
 				yield* Effect.annotateCurrentSpan({ name });
 				const all = yield* listAll(name);
-				return O.fromNullishOr(all.find((item) => item.name === name));
+				return A.findFirst(all, (item) => item.name === name);
 			}),
 
-			download: Effect.fn("Artifact.download")(function* (artifactId: number, options?: DownloadOptions) {
+			download: dual((args) => P.isNumber(args[0]), Effect.fn("Artifact.download")(function* (artifactId: number, options?: DownloadOptions) {
 				const label = String(artifactId);
 				yield* Effect.annotateCurrentSpan({ artifactId });
 				// The signed-url RPC takes a NAME, and a caller holds an id — so the
 				// listing is how the two are reconciled, not an extra round trip that
 				// could be optimized away.
 				const all = yield* listAll(label);
-				const found = all.find((item) => item.id === artifactId);
-				if (found === undefined) {
-					return yield* ArtifactError.make({ reason: "notFound", artifact: label });
-				}
+				const found = yield* Effect.fromOption(
+					A.findFirst(all, (item) => item.id === artifactId),
+					() => ArtifactError.make({ reason: "notFound", artifact: label }),
+				);
 				const signed = yield* call("GetSignedArtifactURL", () => ({ name: found.name }), label);
 				const url = signed === CONFLICT ? undefined : stringField(signed, "signedUrl");
 				if (url === undefined) {
@@ -676,15 +698,15 @@ const make = Effect.fn("make")(function* (
 					}),
 				);
 				return { downloadPath } satisfies DownloadResult;
-			}),
+			})),
 
 			delete: Effect.fn("Artifact.delete")(function* (name: string) {
 				yield* Effect.annotateCurrentSpan({ name });
 				const all = yield* listAll(name);
-				const found = all.find((item) => item.name === name);
-				if (found === undefined) {
-					return yield* ArtifactError.make({ reason: "notFound", artifact: name });
-				}
+				const found = yield* Effect.fromOption(
+					A.findFirst(all, (item) => item.name === name),
+					() => ArtifactError.make({ reason: "notFound", artifact: name }),
+				);
 				const deleted = yield* call("DeleteArtifact", () => ({ name }), name);
 				if (deleted === CONFLICT || !isOk(deleted)) {
 					return yield* ArtifactError.make({ reason: "refused", artifact: name, detail: "DeleteArtifact did not confirm" });
@@ -784,10 +806,11 @@ export class Artifact extends Context.Service<Artifact, ArtifactShape>()($I`Arti
  * import { Artifact } from "@beep/scratchpad/effected/github-actions/Artifact";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
+ * import { dual } from "effect/Function";
  *
  * const layer = Artifact.layerWith({
- *   uploadFile: (_url, _file) => Effect.void,
- *   downloadToFile: (_url, _file) => Effect.void,
+ *   uploadFile: dual(2, (_url: string, _file: string) => Effect.void),
+ *   downloadToFile: dual(2, (_url: string, _file: string) => Effect.void),
  * });
  * console.log(Layer.isLayer(layer)) // true
  * ```
@@ -824,10 +847,17 @@ export class Artifact extends Context.Service<Artifact, ArtifactShape>()($I`Arti
  * @since 0.0.0
  */
 	static readonly makeTest = (overrides: Partial<ArtifactShape> = {}): ArtifactShape => ({
-		upload: () => dies("upload"),
+		upload: dual(
+			(args) => P.isString(args[0]),
+			(_name: string, _files: ReadonlyArray<string>, _rootDirectory: string, _options?: UploadOptions): Effect.Effect<UploadResult, ArtifactError> =>
+				dies("upload"),
+		),
 		list: Effect.suspend(() => dies("list")),
 		get: () => dies("get"),
-		download: () => dies("download"),
+		download: dual(
+			(args) => P.isNumber(args[0]),
+			(_artifactId: number, _options?: DownloadOptions): Effect.Effect<DownloadResult, ArtifactError> => dies("download"),
+		),
 		delete: () => dies("delete"),
 		...overrides,
 	});

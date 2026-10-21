@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/BlobEnvelope");
 
@@ -22,8 +23,8 @@ const $I = $ScratchpadId.create("effected/github-actions/BlobEnvelope");
  */
 export class NotABlobEnvelopeError extends S.TaggedError<NotABlobEnvelopeError, { readonly brand: unique symbol }>($I`NotABlobEnvelopeError`)("NotABlobEnvelopeError", {
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("NotABlobEnvelopeError", { description: "Raised when bytes cannot be read as an envelope." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("NotABlobEnvelopeError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<NotABlobEnvelopeError>("NotABlobEnvelopeError", { description: "Raised when bytes cannot be read as an envelope." })) {
 	/**
 	 * Explains that the bytes lack a recognized blob-envelope prefix.
 	 *
@@ -64,8 +65,8 @@ export class TruncatedBlobEnvelopeError extends S.TaggedError<TruncatedBlobEnvel
 	"TruncatedBlobEnvelopeError",
 	{
 		/** The underlying failure, preserved structurally. */
-		cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-	}, $I.annote("TruncatedBlobEnvelopeError", { description: "Raised when the frame ends mid-header or mid-metadata." }),
+		cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("TruncatedBlobEnvelopeError.cause", { description: "The underlying failure, preserved structurally." })),
+	}, $I.annoteError<TruncatedBlobEnvelopeError>("TruncatedBlobEnvelopeError", { description: "Raised when the frame ends mid-header or mid-metadata." }),
 ) {
 	/**
 	 * Explains that the frame ended before its header or metadata was complete.
@@ -107,10 +108,10 @@ export class UnsupportedBlobEnvelopeVersionError extends S.TaggedError<Unsupport
 	"UnsupportedBlobEnvelopeVersionError",
 	{
 		/** The envelope version found. */
-		version: S.Finite.annotateKey({ description: "The envelope version found." }),
+		version: S.Finite.pipe($I.annoteKey("UnsupportedBlobEnvelopeVersionError.version", { description: "The envelope version found." })),
 		/** The underlying failure, preserved structurally. */
-		cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-	}, $I.annote("UnsupportedBlobEnvelopeVersionError", { description: "Raised when the envelope came from a newer revision of the format." }),
+		cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("UnsupportedBlobEnvelopeVersionError.cause", { description: "The underlying failure, preserved structurally." })),
+	}, $I.annoteError<UnsupportedBlobEnvelopeVersionError>("UnsupportedBlobEnvelopeVersionError", { description: "Raised when the envelope came from a newer revision of the format." }),
 ) {
 	/**
 	 * Reports the unsupported envelope version found in the frame.
@@ -150,8 +151,8 @@ export class UnsupportedBlobEnvelopeVersionError extends S.TaggedError<Unsupport
  */
 export class BlobMetadataDecodeError extends S.TaggedError<BlobMetadataDecodeError, { readonly brand: unique symbol }>($I`BlobMetadataDecodeError`)("BlobMetadataDecodeError", {
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("BlobMetadataDecodeError", { description: "Raised when well-framed metadata does not satisfy the caller's schema." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("BlobMetadataDecodeError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<BlobMetadataDecodeError>("BlobMetadataDecodeError", { description: "Raised when well-framed metadata does not satisfy the caller's schema." })) {
 	/**
 	 * Explains that the stored metadata failed the caller's schema.
 	 *
@@ -190,8 +191,8 @@ export class BlobMetadataDecodeError extends S.TaggedError<BlobMetadataDecodeErr
  */
 export class BlobMetadataEncodeError extends S.TaggedError<BlobMetadataEncodeError, { readonly brand: unique symbol }>($I`BlobMetadataEncodeError`)("BlobMetadataEncodeError", {
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("BlobMetadataEncodeError", { description: "Raised when the value being stored does not satisfy its schema." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("BlobMetadataEncodeError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<BlobMetadataEncodeError>("BlobMetadataEncodeError", { description: "Raised when the value being stored does not satisfy its schema." })) {
 	/**
 	 * Explains that metadata could not be encoded for storage.
 	 *
@@ -277,7 +278,7 @@ const HEADER_BYTES = MAGIC.length + 1 + 4;
  *
  * const Meta = S.Struct({ tag: S.String });
  * const framed = BlobEnvelope.encodeResult({ tag: "v1" }, new Uint8Array([1, 2, 3]), Meta);
- * const read = Result.flatMap(framed, (bytes) => BlobEnvelope.decodeResult(bytes, Meta));
+ * const read = Result.flatMap(framed, BlobEnvelope.decodeResult(Meta));
  * console.log(Result.map(read, (blob) => blob.metadata.tag).pipe(Result.getOrElse(() => "failed"))) // v1
  * ```
  *
@@ -322,11 +323,14 @@ export class BlobEnvelope {
 	 * @category encoding
 	 * @since 0.0.0
 	 */
-	static encodeResult<A, I>(
+	static readonly encodeResult: {
+		<A, I>(metadata: A, body: Uint8Array, schema: S.Codec<A, I>): Result.Result<Uint8Array, BlobEnvelopeError>;
+		<A, I>(body: Uint8Array, schema: S.Codec<A, I>): (metadata: A) => Result.Result<Uint8Array, BlobEnvelopeError>;
+	} = dual(3, <A, I>(
 		metadata: A,
 		body: Uint8Array,
 		schema: S.Codec<A, I>,
-	): Result.Result<Uint8Array, BlobEnvelopeError> {
+	): Result.Result<Uint8Array, BlobEnvelopeError> => {
 		const encoded = S.encodeUnknownResult(S.fromJsonString(schema))(metadata);
 		if (Result.isFailure(encoded)) {
 			return Result.fail(BlobMetadataEncodeError.make({ cause: encoded.failure }));
@@ -343,7 +347,7 @@ export class BlobEnvelope {
 		out.set(metaBytes, HEADER_BYTES);
 		out.set(body, HEADER_BYTES + metaBytes.length);
 		return Result.succeed(out);
-	}
+	});
 
 	/**
 	 * Read a framed blob back into its metadata and body.
@@ -357,7 +361,7 @@ export class BlobEnvelope {
 	 *
 	 * const Meta = S.Struct({ tag: S.String });
 	 * const framed = BlobEnvelope.encodeResult({ tag: "v1" }, new Uint8Array([1, 2, 3]), Meta);
-	 * const read = Result.flatMap(framed, (bytes) => BlobEnvelope.decodeResult(bytes, Meta));
+	 * const read = Result.flatMap(framed, BlobEnvelope.decodeResult(Meta));
 	 * console.log(Result.map(read, (blob) => blob.metadata.tag).pipe(Result.getOrElse(() => "failed"))) // v1
 	 * ```
 	 *
@@ -369,10 +373,13 @@ export class BlobEnvelope {
 	 * @category decoding
 	 * @since 0.0.0
 	 */
-	static decodeResult<A, I>(
+	static readonly decodeResult: {
+		<A, I>(bytes: Uint8Array, schema: S.Codec<A, I>): Result.Result<{ readonly metadata: A; readonly body: Uint8Array }, BlobEnvelopeError>;
+		<A, I>(schema: S.Codec<A, I>): (bytes: Uint8Array) => Result.Result<{ readonly metadata: A; readonly body: Uint8Array }, BlobEnvelopeError>;
+	} = dual(2, <A, I>(
 		bytes: Uint8Array,
 		schema: S.Codec<A, I>,
-	): Result.Result<{ readonly metadata: A; readonly body: Uint8Array }, BlobEnvelopeError> {
+	): Result.Result<{ readonly metadata: A; readonly body: Uint8Array }, BlobEnvelopeError> => {
 		if (bytes.length < MAGIC.length || !MAGIC.every((byte, index) => bytes[index] === byte)) {
 			return Result.fail(NotABlobEnvelopeError.make({}));
 		}
@@ -398,5 +405,5 @@ export class BlobEnvelope {
 			// input's slice could let a caller corrupt the frame through the body.
 			body: Uint8Array.from(bytes.subarray(HEADER_BYTES + metaLength)),
 		});
-	}
+	});
 }

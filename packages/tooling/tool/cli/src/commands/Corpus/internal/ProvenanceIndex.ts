@@ -14,6 +14,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
@@ -86,11 +87,8 @@ const writeSyncedFile = (nodeFs: typeof import("node:fs"), file: string, content
 };
 
 const bestEffortCleanup = (remove: () => void): void => {
-  try {
-    remove();
-  } catch {
-    // The write error remains authoritative.
-  }
+  // The write error remains authoritative.
+  Result.try(remove);
 };
 
 const writeProvenance = Effect.fn("Provenance.writeOutput")(function* (
@@ -263,7 +261,7 @@ const readAttachment = Effect.fn("Provenance.readAttachment")(function* (
         fileName: name,
         relativePath: relative(path, root, attachmentPath),
         sizeBytes: 0,
-        ...(embeddedMessagePath === undefined ? {} : { embeddedMessagePath }),
+        ...O.getSomesStruct({ embeddedMessagePath: O.fromUndefinedOr(embeddedMessagePath) }),
       })
     );
   }
@@ -693,7 +691,7 @@ const proposal = (name: string, mime: string, extensions: ReadonlyArray<string>)
     mimeType: mime,
     ordinalPrefix: prefix,
     remnantExtension: remnant,
-    ...(proposedFileName === undefined ? {} : { proposedFileName }),
+    ...O.getSomesStruct({ proposedFileName: O.fromUndefinedOr(proposedFileName) }),
   };
 };
 
@@ -789,7 +787,7 @@ const readBatch = Effect.fn("Provenance.readBatch")(function* (
             sizeBytes: Number(info.size),
             mtimeEpoch: epoch(info),
             status: error === undefined ? "ok" : "error",
-            ...(error === undefined ? {} : { error }),
+            ...O.getSomesStruct({ error: O.fromUndefinedOr(error) }),
             fields: yield* S.decodeEffect(P.DocumentMetadataFields)(fields),
             tags: retained,
           });

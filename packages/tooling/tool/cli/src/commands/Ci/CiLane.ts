@@ -23,7 +23,7 @@ import * as Flag from "effect/cli/Flag";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
@@ -829,7 +829,9 @@ const rootTaskStep = (repoRoot: string, label: string, task: string, base?: stri
     command: "bunx",
     cwd: repoRoot,
     args: directTurboArgs([task], ["--summarize"]),
-    ...(base === undefined ? {} : { env: { BEEP_PROOF_BASE: base } }),
+    ...O.getSomesStruct({
+      env: O.map(O.fromUndefinedOr(base), (base) => ({ BEEP_PROOF_BASE: base })),
+    }),
   });
 
 const CI_LANE_PARTITION_REPAIR =
@@ -942,27 +944,25 @@ const proveCiLanePartitionDefinition = Effect.fn("CiLane.proveCiLanePartitionDef
   return definition;
 });
 
-const packageBins = (
+const packageBins: (
   lanePartitions: ReadonlyArray<CiLanePartition>
-): ReadonlyArray<readonly [string, ReadonlyArray<CiLanePartition>]> =>
-  pipe(
-    lanePartitions,
-    A.reduce(HashMap.empty<string, ReadonlyArray<CiLanePartition>>(), (bins, candidate) =>
-      A.reduce(candidate.packages, bins, (acc, name) =>
-        HashMap.set(
-          acc,
-          name,
-          O.match(HashMap.get(acc, name), {
-            onNone: () => A.of(candidate),
-            onSome: (existing) => A.append(existing, candidate),
-          })
-        )
+) => ReadonlyArray<readonly [string, ReadonlyArray<CiLanePartition>]> = flow(
+  A.reduce(HashMap.empty<string, ReadonlyArray<CiLanePartition>>(), (bins, candidate) =>
+    A.reduce(candidate.packages, bins, (acc, name) =>
+      HashMap.set(
+        acc,
+        name,
+        O.match(HashMap.get(acc, name), {
+          onNone: () => A.of(candidate),
+          onSome: (existing) => A.append(existing, candidate),
+        })
       )
-    ),
-    HashMap.entries,
-    A.fromIterable,
-    A.sort(Order.mapInput(Order.String, ([name]: readonly [string, ReadonlyArray<CiLanePartition>]) => name))
-  );
+    )
+  ),
+  HashMap.entries,
+  A.fromIterable,
+  A.sort(Order.mapInput(Order.String, ([name]: readonly [string, ReadonlyArray<CiLanePartition>]) => name))
+);
 
 const shardIndexSetEquivalence = A.makeEquivalence(Num.Equivalence);
 
@@ -1647,7 +1647,8 @@ export const ciLaneStepsForTesting: {
       // therefore runs only the package Turbo graph instead of duplicating
       // that battery through the root `bun run lint` aggregate. The lane
       // invokes turbo directly (bypassing Quality/Tasks.ts turboRunArgs), so
-      // the labs exclude filter is applied explicitly here (row 9).
+      // the hosted product-partition filter is applied here; root commands
+      // include labs under lab-apps-lifecycle D15.
       lint: () => [
         turboTaskLaneStep(
           repoRoot,

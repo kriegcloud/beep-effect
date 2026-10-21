@@ -6,6 +6,7 @@
 import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/markdown/internal/lineIndex");
 
@@ -27,13 +28,11 @@ const $I = $ScratchpadId.create("effected/markdown/internal/lineIndex");
 export class InvalidLineTableError extends S.TaggedError<InvalidLineTableError, { readonly brand: unique symbol }>($I`InvalidLineTableError`)(
 	"InvalidLineTableError",
 	{
-		message: S.String.annotateKey({
-			title: "Line Table Validation Message",
+		message: S.String.pipe($I.annoteKey("InvalidLineTableError.message", {
 			description: "Explains why the supplied line-start table cannot initialize the source-position index.",
-		}),
+		})),
 	},
-	$I.annote("InvalidLineTableError", {
-		title: "Invalid Line Table Error",
+	$I.annoteError<InvalidLineTableError>("InvalidLineTableError", {
 		description: "Signals that a supplied line-start table is empty or does not begin at source offset zero.",
 	}),
 ) {}
@@ -54,9 +53,9 @@ export class InvalidLineTableError extends S.TaggedError<InvalidLineTableError, 
  * @since 0.0.0
  */
 export const LineColumn = S.Struct({
-	line: S.Finite.annotateKey({ description: "One-based source line containing the queried offset." }),
-	column: S.Finite.annotateKey({ description: "One-based UTF-16 column within the source line." }),
-}).annotate($I.annote("LineColumn", {
+	line: S.Finite.pipe($I.annoteKey("LineColumn.line", { description: "One-based source line containing the queried offset." })),
+	column: S.Finite.pipe($I.annoteKey("LineColumn.column", { description: "One-based UTF-16 column within the source line." })),
+}).pipe($I.annoteSchema("LineColumn", {
 	description: "A source position returned by the line index without an absolute offset field.",
 }));
 
@@ -163,12 +162,15 @@ export class LineIndex {
   * @category constructors
   * @since 0.0.0
   */
-	static fromLineStarts(text: string, starts: ReadonlyArray<number>): LineIndex {
+	static readonly fromLineStarts: {
+		(text: string, starts: ReadonlyArray<number>): LineIndex;
+		(starts: ReadonlyArray<number>): (text: string) => LineIndex;
+	} = dual(2, (text: string, starts: ReadonlyArray<number>): LineIndex => {
 		if (starts.length === 0 || starts[0] !== 0) {
 			throw InvalidLineTableError.make({ message: "line index: a line table must be non-empty and start at offset 0" });
 		}
 		return new LineIndex(text, starts);
-	}
+	});
 
 	/**
 	 * The 1-based `{ line, column }` of `offset` within this index's text.

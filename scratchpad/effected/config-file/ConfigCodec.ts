@@ -40,19 +40,19 @@ export class ConfigCodecError extends S.TaggedError<ConfigCodecError, { readonly
  *
  * @since 0.0.0
  */
-	codec: S.String.annotateKey({ description: "The codec that failed, e.g. `\"json\"`." }),
+	codec: S.String.pipe($I.annoteKey("ConfigCodecError.codec", { description: "The codec that failed, e.g. `\"json\"`." })),
 	/**
  * Which direction failed.
  *
  * @since 0.0.0
  */
-	operation: S.Literals(["parse", "stringify"]).annotateKey({ description: "Which direction failed." }),
+	operation: S.Literals(["parse", "stringify"]).pipe($I.annoteKey("ConfigCodecError.operation", { description: "Which direction failed." })),
 	/**
  * The underlying failure, preserved structurally.
  *
  * @since 0.0.0
  */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
+	cause: S.Defect().pipe($I.annoteKey("ConfigCodecError.cause", { description: "The underlying failure, preserved structurally." })),
 	/**
   * The file the content came from, when a caller knew it.
   *
@@ -66,8 +66,8 @@ export class ConfigCodecError extends S.TaggedError<ConfigCodecError, { readonly
   *
   * @since 0.0.0
   */
-	path: S.optionalKey(S.String).annotateKey({ description: "The file the content came from, when a caller knew it." }),
-}, $I.annote("ConfigCodecError", { description: "Indicates that a codec failed to parse or stringify configuration content." })) {
+	path: S.optionalKey(S.String).pipe($I.annoteKey("ConfigCodecError.path", { description: "The file the content came from, when a caller knew it." })),
+}, $I.annoteError<ConfigCodecError>("ConfigCodecError", { description: "Indicates that a codec failed to parse or stringify configuration content." })) {
 	/**
 	 * Summarizes the codec and failed operation without repeating the file path.
 	 *

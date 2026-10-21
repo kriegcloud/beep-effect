@@ -138,8 +138,8 @@ const makeLegalActContentMember = <T extends LegalActPolarity>(literal: S.Litera
  * @category models
  * @since 0.0.0
  */
-export const LegalActContent = LegalActPolarity.mapMembers(
-  Tuple.evolve([makeLegalActContentMember, makeLegalActContentMember])
+export const LegalActContent = LegalActPolarity.mapMembers(([act, omission]) =>
+  Tuple.make(makeLegalActContentMember(act), makeLegalActContentMember(omission))
 ).pipe(
   S.toTaggedUnion("polarity"),
   $I.annoteSchema("LegalActContent", {

@@ -36,56 +36,52 @@ vi.mock("@beep/anthropic", (importOriginal) =>
     import("effect/ExecutionPlan"),
     import("effect/Layer"),
     import("effect/Stream"),
-  ]).then(([Effect, ExecutionPlan, Layer, Stream]) =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const actual = yield* Effect.tryPromise(() => importOriginal<typeof import("@beep/anthropic")>());
-        const languageModel = yield* Effect.tryPromise(() => import("effect/ai/LanguageModel"));
-        const response = yield* Effect.tryPromise(() => import("effect/ai/Response"));
-        const TestLanguageModel = Layer.effect(
-          languageModel.LanguageModel,
-          languageModel.make({
-            generateText: () => Effect.die("unexpected non-streaming provider call"),
-            streamText: () =>
-              providerState.providerError === undefined
-                ? Stream.fromIterable(providerState.parts)
-                : Stream.fail(providerState.providerError),
-          })
-        );
-
-        return {
-          ...actual,
-          AnthropicTurnPlan: ExecutionPlan.make({ provide: TestLanguageModel }),
-          generateAnthropicToolJson: () =>
-            providerState.repairError === undefined
-              ? Effect.succeed(
-                  actual.AnthropicToolJsonResponse.make({
-                    paramsJson: providerState.repairJson,
-                    usage: response.Usage.make({
-                      inputTokens: {
-                        cacheRead: undefined,
-                        cacheWrite: undefined,
-                        total: providerState.repairInputTokens,
-                        uncached: providerState.repairInputTokens,
-                      },
-                      outputTokens: {
-                        reasoning: undefined,
-                        text: providerState.repairOutputTokens,
-                        total: providerState.repairOutputTokens,
-                      },
-                    }),
-                  })
-                )
-              : Effect.fail(
-                  actual.RepairError.make({
-                    message: providerState.repairError,
-                    operation: "generate_tool_json",
-                  })
-                ),
-        };
+    importOriginal<typeof import("@beep/anthropic")>(),
+    import("effect/ai/LanguageModel"),
+    import("effect/ai/Response"),
+  ]).then(([Effect, ExecutionPlan, Layer, Stream, actual, languageModel, response]) => {
+    const TestLanguageModel = Layer.effect(
+      languageModel.LanguageModel,
+      languageModel.make({
+        generateText: () => Effect.die("unexpected non-streaming provider call"),
+        streamText: () =>
+          providerState.providerError === undefined
+            ? Stream.fromIterable(providerState.parts)
+            : Stream.fail(providerState.providerError),
       })
-    )
-  )
+    );
+
+    return {
+      ...actual,
+      AnthropicTurnPlan: ExecutionPlan.make({ provide: TestLanguageModel }),
+      generateAnthropicToolJson: () =>
+        providerState.repairError === undefined
+          ? Effect.succeed(
+              actual.AnthropicToolJsonResponse.make({
+                paramsJson: providerState.repairJson,
+                usage: response.Usage.make({
+                  inputTokens: {
+                    cacheRead: undefined,
+                    cacheWrite: undefined,
+                    total: providerState.repairInputTokens,
+                    uncached: providerState.repairInputTokens,
+                  },
+                  outputTokens: {
+                    reasoning: undefined,
+                    text: providerState.repairOutputTokens,
+                    total: providerState.repairOutputTokens,
+                  },
+                }),
+              })
+            )
+          : Effect.fail(
+              actual.RepairError.make({
+                message: providerState.repairError,
+                operation: "generate_tool_json",
+              })
+            ),
+    };
+  })
 );
 
 const usage = (inputTokens = 12, outputTokens = 8): typeof Response.Usage.Encoded => ({

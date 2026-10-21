@@ -1,18 +1,21 @@
 // Exercise the patched installed module with a fake transport; no model calls.
 // GRAFT_CRUX_MODULE can point at a disposable patched module during development.
-import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { realpathSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { test } from "node:test";
-import { pathToFileURL } from "node:url";
+import * as NodeAssert from "node:assert/strict";
+import * as NodeChildProcess from "node:child_process";
+import * as NodeFS from "node:fs";
+import * as NodePath from "node:path";
+import * as NodeTest from "node:test";
+import * as NodeURL from "node:url";
 
 const binary = process.env.GRAFT_CRUX_MODULE
   ? undefined
-  : execFileSync("which", ["graft"], { encoding: "utf8" }).trim();
-const modulePath = process.env.GRAFT_CRUX_MODULE ?? join(dirname(realpathSync(binary)), "ai/crux.js");
-const { ChatCruxSummarizer } = await import(pathToFileURL(modulePath).href);
-const { enrichGraph } = await import(pathToFileURL(join(dirname(modulePath), "../graph/enrich.js")).href);
+  : NodeChildProcess.execFileSync("which", ["graft"], { encoding: "utf8" }).trim();
+const modulePath =
+  process.env.GRAFT_CRUX_MODULE ?? NodePath.join(NodePath.dirname(NodeFS.realpathSync(binary)), "ai/crux.js");
+const { ChatCruxSummarizer } = await import(NodeURL.pathToFileURL(modulePath).href);
+const { enrichGraph } = await import(
+  NodeURL.pathToFileURL(NodePath.join(NodePath.dirname(modulePath), "../graph/enrich.js")).href
+);
 
 function fixture(count, respond) {
   const requests = [];
@@ -47,46 +50,46 @@ function fixture(count, respond) {
   return { summarizer, input, requests };
 }
 
-test("dense files request at most 20 targets and retain every original id", async () => {
+NodeTest.test("dense files request at most 20 targets and retain every original id", async () => {
   const { summarizer, input, requests } = fixture(646);
   const result = await summarizer.describeFile(input);
-  assert.equal(requests.length, 33);
-  assert.deepEqual(
+  NodeAssert.equal(requests.length, 33);
+  NodeAssert.deepEqual(
     result.map((entry) => entry.id),
     input.nodes.map((node) => node.id)
   );
-  assert.ok(requests.every((request) => [...request.messages[1].content.matchAll(/^- id=/gm)].length <= 20));
-  assert.ok(requests.every((request) => request.maxTokens === 8192));
-  assert.equal(summarizer.lastMiss, null);
+  NodeAssert.ok(requests.every((request) => [...request.messages[1].content.matchAll(/^- id=/gm)].length <= 20));
+  NodeAssert.ok(requests.every((request) => request.maxTokens === 8192));
+  NodeAssert.equal(summarizer.lastMiss, null);
 });
 
-test("an empty target list makes no request and clears the miss", async () => {
+NodeTest.test("an empty target list makes no request and clears the miss", async () => {
   const { summarizer, input, requests } = fixture(0);
   summarizer.lastMiss = { kind: "unparseable", finishReason: "tool_calls" };
-  assert.deepEqual(await summarizer.describeFile(input), []);
-  assert.equal(requests.length, 0);
-  assert.equal(summarizer.lastMiss, null);
+  NodeAssert.deepEqual(await summarizer.describeFile(input), []);
+  NodeAssert.equal(requests.length, 0);
+  NodeAssert.equal(summarizer.lastMiss, null);
 });
 
-test("later targets receive their own source with original file line numbers", async () => {
+NodeTest.test("later targets receive their own source with original file line numbers", async () => {
   const { summarizer, input, requests } = fixture(1);
   input.source = `${"// earlier source padding\n".repeat(2000)}export const finalTarget = 42;\n`;
   input.nodes[0].startLine = 2001;
   input.nodes[0].endLine = 2001;
   await summarizer.describeFile(input);
-  assert.match(requests[0].messages[1].content, /2001\texport const finalTarget = 42;/);
-  assert.doesNotMatch(requests[0].messages[1].content, /1\t\/\/ earlier/);
+  NodeAssert.match(requests[0].messages[1].content, /2001\texport const finalTarget = 42;/);
+  NodeAssert.doesNotMatch(requests[0].messages[1].content, /1\t\/\/ earlier/);
 });
 
-test("a long source line retains a bounded prefix instead of an empty excerpt", async () => {
+NodeTest.test("a long source line retains a bounded prefix instead of an empty excerpt", async () => {
   const { summarizer, input, requests } = fixture(1);
   input.source = `export const large = "${"x".repeat(30000)}";`;
   await summarizer.describeFile(input);
-  assert.match(requests[0].messages[1].content, /1\texport const large =/);
-  assert.ok(requests[0].messages[1].content.length < 19000);
+  NodeAssert.match(requests[0].messages[1].content, /1\texport const large =/);
+  NodeAssert.ok(requests[0].messages[1].content.length < 19000);
 });
 
-test("a missed batch preserves successful batches and remains retryable", async () => {
+NodeTest.test("a missed batch preserves successful batches and remains retryable", async () => {
   const { summarizer, input } = fixture(21, (ids) =>
     ids.length === 20
       ? {
@@ -97,14 +100,14 @@ test("a missed batch preserves successful batches and remains retryable", async 
       : undefined
   );
   const result = await summarizer.describeFile(input);
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.map((entry) => entry.id),
     [input.nodes[20].id]
   );
-  assert.deepEqual(summarizer.lastMiss, { kind: "truncated", finishReason: "length" });
+  NodeAssert.deepEqual(summarizer.lastMiss, { kind: "truncated", finishReason: "length" });
 });
 
-test("a later transport throw retains completed batches and leaves the rest retryable", async () => {
+NodeTest.test("a later transport throw retains completed batches and leaves the rest retryable", async () => {
   const failure = new Error("simulated transport failure");
   const { summarizer, input, requests } = fixture(41, (_, call) => {
     if (call > 1) throw failure;
@@ -118,27 +121,27 @@ test("a later transport throw retains completed batches and leaves the rest retr
   } finally {
     console.error = originalError;
   }
-  assert.deepEqual(
+  NodeAssert.deepEqual(
     result.map((entry) => entry.id),
     input.nodes.slice(0, 20).map((node) => node.id)
   );
-  assert.equal(requests.length, 2); // Stop before the third, unattempted batch.
-  assert.match(diagnostics[0], /transport failed after 20 summaries; retaining partial results/);
-  assert.equal(summarizer.lastMiss, null); // Transport errors have no provider finish reason.
-  assert.equal(result.batchError, failure);
-  assert.equal(Object.keys(result).includes("batchError"), false); // Metadata stays out of JSON/iteration.
+  NodeAssert.equal(requests.length, 2); // Stop before the third, unattempted batch.
+  NodeAssert.match(diagnostics[0], /transport failed after 20 summaries; retaining partial results/);
+  NodeAssert.equal(summarizer.lastMiss, null); // Transport errors have no provider finish reason.
+  NodeAssert.equal(result.batchError, failure);
+  NodeAssert.equal(Object.keys(result).includes("batchError"), false); // Metadata stays out of JSON/iteration.
   const missing = input.nodes.filter((node) => !result.some((entry) => entry.id === node.id));
-  assert.equal(missing.length, 21);
-  await assert.rejects(summarizer.describeFile({ ...input, nodes: missing }), (error) => error === failure);
+  NodeAssert.equal(missing.length, 21);
+  await NodeAssert.rejects(summarizer.describeFile({ ...input, nodes: missing }), (error) => error === failure);
 });
 
-test("a transport failure with no successful batch remains observable", async () => {
+NodeTest.test("a transport failure with no successful batch remains observable", async () => {
   const failure = new Error("simulated total failure");
   const { summarizer, input, requests } = fixture(21, () => {
     throw failure;
   });
-  await assert.rejects(summarizer.describeFile(input), (error) => error === failure);
-  assert.equal(requests.length, 1);
+  await NodeAssert.rejects(summarizer.describeFile(input), (error) => error === failure);
+  NodeAssert.equal(requests.length, 1);
 });
 
 for (const cancellation of [
@@ -146,13 +149,16 @@ for (const cancellation of [
   Object.assign(new Error("cancelled"), { code: "ABORT_ERR" }),
   new (class APIUserAbortError extends Error {})(),
 ]) {
-  test(`cancellation ${cancellation.name}/${cancellation.code ?? cancellation.constructor.name} still rejects after a completed batch`, async () => {
-    const { summarizer, input, requests } = fixture(21, (_, call) => {
-      if (call === 2) throw cancellation;
-    });
-    await assert.rejects(summarizer.describeFile(input), (error) => error === cancellation);
-    assert.equal(requests.length, 2);
-  });
+  NodeTest.test(
+    `cancellation ${cancellation.name}/${cancellation.code ?? cancellation.constructor.name} still rejects after a completed batch`,
+    async () => {
+      const { summarizer, input, requests } = fixture(21, (_, call) => {
+        if (call === 2) throw cancellation;
+      });
+      await NodeAssert.rejects(summarizer.describeFile(input), (error) => error === cancellation);
+      NodeAssert.equal(requests.length, 2);
+    }
+  );
 }
 
 async function collectFixture(input, summarizer) {
@@ -176,36 +182,39 @@ async function collectFixture(input, summarizer) {
   return { nodes, stats };
 }
 
-test("the collector retains both partial attempts and reports their unrecovered transport failure", async () => {
-  const failure = new Error("simulated persistent partial failure");
-  const { summarizer, input, requests } = fixture(61, (_, call) => {
-    if (call % 2 === 0) throw failure;
-  });
-  const { nodes, stats } = await collectFixture(input, summarizer);
-  assert.equal(requests.length, 4);
-  assert.equal(stats.computed, 40);
-  assert.equal(stats.pending, 21);
-  assert.equal(stats.failedFiles, 1);
-  assert.deepEqual(stats.errors, ["fixture.ts: simulated persistent partial failure"]);
-  assert.equal(nodes.filter((node) => node.summary_state === "ready").length, 40);
-  assert.equal(nodes.filter((node) => node.summary_state === "pending").length, 21);
-});
+NodeTest.test(
+  "the collector retains both partial attempts and reports their unrecovered transport failure",
+  async () => {
+    const failure = new Error("simulated persistent partial failure");
+    const { summarizer, input, requests } = fixture(61, (_, call) => {
+      if (call % 2 === 0) throw failure;
+    });
+    const { nodes, stats } = await collectFixture(input, summarizer);
+    NodeAssert.equal(requests.length, 4);
+    NodeAssert.equal(stats.computed, 40);
+    NodeAssert.equal(stats.pending, 21);
+    NodeAssert.equal(stats.failedFiles, 1);
+    NodeAssert.deepEqual(stats.errors, ["fixture.ts: simulated persistent partial failure"]);
+    NodeAssert.equal(nodes.filter((node) => node.summary_state === "ready").length, 40);
+    NodeAssert.equal(nodes.filter((node) => node.summary_state === "pending").length, 21);
+  }
+);
 
-test("the collector clears a transient transport failure only after every missing id recovers", async () => {
+NodeTest.test("the collector clears a transient transport failure only after every missing id recovers", async () => {
   const failure = new Error("simulated transient partial failure");
   const { summarizer, input, requests } = fixture(61, (_, call) => {
     if (call === 2) throw failure;
   });
   const { nodes, stats } = await collectFixture(input, summarizer);
-  assert.equal(requests.length, 5);
-  assert.equal(stats.computed, 61);
-  assert.equal(stats.pending, 0);
-  assert.equal(stats.failedFiles, 0);
-  assert.deepEqual(stats.errors, []);
-  assert.ok(nodes.every((node) => node.summary_state === "ready"));
+  NodeAssert.equal(requests.length, 5);
+  NodeAssert.equal(stats.computed, 61);
+  NodeAssert.equal(stats.pending, 0);
+  NodeAssert.equal(stats.failedFiles, 0);
+  NodeAssert.deepEqual(stats.errors, []);
+  NodeAssert.ok(nodes.every((node) => node.summary_state === "ready"));
 });
 
-test("blank retry summaries do not erase the original transport failure", async () => {
+NodeTest.test("blank retry summaries do not erase the original transport failure", async () => {
   const failure = new Error("simulated unrecovered partial failure");
   const { summarizer, input } = fixture(61, (ids, call) => {
     if (call === 2) throw failure;
@@ -229,8 +238,8 @@ test("blank retry summaries do not erase the original transport failure", async 
       };
   });
   const { stats } = await collectFixture(input, summarizer);
-  assert.equal(stats.computed, 20);
-  assert.equal(stats.pending, 41);
-  assert.equal(stats.failedFiles, 1);
-  assert.deepEqual(stats.errors, ["fixture.ts: simulated unrecovered partial failure"]);
+  NodeAssert.equal(stats.computed, 20);
+  NodeAssert.equal(stats.pending, 41);
+  NodeAssert.equal(stats.failedFiles, 1);
+  NodeAssert.deepEqual(stats.errors, ["fixture.ts: simulated unrecovered partial failure"]);
 });

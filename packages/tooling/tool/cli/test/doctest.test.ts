@@ -149,73 +149,82 @@ describe("doctest rewrite planning", () => {
     validateDoctestAssertions("if (true) {\n  1 // => 1\n}", "fixture.ts", 1).pipe(assertNone);
   });
 
-  it("plans canonical metadata and rewrites without mutating the analyzed source", () => {
-    const source = A.join(
-      [
-        "/**",
-        " * **Example** (Literal result)",
-        " *",
-        " * ```ts",
-        " * console.log(1 + 1) // 2",
-        " * ```",
-        " */",
-        "export const value = 2",
-      ],
-      "\n"
-    );
-    const analysis = analyzeDoctestSourceForTesting("packages/example/src/index.ts", source);
-    expect(analysis.fences).toBe(1);
-    expect(analysis.findings[0]?.kind).toBe("pure-unmarked");
-    const plan = O.getOrThrow(O.fromUndefinedOr(analysis.findings[0]?.plan));
-    expect(plan.expectedInfoString).toBe('ts import.meta.vitest name="Literal result"');
+  it.effect("plans canonical metadata and rewrites without mutating the analyzed source", () =>
+    Effect.gen(function* () {
+      const source = A.join(
+        [
+          "/**",
+          " * **Example** (Literal result)",
+          " *",
+          " * ```ts",
+          " * console.log(1 + 1) // 2",
+          " * ```",
+          " */",
+          "export const value = 2",
+        ],
+        "\n"
+      );
+      const analysis = analyzeDoctestSourceForTesting("packages/example/src/index.ts", source);
+      expect(analysis.fences).toBe(1);
+      expect(analysis.findings[0]?.kind).toBe("pure-unmarked");
+      const plan = O.getOrThrow(O.fromUndefinedOr(analysis.findings[0]?.plan));
+      expect(plan.expectedInfoString).toBe('ts import.meta.vitest name="Literal result"');
 
-    const rewritten = Effect.runSync(rewriteDoctestSourceForTesting("packages/example/src/index.ts", source, [plan]));
-    expect(rewritten).toContain('```ts import.meta.vitest name="Literal result"');
-    expect(rewritten).toContain("1 + 1 // => 2");
-    expect(source).toContain("console.log(1 + 1) // 2");
+      const rewritten = yield* rewriteDoctestSourceForTesting("packages/example/src/index.ts", source, [plan]);
+      expect(rewritten).toContain('```ts import.meta.vitest name="Literal result"');
+      expect(rewritten).toContain("1 + 1 // => 2");
+      expect(source).toContain("console.log(1 + 1) // 2");
 
-    const second = analyzeDoctestSourceForTesting("packages/example/src/index.ts", rewritten);
-    expect(second.findings).toEqual([]);
-  });
+      const second = analyzeDoctestSourceForTesting("packages/example/src/index.ts", rewritten);
+      expect(second.findings).toEqual([]);
+    })
+  );
 
-  it("retains console-only plans for canonical fences and honors leading blank lines", () => {
-    const source = A.join(
-      [
-        "/**",
-        " * **Example** (Canonical observation)",
-        " *",
-        ' * ```ts import.meta.vitest name="Canonical observation"',
-        " *",
-        " * console.log(1 + 1) // 2",
-        " * ```",
-        " */",
-        "export const value = 2",
-      ],
-      "\n"
-    );
-    const analysis = analyzeDoctestSourceForTesting("packages/example/src/index.ts", source);
+  it.effect("retains console-only plans for canonical fences and honors leading blank lines", () =>
+    Effect.gen(function* () {
+      const source = A.join(
+        [
+          "/**",
+          " * **Example** (Canonical observation)",
+          " *",
+          ' * ```ts import.meta.vitest name="Canonical observation"',
+          " *",
+          " * console.log(1 + 1) // 2",
+          " * ```",
+          " */",
+          "export const value = 2",
+        ],
+        "\n"
+      );
+      const analysis = analyzeDoctestSourceForTesting("packages/example/src/index.ts", source);
 
-    expect(analysis.findings).toHaveLength(1);
-    expect(analysis.findings[0]?.kind).toBe("console-rewrite");
-    const plan = O.getOrThrow(O.fromUndefinedOr(analysis.findings[0]?.plan));
-    expect(plan).toMatchObject({ addMarker: false, consoleRewrites: [{ line: 6 }] });
-    expect(plan).not.toHaveProperty("addName");
+      expect(analysis.findings).toHaveLength(1);
+      expect(analysis.findings[0]?.kind).toBe("console-rewrite");
+      const plan = O.getOrThrow(O.fromUndefinedOr(analysis.findings[0]?.plan));
+      expect(plan).toMatchObject({ addMarker: false, consoleRewrites: [{ line: 6 }] });
+      expect(plan).not.toHaveProperty("addName");
 
-    const rewritten = Effect.runSync(rewriteDoctestSourceForTesting("packages/example/src/index.ts", source, [plan]));
-    expect(Str.split(rewritten, "\n")[5]).toBe(" * 1 + 1 // => 2");
-    expect(analyzeDoctestSourceForTesting("packages/example/src/index.ts", rewritten).findings).toEqual([]);
-  });
+      const rewritten = yield* rewriteDoctestSourceForTesting("packages/example/src/index.ts", source, [plan]);
+      expect(Str.split(rewritten, "\n")[5]).toBe(" * 1 + 1 // => 2");
+      expect(analyzeDoctestSourceForTesting("packages/example/src/index.ts", rewritten).findings).toEqual([]);
+    })
+  );
 
-  it("refuses a stale rewrite plan before producing content", () => {
-    const source = A.join(["/**", " * **Example** (Stale plan)", " *", " * ```ts", " * 1 + 1", " * ```", " */"], "\n");
-    const analysis = analyzeDoctestSourceForTesting("packages/example/src/index.ts", source);
-    expect(analysis.fences).toBe(1);
-    const plan = O.getOrThrow(O.fromUndefinedOr(analysis.findings[0]?.plan));
-    const result = Effect.runSyncExit(
-      rewriteDoctestSourceForTesting("packages/example/src/index.ts", `${source}\nconst changed = true`, [plan])
-    );
-    expect(result._tag).toBe("Failure");
-  });
+  it.effect("refuses a stale rewrite plan before producing content", () =>
+    Effect.gen(function* () {
+      const source = A.join(
+        ["/**", " * **Example** (Stale plan)", " *", " * ```ts", " * 1 + 1", " * ```", " */"],
+        "\n"
+      );
+      const analysis = analyzeDoctestSourceForTesting("packages/example/src/index.ts", source);
+      expect(analysis.fences).toBe(1);
+      const plan = O.getOrThrow(O.fromUndefinedOr(analysis.findings[0]?.plan));
+      const result = yield* Effect.exit(
+        rewriteDoctestSourceForTesting("packages/example/src/index.ts", `${source}\nconst changed = true`, [plan])
+      );
+      expect(result._tag).toBe("Failure");
+    })
+  );
 });
 
 const changedSourcePaths = ["packages/example/src/existing.ts", "packages/example/src/deleted.ts"];

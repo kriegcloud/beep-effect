@@ -217,7 +217,9 @@
             "allowedEnvVars": [
               "BEEP_NODE_BIN",
               "BEEP_YEET_ADMISSION_LEASE_ID",
-              "BEEP_YEET_ADMISSION_WORKLOAD_PATH"
+              "BEEP_YEET_ADMISSION_WORKLOAD_PATH",
+              "GRAFT_CRUX_MODULE",
+              "GRAFT_EXTRACT_MODULE"
             ]
           }
         },

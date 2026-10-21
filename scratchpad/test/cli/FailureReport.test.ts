@@ -13,7 +13,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
-import type { Document, FailureDetails, ReportFailuresOptions } from "../../effected/cli/index.ts";
+import type { DocPrintOptions, Document, FailureDetails, ReportFailuresOptions } from "../../effected/cli/index.ts";
 import { CliDoc, CliLinks, CliLogger, CliRuntime, CliTheme, Doc, Render } from "../../effected/cli/index.ts";
 import { commandLines } from "./helpers/runnerCommands.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
@@ -129,7 +129,7 @@ it.layer(layers("agent"), { timeout: "30 seconds" })((it) => {
 			Doc.paragraph(Array.from({ length: 30 }, (_, i) => `word${i}`).join(" ")),
 		];
 
-		const print = Effect.fn("print")(function* (audience: AudienceKind, options: Parameters<typeof Doc.print>[1]) {
+		const print = Effect.fn("print")(function* (audience: AudienceKind, options: DocPrintOptions | undefined) {
 			const { double, out } = capturing();
 			yield* Doc.print(doc, options).pipe(
 				Effect.provideService(Audience, { kind: audience, source: "override" }),

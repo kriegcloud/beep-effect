@@ -2,11 +2,13 @@ import { Walker } from "../walker/index.ts";
 import type * as PlatformError from "effect/PlatformError";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as A from "effect/Array";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -177,12 +179,15 @@ export interface ConfigProbe {
  * Every built-in goes through here, so `resolve`, `resolveMatch` and
  * `resolveProbe` are one implementation and cannot drift.
  */
-const fromProbe = <R>(name: string, resolveProbe: Effect.Effect<ConfigProbe, never, R>): ConfigResolver<R> => ({
+const fromProbe: {
+	<R>(name: string, resolveProbe: Effect.Effect<ConfigProbe, never, R>): ConfigResolver<R>;
+	<R>(resolveProbe: Effect.Effect<ConfigProbe, never, R>): (name: string) => ConfigResolver<R>;
+} = dual(2, <R>(name: string, resolveProbe: Effect.Effect<ConfigProbe, never, R>): ConfigResolver<R> => ({
 	name,
 	resolve: Effect.map(resolveProbe, (probe) => O.map(probe.match, (match) => match.path)),
 	resolveMatch: Effect.map(resolveProbe, (probe) => probe.match),
 	resolveProbe,
-});
+}));
 
 /** Absorb any failure into an empty probe — the resolver contract. */
 const absorb = <E, R>(effect: Effect.Effect<ConfigProbe, E, R>): Effect.Effect<ConfigProbe, never, R> =>
@@ -356,7 +361,7 @@ const upwardWalk = (options: UpwardWalkOptions): ConfigResolver<FileSystem.FileS
 					}
 				}
 			}
-			const paths = candidates.map((candidate) => candidate.path);
+			const paths = A.map(candidates, (candidate) => candidate.path);
 			const found = yield* Walker.firstMatch(paths, (candidate) => fs.exists(candidate));
 			// `firstMatch` short-circuits at the first existing candidate, so the
 			// paths actually CHECKED are the prefix ending at the match — the full
@@ -367,7 +372,7 @@ const upwardWalk = (options: UpwardWalkOptions): ConfigResolver<FileSystem.FileS
 			});
 			// `firstMatch` returns the path; recover the descriptor that produced it.
 			const match = O.flatMap(found, (target) =>
-				O.fromNullishOr(candidates.find((candidate) => candidate.path === target)),
+				A.findFirst(candidates, (candidate) => candidate.path === target),
 			);
 			return { match, probed };
 		}),
@@ -378,7 +383,17 @@ const upwardWalk = (options: UpwardWalkOptions): ConfigResolver<FileSystem.FileS
  * true, then probe `subpaths` under it. Shared by `gitRoot` and
  * `workspaceRoot`, which differ only in how a "root" is detected.
  */
-const rootAnchored = (
+const rootAnchored: {
+	(
+		name: string,
+		isRoot: (dir: string) => Effect.Effect<boolean, PlatformError.PlatformError, FileSystem.FileSystem | Path.Path>,
+		options: { readonly filename: string; readonly cwd?: string; readonly subpaths?: ReadonlyArray<string> },
+	): ConfigResolver<FileSystem.FileSystem | Path.Path>;
+	(
+		isRoot: (dir: string) => Effect.Effect<boolean, PlatformError.PlatformError, FileSystem.FileSystem | Path.Path>,
+		options: { readonly filename: string; readonly cwd?: string; readonly subpaths?: ReadonlyArray<string> },
+	): (name: string) => ConfigResolver<FileSystem.FileSystem | Path.Path>;
+} = dual(3, (
 	name: string,
 	isRoot: (dir: string) => Effect.Effect<boolean, PlatformError.PlatformError, FileSystem.FileSystem | Path.Path>,
 	options: { readonly filename: string; readonly cwd?: string; readonly subpaths?: ReadonlyArray<string> },
@@ -397,7 +412,7 @@ const rootAnchored = (
 			if (O.isNone(root)) return { match: O.none<ConfigMatch>(), probed: [] };
 
 			const subpaths = options.subpaths ?? ["."];
-			const paths = subpaths.map((sub) => path.join(root.value, sub, options.filename));
+			const paths = A.map(subpaths, (sub) => path.join(root.value, sub, options.filename));
 			const found = yield* Walker.firstMatch(paths, (candidate) => fs.exists(candidate));
 			// As in `upwardWalk`: the checked prefix, ending at the match.
 			const probed = O.match(found, {
@@ -407,20 +422,20 @@ const rootAnchored = (
 			const match = O.map(found, (target): ConfigMatch => {
 				const matchedSubpath =
 					options.subpaths === undefined
-						? undefined
-						: subpaths.find((sub) => path.join(root.value, sub, options.filename) === target);
+						? O.none<string>()
+						: A.findFirst(subpaths, (sub) => path.join(root.value, sub, options.filename) === target);
 				return {
 					path: target,
 					// The anchor is the ROOT, not the subpath directory: a consumer
 					// asking "where is my project" wants the git/workspace root back.
 					dir: root.value,
 					filename: options.filename,
-					...(matchedSubpath !== undefined && { subpath: matchedSubpath }),
+					...(O.isSome(matchedSubpath) && { subpath: matchedSubpath.value }),
 				};
 			});
 			return { match, probed };
 		}),
-	);
+	));
 
 /** `.git` may be a directory (a normal repo) or a file (a worktree pointing at the real repo). */
 const isGitRoot: (

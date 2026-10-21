@@ -86,30 +86,18 @@ const traversalGithubTreeFixture = `{
   "truncated": false
 }`;
 
-const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) =>
+const makeWebHandlerClient = (handler: (request: Request) => Effect.Effect<Response>) =>
   HttpClient.make((request, url) =>
-    Effect.tryPromise({
-      try: () =>
-        Effect.runPromise(
-          Effect.gen(function* () {
-            const response = yield* Effect.promise(() =>
-              Promise.resolve(
-                handler(
-                  new Request(url.toString(), {
-                    method: request.method,
-                    headers: request.headers,
-                  })
-                )
-              )
-            );
-            return HttpClientResponse.fromWeb(request, response);
-          })
-        ),
+    Effect.try({
+      try: () => new Request(url.toString(), { method: request.method, headers: request.headers }),
       catch: (cause) =>
         new HttpClientError.HttpClientError({
           reason: new HttpClientError.TransportError({ request, cause }),
         }),
-    })
+    }).pipe(
+      Effect.flatMap(handler),
+      Effect.map((response) => HttpClientResponse.fromWeb(request, response))
+    )
   );
 
 const remoteGrillMeSkillWithVersion = remoteGrillMeSkill.replace(
@@ -119,51 +107,46 @@ const remoteGrillMeSkillWithVersion = remoteGrillMeSkill.replace(
 
 const makeSkillsClient = (skillText: string = remoteGrillMeSkill) =>
   makeWebHandlerClient((request) =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        if (request.url === "https://api.github.com/repos/mattpocock/skills/git/trees/main?recursive=1") {
-          return new Response(githubTreeFixture, {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          });
-        }
+    Effect.sync(() => {
+      if (request.url === "https://api.github.com/repos/mattpocock/skills/git/trees/main?recursive=1") {
+        return new Response(githubTreeFixture, {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
 
-        if (
-          request.url ===
-          "https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grill-me/SKILL.md"
-        ) {
-          return new Response(skillText, {
-            status: 200,
-            headers: { "content-type": "text/markdown" },
-          });
-        }
+      if (
+        request.url === "https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grill-me/SKILL.md"
+      ) {
+        return new Response(skillText, {
+          status: 200,
+          headers: { "content-type": "text/markdown" },
+        });
+      }
 
-        return new Response("missing", { status: 404 });
-      })
-    )
+      return new Response("missing", { status: 404 });
+    })
   );
 
 const makeTraversalSkillsClient = () =>
   makeWebHandlerClient((request) =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        if (request.url === "https://api.github.com/repos/mattpocock/skills/git/trees/main?recursive=1") {
-          return new Response(traversalGithubTreeFixture, {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          });
-        }
+    Effect.sync(() => {
+      if (request.url === "https://api.github.com/repos/mattpocock/skills/git/trees/main?recursive=1") {
+        return new Response(traversalGithubTreeFixture, {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
 
-        if (request.url.startsWith("https://raw.githubusercontent.com/mattpocock/skills/main/")) {
-          return new Response(remoteGrillMeSkill, {
-            status: 200,
-            headers: { "content-type": "text/markdown" },
-          });
-        }
+      if (request.url.startsWith("https://raw.githubusercontent.com/mattpocock/skills/main/")) {
+        return new Response(remoteGrillMeSkill, {
+          status: 200,
+          headers: { "content-type": "text/markdown" },
+        });
+      }
 
-        return new Response("missing", { status: 404 });
-      })
-    )
+      return new Response("missing", { status: 404 });
+    })
   );
 
 const temporaryRepository = Effect.gen(function* () {

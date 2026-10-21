@@ -33,6 +33,7 @@
 //    The max cap itself is validated by assertCap: a NaN or non-integer max is
 //    programmer error and dies as a TypeError defect.
 
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Random from "effect/Random";
@@ -80,7 +81,10 @@ const unescapeBraces = (str: string): string =>
  * braced sections, which should be treated as individual members, like
  * {a,{b,c},d}.
  */
-const parseCommaParts = (str: string, depth: number): Array<string> => {
+const parseCommaParts: {
+	(str: string, depth: number): Array<string>;
+	(depth: number): (str: string) => Array<string>;
+} = dual(2, (str: string, depth: number): Array<string> => {
 	if (depth > MAX_NESTING_DEPTH) {
 		throw GuardExceeded.fromReason("NestingDepthExceeded", MAX_NESTING_DEPTH, depth);
 	}
@@ -101,14 +105,14 @@ const parseCommaParts = (str: string, depth: number): Array<string> => {
 	p[p.length - 1] += `{${body}}`;
 	const postParts = parseCommaParts(post, depth + 1);
 	if (post.length !== 0) {
-		p[p.length - 1] += postParts.splice(0, 1).join("");
+		p[p.length - 1] += A.join(postParts.splice(0, 1), "");
 		p.push(...postParts);
 	}
 
 	parts.push(...p);
 
 	return parts;
-};
+});
 
 /**
  * Configures the maximum number of alternatives produced by brace expansion.
@@ -181,9 +185,15 @@ const embrace = (str: string): string => `{${str}}`;
 
 const isPadded = (el: string): boolean => /^-?0\d/.test(el);
 
-const lte = (i: number, y: number): boolean => i <= y;
+const lte: {
+	(i: number, y: number): boolean;
+	(y: number): (i: number) => boolean;
+} = dual(2, (i: number, y: number): boolean => i <= y);
 
-const gte = (i: number, y: number): boolean => i >= y;
+const gte: {
+	(i: number, y: number): boolean;
+	(y: number): (i: number) => boolean;
+} = dual(2, (i: number, y: number): boolean => i >= y);
 
 function* expand_(str: string, max: number, isTopInput: boolean, depth: number): Generator<string> {
 	if (depth > MAX_NESTING_DEPTH) {
@@ -254,7 +264,7 @@ function* expand_(str: string, max: number, isTopInput: boolean, depth: number):
 				incr *= -1;
 				test = gte;
 			}
-			const pad = n.some(isPadded);
+			const pad = A.some(n, isPadded);
 
 			// Validate the count before generating members. Overflow can produce
 			// Infinity or NaN; both exceed the budget, measured as positive infinity.

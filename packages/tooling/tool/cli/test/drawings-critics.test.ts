@@ -62,7 +62,8 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
-import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -1059,11 +1060,13 @@ describe("critic sequence seats", () => {
           "2-claude-opus-5.5.json",
           "3-claude-opus-5.5.json",
         ]);
-        // the stuck seat started at minute 12 or later, so its limit ran out past minute 15
+        // Measure from this sequence; earlier tests may already have advanced the shared clock.
+        const first = O.getOrThrow(A.head(run.record.runs));
         const stuck = O.getOrThrow(A.last(run.record.runs));
-        expect(DateTime.toEpochMillis(DateTime.makeUnsafe(stuck.startedAt))).toBeGreaterThanOrEqual(
-          Duration.toMillis("12 minutes")
-        );
+        const elapsed =
+          DateTime.toEpochMillis(DateTime.makeUnsafe(stuck.startedAt)) -
+          DateTime.toEpochMillis(DateTime.makeUnsafe(first.startedAt));
+        expect(elapsed).toBeGreaterThanOrEqual(Duration.toMillis("12 minutes"));
       })
     );
 

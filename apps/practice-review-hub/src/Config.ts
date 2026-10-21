@@ -9,7 +9,7 @@ import { $PracticeReviewHubId } from "@beep/identity/packages";
 import { Port } from "@beep/schema/Port";
 import { splitCommaSeparatedTrimmed } from "@beep/utils/Text";
 import * as Config from "effect/Config";
-import { Flag } from "effect/cli";
+import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 

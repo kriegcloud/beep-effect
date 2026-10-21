@@ -387,6 +387,29 @@ describe("HookPulseV1", () => {
     { arbitrary: fcRuns(25) }
   );
 
+  it.effect("derives Claude child and primary roles from transcript paths without assigning foreign sessions", () =>
+    Effect.gen(function* () {
+      const paths = [
+        { path: "/synthetic/subagents/child.jsonl", role: O.some("subagent") },
+        { path: "/synthetic/workflow/child.jsonl", role: O.some("subagent") },
+        { path: "/synthetic/12345678-1234-1234-1234-123456789abc.jsonl", role: O.some("primary") },
+        { path: "/synthetic/unclassified.jsonl", role: O.none() },
+      ];
+      for (const { path, role } of paths) {
+        const input = {
+          ...baseRawInputFixture,
+          ts: "2026-08-01T08:00:00.000Z",
+          event: { ...baseRawEventFixture, transcript_path: path, hook_event_name: "Stop" },
+        };
+        const row = yield* withSaltEnv({}, decodeHookPulseFromRaw(input));
+        expect(row.sessionRole).toEqual(role);
+        expect(yield* encodeUnknownJsonEffect(row)).not.toContain(path);
+        const foreign = yield* withSaltEnv({}, decodeHookPulseFromRaw({ ...input, agentKind: "codex-cli" }));
+        assertNone(foreign.sessionRole);
+      }
+    })
+  );
+
   it.effect("migrates legacy v1 rows without retaining raw private identifiers", () =>
     Effect.gen(function* () {
       const legacy = {

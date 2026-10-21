@@ -3,7 +3,9 @@ import * as S from "effect/Schema";
 import { dual } from "effect/Function";
 import type { ColorLevel } from "../../../env/index.ts";
 import type * as Scope from "effect/Scope";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import type * as Ink from "ink";
 import type React from "react";
@@ -14,17 +16,17 @@ const $I = $ScratchpadId.create("effected/cli/ui/internal/ink");
 
 class InkNotLoaded extends S.TaggedError<InkNotLoaded, { readonly brand: unique symbol }>($I`InkNotLoaded`)(
 	"InkNotLoaded",
-	{ message: S.String.annotate({ description: "The required peer-loading step before reading Ink's modules." }) },
-	$I.annote("InkNotLoaded", { description: "Ink's optional peers were read before they were loaded." }),
+	{ message: S.String.pipe($I.annoteKey("InkNotLoaded.message", { description: "The required peer-loading step before reading Ink's modules." })) },
+	$I.annoteError<InkNotLoaded>("InkNotLoaded", { description: "Ink's optional peers were read before they were loaded." }),
 ) {}
 
 class MissingInkPeersError extends S.TaggedError<MissingInkPeersError, { readonly brand: unique symbol }>($I`MissingInkPeersError`)(
 	"MissingInkPeersError",
 	{
-		message: S.String.annotate({ description: "The missing optional peers and installation instructions." }),
-		cause: S.optionalKey(S.Defect({ includeStack: true })).annotate({ description: "The original failure to import Ink or React." }),
+		message: S.String.pipe($I.annoteKey("MissingInkPeersError.message", { description: "The missing optional peers and installation instructions." })),
+		cause: S.optionalKey(S.Defect({ includeStack: true })).pipe($I.annoteKey("MissingInkPeersError.cause", { description: "The original failure to import Ink or React." })),
 	},
-	$I.annote("MissingInkPeersError", { description: "The UI's optional Ink or React peer could not be loaded." }),
+	$I.annoteError<MissingInkPeersError>("MissingInkPeersError", { description: "The UI's optional Ink or React peer could not be loaded." }),
 ) {
 	override readonly name = "Error";
 }
@@ -51,9 +53,23 @@ const UNRESOLVED_CHALK =
 	"@effected/cli/ui could not resolve the chalk Ink uses (is ink bundled?), so Ink decides its own colour level";
 
 let modules: InkModules | undefined;
-let loading: Promise<InkModules> | undefined;
 
-const importPeers = (): Promise<InkModules> => Promise.all([import("ink"), import("react")]).then(([ink, react]) => ({ ink, react: react.default }));
+/** One peer's dynamic import, the only Promise here: a missing peer fails with the message naming both. */
+const importPeer = <M>(load: () => Promise<M>): Effect.Effect<M, MissingInkPeersError> =>
+	Effect.tryPromise({ try: load, catch: (cause) => MissingInkPeersError.make({ message: MISSING_PEERS, cause }) });
+
+const importPeers: Effect.Effect<InkModules, MissingInkPeersError> = Effect.map(
+	Effect.all([importPeer(() => import("ink")), importPeer(() => import("react"))], { concurrency: "unbounded" }),
+	([ink, react]) => ({ ink, react: react.default }),
+);
+
+/**
+ * The one-shot load: concurrent callers share the load in flight, a success is kept for the process, and a failure
+ * expires at once so the next call imports again.
+ */
+const loadPeers: Effect.Effect<InkModules, MissingInkPeersError> = Effect.runSync(
+	Effect.cachedWithTTL(importPeers, (exit) => (Exit.isSuccess(exit) ? Duration.infinity : Duration.zero)),
+);
 
 /**
  * Load `ink` and `react`, once. The only runtime access the kit has to either package: nothing imports a value
@@ -78,21 +94,10 @@ const importPeers = (): Promise<InkModules> => Promise.all([import("ink"), impor
  */
 export const loadInk: Effect.Effect<InkModules> = Effect.suspend(() => {
 	if (modules !== undefined) return Effect.succeed(modules);
-	return Effect.tryPromise({
-		try: () => {
-			loading ??= importPeers();
-			return loading;
-		},
-		catch: (cause) => MissingInkPeersError.make({ message: MISSING_PEERS, cause }),
-	}).pipe(
+	return loadPeers.pipe(
 		Effect.tap((loaded) =>
 			Effect.sync(() => {
 				modules = loaded;
-			}),
-		),
-		Effect.tapError(() =>
-			Effect.sync(() => {
-				loading = undefined;
 			}),
 		),
 		Effect.orDie,

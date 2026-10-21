@@ -11,6 +11,7 @@
 // (GuardExceeded at the opening bracket). Everything else is a linear walk.
 
 import * as O from "@beep/utils/Option";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import type { TomlExpression, TomlValueNode } from "../TomlNode.ts";
 import {
@@ -59,9 +60,12 @@ const RIGHT_BRACKET = 0x5d;
 const LEFT_BRACE = 0x7b;
 const RIGHT_BRACE = 0x7d;
 
-const raise = (code: TomlErrorCodeRaw, message: string, offset: number, length: number): never => {
+const raise: {
+	(code: TomlErrorCodeRaw, message: string, offset: number, length: number): never;
+	(message: string, offset: number, length: number): (code: TomlErrorCodeRaw) => never;
+} = dual(4, (code: TomlErrorCodeRaw, message: string, offset: number, length: number): never => {
 	throw RawTomlError.make({ code, message, offset, length });
-};
+});
 
 /** A parsed piece and the position after it. */
 interface Parsed<T> {
@@ -73,7 +77,10 @@ interface Parsed<T> {
 const decodeComment = (raw: string): string => (raw.startsWith(" ") ? raw.slice(1) : raw);
 
 /** One simple key: bare, basic-quoted or literal-quoted. */
-const parseSimpleKey = (source: string, pos: number): Parsed<TomlKey> => {
+const parseSimpleKey: {
+	(source: string, pos: number): Parsed<TomlKey>;
+	(pos: number): (source: string) => Parsed<TomlKey>;
+} = dual(2, (source: string, pos: number): Parsed<TomlKey> => {
 	const code = source.charCodeAt(pos);
 	if (code === QUOTE) {
 		const scanned = scanBasicString(source, pos);
@@ -94,10 +101,13 @@ const parseSimpleKey = (source: string, pos: number): Parsed<TomlKey> => {
 		return raise("ExpectedKey", "expected a key", pos, 1);
 	}
 	return { node: TomlKey.make({ value: bare.value, kind: "bare", offset: pos, length: bare.end - pos }), end: bare.end };
-};
+});
 
 /** A dotted key path: `simple-key ( ws "." ws simple-key )*`. */
-const parseKeyPath = (source: string, pos: number): Parsed<ReadonlyArray<TomlKey>> => {
+const parseKeyPath: {
+	(source: string, pos: number): Parsed<ReadonlyArray<TomlKey>>;
+	(pos: number): (source: string) => Parsed<ReadonlyArray<TomlKey>>;
+} = dual(2, (source: string, pos: number): Parsed<ReadonlyArray<TomlKey>> => {
 	const keys: Array<TomlKey> = [];
 	const first = parseSimpleKey(source, pos);
 	keys.push(first.node);
@@ -113,10 +123,13 @@ const parseKeyPath = (source: string, pos: number): Parsed<ReadonlyArray<TomlKey
 		i = next.end;
 	}
 	return { node: keys, end: i };
-};
+});
 
 /** The end of an expression line: ws + optional comment + newline (or EOF), else ExpectedNewline. */
-const parseLineEnd = (source: string, pos: number): { readonly comment?: string; readonly end: number } => {
+const parseLineEnd: {
+	(source: string, pos: number): { readonly comment?: string; readonly end: number };
+	(pos: number): (source: string) => { readonly comment?: string; readonly end: number };
+} = dual(2, (source: string, pos: number): { readonly comment?: string; readonly end: number } => {
 	let i = scanWhitespace(source, pos);
 	let comment: string | undefined;
 	if (source.charCodeAt(i) === HASH) {
@@ -132,14 +145,17 @@ const parseLineEnd = (source: string, pos: number): { readonly comment?: string;
 		return raise("ExpectedNewline", "expected a newline after the expression", i, 1);
 	}
 	return { ...O.getSomesStruct({ comment: O.fromUndefinedOr(comment) }), end: after };
-};
+});
 
 /**
  * Skip whitespace, newlines and comments inside array brackets or inline-table
  * braces — the grammar's `ws-comment-newline`, shared by both container
  * parsers since TOML 1.1 let inline tables span lines.
  */
-const skipValueGap = (source: string, pos: number): number => {
+const skipValueGap: {
+	(source: string, pos: number): number;
+	(pos: number): (source: string) => number;
+} = dual(2, (source: string, pos: number): number => {
 	let i = pos;
 	for (;;) {
 		i = scanWhitespace(source, i);
@@ -154,14 +170,17 @@ const skipValueGap = (source: string, pos: number): number => {
 		}
 		return i;
 	}
-};
+});
 
 /** Whether a token that classified as `number` spells a float (never called on hex/oct/bin). */
 const isFloatToken = (token: string): boolean =>
 	!/^0[xob]/.test(token) && (/[.eE]/.test(token) || token.includes("inf") || token.includes("nan"));
 
 /** An array value starting at `[`; `depth` is this array's own nesting count. */
-const parseArray = (source: string, openPos: number, depth: number): Parsed<TomlArray> => {
+const parseArray: {
+	(source: string, openPos: number, depth: number): Parsed<TomlArray>;
+	(openPos: number, depth: number): (source: string) => Parsed<TomlArray>;
+} = dual(3, (source: string, openPos: number, depth: number): Parsed<TomlArray> => {
 	if (depth > MAX_NESTING_DEPTH) {
 		throw GuardExceeded.new("NestingDepthExceeded", MAX_NESTING_DEPTH, depth, openPos);
 	}
@@ -194,7 +213,7 @@ const parseArray = (source: string, openPos: number, depth: number): Parsed<Toml
 		raise("UnterminatedArray", "expected , or ] in array", i, 1);
 	}
 	return { node: TomlArray.make({ items, offset: openPos, length: i - openPos }), end: i };
-};
+});
 
 /**
  * An inline table starting at `{`; `depth` is this table's own nesting count.
@@ -203,7 +222,10 @@ const parseArray = (source: string, openPos: number, depth: number): Parsed<Toml
  * allowed — but `keyval-sep` is still ws-only, so no newline may split a key
  * from its `=` or the `=` from its value.
  */
-const parseInlineTable = (source: string, openPos: number, depth: number): Parsed<TomlInlineTable> => {
+const parseInlineTable: {
+	(source: string, openPos: number, depth: number): Parsed<TomlInlineTable>;
+	(openPos: number, depth: number): (source: string) => Parsed<TomlInlineTable>;
+} = dual(3, (source: string, openPos: number, depth: number): Parsed<TomlInlineTable> => {
 	if (depth > MAX_NESTING_DEPTH) {
 		throw GuardExceeded.new("NestingDepthExceeded", MAX_NESTING_DEPTH, depth, openPos);
 	}
@@ -250,10 +272,13 @@ const parseInlineTable = (source: string, openPos: number, depth: number): Parse
 		raise("UnterminatedInlineTable", "expected , or } in inline table", i, 1);
 	}
 	return { node: TomlInlineTable.make({ entries, offset: openPos, length: i - openPos }), end: i };
-};
+});
 
 /** Wrap a classified scalar token into its value node. */
-const scalarNode = (source: string, pos: number): Parsed<TomlValueNode> => {
+const scalarNode: {
+	(source: string, pos: number): Parsed<TomlValueNode>;
+	(pos: number): (source: string) => Parsed<TomlValueNode>;
+} = dual(2, (source: string, pos: number): Parsed<TomlValueNode> => {
 	const token = scanValueToken(source, pos);
 	const scalar = classifyValueToken(token.value, pos);
 	const length = token.end - pos;
@@ -270,10 +295,13 @@ const scalarNode = (source: string, pos: number): Parsed<TomlValueNode> => {
 		return { node, end: token.end };
 	}
 	return { node: TomlDateTimeLiteral.make({ value: scalar, offset: pos, length }), end: token.end };
-};
+});
 
 /** A value at `pos`; `depth` is the number of containers already enclosing it. */
-const parseValue = (source: string, pos: number, depth: number): Parsed<TomlValueNode> => {
+const parseValue: {
+	(source: string, pos: number, depth: number): Parsed<TomlValueNode>;
+	(pos: number, depth: number): (source: string) => Parsed<TomlValueNode>;
+} = dual(3, (source: string, pos: number, depth: number): Parsed<TomlValueNode> => {
 	const code = source.charCodeAt(pos);
 	if (
 		pos >= source.length ||
@@ -332,10 +360,13 @@ const parseValue = (source: string, pos: number, depth: number): Parsed<TomlValu
 		return parseInlineTable(source, pos, depth + 1);
 	}
 	return scalarNode(source, pos);
-};
+});
 
 /** One `key = value` expression line; returns the position after its newline. */
-const parseKeyValueExpression = (source: string, lineStart: number, keyStart: number): Parsed<TomlKeyValue> => {
+const parseKeyValueExpression: {
+	(source: string, lineStart: number, keyStart: number): Parsed<TomlKeyValue>;
+	(lineStart: number, keyStart: number): (source: string) => Parsed<TomlKeyValue>;
+} = dual(3, (source: string, lineStart: number, keyStart: number): Parsed<TomlKeyValue> => {
 	const keyPath = parseKeyPath(source, keyStart);
 	const equalsPos = scanWhitespace(source, keyPath.end);
 	if (source.charCodeAt(equalsPos) !== EQUALS) {
@@ -354,10 +385,13 @@ const parseKeyValueExpression = (source: string, lineStart: number, keyStart: nu
 		}),
 		end: lineEnd.end,
 	};
-};
+});
 
 /** One `[table]` or `[[array-of-tables]]` header line. */
-const parseHeaderExpression = (
+const parseHeaderExpression: {
+	(source: string, lineStart: number, bracketPos: number): Parsed<TomlTableHeader | TomlArrayTableHeader>;
+	(lineStart: number, bracketPos: number): (source: string) => Parsed<TomlTableHeader | TomlArrayTableHeader>;
+} = dual(3, (
 	source: string,
 	lineStart: number,
 	bracketPos: number,
@@ -385,7 +419,7 @@ const parseHeaderExpression = (
 		length: lineEnd.end - lineStart,
 	};
 	return { node: isArrayTable ? TomlArrayTableHeader.make(fields) : TomlTableHeader.make(fields), end: lineEnd.end };
-};
+});
 
 /**
  * Parses a TOML document into its linear CST: the flat, source-tiling list of expressions.

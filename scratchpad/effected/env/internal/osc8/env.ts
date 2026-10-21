@@ -27,7 +27,7 @@ const $I = $ScratchpadId.create("effected/env/internal/osc8/env");
  * @category schemas
  * @since 0.0.0
  */
-export const TruthySpec = LiteralKit(["default", "no-color"]).annotate($I.annote("TruthySpec", { description: "Truthy semantics for env-var detection: default flags or any non-empty NO_COLOR value." }));
+export const TruthySpec = LiteralKit(["default", "no-color"]).pipe($I.annoteSchema("TruthySpec", { description: "Truthy semantics for env-var detection: default flags or any non-empty NO_COLOR value." }));
 /**
  * Truthiness policy accepted by the {@link TruthySpec} schema.
  *

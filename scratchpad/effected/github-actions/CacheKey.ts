@@ -12,6 +12,8 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { sha256, sha256Hex } from "./internal/digest.ts";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/github-actions/CacheKey");
 
@@ -32,7 +34,7 @@ const $I = $ScratchpadId.create("effected/github-actions/CacheKey");
  */
 export class InvalidDigestLengthError extends S.TaggedError<InvalidDigestLengthError, { readonly brand: unique symbol }>($I`InvalidDigestLengthError`)("InvalidDigestLengthError", {
 	message: S.String,
-}, $I.annote("InvalidDigestLengthError", { description: "A digest length outside the sha256 output range was requested." })) {}
+}, $I.annoteError<InvalidDigestLengthError>("InvalidDigestLengthError", { description: "A digest length outside the sha256 output range was requested." })) {}
 
 /**
  * Raised when a file or directory that was going to be hashed could not be
@@ -53,10 +55,10 @@ export class InvalidDigestLengthError extends S.TaggedError<InvalidDigestLengthE
  */
 export class CacheKeyReadError extends S.TaggedError<CacheKeyReadError, { readonly brand: unique symbol }>($I`CacheKeyReadError`)("CacheKeyReadError", {
 	/** The path being read when it went wrong. */
-	path: S.String.annotateKey({ description: "The path being read when it went wrong." }),
+	path: S.String.pipe($I.annoteKey("CacheKeyReadError.path", { description: "The path being read when it went wrong." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("CacheKeyReadError", { description: "Raised when a file or directory that was going to be hashed could not be read." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("CacheKeyReadError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<CacheKeyReadError>("CacheKeyReadError", { description: "Raised when a file or directory that was going to be hashed could not be read." })) {
 	/**
 	 * Identifies the path that could not be read while deriving the key.
 	 *
@@ -94,10 +96,10 @@ export class CacheKeyReadError extends S.TaggedError<CacheKeyReadError, { readon
  */
 export class CacheKeyBadPatternError extends S.TaggedError<CacheKeyBadPatternError, { readonly brand: unique symbol }>($I`CacheKeyBadPatternError`)("CacheKeyBadPatternError", {
 	/** The pattern that would not compile. */
-	pattern: S.String.annotateKey({ description: "The pattern that would not compile." }),
+	pattern: S.String.pipe($I.annoteKey("CacheKeyBadPatternError.pattern", { description: "The pattern that would not compile." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("CacheKeyBadPatternError", { description: "Raised when a glob pattern would not compile." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("CacheKeyBadPatternError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<CacheKeyBadPatternError>("CacheKeyBadPatternError", { description: "Raised when a glob pattern would not compile." })) {
 	/**
 	 * Identifies the glob pattern that could not be compiled.
 	 *
@@ -158,18 +160,16 @@ const MAX_KEY_LENGTH = 512;
  * Commas and newlines are refused because the runner uses both to delimit the
  * restore-key list — a segment carrying one would silently become two keys.
  */
-const Segment = S.String.check(S.isPattern(/^[^,\n\r]+$/u, {
-	identifier: $I`SegmentPattern`,
-	title: "Cache key segment pattern",
+const Segment = S.String.check(S.isPattern(/^[^,\n\r]+$/u, $I.annote("SegmentPattern", {
+	message: "Cache key segment pattern",
 	description: "A nonempty cache-key segment without commas or newline delimiters.",
-}));
+})));
 
 const Segments = S.NonEmptyArray(Segment).check(
-	S.makeFilter((values) => values.join(SEPARATOR).length <= MAX_KEY_LENGTH, {
-		identifier: $I`SegmentsLength`,
-		title: `a cache key of at most ${MAX_KEY_LENGTH} characters`,
+	S.makeFilter((values) => A.join(values, SEPARATOR).length <= MAX_KEY_LENGTH, $I.annote("SegmentsLength", {
+		message: `a cache key of at most ${MAX_KEY_LENGTH} characters`,
 		description: "The complete cache key, including segment separators, fits GitHub's 512-character limit.",
-	}),
+	})),
 );
 
 /**
@@ -177,16 +177,14 @@ const Segments = S.NonEmptyArray(Segment).check(
  * cross-field (`segments.length - 1`) and lives on the class schema.
  */
 const RestoreDepth = S.Finite.check(
-	S.isInt({
-		identifier: $I`RestoreDepthInteger`,
-		title: "Integer restore depth",
+	S.isInt($I.annote("RestoreDepthInteger", {
+		message: "Integer restore depth",
 		description: "A restore-key rung keeps a whole number of leading segments.",
-	}),
-	S.isBetween({ minimum: 1, maximum: Number.MAX_SAFE_INTEGER }, {
-		identifier: $I`RestoreDepthRange`,
-		title: "Positive safe restore depth",
+	})),
+	S.isBetween({ minimum: 1, maximum: Number.MAX_SAFE_INTEGER }, $I.annote("RestoreDepthRange", {
+		message: "Positive safe restore depth",
 		description: "A restore depth is between one and the maximum safe integer, inclusive.",
-	}),
+	})),
 );
 
 /**
@@ -245,11 +243,10 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
 			key.restoreDepths === undefined || key.restoreDepths.every((depth) => depth <= key.segments.length - 1)
 				? undefined
 				: "every restore depth must be between 1 and segments.length - 1 — a rung keeping every segment would just repeat the primary key",
-			{
-				identifier: $I`RestoreDepthWithinSegments`,
-				title: "Restore depths retain a proper key prefix",
+			$I.annote("RestoreDepthWithinSegments", {
+				message: "Restore depths retain a proper key prefix",
 				description: "Each explicit restore depth keeps fewer segments than the primary cache key.",
-			},
+			}),
 		),
 	), $I.annote("CacheKey", { description: "A GitHub Actions cache key and the restore-key ladder that goes with it." }),
 ) {
@@ -267,7 +264,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
 	 * @since 0.0.0
 	 */
 	get key(): string {
-		return this.segments.join(SEPARATOR);
+		return A.join(this.segments, SEPARATOR);
 	}
 
 	/**
@@ -304,9 +301,9 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
 	 * @since 0.0.0
 	 */
 	get restoreKeys(): ReadonlyArray<string> {
-		const rung = (length: number): string => `${this.segments.slice(0, length).join(SEPARATOR)}${SEPARATOR}`;
+		const rung = (length: number): string => `${A.join(A.take(this.segments, length), SEPARATOR)}${SEPARATOR}`;
 		if (this.restoreDepths !== undefined) {
-			return this.restoreDepths.map(rung);
+			return A.map(this.restoreDepths, (depth) => rung(depth));
 		}
 		const rungs: Array<string> = [];
 		for (let length = this.segments.length - 1; length >= 1; length -= 1) {
@@ -522,12 +519,15 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
 	 *
 	 * @since 0.0.0
 	 */
-	static digest(input: string, length: number = 8): string {
+	static readonly digest: {
+		(input: string, length?: number): string;
+		(length?: number): (input: string) => string;
+	} = dual((args) => P.isString(args[0]), (input: string, length: number = 8): string => {
 		if (!Number.isInteger(length) || length < 1 || length > 64) {
 			throw InvalidDigestLengthError.make({ message: `A digest length must be an integer between 1 and 64, got ${length}` });
 		}
 		return sha256Hex(input).slice(0, length);
-	}
+	});
 
 	/**
 	 * Hash a set of files into a single digest.
@@ -582,7 +582,7 @@ export class CacheKey extends S.Class<CacheKey, { readonly brand: unique symbol 
 			{ concurrency: 8 },
 		);
 		// The digest of the concatenated raw digests — the runner's own `hashFiles()` shape.
-		return O.some(sha256Hex(Uint8Array.from(digests.flatMap((digest) => [...digest]))));
+		return O.some(sha256Hex(Uint8Array.from(A.flatMap(digests, (digest) => [...digest]))));
 	});
 
 	/**

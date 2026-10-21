@@ -52,7 +52,10 @@ with a fresh owned Unix socket and ephemeral Codex thread. It forces existing
 ChatGPT auth, `gpt-6.1-sol` medium, no fallback, read-only/never, disabled project
 docs, configured MCP servers, hooks, plugins, apps, memories and subagents.
 Codex produces a request envelope, Grok replies, and Codex acknowledges the
-actual forwarded reply. Peer output is synthetic data. No production broker or
+actual forwarded reply. New receipts require an exact peer-reply echo bounded
+to 4096 UTF-8 bytes; the controller validates it and computes its SHA-256.
+The historical receipt checked nonce and ACK markers only, without a returned
+peer-payload digest. Peer output is synthetic data. No production broker or
 ambient session is connected.
 
 The sources log raw protocol into private files in the new cache directory,

@@ -2,8 +2,10 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
@@ -15,7 +17,7 @@ const $I = $ScratchpadId.create("effected/github/PullRequestComment");
 
 class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
-}, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
+}, $I.annoteError<UnstubbedError>("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
 /**
  * The hidden marker that makes a comment findable again.
@@ -45,13 +47,13 @@ export class CommentMarker extends S.Class<CommentMarker, { readonly brand: uniq
 	 *
 	 * @since 0.0.0
 	 */
-	namespace: S.NonEmptyString.annotateKey({ description: "Whose comments these are, e.g. your action's name." }),
+	namespace: S.NonEmptyString.pipe($I.annoteKey("CommentMarker.namespace", { description: "Whose comments these are, e.g. your action's name." })),
 	/**
 	 * Which comment, within that namespace.
 	 *
 	 * @since 0.0.0
 	 */
-	key: S.NonEmptyString.annotateKey({ description: "Which comment, within that namespace." }),
+	key: S.NonEmptyString.pipe($I.annoteKey("CommentMarker.key", { description: "Which comment, within that namespace." })),
 }, $I.annote("CommentMarker", { description: "The hidden marker that makes a comment findable again." })) {
 	/**
 	 * The HTML comment appended to a body so the comment can be found again.
@@ -109,9 +111,9 @@ export class CommentMarker extends S.Class<CommentMarker, { readonly brand: uniq
  * @since 0.0.0
  */
 export class CommentRecord extends S.Class<CommentRecord, { readonly brand: unique symbol }>($I`CommentRecord`)({
-	id: S.Int.annotateKey({ description: "GitHub-assigned comment identifier used to update or delete the comment" }),
-	body: S.String.annotateKey({ description: "Comment text returned by GitHub, including any hidden marker, or empty when GitHub supplies none" }),
-	url: S.String.annotateKey({ description: "Web URL for viewing the comment on GitHub" }),
+	id: S.Int.pipe($I.annoteKey("CommentRecord.id", { description: "GitHub-assigned comment identifier used to update or delete the comment" })),
+	body: S.String.pipe($I.annoteKey("CommentRecord.body", { description: "Comment text returned by GitHub, including any hidden marker, or empty when GitHub supplies none" })),
+	url: S.String.pipe($I.annoteKey("CommentRecord.url", { description: "Web URL for viewing the comment on GitHub" })),
 }, $I.annote("CommentRecord", { description: "A comment this package wrote or found: its id, body and web URL." })) {}
 
 /**
@@ -128,7 +130,10 @@ export interface PullRequestCommentShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly create: (issueNumber: number, body: string) => Effect.Effect<CommentRecord, GitHubError, Repo>;
+	readonly create: {
+		(issueNumber: number, body: string): Effect.Effect<CommentRecord, GitHubError, Repo>;
+		(body: string): (issueNumber: number) => Effect.Effect<CommentRecord, GitHubError, Repo>;
+	};
 	/**
 	 * Update the marked comment if there is one, or post it.
 	 *
@@ -139,11 +144,10 @@ export interface PullRequestCommentShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly upsert: (
-		issueNumber: number,
-		marker: CommentMarker,
-		body: string,
-	) => Effect.Effect<CommentRecord, GitHubError, Repo>;
+	readonly upsert: {
+		(issueNumber: number, marker: CommentMarker, body: string): Effect.Effect<CommentRecord, GitHubError, Repo>;
+		(marker: CommentMarker, body: string): (issueNumber: number) => Effect.Effect<CommentRecord, GitHubError, Repo>;
+	};
 	/**
 	 * Find the marked comment.
 	 *
@@ -154,11 +158,17 @@ export interface PullRequestCommentShape {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly find: (
-		issueNumber: number,
-		marker: CommentMarker,
-		options?: { readonly page?: PageOptions | undefined },
-	) => Effect.Effect<O.Option<CommentRecord>, GitHubError, Repo>;
+	readonly find: {
+		(
+			issueNumber: number,
+			marker: CommentMarker,
+			options?: { readonly page?: PageOptions | undefined },
+		): Effect.Effect<O.Option<CommentRecord>, GitHubError, Repo>;
+		(
+			marker: CommentMarker,
+			options?: { readonly page?: PageOptions | undefined },
+		): (issueNumber: number) => Effect.Effect<O.Option<CommentRecord>, GitHubError, Repo>;
+	};
 	/**
 	 * Delete a comment by id.
 	 *
@@ -265,17 +275,20 @@ const unstubbed = (member: string): never => {
 	throw UnstubbedError.make({ message: `PullRequestComment.makeTest: ${member}() was called but not stubbed — pass an override.` });
 };
 
-const recordOf = Effect.fn("PullRequestComment.recordOf")(function* (
-	operation: string,
+const recordOf: {
+	(raw: { id: number | bigint; body?: string | null; html_url: string }, operation: string): Effect.Effect<CommentRecord, GitHubError>;
+	(operation: string): (raw: { id: number | bigint; body?: string | null; html_url: string }) => Effect.Effect<CommentRecord, GitHubError>;
+} = dual(2, Effect.fn("PullRequestComment.recordOf")(function* (
 	raw: { id: number | bigint; body?: string | null; html_url: string },
+	operation: string,
 ) {
 	return yield* S.decodeEffect(CommentRecord)({ id: numericId(raw.id), body: raw.body ?? "", url: raw.html_url }).pipe(
 		Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected comment", error)),
 	);
-});
+}));
 
 const make = (client: GitHubClient["Service"]): PullRequestCommentShape => {
-	const create = Effect.fn("PullRequestComment.create")(function* (issueNumber: number, body: string) {
+	const create: PullRequestCommentShape["create"] = dual(2, Effect.fn("PullRequestComment.create")(function* (issueNumber: number, body: string) {
 		const { owner, repo } = yield* Repo;
 		yield* Effect.annotateCurrentSpan({ owner, repo, issueNumber });
 		const created = yield* client.request("POST /repos/{owner}/{repo}/issues/{issue_number}/comments", {
@@ -284,10 +297,10 @@ const make = (client: GitHubClient["Service"]): PullRequestCommentShape => {
 			issue_number: issueNumber,
 			body,
 		});
-		return yield* recordOf("PullRequestComment.create", created);
-	});
+		return yield* recordOf(created, "PullRequestComment.create");
+	}));
 
-	const find = Effect.fn("PullRequestComment.find")(function* (
+	const find: PullRequestCommentShape["find"] = dual((args) => P.isNumber(args[0]), Effect.fn("PullRequestComment.find")(function* (
 		issueNumber: number,
 		marker: CommentMarker,
 		options?: { readonly page?: PageOptions | undefined },
@@ -299,15 +312,15 @@ const make = (client: GitHubClient["Service"]): PullRequestCommentShape => {
 			{ owner, repo, issue_number: issueNumber },
 			options?.page,
 		);
-		const records = yield* Effect.forEach(comments, (comment) => recordOf("PullRequestComment.find", comment));
+		const records = yield* Effect.forEach(comments, recordOf("PullRequestComment.find"));
 		return A.findFirst(records, (comment) => marker.matches(comment.body));
-	});
+	}));
 
 	return {
 		create,
 		find,
 
-		upsert: Effect.fn("PullRequestComment.upsert")(function* (
+		upsert: dual(3, Effect.fn("PullRequestComment.upsert")(function* (
 			issueNumber: number,
 			marker: CommentMarker,
 			body: string,
@@ -324,8 +337,8 @@ const make = (client: GitHubClient["Service"]): PullRequestCommentShape => {
 				comment_id: existing.value.id,
 				body: marked,
 			});
-			return yield* recordOf("PullRequestComment.upsert", updated);
-		}),
+			return yield* recordOf(updated, "PullRequestComment.upsert");
+		})),
 
 		delete: Effect.fn("PullRequestComment.delete")(function* (commentId: number) {
 			const { owner, repo } = yield* Repo;

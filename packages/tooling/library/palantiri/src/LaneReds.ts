@@ -219,7 +219,7 @@ const summarize = (input: LaneRedsInput, items: ReadonlyArray<LaneRed>): string 
         unknownSplit(reds, (red) => red.lane),
         {
           onEmpty: () => "",
-          onNonEmpty: (parts) => `; ${A.join(parts, ", ")}`,
+          onNonEmpty: (parts: ReadonlyArray<string>) => `; ${A.join(parts, ", ")}`,
         }
       );
       const p0 = A.filter(reds, (red) => red.severity === "P0").length;

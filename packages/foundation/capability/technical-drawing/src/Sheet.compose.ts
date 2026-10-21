@@ -21,7 +21,7 @@
  */
 
 import { A, Html, N, O } from "@beep/utils";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -260,12 +260,10 @@ export const strokeLabel = (input: {
   );
 };
 
-const polylinePath = (line: Polyline): string =>
-  pipe(
-    line,
-    A.map(([px, py], i) => `${i === 0 ? "M" : "L"}${r3(px)} ${r3(py)}`),
-    A.join("")
-  );
+const polylinePath: (line: Polyline) => string = flow(
+  A.map(([px, py], i) => `${i === 0 ? "M" : "L"}${r3(px)} ${r3(py)}`),
+  A.join("")
+);
 
 type Point = readonly [number, number];
 type Indexed = readonly [number, Segment2];
@@ -747,13 +745,11 @@ export const composeSheet = (input: {
     originX + (x2 - extents.minX) * scale,
     originY - (y2 - extents.minY) * scale,
   ];
-  const pathOf = (lines: ReadonlyArray<Segment2>) =>
-    pipe(
-      lines,
-      A.map(toSheet),
-      A.map(([x1, y1, x2, y2]) => `M${r3(x1)} ${r3(y1)}L${r3(x2)} ${r3(y2)}`),
-      A.join("")
-    );
+  const pathOf: (lines: ReadonlyArray<Segment2>) => string = flow(
+    A.map(toSheet),
+    A.map(([x1, y1, x2, y2]) => `M${r3(x1)} ${r3(y1)}L${r3(x2)} ${r3(y2)}`),
+    A.join("")
+  );
   const figurePath = pathOf(segments);
   const centreX = (sight.left + sight.right) / 2;
   const sheetNumber = letter({

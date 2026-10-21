@@ -39,7 +39,7 @@ const DetectedTerminal = S.Struct({
 	version: optionField(S.String).pipe(
 		$I.annoteKey("DetectedTerminal.version", { description: "The terminal version when it exposes one, or `None`." }),
 	),
-}).annotate($I.annote("DetectedTerminal", { description: "The identified terminal program and its optional version." }));
+}).pipe($I.annoteSchema("DetectedTerminal", { description: "The identified terminal program and its optional version." }));
 
 /**
  * A snapshot of who is running the program: the agent, the CI, and the terminal.
@@ -144,7 +144,7 @@ export const RuntimeEnvOverrides = S.Struct({
 		S.optionalKey,
 		$I.annoteKey("RuntimeEnvOverrides.terminal", { description: "Replaces the detected terminal when supplied, including explicit `None`." }),
 	),
-}).annotate($I.annote("RuntimeEnvOverrides", { description: "Optional runtime snapshot overrides accepted as plain objects by the fixed test layer." }));
+}).pipe($I.annoteSchema("RuntimeEnvOverrides", { description: "Optional runtime snapshot overrides accepted as plain objects by the fixed test layer." }));
 
 /**
  * The schema-derived fields {@link CurrentRuntimeEnv.layerTest} can override.

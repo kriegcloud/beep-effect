@@ -323,6 +323,49 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       ).toBe("Failure");
     })
   );
+  it.effect("stops an empty check page even when the total count is inflated", () =>
+    Effect.gen(function* () {
+      let pages = 0;
+      let creates = 0;
+      const http = client((method, url) => {
+        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
+        if (method === "POST") {
+          creates += 1;
+          return { id: 44 };
+        }
+        pages += 1;
+        return { total_count: 999, check_runs: [] };
+      });
+      expect(yield* Reviewer.use((reviewer) => reviewer.start(7, sha)).pipe(usingHttp(http))).toBe(44);
+      expect(pages).toBe(1);
+      expect(creates).toBe(1);
+    })
+  );
+  it.effect("cancels only an App-owned active check and preserves terminal results", () =>
+    Effect.gen(function* () {
+      const cases = [
+        { run: check(2), active: true },
+        { run: check(2, 42, "completed", "success"), active: false },
+        { run: check(2, 42, "completed", "cancelled"), active: false },
+        { run: check(2, 99), active: false },
+      ];
+      for (const { run, active } of cases) {
+        const writes: Array<unknown> = [];
+        const http = client((method, _url, body) => {
+          if (method === "GET") return run;
+          writes.push(body);
+          return { id: 2 };
+        });
+        const outcome = yield* Reviewer.use((reviewer) => reviewer.cancel(2, "Superseded")).pipe(
+          usingHttp(http),
+          Effect.result
+        );
+        expect(outcome._tag).toBe(active ? "Success" : "Failure");
+        expect(writes.length).toBe(active ? 1 : 0);
+        if (active) expect((yield* decodeObject(writes[0])).conclusion).toBe("cancelled");
+      }
+    })
+  );
   it.effect("edits the same owned summary twice and ignores copied markers", () =>
     Effect.gen(function* () {
       const paths: Array<string> = [];

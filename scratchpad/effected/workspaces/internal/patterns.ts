@@ -31,9 +31,7 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/patterns");
  * @category schemas
  * @since 0.0.0
  */
-export const PatternReadFailureKind = LiteralKit(["read", "invalidYaml", "invalidJson"]).annotate(
-	$I.annote("PatternReadFailureKind", { description: "The caller-visible reasons reading workspace patterns can fail." }),
-);
+export const PatternReadFailureKind = LiteralKit(["read", "invalidYaml", "invalidJson"]).pipe($I.annoteSchema("PatternReadFailureKind", { description: "The caller-visible reasons reading workspace patterns can fail." }));
 /**
  * The failure-kind literals accepted by the workspace pattern reader.
  *
@@ -48,10 +46,10 @@ const JsonValue = S.fromJsonString(S.Unknown);
 const patternReadFailureCase = <const Kind extends PatternReadFailureKind>(kind: S.Literal<Kind>) => {
 	const identifier: string = `PatternReadFailure.${kind.literal}`;
 	return S.Struct({
-		kind: kind.annotateKey($I.annote("PatternReadFailure.kind", { description: "The existing caller-visible failure reason." })),
-		path: S.String.annotateKey($I.annote("PatternReadFailure.path", { description: "The workspace configuration file whose read failed." })),
-		cause: S.Unknown.annotateKey($I.annote("PatternReadFailure.cause", { description: "The original arbitrary failure value, including undefined." })),
-	}).annotate($I.annote(identifier, { description: `The existing ${kind.literal} failure record.` }));
+		kind: kind.pipe($I.annoteKey("PatternReadFailure.kind", { description: "The existing caller-visible failure reason." })),
+		path: S.String.pipe($I.annoteKey("PatternReadFailure.path", { description: "The workspace configuration file whose read failed." })),
+		cause: S.Unknown.pipe($I.annoteKey("PatternReadFailure.cause", { description: "The original arbitrary failure value, including undefined." })),
+	}).pipe($I.annoteSchema(identifier, { description: `The existing ${kind.literal} failure record.` }));
 };
 
 /**
@@ -73,7 +71,7 @@ export const PatternReadFailure = PatternReadFailureKind.mapMembers(([read, inva
 	patternReadFailureCase(read),
 	patternReadFailureCase(invalidYaml),
 	patternReadFailureCase(invalidJson),
-]).pipe(S.toTaggedUnion("kind")).annotate($I.annote("PatternReadFailure", { description: "A plain pattern-read failure retaining its arbitrary cause." }));
+]).pipe(S.toTaggedUnion("kind"), $I.annoteSchema("PatternReadFailure", { description: "A plain pattern-read failure retaining its arbitrary cause." }));
 /**
  * The readonly read failure described by {@link PatternReadFailure}.
  *
@@ -98,7 +96,7 @@ export type PatternReadFailure = typeof PatternReadFailure.Type;
  * @since 0.0.0
  */
 export const stringsOf = (value: unknown): ReadonlyArray<string> | undefined =>
-	A.isArray(value) ? value.filter((entry): entry is string => P.isString(entry)) : undefined;
+	A.isArray(value) ? A.filter(value, (entry): entry is string => P.isString(entry)) : undefined;
 
 /**
  * Extracts the `packages:` list of a `pnpm-workspace.yaml` document.

@@ -130,6 +130,41 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
       20_000
     );
 
+    it.effect("requires a same-PR reflection for an active closeout proposal, including an attempted opt-out", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* fs.makeDirectory("goals/example/ops", { recursive: true });
+          yield* fs.writeFileString(
+            "goals/example/ops/manifest.json",
+            encodeJson({
+              initiative: { id: "example", status: "active" },
+              proposedCloseout: { status: "completed-retained", finalPullRequest: 1429 },
+              reflectionRequired: false,
+            })
+          );
+          expectReportedFailure(yield* Effect.exit(runLintCommand(["reflection-artifacts"])));
+          yield* writeReflection("example", "2026-06-09-claude.md", VALID_REFLECTION);
+          const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+          expect(exit._tag).toBe("Success");
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("ignores the template and a goal directory without a readable manifest", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* writeCompletedGoal("_template", true);
+          yield* fs.makeDirectory("goals/missing-manifest/ops", { recursive: true });
+          const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+          expect(exit._tag).toBe("Success");
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
     it.effect(
       "passes when a schema-valid reflection artifact is present",
       () =>

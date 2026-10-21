@@ -11,6 +11,7 @@ import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { heredocBlock, isUsableName } from "./internal/runnerFile.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 import * as O from "@beep/utils/Option";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/github-actions/ActionOutputs");
 
@@ -34,10 +35,10 @@ export class RunnerFileUnavailableError extends S.TaggedError<RunnerFileUnavaila
 	"RunnerFileUnavailableError",
 	{
 		/** The runner file involved, by environment variable name. */
-		file: S.String.annotateKey({ description: "The runner file involved, by environment variable name." }),
+		file: S.String.pipe($I.annoteKey("RunnerFileUnavailableError.file", { description: "The runner file involved, by environment variable name." })),
 		/** The underlying failure, preserved structurally. */
-		cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-	}, $I.annote("RunnerFileUnavailableError", { description: "Raised when an action cannot publish an output." }),
+		cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("RunnerFileUnavailableError.cause", { description: "The underlying failure, preserved structurally." })),
+	}, $I.annoteError<RunnerFileUnavailableError>("RunnerFileUnavailableError", { description: "Raised when an action cannot publish an output." }),
 ) {
 	/**
 	 * Describes the failure using the affected runner file.
@@ -77,10 +78,10 @@ export class RunnerFileUnavailableError extends S.TaggedError<RunnerFileUnavaila
  */
 export class RunnerFileWriteError extends S.TaggedError<RunnerFileWriteError, { readonly brand: unique symbol }>($I`RunnerFileWriteError`)("RunnerFileWriteError", {
 	/** The runner file involved, by environment variable name. */
-	file: S.String.annotateKey({ description: "The runner file involved, by environment variable name." }),
+	file: S.String.pipe($I.annoteKey("RunnerFileWriteError.file", { description: "The runner file involved, by environment variable name." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("RunnerFileWriteError", { description: "Raised when a runner file exists but could not be appended to." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("RunnerFileWriteError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<RunnerFileWriteError>("RunnerFileWriteError", { description: "Raised when a runner file exists but could not be appended to." })) {
 	/**
 	 * Describes the failure using the affected runner file.
 	 *
@@ -119,12 +120,12 @@ export class RunnerFileWriteError extends S.TaggedError<RunnerFileWriteError, { 
  */
 export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError, { readonly brand: unique symbol }>($I`InvalidOutputNameError`)("InvalidOutputNameError", {
 	/** The offending name. */
-	name: S.String.annotateKey({ description: "The offending name." }),
+	name: S.String.pipe($I.annoteKey("InvalidOutputNameError.name", { description: "The offending name." })),
 	/** The runner file involved, by environment variable name. */
-	file: S.optionalKey(S.String).annotateKey({ description: "The runner file involved, by environment variable name." }),
+	file: S.optionalKey(S.String).pipe($I.annoteKey("InvalidOutputNameError.file", { description: "The runner file involved, by environment variable name." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("InvalidOutputNameError", { description: "Raised when a name would corrupt the runner file's block structure." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("InvalidOutputNameError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<InvalidOutputNameError>("InvalidOutputNameError", { description: "Raised when a name would corrupt the runner file's block structure." })) {
 	/**
 	 * Describes the failure using the affected name.
 	 *
@@ -163,10 +164,10 @@ export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError
  */
 export class OutputEncodeError extends S.TaggedError<OutputEncodeError, { readonly brand: unique symbol }>($I`OutputEncodeError`)("OutputEncodeError", {
 	/** The output or variable name whose value would not encode. */
-	name: S.String.annotateKey({ description: "The output or variable name whose value would not encode." }),
+	name: S.String.pipe($I.annoteKey("OutputEncodeError.name", { description: "The output or variable name whose value would not encode." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("OutputEncodeError", { description: "Raised when a value did not satisfy its schema." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("OutputEncodeError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<OutputEncodeError>("OutputEncodeError", { description: "Raised when a value did not satisfy its schema." })) {
 	/**
 	 * Describes the failure using the affected name.
 	 *
@@ -206,12 +207,12 @@ export class OutputEncodeError extends S.TaggedError<OutputEncodeError, { readon
  */
 export class DetachedOutputError extends S.TaggedError<DetachedOutputError, { readonly brand: unique symbol }>($I`DetachedOutputError`)("DetachedOutputError", {
 	/** The runner file involved, by environment variable name. */
-	file: S.String.annotateKey({ description: "The runner file involved, by environment variable name." }),
+	file: S.String.pipe($I.annoteKey("DetachedOutputError.file", { description: "The runner file involved, by environment variable name." })),
 	/** The output or variable name, when one is involved. */
-	name: S.optionalKey(S.String).annotateKey({ description: "The output or variable name, when one is involved." }),
+	name: S.optionalKey(S.String).pipe($I.annoteKey("DetachedOutputError.name", { description: "The output or variable name, when one is involved." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("DetachedOutputError", { description: "Raised when an output member was called under ActionOutputs.layerDetached." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("DetachedOutputError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<DetachedOutputError>("DetachedOutputError", { description: "Raised when an output member was called under ActionOutputs.layerDetached." })) {
 	/**
 	 * Explains why publishing must happen in the parent process.
 	 *
@@ -271,7 +272,10 @@ const RUNNER_FILE = {
  * naming the file. The one name check every construction of the service
  * applies before a named write.
  */
-const withUsableName = <A, E, R>(
+const withUsableName: {
+	<A, E, R>(file: string, name: string, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | InvalidOutputNameError, R>;
+	<A, E, R>(name: string, effect: Effect.Effect<A, E, R>): (file: string) => Effect.Effect<A, E | InvalidOutputNameError, R>;
+} = dual(3, <A, E, R>(
 	file: string,
 	name: string,
 	effect: Effect.Effect<A, E, R>,
@@ -279,35 +283,39 @@ const withUsableName = <A, E, R>(
 	Bool.match(isUsableName(name), {
 		onTrue: () => effect,
 		onFalse: () => Effect.fail(InvalidOutputNameError.make({ file, name })),
-	});
+	}));
 
-const SingleLinePath = S.String.check(S.isPattern(/^[^\r\n]*$/u)).annotate(
-	$I.annote("SingleLinePath", { description: "A runner PATH entry without carriage returns or line feeds." }),
-);
+const SingleLinePath = S.String.check(S.isPattern(/^[^\r\n]*$/u)).pipe($I.annoteSchema("SingleLinePath", { description: "A runner PATH entry without carriage returns or line feeds." }));
 const isSingleLinePath = S.is(SingleLinePath);
 
-const withUsablePath = <A, E, R>(
+const withUsablePath: {
+	<A, E, R>(path: string, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | InvalidOutputNameError, R>;
+	<A, E, R>(effect: Effect.Effect<A, E, R>): (path: string) => Effect.Effect<A, E | InvalidOutputNameError, R>;
+} = dual(2, <A, E, R>(
 	path: string,
 	effect: Effect.Effect<A, E, R>,
 ): Effect.Effect<A, E | InvalidOutputNameError, R> =>
 	Bool.match(isSingleLinePath(path), {
 		onTrue: () => effect,
 		onFalse: () => Effect.fail(InvalidOutputNameError.make({ file: RUNNER_FILE.addPath, name: path })),
-	});
+	}));
 
 /**
  * The JSON text `setJson` publishes for `value`: encoded through `schema`,
  * then stringified. The one step of `setJson` that can fail, shared by the
  * real layer and both test doubles so that none of them can skip it.
  */
-const encodeJson = <A, I>(
+const encodeJson: {
+	<A, I>(name: string, value: A, schema: S.Codec<A, I>): Effect.Effect<string, OutputEncodeError>;
+	<A, I>(value: A, schema: S.Codec<A, I>): (name: string) => Effect.Effect<string, OutputEncodeError>;
+} = dual(3, <A, I>(
 	name: string,
 	value: A,
 	schema: S.Codec<A, I>,
 ): Effect.Effect<string, OutputEncodeError> =>
 	S.encodeUnknownEffect(S.fromJsonString(schema))(value).pipe(
 		Effect.mapError((cause) => OutputEncodeError.make({ name, cause })),
-	);
+	));
 
 /**
  * One call an {@link ActionOutputs.recording} double observed.
@@ -336,11 +344,11 @@ const encodeJson = <A, I>(
  */
 export class RecordedOutput extends S.Class<RecordedOutput, { readonly brand: unique symbol }>($I`RecordedOutput`)({
 	/** Which {@link ActionOutputsShape} member was called. */
-	member: S.Literals(["set", "setJson", "summary", "exportVariable", "addPath", "setFailed", "setSecret"]).annotateKey({ description: "Which ActionOutputsShape member was called." }),
+	member: S.Literals(["set", "setJson", "summary", "exportVariable", "addPath", "setFailed", "setSecret"]).pipe($I.annoteKey("RecordedOutput.member", { description: "Which ActionOutputsShape member was called." })),
 	/** The output or variable name, for the members that take one. */
-	name: S.optionalKey(S.String).annotateKey({ description: "The output or variable name, for the members that take one." }),
+	name: S.optionalKey(S.String).pipe($I.annoteKey("RecordedOutput.name", { description: "The output or variable name, for the members that take one." })),
 	/** What was published — value, message, path, content or secret — as the runner would have read it. */
-	value: S.String.annotateKey({ description: "What was published — value, message, path, content or secret — as the runner would have read it." }),
+	value: S.String.pipe($I.annoteKey("RecordedOutput.value", { description: "What was published — value, message, path, content or secret — as the runner would have read it." })),
 }, $I.annote("RecordedOutput", { description: "One call an ActionOutputs.recording double observed." })) {}
 
 /**
@@ -378,17 +386,22 @@ export interface RecordingOutputs {
  */
 export interface ActionOutputsShape {
 	/** Publish a step output. */
-	readonly set: (name: string, value: string) => Effect.Effect<void, ActionOutputError>;
+	readonly set: {
+		(name: string, value: string): Effect.Effect<void, ActionOutputError>;
+		(value: string): (name: string) => Effect.Effect<void, ActionOutputError>;
+	};
 	/** Publish a step output as JSON, encoded through a schema. */
-	readonly setJson: <A, I>(
-		name: string,
-		value: A,
-		schema: S.Codec<A, I>,
-	) => Effect.Effect<void, ActionOutputError>;
+	readonly setJson: {
+		<A, I>(name: string, value: A, schema: S.Codec<A, I>): Effect.Effect<void, ActionOutputError>;
+		<A, I>(value: A, schema: S.Codec<A, I>): (name: string) => Effect.Effect<void, ActionOutputError>;
+	};
 	/** Append to the job summary. */
 	readonly summary: (content: string) => Effect.Effect<void, ActionOutputError>;
 	/** Export an environment variable to **subsequent** steps. */
-	readonly exportVariable: (name: string, value: string) => Effect.Effect<void, ActionOutputError>;
+	readonly exportVariable: {
+		(name: string, value: string): Effect.Effect<void, ActionOutputError>;
+		(value: string): (name: string) => Effect.Effect<void, ActionOutputError>;
+	};
 	/**
 	 * Prepend a directory to `PATH` for **subsequent** steps.
 	 *
@@ -416,24 +429,32 @@ const make = Effect.gen(function* () {
 		onFalse: () => "\n" as const,
 	});
 
-	const append = Effect.fnUntraced(function* (file: string, content: string) {
+	const append: {
+		(file: string, content: string): Effect.Effect<void, RunnerFileUnavailableError | RunnerFileWriteError>;
+		(content: string): (file: string) => Effect.Effect<void, RunnerFileUnavailableError | RunnerFileWriteError>;
+	} = dual(2, Effect.fnUntraced(function* (file: string, content: string) {
 			const path = yield* env.get(file).pipe(Effect.mapError(() => RunnerFileUnavailableError.make({ file })));
 			yield* fs
 				.writeFileString(path, content, { flag: "a" })
 				.pipe(Effect.mapError((cause) => RunnerFileWriteError.make({ file, cause })));
-		});
+		}));
 
-	const appendBlock = (file: string, name: string, value: string): Effect.Effect<void, ActionOutputError> =>
-		withUsableName(file, name, append(file, heredocBlock({ name, value, lineEnding })));
+	const appendBlock: {
+		(file: string, name: string, value: string): Effect.Effect<void, ActionOutputError>;
+		(name: string, value: string): (file: string) => Effect.Effect<void, ActionOutputError>;
+	} = dual(3, (file: string, name: string, value: string): Effect.Effect<void, ActionOutputError> =>
+		withUsableName(file, name, append(file, heredocBlock({ name, value, lineEnding }))));
 
-	const set = (name: string, value: string) => appendBlock(RUNNER_FILE.set, name, value);
+	const set: ActionOutputsShape["set"] = dual(2, (name: string, value: string): Effect.Effect<void, ActionOutputError> =>
+		appendBlock(RUNNER_FILE.set, name, value));
 
 	return {
 		set,
-		setJson: <A, I>(name: string, value: A, schema: S.Codec<A, I>) =>
-			encodeJson(name, value, schema).pipe(Effect.flatMap((json) => set(name, json))),
+		setJson: dual(3, <A, I>(name: string, value: A, schema: S.Codec<A, I>): Effect.Effect<void, ActionOutputError> =>
+			encodeJson(name, value, schema).pipe(Effect.flatMap((json) => set(name, json)))),
 		summary: (content: string) => append(RUNNER_FILE.summary, content),
-		exportVariable: (name: string, value: string) => appendBlock(RUNNER_FILE.exportVariable, name, value),
+		exportVariable: dual(2, (name: string, value: string): Effect.Effect<void, ActionOutputError> =>
+			appendBlock(RUNNER_FILE.exportVariable, name, value)),
 		addPath: (path: string) => withUsablePath(path, append(RUNNER_FILE.addPath, `${path}\n`)),
 		setFailed: (message: string) => Console.log(WorkflowCommand.error(message)),
 		setSecret: (value: string) => Console.log(WorkflowCommand.addMask(value)),
@@ -561,10 +582,13 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
 	 * @since 0.0.0
 	 */
 	static readonly layerDetached: Layer.Layer<ActionOutputs> = Layer.succeed(this, {
-		set: (name) => Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.set, name })),
-		setJson: (name) => Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.setJson, name })),
+		set: dual(2, (name: string, _value: string): Effect.Effect<void, ActionOutputError> =>
+			Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.set, name }))),
+		setJson: dual(3, <A, I>(name: string, _value: A, _schema: S.Codec<A, I>): Effect.Effect<void, ActionOutputError> =>
+			Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.setJson, name }))),
 		summary: () => Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.summary })),
-		exportVariable: (name) => Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.exportVariable, name })),
+		exportVariable: dual(2, (name: string, _value: string): Effect.Effect<void, ActionOutputError> =>
+			Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.exportVariable, name }))),
 		addPath: () => Effect.fail(DetachedOutputError.make({ file: RUNNER_FILE.addPath })),
 		setFailed: (message) => Console.error(CommandNeutralizer.text(message)),
 		setSecret: () => Effect.void,
@@ -601,17 +625,18 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
 	 * @since 0.0.0
 	 */
 	static readonly makeTest = (overrides: Partial<ActionOutputsShape> = {}): ActionOutputsShape => {
-		const setJson: ActionOutputsShape["setJson"] = overrides.setJson ?? (() => dies("setJson"));
+		const setJson: ActionOutputsShape["setJson"] = overrides.setJson ??
+			dual(3, <A, I>(_name: string, _value: A, _schema: S.Codec<A, I>): Effect.Effect<void, ActionOutputError> => dies("setJson"));
 		return {
-			set: () => dies("set"),
+			set: dual(2, (_name: string, _value: string): Effect.Effect<void, ActionOutputError> => dies("set")),
 			summary: () => dies("summary"),
-			exportVariable: () => dies("exportVariable"),
+			exportVariable: dual(2, (_name: string, _value: string): Effect.Effect<void, ActionOutputError> => dies("exportVariable")),
 			addPath: () => dies("addPath"),
 			setFailed: () => dies("setFailed"),
 			setSecret: () => dies("setSecret"),
 			...overrides,
-			setJson: <A, I>(name: string, value: A, schema: S.Codec<A, I>) =>
-				encodeJson(name, value, schema).pipe(Effect.flatMap(() => setJson(name, value, schema))),
+			setJson: dual(3, <A, I>(name: string, value: A, schema: S.Codec<A, I>): Effect.Effect<void, ActionOutputError> =>
+				encodeJson(name, value, schema).pipe(Effect.flatMap(() => setJson(name, value, schema)))),
 		};
 	};
 
@@ -691,16 +716,17 @@ export class ActionOutputs extends Context.Service<ActionOutputs, ActionOutputsS
 				entries.push(RecordedOutput.make({ member, value, ...O.getSomesStruct({ name: O.fromUndefinedOr(name) }) }));
 			});
 		const layer = Layer.succeed(ActionOutputs, {
-			set: (name, value) => withUsableName(RUNNER_FILE.set, name, record("set", value, name)),
-			setJson: <A, I>(name: string, value: A, schema: S.Codec<A, I>) =>
+			set: dual(2, (name: string, value: string): Effect.Effect<void, ActionOutputError> =>
+				withUsableName(RUNNER_FILE.set, name, record("set", value, name))),
+			setJson: dual(3, <A, I>(name: string, value: A, schema: S.Codec<A, I>): Effect.Effect<void, ActionOutputError> =>
 				withUsableName(
 					RUNNER_FILE.setJson,
 					name,
 					encodeJson(name, value, schema).pipe(Effect.flatMap((json) => record("setJson", json, name))),
-				),
+				)),
 			summary: (content) => record("summary", content),
-			exportVariable: (name, value) =>
-				withUsableName(RUNNER_FILE.exportVariable, name, record("exportVariable", value, name)),
+			exportVariable: dual(2, (name: string, value: string): Effect.Effect<void, ActionOutputError> =>
+				withUsableName(RUNNER_FILE.exportVariable, name, record("exportVariable", value, name))),
 			addPath: (path) => withUsablePath(path, record("addPath", path)),
 			setFailed: (message) => record("setFailed", message),
 			setSecret: (value) => record("setSecret", value),

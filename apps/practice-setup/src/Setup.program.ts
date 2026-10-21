@@ -174,12 +174,15 @@ const installGateway = Effect.gen(function* () {
   const file = yield* bundle.materialize(yield* host.stateDir);
   const action = GatewayInstallState.is.outdated(state) ? "Update" : "Install";
   yield* lawyer.tell(
-    [
-      "",
-      `Claude will now show the Beep Practice Gateway. Click ${action} and confirm.`,
-      "Claude will warn that this extension can access your computer and is not verified by Anthropic. That is expected for this firm tool.",
-      `If Claude does not show it, open Claude's Settings, choose Extensions, and drag this file onto that page: ${file}`,
-    ].join("\n")
+    A.join(
+      [
+        "",
+        `Claude will now show the Beep Practice Gateway. Click ${action} and confirm.`,
+        "Claude will warn that this extension can access your computer and is not verified by Anthropic. That is expected for this firm tool.",
+        `If Claude does not show it, open Claude's Settings, choose Extensions, and drag this file onto that page: ${file}`,
+      ],
+      "\n"
+    )
   );
   yield* host.open(file);
   const back = "When Claude lists the Beep Practice Gateway as enabled, come back to this window.";
@@ -218,13 +221,16 @@ const handOff = Effect.gen(function* () {
     ? "If the message is not already in the box, paste it (Ctrl+V) and press Send."
     : `If the message is not already in the box, type it and press Send: ${ONBOARDING_FIRST_MESSAGE}`;
   yield* lawyer.tell(
-    [
-      "",
-      "Claude is opening a new chat with your first message.",
-      "Use the Chat tab at the top of Claude (not Code or Cowork).",
-      paste,
-      "Claude will take you through the rest.",
-    ].join("\n")
+    A.join(
+      [
+        "",
+        "Claude is opening a new chat with your first message.",
+        "Use the Chat tab at the top of Claude (not Code or Cowork).",
+        paste,
+        "Claude will take you through the rest.",
+      ],
+      "\n"
+    )
   );
   return StepDone.make({
     step: "onboarding-handoff",

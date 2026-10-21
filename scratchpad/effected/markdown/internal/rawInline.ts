@@ -15,7 +15,10 @@ import { parseInlines } from "./inlineParser.ts";
 import type { InlineDialectName } from "./inlineRegistry.ts";
 
 /** Builds the `Position` for an absolute source range. */
-type PositionOf = (start: number, end: number) => Position;
+type PositionOf = {
+	(start: number, end: number): Position;
+	(end: number): (start: number) => Position;
+};
 
 // Two trims because two upstreams: commonmark.js hands paragraph content to
 // `String.prototype.trim()`, whose JS `\s` strips `\v`, `\f` and unicode
@@ -95,6 +98,7 @@ export const trimWithSegments: {
  *
  * ```ts
  * import * as HashMap from "effect/HashMap";
+ * import { dual } from "effect/Function";
  * import { Point, Position } from "@beep/scratchpad/effected/markdown/MarkdownNode";
  * import type { Definition } from "@beep/scratchpad/effected/markdown/MarkdownNode";
  * import type { BlockNode } from "@beep/scratchpad/effected/markdown/internal/blockTypes";
@@ -106,10 +110,10 @@ export const trimWithSegments: {
  *   segments: [{ textOffset: 0, sourceOffset: 0, length: 6 }],
  *   startOffset: 0, endOffset: 6, startLine: 1, endLine: 1, depth: 1, data: {},
  * };
- * const position = (start: number, end: number) => Position.make({
+ * const position = dual(2, (start: number, end: number): Position => Position.make({
  *   start: Point.make({ line: 1, column: start + 1, offset: start }),
  *   end: Point.make({ line: 1, column: end + 1, offset: end }),
- * });
+ * }));
  * const prepared = prepareInline(block, position, HashMap.empty<string, Definition>());
  * console.log(prepared.text, prepared.startOffset, prepared.endOffset, prepared.children.length) // hi 2 4 1
  * ```

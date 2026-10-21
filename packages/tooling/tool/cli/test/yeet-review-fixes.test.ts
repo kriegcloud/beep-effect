@@ -1,4 +1,4 @@
-import { userInfo } from "node:os";
+import * as NodeOS from "node:os";
 import {
   canonicalRuntimeRootForTesting,
   MemoryStats,
@@ -16,6 +16,7 @@ import {
   runWithFullProofCoordinatorForTesting,
 } from "@beep/repo-cli/test/Yeet";
 import { it } from "@beep/test-runner";
+import { currentHostPlatform, HostProcessPlatform } from "@beep/utils";
 import { NodeChildProcessSpawner, NodeCrypto } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -365,11 +366,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             Effect.provideService(FileSystem.FileSystem, FileSystem.makeNoop({}))
           );
         const canonicalPrefix = path.join(
-          canonicalRuntimeRootForTesting(process.platform, userInfo().homedir),
+          canonicalRuntimeRootForTesting(yield* HostProcessPlatform, NodeOS.userInfo().homedir),
           "beep-yeet-proof-locks-"
         );
         const configuredRoot = path.join(
-          canonicalRuntimeRootForTesting(process.platform, userInfo().homedir),
+          canonicalRuntimeRootForTesting(yield* HostProcessPlatform, NodeOS.userInfo().homedir),
           "configured-yeet-runtime"
         );
 
@@ -386,7 +387,10 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           Effect.provideService(FileSystem.FileSystem, FileSystem.makeNoop({}))
         );
         expect(overridden).toContain(path.join(configuredRoot, "beep-yeet-proof-locks-"));
-      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+      }).pipe(
+        Effect.provideService(HostProcessPlatform, currentHostPlatform),
+        Effect.provideServiceEffect(Console.Console, TestConsole.make)
+      )
     );
 
     it.effect("preserves a non-default HTTPS port in the canonical repository authority", () =>

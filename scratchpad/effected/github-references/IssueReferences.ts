@@ -59,7 +59,7 @@ export const ClosingKeyword = LiteralKit([
 	"resolve",
 	"resolves",
 	"resolved",
-]).annotate($I.annote("ClosingKeyword", { description: "A documented GitHub closing keyword in canonical lowercase form." }));
+]).pipe($I.annoteSchema("ClosingKeyword", { description: "A documented GitHub closing keyword in canonical lowercase form." }));
 
 /**
  * Canonical lowercase spelling accepted by the closing-keyword schema.
@@ -107,18 +107,17 @@ const CLOSING_KEYWORD_BY_NAME: R.ReadonlyRecord<string, ClosingKeyword> = Closin
  */
 export const IssueReference = S.Struct({
 	/** The referenced issue number. */
-	issueNumber: S.Natural.annotate($I.annote("IssueReference.issueNumber", { description: "The referenced safe integer issue number." })),
+	issueNumber: S.Natural.pipe($I.annoteKey("IssueReference.issueNumber", { description: "The referenced safe integer issue number." })),
 	/** The matched keyword, lowercased to its canonical form. */
-	keyword: ClosingKeyword.annotate($I.annote("IssueReference.keyword", { description: "The matched closing keyword in canonical lowercase form." })),
+	keyword: ClosingKeyword.pipe($I.annoteKey("IssueReference.keyword", { description: "The matched closing keyword in canonical lowercase form." })),
 	/** Offset of the first character of the whole match (`keyword` through digits). */
-	start: S.Natural.annotate($I.annote("IssueReference.start", { description: "The offset of the first character of the whole match." })),
+	start: S.Natural.pipe($I.annoteKey("IssueReference.start", { description: "The offset of the first character of the whole match." })),
 	/** Offset one past the last character of the whole match. */
-	end: S.Natural.annotate($I.annote("IssueReference.end", { description: "The offset one past the last character of the whole match." })),
+	end: S.Natural.pipe($I.annoteKey("IssueReference.end", { description: "The offset one past the last character of the whole match." })),
 }).check(S.makeFilter((reference) => reference.end > reference.start, $I.annote("IssueReference.OrderedSpan", {
-	title: "Ordered issue reference span",
 	description: "The exclusive end offset exceeds the start offset of the harvested match.",
 	message: "Expected end to be greater than start.",
-}))).annotate($I.annote("IssueReference", { description: "A closing issue reference harvested from prose with its match offsets." }));
+}))).pipe($I.annoteSchema("IssueReference", { description: "A closing issue reference harvested from prose with its match offsets." }));
 
 /**
  * Decoded inline closing reference with its issue number, canonical keyword and match offsets.
@@ -151,10 +150,10 @@ export type IssueReference = typeof IssueReference.Type;
  */
 export const BareLineReference = S.Struct({
 	/** The referenced issue number. */
-	issueNumber: S.Natural.annotate($I.annote("BareLineReference.issueNumber", { description: "The referenced safe integer issue number." })),
+	issueNumber: S.Natural.pipe($I.annoteKey("BareLineReference.issueNumber", { description: "The referenced safe integer issue number." })),
 	/** The matched keyword, lowercased to its canonical form. */
-	keyword: ClosingKeyword.annotate($I.annote("BareLineReference.keyword", { description: "The matched closing keyword in canonical lowercase form." })),
-}).annotate($I.annote("BareLineReference", { description: "The closing issue reference carried by a whole bare line." }));
+	keyword: ClosingKeyword.pipe($I.annoteKey("BareLineReference.keyword", { description: "The matched closing keyword in canonical lowercase form." })),
+}).pipe($I.annoteSchema("BareLineReference", { description: "The closing issue reference carried by a whole bare line." }));
 
 /**
  * Decoded whole-line closing reference without match offsets.
@@ -170,7 +169,7 @@ export type BareLineReference = typeof BareLineReference.Type;
  * through alternatives, so `close` matching inside `closes` fails at the
  * mandatory `#`-introducer and retries the longer keyword.
  */
-const KEYWORDS = CLOSING_KEYWORDS.join("|");
+const KEYWORDS = A.join(CLOSING_KEYWORDS, "|");
 
 /** Inline-in-prose: mandatory whitespace, no colon. */
 const INLINE_PATTERN = new RegExp(`\\b(${KEYWORDS})\\s+#(\\d+)`, "gi");

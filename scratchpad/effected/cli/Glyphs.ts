@@ -21,33 +21,33 @@ const $I = $ScratchpadId.create("effected/cli/Glyphs");
  */
 export const GlyphSet = S.Struct({
 	/** Which set this is. */
-	kind: S.Literals(["unicode", "ascii"]).annotate($I.annote("GlyphSet.kind", { description: "The kind field of the glyph set." })),
+	kind: S.Literals(["unicode", "ascii"]).pipe($I.annoteKey("GlyphSet.kind", { description: "The kind field of the glyph set." })),
 	/** The truncation marker. */
-	ellipsis: S.String.annotate($I.annote("GlyphSet.ellipsis", { description: "The ellipsis field of the glyph set." })),
+	ellipsis: S.String.pipe($I.annoteKey("GlyphSet.ellipsis", { description: "The ellipsis field of the glyph set." })),
 	/** The frames of a spinner, in order. */
-	spinner: S.Array(S.String).annotate($I.annote("GlyphSet.spinner", { description: "The spinner field of the glyph set." })),
+	spinner: S.Array(S.String).pipe($I.annoteKey("GlyphSet.spinner", { description: "The spinner field of the glyph set." })),
 	/** A list bullet. */
-	bullet: S.String.annotate($I.annote("GlyphSet.bullet", { description: "The bullet field of the glyph set." })),
+	bullet: S.String.pipe($I.annoteKey("GlyphSet.bullet", { description: "The bullet field of the glyph set." })),
 	/** A directional arrow. */
-	arrow: S.String.annotate($I.annote("GlyphSet.arrow", { description: "The arrow field of the glyph set." })),
+	arrow: S.String.pipe($I.annoteKey("GlyphSet.arrow", { description: "The arrow field of the glyph set." })),
 	/** The separator between the segments of a breadcrumb or path: one for people, one for agents. */
 	pathSeparator: S.Struct({
-		human: S.String.annotate($I.annote("GlyphSet.pathSeparator.human", { description: "The path separator shown to people." })),
-		agent: S.String.annotate($I.annote("GlyphSet.pathSeparator.agent", { description: "The path separator shown to agents." })),
-	}).annotate($I.annote("GlyphSet.pathSeparator", { description: "Audience-specific path separators." })),
+		human: S.String.pipe($I.annoteKey("GlyphSet.pathSeparator.human", { description: "The path separator shown to people." })),
+		agent: S.String.pipe($I.annoteKey("GlyphSet.pathSeparator.agent", { description: "The path separator shown to agents." })),
+	}).pipe($I.annoteKey("GlyphSet.pathSeparator", { description: "Audience-specific path separators." })),
 	/** How long a spinner frame is shown, in milliseconds. */
-	spinnerIntervalMs: S.Finite.annotate($I.annote("GlyphSet.spinnerIntervalMs", { description: "The spinnerIntervalMs field of the glyph set." })),
+	spinnerIntervalMs: S.Finite.pipe($I.annoteKey("GlyphSet.spinnerIntervalMs", { description: "The spinnerIntervalMs field of the glyph set." })),
 	/**
 	 * The segments a tree is drawn with: `branch` before a child that has later siblings, `last` before the final
 	 * child, and `pipe` and `blank` as the indent under each. All four are one width so branches align.
 	 */
 	tree: S.Struct({
-		branch: S.String.annotate($I.annote("GlyphSet.tree.branch", { description: "The branch segment of a tree." })),
-		last: S.String.annotate($I.annote("GlyphSet.tree.last", { description: "The last segment of a tree." })),
-		pipe: S.String.annotate($I.annote("GlyphSet.tree.pipe", { description: "The pipe segment of a tree." })),
-		blank: S.String.annotate($I.annote("GlyphSet.tree.blank", { description: "The blank segment of a tree." })),
-	}).annotate($I.annote("GlyphSet.tree", { description: "Equal-width segments used to draw trees." })),
-}).annotate($I.annote("GlyphSet", { description: "The symbols and spinner timing a CLI theme draws with." }));
+		branch: S.String.pipe($I.annoteKey("GlyphSet.tree.branch", { description: "The branch segment of a tree." })),
+		last: S.String.pipe($I.annoteKey("GlyphSet.tree.last", { description: "The last segment of a tree." })),
+		pipe: S.String.pipe($I.annoteKey("GlyphSet.tree.pipe", { description: "The pipe segment of a tree." })),
+		blank: S.String.pipe($I.annoteKey("GlyphSet.tree.blank", { description: "The blank segment of a tree." })),
+	}).pipe($I.annoteKey("GlyphSet.tree", { description: "Equal-width segments used to draw trees." })),
+}).pipe($I.annoteSchema("GlyphSet", { description: "The symbols and spinner timing a CLI theme draws with." }));
 /**
  * The plain readonly symbols and timing of a CLI theme.
  *

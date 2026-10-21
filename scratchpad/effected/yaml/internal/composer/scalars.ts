@@ -36,13 +36,16 @@ const NAN_RE = /^\.(?:nan|NaN|NAN)$/;
  * Parses an integer string, returning `bigint` when the value exceeds
  * `Number.MAX_SAFE_INTEGER` to avoid silent precision loss.
  */
-function safeParseInt(value: string, radix: number): number | bigint {
+const safeParseInt: {
+	(value: string, radix: number): number | bigint;
+	(radix: number): (value: string) => number | bigint;
+} = dual(2, (value: string, radix: number): number | bigint => {
 	const n = Number.parseInt(value, radix);
 	if (Number.isSafeInteger(n)) return n;
 	// Fall back to BigInt for values that exceed safe integer range
 	const prefix = radix === 16 ? "0x" : radix === 8 ? "0o" : "";
 	return BigInt(`${prefix}${value}`);
-}
+});
 
 /**
  * Classifies a plain scalar's numeric form for duplicate-key identity.
@@ -86,8 +89,10 @@ function resolvePlainScalar(value: string): unknown {
 	return value;
 }
 
-function resolveTaggedScalar(rawValue: string, tag: string): unknown {
-	return Match.value(tag).pipe(
+const resolveTaggedScalar: {
+	(rawValue: string, tag: string): unknown;
+	(tag: string): (rawValue: string) => unknown;
+} = dual(2, (rawValue: string, tag: string): unknown => Match.value(tag).pipe(
 		Match.when(Match.is("!!str", "tag:yaml.org,2002:str"), () => rawValue),
 		Match.when(Match.is("!!int", "tag:yaml.org,2002:int"), () => {
 			if (OCT_RE.test(rawValue)) return safeParseInt(rawValue.slice(2), 8);
@@ -109,8 +114,7 @@ function resolveTaggedScalar(rawValue: string, tag: string): unknown {
 		}),
 		Match.when(Match.is("!!null", "tag:yaml.org,2002:null"), () => null),
 		Match.orElse(() => rawValue),
-	);
-}
+	));
 
 type ResolveScalarContext = readonly [style: ScalarStyle, tag?: string | undefined, state?: ComposerState | undefined, tagSpan?: NodeMeta["tagSpan"]];
 
@@ -539,14 +543,17 @@ export const collectMultilineKey: {
 		return { value: first.source.trim(), nextIdx: idx };
 	}
 
-	return { value: foldFlowLines(parts.join("\n")), nextIdx: idx };
+	return { value: foldFlowLines(A.join(parts, "\n")), nextIdx: idx };
 });
 
 /**
  * Extract the trimmed content of the line at `offset` in `text`.
  * Returns the trimmed text and the offset of the next line (or EOF).
  */
-function extractLineContent(text: string, offset: number): { lineText: string; lineEndOffset: number } {
+const extractLineContent: {
+	(text: string, offset: number): { lineText: string; lineEndOffset: number };
+	(offset: number): (text: string) => { lineText: string; lineEndOffset: number };
+} = dual(2, (text: string, offset: number): { lineText: string; lineEndOffset: number } => {
 	// Find start of line
 	let lineStart = offset;
 	while (lineStart > 0 && text[lineStart - 1] !== "\n" && text[lineStart - 1] !== "\r") {
@@ -558,13 +565,16 @@ function extractLineContent(text: string, offset: number): { lineText: string; l
 		lineEnd++;
 	}
 	return { lineText: text.slice(lineStart, lineEnd).trim(), lineEndOffset: lineEnd };
-}
+});
 
 /**
  * Skip all children whose offset falls on the same line as `lineOffset`.
  * Returns the index of the first child that is past the line end.
  */
-function skipChildrenOnLine(children: readonly CstNode[], startIdx: number, lineEndOffset: number): number {
+const skipChildrenOnLine: {
+	(children: readonly CstNode[], startIdx: number, lineEndOffset: number): number;
+	(startIdx: number, lineEndOffset: number): (children: readonly CstNode[]) => number;
+} = dual(3, (children: readonly CstNode[], startIdx: number, lineEndOffset: number): number => {
 	let idx = startIdx;
 	while (idx < children.length) {
 		const c = children[idx];
@@ -576,7 +586,7 @@ function skipChildrenOnLine(children: readonly CstNode[], startIdx: number, line
 		idx++;
 	}
 	return idx;
-}
+});
 
 /**
  * Collects a multi-line plain scalar from consecutive CST children.
@@ -760,7 +770,7 @@ export const collectMultilinePlainScalar: {
 	}
 
 	// Apply flow folding to the collected parts
-	return { value: foldFlowLines(parts.join("\n")), nextIdx: idx, partsCount: parts.length, endOffset };
+	return { value: foldFlowLines(A.join(parts, "\n")), nextIdx: idx, partsCount: parts.length, endOffset };
 });
 
 // ---------------------------------------------------------------------------
@@ -1221,7 +1231,10 @@ export const hasValueSepAfter: {
  * - Own-line (preceded by newline, tag, anchor): scan further back across
  *   lines to find the ":" or "-" that introduced this value
  */
-function findParentIndent(fullText: string, indicatorOffset: number): number {
+const findParentIndent: {
+	(fullText: string, indicatorOffset: number): number;
+	(indicatorOffset: number): (fullText: string) => number;
+} = dual(2, (fullText: string, indicatorOffset: number): number => {
 	let scanBack = indicatorOffset - 1;
 	let lineStart = indicatorOffset;
 	while (scanBack >= 0) {
@@ -1267,19 +1280,25 @@ function findParentIndent(fullText: string, indicatorOffset: number): number {
 		scanBack--;
 	}
 	return 0;
-}
+});
 
 /** Find the column of a character on its line. */
-function findColOnLine(text: string, pos: number): number {
+const findColOnLine: {
+	(text: string, pos: number): number;
+	(pos: number): (text: string) => number;
+} = dual(2, (text: string, pos: number): number => {
 	let lineStart = pos;
 	while (lineStart > 0 && text[lineStart - 1] !== "\n" && text[lineStart - 1] !== "\r") {
 		lineStart--;
 	}
 	return pos - lineStart;
-}
+});
 
 /** Find the key indentation for a mapping ":" at the given position. */
-function findKeyIndent(text: string, colonPos: number): number {
+const findKeyIndent: {
+	(text: string, colonPos: number): number;
+	(colonPos: number): (text: string) => number;
+} = dual(2, (text: string, colonPos: number): number => {
 	let lineStart = colonPos;
 	while (lineStart > 0 && text[lineStart - 1] !== "\n" && text[lineStart - 1] !== "\r") {
 		lineStart--;
@@ -1297,7 +1316,7 @@ function findKeyIndent(text: string, colonPos: number): number {
 		}
 	}
 	return spaces;
-}
+});
 
 function decodeBlockScalar(raw: string, fullText?: string, nodeOffset?: number): string {
 	const firstChar = raw.trimStart()[0];
@@ -1493,7 +1512,7 @@ function decodeBlockScalar(raw: string, fullText?: string, nodeOffset?: number):
 		}
 		value = result;
 	} else {
-		value = lines.join("\n");
+		value = A.join(lines, "\n");
 		// Mirror of the folded gate above: the terminating break belongs to
 		// the last content line, not to an all-empty body (`|2+\n\n` is one
 		// kept break, not two; `|2\n\n` under clip is the empty string).
@@ -1521,7 +1540,10 @@ function decodeBlockScalar(raw: string, fullText?: string, nodeOffset?: number):
  * is auto-detected from the first non-empty line, that line establishes n;
  * any preceding empty line with more than n spaces is malformed.
  */
-function validateBlockScalarLeadingEmpties(cst: CstNode, state: ComposerState): void {
+const validateBlockScalarLeadingEmpties: {
+	(cst: CstNode, state: ComposerState): void;
+	(state: ComposerState): (cst: CstNode) => void;
+} = dual(2, (cst: CstNode, state: ComposerState): void => {
 	const raw = cst.source;
 	let i = 0;
 	// Skip header line (e.g. ">", "|", "|+2", etc.)
@@ -1564,7 +1586,7 @@ function validateBlockScalarLeadingEmpties(cst: CstNode, state: ComposerState): 
 		}
 		return;
 	}
-}
+});
 
 /**
  * Constructs a resolved YAML scalar while retaining source metadata and recording composition diagnostics.

@@ -381,11 +381,11 @@ export const reduceHostPressure: {
   const items = hostPressureItems(input, now);
   const split = A.match(unknownSplit(items, labelOf), {
     onEmpty: () => "",
-    onNonEmpty: (parts) => `; ${A.join(parts, ", ")}`,
+    onNonEmpty: (parts: ReadonlyArray<string>) => `; ${A.join(parts, ", ")}`,
   });
   const details = A.match(describe(input, items), {
     onEmpty: () => "",
-    onNonEmpty: (parts) => `; ${A.join(parts, "; ")}`,
+    onNonEmpty: (parts: ReadonlyArray<string>) => `; ${A.join(parts, "; ")}`,
   });
   return makeParcelEnvelope(
     ParcelDraft.make({

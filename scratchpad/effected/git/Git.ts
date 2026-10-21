@@ -6,11 +6,13 @@ import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "@beep/utils/Option";
 import * as PlatformError from "effect/PlatformError";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -26,10 +28,24 @@ const $I = $ScratchpadId.create("effected/git/Git");
 /** git's own ceiling: a run that has not answered in 30s is not going to. */
 const GIT_TIMEOUT = Duration.seconds(30);
 const encodeJsonString = S.encodeEffect(S.fromJsonString(S.String));
-const NonNegativeInteger = S.Finite.check(S.isMultipleOf(1), S.isGreaterThanOrEqualTo(0)).annotate(
-  $I.annote("NonNegativeInteger", { description: "A finite non-negative integer, including values beyond the safe-integer range." }),
-);
+const NonNegativeInteger = S.Finite.check(S.isMultipleOf(1), S.isGreaterThanOrEqualTo(0)).pipe($I.annoteSchema("NonNegativeInteger", { description: "A finite non-negative integer, including values beyond the safe-integer range." }));
 const isNonNegativeInteger = S.is(NonNegativeInteger);
+
+/**
+ * `dual` dispatch for a member whose subject is a string (`cwd`, or a
+ * method label) and whose data-last argument list never starts with one:
+ * a string first argument marks the data-first call. Used instead of an
+ * arity count wherever trailing parameters are optional.
+ */
+const hasStringSubject = (args: IArguments): boolean => P.isString(args[0]);
+
+/**
+ * `dual` dispatch for a member shaped `(cwd, ...strings, options?)`: the call
+ * is data-first when the LAST required positional (at `index`) is a string.
+ * In a data-last call that slot holds the optional options object or nothing,
+ * so omitting the trailing options never flips the dispatch.
+ */
+const stringAt = (index: number) => (args: IArguments): boolean => P.isString(args[index]);
 
 /**
  * The environment EVERY `Git` invocation is spawned with. A network-touching
@@ -262,7 +278,7 @@ export class GitCommandError extends S.TaggedError<GitCommandError, { readonly b
    * and exited non-zero, or the spawn/IO itself failed. Composed retry/fallback
    * logic routes on this instead of matching `detail` prose.
    */
-  kind: S.Literals(["refused", "failed"]).annotateKey({ description: "Discriminates a pre-spawn guard rejection from a genuine git failure. `\"refused\"` — a pre-spawn guard (an option-like ref) rejected the invocation and no process was ever spawned. `\"failed\"` — git actually ran and exited non-zero, or the spawn/IO itself failed. Composed retry/fallback logic routes on this instead of matching `detail` prose." }),
+  kind: S.Literals(["refused", "failed"]).pipe($I.annoteKey("GitCommandError.kind", { description: "Discriminates a pre-spawn guard rejection from a genuine git failure. `\"refused\"` — a pre-spawn guard (an option-like ref) rejected the invocation and no process was ever spawned. `\"failed\"` — git actually ran and exited non-zero, or the spawn/IO itself failed. Composed retry/fallback logic routes on this instead of matching `detail` prose." })),
   /**
    * The REDACTED argument vector, without the leading `git`.
    *
@@ -275,21 +291,21 @@ export class GitCommandError extends S.TaggedError<GitCommandError, { readonly b
    * `userinfo@`). The raw argv is never persisted in an error value, and
    * `message` renders this redacted vector.
    */
-  args: S.Array(S.String).annotateKey({ description: "The REDACTED argument vector, without the leading `git`." }),
+  args: S.Array(S.String).pipe($I.annoteKey("GitCommandError.args", { description: "The REDACTED argument vector, without the leading `git`." })),
   /** The working directory the command ran in. */
-  cwd: S.String.annotateKey({ description: "The working directory the command ran in." }),
+  cwd: S.String.pipe($I.annoteKey("GitCommandError.cwd", { description: "The working directory the command ran in." })),
   /** git's exit code, when it produced one. */
-  exitCode: S.optionalKey(S.Finite).annotateKey({ description: "git's exit code, when it produced one." }),
+  exitCode: S.optionalKey(S.Finite).pipe($I.annoteKey("GitCommandError.exitCode", { description: "git's exit code, when it produced one." })),
   /** git's stderr, captured under `LC_ALL=C`. */
-  stderr: S.String.annotateKey({ description: "git's stderr, captured under `LC_ALL=C`." }),
+  stderr: S.String.pipe($I.annoteKey("GitCommandError.stderr", { description: "git's stderr, captured under `LC_ALL=C`." })),
   /**
    * A human-readable reason, set whenever an exit code does not sum up the
    * failure: an absorbed spawn failure, a timeout, a pre-spawn guard refusal,
    * or output git produced that the member could not parse. `message` renders
    * it verbatim when present.
    */
-  detail: S.optionalKey(S.String).annotateKey({ description: "A human-readable reason, set whenever an exit code does not sum up the failure: an absorbed spawn failure, a timeout, a pre-spawn guard refusal, or output git produced that the member could not parse. `message` renders it verbatim when present." }),
-}, $I.annote("GitCommandError", { description: "git ran and failed in a way that is not one of the recognized domain cases (NotARepositoryError / UnknownRefError), or the spawn itself failed before git could run at all." })) {
+  detail: S.optionalKey(S.String).pipe($I.annoteKey("GitCommandError.detail", { description: "A human-readable reason, set whenever an exit code does not sum up the failure: an absorbed spawn failure, a timeout, a pre-spawn guard refusal, or output git produced that the member could not parse. `message` renders it verbatim when present." })),
+}, $I.annoteError<GitCommandError>("GitCommandError", { description: "git ran and failed in a way that is not one of the recognized domain cases (NotARepositoryError / UnknownRefError), or the spawn itself failed before git could run at all." })) {
   /**
    * Renders the invocation and its failure into a one-line message.
    *
@@ -306,8 +322,8 @@ export class GitCommandError extends S.TaggedError<GitCommandError, { readonly b
    */
   override get message(): string {
     return this.detail !== undefined
-      ? `git ${this.args.join(" ")} in ${this.cwd}: ${this.detail}`
-      : `git ${this.args.join(" ")} in ${this.cwd} failed (exit ${this.exitCode ?? "?"}): ${this.stderr}`;
+      ? `git ${A.join(this.args, " ")} in ${this.cwd}: ${this.detail}`
+      : `git ${A.join(this.args, " ")} in ${this.cwd} failed (exit ${this.exitCode ?? "?"}): ${this.stderr}`;
   }
 }
 
@@ -329,8 +345,8 @@ export class GitCommandError extends S.TaggedError<GitCommandError, { readonly b
  */
 export class NotARepositoryError extends S.TaggedError<NotARepositoryError, { readonly brand: unique symbol }>($I`NotARepositoryError`)("NotARepositoryError", {
   /** The working directory that is not a git repository. */
-  cwd: S.String.annotateKey({ description: "The working directory that is not a git repository." }),
-}, $I.annote("NotARepositoryError", { description: "`cwd` is not inside a git work tree." })) {
+  cwd: S.String.pipe($I.annoteKey("NotARepositoryError.cwd", { description: "The working directory that is not a git repository." })),
+}, $I.annoteError<NotARepositoryError>("NotARepositoryError", { description: "`cwd` is not inside a git work tree." })) {
   /**
    * Renders the failing directory into a one-line message.
    *
@@ -368,10 +384,10 @@ export class NotARepositoryError extends S.TaggedError<NotARepositoryError, { re
  */
 export class UnknownRefError extends S.TaggedError<UnknownRefError, { readonly brand: unique symbol }>($I`UnknownRefError`)("UnknownRefError", {
   /** The ref (or ref range) that failed to resolve. */
-  ref: S.String.annotateKey({ description: "The ref (or ref range) that failed to resolve." }),
+  ref: S.String.pipe($I.annoteKey("UnknownRefError.ref", { description: "The ref (or ref range) that failed to resolve." })),
   /** The working directory the ref was resolved against. */
-  cwd: S.String.annotateKey({ description: "The working directory the ref was resolved against." }),
-}, $I.annote("UnknownRefError", { description: "`ref` does not resolve to an object in the repository at `cwd`." })) {
+  cwd: S.String.pipe($I.annoteKey("UnknownRefError.cwd", { description: "The working directory the ref was resolved against." })),
+}, $I.annoteError<UnknownRefError>("UnknownRefError", { description: "`ref` does not resolve to an object in the repository at `cwd`." })) {
   /**
    * Renders the unresolvable ref into a one-line message.
    *
@@ -417,10 +433,10 @@ export class UnknownRefError extends S.TaggedError<UnknownRefError, { readonly b
  */
 export class NonFastForwardError extends S.TaggedError<NonFastForwardError, { readonly brand: unique symbol }>($I`NonFastForwardError`)("NonFastForwardError", {
   /** The working directory the push ran in. */
-  cwd: S.String.annotateKey({ description: "The working directory the push ran in." }),
+  cwd: S.String.pipe($I.annoteKey("NonFastForwardError.cwd", { description: "The working directory the push ran in." })),
   /** The refspec that was rejected, when the caller passed one. */
-  refspec: S.optionalKey(S.String).annotateKey({ description: "The refspec that was rejected, when the caller passed one." }),
-}, $I.annote("NonFastForwardError", { description: "A `git push` was rejected because the remote ref has moved: the classic non-fast-forward rejection (`fetch first` / `non-fast-forward`), or a `--force-with-lease` lease failure (`stale info`)." })) {
+  refspec: S.optionalKey(S.String).pipe($I.annoteKey("NonFastForwardError.refspec", { description: "The refspec that was rejected, when the caller passed one." })),
+}, $I.annoteError<NonFastForwardError>("NonFastForwardError", { description: "A `git push` was rejected because the remote ref has moved: the classic non-fast-forward rejection (`fetch first` / `non-fast-forward`), or a `--force-with-lease` lease failure (`stale info`)." })) {
   /**
    * Renders the rejected push into a one-line message.
    *
@@ -469,8 +485,8 @@ export class NonFastForwardError extends S.TaggedError<NonFastForwardError, { re
  */
 export class MergeConflictError extends S.TaggedError<MergeConflictError, { readonly brand: unique symbol }>($I`MergeConflictError`)("MergeConflictError", {
   /** The working directory the merge ran in. */
-  cwd: S.String.annotateKey({ description: "The working directory the merge ran in." }),
-}, $I.annote("MergeConflictError", { description: "A merge-shaped operation (`pull`, `stash pop`, `stash apply`) stopped with conflict markers in the working tree." })) {
+  cwd: S.String.pipe($I.annoteKey("MergeConflictError.cwd", { description: "The working directory the merge ran in." })),
+}, $I.annoteError<MergeConflictError>("MergeConflictError", { description: "A merge-shaped operation (`pull`, `stash pop`, `stash apply`) stopped with conflict markers in the working tree." })) {
   /**
    * Renders the conflicted merge into a one-line message.
    *
@@ -517,8 +533,8 @@ export class MergeConflictError extends S.TaggedError<MergeConflictError, { read
  */
 export class DirtyWorktreeError extends S.TaggedError<DirtyWorktreeError, { readonly brand: unique symbol }>($I`DirtyWorktreeError`)("DirtyWorktreeError", {
   /** The working directory whose local changes blocked the operation. */
-  cwd: S.String.annotateKey({ description: "The working directory whose local changes blocked the operation." }),
-}, $I.annote("DirtyWorktreeError", { description: "A merge-shaped operation refused to start because local modifications would be overwritten — git's refusal reads `Your local changes ... would be overwritten by merge`." })) {
+  cwd: S.String.pipe($I.annoteKey("DirtyWorktreeError.cwd", { description: "The working directory whose local changes blocked the operation." })),
+}, $I.annoteError<DirtyWorktreeError>("DirtyWorktreeError", { description: "A merge-shaped operation refused to start because local modifications would be overwritten — git's refusal reads `Your local changes ... would be overwritten by merge`." })) {
   /**
    * Renders the blocked operation into a one-line message.
    *
@@ -556,13 +572,13 @@ export class DirtyWorktreeError extends S.TaggedError<DirtyWorktreeError, { read
  */
 export class LsTreeEntry extends S.Class<LsTreeEntry, { readonly brand: unique symbol }>($I`LsTreeEntry`)({
   /** The entry's file mode, e.g. `100644`. */
-  mode: S.String.annotateKey({ description: "The entry's file mode, e.g. `100644`." }),
+  mode: S.String.pipe($I.annoteKey("LsTreeEntry.mode", { description: "The entry's file mode, e.g. `100644`." })),
   /** The kind of object the entry points at. */
-  type: S.Literals(["blob", "tree", "commit"]).annotateKey({ description: "The kind of object the entry points at." }),
+  type: S.Literals(["blob", "tree", "commit"]).pipe($I.annoteKey("LsTreeEntry.type", { description: "The kind of object the entry points at." })),
   /** The object id the entry points at. */
-  oid: S.String.annotateKey({ description: "The object id the entry points at." }),
+  oid: S.String.pipe($I.annoteKey("LsTreeEntry.oid", { description: "The object id the entry points at." })),
   /** The entry's path, relative to the tree root. May contain spaces or newlines. */
-  path: S.String.annotateKey({ description: "The entry's path, relative to the tree root. May contain spaces or newlines." }),
+  path: S.String.pipe($I.annoteKey("LsTreeEntry.path", { description: "The entry's path, relative to the tree root. May contain spaces or newlines." })),
 }, $I.annote("LsTreeEntry", { description: "One entry of a `git ls-tree` listing." })) {
 }
 
@@ -576,9 +592,7 @@ const NameStatusCode = LiteralKit([
   "unmerged",
   "unknown",
   "broken",
-]).annotate(
-  $I.annote("NameStatusCode", { description: "The decoded change kinds in a name-status listing." }),
-);
+]).pipe($I.annoteSchema("NameStatusCode", { description: "The decoded change kinds in a name-status listing." }));
 type NameStatusCode = typeof NameStatusCode.Type;
 
 /**
@@ -610,11 +624,11 @@ export class NameStatusEntry extends S.Class<NameStatusEntry, { readonly brand: 
    * to `"typeChanged"` and `B` to `"broken"` — this package's spelling, not
    * porcelain's `"typechange"`.
    */
-  status: NameStatusCode.annotateKey({ description: "The change kind, decoded from git's one-letter status code. `T` decodes to `\"typeChanged\"` and `B` to `\"broken\"` — this package's spelling, not porcelain's `\"typechange\"`." }),
+  status: NameStatusCode.pipe($I.annoteKey("NameStatusEntry.status", { description: "The change kind, decoded from git's one-letter status code. `T` decodes to `\"typeChanged\"` and `B` to `\"broken\"` — this package's spelling, not porcelain's `\"typechange\"`." })),
   /** The entry's path — for a rename or copy, the NEW path. */
-  path: S.String.annotateKey({ description: "The entry's path — for a rename or copy, the NEW path." }),
+  path: S.String.pipe($I.annoteKey("NameStatusEntry.path", { description: "The entry's path — for a rename or copy, the NEW path." })),
   /** The pre-rename/pre-copy path; present only for renamed/copied entries. */
-  oldPath: S.optionalKey(S.String).annotateKey({ description: "The pre-rename/pre-copy path; present only for renamed/copied entries." }),
+  oldPath: S.optionalKey(S.String).pipe($I.annoteKey("NameStatusEntry.oldPath", { description: "The pre-rename/pre-copy path; present only for renamed/copied entries." })),
 }, $I.annote("NameStatusEntry", { description: "One entry of a `git diff --name-status` listing." })) {
 }
 
@@ -624,7 +638,7 @@ export class NameStatusEntry extends S.Class<NameStatusEntry, { readonly brand: 
  * method maps it to its own public return type.
  */
 const Classified = S.TaggedUnion({
-  success: { output: S.String.annotateKey({ description: "The completed run's stdout." }) },
+  success: { output: S.String.pipe($I.annoteKey("Classified.success.output", { description: "The completed run's stdout." })) },
   absent: {},
   refMissing: {},
   notARepository: {},
@@ -632,8 +646,8 @@ const Classified = S.TaggedUnion({
   nonFastForward: {},
   mergeConflict: {},
   dirtyWorktree: {},
-  failure: { error: GitCommandError.annotateKey({ description: "The classified command failure." }) },
-}).annotate($I.annote("Classified", { description: "The private outcome of classifying a Git run." }));
+  failure: { error: GitCommandError.pipe($I.annoteKey("Classified.failure.error", { description: "The classified command failure." })) },
+}).pipe($I.annoteSchema("Classified", { description: "The private outcome of classifying a Git run." }));
 type Classified = typeof Classified.Type;
 
 /**
@@ -647,7 +661,7 @@ type Classified = typeof Classified.Type;
  */
 const ClassifyKind = LiteralKit([
   "show", "refExists", "quiet", "noSuchRemote", "push", "merge", "log", "generic",
-]).annotate($I.annote("ClassifyKind", { description: "The method-specific Git classification taxonomy." }));
+]).pipe($I.annoteSchema("ClassifyKind", { description: "The method-specific Git classification taxonomy." }));
 type ClassifyKind = typeof ClassifyKind.Type;
 
 /** Outcomes available to each classification mode. */
@@ -659,6 +673,12 @@ type ClassifiedFor<K extends ClassifyKind> = Extract<Classified, {
     (K extends "push" ? "nonFastForward" : never) |
     (K extends "merge" ? "mergeConflict" | "dirtyWorktree" : never);
 }>;
+
+/** A classified run with the spawner already provided: `make`'s `runFor` and `runForNetwork`. */
+type RunFor = {
+  <K extends ClassifyKind>(invocation: GitInvocation, cwd: string, kind: K): Effect.Effect<ClassifiedFor<K>>;
+  <K extends ClassifyKind>(cwd: string, kind: K): (invocation: GitInvocation) => Effect.Effect<ClassifiedFor<K>>;
+};
 
 const NOT_A_REPOSITORY = "not a git repository";
 // Unanchored substring matching against LC_ALL=C-pinned phrases: a path or ref
@@ -698,8 +718,11 @@ const DIRTY_WORKTREE_PATTERN = "would be overwritten by";
 // unborn HEAD is a genuine failure to report.
 const UNBORN_HEAD_PATTERN = "does not have any commits yet";
 
-const matchesAny = (stderr: string, patterns: ReadonlyArray<string>): boolean =>
-  patterns.some((pattern) => stderr.includes(pattern));
+const matchesAny: {
+  (stderr: string, patterns: ReadonlyArray<string>): boolean;
+  (patterns: ReadonlyArray<string>): (stderr: string) => boolean;
+} = dual(2, (stderr: string, patterns: ReadonlyArray<string>): boolean =>
+  A.some(patterns, (pattern) => stderr.includes(pattern)));
 
 /**
  * Classifies one completed run (or spawn-level `PlatformError`) against
@@ -711,10 +734,22 @@ const matchesAny = (stderr: string, patterns: ReadonlyArray<string>): boolean =>
  * `args` is the invocation's REDACTED argv: it is the only argv this
  * function may persist into a `GitCommandError`, per the redaction policy.
  */
-const classify = (
+const classify: {
+  (
+    outcome: Collected | PlatformError.PlatformError,
+    cwd: string,
+    args: ReadonlyArray<string>,
+    kind: ClassifyKind,
+  ): Classified;
+  (
+    cwd: string,
+    args: ReadonlyArray<string>,
+    kind: ClassifyKind,
+  ): (outcome: Collected | PlatformError.PlatformError) => Classified;
+} = dual(4, (
+  outcome: Collected | PlatformError.PlatformError,
   cwd: string,
   args: ReadonlyArray<string>,
-  outcome: Collected | PlatformError.PlatformError,
   kind: ClassifyKind,
 ): Classified => {
   if (outcome instanceof PlatformError.PlatformError) {
@@ -787,7 +822,7 @@ const classify = (
       stderr,
     }),
   };
-};
+});
 
 /**
  * Runs an invocation's command in `cwd`, classifies the outcome, and never
@@ -807,23 +842,29 @@ const classify = (
  * the service's members is spawned with the pins and nothing else in the
  * package needs to know they exist.
  */
-function runClassified<K extends ClassifyKind>(
-  invocation: GitInvocation,
-  cwd: string,
-  kind: K,
-  env: Record<string, string>,
-): Effect.Effect<ClassifiedFor<K>, never, ChildProcessSpawner.ChildProcessSpawner>;
-function runClassified(
+const runClassified: {
+  <K extends ClassifyKind>(
+    invocation: GitInvocation,
+    cwd: string,
+    kind: K,
+    env: Record<string, string>,
+  ): Effect.Effect<ClassifiedFor<K>, never, ChildProcessSpawner.ChildProcessSpawner>;
+  <K extends ClassifyKind>(
+    cwd: string,
+    kind: K,
+    env: Record<string, string>,
+  ): (invocation: GitInvocation) => Effect.Effect<ClassifiedFor<K>, never, ChildProcessSpawner.ChildProcessSpawner>;
+} = dual(4, (
   invocation: GitInvocation,
   cwd: string,
   kind: ClassifyKind,
   env: Record<string, string>,
-): Effect.Effect<Classified, never, ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.Effect<Classified, never, ChildProcessSpawner.ChildProcessSpawner> => {
   const args = invocation.redactedArgs;
   const command = ChildProcess.setEnv(ChildProcess.setCwd(invocation.command, cwd), env);
   return runCollected(command).pipe(
-    Effect.map((collected) => classify(cwd, args, collected, kind)),
-    Effect.catch((platformError) => Effect.succeed(classify(cwd, args, platformError, kind))),
+    Effect.map(classify(cwd, args, kind)),
+    Effect.catch((platformError) => Effect.succeed(classify(platformError, cwd, args, kind))),
     Effect.timeoutOrElse({
       duration: GIT_TIMEOUT,
       orElse: () =>
@@ -839,11 +880,11 @@ function runClassified(
         }),
     }),
   );
-};
+});
 
 /** Splits `-z` (NUL-terminated) output into its constituent entries. */
 const parseNulSeparated = (output: string): ReadonlyArray<string> =>
-  output.split("\0").filter((entry) => entry.length > 0);
+  A.filter(output.split("\0"), (entry) => entry.length > 0);
 
 /** Config values may be empty; only the final NUL terminator is discarded. */
 const parseConfigGetAll = (output: string): ReadonlyArray<string> => {
@@ -860,20 +901,20 @@ const lsTreeInput = S.Struct(LsTreeEntry.fields);
  * so a path containing spaces or newlines is preserved intact.
  */
 const parseLsTree = (output: string): ReadonlyArray<LsTreeEntry> =>
-  parseNulSeparated(output).map((entry) => {
-    const tabIndex = entry.indexOf("\t");
-    const header = Str.split(entry.slice(0, tabIndex), " ");
-    const path = entry.slice(tabIndex + 1);
-    const parsed = {
-      mode: header[0],
-      // git's own tree-entry format only ever emits these three kinds.
-      type: header[1] ?? "blob",
-      oid: header[2] ?? "",
-      path,
-    };
-    S.asserts(lsTreeInput, parsed);
-    return LsTreeEntry.make(parsed);
-  });
+  A.map(parseNulSeparated(output), (entry) => {
+        const tabIndex = entry.indexOf("\t");
+        const header = Str.split(entry.slice(0, tabIndex), " ");
+        const path = entry.slice(tabIndex + 1);
+        const parsed = {
+          mode: header[0],
+          // git's own tree-entry format only ever emits these three kinds.
+          type: header[1] ?? "blob",
+          oid: header[2] ?? "",
+          path,
+        };
+        S.asserts(lsTreeInput, parsed);
+        return LsTreeEntry.make(parsed);
+      });
 
 /** git's one-letter name-status codes, score digits stripped (`R100` → `R`). */
 const NAME_STATUS_CODES: Record<string, NameStatusCode | undefined> = {
@@ -943,11 +984,11 @@ const parseNameStatus = (output: string): ReadonlyArray<NameStatusEntry> => {
  */
 export class CommitInfo extends S.Class<CommitInfo, { readonly brand: unique symbol }>($I`CommitInfo`)({
   /** The commit's full object id (`%H`). */
-  sha: S.String.annotateKey({ description: "The commit's full object id (`%H`)." }),
+  sha: S.String.pipe($I.annoteKey("CommitInfo.sha", { description: "The commit's full object id (`%H`)." })),
   /** git's `%G?` signature verdict: Good, Bad, Unknown validity, eXpired, expired-key (Y), Revoked, cannot-check (E), None. */
-  signatureStatus: S.Literals(["G", "B", "U", "X", "Y", "R", "E", "N"]).annotateKey({ description: "git's `%G?` signature verdict: Good, Bad, Unknown validity, eXpired, expired-key (Y), Revoked, cannot-check (E), None." }),
+  signatureStatus: S.Literals(["G", "B", "U", "X", "Y", "R", "E", "N"]).pipe($I.annoteKey("CommitInfo.signatureStatus", { description: "git's `%G?` signature verdict: Good, Bad, Unknown validity, eXpired, expired-key (Y), Revoked, cannot-check (E), None." })),
   /** The raw commit message (`%B`), untrimmed — includes git's trailing format newline. */
-  message: S.String.annotateKey({ description: "The raw commit message (`%B`), untrimmed — includes git's trailing format newline." }),
+  message: S.String.pipe($I.annoteKey("CommitInfo.message", { description: "The raw commit message (`%B`), untrimmed — includes git's trailing format newline." })),
 }, $I.annote("CommitInfo", { description: "The metadata of a single commit, read via `git log -1` with NUL-separated `%H` / `%G?` / `%B` placeholders." })) {
 }
 
@@ -991,17 +1032,17 @@ export class CommitInfo extends S.Class<CommitInfo, { readonly brand: unique sym
  */
 export class CommitLogEntry extends S.Class<CommitLogEntry, { readonly brand: unique symbol }>($I`CommitLogEntry`)({
   /** The commit's full object id (`%H`). */
-  sha: S.String.annotateKey({ description: "The commit's full object id (`%H`)." }),
+  sha: S.String.pipe($I.annoteKey("CommitLogEntry.sha", { description: "The commit's full object id (`%H`)." })),
   /** When the change was authored (`%aI`), as a UTC instant. */
-  authoredAt: S.DateTimeUtcFromString.annotateKey({ description: "When the change was authored (`%aI`), as a UTC instant." }),
+  authoredAt: S.DateTimeUtcFromString.pipe($I.annoteKey("CommitLogEntry.authoredAt", { description: "When the change was authored (`%aI`), as a UTC instant." })),
   /** When the commit object was written (`%cI`), as a UTC instant. */
-  committedAt: S.DateTimeUtcFromString.annotateKey({ description: "When the commit object was written (`%cI`), as a UTC instant." }),
+  committedAt: S.DateTimeUtcFromString.pipe($I.annoteKey("CommitLogEntry.committedAt", { description: "When the commit object was written (`%cI`), as a UTC instant." })),
   /** The author's name (`%an`). */
-  authorName: S.String.annotateKey({ description: "The author's name (`%an`)." }),
+  authorName: S.String.pipe($I.annoteKey("CommitLogEntry.authorName", { description: "The author's name (`%an`)." })),
   /** The author's email address (`%ae`). */
-  authorEmail: S.String.annotateKey({ description: "The author's email address (`%ae`)." }),
+  authorEmail: S.String.pipe($I.annoteKey("CommitLogEntry.authorEmail", { description: "The author's email address (`%ae`)." })),
   /** The paths this commit touched, root-relative and raw; empty when it touched none. */
-  paths: S.Array(S.String).annotateKey({ description: "The paths this commit touched, root-relative and raw; empty when it touched none." }),
+  paths: S.Array(S.String).pipe($I.annoteKey("CommitLogEntry.paths", { description: "The paths this commit touched, root-relative and raw; empty when it touched none." })),
 }, $I.annote("CommitLogEntry", { description: "One commit of a `git log` listing, with the paths that commit touched." })) {
 }
 
@@ -1073,9 +1114,7 @@ const parseLog = (output: string): Result.Result<ReadonlyArray<CommitLogEntry>, 
 };
 
 /** One two-letter porcelain v1 status axis code. */
-const porcelainCode = LiteralKit([" ", "M", "T", "A", "D", "R", "C", "U", "?", "!"]).annotate(
-  $I.annote("PorcelainCode", { description: "One porcelain v1 status axis code." }),
-);
+const porcelainCode = LiteralKit([" ", "M", "T", "A", "D", "R", "C", "U", "?", "!"]).pipe($I.annoteSchema("PorcelainCode", { description: "One porcelain v1 status axis code." }));
 
 /**
  * Options for {@link StatusEntry.toLine} / {@link StatusEntry.format}: how a
@@ -1113,13 +1152,13 @@ export interface StatusRenderOptions {
  */
 export class StatusEntry extends S.Class<StatusEntry, { readonly brand: unique symbol }>($I`StatusEntry`)({
   /** The index-side status code (first porcelain column). */
-  x: porcelainCode.annotateKey({ description: "The index-side status code (first porcelain column)." }),
+  x: porcelainCode.pipe($I.annoteKey("StatusEntry.x", { description: "The index-side status code (first porcelain column)." })),
   /** The working-tree-side status code (second porcelain column). */
-  y: porcelainCode.annotateKey({ description: "The working-tree-side status code (second porcelain column)." }),
+  y: porcelainCode.pipe($I.annoteKey("StatusEntry.y", { description: "The working-tree-side status code (second porcelain column)." })),
   /** The entry's path — for a rename or copy, the NEW path. */
-  path: S.String.annotateKey({ description: "The entry's path — for a rename or copy, the NEW path." }),
+  path: S.String.pipe($I.annoteKey("StatusEntry.path", { description: "The entry's path — for a rename or copy, the NEW path." })),
   /** The original path; present only on rename/copy entries. */
-  origPath: S.optionalKey(S.String).annotateKey({ description: "The original path; present only on rename/copy entries." }),
+  origPath: S.optionalKey(S.String).pipe($I.annoteKey("StatusEntry.origPath", { description: "The original path; present only on rename/copy entries." })),
 }, $I.annote("StatusEntry", { description: "One entry of a `git status --porcelain -z` listing." })) {
   /**
    * Renders this entry back to one porcelain-shaped line: `XY <path>`.
@@ -1183,8 +1222,14 @@ export class StatusEntry extends S.Class<StatusEntry, { readonly brand: unique s
    * @category formatting
    * @since 0.0.0
    */
-  static readonly format = (entries: ReadonlyArray<StatusEntry>, options?: StatusRenderOptions): string =>
-    entries.map((entry) => entry.toLine(options)).join("\n");
+  static readonly format: {
+    (entries: ReadonlyArray<StatusEntry>, options?: StatusRenderOptions): string;
+    (options?: StatusRenderOptions): (entries: ReadonlyArray<StatusEntry>) => string;
+  } = dual(
+    (args) => A.isArray(args[0]),
+    (entries: ReadonlyArray<StatusEntry>, options?: StatusRenderOptions): string =>
+      pipe(entries, A.map((entry) => entry.toLine(options)), A.join("\n")),
+  );
 }
 
 const commitInfoInput = S.Struct(CommitInfo.fields);
@@ -1275,13 +1320,13 @@ const parseStatus = (output: string): ReadonlyArray<StatusEntry> => {
  */
 export class SubmoduleStatusEntry extends S.Class<SubmoduleStatusEntry, { readonly brand: unique symbol }>($I`SubmoduleStatusEntry`)({
   /** The decoded state prefix. */
-  state: S.Literals(["current", "uninitialized", "outOfSync", "conflict"]).annotateKey({ description: "The decoded state prefix." }),
+  state: S.Literals(["current", "uninitialized", "outOfSync", "conflict"]).pipe($I.annoteKey("SubmoduleStatusEntry.state", { description: "The decoded state prefix." })),
   /** The submodule's checked-out (or, uninitialized, gitlink) commit sha. */
-  sha: S.String.annotateKey({ description: "The submodule's checked-out (or, uninitialized, gitlink) commit sha." }),
+  sha: S.String.pipe($I.annoteKey("SubmoduleStatusEntry.sha", { description: "The submodule's checked-out (or, uninitialized, gitlink) commit sha." })),
   /** The submodule's path relative to the superproject root. */
-  path: S.String.annotateKey({ description: "The submodule's path relative to the superproject root." }),
+  path: S.String.pipe($I.annoteKey("SubmoduleStatusEntry.path", { description: "The submodule's path relative to the superproject root." })),
   /** The `git describe` suffix, present only for initialized submodules. */
-  describe: S.optionalKey(S.String).annotateKey({ description: "The `git describe` suffix, present only for initialized submodules." }),
+  describe: S.optionalKey(S.String).pipe($I.annoteKey("SubmoduleStatusEntry.describe", { description: "The `git describe` suffix, present only for initialized submodules." })),
 }, $I.annote("SubmoduleStatusEntry", { description: "One line of a `git submodule status` listing." })) {
 }
 
@@ -1347,9 +1392,9 @@ const parseSubmoduleStatus = (output: string): ReadonlyArray<SubmoduleStatusEntr
  */
 export class LsRemoteEntry extends S.Class<LsRemoteEntry, { readonly brand: unique symbol }>($I`LsRemoteEntry`)({
   /** The sha the advertised ref points at. */
-  sha: S.String.annotateKey({ description: "The sha the advertised ref points at." }),
+  sha: S.String.pipe($I.annoteKey("LsRemoteEntry.sha", { description: "The sha the advertised ref points at." })),
   /** The full advertised refname, `^{}` peel suffix included. */
-  ref: S.String.annotateKey({ description: "The full advertised refname, `^{}` peel suffix included." }),
+  ref: S.String.pipe($I.annoteKey("LsRemoteEntry.ref", { description: "The full advertised refname, `^{}` peel suffix included." })),
 }, $I.annote("LsRemoteEntry", { description: "One ref a remote advertises, from `git ls-remote`." })) {
   /**
    * The human-facing short name of an advertised refname: the
@@ -1405,16 +1450,19 @@ export class LsRemoteEntry extends S.Class<LsRemoteEntry, { readonly brand: uniq
    * @category filtering
    * @since 0.0.0
    */
-  static readonly nearMatches = (entries: ReadonlyArray<LsRemoteEntry>, ref: string): ReadonlyArray<LsRemoteEntry> => {
+  static readonly nearMatches: {
+    (entries: ReadonlyArray<LsRemoteEntry>, ref: string): ReadonlyArray<LsRemoteEntry>;
+    (ref: string): (entries: ReadonlyArray<LsRemoteEntry>) => ReadonlyArray<LsRemoteEntry>;
+  } = dual(2, (entries: ReadonlyArray<LsRemoteEntry>, ref: string): ReadonlyArray<LsRemoteEntry> => {
     const separators = ["@", "/", "-", "_"];
-    return entries.filter((entry) => {
-      const short = LsRemoteEntry.shortName(entry.ref);
-      if (short === ref || !short.endsWith(ref)) {
-        return false;
-      }
-      return separators.includes(short.charAt(short.length - ref.length - 1));
-    });
-  };
+    return A.filter(entries, (entry) => {
+          const short = LsRemoteEntry.shortName(entry.ref);
+          if (short === ref || !short.endsWith(ref)) {
+            return false;
+          }
+          return separators.includes(short.charAt(short.length - ref.length - 1));
+        });
+  });
 }
 
 /**
@@ -1424,16 +1472,14 @@ export class LsRemoteEntry extends S.Class<LsRemoteEntry, { readonly brand: uniq
  * offer).
  */
 const parseLsRemote = (output: string): ReadonlyArray<LsRemoteEntry> =>
-  output
-    .split("\n")
-    .filter((line) => line.length > 0)
-    .map((line) => {
-      const tabIndex = line.indexOf("\t");
-      return LsRemoteEntry.make({
-        sha: line.slice(0, tabIndex),
-        ref: line.slice(tabIndex + 1),
-      });
-    });
+  pipe(output
+        .split("\n"), A.filter((line) => line.length > 0), A.map((line) => {
+          const tabIndex = line.indexOf("\t");
+          return LsRemoteEntry.make({
+            sha: line.slice(0, tabIndex),
+            ref: line.slice(tabIndex + 1),
+          });
+        }));
 
 /**
  * One stash entry, from `git stash list`.
@@ -1453,11 +1499,11 @@ const parseLsRemote = (output: string): ReadonlyArray<LsRemoteEntry> =>
  */
 export class StashEntry extends S.Class<StashEntry, { readonly brand: unique symbol }>($I`StashEntry`)({
   /** The reflog selector (`stash@{0}`) — the index other stash methods take. */
-  ref: S.String.annotateKey({ description: "The reflog selector (`stash@{0}`) — the index other stash methods take." }),
+  ref: S.String.pipe($I.annoteKey("StashEntry.ref", { description: "The reflog selector (`stash@{0}`) — the index other stash methods take." })),
   /** The stash commit's sha. */
-  sha: S.String.annotateKey({ description: "The stash commit's sha." }),
+  sha: S.String.pipe($I.annoteKey("StashEntry.sha", { description: "The stash commit's sha." })),
   /** The reflog subject: `WIP on <branch>: ...` or `On <branch>: <message>`. */
-  message: S.String.annotateKey({ description: "The reflog subject: `WIP on <branch>: ...` or `On <branch>: <message>`." }),
+  message: S.String.pipe($I.annoteKey("StashEntry.message", { description: "The reflog subject: `WIP on <branch>: ...` or `On <branch>: <message>`." })),
 }, $I.annote("StashEntry", { description: "One stash entry, from `git stash list`." })) {
 }
 
@@ -1467,10 +1513,10 @@ export class StashEntry extends S.Class<StashEntry, { readonly brand: unique sym
  * and cannot contain either separator byte.
  */
 const parseStashList = (output: string): ReadonlyArray<StashEntry> =>
-  parseNulSeparated(output).map((record) => {
-    const [ref = "", sha = "", ...rest] = record.split("\u001f");
-    return StashEntry.make({ ref, sha, message: rest.join("\u001f") });
-  });
+  A.map(parseNulSeparated(output), (record) => {
+        const [ref = "", sha = "", ...rest] = record.split("\u001f");
+        return StashEntry.make({ ref, sha, message: A.join(rest, "\u001f") });
+      });
 
 /**
  * One local (or remote-tracking) branch, from `git branch --list`.
@@ -1490,11 +1536,11 @@ const parseStashList = (output: string): ReadonlyArray<StashEntry> =>
  */
 export class BranchEntry extends S.Class<BranchEntry, { readonly brand: unique symbol }>($I`BranchEntry`)({
   /** The short branch name (`main`, or `origin/main` for a remote branch). */
-  name: S.String.annotateKey({ description: "The short branch name (`main`, or `origin/main` for a remote branch)." }),
+  name: S.String.pipe($I.annoteKey("BranchEntry.name", { description: "The short branch name (`main`, or `origin/main` for a remote branch)." })),
   /** The branch tip's sha. */
-  sha: S.String.annotateKey({ description: "The branch tip's sha." }),
+  sha: S.String.pipe($I.annoteKey("BranchEntry.sha", { description: "The branch tip's sha." })),
   /** Whether this branch is checked out in the current working tree. */
-  current: S.Boolean.annotateKey({ description: "Whether this branch is checked out in the current working tree." }),
+  current: S.Boolean.pipe($I.annoteKey("BranchEntry.current", { description: "Whether this branch is checked out in the current working tree." })),
 }, $I.annote("BranchEntry", { description: "One local (or remote-tracking) branch, from `git branch --list`." })) {
 }
 
@@ -1506,13 +1552,11 @@ export class BranchEntry extends S.Class<BranchEntry, { readonly brand: unique s
  * worktree) is not-current.
  */
 const parseBranchList = (output: string): ReadonlyArray<BranchEntry> =>
-  output
-    .split("\n")
-    .filter((line) => line.length > 0)
-    .map((line) => {
-      const [marker = "", name = "", sha = ""] = line.split("\0");
-      return BranchEntry.make({ name, sha, current: marker === "*" });
-    });
+  pipe(output
+        .split("\n"), A.filter((line) => line.length > 0), A.map((line) => {
+          const [marker = "", name = "", sha = ""] = line.split("\0");
+          return BranchEntry.make({ name, sha, current: marker === "*" });
+        }));
 
 /**
  * One ref, from `git for-each-ref`.
@@ -1532,14 +1576,14 @@ const parseBranchList = (output: string): ReadonlyArray<BranchEntry> =>
  */
 export class RefEntry extends S.Class<RefEntry, { readonly brand: unique symbol }>($I`RefEntry`)({
   /** The full refname (`refs/tags/v1`). */
-  ref: S.String.annotateKey({ description: "The full refname (`refs/tags/v1`)." }),
+  ref: S.String.pipe($I.annoteKey("RefEntry.ref", { description: "The full refname (`refs/tags/v1`)." })),
   /** The sha of the object the ref points at. */
-  sha: S.String.annotateKey({ description: "The sha of the object the ref points at." }),
+  sha: S.String.pipe($I.annoteKey("RefEntry.sha", { description: "The sha of the object the ref points at." })),
   /**
    * The pointed-at object's type. An annotated tag is `tag` (the tag
    * object itself, not its target commit).
    */
-  objectType: S.Literals(["commit", "tag", "tree", "blob"]).annotateKey({ description: "The pointed-at object's type. An annotated tag is `tag` (the tag object itself, not its target commit)." }),
+  objectType: S.Literals(["commit", "tag", "tree", "blob"]).pipe($I.annoteKey("RefEntry.objectType", { description: "The pointed-at object's type. An annotated tag is `tag` (the tag object itself, not its target commit)." })),
 }, $I.annote("RefEntry", { description: "One ref, from `git for-each-ref`." })) {
 }
 
@@ -1551,20 +1595,18 @@ const refEntryInput = S.Struct(RefEntry.fields);
  * NUL-separated fields.
  */
 const parseForEachRef = (output: string): ReadonlyArray<RefEntry> =>
-  output
-    .split("\n")
-    .filter((line) => line.length > 0)
-    .map((line) => {
-      const [ref = "", sha = "", objectType = "commit"] = line.split("\0");
-      // Our own fixed format only ever emits git's four object types.
-      const parsed = {
-        ref,
-        sha,
-        objectType,
-      };
-      S.asserts(refEntryInput, parsed);
-      return RefEntry.make(parsed);
-    });
+  pipe(output
+        .split("\n"), A.filter((line) => line.length > 0), A.map((line) => {
+          const [ref = "", sha = "", objectType = "commit"] = line.split("\0");
+          // Our own fixed format only ever emits git's four object types.
+          const parsed = {
+            ref,
+            sha,
+            objectType,
+          };
+          S.asserts(refEntryInput, parsed);
+          return RefEntry.make(parsed);
+        }));
 
 /**
  * One configuration entry, from `git config --list`.
@@ -1584,13 +1626,13 @@ const parseForEachRef = (output: string): ReadonlyArray<RefEntry> =>
  */
 export class ConfigListEntry extends S.Class<ConfigListEntry, { readonly brand: unique symbol }>($I`ConfigListEntry`)({
   /** The canonical dotted key (`section.subsection.key`). */
-  key: S.String.annotateKey({ description: "The canonical dotted key (`section.subsection.key`)." }),
+  key: S.String.pipe($I.annoteKey("ConfigListEntry.key", { description: "The canonical dotted key (`section.subsection.key`)." })),
   /**
    * The raw value. A valueless key (git's boolean-true shorthand,
    * `[section]` + bare `key`) surfaces as the empty string — distinguish it
    * with `configGetAll` if the difference matters.
    */
-  value: S.String.annotateKey({ description: "The raw value. A valueless key (git's boolean-true shorthand, `[section]` + bare `key`) surfaces as the empty string — distinguish it with `configGetAll` if the difference matters." }),
+  value: S.String.pipe($I.annoteKey("ConfigListEntry.value", { description: "The raw value. A valueless key (git's boolean-true shorthand, `[section]` + bare `key`) surfaces as the empty string — distinguish it with `configGetAll` if the difference matters." })),
 }, $I.annote("ConfigListEntry", { description: "One configuration entry, from `git config --list`." })) {
 }
 
@@ -1601,15 +1643,15 @@ export class ConfigListEntry extends S.Class<ConfigListEntry, { readonly brand: 
  * valueless boolean-shorthand key.
  */
 const parseConfigList = (output: string): ReadonlyArray<ConfigListEntry> =>
-  parseNulSeparated(output).map((record) => {
-    const newlineIndex = record.indexOf("\n");
-    return newlineIndex === -1
-      ? ConfigListEntry.make({ key: record, value: "" })
-      : ConfigListEntry.make({
-        key: record.slice(0, newlineIndex),
-        value: record.slice(newlineIndex + 1),
+  A.map(parseNulSeparated(output), (record) => {
+        const newlineIndex = record.indexOf("\n");
+        return newlineIndex === -1
+          ? ConfigListEntry.make({ key: record, value: "" })
+          : ConfigListEntry.make({
+            key: record.slice(0, newlineIndex),
+            value: record.slice(newlineIndex + 1),
+          });
       });
-  });
 
 /**
  * One working tree, from `git worktree list --porcelain`.
@@ -1629,19 +1671,19 @@ const parseConfigList = (output: string): ReadonlyArray<ConfigListEntry> =>
  */
 export class WorktreeEntry extends S.Class<WorktreeEntry, { readonly brand: unique symbol }>($I`WorktreeEntry`)({
   /** The working tree's absolute path. */
-  path: S.String.annotateKey({ description: "The working tree's absolute path." }),
+  path: S.String.pipe($I.annoteKey("WorktreeEntry.path", { description: "The working tree's absolute path." })),
   /** The checked-out commit sha; absent for a bare repository entry. */
-  head: S.optionalKey(S.String).annotateKey({ description: "The checked-out commit sha; absent for a bare repository entry." }),
+  head: S.optionalKey(S.String).pipe($I.annoteKey("WorktreeEntry.head", { description: "The checked-out commit sha; absent for a bare repository entry." })),
   /** The checked-out branch's full refname; absent when detached or bare. */
-  branch: S.optionalKey(S.String).annotateKey({ description: "The checked-out branch's full refname; absent when detached or bare." }),
+  branch: S.optionalKey(S.String).pipe($I.annoteKey("WorktreeEntry.branch", { description: "The checked-out branch's full refname; absent when detached or bare." })),
   /** Whether the working tree is in detached-HEAD state. */
-  detached: S.Boolean.annotateKey({ description: "Whether the working tree is in detached-HEAD state." }),
+  detached: S.Boolean.pipe($I.annoteKey("WorktreeEntry.detached", { description: "Whether the working tree is in detached-HEAD state." })),
   /** Whether the entry is the bare repository itself. */
-  bare: S.Boolean.annotateKey({ description: "Whether the entry is the bare repository itself." }),
+  bare: S.Boolean.pipe($I.annoteKey("WorktreeEntry.bare", { description: "Whether the entry is the bare repository itself." })),
   /** Present when the worktree is locked; holds the lock reason (possibly empty). */
-  locked: S.optionalKey(S.String).annotateKey({ description: "Present when the worktree is locked; holds the lock reason (possibly empty)." }),
+  locked: S.optionalKey(S.String).pipe($I.annoteKey("WorktreeEntry.locked", { description: "Present when the worktree is locked; holds the lock reason (possibly empty)." })),
   /** Present when the worktree is prunable; holds the reason (possibly empty). */
-  prunable: S.optionalKey(S.String).annotateKey({ description: "Present when the worktree is prunable; holds the reason (possibly empty)." }),
+  prunable: S.optionalKey(S.String).pipe($I.annoteKey("WorktreeEntry.prunable", { description: "Present when the worktree is prunable; holds the reason (possibly empty)." })),
 }, $I.annote("WorktreeEntry", { description: "One working tree, from `git worktree list --porcelain`." })) {
 }
 
@@ -1729,13 +1771,13 @@ const parseWorktreeList = (output: string): ReadonlyArray<WorktreeEntry> => {
  */
 export class LsFilesEntry extends S.Class<LsFilesEntry, { readonly brand: unique symbol }>($I`LsFilesEntry`)({
   /** The entry's file mode, e.g. `100644` — `160000` for a gitlink. */
-  mode: S.String.annotateKey({ description: "The entry's file mode, e.g. `100644` — `160000` for a gitlink." }),
+  mode: S.String.pipe($I.annoteKey("LsFilesEntry.mode", { description: "The entry's file mode, e.g. `100644` — `160000` for a gitlink." })),
   /** The staged object id. */
-  oid: S.String.annotateKey({ description: "The staged object id." }),
+  oid: S.String.pipe($I.annoteKey("LsFilesEntry.oid", { description: "The staged object id." })),
   /** The merge stage: `0` normally; `1`/`2`/`3` during an unresolved merge. */
-  stage: S.Finite.annotateKey({ description: "The merge stage: `0` normally; `1`/`2`/`3` during an unresolved merge." }),
+  stage: S.Finite.pipe($I.annoteKey("LsFilesEntry.stage", { description: "The merge stage: `0` normally; `1`/`2`/`3` during an unresolved merge." })),
   /** The entry's path, relative to `cwd`. May contain spaces or newlines. */
-  path: S.String.annotateKey({ description: "The entry's path, relative to `cwd`. May contain spaces or newlines." }),
+  path: S.String.pipe($I.annoteKey("LsFilesEntry.path", { description: "The entry's path, relative to `cwd`. May contain spaces or newlines." })),
 }, $I.annote("LsFilesEntry", { description: "One index (staging area) entry, from `git ls-files --stage`." })) {
 }
 
@@ -1746,16 +1788,16 @@ export class LsFilesEntry extends S.Class<LsFilesEntry, { readonly brand: unique
  * split rule as `parseLsTree`.
  */
 const parseLsFiles = (output: string): ReadonlyArray<LsFilesEntry> =>
-  parseNulSeparated(output).map((entry) => {
-    const tabIndex = entry.indexOf("\t");
-    const header = Str.split(entry.slice(0, tabIndex), " ");
-    return LsFilesEntry.make({
-      mode: header[0],
-      oid: header[1] ?? "",
-      stage: Number(header[2] ?? "0"),
-      path: entry.slice(tabIndex + 1),
-    });
-  });
+  A.map(parseNulSeparated(output), (entry) => {
+        const tabIndex = entry.indexOf("\t");
+        const header = Str.split(entry.slice(0, tabIndex), " ");
+        return LsFilesEntry.make({
+          mode: header[0],
+          oid: header[1] ?? "",
+          stage: Number(header[2] ?? "0"),
+          path: entry.slice(tabIndex + 1),
+        });
+      });
 
 /**
  * Refuse a caller-supplied ref or range that git would parse as an option.
@@ -1775,19 +1817,22 @@ const parseLsFiles = (output: string): ReadonlyArray<LsFilesEntry> =>
  * `GitCommandError.args`/`detail` any more than a spawned one may — the
  * redaction policy applies to guard rejections too.
  */
-const rejectOptionLikeRefs = (
+const rejectOptionLikeRefs: {
+  (cwd: string, refs: ReadonlyArray<string>, sensitive?: ReadonlyArray<string>): Effect.Effect<void, GitCommandError>;
+  (refs: ReadonlyArray<string>, sensitive?: ReadonlyArray<string>): (cwd: string) => Effect.Effect<void, GitCommandError>;
+} = dual(hasStringSubject, (
   cwd: string,
   refs: ReadonlyArray<string>,
   sensitive: ReadonlyArray<string> = [],
 ): Effect.Effect<void, GitCommandError> => {
-  const offending = refs.find((ref) => ref.startsWith("-"));
-  if (offending !== undefined) {
-    return encodeJsonString(offending).pipe(
+  const offending = A.findFirst(refs, (ref) => ref.startsWith("-"));
+  if (O.isSome(offending)) {
+    return encodeJsonString(offending.value).pipe(
       Effect.orDie,
       Effect.flatMap((encoded) => Effect.fail(
         GitCommandError.make({
           kind: "refused",
-          args: [offending],
+          args: [offending.value],
           cwd,
           stderr: "",
           detail: `refused a ref argument git would parse as an option: ${encoded}`,
@@ -1795,8 +1840,7 @@ const rejectOptionLikeRefs = (
       )),
     );
   }
-  const offendingSensitive = sensitive.find((value) => value.startsWith("-"));
-  return offendingSensitive === undefined
+  return A.every(sensitive, (value) => !value.startsWith("-"))
     ? Effect.void
     : Effect.fail(
       GitCommandError.make({
@@ -1807,7 +1851,7 @@ const rejectOptionLikeRefs = (
         detail: "refused a sensitive argument git would parse as an option (value redacted)",
       }),
     );
-};
+});
 
 /**
  * Refuse a caller-supplied numeric index/limit that is not a non-negative
@@ -1821,7 +1865,10 @@ const rejectOptionLikeRefs = (
  * Integrality and range are therefore checked together, pre-spawn, as a
  * typed refusal.
  */
-const rejectNonNaturalNumber = (
+const rejectNonNaturalNumber: {
+  (cwd: string, label: string, value: number | undefined): Effect.Effect<void, GitCommandError>;
+  (label: string, value: number | undefined): (cwd: string) => Effect.Effect<void, GitCommandError>;
+} = dual(3, (
   cwd: string,
   label: string,
   value: number | undefined,
@@ -1836,7 +1883,7 @@ const rejectNonNaturalNumber = (
         stderr: "",
         detail: `refused ${label}: expected a non-negative integer, received ${value}`,
       }),
-    );
+    ));
 
 /**
  * The ssh-related environment, read once at layer construction. None of these
@@ -1845,26 +1892,35 @@ const rejectNonNaturalNumber = (
  */
 const SshFromEnv = S.Struct({
   /** `GIT_SSH_COMMAND` — a full command line; the first rung. */
-  command: S.Option(S.String).annotateKey({ description: "GIT_SSH_COMMAND, a full command line with highest precedence." }),
+  command: S.Option(S.String).pipe($I.annoteKey("SshFromEnv.command", { description: "GIT_SSH_COMMAND, a full command line with highest precedence." })),
   /** `GIT_SSH` — a program name with no argument support; the third rung. */
-  program: S.Option(S.String).annotateKey({ description: "GIT_SSH, a program name with no argument support." }),
+  program: S.Option(S.String).pipe($I.annoteKey("SshFromEnv.program", { description: "GIT_SSH, a program name with no argument support." })),
   /** `GIT_SSH_VARIANT` — overrides git's basename inference of the grammar. */
-  variant: S.Option(S.String).annotateKey({ description: "GIT_SSH_VARIANT, overriding basename inference of the SSH grammar." }),
-}).annotate($I.annote("SshFromEnv", { description: "The optional SSH environment settings captured at layer construction." }));
+  variant: S.Option(S.String).pipe($I.annoteKey("SshFromEnv.variant", { description: "GIT_SSH_VARIANT, overriding basename inference of the SSH grammar." })),
+}).pipe($I.annoteSchema("SshFromEnv", { description: "The optional SSH environment settings captured at layer construction." }));
 type SshFromEnv = typeof SshFromEnv.Type;
 
 /** Builds the `Git.Service` shape over an already-resolved `ChildProcessSpawner`. */
-const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: SshFromEnv) => {
-  const runFor = <K extends ClassifyKind>(invocation: GitInvocation, cwd: string, kind: K) =>
-    runClassified(invocation, cwd, kind, BASE_ENV).pipe(
-      Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
-    );
+const make: {
+  (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: SshFromEnv): GitShape;
+  (ssh: SshFromEnv): (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"]) => GitShape;
+} = dual(2, (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: SshFromEnv): GitShape => {
+  const runFor: RunFor = dual(
+    3,
+    <K extends ClassifyKind>(invocation: GitInvocation, cwd: string, kind: K): Effect.Effect<ClassifiedFor<K>> =>
+      runClassified(invocation, cwd, kind, BASE_ENV).pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
+      ),
+  );
 
   /** One `git config --get <key>` at `cwd`; unset and failure both read as `""`. */
-  const readConfig = (cwd: string, key: string) =>
+  const readConfig: {
+    (cwd: string, key: string): Effect.Effect<string>;
+    (key: string): (cwd: string) => Effect.Effect<string>;
+  } = dual(2, (cwd: string, key: string): Effect.Effect<string> =>
     Effect.map(runFor(GitCommand.configGet(key), cwd, "quiet"), (classified) =>
       classified._tag === "success" ? classified.output.trim() : "",
-    );
+    ));
 
   /**
    * Resolves the spawn environment for a member that reaches a remote,
@@ -1922,14 +1978,14 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
    * `BASE_ENV` alone — a member that never invokes ssh has no business
    * pinning an ssh command, and would pay the config read for nothing.
    */
-  const runForNetwork = Effect.fnUntraced(function* <K extends ClassifyKind>(invocation: GitInvocation, cwd: string, kind: K) {
+  const runForNetwork: RunFor = dual(3, Effect.fnUntraced(function* <K extends ClassifyKind>(invocation: GitInvocation, cwd: string, kind: K) {
     const env = yield* resolveSshEnv(cwd);
     return yield* runClassified(invocation, cwd, kind, env).pipe(
       Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
     );
-  });
+  }));
 
-  const show = Effect.fn("Git.show")(function* (cwd: string, ref: string, path: string) {
+  const show: GitShape["show"] = dual(3, Effect.fn("Git.show")(function* (cwd: string, ref: string, path: string) {
     yield* Effect.annotateCurrentSpan({ cwd, ref, path });
     yield* rejectOptionLikeRefs(cwd, [ref]);
     const classified = yield* runFor(GitCommand.show(ref, path), cwd, "show");
@@ -1940,9 +1996,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const lsTree = Effect.fn("Git.lsTree")(function* (
+  const lsTree: GitShape["lsTree"] = dual(stringAt(1), Effect.fn("Git.lsTree")(function* (
     cwd: string,
     ref: string,
     options?: { readonly pathspec?: ReadonlyArray<string> },
@@ -1956,9 +2012,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const refExists = Effect.fn("Git.refExists")(function* (cwd: string, ref: string) {
+  const refExists: GitShape["refExists"] = dual(2, Effect.fn("Git.refExists")(function* (cwd: string, ref: string) {
     yield* Effect.annotateCurrentSpan({ cwd, ref });
     yield* rejectOptionLikeRefs(cwd, [ref]);
     const classified = yield* runFor(GitCommand.refExists(ref), cwd, "refExists");
@@ -1971,9 +2027,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         () => Effect.succeed(false),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const mergeBase = Effect.fn("Git.mergeBase")(function* (cwd: string, a: string, b: string) {
+  const mergeBase: GitShape["mergeBase"] = dual(3, Effect.fn("Git.mergeBase")(function* (cwd: string, a: string, b: string) {
     yield* Effect.annotateCurrentSpan({ cwd, a, b });
     yield* rejectOptionLikeRefs(cwd, [a, b]);
     const classified = yield* runFor(GitCommand.mergeBase(a, b), cwd, "generic");
@@ -1989,9 +2045,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const mergeBaseOption = Effect.fn("Git.mergeBaseOption")(function* (cwd: string, a: string, b: string) {
+  const mergeBaseOption: GitShape["mergeBaseOption"] = dual(3, Effect.fn("Git.mergeBaseOption")(function* (cwd: string, a: string, b: string) {
     yield* Effect.annotateCurrentSpan({ cwd, a, b });
     yield* rejectOptionLikeRefs(cwd, [a, b]);
     // "quiet" kind: no common ancestor is a SILENT exit 1 (probed against
@@ -2013,9 +2069,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const changedFiles = Effect.fn("Git.changedFiles")(function* (
+  const changedFiles: GitShape["changedFiles"] = dual(2, Effect.fn("Git.changedFiles")(function* (
     cwd: string,
     options: {
       readonly base: string;
@@ -2044,13 +2100,16 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
   // Runs a NUL-separated, ref-free path listing (the working-tree queries) and
   // classifies through the shared path. No ref is involved, so `unknownRef`
   // cannot arise in practice — it is handled defensively to keep the match
   // exhaustive and the error channel uniform with the ref-taking methods.
-  const collectPaths = Effect.fnUntraced(function* (_method: string, invocation: GitInvocation, cwd: string) {
+  const collectPaths: {
+    (method: string, invocation: GitInvocation, cwd: string): Effect.Effect<ReadonlyArray<string>, NotARepositoryError | UnknownRefError | GitCommandError>;
+    (invocation: GitInvocation, cwd: string): (method: string) => Effect.Effect<ReadonlyArray<string>, NotARepositoryError | UnknownRefError | GitCommandError>;
+  } = dual(3, Effect.fnUntraced(function* (_method: string, invocation: GitInvocation, cwd: string) {
     const classified = yield* runFor(invocation, cwd, "generic");
     return yield* Match.valueTags(classified, {
       success: (classified) => Effect.succeed(parseNulSeparated(classified.output)),
@@ -2064,36 +2123,36 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const unstagedChanges = Effect.fn("Git.unstagedChanges")(function* (
+  const unstagedChanges: GitShape["unstagedChanges"] = dual(hasStringSubject, Effect.fn("Git.unstagedChanges")(function* (
     cwd: string,
     options?: { readonly relative?: boolean },
   ) {
     const relative = options?.relative ?? false;
     yield* Effect.annotateCurrentSpan({ cwd, relative });
     return yield* collectPaths("Git.unstagedChanges", GitCommand.unstagedChanges(relative), cwd);
-  });
+  }));
 
-  const stagedChanges = Effect.fn("Git.stagedChanges")(function* (
+  const stagedChanges: GitShape["stagedChanges"] = dual(hasStringSubject, Effect.fn("Git.stagedChanges")(function* (
     cwd: string,
     options?: { readonly relative?: boolean },
   ) {
     const relative = options?.relative ?? false;
     yield* Effect.annotateCurrentSpan({ cwd, relative });
     return yield* collectPaths("Git.stagedChanges", GitCommand.stagedChanges(relative), cwd);
-  });
+  }));
 
-  const untrackedFiles = Effect.fn("Git.untrackedFiles")(function* (
+  const untrackedFiles: GitShape["untrackedFiles"] = dual(hasStringSubject, Effect.fn("Git.untrackedFiles")(function* (
     cwd: string,
     options?: { readonly relative?: boolean },
   ) {
     const relative = options?.relative ?? false;
     yield* Effect.annotateCurrentSpan({ cwd, relative });
     return yield* collectPaths("Git.untrackedFiles", GitCommand.untrackedFiles(relative), cwd);
-  });
+  }));
 
-  const workingChanges = Effect.fn("Git.workingChanges")(function* (
+  const workingChanges: GitShape["workingChanges"] = dual(hasStringSubject, Effect.fn("Git.workingChanges")(function* (
     cwd: string,
     options?: { readonly relative?: boolean },
   ) {
@@ -2105,9 +2164,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     const staged = yield* stagedChanges(cwd, options);
     const untracked = yield* untrackedFiles(cwd, options);
     return A.dedupe([...unstaged, ...staged, ...untracked]);
-  });
+  }));
 
-  const nameStatus = Effect.fn("Git.nameStatus")(function* (
+  const nameStatus: GitShape["nameStatus"] = dual(2, Effect.fn("Git.nameStatus")(function* (
     cwd: string,
     options: {
       readonly base: string;
@@ -2136,9 +2195,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const revParse = Effect.fn("Git.revParse")(function* (cwd: string, ref: string) {
+  const revParse: GitShape["revParse"] = dual(2, Effect.fn("Git.revParse")(function* (cwd: string, ref: string) {
     yield* Effect.annotateCurrentSpan({ cwd, ref });
     yield* rejectOptionLikeRefs(cwd, [ref]);
     const classified = yield* runFor(GitCommand.revParse(ref), cwd, "generic");
@@ -2148,9 +2207,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const checkout = Effect.fn("Git.checkout")(function* (
+  const checkout: GitShape["checkout"] = dual(stringAt(1), Effect.fn("Git.checkout")(function* (
     cwd: string,
     ref: string,
     options?: { readonly detach?: boolean },
@@ -2165,9 +2224,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const reset = Effect.fn("Git.reset")(function* (
+  const reset: GitShape["reset"] = dual(hasStringSubject, Effect.fn("Git.reset")(function* (
     cwd: string,
     options?: {
       readonly mode?: "soft" | "mixed" | "hard";
@@ -2196,9 +2255,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const clean = Effect.fn("Git.clean")(function* (
+  const clean: GitShape["clean"] = dual(hasStringSubject, Effect.fn("Git.clean")(function* (
     cwd: string,
     options?: {
       readonly directories?: boolean;
@@ -2222,9 +2281,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const restore = Effect.fn("Git.restore")(function* (
+  const restore: GitShape["restore"] = dual(hasStringSubject, Effect.fn("Git.restore")(function* (
     cwd: string,
     paths: ReadonlyArray<string>,
     options?: {
@@ -2258,9 +2317,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const branchCreate = Effect.fn("Git.branchCreate")(function* (
+  const branchCreate: GitShape["branchCreate"] = dual(stringAt(1), Effect.fn("Git.branchCreate")(function* (
     cwd: string,
     name: string,
     options?: {
@@ -2296,9 +2355,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const branchDelete = Effect.fn("Git.branchDelete")(function* (
+  const branchDelete: GitShape["branchDelete"] = dual(stringAt(1), Effect.fn("Git.branchDelete")(function* (
     cwd: string,
     name: string,
     options?: { readonly force?: boolean },
@@ -2316,7 +2375,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref: name, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
   const isShallow = Effect.fn("Git.isShallow")(function* (cwd: string) {
     yield* Effect.annotateCurrentSpan({ cwd });
@@ -2330,7 +2389,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     });
   });
 
-  const fetchUnshallow = Effect.fn("Git.fetchUnshallow")(function* (
+  const fetchUnshallow: GitShape["fetchUnshallow"] = dual(hasStringSubject, Effect.fn("Git.fetchUnshallow")(function* (
     cwd: string,
     options?: { readonly remote?: string },
   ) {
@@ -2350,9 +2409,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const fetch = Effect.fn("Git.fetch")(function* (
+  const fetch: GitShape["fetch"] = dual(2, Effect.fn("Git.fetch")(function* (
     cwd: string,
     options: {
       readonly ref: string;
@@ -2403,9 +2462,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const fetchAny = Effect.fn("Git.fetchAny")(function* (
+  const fetchAny: GitShape["fetchAny"] = dual(2, Effect.fn("Git.fetchAny")(function* (
     cwd: string,
     options: {
       readonly ref: string;
@@ -2428,9 +2487,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         error._tag === "GitCommandError" && error.kind === "refused" ? Effect.fail(error) : fetch(cwd, options),
       ),
     );
-  });
+  }));
 
-  const submoduleUpdate = Effect.fn("Git.submoduleUpdate")(function* (
+  const submoduleUpdate: GitShape["submoduleUpdate"] = dual(hasStringSubject, Effect.fn("Git.submoduleUpdate")(function* (
     cwd: string,
     options?: {
       readonly init?: boolean;
@@ -2472,9 +2531,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const submoduleAdd = Effect.fn("Git.submoduleAdd")(function* (
+  const submoduleAdd: GitShape["submoduleAdd"] = dual(2, Effect.fn("Git.submoduleAdd")(function* (
     cwd: string,
     options: {
       readonly url: string;
@@ -2503,9 +2562,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const sparseCheckoutSet = Effect.fn("Git.sparseCheckoutSet")(function* (
+  const sparseCheckoutSet: GitShape["sparseCheckoutSet"] = dual(3, Effect.fn("Git.sparseCheckoutSet")(function* (
     cwd: string,
     patterns: ReadonlyArray<string>,
     options: { readonly cone: boolean },
@@ -2525,9 +2584,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const configSet = Effect.fn("Git.configSet")(function* (
+  const configSet: GitShape["configSet"] = dual(stringAt(2), Effect.fn("Git.configSet")(function* (
     cwd: string,
     key: string,
     value: string,
@@ -2552,9 +2611,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref: key, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const add = Effect.fn("Git.add")(function* (cwd: string, paths: ReadonlyArray<string>) {
+  const add: GitShape["add"] = dual(2, Effect.fn("Git.add")(function* (cwd: string, paths: ReadonlyArray<string>) {
     yield* Effect.annotateCurrentSpan({ cwd, count: paths.length });
     const classified = yield* runFor(GitCommand.add(paths), cwd, "generic");
     return yield* Match.valueTags(classified, {
@@ -2569,9 +2628,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const defaultBranch = Effect.fn("Git.defaultBranch")(function* (cwd: string, options?: {
+  const defaultBranch: GitShape["defaultBranch"] = dual(hasStringSubject, Effect.fn("Git.defaultBranch")(function* (cwd: string, options?: {
     readonly remote?: string
   }) {
     const remote = options?.remote ?? "origin";
@@ -2595,7 +2654,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
   const currentBranch = Effect.fn("Git.currentBranch")(function* (cwd: string) {
     yield* Effect.annotateCurrentSpan({ cwd });
@@ -2659,7 +2718,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     });
   });
 
-  const configGet = Effect.fn("Git.configGet")(function* (
+  const configGet: GitShape["configGet"] = dual(stringAt(1), Effect.fn("Git.configGet")(function* (
     cwd: string,
     key: string,
     options?: { readonly scope?: GitConfigScope },
@@ -2678,9 +2737,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref: key, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const remoteUrl = Effect.fn("Git.remoteUrl")(function* (cwd: string, options?: {
+  const remoteUrl: GitShape["remoteUrl"] = dual(hasStringSubject, Effect.fn("Git.remoteUrl")(function* (cwd: string, options?: {
     readonly remote?: string
   }) {
     const remote = options?.remote ?? "origin";
@@ -2694,7 +2753,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref: remote, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
   const commitInfo = Effect.fn("Git.commitInfo")(function* (cwd: string, ref?: string) {
     const target = ref ?? "HEAD";
@@ -2718,7 +2777,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     });
   });
 
-  const log = Effect.fn("Git.log")(function* (
+  const log: GitShape["log"] = dual(hasStringSubject, Effect.fn("Git.log")(function* (
     cwd: string,
     options?: {
       readonly paths?: ReadonlyArray<string>;
@@ -2781,7 +2840,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       },
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
   const status = Effect.fn("Git.status")(function* (cwd: string) {
     yield* Effect.annotateCurrentSpan({ cwd });
@@ -2800,7 +2859,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     });
   });
 
-  const submoduleStatus = Effect.fn("Git.submoduleStatus")(function* (
+  const submoduleStatus: GitShape["submoduleStatus"] = dual(hasStringSubject, Effect.fn("Git.submoduleStatus")(function* (
     cwd: string,
     options?: {
       readonly paths?: ReadonlyArray<string>;
@@ -2828,9 +2887,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const submoduleInit = Effect.fn("Git.submoduleInit")(function* (
+  const submoduleInit: GitShape["submoduleInit"] = dual(hasStringSubject, Effect.fn("Git.submoduleInit")(function* (
     cwd: string,
     options?: { readonly paths?: ReadonlyArray<string> },
   ) {
@@ -2848,9 +2907,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const submoduleDeinit = Effect.fn("Git.submoduleDeinit")(function* (
+  const submoduleDeinit: GitShape["submoduleDeinit"] = dual(2, Effect.fn("Git.submoduleDeinit")(function* (
     cwd: string,
     options: {
       readonly paths?: ReadonlyArray<string>;
@@ -2886,9 +2945,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const submoduleSync = Effect.fn("Git.submoduleSync")(function* (
+  const submoduleSync: GitShape["submoduleSync"] = dual(hasStringSubject, Effect.fn("Git.submoduleSync")(function* (
     cwd: string,
     options?: {
       readonly paths?: ReadonlyArray<string>;
@@ -2916,9 +2975,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const submoduleSetUrl = Effect.fn("Git.submoduleSetUrl")(function* (cwd: string, path: string, url: string) {
+  const submoduleSetUrl: GitShape["submoduleSetUrl"] = dual(3, Effect.fn("Git.submoduleSetUrl")(function* (cwd: string, path: string, url: string) {
     // The url is deliberately NOT annotated: a URL can embed userinfo, and
     // span annotations carry stable identifiers only (the redaction policy).
     yield* Effect.annotateCurrentSpan({ cwd, path });
@@ -2929,9 +2988,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       unknownRef: () => Effect.fail(UnknownRefError.make({ ref: path, cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const submoduleSetBranch = Effect.fn("Git.submoduleSetBranch")(function* (
+  const submoduleSetBranch: GitShape["submoduleSetBranch"] = dual(stringAt(1), Effect.fn("Git.submoduleSetBranch")(function* (
     cwd: string,
     path: string,
     options?: { readonly branch?: string },
@@ -2958,9 +3017,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const submoduleAbsorbgitdirs = Effect.fn("Git.submoduleAbsorbgitdirs")(function* (
+  const submoduleAbsorbgitdirs: GitShape["submoduleAbsorbgitdirs"] = dual(hasStringSubject, Effect.fn("Git.submoduleAbsorbgitdirs")(function* (
     cwd: string,
     options?: { readonly paths?: ReadonlyArray<string> },
   ) {
@@ -2978,9 +3037,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const submoduleForeach = Effect.fn("Git.submoduleForeach")(function* (
+  const submoduleForeach: GitShape["submoduleForeach"] = dual(stringAt(1), Effect.fn("Git.submoduleForeach")(function* (
     cwd: string,
     command: string,
     options?: { readonly recursive?: boolean },
@@ -3005,12 +3064,15 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
   // Runs a void-returning invocation and classifies through the shared path,
   // mapping `unknownRef` to the given ref label — the shared shape of every
   // mutating method with no method-specific classification rows.
-  const runVoid = Effect.fnUntraced(function* (_method: string, invocation: GitInvocation, cwd: string, refLabel: string) {
+  const runVoid: {
+    (method: string, invocation: GitInvocation, cwd: string, refLabel: string): Effect.Effect<void, NotARepositoryError | UnknownRefError | GitCommandError>;
+    (invocation: GitInvocation, cwd: string, refLabel: string): (method: string) => Effect.Effect<void, NotARepositoryError | UnknownRefError | GitCommandError>;
+  } = dual(4, Effect.fnUntraced(function* (_method: string, invocation: GitInvocation, cwd: string, refLabel: string) {
     const classified = yield* runFor(invocation, cwd, "generic");
     return yield* Match.valueTags(classified, {
       success: () => Effect.void,
@@ -3024,12 +3086,30 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
   // Runs a parse-returning invocation and classifies through the shared path.
   // `absent` handles the `"quiet"` kind's silent-exit-1 degrade (an unset
   // config key, a no-paths-ignored check-ignore run).
-  const runParsed = Effect.fnUntraced(function* <A>(
+  const runParsed: {
+    <A>(
+      method: string,
+      invocation: GitInvocation,
+      cwd: string,
+      refLabel: string,
+      kind: "generic" | "quiet",
+      parse: (output: string) => A,
+      network?: boolean,
+    ): Effect.Effect<A, NotARepositoryError | UnknownRefError | GitCommandError>;
+    <A>(
+      invocation: GitInvocation,
+      cwd: string,
+      refLabel: string,
+      kind: "generic" | "quiet",
+      parse: (output: string) => A,
+      network?: boolean,
+    ): (method: string) => Effect.Effect<A, NotARepositoryError | UnknownRefError | GitCommandError>;
+  } = dual(hasStringSubject, Effect.fnUntraced(function* <A>(
     _method: string,
     invocation: GitInvocation,
     cwd: string,
@@ -3053,9 +3133,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const lsRemote = Effect.fn("Git.lsRemote")(function* (
+  const lsRemote: GitShape["lsRemote"] = dual(stringAt(1), Effect.fn("Git.lsRemote")(function* (
     cwd: string,
     remote: string,
     options?: {
@@ -3082,29 +3162,29 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       parseLsRemote,
       true,
     );
-  });
+  }));
 
-  const remoteAdd = Effect.fn("Git.remoteAdd")(function* (cwd: string, name: string, url: string) {
+  const remoteAdd: GitShape["remoteAdd"] = dual(3, Effect.fn("Git.remoteAdd")(function* (cwd: string, name: string, url: string) {
     // The url is deliberately NOT annotated.
     yield* Effect.annotateCurrentSpan({ cwd, name });
     yield* rejectOptionLikeRefs(cwd, [name, url]);
     return yield* runVoid("Git.remoteAdd", GitCommand.remoteAdd(name, url), cwd, name);
-  });
+  }));
 
-  const remoteRemove = Effect.fn("Git.remoteRemove")(function* (cwd: string, name: string) {
+  const remoteRemove: GitShape["remoteRemove"] = dual(2, Effect.fn("Git.remoteRemove")(function* (cwd: string, name: string) {
     yield* Effect.annotateCurrentSpan({ cwd, name });
     yield* rejectOptionLikeRefs(cwd, [name]);
     return yield* runVoid("Git.remoteRemove", GitCommand.remoteRemove(name), cwd, name);
-  });
+  }));
 
-  const remoteSetUrl = Effect.fn("Git.remoteSetUrl")(function* (cwd: string, name: string, url: string) {
+  const remoteSetUrl: GitShape["remoteSetUrl"] = dual(3, Effect.fn("Git.remoteSetUrl")(function* (cwd: string, name: string, url: string) {
     // The url is deliberately NOT annotated.
     yield* Effect.annotateCurrentSpan({ cwd, name });
     yield* rejectOptionLikeRefs(cwd, [name, url]);
     return yield* runVoid("Git.remoteSetUrl", GitCommand.remoteSetUrl(name, url), cwd, name);
-  });
+  }));
 
-  const stashPush = Effect.fn("Git.stashPush")(function* (
+  const stashPush: GitShape["stashPush"] = dual(hasStringSubject, Effect.fn("Git.stashPush")(function* (
     cwd: string,
     options?: {
       readonly message?: string;
@@ -3122,11 +3202,20 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       "stash",
     );
-  });
+  }));
+
+  /** The data-first form of a merge-shaped stash member (`stashPop`, `stashApply`). */
+  type StashRestore = (cwd: string, options?: { readonly index?: number }) => Effect.Effect<
+    void,
+    GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
+  >;
 
   // The shared body of stashPop and stashApply — the two merge-shaped stash
   // operations, whose conflict/dirty stderr classifies exactly like a pull's.
-  const stashRestore = (method: string, invocation: (index?: number) => GitInvocation) =>
+  const stashRestore: {
+    (method: string, invocation: (index?: number) => GitInvocation): StashRestore;
+    (invocation: (index?: number) => GitInvocation): (method: string) => StashRestore;
+  } = dual(2, (method: string, invocation: (index?: number) => GitInvocation): StashRestore =>
     Effect.fn(method)(function* (cwd: string, options?: {
       readonly index?: number
     }) {
@@ -3147,25 +3236,25 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         dirtyWorktree: () => Effect.fail(DirtyWorktreeError.make({ cwd })),
         failure: (classified) => Effect.fail(classified.error),
       });
-    });
+    }));
 
-  const stashPop = stashRestore("Git.stashPop", GitCommand.stashPop);
-  const stashApply = stashRestore("Git.stashApply", GitCommand.stashApply);
+  const stashPop: GitShape["stashPop"] = dual(hasStringSubject, stashRestore("Git.stashPop", GitCommand.stashPop));
+  const stashApply: GitShape["stashApply"] = dual(hasStringSubject, stashRestore("Git.stashApply", GitCommand.stashApply));
 
-  const stashDrop = Effect.fn("Git.stashDrop")(function* (cwd: string, options?: {
+  const stashDrop: GitShape["stashDrop"] = dual(hasStringSubject, Effect.fn("Git.stashDrop")(function* (cwd: string, options?: {
     readonly index?: number
   }) {
     yield* Effect.annotateCurrentSpan({ cwd, index: options?.index ?? 0 });
     yield* rejectNonNaturalNumber(cwd, "a stash index", options?.index);
     return yield* runVoid("Git.stashDrop", GitCommand.stashDrop(options?.index), cwd, "stash");
-  });
+  }));
 
   const stashList = Effect.fn("Git.stashList")(function* (cwd: string) {
     yield* Effect.annotateCurrentSpan({ cwd });
     return yield* runParsed("Git.stashList", GitCommand.stashList(), cwd, "stash", "generic", parseStashList);
   });
 
-  const branchList = Effect.fn("Git.branchList")(function* (
+  const branchList: GitShape["branchList"] = dual(hasStringSubject, Effect.fn("Git.branchList")(function* (
     cwd: string,
     options?: { readonly remotes?: boolean; readonly all?: boolean },
   ) {
@@ -3182,9 +3271,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       "generic",
       parseBranchList,
     );
-  });
+  }));
 
-  const tagCreate = Effect.fn("Git.tagCreate")(function* (
+  const tagCreate: GitShape["tagCreate"] = dual(stringAt(1), Effect.fn("Git.tagCreate")(function* (
     cwd: string,
     name: string,
     options?: {
@@ -3206,25 +3295,25 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       options?.ref ?? name,
     );
-  });
+  }));
 
-  const tagDelete = Effect.fn("Git.tagDelete")(function* (cwd: string, name: string) {
+  const tagDelete: GitShape["tagDelete"] = dual(2, Effect.fn("Git.tagDelete")(function* (cwd: string, name: string) {
     yield* Effect.annotateCurrentSpan({ cwd, name });
     yield* rejectOptionLikeRefs(cwd, [name]);
     return yield* runVoid("Git.tagDelete", GitCommand.tagDelete(name), cwd, name);
-  });
+  }));
 
-  const tagList = Effect.fn("Git.tagList")(function* (cwd: string, options?: {
+  const tagList: GitShape["tagList"] = dual(hasStringSubject, Effect.fn("Git.tagList")(function* (cwd: string, options?: {
     readonly pattern?: string
   }) {
     yield* Effect.annotateCurrentSpan({ cwd });
     yield* rejectOptionLikeRefs(cwd, options?.pattern !== undefined ? [options.pattern] : []);
     return yield* runParsed("Git.tagList", GitCommand.tagList(options?.pattern), cwd, "tags", "generic", (output) =>
-      output.split("\n").filter((line) => line.length > 0),
+      A.filter(output.split("\n"), (line) => line.length > 0),
     );
-  });
+  }));
 
-  const forEachRef = Effect.fn("Git.forEachRef")(function* (
+  const forEachRef: GitShape["forEachRef"] = dual(hasStringSubject, Effect.fn("Git.forEachRef")(function* (
     cwd: string,
     options?: { readonly patterns?: ReadonlyArray<string> },
   ) {
@@ -3241,9 +3330,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       "generic",
       parseForEachRef,
     );
-  });
+  }));
 
-  const revList = Effect.fn("Git.revList")(function* (
+  const revList: GitShape["revList"] = dual(stringAt(1), Effect.fn("Git.revList")(function* (
     cwd: string,
     ref: string,
     options?: { readonly limit?: number; readonly firstParent?: boolean },
@@ -3261,11 +3350,11 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       ref,
       "generic",
-      (output) => output.split("\n").filter((line) => line.length > 0),
+      (output) => A.filter(output.split("\n"), (line) => line.length > 0),
     );
-  });
+  }));
 
-  const commit = Effect.fn("Git.commit")(function* (
+  const commit: GitShape["commit"] = dual(stringAt(1), Effect.fn("Git.commit")(function* (
     cwd: string,
     message: string,
     options?: {
@@ -3288,9 +3377,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       "HEAD",
     );
-  });
+  }));
 
-  const push = Effect.fn("Git.push")(function* (
+  const push: GitShape["push"] = dual(hasStringSubject, Effect.fn("Git.push")(function* (
     cwd: string,
     options?: {
       readonly remote?: string;
@@ -3340,9 +3429,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
         ),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const pull = Effect.fn("Git.pull")(function* (
+  const pull: GitShape["pull"] = dual(hasStringSubject, Effect.fn("Git.pull")(function* (
     cwd: string,
     options?: {
       readonly remote?: string;
@@ -3378,9 +3467,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       dirtyWorktree: () => Effect.fail(DirtyWorktreeError.make({ cwd })),
       failure: (classified) => Effect.fail(classified.error),
     });
-  });
+  }));
 
-  const configList = Effect.fn("Git.configList")(function* (
+  const configList: GitShape["configList"] = dual(hasStringSubject, Effect.fn("Git.configList")(function* (
     cwd: string,
     options?: { readonly file?: string; readonly scope?: GitConfigScope },
   ) {
@@ -3398,9 +3487,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       "generic",
       parseConfigList,
     );
-  });
+  }));
 
-  const configGetAll = Effect.fn("Git.configGetAll")(function* (
+  const configGetAll: GitShape["configGetAll"] = dual(stringAt(1), Effect.fn("Git.configGetAll")(function* (
     cwd: string,
     key: string,
     options?: { readonly file?: string },
@@ -3419,9 +3508,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       "quiet",
       parseConfigGetAll,
     );
-  });
+  }));
 
-  const configUnset = Effect.fn("Git.configUnset")(function* (
+  const configUnset: GitShape["configUnset"] = dual(stringAt(1), Effect.fn("Git.configUnset")(function* (
     cwd: string,
     key: string,
     options?: { readonly file?: string; readonly all?: boolean },
@@ -3438,9 +3527,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       key,
     );
-  });
+  }));
 
-  const configRemoveSection = Effect.fn("Git.configRemoveSection")(function* (
+  const configRemoveSection: GitShape["configRemoveSection"] = dual(stringAt(1), Effect.fn("Git.configRemoveSection")(function* (
     cwd: string,
     section: string,
     options?: { readonly file?: string },
@@ -3459,9 +3548,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       section,
     );
-  });
+  }));
 
-  const configRenameSection = Effect.fn("Git.configRenameSection")(function* (
+  const configRenameSection: GitShape["configRenameSection"] = dual(stringAt(2), Effect.fn("Git.configRenameSection")(function* (
     cwd: string,
     oldName: string,
     newName: string,
@@ -3480,9 +3569,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       oldName,
     );
-  });
+  }));
 
-  const rm = Effect.fn("Git.rm")(function* (
+  const rm: GitShape["rm"] = dual(hasStringSubject, Effect.fn("Git.rm")(function* (
     cwd: string,
     paths: ReadonlyArray<string>,
     options?: {
@@ -3502,9 +3591,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       "working tree",
     );
-  });
+  }));
 
-  const mv = Effect.fn("Git.mv")(function* (
+  const mv: GitShape["mv"] = dual(stringAt(2), Effect.fn("Git.mv")(function* (
     cwd: string,
     source: string,
     destination: string,
@@ -3512,9 +3601,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
   ) {
     yield* Effect.annotateCurrentSpan({ cwd, source, destination });
     return yield* runVoid("Git.mv", GitCommand.mv(source, destination, options?.force ?? false), cwd, "working tree");
-  });
+  }));
 
-  const checkIgnore = Effect.fn("Git.checkIgnore")(function* (cwd: string, paths: ReadonlyArray<string>) {
+  const checkIgnore: GitShape["checkIgnore"] = dual(2, Effect.fn("Git.checkIgnore")(function* (cwd: string, paths: ReadonlyArray<string>) {
     yield* Effect.annotateCurrentSpan({ cwd, count: paths.length });
     return yield* runParsed(
       "Git.checkIgnore",
@@ -3524,9 +3613,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       "quiet",
       parseNulSeparated,
     );
-  });
+  }));
 
-  const worktreeAdd = Effect.fn("Git.worktreeAdd")(function* (
+  const worktreeAdd: GitShape["worktreeAdd"] = dual(stringAt(1), Effect.fn("Git.worktreeAdd")(function* (
     cwd: string,
     path: string,
     options?: {
@@ -3547,7 +3636,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       cwd,
       options?.ref ?? path,
     );
-  });
+  }));
 
   const worktreeList = Effect.fn("Git.worktreeList")(function* (cwd: string) {
     yield* Effect.annotateCurrentSpan({ cwd });
@@ -3561,7 +3650,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     );
   });
 
-  const worktreeRemove = Effect.fn("Git.worktreeRemove")(function* (
+  const worktreeRemove: GitShape["worktreeRemove"] = dual(stringAt(1), Effect.fn("Git.worktreeRemove")(function* (
     cwd: string,
     path: string,
     options?: { readonly force?: boolean },
@@ -3569,9 +3658,9 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     yield* Effect.annotateCurrentSpan({ cwd, path });
     yield* rejectOptionLikeRefs(cwd, [path]);
     return yield* runVoid("Git.worktreeRemove", GitCommand.worktreeRemove(path, options?.force ?? false), cwd, path);
-  });
+  }));
 
-  const lsFiles = Effect.fn("Git.lsFiles")(function* (
+  const lsFiles: GitShape["lsFiles"] = dual(hasStringSubject, Effect.fn("Git.lsFiles")(function* (
     cwd: string,
     options?: { readonly pathspec?: ReadonlyArray<string> },
   ) {
@@ -3587,7 +3676,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
       "generic",
       parseLsFiles,
     );
-  });
+  }));
 
   return {
     show,
@@ -3665,7 +3754,7 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
     worktreeRemove,
     lsFiles,
   };
-};
+});
 
 /**
  * The {@link Git} service shape.
@@ -3682,22 +3771,42 @@ const make = (spawner: ChildProcessSpawner.ChildProcessSpawner["Service"], ssh: 
  */
 export interface GitShape {
   /** `git show <ref>:<path>` — the contents of `path` at `ref`, or `Option.none` if absent there. */
-  readonly show: (
-    cwd: string,
-    ref: string,
-    path: string,
-  ) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly show: {
+    (
+      cwd: string,
+      ref: string,
+      path: string,
+    ): Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      ref: string,
+      path: string,
+    ): (cwd: string) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git ls-tree -r -z <ref> [-- <pathspec>...]` — every path in the tree at
    * `ref`, recursively, optionally scoped to `pathspec`.
    */
-  readonly lsTree: (
-    cwd: string,
-    ref: string,
-    options?: { readonly pathspec?: ReadonlyArray<string> },
-  ) => Effect.Effect<ReadonlyArray<LsTreeEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly lsTree: {
+    (
+      cwd: string,
+      ref: string,
+      options?: { readonly pathspec?: ReadonlyArray<string> },
+    ): Effect.Effect<ReadonlyArray<LsTreeEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      ref: string,
+      options?: { readonly pathspec?: ReadonlyArray<string> },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<LsTreeEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /** `git cat-file -e <ref>` — whether `ref` resolves to an existing object. */
-  readonly refExists: (cwd: string, ref: string) => Effect.Effect<boolean, GitCommandError | NotARepositoryError>;
+  readonly refExists: {
+    (
+      cwd: string,
+      ref: string,
+    ): Effect.Effect<boolean, GitCommandError | NotARepositoryError>;
+    (
+      ref: string,
+    ): (cwd: string) => Effect.Effect<boolean, GitCommandError | NotARepositoryError>;
+  };
   /**
    * `git merge-base <a> <b>` — the best common ancestor commit, trimmed.
    * For when absence is EXCEPTIONAL: two refs with no common ancestor fail
@@ -3705,11 +3814,17 @@ export interface GitShape {
    * failure arm). When "no common ancestor" is a legitimate answer at your
    * call site — a reachability probe — use `mergeBaseOption` instead.
    */
-  readonly mergeBase: (
-    cwd: string,
-    a: string,
-    b: string,
-  ) => Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly mergeBase: {
+    (
+      cwd: string,
+      a: string,
+      b: string,
+    ): Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      a: string,
+      b: string,
+    ): (cwd: string) => Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git merge-base <a> <b>` — the best common ancestor commit, trimmed, as
    * a PROBE: two refs with no common ancestor (disjoint histories — a
@@ -3725,24 +3840,39 @@ export interface GitShape {
    * that only wants reachability ("do these histories connect?") reads the
    * boolean directly: `Option.isSome(yield* git.mergeBaseOption(cwd, a, b))`.
    */
-  readonly mergeBaseOption: (
-    cwd: string,
-    a: string,
-    b: string,
-  ) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly mergeBaseOption: {
+    (
+      cwd: string,
+      a: string,
+      b: string,
+    ): Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      a: string,
+      b: string,
+    ): (cwd: string) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git diff --name-only -z [--relative] <base>...<head>` — the paths that
    * differ. Pass `relative: true` to report paths relative to `cwd` and
    * exclude changes outside it (a workspace nested in a larger repository).
    */
-  readonly changedFiles: (
-    cwd: string,
-    options: {
-      readonly base: string;
-      readonly head: string;
-      readonly relative?: boolean
-    },
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly changedFiles: {
+    (
+      cwd: string,
+      options: {
+        readonly base: string;
+        readonly head: string;
+        readonly relative?: boolean
+      },
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options: {
+        readonly base: string;
+        readonly head: string;
+        readonly relative?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * The union of unstaged, staged and untracked working-tree paths —
    * `git diff --name-only -z [--relative]`, `--cached`, and
@@ -3752,15 +3882,25 @@ export interface GitShape {
    * `--full-name` makes it repo-root-relative instead, matching the
    * un-`--relative` diffs). No ref is involved, so it never fails `UnknownRefError`.
    */
-  readonly workingChanges: (
-    cwd: string,
-    options?: { readonly relative?: boolean },
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly workingChanges: {
+    (
+      cwd: string,
+      options?: { readonly relative?: boolean },
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly relative?: boolean },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /** `git rev-parse --verify <ref>` — resolves `ref` to its full object id, trimmed. */
-  readonly revParse: (
-    cwd: string,
-    ref: string,
-  ) => Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly revParse: {
+    (
+      cwd: string,
+      ref: string,
+    ): Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      ref: string,
+    ): (cwd: string) => Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git checkout [--detach] <ref>` — moves the working tree
    * (and, for a branch ref, `HEAD`) to `ref`; `options.detach` checks it out
@@ -3769,11 +3909,17 @@ export interface GitShape {
    * classifies as `GitCommandError` rather than `UnknownRefError`; the
    * `UnknownRefError` arm remains declared for the stderr shapes that do match.
    */
-  readonly checkout: (
-    cwd: string,
-    ref: string,
-    options?: { readonly detach?: boolean },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly checkout: {
+    (
+      cwd: string,
+      ref: string,
+      options?: { readonly detach?: boolean },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      ref: string,
+      options?: { readonly detach?: boolean },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git fetch [--depth <n>] [--unshallow] <remote> [tag] <ref>` —
    * fetches `options.ref` from `options.remote` (default `origin`) into the
@@ -3798,16 +3944,27 @@ export interface GitShape {
    * first. Combining it with `options.depth` is refused typed, pre-spawn,
    * exactly as git itself would reject the pair.
    */
-  readonly fetch: (
-    cwd: string,
-    options: {
-      readonly ref: string;
-      readonly remote?: string;
-      readonly depth?: number;
-      readonly tag?: boolean;
-      readonly unshallow?: boolean;
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly fetch: {
+    (
+      cwd: string,
+      options: {
+        readonly ref: string;
+        readonly remote?: string;
+        readonly depth?: number;
+        readonly tag?: boolean;
+        readonly unshallow?: boolean;
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options: {
+        readonly ref: string;
+        readonly remote?: string;
+        readonly depth?: number;
+        readonly tag?: boolean;
+        readonly unshallow?: boolean;
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: fetches `options.ref` from `options.remote` (default
    * `origin`) without knowing whether it names a tag — the tag form
@@ -3822,14 +3979,23 @@ export interface GitShape {
    * the plain form would fail identically. When both attempts fail, the
    * PLAIN fetch's error surfaces; the tag attempt's failure is discarded.
    */
-  readonly fetchAny: (
-    cwd: string,
-    options: {
-      readonly ref: string;
-      readonly remote?: string;
-      readonly depth?: number
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly fetchAny: {
+    (
+      cwd: string,
+      options: {
+        readonly ref: string;
+        readonly remote?: string;
+        readonly depth?: number
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options: {
+        readonly ref: string;
+        readonly remote?: string;
+        readonly depth?: number
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git fetch --unshallow <remote>` — converts a shallow clone
    * into a complete one by fetching all missing history from
@@ -3846,10 +4012,15 @@ export interface GitShape {
    * `isShallow` first and skip the fetch when the repository is already
    * complete.
    */
-  readonly fetchUnshallow: (
-    cwd: string,
-    options?: { readonly remote?: string },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly fetchUnshallow: {
+    (
+      cwd: string,
+      options?: { readonly remote?: string },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly remote?: string },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git rev-parse --is-shallow-repository` — whether the repository is a
    * shallow clone.
@@ -3880,13 +4051,21 @@ export interface GitShape {
    * which writes the commit server-side), `reset --hard origin/<branch>`
    * is how the local tree is synchronized to the commit it never made.
    */
-  readonly reset: (
-    cwd: string,
-    options?: {
-      readonly mode?: "soft" | "mixed" | "hard";
-      readonly ref?: string
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly reset: {
+    (
+      cwd: string,
+      options?: {
+        readonly mode?: "soft" | "mixed" | "hard";
+        readonly ref?: string
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: {
+        readonly mode?: "soft" | "mixed" | "hard";
+        readonly ref?: string
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git clean --force [-d] [-x] [-- <paths>...]` — deletes
    * untracked files (and, with `options.directories`, untracked directories;
@@ -3901,14 +4080,23 @@ export interface GitShape {
    * config — **a clean that silently did nothing corrupts the retry**. Any
    * non-zero exit fails loudly as `GitCommandError`.
    */
-  readonly clean: (
-    cwd: string,
-    options?: {
-      readonly directories?: boolean;
-      readonly ignored?: boolean;
-      readonly paths?: ReadonlyArray<string>
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly clean: {
+    (
+      cwd: string,
+      options?: {
+        readonly directories?: boolean;
+        readonly ignored?: boolean;
+        readonly paths?: ReadonlyArray<string>
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: {
+        readonly directories?: boolean;
+        readonly ignored?: boolean;
+        readonly paths?: ReadonlyArray<string>
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git restore [--source <ref>] [--staged] [--worktree] -- <paths...>`
    * — restores `paths` from the index, or from `options.source`. The
@@ -3923,15 +4111,25 @@ export interface GitShape {
    * injection-safe by construction; only `options.source` is a guarded ref.
    * With neither `staged` nor `worktree` set, git restores the working tree.
    */
-  readonly restore: (
-    cwd: string,
-    paths: ReadonlyArray<string>,
-    options?: {
-      readonly source?: string;
-      readonly staged?: boolean;
-      readonly worktree?: boolean
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly restore: {
+    (
+      cwd: string,
+      paths: ReadonlyArray<string>,
+      options?: {
+        readonly source?: string;
+        readonly staged?: boolean;
+        readonly worktree?: boolean
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      paths: ReadonlyArray<string>,
+      options?: {
+        readonly source?: string;
+        readonly staged?: boolean;
+        readonly worktree?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git branch [-f] <name> [<start-point>]` — creates a branch,
    * optionally from `options.startPoint`; `options.checkout` switches to it
@@ -3953,26 +4151,42 @@ export interface GitShape {
    * branch the swallowed delete fails and the create then fails for real.
    * `checkout -B` handles both states in one invocation.
    */
-  readonly branchCreate: (
-    cwd: string,
-    name: string,
-    options?: {
-      readonly startPoint?: string;
-      readonly checkout?: boolean;
-      readonly force?: boolean
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly branchCreate: {
+    (
+      cwd: string,
+      name: string,
+      options?: {
+        readonly startPoint?: string;
+        readonly checkout?: boolean;
+        readonly force?: boolean
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      name: string,
+      options?: {
+        readonly startPoint?: string;
+        readonly checkout?: boolean;
+        readonly force?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git branch -d <name>` (or `-D` with `options.force`) —
    * deletes a local branch. The default `-d` refuses a branch that is not
    * fully merged — a typed `GitCommandError`, which is usually the honest
    * answer; `force: true` deletes regardless.
    */
-  readonly branchDelete: (
-    cwd: string,
-    name: string,
-    options?: { readonly force?: boolean },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly branchDelete: {
+    (
+      cwd: string,
+      name: string,
+      options?: { readonly force?: boolean },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      name: string,
+      options?: { readonly force?: boolean },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating:
    * `git submodule update [--init] [--checkout] [--remote] [--no-fetch] [--recursive] [--force] [--depth <n>] [-- <paths>...]`
@@ -3991,32 +4205,55 @@ export interface GitShape {
    * the recorded sha; `options.recursive` descends into nested submodules;
    * `options.force` discards local changes in the submodule working tree.
    */
-  readonly submoduleUpdate: (
-    cwd: string,
-    options?: {
-      readonly init?: boolean;
-      readonly depth?: number;
-      readonly paths?: ReadonlyArray<string>;
-      readonly checkout?: boolean;
-      readonly remote?: boolean;
-      readonly fetch?: false;
-      readonly recursive?: boolean;
-      readonly force?: boolean;
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleUpdate: {
+    (
+      cwd: string,
+      options?: {
+        readonly init?: boolean;
+        readonly depth?: number;
+        readonly paths?: ReadonlyArray<string>;
+        readonly checkout?: boolean;
+        readonly remote?: boolean;
+        readonly fetch?: false;
+        readonly recursive?: boolean;
+        readonly force?: boolean;
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: {
+        readonly init?: boolean;
+        readonly depth?: number;
+        readonly paths?: ReadonlyArray<string>;
+        readonly checkout?: boolean;
+        readonly remote?: boolean;
+        readonly fetch?: false;
+        readonly recursive?: boolean;
+        readonly force?: boolean;
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git submodule add [--depth <n>] -- <url> <path>` —
    * registers and initializes a new submodule at `options.path`, cloned
    * from `options.url`, optionally shallow.
    */
-  readonly submoduleAdd: (
-    cwd: string,
-    options: {
-      readonly url: string;
-      readonly path: string;
-      readonly depth?: number
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleAdd: {
+    (
+      cwd: string,
+      options: {
+        readonly url: string;
+        readonly path: string;
+        readonly depth?: number
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options: {
+        readonly url: string;
+        readonly path: string;
+        readonly depth?: number
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git submodule status [--recursive] [-- <paths>...]` — one
    * {@link SubmoduleStatusEntry} per registered submodule, decoding git's
@@ -4028,22 +4265,35 @@ export interface GitShape {
    * path containing a newline would corrupt the parse — a git-imposed
    * limitation, recorded on the entry class.
    */
-  readonly submoduleStatus: (
-    cwd: string,
-    options?: {
-      readonly paths?: ReadonlyArray<string>;
-      readonly recursive?: boolean
-    },
-  ) => Effect.Effect<ReadonlyArray<SubmoduleStatusEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleStatus: {
+    (
+      cwd: string,
+      options?: {
+        readonly paths?: ReadonlyArray<string>;
+        readonly recursive?: boolean
+      },
+    ): Effect.Effect<ReadonlyArray<SubmoduleStatusEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: {
+        readonly paths?: ReadonlyArray<string>;
+        readonly recursive?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<SubmoduleStatusEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git submodule init [-- <paths>...]` — registers submodules
    * from `.gitmodules` into `.git/config` (all of them, or only
    * `options.paths`) without cloning or checking anything out.
    */
-  readonly submoduleInit: (
-    cwd: string,
-    options?: { readonly paths?: ReadonlyArray<string> },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleInit: {
+    (
+      cwd: string,
+      options?: { readonly paths?: ReadonlyArray<string> },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly paths?: ReadonlyArray<string> },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git submodule deinit [--force] (--all | -- <paths>...)` —
    * unregisters submodules: clears their working trees and removes their
@@ -4052,27 +4302,44 @@ export interface GitShape {
    * as git itself would refuse it. `options.force` discards local changes
    * in the submodule working tree.
    */
-  readonly submoduleDeinit: (
-    cwd: string,
-    options: {
-      readonly paths?: ReadonlyArray<string>;
-      readonly all?: boolean;
-      readonly force?: boolean
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleDeinit: {
+    (
+      cwd: string,
+      options: {
+        readonly paths?: ReadonlyArray<string>;
+        readonly all?: boolean;
+        readonly force?: boolean
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options: {
+        readonly paths?: ReadonlyArray<string>;
+        readonly all?: boolean;
+        readonly force?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git submodule sync [--recursive] [-- <paths>...]` — re-copies
    * each submodule's URL from `.gitmodules` into `.git/config` (and the
    * submodule's own `remote.origin.url`), so a `.gitmodules` URL change
    * actually reaches git's live configuration.
    */
-  readonly submoduleSync: (
-    cwd: string,
-    options?: {
-      readonly paths?: ReadonlyArray<string>;
-      readonly recursive?: boolean
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleSync: {
+    (
+      cwd: string,
+      options?: {
+        readonly paths?: ReadonlyArray<string>;
+        readonly recursive?: boolean
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: {
+        readonly paths?: ReadonlyArray<string>;
+        readonly recursive?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git submodule set-url -- <path> <url>` — rewrites the
    * submodule's URL in `.gitmodules` and synchronizes it into `.git/config`.
@@ -4083,30 +4350,47 @@ export interface GitShape {
    * credential is masked in `GitCommandError.args`/`.message` — and the
    * method's span annotates `cwd` and `path` only.
    */
-  readonly submoduleSetUrl: (
-    cwd: string,
-    path: string,
-    url: string,
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleSetUrl: {
+    (
+      cwd: string,
+      path: string,
+      url: string,
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      path: string,
+      url: string,
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git submodule set-branch (--branch <branch> | --default) -- <path>`
    * — records the branch the submodule tracks in `.gitmodules`, or clears
    * it back to the default when `options.branch` is omitted.
    */
-  readonly submoduleSetBranch: (
-    cwd: string,
-    path: string,
-    options?: { readonly branch?: string },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleSetBranch: {
+    (
+      cwd: string,
+      path: string,
+      options?: { readonly branch?: string },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      path: string,
+      options?: { readonly branch?: string },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git submodule absorbgitdirs [-- <paths>...]` — moves each
    * submodule's embedded `.git` directory into the superproject's
    * `.git/modules/` and leaves a gitfile pointer behind.
    */
-  readonly submoduleAbsorbgitdirs: (
-    cwd: string,
-    options?: { readonly paths?: ReadonlyArray<string> },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleAbsorbgitdirs: {
+    (
+      cwd: string,
+      options?: { readonly paths?: ReadonlyArray<string> },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly paths?: ReadonlyArray<string> },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git submodule foreach [--recursive] <command>` — runs one
    * shell command string in every checked-out submodule and returns the
@@ -4114,21 +4398,33 @@ export interface GitShape {
    * method is marked mutating regardless of what it runs; a command
    * beginning with `-` is refused typed before any spawn.
    */
-  readonly submoduleForeach: (
-    cwd: string,
-    command: string,
-    options?: { readonly recursive?: boolean },
-  ) => Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly submoduleForeach: {
+    (
+      cwd: string,
+      command: string,
+      options?: { readonly recursive?: boolean },
+    ): Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      command: string,
+      options?: { readonly recursive?: boolean },
+    ): (cwd: string) => Effect.Effect<string, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git sparse-checkout set (--cone | --no-cone) <patterns...>`
    * — rewrites which paths are checked out in the working tree to
    * `patterns`, in cone mode or full pattern mode per `options.cone`.
    */
-  readonly sparseCheckoutSet: (
-    cwd: string,
-    patterns: ReadonlyArray<string>,
-    options: { readonly cone: boolean },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly sparseCheckoutSet: {
+    (
+      cwd: string,
+      patterns: ReadonlyArray<string>,
+      options: { readonly cone: boolean },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      patterns: ReadonlyArray<string>,
+      options: { readonly cone: boolean },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git config [-f <file>] <key> <value>` — writes `value` for
    * `key` into the repository config, or into `options.file` when given
@@ -4152,57 +4448,98 @@ export interface GitShape {
    * `<redacted>` in `GitCommandError.args` and `.message`, and the method's
    * span annotates `key` and `file` only.
    */
-  readonly configSet: (
-    cwd: string,
-    key: string,
-    value: string,
-    options?: { readonly file?: string },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly configSet: {
+    (
+      cwd: string,
+      key: string,
+      value: string,
+      options?: { readonly file?: string },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      key: string,
+      value: string,
+      options?: { readonly file?: string },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git add -- <paths...>` — stages `paths` in the index for
    * the next commit.
    */
-  readonly add: (
-    cwd: string,
-    paths: ReadonlyArray<string>,
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly add: {
+    (
+      cwd: string,
+      paths: ReadonlyArray<string>,
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      paths: ReadonlyArray<string>,
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git diff --name-status -z [--relative] [<base> | <base>...<head>]` —
    * the changed paths with their status codes. `head` omitted diffs the
    * working tree against `base`; `head` present diffs the merge-base range.
    */
-  readonly nameStatus: (
-    cwd: string,
-    options: {
-      readonly base: string;
-      readonly head?: string;
-      readonly relative?: boolean
-    },
-  ) => Effect.Effect<ReadonlyArray<NameStatusEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly nameStatus: {
+    (
+      cwd: string,
+      options: {
+        readonly base: string;
+        readonly head?: string;
+        readonly relative?: boolean
+      },
+    ): Effect.Effect<ReadonlyArray<NameStatusEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options: {
+        readonly base: string;
+        readonly head?: string;
+        readonly relative?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<NameStatusEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /** `git diff --name-only -z [--relative]` — the unstaged working-tree paths. */
-  readonly unstagedChanges: (
-    cwd: string,
-    options?: { readonly relative?: boolean },
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly unstagedChanges: {
+    (
+      cwd: string,
+      options?: { readonly relative?: boolean },
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly relative?: boolean },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /** `git diff --name-only -z [--relative] --cached` — the staged paths. */
-  readonly stagedChanges: (
-    cwd: string,
-    options?: { readonly relative?: boolean },
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly stagedChanges: {
+    (
+      cwd: string,
+      options?: { readonly relative?: boolean },
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly relative?: boolean },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /** `git ls-files --others --exclude-standard -z [--full-name]` — the untracked paths. */
-  readonly untrackedFiles: (
-    cwd: string,
-    options?: { readonly relative?: boolean },
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly untrackedFiles: {
+    (
+      cwd: string,
+      options?: { readonly relative?: boolean },
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly relative?: boolean },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git symbolic-ref --quiet --short refs/remotes/<remote>/HEAD` — the
    * bare branch name, remote prefix stripped, or `Option.none` when the
    * remote's HEAD is unset — run `git remote set-head` to set it.
    */
-  readonly defaultBranch: (
-    cwd: string,
-    options?: { readonly remote?: string },
-  ) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly defaultBranch: {
+    (
+      cwd: string,
+      options?: { readonly remote?: string },
+    ): Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly remote?: string },
+    ): (cwd: string) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git rev-parse --abbrev-ref HEAD` — the current branch name, or
    * `Option.none` when `HEAD` is detached (the literal answer `"HEAD"`
@@ -4254,16 +4591,27 @@ export interface GitShape {
    * `{ scope: "local" }` to ask what this checkout itself declares — see
    * `Git.configList` for why the distinction matters.
    */
-  readonly configGet: (
-    cwd: string,
-    key: string,
-    options?: { readonly scope?: GitConfigScope },
-  ) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly configGet: {
+    (
+      cwd: string,
+      key: string,
+      options?: { readonly scope?: GitConfigScope },
+    ): Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      key: string,
+      options?: { readonly scope?: GitConfigScope },
+    ): (cwd: string) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /** `git remote get-url <remote>` — the trimmed URL, or `Option.none` when the remote does not exist. */
-  readonly remoteUrl: (
-    cwd: string,
-    options?: { readonly remote?: string },
-  ) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly remoteUrl: {
+    (
+      cwd: string,
+      options?: { readonly remote?: string },
+    ): Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly remote?: string },
+    ): (cwd: string) => Effect.Effect<O.Option<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git log -1 --format=%H%x00%G?%x00%B <ref>` — a single commit's sha,
    * signature verdict and raw (untrimmed) message. `ref` defaults to `HEAD`.
@@ -4301,19 +4649,33 @@ export interface GitShape {
    * a single tree, and the one that decodes dates: see `CommitLogEntry` for
    * what the UTC decoding does and does not preserve.
    */
-  readonly log: (
-    cwd: string,
-    options?: {
-      /** A git pathspec scoping the walk; `--follow` requires exactly one entry. */
-      readonly paths?: ReadonlyArray<string>;
-      /** Follow the single path across renames (git's `--follow`). Default `false`. */
-      readonly follow?: boolean;
-      /** `--max-count`: at most this many commits. `0` is the empty listing. */
-      readonly limit?: number;
-      /** `--diff-merges=first-parent`: give merge commits a path listing. Default `false`. */
-      readonly firstParentDiffMerges?: boolean;
-    },
-  ) => Effect.Effect<ReadonlyArray<CommitLogEntry>, GitCommandError | NotARepositoryError>;
+  readonly log: {
+    (
+      cwd: string,
+      options?: {
+        /** A git pathspec scoping the walk; `--follow` requires exactly one entry. */
+        readonly paths?: ReadonlyArray<string>;
+        /** Follow the single path across renames (git's `--follow`). Default `false`. */
+        readonly follow?: boolean;
+        /** `--max-count`: at most this many commits. `0` is the empty listing. */
+        readonly limit?: number;
+        /** `--diff-merges=first-parent`: give merge commits a path listing. Default `false`. */
+        readonly firstParentDiffMerges?: boolean;
+      },
+    ): Effect.Effect<ReadonlyArray<CommitLogEntry>, GitCommandError | NotARepositoryError>;
+    (
+      options?: {
+        /** A git pathspec scoping the walk; `--follow` requires exactly one entry. */
+        readonly paths?: ReadonlyArray<string>;
+        /** Follow the single path across renames (git's `--follow`). Default `false`. */
+        readonly follow?: boolean;
+        /** `--max-count`: at most this many commits. `0` is the empty listing. */
+        readonly limit?: number;
+        /** `--diff-merges=first-parent`: give merge commits a path listing. Default `false`. */
+        readonly firstParentDiffMerges?: boolean;
+      },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<CommitLogEntry>, GitCommandError | NotARepositoryError>;
+  };
   /** `git status --porcelain -z` — the working tree's porcelain status listing. */
   readonly status: (
     cwd: string,
@@ -4333,58 +4695,94 @@ export interface GitShape {
    * monorepo-prefixed-tag case, `effect@<ref>`). `remote` may be a URL; an
    * embedded credential never surfaces in an error value.
    */
-  readonly lsRemote: (
-    cwd: string,
-    remote: string,
-    options?: {
-      readonly heads?: boolean;
-      readonly tags?: boolean;
-      readonly patterns?: ReadonlyArray<string>;
-    },
-  ) => Effect.Effect<ReadonlyArray<LsRemoteEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly lsRemote: {
+    (
+      cwd: string,
+      remote: string,
+      options?: {
+        readonly heads?: boolean;
+        readonly tags?: boolean;
+        readonly patterns?: ReadonlyArray<string>;
+      },
+    ): Effect.Effect<ReadonlyArray<LsRemoteEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      remote: string,
+      options?: {
+        readonly heads?: boolean;
+        readonly tags?: boolean;
+        readonly patterns?: ReadonlyArray<string>;
+      },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<LsRemoteEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git remote add <name> <url>` — registers a new remote.
    * `url`'s embedded credential (if any) never surfaces in an error value,
    * and the method's span annotates `name` only.
    */
-  readonly remoteAdd: (
-    cwd: string,
-    name: string,
-    url: string,
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly remoteAdd: {
+    (
+      cwd: string,
+      name: string,
+      url: string,
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      name: string,
+      url: string,
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git remote remove <name>` — deletes a remote, its
    * remote-tracking refs and its configuration. A missing remote fails
    * loudly as {@link GitCommandError} — probe with `remoteUrl` first when
    * idempotency is wanted.
    */
-  readonly remoteRemove: (
-    cwd: string,
-    name: string,
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly remoteRemove: {
+    (
+      cwd: string,
+      name: string,
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      name: string,
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git remote set-url <name> <url>` — rewrites a remote's fetch
    * URL. `url`'s embedded credential (if any) never surfaces in an error
    * value, and the method's span annotates `name` only.
    */
-  readonly remoteSetUrl: (
-    cwd: string,
-    name: string,
-    url: string,
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly remoteSetUrl: {
+    (
+      cwd: string,
+      name: string,
+      url: string,
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      name: string,
+      url: string,
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git stash push [--include-untracked] [-m <message>] [-- <paths>...]`
    * — saves the working-tree (and index) state onto the stash stack and
    * resets the tree to `HEAD`.
    */
-  readonly stashPush: (
-    cwd: string,
-    options?: {
-      readonly message?: string;
-      readonly includeUntracked?: boolean;
-      readonly paths?: ReadonlyArray<string>;
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly stashPush: {
+    (
+      cwd: string,
+      options?: {
+        readonly message?: string;
+        readonly includeUntracked?: boolean;
+        readonly paths?: ReadonlyArray<string>;
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: {
+        readonly message?: string;
+        readonly includeUntracked?: boolean;
+        readonly paths?: ReadonlyArray<string>;
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git stash pop [stash@{n}]` — applies a stash entry
    * (`options.index`, default the latest) and drops it on success.
@@ -4397,34 +4795,55 @@ export interface GitShape {
    * that case the stash entry is KEPT, and the caller owns resolving. A
    * non-integer index is refused typed before any spawn.
    */
-  readonly stashPop: (
-    cwd: string,
-    options?: { readonly index?: number },
-  ) => Effect.Effect<
-    void,
-    GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
-  >;
+  readonly stashPop: {
+    (
+      cwd: string,
+      options?: { readonly index?: number },
+    ): Effect.Effect<
+      void,
+      GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
+    >;
+    (
+      options?: { readonly index?: number },
+    ): (cwd: string) => Effect.Effect<
+      void,
+      GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
+    >;
+  };
   /**
    * Mutating: `git stash apply [stash@{n}]` — applies a stash entry and
    * keeps it on the stack. Fails exactly like `stashPop`
    * ({@link DirtyWorktreeError} / {@link MergeConflictError} are the
    * branchable shapes).
    */
-  readonly stashApply: (
-    cwd: string,
-    options?: { readonly index?: number },
-  ) => Effect.Effect<
-    void,
-    GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
-  >;
+  readonly stashApply: {
+    (
+      cwd: string,
+      options?: { readonly index?: number },
+    ): Effect.Effect<
+      void,
+      GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
+    >;
+    (
+      options?: { readonly index?: number },
+    ): (cwd: string) => Effect.Effect<
+      void,
+      GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
+    >;
+  };
   /**
    * Mutating: `git stash drop [stash@{n}]` — deletes a stash entry
    * (`options.index`, default the latest) without applying it.
    */
-  readonly stashDrop: (
-    cwd: string,
-    options?: { readonly index?: number },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly stashDrop: {
+    (
+      cwd: string,
+      options?: { readonly index?: number },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly index?: number },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git stash list -z --format=%gd%x1f%H%x1f%gs` — every stash entry as a
    * {@link StashEntry} (reflog selector, sha, subject). The entry's
@@ -4439,57 +4858,93 @@ export interface GitShape {
    * {@link BranchEntry} (short name, tip sha, current marker), via the
    * NUL-separated for-each-ref format. `all` wins when both flags are set.
    */
-  readonly branchList: (
-    cwd: string,
-    options?: { readonly remotes?: boolean; readonly all?: boolean },
-  ) => Effect.Effect<ReadonlyArray<BranchEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly branchList: {
+    (
+      cwd: string,
+      options?: { readonly remotes?: boolean; readonly all?: boolean },
+    ): Effect.Effect<ReadonlyArray<BranchEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly remotes?: boolean; readonly all?: boolean },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<BranchEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git tag [--force] [-m <message>] <name> [<ref>]` — creates a
    * lightweight tag at `options.ref` (default `HEAD`), or an annotated one
    * when `options.message` is given. An existing tag fails loudly unless
    * `options.force` is set.
    */
-  readonly tagCreate: (
-    cwd: string,
-    name: string,
-    options?: {
-      readonly ref?: string;
-      readonly message?: string;
-      readonly force?: boolean
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly tagCreate: {
+    (
+      cwd: string,
+      name: string,
+      options?: {
+        readonly ref?: string;
+        readonly message?: string;
+        readonly force?: boolean
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      name: string,
+      options?: {
+        readonly ref?: string;
+        readonly message?: string;
+        readonly force?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /** Mutating: `git tag --delete <name>` — deletes a local tag. */
-  readonly tagDelete: (
-    cwd: string,
-    name: string,
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly tagDelete: {
+    (
+      cwd: string,
+      name: string,
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      name: string,
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git tag --list [<pattern>]` — tag names, optionally filtered by a
    * shell-glob `options.pattern`.
    */
-  readonly tagList: (
-    cwd: string,
-    options?: { readonly pattern?: string },
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly tagList: {
+    (
+      cwd: string,
+      options?: { readonly pattern?: string },
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly pattern?: string },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git for-each-ref [<patterns>...]` — every matching ref as a
    * {@link RefEntry} (full refname, sha, object type), via this package's
    * fixed `%(refname)%00%(objectname)%00%(objecttype)` format.
    */
-  readonly forEachRef: (
-    cwd: string,
-    options?: { readonly patterns?: ReadonlyArray<string> },
-  ) => Effect.Effect<ReadonlyArray<RefEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly forEachRef: {
+    (
+      cwd: string,
+      options?: { readonly patterns?: ReadonlyArray<string> },
+    ): Effect.Effect<ReadonlyArray<RefEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly patterns?: ReadonlyArray<string> },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<RefEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git rev-list [--max-count=<n>] [--first-parent] <ref>` — the commit
    * shas reachable from `ref` (which may be a range, `main..feat`), newest
    * first. A non-integer `options.limit` is refused typed before any spawn.
    */
-  readonly revList: (
-    cwd: string,
-    ref: string,
-    options?: { readonly limit?: number; readonly firstParent?: boolean },
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly revList: {
+    (
+      cwd: string,
+      ref: string,
+      options?: { readonly limit?: number; readonly firstParent?: boolean },
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      ref: string,
+      options?: { readonly limit?: number; readonly firstParent?: boolean },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git commit [--all] [--allow-empty] [--amend] [--author=<author>] -m <message>`
    * — records a commit. The message rides argv; committer identity comes
@@ -4498,16 +4953,27 @@ export interface GitShape {
    * `options.author` is the explicit `--author=`
    * override. "Nothing to commit" fails loudly as {@link GitCommandError}.
    */
-  readonly commit: (
-    cwd: string,
-    message: string,
-    options?: {
-      readonly all?: boolean;
-      readonly allowEmpty?: boolean;
-      readonly amend?: boolean;
-      readonly author?: string;
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly commit: {
+    (
+      cwd: string,
+      message: string,
+      options?: {
+        readonly all?: boolean;
+        readonly allowEmpty?: boolean;
+        readonly amend?: boolean;
+        readonly author?: string;
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      message: string,
+      options?: {
+        readonly all?: boolean;
+        readonly allowEmpty?: boolean;
+        readonly amend?: boolean;
+        readonly author?: string;
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git push [--force | --force-with-lease] [--tags] [--set-upstream] <remote> [<refspec>]`
    * — updates remote refs.
@@ -4521,17 +4987,29 @@ export interface GitShape {
    * {@link GitCommandError}. `remote` may be a URL; an embedded credential
    * never surfaces in an error value.
    */
-  readonly push: (
-    cwd: string,
-    options?: {
-      readonly remote?: string;
-      readonly refspec?: string;
-      readonly force?: boolean;
-      readonly forceWithLease?: boolean;
-      readonly tags?: boolean;
-      readonly setUpstream?: boolean;
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError | NonFastForwardError>;
+  readonly push: {
+    (
+      cwd: string,
+      options?: {
+        readonly remote?: string;
+        readonly refspec?: string;
+        readonly force?: boolean;
+        readonly forceWithLease?: boolean;
+        readonly tags?: boolean;
+        readonly setUpstream?: boolean;
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError | NonFastForwardError>;
+    (
+      options?: {
+        readonly remote?: string;
+        readonly refspec?: string;
+        readonly force?: boolean;
+        readonly forceWithLease?: boolean;
+        readonly tags?: boolean;
+        readonly setUpstream?: boolean;
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError | NonFastForwardError>;
+  };
   /**
    * Mutating: `git pull [--rebase] [--ff-only] <remote> [<ref>]` — fetches
    * and integrates.
@@ -4545,18 +5023,31 @@ export interface GitShape {
    * abort). `remote` may be a URL; an embedded credential never surfaces in
    * an error value.
    */
-  readonly pull: (
-    cwd: string,
-    options?: {
-      readonly remote?: string;
-      readonly ref?: string;
-      readonly rebase?: boolean;
-      readonly ffOnly?: boolean;
-    },
-  ) => Effect.Effect<
-    void,
-    GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
-  >;
+  readonly pull: {
+    (
+      cwd: string,
+      options?: {
+        readonly remote?: string;
+        readonly ref?: string;
+        readonly rebase?: boolean;
+        readonly ffOnly?: boolean;
+      },
+    ): Effect.Effect<
+      void,
+      GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
+    >;
+    (
+      options?: {
+        readonly remote?: string;
+        readonly ref?: string;
+        readonly rebase?: boolean;
+        readonly ffOnly?: boolean;
+      },
+    ): (cwd: string) => Effect.Effect<
+      void,
+      GitCommandError | NotARepositoryError | UnknownRefError | MergeConflictError | DirtyWorktreeError
+    >;
+  };
   /**
    * `git config [-f <file>] [--<scope>] --list -z` — every configuration entry
    * in scope (or in `options.file` only) as {@link ConfigListEntry} values.
@@ -4576,21 +5067,32 @@ export interface GitShape {
    * both fails typed as a {@link GitCommandError} rather than silently
    * preferring either.
    */
-  readonly configList: (
-    cwd: string,
-    options?: { readonly file?: string; readonly scope?: GitConfigScope },
-  ) => Effect.Effect<ReadonlyArray<ConfigListEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly configList: {
+    (
+      cwd: string,
+      options?: { readonly file?: string; readonly scope?: GitConfigScope },
+    ): Effect.Effect<ReadonlyArray<ConfigListEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly file?: string; readonly scope?: GitConfigScope },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<ConfigListEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git config [-f <file>] --get-all -z <key>` — every value of a
    * (possibly multi-valued) key, in order. An unset key degrades to the
    * empty array, never an error — the multi-valued sibling of `configGet`'s
    * `Option.none`.
    */
-  readonly configGetAll: (
-    cwd: string,
-    key: string,
-    options?: { readonly file?: string },
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly configGetAll: {
+    (
+      cwd: string,
+      key: string,
+      options?: { readonly file?: string },
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      key: string,
+      options?: { readonly file?: string },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git config [-f <file>] (--unset | --unset-all) <key>` —
    * removes `key` (or, with `options.all`, every value of a multi-valued
@@ -4598,11 +5100,17 @@ export interface GitShape {
    * an unset that silently did nothing is indistinguishable from one that
    * worked; probe with `configGet` first when idempotency is wanted.
    */
-  readonly configUnset: (
-    cwd: string,
-    key: string,
-    options?: { readonly file?: string; readonly all?: boolean },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly configUnset: {
+    (
+      cwd: string,
+      key: string,
+      options?: { readonly file?: string; readonly all?: boolean },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      key: string,
+      options?: { readonly file?: string; readonly all?: boolean },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git config [-f <file>] --remove-section <section>` — removes
    * a whole configuration section (every key under it, and the header) from
@@ -4613,49 +5121,79 @@ export interface GitShape {
    * `fatal: no such section`) — the `configUnset` posture; probe with
    * `configList` first when idempotency is wanted.
    */
-  readonly configRemoveSection: (
-    cwd: string,
-    section: string,
-    options?: { readonly file?: string },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly configRemoveSection: {
+    (
+      cwd: string,
+      section: string,
+      options?: { readonly file?: string },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      section: string,
+      options?: { readonly file?: string },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git config [-f <file>] --rename-section <old> <new>` —
    * renames a configuration section, carrying every key under it across.
    * Renaming a section that does not exist fails LOUDLY (git exits 128,
    * `fatal: no such section`) — the same posture as `configRemoveSection`.
    */
-  readonly configRenameSection: (
-    cwd: string,
-    oldName: string,
-    newName: string,
-    options?: { readonly file?: string },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly configRenameSection: {
+    (
+      cwd: string,
+      oldName: string,
+      newName: string,
+      options?: { readonly file?: string },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      oldName: string,
+      newName: string,
+      options?: { readonly file?: string },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git rm [--cached] [-r] [--force] -- <paths...>` — removes
    * `paths` from the index and (without `options.cached`) the working tree.
    * `cached: true` is the unstage-but-keep-file form a submodule removal
    * sequence needs.
    */
-  readonly rm: (
-    cwd: string,
-    paths: ReadonlyArray<string>,
-    options?: {
-      readonly cached?: boolean;
-      readonly recursive?: boolean;
-      readonly force?: boolean
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly rm: {
+    (
+      cwd: string,
+      paths: ReadonlyArray<string>,
+      options?: {
+        readonly cached?: boolean;
+        readonly recursive?: boolean;
+        readonly force?: boolean
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      paths: ReadonlyArray<string>,
+      options?: {
+        readonly cached?: boolean;
+        readonly recursive?: boolean;
+        readonly force?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git mv [--force] -- <source> <destination>` — moves or
    * renames a tracked path, updating the index and the working tree
    * together.
    */
-  readonly mv: (
-    cwd: string,
-    source: string,
-    destination: string,
-    options?: { readonly force?: boolean },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly mv: {
+    (
+      cwd: string,
+      source: string,
+      destination: string,
+      options?: { readonly force?: boolean },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      source: string,
+      destination: string,
+      options?: { readonly force?: boolean },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git check-ignore -z --stdin` — the subset of `paths` git would ignore,
    * predicate-shaped: paths in, the ignored ones back. Paths are fed via
@@ -4663,24 +5201,39 @@ export interface GitShape {
    * enters the argv and special-character paths survive unquoted. No path
    * ignored degrades to the empty array, never an error.
    */
-  readonly checkIgnore: (
-    cwd: string,
-    paths: ReadonlyArray<string>,
-  ) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly checkIgnore: {
+    (
+      cwd: string,
+      paths: ReadonlyArray<string>,
+    ): Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      paths: ReadonlyArray<string>,
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<string>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * Mutating: `git worktree add [--force] [--detach] <path> [<ref>]` —
    * creates a linked working tree at `path`, checked out at `options.ref`
    * (or a branch named after `path`'s basename).
    */
-  readonly worktreeAdd: (
-    cwd: string,
-    path: string,
-    options?: {
-      readonly ref?: string;
-      readonly detach?: boolean;
-      readonly force?: boolean
-    },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly worktreeAdd: {
+    (
+      cwd: string,
+      path: string,
+      options?: {
+        readonly ref?: string;
+        readonly detach?: boolean;
+        readonly force?: boolean
+      },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      path: string,
+      options?: {
+        readonly ref?: string;
+        readonly detach?: boolean;
+        readonly force?: boolean
+      },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git worktree list --porcelain -z` — every working tree (the main one
    * first) as a {@link WorktreeEntry}.
@@ -4693,11 +5246,17 @@ export interface GitShape {
    * working tree. A dirty worktree fails loudly unless `options.force` is
    * set.
    */
-  readonly worktreeRemove: (
-    cwd: string,
-    path: string,
-    options?: { readonly force?: boolean },
-  ) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly worktreeRemove: {
+    (
+      cwd: string,
+      path: string,
+      options?: { readonly force?: boolean },
+    ): Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      path: string,
+      options?: { readonly force?: boolean },
+    ): (cwd: string) => Effect.Effect<void, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
   /**
    * `git ls-files --stage -z [-- <pathspec>...]` — every INDEX entry as an
    * {@link LsFilesEntry} (mode, oid, merge stage, path), optionally scoped
@@ -4710,11 +5269,50 @@ export interface GitShape {
    * stage-without-commit window (a submodule pin/add) deliberately
    * produces, which a HEAD-side `lsTree` misreports.
    */
-  readonly lsFiles: (
-    cwd: string,
-    options?: { readonly pathspec?: ReadonlyArray<string> },
-  ) => Effect.Effect<ReadonlyArray<LsFilesEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  readonly lsFiles: {
+    (
+      cwd: string,
+      options?: { readonly pathspec?: ReadonlyArray<string> },
+    ): Effect.Effect<ReadonlyArray<LsFilesEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+    (
+      options?: { readonly pathspec?: ReadonlyArray<string> },
+    ): (cwd: string) => Effect.Effect<ReadonlyArray<LsFilesEntry>, GitCommandError | NotARepositoryError | UnknownRefError>;
+  };
 }
+
+/**
+ * The data-first signature of every {@link GitShape} member: what a
+ * {@link Git.makeTest} stub implements.
+ *
+ * **Details**
+ *
+ * The pipeable members of `GitShape` are overloaded (data-first and
+ * data-last). A stub writes only the data-first form; `makeTest` derives the
+ * data-last form with the same `dual` dispatch the live layer uses. Members
+ * with a single signature pass through unchanged.
+ *
+ * **Example** (Type a stub for an overloaded member)
+ *
+ * ```ts
+ * import type { GitStubs } from "@beep/scratchpad/effected/git/Git";
+ * import * as Effect from "effect/Effect";
+ *
+ * const revParse: GitStubs["revParse"] = (_cwd, ref) => Effect.succeed(`sha-of-${ref}`);
+ * console.log(Effect.runSync(revParse("/repo", "HEAD"))); // sha-of-HEAD
+ * ```
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GitStubs = {
+  readonly [K in keyof GitShape]: GitShape[K] extends {
+    (...args: infer DataFirstArgs): infer DataFirstResult;
+    (...args: infer _DataLastArgs): infer _DataLastResult;
+  }
+    ? (...args: DataFirstArgs) => DataFirstResult
+    : GitShape[K];
+};
 
 /**
  * A test double invoked a Git method without an explicit stub.
@@ -4734,7 +5332,7 @@ export interface GitShape {
 export class NotStubbedError extends S.TaggedError<NotStubbedError, { readonly brand: unique symbol }>($I`NotStubbedError`)(
   "NotStubbedError",
   { message: S.String },
-  $I.annote("NotStubbedError", { description: "A Git test double method was invoked without an explicit stub." }),
+  $I.annoteError<NotStubbedError>("NotStubbedError", { description: "A Git test double method was invoked without an explicit stub." }),
 ) {}
 
 /**
@@ -4742,7 +5340,7 @@ export class NotStubbedError extends S.TaggedError<NotStubbedError, { readonly b
  * defect naming the method, so an unexercised call fails loudly instead of
  * succeeding with a lie or failing with a dishonest typed error.
  */
-const notStubbed = (method: string) => () =>
+const notStubbed = (method: string) => (..._args: ReadonlyArray<unknown>) =>
   Effect.die(
     NotStubbedError.make({
       message: `Git.makeTest: ${method}() was called but not stubbed — no honest default exists for a test double; pass a \`${method}\` override.`,
@@ -4912,82 +5510,81 @@ export class Git extends Context.Service<Git, GitShape>()($I`Git`) {
    * @category constructors
    * @since 0.0.0
    */
-  static readonly makeTest = (overrides: Partial<GitShape> = {}): GitShape => ({
-    show: notStubbed("show"),
-    lsTree: notStubbed("lsTree"),
-    refExists: notStubbed("refExists"),
-    mergeBase: notStubbed("mergeBase"),
-    mergeBaseOption: notStubbed("mergeBaseOption"),
-    changedFiles: notStubbed("changedFiles"),
-    workingChanges: notStubbed("workingChanges"),
-    revParse: notStubbed("revParse"),
-    checkout: notStubbed("checkout"),
-    fetch: notStubbed("fetch"),
-    fetchAny: notStubbed("fetchAny"),
-    fetchUnshallow: notStubbed("fetchUnshallow"),
-    isShallow: notStubbed("isShallow"),
-    reset: notStubbed("reset"),
-    clean: notStubbed("clean"),
-    restore: notStubbed("restore"),
-    branchCreate: notStubbed("branchCreate"),
-    branchDelete: notStubbed("branchDelete"),
-    submoduleUpdate: notStubbed("submoduleUpdate"),
-    submoduleAdd: notStubbed("submoduleAdd"),
-    submoduleStatus: notStubbed("submoduleStatus"),
-    submoduleInit: notStubbed("submoduleInit"),
-    submoduleDeinit: notStubbed("submoduleDeinit"),
-    submoduleSync: notStubbed("submoduleSync"),
-    submoduleSetUrl: notStubbed("submoduleSetUrl"),
-    submoduleSetBranch: notStubbed("submoduleSetBranch"),
-    submoduleAbsorbgitdirs: notStubbed("submoduleAbsorbgitdirs"),
-    submoduleForeach: notStubbed("submoduleForeach"),
-    sparseCheckoutSet: notStubbed("sparseCheckoutSet"),
-    configSet: notStubbed("configSet"),
-    add: notStubbed("add"),
-    nameStatus: notStubbed("nameStatus"),
-    unstagedChanges: notStubbed("unstagedChanges"),
-    stagedChanges: notStubbed("stagedChanges"),
-    untrackedFiles: notStubbed("untrackedFiles"),
-    defaultBranch: notStubbed("defaultBranch"),
-    currentBranch: notStubbed("currentBranch"),
-    repoRoot: notStubbed("repoRoot"),
-    commonDir: notStubbed("commonDir"),
-    configGet: notStubbed("configGet"),
-    remoteUrl: notStubbed("remoteUrl"),
-    commitInfo: notStubbed("commitInfo"),
-    log: notStubbed("log"),
-    status: notStubbed("status"),
-    lsRemote: notStubbed("lsRemote"),
-    remoteAdd: notStubbed("remoteAdd"),
-    remoteRemove: notStubbed("remoteRemove"),
-    remoteSetUrl: notStubbed("remoteSetUrl"),
-    stashPush: notStubbed("stashPush"),
-    stashPop: notStubbed("stashPop"),
-    stashApply: notStubbed("stashApply"),
-    stashDrop: notStubbed("stashDrop"),
-    stashList: notStubbed("stashList"),
-    branchList: notStubbed("branchList"),
-    tagCreate: notStubbed("tagCreate"),
-    tagDelete: notStubbed("tagDelete"),
-    tagList: notStubbed("tagList"),
-    forEachRef: notStubbed("forEachRef"),
-    revList: notStubbed("revList"),
-    commit: notStubbed("commit"),
-    push: notStubbed("push"),
-    pull: notStubbed("pull"),
-    configList: notStubbed("configList"),
-    configGetAll: notStubbed("configGetAll"),
-    configUnset: notStubbed("configUnset"),
-    configRemoveSection: notStubbed("configRemoveSection"),
-    configRenameSection: notStubbed("configRenameSection"),
-    rm: notStubbed("rm"),
-    mv: notStubbed("mv"),
-    checkIgnore: notStubbed("checkIgnore"),
-    worktreeAdd: notStubbed("worktreeAdd"),
-    worktreeList: notStubbed("worktreeList"),
-    worktreeRemove: notStubbed("worktreeRemove"),
-    lsFiles: notStubbed("lsFiles"),
-    ...overrides,
+  static readonly makeTest = (overrides: Partial<GitStubs> = {}): GitShape => ({
+    show: dual(3, overrides.show ?? notStubbed("show")),
+    lsTree: dual(stringAt(1), overrides.lsTree ?? notStubbed("lsTree")),
+    refExists: dual(2, overrides.refExists ?? notStubbed("refExists")),
+    mergeBase: dual(3, overrides.mergeBase ?? notStubbed("mergeBase")),
+    mergeBaseOption: dual(3, overrides.mergeBaseOption ?? notStubbed("mergeBaseOption")),
+    changedFiles: dual(2, overrides.changedFiles ?? notStubbed("changedFiles")),
+    workingChanges: dual(hasStringSubject, overrides.workingChanges ?? notStubbed("workingChanges")),
+    revParse: dual(2, overrides.revParse ?? notStubbed("revParse")),
+    checkout: dual(stringAt(1), overrides.checkout ?? notStubbed("checkout")),
+    fetch: dual(2, overrides.fetch ?? notStubbed("fetch")),
+    fetchAny: dual(2, overrides.fetchAny ?? notStubbed("fetchAny")),
+    fetchUnshallow: dual(hasStringSubject, overrides.fetchUnshallow ?? notStubbed("fetchUnshallow")),
+    isShallow: overrides.isShallow ?? notStubbed("isShallow"),
+    reset: dual(hasStringSubject, overrides.reset ?? notStubbed("reset")),
+    clean: dual(hasStringSubject, overrides.clean ?? notStubbed("clean")),
+    restore: dual(hasStringSubject, overrides.restore ?? notStubbed("restore")),
+    branchCreate: dual(stringAt(1), overrides.branchCreate ?? notStubbed("branchCreate")),
+    branchDelete: dual(stringAt(1), overrides.branchDelete ?? notStubbed("branchDelete")),
+    submoduleUpdate: dual(hasStringSubject, overrides.submoduleUpdate ?? notStubbed("submoduleUpdate")),
+    submoduleAdd: dual(2, overrides.submoduleAdd ?? notStubbed("submoduleAdd")),
+    submoduleStatus: dual(hasStringSubject, overrides.submoduleStatus ?? notStubbed("submoduleStatus")),
+    submoduleInit: dual(hasStringSubject, overrides.submoduleInit ?? notStubbed("submoduleInit")),
+    submoduleDeinit: dual(2, overrides.submoduleDeinit ?? notStubbed("submoduleDeinit")),
+    submoduleSync: dual(hasStringSubject, overrides.submoduleSync ?? notStubbed("submoduleSync")),
+    submoduleSetUrl: dual(3, overrides.submoduleSetUrl ?? notStubbed("submoduleSetUrl")),
+    submoduleSetBranch: dual(stringAt(1), overrides.submoduleSetBranch ?? notStubbed("submoduleSetBranch")),
+    submoduleAbsorbgitdirs: dual(hasStringSubject, overrides.submoduleAbsorbgitdirs ?? notStubbed("submoduleAbsorbgitdirs")),
+    submoduleForeach: dual(stringAt(1), overrides.submoduleForeach ?? notStubbed("submoduleForeach")),
+    sparseCheckoutSet: dual(3, overrides.sparseCheckoutSet ?? notStubbed("sparseCheckoutSet")),
+    configSet: dual(stringAt(2), overrides.configSet ?? notStubbed("configSet")),
+    add: dual(2, overrides.add ?? notStubbed("add")),
+    nameStatus: dual(2, overrides.nameStatus ?? notStubbed("nameStatus")),
+    unstagedChanges: dual(hasStringSubject, overrides.unstagedChanges ?? notStubbed("unstagedChanges")),
+    stagedChanges: dual(hasStringSubject, overrides.stagedChanges ?? notStubbed("stagedChanges")),
+    untrackedFiles: dual(hasStringSubject, overrides.untrackedFiles ?? notStubbed("untrackedFiles")),
+    defaultBranch: dual(hasStringSubject, overrides.defaultBranch ?? notStubbed("defaultBranch")),
+    currentBranch: overrides.currentBranch ?? notStubbed("currentBranch"),
+    repoRoot: overrides.repoRoot ?? notStubbed("repoRoot"),
+    commonDir: overrides.commonDir ?? notStubbed("commonDir"),
+    configGet: dual(stringAt(1), overrides.configGet ?? notStubbed("configGet")),
+    remoteUrl: dual(hasStringSubject, overrides.remoteUrl ?? notStubbed("remoteUrl")),
+    commitInfo: overrides.commitInfo ?? notStubbed("commitInfo"),
+    log: dual(hasStringSubject, overrides.log ?? notStubbed("log")),
+    status: overrides.status ?? notStubbed("status"),
+    lsRemote: dual(stringAt(1), overrides.lsRemote ?? notStubbed("lsRemote")),
+    remoteAdd: dual(3, overrides.remoteAdd ?? notStubbed("remoteAdd")),
+    remoteRemove: dual(2, overrides.remoteRemove ?? notStubbed("remoteRemove")),
+    remoteSetUrl: dual(3, overrides.remoteSetUrl ?? notStubbed("remoteSetUrl")),
+    stashPush: dual(hasStringSubject, overrides.stashPush ?? notStubbed("stashPush")),
+    stashPop: dual(hasStringSubject, overrides.stashPop ?? notStubbed("stashPop")),
+    stashApply: dual(hasStringSubject, overrides.stashApply ?? notStubbed("stashApply")),
+    stashDrop: dual(hasStringSubject, overrides.stashDrop ?? notStubbed("stashDrop")),
+    stashList: overrides.stashList ?? notStubbed("stashList"),
+    branchList: dual(hasStringSubject, overrides.branchList ?? notStubbed("branchList")),
+    tagCreate: dual(stringAt(1), overrides.tagCreate ?? notStubbed("tagCreate")),
+    tagDelete: dual(2, overrides.tagDelete ?? notStubbed("tagDelete")),
+    tagList: dual(hasStringSubject, overrides.tagList ?? notStubbed("tagList")),
+    forEachRef: dual(hasStringSubject, overrides.forEachRef ?? notStubbed("forEachRef")),
+    revList: dual(stringAt(1), overrides.revList ?? notStubbed("revList")),
+    commit: dual(stringAt(1), overrides.commit ?? notStubbed("commit")),
+    push: dual(hasStringSubject, overrides.push ?? notStubbed("push")),
+    pull: dual(hasStringSubject, overrides.pull ?? notStubbed("pull")),
+    configList: dual(hasStringSubject, overrides.configList ?? notStubbed("configList")),
+    configGetAll: dual(stringAt(1), overrides.configGetAll ?? notStubbed("configGetAll")),
+    configUnset: dual(stringAt(1), overrides.configUnset ?? notStubbed("configUnset")),
+    configRemoveSection: dual(stringAt(1), overrides.configRemoveSection ?? notStubbed("configRemoveSection")),
+    configRenameSection: dual(stringAt(2), overrides.configRenameSection ?? notStubbed("configRenameSection")),
+    rm: dual(hasStringSubject, overrides.rm ?? notStubbed("rm")),
+    mv: dual(stringAt(2), overrides.mv ?? notStubbed("mv")),
+    checkIgnore: dual(2, overrides.checkIgnore ?? notStubbed("checkIgnore")),
+    worktreeAdd: dual(stringAt(1), overrides.worktreeAdd ?? notStubbed("worktreeAdd")),
+    worktreeList: overrides.worktreeList ?? notStubbed("worktreeList"),
+    worktreeRemove: dual(stringAt(1), overrides.worktreeRemove ?? notStubbed("worktreeRemove")),
+    lsFiles: dual(hasStringSubject, overrides.lsFiles ?? notStubbed("lsFiles")),
   });
 
   /**
@@ -5023,6 +5620,6 @@ export class Git extends Context.Service<Git, GitShape>()($I`Git`) {
    * @category layers
    * @since 0.0.0
    */
-  static readonly layerTest = (overrides: Partial<GitShape> = {}): Layer.Layer<Git> =>
+  static readonly layerTest = (overrides: Partial<GitStubs> = {}): Layer.Layer<Git> =>
     Layer.succeed(Git, Git.makeTest(overrides));
 }

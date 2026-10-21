@@ -92,12 +92,15 @@ interface HopBudget {
 	hops: number;
 }
 
-const walk = (volume: MemoryFileSystemVolume, path: string, followFinal: boolean, budget: HopBudget): Resolved => {
+const walk: {
+	(volume: MemoryFileSystemVolume, path: string, followFinal: boolean, budget: HopBudget): Resolved;
+	(path: string, followFinal: boolean, budget: HopBudget): (volume: MemoryFileSystemVolume) => Resolved;
+} = dual(4, (volume: MemoryFileSystemVolume, path: string, followFinal: boolean, budget: HopBudget): Resolved => {
 	// Resolution is per COMPONENT, not just the final one: `/links/pkg/a.json`
 	// has to follow the link at `/links/pkg` before it can see `a.json`, exactly
 	// as a real filesystem walks a path.
 	let current = "";
-	const parts = path.split("/").filter((part) => part !== "" && part !== ".");
+	const parts = A.filter(path.split("/"), (part) => part !== "" && part !== ".");
 	for (let i = 0; i < parts.length; i++) {
 		const part = parts[i];
 		if (part === "..") {
@@ -128,7 +131,7 @@ const walk = (volume: MemoryFileSystemVolume, path: string, followFinal: boolean
 		current = candidate;
 	}
 	return Resolved.cases.Success.make({ path: current === "" ? "/" : current });
-};
+});
 
 /**
  * Resolves `path` the way `stat` (or, with `followFinal: false`, `lstat`) does, reporting WHY it is absent: `ENOENT`, `ENOTDIR` (a component under a non-directory) or `ELOOP` (too many links).
@@ -169,30 +172,33 @@ const portStats = (s: MemoryFileSystemVolumeStat): MemoryFileSystemPortStats => 
 	size: s.size,
 });
 
-const resolvedPath = (resolved: Resolved, syscall: string, path: string): string =>
+const resolvedPath: {
+	(resolved: Resolved, syscall: string, path: string): string;
+	(syscall: string, path: string): (resolved: Resolved) => string;
+} = dual(3, (resolved: Resolved, syscall: string, path: string): string =>
  Resolved.match(resolved, {
   Failure: ({ code }) => { throw nodeErrno(code, syscall, path); },
   Success: ({ path }) => path,
- });
+ }));
 
-const statOf = (volume: MemoryFileSystemVolume, path: string, syscall: "stat" | "lstat", follow: boolean) => {
+const statOf: {
+	(volume: MemoryFileSystemVolume, path: string, syscall: "stat" | "lstat", follow: boolean): MemoryFileSystemPortStats;
+	(path: string, syscall: "stat" | "lstat", follow: boolean): (volume: MemoryFileSystemVolume) => MemoryFileSystemPortStats;
+} = dual(4, (volume: MemoryFileSystemVolume, path: string, syscall: "stat" | "lstat", follow: boolean): MemoryFileSystemPortStats => {
 	const resolved = resolvedPath(resolvePath(volume, path, follow), syscall, path);
 	const s = volume.lstat(resolved);
 	if (s === undefined) throw nodeErrno("ENOENT", syscall, path);
 	return portStats(s);
-};
+});
 
 const isEncoded = (options: unknown): boolean =>
 	P.isString(options) ||
 	(P.isObjectOrArray(options) && P.hasProperty(options, "encoding") && P.isString(options.encoding));
 
-const settle = <A>(f: () => A): Promise<Awaited<A>> => {
-	try {
-		return Promise.resolve(f());
-	} catch (e) {
-		return Promise.reject(e);
-	}
-};
+// The outbound `fs/promises` edge: `f` runs as one Effect and a throw becomes
+// the rejection. `runPromise` squashes the cause, so the rejection is the raw
+// node-shaped errno `f` threw, never a wrapper.
+const settle = <A>(f: () => A): Promise<A> => Effect.runPromise(Effect.sync(f));
 
 /**
  * Wraps each named member of `port` so its handler runs first: a handler may throw, return a replacement, or return `undefined` to delegate.
@@ -246,7 +252,10 @@ const decoder = new TextDecoder();
 
 // `readFileSync(path)`: the bytes of the regular file `path` resolves to, or
 // node's error — never fabricated content.
-const readBytes = (volume: MemoryFileSystemVolume, path: string): Uint8Array => {
+const readBytes: {
+	(volume: MemoryFileSystemVolume, path: string): Uint8Array;
+	(path: string): (volume: MemoryFileSystemVolume) => Uint8Array;
+} = dual(2, (volume: MemoryFileSystemVolume, path: string): Uint8Array => {
 	const resolved = resolvedPath(resolvePath(volume, path), "open", path);
 	const bytes = volume.bytes(resolved);
 	if (bytes === undefined) {
@@ -256,7 +265,7 @@ const readBytes = (volume: MemoryFileSystemVolume, path: string): Uint8Array => 
 		throw volume.isDirectory(resolved) ? nodeErrno("EISDIR", "read", undefined) : nodeErrno("ENOTDIR", "open", path);
 	}
 	return bytes;
-};
+});
 
 // The `syscall` on each thrown error is the one node reports for the same call:
 // `open` for readFile (`read` when the target is a directory), `scandir` for
@@ -337,7 +346,7 @@ export const makePromisesFileSystem = (volume: MemoryFileSystemVolume): MemoryFi
 			if (options?.withFileTypes !== true) return names;
 			const r = resolvePath(volume, path);
 			const base = Resolved.match(r, { Failure: () => path, Success: ({ path }) => path });
-			return names.map((name): MemoryFileSystemDirent => {
+			return A.map(names, (name): MemoryFileSystemDirent => {
 				// Literal: a link is reported as a link, as `readdir` dirents do.
 				const kind = volume.lstat(`${base === "/" ? "" : base}/${name}`)?.kind;
 				return {

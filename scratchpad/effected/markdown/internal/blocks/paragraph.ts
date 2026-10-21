@@ -10,8 +10,9 @@
 // this port does it as each paragraph closes.
 
 import { Paragraph } from "../../MarkdownNode.ts";
-import type { BlockConstruct } from "../blockTypes.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
 import { extractDefinitions } from "./linkReferenceDefinition.ts";
+import { dual } from "effect/Function";
 
 /**
  * Absorbs paragraph lines until a blank line and contains no child blocks.
@@ -38,11 +39,11 @@ export const paragraphConstruct: BlockConstruct = {
 	type: "paragraph",
 	acceptsLines: true,
 	canContain: () => false,
-	continue: (scanner) => (scanner.blank ? 1 : 0),
-	finalize: (_scanner, block) => {
+	continue: dual(2, (scanner: BlockScanner, _block: BlockNode): BlockContinueResult => (scanner.blank ? 1 : 0)),
+	finalize: dual(2, (_scanner: BlockScanner, block: BlockNode): void => {
 		extractDefinitions(block);
-	},
-	materialize: (block, _children, context) => {
+	}),
+	materialize: dual(3, (block: BlockNode, _children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const inline = context.inlineSlice(block);
 		// A paragraph whose content trimmed away renders nothing; dropping it
 		// keeps `<p></p>` out of the tree. A paragraph that held only link
@@ -57,5 +58,5 @@ export const paragraphConstruct: BlockConstruct = {
 		});
 		context.registerInline(node, inline);
 		return node;
-	},
+	}),
 };

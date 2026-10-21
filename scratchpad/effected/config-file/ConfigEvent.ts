@@ -31,9 +31,9 @@ const $I = $ScratchpadId.create("effected/config-file/ConfigEvent");
  */
 export const ConfigSourceRef = S.Struct({
 	/** The filesystem path the value was read from. */
-	path: S.String.annotateKey({ description: "The filesystem path the value was read from." }),
+	path: S.String.pipe($I.annoteKey("ConfigSourceRef.path", { description: "The filesystem path the value was read from." })),
 	/** The name of the resolver that found it. */
-	resolver: S.String.annotateKey({ description: "The name of the resolver that found it." }),
+	resolver: S.String.pipe($I.annoteKey("ConfigSourceRef.resolver", { description: "The name of the resolver that found it." })),
 }).pipe($I.annoteSchema("ConfigSourceRef", { description: "A reference to one configuration source that contributed to a load." }));
 
 /**
@@ -136,9 +136,9 @@ export type ConfigEventPayload = typeof ConfigEventPayload.Type;
  */
 export class ConfigEvent extends S.Class<ConfigEvent, { readonly brand: unique symbol }>($I`ConfigEvent`)({
 	/** When the event occurred. */
-	timestamp: S.DateTimeUtc.annotateKey({ description: "When the event occurred." }),
+	timestamp: S.DateTimeUtc.pipe($I.annoteKey("ConfigEvent.timestamp", { description: "When the event occurred." })),
 	/** What happened. */
-	event: ConfigEventPayload.annotateKey({ description: "What happened." }),
+	event: ConfigEventPayload.pipe($I.annoteKey("ConfigEvent.event", { description: "What happened." })),
 }, $I.annote("ConfigEvent", { description: "A published event: the payload plus the instant it occurred." })) {}
 
 /**

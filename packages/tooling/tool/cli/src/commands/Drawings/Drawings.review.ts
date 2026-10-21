@@ -185,18 +185,12 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   const removeStagedOutput = (temporary: string | undefined, temporaryDir: string | undefined) => {
     const nodeFs = process.getBuiltinModule("node:fs");
     if (temporary !== undefined) {
-      try {
-        nodeFs.unlinkSync(temporary);
-      } catch {
-        // Preserve the original write error; this file is only a stale temporary.
-      }
+      // Preserve the original write error; this file is only a stale temporary.
+      Result.try(() => nodeFs.unlinkSync(temporary));
     }
     if (temporaryDir !== undefined) {
-      try {
-        nodeFs.rmdirSync(temporaryDir);
-      } catch {
-        // Preserve the original write error; this directory is only a stale temporary.
-      }
+      // Preserve the original write error; this directory is only a stale temporary.
+      Result.try(() => nodeFs.rmdirSync(temporaryDir));
     }
   };
 

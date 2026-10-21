@@ -27,6 +27,7 @@ import {
   practiceKgMatterFieldTiers,
 } from "@beep/law-practice-use-cases/server";
 import { estimateJsonSize, FieldTierName, projectFieldTier, toColumnarEnvelope } from "@beep/mcp-kit";
+import { thunkEffectVoid } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -238,7 +239,7 @@ const stampFailureReason = <A, R>(
 ): Effect.Effect<A, PracticeKgToolError, R> =>
   Effect.tapError(self, (error) =>
     O.match(O.fromUndefinedOr(error.reason), {
-      onNone: () => Effect.void,
+      onNone: thunkEffectVoid,
       onSome: (reason) => Effect.annotateCurrentSpan(PracticeKgFailureReasonKey, reason),
     })
   );

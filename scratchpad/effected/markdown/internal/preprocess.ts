@@ -74,9 +74,9 @@ export const TAB_STOP = 4;
  * @since 0.0.0
  */
 export const SourceLine = S.Struct({
-	text: S.String.annotateKey({ description: "Line text without its terminator, with NUL replaced by U+FFFD." }),
-	start: S.Finite.annotateKey({ description: "Absolute UTF-16 offset of the line's first character in the original source." }),
-}).annotate($I.annote("SourceLine", {
+	text: S.String.pipe($I.annoteKey("SourceLine.text", { description: "Line text without its terminator, with NUL replaced by U+FFFD." })),
+	start: S.Finite.pipe($I.annoteKey("SourceLine.start", { description: "Absolute UTF-16 offset of the line's first character in the original source." })),
+}).pipe($I.annoteSchema("SourceLine", {
 	description: "A preprocessed source line retaining its original offset after length-preserving NUL normalization.",
 }));
 

@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import * as NodeModule from "node:module";
+import * as NodeURL from "node:url";
 import { Str, thunkEmptyStr } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -19,15 +19,15 @@ import { DomainError } from "../errors/index.ts";
 import { findRepoRoot } from "../Root.ts";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
-const require = createRequire(import.meta.url);
+const require = NodeModule.createRequire(import.meta.url);
 const biomeExecutable = require.resolve("@biomejs/biome/bin/biome");
-const moduleDir = fileURLToPath(new URL(".", import.meta.url));
+const moduleDir = NodeURL.fileURLToPath(new URL(".", import.meta.url));
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(thunkEmptyStr, (text, chunk) => `${text}${chunk}`)
+    Stream.runFold(thunkEmptyStr, (text: string, chunk) => `${text}${chunk}`)
   );
 
 /**

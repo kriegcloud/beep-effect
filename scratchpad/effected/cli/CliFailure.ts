@@ -1,7 +1,9 @@
-import * as A from "effect/Array";
+import * as Result from "effect/Result";
+import * as A from "@beep/utils/Array";
 import type * as CauseType from "effect/Cause";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
+import { dual, pipe } from "effect/Function";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as S from "effect/Schema";
 import { Cancelled } from "./Cancelled.ts";
@@ -51,7 +53,7 @@ export const CliDoc: unique symbol = Symbol.for("@effected/cli/CliDoc");
  * @since 0.0.0
  */
 export interface CliDocSource {
-	readonly [CliDoc]: () => Document;
+  readonly [CliDoc]: () => Document;
 }
 
 /**
@@ -62,48 +64,48 @@ export interface CliDocSource {
  * @since 0.0.0
  */
 export interface CliFailureOptions {
-	/**
-	 * A document per error `_tag`, for errors that do not implement {@link CliDoc}. A tag with no entry is shown by
-	 * the default rules.
-	 */
-	readonly render?: Readonly<Record<string, (error: unknown) => Document>> | undefined;
-	/** Turns an absolute path into its display form, for the stack frames; the identity by default. */
-	readonly displayPath?: ((absolute: string) => string) | undefined;
-	/**
-	 * Which frames of a defect's stack are shown. `app`, the default, shows the program's own: every `node_modules`
-	 * frame (Effect's and any other dependency's), `node:internal` and the runtime's generator frames are left out and
-	 * counted. When that leaves no frame, as for a program run from its install under `node_modules` (a global
-	 * install, `npx`, a pnpm store), only the runtime's and Effect's are left out, so its own frames still show. `all`
-	 * shows every frame, unfiltered.
-	 */
-	readonly stackFrames?: "app" | "all" | undefined;
-	/**
-  * Which spans the `in: outer › inner` trail after a failure names. `app`, the default, leaves out the spans the kit
-  * and Effect define themselves: a span whose definition site (an `Effect.fn`'s, or where the span was opened) is a
-  * file under `node_modules/@effected/` or `node_modules/effect/`. A config that fails to decode under
-  * `@effected/config-file` then reports no `ConfigFile.loadFrom` trail, while the program's own spans stay. `all`
-  * shows every span, and `off` drops the trail. Under either, an `Effect.fn` call and its definition are one entry,
-  * `name`, never `name (definition) › name`.
-  *
-  * **Gotchas**
-  *
-  * The rule reads file paths, never span names, and it fails open: when it cannot tell, it shows the span. A span
-  * with no captured stack is kept. A kit package linked into a workspace (`link:`, `workspace:`) runs from its own
-  * checkout rather than from `node_modules`, so its spans show as the program's. A bundled program is one file, so
-  * `app` shows what `all` does, unless the bundle is itself installed under `node_modules/@effected/`. A program that
-  * is installed under `node_modules/@effected/` (a kit companion's bin) names itself with `appModule`, or its own
-  * spans are left out with the kit's.
-  */
-	readonly spans?: "app" | "all" | "off" | undefined;
-	/**
-	 * A module of the running program itself, as a `file:` URL or an absolute path: its bin's `import.meta.url`. With
-	 * `spans: "app"`, a span defined in the installed package that holds this module is the program's, kept even under
-	 * `node_modules/@effected/`, while the packages it depends on (beside it, or nested in its own `node_modules`) are
-	 * still left out. The package is the path through the last `node_modules/<name>` (or `node_modules/@scope/name`)
-	 * in it, read from the path alone with no file system. A module not under `node_modules` changes nothing: the rule
-	 * already keeps its spans. Unset by default.
-	 */
-	readonly appModule?: string | undefined;
+  /**
+   * A document per error `_tag`, for errors that do not implement {@link CliDoc}. A tag with no entry is shown by
+   * the default rules.
+   */
+  readonly render?: Readonly<Record<string, (error: unknown) => Document>> | undefined;
+  /** Turns an absolute path into its display form, for the stack frames; the identity by default. */
+  readonly displayPath?: ((absolute: string) => string) | undefined;
+  /**
+   * Which frames of a defect's stack are shown. `app`, the default, shows the program's own: every `node_modules`
+   * frame (Effect's and any other dependency's), `node:internal` and the runtime's generator frames are left out and
+   * counted. When that leaves no frame, as for a program run from its install under `node_modules` (a global
+   * install, `npx`, a pnpm store), only the runtime's and Effect's are left out, so its own frames still show. `all`
+   * shows every frame, unfiltered.
+   */
+  readonly stackFrames?: "app" | "all" | undefined;
+  /**
+   * Which spans the `in: outer › inner` trail after a failure names. `app`, the default, leaves out the spans the kit
+   * and Effect define themselves: a span whose definition site (an `Effect.fn`'s, or where the span was opened) is a
+   * file under `node_modules/@effected/` or `node_modules/effect/`. A config that fails to decode under
+   * `@effected/config-file` then reports no `ConfigFile.loadFrom` trail, while the program's own spans stay. `all`
+   * shows every span, and `off` drops the trail. Under either, an `Effect.fn` call and its definition are one entry,
+   * `name`, never `name (definition) › name`.
+   *
+   * **Gotchas**
+   *
+   * The rule reads file paths, never span names, and it fails open: when it cannot tell, it shows the span. A span
+   * with no captured stack is kept. A kit package linked into a workspace (`link:`, `workspace:`) runs from its own
+   * checkout rather than from `node_modules`, so its spans show as the program's. A bundled program is one file, so
+   * `app` shows what `all` does, unless the bundle is itself installed under `node_modules/@effected/`. A program that
+   * is installed under `node_modules/@effected/` (a kit companion's bin) names itself with `appModule`, or its own
+   * spans are left out with the kit's.
+   */
+  readonly spans?: "app" | "all" | "off" | undefined;
+  /**
+   * A module of the running program itself, as a `file:` URL or an absolute path: its bin's `import.meta.url`. With
+   * `spans: "app"`, a span defined in the installed package that holds this module is the program's, kept even under
+   * `node_modules/@effected/`, while the packages it depends on (beside it, or nested in its own `node_modules`) are
+   * still left out. The package is the path through the last `node_modules/<name>` (or `node_modules/@scope/name`)
+   * in it, read from the path alone with no file system. A module not under `node_modules` changes nothing: the rule
+   * already keeps its spans. Unset by default.
+   */
+  readonly appModule?: string | undefined;
 }
 
 /** The deepest an `Error.cause` chain, or a stack, is followed. */
@@ -111,100 +113,105 @@ const MAX_DEPTH = 8;
 const MAX_SPANS = 32;
 
 const hasCliDoc = (value: unknown): value is CliDocSource =>
-	P.isObjectKeyword(value) && !P.isFunction(value) && CliDoc in value && P.isFunction(value[CliDoc]);
+  P.isObjectKeyword(value) && !P.isFunction(value) && CliDoc in value && P.isFunction(value[CliDoc]);
 
 // String(value) can throw for an object with no prototype or a hostile toString, and says only "[object Object]" for
 // a plain failure value: such a value with a string message is that message.
-const describe = (value: unknown): string => {
-	try {
-		const text = String(value);
-		if (text !== "[object Object]") return text;
-		const message = P.isObjectKeyword(value) && !P.isFunction(value) && "message" in value ? value.message : undefined;
-		return P.isString(message) ? message : text;
-	} catch {
-		return "[unprintable value]";
-	}
-};
+const describe = (value: unknown): string => (Result.getOrElse(Result.try(() => {
+  const text = String(value);
+  if (text !== "[object Object]") return text;
+  const message = P.isObjectKeyword(value) && !P.isFunction(value) && "message" in value ? value.message : undefined;
+  return P.isString(message) ? message : text;
+}), () => "[unprintable value]"));
 
 const firstLine = (text: string): string => A.getUnsafe(text.split(/\r\n|\r|\n/, 1), 0);
 
 const tagOf = (value: unknown): string | undefined => {
-	if (!P.isObjectKeyword(value) || P.isFunction(value)) return undefined;
-	const tag = "_tag" in value ? value._tag : undefined;
-	return P.isString(tag) ? tag : undefined;
+  if (!P.isObjectKeyword(value) || P.isFunction(value)) return undefined;
+  const tag = "_tag" in value ? value._tag : undefined;
+  return P.isString(tag) ? tag : undefined;
 };
 
 /** The failure status and the text of a message: one block per line, the status on the first. */
 const failureBlocks = (message: string): ReadonlyArray<Block> => {
-	const lines = message.split(/\r\n|\r|\n/);
-	return [Doc.paragraph(Doc.status(Status.core, "failure"), " ", A.getUnsafe(lines, 0)), ...A.drop(lines, 1).map((line) => Doc.paragraph(line))];
+  const lines = message.split(/\r\n|\r|\n/);
+  return [Doc.paragraph(Doc.status(Status.core, "failure"), " ", A.getUnsafe(lines, 0)), ...A.map(A.drop(lines, 1), (line) => Doc.paragraph(line))];
 };
 
 /** The issue of a schema failure: the value itself, or the `issue` an error carries. */
 const issueOf = (error: unknown): unknown => {
-	if (SchemaIssue.isIssue(error)) return error;
-	if (P.isObjectKeyword(error) && !P.isFunction(error) && "issue" in error) {
-		const issue = error.issue;
-		if (SchemaIssue.isIssue(issue)) return issue;
-	}
-	return undefined;
+  if (SchemaIssue.isIssue(error)) return error;
+  if (P.isObjectKeyword(error) && !P.isFunction(error) && "issue" in error) {
+    const issue = error.issue;
+    if (SchemaIssue.isIssue(issue)) return issue;
+  }
+  return undefined;
 };
 
 const schemaBlocks = (error: unknown): ReadonlyArray<Block> | undefined => {
-	const entries = issueEntries(issueOf(error));
-	if (entries.length === 0) return undefined;
-	const header =
-		P.isObjectKeyword(error) && !P.isFunction(error) && !SchemaIssue.isIssue(error) && "message" in error
-			? firstLine(describe(error.message ?? ""))
-			: "";
-	const label: Array<InlineOf<"Text"> | InlineOf<"StatusMark"> | string> = [
-		Doc.status(Status.core, "failure"),
-		" ",
-		header === "" ? `invalid value (${Fmt.plural(entries.length, "problem")})` : header,
-	];
-	const root: TreeInput = { label, children: issueTreeChildren(entries) };
-	return [Doc.tree(root)];
+  const entries = issueEntries(issueOf(error));
+  if (entries.length === 0) return undefined;
+  const header =
+    P.isObjectKeyword(error) && !P.isFunction(error) && !SchemaIssue.isIssue(error) && "message" in error
+      ? firstLine(describe(error.message ?? ""))
+      : "";
+  const label: Array<InlineOf<"Text"> | InlineOf<"StatusMark"> | string> = [
+    Doc.status(Status.core, "failure"),
+    " ",
+    header === "" ? `invalid value (${Fmt.plural(entries.length, "problem")})` : header,
+  ];
+  const root: TreeInput = { label, children: issueTreeChildren(entries) };
+  return [Doc.tree(root)];
 };
 
 interface Frame {
-	readonly raw: string;
-	readonly fn?: string;
-	readonly file?: string;
-	readonly line?: number;
-	readonly col?: number;
+  readonly raw: string;
+  readonly fn?: string;
+  readonly file?: string;
+  readonly line?: number;
+  readonly col?: number;
 }
 
 /** The location of a frame as a path: a `file:` URL decoded, or an absolute POSIX or drive path; else `undefined`. */
 const asPath = (location: string): string | undefined => {
-	if (location.startsWith("file:")) {
-		try {
-			const path = decodeURIComponent(new URL(location).pathname);
-			return /^\/[A-Za-z]:\//.test(path) ? path.slice(1) : path;
-		} catch {
-			return undefined;
-		}
-	}
-	return location.startsWith("/") || /^[A-Za-z]:[\\/]/.test(location) ? location : undefined;
+  if (location.startsWith("file:")) {
+    return Result.getOrElse(Result.try(() => {
+      const path = decodeURIComponent(new URL(location).pathname);
+      return /^\/[A-Za-z]:\//.test(path) ? path.slice(1) : path;
+    }), () => undefined);
+  }
+  return location.startsWith("/") || /^[A-Za-z]:[\\/]/.test(location) ? location : undefined;
 };
 
 /** A location without its `:line:col`, and the position when there is one. */
-const splitPosition = (location: string): { readonly where: string; readonly line?: number; readonly col?: number } => {
-	const position = /^(.*):(\d+):(\d+)$/.exec(location);
-	return position === null
-		? { where: location }
-		: { where: A.getUnsafe(position, 1), line: Number(position[2]), col: Number(position[3]) };
+const splitPosition = (location: string): {
+  readonly where: string;
+  readonly line?: number;
+  readonly col?: number
+} => {
+  const position = /^(.*):(\d+):(\d+)$/.exec(location);
+  return position === null
+    ? { where: location }
+    : {
+      where: A.getUnsafe(position, 1),
+      line: Number(position[2]),
+      col: Number(position[3]),
+    };
 };
 
 const parseFrame = (raw: string): Frame => {
-	const { text, fn, location } = splitFrame(raw);
-	const { where, line, col } = splitPosition(location);
-	const file = asPath(where);
-	return {
-		raw: text,
-		...O.getSomesStruct({ fn: O.fromUndefinedOr(fn) }),
-		...O.getSomesStruct({ file: O.fromUndefinedOr(file) }),
-		...(file === undefined || line === undefined || col === undefined ? {} : { line, col }),
-	};
+  const { text, fn, location } = splitFrame(raw);
+  const { where, line, col } = splitPosition(location);
+  const file = asPath(where);
+  return {
+    raw: text,
+    ...O.getSomesStruct({ fn: O.fromUndefinedOr(fn) }),
+    ...O.getSomesStruct({ file: O.fromUndefinedOr(file) }),
+    ...(file === undefined || line === undefined || col === undefined ? {} : {
+      line,
+      col,
+    }),
+  };
 };
 
 /** The file a frame ran in, as a path, or `undefined` for a frame with none: `node:`, `<anonymous>`, `native`, `eval`. */
@@ -216,121 +223,135 @@ const frameFile = (raw: string): string | undefined => asPath(splitPosition(spli
  * function name: V8 names a program's own thunk by Effect's method alias (`boom [as ~effect/Effect/args]`).
  */
 const isRuntime = (raw: string): boolean => {
-	const file = frameFile(raw);
-	return (
-		file === undefined ||
-		/[\\/]node_modules[\\/]effect[\\/]/.test(file) ||
-		/[\\/]packages[\\/]effect[\\/]src[\\/]/.test(file)
-	);
+  const file = frameFile(raw);
+  return (
+    file === undefined ||
+    /[\\/]node_modules[\\/]effect[\\/]/.test(file) ||
+    /[\\/]packages[\\/]effect[\\/]src[\\/]/.test(file)
+  );
 };
 
 /** The frames of a stack that belong to the program, and how many were left out. */
-const cleanStack = (
-	stack: unknown,
-	mode: "app" | "all",
+const cleanStack: {
+  (stack: unknown, mode: "app" | "all"): { readonly frames: ReadonlyArray<Frame>; readonly hidden: number };
+  (mode: "app" | "all"): (stack: unknown) => { readonly frames: ReadonlyArray<Frame>; readonly hidden: number };
+} = dual(2, (
+  stack: unknown,
+  mode: "app" | "all",
 ): { readonly frames: ReadonlyArray<Frame>; readonly hidden: number } => {
-	if (!P.isString(stack)) return { frames: [], hidden: 0 };
-	const lines = stack.split(/\r\n|\r|\n/).filter((line) => /^\s*at\s/.test(line));
-	const app = lines.filter((line) => {
-		const file = frameFile(line);
-		return file !== undefined && !/[\\/]node_modules[\\/]/.test(file) && !isRuntime(line);
-	});
-	// An installed program (a global install, `npx`, a pnpm store) has every frame of its own under `node_modules`:
-	// when dropping dependencies leaves nothing, keep everything but the runtime's and Effect's.
-	const kept = mode === "all" ? lines : app.length > 0 ? app : lines.filter((line) => !isRuntime(line));
-	return { frames: kept.map(parseFrame), hidden: lines.length - kept.length };
-};
+  if (!P.isString(stack)) return { frames: [], hidden: 0 };
+  const lines = A.filter(stack.split(/\r\n|\r|\n/), (line) => /^\s*at\s/.test(line));
+  const app = A.filter(lines, (line) => {
+    const file = frameFile(line);
+    return file !== undefined && !/[\\/]node_modules[\\/]/.test(file) && !isRuntime(line);
+  });
+  // An installed program (a global install, `npx`, a pnpm store) has every frame of its own under `node_modules`:
+  // when dropping dependencies leaves nothing, keep everything but the runtime's and Effect's.
+  const kept = mode === "all" ? lines : app.length > 0 ? app : A.filter(lines, (line) => !isRuntime(line));
+  return { frames: A.map(kept, parseFrame), hidden: lines.length - kept.length };
+});
 
-const frameBlock = (frame: Frame, displayPath: (absolute: string) => string): Block => {
-	if (frame.file === undefined) return Doc.paragraph(Doc.text("at ", "muted"), frame.raw);
-	const where = `${displayPath(frame.file)}${frame.line === undefined ? "" : `:${frame.line}:${frame.col}`}`;
-	const target = {
-		file: frame.file,
-		...O.getSomesStruct({ line: O.fromUndefinedOr(frame.line) }),
-		...O.getSomesStruct({ col: O.fromUndefinedOr(frame.col) }),
-	};
-	return Doc.paragraph(
-		Doc.text("at ", "muted"),
-		...(frame.fn === undefined ? [] : [`${frame.fn} `]),
-		Doc.link(target, where),
-	);
-};
+const frameBlock: {
+  (frame: Frame, displayPath: (absolute: string) => string): Block;
+  (displayPath: (absolute: string) => string): (frame: Frame) => Block;
+} = dual(2, (frame: Frame, displayPath: (absolute: string) => string): Block => {
+  if (frame.file === undefined) return Doc.paragraph(Doc.text("at ", "muted"), frame.raw);
+  const where = `${displayPath(frame.file)}${frame.line === undefined ? "" : `:${frame.line}:${frame.col}`}`;
+  const target = {
+    file: frame.file,
+    ...O.getSomesStruct({ line: O.fromUndefinedOr(frame.line) }),
+    ...O.getSomesStruct({ col: O.fromUndefinedOr(frame.col) }),
+  };
+  return Doc.paragraph(
+    Doc.text("at ", "muted"),
+    ...(frame.fn === undefined ? [] : [`${frame.fn} `]),
+    Doc.link(target, where),
+  );
+});
 
-const stackBlock = (defect: Error, displayPath: (absolute: string) => string, mode: "app" | "all"): Block => {
-	const { frames, hidden } = cleanStack(defect.stack, mode);
-	if (frames.length > 0) {
-		const shown = frames.map((frame) => frameBlock(frame, displayPath));
-		const note = hidden === 0 ? [] : [Doc.paragraph(Doc.text(`(+${hidden} internal frames hidden)`, "muted"))];
-		return Doc.collapsible("stack", [...shown, ...note], { open: true });
-	}
-	const note = hidden === 0 ? "no stack" : `no user frames (${hidden} internal frames hidden)`;
-	return Doc.collapsible("stack", [Doc.paragraph(Doc.text(note, "muted"))], { open: true });
-};
+const stackBlock: {
+  (defect: Error, displayPath: (absolute: string) => string, mode: "app" | "all"): Block;
+  (displayPath: (absolute: string) => string, mode: "app" | "all"): (defect: Error) => Block;
+} = dual(3, (defect: Error, displayPath: (absolute: string) => string, mode: "app" | "all"): Block => {
+  const { frames, hidden } = cleanStack(defect.stack, mode);
+  if (frames.length > 0) {
+    const shown = A.map(frames, frameBlock(displayPath));
+    const note = hidden === 0 ? [] : [Doc.paragraph(Doc.text(`(+${hidden} internal frames hidden)`, "muted"))];
+    return Doc.collapsible("stack", [...shown, ...note], { open: true });
+  }
+  const note = hidden === 0 ? "no stack" : `no user frames (${hidden} internal frames hidden)`;
+  return Doc.collapsible("stack", [Doc.paragraph(Doc.text(note, "muted"))], { open: true });
+});
 
 /** The `Error.cause` chain below a defect as a tree of one-line messages, or none. */
 const causeTree = (defect: Error): Block | undefined => {
-	const chain: Array<string> = [];
-	const seen: Array<unknown> = [defect];
-	for (let current: unknown = defect.cause; current !== undefined && chain.length < MAX_DEPTH; ) {
-		if (A.some(seen, (ancestor) => ancestor === current)) break;
-		seen.push(current);
-		chain.push(firstLine(describe(current)));
-		current = current instanceof Error ? current.cause : undefined;
-	}
-	if (chain.length === 0) {
-		return undefined;
-	} else {
-		const nest = (index: number): TreeInput =>
-			index === chain.length - 1
-				? { label: A.getUnsafe(chain, index) }
-				: { label: A.getUnsafe(chain, index), children: [nest(index + 1)] };
-		return Doc.tree({ label: firstLine(describe(defect)), children: [nest(0)] });
-	}
+  const chain: Array<string> = [];
+  const seen: Array<unknown> = [defect];
+  for (let current: unknown = defect.cause; current !== undefined && chain.length < MAX_DEPTH;) {
+    if (A.some(seen, (ancestor) => ancestor === current)) break;
+    seen.push(current);
+    chain.push(firstLine(describe(current)));
+    current = current instanceof Error ? current.cause : undefined;
+  }
+  if (chain.length === 0) {
+    return undefined;
+  } else {
+    const nest = (index: number): TreeInput =>
+      index === chain.length - 1
+        ? { label: A.getUnsafe(chain, index) }
+        : { label: A.getUnsafe(chain, index), children: [nest(index + 1)] };
+    return Doc.tree({
+      label: firstLine(describe(defect)),
+      children: [nest(0)],
+    });
+  }
 };
 
-const dieBlocks = (
-	defect: unknown,
-	spans: ReadonlyArray<Block>,
-	displayPath: (absolute: string) => string,
-	mode: "app" | "all",
+const dieBlocks: {
+  (defect: unknown, spans: ReadonlyArray<Block>, displayPath: (absolute: string) => string, mode: "app" | "all"): ReadonlyArray<Block>;
+  (spans: ReadonlyArray<Block>, displayPath: (absolute: string) => string, mode: "app" | "all"): (defect: unknown) => ReadonlyArray<Block>;
+} = dual(4, (
+  defect: unknown,
+  spans: ReadonlyArray<Block>,
+  displayPath: (absolute: string) => string,
+  mode: "app" | "all",
 ): ReadonlyArray<Block> => {
-	// A prompt that was cancelled, or refused for want of a terminal, is a defect to the runtime and a fixed line to a person.
-	if (S.is(Cancelled)(defect) || S.is(NotInteractive)(defect)) return [Doc.paragraph(defect.message)];
-	const header = failureBlocks(describe(defect));
-	if (!(defect instanceof Error)) return [...header, ...spans];
-	const chain = causeTree(defect);
-	return [...header, ...spans, stackBlock(defect, displayPath, mode), ...(chain === undefined ? [] : [chain])];
-};
+  // A prompt that was cancelled, or refused for want of a terminal, is a defect to the runtime and a fixed line to a person.
+  if (S.is(Cancelled)(defect) || S.is(NotInteractive)(defect)) return [Doc.paragraph(defect.message)];
+  const header = failureBlocks(describe(defect));
+  if (!(defect instanceof Error)) return [...header, ...spans];
+  const chain = causeTree(defect);
+  return [...header, ...spans, stackBlock(defect, displayPath, mode), ...(chain === undefined ? [] : [chain])];
+});
 
-const failBlocks = (
-	error: unknown,
-	spans: ReadonlyArray<Block>,
-	options: CliFailureOptions | undefined,
+const failBlocks: {
+  (error: unknown, spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): ReadonlyArray<Block>;
+  (spans: ReadonlyArray<Block>, options: CliFailureOptions | undefined): (error: unknown) => ReadonlyArray<Block>;
+} = dual(3, (
+  error: unknown,
+  spans: ReadonlyArray<Block>,
+  options: CliFailureOptions | undefined,
 ): ReadonlyArray<Block> => {
-	if (hasCliDoc(error)) {
-		try {
-			return [...error[CliDoc](), ...spans];
-		} catch {
-			// A document that cannot be built falls through to the generic line: a report must not fail to report.
-		}
-	}
-	const tag = tagOf(error);
-	const custom =
-		tag === undefined || options?.render === undefined || !R.has(options.render, tag)
-			? undefined
-			: options.render[tag];
-	if (custom !== undefined) {
-		try {
-			return [...custom(error), ...spans];
-		} catch {
-			// Likewise.
-		}
-	}
-	if (S.is(Cancelled)(error) || S.is(NotInteractive)(error)) return [Doc.paragraph(error.message)];
-	const schema = schemaBlocks(error);
-	if (schema !== undefined) return [...schema, ...spans];
-	return [...failureBlocks(describe(error)), ...spans];
-};
+  if (hasCliDoc(error)) {
+    const rendered = Result.try(() => [...error[CliDoc](), ...spans]);
+    if (Result.isSuccess(rendered)) return rendered.success;
+    // A document that cannot be built falls through to the generic line: a report must not fail to report.
+  }
+  const tag = tagOf(error);
+  const custom =
+    tag === undefined || options?.render === undefined || !R.has(options.render, tag)
+      ? undefined
+      : options.render[tag];
+  if (custom !== undefined) {
+    const rendered = Result.try(() => [...custom(error), ...spans]);
+    if (Result.isSuccess(rendered)) return rendered.success;
+    // Likewise, a failed custom renderer falls through.
+  }
+  if (S.is(Cancelled)(error) || S.is(NotInteractive)(error)) return [Doc.paragraph(error.message)];
+  const schema = schemaBlocks(error);
+  if (schema !== undefined) return [...schema, ...spans];
+  return [...failureBlocks(describe(error)), ...spans];
+});
 
 /** A file of the kit's own packages or of Effect, as installed: a span defined there is not the program's. */
 const isKitFile = (file: string): boolean => /[\\/]node_modules[\\/](?:@effected[\\/]|effect[\\/])/.test(file);
@@ -341,11 +362,11 @@ const isKitFile = (file: string): boolean => /[\\/]node_modules[\\/](?:@effected
  * Read from the path alone, with no file system.
  */
 const packageDirOf = (module: string | undefined): string | undefined => {
-	if (module === undefined) return undefined;
-	const path = asPath(module);
-	if (path === undefined) return undefined;
-	// Greedy, so it is the last node_modules in the path: the package the module itself belongs to.
-	return /^(.*\/node_modules\/(?:@[^/]+\/)?[^/]+)\//.exec(comparable(path))?.[1];
+  if (module === undefined) return undefined;
+  const path = asPath(module);
+  if (path === undefined) return undefined;
+  // Greedy, so it is the last node_modules in the path: the package the module itself belongs to.
+  return /^(.*\/node_modules\/(?:@[^/]+\/)?[^/]+)\//.exec(comparable(path))?.[1];
 };
 
 /**
@@ -354,28 +375,29 @@ const packageDirOf = (module: string | undefined): string | undefined => {
  * fixed (`c:` and `C:` are one drive). Lexical only: no file system, no realpath.
  */
 const comparable = (path: string): string =>
-	path.replace(/\\/g, "/").replace(/^([A-Za-z]):/, (_, drive: string) => `${drive.toLowerCase()}:`);
+  path.replace(/\\/g, "/").replace(/^([A-Za-z]):/, (_, drive: string) => `${drive.toLowerCase()}:`);
 
 /** Whether `file` is in the program's own package `appDir`, and not in a dependency nested in its `node_modules`. */
-const isAppFile = (file: string, appDir: string | undefined): boolean => {
-	if (appDir === undefined) return false;
-	const path = comparable(file);
-	if (!path.startsWith(appDir)) return false;
-	const rest = path.slice(appDir.length);
-	return rest.startsWith("/") && !rest.includes("/node_modules/");
-};
+const isAppFile: {
+  (file: string, appDir: string | undefined): boolean;
+  (appDir: string | undefined): (file: string) => boolean;
+} = dual(2, (file: string, appDir: string | undefined): boolean => {
+  if (appDir === undefined) return false;
+  const path = comparable(file);
+  if (!path.startsWith(appDir)) return false;
+  const rest = path.slice(appDir.length);
+  return rest.startsWith("/") && !rest.includes("/node_modules/");
+});
 
 /** The file a span frame's captured stack points at, or `undefined` when it captured none. */
-const spanFile = (frame: { readonly stack: () => string | undefined }): string | undefined => {
-	try {
-		const stack = frame.stack();
-		if (stack === undefined) return undefined;
-		const line = stack.split(/\r\n|\r|\n/).find((candidate) => /^\s*at\s/.test(candidate)) ?? stack;
-		return frameFile(line.trim().startsWith("at ") ? line : `at ${line.trim()}`);
-	} catch {
-		return undefined;
-	}
-};
+const spanFile = (frame: {
+  readonly stack: () => string | undefined
+}): string | undefined => (Result.getOrElse(Result.try(() => {
+  const stack = frame.stack();
+  if (stack === undefined) return undefined;
+  const line = pipe(stack.split(/\r\n|\r|\n/), A.findFirst((candidate) => /^\s*at\s/.test(candidate)), O.getOrElse(() => stack));
+  return frameFile(line.trim().startsWith("at ") ? line : `at ${line.trim()}`);
+}), () => undefined));
 
 /**
  * `in: outer › inner`, from the span stack the runtime annotates a reason with, or none. With `app`, a span the kit or
@@ -383,25 +405,28 @@ const spanFile = (frame: { readonly stack: () => string | undefined }): string |
  * are one entry, `name`, judged by the definition's site, so a kit function the program calls goes with its
  * definition.
  */
-const spanBlocks = (
-	reason: CauseType.Reason<unknown>,
-	mode: "app" | "all" | "off",
-	appDir: string | undefined,
+const spanBlocks: {
+  (reason: CauseType.Reason<unknown>, mode: "app" | "all" | "off", appDir: string | undefined): ReadonlyArray<Block>;
+  (mode: "app" | "all" | "off", appDir: string | undefined): (reason: CauseType.Reason<unknown>) => ReadonlyArray<Block>;
+} = dual(3, (
+  reason: CauseType.Reason<unknown>,
+  mode: "app" | "all" | "off",
+  appDir: string | undefined,
 ): ReadonlyArray<Block> => {
-	if (mode === "off") return [];
-	const names: Array<string> = [];
-	let frame = Context.getOrUndefined(Cause.reasonAnnotations(reason), Cause.StackTrace);
-	for (let seen = 0; frame !== undefined && seen < MAX_SPANS; seen++) {
-		const parent = frame.parent;
-		const definition = parent !== undefined && parent.name === `${frame.name} (definition)` ? parent : undefined;
-		const file = (definition === undefined ? undefined : spanFile(definition)) ?? spanFile(frame);
-		if (mode === "all" || file === undefined || isAppFile(file, appDir) || !isKitFile(file)) names.push(frame.name);
-		// A call and its definition are one entry, `X`, never `X (definition) › X`: the definition is skipped.
-		frame = definition === undefined ? parent : definition.parent;
-	}
-	if (names.length === 0) return [];
-	return [Doc.paragraph(Doc.text("in: ", "muted"), Doc.path(...names.reverse()))];
-};
+  if (mode === "off") return [];
+  const names: Array<string> = [];
+  let frame = Context.getOrUndefined(Cause.reasonAnnotations(reason), Cause.StackTrace);
+  for (let seen = 0; frame !== undefined && seen < MAX_SPANS; seen++) {
+    const parent = frame.parent;
+    const definition = parent !== undefined && parent.name === `${frame.name} (definition)` ? parent : undefined;
+    const file = (definition === undefined ? undefined : spanFile(definition)) ?? spanFile(frame);
+    if (mode === "all" || file === undefined || isAppFile(file, appDir) || !isKitFile(file)) names.push(frame.name);
+    // A call and its definition are one entry, `X`, never `X (definition) › X`: the definition is skipped.
+    frame = definition === undefined ? parent : definition.parent;
+  }
+  if (names.length === 0) return [];
+  return [Doc.paragraph(Doc.text("in: ", "muted"), Doc.path(...names.reverse()))];
+});
 
 /**
  * A failure as a document: what the default report prints, and a building block for a custom one.
@@ -442,37 +467,41 @@ const spanBlocks = (
  * @since 0.0.0
  */
 export class CliFailure {
-	private constructor() {}
+  private constructor() {
+  }
 
-	/**
- * Build the document of a cause.
- *
- * **Example** (Render a typed failure as document blocks)
- *
- * ```ts
- * import { CliFailure } from "@beep/scratchpad/effected/cli/CliFailure";
- * import * as Cause from "effect/Cause";
- *
- * const document = CliFailure.toDoc(Cause.fail("could not save"));
- * console.log(document.length); // 1
- * ```
- *
- * @param cause - the failure
- * @param options - per-tag documents and a path display function
- * @category formatting
- * @since 0.0.0
- */
-	static readonly toDoc = (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document => {
-		const reasons = cause.reasons;
-		if (reasons.length > 0 && reasons.every(Cause.isInterruptReason)) return [Doc.paragraph("interrupted")];
-		const displayPath = options?.displayPath ?? ((absolute: string) => absolute);
-		return reasons.flatMap((reason): ReadonlyArray<Block> => {
-			const spans = options?.spans ?? "app";
-			const appDir = packageDirOf(options?.appModule);
-			if (Cause.isFailReason(reason)) return failBlocks(reason.error, spanBlocks(reason, spans, appDir), options);
-			if (Cause.isDieReason(reason))
-				return dieBlocks(reason.defect, spanBlocks(reason, spans, appDir), displayPath, options?.stackFrames ?? "app");
-			return [];
-		});
-	};
+  /**
+   * Build the document of a cause.
+   *
+   * **Example** (Render a typed failure as document blocks)
+   *
+   * ```ts
+   * import { CliFailure } from "@beep/scratchpad/effected/cli/CliFailure";
+   * import * as Cause from "effect/Cause";
+   *
+   * const document = CliFailure.toDoc(Cause.fail("could not save"));
+   * console.log(document.length); // 1
+   * ```
+   *
+   * @param cause - the failure
+   * @param options - per-tag documents and a path display function
+   * @category formatting
+   * @since 0.0.0
+   */
+  static readonly toDoc: {
+    (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document;
+    (options?: CliFailureOptions): (cause: CauseType.Cause<unknown>) => Document;
+  } = dual((args) => Cause.isCause(args[0]), (cause: CauseType.Cause<unknown>, options?: CliFailureOptions): Document => {
+    const reasons = cause.reasons;
+    if (reasons.length > 0 && A.every(reasons, Cause.isInterruptReason)) return [Doc.paragraph("interrupted")];
+    const displayPath = options?.displayPath ?? ((absolute: string) => absolute);
+    return A.flatMap(reasons, (reason): ReadonlyArray<Block> => {
+      const spans = options?.spans ?? "app";
+      const appDir = packageDirOf(options?.appModule);
+      if (Cause.isFailReason(reason)) return failBlocks(reason.error, spanBlocks(reason, spans, appDir), options);
+      if (Cause.isDieReason(reason))
+        return dieBlocks(reason.defect, spanBlocks(reason, spans, appDir), displayPath, options?.stackFrames ?? "app");
+      return A.emptyReadonly<Block>();
+    });
+  });
 }

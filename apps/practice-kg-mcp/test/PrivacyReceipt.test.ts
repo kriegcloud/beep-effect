@@ -23,7 +23,7 @@ import * as Layer from "effect/Layer";
 import * as Metric from "effect/Metric";
 import * as OtlpExporter from "effect/observability/OtlpExporter";
 import * as Path from "effect/Path";
-import { ChildProcessSpawner } from "effect/process";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";

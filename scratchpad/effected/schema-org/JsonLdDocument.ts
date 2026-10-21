@@ -45,8 +45,8 @@ const JsonValue = S.fromJsonString(S.Json);
  */
 export class DuplicateNodeIdError extends S.TaggedError<DuplicateNodeIdError, { readonly brand: unique symbol }>($I`DuplicateNodeIdError`)("DuplicateNodeIdError", {
 	/** The `@id` claimed by more than one node. */
-	id: S.String.annotateKey({ description: "The `@id` claimed by more than one node." }),
-}, $I.annote("DuplicateNodeIdError", { description: "Indicates that two nodes in one graph claim the same `@id`." })) {
+	id: S.String.pipe($I.annoteKey("DuplicateNodeIdError.id", { description: "The `@id` claimed by more than one node." })),
+}, $I.annoteError<DuplicateNodeIdError>("DuplicateNodeIdError", { description: "Indicates that two nodes in one graph claim the same `@id`." })) {
 	/**
 	 * Formats the duplicate identifier for an error report.
 	 *
@@ -90,10 +90,10 @@ export class DuplicateNodeIdError extends S.TaggedError<DuplicateNodeIdError, { 
  */
 export class ConflictingTermError extends S.TaggedError<ConflictingTermError, { readonly brand: unique symbol }>($I`ConflictingTermError`)("ConflictingTermError", {
 	/** The `@id` of the node carrying the collision. */
-	nodeId: S.String.annotateKey({ description: "The `@id` of the node carrying the collision." }),
+	nodeId: S.String.pipe($I.annoteKey("ConflictingTermError.nodeId", { description: "The `@id` of the node carrying the collision." })),
 	/** The colliding term. */
-	term: S.String.annotateKey({ description: "The colliding term." }),
-}, $I.annote("ConflictingTermError", { description: "Indicates that a key in a node's `additional` catch-all collides with a typed field on that node, or with `@id` or `@type`." })) {
+	term: S.String.pipe($I.annoteKey("ConflictingTermError.term", { description: "The colliding term." })),
+}, $I.annoteError<ConflictingTermError>("ConflictingTermError", { description: "Indicates that a key in a node's `additional` catch-all collides with a typed field on that node, or with `@id` or `@type`." })) {
 	/**
 	 * Formats the node identifier and colliding term for an error report.
 	 *
@@ -164,13 +164,12 @@ const reservedTerms = (node: JsonLdNode): MutableHashSet.MutableHashSet<string> 
 	MutableHashSet.fromIterable(R.keys<string, unknown>(NODE_SCHEMAS[node["@type"]].fields));
 
 /** The wire reference shape excludes value objects and embedded nodes. */
-const WireNodeRef = S.StructWithRest(S.Struct({ "@id": S.String.annotateKey({ description: "The identifier carried by the wire reference." }) }), [S.Record(S.String, S.Unknown)]).check(S.makeFilter(
+const WireNodeRef = S.StructWithRest(S.Struct({ "@id": S.String.pipe($I.annoteKey("WireNodeRef.@id", { description: "The identifier carried by the wire reference." })) }), [S.Record(S.String, S.Unknown)]).check(S.makeFilter(
 	(value) => R.keys(value).length === 1,
-	{
-		identifier: $I`WireNodeRefOnlyId`,
-		title: "JSON-LD reference object",
+	$I.annote("WireNodeRefOnlyId", {
 		description: "A JSON-LD reference object contains only a string @id.",
-	},
+		message: "JSON-LD reference object",
+	}),
 )).pipe($I.annoteSchema("WireNodeRef", { description: "A catch-all JSON-LD reference containing only a string @id." }));
 const isWireNodeRef = S.is(WireNodeRef);
 
@@ -271,9 +270,9 @@ const withoutUndefined = (value: Record<string, S.Json | undefined>): Record<str
  */
 export class JsonLdDocument extends S.Class<JsonLdDocument, { readonly brand: unique symbol }>($I`JsonLdDocument`)({
 	/** The JSON-LD context, fixed at `https://schema.org` and populated automatically. */
-	"@context": S.tag("https://schema.org").annotateKey({ description: "The JSON-LD context, fixed at `https://schema.org` and populated automatically." }),
+	"@context": S.tag("https://schema.org").pipe($I.annoteKey("JsonLdDocument.@context", { description: "The JSON-LD context, fixed at `https://schema.org` and populated automatically." })),
 	/** The nodes in the document. */
-	"@graph": S.Array(JsonLdNode).annotateKey({ description: "The nodes in the document." }),
+	"@graph": S.Array(JsonLdNode).pipe($I.annoteKey("JsonLdDocument.@graph", { description: "The nodes in the document." })),
 }, $I.annote("JsonLdDocument", { description: "A JSON-LD document: `@context` plus a flat `@graph` of nodes that reference each other by `@id`." })) {
 	/**
 	 * Assembles nodes into a graph, checking identity.
@@ -487,7 +486,7 @@ export class JsonLdDocument extends S.Class<JsonLdDocument, { readonly brand: un
 		const encoded = Result.getOrThrow(S.encodeResult(JsonLdDocument)(this));
 		const wire = {
 			"@context": encoded["@context"],
-			"@graph": encoded["@graph"].map((node) => {
+			"@graph": A.map(encoded["@graph"], (node) => {
 				const { additional, "@id": id, "@type": type, ...rest } = node;
 				// `@id` and `@type` lead, so a human reading the emitted document
 				// meets the node's identity before its payload.

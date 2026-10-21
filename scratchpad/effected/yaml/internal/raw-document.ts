@@ -25,8 +25,8 @@ const $I = $ScratchpadId.create("effected/yaml/internal/raw-document");
  * @since 0.0.0
  */
 export const RawDirective = S.Struct({
-	name: S.String.annotate({ description: "The directive name without its leading percent marker." }),
-	parameters: S.Array(S.String).annotate({ description: "The directive's parameters in source order." }),
+	name: S.String.pipe($I.annoteKey("RawDirective.name", { description: "The directive name without its leading percent marker." })),
+	parameters: S.Array(S.String).pipe($I.annoteKey("RawDirective.parameters", { description: "The directive's parameters in source order." })),
 }).pipe($I.annoteSchema("RawDirective", { description: "A plain YAML directive represented by its raw name and parameter strings." }));
 
 /**
@@ -55,10 +55,10 @@ export type RawDirective = typeof RawDirective.Type;
  * @since 0.0.0
  */
 export const RawYamlDocument = S.Struct({
-	contents: S.NullOr(YamlNode).annotate({ description: "The composed root node, or null for an empty document." }),
-	errors: S.Array(RawDiagnostic).annotate({ description: "Raw parse errors in reporting order." }),
-	warnings: S.Array(RawDiagnostic).annotate({ description: "Raw recoverable warnings in reporting order." }),
-	directives: S.Array(RawDirective).annotate({ description: "The document directives in source order." }),
+	contents: S.NullOr(YamlNode).pipe($I.annoteKey("RawYamlDocument.contents", { description: "The composed root node, or null for an empty document." })),
+	errors: S.Array(RawDiagnostic).pipe($I.annoteKey("RawYamlDocument.errors", { description: "Raw parse errors in reporting order." })),
+	warnings: S.Array(RawDiagnostic).pipe($I.annoteKey("RawYamlDocument.warnings", { description: "Raw recoverable warnings in reporting order." })),
+	directives: S.Array(RawDirective).pipe($I.annoteKey("RawYamlDocument.directives", { description: "The document directives in source order." })),
 	/**
 	 * Leading document comment: own-line comments AHEAD of a `---` marker. A
 	 * header with no marker, or one after the marker, belongs to the content
@@ -66,22 +66,22 @@ export const RawYamlDocument = S.Struct({
 	 *
 	 * @since 0.0.0
 	 */
-	commentBefore: S.optionalKey(S.String).annotate({ description: "Own-line comments preceding the document-start marker." }),
+	commentBefore: S.optionalKey(S.String).pipe($I.annoteKey("RawYamlDocument.commentBefore", { description: "Own-line comments preceding the document-start marker." })),
 	/**
 	 * Trailing document comment: own-line comments after the content (or after `...`).
 	 *
 	 * @since 0.0.0
 	 */
-	comment: S.optionalKey(S.String).annotate({ description: "Own-line comments following the content or document-end marker." }),
-	hasDocumentStart: S.Boolean.annotate({ description: "Whether the source contains an explicit document-start marker." }),
-	hasDocumentEnd: S.Boolean.annotate({ description: "Whether the source contains an explicit document-end marker." }),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("RawYamlDocument.comment", { description: "Own-line comments following the content or document-end marker." })),
+	hasDocumentStart: S.Boolean.pipe($I.annoteKey("RawYamlDocument.hasDocumentStart", { description: "Whether the source contains an explicit document-start marker." })),
+	hasDocumentEnd: S.Boolean.pipe($I.annoteKey("RawYamlDocument.hasDocumentEnd", { description: "Whether the source contains an explicit document-end marker." })),
 	/**
 	 * `true` when the `---` marker was followed by a tab in the source; the
 	 * canonical stringifier emits a `...` terminator for this shape.
 	 *
 	 * @since 0.0.0
 	 */
-	hasDocumentStartTab: S.Boolean.annotate({ description: "Whether a tab followed the document-start marker, requiring a terminator when stringified." }),
+	hasDocumentStartTab: S.Boolean.pipe($I.annoteKey("RawYamlDocument.hasDocumentStartTab", { description: "Whether a tab followed the document-start marker, requiring a terminator when stringified." })),
 }).pipe($I.annoteSchema("RawYamlDocument", { description: "A plain composed document consumed by the engine and materialized by the public facade." }));
 
 /**

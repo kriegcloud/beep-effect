@@ -1,5 +1,5 @@
-import { createRequire } from "node:module";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import * as NodeModule from "node:module";
+import * as NodeURL from "node:url";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -9,9 +9,9 @@ import type { StorybookConfig } from "@storybook/react-vite";
 import type { Plugin, ServerOptions } from "vite";
 
 const repoRoot = new URL("../../..", import.meta.url).pathname;
-const require = createRequire(import.meta.url);
-const epistemicStories = fileURLToPath(
-  new URL("./stories/**/*.stories.@(ts|tsx)", pathToFileURL(require.resolve("@beep/epistemic-ui/package.json")))
+const require = NodeModule.createRequire(import.meta.url);
+const epistemicStories = NodeURL.fileURLToPath(
+  new URL("./stories/**/*.stories.@(ts|tsx)", NodeURL.pathToFileURL(require.resolve("@beep/epistemic-ui/package.json")))
 );
 const portlessConfig = Effect.runSync(
   Config.all({

@@ -317,25 +317,23 @@ const OMITTED_HINT = "row(s) omitted (--verbose lists them)";
 const SKIPPED_FOLD_LABEL = "skipped-blobs";
 
 // Per-class row counts of the quiet observations in one listing, keyed by quiet class.
-const quietClassCounts = (
+const quietClassCounts: (
   observations: ReadonlyArray<KnowledgeRefObservation>
-): HashMap.HashMap<KnowledgeRefQuietClassification, number> =>
-  pipe(
-    observations,
-    A.map((observation) => observation.classification),
-    A.map(O.liftPredicate(isKnowledgeRefQuietClassification)),
-    A.getSomes,
-    A.reduce(HashMap.empty<KnowledgeRefQuietClassification, number>(), (counts, classification) =>
-      HashMap.modifyAt(
-        counts,
-        classification,
-        flow(
-          O.getOrElse(() => 0),
-          (count) => O.some(count + 1)
-        )
+) => HashMap.HashMap<KnowledgeRefQuietClassification, number> = flow(
+  A.map((observation) => observation.classification),
+  A.map(O.liftPredicate(isKnowledgeRefQuietClassification)),
+  A.getSomes,
+  A.reduce(HashMap.empty<KnowledgeRefQuietClassification, number>(), (counts, classification) =>
+    HashMap.modifyAt(
+      counts,
+      classification,
+      flow(
+        O.getOrElse(() => 0),
+        (count) => O.some(count + 1)
       )
     )
-  );
+  )
+);
 
 // One omitted-count line per quiet class with rows in the listing, in classification-domain order.
 const quietClassLines = (observations: ReadonlyArray<KnowledgeRefObservation>): ReadonlyArray<string> => {

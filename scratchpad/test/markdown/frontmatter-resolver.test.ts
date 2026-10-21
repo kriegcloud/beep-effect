@@ -15,11 +15,12 @@
 import { fcRuns } from "@beep/fc-runs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import type { FrontmatterSchemaResolver } from "../../effected/markdown/FrontmatterResolver.ts";
+import type { FrontmatterResolveError, FrontmatterSchemaResolver, SchemaDeclaration } from "../../effected/markdown/FrontmatterResolver.ts";
 import {
 	SchemaDeclarationByName,
 	SchemaDeclarationByPath,
@@ -397,8 +398,8 @@ describe("the resolver seam", () => {
 			// keys on OKF's `type` field, ignoring $schema entirely — no OKF code
 			// in this package.
 			const okf: FrontmatterSchemaResolver = {
-				resolve: (_declaration, data) =>
-					P.isObject(data) && data.type === "concept" ? Effect.succeed(Skill) : Effect.fail(SchemaDeclarationMissingError.make()),
+				resolve: dual(2, (_declaration: SchemaDeclaration | undefined, data: unknown): Effect.Effect<S.Top, FrontmatterResolveError> =>
+					P.isObject(data) && data.type === "concept" ? Effect.succeed(Skill) : Effect.fail(SchemaDeclarationMissingError.make())),
 			};
 			const schema = yield* okf.resolve(undefined, { type: "concept", title: "t" });
 			assert.strictEqual(schema, Skill);

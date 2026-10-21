@@ -1,5 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
 import * as S from "effect/Schema";
 import { DeploymentEnvironment } from "../../effected/github/DeploymentEnvironment.ts";
@@ -37,7 +39,7 @@ describe("DeploymentEnvironment test doubles", () => {
     });
     it.layer(
       DeploymentEnvironment.layerTest({
-        upsert: () => Effect.void,
+        upsert: dual((args) => P.isString(args[0]), (_name: string, _config?: Record<string, unknown>) => Effect.void),
         list: Effect.succeed([{ name: "prod" }]),
         delete: () => Effect.void,
       }),

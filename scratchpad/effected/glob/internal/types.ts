@@ -34,8 +34,7 @@ const $I = $ScratchpadId.create("effected/glob/internal/types");
 export const Platform = LiteralKit([
 	"posix", "aix", "android", "darwin", "freebsd", "haiku",
 	"linux", "openbsd", "sunos", "win32", "cygwin", "netbsd",
-]).annotate($I.annote("Platform", {
-	title: "Glob target platform",
+]).pipe($I.annoteSchema("Platform", {
 	description: "The twelve accepted glob platforms; only win32 changes matching behavior, and posix is the default.",
 }));
 /**

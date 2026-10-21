@@ -28,6 +28,10 @@ import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { fakeHost, fakeM365SignIn, fullProfile, settingsLayer } from "./fixtures.ts";
 
+const GatewaySelfCheckReportJson = S.fromJsonString(GatewaySelfCheckReport);
+
+const GatewaySelfCheckRefusalJson = S.fromJsonString(GatewaySelfCheckRefusal);
+
 const Platform = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
 const isString = S.is(S.String);
 const layerTimeout = "30 seconds";
@@ -106,7 +110,7 @@ describe("--self-check", () => {
         yield* ProfileStore.use((store) => store.save(fullProfile));
         const { lines } = yield* printGatewaySelfCheck(runGatewaySelfCheck).pipe(printed);
         expect(lines).toHaveLength(1);
-        const line = yield* S.decodeEffect(S.fromJsonString(GatewaySelfCheckReport))(lines[0] ?? "");
+        const line = yield* S.decodeEffect(GatewaySelfCheckReportJson)(lines[0] ?? "");
         expect(line.profileSaved).toBe(true);
         expect(line.report.checks).toHaveLength(10);
         expect(line.summary).toContain("You need to: Open Claude and sign in with your Claude account.");
@@ -122,7 +126,7 @@ describe("--self-check", () => {
         const { lines, value } = yield* printGatewaySelfCheck(runGatewaySelfCheck).pipe(Effect.flip, printed);
         expect(value).toBeInstanceOf(SelfCheckFailure);
         expect(lines).toHaveLength(1);
-        const refusal = yield* S.decodeEffect(S.fromJsonString(GatewaySelfCheckRefusal))(lines[0] ?? "");
+        const refusal = yield* S.decodeEffect(GatewaySelfCheckRefusalJson)(lines[0] ?? "");
         expect(refusal.message).toContain("could not be read");
       })
     );

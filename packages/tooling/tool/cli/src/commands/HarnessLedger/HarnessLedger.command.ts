@@ -26,7 +26,7 @@ import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, flow } from "effect/Function";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
@@ -53,10 +53,10 @@ import type { HarnessLedgerRow } from "@beep/repo-ai-metrics";
 import type { HarnessLedgerCommandError } from "./HarnessLedger.errors.ts";
 
 const encodeListJson = S.encodeUnknownEffect(S.toCodecJson(S.Array(HarnessLedgerListEntry)));
+const encodeReconciliationJson = S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation));
 const encodePruneJson = S.encodeUnknownEffect(S.toCodecJson(HarnessLedgerPruneReport));
 const decodeMonth = S.decodeUnknownEffect(HarnessLedgerMonth);
 const decodeDispositionOptions = S.decodeEffect(HarnessLedgerDispositionOptions);
-const encodeReconciliationJson = S.encodeUnknownEffect(S.toCodecJson(HarnessTelemetryReconciliation));
 
 const resolveRepoRoot = findRepoRoot().pipe(
   Effect.mapError(HarnessLedgerIoError.wrap("Failed to locate the repo root."))
@@ -67,8 +67,7 @@ const reportFailure = (command: string) => (error: HarnessLedgerCommandError) =>
     Effect.andThen(failWithReportedExit(`harness-ledger ${command}: ${error.message}`))
   );
 
-const optionalNonEmpty = (value: O.Option<string>): O.Option<string> =>
-  pipe(value, O.map(Str.trim), O.filter(Str.isNonEmpty));
+const optionalNonEmpty: (value: O.Option<string>) => O.Option<string> = flow(O.map(Str.trim), O.filter(Str.isNonEmpty));
 
 const shortHypothesis = (row: HarnessLedgerRow): string =>
   O.match(row.hypothesis, {

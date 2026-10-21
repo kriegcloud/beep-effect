@@ -42,7 +42,7 @@ const presenceRows: ReadonlyArray<readonly [string, string]> = [
   ["test:property", "optional optional absent optional absent absent optional"],
   ["test:integration", "optional absent required optional absent absent optional"],
   ["test:integration:parallel", "optional absent optional optional absent absent optional"],
-  ["coverage", "required required required optional absent required optional"],
+  ["coverage", "required required required optional required required optional"],
   ["docgen", "required required required optional absent required optional"],
   ["audit", "required required required required required required optional"],
   ["package-test-typecheck", "required required required required required required optional"],
@@ -105,7 +105,7 @@ describe("canonical package scripts schemas", () => {
         ).toBe(expected);
       }
       expect(TaskScriptName.literals).toHaveLength(17);
-      expect(implScriptDefaults).toHaveLength(55);
+      expect(implScriptDefaults).toHaveLength(56);
     })
   );
   it.effect(

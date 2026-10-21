@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import {
   decodeEffectSchemaInventoryRowJson,
   digestEffectSchemaInventoryJsonl,
@@ -24,7 +24,7 @@ import * as Path from "effect/Path";
 
 // Hosted verification of the committed schema inventory: reads only committed files, never
 // `.repos/effect`, graft, or the network.
-const repositoryRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const repositoryRoot = NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url));
 
 const loadFixture = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;

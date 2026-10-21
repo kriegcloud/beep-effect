@@ -6,6 +6,7 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 import type { Audience, TerminalEnv } from "../env/index.ts";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import type { CliLinks } from "./CliLinks.ts";
 import type { CliTheme } from "./CliTheme.ts";
 import { autoFormat } from "./internal/autoFormat.ts";
@@ -43,10 +44,10 @@ const $I = $ScratchpadId.create("effected/cli/Doc");
  */
 export const StatusRef = S.Struct({
 	/** The name in the vocabulary it was resolved from. */
-	name: S.String.annotate($I.annote("StatusRef.name", { description: "The name field of StatusRef." })),
+	name: S.String.pipe($I.annoteKey("StatusRef.name", { description: "The name field of StatusRef." })),
 	/** The resolved definition. */
-	def: StatusDef.annotate($I.annote("StatusRef.def", { description: "The def field of StatusRef." })),
-}).annotate($I.annote("StatusRef", { description: "A status name and its resolved definition." }));
+	def: StatusDef.pipe($I.annoteKey("StatusRef.def", { description: "The def field of StatusRef." })),
+}).pipe($I.annoteSchema("StatusRef", { description: "A status name and its resolved definition." }));
 /**
  * A resolved status name and definition stored in a document.
  *
@@ -72,15 +73,13 @@ export type StatusRef = typeof StatusRef.Type;
  * @since 0.0.0
  */
 export const LinkTarget = S.Union([
-	S.Struct({ url: S.String.annotate($I.annote("LinkTarget.url", { description: "The url field of LinkTarget." })) }),
+	S.Struct({ url: S.String.pipe($I.annoteKey("LinkTarget.url", { description: "The url field of LinkTarget." })) }),
 	S.Struct({
-		file: S.String.annotate($I.annote("LinkTarget.file", { description: "The file field of LinkTarget." })),
-		line: S.optionalKey(S.Finite).annotate(
-			$I.annote("LinkTarget.line", { description: "The line field of LinkTarget." }),
-		),
-		col: S.optionalKey(S.Finite).annotate($I.annote("LinkTarget.col", { description: "The col field of LinkTarget." })),
+		file: S.String.pipe($I.annoteKey("LinkTarget.file", { description: "The file field of LinkTarget." })),
+		line: S.optionalKey(S.Finite).pipe($I.annoteKey("LinkTarget.line", { description: "The line field of LinkTarget." })),
+		col: S.optionalKey(S.Finite).pipe($I.annoteKey("LinkTarget.col", { description: "The col field of LinkTarget." })),
 	}),
-]).annotate($I.annote("LinkTarget", { description: "A URL or file with an optional position." }));
+]).pipe($I.annoteSchema("LinkTarget", { description: "A URL or file with an optional position." }));
 /**
  * A URL or file position accepted by a document link.
  *
@@ -92,49 +91,35 @@ export type LinkTarget = typeof LinkTarget.Type;
 const inlineShape = <Children extends S.Constraint>(children: Children) =>
 	S.Union([
 		S.TaggedStruct("Text", {
-			value: S.String.annotate($I.annote("Inline.Text.value", { description: "The value field of Inline.Text." })),
-			token: S.optionalKey(S.Union([TokenName, Style])).annotate(
-				$I.annote("Inline.Text.token", { description: "The token field of Inline.Text." }),
-			),
-		}).annotate($I.annote("Inline.Text", { description: "The Inline.Text document variant." })),
+			value: S.String.pipe($I.annoteKey("Inline.Text.value", { description: "The value field of Inline.Text." })),
+			token: S.optionalKey(S.Union([TokenName, Style])).pipe($I.annoteKey("Inline.Text.token", { description: "The token field of Inline.Text." })),
+		}).pipe($I.annoteSchema("Inline.Text", { description: "The Inline.Text document variant." })),
 		S.TaggedStruct("Code", {
-			value: S.String.annotate($I.annote("Inline.Code.value", { description: "The value field of Inline.Code." })),
-		}).annotate($I.annote("Inline.Code", { description: "The Inline.Code document variant." })),
+			value: S.String.pipe($I.annoteKey("Inline.Code.value", { description: "The value field of Inline.Code." })),
+		}).pipe($I.annoteSchema("Inline.Code", { description: "The Inline.Code document variant." })),
 		S.TaggedStruct("Link", {
-			target: LinkTarget.annotate($I.annote("Inline.Link.target", { description: "The target field of Inline.Link." })),
-			label: S.suspend(() => children).annotate(
-				$I.annote("Inline.Link.label", { description: "The ordered link label." }),
-			),
+			target: LinkTarget.pipe($I.annoteKey("Inline.Link.target", { description: "The target field of Inline.Link." })),
+			label: S.suspend(() => children).pipe($I.annoteKey("Inline.Link.label", { description: "The ordered link label." })),
 			/**
 			 * Whether plain text (and ANSI with links off, and markdown with no URL) follows the label with the target in
 			 * parentheses. Unset, it does so only when the label does not already show the target's display form.
 			 */
-			suffix: S.optionalKey(S.Boolean).annotate(
-				$I.annote("Inline.Link.suffix", { description: "The suffix field of Inline.Link." }),
-			),
-		}).annotate($I.annote("Inline.Link", { description: "The Inline.Link document variant." })),
-		S.TaggedStruct("StatusMark", { ...StatusRef.fields }).annotate(
-			$I.annote("Inline.StatusMark", { description: "The Inline.StatusMark document variant." }),
-		),
+			suffix: S.optionalKey(S.Boolean).pipe($I.annoteKey("Inline.Link.suffix", { description: "The suffix field of Inline.Link." })),
+		}).pipe($I.annoteSchema("Inline.Link", { description: "The Inline.Link document variant." })),
+		S.TaggedStruct("StatusMark", { ...StatusRef.fields }).pipe($I.annoteSchema("Inline.StatusMark", { description: "The Inline.StatusMark document variant." })),
 		S.TaggedStruct("Path", {
-			segments: S.Array(S.String).annotate(
-				$I.annote("Inline.Path.segments", { description: "The segments field of Inline.Path." }),
-			),
-		}).annotate($I.annote("Inline.Path", { description: "The Inline.Path document variant." })),
+			segments: S.Array(S.String).pipe($I.annoteKey("Inline.Path.segments", { description: "The segments field of Inline.Path." })),
+		}).pipe($I.annoteSchema("Inline.Path", { description: "The Inline.Path document variant." })),
 		S.TaggedStruct("Strong", {
-			content: S.suspend(() => children).annotate(
-				$I.annote("Inline.content", { description: "The ordered nested inline content." }),
-			),
-		}).annotate($I.annote("Inline.Strong", { description: "The Inline.Strong document variant." })),
+			content: S.suspend(() => children).pipe($I.annoteKey("Inline.content", { description: "The ordered nested inline content." })),
+		}).pipe($I.annoteSchema("Inline.Strong", { description: "The Inline.Strong document variant." })),
 		S.TaggedStruct("Emphasis", {
-			content: S.suspend(() => children).annotate(
-				$I.annote("Inline.content", { description: "The ordered nested inline content." }),
-			),
-		}).annotate($I.annote("Inline.Emphasis", { description: "The Inline.Emphasis document variant." })),
+			content: S.suspend(() => children).pipe($I.annoteKey("Inline.content", { description: "The ordered nested inline content." })),
+		}).pipe($I.annoteSchema("Inline.Emphasis", { description: "The Inline.Emphasis document variant." })),
 		S.TaggedStruct("File", {
-			path: S.String.annotate($I.annote("Inline.File.path", { description: "The path field of Inline.File." })),
-		}).annotate($I.annote("Inline.File", { description: "The Inline.File document variant." })),
-	]).annotate($I.annote("Inline", { description: "Plain tagged content flowing inside a document line." }));
+			path: S.String.pipe($I.annoteKey("Inline.File.path", { description: "The path field of Inline.File." })),
+		}).pipe($I.annoteSchema("Inline.File", { description: "The Inline.File document variant." })),
+	]).pipe($I.annoteSchema("Inline", { description: "Plain tagged content flowing inside a document line." }));
 
 // Array interfaces break recursive inference without duplicating any variant's fields.
 interface InlineChildren extends ReadonlyArray<Inline> {}
@@ -176,14 +161,10 @@ export const Inline = S.suspend((): S.Codec<Inline> => Inline).pipe(S.Array, inl
 const treeNodeShape = <Children extends S.Constraint>(children: Children) =>
 	S.Struct({
 		/** What the node says. */
-		label: S.Array(Inline).annotate(
-			$I.annote("treeNodeShape.label", { description: "The label field of treeNodeShape." }),
-		),
+		label: S.Array(Inline).pipe($I.annoteKey("treeNodeShape.label", { description: "The label field of treeNodeShape." })),
 		/** Its children, in order. */
-		children: S.suspend(() => children).annotate(
-			$I.annote("TreeNode.children", { description: "The ordered child tree nodes." }),
-		),
-	}).annotate($I.annote("TreeNode", { description: "A tree label and its ordered children." }));
+		children: S.suspend(() => children).pipe($I.annoteKey("TreeNode.children", { description: "The ordered child tree nodes." })),
+	}).pipe($I.annoteSchema("TreeNode", { description: "A tree label and its ordered children." }));
 interface TreeChildren extends ReadonlyArray<TreeNode> {}
 /**
  * The decoded tree label and its ordered child nodes.
@@ -228,12 +209,10 @@ export const TreeNode = S.suspend((): S.Codec<TreeNode> => TreeNode).pipe(S.Arra
  */
 export const Column = S.Struct({
 	/** The header cell. */
-	header: S.Array(Inline).annotate($I.annote("Column.header", { description: "The header field of Column." })),
+	header: S.Array(Inline).pipe($I.annoteKey("Column.header", { description: "The header field of Column." })),
 	/** How the column's cells align; left when unset. */
-	align: S.optionalKey(S.Literals(["left", "right", "center"])).annotate(
-		$I.annote("Column.align", { description: "The align field of Column." }),
-	),
-}).annotate($I.annote("Column", { description: "A table header and optional alignment." }));
+	align: S.optionalKey(S.Literals(["left", "right", "center"])).pipe($I.annoteKey("Column.align", { description: "The align field of Column." })),
+}).pipe($I.annoteSchema("Column", { description: "A table header and optional alignment." }));
 /**
  * The decoded table header and optional cell alignment.
  *
@@ -262,7 +241,7 @@ export type Column = typeof Column.Type;
  */
 export const Counter = S.Struct({
 	/** A stable identifier, for a caller's total rule. */
-	key: S.String.annotate($I.annote("Counter.key", { description: "The key field of Counter." })),
+	key: S.String.pipe($I.annoteKey("Counter.key", { description: "The key field of Counter." })),
 	/**
 	 * What the counter is called when shown: one label, or a singular and a plural form, `one` for a count of exactly 1
 	 * and `other` for every other, 0 included. The count is the counter's own `n`, except in a share headline
@@ -272,19 +251,17 @@ export const Counter = S.Struct({
 	label: S.Union([
 		S.String,
 		S.Struct({
-			one: S.String.annotate($I.annote("Counter.one", { description: "The one field of Counter." })),
-			other: S.String.annotate($I.annote("Counter.other", { description: "The other field of Counter." })),
+			one: S.String.pipe($I.annoteKey("Counter.one", { description: "The one field of Counter." })),
+			other: S.String.pipe($I.annoteKey("Counter.other", { description: "The other field of Counter." })),
 		}),
-	]).annotate($I.annote("Counter.label", { description: "The label field of Counter." })),
+	]).pipe($I.annoteKey("Counter.label", { description: "The label field of Counter." })),
 	/** The count. */
-	n: S.Finite.annotate($I.annote("Counter.n", { description: "The n field of Counter." })),
+	n: S.Finite.pipe($I.annoteKey("Counter.n", { description: "The n field of Counter." })),
 	/** The status the count is painted with. */
-	status: StatusRef.annotate($I.annote("Counter.status", { description: "The status field of Counter." })),
+	status: StatusRef.pipe($I.annoteKey("Counter.status", { description: "The status field of Counter." })),
 	/** Show the counter when `n` is zero; by default a zero counter is hidden. */
-	showZero: S.optionalKey(S.Boolean).annotate(
-		$I.annote("Counter.showZero", { description: "The showZero field of Counter." }),
-	),
-}).annotate($I.annote("Counter", { description: "A labeled count with its resolved status and zero-display policy." }));
+	showZero: S.optionalKey(S.Boolean).pipe($I.annoteKey("Counter.showZero", { description: "The showZero field of Counter." })),
+}).pipe($I.annoteSchema("Counter", { description: "A labeled count with its resolved status and zero-display policy." }));
 /**
  * The decoded count, label and resolved status used in summaries.
  *
@@ -295,204 +272,114 @@ export type Counter = typeof Counter.Type;
 
 const Overflow = S.declare<(hidden: number) => ReadonlyArray<Inline>>(
 	(value): value is (hidden: number) => ReadonlyArray<Inline> => P.isFunction(value),
-).annotate({
-	...$I.annote("Overflow", { description: "An opaque callback producing normalized overflow content." }),
+).pipe($I.annoteSchema("Overflow", {
+	description: "An opaque callback producing normalized overflow content.",
 	toCodecArbitrary: () => new SchemaAST.Link(
 		S.Array(Inline).ast, SchemaTransformation.makeTransformation({
 			decode: SchemaGetter.transform((content: ReadonlyArray<Inline>) => () => content),
 			encode: SchemaGetter.forbiddenEncoding,
 		}),
 	),
-});
+}));
 const Total = S.declare<(counters: ReadonlyArray<Counter>) => number>(
 	(value): value is (counters: ReadonlyArray<Counter>) => number => P.isFunction(value),
-).annotate({
-	...$I.annote("Total", { description: "An opaque callback computing a counter total." }),
+).pipe($I.annoteSchema("Total", {
+	description: "An opaque callback computing a counter total.",
 	toCodecArbitrary: () => new SchemaAST.Link(
 		S.Finite.ast, SchemaTransformation.makeTransformation({
 			decode: SchemaGetter.transform((total: number) => () => total),
 			encode: SchemaGetter.forbiddenEncoding,
 		}),
 	),
-});
+}));
 const blockShape = <Children extends S.Constraint>(children: Children) =>
 	S.Union([
 		S.TaggedStruct("Heading", {
-			level: S.Literals([1, 2, 3, 4]).annotate(
-				$I.annote("Block.Heading.level", { description: "The level field of Block.Heading." }),
-			),
-			content: S.Array(Inline).annotate(
-				$I.annote("Block.Heading.content", { description: "The content field of Block.Heading." }),
-			),
-		}).annotate($I.annote("Block.Heading", { description: "The Block.Heading document variant." })),
+			level: S.Literals([1, 2, 3, 4]).pipe($I.annoteKey("Block.Heading.level", { description: "The level field of Block.Heading." })),
+			content: S.Array(Inline).pipe($I.annoteKey("Block.Heading.content", { description: "The content field of Block.Heading." })),
+		}).pipe($I.annoteSchema("Block.Heading", { description: "The Block.Heading document variant." })),
 		S.TaggedStruct("Paragraph", {
-			content: S.Array(Inline).annotate(
-				$I.annote("Block.Paragraph.content", { description: "The content field of Block.Paragraph." }),
-			),
-		}).annotate($I.annote("Block.Paragraph", { description: "The Block.Paragraph document variant." })),
+			content: S.Array(Inline).pipe($I.annoteKey("Block.Paragraph.content", { description: "The content field of Block.Paragraph." })),
+		}).pipe($I.annoteSchema("Block.Paragraph", { description: "The Block.Paragraph document variant." })),
 		S.TaggedStruct("List", {
-			items: S.suspend(() => children).annotate(
-				$I.annote("Block.List.items", { description: "The ordered list blocks." }),
-			),
-			cap: S.optionalKey(S.Finite).annotate(
-				$I.annote("Block.List.cap", { description: "The cap field of Block.List." }),
-			),
-			overflow: S.optionalKey(Overflow).annotate(
-				$I.annote("Block.List.overflow", { description: "The overflow field of Block.List." }),
-			),
-			compact: S.optionalKey(S.Boolean).annotate(
-				$I.annote("Block.List.compact", { description: "The compact field of Block.List." }),
-			),
-		}).annotate($I.annote("Block.List", { description: "The Block.List document variant." })),
+			items: S.suspend(() => children).pipe($I.annoteKey("Block.List.items", { description: "The ordered list blocks." })),
+			cap: S.optionalKey(S.Finite).pipe($I.annoteKey("Block.List.cap", { description: "The cap field of Block.List." })),
+			overflow: S.optionalKey(Overflow).pipe($I.annoteKey("Block.List.overflow", { description: "The overflow field of Block.List." })),
+			compact: S.optionalKey(S.Boolean).pipe($I.annoteKey("Block.List.compact", { description: "The compact field of Block.List." })),
+		}).pipe($I.annoteSchema("Block.List", { description: "The Block.List document variant." })),
 		S.TaggedStruct("Table", {
-			columns: S.Array(Column).annotate(
-				$I.annote("Block.Table.columns", { description: "The columns field of Block.Table." }),
-			),
-			rows: Inline.pipe(S.Array, S.Array, S.Array).annotate(
-				$I.annote("Block.Table.rows", { description: "The rows field of Block.Table." }),
-			),
-			cap: S.optionalKey(S.Finite).annotate(
-				$I.annote("Block.Table.cap", { description: "The cap field of Block.Table." }),
-			),
-			overflow: S.optionalKey(Overflow).annotate(
-				$I.annote("Block.Table.overflow", { description: "The overflow field of Block.Table." }),
-			),
-			style: S.optionalKey(S.Literal("pipe")).annotate(
-				$I.annote("Block.Table.style", { description: "The style field of Block.Table." }),
-			),
-		}).annotate($I.annote("Block.Table", { description: "The Block.Table document variant." })),
+			columns: S.Array(Column).pipe($I.annoteKey("Block.Table.columns", { description: "The columns field of Block.Table." })),
+			rows: Inline.pipe(S.Array, S.Array, S.Array, $I.annoteKey("Block.Table.rows", { description: "The rows field of Block.Table." })),
+			cap: S.optionalKey(S.Finite).pipe($I.annoteKey("Block.Table.cap", { description: "The cap field of Block.Table." })),
+			overflow: S.optionalKey(Overflow).pipe($I.annoteKey("Block.Table.overflow", { description: "The overflow field of Block.Table." })),
+			style: S.optionalKey(S.Literal("pipe")).pipe($I.annoteKey("Block.Table.style", { description: "The style field of Block.Table." })),
+		}).pipe($I.annoteSchema("Block.Table", { description: "The Block.Table document variant." })),
 		S.TaggedStruct("Tree", {
-			root: TreeNode.annotate($I.annote("Block.Tree.root", { description: "The root field of Block.Tree." })),
-		}).annotate($I.annote("Block.Tree", { description: "The Block.Tree document variant." })),
+			root: TreeNode.pipe($I.annoteKey("Block.Tree.root", { description: "The root field of Block.Tree." })),
+		}).pipe($I.annoteSchema("Block.Tree", { description: "The Block.Tree document variant." })),
 		S.TaggedStruct("Collapsible", {
-			title: S.Array(Inline).annotate(
-				$I.annote("Block.Collapsible.title", { description: "The title field of Block.Collapsible." }),
-			),
-			body: S.suspend(() => children).annotate(
-				$I.annote("Block.Collapsible.body", { description: "The collapsible body blocks." }),
-			),
-			open: S.optionalKey(S.Boolean).annotate(
-				$I.annote("Block.Collapsible.open", { description: "The open field of Block.Collapsible." }),
-			),
-		}).annotate($I.annote("Block.Collapsible", { description: "The Block.Collapsible document variant." })),
+			title: S.Array(Inline).pipe($I.annoteKey("Block.Collapsible.title", { description: "The title field of Block.Collapsible." })),
+			body: S.suspend(() => children).pipe($I.annoteKey("Block.Collapsible.body", { description: "The collapsible body blocks." })),
+			open: S.optionalKey(S.Boolean).pipe($I.annoteKey("Block.Collapsible.open", { description: "The open field of Block.Collapsible." })),
+		}).pipe($I.annoteSchema("Block.Collapsible", { description: "The Block.Collapsible document variant." })),
 		S.TaggedStruct("Callout", {
-			kind: S.Literals(["note", "tip", "important", "warning", "caution"]).annotate(
-				$I.annote("Block.Callout.kind", { description: "The kind field of Block.Callout." }),
-			),
-			body: S.suspend(() => children).annotate(
-				$I.annote("Block.Callout.body", { description: "The callout body blocks." }),
-			),
-		}).annotate($I.annote("Block.Callout", { description: "The Block.Callout document variant." })),
+			kind: S.Literals(["note", "tip", "important", "warning", "caution"]).pipe($I.annoteKey("Block.Callout.kind", { description: "The kind field of Block.Callout." })),
+			body: S.suspend(() => children).pipe($I.annoteKey("Block.Callout.body", { description: "The callout body blocks." })),
+		}).pipe($I.annoteSchema("Block.Callout", { description: "The Block.Callout document variant." })),
 		S.TaggedStruct("CodeBlock", {
-			lang: S.optionalKey(S.String).annotate(
-				$I.annote("Block.CodeBlock.lang", { description: "The lang field of Block.CodeBlock." }),
-			),
-			text: S.String.annotate($I.annote("Block.CodeBlock.text", { description: "The text field of Block.CodeBlock." })),
-		}).annotate($I.annote("Block.CodeBlock", { description: "The Block.CodeBlock document variant." })),
+			lang: S.optionalKey(S.String).pipe($I.annoteKey("Block.CodeBlock.lang", { description: "The lang field of Block.CodeBlock." })),
+			text: S.String.pipe($I.annoteKey("Block.CodeBlock.text", { description: "The text field of Block.CodeBlock." })),
+		}).pipe($I.annoteSchema("Block.CodeBlock", { description: "The Block.CodeBlock document variant." })),
 		S.TaggedStruct("Diff", {
-			expected: S.String.annotate(
-				$I.annote("Block.Diff.expected", { description: "The expected field of Block.Diff." }),
-			),
-			received: S.String.annotate(
-				$I.annote("Block.Diff.received", { description: "The received field of Block.Diff." }),
-			),
-			cap: S.optionalKey(S.Finite).annotate(
-				$I.annote("Block.Diff.cap", { description: "The cap field of Block.Diff." }),
-			),
-		}).annotate($I.annote("Block.Diff", { description: "The Block.Diff document variant." })),
+			expected: S.String.pipe($I.annoteKey("Block.Diff.expected", { description: "The expected field of Block.Diff." })),
+			received: S.String.pipe($I.annoteKey("Block.Diff.received", { description: "The received field of Block.Diff." })),
+			cap: S.optionalKey(S.Finite).pipe($I.annoteKey("Block.Diff.cap", { description: "The cap field of Block.Diff." })),
+		}).pipe($I.annoteSchema("Block.Diff", { description: "The Block.Diff document variant." })),
 		S.TaggedStruct("Section", {
-			title: Inline.pipe(S.Array, S.optionalKey).annotate(
-				$I.annote("Block.Section.title", { description: "The title field of Block.Section." }),
-			),
-			children: S.suspend(() => children).annotate(
-				$I.annote("Block.Section.children", { description: "The ordered section blocks." }),
-			),
-		}).annotate($I.annote("Block.Section", { description: "The Block.Section document variant." })),
+			title: Inline.pipe(S.Array, S.optionalKey, $I.annoteKey("Block.Section.title", { description: "The title field of Block.Section." })),
+			children: S.suspend(() => children).pipe($I.annoteKey("Block.Section.children", { description: "The ordered section blocks." })),
+		}).pipe($I.annoteSchema("Block.Section", { description: "The Block.Section document variant." })),
 		S.TaggedStruct("Counts", {
-			label: Inline.pipe(S.Array, S.optionalKey).annotate(
-				$I.annote("Block.Counts.label", { description: "The label field of Block.Counts." }),
-			),
-			counters: S.Array(Counter).annotate(
-				$I.annote("Block.Counts.counters", { description: "The counters field of Block.Counts." }),
-			),
-			total: S.optionalKey(Total).annotate(
-				$I.annote("Block.Counts.total", { description: "The total field of Block.Counts." }),
-			),
-			qualifier: Inline.pipe(S.Array, S.optionalKey).annotate(
-				$I.annote("Block.Counts.qualifier", { description: "The qualifier field of Block.Counts." }),
-			),
-			durationMs: S.optionalKey(S.Finite).annotate(
-				$I.annote("Block.Counts.durationMs", { description: "The durationMs field of Block.Counts." }),
-			),
-			layout: S.Literals(["inline", "columns", "row"]).annotate(
-				$I.annote("Block.Counts.layout", { description: "The layout field of Block.Counts." }),
-			),
-			share: S.optionalKey(S.Boolean).annotate(
-				$I.annote("Block.Counts.share", { description: "The share field of Block.Counts." }),
-			),
-			paint: S.optionalKey(S.Literals(["all", "glyph", "none"])).annotate(
-				$I.annote("Block.Counts.paint", { description: "The paint field of Block.Counts." }),
-			),
-			suffix: Inline.pipe(S.Array, S.optionalKey).annotate(
-				$I.annote("Block.Counts.suffix", { description: "The suffix field of Block.Counts." }),
-			),
-		}).annotate($I.annote("Block.Counts", { description: "The Block.Counts document variant." })),
+			label: Inline.pipe(S.Array, S.optionalKey, $I.annoteKey("Block.Counts.label", { description: "The label field of Block.Counts." })),
+			counters: S.Array(Counter).pipe($I.annoteKey("Block.Counts.counters", { description: "The counters field of Block.Counts." })),
+			total: S.optionalKey(Total).pipe($I.annoteKey("Block.Counts.total", { description: "The total field of Block.Counts." })),
+			qualifier: Inline.pipe(S.Array, S.optionalKey, $I.annoteKey("Block.Counts.qualifier", { description: "The qualifier field of Block.Counts." })),
+			durationMs: S.optionalKey(S.Finite).pipe($I.annoteKey("Block.Counts.durationMs", { description: "The durationMs field of Block.Counts." })),
+			layout: S.Literals(["inline", "columns", "row"]).pipe($I.annoteKey("Block.Counts.layout", { description: "The layout field of Block.Counts." })),
+			share: S.optionalKey(S.Boolean).pipe($I.annoteKey("Block.Counts.share", { description: "The share field of Block.Counts." })),
+			paint: S.optionalKey(S.Literals(["all", "glyph", "none"])).pipe($I.annoteKey("Block.Counts.paint", { description: "The paint field of Block.Counts." })),
+			suffix: Inline.pipe(S.Array, S.optionalKey, $I.annoteKey("Block.Counts.suffix", { description: "The suffix field of Block.Counts." })),
+		}).pipe($I.annoteSchema("Block.Counts", { description: "The Block.Counts document variant." })),
 		S.TaggedStruct("CountsTable", {
-			rows: S.Array(CountsRow).annotate(
-				$I.annote("Block.CountsTable.rows", { description: "The rows field of Block.CountsTable." }),
-			),
-			totalRow: S.optionalKey(S.Union([S.Boolean, S.Array(Inline)])).annotate(
-				$I.annote("Block.CountsTable.totalRow", { description: "The totalRow field of Block.CountsTable." }),
-			),
-			labelHeader: Inline.pipe(S.Array, S.optionalKey).annotate(
-				$I.annote("Block.CountsTable.labelHeader", { description: "The labelHeader field of Block.CountsTable." }),
-			),
-			durationHeader: Inline.pipe(S.Array, S.optionalKey).annotate(
-				$I.annote("Block.CountsTable.durationHeader", {
+			rows: S.Array(CountsRow).pipe($I.annoteKey("Block.CountsTable.rows", { description: "The rows field of Block.CountsTable." })),
+			totalRow: S.optionalKey(S.Union([S.Boolean, S.Array(Inline)])).pipe($I.annoteKey("Block.CountsTable.totalRow", { description: "The totalRow field of Block.CountsTable." })),
+			labelHeader: Inline.pipe(S.Array, S.optionalKey, $I.annoteKey("Block.CountsTable.labelHeader", { description: "The labelHeader field of Block.CountsTable." })),
+			durationHeader: Inline.pipe(S.Array, S.optionalKey, $I.annoteKey("Block.CountsTable.durationHeader", {
 					description: "The durationHeader field of Block.CountsTable.",
-				}),
-			),
-		}).annotate($I.annote("Block.CountsTable", { description: "The Block.CountsTable document variant." })),
+				})),
+		}).pipe($I.annoteSchema("Block.CountsTable", { description: "The Block.CountsTable document variant." })),
 		S.TaggedStruct("Lines", {
-			lines: Inline.pipe(S.Array, S.Array).annotate(
-				$I.annote("Block.Lines.lines", { description: "The lines field of Block.Lines." }),
-			),
-		}).annotate($I.annote("Block.Lines", { description: "The Block.Lines document variant." })),
+			lines: Inline.pipe(S.Array, S.Array, $I.annoteKey("Block.Lines.lines", { description: "The lines field of Block.Lines." })),
+		}).pipe($I.annoteSchema("Block.Lines", { description: "The Block.Lines document variant." })),
 		S.TaggedStruct("Line", {
-			content: S.Array(Inline).annotate(
-				$I.annote("Block.Line.content", { description: "The content field of Block.Line." }),
-			),
-			truncate: S.optionalKey(S.Boolean).annotate(
-				$I.annote("Block.Line.truncate", { description: "The truncate field of Block.Line." }),
-			),
-			wrap: S.optionalKey(S.Boolean).annotate(
-				$I.annote("Block.Line.wrap", { description: "The wrap field of Block.Line." }),
-			),
-		}).annotate($I.annote("Block.Line", { description: "The Block.Line document variant." })),
+			content: S.Array(Inline).pipe($I.annoteKey("Block.Line.content", { description: "The content field of Block.Line." })),
+			truncate: S.optionalKey(S.Boolean).pipe($I.annoteKey("Block.Line.truncate", { description: "The truncate field of Block.Line." })),
+			wrap: S.optionalKey(S.Boolean).pipe($I.annoteKey("Block.Line.wrap", { description: "The wrap field of Block.Line." })),
+		}).pipe($I.annoteSchema("Block.Line", { description: "The Block.Line document variant." })),
 		S.TaggedStruct("DiffText", {
-			text: S.String.annotate($I.annote("Block.DiffText.text", { description: "The text field of Block.DiffText." })),
-			cap: S.optionalKey(S.Finite).annotate(
-				$I.annote("Block.DiffText.cap", { description: "The cap field of Block.DiffText." }),
-			),
-			truncate: S.optionalKey(S.Boolean).annotate(
-				$I.annote("Block.DiffText.truncate", { description: "The truncate field of Block.DiffText." }),
-			),
-		}).annotate($I.annote("Block.DiffText", { description: "The Block.DiffText document variant." })),
+			text: S.String.pipe($I.annoteKey("Block.DiffText.text", { description: "The text field of Block.DiffText." })),
+			cap: S.optionalKey(S.Finite).pipe($I.annoteKey("Block.DiffText.cap", { description: "The cap field of Block.DiffText." })),
+			truncate: S.optionalKey(S.Boolean).pipe($I.annoteKey("Block.DiffText.truncate", { description: "The truncate field of Block.DiffText." })),
+		}).pipe($I.annoteSchema("Block.DiffText", { description: "The Block.DiffText document variant." })),
 		S.TaggedStruct("Verbatim", {
-			text: S.String.annotate($I.annote("Block.Verbatim.text", { description: "The text field of Block.Verbatim." })),
-			indent: S.optionalKey(S.Finite).annotate(
-				$I.annote("Block.Verbatim.indent", { description: "The indent field of Block.Verbatim." }),
-			),
-		}).annotate($I.annote("Block.Verbatim", { description: "The Block.Verbatim document variant." })),
+			text: S.String.pipe($I.annoteKey("Block.Verbatim.text", { description: "The text field of Block.Verbatim." })),
+			indent: S.optionalKey(S.Finite).pipe($I.annoteKey("Block.Verbatim.indent", { description: "The indent field of Block.Verbatim." })),
+		}).pipe($I.annoteSchema("Block.Verbatim", { description: "The Block.Verbatim document variant." })),
 		S.TaggedStruct("Annotation", {
-			message: S.String.annotate(
-				$I.annote("Block.Annotation.message", { description: "The message field of Block.Annotation." }),
-			),
+			message: S.String.pipe($I.annoteKey("Block.Annotation.message", { description: "The message field of Block.Annotation." })),
 			...AnnotationOptions.fields,
-		}).annotate($I.annote("Block.Annotation", { description: "The Block.Annotation document variant." })),
-	]).annotate(
-		$I.annote("Block", { description: "Plain tagged document blocks, including recursive containers and callbacks." }),
-	);
+		}).pipe($I.annoteSchema("Block.Annotation", { description: "The Block.Annotation document variant." })),
+	]).pipe($I.annoteSchema("Block", { description: "Plain tagged document blocks, including recursive containers and callbacks." }));
 interface BlockChildren extends ReadonlyArray<Block> {}
 /**
  * The decoded document block, including recursive containers.
@@ -543,9 +430,7 @@ export type Block = ReturnType<typeof blockShape<S.Codec<BlockChildren>>>["Type"
  * @category schemas
  * @since 0.0.0
  */
-export const Block: S.Codec<Block> = S.suspend(() => S.suspend((): S.Codec<Block> => Block).pipe(S.Array, blockShape)).annotate(
-	$I.annote("Block", { description: "Plain tagged document blocks with recursive containers and callbacks." }),
-);
+export const Block: S.Codec<Block> = S.suspend(() => S.suspend((): S.Codec<Block> => Block).pipe(S.Array, blockShape)).pipe($I.annoteSchema("Block", { description: "Plain tagged document blocks with recursive containers and callbacks." }));
 
 /**
  * Where and how a GitHub Actions annotation is shown: its level, and an optional position and title.
@@ -563,9 +448,7 @@ export const Block: S.Codec<Block> = S.suspend(() => S.suspend((): S.Codec<Block
  * @category schemas
  * @since 0.0.0
  */
-export const AnnotationOptions = S.Struct(GithubAnnotationProperties.fields).annotate(
-	$I.annote("AnnotationOptions", { description: "A GitHub Actions annotation level and optional position and title." }),
-);
+export const AnnotationOptions = S.Struct(GithubAnnotationProperties.fields).pipe($I.annoteSchema("AnnotationOptions", { description: "A GitHub Actions annotation level and optional position and title." }));
 /**
  * The decoded level and optional source position of a workflow annotation.
  *
@@ -592,16 +475,12 @@ export type AnnotationOptions = typeof AnnotationOptions.Type;
  */
 export const CountsRow = S.Struct({
 	/** What the row is, such as a project name. */
-	label: S.Array(Inline).annotate($I.annote("CountsRow.label", { description: "The label field of CountsRow." })),
+	label: S.Array(Inline).pipe($I.annoteKey("CountsRow.label", { description: "The label field of CountsRow." })),
 	/** Its counters; their keys pick the column each lands in. */
-	counters: S.Array(Counter).annotate(
-		$I.annote("CountsRow.counters", { description: "The counters field of CountsRow." }),
-	),
+	counters: S.Array(Counter).pipe($I.annoteKey("CountsRow.counters", { description: "The counters field of CountsRow." })),
 	/** How long it took, in milliseconds, shown with `Fmt.duration` in the duration column. */
-	durationMs: S.optionalKey(S.Finite).annotate(
-		$I.annote("CountsRow.durationMs", { description: "The durationMs field of CountsRow." }),
-	),
-}).annotate($I.annote("CountsRow", { description: "A counts-table row with label, counters and optional duration." }));
+	durationMs: S.optionalKey(S.Finite).pipe($I.annoteKey("CountsRow.durationMs", { description: "The durationMs field of CountsRow." })),
+}).pipe($I.annoteSchema("CountsRow", { description: "A counts-table row with label, counters and optional duration." }));
 /**
  * The decoded label, counters and optional duration of a summary-table row.
  *
@@ -768,6 +647,27 @@ export interface CountsOptions {
 	readonly suffix?: InlineInput;
 }
 
+/** What {@link Doc.counter} counts: the counter's key, label, number and zero policy. */
+type CounterOptions = {
+	readonly key: string;
+	readonly label: string | { readonly one: string; readonly other: string };
+	readonly n: number;
+	readonly showZero?: boolean;
+};
+
+/** One row of a {@link Doc.countsTable}: its label, its counters and an optional duration. */
+type CountsTableRowInput = {
+	readonly label: InlineInput;
+	readonly counters: ReadonlyArray<Counter>;
+	readonly durationMs?: number;
+};
+
+/** One column of a {@link Doc.table}: its header and alignment. */
+type TableColumnInput = { readonly header: InlineInput; readonly align?: "left" | "right" | "center" };
+
+/** How a {@link Doc.line} is laid out: cut to the width, or kept on one line. */
+type LineOptions = { readonly truncate?: boolean; readonly wrap?: boolean };
+
 const isList = (input: InlineInput): input is ReadonlyArray<string | Inline> => A.isArray(input);
 
 const text = (value: string, token?: TokenName | Style): InlineOf<"Text"> => ({
@@ -779,7 +679,7 @@ const text = (value: string, token?: TokenName | Style): InlineOf<"Text"> => ({
 const inlineOne = (part: string | Inline): Inline => (P.isString(part) ? text(part) : part);
 
 const inlines = (input: InlineInput): ReadonlyArray<Inline> =>
-	A.copy(isList(input) ? input.map(inlineOne) : [inlineOne(input)]);
+	A.copy(isList(input) ? A.map(input, inlineOne) : [inlineOne(input)]);
 
 const overflowOf =
 	(overflow: (hidden: number) => InlineInput): ((hidden: number) => ReadonlyArray<Inline>) =>
@@ -793,7 +693,7 @@ const overflowFields = (options: OverflowOptions | undefined) => ({
 
 const treeNode = (input: TreeInput): TreeNode => ({
 	label: inlines(input.label),
-	children: A.copy((input.children ?? []).map(treeNode)),
+	children: A.copy(A.map((input.children ?? []), treeNode)),
 });
 
 const counterOf = (counter: Counter): Counter => ({
@@ -967,9 +867,10 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static status<N extends string>(vocab: Status<N>, name: NoInfer<N>): InlineOf<"StatusMark"> {
-		return { _tag: "StatusMark", name, def: vocab.resolve(name) };
-	}
+	static readonly status: {
+		<N extends string>(vocab: Status<N>, name: NoInfer<N>): InlineOf<"StatusMark">;
+		<N extends string>(name: N): (vocab: Status<N>) => InlineOf<"StatusMark">;
+	} = dual(2, <N extends string>(vocab: Status<N>, name: NoInfer<N>): InlineOf<"StatusMark"> => ({ _tag: "StatusMark", name, def: vocab.resolve(name) }));
 
 	/**
 	 * Content in bold: markdown `**…**`, bold in `ansi`, and the content as is in plain and `githubLog`.
@@ -987,7 +888,7 @@ export abstract class Doc {
 	 * @since 0.0.0
 	 */
 	static strong(...content: Array<InlineInput>): InlineOf<"Strong"> {
-		return { _tag: "Strong", content: inlines(content.flatMap((part) => (isList(part) ? part : [part]))) };
+		return { _tag: "Strong", content: inlines(A.flatMap(content, (part) => (isList(part) ? part : [part]))) };
 	}
 
 	/**
@@ -1007,7 +908,7 @@ export abstract class Doc {
 	 * @since 0.0.0
 	 */
 	static em(...content: Array<InlineInput>): InlineOf<"Emphasis"> {
-		return { _tag: "Emphasis", content: inlines(content.flatMap((part) => (isList(part) ? part : [part]))) };
+		return { _tag: "Emphasis", content: inlines(A.flatMap(content, (part) => (isList(part) ? part : [part]))) };
 	}
 
 	/**
@@ -1064,9 +965,10 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static heading(level: 1 | 2 | 3 | 4, content: InlineInput): BlockOf<"Heading"> {
-		return { _tag: "Heading", level, content: inlines(content) };
-	}
+	static readonly heading: {
+		(level: 1 | 2 | 3 | 4, content: InlineInput): BlockOf<"Heading">;
+		(content: InlineInput): (level: 1 | 2 | 3 | 4) => BlockOf<"Heading">;
+	} = dual(2, (level: 1 | 2 | 3 | 4, content: InlineInput): BlockOf<"Heading"> => ({ _tag: "Heading", level, content: inlines(content) }));
 
 	/**
 	 * One logical line of content.
@@ -1084,7 +986,7 @@ export abstract class Doc {
 	 * @since 0.0.0
 	 */
 	static paragraph(...content: Array<InlineInput>): BlockOf<"Paragraph"> {
-		return { _tag: "Paragraph", content: inlines(content.flatMap((part) => (isList(part) ? part : [part]))) };
+		return { _tag: "Paragraph", content: inlines(A.flatMap(content, (part) => (isList(part) ? part : [part]))) };
 	}
 
 	/**
@@ -1103,14 +1005,15 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static list(items: ReadonlyArray<Block>, options?: ListOptions): BlockOf<"List"> {
-		return {
+	static readonly list: {
+		(items: ReadonlyArray<Block>, options?: ListOptions): BlockOf<"List">;
+		(options?: ListOptions): (items: ReadonlyArray<Block>) => BlockOf<"List">;
+	} = dual((args) => A.isArray(args[0]), (items: ReadonlyArray<Block>, options?: ListOptions): BlockOf<"List"> => ({
 			_tag: "List",
 			items: A.copy(items),
 			...overflowFields(options),
 			...O.getSomesStruct({ compact: O.fromUndefinedOr(options?.compact) }),
-		};
-	}
+		}));
 
 	/**
 	 * Arranges inline content into columns and rows for tabular rendering.
@@ -1130,24 +1033,29 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static table(
-		columns: ReadonlyArray<{ readonly header: InlineInput; readonly align?: "left" | "right" | "center" }>,
-		rows: ReadonlyArray<ReadonlyArray<InlineInput>>,
-		options?: TableOptions,
-	): BlockOf<"Table"> {
-		return {
+	static readonly table: {
+		(columns: ReadonlyArray<TableColumnInput>, rows: ReadonlyArray<ReadonlyArray<InlineInput>>, options?: TableOptions): BlockOf<"Table">;
+		(rows: ReadonlyArray<ReadonlyArray<InlineInput>>, options?: TableOptions): (columns: ReadonlyArray<TableColumnInput>) => BlockOf<"Table">;
+	} = dual(
+		// The data-first form always has the rows, an array, second; the data-last form has the options there, or nothing.
+		(args) => A.isArray(args[1]),
+		(
+			columns: ReadonlyArray<TableColumnInput>,
+			rows: ReadonlyArray<ReadonlyArray<InlineInput>>,
+			options?: TableOptions,
+		): BlockOf<"Table"> => ({
 			_tag: "Table",
 			columns: A.copy(
-				columns.map((column) => ({
+				A.map(columns, (column) => ({
 					header: inlines(column.header),
 					...O.getSomesStruct({ align: O.fromUndefinedOr(column.align) }),
 				})),
 			),
-			rows: A.copy(rows.map((row) => A.copy(row.map(inlines)))),
+			rows: A.copy(A.map(rows, (row) => A.copy(A.map(row, inlines)))),
 			...overflowFields(options),
 			...O.getSomesStruct({ style: O.fromUndefinedOr(options?.style) }),
-		};
-	}
+		}),
+	);
 
 	/**
 	 * Builds nested labels for tree rendering.
@@ -1185,18 +1093,19 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static collapsible(
-		title: InlineInput,
-		body: ReadonlyArray<Block>,
-		options?: { readonly open?: boolean },
-	): BlockOf<"Collapsible"> {
-		return {
+	static readonly collapsible: {
+		(title: InlineInput, body: ReadonlyArray<Block>, options?: { readonly open?: boolean }): BlockOf<"Collapsible">;
+		(body: ReadonlyArray<Block>, options?: { readonly open?: boolean }): (title: InlineInput) => BlockOf<"Collapsible">;
+	} = dual(
+		// The data-first form always has the body, an array, second; the data-last form has the options there, or nothing.
+		(args) => A.isArray(args[1]),
+		(title: InlineInput, body: ReadonlyArray<Block>, options?: { readonly open?: boolean }): BlockOf<"Collapsible"> => ({
 			_tag: "Collapsible",
 			title: inlines(title),
 			body: A.copy(body),
 			...O.getSomesStruct({ open: O.fromUndefinedOr(options?.open) }),
-		};
-	}
+		}),
+	);
 
 	/**
 	 * Highlights a body of blocks with a callout kind.
@@ -1214,12 +1123,13 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static callout(
+	static readonly callout: {
+		(kind: "note" | "tip" | "important" | "warning" | "caution", body: ReadonlyArray<Block>): BlockOf<"Callout">;
+		(body: ReadonlyArray<Block>): (kind: "note" | "tip" | "important" | "warning" | "caution") => BlockOf<"Callout">;
+	} = dual(2, (
 		kind: "note" | "tip" | "important" | "warning" | "caution",
 		body: ReadonlyArray<Block>,
-	): BlockOf<"Callout"> {
-		return { _tag: "Callout", kind, body: A.copy(body) };
-	}
+	): BlockOf<"Callout"> => ({ _tag: "Callout", kind, body: A.copy(body) }));
 
 	/**
 	 * Preserves code text with an optional language for fenced rendering.
@@ -1258,14 +1168,19 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static diff(expected: string, received: string, options?: { readonly cap?: number }): BlockOf<"Diff"> {
-		return {
+	static readonly diff: {
+		(expected: string, received: string, options?: { readonly cap?: number }): BlockOf<"Diff">;
+		(received: string, options?: { readonly cap?: number }): (expected: string) => BlockOf<"Diff">;
+	} = dual(
+		// The data-first form always has `received`, a string, second; the data-last form has the options there, or nothing.
+		(args) => P.isString(args[1]),
+		(expected: string, received: string, options?: { readonly cap?: number }): BlockOf<"Diff"> => ({
 			_tag: "Diff",
 			expected,
 			received,
 			...O.getSomesStruct({ cap: O.fromUndefinedOr(options?.cap) }),
-		};
-	}
+		}),
+	);
 
 	/**
 	 * Children under an optional title.
@@ -1289,13 +1204,14 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static section(title: InlineInput | undefined, children: ReadonlyArray<Block>): BlockOf<"Section"> {
-		return {
+	static readonly section: {
+		(title: InlineInput | undefined, children: ReadonlyArray<Block>): BlockOf<"Section">;
+		(children: ReadonlyArray<Block>): (title: InlineInput | undefined) => BlockOf<"Section">;
+	} = dual(2, (title: InlineInput | undefined, children: ReadonlyArray<Block>): BlockOf<"Section"> => ({
 			_tag: "Section",
 			...O.getSomesStruct({ title: O.map(O.fromUndefinedOr(title), inlines) }),
 			children: A.copy(children),
-		};
-	}
+		}));
 
 	/**
 	 * One counter of a `Counts` block, with its status definition resolved.
@@ -1326,24 +1242,16 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static counter<N extends string>(
-		vocab: Status<N>,
-		name: NoInfer<N>,
-		options: {
-			readonly key: string;
-			readonly label: string | { readonly one: string; readonly other: string };
-			readonly n: number;
-			readonly showZero?: boolean;
-		},
-	): Counter {
-		return counterOf({
+	static readonly counter: {
+		<N extends string>(vocab: Status<N>, name: NoInfer<N>, options: CounterOptions): Counter;
+		<N extends string>(name: N, options: CounterOptions): (vocab: Status<N>) => Counter;
+	} = dual(3, <N extends string>(vocab: Status<N>, name: NoInfer<N>, options: CounterOptions): Counter => counterOf({
 			key: options.key,
 			label: options.label,
 			n: options.n,
 			status: { name, def: vocab.resolve(name) },
 			...O.getSomesStruct({ showZero: O.fromUndefinedOr(options.showZero) }),
-		});
-	}
+		}));
 
 	/**
 	 * Builds a counter summary in the requested layout.
@@ -1364,7 +1272,7 @@ export abstract class Doc {
 		return {
 			_tag: "Counts",
 			...O.getSomesStruct({ label: O.map(O.fromUndefinedOr(options.label), inlines) }),
-			counters: A.copy(options.counters.map(counterOf)),
+			counters: A.copy(A.map(options.counters, counterOf)),
 			...O.getSomesStruct({ total: O.fromUndefinedOr(options.total) }),
 			...O.getSomesStruct({ qualifier: O.map(O.fromUndefinedOr(options.qualifier), inlines) }),
 			...O.getSomesStruct({ durationMs: O.fromUndefinedOr(options.durationMs) }),
@@ -1404,21 +1312,20 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static countsTable(
-		rows: ReadonlyArray<{
-			readonly label: InlineInput;
-			readonly counters: ReadonlyArray<Counter>;
-			readonly durationMs?: number;
-		}>,
+	static readonly countsTable: {
+		(rows: ReadonlyArray<CountsTableRowInput>, options?: CountsTableOptions): BlockOf<"CountsTable">;
+		(options?: CountsTableOptions): (rows: ReadonlyArray<CountsTableRowInput>) => BlockOf<"CountsTable">;
+	} = dual((args) => A.isArray(args[0]), (
+		rows: ReadonlyArray<CountsTableRowInput>,
 		options?: CountsTableOptions,
-	): BlockOf<"CountsTable"> {
+	): BlockOf<"CountsTable"> => {
 		const totalRow = options?.totalRow;
 		return {
 			_tag: "CountsTable",
 			rows: A.copy(
-				rows.map((row) => ({
+				A.map(rows, (row) => ({
 					label: inlines(row.label),
-					counters: A.copy(row.counters.map(counterOf)),
+					counters: A.copy(A.map(row.counters, counterOf)),
 					...O.getSomesStruct({ durationMs: O.fromUndefinedOr(row.durationMs) }),
 				})),
 			),
@@ -1428,7 +1335,7 @@ export abstract class Doc {
 			...O.getSomesStruct({ labelHeader: O.map(O.fromUndefinedOr(options?.labelHeader), inlines) }),
 			...O.getSomesStruct({ durationHeader: O.map(O.fromUndefinedOr(options?.durationHeader), inlines) }),
 		};
-	}
+	});
 
 	/**
 	 * Lines, one per entry, in every renderer: markdown joins them with hard breaks so they never collapse into one.
@@ -1446,7 +1353,7 @@ export abstract class Doc {
 	 * @since 0.0.0
 	 */
 	static lines(lines: ReadonlyArray<InlineInput>): BlockOf<"Lines"> {
-		return { _tag: "Lines", lines: A.copy(lines.map(inlines)) };
+		return { _tag: "Lines", lines: A.copy(A.map(lines, inlines)) };
 	}
 
 	/**
@@ -1474,17 +1381,18 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static line(
+	static readonly line: {
+		(content: InlineInput, options?: LineOptions): BlockOf<"Line">;
+		(options?: LineOptions): (content: InlineInput) => BlockOf<"Line">;
+	} = dual((args) => P.isString(args[0]) || A.isArray(args[0]) || P.hasProperty(args[0], "_tag"), (
 		content: InlineInput,
 		options?: { readonly truncate?: boolean; readonly wrap?: boolean },
-	): BlockOf<"Line"> {
-		return {
+	): BlockOf<"Line"> => ({
 			_tag: "Line",
 			content: inlines(content),
 			...O.getSomesStruct({ truncate: O.fromUndefinedOr(options?.truncate) }),
 			...O.getSomesStruct({ wrap: O.fromUndefinedOr(options?.wrap) }),
-		};
-	}
+		}));
 
 	/**
 	 * A unified diff as given, such as a test runner's: sanitized, its `+` and `-` lines painted `success` and
@@ -1512,17 +1420,18 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static diffText(
+	static readonly diffText: {
+		(unified: string, options?: { readonly cap?: number; readonly truncate?: boolean }): BlockOf<"DiffText">;
+		(options?: { readonly cap?: number; readonly truncate?: boolean }): (unified: string) => BlockOf<"DiffText">;
+	} = dual((args) => P.isString(args[0]), (
 		unified: string,
 		options?: { readonly cap?: number; readonly truncate?: boolean },
-	): BlockOf<"DiffText"> {
-		return {
+	): BlockOf<"DiffText"> => ({
 			_tag: "DiffText",
 			text: unified,
 			...O.getSomesStruct({ cap: O.fromUndefinedOr(options?.cap) }),
 			...O.getSomesStruct({ truncate: O.fromUndefinedOr(options?.truncate) }),
-		};
-	}
+		}));
 
 	/**
 	 * Lines kept exactly: each indented by `indent` spaces, sanitized, and never wrapped.
@@ -1547,9 +1456,10 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static verbatim(text: string, options?: { readonly indent?: number }): BlockOf<"Verbatim"> {
-		return { _tag: "Verbatim", text, ...O.getSomesStruct({ indent: O.fromUndefinedOr(options?.indent) }) };
-	}
+	static readonly verbatim: {
+		(text: string, options?: { readonly indent?: number }): BlockOf<"Verbatim">;
+		(options?: { readonly indent?: number }): (text: string) => BlockOf<"Verbatim">;
+	} = dual((args) => P.isString(args[0]), (text: string, options?: { readonly indent?: number }): BlockOf<"Verbatim"> => ({ _tag: "Verbatim", text, ...O.getSomesStruct({ indent: O.fromUndefinedOr(options?.indent) }) }));
 
 	/**
 	 * A GitHub Actions annotation: `Render.githubLog` writes it as one workflow command (`::error file=…::message`),
@@ -1574,8 +1484,10 @@ export abstract class Doc {
 	 * @category constructors
 	 * @since 0.0.0
 	 */
-	static annotation(options: AnnotationOptions, message: string): BlockOf<"Annotation"> {
-		return {
+	static readonly annotation: {
+		(options: AnnotationOptions, message: string): BlockOf<"Annotation">;
+		(message: string): (options: AnnotationOptions) => BlockOf<"Annotation">;
+	} = dual(2, (options: AnnotationOptions, message: string): BlockOf<"Annotation"> => ({
 			_tag: "Annotation",
 			level: options.level,
 			...O.getSomesStruct({ file: O.fromUndefinedOr(options.file) }),
@@ -1585,8 +1497,7 @@ export abstract class Doc {
 			...O.getSomesStruct({ endColumn: O.fromUndefinedOr(options.endColumn) }),
 			...O.getSomesStruct({ title: O.fromUndefinedOr(options.title) }),
 			message,
-		};
-	}
+		}));
 
 	/**
 	 * The total of a `Counts` block: the caller's rule when it has one, otherwise the sum of `n` over every counter.
@@ -1670,10 +1581,10 @@ export abstract class Doc {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly print: (
-		doc: Document,
-		options?: DocPrintOptions,
-	) => Effect.Effect<void, never, CliTheme | TerminalEnv | Audience | CliLinks> = Effect.fn("print")(function* (
+	static readonly print: {
+		(doc: Document, options?: DocPrintOptions): Effect.Effect<void, never, CliTheme | TerminalEnv | Audience | CliLinks>;
+		(options?: DocPrintOptions): (doc: Document) => Effect.Effect<void, never, CliTheme | TerminalEnv | Audience | CliLinks>;
+	} = dual((args) => A.isArray(args[0]), Effect.fn("print")(function* (
 		doc: Document,
 		options?: DocPrintOptions,
 	) {
@@ -1688,5 +1599,5 @@ export abstract class Doc {
 		// An empty document prints nothing, not a blank line.
 		if (text === "") return;
 		yield* stream === "stderr" ? Console.error(text) : Console.log(text);
-	});
+	}));
 }

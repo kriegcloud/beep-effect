@@ -25,9 +25,9 @@ const $I = $ScratchpadId.create("effected/lockfiles/internal/documents");
  * @since 0.0.0
  */
 export const SelectedDocument = S.Struct({
-	document: S.Unknown.annotateKey({ description: "Selected YAML value, preserved for the format-specific validator" }),
-	documents: S.Int.check(S.isGreaterThanOrEqualTo(0)).annotateKey({ description: "Number of documents composed from the YAML stream" }),
-}).annotate($I.annote("SelectedDocument", { description: "A selected YAML document together with its stream's document count" }));
+	document: S.Unknown.pipe($I.annoteKey("SelectedDocument.document", { description: "Selected YAML value, preserved for the format-specific validator" })),
+	documents: S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe($I.annoteKey("SelectedDocument.documents", { description: "Number of documents composed from the YAML stream" })),
+}).pipe($I.annoteSchema("SelectedDocument", { description: "A selected YAML document together with its stream's document count" }));
 
 /**
  * Plain document-selection payload described by {@link SelectedDocument}.
@@ -75,10 +75,10 @@ const MAX_PNPM_DOCUMENTS = 2;
  * @since 0.0.0
  */
 export const PnpmStream = S.Struct({
-	preamble: S.Unknown.annotateKey({ description: "Env preamble value, or undefined when its stream position is empty or absent" }),
-	main: S.Unknown.annotateKey({ description: "Main lockfile value, or undefined when its stream position is empty or absent" }),
-	documents: S.Int.check(S.isGreaterThanOrEqualTo(0)).annotateKey({ description: "Number of documents composed from the YAML stream" }),
-}).annotate($I.annote("PnpmStream", { description: "Positional pnpm YAML stream payload preserving the preamble, main document and document count" }));
+	preamble: S.Unknown.pipe($I.annoteKey("PnpmStream.preamble", { description: "Env preamble value, or undefined when its stream position is empty or absent" })),
+	main: S.Unknown.pipe($I.annoteKey("PnpmStream.main", { description: "Main lockfile value, or undefined when its stream position is empty or absent" })),
+	documents: S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe($I.annoteKey("PnpmStream.documents", { description: "Number of documents composed from the YAML stream" })),
+}).pipe($I.annoteSchema("PnpmStream", { description: "Positional pnpm YAML stream payload preserving the preamble, main document and document count" }));
 
 /**
  * Plain pnpm stream payload described by {@link PnpmStream}.

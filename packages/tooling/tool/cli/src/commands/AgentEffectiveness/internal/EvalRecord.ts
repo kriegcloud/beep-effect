@@ -39,7 +39,7 @@ import {
   AgentEffectivenessEvalScoreReport,
   SkillOptTaskManifest,
 } from "../AgentEffectiveness.schemas.ts";
-import type { ChildProcessSpawner } from "effect/process";
+import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
 const $I = $RepoCliId.create("commands/AgentEffectiveness/internal/EvalRecord");
 const normalizePathSeparators = Str.replaceAll("\\", "/");

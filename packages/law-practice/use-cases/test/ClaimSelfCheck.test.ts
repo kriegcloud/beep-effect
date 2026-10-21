@@ -58,22 +58,24 @@ const numberedClaims: ReadonlyArray<readonly [string, string]> = [
   ["2", "The camera of claim 1, wherein the lens\nis tinted."],
   ["3", "The camera of claim 2, wherein the\nshutter is closed and the housing is sealed."],
 ];
-const claims = Effect.runSync(normalizePatentClaims(numberedClaims));
-const siblingClaims = Effect.runSync(normalizePatentClaims(A.take(numberedClaims, 2)));
+const normalizedClaims = normalizePatentClaims(numberedClaims).pipe(Effect.orDie);
+const normalizedSiblingClaims = normalizePatentClaims(A.take(numberedClaims, 2));
 
-const document = PatentApplicationDocument.make({
-  claims,
-  sections: [
-    PatentApplicationSection.make({
-      content: claimsContent,
-      heading: claimsHeading,
-      role: "claims",
-      sourceEnd: Str.length(sourceText),
-      sourceStart,
-    }),
-  ],
-  sourceText,
-});
+const document = Effect.map(normalizedClaims, (claims) =>
+  PatentApplicationDocument.make({
+    claims,
+    sections: [
+      PatentApplicationSection.make({
+        content: claimsContent,
+        heading: claimsHeading,
+        role: "claims",
+        sourceEnd: Str.length(sourceText),
+        sourceStart,
+      }),
+    ],
+    sourceText,
+  })
+);
 
 const inputFor = (claimsDocument: PatentApplicationDocument) =>
   ClaimSelfCheckInput.make({
@@ -85,7 +87,7 @@ const inputFor = (claimsDocument: PatentApplicationDocument) =>
     operationId: OperationId.make(`operation:${Str.repeat(64)("b")}`),
     sourceFile: "90001US01-claims.md",
   });
-const input = inputFor(document);
+const input = Effect.map(document, inputFor);
 
 // Claim 1 names a body its text does not contain, so it cannot decompose; nothing depends on it.
 // Claim 2 is independent and has no referring term, so it raises no finding.
@@ -126,7 +128,9 @@ const inMemoryUsptoClaims = Layer.succeed(
     claims: Effect.fn("UsptoClaims.claims")(
       (source: UsptoClaimSource): Effect.Effect<UsptoClaimSet, UsptoClaimsError> =>
         UsptoClaimSource.guards.application(source) && source.applicationNumber === knownApplication
-          ? Effect.succeed(UsptoClaimSet.make({ claims, documentIdentifier: "SYNTHETIC-CLM-1", source }))
+          ? Effect.map(normalizedClaims, (claims) =>
+              UsptoClaimSet.make({ claims, documentIdentifier: "SYNTHETIC-CLM-1", source })
+            )
           : Effect.fail(UsptoClaimsError.make({ message: "No recorded claim set.", reason: "not-found" }))
     ),
   })
@@ -138,7 +142,7 @@ describe("ClaimSelfCheck", () => {
     (it) => {
       it.effect("checks a claim set where every claim decomposes", () =>
         Effect.gen(function* () {
-          const report = yield* (yield* ClaimSelfCheck).check(claims);
+          const report = yield* (yield* ClaimSelfCheck).check(yield* normalizedClaims);
           assert.deepStrictEqual(
             A.map(report.trees, ({ claimNumber }) => claimNumber),
             [1, 2, 3]
@@ -157,6 +161,7 @@ describe("ClaimSelfCheck", () => {
       it.effect("reports an undecomposable claim and keeps its siblings' findings", () =>
         Effect.gen(function* () {
           const service = yield* ClaimSelfCheck;
+          const siblingClaims = yield* normalizedSiblingClaims;
           const report = yield* service.check(A.append(siblingClaims, undecomposable));
           const siblings = yield* service.check(siblingClaims);
           assert.deepStrictEqual(
@@ -194,7 +199,7 @@ describe("ClaimSelfCheck", () => {
             UsptoClaimSource.cases.application.make({ applicationNumber: knownApplication })
           );
           assert.strictEqual(published.claimSet.documentIdentifier, "SYNTHETIC-CLM-1");
-          assert.isTrue(Equal.equals(published.report, yield* service.check(claims)));
+          assert.isTrue(Equal.equals(published.report, yield* service.check(yield* normalizedClaims)));
           const missing = yield* Effect.flip(
             service.checkPublished(
               UsptoClaimSource.cases.application.make({
@@ -210,10 +215,10 @@ describe("ClaimSelfCheck", () => {
       it.effect("maps each finding to one candidate and referring-term evidence, deterministically", () =>
         Effect.gen(function* () {
           const service = yield* ClaimSelfCheck;
-          const result = yield* service.candidates(input);
-          const report = yield* service.check(claims);
+          const result = yield* service.candidates(yield* input);
+          const report = yield* service.check(yield* normalizedClaims);
           const mapped = result.candidates;
-          assert.deepStrictEqual(result, yield* service.candidates(input));
+          assert.deepStrictEqual(result, yield* service.candidates(yield* input));
           assert.strictEqual(result.undecomposed.length, 0);
           assert.isTrue(
             Equal.equals(

@@ -7,9 +7,10 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { YamlEdit } from "../../YamlEdit.ts";
-import type { YamlRule } from "../../YamlLintRule.ts";
+import type { LintContext, YamlRule } from "../../YamlLintRule.ts";
 import { YamlLintDiagnostic, YamlLintSeverity } from "../../YamlLintRule.ts";
 import { nonNegativeIntegerOption, positiveIntegerOption } from "./util.ts";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/yaml/internal/rules/colon-spacing");
 
@@ -37,9 +38,9 @@ const $I = $ScratchpadId.create("effected/yaml/internal/rules/colon-spacing");
  * @since 0.0.0
  */
 export const colonSpacingOptions = S.Struct({
-	severity: S.optionalKey(YamlLintSeverity).annotateKey({ description: "Reporting level for colon-spacing findings, defaulting to `error`" }),
-	maxSpacesBefore: S.optionalKey(nonNegativeIntegerOption).annotateKey({ description: "Maximum spaces between preceding line content and a block-mapping `:`, defaulting to 0" }),
-	maxSpacesAfter: S.optionalKey(positiveIntegerOption).annotateKey({ description: "Maximum spaces between a block-mapping `:` and its same-line value, at least 1 and defaulting to 1" }),
+	severity: S.optionalKey(YamlLintSeverity).pipe($I.annoteKey("colonSpacingOptions.severity", { description: "Reporting level for colon-spacing findings, defaulting to `error`" })),
+	maxSpacesBefore: S.optionalKey(nonNegativeIntegerOption).pipe($I.annoteKey("colonSpacingOptions.maxSpacesBefore", { description: "Maximum spaces between preceding line content and a block-mapping `:`, defaulting to 0" })),
+	maxSpacesAfter: S.optionalKey(positiveIntegerOption).pipe($I.annoteKey("colonSpacingOptions.maxSpacesAfter", { description: "Maximum spaces between a block-mapping `:` and its same-line value, at least 1 and defaulting to 1" })),
 }).pipe($I.annoteSchema("colonSpacingOptions", { description: "Options for `colon-spacing`: `maxSpacesBefore` (default 0) and `maxSpacesAfter` (default 1) around the `:` indicator. `maxSpacesBefore: 0` is legal (`key:` needs no space before the colon), but at least one separation space must FOLLOW it — `0` would make the fix emit `a:val`, a plain scalar, not a mapping entry." }));
 
 /**
@@ -75,7 +76,7 @@ export type colonSpacingOptions = typeof colonSpacingOptions.Type;
  */
 export const colonSpacing: YamlRule = {
 	id: "colon-spacing",
-	check: (ctx, options) => {
+	check: dual(2, (ctx: LintContext, options: unknown): Iterable<YamlLintDiagnostic> => {
 		const opts = P.isObject(options) ? options : {};
 		const maxBefore = P.isNumber(opts.maxSpacesBefore) ? opts.maxSpacesBefore : 0;
 		// Clamped so a hand-built options object cannot bypass the schema and
@@ -143,5 +144,5 @@ export const colonSpacing: YamlRule = {
 			}
 		}
 		return out;
-	},
+	}),
 };

@@ -8,8 +8,18 @@
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ThematicBreak, ThematicBreakChar } from "../../MarkdownNode.ts";
-import type { BlockConstruct, BlockStart } from "../blockTypes.ts";
+import type {
+  BlockConstruct,
+  BlockContinueResult,
+  BlockNode,
+  BlockScanner,
+  BlockStart,
+  BlockStartResult,
+  MaterializeContext,
+  MaterializedBlock,
+} from "../blockTypes.ts";
 import * as O from "@beep/utils/Option";
+import { dual } from "effect/Function";
 
 const reThematicBreak = /^(?:\*[ \t]*){3,}$|^(?:_[ \t]*){3,}$|^(?:-[ \t]*){3,}$/;
 
@@ -34,8 +44,8 @@ export const thematicBreakConstruct: BlockConstruct = {
 	acceptsLines: false,
 	canContain: () => false,
 	// A thematic break can never contain more than one line.
-	continue: () => 1,
-	materialize: (block, _children, context) => {
+	continue: dual(2, (_scanner: BlockScanner, _block: BlockNode): BlockContinueResult => 1),
+	materialize: dual(3, (block: BlockNode, _children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const marker = block.data.markerChar;
 		return ThematicBreak.make({
 			position: context.position(block.startOffset, block.endOffset),
@@ -44,7 +54,7 @@ export const thematicBreakConstruct: BlockConstruct = {
 			// construction.
 			...O.getSomesStruct({ markerChar: O.fromUndefinedOr(marker) }),
 		});
-	},
+	}),
 };
 
 /**
@@ -63,16 +73,15 @@ export const thematicBreakConstruct: BlockConstruct = {
  */
 export const thematicBreakStart: BlockStart = {
 	name: "thematicBreak",
-	trigger: (scanner) => {
+	trigger: dual(2, (scanner: BlockScanner, _container: BlockNode): BlockStartResult => {
 		if (scanner.indented || !reThematicBreak.test(scanner.currentLine.slice(scanner.nextNonspace))) {
 			return 0;
 		}
 
 		scanner.closeUnmatchedBlocks();
 		const container = scanner.addChild("thematicBreak", scanner.nextNonspace);
-		const marker = Result.getOrThrow(decodeThematicBreakChar(scanner.currentLine.charAt(scanner.nextNonspace)));
-		container.data.markerChar = marker;
+    container.data.markerChar = Result.getOrThrow(decodeThematicBreakChar(scanner.currentLine.charAt(scanner.nextNonspace)));
 		scanner.advanceOffset(scanner.currentLine.length - scanner.offset, false);
 		return 2;
-	},
+	}),
 };

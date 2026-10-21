@@ -19,7 +19,9 @@
  *
  * @since 0.0.0
  */
-import { userInfo } from "node:os";
+
+import * as NodeOS from "node:os";
+import { currentHostPlatform } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -43,15 +45,15 @@ import type * as Path from "effect/Path";
  * @since 0.0.0
  */
 export const canonicalRuntimeRootForTesting: {
-  (platform: NodeJS.Platform, userHome: string): string;
-  (userHome: string): (platform: NodeJS.Platform) => string;
-} = dual(2, (platform: NodeJS.Platform, userHome: string): string =>
+  (platform: string, userHome: string): string;
+  (userHome: string): (platform: string) => string;
+} = dual(2, (platform: string, userHome: string): string =>
   platform === "win32"
     ? `${userHome.replace(/[\\/]+$/u, "")}\\.beep\\runtime`
     : `${userHome.replace(/\/+$/u, "")}/.beep/runtime`
 );
 
-const CANONICAL_RUNTIME_ROOT = canonicalRuntimeRootForTesting(process.platform, userInfo().homedir);
+const CANONICAL_RUNTIME_ROOT = canonicalRuntimeRootForTesting(currentHostPlatform, NodeOS.userInfo().homedir);
 
 class RuntimeRootTestOverride extends Context.Service<RuntimeRootTestOverride, RuntimeRootChoice>()(
   "@beep/repo-cli/internal/repo-run/RuntimeRoot/RuntimeRootTestOverride"
@@ -166,6 +168,6 @@ export const admissionRootFor: {
   (choice: RuntimeRootChoice): (path: Path.Path) => string;
 } = dual(2, (path: Path.Path, choice: RuntimeRootChoice): string =>
   RuntimeRootKind.is.canonical(choice.kind)
-    ? path.join(choice.root, `beep-admit-uid-${userInfo().uid}`)
+    ? path.join(choice.root, `beep-admit-uid-${NodeOS.userInfo().uid}`)
     : path.join(choice.root, "beep", "admit")
 );

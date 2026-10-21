@@ -45,7 +45,7 @@ export const NamedColor = LiteralKit([
 	"cyanBright",
 	"whiteBright",
 	"gray",
-]).annotate($I.annote("NamedColor", { description: "Named ANSI colors and their bright variants." }));
+]).pipe($I.annoteSchema("NamedColor", { description: "Named ANSI colors and their bright variants." }));
 /**
  * The decoded named ANSI colour accepted by {@link NamedColor}.
  *
@@ -78,20 +78,16 @@ export type NamedColor = typeof NamedColor.Type;
  */
 export const Style = S.Struct({
 	/** The foreground: a named colour or a hex spelling, including invalid hex handled by the renderer. */
-	fg: S.optionalKey(S.Union([NamedColor, S.TemplateLiteral(["#", S.String])])).annotate(
-		$I.annote("Style.fg", { description: "The foreground colour: a named ANSI colour or a `#`-prefixed hex spelling; a hex that is not `#rgb` or `#rrggbb` is accepted and ignored when rendered." }),
-	),
+	fg: S.optionalKey(S.Union([NamedColor, S.TemplateLiteral(["#", S.String])])).pipe($I.annoteKey("Style.fg", { description: "The foreground colour: a named ANSI colour or a `#`-prefixed hex spelling; a hex that is not `#rgb` or `#rrggbb` is accepted and ignored when rendered." })),
 	/** Bold. */
-	bold: S.optionalKey(S.Boolean).annotate($I.annote("Style.bold", { description: "Renders the text bold (SGR 1) when true." })),
+	bold: S.optionalKey(S.Boolean).pipe($I.annoteKey("Style.bold", { description: "Renders the text bold (SGR 1) when true." })),
 	/** Dim, or faint. */
-	dim: S.optionalKey(S.Boolean).annotate($I.annote("Style.dim", { description: "Renders the text dim, or faint (SGR 2), when true." })),
+	dim: S.optionalKey(S.Boolean).pipe($I.annoteKey("Style.dim", { description: "Renders the text dim, or faint (SGR 2), when true." })),
 	/** Italic. */
-	italic: S.optionalKey(S.Boolean).annotate($I.annote("Style.italic", { description: "Renders the text italic (SGR 3) when true." })),
+	italic: S.optionalKey(S.Boolean).pipe($I.annoteKey("Style.italic", { description: "Renders the text italic (SGR 3) when true." })),
 	/** Underline. */
-	underline: S.optionalKey(S.Boolean).annotate(
-		$I.annote("Style.underline", { description: "Renders the text underlined (SGR 4) when true." }),
-	),
-}).annotate($I.annote("Style", { description: "A readonly terminal foreground and text attributes." }));
+	underline: S.optionalKey(S.Boolean).pipe($I.annoteKey("Style.underline", { description: "Renders the text underlined (SGR 4) when true." })),
+}).pipe($I.annoteSchema("Style", { description: "A readonly terminal foreground and text attributes." }));
 /**
  * The decoded foreground and text attributes accepted by {@link Style}.
  *
@@ -125,7 +121,7 @@ export const TokenName = LiteralKit([
 	"muted",
 	"accent",
 	"emphasis",
-]).annotate($I.annote("TokenName", { description: "Semantic tokens resolved by a CLI theme." }));
+]).pipe($I.annoteSchema("TokenName", { description: "Semantic tokens resolved by a CLI theme." }));
 /**
  * The decoded semantic theme token accepted by {@link TokenName}.
  *

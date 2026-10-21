@@ -109,7 +109,6 @@ Fresh hosted checks and the full green gate remain required before #1571 merges.
 | 2026-10-09 | Explicit model/permission fingerprint before inference | Default Codex server restart widened sandbox in the recorded probe | Disable resume/queue for affected adapter without discarding mail |
 | 2026-10-09 | Keep browser/native Desktop/federation as named gated follow-ups | Browser/manual and CLI fixtures establish different evidence modes | Reopen exploration at decompose when a named gate fires |
 | 2026-10-09 | Preserve current orchestrator, launch/fallback and merge policy | Message delivery is not authority transfer | Stop bridge/router while retaining existing register/Yeet workflows |
-
 | 2026-10-09 | Carry prospective merged-state lifecycle, phases and reflection in PR #1571 | Same-PR packet-state law requires closeout artifacts with final implementation; local full proofs passed, while final hosted checks/review/window and merge remain conditional | Before merge retain external open status; if publication/gate fails restore active manifest/phase values without discarding receipts; never infer merge from local projection |
 
 Primary dated decisions and rejected alternatives remain in the [source log](../../explorations/cross-provider-agent-communication/DECISIONS.md).

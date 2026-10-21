@@ -8,7 +8,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { identity } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as Order from "effect/Order";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -39,11 +39,11 @@ const $I = $ScratchpadId.create("effected/sbom/Sbom");
  */
 export const SbomInput = S.Struct({
 	/** The component the BOM is about. */
-	root: Component.annotateKey({ description: "The component the BOM is about." }),
+	root: Component.pipe($I.annoteKey("SbomInput.root", { description: "The component the BOM is about." })),
 	/** Its dependencies, in any order — the document sorts them. */
-	components: S.Array(Component).annotateKey({ description: "Its dependencies, in any order — the document sorts them." }),
+	components: S.Array(Component).pipe($I.annoteKey("SbomInput.components", { description: "Its dependencies, in any order — the document sorts them." })),
 	/** Document metadata. `root` is threaded onto it automatically. */
-	metadata: S.optional(SbomMetadata).annotateKey({ description: "Document metadata. `root` is threaded onto it automatically." }),
+	metadata: S.optionalKey(SbomMetadata).pipe($I.annoteKey("SbomInput.metadata", { description: "Document metadata. `root` is threaded onto it automatically." })),
 }).pipe($I.annoteSchema("SbomInput", { description: "Input to Sbom.generate." }));
 
 /**
@@ -73,7 +73,7 @@ export type SbomInput = typeof SbomInput.Type;
  */
 export const SbomJsonOptions = S.Struct({
 	/** `JSON.stringify` indentation. Defaults to `2`; `0` emits one line. */
-	space: S.optional(S.Finite).annotateKey({ description: "JSON.stringify indentation. Defaults to 2; 0 emits one line." }),
+	space: S.optionalKey(S.Finite).pipe($I.annoteKey("SbomJsonOptions.space", { description: "JSON.stringify indentation. Defaults to 2; 0 emits one line." })),
 }).pipe($I.annoteSchema("SbomJsonOptions", { description: "Options for Sbom.toJson." }));
 
 /**
@@ -107,10 +107,10 @@ export type SbomJsonOptions = typeof SbomJsonOptions.Type;
  */
 export class SbomWriteError extends S.TaggedError<SbomWriteError, { readonly brand: unique symbol }>($I`SbomWriteError`)("SbomWriteError", {
 	/** The path that could not be written. */
-	path: S.String.annotateKey({ description: "The path that could not be written." }),
+	path: S.String.pipe($I.annoteKey("SbomWriteError.path", { description: "The path that could not be written." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.Defect().annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("SbomWriteError", { description: "Raised when a BOM cannot be written to disk." })) {
+	cause: S.Defect().pipe($I.annoteKey("SbomWriteError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<SbomWriteError>("SbomWriteError", { description: "Raised when a BOM cannot be written to disk." })) {
 	/**
 	 * Describes the output path whose write failed.
 	 *
@@ -165,20 +165,30 @@ const metadataWithRoot = (input: SbomInput): SbomMetadata =>
 		...(input.metadata?.supplier !== undefined && { supplier: input.metadata.supplier }),
 	});
 
+/** Data-first dispatch for the document-first members: the subject is an `SbomDocument`. */
+const isSbomDocument = S.is(SbomDocument);
+const isDocumentFirst = (args: IArguments): boolean => isSbomDocument(args[0]);
+
 // Implementation of Sbom.toJson; the public contract lives on the static.
-const toJson = (document: SbomDocument, options?: SbomJsonOptions): string =>
+const toJson: {
+	(document: SbomDocument, options?: SbomJsonOptions): string;
+	(options?: SbomJsonOptions): (document: SbomDocument) => string;
+} = dual(isDocumentFirst, (document: SbomDocument, options?: SbomJsonOptions): string =>
 	Result.getOrThrowWith(
 		S.encodeResult(S.fromJsonString(S.Unknown, { space: options?.space ?? 2 }))(documentJson(document)),
 		identity,
-	);
+	));
 
 // Implementation of Sbom.write; the public contract lives on the static.
-const write = Effect.fn("Sbom.write")(function* (document: SbomDocument, path: string, options?: SbomJsonOptions) {
+const write: {
+	(document: SbomDocument, path: string, options?: SbomJsonOptions): Effect.Effect<void, SbomWriteError, FileSystem.FileSystem>;
+	(path: string, options?: SbomJsonOptions): (document: SbomDocument) => Effect.Effect<void, SbomWriteError, FileSystem.FileSystem>;
+} = dual(isDocumentFirst, Effect.fn("Sbom.write")(function* (document: SbomDocument, path: string, options?: SbomJsonOptions) {
 	const fs = yield* FileSystem.FileSystem;
 	yield* fs
 		.writeFileString(path, toJson(document, options))
 		.pipe(Effect.mapError((cause) => SbomWriteError.make({ path, cause })));
-});
+}));
 
 /**
  * The SBOM emitter: assemble, serialize, write.

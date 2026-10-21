@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -45,7 +46,7 @@ export const XdgPlatform = LiteralKit([
 	"win32",
 	"cygwin",
 	"netbsd",
-]).annotate($I.annote("XdgPlatform", { description: "The operating system the path decisions are taken against." }));
+]).pipe($I.annoteSchema("XdgPlatform", { description: "The operating system the path decisions are taken against." }));
 
 /**
  * The decoded form of {@link (XdgPlatform:variable)}.
@@ -117,10 +118,10 @@ export const CurrentPlatform: Context.Reference<XdgPlatform> = Context.Reference
  */
 export class XdgEnvError extends S.TaggedError<XdgEnvError, { readonly brand: unique symbol }>($I`XdgEnvError`)("XdgEnvError", {
 	/** The environment variable that was required and not found. */
-	variable: S.String.annotateKey({ description: "The environment variable that was required and not found." }),
+	variable: S.String.pipe($I.annoteKey("XdgEnvError.variable", { description: "The environment variable that was required and not found." })),
 	/** The underlying failure, preserved structurally. */
-	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The underlying failure, preserved structurally." }),
-}, $I.annote("XdgEnvError", { description: "Indicates that the environment cannot satisfy XDG directory resolution." })) {
+	cause: S.Defect({ includeStack: true }).pipe($I.annoteKey("XdgEnvError.cause", { description: "The underlying failure, preserved structurally." })),
+}, $I.annoteError<XdgEnvError>("XdgEnvError", { description: "Indicates that the environment cannot satisfy XDG directory resolution." })) {
 	/**
 	 * Describes the failed environment lookup.
 	 *
@@ -169,25 +170,25 @@ export class XdgEnvError extends S.TaggedError<XdgEnvError, { readonly brand: un
  */
 export class XdgPaths extends S.Class<XdgPaths, { readonly brand: unique symbol }>($I`XdgPaths`)({
 	/** `$HOME`. The one variable that must be set. */
-	home: S.String.annotateKey({ description: "`$HOME`. The one variable that must be set." }),
+	home: S.String.pipe($I.annoteKey("XdgPaths.home", { description: "`$HOME`. The one variable that must be set." })),
 	/** `$XDG_CONFIG_HOME`. */
-	configHome: S.optionalKey(S.String).annotateKey({ description: "`$XDG_CONFIG_HOME`." }),
+	configHome: S.optionalKey(S.String).pipe($I.annoteKey("XdgPaths.configHome", { description: "`$XDG_CONFIG_HOME`." })),
 	/** `$XDG_DATA_HOME`. */
-	dataHome: S.optionalKey(S.String).annotateKey({ description: "`$XDG_DATA_HOME`." }),
+	dataHome: S.optionalKey(S.String).pipe($I.annoteKey("XdgPaths.dataHome", { description: "`$XDG_DATA_HOME`." })),
 	/** `$XDG_CACHE_HOME`. */
-	cacheHome: S.optionalKey(S.String).annotateKey({ description: "`$XDG_CACHE_HOME`." }),
+	cacheHome: S.optionalKey(S.String).pipe($I.annoteKey("XdgPaths.cacheHome", { description: "`$XDG_CACHE_HOME`." })),
 	/** `$XDG_STATE_HOME`. */
-	stateHome: S.optionalKey(S.String).annotateKey({ description: "`$XDG_STATE_HOME`." }),
+	stateHome: S.optionalKey(S.String).pipe($I.annoteKey("XdgPaths.stateHome", { description: "`$XDG_STATE_HOME`." })),
 	/** `$XDG_RUNTIME_DIR`. Absent on most non-Linux systems. */
-	runtimeDir: S.optionalKey(S.String).annotateKey({ description: "`$XDG_RUNTIME_DIR`. Absent on most non-Linux systems." }),
+	runtimeDir: S.optionalKey(S.String).pipe($I.annoteKey("XdgPaths.runtimeDir", { description: "`$XDG_RUNTIME_DIR`. Absent on most non-Linux systems." })),
 	/** `%APPDATA%`, on Windows. */
-	appData: S.optionalKey(S.String).annotateKey({ description: "`%APPDATA%`, on Windows." }),
+	appData: S.optionalKey(S.String).pipe($I.annoteKey("XdgPaths.appData", { description: "`%APPDATA%`, on Windows." })),
 	/** `%LOCALAPPDATA%`, on Windows. */
-	localAppData: S.optionalKey(S.String).annotateKey({ description: "`%LOCALAPPDATA%`, on Windows." }),
+	localAppData: S.optionalKey(S.String).pipe($I.annoteKey("XdgPaths.localAppData", { description: "`%LOCALAPPDATA%`, on Windows." })),
 	/** `$XDG_CONFIG_DIRS`, split on `:`. Defaults to `["/etc/xdg"]`. */
-	configDirs: S.Array(S.String).annotateKey({ description: "`$XDG_CONFIG_DIRS`, split on `:`. Defaults to `[\"/etc/xdg\"]`." }),
+	configDirs: S.Array(S.String).pipe($I.annoteKey("XdgPaths.configDirs", { description: "`$XDG_CONFIG_DIRS`, split on `:`. Defaults to `[\"/etc/xdg\"]`." })),
 	/** `$XDG_DATA_DIRS`, split on `:`. Defaults to `["/usr/local/share", "/usr/share"]`. */
-	dataDirs: S.Array(S.String).annotateKey({ description: "`$XDG_DATA_DIRS`, split on `:`. Defaults to `[\"/usr/local/share\", \"/usr/share\"]`." }),
+	dataDirs: S.Array(S.String).pipe($I.annoteKey("XdgPaths.dataDirs", { description: "`$XDG_DATA_DIRS`, split on `:`. Defaults to `[\"/usr/local/share\", \"/usr/share\"]`." })),
 }, $I.annote("XdgPaths", { description: "The XDG Base Directory environment, resolved." })) {}
 
 /**
@@ -198,11 +199,14 @@ export class XdgPaths extends S.Class<XdgPaths, { readonly brand: unique symbol 
  * Per the XDG spec, an unset **or empty** variable takes the default — so
  * `XDG_CONFIG_DIRS=""` is not "no system directories", it is `/etc/xdg`.
  */
-const splitDirs = (raw: string | undefined, fallback: ReadonlyArray<string>): ReadonlyArray<string> => {
+const splitDirs: {
+	(raw: string | undefined, fallback: ReadonlyArray<string>): ReadonlyArray<string>;
+	(fallback: ReadonlyArray<string>): (raw: string | undefined) => ReadonlyArray<string>;
+} = dual(2, (raw: string | undefined, fallback: ReadonlyArray<string>): ReadonlyArray<string> => {
 	if (raw === undefined) return fallback;
-	const parts = raw.split(":").filter((entry) => entry.length > 0);
+	const parts = A.filter(raw.split(":"), (entry) => entry.length > 0);
 	return A.match(parts, { onEmpty: () => fallback, onNonEmpty: () => parts });
-};
+});
 
 /**
  * XDG Base Directory environment resolution.
@@ -261,8 +265,11 @@ export class Xdg extends Context.Service<Xdg, XdgPaths>()($I`Xdg`) {
 			 * `Config<T>` IS an `Effect<T, ConfigError>` in v4, so it pipes directly.
 			 * Every `ConfigError` becomes an `XdgEnvError` naming the variable it came from.
 			 */
-			const asEnvError = <A>(name: string, config: Config.Config<A>): Effect.Effect<A, XdgEnvError> =>
-				Effect.catchTag(config, "ConfigError", (cause) => Effect.fail(XdgEnvError.make({ variable: name, cause })));
+			const asEnvError: {
+				<A>(name: string, config: Config.Config<A>): Effect.Effect<A, XdgEnvError>;
+				<A>(config: Config.Config<A>): (name: string) => Effect.Effect<A, XdgEnvError>;
+			} = dual(2, <A>(name: string, config: Config.Config<A>): Effect.Effect<A, XdgEnvError> =>
+				Effect.catchTag(config, "ConfigError", (cause) => Effect.fail(XdgEnvError.make({ variable: name, cause }))));
 
 			const home = yield* asEnvError("HOME", Config.NonEmptyString("HOME"));
 

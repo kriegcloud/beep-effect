@@ -4,7 +4,9 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { Sha256HexFromBytes } from "@beep/schema";
+import { HostProcessArchitecture, HostProcessPlatform } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -204,7 +206,7 @@ const decodeNonEmptyArrayCacheSyntheticCheck = S.decodeUnknownEffect(S.NonEmptyA
 
 const runSynthetic = Effect.fn("CacheExperiment.synthetic")(
   function* (root: string, request: CacheSyntheticRequest) {
-    if (process.platform !== "linux" || process.arch !== "x64")
+    if ((yield* HostProcessPlatform) !== "linux" || (yield* HostProcessArchitecture) !== "x64")
       return yield* CacheCommandError.new("The synthetic sandbox currently requires Linux x64.");
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;

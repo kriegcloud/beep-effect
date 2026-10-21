@@ -71,8 +71,8 @@ export interface MdastNode {
  */
 export class MdastDecodeError extends S.TaggedError<MdastDecodeError, { readonly brand: unique symbol }>($I`MdastDecodeError`)("MdastDecodeError", {
 	/** The structured schema issue. Never a string. */
-	issue: S.Defect().annotateKey({ description: "The structured schema issue. Never a string." }),
-}, $I.annote("MdastDecodeError", { description: "Indicates that foreign mdast input failed to decode into the package's node classes." })) {
+	issue: S.Defect().pipe($I.annoteKey("MdastDecodeError.issue", { description: "The structured schema issue. Never a string." })),
+}, $I.annoteError<MdastDecodeError>("MdastDecodeError", { description: "Indicates that foreign mdast input failed to decode into the package's node classes." })) {
 	/**
 	 * Provides a stable summary while the structured failure remains available in `issue`.
 	 *
@@ -107,7 +107,7 @@ const projectPosition = (position: Position): Record<string, unknown> => ({
 type AnyNode = Root | Frontmatter | FlowContent | PhrasingContent | MarkdownNode;
 
 const projectChildren = (children: ReadonlyArray<AnyNode>): Array<Record<string, unknown>> =>
-	children.map((child) => projectNode(child));
+	A.map(children, (child) => projectNode(child));
 
 // This package's Code.value carries its final line terminator (the engine's
 // convention); mdast-util-from-markdown stores the value
@@ -266,7 +266,7 @@ const projectNode: (node: AnyNode) => MdastNode = Match.type<AnyNode>()
 		Match.discriminator("type")("mdxJsxFlowElement", "mdxJsxTextElement", (node) => ({
 			type: node.type,
 			name: node.name,
-			attributes: node.attributes.map((attribute) => projectMdxAttribute(attribute)),
+			attributes: A.map(node.attributes, (attribute) => projectMdxAttribute(attribute)),
 			children: projectChildren(node.children),
 			position: projectPosition(node.position),
 		})),
@@ -444,7 +444,7 @@ const normalizeNode = (value: unknown): Result.Result<unknown, MdastDecodeError>
 		return {
 			type,
 			name: value.name,
-			attributes: A.isArray(value.attributes) ? value.attributes.map(normalizeMdxAttribute) : value.attributes,
+			attributes: A.isArray(value.attributes) ? A.map(value.attributes, normalizeMdxAttribute) : value.attributes,
 			children: A.isArray(value.children)
 				? yield* Result.all(A.map(value.children, normalizeNode))
 				: value.children,

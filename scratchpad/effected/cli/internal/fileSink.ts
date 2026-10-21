@@ -6,6 +6,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
+import { dual, pipe } from "effect/Function";
 import * as FileSystem from "effect/FileSystem";
 import * as Logger from "effect/Logger";
 import * as Path from "effect/Path";
@@ -13,6 +14,7 @@ import * as Queue from "effect/Queue";
 import * as Result from "effect/Result";
 import { sanitize } from "../Fmt.ts";
 import { formatNdjson, passes } from "./diagnostics.ts";
+import * as A from "effect/Array";
 
 /** How long closing the scope waits for queued lines to reach the file before giving up on a hung filesystem. */
 const CLOSE_TIMEOUT = "2 seconds";
@@ -47,7 +49,17 @@ const CLOSE_TIMEOUT = "2 seconds";
  * @category constructors
  * @since 0.0.0
  */
-export const makeFileSink = Effect.fn("makeFileSink")(function* (
+export const makeFileSink: {
+	(
+		path: string,
+		installed: LogLevel.LogLevel,
+		underActions: (fiber: Fiber.Fiber<unknown, unknown>) => boolean,
+	): Effect.Effect<Logger.Logger<unknown, void>, never, FileSystem.FileSystem | Path.Path | Scope.Scope>;
+	(
+		installed: LogLevel.LogLevel,
+		underActions: (fiber: Fiber.Fiber<unknown, unknown>) => boolean,
+	): (path: string) => Effect.Effect<Logger.Logger<unknown, void>, never, FileSystem.FileSystem | Path.Path | Scope.Scope>;
+} = dual(3, Effect.fn("makeFileSink")(function* (
 	path: string,
 	installed: LogLevel.LogLevel,
 	underActions: (fiber: Fiber.Fiber<unknown, unknown>) => boolean,
@@ -64,7 +76,7 @@ export const makeFileSink = Effect.fn("makeFileSink")(function* (
 			yield* fs.makeDirectory(location.dirname(path), { recursive: true });
 			directoryMade = true;
 		}
-		yield* fs.writeFileString(path, lines.map((line) => `${line}\n`).join(""), { flag: "a" });
+		yield* fs.writeFileString(path, pipe(lines, A.map((line) => `${line}\n`), A.join("")), { flag: "a" });
 	});
 
 	const drain = Effect.gen(function* () {
@@ -99,4 +111,4 @@ export const makeFileSink = Effect.fn("makeFileSink")(function* (
 		if (!passes(record, installed)) return;
 		Queue.offerUnsafe(queue, formatNdjson(record));
 	});
-});
+}));

@@ -6,7 +6,7 @@
  */
 
 import { A, Str } from "@beep/utils";
-import { dual, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -45,24 +45,22 @@ const backlogRowOrder = Order.combine(
   Order.mapInput(Order.String, (row: SchemaFirstBacklogRow) => row.ruleId)
 );
 
-const toBacklogRows = (members: ReadonlyArray<BacklogMember>): ReadonlyArray<SchemaFirstBacklogRow> =>
-  pipe(
-    members,
-    A.groupBy((member) => `${member.file}::${member.ruleId}`),
-    R.values,
-    A.map((group) => {
-      const first = A.headNonEmpty(group);
-      return SchemaFirstBacklogRow.make({
-        ruleId: first.ruleId,
-        file: first.file,
-        occurrences: A.sort(
-          A.map(group, (member) => member.occurrence),
-          Order.String
-        ),
-      });
-    }),
-    A.sort(backlogRowOrder)
-  );
+const toBacklogRows: (members: ReadonlyArray<BacklogMember>) => ReadonlyArray<SchemaFirstBacklogRow> = flow(
+  A.groupBy((member: BacklogMember) => `${member.file}::${member.ruleId}`),
+  R.values,
+  A.map((group) => {
+    const first = A.headNonEmpty(group);
+    return SchemaFirstBacklogRow.make({
+      ruleId: first.ruleId,
+      file: first.file,
+      occurrences: A.sort(
+        A.map(group, (member) => member.occurrence),
+        Order.String
+      ),
+    });
+  }),
+  A.sort(backlogRowOrder)
+);
 
 /**
  * Group live parity entries into the compact backlog rows committed with `--write`.

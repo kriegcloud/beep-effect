@@ -12,10 +12,12 @@
 // indented branch must never set them (the `Code` schema contract).
 
 import { Code } from "../../MarkdownNode.ts";
-import type { BlockConstruct, BlockNode } from "../blockTypes.ts";
+import type { BlockConstruct, BlockContinueResult, BlockNode, BlockScanner, MaterializeContext, MaterializedBlock } from "../blockTypes.ts";
 import { CODE_INDENT, isSpaceOrTab, peekCode } from "../preprocess.ts";
 import { unescapeString } from "../unescape.ts";
 import * as O from "@beep/utils/Option";
+import * as A from "effect/Array";
+import { dual } from "effect/Function";
 
 const reBlankLine = /^[ \t]*$/;
 const reClosingCodeFence = /^(?:`{3,}|~{3,})(?=[ \t]*$)/;
@@ -26,11 +28,11 @@ const reClosingCodeFence = /^(?:`{3,}|~{3,})(?=[ \t]*$)/;
  */
 const finalizeIndented = (block: BlockNode): void => {
 	const lines = block.stringContent.split("\n");
-	while (lines.length > 0 && reBlankLine.test(lines.slice(-1).join(""))) {
+	while (lines.length > 0 && reBlankLine.test(A.join(lines.slice(-1), ""))) {
 		lines.pop();
 	}
 
-	block.stringContent = lines.length === 0 ? "" : `${lines.join("\n")}\n`;
+	block.stringContent = lines.length === 0 ? "" : `${A.join(lines, "\n")}\n`;
 
 	const lastSegment = block.segments[lines.length - 1];
 	if (lastSegment !== undefined) {
@@ -91,7 +93,7 @@ export const codeConstruct: BlockConstruct = {
 	type: "code",
 	acceptsLines: true,
 	canContain: () => false,
-	continue: (scanner, block) => {
+	continue: dual(2, (scanner: BlockScanner, block: BlockNode): BlockContinueResult => {
 		if (block.data.isFenced === true) {
 			const line = scanner.currentLine;
 			const closing =
@@ -124,15 +126,15 @@ export const codeConstruct: BlockConstruct = {
 			return 1;
 		}
 		return 0;
-	},
-	finalize: (_scanner, block) => {
+	}),
+	finalize: dual(2, (_scanner: BlockScanner, block: BlockNode): void => {
 		if (block.data.isFenced === true) {
 			finalizeFenced(block);
 		} else {
 			finalizeIndented(block);
 		}
-	},
-	materialize: (block, _children, context) => {
+	}),
+	materialize: dual(3, (block: BlockNode, _children: ReadonlyArray<MaterializedBlock>, context: MaterializeContext): MaterializedBlock | undefined => {
 		const { isFenced, fenceChar, fenceLength, lang, meta } = block.data;
 		return Code.make({
 			value: block.stringContent,
@@ -142,5 +144,5 @@ export const codeConstruct: BlockConstruct = {
 			...(isFenced === true && fenceChar !== undefined ? { fenceChar } : {}),
 			...(isFenced === true && fenceLength !== undefined ? { fenceLength } : {}),
 		});
-	},
+	}),
 };

@@ -19,7 +19,7 @@ import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { NoPeerDependencyRules } from "../../effected/workspaces/ConfigDependencyHooks.ts";
 import { peerNameMatcher } from "../../effected/workspaces/internal/peerPatterns.ts";
-import type { UnsatisfiedPeer } from "../../effected/workspaces/PeerCheck.ts";
+import type { PeerCheckOptions, UnsatisfiedPeer } from "../../effected/workspaces/PeerCheck.ts";
 import { PeerCheck } from "../../effected/workspaces/PeerCheck.ts";
 import { CatalogSet } from "../../effected/workspaces/WorkspaceCatalogs.ts";
 import { PublishConfig, WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
@@ -1133,7 +1133,7 @@ describe("PeerCheck.run — ignoreMissing and allowAny", () => {
 	});
 
 	/** Runs the fixture under one rule configuration and pins it to its oracle file. */
-	const agrees = Effect.fn("agrees")(function* (dir: string, options: Parameters<typeof PeerCheck.run>[1], file: string) {
+	const agrees = Effect.fn("agrees")(function* (dir: string, options: PeerCheckOptions | undefined, file: string) {
 			const report = PeerCheck.run(yield* parse(dir), options);
 			assert.isTrue(report.supported);
 			// Supplied rules with these axes populated are FULLY applied, so the

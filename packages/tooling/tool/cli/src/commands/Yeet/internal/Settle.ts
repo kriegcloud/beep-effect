@@ -41,7 +41,7 @@ import * as Console from "effect/Console";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import { dual, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -877,13 +877,11 @@ export const matchExpectedContexts = (input: YeetExpectedContextInput): YeetExpe
 // indistinguishable from the registration window.
 const fallbackCensus = (checks: ReadonlyArray<YeetSettleCheck>): YeetExpectedContextCensus => {
   const required = A.filter(checks, (check) => check.required);
-  const names = (values: ReadonlyArray<YeetSettleCheck>) =>
-    pipe(
-      values,
-      A.map((check) => check.name),
-      A.dedupe,
-      A.sort(Order.String)
-    );
+  const names: (values: ReadonlyArray<YeetSettleCheck>) => ReadonlyArray<string> = flow(
+    A.map((check) => check.name),
+    A.dedupe,
+    A.sort(Order.String)
+  );
   return YeetExpectedContextCensus.make({
     matched: names(required),
     unmatched: [],

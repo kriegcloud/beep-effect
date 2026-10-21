@@ -1,7 +1,9 @@
+import * as Result from "effect/Result";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Str from "effect/String";
 import * as O from "effect/Option";
+import { dual } from "effect/Function";
 
 const $I = $ScratchpadId.create("effected/npm/RegistryKind");
 
@@ -30,7 +32,7 @@ const $I = $ScratchpadId.create("effected/npm/RegistryKind");
  * @category schemas
  * @since 0.0.0
  */
-export const RegistryKind = LiteralKit(["npm", "github-packages", "jsr", "custom"]).annotate($I.annote("RegistryKind", { description: "Which well-known registry a URL points at." }));
+export const RegistryKind = LiteralKit(["npm", "github-packages", "jsr", "custom"]).pipe($I.annoteSchema("RegistryKind", { description: "Which well-known registry a URL points at." }));
 
 /**
  * The decoded type of {@link (RegistryKind:variable)}.
@@ -43,17 +45,14 @@ export type RegistryKind = typeof RegistryKind.Type;
 
 /** The hostname of a registry URL, or `undefined` when it does not parse. */
 const hostnameOf = (registry: string): string | undefined => {
-	try {
-		return Str.toLowerCase(new URL(registry).hostname);
-	} catch {
+	return Result.getOrElse(Result.try(() => Str.toLowerCase(new URL(registry).hostname)), () => {
 		// A bare host (`registry.npmjs.org/`) is not a URL; try again with a
 		// scheme before giving up, because npm config values are written both ways.
-		try {
-			return Str.toLowerCase(new URL(`https://${registry}`).hostname);
-		} catch {
-			return undefined;
-		}
-	}
+		return Result.getOrElse(
+			Result.try(() => Str.toLowerCase(new URL(`https://${registry}`).hostname)),
+			() => undefined,
+		);
+	});
 };
 
 /**
@@ -65,8 +64,11 @@ const hostnameOf = (registry: string): string | undefined => {
  * `evil-npmjs.org` as the public npm registry, and that classification decides
  * whether a token is sent and whether provenance is requested.
  */
-const matchesDomain = (hostname: string | undefined, domain: string): boolean =>
-	hostname !== undefined && (hostname === domain || Str.endsWith(`.${domain}`)(hostname));
+const matchesDomain: {
+	(hostname: string | undefined, domain: string): boolean;
+	(domain: string): (hostname: string | undefined) => boolean;
+} = dual(2, (hostname: string | undefined, domain: string): boolean =>
+	hostname !== undefined && (hostname === domain || Str.endsWith(`.${domain}`)(hostname)));
 
 /**
  * Classify a registry URL.
@@ -137,9 +139,7 @@ export const classifyRegistry = (registry: string | undefined): RegistryKind => 
  * @since 0.0.0
  */
 export const registryHost = (registry: string): string => {
-	try {
-		return new URL(registry).host;
-	} catch {
+	return Result.getOrElse(Result.try(() => new URL(registry).host), () => {
 		// Scanned rather than matched. The obvious `.replace(/\/.*$/, "")` is a
 		// polynomial-backtracking regex over a value this package does not
 		// control, and CodeQL flags it; `indexOf` is linear and says the same
@@ -151,7 +151,7 @@ export const registryHost = (registry: string): string => {
 				: registry;
 		const slash = O.getOrElse(Str.indexOf("/")(withoutScheme), () => -1);
 		return slash === -1 ? withoutScheme : Str.slice(0, slash)(withoutScheme);
-	}
+	});
 };
 
 /**

@@ -13,10 +13,14 @@ import { Mdast } from "../../../effected/markdown/Mdast.ts";
 import { Paragraph, Position, Root } from "../../../effected/markdown/MarkdownNode.ts";
 import { InlineSource } from "../../../effected/markdown/internal/inlineTypes.ts";
 import { parseInlines } from "../../../effected/markdown/internal/inlineParser.ts";
+import { dual } from "effect/Function";
 
 const runs = { arbitrary: fcRuns(100) };
 const fragment = S.Array(S.Literals(["plain", "*emphasis*", "**strong**", "_under_", "~~deleted~~", "`code`", "[label](/url)", "![alt](/image)", "<b>html</b>", "&amp;", "\\*literal\\*", "😀"]));
-const position = (start: number, end: number) => Position.make({ start: { line: 1, column: start + 1, offset: start }, end: { line: 1, column: end + 1, offset: end } });
+const position: {
+	(start: number, end: number): Position;
+	(end: number): (start: number) => Position;
+} = dual(2, (start: number, end: number): Position => Position.make({ start: { line: 1, column: start + 1, offset: start }, end: { line: 1, column: end + 1, offset: end } }));
 const parse = (text: string) => parseInlines({ text, startOffset: 0, segments: [{ textOffset: 0, sourceOffset: 0, length: text.length }] }, HashMap.empty(), position, "gfm");
 const root = (text: string) => Root.make({ children: text === "" ? [] : [Paragraph.make({ children: parse(text) })] });
 const semantic = (value: unknown): unknown => {

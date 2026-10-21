@@ -19,7 +19,7 @@ if (import.meta.main) {
   BunRuntime.runMain(
     IdentificationStagesLive.pipe(
       makePracticeIdentifyCommand,
-      (command) => Command.run(command, { version: "0.0.0" }),
+      Command.run({ version: "0.0.0" }),
       Layer.effectDiscard,
       Layer.provide(BunServices.layer),
       Layer.provide(Layer.succeed(Logger.LogToStderr, true)),

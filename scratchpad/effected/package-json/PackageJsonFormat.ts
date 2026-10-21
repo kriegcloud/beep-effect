@@ -17,9 +17,10 @@
 // looked at.
 
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { JsoncPath } from "../jsonc/index.ts";
+import type { JsoncPath, JsoncStringifyError } from "../jsonc/index.ts";
 import { JsoncEdit, JsoncModifier } from "../jsonc/index.ts";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { detectIndent, renderJson, resolveIndent, sortKeys } from "./internal/format.ts";
@@ -62,14 +63,14 @@ export class PackageJsonSyntaxError extends S.TaggedError<PackageJsonSyntaxError
 	 *
 	 * @since 0.0.0
 	 */
-	reason: S.Literals(["invalid-json", "not-an-object"]).annotateKey({ description: "Which syntactic precondition failed." }),
+	reason: S.Literals(["invalid-json", "not-an-object"]).pipe($I.annoteKey("PackageJsonSyntaxError.reason", { description: "Which syntactic precondition failed." })),
 	/**
 	 * The schema decoding error for `"invalid-json"`, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The schema decoding error for `\"invalid-json\"`, preserved structurally." }),
-}, $I.annote("PackageJsonSyntaxError", { description: "Indicates that a text input could not be treated as a package.json document: either it is not valid JSON (`\"invalid-json\"`, carrying the schema decoding error on `cause`) or it parsed to something other than a JSON object (`\"not-an-object\"` — an array, a scalar or `null`)." })) {
+	cause: S.optionalKey(S.Defect()).pipe($I.annoteKey("PackageJsonSyntaxError.cause", { description: "The schema decoding error for `\"invalid-json\"`, preserved structurally." })),
+}, $I.annoteError<PackageJsonSyntaxError>("PackageJsonSyntaxError", { description: "Indicates that a text input could not be treated as a package.json document: either it is not valid JSON (`\"invalid-json\"`, carrying the schema decoding error on `cause`) or it parsed to something other than a JSON object (`\"not-an-object\"` — an array, a scalar or `null`)." })) {
 	/**
 	 * Formats a diagnostic message identifying the failed syntactic precondition.
 	 *
@@ -171,14 +172,14 @@ export class PackageJsonModifyError extends S.TaggedError<PackageJsonModifyError
 	 *
 	 * @since 0.0.0
 	 */
-	path: S.Array(S.Union([S.String, S.Finite])).annotateKey({ description: "The field path whose navigation failed." }),
+	path: S.Array(S.Union([S.String, S.Finite])).pipe($I.annoteKey("PackageJsonModifyError.path", { description: "The field path whose navigation failed." })),
 	/**
 	 * The underlying `JsoncModificationError`, preserved structurally.
 	 *
 	 * @since 0.0.0
 	 */
-	cause: S.Defect().annotateKey({ description: "The underlying `JsoncModificationError`, preserved structurally." }),
-}, $I.annote("PackageJsonModifyError", { description: "Indicates that a surgical modification could not be applied: the value on the navigation path is not the container kind the next path segment requires. The underlying `@effected/jsonc` `JsoncModificationError` — which names the expected container and the 1-based depth of the mismatch — is preserved on the structured `cause` field, never stringified." })) {
+	cause: S.Defect().pipe($I.annoteKey("PackageJsonModifyError.cause", { description: "The underlying `JsoncModificationError`, preserved structurally." })),
+}, $I.annoteError<PackageJsonModifyError>("PackageJsonModifyError", { description: "Indicates that a surgical modification could not be applied: the value on the navigation path is not the container kind the next path segment requires. The underlying `@effected/jsonc` `JsoncModificationError` — which names the expected container and the 1-based depth of the mismatch — is preserved on the structured `cause` field, never stringified." })) {
 	/**
 	 * Formats a diagnostic message identifying the failed field path.
 	 *
@@ -317,10 +318,13 @@ export class PackageJsonFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static formatToString(
+	static readonly formatToString: {
+		(source: string, options?: PackageFormatTextOptions): Result.Result<string, PackageJsonSyntaxError>;
+		(options?: PackageFormatTextOptions): (source: string) => Result.Result<string, PackageJsonSyntaxError>;
+	} = dual((args) => P.isString(args[0]), (
 		source: string,
 		options?: PackageFormatTextOptions,
-	): Result.Result<string, PackageJsonSyntaxError> {
+	): Result.Result<string, PackageJsonSyntaxError> => {
 		// Shares `sortKeys` with `sortValue` via `renderJson`, so the two entry
 		// points cannot drift in ordering.
 		const decoded = S.decodeResult(Json)(source);
@@ -339,7 +343,7 @@ export class PackageJsonFormat {
 				newline: options?.newline ?? true,
 			}),
 		);
-	}
+	});
 
 	/**
 	 * Compute the surgical edits that set, replace or delete the value at
@@ -381,7 +385,16 @@ export class PackageJsonFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly modify = Effect.fn("PackageJsonFormat.modify")(function* (
+	static readonly modify: {
+		(source: string, path: JsoncPath, value: unknown): Effect.Effect<
+			ReadonlyArray<JsoncEdit>,
+			PackageJsonSyntaxError | JsoncStringifyError | PackageJsonModifyError
+		>;
+		(path: JsoncPath, value: unknown): (source: string) => Effect.Effect<
+			ReadonlyArray<JsoncEdit>,
+			PackageJsonSyntaxError | JsoncStringifyError | PackageJsonModifyError
+		>;
+	} = dual(3, Effect.fn("PackageJsonFormat.modify")(function* (
 		source: string,
 		path: JsoncPath,
 		value: unknown,
@@ -403,7 +416,7 @@ export class PackageJsonFormat {
 		return yield* JsoncModifier.modify(source, path, value, { formattingOptions }).pipe(
 			Effect.catchTag("JsoncModificationError", (cause) => PackageJsonModifyError.make({ path, cause })),
 		);
-	});
+	}));
 
 	/**
 	 * Modify `source` and apply the resulting edits in one step
@@ -428,12 +441,21 @@ export class PackageJsonFormat {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	static readonly modifyToString = Effect.fn("PackageJsonFormat.modifyToString")(function* (
+	static readonly modifyToString: {
+		(source: string, path: JsoncPath, value: unknown): Effect.Effect<
+			string,
+			PackageJsonSyntaxError | JsoncStringifyError | PackageJsonModifyError
+		>;
+		(path: JsoncPath, value: unknown): (source: string) => Effect.Effect<
+			string,
+			PackageJsonSyntaxError | JsoncStringifyError | PackageJsonModifyError
+		>;
+	} = dual(3, Effect.fn("PackageJsonFormat.modifyToString")(function* (
 		source: string,
 		path: JsoncPath,
 		value: unknown,
 	) {
 		const edits = yield* PackageJsonFormat.modify(source, path, value);
 		return JsoncEdit.applyAll(source, edits);
-	});
+	}));
 }

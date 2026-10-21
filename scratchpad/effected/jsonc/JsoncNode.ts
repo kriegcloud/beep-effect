@@ -116,8 +116,8 @@ export const JsoncNodeType = LiteralKit([
   "number",
   "boolean",
   "null",
-]).annotate(
-  $I.annote("JsoncNodeType", {
+]).pipe(
+  $I.annoteSchema("JsoncNodeType", {
     description: "The kind of a JSONC AST node.",
   })
 );
@@ -213,7 +213,7 @@ export class JsoncNode extends S.Class<JsoncNode, { readonly brand: unique symbo
   find(path: JsoncPath): O.Option<JsoncNode> {
     let current: O.Option<JsoncNode> = O.some(this);
     for (const segment of path) {
-      current = O.flatMap(current, (node) => childAt(node, segment));
+      current = O.flatMap(current, childAt(segment));
     }
     return current;
   }
@@ -357,15 +357,20 @@ const propertyKey = (prop: JsoncNode): O.Option<JsoncSegment> =>
       )
     : O.none();
 
-const covers = (node: JsoncNode, offset: number): boolean =>
-  offset >= node.offset && offset < node.offset + node.length;
+const covers: {
+  (node: JsoncNode, offset: number): boolean;
+  (offset: number): (node: JsoncNode) => boolean;
+} = dual(2, (node: JsoncNode, offset: number): boolean => offset >= node.offset && offset < node.offset + node.length);
 
 // An array index addresses an element only when it is a non-negative integer:
 // upstream reads `children[segment]`, which is `undefined` for `0.5` or `-1`,
 // while `A.get` floors a fractional index onto a real element.
 const isArrayIndex = S.is(S.Natural);
 
-const childAt = (node: JsoncNode, segment: JsoncSegment): O.Option<JsoncNode> => {
+const childAt: {
+  (node: JsoncNode, segment: JsoncSegment): O.Option<JsoncNode>;
+  (segment: JsoncSegment): (node: JsoncNode) => O.Option<JsoncNode>;
+} = dual(2, (node: JsoncNode, segment: JsoncSegment): O.Option<JsoncNode> => {
   const children = O.fromUndefinedOr(node.children);
   if (P.isString(segment)) {
     return JsoncNodeType.is.object(node.type)
@@ -376,7 +381,7 @@ const childAt = (node: JsoncNode, segment: JsoncSegment): O.Option<JsoncNode> =>
       : O.none();
   }
   return JsoncNodeType.is.array(node.type) && isArrayIndex(segment) ? O.flatMap(children, A.get(segment)) : O.none();
-};
+});
 
 // Recursive walkers below cap their descent at MAX_NESTING_DEPTH. A tree built
 // by the parser is already bounded (the parser caps at the same depth), but a
@@ -384,20 +389,26 @@ const childAt = (node: JsoncNode, segment: JsoncSegment): O.Option<JsoncNode> =>
 // each walker guards independently, returning a bounded placeholder rather
 // than overflowing the stack as a defect.
 
-const findAtOffsetImpl = (node: JsoncNode, offset: number, depth: number): O.Option<JsoncNode> => {
+const findAtOffsetImpl: {
+  (node: JsoncNode, offset: number, depth: number): O.Option<JsoncNode>;
+  (offset: number, depth: number): (node: JsoncNode) => O.Option<JsoncNode>;
+} = dual(3, (node: JsoncNode, offset: number, depth: number): O.Option<JsoncNode> => {
   if (!covers(node, offset)) {
     return O.none();
   }
   if (node.children === undefined || depth >= MAX_NESTING_DEPTH) {
     return O.some(node);
   }
-  return A.findFirst(node.children, (child) => covers(child, offset)).pipe(
-    O.flatMap((child) => findAtOffsetImpl(child, offset, depth + 1)),
+  return A.findFirst(node.children, covers(offset)).pipe(
+    O.flatMap(findAtOffsetImpl(offset, depth + 1)),
     O.orElseSome(() => node)
   );
-};
+});
 
-const buildPath = (
+const buildPath: {
+  (node: JsoncNode, offset: number, currentPath: ReadonlyArray<JsoncSegment>, depth: number): O.Option<JsoncPath>;
+  (offset: number, currentPath: ReadonlyArray<JsoncSegment>, depth: number): (node: JsoncNode) => O.Option<JsoncPath>;
+} = dual(4, (
   node: JsoncNode,
   offset: number,
   currentPath: ReadonlyArray<JsoncSegment>,
@@ -416,8 +427,8 @@ const buildPath = (
         const valuePath = A.append(currentPath, key.value);
         return O.fromUndefinedOr(prop.children).pipe(
           O.flatMap(A.get(1)),
-          O.filter((valueChild) => covers(valueChild, offset)),
-          O.flatMap((valueChild) => buildPath(valueChild, offset, valuePath, depth + 1)),
+          O.filter(covers(offset)),
+          O.flatMap(buildPath(offset, valuePath, depth + 1)),
           O.orElseSome(() => valuePath)
         );
       }
@@ -434,7 +445,7 @@ const buildPath = (
     }
   }
   return O.some(currentPath);
-};
+});
 
 const evaluateNode: {
   (node: JsoncNode, depth: number): unknown;

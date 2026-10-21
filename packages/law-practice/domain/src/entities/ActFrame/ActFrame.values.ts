@@ -309,12 +309,12 @@ export type OperativeFactStatement = typeof OperativeFactStatement.Type;
  * @category models
  * @since 0.0.0
  */
-export const ActFrameSlot = ActFrameSlotKind.mapMembers(
-  Tuple.evolve([
-    ActFrameSlotKind.makeActFrameSlotMember,
-    ActFrameSlotKind.makeActFrameSlotMember,
-    ActFrameSlotKind.makeActFrameSlotMember,
-  ])
+export const ActFrameSlot = ActFrameSlotKind.mapMembers(([actor, object, recipient]) =>
+  Tuple.make(
+    ActFrameSlotKind.makeActFrameSlotMember(actor),
+    ActFrameSlotKind.makeActFrameSlotMember(object),
+    ActFrameSlotKind.makeActFrameSlotMember(recipient)
+  )
 ).pipe(
   S.toTaggedUnion("kind"),
   $I.annoteSchema("ActFrameSlot", {

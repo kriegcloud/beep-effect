@@ -27,7 +27,6 @@ import { CorpusPaperId } from "@/corpus/Manifest";
 import { F1FixtureId } from "@/fixtures/F1";
 import { bCubedF1, EvaluatorLive, exactF1, pairwiseF1 } from "@/layers/EvaluatorLive";
 import { PATTERN_MODEL_IDENTITY } from "@/layers/ExtractorLive";
-import { AnthropicExtractionModelIdentity } from "@/layers/LanguageModelLive";
 import { FixtureDeclaration, Origin, SourceDocument } from "@/schema/Document";
 import { EvalRun, EvalSelection, makeRunId } from "@/schema/Eval";
 import { ClaimBody, EvidenceBatch, EvidenceClaim, ExtractOutcome, makeBatchId, makeClaimId } from "@/schema/Evidence";
@@ -70,12 +69,13 @@ const gold = GoldRef.make({
   }),
   version: "gold/v1",
 });
-const hosted = Effect.runSync(
-  AnthropicExtractionModelIdentity({
-    artifactHash: Sha256Hex.make(Str.repeat(64)("3")),
-    model: "stub-extractor-20260826",
-  })
-);
+const hosted = ModelIdentity.make({
+  artifactHash: Sha256Hex.make(Str.repeat(64)("3")),
+  name: "stub-extractor-20260826",
+  provider: "anthropic",
+  revision: "stub-extractor-20260826",
+  taskType: "extraction",
+});
 const selection = EvalSelection.make({ f1: [F1FixtureId.make("md-structure")], w1: [] });
 const runBody = {
   corpusHash: Sha256Hex.make(Str.repeat(64)("4")),

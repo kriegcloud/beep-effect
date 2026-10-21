@@ -1,9 +1,9 @@
-import { createRequire } from "node:module";
+import * as NodeModule from "node:module";
 import * as O from "effect/Option";
 import type { Token } from "@beep/nlp/Core/Token";
 import type { BM25Norm } from "@beep/nlp/Core/Vectorization";
 
-const require = createRequire(import.meta.url);
+const require = NodeModule.createRequire(import.meta.url);
 
 type BM25Accessor<T> = (...args: ReadonlyArray<never>) => T;
 

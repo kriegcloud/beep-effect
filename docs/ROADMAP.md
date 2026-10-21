@@ -210,7 +210,7 @@ Only packets that directly feed Lane 1:
   — closes to unblock `document-ast-pattern-classification` →
   `spar-document-annotation-wire` → `folio-lynx-taxonomy-browse` (added
   2026-09-12).
-- [`semantic-foundation`](../goals/semantic-foundation/README.md) (3/6) — closed
+- [`semantic-foundation`](../goals/semantic-foundation/README.md) (5/6) — closed
   after **M1 Intake-Serving Semantic Seed**. Feeder research phases R1-R4 are
   complete; M2-M4 remain gated future capabilities.
 

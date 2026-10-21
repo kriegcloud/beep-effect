@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import * as NodeURL from "node:url";
 import { fcRuns } from "@beep/fc-runs";
 import {
   applyEffectVitestPrimitiveGraph,
@@ -48,7 +48,7 @@ const isEffectVitestFinding = S.is(EffectVitestFinding);
 const isEffectVitestPackageTiming = S.is(EffectVitestPackageTiming);
 
 const discoveryLayer = Layer.mergeAll(NodeServices.layer, FsUtilsLive.pipe(Layer.provide(NodeServices.layer)));
-const repositoryRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
+const repositoryRoot = NodeURL.fileURLToPath(new URL("../../../../..", import.meta.url));
 
 const fixtureInventoryFileSystem = Effect.fnUntraced(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -57,7 +57,7 @@ const fixtureInventoryFileSystem = Effect.fnUntraced(function* () {
   const content = yield* encodeInventoryJson(
     EffectVitestInventoryDocument.make({
       schemaVersion: "effect-vitest-inventory/v1",
-      effectVitestVersion: "4.0.4",
+      effectVitestVersion: "4.0.5",
       scope: [],
       findings: [],
     })
@@ -160,7 +160,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         })
       );
       const inventory = yield* readEffectVitestInventory(output).pipe(Effect.map(O.getOrThrow));
-      assertTrue(inventory.effectVitestVersion === "4.0.4");
+      assertTrue(inventory.effectVitestVersion === "4.0.5");
       assertTrue(inventory.findings.length === timing.findingCount);
       assertTrue(A.some(inventory.findings, (row) => row.ruleId === "EV001"));
       const findingIds = A.map(inventory.findings, (row) => row.id);
@@ -241,7 +241,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
       );
       assertTrue(failure._tag === "EffectVitestLintError");
       assertTrue(
-        Str.includes("Baseline pin 4.0.0-rc.111 does not match graph pin 4.0.4")(failure.message),
+        Str.includes("Baseline pin 4.0.0-rc.111 does not match graph pin 4.0.5")(failure.message),
         failure.message
       );
     })
@@ -412,7 +412,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
   );
 
   it.effect(
-    "rejects an installed Effect Vitest version outside the 4.0.4 pin",
+    "rejects an installed Effect Vitest version outside the 4.0.5 pin",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -424,7 +424,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
 
       const failure = yield* verifyEffectVitestPin(root, graph).pipe(Effect.flip);
       assertTrue(failure._tag === "EffectVitestLintError");
-      assertTrue(Str.includes("graph pin @effect/vitest@4.0.4 (")(failure.message));
+      assertTrue(Str.includes("graph pin @effect/vitest@4.0.5 (")(failure.message));
     })
   );
 });
@@ -523,7 +523,7 @@ it("preserves a justified exception on the matching live row", () => {
   });
   const document = EffectVitestInventoryDocument.make({
     schemaVersion: "effect-vitest-inventory/v1",
-    effectVitestVersion: "4.0.4",
+    effectVitestVersion: "4.0.5",
     scope: [],
     findings: [baselineFinding],
   });
@@ -555,7 +555,7 @@ const occurrences = Effect.fnUntraced(function* (body: string) {
 const withException = (rows: ReadonlyArray<EffectVitestFinding>) =>
   EffectVitestInventoryDocument.make({
     schemaVersion: "effect-vitest-inventory/v1",
-    effectVitestVersion: "4.0.4",
+    effectVitestVersion: "4.0.5",
     scope: [],
     findings: A.map(rows, (row, index) =>
       index === 0
@@ -564,7 +564,7 @@ const withException = (rows: ReadonlyArray<EffectVitestFinding>) =>
     ),
   });
 
-it.layer(BunCrypto.layer)((it) => {
+it.layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
   it.effect("keeps named occurrences stable across reordering and deletion without transferring exceptions", () =>
     Effect.gen(function* () {
       const a = 'it("first", () => { Effect.runSync(program); });';
@@ -610,8 +610,8 @@ it.layer(BunCrypto.layer)((it) => {
 
   // Regression (2026-10-14): `lint effect-vitest --write` reset both EV002
   // exceptions in AgentMessage.layer.test.ts to open because two identical
-  // `query(directory)` calls on one line share an occurrence anchor. This
-  // mirrors that line: a Layer.build helper called twice in one Effect.all.
+  // `query(directory)` calls on one line share an occurrence anchor.
+  // This fixture forwards a real Layer while retaining that duplicate call shape.
   it.effect("keeps both reviewed EV002 exceptions on two identical helper calls in one statement", () =>
     Effect.gen(function* () {
       const source = new Project({ useInMemoryFileSystem: true }).createSourceFile(
@@ -621,15 +621,15 @@ it.layer(BunCrypto.layer)((it) => {
             'import { it } from "@effect/vitest";',
             'import * as Effect from "effect/Effect";',
             'import * as Layer from "effect/Layer";',
-            "declare const storeLayer: (directory: string) => Layer.Layer<never>;",
-            "const query = Effect.fn(function* (directory: string) {",
-            "  const context = yield* Layer.build(storeLayer(directory));",
+            "declare const storeLayer: Layer.Layer<never>;",
+            "const query = Effect.fn(function* (layer: Layer.Layer<never>) {",
+            "  const context = yield* Layer.build(layer);",
             "  return yield* Effect.void.pipe(Effect.provide(context));",
             "});",
             'it.effect("races first opens", () =>',
             "  Effect.gen(function* () {",
-            '    const directory = "fresh-router";',
-            '    yield* Effect.all([query(directory), query(directory)], { concurrency: "unbounded" });',
+            "    const layer = storeLayer;",
+            '    yield* Effect.all([query(layer), query(layer)], { concurrency: "unbounded" });',
             "  })",
             ");",
           ],

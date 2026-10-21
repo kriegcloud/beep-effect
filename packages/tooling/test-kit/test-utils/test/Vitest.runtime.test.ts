@@ -7,6 +7,7 @@ import * as Arr from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Clock from "effect/Clock";
 import * as Config from "effect/Config";
+import * as Context from "effect/Context";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -30,7 +31,7 @@ const reporterSource = NodeURL.fileURLToPath(
 const fixtureDirectory = NodeURL.fileURLToPath(new URL("./fixtures/vitest-instrumentation", import.meta.url));
 const vitestBin = NodeURL.fileURLToPath(new URL("../../../../../node_modules/vitest/vitest.mjs", import.meta.url));
 const runtimePoolArgs = process.versions.bun === undefined ? [] : ["--pool=threads"];
-const processClock = Effect.runSync(Clock.Clock);
+const processClock = Context.get(Context.empty(), Clock.Clock);
 const emptyString = (): string => "";
 const rawErrorPrefix = "BEEP_VITEST_RAW_ERROR ";
 const rawErrorLines = (output: string): string =>

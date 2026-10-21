@@ -253,6 +253,13 @@ needed only for the escalation list below.
 - Before recreating a shared helper, schema, utility, model, or known symbol,
   search live source (`packages/**/src/**`) and package barrels
   (`**/src/index.ts`) first with targeted ripgrep.
+- `bun run beep create-package` is the only way to bootstrap a workspace
+  package or app. Never `mkdir` one, copy a sibling, or hand-write its
+  manifest: the command emits the generated scripts block, tsconfig overlays,
+  identity registration, and the per-package `turbo.json` that a `noEmit`
+  build (`tsc-rs -p tsconfig.check.json`) needs so Turbo stops warning
+  "no output files found". `bun run beep lint package-scripts` rejects a
+  package missing that override; repair it with the command, not by hand.
 
 ## Quality Operator
 
@@ -399,7 +406,7 @@ If you touch this, load or run this first. Do not hand-author around it.
 
 | Touch | Load / run |
 | --- | --- |
-| New workspace package | `bun run beep create-package` (do not `mkdir`) |
+| New workspace package or app | `bun run beep create-package` (the only bootstrap path; no `mkdir`, no copied sibling) |
 | New slice / concept / role file | `bun run beep architecture` |
 | `packages/*/domain` or schemas | schema-first-development skill |
 | Effect service / Layer | effect-first-development skill |

@@ -383,7 +383,12 @@ export const inspectCacheProducerFile = Effect.fn("Producer.inspectPrivateFile")
 ) {
   const fs = yield* FileSystem.FileSystem;
   const info = yield* fs.stat(file);
-  if (info.type !== "File" || (info.mode & 0o777) !== 0o600 || !O.contains(info.uid, uid) || !O.contains(info.nlink, 1))
+  if (
+    info.type !== "File" ||
+    (info.mode & 0o777) !== 0o600 ||
+    !O.contains(info.uid, uid) ||
+    !O.contains(info.nlink, BigInt(1))
+  )
     return yield* CacheCommandError.new(diagnostic);
   return info;
 });

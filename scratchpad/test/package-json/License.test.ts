@@ -26,11 +26,10 @@ describe("SpdxLicense schema", () => {
 		assert.include(S.resolveAnnotations(SpdxLicense), $I.annote("SpdxLicense"));
 		const group = SpdxLicense.ast.checks?.[0];
 		assertTrue(group?._tag === "FilterGroup");
-		assert.deepStrictEqual(group.checks[0].annotations, {
-			identifier: $I`SpdxLicenseCheck`,
-			title: "Manifest SPDX License",
+		assert.deepStrictEqual(group.checks[0].annotations, $I.annote("SpdxLicenseCheck", {
+			message: "Manifest SPDX License",
 			description: "A valid SPDX license identifier or expression, UNLICENSED, or SEE LICENSE IN followed by a filename.",
-		});
+		}));
 	});
 	it.effect("keeps accepted spellings, encoded bytes and the SPDX failure message", () =>
 		Effect.gen(function* () {

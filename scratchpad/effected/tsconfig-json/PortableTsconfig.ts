@@ -196,9 +196,9 @@ const isResolvedTsconfig = (input: ResolvedTsconfig | CompilerOptions.Type): inp
 const PortableCompilerOptions = S.Struct({
 	...Struct.pick(CompilerOptions.schema.fields, PRESERVED_OPTIONS),
 	types: CompilerOptions.schema.fields.types,
-	noEmit: S.Literal(true).annotateKey({ description: "Portable environments control emission externally." }),
-	composite: S.Literal(false).annotateKey({ description: "Portable configs do not orchestrate project-reference builds." }),
-}).annotate($I.annote("PortableCompilerOptions", {
+	noEmit: S.Literal(true).pipe($I.annoteKey("PortableCompilerOptions.noEmit", { description: "Portable environments control emission externally." })),
+	composite: S.Literal(false).pipe($I.annoteKey("PortableCompilerOptions.composite", { description: "Portable configs do not orchestrate project-reference builds." })),
+}).pipe($I.annoteSchema("PortableCompilerOptions", {
 	description: "Only portable compiler options, with optional type packages and required non-emitting, non-composite flags.",
 }));
 
@@ -212,10 +212,10 @@ const PortableCompilerOptions = S.Struct({
  */
 const PortableTsconfigData = S.Struct({
 	/** The tsconfig JSON Schema URL, stamped for IDE support. */
-	$schema: S.Literal(TSCONFIG_SCHEMA_URL).annotateKey({ description: "The tsconfig JSON Schema URL." }),
+	$schema: S.Literal(TSCONFIG_SCHEMA_URL).pipe($I.annoteKey("PortableTsconfigData.$schema", { description: "The tsconfig JSON Schema URL." })),
 	/** The allow-listed, forced-flag-applied compiler options. */
-	compilerOptions: PortableCompilerOptions.annotateKey({ description: "Allow-listed options with forced portable flags." }),
-}).annotate($I.annote("PortableTsconfig", {
+	compilerOptions: PortableCompilerOptions.pipe($I.annoteKey("PortableTsconfigData.compilerOptions", { description: "Allow-listed options with forced portable flags." })),
+}).pipe($I.annoteSchema("PortableTsconfig", {
 	description: "A portable compiler-options-only tsconfig for virtual TypeScript environments.",
 }));
 
@@ -252,8 +252,8 @@ export const PortableTsconfigOptions = S.Struct({
 	 * directories, which are machine-specific and config-location-dependent,
 	 * so they are never portable.
 	 */
-	includeTypes: S.optionalKey(S.Boolean).annotateKey({ description: "Carry types package names when the consumer can resolve them; defaults to false." }),
-}).annotate($I.annote("PortableTsconfigOptions", {
+	includeTypes: S.optionalKey(S.Boolean).pipe($I.annoteKey("PortableTsconfigOptions.includeTypes", { description: "Carry types package names when the consumer can resolve them; defaults to false." })),
+}).pipe($I.annoteSchema("PortableTsconfigOptions", {
 	description: "Opt-ins for resolution-dependent portable compiler options.",
 }));
 

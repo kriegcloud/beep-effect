@@ -52,11 +52,14 @@ export const renderSkillReviewSessionJson = (session: SkillReviewSession): strin
 const itemLine = (item: SkillReviewItem): string =>
   `  - ${item.skill} ${item.kind}: ${item.patch} ${item.file} hunk ${item.hunk === 0 ? "section" : item.hunk} (${item.status}, labelled ${item.currentLabel}) ${short(item.hunkHash)}${
     item.twoStrike ? " — two strikes: promote-candidate suggested" : ""
-  }${O.match(item.ghost, {
-    onNone: () => "",
-    onSome: (prior) =>
-      ` — ghost: ${prior.decision}${O.match(prior.label, { onNone: () => "", onSome: (label) => ` as ${label}` })} by ${prior.reviewer}`,
-  })}`;
+  }${O.getOrElse(
+    O.map(
+      item.ghost,
+      (prior) =>
+        ` — ghost: ${prior.decision}${O.match(prior.label, { onNone: () => "", onSome: (label) => ` as ${label}` })} by ${prior.reviewer}`
+    ),
+    () => ""
+  )}`;
 
 const skillLine = (skill: SkillReviewSkill): string =>
   `  ${skill.skill}: ${skill.state}${skill.unresolved === 0 ? "" : ` (${skill.unresolved} undecided)`} at ${short(

@@ -87,10 +87,10 @@ export type TomlKeyKind = typeof TomlKeyKind.Type;
  * @since 0.0.0
  */
 export class TomlKey extends S.TaggedClass<TomlKey, {}>($I`TomlKey`)("TomlKey", {
-	value: S.String.annotateKey({ description: "Decoded key text with escapes resolved and surrounding quotes removed" }),
-	kind: TomlKeyKind.annotateKey({ description: "Source spelling of the key: `bare`, `basic` for double quotes, or `literal` for single quotes" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the key in the source, measured in UTF-16 code units and including any opening quote" }),
-	length: S.Finite.annotateKey({ description: "Source span of the key in UTF-16 code units, including any surrounding quotes" }),
+	value: S.String.pipe($I.annoteKey("TomlKey.value", { description: "Decoded key text with escapes resolved and surrounding quotes removed" })),
+	kind: TomlKeyKind.pipe($I.annoteKey("TomlKey.kind", { description: "Source spelling of the key: `bare`, `basic` for double quotes, or `literal` for single quotes" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlKey.offset", { description: "Zero-based start of the key in the source, measured in UTF-16 code units and including any opening quote" })),
+	length: S.Finite.pipe($I.annoteKey("TomlKey.length", { description: "Source span of the key in UTF-16 code units, including any surrounding quotes" })),
 }, $I.annote("TomlKey", { description: "One simple key within a (possibly dotted) key path." })) {}
 
 /**
@@ -138,10 +138,10 @@ export type TomlStringStyle = typeof TomlStringStyle.Type;
  * @since 0.0.0
  */
 export class TomlString extends S.TaggedClass<TomlString, {}>($I`TomlString`)("TomlString", {
-	value: S.String.annotateKey({ description: "Decoded string text after applying the source form's escape, newline, and whitespace rules" }),
-	style: TomlStringStyle.annotateKey({ description: "Source string form: basic or literal, each with a single-line or multiline spelling" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the opening string delimiter in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span of the string in UTF-16 code units, including opening and closing delimiters" }),
+	value: S.String.pipe($I.annoteKey("TomlString.value", { description: "Decoded string text after applying the source form's escape, newline, and whitespace rules" })),
+	style: TomlStringStyle.pipe($I.annoteKey("TomlString.style", { description: "Source string form: basic or literal, each with a single-line or multiline spelling" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlString.offset", { description: "Zero-based start of the opening string delimiter in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlString.length", { description: "Source span of the string in UTF-16 code units, including opening and closing delimiters" })),
 }, $I.annote("TomlString", { description: "A string value node. `value` is the decoded text; the raw spelling lives in the source span." })) {}
 
 /**
@@ -162,9 +162,9 @@ export class TomlString extends S.TaggedClass<TomlString, {}>($I`TomlString`)("T
  * @since 0.0.0
  */
 export class TomlInteger extends S.TaggedClass<TomlInteger, {}>($I`TomlInteger`)("TomlInteger", {
-	value: S.Union([S.Finite, S.BigInt]).annotateKey({ description: "Decoded integer within TOML's signed 64-bit range, preserving exact precision beyond the safe integer range" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the integer token in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span of the integer token in UTF-16 code units, including any sign, base prefix, and underscores" }),
+	value: S.Union([S.Finite, S.BigInt]).pipe($I.annoteKey("TomlInteger.value", { description: "Decoded integer within TOML's signed 64-bit range, preserving exact precision beyond the safe integer range" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlInteger.offset", { description: "Zero-based start of the integer token in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlInteger.length", { description: "Source span of the integer token in UTF-16 code units, including any sign, base prefix, and underscores" })),
 }, $I.annote("TomlInteger", { description: "An integer value node. Decodes to `number` when the magnitude fits in 2^53 - 1, else `bigint` (TOML integers span the full signed 64-bit range)." })) {}
 
 /**
@@ -184,9 +184,9 @@ export class TomlInteger extends S.TaggedClass<TomlInteger, {}>($I`TomlInteger`)
  * @since 0.0.0
  */
 export class TomlFloat extends S.TaggedClass<TomlFloat, {}>($I`TomlFloat`)("TomlFloat", {
-	value: IeeeNumber.annotateKey({ description: "Decoded floating-point value, including positive or negative infinity and NaN" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the float token in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span of the float token in UTF-16 code units, including any sign, exponent, and underscores" }),
+	value: IeeeNumber.pipe($I.annoteKey("TomlFloat.value", { description: "Decoded floating-point value, including positive or negative infinity and NaN" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlFloat.offset", { description: "Zero-based start of the float token in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlFloat.length", { description: "Source span of the float token in UTF-16 code units, including any sign, exponent, and underscores" })),
 }, $I.annote("TomlFloat", { description: "A float value node, including the special spellings (`inf`, `nan`)." })) {}
 
 /**
@@ -206,9 +206,9 @@ export class TomlFloat extends S.TaggedClass<TomlFloat, {}>($I`TomlFloat`)("Toml
  * @since 0.0.0
  */
 export class TomlBoolean extends S.TaggedClass<TomlBoolean, {}>($I`TomlBoolean`)("TomlBoolean", {
-	value: S.Boolean.annotateKey({ description: "Decoded truth value of the source literal `true` or `false`" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the boolean token in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span of the boolean token in UTF-16 code units" }),
+	value: S.Boolean.pipe($I.annoteKey("TomlBoolean.value", { description: "Decoded truth value of the source literal `true` or `false`" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlBoolean.offset", { description: "Zero-based start of the boolean token in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlBoolean.length", { description: "Source span of the boolean token in UTF-16 code units" })),
 }, $I.annote("TomlBoolean", { description: "A boolean value node." })) {}
 
 /**
@@ -233,9 +233,9 @@ export class TomlBoolean extends S.TaggedClass<TomlBoolean, {}>($I`TomlBoolean`)
  * @since 0.0.0
  */
 export class TomlDateTimeLiteral extends S.TaggedClass<TomlDateTimeLiteral, {}>($I`TomlDateTimeLiteral`)("TomlDateTimeLiteral", {
-	value: S.Union([TomlOffsetDateTime, TomlLocalDateTime, TomlLocalDate, TomlLocalTime]).annotateKey({ description: "Decoded calendar value preserving whether the literal represents an offset date-time, local date-time, local date, or local time" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the date-time token in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span of the date-time token in UTF-16 code units, including any fractional seconds and UTC offset" }),
+	value: S.Union([TomlOffsetDateTime, TomlLocalDateTime, TomlLocalDate, TomlLocalTime]).pipe($I.annoteKey("TomlDateTimeLiteral.value", { description: "Decoded calendar value preserving whether the literal represents an offset date-time, local date-time, local date, or local time" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlDateTimeLiteral.offset", { description: "Zero-based start of the date-time token in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlDateTimeLiteral.length", { description: "Source span of the date-time token in UTF-16 code units, including any fractional seconds and UTC offset" })),
 }, $I.annote("TomlDateTimeLiteral", { description: "A date-time value node wrapping one of the four TOML date-time classes." })) {}
 
 /**
@@ -263,9 +263,9 @@ export class TomlDateTimeLiteral extends S.TaggedClass<TomlDateTimeLiteral, {}>(
  * @since 0.0.0
  */
 export class TomlArray extends S.TaggedClass<TomlArray, {}>($I`TomlArray`)("TomlArray", {
-	items: S.Array(S.suspend((): S.Codec<TomlValueNode> => TomlValueNode)).annotateKey({ description: "Parsed array values in source order, allowing mixed TOML value kinds" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based position of the opening array bracket in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span of the array in UTF-16 code units, including brackets, inner whitespace, newlines, and comments" }),
+	items: S.Array(S.suspend((): S.Codec<TomlValueNode> => TomlValueNode)).annotateKey($I.annote("TomlArray.items", { description: "Parsed array values in source order, allowing mixed TOML value kinds" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlArray.offset", { description: "Zero-based position of the opening array bracket in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlArray.length", { description: "Source span of the array in UTF-16 code units, including brackets, inner whitespace, newlines, and comments" })),
 }, $I.annote("TomlArray", { description: "An array value node. Heterogeneous per TOML; may span multiple lines (the span covers brackets, inner newlines and inner comments)." })) {}
 
 /**
@@ -294,10 +294,10 @@ export class TomlArray extends S.TaggedClass<TomlArray, {}>($I`TomlArray`)("Toml
  * @since 0.0.0
  */
 export class TomlInlineEntry extends S.TaggedClass<TomlInlineEntry, {}>($I`TomlInlineEntry`)("TomlInlineEntry", {
-	keyPath: S.Array(TomlKey).annotateKey({ description: "Ordered key segments locating the entry within its inline table, with multiple segments for dotted keys" }),
-	value: S.suspend((): S.Codec<TomlValueNode> => TomlValueNode).annotateKey({ description: "Parsed TOML value assigned to the entry's key path inside the inline table" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the entry's first key in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span from the first key through the value in UTF-16 code units, excluding trailing separators and comments" }),
+	keyPath: S.Array(TomlKey).pipe($I.annoteKey("TomlInlineEntry.keyPath", { description: "Ordered key segments locating the entry within its inline table, with multiple segments for dotted keys" })),
+	value: S.suspend((): S.Codec<TomlValueNode> => TomlValueNode).annotateKey($I.annote("TomlInlineEntry.value", { description: "Parsed TOML value assigned to the entry's key path inside the inline table" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlInlineEntry.offset", { description: "Zero-based start of the entry's first key in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlInlineEntry.length", { description: "Source span from the first key through the value in UTF-16 code units, excluding trailing separators and comments" })),
 }, $I.annote("TomlInlineEntry", { description: "One `key = value` entry inside an inline table. `keyPath` has more than one element for dotted keys (`{a.b = 1}`)." })) {}
 
 /**
@@ -318,9 +318,9 @@ export class TomlInlineEntry extends S.TaggedClass<TomlInlineEntry, {}>($I`TomlI
  * @since 0.0.0
  */
 export class TomlInlineTable extends S.TaggedClass<TomlInlineTable, {}>($I`TomlInlineTable`)("TomlInlineTable", {
-	entries: S.Array(TomlInlineEntry).annotateKey({ description: "Parsed key-value entries in source order within the inline table" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based position of the opening inline-table brace in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span of the inline table in UTF-16 code units, including braces, inner whitespace, newlines, and comments" }),
+	entries: S.Array(TomlInlineEntry).pipe($I.annoteKey("TomlInlineTable.entries", { description: "Parsed key-value entries in source order within the inline table" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlInlineTable.offset", { description: "Zero-based position of the opening inline-table brace in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlInlineTable.length", { description: "Source span of the inline table in UTF-16 code units, including braces, inner whitespace, newlines, and comments" })),
 }, $I.annote("TomlInlineTable", { description: "An inline table value node (`{ k = v, ... }`). May span multiple lines since TOML 1.1 (the span covers braces, inner newlines and inner comments)." })) {}
 
 /**
@@ -397,11 +397,11 @@ export type TomlValueNode =
  * @since 0.0.0
  */
 export class TomlKeyValue extends S.TaggedClass<TomlKeyValue, {}>($I`TomlKeyValue`)("TomlKeyValue", {
-	keyPath: S.Array(TomlKey).annotateKey({ description: "Ordered key segments locating the assignment relative to the current table, with multiple segments for dotted keys" }),
-	value: S.suspend((): S.Codec<TomlValueNode> => TomlValueNode).annotateKey({ description: "Parsed TOML value assigned to the expression's key path" }),
-	comment: S.optionalKey(S.String).annotateKey({ description: "Optional trailing comment text with `#` removed and one leading space stripped" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the assignment's line in UTF-16 code units, including leading whitespace and any initial BOM" }),
-	length: S.Finite.annotateKey({ description: "Source span of the assignment in UTF-16 code units, including leading whitespace, multiline values, trailing comment, and terminating newline" }),
+	keyPath: S.Array(TomlKey).pipe($I.annoteKey("TomlKeyValue.keyPath", { description: "Ordered key segments locating the assignment relative to the current table, with multiple segments for dotted keys" })),
+	value: S.suspend((): S.Codec<TomlValueNode> => TomlValueNode).annotateKey($I.annote("TomlKeyValue.value", { description: "Parsed TOML value assigned to the expression's key path" })),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("TomlKeyValue.comment", { description: "Optional trailing comment text with `#` removed and one leading space stripped" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlKeyValue.offset", { description: "Zero-based start of the assignment's line in UTF-16 code units, including leading whitespace and any initial BOM" })),
+	length: S.Finite.pipe($I.annoteKey("TomlKeyValue.length", { description: "Source span of the assignment in UTF-16 code units, including leading whitespace, multiline values, trailing comment, and terminating newline" })),
 }, $I.annote("TomlKeyValue", { description: "A `key = value` expression. The span starts at the first character of the line's leading whitespace and ends after the terminating newline (or at EOF); multi-line values extend it. `comment` holds the decoded trailing comment (without `#`, one leading space stripped) when present." })) {}
 
 /**
@@ -425,10 +425,10 @@ export class TomlKeyValue extends S.TaggedClass<TomlKeyValue, {}>($I`TomlKeyValu
  * @since 0.0.0
  */
 export class TomlTableHeader extends S.TaggedClass<TomlTableHeader, {}>($I`TomlTableHeader`)("TomlTableHeader", {
-	keyPath: S.Array(TomlKey).annotateKey({ description: "Ordered key segments locating the table from the document root" }),
-	comment: S.optionalKey(S.String).annotateKey({ description: "Optional trailing header comment text with `#` removed and one leading space stripped" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the header's line in UTF-16 code units, including leading whitespace and any initial BOM" }),
-	length: S.Finite.annotateKey({ description: "Source span of the table header in UTF-16 code units, including leading whitespace, trailing comment, and terminating newline" }),
+	keyPath: S.Array(TomlKey).pipe($I.annoteKey("TomlTableHeader.keyPath", { description: "Ordered key segments locating the table from the document root" })),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("TomlTableHeader.comment", { description: "Optional trailing header comment text with `#` removed and one leading space stripped" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlTableHeader.offset", { description: "Zero-based start of the header's line in UTF-16 code units, including leading whitespace and any initial BOM" })),
+	length: S.Finite.pipe($I.annoteKey("TomlTableHeader.length", { description: "Source span of the table header in UTF-16 code units, including leading whitespace, trailing comment, and terminating newline" })),
 }, $I.annote("TomlTableHeader", { description: "A `[table]` header expression. Span contract as in TomlKeyValue." })) {}
 
 /**
@@ -453,10 +453,10 @@ export class TomlTableHeader extends S.TaggedClass<TomlTableHeader, {}>($I`TomlT
  * @since 0.0.0
  */
 export class TomlArrayTableHeader extends S.TaggedClass<TomlArrayTableHeader, {}>($I`TomlArrayTableHeader`)("TomlArrayTableHeader", {
-	keyPath: S.Array(TomlKey).annotateKey({ description: "Ordered key segments locating the array of tables from the document root, where this header opens a new element" }),
-	comment: S.optionalKey(S.String).annotateKey({ description: "Optional trailing header comment text with `#` removed and one leading space stripped" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the header's line in UTF-16 code units, including leading whitespace and any initial BOM" }),
-	length: S.Finite.annotateKey({ description: "Source span of the array-of-tables header in UTF-16 code units, including leading whitespace, trailing comment, and terminating newline" }),
+	keyPath: S.Array(TomlKey).pipe($I.annoteKey("TomlArrayTableHeader.keyPath", { description: "Ordered key segments locating the array of tables from the document root, where this header opens a new element" })),
+	comment: S.optionalKey(S.String).pipe($I.annoteKey("TomlArrayTableHeader.comment", { description: "Optional trailing header comment text with `#` removed and one leading space stripped" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlArrayTableHeader.offset", { description: "Zero-based start of the header's line in UTF-16 code units, including leading whitespace and any initial BOM" })),
+	length: S.Finite.pipe($I.annoteKey("TomlArrayTableHeader.length", { description: "Source span of the array-of-tables header in UTF-16 code units, including leading whitespace, trailing comment, and terminating newline" })),
 }, $I.annote("TomlArrayTableHeader", { description: "A `[[array-of-tables]]` header expression. Span contract as in TomlKeyValue." })) {}
 
 /**
@@ -477,9 +477,9 @@ export class TomlArrayTableHeader extends S.TaggedClass<TomlArrayTableHeader, {}
  * @since 0.0.0
  */
 export class TomlTrivia extends S.TaggedClass<TomlTrivia, {}>($I`TomlTrivia`)("TomlTrivia", {
-	text: S.String.annotateKey({ description: "Raw source text of consecutive blank and comment-only lines, preserving whitespace and newlines" }),
-	offset: S.Finite.annotateKey({ description: "Zero-based start of the blank or comment-only run in the source, measured in UTF-16 code units" }),
-	length: S.Finite.annotateKey({ description: "Source span of the blank or comment-only run in UTF-16 code units, including whitespace and newlines" }),
+	text: S.String.pipe($I.annoteKey("TomlTrivia.text", { description: "Raw source text of consecutive blank and comment-only lines, preserving whitespace and newlines" })),
+	offset: S.Finite.pipe($I.annoteKey("TomlTrivia.offset", { description: "Zero-based start of the blank or comment-only run in the source, measured in UTF-16 code units" })),
+	length: S.Finite.pipe($I.annoteKey("TomlTrivia.length", { description: "Source span of the blank or comment-only run in UTF-16 code units, including whitespace and newlines" })),
 }, $I.annote("TomlTrivia", { description: "A run of consecutive blank and comment-only lines, coalesced into one expression. `text` is the raw source slice, newlines included." })) {}
 
 /**
