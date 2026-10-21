@@ -48,6 +48,14 @@ layer(Path.layer, { timeout: "10 seconds" })("Walker.ascend", (it) => {
     })
   );
 
+  it.effect("stops a parent-relative start at its last '..' instead of stepping to '.'", () =>
+    Effect.gen(function* () {
+      assert.deepStrictEqual(yield* Walker.ascend("../x"), ["../x", ".."]);
+      assert.deepStrictEqual(yield* Walker.ascend("../../a"), ["../../a", "../.."]);
+      assert.deepStrictEqual(yield* Walker.ascend(".."), [".."]);
+    })
+  );
+
   it.effect("terminates at the root fixpoint without exhausting maxDepth", () =>
     Effect.gen(function* () {
       const dirs = yield* Walker.ascend("/a");

@@ -76,6 +76,14 @@ describe("Root", () => {
       );
 
       it.effect(
+        "never answers '.' for a parent-relative start, which is not an ancestor of it",
+        Effect.fn(function* () {
+          const error = yield* findRepoRoot("../other/pkg").pipe(onlyMarkers(".git"), Effect.flip);
+          expect(error._tag).toBe("NoSuchFileError");
+        })
+      );
+
+      it.effect(
         "finds a marker in the relative root '.'",
         Effect.fn(function* () {
           const root = yield* findRepoRoot("a/b").pipe(onlyMarkers(".git"));

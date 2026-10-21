@@ -20,6 +20,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { quoteJson } from "./internal/quote.ts";
 
 const $I = $WalkerId.create("Walker");
@@ -175,7 +176,17 @@ const dieRelativeCeiling = (operation: string, option: string, ceiling: string, 
   );
 
 /**
- * The parent to visit after `current`, or None when `current` is the ceiling or the root.
+ * True for a relative path made only of `..` segments (`..`, `../..`). Its lexical
+ * parent is `.` or a shorter `..` chain, which is a descendant of the path, not an
+ * ancestor, so a lexical walk must stop there.
+ */
+const isParentSegmentsOnly = (path: Path.Path, current: string): boolean =>
+  !path.isAbsolute(current) &&
+  A.every(A.filter(Str.split(path.sep)(path.normalize(current)), Str.isNonEmpty), (segment) => segment === "..");
+
+/**
+ * The parent to visit after `current`, or None when `current` is the ceiling, the root,
+ * or a relative path made only of `..` segments.
  *
  * Both sides of the ceiling test go through `resolve`: normalizing only the
  * ceiling would desynchronize it from an unnormalized chain element (`/a/b/.`
@@ -184,6 +195,7 @@ const dieRelativeCeiling = (operation: string, option: string, ceiling: string, 
  */
 const parentWithin = (path: Path.Path, ceiling: O.Option<string>, current: string): O.Option<string> => {
   if (O.exists(ceiling, (ceiling) => current === ceiling || path.resolve(current) === ceiling)) return O.none();
+  if (isParentSegmentsOnly(path, current)) return O.none();
   const parent = path.dirname(current);
   return parent === current ? O.none() : O.some(parent);
 };
