@@ -50,12 +50,19 @@ const SOURCE_PATH_PATTERN =
   /(?<![\w-])unstable\/(?:arbitrary\/Arbitrary\.(?:d\.ts|ts|js)\b|(?:ai|cli|cluster|devtools|encoding|eventlog|http|httpapi|net|observability|persistence|process|reactivity|rpc|schema|socket|sql|workers|workflow|arbitrary)\b)/gu;
 
 /**
- * A retired path's GitHub heading slug (`effect/unstable/reactivity/Atom` →
- * `effectunstablereactivityatom`) inside the `#fragment` of an inline link
- * `](…#…)` or a reference definition `]: …#…`. The slug runs to the next
- * hyphen, since slugging turns the heading's spaces into hyphens.
+ * The `#fragment` of an inline link `](…#…)` or a reference definition
+ * `]: …#…`. The target before the `#` excludes `#`, so the scan stays linear
+ * on long `#`-dense lines (a leading lookbehind here backtracks cubically).
  */
-const ANCHOR_SLUG_PATTERN = /(?<=\](?:\(|:[ \t]*)[^\s)]*#[^\s)]*)effectunstable[\p{L}\p{N}_]*/gu;
+const LINK_FRAGMENT_PATTERN = /\](?:\(|:[ \t]*)[^\s)#]*#(?<fragment>[^\s)]*)/gu;
+
+/**
+ * A retired path's GitHub heading slug (`effect/unstable/reactivity/Atom` →
+ * `effectunstablereactivityatom`), searched only inside a link fragment. The
+ * slug runs to the next hyphen, since slugging turns the heading's spaces into
+ * hyphens.
+ */
+const ANCHOR_SLUG_PATTERN = /effectunstable[\p{L}\p{N}_]*/gu;
 
 const NEWLINE_PATTERN = /\n/gu;
 
@@ -90,6 +97,16 @@ const collectMatches = (content: string, pattern: RegExp, rule: RetiredEffectPat
     text: match[0],
     rule,
   }));
+
+const collectAnchorSlugMatches = (content: string): ReadonlyArray<RawMatch> =>
+  A.flatMap(A.fromIterable(F.pipe(content, Str.matchAll(LINK_FRAGMENT_PATTERN))), (link) => {
+    const fragment = link.groups?.fragment ?? "";
+    const offset = (link.index ?? 0) + Str.length(link[0]) - Str.length(fragment);
+    return A.map(collectMatches(fragment, ANCHOR_SLUG_PATTERN, "anchor-slug"), (match) => ({
+      ...match,
+      index: offset + match.index,
+    }));
+  });
 
 const isInsideSpan =
   (spans: ReadonlyArray<RawMatch>) =>
@@ -231,7 +248,7 @@ export const scanText: {
     collectMatches(content, SOURCE_PATH_PATTERN, "source-path"),
     (match) => !isInsideSpan(moduleMatches)(match)
   );
-  const anchorMatches = collectMatches(content, ANCHOR_SLUG_PATTERN, "anchor-slug");
+  const anchorMatches = collectAnchorSlugMatches(content);
   const matches = A.sort(A.flatten([moduleMatches, sourceMatches, anchorMatches]), byIndexAscending);
   return A.match(matches, {
     onEmpty: A.empty<RetiredEffectPathFinding>,

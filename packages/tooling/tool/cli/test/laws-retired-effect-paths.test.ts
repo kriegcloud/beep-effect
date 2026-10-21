@@ -107,6 +107,17 @@ describe("retired Effect module path law", () => {
         expect(matchesOf("[page](https://example.com/effectunstablerpc)")).toEqual([]);
       })
     );
+
+    it.effect("reports positions inside multi-link lines and scans long #-dense lines in linear time", () =>
+      Effect.sync(() => {
+        const findings = scanOne("[a](#x) and [b](#y-effectunstablerpc) then ](#z#effectunstablesql)");
+        expect(A.map(findings, (finding) => [finding.column, finding.match])).toEqual([
+          [20, "effectunstablerpc"],
+          [49, "effectunstablesql"],
+        ]);
+        expect(scanOne(`${"#a".repeat(20)}effectunstable-`.repeat(2_000))).toEqual([]);
+      })
+    );
   });
 
   describe("suggestion exceptions", () => {
