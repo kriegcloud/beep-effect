@@ -103,3 +103,36 @@ The commit secret scan initially classified two SHA-256 evidence digests as
 generic API keys because their JSON map keys contained authentication terms.
 The values were recomputed file digests, not credentials. Changed the evidence
 index to explicit `file`/`sha256` records instead of suppressing the scanner.
+
+## 2026-10-21: the Linux `codex queue` client cannot resolve thread names on a Windows server
+
+Task: queue to a named thread on the PC's app-server through the tunnel. The
+Rust client's `thread/list` decode failed with `AbsolutePathBuf deserialized
+without a base path` because the response carries Windows cwd paths. UUIDs skip
+the lookup and work. Prevention: address cross-platform threads by UUID and
+keep the id in the hand-over notes; do not retry the name form.
+
+## 2026-10-21: passive protocol subscribers see no turn events
+
+Task: watch a turn started by `codex queue` from a second connection. Only
+`thread/status/changed` arrived; `turn/*` and `item/*` stream to the connection
+that started or resumed the thread, so a 45 s watchdog wrongly concluded that
+the queue had not started a turn (the rollout showed it had). Prevention: resume
+the thread on the observing connection before starting or waiting for a turn;
+never infer "no turn" from a connection that did not resume it.
+
+## 2026-10-21: one-shot task triggers are not inert
+
+Task: launch a long-lived listener on the PC from SSH with `schtasks /sc once
+/st 23:59 /it`. The trigger would have restarted the listener that night.
+Prevention: date the one-shot trigger in the past (`/sd 01/01/2000 /st 00:00`);
+Task Scheduler still honours `/run` and shows Next Run Time `N/A`.
+
+## 2026-10-21: `pkill -f` on a port pattern kills the shell that runs it
+
+Task: close the SSH tunnel at the end of a compound tool command. `pkill -f`
+with a pattern containing `48123` matched the tool's own `zsh -c` argument
+(which also carried the port in a later `findstr`) and killed the shell before
+the remaining teardown ran, twice. Prevention: open tunnels with an SSH control
+socket (`-M -S <path>`) and close them with `-O exit`; when a process pattern is
+unavoidable, anchor it (`^ssh -f -N`) so the orchestrating shell cannot match.

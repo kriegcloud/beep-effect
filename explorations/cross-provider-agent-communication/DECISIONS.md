@@ -222,3 +222,33 @@ browser production and federation remain deferred.
 external OAuth client and retain pending/ambiguous mail. Preserve T3 conversations,
 user profile and unrelated sessions. See the amended bridge SPEC and
 [T3 integration design](../../goals/agent-session-bridges/research/T3-INTEGRATION.md).
+
+## 2026-10-21: the attorney-PC Codex bridge is a loopback app-server over SSH, not the relay
+
+Question: Can a workstation agent queue a prompt to a Codex thread on `tom-pc-1`
+and read the reply without the Codex Desktop GUI, and is `codex remote-control`
+the transport?
+
+Answer: Yes, and no. A plain `codex app-server --listen ws://127.0.0.1:48123
+--ws-auth capability-token` on the PC, reached through an SSH loopback tunnel,
+accepted `codex queue --thread <uuid>` and the one-shot ask client; both returned
+`PONG` within 2.3 to 3.9 s with the server echoing `never` / `readOnly`.
+`codex remote-control` is OpenAI's relay for ChatGPT and Codex app clients:
+`start` adds a relay flag to a unix-socket daemon, `pair` emits environment
+pairing codes, and the CLI has no relay client, so the Desktop-hosted
+`CHATGPT_TOM_PC` thread stays unreachable from a CLI. Evidence and the exact
+commands: [research note](research/2026-10-21-codex-remote-control-bridge.md).
+
+Rationale: the client refuses bearer tokens over non-loopback plaintext, the
+host already runs a public Tailscale Funnel (so no new `wss://` port there), and
+SSH is already key-gated and tailnet-only. Loopback plus tunnel adds no listener
+on the network and keeps the token off the PC (digest only).
+
+Rejected: enabling `codex remote-control` on the PC (a second relay-exposed
+daemon beside the Desktop's); a tailnet-bound plaintext listener (client refuses
+auth); a Tailscale Serve `wss://` front (Funnel risk); resuming Desktop-owned
+threads from the bridge (two runtimes on one rollout).
+
+Reversal: stop the listener and delete the `CodexWsBridge` task on the PC,
+delete the workstation token file, remove `%USERPROFILE%\.codex\remote-ws\`.
+No PC credentials, keys, firewall rules or Tailscale configuration changed.
