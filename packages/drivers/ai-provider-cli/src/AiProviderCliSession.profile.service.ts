@@ -54,8 +54,17 @@ export const failure = {
   make: (operation: string, reason: ManagedSessionError["reason"], message: string) =>
     ManagedSessionError.make({ operation, reason, message }),
 };
+const EndedRuntime = S.Union([AcpErrors.AcpProcessExitedError, AcpErrors.AcpInputStreamEndedError]).annotate(
+  $I.annote("EndedRuntime", { description: "ACP failure raised because the native process or its output ended." })
+);
+const isEndedRuntime = S.is(EndedRuntime);
 /**
  * Preserves typed session failures and redacts unclassified native transport errors.
+ *
+ * **Details**
+ *
+ * An ACP failure caused by the native process exiting or its output stream ending is classified as
+ * `closed`; every other unclassified failure is `transport`, with only the JSON-RPC code retained.
  *
  * **Example** (Preserve a known timeout)
  * ```ts
@@ -72,13 +81,15 @@ export const transportFailure = (operation: string) =>
   Effect.mapError((error) =>
     S.is(ManagedSessionError)(error)
       ? error
-      : failure.make(
-          operation,
-          "transport",
-          S.is(AcpErrors.AcpRequestError)(error)
-            ? `Native RPC failed with code ${error.code}`
-            : "Native runtime transport failed"
-        )
+      : isEndedRuntime(error)
+        ? failure.make(operation, "closed", "Native runtime ended before the request completed")
+        : failure.make(
+            operation,
+            "transport",
+            S.is(AcpErrors.AcpRequestError)(error)
+              ? `Native RPC failed with code ${error.code}`
+              : "Native runtime transport failed"
+          )
   );
 /**
  * Encodes protocol payloads as JSON through the schema encoder.
