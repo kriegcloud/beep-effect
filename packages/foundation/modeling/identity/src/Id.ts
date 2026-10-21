@@ -916,9 +916,13 @@ type BoundComposerCurie<Prefix extends string | undefined, Value extends string>
 
 type IdentityAnnotationMetadataKeys = "identifier" | "schemaId" | "title" | "iri" | "curie";
 
+// A required string title is exact; a title that may or may not be present (optional, or extras typed as a
+// record) widens to `string`, because the runtime keeps whichever string the caller passed.
 type ResolvedTitle<Extras, Identifier extends string> = Extras extends { readonly title: infer Title extends string }
   ? Title
-  : TitleFromIdentifier<Identifier>;
+  : "title" extends keyof Extras
+    ? string
+    : TitleFromIdentifier<Identifier>;
 
 /**
  * Result of calling `annote` -- the identity annotation merged with any caller-supplied extras.
@@ -1214,7 +1218,7 @@ export interface IdentityComposer<
    * $I.string() // => "@beep/my-pkg/auth/Session"
    *
    * const MyStruct = S.Struct({
-   *  prop1: S.String.annotateKey($I.annoteKey("MyStruct.prop1", { description: "A string" }))
+   *  prop1: S.String.pipe($I.annoteKey("MyStruct.prop1", { description: "A string" }))
    * })
    * ```
    *

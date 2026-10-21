@@ -11,7 +11,7 @@ import {
   $WorkspaceDomainId,
 } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
-import { describe, expect } from "@effect/vitest";
+import { describe, expect, expectTypeOf } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Equal from "effect/Equal";
@@ -147,6 +147,19 @@ describe("@beep/identity", () => {
     expect(annotation.title).toBe("Human title");
     expect(annotation.identifier).toBe("@beep/schema/Owned");
     expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/Owned"));
+    expectTypeOf(annotation.title).toEqualTypeOf<string>();
+  });
+
+  it("types the title as the caller literal, the derived title, or string when it may be either", () => {
+    const $SchemaId = make("beep").$BeepId.create("schema");
+    const maybeTitled: { readonly title?: string; readonly description: string } = { description: "d" };
+
+    expectTypeOf($SchemaId.annote("Slug", { title: "URL slug" }).title).toEqualTypeOf<"URL slug">();
+    expectTypeOf(
+      $SchemaId.annote("tenant_profile-name", { description: "d" }).title
+    ).toEqualTypeOf<"Tenant Profile Name">();
+    expectTypeOf($SchemaId.annote("Slug", maybeTitled).title).toEqualTypeOf<string>();
+    expect($SchemaId.annote("Slug", maybeTitled).title).toBe("Slug");
   });
 
   it("applies the caller title through annoteSchema and annoteKey", () => {
