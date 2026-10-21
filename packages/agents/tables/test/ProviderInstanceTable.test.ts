@@ -19,6 +19,9 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { ProviderInstanceRow } from "@beep/agents-tables/entities/ProviderInstance";
 
+// Optional on insert: the column's SQL default supplies the first version.
+const insertedRowVersion = (rowVersion: number | undefined): number => rowVersion ?? 1;
+
 const ProviderInstanceEquivalence = S.toEquivalence(DomainProviderInstance.ProviderInstance);
 
 // The row codec is a class schema, so an unencodable entity has to stay an
@@ -136,6 +139,7 @@ describe("ProviderInstance table", () => {
           ...insert,
           deletedAt: insert.deletedAt ?? null,
           deletedByPrincipal: insert.deletedByPrincipal ?? null,
+          rowVersion: insertedRowVersion(insert.rowVersion),
           id: 10,
           homePath: insert.homePath ?? null,
           lastProbe: insert.lastProbe ?? null,
@@ -159,6 +163,7 @@ describe("ProviderInstance table", () => {
         ...insert.success,
         deletedAt: insert.success.deletedAt ?? null,
         deletedByPrincipal: insert.success.deletedByPrincipal ?? null,
+        rowVersion: insertedRowVersion(insert.success.rowVersion),
         id: providerInstance.id,
         homePath: insert.success.homePath ?? null,
         lastProbe: insert.success.lastProbe ?? null,

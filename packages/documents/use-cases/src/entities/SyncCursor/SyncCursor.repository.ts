@@ -9,6 +9,8 @@
 import * as DomainSyncCursor from "@beep/documents-domain/entities/SyncCursor";
 import { DmsProvider } from "@beep/documents-domain/values/Sync";
 import { $DocumentsUseCasesId } from "@beep/identity/packages";
+import { RowVersion } from "@beep/shared-domain/entity/EntityKit";
+import * as DocumentsIdentity from "@beep/shared-domain/identity/Documents";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -65,6 +67,58 @@ export class SyncCursorSeed extends S.Opaque<SyncCursorSeed, { readonly brand: u
     })
   )
 ) {}
+
+/**
+ * Persistence failure raised when a SyncCursor write lost an optimistic-concurrency race.
+ *
+ * **Details**
+ *
+ * `upsert` replaces an existing cursor at the row version it read. The stored row moved past that version, so the write was rejected
+ * instead of overwriting the newer row; re-read the SyncCursor and reapply the
+ * change.
+ *
+ * **Example** (Construct version-conflict error)
+ *
+ * ```ts
+ * import { SyncCursorRepositoryVersionConflict } from "@beep/documents-use-cases/entities/SyncCursor/server"
+ * import { RowVersion } from "@beep/shared-domain/entity/EntityKit"
+ * import * as DocumentsIdentity from "@beep/shared-domain/identity/Documents"
+ * import * as S from "effect/Schema"
+ *
+ * const error = SyncCursorRepositoryVersionConflict.make({
+ *   actualRowVersion: RowVersion.make(3),
+ *   expectedRowVersion: RowVersion.make(2),
+ *   syncCursorId: S.decodeUnknownSync(DocumentsIdentity.SyncCursorId)(1)
+ * })
+ * console.log(error._tag)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SyncCursorRepositoryVersionConflict extends S.TaggedError<
+  SyncCursorRepositoryVersionConflict,
+  { readonly brand: unique symbol }
+>($I`SyncCursorRepositoryVersionConflict`)(
+  "SyncCursorRepositoryVersionConflict",
+  {
+    actualRowVersion: RowVersion.annotateKey({
+      description: "Row version currently stored for the SyncCursor.",
+    }),
+    expectedRowVersion: RowVersion.annotateKey({
+      description: "Row version the rejected write expected to replace.",
+    }),
+    syncCursorId: DocumentsIdentity.SyncCursorId.annotateKey({
+      description: "SyncCursor identity whose write was rejected.",
+    }),
+  },
+  $I.annoteError<SyncCursorRepositoryVersionConflict>("SyncCursorRepositoryVersionConflict", {
+    title: "SyncCursor repository version conflict",
+    description: "Another write changed the SyncCursor after it was read; the stale upsert was rejected.",
+  })
+) {
+  static readonly is = S.is(SyncCursorRepositoryVersionConflict);
+}
 
 /**
  * Persistence failure raised when the SyncCursor repository is unavailable.
@@ -140,7 +194,9 @@ export class FindSyncCursorInput extends S.Opaque<FindSyncCursorInput, { readonl
  * **Details**
  *
  * At most one cursor row exists per `workspaceId` and `provider` pair: `upsert`
- * inserts the row when absent and replaces its seed fields when present.
+ * inserts the row when absent and replaces its seed fields when present. A
+ * replacement fails with {@link SyncCursorRepositoryVersionConflict} when another
+ * write changed the cursor between the upsert's read and its write.
  *
  * **Example** (Stub repository port)
  *
@@ -176,7 +232,10 @@ export interface SyncCursorRepositoryShape {
   ) => Effect.Effect<O.Option<DomainSyncCursor.SyncCursor>, SyncCursorRepositoryUnavailable>;
   readonly upsert: (
     seed: SyncCursorSeed
-  ) => Effect.Effect<DomainSyncCursor.SyncCursor, SyncCursorRepositoryUnavailable>;
+  ) => Effect.Effect<
+    DomainSyncCursor.SyncCursor,
+    SyncCursorRepositoryVersionConflict | SyncCursorRepositoryUnavailable
+  >;
 }
 
 /**

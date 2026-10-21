@@ -22,6 +22,9 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { SyncItemInsert, SyncItemRow } from "@beep/documents-tables/entities/SyncItem";
 
+// Optional on insert: the column's SQL default supplies the first version.
+const insertedRowVersion = (rowVersion: number | undefined): number => rowVersion ?? 1;
+
 const decodeUnknownSyncItem = S.decodeUnknownEffect(DomainSyncItem.SyncItem);
 
 const SyncItemEquivalence = S.toEquivalence(DomainSyncItem.SyncItem);
@@ -46,6 +49,7 @@ const syncItemRow = (insert: SyncItemInsert, id: number): SyncItemRow => ({
   ...insert,
   deletedAt: insert.deletedAt ?? null,
   deletedByPrincipal: insert.deletedByPrincipal ?? null,
+  rowVersion: insertedRowVersion(insert.rowVersion),
   id,
   contentDigest: absentAsNull(insert.contentDigest),
   contentSizeBytes: absentAsNull(insert.contentSizeBytes),

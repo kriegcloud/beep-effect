@@ -47,11 +47,13 @@ describe("SyncOperation entity", () => {
   it("wires SyncOperation to the documents identity", () => {
     expect(SyncOperation.SyncOperation.sql.tableName).toBe(DocumentsIdentity.SyncOperationId.tableName);
     expect(R.keys(SyncOperation.SyncOperation.insert.fields)).not.toContain("id");
-    expect(R.keys(SyncOperation.SyncOperation.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(SyncOperation.SyncOperation.insert.fields)).toContain("rowVersion");
     expect(R.keys(SyncOperation.SyncOperation.update.fields)).toContain("id");
     expect(R.keys(SyncOperation.SyncOperation.update.fields)).toContain("rowVersion");
     expect(R.keys(SyncOperation.SyncOperation.jsonCreate.fields)).toHaveLength(13);
-    expect(R.keys(SyncOperation.SyncOperation.jsonUpdate.fields)).toHaveLength(13);
+    expect(R.keys(SyncOperation.SyncOperation.jsonUpdate.fields)).toHaveLength(14);
+    expect(R.keys(SyncOperation.SyncOperation.jsonUpdate.fields)).toContain("rowVersion");
+    expect(R.keys(SyncOperation.SyncOperation.jsonCreate.fields)).not.toContain("rowVersion");
   });
 
   it.effect("decodes and encodes a full upload outbox row", () =>

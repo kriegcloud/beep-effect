@@ -12,7 +12,7 @@ import { Workspace } from "@beep/workspace-domain/entities/Workspace";
 import { DbSchema } from "@beep/workspace-tables";
 import { fromWorkspaceRow, toWorkspaceInsert } from "@beep/workspace-tables/entities/Workspace";
 import * as WorkspaceUseCases from "@beep/workspace-use-cases/server";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -209,7 +209,7 @@ export const makeDrizzleWorkspaceVaultStore = Effect.fn("Workspace.WorkspaceVaul
       } else {
         yield* db
           .update(workspaceTable)
-          .set({ vaultRootPath: input.vaultRootPath })
+          .set({ rowVersion: sql`${workspaceTable.rowVersion} + 1`, vaultRootPath: input.vaultRootPath })
           .where(eq(workspaceTable.id, id))
           .pipe(repositoryUnavailable("update Workspace vault root"), Effect.asVoid);
       }

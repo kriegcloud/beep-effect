@@ -410,7 +410,7 @@ describe("@beep/law-practice-domain", () => {
     expect(Matter.sql.tableName).toBe(LawPractice.MatterId.tableName);
     expect(LawPractice.MatterId.entityType).toBe("LawPracticeMatter");
     expect(R.keys(Matter.insert.fields)).not.toContain("id");
-    expect(R.keys(Matter.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(Matter.insert.fields)).toContain("rowVersion");
     expect(R.keys(Matter.update.fields)).toContain("id");
     expect(R.keys(Matter.update.fields)).toContain("rowVersion");
     expect(R.keys(Matter.jsonCreate.fields)).toEqual([
@@ -420,6 +420,7 @@ describe("@beep/law-practice-domain", () => {
       "matterType",
     ]);
     expect(R.keys(Matter.jsonUpdate.fields)).toEqual([
+      "rowVersion",
       "displayName",
       "fixtureKey",
       "legalClientFixtureKey",

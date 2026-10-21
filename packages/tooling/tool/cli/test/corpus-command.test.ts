@@ -944,7 +944,14 @@ const exerciseEvidenceMutations = (records: ReadonlyArray<TransformationLedgerRe
       expect(RT.transformationSegmentReconciles(summary.family, summary, A.reverse(records))).toBe(false);
       expect(RT.transformationSegmentReconciles(summary.family, summary, A.appendAll(records, records))).toBe(false);
       expect(
-        RT.transformationSegmentReconciles(summary.family, { ...summary, unapprovedCount: S.Natural.make(1) }, records)
+        RT.transformationSegmentReconciles(
+          summary.family,
+          TransformationLedgerRecord.cases["family-run-summary"].make({
+            ...summary,
+            unapprovedCount: S.Natural.make(1),
+          }),
+          records
+        )
       ).toBe(false);
       const variants: ReadonlyArray<ReadonlyArray<TransformationLedgerRecord>> = [
         records,
