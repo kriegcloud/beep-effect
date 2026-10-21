@@ -5,10 +5,21 @@ results are recorded in WORKING-STATE.md, cloud-proof.md and the dependency
 proof reports. Hosted, merged-revision and exact-ID closure receipts remain
 pending. Commands below are plans, not passing results by themselves.
 
-Nothing in this queue has executed. The operator holds verification, quality
-checks and publication until PR #1928 is confirmed merged. The parent owns
-main integration and must wait for source workers to hand off before changing
-Git state.
+## Current remaining work — 2026-10-21
+
+PR #1930 is published at parent-confirmed remote head `02b5bd3f47`.
+Eight Cloud fixes and all 123 captured Dependabot remediations have scoped
+receipts. The initial-head hosted coverage gap is repaired locally with 205 tests across
+15 files; retain the baselines, publish the consolidated next wave and follow exact-head checks,
+review threads and the review window through mergeability. Then merge,
+verify the merged revision, observe every exact external identity and record
+closure. Final reflection/lifecycle closeout stays pending until those results
+exist. No current external closure is claimed.
+
+## Historical pre-prerequisite plan
+
+The remaining command lists are retained as the original plan. Their execution
+results are recorded by the scoped reports, not asserted by this list.
 
 ## Integration first
 
@@ -61,6 +72,6 @@ reflection and completed-retained packet state through closeout.
   shared patched GLib with no vulnerable registry duplicate, targeted fixed
   rustls/serde_with versions, production-feature build and release-mode
   VariantStrIter regressions. Preserve licenses and upstream patch receipts.
-- After combined-PR merge: refresh all 104 captured alert IDs and GitHub graph
+- After combined-PR merge: refresh all 123 captured alert IDs and GitHub graph
   state. Record automatic fixed statuses or exact evidence-backed supported
   closure separately; no source draft is an alert-closure receipt.

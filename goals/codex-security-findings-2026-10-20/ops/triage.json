@@ -8,7 +8,7 @@
     "capturedCount": 8,
     "capturedAt": "2026-10-20",
     "captureMethod": "signed-in-csv-export",
-    "note": "PR1928 merged at426d494b3433;main integrated preserving recovery stash20619279. Runtime and package proof underway, no publication or Cloud closure yet."
+    "note": "PR #1928 merged at 426d494b3433; main integrated. PR #1930 remote head 02b5bd3f47 contains eight Cloud remediations with scoped proof and 123 Dependabot remediations. Coverage repair passed locally; consolidated publication and next-head hosted checks remain required. All captured Cloud statuses remain New; external closure requires merge and merged-revision proof."
   },
   "lanes": {
     "hub-auth": {
@@ -51,7 +51,7 @@
       "disposition": "remediate",
       "validation": {
         "status": "validated",
-        "rationale": "Cloud validation establishes the source-to-sink path and a cross-UID transport prerequisite, with no full hub exploit run. Current baseline source has only the login check. Runtime regression remains deferred. Full Cloud detail enrichment completed; final verdict and execution proof held until PR #1928 merges. After prerequisite merge, hub four suites/11 tests and canonical package audit passed. This proves application boundary regressions, not an end-to-end historical exploit."
+        "rationale": "Cloud validation establishes the source-to-sink path and a cross-UID transport prerequisite, with no full hub exploit run. Captured baseline source has only the login check. Full Cloud detail enrichment completed; the prerequisite hold was released after PR #1928 merged. After prerequisite merge, hub four suites/11 tests and canonical package audit passed. This proves application boundary regressions, not an end-to-end historical exploit."
       },
       "remediation": {
         "status": "implemented",
@@ -64,8 +64,10 @@
           "apps/practice-review-hub/test/Config.test.ts",
           "apps/practice-review-hub/test/CredentialConfig.test.ts"
         ],
-        "verificationCommands": [],
-        "summary": "Draft, not executed: Require a configured Redacted bearer credential on every request before trusting the allowed login; compare credentials in constant time. Update the unit and client provisioning instructions. Forged-login and wrong-token regressions are authored."
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/practice-review-hub"
+        ],
+        "summary": "Implemented with scoped proof recorded in PR #1930; parent-confirmed remote head 02b5bd3f47. Coverage repair passed locally; next-head hosted checks, merged-revision verification and exact-ID Cloud closure remain pending."
       },
       "ownerArea": "Review hub authentication",
       "lane": "hub-auth"
@@ -80,7 +82,7 @@
       "disposition": "remediate",
       "validation": {
         "status": "validated",
-        "rationale": "Cloud validation measures an isolated expensive discovery prefix and traces reviewer-PDF ingestion; full CLI timing is unmeasured. Current baseline discovery has no candidate-count bound. Full Cloud detail enrichment completed; final verdict and execution proof held until PR #1928 merges. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
+        "rationale": "Cloud validation measures an isolated expensive discovery prefix and traces reviewer-PDF ingestion; full CLI timing is unmeasured. Captured baseline discovery has no candidate-count bound. Full Cloud detail enrichment completed; the prerequisite hold was released after PR #1928 merged. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
       },
       "remediation": {
         "status": "implemented",
@@ -88,8 +90,10 @@
           "packages/drivers/pdf-tools/src/internal/structure.ts",
           "packages/drivers/pdf-tools/test/PdfTools.service.test.ts"
         ],
-        "verificationCommands": [],
-        "summary": "Implemented and focused regression verified on the working diff after main426d494b3433 integration; final committed/hosted/merged proof pending."
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/pdf-tools"
+        ],
+        "summary": "Implemented with scoped proof recorded in PR #1930; parent-confirmed remote head 02b5bd3f47. Coverage repair passed locally; next-head hosted checks, merged-revision verification and exact-ID Cloud closure remain pending."
       },
       "ownerArea": "PDF structure inspection",
       "lane": "pdf-discovery",
@@ -111,7 +115,7 @@
       "disposition": "remediate",
       "validation": {
         "status": "validated",
-        "rationale": "Cloud evidence confirms compressed-byte admission and post-extraction truncation; auxiliary XML amplification is reproduced, with production Mammoth exhaustion unmeasured. Limits are drafted at the shared driver boundary, covering direct callers too. Full Cloud detail enrichment completed; final verdict and execution proof held until PR #1928 merges. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
+        "rationale": "Cloud evidence confirms compressed-byte admission and post-extraction truncation; auxiliary XML amplification is reproduced, with production Mammoth exhaustion unmeasured. Limits are implemented at the shared driver boundary, covering direct callers too. Full Cloud detail enrichment completed; the prerequisite hold was released after PR #1928 merged. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
       },
       "remediation": {
         "status": "implemented",
@@ -120,8 +124,10 @@
           "packages/drivers/doc-text/package.json",
           "packages/drivers/doc-text/test/DocText.service.test.ts"
         ],
-        "verificationCommands": [],
-        "summary": "Implemented and focused regression verified on the working diff after main426d494b3433 integration; final committed/hosted/merged proof pending."
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/doc-text"
+        ],
+        "summary": "Implemented with scoped proof recorded in PR #1930; parent-confirmed remote head 02b5bd3f47. Coverage repair passed locally; next-head hosted checks, merged-revision verification and exact-ID Cloud closure remain pending."
       },
       "ownerArea": "DOCX extraction driver",
       "lane": "docx-bounds",
@@ -143,13 +149,15 @@
       "disposition": "remediate",
       "validation": {
         "status": "validated",
-        "rationale": "Cloud analysis confirms an operational regression and explicitly does not establish an attacker-triggered security vulnerability. The defect is still remediated; no accepted-risk disposition is used. Full Cloud detail enrichment completed; final verdict and execution proof held until PR #1928 merges. After prerequisite merge, hub four suites/11 tests and canonical package audit passed. This proves application boundary regressions, not an end-to-end historical exploit."
+        "rationale": "Cloud analysis confirms an operational regression and explicitly does not establish an attacker-triggered security vulnerability. The defect is still remediated; no accepted-risk disposition is used. Full Cloud detail enrichment completed; the prerequisite hold was released after PR #1928 merged. After prerequisite merge, hub four suites/11 tests and canonical package audit passed. This proves application boundary regressions, not an end-to-end historical exploit."
       },
       "remediation": {
         "status": "implemented",
         "changedFiles": ["docs/runbooks/practice-review-hub.md"],
-        "verificationCommands": [],
-        "summary": "Draft, not executed: Use the selected hub HTTPS port for removal, show 8787 in matching examples, and require inspection of existing listeners. No live Tailscale mutation is required."
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/practice-review-hub"
+        ],
+        "summary": "Runbook uses the selected HTTPS listener, matching 8787 examples, protects other listeners and keeps pre-authentication rollback code stopped. Source review and shared hub package proof recorded in PR #1930; no live Tailscale mutation. Merge and exact-ID Cloud closure remain pending."
       },
       "ownerArea": "Review hub operational runbook",
       "lane": "hub-auth"
@@ -164,7 +172,7 @@
       "disposition": "remediate",
       "validation": {
         "status": "validated",
-        "rationale": "Cloud evidence confirms the unbounded-read defect but does not establish an in-scope lower-privileged attacker intake. Current baseline source performs the full read; runtime proof is deferred. Full Cloud detail enrichment completed; final verdict and execution proof held until PR #1928 merges. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
+        "rationale": "Cloud evidence confirms the unbounded-read defect but does not establish an in-scope lower-privileged attacker intake. Captured baseline source performs the full read; scoped runtime proof is recorded below. Full Cloud detail enrichment completed; the prerequisite hold was released after PR #1928 merged. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
       },
       "remediation": {
         "status": "implemented",
@@ -172,8 +180,10 @@
           "packages/tooling/library/ai-metrics/src/config-snapshot.ts",
           "packages/tooling/library/ai-metrics/test/config-snapshot-bounds.test.ts"
         ],
-        "verificationCommands": [],
-        "summary": "Implemented and focused regression verified on the working diff after main426d494b3433 integration; final committed/hosted/merged proof pending."
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/repo-ai-metrics"
+        ],
+        "summary": "Implemented with scoped proof recorded in PR #1930; parent-confirmed remote head 02b5bd3f47. Coverage repair passed locally; next-head hosted checks, merged-revision verification and exact-ID Cloud closure remain pending."
       },
       "ownerArea": "AI metrics snapshot metadata",
       "lane": "snapshot-bounds",
@@ -195,7 +205,7 @@
       "disposition": "remediate",
       "validation": {
         "status": "validated",
-        "rationale": "Cloud validation is explicitly inconclusive about automatic export. Installed and reference Effect source show header capture is opt-in and default redaction omits this custom header. Treat the change as defense in depth; no historical credential disclosure or unauthorized collector reader is claimed. Full Cloud detail enrichment completed; final verdict and execution proof held until PR #1928 merges. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
+        "rationale": "Cloud validation is explicitly inconclusive about automatic export. Installed and reference Effect source show header capture is opt-in and default redaction omits this custom header. Treat the change as defense in depth; no historical credential disclosure or unauthorized collector reader is claimed. Full Cloud detail enrichment completed; the prerequisite hold was released after PR #1928 merged. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
       },
       "remediation": {
         "status": "implemented",
@@ -203,8 +213,13 @@
           "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
           "packages/tooling/tool/cli/test/accounts-usage.test.ts"
         ],
-        "verificationCommands": [],
-        "summary": "Implemented and focused regression verified on the working diff after main426d494b3433 integration; final committed/hosted/merged proof pending."
+        "verificationCommands": [
+          "bunx --bun --no-install vitest run test/accounts-usage.test.ts (from packages/tooling/tool/cli)",
+          "bun run beep:lint (from packages/tooling/tool/cli)",
+          "bun run beep:check (from packages/tooling/tool/cli)",
+          "bun run docgen (from packages/tooling/tool/cli)"
+        ],
+        "summary": "Implemented with scoped proof recorded in PR #1930; parent-confirmed remote head 02b5bd3f47. Coverage repair passed locally; next-head hosted checks, merged-revision verification and exact-ID Cloud closure remain pending."
       },
       "ownerArea": "Accounts HTTP telemetry",
       "lane": "credential-redaction",
@@ -226,7 +241,7 @@
       "disposition": "remediate",
       "validation": {
         "status": "validated",
-        "rationale": "Cloud evidence measures the exact regex and traces valid inbox state to the reducer; the complete CLI attack was not executed. In-scope external inbox delivery remains unestablished. Full Cloud detail enrichment completed; final verdict and execution proof held until PR #1928 merges. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
+        "rationale": "Cloud evidence measures the exact regex and traces valid inbox state to the reducer; the complete CLI attack was not executed. In-scope external inbox delivery remains unestablished. Full Cloud detail enrichment completed; the prerequisite hold was released after PR #1928 merged. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
       },
       "remediation": {
         "status": "implemented",
@@ -234,8 +249,10 @@
           "packages/tooling/library/palantiri/src/Redaction.ts",
           "packages/tooling/library/palantiri/test/Redaction.test.ts"
         ],
-        "verificationCommands": [],
-        "summary": "Implemented and focused regression verified on the working diff after main426d494b3433 integration; final committed/hosted/merged proof pending."
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/palantiri"
+        ],
+        "summary": "Implemented with scoped proof recorded in PR #1930; parent-confirmed remote head 02b5bd3f47. Coverage repair passed locally; next-head hosted checks, merged-revision verification and exact-ID Cloud closure remain pending."
       },
       "ownerArea": "Parcel text redaction",
       "lane": "redaction-bounds",
@@ -257,7 +274,7 @@
       "disposition": "remediate",
       "validation": {
         "status": "validated",
-        "rationale": "Cloud validation confirms the recurrence with isolated memory exhaustion and traces the exported checker, while no production caller accepting lower-trust claims is established. Current baseline source has no expansion budget. Full Cloud detail enrichment completed; final verdict and execution proof held until PR #1928 merges. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
+        "rationale": "Cloud validation confirms the recurrence with isolated memory exhaustion and traces the exported checker, while no production caller accepting lower-trust claims is established. Captured baseline source has no expansion budget. Full Cloud detail enrichment completed; the prerequisite hold was released after PR #1928 merged. Post-main integration: focused regression suite passed; see research/cloud-proof.md for boundaries and introduced failures repaired."
       },
       "remediation": {
         "status": "implemented",
@@ -265,8 +282,10 @@
           "packages/law-practice/domain/src/values/ClaimElement/Antecedent.policy.ts",
           "packages/law-practice/domain/test/ClaimElement.rules.test.ts"
         ],
-        "verificationCommands": [],
-        "summary": "Implemented and focused regression verified on the working diff after main426d494b3433 integration; final committed/hosted/merged proof pending."
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/law-practice-domain"
+        ],
+        "summary": "Implemented with scoped proof recorded in PR #1930; parent-confirmed remote head 02b5bd3f47. Coverage repair passed locally; next-head hosted checks, merged-revision verification and exact-ID Cloud closure remain pending."
       },
       "ownerArea": "Claim antecedent dependency traversal",
       "lane": "claim-work-budget",

@@ -10,6 +10,7 @@ import * as Equal from "effect/Equal";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { failureFixtures, ruleFixtures } from "./claimElementFixtures.ts";
+import type { PatentClaims } from "@beep/law-practice-domain/values/PatentDocument";
 
 const segmentSample = Arbitrary.all({
   determiner: Arbitrary.schema(S.Literals(["a", "an", "the", "said", "at least one", "a plurality of"])),
@@ -66,6 +67,55 @@ describe("ClaimElement rules", () => {
       assert.deepStrictEqual(antecedentPolicy([tree], claims), findings);
     })
   );
+
+  for (const fixture of [
+    { label: "missing parent path copies", parentCount: 128, includeParents: false },
+    { label: "resolved parent path copies", parentCount: 128, includeParents: true },
+    { label: "accumulated advisory copies", parentCount: 90, includeParents: false },
+  ]) {
+    it.effect(`abstains when ${fixture.label} exhaust the shared work budget`, () =>
+      Effect.gen(function* () {
+        const evaluate = Effect.fn("ClaimElementRulesTest.evaluateWideDependencies")(function* (parentCount: number) {
+          const parents = A.map(A.range(1, parentCount), (claimNumber) =>
+            PatentClaim.cases.independent.make({
+              claimNumber,
+              claimText: "A system comprising a sensor.",
+              preamble: "A system",
+              transition: "comprising",
+              body: "a sensor.",
+            })
+          );
+          const claim = PatentClaim.cases.dependent.make({
+            claimNumber: parentCount + 1,
+            claimReferences: A.range(1, parentCount),
+            claimText: `The system of claims 1 through ${parentCount} wherein the sensor operates.`,
+            preamble: `The system of claims 1 through ${parentCount}`,
+            transition: "wherein",
+            body: "the sensor operates.",
+          });
+          const context = A.append(parents, claim);
+          const tree = yield* decomposeClaim(claim, context);
+          // A partial policy input is legitimate: unavailable parents must
+          // produce semantic advisories until bounded enumeration is exhausted.
+          const claims: PatentClaims = fixture.includeParents ? context : [claim];
+          return { findings: antecedentPolicy([tree], claims), tree, claims };
+        });
+        const control = yield* evaluate(2);
+        assert.isTrue(A.isReadonlyArrayNonEmpty(control.findings));
+        assert.isTrue(
+          A.every(control.findings, ({ kind, rule }) => kind === "pattern-not-covered" && rule !== "chain-work-limit")
+        );
+        const bounded = yield* evaluate(fixture.parentCount);
+        assert.isTrue(A.isReadonlyArrayNonEmpty(bounded.findings));
+        assert.isTrue(
+          A.every(bounded.findings, ({ kind, rule }) => kind === "pattern-not-covered" && rule === "chain-work-limit")
+        );
+        // Repeating the call must allocate a fresh budget and produce the same
+        // abstention, with no partial chain-specific advisories leaking out.
+        assert.deepStrictEqual(antecedentPolicy([bounded.tree], bounded.claims), bounded.findings);
+      })
+    );
+  }
 
   it.effect("caps dependency depth while preserving a resolvable linear-chain control", () =>
     Effect.gen(function* () {

@@ -1,6 +1,10 @@
 # Dependabot inventory and prior-packet comparison
 
-Authenticated GitHub API capture: 104 open alerts, 50 unique advisories.
+Current scope: 123 captured alerts, 63 unique advisories; all remain externally
+unclosed by this lane. PR #1930 at parent-confirmed remote head `02b5bd3f47`
+contains their scoped remediations. See the post-publication refresh below.
+
+Historical initial capture: 104 open alerts, 50 unique advisories.
 Reviewed default-branch revision: `8086a42233ab3eab7265c8deb7a6f3816686d445`.
 The complete exact alert allowlist is `../ops/dependabot.json`. No alert status
 was changed during capture or draft remediation.
@@ -40,9 +44,9 @@ addressed related code. Historical packet overlap by affected surface and the
 known GTK/GLib constraint is recorded in the lane reports. Live alert records
 and current default-branch dependencies supersede historical completion claims.
 
-All draft changes ship in the same PR as the eight Cloud fixes. After #1928
-merges, integrate main, regenerate affected locks with supported tooling, run
-focused proof and package checks, and publish through Yeet. After the combined
+All changes ship in PR #1930 with the eight Cloud fixes. The prerequisite
+merged; supported lock regeneration, scoped proof and publication are recorded
+in the lane reports. After the combined
 PR merges, refresh every captured alert: retain automatic-fixed evidence, or
 record a source-backed supported disposition for any remaining graph alert.
 Do not mark the vendored GLib fix as an upstream version upgrade or claim that
@@ -57,11 +61,13 @@ are three new Vite advisories across the same historical fixture paths; alerts
 The existing fixture representation covers the nine historical-input alerts.
 Pillow 13.0.0 and certifi 2026.10.19 are the reported fixed floors; compatibility,
 resolution and execution proof are required before the next single-PR wave.
-PR #1930 remains draft while this work is in progress. No statuses changed.
+The added-alert source/proof wave is published in PR #1930. Hosted checks
+and publication of the locally passing coverage-test repair remain unfinished. No statuses changed.
 
 The added Python advisory wave now has supported lock updates and passing
 default/CPU/ROCm, codec round-trip and certificate trust-store proof; see the
 Python report. Current inventory: 103 fixture alerts, 16 Python alerts and four
 Rust alerts, over 63 unique advisories. Hosted IPC exposed warning visibility
-in the path-patched GLib dependency; source warning fixes and CI reproduction
-are in progress without changing the warning-denial policy.
+in the path-patched GLib dependency; source warning fixes and strict CI-policy reproduction
+passed without changing warning denial; see the Rust report. Hosted final-head
+proof and post-merge graph/closure reads remain required.

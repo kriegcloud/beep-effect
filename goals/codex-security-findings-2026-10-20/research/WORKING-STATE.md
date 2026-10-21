@@ -1,5 +1,41 @@
 # Working state
 
+## Current handoff — 2026-10-21
+
+PR [#1930](https://github.com/beep-effect/beep-effect/pull/1930) is published; the parent-confirmed remote head is
+`02b5bd3f47`. It contains the eight Cloud remediations and scoped remediation for
+all 123 captured Dependabot alerts. PR #1928 merged at
+`426d494b3433ccddf797a2d896984f1ad23c81ad`; its execution hold is released.
+Focused regressions, dependency/runtime proof and affected package receipts
+are recorded in `research/`. Hosted checks and review remain in progress.
+The initial-head coverage gap now has additional tests and passing local proof
+(205 tests across 15 files); see `research/law-practice-coverage-proof.md`.
+Coverage baselines and security controls remain unchanged. The consolidated
+repair still requires publication and exact-next-head hosted proof.
+
+No Cloud or Dependabot status has been changed. Merge, merged-revision proof
+and exact-ID external closure remain mandatory; lifecycle stays `active`.
+
+Existing readiness monitor: `5a634b17-4a8e-4ce2-a99c-079e7ba96907`;
+parent owns monitoring and publication. Do not start a duplicate monitor.
+The original prerequisite heartbeat was removed after successful resume.
+
+Initial-head source failures (strict Rust warnings, Heavy Check test diagnostics
+and hub codec lint) have local repairs and receipts. Labs has a known hook
+flake attribution plus a 14-test local pass; the new head still needs hosted
+proof. The hosted coverage gap is repaired locally with 205 passing tests across
+15 files; `law-practice-coverage-proof.md` records 100% policy branches,
+99.2% lines and 99.3% statements. Publication and hosted rerun remain required.
+No coverage baseline was lowered.
+
+Proof sources: `cloud-proof.md`, `cli-package-proof.md`,
+`dependabot-fixtures-proof.md`, `dependabot-python.md`, `dependabot-rust.md`,
+`hosted-ci.md`, `hosted-check-test-repair.md`, and
+`labs-timeout-attribution.md`. Historical entries below retain their actual
+state at authoring time and are superseded by this current handoff.
+
+## Historical execution ledger
+
 Branch: `codex/security-findings-2026-10-20`.
 Baseline: `8086a42233`.
 Dependency resolved: PR #1928 merged on 2026-10-21 at 02:59:55 UTC.

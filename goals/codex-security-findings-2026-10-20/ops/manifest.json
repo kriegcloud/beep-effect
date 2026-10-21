@@ -17,7 +17,7 @@
     "operator": "yeet",
     "requiresPullRequest": true,
     "requiresMergeable": true,
-    "statement": "One combined Yeet PR merged through repository gates; exact eight Cloud IDs and123 Dependabot alert IDs resolved with merged-revision evidence.",
+    "statement": "One combined Yeet PR merged through repository gates; exact eight Cloud IDs and 123 Dependabot alert IDs resolved with merged-revision evidence.",
     "grandfathered": false
   },
   "branch": "codex/security-findings-2026-10-20",
@@ -39,7 +39,13 @@
     "research/cloud-proof.md",
     "research/cheap-gate-triage.md",
     "research/independent-security-review.md",
-    "research/dependabot-fixtures-proof.md"
+    "research/dependabot-fixtures-proof.md",
+    "research/cli-package-proof.md",
+    "research/hosted-ci.md",
+    "research/hosted-check-test-repair.md",
+    "research/labs-timeout-attribution.md",
+    "research/packet-state-reconciliation.md",
+    "research/law-practice-coverage-proof.md"
   ],
   "agentLaunchers": [
     {
@@ -74,7 +80,7 @@
       "out-of-scope": 0,
       "untriaged": 0
     },
-    "note": "All eight assigned for remediation, with full Cloud detail evidence. Drafts remain unverified under the operator hold."
+    "note": "All eight full Cloud details are validated, assigned and implemented with scoped proof. PR #1930 is published; hosted coverage repair, next-head checks, merge and exact-ID external closure remain pending."
   },
   "closeoutPolicy": {
     "fixed": "Fixed",
@@ -110,32 +116,32 @@
     {
       "id": "P2",
       "name": "Validate",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Lane partition",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Remediate",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P5",
       "name": "Repo proof",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P6",
       "name": "Publish",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P7",
       "name": "Monitor",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P8",
@@ -163,5 +169,5 @@
     "A remediation requires an architecture or product decision outside packet scope.",
     "The same blocker repeats after reasonable investigation."
   ],
-  "statusNote": "PR #1930 added-alert wave is content-final: all 123 captured Dependabot alerts have scoped remediation/proof, strict Rust warning repair passed, and eight Cloud fixes passed scoped proof. Publication, hosted checks/review, merge and exact-ID closure remain required."
+  "statusNote": "PR #1930 published at parent-confirmed remote head 02b5bd3f47 with eight Cloud fixes and scoped remediation/proof for 123 captured Dependabot alerts. Initial-head coverage repair passed locally (205 tests/15 files), with unchanged baselines; consolidated publication remains required. Next-head hosted checks/review, merge, merged-revision proof and exact-ID closure remain required; lifecycle stays active."
 }

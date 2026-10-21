@@ -16,14 +16,14 @@ auth values, email addresses, and raw local paths.
 
 | ID | Severity | Status | Title | Owner area |
 | --- | --- | --- | --- | --- |
-| [CSF-001](./CSF-001.md) | Low | draft; unverified | Local clients can forge the review hub's Tailscale identity | Review hub authentication |
-| [CSF-002](./CSF-002.md) | Low | draft; unverified | PDF stream discovery enables CPU denial of service | PDF structure inspection |
-| [CSF-003](./CSF-003.md) | Low | draft; unverified | Box DOCX extraction permits decompression\-based denial of service | DOCX extraction driver |
-| [CSF-004](./CSF-004.md) | Informational | draft; unverified | Hub removal still disables HTTPS 443 after migration to 8787 | Review hub operational runbook |
-| [CSF-005](./CSF-005.md) | Informational | draft; unverified | Unbounded \.git probe bypasses snapshot memory limits | AI metrics snapshot metadata |
-| [CSF-006](./CSF-006.md) | Informational | draft; unverified | Palantiri telemetry may disclose Junie authentication JWTs | Accounts HTTP telemetry |
-| [CSF-007](./CSF-007.md) | Informational | draft; unverified | Quadratic email redaction can stall parcel reads | Parcel text redaction |
-| [CSF-008](./CSF-008.md) | Informational | draft; unverified | Unbounded claim\-chain expansion permits denial of service | Claim antecedent dependency traversal |
+| [CSF-001](./CSF-001.md) | Low | implemented; scoped proof; closure pending | Local clients can forge the review hub's Tailscale identity | Review hub authentication |
+| [CSF-002](./CSF-002.md) | Low | implemented; scoped proof; closure pending | PDF stream discovery enables CPU denial of service | PDF structure inspection |
+| [CSF-003](./CSF-003.md) | Low | implemented; scoped proof; closure pending | Box DOCX extraction permits decompression\-based denial of service | DOCX extraction driver |
+| [CSF-004](./CSF-004.md) | Informational | implemented; scoped proof; closure pending | Hub removal still disables HTTPS 443 after migration to 8787 | Review hub operational runbook |
+| [CSF-005](./CSF-005.md) | Informational | implemented; scoped proof; closure pending | Unbounded \.git probe bypasses snapshot memory limits | AI metrics snapshot metadata |
+| [CSF-006](./CSF-006.md) | Informational | implemented; scoped proof; closure pending | Palantiri telemetry may disclose Junie authentication JWTs | Accounts HTTP telemetry |
+| [CSF-007](./CSF-007.md) | Informational | implemented; scoped proof; closure pending | Quadratic email redaction can stall parcel reads | Parcel text redaction |
+| [CSF-008](./CSF-008.md) | Informational | implemented; scoped proof; closure pending | Unbounded claim\-chain expansion permits denial of service | Claim antecedent dependency traversal |
 
 ## Closeout Mapping
 
@@ -33,3 +33,11 @@ auth values, email addresses, and raw local paths.
 - Before P2 verdicts, obtain Validation, Evidence, and Attack-path analysis from each finding detail.
 - Record missing detail evidence explicitly and hold unsupported verdicts; the CSV contains Summary only.
 - Accepted risk / `Won't fix` does not satisfy this packet's completion gate.
+
+## Current execution state
+
+Full Validation, Evidence and Attack-path detail enrichment is complete for all
+eight records. The remediation is published in PR #1930; scoped proof receipts
+retain their execution revision and limits. Hosted coverage repair/next-head
+checks, merge and exact-ID closure remain open. The status column describes
+local remediation, and does not change the captured Cloud status `New`.

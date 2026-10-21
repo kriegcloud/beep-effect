@@ -56,7 +56,7 @@ fixture location alone does not establish an invalid alert.
 
 ## Acceptance Criteria
 
-- [ ] All 104 captured Dependabot alerts have a source-backed disposition,
+- [ ] All 123 captured Dependabot alerts have a source-backed disposition,
       remediation and merged-revision dependency-graph or closure evidence.
 - [ ] The Cloud fixes and Dependabot remediation ship in the same PR.
 
@@ -162,3 +162,13 @@ fixture location alone does not establish an invalid alert.
   passes; no workspace-wide diagnostic setting changed. Added the normal
   dual overloads to the two-argument layer factory and rewrote the JSON
   codec test in pipe form without changing authentication behavior.
+
+- 2026-10-21: Reconcile the published packet to PR #1930 and parent-confirmed
+  remote head `02b5bd3f47`. Scoped remediation covers eight Cloud IDs and 123
+  Dependabot IDs; initial hosted coverage repair passed locally without baseline
+  lowering and awaits consolidated publication. Retain `active` lifecycle and the interim same-PR reflection because
+  merge, merged-revision proof and external closure are acceptance criteria.
+  Final reflection/addendum and `completed-retained` flip must accompany actual
+  completion evidence; the same-PR documentation convention cannot justify a
+  prospective claim. Reversal is a packet-only documentation revert, preserving
+  exact captured identities and historical receipts.

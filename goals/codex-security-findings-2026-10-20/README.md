@@ -32,11 +32,22 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P2 validate` / draft remediation: all eight full reports are captured, source
-analysis is recorded, and remediation ownership is assigned. Draft changes and
-regressions exist for all eight findings. Verification, quality checks and
-publication are held until PR #1928 merges; then merge main into this branch
-before executing proof. See `research/WORKING-STATE.md` for the handoff.
+PR [#1930](https://github.com/beep-effect/beep-effect/pull/1930) is published; the parent-confirmed remote head is
+`02b5bd3f47`. It contains the eight Cloud remediations and scoped remediation for
+all 123 captured Dependabot alerts. PR #1928 merged at
+`426d494b3433ccddf797a2d896984f1ad23c81ad`; its execution hold is released.
+Focused regressions, dependency/runtime proof and affected package receipts
+are recorded in `research/`. Hosted checks and review remain in progress.
+The initial-head coverage gap now has additional tests and passing local proof
+(205 tests across 15 files); see `research/law-practice-coverage-proof.md`.
+Coverage baselines and security controls remain unchanged. The consolidated
+repair still requires publication and exact-next-head hosted proof.
+
+No Cloud or Dependabot status has been changed. Merge, merged-revision proof
+and exact-ID external closure remain mandatory; lifecycle stays `active`.
+
+See `research/WORKING-STATE.md` and `research/hosted-ci.md` for evidence and
+active ownership.
 
 ## Findings at a glance
 
@@ -56,4 +67,15 @@ The same single PR also covers all 123 captured open GitHub Dependabot alerts
 (63 unique advisories after the post-publication refresh). See `ops/dependabot.json` for exact identities and
 `research/DEPENDABOT.md` for triage/history, with separate fixture, Python and
 Rust reports. The original eight-item Cloud manifest remains unchanged.
-Verification, lock regeneration and publication are held until #1928 merges.
+Scoped remediation and proof are published in PR #1930. External closure remains
+post-merge and exact-ID bound. See the lane reports for runtime and scanner limits.
+
+## Lifecycle and reflection boundary
+
+The same-PR reflection is retained at
+`history/reflections/2026-10-21-codex.md` as an interim `todo-codify` record.
+It does not declare completion. Final reflection and `completed-retained`
+status require the actual merge, merged-revision verification and exact-ID
+closure receipts; those acceptance criteria cannot truthfully be pre-recorded.
+Record the post-merge closeout addendum and status flip together when those
+criteria are met, following the governing goal workflow.
