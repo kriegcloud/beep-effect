@@ -13,8 +13,15 @@
 // when the effective policy differs) -> turn/start -> wait for the turn/completed notification on this
 // same connection (the app-server only streams turn events to the connection that started or resumed
 // the thread) -> print one JSON line with the last agentMessage text. thread/read is the fallback when
-// the notification is missed. Notifications are echoed to stderr. The bearer token is read from the
-// named environment variable only; it never appears in argv or output.
+// the notification is missed. Every RPC is bounded by the remaining `--timeout-ms` budget and fails
+// when the socket closes. If the turn this client started is still running when the budget runs out,
+// or when any later step fails, the client sends turn/interrupt before exiting, so a timed-out ask never
+// leaves a turn running under `approvalPolicy: never` on the remote machine. Notifications are echoed to
+// stderr. The bearer token is read from the named environment variable only; it never appears in argv or
+// output.
+//
+// Exit codes: 0 completed; 3 timeout (turn interrupted); 4 RPC or protocol error; 5 socket error;
+// 6 socket closed; 7 effective policy differs from the requested one; 8 turn ended without completing.
 const argv = Bun.argv.slice(2);
 const opt = (name: string, dflt?: string) => {
   const i = argv.indexOf(name);
@@ -39,6 +46,7 @@ const text = opt("--text");
 const sandbox = opt("--sandbox", "read-only")!;
 const approvalPolicy = opt("--approval", "never")!;
 const timeoutMs = Number(opt("--timeout-ms", "180000"));
+const interruptGraceMs = 5000;
 const token = process.env[tokenEnv];
 if (!token) {
   console.error(`env ${tokenEnv} is empty`);
@@ -53,18 +61,44 @@ if (!threadId && !isNew) {
   process.exit(2);
 }
 const err = (o: unknown) => console.error(`${new Date().toISOString()} ${JSON.stringify(o)}`);
+const deadline = Date.now() + timeoutMs;
+const remaining = () => Math.max(0, deadline - Date.now());
 const ws = new WebSocket(url, { headers: { Authorization: `Bearer ${token}` } } as any);
-const waiters = new Map<number, (m: any) => void>();
+type Waiter = {
+  method: string;
+  resolve: (m: any) => void;
+  reject: (e: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
+};
+const waiters = new Map<number, Waiter>();
 let nextId = 1;
-let watchTurnId: string | null = null;
+let socketOpen = false;
+let startedTurn: { threadId: string; turnId: string } | null = null;
 let completedTurn: any = null;
 const agentMessages: string[] = [];
-const call = (method: string, params?: unknown) =>
+// Bounded JSON-RPC call: rejects when the budget runs out or the socket closes.
+const call = (method: string, params?: unknown, budgetMs = remaining()) =>
   new Promise<any>((resolve, reject) => {
+    if (!socketOpen) {
+      reject(new Error(`${method}: socket is closed`));
+      return;
+    }
     const id = nextId++;
-    waiters.set(id, (m) => (m.error ? reject(new Error(`${method}: ${JSON.stringify(m.error)}`)) : resolve(m.result)));
+    const timer = setTimeout(() => {
+      waiters.delete(id);
+      reject(new Error(`${method}: no response within ${budgetMs} ms`));
+    }, budgetMs);
+    waiters.set(id, { method, resolve, reject, timer });
     ws.send(JSON.stringify({ id, method, params }));
   });
+const settle = (id: number, m: any) => {
+  const w = waiters.get(id);
+  if (!w) return;
+  waiters.delete(id);
+  clearTimeout(w.timer);
+  if (m.error) w.reject(new Error(`${w.method}: ${JSON.stringify(m.error)}`));
+  else w.resolve(m.result);
+};
 ws.addEventListener("message", (ev) => {
   let m: any;
   try {
@@ -73,39 +107,69 @@ ws.addEventListener("message", (ev) => {
     return;
   }
   if (m.id !== undefined && waiters.has(m.id)) {
-    const w = waiters.get(m.id)!;
-    waiters.delete(m.id);
-    w(m);
+    settle(m.id, m);
     return;
   }
   if (!m.method) return;
   if (!/delta|tokenUsage|startupStatus/.test(m.method)) err({ notification: m.method, params: m.params });
   const p = m.params ?? {};
-  if (m.method === "item/completed" && p.turnId === watchTurnId && p.item?.type === "agentMessage")
+  if (m.method === "item/completed" && p.turnId === startedTurn?.turnId && p.item?.type === "agentMessage")
     agentMessages.push(p.item.text ?? JSON.stringify(p.item.content));
-  if (m.method === "turn/completed" && p.turn?.id === watchTurnId) completedTurn = p.turn;
+  if (m.method === "turn/completed" && p.turn?.id === startedTurn?.turnId) completedTurn = p.turn;
 });
 ws.addEventListener("error", (e: any) => {
   err({ wsError: String(e?.message ?? e) });
   process.exit(5);
 });
+ws.addEventListener("close", (e: any) => {
+  socketOpen = false;
+  for (const [id, w] of waiters) {
+    waiters.delete(id);
+    clearTimeout(w.timer);
+    w.reject(new Error(`${w.method}: socket closed (${e.code})`));
+  }
+});
 await new Promise<void>((res, rej) => {
-  ws.addEventListener("open", () => res());
-  ws.addEventListener("close", (e: any) => rej(new Error(`closed before open: ${e.code}`)));
+  const t = setTimeout(() => rej(new Error("open: no connection within budget")), remaining());
+  ws.addEventListener("open", () => {
+    clearTimeout(t);
+    socketOpen = true;
+    res();
+  });
+  ws.addEventListener("close", (e: any) => {
+    clearTimeout(t);
+    rej(new Error(`closed before open: ${e.code}`));
+  });
 }).catch((e) => {
   err({ error: String(e) });
   process.exit(6);
 });
-const deadline = Date.now() + timeoutMs;
 const statusWord = (s: any) => (typeof s === "string" ? s : (s?.type ?? JSON.stringify(s)));
 const expectSandbox: Record<string, string> = {
   "read-only": "readOnly",
   "workspace-write": "workspaceWrite",
   "danger-full-access": "dangerFullAccess",
 };
+// Never leave the turn this client started running on the remote machine.
+const interruptStartedTurn = async (reason: string) => {
+  if (!startedTurn || completedTurn || !socketOpen) return;
+  try {
+    await call("turn/interrupt", { threadId: startedTurn.threadId, turnId: startedTurn.turnId }, interruptGraceMs);
+    err({ interrupted: { ...startedTurn, reason } });
+  } catch (e) {
+    err({ interruptFailed: { ...startedTurn, reason, error: String(e) } });
+  }
+};
+const exitWith = async (code: number, reason: string) => {
+  await interruptStartedTurn(reason);
+  try {
+    ws.close();
+  } catch {}
+  process.exit(code);
+};
 try {
   const init = await call("initialize", {
-    clientInfo: { name: "beep_bridge_ask", title: "beep bridge ask", version: "0.0.2" },
+    clientInfo: { name: "beep_bridge_ask", title: "beep bridge ask", version: "0.0.3" },
   });
   ws.send(JSON.stringify({ method: "initialized" }));
   err({ initialized: { userAgent: init.userAgent, platformOs: init.platformOs } });
@@ -118,27 +182,24 @@ try {
   const effApproval = statusWord(opened.approvalPolicy);
   if (effApproval !== approvalPolicy || effSandbox !== expectSandbox[sandbox]) {
     err({ policyMismatch: { requested: policy, effective: { approvalPolicy: effApproval, sandbox: effSandbox } } });
-    process.exit(7); // fail closed: never run a turn under a wider policy than requested
+    await exitWith(7, "policy mismatch"); // fail closed: never run a turn under a wider policy than requested
   }
   if (name) await call("thread/name/set", { threadId: tid, name });
   const started = await call("turn/start", { threadId: tid, input: [{ type: "text", text }] });
-  const turnId: string = started.turn.id;
-  watchTurnId = turnId;
-  err({
-    turnStarted: { threadId: tid, turnId, model: opened.model, approvalPolicy: effApproval, sandbox: effSandbox },
-  });
+  startedTurn = { threadId: tid, turnId: started.turn.id };
+  err({ turnStarted: { ...startedTurn, model: opened.model, approvalPolicy: effApproval, sandbox: effSandbox } });
   let last: any = null;
-  while (Date.now() < deadline) {
+  while (remaining() > 0 && socketOpen) {
     if (completedTurn) {
       last = completedTurn;
       break;
     }
-    await Bun.sleep(1000);
+    await Bun.sleep(Math.min(1000, remaining()));
   }
-  if (!last) {
+  if (!last && socketOpen && remaining() > 0) {
     // notification missed: fall back to reading the thread
     const read = await call("thread/read", { threadId: tid, includeTurns: true });
-    const turn = (read.thread.turns ?? []).find((t: any) => t.id === turnId);
+    const turn = (read.thread.turns ?? []).find((t: any) => t.id === startedTurn!.turnId);
     if (turn && statusWord(turn.status) !== "inProgress") {
       last = turn;
       for (const it of turn.items ?? [])
@@ -146,8 +207,9 @@ try {
     }
   }
   if (!last) {
-    err({ timeout: timeoutMs, threadId: tid, turnId });
-    process.exit(3);
+    if (!socketOpen) throw new Error("socket closed while the turn was running");
+    err({ timeout: timeoutMs, ...startedTurn });
+    await exitWith(3, "client timeout");
   }
   const replies =
     agentMessages.length > 0
@@ -158,7 +220,7 @@ try {
   console.log(
     JSON.stringify({
       threadId: tid,
-      turnId,
+      turnId: startedTurn!.turnId,
       status: statusWord(last.status),
       durationMs: last.durationMs ?? null,
       reply: replies.at(-1) ?? null,
@@ -169,6 +231,5 @@ try {
   process.exit(statusWord(last.status) === "completed" ? 0 : 8);
 } catch (e) {
   err({ error: String(e) });
-  ws.close();
-  process.exit(4);
+  await exitWith(socketOpen ? 4 : 6, "error");
 }

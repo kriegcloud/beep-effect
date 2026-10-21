@@ -23,7 +23,7 @@ surface only; GUI steps stay on the existing SSH plus interactive-task route.
 | Tailnet bind | `--listen ws://<tailnet-ip>:48123` also came up LISTENING on the Tailscale address only and was reachable from the workstation (the PC's `Tailscale-In` rule allows inbound on its Private-profile interface), but the client refuses it: `--remote-auth-token-env requires a wss:// or loopback ws:// remote`. Reverted to loopback |
 | Auth | no header: HTTP 401; wrong token: `HTTP error: 401 Unauthorized`; right token: connected |
 | `codex queue` by UUID | `Queued message … for thread …`; the idle thread started a turn within 2 s; rollout `task_complete.last_agent_message = "PONG"`, 2.3 s |
-| One-shot client | `codex-remote-ask.ts`: resume with explicit policy, `turn/start`, wait `turn/completed`; printed `{"status":"completed","durationMs":3887,"reply":"PONG"}`; 5 s wall clock |
+| One-shot client | `codex-remote-ask.ts`: resume with explicit policy, `turn/start`, wait `turn/completed`; printed `{"status":"completed","durationMs":3887,"reply":"PONG"}`; 5 s wall clock. Every RPC is bounded by the remaining budget; on timeout or error it sends `turn/interrupt` for the turn it started before exiting |
 | Effective policy | server echoed `approvalPolicy: never`, `sandbox: readOnly (networkAccess false)`, model `gpt-6.1-sol` (the PC config has no model key); `remoteControl/status/changed = disabled` on this server |
 
 Receipts: the probe thread id, the task wrapper log and the rollout path are in
@@ -67,16 +67,20 @@ stopped and the task removed at the end of this probe; the wrapper stays in
 
 ## Token handling and rotation
 
-- The token is 32 random bytes as hex, written once to
-  `~/.config/beep/tom-pc-codex-ws.token` (mode 0600) on the workstation and read
-  into an environment variable at call time; it is never in argv, logs, chat or
-  the repo.
+- The token is 32 random bytes as hex, written once, newline-free, to
+  `~/.config/beep/tom-pc-codex-ws.token` (mode 0600) on the workstation
+  (`openssl rand -hex 32 | tr -d '\n' > <file>`) and read into an environment
+  variable at call time; it is never in argv, logs, chat or the repo.
 - The PC holds only its SHA-256 digest (`--ws-token-sha256`), inside the wrapper
   script in `%USERPROFILE%\.codex\remote-ws\` (directory ACL: the PC user and
   SYSTEM only). No token file exists on the PC.
-- Rotate: generate a new token file on the workstation, compute its digest,
-  replace the digest in the wrapper over SSH, restart the listener. Revoke:
-  stop the listener; delete the token file.
+- Digest: `printf %s "$(cat ~/.config/beep/tom-pc-codex-ws.token)" | sha256sum |
+  cut -d' ' -f1`, the bytes exactly as the client sends them. Hashing a token
+  file that ends in a newline yields a digest that never matches (every
+  connection gets 401).
+- Rotate: generate a new newline-free token file on the workstation, compute
+  its digest as above, replace the digest in the wrapper over SSH, restart the
+  listener. Revoke: stop the listener; delete the token file.
 - No pairing exists on this route. `codex remote-control pair` is relay
   pairing for ChatGPT clients and is not used.
 - The agent service account cannot write the 1Password vault; if the token
@@ -95,7 +99,9 @@ stopped and the task removed at the end of this probe; the wrapper stays in
   full access. The ask client always sends `approvalPolicy` and `sandbox`, reads
   them back from the `thread/start` or `thread/resume` response, and exits
   without running a turn when they differ (the explicit-policy precondition
-  from the 2026-10-09 decision).
+  from the 2026-10-09 decision). It never leaves the turn it started running:
+  on a client timeout, a failed RPC or a dropped tunnel it sends
+  `turn/interrupt` (bounded to 5 s) before exiting.
 - Tool reach: the thread inherits the PC config's MCP servers and plugins
   (`codex_apps`, `node_repl`, `cua_repl`, `box`), which include computer use.
   The sandbox mode does not gate MCP tool calls and `never` means no human
