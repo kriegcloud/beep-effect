@@ -75,7 +75,7 @@ export const emptyReadonly = <K extends string | symbol = never, V = never>(): R
  * console.log(Object.getPrototypeOf(target) === Object.prototype) // true
  * ```
  *
- * @category mutations
+ * @category setters
  * @since 0.0.0
  */
 export const setOwnProperty: {
