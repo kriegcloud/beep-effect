@@ -182,6 +182,76 @@ Run in the lane worktree at base `b7712d0aed` with the change applied:
 - `lint schema-catalog`: current. `quality catalog-usage`: findings=0.
 - `goals doctor`: blocking_new=0, blocking_inherited=0.
 
+## Review round 1 (#1998)
+
+Lane head `83ac6797ae` (main `b11ba93ad1` merged in). Two threads report false
+negatives introduced by the helper-following, both in `EffectVitestDetectors.ts`.
+
+- **PRRT_kwDOPbO_N86u91lu (beep-reviewer P2): self-providing helpers.**
+  `providesContext` recognized only four effect/Effect provide combinators.
+  A shared classifier, `isContextProvider`, now covers both cases.
+  `isPublicLayerProvider` (`@beep/test-utils` `provideScopedLayer`) is one of its
+  members, so the two cannot drift. The other members are every provide and update
+  combinator declared in the installed `node_modules/effect/dist/Effect.d.ts`:
+  `provide`, `provideContext`, `provideService`, `provideServiceEffect`,
+  `updateContext`, `updateService` and `updateServiceScoped`. A helper that calls
+  any of them is not followed.
+- **PRRT_kwDOPbO_N86u9008 (CodeRabbit Major): providers at the call site.**
+  `appendCalledHelpers` now checks each call site before following it
+  (`wrappedByProvider`). It walks the call's ancestors up to the enclosing region
+  (the test callback or the calling helper). The helper is not followed if the call
+  sits in an argument of a provider, or in the input of a `.pipe(...)`/`pipe(...)`
+  that has a provider stage, including the curried `provideService(key)(value)`
+  stage. `updateServiceScoped` rewrites the rest of its scope, so a region
+  containing one follows no helpers at all. Such call sites stay flagged for review.
+- **Service-keyed exemption, to keep the stricter rule from re-opening true native
+  rows.** On the first rescan the conservative rule re-opened four wave-1 rows:
+  `create-package-lab`, `frozen-grant-set`, `labs-list` and `lint-tsconfig-overlay`.
+  In each, the helper call is piped through
+  `Effect.provideServiceEffect(Console.Console, TestConsole.make)`, which replaces
+  only `Console`. Those would have been false positives again. A
+  `provideService`/`provideServiceEffect`/`updateService`/`updateServiceScoped`
+  call therefore counts as replacing FileSystem unless its key is an imported tag
+  that provably names another service: not from `effect/FileSystem`, not imported as
+  `FileSystem`, and not a `.FileSystem` member. Local aliases, unresolved keys and
+  every whole-context provider still count as replacing it. With the exemption,
+  no wave-1 row re-opens. The scan gives 1,698 findings, `introduced=0
+  resolved=0`, and the inventory is unchanged.
+
+Paired fixtures, added to "follows same-file helpers that read FileSystem in the
+harness context":
+
+- Still flagged, and each one returned `[]` (unflagged) against the round-0 detector
+  at `HEAD`: a self-providing helper using `provideScopedLayer`; a self-providing
+  helper using `updateService`; `Effect.provideService(helper(), FileSystem.FileSystem, fake)`;
+  `helper().pipe(Effect.provide(FakeLayer))`;
+  `pipe(helper(), Effect.updateContext(...))`; and `Effect.provide(Effect.map(helper(), f), FakeLayer)`.
+- Still flagged by the key rule: curried `provideService(FileSystem.FileSystem)(fake)`,
+  a local alias key `const Fs = FileSystem.FileSystem`, and a preceding
+  `yield* Effect.updateServiceScoped(FileSystem.FileSystem, ...)`.
+- Still passing: the six original shapes, including models-check, plus three
+  Console-keyed providers (piped `provideServiceEffect`, data-first
+  `provideService`, and a helper that provides Console itself).
+
+Verification, each run alone through beep-heavy with `</dev/null`:
+
+- Detector, contract and four models suites: 341/341 on Bun and on Node.
+- `lint effect-vitest`: 1,698 findings, introduced=0, resolved=0.
+- `lint:schema-first`: introduced=0.
+- `quality effect-diagnostics --filter @beep/repo-cli`: 0 in the changed files, plus
+  the same four inherited `preferEffectArray` errors in `test/laws-schema-tag-idioms.test.ts`.
+- oxlint and Biome: 0 on the changed files.
+- `quality fallow audit --check --base origin/main`: exit 0.
+- `lint schema-catalog`: current. `quality catalog-usage`: findings=0.
+- `lint:retired-effect-paths`: findings=0.
+- `goals doctor`: 0 blocking.
+- `quality package-verify @beep/repo-cli`: audit ok, docgen ok.
+- JSDoc ratchet: one total increased, `unsafeExampleFindings` from 0 to 1. The cause is
+  `decideLicense` in `src/commands/Ci/DependencyReview.ts`
+  (`no-type-assertions-in-examples`). That file came from main in #1991 and is
+  identical on `origin/main`, so the finding is inherited and not from this lane.
+  This lane's changes add no JSDoc.
+
 Route: S39/S41 Claude chain, `claude-opus-5-5` Agent child (step 1), no fallback.
 
 ## Reversal

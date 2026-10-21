@@ -899,14 +899,106 @@ const helperBody = (binding: MorphNode, imports: EffectVitestImports): O.Option<
   return Node.isCallExpression(initializer) ? effectFunctionBody(initializer, imports) : O.none();
 };
 
+const isPublicLayerProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, ["@beep/test-utils", "@beep/test-utils/Layer"], "provideScopedLayer", [
+    "provideScopedLayer",
+  ]);
+
+// Every effect/Effect combinator that provides or rewrites services for the effect it wraps.
+const effectContextProviders = ["provide", "provideContext", "updateContext"];
+// Service-keyed providers name the one service they replace.
+const effectServiceProviders = ["provideService", "provideServiceEffect", "updateService", "updateServiceScoped"];
+
+// One classifier for any call that provides or rewrites context: the public
+// `provideScopedLayer` helper plus every effect/Effect provide and update combinator.
+const isContextProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isPublicLayerProvider(call, imports) ||
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", [...effectContextProviders, ...effectServiceProviders]);
+
+// `updateServiceScoped(key, f, options?)` always leads with the key; the others take
+// `(self, key, value)` data-first and `(key, value)` or `(key)` data-last.
+const serviceKey = (call: CallExpression, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", effectServiceProviders)) return O.none();
+  const args = call.getArguments();
+  const leading = isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["updateServiceScoped"]);
+  return O.fromUndefinedOr(args[!leading && args.length === 3 ? 1 : 0]);
+};
+
+const importedName = (declaration: ImportDeclaration, local: string): string =>
+  O.getOrElse(
+    O.map(
+      A.findFirst(
+        declaration.getNamedImports(),
+        (specifier) => (specifier.getAliasNode()?.getText() ?? specifier.getName()) === local
+      ),
+      (specifier) => specifier.getName()
+    ),
+    () => local
+  );
+
+// A key proves another service only when it is an imported tag that is not FileSystem:
+// not from effect/FileSystem, not imported as FileSystem, and not a `.FileSystem` member.
+const keysOtherService = (key: MorphNode, imports: EffectVitestImports): boolean => {
+  const access = Node.isPropertyAccessExpression(key);
+  const root = access ? key.getExpression() : key;
+  if (!Node.isIdentifier(root) || (access && key.getName() === "FileSystem")) return false;
+  return O.exists(
+    O.filter(imports.resolveBinding(root), Node.isImportDeclaration),
+    (declaration) =>
+      declaration.getModuleSpecifierValue() !== "effect/FileSystem" &&
+      importedName(declaration, root.getText()) !== "FileSystem"
+  );
+};
+
+// A provider replaces FileSystem unless its service key provably names another service.
+const replacesFileSystem = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isContextProvider(call, imports) && !O.exists(serviceKey(call, imports), (key) => keysOtherService(key, imports));
+
+// A pipe stage is a provider call, or the curried `provideService(key)(value)` form.
+const isProviderStage = (stage: MorphNode, imports: EffectVitestImports): boolean => {
+  if (!Node.isCallExpression(stage)) return false;
+  const callee = stage.getExpression();
+  return replacesFileSystem(stage, imports) || (Node.isCallExpression(callee) && replacesFileSystem(callee, imports));
+};
+
 const providesContext = (helper: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
-  A.some(callbackCalls(helper), (call) =>
-    isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", [
-      "provide",
-      "provideContext",
-      "provideService",
-      "provideServiceEffect",
-    ])
+  A.some(callbackCalls(helper), (call) => replacesFileSystem(call, imports));
+
+const containsNode = (outer: MorphNode, inner: MorphNode): boolean =>
+  outer === inner || A.some(inner.getAncestors(), (ancestor) => ancestor === outer);
+
+// A pipe whose input holds the call and whose later stages include a provider.
+const pipesThroughProvider = (pipe: CallExpression, call: CallExpression, imports: EffectVitestImports): boolean => {
+  const callee = pipe.getExpression();
+  if (Node.isPropertyAccessExpression(callee) && callee.getName() === "pipe")
+    return (
+      containsNode(callee.getExpression(), call) &&
+      A.some(pipe.getArguments(), (stage) => isProviderStage(stage, imports))
+    );
+  if (!isProvenanceCall(pipe, imports, ["effect", "effect/Function"], "Function", ["pipe"])) return false;
+  const [input, ...stages] = pipe.getArguments();
+  return input !== undefined && containsNode(input, call) && A.some(stages, (stage) => isProviderStage(stage, imports));
+};
+
+// True when a provider or update wrapper encloses this call site within its region,
+// either taking it as an argument or piping it through a provider stage.
+const wrappedByProvider = (call: CallExpression, region: MorphNode, imports: EffectVitestImports): boolean =>
+  A.some(
+    A.takeWhile(call.getAncestors(), (ancestor) => ancestor !== region),
+    (ancestor) =>
+      Node.isCallExpression(ancestor) &&
+      ((isProviderStage(ancestor, imports) &&
+        A.some(ancestor.getArguments(), (argument) => containsNode(argument, call))) ||
+        pipesThroughProvider(ancestor, call, imports))
+  );
+
+// `updateServiceScoped` rewrites the rest of its scope, so it taints every call site in the region.
+const regionUpdatesScope = (calls: ReadonlyArray<CallExpression>, imports: EffectVitestImports): boolean =>
+  A.some(
+    calls,
+    (call) =>
+      isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["updateServiceScoped"]) &&
+      replacesFileSystem(call, imports)
   );
 
 // A same-file helper called by name runs in the caller's context, so its
@@ -942,12 +1034,17 @@ const collectFileSystemEvidence = (
   });
 
 // Queues each newly reached same-file helper once, so recursive helpers terminate.
+// A call site wrapped by a provider may run the helper against another FileSystem,
+// so its helper is not followed and the import stays flagged for review.
 const appendCalledHelpers = (
   calls: ReadonlyArray<CallExpression>,
+  region: MorphNode,
   regions: Array<MorphNode>,
   imports: EffectVitestImports
 ): void => {
+  if (regionUpdatesScope(calls, imports)) return;
   for (const call of calls) {
+    if (wrappedByProvider(call, region, imports)) continue;
     const helper = calledHelper(call, imports);
     if (O.isSome(helper) && !A.some(regions, (region) => region === helper.value)) regions.push(helper.value);
   }
@@ -963,7 +1060,7 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
     for (const region of regions) {
       const known = calls.length;
       collectFileSystemEvidence(region, imports, services, calls);
-      appendCalledHelpers(A.drop(calls, known), regions, imports);
+      appendCalledHelpers(A.drop(calls, known), region, regions, imports);
     }
     return (
       !A.isReadonlyArrayEmpty(services) &&
@@ -1133,11 +1230,6 @@ type DetectorState = {
   readonly file: string;
   readonly owner: string;
 };
-
-const isPublicLayerProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
-  isProvenanceCall(call, imports, ["@beep/test-utils", "@beep/test-utils/Layer"], "provideScopedLayer", [
-    "provideScopedLayer",
-  ]);
 
 const inspectContext = (call: CallExpression, member: string, canonicalMember: string, state: DetectorState) => {
   const { imports, harness, definitions } = state;
