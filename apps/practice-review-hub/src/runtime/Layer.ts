@@ -6,6 +6,9 @@
  * @since 0.0.0
  */
 
+// Effect Crypto provides digests and randomness, but no constant-time comparison.
+// Retain the platform timing-safe primitive for bearer authentication.
+// @effect-diagnostics-next-line nodeBuiltinImport:off
 import { timingSafeEqual } from "node:crypto";
 import { makeReviewFilesLayer, ReviewFilesConfig } from "@beep/law-practice-server/ReviewFiles";
 import { QuestionQueueLive } from "@beep/law-practice-use-cases/QuestionQueue";
@@ -15,6 +18,7 @@ import { sanitizedToolkit, statelessMcpProtocols } from "@beep/mcp-kit";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import * as McpServer from "effect/ai/McpServer";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Headers from "effect/http/Headers";
 import * as HttpRouter from "effect/http/HttpRouter";
@@ -75,6 +79,26 @@ const ReviewHubToolsLive = ReviewHubToolkit.toLayer(
   }))
 );
 
+const makeReviewHubLayerInternal = (allowedLogins: ReadonlyArray<string>, apiToken: Redacted.Redacted<string>) =>
+  Layer.merge(
+    sanitizedToolkit(ReviewHubToolkit).pipe(
+      Layer.provide(ReviewHubToolsLive),
+      Layer.provide(ReviewHubLive),
+      Layer.provide(Layer.merge(ReviewQueueLive, QuestionQueueLive))
+    ),
+    loginAllowList(allowedLogins, apiToken)
+  ).pipe(
+    // `layerHttp` fails only on a malformed path or an empty protocol list, both literals here.
+    Layer.provideMerge(
+      McpServer.layerHttp({
+        name: "practice-review-hub",
+        version: "0.0.0",
+        path: "/mcp",
+        protocols: statelessMcpProtocols,
+      }).pipe(Layer.orDie)
+    )
+  );
+
 /**
  * The hub's MCP endpoint at `/mcp`, behind the login allow-list, over the
  * stores the caller provides.
@@ -100,25 +124,15 @@ const ReviewHubToolsLive = ReviewHubToolkit.toLayer(
  * @category layers
  * @since 0.0.0
  */
-export const makeReviewHubLayer = (allowedLogins: ReadonlyArray<string>, apiToken: Redacted.Redacted<string>) =>
-  Layer.merge(
-    sanitizedToolkit(ReviewHubToolkit).pipe(
-      Layer.provide(ReviewHubToolsLive),
-      Layer.provide(ReviewHubLive),
-      Layer.provide(Layer.merge(ReviewQueueLive, QuestionQueueLive))
-    ),
-    loginAllowList(allowedLogins, apiToken)
-  ).pipe(
-    // `layerHttp` fails only on a malformed path or an empty protocol list, both literals here.
-    Layer.provideMerge(
-      McpServer.layerHttp({
-        name: "practice-review-hub",
-        version: "0.0.0",
-        path: "/mcp",
-        protocols: statelessMcpProtocols,
-      }).pipe(Layer.orDie)
-    )
-  );
+export const makeReviewHubLayer: {
+  (
+    apiToken: Redacted.Redacted<string>
+  ): (allowedLogins: ReadonlyArray<string>) => ReturnType<typeof makeReviewHubLayerInternal>;
+  (
+    allowedLogins: ReadonlyArray<string>,
+    apiToken: Redacted.Redacted<string>
+  ): ReturnType<typeof makeReviewHubLayerInternal>;
+} = dual(2, makeReviewHubLayerInternal);
 
 /**
  * The hub served on `127.0.0.1` at the configured port, over JSONL stores in

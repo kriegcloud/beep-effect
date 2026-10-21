@@ -39,3 +39,9 @@
   outside the checkout; the specific gate passed. Future documentation scans
   should distinguish authored input from ignored generated caches without
   weakening enforcement on tracked docs.
+
+- 2026-10-21: The package audit did not replace the synthetic test-file check
+  used by Heavy/Check. Hosted diagnostics found metadata guard, optional-header
+  and hub API issues after local package proof passed. Run each changed
+  package's `package-test-typecheck` as part of the focused handoff; preserve
+  its separate artifact and diagnostics instead of inferring it from audit.

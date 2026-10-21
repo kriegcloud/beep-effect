@@ -180,12 +180,14 @@ describe("@beep/repo-ai-metrics bounded config snapshots", () => {
             const requested = yield* Ref.make<ReadonlyArray<number>>([]);
             const guarded = FileSystem.FileSystem.of({
               ...fs,
-              readFile: (file) =>
-                file === metadata ? Effect.die(new Error("Metadata must not be read in full")) : fs.readFile(file),
-              readFileString: (file, ...args) =>
+              readFile: Effect.fn("configSnapshotBoundsTest.readFile")((file) =>
+                file === metadata ? Effect.die(new Error("Metadata must not be read in full")) : fs.readFile(file)
+              ),
+              readFileString: Effect.fn("configSnapshotBoundsTest.readFileString")((file, ...args) =>
                 file === metadata
                   ? Effect.die(new Error("Metadata must not be read as a complete string"))
-                  : fs.readFileString(file, ...args),
+                  : fs.readFileString(file, ...args)
+              ),
               open: Effect.fn("configSnapshotBoundsTest.open")((file, options) =>
                 fs.open(file, options).pipe(
                   Effect.map((handle) =>

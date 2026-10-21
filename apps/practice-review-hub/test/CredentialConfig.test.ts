@@ -16,6 +16,8 @@ const flags = {
 
 const token = "synthetic-test-token-with-32-characters";
 
+const encodeConfig = ReviewHubConfig.pipe(S.toCodecJson, S.fromJsonString, S.encodeEffect);
+
 describe("review hub credential configuration", () => {
   it.effect("fails closed when the independent application credential is absent", () =>
     Effect.gen(function* () {
@@ -50,7 +52,7 @@ describe("review hub credential configuration", () => {
       );
       expect(Redacted.value(config.apiToken)).toBe(token);
       expect(Inspectable.toStringUnknown(config)).not.toContain(token);
-      const error = yield* Effect.flip(S.encodeEffect(S.fromJsonString(S.toCodecJson(ReviewHubConfig)))(config));
+      const error = yield* Effect.flip(encodeConfig(config));
       expect(Inspectable.toStringUnknown(error)).not.toContain(token);
     })
   );

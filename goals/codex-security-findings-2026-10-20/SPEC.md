@@ -102,7 +102,7 @@ fixture location alone does not establish an invalid alert.
 
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
-| None | N/A | N/A | N/A | N/A |
+| `nodeBuiltinImport` diagnostic on the hub timing-safe import | One import line | Security remediation | Effect Crypto exposes digest/random APIs but no constant-time equality; retain Node timingSafeEqual | Remove when Effect exposes an equivalent primitive |
 
 ## Decision Log
 
@@ -154,3 +154,11 @@ fixture location alone does not establish an invalid alert.
   documentation outside the crate remains checked. Rust compilation, tests,
   dependency provenance and security review still apply. Reverse by removing
   this spelling entry when the backport is retired.
+
+- 2026-10-21: Keep native constant-time equality at the hub platform boundary.
+  Current Effect Crypto has no equivalent comparison API; a documented,
+  one-line diagnostic exception avoids replacing the security control with
+  ordinary equality or a handwritten comparator. The canonical CI checker
+  passes; no workspace-wide diagnostic setting changed. Added the normal
+  dual overloads to the two-argument layer factory and rewrote the JSON
+  codec test in pipe form without changing authentication behavior.

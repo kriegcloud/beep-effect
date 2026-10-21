@@ -225,3 +225,17 @@ The next publish consolidates these changes and final proof receipts in PR1930.
 After successful push, flipready and wait on job5a634b17-4a8e-4ce2-a99c-079e7ba96907
 (the same existing monitor). Labs had an unchanged-source hook timeout on
 the first head and needs a fresh-head result. No exact findings closed yet.
+
+Publication of localcommit `b700df86c8` was interrupted beforepush when a new
+Heavy/Check red on initialhead exposed test diagnostics. Remotehead remains
+6fc9bbcafd. Added metrics/Accounts fixture repairs and hub dual/codec/import
+corrections; canonical CI test checks now pass for metrics,CLIandhub, and
+hub fullaudit passed again. Stage andpublish all fixes once as the nextwave.
+Acknowledge IPC andHeavyCheck inbox rows with the actual nextfixcommit, then
+flip PR1930 ready when final andwait on the existingmonitor job.
+
+The initial-head Heavy/Lint Policy failure additionally required module-scope
+construction of the credential config encoder. Hoisted the encoder; root
+oxlint, canonical hub test typecheck and hub package audit passed. All known
+initial-head source failures are addressed. The combined follow-up publication
+includes the Labs attribution report and preserves both recovery stashes.

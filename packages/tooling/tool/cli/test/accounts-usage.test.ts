@@ -1283,7 +1283,9 @@ const junieTestLayer = (
             request,
             new Response(responseBody(request), {
               status: responseStatus(request, call),
-              headers: Str.includes("quota/")(request.url) ? overrides.quotaResponseHeaders : undefined,
+              ...(Str.includes("quota/")(request.url) && overrides.quotaResponseHeaders !== undefined
+                ? { headers: overrides.quotaResponseHeaders }
+                : {}),
             })
           );
         });
