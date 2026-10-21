@@ -2012,7 +2012,13 @@
   "@beep/windows-secrets/internal/*": [
     "./packages/drivers/windows-secrets/src/internal/*"
   ],
+  "@beep/duckdb/DuckDbClient": [
+    "./packages/drivers/duckdb/src/DuckDbClient.service.ts"
+  ],
+  "@beep/duckdb/DuckDbMigrator": [
+    "./packages/drivers/duckdb/src/DuckDbMigrator.service.ts"
+  ],
   "@beep/acp/compat": ["./packages/drivers/acp/src/AcpCompat.models.ts"],
-  "@beep/acp/schema-v1": ["./packages/drivers/acp/src/AcpV1.models.ts"],
-  "@beep/acp/internal/*": ["./packages/drivers/acp/src/internal/*"]
+  "@beep/acp/internal/*": ["./packages/drivers/acp/src/internal/*"],
+  "@beep/acp/schema-v1": ["./packages/drivers/acp/src/AcpV1.models.ts"]
 }

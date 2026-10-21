@@ -6280,15 +6280,15 @@
     },
     "@beep/duckdb": {
       "path": "packages/drivers/duckdb",
-      "lines": 93.65,
-      "statements": 92.5,
-      "branches": 84.48,
-      "functions": 87.8,
+      "lines": 96.87,
+      "statements": 96.68,
+      "branches": 92,
+      "functions": 94.73,
       "uncovered": {
-        "lines": 16,
-        "statements": 20,
-        "branches": 9,
-        "functions": 15
+        "lines": 19,
+        "statements": 22,
+        "branches": 16,
+        "functions": 18
       },
       "files": {
         "packages/drivers/duckdb/src/DuckDb.errors.ts": {
@@ -6316,18 +6316,18 @@
           }
         },
         "packages/drivers/duckdb/src/DuckDb.service.ts": {
-          "lines": 88.63,
-          "statements": 87.23,
-          "branches": 92.3,
-          "functions": 83.72,
+          "lines": 91.58,
+          "statements": 90.35,
+          "branches": 94.11,
+          "functions": 87.5,
           "uncovered": {
-            "lines": 10,
-            "statements": 12,
+            "lines": 9,
+            "statements": 11,
             "branches": 1,
             "functions": 7
           }
         },
-        "packages/drivers/duckdb/src/DuckDbNative.ts": {
+        "packages/drivers/duckdb/src/DuckDb.test-layer.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -6339,16 +6339,28 @@
             "functions": 0
           }
         },
-        "packages/drivers/duckdb/src/DuckDbSqlClient.service.ts": {
-          "lines": 95.58,
-          "statements": 94.4,
-          "branches": 80.55,
-          "functions": 88.4,
+        "packages/drivers/duckdb/src/DuckDbClient.service.ts": {
+          "lines": 97.91,
+          "statements": 98,
+          "branches": 100,
+          "functions": 94.44,
           "uncovered": {
-            "lines": 6,
-            "statements": 8,
-            "branches": 7,
-            "functions": 8
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/DuckDbMigrator.service.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/drivers/duckdb/src/index.ts": {
@@ -6361,6 +6373,114 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/drivers/duckdb/src/internal/classify.ts": {
+          "lines": 94.44,
+          "statements": 94.44,
+          "branches": 100,
+          "functions": 91.66,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
+        "packages/drivers/duckdb/src/internal/compiler.ts": {
+          "lines": 93.33,
+          "statements": 94.73,
+          "branches": 87.5,
+          "functions": 91.66,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 2,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/internal/connection.ts": {
+          "lines": 98.31,
+          "statements": 98.51,
+          "branches": 97.56,
+          "functions": 97.53,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 1,
+            "functions": 2
+          }
+        },
+        "packages/drivers/duckdb/src/internal/convert.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 81.81,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 4,
+            "functions": 0
+          }
+        },
+        "packages/drivers/duckdb/src/internal/extras.ts": {
+          "lines": 96.42,
+          "statements": 96.55,
+          "branches": 75,
+          "functions": 92.85,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 2,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/internal/gate.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 91.66,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 1,
+            "functions": 0
+          }
+        },
+        "packages/drivers/duckdb/src/internal/native.ts": {
+          "lines": 97.05,
+          "statements": 97.61,
+          "branches": 100,
+          "functions": 95.83,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/internal/parameters.ts": {
+          "lines": 100,
+          "statements": 98.03,
+          "branches": 100,
+          "functions": 96.55,
+          "uncovered": {
+            "lines": 0,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "packages/drivers/duckdb/src/internal/transaction.ts": {
+          "lines": 96.49,
+          "statements": 96.55,
+          "branches": 77.77,
+          "functions": 94.11,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 4,
+            "functions": 2
           }
         }
       }

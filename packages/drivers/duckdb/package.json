@@ -40,6 +40,9 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./DuckDbClient": "./src/DuckDbClient.service.ts",
+    "./DuckDbMigrator": "./src/DuckDbMigrator.service.ts",
+    "./internal/*": null,
     "./package.json": "./package.json"
   },
   "files": [
@@ -55,6 +58,9 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.js",
+      "./DuckDbClient": "./dist/DuckDbClient.service.js",
+      "./DuckDbMigrator": "./dist/DuckDbMigrator.service.js",
+      "./internal/*": null,
       "./package.json": "./package.json"
     }
   },

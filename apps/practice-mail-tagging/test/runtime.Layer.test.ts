@@ -35,7 +35,7 @@ import {
   settingsEnvironment,
   since,
 } from "./PracticeMailTagging.fixture.ts";
-import type { DuckDbClient } from "@beep/duckdb";
+import type { DuckDbAdapter } from "@beep/duckdb";
 import type { M365Shape } from "@beep/m365";
 import type { PracticeMailTaggingConfig } from "@/PracticeMailTagging.config";
 
@@ -82,7 +82,7 @@ const emptyMailbox: Partial<M365Shape> = {
   listMessages: () => Effect.succeed(M365MessageCollection.make({ value: [] })),
 };
 
-const emptyBundle: DuckDbClient = {
+const emptyBundle: DuckDbAdapter = {
   copyTableToParquet: () => Effect.void,
   query: () => Effect.succeed([]),
   run: () => Effect.void,
