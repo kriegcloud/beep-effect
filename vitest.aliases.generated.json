@@ -2013,6 +2013,12 @@
   "@beep/windows-secrets/internal/*": [
     "./packages/drivers/windows-secrets/src/internal/*"
   ],
+  "@beep/duckdb/DuckDbClient": [
+    "./packages/drivers/duckdb/src/DuckDbClient.service.ts"
+  ],
+  "@beep/duckdb/DuckDbMigrator": [
+    "./packages/drivers/duckdb/src/DuckDbMigrator.service.ts"
+  ],
   "@beep/public-site": [
     "./packages/foundation/modeling/public-site/src/index.ts"
   ],
