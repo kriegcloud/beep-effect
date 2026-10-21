@@ -6,8 +6,7 @@ import {
   ResearchStatusOptions,
   researchStatus,
 } from "@beep/repo-cli/commands/Research";
-import { CardPersistRow, catalogDbPath, persistCards } from "@beep/repo-cli/commands/Research/internal/CatalogOps";
-import { sha256HexOf } from "@beep/repo-cli/commands/Research/internal/Vault";
+import { CardPersistRow, catalogDbPath, persistCards, sha256HexOf } from "@beep/repo-cli/test/Research";
 import { decodeYamlTextWith } from "@beep/repo-cli/test/SharedInternals";
 import { fcRuns, provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
