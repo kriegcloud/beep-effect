@@ -1,5 +1,5 @@
 /**
- * Version component.
+ * Shared UI component library entry point.
  *
  * **Details**
  *
@@ -13,17 +13,9 @@
  * - `@beep/ui/lib/utils` — cn() utility
  * - `@beep/ui/styles/globals.css` — Theme tokens
  *
- * **Example** (Import package VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/ui"
- *
- * console.log(VERSION)
- * ```
- *
  * @packageDocumentation
  * @category components
  * @since 0.0.0
  */
 
-export { VERSION } from "./Version.ts";
+export {};

@@ -11,7 +11,7 @@ bun add @beep/tailscale
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/tailscale"
+import { readTailscaleStatus } from "@beep/tailscale"
 ```
 
 ## Development

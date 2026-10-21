@@ -11,7 +11,7 @@ bun add @beep/poppler
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/poppler"
+import { makePopplerRasterizer } from "@beep/poppler"
 ```
 
 ## Development

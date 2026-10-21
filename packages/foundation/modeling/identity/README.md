@@ -11,7 +11,7 @@ bun add @beep/identity
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/identity"
+import { $I } from "@beep/identity"
 ```
 
 ## Development

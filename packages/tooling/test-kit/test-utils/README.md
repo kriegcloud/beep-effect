@@ -11,7 +11,7 @@ bun add @beep/test-utils
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/test-utils"
+import { provideScopedLayer } from "@beep/test-utils"
 ```
 
 ## Development

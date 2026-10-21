@@ -54,19 +54,3 @@ export * from "./Tika.service.ts";
  * @since 0.0.0
  */
 export * from "./Tika.tikaapp.ts";
-
-/**
- * Package version.
- *
- * **Example** (Log package version)
- *
- * ```ts
- * import { VERSION } from "@beep/tika"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

@@ -6,24 +6,6 @@
  */
 
 /**
- * OpenAI-compatible driver package version.
- *
- * **Example** (Import package VERSION)
- *
- * ```ts
- * import { VERSION } from "@beep/openai-compat"
- *
- * const version: "0.0.0" = VERSION
- *
- * console.log(version)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * OpenAI-compatible schema model exports.
  *
  * **Example** (Build chat completion request)

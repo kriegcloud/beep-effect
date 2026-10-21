@@ -7,24 +7,6 @@
  */
 
 /**
- * Package version for the ontology use-case role.
- *
- * **Example** (Check initial package version)
- *
- * ```ts
- * import { VERSION } from "@beep/ontology-use-cases"
- *
- * const isInitialUseCaseApi = VERSION === "0.0.0"
- *
- * console.log(isInitialUseCaseApi) // true
- * ```
- *
- * @category use-cases
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Public use-case exports for the ontology package.
  *
  * @category use-cases

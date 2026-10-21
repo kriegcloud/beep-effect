@@ -11,7 +11,7 @@ bun add @beep/architecture-lab-tables
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/architecture-lab-tables"
+import { WorkItem } from "@beep/architecture-lab-tables"
 ```
 
 ## Development

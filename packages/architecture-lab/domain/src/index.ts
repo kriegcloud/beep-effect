@@ -7,29 +7,6 @@
  */
 
 /**
- * Package version for the architecture lab domain role.
- *
- * **Example** (Assert expected package version)
- *
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-domain"
- *
- * const expectedVersion: typeof VERSION = "0.0.0"
- * const isExpectedVersion = VERSION === expectedVersion
- *
- * console.log(isExpectedVersion)
- *
- * if (VERSION !== expectedVersion) {
- *   throw new Error("unexpected architecture lab domain version")
- * }
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Aggregate namespace exports for the architecture lab domain package.
  *
  * @category aggregates

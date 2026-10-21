@@ -7,25 +7,6 @@
  */
 
 /**
- * Package version published by the `@beep/anthropic` entry point.
- *
- * **Example** (Build package coordinate string)
- *
- * ```ts
- * import { strictEqual } from "node:assert"
- * import { VERSION } from "@beep/anthropic"
- *
- * const packageCoordinate = `@beep/anthropic@${VERSION}`
- *
- * strictEqual(packageCoordinate, "@beep/anthropic@0.0.0")
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Runtime configuration exports for Anthropic model defaults, retry defaults,
  * and usage-pricing metadata.
  *

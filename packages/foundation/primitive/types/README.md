@@ -11,7 +11,7 @@ bun add @beep/types
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/types"
+import type { TString } from "@beep/types"
 ```
 
 ## Development

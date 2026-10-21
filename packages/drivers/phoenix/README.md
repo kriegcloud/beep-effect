@@ -11,7 +11,7 @@ bun add @beep/phoenix
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/phoenix"
+import { Phoenix } from "@beep/phoenix"
 ```
 
 ## Development

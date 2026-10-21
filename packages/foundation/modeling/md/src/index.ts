@@ -129,10 +129,3 @@ export * from "./Md.safe.ts";
  * @since 0.0.0
  */
 export * from "./Md.ts";
-/**
- * Current `@beep/md` package release version.
- *
- * @category configuration
- * @since 0.0.0
- */
-export { VERSION } from "./Version.ts";

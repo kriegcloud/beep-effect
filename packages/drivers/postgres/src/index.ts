@@ -47,20 +47,3 @@ export * from "./PostgresInterop.models.ts";
  * @category models
  */
 export * from "./PostgresSqlState.models.ts";
-
-/**
- * Package version.
- *
- * **Example** (Build package version label)
- *
- * ```ts
- * import { VERSION } from "@beep/postgres"
- *
- * const packageLabel = `@beep/postgres@${VERSION}`
- * console.log(packageLabel) // "@beep/postgres@0.0.0"
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
