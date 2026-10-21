@@ -38,7 +38,10 @@ Use this command for execution-capable sessions:
 P0 to P3 are complete: the packet and doctrine, `@beep/public-site`, the
 authority move with the drift folding and residue rewrite, and the
 `retired-iri-authorities` law with its lane. P4 closeout is in progress: the
-reflection is written and the closeout proposal rides the final PR.
+reflection is written and `ops/manifest.json` proposes `completed-retained`
+with final PR #1946, gated on the retained yeet verdict. After merge,
+`bun run beep goals completion refresh --slug public-origin-beep-effect-com`
+verifies it.
 
 ## Latest Evidence
 
