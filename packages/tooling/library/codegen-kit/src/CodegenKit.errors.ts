@@ -7,7 +7,7 @@
 
 import { $CodegenKitId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { DriftReport } from "./CodegenKit.models.ts";
+import { DriftReport, NamedTransform } from "./CodegenKit.models.ts";
 
 const $I = $CodegenKitId.create("CodegenKit.errors");
 const FailureFields = {
@@ -168,5 +168,41 @@ export class CodegenDriftError extends S.TaggedError<CodegenDriftError, { readon
   },
   $I.annoteError<CodegenDriftError>("CodegenDriftError", {
     description: "Check mode found generated output that is absent or out of date.",
+  })
+) {}
+
+/**
+ * A registered JSON Schema transform met a schema shape it cannot rewrite faithfully.
+ *
+ * **Details**
+ *
+ * Transforms run inside the generator's `onEnter` hook, so the generator wraps this failure as the
+ * `cause` of a {@link CodegenGenerateError}.
+ *
+ * **Example** (Create a transform failure)
+ *
+ * ```ts
+ * import { CodegenTransformError } from "@beep/codegen-kit"
+ *
+ * const error = CodegenTransformError.make({
+ *   transform: "notDiscriminatorPattern",
+ *   message: "Unsupported not shape: expected not.anyOf"
+ * })
+ * console.log(error.transform)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class CodegenTransformError extends S.TaggedError<CodegenTransformError, { readonly brand: unique symbol }>(
+  $I`CodegenTransformError`
+)(
+  "CodegenTransformError",
+  {
+    transform: NamedTransform,
+    message: S.String,
+  },
+  $I.annoteError<CodegenTransformError>("CodegenTransformError", {
+    description: "A registered JSON Schema transform met a schema shape it cannot rewrite faithfully.",
   })
 ) {}

@@ -100,7 +100,16 @@ export const openStdio = Effect.fn("AiProviderCliSession.openStdio")(function* (
     forceKillAfter: Duration.seconds(3),
   }).pipe(transportFailure("spawn"));
   yield* handle.stderr.pipe(Stream.runDrain, Effect.forkChild);
-  const context = yield* Layer.build(AcpClient.layerChildProcess({ handle }));
+  // Grok and Cursor pin ACP generation 1 and send a pure v1 `initialize`. Their managed paths call
+  // methods that generation 2 removed: Grok `authenticate` with `cached_token`, Cursor
+  // `session/set_mode`, and the legacy `models` readback for both. A live smoke on 2026-10-21
+  // against grok (grok-4.7) and cursor-agent found both answer a negotiating `initialize` with
+  // `protocolVersion: 1` and complete initialize, authenticate, session/new, session/set_mode and
+  // prompt; the pin stops a later generation-2 answer from moving these paths onto methods they do
+  // not support. Switch a provider to "negotiate" once its managed path supports generation 2.
+  // Codex never initializes through the ACP agent API, so it keeps the default.
+  const protocolGeneration = profile.provider === "codex" ? "negotiate" : "v1";
+  const context = yield* Layer.build(AcpClient.layerChildProcess({ handle, protocolGeneration }));
   const client = Context.get(context, AcpClient.AcpClient);
   const events = yield* PubSub.sliding<ManagedSessionEvent>(128);
   const chunks = yield* Ref.make("");

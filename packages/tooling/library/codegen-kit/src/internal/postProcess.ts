@@ -455,7 +455,7 @@ const renderAnnotation = (
 };
 
 const schemaImportPath = (config: GenerateConfig): string =>
-  config.schemaStyle === "class" ? config.packageName : `${config.packageName}/schema`;
+  config.output.exampleImport ?? (config.schemaStyle === "class" ? config.packageName : `${config.packageName}/schema`);
 
 const renderSchemaEntry = (name: string, constLine: string, config: GenerateConfig): string => {
   const expression = prepareSchemaExpression(
@@ -678,7 +678,7 @@ const renderGenericDoc = (name: string, typeOnly: boolean, config: GenerateConfi
             ` * **Example** (Inspect ${name})`,
             " *",
             " * ```ts",
-            ` * import { ${name} } from "${config.packageName}"`,
+            ` * import { ${name} } from "${config.output.exampleImport ?? config.packageName}"`,
             " *",
             ` * console.log(${name})`,
             " * ```",

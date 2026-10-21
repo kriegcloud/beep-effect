@@ -161,6 +161,10 @@
     // package/app entrypoints. The inventory tool graduates into repo-cli under
     // goals/effect-schema-parity P1, where the production rules apply to it.
     "explorations/effect-schema-parity/research/**",
+    // cross-provider-agent-communication bridge probe scripts are packet evidence run
+    // ad hoc via `bun run` against a remote Codex app-server (research note
+    // 2026-10-21-codex-remote-control-bridge.md); not package/app entrypoints.
+    "explorations/cross-provider-agent-communication/research/spike/codex-remote-bridge/**",
     // beep-ci-operational-ontology §4b: the ontology-foundational-auditor
     // SourceObservation adapter (TS compiler API extractor) and its golden
     // fixture input are digest-locked run evidence (script_sha256_12 in the
