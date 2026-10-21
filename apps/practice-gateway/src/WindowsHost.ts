@@ -386,12 +386,15 @@ const BitLockerScript = (drive: string) =>
   `(New-Object -ComObject Shell.Application).NameSpace('${drive}').Self.ExtendedProperty('System.Volume.BitLockerProtection')`;
 
 // Reads its input from BEEP_ASK_TITLE and BEEP_ASK_MESSAGE; prints "yes" only for Yes.
-const YesNoScript = [
-  "Add-Type -AssemblyName System.Windows.Forms",
-  "$owner = New-Object System.Windows.Forms.Form -Property @{ TopMost = $true }",
-  "$answer = [System.Windows.Forms.MessageBox]::Show($owner, $env:BEEP_ASK_MESSAGE, $env:BEEP_ASK_TITLE, 'YesNo', 'Question')",
-  "if ($answer -eq 'Yes') { 'yes' } else { 'no' }",
-].join("; ");
+const YesNoScript = A.join(
+  [
+    "Add-Type -AssemblyName System.Windows.Forms",
+    "$owner = New-Object System.Windows.Forms.Form -Property @{ TopMost = $true }",
+    "$answer = [System.Windows.Forms.MessageBox]::Show($owner, $env:BEEP_ASK_MESSAGE, $env:BEEP_ASK_TITLE, 'YesNo', 'Question')",
+    "if ($answer -eq 'Yes') { 'yes' } else { 'no' }",
+  ],
+  "; "
+);
 
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
   stream.pipe(
