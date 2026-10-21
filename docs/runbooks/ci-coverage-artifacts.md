@@ -59,10 +59,24 @@ bun run beep ci lane coverage --compare-only \
 ```
 
 Use the same affected/base options as the producer jobs. The validator binds
-artifacts to the tested checkout SHA, base SHA and workflow run attempt. A PR's
-synthetic merge SHA can differ from its branch head. It also validates expected
-packages, invocations, runtimes, shards, test and source inventories, digests and successful test
-completion. Missing, stale or inconsistent evidence fails the comparison.
+artifacts to the tested checkout SHA, immutable base SHA and workflow run ID.
+Check passes the event payload's PR base SHA explicitly to every producer and
+the consumer, including affected-scope planning. Push runs retain full scope and
+use the executed SHA as their identity base. Fetching a newer main tip therefore
+does not change the comparison contract. A PR's synthetic merge SHA can differ
+from its branch head.
+
+Partial reruns download the run's artifacts into separate attempt directories.
+For each partition, the validator selects the newest producer attempt no later
+than the consumer, requiring every other identity and assignment field to match.
+Future attempts, duplicate partition/attempt manifests and invalid newer evidence
+fail closed. The Test Unit dependency must succeed, and the workflow independently
+checks the latest Labs job's successful terminal status and exact manifest before
+comparison; an older Labs artifact cannot mask a newer failed job.
+
+The validator also checks expected packages, invocations, runtimes, shards, test
+and source inventories, digests and successful test completion. Missing, stale
+or inconsistent evidence fails the comparison.
 
 The merger combines raw maps in Istanbul's counter format before calculating percentages.
 Adding or averaging the summaries from the two repo-cli halves would lose the

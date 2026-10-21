@@ -127,7 +127,7 @@ const fixture = Effect.fnUntraced(function* () {
       testRuntimeVersion: nativeTestVersion,
       shard: { index, total: 2 },
     });
-  const write = Effect.fnUntraced(function* (index: number, includeBarrel?: boolean) {
+  const write = Effect.fnUntraced(function* (index: number, includeBarrel?: boolean, runAttempt = 1) {
     const coverage = {
       ...raw,
       s: R.map(raw.s, () => 1),
@@ -179,7 +179,7 @@ const fixture = Effect.fnUntraced(function* () {
       root,
       CoverageProducerWriteOptions.make({
         artifactRoot: `.beep/artifacts/shard-${index}`,
-        identity,
+        identity: CoverageProducerIdentity.make({ ...identity, runAttempt }),
         partitionId: `unit-${index}`,
         packages: [selection(index)],
       })
@@ -904,6 +904,44 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
     );
   });
   describe("checkout and source identity", () => {
+    it.effect("keeps the explicit run base and scope stable when origin main advances", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        const resolve = resolveCoverageProducerIdentity(f.root, {
+          base: f.identity.baseSha,
+          packageNames: ["@beep/example"],
+        }).pipe(
+          Effect.provideService(
+            ConfigProvider.ConfigProvider,
+            ConfigProvider.fromUnknown({ GITHUB_RUN_ID: "123", GITHUB_RUN_ATTEMPT: "1" })
+          )
+        );
+        const before = yield* resolve;
+        for (const args of [
+          ["update-ref", "refs/remotes/origin/main", f.identity.baseSha],
+          [
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.test",
+            "commit",
+            "--allow-empty",
+            "--no-gpg-sign",
+            "-m",
+            "advanced main",
+          ],
+          ["update-ref", "refs/remotes/origin/main", "HEAD"],
+          ["update-ref", "HEAD", f.identity.executionSha],
+        ]) {
+          const result = yield* StepExec.runCaptured({ command: "git", args, cwd: f.root });
+          expect(result.exitCode).toBe(0);
+        }
+        const moving = yield* StepExec.runCaptured({ command: "git", args: ["rev-parse", "origin/main"], cwd: f.root });
+        expect(moving.output.trim()).not.toBe(before.baseSha);
+        expect(yield* resolve).toEqual(before);
+      })
+    );
+
     it.effect("fails closed when a selected shard never uploaded", () =>
       Effect.gen(function* () {
         const f = yield* fixture();
@@ -1040,6 +1078,54 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
     );
   });
   describe("manifest and raw counter validation", () => {
+    it.effect("selects the newest sealed attempt per partition without replaying successful older partitions", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        yield* f.fs.rename(
+          f.path.join(f.root, ".beep/artifacts/shard-2"),
+          f.path.join(f.root, ".beep/artifacts/old-shard-2")
+        );
+        yield* f.write(2, false, 2);
+        // The obsolete report is deliberately unreadable: only its envelope is
+        // authoritative; raw counts must come from the newer complete attempt.
+        yield* f.fs.writeFileString(
+          f.path.join(f.root, ".beep/artifacts/old-shard-2", f.entry.reportPath),
+          "obsolete report"
+        );
+        const snapshots = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({
+            ...f.options,
+            identity: CoverageProducerIdentity.make({ ...f.identity, runAttempt: 3 }),
+          })
+        );
+        expect(snapshots[0]?.baseline.branches).toBe(100);
+      })
+    );
+
+    it.effect("rejects a newer corrupted attempt instead of falling back to an older sealed partition", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        yield* f.fs.rename(
+          f.path.join(f.root, ".beep/artifacts/shard-2"),
+          f.path.join(f.root, ".beep/artifacts/old-shard-2")
+        );
+        yield* f.write(2, false, 2);
+        yield* f.fs.writeFileString(
+          f.path.join(f.root, ".beep/artifacts/shard-2", f.entry.reportPath),
+          "corrupted report"
+        );
+        const failure = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({
+            ...f.options,
+            identity: CoverageProducerIdentity.make({ ...f.identity, runAttempt: 2 }),
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("digest");
+      })
+    );
+
     for (const scenario of ["missing", "attempt", "git"] as const) {
       it.effect(`rejects ${scenario} execution provenance`, () =>
         Effect.gen(function* () {
@@ -1097,6 +1183,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
 
     for (const [scenario, patch] of R.toEntries({
       attempt: { runAttempt: 2 },
+      run: { runId: "different-run" },
+      requestHead: { requestHeadSha: "b".repeat(40) },
       base: { baseSha: "b".repeat(40) },
       scope: { scopeDigest: "b".repeat(64) },
     })) {
@@ -1320,6 +1408,28 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
           yield* encode(f.manifest)
         );
         yield* rejectChangedManifest(f, f.manifest);
+      })
+    );
+    it.effect("rejects tied obsolete attempts even when a newer partition is available", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        yield* f.fs.copy(
+          f.path.join(f.root, ".beep/artifacts/shard-2"),
+          f.path.join(f.root, ".beep/artifacts/duplicate-old-shard-2")
+        );
+        yield* f.fs.rename(
+          f.path.join(f.root, ".beep/artifacts/shard-2"),
+          f.path.join(f.root, ".beep/artifacts/old-shard-2")
+        );
+        yield* f.write(2, false, 2);
+        const failure = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({
+            ...f.options,
+            identity: CoverageProducerIdentity.make({ ...f.identity, runAttempt: 3 }),
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("duplicate producer partition attempt");
       })
     );
     it.effect("rejects source bytes changed after the producer executed", () =>

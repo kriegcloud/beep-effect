@@ -16,6 +16,11 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # The event payload is fixed across jobs and partial reruns. Never bind
+  # coverage identity or affected scope to a freshly fetched moving ref.
+  BEEP_COVERAGE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+
 jobs:
   pr-size:
     name: PR Size Label
@@ -214,7 +219,7 @@ jobs:
         run: |
           set -euo pipefail
           should_run=true
-          eval "$(scripts/ci-change-profile.sh "origin/${GITHUB_BASE_REF:-main}")"
+          eval "$(scripts/ci-change-profile.sh "$BEEP_COVERAGE_BASE_SHA")"
           if [[ "$goals_only" == "true" ]]; then
             should_run=false
           fi
@@ -310,10 +315,10 @@ jobs:
             return "$status"
           }
 
-          shape_args=()
+          shape_args=(--base "$BEEP_COVERAGE_BASE_SHA")
 
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            shape_args+=(--affected --base "origin/${GITHUB_BASE_REF:-main}")
+            shape_args+=(--affected)
           fi
 
           shape_args+=(--summarize)
@@ -541,7 +546,7 @@ jobs:
         run: |
           set -euo pipefail
           should_run=true
-          eval "$(scripts/ci-change-profile.sh "origin/${GITHUB_BASE_REF:-main}")"
+          eval "$(scripts/ci-change-profile.sh "$BEEP_COVERAGE_BASE_SHA")"
           if [[ "$goals_only" == "true" ]]; then
             should_run=false
           fi
@@ -598,9 +603,9 @@ jobs:
             return "$status"
           }
 
-          shape_args=()
+          shape_args=(--base "$BEEP_COVERAGE_BASE_SHA")
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            shape_args+=(--affected --base "origin/${GITHUB_BASE_REF:-main}")
+            shape_args+=(--affected)
           fi
           shape_args+=(--summarize)
           run_lane ci lane test-unit --partition "${{ matrix.partition }}" --coverage-output ".beep/ci-coverage/${{ matrix.partition }}" "${shape_args[@]}"
@@ -666,6 +671,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
+      actions: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -692,7 +698,7 @@ jobs:
           [[ "$ADMISSION_RESULT" == "success" ]]
           [[ "$LEGACY_COVERAGE" == "true" || "$LEGACY_COVERAGE" == "false" ]]
           [[ "$UNIT_RESULT" == "success" ]]
-          eval "$(scripts/ci-change-profile.sh "origin/${GITHUB_BASE_REF:-main}")"
+          eval "$(scripts/ci-change-profile.sh "$BEEP_COVERAGE_BASE_SHA")"
           echo "should_run=$([[ "$goals_only" == "true" ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
 
       - name: Setup comparison toolchain
@@ -704,25 +710,55 @@ jobs:
           cache-write: "false"
           free-disk: "true"
 
-      # Matrix verification is a completion barrier for Labs only. An unrelated
-      # advisory matrix failure must not become a coverage failure: the typed
-      # artifact validator requires the successful Labs manifest itself.
+      # An unrelated verification matrix failure is advisory here, but the
+      # latest Labs execution must succeed even when a partial rerun leaves an
+      # older successful artifact available.
+      - name: Authenticate latest Labs execution
+        id: labs-producer
+        if: steps.lane-gate.outputs.should_run == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          jobs_file="${RUNNER_TEMP}/coverage-producer-jobs.json"
+          gh api --paginate --slurp "/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?filter=all&per_page=100" > "$jobs_file"
+          labs_attempt="$(jq -er --argjson current "$GITHUB_RUN_ATTEMPT" '
+            [.[].jobs[] | select(.name == "Labs")] as $jobs
+            | if ($jobs | length) == 0 or any($jobs[]; .run_attempt > $current)
+              then error("Missing or future Labs execution") else $jobs end
+            | (map(.run_attempt) | max) as $latest
+            | map(select(.run_attempt == $latest))
+            | if length != 1 then error("Ambiguous latest Labs execution") else .[0] end
+            | if .status != "completed" or .conclusion != "success"
+              then error("Latest Labs execution did not succeed") else .run_attempt end
+          ' "$jobs_file")"
+          echo "attempt=$labs_attempt" >> "$GITHUB_OUTPUT"
+
       - name: Download coverage evidence
         if: steps.lane-gate.outputs.should_run == 'true'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          pattern: unit-coverage-${{ github.run_id }}-${{ github.run_attempt }}-*
+          pattern: unit-coverage-${{ github.run_id }}-*
           path: .beep/ci-coverage-inputs
           merge-multiple: false
 
       - name: Compare coverage evidence
         if: steps.lane-gate.outputs.should_run == 'true'
         shell: bash
+        env:
+          LABS_PRODUCER_ATTEMPT: ${{ steps.labs-producer.outputs.attempt }}
         run: |
           set -euo pipefail
-          shape_args=()
+          # Require the exact manifest authenticated above; an older successful
+          # Labs artifact cannot mask a failed or missing newer producer.
+          labs_manifest=".beep/ci-coverage-inputs/unit-coverage-${GITHUB_RUN_ID}-${LABS_PRODUCER_ATTEMPT}-labs/manifest.json"
+          jq -e --arg run "$GITHUB_RUN_ID" --argjson attempt "$LABS_PRODUCER_ATTEMPT" '
+            .partitionId == "labs" and .identity.runId == $run and .identity.runAttempt == $attempt
+          ' "$labs_manifest" > /dev/null
+          shape_args=(--base "$BEEP_COVERAGE_BASE_SHA")
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            shape_args+=(--affected --base "origin/${GITHUB_BASE_REF:-main}")
+            shape_args+=(--affected)
           fi
           bun run beep ci lane coverage --compare-only --coverage-input .beep/ci-coverage-inputs "${shape_args[@]}"
 

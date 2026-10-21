@@ -637,7 +637,13 @@ const loadManifest = Effect.fn("CoverageArtifacts.loadManifest")(function* (
     Effect.flatMap(decodeManifest),
     mapError("invalid producer manifest.")
   );
-  if (!identityEquivalence(manifest.identity, options.identity))
+  if (
+    manifest.identity.runAttempt > options.identity.runAttempt ||
+    !identityEquivalence(
+      CoverageProducerIdentity.make({ ...manifest.identity, runAttempt: options.identity.runAttempt }),
+      options.identity
+    )
+  )
     return yield* configurationError("stale execution, base, scope, or workflow attempt.");
   const expected = A.findFirst(
     options.expectedPartitions,
@@ -657,6 +663,20 @@ const loadManifest = Effect.fn("CoverageArtifacts.loadManifest")(function* (
   )
     return yield* configurationError(`package assignment differs for ${manifest.partitionId}.`);
   return manifest;
+});
+
+const newestProducerPartitions = Effect.fn("CoverageArtifacts.newestProducerPartitions")(function* (
+  located: ReadonlyArray<[CoverageProducerManifest, string]>
+) {
+  return yield* Effect.forEach(
+    R.values(A.groupBy(located, ([manifest]) => manifest.partitionId)),
+    Effect.fnUntraced(function* (candidates) {
+      const attempts = A.map(candidates, ([manifest]) => manifest.identity.runAttempt);
+      if (A.length(attempts) !== A.length(A.dedupe(attempts)))
+        return yield* configurationError("duplicate producer partition attempt.");
+      return A.sortWith(candidates, ([manifest]) => manifest.identity.runAttempt, Order.flip(Order.Number))[0];
+    })
+  );
 });
 
 const libraryRange = (range: CoverageRawFile["statementMap"][string]) => ({
@@ -753,18 +773,15 @@ export const collectCoverageProducerArtifacts = Effect.fn("CoverageArtifacts.col
   const manifests = yield* Effect.forEach(files, (file) => loadManifest(repoRoot, path.resolve(root, file), options), {
     concurrency: 1,
   });
-  yield* requireUnique(
-    A.map(manifests, (manifest) => manifest.partitionId),
-    "producer partition"
-  );
+  const selected = yield* newestProducerPartitions(A.zip(manifests, files));
   if (
     !sameStrings(
-      sorted(A.map(manifests, (manifest) => manifest.partitionId)),
+      sorted(A.map(selected, ([manifest]) => manifest.partitionId)),
       sorted(A.map(options.expectedPartitions, (partition) => partition.partitionId))
     )
   )
     return yield* configurationError("missing producer partitions.");
-  const locatedPackages = A.flatMap(A.zip(manifests, files), ([manifest, file]: [CoverageProducerManifest, string]) =>
+  const locatedPackages = A.flatMap(selected, ([manifest, file]: [CoverageProducerManifest, string]) =>
     A.map(manifest.packages, (entry) => ({ entry, directory: path.dirname(path.resolve(root, file)) }))
   );
   const packages = A.groupBy(locatedPackages, (slice) => slice.entry.selection.packageName);
