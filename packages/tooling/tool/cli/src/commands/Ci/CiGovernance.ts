@@ -304,6 +304,11 @@ export const setupCacheWriteDisabled = Effect.fn("CiGovernance.setupCacheWriteDi
 /**
  * Expand YAML job names into their hosted check contexts.
  *
+ * **Details**
+ *
+ * The coverage migration job advertises both possible contexts. Its live name
+ * depends on whether GitHub resolved the legacy reusable coverage producer.
+ *
  * **Example** (A static job name)
  *
  * ```ts
@@ -324,6 +329,13 @@ export const workflowJobContexts = Effect.fn("CiGovernance.workflowJobContexts")
   );
   return A.flatMap(jobsFor(workflow), ([id, job]) => {
     const name = job.name ?? id;
+    if (
+      file === "check.yml" &&
+      id === "coverage-regression" &&
+      name ===
+        "${{ needs.admission.outputs.legacy_coverage == 'true' && 'Coverage Artifact Migration' || 'Heavy / Coverage Regression' }}"
+    )
+      return ["Coverage Artifact Migration", "Heavy / Coverage Regression"];
     const include = pipe(
       O.fromUndefinedOr(job.strategy?.matrix.include),
       O.flatMap(textRecordsOption),

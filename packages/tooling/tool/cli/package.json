@@ -187,6 +187,10 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "vitest": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "@vitest/istanbul-lib-coverage": "catalog:",
+    "@vitest/istanbul-lib-instrument": "catalog:",
     "@beep/ai-provider-cli": "workspace:^",
     "@beep/ai-sync": "workspace:^",
     "@beep/chalk": "workspace:^",

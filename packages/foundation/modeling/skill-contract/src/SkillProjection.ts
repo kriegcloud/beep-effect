@@ -478,7 +478,7 @@ const checkForRender = (
 ): readonly [SkillArtifactCheck, O.Option<SkillArtifactDenialReason>] =>
   Result.match(rendered, {
     onFailure:
-      /* v8 ignore next -- Md.render fails only when an adapter throws; a well-typed projection cannot reach it, the arm stays for adapter defects */
+      /* istanbul ignore next -- Md.render fails only when an adapter throws; a well-typed projection cannot reach it, the arm stays for adapter defects */
       (error) => [
         SkillArtifactCheck.make({
           check: "rerender-byte-equality",

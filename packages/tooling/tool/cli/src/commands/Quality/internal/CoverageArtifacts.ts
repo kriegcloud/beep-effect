@@ -1,0 +1,663 @@
+/**
+ * Sealed coverage artifacts shared by CI test producers and the report-only gate.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { sha256Hex } from "@beep/repo-utils/Sha256Hex";
+import * as O from "@beep/utils/Option";
+import { IstanbulCoverageProvider } from "@vitest/coverage-istanbul/dist/provider.js";
+import { createCoverageMap, createFileCoverage } from "@vitest/istanbul-lib-coverage";
+import { createInstrumenter } from "@vitest/istanbul-lib-instrument";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Order from "effect/Order";
+import * as Path from "effect/Path";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import * as Tuple from "effect/Tuple";
+import { Node, Project } from "ts-morph";
+import { createVitest } from "vitest/node";
+import { messageWithCause } from "../../../internal/cli/CommandErrorFields.ts";
+import { configStringOption } from "../../../internal/cli/EnvConfig.ts";
+import {
+  createContainedFileString,
+  readContainedFileStringNoFollow,
+  writeContainedFileString,
+} from "../../../internal/cli/FsGuards.ts";
+import { runCaptured } from "../../../internal/process/index.ts";
+import { QualityTaskConfigurationError } from "../Quality.errors.ts";
+import {
+  CoveragePackageArtifact,
+  CoverageProducerIdentity,
+  CoverageProducerManifest,
+  CoverageProducerPackage,
+  CoverageRawFile,
+  CoverageSourceIdentity,
+} from "./CoverageArtifacts.schemas.ts";
+import {
+  CoverageSnapshotEntry,
+  compareCoverageRegressionBaseline,
+  coveragePackageBaselineFromSummaryForTesting,
+} from "./CoverageRegression.ts";
+import type { CoverageProducerCompareOptions, CoverageProducerWriteOptions } from "./CoverageArtifacts.schemas.ts";
+
+export {
+  CoverageProducerCompareOptions,
+  CoverageProducerIdentity,
+  CoverageProducerPackage,
+  CoverageProducerPartition,
+  CoverageProducerWriteOptions,
+} from "./CoverageArtifacts.schemas.ts";
+
+const configurationError = (message: string) => QualityTaskConfigurationError.new(`Coverage artifact: ${message}`);
+const boundaryError = (message: string) => (cause: unknown) => configurationError(messageWithCause(message, cause));
+const mapError = (message: string) => QualityTaskConfigurationError.mapError(`Coverage artifact: ${message}`);
+const sorted = (values: ReadonlyArray<string>) => A.sort(A.dedupe(values), Order.String);
+const sameStrings = A.makeEquivalence(Str.Equivalence);
+const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
+const decodeRaw = S.decodeUnknownEffect(S.fromJsonString(S.Record(S.String, CoverageRawFile)));
+const decodeManifest = S.decodeUnknownEffect(S.fromJsonString(CoverageProducerManifest), { onExcessProperty: "error" });
+const decodeResults = S.decodeUnknownEffect(
+  S.fromJsonString(
+    S.Struct({
+      success: S.Literal(true),
+      numFailedTests: S.Literal(0),
+      numFailedTestSuites: S.Literal(0),
+      testResults: S.Array(S.Struct({ name: S.NonEmptyString, status: S.Literal("passed") })),
+    })
+  )
+);
+const decodeIdentity = S.decodeUnknownEffect(CoverageProducerIdentity);
+const packageEquivalence = S.toEquivalence(CoverageProducerPackage);
+const identityEquivalence = S.toEquivalence(CoverageProducerIdentity);
+const sourceEquivalence = A.makeEquivalence(S.toEquivalence(CoverageSourceIdentity));
+
+const requireUnique = Effect.fn("CoverageArtifacts.requireUnique")(function* (
+  values: ReadonlyArray<string>,
+  label: string
+) {
+  if (A.length(values) !== A.length(A.dedupe(values))) return yield* configurationError(`duplicate ${label}.`);
+});
+
+const relativeFile = Effect.fn("CoverageArtifacts.relativeFile")(function* (root: string, file: string) {
+  const path = yield* Path.Path;
+  const relative = path.relative(root, path.resolve(root, file));
+  if (
+    relative === "" ||
+    path.isAbsolute(relative) ||
+    A.some(Str.split(relative, "/"), (part) => part === ".." || part === ".") ||
+    Str.includes("\\")(relative)
+  ) {
+    return yield* configurationError(`path leaves its selected root: ${file}.`);
+  }
+  return relative;
+});
+
+const readText = Effect.fn("CoverageArtifacts.readText")(function* (root: string, file: string) {
+  const path = yield* Path.Path;
+  const relative = yield* relativeFile(root, file);
+  const read = yield* readContainedFileStringNoFollow(root, path.join(root, relative)).pipe(
+    mapError(`cannot safely read ${relative}.`)
+  );
+  if (!read.exists || O.isNone(read.contents)) return yield* configurationError(`missing required file ${relative}.`);
+  return read.contents.value;
+});
+
+const digest = (text: string) => sha256Hex(text).pipe(mapError("cannot hash artifact bytes."));
+const jsonDigest = (value: unknown) =>
+  encodeJson(value).pipe(Effect.flatMap(digest), mapError("cannot hash identity."));
+
+const gitRef = Effect.fn("CoverageArtifacts.gitRef")(function* (repoRoot: string, ref: string) {
+  const result = yield* runCaptured({
+    command: "git",
+    args: ["rev-parse", "--verify", `${ref}^{commit}`],
+    cwd: repoRoot,
+  }).pipe(mapError(`cannot resolve ${ref}.`));
+  if (result.exitCode !== 0) return yield* configurationError(`cannot resolve ${ref}.`);
+  return Str.trim(result.output);
+});
+
+/**
+ * Bind a coverage scope to the actual checkout and trusted workflow attempt.
+ *
+ * **Example** (Build the identity effect)
+ * ```ts
+ * import { resolveCoverageProducerIdentity } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ * const identity = resolveCoverageProducerIdentity("/repo", { base: "origin/main", packageNames: [] })
+ * console.log(Effect.isEffect(identity))
+ * ```
+ * @category constructors
+ * @since 0.0.0
+ */
+export const resolveCoverageProducerIdentity = Effect.fn("CoverageArtifacts.resolveIdentity")(function* (
+  repoRoot: string,
+  options: { readonly base: string; readonly packageNames: ReadonlyArray<string> }
+) {
+  const executionSha = yield* gitRef(repoRoot, "HEAD");
+  const baseSha = yield* gitRef(repoRoot, options.base);
+  const runId = yield* configStringOption("BEEP_COVERAGE_RUN_ID").pipe(
+    Effect.flatMap(O.match({ onSome: Effect.succeedSome, onNone: () => configStringOption("GITHUB_RUN_ID") }))
+  );
+  const attempt = yield* configStringOption("BEEP_COVERAGE_RUN_ATTEMPT").pipe(
+    Effect.flatMap(O.match({ onSome: Effect.succeedSome, onNone: () => configStringOption("GITHUB_RUN_ATTEMPT") }))
+  );
+  if (O.isNone(runId) || O.isNone(attempt)) return yield* configurationError("workflow run and attempt are required.");
+  const runAttempt = yield* S.decodeEffect(S.FiniteFromString)(attempt.value).pipe(
+    mapError("invalid workflow attempt.")
+  );
+  const requestHeadSha = yield* configStringOption("BEEP_COVERAGE_REQUEST_HEAD_SHA");
+  return yield* decodeIdentity({
+    executionSha,
+    baseSha,
+    runId: runId.value,
+    runAttempt,
+    scopeDigest: yield* jsonDigest(sorted(options.packageNames)),
+    ...O.getSomesStruct({ requestHeadSha }),
+  }).pipe(mapError("invalid execution identity."));
+});
+
+/**
+ * Resolve the provider's complete configured source census without running tests.
+ *
+ * **Example** (Discover selected sources)
+ * ```ts
+ * import { discoverCoverageArtifactSources } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(discoverCoverageArtifactSources("/repo", "packages/example")))
+ * ```
+ * @category filesystem
+ * @since 0.0.0
+ */
+export const discoverCoverageArtifactSources = Effect.fn("CoverageArtifacts.discoverSources")(function* (
+  repoRoot: string,
+  packagePath: string
+) {
+  const path = yield* Path.Path;
+  const packageRoot = path.join(repoRoot, yield* relativeFile(repoRoot, packagePath));
+  return yield* Effect.acquireUseRelease(
+    Effect.tryPromise({
+      try: () =>
+        createVitest({
+          root: packageRoot,
+          watch: false,
+          coverage: { enabled: true, provider: "istanbul", clean: false },
+        }),
+      catch: boundaryError("cannot resolve Vitest configuration."),
+    }),
+    (context) =>
+      Effect.gen(function* () {
+        const provider = new IstanbulCoverageProvider();
+        yield* Effect.try({
+          try: () => provider.initialize(context),
+          catch: boundaryError("cannot initialize Istanbul discovery."),
+        });
+        const files = yield* Effect.tryPromise({
+          try: () => provider.getUntestedFiles([]),
+          catch: boundaryError("cannot discover configured coverage sources."),
+        });
+        return sorted(yield* Effect.forEach(files, (file) => relativeFile(repoRoot, file), { concurrency: 1 }));
+      }),
+    (context) => Effect.promise(() => context.close())
+  );
+});
+
+const hasNoExecutableUnits = (coverage: Pick<CoverageRawFile, "statementMap" | "fnMap" | "branchMap">) =>
+  A.isReadonlyArrayEmpty(R.keys(coverage.statementMap)) &&
+  A.isReadonlyArrayEmpty(R.keys(coverage.fnMap)) &&
+  A.isReadonlyArrayEmpty(R.keys(coverage.branchMap));
+
+const structuralZero = Effect.fn("CoverageArtifacts.structuralZero")(function* (file: string, source: string) {
+  return yield* Effect.try({
+    try: () => {
+      const project = new Project({ useInMemoryFileSystem: true });
+      const parsed = project.createSourceFile(file, source);
+      const erased = A.every(
+        parsed.getStatements(),
+        (statement) =>
+          Node.isImportDeclaration(statement) ||
+          Node.isExportDeclaration(statement) ||
+          Node.isInterfaceDeclaration(statement) ||
+          Node.isTypeAliasDeclaration(statement)
+      );
+      if (!erased) return undefined;
+      const instrumenter = createInstrumenter({
+        produceSourceMap: true,
+        autoWrap: false,
+        esModules: true,
+        compact: false,
+        coverageVariable: "__VITEST_COVERAGE__",
+        coverageGlobalScope: "globalThis",
+        coverageGlobalScopeFunc: false,
+        ignoreClassMethods: [],
+        ignoreLines: true,
+        parserPlugins: ["typescript", "jsx"],
+      });
+      instrumenter.instrumentSync(source, file);
+      return O.fromNullishOr(instrumenter.lastFileCoverage()).pipe(O.filter(hasNoExecutableUnits), O.getOrUndefined);
+    },
+    catch: boundaryError(`cannot prove zero executable units for ${file}.`),
+  }).pipe(
+    Effect.flatMap((coverage) =>
+      O.match(O.fromUndefinedOr(coverage), {
+        onNone: () => Effect.succeedNone,
+        onSome: (value) =>
+          S.decodeEffect(CoverageRawFile)(value).pipe(Effect.asSome, mapError("invalid zero-unit witness.")),
+      })
+    )
+  );
+});
+
+const validateCounters = Effect.fn("CoverageArtifacts.validateCounters")(function* (file: CoverageRawFile) {
+  for (const [locations, counters] of [
+    Tuple.make(R.keys(file.statementMap), R.keys(file.s)),
+    Tuple.make(R.keys(file.fnMap), R.keys(file.f)),
+    Tuple.make(R.keys(file.branchMap), R.keys(file.b)),
+  ]) {
+    if (!sameStrings(sorted(locations), sorted(counters)))
+      return yield* configurationError(`counter/location mismatch for ${file.path}.`);
+  }
+  for (const [key, branch] of R.toEntries(file.branchMap)) {
+    const hits = R.get(file.b, key);
+    if (O.isNone(hits) || A.length(hits.value) !== A.length(branch.locations))
+      return yield* configurationError(`branch arity mismatch for ${file.path}.`);
+  }
+});
+
+const normalizedRaw = Effect.fn("CoverageArtifacts.normalizedRaw")(function* (
+  repoRoot: string,
+  selection: CoverageProducerPackage,
+  text: string
+) {
+  const path = yield* Path.Path;
+  const decoded = yield* decodeRaw(text).pipe(mapError(`invalid raw coverage for ${selection.packageName}.`));
+  const entries = yield* Effect.forEach(
+    R.toEntries(decoded),
+    Effect.fnUntraced(function* ([key, file]) {
+      const normalized = yield* relativeFile(repoRoot, key);
+      const normalizedValue = yield* relativeFile(repoRoot, file.path);
+      yield* relativeFile(path.join(repoRoot, selection.packagePath), path.join(repoRoot, normalized));
+      if (normalized !== normalizedValue) return yield* configurationError(`raw map key/path disagree for ${key}.`);
+      yield* validateCounters(file);
+      return [normalized, CoverageRawFile.make({ ...file, path: normalized })] as const;
+    }),
+    { concurrency: 1 }
+  );
+  yield* requireUnique(
+    A.map(entries, ([file]) => file),
+    "normalized report source"
+  );
+  return R.fromEntries(A.sortWith(entries, (entry) => entry[0], Order.String));
+});
+
+const sourceInventory = Effect.fn("CoverageArtifacts.sourceInventory")(function* (
+  repoRoot: string,
+  selection: CoverageProducerPackage,
+  raw: Readonly<Record<string, CoverageRawFile>>
+) {
+  const files = yield* discoverCoverageArtifactSources(repoRoot, selection.packagePath);
+  const unexpected = A.difference(R.keys(raw), files);
+  if (A.isReadonlyArrayNonEmpty(unexpected))
+    return yield* configurationError(`unexpected coverage sources: ${A.join(unexpected, ", ")}.`);
+  return yield* Effect.forEach(
+    files,
+    Effect.fnUntraced(function* (file) {
+      const text = yield* readText(repoRoot, file);
+      const reported = R.get(raw, file);
+      const structural = O.isNone(reported) || hasNoExecutableUnits(reported.value);
+      if (structural && O.isNone(yield* structuralZero(file, text)))
+        return yield* configurationError(`missing executable source ${file}.`);
+      return CoverageSourceIdentity.make({ path: file, sha256: yield* digest(text), structuralZero: structural });
+    }),
+    { concurrency: 1 }
+  );
+});
+
+const actualTests = Effect.fn("CoverageArtifacts.actualTests")(function* (
+  repoRoot: string,
+  selection: CoverageProducerPackage
+) {
+  const path = yield* Path.Path;
+  const report = yield* readText(repoRoot, path.join(selection.packagePath, selection.testReportPath)).pipe(
+    Effect.flatMap(decodeResults),
+    mapError(`unsuccessful/missing test results for ${selection.packageName}.`)
+  );
+  const files = yield* Effect.forEach(report.testResults, (result) => relativeFile(repoRoot, result.name), {
+    concurrency: 1,
+  });
+  yield* requireUnique(files, "executed test file");
+  if (A.isReadonlyArrayNonEmpty(A.difference(files, selection.expectedTestFiles)))
+    return yield* configurationError(`unexpected executed tests for ${selection.packageName}.`);
+  return sorted(files);
+});
+
+const sealPackage = Effect.fn("CoverageArtifacts.sealPackage")(function* (
+  repoRoot: string,
+  artifactRoot: string,
+  selection: CoverageProducerPackage
+) {
+  const path = yield* Path.Path;
+  yield* requireUnique(selection.expectedTestFiles, "expected test file");
+  const original = yield* readText(repoRoot, path.join(selection.packagePath, "coverage", "coverage-final.json"));
+  const raw = yield* normalizedRaw(repoRoot, selection, original);
+  const text = yield* encodeJson(raw).pipe(mapError("cannot encode normalized raw coverage."));
+  const reportPath = `reports/${yield* digest(selection.packageName)}/coverage-final.json`;
+  const target = path.join(artifactRoot, reportPath);
+  yield* writeContainedFileString(repoRoot, target, text).pipe(mapError("cannot seal raw report."));
+  return CoveragePackageArtifact.make({
+    selection,
+    reportPath,
+    reportSha256: yield* digest(text),
+    actualTestFiles: yield* actualTests(repoRoot, selection),
+    sources: yield* sourceInventory(repoRoot, selection, raw),
+  });
+});
+
+const checkCheckout = Effect.fn("CoverageArtifacts.checkCheckout")(function* (
+  repoRoot: string,
+  identity: CoverageProducerIdentity
+) {
+  if ((yield* gitRef(repoRoot, "HEAD")) !== identity.executionSha)
+    return yield* configurationError("tested execution SHA differs from the checkout.");
+});
+
+/**
+ * Seal normalized raw reports only after the selected tests passed.
+ *
+ * **Example** (Inspect the producer effect)
+ * ```ts
+ * import { writeCoverageProducerArtifact } from "@beep/repo-cli/test/Quality"
+ * console.log(typeof writeCoverageProducerArtifact) // function
+ * ```
+ * @category filesystem
+ * @since 0.0.0
+ */
+export const writeCoverageProducerArtifact = Effect.fn("CoverageArtifacts.writeProducer")(function* (
+  repoRoot: string,
+  options: CoverageProducerWriteOptions
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* checkCheckout(repoRoot, options.identity);
+  yield* requireUnique(
+    A.map(options.packages, (entry) => entry.packageName),
+    "producer package"
+  );
+  const runtimeVersion = O.fromUndefinedOr(process.versions.bun);
+  if (O.isNone(runtimeVersion)) return yield* configurationError("coverage producer must run under Bun.");
+  const artifactRoot = path.resolve(repoRoot, options.artifactRoot);
+  yield* relativeFile(repoRoot, artifactRoot);
+  if (yield* fs.exists(path.join(artifactRoot, "manifest.json")))
+    return yield* configurationError("producer manifest already exists; refusing stale output.");
+  const packages = yield* Effect.forEach(options.packages, (entry) => sealPackage(repoRoot, artifactRoot, entry), {
+    concurrency: 1,
+  });
+  const manifest = CoverageProducerManifest.make({
+    schemaVersion: "coverage-producer/v1",
+    identity: options.identity,
+    partitionId: options.partitionId,
+    provider: "istanbul",
+    coverageLibraryVersion: "1.0.2",
+    runtime: "bun",
+    runtimeVersion: runtimeVersion.value,
+    packages,
+  });
+  yield* createContainedFileString(
+    repoRoot,
+    path.join(artifactRoot, "manifest.json"),
+    yield* S.encodeEffect(S.fromJsonString(CoverageProducerManifest))(manifest).pipe(
+      mapError("cannot encode manifest.")
+    )
+  ).pipe(mapError("cannot write manifest."));
+});
+
+const instrumentationIdentity = (file: CoverageRawFile) => ({
+  statementMap: file.statementMap,
+  fnMap: file.fnMap,
+  branchMap: file.branchMap,
+});
+
+const samePackageCensus = (a: CoveragePackageArtifact, b: CoveragePackageArtifact) =>
+  a.selection.packagePath === b.selection.packagePath &&
+  (a.selection.shard?.total ?? 1) === (b.selection.shard?.total ?? 1) &&
+  sameStrings(sorted(a.selection.expectedTestFiles), sorted(b.selection.expectedTestFiles)) &&
+  sourceEquivalence(a.sources, b.sources);
+
+const validatePackageSlices = Effect.fn("CoverageArtifacts.validatePackageSlices")(function* (
+  slices: A.NonEmptyReadonlyArray<CoveragePackageArtifact>
+) {
+  const first = slices[0];
+  const expected = first.selection;
+  const shardCount = O.fromUndefinedOr(expected.shard).pipe(
+    O.map((shard) => shard.total),
+    O.getOrElse(() => 1)
+  );
+  if (A.length(slices) !== shardCount)
+    return yield* configurationError(`incomplete shard set for ${expected.packageName}.`);
+  const indexes = A.map(slices, (slice) => slice.selection.shard?.index ?? 1);
+  if (!sameStrings(sorted(A.map(indexes, String)), sorted(A.map(A.range(1, shardCount), String))))
+    return yield* configurationError(`duplicate/incomplete shard indexes for ${expected.packageName}.`);
+  for (const slice of slices) {
+    if (!samePackageCensus(slice, first))
+      return yield* configurationError(`inconsistent package shard census for ${expected.packageName}.`);
+  }
+  const tests = A.flatMap(slices, (slice) => slice.actualTestFiles);
+  yield* requireUnique(tests, "test file across shards");
+  if (!sameStrings(sorted(tests), sorted(expected.expectedTestFiles)))
+    return yield* configurationError(`incomplete executed test census for ${expected.packageName}.`);
+  return expected;
+});
+
+const loadManifest = Effect.fn("CoverageArtifacts.loadManifest")(function* (
+  repoRoot: string,
+  file: string,
+  options: CoverageProducerCompareOptions
+) {
+  const manifest = yield* readText(repoRoot, file).pipe(
+    Effect.flatMap(decodeManifest),
+    mapError("invalid producer manifest.")
+  );
+  if (!identityEquivalence(manifest.identity, options.identity))
+    return yield* configurationError("stale execution, base, scope, or workflow attempt.");
+  const expected = A.findFirst(
+    options.expectedPartitions,
+    (partition) => partition.partitionId === manifest.partitionId
+  );
+  if (O.isNone(expected)) return yield* configurationError(`unexpected partition ${manifest.partitionId}.`);
+  const actual = A.sort(
+    manifest.packages,
+    Order.mapInput(Order.String, (entry: CoveragePackageArtifact) => entry.selection.packageName)
+  );
+  const selections = A.sort(
+    expected.value.packages,
+    Order.mapInput(Order.String, (entry: CoverageProducerPackage) => entry.packageName)
+  );
+  if (
+    !A.makeEquivalence(packageEquivalence)(
+      A.map(actual, (entry) => entry.selection),
+      selections
+    )
+  )
+    return yield* configurationError(`package assignment differs for ${manifest.partitionId}.`);
+  return manifest;
+});
+
+const libraryRange = (range: CoverageRawFile["statementMap"][string]) => ({
+  ...range,
+  end: { ...range.end, column: range.end.column ?? Number.POSITIVE_INFINITY },
+});
+const libraryCoverage = (file: CoverageRawFile) =>
+  createFileCoverage({
+    ...file,
+    statementMap: R.map(file.statementMap, libraryRange),
+    fnMap: R.map(file.fnMap, (fn) => ({
+      ...fn,
+      line: fn.line ?? fn.loc.start.line,
+      decl: libraryRange(fn.decl),
+      loc: libraryRange(fn.loc),
+    })),
+    branchMap: R.map(file.branchMap, (branch) => ({
+      ...branch,
+      line: branch.line ?? branch.loc.start.line,
+      loc: libraryRange(branch.loc),
+      locations: A.map(branch.locations, (range) => ({
+        start: { line: range.start.line ?? branch.loc.end.line, column: range.start.column ?? 0 },
+        end: {
+          line: range.end.line ?? branch.loc.end.line,
+          column: range.end.column ?? Number.POSITIVE_INFINITY,
+        },
+      })),
+    })),
+    b: R.map(file.b, A.fromIterable),
+  });
+
+const loadSliceCoverage = Effect.fn("CoverageArtifacts.loadSlice")(function* (
+  repoRoot: string,
+  directory: string,
+  entry: CoveragePackageArtifact
+) {
+  const report = yield* readText(directory, entry.reportPath);
+  if ((yield* digest(report)) !== entry.reportSha256)
+    return yield* configurationError(`report digest mismatch for ${entry.selection.packageName}.`);
+  const raw = yield* normalizedRaw(repoRoot, entry.selection, report);
+  const sources = yield* sourceInventory(repoRoot, entry.selection, raw);
+  if (!sourceEquivalence(sources, entry.sources))
+    return yield* configurationError(`stale source census for ${entry.selection.packageName}.`);
+  return yield* Effect.forEach(
+    sources,
+    Effect.fnUntraced(function* (source) {
+      const coverage = R.get(raw, source.path);
+      if (O.isSome(coverage)) return coverage.value;
+      const empty = yield* structuralZero(source.path, yield* readText(repoRoot, source.path));
+      return yield* O.match(empty, {
+        onSome: Effect.succeed,
+        onNone: () => configurationError(`missing source ${source.path}.`),
+      });
+    }),
+    { concurrency: 1 }
+  );
+});
+
+/**
+ * Validate complete partition artifacts and merge counters without running tests.
+ *
+ * **Example** (Inspect the collector effect)
+ * ```ts
+ * import { collectCoverageProducerArtifacts } from "@beep/repo-cli/test/Quality"
+ * console.log(typeof collectCoverageProducerArtifacts) // function
+ * ```
+ * @category filesystem
+ * @since 0.0.0
+ */
+export const collectCoverageProducerArtifacts = Effect.fn("CoverageArtifacts.collect")(function* (
+  repoRoot: string,
+  options: CoverageProducerCompareOptions
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* checkCheckout(repoRoot, options.identity);
+  yield* requireUnique(
+    A.map(options.expectedPartitions, (partition) => partition.partitionId),
+    "expected partition"
+  );
+  const expectedNames = sorted(
+    A.flatMap(options.expectedPartitions, (partition) => A.map(partition.packages, (entry) => entry.packageName))
+  );
+  if ((yield* jsonDigest(expectedNames)) !== options.identity.scopeDigest)
+    return yield* configurationError("selected package scope differs from the execution identity.");
+  const root = path.resolve(repoRoot, options.artifactRoot);
+  yield* relativeFile(repoRoot, root);
+  const files = yield* fs.glob("**/manifest.json", { root }).pipe(mapError("cannot enumerate producer manifests."));
+  const manifests = yield* Effect.forEach(files, (file) => loadManifest(repoRoot, path.resolve(root, file), options), {
+    concurrency: 1,
+  });
+  yield* requireUnique(
+    A.map(manifests, (manifest) => manifest.partitionId),
+    "producer partition"
+  );
+  if (
+    !sameStrings(
+      sorted(A.map(manifests, (manifest) => manifest.partitionId)),
+      sorted(A.map(options.expectedPartitions, (partition) => partition.partitionId))
+    )
+  )
+    return yield* configurationError("missing producer partitions.");
+  const packages = A.groupBy(
+    A.flatMap(manifests, (manifest, index) =>
+      A.map(manifest.packages, (entry) => ({ entry, directory: path.dirname(path.resolve(root, files[index] ?? "")) }))
+    ),
+    (slice) => slice.entry.selection.packageName
+  );
+  return yield* Effect.forEach(
+    A.sortWith(R.toEntries(packages), (entry) => entry[0], Order.String),
+    Effect.fnUntraced(function* ([packageName, located]) {
+      const slices = A.map(located, (slice) => slice.entry);
+      const selection = yield* validatePackageSlices(slices);
+      const merged = createCoverageMap({});
+      const seen = R.empty<string, string>();
+      const reports = yield* Effect.forEach(
+        located,
+        ({ entry, directory }) => loadSliceCoverage(repoRoot, directory, entry),
+        { concurrency: 1 }
+      );
+      for (const file of A.flatten(reports)) {
+        const fingerprint = yield* jsonDigest(instrumentationIdentity(file));
+        const previous = R.get(seen, file.path);
+        if (O.isSome(previous) && previous.value !== fingerprint)
+          return yield* configurationError(`incompatible instrumentation for ${file.path}.`);
+        seen[file.path] = fingerprint;
+        yield* Effect.try({
+          try: () => merged.addFileCoverage(libraryCoverage(file)),
+          catch: boundaryError(`cannot merge ${file.path}.`),
+        });
+      }
+      const summary = R.fromEntries(
+        A.map(
+          merged.files(),
+          (file) => [path.join(repoRoot, file), merged.fileCoverageFor(file).toSummary().toJSON()] as const
+        )
+      );
+      const text = yield* encodeJson({ total: merged.getCoverageSummary().toJSON(), ...summary }).pipe(
+        mapError("cannot encode merged summary.")
+      );
+      return CoverageSnapshotEntry.make({
+        packageName,
+        baseline: yield* coveragePackageBaselineFromSummaryForTesting(
+          repoRoot,
+          path.join(repoRoot, selection.packagePath),
+          text
+        ),
+      });
+    }),
+    { concurrency: 1 }
+  );
+});
+
+/**
+ * Run the existing ratchet against validated producer snapshots, with no test fallback.
+ *
+ * **Example** (Inspect the comparison adapter)
+ * ```ts
+ * import { compareCoverageProducerArtifacts } from "@beep/repo-cli/test/Quality"
+ * console.log(typeof compareCoverageProducerArtifacts) // function
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const compareCoverageProducerArtifacts = Effect.fn("CoverageArtifacts.compare")(function* (
+  repoRoot: string,
+  options: CoverageProducerCompareOptions
+) {
+  const snapshots = yield* collectCoverageProducerArtifacts(repoRoot, options);
+  return yield* compareCoverageRegressionBaseline(
+    repoRoot,
+    options.scoped,
+    sorted(
+      A.flatMap(options.expectedPartitions, (partition) => A.map(partition.packages, (entry) => entry.packageName))
+    ),
+    snapshots
+  );
+});

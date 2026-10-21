@@ -65,6 +65,7 @@ import { collectChangedFiles, collectDirtyWorktreeFiles } from "../../internal/r
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { PosInt } from "../../internal/schema/PosInt.ts";
 import { assertCacheRuntimeKeyUnspecified, cacheRuntimeStep } from "../Cache/Cache.runtime.ts";
+import { CoverageProducerIdentity, resolveCoverageProducerIdentity } from "./internal/CoverageArtifacts.ts";
 import {
   cleanCoverageRegressionOutputs,
   compareCoverageRegressionBaseline,
@@ -73,6 +74,7 @@ import {
   writeCoverageRegressionBaseline,
 } from "./internal/CoverageRegression.ts";
 import {
+  CoverageScopeOwner,
   coverageScopeWeightSeconds,
   planCoverageFullShards,
   planWorkspaceCoverageAffectedScope,
@@ -128,7 +130,7 @@ import type { PgliteTestcontainerResource } from "@beep/test-utils";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as Scope from "effect/Scope";
 import type { CaptureCommandTimedOutError } from "../../internal/process/index.ts";
-import type { CoverageBaselineRowDelta, CoverageScopeOwner } from "./internal/CoverageScope.ts";
+import type { CoverageBaselineRowDelta } from "./internal/CoverageScope.ts";
 import type { FlakeQuarantineTask } from "./internal/FlakeQuarantine.ts";
 import type { LaneProofSession } from "./internal/LaneProofReuse.ts";
 import type { TurboLaneDigest } from "./internal/TurboLaneDigest.ts";
@@ -858,7 +860,8 @@ const coverageFullPassthroughArgs = (args: ReadonlyArray<string>): ReadonlyArray
 
 const resolveCoverageTaskOptions = Effect.fn("QualityTasks.resolveCoverageTaskOptions")(function* (
   repoRoot: string,
-  args: ReadonlyArray<string>
+  args: ReadonlyArray<string>,
+  baseOverride?: string
 ): Effect.fn.Return<CoverageTaskOptions, QualityTaskConfigurationError, QualityTaskEnvironment> {
   const parsed = parseCoverageTaskOptions(args);
   // A scoped `--replace-all` is the deliberate re-measure path: it adopts every
@@ -878,7 +881,9 @@ const resolveCoverageTaskOptions = Effect.fn("QualityTasks.resolveCoverageTaskOp
     );
   }
 
-  const base = yield* configStringOption("TURBO_SCM_BASE").pipe(
+  const base = yield* (
+    baseOverride === undefined ? configStringOption("TURBO_SCM_BASE") : Effect.succeedSome(baseOverride)
+  ).pipe(
     Effect.flatMap(
       O.match({
         onNone: () => QualityTaskConfigurationError.new("Affected coverage requires TURBO_SCM_BASE."),
@@ -949,6 +954,62 @@ const resolveCoverageTaskOptions = Effect.fn("QualityTasks.resolveCoverageTaskOp
     ),
     Match.exhaustive
   );
+});
+
+/**
+ * Authoritative coverage owners and checkout identity for test producers.
+ *
+ * **Example** (Inspect the shared plan contract)
+ * ```ts
+ * import { CiCoverageArtifactPlan } from "@beep/repo-cli/commands/Quality/Tasks"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(CiCoverageArtifactPlan)({})) // false
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class CiCoverageArtifactPlan extends S.Opaque<CiCoverageArtifactPlan, { readonly brand: unique symbol }>()(
+  S.Struct({ identity: CoverageProducerIdentity, owners: S.Array(CoverageScopeOwner), scoped: S.Boolean }).pipe(
+    $RepoCliId.create("commands/Quality/Tasks").annoteSchema("CiCoverageArtifactPlan", {
+      description: "Coverage planner owners and trusted workflow identity shared by producers and comparator.",
+    })
+  )
+) {}
+
+/**
+ * Reuse the legacy coverage scope planner without cleaning or executing tests.
+ *
+ * **Example** (Build a report planning effect)
+ * ```ts
+ * import { resolveCiCoverageArtifactPlan } from "@beep/repo-cli/commands/Quality/Tasks"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(resolveCiCoverageArtifactPlan("/repo", [])))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const resolveCiCoverageArtifactPlan = Effect.fn("QualityTasks.resolveCiCoverageArtifactPlan")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>,
+  base?: string
+) {
+  const options = yield* resolveCoverageTaskOptions(repoRoot, args, base);
+  const owners = yield* workspaceCoverageScopeOwners(repoRoot);
+  const names = options.skip
+    ? A.empty<string>()
+    : options.scoped
+      ? options.expectedPackageNames
+      : A.map(
+          A.filter(owners, (owner) => owner.hasCoverage),
+          (owner) => owner.packageName
+        );
+  const selected = A.filter(owners, (owner) => A.contains(names, owner.packageName));
+  const comparisonBase = base ?? O.getOrElse(yield* configStringOption("TURBO_SCM_BASE"), () => "origin/main");
+  return CiCoverageArtifactPlan.make({
+    identity: yield* resolveCoverageProducerIdentity(repoRoot, { base: comparisonBase, packageNames: names }),
+    owners: selected,
+    scoped: options.scoped,
+  });
 });
 
 /**
@@ -1122,6 +1183,19 @@ const coverageEnvironment = (): Record<string, string | undefined> => ({
   ...turboCachePullRequestPosture,
   VITEST_COVERAGE_RATCHET: "1",
 });
+
+/**
+ * Deterministic coverage environment for the single CI test producer.
+ *
+ * **Example** (Inspect the pinned seed)
+ * ```ts
+ * import { coverageProducerEnvironment } from "@beep/repo-cli/commands/Quality/Tasks"
+ * console.log(coverageProducerEnvironment().VITEST_COVERAGE_RATCHET) // "1"
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const coverageProducerEnvironment = coverageEnvironment;
 
 // fallow-ignore-next-line code-duplication -- coverage detection stays beside its deterministic hosted environment
 const turboCoverageEnv = (

@@ -4,7 +4,7 @@
 installer. That dependency is affected by
 [GHSA-vwc7-r8mq-g2x9](https://github.com/advisories/GHSA-vwc7-r8mq-g2x9),
 which follows pre-existing destination symlinks during extraction. No patched
-release is listed as of September 8, 2026.
+release is listed as of October 20, 2026.
 
 The root override maps **only this version of ONNX Runtime's** `adm-zip`
 dependency to `fflate@0.8.3`. The companion Bun patch changes the installer to
@@ -20,7 +20,7 @@ or symlink without following the final symlink. ONNX Runtime and its native
 bindings remain at 1.30.0.
 
 The scoped override requires lockfile version 3, supported by the repository's
-pinned Bun 1.4.2. The existing OSV scanner can read this lockfile format.
+pinned Bun 1.4.3. The existing OSV scanner can read this lockfile format.
 
 `packages/drivers/face-detection/test/OnnxRuntimeInstall.test.ts` exercises the
 installed installer against real ZIPs and filesystem operations with mocked

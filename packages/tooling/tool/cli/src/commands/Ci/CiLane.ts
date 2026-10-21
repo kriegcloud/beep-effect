@@ -50,6 +50,13 @@ import {
 } from "../Quality/Tasks.ts";
 import { CiCommandError, CiLanePartitionError } from "./Ci.errors.ts";
 import {
+  ciCoveragePlan,
+  ciCoverageTestArgs,
+  runCiCoverageComparison,
+  runCiCoveragePartition,
+  runCiLabsCoverage,
+} from "./CiCoverage.ts";
+import {
   CI_LANE_PARTITION_TABLE_PATH,
   CI_LANE_PARTITIONS,
   CiLanePartitionId,
@@ -61,7 +68,12 @@ import {
 import type { FsUtils } from "@beep/repo-utils";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-import type { QualityTaskConfigurationError, QualityTaskGroupFailed, QualityTaskLaneInput } from "../Quality/Tasks.ts";
+import type {
+  CiCoverageArtifactPlan,
+  QualityTaskConfigurationError,
+  QualityTaskGroupFailed,
+  QualityTaskLaneInput,
+} from "../Quality/Tasks.ts";
 import type { CiLanePartition, PartitionedCiLane } from "./CiLanePartitions.ts";
 
 const $I = $RepoCliId.create("commands/Ci/CiLane");
@@ -449,9 +461,9 @@ export const CI_LANE_DESCRIPTORS: ReadonlyArray<CiLaneDescriptor> = [
     required: true,
     laneClass: "cli-runnable",
     replay: "exact",
-    flags: [...TURBO_SHAPE_FLAGS, "--partition", "--dry-run", "--force"],
+    flags: [...TURBO_SHAPE_FLAGS, "--partition", "--dry-run", "--force", "--coverage-output"],
     notes:
-      "Runs the unit suites under Bun. Coverage replays them under Node; the dual execution is the deliberate runtime-parity proof (quality-lane audit 2026-09-09, D11), not a duplicate to fold.",
+      "Runs unit suites under Bun; --coverage-output instruments that same execution and seals its partition receipt.",
   }),
   CiLaneDescriptor.make({
     id: "test-integration",
@@ -464,14 +476,14 @@ export const CI_LANE_DESCRIPTORS: ReadonlyArray<CiLaneDescriptor> = [
   }),
   CiLaneDescriptor.make({
     id: "coverage",
-    workflow: "heavy",
+    workflow: "check",
     contextName: "Heavy / Coverage Regression",
     required: false,
     laneClass: "cli-runnable",
     replay: "exact",
-    flags: [...TURBO_SHAPE_FLAGS],
+    flags: [...TURBO_SHAPE_FLAGS, "--compare-only", "--coverage-input"],
     notes:
-      "Runs under Node because Bun has no istanbul coverage. Test Unit runs the same suites under Bun; packages have passed one runtime and failed the other, so the dual execution is the deliberate runtime-parity proof (D11).",
+      "The Check artifact consumer compares Bun/Istanbul unit and Labs receipts. Legacy callers without --compare-only retain the standalone producer until the old reusable workflow retires.",
   }),
   CiLaneDescriptor.make({
     id: "docgen",
@@ -717,6 +729,10 @@ export class CiLaneRunOptions extends S.Opaque<CiLaneRunOptions, { readonly bran
     filter: S.optionalKey(S.String),
     partition: S.optionalKey(CiLanePartitionId),
     inventory: S.optionalKey(S.String),
+    coverageOutput: S.optionalKey(S.String),
+    coverageInput: S.optionalKey(S.String),
+    compareOnly: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    coverageOnly: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     dryRun: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     force: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
   }).pipe(
@@ -1230,9 +1246,14 @@ const partitionExecutionArgs = (
       HOSTED_16GB_TURBO_CONCURRENCY_ARG,
       LABS_TURBO_EXCLUDE_FILTER,
       ...A.map(packages, (name) => `--filter=${name}`),
-      ...(options.force ? ["--force"] : A.empty<string>()),
+      ...(options.force || options.coverageOutput !== undefined ? ["--force"] : A.empty<string>()),
       ...(options.summarize ? ["--summarize"] : A.empty<string>()),
-      ...shardPassThroughArgs(shard),
+      ...(options.coverageOutput !== undefined
+        ? [
+            ...ciCoverageTestArgs,
+            ...O.match(shard, { onNone: A.empty<string>, onSome: ({ index, total }) => [`--shard=${index}/${total}`] }),
+          ]
+        : shardPassThroughArgs(shard)),
     ]
   );
 
@@ -2074,13 +2095,48 @@ const resolvePartitionedLaneRequest = Effect.fn("CiLane.resolvePartitionedLaneRe
   return O.none();
 });
 
+const runCiPartitionExecution = Effect.fn("CiLane.runCiPartitionExecution")(function* (
+  repoRoot: string,
+  request: PartitionedLaneRequest,
+  options: CiLaneRunOptions,
+  proof: CiLanePartitionProof,
+  coveragePlan: CiCoverageArtifactPlan | undefined
+) {
+  const { laneId, partition } = request;
+  if (options.dryRun) {
+    if (A.isReadonlyArrayNonEmpty(proof.packages)) {
+      const plannedArgs = partitionExecutionArgs(laneId, proof.packages, options, O.fromUndefinedOr(proof.shard));
+      yield* Console.log(`[ci] ${laneId} ${partition}: planned execution: bunx ${A.join(plannedArgs, " ")}`);
+    }
+    yield* Console.log(`[ci] ${laneId} ${partition}: dry-run proof complete; no tasks executed.`);
+    return;
+  }
+  if (A.isReadonlyArrayEmpty(proof.packages)) {
+    if (coveragePlan !== undefined) yield* runCiCoveragePartition(repoRoot, options, coveragePlan, proof, undefined);
+    yield* Console.log(`[ci] ${laneId} ${partition}: partition has no selected tasks (skipped).`);
+    return;
+  }
+
+  const step = QualityTaskStep.make({
+    label: `ci:${laneId}:${partition}`,
+    command: "bunx",
+    args: partitionExecutionArgs(laneId, proof.packages, options, O.fromUndefinedOr(proof.shard)),
+    cwd: repoRoot,
+  });
+  if (coveragePlan !== undefined) {
+    yield* runCiCoveragePartition(repoRoot, options, coveragePlan, proof, step);
+  } else {
+    yield* runQualityTaskStreamingStepGroup(`ci:${laneId}:${partition}`, [step]);
+  }
+});
+
 const runCiPartitionedLane = Effect.fn("CiLane.runCiPartitionedLane")(function* (
   repoRoot: string,
   request: PartitionedLaneRequest,
   options: CiLaneRunOptions
 ): Effect.fn.Return<
   void,
-  CiLanePartitionError | QualityTaskConfigurationError | QualityTaskGroupFailed,
+  CiCommandError | CiLanePartitionError | QualityTaskConfigurationError | QualityTaskGroupFailed,
   CiLaneEnvironment
 > {
   const { laneId, partition } = request;
@@ -2172,12 +2228,31 @@ const runCiPartitionedLane = Effect.fn("CiLane.runCiPartitionedLane")(function* 
     A.sort(Order.String)
   );
 
+  const coveragePlan =
+    laneId === "test-unit" && options.coverageOutput !== undefined
+      ? yield* ciCoveragePlan(repoRoot, options)
+      : undefined;
+  const completeSelectedPackages =
+    coveragePlan === undefined
+      ? selectedTaskPackages
+      : A.sort(
+          A.dedupe(
+            A.appendAll(
+              selectedTaskPackages,
+              A.map(
+                A.filter(coveragePlan.owners, (owner) => !isLabsWorkspaceDir(owner.packagePath)),
+                (owner) => owner.packageName
+              )
+            )
+          ),
+          Order.String
+        );
   const proof = yield* proveCiLanePartition(
     laneId,
     partition,
     workspacePackageNames,
     taskPackageNames,
-    selectedTaskPackages,
+    completeSelectedPackages,
     options.affected
   );
   yield* Console.log(
@@ -2187,26 +2262,32 @@ const runCiPartitionedLane = Effect.fn("CiLane.runCiPartitionedLane")(function* 
     discard: true,
   });
 
-  if (options.dryRun) {
-    if (A.isReadonlyArrayNonEmpty(proof.packages)) {
-      const plannedArgs = partitionExecutionArgs(laneId, proof.packages, options, O.fromUndefinedOr(proof.shard));
-      yield* Console.log(`[ci] ${laneId} ${partition}: planned execution: bunx ${A.join(plannedArgs, " ")}`);
-    }
-    yield* Console.log(`[ci] ${laneId} ${partition}: dry-run proof complete; no tasks executed.`);
-    return;
-  }
-  if (A.isReadonlyArrayEmpty(proof.packages)) {
-    yield* Console.log(`[ci] ${laneId} ${partition}: partition has no selected tasks (skipped).`);
-    return;
-  }
+  yield* runCiPartitionExecution(repoRoot, request, options, proof, coveragePlan);
+});
 
-  const step = QualityTaskStep.make({
-    label: `ci:${laneId}:${partition}`,
-    command: "bunx",
-    args: partitionExecutionArgs(laneId, proof.packages, options, O.fromUndefinedOr(proof.shard)),
-    cwd: repoRoot,
-  });
-  yield* runQualityTaskStreamingStepGroup(`ci:${laneId}:${partition}`, [step]);
+const validateCiCoverageRequest = Effect.fn("CiLane.validateCiCoverageRequest")(function* (
+  laneId: CiLaneId,
+  options: CiLaneRunOptions
+) {
+  if (
+    (options.compareOnly || options.coverageInput !== undefined) &&
+    (laneId !== "coverage" || !options.compareOnly || options.coverageInput === undefined)
+  ) {
+    return yield* CiCommandError.make({
+      message: "--compare-only and --coverage-input must be used together on the coverage lane.",
+    });
+  }
+  if (options.coverageOutput !== undefined && laneId !== "test-unit" && laneId !== "labs") {
+    return yield* CiCommandError.make({
+      message: "--coverage-output requires a Test Unit partition or the Labs lane.",
+    });
+  }
+  if (options.coverageOnly && (laneId !== "labs" || options.coverageOutput === undefined)) {
+    return yield* CiCommandError.make({ message: "--coverage-only requires Labs with --coverage-output." });
+  }
+  if (options.coverageOutput !== undefined && laneId === "test-unit" && options.partition === undefined) {
+    return yield* CiCommandError.make({ message: "Instrumented Test Unit execution requires --partition." });
+  }
 });
 
 /**
@@ -2246,9 +2327,21 @@ export const runCiLane = Effect.fn("CiLane.runCiLane")(function* (
   CiCommandError | CiLanePartitionError | QualityTaskConfigurationError | QualityTaskGroupFailed,
   CiLaneEnvironment
 > {
+  yield* validateCiCoverageRequest(laneId, options);
   const partitionedRequest = yield* resolvePartitionedLaneRequest(laneId, options);
   const repoRoot = yield* findRepoRoot().pipe(CiCommandError.mapError("Failed to locate repository root."));
 
+  if (laneId === "coverage" && options.compareOnly) {
+    yield* runCiCoverageComparison(repoRoot, options);
+    return;
+  }
+  if (laneId === "labs" && options.coverageOutput !== undefined) {
+    const checks = A.map(ciLaneStepsForTesting(repoRoot, "labs", options), (step) =>
+      QualityTaskStep.make({ ...step, args: A.filter(step.args, (arg) => arg !== "test") })
+    );
+    yield* runCiLabsCoverage(repoRoot, options, checks);
+    return;
+  }
   yield* pipe(
     partitionedRequest,
     O.match({
@@ -2356,6 +2449,22 @@ export const ciLaneCommand = Command.make(
       Flag.withDescription("Run one deterministic Lint or Test Unit package partition"),
       Flag.optional
     ),
+    coverageOutput: Flag.String("coverage-output").pipe(
+      Flag.withDescription("Seal instrumented unit/Labs coverage in this artifact directory"),
+      Flag.optional
+    ),
+    coverageInput: Flag.String("coverage-input").pipe(
+      Flag.withDescription("Compare downloaded producer artifacts from this directory"),
+      Flag.optional
+    ),
+    compareOnly: Flag.Boolean("compare-only").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Coverage lane: validate and compare artifacts without running tests")
+    ),
+    coverageOnly: Flag.Boolean("coverage-only").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Labs artifact execution: skip the separately gated check/lint tasks")
+    ),
     dryRun: Flag.Boolean("dry-run").pipe(
       Flag.withDefault(false),
       Flag.withDescription("Prove a partition's full union and selected intersection without executing tasks")
@@ -2381,6 +2490,10 @@ export const ciLaneCommand = Command.make(
     affected,
     base,
     changesetStatus,
+    coverageOutput,
+    coverageInput,
+    compareOnly,
+    coverageOnly,
     dryRun,
     filter,
     force,
@@ -2404,7 +2517,9 @@ export const ciLaneCommand = Command.make(
       head,
       summarize,
       mode,
-      ...O.getSomesStruct({ filter, from, inventory, partition }),
+      ...O.getSomesStruct({ filter, from, inventory, partition, coverageOutput, coverageInput }),
+      compareOnly,
+      coverageOnly,
       to,
       last,
       changesetStatus,

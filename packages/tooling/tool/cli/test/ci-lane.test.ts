@@ -1266,6 +1266,27 @@ describe("ciLaneStepsForTesting", () => {
     expect(firstOf(steps).env).toBeUndefined();
   });
 
+  it("instruments the existing unit shard once and forces only its exact test targets", () => {
+    const options = CiLaneRunOptions.make({ ...baseOptions, coverageOutput: ".beep/ci-coverage/repo-cli-1" });
+    const args = ciLanePartitionArgsForTesting(
+      "test-unit",
+      ["@beep/repo-cli"],
+      options,
+      CiLanePartitionShard.make({ index: 1, total: 2 })
+    );
+    expect(args.execution).toContain("@beep/repo-cli#test");
+    expect(args.execution).toContain("--only");
+    expect(args.execution).toContain("--force");
+    expect(A.filter(args.execution, (arg) => arg === "--")).toHaveLength(1);
+    expect(args.execution).toContain("--coverage.provider=istanbul");
+    expect(args.execution).toContain("--coverage.reporter=json");
+    expect(args.execution).toContain("--coverage.reporter=json-summary");
+    expect(args.execution).toContain("--outputFile=coverage/unit-results.json");
+    expect(args.execution).toContain("--shard=1/2");
+    expect(args.selection).not.toContain("--coverage");
+    expect(args.execution).not.toContain("@beep/repo-cli#coverage");
+  });
+
   it("matches coverage baseline regeneration concurrency", () => {
     const coverage = firstOf(ciLaneStepsForTesting(REPO_ROOT, "coverage", prShapeOptions));
     expect([...coverage.args]).toEqual(["run", "coverage", "--", "--concurrency=3", "--affected", "--summarize"]);

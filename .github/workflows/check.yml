@@ -62,6 +62,7 @@ jobs:
       verdict: ${{ steps.decide.outputs.verdict }}
       admitted: ${{ steps.decide.outputs.admitted }}
       docs_only: ${{ steps.decide.outputs.docs_only }}
+      legacy_coverage: ${{ steps.coverage-rollout.outputs.legacy_coverage }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -87,6 +88,33 @@ jobs:
         id: decide
         shell: bash
         run: bun run beep ci admission --github-output
+
+      # Inspect the reusable revision GitHub actually resolved for this run,
+      # rather than this PR's edited workflow or a moving main branch.
+      - name: Determine coverage rollout context
+        id: coverage-rollout
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          heavy_sha="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            --jq '[.referenced_workflows[]? | select(.path == "beep-effect/beep-effect/.github/workflows/heavy.yml@main" and .ref == "refs/heads/main")] | if length == 1 then .[0].sha else error("Expected exactly one resolved trusted Heavy workflow") end')"
+          [[ "$heavy_sha" =~ ^[0-9a-f]{40}$ ]]
+          git fetch --quiet --no-tags origin "$heavy_sha"
+          heavy_file="${RUNNER_TEMP}/coverage-heavy-${GITHUB_RUN_ID}.yml"
+          git show "${heavy_sha}:.github/workflows/heavy.yml" > "$heavy_file"
+          bun --eval '
+            import { workflowJobContexts } from "@beep/repo-cli/commands/Ci";
+            import * as A from "effect/Array";
+            import * as Effect from "effect/Effect";
+            await Effect.promise(() => Bun.file(Bun.argv[1]).text()).pipe(
+              Effect.flatMap((text) => workflowJobContexts("heavy.yml", text)),
+              Effect.map(A.contains("Heavy / Coverage Regression")),
+              Effect.tap((legacy) => Effect.sync(() => console.log(`legacy_coverage=${legacy}`))),
+              Effect.runPromise
+            );
+          ' "$heavy_file" >> "$GITHUB_OUTPUT"
 
       # A push after the label admits the new head here, while the previous
       # head's label-triggered `Heavy Admit` matrix may still be queued or
@@ -202,19 +230,17 @@ jobs:
             fi
           fi
 
-          # lab-apps-lifecycle P2 (ratified row 10): PR runs of the labs lane
-          # only fire for direct labs-path or shared-toolchain changes; push
-          # events always run the full labs set.
+          # Labs build/check retain their direct-path gate. Coverage selection
+          # still runs for transitive lab dependents and emits an empty manifest
+          # when no lab test owners are selected.
+          labs_checks=true
           if [[ "${{ matrix.id }}" == "labs" && "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            base_ref="origin/${GITHUB_BASE_REF:-main}"
-            if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
-              git fetch --quiet --no-tags --depth=100 origin "${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
-            fi
-            changed_files="$(git diff --name-only "${base_ref}...HEAD")"
+            changed_files="$(git diff --name-only "origin/${GITHUB_BASE_REF:-main}...HEAD")"
             if ! grep -Eq '(^apps/labs/|^\.github/workflows/check\.yml$|^(bun\.lock|package\.json|turbo\.json)$)' <<< "$changed_files"; then
-              should_run=false
+              labs_checks=false
             fi
           fi
+          echo "labs_checks=$labs_checks" >> "$GITHUB_OUTPUT"
 
           echo "should_run=$should_run" >> "$GITHUB_OUTPUT"
 
@@ -292,7 +318,7 @@ jobs:
           shape_args+=(--summarize)
 
           # Only the ids declared in this job's matrix have arms; the heavy
-          # lanes (check, test-integration, coverage, lint-policy) dispatch
+          # lanes (check, test-integration, lint-policy) dispatch
           # from heavy.yml.
           case "${{ matrix.id }}" in
             codegen|ecosystem)
@@ -309,11 +335,23 @@ jobs:
               fi
               ;;
             labs)
-              # No --affected: the lane's positive labs filter must not union
-              # with an affected selector (lab-apps-lifecycle P2, row 10).
-              run_lane ci lane labs --summarize
+              labs_args=()
+              if [[ "${{ steps.lane-gate.outputs.labs_checks }}" != "true" ]]; then
+                labs_args+=(--coverage-only)
+              fi
+              run_lane ci lane labs --coverage-output .beep/ci-coverage/labs "${labs_args[@]}" "${shape_args[@]}"
               ;;
           esac
+
+      - name: Upload Labs coverage evidence
+        if: matrix.id == 'labs' && steps.lane-gate.outputs.should_run == 'true' && always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unit-coverage-${{ github.run_id }}-${{ github.run_attempt }}-labs
+          path: .beep/ci-coverage/labs/
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
 
       - name: Append Turbo summary
         if: matrix.uses_turbo == 'true' && steps.lane-gate.outputs.should_run == 'true' && always()
@@ -553,7 +591,17 @@ jobs:
             shape_args+=(--affected --base "origin/${GITHUB_BASE_REF:-main}")
           fi
           shape_args+=(--summarize)
-          run_lane ci lane test-unit --partition "${{ matrix.partition }}" "${shape_args[@]}"
+          run_lane ci lane test-unit --partition "${{ matrix.partition }}" --coverage-output ".beep/ci-coverage/${{ matrix.partition }}" "${shape_args[@]}"
+
+      - name: Upload Unit coverage evidence
+        if: steps.lane-gate.outputs.should_run == 'true' && always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unit-coverage-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.partition }}
+          path: .beep/ci-coverage/${{ matrix.partition }}/
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
 
       - name: Append Turbo summary
         if: steps.lane-gate.outputs.should_run == 'true' && always()
@@ -594,6 +642,80 @@ jobs:
             echo "Test Unit shards finished with result: ${{ needs.test-unit-shard.result }}"
             exit 1
           fi
+
+  coverage-regression:
+    # Keep this PR's new artifact proof distinct while @main still runs its
+    # legacy producer. After main retires that producer this becomes the exact
+    # existing coverage context, without a ruleset edit or duplicate check name.
+    name: ${{ needs.admission.outputs.legacy_coverage == 'true' && 'Coverage Artifact Migration' || 'Heavy / Coverage Regression' }}
+    needs: [admission, test-unit, verify]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: false
+
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git fetch --quiet --no-tags origin "+refs/heads/${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
+
+      - name: Determine comparison execution
+        id: lane-gate
+        shell: bash
+        env:
+          ADMISSION_RESULT: ${{ needs.admission.result }}
+          UNIT_RESULT: ${{ needs.test-unit.result }}
+          LEGACY_COVERAGE: ${{ needs.admission.outputs.legacy_coverage }}
+        run: |
+          set -euo pipefail
+          [[ "$ADMISSION_RESULT" == "success" ]]
+          [[ "$LEGACY_COVERAGE" == "true" || "$LEGACY_COVERAGE" == "false" ]]
+          [[ "$UNIT_RESULT" == "success" ]]
+          eval "$(scripts/ci-change-profile.sh "origin/${GITHUB_BASE_REF:-main}")"
+          echo "should_run=$([[ "$goals_only" == "true" ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup comparison toolchain
+        if: steps.lane-gate.outputs.should_run == 'true'
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+          free-disk: "true"
+
+      # Matrix verification is a completion barrier for Labs only. An unrelated
+      # advisory matrix failure must not become a coverage failure: the typed
+      # artifact validator requires the successful Labs manifest itself.
+      - name: Download coverage evidence
+        if: steps.lane-gate.outputs.should_run == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: unit-coverage-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: .beep/ci-coverage-inputs
+          merge-multiple: false
+
+      - name: Compare coverage evidence
+        if: steps.lane-gate.outputs.should_run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          shape_args=()
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            shape_args+=(--affected --base "origin/${GITHUB_BASE_REF:-main}")
+          fi
+          bun run beep ci lane coverage --compare-only --coverage-input .beep/ci-coverage-inputs "${shape_args[@]}"
+
+      - name: Skip comparison
+        if: steps.lane-gate.outputs.should_run != 'true'
+        run: echo "Coverage comparison passes without work for this change set."
 
   professional-desktop-ipc-stdio:
     name: Professional Desktop IPC Stdio

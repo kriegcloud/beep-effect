@@ -70,7 +70,7 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "effect": "catalog:",
-    "firecrawl": "^4.25.2"
+    "firecrawl": "^4.50.0"
   },
   "devDependencies": {
     "@beep/test-runner": "workspace:^",
