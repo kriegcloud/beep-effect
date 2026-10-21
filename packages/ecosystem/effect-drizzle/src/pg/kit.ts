@@ -10,7 +10,7 @@ import { keys, toEntries } from "effect/Record";
 import { assign } from "effect/Struct";
 import * as Field from "../core/Field.ts";
 import { assertUniqueSqlNames } from "../core/names.ts";
-import { makeRepository } from "../core/repository.ts";
+import { makeNativeRepository, makeRepository } from "../core/repository.ts";
 import { snakeCase } from "../internal/case.ts";
 import * as Pg from "./combinators.ts";
 import * as Table from "./extras.ts";
@@ -258,6 +258,7 @@ export interface PgKit<Defaults extends FieldsInput> {
     build: (pg: PgToolkit) => PgKitExtension<Defaults, More>
   ) => PgKit<Merged<Defaults, More>>;
   readonly Model: typeof Model;
+  readonly NativeRepository: typeof makeNativeRepository;
   readonly pg: PgToolkit;
   readonly Repository: typeof makeRepository;
   readonly schema: typeof schema;
@@ -328,7 +329,17 @@ const makeResolved = (defaults: FieldsInput, defaultExtras: Table.Callback<Field
     return makeResolved(mergeFields(defaults, extension.columns), mergedExtras);
   };
 
-  return { pg: toolkit, Model, Entity, extend, Table, Repository: makeRepository, schema, toPgTable };
+  return {
+    pg: toolkit,
+    Model,
+    Entity,
+    extend,
+    Table,
+    Repository: makeRepository,
+    NativeRepository: makeNativeRepository,
+    schema,
+    toPgTable,
+  };
 };
 
 /**

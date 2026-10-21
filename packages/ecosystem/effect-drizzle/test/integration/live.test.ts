@@ -1,6 +1,6 @@
 /** Live PostgreSQL execution proofs for @beep/effect-drizzle round four. */
 
-import { VersionConflictError } from "@beep/effect-drizzle";
+import { makeNativeRepository, VersionConflictError } from "@beep/effect-drizzle";
 import { PgliteClient, PgliteTestLayer } from "@beep/pglite";
 import { it } from "@beep/test-runner";
 import { layer as makePgliteLayer } from "@effect/sql-pglite/PgliteClient";
@@ -34,7 +34,6 @@ import { makeEffect } from "effect/SchemaParser";
 import { camelCase, snakeCase } from "effect/String";
 import { SqlClient } from "effect/sql/SqlClient";
 import { isSqlError } from "effect/sql/SqlError";
-import { makeRepository as makeSqlRepository } from "effect/sql/SqlModel";
 import {
   ArrayRecord,
   effectDrizzleSchema,
@@ -179,14 +178,12 @@ const tryHarness = <A>(phase: string, try_: () => PromiseLike<A>) =>
 
 const isVersionConflict = is(VersionConflictError);
 
-const organizationRepository = makeSqlRepository(Organization, {
-  tableName: Organization.sql.tableName,
+const organizationRepository = makeNativeRepository(Organization, {
   spanPrefix: "Organization",
   idColumn: "id",
 });
 
-const arrayRecordRepository = makeSqlRepository(ArrayRecord, {
-  tableName: ArrayRecord.sql.tableName,
+const arrayRecordRepository = makeNativeRepository(ArrayRecord, {
   spanPrefix: "ArrayRecord",
   idColumn: "id",
 });
