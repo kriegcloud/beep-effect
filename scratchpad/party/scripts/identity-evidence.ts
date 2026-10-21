@@ -54,6 +54,8 @@ import {
   resolveCollisions,
 } from "../adapters/IdentityEvidence.ts";
 import { emptyCensus, identifiersByName, observe, summarize } from "../adapters/MailCensus.ts";
+import type { MailboxEvidence } from "../adapters/OrgEvidence.ts";
+import { classifyByOrganization, nameShape, organizationDomain } from "../adapters/OrgEvidence.ts";
 import { adaptMailRecord } from "../adapters/MailIndex.ts";
 
 const countBy = <A>(as: ReadonlyArray<A>, key: (a: A) => string) => R.map(A.groupBy(as, key), A.length);
@@ -188,13 +190,33 @@ const program = Effect.fn("identity-evidence")(function* (args: {
   yield* fs.writeFileString(`${args.outDir}/pairing-claims.jsonl`, A.join(claimLines, "\n") + "\n");
 
   const queue = A.filter(collisions, (c) => c.outcome === "unresolved" || c.outcome === "partially-resolved");
-  const namesToIds = HashMap.fromIterable(identifiersByName(census));
+  const mailboxEvidence = (ids: ReadonlyArray<IdentifierId>): MailboxEvidence => ({
+    domains: HashSet.fromIterable(
+      A.flatMap(ids, (i) =>
+        Str.startsWith("ident:email:")(i) ? O.toArray(organizationDomain(Str.slice(12)(i))) : []
+      )
+    ),
+    span: A.reduce(
+      A.flatMap(ids, (i) => O.toArray(MutableHashMap.get(census.identifierSpans, i))),
+      O.none<readonly [UtcInstant, UtcInstant]>(),
+      (acc, [from, to]) =>
+        O.some(
+          O.match(acc, {
+            onNone: () => [from, to] as const,
+            onSome: ([a, b]) => [from < a ? from : a, to > b ? to : b] as const,
+          })
+        )
+    ),
+  });
+  const leads = A.map(queue, (c) => ({
+    ...c,
+    shape: nameShape(c.name),
+    orgLead: classifyByOrganization(A.map(c.mailboxes, mailboxEvidence)),
+  }));
   yield* fs.writeFileString(
     `${args.outDir}/review-queue.jsonl`,
     A.join(
-      A.map(queue, (c) =>
-        JSON.stringify({ name: c.name, outcome: c.outcome, mailboxes: c.mailboxes, identifiers: HashMap.get(namesToIds, c.name) })
-      ),
+      A.map(leads, (c) => JSON.stringify({ name: c.name, shape: c.shape, outcome: c.outcome, orgLead: c.orgLead, mailboxes: c.mailboxes })),
       "\n"
     ) + "\n"
   );
@@ -243,7 +265,15 @@ const program = Effect.fn("identity-evidence")(function* (args: {
       personalContactIdentifiers: A.length(contactIdentifiers),
       contactIdentifiersSeenInMail: A.length(A.filter(contactIdentifiers, (i) => HashSet.has(mailIdentifierSet, i))),
     },
-    collisions: { total: A.length(collisions), byOutcome: countBy(collisions, (c) => c.outcome) },
+    collisions: {
+      total: A.length(collisions),
+      byOutcome: countBy(collisions, (c) => c.outcome),
+      singleTokenNamesSetAside: A.length(A.filter(leads, (c) => c.shape === "single-token")),
+      orgLeadsForUnsettledFullNames: countBy(
+        A.filter(leads, (c) => c.shape === "full-name"),
+        (c) => c.orgLead
+      ),
+    },
   };
   yield* fs.writeFileString(`${args.outDir}/identity-evidence.json`, `${JSON.stringify(summary, null, 2)}\n`);
   yield* Effect.log(`identity evidence written to ${args.outDir}`);

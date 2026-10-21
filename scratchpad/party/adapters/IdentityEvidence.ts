@@ -269,6 +269,25 @@ export const CollisionOutcome = LiteralKit([
 export type CollisionOutcome = typeof CollisionOutcome.Type;
 
 /**
+ * Group one name's identifiers by mailbox cluster.
+ *
+ * @category identity-evidence
+ * @since 0.0.0
+ */
+export const mailboxesOf = ({
+  identifiers,
+  clusters,
+}: {
+  readonly identifiers: ReadonlyArray<IdentifierId>;
+  readonly clusters: HashMap.HashMap<IdentifierId, number>;
+}): ReadonlyArray<ReadonlyArray<IdentifierId>> =>
+  R.values(
+    A.groupBy(identifiers, (i) =>
+      O.match(HashMap.get(clusters, i), { onNone: () => `identifier:${i}`, onSome: (c) => `cluster:${c}` })
+    )
+  );
+
+/**
  * Resolve name collisions against client-file contact evidence. `contactsOf`
  * maps an identifier to the contact-card parties that list it.
  *
@@ -283,28 +302,36 @@ export const resolveCollisions = ({
   readonly identifiersByName: ReadonlyArray<readonly [string, ReadonlyArray<IdentifierId>]>;
   readonly clusters: HashMap.HashMap<IdentifierId, number>;
   readonly contactsOf: HashMap.HashMap<IdentifierId, HashSet.HashSet<PartyId>>;
-}): ReadonlyArray<{ readonly name: string; readonly mailboxes: number; readonly outcome: CollisionOutcome }> =>
+}): ReadonlyArray<{
+  readonly name: string;
+  readonly mailboxes: ReadonlyArray<ReadonlyArray<IdentifierId>>;
+  readonly outcome: CollisionOutcome;
+}> =>
   A.flatMap(identifiersByName, ([name, identifiers]) => {
-    const byMailbox = A.groupBy(identifiers, (i) =>
-      O.match(HashMap.get(clusters, i), { onNone: () => `identifier:${i}`, onSome: (c) => `cluster:${c}` })
-    );
-    const mailboxes = A.map(R.values(byMailbox), (ids) =>
-      A.reduce(ids, HashSet.empty<PartyId>(), (acc, i) =>
-        HashSet.union(acc, O.getOrElse(HashMap.get(contactsOf, i), () => HashSet.empty<PartyId>()))
+    const mailboxes = mailboxesOf({ identifiers, clusters });
+    if (A.length(mailboxes) < 2) return [];
+    const sizes = A.map(mailboxes, (ids) =>
+      HashSet.size(
+        A.reduce(ids, HashSet.empty<PartyId>(), (acc, i) =>
+          HashSet.union(acc, O.getOrElse(HashMap.get(contactsOf, i), () => HashSet.empty<PartyId>()))
+        )
       )
     );
-    if (A.length(mailboxes) < 2) return [];
-    const sizes = A.map(mailboxes, HashSet.size);
+    const parties = A.dedupe(
+      A.flatMap(mailboxes, (ids) =>
+        A.flatMap(ids, (i) => A.fromIterable(O.getOrElse(HashMap.get(contactsOf, i), () => HashSet.empty<PartyId>())))
+      )
+    );
     const outcome: CollisionOutcome = A.some(sizes, (n) => n > 1)
       ? "conflicting-contacts"
       : A.every(sizes, (n) => n === 0)
         ? "unresolved"
         : A.some(sizes, (n) => n === 0)
           ? "partially-resolved"
-          : A.length(A.dedupe(A.flatMap(mailboxes, (m) => A.fromIterable(m)))) === 1
+          : A.length(parties) === 1
             ? "same-person"
             : "distinct-people";
-    return [{ name, mailboxes: A.length(mailboxes), outcome }];
+    return [{ name, mailboxes, outcome }];
   });
 
 // ---------------------------------------------------------------------------

@@ -24,6 +24,7 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { isDelegated, voiceOf } from "../Communication.ts";
 import type { IdentifierId } from "../Ids.ts";
+import type { UtcInstant } from "../Time.ts";
 import type { PairingAccumulator } from "./IdentityEvidence.ts";
 import { accumulatePairing, mailboxClusters } from "./IdentityEvidence.ts";
 import type { MailIngest } from "./MailIndex.ts";
@@ -49,6 +50,8 @@ export interface MailCensus {
   readonly dnBySmtp: MutableHashMap.MutableHashMap<string, MutableHashSet.MutableHashSet<string>>;
   readonly delegatedVoices: MutableHashSet.MutableHashSet<string>;
   readonly pairingSupport: PairingAccumulator;
+  /** First and last message time each identifier was seen in any header role. */
+  readonly identifierSpans: MutableHashMap.MutableHashMap<IdentifierId, readonly [UtcInstant, UtcInstant]>;
 }
 
 /**
@@ -70,6 +73,7 @@ export const emptyCensus = (): MailCensus => ({
   dnBySmtp: MutableHashMap.empty(),
   delegatedVoices: MutableHashSet.empty(),
   pairingSupport: MutableHashMap.empty(),
+  identifierSpans: MutableHashMap.empty(),
 });
 
 const addTo = <K, V>(map: MutableHashMap.MutableHashMap<K, MutableHashSet.MutableHashSet<V>>, key: K, value: V) =>
@@ -109,6 +113,14 @@ export const observe = ({ census, ingest }: { readonly census: MailCensus; reado
     });
   });
   const sentAt = O.flatMap(ingest.event, (e) => e.sentAt);
+  O.match(sentAt, {
+    onNone: () => undefined,
+    onSome: (t) =>
+      A.forEach(ingest.identifiers, (i) => {
+        const [first, last] = O.getOrElse(MutableHashMap.get(census.identifierSpans, i.id), () => [t, t] as const);
+        MutableHashMap.set(census.identifierSpans, i.id, [t < first ? t : first, t > last ? t : last] as const);
+      }),
+  });
   A.forEach(ingest.pairings, (p) => {
     addTo(census.smtpByDn, p.exchangeDn, p.smtp);
     addTo(census.dnBySmtp, p.smtp, p.exchangeDn);
