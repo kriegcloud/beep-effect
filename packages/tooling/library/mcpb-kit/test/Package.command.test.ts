@@ -1,7 +1,7 @@
 import { McpbManifestFields, McpbPackageSpec, makeMcpbPackageCommand } from "@beep/mcpb-kit";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import { afterEach, expect, it, vi } from "@effect/vitest";
+import { afterEach, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
@@ -36,7 +36,10 @@ const archive = `${output}/example-mcp-linux-x64.mcpb`;
 const inventory =
   "manifest.json\nexample-mcp\nnode_modules/\nnode_modules/@duckdb/\nnode_modules/@duckdb/node-bindings-linux-x64/duckdb.node\n";
 
-afterEach(() => vi.unstubAllGlobals());
+const originalSpawn = Bun.spawn;
+
+// Bun exposes a fixed global and a non-configurable, writable spawn property.
+afterEach(() => Object.defineProperty(Bun, "spawn", { value: originalSpawn }));
 
 const commandEnvironment = Layer.mergeAll(
   MemoryFileSystem.layer,
@@ -69,6 +72,7 @@ it.layer(commandEnvironment, { concurrent: false, timeout: "5 seconds" })("MCPB 
     } = {}
   ) {
     const fs = yield* FileSystem.FileSystem;
+    const runSync = Effect.runSyncWith(yield* Effect.context<FileSystem.FileSystem>());
     yield* fs.remove("/repo", { recursive: true, force: true });
     yield* fs.makeDirectory(nativeDir, { recursive: true });
     yield* fs.writeFileString(
@@ -78,13 +82,12 @@ it.layer(commandEnvironment, { concurrent: false, timeout: "5 seconds" })("MCPB 
     yield* fs.writeFileString(`${nativeDir}/duckdb.node`, "synthetic native sidecar");
     yield* fs.makeDirectory(output, { recursive: true });
     const calls: Array<ReadonlyArray<string>> = [];
-    vi.stubGlobal("Bun", {
-      ...Bun,
-      spawn: (args: ReadonlyArray<string>) => {
+    Object.defineProperty(Bun, "spawn", {
+      value: (args: ReadonlyArray<string>) => {
         calls.push(args);
         if (options.rejectLaunch === true) throw new Error("synthetic process start failure");
         if (args[0] === "zip" && options.noArchive !== true) {
-          Effect.runSync(fs.writeFileString(args[3] ?? archive, "synthetic archive"));
+          runSync(fs.writeFileString(args[3] ?? archive, "synthetic archive"));
         }
         return {
           stdout: new Blob([options.listing ?? inventory]).stream(),
