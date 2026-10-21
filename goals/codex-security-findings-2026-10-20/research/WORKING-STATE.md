@@ -1,5 +1,18 @@
 # Working state
 
+## Post-merge closeout — 2026-10-21
+
+PR #1930 merged as `60b2c052fb72cf19403a43c79ea3a3c9b0b68a89`.
+All eight captured Cloud IDs are observed Fixed and all 123 captured Dependabot
+alerts automatically closed as fixed. Final-head required checks and merge-time
+rules passed. The explicit retained-readiness recovery provider validated the
+original pre-merge snapshot and successful monitor job; completion refresh
+returned verified without changing the accepted declaration or verdict bytes.
+A separate maintenance branch retains that provider, its 20 negative/positive
+recovery controls, and 91 passing completion tests. Publication and checkout
+retirement of that maintenance change remain pending. Original historical
+handoffs below are retained as evidence of their recorded revisions.
+
 ## CI repair — 2026-10-21 07:07 UTC
 
 Runner capacity recovered. On published head `07aa7cee12721c294aeaa869ef2fc1a14103e4dd`,
