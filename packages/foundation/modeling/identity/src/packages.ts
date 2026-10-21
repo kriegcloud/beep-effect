@@ -214,7 +214,15 @@ const generatedComposers = $I.compose(
   "mcpb-kit",
   "practice-setup",
   "practice-review-hub",
-  "palantiri"
+  "palantiri",
+  "jsonc",
+  "jsonl",
+  "semver",
+  "spdx",
+  "schema-org",
+  "github-references",
+  "github-commands",
+  "commands"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -2991,3 +2999,139 @@ export const $McpbKitId: Identity.IdentityComposer<"@beep/mcpb-kit"> = composers
  * @since 0.0.0
  */
 export const $PracticeSetupId: Identity.IdentityComposer<"@beep/practice-setup"> = composers.$PracticeSetupId;
+
+/**
+ * Identity composer for `@beep/jsonc`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $JsoncId } from "@beep/identity/packages"
+ *
+ * const id = $JsoncId.make("Jsonc")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $JsoncId: Identity.IdentityComposer<"@beep/jsonc"> = composers.$JsoncId;
+
+/**
+ * Identity composer for `@beep/jsonl`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $JsonlId } from "@beep/identity/packages"
+ *
+ * const id = $JsonlId.make("Jsonl")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $JsonlId: Identity.IdentityComposer<"@beep/jsonl"> = composers.$JsonlId;
+
+/**
+ * Identity composer for `@beep/semver`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $SemverId } from "@beep/identity/packages"
+ *
+ * const id = $SemverId.make("Semver")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $SemverId: Identity.IdentityComposer<"@beep/semver"> = composers.$SemverId;
+
+/**
+ * Identity composer for `@beep/spdx`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $SpdxId } from "@beep/identity/packages"
+ *
+ * const id = $SpdxId.make("Spdx")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $SpdxId: Identity.IdentityComposer<"@beep/spdx"> = composers.$SpdxId;
+
+/**
+ * Identity composer for `@beep/schema-org`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $SchemaOrgId } from "@beep/identity/packages"
+ *
+ * const id = $SchemaOrgId.make("SchemaOrg")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $SchemaOrgId: Identity.IdentityComposer<"@beep/schema-org"> = composers.$SchemaOrgId;
+
+/**
+ * Identity composer for `@beep/github-references`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GithubReferencesId } from "@beep/identity/packages"
+ *
+ * const id = $GithubReferencesId.make("GithubReferences")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GithubReferencesId: Identity.IdentityComposer<"@beep/github-references"> = composers.$GithubReferencesId;
+
+/**
+ * Identity composer for `@beep/github-commands`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GithubCommandsId } from "@beep/identity/packages"
+ *
+ * const id = $GithubCommandsId.make("GithubCommands")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GithubCommandsId: Identity.IdentityComposer<"@beep/github-commands"> = composers.$GithubCommandsId;
+
+/**
+ * Identity composer for `@beep/commands`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $CommandsId } from "@beep/identity/packages"
+ *
+ * const id = $CommandsId.make("Commands")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $CommandsId: Identity.IdentityComposer<"@beep/commands"> = composers.$CommandsId;

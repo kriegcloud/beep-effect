@@ -125,6 +125,7 @@ const config = {
     "apps/practice-gateway/package.json",
     "apps/practice-setup/package.json",
     "apps/practice-review-hub/package.json",
+    "packages/drivers/commands/package.json",
   ],
   customTypes: {
     catalog: {
