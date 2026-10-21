@@ -45,14 +45,15 @@ declare namespace Styler {
   };
 }
 
-class BuilderMeta extends S.Class<BuilderMeta, {}>($I`BuilderMeta`)(
-  {
+class BuilderMeta extends S.Opaque<BuilderMeta, { readonly brand: unique symbol }>()(
+  S.Struct({
     isEmpty: S.Boolean,
     styler: S.UndefinedOr(Styler),
-  },
-  $I.annote("BuilderMeta", {
-    description: "Represents metadata for a chalk builder instance.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuilderMeta", {
+      description: "Represents metadata for a chalk builder instance.",
+    })
+  )
 ) {}
 
 type ChalkFunction = (...arguments_: ReadonlyArray<unknown>) => string;
