@@ -3459,6 +3459,7 @@
         "@nodable/entities": "3.1.0",
         "@openai/codex-sdk": "catalog:",
         "@vitest/coverage-istanbul": "catalog:",
+        "@vitest/coverage-v8": "catalog:",
         "@vitest/istanbul-lib-coverage": "catalog:",
         "@vitest/istanbul-lib-instrument": "catalog:",
         "effect": "catalog:",

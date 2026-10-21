@@ -5,6 +5,8 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Quality/internal/CoverageArtifacts.schemas");
@@ -13,6 +15,8 @@ const RelativePath = S.String.check(S.isPattern(/^(?!\/)(?!.*(?:^|\/)\.\.?(?:\/|
 const Digest = S.String.check(S.isPattern(/^[a-f0-9]{64}$/u));
 const GitSha = S.String.check(S.isPattern(/^[a-f0-9]{40,64}$/u));
 const Positive = S.Int.check(S.isGreaterThanOrEqualTo(1));
+const TestRuntime = LiteralKit(["bun", "node"]);
+const CoverageProvider = LiteralKit(["istanbul", "v8"]);
 
 /**
  * Checkout and workflow attempt that actually executed the tests.
@@ -48,7 +52,7 @@ export class CoverageProducerIdentity extends S.Opaque<CoverageProducerIdentity,
  * **Example** (Describe an unsharded package)
  * ```ts
  * import { CoverageProducerPackage } from "@beep/repo-cli/test/Quality"
- * const entry = CoverageProducerPackage.make({ packageName: "@beep/example", packagePath: "packages/example", expectedTestFiles: [], testReportPath: "coverage/unit-results.json" })
+ * const entry = CoverageProducerPackage.make({ packageName: "@beep/example", packagePath: "packages/example", expectedTestFiles: [], testReportPath: "coverage/unit-results.json", testRuntimeVersion: "1.4.3" })
  * console.log(entry.packageName)
  * ```
  * @category models
@@ -60,6 +64,15 @@ export class CoverageProducerPackage extends S.Opaque<CoverageProducerPackage, {
     packagePath: RelativePath,
     expectedTestFiles: S.Array(RelativePath),
     testReportPath: RelativePath,
+    invocationId: S.NonEmptyString.pipe(S.withConstructorDefault(Effect.succeed("0"))),
+    testRuntime: TestRuntime.pipe(S.withConstructorDefault(Effect.succeed("bun"))),
+    testRuntimeVersion: S.NonEmptyString,
+    provider: CoverageProvider.pipe(S.withConstructorDefault(Effect.succeed("istanbul"))),
+    runtimeReportPath: RelativePath.pipe(S.withConstructorDefault(Effect.succeed("coverage/runtime.json"))),
+    testCommand: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
+    testEnvironment: S.Record(S.String, S.String).pipe(
+      S.withConstructorDefault(Effect.succeed<Readonly<Record<string, string>>>({}))
+    ),
     shard: S.optionalKey(S.Struct({ index: Positive, total: Positive })),
   }).pipe(
     $I.annoteSchema("CoverageProducerPackage", {
@@ -181,7 +194,11 @@ export class CoverageRawFile extends S.Opaque<CoverageRawFile, { readonly brand:
 ) {}
 
 /**
- * Source identity included even when a pure barrel has no executable units.
+ * Source identity retained when instrumentation assigns no coverage units.
+ *
+ * **Details**
+ * Zero coverage units do not imply zero runtime effects: an empty class may
+ * evaluate its superclass factory while introducing no own instrumented unit.
  *
  * **Example** (Record a structural-zero source)
  * ```ts
@@ -195,6 +212,32 @@ export class CoverageSourceIdentity extends S.Opaque<CoverageSourceIdentity, { r
   S.Struct({ path: RelativePath, sha256: Digest, structuralZero: S.Boolean }).pipe(
     $I.annoteSchema("CoverageSourceIdentity", {
       description: "Source bytes and conservative instrumenter-backed structural-zero disposition.",
+    })
+  )
+) {}
+
+/**
+ * Runtime observed by the reporter inside the original Vitest execution.
+ *
+ * **Example** (Record a Node runner)
+ * ```ts
+ * import { CoverageRuntimeReceipt } from "@beep/repo-cli/test/Quality"
+ * console.log(CoverageRuntimeReceipt.make({ schemaVersion: "coverage-runtime/v1", invocationId: "0", testRuntime: "node", runtimeVersion: "22.20.0", success: true }).testRuntime)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class CoverageRuntimeReceipt extends S.Opaque<CoverageRuntimeReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
+    schemaVersion: S.Literal("coverage-runtime/v1"),
+    invocationId: S.NonEmptyString,
+    testRuntime: TestRuntime,
+    runtimeVersion: S.NonEmptyString,
+    provider: CoverageProvider,
+    success: S.Boolean,
+  }).pipe(
+    $I.annoteSchema("CoverageRuntimeReceipt", {
+      description: "Actual test runner runtime and completion status emitted in that same invocation.",
     })
   )
 ) {}
@@ -216,6 +259,8 @@ export class CoveragePackageArtifact extends S.Opaque<CoveragePackageArtifact, {
     selection: CoverageProducerPackage,
     reportPath: RelativePath,
     reportSha256: Digest,
+    runtimeReceiptPath: RelativePath,
+    runtimeReceiptSha256: Digest,
     actualTestFiles: S.Array(RelativePath),
     sources: S.Array(CoverageSourceIdentity),
   }).pipe(
@@ -242,14 +287,14 @@ export class CoverageProducerManifest extends S.Opaque<CoverageProducerManifest,
     schemaVersion: S.Literal("coverage-producer/v1"),
     identity: CoverageProducerIdentity,
     partitionId: S.NonEmptyString,
-    provider: S.Literal("istanbul"),
+    rawFormat: S.Literal("istanbul"),
     coverageLibraryVersion: S.Literal("1.0.2"),
-    runtime: S.Literal("bun"),
-    runtimeVersion: S.NonEmptyString,
+    producerRuntime: S.Literal("bun"),
+    producerRuntimeVersion: S.NonEmptyString,
     packages: S.Array(CoveragePackageArtifact),
   }).pipe(
     $I.annoteSchema("CoverageProducerManifest", {
-      description: "Exact successful Bun/Istanbul producer attempt and its integrity-checked package reports.",
+      description: "Exact successful Bun sealing attempt and its integrity-checked package reports.",
     })
   )
 ) {}

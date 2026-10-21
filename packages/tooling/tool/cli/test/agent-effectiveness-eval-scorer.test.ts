@@ -684,6 +684,42 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
     })
   );
 
+  it.effect("constructs an operational error without inventing optional context", () =>
+    Effect.sync(() => {
+      const error = AgentEffectivenessEvalScorerError.new("The fixture cannot be scored.");
+      expect(error.message).toBe("The fixture cannot be scored.");
+      expect(error.file).toBeUndefined();
+      expect(error.command).toBeUndefined();
+      expect(error.exitCode).toBeUndefined();
+    })
+  );
+
+  it.effect("refuses recording without a data root after all scoring lanes measure the fixture", () =>
+    Effect.gen(function* () {
+      const spawned = yield* Ref.make<ReadonlyArray<string>>([]);
+      const configs = yield* Ref.make<ReadonlyArray<string>>([]);
+      const error = yield* runAgentEffectivenessEvalScoreCommand(
+        RunAgentEffectivenessEvalScoreCommandOptions.make({
+          dataRoot: O.none(),
+          dir: fixtureRoot,
+          json: false,
+          modelId: O.none(),
+          reasoningEffort: O.none(),
+          record: true,
+          taskPath,
+        })
+      ).pipe(
+        Effect.provideServiceEffect(ChildProcessSpawner.ChildProcessSpawner, fakeLawSpawner(spawned, configs, {})),
+        Effect.flip
+      );
+      expect(error).toBeInstanceOf(AgentEffectivenessEvalScorerError);
+      expect(isScorerError(error) ? error.message : "").toBe(
+        "Recording an eval score requires an AI metrics data root."
+      );
+      expect(A.sort(yield* Ref.get(spawned), Str.Order)).toEqual(["biome", "bun", "tsgo"]);
+    })
+  );
+
   it.effect("fails the score command without recording when a lane cannot measure the fixture", () =>
     Effect.gen(function* () {
       const spawned = yield* Ref.make<ReadonlyArray<string>>([]);

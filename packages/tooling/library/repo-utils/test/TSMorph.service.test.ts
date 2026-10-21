@@ -716,6 +716,27 @@ it.layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
     );
   });
 
+  describe("updateSourceFile", () => {
+    it.effect(
+      "reports a no-op edit without changing the source bytes",
+      Effect.fnUntraced(function* () {
+        const service = yield* TSMorphService;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const fixturePath = path.resolve(REPO_ROOT, FIXTURE_CLEAN_FILE_PATH);
+        const before = yield* fs.readFileString(fixturePath);
+
+        const changed = yield* service.updateSourceFile(FIXTURE_CLEAN_FILE_PATH, (sourceFile) => {
+          expect(sourceFile.getFullText()).toBe(before);
+        });
+
+        expect(changed).toBe(false);
+        expect(yield* fs.readFileString(fixturePath)).toBe(before);
+      }),
+      TSMORPH_TIMEOUT
+    );
+  });
+
   describe("typed error coverage", () => {
     it.effect(
       "rejects files outside the workspace boundary with a source file error",

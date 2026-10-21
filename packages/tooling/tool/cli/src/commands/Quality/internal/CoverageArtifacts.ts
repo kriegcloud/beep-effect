@@ -35,8 +35,10 @@ import {
   CoverageProducerManifest,
   CoverageProducerPackage,
   CoverageRawFile,
+  CoverageRuntimeReceipt,
   CoverageSourceIdentity,
 } from "./CoverageArtifacts.schemas.ts";
+import { coverageProducerEnvironment } from "./CoverageEnvironment.ts";
 import {
   CoverageSnapshotEntry,
   compareCoverageRegressionBaseline,
@@ -50,6 +52,7 @@ export {
   CoverageProducerPackage,
   CoverageProducerPartition,
   CoverageProducerWriteOptions,
+  CoverageRuntimeReceipt,
 } from "./CoverageArtifacts.schemas.ts";
 
 const configurationError = (message: string) => QualityTaskConfigurationError.new(`Coverage artifact: ${message}`);
@@ -57,9 +60,13 @@ const boundaryError = (message: string) => (cause: unknown) => configurationErro
 const mapError = (message: string) => QualityTaskConfigurationError.mapError(`Coverage artifact: ${message}`);
 const sorted = (values: ReadonlyArray<string>) => A.sort(A.dedupe(values), Order.String);
 const sameStrings = A.makeEquivalence(Str.Equivalence);
+const decodeSourceFiles = S.decodeUnknownEffect(S.fromJsonString(S.Array(S.String)));
+const encodeString = S.encodeEffect(S.fromJsonString(S.String));
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 const decodeRaw = S.decodeUnknownEffect(S.fromJsonString(S.Record(S.String, CoverageRawFile)));
-const decodeManifest = S.decodeUnknownEffect(S.fromJsonString(CoverageProducerManifest), { onExcessProperty: "error" });
+const ManifestJson = S.fromJsonString(CoverageProducerManifest);
+const encodeManifest = S.encodeEffect(ManifestJson);
+const decodeManifest = S.decodeUnknownEffect(ManifestJson, { onExcessProperty: "error" });
 const decodeResults = S.decodeUnknownEffect(
   S.fromJsonString(
     S.Struct({
@@ -70,6 +77,9 @@ const decodeResults = S.decodeUnknownEffect(
     })
   )
 );
+const decodeRuntimeReceipt = S.decodeUnknownEffect(S.fromJsonString(CoverageRuntimeReceipt), {
+  onExcessProperty: "error",
+});
 const decodeIdentity = S.decodeUnknownEffect(CoverageProducerIdentity);
 const packageEquivalence = S.toEquivalence(CoverageProducerPackage);
 const identityEquivalence = S.toEquivalence(CoverageProducerIdentity);
@@ -160,6 +170,45 @@ export const resolveCoverageProducerIdentity = Effect.fn("CoverageArtifacts.reso
   }).pipe(mapError("invalid execution identity."));
 });
 
+const discoverInvocationSources = Effect.fn("CoverageArtifacts.discoverInvocationSources")(function* (
+  repoRoot: string,
+  packageRoot: string,
+  invocation: CoverageProducerPackage
+) {
+  const helper = new URL("./CoverageConfig.runtime.ts", import.meta.url);
+  const helperUrl = yield* encodeString(helper.href).pipe(mapError("cannot encode discovery helper URL."));
+  const bootstrap = `import(${helperUrl}).then(m=>m.runCoverageConfigRuntimeDiscovery(process.argv))`;
+  const command = invocation.testCommand;
+  const canonical = A.isReadonlyArrayEmpty(command)
+    ? ["vitest", "run"]
+    : A.drop(command, command[1] === "--bun" ? 2 : 1);
+  const result = yield* runCaptured({
+    command: invocation.testRuntime,
+    args: [
+      ...(invocation.testRuntime === "node" ? ["--experimental-strip-types"] : []),
+      "--input-type=module",
+      "--eval",
+      bootstrap,
+      "--",
+      ...canonical,
+    ],
+    cwd: packageRoot,
+    env: {
+      ...coverageProducerEnvironment(),
+      ...invocation.testEnvironment,
+      BEEP_COVERAGE_EXPECTED_RUNTIME: invocation.testRuntime,
+      BEEP_COVERAGE_EXPECTED_RUNTIME_VERSION: invocation.testRuntimeVersion,
+      BEEP_COVERAGE_EXPECTED_PROVIDER: invocation.provider,
+    },
+    extendEnv: true,
+    source: "stdout",
+  }).pipe(mapError("cannot discover canonical invocation sources."));
+  if (result.exitCode !== 0 || result.truncated)
+    return yield* configurationError(`canonical invocation source discovery failed: ${result.output}.`);
+  const files = yield* decodeSourceFiles(result.output).pipe(mapError("invalid invocation source census."));
+  return sorted(yield* Effect.forEach(files, (file) => relativeFile(repoRoot, file), { concurrency: 1 }));
+});
+
 /**
  * Resolve the provider's complete configured source census without running tests.
  *
@@ -174,10 +223,12 @@ export const resolveCoverageProducerIdentity = Effect.fn("CoverageArtifacts.reso
  */
 export const discoverCoverageArtifactSources = Effect.fn("CoverageArtifacts.discoverSources")(function* (
   repoRoot: string,
-  packagePath: string
+  packagePath: string,
+  invocation?: CoverageProducerPackage
 ) {
   const path = yield* Path.Path;
   const packageRoot = path.join(repoRoot, yield* relativeFile(repoRoot, packagePath));
+  if (invocation !== undefined) return yield* discoverInvocationSources(repoRoot, packageRoot, invocation);
   return yield* Effect.acquireUseRelease(
     Effect.tryPromise({
       try: () =>
@@ -188,42 +239,47 @@ export const discoverCoverageArtifactSources = Effect.fn("CoverageArtifacts.disc
         }),
       catch: boundaryError("cannot resolve Vitest configuration."),
     }),
-    (context) =>
-      Effect.gen(function* () {
-        const provider = new IstanbulCoverageProvider();
-        yield* Effect.try({
-          try: () => provider.initialize(context),
-          catch: boundaryError("cannot initialize Istanbul discovery."),
-        });
-        const files = yield* Effect.tryPromise({
-          try: () => provider.getUntestedFiles([]),
-          catch: boundaryError("cannot discover configured coverage sources."),
-        });
-        return sorted(yield* Effect.forEach(files, (file) => relativeFile(repoRoot, file), { concurrency: 1 }));
-      }),
+    Effect.fnUntraced(function* (context: Awaited<ReturnType<typeof createVitest>>) {
+      const provider = new IstanbulCoverageProvider();
+      yield* Effect.try({
+        try: () => provider.initialize(context),
+        catch: boundaryError("cannot initialize Istanbul discovery."),
+      });
+      const files = yield* Effect.tryPromise({
+        try: () => provider.getUntestedFiles([]),
+        catch: boundaryError("cannot discover configured coverage sources."),
+      });
+      return sorted(yield* Effect.forEach(files, (file) => relativeFile(repoRoot, file), { concurrency: 1 }));
+    }),
     (context) => Effect.promise(() => context.close())
   );
 });
 
-const hasNoExecutableUnits = (coverage: Pick<CoverageRawFile, "statementMap" | "fnMap" | "branchMap">) =>
+const hasNoCoverageUnits = (coverage: Pick<CoverageRawFile, "statementMap" | "fnMap" | "branchMap">) =>
   A.isReadonlyArrayEmpty(R.keys(coverage.statementMap)) &&
   A.isReadonlyArrayEmpty(R.keys(coverage.fnMap)) &&
   A.isReadonlyArrayEmpty(R.keys(coverage.branchMap));
+
+const isEmptyUndecoratedClass = (node: Node) =>
+  Node.isClassDeclaration(node) &&
+  A.isReadonlyArrayEmpty(node.getMembers()) &&
+  A.isReadonlyArrayEmpty(node.getDecorators());
 
 const structuralZero = Effect.fn("CoverageArtifacts.structuralZero")(function* (file: string, source: string) {
   return yield* Effect.try({
     try: () => {
       const project = new Project({ useInMemoryFileSystem: true });
       const parsed = project.createSourceFile(file, source);
-      const erased = A.every(
+      const admissible = A.every(
         parsed.getStatements(),
         (statement) =>
           Node.isImportDeclaration(statement) ||
           Node.isExportDeclaration(statement) ||
           Node.isInterfaceDeclaration(statement) ||
-          Node.isTypeAliasDeclaration(statement)
+          Node.isTypeAliasDeclaration(statement) ||
+          isEmptyUndecoratedClass(statement)
       );
-      if (!erased) return undefined;
+      if (!admissible) return undefined;
       const instrumenter = createInstrumenter({
         produceSourceMap: true,
         autoWrap: false,
@@ -237,9 +293,9 @@ const structuralZero = Effect.fn("CoverageArtifacts.structuralZero")(function* (
         parserPlugins: ["typescript", "jsx"],
       });
       instrumenter.instrumentSync(source, file);
-      return O.fromNullishOr(instrumenter.lastFileCoverage()).pipe(O.filter(hasNoExecutableUnits), O.getOrUndefined);
+      return O.fromNullishOr(instrumenter.lastFileCoverage()).pipe(O.filter(hasNoCoverageUnits), O.getOrUndefined);
     },
-    catch: boundaryError(`cannot prove zero executable units for ${file}.`),
+    catch: boundaryError(`cannot prove zero coverage units for ${file}.`),
   }).pipe(
     Effect.flatMap((coverage) =>
       O.match(O.fromUndefinedOr(coverage), {
@@ -298,7 +354,7 @@ const sourceInventory = Effect.fn("CoverageArtifacts.sourceInventory")(function*
   selection: CoverageProducerPackage,
   raw: Readonly<Record<string, CoverageRawFile>>
 ) {
-  const files = yield* discoverCoverageArtifactSources(repoRoot, selection.packagePath);
+  const files = yield* discoverCoverageArtifactSources(repoRoot, selection.packagePath, selection);
   const unexpected = A.difference(R.keys(raw), files);
   if (A.isReadonlyArrayNonEmpty(unexpected))
     return yield* configurationError(`unexpected coverage sources: ${A.join(unexpected, ", ")}.`);
@@ -307,7 +363,9 @@ const sourceInventory = Effect.fn("CoverageArtifacts.sourceInventory")(function*
     Effect.fnUntraced(function* (file) {
       const text = yield* readText(repoRoot, file);
       const reported = R.get(raw, file);
-      const structural = O.isNone(reported) || hasNoExecutableUnits(reported.value);
+      if (selection.provider === "v8" && O.isNone(reported))
+        return yield* configurationError(`missing V8 source ${file}; no provider-backed zero witness.`);
+      const structural = O.isNone(reported) || hasNoCoverageUnits(reported.value);
       if (structural && O.isNone(yield* structuralZero(file, text)))
         return yield* configurationError(`missing executable source ${file}.`);
       return CoverageSourceIdentity.make({ path: file, sha256: yield* digest(text), structuralZero: structural });
@@ -334,6 +392,25 @@ const actualTests = Effect.fn("CoverageArtifacts.actualTests")(function* (
   return sorted(files);
 });
 
+const validateRuntimeReceipt = Effect.fn("CoverageArtifacts.validateRuntimeReceipt")(function* (
+  selection: CoverageProducerPackage,
+  receipt: CoverageRuntimeReceipt
+) {
+  if (
+    !receipt.success ||
+    receipt.invocationId !== selection.invocationId ||
+    receipt.testRuntime !== selection.testRuntime ||
+    receipt.runtimeVersion !== selection.testRuntimeVersion ||
+    receipt.provider !== selection.provider
+  ) {
+    return yield* configurationError(
+      `test runtime receipt differs from invocation ${selection.packageName}/${selection.invocationId}.`
+    );
+  }
+});
+const packageInvocationKey = (selection: CoverageProducerPackage) =>
+  `${selection.packageName}:${selection.invocationId}`;
+
 const sealPackage = Effect.fn("CoverageArtifacts.sealPackage")(function* (
   repoRoot: string,
   artifactRoot: string,
@@ -341,16 +418,29 @@ const sealPackage = Effect.fn("CoverageArtifacts.sealPackage")(function* (
 ) {
   const path = yield* Path.Path;
   yield* requireUnique(selection.expectedTestFiles, "expected test file");
-  const original = yield* readText(repoRoot, path.join(selection.packagePath, "coverage", "coverage-final.json"));
+  const original = yield* readText(
+    repoRoot,
+    path.join(selection.packagePath, path.dirname(selection.testReportPath), "coverage-final.json")
+  );
   const raw = yield* normalizedRaw(repoRoot, selection, original);
   const text = yield* encodeJson(raw).pipe(mapError("cannot encode normalized raw coverage."));
-  const reportPath = `reports/${yield* digest(selection.packageName)}/coverage-final.json`;
+  const receiptText = yield* readText(repoRoot, path.join(selection.packagePath, selection.runtimeReportPath));
+  const receipt = yield* decodeRuntimeReceipt(receiptText).pipe(mapError("invalid test runtime receipt."));
+  yield* validateRuntimeReceipt(selection, receipt);
+  const reportDirectory = `reports/${yield* digest(packageInvocationKey(selection))}`;
+  const reportPath = `${reportDirectory}/coverage-final.json`;
+  const runtimeReceiptPath = `${reportDirectory}/runtime.json`;
+  yield* writeContainedFileString(repoRoot, path.join(artifactRoot, runtimeReceiptPath), receiptText).pipe(
+    mapError("cannot seal runtime receipt.")
+  );
   const target = path.join(artifactRoot, reportPath);
   yield* writeContainedFileString(repoRoot, target, text).pipe(mapError("cannot seal raw report."));
   return CoveragePackageArtifact.make({
     selection,
     reportPath,
     reportSha256: yield* digest(text),
+    runtimeReceiptPath,
+    runtimeReceiptSha256: yield* digest(receiptText),
     actualTestFiles: yield* actualTests(repoRoot, selection),
     sources: yield* sourceInventory(repoRoot, selection, raw),
   });
@@ -382,10 +472,7 @@ export const writeCoverageProducerArtifact = Effect.fn("CoverageArtifacts.writeP
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   yield* checkCheckout(repoRoot, options.identity);
-  yield* requireUnique(
-    A.map(options.packages, (entry) => entry.packageName),
-    "producer package"
-  );
+  yield* requireUnique(A.map(options.packages, packageInvocationKey), "producer package invocation");
   const runtimeVersion = O.fromUndefinedOr(process.versions.bun);
   if (O.isNone(runtimeVersion)) return yield* configurationError("coverage producer must run under Bun.");
   const artifactRoot = path.resolve(repoRoot, options.artifactRoot);
@@ -399,18 +486,16 @@ export const writeCoverageProducerArtifact = Effect.fn("CoverageArtifacts.writeP
     schemaVersion: "coverage-producer/v1",
     identity: options.identity,
     partitionId: options.partitionId,
-    provider: "istanbul",
+    rawFormat: "istanbul",
     coverageLibraryVersion: "1.0.2",
-    runtime: "bun",
-    runtimeVersion: runtimeVersion.value,
+    producerRuntime: "bun",
+    producerRuntimeVersion: runtimeVersion.value,
     packages,
   });
   yield* createContainedFileString(
     repoRoot,
     path.join(artifactRoot, "manifest.json"),
-    yield* S.encodeEffect(S.fromJsonString(CoverageProducerManifest))(manifest).pipe(
-      mapError("cannot encode manifest.")
-    )
+    yield* encodeManifest(manifest).pipe(mapError("cannot encode manifest."))
   ).pipe(mapError("cannot write manifest."));
 });
 
@@ -420,11 +505,31 @@ const instrumentationIdentity = (file: CoverageRawFile) => ({
   branchMap: file.branchMap,
 });
 
+const PackageCensus = S.Struct({
+  packagePath: S.String,
+  testRuntime: S.String,
+  testRuntimeVersion: S.String,
+  provider: S.String,
+  testCommand: S.Array(S.String),
+  testEnvironment: S.Record(S.String, S.String),
+  shardTotal: S.Finite,
+  expectedTestFiles: S.Array(S.String),
+  sources: S.Array(CoverageSourceIdentity),
+});
+const censusEquivalence = S.toEquivalence(PackageCensus);
+const packageCensus = (entry: CoveragePackageArtifact) => ({
+  packagePath: entry.selection.packagePath,
+  testRuntime: entry.selection.testRuntime,
+  testRuntimeVersion: entry.selection.testRuntimeVersion,
+  provider: entry.selection.provider,
+  testCommand: entry.selection.testCommand,
+  testEnvironment: entry.selection.testEnvironment,
+  shardTotal: entry.selection.shard?.total ?? 1,
+  expectedTestFiles: sorted(entry.selection.expectedTestFiles),
+  sources: entry.sources,
+});
 const samePackageCensus = (a: CoveragePackageArtifact, b: CoveragePackageArtifact) =>
-  a.selection.packagePath === b.selection.packagePath &&
-  (a.selection.shard?.total ?? 1) === (b.selection.shard?.total ?? 1) &&
-  sameStrings(sorted(a.selection.expectedTestFiles), sorted(b.selection.expectedTestFiles)) &&
-  sourceEquivalence(a.sources, b.sources);
+  censusEquivalence(packageCensus(a), packageCensus(b));
 
 const validatePackageSlices = Effect.fn("CoverageArtifacts.validatePackageSlices")(function* (
   slices: A.NonEmptyReadonlyArray<CoveragePackageArtifact>
@@ -451,6 +556,26 @@ const validatePackageSlices = Effect.fn("CoverageArtifacts.validatePackageSlices
   return expected;
 });
 
+const validatePackageInvocations = Effect.fn("CoverageArtifacts.validatePackageInvocations")(function* (
+  slices: A.NonEmptyReadonlyArray<CoveragePackageArtifact>
+) {
+  if (A.length(A.dedupe(A.map(slices, (slice) => slice.selection.provider))) !== 1)
+    return yield* configurationError("mixed coverage providers within one package.");
+  const groups = A.groupBy(slices, (slice) => slice.selection.invocationId);
+  yield* Effect.forEach(R.values(groups), validatePackageSlices, { concurrency: 1 });
+  const invocations = A.map(R.values(groups), (group) => group[0]);
+  for (const [index, invocation] of A.map(invocations, (invocation, index) => Tuple.make(index, invocation))) {
+    for (const previous of A.take(invocations, index)) {
+      const overlaps = A.intersection(invocation.selection.expectedTestFiles, previous.selection.expectedTestFiles);
+      if (invocation.selection.testRuntime === previous.selection.testRuntime && A.isReadonlyArrayNonEmpty(overlaps))
+        return yield* configurationError(
+          `overlapping same-runtime invocations for ${invocation.selection.packageName}.`
+        );
+    }
+  }
+  return slices[0].selection;
+});
+
 const loadManifest = Effect.fn("CoverageArtifacts.loadManifest")(function* (
   repoRoot: string,
   file: string,
@@ -469,12 +594,9 @@ const loadManifest = Effect.fn("CoverageArtifacts.loadManifest")(function* (
   if (O.isNone(expected)) return yield* configurationError(`unexpected partition ${manifest.partitionId}.`);
   const actual = A.sort(
     manifest.packages,
-    Order.mapInput(Order.String, (entry: CoveragePackageArtifact) => entry.selection.packageName)
+    Order.mapInput(Order.String, (entry: CoveragePackageArtifact) => packageInvocationKey(entry.selection))
   );
-  const selections = A.sort(
-    expected.value.packages,
-    Order.mapInput(Order.String, (entry: CoverageProducerPackage) => entry.packageName)
-  );
+  const selections = A.sort(expected.value.packages, Order.mapInput(Order.String, packageInvocationKey));
   if (
     !A.makeEquivalence(packageEquivalence)(
       A.map(actual, (entry) => entry.selection),
@@ -519,6 +641,11 @@ const loadSliceCoverage = Effect.fn("CoverageArtifacts.loadSlice")(function* (
   directory: string,
   entry: CoveragePackageArtifact
 ) {
+  const receiptText = yield* readText(directory, entry.runtimeReceiptPath);
+  if ((yield* digest(receiptText)) !== entry.runtimeReceiptSha256)
+    return yield* configurationError("runtime receipt digest mismatch.");
+  const receipt = yield* decodeRuntimeReceipt(receiptText).pipe(mapError("invalid sealed runtime receipt."));
+  yield* validateRuntimeReceipt(entry.selection, receipt);
   const report = yield* readText(directory, entry.reportPath);
   if ((yield* digest(report)) !== entry.reportSha256)
     return yield* configurationError(`report digest mismatch for ${entry.selection.packageName}.`);
@@ -595,7 +722,7 @@ export const collectCoverageProducerArtifacts = Effect.fn("CoverageArtifacts.col
     A.sortWith(R.toEntries(packages), (entry) => entry[0], Order.String),
     Effect.fnUntraced(function* ([packageName, located]) {
       const slices = A.map(located, (slice) => slice.entry);
-      const selection = yield* validatePackageSlices(slices);
+      const selection = yield* validatePackageInvocations(slices);
       const merged = createCoverageMap({});
       const seen = R.empty<string, string>();
       const reports = yield* Effect.forEach(

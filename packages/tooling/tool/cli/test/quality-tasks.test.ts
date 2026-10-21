@@ -22,8 +22,10 @@ import {
   collectCoverageChangedFilesForTesting,
   collectGithubCheckLaneWavesForTesting,
   collectQualityTaskLaneRunsForTesting,
+  coverageProducerEnvironment,
   parseTestLaneSelectionForTesting,
   readLintPolicySweeps,
+  resolveCiCoverageArtifactPlan,
   resolveCoverageSelector,
   runQualityTaskGithubCheckLaneWaves,
   runQualityTaskStreamingLaneGroup,
@@ -645,7 +647,120 @@ const expectSubstringBefore = (text: string, before: string, after: string): voi
   }
 };
 
+const coverageArtifactPlanRepository = Effect.fnUntraced(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = yield* fs.makeTempDirectoryScoped({ prefix: "coverage-plan-" });
+  yield* fs.writeFileString(
+    path.join(root, "package.json"),
+    yield* encodeJson({
+      name: "@beep/plan-root",
+      private: true,
+      workspaces: ["packages/*"],
+    })
+  );
+  yield* Effect.forEach(
+    ["covered", "bare"],
+    Effect.fnUntraced(function* (name) {
+      const dir = path.join(root, "packages", name);
+      yield* fs.makeDirectory(dir, { recursive: true });
+      yield* fs.writeFileString(
+        path.join(dir, "package.json"),
+        yield* encodeJson({
+          name: `@beep/${name}`,
+          private: true,
+          scripts: name === "covered" ? { coverage: "vitest run --coverage" } : { test: "vitest run" },
+        })
+      );
+    })
+  );
+  yield* runGit(root, ["init"]);
+  yield* runGit(root, ["config", "user.name", "Coverage Plan Fixture"]);
+  yield* runGit(root, ["config", "user.email", "coverage-plan@example.invalid"]);
+  yield* runGit(root, ["add", "--all"]);
+  yield* runGit(root, ["commit", "-m", "test: coverage plan fixture"]);
+  return root;
+});
+const artifactPlanConfiguration = ConfigProvider.fromUnknown({
+  BEEP_COVERAGE_RUN_ID: "123",
+  BEEP_COVERAGE_RUN_ATTEMPT: "2",
+  TURBO_SCM_BASE: "HEAD",
+});
+
 it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
+  describe("CI coverage artifact planning", () => {
+    it("keeps ordinary tests enabled while supplying deterministic coverage inputs", () => {
+      const env = coverageProducerEnvironment();
+      expect(env.CI).toBe("true");
+      expect(env.GITHUB_ACTIONS).toBe("true");
+      expect(env.VITEST_COVERAGE_RATCHET).toBeUndefined();
+      expect(env.TERM_PROGRAM).toBeUndefined();
+      expect(env.BEEP_FC_SEED).toEqual(expect.any(String));
+    });
+    it.effect("plans full coverage owners and binds the configured workflow attempt", () =>
+      Effect.gen(function* () {
+        const root = yield* coverageArtifactPlanRepository();
+        const plan = yield* resolveCiCoverageArtifactPlan(root, []).pipe(
+          Effect.provideService(ConfigProvider.ConfigProvider, artifactPlanConfiguration)
+        );
+        expect(plan.scoped).toBe(false);
+        expect(A.map(plan.owners, (owner) => owner.packageName)).toEqual(["@beep/covered"]);
+        expect(plan.identity.runId).toBe("123");
+        expect(plan.identity.runAttempt).toBe(2);
+        expect(plan.identity.baseSha).toBe(plan.identity.executionSha);
+      })
+    );
+    it.effect("honors explicit comparison base and exact scoped package selection", () =>
+      Effect.gen(function* () {
+        const root = yield* coverageArtifactPlanRepository();
+        const plan = yield* resolveCiCoverageArtifactPlan(
+          root,
+          ["--write-baseline", "--filter=@beep/covered"],
+          "HEAD"
+        ).pipe(
+          Effect.provideService(
+            ConfigProvider.ConfigProvider,
+            ConfigProvider.fromUnknown({
+              BEEP_COVERAGE_RUN_ID: "123",
+              BEEP_COVERAGE_RUN_ATTEMPT: "2",
+              TURBO_SCM_BASE: "nonexistent-base",
+            })
+          )
+        );
+        expect(plan.scoped).toBe(true);
+        expect(A.map(plan.owners, (owner) => owner.packageName)).toEqual(["@beep/covered"]);
+        expect(plan.identity.baseSha).toBe(plan.identity.executionSha);
+      })
+    );
+    it.effect("uses the canonical origin/main base when no override is configured", () =>
+      Effect.gen(function* () {
+        const root = yield* coverageArtifactPlanRepository();
+        yield* runGit(root, ["branch", "origin/main", "HEAD"]);
+        const plan = yield* resolveCiCoverageArtifactPlan(root, []).pipe(
+          Effect.provideService(
+            ConfigProvider.ConfigProvider,
+            ConfigProvider.fromUnknown({
+              BEEP_COVERAGE_RUN_ID: "123",
+              BEEP_COVERAGE_RUN_ATTEMPT: "2",
+            })
+          )
+        );
+        expect(plan.identity.baseSha).toBe(plan.identity.executionSha);
+        expect(A.map(plan.owners, (owner) => owner.packageName)).toEqual(["@beep/covered"]);
+      })
+    );
+    it.effect("emits an explicit empty plan for an unchanged affected checkout", () =>
+      Effect.gen(function* () {
+        const root = yield* coverageArtifactPlanRepository();
+        const plan = yield* resolveCiCoverageArtifactPlan(root, ["--affected"], "HEAD").pipe(
+          Effect.provideService(ConfigProvider.ConfigProvider, artifactPlanConfiguration)
+        );
+        expect(plan.scoped).toBe(true);
+        expect(plan.owners).toEqual([]);
+      })
+    );
+  });
+
   describe("quality task adapter", () => {
     it.effect(
       "runs Bun audit with active OSV ignores and reports dropped entries",

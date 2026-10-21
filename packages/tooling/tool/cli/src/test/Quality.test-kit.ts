@@ -66,6 +66,7 @@ export * from "../commands/Quality/internal/CheckCensusOutput.ts";
 export * from "../commands/Quality/internal/CoverageArtifacts.schemas.ts";
 export * from "../commands/Quality/internal/CoverageArtifacts.ts";
 export * as CoverageArtifacts from "../commands/Quality/internal/CoverageArtifacts.ts";
+export * as CoverageConfig from "../commands/Quality/internal/CoverageConfig.runtime.ts";
 export * from "../commands/Quality/internal/CoverageRegression.ts";
 export * from "../commands/Quality/internal/CoverageScope.ts";
 export * from "../commands/Quality/internal/FallowEnvelope.schema.ts";

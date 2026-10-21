@@ -1,4 +1,9 @@
-import { CiLanePartitionProof, CiLanePartitionShard, CiLaneRunOptions } from "@beep/repo-cli/commands/Ci";
+import {
+  CiCommandError,
+  CiLanePartitionProof,
+  CiLanePartitionShard,
+  CiLaneRunOptions,
+} from "@beep/repo-cli/commands/Ci";
 import {
   ciCoveragePlan,
   runCiCoverageComparison,
@@ -11,7 +16,7 @@ import { StepExec } from "@beep/repo-cli/test/PackageScripts";
 import { CoverageArtifacts, CoverageProducerIdentity, CoverageScopeOwner } from "@beep/repo-cli/test/Quality";
 import { FsUtilsLive } from "@beep/repo-utils";
 import * as NodeServices from "@effect/platform-node/NodeServices";
-import { beforeEach, expect, it } from "@effect/vitest";
+import { afterEach, beforeEach, expect, it } from "@effect/vitest";
 import { assertDefined } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -19,6 +24,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -56,6 +62,8 @@ const options = (values: Partial<CiLaneRunOptions> = {}) =>
     ...values,
   });
 
+afterEach(vi.unstubAllEnvs);
+
 beforeEach(() => {
   vi.restoreAllMocks();
   vi.spyOn(Tasks, "resolveCiCoverageArtifactPlan").mockImplementation(mocks.plan);
@@ -91,16 +99,22 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
         yield* encode({
           name: entry.packageName,
           version: "0.0.0",
-          scripts: { "beep:test": script, ...(hasTest === true ? { test: "bun run beep:test" } : {}) },
+          scripts: {
+            coverage: `${Str.replaceAll("--bun ", "")(script)} --coverage`,
+            "beep:test": script,
+            ...(hasTest === true ? { test: "bun run beep:test" } : {}),
+          },
         })
       );
     }
-    mocks.discover.mockImplementation(({ cwd }: { readonly cwd: string }) =>
-      encode([
-        { file: path.join(cwd, "test/b.test.ts") },
-        { file: path.join(cwd, "test/a.test.ts") },
-        { file: path.join(cwd, "test/a.test.ts") },
-      ]).pipe(Effect.map((output) => ({ output, exitCode: 0, truncated: false })))
+    mocks.discover.mockImplementation(({ cwd, command }: { readonly cwd: string; readonly command: string }) =>
+      command !== "bunx"
+        ? Effect.succeed({ output: command === "bun" ? "1.4.3" : "22.22.3", exitCode: 0, truncated: false })
+        : encode([
+            { file: path.join(cwd, "test/b.test.ts") },
+            { file: path.join(cwd, "test/a.test.ts") },
+            { file: path.join(cwd, "test/a.test.ts") },
+          ]).pipe(Effect.map((output) => ({ output, exitCode: 0, truncated: false })))
     );
     mocks.plan.mockReturnValue(Effect.succeed(plan(entries)));
     return { fs, path, root };
@@ -109,6 +123,7 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
   it.effect("seals a fresh instrumented shard with the complete configured census", () =>
     Effect.gen(function* () {
       const { root, fs, path } = yield* fixture();
+      vi.stubEnv("VITEST_COVERAGE_RATCHET", "1");
       const selected = plan([owner()]);
       const proof = CiLanePartitionProof.make({
         laneId: "test-unit",
@@ -134,14 +149,22 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
             "vitest",
             "list",
             "--filesOnly",
-            "--json",
             "--passWithNoTests",
             "--exclude=test/integration/**",
+            "--json",
           ],
         })
       );
-      expect(mocks.run).toHaveBeenCalledWith("unit", [
-        expect.objectContaining({ env: expect.objectContaining({ CUSTOM: "kept", VITEST_COVERAGE_RATCHET: "1" }) }),
+      expect(mocks.run).toHaveBeenCalledTimes(2);
+      expect(mocks.run).toHaveBeenNthCalledWith(1, "ci:coverage:compound-prerequisites", expect.any(Array));
+      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:test:@beep/repo-cli:0", [
+        expect.objectContaining({
+          args: expect.arrayContaining(["vitest", "run", "--coverage.provider=v8", "--shard=1/2"]),
+          env: expect.objectContaining({ CUSTOM: "kept", VITEST_COVERAGE_RATCHET: undefined }),
+        }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:test:@beep/repo-cli:0", [
+        expect.objectContaining({ args: expect.not.arrayContaining(["--bun", "--coverage.provider=istanbul"]) }),
       ]);
       expect(mocks.write).toHaveBeenCalledWith(
         root,
@@ -151,6 +174,8 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
           packages: [
             expect.objectContaining({
               expectedTestFiles: ["packages/tool/test/a.test.ts", "packages/tool/test/b.test.ts"],
+              testRuntime: "node",
+              provider: "v8",
               testReportPath: "coverage/unit-results.json",
               shard: { index: 1, total: 2 },
             }),
@@ -302,7 +327,7 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
         yield* encode({ name: "@beep/repo-cli", version: "0.0.0", scripts: { test: "bun run beep:test" } })
       );
       const error = yield* Effect.flip(runCiCoverageComparison(root, options()));
-      expect(error.message).toContain("canonical Bun/Vitest");
+      expect(error.message).toContain("canonical Vitest");
       expect(mocks.compare).not.toHaveBeenCalled();
     })
   );
@@ -327,11 +352,334 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
     })
   );
 
+  it.effect("runs compound commands once after dependency builds with isolated reports and runtime declarations", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/repo-utils", "packages/tool");
+      const { root } = yield* fixture(
+        [entry],
+        "TESTCONTAINERS_RYUK_DISABLED=true bunx --bun vitest run --exclude=test/TsNativeApi.test.ts && bunx vitest run test/TsNativeApi.test.ts"
+      );
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-b",
+        selectedTaskCount: 2,
+        partitionTaskCount: 2,
+        packages: [entry.packageName, "@beep/other"],
+        shard: CiLanePartitionShard.make({ index: 1, total: 2 }),
+      });
+      const step = QualityTaskStep.make({
+        label: "unit",
+        command: "bunx",
+        cwd: root,
+        args: [
+          "turbo",
+          "run",
+          `${entry.packageName}#test`,
+          "@beep/other#test",
+          `--filter=${entry.packageName}`,
+          "--filter=@beep/other",
+          "--",
+          "--coverage",
+        ],
+      });
+      yield* runCiCoveragePartition(root, options(), plan([entry]), proof, step);
+      expect(mocks.run).toHaveBeenCalledTimes(4);
+      expect(mocks.run).toHaveBeenNthCalledWith(1, "unit", [
+        expect.objectContaining({ args: expect.arrayContaining(["@beep/other#test", "--filter=@beep/other"]) }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(1, "unit", [
+        expect.objectContaining({
+          args: expect.not.arrayContaining([`${entry.packageName}#test`, `--filter=${entry.packageName}`]),
+        }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(2, "ci:coverage:compound-prerequisites", [
+        expect.objectContaining({
+          args: ["turbo", "run", "build", `--filter=${entry.packageName}^...`, "--concurrency=2"],
+        }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(3, `ci:test:${entry.packageName}:0`, [
+        expect.objectContaining({
+          args: expect.arrayContaining([
+            "--bun",
+            "vitest",
+            "run",
+            "--exclude=test/TsNativeApi.test.ts",
+            "--coverage.reportsDirectory=coverage/invocation-0",
+            "--outputFile=coverage/invocation-0/unit-results.json",
+          ]),
+          env: expect.objectContaining({
+            TESTCONTAINERS_RYUK_DISABLED: "true",
+            BEEP_COVERAGE_INVOCATION_ID: "0",
+            BEEP_COVERAGE_RUNTIME_RECEIPT: "coverage/invocation-0/runtime.json",
+          }),
+        }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(4, `ci:test:${entry.packageName}:1`, [
+        expect.objectContaining({
+          args: expect.arrayContaining([
+            "vitest",
+            "run",
+            "test/TsNativeApi.test.ts",
+            "--coverage.reportsDirectory=coverage/invocation-1",
+            "--outputFile=coverage/invocation-1/unit-results.json",
+          ]),
+          env: expect.objectContaining({
+            BEEP_COVERAGE_INVOCATION_ID: "1",
+            BEEP_COVERAGE_RUNTIME_RECEIPT: "coverage/invocation-1/runtime.json",
+          }),
+        }),
+      ]);
+      expect(mocks.run).toHaveBeenNthCalledWith(4, `ci:test:${entry.packageName}:1`, [
+        expect.objectContaining({ args: expect.not.arrayContaining(["--bun", "&&"]) }),
+      ]);
+      expect(mocks.write).toHaveBeenCalledWith(
+        root,
+        expect.objectContaining({
+          packages: [
+            expect.objectContaining({
+              invocationId: "0",
+              testRuntime: "bun",
+              testRuntimeVersion: "1.4.3",
+              testEnvironment: { TESTCONTAINERS_RYUK_DISABLED: "true" },
+            }),
+            expect.objectContaining({
+              invocationId: "1",
+              testRuntime: "node",
+              testRuntimeVersion: "22.22.3",
+              testEnvironment: {},
+            }),
+          ],
+        })
+      );
+    })
+  );
+  it.effect("stops a compound chain after failure and never seals partial coverage", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/repo-utils", "packages/tool");
+      const { root } = yield* fixture(
+        [entry],
+        "bunx --bun vitest run --exclude=test/TsNativeApi.test.ts && bunx vitest run test/TsNativeApi.test.ts"
+      );
+      mocks.run.mockImplementation((label: string) =>
+        label === `ci:test:${entry.packageName}:0`
+          ? Effect.fail(CiCommandError.make({ message: "first invocation failed" }))
+          : Effect.void
+      );
+      const proof = CiLanePartitionProof.make({
+        laneId: "test-unit",
+        partition: "unit-b",
+        selectedTaskCount: 1,
+        partitionTaskCount: 1,
+        packages: [entry.packageName],
+      });
+      const step = QualityTaskStep.make({
+        label: "unit",
+        command: "bunx",
+        cwd: root,
+        args: ["turbo", "run", `${entry.packageName}#test`],
+      });
+      const failure = yield* runCiCoveragePartition(root, options(), plan([entry]), proof, step).pipe(Effect.flip);
+      expect(failure.message).toBe("first invocation failed");
+      expect(mocks.run).toHaveBeenCalledTimes(2);
+      expect(mocks.write).not.toHaveBeenCalled();
+    })
+  );
+
+  it.effect("keeps optional JSON output switch last so a positional test filter cannot become an output path", () =>
+    Effect.gen(function* () {
+      const { root } = yield* fixture(
+        [owner("@beep/mcpb-kit", "packages/tool")],
+        "bunx vitest run test/TsNativeApi.test.ts"
+      );
+      yield* runCiCoverageComparison(root, options());
+      expect(mocks.discover).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ args: ["vitest", "list", "--filesOnly", "test/TsNativeApi.test.ts", "--json"] })
+      );
+      expect(mocks.run).not.toHaveBeenCalled();
+    })
+  );
+
+  for (const scenario of [
+    {
+      name: "Bun coverage instead of canonical Node",
+      unit: "bunx --bun vitest run",
+      coverage: "bunx --bun vitest run --coverage",
+    },
+    {
+      name: "different test arguments",
+      unit: "bunx --bun vitest run --exclude=test/a.test.ts",
+      coverage: "bunx vitest run --coverage",
+    },
+    {
+      name: "different package environment",
+      unit: "MODE=a bunx --bun vitest run",
+      coverage: "MODE=b bunx vitest run --coverage",
+    },
+    {
+      name: "multiple coverage commands",
+      unit: "bunx --bun vitest run",
+      coverage: "bunx vitest run --coverage && bunx vitest run --coverage",
+    },
+    {
+      name: "multiple canonical unit commands",
+      unit: "bunx --bun vitest run && bunx --bun vitest run",
+      coverage: "bunx vitest run --coverage",
+    },
+  ])
+    it.effect(`refuses CLI provider migration with ${scenario.name}`, () =>
+      Effect.gen(function* () {
+        const { root, fs, path } = yield* fixture();
+        yield* fs.writeFileString(
+          path.join(root, "packages/tool/package.json"),
+          yield* encode({
+            name: "@beep/repo-cli",
+            version: "0.0.0",
+            scripts: { test: "bun run beep:test", "beep:test": scenario.unit, coverage: scenario.coverage },
+          })
+        );
+        const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+        expect(failure.message).toContain("CLI coverage must preserve");
+        expect(mocks.discover).not.toHaveBeenCalled();
+        expect(mocks.compare).not.toHaveBeenCalled();
+      })
+    );
+  it.effect("refuses runtime-dependent CLI test census differences even with equivalent literal arguments", () =>
+    Effect.gen(function* () {
+      const { root, path } = yield* fixture();
+      mocks.discover.mockImplementationOnce(() =>
+        encode([{ file: path.join(root, "packages/tool/test/bun-only.test.ts") }]).pipe(
+          Effect.map((output) => ({ output, exitCode: 0, truncated: false }))
+        )
+      );
+      const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+      expect(failure.message).toContain("CLI coverage test census differs");
+      expect(mocks.run).not.toHaveBeenCalled();
+      expect(mocks.compare).not.toHaveBeenCalled();
+    })
+  );
+
+  const scriptVariants = [
+    { name: "identity Node", script: "bunx vitest run", runtimes: [false], env: {} },
+    { name: "app Bun", script: "bunx --bun vitest run", runtimes: [true], env: {} },
+    { name: "library Bun", script: "bunx --bun vitest run --passWithNoTests", runtimes: [true], env: {} },
+    {
+      name: "excluded integration",
+      script: "bunx --bun vitest run --exclude=test/integration/**",
+      runtimes: [true],
+      env: {},
+    },
+    {
+      name: "default library",
+      script: "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+      runtimes: [true],
+      env: {},
+    },
+    {
+      name: "drizzle and postgres environment",
+      script: "TESTCONTAINERS_RYUK_DISABLED=true bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+      runtimes: [true],
+      env: { TESTCONTAINERS_RYUK_DISABLED: "true" },
+    },
+    {
+      name: "multiple literal assignments",
+      script: "FIRST=one SECOND=two bunx --bun vitest run",
+      runtimes: [true],
+      env: { FIRST: "one", SECOND: "two" },
+    },
+    {
+      name: "repo-utils split runtime",
+      script: "bunx --bun vitest run --exclude=test/TsNativeApi.test.ts && bunx vitest run test/TsNativeApi.test.ts",
+      runtimes: [true, false],
+      env: {},
+    },
+    {
+      name: "effect-drizzle split runtime",
+      script:
+        "bunx --bun vitest run --passWithNoTests --exclude=test/integration/** --exclude=test/import-boundary.test.ts && bunx vitest run test/import-boundary.test.ts",
+      runtimes: [true, false],
+      env: {},
+    },
+  ];
+  for (const variant of scriptVariants) {
+    it.effect(`discovers ${variant.name} without changing runtime or evaluating a shell`, () =>
+      Effect.gen(function* () {
+        const { root } = yield* fixture([owner("@beep/mcpb-kit", "packages/tool")], variant.script);
+        yield* runCiCoverageComparison(root, options());
+        expect(mocks.discover).toHaveBeenCalledTimes(variant.runtimes.length * 2);
+        for (const { index, bun } of A.map(variant.runtimes, (bun, index) => ({ bun, index }))) {
+          expect(mocks.discover).toHaveBeenNthCalledWith(
+            index * 2 + 1,
+            expect.objectContaining({
+              command: "bunx",
+              args: expect.arrayContaining(
+                bun ? ["--bun", "vitest", "list", "--filesOnly", "--json"] : ["vitest", "list", "--filesOnly", "--json"]
+              ),
+              env: expect.objectContaining(variant.env),
+              extendEnv: true,
+            })
+          );
+          expect(mocks.discover).toHaveBeenNthCalledWith(
+            index * 2 + 1,
+            expect.objectContaining({
+              args: expect.not.arrayContaining(["run", "&&"]),
+            })
+          );
+          if (bun === false)
+            expect(mocks.discover).toHaveBeenNthCalledWith(
+              index * 2 + 1,
+              expect.objectContaining({
+                args: expect.not.arrayContaining(["--bun"]),
+              })
+            );
+        }
+        expect(mocks.run).not.toHaveBeenCalled();
+      })
+    );
+  }
+  for (const invalidVersion of [
+    { output: "", exitCode: 0, truncated: false },
+    { output: "1.4.3", exitCode: 1, truncated: false },
+    { output: "1.4.3", exitCode: 0, truncated: true },
+  ]) {
+    it.effect(`refuses invalid runtime provenance ${JSON.stringify(invalidVersion)}`, () =>
+      Effect.gen(function* () {
+        const { root } = yield* fixture();
+        mocks.discover.mockImplementation(({ command }: { readonly command: string }) =>
+          Effect.succeed(command === "bunx" ? { output: "[]", exitCode: 0, truncated: false } : invalidVersion)
+        );
+        const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+        expect(failure.message).toContain("Invalid test runtime version");
+        expect(mocks.compare).not.toHaveBeenCalled();
+        expect(mocks.run).not.toHaveBeenCalled();
+      })
+    );
+  }
+
+  for (const script of [
+    "bunx vitest run; echo unsafe",
+    "TOKEN=$(echo unsafe) bunx vitest run",
+    "bunx vitest run | other",
+    "bunx vitest run && custom-test-command",
+    "bunx vitest runner",
+    "bunx --bun vitest run --flag=$VALUE",
+  ]) {
+    it.effect(`refuses shell evaluation or noncanonical invocation: ${script}`, () =>
+      Effect.gen(function* () {
+        const { root } = yield* fixture([owner()], script);
+        const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+        expect(failure.message).toContain("canonical Vitest test script");
+        expect(mocks.discover).not.toHaveBeenCalled();
+        expect(mocks.run).not.toHaveBeenCalled();
+      })
+    );
+  }
+
   it.effect("refuses a noncanonical command rather than guessing its test inventory", () =>
     Effect.gen(function* () {
       const { root } = yield* fixture([owner()], "custom-test-command");
       const error = yield* Effect.flip(runCiCoverageComparison(root, options()));
-      expect(error.message).toContain("canonical Bun/Vitest test script");
+      expect(error.message).toContain("canonical Vitest test script");
       expect(mocks.discover).not.toHaveBeenCalled();
     })
   );

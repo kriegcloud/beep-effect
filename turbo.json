@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-11-9.turborepo.dev/schema.json",
+  "$schema": "https://v2-11-10.turborepo.dev/schema.json",
   "agentGuidance": false,
   "futureFlags": {
     "affectedUsingTaskInputs": true,
@@ -178,7 +178,8 @@
         "!{apps,packages,infra}/**/docs/**",
         "**/package.json",
         "!**/.beep/**/package.json",
-        "!**/build/**/package.json"
+        "!**/build/**/package.json",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:policy-fingerprint": {
@@ -391,7 +392,12 @@
         ".env",
         ".env.*"
       ],
-      "env": ["BEEP_FC_NUM_RUNS", "BEEP_FC_SEED"]
+      "env": [
+        "BEEP_FC_NUM_RUNS",
+        "BEEP_FC_SEED",
+        "BEEP_COVERAGE_INVOCATION_ID",
+        "BEEP_COVERAGE_RUNTIME_RECEIPT"
+      ]
     },
     "package-test-typecheck": {
       "cache": false,
@@ -688,7 +694,8 @@
         "!**/build/**/package.json",
         "!**/coverage/**/package.json",
         "!**/.next/**/package.json",
-        "!**/storybook-static/**/package.json"
+        "!**/storybook-static/**/package.json",
+        "!.claude/worktrees/**"
       ]
     },
     "//#knowledge:semantic-delta": {
@@ -709,7 +716,8 @@
         ".github/**",
         "**/package.json",
         "!docs/generated/**",
-        "!docs/_internal/**"
+        "!docs/_internal/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#knowledge:refs-check": {
@@ -729,7 +737,8 @@
         ".github/**",
         "**/package.json",
         "!docs/generated/**",
-        "!docs/_internal/**"
+        "!docs/_internal/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:schema-first": {
@@ -745,7 +754,8 @@
         "standards/schema-first.inventory.jsonc",
         "standards/schema-crispening.policy.jsonc",
         "!**/docs/**",
-        "!**/node_modules/**"
+        "!**/node_modules/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:identity-registry": {
@@ -764,7 +774,8 @@
         "!**/.turbo/**",
         "!**/.beep/**/package.json",
         "!**/.next/**/package.json",
-        "!**/storybook-static/**/package.json"
+        "!**/storybook-static/**/package.json",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:effect-imports": {
@@ -809,7 +820,8 @@
         "packages/**/*.{ts,tsx,js,jsx,mjs,cjs}",
         "infra/**/*.{ts,js,mjs}",
         "packages/tooling/policy-pack/lint-rules/src/**",
-        "!**/node_modules/**"
+        "!**/node_modules/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:shadcn": {
@@ -826,7 +838,8 @@
         "{apps,packages}/**/tsconfig.json",
         "apps/**/*.{ts,tsx,jsx,js,css}",
         "packages/**/*.{ts,tsx,jsx,js,css}",
-        "!**/node_modules/**"
+        "!**/node_modules/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:allowlist": {
@@ -916,7 +929,8 @@
         "!packages/drivers/venice-ai/test/fixtures/swagger.json",
         "!packages/foundation/modeling/html/data/**",
         "!packages/foundation/modeling/html/src/internal/Html.language-tag-registry.generated.ts",
-        "!patches/**"
+        "!patches/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#fallow:audit:check": {
@@ -937,7 +951,8 @@
         "scripts/**",
         ".claude/skills/**",
         ".fallow/plugins/**",
-        "standards/fallow.pilot.inventory.jsonc"
+        "standards/fallow.pilot.inventory.jsonc",
+        "!.claude/worktrees/**"
       ]
     },
     "//#fallow:health:check": {
@@ -958,7 +973,8 @@
         "scripts/**",
         ".claude/skills/**",
         ".fallow/plugins/**",
-        "standards/fallow.pilot.inventory.jsonc"
+        "standards/fallow.pilot.inventory.jsonc",
+        "!.claude/worktrees/**"
       ]
     },
     "//#fallow:health:advisory": {
@@ -979,7 +995,8 @@
         "scripts/**",
         ".claude/skills/**",
         ".fallow/plugins/**",
-        "standards/fallow.pilot.inventory.jsonc"
+        "standards/fallow.pilot.inventory.jsonc",
+        "!.claude/worktrees/**"
       ]
     },
     "//#fallow:boundaries:advisory": {
@@ -1000,7 +1017,8 @@
         "scripts/**",
         ".claude/skills/**",
         ".fallow/plugins/**",
-        "standards/fallow.pilot.inventory.jsonc"
+        "standards/fallow.pilot.inventory.jsonc",
+        "!.claude/worktrees/**"
       ]
     },
     "//#fallow:flags:advisory": {
@@ -1021,7 +1039,8 @@
         "scripts/**",
         ".claude/skills/**",
         ".fallow/plugins/**",
-        "standards/fallow.pilot.inventory.jsonc"
+        "standards/fallow.pilot.inventory.jsonc",
+        "!.claude/worktrees/**"
       ]
     },
     "//#fallow:security:advisory": {
@@ -1042,7 +1061,8 @@
         "scripts/**",
         ".claude/skills/**",
         ".fallow/plugins/**",
-        "standards/fallow.pilot.inventory.jsonc"
+        "standards/fallow.pilot.inventory.jsonc",
+        "!.claude/worktrees/**"
       ]
     },
     "//#fallow:fix-preview:advisory": {
@@ -1063,7 +1083,8 @@
         "scripts/**",
         ".claude/skills/**",
         ".fallow/plugins/**",
-        "standards/fallow.pilot.inventory.jsonc"
+        "standards/fallow.pilot.inventory.jsonc",
+        "!.claude/worktrees/**"
       ]
     },
     "//#jsdoc:inventory:check": {
@@ -1087,7 +1108,8 @@
         "!**/storybook-static/**",
         "!**/test/fixtures/**",
         "!scratchpad/docs/**",
-        "!scratchpad/.jsdoc-loop/**"
+        "!scratchpad/.jsdoc-loop/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:tsconfig-overlay": {
@@ -1140,7 +1162,8 @@
         "tsconfig*.json",
         "tsconfig.base.json",
         "packages/tooling/tool/cli/src/commands/Lint/OpaqueRoundtrips.ts",
-        "!**/node_modules/**"
+        "!**/node_modules/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:effect-vitest": {
@@ -1176,7 +1199,7 @@
       "cache": false,
       "outputs": [],
       "dependsOn": ["//#lint:policy-fingerprint"],
-      "inputs": [".changeset/**", "**/package.json"]
+      "inputs": [".changeset/**", "**/package.json", "!.claude/worktrees/**"]
     },
     "//#lint:circular": {
       "cache": true,
@@ -1226,7 +1249,8 @@
         "!**/dist/**",
         "!**/coverage/**",
         "!**/.next/**",
-        "!**/storybook-static/**"
+        "!**/storybook-static/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#lint:ecosystem-polarity": {
@@ -1273,7 +1297,8 @@
         "scripts/**",
         ".claude/skills/**",
         ".fallow/plugins/**",
-        "standards/fallow.pilot.inventory.jsonc"
+        "standards/fallow.pilot.inventory.jsonc",
+        "!.claude/worktrees/**"
       ]
     },
     "//#config-sync:check": {
@@ -1301,7 +1326,8 @@
         "!**/.jsdoc-loop/generated-docs/**",
         "!docs/generated/**",
         "!docs/_internal/**",
-        "!{apps,packages,infra}/**/docs/**"
+        "!{apps,packages,infra}/**/docs/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#repo-sanity:changeset-graph": {
@@ -1326,7 +1352,8 @@
         "!**/.jsdoc-loop/generated-docs/**",
         "!docs/generated/**",
         "!docs/_internal/**",
-        "!{apps,packages,infra}/**/docs/**"
+        "!{apps,packages,infra}/**/docs/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#repo-sanity:syncpack": {
@@ -1349,7 +1376,8 @@
         "!**/.jsdoc-loop/generated-docs/**",
         "!docs/generated/**",
         "!docs/_internal/**",
-        "!{apps,packages,infra}/**/docs/**"
+        "!{apps,packages,infra}/**/docs/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#repo-sanity:sherif": {
@@ -1371,7 +1399,8 @@
         "!**/.jsdoc-loop/generated-docs/**",
         "!docs/generated/**",
         "!docs/_internal/**",
-        "!{apps,packages,infra}/**/docs/**"
+        "!{apps,packages,infra}/**/docs/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#repo-sanity:versions": {
@@ -1396,7 +1425,8 @@
         "!**/.jsdoc-loop/generated-docs/**",
         "!docs/generated/**",
         "!docs/_internal/**",
-        "!{apps,packages,infra}/**/docs/**"
+        "!{apps,packages,infra}/**/docs/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#repo-sanity:bun-audit": {
@@ -1415,7 +1445,8 @@
         "**/package.json",
         "apps/**",
         "packages/**",
-        "infra/**"
+        "infra/**",
+        "!.claude/worktrees/**"
       ]
     },
     "//#topo-sort": {
@@ -1437,7 +1468,8 @@
         "!**/.jsdoc-loop/generated-docs/**",
         "!docs/generated/**",
         "!docs/_internal/**",
-        "!{apps,packages,infra}/**/docs/**"
+        "!{apps,packages,infra}/**/docs/**",
+        "!.claude/worktrees/**"
       ]
     }
   }

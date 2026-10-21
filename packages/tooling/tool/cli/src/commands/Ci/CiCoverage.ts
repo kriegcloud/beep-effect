@@ -14,6 +14,7 @@ import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { isLabsWorkspaceDir } from "../../internal/cli/Labs/index.ts";
@@ -47,6 +48,132 @@ const VitestTestFile = S.Struct({ file: S.String }).pipe(
 );
 const decodeTestFiles = S.decodeUnknownEffect(S.fromJsonString(S.Array(VitestTestFile)));
 const normalize = Str.replace(/\\/g, "/");
+const CanonicalVitestCommand = S.String.check(
+  S.isPattern(
+    /^(?:[A-Za-z_][A-Za-z0-9_]*=[A-Za-z0-9_./:@%+,-]*\s+)*bunx\s+(?:--bun\s+)?vitest\s+run(?:\s+[^\s;&|<>()"'`$\\#]+)*$/u
+  )
+).pipe(
+  $I.annoteSchema("CanonicalVitestCommand", {
+    description: "A literal Vitest invocation with optional literal environment assignments, without shell evaluation.",
+  })
+);
+const isCanonicalVitestCommand = S.is(CanonicalVitestCommand);
+const isEnvironmentAssignment = S.is(S.String.check(S.isPattern(/^[A-Za-z_][A-Za-z0-9_]*=/u)));
+class CanonicalVitestInvocation extends S.Opaque<CanonicalVitestInvocation, { readonly brand: unique symbol }>()(
+  S.Struct({
+    command: S.Literal("bunx"),
+    args: S.Array(S.String),
+    cwd: S.String,
+    env: S.Record(S.String, S.String),
+  }).pipe(
+    $I.annoteSchema("CanonicalVitestInvocation", {
+      description: "A parsed literal runner invocation with explicit package environment and no shell operators.",
+    })
+  )
+) {}
+
+const decodeInvocations = S.decodeUnknownEffect(S.NonEmptyArray(CanonicalVitestInvocation));
+
+const coverageTestCommands = Effect.fn("CiCoverage.testCommands")(function* (
+  script: string,
+  packageName: string,
+  cwd: string
+) {
+  const commands = yield* Effect.forEach(
+    Str.split(/\s+&&\s+/)(Str.trim(script)),
+    Effect.fnUntraced(function* (command) {
+      if (!isCanonicalVitestCommand(command)) {
+        return yield* CiCommandError.make({
+          message: `Coverage owner ${packageName} must use a canonical Vitest test script.`,
+        });
+      }
+      const [assignments, tokens] = A.span(Str.split(/\s+/)(command), isEnvironmentAssignment);
+      const env = A.reduce(assignments, R.empty<string, string>(), (values, assignment) => {
+        const name = A.headNonEmpty(Str.split("=")(assignment));
+        return R.set(values, name, Str.slice(name.length + 1)(assignment));
+      });
+      return CanonicalVitestInvocation.make({
+        command: "bunx",
+        cwd,
+        env,
+        args: A.drop(tokens, 1),
+      });
+    })
+  );
+  return yield* decodeInvocations(commands).pipe(
+    CiCommandError.mapError(`Invalid canonical invocation list for ${packageName}.`)
+  );
+});
+
+const coverageTestRuntimeVersion = Effect.fn("CiCoverage.testRuntimeVersion")(function* (
+  command: CanonicalVitestInvocation,
+  packageName: string,
+  testRuntime: CoverageProducerPackage["testRuntime"]
+) {
+  const version = yield* runCaptured({
+    command: testRuntime,
+    args: ["--print", `process.versions.${testRuntime}`],
+    cwd: command.cwd,
+    env: { ...coverageProducerEnvironment(), ...command.env },
+    extendEnv: true,
+    source: "stdout",
+    trim: true,
+  }).pipe(CiCommandError.mapError(`Failed to inspect test runtime for ${packageName}.`));
+  if (version.exitCode !== 0 || version.truncated || Str.isEmpty(version.output)) {
+    return yield* CiCommandError.make({ message: `Invalid test runtime version for ${packageName}.` });
+  }
+  return version.output;
+});
+
+const coverageTestInventory = Effect.fn("CiCoverage.testInventory")(function* (
+  command: CanonicalVitestInvocation,
+  packageName: string
+) {
+  const path = yield* Path.Path;
+  const runtimeArgs = command.args[0] === "--bun" ? ["--bun"] : [];
+  // Vitest's optional JSON output path must not consume a positional test filter.
+  const result = yield* runCaptured({
+    command: command.command,
+    args: [...runtimeArgs, "vitest", "list", "--filesOnly", ...A.drop(command.args, runtimeArgs.length + 2), "--json"],
+    cwd: command.cwd,
+    env: { ...coverageProducerEnvironment(), ...command.env },
+    extendEnv: true,
+    source: "stdout",
+    trim: true,
+  }).pipe(CiCommandError.mapError(`Failed to discover tests for ${packageName}.`));
+  if (result.exitCode !== 0 || result.truncated)
+    return yield* CiCommandError.make({
+      message: `Test discovery for ${packageName} failed or exceeded its capture bound.`,
+    });
+  const files = yield* decodeTestFiles(result.output).pipe(
+    CiCommandError.mapError(`Invalid Vitest test inventory for ${packageName}.`)
+  );
+  return A.sort(A.dedupe(A.map(files, (file) => normalize(path.resolve(command.cwd, file.file)))), Order.String);
+});
+const sameCommands = S.toEquivalence(CanonicalVitestInvocation);
+const sameTestFiles = A.makeEquivalence(Str.Equivalence);
+const normalizedUnitCommand = (command: CanonicalVitestInvocation) =>
+  CanonicalVitestInvocation.make({
+    ...command,
+    args: A.filter(command.args, (arg) => arg !== "--bun" && arg !== "--coverage"),
+  });
+const cliCoverageCommands = Effect.fn("CiCoverage.cliCommands")(function* (
+  script: string,
+  unit: A.NonEmptyReadonlyArray<CanonicalVitestInvocation>,
+  cwd: string
+) {
+  const commands = yield* coverageTestCommands(script, "@beep/repo-cli", cwd);
+  if (
+    commands.length !== 1 ||
+    unit.length !== 1 ||
+    commands[0].args[0] === "--bun" ||
+    !sameCommands(normalizedUnitCommand(commands[0]), normalizedUnitCommand(unit[0]))
+  )
+    return yield* CiCommandError.make({
+      message: "CLI coverage must preserve the canonical unit arguments and environment while using Node/V8.",
+    });
+  return commands;
+});
 
 /** Config-aware test discovery, without importing or executing the test bodies. */
 const discoverCoveragePackages = Effect.fn("CiCoverage.discoverCoveragePackages")(function* (
@@ -58,7 +185,7 @@ const discoverCoveragePackages = Effect.fn("CiCoverage.discoverCoveragePackages"
   const workspaces = yield* resolveWorkspacePackages(repoRoot).pipe(
     CiCommandError.mapError("Failed to read coverage test owners.")
   );
-  return yield* Effect.forEach(
+  const selections = yield* Effect.forEach(
     owners,
     Effect.fnUntraced(function* (owner) {
       const workspace = yield* O.match(HashMap.get(workspaces, owner.packageName), {
@@ -66,51 +193,46 @@ const discoverCoveragePackages = Effect.fn("CiCoverage.discoverCoveragePackages"
         onSome: Effect.succeed,
       });
       const script = workspace.scripts["beep:test"] ?? "";
-      const prefix = "bunx --bun vitest run";
-      if (!Str.startsWith(prefix)(script)) {
-        return yield* CiCommandError.make({
-          message: `Coverage owner ${owner.packageName} must use the canonical Bun/Vitest test script.`,
-        });
-      }
-      // Generated scripts contain plain Vitest flags. Preserve their integration exclusions in discovery.
-      const args = [
-        "--bun",
-        "vitest",
-        "list",
-        "--filesOnly",
-        "--json",
-        ...A.filter(Str.split(/\s+/)(Str.trim(Str.slice(prefix.length)(script))), Str.isNonEmpty),
-      ];
-      const result = yield* runCaptured({
-        command: "bunx",
-        args,
-        cwd: workspace.dir,
-        env: coverageProducerEnvironment(),
-        extendEnv: true,
-        source: "stdout",
-        trim: true,
-      }).pipe(CiCommandError.mapError(`Failed to discover tests for ${owner.packageName}.`));
-      if (result.exitCode !== 0 || result.truncated) {
-        return yield* CiCommandError.make({
-          message: `Test discovery for ${owner.packageName} failed or exceeded its capture bound.`,
-        });
-      }
-      const files = yield* decodeTestFiles(result.output).pipe(
-        CiCommandError.mapError(`Invalid Vitest test inventory for ${owner.packageName}.`)
+      const unitCommands = yield* coverageTestCommands(script, owner.packageName, workspace.dir);
+      const isCli = owner.packageName === "@beep/repo-cli";
+      const commands = isCli
+        ? yield* cliCoverageCommands(workspace.scripts.coverage ?? "", unitCommands, workspace.dir)
+        : unitCommands;
+      const unitCensus = isCli ? O.some(yield* coverageTestInventory(unitCommands[0], owner.packageName)) : O.none();
+      return yield* Effect.forEach(
+        commands,
+        Effect.fnUntraced(function* (command, index) {
+          const files = yield* coverageTestInventory(command, owner.packageName);
+          if (O.isSome(unitCensus) && !sameTestFiles(unitCensus.value, files))
+            return yield* CiCommandError.make({
+              message: "CLI coverage test census differs from its canonical unit invocation.",
+            });
+          const reportDirectory = commands.length === 1 ? "coverage" : `coverage/invocation-${index}`;
+          const testRuntime = command.args[0] === "--bun" ? "bun" : "node";
+          const testRuntimeVersion = yield* coverageTestRuntimeVersion(command, owner.packageName, testRuntime);
+          return CoverageProducerPackage.make({
+            packageName: owner.packageName,
+            packagePath: owner.packagePath,
+            invocationId: String(index),
+            testRuntime,
+            provider: isCli ? "v8" : "istanbul",
+            testRuntimeVersion,
+            testCommand: [command.command, ...command.args],
+            testEnvironment: command.env,
+            runtimeReportPath: `${reportDirectory}/runtime.json`,
+            expectedTestFiles: A.sort(
+              A.dedupe(A.map(files, (file) => normalize(path.relative(repoRoot, file)))),
+              Order.String
+            ),
+            testReportPath: `${reportDirectory}/unit-results.json`,
+            ...(shard === undefined ? {} : { shard }),
+          });
+        })
       );
-      return CoverageProducerPackage.make({
-        packageName: owner.packageName,
-        packagePath: owner.packagePath,
-        expectedTestFiles: A.sort(
-          A.dedupe(A.map(files, (file) => normalize(path.relative(repoRoot, path.resolve(workspace.dir, file.file))))),
-          Order.String
-        ),
-        testReportPath: "coverage/unit-results.json",
-        ...(shard === undefined ? {} : { shard }),
-      });
     }),
     { concurrency: 2 }
   );
+  return A.flatten(selections);
 });
 
 /**
@@ -173,16 +295,20 @@ const runAndWrite = Effect.fn("CiCoverage.runAndWrite")(function* (
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  for (const entry of packages) {
+  const compound = A.filter(
+    packages,
+    (entry) => entry.testReportPath !== "coverage/unit-results.json" || entry.provider === "v8"
+  );
+  const compoundNames = A.dedupe(A.map(compound, (entry) => entry.packageName));
+  for (const entry of A.dedupeWith(packages, (left, right) => left.packagePath === right.packagePath)) {
     yield* fs
       .remove(path.join(repoRoot, entry.packagePath, "coverage"), { recursive: true, force: true })
       .pipe(CiCommandError.mapError(`Failed to clear stale coverage for ${entry.packageName}.`));
   }
   if (step !== undefined) {
-    yield* runQualityTaskStreamingStepGroup(step.label, [
-      QualityTaskStep.make({ ...step, env: { ...coverageProducerEnvironment(), ...step.env } }),
-    ]);
+    yield* runOrdinaryCoverageStep(repoRoot, step, compoundNames);
   }
+  yield* runCompoundCoverageSteps(repoRoot, compound, compoundNames, step?.env);
   yield* writeCoverageProducerArtifact(
     repoRoot,
     CoverageProducerWriteOptions.make({
@@ -192,6 +318,78 @@ const runAndWrite = Effect.fn("CiCoverage.runAndWrite")(function* (
       packages,
     })
   ).pipe(CiCommandError.mapError(`Failed to seal coverage partition ${partitionId}.`));
+});
+
+const coverageReporterArgument = (repoRoot: string) =>
+  `--reporter=${repoRoot}/packages/tooling/tool/cli/src/commands/Ci/CiCoverage.reporter.ts`;
+
+const runOrdinaryCoverageStep = Effect.fn("CiCoverage.runOrdinaryStep")(function* (
+  repoRoot: string,
+  step: QualityTaskStep,
+  compoundNames: ReadonlyArray<string>
+) {
+  const args = A.filter(
+    step.args,
+    (arg) => !A.some(compoundNames, (name) => arg === `${name}#test` || arg === `--filter=${name}`)
+  );
+  if (A.isReadonlyArrayNonEmpty(compoundNames) && !A.some(args, Str.endsWith("#test"))) return;
+  yield* runQualityTaskStreamingStepGroup(step.label, [
+    QualityTaskStep.make({
+      ...step,
+      args: [...args, coverageReporterArgument(repoRoot)],
+      env: {
+        ...coverageProducerEnvironment(),
+        ...step.env,
+        BEEP_COVERAGE_INVOCATION_ID: "0",
+        BEEP_COVERAGE_RUNTIME_RECEIPT: "coverage/runtime.json",
+      },
+    }),
+  ]);
+});
+
+const runCompoundCoverageSteps = Effect.fn("CiCoverage.runCompoundSteps")(function* (
+  repoRoot: string,
+  packages: ReadonlyArray<CoverageProducerPackage>,
+  packageNames: ReadonlyArray<string>,
+  environment: QualityTaskStep["env"]
+) {
+  if (A.isReadonlyArrayEmpty(packages)) return;
+  const path = yield* Path.Path;
+  yield* runQualityTaskStreamingStepGroup("ci:coverage:compound-prerequisites", [
+    QualityTaskStep.make({
+      label: "ci:coverage:compound-prerequisites",
+      command: "bunx",
+      cwd: repoRoot,
+      args: ["turbo", "run", "build", ...A.map(packageNames, (name) => `--filter=${name}^...`), "--concurrency=2"],
+    }),
+  ]);
+  const steps = A.map(packages, (entry) =>
+    QualityTaskStep.make({
+      label: `ci:test:${entry.packageName}:${entry.invocationId}`,
+      command: "bunx",
+      cwd: path.join(repoRoot, entry.packagePath),
+      args: [
+        ...A.drop(entry.testCommand, 1),
+        ...A.filter(
+          A.drop(ciCoverageTestArgs, 1),
+          (arg) => !Str.startsWith("--outputFile=")(arg) && !Str.startsWith("--coverage.provider=")(arg)
+        ),
+        `--coverage.provider=${entry.provider}`,
+        `--coverage.reportsDirectory=${path.dirname(entry.testReportPath)}`,
+        `--outputFile=${entry.testReportPath}`,
+        coverageReporterArgument(repoRoot),
+        ...(entry.shard === undefined ? [] : [`--shard=${entry.shard.index}/${entry.shard.total}`]),
+      ],
+      env: {
+        ...environment,
+        ...coverageProducerEnvironment(),
+        ...entry.testEnvironment,
+        BEEP_COVERAGE_INVOCATION_ID: entry.invocationId,
+        BEEP_COVERAGE_RUNTIME_RECEIPT: entry.runtimeReportPath,
+      },
+    })
+  );
+  yield* Effect.forEach(steps, (step) => runQualityTaskStreamingStepGroup(step.label, [step]), { discard: true });
 });
 
 /**

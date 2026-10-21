@@ -50,8 +50,11 @@ import {
   turboCacheEnvironmentNeedsSecretSession,
   turboCachePlanArgs,
   turboCachePlanNeedsSecretSession,
-  turboCachePullRequestPosture,
 } from "../../internal/cli/TurboCache.ts";
+import { coverageEnvironment } from "./internal/CoverageEnvironment.ts";
+
+export { coverageProducerEnvironment } from "./internal/CoverageEnvironment.ts";
+
 import { globMatches } from "../../internal/GlobPattern.ts";
 import {
   CapturedStep,
@@ -189,8 +192,6 @@ const COVERAGE_FULL_VITEST_WORKER_CAP = 11;
 const COVERAGE_SELECTED_SINGLE_RUN_MAX_WEIGHT_SECONDS = 300;
 const COVERAGE_WRITE_BASELINE_ARG = "--write-baseline";
 const COVERAGE_REPLACE_ALL_ARG = "--replace-all";
-const DEFAULT_COVERAGE_FAST_CHECK_SEED = "20260708";
-const COVERAGE_NODE_OPTIONS_ARG = "--no-experimental-webstorage";
 // A single lost child-exit signal must fail with the command name while the
 // workflow still has time to report and clean up. The longest healthy policy
 // child is under eight minutes on the hosted heavy runner.
@@ -1142,60 +1143,6 @@ const boundedRootTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string
 
 const includesTurboCoverageTask = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): boolean =>
   A.some(tasks, (task) => task === "coverage") || A.some(args, (arg) => arg === "coverage");
-
-const coverageNodeOptions = (): string =>
-  pipe(
-    O.fromUndefinedOr(Bun.env.NODE_OPTIONS),
-    O.map(Str.trim),
-    O.filter(Str.isNonEmpty),
-    O.map((nodeOptions) =>
-      Str.includes(COVERAGE_NODE_OPTIONS_ARG)(nodeOptions) ? nodeOptions : `${nodeOptions} ${COVERAGE_NODE_OPTIONS_ARG}`
-    ),
-    O.getOrElse(() => COVERAGE_NODE_OPTIONS_ARG)
-  );
-
-// Coverage compares instrumentation metrics across runs, so its default seed
-// is reproducible. Callers can override it for additional exploration, while
-// the unseeded nightly property-law sweep remains responsible for breadth.
-const coverageFastCheckSeed = (): string =>
-  pipe(
-    O.fromUndefinedOr(Bun.env.BEEP_FC_SEED),
-    O.map(Str.trim),
-    O.filter(Str.isNonEmpty),
-    O.getOrElse(() => DEFAULT_COVERAGE_FAST_CHECK_SEED)
-  );
-
-// Coverage is a hosted ratchet. Pin its CI identity, remove desktop terminal
-// metadata, and reduce the Turbo remote-cache quad to the pull-request posture
-// so local baseline generation, PR jobs, and main pushes all exercise the same
-// branches: a workstation's 1Password-backed TURBO_TOKEN and a main push's
-// literal token each reach arms of internal/cli/EnvConfig.ts that a PR job's
-// blank quad never does (ship-velocity B9). Step env wins over
-// turboEnvOverrides at spawn time, and the prebuild step never receives this
-// record, so main pushes keep their remote-cache reads for the build graph.
-const coverageEnvironment = (): Record<string, string | undefined> => ({
-  BEEP_FC_SEED: coverageFastCheckSeed(),
-  CI: "true",
-  GITHUB_ACTIONS: "true",
-  NODE_OPTIONS: coverageNodeOptions(),
-  TERM_PROGRAM: undefined,
-  TERM_PROGRAM_VERSION: undefined,
-  ...turboCachePullRequestPosture,
-  VITEST_COVERAGE_RATCHET: "1",
-});
-
-/**
- * Deterministic coverage environment for the single CI test producer.
- *
- * **Example** (Inspect the pinned seed)
- * ```ts
- * import { coverageProducerEnvironment } from "@beep/repo-cli/commands/Quality/Tasks"
- * console.log(coverageProducerEnvironment().VITEST_COVERAGE_RATCHET) // "1"
- * ```
- * @category utilities
- * @since 0.0.0
- */
-export const coverageProducerEnvironment = coverageEnvironment;
 
 // fallow-ignore-next-line code-duplication -- coverage detection stays beside its deterministic hosted environment
 const turboCoverageEnv = (

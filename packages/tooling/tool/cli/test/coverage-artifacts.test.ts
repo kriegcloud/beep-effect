@@ -8,6 +8,7 @@ import {
   CoverageProducerPartition,
   CoverageProducerWriteOptions,
   CoverageRegressionBaseline,
+  CoverageRuntimeReceipt,
   collectCoverageProducerArtifacts,
   compareCoverageProducerArtifacts,
   discoverCoverageArtifactSources,
@@ -15,16 +16,22 @@ import {
   writeCoverageProducerArtifact,
 } from "@beep/repo-cli/test/Quality";
 import { sha256Hex } from "@beep/repo-utils/Sha256Hex";
+import { currentHostPlatform } from "@beep/utils";
 import * as NodeServices from "@effect/platform-node/NodeServices";
-import { afterEach, expect, it, vi } from "@effect/vitest";
+import { afterEach, describe, expect, it, vi } from "@effect/vitest";
 import { createInstrumenter } from "@vitest/istanbul-lib-instrument";
 import * as A from "effect/Array";
+import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { hostNodeExecutable } from "./helpers/native-node.ts";
+
+const nativeTestRuntime = process.versions.bun === undefined ? "node" : "bun";
+const nativeTestVersion = process.versions.bun ?? process.versions.node;
 
 // The producer's runtime metadata is a boundary: fixtures exercise both admitted
 // Bun metadata and its rejection while retaining real filesystem/process services.
@@ -41,7 +48,10 @@ const runtimeVersions = (bun: string | undefined) =>
           : Reflect.get(target, key, receiver),
     })
   );
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
 
 const encode = S.encodeEffect(S.fromJsonString(S.Unknown));
 const decodeManifest = S.decodeUnknownEffect(S.fromJsonString(CoverageProducerManifest));
@@ -110,6 +120,8 @@ const fixture = Effect.fnUntraced(function* () {
       packagePath,
       expectedTestFiles: tests,
       testReportPath: "coverage/unit-results.json",
+      testRuntime: nativeTestRuntime,
+      testRuntimeVersion: nativeTestVersion,
       shard: { index, total: 2 },
     });
   const write = Effect.fnUntraced(function* (index: number, includeBarrel?: boolean) {
@@ -146,6 +158,19 @@ const fixture = Effect.fnUntraced(function* () {
         numFailedTestSuites: 0,
         testResults: [{ name: path.join(root, tests[index - 1] ?? ""), status: "passed" }],
       })
+    );
+    yield* fs.writeFileString(
+      path.join(packageRoot, "coverage/runtime.json"),
+      yield* encode(
+        CoverageRuntimeReceipt.make({
+          schemaVersion: "coverage-runtime/v1",
+          invocationId: "0",
+          testRuntime: nativeTestRuntime,
+          runtimeVersion: nativeTestVersion,
+          provider: "istanbul",
+          success: true,
+        })
+      )
     );
     yield* writeCoverageProducerArtifact(
       root,
@@ -188,352 +213,835 @@ const rejectChangedManifest = Effect.fnUntraced(function* (
   expect(failure.message).toContain("Coverage artifact:");
 });
 
-it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integrity", (it) => {
-  it.effect("refuses to publish Bun provenance from a Node runtime", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      runtimeVersions(undefined);
-      const failure = yield* writeCoverageProducerArtifact(
-        f.root,
-        CoverageProducerWriteOptions.make({
-          artifactRoot: ".beep/rejected-node",
-          identity: f.identity,
-          partitionId: "node",
-          packages: [],
-        })
-      ).pipe(Effect.flip);
-      expect(failure.message).toContain("must run under Bun");
-      expect(yield* f.fs.exists(f.path.join(f.root, ".beep/rejected-node/manifest.json"))).toBe(false);
-    })
-  );
-
-  it.effect("merges complementary branch hits and retains an instrumenter-proven empty barrel", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      yield* f.write(1);
-      yield* f.write(2);
-      const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
-      expect(snapshots).toHaveLength(1);
-      expect(snapshots[0]?.baseline.branches).toBe(100);
-      expect(snapshots[0]?.baseline.uncovered).toEqual({ lines: 0, statements: 0, functions: 0, branches: 0 });
-      expect(R.keys(snapshots[0]?.baseline.files ?? {})).toEqual([
-        `${f.packagePath}/src/choose.ts`,
-        `${f.packagePath}/src/index.ts`,
-      ]);
-      expect(yield* discoverCoverageArtifactSources(f.root, f.packagePath)).toEqual([
-        `${f.packagePath}/src/choose.ts`,
-        `${f.packagePath}/src/index.ts`,
-      ]);
-    })
-  );
-
-  it.effect("merges a genuine empty barrel present in one shard and omitted in another", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      yield* f.write(1, true);
-      yield* f.write(2);
-      const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
-      expect(snapshots[0]?.baseline.files[`${f.packagePath}/src/index.ts`]?.uncovered).toEqual({
-        lines: 0,
-        statements: 0,
-        functions: 0,
-        branches: 0,
-      });
-    })
-  );
-
-  it.effect("compares sealed snapshots with existing floors without a local coverage producer", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      yield* f.write(1);
-      yield* f.write(2);
-      const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
-      const first = snapshots[0];
-      if (first === undefined) return yield* Effect.die("Expected validated snapshot");
-      yield* f.fs.makeDirectory(f.path.join(f.root, "standards"));
-      const baseline = CoverageRegressionBaseline.make({
-        schema_version: 2,
-        generated_at: "fixture",
-        git_sha: f.identity.executionSha,
-        command: "fixture",
-        epsilon: 0.001,
-        minimum: {
-          lines: first.baseline.lines,
-          statements: first.baseline.statements,
-          functions: first.baseline.functions,
-          branches: first.baseline.branches,
-        },
-        exemptions: {},
-        follow_ups: {},
-        packages: { "@beep/example": first.baseline },
-      });
-      yield* f.fs.writeFileString(
-        f.path.join(f.root, "standards/coverage.regression-baseline.jsonc"),
-        yield* encode(baseline)
-      );
-      // Removing local reports proves the adapter consumes sealed artifacts only.
-      yield* f.fs.remove(f.path.join(f.packageRoot, "coverage"), { recursive: true });
-      yield* compareCoverageProducerArtifacts(f.root, f.options).pipe(
-        Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({}))
-      );
-      expect(yield* f.fs.exists(f.path.join(f.packageRoot, "coverage"))).toBe(false);
-    })
-  );
-
-  it.effect("fails closed when a selected shard never uploaded", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      yield* f.write(1);
-      const failure = yield* collectCoverageProducerArtifacts(f.root, f.options).pipe(Effect.flip);
-      expect(failure.message).toContain("missing producer partitions");
-    })
-  );
-
-  it.effect("rejects changed checkout identity before consuming reports", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      const failure = yield* collectCoverageProducerArtifacts(
-        f.root,
-        CoverageProducerCompareOptions.make({
-          ...f.options,
-          identity: CoverageProducerIdentity.make({ ...f.identity, executionSha: "b".repeat(40) }),
-        })
-      ).pipe(Effect.flip);
-      expect(failure.message).toContain("differs from the checkout");
-    })
-  );
-
-  it.effect("refuses to overwrite an existing producer manifest", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      yield* f.write(1);
-      const failure = yield* f.write(1).pipe(Effect.flip);
-      expect(failure.message).toContain("already exists");
-    })
-  );
-
-  it.effect("rejects a newly selected executable source omitted by the producer", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      yield* f.fs.writeFileString(
-        f.path.join(f.packageRoot, "src/untouched.ts"),
-        "export const untouched = () => 42;\n"
-      );
-      const failure = yield* f.write(1).pipe(Effect.flip);
-      expect(failure.message).toContain("missing executable source");
-    })
-  );
-
-  it.effect("binds the actual execution SHA while keeping the requested PR head separate", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      const identity = yield* resolveCoverageProducerIdentity(f.root, {
-        base: "HEAD",
-        packageNames: ["@beep/example"],
-      }).pipe(
-        Effect.provideService(
-          ConfigProvider.ConfigProvider,
-          ConfigProvider.fromUnknown({
-            BEEP_COVERAGE_RUN_ID: "producer",
-            BEEP_COVERAGE_RUN_ATTEMPT: "3",
-            GITHUB_RUN_ID: "consumer",
-            GITHUB_RUN_ATTEMPT: "9",
-            BEEP_COVERAGE_REQUEST_HEAD_SHA: "b".repeat(40),
-          })
-        )
-      );
-      expect(identity.executionSha).toBe(f.identity.executionSha);
-      expect(identity.baseSha).toBe(f.identity.executionSha);
-      expect(identity.requestHeadSha).toBe("b".repeat(40));
-      expect(identity.runId).toBe("producer");
-      expect(identity.runAttempt).toBe(3);
-      const fallback = yield* resolveCoverageProducerIdentity(f.root, {
-        base: "HEAD",
-        packageNames: ["@beep/example"],
-      }).pipe(
-        Effect.provideService(
-          ConfigProvider.ConfigProvider,
-          ConfigProvider.fromUnknown({ GITHUB_RUN_ID: "producer", GITHUB_RUN_ATTEMPT: "3" })
-        )
-      );
-      expect(fallback.scopeDigest).toBe(identity.scopeDigest);
-      expect(fallback.requestHeadSha).toBeUndefined();
-    })
-  );
-
-  it.effect("accepts genuine remapped Istanbul ranges and implicit else locations without losing counters", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      yield* f.write(1);
-      const remapped = {
-        ...f.raw,
-        statementMap: R.map(f.raw.statementMap, (range) => ({ ...range, end: { ...range.end, column: null } })),
-        fnMap: R.map(f.raw.fnMap, ({ line: _line, ...fn }) => ({
-          ...fn,
-          loc: { ...fn.loc, end: { ...fn.loc.end, column: null } },
-        })),
-        branchMap: R.map(f.raw.branchMap, ({ line: _line, ...branch }) => ({
-          ...branch,
-          locations: A.map(branch.locations, (range, index) => (index === 0 ? range : { start: {}, end: {} })),
-        })),
-        s: R.map(f.raw.s, () => 1),
-        f: R.map(f.raw.f, () => 1),
-        b: R.map(f.raw.b, (hits) => A.map(hits, () => 1)),
-      };
-      yield* f.fs.writeFileString(
-        f.path.join(f.packageRoot, "coverage/coverage-final.json"),
-        yield* encode({ [f.raw.path]: remapped })
-      );
+const compoundFixture = Effect.fnUntraced(function* (secondRuntime: "bun" | "node") {
+  const f = yield* fixture();
+  const runtimes: ReadonlyArray<"bun" | "node"> = ["bun", secondRuntime];
+  const bunVersion = yield* StepExec.runCaptured({ command: "bun", args: ["--print", "process.versions.bun"] });
+  const node = yield* hostNodeExecutable;
+  const searchPath = yield* Config.String("PATH");
+  const delimiter = currentHostPlatform === "win32" ? ";" : ":";
+  const nodeVersion = yield* StepExec.runCaptured({ command: node, args: ["--print", "process.versions.node"] });
+  const packages = yield* Effect.forEach(
+    runtimes,
+    Effect.fnUntraced(function* (runtime, index) {
+      const invocationId = `invocation-${index}`;
+      const directory = `coverage/${invocationId}`;
+      yield* f.fs.makeDirectory(f.path.join(f.packageRoot, directory), { recursive: true });
       const selection = CoverageProducerPackage.make({
         packageName: "@beep/example",
         packagePath: f.packagePath,
-        expectedTestFiles: [f.tests[0] ?? ""],
-        testReportPath: "coverage/unit-results.json",
+        invocationId,
+        testRuntime: runtime,
+        testEnvironment: runtime === "node" ? { PATH: `${f.path.dirname(node)}${delimiter}${searchPath}` } : {},
+        testRuntimeVersion: runtime === "bun" ? bunVersion.output.trim() : nodeVersion.output.trim(),
+        expectedTestFiles: f.tests,
+        testReportPath: `${directory}/unit-results.json`,
+        runtimeReportPath: `${directory}/runtime.json`,
+        testCommand: runtime === "bun" ? ["bunx", "--bun", "vitest", "run"] : ["bunx", "vitest", "run"],
       });
-      yield* writeCoverageProducerArtifact(
-        f.root,
-        CoverageProducerWriteOptions.make({
-          artifactRoot: ".beep/remapped/one",
-          identity: f.identity,
-          partitionId: "one",
-          packages: [selection],
+      const raw = {
+        ...f.raw,
+        s: R.map(f.raw.s, () => 1),
+        f: R.map(f.raw.f, () => 1),
+        b: R.map(f.raw.b, (hits) => A.map(hits, (_, branch) => (branch === index ? 1 : 0))),
+      };
+      yield* f.fs.writeFileString(
+        f.path.join(f.packageRoot, directory, "coverage-final.json"),
+        yield* encode({ [f.raw.path]: raw })
+      );
+      yield* f.fs.writeFileString(
+        f.path.join(f.packageRoot, selection.testReportPath),
+        yield* encode({
+          success: true,
+          numFailedTests: 0,
+          numFailedTestSuites: 0,
+          testResults: A.map(f.tests, (file) => ({ name: f.path.join(f.root, file), status: "passed" })),
         })
       );
-      const snapshots = yield* collectCoverageProducerArtifacts(
-        f.root,
-        CoverageProducerCompareOptions.make({
-          artifactRoot: ".beep/remapped",
-          identity: f.identity,
-          scoped: true,
-          expectedPartitions: [CoverageProducerPartition.make({ partitionId: "one", packages: [selection] })],
-        })
+      yield* f.fs.writeFileString(
+        f.path.join(f.packageRoot, selection.runtimeReportPath),
+        yield* encode(
+          CoverageRuntimeReceipt.make({
+            schemaVersion: "coverage-runtime/v1",
+            invocationId,
+            testRuntime: runtime,
+            runtimeVersion: selection.testRuntimeVersion,
+            provider: selection.provider,
+            success: true,
+          })
+        )
       );
-      expect(snapshots[0]?.baseline.uncovered).toEqual({ lines: 0, statements: 0, functions: 0, branches: 0 });
-      expect(snapshots[0]?.baseline.branches).toBe(100);
+      return selection;
+    }),
+    { concurrency: 1 }
+  );
+  const options = CoverageProducerCompareOptions.make({
+    artifactRoot: ".beep/compound",
+    identity: f.identity,
+    scoped: true,
+    expectedPartitions: [CoverageProducerPartition.make({ partitionId: "compound", packages })],
+  });
+  const write = writeCoverageProducerArtifact(
+    f.root,
+    CoverageProducerWriteOptions.make({
+      artifactRoot: ".beep/compound/one",
+      identity: f.identity,
+      partitionId: "compound",
+      packages,
     })
   );
+  return { ...f, packages, options, write };
+});
 
-  for (const scenario of ["missing", "attempt", "git"] as const) {
-    it.effect(`rejects ${scenario} execution provenance`, () =>
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integrity", (it) => {
+  describe("runtime invocation integrity", () => {
+    it.effect("refuses to publish Bun provenance from a Node runtime", () =>
       Effect.gen(function* () {
         const f = yield* fixture();
-        const failure = yield* resolveCoverageProducerIdentity(f.root, {
-          base: scenario === "git" ? "nonexistent-ref" : "HEAD",
-          packageNames: [],
+        runtimeVersions(undefined);
+        const failure = yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/rejected-node",
+            identity: f.identity,
+            partitionId: "node",
+            packages: [],
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("must run under Bun");
+        expect(yield* f.fs.exists(f.path.join(f.root, ".beep/rejected-node/manifest.json"))).toBe(false);
+      })
+    );
+
+    it.effect("merges every explicit Bun and Node invocation while preserving their runtime receipts", () =>
+      Effect.gen(function* () {
+        const f = yield* compoundFixture("node");
+        yield* f.write;
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        expect(snapshots).toHaveLength(1);
+        expect(snapshots[0]?.baseline.branches).toBe(100);
+        const manifest = yield* f.fs
+          .readFileString(f.path.join(f.root, ".beep/compound/one/manifest.json"))
+          .pipe(Effect.flatMap(decodeManifest));
+        expect(A.map(manifest.packages, (entry) => entry.selection.testRuntime)).toEqual(["bun", "node"]);
+        expect(manifest.producerRuntime).toBe("bun");
+        expect(A.dedupe(A.map(manifest.packages, (entry) => entry.reportPath))).toHaveLength(2);
+      })
+    );
+    it.effect("rejects a compound package whose second canonical invocation is absent", () =>
+      Effect.gen(function* () {
+        const f = yield* compoundFixture("node");
+        yield* f.write;
+        const manifestPath = f.path.join(f.root, ".beep/compound/one/manifest.json");
+        const manifest = yield* f.fs.readFileString(manifestPath).pipe(Effect.flatMap(decodeManifest));
+        yield* f.fs.writeFileString(
+          manifestPath,
+          yield* encode(CoverageProducerManifest.make({ ...manifest, packages: A.take(manifest.packages, 1) }))
+        );
+        const failure = yield* collectCoverageProducerArtifacts(f.root, f.options).pipe(Effect.flip);
+        expect(failure.message).toContain("package assignment differs");
+      })
+    );
+    it.effect("rejects duplicate invocation identities even when different runtimes are claimed", () =>
+      Effect.gen(function* () {
+        const f = yield* compoundFixture("node");
+        const packages = A.map(f.packages, (selection) =>
+          CoverageProducerPackage.make({ ...selection, invocationId: "duplicate" })
+        );
+        const failure = yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/duplicate-invocations",
+            identity: f.identity,
+            partitionId: "duplicate",
+            packages,
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("duplicate producer package invocation");
+      })
+    );
+
+    it.effect("rejects repeated test files across two same-runtime invocations", () =>
+      Effect.gen(function* () {
+        const f = yield* compoundFixture("bun");
+        yield* f.write;
+        const failure = yield* collectCoverageProducerArtifacts(f.root, f.options).pipe(Effect.flip);
+        expect(failure.message).toContain("overlapping same-runtime invocations");
+      })
+    );
+    for (const [scenario, patch] of R.toEntries({
+      invocation: { invocationId: "different" },
+      runtime: { testRuntime: nativeTestRuntime === "bun" ? "node" : "bun" },
+      version: { runtimeVersion: "unexpected-version" },
+      provider: { provider: "v8" },
+      failed: { success: false },
+    })) {
+      it.effect(`rejects ${scenario} runtime attestation mismatch before sealing`, () =>
+        Effect.gen(function* () {
+          const f = yield* sealedFixture();
+          const receipt = {
+            schemaVersion: "coverage-runtime/v1",
+            invocationId: "0",
+            testRuntime: f.entry.selection.testRuntime,
+            runtimeVersion: f.entry.selection.testRuntimeVersion,
+            provider: f.entry.selection.provider,
+            success: true,
+            ...patch,
+          };
+          yield* f.fs.writeFileString(f.path.join(f.packageRoot, "coverage/runtime.json"), yield* encode(receipt));
+          const failure = yield* writeCoverageProducerArtifact(
+            f.root,
+            CoverageProducerWriteOptions.make({
+              artifactRoot: ".beep/invalid-runtime",
+              identity: f.identity,
+              partitionId: "invalid",
+              packages: [f.entry.selection],
+            })
+          ).pipe(Effect.flip);
+          expect(failure.message).toContain("runtime receipt differs");
+        })
+      );
+    }
+    for (const rewriteHash of [false, true]) {
+      it.effect(
+        `rejects runtime attestation tampering with ${rewriteHash ? "a rewritten" : "the original"} digest`,
+        () =>
+          Effect.gen(function* () {
+            const f = yield* sealedFixture();
+            const text = yield* encode({
+              schemaVersion: "coverage-runtime/v1",
+              invocationId: "0",
+              testRuntime: "node",
+              runtimeVersion: "wrong",
+              provider: "istanbul",
+              success: true,
+            });
+            yield* f.fs.writeFileString(
+              f.path.join(f.root, ".beep/artifacts/shard-2", f.entry.runtimeReceiptPath),
+              text
+            );
+            const entry = CoveragePackageArtifact.make({
+              ...f.entry,
+              runtimeReceiptSha256: rewriteHash ? yield* sha256Hex(text) : f.entry.runtimeReceiptSha256,
+            });
+            yield* rejectChangedManifest(f, CoverageProducerManifest.make({ ...f.manifest, packages: [entry] }));
+          })
+      );
+    }
+  });
+  describe("source census and raw merging", () => {
+    it.effect("discovers the declared environment and explicit config without executing test bodies", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        vi.stubEnv("VITEST_COVERAGE_RATCHET", "1");
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "selected.config.ts"),
+          'export default { test: { coverage: { include: process.env.VITEST_COVERAGE_RATCHET === "1" ? ["src/choose.ts"] : process.env.SELECTED_SOURCE === "alternate" ? ["src/excluded.ts"] : ["src/choose.ts"] } } }'
+        );
+        const invocation = CoverageProducerPackage.make({
+          ...f.entry.selection,
+          testEnvironment: { SELECTED_SOURCE: "alternate" },
+          testCommand: ["bunx", "vitest", "run", "--config", "selected.config.ts"],
+        });
+        const files = yield* discoverCoverageArtifactSources(f.root, f.packagePath, invocation);
+        expect(files).toEqual([`${f.packagePath}/src/excluded.ts`]);
+        const failure = yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/config-mismatch",
+            identity: f.identity,
+            partitionId: "config-mismatch",
+            packages: [invocation],
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("unexpected coverage sources");
+      })
+    );
+    it.effect("rejects an omitted V8 source instead of borrowing an Istanbul zero witness", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        const selection = CoverageProducerPackage.make({ ...f.entry.selection, provider: "v8" });
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "coverage/runtime.json"),
+          yield* encode(
+            CoverageRuntimeReceipt.make({
+              schemaVersion: "coverage-runtime/v1",
+              invocationId: selection.invocationId,
+              testRuntime: selection.testRuntime,
+              runtimeVersion: selection.testRuntimeVersion,
+              provider: "v8",
+              success: true,
+            })
+          )
+        );
+        const failure = yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/missing-v8",
+            identity: f.identity,
+            partitionId: "v8",
+            packages: [selection],
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("missing V8 source");
+      })
+    );
+    it.effect("rejects mixed providers within one package before merging maps", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        const selection = CoverageProducerPackage.make({ ...f.entry.selection, provider: "v8" });
+        const manifest = CoverageProducerManifest.make({
+          ...f.manifest,
+          packages: [CoveragePackageArtifact.make({ ...f.entry, selection })],
+        });
+        yield* f.fs.writeFileString(f.manifestPath, yield* encode(manifest));
+        const options = CoverageProducerCompareOptions.make({
+          ...f.options,
+          expectedPartitions: A.map(f.options.expectedPartitions, (partition) =>
+            partition.partitionId === "unit-2"
+              ? CoverageProducerPartition.make({ ...partition, packages: [selection] })
+              : partition
+          ),
+        });
+        const failure = yield* collectCoverageProducerArtifacts(f.root, options).pipe(Effect.flip);
+        expect(failure.message).toContain("mixed coverage providers");
+      })
+    );
+    it.effect("merges complementary branch hits and retains an instrumenter-proven empty barrel", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.write(1);
+        yield* f.write(2);
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        expect(snapshots).toHaveLength(1);
+        expect(snapshots[0]?.baseline.branches).toBe(100);
+        expect(snapshots[0]?.baseline.uncovered).toEqual({ lines: 0, statements: 0, functions: 0, branches: 0 });
+        expect(R.keys(snapshots[0]?.baseline.files ?? {})).toEqual([
+          `${f.packagePath}/src/choose.ts`,
+          `${f.packagePath}/src/index.ts`,
+        ]);
+        expect(yield* discoverCoverageArtifactSources(f.root, f.packagePath)).toEqual([
+          `${f.packagePath}/src/choose.ts`,
+          `${f.packagePath}/src/index.ts`,
+        ]);
+      })
+    );
+
+    it.effect("merges a genuine empty barrel present in one shard and omitted in another", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.write(1, true);
+        yield* f.write(2);
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        expect(snapshots[0]?.baseline.files[`${f.packagePath}/src/index.ts`]?.uncovered).toEqual({
+          lines: 0,
+          statements: 0,
+          functions: 0,
+          branches: 0,
+        });
+      })
+    );
+
+    it.effect("retains an empty schema error class only when the real instrumenter proves zero units", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "src/model.ts"),
+          'import { TaggedError, String as StringSchema } from "effect/Schema"; export class DomainError extends TaggedError<DomainError>()("DomainError", { message: StringSchema }) {}'
+        );
+        yield* f.write(1);
+        yield* f.write(2);
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        expect(snapshots[0]?.baseline.files[`${f.packagePath}/src/model.ts`]?.uncovered).toEqual({
+          lines: 0,
+          statements: 0,
+          functions: 0,
+          branches: 0,
+        });
+      })
+    );
+    for (const [kind, source] of R.toEntries({
+      method: "export class Runtime { run() { return 1; } }",
+      field: "export class Runtime { value = 1; }",
+      static: "export class Runtime { static { console.log(1); } }",
+      decorator: "@decorate export class Runtime {}",
+      callbackBase: "export class Runtime extends (() => Object)() {}",
+      enum: "export enum Runtime { First }",
+    })) {
+      it.effect(`rejects missing ${kind} coverage instead of treating it as a zero-unit class`, () =>
+        Effect.gen(function* () {
+          const f = yield* fixture();
+          yield* f.fs.writeFileString(f.path.join(f.packageRoot, "src/runtime.ts"), source);
+          const failure = yield* f.write(1).pipe(Effect.flip);
+          expect(failure.message).toContain("missing executable source");
+        })
+      );
+    }
+
+    it.effect("compares sealed snapshots with existing floors without a local coverage producer", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.write(1);
+        yield* f.write(2);
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        const first = snapshots[0];
+        if (first === undefined) return yield* Effect.die("Expected validated snapshot");
+        yield* f.fs.makeDirectory(f.path.join(f.root, "standards"));
+        const baseline = CoverageRegressionBaseline.make({
+          schema_version: 2,
+          generated_at: "fixture",
+          git_sha: f.identity.executionSha,
+          command: "fixture",
+          epsilon: 0.001,
+          minimum: {
+            lines: first.baseline.lines,
+            statements: first.baseline.statements,
+            functions: first.baseline.functions,
+            branches: first.baseline.branches,
+          },
+          exemptions: {},
+          follow_ups: {},
+          packages: { "@beep/example": first.baseline },
+        });
+        yield* f.fs.writeFileString(
+          f.path.join(f.root, "standards/coverage.regression-baseline.jsonc"),
+          yield* encode(baseline)
+        );
+        // Removing local reports proves the adapter consumes sealed artifacts only.
+        yield* f.fs.remove(f.path.join(f.packageRoot, "coverage"), { recursive: true });
+        yield* compareCoverageProducerArtifacts(f.root, f.options).pipe(
+          Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({}))
+        );
+        expect(yield* f.fs.exists(f.path.join(f.packageRoot, "coverage"))).toBe(false);
+      })
+    );
+  });
+  describe("checkout and source identity", () => {
+    it.effect("fails closed when a selected shard never uploaded", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.write(1);
+        const failure = yield* collectCoverageProducerArtifacts(f.root, f.options).pipe(Effect.flip);
+        expect(failure.message).toContain("missing producer partitions");
+      })
+    );
+
+    it.effect("rejects changed checkout identity before consuming reports", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        const failure = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({
+            ...f.options,
+            identity: CoverageProducerIdentity.make({ ...f.identity, executionSha: "b".repeat(40) }),
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("differs from the checkout");
+      })
+    );
+
+    it.effect("refuses to overwrite an existing producer manifest", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.write(1);
+        const failure = yield* f.write(1).pipe(Effect.flip);
+        expect(failure.message).toContain("already exists");
+      })
+    );
+
+    it.effect("rejects a newly selected executable source omitted by the producer", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "src/untouched.ts"),
+          "export const untouched = () => 42;\n"
+        );
+        const failure = yield* f.write(1).pipe(Effect.flip);
+        expect(failure.message).toContain("missing executable source");
+      })
+    );
+
+    it.effect("binds the actual execution SHA while keeping the requested PR head separate", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        const identity = yield* resolveCoverageProducerIdentity(f.root, {
+          base: "HEAD",
+          packageNames: ["@beep/example"],
         }).pipe(
           Effect.provideService(
             ConfigProvider.ConfigProvider,
-            ConfigProvider.fromUnknown(
-              scenario === "missing"
-                ? {}
-                : { GITHUB_RUN_ID: "123", GITHUB_RUN_ATTEMPT: scenario === "attempt" ? "invalid" : "1" }
-            )
-          ),
-          Effect.flip
+            ConfigProvider.fromUnknown({
+              BEEP_COVERAGE_RUN_ID: "producer",
+              BEEP_COVERAGE_RUN_ATTEMPT: "3",
+              GITHUB_RUN_ID: "consumer",
+              GITHUB_RUN_ATTEMPT: "9",
+              BEEP_COVERAGE_REQUEST_HEAD_SHA: "b".repeat(40),
+            })
+          )
         );
-        expect(failure.message).toContain(
-          scenario === "missing" ? "required" : scenario === "attempt" ? "invalid workflow attempt" : "cannot resolve"
+        expect(identity.executionSha).toBe(f.identity.executionSha);
+        expect(identity.baseSha).toBe(f.identity.executionSha);
+        expect(identity.requestHeadSha).toBe("b".repeat(40));
+        expect(identity.runId).toBe("producer");
+        expect(identity.runAttempt).toBe(3);
+        const fallback = yield* resolveCoverageProducerIdentity(f.root, {
+          base: "HEAD",
+          packageNames: ["@beep/example"],
+        }).pipe(
+          Effect.provideService(
+            ConfigProvider.ConfigProvider,
+            ConfigProvider.fromUnknown({ GITHUB_RUN_ID: "producer", GITHUB_RUN_ATTEMPT: "3" })
+          )
         );
+        expect(fallback.scopeDigest).toBe(identity.scopeDigest);
+        expect(fallback.requestHeadSha).toBeUndefined();
       })
     );
-  }
 
-  it.effect("rejects report bytes from an unsuccessful suite", () =>
-    Effect.gen(function* () {
-      const f = yield* fixture();
-      yield* f.write(1);
-      yield* f.fs.writeFileString(
-        f.path.join(f.packageRoot, "coverage/unit-results.json"),
-        yield* encode({ success: false, numFailedTests: 1, numFailedTestSuites: 1, testResults: [] })
-      );
-      const failure = yield* writeCoverageProducerArtifact(
-        f.root,
-        CoverageProducerWriteOptions.make({
-          artifactRoot: ".beep/artifacts/failed",
-          identity: f.identity,
-          partitionId: "failed",
-          packages: [
-            CoverageProducerPackage.make({
-              packageName: "@beep/example",
-              packagePath: f.packagePath,
-              expectedTestFiles: f.tests,
-              testReportPath: "coverage/unit-results.json",
-            }),
-          ],
-        })
-      ).pipe(Effect.flip);
-      expect(failure.message).toContain("unsuccessful");
-    })
-  );
-
-  for (const [scenario, patch] of R.toEntries({
-    attempt: { runAttempt: 2 },
-    base: { baseSha: "b".repeat(40) },
-    scope: { scopeDigest: "b".repeat(64) },
-  })) {
-    it.effect(`rejects stale ${scenario} provenance`, () =>
+    it.effect("accepts genuine remapped Istanbul ranges and implicit else locations without losing counters", () =>
       Effect.gen(function* () {
-        const f = yield* sealedFixture();
-        yield* rejectChangedManifest(
-          f,
-          CoverageProducerManifest.make({
-            ...f.manifest,
-            identity: CoverageProducerIdentity.make({ ...f.manifest.identity, ...patch }),
+        const f = yield* fixture();
+        yield* f.write(1);
+        const remapped = {
+          ...f.raw,
+          statementMap: R.map(f.raw.statementMap, (range) => ({ ...range, end: { ...range.end, column: null } })),
+          fnMap: R.map(f.raw.fnMap, ({ line: _line, ...fn }) => ({
+            ...fn,
+            loc: { ...fn.loc, end: { ...fn.loc.end, column: null } },
+          })),
+          branchMap: R.map(f.raw.branchMap, ({ line: _line, ...branch }) => ({
+            ...branch,
+            locations: A.map(branch.locations, (range, index) => (index === 0 ? range : { start: {}, end: {} })),
+          })),
+          s: R.map(f.raw.s, () => 1),
+          f: R.map(f.raw.f, () => 1),
+          b: R.map(f.raw.b, (hits) => A.map(hits, () => 1)),
+        };
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "coverage/coverage-final.json"),
+          yield* encode({ [f.raw.path]: remapped })
+        );
+        const selection = CoverageProducerPackage.make({
+          packageName: "@beep/example",
+          packagePath: f.packagePath,
+          expectedTestFiles: [f.tests[0] ?? ""],
+          testReportPath: "coverage/unit-results.json",
+          testRuntime: nativeTestRuntime,
+          testRuntimeVersion: nativeTestVersion,
+        });
+        yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/remapped/one",
+            identity: f.identity,
+            partitionId: "one",
+            packages: [selection],
           })
         );
-      })
-    );
-  }
-  for (const [scenario, patch] of R.toEntries({
-    partition: { partitionId: "unplanned" },
-    assignment: { packages: [] },
-  })) {
-    it.effect(`rejects unexpected ${scenario}`, () =>
-      Effect.gen(function* () {
-        const f = yield* sealedFixture();
-        yield* rejectChangedManifest(f, CoverageProducerManifest.make({ ...f.manifest, ...patch }));
-      })
-    );
-  }
-  const packagePatches = {
-    overlap: (f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
-      ...entry,
-      actualTestFiles: [f.tests[0] ?? ""],
-    }),
-    missingTests: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({ ...entry, actualTestFiles: [] }),
-    sourceHash: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
-      ...entry,
-      sources: A.map(entry.sources, (source) => ({ ...source, sha256: "b".repeat(64) })),
-    }),
-    reportHash: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({ ...entry, reportSha256: "b".repeat(64) }),
-  };
-  for (const [scenario, patch] of R.toEntries(packagePatches)) {
-    it.effect(`rejects ${scenario} envelope corruption`, () =>
-      Effect.gen(function* () {
-        const f = yield* sealedFixture();
-        yield* rejectChangedManifest(
-          f,
-          CoverageProducerManifest.make({ ...f.manifest, packages: [CoveragePackageArtifact.make(patch(f, f.entry))] })
+        const snapshots = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({
+            artifactRoot: ".beep/remapped",
+            identity: f.identity,
+            scoped: true,
+            expectedPartitions: [CoverageProducerPartition.make({ partitionId: "one", packages: [selection] })],
+          })
         );
+        expect(snapshots[0]?.baseline.uncovered).toEqual({ lines: 0, statements: 0, functions: 0, branches: 0 });
+        expect(snapshots[0]?.baseline.branches).toBe(100);
       })
     );
-  }
-  const rawPatches = {
-    emptyMap: (_f: ArtifactFixture) => ({ statementMap: {}, fnMap: {}, branchMap: {}, s: {}, f: {}, b: {} }),
-    counterMap: (_f: ArtifactFixture) => ({ s: {} }),
-    negativeHits: (f: ArtifactFixture) => ({ s: R.map(f.raw.s, () => -1) }),
-    branchArity: (f: ArtifactFixture) => ({ b: R.map(f.raw.b, () => []) }),
-    keyPath: (f: ArtifactFixture) => ({ path: `${f.packagePath}/src/different.ts` }),
-    instrumentation: (f: ArtifactFixture) => ({
-      statementMap: R.map(f.raw.statementMap, (range) => ({ ...range, start: { ...range.start, line: 10 } })),
-    }),
-  };
-  for (const [scenario, patch] of R.toEntries(rawPatches)) {
-    it.effect(`rejects ${scenario} raw counter corruption`, () =>
+  });
+  describe("manifest and raw counter validation", () => {
+    for (const scenario of ["missing", "attempt", "git"] as const) {
+      it.effect(`rejects ${scenario} execution provenance`, () =>
+        Effect.gen(function* () {
+          const f = yield* fixture();
+          const failure = yield* resolveCoverageProducerIdentity(f.root, {
+            base: scenario === "git" ? "nonexistent-ref" : "HEAD",
+            packageNames: [],
+          }).pipe(
+            Effect.provideService(
+              ConfigProvider.ConfigProvider,
+              ConfigProvider.fromUnknown(
+                scenario === "missing"
+                  ? {}
+                  : { GITHUB_RUN_ID: "123", GITHUB_RUN_ATTEMPT: scenario === "attempt" ? "invalid" : "1" }
+              )
+            ),
+            Effect.flip
+          );
+          expect(failure.message).toContain(
+            scenario === "missing" ? "required" : scenario === "attempt" ? "invalid workflow attempt" : "cannot resolve"
+          );
+        })
+      );
+    }
+
+    it.effect("rejects report bytes from an unsuccessful suite", () =>
+      Effect.gen(function* () {
+        const f = yield* fixture();
+        yield* f.write(1);
+        yield* f.fs.writeFileString(
+          f.path.join(f.packageRoot, "coverage/unit-results.json"),
+          yield* encode({ success: false, numFailedTests: 1, numFailedTestSuites: 1, testResults: [] })
+        );
+        const failure = yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/artifacts/failed",
+            identity: f.identity,
+            partitionId: "failed",
+            packages: [
+              CoverageProducerPackage.make({
+                packageName: "@beep/example",
+                packagePath: f.packagePath,
+                expectedTestFiles: f.tests,
+                testReportPath: "coverage/unit-results.json",
+                testRuntime: nativeTestRuntime,
+                testRuntimeVersion: nativeTestVersion,
+              }),
+            ],
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("unsuccessful");
+      })
+    );
+
+    for (const [scenario, patch] of R.toEntries({
+      attempt: { runAttempt: 2 },
+      base: { baseSha: "b".repeat(40) },
+      scope: { scopeDigest: "b".repeat(64) },
+    })) {
+      it.effect(`rejects stale ${scenario} provenance`, () =>
+        Effect.gen(function* () {
+          const f = yield* sealedFixture();
+          yield* rejectChangedManifest(
+            f,
+            CoverageProducerManifest.make({
+              ...f.manifest,
+              identity: CoverageProducerIdentity.make({ ...f.manifest.identity, ...patch }),
+            })
+          );
+        })
+      );
+    }
+    for (const [scenario, patch] of R.toEntries({
+      partition: { partitionId: "unplanned" },
+      assignment: { packages: [] },
+    })) {
+      it.effect(`rejects unexpected ${scenario}`, () =>
+        Effect.gen(function* () {
+          const f = yield* sealedFixture();
+          yield* rejectChangedManifest(f, CoverageProducerManifest.make({ ...f.manifest, ...patch }));
+        })
+      );
+    }
+    const packagePatches = {
+      overlap: (f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
+        ...entry,
+        actualTestFiles: [f.tests[0] ?? ""],
+      }),
+      missingTests: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({ ...entry, actualTestFiles: [] }),
+      sourceHash: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
+        ...entry,
+        sources: A.map(entry.sources, (source) => ({ ...source, sha256: "b".repeat(64) })),
+      }),
+      reportHash: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({ ...entry, reportSha256: "b".repeat(64) }),
+    };
+    for (const [scenario, patch] of R.toEntries(packagePatches)) {
+      it.effect(`rejects ${scenario} envelope corruption`, () =>
+        Effect.gen(function* () {
+          const f = yield* sealedFixture();
+          yield* rejectChangedManifest(
+            f,
+            CoverageProducerManifest.make({
+              ...f.manifest,
+              packages: [CoveragePackageArtifact.make(patch(f, f.entry))],
+            })
+          );
+        })
+      );
+    }
+    const rawPatches = {
+      emptyMap: (_f: ArtifactFixture) => ({ statementMap: {}, fnMap: {}, branchMap: {}, s: {}, f: {}, b: {} }),
+      counterMap: (_f: ArtifactFixture) => ({ s: {} }),
+      negativeHits: (f: ArtifactFixture) => ({ s: R.map(f.raw.s, () => -1) }),
+      branchArity: (f: ArtifactFixture) => ({ b: R.map(f.raw.b, () => []) }),
+      keyPath: (f: ArtifactFixture) => ({ path: `${f.packagePath}/src/different.ts` }),
+      instrumentation: (f: ArtifactFixture) => ({
+        statementMap: R.map(f.raw.statementMap, (range) => ({ ...range, start: { ...range.start, line: 10 } })),
+      }),
+    };
+    for (const [scenario, patch] of R.toEntries(rawPatches)) {
+      it.effect(`rejects ${scenario} raw counter corruption`, () =>
+        Effect.gen(function* () {
+          const f = yield* sealedFixture();
+          const rawPath = `${f.packagePath}/src/choose.ts`;
+          const report = yield* encode({ [rawPath]: { ...f.raw, path: rawPath, ...patch(f) } });
+          yield* f.fs.writeFileString(f.path.join(f.root, ".beep/artifacts/shard-2", f.entry.reportPath), report);
+          yield* rejectChangedManifest(
+            f,
+            CoverageProducerManifest.make({
+              ...f.manifest,
+              packages: [CoveragePackageArtifact.make({ ...f.entry, reportSha256: yield* sha256Hex(report) })],
+            })
+          );
+        })
+      );
+    }
+  });
+  describe("partition completeness", () => {
+    it.effect("rejects a consumer plan that omits a selected package", () =>
       Effect.gen(function* () {
         const f = yield* sealedFixture();
-        const rawPath = `${f.packagePath}/src/choose.ts`;
-        const report = yield* encode({ [rawPath]: { ...f.raw, path: rawPath, ...patch(f) } });
+        const failure = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({ ...f.options, expectedPartitions: [] })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("selected package scope");
+      })
+    );
+    it.effect("rejects a complete partition set containing an incomplete package shard set", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        yield* f.fs.writeFileString(
+          f.manifestPath,
+          yield* encode(CoverageProducerManifest.make({ ...f.manifest, packages: [] }))
+        );
+        const expectedPartitions = A.map(f.options.expectedPartitions, (partition) =>
+          partition.partitionId === "unit-2"
+            ? CoverageProducerPartition.make({ ...partition, packages: [] })
+            : partition
+        );
+        const failure = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({ ...f.options, expectedPartitions })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("incomplete shard set");
+      })
+    );
+    it.effect("rejects two reported slices for the same shard index", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        const selection = CoverageProducerPackage.make({ ...f.entry.selection, shard: { index: 1, total: 2 } });
+        yield* f.fs.writeFileString(
+          f.manifestPath,
+          yield* encode(
+            CoverageProducerManifest.make({
+              ...f.manifest,
+              packages: [CoveragePackageArtifact.make({ ...f.entry, selection })],
+            })
+          )
+        );
+        const expectedPartitions = A.map(f.options.expectedPartitions, (partition) =>
+          partition.partitionId === "unit-2"
+            ? CoverageProducerPartition.make({ ...partition, packages: [selection] })
+            : partition
+        );
+        const failure = yield* collectCoverageProducerArtifacts(
+          f.root,
+          CoverageProducerCompareOptions.make({ ...f.options, expectedPartitions })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("shard indexes");
+      })
+    );
+    for (const scenario of ["missing-report", "unexpected-test", "unexpected-source"] as const) {
+      it.effect(`refuses to seal ${scenario} producer evidence`, () =>
+        Effect.gen(function* () {
+          const f = yield* sealedFixture();
+          if (scenario === "missing-report") {
+            yield* f.fs.remove(f.path.join(f.packageRoot, "coverage/unit-results.json"));
+          } else if (scenario === "unexpected-test") {
+            yield* f.fs.writeFileString(
+              f.path.join(f.packageRoot, "coverage/unit-results.json"),
+              yield* encode({
+                success: true,
+                numFailedTests: 0,
+                numFailedTestSuites: 0,
+                testResults: [{ name: f.path.join(f.root, "test/unselected.test.ts"), status: "passed" }],
+              })
+            );
+          } else {
+            const extra = f.path.join(f.packageRoot, "src/excluded.ts");
+            yield* f.fs.writeFileString(
+              f.path.join(f.packageRoot, "coverage/coverage-final.json"),
+              yield* encode({ [f.raw.path]: f.raw, [extra]: { ...f.raw, path: extra } })
+            );
+          }
+          const failure = yield* writeCoverageProducerArtifact(
+            f.root,
+            CoverageProducerWriteOptions.make({
+              artifactRoot: ".beep/rejected",
+              identity: f.identity,
+              partitionId: "rejected",
+              packages: [f.entry.selection],
+            })
+          ).pipe(Effect.flip);
+          expect(failure.message).toContain("Coverage artifact:");
+        })
+      );
+    }
+  });
+  describe("contained filesystem artifacts", () => {
+    it.effect("refuses to publish through a symlinked artifact directory", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        const fs = yield* FileSystem.FileSystem;
+        const outside = f.path.join(f.root, "outside-artifacts");
+        yield* fs.makeDirectory(outside);
+        yield* fs.symlink(outside, f.path.join(f.root, ".beep/unsafe-output"));
+        const failure = yield* writeCoverageProducerArtifact(
+          f.root,
+          CoverageProducerWriteOptions.make({
+            artifactRoot: ".beep/unsafe-output",
+            identity: f.identity,
+            partitionId: "unsafe",
+            packages: [f.entry.selection],
+          })
+        ).pipe(Effect.flip);
+        expect(failure.message).toContain("cannot seal runtime receipt");
+        expect(yield* fs.readDirectory(outside)).toEqual([]);
+      })
+    );
+
+    it.effect("rejects a sealed report replaced by a filesystem symlink", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        const fs = yield* FileSystem.FileSystem;
+        const reportPath = f.path.join(f.root, ".beep/artifacts/shard-2", f.entry.reportPath);
+        const original = yield* fs.readFileString(reportPath);
+        const outside = f.path.join(f.root, "outside-report.json");
+        yield* fs.writeFileString(outside, original);
+        yield* fs.remove(reportPath);
+        yield* fs.symlink(outside, reportPath);
+        const failure = yield* collectCoverageProducerArtifacts(f.root, f.options).pipe(Effect.flip);
+        expect(failure.message).toContain("cannot safely read");
+      })
+    );
+
+    it.effect("rejects duplicate partitions even when their manifests are identical", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        yield* f.fs.makeDirectory(f.path.join(f.root, ".beep/artifacts/duplicate"), { recursive: true });
+        yield* f.fs.writeFileString(
+          f.path.join(f.root, ".beep/artifacts/duplicate/manifest.json"),
+          yield* encode(f.manifest)
+        );
+        yield* rejectChangedManifest(f, f.manifest);
+      })
+    );
+    it.effect("rejects source bytes changed after the producer executed", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        yield* f.fs.writeFileString(f.path.join(f.packageRoot, "src/choose.ts"), "export const changed = 1;\n");
+        yield* rejectChangedManifest(f, f.manifest);
+      })
+    );
+    it.effect("rejects report paths escaping the selected source root", () =>
+      Effect.gen(function* () {
+        const f = yield* sealedFixture();
+        const report = yield* encode({ "../escape.ts": f.raw });
         yield* f.fs.writeFileString(f.path.join(f.root, ".beep/artifacts/shard-2", f.entry.reportPath), report);
         yield* rejectChangedManifest(
           f,
@@ -544,162 +1052,5 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
         );
       })
     );
-  }
-  it.effect("rejects a consumer plan that omits a selected package", () =>
-    Effect.gen(function* () {
-      const f = yield* sealedFixture();
-      const failure = yield* collectCoverageProducerArtifacts(
-        f.root,
-        CoverageProducerCompareOptions.make({ ...f.options, expectedPartitions: [] })
-      ).pipe(Effect.flip);
-      expect(failure.message).toContain("selected package scope");
-    })
-  );
-  it.effect("rejects a complete partition set containing an incomplete package shard set", () =>
-    Effect.gen(function* () {
-      const f = yield* sealedFixture();
-      yield* f.fs.writeFileString(
-        f.manifestPath,
-        yield* encode(CoverageProducerManifest.make({ ...f.manifest, packages: [] }))
-      );
-      const expectedPartitions = A.map(f.options.expectedPartitions, (partition) =>
-        partition.partitionId === "unit-2" ? CoverageProducerPartition.make({ ...partition, packages: [] }) : partition
-      );
-      const failure = yield* collectCoverageProducerArtifacts(
-        f.root,
-        CoverageProducerCompareOptions.make({ ...f.options, expectedPartitions })
-      ).pipe(Effect.flip);
-      expect(failure.message).toContain("incomplete shard set");
-    })
-  );
-  it.effect("rejects two reported slices for the same shard index", () =>
-    Effect.gen(function* () {
-      const f = yield* sealedFixture();
-      const selection = CoverageProducerPackage.make({ ...f.entry.selection, shard: { index: 1, total: 2 } });
-      yield* f.fs.writeFileString(
-        f.manifestPath,
-        yield* encode(
-          CoverageProducerManifest.make({
-            ...f.manifest,
-            packages: [CoveragePackageArtifact.make({ ...f.entry, selection })],
-          })
-        )
-      );
-      const expectedPartitions = A.map(f.options.expectedPartitions, (partition) =>
-        partition.partitionId === "unit-2"
-          ? CoverageProducerPartition.make({ ...partition, packages: [selection] })
-          : partition
-      );
-      const failure = yield* collectCoverageProducerArtifacts(
-        f.root,
-        CoverageProducerCompareOptions.make({ ...f.options, expectedPartitions })
-      ).pipe(Effect.flip);
-      expect(failure.message).toContain("shard indexes");
-    })
-  );
-  for (const scenario of ["missing-report", "unexpected-test", "unexpected-source"] as const) {
-    it.effect(`refuses to seal ${scenario} producer evidence`, () =>
-      Effect.gen(function* () {
-        const f = yield* sealedFixture();
-        if (scenario === "missing-report") {
-          yield* f.fs.remove(f.path.join(f.packageRoot, "coverage/unit-results.json"));
-        } else if (scenario === "unexpected-test") {
-          yield* f.fs.writeFileString(
-            f.path.join(f.packageRoot, "coverage/unit-results.json"),
-            yield* encode({
-              success: true,
-              numFailedTests: 0,
-              numFailedTestSuites: 0,
-              testResults: [{ name: f.path.join(f.root, "test/unselected.test.ts"), status: "passed" }],
-            })
-          );
-        } else {
-          const extra = f.path.join(f.packageRoot, "src/excluded.ts");
-          yield* f.fs.writeFileString(
-            f.path.join(f.packageRoot, "coverage/coverage-final.json"),
-            yield* encode({ [f.raw.path]: f.raw, [extra]: { ...f.raw, path: extra } })
-          );
-        }
-        const failure = yield* writeCoverageProducerArtifact(
-          f.root,
-          CoverageProducerWriteOptions.make({
-            artifactRoot: ".beep/rejected",
-            identity: f.identity,
-            partitionId: "rejected",
-            packages: [f.entry.selection],
-          })
-        ).pipe(Effect.flip);
-        expect(failure.message).toContain("Coverage artifact:");
-      })
-    );
-  }
-
-  it.effect("refuses to publish through a symlinked artifact directory", () =>
-    Effect.gen(function* () {
-      const f = yield* sealedFixture();
-      const fs = yield* FileSystem.FileSystem;
-      const outside = f.path.join(f.root, "outside-artifacts");
-      yield* fs.makeDirectory(outside);
-      yield* fs.symlink(outside, f.path.join(f.root, ".beep/unsafe-output"));
-      const failure = yield* writeCoverageProducerArtifact(
-        f.root,
-        CoverageProducerWriteOptions.make({
-          artifactRoot: ".beep/unsafe-output",
-          identity: f.identity,
-          partitionId: "unsafe",
-          packages: [f.entry.selection],
-        })
-      ).pipe(Effect.flip);
-      expect(failure.message).toContain("cannot seal raw report");
-      expect(yield* fs.readDirectory(outside)).toEqual([]);
-    })
-  );
-
-  it.effect("rejects a sealed report replaced by a filesystem symlink", () =>
-    Effect.gen(function* () {
-      const f = yield* sealedFixture();
-      const fs = yield* FileSystem.FileSystem;
-      const reportPath = f.path.join(f.root, ".beep/artifacts/shard-2", f.entry.reportPath);
-      const original = yield* fs.readFileString(reportPath);
-      const outside = f.path.join(f.root, "outside-report.json");
-      yield* fs.writeFileString(outside, original);
-      yield* fs.remove(reportPath);
-      yield* fs.symlink(outside, reportPath);
-      const failure = yield* collectCoverageProducerArtifacts(f.root, f.options).pipe(Effect.flip);
-      expect(failure.message).toContain("cannot safely read");
-    })
-  );
-
-  it.effect("rejects duplicate partitions even when their manifests are identical", () =>
-    Effect.gen(function* () {
-      const f = yield* sealedFixture();
-      yield* f.fs.makeDirectory(f.path.join(f.root, ".beep/artifacts/duplicate"), { recursive: true });
-      yield* f.fs.writeFileString(
-        f.path.join(f.root, ".beep/artifacts/duplicate/manifest.json"),
-        yield* encode(f.manifest)
-      );
-      yield* rejectChangedManifest(f, f.manifest);
-    })
-  );
-  it.effect("rejects source bytes changed after the producer executed", () =>
-    Effect.gen(function* () {
-      const f = yield* sealedFixture();
-      yield* f.fs.writeFileString(f.path.join(f.packageRoot, "src/choose.ts"), "export const changed = 1;\n");
-      yield* rejectChangedManifest(f, f.manifest);
-    })
-  );
-  it.effect("rejects report paths escaping the selected source root", () =>
-    Effect.gen(function* () {
-      const f = yield* sealedFixture();
-      const report = yield* encode({ "../escape.ts": f.raw });
-      yield* f.fs.writeFileString(f.path.join(f.root, ".beep/artifacts/shard-2", f.entry.reportPath), report);
-      yield* rejectChangedManifest(
-        f,
-        CoverageProducerManifest.make({
-          ...f.manifest,
-          packages: [CoveragePackageArtifact.make({ ...f.entry, reportSha256: yield* sha256Hex(report) })],
-        })
-      );
-    })
-  );
+  });
 });

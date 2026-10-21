@@ -248,6 +248,7 @@ jobs:
         if: steps.lane-gate.outputs.should_run == 'true'
         uses: ./.github/actions/setup-monorepo-ci
         with:
+          node-version: ${{ matrix.id == 'labs' && '22.22.3' || '' }}
           cache-turbo: ${{ matrix.uses_turbo }}
           cache-write: "false"
           turbo-cache-key-suffix: -${{ matrix.id }}
@@ -550,6 +551,7 @@ jobs:
         if: steps.lane-gate.outputs.should_run == 'true'
         uses: ./.github/actions/setup-monorepo-ci
         with:
+          node-version: "22.22.3"
           cache-turbo: "true"
           cache-write: "false"
           turbo-cache-key-suffix: -${{ matrix.partition }}
@@ -570,6 +572,16 @@ jobs:
           better-auth-url: ${{ github.event_name == 'push' && secrets.BETTER_AUTH_URL || '' }}
           security-trusted-origins: ${{ github.event_name == 'push' && secrets.SECURITY_TRUSTED_ORIGINS || '' }}
           liveblocks-secret-key: ${{ github.event_name == 'push' && secrets.LIVEBLOCKS_SECRET_KEY || '' }}
+
+      - name: Verify coverage runtime features
+        if: steps.lane-gate.outputs.should_run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Preserve the existing coverage runtime: newer Node versions have a
+          # native escaped-key round-trip defect. Float16Array is scoped to test
+          # workers by vitest.shared.ts, never granted through job-wide NODE_OPTIONS.
+          node --js-float16array -p "'Node ' + process.versions.node + ', ' + Float16Array.name"
 
       - name: Run Test Unit shard
         if: steps.lane-gate.outputs.should_run == 'true'
@@ -687,6 +699,7 @@ jobs:
         if: steps.lane-gate.outputs.should_run == 'true'
         uses: ./.github/actions/setup-monorepo-ci
         with:
+          node-version: "22.22.3"
           cache-turbo: "false"
           cache-write: "false"
           free-disk: "true"

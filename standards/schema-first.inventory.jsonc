@@ -2262,6 +2262,26 @@
       "reason": "Plain data whose fields come from a checked inline struct (S.Struct({...}).pipe(S.check(...))), which the schema-opaque-default codemod could not classify (keep reason fields-expression-unknown), so it stays a branded S.Class. Follow-up: convert by hand to a branded S.Opaque over that struct."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/CoverageEnvironment.ts",
+      "symbol": "coverageEnvironment",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-null-return",
+      "line": 59,
+      "owner": "@beep/repo-cli",
+      "reason": "Effect ChildProcess options.env is a third-party Record<string, string | undefined> boundary: explicit undefined entries override inherited variables with extendEnv enabled. Preserve undefined to clear terminal metadata and remote-cache credentials while enabling the standalone ratchet. Option values or omitted keys would change child-process environment semantics."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/CoverageEnvironment.ts",
+      "symbol": "coverageProducerEnvironment",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-null-return",
+      "line": 88,
+      "owner": "@beep/repo-cli",
+      "reason": "Effect ChildProcess options.env is a third-party Record<string, string | undefined> boundary: explicit undefined entries override inherited variables with extendEnv enabled. Preserve undefined to clear the inherited VITEST_COVERAGE_RATCHET skip flag, terminal metadata, and remote-cache credentials for the combined test producer and source-config child. Option values or omitted keys would change child-process environment semantics."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
       "symbol": "DocumentationIssue",
       "kind": "object-struct-schema",
