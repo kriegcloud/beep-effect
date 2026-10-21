@@ -52,8 +52,10 @@ const $I = $AcpId.create("protocol");
 
 const isAcpSchemaError = S.is(AcpSchema.Error);
 const isAcpError = S.is(AcpError.AcpError);
-// Typed Effect RPC ids are allocated as safe integers; anything else is not an RpcClient response.
-const isEffectRpcRequestId = S.is(S.Int);
+// Typed Effect RPC ids are allocated as non-negative safe integers (effect's default counter starts
+// at 0, this package's at `RPC_REQUEST_ID_START`); anything else is not an RpcClient response.
+// effect's own encoder writes a server-level `Defect` with the id -32603.
+const isEffectRpcRequestId = S.is(S.Int.check(S.isGreaterThanOrEqualTo(0)));
 
 // CSF-017: every peer-fed queue is bounded. Notifications slide (dropping the oldest unread one)
 // instead of suspending, so a consumer that never drains `incoming` cannot stall the reader. No
@@ -85,7 +87,7 @@ const ACP_STDIO_CLIENT_ID = 0;
  * Typed RPC ids count up from here once per connection. The value stays inside signed int32,
  * because some ACP SDKs (the Kotlin SDK decodes ids as `Int`) do not answer larger ids, and far
  * above extension request ids, which count up from 1. The protocol forwards only responses with
- * safe-integer ids to the RPC client.
+ * non-negative safe-integer ids to the RPC client.
  *
  * **Example** (Allocate the first typed RPC id)
  *
@@ -798,6 +800,31 @@ const protocolDefectOf = (entry: ExitCauseEntry): O.Option<AcpSchema.Error> =>
 const protocolFailureOf = (entry: ExitCauseEntry): O.Option<AcpSchema.Error> =>
   entry._tag === "Fail" && isAcpSchemaError(entry.error) ? O.some(entry.error) : O.none();
 
+const protocolFailureOfCause = (cause: ReadonlyArray<ExitCauseEntry>): O.Option<AcpSchema.Error> =>
+  O.flatMap(
+    A.findFirst(cause, (entry) => entry._tag === "Fail"),
+    protocolFailureOf
+  );
+
+type AcpInboundResponse = RpcMessage.ResponseChunkEncoded | RpcMessage.ResponseExitEncoded;
+
+// Structural diagnostics for a dropped response: its id when it has one, and the code and message
+// of its protocol error. The error data stays out of the log.
+const uncorrelatedResponseAnnotations = (message: AcpInboundResponse) => {
+  const error =
+    message._tag === "Exit" && message.exit._tag === "Failure"
+      ? protocolFailureOfCause(message.exit.cause)
+      : O.none<AcpSchema.Error>();
+  return {
+    messageTag: message._tag,
+    ...O.getSomesStruct({
+      code: O.map(error, ({ code }) => code),
+      errorMessage: O.map(error, ({ message }) => message),
+      requestId: outgoingRequestIdOf(message),
+    }),
+  };
+};
+
 // Effect RPC's JSON-RPC codec reads a standard JSON-RPC error object inside a `Cause` envelope
 // whose data is not a cause array as a defect. A single defect that is a protocol error object is
 // the peer's typed failure, so it is restored to a `Fail` entry.
@@ -867,7 +894,8 @@ const toAcpWireRequest: (message: AcpWireMessage) => AcpWireMessage = Match.type
  *   ACP has no such method.
  * - A peer error response fails only the request with its id, as an `AcpRequestError`. An error
  *   object tagged `Defect` is not read as an effect-rpc defect, which would fail every in-flight
- *   typed call.
+ *   typed call. A response that matches no outstanding request (no id, `id: null`, or an id this
+ *   side never issued) is dropped with a warning that carries its id, error code and message.
  *
  * **Example** (Build protocol over stdio)
  *
@@ -1408,10 +1436,16 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     );
   });
 
-  // Responses to ids this side never issued as typed RPC calls (agent-internal string ids, for
-  // example) are dropped instead of being handed to the RpcClient.
-  const forwardToRpcClient = (message: RpcMessage.ResponseChunkEncoded | RpcMessage.ResponseExitEncoded) =>
-    isEffectRpcRequestId(message.requestId) ? Queue.offer(clientQueue, message).pipe(Effect.asVoid) : Effect.void;
+  // A response that no outstanding request can claim (no id, `id: null`, or an id this side never
+  // issued as a typed RPC call, such as an agent-internal string id or effect's -32603 `Defect`
+  // id) is not handed to the RpcClient. It is dropped with a warning, so a hung call that the
+  // peer answered without a usable id (a -32700 parse-error reply, for example) leaves a trace.
+  const forwardToRpcClient = (message: AcpInboundResponse) =>
+    isEffectRpcRequestId(message.requestId)
+      ? Queue.offer(clientQueue, message).pipe(Effect.asVoid)
+      : Effect.logWarning("Dropped an ACP response that matches no outstanding request").pipe(
+          Effect.annotateLogs(uncorrelatedResponseAnnotations(message))
+        );
 
   const settlePendingExit = (message: RpcMessage.ResponseExitEncoded, pending: AcpPendingRequest) =>
     Match.value(message.exit).pipe(
@@ -1419,25 +1453,19 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
       Match.tag("Failure", (exit) =>
         completeExtPendingFailure(
           message.requestId,
-          O.match(
-            O.flatMap(
-              A.findFirst(exit.cause, (entry) => entry._tag === "Fail"),
-              protocolFailureOf
-            ),
-            {
-              onNone: () =>
-                AcpError.AcpRequestError.fromExtensionResponseFailure(pending.method, message.requestId, exit.cause),
-              onSome: (error) =>
-                AcpError.AcpRequestError.fromProtocolError(
-                  error,
-                  AcpError.AcpRequestDiagnostics.make({
-                    cause: O.some(exit.cause),
-                    method: O.some(pending.method),
-                    requestId: O.some(message.requestId),
-                  })
-                ),
-            }
-          )
+          O.match(protocolFailureOfCause(exit.cause), {
+            onNone: () =>
+              AcpError.AcpRequestError.fromExtensionResponseFailure(pending.method, message.requestId, exit.cause),
+            onSome: (error) =>
+              AcpError.AcpRequestError.fromProtocolError(
+                error,
+                AcpError.AcpRequestDiagnostics.make({
+                  cause: O.some(exit.cause),
+                  method: O.some(pending.method),
+                  requestId: O.some(message.requestId),
+                })
+              ),
+          })
         )
       ),
       Match.exhaustive

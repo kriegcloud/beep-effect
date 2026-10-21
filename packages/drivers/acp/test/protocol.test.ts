@@ -1266,6 +1266,57 @@ const warningsAbout = (issue: string) =>
       Str.includes(issue)(annotations.issueSummary)
   );
 
+// A response no outstanding request can claim (no id, `id: null`, or an id this side never
+// issued) is dropped, but a hung call must still leave something to diagnose.
+it.layer(Logger.layer([warningCollector]), { timeout: "10 seconds" })("effect-acp uncorrelated responses", (it) => {
+  it.effect(
+    "warns with the error code and message when a response matches no outstanding request",
+    Effect.fnUntraced(function* () {
+      const sentinel = "acp-uncorrelated-response-sentinel";
+      const { stdio, input } = yield* makeInMemoryStdio();
+      const notifications = yield* Queue.unbounded<AcpProtocol.AcpIncomingNotification>();
+      yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        onNotification: (notification) => Queue.offer(notifications, notification).pipe(Effect.asVoid),
+      });
+
+      const frames = [
+        `{"jsonrpc":"2.0","id":null,"error":{"code":-32700,"message":"${sentinel}"}}`,
+        `{"jsonrpc":"2.0","error":{"_tag":"Defect","code":-32603,"message":"${sentinel}"}}`,
+        `{"jsonrpc":"2.0","id":"agent-7","error":{"code":-32000,"message":"${sentinel}"}}`,
+        // effect's own encoder writes a server-level `Defect` with this id.
+        `{"jsonrpc":"2.0","id":-32603,"error":{"_tag":"Defect","code":1,"message":"${sentinel}"}}`,
+        '{"jsonrpc":"2.0","method":"x/after","params":{}}',
+      ];
+      yield* Queue.offer(
+        input,
+        encoder.encode(
+          A.join(
+            A.map(frames, (frame) => `${frame}\n`),
+            ""
+          )
+        )
+      );
+      // The reader routes frames in order, so every response was handled once this arrives.
+      yield* Queue.take(notifications);
+
+      const warnings = A.filter(
+        capturedWarnings,
+        (annotations) => P.hasProperty(annotations, "errorMessage") && annotations.errorMessage === sentinel
+      );
+      assert.lengthOf(warnings, 4);
+      const [parseError, idlessDefect, unknownId, effectDefect] = warnings;
+      assert.include(parseError, { code: -32700, messageTag: "Exit" });
+      assert.notProperty(parseError, "requestId");
+      assert.include(idlessDefect, { code: -32603, messageTag: "Exit" });
+      assert.notProperty(idlessDefect, "requestId");
+      assert.include(unknownId, { code: -32000, messageTag: "Exit", requestId: "agent-7" });
+      assert.include(effectDefect, { code: 1, messageTag: "Exit", requestId: -32603 });
+    })
+  );
+});
+
 it.layer(Logger.layer([warningCollector]), { timeout: "10 seconds" })("effect-acp notification decoding", (it) => {
   it.effect(
     "drops a session/update that fails to decode and keeps reading",

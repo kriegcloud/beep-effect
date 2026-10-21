@@ -21,8 +21,9 @@ import type { JsonTextSyntaxError } from "../AcpJson.codec.ts";
 //   and notifications.
 // - effect reads an error object tagged `Defect` as a connection-level defect, which `RpcClient`
 //   applies to every in-flight call. One peer line could then fail all pending requests, so every
-//   error object stays the failure of its own request id. An error object member `_tag` with any
-//   other value than `Cause` is ordinary data: ACP error objects allow extra members.
+//   error object stays a response to the id it carries; the protocol logs and drops one that no
+//   outstanding request can claim. An error object member `_tag` with any other value than
+//   `Cause` is ordinary data: ACP error objects allow extra members.
 // The decoder therefore yields only requests, chunks and exits (`AcpInboundMessage`).
 
 const DEFAULT_MAX_BUFFER_SIZE = 16 * 1024 * 1024;
@@ -40,8 +41,9 @@ export type AcpWireMessage = RpcMessage.FromClientEncoded | RpcMessage.FromServe
  *
  * **Details**
  *
- * A peer frame never decodes to an effect-rpc control message or a connection-level `Defect`;
- * every response, error responses included, correlates to its own request id.
+ * A peer frame never decodes to an effect-rpc control message or a connection-level `Defect`, so
+ * a response, error responses included, can settle only the request with its id. A response
+ * without an id decodes with the empty request id; the protocol logs and drops it.
  *
  * @category models
  * @since 0.0.0
