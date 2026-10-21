@@ -2542,12 +2542,16 @@ describe("patent-only filename anchors", () => {
   });
 });
 
-it.layer(testLayer, { timeout: "2 minutes" })("self-check schema mismatch", (it) => {
+// Native fixture construction belongs to resource acquisition, whose existing
+// two-minute budget covers PGlite/DuckDB initialization on shared CI runners.
+// The assertion body retains its normal watchdog and owns a different on-disk
+// cluster from the conformance host; it never copies or mutates that host's store.
+it.layer(Layer.effect(PracticeKgBundle, buildConformanceBundle()).pipe(Layer.provideMerge(testLayer)), {
+  timeout: "2 minutes",
+})("self-check schema mismatch", (it) => {
   it.effect("checks both stores and refuses missing tool columns after a successful read", () =>
     Effect.gen(function* () {
-      const context = yield* buildConformanceBundle();
-      // This test owns a separate bundle, so the self-check never races the
-      // conformance host's PGlite connection over the same on-disk cluster.
+      const context = yield* PracticeKgBundle;
       const report = yield* runPracticeKgSelfCheck({ extensionVersion: "0.4.0", bundleDir: context.bundleDir });
       expect(report.ok).toBe(true);
       expect(report.nodes).toBe(context.manifest.counts.nodes);
