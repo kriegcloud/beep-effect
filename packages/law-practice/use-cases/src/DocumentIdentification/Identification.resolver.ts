@@ -106,11 +106,13 @@ const names = (context: ResolverContext) => [
 const contactTokens = (document: IdentificationDocument, context: ResolverContext) => {
   const text = normal(document.text);
   const excluded = HashSet.fromIterable(A.map(context.excludedDomains, normal));
-  const documentEmails = A.map(A.fromIterable(text.matchAll(/[^@\s<>]+@([a-z0-9.-]+\.[a-z]{2,})/gu)), (e) =>
+  const documentEmails = A.map(A.fromIterable(Str.matchAll(/[^@\s<>]+@([a-z0-9.-]+\.[a-z]{2,})/gu)(text)), (e) =>
     normal(e[1] ?? "")
   );
   const documentPhones = A.map(
-    A.fromIterable(document.text.matchAll(/(?:\+?1[ .-]?)?\(?[2-9][0-9]{2}\)?[ .-]?[2-9][0-9]{2}[ .-]?[0-9]{4}/gu)),
+    A.fromIterable(
+      Str.matchAll(/(?:\+?1[ .-]?)?\(?[2-9][0-9]{2}\)?[ .-]?[2-9][0-9]{2}[ .-]?[0-9]{4}/gu)(document.text)
+    ),
     (p) => Str.slice(-10)(digits(p[0]))
   );
   return A.flatMap(context.contacts, (c) => {

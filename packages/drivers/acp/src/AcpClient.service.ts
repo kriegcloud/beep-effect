@@ -32,7 +32,6 @@ import * as RpcMessage from "effect/rpc/RpcMessage";
 import * as RpcServer from "effect/rpc/RpcServer";
 import * as S from "effect/Schema";
 import { AGENT_METHODS, CLIENT_METHODS, V1_AGENT_METHODS, V1_CLIENT_METHODS } from "./_generated/meta.gen.ts";
-import * as V2 from "./_generated/schema.gen.ts";
 import * as AcpError from "./Acp.errors.ts";
 import * as Compat from "./AcpCompat.models.ts";
 import * as AcpProtocol from "./AcpProtocol.service.ts";
@@ -51,6 +50,7 @@ import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as RpcClientError from "effect/rpc/RpcClientError";
 import type * as Scope from "effect/Scope";
 import type * as Stream from "effect/Stream";
+import type * as V2 from "./_generated/schema.gen.ts";
 import type { ExtNotificationHandler, ExtRequestHandler } from "./internal/shared.ts";
 
 const $I = $AcpId.create("client");
@@ -213,6 +213,8 @@ export interface AcpClientAgent {
   /** Generation 1 `session/load`; generation 2 `session/resume` replaying from the start. */
   readonly loadSession: (payload: Compat.LoadSessionRequest) => AcpResult<Compat.LoadSessionResponse>;
   readonly logout: (payload: Compat.LogoutRequest) => AcpResult<Compat.LogoutResponse>;
+  /** Sends an `mcp/message` notification, from the MCP server the client hosts, for an active request. */
+  readonly notifyMcp: (payload: Compat.MessageMcpNotification) => AcpResult<void>;
   readonly prompt: (payload: Compat.PromptRequest) => AcpResult<Compat.PromptResponse>;
   readonly resumeSession: (payload: Compat.ResumeSessionRequest) => AcpResult<Compat.ResumeSessionResponse>;
   readonly setProvider: (payload: Compat.SetProviderRequest) => AcpResult<Compat.SetProviderResponse>;
@@ -259,16 +261,9 @@ export interface AcpClientShape extends AcpProtocol.AcpExtensionRegistrars {
   readonly handleElicitationComplete: (
     handler: NotificationHandler<Compat.CompleteElicitationNotification>
   ) => Effect.Effect<void>;
-  readonly handleMcpConnect: (
-    handler: Handler<Compat.ConnectMcpRequest, Compat.ConnectMcpResponse>
-  ) => Effect.Effect<void>;
-  readonly handleMcpDisconnect: (
-    handler: Handler<Compat.DisconnectMcpRequest, Compat.DisconnectMcpResponse>
-  ) => Effect.Effect<void>;
   readonly handleMcpMessage: (
     handler: Handler<Compat.MessageMcpRequest, Compat.MessageMcpResponse>
   ) => Effect.Effect<void>;
-  readonly handleMcpNotification: (handler: NotificationHandler<Compat.MessageMcpNotification>) => Effect.Effect<void>;
   readonly handleReadTextFile: (
     handler: Handler<Compat.ReadTextFileRequest, Compat.ReadTextFileResponse>
   ) => Effect.Effect<void>;
@@ -319,8 +314,6 @@ export class AcpClient extends Context.Service<AcpClient, AcpClientShape>()($I`A
 interface AcpCoreRequestHandlers {
   readonly createTerminal?: Handler<Compat.CreateTerminalRequest, Compat.CreateTerminalResponse>;
   readonly elicitation?: Handler<Compat.CreateElicitationRequest, Compat.CreateElicitationResponse>;
-  readonly mcpConnect?: Handler<Compat.ConnectMcpRequest, Compat.ConnectMcpResponse>;
-  readonly mcpDisconnect?: Handler<Compat.DisconnectMcpRequest, Compat.DisconnectMcpResponse>;
   readonly mcpMessage?: Handler<Compat.MessageMcpRequest, Compat.MessageMcpResponse>;
   readonly readTextFile?: Handler<Compat.ReadTextFileRequest, Compat.ReadTextFileResponse>;
   readonly requestPermission?: Handler<Compat.RequestPermissionRequest, Compat.RequestPermissionResponse>;
@@ -624,20 +617,10 @@ const elicitationAndPermissionHandlers = (handlers: CoreHandlers) => ({
 });
 
 const mcpHandlers = (handlers: CoreHandlers) => ({
-  [CLIENT_METHODS.mcp_connect]: serveRequest(
-    handlers,
-    CLIENT_METHODS.mcp_connect,
-    (registered) => registered.mcpConnect
-  ),
   [CLIENT_METHODS.mcp_message]: serveRequest(
     handlers,
     CLIENT_METHODS.mcp_message,
     (registered) => registered.mcpMessage
-  ),
-  [CLIENT_METHODS.mcp_disconnect]: serveRequest(
-    handlers,
-    CLIENT_METHODS.mcp_disconnect,
-    (registered) => registered.mcpDisconnect
   ),
 });
 
@@ -900,6 +883,12 @@ const turnMethods = (context: AgentMethodContext) =>
     cancel: context.transport.notify(AGENT_METHODS.session_cancel),
   }) satisfies Pick<AcpClientAgent, "prompt" | "cancel">;
 
+// The client hosts the MCP server, so it is the provider that notifies the agent (the consumer).
+const mcpMethods = (context: AgentMethodContext) =>
+  ({
+    notifyMcp: context.transport.notify(AGENT_METHODS.mcp_message),
+  }) satisfies Pick<AcpClientAgent, "notifyMcp">;
+
 const makeAgentMethods = (context: AgentMethodContext): AcpClientAgent => ({
   ...connectionMethods(context),
   ...sessionSetupMethods(context),
@@ -907,6 +896,7 @@ const makeAgentMethods = (context: AgentMethodContext): AcpClientAgent => ({
   ...providerMethods(context),
   ...legacyModeMethods(context),
   ...turnMethods(context),
+  ...mcpMethods(context),
 });
 
 // --- Handler registration --------------------------------------------------------------------------
@@ -920,8 +910,6 @@ const coreRegistrars = ({ coreHandlers }: AcpClientState) =>
   ({
     handleCreateTerminal: registerCoreHandler(coreHandlers, "createTerminal"),
     handleElicitation: registerCoreHandler(coreHandlers, "elicitation"),
-    handleMcpConnect: registerCoreHandler(coreHandlers, "mcpConnect"),
-    handleMcpDisconnect: registerCoreHandler(coreHandlers, "mcpDisconnect"),
     handleMcpMessage: registerCoreHandler(coreHandlers, "mcpMessage"),
     handleReadTextFile: registerCoreHandler(coreHandlers, "readTextFile"),
     handleRequestPermission: registerCoreHandler(coreHandlers, "requestPermission"),
@@ -937,9 +925,6 @@ const notificationRegistrars = (state: AcpClientState, extensions: AcpProtocol.A
     ...extensions,
     handleSessionUpdate: state.sessionUpdates.register,
     handleElicitationComplete: state.elicitationCompletions.register,
-    // An `mcp/message` without an id is an MCP-over-ACP notification.
-    handleMcpNotification: (handler) =>
-      extensions.handleExtNotification(CLIENT_METHODS.mcp_message, V2.MessageMcpNotification, handler),
   }) satisfies Partial<AcpClientShape>;
 
 // --- Constructors ----------------------------------------------------------------------------------

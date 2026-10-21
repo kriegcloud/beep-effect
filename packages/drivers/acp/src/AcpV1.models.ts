@@ -1,5 +1,5 @@
 /**
- * ACP generation-1 wire schemas, generated from the pinned `schema-v1.21.0` release.
+ * ACP generation-1 wire schemas, generated from the pinned `schema-v1.26.0` release.
  *
  * **Details**
  *

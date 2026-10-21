@@ -53,7 +53,7 @@ const GRAPH_SIZE_OVERHEAD = 200;
 
 const FILE_ATTACHMENT = "#microsoft.graph.fileAttachment";
 
-export const digestOf = (seed: number): Sha256Hex => Sha256Hex.make(`${seed % 10}`.repeat(64));
+export const digestOf = (seed: number): Sha256Hex => Sha256Hex.make(Str.repeat(64)(`${seed % 10}`));
 
 export const sha256Of = (content: Uint8Array): Effect.Effect<Sha256Hex, never, Crypto.Crypto> =>
   Effect.gen(function* () {

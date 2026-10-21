@@ -29,7 +29,7 @@ const decodeCompatConfigOptionRequest = S.decodeUnknownEffect(Compat.SetSessionC
 const decodeCompatNewSessionResponse = S.decodeUnknownEffect(Compat.NewSessionResponse);
 const decodeV2NewSessionResponse = S.decodeUnknownEffect(V2.NewSessionResponse);
 // The client's prompt success union (`AcpRpc.models.ts`).
-const decodePromptResult = S.decodeUnknownEffect(S.Union([Compat.PromptResponse, V2.PromptResponse]));
+const decodePromptResult = S.decodeUnknownEffect(S.Union([Compat.PromptResponse, Normalize.OpenPromptAcknowledgement]));
 
 const isCompatSessionNotification = S.is(Compat.SessionNotification);
 const isCompatInitializeResponse = S.is(Compat.InitializeResponse);
@@ -300,7 +300,7 @@ describe("compat session updates", () => {
     })
   );
 
-  // A generation-1 result outside the closed v1.21 schema decodes through the open generation-2
+  // A generation-1 result outside the closed v1.26 schema decodes through the open generation-2
   // member; its stop reason must survive, and only the malformed usage is dropped.
   it.effect("keeps the stop reason of an off-schema generation-1 prompt result", () =>
     Effect.gen(function* () {
@@ -619,7 +619,7 @@ describe("compat projections (properties)", () => {
     { arbitrary: fcRuns(200) }
   );
 
-  // Every v1.21 prompt result is already a compat result, so the client returns it unchanged.
+  // Every v1.26 prompt result is already a compat result, so the client returns it unchanged.
   it.prop(
     "returns every generation-1 prompt result unchanged",
     [Arbitrary.schema(V1.PromptResponse)],

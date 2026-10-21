@@ -9,7 +9,8 @@ import { $DocumentsDomainId } from "@beep/identity/packages";
 import { ValidWindowsPlainPathSegment } from "@beep/schema/FilePath";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { LegalDocumentConceptId, LegalDocumentTaxonomy, VaultFilingContext } from "./Taxonomy.model.ts";
@@ -153,7 +154,7 @@ const decodeSegment = (value: string): Effect.Effect<ValidWindowsPlainPathSegmen
   );
 
 const asciiSlug = (value: string): string => {
-  const normalized = value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  const normalized = Str.replace(/[\u0300-\u036f]/g, "")(Str.normalize("NFKD")(value));
   const slug = pipe(normalized, Str.toLowerCase, Str.replace(/[^a-z0-9]+/g, "-"), Str.replace(/^-+|-+$/g, ""));
   return slug.length === 0 ? FALLBACK_STEM : slug;
 };
@@ -192,13 +193,13 @@ const conceptPath = (
 
 const filenameParts = (fileName: string): { readonly extension: string; readonly stem: string } => {
   const trimmed = pipe(fileName, Str.trim);
-  const dotIndex = trimmed.lastIndexOf(".");
+  const dotIndex = pipe(trimmed, Str.lastIndexOf("."), O.getOrElse(constant(-1)));
   if (dotIndex <= 0 || dotIndex === trimmed.length - 1) {
     return { extension: "bin", stem: trimmed };
   }
   return {
-    extension: asciiSlug(trimmed.slice(dotIndex + 1)),
-    stem: trimmed.slice(0, dotIndex),
+    extension: asciiSlug(Str.slice(dotIndex + 1)(trimmed)),
+    stem: Str.slice(0, dotIndex)(trimmed),
   };
 };
 
@@ -207,7 +208,9 @@ const projectedFileName = (
   contentDigest: string
 ): Effect.Effect<ValidWindowsPlainPathSegment, TaxonomyProjectionError> => {
   const parts = filenameParts(originalFileName);
-  return decodeSegment(`${asciiSlug(parts.stem)}--${contentDigest.slice(0, SHORT_DIGEST_LENGTH)}.${parts.extension}`);
+  return decodeSegment(
+    `${asciiSlug(parts.stem)}--${Str.slice(0, SHORT_DIGEST_LENGTH)(contentDigest)}.${parts.extension}`
+  );
 };
 
 /**

@@ -12,8 +12,8 @@ docgen) so tests can import `@beep/acp/internal/normalize`; do not import it
 from other packages.
 
 Codegen uses `@beep/codegen-kit` and pins two ACP releases in
-`scripts/generate.ts`: `schema-v2.0.0-alpha.3` (generation 2, caches
-`spec/*.unstable.json`) and `schema-v1.21.0` (generation 1, caches
+`scripts/generate.ts`: `schema-v2.0.0-alpha.9` (generation 2, caches
+`spec/*.unstable.json`) and `schema-v1.26.0` (generation 1, caches
 `spec/v1/*.unstable.json`). `bun run generate` reads the committed caches
 without network access. `bun run generate -- --refresh` downloads the pinned
 release assets, normalizes them, and regenerates `src/_generated/*.gen.ts`.

@@ -53,3 +53,17 @@ export * from "./RetiredIriAuthorities.model.ts";
  * @since 0.0.0
  */
 export * from "./RetiredIriAuthorities.ts";
+/**
+ * Schema tag idiom law schemas.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./SchemaTagIdioms.model.ts";
+/**
+ * Schema tag idiom law: pure scanner and repository runner.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./SchemaTagIdioms.ts";

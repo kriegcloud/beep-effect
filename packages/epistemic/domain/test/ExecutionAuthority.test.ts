@@ -49,6 +49,7 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type {
   ChainVerification,
   DecisionRecordHash as DecisionRecordHashType,
@@ -143,12 +144,12 @@ const decisionContent = (input: {
   ({
     audience: "external-network",
     decidedAt: DateTime.makeUnsafe(input.seq + 1),
-    destinationDigest: SinkDestinationDigest.make(input.destinationDigest ?? "e".repeat(64)),
-    grantSetDigest: GrantSetDigest.make("a".repeat(64)),
-    operationDigest: GrantOperationDigest.make("f".repeat(64)),
+    destinationDigest: SinkDestinationDigest.make(input.destinationDigest ?? Str.repeat(64)("e")),
+    grantSetDigest: GrantSetDigest.make(Str.repeat(64)("a")),
+    operationDigest: GrantOperationDigest.make(Str.repeat(64)("f")),
     policyRevision: revision,
     prevHash: input.prevHash,
-    runKey: ExecutionRunKey.make(input.runKey ?? "b".repeat(64)),
+    runKey: ExecutionRunKey.make(input.runKey ?? Str.repeat(64)("b")),
     seq: S.Natural.make(input.seq),
     sinkClass: "network-egress",
     verdict: "allowed",
@@ -321,7 +322,7 @@ describe("ExecutionAuthority", () => {
         const third = sealExecutionDecision(decisionContent({ seq: 2, prevHash: O.some(second.hash) }));
         const tamperedSecond = yield* decodeExecutionDecisionRecord({
           ...(yield* encodeExecutionDecisionRecord(second)),
-          destinationDigest: "0".repeat(64),
+          destinationDigest: Str.repeat(64)("0"),
         });
 
         expectChainBrokenAt(verifyExecutionDecisionChain([first, tamperedSecond, third]), 1);
@@ -341,7 +342,7 @@ describe("ExecutionAuthority", () => {
       // this mixed-run array would certify as intact.
       const first = sealExecutionDecision(decisionContent({ seq: 0, prevHash: O.none() }));
       const foreign = sealExecutionDecision(
-        decisionContent({ seq: 1, prevHash: O.some(first.hash), runKey: "d".repeat(64) })
+        decisionContent({ seq: 1, prevHash: O.some(first.hash), runKey: Str.repeat(64)("d") })
       );
 
       expectChainBrokenAt(verifyExecutionDecisionChain([first, foreign]), 1);
@@ -351,7 +352,7 @@ describe("ExecutionAuthority", () => {
       const first = sealExecutionDecision(decisionContent({ seq: 0, prevHash: O.none() }));
       const second = sealExecutionDecision(decisionContent({ seq: 1, prevHash: O.some(first.hash) }));
 
-      const verification = verifyExecutionDecisionChain([first, second], ExecutionRunKey.make("b".repeat(64)));
+      const verification = verifyExecutionDecisionChain([first, second], ExecutionRunKey.make(Str.repeat(64)("b")));
 
       expect(verification.result).toBe("chain-intact");
     });
@@ -360,16 +361,16 @@ describe("ExecutionAuthority", () => {
       const first = sealExecutionDecision(decisionContent({ seq: 0, prevHash: O.none() }));
       const second = sealExecutionDecision(decisionContent({ seq: 1, prevHash: O.some(first.hash) }));
 
-      expectChainBrokenAt(verifyExecutionDecisionChain([first, second], ExecutionRunKey.make("d".repeat(64))), 0);
+      expectChainBrokenAt(verifyExecutionDecisionChain([first, second], ExecutionRunKey.make(Str.repeat(64)("d"))), 0);
     });
   });
 
   describe("outcome records", () => {
     it("sealExecutionOutcome round-trips through verifyExecutionOutcomeHash", () => {
       const outcome = sealExecutionOutcome({
-        decisionHash: DecisionRecordHash.make("c".repeat(64)),
+        decisionHash: DecisionRecordHash.make(Str.repeat(64)("c")),
         recordedAt: DateTime.makeUnsafe(2),
-        runKey: ExecutionRunKey.make("b".repeat(64)),
+        runKey: ExecutionRunKey.make(Str.repeat(64)("b")),
         settlement: "completed",
       });
 
@@ -380,9 +381,9 @@ describe("ExecutionAuthority", () => {
     it.effect("rejects a tampered outcome record keeping its old hash", () =>
       Effect.gen(function* () {
         const outcome = sealExecutionOutcome({
-          decisionHash: DecisionRecordHash.make("c".repeat(64)),
+          decisionHash: DecisionRecordHash.make(Str.repeat(64)("c")),
           recordedAt: DateTime.makeUnsafe(2),
-          runKey: ExecutionRunKey.make("b".repeat(64)),
+          runKey: ExecutionRunKey.make(Str.repeat(64)("b")),
           settlement: "completed",
         });
         const tampered = yield* decodeExecutionOutcomeRecord({
@@ -413,7 +414,7 @@ describe("ExecutionAuthority", () => {
       const outcome = sealExecutionOutcome({
         decisionHash: allowedDecision.hash,
         recordedAt: DateTime.makeUnsafe(2),
-        runKey: ExecutionRunKey.make("d".repeat(64)),
+        runKey: ExecutionRunKey.make(Str.repeat(64)("d")),
         settlement: "completed",
       });
 
@@ -467,7 +468,7 @@ describe("ExecutionAuthority", () => {
         const guidance = denialGuidance[reason];
 
         expect(guidance.length).toBeGreaterThan(0);
-        expect(guidance.includes("$" + "{")).toBe(false);
+        expect(Str.includes("$" + "{")(guidance)).toBe(false);
       }
     });
 
@@ -502,9 +503,9 @@ describe("ExecutionAuthority", () => {
 
     it("pins sealExecutionOutcome over a fixed content", () => {
       const outcome = sealExecutionOutcome({
-        decisionHash: DecisionRecordHash.make("c".repeat(64)),
+        decisionHash: DecisionRecordHash.make(Str.repeat(64)("c")),
         recordedAt: DateTime.makeUnsafe(2),
-        runKey: ExecutionRunKey.make("b".repeat(64)),
+        runKey: ExecutionRunKey.make(Str.repeat(64)("b")),
         settlement: "completed",
       });
 

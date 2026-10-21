@@ -32,6 +32,7 @@ import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { M365Error } from "@beep/m365";
 
 class Capture extends S.Opaque<Capture, { readonly brand: unique symbol }>()(
@@ -70,8 +71,8 @@ const CaptureBodyJson = S.fromJsonString(S.Unknown);
 const base = "https://graph.microsoft.com/v1.0";
 const fixturePayload = (method: string, url: string) => {
   if (method === "POST")
-    return url.endsWith("contactFolders") ? { id: "folder-fixture", displayName: "Fixture folder" } : wire;
-  const folders = url.includes("contactFolders") && !url.includes("/contacts");
+    return Str.endsWith("contactFolders")(url) ? { id: "folder-fixture", displayName: "Fixture folder" } : wire;
+  const folders = Str.includes("contactFolders")(url) && !Str.includes("/contacts")(url);
   return { value: folders ? [{ id: "folder-fixture", displayName: null }] : [wire] };
 };
 const layer = (appOnly: boolean, status = 200, transport = false, retries = 0) => {

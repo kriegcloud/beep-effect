@@ -123,7 +123,7 @@ const truncatedPayload = (payload: Readonly<Record<string, unknown>>): Readonly<
   const encoded = JSON.stringify(payload);
   return encoded.length <= PAYLOAD_SNAPSHOT_LIMIT
     ? payload
-    : { head: encoded.slice(0, PAYLOAD_SNAPSHOT_LIMIT), truncated: true };
+    : { head: Str.slice(0, PAYLOAD_SNAPSHOT_LIMIT)(encoded), truncated: true };
 };
 
 const scanFailed = (reason: string): VaultScanFailed => VaultScanFailed.make({ reason });
