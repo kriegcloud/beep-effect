@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2b-2, feat/effected-promotion-w2b2)",
-      "reason": "Record the new wave-2b-2 workspace @beep/github scaffolded by create-package with the generated task set, the dependency-only drift of @beep/repo-cli (@effected/github -> @beep/github), and the input-list drift of the root policy-fingerprint task; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (rsc residue #1882, feat/residue-dependency-review)",
+      "reason": "Record the new @beep/repo-cli -> @beep/spdx dependency edge and the matching policy-fingerprint inputs; commands and cache settings are unchanged and no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w2b2.md",
-        "sha256": "d77f1230131cf2b5e96d887f56b5e5ea8e4071b206c3571ac50f234873e4cf64"
+        "path": "goals/repository-simplification-residue/research/cache-baseline-review-dependency-review.md",
+        "sha256": "76081e7609ead77744d1cf1ad1005bcf816ce88d2b1095af80c8d199023acc75"
       }
     },
     "@beep/acp": {
@@ -1066,11 +1066,11 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2b-2, feat/effected-promotion-w2b2)",
-      "reason": "Record the new wave-2b-2 workspace @beep/github scaffolded by create-package with the generated task set, the dependency-only drift of @beep/repo-cli (@effected/github -> @beep/github), and the input-list drift of the root policy-fingerprint task; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (rsc residue #1882, feat/residue-dependency-review)",
+      "reason": "Record the new @beep/repo-cli -> @beep/spdx dependency edge and the matching policy-fingerprint inputs; commands and cache settings are unchanged and no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w2b2.md",
-        "sha256": "d77f1230131cf2b5e96d887f56b5e5ea8e4071b206c3571ac50f234873e4cf64"
+        "path": "goals/repository-simplification-residue/research/cache-baseline-review-dependency-review.md",
+        "sha256": "76081e7609ead77744d1cf1ad1005bcf816ce88d2b1095af80c8d199023acc75"
       }
     },
     "@beep/repo-configs": {
@@ -2841,6 +2841,8 @@
             "packages/foundation/modeling/semver/src/**",
             "packages/foundation/modeling/skill-contract/package.json",
             "packages/foundation/modeling/skill-contract/src/**",
+            "packages/foundation/modeling/spdx/package.json",
+            "packages/foundation/modeling/spdx/src/**",
             "packages/foundation/modeling/utils/package.json",
             "packages/foundation/modeling/utils/src/**",
             "packages/foundation/primitive/data/package.json",
@@ -91861,6 +91863,7 @@
           "@beep/runpod#audit",
           "@beep/schema#audit",
           "@beep/skill-contract#audit",
+          "@beep/spdx#audit",
           "@beep/t3-code#audit",
           "@beep/technical-drawing#audit",
           "@beep/tesseract#audit",
@@ -91962,6 +91965,7 @@
           "@beep/runpod#build",
           "@beep/schema#build",
           "@beep/skill-contract#build",
+          "@beep/spdx#build",
           "@beep/t3-code#build",
           "@beep/technical-drawing#build",
           "@beep/tesseract#build",
@@ -92052,6 +92056,7 @@
           "@beep/runpod#build",
           "@beep/schema#build",
           "@beep/skill-contract#build",
+          "@beep/spdx#build",
           "@beep/t3-code#build",
           "@beep/technical-drawing#build",
           "@beep/tesseract#build",
@@ -92129,6 +92134,7 @@
           "@beep/runpod#build",
           "@beep/schema#build",
           "@beep/skill-contract#build",
+          "@beep/spdx#build",
           "@beep/t3-code#build",
           "@beep/technical-drawing#build",
           "@beep/tesseract#build",
@@ -92255,6 +92261,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/spdx#transit",
           "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
@@ -92377,6 +92384,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/spdx#transit",
           "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
@@ -92617,6 +92625,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/spdx#transit",
           "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
@@ -92697,6 +92706,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/spdx#transit",
           "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
@@ -92785,6 +92795,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/spdx#transit",
           "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
@@ -120288,7 +120299,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "27645891d7432b9c0000b81c5763ada478876c6be018c68dee6becd3f0458656"
+        "sha256": "9970a9c361eda86245e17bc1e18666545974369fb3149813779bc87994a859e0"
       }
     ]
   }

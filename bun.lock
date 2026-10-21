@@ -3698,6 +3698,7 @@
         "@beep/runpod": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/skill-contract": "workspace:^",
+        "@beep/spdx": "workspace:^",
         "@beep/t3-code": "workspace:^",
         "@beep/technical-drawing": "workspace:^",
         "@beep/tesseract": "workspace:^",
