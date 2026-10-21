@@ -31,7 +31,7 @@ and exact-ID external closure remain mandatory; lifecycle stays `active`.
 | P6 publish | complete | Publish one intentional PR through Yeet. | Exact branch head pushed and PR opened. |
 | P7 monitor | in-progress | Close hosted checks and actionable reviews. | PR green and mergeable. |
 | P8 merge-and-close | pending | Merge and close captured findings. | PR merged; all 8 IDs resolved. |
-| P9 close | pending | Record evidence, reflection, and lifecycle. | Final reflection and `completed-retained` recorded only after merge and exact-ID closure. |
+| P9 close | pending | Record evidence, reflection, and lifecycle. | Final addendum and derived `completed-retained` receipt recorded only after merge and exact-ID closure. |
 
 ## Execution Rules
 

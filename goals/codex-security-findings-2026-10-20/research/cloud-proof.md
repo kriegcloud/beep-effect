@@ -98,7 +98,7 @@ timings for those two source files. No span name changed.
 
 The earlier results above describe their recorded source revisions. A later
 review reproduced premature budget abstention on ten ordinary multi-parent
-claims. The current policy retains the 8192-unit dependency/path/advisory-copy
+claims. At that review revision, the policy retained the 8192-unit dependency/path/advisory-copy
 budget and depth 128, with a separate term-scan allowance of
 `min(262144, 8192 + 512 * locatedTermCount)`. Both remain deterministic and
 charged before work; the global outside-chain lookup is unchanged.
@@ -106,8 +106,9 @@ charged before work; the global outside-chain lookup is unchanged.
 [Round-one claim budget proof](./claim-budget-review-proof.md) records the
 reproduction and correction: 206 tests pass under Node/V8; policy branches
 100%, lines 99.21%, statements 99.31%. Strict test typechecking, root Oxlint
-and full package verification passed. This current evidence supplements the
-historical tables above without rewriting their counts or timings.
+and full package verification passed. This recorded evidence supplements the historical tables above without rewriting
+their counts or timings. The round-two indexing receipt below supersedes the
+whole-input query behavior of that revision.
 
 ## CSF-002 round-one compatibility repair
 
@@ -142,3 +143,26 @@ native global comparator, with the existing Node/V8 Bun-API shim providing
 Node's native comparator during tests. Both runtime suites and the global
 policy pass; see [native comparison proof](./hub-native-crypto-proof.md).
 No new diagnostic exception is retained.
+
+## Round-two workload compatibility proof
+
+The external Reviewer App reported a real 3/5 result on `e3c548ea58`, with one
+P1 and two P2 compatibility findings. Its report superseded the earlier local
+source review's clear assessment; neither result was rewritten or fabricated.
+
+DOCX now expands only Mammoth-consumed parts, discards ignored media without
+inflation, and scales the XML event allowance within fixed byte/depth bounds.
+Actual prior-source 20/60-page-segment and 10 MiB media controls failed; revised
+public extraction passes them. The media case includes a real referenced image.
+First-existing relationship selection uses constant-sized storage and a dense
+relationship control. See [DOCX review proof](./docx-review-proof.md).
+
+Claim evaluation now builds complete, charged indexes rather than repeatedly
+scanning all terms. The ceiling remains unchanged, with 10/45/100-claim controls
+and bounded hostile-input regressions. Final Node/V8 proof passes 208 tests and
+all existing policy coverage floors: 100% branches, 99.30% lines, 99.40%
+statements and 98.73% functions. See
+[claim indexing proof](./claim-index-review-proof.md).
+
+Publication, final-head hosted checks/review, merge and exact-ID closure remain
+separate gates; these local receipts do not claim their completion.

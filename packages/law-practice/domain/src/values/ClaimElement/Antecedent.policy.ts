@@ -16,10 +16,12 @@ import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
+import * as Iterable from "effect/Iterable";
 import * as MutableRef from "effect/MutableRef";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { PatentClaim } from "../PatentDocument/PatentDocument.model.ts";
@@ -258,15 +260,15 @@ const isSingleModifiedOf =
 const byCount = <B>(
   matches: ReadonlyArray<LocatedTerm>,
   onOne: (match: LocatedTerm) => B,
-  onMany: (first: LocatedTerm, second: LocatedTerm, others: ReadonlyArray<LocatedTerm>) => B
+  onMany: (first: LocatedTerm, second: LocatedTerm, others: Iterable<LocatedTerm>) => B
 ): O.Option<B> =>
-  A.matchLeft(matches, {
+  A.match(matches, {
     onEmpty: () => O.none(),
-    onNonEmpty: (first, rest) =>
+    onNonEmpty: (matches) =>
       O.some(
-        A.matchLeft(rest, {
-          onEmpty: () => onOne(first),
-          onNonEmpty: (second, others) => onMany(first, second, others),
+        O.match(A.get(matches, 1), {
+          onNone: () => onOne(A.headNonEmpty(matches)),
+          onSome: (second) => onMany(A.headNonEmpty(matches), second, Iterable.drop(matches, 2)),
         })
       ),
   });
@@ -280,13 +282,13 @@ const resolveInChain = (introductions: ReadonlyArray<LocatedTerm>, referring: Lo
   const resolved = (): Verdict => O.none();
   const ambiguous =
     (ruleId: AntecedentRuleId) =>
-    (first: LocatedTerm, second: LocatedTerm, others: ReadonlyArray<LocatedTerm>): Verdict =>
+    (first: LocatedTerm, second: LocatedTerm, others: Iterable<LocatedTerm>): Verdict =>
       O.some(
         AntecedentFinding.cases["ambiguous-antecedent"].make({
           rule: ruleId,
           referring: referring.ref,
           chain: chain.claims,
-          candidates: [first.ref, second.ref, ...A.map(others, ({ ref }) => ref)],
+          candidates: [first.ref, second.ref, ...Iterable.map(others, ({ ref }) => ref)],
         })
       );
   return pipe(
@@ -329,74 +331,82 @@ const partialVerdict = (introductions: ReadonlyArray<LocatedTerm>, referring: Lo
     O.getOrElse(() => O.some(uncovered(referring, rule.chainThroughUndecomposed)))
   );
 
-const fullVerdict = (
-  terms: ReadonlyArray<LocatedTerm>,
-  introductions: ReadonlyArray<LocatedTerm>,
-  referring: LocatedTerm,
-  chain: Chain
-): Verdict =>
-  pipe(
-    resolveInChain(introductions, referring, chain),
-    O.orElse(() =>
-      O.map(
-        A.findFirst(
-          terms,
-          (candidate) =>
-            isIntroducing(candidate) &&
-            !A.contains(chain.claims, candidate.claimNumber) &&
-            Str.Equivalence(candidate.term.head, referring.term.head)
-        ),
-        (introducing): Verdict =>
+const fullVerdict =
+  (
+    introductionsByHead: R.ReadonlyRecord<string, ReadonlyArray<LocatedTerm>>,
+    remaining: MutableRef.MutableRef<number>
+  ) =>
+  (introductions: ReadonlyArray<LocatedTerm>, referring: LocatedTerm, chain: Chain): Verdict =>
+    pipe(
+      resolveInChain(introductions, referring, chain),
+      O.orElse(() => {
+        const candidates = O.getOrElse(R.get(introductionsByHead, referring.term.head), () => []);
+        // Preserve the original first global introduction outside the chain,
+        // charging its actual candidate scan before inspecting membership.
+        if (!spendChainWork(remaining, (candidates.length + 1) * (chain.claims.length + 1)))
+          return O.some(O.some(uncovered(referring, rule.chainWorkLimit)));
+        return O.map(
+          A.findFirst(candidates, (candidate) => !A.contains(chain.claims, candidate.claimNumber)),
+          (introducing): Verdict =>
+            O.some(
+              AntecedentFinding.cases["antecedent-outside-chain"].make({
+                rule: rule.outsideChain,
+                referring: referring.ref,
+                chain: chain.claims,
+                introducing: introducing.ref,
+              })
+            )
+        );
+      }),
+      O.getOrElse(
+        (): Verdict =>
           O.some(
-            AntecedentFinding.cases["antecedent-outside-chain"].make({
-              rule: rule.outsideChain,
+            AntecedentFinding.cases["missing-antecedent"].make({
+              rule: rule.definiteWithoutIntroduction,
               referring: referring.ref,
               chain: chain.claims,
-              introducing: introducing.ref,
             })
           )
       )
-    ),
-    O.getOrElse(
-      (): Verdict =>
-        O.some(
-          AntecedentFinding.cases["missing-antecedent"].make({
-            rule: rule.definiteWithoutIntroduction,
-            referring: referring.ref,
-            chain: chain.claims,
-          })
-        )
-    )
-  );
+    );
 
-const readableVerdict = (
-  terms: ReadonlyArray<LocatedTerm>,
-  decomposed: HashSet.HashSet<number>,
-  referring: LocatedTerm,
-  chain: Chain
-): Verdict => {
-  const introductions = A.filter(
-    terms,
-    (candidate) =>
-      isIntroducing(candidate) &&
-      A.contains(chain.claims, candidate.claimNumber) &&
-      (candidate.claimNumber !== referring.claimNumber ||
-        candidate.term.anchor.startChar < referring.term.anchor.startChar)
-  );
-  return A.every(chain.claims, (claimNumber) => HashSet.has(decomposed, claimNumber))
-    ? fullVerdict(terms, introductions, referring, chain)
-    : partialVerdict(introductions, referring, chain);
-};
+const readableVerdict =
+  (
+    introductionsByHead: R.ReadonlyRecord<string, ReadonlyArray<LocatedTerm>>,
+    remaining: MutableRef.MutableRef<number>
+  ) =>
+  (
+    terms: ReadonlyArray<LocatedTerm>,
+    decomposed: HashSet.HashSet<number>,
+    referring: LocatedTerm,
+    chain: Chain
+  ): Verdict => {
+    const introductions = A.filter(
+      terms,
+      (candidate) =>
+        isIntroducing(candidate) &&
+        (candidate.claimNumber !== referring.claimNumber ||
+          candidate.term.anchor.startChar < referring.term.anchor.startChar)
+    );
+    return A.every(chain.claims, (claimNumber) => HashSet.has(decomposed, claimNumber))
+      ? fullVerdict(introductionsByHead, remaining)(introductions, referring, chain)
+      : partialVerdict(introductions, referring, chain);
+  };
 
-const verdictFor = (
-  terms: ReadonlyArray<LocatedTerm>,
-  decomposed: HashSet.HashSet<number>,
-  referring: LocatedTerm,
-  chain: Chain
-): Verdict =>
-  chain.resolvable
-    ? readableVerdict(terms, decomposed, referring, chain)
-    : O.some(uncovered(referring, rule.chainUnresolvable));
+const verdictFor =
+  (
+    introductionsByHead: R.ReadonlyRecord<string, ReadonlyArray<LocatedTerm>>,
+    remaining: MutableRef.MutableRef<number>
+  ) =>
+  (
+    terms: ReadonlyArray<LocatedTerm>,
+    decomposed: HashSet.HashSet<number>,
+    referring: LocatedTerm,
+    chain: Chain
+  ): Verdict =>
+    chain.resolvable
+      ? readableVerdict(introductionsByHead, remaining)(terms, decomposed, referring, chain)
+      : O.some(uncovered(referring, rule.chainUnresolvable));
 
 /**
  * Deterministic rule policy: resolves every referring term along each dependency chain of its claim.
@@ -464,8 +474,16 @@ export const antecedentPolicy: {
   );
   const decomposed = HashSet.fromIterable(A.map(trees, ({ claimNumber }) => claimNumber));
   const terms = A.sort(A.flatMap(trees, locatedTerms), locatedOrder);
+  // Both indexes are built once in the existing global term order. A verdict
+  // reads only its chain's term buckets; outside-chain lookup retains global
+  // first-candidate semantics through the head bucket.
   const remaining = MutableRef.make(MAX_CHAIN_WORK);
   const termWork = MutableRef.make(Num.min(MAX_TERM_WORK, MAX_CHAIN_WORK + terms.length * TERM_WORK_PER_TERM));
+  // Reserve the filter and both complete linear index passes before allocating any buckets.
+  // Effect Array.groupBy mutates local buckets in place, without growing copies.
+  const indexesComplete = spendChainWork(termWork, terms.length * 3);
+  const termsByClaim = indexesComplete ? A.groupBy(terms, ({ claimNumber }) => `${claimNumber}`) : {};
+  const introductionsByHead = indexesComplete ? A.groupBy(A.filter(terms, isIntroducing), ({ term }) => term.head) : {};
   const ranked = A.flatMap(trees, (tree): ReadonlyArray<Ranked> => {
     const referringTerms = A.filter(locatedTerms(tree), (term) => isReferring(term) && !isIdiom(term));
     if (referringTerms.length === 0) return [];
@@ -475,6 +493,8 @@ export const antecedentPolicy: {
       chain,
       finding,
     });
+    if (!indexesComplete)
+      return A.map(referringTerms, (referring) => rank(referring, [], uncovered(referring, rule.chainWorkLimit)));
     return pipe(
       HashMap.get(claimIndex, tree.claimNumber),
       O.match({
@@ -488,10 +508,23 @@ export const antecedentPolicy: {
           return A.flatMap(referringTerms, (referring) => {
             let findings: ReadonlyArray<Ranked> = [];
             for (const chain of chains) {
-              // Each verdict filters all terms and tests membership in this path.
-              if (!spendChainWork(termWork, (terms.length + 1) * (chain.claims.length + 1)))
+              const termCount = A.reduce(
+                chain.claims,
+                0,
+                (count, claimNumber) => count + O.getOrElse(R.get(termsByClaim, `${claimNumber}`), () => []).length
+              );
+              // Reserve bucket copying, introduction filtering, the three
+              // matching passes and candidate output copying before allocation.
+              // Membership is already guaranteed by the selected buckets.
+              // The depth-squared allowance covers sorting and de-duplication
+              // while preserving global claim/anchor candidate order.
+              const work = (termCount + 1) * 6 + chain.claims.length ** 2;
+              if (!spendChainWork(termWork, work))
                 return [rank(referring, [], uncovered(referring, rule.chainWorkLimit))];
-              const finding = verdictFor(terms, decomposed, referring, chain);
+              const chainTerms = A.flatMap(A.dedupe(A.sort(chain.claims, Num.Order)), (claimNumber) =>
+                O.getOrElse(R.get(termsByClaim, `${claimNumber}`), () => [])
+              );
+              const finding = verdictFor(introductionsByHead, termWork)(chainTerms, decomposed, referring, chain);
               if (O.isSome(finding)) {
                 if (!spendChainWork(remaining, findings.length + 1))
                   return [rank(referring, [], uncovered(referring, rule.chainWorkLimit))];

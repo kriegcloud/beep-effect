@@ -95,3 +95,14 @@ After exact-head readiness, run the supported classic monitor to obtain the
 genuine head-bound verdict, retain its bytes and digest, then use the pinned
 merge gate before completion refresh. Never synthesize or hand-edit a green
 verdict.
+
+### Pair adversarial bounds with representative workload controls
+
+External review `119056419884` identified one P1 and two P2 compatibility
+regressions after the first repair: ordinary long Word XML exceeded the shared
+node cap, unused media consumed the XML expansion budget, and larger claim sets
+exhausted a term budget whose per-verdict charge grew with the whole input.
+Existing small positive controls and adversarial bounds missed these cases.
+Add realistic long-document, ignored-media and multi-dozen-claim controls beside
+the security probes, and charge actual selected work. The earlier independent
+source review is retained as historical evidence, superseded by these findings.

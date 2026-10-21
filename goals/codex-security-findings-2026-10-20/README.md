@@ -74,8 +74,14 @@ post-merge and exact-ID bound. See the lane reports for runtime and scanner limi
 
 The same-PR reflection is retained at
 `history/reflections/2026-10-21-codex.md` as an interim `todo-codify` record.
-It does not declare completion. Final reflection and `completed-retained`
-status require the actual merge, merged-revision verification and exact-ID
-closure receipts; those acceptance criteria cannot truthfully be pre-recorded.
-Record the post-merge closeout addendum and status flip together when those
-criteria are met, following the governing goal workflow.
+It does not declare completion. The manifest carries prospective closeout for
+PR #1930 while operative lifecycle remains active. After actual merge,
+merged-revision proof and exact-ID closure, retain the final addendum and genuine
+head-bound Yeet readiness verdict, then run:
+
+```sh
+bun run beep goals completion refresh --slug codex-security-findings-2026-10-20
+```
+
+The clone-scoped receipt derives `completed-retained` without a second PR or a
+premature tracked status flip. See `goals/README.md` for the completion contract.

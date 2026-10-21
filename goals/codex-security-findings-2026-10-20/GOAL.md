@@ -52,3 +52,8 @@ Rules:
 Stop if the signed-in CSV export is unavailable, tracked evidence contains secret
 or raw-path material, a fix needs an out-of-packet architecture decision, or the
 same blocker repeats after reasonable investigation.
+
+The manifest proposes closeout for PR #1930. Resume its outstanding gates rather
+than treating that proposal as completion. After merge, merged proof and exact-ID
+closure, retain the genuine final-head merge-ready Yeet verdict and run
+`bun run beep goals completion refresh --slug codex-security-findings-2026-10-20`.

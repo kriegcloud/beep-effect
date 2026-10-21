@@ -1,36 +1,47 @@
 # Working state
 
-## Current handoff — 2026-10-21 05:22 UTC
+## Current handoff — 2026-10-21 05:35 UTC
 
-PR [#1930](https://github.com/beep-effect/beep-effect/pull/1930) is open and ready.
-The remote head is `8f8790915661906c9d272c6e854faced362a8d52`; prerequisite
-main `426d494b3433ccddf797a2d896984f1ad23c81ad` is integrated.
+PR #1930 is open and ready at `e3c548ea5839cd468c95f8e77bb2c0524205c647`.
+Catalog follow-up publication passed all gates and the clean-install preflight.
+The main prerequisite remains integrated. The external Reviewer App completed
+check `119056419884` with a real 3/5, L3, P0 0/P1 1/P2 2 and three valid
+compatibility findings. The prior independent 4/5 source result is historical
+and superseded by this additional evidence; the current head is blocked.
 
-All first-review source repairs and canonical property registration are pushed.
-Collected publication gates and clean-install preflight passed. All four review
-threads are resolved. The independently bound source review records actual
-confidence 4/5, tier L3 and no actionable introduced P0/P1/P2; its COMMENT review
-was posted through the required App. A later external controller review is now
-in progress and must be allowed to report its actual result.
+Round-two source is repaired and frozen. DOCX expands only consumed parts, with
+bounded first-existing relationship selection, scaled XML events and actual
+selected-byte/depth limits. Actual prior-source controls failed; final Node/V8
+passes 44 tests including referenced media and dense relationships, with final
+service coverage 93.71% statements/90.14% branches/88.37% functions/95.62% lines.
+Default package verification and the global schema/Effect test gates pass.
 
-Hosted Repo Sanity job `119051831298` found a stale PDF schema catalog. Canonical
-catalog write and read-only verification pass (8,246 entries, 145 shards), with
-exactly one generated PDF description update. No production code or quality
-baseline changed. Publish this correction with its proof and packet receipts as
-one follow-up wave, then bind the independent review to that exact head.
+Claim evaluation now pre-reserves three term passes for complete indexes, uses
+chain-local buckets and charged global-head lookup, and replaces eager tail copies with lazy access.
+The ceiling is unchanged. Final Node/V8 passes 208 tests; policy coverage is
+100% branches, 99.30% lines, 99.40% statements and 98.73% functions, above every
+original floor. Default package verification, strict/root lint and global schema/
+Effect test gates pass. Combined Fallow passes with zero introduced findings and one inherited JPEG
+helper advisory. Publish one repair wave after final independent head binding.
 
-Readiness job `6e59e9bd-f470-4608-82bf-1c011cdd5ca0` remains running; job wait
-returned exit 2 for the Repo Sanity wave. Reuse that same job after publication.
-The older `5a634b17-4a8e-4ce2-a99c-079e7ba96907` ended and is not active.
+Exact thread bindings: DOCX node `PRRT_kwDOPbO_N86uosA4` / comment 4333365292;
+DOCX media `PRRT_kwDOPbO_N86uosA9` / comment 4333365298; claim term allowance
+`PRRT_kwDOPbO_N86uosBA` / comment 4333365301. All three are tracked by matching
+thread-URL inbox acknowledgements, as is the failed App check. They remain open
+until the consolidated repair is pushed and answered through Yeet.
 
-The packet ships prospective closeout and reflection while operative lifecycle
-stays active. After readiness, use the supported classic monitor to retain an
-actual head-bound merge-ready verdict at the declared path; the detached loop
-does not write one. Use the pinned merge gate, verify the merged revision, then
-close the exact eight Cloud and 123 captured Dependabot IDs. Only after those
-receipts exist, run goal completion refresh for clone-scoped derived completion.
-No second PR is required. No external finding status has changed. Preserve both
-recovery stashes; the prerequisite heartbeat was already removed.
+Readiness job `6e59e9bd-f470-4608-82bf-1c011cdd5ca0` stays running; job wait
+returned exit 2 for the new review wave. Reuse this same job after the repair.
+Final-head workflow `39549736294` is active; obsolete `39548432431` was canceled
+to release its successor. Do not create duplicate monitors or complete another
+controller's App check. No external finding status has changed.
+
+After final readiness, obtain the genuine exact-head classic-monitor verdict,
+retain its bytes/digest, use pinned merge-gate without automatic sweep, verify
+the merged revision, then close exact eight Cloud and 123 Dependabot IDs. Only
+after these receipts exist, refresh the proposed goal completion receipt. Retain
+one combined fix PR, active operative lifecycle and the reflection/proposal.
+Preserve both original stashes; the prerequisite heartbeat was removed.
 
 ## Historical execution ledger
 

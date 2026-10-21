@@ -27,6 +27,7 @@ import type {
   ExtractFileOperation,
 } from "@beep/file-processing/Operation";
 import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
+import type { UnzipFile } from "fflate";
 
 /**
  * Version of the canonical text emitted by the JS-native document extractor.
@@ -166,7 +167,7 @@ const extractPdf = Effect.fn("DocTextFileProcessingEngine.extractPdf")(function*
 const DOCX_MAX_SOURCE_BYTES = 20 * 1024 * 1024;
 const DOCX_MAX_EXPANDED_BYTES = 8 * 1024 * 1024;
 const DOCX_MAX_ENTRIES = 512;
-const DOCX_MAX_XML_NODES = 50_000;
+const DOCX_MAX_XML_NODES = 1_000_000;
 const DOCX_MAX_XML_DEPTH = 128;
 const DOCX_COMPRESSED_CHUNK_BYTES = 1_024;
 
@@ -177,21 +178,25 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
       let total = 0;
       let entries = 0;
       let completed = 0;
+      let started = 0;
       let nodes = 0;
+      // Ordinary run-heavy XML averages more than eight bytes per charged
+      // event. Scale with the consumed-XML byte budget, capped at one million.
+      const maxNodes = Math.max(1, Math.min(DOCX_MAX_XML_NODES, Math.floor(maxBytes / 8)));
       let files = R.empty<string, Uint8Array>();
+      let members = R.empty<string, UnzipFile>();
+      let relationships = R.empty<string, Readonly<Record<string, string>>>();
       const names = MutableHashSet.empty<string>();
-      const xmlParts = MutableHashSet.empty<string>();
-      const parsedParts = MutableHashSet.empty<string>();
       const exceeded = () => {
         throw makeDocTextError("input-limit");
       };
       const chargeNode = () => {
-        if (++nodes > DOCX_MAX_XML_NODES) exceeded();
+        if (++nodes > maxNodes) exceeded();
       };
       const unzip = new Unzip((file) => {
         if (++entries > DOCX_MAX_ENTRIES) exceeded();
-        // JSZip resolves dot segments and empty components when loading names.
-        // Reject aliases so it cannot overwrite a validated part after repacking.
+        // Validate every name, including ignored media, before Mammoth can see
+        // the repack. JSZip normalizes these aliases and may overwrite a part.
         if (
           MutableHashSet.has(names, file.name) ||
           Str.startsWith("/")(file.name) ||
@@ -202,6 +207,34 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
           throw makeDocTextError("extraction");
         }
         MutableHashSet.add(names, file.name);
+        members = R.set(members, file.name, file);
+        // Deferred start retains compressed source chunks, bounded by the
+        // source limit. Ignored members are never inflated or repacked.
+      });
+      unzip.register(UnzipInflate);
+      for (let offset = 0; offset < bytes.byteLength; offset += DOCX_COMPRESSED_CHUNK_BYTES) {
+        unzip.push(
+          bytes.subarray(offset, offset + DOCX_COMPRESSED_CHUNK_BYTES),
+          offset + DOCX_COMPRESSED_CHUNK_BYTES >= bytes.byteLength
+        );
+      }
+      if (entries === 0) throw makeDocTextError("extraction");
+
+      // Match Mammoth's literal joinPath: strip exactly one leading slash for
+      // absolute targets; never normalize dots, repeated slashes or escapes.
+      const resolveTarget = (name: string, target: string) => {
+        const base = Str.replace(/(?:^|\/)_rels\/[^/]*$/, "")(name);
+        return Str.startsWith("/")(target) ? Str.slice(1)(target) : Str.isEmpty(base) ? target : `${base}/${target}`;
+      };
+      const relationshipTypes = A.map(
+        ["officeDocument", "comments", "endnotes", "footnotes", "numbering", "styles"],
+        (part) => `http://schemas.openxmlformats.org/officeDocument/2006/relationships/${part}`
+      );
+      const readPart = (name: string): Readonly<Record<string, string>> => {
+        const cached = relationships[name];
+        if (cached !== undefined) return cached;
+        const file = members[name];
+        if (file === undefined) return R.empty();
         if (file.originalSize !== undefined && file.originalSize > maxBytes - total) exceeded();
         let chunks: ReadonlyArray<Uint8Array> = [];
         file.ondata = (error, data, final) => {
@@ -209,68 +242,40 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
           total += data.byteLength;
           if (total > maxBytes) exceeded();
           chunks = A.append(chunks, data);
-          if (!final) return;
-          ++completed;
-          files = R.set(files, file.name, Buffer.concat(chunks));
-          if (Str.endsWith(".xml")(file.name) || Str.endsWith(".rels")(file.name)) {
-            MutableHashSet.add(xmlParts, file.name);
-          }
+          if (final) ++completed;
         };
+        ++started;
+        // Deferred UnzipInflate replays the same <=1024-byte compressed chunks;
+        // actual output is charged before retaining a chunk, even for forged sizes.
         file.start();
-      });
-      unzip.register(UnzipInflate);
-      // UnzipInflate uses streaming Inflate, which retains only its history and
-      // incomplete compressed token. A small push bounds temporary output even
-      // when the local or central uncompressed-size declaration is dishonest.
-      for (let offset = 0; offset < bytes.byteLength; offset += DOCX_COMPRESSED_CHUNK_BYTES) {
-        unzip.push(
-          bytes.subarray(offset, offset + DOCX_COMPRESSED_CHUNK_BYTES),
-          offset + DOCX_COMPRESSED_CHUNK_BYTES >= bytes.byteLength
-        );
-      }
-      if (entries === 0 || entries !== completed) throw makeDocTextError("extraction");
-
-      // Mammoth follows these relationship types regardless of the target's
-      // extension. Discover them from validated relationship parts rather than
-      // guessing whether arbitrary binary members look like XML.
-      const xmlRelationshipTypes = ["officeDocument", "comments", "endnotes", "footnotes", "numbering", "styles"];
-      const rememberRelationship = (name: string, type: string | undefined, target: string | undefined) => {
-        if (
-          type === undefined ||
-          target === undefined ||
-          !A.some(
-            xmlRelationshipTypes,
-            (part) => type === `http://schemas.openxmlformats.org/officeDocument/2006/relationships/${part}`
-          )
-        )
-          return;
-        // Mammoth's joinPath concatenates relative targets, resets the
-        // base for an absolute target, then strips exactly one leading /.
-        // JSZip.file(name) is an exact lookup: it does not resolve .., .,
-        // repeated slashes or percent escapes in relationship targets.
-        const base = Str.replace(/(?:^|\/)_rels\/[^/]*$/, "")(name);
-        const targetName = Str.startsWith("/")(target)
-          ? Str.slice(1)(target)
-          : Str.isEmpty(base)
-            ? target
-            : `${base}/${target}`;
-        MutableHashSet.add(xmlParts, targetName);
-      };
-      const parsePart = (name: string) => {
-        const content = files[name];
-        if (content === undefined) return;
-        // Match Mammoth's UTF-8 read and office-xml-reader BOM stripping.
-        // Do not transcode parts: that would change canonical extraction text.
+        if (started !== completed) throw makeDocTextError("extraction");
+        const content = Buffer.concat(chunks);
+        files = R.set(files, name, content);
         const text = Str.replace(/^\uFEFF+/, "")(new TextDecoder("utf-8", { fatal: true }).decode(content));
+        let targets = R.empty<string, string>();
         let depth = 0;
-        const parser = new SaxesParser({ xmlns: false });
+        const rememberTarget = (type: string, target: string) => {
+          // Mammoth chooses the first existing target for each fixed type.
+          // Inventory is complete, so retain at most six values instead of
+          // repeatedly copying growing target arrays or arbitrary-type maps.
+          if (!A.contains(relationshipTypes, type) || targets[type] !== undefined) return;
+          const resolved = resolveTarget(name, target);
+          if (MutableHashSet.has(names, resolved)) targets = R.set(targets, type, resolved);
+        };
+        const parser = new SaxesParser({ xmlns: true });
         parser.on("doctype", exceeded);
         parser.on("opentag", (tag) => {
           chargeNode();
           if (++depth > DOCX_MAX_XML_DEPTH) exceeded();
-          if (!Str.endsWith(".rels")(name) || !(tag.name === "Relationship" || Str.endsWith(":Relationship")(tag.name)))
+          if (
+            tag.local !== "Relationship" ||
+            tag.uri !== "http://schemas.openxmlformats.org/package/2006/relationships"
+          )
             return;
-          rememberRelationship(name, tag.attributes.Type, tag.attributes.Target);
+          const type = tag.attributes.Type?.value;
+          const target = tag.attributes.Target?.value;
+          if (type === undefined || target === undefined || depth !== 2) return;
+          rememberTarget(type, target);
         });
         parser.on("closetag", () => {
           --depth;
@@ -281,15 +286,28 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
         parser.on("comment", chargeNode);
         parser.on("processinginstruction", chargeNode);
         parser.write(text).close();
+        relationships = R.set(relationships, name, targets);
+        return targets;
       };
-      let pending = A.fromIterable(xmlParts);
-      while (pending.length > 0) {
-        for (const name of pending) {
-          MutableHashSet.add(parsedParts, name);
-          parsePart(name);
-        }
-        pending = A.filter(A.fromIterable(xmlParts), (name) => !MutableHashSet.has(parsedParts, name));
+      const selectPart = (name: string, type: string, fallback: string) =>
+        O.getOrElse(
+          O.fromUndefinedOr(
+            readPart(name)[`http://schemas.openxmlformats.org/officeDocument/2006/relationships/${type}`]
+          ),
+          () => fallback
+        );
+      const relsName = (name: string) => Str.replace(/(^|\/)([^/]*)$/, "$1_rels/$2.rels")(name);
+      readPart("[Content_Types].xml");
+      const main = selectPart("_rels/.rels", "officeDocument", "word/document.xml");
+      const mainRels = relsName(main);
+      // These are exactly the parts docx-reader reads before raw-text conversion,
+      // including extensionless/custom relationship targets and conventional fallbacks.
+      for (const type of ["comments", "endnotes", "footnotes", "numbering", "styles"]) {
+        const part = selectPart(mainRels, type, `word/${type}.xml`);
+        if (type === "comments" || type === "endnotes" || type === "footnotes") readPart(relsName(part));
+        readPart(part);
       }
+      readPart(main);
       return zipSync(files, { level: 0 });
     },
     catch: (cause) => (S.is(DocTextError)(cause) ? cause : makeDocTextError("extraction")),

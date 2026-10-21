@@ -212,3 +212,42 @@ test "$(git ls-files -- goals/codex-security-findings-2026-10-20/raw/)" = \
   valid PDFs must remain inspectable; a new linear parser's rewinds introduced
   uncertainty in the CPU bound. Reverse by reverting this review repair, which
   restores the earlier typed overflow rejection and preserves its CPU bound.
+
+- 2026-10-21: Round-two review demonstrated that DOCX node accounting over all
+  archive XML and inflation of ignored media rejected legitimate workloads.
+  Supersede the initial 50,000-node/all-entry policy with inventory-first
+  selective expansion of exactly Mammoth-consumed XML and relationship parts.
+  Retain 20 MiB source, 512 entries, depth 128, DTD rejection and 1,024-byte
+  compressed pushes. Charge selected output against min(operation allowance,
+  8 MiB), with XML events limited to max(1, min(1,000,000, floor(bytes / 8))).
+  Unused media and unrelated XML are never inflated or retained in the repack.
+  Keep only the first existing target for each of six fixed relationship types;
+  this avoids growing immutable relationship arrays and preserves Mammoth's
+  order. Actual prior-source controls fail on 20/60-page-segment XML and 10 MiB
+  media; the revised engine passes these controls, including a referenced image,
+  plus dense relationship and adversarial XML/ZIP regressions. See
+  `research/docx-review-proof.md`. Reversal restores the prior preflight and its
+  tests, retaining original security controls but also its documented workload
+  rejections; no live input or user document is changed.
+
+- 2026-10-21: Round-two claim review showed that input-scaled allowance alone
+  did not fix repeated whole-input scans. Keep the 262,144 ceiling, 8,192
+  expansion/copy units and depth 128. Pre-reserve three full term passes before
+  building complete claim and global-introduction-head indexes. Query chain-local
+  buckets with a six-pass copy/filter/match allowance plus conservative depth
+  ordering cost; separately charge the global matching-head fallback. Replace
+  eager count-classification tail copies with indexed/lazy access. An incomplete
+  index or exhausted query yields explicit abstention. First-global-candidate
+  and outside-chain semantics remain unchanged. The 10/45/100-claim controls
+  pass without a ceiling increase. See `research/claim-index-review-proof.md`
+  for actual tests, coverage and reversal.
+
+- 2026-10-21: Use the supported proposed-closeout contract from `goals/README.md`
+  rather than a premature lifecycle flip. The final fix PR carries reflection
+  and `proposedCloseout`; operative status stays active. After exact-head hosted
+  readiness, retain the genuine classic-monitor verdict and digest, merge
+  through the pinned gate, verify merged source, and close the exact external
+  IDs. Then `goals completion refresh` writes the clone-scoped derived completion
+  receipt. The command checks merge/readiness, while exact dashboard closure
+  remains a separately verified acceptance requirement. This supersedes the
+  earlier wording about a tracked post-merge status flip and preserves one PR.

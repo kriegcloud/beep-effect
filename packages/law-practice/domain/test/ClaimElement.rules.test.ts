@@ -1,4 +1,4 @@
-import { antecedentPolicy, decomposeClaim } from "@beep/law-practice-domain/values/ClaimElement";
+import { antecedentPolicy, ClaimElementTree, decomposeClaim } from "@beep/law-practice-domain/values/ClaimElement";
 import { PatentClaim } from "@beep/law-practice-domain/values/PatentDocument";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
@@ -36,35 +36,37 @@ const generatedClaim = Arbitrary.map(
 );
 
 describe("ClaimElement rules", () => {
-  it.effect("evaluates ten ordinary multi-parent claims without spending the enumeration budget on term scans", () =>
+  it.effect("evaluates ordinary claim sets through one hundred multi-parent claims without budget abstention", () =>
     Effect.gen(function* () {
       const body = "a sensor; a controller; a housing; a lens; the sensor; the controller; the housing; the lens.";
-      const claims = A.map(
-        A.range(1, 10),
-        (claimNumber): PatentClaim =>
-          claimNumber <= 4
-            ? PatentClaim.cases.independent.make({
-                claimNumber,
-                claimText: `A system comprising: ${body}`,
-                preamble: "A system",
-                transition: "comprising",
-                body,
-              })
-            : PatentClaim.cases.dependent.make({
-                claimNumber,
-                claimReferences: [1, 2, 3, 4],
-                claimText: `The system of claims 1 through 4 wherein ${body}`,
-                preamble: "The system of claims 1 through 4",
-                transition: "wherein",
-                body,
-              })
-      );
-      const trees = yield* Effect.forEach(claims, (claim) => decomposeClaim(claim, claims));
-      const findings = antecedentPolicy(trees, claims);
-      assert.isTrue(A.isReadonlyArrayNonEmpty(findings));
-      assert.isTrue(A.every(findings, ({ rule }) => rule !== "chain-work-limit"));
-      assert.isTrue(A.some(findings, ({ kind }) => kind === "ambiguous-antecedent"));
-      assert.deepStrictEqual(antecedentPolicy(trees, claims), findings);
+      for (const claimCount of [10, 45, 100]) {
+        const claims = A.map(
+          A.range(1, claimCount),
+          (claimNumber): PatentClaim =>
+            claimNumber <= 4
+              ? PatentClaim.cases.independent.make({
+                  claimNumber,
+                  claimText: `A system comprising: ${body}`,
+                  preamble: "A system",
+                  transition: "comprising",
+                  body,
+                })
+              : PatentClaim.cases.dependent.make({
+                  claimNumber,
+                  claimReferences: [1, 2, 3, 4],
+                  claimText: `The system of claims 1 through 4 wherein ${body}`,
+                  preamble: "The system of claims 1 through 4",
+                  transition: "wherein",
+                  body,
+                })
+        );
+        const trees = yield* Effect.forEach(claims, (claim) => decomposeClaim(claim, claims));
+        const findings = antecedentPolicy(trees, claims);
+        assert.isTrue(A.isReadonlyArrayNonEmpty(findings));
+        assert.isTrue(A.every(findings, ({ rule }) => rule !== "chain-work-limit"));
+        assert.isTrue(A.some(findings, ({ kind }) => kind === "ambiguous-antecedent"));
+        assert.deepStrictEqual(antecedentPolicy(trees, claims), findings);
+      }
     })
   );
 
@@ -185,13 +187,20 @@ describe("ClaimElement rules", () => {
 
   it.effect("caps evaluation work across large inputs and resets the budget for a new invocation", () =>
     Effect.gen(function* () {
-      const claims = A.map(A.range(1, 512), (claimNumber) =>
+      const body = `${A.join(
+        A.map(
+          A.range(1, 32),
+          (number) => `a sensor${number}; and a controller${number} coupled to the sensor${number}`
+        ),
+        "; "
+      )}.`;
+      const claims = A.map(A.range(1, 64), (claimNumber) =>
         PatentClaim.cases.independent.make({
           claimNumber,
-          claimText: "A system comprising a sensor; and a controller coupled to the sensor.",
+          claimText: `A system comprising ${body}`,
           preamble: "A system",
           transition: "comprising",
-          body: "a sensor; and a controller coupled to the sensor.",
+          body,
         })
       );
       const trees = yield* Effect.forEach(claims, (claim) => decomposeClaim(claim, claims));
@@ -203,6 +212,87 @@ describe("ClaimElement rules", () => {
       );
       assert.deepStrictEqual(antecedentPolicy(trees, claims), findings);
       for (const tree of trees) assert.deepStrictEqual(antecedentPolicy([tree], claims), []);
+    })
+  );
+
+  it.effect("abstains before building indexes when the complete index reservation exceeds the ceiling", () =>
+    Effect.gen(function* () {
+      const body = `${A.join(A.replicate("a sensor", 131_072), ";")} the sensor`;
+      const claim = PatentClaim.cases.independent.make({
+        claimNumber: 1,
+        claimText: body,
+        preamble: "a sensor",
+        transition: "comprising",
+        body,
+      });
+      const tree = yield* S.decodeUnknownEffect(ClaimElementTree)({
+        claimNumber: 1,
+        producer: "rule",
+        elements: [
+          {
+            path: "1",
+            kind: "preamble-subject",
+            anchor: { startChar: 0, endChar: body.length, quote: body },
+            terms: A.append(
+              A.map(A.range(0, 131_071), (index) => ({
+                anchor: { startChar: index * 9, endChar: index * 9 + 8, quote: "a sensor" },
+                determiner: "a",
+                head: "sensor",
+              })),
+              {
+                anchor: { startChar: 131_072 * 9, endChar: body.length, quote: "the sensor" },
+                determiner: "the",
+                head: "sensor",
+              }
+            ),
+          },
+        ],
+        edges: [],
+      });
+      const findings = antecedentPolicy([tree], [claim]);
+      assert.deepStrictEqual(
+        A.map(findings, ({ rule }) => rule),
+        ["chain-work-limit"]
+      );
+      assert.deepStrictEqual(antecedentPolicy([tree], [claim]), findings);
+    })
+  );
+
+  it.effect("bounds global outside-chain candidate scans while preserving their first-candidate order", () =>
+    Effect.gen(function* () {
+      const introducedBody = `${A.join(A.replicate("a sensor", 50), "; ")}.`;
+      const referringBody = `${A.join(A.replicate("the sensor", 32), "; ")}.`;
+      const claims = A.append(
+        A.map(A.range(1, 100), (claimNumber) =>
+          PatentClaim.cases.independent.make({
+            claimNumber,
+            claimText: `A system comprising ${introducedBody}`,
+            preamble: "A system",
+            transition: "comprising",
+            body: introducedBody,
+          })
+        ),
+        PatentClaim.cases.independent.make({
+          claimNumber: 101,
+          claimText: `A system comprising ${referringBody}`,
+          preamble: "A system",
+          transition: "comprising",
+          body: referringBody,
+        })
+      );
+      const trees = yield* Effect.forEach(claims, (claim) => decomposeClaim(claim, claims));
+      const findings = antecedentPolicy(trees, claims);
+      const outside = A.filter(findings, (finding) => finding.kind === "antecedent-outside-chain");
+      assert.isTrue(A.isReadonlyArrayNonEmpty(outside));
+      const firstTerm = O.getOrThrow(
+        A.findFirst(
+          A.flatMap(A.headNonEmpty(trees).elements, (element) => element.terms),
+          (term) => term.head === "sensor"
+        )
+      );
+      for (const finding of outside) assert.deepStrictEqual(finding.introducing.anchor, firstTerm.anchor);
+      assert.isTrue(A.some(findings, ({ rule }) => rule === "chain-work-limit"));
+      assert.deepStrictEqual(antecedentPolicy(trees, claims), findings);
     })
   );
 
