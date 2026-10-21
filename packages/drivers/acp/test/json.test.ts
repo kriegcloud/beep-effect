@@ -1,4 +1,4 @@
-import { Json as AcpJson } from "@beep/acp";
+import * as AcpJson from "@beep/acp/json";
 import { fcRuns } from "@beep/test-utils";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";

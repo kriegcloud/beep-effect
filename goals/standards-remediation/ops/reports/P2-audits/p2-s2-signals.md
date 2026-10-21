@@ -146,8 +146,9 @@ as exceptions; disposition `unconvertible`, evidence per entry:
   (`packages/foundation/ui-system/editor/src/chat/atoms.ts:440-442`).
 - `AcpTerminal`, `MakeTerminalOptions` — live remote-terminal-process handles
   (`kill`/`output`/`release`/`waitForExit` over an ACP session) — the
-  "processes" example from the SPEC, verbatim
-  (`packages/drivers/acp/src/AcpTerminal.models.ts:26-45,61-68`).
+  "processes" example from the SPEC, verbatim. (Both were removed with the
+  ACP v2 port, which deleted the terminal module; see "Breaking changes" in
+  `packages/drivers/acp/README.md`.)
 
 ### ui-component-contracts (2, folds into service-contracts ruling)
 
