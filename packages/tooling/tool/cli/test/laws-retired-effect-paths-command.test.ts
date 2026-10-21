@@ -96,6 +96,7 @@ it.layer(PlatformLayer, { timeout: "120 seconds" })((it) => {
           "packages/x/test/a.test.ts": `export const docs = "${ORIGIN}/docs";\n`,
           "goals/x/history/brief.md": `see ${RETIRED_IRI}\n`,
           "docs/untracked.md": `see ${RETIRED_IRI}\n`,
+          "docs/deleted.md": `see ${RETIRED_IRI}\n`,
         };
         for (const [file, content] of R.toEntries(files)) {
           yield* fs.makeDirectory(path.dirname(path.join(root, file)), { recursive: true });
@@ -109,8 +110,11 @@ it.layer(PlatformLayer, { timeout: "120 seconds" })((it) => {
             "packages/x/src/a.ts",
             "packages/x/test/a.test.ts",
             "goals/x/history/brief.md",
+            "docs/deleted.md",
           ])
         ).toBe(0);
+        // A tracked file deleted from the working tree is skipped, not an error.
+        yield* fs.remove(path.join(root, "docs/deleted.md"));
 
         const strict = yield* runRetiredIriAuthorities(
           RetiredIriAuthoritiesOptions.make({ cwd: root, strictCheck: true })

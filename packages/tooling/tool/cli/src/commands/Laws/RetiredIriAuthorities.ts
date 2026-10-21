@@ -104,10 +104,11 @@ const byPosition = Order.combine(
 );
 
 const collectMatches = (content: string, pattern: RegExp): ReadonlyArray<RawMatch> =>
-  A.map(A.fromIterable(F.pipe(content, Str.matchAll(pattern))), (match) => ({
-    index: match.index ?? 0,
-    text: match[0],
-  }));
+  A.getSomes(
+    A.map(A.fromIterable(F.pipe(content, Str.matchAll(pattern))), (match) =>
+      O.map(O.fromNullishOr(match.index), (index) => ({ index, text: match[0] }))
+    )
+  );
 
 /** `//` as written, JSON-escaped (`\/\/`), or percent-encoded (`%2F%2F`, any case): the match is an IRI, not prose. */
 const AUTHORITY_SEPARATOR_PATTERN = /\/\/|\\\/\\\/|%2F%2F/iu;
@@ -144,11 +145,7 @@ const toFinding =
 
 const directorySegments = (file: string): ReadonlyArray<string> => A.dropRight(Str.split("/")(file), 1);
 
-const basename = (file: string): string =>
-  F.pipe(
-    A.last(Str.split("/")(file)),
-    O.getOrElse(() => file)
-  );
+const basename = (file: string): string => A.lastNonEmpty(Str.split("/")(file));
 
 const hasAnyPrefix = (file: string, prefixes: ReadonlyArray<string>): boolean =>
   A.some(prefixes, (prefix) => F.pipe(file, Str.startsWith(prefix)));

@@ -11,7 +11,9 @@ archive hashes, concept counts, lookups and M1 same-manifest regression.
 > with paths and version unchanged (goal `public-origin-beep-effect-com`, D1 and D6). This is
 > the one deliberate exception to the no-re-point rule below: nothing durable was minted under
 > the placeholder, so the old IRIs are retired rather than deprecated. A pin recorded before
-> 2026-10-20 resolves to the same notation under the new authority.
+> 2026-10-20 resolves to the same notation under the new authority, but there is no alias or
+> rebase map: a consumer that retained a resolved IRI must replace it with the newly minted
+> value. A version pin alone does not perform that replacement.
 
 Load `ClassificationRegistry.load(manifestPath, vendorRoot, pin)` with an explicit
 `ClassificationPin` containing `kind` and `edition`. The pinned editions are

@@ -63,7 +63,11 @@ type FileOutcome<Finding> = {
  */
 export const lineStartOffsets = (content: string): ReadonlyArray<number> =>
   A.prepend(
-    A.map(A.fromIterable(F.pipe(content, Str.matchAll(NEWLINE_PATTERN))), (match) => (match.index ?? 0) + 1),
+    A.getSomes(
+      A.map(A.fromIterable(F.pipe(content, Str.matchAll(NEWLINE_PATTERN))), (match) =>
+        O.map(O.fromNullishOr(match.index), (index) => index + 1)
+      )
+    ),
     0
   );
 

@@ -235,6 +235,27 @@ describe("retired IRI authority law", () => {
       })
     );
 
+    it.effect("orders findings of both rules on one line by column", () =>
+      Effect.sync(() => {
+        const findings = scanRetiredIriAuthorityFile(
+          "packages/x/src/a.ts",
+          `export const docs = "${ORIGIN}/docs"; // was https://${DEV_HOST}/docs\n`
+        );
+        expect(A.map(findings, (finding) => [finding.rule, finding.line])).toEqual([
+          ["public-origin-literal", 1],
+          ["retired-authority", 1],
+        ]);
+      })
+    );
+
+    it.effect("parses JSX and plain JavaScript sources with their own script kinds", () =>
+      Effect.sync(() => {
+        const literal = `export const docs = "${ORIGIN}/docs";\n`;
+        expect(A.length(scanPublicOriginLiterals("packages/x/src/a.jsx", literal))).toBe(1);
+        expect(A.length(scanPublicOriginLiterals("packages/x/src/a.mjs", literal))).toBe(1);
+      })
+    );
+
     it.effect("reports the origin in template heads, middles, tails, and no-substitution templates", () =>
       Effect.sync(() => {
         const source = joinLines([
