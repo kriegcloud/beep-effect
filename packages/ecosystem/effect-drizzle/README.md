@@ -182,14 +182,16 @@ import { camelCase, snakeCase } from "effect/String"
 
 const DatabaseLayer = makeLayer({
   transformQueryNames: snakeCase,
-  transformResultNames: camelCase
+  transformResultNames: camelCase,
+  transformJson: false
 })
 ```
 
 Without these transforms every multi-word field misses its column. Every field key must survive
 `camelCase(snakeCase(key))` unchanged: acronym keys such as `userID` and snake_case keys make
-repository construction throw. On PostgreSQL clients the transforms also rewrite keys inside JSON
-values unless the client sets `transformJson: false`.
+repository construction throw. Keep `transformJson: false`: without it, PostgreSQL clients also
+rewrite keys inside JSON values, so a repository read renames `jsonb` keys that Drizzle returns
+unchanged, and a following update writes the renamed keys back.
 
 One transformed client can serve Drizzle and the repositories together. Drizzle's Effect sessions
 read rows without the client's transforms and build their own SQL text, so both share one database
@@ -9136,7 +9138,8 @@ const program = gen(function*() {
 
 const NamedClientLayer = makeLayer({
   transformQueryNames: snakeCase,
-  transformResultNames: camelCase
+  transformResultNames: camelCase,
+  transformJson: false
 })
 
 await runPromise(provide(program, NamedClientLayer))
@@ -9154,7 +9157,7 @@ await runPromise(provide(program, NamedClientLayer))
 declare const makeNativeRepository: { <const Id extends string>(options: { readonly spanPrefix: string; readonly idColumn: Id; }): <const M extends RepositoryModel>(model: M & ValidateNativeModel<M> & ValidateColumnNames<M> & ValidateLocator<M, Id>) => Effect<NativeRepository<M, Id & IdKey<M>>, never, SqlClient>; <const M extends RepositoryModel, const Id extends IdKey<M>>(options: { readonly spanPrefix: string; readonly idColumn: Id; }): (model: M & ValidateNativeModel<M> & ValidateColumnNames<M>) => Effect<NativeRepository<M, Id>, never, SqlClient>; <const M extends RepositoryModel, const Id extends IdKey<M>>(model: M & ValidateNativeModel<M> & ValidateColumnNames<M>, options: { readonly spanPrefix: string; readonly idColumn: Id; }): Effect<NativeRepository<M, Id>, never, SqlClient>; }
 ```
 
-[Source](https://github.com/beep-effect/beep-effect/tree/main/packages/ecosystem/effect-drizzle/src/core/repository.ts#L615)
+[Source](https://github.com/beep-effect/beep-effect/tree/main/packages/ecosystem/effect-drizzle/src/core/repository.ts#L618)
 
 ##### makeRepository
 
@@ -9188,8 +9191,9 @@ must set `transformQueryNames: snakeCase` and
 its column. Every field
 key must survive `camelCase(snakeCase(key))` unchanged, so acronym keys such
 as `userID` and snake_case keys throw `ModelInvariantError` at
-construction. On PostgreSQL clients the transforms also rewrite keys inside
-JSON values unless the client sets `transformJson: false`.
+construction. Set `transformJson: false` as well: otherwise PostgreSQL
+clients also rewrite keys inside JSON values, and an update writes the
+renamed keys back.
 
 Do not pass a `version()` model to `effect/sql/SqlModel` directly. Its
 `update` matches by id only, so a stale write succeeds and silently
@@ -9231,7 +9235,8 @@ const program = gen(function*() {
 
 const RepositoryClientLayer = makeLayer({
   transformQueryNames: snakeCase,
-  transformResultNames: camelCase
+  transformResultNames: camelCase,
+  transformJson: false
 })
 
 await runPromise(provide(program, RepositoryClientLayer))
@@ -9249,7 +9254,7 @@ await runPromise(provide(program, RepositoryClientLayer))
 declare const makeRepository: { <const Id extends string>(options: { readonly spanPrefix: string; readonly idColumn: Id; }): <const M extends RepositoryModel>(model: M & ValidateVersionModel<M> & ValidateColumnNames<M> & ValidateLocator<M, Id>) => Effect<Repository<M, Id & IdKey<M>>, never, SqlClient>; <const M extends RepositoryModel, const Id extends IdKey<M>>(options: { readonly spanPrefix: string; readonly idColumn: Id; }): (model: M & ValidateVersionModel<M> & ValidateColumnNames<M>) => Effect<Repository<M, Id>, never, SqlClient>; <const M extends RepositoryModel, const Id extends IdKey<M>>(model: M & ValidateVersionModel<M> & ValidateColumnNames<M>, options: { readonly spanPrefix: string; readonly idColumn: Id; }): Effect<Repository<M, Id>, never, SqlClient>; }
 ```
 
-[Source](https://github.com/beep-effect/beep-effect/tree/main/packages/ecosystem/effect-drizzle/src/core/repository.ts#L452)
+[Source](https://github.com/beep-effect/beep-effect/tree/main/packages/ecosystem/effect-drizzle/src/core/repository.ts#L454)
 
 #### repositories
 

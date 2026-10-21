@@ -394,8 +394,9 @@ const validateRepositoryModel = (model: AnyModel, idColumn: string): void => {
  * its column. Every field
  * key must survive `camelCase(snakeCase(key))` unchanged, so acronym keys such
  * as `userID` and snake_case keys throw {@link ModelInvariantError} at
- * construction. On PostgreSQL clients the transforms also rewrite keys inside
- * JSON values unless the client sets `transformJson: false`.
+ * construction. Set `transformJson: false` as well: otherwise PostgreSQL
+ * clients also rewrite keys inside JSON values, and an update writes the
+ * renamed keys back.
  *
  * Do not pass a `version()` model to `effect/sql/SqlModel` directly. Its
  * `update` matches by id only, so a stale write succeeds and silently
@@ -437,7 +438,8 @@ const validateRepositoryModel = (model: AnyModel, idColumn: string): void => {
  *
  * const RepositoryClientLayer = makeLayer({
  *   transformQueryNames: snakeCase,
- *   transformResultNames: camelCase
+ *   transformResultNames: camelCase,
+ *   transformJson: false
  * })
  *
  * await runPromise(provide(program, RepositoryClientLayer))
@@ -600,7 +602,8 @@ export const makeRepository: {
  *
  * const NamedClientLayer = makeLayer({
  *   transformQueryNames: snakeCase,
- *   transformResultNames: camelCase
+ *   transformResultNames: camelCase,
+ *   transformJson: false
  * })
  *
  * await runPromise(provide(program, NamedClientLayer))
