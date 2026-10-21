@@ -310,8 +310,8 @@ describe("stroke table", () => {
     );
     const table = strokeTableMarkdown({
       title: "Crate",
-      sheetSetSha256: "0".repeat(64),
-      specSha256: "1".repeat(64),
+      sheetSetSha256: Str.repeat(64)("0"),
+      specSha256: Str.repeat(64)("1"),
       figures: [{ figure: 1, view: "front", svg, coverage: "{}" }],
     });
     expect(table).toContain("FIG 1 (front) — 3 shading strokes");
@@ -648,7 +648,7 @@ describe("criticRunLine", () => {
       const text = yield* encodeJson({
         schemaVersion: "drawing-critic-loop/v1",
         loop: 3,
-        sheetSetSha256: "a".repeat(64),
+        sheetSetSha256: Str.repeat(64)("a"),
         runs: [
           {
             order: 1,
@@ -858,8 +858,8 @@ const seatScenario = Effect.fnUntraced(function* (name: string) {
     CriticPackManifest.make({
       schemaVersion: "drawing-critic-pack/v1",
       title: "Synthetic bracket",
-      sheetSetSha256: Sha256Hex.make("a".repeat(64)),
-      specSha256: Sha256Hex.make("b".repeat(64)),
+      sheetSetSha256: Sha256Hex.make(Str.repeat(64)("a")),
+      specSha256: Sha256Hex.make(Str.repeat(64)("b")),
       sheets: ["render/pg-1.png"],
       zooms: [],
       svgs: ["render/fig-1.svg"],
@@ -1308,8 +1308,8 @@ describe("MEASUREMENTS.md", () => {
       const measurements = CriticMeasurements.make({
         schemaVersion: "drawing-critic-measurements/v1",
         title: "Synthetic bracket",
-        sheetSetSha256: Sha256Hex.make("a".repeat(64)),
-        specSha256: Sha256Hex.make("b".repeat(64)),
+        sheetSetSha256: Sha256Hex.make(Str.repeat(64)("a")),
+        specSha256: Sha256Hex.make(Str.repeat(64)("b")),
         pdf: CriticPdfMeasurements.make({
           file: "render/sheets.pdf",
           version: "1.6",

@@ -29,6 +29,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import {
   annotationNotes,
@@ -169,7 +170,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
 
   const isWithin = (root: string, file: string): boolean => {
     const relative = path.relative(root, file);
-    return relative.length > 0 && !relative.startsWith("..") && !path.isAbsolute(relative);
+    return relative.length > 0 && !Str.startsWith("..")(relative) && !path.isAbsolute(relative);
   };
 
   const decodeJson =

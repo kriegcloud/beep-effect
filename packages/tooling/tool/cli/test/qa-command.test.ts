@@ -255,7 +255,7 @@ describe("commands/Qa JudgePack budget", () => {
   // candidate forces the selector to sacrifice its lowest-priority entry.
   const fitting = Math.floor(JUDGE_TOTAL_BUDGET_BYTES / JUDGE_PER_FILE_BUDGET_BYTES);
   const maxFrames = A.makeBy(fitting, (index) =>
-    file(`frames/drag-w0_${`${index}`.padStart(5, "0")}.png`, JUDGE_PER_FILE_BUDGET_BYTES, "frame")
+    file(`frames/drag-w0_${Str.padStart(5, "0")(`${index}`)}.png`, JUDGE_PER_FILE_BUDGET_BYTES, "frame")
   );
 
   it("sacrifices a green-scenario screenshot before any frame strip", () => {
@@ -276,7 +276,7 @@ describe("commands/Qa JudgePack budget", () => {
     expect(A.length(selection.files)).toBe(fitting);
     expect(A.map(selection.files, (value) => value.path)).toContain("failing--shot.png");
     expect(A.length(selection.dropped)).toBe(1);
-    expect(selection.dropped[0]?.path.startsWith("frames/")).toBe(true);
+    expect(Str.startsWith("frames/")(selection.dropped[0]?.path)).toBe(true);
   });
 
   it("keeps everything that fits, ordered by path", () => {
@@ -392,7 +392,7 @@ describe("commands/Qa report rendering", () => {
       const rendered = renderInventoryMarkdown(inventory);
       expect(rendered).toContain("### R4-01 — P0 —");
       expect(rendered).toContain("## Polish findings");
-      expect(rendered.endsWith("REQUIRED FINDINGS: 1\n")).toBe(true);
+      expect(Str.endsWith("REQUIRED FINDINGS: 1\n")(rendered)).toBe(true);
     })
   );
 
@@ -407,7 +407,7 @@ describe("commands/Qa report rendering", () => {
     });
     const rendered = renderInventoryMarkdown(inventory);
     expect(rendered).toContain("findings: 0 (0 required, 0 polish)");
-    expect(rendered.endsWith("REQUIRED FINDINGS: 0\n")).toBe(true);
+    expect(Str.endsWith("REQUIRED FINDINGS: 0\n")(rendered)).toBe(true);
   });
 });
 
@@ -431,8 +431,8 @@ describe("commands/Qa RoundLayout", () => {
       ],
       []
     );
-    expect(A.every(selection.files, (file) => !file.path.startsWith("clips/"))).toBe(true);
-    expect(A.every(selection.files, (file) => !file.path.startsWith("video/"))).toBe(true);
+    expect(A.every(selection.files, (file) => !Str.startsWith("clips/")(file.path))).toBe(true);
+    expect(A.every(selection.files, (file) => !Str.startsWith("video/")(file.path))).toBe(true);
     expect(layout.clipsDir).toContain("clips");
   });
 });

@@ -4958,15 +4958,15 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/qa-judge-skill.test.ts:50:provideScopedLayer@12#1",
+      "id": "EV002:packages/tooling/tool/cli/test/qa-judge-skill.test.ts:51:provideScopedLayer@12#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/qa-judge-skill.test.ts",
-      "line": 50,
-      "endLine": 50,
+      "line": 51,
+      "endLine": 51,
       "symbol": "provideScopedLayer",
-      "occurrence": "v2:1c86abfb9de54d97c53dc9ad96fae22e87b0a9c6508b205f07ba8262b8ad5ce1",
+      "occurrence": "v2:9ea3421db9c660d4e719ab74d4b0fbd2dc468d67b11439499ea61b1aeda1ea9a",
       "class": "unresolved-layer-provide",
       "evidence": "provideScopedLayer(PlatformLayer)",
       "replacement": {

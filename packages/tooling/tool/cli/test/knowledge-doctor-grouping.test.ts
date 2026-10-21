@@ -95,7 +95,10 @@ describe("knowledge doctor causal grouping", () => {
         assert.deepStrictEqual(attribution.repairTarget, O.some("docs/guide.md"));
         const rendered = renderKnowledgeDoctorHumanReport(report);
         assert.include(rendered, "blocking findings (40) under 1 root(s):");
-        assert.include(rendered, `    40 path:docs/gone.md [owned] renamed docs/gone.md in ${REMOVER.slice(0, 10)}`);
+        assert.include(
+          rendered,
+          `    40 path:docs/gone.md [owned] renamed docs/gone.md in ${Str.slice(0, 10)(REMOVER)}`
+        );
         // Advisory dependents under the same cause key stay out of the per-root blocking count.
         const mixed = renderKnowledgeDoctorHumanReport(
           KnowledgeDoctorReport.make({
@@ -144,7 +147,7 @@ describe("knowledge doctor causal grouping", () => {
         const blocking = A.length(A.filter(report.findings, (row) => row.finding.severity === "blocking"));
         const rendered = renderKnowledgeDoctorHumanReport(report);
         assert.include(rendered, `blocking findings (${blocking}) under 1 root(s):`);
-        assert.include(rendered, `${`${blocking}`.padStart(8)} goals-doctor:manifest-invalid:demo [delegated]`);
+        assert.include(rendered, `${Str.padStart(8)(`${blocking}`)} goals-doctor:manifest-invalid:demo [delegated]`);
       })
     );
 

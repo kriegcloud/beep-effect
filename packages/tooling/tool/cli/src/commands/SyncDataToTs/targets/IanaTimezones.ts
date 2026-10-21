@@ -93,7 +93,7 @@ const parseZone1970Tab = (content: string): ReadonlyArray<string> =>
     A.filter(P.isString)
   );
 
-const isTimezoneName = (name: string): boolean => name !== "posixrules" && !name.startsWith("posix/");
+const isTimezoneName = (name: string): boolean => name !== "posixrules" && !Str.startsWith("posix/")(name);
 
 const extractTimezoneNames = (entries: TzdbTextEntries): ReadonlyArray<string> => {
   const sourceTexts = pipe(
@@ -265,7 +265,7 @@ export const TimezoneNameValues = ${formatTsLiteral(A.map(values, (entry) => ent
 const acquireIanaTimezonesProjection = Effect.fn("SyncDataToTs.IanaTimezones.acquire")(function* () {
   const source = yield* fetchSource(targetId, "iana-tzdata-tarball", IANA_TZDATA_SOURCE_URL);
   const entries = yield* extractTzdbTextEntries(source.bytes);
-  const version = entries.version?.trim() ?? "unknown";
+  const version = entries.version === undefined ? "unknown" : Str.trim(entries.version);
   const values = pipe(
     extractTimezoneNames(entries),
     A.map((name) => new IanaTimezoneEntry(name))

@@ -159,7 +159,7 @@ describe("internal/cli/Json printCommandJson", () => {
   );
 
   it("emits payloads larger than 64 KiB intact in bounded stdout writes", () => {
-    const payload = { value: "x".repeat(70_000) };
+    const payload = { value: Str.repeat(70_000)("x") };
     const moduleUrl = new URL("../src/internal/cli/Json.ts", import.meta.url).href;
     const program = A.join(
       [
@@ -202,10 +202,10 @@ describe("internal/cli/Json printCommandJson", () => {
       try {
         const output = yield* CommandJsonOutput;
         yield* output("");
-        yield* output("x".repeat(20_000));
+        yield* output(Str.repeat(20_000)("x"));
 
         expect(A.map(chunks, (chunk) => chunk.byteLength)).toEqual([8_192, 8_192, 3_616]);
-        expect(Buffer.concat(chunks).toString()).toBe("x".repeat(20_000));
+        expect(Buffer.concat(chunks).toString()).toBe(Str.repeat(20_000)("x"));
       } finally {
         stdoutWrite.mockRestore();
       }

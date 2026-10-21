@@ -12,6 +12,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const expectedMarkdown = Result.getOrThrow(renderSkillMarkdown(QaJudgeContract));
@@ -46,7 +47,7 @@ describe("commands/Qa judge-skill", () => {
       );
 
       expect(A.join(chunks, "")).toBe(expectedMarkdown);
-      expect(expectedMarkdown.endsWith("\n")).toBe(false);
+      expect(Str.endsWith("\n")(expectedMarkdown)).toBe(false);
     }).pipe(provideScopedLayer(PlatformLayer))
   );
 });
