@@ -132,6 +132,9 @@
       "path": "../../packages/shared/domain/tsconfig.json"
     },
     {
+      "path": "../../packages/tooling/test-kit/memfs/tsconfig.json"
+    },
+    {
       "path": "../../packages/tooling/test-kit/test-runner/tsconfig.json"
     },
     {

@@ -1,7 +1,7 @@
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { GlobSet } from "../glob/index.ts";
+import { GlobSet } from "@beep/glob";
 import { DependencyField } from "../npm/index.ts";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

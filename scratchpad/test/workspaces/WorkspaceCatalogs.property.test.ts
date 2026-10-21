@@ -21,7 +21,7 @@ describe("WorkspaceCatalogs property floor", () => {
   roundTrip("WorkspaceCatalogsOptions", WorkspaceCatalogsOptions);
 });
 
-import { Yaml } from "../../effected/yaml/index.ts";
+import { Yaml } from "@beep/yaml";
 describe("catalog parser fidelity", () => {
   it.effect.prop("Bun's inline default overrides overlapping ranges and preserves other catalog entries", [Arbitrary.schema(S.Struct({
     recorded: S.Literals(["^3.0.0", "~3.1.0"]),

@@ -37,10 +37,10 @@
       "path": "../../packages/tooling/library/mcpb-kit/tsconfig.json"
     },
     {
-      "path": "../../packages/tooling/test-kit/test-runner/tsconfig.json"
+      "path": "../../packages/tooling/test-kit/memfs/tsconfig.json"
     },
     {
-      "path": "../../packages/tooling/test-kit/test-utils/tsconfig.json"
+      "path": "../../packages/tooling/test-kit/test-runner/tsconfig.json"
     }
   ]
 }

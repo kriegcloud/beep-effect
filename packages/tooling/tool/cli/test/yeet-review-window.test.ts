@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   collectYeetStatus,
   decideYeetReviewWindow,
@@ -21,7 +22,6 @@ import {
   yeetReviewWindowDue,
   yeetReviewWindowElapsed,
 } from "@beep/repo-cli/test/Yeet";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";

@@ -1,7 +1,7 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { exists, FsUtils, FsUtilsLive, findNearestPackageDir, walkFiles } from "@beep/repo-utils/FsUtils";
 import { normalizePath } from "@beep/schema";
 import { it as rootIt } from "@beep/test-runner";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { A, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, vi } from "@effect/vitest";

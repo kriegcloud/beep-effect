@@ -61,22 +61,29 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 };
 
 /**
- * The kit modules wave 1a of the effected promotion moved out of the lab into
- * `@beep/*` packages. Upstream reached each as a bare `@effected/*` edge and the
- * lab as a relative sibling entrypoint; promoted, each is a bare package edge
- * again, so the walker stops at it as it stops at a lab sibling. The kit modules
- * not yet promoted (`glob`, `templates`, `walker`, ...) are still lab siblings
- * reached relatively. Add a module here when it is promoted.
+ * The kit modules waves 1a and 1b of the effected promotion moved out of the lab
+ * into `@beep/*` packages (`templates` became `@beep/managed-section`). Upstream
+ * reached each as a bare `@effected/*` edge and the lab as a relative sibling
+ * entrypoint; promoted, each is a bare package edge again, so the walker stops at
+ * it as it stops at a lab sibling. The kit modules not yet promoted (`walker`,
+ * `markdown`, ...) are still lab siblings reached relatively. Add a module here
+ * when it is promoted.
  */
 const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/commands",
+	"@beep/git",
 	"@beep/github-commands",
 	"@beep/github-references",
+	"@beep/glob",
 	"@beep/jsonc",
 	"@beep/jsonl",
+	"@beep/managed-section",
+	"@beep/memfs",
 	"@beep/schema-org",
 	"@beep/semver",
 	"@beep/spdx",
+	"@beep/toml",
+	"@beep/yaml",
 ]);
 
 /** An edge to another kit module: a lab sibling entrypoint, or a promoted kit package or one of its subpaths. */
@@ -224,10 +231,10 @@ describe("bundle reachability", () => {
 		// `node:crypto` is the sanctioned import, and it is here because core
 		// `Crypto` is RNG-only at beta.101 — no digest, no HMAC.
 		// `@effected/walker` is the file walker under `matchingFiles`; its own
-		// graph is `effect` and `@effected/glob`, both already here.
+		// graph is `effect` and `@beep/glob`, both already here.
 		assert.deepStrictEqual([...reachableRuntimeImports("CacheKey.ts")].sort(), [
-			"../glob/index.ts",
 			"../walker/index.ts",
+			"@beep/glob",
 			"@beep/identity/packages",
 			"effect/Array",
 			"effect/Effect",
@@ -350,7 +357,7 @@ describe("bundle reachability", () => {
 		// Exact edge sets for the new modules, same discipline as the light half:
 		// the vocabulary reaches nothing but effect (in particular NOT
 		// `@effected/github`, whose conclusion set it mirrors structurally), and
-		// the document modules reach the templates region engine and no more.
+		// the document modules reach the managed-section region engine and no more.
 		assert.deepStrictEqual([...reachableRuntimeImports("CheckState.ts")].sort(), [
 			"@beep/identity/packages",
 			"@beep/schema/LiteralKit",
@@ -358,8 +365,8 @@ describe("bundle reachability", () => {
 			"effect/Schema",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("ManagedDocument.ts")].sort(), [
-			"../templates/index.ts",
 			"@beep/identity/packages",
+			"@beep/managed-section",
 			"@beep/utils/Option",
 			"effect/Array",
 			"effect/Effect",
@@ -369,8 +376,8 @@ describe("bundle reachability", () => {
 			"effect/String",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("CheckDocument.ts")].sort(), [
-			"../templates/index.ts",
 			"@beep/identity/packages",
+			"@beep/managed-section",
 			"@beep/schema/LiteralKit",
 			"@beep/utils/Option",
 			"effect/Array",

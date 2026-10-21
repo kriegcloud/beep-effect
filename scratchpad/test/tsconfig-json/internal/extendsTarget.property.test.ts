@@ -6,7 +6,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { resolveExports, resolveExtendsTarget } from "../../../effected/tsconfig-json/internal/extendsTarget.ts";
 
 const runs = { arbitrary: fcRuns(100) };

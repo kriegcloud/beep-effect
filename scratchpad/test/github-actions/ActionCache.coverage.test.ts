@@ -14,7 +14,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { ActionCache, ActionCacheError } from "../../effected/github-actions/ActionCache.ts";
 import { BlobTransferError } from "../../effected/github-actions/BlobTransfer.ts";
 import type { FileBlobTransfer } from "../../effected/github-actions/BlobTransfer.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { json, resultsEnv, twirpFetch } from "./results.ts";
 import { dual } from "effect/Function";
 

@@ -10,7 +10,7 @@ it.effect("cache errors name the failed input and digest defaults to eight hex d
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import { systemError } from "effect/PlatformError";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 
 it.layer(Layer.mergeAll(MemoryFileSystem.layerWith({ "/ws/a.txt": "a", "/ws/b.lock": "b" }), Path.layer), { timeout: "30 seconds" })((it) => {
   it.effect("a negated brace alternative filters without expanding the workspace", () => Effect.gen(function* () {

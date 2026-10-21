@@ -1,6 +1,7 @@
 // Historical pre-retirement GitHub snapshots retain the former Knip context.
+
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { collectYeetStatus, RepoRunContext, YeetStatusSnapshotJson } from "@beep/repo-cli/test/Yeet";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { expect, it } from "@effect/vitest";
 import * as A from "effect/Array";

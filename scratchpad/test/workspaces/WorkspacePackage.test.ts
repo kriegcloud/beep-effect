@@ -1,6 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { GlobPattern } from "../../effected/glob/index.ts";
+import { GlobPattern } from "@beep/glob";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";

@@ -1,4 +1,5 @@
 import { CapabilitySupported, PracticeProfile } from "@beep/law-practice-domain";
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   BOX_READ_MAX_CHARACTERS,
   BoxDocument,
@@ -11,7 +12,6 @@ import {
 import { ProfileStore } from "@beep/practice-gateway/ProfileStore";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue, deepStrictEqual } from "@effect/vitest/utils";

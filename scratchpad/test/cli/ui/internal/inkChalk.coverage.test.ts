@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import { inkChalk, resolveInkEntry } from "../../../../effected/cli/ui/internal/inkChalk.ts";
-import { MemoryFileSystem } from "../../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 
 it.effect("a supplied ESM resolver preserves its entry path", () => Effect.sync(() => {
   const requested: Array<string> = [];

@@ -12,7 +12,7 @@ import {
   misconfiguredDetail,
 } from "../../../effected/github-actions/internal/actionsResults.ts";
 import { ActionEnvironment } from "../../../effected/github-actions/ActionEnvironment.ts";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 const runs = { arbitrary: fcRuns(100) };
 const identifier = Arbitrary.schema(S.NonEmptyString).pipe(Arbitrary.map(Base64Url.encode));
 const claims = S.fromJsonString(S.Struct({ scp: S.String }));

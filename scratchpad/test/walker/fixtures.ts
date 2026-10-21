@@ -15,8 +15,8 @@
 // the sanctioned way to reach a permission failure (memfs records modes but
 // never enforces them).
 
-import type { MemoryFileSystemSeedEntry } from "../../effected/memfs/index.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import type { MemoryFileSystemSeedEntry } from "@beep/memfs";
+import { MemoryFileSystem } from "@beep/memfs";
 import type * as FileSystem from "effect/FileSystem";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";

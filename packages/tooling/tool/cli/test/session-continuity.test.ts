@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   ClaudeContinuityInput,
   ContinuityInput,
@@ -7,7 +8,6 @@ import {
   sessionCommand,
 } from "@beep/repo-cli/test/Session";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";

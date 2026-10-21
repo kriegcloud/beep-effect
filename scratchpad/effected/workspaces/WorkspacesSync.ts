@@ -18,8 +18,8 @@ import { dual } from "effect/Function";
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as MutableHashMap from "effect/MutableHashMap";
-import { GlobSet } from "../glob/index.ts";
-import { Yaml } from "../yaml/index.ts";
+import { GlobSet } from "@beep/glob";
+import { Yaml } from "@beep/yaml";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";

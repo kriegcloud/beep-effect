@@ -106,7 +106,7 @@ A namespace that is empty, or contains a path separator, or is exactly `.` or `.
 `@effected/memfs` virtualizes the filesystem, not the platform. `AppDirs` and `XdgConfig` read the platform through the `CurrentPlatform` reference, which defaults to the host's `process.platform`, so a test that only swaps the filesystem still takes the host's darwin, linux or win32 branch. Pin the platform as well:
 
 ```ts
-import { MemoryFileSystem } from "@beep/scratchpad/effected/memfs/index";
+import { MemoryFileSystem } from "@beep/memfs";
 import { AppDirs, CurrentPlatform, Xdg, XdgPaths } from "@beep/scratchpad/effected/xdg/index";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

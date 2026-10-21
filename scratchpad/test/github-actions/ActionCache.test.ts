@@ -19,7 +19,7 @@ import { spawnOnce } from "../../effected/github-actions/internal/spawn.ts";
 import type { FileBlobTransfer } from "../../effected/github-actions/index.ts";
 import { ActionCache, ActionCacheError, BlobTransferError, CacheKey } from "../../effected/github-actions/index.ts";
 import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { json, resultsEnv, twirpFetch } from "./results.ts";
 import { dual } from "effect/Function";
 

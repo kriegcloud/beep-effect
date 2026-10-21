@@ -5,7 +5,7 @@ import * as Result from "effect/Result";
 // `provideEffect` resolves (Command.ts:941), so the prompt in `sub.parse` (Param.ts:1478-1485) cannot see them.
 // `CliAudience.run` / `runWith` scan argv first and provide the answer around the whole run.
 import { assert, describe, it } from "@effect/vitest";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { Audience, TerminalEnv } from "../../effected/env/index.ts";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";

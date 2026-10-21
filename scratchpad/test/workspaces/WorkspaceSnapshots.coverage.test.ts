@@ -8,7 +8,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Scheduler from "effect/Scheduler";
-import { Git, LsTreeEntry } from "../../effected/git/index.ts";
+import { Git, LsTreeEntry } from "@beep/git";
 import { CatalogSet, WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
 import { ConfigDependencyHooks } from "../../effected/workspaces/ConfigDependencyHooks.ts";
 import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";

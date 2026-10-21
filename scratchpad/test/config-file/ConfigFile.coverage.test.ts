@@ -11,7 +11,7 @@ import { ConfigEvents } from "../../effected/config-file/ConfigEvent.ts";
 import { ConfigFile, ConfigValidationError } from "../../effected/config-file/ConfigFile.ts";
 import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
 import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 
 const Document = S.Struct({ port: S.Finite });
 class Service extends ConfigFile.Service<Service, typeof Document.Type>()("coverage/ConfigFile") {}

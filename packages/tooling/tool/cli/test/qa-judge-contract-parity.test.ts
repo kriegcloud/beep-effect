@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { MarkerEvent, RoundLayout } from "@beep/qa-capture";
 import {
   CitedArtifactExistsGate,
@@ -53,7 +54,6 @@ import {
 import { VerifySkillArtifactInput } from "@beep/skill-contract/SkillProjection";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { A } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";

@@ -5,7 +5,7 @@ import * as Layer from "effect/Layer";
 import * as Scope from "effect/Scope";
 import * as Exit from "effect/Exit";
 import * as Logger from "effect/Logger";
-import { MemoryFileSystem } from "../../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import { Level } from "../../../effected/cli/internal/diagnostics.ts";
 import { makeFileSink } from "../../../effected/cli/internal/fileSink.ts";
 import { assertExitSuccess } from "@effect/vitest/utils";

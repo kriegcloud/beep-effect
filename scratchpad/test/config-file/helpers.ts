@@ -1,5 +1,5 @@
-import type { MemoryFileSystemSeed, MemoryFileSystemVolume } from "../../effected/memfs/index.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import type { MemoryFileSystemSeed, MemoryFileSystemVolume } from "@beep/memfs";
+import { MemoryFileSystem } from "@beep/memfs";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Layer from "effect/Layer";
 import * as Effect from "effect/Effect";

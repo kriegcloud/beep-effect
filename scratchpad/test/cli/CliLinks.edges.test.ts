@@ -4,7 +4,7 @@ import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import { CurrentRuntimeEnv } from "../../effected/env/index.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

@@ -31,7 +31,7 @@ import * as Path from "effect/Path";
 import { ConfigFile } from "../../effected/config-file/ConfigFile.ts";
 import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
 import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
-import { MemoryFileSystem } from "../../effected/memfs/index.ts";
+import { MemoryFileSystem } from "@beep/memfs";
 
 class JsonConfig extends ConfigFile.Service<JsonConfig, S.Json>()("property/JsonConfig") {}
 const jsonPlatform = Layer.mergeAll(MemoryFileSystem.layer, Path.layer);

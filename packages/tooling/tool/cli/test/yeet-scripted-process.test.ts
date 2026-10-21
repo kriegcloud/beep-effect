@@ -1,3 +1,4 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import {
   byRepoPlanStepAscending,
   enforceConservativeResume,
@@ -49,7 +50,6 @@ import {
   YeetStatusArtifact,
   YeetStatusRemote,
 } from "@beep/repo-cli/test/Yeet";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
