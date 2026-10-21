@@ -18,10 +18,12 @@ import {
   skillTreeDifferences,
   skillTreeDigest,
 } from "@beep/repo-cli/commands/Skills/SkillsPublication.service";
+import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
 import { expect, layer } from "@effect/vitest";
 import { assertSome, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
 import * as Command from "effect/cli/Command";
@@ -667,5 +669,22 @@ layer(
       expect((yield* firstTracked(journals)).state._tag).toBe("staged");
       expect(A.filter(yield* listing(journals), (entry) => !Str.endsWith(".json")(entry))).toEqual([]);
     })
+  );
+
+  it.effect.prop(
+    "property: every tracked skill publication round-trips through its journal codec",
+    { publication: Arbitrary.schema(SkillTrackedPublication), entries: Arbitrary.schema(SkillTreeEntry.pipe(S.Array)) },
+    ({ entries, publication }) =>
+      Effect.gen(function* () {
+        // Arbitrary values are null-prototype records, so compare the canonical
+        // encoding rather than the decoded instances.
+        const encoded = yield* encodeJournal(SkillPublicationJournal.make({ id: "skills-property", publication }));
+        const decoded = yield* decodeJournal(encoded);
+        expect(yield* encodeJournal(decoded)).toBe(encoded);
+        expect(decoded.publication._tag).toBe("tracked");
+        // A tree never differs from itself, so recovery names no entry for it.
+        expect(skillTreeDifferences(entries, entries)).toEqual([]);
+      }),
+    { arbitrary: fcRuns(25) }
   );
 });
