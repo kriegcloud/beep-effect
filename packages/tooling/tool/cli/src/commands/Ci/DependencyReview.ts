@@ -316,7 +316,12 @@ const decodeComparePage = S.decodeUnknownEffect(S.fromJsonString(DependencyGraph
  */
 export const DEPENDENCY_REVIEW_COMPARE_PAGE_LIMIT = 500;
 
-const LINK_NEXT_PAGE = /[?&]page=(\d+)>;\s*rel="next"/u;
+// RFC 8288 Link entries: `<url>; rel="next", <url>; rel="last"`. Entries split
+// only at a comma that opens the next `<`, so commas inside a URL survive.
+const LINK_ENTRY_SEPARATOR = /,(?=\s*<)/u;
+const LINK_ENTRY = /^\s*<([^>]*)>/u;
+const LINK_REL = /;\s*rel\s*=\s*(?:"([^"]*)"|([^\s;,]+))/iu;
+const isPageNumber = S.is(S.Int.check(S.isGreaterThan(0)));
 
 // `gh api -i` prints the status line, the headers, one blank line, then the body.
 const httpReplyParts = (output: string) => {
@@ -331,12 +336,49 @@ const httpReplyParts = (output: string) => {
   );
 };
 
-const nextPage = (headers: ReadonlyArray<string>): O.Option<number> =>
+const isNextEntry = (entry: string): boolean =>
   pipe(
-    A.findFirst(headers, (header) => Str.startsWith("link:")(Str.toLowerCase(header))),
-    O.flatMap(Str.match(LINK_NEXT_PAGE)),
-    O.flatMap((match) => O.fromUndefinedOr(match[1])),
-    O.flatMap(Num.parse)
+    Str.match(LINK_REL)(entry),
+    O.flatMap((match) => O.fromUndefinedOr(match[1] ?? match[2])),
+    O.exists((rel) => A.contains(Str.split(/\s+/u)(Str.toLowerCase(Str.trim(rel))), "next"))
+  );
+
+// The `page` query parameter by name, wherever it appears in the query.
+const queryPage = (url: string): O.Option<number> =>
+  pipe(
+    Str.indexOf("?")(url),
+    O.map((index) => Str.split("&")(Str.split("#")(Str.slice(index + 1)(url))[0])),
+    O.flatMap(A.findFirst((pair) => Str.startsWith("page=")(pair))),
+    O.flatMap((pair) => Num.parse(Str.slice("page=".length)(pair))),
+    O.filter(isPageNumber)
+  );
+
+/**
+ * The page a `Link` header's `rel="next"` entry names: none when there is no
+ * `rel="next"` (the last page), a failure when a `rel="next"` entry exists but
+ * names no readable `page` (a cursor link, a page parameter that is not a
+ * positive integer, or an entry without `<url>`), so a page that cannot be
+ * followed is never mistaken for the last one.
+ */
+const nextPage = (headers: ReadonlyArray<string>): Result.Result<O.Option<number>, string> =>
+  pipe(
+    headers,
+    A.filter((header) => Str.startsWith("link:")(Str.toLowerCase(header))),
+    A.flatMap((header) => Str.split(LINK_ENTRY_SEPARATOR)(Str.slice("link:".length)(header))),
+    A.findFirst(isNextEntry),
+    O.match({
+      onNone: () => Result.succeed(O.none()),
+      onSome: (entry) =>
+        pipe(
+          Str.match(LINK_ENTRY)(entry),
+          O.flatMap((match) => O.fromUndefinedOr(match[1])),
+          O.flatMap(queryPage),
+          O.match({
+            onNone: () => Result.fail(`rel="next" entry names no readable page: ${Str.trim(entry)}`),
+            onSome: (page) => Result.succeed(O.some(page)),
+          })
+        ),
+    })
   );
 const RepositoryLicense = S.Struct({
   license: S.NullOr(S.Struct({ spdx_id: S.NullOr(S.String) })),
@@ -493,7 +535,10 @@ export const makeDependencyReviewLayer = (settings: DependencyReviewSettings) =>
         const rows = yield* decodeComparePage(parts.body).pipe(
           Effect.mapError((error) => unavailable("malformed-response", `${endpoint}: ${error.message}`))
         );
-        const next = nextPage(parts.headers);
+        const next = yield* Result.match(nextPage(parts.headers), {
+          onFailure: (detail) => unavailable("malformed-response", `${endpoint}: ${detail}`),
+          onSuccess: Effect.succeed,
+        });
         if (O.isSome(next) && next.value !== page + 1)
           return yield* unavailable("malformed-response", `${endpoint}: next page is ${next.value}, not ${page + 1}`);
         return [rows, next] as const;

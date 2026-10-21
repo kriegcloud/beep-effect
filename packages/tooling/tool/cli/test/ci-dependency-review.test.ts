@@ -27,8 +27,10 @@ import {
   renderDependencyReview,
   runDependencyReview,
 } from "@beep/repo-cli/commands/Ci";
+import { fcRuns } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
@@ -68,6 +70,7 @@ const httpPage = (page: number, last: number, body: string): string =>
 const ok = (output: string) => GithubApiReply.make({ exitCode: 0, output, truncated: false });
 const failed = (output: string) => GithubApiReply.make({ exitCode: 1, output, truncated: false });
 const encodePage = S.encodeEffect(S.fromJsonString(DependencyGraphComparePage));
+const decodePage = S.decodeUnknownEffect(S.fromJsonString(DependencyGraphComparePage));
 const decodePages = S.decodeUnknownEffect(DependencyGraphComparePages);
 
 // Real recorded pull-request ranges.
@@ -103,6 +106,12 @@ const PAGE_LIMIT = request("1", "d");
 const SKIPPED_PAGE = request("1", "e");
 const NO_SEPARATOR = request("1", "f");
 const NOT_OK_STATUS = request("2", "0");
+const PAGE_PARAM_FIRST = request("2", "1");
+const CURSOR_NEXT = request("2", "3");
+const MALFORMED_NEXT = request("2", "4");
+// A page whose Link header is exactly `link` (the round-2 review cases).
+const linkedPage = (link: string, body: string): string =>
+  `HTTP/2.0 200 OK\r\nContent-Type: application/json; charset=utf-8\r\nLink: ${link}\r\n\r\n${body}`;
 const MISSING_HEAD = DependencyReviewRequest.make({
   base: sha("1"),
   head: A.join(A.replicate("deadbeef", 5), ""),
@@ -233,6 +242,31 @@ const RecordedGithub = Layer.effect(
       [rangeKey(LATER_PAGE_FAILED), [ok(httpPage(1, 2, "[]")), failed("gh: Server Error (HTTP 502)")]],
       // Page 1 claims the next page is 3: a skipped page could hide rows.
       [rangeKey(SKIPPED_PAGE), [ok(Str.replace('page=2>; rel="next"', 'page=3>; rel="next"')(httpPage(1, 3, "[]")))]],
+      // `page` before `per_page` in the next URL: page 2 must still be read.
+      [
+        rangeKey(PAGE_PARAM_FIRST),
+        [
+          ok(
+            linkedPage(
+              '<https://api.github.com/repositories/1/dependency-graph/compare/x?page=2&per_page=1>; rel="next", <https://api.github.com/repositories/1/dependency-graph/compare/x?page=2&per_page=1>; rel="last"',
+              "[]"
+            )
+          ),
+          ...(yield* paged([[DependencyChange.make({ ...urllib3, manifest: "apps/oip-web/uv.lock" })]])),
+        ],
+      ],
+      [
+        rangeKey(CURSOR_NEXT),
+        [
+          ok(
+            linkedPage(
+              '<https://api.github.com/repositories/1/dependency-graph/compare/x?after=Y3Vyc29y&per_page=1>; rel="next"',
+              "[]"
+            )
+          ),
+        ],
+      ],
+      [rangeKey(MALFORMED_NEXT), [ok(linkedPage('https://api.github.com/x?page=2; rel="next"', "[]"))]],
       [rangeKey(NO_SEPARATOR), [ok("[]")]],
       [rangeKey(NOT_OK_STATUS), [ok("HTTP/2.0 304 Not Modified\r\n\r\n[]")]],
       [rangeKey(HTTP_403), [failed("gh: Resource not accessible by integration (HTTP 403)")]],
@@ -323,6 +357,42 @@ describe("dependency review fixture policy", () => {
     expect(isFixture("packages/demo/test/fixtures-loader/package.json")).toBe(false);
     expect(isFixture("scratchpad/package.json")).toBe(false);
   });
+});
+
+describe("dependency review compare schema", () => {
+  it.effect("decodes a row whose package_url is null, as GitHub's dependency-graph-diff schema allows", () =>
+    Effect.gen(function* () {
+      const row = yield* S.decodeEffect(DependencyChange)({
+        change_type: "added",
+        manifest: "apps/oip-web/package.json",
+        ecosystem: "npm",
+        name: "local-only",
+        version: "1.0.0",
+        package_url: null,
+        license: null,
+        source_repository_url: null,
+        vulnerabilities: [],
+        scope: "runtime",
+      });
+      expect(row.package_url).toBeNull();
+    })
+  );
+
+  it.effect.prop(
+    "a schema-derived page survives the wire codec, and any of its manifests under a fixture root is excluded",
+    [Arbitrary.schema(DependencyGraphComparePage)],
+    ([page]) =>
+      Effect.gen(function* () {
+        const wire = yield* encodePage(page);
+        expect(yield* decodePage(wire)).toEqual(page);
+        const isFixture = isFixtureManifest(dependencyReviewFixturePolicy);
+        // Any manifest, moved under a declared fixture root, is excluded.
+        for (const row of page) {
+          expect(isFixture(`scratchpad/test/fixtures/${row.manifest}`)).toBe(true);
+        }
+      }),
+    { arbitrary: fcRuns(25) }
+  );
 });
 
 describe("dependency review license decisions", () => {
@@ -471,6 +541,17 @@ it.layer(Layer.provideMerge(DependencyReviewLive, RecordedGithub), { timeout: "3
     it.effect("reads every compare page, so an advisory on page 2 still fails", () =>
       Effect.gen(function* () {
         expect(findings(yield* review(PAGE_2_ADVISORY))).toEqual(["vulnerability:urllib3"]);
+        // The next link names `page` before `per_page`.
+        expect(findings(yield* review(PAGE_PARAM_FIRST))).toEqual(["vulnerability:urllib3"]);
+      })
+    );
+
+    it.effect("fails closed on a next link without a readable page number", () =>
+      Effect.gen(function* () {
+        for (const target of [CURSOR_NEXT, MALFORMED_NEXT]) {
+          const verdict = yield* review(target);
+          expect(verdict._tag === "unknown" && verdict.reason).toBe("malformed-response");
+        }
       })
     );
 

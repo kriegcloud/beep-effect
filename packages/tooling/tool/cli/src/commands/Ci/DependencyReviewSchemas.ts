@@ -170,7 +170,7 @@ export class DependencyChange extends S.Opaque<DependencyChange, { readonly bran
     ecosystem: S.String,
     name: S.String,
     version: S.String,
-    package_url: S.String,
+    package_url: S.NullOr(S.String),
     license: S.NullOr(S.String),
     source_repository_url: S.NullOr(S.String),
     scope: S.optionalKey(DependencyScope),

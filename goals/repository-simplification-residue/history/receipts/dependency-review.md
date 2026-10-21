@@ -219,14 +219,22 @@ repository.
 changed. package-verify runs `@beep/repo-cli`'s docgen. `tooling-schema-first`
 (not a ratchet) gains no row: the new files use PascalCase names.
 
-## Hosted CI the driver must check
+## Hosted proof
 
-- `Security` on this PR runs the new step: its log shows `dependency-review:
-  <base>...<head>`, the `fixture policy:` line and `verdict: pass`.
-- `Security` still runs with only `contents: read` and `actions: read`, and the
-  ruleset still lists `Security` as required (`ci ruleset --check` passes in that
-  job).
-- On a fork PR, when one exists, the step passes with the fork's read-only token.
+The required `Security` check ran the new step on PR #1991:
+
+- run [39669268621](https://github.com/beep-effect/beep-effect/actions/runs/39669268621),
+  job [119462481075](https://github.com/beep-effect/beep-effect/actions/runs/39669268621/job/119462481075),
+  conclusion `success`;
+- reviewed range: base `18558794acc884b3637a2f943f70c85802159eb6`, head
+  `2fc2babaacb49c1ac34e67d9612c9e609853789c`;
+- `GITHUB_TOKEN` permissions in the job log: `Contents: read`;
+- step output: `fixture policy: **/test/**/fixtures/** (…)`,
+  `rows: 2; reviewed: 2; excluded as fixtures: 0; added without a license: 1`,
+  `verdict: pass`.
+
+The check name and required status are unchanged (`ci ruleset --check` passes in
+the same job). No fork PR has run it yet; fork runs get the same read-only token.
 
 ## Review round 1 (#1991)
 
@@ -305,6 +313,66 @@ Round-1 verification, each command alone through `beep-heavy`:
 | schema-catalog, policy-fingerprint | current |
 | `quality cache-policy` | 0 blocking |
 | scoped Node coverage | `DependencyReview.ts` 96.3% lines, 95.2% branches; the other two files 100% |
+
+## Review round 2 (#1991)
+
+Three threads on head `2fc2babaac`.
+
+- `PRRT_kwDOPbO_N86u8Lu8` (beep-reviewer, P2), a fail-open in `nextPage`. It
+  returned none both for a missing `rel="next"` and for a `rel="next"` whose page
+  number its regex could not read: `page` not the last parameter, or a cursor
+  (`after=`) link. `compare` then stopped and evaluated a partial row set. The
+  `Link` header is now parsed as RFC 8288 entries, split only at a comma that
+  opens the next `<`. The parser finds the entry whose `rel` tokens include `next`
+  and reads the `page` query parameter by name, in any position, as a positive
+  integer. Only a missing `rel="next"` ends the sequence. A `rel="next"` without
+  `<url>` or without a readable `page` is `unknown (malformed-response)`. Tests,
+  failing first: `page` before `per_page` (followed; page 2's advisory fails), a
+  cursor-only next link (`unknown`), and a next entry without angle brackets
+  (`unknown`).
+- `PRRT_kwDOPbO_N86u8J49` (CodeRabbit), `package_url` nullability. Checked
+  against `components.schemas["dependency-graph-diff"]` in
+  `github/rest-api-description` (`descriptions/api.github.com/api.github.com.json`,
+  `main`, fetched 2026-10-21):
+
+  | Field | Spec | Ours | Disposition |
+  | --- | --- | --- | --- |
+  | `change_type` | required, enum `added`/`removed` | same | aligned |
+  | `manifest`, `ecosystem`, `name`, `version` | required string | same | aligned |
+  | `package_url` | required, nullable | was `S.String` | now `S.NullOr(S.String)`; it feeds no decision |
+  | `license`, `source_repository_url` | required, nullable | `S.NullOr(S.String)` | aligned |
+  | `scope` | required, enum | optional, same enum | looser, kept: the action reads a missing scope as `runtime` |
+  | `vulnerabilities` | required array | defaults to `[]` | looser, kept for parity with the action |
+  | `severity` | required free-form string | `LiteralKit` `critical`/`high`/`moderate`/`low`, defaults to `low` when missing | stricter on purpose: the threshold ranks known severities, so an unrecognized value fails closed as `malformed-response` rather than being ranked, possibly as below `high`. The action's zod enum is equally strict. |
+  | advisory id, summary, url | required string | same | aligned |
+
+  A test decodes a row with `package_url: null`; before the change it failed.
+- `PRRT_kwDOPbO_N86u8J4w` (CodeRabbit), hosted proof still listed as a to-do. The
+  hosted `Security` run on `2fc2babaac` is recorded under "Hosted proof" above, and
+  the manifest statusNote now names the same run. #1882 stays `complete`.
+
+The schema-first gate then flagged the test file as schema-heavy with no
+schema-derived property, so `ci-dependency-review.test.ts` gained an
+`Arbitrary.schema(DependencyGraphComparePage)` property (25 runs). It checks that a
+page survives the wire codec, and that any of its manifests under a fixture root is
+excluded.
+
+Round-2 verification, each command alone through `beep-heavy`. After main was
+merged, the dependency dists were rebuilt first
+(`turbo run build --filter=@beep/repo-cli^...`, 47 tasks).
+
+| Command | Result |
+| --- | --- |
+| repo-cli `check` | exit 0 |
+| Bun and Node runs of the seven CI test files | 187 tests pass on each |
+| effect-vitest / schema-first | `introduced=0` / exit 0, no advisory |
+| effect-diagnostics `--filter repo-cli` | 0 in changed files (4 inherited in `laws-schema-tag-idioms.test.ts`) |
+| oxlint on changed files | 0 |
+| fallow audit `--base origin/main --check` | exit 0, `introduced=0` |
+| jsdoc-ratchet | `increased=0` |
+| observability catalog, schema-catalog, policy-fingerprint | current |
+| `quality cache-policy` | 0 blocking |
+| goals doctor | 0 blocking |
 
 ## Reversal
 
