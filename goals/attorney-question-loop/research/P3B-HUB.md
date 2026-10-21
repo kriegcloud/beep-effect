@@ -13,10 +13,13 @@ on an `HttpRouter`. It uses the protocol list and conventions from `@beep/mcp-ki
 
 - **Bind.** It listens on `127.0.0.1` only. `tailscale serve` (driver `@beep/tailscale`) exposes
   it on the tailnet. The hub never listens on a public interface.
-- **Auth.** Every request must carry a `Tailscale-User-Login` header (set by `tailscale serve`)
-  that is on a configured allow-list. A missing or unknown login gets HTTP 403 before any tool
-  runs. The allow-list and port are config (flags plus env), not secrets. No token is needed:
-  the loopback bind plus the tailnet identity is the boundary, and the Decision Log records it.
+- **Auth.** Every request must carry `Authorization: Bearer <PRACTICE_REVIEW_HUB_API_TOKEN>`,
+  checked in constant time first, and a `Tailscale-User-Login` header (set by `tailscale serve`)
+  that is on a configured allow-list. A missing or wrong token, or a missing or unknown login,
+  gets an empty HTTP 403 before any tool runs. The allow-list and port are config (flags plus
+  env); the token is a secret resolved through `op run`. Since #1930 the token is required
+  because other local OS users could forge the login header on the loopback port (Decision Log,
+  2026-10-21; `docs/runbooks/practice-review-hub.md`, sections 2 and 8).
 
 ## Stores (server package)
 
