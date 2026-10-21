@@ -3,18 +3,18 @@ import { make } from "@beep/identity";
 
 describe("IdentityComposer prototype", () => {
   it("derives exact IRI and CURIE literals from composed identity paths", () => {
-    const { $BeepId: $I } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" });
+    const { $BeepId: $I } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" });
     const patent = $I.create("ontology").create("patent");
 
-    expectTypeOf(patent.iri).toEqualTypeOf<"https://ns.beep.sh/ontology/patent">();
+    expectTypeOf(patent.iri).toEqualTypeOf<"https://beep-effect.com/ns/ontology/patent">();
     expectTypeOf(patent.curie).toEqualTypeOf<"beep:ontology/patent">();
     expect(patent.identifier).toBe("@beep/ontology/patent");
-    expect(patent.iri).toBe("https://ns.beep.sh/ontology/patent");
+    expect(patent.iri).toBe("https://beep-effect.com/ns/ontology/patent");
     expect(patent.curie).toBe("beep:ontology/patent");
   });
 
   it("rebases projections without changing identity or symbol interning", () => {
-    const { $BeepId } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" });
+    const { $BeepId } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" });
     const patent = $BeepId
       .create("ontology")
       .create("patent");
@@ -30,16 +30,16 @@ describe("IdentityComposer prototype", () => {
   });
 
   it("annotates child identities with literal identifier and IRI projections", () => {
-    const { $BeepId } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" });
+    const { $BeepId } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" });
     const patent = $BeepId
       .create("ontology")
       .create("patent");
     const annotation = patent.annote("Claim", { description: "Patent claim." });
 
-    expectTypeOf(annotation.iri).toEqualTypeOf<"https://ns.beep.sh/ontology/patent/Claim">();
+    expectTypeOf(annotation.iri).toEqualTypeOf<"https://beep-effect.com/ns/ontology/patent/Claim">();
     expect(annotation).toMatchObject({
       identifier: "@beep/ontology/patent/Claim",
-      iri: "https://ns.beep.sh/ontology/patent/Claim",
+      iri: "https://beep-effect.com/ns/ontology/patent/Claim",
       curie: "beep:ontology/patent/Claim",
       title: "Claim",
       description: "Patent claim.",
@@ -47,8 +47,8 @@ describe("IdentityComposer prototype", () => {
   });
 
   it("interns independently composed equal paths to the same symbol", () => {
-    const { $BeepId: leftRoot } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" });
-    const { $BeepId: rightRoot } = make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" });
+    const { $BeepId: leftRoot } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" });
+    const { $BeepId: rightRoot } = make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" });
     const left = leftRoot.create("ontology").create("patent");
     const right = rightRoot.create("ontology").create("patent");
 

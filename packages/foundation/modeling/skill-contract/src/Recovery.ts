@@ -336,9 +336,7 @@ export class FailureReceiptPredicate extends S.Opaque<FailureReceiptPredicate, {
  * @category constants
  * @since 0.0.0
  */
-export const FailurePredicateType = EvidencePredicateType.make(
-  "https://beep-effect.dev/skill-contract/evidence/failure/v1"
-);
+export const FailurePredicateType = EvidencePredicateType.make($SkillContractId.create("evidence/failure/v2").iri);
 
 /**
  * Unsigned digest-bound receipt carrying a coherent terminal failure predicate.

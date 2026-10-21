@@ -60,7 +60,7 @@ domain model in V1.
 **Answer:** Use M1-M4:
 
 - M1 starts now and is intake-serving: repo-owned SKOS taxonomy seed with
-  concept IRIs minted under `https://ns.beep.sh/` via `@beep/identity`
+  concept IRIs minted under `https://beep-effect.com/ns/` via `@beep/identity`
   `IdentityComposer`; FOLIO `skos:exactMatch`/`skos:closeMatch` where
   available; document-class vocabulary (`draft`, `redline`, `filed`,
   `received`, `privileged`, `extracted-child`); filing-path semantics for

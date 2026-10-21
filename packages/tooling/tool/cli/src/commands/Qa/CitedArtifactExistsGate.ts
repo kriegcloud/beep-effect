@@ -6,7 +6,7 @@
  */
 
 import { resolvePathWithinCanonicalRoot } from "@beep/file-processing/PathSafety";
-import { $RepoCliId } from "@beep/identity/packages";
+import { $QaId, $RepoCliId } from "@beep/identity/packages";
 import {
   AlwaysGateApplicability,
   EvidencePredicateType,
@@ -28,7 +28,7 @@ import type { GateEvaluator } from "@beep/skill-contract";
 const $I = $RepoCliId.create("commands/Qa/CitedArtifactExistsGate");
 const citedArtifactExistsGateId = QaJudgeGateId.make("cited-artifact-exists");
 const citedArtifactExistsPredicateType = EvidencePredicateType.make(
-  "https://beep-effect.dev/qa/evidence/cited-artifact-exists/v1"
+  $QaId.create("evidence/cited-artifact-exists/v2").iri
 );
 const evaluatorId = "@beep/repo-cli/qa/cited-artifact-exists";
 

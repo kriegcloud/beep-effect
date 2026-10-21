@@ -1,3 +1,4 @@
+import { $I as $BeepId } from "@beep/identity/packages";
 import {
   DocketingVocabulary,
   LegalRoleVocabulary,
@@ -91,8 +92,8 @@ it.layer(VocabularyRegistry.layer, { timeout: "30 seconds" })("pinned M3 vocabul
           expect(yield* registry.resolve({ kind: seed.kind, version: seed.version }, concept.notation)).toEqual(
             concept
           );
-          expect(Str.startsWith("https://ns.beep.sh/")(concept.iri)).toBe(true);
-          expect(Str.startsWith("https://ns.beep.sh/")(seed.schemeIri)).toBe(true);
+          expect(Str.startsWith($BeepId.iri)(concept.iri)).toBe(true);
+          expect(Str.startsWith($BeepId.iri)(seed.schemeIri)).toBe(true);
           expect(A.every(concept.broader, (iri) => HashSet.has(own, iri))).toBe(true);
           expect(concept.alignments).toEqual([]);
           expect(S.is(VocabularyConcept)(concept)).toBe(true);

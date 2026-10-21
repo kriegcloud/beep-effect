@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "public-origin-beep-effect-com",
+    "packetId": "goal-packet/v1:5be1c6ccdbc3909d3253bc305c3b4614cc966c4b0db40b1522bb73f8a465ed4d",
+    "title": "Single public origin beep-effect.com",
+    "status": "active",
+    "created": "2026-10-20",
+    "updated": "2026-10-21",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/public-origin-beep-effect-com",
+  "lifecycle": "active",
+  "mission": "Move the identity authority to the beep-effect.com/ns/ root, reserve the apex route table in @beep/public-site, and gate the retired hosts.",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false,
+    "acceptanceEvidence": [
+      {
+        "kind": "yeet-verdict",
+        "ref": ".beep/yeet/runs/feat_public-origin-beep-effect-com-ac011754d105/verdict.json",
+        "gating": true
+      }
+    ]
+  },
+  "proposedCloseout": {
+    "status": "completed-retained",
+    "finalPullRequest": 1946
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/public-origin-beep-effect-com/history/2026-10-20-operator-brief.md",
+    "goals/public-origin-beep-effect-com/README.md",
+    "goals/public-origin-beep-effect-com/SPEC.md",
+    "goals/public-origin-beep-effect-com/PLAN.md",
+    "goals/public-origin-beep-effect-com/GOAL.md",
+    "goals/public-origin-beep-effect-com/research/SOURCES.md",
+    "standards/architecture/DECISIONS.md",
+    "standards/ARCHITECTURE.md"
+  ],
+  "researchReports": ["research/SOURCES.md"],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/public-origin-beep-effect-com/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Packet and decisions",
+      "status": "complete",
+      "exit": "Operator brief recorded in history/; SPEC Decision Log carries D1-D6 and I1-I18; doctrine entries written."
+    },
+    {
+      "id": "P1",
+      "name": "@beep/public-site",
+      "status": "complete",
+      "exit": "PublicOrigin, SiteRoute, hostedUrl and labRoute exported; drift test against the identity authority green; package-verify green."
+    },
+    {
+      "id": "P2",
+      "name": "Identity authority move, drift folding, seed and residue rewrite",
+      "status": "complete",
+      "exit": "Retired hosts only under **/history/** and the root research/ tree; package-verify green for every affected package."
+    },
+    {
+      "id": "P3",
+      "name": "retired-iri-authorities law and lane",
+      "status": "complete",
+      "exit": "beep laws retired-iri-authorities --check green; a seeded violation turns it red; lint:retired-iri-authorities lane registered."
+    },
+    {
+      "id": "P4",
+      "name": "Closeout",
+      "status": "in-progress",
+      "exit": "proposedCloseout and gating yeet-verdict evidence declared; reflection lint green; PR mergeable at the gate."
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/public-origin-beep-effect-com/GOAL.md)\" -le 4000",
+    "jq . goals/public-origin-beep-effect-com/ops/manifest.json",
+    "rg -n \"public-origin-beep-effect-com|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/public-origin-beep-effect-com",
+    "git diff --check -- goals/public-origin-beep-effect-com",
+    "bun run beep lint reflection-artifacts",
+    "bun run beep goals doctor",
+    "bun run beep laws retired-iri-authorities --check",
+    "bun run beep quality changeset-graph"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

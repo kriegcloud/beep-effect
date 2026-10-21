@@ -47,7 +47,7 @@ corpus and evaluation, not architecture.
 | --- | --- |
 | Closed literal domains everywhere | 998 `LiteralKit(` call sites across 419 files under `packages/`+`apps/` |
 | Schema classes as the domain model | 3,450 `extends S.Class<` declarations |
-| Identity composers mint IRIs | `packages/foundation/modeling/identity/src/packages.ts:40` — `Identity.make("beep", { authority: "https://ns.beep.sh/", prefix: "beep" })`; per-package composers e.g. `$SemanticFoundationId.iri === "https://ns.beep.sh/ontology/semantic-foundation"` (`packages.ts:295`) |
+| Identity composers mint IRIs | `packages/foundation/modeling/identity/src/packages.ts:40` — `Identity.make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep" })`; per-package composers e.g. `$SemanticFoundationId.iri === "https://beep-effect.com/ns/ontology/semantic-foundation"` (`packages.ts:295`) |
 | Every schema carries annotation identity | `$I.annoteSchema(...)` / `$I.annote(...)` on essentially every exported schema, e.g. `packages/law-practice/domain/src/values/KgNodeKind/KgNodeKind.model.ts:47` |
 
 Scale for context: 138 workspace `package.json` files, 2,722 `src/**` `.ts`/`.tsx`
@@ -211,7 +211,7 @@ bounded reasoning, SHACL validation, and an MCP agent surface.
   the *first real VETTED vendor slice*. **DOC-CLAIM** (README trail).
 
 **Ontology strategy, as it actually stands:** repo-owned SKOS under
-`https://ns.beep.sh/`, alignment-when-vetted, no graph store in the foundation
+`https://beep-effect.com/ns/`, alignment-when-vetted, no graph store in the foundation
 layer, an editing workbench that does have a store. External vocabulary
 adoption is 0 slices after two research waves. The gate is real (vetting), but
 the throughput through that gate is currently zero.

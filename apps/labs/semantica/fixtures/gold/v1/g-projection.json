@@ -18,12 +18,12 @@
     {
       "expectedCount": 577,
       "id": "all-evidence-claims",
-      "query": "SELECT ?claim WHERE { ?claim a <https://beep.sh/semantica/ontology/EvidenceClaim> } ORDER BY ?claim"
+      "query": "SELECT ?claim WHERE { ?claim a <https://beep-effect.com/ns/semantica/ontology/EvidenceClaim> } ORDER BY ?claim"
     },
     {
       "expectedCount": 22,
       "id": "relation-claims",
-      "query": "SELECT ?claim WHERE { ?claim a <https://beep.sh/semantica/ontology/RelationClaim> } ORDER BY ?claim"
+      "query": "SELECT ?claim WHERE { ?claim a <https://beep-effect.com/ns/semantica/ontology/RelationClaim> } ORDER BY ?claim"
     }
   ]
 }
