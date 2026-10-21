@@ -334,7 +334,7 @@ const Recovery = S.Struct({
 // Status keeps legacy summaries decodable; recovery requires explicit facts
 // rather than letting legacy missing counters be interpreted as zero.
 const RecoveryFacts = S.Struct({
-  schemaVersion: S.Literal("yeet-status/v1"),
+  schemaVersion: S.tag("yeet-status/v1"),
   base: S.String,
   branch: S.String,
   runId: S.String,
@@ -369,7 +369,7 @@ const RecoveryFacts = S.Struct({
     issueCount: S.Natural,
     gateIssues: S.Array(S.String),
     path: S.String,
-    state: S.Literal("present"),
+    state: S.tag("present"),
     reviewedHeadSha: S.String.pipe(S.OptionFromOptionalKey),
     greptileScore: S.String.pipe(S.OptionFromOptionalKey),
   }),
