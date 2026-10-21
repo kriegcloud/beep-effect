@@ -57,6 +57,11 @@ mount. The capability is cached per parent-directory mount id, device and
 filesystem type, and is probed with disposable files on that mount. A bind-mounted
 or otherwise unsupported target refuses before any backup or publication
 ([record](./history/receipts/target-exchange.md)).
+#1880 is complete: each native publication records durable states in its journal,
+and restart recovery reconciles every crash point byte-exact, idempotently, through
+the next apply, `beep models recover` or `restore`. A target a competing writer
+changed is refused and every artifact is kept
+([record](./history/receipts/exchange-recovery.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.

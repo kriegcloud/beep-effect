@@ -6,6 +6,8 @@
  * `check` reports drift and exits non-zero on it,
  * `catalog` prints the assembled layered catalog, and `init` seeds a manifest
  * only when none exists. `apply --write` performs journaled owned-field writes; restore rejects native drift.
+ * `recover` reconciles publications an interrupted writer left behind, the same
+ * reconciliation `apply --write` and `restore` run first.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -51,6 +53,7 @@ import {
   ModelsManifestStore,
 } from "./Models.service.ts";
 import { modelsCheckOnlyFormat, modelsEligibility, modelsWritePreflight } from "./Models.spans.ts";
+import type { ModelsRecoveryReport } from "./Models.exchange.schemas.ts";
 import type { Locator, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
 
@@ -630,6 +633,41 @@ const restoreCommand = Command.make(
   Command.withDescription("Restore a writer backup only when the live file still matches its applied fingerprint")
 );
 
+const describeRecovery = (report: ModelsRecoveryReport) =>
+  Match.value(report.result).pipe(
+    Match.tagsExhaustive({
+      recovered: ({ outcome }) => `models: recovered ${report.journal} (${report.role}) to ${outcome}`,
+      refused: ({ reason, detail }) =>
+        `models: refused recovery ${report.journal} (${report.role}): ${reason}: ${detail}`,
+      skipped: ({ reason }) => `models: skipped ${report.journal} (${report.role}): ${reason}`,
+    })
+  );
+
+const recoverCommand = Command.make(
+  "recover",
+  modelsFlags,
+  Effect.fn("ModelsCommand.recover")(function* (flags) {
+    const paths = yield* resolvePaths(flags);
+    const path = yield* Path.Path;
+    const writer = yield* ModelsApply;
+    const reports = yield* writer
+      .recover(path.join(paths.home, ".config-backups"))
+      .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    const isLegacy = (report: ModelsRecoveryReport) =>
+      report.result._tag === "skipped" && report.result.reason === "legacy";
+    const legacy = A.filter(reports, isLegacy);
+    const decided = A.filter(reports, (report) => !isLegacy(report));
+    yield* Effect.forEach(decided, (report) => Console.log(describeRecovery(report)), { discard: true });
+    yield* Console.log(
+      `models: recover reconciled ${A.length(decided)} publication(s); ${A.length(legacy)} legacy journal(s) left for restore --journal`
+    );
+    if (A.some(decided, (report) => report.result._tag === "refused"))
+      return yield* ModelsCommandError.make({
+        message: "One or more interrupted publications were refused; their artifacts are kept.",
+      });
+  })
+).pipe(Command.withDescription("Reconcile interrupted native publications; refuse and keep artifacts on drift"));
+
 /**
  * The `beep models` command group.
  *
@@ -663,6 +701,7 @@ export const modelsCommand = Command.make(
     applyCommand,
     codexPermissionsCommand,
     restoreCommand,
+    recoverCommand,
   ]),
   Command.provide(ModelsApplyLive),
   Command.provide(ModelsLive)

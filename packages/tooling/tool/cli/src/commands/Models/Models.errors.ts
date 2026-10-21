@@ -21,7 +21,7 @@ import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import { messageWithCause } from "../../internal/cli/CommandErrorFields.ts";
 import { OpaqueDefect } from "../../internal/schema/OpaqueDefect.ts";
-import { ModelsExchangeUnsupportedReason } from "./Models.exchange.schemas.ts";
+import { ModelsExchangeUnsupportedReason, ModelsRecoveryRefusal } from "./Models.exchange.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.errors");
 
@@ -33,7 +33,10 @@ const $I = $RepoCliId.create("commands/Models/Models.errors");
  * `ineligible` is a parsed eligibility refusal. `exchange-unsupported` means the
  * target filesystem cannot exchange pathnames atomically, and
  * `exchange-probe-failed` means its capability could not be established. Both
- * exchange refusals happen before any backup, journal or publication.
+ * exchange refusals happen before any backup, journal or publication. The
+ * {@link ModelsRecoveryRefusal} reasons come from restart recovery, which
+ * refuses and keeps every artifact, and `owner-alive` means the publication
+ * still belongs to a running process.
  *
  * **Example** (Guard a refusal reason)
  *
@@ -47,9 +50,15 @@ const $I = $RepoCliId.create("commands/Models/Models.errors");
  * @category errors
  * @since 0.0.0
  */
-export const ModelsLocatorRefusal = LiteralKit(["ineligible", "exchange-unsupported", "exchange-probe-failed"]).pipe(
+export const ModelsLocatorRefusal = LiteralKit([
+  "ineligible",
+  "exchange-unsupported",
+  "exchange-probe-failed",
+  "owner-alive",
+  ...ModelsRecoveryRefusal.literals,
+]).pipe(
   $I.annoteSchema("ModelsLocatorRefusal", {
-    description: "Typed reason a native write or restore refused before mutating the target.",
+    description: "Typed reason a native write, restore or recovery refused without overwriting the target.",
   })
 );
 

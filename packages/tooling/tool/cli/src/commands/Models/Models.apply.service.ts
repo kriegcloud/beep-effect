@@ -22,6 +22,7 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Random from "effect/Random";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 import { getNodeValue } from "jsonc-parser";
@@ -38,6 +39,12 @@ import {
   ModelsExchangeFilesystemIdentity,
   ModelsExchangeMount,
   ModelsExchangeQualification,
+  ModelsPublicationOwner,
+  ModelsPublicationRole,
+  ModelsPublicationState,
+  ModelsRecoveryReport,
+  ModelsRecoveryResult,
+  ModelsTrackedPublication,
   modelsExchangeIdentityKey,
 } from "./Models.exchange.schemas.ts";
 import { modelsReadLocator } from "./Models.locator.service.ts";
@@ -53,11 +60,55 @@ import {
   modelsWritePreflight,
   modelsWriteSpans,
 } from "./Models.spans.ts";
-import type { ModelsExchangeUnsupportedReason } from "./Models.exchange.schemas.ts";
+import type {
+  ModelsExchangeUnsupportedReason,
+  ModelsPublicationStep,
+  ModelsRecoveryOutcome,
+  ModelsRecoveryRefusal,
+} from "./Models.exchange.schemas.ts";
 import type { ModelsApplyMode, ModelsLocatorWrite } from "./Models.manifest.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Models/Models.apply.service");
 const encodeJournal = S.encodeEffect(S.fromJsonString(ModelsApplyJournal));
+const isTrackedPublication = S.is(ModelsTrackedPublication);
+// A pending publication may still be mid-step; terminal states are completed,
+// recovered and refused.
+const pendingState = ModelsPublicationState.isAnyOf([
+  "intent",
+  "backed-up",
+  "staged",
+  "exchanged",
+  "verified",
+  "recovering",
+]);
+const isRecoveryState = ModelsPublicationState.isAnyOf(["recovering", "recovered", "refused"]);
+// Explicit restore also retries a publication automatic recovery refused.
+const retryableState = ModelsPublicationState.isAnyOf([
+  "intent",
+  "backed-up",
+  "staged",
+  "exchanged",
+  "verified",
+  "recovering",
+  "refused",
+]);
+const textBytes = (text: string) => new TextEncoder().encode(text);
+// procfs `stat`: "pid (comm) state ..." where comm may hold spaces or parens,
+// so fields are counted after the last ")". Field 3 is the state and field 22
+// the start time in clock ticks since boot.
+const parseProcessStat = (text: string) => {
+  const close = text.lastIndexOf(")");
+  const pid = Number.parseInt(text, 10);
+  const fields = Str.split(Str.trim(text.slice(close + 1)), " ");
+  return O.all({ state: A.get(fields, 0), startTicks: A.get(fields, 19) }).pipe(
+    O.filter(() => close > 0 && Number.isSafeInteger(pid)),
+    O.map((entry) => ({ ...entry, pid }))
+  );
+};
+// What recovery finds on one recorded path: nothing, a symlink or non-regular
+// entry it never removes, or a regular file and the SHA-256 of its bytes.
+const Observation = S.TaggedUnion({ absent: {}, foreign: {}, file: { hash: S.String } });
+type Observation = typeof Observation.Type;
 const decodeJournal = S.decodeEffect(S.fromJsonString(ModelsApplyJournal));
 const failure = (message: string) => ModelsLocatorError.make({ message });
 const nativeFields = S.Record(S.String, S.Unknown);
@@ -174,12 +225,20 @@ const assertOwnedBytes = Effect.fnUntraced(function* (
 /**
  * The writer accepts only explicit locator ownership, never a full replacement file.
  *
+ * **Details**
+ *
+ * `apply` and `restore` publish through a journaled state machine. `recover`
+ * reconciles every interrupted publication in a backup directory whose owning
+ * process has died, and reports what it did. `apply --write` runs the same
+ * reconciliation for its own target first, and `restore` runs it for its
+ * journal, so manual and automatic recovery share one code path.
+ *
  * **Example** (Describe the owned operations)
  *
  * ```ts
  * import type { ModelsApplyShape } from "@beep/repo-cli/commands/Models/Models.apply.service"
- * const operations: ReadonlyArray<keyof ModelsApplyShape> = ["apply", "restore"]
- * console.log(operations.length) // 2
+ * const operations: ReadonlyArray<keyof ModelsApplyShape> = ["apply", "restore", "recover"]
+ * console.log(operations.length) // 3
  * ```
  *
  * @category services
@@ -192,6 +251,7 @@ export interface ModelsApplyShape {
     mode: ModelsApplyMode,
     backupDirectory: string
   ) => Effect.Effect<O.Option<ModelsApplyJournal>, ModelsLocatorError>;
+  readonly recover: (backupDirectory: string) => Effect.Effect<ReadonlyArray<ModelsRecoveryReport>, ModelsLocatorError>;
   readonly restore: (journalFile: string, backupDirectory: string) => Effect.Effect<void, ModelsLocatorError>;
 }
 
@@ -211,6 +271,16 @@ export interface ModelsApplyShape {
  * before any backup, journal or publication. There is no unverified fallback.
  * Writers holding an inode can still mutate it after its final observation;
  * strict exclusion of such writers requires an external maintenance boundary.
+ *
+ * Each publication records `intent`, `backed-up`, `staged`, `exchanged`,
+ * `verified` and `completed` in its journal with an fsynced write-and-rename
+ * before the step each one guards. Recovery never runs while the owning
+ * process is alive. It compares the live bytes with the recorded preimage and
+ * staged hashes: a preimage target drops the stage, the preimage link and the
+ * stale backup; a staged target finishes by dropping the stage and link. A
+ * foreign file displaced into the stage is exchanged back to the live path. Any
+ * other target, or any artifact holding foreign bytes, is refused with a typed
+ * reason and every artifact is kept.
  *
  * **Example** (Access the writer)
  *
@@ -699,14 +769,27 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       Effect.provideService(FileSystem.FileSystem, fs),
       Effect.provideService(Path.Path, path)
     );
-  const hash = Effect.fnUntraced(function* (text: string) {
+  const hashBytes = Effect.fnUntraced(function* (bytes: Uint8Array) {
     return Hex.encode(
       yield* crypto
-        .digest("SHA-256", asArrayBufferView(new TextEncoder().encode(text)))
+        .digest("SHA-256", asArrayBufferView(bytes))
         .pipe(ModelsLocatorError.mapError("Cannot fingerprint configuration."))
     );
   });
+  const hash = (text: string) => hashBytes(textBytes(text));
   const io = ModelsLocatorError.mapError("Native configuration I/O failed.");
+  // Exclusive create, full write and fsync before the handle closes.
+  const writeDurable = Effect.fnUntraced(function* (file: string, bytes: Uint8Array) {
+    yield* Effect.scoped(
+      Effect.gen(function* () {
+        const handle = yield* fs.open(file, { flag: "wx", mode: 0o600 });
+        yield* handle.writeAll(bytes);
+        yield* handle.sync;
+      })
+    ).pipe(io);
+  });
+  const syncDirectory = (directory: string) =>
+    Effect.scoped(Effect.flatMap(fs.open(directory, { flag: "r" }), (handle) => handle.sync)).pipe(Effect.ignore);
   const readNative = Effect.fnUntraced(function* (file: string) {
     const bytes = yield* fs.readFile(file).pipe(io);
     return yield* modelsNativeText(bytes);
@@ -723,7 +806,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
   // The retained fail-closed boundary: every write and restore qualifies its
   // actual target filesystem before any backup, journal, staging or exchange.
   const requireExchange = Effect.fnUntraced(function* (target: string) {
-    const { capability } = yield* qualify(target).pipe(
+    const qualification = yield* qualify(target).pipe(
       Effect.mapError((error) =>
         ModelsLocatorError.make({
           reason: "exchange-probe-failed",
@@ -732,12 +815,14 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         })
       )
     );
+    const { capability } = qualification;
     if (capability._tag === "unsupported")
       return yield* ModelsLocatorError.make({
         reason: "exchange-unsupported",
         path: target,
         message: `Atomic exchange unsupported on the target filesystem (${capability.reason}: ${capability.detail}); refusing native write before backup or publication.`,
       });
+    return qualification;
   });
   const sameInode = (left: FileSystem.File.Info, right: FileSystem.File.Info) =>
     O.isSome(left.ino) && O.isSome(right.ino) && left.dev === right.dev && left.ino.value === right.ino.value;
@@ -802,18 +887,296 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       return yield* failure("Requested native entry or link target changed; refusing replacement.");
   });
 
+  // Journal publication: an fsynced sibling file, then an exclusive link for the
+  // first state or a rename for every later one, then a directory fsync.
+  const publishJournal = Effect.fnUntraced(function* (
+    backupDirectory: string,
+    journal: ModelsApplyJournal,
+    exclusive: boolean
+  ) {
+    const file = path.join(backupDirectory, `${journal.id}.json`);
+    const partial = `${file}.${yield* Random.nextIntBetween(0, 0xffffff)}.partial`;
+    const encoded = yield* encodeJournal(journal).pipe(ModelsLocatorError.mapError("Cannot encode recovery journal."));
+    yield* writeDurable(partial, textBytes(encoded)).pipe(
+      Effect.andThen((exclusive ? fs.link(partial, file) : fs.rename(partial, file)).pipe(io)),
+      Effect.ensuring(Effect.ignore(fs.remove(partial)))
+    );
+    yield* syncDirectory(backupDirectory);
+  });
+
+  const publicationOf = (journal: ModelsApplyJournal, role: ModelsPublicationRole) =>
+    role === "publication" ? O.liftPredicate(journal.publication, isTrackedPublication) : journal.restoration;
+
+  const withPublication = (
+    journal: ModelsApplyJournal,
+    role: ModelsPublicationRole,
+    publication: ModelsTrackedPublication
+  ) =>
+    ModelsApplyJournal.make(
+      role === "publication" ? { ...journal, publication } : { ...journal, restoration: O.some(publication) }
+    );
+
+  // The ledger owns the latest journal for one publication and durably writes
+  // each next state before the caller performs the step it guards.
+  const makeLedger = (
+    backupDirectory: string,
+    journal: ModelsApplyJournal,
+    role: ModelsPublicationRole,
+    publication: ModelsTrackedPublication
+  ) => {
+    let current = { journal, publication };
+    const advance = (state: ModelsPublicationState) =>
+      Effect.suspend(() => {
+        const next = ModelsTrackedPublication.make({ ...current.publication, state });
+        current = { journal: withPublication(current.journal, role, next), publication: next };
+        return publishJournal(backupDirectory, current.journal, false);
+      });
+    return { advance, journal: () => current.journal };
+  };
+
+  const artifactNames = (file: string, operation: string) => ({
+    operation,
+    staging: `${file}.${operation}.tmp`,
+    retained: `${file}.${operation}.preimage`,
+  });
+
+  // Process identity from procfs: boot id plus pid and start time, so a dead or
+  // reused pid never reads as the owner.
+  const bootId = fs.readFileString("/proc/sys/kernel/random/boot_id").pipe(Effect.map(Str.trim), Effect.option);
+  const processStat = (pid: string) =>
+    fs.readFileString(`/proc/${pid}/stat`).pipe(Effect.option, Effect.map(O.flatMap(parseProcessStat)));
+  const currentOwner = Effect.gen(function* () {
+    const boot = yield* bootId;
+    const stat = yield* processStat("self");
+    return O.isSome(boot) && O.isSome(stat) && Str.isNonEmpty(boot.value)
+      ? O.some(
+          ModelsPublicationOwner.make({ bootId: boot.value, pid: stat.value.pid, startTicks: stat.value.startTicks })
+        )
+      : O.none<ModelsPublicationOwner>();
+  });
+  const ownerAlive = Effect.fnUntraced(function* (owner: O.Option<ModelsPublicationOwner>) {
+    if (O.isNone(owner)) return false;
+    const boot = yield* bootId;
+    // A recorded owner proves procfs worked at write time; an unreadable boot id
+    // now is an anomaly, so recovery stays out of the way.
+    if (O.isNone(boot)) return true;
+    if (boot.value !== owner.value.bootId) return false;
+    const stat = yield* processStat(`${owner.value.pid}`);
+    return O.exists(
+      stat,
+      (entry) => entry.startTicks === owner.value.startTicks && entry.state !== "Z" && entry.state !== "X"
+    );
+  });
+
+  const observe = Effect.fnUntraced(function* (file: string) {
+    if (O.isSome(yield* fs.readLink(file).pipe(Effect.option))) return Observation.cases.foreign.make({});
+    const info = yield* fs.stat(file).pipe(Effect.option);
+    if (O.isNone(info)) return Observation.cases.absent.make({});
+    if (info.value.type !== "File") return Observation.cases.foreign.make({});
+    return Observation.cases.file.make({ hash: yield* hashBytes(yield* fs.readFile(file).pipe(io)) });
+  });
+  const discard = (file: string) =>
+    fs.exists(file).pipe(
+      Effect.flatMap((present) => (present ? fs.remove(file) : Effect.void)),
+      io
+    );
+
+  // Recorded paths must be this journal's own artifacts beside its own target,
+  // so a tampered journal can never steer a removal or an exchange elsewhere.
+  const ownsArtifacts = Effect.fnUntraced(function* (
+    backupDirectory: string,
+    journal: ModelsApplyJournal,
+    role: ModelsPublicationRole,
+    publication: ModelsTrackedPublication
+  ) {
+    const prefix = `${path.basename(journal.file)}.${journal.id}-`;
+    const beside = (file: string, extension: string) =>
+      path.dirname(file) === path.dirname(journal.file) &&
+      Str.startsWith(prefix)(path.basename(file)) &&
+      Str.endsWith(extension)(file);
+    // The backup directory may be named through a symlink by one caller and
+    // resolved by another, so compare resolved directories.
+    const resolved = (directory: string) => fs.realPath(directory).pipe(Effect.option);
+    const ownBackup = (backup: string) =>
+      Effect.zipWith(
+        resolved(path.dirname(backup)),
+        resolved(backupDirectory),
+        (recorded, actual) => O.isSome(recorded) && O.contains(actual, recorded.value)
+      ).pipe(Effect.map((same) => same && role === "publication" && path.basename(backup) === `${journal.id}.backup`));
+    const backupOwned = yield* O.match(publication.backup, { onNone: () => Effect.succeed(true), onSome: ownBackup });
+    return (
+      backupOwned &&
+      publication.target === journal.file &&
+      beside(publication.staging, ".tmp") &&
+      beside(publication.retained, ".preimage")
+    );
+  });
+
+  const refuse = (reason: ModelsRecoveryRefusal, detail: string) =>
+    ModelsRecoveryResult.cases.refused.make({ reason, detail });
+
+  // A foreign file the exchange displaced into the stage goes back to the live
+  // path through another qualified exchange; the publication is then refused.
+  const returnDisplaced = Effect.fnUntraced(function* (publication: ModelsTrackedPublication, foreign: string) {
+    const qualification = yield* requireExchange(publication.target);
+    if (modelsExchangeIdentityKey(qualification.identity) !== publication.filesystem)
+      return refuse("filesystem-changed", "Target filesystem identity changed since intent; no exchange attempted.");
+    yield* exchange(publication.staging, publication.target);
+    const returned = yield* observe(publication.target);
+    return refuse(
+      "competing-writer",
+      returned._tag === "file" && returned.hash === foreign
+        ? "A displaced native writer was returned to the live path; the stage keeps the staged content."
+        : "A displaced native writer could not be confirmed on the live path; every artifact is kept."
+    );
+  });
+
+  // Which recorded content the live target holds, or why recovery must refuse.
+  const liveOutcome = (publication: ModelsTrackedPublication, target: Observation) =>
+    Match.value(target).pipe(
+      Match.tagsExhaustive({
+        absent: () => Result.fail(refuse("target-missing", "The native target is missing; nothing was moved.")),
+        foreign: () => Result.fail(refuse("competing-writer", "The native target is no longer a regular file.")),
+        file: ({ hash: live }) =>
+          live === publication.preimageHash
+            ? Result.succeed<ModelsRecoveryOutcome>("preimage")
+            : live === publication.stagedHash
+              ? Result.succeed<ModelsRecoveryOutcome>("intended")
+              : Result.fail(
+                  refuse("competing-writer", "Target bytes match neither the preimage nor the staged content.")
+                ),
+      })
+    );
+
+  // Drop the stage and preimage link; a publication that never landed also
+  // drops its backup, which only copies the unchanged target.
+  const finish = Effect.fnUntraced(function* (publication: ModelsTrackedPublication, outcome: ModelsRecoveryOutcome) {
+    yield* discard(publication.staging);
+    yield* discard(publication.retained);
+    if (outcome === "preimage") yield* Effect.forEach(O.toArray(publication.backup), discard, { discard: true });
+    return ModelsRecoveryResult.cases.recovered.make({ outcome });
+  });
+
+  // Decide from the bytes on disk, never from the recorded step alone: the step
+  // only says which artifacts may exist.
+  const settle = Effect.fnUntraced(function* (
+    backupDirectory: string,
+    journal: ModelsApplyJournal,
+    role: ModelsPublicationRole,
+    publication: ModelsTrackedPublication
+  ) {
+    if (!(yield* ownsArtifacts(backupDirectory, journal, role, publication)))
+      return refuse("foreign-artifact", "Recorded recovery paths are not this journal's own artifacts.");
+    const known = (observation: Observation) =>
+      observation._tag === "absent" ||
+      (observation._tag === "file" && A.contains([publication.preimageHash, publication.stagedHash], observation.hash));
+    const live = liveOutcome(publication, yield* observe(publication.target));
+    if (Result.isFailure(live)) return live.failure;
+    if (!known(yield* observe(publication.retained)))
+      return refuse("foreign-artifact", "The retained preimage link holds foreign bytes.");
+    const staging = yield* observe(publication.staging);
+    if (live.success === "intended" && staging._tag === "file" && !known(staging))
+      return yield* returnDisplaced(publication, staging.hash);
+    if (!known(staging)) return refuse("foreign-artifact", "The stage holds foreign bytes.");
+    return yield* finish(publication, live.success);
+  });
+
+  const fromStep = (state: ModelsPublicationState): ModelsPublicationStep =>
+    isRecoveryState(state) ? state.from : state._tag;
+
+  // The one reconciliation path behind automatic recovery, `recover` and
+  // `restore`. It records `recovering` before changing anything, so a crash
+  // during recovery is reconciled again from the bytes on disk.
+  const reconcile = Effect.fnUntraced(function* (
+    backupDirectory: string,
+    journal: ModelsApplyJournal,
+    role: ModelsPublicationRole,
+    publication: ModelsTrackedPublication
+  ) {
+    // Only a pending publication can still be in its owner's hands; a refusal
+    // is terminal whoever wrote it.
+    if (pendingState(publication.state) && (yield* ownerAlive(publication.owner)))
+      return { journal, result: ModelsRecoveryResult.cases.skipped.make({ reason: "owner-alive" }) };
+    const from = fromStep(publication.state);
+    const ledger = makeLedger(
+      backupDirectory,
+      journal,
+      role,
+      ModelsTrackedPublication.make({ ...publication, owner: yield* currentOwner })
+    );
+    yield* ledger.advance(ModelsPublicationState.cases.recovering.make({ from }));
+    const result = yield* settle(backupDirectory, journal, role, publication);
+    yield* ledger.advance(
+      result._tag === "recovered"
+        ? ModelsPublicationState.cases.recovered.make({ from, outcome: result.outcome })
+        : ModelsPublicationState.cases.refused.make({ from, reason: result.reason, detail: result.detail })
+    );
+    const stale = A.filter(
+      yield* fs.readDirectory(backupDirectory).pipe(io),
+      (entry) => Str.startsWith(`${journal.id}.json.`)(entry) && Str.endsWith(".partial")(entry)
+    );
+    yield* Effect.forEach(stale, (entry) => discard(path.join(backupDirectory, entry)), { discard: true });
+    return { journal: ledger.journal(), result };
+  });
+
+  // Undecodable or misnamed journals are not this writer's to judge.
+  const readJournalEntry = (backupDirectory: string, entry: string) =>
+    fs
+      .readFileString(path.join(backupDirectory, entry))
+      .pipe(
+        Effect.flatMap(decodeJournal),
+        Effect.option,
+        Effect.map(O.filter((journal) => entry === `${journal.id}.json`))
+      );
+
+  // Reconcile each pending publication of one journal, threading the journal
+  // each reconciliation rewrote into the next.
+  const reconcileJournal = Effect.fnUntraced(function* (backupDirectory: string, initial: ModelsApplyJournal) {
+    if (!isTrackedPublication(initial.publication))
+      return [
+        ModelsRecoveryReport.make({
+          journal: initial.id,
+          role: "publication",
+          result: ModelsRecoveryResult.cases.skipped.make({ reason: "legacy" }),
+        }),
+      ];
+    let journal = initial;
+    const reports: Array<ModelsRecoveryReport> = [];
+    for (const role of ModelsPublicationRole.literals) {
+      const pending = O.filter(publicationOf(journal, role), (publication) => pendingState(publication.state));
+      if (O.isNone(pending)) continue;
+      const settled = yield* reconcile(backupDirectory, journal, role, pending.value);
+      journal = settled.journal;
+      reports.push(ModelsRecoveryReport.make({ journal: journal.id, role, result: settled.result }));
+    }
+    return reports;
+  });
+
+  const sweep = Effect.fnUntraced(function* (backupDirectory: string, target: O.Option<string>) {
+    if (!(yield* fs.exists(backupDirectory).pipe(io))) return A.empty<ModelsRecoveryReport>();
+    const entries = A.sort(
+      A.filter(yield* fs.readDirectory(backupDirectory).pipe(io), Str.endsWith(".json")),
+      Order.String
+    );
+    const journals = A.filter(
+      A.getSomes(yield* Effect.forEach(entries, (entry) => readJournalEntry(backupDirectory, entry))),
+      (journal) => O.isNone(target) || journal.file === target.value
+    );
+    return A.flatten(yield* Effect.forEach(journals, (journal) => reconcileJournal(backupDirectory, journal)));
+  });
+
   const atomic = Effect.fnUntraced(function* (
-    file: string,
+    names: { readonly operation: string; readonly staging: string; readonly retained: string },
     beforeHash: string,
     after: string,
     mode: number,
     journal: ModelsApplyJournal,
     backupDirectory: string,
-    writes: ReadonlyArray<ModelsLocatorWrite> = []
+    writes: ReadonlyArray<ModelsLocatorWrite>,
+    advance: (state: ModelsPublicationState) => Effect.Effect<void, ModelsLocatorError>
   ) {
-    const operation = `${journal.id}-${yield* suffix}`;
-    const temporary = `${file}.${operation}.tmp`;
-    const retained = `${file}.${operation}.preimage`;
+    const file = journal.file;
+    const { operation, staging: temporary, retained } = names;
     let exchanged = false;
     let completed = false;
     yield* Effect.acquireUseRelease(
@@ -821,7 +1184,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       Effect.fnUntraced(function* () {
         const plannedInfo = yield* fs.stat(retained).pipe(io);
         return yield* Effect.acquireUseRelease(
-          fs.writeFileString(temporary, after, { flag: "wx", mode: 0o600 }).pipe(io),
+          writeDurable(temporary, textBytes(after)),
           Effect.fnUntraced(function* () {
             const staged = yield* readNative(temporary);
             if (staged !== after) return yield* failure("Staged configuration differs from the validated candidate.");
@@ -834,12 +1197,14 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
               (yield* hash(yield* readNative(retained))) !== beforeHash
             )
               return yield* failure("Native file drifted after planning; refusing replacement.");
+            yield* advance(ModelsPublicationState.cases.staged.make({}));
             yield* Effect.uninterruptible(
               Effect.gen(function* () {
                 // Once publication starts, a failed process observation is uncertain:
                 // retain both occupants even if mv cannot report its final status.
                 exchanged = true;
                 yield* exchange(temporary, file);
+                yield* advance(ModelsPublicationState.cases.exchanged.make({}));
                 if (!(yield* matches(temporary, plannedInfo, beforeHash))) {
                   yield* fs
                     .writeFileString(
@@ -853,6 +1218,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
                 }
                 if (!(yield* matches(file, stagedInfo, yield* hash(after))))
                   return yield* failure("Native file changed after replacement; preserve journal for recovery.");
+                yield* advance(ModelsPublicationState.cases.verified.make({}));
                 completed = true;
               })
             );
@@ -861,7 +1227,76 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         );
       }),
       () => (!exchanged || completed ? Effect.ignore(fs.remove(retained)) : Effect.void)
-    ).pipe(Effect.mapError((error) => failure(`${error.message} Journal: ${journal.id}`)));
+    ).pipe(
+      Effect.andThen(advance(ModelsPublicationState.cases.completed.make({}))),
+      Effect.mapError((error) => failure(`${error.message} Journal: ${journal.id}`))
+    );
+  });
+
+  // Automatic recovery: reconcile this target's interrupted publications before
+  // reading the bytes a write is planned from. A refusal keeps its artifacts and
+  // does not block the write, which edits only owned fields of the live bytes.
+  const recoverTarget = Effect.fnUntraced(function* (file: string, backupDirectory: string) {
+    const reports = yield* fs.realPath(file).pipe(
+      Effect.option,
+      Effect.flatMap((resolved) => (O.isSome(resolved) ? sweep(backupDirectory, resolved) : Effect.succeed([])))
+    );
+    yield* Effect.forEach(
+      A.filter(reports, (entry) => entry.result._tag === "refused"),
+      (entry) => Effect.logWarning(`models: recovery refused ${entry.journal} (${entry.role}); artifacts kept`),
+      { discard: true }
+    );
+  });
+
+  // Record intent, take the durable backup, then publish through the ledger.
+  const publishApply = Effect.fnUntraced(function* (
+    file: string,
+    actual: string,
+    before: string,
+    after: string,
+    writes: A.NonEmptyReadonlyArray<ModelsLocatorWrite>,
+    backupDirectory: string
+  ) {
+    const qualification = yield* requireExchange(actual);
+    const info = yield* fs.stat(actual).pipe(io);
+    const id = yield* suffix;
+    yield* fs.makeDirectory(backupDirectory, { recursive: true, mode: 0o700 }).pipe(io);
+    const backup = path.join(backupDirectory, `${id}.backup`);
+    const names = artifactNames(actual, `${id}-${yield* suffix}`);
+    const beforeHash = yield* hash(before);
+    const publication = ModelsTrackedPublication.make({
+      state: ModelsPublicationState.cases.intent.make({}),
+      owner: yield* currentOwner,
+      target: actual,
+      staging: names.staging,
+      retained: names.retained,
+      backup: O.some(backup),
+      preimageHash: beforeHash,
+      stagedHash: yield* hash(after),
+      targetAtIntentHash: yield* hashBytes(yield* fs.readFile(actual).pipe(io)),
+      filesystem: modelsExchangeIdentityKey(qualification.identity),
+    });
+    const journal = ModelsApplyJournal.make({
+      id,
+      file: actual,
+      backup,
+      beforeHash,
+      afterHash: publication.stagedHash,
+      mode: info.mode,
+      writes: O.some(writes),
+      requestedFile: O.some(path.resolve(file)),
+      requestedLink: yield* fs.readLink(file).pipe(Effect.option),
+      publication,
+      restoration: O.none(),
+    });
+    const ledger = makeLedger(backupDirectory, journal, "publication", publication);
+    yield* publishJournal(backupDirectory, journal, true);
+    yield* writeDurable(backup, textBytes(before)).pipe(
+      Effect.andThen(ledger.advance(ModelsPublicationState.cases["backed-up"].make({}))),
+      Effect.mapError((error) => failure(`${error.message} Journal: ${id}`))
+    );
+    yield* atomic(names, beforeHash, after, info.mode, journal, backupDirectory, writes, ledger.advance);
+    return ledger.journal();
   });
 
   const apply: ModelsApplyShape["apply"] = Effect.fn("ModelsApply.apply")(
@@ -870,7 +1305,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         yield* modelsWritePreflight(
           file,
           A.map(writes, (write) => write.locator)
-        ).pipe(Effect.provideService(Path.Path, path));
+        ).pipe(Effect.provideService(Path.Path, path), Effect.andThen(recoverTarget(file, backupDirectory)));
       const nativeWrites = A.filter(writes, ({ locator }) => O.isNone(modelsCheckOnlyFormat(locator)));
       const eligible = A.isReadonlyArrayNonEmpty(nativeWrites)
         ? yield* eligibility(file, nativeWrites)
@@ -896,34 +1331,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       if (after === before) return O.none();
       if (mode === "dry-run") return O.none();
       if (!A.isReadonlyArrayNonEmpty(writes)) return yield* failure("Locator ownership must be non-empty.");
-      yield* requireExchange(actual);
-      const info = yield* fs.stat(actual).pipe(io);
-      const id = yield* suffix;
-      yield* fs.makeDirectory(backupDirectory, { recursive: true, mode: 0o700 }).pipe(io);
-      const backup = path.join(backupDirectory, `${id}.backup`);
-      yield* fs.writeFileString(backup, before, { flag: "wx", mode: 0o600 }).pipe(io);
-      const journal = ModelsApplyJournal.make({
-        id,
-        file: actual,
-        backup,
-        beforeHash: yield* hash(before),
-        afterHash: yield* hash(after),
-        mode: info.mode,
-        writes: O.some(writes),
-        requestedFile: O.some(path.resolve(file)),
-        requestedLink: yield* fs.readLink(file).pipe(Effect.option),
-      });
-      const encoded = yield* encodeJournal(journal).pipe(
-        ModelsLocatorError.mapError("Cannot encode recovery journal.")
-      );
-      yield* fs
-        .writeFileString(path.join(backupDirectory, `${id}.json`), encoded, {
-          flag: "wx",
-          mode: 0o600,
-        })
-        .pipe(io);
-      yield* atomic(actual, journal.beforeHash, after, info.mode, journal, backupDirectory, writes);
-      return O.some(journal);
+      return O.some(yield* publishApply(file, actual, before, after, writes, backupDirectory));
     }
   );
 
@@ -943,51 +1351,116 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     return journal.writes.value;
   });
 
+  const recoveryRefusal = (result: ModelsRecoveryResult) =>
+    Match.value(result).pipe(
+      Match.tagsExhaustive({
+        recovered: () => Effect.void,
+        skipped: () =>
+          ModelsLocatorError.make({
+            reason: "owner-alive",
+            message: "The publication's owning process is still running; refusing recovery.",
+          }),
+        refused: ({ detail, reason }) =>
+          ModelsLocatorError.make({
+            reason,
+            message: `Recovery refused (${reason}): ${detail} Every artifact is kept.`,
+          }),
+      })
+    );
+
+  // Manual recovery takes the same reconciliation path as automatic recovery,
+  // and also retries a publication automatic recovery refused.
+  const reconcileForRestore = Effect.fnUntraced(function* (root: string, initial: ModelsApplyJournal) {
+    let journal = initial;
+    let restored = false;
+    for (const role of ModelsPublicationRole.literals) {
+      const retryable = O.filter(publicationOf(journal, role), (publication) => retryableState(publication.state));
+      if (O.isNone(retryable)) continue;
+      const settled = yield* reconcile(root, journal, role, retryable.value);
+      yield* recoveryRefusal(settled.result);
+      journal = settled.journal;
+      restored = role === "restoration" && settled.result._tag === "recovered" && settled.result.outcome === "intended";
+    }
+    return { journal, restored };
+  });
+
+  // A publication recovered to its preimage never landed: nothing to restore.
+  const neverLanded = (journal: ModelsApplyJournal) =>
+    isTrackedPublication(journal.publication) &&
+    journal.publication.state._tag === "recovered" &&
+    journal.publication.state.outcome === "preimage";
+
+  // The fingerprint-fenced undo, published as the journal's restoration.
+  const undo = Effect.fnUntraced(function* (root: string, journal: ModelsApplyJournal) {
+    const writes = yield* recoveryWrites(journal);
+    yield* assertDestination(journal);
+    const backup = yield* fs.realPath(journal.backup).pipe(io);
+    if (path.dirname(backup) !== root || path.basename(backup) !== `${journal.id}.backup`)
+      return yield* failure("Recovery backup is outside its journal directory.");
+    const { content: current } = yield* eligibility(journal.file, writes, journal.file, "restore");
+    const currentHash = yield* hash(current);
+    if (currentHash !== journal.afterHash)
+      return yield* failure("Native file changed since apply; restore would overwrite new state.");
+    const { content: original } = yield* eligibility(journal.file, writes, backup, "restore");
+    if ((yield* hash(original)) !== journal.beforeHash) return yield* failure("Recovery backup hash does not match.");
+    const qualification = yield* requireExchange(journal.file);
+    const names = artifactNames(journal.file, `${journal.id}-${yield* suffix}`);
+    const restoration = ModelsTrackedPublication.make({
+      state: ModelsPublicationState.cases.intent.make({}),
+      owner: yield* currentOwner,
+      target: journal.file,
+      staging: names.staging,
+      retained: names.retained,
+      backup: O.none(),
+      preimageHash: journal.afterHash,
+      stagedHash: journal.beforeHash,
+      targetAtIntentHash: currentHash,
+      filesystem: modelsExchangeIdentityKey(qualification.identity),
+    });
+    const restoring = withPublication(journal, "restoration", restoration);
+    const ledger = makeLedger(root, restoring, "restoration", restoration);
+    yield* publishJournal(root, restoring, false);
+    yield* atomic(
+      names,
+      journal.afterHash,
+      original,
+      (yield* fs.stat(journal.file).pipe(io)).mode,
+      restoring,
+      root,
+      [],
+      ledger.advance
+    );
+  });
+
   const restore: ModelsApplyShape["restore"] = Effect.fn("ModelsApply.restore")(
     function* (journalFile, backupDirectory) {
       const root = yield* fs.realPath(backupDirectory).pipe(io);
       const actualJournal = yield* fs.realPath(journalFile).pipe(io);
       if (path.dirname(actualJournal) !== root) return yield* failure("Journal must belong to the backup directory.");
-      const journal = yield* fs.readFileString(actualJournal).pipe(
+      const decoded = yield* fs.readFileString(actualJournal).pipe(
         io,
         Effect.flatMap(decodeJournal),
         Effect.mapError(() => failure("Invalid recovery journal."))
       );
       yield* Effect.gen(function* () {
-        const writes = yield* recoveryWrites(journal);
-        yield* assertDestination(journal);
-        const backup = yield* fs.realPath(journal.backup).pipe(io);
-        if (path.dirname(backup) !== root || path.basename(backup) !== `${journal.id}.backup`)
-          return yield* failure("Recovery backup is outside its journal directory.");
-        const { content: current } = yield* eligibility(journal.file, writes, journal.file, "restore");
-        const currentHash = yield* hash(current);
-        if (currentHash !== journal.afterHash)
-          return yield* failure("Native file changed since apply; restore would overwrite new state.");
-        const { content: original } = yield* eligibility(journal.file, writes, backup, "restore");
-        if ((yield* hash(original)) !== journal.beforeHash)
-          return yield* failure("Recovery backup hash does not match.");
-        yield* requireExchange(journal.file);
-        yield* atomic(
-          journal.file,
-          journal.afterHash,
-          original,
-          (yield* fs.stat(journal.file).pipe(io)).mode,
-          journal,
-          backupDirectory
-        );
+        const { journal, restored } = yield* reconcileForRestore(root, decoded);
+        if (!restored && !neverLanded(journal)) yield* undo(root, journal);
       }).pipe(
         Effect.mapError((error) =>
           ModelsLocatorError.make({
             ...O.getSomesStruct({ reason: O.fromUndefinedOr(error.reason) }),
             message: Str.includes("Journal:")(error.message)
               ? error.message
-              : `${error.message} Journal: ${journal.id}`,
+              : `${error.message} Journal: ${decoded.id}`,
           })
         )
       );
     }
   );
-  return ModelsApply.of({ apply, restore });
+  const recoverJournals: ModelsApplyShape["recover"] = Effect.fn("ModelsApply.recover")(function* (backupDirectory) {
+    return yield* sweep(backupDirectory, O.none());
+  });
+  return ModelsApply.of({ apply, restore, recover: recoverJournals });
 });
 
 /**
