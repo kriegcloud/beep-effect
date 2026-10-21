@@ -318,6 +318,39 @@ const walkSchema = (value: unknown, visit: (node: Record<string, unknown>) => un
 
 const failDistribute = (message: string): never => transformFailure("distributeAllOf", message);
 
+const requiredOf = (schema: Record<string, unknown>): ReadonlyArray<unknown> =>
+  A.isArray(schema.required) ? schema.required : [];
+
+const assertNoConflictingConstraints = (left: Record<string, unknown>, right: Record<string, unknown>): void => {
+  for (const key of R.keys(left)) {
+    if (key === "properties" || key === "required" || isAnnotationKeyword(key)) continue;
+    if (right[key] !== undefined && !Equal.equals(left[key], right[key])) {
+      failDistribute(`Unsupported conflicting schema constraint: ${key}`);
+    }
+  }
+};
+
+// Merges two plain object schemas: constraints must agree, properties merge, `required` unions.
+const mergeObjectSchemas = (left: Record<string, unknown>, right: Record<string, unknown>): Record<string, unknown> => {
+  assertNoConflictingConstraints(left, right);
+  const leftProperties = recordValue(left.properties);
+  const rightProperties = recordValue(right.properties);
+  const properties =
+    O.isSome(leftProperties) && O.isSome(rightProperties)
+      ? O.some(mergeOverlappingProperties(leftProperties.value, rightProperties.value))
+      : O.none();
+  const required =
+    A.isArray(left.required) || A.isArray(right.required)
+      ? O.some(A.dedupe(A.appendAll(requiredOf(left), requiredOf(right))))
+      : O.none();
+  return {
+    ...left,
+    ...right,
+    ...O.match(properties, { onNone: R.empty, onSome: (merged) => ({ properties: merged }) }),
+    ...O.match(required, { onNone: R.empty, onSome: (merged) => ({ required: merged }) }),
+  };
+};
+
 const mergeIntersection = (
   left: unknown,
   right: unknown,
@@ -330,32 +363,7 @@ const mergeIntersection = (
   }
   if (A.isArray(left.anyOf)) return { anyOf: A.map(left.anyOf, (branch) => mergeIntersection(branch, right, inline)) };
   if (A.isArray(right.anyOf)) return { anyOf: A.map(right.anyOf, (branch) => mergeIntersection(left, branch, inline)) };
-  for (const key of R.keys(left)) {
-    if (key === "properties" || key === "required" || isAnnotationKeyword(key)) continue;
-    if (right[key] !== undefined && !Equal.equals(left[key], right[key])) {
-      return failDistribute(`Unsupported conflicting schema constraint: ${key}`);
-    }
-  }
-  const leftProperties = recordValue(left.properties);
-  const rightProperties = recordValue(right.properties);
-  const properties =
-    O.isSome(leftProperties) && O.isSome(rightProperties)
-      ? O.some(mergeOverlappingProperties(leftProperties.value, rightProperties.value))
-      : O.none();
-  const required =
-    A.isArray(left.required) || A.isArray(right.required)
-      ? O.some(
-          A.dedupe(
-            A.appendAll(A.isArray(left.required) ? left.required : [], A.isArray(right.required) ? right.required : [])
-          )
-        )
-      : O.none();
-  return {
-    ...left,
-    ...right,
-    ...O.match(properties, { onNone: R.empty, onSome: (merged) => ({ properties: merged }) }),
-    ...O.match(required, { onNone: R.empty, onSome: (merged) => ({ required: merged }) }),
-  };
+  return mergeObjectSchemas(left, right);
 };
 
 const mergeOverlappingProperties = (

@@ -767,6 +767,22 @@ export class AcpInputStreamEndedError extends S.TaggedError<
   }
 }
 
+// Maps a handler failure to the peer-facing `-32603`; an `AcpRequestError` passes through.
+const handlerFailure =
+  (handler: string, operation: AcpRequestOperation) =>
+  (error: AcpError, method: string): AcpRequestError =>
+    AcpRequestError.is(error)
+      ? error
+      : AcpRequestError.internalError(
+          `ACP ${handler} failed for method '${method}'`,
+          undefined,
+          AcpRequestDiagnostics.make({
+            cause: O.some(error),
+            method: O.some(method),
+            operation: O.some(operation),
+          })
+        );
+
 /**
  * JSON-RPC request failure returned by, or sent to, an ACP peer.
  *
@@ -991,21 +1007,7 @@ export class AcpRequestError extends S.TaggedError<AcpRequestError, { readonly b
   static readonly fromCoreHandlerError: {
     (error: AcpError, method: string): AcpRequestError;
     (method: string): (error: AcpError) => AcpRequestError;
-  } = dual(
-    2,
-    (error: AcpError, method: string): AcpRequestError =>
-      AcpRequestError.is(error)
-        ? error
-        : AcpRequestError.internalError(
-            `ACP request handler failed for method '${method}'`,
-            undefined,
-            AcpRequestDiagnostics.make({
-              cause: O.some(error),
-              method: O.some(method),
-              operation: O.some("handle-request"),
-            })
-          )
-  );
+  } = dual(2, handlerFailure("request handler", "handle-request"));
 
   /**
    * Map an extension request handler failure to a request error for the peer.
@@ -1029,21 +1031,7 @@ export class AcpRequestError extends S.TaggedError<AcpRequestError, { readonly b
   static readonly fromExtensionHandlerError: {
     (error: AcpError, method: string): AcpRequestError;
     (method: string): (error: AcpError) => AcpRequestError;
-  } = dual(
-    2,
-    (error: AcpError, method: string): AcpRequestError =>
-      AcpRequestError.is(error)
-        ? error
-        : AcpRequestError.internalError(
-            `ACP extension request handler failed for method '${method}'`,
-            undefined,
-            AcpRequestDiagnostics.make({
-              cause: O.some(error),
-              method: O.some(method),
-              operation: O.some("handle-extension-request"),
-            })
-          )
-  );
+  } = dual(2, handlerFailure("extension request handler", "handle-extension-request"));
 
   /**
    * Create a JSON-RPC parse error.

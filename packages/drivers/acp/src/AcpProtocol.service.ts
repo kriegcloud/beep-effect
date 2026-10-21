@@ -997,19 +997,8 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
       })
     );
 
-  const offerOutgoing = Effect.fn($I`offerOutgoing`)(function* (outbound: AcpWireMessage) {
-    // RpcClient emits `@effect/rpc/Interrupt` when a pending typed call is interrupted. ACP has no
-    // such method and agents log it as an error, so it never reaches the wire.
-    if (outbound._tag === "Interrupt") {
-      return;
-    }
-    if (outbound._tag === "Request") {
-      yield* releaseNotificationReader(outbound.tag);
-    }
-    const message = toAcpWireRequest(outbound);
-    yield* ensureActive;
-    yield* logProtocol({ direction: "outgoing", payload: message, stage: "decoded" });
-
+  // Encodes one outbound message; `none` when the encoder produced nothing to write.
+  const encodeOutgoing = Effect.fn($I`encodeOutgoing`)(function* (message: AcpWireMessage) {
     const encoded = yield* Effect.try({
       try: () => encoder.encode(message),
       catch: (cause) =>
@@ -1020,12 +1009,16 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
         ),
     });
     if (encoded === undefined || (P.isString(encoded) && encoded.length === 0)) {
-      return;
+      return O.none<string | Uint8Array>();
     }
     if (options.logOutgoing === true) {
       yield* logProtocol({ direction: "outgoing", payload: textFromWire(encoded), stage: "raw" });
     }
+    return O.some(encoded);
+  });
 
+  // Hands an encoded message to the writer; a response waits for the writer's acknowledgement.
+  const writeOutgoing = Effect.fn($I`writeOutgoing`)(function* (message: AcpWireMessage, encoded: string | Uint8Array) {
     yield* ensureActive;
     const acknowledgement =
       message._tag === "Exit" ? O.some(yield* Deferred.make<void, AcpError.AcpError>()) : O.none<AcpAcknowledgement>();
@@ -1039,6 +1032,24 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     }
     if (message._tag === "Exit" && options.onOutgoingResponse !== undefined) {
       yield* options.onOutgoingResponse(message.requestId);
+    }
+  });
+
+  const offerOutgoing = Effect.fn($I`offerOutgoing`)(function* (outbound: AcpWireMessage) {
+    // RpcClient emits `@effect/rpc/Interrupt` when a pending typed call is interrupted. ACP has no
+    // such method and agents log it as an error, so it never reaches the wire.
+    if (outbound._tag === "Interrupt") {
+      return;
+    }
+    if (outbound._tag === "Request") {
+      yield* releaseNotificationReader(outbound.tag);
+    }
+    const message = toAcpWireRequest(outbound);
+    yield* ensureActive;
+    yield* logProtocol({ direction: "outgoing", payload: message, stage: "decoded" });
+    const encoded = yield* encodeOutgoing(message);
+    if (O.isSome(encoded)) {
+      yield* writeOutgoing(message, encoded.value);
     }
   });
 
