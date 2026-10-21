@@ -102,7 +102,7 @@ const harness = Effect.fnUntraced(function* (script: Script) {
       yield* Ref.update(installersRun, A.append(path));
       return 0;
     }),
-    open: Effect.fn("FakeHost.open")(function* (target) {
+    openInClaude: Effect.fn("FakeHost.openInClaude")(function* (target) {
       yield* log(`open:${target}`);
     }),
     openLink: Effect.fn("FakeHost.openLink")(function* (link) {
@@ -425,7 +425,7 @@ const hostWith = (install: ClaudeInstall) =>
       runInstaller: Effect.fn("ProbeHost.runInstaller")(function* () {
         return 0;
       }),
-      open: Effect.fn("ProbeHost.open")(function* () {}),
+      openInClaude: Effect.fn("ProbeHost.openInClaude")(function* () {}),
       openLink: Effect.fn("ProbeHost.openLink")(function* () {}),
       copyToClipboard: Effect.fn("ProbeHost.copyToClipboard")(function* () {}),
       stateDir: Effect.succeed(STATE_DIR),

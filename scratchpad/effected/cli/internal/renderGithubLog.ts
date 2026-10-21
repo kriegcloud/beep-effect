@@ -1,6 +1,6 @@
 import * as Match from "effect/Match";
 import { dual, pipe } from "effect/Function";
-import { CommandNeutralizer, WorkflowCommand } from "../../github-commands/index.ts";
+import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
 import type { Block, Document } from "../Doc.ts";
 import { sanitize } from "../Fmt.ts";
 import type { RenderContext } from "../Render.ts";

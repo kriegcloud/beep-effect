@@ -10,7 +10,7 @@ import * as S from "effect/Schema";
 import { GitHubClient, type RecordedCall } from "../../effected/github/GitHubClient.ts";
 import { GitTag, SemverTag, TagRef, versionFromTag } from "../../effected/github/GitTag.ts";
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
-import { SemVer } from "../../effected/semver/index.ts";
+import { SemVer } from "@beep/semver";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop("TagRef encode/decode preserves name and commit", [Arbitrary.schema(TagRef)], ([value]) => Effect.gen(function* () {

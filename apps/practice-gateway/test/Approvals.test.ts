@@ -1,6 +1,6 @@
 import { Remediation, SetupRequirement } from "@beep/law-practice-domain";
 import { SetupApprovals } from "@beep/law-practice-use-cases/PracticeSetup";
-import { approvalMessage, ElicitedApprovals } from "@beep/practice-gateway/Approvals";
+import { approvalMessage, ElicitedApprovals, GatewayApprovals } from "@beep/practice-gateway/Approvals";
 import { requirementFromCatalog } from "@beep/practice-gateway/Requirements";
 import { it } from "@beep/test-runner";
 import { fcRuns, provideScopedLayer } from "@beep/test-utils";
@@ -10,8 +10,10 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as McpSchema from "effect/ai/McpSchema";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { fakeHost } from "./fixtures.ts";
 
 const boxInstall = requirementFromCatalog("box-drive-installed", "documents");
 const clientInfo = { name: "approvals-test-client", version: "0.0.0" };
@@ -89,4 +91,41 @@ describe("ElicitedApprovals", () => {
     expect(message).toContain("Install Box Drive for your Windows account.");
     expect(message).toContain("Why: Box Drive puts your Box documents in a folder Claude can read.");
   });
+});
+
+// The gateway's approvals on a fake Windows host whose dialog answers Yes or No.
+const gatewayApprove = (machine: { readonly answersYes: boolean; readonly isWindows?: boolean }) =>
+  SetupApprovals.use((approvals) => approvals.approveRepair(boxInstall)).pipe(
+    provideScopedLayer(GatewayApprovals.pipe(Layer.provide(fakeHost(machine))))
+  );
+
+const gatewayApproveWith = Effect.fnUntraced(function* (
+  machine: { readonly answersYes: boolean; readonly isWindows?: boolean },
+  capabilities: unknown
+) {
+  const client = yield* clientAnswering({ action: "decline" }, capabilities);
+  return yield* gatewayApprove(machine).pipe(Effect.provideService(McpSchema.McpServerClient, client));
+});
+
+describe("GatewayApprovals", () => {
+  it.effect("asks in a Windows dialog when the client cannot elicit", () =>
+    Effect.gen(function* () {
+      expect(yield* gatewayApproveWith({ answersYes: true }, {})).toBe("approved");
+      expect(yield* gatewayApproveWith({ answersYes: false }, {})).toBe("declined");
+    })
+  );
+
+  it.effect("prefers elicitation when the client supports it", () =>
+    Effect.gen(function* () {
+      // The fake client declines the elicitation; the Yes dialog is never consulted.
+      expect(yield* gatewayApproveWith({ answersYes: true }, { elicitation: {} })).toBe("declined");
+    })
+  );
+
+  it.effect("declines off Windows and outside an MCP call without asking", () =>
+    Effect.gen(function* () {
+      expect(yield* gatewayApproveWith({ answersYes: true, isWindows: false }, {})).toBe("declined");
+      expect(yield* gatewayApprove({ answersYes: true })).toBe("declined");
+    })
+  );
 });

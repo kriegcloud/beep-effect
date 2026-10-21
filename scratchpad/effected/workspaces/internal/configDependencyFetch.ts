@@ -48,7 +48,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 // `FileSystem` is virtual, so this reads and writes through `node:fs`.
 
 import { tmpdir } from "node:os";
-import { Run } from "../../commands/index.ts";
+import { Run } from "@beep/commands";
 import type { ConfigDependencyLock, LockfileFramingError, LockfileParseError } from "../../lockfiles/index.ts";
 import { IntegrityHash } from "../../npm/index.ts";
 import { Yaml } from "../../yaml/index.ts";

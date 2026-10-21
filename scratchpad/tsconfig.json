@@ -14,6 +14,9 @@
   },
   "references": [
     {
+      "path": "../packages/drivers/commands/tsconfig.json"
+    },
+    {
       "path": "../packages/drivers/drizzle/tsconfig.json"
     },
     {
@@ -53,7 +56,16 @@
       "path": "../packages/foundation/capability/semantic-web/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/github-commands/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/github-references/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/jsonc/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/md/tsconfig.json"
@@ -72,6 +84,12 @@
     },
     {
       "path": "../packages/foundation/modeling/schema/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/semver/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/modeling/spdx/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/utils/tsconfig.json"

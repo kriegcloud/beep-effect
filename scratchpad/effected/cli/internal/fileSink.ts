@@ -1,4 +1,4 @@
-import { CommandNeutralizer } from "../../github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import type * as LogLevel from "effect/LogLevel";
 import type * as Scope from "effect/Scope";
 import * as Cause from "effect/Cause";

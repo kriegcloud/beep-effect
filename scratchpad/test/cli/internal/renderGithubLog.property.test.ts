@@ -8,7 +8,7 @@ const runs = { arbitrary: fcRuns(100) };
 import { Doc } from "../../../effected/cli/Doc.ts";
 import { Render } from "../../../effected/cli/Render.ts";
 import { renderGithubLog } from "../../../effected/cli/internal/renderGithubLog.ts";
-import { CommandNeutralizer } from "../../../effected/github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import { sanitize } from "../../../effected/cli/Fmt.ts";
 const ctx = Render.contextOf({ audience: "agent" });
 it.effect.prop("renderGithubLog: verbatim rendering is idempotent through its line parser and preserves sanitized whitespace", [Arbitrary.schema(S.String)], ([text]) => Effect.sync(() => {

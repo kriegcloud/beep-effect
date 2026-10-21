@@ -2,7 +2,7 @@
 import type * as Cli from "../index.ts";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { Audience, TerminalEnv } from "../../env/index.ts";
-import { CommandNeutralizer } from "../../github-commands/index.ts";
+import { CommandNeutralizer } from "@beep/github-commands";
 import type * as Console from "effect/Console";
 import * as Cause from "effect/Cause";
 import * as Clock from "effect/Clock";

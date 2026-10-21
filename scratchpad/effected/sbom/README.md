@@ -169,7 +169,7 @@ const TestToken = IdentityToken.layerTest({
 - Upstream package: `@effected/sbom` 0.10.0
 - Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
 - License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
-- scratchpad/effected/sbom/SbomDocument.ts:11 import { License, isValidExpression } from "../spdx/index.ts";
+- scratchpad/effected/sbom/SbomDocument.ts:11 import { License, isValidExpression } from "@beep/spdx";
 - scratchpad/effected/sbom/SbomMetadataSource.ts:16 // timestamp is an argument, and so is the copyright year.
 - scratchpad/effected/sbom/SigstoreBundle.ts:7 // re-exported from `@sigstore/bundle`.
 - scratchpad/effected/sbom/index.ts:40 type CopyrightYears,

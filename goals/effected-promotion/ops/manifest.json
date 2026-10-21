@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "effected-promotion",
+    "packetId": "goal-packet/v1:b8f3707651fcfbdec45692cf9f8dee67d29ffe103638d2fc86d0482b2a7eb14a",
+    "title": "Effected kit promotion",
+    "status": "active",
+    "created": "2026-10-21",
+    "updated": "2026-10-21",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/effected-promotion",
+  "lifecycle": "active",
+  "mission": "Promote the ported scratchpad/effected kit into dedicated @beep packages and retire the one-off code they replace",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/effected-promotion/README.md",
+    "goals/effected-promotion/SPEC.md",
+    "goals/effected-promotion/PLAN.md",
+    "goals/effected-promotion/GOAL.md",
+    "goals/effected-promotion/research/SOURCES.md",
+    "goals/effected-promotion/research/promotion-map-2026-10-20.md"
+  ],
+  "researchReports": [
+    "research/SOURCES.md",
+    "research/promotion-map-2026-10-20.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/effected-promotion/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "in-progress"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "pending"
+    },
+    {
+      "id": "P3",
+      "name": "Yeet: PR to mergeable",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/effected-promotion/GOAL.md)\" -le 4000",
+    "jq . goals/effected-promotion/ops/manifest.json",
+    "rg -n \"effected-promotion|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/effected-promotion",
+    "git diff --check -- goals/effected-promotion",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}
