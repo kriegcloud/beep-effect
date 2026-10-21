@@ -1,0 +1,20 @@
+{
+  "previous": "ddfbe1f171f713400bd693465ceda9760e809335ec316f4d586ddd584db0b93d",
+  "review": {
+    "reviewer": "Claude Opus 5.5 (entity-optimistic-concurrency remediation ledger, fix/ledger-1941-proof-manifest)",
+    "reason": "Re-record @beep/repo-cli#test and the root configuration-source subject // after its turbo.json test inputs gain $TURBO_ROOT$/packages/_internal/db-admin/drizzle/** so architecture-operation-plan.test.ts re-runs when a db-admin migration changes. Command, outputs, cache flags and root turbo.json are unchanged; no qualification is granted.",
+    "basis": {
+      "path": "goals/entity-optimistic-concurrency/research/cache-baseline-review-2026-10-21.md",
+      "sha256": "eccdfb58605bd6b2264d599651540356d916dc583c85a13e5c6036fe2bee5cb9"
+    }
+  },
+  "subjects": ["//", "@beep/repo-cli"],
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2"
+}

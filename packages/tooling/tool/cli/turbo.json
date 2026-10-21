@@ -8,6 +8,7 @@
         "$TURBO_ROOT$/turbo.json",
         "$TURBO_ROOT$/goals/time-to-certainty/research/economics.json",
         "$TURBO_ROOT$/goals/time-to-certainty/research/gate-order-handoff.json",
+        "$TURBO_ROOT$/packages/_internal/db-admin/drizzle/**",
         "$TURBO_ROOT$/standards/effect-diagnostics.profile.json"
       ]
     },
