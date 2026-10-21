@@ -46,8 +46,8 @@ export const DocumentType = LiteralKit([
   "narrative",
   "structured",
   "unknown",
-]).annotate(
-    $I.annote("DocumentType", {
+]).pipe(
+    $I.annoteSchema("DocumentType", {
       description: "Finite structural classifications used to select document-processing behavior.",
     })
   );
@@ -81,8 +81,8 @@ export type DocumentType = typeof DocumentType.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const EntityDensity = LiteralKit(["sparse", "moderate", "dense"]).annotate(
-    $I.annote("EntityDensity", {
+export const EntityDensity = LiteralKit(["sparse", "moderate", "dense"]).pipe(
+    $I.annoteSchema("EntityDensity", {
       description: "Sparse, moderate, or dense entity distribution used by adaptive chunking.",
     })
   );

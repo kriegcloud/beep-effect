@@ -385,8 +385,8 @@ export const RdfObject = ObjectTerm.pipe(
 export type RdfObject = typeof RdfObject.Type;
 
 /** Literal domain underlying the public claim-rank schema. */
-const ClaimRankDefinition = LiteralKit(["preferred", "normal", "deprecated"]).annotate(
-  $I.annote("ClaimRank", {
+const ClaimRankDefinition = LiteralKit(["preferred", "normal", "deprecated"]).pipe(
+  $I.annoteSchema("ClaimRank", {
     description: "Wikidata-style preferred, normal, or deprecated claim rank.",
   })
 );
@@ -542,8 +542,8 @@ export class Claim extends S.Opaque<Claim, { readonly brand: unique symbol }>()(
  * @category schemas
  * @since 0.0.0
  */
-export const AssertionStatus = LiteralKit(["accepted", "rejected", "pending"]).annotate(
-    $I.annote("AssertionStatus", {
+export const AssertionStatus = LiteralKit(["accepted", "rejected", "pending"]).pipe(
+    $I.annoteSchema("AssertionStatus", {
       description: "Accepted, rejected, or pending curation status of an assertion.",
     })
   );
@@ -717,8 +717,8 @@ export const EventType = LiteralKit([
   "BudgetAction",
   "PublicMeeting",
   "Generic",
-]).annotate(
-    $I.annote("EventType", {
+]).pipe(
+    $I.annoteSchema("EventType", {
       description: "Finite event categories used for timeline grouping and presentation.",
     })
   );

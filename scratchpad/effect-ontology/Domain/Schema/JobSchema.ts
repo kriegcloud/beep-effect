@@ -70,8 +70,8 @@ export const BackgroundJobId = S.String.check(
  */
 export type BackgroundJobId = typeof BackgroundJobId.Type;
 
-const SimilarityReason = LiteralKit(["alias_added", "embedding_updated", "manual"]).annotate(
-    $I.annote("SimilarityReason", {
+const SimilarityReason = LiteralKit(["alias_added", "embedding_updated", "manual"]).pipe(
+    $I.annoteSchema("SimilarityReason", {
       description: "Supported reasons for recomputing entity-similarity scores.",
     })
   );

@@ -70,8 +70,8 @@ export const CoreClass = LiteralKit([
   "https://effect-ontology.dev/core#Organization",
   "https://effect-ontology.dev/core#Place",
   "https://effect-ontology.dev/core#Artifact",
-]).annotate(
-    $I.annote("CoreClass", {
+]).pipe(
+    $I.annoteSchema("CoreClass", {
       description: "Narrow closed set of class IRIs declared by the experimental core ontology.",
     })
   );
@@ -127,8 +127,8 @@ export const CoreProperty = LiteralKit([
   "https://effect-ontology.dev/core#startTime",
   "https://effect-ontology.dev/core#endTime",
   "https://effect-ontology.dev/core#groundingConfidence",
-]).annotate(
-    $I.annote("CoreProperty", {
+]).pipe(
+    $I.annoteSchema("CoreProperty", {
       description: "Narrow closed set of property IRIs declared by the experimental core ontology.",
     })
   );

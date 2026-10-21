@@ -41,8 +41,8 @@ export const ErrorCode = LiteralKit([
   "rate_limited",
   "cancelled",
   "unknown",
-]).annotate(
-    $I.annote("ErrorCode", {
+]).pipe(
+    $I.annoteSchema("ErrorCode", {
       description: "Closed set of terminal extraction-run failure categories.",
     })
   );
@@ -76,8 +76,8 @@ export type ErrorCode = typeof ErrorCode.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const AuditEventType = LiteralKit(["started", "completed", "failed", "info", "warning"]).annotate(
-    $I.annote("AuditEventType", {
+export const AuditEventType = LiteralKit(["started", "completed", "failed", "info", "warning"]).pipe(
+    $I.annoteSchema("AuditEventType", {
       description: "Closed set of categories for extraction-run audit events.",
     })
   );

@@ -88,8 +88,8 @@ export const AgentType = LiteralKit([
   "corrector",
   "reasoner",
   "ingestor",
-]).annotate(
-    $I.annote("AgentType", {
+]).pipe(
+    $I.annoteSchema("AgentType", {
       description: "Closed set of functional roles supported by the ontology pipeline.",
     })
   );
@@ -863,8 +863,8 @@ export class AgentFailed extends S.Opaque<AgentFailed, { readonly brand: unique 
  * @category schemas
  * @since 0.0.0
  */
-export const CheckpointReason = LiteralKit(["scheduled", "agent-completed", "manual", "error-recovery"]).annotate(
-    $I.annote("CheckpointReason", {
+export const CheckpointReason = LiteralKit(["scheduled", "agent-completed", "manual", "error-recovery"]).pipe(
+    $I.annoteSchema("CheckpointReason", {
       description: "Closed set of reasons for persisting pipeline state.",
     })
   );

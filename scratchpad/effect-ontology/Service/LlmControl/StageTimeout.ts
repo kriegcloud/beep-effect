@@ -39,8 +39,8 @@ export const TimedStage = LiteralKit([
   "grounding",
   "entity_verification",
   "serialization",
-]).annotate(
-  $I.annote("TimedStage", {
+]).pipe(
+  $I.annoteSchema("TimedStage", {
     description: "Pipeline stages that have dedicated hard and soft timeouts.",
   })
 );

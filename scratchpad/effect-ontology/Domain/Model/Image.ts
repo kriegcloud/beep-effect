@@ -40,8 +40,8 @@ const Base64ImageData = S.NonEmptyString.check(
  * @category schemas
  * @since 0.0.0
  */
-export const ImageRole = LiteralKit(["hero", "inline", "thumbnail"]).annotate(
-    $I.annote("ImageRole", {
+export const ImageRole = LiteralKit(["hero", "inline", "thumbnail"]).pipe(
+    $I.annoteSchema("ImageRole", {
       description: "Closed set of roles an image can play in a source document.",
     })
   );

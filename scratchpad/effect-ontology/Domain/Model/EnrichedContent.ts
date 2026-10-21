@@ -40,8 +40,8 @@ const LanguageCode = S.String.check(
  * @category schemas
  * @since 0.0.0
  */
-export const SourceType = LiteralKit(["news", "blog", "press_release", "official", "academic", "unknown"]).annotate(
-    $I.annote("SourceType", {
+export const SourceType = LiteralKit(["news", "blog", "press_release", "official", "academic", "unknown"]).pipe(
+    $I.annoteSchema("SourceType", {
       description: "Closed classification of source kinds recognized by content enrichment.",
     })
   );

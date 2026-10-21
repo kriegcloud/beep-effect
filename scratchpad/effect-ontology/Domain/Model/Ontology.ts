@@ -158,8 +158,8 @@ const SkosFields = {
  * @category schemas
  * @since 0.0.0
  */
-export const PropertyRangeKind = LiteralKit(["object", "datatype"]).annotate(
-    $I.annote("PropertyRangeKind", {
+export const PropertyRangeKind = LiteralKit(["object", "datatype"]).pipe(
+    $I.annoteSchema("PropertyRangeKind", {
       description: "Closed property-range taxonomy distinguishing resource links from literal values.",
     })
   );
