@@ -11,6 +11,7 @@
  * @since 0.0.0
  */
 
+import { dual } from "effect/Function";
 import * as Str from "effect/String";
 import type * as Path from "effect/Path";
 
@@ -45,7 +46,10 @@ import type * as Path from "effect/Path";
  * @category predicates
  * @since 0.0.0
  */
-export const isWithinRoot = (path: Path.Path, root: string, candidate: string): boolean => {
+export const isWithinRoot: {
+  (root: string, candidate: string): (path: Path.Path) => boolean;
+  (path: Path.Path, root: string, candidate: string): boolean;
+} = dual(3, (path: Path.Path, root: string, candidate: string): boolean => {
   const relative = path.relative(root, candidate);
   return relative.length > 0 && !Str.startsWith("..")(relative) && !path.isAbsolute(relative);
-};
+});

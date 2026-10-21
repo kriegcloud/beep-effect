@@ -1586,8 +1586,8 @@ it.layer(NodeServices.layer)((it) => {
         A.map(rows, (row) => row.mechanization),
         ["judgment", "judgment"]
       );
-      assertTrue(Str.includes("attempt")(rows[0]?.evidence));
-      assertTrue(Str.includes("retry")(rows[1]?.evidence));
+      assertTrue(Str.includes("attempt")(rows[0]?.evidence ?? ""));
+      assertTrue(Str.includes("retry")(rows[1]?.evidence ?? ""));
       assertFalse(
         yield* hasRule(
           `for (const retry in retries) consume(retry); it("x", () => { for (const value of values) consume(value); });`,

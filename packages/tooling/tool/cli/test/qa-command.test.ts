@@ -276,7 +276,7 @@ describe("commands/Qa JudgePack budget", () => {
     expect(A.length(selection.files)).toBe(fitting);
     expect(A.map(selection.files, (value) => value.path)).toContain("failing--shot.png");
     expect(A.length(selection.dropped)).toBe(1);
-    expect(Str.startsWith("frames/")(selection.dropped[0]?.path)).toBe(true);
+    expect(Str.startsWith("frames/")(selection.dropped[0]?.path ?? "")).toBe(true);
   });
 
   it("keeps everything that fits, ordered by path", () => {
