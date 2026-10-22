@@ -5,6 +5,9 @@
  * @since 0.0.0
  */
 import { $EpistemicsId } from "@beep/identity/packages";
+import * as DateTime from "effect/DateTime";
+import { constTrue } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $EpistemicsId.create("KnowledgeInterval/KnowledgeInterval.model");
@@ -43,6 +46,34 @@ export const KnowledgeIntervalFields = {
 };
 
 /**
+ * Rejects an empty or inverted interval: when `expiredAt` is present it must be
+ * later than `recordedAt`. A flat entity spreading the field set does not get this
+ * check, so its encoded columns are unchanged.
+ *
+ * **Example** (Reject an inverted interval)
+ *
+ * ```ts
+ * import { KnowledgeInterval } from "@beep/epistemics/KnowledgeInterval"
+ * import * as Result from "effect/Result"
+ * import * as S from "effect/Schema"
+ *
+ * const decoded = S.decodeUnknownResult(KnowledgeInterval)({ recordedAt: 200, expiredAt: 100 })
+ * console.log(Result.isFailure(decoded)) // true
+ * ```
+ *
+ * @category checks
+ * @since 0.0.0
+ */
+export const KnowledgeIntervalOrderCheck = S.makeFilter(
+  ({ recordedAt, expiredAt }: { readonly recordedAt: DateTime.Utc; readonly expiredAt: O.Option<DateTime.Utc> }) =>
+    O.match(expiredAt, { onNone: constTrue, onSome: (upper) => DateTime.isLessThan(recordedAt, upper) }),
+  $I.annote("KnowledgeIntervalOrderCheck", {
+    description: "Knowledge-time order: expiredAt, when present, is later than recordedAt.",
+    message: "Expected recordedAt to be earlier than expiredAt when expiredAt is present.",
+  })
+);
+
+/**
  * Half-open transaction-time interval `[recordedAt, expiredAt)`: when a record
  * was the system's current belief, independent of when its fact held.
  *
@@ -60,11 +91,13 @@ export const KnowledgeIntervalFields = {
  * @category schemas
  * @since 0.0.0
  */
-export const KnowledgeInterval = S.Struct(KnowledgeIntervalFields).pipe(
-  $I.annoteSchema("KnowledgeInterval", {
-    description: "Half-open transaction-time interval [recordedAt, expiredAt) with an optional open upper bound.",
-  })
-);
+export const KnowledgeInterval = S.Struct(KnowledgeIntervalFields)
+  .check(KnowledgeIntervalOrderCheck)
+  .pipe(
+    $I.annoteSchema("KnowledgeInterval", {
+      description: "Half-open transaction-time interval [recordedAt, expiredAt) with an optional open upper bound.",
+    })
+  );
 
 /**
  * Runtime type for {@link KnowledgeInterval}.

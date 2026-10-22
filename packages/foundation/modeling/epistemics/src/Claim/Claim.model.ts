@@ -14,8 +14,9 @@ import { $EpistemicsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { KnowledgeInterval } from "../KnowledgeInterval/index.ts";
-import { ValidIntervalFields } from "../ValidInterval/index.ts";
+import { ValidIntervalFields, ValidIntervalOrderCheck } from "../ValidInterval/index.ts";
 import type { IdCodec, SchemaIdentity } from "../Factory/index.ts";
+import type { ValidInterval } from "../ValidInterval/index.ts";
 
 const $I = $EpistemicsId.create("Claim/Claim.model");
 
@@ -139,7 +140,15 @@ export type ReviewTag = typeof ReviewTag.Type;
 export const ValidTime = S.TaggedUnion({
   Unknown: {},
   Interval: ValidIntervalFields,
-}).pipe($I.annoteSchema("ValidTime", { description: "Valid time: unknown, or a half-open interval." }));
+})
+  .check(
+    S.makeFilter(
+      (validTime: { readonly _tag: "Unknown" } | ({ readonly _tag: "Interval" } & ValidInterval)) =>
+        validTime._tag === "Unknown" || S.is(S.Struct(ValidIntervalFields).check(ValidIntervalOrderCheck))(validTime),
+      $I.annote("ValidTimeOrderCheck", { description: "An Interval valid time is non-empty and forward." })
+    )
+  )
+  .pipe($I.annoteSchema("ValidTime", { description: "Valid time: unknown, or a half-open interval." }));
 
 /**
  * @category claim
@@ -198,13 +207,17 @@ export const makeClaimEnvelope = <
 }) => {
   const { $I: $C, ids } = config;
 
-  const ReviewerDisposition = S.Struct({
-    disposition: LiteralKit(["accepted", "rejected", "abstained"]),
-    reviewer: ids.principal,
-    basis: BasisDigest,
-    reviewedAt: S.DateTimeUtcFromMillis,
-    reason: S.NonEmptyString,
-  }).pipe(
+  const dispositionStruct = <D extends S.Top>(disposition: D) =>
+    S.Struct({
+      disposition,
+      reviewer: ids.principal,
+      basis: BasisDigest,
+      reviewedAt: S.DateTimeUtcFromMillis,
+      reason: S.NonEmptyString,
+    });
+
+  const ReviewerDisposition = LiteralKit(["accepted", "rejected", "abstained"]).pipe(
+    dispositionStruct,
     $C.annoteSchema("ReviewerDisposition", {
       description: "A human disposition bound to the exact evidence basis it reviewed.",
     })
@@ -232,8 +245,9 @@ export const makeClaimEnvelope = <
 
   const ReviewState = S.TaggedUnion({
     Proposed: {},
-    Accepted: { disposition: ReviewerDisposition },
-    Rejected: { disposition: ReviewerDisposition },
+    // Each case carries its own disposition literal, so an Accepted state cannot hold a rejection.
+    Accepted: { disposition: S.Literal("accepted").pipe(dispositionStruct) },
+    Rejected: { disposition: S.Literal("rejected").pipe(dispositionStruct) },
     Disputed: { challengedBy: S.NonEmptyArray(ids.assertion), openedAt: S.DateTimeUtcFromMillis },
     Retracted: { reason: S.NonEmptyString, at: S.DateTimeUtcFromMillis },
   }).pipe($C.annoteSchema("ReviewState", { description: "Epistemic review state." }));

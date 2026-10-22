@@ -1,9 +1,11 @@
 import { makeClaimEnvelope, validAt, versionsAt } from "@beep/epistemics/Claim";
 import { $EpistemicsId } from "@beep/identity/packages";
 import { describe, expect, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
 import * as SchemaAST from "effect/SchemaAST";
 
@@ -65,6 +67,35 @@ describe("Claim envelope", () => {
     const other = bind("test/ClaimB").ClaimVersion;
     expect(SchemaAST.resolveIdentifier(ClaimVersion.ast)).not.toEqual(SchemaAST.resolveIdentifier(other.ast));
   });
+
+  it.effect("rejects a review state whose disposition contradicts its tag", () =>
+    Effect.gen(function* () {
+      const disposition = (value: string) => ({
+        disposition: value,
+        reviewer: "reviewer-1",
+        basis: "a".repeat(64),
+        reviewedAt: 100,
+        reason: "checked the basis",
+      });
+      const row = (review: unknown) => ({
+        ...encoded("cv-review", { _tag: "Unknown" }, 50, null),
+        review,
+      });
+      const accepted = yield* Effect.exit(decode(row({ _tag: "Accepted", disposition: disposition("accepted") })));
+      const mismatched = yield* Effect.exit(decode(row({ _tag: "Accepted", disposition: disposition("rejected") })));
+      accepted.pipe(Exit.isSuccess, assertTrue);
+      mismatched.pipe(Exit.isFailure, assertTrue);
+    })
+  );
+
+  it.effect("rejects an inverted Interval valid time", () =>
+    Effect.gen(function* () {
+      const exit = yield* Effect.exit(
+        decode(encoded("cv-inverted", { _tag: "Interval", validFrom: 200, validTo: 100 }, 50, null))
+      );
+      exit.pipe(Exit.isFailure, assertTrue);
+    })
+  );
 
   it("never selects unknown valid time", () => {
     expect(validAt({ _tag: "Unknown" }, at(0))).toBe(false);

@@ -5,6 +5,9 @@
  * @since 0.0.0
  */
 import { $EpistemicsId } from "@beep/identity/packages";
+import * as DateTime from "effect/DateTime";
+import { constTrue } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $EpistemicsId.create("ValidInterval/ValidInterval.model");
@@ -43,6 +46,34 @@ export const ValidIntervalFields = {
 };
 
 /**
+ * Rejects an empty or inverted interval: when `validTo` is present it must be
+ * later than `validFrom`. A flat entity spreading the field set does not get this
+ * check, so its encoded columns are unchanged.
+ *
+ * **Example** (Reject an inverted interval)
+ *
+ * ```ts
+ * import { ValidInterval } from "@beep/epistemics/ValidInterval"
+ * import * as Result from "effect/Result"
+ * import * as S from "effect/Schema"
+ *
+ * const decoded = S.decodeUnknownResult(ValidInterval)({ validFrom: 200, validTo: 100 })
+ * console.log(Result.isFailure(decoded)) // true
+ * ```
+ *
+ * @category checks
+ * @since 0.0.0
+ */
+export const ValidIntervalOrderCheck = S.makeFilter(
+  ({ validFrom, validTo }: { readonly validFrom: DateTime.Utc; readonly validTo: O.Option<DateTime.Utc> }) =>
+    O.match(validTo, { onNone: constTrue, onSome: (upper) => DateTime.isLessThan(validFrom, upper) }),
+  $I.annote("ValidIntervalOrderCheck", {
+    description: "Valid-time order: validTo, when present, is later than validFrom.",
+    message: "Expected validFrom to be earlier than validTo when validTo is present.",
+  })
+);
+
+/**
  * Half-open valid-time interval `[validFrom, validTo)`: when a fact holds in
  * the world, independent of when it was recorded.
  *
@@ -60,11 +91,13 @@ export const ValidIntervalFields = {
  * @category schemas
  * @since 0.0.0
  */
-export const ValidInterval = S.Struct(ValidIntervalFields).pipe(
-  $I.annoteSchema("ValidInterval", {
-    description: "Half-open valid-time interval [validFrom, validTo) with an optional open upper bound.",
-  })
-);
+export const ValidInterval = S.Struct(ValidIntervalFields)
+  .check(ValidIntervalOrderCheck)
+  .pipe(
+    $I.annoteSchema("ValidInterval", {
+      description: "Half-open valid-time interval [validFrom, validTo) with an optional open upper bound.",
+    })
+  );
 
 /**
  * Runtime type for {@link ValidInterval}.

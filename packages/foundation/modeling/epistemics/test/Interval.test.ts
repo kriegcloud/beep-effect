@@ -2,10 +2,12 @@ import { KnowledgeInterval, KnowledgeIntervalFields, knownAt } from "@beep/epist
 import { holdsAt, ValidInterval, ValidIntervalFields } from "@beep/epistemics/ValidInterval";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
+import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const at = DateTime.makeUnsafe;
@@ -109,6 +111,40 @@ describe("interval schema laws", () => {
         );
         expect(S.toEquivalence(ValidInterval)(validRoundTrip, valid)).toBe(true);
         expect(S.toEquivalence(KnowledgeInterval)(knowledgeRoundTrip, knowledge)).toBe(true);
+      })
+  );
+});
+
+describe("interval ordering", () => {
+  it.effect("rejects empty and inverted intervals", () =>
+    Effect.gen(function* () {
+      const rejected = (exit: Exit.Exit<unknown, unknown>) => exit.pipe(Exit.isFailure, assertTrue);
+      rejected(yield* Effect.exit(S.decodeEffect(ValidInterval)({ validFrom: 200, validTo: 100 })));
+      rejected(yield* Effect.exit(S.decodeEffect(ValidInterval)({ validFrom: 100, validTo: 100 })));
+      rejected(yield* Effect.exit(S.decodeEffect(KnowledgeInterval)({ recordedAt: 200, expiredAt: 100 })));
+    })
+  );
+
+  it.effect.prop(
+    "every decoded interval is ordered",
+    [ValidInterval.pipe(S.toEncoded, Arbitrary.schema), KnowledgeInterval.pipe(S.toEncoded, Arbitrary.schema)],
+    ([valid, knowledge]) =>
+      Effect.gen(function* () {
+        const v = yield* Effect.exit(S.decodeEffect(ValidInterval)(valid));
+        const k = yield* Effect.exit(S.decodeEffect(KnowledgeInterval)(knowledge));
+        if (Exit.isSuccess(v)) {
+          expect(
+            O.match(v.value.validTo, { onNone: () => true, onSome: (to) => DateTime.isLessThan(v.value.validFrom, to) })
+          ).toBe(true);
+        }
+        if (Exit.isSuccess(k)) {
+          expect(
+            O.match(k.value.expiredAt, {
+              onNone: () => true,
+              onSome: (to) => DateTime.isLessThan(k.value.recordedAt, to),
+            })
+          ).toBe(true);
+        }
       })
   );
 });
