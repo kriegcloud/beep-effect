@@ -696,6 +696,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(env.VITEST_COVERAGE_RATCHET).toBeUndefined();
       expect(env.TERM_PROGRAM).toBeUndefined();
       expect(env.BEEP_FC_SEED).toEqual(expect.any(String));
+      for (const name of ["TERM_PROGRAM", "TERM_PROGRAM_VERSION", "TURBO_API", "TURBO_TOKEN", "TURBO_TEAM"]) {
+        expect(R.has(env, name)).toBe(true);
+        expect(env[name]).toBeUndefined();
+      }
+      expect(R.has(env, "VITEST_COVERAGE_RATCHET")).toBe(true);
+      expect(env.TURBO_CACHE).toBe("local:rw");
     });
     it.effect("plans full coverage owners and binds the configured workflow attempt", () =>
       Effect.gen(function* () {

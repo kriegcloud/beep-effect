@@ -8,7 +8,6 @@
  */
 import { it } from "@beep/test-runner";
 import { assert } from "@effect/vitest";
-import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
@@ -92,12 +91,12 @@ const assertEntries = (
   startSequence: number
 ) => {
   assert.deepStrictEqual(
-    A.map(rows, (row) => row.remoteSequence),
-    A.map(expected, (_, index) => startSequence + index)
+    rows.map((row) => row.remoteSequence),
+    expected.map((_, index) => startSequence + index)
   );
   assert.deepStrictEqual(
-    A.map(rows, (row) => row.entry.idString),
-    A.map(expected, (entry) => entry.idString)
+    rows.map((row) => row.entry.idString),
+    expected.map((entry) => entry.idString)
   );
 };
 
@@ -182,11 +181,11 @@ export const suite: {
             const replayed = yield* Queue.takeAll(changes);
 
             assert.deepStrictEqual(
-              A.map(replayed, (entry) => entry.remoteSequence),
+              replayed.map((entry) => entry.remoteSequence),
               [1, 2]
             );
             assert.deepStrictEqual(
-              A.map(replayed, (entry) => entry.entry.idString),
+              replayed.map((entry) => entry.entry.idString),
               [entryA.idString, entryB.idString]
             );
 
@@ -249,7 +248,7 @@ export const suite: {
             const changesA = yield* openChanges(storage, storeA);
             const backlogA = yield* Queue.takeAll(changesA);
             assert.deepStrictEqual(
-              A.map(backlogA, (entry) => entry.entry.idString),
+              backlogA.map((entry) => entry.entry.idString),
               [entryA1.idString]
             );
 

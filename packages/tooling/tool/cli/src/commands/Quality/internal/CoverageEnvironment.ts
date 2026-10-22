@@ -9,6 +9,7 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { turboCachePullRequestPosture } from "../../../internal/cli/TurboCache.ts";
+import type * as ChildProcess from "effect/process/ChildProcess";
 
 const DEFAULT_COVERAGE_FAST_CHECK_SEED = "20260708";
 const COVERAGE_NODE_OPTIONS_ARG = "--no-experimental-webstorage";
@@ -51,12 +52,18 @@ const coverageFastCheckSeed = (): string =>
  * import { coverageEnvironment } from "@beep/repo-cli/commands/Quality/internal/CoverageEnvironment"
  * console.log(coverageEnvironment().VITEST_COVERAGE_RATCHET) // "1"
  * ```
+ *
+ * **Details**
+ *
+ * The return type derives from the child-process environment contract. An undefined
+ * entry explicitly clears an inherited variable; the returned environment object is always present.
+ *
  * @returns Deterministic hosted environment overrides with the standalone coverage ratchet enabled.
  * @internal
  * @category utilities
  * @since 0.0.0
  */
-export const coverageEnvironment = (): Record<string, string | undefined> => ({
+export const coverageEnvironment = (): NonNullable<ChildProcess.CommandOptions["env"]> => ({
   BEEP_FC_SEED: coverageFastCheckSeed(),
   CI: "true",
   GITHUB_ACTIONS: "true",
@@ -85,7 +92,7 @@ export const coverageEnvironment = (): Record<string, string | undefined> => ({
  * @category utilities
  * @since 0.0.0
  */
-export const coverageProducerEnvironment = (): Record<string, string | undefined> => ({
+export const coverageProducerEnvironment = (): NonNullable<ChildProcess.CommandOptions["env"]> => ({
   ...coverageEnvironment(),
   VITEST_COVERAGE_RATCHET: undefined,
 });
