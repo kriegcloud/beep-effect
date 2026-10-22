@@ -206,8 +206,17 @@ its connection only after a statement still running at teardown settles. A file 
   anything and still commits. The same guard covers raw `COMMIT`/`END` text
   sent inside a transaction you opened with raw `BEGIN`: when it is refused,
   the client runs `ROLLBACK` itself and the `COMMIT` fails with the same
-  `UnknownError`.
-- **Commit-time conflicts** classify as `SerializationError` and are retryable.
+  `UnknownError`. Raw control text is tracked when it is the only statement in
+  the text, with or without comments: `/* tx */ BEGIN`, `-- note` then
+  `COMMIT`, `END TRANSACTION;`. `BEGIN`/`START`, `COMMIT`/`END`, and
+  `ROLLBACK`/`ABORT` accept optional `TRANSACTION` or `WORK`, including bare
+  `START`. Text with several statements that includes any of these controls
+  or a savepoint (`BEGIN; INSERT ...`, `COMMIT; SELECT 1`,
+  `INSERT ...; COMMIT WORK`) fails with an `UnknownError` before anything runs.
+  Send each transaction control statement in its own call.
+- **Write conflicts** classify as `SerializationError` and are retryable: commit-time
+  conflicts and statement-time ones (`Conflict on update!`, `Transaction conflict:`
+  after another transaction altered or dropped the table).
 - **Concurrent Migrator runs** on one file from two clients are not
   coordinated by a lock: the loser fails with `SerializationError` or dies, never
   with `MigrationError` kind `Locked`.
@@ -240,6 +249,13 @@ query the caller runs on that connection outside the client.
   the file and is refused with `ConnectionError` while this process holds the
   same file read-write. In-process readers of a file you also write should use
   the read-write client.
+- The refusal works in both directions. While a `readOnly` client of a file is
+  open, a later read-write `DuckDbClient` open of that file fails with
+  `ConnectionError` (retryable; the native cause is DuckDB's `Can't open a
+  connection to same database file with a different configuration`), and the
+  legacy `DuckDb` service fails its first statement with `DuckDbError`
+  (`Failed to open DuckDB connection.`). Read-write opens succeed again once
+  every read-only client of the file has closed.
 - Opening one file twice with different `databaseOptions` fails with
   `ConnectionError` (DuckDB compares the configuration).
 - `ATTACH` and `LOAD` act on the database instance. An alias attached by one
@@ -268,8 +284,11 @@ query the caller runs on that connection outside the client.
   prepared statement once, using the table statistics of that moment, so a
   cached constant-filter query prepared on an empty table kept returning no
   rows after later inserts.
-- `USE` and `SET`/`RESET schema` or `search_path` clear the connection's cache,
-  because a cached statement keeps the catalog binding it was planned with.
+- `USE` and `SET`/`RESET schema` or `search_path` clear the connection's cache.
+  On DuckDB 1.5.6 this is defensive: a statement with bind values is re-bound
+  on every execution and resolves names against the current catalog and schema,
+  even when the result columns change (probed). The statement that keeps its
+  first catalog binding is a parameterless prepared one, which is not cached.
 - SQL with several statements and no bind values runs all of them and returns
   the rows of the first statement (native `duckdb_query` behaviour), except
   `executeStream` outside a transaction, which streams the rows of the last
@@ -305,7 +324,7 @@ on those keys changes them.
 | VARCHAR, JSON, ENUM, UUID | `string` | same |
 | BLOB | `Uint8Array` | same |
 | BIT | bit `string` (`"101"`) | same |
-| DATE, TIMESTAMP (all precisions), TIMESTAMPTZ | `Date` floored to the millisecond, also before 1970; `infinity`/`-infinity` as those strings at every precision; other values outside the JS `Date` range as their `string` form | same |
+| DATE, TIMESTAMP (all precisions), TIMESTAMPTZ | `Date` floored to the millisecond, also before 1970; `infinity`/`-infinity` as those strings at every precision; other values outside the JS `Date` range as their `string` form (TIMESTAMPTZ in UTC, `+00`, whatever the process `TZ`) | same |
 | TIME, TIMETZ, TIME_NS | `string` (`"12:34:56.123456"`) | same |
 | INTERVAL | `{ months, days, micros }` with `micros: number` | `micros: bigint` |
 | LIST, ARRAY | array | same |
@@ -319,6 +338,11 @@ Duplicate column names come back as `a`, `a:1`.
 
 ### Binding values (JS to DuckDB)
 
+This table describes `DuckDbClient` binds. The legacy `DuckDb` service passes
+its parameters straight to `@duckdb/node-api` without bind types, which types a
+`listValue` from its first item only, so `listValue([null, 7])` binds there as
+a list of NULLs.
+
 | JS value | Bound as |
 | --- | --- |
 | `null`, `undefined` | NULL |
@@ -328,14 +352,13 @@ Duplicate column names come back as `a`, `a:1`.
 | valid `Date` | TIMESTAMPTZ |
 | `Uint8Array`, `Buffer`, `Int8Array` | BLOB |
 | a `DuckDB*Value` from `@duckdb/node-api` | as is |
-| non-empty array | LIST, item type taken from the first element whose type has no NULL in it (`[null, 7]` is `INTEGER[]`); an all-null array is a list of NULLs |
+| array | LIST, item type taken from the first element whose type has no NULL in it (`[null, 7]` is `INTEGER[]`); number items widen to the widest number type, INTEGER < BIGINT < DOUBLE (`[1, 2.5]` is `DOUBLE[]`, `[1, 3e9]` is `BIGINT[]`, `[[1], [2.5]]` is `DOUBLE[][]`); an all-null array is a list of NULLs; an empty array is an empty LIST that casts into any LIST column |
 | plain object | JSON text (VARCHAR, casts into JSON columns) |
 
 Limits, all failing with `UnknownError`:
 
-- An empty array cannot be typed. Pass a typed `listValue` or use `sql.in`.
-- Mixed arrays such as `[1, 2.5]` or `[1, "a"]` fail; build a `listValue` with
-  typed items.
+- Arrays mixing kinds, such as `[1, "a"]` or `[1, true]`, fail; build a
+  `listValue` with typed items. Arrays mixing number kinds widen instead.
 - An integral `number` outside the int64 range (`1e20`) fails; bind a string or
   a `decimalValue`.
 - An invalid `Date`, a plain object holding a `bigint` or a cycle, and
@@ -357,7 +380,7 @@ The reason's `message` names the operation; the native error is in
 | `INTERRUPT Error` | `StatementTimeoutError` |
 | duplicate key on a primary key or unique constraint | `UniqueViolation` (with `constraint`) |
 | other `Constraint Error` (NOT NULL, CHECK, FOREIGN KEY) | `ConstraintError` |
-| commit conflict, `Conflict on`, catalog write-write conflict | `SerializationError` |
+| commit conflict, `Conflict on`, `Transaction conflict`, catalog write-write conflict | `SerializationError` |
 | write in a read-only transaction, read-only attach, permission denied | `AuthorizationError` |
 | `Could not set lock on file` | `LockTimeoutError` |
 | `Connection Error`, closed instance or connection, IO error while connecting | `ConnectionError` |
@@ -378,7 +401,7 @@ DDL for it.
 | Nested transaction rollback that the outer body catches | refuses the outer commit (no savepoints in DuckDB 1.5.6) |
 | `backup` | not provided (COPY FROM DATABASE fails on foreign-key order) |
 | Concurrent Migrator runs on one file (two clients) | not lock-coordinated (probed, not covered by a test): the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
-| READ_ONLY client beside a read-write client of the same file in one process | refused with `ConnectionError`; share the read-write client instead |
+| READ_ONLY client beside a read-write client of the same file in one process, in either open order | the later open is refused with `ConnectionError`; share the read-write client instead |
 
 ## Testing
 
