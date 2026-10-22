@@ -206,9 +206,9 @@ const OTHER_TOKEN = /(?<![\w-])OTHER(?![\w-])/gu;
  * **Example** (Decide three licenses)
  *
  * ```ts
- * import { decideLicense } from "@beep/repo-cli/commands/Ci"
+ * import { decideLicense, type DeniedLicense } from "@beep/repo-cli/commands/Ci"
  *
- * const deny = ["AGPL-3.0", "GPL-3.0"] as const
+ * const deny: ReadonlyArray<DeniedLicense> = ["AGPL-3.0", "GPL-3.0"]
  * console.log(decideLicense("GPL-2.0-or-later", deny)) // "denied"
  * console.log(decideLicense("MIT", deny)) // "allowed"
  * console.log(decideLicense("not a license", deny)) // "unresolved"
@@ -359,6 +359,9 @@ const queryPage = (url: string): O.Option<number> =>
  * names no readable `page` (a cursor link, a page parameter that is not a
  * positive integer, or an entry without `<url>`), so a page that cannot be
  * followed is never mistaken for the last one.
+ *
+ * @param headers - Response header lines, including any pagination links.
+ * @returns The next page number, no page for the last response, or an invalid-link error.
  */
 const nextPage = (headers: ReadonlyArray<string>): Result.Result<O.Option<number>, string> =>
   pipe(

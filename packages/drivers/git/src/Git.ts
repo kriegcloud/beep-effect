@@ -15,7 +15,7 @@ import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -175,13 +175,16 @@ const DECIDES_BATCH_MODE = /(?:^|\s)-o\s*["']?\s*BatchMode\s*[=\s]/i;
  * strictly alone — the safe direction, since declining only forgoes the new
  * protection where mangling would break a working remote.
  */
+/** A leading quoted program: the opening quote, then everything up to the first matching quote. */
+const QUOTED_PROGRAM = /^(["'])([\s\S]*?)\1/;
+
 const sshProgram = (command: string): string | undefined => {
   const quote = command[0];
   if (quote === '"' || quote === "'") {
-    const closing = command.indexOf(quote, 1);
-    return closing === -1 ? undefined : command.slice(1, closing);
+    const quoted = QUOTED_PROGRAM.exec(command);
+    return quoted === null ? undefined : quoted[2];
   }
-  return command.split(/\s+/)[0];
+  return Str.split(/\s+/)(command)[0];
 };
 
 /**
@@ -206,7 +209,7 @@ const sshProgram = (command: string): string | undefined => {
  *   asked to be prompted owns the resulting wait.
  */
 const withBatchMode = (command: string): O.Option<string> => {
-  const trimmed = command.trim();
+  const trimmed = Str.trim(command);
   const program = sshProgram(trimmed);
   if (program === undefined || !OPENSSH_PROGRAM.test(program) || DECIDES_BATCH_MODE.test(trimmed)) {
     return O.none();
@@ -855,7 +858,7 @@ const matchesAny: {
   (stderr: string, patterns: ReadonlyArray<string>): boolean;
   (patterns: ReadonlyArray<string>): (stderr: string) => boolean;
 } = dual(2, (stderr: string, patterns: ReadonlyArray<string>): boolean =>
-  A.some(patterns, (pattern) => stderr.includes(pattern))
+  A.some(patterns, (pattern) => Str.includes(pattern)(stderr))
 );
 
 /**
@@ -891,7 +894,7 @@ const exitFailure = ({ exitCode, stderr }: Collected, cwd: string, args: Readonl
 
 /** The rows every kind shares, checked before the kind-specific ones. */
 const sharedFailureRow = (stderr: string): Classified | undefined => {
-  if (stderr.includes(NOT_A_REPOSITORY)) return { _tag: "notARepository" };
+  if (Str.includes(NOT_A_REPOSITORY)(stderr)) return { _tag: "notARepository" };
   return matchesAny(stderr, UNKNOWN_REF_PATTERNS) ? { _tag: "unknownRef" } : undefined;
 };
 
@@ -899,7 +902,7 @@ const classifyMerge = ({ stderr, stdout }: Collected): Classified | undefined =>
   // The dirty refusal is checked FIRST: it aborts before any merge starts,
   // so its stderr can never carry conflict text — but checking it first
   // keeps the ordering explicit rather than incidental.
-  if (stderr.includes(DIRTY_WORKTREE_PATTERN)) return { _tag: "dirtyWorktree" };
+  if (Str.includes(DIRTY_WORKTREE_PATTERN)(stderr)) return { _tag: "dirtyWorktree" };
   return matchesAny(stdout, MERGE_CONFLICT_PATTERNS) || matchesAny(stderr, MERGE_CONFLICT_PATTERNS)
     ? { _tag: "mergeConflict" }
     : undefined;
@@ -912,13 +915,13 @@ const KIND_ROWS: { readonly [K in ClassifyKind]: (outcome: Collected) => Classif
   // --quiet probes (symbolic-ref) and config --get signal "unset" as a
   // silent exit 1; any stderr text means a real failure instead.
   quiet: ({ exitCode, stderr }) => (exitCode === 1 && stderr === "" ? { _tag: "absent" } : undefined),
-  noSuchRemote: ({ stderr }) => (stderr.includes("No such remote") ? { _tag: "absent" } : undefined),
+  noSuchRemote: ({ stderr }) => (Str.includes("No such remote")(stderr) ? { _tag: "absent" } : undefined),
   push: ({ stderr }) =>
-    stderr.includes("[rejected]") && matchesAny(stderr, PUSH_REJECTED_PATTERNS)
+    Str.includes("[rejected]")(stderr) && matchesAny(stderr, PUSH_REJECTED_PATTERNS)
       ? { _tag: "nonFastForward" }
       : undefined,
   merge: classifyMerge,
-  log: ({ stderr }) => (stderr.includes(UNBORN_HEAD_PATTERN) ? { _tag: "absent" } : undefined),
+  log: ({ stderr }) => (Str.includes(UNBORN_HEAD_PATTERN)(stderr) ? { _tag: "absent" } : undefined),
   generic: () => undefined,
 };
 
@@ -1021,7 +1024,7 @@ const runClassified: {
 
 /** Splits `-z` (NUL-terminated) output into its constituent entries. */
 const parseNulSeparated = (output: string): ReadonlyArray<string> =>
-  A.filter(output.split("\0"), (entry) => entry.length > 0);
+  A.filter(Str.split("\0")(output), (entry) => entry.length > 0);
 
 /** Config values may be empty; only the final NUL terminator is discarded. */
 const parseConfigGetAll = (output: string): ReadonlyArray<string> => {
@@ -1039,9 +1042,9 @@ const lsTreeInput = S.Struct(LsTreeEntry.fields);
  */
 const parseLsTree = (output: string): ReadonlyArray<LsTreeEntry> =>
   A.map(parseNulSeparated(output), (entry) => {
-    const tabIndex = entry.indexOf("\t");
-    const header = Str.split(entry.slice(0, tabIndex), " ");
-    const path = entry.slice(tabIndex + 1);
+    const tabIndex = pipe(entry, Str.indexOf("\t"), O.getOrElse(constant(-1)));
+    const header = Str.split(Str.slice(0, tabIndex)(entry), " ");
+    const path = Str.slice(tabIndex + 1)(entry);
     const parsed = {
       mode: header[0],
       // git's own tree-entry format only ever emits these three kinds.
@@ -1072,7 +1075,7 @@ const nameStatusEntryAt = (
   index: number,
   code: string
 ): { readonly entry: NameStatusEntry; readonly width: number } => {
-  const letter = code.charAt(0);
+  const letter = Str.slice(0, 1)(code);
   const status = NAME_STATUS_CODES[letter] ?? "unknown";
   return letter === "R" || letter === "C"
     ? {
@@ -1089,7 +1092,7 @@ const nameStatusEntryAt = (
  * status — the similarity score digits are dropped.
  */
 const parseNameStatus = (output: string): ReadonlyArray<NameStatusEntry> => {
-  const tokens = output.split("\0");
+  const tokens = Str.split("\0")(output);
   const entries: Array<NameStatusEntry> = [];
   let index = 0;
   while (index < tokens.length) {
@@ -1503,14 +1506,16 @@ const statusInput = S.Struct(StatusEntry.fields);
  * invalid signature verdict return None instead of escaping as a defect.
  */
 const parseCommitInfo = (output: string): O.Option<CommitInfo> => {
-  const first = output.indexOf("\0");
+  const first = pipe(output, Str.indexOf("\0"), O.getOrElse(constant(-1)));
   if (first < 0) return O.none();
-  const second = output.indexOf("\0", first + 1);
-  if (second < 0) return O.none();
+  const separator = /\0/g;
+  separator.lastIndex = first + 1;
+  const second = separator.exec(output);
+  if (second === null) return O.none();
   const parsed = {
-    sha: output.slice(0, first),
-    signatureStatus: output.slice(first + 1, second),
-    message: output.slice(second + 1),
+    sha: Str.slice(0, first)(output),
+    signatureStatus: Str.slice(first + 1, second.index)(output),
+    message: Str.slice(second.index + 1)(output),
   };
   return O.map(S.decodeUnknownOption(commitInfoInput)(parsed), (input) => CommitInfo.make(input));
 };
@@ -1521,7 +1526,7 @@ const parseCommitInfo = (output: string): O.Option<CommitInfo> => {
  * the new path — the opposite order from `diff --name-status`.
  */
 const parseStatus = (output: string): ReadonlyArray<StatusEntry> => {
-  const tokens = output.split("\0");
+  const tokens = Str.split("\0")(output);
   const entries: Array<StatusEntry> = [];
   let index = 0;
   while (index < tokens.length) {
@@ -1531,9 +1536,9 @@ const parseStatus = (output: string): ReadonlyArray<StatusEntry> => {
       continue;
     }
     // Porcelain v1 only ever emits these axis codes.
-    const x = token.charAt(0);
-    const y = token.charAt(1);
-    const path = token.slice(3);
+    const x = Str.slice(0, 1)(token);
+    const y = Str.slice(1, 2)(token);
+    const path = Str.slice(3)(token);
     if (x === "R" || x === "C" || y === "R" || y === "C") {
       const parsed = {
         x,
@@ -1616,20 +1621,22 @@ const SUBMODULE_STATE_PREFIXES: Record<string, SubmoduleStatusEntry["state"] | u
 
 /** Parses one non-empty `git submodule status` line: `<state><sha> <path>[ (<describe>)]`. */
 const parseSubmoduleStatusLine = (line: string): SubmoduleStatusEntry => {
-  const prefixed = SUBMODULE_STATE_PREFIXES[line.charAt(0)];
+  const prefixed = SUBMODULE_STATE_PREFIXES[Str.slice(0, 1)(line)];
   const state = prefixed ?? "current";
-  const rest = prefixed === undefined ? line : line.slice(1);
-  const shaEnd = rest.indexOf(" ");
-  const sha = shaEnd === -1 ? rest : rest.slice(0, shaEnd);
-  const remainder = shaEnd === -1 ? "" : rest.slice(shaEnd + 1);
-  const describeStart = remainder.endsWith(")") ? remainder.lastIndexOf(" (") : -1;
+  const rest = prefixed === undefined ? line : Str.slice(1)(line);
+  const shaEnd = pipe(rest, Str.indexOf(" "), O.getOrElse(constant(-1)));
+  const sha = shaEnd === -1 ? rest : Str.slice(0, shaEnd)(rest);
+  const remainder = shaEnd === -1 ? "" : Str.slice(shaEnd + 1)(rest);
+  const describeStart = Str.endsWith(")")(remainder)
+    ? pipe(remainder, Str.lastIndexOf(" ("), O.getOrElse(constant(-1)))
+    : -1;
   return describeStart === -1
     ? SubmoduleStatusEntry.make({ state, sha, path: remainder })
     : SubmoduleStatusEntry.make({
         state,
         sha,
-        path: remainder.slice(0, describeStart),
-        describe: remainder.slice(describeStart + 2, -1),
+        path: Str.slice(0, describeStart)(remainder),
+        describe: Str.slice(describeStart + 2, -1)(remainder),
       });
 };
 
@@ -1641,8 +1648,8 @@ const parseSubmoduleStatusLine = (line: string): SubmoduleStatusEntry => {
  * Accepted as a git-imposed limitation.
  */
 const parseSubmoduleStatus = (output: string): ReadonlyArray<SubmoduleStatusEntry> =>
-  A.filterMap(output.split("\n"), (line) => {
-    const trimmedEnd = line.endsWith("\r") ? line.slice(0, -1) : line;
+  A.filterMap(Str.split("\n")(output), (line) => {
+    const trimmedEnd = Str.endsWith("\r")(line) ? Str.slice(0, -1)(line) : line;
     return trimmedEnd === "" ? Result.failVoid : Result.succeed(parseSubmoduleStatusLine(trimmedEnd));
   });
 
@@ -1696,10 +1703,10 @@ export class LsRemoteEntry extends S.Opaque<LsRemoteEntry, { readonly brand: uni
    * @since 0.0.0
    */
   static readonly shortName = (ref: string): string => {
-    const base = ref.endsWith("^{}") ? ref.slice(0, -3) : ref;
+    const base = Str.endsWith("^{}")(ref) ? Str.slice(0, -3)(ref) : ref;
     for (const prefix of ["refs/heads/", "refs/tags/", "refs/remotes/"]) {
-      if (base.startsWith(prefix)) {
-        return base.slice(prefix.length);
+      if (Str.startsWith(prefix)(base)) {
+        return Str.slice(prefix.length)(base);
       }
     }
     return base;
@@ -1740,10 +1747,10 @@ export class LsRemoteEntry extends S.Opaque<LsRemoteEntry, { readonly brand: uni
     const separators = ["@", "/", "-", "_"];
     return A.filter(entries, (entry) => {
       const short = LsRemoteEntry.shortName(entry.ref);
-      if (short === ref || !short.endsWith(ref)) {
+      if (short === ref || !Str.endsWith(ref)(short)) {
         return false;
       }
-      return separators.includes(short.charAt(short.length - ref.length - 1));
+      return separators.includes(Str.slice(short.length - ref.length - 1, short.length - ref.length)(short));
     });
   });
 }
@@ -1756,13 +1763,13 @@ export class LsRemoteEntry extends S.Opaque<LsRemoteEntry, { readonly brand: uni
  */
 const parseLsRemote = (output: string): ReadonlyArray<LsRemoteEntry> =>
   pipe(
-    output.split("\n"),
+    Str.split("\n")(output),
     A.filter((line) => line.length > 0),
     A.map((line) => {
-      const tabIndex = line.indexOf("\t");
+      const tabIndex = pipe(line, Str.indexOf("\t"), O.getOrElse(constant(-1)));
       return LsRemoteEntry.make({
-        sha: line.slice(0, tabIndex),
-        ref: line.slice(tabIndex + 1),
+        sha: Str.slice(0, tabIndex)(line),
+        ref: Str.slice(tabIndex + 1)(line),
       });
     })
   );
@@ -1809,7 +1816,7 @@ export class StashEntry extends S.Opaque<StashEntry, { readonly brand: unique sy
  */
 const parseStashList = (output: string): ReadonlyArray<StashEntry> =>
   A.map(parseNulSeparated(output), (record) => {
-    const [ref = "", sha = "", ...rest] = record.split("\u001f");
+    const [ref = "", sha = "", ...rest] = Str.split("\u001f")(record);
     return StashEntry.make({ ref, sha, message: A.join(rest, "\u001f") });
   });
 
@@ -1859,10 +1866,10 @@ export class BranchEntry extends S.Opaque<BranchEntry, { readonly brand: unique 
  */
 const parseBranchList = (output: string): ReadonlyArray<BranchEntry> =>
   pipe(
-    output.split("\n"),
+    Str.split("\n")(output),
     A.filter((line) => line.length > 0),
     A.map((line) => {
-      const [marker = "", name = "", sha = ""] = line.split("\0");
+      const [marker = "", name = "", sha = ""] = Str.split("\0")(line);
       return BranchEntry.make({ name, sha, current: marker === "*" });
     })
   );
@@ -1911,10 +1918,10 @@ const refEntryInput = S.Struct(RefEntry.fields);
  */
 const parseForEachRef = (output: string): ReadonlyArray<RefEntry> =>
   pipe(
-    output.split("\n"),
+    Str.split("\n")(output),
     A.filter((line) => line.length > 0),
     A.map((line) => {
-      const [ref = "", sha = "", objectType = "commit"] = line.split("\0");
+      const [ref = "", sha = "", objectType = "commit"] = Str.split("\0")(line);
       // Our own fixed format only ever emits git's four object types.
       const parsed = {
         ref,
@@ -1970,12 +1977,12 @@ export class ConfigListEntry extends S.Opaque<ConfigListEntry, { readonly brand:
  */
 const parseConfigList = (output: string): ReadonlyArray<ConfigListEntry> =>
   A.map(parseNulSeparated(output), (record) => {
-    const newlineIndex = record.indexOf("\n");
+    const newlineIndex = pipe(record, Str.indexOf("\n"), O.getOrElse(constant(-1)));
     return newlineIndex === -1
       ? ConfigListEntry.make({ key: record, value: "" })
       : ConfigListEntry.make({
-          key: record.slice(0, newlineIndex),
-          value: record.slice(newlineIndex + 1),
+          key: Str.slice(0, newlineIndex)(record),
+          value: Str.slice(newlineIndex + 1)(record),
         });
   });
 
@@ -2088,16 +2095,16 @@ const applyWorktreeAttribute = (draft: WorktreeDraft, attribute: string): void =
     draft[attribute] = true;
     return;
   }
-  const valued = A.findFirst(WORKTREE_VALUE_ATTRIBUTES, ([prefix]) => attribute.startsWith(prefix));
+  const valued = A.findFirst(WORKTREE_VALUE_ATTRIBUTES, ([prefix]) => Str.startsWith(prefix)(attribute));
   if (O.isSome(valued)) {
-    draft[valued.value[1]] = attribute.slice(valued.value[0].length);
+    draft[valued.value[1]] = Str.slice(valued.value[0].length)(attribute);
     return;
   }
   const annotation = A.findFirst(
     WORKTREE_ANNOTATIONS,
-    (name) => attribute === name || attribute.startsWith(`${name} `)
+    (name) => attribute === name || Str.startsWith(`${name} `)(attribute)
   );
-  if (O.isSome(annotation)) draft[annotation.value] = attribute.slice(annotation.value.length + 1);
+  if (O.isSome(annotation)) draft[annotation.value] = Str.slice(annotation.value.length + 1)(attribute);
 };
 
 /**
@@ -2109,7 +2116,7 @@ const applyWorktreeAttribute = (draft: WorktreeDraft, attribute: string): void =
 const parseWorktreeList = (output: string): ReadonlyArray<WorktreeEntry> => {
   const entries: Array<WorktreeEntry> = [];
   let draft = emptyWorktreeDraft();
-  for (const attribute of output.split("\0")) {
+  for (const attribute of Str.split("\0")(output)) {
     if (attribute === "") {
       flushWorktree(draft, entries);
       draft = emptyWorktreeDraft();
@@ -2178,13 +2185,13 @@ export class LsFilesEntry extends S.Opaque<LsFilesEntry, { readonly brand: uniqu
  */
 const parseLsFiles = (output: string): ReadonlyArray<LsFilesEntry> =>
   A.map(parseNulSeparated(output), (entry) => {
-    const tabIndex = entry.indexOf("\t");
-    const header = Str.split(entry.slice(0, tabIndex), " ");
+    const tabIndex = pipe(entry, Str.indexOf("\t"), O.getOrElse(constant(-1)));
+    const header = Str.split(Str.slice(0, tabIndex)(entry), " ");
     return LsFilesEntry.make({
       mode: header[0],
       oid: header[1] ?? "",
       stage: Number(header[2] ?? "0"),
-      path: entry.slice(tabIndex + 1),
+      path: Str.slice(tabIndex + 1)(entry),
     });
   });
 
@@ -2223,7 +2230,7 @@ const rejectOptionLikeRefs: {
     refs: ReadonlyArray<string>,
     sensitive: ReadonlyArray<string> = []
   ): Effect.Effect<void, GitCommandError> => {
-    const offending = A.findFirst(refs, (ref) => ref.startsWith("-"));
+    const offending = A.findFirst(refs, (ref) => Str.startsWith("-")(ref));
     if (O.isSome(offending)) {
       return encodeJsonString(offending.value).pipe(
         Effect.orDie,
@@ -2240,7 +2247,7 @@ const rejectOptionLikeRefs: {
         )
       );
     }
-    return A.every(sensitive, (value) => !value.startsWith("-"))
+    return A.every(sensitive, (value) => !Str.startsWith("-")(value))
       ? Effect.void
       : Effect.fail(
           GitCommandError.make({
@@ -2362,7 +2369,7 @@ const make: {
     2,
     (cwd: string, key: string): Effect.Effect<string> =>
       Effect.map(runFor(GitCommand.configGet(key), cwd, "quiet"), (classified) =>
-        classified._tag === "success" ? classified.output.trim() : ""
+        classified._tag === "success" ? Str.trim(classified.output) : ""
       )
   );
 
@@ -2397,14 +2404,17 @@ const make: {
     // The variant decides the argument GRAMMAR, so it is checked first: a
     // non-OpenSSH variant means `-o BatchMode=yes` is not a thing git's ssh
     // invocation understands, whatever the command happens to be named.
-    const variant = O.getOrElse(ssh.variant, () => variantFromConfig)
-      .trim()
-      .toLowerCase();
+    const variant = pipe(
+      ssh.variant,
+      O.getOrElse(() => variantFromConfig),
+      Str.trim,
+      Str.toLowerCase
+    );
     if (!HashSet.has(OPENSSH_VARIANTS, variant)) {
       return { ...BASE_ENV };
     }
 
-    const command = O.getOrElse(ssh.command, () => fromConfig).trim();
+    const command = Str.trim(O.getOrElse(ssh.command, () => fromConfig));
     if (command !== "") {
       return sshEnv(command);
     }
@@ -2487,7 +2497,7 @@ const make: {
       yield* rejectOptionLikeRefs(cwd, [a, b]);
       const classified = yield* runFor(GitCommand.mergeBase(a, b), cwd, "generic");
       return yield* Match.valueTags(classified, {
-        success: (classified) => Effect.succeed(classified.output.trim()),
+        success: (classified) => Effect.succeed(Str.trim(classified.output)),
         ...refFailureArms(cwd, `${a}...${b}`),
       });
     })
@@ -2505,7 +2515,7 @@ const make: {
       // exit 1 stays a loud GitCommandError.
       const classified = yield* runFor(GitCommand.mergeBase(a, b), cwd, "quiet");
       return yield* Match.valueTags(classified, {
-        success: (classified) => Effect.succeedSome(classified.output.trim()),
+        success: (classified) => Effect.succeedSome(Str.trim(classified.output)),
         absent: () => Effect.succeedNone,
         ...refFailureArms(cwd, `${a}...${b}`),
       });
@@ -2639,7 +2649,7 @@ const make: {
       yield* rejectOptionLikeRefs(cwd, [ref]);
       const classified = yield* runFor(GitCommand.revParse(ref), cwd, "generic");
       return yield* Match.valueTags(classified, {
-        success: (classified) => Effect.succeed(classified.output.trim()),
+        success: (classified) => Effect.succeed(Str.trim(classified.output)),
         ...refFailureArms(cwd, ref),
       });
     })
@@ -2776,7 +2786,7 @@ const make: {
     const classified = yield* runFor(GitCommand.isShallow(), cwd, "generic");
     return yield* Match.valueTags(classified, {
       success: // rev-parse --is-shallow-repository prints exactly "true" or "false".
-        (classified) => Effect.succeed(classified.output.trim() === "true"),
+        (classified) => Effect.succeed(Str.trim(classified.output) === "true"),
       ...refFailureArms(cwd, "HEAD"),
     });
   });
@@ -3014,9 +3024,9 @@ const make: {
       const classified = yield* runFor(GitCommand.defaultBranch(remote), cwd, "quiet");
       return yield* Match.valueTags(classified, {
         success: (classified) => {
-          const short = classified.output.trim();
+          const short = Str.trim(classified.output);
           const prefix = `${remote}/`;
-          return Effect.succeedSome(short.startsWith(prefix) ? short.slice(prefix.length) : short);
+          return Effect.succeedSome(Str.startsWith(prefix)(short) ? Str.slice(prefix.length)(short) : short);
         },
         absent: () => Effect.succeedNone,
         ...refFailureArms(cwd, `refs/remotes/${remote}/HEAD`),
@@ -3029,7 +3039,7 @@ const make: {
     const classified = yield* runFor(GitCommand.currentBranch(), cwd, "generic");
     return yield* Match.valueTags(classified, {
       success: (classified) => {
-        const name = classified.output.trim();
+        const name = Str.trim(classified.output);
         // A detached HEAD answers with the literal string "HEAD" (exit 0) —
         // "no current branch" is the honest typed answer, not a fake name.
         return Effect.succeed(name === "HEAD" ? O.none() : O.some(name));
@@ -3042,7 +3052,7 @@ const make: {
     yield* Effect.annotateCurrentSpan({ cwd });
     const classified = yield* runFor(GitCommand.repoRoot(), cwd, "generic");
     return yield* Match.valueTags(classified, {
-      success: (classified) => Effect.succeed(classified.output.trim()),
+      success: (classified) => Effect.succeed(Str.trim(classified.output)),
       ...refFailureArms(cwd, "working tree"),
     });
   });
@@ -3058,7 +3068,7 @@ const make: {
         const answer = Str.replace(/\n$/, "")(classified.output);
         // git before 2.31 does not know --path-format: rev-parse echoes the flag
         // to stdout, answers the relative form on the next line, and exits 0.
-        if (answer.startsWith("-")) {
+        if (Str.startsWith("-")(answer)) {
           return yield* GitCommandError.make({
             kind: "failed",
             args: invocation.redactedArgs,
@@ -3085,7 +3095,7 @@ const make: {
       yield* rejectOptionLikeRefs(cwd, [key]);
       const classified = yield* runFor(GitCommand.configGet(key, options?.scope), cwd, "quiet");
       return yield* Match.valueTags(classified, {
-        success: (classified) => Effect.succeedSome(classified.output.trim()),
+        success: (classified) => Effect.succeedSome(Str.trim(classified.output)),
         absent: () => Effect.succeedNone,
         ...refFailureArms(cwd, key),
       });
@@ -3105,7 +3115,7 @@ const make: {
       yield* rejectOptionLikeRefs(cwd, [remote]);
       const classified = yield* runFor(GitCommand.remoteUrl(remote), cwd, "noSuchRemote");
       return yield* Match.valueTags(classified, {
-        success: (classified) => Effect.succeedSome(classified.output.trim()),
+        success: (classified) => Effect.succeedSome(Str.trim(classified.output)),
         absent: () => Effect.succeedNone,
         ...refFailureArms(cwd, remote),
       });
@@ -3632,7 +3642,7 @@ const make: {
       yield* Effect.annotateCurrentSpan({ cwd });
       yield* rejectOptionLikeRefs(cwd, options?.pattern !== undefined ? [options.pattern] : []);
       return yield* runParsed("Git.tagList", GitCommand.tagList(options?.pattern), cwd, "tags", "generic", (output) =>
-        A.filter(output.split("\n"), (line) => line.length > 0)
+        A.filter(Str.split("\n")(output), (line) => line.length > 0)
       );
     })
   );
@@ -3676,7 +3686,7 @@ const make: {
         cwd,
         ref,
         "generic",
-        (output) => A.filter(output.split("\n"), (line) => line.length > 0)
+        (output) => A.filter(Str.split("\n")(output), (line) => line.length > 0)
       );
     })
   );
@@ -5750,7 +5760,7 @@ export class Git extends Context.Service<Git, GitShape>()($I`Git`) {
           Effect.orElseSucceed(O.none<string>),
           // A blank value is treated as absent — an exported-but-empty
           // variable is not a configuration worth preserving.
-          Effect.map(O.filter((value) => value.trim() !== ""))
+          Effect.map(O.filter((value) => Str.trim(value) !== ""))
         );
       const [command, program, variant] = yield* Effect.all(
         [read("GIT_SSH_COMMAND"), read("GIT_SSH"), read("GIT_SSH_VARIANT")],

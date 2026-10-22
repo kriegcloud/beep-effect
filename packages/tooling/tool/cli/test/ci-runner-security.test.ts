@@ -16,7 +16,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -80,6 +80,7 @@ const WorkflowJobs = S.Record(
 type WorkflowJobs = typeof WorkflowJobs.Type;
 const decodeWorkflowSteps = S.decodeUnknownEffect(S.Array(WorkflowStep));
 const decodeWorkflowJobs = S.decodeUnknownEffect(WorkflowJobs);
+const encodeJobsFixture = S.encodeEffect(S.fromJsonString(S.Unknown));
 
 const workflowJobs = Effect.fnUntraced(function* (document: Document) {
   return yield* decodeWorkflowJobs(document.toJS().jobs);
@@ -121,7 +122,10 @@ const PRUNE_APT_SOURCES = "scripts/ci-prune-apt-sources.sh";
 const assertPrunesAptSourcesBefore = (run: string, command: string): void => {
   assert.include(run, `\n${PRUNE_APT_SOURCES}\n`);
   assert.include(run, command);
-  assert.isBelow(run.indexOf(PRUNE_APT_SOURCES), run.indexOf(command));
+  assert.isBelow(
+    O.getOrElse(Str.indexOf(PRUNE_APT_SOURCES)(run), constant(-1)),
+    O.getOrElse(Str.indexOf(command)(run), constant(-1))
+  );
 };
 
 const setupMonorepoStep = (jobs: WorkflowJobs, jobId: string): WorkflowStep =>
@@ -865,7 +869,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
         workflowText,
         "grep -Eq '(^apps/labs/|^\\.github/workflows/check\\.yml$|^(bun\\.lock|package\\.json|turbo\\.json)$)'"
       );
-      assert.include(workflowText, "run_lane ci lane labs --summarize");
+      assert.include(workflowText, "run_lane ci lane labs --coverage-output .beep/ci-coverage/labs");
+      assert.include(workflowText, "labs_checks=false");
     })
   );
 
@@ -1090,7 +1095,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       assert.include(heavyWorkflowText, "::error::Effect diagnostics lane missing from this checkout; merge main.");
       assert.notInclude(heavyWorkflowText, "Effect diagnostics lane unavailable in this checkout; skipping.");
       assert.include(heavyWorkflowText, "--property=MemoryMax=19G --property=MemorySwapMax=0");
-      assert.include(heavyWorkflowText, "check|test-integration|coverage|build)");
+      assert.include(heavyWorkflowText, "check|test-integration|build)");
     })
   );
 
@@ -1402,6 +1407,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
         "check.yml:Heavy",
         "check.yml:Lint (${{ matrix.partition }})",
         "check.yml:Test Unit (${{ matrix.partition }})",
+        "check.yml:Coverage Artifact Migration",
         "cache-warm.yml:Warm Turbo cache",
         "data-sync.yml:Sync Official Data",
         "fleet-lane-probe.yml:Lane Probe (${{ inputs.lane }})",
@@ -1439,6 +1445,263 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
         ).toEqual([]);
         expect(A.filter(declared, (context) => !A.contains(contexts, context))).toEqual([]);
       }
+    })
+  );
+  it.effect("keeps coverage comparison separate from Heavy and validates same-run producer artifacts", () =>
+    Effect.gen(function* () {
+      const policy = yield* readCredentialPolicySources();
+      const jobs = yield* workflowJobs(policy.workflow);
+      const comparison = jobSteps(jobs, "coverage-regression");
+      expect(policy.workflow.toJS().jobs.heavy.needs).toEqual(["admission"]);
+      expect(policy.workflow.toJS().jobs["coverage-regression"].needs).toEqual(["admission", "test-unit", "verify"]);
+      expect(policy.workflow.getIn(["jobs", "coverage-regression", "if"])).toBe("${{ always() }}");
+      expect(policy.workflow.getIn(["jobs", "coverage-regression", "name"])).toBe(
+        "${{ needs.admission.outputs.legacy_coverage == 'true' && 'Coverage Artifact Migration' || 'Heavy / Coverage Regression' }}"
+      );
+      expect(A.some(heavyMatrixLanes(policy.heavyWorkflow), (lane) => lane.id === "coverage")).toBe(false);
+      expect(policy.heavyWorkflowText).not.toContain("Verify coverage runtime features");
+      expect(policy.heavyWorkflowText).not.toContain("append-turbo-summary --all");
+      const download = stepByName(comparison, "Download coverage evidence");
+      expect(download.uses).toBe("actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333");
+      expect(download.with).toMatchObject({
+        pattern: "unit-coverage-${{ github.run_id }}-*",
+        path: ".beep/ci-coverage-inputs",
+        "merge-multiple": false,
+      });
+      const compare = stepByName(comparison, "Compare coverage evidence");
+      expect(compare.run).toContain("ci lane coverage --compare-only --coverage-input .beep/ci-coverage-inputs");
+      expect(compare.run).not.toContain("ci lane test");
+      expect(setupMonorepoInputs(jobs, "coverage-regression")["cache-turbo"]).toBe("false");
+      expect(setupMonorepoInputs(jobs, "coverage-regression")["turbo-token"]).toBeUndefined();
+      expect(jobs["coverage-regression"]?.permissions).toEqual({ contents: "read", actions: "read" });
+      for (const { job, name } of [
+        { job: "test-unit-shard", name: "Upload Unit coverage evidence" },
+        { job: "verify", name: "Upload Labs coverage evidence" },
+      ]) {
+        const upload = stepByName(jobSteps(jobs, job), name);
+        expect(upload.if).toContain("always()");
+        expect(upload.with?.["include-hidden-files"]).toBe(true);
+        expect(upload.with?.["if-no-files-found"]).toBe("error");
+        expect(upload.with?.name).toContain("${{ github.run_id }}-${{ github.run_attempt }}");
+      }
+      const labs = stepByName(jobSteps(jobs, "verify"), "Run verification lane");
+      expect(labs.run).toContain("--coverage-output .beep/ci-coverage/labs");
+      expect(labs.run).toContain("--coverage-only");
+      const gate = stepByName(comparison, "Determine comparison execution");
+      expect(gate.run).toContain('[[ "$UNIT_RESULT" == "success" ]]');
+      expect(gate.run).toContain('[[ "$ADMISSION_RESULT" == "success" ]]');
+      expect(gate.run).not.toContain("verify.result");
+    })
+  );
+
+  for (const scenario of [
+    {
+      name: "carried Labs execution",
+      original: true,
+      conclusion: "success",
+      started: "08:00:00",
+      completed: "08:04:00",
+      output: "attempt=1\n",
+    },
+    {
+      name: "actual Labs rerun",
+      original: true,
+      conclusion: "success",
+      started: "09:00:00",
+      completed: "09:04:00",
+      output: "attempt=2\n",
+    },
+    {
+      name: "failed latest Labs execution",
+      original: true,
+      conclusion: "failure",
+      started: "09:00:00",
+      completed: "09:04:00",
+      output: "",
+    },
+    {
+      name: "missing Labs attempt history",
+      original: false,
+      conclusion: "success",
+      started: "08:00:00",
+      completed: "08:04:00",
+      output: "",
+    },
+  ]) {
+    it.effect(`authenticates ${scenario.name} using the actual paginated workflow guard`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* findRepoRoot();
+        const policy = yield* readCredentialPolicySources();
+        const comparison = jobSteps(yield* workflowJobs(policy.workflow), "coverage-regression");
+        const authenticate = stepByName(comparison, "Authenticate latest Labs execution").run ?? "";
+        const manifestGuard =
+          Str.split(stepByName(comparison, "Compare coverage evidence").run ?? "", "shape_args=")[0] ?? "";
+        expect(authenticate).toContain("--paginate --slurp");
+        expect(manifestGuard).toContain('"$labs_manifest"');
+        const temp = yield* fs.makeTempDirectoryScoped();
+        const output = path.join(temp, "github-output");
+        const calls = path.join(temp, "api-calls");
+        yield* fs.writeFileString(output, "");
+        yield* fs.writeFileString(
+          path.join(temp, "gh"),
+          '#!/bin/bash\nset -euo pipefail\n[[ "${@: -1}" =~ /attempts/([0-9]+)/jobs ]] || exit 24\nattempt="${BASH_REMATCH[1]}"\nprintf "%s\\n" "$attempt" >> "$API_CALLS"\ncat "$JOBS_FIXTURES/$attempt.json"\n'
+        );
+        yield* fs.chmod(path.join(temp, "gh"), 0o700);
+        const original = {
+          name: "Labs",
+          run_attempt: 1,
+          status: "completed",
+          conclusion: "success",
+          started_at: "2026-10-21T08:00:00Z",
+          completed_at: "2026-10-21T08:04:00Z",
+        };
+        if (scenario.original) {
+          yield* fs.writeFileString(
+            path.join(temp, "1.json"),
+            yield* encodeJobsFixture([{ jobs: [{ name: "Unrelated verification" }] }, { jobs: [original] }])
+          );
+        }
+        yield* fs.writeFileString(
+          path.join(temp, "2.json"),
+          yield* encodeJobsFixture([
+            { jobs: [{ name: "Unrelated verification" }] },
+            {
+              jobs: [
+                {
+                  ...original,
+                  run_attempt: 2,
+                  conclusion: scenario.conclusion,
+                  started_at: `2026-10-21T${scenario.started}Z`,
+                  completed_at: `2026-10-21T${scenario.completed}Z`,
+                },
+              ],
+            },
+          ])
+        );
+        const ambientPath = yield* Config.String("PATH");
+        const env = {
+          ...process.env,
+          PATH: `${temp}:${ambientPath}`,
+          RUNNER_TEMP: temp,
+          GITHUB_OUTPUT: output,
+          GITHUB_RUN_ID: "123",
+          GITHUB_RUN_ATTEMPT: "2",
+          GITHUB_REPOSITORY: "beep-effect/beep-effect",
+          JOBS_FIXTURES: temp,
+          API_CALLS: calls,
+        };
+        const result = Bun.spawnSync(["bash", "-c", authenticate], { cwd: root, env, stdout: "pipe", stderr: "pipe" });
+        expect(result.exitCode === 0).toBe(Str.isNonEmpty(scenario.output));
+        expect(yield* fs.readFileString(output)).toBe(scenario.output);
+        expect(yield* fs.readFileString(calls)).toBe(scenario.original ? "1\n2\n" : "1\n");
+        if (Str.isNonEmpty(scenario.output)) {
+          const attempt = parseProfileOutput(scenario.output).attempt ?? "";
+          const manifest = path.join(temp, `.beep/ci-coverage-inputs/unit-coverage-123-${attempt}-labs/manifest.json`);
+          yield* fs.makeDirectory(path.dirname(manifest), { recursive: true });
+          yield* fs.writeFileString(
+            manifest,
+            yield* encodeJobsFixture({ partitionId: "labs", identity: { runId: "123", runAttempt: Number(attempt) } })
+          );
+          const accepted = Bun.spawnSync(["bash", "-c", manifestGuard], {
+            cwd: temp,
+            env: { ...env, LABS_PRODUCER_ATTEMPT: attempt },
+            stdout: "pipe",
+            stderr: "pipe",
+          });
+          expect(accepted.exitCode).toBe(0);
+          yield* fs.remove(manifest);
+          const missing = Bun.spawnSync(["bash", "-c", manifestGuard], {
+            cwd: temp,
+            env: { ...env, LABS_PRODUCER_ATTEMPT: attempt },
+            stdout: "pipe",
+            stderr: "pipe",
+          });
+          expect(missing.exitCode).not.toBe(0);
+        }
+      })
+    );
+  }
+
+  it.effect("binds coverage rollout naming to GitHub's resolved reusable SHA and fails closed", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* findRepoRoot();
+      const workflow = parsedDocument(yield* fs.readFileString(path.join(root, ".github/workflows/check.yml")));
+      const jobs = yield* workflowJobs(workflow);
+      const rollout = stepByName(jobSteps(jobs, "admission"), "Determine coverage rollout context");
+      const script = rollout.run ?? "";
+      expect(script).toContain(".referenced_workflows[]?");
+      expect(script).toContain("length == 1");
+      expect(script).toContain('git show "${heavy_sha}:.github/workflows/heavy.yml"');
+      expect(script).not.toContain('git show "HEAD:');
+      const temp = yield* fs.makeTempDirectoryScoped();
+      const output = path.join(temp, "github-output");
+      const fixture = path.join(temp, "resolved-heavy.yml");
+      const calls = path.join(temp, "git-calls");
+      const sha = "8086a42233ab3eab7265c8deb7a6f3816686d445";
+      yield* fs.writeFileString(
+        path.join(temp, "gh"),
+        '#!/bin/bash\n[[ "${FAIL_API:-false}" != "true" ]] || exit 23\nprintf "%s\\n" "$RESOLVED_HEAVY_SHA"\n'
+      );
+      yield* fs.writeFileString(
+        path.join(temp, "git"),
+        '#!/bin/bash\nprintf "%s\\n" "$*" >> "$GIT_CALLS"\ncase "$1" in\n  fetch) exit 0 ;;\n  show) [[ "$2" == "$RESOLVED_HEAVY_SHA:.github/workflows/heavy.yml" ]] || exit 24; cat "$HEAVY_FIXTURE" ;;\n  *) exit 25 ;;\nesac\n'
+      );
+      yield* fs.chmod(path.join(temp, "gh"), 0o700);
+      yield* fs.chmod(path.join(temp, "git"), 0o700);
+      const ambientPath = yield* Config.String("PATH");
+      for (const legacy of [true, false]) {
+        yield* fs.writeFileString(
+          fixture,
+          legacy
+            ? "on: push\njobs:\n  verify:\n    name: ${{ matrix.name }}\n    strategy:\n      matrix:\n        include:\n          - id: coverage\n            name: Coverage Regression\n"
+            : "on: push\njobs:\n  verify:\n    name: Check\n"
+        );
+        yield* fs.writeFileString(output, "");
+        const result = Bun.spawnSync(["bash", "-c", script], {
+          cwd: root,
+          env: {
+            ...process.env,
+            PATH: `${temp}:${ambientPath}`,
+            RUNNER_TEMP: temp,
+            GITHUB_OUTPUT: output,
+            GITHUB_RUN_ID: "1",
+            GITHUB_REPOSITORY: "beep-effect/beep-effect",
+            RESOLVED_HEAVY_SHA: sha,
+            HEAVY_FIXTURE: fixture,
+            GIT_CALLS: calls,
+          },
+          stdout: "pipe",
+          stderr: "pipe",
+        });
+        expect(result.stderr.toString()).toBe("");
+        expect(result.exitCode).toBe(0);
+        expect(yield* fs.readFileString(output)).toBe(`legacy_coverage=${legacy}\n`);
+      }
+      yield* fs.writeFileString(output, "");
+      const failed = Bun.spawnSync(["bash", "-c", script], {
+        cwd: root,
+        env: {
+          ...process.env,
+          PATH: `${temp}:${ambientPath}`,
+          RUNNER_TEMP: temp,
+          GITHUB_OUTPUT: output,
+          GITHUB_RUN_ID: "1",
+          GITHUB_REPOSITORY: "beep-effect/beep-effect",
+          RESOLVED_HEAVY_SHA: sha,
+          HEAVY_FIXTURE: fixture,
+          GIT_CALLS: calls,
+          FAIL_API: "true",
+        },
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      expect(failed.exitCode).toBe(23);
+      expect(yield* fs.readFileString(output)).toBe("");
+      expect(yield* fs.readFileString(calls)).toContain(`show ${sha}:.github/workflows/heavy.yml`);
     })
   );
 });

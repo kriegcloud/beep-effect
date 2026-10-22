@@ -12,6 +12,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const TestLayer = Layer.mergeAll(
@@ -52,6 +53,28 @@ const withTempRepo = <A, E, R>(use: (root: string) => Effect.Effect<A, E, R>) =>
   );
 
 describe("CI commands", () => {
+  ciTest("rejects incomplete artifact modes before spawning producers", (it) => {
+    it.effect("runs", () =>
+      Effect.gen(function* () {
+        for (const args of [
+          ["coverage", "--compare-only"],
+          ["coverage", "--coverage-input", ".beep/download"],
+          ["test-unit", "--coverage-output", ".beep/output"],
+          ["lint", "--coverage-output", ".beep/output"],
+          ["labs", "--coverage-only"],
+        ]) {
+          const result = yield* Effect.exit(runCiLaneCommand(args));
+          expect(result._tag).toBe("Failure");
+        }
+        const errors = A.join(A.filter(yield* TestConsole.errorLines, isString), "\n");
+        expect(errors).toContain("--compare-only and --coverage-input must be used together");
+        expect(errors).toContain("Instrumented Test Unit execution requires --partition");
+        expect(errors).toContain("--coverage-output requires a Test Unit partition or the Labs lane");
+        expect(errors).toContain("--coverage-only requires Labs with --coverage-output");
+      })
+    );
+  });
+
   ciTest("parses --partition and reports a typed lane-assignment failure", (it) => {
     it.effect("runs", () =>
       Effect.gen(function* () {
@@ -184,7 +207,7 @@ describe("CI commands", () => {
           yield* appendTurboSummary(O.none(), true);
 
           const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
-          expect(output.match(/## Turbo Summary/gu) ?? []).toHaveLength(2);
+          expect(O.getOrNull(Str.match(/## Turbo Summary/gu)(output)) ?? []).toHaveLength(2);
           expect(output).toContain("`@beep/repo-cli#build`");
           expect(output).toContain("`@beep/repo-cli#coverage`");
         })

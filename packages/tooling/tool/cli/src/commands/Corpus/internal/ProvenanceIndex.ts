@@ -6,7 +6,7 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -629,8 +629,8 @@ export const fallbackMagicExtensions: {
 } = dual(2, (mime: string, name: string): ReadonlyArray<string> => {
   const table = fallbackExtensionsByMime[mime] ?? [];
   const rest = Str.replace(/^\d+_/, "")(name);
-  const dot = rest.lastIndexOf(".");
-  const remnant = dot < 0 ? "" : Str.toLowerCase(rest.slice(dot + 1));
+  const dot = O.getOrElse(Str.lastIndexOf(".")(rest), constant(-1));
+  const remnant = dot < 0 ? "" : Str.toLowerCase(Str.slice(dot + 1)(rest));
   return remnant === "" ? table : A.filter(table, (extension) => Str.startsWith(remnant)(extension));
 });
 
@@ -657,7 +657,7 @@ const completeAttachmentName = (
   return {
     flag,
     proposedFileName: candidate.pipe(
-      O.map((extension) => `${prefix}${rest.slice(0, dot)}.${extension}`),
+      O.map((extension) => `${prefix}${Str.slice(0, dot)(rest)}.${extension}`),
       O.getOrElse(() => `${prefix}${rest}.${candidates[0]}`)
     ),
   };
@@ -668,8 +668,8 @@ const proposal = (name: string, mime: string, extensions: ReadonlyArray<string>)
   const match = /^(\d+_)(.*)$/.exec(name);
   const prefix = match?.[1] ?? "";
   const rest = match?.[2] ?? name;
-  const dot = rest.lastIndexOf(".");
-  const remnant = dot < 0 ? "" : Str.toLowerCase(rest.slice(dot + 1));
+  const dot = O.getOrElse(Str.lastIndexOf(".")(rest), constant(-1));
+  const remnant = dot < 0 ? "" : Str.toLowerCase(Str.slice(dot + 1)(rest));
   const { flag, proposedFileName } = Match.value(match).pipe(
     Match.when(null, () => ({ flag: P.AttachmentRepairFlag.Enum["no-ordinal-prefix"], proposedFileName: undefined })),
     Match.when(

@@ -12,16 +12,18 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $GithubId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { headerNumber, retryAfterMillisFrom } from "./internal/headers.ts";
 
 const $I = $GithubId.create("GitHubError");
@@ -588,11 +590,11 @@ const asRecord = (value: unknown): Record<string, unknown> | undefined => (P.isO
  * a log line with a whole web page in it.
  */
 const sanitizeReason = (message: string): string => {
-  const trimmed = message.trim();
-  if (trimmed.startsWith("<") || trimmed.length > MAX_REASON_LENGTH) {
-    return trimmed.startsWith("<")
+  const trimmed = Str.trim(message);
+  if (Str.startsWith("<")(trimmed) || trimmed.length > MAX_REASON_LENGTH) {
+    return Str.startsWith("<")(trimmed)
       ? "GitHub returned an HTML error page instead of a JSON response"
-      : `${trimmed.slice(0, MAX_REASON_LENGTH)}…`;
+      : `${Str.slice(0, MAX_REASON_LENGTH)(trimmed)}…`;
   }
   return trimmed;
 };
@@ -688,9 +690,12 @@ const classify: {
  */
 const saysAlreadyExists = (facts: Throwable): boolean => {
   if (A.some(facts.validation, (entry) => entry.code === ALREADY_EXISTS_CODE)) return true;
-  const reason = facts.reason.toLowerCase();
-  if (reason.includes(ALREADY_EXISTS)) return true;
-  return A.some(facts.validation, (entry) => entry.message?.toLowerCase().includes(ALREADY_EXISTS) ?? false);
+  const reason = Str.toLowerCase(facts.reason);
+  if (Str.includes(ALREADY_EXISTS)(reason)) return true;
+  return A.some(
+    facts.validation,
+    (entry) => entry.message !== undefined && pipe(entry.message, Str.toLowerCase, Str.includes(ALREADY_EXISTS))
+  );
 };
 
 /**

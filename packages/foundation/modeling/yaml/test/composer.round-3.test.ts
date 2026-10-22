@@ -18,6 +18,8 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { constant } from "effect/Function";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -39,8 +41,8 @@ describe("round-3 explicit empty flow keys", () => {
       const pair = map.items[0];
       assert.ok(pair);
       assert.deepStrictEqual([pair.key.offset, pair.key.length, pair.key.toValue()], [1, 0, null]);
-      assert.strictEqual(pair.value?.toValue() ?? null, source.includes(",") ? null : 1);
-      assertSuccess(Yaml.parseResult(source), source.includes(",") ? { "": null, next: 1 } : { "": 1 });
+      assert.strictEqual(pair.value?.toValue() ?? null, Str.includes(",")(source) ? null : 1);
+      assertSuccess(Yaml.parseResult(source), Str.includes(",")(source) ? { "": null, next: 1 } : { "": 1 });
     });
   }
 
@@ -73,7 +75,7 @@ describe("round-3 explicit empty flow keys", () => {
     assert.ok(S.is(YamlScalar)(key));
     assert.strictEqual(key.tag, "!!str");
     assert.strictEqual(key.value, "");
-    assert.strictEqual(key.offset, source.indexOf(":"));
+    assert.strictEqual(key.offset, O.getOrElse(constant(-1))(Str.indexOf(":")(source)));
     assert.strictEqual(map.items.length, 1);
     assertSuccess(Yaml.parseResult(source), { "": 1 });
     assertFailure(
@@ -108,7 +110,7 @@ describe("round-3 alias properties and explicit multiline keys", () => {
       const document = composeFirstDocument(source);
       assert.deepStrictEqual(
         A.map(document.errors, (error) => [error.code, error.offset, error.length]),
-        [["UnexpectedToken", source.indexOf("!!str"), 5]]
+        [["UnexpectedToken", O.getOrElse(constant(-1))(Str.indexOf("!!str")(source)), 5]]
       );
       const contents = document.contents;
       const alias = S.is(YamlSeq)(contents) ? contents.items[1] : mapOf(contents).items[1]?.value;
@@ -202,7 +204,7 @@ describe("round-3 duplicate node properties", () => {
       assert.ok(
         A.some(
           document.errors,
-          (error) => error.code === "UnexpectedToken" && error.message.includes(`two ${property}`)
+          (error) => error.code === "UnexpectedToken" && Str.includes(`two ${property}`)(error.message)
         )
       );
       const root = document.contents;
@@ -227,7 +229,7 @@ describe("round-3 duplicate node properties", () => {
       const root = document.contents;
       const map = S.is(YamlSeq)(root)
         ? mapOf(root.items[0])
-        : source.startsWith("root:")
+        : Str.startsWith("root:")(source)
           ? mapOf(mapOf(root).items[0]?.value)
           : mapOf(root);
       assert.strictEqual(map.anchor, "outer");
@@ -243,7 +245,7 @@ describe("round-3 physical comment lines", () => {
   for (const newline of ["\n", "\r", "\r\n"]) {
     it(`counts ${Str.replaceAll("\n", "LF")(Str.replaceAll("\r", "CR")(newline))} as one physical break`, () => {
       const text = `a: 1${newline} \t${newline}  # next${newline}${newline}b: 2`;
-      const offset = text.indexOf("#");
+      const offset = O.getOrElse(constant(-1))(Str.indexOf("#")(text));
       assert.isFalse(sameLineSpan(text, 0, offset));
       assert.isTrue(sameLineSpan(text, offset, offset + 6));
       assert.isTrue(hasBlankLineBetween(text, 0, offset));
@@ -295,7 +297,7 @@ describe("round-3 physical comment lines", () => {
       const root = mapOf(composeFirstDocument(source).contents);
       const outer = mapOf(root.items[0]?.value);
       const inner = mapOf(outer.items[0]?.value);
-      const blankStart = source.indexOf(`${newline}${newline}`) + newline.length;
+      const blankStart = O.getOrElse(constant(-1))(Str.indexOf(`${newline}${newline}`)(source)) + newline.length;
       assert.strictEqual(outer.offset + outer.length, blankStart);
       assert.strictEqual(inner.offset + inner.length, blankStart);
       assert.isUndefined(outer.comment);
@@ -345,7 +347,7 @@ describe("round-3 consumed tag-handle validation", () => {
         const document = composeFirstDocument(source);
         assert.deepStrictEqual(
           A.map(document.errors, (error) => [error.code, error.offset]),
-          [["UnresolvedTag", source.indexOf("!missing!")]]
+          [["UnresolvedTag", O.getOrElse(constant(-1))(Str.indexOf("!missing!")(source))]]
         );
         assertFailure(
           Result.mapError(Yaml.parseResult(source), (error) => error._tag),

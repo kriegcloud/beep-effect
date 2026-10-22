@@ -10,18 +10,20 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $GithubId } from "@beep/identity/packages";
 import { SemVer } from "@beep/semver";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import { dual, flow } from "effect/Function";
+import { constant, dual, flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
 import { unstubbedFor } from "./internal/unstubbed.ts";
@@ -132,9 +134,9 @@ export type VersionFromTag = (tag: string) => O.Option<string>;
  * @since 0.0.0
  */
 export const versionFromTag: VersionFromTag = (tag) => {
-  const at = tag.lastIndexOf("@");
-  const candidate = at > 0 ? tag.slice(at + 1) : tag;
-  const stripped = candidate.startsWith("v") ? candidate.slice(1) : candidate;
+  const at = pipe(tag, Str.lastIndexOf("@"), O.getOrElse(constant(-1)));
+  const candidate = at > 0 ? Str.slice(at + 1)(tag) : tag;
+  const stripped = Str.startsWith("v")(candidate) ? Str.slice(1)(candidate) : candidate;
   return stripped === "" ? O.none() : O.some(stripped);
 };
 
@@ -351,13 +353,13 @@ export class GitTag extends Context.Service<GitTag, GitTagShape>()($I`GitTag`) {
 
 const unstubbed = unstubbedFor({ service: "GitTag" });
 
-const shortTag = (tag: string): string => tag.replace(/^refs\/tags\//, "").replace(/^tags\//, "");
+const shortTag = (tag: string): string => pipe(tag, Str.replace(/^refs\/tags\//, ""), Str.replace(/^tags\//, ""));
 
 const rejectEmpty: {
   (operation: string, tag: string): Effect.Effect<string, GitHubError>;
   (tag: string): (operation: string) => Effect.Effect<string, GitHubError>;
 } = dual(2, (operation: string, tag: string): Effect.Effect<string, GitHubError> => {
-  const short = shortTag(tag).trim();
+  const short = Str.trim(shortTag(tag));
   return short === ""
     ? Effect.fail(GitHubError.rejected(operation, 422, "a tag name is required"))
     : Effect.succeed(short);
@@ -369,7 +371,7 @@ const candidateVersion = (options: LatestSemverOptions.Encoded | undefined): ((n
   const extract = options?.extract ?? versionFromTag;
   const includePrerelease = options?.includePrerelease === true;
   return flow(
-    O.liftPredicate((name: string) => name.startsWith(prefix)),
+    O.liftPredicate((name: string) => Str.startsWith(prefix)(name)),
     O.flatMap(extract),
     O.flatMap((raw) => Result.getSuccess(SemVer.parseResult(raw))),
     O.filter((version) => includePrerelease || version.prerelease.length === 0)
@@ -437,7 +439,7 @@ const make = (client: GitHubClient["Service"]): GitTagShape => {
         Effect.mapError((error) => GitHubError.decode("GitTag.list", "GitHub returned an unexpected tag", error))
       )
     );
-    return A.filter(refs, (entry) => prefix === undefined || entry.tag.startsWith(prefix));
+    return A.filter(refs, (entry) => prefix === undefined || Str.startsWith(prefix)(entry.tag));
   });
 
   return {

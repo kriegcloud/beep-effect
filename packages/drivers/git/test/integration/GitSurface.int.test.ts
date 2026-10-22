@@ -137,7 +137,7 @@ it.layer(TestLayer, { timeout: "30 seconds" })("Git surface — introspection re
       yield* fs.writeFileString(join(dirA, "sub", "c.txt"), "c\n");
       yield* raw(["add", "-A"]);
       yield* raw(["-c", "commit.gpgsign=false", "commit", "-m", "commit1"]);
-      const commit1 = (yield* raw(["rev-parse", "HEAD"])).trim();
+      const commit1 = Str.trim(yield* raw(["rev-parse", "HEAD"]));
 
       yield* raw(["mv", "sub/c.txt", "renamed.txt"]);
       yield* fs.writeFileString(join(dirA, "a.txt"), "two\n");
@@ -262,7 +262,7 @@ it.layer(TestLayer, { timeout: "30 seconds" })("Git surface — introspection re
         assertSome(yield* git.currentBranch(dirA), "main");
 
         const root = yield* git.repoRoot(dirA);
-        const expected = (yield* runFixtureGit(dirA, ["rev-parse", "--show-toplevel"])).trim();
+        const expected = Str.trim(yield* runFixtureGit(dirA, ["rev-parse", "--show-toplevel"]));
         assert.strictEqual(root, expected);
       })
     );
@@ -353,7 +353,7 @@ const FixtureBLayer = Layer.effectDiscard(
     yield* rawLib(["add", "-A"]);
     yield* rawLib(["-c", "commit.gpgsign=false", "commit", "-m", "lib commit"]);
     yield* rawLib(["tag", "v1.0.0"]);
-    const tagSha = (yield* rawLib(["rev-parse", "v1.0.0"])).trim();
+    const tagSha = Str.trim(yield* rawLib(["rev-parse", "v1.0.0"]));
 
     yield* rawSuper(["-c", "init.defaultBranch=main", "init"]);
     yield* rawSuper(["config", "user.email", "git-integration@example.com"]);
@@ -511,7 +511,7 @@ it.layer(TestLayer, { timeout: "30 seconds" })("Git.log — history repository (
 
       yield* raw(["mv", "tracked/old.txt", "tracked/new.txt"]);
       yield* commit("c2");
-      const branchPoint = (yield* raw(["rev-parse", "HEAD"])).trim();
+      const branchPoint = Str.trim(yield* raw(["rev-parse", "HEAD"]));
 
       yield* fs.writeFileString(join(dirC, "other.txt"), "other again\n");
       yield* raw(["add", "-A"]);

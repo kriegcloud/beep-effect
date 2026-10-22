@@ -557,7 +557,7 @@ const syncTree = Effect.fn("CorpusRestoration.syncTransformationTree")(function*
       )
     );
     let directory = path.dirname(file.absolutePath);
-    while (directory.startsWith(root)) {
+    while (Str.startsWith(root)(directory)) {
       MutableHashSet.add(directories, directory);
       if (directory === root) break;
       directory = path.dirname(directory);

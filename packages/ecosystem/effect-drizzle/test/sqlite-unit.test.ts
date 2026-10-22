@@ -4,7 +4,7 @@ import { SchemaAssemblyError as SqliteSchemaAssemblyError } from "@beep/effect-d
 import { fcRuns } from "@beep/fc-runs";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { defineRelations, getTableName, is as isDrizzleEntity, SQL } from "drizzle-orm";
+import { defineRelations, getTableName, is as isDrizzleEntity, SQL, sql } from "drizzle-orm";
 import { getTableConfig, SQLiteDialect } from "drizzle-orm/sqlite-core";
 import { findFirst, map } from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -173,6 +173,36 @@ describe("SQLite projection", () => {
   it("accepts a colocated unique index as a foreign-key target", () => {
     const target = getTableConfig(sqliteUniqueIndexForeignKeySchema.tables.sqlite_unique_index_target);
     expect(target.indexes[0]?.config.unique).toBe(true);
+  });
+
+  it("preserves unique SQL defaults and stored generated expressions", () => {
+    class SqliteExpressions extends sqliteKit.Model<SqliteExpressions>("SqliteExpressions")({
+      label: String.pipe(
+        sqliteKit.sqlite.text(),
+        sqliteKit.sqlite.defaultExpr(sql<string>`lower('A')`),
+        sqliteKit.sqlite.unique()
+      ),
+      normalized: String.pipe(sqliteKit.sqlite.text(), sqliteKit.sqlite.generated(sql<string>`upper(label)`)),
+    }) {}
+    const columns = getTableConfig(sqliteKit.toSqliteTable(SqliteExpressions)).columns;
+    const label = getOrThrowWith(
+      findFirst(columns, (current) => current.name === "label"),
+      () => new Error("label missing")
+    );
+    const normalized = getOrThrowWith(
+      findFirst(columns, (current) => current.name === "normalized"),
+      () => new Error("normalized missing")
+    );
+    expect(label.isUnique).toBe(true);
+    expect(normalized.generated).toMatchObject({ mode: "stored", type: "always" });
+    const defaultExpression = label.default;
+    const generatedExpression = normalized.generated?.as;
+    if (!isDrizzleEntity(defaultExpression, SQL) || !isDrizzleEntity(generatedExpression, SQL)) {
+      throw new Error("SQLite expressions must remain typed Drizzle SQL values");
+    }
+    const dialect = new SQLiteDialect();
+    expect(dialect.sqlToQuery(defaultExpression)).toMatchObject({ sql: "lower('A')", params: [] });
+    expect(dialect.sqlToQuery(generatedExpression)).toMatchObject({ sql: "upper(label)", params: [] });
   });
 
   it("renders sqlite.defaultNow() as an ISO-text strftime expression", () => {

@@ -50,6 +50,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 
@@ -426,7 +427,7 @@ describe("beep drawings render summary", () => {
       // manifests rendered before the sheet was recorded print no sheet line
       expect(
         A.filter(renderManifestSummary({ manifest: manifestWith(O.none()), requested }), (line) =>
-          line.startsWith("sheet:")
+          Str.startsWith("sheet:")(line)
         )
       ).toEqual([]);
     })

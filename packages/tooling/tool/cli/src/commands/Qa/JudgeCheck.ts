@@ -460,7 +460,7 @@ const FENCED_ANY = /```\s*\r?\n(\{[\s\S]*?\})\s*```/g;
 
 const lastMatch = (text: string, pattern: RegExp): O.Option<string> =>
   pipe(
-    A.fromIterable(text.matchAll(pattern)),
+    A.fromIterable(Str.matchAll(pattern)(text)),
     A.last,
     O.flatMap((match) => A.get(match, 1)),
     O.map(Str.trim)
