@@ -193,8 +193,8 @@ const LICENSE_REF_PREFIX = "LicenseRef-";
 // idstring = 1*(ALPHA / DIGIT / "-" / "." ) — the SPDX Appendix IV character
 // class. Reuse one expression for each one-character slice.
 const ID_CHAR = /^[0-9A-Za-z.-]$/;
-function isIdChar(code: string): boolean {
-  return ID_CHAR.test(code);
+function isIdChar(char: string): boolean {
+  return ID_CHAR.test(char);
 }
 
 /**
@@ -231,12 +231,12 @@ const CLOSE_PAREN_TOKEN: Token = { type: TOKEN_CLOSE_PAREN, value: ")" };
 const PLUS_TOKEN: Token = { type: TOKEN_PLUS, value: "+" };
 const COLON_TOKEN: Token = { type: TOKEN_COLON, value: ":" };
 
-// The single-character punctuation token for `code`, if it is one.
-function punctuationToken(code: string): Token | undefined {
-  if (code === "(") return OPEN_PAREN_TOKEN;
-  if (code === ")") return CLOSE_PAREN_TOKEN;
-  if (code === "+") return PLUS_TOKEN;
-  if (code === ":") return COLON_TOKEN;
+// The single-character punctuation token for `char`, if it is one.
+function punctuationToken(char: string): Token | undefined {
+  if (char === "(") return OPEN_PAREN_TOKEN;
+  if (char === ")") return CLOSE_PAREN_TOKEN;
+  if (char === "+") return PLUS_TOKEN;
+  if (char === ":") return COLON_TOKEN;
   return undefined;
 }
 
@@ -244,14 +244,14 @@ function punctuationToken(code: string): Token | undefined {
 // Returns the index just past it, or `-1` on an unexpected character or a
 // `+` preceded by a space (a `+` must abut its license id).
 function scanToken(source: string, i: number, tokens: Token[]): number {
-  const code = Str.slice(i, i + 1)(source);
-  if (code === "+" && i > 0 && source[i - 1] === " ") return -1;
-  const punctuation = punctuationToken(code);
+  const char = Str.slice(i, i + 1)(source);
+  if (char === "+" && i > 0 && source[i - 1] === " ") return -1;
+  const punctuation = punctuationToken(char);
   if (punctuation !== undefined) {
     tokens.push(punctuation);
     return i + 1;
   }
-  if (!isIdChar(code)) return -1;
+  if (!isIdChar(char)) return -1;
   return scanIdString(source, i, tokens);
 }
 

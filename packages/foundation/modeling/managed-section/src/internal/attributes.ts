@@ -146,19 +146,19 @@ export const isValidAttributeName = S.is(AttributeName);
  */
 export const isValidAttributeValue = S.is(AttributeValue);
 
-const isNameStart = (code: string | undefined): boolean =>
-  code !== undefined && ((code >= "A" && code <= "Z") || (code >= "a" && code <= "z")); // A-Z a-z
+const isNameStart = (char: string | undefined): boolean =>
+  char !== undefined && ((char >= "A" && char <= "Z") || (char >= "a" && char <= "z")); // A-Z a-z
 
-const isNameChar = (code: string | undefined): boolean =>
-  isNameStart(code) || (code !== undefined && code >= "0" && code <= "9") || code === "_" || code === "-"; // 0-9 _ -
+const isNameChar = (char: string | undefined): boolean =>
+  isNameStart(char) || (char !== undefined && char >= "0" && char <= "9") || char === "_" || char === "-"; // 0-9 _ -
 
-const isSeparator = (code: string | undefined): boolean => code === " " || code === "\t"; // space, tab
+const isSeparator = (char: string | undefined): boolean => char === " " || char === "\t"; // space, tab
 
 /** The index a walk step returns when the run is refused. */
 const REFUSED = -1;
 
-/** The first index at or after `index` whose character code fails `accepts`. */
-const skipWhile = (run: string, index: number, accepts: (code: string | undefined) => boolean): number => {
+/** The first index at or after `index` whose character fails `accepts`. */
+const skipWhile = (run: string, index: number, accepts: (char: string | undefined) => boolean): number => {
   let cursor = index;
   while (cursor < run.length && accepts(run[cursor])) {
     cursor += 1;
@@ -191,11 +191,11 @@ const opensValue = (run: string, index: number): boolean =>
  */
 const valueEnd = (run: string, index: number): number => {
   for (let cursor = index; cursor < run.length; cursor += 1) {
-    const code = run[cursor];
-    if (code === '"') {
+    const char = run[cursor];
+    if (char === '"') {
       return cursor;
     }
-    if (code === "\n" || code === "\r") {
+    if (char === "\n" || char === "\r") {
       return REFUSED;
     }
   }

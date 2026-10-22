@@ -224,12 +224,12 @@ const COLON = ":"; // :
 const COMMA = ","; // ,
 
 /** `[ \t]` — the only whitespace the dialect admits, per the header comment. */
-const isSpaceTab = (code: string | undefined): boolean => code === " " || code === "\t";
+const isSpaceTab = (char: string | undefined): boolean => char === " " || char === "\t";
 
-const isDigit = (code: string | undefined): boolean => code !== undefined && code >= "0" && code <= "9";
+const isDigit = (char: string | undefined): boolean => char !== undefined && char >= "0" && char <= "9";
 
-const isAsciiLetter = (code: string | undefined): boolean =>
-  code !== undefined && ((code >= "A" && code <= "Z") || (code >= "a" && code <= "z"));
+const isAsciiLetter = (char: string | undefined): boolean =>
+  char !== undefined && ((char >= "A" && char <= "Z") || (char >= "a" && char <= "z"));
 
 /** The index after the run of `[ \t]` starting at `from` (possibly `from` itself). */
 const skipSpaceTab: {
@@ -550,14 +550,14 @@ export const parseClosingLists = (text: string): ReadonlyArray<ClosingList> => {
 };
 
 /** `[A-Za-z0-9_]` — the word-boundary alphabet the inline dialects use. */
-const isWordChar = (code: string | undefined): boolean => isAsciiLetter(code) || isDigit(code) || code === "_";
+const isWordChar = (char: string | undefined): boolean => isAsciiLetter(char) || isDigit(char) || char === "_";
 
 /** ASCII space plus the `\t`..`\r` controls. */
-const isAsciiWhitespace = (code: string | undefined): boolean =>
-  code === " " || (code !== undefined && code >= "\t" && code <= "\r");
+const isAsciiWhitespace = (char: string | undefined): boolean =>
+  char === " " || (char !== undefined && char >= "\t" && char <= "\r");
 
-/** The isolated non-ASCII code points of the JavaScript `\s` set. */
-const UNICODE_SPACE_CODES: HashSet.HashSet<string> = HashSet.make(
+/** The isolated non-ASCII characters of the JavaScript `\s` set. */
+const UNICODE_SPACE_CHARS: HashSet.HashSet<string> = HashSet.make(
   "\xa0",
   "\u1680",
   "\u2028",
@@ -569,9 +569,9 @@ const UNICODE_SPACE_CODES: HashSet.HashSet<string> = HashSet.make(
 );
 
 /** The non-ASCII members of the JavaScript `\s` set. */
-const isUnicodeSpace = (code: string | undefined): boolean =>
-  (code !== undefined && code >= "\u2000" && code <= "\u200a") ||
-  (code !== undefined && HashSet.has(UNICODE_SPACE_CODES, code));
+const isUnicodeSpace = (char: string | undefined): boolean =>
+  (char !== undefined && char >= "\u2000" && char <= "\u200a") ||
+  (char !== undefined && HashSet.has(UNICODE_SPACE_CHARS, char));
 
 /**
  * The full JavaScript `\s` set, spelled as a predicate so the module keeps
@@ -580,7 +580,7 @@ const isUnicodeSpace = (code: string | undefined): boolean =>
  * {@link harvestReferenceLists} admits this set — everything inside a list
  * stays `[ \t]`, per the header comment.
  */
-const isAnyWhitespace = (code: string | undefined): boolean => isAsciiWhitespace(code) || isUnicodeSpace(code);
+const isAnyWhitespace = (char: string | undefined): boolean => isAsciiWhitespace(char) || isUnicodeSpace(char);
 
 /**
  * A reference list harvested out of running text by
