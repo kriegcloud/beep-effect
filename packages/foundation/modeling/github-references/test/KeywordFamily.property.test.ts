@@ -23,6 +23,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
 
 import { ListKeyword } from "@beep/github-references/ClosingList";
 import { KeywordFamily, keywordFamily } from "@beep/github-references/KeywordFamily";
+import * as Str from "effect/String";
 
 describe("KeywordFamily property floor", () => {
   roundTrips("KeywordFamily", KeywordFamily);
@@ -33,7 +34,7 @@ describe("KeywordFamily property floor", () => {
       Effect.sync(() => {
         const family = keywordFamily(keyword);
         assert.strictEqual(keywordFamily(family), family);
-        assertTrue(keyword.startsWith(family));
+        assertTrue(Str.startsWith(family)(keyword));
       }),
     runs
   );

@@ -22,6 +22,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { begin, block, crlf, end, id, lines, parse, parseFailure, section } from "./fixtures.ts";
 
 describe("SectionDocument.parseResult", () => {
@@ -43,7 +44,7 @@ describe("SectionDocument.parseResult", () => {
       const doc = parse(text);
       const placed = doc.sections[0];
       assert.isDefined(placed);
-      assert.strictEqual(text.slice(placed.start, placed.end), block("example-tool", "body"));
+      assert.strictEqual(Str.slice(placed.start, placed.end)(text), block("example-tool", "body"));
     });
 
     it("reports a 1-based line for the begin marker", () => {

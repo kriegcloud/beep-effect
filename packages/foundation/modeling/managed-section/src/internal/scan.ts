@@ -17,6 +17,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { PlacedSection, Section } from "../Section.ts";
 import type { CommentStyle } from "../CommentStyle.ts";
 import type { Eol, SectionDialect } from "../SectionDialect.ts";
@@ -201,7 +202,7 @@ const failedAt = (reason: ScanFailureReason, line: number, key: string): ScanRes
  * @category parsing
  * @since 0.0.0
  */
-export const detectEol = (text: string): Eol => (text.includes("\r\n") ? "\r\n" : "\n");
+export const detectEol = (text: string): Eol => (Str.includes("\r\n")(text) ? "\r\n" : "\n");
 
 /**
  * Collapse CRLF to LF.
@@ -225,21 +226,21 @@ export const detectEol = (text: string): Eol => (text.includes("\r\n") ? "\r\n" 
  * @category normalization
  * @since 0.0.0
  */
-export const normalizeEol = (text: string): string => text.replace(/\r\n/g, "\n");
+export const normalizeEol = (text: string): string => Str.replace(/\r\n/g, "\n")(text);
 
 /** Strip exactly one line break from the start of a string. */
 const stripLeadingBreak = (text: string): string =>
-  text.startsWith("\r\n") ? text.slice(2) : text.startsWith("\n") ? text.slice(1) : text;
+  Str.startsWith("\r\n")(text) ? Str.slice(2)(text) : Str.startsWith("\n")(text) ? Str.slice(1)(text) : text;
 
 /** Strip exactly one line break from the end of a string. */
 const stripTrailingBreak = (text: string): string =>
-  text.endsWith("\r\n") ? text.slice(0, -2) : text.endsWith("\n") ? text.slice(0, -1) : text;
+  Str.endsWith("\r\n")(text) ? Str.slice(0, -2)(text) : Str.endsWith("\n")(text) ? Str.slice(0, -1)(text) : text;
 
 /** Offsets at which each 1-based line starts, for O(log n) line lookup. */
 const lineStarts = (text: string): ReadonlyArray<number> => {
   const starts = [0];
   for (let index = 0; index < text.length; index += 1) {
-    if (text.charCodeAt(index) === 10) {
+    if (text[index] === "\n") {
       starts.push(index + 1);
     }
   }
@@ -346,7 +347,7 @@ const beginSection = (state: ScanState, hit: MarkerHit): ScanResult | undefined 
 
 /** The placed section spanning an open BEGIN marker and its END marker. */
 const placeSection = (state: ScanState, open: MarkerHit, hit: MarkerHit): PlacedSection => {
-  const inner = stripTrailingBreak(stripLeadingBreak(state.text.slice(open.end, hit.start)));
+  const inner = stripTrailingBreak(stripLeadingBreak(Str.slice(open.end, hit.start)(state.text)));
   return PlacedSection.make({
     section: Section.make({
       key: open.key,

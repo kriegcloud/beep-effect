@@ -5,6 +5,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { ReferenceKeyword } from "@beep/github-references/ClosingList";
 import type { ClosingKeyword } from "@beep/github-references/IssueReferences";
 
@@ -51,7 +52,7 @@ describe("KeywordFamily.keywordFamily", () => {
   it("collapses each closing conjugation to its stem", () => {
     for (const keyword of CLOSING_KEYWORDS) {
       const family = keywordFamily(keyword);
-      assert.isTrue(keyword.startsWith(family), keyword);
+      assert.isTrue(Str.startsWith(family)(keyword), keyword);
       assert.notStrictEqual(family, "ref", keyword);
     }
   });

@@ -12,6 +12,7 @@ import { $ManagedSectionId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $ManagedSectionId.create("internal/attributes");
 
@@ -145,20 +146,21 @@ export const isValidAttributeName = S.is(AttributeName);
  */
 export const isValidAttributeValue = S.is(AttributeValue);
 
-const isNameStart = (code: number): boolean => (code >= 65 && code <= 90) || (code >= 97 && code <= 122); // A-Z a-z
+const isNameStart = (code: string | undefined): boolean =>
+  code !== undefined && ((code >= "A" && code <= "Z") || (code >= "a" && code <= "z")); // A-Z a-z
 
-const isNameChar = (code: number): boolean =>
-  isNameStart(code) || (code >= 48 && code <= 57) || code === 95 || code === 45; // 0-9 _ -
+const isNameChar = (code: string | undefined): boolean =>
+  isNameStart(code) || (code !== undefined && code >= "0" && code <= "9") || code === "_" || code === "-"; // 0-9 _ -
 
-const isSeparator = (code: number): boolean => code === 32 || code === 9; // space, tab
+const isSeparator = (code: string | undefined): boolean => code === " " || code === "\t"; // space, tab
 
 /** The index a walk step returns when the run is refused. */
 const REFUSED = -1;
 
 /** The first index at or after `index` whose character code fails `accepts`. */
-const skipWhile = (run: string, index: number, accepts: (code: number) => boolean): number => {
+const skipWhile = (run: string, index: number, accepts: (code: string | undefined) => boolean): number => {
   let cursor = index;
-  while (cursor < run.length && accepts(run.charCodeAt(cursor))) {
+  while (cursor < run.length && accepts(run[cursor])) {
     cursor += 1;
   }
   return cursor;
@@ -166,7 +168,7 @@ const skipWhile = (run: string, index: number, accepts: (code: number) => boolea
 
 /** Past the separator run between pairs: one or more spaces/tabs, never trailing. */
 const separatorEnd = (run: string, index: number): number => {
-  if (!isSeparator(run.charCodeAt(index))) {
+  if (!isSeparator(run[index])) {
     return REFUSED;
   }
   const end = skipWhile(run, index, isSeparator);
@@ -176,11 +178,11 @@ const separatorEnd = (run: string, index: number): number => {
 
 /** Past a name `[A-Za-z][A-Za-z0-9_-]*` starting at `index`. */
 const nameEnd = (run: string, index: number): number =>
-  isNameStart(run.charCodeAt(index)) ? skipWhile(run, index + 1, isNameChar) : REFUSED;
+  isNameStart(run[index]) ? skipWhile(run, index + 1, isNameChar) : REFUSED;
 
 /** True when `="` opens a value at `index`. */
 const opensValue = (run: string, index: number): boolean =>
-  index + 1 < run.length && run.charCodeAt(index) === 61 && run.charCodeAt(index + 1) === 34;
+  index + 1 < run.length && run[index] === "=" && run[index + 1] === '"';
 
 /**
  * The closing quote of a value starting at `index`. The scanner only hands
@@ -189,11 +191,11 @@ const opensValue = (run: string, index: number): boolean =>
  */
 const valueEnd = (run: string, index: number): number => {
   for (let cursor = index; cursor < run.length; cursor += 1) {
-    const code = run.charCodeAt(cursor);
-    if (code === 34) {
+    const code = run[cursor];
+    if (code === '"') {
       return cursor;
     }
-    if (code === 10 || code === 13) {
+    if (code === "\n" || code === "\r") {
       return REFUSED;
     }
   }
@@ -211,11 +213,11 @@ const readPair = (run: string, index: number, attributes: Record<string, string>
   if (close === REFUSED) {
     return REFUSED;
   }
-  const name = run.slice(index, end);
+  const name = Str.slice(index, end)(run);
   if (R.has(attributes, name)) {
     return REFUSED;
   }
-  attributes[name] = run.slice(end + 2, close);
+  attributes[name] = Str.slice(end + 2, close)(run);
   return close + 1; // consume the closing quote
 };
 

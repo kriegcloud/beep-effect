@@ -5,6 +5,7 @@ import * as A from "effect/Array";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { Section, SectionReconciliation } from "@beep/managed-section";
 
 // Styles are constructed inline rather than taken from the presets, so the
@@ -80,8 +81,8 @@ describe("SectionDocument properties", () => {
 
   it.prop("every user line survives reconciliation, in order", [documentArb, declaredArb], ([text, declared]) => {
     const result = reconcile(text, declared);
-    const original = A.filter(text.split("\n"), (line) => line.trim() !== "");
-    const produced = result.text.split("\n");
+    const original = A.filter(Str.split("\n")(text), (line) => Str.trim(line) !== "");
+    const produced = Str.split("\n")(result.text);
     let cursor = 0;
     for (const line of original) {
       const found = produced.indexOf(line, cursor);
@@ -145,10 +146,10 @@ describe("SectionDocument properties", () => {
     "a CRLF document stays CRLF and still reaches a fixed point",
     [documentArb, declaredArb],
     ([text, declared]) => {
-      const crlf = text.replace(/\n/g, "\r\n");
+      const crlf = Str.replace(/\n/g, "\r\n")(text);
       // A source with no line break carries no evidence of its line ending, so
       // there is nothing to preserve; a new document is written LF by design.
-      if (!crlf.includes("\r\n")) {
+      if (!Str.includes("\r\n")(crlf)) {
         return true;
       }
       const first = reconcile(crlf, declared);

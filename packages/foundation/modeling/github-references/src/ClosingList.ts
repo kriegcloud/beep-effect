@@ -219,16 +219,17 @@ export class ReferenceList extends S.Opaque<ReferenceList, { readonly brand: uni
     )
 ) {}
 
-const HASH = 0x23; // #
-const COLON = 0x3a; // :
-const COMMA = 0x2c; // ,
+const HASH = "#"; // #
+const COLON = ":"; // :
+const COMMA = ","; // ,
 
 /** `[ \t]` — the only whitespace the dialect admits, per the header comment. */
-const isSpaceTab = (code: number): boolean => code === 0x20 || code === 0x09;
+const isSpaceTab = (code: string | undefined): boolean => code === " " || code === "\t";
 
-const isDigit = (code: number): boolean => code >= 0x30 && code <= 0x39;
+const isDigit = (code: string | undefined): boolean => code !== undefined && code >= "0" && code <= "9";
 
-const isAsciiLetter = (code: number): boolean => (code >= 0x41 && code <= 0x5a) || (code >= 0x61 && code <= 0x7a);
+const isAsciiLetter = (code: string | undefined): boolean =>
+  code !== undefined && ((code >= "A" && code <= "Z") || (code >= "a" && code <= "z"));
 
 /** The index after the run of `[ \t]` starting at `from` (possibly `from` itself). */
 const skipSpaceTab: {
@@ -236,7 +237,7 @@ const skipSpaceTab: {
   (from: number): (line: string) => number;
 } = dual(2, (line: string, from: number): number => {
   let index = from;
-  while (index < line.length && isSpaceTab(line.charCodeAt(index))) index += 1;
+  while (index < line.length && isSpaceTab(line[index])) index += 1;
   return index;
 });
 
@@ -268,12 +269,12 @@ const readItem: {
   (line: string, from: number): ItemScan;
   (from: number): (line: string) => ItemScan;
 } = dual(2, (line: string, from: number): ItemScan => {
-  if (line.charCodeAt(from) !== HASH) return ITEM_MISS;
+  if (line[from] !== HASH) return ITEM_MISS;
   const start = from + 1;
   let index = start;
   let value = 0;
-  while (index < line.length && isDigit(line.charCodeAt(index))) {
-    value = value * 10 + (line.charCodeAt(index) - 0x30);
+  while (index < line.length && isDigit(line[index])) {
+    value = value * 10 + Number(line[index]);
     index += 1;
   }
   if (index === start) return ITEM_MISS;
@@ -286,7 +287,7 @@ const readItem: {
  * there.
  */
 const scanAndSeparator = (line: string, from: number, fallback: number): number => {
-  if (!line.startsWith("and", from)) return fallback;
+  if (Str.slice(from, from + 3)(line) !== "and") return fallback;
   const afterAnd = skipSpaceTab(line, from + 3);
   return afterAnd > from + 3 ? afterAnd : fallback;
 };
@@ -304,7 +305,7 @@ const scanSeparator: {
   (from: number): (line: string) => number;
 } = dual(2, (line: string, from: number): number => {
   const afterLeading = skipSpaceTab(line, from);
-  if (line.charCodeAt(afterLeading) === COMMA) {
+  if (line[afterLeading] === COMMA) {
     const afterComma = skipSpaceTab(line, afterLeading + 1);
     return scanAndSeparator(line, afterComma, afterComma);
   }
@@ -379,12 +380,12 @@ const parseItems: {
 export const parseReferenceList = (line: string): O.Option<ReferenceList> => {
   const trimmed = Str.trim(line);
   let letters = 0;
-  while (letters < trimmed.length && isAsciiLetter(trimmed.charCodeAt(letters))) letters += 1;
+  while (letters < trimmed.length && isAsciiLetter(trimmed[letters])) letters += 1;
   if (letters === 0) return O.none();
-  const keyword = R.get(LIST_KEYWORD_BY_NAME, Str.toLowerCase(trimmed.slice(0, letters)));
+  const keyword = R.get(LIST_KEYWORD_BY_NAME, Str.toLowerCase(Str.slice(0, letters)(trimmed)));
   if (O.isNone(keyword)) return O.none();
   let cursor = letters;
-  if (trimmed.charCodeAt(cursor) === COLON) cursor += 1;
+  if (trimmed[cursor] === COLON) cursor += 1;
   const afterWhitespace = skipSpaceTab(trimmed, cursor);
   if (afterWhitespace === cursor) return O.none();
   const issueNumbers = parseItems(trimmed, afterWhitespace);
@@ -549,26 +550,28 @@ export const parseClosingLists = (text: string): ReadonlyArray<ClosingList> => {
 };
 
 /** `[A-Za-z0-9_]` — the word-boundary alphabet the inline dialects use. */
-const isWordChar = (code: number): boolean => isAsciiLetter(code) || isDigit(code) || code === 0x5f;
+const isWordChar = (code: string | undefined): boolean => isAsciiLetter(code) || isDigit(code) || code === "_";
 
 /** ASCII space plus the `\t`..`\r` controls. */
-const isAsciiWhitespace = (code: number): boolean => code === 0x20 || (code >= 0x09 && code <= 0x0d);
+const isAsciiWhitespace = (code: string | undefined): boolean =>
+  code === " " || (code !== undefined && code >= "\t" && code <= "\r");
 
 /** The isolated non-ASCII code points of the JavaScript `\s` set. */
-const UNICODE_SPACE_CODES: HashSet.HashSet<number> = HashSet.make(
-  0xa0,
-  0x1680,
-  0x2028,
-  0x2029,
-  0x202f,
-  0x205f,
-  0x3000,
-  0xfeff
+const UNICODE_SPACE_CODES: HashSet.HashSet<string> = HashSet.make(
+  "\xa0",
+  "\u1680",
+  "\u2028",
+  "\u2029",
+  "\u202f",
+  "\u205f",
+  "\u3000",
+  "\ufeff"
 );
 
 /** The non-ASCII members of the JavaScript `\s` set. */
-const isUnicodeSpace = (code: number): boolean =>
-  (code >= 0x2000 && code <= 0x200a) || HashSet.has(UNICODE_SPACE_CODES, code);
+const isUnicodeSpace = (code: string | undefined): boolean =>
+  (code !== undefined && code >= "\u2000" && code <= "\u200a") ||
+  (code !== undefined && HashSet.has(UNICODE_SPACE_CODES, code));
 
 /**
  * The full JavaScript `\s` set, spelled as a predicate so the module keeps
@@ -577,7 +580,7 @@ const isUnicodeSpace = (code: number): boolean =>
  * {@link harvestReferenceLists} admits this set — everything inside a list
  * stays `[ \t]`, per the header comment.
  */
-const isAnyWhitespace = (code: number): boolean => isAsciiWhitespace(code) || isUnicodeSpace(code);
+const isAnyWhitespace = (code: string | undefined): boolean => isAsciiWhitespace(code) || isUnicodeSpace(code);
 
 /**
  * A reference list harvested out of running text by
@@ -634,25 +637,24 @@ export class HarvestedReferenceList extends S.Opaque<HarvestedReferenceList, { r
 /** The index one past the ASCII letter run that starts at `from`. */
 const letterRunEnd = (text: string, from: number): number => {
   let runEnd = from + 1;
-  while (runEnd < text.length && isAsciiLetter(text.charCodeAt(runEnd))) runEnd += 1;
+  while (runEnd < text.length && isAsciiLetter(text[runEnd])) runEnd += 1;
   return runEnd;
 };
 
 /** Whether `[runStart, runEnd)` touches a word character on either side. */
 const isWordEmbedded = (text: string, runStart: number, runEnd: number): boolean =>
-  (runStart > 0 && isWordChar(text.charCodeAt(runStart - 1))) ||
-  (runEnd < text.length && isWordChar(text.charCodeAt(runEnd)));
+  (runStart > 0 && isWordChar(text[runStart - 1])) || (runEnd < text.length && isWordChar(text[runEnd]));
 
 /** The list keyword a free-standing letter run spells, or `Option.none()`. */
 const keywordAt = (text: string, runStart: number, runEnd: number): O.Option<ListKeyword> =>
   isWordEmbedded(text, runStart, runEnd)
     ? O.none()
-    : R.get(LIST_KEYWORD_BY_NAME, Str.toLowerCase(text.slice(runStart, runEnd)));
+    : R.get(LIST_KEYWORD_BY_NAME, Str.toLowerCase(Str.slice(runStart, runEnd)(text)));
 
 /** The first item after the keyword→item gap, which admits any whitespace. */
 const readFirstItem = (text: string, runEnd: number): ItemScan => {
   let cursor = runEnd;
-  while (cursor < text.length && isAnyWhitespace(text.charCodeAt(cursor))) cursor += 1;
+  while (cursor < text.length && isAnyWhitespace(text[cursor])) cursor += 1;
   return cursor === runEnd ? ITEM_MISS : readItem(text, cursor);
 };
 
@@ -776,7 +778,7 @@ export const harvestReferenceLists = (text: string): ReadonlyArray<HarvestedRefe
   const lists: Array<HarvestedReferenceList> = [];
   let index = 0;
   while (index < text.length) {
-    index = isAsciiLetter(text.charCodeAt(index)) ? harvestAtLetterRun(text, index, lists) : index + 1;
+    index = isAsciiLetter(text[index]) ? harvestAtLetterRun(text, index, lists) : index + 1;
   }
   return lists;
 };

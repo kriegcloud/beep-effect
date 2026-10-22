@@ -19,15 +19,18 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const isHarvestedReferenceLists = S.is(S.Array(HarvestedReferenceList));
 
 // Pure functions get pure tests, with no layer at all.
 
-const capitalized = (word: string): string => word.charAt(0).toUpperCase() + word.slice(1);
+const capitalized = (word: string): string =>
+  Str.toUpperCase(O.getOrElse(Str.charAt(0)(word), constant(""))) + Str.slice(1)(word);
 
 describe("ClosingList.parseClosingList", () => {
   it("exports exactly the three reference keywords", () => {
@@ -130,7 +133,7 @@ describe("ClosingList.parseClosingList", () => {
   it("stays linear on hostile input — long runs of tabs and huge lists", () => {
     // The scan is a single pass with no regex engine behind it; these would
     // hang a backtracking list pattern and must simply answer, fast.
-    const tabs = "\t".repeat(100_000);
+    const tabs = Str.repeat(100_000)("\t");
     assertNone(parseClosingList(`closes${tabs}x`));
     assertNone(parseClosingList(`closes #1,${tabs}and#2`));
     assertNone(parseClosingList(`closes #1${tabs}x`));
@@ -300,7 +303,7 @@ describe("ClosingList.review regressions", () => {
         A.map(harvestReferenceLists(text), (list) => [
           list.keyword,
           [...list.issueNumbers],
-          text.slice(list.start, list.end),
+          Str.slice(list.start, list.end)(text),
         ]),
         expected,
         text
@@ -323,8 +326,8 @@ describe("ClosingList.review regressions", () => {
       ReferenceList.make({ keyword: "refs", closing: false, issueNumbers: [3] }),
       ReferenceList.make({ keyword: "fixes", closing: true, issueNumbers: [4] }),
     ]);
-    const refsStart = text.indexOf("ReFs");
-    const fixesStart = text.indexOf("FiXeS");
+    const refsStart = O.getOrElse(Str.indexOf("ReFs")(text), constant(-1));
+    const fixesStart = O.getOrElse(Str.indexOf("FiXeS")(text), constant(-1));
     assert.deepStrictEqual(harvestReferenceLists(text), [
       HarvestedReferenceList.make({
         keyword: "refs",
@@ -435,8 +438,8 @@ describe("ClosingList.harvestReferenceLists", () => {
         { keyword: "fixes", closing: true, issueNumbers: [456] },
       ]
     );
-    assert.strictEqual(text.slice(found[0]?.start, found[0]?.end), "Closes #123");
-    assert.strictEqual(text.slice(found[1]?.start, found[1]?.end), "Fixes #456");
+    assert.strictEqual(Str.slice(found[0]?.start, found[0]?.end)(text), "Closes #123");
+    assert.strictEqual(Str.slice(found[1]?.start, found[1]?.end)(text), "Fixes #456");
   });
 
   it("ends a list at its last item when a separator leads to a new keyword", () => {
@@ -449,8 +452,8 @@ describe("ClosingList.harvestReferenceLists", () => {
         { keyword: "fixes", issueNumbers: [3] },
       ]
     );
-    assert.strictEqual(text.slice(found[0]?.start, found[0]?.end), "Closes #1, #2");
-    assert.strictEqual(text.slice(found[1]?.start, found[1]?.end), "fixes #3");
+    assert.strictEqual(Str.slice(found[0]?.start, found[0]?.end)(text), "Closes #1, #2");
+    assert.strictEqual(Str.slice(found[1]?.start, found[1]?.end)(text), "fixes #3");
   });
 
   it("reports a reference-keyword list with closing: false", () => {
@@ -535,8 +538,8 @@ describe("ClosingList.harvestReferenceLists", () => {
   it("stays linear on hostile input — long runs of tabs and newlines", () => {
     // Same posture as the whole-line parsers: a single pass with no regex
     // engine behind it must simply answer, fast.
-    const tabs = "\t".repeat(100_000);
-    const newlines = "\n".repeat(100_000);
+    const tabs = Str.repeat(100_000)("\t");
+    const newlines = Str.repeat(100_000)("\n");
     assert.deepStrictEqual(harvestReferenceLists(`closes${tabs}x`), []);
     const gapped = harvestReferenceLists(`closes${newlines}#1`);
     assert.deepStrictEqual([...(gapped[0]?.issueNumbers ?? [])], [1]);
