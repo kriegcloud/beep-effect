@@ -164,6 +164,57 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
       })
     );
 
+    for (const begin of ["BEGIN WORK", "START", "START WORK"]) {
+      for (const commit of ["COMMIT WORK", "END WORK"]) {
+        it.effect(
+          `guards ${commit} after ${begin} and a swallowed constraint error`,
+          Effect.fnUntraced(function* () {
+            const sql = yield* SqlClient.SqlClient;
+            yield* sql`create or replace table tx_work_commit (id INTEGER PRIMARY KEY)`;
+            yield* sql.unsafe(begin);
+            yield* sql`insert into tx_work_commit values (1)`;
+            yield* sql`insert into tx_work_commit values (1)`.pipe(Effect.ignore);
+            const error = yield* sql.unsafe(commit).pipe(Effect.flip);
+            expectRefusedCommit(error, ABORTED_MESSAGE);
+            expect(yield* countRows(sql, "tx_work_commit")).toBe(0);
+            yield* expectUsable(sql);
+          })
+        );
+      }
+    }
+
+    for (const rollback of ["ROLLBACK WORK", "ABORT WORK"]) {
+      it.effect(
+        `tracks ${rollback} and permits a subsequent transaction`,
+        Effect.fnUntraced(function* () {
+          const sql = yield* SqlClient.SqlClient;
+          yield* sql`create or replace table tx_work_rollback (id INTEGER PRIMARY KEY)`;
+          yield* sql.unsafe("BEGIN WORK");
+          yield* sql`insert into tx_work_rollback values (1)`;
+          yield* sql`insert into tx_work_rollback values (1)`.pipe(Effect.ignore);
+          yield* sql.unsafe(rollback);
+          yield* sql.unsafe("START");
+          yield* sql`insert into tx_work_rollback values (2)`;
+          yield* sql.unsafe("COMMIT WORK");
+          expect(yield* countRows(sql, "tx_work_rollback")).toBe(1);
+        })
+      );
+    }
+
+    it.effect(
+      "refuses multi-statement COMMIT WORK before running the insert",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`create table tx_multi_work (id INTEGER)`;
+        yield* sql.unsafe("BEGIN WORK");
+        const error = yield* sql.unsafe("insert into tx_multi_work values (1); COMMIT WORK").pipe(Effect.flip);
+        expectRefusedMultiStatement(error);
+        expect(yield* countRows(sql, "tx_multi_work")).toBe(0);
+        yield* sql.unsafe("ROLLBACK WORK");
+        yield* expectUsable(sql);
+      })
+    );
+
     it.effect(
       "refuses a comment-prefixed raw COMMIT after a comment-prefixed BEGIN and a swallowed error",
       Effect.fnUntraced(function* () {

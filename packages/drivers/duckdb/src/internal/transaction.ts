@@ -72,9 +72,9 @@ const ABORTED_TRANSACTION_PATTERN = /Current transaction is aborted/;
 const CONTROL_RULES: ReadonlyArray<readonly [TransactionControl, RegExp]> = [
   ["savepoint", SAVEPOINT_PATTERN],
   ["rollbackSavepoint", ROLLBACK_SAVEPOINT_PATTERN],
-  ["begin", /^\s*(?:BEGIN(?:\s+TRANSACTION)?|START\s+TRANSACTION)(?:\s+READ\s+(?:ONLY|WRITE))?\s*;?\s*$/i],
-  ["commit", /^\s*(?:COMMIT|END)(?:\s+TRANSACTION)?\s*;?\s*$/i],
-  ["rollback", /^\s*(?:ROLLBACK|ABORT)(?:\s+TRANSACTION)?\s*;?\s*$/i],
+  ["begin", /^\s*(?:BEGIN|START)(?:\s+(?:TRANSACTION|WORK))?(?:\s+READ\s+(?:ONLY|WRITE))?\s*;?\s*$/i],
+  ["commit", /^\s*(?:COMMIT|END)(?:\s+(?:TRANSACTION|WORK))?\s*;?\s*$/i],
+  ["rollback", /^\s*(?:ROLLBACK|ABORT)(?:\s+(?:TRANSACTION|WORK))?\s*;?\s*$/i],
   ["catalogContext", /^\s*(?:USE\s|(?:SET|RESET)\s+(?:(?:SESSION|LOCAL|GLOBAL)\s+)?(?:schema|search_path)\b)/i],
 ];
 

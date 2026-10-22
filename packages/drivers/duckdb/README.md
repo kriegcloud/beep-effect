@@ -208,9 +208,11 @@ its connection only after a statement still running at teardown settles. A file 
   the client runs `ROLLBACK` itself and the `COMMIT` fails with the same
   `UnknownError`. Raw control text is tracked when it is the only statement in
   the text, with or without comments: `/* tx */ BEGIN`, `-- note` then
-  `COMMIT`, `END TRANSACTION;`. Text with several statements that includes
-  `BEGIN`, `COMMIT`, `ROLLBACK` or a savepoint (`BEGIN; INSERT ...`,
-  `COMMIT; SELECT 1`) fails with an `UnknownError` before anything runs.
+  `COMMIT`, `END TRANSACTION;`. `BEGIN`/`START`, `COMMIT`/`END`, and
+  `ROLLBACK`/`ABORT` accept optional `TRANSACTION` or `WORK`, including bare
+  `START`. Text with several statements that includes any of these controls
+  or a savepoint (`BEGIN; INSERT ...`, `COMMIT; SELECT 1`,
+  `INSERT ...; COMMIT WORK`) fails with an `UnknownError` before anything runs.
   Send each transaction control statement in its own call.
 - **Write conflicts** classify as `SerializationError` and are retryable: commit-time
   conflicts and statement-time ones (`Conflict on update!`, `Transaction conflict:`
