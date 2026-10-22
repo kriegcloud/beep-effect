@@ -29,8 +29,9 @@ uses no name allowlist. A call counts only when all five hold (precision tighten
   body, whose first parameter is an identifier.
 - The release calls `.remove(<that parameter>, ...)`, matched by binding resolution and not by
   name.
-- Neither `use` nor the release, nor any same-file helper they call or pass by name, changes
-  process state: no `process.chdir(...)` call and no assignment to, or `delete` of, a
+- Nothing in the wrapper definition (its `use` and release, the body around the acquisition,
+  pipe stages after it, or any same-file helper it calls or passes by name; review round 2)
+  changes process state: no `process.chdir(...)` call and no assignment to, or `delete` of, a
   `process.*` member (`process.cwd = ...`, `process.env.X = ...`, `process.env[...] = ...`).
   `process` counts when it is the global or a `node:process`/`process` import.
 
@@ -253,6 +254,39 @@ Verification after the fixes, each run alone through beep-heavy with `</dev/null
 - `quality fallow audit --base origin/main --check` exits 0 with `introduced=0`.
 - oxlint and Biome exit 0.
 - `quality effect-diagnostics --filter @beep/repo-cli` reports 0 errors and 0 warnings.
+
+## Review round 2 (#2061)
+
+PRRT_kwDOPbO_N86vRH0C (beep-reviewer) and PRRT_kwDOPbO_N86vRLTE (coderabbit), both P2, report the
+same gap. Round 1 ran `mutatesProcessState` only over the acquisition call's own `use` and
+release arguments. So a wrapper that built its root with `Effect.acquireRelease` and then called
+`process.chdir(root)` in its own body was missed, and so was a
+`.pipe(Effect.tap(() => process.chdir(...)))` after an `acquireUseRelease`.
+
+The fix: `functionHasShareableResource` now returns true when the wrapper holds a non-fresh
+acquisition, as before, or when it holds any acquisition and `mutatesProcessState` finds a
+process write anywhere in the wrapper definition. The scan follows same-file helpers it calls or
+passes by name. The definition contains the `use` and release arguments, so the per-call scan
+from round 1 was redundant and is removed from `isFreshTempRootAcquisition`.
+
+Failing-first fixtures, which must stay EV003. The case failed at the positive loop before the
+change:
+
+- `Effect.gen` with `yield* Effect.acquireRelease(fs.makeTempDirectory(), (path) => fs.remove(path))`
+  followed by `process.chdir(root)` in the wrapper body;
+- `acquireUseRelease(...).pipe(Effect.tap(() => process.chdir(fixtureRoot)))`;
+- the `acquireRelease` body variant through a same-file helper that assigns
+  `process.env.BEEP_ROOT`.
+
+No repo wrapper hits this, as expected. `lint effect-vitest` still reports 1,359 findings with
+`introduced=0 resolved=0`, and the inventory is unchanged.
+
+Verification, each run alone through beep-heavy with `</dev/null`:
+
+- `bun run check` exits 0, and `tsc-rs -p test/tsconfig.json --noEmit` exits 0 with 0 errors.
+- The 9 detector, laws and lint suites pass 377/377 on Bun and 377/377 on Node.
+- oxlint and Biome exit 0.
+- `quality fallow audit --base origin/main --check` exits 0 with `introduced=0`.
 
 ## Wave-4 frontier (measured, not implemented)
 

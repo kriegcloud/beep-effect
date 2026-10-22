@@ -419,7 +419,6 @@ const removesAcquiredPath = (candidate: MorphNode, imports: EffectVitestImports)
 };
 
 // A fresh temp root per call isolates each case on purpose; `it.layer` sharing would undo that (#1855 FP-2).
-// A use or release that changes process cwd/env state keeps the wrapper under review.
 const isFreshTempRootAcquisition = (call: CallExpression, imports: EffectVitestImports): boolean => {
   if (!isEffectAcquisition(call, imports)) return false;
   const releaseIndex = isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireUseRelease"]) ? 2 : 1;
@@ -431,8 +430,7 @@ const isFreshTempRootAcquisition = (call: CallExpression, imports: EffectVitestI
     acquire !== undefined &&
     release !== undefined &&
     isTempRootAcquire(acquire, imports) &&
-    removesAcquiredPath(release, imports) &&
-    !A.some(A.drop(args, 1), (region) => mutatesProcessState(region, imports))
+    removesAcquiredPath(release, imports)
   );
 };
 
@@ -452,8 +450,11 @@ const functionHasResource = (definition: EffectVitestFunctionNode, imports: Effe
   functionHasResourceWhere(definition, imports, constTrue);
 
 // EV003 asks for `it.layer` sharing only when a wrapper holds a resource other than a fresh temp root.
+// A wrapper that changes process state anywhere in its body (use, release, pipe stages, or a
+// same-file helper it reaches) stays under review even when its only acquisition is a fresh temp root.
 const functionHasShareableResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
-  functionHasResourceWhere(definition, imports, (call) => !isFreshTempRootAcquisition(call, imports));
+  functionHasResourceWhere(definition, imports, (call) => !isFreshTempRootAcquisition(call, imports)) ||
+  (functionHasResource(definition, imports) && mutatesProcessState(definition, imports));
 
 const buildsAndProvidesLayer = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean => {
   const calls = callbackCalls(definition);
