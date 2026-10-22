@@ -1020,6 +1020,30 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
     })
   );
 
+  it.effect("keeps outer allOf annotations on the reduced union and preserves branch annotations", () =>
+    Effect.gen(function* () {
+      const branches = [
+        { type: "object", properties: { done: { const: true } }, description: "Completed", title: "Done" },
+        { type: "object", properties: { done: { const: false } }, description: "Cancelled", title: "Stopped" },
+      ];
+      const hook = composeTransforms(["distributeAllOf"], { Outcome: { anyOf: branches } });
+      const outer = { description: "Outer description", title: "Outer title" };
+      const constraints = { type: "object", properties: { id: { type: "string" } } };
+      const expected = {
+        ...outer,
+        anyOf: A.map(branches, (branch) => ({
+          ...branch,
+          properties: { ...constraints.properties, ...branch.properties },
+        })),
+      };
+      const direct = hook({ ...outer, ...constraints, allOf: [{ anyOf: branches }] });
+      const referenced = hook({ ...outer, ...constraints, allOf: [{ $ref: "#/$defs/Outcome" }] });
+      expect(direct).toEqual(expected);
+      expect(referenced).toEqual(expected);
+      expect(hook(referenced)).toEqual(expected);
+    })
+  );
+
   it.effect("keeps annotation-only references and rejects conflicting intersections", () =>
     Effect.gen(function* () {
       const definitions: JsonSchema.Definitions = {

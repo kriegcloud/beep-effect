@@ -8202,9 +8202,7 @@ export const StateUpdate = S.Union([
         }),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-    ).annotateKey({
-      description: "The child is ready to process another prompt.",
-    }),
+    ).annotateKey({ description: "The work ended successfully." }),
     S.StructWithRest(
       S.Struct({
         state: S.tag("idle"),
@@ -8233,7 +8231,8 @@ export const StateUpdate = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      description: "The child is ready to process another prompt.",
+      description:
+        "The work ended because the agent reached the maximum number of tokens.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -8263,7 +8262,8 @@ export const StateUpdate = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      description: "The child is ready to process another prompt.",
+      description:
+        "The work ended because the agent reached the maximum number of allowed\nagent requests.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -8293,7 +8293,7 @@ export const StateUpdate = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      description: "The child is ready to process another prompt.",
+      description: "The work ended because the agent refused to continue.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -8322,9 +8322,7 @@ export const StateUpdate = S.Union([
         }),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-    ).annotateKey({
-      description: "The child is ready to process another prompt.",
-    }),
+    ).annotateKey({ description: "The work was cancelled." }),
     S.StructWithRest(
       S.Struct({
         state: S.tag("idle"),
@@ -8358,9 +8356,7 @@ export const StateUpdate = S.Union([
         ),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-    ).annotateKey({
-      description: "The child is ready to process another prompt.",
-    }),
+    ).annotateKey({ description: "The work ended because something failed." }),
     S.StructWithRest(
       S.Struct({
         state: S.tag("idle"),
@@ -8399,7 +8395,8 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       title: "other",
-      description: "The child is ready to process another prompt.",
+      description:
+        "Custom or future stop reason.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Other unknown values are reserved for future ACP variants.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -8427,9 +8424,11 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       title: "none",
-      description: "The child is ready to process another prompt.",
+      description: "No stop reason: `stopReason` is omitted or `null`.",
     }),
-  ]),
+  ]).annotateKey({
+    description: "The child is ready to process another prompt.",
+  }),
   S.StructWithRest(
     S.Struct({
       state: S.tag("requires_action"),
@@ -12141,7 +12140,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Session",
       description:
-        "Form-based elicitation where the client renders a form from the provided schema.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -12176,7 +12175,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Request",
       description:
-        "Form-based elicitation where the client renders a form from the provided schema.",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
   ]),
   S.Union([
@@ -12222,7 +12221,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Session",
       description:
-        "URL-based elicitation where the client directs the user to a URL.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -12260,7 +12259,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Request",
       description:
-        "URL-based elicitation where the client directs the user to a URL.",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
   ]),
   S.Union([

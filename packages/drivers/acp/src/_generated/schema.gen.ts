@@ -7386,7 +7386,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "No foreground work is active. Background activity may continue.",
+        "The active work ended successfully.\nIncludes locally handled commands that required no model call.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7417,7 +7417,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "No foreground work is active. Background activity may continue.",
+        "The active work ended because the agent reached the maximum number of tokens.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7448,7 +7448,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "No foreground work is active. Background activity may continue.",
+        "The active work ended because the agent reached the maximum number of\nallowed agent requests before returning idle.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7479,7 +7479,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "No foreground work is active. Background activity may continue.",
+        "The active work ended because the agent refused to continue. The user\nprompt and everything that comes after it won't be included in the next\nprompt, so this should be reflected in the UI.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7510,7 +7510,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "No foreground work is active. Background activity may continue.",
+        "Active session work was cancelled by the client via `session/cancel`.\n\nAgents MUST report this stop reason on an idle `state_update` when\ncancellation ends active foreground work, even if aborting causes\nexceptions. Agents MUST catch these errors and report `cancelled`, not\n`error`.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7547,7 +7547,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "No foreground work is active. Background activity may continue.",
+        "The active work ended because something failed.\n\nThis includes pre-insertion foreground work. A prompt failure before\ninsertion also requires an error response to `session/prompt`; after\ninsertion, the prompt's response remains successful.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7589,7 +7589,7 @@ export const StateUpdate = S.Union([
     ).annotateKey({
       title: "other",
       description:
-        "No foreground work is active. Background activity may continue.",
+        "Custom or future stop reason.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7617,10 +7617,12 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       title: "none",
-      description:
-        "No foreground work is active. Background activity may continue.",
+      description: "No stop reason: `stopReason` is omitted or `null`.",
     }),
-  ]),
+  ]).annotateKey({
+    description:
+      "No foreground work is active. Background activity may continue.",
+  }),
   S.StructWithRest(
     S.Struct({
       state: S.tag("requires_action"),
@@ -10509,9 +10511,7 @@ export const SessionUpdate = S.Union([
         ),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-    ).annotateKey({
-      description: "A snapshot of the session's aggregate foreground activity.",
-    }),
+    ).annotateKey({ description: "Foreground work is in progress." }),
     S.Union([
       S.StructWithRest(
         S.Struct({
@@ -10543,7 +10543,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "A snapshot of the session's aggregate foreground activity.",
+          "The active work ended successfully.\nIncludes locally handled commands that required no model call.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10575,7 +10575,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "A snapshot of the session's aggregate foreground activity.",
+          "The active work ended because the agent reached the maximum number of tokens.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10607,7 +10607,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "A snapshot of the session's aggregate foreground activity.",
+          "The active work ended because the agent reached the maximum number of\nallowed agent requests before returning idle.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10639,7 +10639,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "A snapshot of the session's aggregate foreground activity.",
+          "The active work ended because the agent refused to continue. The user\nprompt and everything that comes after it won't be included in the next\nprompt, so this should be reflected in the UI.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10671,7 +10671,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "A snapshot of the session's aggregate foreground activity.",
+          "Active session work was cancelled by the client via `session/cancel`.\n\nAgents MUST report this stop reason on an idle `state_update` when\ncancellation ends active foreground work, even if aborting causes\nexceptions. Agents MUST catch these errors and report `cancelled`, not\n`error`.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10709,7 +10709,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "A snapshot of the session's aggregate foreground activity.",
+          "The active work ended because something failed.\n\nThis includes pre-insertion foreground work. A prompt failure before\ninsertion also requires an error response to `session/prompt`; after\ninsertion, the prompt's response remains successful.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10752,7 +10752,7 @@ export const SessionUpdate = S.Union([
       ).annotateKey({
         title: "other",
         description:
-          "A snapshot of the session's aggregate foreground activity.",
+          "Custom or future stop reason.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10781,8 +10781,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         title: "none",
-        description:
-          "A snapshot of the session's aggregate foreground activity.",
+        description: "No stop reason: `stopReason` is omitted or `null`.",
       }),
     ]),
     S.StructWithRest(
@@ -10804,7 +10803,7 @@ export const SessionUpdate = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      description: "A snapshot of the session's aggregate foreground activity.",
+      description: "Foreground work is blocked on user action.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -10825,7 +10824,8 @@ export const SessionUpdate = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      description: "A snapshot of the session's aggregate foreground activity.",
+      description:
+        "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nThe Agent cannot currently determine foreground activity.\nThis replaces previously confirmed activity without ending the work or session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -10848,9 +10848,12 @@ export const SessionUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       title: "other",
-      description: "A snapshot of the session's aggregate foreground activity.",
+      description:
+        "Custom or future session state.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.",
     }),
-  ]),
+  ]).annotateKey({
+    description: "A snapshot of the session's aggregate foreground activity.",
+  }),
   S.StructWithRest(
     S.Struct({
       sessionUpdate: S.tag("tool_call_content_chunk"),
@@ -11833,7 +11836,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Session",
       description:
-        "Form-based elicitation where the client renders a form from the provided schema.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -11868,7 +11871,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Request",
       description:
-        "Form-based elicitation where the client renders a form from the provided schema.",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
   ]),
   S.Union([
@@ -11914,7 +11917,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Session",
       description:
-        "URL-based elicitation where the client directs the user to a URL.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -11952,7 +11955,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Request",
       description:
-        "URL-based elicitation where the client directs the user to a URL.",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
   ]),
   S.Union([
