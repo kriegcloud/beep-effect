@@ -1,0 +1,127 @@
+# Party Slice Spec
+
+## Objective
+
+Graduate the scratchpad party model (`scratchpad/party`) into a domain-agnostic product slice,
+`packages/party/{domain,use-cases,server}`. The slice covers persons, organizations and collective agents,
+their identifiers, accounts and voices, evidence-gated claims, identity resolution, admission tiers and
+the reviewer loop. Claims bind the `@beep/epistemics` `makeClaimEnvelope` and the P1b factories to party
+propositions and ids. Governing decision: `standards/architecture/DECISIONS.md` "2026-10-21: Epistemic
+Vocabulary Is Foundation; Party Is A Product Slice; Propositions Are Slice-Owned", with its 2026-10-22
+amendment.
+
+## Non-Goals
+
+- `@beep/party-tables` and any Postgres persistence. The first goal ships a memory ledger; durable
+  storage is a later goal, once the adapters have exercised the row shape.
+- client, ui or config packages, and the review page (`scratchpad/party/scripts/ReviewPage.ts`). That stays
+  a scratchpad tool.
+- Projecting party claims into the epistemic slice's edge authority. If wanted, that is a later
+  cross-slice workflow (`10-cross-slice-coordination.md`).
+- Moving law-practice's contact, client or matter vocabulary into party.
+- Any corpus data. Fixtures stay synthetic; the private corpus (`~/data-home/oppold-corpus`) is never
+  committed or copied into tests.
+
+## Source Hierarchy
+
+1. User objective or issue that created this packet.
+2. `AGENTS.md`, `CLAUDE.md`, and required skills.
+3. Governing architecture/package standards.
+4. This `SPEC.md`.
+5. `PLAN.md`.
+6. `GOAL.md`.
+7. Supporting `research/`, `ops/`, and `history/` files.
+
+Higher sources outrank lower sources when they conflict.
+
+## Module Placement (P0, 2026-10-22)
+
+| Scratchpad module | Home | Notes |
+| --- | --- | --- |
+| `Ids.ts` | `@beep/party-domain` ids; `PartyId` from `@beep/shared-domain/identity/Party` | the neutral PartyId kit lands first, in its own PR (Decision Log) |
+| `Party.ts`, `Communication.ts`, `Provenance.ts` | `@beep/party-domain` | parties, identifiers, accounts, voices, evidence anchors, collection sides |
+| `Proposition.ts` | `@beep/party-domain` | the slice-owned proposition union (`IdentifierOf`, `SameParty`, `DistinctParty`, `Membership`, `ReportsTo`, `VoiceAuthor`, ...) |
+| `Claim.ts` | `@beep/party-domain` | `makeClaimEnvelope({ $I, proposition, ids })`; the scratchpad mirror of evidence-signals is deleted |
+| `Time.ts` | removed | `@beep/epistemics` `ValidTime` / `KnowledgeInterval` (epoch millis) replace the string `UtcInstant` |
+| `Admission.ts`, `Hierarchy.ts`, `Resolution.ts`, `Projection.ts` | `@beep/party-domain` | pure behavior: admission proofs, declared vs operational hierarchy, `effect/Graph` resolution, projections |
+| `Ledger.ts` | port in `@beep/party-use-cases`; `PartyLedgerMemory` in `@beep/party-server` | append-only bitemporal ledger, a `Context.Service` port |
+| `adapters/MailIndex.ts`, `MailCensus.ts`, `IdentityEvidence.ts`, `OrgEvidence.ts`, `ReviewLoop.ts` | `@beep/party-server` | generic ingestion over the mail drivers (`libpff`, `m365`) |
+| `adapters/ContactEvidence.ts` | split | the generic contact-card path goes to `@beep/party-server`; the law-practice `contacts-kg` / client-number path stays in law-practice and feeds party through a `@beep/party-use-cases` port |
+| `scripts/*`, `fixtures/acme.ts` | scripts stay in scratchpad; fixtures move to `@beep/party-domain/test` | fixtures stay fully synthetic |
+
+## Target Surfaces
+
+- New `packages/party/domain`, `packages/party/use-cases`, `packages/party/server`, created only with
+  `bun run beep create-package`.
+- The law-practice package that implements the contact-source port (only the adapter and its Layer wiring).
+- `scratchpad/party`: remove or repoint modules once they have graduated.
+
+## Constraints
+
+- Party never imports law-practice. Law-practice may depend on `@beep/party-use-cases` ports, never the
+  reverse.
+- Party claims depend on `@beep/epistemics` only, never on `@beep/epistemic-domain` or other epistemic
+  product code.
+- Schema-first, then `Context.Service` contracts, then implementation. Effect v4 laws: `S.TaggedUnion`;
+  `$I.annote` on checks and `.pipe($I.annoteSchema(...))` on schemas; no `as`/`!`; effect collections.
+- Before each publish, run the hosted-only gates locally (lessons from #2017):
+  - `bun run beep lint schema-catalog --write`
+  - root `bun run lint:oxlint`
+  - `bun run beep docgen check --package <pkg>`
+  - the JSDoc ratchet over a regenerated inventory
+  - `bun run audit:github repo-sanity`
+
+  `@category` values come from `JSDocCategories`.
+- Push the final head through `yeet publish`, so a publish verdict binds it, and keep the lane's
+  `.beep/yeet/runs/<run-id>/verdict.json` for the completion gate.
+
+## Acceptance Criteria
+
+- [ ] `@beep/shared-domain/identity/Party` exports `PartyId`; no `LawPractice.PartyId` importer remains
+  (separate prerequisite PR).
+- [ ] `@beep/party-domain`, `@beep/party-use-cases` and `@beep/party-server` exist, created by
+  `beep create-package`, with the module placement above.
+- [ ] Party claims bind `makeClaimEnvelope` and the P1b factories to party ids. A test proves the binding
+  emits identifiers distinct from the epistemic slice's.
+- [ ] The scratchpad competency tests (identity, admission, hierarchy, ledger, resolution) pass against
+  the slice packages on the synthetic fixtures.
+- [ ] The ingestion adapters run end to end on a synthetic mail index through the memory ledger, and the
+  law-practice contact port is implemented in law-practice.
+- [ ] `bun run beep quality package-verify` passes for the three party packages.
+- [ ] No unrelated refactors or formatting churn.
+
+## Verification Matrix
+
+| Check | Command or evidence | Required result |
+| --- | --- | --- |
+| Packet launcher size | `test "$(wc -m < goals/party-slice/GOAL.md)" -le 4000` | Passes |
+| Manifest JSON | `jq . goals/party-slice/ops/manifest.json` | Passes |
+| Whitespace | `git diff --check -- goals/party-slice` | Passes |
+| Party packages | `bun run beep quality package-verify @beep/party-domain` (and use-cases, server) | Passes |
+| Hosted-only gates | `beep lint schema-catalog`, root `lint:oxlint`, `beep docgen check`, the JSDoc ratchet over a regenerated inventory, `audit:github repo-sanity` | Pass locally before publish |
+| Boundary | `rg -n '@beep/law-practice' packages/party` | No matches |
+
+## Stop Conditions
+
+- Required source files are missing or materially contradictory.
+- Any spend: purchases, paid services, quota top-ups or plan changes need the
+  operator.
+- The same blocker repeats after reasonable investigation.
+
+Scope growth, destructive side effects and policy calls are not stops: decide
+them and record each in the Decision Log.
+
+## Decision Log
+
+| Date | Decision | Reason | How to reverse |
+| --- | --- | --- | --- |
+| 2026-10-22 | First goal creates `domain`, `use-cases`, `server` only | smallest legal slice (doc 13); tables wait for a persistence shape the adapters have exercised | add packages in a later goal |
+| 2026-10-22 | `PartyId` moves to a neutral `identity/Party` kit in a separate prerequisite PR, with no re-export | keeps the slice PR reviewable and lands the shared-kernel change alone; nothing persists the old derived names | restore it to `identity/LawPractice` |
+| 2026-10-22 | Party claims persist in a party-owned bitemporal ledger bound from `makeClaimEnvelope` | avoids depending on epistemic product code; any cross-slice projection is a later workflow | write party claims as epistemic edge versions |
+| 2026-10-22 | Generic adapters live in party server; law-practice sources feed party through a use-case port | party never learns law-practice vocabulary, and ingestion stays domain-agnostic | move the adapters back into law-practice |
+
+## Exception Ledger
+
+| Exception | Scope | Owner | Rationale | Removal condition |
+| --- | --- | --- | --- | --- |
+| None | N/A | N/A | N/A | N/A |

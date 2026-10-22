@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "party-slice",
+    "packetId": "goal-packet/v1:df463561b16b55b74c78917fdc9d4e75e4e1d46704914af44e2268bc82ce6baf",
+    "title": "Party Slice",
+    "status": "active",
+    "created": "2026-10-22",
+    "updated": "2026-10-22",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/party-slice",
+  "lifecycle": "active",
+  "mission": "Graduate the scratchpad party model into a domain-agnostic packages/party slice (domain, use-cases, server) on @beep/epistemics",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/party-slice/README.md",
+    "goals/party-slice/SPEC.md",
+    "goals/party-slice/PLAN.md",
+    "goals/party-slice/GOAL.md",
+    "goals/party-slice/research/SOURCES.md"
+  ],
+  "researchReports": ["research/SOURCES.md"],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/party-slice/GOAL.md"
+    }
+  ],
+  "provides": ["slice/party"],
+  "requires": ["foundation/epistemics-vocabulary"],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "pending"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "pending"
+    },
+    {
+      "id": "P3",
+      "name": "Yeet: PR to mergeable",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/party-slice/GOAL.md)\" -le 4000",
+    "jq . goals/party-slice/ops/manifest.json",
+    "rg -n \"party-slice|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/party-slice",
+    "git diff --check -- goals/party-slice",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}
