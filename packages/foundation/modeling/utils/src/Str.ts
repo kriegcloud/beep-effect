@@ -7,6 +7,8 @@
  */
 
 import { cast, dual, flow } from "effect/Function";
+import * as P from "effect/Predicate";
+import * as Regex from "effect/RegExp";
 import * as Str from "effect/String";
 import * as A from "./Array.ts";
 import type { LazyArg } from "effect/Function";
@@ -712,6 +714,15 @@ export const repeat: {
 );
 
 /**
+ * The RegExp a callback replace runs. `String.prototype.replace` hands a RegExp
+ * search to `RegExp.prototype[Symbol.replace]`; a string search becomes an
+ * escaped RegExp, which matches literally and passes the replacer the same
+ * `(match, offset, string)` arguments.
+ */
+const searchPattern = (searchValue: string | RegExp, flags: string): RegExp =>
+  P.isString(searchValue) ? new RegExp(Regex.escape(searchValue), flags) : searchValue;
+
+/**
  * Replaces the first occurrence of `searchValue` using a callback replacer.
  *
  * **Details**
@@ -751,7 +762,7 @@ export const replaceWith: {
     self: string,
     searchValue: string | RegExp,
     replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
-  ): string => self.replace(searchValue, replacer)
+  ): string => searchPattern(searchValue, "")[Symbol.replace](self, replacer)
 );
 
 /**
@@ -794,7 +805,13 @@ export const replaceAllWith: {
     self: string,
     searchValue: string | RegExp,
     replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
-  ): string => self.replaceAll(searchValue, replacer)
+  ): string => {
+    // Native `replaceAll` rejects a non-global RegExp instead of replacing its first match.
+    if (P.isRegExp(searchValue) && !searchValue.global) {
+      throw new TypeError("replaceAll must be called with a global RegExp");
+    }
+    return searchPattern(searchValue, "g")[Symbol.replace](self, replacer);
+  }
 );
 /**
  * Re-export of all helpers from `effect/String`.

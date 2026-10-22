@@ -58,11 +58,11 @@ import { parseDocument } from "yaml";
 
 const REPO_ROOT = "/repo";
 const coverageDispatchIdentity = CoverageProducerIdentity.make({
-  executionSha: "a".repeat(40),
-  baseSha: "b".repeat(40),
+  executionSha: Str.repeat(40)("a"),
+  baseSha: Str.repeat(40)("b"),
   runId: "coverage-dispatch-fixture",
   runAttempt: 1,
-  scopeDigest: "c".repeat(64),
+  scopeDigest: Str.repeat(64)("c"),
 });
 const encoder = new TextEncoder();
 const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);

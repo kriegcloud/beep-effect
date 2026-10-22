@@ -5,6 +5,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
+import * as Str from "effect/String";
 
 const assertString: <I>(input: I) => asserts input is I & string = compileAssertion(S.String);
 
@@ -24,7 +25,7 @@ describe("compileAssertion", () => {
   it("returns normally and narrows valid input", () => {
     const input: unknown = "beep";
     assertString(input);
-    expect(input.toUpperCase()).toBe("BEEP");
+    expect(Str.toUpperCase(input)).toBe("BEEP");
   });
 
   it("preserves the Schema.asserts validation error contract", () => {
