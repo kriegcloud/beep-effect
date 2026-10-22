@@ -20,7 +20,9 @@ import {
   HarnessLedgerPruneOptions,
   HarnessLedgerService,
   HarnessLedgerServiceLive,
+  harnessLedgerCommand,
   harnessLedgerDispositionCommand,
+  harnessLedgerListCommand,
   harnessLedgerProposeCommand,
   harnessLedgerPruneProposalsCommand,
   harnessLedgerPruneReportLines,
@@ -36,6 +38,7 @@ import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -47,11 +50,14 @@ import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as TestConsole from "effect/testing/TestConsole";
 import type { HarnessLedgerPruneReport } from "@beep/repo-cli/commands/HarnessLedger";
 
 const decodeReconcileReport = S.decodeEffect(
   S.fromJsonString(S.Struct({ agentKind: HookPulseAgentKind, transcriptFiles: S.Natural }))
 );
+const ledgerListJson = S.Array(S.Unknown).pipe(S.fromJsonString);
+const decodeLedgerList = S.decodeEffect(ledgerListJson);
 const transcriptJson = S.fromJsonString(S.Unknown);
 const encodeUnknownTranscript = S.encodeUnknownEffect(transcriptJson);
 const encodeTranscript = S.encodeEffect(transcriptJson);
@@ -204,6 +210,50 @@ describe("harness-ledger CLI", () => {
 });
 
 layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
+  it.effect("list rejects an invalid month before reading ledger rows", () =>
+    Effect.gen(function* () {
+      const error = yield* Command.runWith(harnessLedgerListCommand, { version: "0.0.0" })(["--month", "2026-13"]).pipe(
+        Effect.flip
+      );
+      expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
+      expect(error.message).toContain("is not YYYY-MM");
+    })
+  );
+
+  it.effect("list prints a JSON array through the command output service", () =>
+    Effect.gen(function* () {
+      const output = yield* Ref.make("");
+      yield* Command.runWith(harnessLedgerListCommand, { version: "0.0.0" })(["--month", "2099-01", "--json"]).pipe(
+        Effect.provideService(CommandJsonOutput, (text) => Ref.set(output, text))
+      );
+      expect(yield* decodeLedgerList(yield* Ref.get(output))).toEqual([]);
+    })
+  );
+
+  it.effect("prints the available ledger operations when no subcommand is selected", () =>
+    Effect.gen(function* () {
+      yield* Command.runWith(harnessLedgerCommand, { version: "0.0.0" })([]);
+      const lines = yield* TestConsole.logLines;
+      assertSome(A.head(lines), "Harness ledger commands:");
+      expect(lines).toHaveLength(6);
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
+  it.effect("disposition rejects whitespace-only evidence before looking up the row", () =>
+    Effect.gen(function* () {
+      const error = yield* Command.runWith(harnessLedgerDispositionCommand, { version: "0.0.0" })([
+        "--row",
+        "hl-20261020-12345678",
+        "--to",
+        "accepted",
+        "--evidence",
+        "   ",
+      ]).pipe(Effect.flip);
+      expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
+      expect(error.message).toContain("--evidence is required and must be non-empty");
+    })
+  );
+
   it.effect("command rejects partial hypotheses before appending a proposal", () =>
     Effect.gen(function* () {
       const error = yield* Effect.flip(
