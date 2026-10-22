@@ -245,6 +245,11 @@ describe("@beep/utils Str.replaceAllWith", () => {
     expect(vowel.global).toBe(false);
     expect(vowel.lastIndex).toBe(0);
   });
+
+  it("keeps a sticky RegExp anchored, like native replaceAll with a gy RegExp", () => {
+    expect(Str.replaceAllWith("eebe", /e/y, () => "o")).toBe("oobe");
+    expect(Str.replaceAllWith("beep", /e/y, () => "o")).toBe("beep");
+  });
 });
 
 describe("@beep/utils Str.matchEmpty", () => {
