@@ -11,20 +11,28 @@ it.
 **Ruling: a true false positive. EV003 exempts fresh temp-root wrappers.** A wrapper that
 creates a fresh temp root on every call and removes it on release gives each case its own
 isolation on purpose. EV003's replacement, sharing through `it.layer`, would put every case on
-one root. That breaks the property these tests exist to check, and the 184 retired
+one root. That breaks the property these tests exist to check, and the 180 retired
 exception reasons said so case by case.
 
 **Recognition** (`EffectVitestDetectors.ts`, `isFreshTempRootAcquisition`) is structural and
-uses no name allowlist. A call counts only when all four hold:
+uses no name allowlist. A call counts only when all five hold (precision tightened in review round 1):
 
 - It is a provenance-checked `Effect.acquireUseRelease` (3 arguments) or
   `Effect.acquireRelease` (2 arguments), data-first.
-- Its acquire contains a `.makeTempDirectory(...)` or `.makeTempDirectoryScoped(...)` call and
-  no nested `Effect.acquire*` call.
+- Its acquire IS the temp-root call: `<fs>.makeTempDirectory(options?)` or
+  `.makeTempDirectoryScoped(options?)` itself, `Effect.flatMap(FileSystem.FileSystem, (fs) =>
+  fs.makeTempDirectory(...))`, or an `Effect.gen` whose statements are only
+  `const fs = yield* FileSystem.FileSystem` bindings followed by `return yield* fs.makeTempDirectory(...)`.
+  Any combinator that adds work (`zipLeft`, `zipRight`, `tap`, `andThen`, `zip`, `all`, a
+  `.pipe(...)` stage, or a `flatMap` into anything else) is not a fresh-root acquire.
 - Its release is an arrow or function expression, or an `Effect.fn(...)`/`Effect.fnUntraced(...)`
   body, whose first parameter is an identifier.
 - The release calls `.remove(<that parameter>, ...)`, matched by binding resolution and not by
   name.
+- Neither `use` nor the release, nor any same-file helper they call or pass by name, changes
+  process state: no `process.chdir(...)` call and no assignment to, or `delete` of, a
+  `process.*` member (`process.cwd = ...`, `process.env.X = ...`, `process.env[...] = ...`).
+  `process` counts when it is the global or a `node:process`/`process` import.
 
 `functionHasShareableResource` is the EV003 predicate, at both the call-site row
 (`detectResourceWrapper`) and the definition row (`detectResourceDefinition`). Every
@@ -53,7 +61,8 @@ written first, and the case failed against `b76e8cac0c`
   - `withTempCwd` through `Effect.flatMap(FileSystem.FileSystem, ...)` with `Effect.orDie`;
   - `Effect.fn("inTempRepo")` with a direct `fs.makeTempDirectory()`;
   - an `acquireRelease(fs.makeTempDirectoryScoped(), (path) => fs.remove(path))`;
-  - an `inTempCheckout`-style release that restores `process.cwd` and then removes the root.
+  - a `fs.makeTempDirectory({ prefix })` acquire whose `use` only provides a service, and an
+    `Effect.gen` acquire whose options call a path helper (`directory: safeTempRoot()`).
 - Added with the `Effect.fn` release extension, after the first `--write` left
   `ai-metrics/test/retention.test.ts` flagged: releases written as `Effect.fnUntraced(function* (tmpDir) {...})`
   and `Effect.fn("release")(function* (tmpDir) {...})`.
@@ -65,9 +74,19 @@ written first, and the case failed against `b76e8cac0c`
   - an unknown `wrap(function* ...)` release;
   - a temp root that opens a second `acquireRelease` store in `use`;
   - a destructured `([root]) =>` release over a zipped temp-dir and server acquire.
+  - Review round 1: `Effect.zipLeft(fs.makeTempDirectory(), startServer)`, data-first
+    `Effect.tap(fs.makeTempDirectory(), seed)`, piped `fs.makeTempDirectory().pipe(Effect.tap(seed))`,
+    an `Effect.gen` acquire that also yields `startServer`, and a `flatMap(FileSystem.FileSystem, ...)`
+    whose continuation taps, all with a plain `(root) => fs.remove(root)` release; an
+    `inTempCheckout` that `process.chdir`s in `use` and restores in release; the real
+    `inTempCheckout` shape (`process.cwd = () => root` in use, restored in release); a
+    `process.env["HOME"] = root` in use; and a release that calls a same-file helper assigning
+    `process.env.HOME`.
 
-**Inventory**: `bun run beep lint effect-vitest --write` takes it from 1,552 rows to 1,356.
-Rows are paired by `(ruleId, file, symbol, occurrence)`: 196 were removed and 0 added.
+**Inventory**: after review round 1 and the merge of `main` (whose inventory held 1,551 rows),
+`bun run beep lint effect-vitest --write` leaves 1,359 rows. Rows are paired by
+`(ruleId, file, symbol, occurrence)` against `origin/main`: 192 were removed and none added
+beyond one re-key (below).
 
 | Symbol | Exceptions retired | Open rows retired |
 | --- | --- | --- |
@@ -75,11 +94,10 @@ Rows are paired by `(ruleId, file, symbol, occurrence)`: 196 were removed and 0 
 | `inTempRepo` | 57 | 0 |
 | `withTempCwd` | 22 | 0 |
 | `withTempFixture` | 20 | 0 |
-| `inTempCheckout` | 4 | 0 |
 | `withTempRepo` | 0 | 3 |
 | `withOxlintFixture` | 1 | 0 |
 | `withRepository` (`git-worktree.test.ts`, temp root plus `git init`) | 0 | 1 |
-| **Total** | **184** | **12** |
+| **Total** | **180** | **12** |
 
 The `withOxlintFixture` and `withRepository` wrappers were checked by hand. Both acquire
 `fs.makeTempDirectory` and remove that same root. One row
@@ -88,7 +106,10 @@ because this lane inserted a test into that suite. Its status and class are unch
 rescan reports `introduced=0 resolved=0`. Exceptions with no matching finding drop out with
 their rows, so no dead exception remains.
 
-**Still flagged, by design** (EV003: 11 exceptions, 20 open):
+**Still flagged, by design** (EV003: 15 exceptions, 20 open):
+
+- `yeet-inbox-porcelain.test.ts` `inTempCheckout`, 4 exceptions with their `main` reasons
+  (review round 1): it swaps `process.cwd` in `use` and restores it in release.
 
 - `image-command.test.ts` `withTempDirectory`, 4 exceptions and 4 open. Its
   `acquireUseRelease` acquires a `process.chdir`, not the temp root, which comes from
@@ -103,7 +124,7 @@ The process-global wrappers are a candidate class for wave 4. They save and rest
 state, so `it.layer` sharing cannot replace them either. That needs its own ruling.
 
 **Reversal**: use `functionHasResource` at the two EV003 sites again, then
-`lint effect-vitest --write`. The 196 rows come back as open; restore their reasons from the
+`lint effect-vitest --write`. The 192 rows come back as open; restore their reasons from the
 pre-PR inventory (`git show <base>:standards/effect-vitest.inventory.jsonc`).
 
 ## FP-6: effect-laws `new-map-set` and weak collections
@@ -189,17 +210,61 @@ edited.
 4. Run `bun run codegen` in `packages/tooling/policy-pack/repo-configs`.
 5. Restore `propertyRuns: Map<object, PropertyRunState>`.
 
+## Review round 1 (#2061)
+
+Two P2 threads, both fixed with failing-first fixtures. Each new positive returned "no EV003"
+before the change; a throwaway per-fixture probe confirmed all nine, then it was deleted.
+
+- **PRRT_kwDOPbO_N86vPcXu, over-broad acquire.** `createsOnlyTempRoot` accepted any acquire that
+  contained a temp-dir call, so `Effect.zipLeft(fs.makeTempDirectory(), startServer)` was exempt.
+  It is replaced by `isTempRootAcquire`. The acquire must be the temp-root call itself, a
+  `flatMap(FileSystem.FileSystem, (fs) => fs.makeTempDirectory(...))`, or an `Effect.gen` that
+  only binds the FileSystem service and returns that call. Its options are not inspected: they
+  only say where and how to name the root, and the 18 `agent-effectiveness.test.ts` rows pass
+  `directory: privacySafeSystemTempRoot()`.
+- **PRRT_kwDOPbO_N86vPcX6, process state.** `removesAcquiredPath` checked only the release, so
+  `inTempCheckout` (`yeet-inbox-porcelain.test.ts:497-517`), which sets `process.cwd` in `use` and
+  restores it in release, lost its 4 rows. `isFreshTempRootAcquisition` now also requires that
+  `use` and the release, plus same-file helpers they call or pass by name (one shared visited
+  list), contain no `process.chdir(...)` and no assignment to or `delete` of a `process.*`
+  member. Visited bindings are compared by identity: `effect/Array.contains` uses structural
+  `Equal` over ts-morph nodes and did not terminate on the first full scan, which was stopped
+  before it wrote anything.
+
+Rows that return, exactly the 4 `main` exceptions, with their `main` reasons and the same ids
+and occurrences:
+
+- `EV003:packages/tooling/tool/cli/test/yeet-inbox-porcelain.test.ts:529:inTempCheckout@6#1`
+- `EV003:packages/tooling/tool/cli/test/yeet-inbox-porcelain.test.ts:552:inTempCheckout@6#1`
+- `EV003:packages/tooling/tool/cli/test/yeet-inbox-porcelain.test.ts:573:inTempCheckout@6#1`
+- `EV003:packages/tooling/tool/cli/test/yeet-inbox-porcelain.test.ts:590:inTempCheckout@6#1`
+
+`--write` re-emits them as `open`, so their `status: exception` and reason were restored from
+`origin/main`. A second `--write` leaves the file byte-identical, and the scan reports
+`introduced=0 resolved=0`. The inventory is 1,359 rows. Nothing else came back. No other
+retired wrapper uses a combined acquire or touches process state: an intermediate run that
+also rejected calls inside the options re-flagged the 18 `agent-effectiveness` rows, and that
+restriction was dropped.
+
+Verification after the fixes, each run alone through beep-heavy with `</dev/null`:
+
+- `bun run check` exits 0, and `tsc-rs -p test/tsconfig.json --noEmit` exits 0 with 0 errors.
+- The 9 detector, laws and lint suites pass 377/377 on Bun and 377/377 on Node.
+- `quality fallow audit --base origin/main --check` exits 0 with `introduced=0`.
+- oxlint and Biome exit 0.
+- `quality effect-diagnostics --filter @beep/repo-cli` reports 0 errors and 0 warnings.
+
 ## Wave-4 frontier (measured, not implemented)
 
-Measured at the lane head after the wave-3 `--write`. The inventory holds 1,356 rows: 760
-exceptions and 596 open. By mechanization: 735 exception/judgment, 546 open/judgment, 50
-open/detector, 25 exception/detector.
+Measured at the lane head after the wave-3 `--write`. The inventory holds 1,359 rows: 763
+exceptions and 596 open (after review round 1). By mechanization: 734 exception/judgment, 546 open/judgment, 50
+open/detector, 29 exception/detector.
 
 | Rule | Exceptions | Open |
 | --- | ---: | ---: |
 | EV001 | 1 | 0 |
 | EV002 | 125 | 190 |
-| EV003 | 11 | 20 |
+| EV003 | 15 | 20 |
 | EV004 | 86 | 75 |
 | EV005 | 6 | 3 |
 | EV006 | 73 | 76 |
@@ -242,9 +307,10 @@ The 79 composition rows need per-operand resolution through factories.
 
 1. Review or repair the 596 open rows. The largest blocks are EV002 (190) and EV010 (150,
    #2039), then EV006 (76) and EV004 (75). 546 of them are judgment rows.
-2. Rule on the 15 process-global EV003 wrappers, then on the `image-command` chdir wrapper.
+2. Rule on the 15 process-global EV003 wrappers and the 4 `inTempCheckout` rows (temp root plus
+   a `process.cwd` swap), then on the `image-command` chdir wrapper.
 3. Do the EV014 named-test-layer work above.
-4. Re-review the 760 exceptions one by one against their reasons.
+4. Re-review the 763 exceptions one by one against their reasons.
 5. Make the `frozen-snapshot` ruling and refresh the stale reasons on the `object-method`
    entries.
 
@@ -262,7 +328,8 @@ the snapshot regeneration (`bunx turbo run build --filter=@beep/repo-cli^...`, 5
   374/374 on Bun (`bunx --bun vitest run`) and 374/374 on Node (`bunx vitest run`).
   `@beep/test-runner` passes on both runtimes: 3 files, 41 passed, 5 expected fail,
   3 skipped and 4 todo.
-- `lint effect-vitest`: 1,356 findings, `introduced=0 resolved=0` after the `--write`.
+- `lint effect-vitest`: 1,356 findings, `introduced=0 resolved=0` after the `--write` (1,359
+  after review round 1, below).
   `lint:schema-first`: 301 live, 0 stale, 0 missing; every ratchet shows `introduced=0`.
 - `laws native-runtime --check`: 0 warnings, 0 errors, 27 allowlisted, 0 unused.
   `laws allowlist-check`: OK.
