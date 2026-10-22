@@ -332,6 +332,24 @@ const removeShapeTestRow = Effect.fn("DeletePackage.removeShapeTestRow")(functio
   if (!Str.equivalence(content, next)) yield* fs.writeFileString(file, next);
 });
 
+const FRONTMATTER_KEY_QUOTES: ReadonlyArray<string> = ['"', "'"];
+
+// The mapping key of a changeset frontmatter line: the content of a `"…"` or
+// `'…'` key, or the trimmed text before the first `:` of an unquoted one.
+const frontmatterEntryKey = (line: string): O.Option<string> => {
+  const entry = Str.trim(line);
+  return O.match(
+    A.findFirst(FRONTMATTER_KEY_QUOTES, (quote) => Str.startsWith(entry, quote)),
+    {
+      onNone: () => O.map(Str.indexOf(":")(entry), (end) => Str.trim(Str.slice(0, end)(entry))),
+      onSome: (quote) => {
+        const quoted = Str.slice(1)(entry);
+        return O.map(Str.indexOf(quote)(quoted), (end) => Str.slice(0, end)(quoted));
+      },
+    }
+  );
+};
+
 const stripPackageFromFrontmatter = (content: string, packageName: string): string => {
   let inFrontmatter = false;
   let boundaryCount = 0;
@@ -342,7 +360,7 @@ const stripPackageFromFrontmatter = (content: string, packageName: string): stri
       return true;
     }
     if (boundaryCount === 2) inFrontmatter = false;
-    return !(inFrontmatter && Str.includes(packageName)(line));
+    return !(inFrontmatter && O.exists(frontmatterEntryKey(line), Str.equivalence(packageName)));
   });
   return A.join(nextLines, "\n");
 };

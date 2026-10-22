@@ -10,6 +10,7 @@ import {
   inspectTargetAtRoot,
   planInverseForTarget,
   RegistrationTarget,
+  rewritePendingChangesets,
 } from "@beep/repo-cli/test/DeletePackage";
 import { TSMorphServiceLive } from "@beep/repo-utils";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
@@ -874,5 +875,58 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(refusals).toStrictEqual([]);
     });
+  });
+
+  describe("delete-package pending changeset prune", () => {
+    const pruneChangesets = Effect.fn(function* (
+      packageName: string,
+      changesets: ReadonlyArray<readonly [file: string, content: string]>
+    ) {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* temporaryDirectory;
+      const changesetDir = path.join(repoRoot, ".changeset");
+      yield* fs.makeDirectory(changesetDir, { recursive: true });
+      for (const [file, content] of changesets) {
+        yield* fs.writeFileString(path.join(changesetDir, file), content);
+      }
+      yield* rewritePendingChangesets(repoRoot, packageName, "private-exempt");
+      return (file: string) => fs.readFileString(path.join(changesetDir, file)).pipe(Effect.option);
+    });
+
+    it.effect("keeps a sibling whose name extends the deleted package name", () =>
+      Effect.gen(function* () {
+        const read = yield* pruneChangesets("@beep/schema", [
+          ["multi.md", '---\n"@beep/schema": patch\n"@beep/schema-org": minor\n---\n\nTouches @beep/schema.\n'],
+        ]);
+        assertSome(yield* read("multi.md"), '---\n"@beep/schema-org": minor\n---\n\nTouches @beep/schema.\n');
+      })
+    );
+
+    it.effect("matches single-quoted and unquoted frontmatter keys exactly", () =>
+      Effect.gen(function* () {
+        const readQuoted = yield* pruneChangesets("@beep/schema", [
+          ["quoted.md", "---\n'@beep/schema': minor\n'@beep/schema-org': patch\n---\n\nSingle-quoted keys.\n"],
+        ]);
+        assertSome(yield* readQuoted("quoted.md"), "---\n'@beep/schema-org': patch\n---\n\nSingle-quoted keys.\n");
+
+        const readUnquoted = yield* pruneChangesets("probe", [
+          ["unquoted.md", "---\nprobe: patch\nprobe-extra: minor\n---\n\nUnquoted keys.\n"],
+        ]);
+        assertSome(yield* readUnquoted("unquoted.md"), "---\nprobe-extra: minor\n---\n\nUnquoted keys.\n");
+      })
+    );
+
+    it.effect("removes a single-package changeset and leaves a sibling-only changeset untouched", () =>
+      Effect.gen(function* () {
+        const sibling = '---\n"@beep/schema-org": minor\n---\n\nSibling only.\n';
+        const read = yield* pruneChangesets("@beep/schema", [
+          ["single.md", '---\n"@beep/schema": patch\n---\n\nOnly schema.\n'],
+          ["sibling.md", sibling],
+        ]);
+        assertNone(yield* read("single.md"));
+        assertSome(yield* read("sibling.md"), sibling);
+      })
+    );
   });
 });
