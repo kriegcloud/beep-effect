@@ -1,12 +1,12 @@
-Root inspected: `/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere`. I kept this read-only and did not run build/test commands because they may create caches or generated output.
+Root inspected: `$HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere`. I kept this read-only and did not run build/test commands because they may create caches or generated output.
 
 ## 1. Project Purpose, Maturity, License
 
-Ontosphere is a browser-only ontology/RDF workbench: a React/TypeScript app for loading RDF/OWL graphs, visually editing nodes and triples, running OWL reasoning, validating with SHACL, querying with SPARQL, exporting graph/data artifacts, and exposing the whole surface through MCP tools for AI agents. The package description says it is a “Browser-based interactive RDF/ontology knowledge graph editor” with OWL 2 DL reasoning, clustering, layout, and MCP support, running entirely client-side in [package.json](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:2). The README’s overview says all computation runs in-browser against an in-memory RDF store backed by Web Workers, with no backend required in [README.md](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/README.md:64).
+Ontosphere is a browser-only ontology/RDF workbench: a React/TypeScript app for loading RDF/OWL graphs, visually editing nodes and triples, running OWL reasoning, validating with SHACL, querying with SPARQL, exporting graph/data artifacts, and exposing the whole surface through MCP tools for AI agents. The package description says it is a “Browser-based interactive RDF/ontology knowledge graph editor” with OWL 2 DL reasoning, clustering, layout, and MCP support, running entirely client-side in [package.json]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:2). The README’s overview says all computation runs in-browser against an in-memory RDF store backed by Web Workers, with no backend required in [README.md]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/README.md:64).
 
 Maturity signals are strong for a research/demo-grade but serious workbench: version `1.5.2`, public package metadata, Apache-2.0 license, DOI/paper links, a large README, release notes, demo videos, Playwright e2e specs, Vitest coverage, benchmark fixtures, patches for upstream packages, and dedicated scripts for MCP generation and demo recording. There is some version drift: the README badge still says `1.5.0`, while `package.json` says `1.5.2`.
 
-License: `Apache-2.0` in [package.json](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:4), with the full Apache License 2.0 text and copyright attribution to Thomas Hanke and Fraunhofer IWM in [LICENSE](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/LICENSE:1).
+License: `Apache-2.0` in [package.json]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:4), with the full Apache License 2.0 text and copyright attribution to Thomas Hanke and Fraunhofer IWM in [LICENSE]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/LICENSE:1).
 
 ## 2. Tech Stack And Notable Libraries
 
@@ -14,20 +14,20 @@ Only root JS/TS package manifests were present: `package.json`, `package-lock.js
 
 | Area | Libraries / Versions | Evidence | Role |
 |---|---:|---|---|
-| App/runtime | React `19.2.0`, React DOM `19.2.0`, Vite `^7.1.12`, TypeScript `^5.9.3` | [package.json:124](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:124) | Browser SPA and build toolchain. |
-| Graph editor/rendering | `@reactodia/workspace` `0.34.1` | [package.json:101](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:101) | Main canvas, visual authoring, layout worker integration, templates. |
-| RDF parsing/store | `n3` `1.26.0`, `rdf-parse` `4.0.0`, `@rdfjs/data-model` `^2.1.1`, `@rdfjs/dataset` `^2.0.2` | [package.json:99](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:99) | RDF terms, store, streaming parser, SHACL dataset conversion. |
-| RDF canonicalization | `rdf-canonize` `^5.0.0` | [package.json:121](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:121) | W3C RDFC-1.0 canonical N-Quads and hash. |
-| SPARQL | `@comunica/query-sparql-rdfjs` `^5.2.1`, `sparqljs` `^3.7.4` | [package.json:71](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:71) | Worker-side SPARQL engine plus query parsing/rewriting. |
-| OWL reasoning | `rdf-reasoner-konclude` `^0.3.2`; N3 reasoner fallback | [package.json:123](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:123) | Konclude WASM OWL DL reasoning, plus N3 rulesets. |
-| SHACL | `shacl-engine` `^1.1.0` | [package.json:131](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:131) | Data+inferred validation against shapes graph. |
-| Layout engines | `dagre` `0.8.5`, `elkjs` `0.11.0`, Reactodia default layout worker | [package.json:107](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:107) | Horizontal/vertical Dagre; ELK layered/force/stress/radial surfaces. |
-| Clustering / graph algorithms | `ml-kmeans` `7.0.0`, `ngraph.graph` `20.1.1`, `ngraph.louvain` `2.0.0`, `ngraph.coarsen` `1.5.0`, `ngraph.slpa` `0.1.0` | [package.json:114](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:114) | Community detection and large graph folding. |
-| State | `zustand` `5.0.8`, `@tanstack/react-query` `5.90.6` | [package.json:102](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:102) | Config, settings, ontology and workflow state. |
-| UI/components | Radix UI packages, `lucide-react` `0.552.0`, `sonner` `2.0.7`, `cmdk` `1.1.1`, `react-resizable-panels` `3.0.6`, `recharts` `3.3.0` | [package.json:72](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:72) | shadcn/Radix-style controls, icons, toasts, panels, metrics. |
-| Workers/WASM | RDF manager worker, Dagre worker, ELK worker, Reactodia layout worker, Konclude WASM worker, Pyodide workflow worker | [ReactodiaCanvas.tsx:59](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:59), [pyodide.runtime.ts:28](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/pyodide.runtime.ts:28) | Off-main-thread parse/query/reason/layout/workflow execution. |
-| Server/dev glue | `express` `5.1.0`, `socket.io` `4.8.3`, `coi-serviceworker` `^0.1.7` | [package.json:110](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:110) | Local/static serving, relay demos, COOP/COEP support. |
-| Testing | Vitest `^4.0.6`, Playwright `^1.59.1`, Testing Library React `^16.3.2`, jsdom `^27.1.0` | [package.json:141](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:141) | Unit, integration, browser/e2e. |
+| App/runtime | React `19.2.0`, React DOM `19.2.0`, Vite `^7.1.12`, TypeScript `^5.9.3` | [package.json:124]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:124) | Browser SPA and build toolchain. |
+| Graph editor/rendering | `@reactodia/workspace` `0.34.1` | [package.json:101]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:101) | Main canvas, visual authoring, layout worker integration, templates. |
+| RDF parsing/store | `n3` `1.26.0`, `rdf-parse` `4.0.0`, `@rdfjs/data-model` `^2.1.1`, `@rdfjs/dataset` `^2.0.2` | [package.json:99]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:99) | RDF terms, store, streaming parser, SHACL dataset conversion. |
+| RDF canonicalization | `rdf-canonize` `^5.0.0` | [package.json:121]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:121) | W3C RDFC-1.0 canonical N-Quads and hash. |
+| SPARQL | `@comunica/query-sparql-rdfjs` `^5.2.1`, `sparqljs` `^3.7.4` | [package.json:71]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:71) | Worker-side SPARQL engine plus query parsing/rewriting. |
+| OWL reasoning | `rdf-reasoner-konclude` `^0.3.2`; N3 reasoner fallback | [package.json:123]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:123) | Konclude WASM OWL DL reasoning, plus N3 rulesets. |
+| SHACL | `shacl-engine` `^1.1.0` | [package.json:131]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:131) | Data+inferred validation against shapes graph. |
+| Layout engines | `dagre` `0.8.5`, `elkjs` `0.11.0`, Reactodia default layout worker | [package.json:107]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:107) | Horizontal/vertical Dagre; ELK layered/force/stress/radial surfaces. |
+| Clustering / graph algorithms | `ml-kmeans` `7.0.0`, `ngraph.graph` `20.1.1`, `ngraph.louvain` `2.0.0`, `ngraph.coarsen` `1.5.0`, `ngraph.slpa` `0.1.0` | [package.json:114]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:114) | Community detection and large graph folding. |
+| State | `zustand` `5.0.8`, `@tanstack/react-query` `5.90.6` | [package.json:102]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:102) | Config, settings, ontology and workflow state. |
+| UI/components | Radix UI packages, `lucide-react` `0.552.0`, `sonner` `2.0.7`, `cmdk` `1.1.1`, `react-resizable-panels` `3.0.6`, `recharts` `3.3.0` | [package.json:72]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:72) | shadcn/Radix-style controls, icons, toasts, panels, metrics. |
+| Workers/WASM | RDF manager worker, Dagre worker, ELK worker, Reactodia layout worker, Konclude WASM worker, Pyodide workflow worker | [ReactodiaCanvas.tsx:59]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:59), [pyodide.runtime.ts:28]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/pyodide.runtime.ts:28) | Off-main-thread parse/query/reason/layout/workflow execution. |
+| Server/dev glue | `express` `5.1.0`, `socket.io` `4.8.3`, `coi-serviceworker` `^0.1.7` | [package.json:110]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:110) | Local/static serving, relay demos, COOP/COEP support. |
+| Testing | Vitest `^4.0.6`, Playwright `^1.59.1`, Testing Library React `^16.3.2`, jsdom `^27.1.0` | [package.json:141]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:141) | Unit, integration, browser/e2e. |
 
 Editors: no Monaco/Codemirror dependency. Editing is Reactodia visual authoring plus custom property panels and a plain textarea SPARQL editor.
 
@@ -70,9 +70,9 @@ Named graph/persistence model:
 | `urn:vg:workflows` | Workflow/catalog data. |
 | `urn:vg:provenance` | PROV-O agent edit journal sidecar. |
 
-The graph partition is explicitly documented in the MCP server description in [manifest.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/manifest.ts:16). The RDF runtime centralizes reasoner exclusions, with the important excerpt `EXCLUDED_FROM_REASONING` covering workflows, inferred, shapes, and provenance in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:315). Dataset-faithful exports collect `urn:vg:data`, `urn:vg:inferred`, `urn:vg:shapes`, `urn:vg:ontologies`, and `urn:vg:workflows` in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:3761).
+The graph partition is explicitly documented in the MCP server description in [manifest.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/manifest.ts:16). The RDF runtime centralizes reasoner exclusions, with the important excerpt `EXCLUDED_FROM_REASONING` covering workflows, inferred, shapes, and provenance in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:315). Dataset-faithful exports collect `urn:vg:data`, `urn:vg:inferred`, `urn:vg:shapes`, `urn:vg:ontologies`, and `urn:vg:workflows` in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:3761).
 
-Persistence is deliberately browser-local and mostly volatile. App/settings live in `localStorage` via Zustand persist keys such as `ontology-painter-config` in [appConfigStore.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/stores/appConfigStore.ts:95). The RDF store and provenance journal are in-memory; provenance comments explicitly say reload clears both data and provenance in [provenance.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/provenance.ts:30).
+Persistence is deliberately browser-local and mostly volatile. App/settings live in `localStorage` via Zustand persist keys such as `ontology-painter-config` in [appConfigStore.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/stores/appConfigStore.ts:95). The RDF store and provenance journal are in-memory; provenance comments explicitly say reload clears both data and provenance in [provenance.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/provenance.ts:30).
 
 Offthread boundaries:
 
@@ -95,51 +95,51 @@ Explorer/navigation:
 - `getNeighbors` and `findPath` MCP navigation tools.
 
 Import/loading:
-- Local RDF file load with `.ttl`, `.owl`, `.rdf`, `.n3`, `.nt`, `.jsonld`, `.trig`, `.nq`, `.xml` accepted in [ReactodiaCanvas.tsx](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:1731).
-- Remote URL loading, CORS proxy fallback, SPARQL endpoint CONSTRUCT loading in [rdfManager.impl.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1213).
-- Streaming RDF parse through `rdf-parse`; import chunks of `5000` quads with progress events in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:4036).
+- Local RDF file load with `.ttl`, `.owl`, `.rdf`, `.n3`, `.nt`, `.jsonld`, `.trig`, `.nq`, `.xml` accepted in [ReactodiaCanvas.tsx]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:1731).
+- Remote URL loading, CORS proxy fallback, SPARQL endpoint CONSTRUCT loading in [rdfManager.impl.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1213).
+- Streaming RDF parse through `rdf-parse`; import chunks of `5000` quads with progress events in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:4036).
 - `owl:imports` discovery and well-known ontology registry in `ontologyStore` / `wellKnownOntologies`.
 
 Editing:
 - Reactodia always-on authoring: add nodes, link halo, relation changes, entity deletions.
-- Custom node property editor that avoids RDF reads at render time and writes minimal RDF on save; its own comment calls this a “streamlined” editor in [NodePropertyEditor.tsx](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/NodePropertyEditor.tsx:3).
-- Undo/redo delegates to Reactodia model history; excerpts are `model.history.undo()` and `model.history.redo()` in [ReactodiaCanvas.tsx](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:1707).
+- Custom node property editor that avoids RDF reads at render time and writes minimal RDF on save; its own comment calls this a “streamlined” editor in [NodePropertyEditor.tsx]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/NodePropertyEditor.tsx:3).
+- Undo/redo delegates to Reactodia model history; excerpts are `model.history.undo()` and `model.history.redo()` in [ReactodiaCanvas.tsx]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:1707).
 - MCP mutation tools: `loadRdf`, `addNode`, `updateNode`, `removeNode`, `addTriple`, `removeLink`, namespace tools.
 
 Visualization modes:
 - Reactodia canvas with custom RDF element/link templates.
-- ABox/TBox split using `classifyEntityView`, where unknown resources default to ABox in [N3DataProvider.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/providers/N3DataProvider.ts:91).
+- ABox/TBox split using `classifyEntityView`, where unknown resources default to ABox in [N3DataProvider.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/providers/N3DataProvider.ts:91).
 - Fold levels L0-L3: annotation hiding, structural grouping, community clusters.
 - Layouts: Dagre LR/TB, ELK layered/force/stress/radial surfaces, Reactodia default.
 - Export canvas as PNG/SVG/print.
 
 Search/query:
 - Search index from `N3DataProvider`, with data/inferred graph allowlist.
-- SPARQL panel with prefix insertion, examples, Ctrl/Cmd+Enter, SELECT/CONSTRUCT/ASK/UPDATE rendering in [SparqlPanel.tsx](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/SparqlPanel.tsx:25).
-- MCP `queryGraph` injects prefixes, parses with `sparqljs`, and injects LIMIT when missing in [graph.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/tools/graph.ts:315).
-- Worker-side Comunica uses `unionDefaultGraph: true` in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:5092).
+- SPARQL panel with prefix insertion, examples, Ctrl/Cmd+Enter, SELECT/CONSTRUCT/ASK/UPDATE rendering in [SparqlPanel.tsx]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/SparqlPanel.tsx:25).
+- MCP `queryGraph` injects prefixes, parses with `sparqljs`, and injects LIMIT when missing in [graph.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/tools/graph.ts:315).
+- Worker-side Comunica uses `unionDefaultGraph: true` in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:5092).
 
 Reasoning/inference:
-- Konclude OWL 2 DL path with consistency check, reasoning, MIPS inconsistency explanations, and inferred graph replacement in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:5480).
+- Konclude OWL 2 DL path with consistency check, reasoning, MIPS inconsistency explanations, and inferred graph replacement in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:5480).
 - N3 backend fallback with public rulesets under `public/reasoning-rules`.
-- Incremental reasoning using locality modules and subject-local inferred graph splicing in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:2696).
-- EL fast path guarded by conformance/fallback-to-Konclude logic in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:2828).
+- Incremental reasoning using locality modules and subject-local inferred graph splicing in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:2696).
+- EL fast path guarded by conformance/fallback-to-Konclude logic in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:2828).
 - Entailment explanation, module extraction, OWL profile checks, repair suggestions.
 
 Validation:
-- SHACL shapes loaded into `urn:vg:shapes`; direct URL and GitHub folder support in [shaclShapeLoader.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/shaclShapeLoader.ts:75).
-- SHACL validates asserted data plus inferred graph in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:2283).
-- SHACL panel groups shapes, constraints, validation messages, and can navigate to focus nodes in [ShaclShapesPanel.tsx](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ShaclShapesPanel.tsx:29).
+- SHACL shapes loaded into `urn:vg:shapes`; direct URL and GitHub folder support in [shaclShapeLoader.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/shaclShapeLoader.ts:75).
+- SHACL validates asserted data plus inferred graph in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:2283).
+- SHACL panel groups shapes, constraints, validation messages, and can navigate to focus nodes in [ShaclShapesPanel.tsx]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ShaclShapesPanel.tsx:29).
 
 Import/export formats:
 - Import: Turtle, N3, N-Triples, N-Quads, TriG, JSON-LD, RDF/XML/OWL/XML through `rdf-parse` and file/MIME hints.
-- Export: Turtle, JSON-LD, RDF/XML, N-Quads, TriG in [rdfManager.impl.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1605).
-- RDFC-1.0 canonical N-Quads and hash in [rdfManager.impl.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1674).
+- Export: Turtle, JSON-LD, RDF/XML, N-Quads, TriG in [rdfManager.impl.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1605).
+- RDFC-1.0 canonical N-Quads and hash in [rdfManager.impl.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1674).
 - Metadata generation: VoID/DCAT via `src/utils/voidGenerator.ts` and `src/mcp/tools/metadataTools.ts`.
 
 Collaboration/AI:
 - Browser MCP server with 43 tools in README and manifest.
-- `window.__mcpTools` built even when `navigator.modelContext` is missing, for relay/browser automation in [ontosphereMcpServer.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/ontosphereMcpServer.ts:55).
+- `window.__mcpTools` built even when `navigator.modelContext` is missing, for relay/browser automation in [ontosphereMcpServer.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/ontosphereMcpServer.ts:55).
 - Relay bridge/bookmarklet docs and components.
 - PROV-O edit provenance and one-click batch reversal.
 
@@ -149,43 +149,43 @@ Collaboration/AI:
    The repo has a clean split between asserted data, ontologies, inferred triples, SHACL, workflows, and provenance. The strongest part is that the reasoner and module extractor share a single exclusion definition instead of scattered filters. Port this pattern wholesale.
 
 2. Typed worker protocol with runtime validation.
-   `RDFWorkerCommandPayloads` defines every command, including `runReasoning`, `importSerialized`, `sparqlQuery`, `verifyRepair`, `searchTerms`, `extractModule`, and `reasonIncremental` in [rdfManager.workerProtocol.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.workerProtocol.ts:104). Validators start around [rdfManager.workerProtocol.ts:287](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.workerProtocol.ts:287). This is a good pattern for worker-heavy ontology tools.
+   `RDFWorkerCommandPayloads` defines every command, including `runReasoning`, `importSerialized`, `sparqlQuery`, `verifyRepair`, `searchTerms`, `extractModule`, and `reasonIncremental` in [rdfManager.workerProtocol.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.workerProtocol.ts:104). Validators start around [rdfManager.workerProtocol.ts:287]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.workerProtocol.ts:287). This is a good pattern for worker-heavy ontology tools.
 
 3. RDF store as source of truth; canvas as projection.
-   Reactodia authoring is flushed into RDF batches, and then subject-change events re-project into the canvas. Brief excerpt: `Flush all staged authoring state` in [ReactodiaCanvas.tsx](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:78). This avoids divergent graph/editor state.
+   Reactodia authoring is flushed into RDF batches, and then subject-change events re-project into the canvas. Brief excerpt: `Flush all staged authoring state` in [ReactodiaCanvas.tsx]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:78). This avoids divergent graph/editor state.
 
 4. Batch operations return real deltas.
-   `applyBatch` returns actual added/removed counts after dedupe/match resolution in [rdfManager.impl.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1465). That makes provenance, undo, and partial failure reporting honest.
+   `applyBatch` returns actual added/removed counts after dedupe/match resolution in [rdfManager.impl.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1465). That makes provenance, undo, and partial failure reporting honest.
 
 5. Provenance as sidecar graph plus in-memory reversible journal.
-   Every mutating MCP edit records exact added/removed triples into `urn:vg:provenance`, excluded from reasoning/export, with datatype/language metadata for faithful revert in [provenance.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/provenance.ts:4). This is a practical change-operation model for agent-driven editors.
+   Every mutating MCP edit records exact added/removed triples into `urn:vg:provenance`, excluded from reasoning/export, with datatype/language metadata for faithful revert in [provenance.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/provenance.ts:4). This is a practical change-operation model for agent-driven editors.
 
 6. ABox/TBox classification centralized in the data provider.
-   `classifyEntityView` is the single rule used by both view filtering and search indexing in [N3DataProvider.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/providers/N3DataProvider.ts:91). This avoids the common bug where search and canvas disagree.
+   `classifyEntityView` is the single rule used by both view filtering and search indexing in [N3DataProvider.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/providers/N3DataProvider.ts:91). This avoids the common bug where search and canvas disagree.
 
 7. Large graph LOD/folding stack.
-   `ClusterLevelManager` owns levels L0-L3, preserves membership across group/ungroup, and consumes precomputed positions from silent layout in [ClusterLevelManager.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/core/ClusterLevelManager.ts:1). Initial load auto-clusters above threshold and precomputes L1/L2 in the background in [ReactodiaCanvas.tsx](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:487).
+   `ClusterLevelManager` owns levels L0-L3, preserves membership across group/ungroup, and consumes precomputed positions from silent layout in [ClusterLevelManager.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/core/ClusterLevelManager.ts:1). Initial load auto-clusters above threshold and precomputes L1/L2 in the background in [ReactodiaCanvas.tsx]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/ReactodiaCanvas.tsx:487).
 
 8. Structural grouping before community detection.
-   `N3DataProvider` contracts L2 structural groups into super-nodes before clustering, then expands assignments back to original IRIs in [N3DataProvider.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/providers/N3DataProvider.ts:431). This is a useful technique for ontology graphs with long subclass chains and OWL list structures.
+   `N3DataProvider` contracts L2 structural groups into super-nodes before clustering, then expands assignments back to original IRIs in [N3DataProvider.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/providers/N3DataProvider.ts:431). This is a useful technique for ontology graphs with long subclass chains and OWL list structures.
 
 9. Layout workers with fixed-node preservation.
-   Dagre and ELK use workers and a phantom substitution strategy for fixed nodes in [layouts.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/layout/layouts.ts:11). This is worth porting if users can pin nodes.
+   Dagre and ELK use workers and a phantom substitution strategy for fixed nodes in [layouts.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/layout/layouts.ts:11). This is worth porting if users can pin nodes.
 
 10. Import chunking with progress and blank-node skolemization.
-    The worker buffers parsed quads, skolemizes, inserts in chunks, and emits import progress; excerpt `IMPORT_CHUNK_SIZE = 5000` in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:4149). This is a good baseline for browser RDF ingestion.
+    The worker buffers parsed quads, skolemizes, inserts in chunks, and emits import progress; excerpt `IMPORT_CHUNK_SIZE = 5000` in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:4149). This is a good baseline for browser RDF ingestion.
 
 11. Reasoning safety over speed.
-    Incremental reasoning falls back to full Konclude when the baseline is missing, inconsistent, empty, or drift-capped in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:3378). The EL fast path is explicitly fail-closed to Konclude in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:2874).
+    Incremental reasoning falls back to full Konclude when the baseline is missing, inconsistent, empty, or drift-capped in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:3378). The EL fast path is explicitly fail-closed to Konclude in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:2874).
 
 12. Query safeguards.
-    MCP query handling normalizes prefixes, validates parse, caps result sizes, and injects LIMIT if absent in [graph.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/tools/graph.ts:331). That is exactly the right shape for agent-facing SPARQL.
+    MCP query handling normalizes prefixes, validates parse, caps result sizes, and injects LIMIT if absent in [graph.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/tools/graph.ts:331). That is exactly the right shape for agent-facing SPARQL.
 
 13. Dataset-faithful export plus canonical hash.
-    N-Quads/TriG preserve named graphs; canonicalization can exclude inferred triples by default and hash asserted content in [rdfManager.impl.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1641). This is useful for snapshots, reproducible demos, and diffing.
+    N-Quads/TriG preserve named graphs; canonicalization can exclude inferred triples by default and hash asserted content in [rdfManager.impl.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/utils/rdfManager.impl.ts:1641). This is useful for snapshots, reproducible demos, and diffing.
 
 14. MCP manifest as operational doctrine.
-    The manifest includes graph architecture, batching rules, workflow guidance, and tool schemas in [manifest.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/manifest.ts:4). This is better than exposing raw functions to agents without behavioral rules.
+    The manifest includes graph architecture, batching rules, workflow guidance, and tool schemas in [manifest.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/manifest.ts:4). This is better than exposing raw functions to agents without behavioral rules.
 
 ## 6. Cautionary Anti-Patterns To Avoid
 
@@ -193,14 +193,14 @@ Collaboration/AI:
 - The repo has some rename residue: several comments and identifiers still say `VG` / `VocabGraph` while the product is Ontosphere. That can confuse future contributors.
 - Docs/package drift exists: README version badge says `1.5.0`; package version is `1.5.2`.
 - Persistence is mostly volatile. RDF data and provenance disappear on reload unless exported; this is correct for the zero-backend design, but not enough for a collaborative/durable ontology workbench.
-- Konclude deployment requires `SharedArrayBuffer`, HTTPS/localhost, and COOP/COEP headers. The runtime throws a specific fallback warning in [rdfManager.runtime.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:5481), but this remains a real hosting constraint.
-- `structuralGroups.ts` explicitly still has `TODO: extend subclass grouping to rdfs:subPropertyOf` in [structuralGroups.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/core/structuralGroups.ts:34).
-- Layout API drift: `ELK_ALGORITHM_IDS` includes `radial`, and MCP exposes `elk-radial`, but `createElkLayout` is typed only as `layered | force | stress` in [layouts.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/layout/layouts.ts:85), while [layout.ts](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/tools/layout.ts:122) calls it with `radial`.
+- Konclude deployment requires `SharedArrayBuffer`, HTTPS/localhost, and COOP/COEP headers. The runtime throws a specific fallback warning in [rdfManager.runtime.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/workers/rdfManager.runtime.ts:5481), but this remains a real hosting constraint.
+- `structuralGroups.ts` explicitly still has `TODO: extend subclass grouping to rdfs:subPropertyOf` in [structuralGroups.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/core/structuralGroups.ts:34).
+- Layout API drift: `ELK_ALGORITHM_IDS` includes `radial`, and MCP exposes `elk-radial`, but `createElkLayout` is typed only as `layered | force | stress` in [layouts.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/components/Canvas/layout/layouts.ts:85), while [layout.ts]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/src/mcp/tools/layout.ts:122) calls it with `radial`.
 - Some safety knowledge lives in long comments inside giant files. The comments are valuable, but important invariants should eventually become smaller modules plus tests/docs.
 
 ## 7. Tests, Build Scripts, Tooling
 
-Scripts of note in [package.json](/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:31):
+Scripts of note in [package.json]($HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere/package.json:31):
 
 | Script | Purpose |
 |---|---|

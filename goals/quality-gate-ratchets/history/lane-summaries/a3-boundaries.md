@@ -2,7 +2,7 @@
 
 Date: 2026-07-06
 
-Worktree: `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries`
+Worktree: `$HOME/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries`
 
 ## Scope and preflight
 
@@ -63,7 +63,7 @@ Reason: the clean current graph has no doctrine-pinned violations after the impl
 $ bun run fallow:boundaries:check
 $ bun run beep fallow boundaries --check
 $ bun run packages/tooling/tool/cli/src/bin.ts -- fallow boundaries --check
-fallow boundaries: /home/elpresidank/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc is up to date.
+fallow boundaries: $HOME/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc is up to date.
 fallow boundaries: doctrine-pinned layer-legality checks passed.
 ```
 
@@ -85,7 +85,7 @@ Writer output:
 ```text
 $ bun run beep fallow boundaries --write
 $ bun run packages/tooling/tool/cli/src/bin.ts -- fallow boundaries --write
-fallow boundaries: wrote /home/elpresidank/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc.
+fallow boundaries: wrote $HOME/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc.
 ```
 
 Round-trip diff result:
@@ -141,7 +141,7 @@ Output:
 ```text
 $ bun run beep fallow boundaries --check
 $ bun run packages/tooling/tool/cli/src/bin.ts -- fallow boundaries --check
-fallow boundaries: /home/elpresidank/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc is up to date.
+fallow boundaries: $HOME/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc is up to date.
 fallow boundaries: doctrine-pinned layer-legality violations found.
 Source import violations:
 - doctrine:domain-deny-drivers-tables-server: packages/architecture-lab/domain/src/index.ts:9:0 imports packages/drivers/drizzle/src/index.ts (@beep/architecture-lab-domain/domain -> @beep/drizzle/drivers)
@@ -164,7 +164,7 @@ Output:
 ```text
 $ bun run beep fallow boundaries --check
 $ bun run packages/tooling/tool/cli/src/bin.ts -- fallow boundaries --check
-fallow boundaries: /home/elpresidank/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc is up to date.
+fallow boundaries: $HOME/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc is up to date.
 fallow boundaries: doctrine-pinned layer-legality checks passed.
 ```
 
@@ -181,7 +181,7 @@ standards/fallow.boundaries.provenance.jsonc validates against standards/fallow.
 bun run fallow:boundaries:check
 $ bun run beep fallow boundaries --check
 $ bun run packages/tooling/tool/cli/src/bin.ts -- fallow boundaries --check
-fallow boundaries: /home/elpresidank/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc is up to date.
+fallow boundaries: $HOME/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/standards/fallow.boundaries.generated.jsonc is up to date.
 fallow boundaries: doctrine-pinned layer-legality checks passed.
 ```
 
@@ -216,7 +216,7 @@ Result: failed before importing tests because Vitest could not start a Bun worke
 Output from the final exact attempt:
 
 ```text
- RUN  v4.1.9 /home/elpresidank/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries
+ RUN  v4.1.9 $HOME/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries
 
 ⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
 
@@ -224,7 +224,7 @@ Vitest caught 1 unhandled error during the test run.
 This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
 
 ⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
-Error: [vitest-pool]: Failed to start forks worker for test files /home/elpresidank/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/packages/tooling/tool/cli/test/yeet.test.ts.
+Error: [vitest-pool]: Failed to start forks worker for test files $HOME/YeeBois/projects/beep-effect-worktrees/gate-a3-boundaries/packages/tooling/tool/cli/test/yeet.test.ts.
  ❯ node_modules/vitest/dist/chunks/cli-api.24X8XwN1.js:3465:97
 
 Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond

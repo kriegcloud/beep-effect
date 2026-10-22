@@ -59,4 +59,4 @@ git push --no-verify
 ## Context docs
 - Triage evidence: `goals/fallow-zero-dead-code/research/triage.md`
 - Plan of record: `~/.claude/plans/can-you-double-check-glistening-barto.md`
-- Full prior transcript: `/home/elpresidank/.claude/projects/-home-elpresidank-YeeBois-projects-beep-effect2/652cbbae-8893-493c-8840-4c5a0e669e35.jsonl`
+- Full prior transcript: `$HOME/.claude/projects/-home-elpresidank-YeeBois-projects-beep-effect2/652cbbae-8893-493c-8840-4c5a0e669e35.jsonl`

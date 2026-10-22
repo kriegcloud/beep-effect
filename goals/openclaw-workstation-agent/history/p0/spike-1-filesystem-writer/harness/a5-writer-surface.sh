@@ -288,7 +288,7 @@ case_pairing_owner() {
     # real-time operator cue: case stdout is pipeline-buffered until case end,
     # so the live signal must bypass it via a direct append elsewhere
     printf 'WINDOW-OPEN %s window=%ss\n' "$(date '+%H:%M:%S')" "$window" \
-      >> /home/elpresidank/.cache/beep-p0-spike1-pairing.signal
+      >> $HOME/.cache/beep-p0-spike1-pairing.signal
     while (( waited < window )); do
       sleep 5; waited=$((waited + 5))
       cli pairing list --channel telegram --json | sanitize_a5_stream > "$after" || return 1

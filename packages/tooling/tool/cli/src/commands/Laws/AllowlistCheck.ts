@@ -65,6 +65,7 @@ const NativeRuntimeAllowlistKind = LiteralKit([
   "object-method",
   "string-method",
   "typeof-runtime",
+  "weak-collection",
 ]).pipe(
   $I.annoteSchema("NativeRuntimeAllowlistKind", {
     description: "Native runtime violation kinds currently supported by the allowlist checker.",

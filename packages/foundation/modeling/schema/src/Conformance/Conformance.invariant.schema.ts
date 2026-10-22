@@ -476,6 +476,4 @@ export class InvariantDescriptor extends S.Class<InvariantDescriptor, { readonly
   $I.annote("InvariantDescriptor", {
     description: "Specification-backed statement of one semantic or structural invariant.",
   })
-) {
-  static readonly toEquivalenceArray = InvariantDescriptor.pipe(S.Array, S.toEquivalence);
-}
+) {}

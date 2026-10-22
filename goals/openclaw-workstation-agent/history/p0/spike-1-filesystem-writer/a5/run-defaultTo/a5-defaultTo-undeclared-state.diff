@@ -1,5 +1,5 @@
---- /home/elpresidank/.cache/beep-p0-spike1a5.Gb9bdw/spike1/a5-defaultTo-undeclared-state-before.inventory	2026-07-25 23:30:27.992996732 -0500
-+++ /home/elpresidank/.cache/beep-p0-spike1a5.Gb9bdw/spike1/a5-defaultTo-undeclared-state-after.inventory	2026-07-25 23:30:31.379126731 -0500
+--- $HOME/.cache/beep-p0-spike1a5.Gb9bdw/spike1/a5-defaultTo-undeclared-state-before.inventory	2026-07-25 23:30:27.992996732 -0500
++++ $HOME/.cache/beep-p0-spike1a5.Gb9bdw/spike1/a5-defaultTo-undeclared-state-after.inventory	2026-07-25 23:30:31.379126731 -0500
 @@ -22,8 +22,8 @@
  49ef0a1ec05506e97c276152da78b8693f04c870c1376ee951220a827e602bb3  ./agents/spike/sessions/sessions.json
  0acc80db40f45b5e408387c3f710ffacff957b9f5e170667a07c7f29f1b6d1fc  ./credentials/telegram-pairing.json

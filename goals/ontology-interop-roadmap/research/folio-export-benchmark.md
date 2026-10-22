@@ -11,8 +11,8 @@ Access date: 2026-06-04
 - Example XML: https://folio.openlegalstandard.org/R8pNPutX0TN6DlEqkyZuxSw/xml
 - Example Markdown: https://folio.openlegalstandard.org/R8pNPutX0TN6DlEqkyZuxSw/markdown
 - Example HTML: https://folio.openlegalstandard.org/R8pNPutX0TN6DlEqkyZuxSw/html
-- Local source: `/home/elpresidank/YeeBois/legal_ontologies/openlegalstandards_folio/folio-api`
-- Local source: `/home/elpresidank/YeeBois/legal_ontologies/openlegalstandards_folio/folio-mcp`
+- Local source: `$HOME/YeeBois/legal_ontologies/openlegalstandards_folio/folio-api`
+- Local source: `$HOME/YeeBois/legal_ontologies/openlegalstandards_folio/folio-mcp`
 
 ## Live Endpoint Check
 

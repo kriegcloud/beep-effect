@@ -69,6 +69,4 @@ export class ConformanceProfile extends S.Class<ConformanceProfile, { readonly b
   $I.annote("ConformanceProfile", {
     description: "Versioned set of sources and invariants implemented as one conformance profile.",
   })
-) {
-  static readonly toEquivalenceArray = ConformanceProfile.pipe(S.Array, S.toEquivalence);
-}
+) {}

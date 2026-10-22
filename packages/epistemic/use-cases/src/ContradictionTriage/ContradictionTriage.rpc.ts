@@ -1,4 +1,3 @@
-import * as Arbitrary from "effect/Arbitrary";
 /**
  * Client-safe contradiction-triage RPC and read-model contracts.
  *
@@ -16,6 +15,7 @@ import { TextAnchorVerificationReceipt } from "@beep/provenance/VerifiedTextAnch
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
 import * as SharedEpistemic from "@beep/shared-domain/identity/Epistemic";
+import * as Arbitrary from "effect/Arbitrary";
 import { identity } from "effect/Function";
 import * as N from "effect/Number";
 import * as Rpc from "effect/rpc/Rpc";

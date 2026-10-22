@@ -12,7 +12,7 @@ on OIP-shaped (patent-prosecution) synthetic corpora with computed ground truths
 is cited to `map-corpus.md`, which did the sampling under its own budget.
 
 **In-repo claims** are verified against the live checkout at
-`/home/elpresidank/YeeBois/projects/beep-effect13` (branch `main`, `6b42b239a6`).
+`$HOME/YeeBois/projects/beep-effect13` (branch `main`, `6b42b239a6`).
 Paths are repo-relative; harvey-labs paths are clone-relative and prefixed `[LAB]`.
 Reproduction commands are in §8.
 
@@ -131,7 +131,7 @@ you own the dial.
 Three facts stack:
 
 1. **The confidentiality wall is absolute and permanent.** Corpus home
-   `/home/elpresidank/data-home/oppold-corpus/` is confidential by default; a scoped
+   `$HOME/data-home/oppold-corpus/` is confidential by default; a scoped
    waiver for a cognee demo (2026-07-03, 3–5 docket families) explicitly does not
    generalize. There will never be a real-corpus cloud eval.
 2. **beep already owns the prosecution feature vocabulary as schema.** Not "could
@@ -684,7 +684,7 @@ rejects a spec set with a dangling pin, and reports cost before rendering.
 
 ## 8. Evidence appendix — reproduction
 
-All commands run from `/home/elpresidank/YeeBois/projects/beep-effect13`.
+All commands run from `$HOME/YeeBois/projects/beep-effect13`.
 
 ```bash
 # feature vocabulary already modeled

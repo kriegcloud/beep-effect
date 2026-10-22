@@ -63,7 +63,7 @@ Closed every accepted finding in `inventory/round-1/glob.md` (glob-R1-001 throug
 - Acceptance runner (parent should execute if this session cannot spawn a shell):
 
 ```bash
-/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
+$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
 ```
 
 Pack `glob` should report `openModuleCount: 0` and `openOwningExportCount: 0`.

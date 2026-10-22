@@ -211,7 +211,7 @@ export const hostPressureItems: {
   const fresh = checkFreshness(now, HostPressureSpec.freshnessBound, [input.readAt]);
   const stalls = PressureSourceInput.match(input.pressure, {
     Read: (read) => A.map(PressureResource.literals, stallItem(now, input.readAt, read.files)),
-    Missing: () => A.empty<PressureStall>(),
+    Missing: A.empty<PressureStall>,
   });
   const memory: ReadonlyArray<HostPressureItem> = A.fromOption(
     O.map(input.memory, (reading) =>

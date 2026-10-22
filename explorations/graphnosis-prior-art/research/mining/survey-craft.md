@@ -1,6 +1,6 @@
 # Graphnosis survey — territory: product scope discipline, docs craft & positioning
 
-Repo surveyed: `/home/elpresidank/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis@0.11.0`,
+Repo surveyed: `$HOME/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis@0.11.0`,
 author Nelu Lazar / Nehloo Interactive LLC). Files read in full: `README.md`, `ROADMAP.md`,
 `CONTRIBUTING.md`, `CLA.md`, `NOTICE`, `REFERENCES.md`, `enterprise/enterprise.md`,
 `original-discussion.md`, `Dockerfile`, `docker-compose.yml`, `package.json`,

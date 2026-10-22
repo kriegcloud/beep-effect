@@ -48,11 +48,11 @@ const mocks = vi.hoisted(() => ({
 const encode = S.encodeEffect(S.fromJsonString(S.Unknown));
 const layer = Layer.mergeAll(NodeServices.layer, FsUtilsLive.pipe(Layer.provide(NodeServices.layer)));
 const identity = CoverageProducerIdentity.make({
-  executionSha: "a".repeat(40),
-  baseSha: "b".repeat(40),
+  executionSha: Str.repeat(40)("a"),
+  baseSha: Str.repeat(40)("b"),
   runId: "123",
   runAttempt: 1,
-  scopeDigest: "c".repeat(64),
+  scopeDigest: Str.repeat(64)("c"),
 });
 const owner = (packageName = "@beep/repo-cli", packagePath = "packages/tool") =>
   CoverageScopeOwner.make({ packageName, packagePath, hasCoverage: true });

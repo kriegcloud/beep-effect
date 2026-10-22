@@ -5,8 +5,8 @@ chat surface, classifying every divergence so the implementing session starts
 from evidence rather than re-deriving it. **Re-validate before editing** — the
 POC and our `main` may drift; line numbers are from 2026-06-15.
 
-- POC: `/home/elpresidank/YeeBois/projects/effect-lexical-chat/` (effect `4.0.0-beta.79`)
-- Ours: `/home/elpresidank/YeeBois/projects/beep-effect/` (effect `4.0.0-beta.83`)
+- POC: `$HOME/YeeBois/projects/effect-lexical-chat/` (effect `4.0.0-beta.79`)
+- Ours: `` (effect `4.0.0-beta.83`)
 
 Classification: **GREEN** already at parity · **BLUE** intentional (preserve) ·
 **GAP** accidental omission to fix · **SCOPE** deliberate v1 cut now in-scope.

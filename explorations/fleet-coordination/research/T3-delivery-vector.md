@@ -36,13 +36,13 @@ it waits for the longest in-flight tool call in the current batch. During a 30-m
 
 | Fact | Value | Evidence |
 |---|---|---|
-| Claude Code version | `2.1.221` | `claude --version`; `/home/elpresidank/.local/bin/claude` → `/home/elpresidank/.local/share/claude/versions/2.1.221` |
+| Claude Code version | `2.1.221` | `claude --version`; `$HOME/.local/bin/claude` → `$HOME/.local/share/claude/versions/2.1.221` |
 | Codex CLI version | `codex-cli 0.146.0` | `codex --version` |
 | Codex `hooks` feature | **stable, enabled** | `codex features list` → `hooks   stable   true` |
-| Claude user settings | no hooks block | `/home/elpresidank/.claude/settings.json` |
-| Claude project settings | one `PostToolUse` hook on `Edit\|Write` | `/home/elpresidank/YeeBois/projects/beep-effect5/.claude/settings.json` |
-| Repo Codex config | `.codex/config.toml`, **no `hooks.json`** | `/home/elpresidank/YeeBois/projects/beep-effect5/.codex/config.toml` |
-| Codex hooks were once used here | `[hooks.state]` holds trusted hashes for `pre_tool_use` in beep-effect, 2, 3, 5, 6, 7 — files now deleted | `/home/elpresidank/.codex/config.toml:1598-1620` |
+| Claude user settings | no hooks block | `$HOME/.claude/settings.json` |
+| Claude project settings | one `PostToolUse` hook on `Edit\|Write` | `$HOME/YeeBois/projects/beep-effect5/.claude/settings.json` |
+| Repo Codex config | `.codex/config.toml`, **no `hooks.json`** | `$HOME/YeeBois/projects/beep-effect5/.codex/config.toml` |
+| Codex hooks were once used here | `[hooks.state]` holds trusted hashes for `pre_tool_use` in beep-effect, 2, 3, 5, 6, 7 — files now deleted | `$HOME/.codex/config.toml:1598-1620` |
 | Live fleet, right now | 6 interactive + 3 background sessions across 8 clones | `claude agents --json` |
 
 `.claude/settings.json` denies `Edit(**/.claude/settings.json)` — hook changes need an explicit
@@ -87,7 +87,7 @@ where stdout is added as context that Claude can see"
 
 ### Consequence: law-pulse.sh is a no-op
 
-`/home/elpresidank/YeeBois/projects/beep-effect5/.claude/hooks/law-pulse.sh` is a `PostToolUse` hook
+`$HOME/YeeBois/projects/beep-effect5/.claude/hooks/law-pulse.sh` is a `PostToolUse` hook
 that ends with:
 
 ```bash
@@ -307,7 +307,7 @@ through the hook dispatcher. The three near-misses:
    interactive TUI sessions cannot use it.
 3. **Remote Control** — this session carries
    `"bridgeSessionId":"session_01RZ4MmyzLJuginHTVcPTRdX"`
-   (`/home/elpresidank/.claude/sessions/197785.json`), and hooks receive
+   (`$HOME/.claude/sessions/197785.json`), and hooks receive
    `CLAUDE_CODE_BRIDGE_SESSION_ID`. It injects into a live session, but routes the transcript through
    Anthropic servers, and needs a human sender. **`~/.claude/rules/oip-confidentiality.md` forbids it
    in any session touching OIP material.** Not a fleet mechanism.
@@ -463,7 +463,7 @@ instead of waiting for a later user turn."* Treat `AGENTS.md` as start-of-sessio
 ## 7. Part 3 — The gate vector (`bun run beep yeet`)
 
 `bun run beep yeet` is an ordinary process every agent runs before pushing. Subcommands live at
-`/home/elpresidank/YeeBois/projects/beep-effect5/packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:318-403`:
+`$HOME/YeeBois/projects/beep-effect5/packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:318-403`:
 `verify`, `repair`, `publish`, `monitor`, `closeout`, `status`, `pre-push-hook`, plus fallow/plan
 checks.
 
@@ -537,13 +537,13 @@ new machinery needed is the claim file format and the epoch counter.
 - https://learn.chatgpt.com/docs/config-file/config-reference — `notify` semantics
 
 **Local files**
-- `/home/elpresidank/.claude/settings.json` — no hooks; `defaultMode: auto`; model `opus[1m]`
-- `/home/elpresidank/YeeBois/projects/beep-effect5/.claude/settings.json` — the one `PostToolUse` hook; `Edit(**/.claude/settings.json)` denied
-- `/home/elpresidank/YeeBois/projects/beep-effect5/.claude/hooks/law-pulse.sh` — **the no-op**
-- `/home/elpresidank/.codex/config.toml` — `[features]`, `[hooks.state]:1598-1620`, `[otel]`
-- `/home/elpresidank/YeeBois/projects/beep-effect5/.codex/config.toml` — no hooks
-- `/home/elpresidank/.claude/sessions/<pid>.json` — live per-session status
-- `/home/elpresidank/YeeBois/projects/beep-effect5/packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:318-403`
+- `$HOME/.claude/settings.json` — no hooks; `defaultMode: auto`; model `opus[1m]`
+- `$HOME/YeeBois/projects/beep-effect5/.claude/settings.json` — the one `PostToolUse` hook; `Edit(**/.claude/settings.json)` denied
+- `$HOME/YeeBois/projects/beep-effect5/.claude/hooks/law-pulse.sh` — **the no-op**
+- `$HOME/.codex/config.toml` — `[features]`, `[hooks.state]:1598-1620`, `[otel]`
+- `$HOME/YeeBois/projects/beep-effect5/.codex/config.toml` — no hooks
+- `$HOME/.claude/sessions/<pid>.json` — live per-session status
+- `$HOME/YeeBois/projects/beep-effect5/packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:318-403`
 
 **Probes** (all under `…/scratchpad/`, reproducible)
 
@@ -559,7 +559,7 @@ new machinery needed is the claim file format and the epoch counter.
 Probe command shape:
 
 ```bash
-cd "$T" && /home/elpresidank/.local/bin/claude -p "<prompt>" \
+cd "$T" && $HOME/.local/bin/claude -p "<prompt>" \
   --model haiku --permission-mode bypassPermissions --setting-sources project \
   --output-format stream-json --verbose --include-hook-events < /dev/null
 ```

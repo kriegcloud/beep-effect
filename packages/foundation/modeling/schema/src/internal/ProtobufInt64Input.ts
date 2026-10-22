@@ -60,6 +60,7 @@ interface ProtobufLongLike {
  * @category models
  * @since 0.0.0
  */
+// fallow-ignore-next-line unused-type -- Fixed64 declaration emit needs this named input union (TS4023 without its export).
 export type ProtobufInt64Input = bigint | number | string | ProtobufLongLike;
 
 const maximumDecimalLength = 20;

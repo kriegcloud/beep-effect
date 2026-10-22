@@ -94,7 +94,7 @@ export const EmailString = EmailBranded.pipe(
  * @category models
  * @since 0.0.0
  */
-export type EmailString = typeof EmailString.Type;
+type EmailString = typeof EmailString.Type;
 
 // --- Final schema: branded + redacted + annotated ---
 
@@ -138,4 +138,4 @@ export const Email = S.RedactedFromValue(EmailString, { label: "Email" }).pipe(
  * @category models
  * @since 0.0.0
  */
-export type Email = typeof Email.Type;
+type Email = typeof Email.Type;

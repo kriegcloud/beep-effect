@@ -1,6 +1,6 @@
 # RAPTOR → beep-effect mapping — searches and raw evidence
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect15` (branch `main`, clean at start).
+Repo: `$HOME/YeeBois/projects/beep-effect15` (branch `main`, clean at start).
 Source mining note: `scratchpad/graphnosis/paper-raptor.md`.
 Landing packets named by the capture: `goals/hybrid-retrieval-fusion-core`,
 `explorations/rag-retrieval-projection` (`explorations/graphnosis-prior-art/CAPTURE.md:123-128`).

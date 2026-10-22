@@ -1,9 +1,10 @@
 import { NoNativeRuntimeRulesOptions, runNoNativeRuntimeRules } from "@beep/repo-cli/test/Laws";
 import { makeSchemaFirstProject } from "@beep/repo-cli/test/Lint";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Path from "effect/Path";
 import {
   NodeTestLayer,
@@ -188,6 +189,7 @@ it.layer(NodeTestLayer)("native runtime laws", (it) => {
                 "export const inspect = (value: unknown, values: Array<string>, text: string) => {",
                 "  const keys = Object.keys({ value });",
                 "  const cache = new Map<string, string>();",
+                "  const proofs = new WeakMap<object, string>();",
                 "  const now = new Date();",
                 '  const error = new Error("boom");',
                 "  const timestamp = Date.now();",
@@ -198,7 +200,7 @@ it.layer(NodeTestLayer)("native runtime laws", (it) => {
                 "  text.trim();",
                 "  switch (isText) {",
                 "    case true:",
-                "      return { Fs, cache, copied, error, keys, now, request, timestamp };",
+                "      return { Fs, cache, copied, error, keys, now, proofs, request, timestamp };",
                 "    default:",
                 "      return undefined;",
                 "  }",
@@ -230,9 +232,48 @@ it.layer(NodeTestLayer)("native runtime laws", (it) => {
               "objectMethod",
               "stringMethod",
               "typeofRuntime",
+              "weakCollectionCtor",
             ])
           );
           expect(A.every(summary.diagnostics, (diagnostic) => diagnostic.message.length > 0)).toBe(true);
+        })
+      );
+    })
+  );
+
+  it.effect(
+    "reports weak collections under their own kind and keeps Map/Set under new-map-set",
+    Effect.fnUntraced(function* () {
+      yield* withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeDefaultTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/weak.ts",
+            "export const proofs = new WeakMap<object, string>();\nexport const issued = new WeakSet<object>();\n"
+          );
+          yield* writeProjectFile(
+            "packages/demo/src/strong.ts",
+            "export const index = new Map<string, string>();\nexport const seen = new Set<string>();\n"
+          );
+
+          const summary = yield* runNoNativeRuntimeRules(
+            NoNativeRuntimeRulesOptions.make({ strictCheck: true, excludePaths: [] })
+          );
+          const byFile = (file: string) =>
+            A.filter(summary.diagnostics, (diagnostic) => diagnostic.file === `packages/demo/src/${file}`);
+
+          expect(A.map(byFile("weak.ts"), (diagnostic) => diagnostic.messageId)).toEqual([
+            "weakCollectionCtor",
+            "weakCollectionCtor",
+          ]);
+          expect(A.every(byFile("weak.ts"), ({ message }) => pipe(message, Str.includes("identity/GC reason")))).toBe(
+            true
+          );
+          expect(A.some(byFile("weak.ts"), ({ message }) => pipe(message, Str.includes("HashMap")))).toBe(false);
+          expect(A.map(byFile("strong.ts"), (diagnostic) => diagnostic.messageId)).toEqual([
+            "mapSetCtor",
+            "mapSetCtor",
+          ]);
         })
       );
     })

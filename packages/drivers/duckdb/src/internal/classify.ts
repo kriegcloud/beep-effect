@@ -105,7 +105,7 @@ const RULES: ReadonlyArray<ClassifyRule> = [
   [/^Constraint Error: PRIMARY KEY or UNIQUE constraint violation: duplicate key "(.+)"/, uniqueViolation],
   [/^Constraint Error:/, always((_, base) => ConstraintError.make(base))],
   [
-    /^TransactionContext Error: (?:Conflict on|Failed to commit|Catalog write-write conflict)/,
+    /^TransactionContext Error: (?:Conflict on|Failed to commit|Catalog write-write conflict|Transaction conflict)/,
     always((_, base) => SerializationError.make(base)),
   ],
   [

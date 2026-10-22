@@ -211,7 +211,7 @@ flowchart TB
 ## 4. The Oppold corpus & Corpus CLI (ahead-of-time data prep, not a runtime feeder)
 
 The Corpus CLI (`packages/tooling/tool/cli/src/commands/Corpus/` →
-`/home/elpresidank/data-home/oppold-corpus/`) is **data preparation**, not a
+`$HOME/data-home/oppold-corpus/`) is **data preparation**, not a
 live L2/L4 memory feeder. Verified shape:
 
 - `Corpus.service.ts` is a **curation** service built on `@beep/file-processing`
@@ -292,7 +292,7 @@ keeps L4 a cache and L1/authority records the truth.
   RDF/IRI/JSON-LD, SPARQL, evidence, web-annotation — and the SHACL header's own
   "bounded SHACL-inspired subset" disclosure.
 - Corpus CLI service built on `@beep/file-processing` + `@beep/duckdb`; the
-  `/home/elpresidank/data-home/oppold-corpus/` directory layout
+  `$HOME/data-home/oppold-corpus/` directory layout
   (raw/staging/organized/catalog/logs/ops).
 - The companion archaeology artifact's prune commits (`309649ebcc`,
   `78f5d3fb0e`, doctrine `3129cb6029`) — relied on, not re-run here.
@@ -338,7 +338,7 @@ Adversarial spot-check of in-repo path/claim citations by a skeptical verifier.
   datatype" is verbatim accurate.
 - Corpus CLI (`packages/tooling/tool/cli/src/commands/Corpus/`) imports
   `@beep/duckdb` and `@beep/file-processing/*` as claimed; the
-  `/home/elpresidank/data-home/oppold-corpus/` layout
+  `$HOME/data-home/oppold-corpus/` layout
   (catalog/logs/ops/organized/raw/staging) matches.
 - Graphiti proxy tooling exists (`.../commands/Graphiti/internal/Proxy*.ts`).
 - No `beepgraph`/`beep-graph` package anywhere in `packages/**`/`apps/**`; zero

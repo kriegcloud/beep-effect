@@ -119,8 +119,9 @@ Suites that share a process global (the Tauri `invoke` mock, `import.meta.env`, 
 Two gate notes for new statechart tests:
 
 - `vi.mock` and `vi.hoisted` only work with `import { vi } from "vitest"`; the `@effect/vitest`
-  re-export fails with "problems in resolving the mocks API". The `lint:effect-vitest` gate reports
-  that import as EV011, so such files carry a reviewed row in `standards/effect-vitest.inventory.jsonc`.
+  re-export fails with "problems in resolving the mocks API". The `lint:effect-vitest` gate accepts a
+  `vi`-only `vitest` import that the file uses for `vi.mock` or `vi.hoisted`; take every other `vi`
+  use (`vi.fn`, `vi.stubGlobal`, ...) from `@effect/vitest`, or EV011 reports the import.
 - A test that advances `TestClock` must own its clock: run it outside a shared `it.layer` block and
   provide the services it needs per test (`Reactivity.make` + `Effect.provideService`), as
   `startIntakeIsolated` does in the intake test harness.

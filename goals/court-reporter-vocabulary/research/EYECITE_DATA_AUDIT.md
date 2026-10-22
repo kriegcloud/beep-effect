@@ -10,8 +10,8 @@ pinned Free Law Project repositories, not either local port.
 
 | Repository | Inspected revision | Relevant data shape |
 | --- | --- | --- |
-| `/home/elpresidank/YeeBois/dev/eyecite-js` | `53a49f2412da668aaf262e5f92584c2c3781043b` (2025-08-21) | seven JSON datasets under `src/data/` |
-| `/home/elpresidank/YeeBois/research/law_stuff/repos/eyecite-ts` | `34133d03143ea65861f48a5ed0eb32c931581666` (2026-07-04) | one reporter JSON plus generated TypeScript packaging |
+| `$HOME/YeeBois/dev/eyecite-js` | `53a49f2412da668aaf262e5f92584c2c3781043b` (2025-08-21) | seven JSON datasets under `src/data/` |
+| `$HOME/YeeBois/research/law_stuff/repos/eyecite-ts` | `34133d03143ea65861f48a5ed0eb32c931581666` (2026-07-04) | one reporter JSON plus generated TypeScript packaging |
 
 ## eyecite-js findings
 

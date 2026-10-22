@@ -5969,6 +5969,8 @@ export const SetSessionConfigOptionRequest = S.Union([
 ]).pipe(
   $I.annoteSchema("SetSessionConfigOptionRequest", {
     description: "Generated ACP schema for SetSessionConfigOptionRequest.",
+    documentation:
+      "Request parameters for setting a session configuration option.",
     identifier: "SetSessionConfigOptionRequest",
   }),
 );
@@ -7292,9 +7294,7 @@ export const CreateElicitationResponse = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "The user accepted the elicitation and provided content.",
-  }),
+  ).annotateKey({ description: "The user accepted and provided content." }),
   S.StructWithRest(
     S.Struct({
       _meta: S.optionalKey(
@@ -7366,6 +7366,7 @@ export const CreateElicitationResponse = S.Union([
 ]).pipe(
   $I.annoteSchema("CreateElicitationResponse", {
     description: "Generated ACP schema for CreateElicitationResponse.",
+    documentation: "Response from the client to an elicitation request.",
     identifier: "CreateElicitationResponse",
   }),
 );
@@ -7636,7 +7637,10 @@ export const ContentBlock = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "Text provided to or from an LLM." }),
+  ).annotateKey({
+    description:
+      "Text content. May be plain text or formatted with Markdown.\n\nAll agents MUST support text content blocks in prompts.\nClients SHOULD render this text as Markdown.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("image"),
@@ -7674,7 +7678,10 @@ export const ContentBlock = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "An image provided to or from an LLM." }),
+  ).annotateKey({
+    description:
+      "Images for visual context or analysis.\n\nRequires the `image` prompt capability when included in prompts.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("audio"),
@@ -7704,7 +7711,10 @@ export const ContentBlock = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "Audio provided to or from an LLM." }),
+  ).annotateKey({
+    description:
+      "Audio data for transcription or analysis.\n\nRequires the `audio` prompt capability when included in prompts.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("resource_link"),
@@ -7771,7 +7781,7 @@ export const ContentBlock = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "A resource that the server is capable of reading, included in a prompt or tool call result.",
+      "References to resources that the agent can access.\n\nAll agents MUST support resource links in prompts.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -7803,7 +7813,7 @@ export const ContentBlock = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "The contents of a resource, embedded into a prompt or tool call result.",
+      "Complete resource contents embedded directly in the message.\n\nPreferred for including context as it avoids extra round-trips.\n\nRequires the `embeddedContext` prompt capability when included in prompts.",
   }),
 ]).pipe(
   $I.annoteSchema("ContentBlock", {
@@ -7869,10 +7879,7 @@ export const PlanUpdateContent = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA plan represented as structured entries.",
-  }),
+  ).annotateKey({ description: "Structured plan entries." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("file"),
@@ -7897,8 +7904,7 @@ export const PlanUpdateContent = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA plan represented by a file URI.",
+    description: "A URI pointing to a file containing the plan.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -7923,10 +7929,7 @@ export const PlanUpdateContent = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA plan represented as raw markdown content.",
-  }),
+  ).annotateKey({ description: "Raw markdown content for the plan." }),
 ]).pipe(
   $I.annoteSchema("PlanUpdateContent", {
     description: "Generated ACP schema for PlanUpdateContent.",
@@ -8356,10 +8359,7 @@ export const StateUpdate = S.Union([
         ),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-    ).annotateKey({
-      description:
-        "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nDetails of a failure that ended a child's foreground work.",
-    }),
+    ).annotateKey({ description: "The work ended because something failed." }),
     S.StructWithRest(
       S.Struct({
         state: S.tag("idle"),
@@ -8429,7 +8429,9 @@ export const StateUpdate = S.Union([
       title: "none",
       description: "No stop reason: `stopReason` is omitted or `null`.",
     }),
-  ]),
+  ]).annotateKey({
+    description: "The child is ready to process another prompt.",
+  }),
   S.StructWithRest(
     S.Struct({
       state: S.tag("requires_action"),
@@ -8467,7 +8469,7 @@ export const StateUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nThe Agent cannot currently determine foreground activity.\n\nReport this when activity becomes unobservable, not merely because the child\nhas been quiet. The Client MUST stop presenting the previous state as confirmed\ncurrent activity, but may retain it as last known. A later state replaces this\nsnapshot normally.\n\nThis is not a task outcome or session closure. It does not cancel work, resolve\npending requests, or revoke capabilities; capabilities are updated separately.",
+      "The Agent cannot currently determine foreground activity.\n\nThis replaces previously confirmed activity without ending the work or session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -8615,7 +8617,10 @@ export const McpServer = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "HTTP transport configuration for MCP." }),
+  ).annotateKey({
+    description:
+      "HTTP transport configuration\n\nOnly available when the Agent capabilities indicate `mcp_capabilities.http` is `true`.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("sse"),
@@ -8641,7 +8646,10 @@ export const McpServer = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "SSE transport configuration for MCP." }),
+  ).annotateKey({
+    description:
+      "SSE transport configuration\n\nOnly available when the Agent capabilities indicate `mcp_capabilities.sse` is `true`.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("acp"),
@@ -8670,7 +8678,7 @@ export const McpServer = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nACP transport configuration for MCP.\n\nThe MCP server is provided by an ACP component and communicates over the ACP channel\nusing `mcp/message`.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nACP transport configuration\n\nOnly available when the Agent capabilities indicate `mcp_capabilities.acp` is `true`.\nThe MCP server is provided by an ACP component and communicates over the ACP channel.",
   }),
   S.suspend((): S.Codec<McpServerStdio> => McpServerStdio).annotateKey({
     title: "stdio",
@@ -8738,7 +8746,7 @@ export const MultiSelectItems = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description: "String item schema for multi-select enum properties.",
+    description: "Multi-select string items with plain string values.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -8847,7 +8855,7 @@ export const AuthMethod = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "Terminal-based authentication method.\n\nThe client runs the configured agent program as a separate interactive\nprocess for the user to authenticate via a TUI. Agents MUST advertise this\nmethod only when the client enabled its terminal authentication capability.\nA zero exit status signals success; any other termination signals failure.\nThe client MUST NOT pass this method to `authenticate`.",
+      "Client runs the configured agent program as a separate interactive\nprocess, without passing this method to `authenticate`.",
   }),
   S.suspend((): S.Codec<AuthMethodAgent> => AuthMethodAgent).annotateKey({
     title: "agent",
@@ -9188,10 +9196,7 @@ export const ToolCallContent = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "A diff representing file modifications.\n\nShows changes to files in a format suitable for display in the client UI.\n\nSee protocol docs: [Content](https://agentclientprotocol.com/protocol/tool-calls#content)",
-  }),
+  ).annotateKey({ description: "File modification shown as a diff." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("terminal"),
@@ -9538,7 +9543,7 @@ export const ElicitationPropertySchema = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      'Schema for string properties in an elicitation form.\n\nWhen `enum` or `oneOf` is set, this represents a single-select enum\nwith `"type": "string"`.',
+      "String property (or single-select enum when `enum`/`oneOf` is set).",
   }),
   S.StructWithRest(
     S.Struct({
@@ -9605,10 +9610,7 @@ export const ElicitationPropertySchema = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "Schema for number (floating-point) properties in an elicitation form.",
-  }),
+  ).annotateKey({ description: "Number (floating-point) property." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("integer"),
@@ -9674,9 +9676,7 @@ export const ElicitationPropertySchema = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Schema for integer properties in an elicitation form.",
-  }),
+  ).annotateKey({ description: "Integer property." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("boolean"),
@@ -9721,9 +9721,7 @@ export const ElicitationPropertySchema = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Schema for boolean properties in an elicitation form.",
-  }),
+  ).annotateKey({ description: "Boolean property." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("array"),
@@ -9801,10 +9799,7 @@ export const ElicitationPropertySchema = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "Schema for multi-select (array) properties in an elicitation form.",
-  }),
+  ).annotateKey({ description: "Multi-select array property." }),
   S.StructWithRest(
     S.Struct({
       type: S.String.annotateKey({
@@ -10595,10 +10590,7 @@ export const SessionConfigOption = S.Union([
       ).annotateKey({ description: "The set of selectable options." }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "A single-value selector (dropdown) session configuration option payload.",
-  }),
+  ).annotateKey({ description: "Single-value selector (dropdown)." }),
   S.StructWithRest(
     S.Struct({
       id: S.suspend(
@@ -10641,13 +10633,12 @@ export const SessionConfigOption = S.Union([
       }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "A boolean on/off toggle session configuration option payload.",
-  }),
+  ).annotateKey({ description: "Boolean on/off toggle." }),
 ]).pipe(
   $I.annoteSchema("SessionConfigOption", {
     description: "Generated ACP schema for SessionConfigOption.",
+    documentation:
+      "A session configuration option selector and its current state.",
     identifier: "SessionConfigOption",
   }),
 );
@@ -11040,7 +11031,9 @@ export const SessionUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "A streamed item of content" }),
+  ).annotateKey({
+    description: "A chunk of the user's message being streamed.",
+  }),
   S.StructWithRest(
     S.Struct({
       sessionUpdate: S.tag("agent_message_chunk"),
@@ -11067,7 +11060,9 @@ export const SessionUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "A streamed item of content" }),
+  ).annotateKey({
+    description: "A chunk of the agent's response being streamed.",
+  }),
   S.StructWithRest(
     S.Struct({
       sessionUpdate: S.tag("agent_thought_chunk"),
@@ -11094,7 +11089,9 @@ export const SessionUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "A streamed item of content" }),
+  ).annotateKey({
+    description: "A chunk of the agent's internal reasoning being streamed.",
+  }),
   S.StructWithRest(
     S.Struct({
       sessionUpdate: S.tag("tool_call"),
@@ -11162,8 +11159,7 @@ export const SessionUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description:
-      "Represents a tool call that the language model has requested.\n\nTool calls are actions that the agent executes on behalf of the language model,\nsuch as reading files, executing code, or fetching data from external sources.\n\nSee protocol docs: [Tool Calls](https://agentclientprotocol.com/protocol/tool-calls)",
+    description: "Notification that a new tool call has been initiated.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11241,8 +11237,7 @@ export const SessionUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description:
-      "An update to an existing tool call.\n\nUsed to report progress and results as tools execute. All fields except\nthe tool call ID are optional - only changed fields need to be included.\n\nSee protocol docs: [Updating](https://agentclientprotocol.com/protocol/tool-calls#updating)",
+    description: "Update on the status or results of a tool call.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11267,7 +11262,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "An execution plan for accomplishing complex tasks.\n\nPlans consist of multiple entries representing individual tasks or goals.\nAgents report plans to clients to provide visibility into their execution strategy.\nPlans can evolve during execution as the agent discovers new requirements or completes tasks.\n\nSee protocol docs: [Agent Plan](https://agentclientprotocol.com/protocol/agent-plan)",
+      "The agent's execution plan for complex tasks.\nSee protocol docs: [Agent Plan](https://agentclientprotocol.com/protocol/agent-plan)",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11425,7 +11420,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "Update to session metadata. All fields are optional to support partial updates.\n\nAgents send this notification to update session information like title or custom metadata.\nThis allows clients to display dynamic session names and track session state changes.",
+      "Session metadata has been updated (title, timestamps, custom metadata)",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11466,7 +11461,7 @@ export const SessionUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description: "Context window and cost update for a session.",
+    description: "Context window and cost update for the session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11507,7 +11502,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "Fire-and-forget information for the user.\n\nNotices are live events rather than session history. Agents must not rely on\na notice being received, displayed, or seen by the user.\nAgents MUST only send notices when the Client advertised\n[`ClientSessionCapabilities::notices`]. Otherwise, Agents may use an agent\nmessage when the information should still be surfaced to the user.\n\nSee RFD: [Session Notices](https://agentclientprotocol.com/rfds/session-notices)",
+      "Information for the user that is not part of session history.\n\nAgents MUST only send this update when the Client advertised\n[`ClientSessionCapabilities::notices`].",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11553,7 +11548,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "A context compaction upsert. The first notification fixes the compaction's\ntimeline position. Later updates with the same ID patch that entity in place.\nAgents MUST only send this update when the Client advertised\n[`ClientSessionCapabilities::compaction`].\n\n`summary`, `error`, and `_meta` have patch semantics: omission leaves the\nstored value unchanged, `null` clears it, and a concrete value replaces it.\n`summary: []` also clears the summary.",
+      "A context compaction has been created or updated.\n\nAgents MUST only send this update when the Client advertised\n[`ClientSessionCapabilities::compaction`].",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11583,7 +11578,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "A content block appended to a compaction's summary. A first-seen ID creates\nan in-progress compaction. Chunks append in receive order.\nAgents MUST only send this update when the Client advertised\n[`ClientSessionCapabilities::compaction`].",
+      "A content block appended to a context compaction's retained summary.\n\nAgents MUST only send this update when the Client advertised\n[`ClientSessionCapabilities::compaction`].",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11638,7 +11633,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nNotification that the enclosing parent session created and owns a child session.\n\nLater updates modify the existing association's metadata, not its ownership.\n\nSent on the immediate parent session. The first update for an unknown\n[`SubagentUpdate::session_id`] announces the child and MUST be sent\nbefore any live child traffic or live message naming the child as sender\nor recipient. Parents may message and reuse an announced child across\nmultiple operations.\nChild events are delivered automatically on the same connection; no child\nload, resume, or subscription is needed.\n\nOnly the subagent session ID is required. Omitted patch fields keep their\nprevious values; `null` clears them. Clearing capabilities disables child\nmutations. Clearing state leaves current activity unset/unconfirmed: it does\nnot imply idle, stop work, or create an `unknown` state snapshot. A concrete\nstate replaces the entire previous state object, not the session.\nThe title and description provide the parent's display metadata for the\nchild. They do not replace the content of individual messages or operations.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nAnnounces a child session created and owned by this session, or updates\nthat ownership association's metadata.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11684,7 +11679,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nAn upsert for an inter-session message.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA message upsert observed in this session's transcript, sent to or\nreceived from another session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11724,7 +11719,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA streamed content block of an inter-session message.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nOne content block appended to a sent or received session message.",
   }),
 ]).pipe(
   $I.annoteSchema("SessionUpdate", {
@@ -12148,8 +12143,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
+      title: "Session",
       description:
-        "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -12182,10 +12178,14 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
+      title: "Request",
       description:
-        "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    description:
+      "Form-based elicitation where the client renders a form from the provided schema.",
+  }),
   S.Union([
     S.StructWithRest(
       S.Struct({
@@ -12227,8 +12227,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
+      title: "Session",
       description:
-        "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -12264,10 +12265,14 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
+      title: "Request",
       description:
-        "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    description:
+      "URL-based elicitation where the client directs the user to a URL.",
+  }),
   S.Union([
     S.StructWithRest(
       S.Struct({
@@ -12310,9 +12315,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      title: "other",
+      title: "Session",
       description:
-        "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -12349,14 +12354,20 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      title: "other",
+      title: "Request",
       description:
-        "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    title: "other",
+    description:
+      "Custom or future elicitation mode.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.\n\nClients that do not understand this mode should preserve the raw payload\nwhen storing, replaying, proxying, or forwarding elicitation requests.\nThey MUST NOT render it as a known elicitation mode.",
+  }),
 ]).pipe(
   $I.annoteSchema("CreateElicitationRequest", {
     description: "Generated ACP schema for CreateElicitationRequest.",
+    documentation:
+      "Request from the agent to elicit structured user input.\n\nThe agent sends this to the client to request information from the user,\neither via a form or by directing them to a URL.\nElicitations are tied to a session (optionally a tool call) or a request.",
     identifier: "CreateElicitationRequest",
   }),
 );
@@ -14070,8 +14081,9 @@ export const ElicitationFormMode = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
+    title: "Session",
     description:
-      "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+      "Tied to a session, optionally to a specific tool call within that session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -14087,12 +14099,15 @@ export const ElicitationFormMode = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
+    title: "Request",
     description:
-      "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+      "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
   }),
 ]).pipe(
   $I.annoteSchema("ElicitationFormMode", {
     description: "Generated ACP schema for ElicitationFormMode.",
+    documentation:
+      "Form-based elicitation mode where the client renders a form from the provided schema.",
   }),
 );
 
@@ -14246,8 +14261,9 @@ export const ElicitationUrlMode = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
+    title: "Session",
     description:
-      "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+      "Tied to a session, optionally to a specific tool call within that session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -14266,12 +14282,15 @@ export const ElicitationUrlMode = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
+    title: "Request",
     description:
-      "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+      "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
   }),
 ]).pipe(
   $I.annoteSchema("ElicitationUrlMode", {
     description: "Generated ACP schema for ElicitationUrlMode.",
+    documentation:
+      "URL-based elicitation mode where the client directs the user to a URL.",
   }),
 );
 
@@ -14594,10 +14613,7 @@ export const IdleStateUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nDetails of a failure that ended a child's foreground work.",
-  }),
+  ).annotateKey({ description: "The work ended because something failed." }),
   S.StructWithRest(
     S.Struct({
       usage: S.optionalKey(
@@ -14668,6 +14684,8 @@ export const IdleStateUpdate = S.Union([
 ]).pipe(
   $I.annoteSchema("IdleStateUpdate", {
     description: "Generated ACP schema for IdleStateUpdate.",
+    documentation:
+      "The child is ready to process another prompt.\n\nAn omitted, `null`, or malformed `stopReason` means not reported.",
   }),
 );
 

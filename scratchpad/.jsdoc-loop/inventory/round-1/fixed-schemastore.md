@@ -87,11 +87,11 @@ Owning exports in the slice: 47 (29 value, 18 type). After the pass:
 Census and bounded docgen were the acceptance commands. Re-run after this pass:
 
 ```bash
-/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
+$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
 # expect packs.schemastore.openModuleCount === 0 && openOwningExportCount === 0
 # (index.ts module findings stay skipped: owningExportCount === 0)
 
-/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun run docgen:local -- --package @beep/scratchpad
+$HOME/.local/share/mise/installs/bun/latest/bin/bun run docgen:local -- --package @beep/scratchpad
 ```
 
 This fixer process did not have a shell tool, so those two commands still need to be executed in the parent loop to prove mechanical opens are 0 and that extracted Examples typecheck.

@@ -6,7 +6,7 @@
 - commit: `07dc2305c19125d9cc9bc0b4b5c7ed62a32505fd` (dirty)
 - scenario: apps/professional-desktop/.beep/qa-capture.mjs
 - viewport: 1600x1000
-- video: /home/elpresidank/YeeBois/projects/beep-effect15/.beep/qa/round-4/video/capture.webm
+- video: $HOME/YeeBois/projects/beep-effect15/.beep/qa/round-4/video/capture.webm
 
 ## Clock sync
 

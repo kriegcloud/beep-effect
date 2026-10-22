@@ -21,7 +21,7 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/modeling/html/src/Html.conformance.ts",
-      "kind": "new-map-set",
+      "kind": "weak-collection",
       "reason": "Conformance proofs need weak identity semantics in two places: private issuer membership and proof-to-detached-root storage must not retain validated trees, while recursive snapshot traversal needs cycle detection without retaining previously inspected ASTs. Effect collections provide neither weak keys nor weak membership.",
       "owner": "@beep/html",
       "issue": "HTML-CONFORMANCE-WEAK-IDENTITY-PROOFS"
@@ -53,7 +53,7 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/modeling/html/src/Html.policy.ts",
-      "kind": "new-map-set",
+      "kind": "weak-collection",
       "reason": "SafeHtmlAst provenance uses private weak issuer membership and weak proof-to-conformant-value storage so callers cannot forge safe values and the module does not strongly retain every accepted document. Effect collections do not provide weak identity semantics.",
       "owner": "@beep/html",
       "issue": "HTML-SAFE-AST-WEAK-IDENTITY-PROOFS"
@@ -69,7 +69,7 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/modeling/html/src/Html.serialize.ts",
-      "kind": "new-map-set",
+      "kind": "weak-collection",
       "reason": "The opaque SafeHtml sink marker uses private weak issuer membership and weak proof-to-string storage so arbitrary strings cannot be forged as safe and issued values do not become a process-lifetime string registry. Effect collections do not provide weak identity semantics.",
       "owner": "@beep/html",
       "issue": "HTML-SAFE-STRING-WEAK-IDENTITY-PROOFS"
@@ -101,7 +101,7 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "kind": "new-map-set",
+      "kind": "weak-collection",
       "reason": "Chalk memoizes builder metadata by function identity and needs weak-key semantics to avoid retaining builders.",
       "owner": "@beep/chalk",
       "issue": "CHALK-WEAKMAP-MEMOIZATION"
@@ -117,7 +117,7 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/ui-system/editor/src/viewer.tsx",
-      "kind": "new-map-set",
+      "kind": "weak-collection",
       "reason": "The viewer memoizes each message's encoded state against the state object itself; the weak keys are the point, since an Effect HashMap would retain every message ever rendered and turn a render cache into a transcript-sized leak.",
       "owner": "@beep/ui-system",
       "issue": "EDITOR-VIEWER-WEAKMAP-ENCODE-CACHE"
@@ -173,7 +173,7 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/ui-system/dock-react/src/internal/AdapterState.ts",
-      "kind": "new-map-set",
+      "kind": "weak-collection",
       "reason": "Adapter state is keyed by host-owned DockAtomGraph identity and DOM roots; WeakMap/WeakSet weak-key semantics prevent retaining disposed graphs and detached elements, which Effect MutableHashMap cannot provide.",
       "owner": "@beep/dock-react",
       "issue": "DOCK-REACT-ADAPTER-WEAK-IDENTITY"
@@ -181,7 +181,7 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/modeling/provenance/src/VerifiedTextAnchor.ts",
-      "kind": "new-map-set",
+      "kind": "weak-collection",
       "reason": "Verified source and anchor capabilities require module-private weak identity registries so structural lookalikes remain unforgeable without retaining discarded proof objects.",
       "owner": "@beep/provenance",
       "issue": "CODEX-SECURITY-VERIFIED-ANCHOR-WEAK-IDENTITY"
@@ -197,15 +197,15 @@
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/tooling/test-kit/test-runner/src/internal/VitestInstrumentation.ts",
-      "kind": "new-map-set",
-      "reason": "The public Vitest adapter associates live TestContext objects with execution state using weak identity keys so finished tests are not retained. Each execution also records property registration objects in insertion order for finishPropertyRuns finalization; native Map preserves object identity and ordered in-place iteration. These are foreign runtime handles, not domain values. The Node/Bun lifecycle, overlapping-property and repeat/retry regressions verify the adapter contract.",
+      "kind": "weak-collection",
+      "reason": "The public Vitest adapter associates live TestContext objects with execution state using weak identity keys so finished tests are not retained. Suite registration uses a WeakSet for the same reason. Property registrations now live in an insertion-ordered identity list, so no strong native collection remains. These are foreign runtime handles, not domain values. The Node/Bun lifecycle, overlapping-property and repeat/retry regressions verify the adapter contract.",
       "owner": "@beep/test-runner",
       "issue": "https://github.com/beep-effect/beep-effect/pull/1067"
     },
     {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/tooling/tool/cli/src/commands/Lint/internal/EffectVitestSyntax.ts",
-      "kind": "new-map-set",
+      "kind": "weak-collection",
       "reason": "Per-parse compiler caches use ts-morph node objects as weak identity keys. Distinct syntax nodes with equal text must remain distinct, and caches must not keep discarded parse trees alive. Effect HashMap and HashSet do not supply weak-key lifetime semantics. These invocation-local node caches feed schema-validated findings; alias, shadowing and provenance regressions verify identity boundaries.",
       "owner": "@beep/repo-cli",
       "issue": "https://github.com/beep-effect/beep-effect/pull/1067"

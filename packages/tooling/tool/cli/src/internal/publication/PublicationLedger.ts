@@ -46,25 +46,12 @@ const unreadableLockGraceMillis = 10 * 60 * 1000;
  * platform error code. Each writer maps it onto its own typed
  * `lock-unavailable` refusal.
  *
- * **Example** (Create the error)
- *
- * ```ts
- * import { PublicationLockUnavailable } from "@beep/repo-cli/internal/publication/PublicationLedger"
- *
- * const error = PublicationLockUnavailable.make({
- *   path: "/repo/journals/skills-1.recovering",
- *   message: "Cannot create the recovery lock (PermissionDenied); refusing recovery."
- * })
- * console.log(error._tag) // "PublicationLockUnavailable"
- * ```
- *
  * @category errors
  * @since 0.0.0
  */
-export class PublicationLockUnavailable extends S.TaggedError<
-  PublicationLockUnavailable,
-  { readonly brand: unique symbol }
->($I`PublicationLockUnavailable`)(
+class PublicationLockUnavailable extends S.TaggedError<PublicationLockUnavailable, { readonly brand: unique symbol }>(
+  $I`PublicationLockUnavailable`
+)(
   "PublicationLockUnavailable",
   { path: S.String, message: S.String },
   $I.annoteError<PublicationLockUnavailable>("PublicationLockUnavailable", {
@@ -73,32 +60,11 @@ export class PublicationLockUnavailable extends S.TaggedError<
   })
 ) {}
 
-/**
- * Parse a procfs `stat` record into its pid, state and start time.
- *
- * **Details**
- *
- * The record is `pid (comm) state ...`, where `comm` may hold spaces or
- * parentheses, so fields are counted after the last `)`. Field 3 is the
- * process state and field 22 the start time in clock ticks since boot.
- *
- * **Example** (Read a process record)
- *
- * ```ts
- * import { parsePublicationProcessStat } from "@beep/repo-cli/internal/publication/PublicationLedger"
- * import * as O from "effect/Option"
- *
- * const fields = Array.from({ length: 20 }, (_, index) => `${index}`).join(" ")
- * const parsed = parsePublicationProcessStat(`42 (my (odd) name) S ${fields}`)
- * console.log(O.getOrNull(O.map(parsed, (stat) => stat.pid))) // 42
- * ```
- *
- * @param text - The content of `/proc/<pid>/stat`.
- * @returns The pid, state and start ticks, or none for a malformed record.
- * @category parsing
- * @since 0.0.0
- */
-export const parsePublicationProcessStat = (
+// Parse a procfs `stat` record into its pid, state and start time. The record
+// is `pid (comm) state ...`, where `comm` may hold spaces or parentheses, so
+// fields are counted after the last `)`. Field 3 is the process state and
+// field 22 the start time in clock ticks since boot.
+const parsePublicationProcessStat = (
   text: string
 ): O.Option<{ readonly pid: number; readonly state: string; readonly startTicks: string }> => {
   const close = O.getOrElse(Str.lastIndexOf(")")(text), constant(-1));
@@ -136,19 +102,10 @@ export const parsePublicationProcessStat = (
  * the renamed bytes are still the stale bytes read, so a fresh lock taken in
  * the meantime is put back.
  *
- * **Example** (Describe the primitives)
- *
- * ```ts
- * import type { PublicationLedgerPrimitives } from "@beep/repo-cli/internal/publication/PublicationLedger"
- *
- * const names: ReadonlyArray<keyof PublicationLedgerPrimitives> = ["writeDurable", "publishRecord", "ownerAlive"]
- * console.log(names.length) // 3
- * ```
- *
  * @category services
  * @since 0.0.0
  */
-export interface PublicationLedgerPrimitives {
+interface PublicationLedgerPrimitives {
   readonly currentOwner: Effect.Effect<O.Option<ModelsPublicationOwner>>;
   readonly discard: (
     entry: string,

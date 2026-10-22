@@ -1,8 +1,8 @@
 # Graphnosis whitepaper → beep-effect mapping — searches and raw evidence
 
 Source note: `scratchpad/graphnosis/paper-whitepaper.md` (read in full, 1071 lines, two pages).
-Graphnosis checkout: `/home/elpresidank/YeeBois/dev/Graphnosis` (v0.11.0, HEAD `7a19c4b8`).
-beep-effect: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1`, branch `main`, clean.
+Graphnosis checkout: `$HOME/YeeBois/dev/Graphnosis` (v0.11.0, HEAD `7a19c4b8`).
+beep-effect: `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1`, branch `main`, clean.
 
 Date: 2026-08-06.
 

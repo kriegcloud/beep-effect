@@ -1,6 +1,6 @@
 === cleanup: return machine to pre-spike state ===
-Removed '/home/elpresidank/.config/systemd/user/default.target.wants/openclaw-spike.service'.
-removed '/home/elpresidank/.config/systemd/user/openclaw-spike.service'
+Removed '$HOME/.config/systemd/user/default.target.wants/openclaw-spike.service'.
+removed '$HOME/.config/systemd/user/openclaw-spike.service'
 daemon-reload OK
 disable-linger OK
 post-state: Linger=no; unit-file-present=no

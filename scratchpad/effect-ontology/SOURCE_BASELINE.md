@@ -2,7 +2,7 @@
 
 ## Capture
 
-- Source checkout: `/home/elpresidank/YeeBois/dev/effect-ontology`
+- Source checkout: `$HOME/YeeBois/dev/effect-ontology`
 - Source revision: `c148102d5789a5aee3fa4332bae9d45b99478e0f`
 - Captured: 2026-07-25
 - Scope: `packages/@core-v2/src/Domain/**/*.ts`

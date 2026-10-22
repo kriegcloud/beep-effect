@@ -292,25 +292,17 @@ const MAX_JSDOC_CATEGORY_LENGTH = 128;
 
 type CategoryCharacterKind = "digit" | "lower" | "separator" | "upper";
 
-const charCodeAt = (value: string): number => value.charCodeAt(0);
+const upperAsciiPattern = /^[A-Z]/u;
+const lowerAsciiPattern = /^[a-z]/u;
+const digitAsciiPattern = /^[0-9]/u;
 
-const isUpperAscii = (value: string): boolean => {
-  const code = charCodeAt(value);
-  return code >= 65 && code <= 90;
-};
+const isUpperAscii = (value: string): boolean => upperAsciiPattern.test(value);
 
-const isLowerAscii = (value: string): boolean => {
-  const code = charCodeAt(value);
-  return code >= 97 && code <= 122;
-};
+const isLowerAscii = (value: string): boolean => lowerAsciiPattern.test(value);
 
-const isDigitAscii = (value: string): boolean => {
-  const code = charCodeAt(value);
-  return code >= 48 && code <= 57;
-};
+const isDigitAscii = (value: string): boolean => digitAsciiPattern.test(value);
 
-const lowerAscii = (value: string): string =>
-  isUpperAscii(value) ? String.fromCharCode(charCodeAt(value) + 32) : value;
+const lowerAscii = (value: string): string => (isUpperAscii(value) ? Str.toLowerCase(value) : value);
 
 const appendCategorySeparator = (output: string): string =>
   output === "" || Str.endsWith("-")(output) ? output : `${output}-`;

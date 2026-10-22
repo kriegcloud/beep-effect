@@ -1,6 +1,6 @@
 # Mining note — "Borrowable Skills as Lean Un-Ganglia Subgraphs"
 
-**Source PDF:** `/home/elpresidank/YeeBois/projects/beep-effect15/explorations/graphnosis-prior-art/assets/graphnosis-trained-skills.pdf` (55 pages, read in full: 1–18, 19–37, 38–55)
+**Source PDF:** `$HOME/YeeBois/projects/beep-effect15/explorations/graphnosis-prior-art/assets/graphnosis-trained-skills.pdf` (55 pages, read in full: 1–18, 19–37, 38–55)
 **Author:** Nelu Lazar, Nehloo Interactive LLC / Nehloo Foundation. ORCID 0009-0008-5548-4109. Preprint, DOI 10.5281/zenodo.21205599.
 **Companion paper:** *The Un-Brain: A local-first, indelible knowledge multi-graph for private AI memory with deterministic, owner-adjudicated contradiction handling*, DOI 10.5281/zenodo.20843387 (this is the other PDF in the assets dir, `graphnosis-whitepaper.pdf`).
 **Title in full:** "Borrowable Skills as Lean Un-Ganglia Subgraphs: trainable, composable, bounded-loop standard operating procedures in a co-located, owner-held, indelible knowledge multi-graph"
@@ -16,7 +16,7 @@ The paper says so itself (p8):
 
 > "One boundary is worth stating plainly, because it separates this paper from its companion. The *substrate* — generic nodes, typed edges, op-log, encryption — is the SDK (`@nehloo/graphnosis`); the entire *skill layer* — training, walking, routing, vitality, dispatch, packaging — is the application sidecar (`apps/desktop-sidecar`)."
 
-Repo verification at `/home/elpresidank/YeeBois/dev/Graphnosis`:
+Repo verification at `$HOME/YeeBois/dev/Graphnosis`:
 
 | Paper mechanism | Repo status |
 |---|---|

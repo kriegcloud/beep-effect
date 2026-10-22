@@ -18,7 +18,6 @@ export class RegistrationGeometryError extends S.TaggedError<
     description: "Typed failure to resolve, plan, inspect, or apply registration geometry.",
   })
 ) {
-  static readonly newMessage = (message: string) => RegistrationGeometryError.make({ message, cause: O.none() });
   static readonly newCause = (message: string) => (cause: unknown) =>
     RegistrationGeometryError.make({ message, cause: O.some(cause) });
 }

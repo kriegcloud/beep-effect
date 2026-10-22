@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { $LawPracticeDomainId } from "@beep/identity/packages";
-import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
+import * as Party from "@beep/shared-domain/identity/Party";
 import * as HashSet from "effect/HashSet";
 import * as S from "effect/Schema";
 import { PartyKind } from "../PartyKind/index.ts";
@@ -92,13 +92,13 @@ export type LegalRoleName = typeof LegalRoleName.Type;
  *
  * ```ts
  * import { LegalRole, PartyKind, SourceNormRef } from "@beep/law-practice-domain"
- * import * as LawPractice from "@beep/shared-domain/identity/LawPractice"
+ * import * as Party from "@beep/shared-domain/identity/Party"
  * import * as HashSet from "effect/HashSet"
  *
  * const role = LegalRole.make({
  *   admittedPlayerKinds: HashSet.make(PartyKind.Enum["natural-person"], PartyKind.Enum["juristic-person"]),
  *   name: "licensee",
- *   player: LawPractice.PartyId.make(1),
+ *   player: Party.PartyId.make(1),
  *   sourceNorm: SourceNormRef.make({ designation: "cl. 4.1" }),
  * })
  * console.log(role.name) // "licensee"
@@ -115,7 +115,7 @@ export class LegalRole extends S.Opaque<LegalRole, { readonly brand: unique symb
     name: LegalRoleName.annotateKey({
       description: "The name the prescribing norm gives to this role.",
     }),
-    player: LawPractice.PartyId.annotateKey({
+    player: Party.PartyId.annotateKey({
       description: "Party recorded as playing this role in the relation carrying it.",
     }),
     sourceNorm: SourceNormRef.annotateKey({

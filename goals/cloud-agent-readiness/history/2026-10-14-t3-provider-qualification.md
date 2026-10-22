@@ -78,7 +78,7 @@ Thread: `mcp:3c3319d6-aa45-49e3-9dfa-a75c8355e401`.
 ```text
 $ hostname; pwd; git status --short; node --version; bun --version
 beep-worker
-/home/elpresidank/YeeBois/projects/beep-effect
+$HOME/YeeBois/projects/beep-effect
 v24.21.0
 1.4.2
 ```
@@ -90,7 +90,7 @@ The smoke passed. I ran only the one command you specified.
 | Check | Result |
 | --- | --- |
 | Host | `beep-worker` |
-| Working directory | `/home/elpresidank/YeeBois/projects/beep-effect` |
+| Working directory | `.` |
 | Checkout | Clean: `git status --short` printed nothing (branch `main`) |
 | Node | `v24.21.0` |
 | Bun | `1.4.2` |
@@ -105,7 +105,7 @@ Thread: `mcp:313e6cc4-4500-4f0c-9872-e3bb7df14c96`.
 $ hostname; pwd; git status --short; node --version; bun --version
 exit: 0
 beep-worker
-/home/elpresidank/YeeBois/projects/beep-effect
+$HOME/YeeBois/projects/beep-effect
 v24.21.0
 1.4.2
 
@@ -118,7 +118,7 @@ The smoke command finished successfully. The checkout is clean.
 | Item | Value |
 |---|---|
 | Host | `beep-worker` |
-| Path | `/home/elpresidank/YeeBois/projects/beep-effect` |
+| Path | `.` |
 | Git status | clean (`git status --short` printed nothing) |
 | Node | `v24.21.0` |
 | Bun | `1.4.2` |
@@ -135,7 +135,7 @@ $ hostname; pwd; git status --short; node --version; bun --version
   "description": "Run provider smoke check",
   "exit_code": 0,
   "terminal_status": "completed",
-  "output": "beep-worker\n/home/elpresidank/YeeBois/projects/beep-effect\nv24.21.0\n1.4.2\n",
+  "output": "beep-worker\n$HOME/YeeBois/projects/beep-effect\nv24.21.0\n1.4.2\n",
   "original_output_bytes": 74,
   "original_output_tokens": 19,
   "truncated": false
@@ -147,7 +147,7 @@ Final provider report:
 Smoke complete:
 
 - Host: `beep-worker`
-- Path: `/home/elpresidank/YeeBois/projects/beep-effect`
+- Path: `.`
 - Checkout: clean (`git status --short` empty)
 - Node: `v24.21.0`
 - Bun: `1.4.2`
@@ -160,7 +160,7 @@ Thread: `mcp:39b2816a-e33d-4a53-8596-b878854e905b`.
 ```text
 $ hostname; pwd; node --version; bun --version
 beep-worker
-/home/elpresidank/YeeBois/projects/beep-effect
+$HOME/YeeBois/projects/beep-effect
 v24.21.0
 1.4.2
 
@@ -173,7 +173,7 @@ The smoke passed. The command exited 0 and ran inside the Cursor sandbox, which 
 | Check | Result |
 | --- | --- |
 | Host | `beep-worker` |
-| Path | `/home/elpresidank/YeeBois/projects/beep-effect` |
+| Path | `.` |
 | Node | `v24.21.0` |
 | Bun | `1.4.2` |
 

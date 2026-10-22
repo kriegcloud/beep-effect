@@ -8,14 +8,14 @@ _Scope: current state of the corpus/data substrate that supports the solo IP-law
 The Oppold corpus is **cleaned real data from the user's father's 25-year IP-law practice**, salvaged and curated so that a clean, provenance-tracked substrate **exists WHEN the system is ready** to consume it. It is decidedly **NOT** wired into a live ingestion loop today. Two facts make this concrete and verifiable:
 
 1. The curation work is a **closed, completed goal packet** (`completed-retained`, dated 2026-06-11) — a finished batch effort, not a running service. See `goals/oppold-corpus-pipeline/ops/manifest.json`.
-2. The data physically lives **outside the repository** at `/home/elpresidank/data-home/oppold-corpus/` (confirmed on disk). The packet's own rule is that "real corpus data never enters this repository" (`goals/oppold-corpus-pipeline/README.md`, Notes). What lives in the repo is the **Corpus CLI tool** (curation operator) and the **goal-recorded evidence** (reports, manifests, counts) — never the data.
+2. The data physically lives **outside the repository** at `$HOME/data-home/oppold-corpus/` (confirmed on disk). The packet's own rule is that "real corpus data never enters this repository" (`goals/oppold-corpus-pipeline/README.md`, Notes). What lives in the repo is the **Corpus CLI tool** (curation operator) and the **goal-recorded evidence** (reports, manifests, counts) — never the data.
 
 So there are three distinct things to keep separate:
 
 | Thing | Where | Status |
 |---|---|---|
 | The **Corpus CLI tool** (operator surface) | `packages/tooling/tool/cli/src/commands/Corpus/` (in repo) | Built, verified files |
-| The **curated data** (raw → catalog → extract → organized → enriched) | `/home/elpresidank/data-home/oppold-corpus/` (outside repo) | Exists on disk; products of a completed batch run |
+| The **curated data** (raw → catalog → extract → organized → enriched) | `$HOME/data-home/oppold-corpus/` (outside repo) | Exists on disk; products of a completed batch run |
 | The **pipeline run history** (phases/outcomes) | `goals/oppold-corpus-pipeline/` (in repo) | GOAL-RECORDED, completed-retained |
 
 This file inventories all three but keeps the guardrail line bright: this is **data prep ahead of time**, not a product runtime.
@@ -65,7 +65,7 @@ flowchart LR
 
 ## The `oppold-corpus-pipeline` goal — recorded phases & outcomes
 
-> **GOAL-RECORDED.** Everything in this section is taken from the goal packet's own reports under `goals/oppold-corpus-pipeline/history/outputs/`. These describe **data that lives at `/home/elpresidank/data-home/oppold-corpus/` (outside the repo)**. The numbers are self-reported run evidence, not independently re-counted here (the data dir structure was confirmed on disk; per-row counts were not re-tallied).
+> **GOAL-RECORDED.** Everything in this section is taken from the goal packet's own reports under `goals/oppold-corpus-pipeline/history/outputs/`. These describe **data that lives at `$HOME/data-home/oppold-corpus/` (outside the repo)**. The numbers are self-reported run evidence, not independently re-counted here (the data dir structure was confirmed on disk; per-row counts were not re-tallied).
 
 Packet status: **`completed-retained`**, created/updated 2026-06-11 (`ops/manifest.json`). All six phases marked `completed`.
 
@@ -80,7 +80,7 @@ Packet status: **`completed-retained`**, created/updated 2026-06-11 (`ops/manife
 
 ### On-disk corroboration (confirmed by `ls`, outside repo)
 
-`/home/elpresidank/data-home/oppold-corpus/` exists with the expected tier dirs: `raw/`, `catalog/`, `staging/`, `organized/`, `logs/`, `ops/`.
+`$HOME/data-home/oppold-corpus/` exists with the expected tier dirs: `raw/`, `catalog/`, `staging/`, `organized/`, `logs/`, `ops/`.
 
 - `catalog/corpus.duckdb` (~5.25 MB) present, plus `enrichment-manifest.jsonl`, `organize-manifest.jsonl` (~2.9 MB), `restoration-manifest.jsonl`, and `reports/` (`catalog-summary.json`, `duplicate-sets.json`, `enrich-summary.json`, `organize-summary.json`).
 - `organized/` contains `clients/`, `dockets/`, `email-archives/`, `_unsorted/`.
@@ -124,7 +124,7 @@ That is the bridge to the learned memory-architecture theory (epistemic claims/e
 **Verified (opened / `ls`'d directly):**
 - Corpus CLI file inventory under `packages/tooling/tool/cli/src/commands/Corpus/` (6 files); full read of `Corpus.command.ts` and `index.ts`; grep of `Corpus.service.ts` and `Corpus.schemas.ts` for exports, imports (`@beep/duckdb`, `@beep/file-processing/*`), and command wiring.
 - The five subcommands and their `withDescription` text, and the service-fn mapping.
-- Existence and tier structure of `/home/elpresidank/data-home/oppold-corpus/` (`raw/ catalog/ staging/ organized/ logs/ ops/`), including `catalog/corpus.duckdb` (~5.25 MB), the four manifest JSONL files, `catalog/reports/*.json`, and `organized/{clients,dockets,email-archives,_unsorted}`, `staging/extract/`.
+- Existence and tier structure of `$HOME/data-home/oppold-corpus/` (`raw/ catalog/ staging/ organized/ logs/ ops/`), including `catalog/corpus.duckdb` (~5.25 MB), the four manifest JSONL files, `catalog/reports/*.json`, and `organized/{clients,dockets,email-archives,_unsorted}`, `staging/extract/`.
 - Goal packet `ops/manifest.json` (`completed-retained`, six phases all `completed`), `GOAL.md`, `README.md`, and all five P0–P4 run reports under `history/outputs/`.
 - Existence of `goals/agentic-professional-runtime` (the named future consumer packet).
 
@@ -151,7 +151,7 @@ Adversarial re-check against the live repo and on-disk data; this doc held up ve
 - Corpus CLI inventory: all 6 files present under `packages/tooling/tool/cli/src/commands/Corpus/` (`Corpus.service.ts` ~80 KB / 81,825 B, `Corpus.schemas.ts` ~27 KB / 27,729 B — doc's "81 KB"/"28 KB" are reasonable roundings).
 - `Corpus.command.ts` read in full: 5 subcommands wired via `Command.withSubcommands`, root description "Corpus salvage and curation commands"; every per-subcommand `withDescription` string in the table matches verbatim, as do defaults (`concurrency` 4, `lookup-delay-millis` 400, `--max-lookups`, `--sample-stride`). Service-fn mapping (`catalogCorpus`/`extractCorpus`/`organizeCorpus`/`enrichCorpus`/`verifySalvage`) confirmed against imports.
 - Imports in `Corpus.service.ts`: `@beep/duckdb`, `@beep/file-processing/{Artifact,Extraction,Operation,Service,Strategy}`, `@beep/libpff`, `@beep/tika`, `@beep/uspto` all present; corresponding packages exist (`packages/drivers/{uspto,duckdb,libpff,tika}`, `packages/foundation/capability/file-processing`). 21 `S.Class` models in `Corpus.schemas.ts` (doc "~20" accurate); `CorpusRestorationRecord` present in schemas + service.
-- On-disk data at `/home/elpresidank/data-home/oppold-corpus/`: tier dirs `raw/ catalog/ staging/ organized/ logs/ ops/`; `raw/provenance.jsonl` present; `catalog/corpus.duckdb` = 5,255,168 B (~5.25 MB, exact); the three manifest JSONL files live under `catalog/` (not the data root); `catalog/reports/*.json` and `organized/{clients,dockets,email-archives,_unsorted}` + `staging/extract/` present.
+- On-disk data at `$HOME/data-home/oppold-corpus/`: tier dirs `raw/ catalog/ staging/ organized/ logs/ ops/`; `raw/provenance.jsonl` present; `catalog/corpus.duckdb` = 5,255,168 B (~5.25 MB, exact); the three manifest JSONL files live under `catalog/` (not the data root); `catalog/reports/*.json` and `organized/{clients,dockets,email-archives,_unsorted}` + `staging/extract/` present.
 - On-disk summary JSON corroborates the GOAL-RECORDED numbers independently: `catalog-summary.json` → 8,438 source files, 31,687,534,556 bytes, 7,330 distinct digests, 290 duplicate sets, 1,108 duplicate files, 251 matched restorations; `organize-summary.json` → 643 docket files, 105 families, 81 client files, 28 email archives, 242 restored names; `enrich-summary.json` → 99 resolved / 99 family anchors. P0/P2/P3/P4 reports confirm salvage runner (`ops/run-salvage.sh → ops/salvage.sh`), 7,045/285 extraction split, 663,272 child + 6,702 text artifacts, 3,571 candidates / 3,421 unresolved-by-choice.
 - Goal packet `ops/manifest.json` = `completed-retained`, all six phases `completed`. Future-consumer packets `goals/agentic-professional-runtime` and `goals/ip-law-knowledge-graph` exist. `@beep/epistemic-domain` exists with `Activity`/`CandidateClaim`/`Evidence`/`UsageRecord` models; `@beep/law-practice-domain` is the only law-practice package (domain-only: `LegalClient`/`LegalContact`/`Matter`/`PatentAsset`) — confirming the "product slice still thin" caveat.
 

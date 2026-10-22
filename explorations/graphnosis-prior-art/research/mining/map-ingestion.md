@@ -1,8 +1,8 @@
 # Graphnosis → beep-effect mapping — territory: ingestion, extraction, enrichment & examples
 
-Repo mapped: `/home/elpresidank/YeeBois/projects/beep-effect15` (branch `main`, `d1dfc4b3c1`).
+Repo mapped: `$HOME/YeeBois/projects/beep-effect15` (branch `main`, `d1dfc4b3c1`).
 Source survey: `scratchpad/graphnosis/survey-ingestion.md` (read in full, both pages).
-Source repo for spot-checks: `/home/elpresidank/YeeBois/dev/Graphnosis`.
+Source repo for spot-checks: `$HOME/YeeBois/dev/Graphnosis`.
 
 ---
 
@@ -604,7 +604,7 @@ fd -t d 'fixtures' packages/ --max-depth 6
 
 **What beep has instead.** A single **private, out-of-repo** corpus:
 `goals/oppold-corpus-pipeline` (completed-retained) — 8,438 files / 31.7 GB salvaged to
-`/home/elpresidank/data-home/oppold-corpus/`, DuckDB catalog, 7,330 distinct digests,
+`$HOME/data-home/oppold-corpus/`, DuckDB catalog, 7,330 distinct digests,
 6,702 text artifacts. It is confidential by standing rule and can never be committed.
 Everything in-repo is hand-built per-package fixtures.
 

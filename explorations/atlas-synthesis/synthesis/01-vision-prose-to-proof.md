@@ -75,7 +75,7 @@ constraint*, not sentiment:
 - **The corpus is his 25 years.** The deduplicated, USPTO-enriched Oppold
   corpus is the seed data — cited in the vision as **8,438 files**
   (`PROSE_TO_PROOF_VISION.md` §2, §7). Verified: the corpus lives **outside the
-  repo** at `/home/elpresidank/data-home/oppold-corpus/` (directory present).
+  repo** at `$HOME/data-home/oppold-corpus/` (directory present).
 - **The first user is him** — a real attorney with real matters and deadlines,
   not a persona (`PROSE_TO_PROOF_VISION.md` §2; PRD §4).
 - **His use makes it smarter** — every approved claim, every edit into his own
@@ -377,7 +377,7 @@ detail per scope.)
   `adapters/shacl-engine.ts`, `rdf/src/Rdf.ts`, `drivers/nlp-mcp`,
   `apps/professional-desktop` at **v0.0.3**, `packages/law-practice/domain`
   (thin: `entities` + `index.ts`).
-- Corpus location `/home/elpresidank/data-home/oppold-corpus/` exists; the
+- Corpus location `$HOME/data-home/oppold-corpus/` exists; the
   **Corpus CLI** exists at `packages/tooling/tool/cli/src/commands/Corpus/`.
 
 **UNVERIFIED (asserted by docs, not independently checked this session):**
@@ -423,7 +423,7 @@ Adversarial in-repo pass by a skeptical verifier.
 - `packages/law-practice/domain/src` is indeed thin: `index.ts` + `entities/`
   (`LegalClient`, `LegalContact`, `Matter`, `PatentAsset`) — consistent with the
   "Specced / partial" label.
-- Corpus data dir `/home/elpresidank/data-home/oppold-corpus/` exists; Corpus
+- Corpus data dir `$HOME/data-home/oppold-corpus/` exists; Corpus
   CLI exists at `packages/tooling/tool/cli/src/commands/Corpus/` with the cited
   files. Framing as ahead-of-time data prep (not a live runtime feeder) is sound.
 - `BEEPGRAPH_ARCHITECTURE.md` status (**Proposed**, dated 2026-06-15, sharpens

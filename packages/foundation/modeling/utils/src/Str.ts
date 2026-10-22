@@ -7,6 +7,8 @@
  */
 
 import { cast, dual, flow } from "effect/Function";
+import * as P from "effect/Predicate";
+import * as Regex from "effect/RegExp";
 import * as Str from "effect/String";
 import * as A from "./Array.ts";
 import type { LazyArg } from "effect/Function";
@@ -712,6 +714,25 @@ export const repeat: {
 );
 
 /**
+ * The RegExp a callback replace runs. `String.prototype.replace` hands a RegExp
+ * search to `RegExp.prototype[Symbol.replace]`; a string search becomes an
+ * escaped RegExp, which matches literally and passes the replacer the same
+ * `(match, offset, string)` arguments.
+ */
+const searchPattern = (searchValue: string | RegExp, flags: string): RegExp =>
+  P.isString(searchValue) ? new RegExp(Regex.escape(searchValue), flags) : searchValue;
+
+/**
+ * The global RegExp `replaceAllWith` runs: a string search matches literally,
+ * and a non-global RegExp is copied with the `g` flag added (its other flags,
+ * sticky included, are kept) where native `replaceAll` would throw a `TypeError`.
+ */
+const globalSearchPattern = (searchValue: string | RegExp): RegExp => {
+  if (P.isString(searchValue)) return searchPattern(searchValue, "g");
+  return searchValue.global ? searchValue : new RegExp(searchValue, `${searchValue.flags}g`);
+};
+
+/**
  * Replaces the first occurrence of `searchValue` using a callback replacer.
  *
  * **Details**
@@ -751,7 +772,7 @@ export const replaceWith: {
     self: string,
     searchValue: string | RegExp,
     replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
-  ): string => self.replace(searchValue, replacer)
+  ): string => searchPattern(searchValue, "")[Symbol.replace](self, replacer)
 );
 
 /**
@@ -762,6 +783,17 @@ export const replaceWith: {
  * Supports both data-first and data-last calling conventions. Use this helper
  * for native `replaceAll` callback sites that cannot be expressed with
  * `Str.replaceAll(searchValue, replacement)`.
+ *
+ * **Gotchas**
+ *
+ * A non-global RegExp is copied with the `g` flag added, where native
+ * `replaceAll` throws a `TypeError`, and the copy keeps every other flag. A
+ * plain RegExp then replaces every match; a sticky one (`y`) stays anchored
+ * and replaces only the run of matches from index 0, exactly as native
+ * `replaceAll` does with a `gy` RegExp. The caller's RegExp, including its
+ * `lastIndex`, is left untouched in that case. The
+ * string-replacement form `Str.replaceAll` (re-exported from `effect/String`)
+ * keeps native behaviour and still throws a `TypeError` for a non-global RegExp.
  *
  * **Example** (Call `replaceAllWith`)
  *
@@ -794,7 +826,7 @@ export const replaceAllWith: {
     self: string,
     searchValue: string | RegExp,
     replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
-  ): string => self.replaceAll(searchValue, replacer)
+  ): string => globalSearchPattern(searchValue)[Symbol.replace](self, replacer)
 );
 /**
  * Re-export of all helpers from `effect/String`.

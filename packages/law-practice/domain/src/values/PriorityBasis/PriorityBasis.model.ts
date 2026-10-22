@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { $LawPracticeDomainId } from "@beep/identity/packages";
-import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
+import * as Party from "@beep/shared-domain/identity/Party";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { HohfeldPosition } from "../HohfeldPosition/index.ts";
@@ -95,12 +95,12 @@ export type PriorityBasisDesignation = typeof PriorityBasisDesignation.Type;
  *
  * ```ts
  * import { HohfeldPosition, LegalActContent, PriorityBasis } from "@beep/law-practice-domain"
- * import * as LawPractice from "@beep/shared-domain/identity/LawPractice"
+ * import * as Party from "@beep/shared-domain/identity/Party"
  * import * as O from "effect/Option"
  *
  * const basis = PriorityBasis.make({
  *   forum: O.some("N.D. Cal."),
- *   party: LawPractice.PartyId.make(3),
+ *   party: Party.PartyId.make(3),
  *   position: HohfeldPosition.make({
  *     content: LegalActContent.make({ description: "enter the land", polarity: "act" }),
  *     kind: "privilege",
@@ -126,7 +126,7 @@ export class PriorityBasis extends S.Opaque<PriorityBasis, { readonly brand: uni
     jurisdiction: S.OptionFromNullOr(LegalScopeValue).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Jurisdiction the priority claim is made under, recorded as a scope designation.",
     }),
-    party: LawPractice.PartyId.annotateKey({
+    party: Party.PartyId.annotateKey({
       description: "Party whose priority claim this basis records.",
     }),
     position: HohfeldPosition.annotateKey({

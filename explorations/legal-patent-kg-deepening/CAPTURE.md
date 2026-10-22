@@ -65,8 +65,8 @@ strand. Wave 1 = [`legal-ontology-landscape`](../legal-ontology-landscape/README
 [`goals/semantic-foundation`](../../goals/semantic-foundation/README.md)).
 Wave-2 findings build on — and must not silently re-litigate — wave-1
 conclusions and semantic-foundation's locked scope (SKOS schemes under
-`https://ns[.]beep[.]sh/` (superseded 2026-10-20 by `https://beep-effect.com/ns/`),
-FOLIO alignments, `@beep/ontology` registry/loader, no graph store). New fronts wave 1 did not cover: Hohfeld formalization depth,
+`https://ns[.]beep[.]sh/`, FOLIO alignments, `@beep/ontology` registry/loader, no
+graph store). New fronts wave 1 did not cover: Hohfeld formalization depth,
 patent-KG construction, functional patent knowledge (FOPNet), legal GraphRAG,
 diachronic norm evolution, patent-drafting LLM benchmarks.
 
@@ -78,3 +78,9 @@ filenames — dedupe by content hash during catalog pass).
 
 Campaign design was grilled and locked the same day — see
 [`DECISIONS.md`](./DECISIONS.md).
+
+## 2026-10-20 — Authority supersession
+
+The public-origin authority decision supersedes the placeholder host preserved
+in defanged form in the August 1 capture. The current namespace authority is
+`https://beep-effect.com/ns/`; the original capture wording records provenance only.

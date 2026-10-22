@@ -72,13 +72,16 @@ const flooredTo = (raw: bigint, unit: bigint): bigint => raw - (((raw % unit) + 
  * `toMillisFloor` replaces the value with one whose sub-millisecond part is
  * floored, because the upstream reader truncates toward zero and would move a
  * pre-epoch instant forward across the second, day and year boundary.
+ * `render` prints an out-of-range value; it defaults to the value's own
+ * `toString`.
  */
 const temporal =
   <V extends DuckDBValue, N extends bigint | number>(
     isValue: (value: DuckDBValue) => value is V,
     raw: (value: V) => N,
     sentinels: { readonly PosInf: V; readonly NegInf: V },
-    toMillisFloor: (value: V) => DuckDBValue
+    toMillisFloor: (value: V) => DuckDBValue,
+    render: (value: V) => string = String
   ): TypeConverter =>
   (value, type, self) => {
     const read = (temporalValue: V): JS => {
@@ -91,7 +94,7 @@ const temporal =
       }
       return Result.getOrElse(
         Result.try(() => delegate(toMillisFloor(temporalValue), type, self)),
-        () => String(temporalValue)
+        () => render(temporalValue)
       );
     };
     // Each converter is registered for its own type id, so `isValue` only
@@ -113,11 +116,22 @@ const timestamp = temporal(
   (value) => new DuckDBTimestampValue(flooredTo(value.micros, MICROS_PER_MILLI))
 );
 
+/**
+ * Prints a TIMESTAMPTZ instant in UTC (R2-DF-3).
+ *
+ * `DuckDBTimestampTZValue.toString` applies the host UTC offset that the
+ * upstream class captures once at module load, so the same row would read as
+ * a different string under a different process `TZ`.
+ */
+const utcTimestampTzString = (value: DuckDBTimestampTZValue): string =>
+  `${String(new DuckDBTimestampValue(value.micros))}+00`;
+
 const timestampTz = temporal(
   instanceGuard(DuckDBTimestampTZValue),
   (value) => value.micros,
   DuckDBTimestampTZValue,
-  (value) => new DuckDBTimestampTZValue(flooredTo(value.micros, MICROS_PER_MILLI))
+  (value) => new DuckDBTimestampTZValue(flooredTo(value.micros, MICROS_PER_MILLI)),
+  utcTimestampTzString
 );
 
 const timestampNs = temporal(
@@ -198,19 +212,19 @@ const safeIntegerConverter = makeConverter(sharedConverters);
  * (`"101"`), BLOB as a plain `Uint8Array`, DATE/TIMESTAMP values of every
  * precision as a `Date` floored to the millisecond (also before the epoch),
  * DuckDB's `infinity`/`-infinity` as those strings, and values outside the JS
- * `Date` range as their string form.
+ * `Date` range as their string form (TIMESTAMPTZ in UTC, `+00`, whatever the
+ * process time zone).
  *
  * **Example** (Reading rows with the default converter)
  *
  * ```ts
- * import type { DuckDBConnection } from "@duckdb/node-api"
+ * import { DuckDBInstance } from "@duckdb/node-api"
  * import { converterFor } from "./convert.ts"
  *
- * const readRows = async (connection: DuckDBConnection) => {
- *   const reader = await connection.runAndReadAll("select 1::bigint as n")
- *   return reader.convertRowObjects(converterFor(false))
- * }
- * console.log(readRows)
+ * DuckDBInstance.create(":memory:")
+ *   .then((instance) => instance.connect())
+ *   .then((connection) => connection.runAndReadAll("select 1::bigint as n"))
+ *   .then((reader) => console.log(reader.convertRowObjects(converterFor(false)))) // [{ n: 1 }]
  * ```
  *
  * @category utilities

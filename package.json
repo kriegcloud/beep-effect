@@ -34,7 +34,7 @@
     "@effect/sql-pglite": "4.0.5",
     "@effect/sql-sqlite-bun": "4.0.5",
     "@effect/sql-sqlite-node": "4.0.5",
-    "@effect/tsgo": "0.54.1",
+    "@effect/tsgo": "0.55.0",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@typescript/typescript6": "6.0.2",
     "@effect/vitest": "4.0.5",

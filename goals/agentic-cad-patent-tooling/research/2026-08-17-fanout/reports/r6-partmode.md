@@ -532,7 +532,7 @@ This is **not** a Jest/Vitest unit-test tree. The verification culture is **smok
 | --- | --- | --- |
 | `ci:gate` | typecheck + build + static integrity + HTTP/account/OIDC/MCP/cloud/entrypoint smokes | PR CI (`.github/workflows/ci.yml:16-26`), 20 min |
 | `smoke:core` | Enormous AND of feature smokes (sketch, mates, sheet metal, drawings, topology, STEP, …) | `package.json:134` |
-| `smoke:cad-regression` | 6 hand-audited schema-5 docs × parameter mutations × fresh worker, exact B-rep + named topology | `tests/cad-corpus/`, `scripts/cad-regression.ts` |
+| `smoke:cad-regression` | 6 hand-audited schema-5 docs × parameter mutations × fresh worker, exact B-rep + named topology | `tests/cad-corpus/`, `https://github.com/BOMWiki/partmode/blob/source-snapshot-2026-08-11/scripts/cad-regression.ts` |
 | `smoke:cad-mutation` `--focused` / `--exhaustive` | Generated families; incremental vs cold worker; 200×100 = 20,000 comparisons | `tests/cad-mutation-stress/README.md` |
 | `smoke:assembly-runtime` etc. | Dedicated fixtures (`tests/assembly-runtime/two-part-constrained.partmode.json`) | per-script |
 | `release:gate` | ci:gate + headless + agent-headless + headless-mcp + browser + regression + mutation | `package.json:146` |

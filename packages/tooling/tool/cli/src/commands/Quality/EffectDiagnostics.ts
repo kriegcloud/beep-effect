@@ -50,6 +50,7 @@ class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { read
       preferBarrelImport: S.tag("off"),
       preferEffectArray: S.tag("error"),
       preferEffectRecord: S.tag("error"),
+      preferEffectString: S.tag("error"),
       preferNamespaceImport: S.tag("off"),
       preferSchemaTaggedError: S.tag("error"),
       schemaClassMissingBrand: S.tag("error"),
@@ -57,7 +58,7 @@ class EffectDiagnosticsProfile extends S.Opaque<EffectDiagnosticsProfile, { read
     }),
   }).pipe(
     $I.annoteSchema("EffectDiagnosticsProfile", {
-      description: "The ten rules absent from tsc-rs 0.6.0, configured for the standalone @effect/tsgo lane.",
+      description: "The eleven rules absent from tsc-rs 0.6.0, configured for the standalone @effect/tsgo lane.",
     })
   )
 ) {}
@@ -273,7 +274,7 @@ const scriptProjects = (commands: ReadonlyArray<string>, build: boolean) =>
           pipe(
             O.fromUndefinedOr(match[1]),
             O.map((value) => (build ? Str.split(value, /\s+/u) : [value])),
-            O.getOrElse(() => A.empty<string>())
+            O.getOrElse(A.empty<string>)
           )
         ),
         A.filter((value) => !Str.startsWith("-")(value)),
@@ -375,7 +376,7 @@ const collectDiagnosticsInventory = Effect.fn("EffectDiagnostics.inventory")(fun
       inventory,
       program.packageName,
       pipe(
-        O.getOrElse(HashMap.get(inventory, program.packageName), () => A.empty<string>()),
+        O.getOrElse(HashMap.get(inventory, program.packageName), A.empty<string>),
         A.append(program.tsconfigPath),
         A.dedupe,
         A.sort(Order.String)

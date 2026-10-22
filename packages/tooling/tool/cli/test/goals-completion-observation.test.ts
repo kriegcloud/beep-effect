@@ -32,9 +32,11 @@ import { flow } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
 import { NodeTestLayer, temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
 
 const decodeGoalManifest = S.decodeEffect(GoalManifest);
@@ -301,6 +303,7 @@ const recoveryVerdictFixture = (variant: string, fixture: RecoveryFixture, crite
     packetPaths: [],
     pushed: true,
     runId,
+    ...(variant === "already-ready" ? { mergeReady: { ready: true, criteria } } : {}),
     ...(variant === "explicit-not-ready"
       ? { mergeReady: { ready: false, failing: "pr-open", criteria: { ...criteria, prOpen: false } } }
       : {}),
@@ -371,7 +374,7 @@ const recoveryStatusFixture = (variant: string, fixture: RecoveryFixture, criter
 };
 const recoveryJobFixture = (variant: string, fixture: RecoveryFixture) => {
   const { root, branch, jobsRoot, jobId } = fixture;
-  return encode({
+  const job = {
     schemaVersion: "yeet-proof-job/v1",
     jobId,
     phase: "finished",
@@ -410,10 +413,16 @@ const recoveryJobFixture = (variant: string, fixture: RecoveryFixture) => {
       verdictOutcome: variant === "failed-job" ? "failure" : "success",
       endedAt: "2026-10-06T00:41:00Z",
     },
-  });
+  };
+  return Match.value(variant).pipe(
+    Match.when("missing-runner", () => Struct.omit(job, ["runner"])),
+    Match.when("unfinished-job", () => ({ ...Struct.omit(job, ["outcome"]), phase: "running" })),
+    Match.orElse(() => job),
+    encode
+  );
 };
 const recoveryExpectedOutcome = (variant: string) => {
-  if (variant === "valid" || variant === "hosted-red") return "verified";
+  if (variant === "valid" || variant === "hosted-red" || variant === "already-ready") return "verified";
   return variant === "explicit-not-ready" ? "unsatisfied" : "unknown";
 };
 const recoveryJobOption = (variant: string, jobId: string) =>
@@ -881,6 +890,13 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
   );
   for (const variant of [
     "valid",
+    "already-ready",
+    "missing-job",
+    "directory-job",
+    "directory-status",
+    "missing-status",
+    "missing-runner",
+    "unfinished-job",
     "without-opt-in",
     "wrong-head",
     "wrong-pr",
@@ -936,8 +952,11 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
           const outside = yield* fs.makeTempDirectoryScoped();
           yield* fs.writeFileString(path.join(outside, "status.json"), statusText);
           yield* fs.symlink(path.join(outside, "status.json"), path.join(runRoot, "status.json"));
-        } else yield* fs.writeFileString(path.join(runRoot, "status.json"), statusText);
-        yield* fs.writeFileString(path.join(jobsRoot, `${jobId}.json`), recoveryJobFixture(variant, fixture));
+        } else if (variant === "directory-status") yield* fs.makeDirectory(path.join(runRoot, "status.json"));
+        else if (variant !== "missing-status") yield* fs.writeFileString(path.join(runRoot, "status.json"), statusText);
+        if (variant === "directory-job") yield* fs.makeDirectory(path.join(jobsRoot, `${jobId}.json`));
+        else if (variant !== "missing-job")
+          yield* fs.writeFileString(path.join(jobsRoot, `${jobId}.json`), recoveryJobFixture(variant, fixture));
         const job = recoveryJobOption(variant, jobId);
         const receipt = yield* observeGoalCompletion(root, "demo", value, final, job).pipe(
           Effect.provideService(
@@ -953,20 +972,24 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
           O.map(evidence, (item) => item.outcome),
           recoveryExpectedOutcome(variant)
         );
-        if (variant === "finalized-after-merge")
+        const diagnostics: Readonly<Record<string, string>> = {
+          "already-ready":
+            "Readiness recovery unnecessary: declared verdict already verifies the resolved head and readiness.",
+          "missing-job": "Readiness recovery refused: canonical job artifact is absent",
+          "directory-job": "Readiness recovery refused: canonical job artifact is unreadable or not a file",
+          "directory-status": "Readiness recovery refused: canonical status artifact is unreadable or not a file",
+          "missing-status": "Readiness recovery refused: canonical status artifact is absent",
+          "missing-runner": "Readiness recovery refused: job runner receipt is absent",
+          "unfinished-job": "Readiness recovery refused: job outcome receipt is absent",
+          "finalized-after-merge": "Readiness recovery refused: job finalized after PR merge",
+          "missing-finalization": "Readiness recovery refused: job service finalization receipt is absent",
+          "wrong-head": "Readiness recovery refused: status head mismatch",
+        };
+        const diagnostic = R.get(diagnostics, variant);
+        if (O.isSome(diagnostic))
           assertSome(
             O.map(evidence, (item) => item.detail),
-            "Readiness recovery refused: job finalized after PR merge"
-          );
-        if (variant === "missing-finalization")
-          assertSome(
-            O.map(evidence, (item) => item.detail),
-            "Readiness recovery refused: job service finalization receipt is absent"
-          );
-        if (variant === "wrong-head")
-          assertSome(
-            O.map(evidence, (item) => item.detail),
-            "Readiness recovery refused: status head mismatch"
+            diagnostic.value
           );
         if (variant === "hosted-red") expect(receipt.outcome).not.toBe("verified");
         expect(yield* fs.readFileString(ref)).toBe(verdictText);

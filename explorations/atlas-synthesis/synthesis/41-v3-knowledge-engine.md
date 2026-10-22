@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-17
 **Scope:** Read-only survey of the PRE-migration v3 (Effect v3) knowledge engine at
-`/home/elpresidank/YeeBois/projects/beep-effect4/packages/knowledge/server/src` (dir name
+`$HOME/YeeBois/projects/beep-effect4/packages/knowledge/server/src` (dir name
 `beep-effect4` but it is the OLDER codebase). This is **proven prior art in another repo**, NOT
 current v4 (`beep-effect3`) product capability. It de-risks the v4 BeepGraph build
 (migration/redesign, not greenfield).
@@ -212,7 +212,7 @@ it shows proven service boundaries, the hybrid-retrieval RRF flow, PROV-O proven
 
 ### Verification (2026-06-17)
 
-Adversarial read-only re-check against `/home/elpresidank/YeeBois/projects/beep-effect4`.
+Adversarial read-only re-check against `$HOME/YeeBois/projects/beep-effect4`.
 
 **Checked and confirmed:**
 - **Census exact:** `server/src` = **189** `.ts`, `server/test` = **52** `.test.ts` (both match the doc).

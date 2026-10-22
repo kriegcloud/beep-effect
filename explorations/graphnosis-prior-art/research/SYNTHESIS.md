@@ -3,7 +3,7 @@
 **Ranked value inventory for `explorations/graphnosis-prior-art`.**
 Sources: Graphnosis `~/YeeBois/dev/Graphnosis` @ `7a19c4b` (Apache-2.0, v0.11.0, ~19.6k LOC TS),
 its whitepaper and trained-skills PDF, RAPTOR (arXiv:2401.18059), Chronocept (arXiv:2505.07637v1).
-Target: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
+Target: `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
 Evidence: `INDEX-repo.json` (115 repo mappings), `map-*.md` (8 territory notes with beep-side proof),
 `paper-map-*.md` (4), `papers-relate.md` (cross-source triangulation).
 

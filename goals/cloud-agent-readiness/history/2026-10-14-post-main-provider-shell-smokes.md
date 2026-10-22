@@ -16,7 +16,7 @@ the exact command, exit zero and this output for every accepted run:
 
 ```text
 beep-worker
-/home/elpresidank/YeeBois/projects/beep-effect-worktrees/linux-agent-readiness
+$HOME/YeeBois/projects/beep-effect-worktrees/linux-agent-readiness
 v24.21.0
 1.4.2
 ```
