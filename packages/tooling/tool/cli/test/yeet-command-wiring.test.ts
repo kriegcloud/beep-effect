@@ -1,6 +1,13 @@
 import { YeetCommandError, yeetCommand, yeetMonitorCommandRoute } from "@beep/repo-cli/commands/Yeet";
 import { CommandJsonOutput, printCommandJson } from "@beep/repo-cli/test/Cli";
-import { MemoryStats, RepoPlanStep, RepoRunPlan } from "@beep/repo-cli/test/RepoRun";
+import {
+  MemoryStats,
+  provideRuntimeRootForTesting,
+  RepoPlanStep,
+  RepoRunPlan,
+  RuntimeRootChoice,
+  YeetAdmissionLease,
+} from "@beep/repo-cli/test/RepoRun";
 import {
   buildYeetRunPlanWithMode,
   defaultYeetRunOptions,
@@ -74,6 +81,7 @@ const findSubcommand = (name: string) =>
 // Compiled once at module scope: the plan fixtures and the plan render they are compared against.
 const decodeFixture = S.decodeUnknownEffect(S.fromJsonString(S.Record(S.String, S.String)));
 const decodePlan = S.decodeUnknownEffect(S.fromJsonString(RepoRunPlan));
+const decodeAdmissionLease = S.decodeUnknownEffect(S.fromJsonString(YeetAdmissionLease));
 
 describe("yeet merge-loop command wiring", () => {
   it.layer(commandTestLayer, { timeout: "30 seconds" })("foreground monitor", (it) => {
@@ -420,7 +428,7 @@ describe("yeet push-first publish plan wiring", () => {
       "publish:03-pr-provenance-stamp",
       MONITOR_READY_SUBMIT_STEP_ID,
     ]);
-    // No full proof, no CI parity, no admission-bearing step on the default path.
+    // Cheap gates acquire admission at execution time; no full proof or CI parity is planned.
     expect(stepIds(publishPlan({ pr: true }))).not.toContain("full:01-pre-push");
     expect(stepIds(publishPlan({ pr: true }))).not.toContain("full:02-ci-parity");
   });
@@ -526,7 +534,7 @@ describe("yeet push-first publish plan wiring", () => {
 
 it.layer(commandTestLayer, { timeout: "30 seconds" })("push-first publish gate", (it) => {
   it.effect(
-    "stops on a cheap-gates red before the preflight, the push, or any pull request step",
+    "holds weighted admission during cheap gates and releases it on failure before any push",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;
       const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-push-first-" });
@@ -552,7 +560,29 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("push-first publish gate",
           mutability: "readonly",
           resume: "never",
         });
-      const gate = step("full:00-cheap-gates", "full", 'console.log("fallow: 1 unused export"); process.exitCode = 23');
+      const path = yield* Path.Path;
+      const runtimeDir = path.join(root, "runtime");
+      const leases = path.join(runtimeDir, "beep", "admit", "leases");
+      yield* fs.makeDirectory(path.join(root, ".git", "objects"), { recursive: true });
+      yield* fs.makeDirectory(path.join(root, ".git", "refs"));
+      yield* fs.writeFileString(path.join(root, ".git", "HEAD"), "ref: refs/heads/main\n");
+      yield* fs.writeFileString(
+        path.join(root, ".git", "config"),
+        '[remote "origin"]\nurl = https://example.invalid/push-first.git\n'
+      );
+      const gate = RepoPlanStep.make({
+        ...step(
+          "full:00-cheap-gates",
+          "full",
+          `
+          import { readdir } from "node:fs/promises";
+          const [lease] = await readdir(process.env.TEST_ADMISSION_LEASES);
+          await Bun.write("observed-lease.json", Bun.file(process.env.TEST_ADMISSION_LEASES + "/" + lease));
+          console.log("fallow: 1 unused export"); process.exitCode = 23;
+        `
+        ),
+        env: { TEST_ADMISSION_LEASES: leases },
+      });
       const push = step("publish:01-git-push", "publish", 'console.log("must not push")');
       const create = step("publish:02-pr-create", "publish", 'console.log("must not open a PR")');
       const submit = step(MONITOR_READY_SUBMIT_STEP_ID, "monitor", 'console.log("must not submit")');
@@ -573,8 +603,23 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("push-first publish gate",
         recorder,
         extras,
         false
-      ).pipe(Effect.flip);
+      ).pipe(
+        provideRuntimeRootForTesting(RuntimeRootChoice.make({ kind: "test-override", root: runtimeDir })),
+        Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ BEEP_RUN_SCOPES: "0" })),
+        TestClock.withLive,
+        Effect.flip
+      );
 
+      const lease = yield* fs
+        .readFileString(path.join(root, "observed-lease.json"))
+        .pipe(Effect.flatMap(decodeAdmissionLease));
+      expect(lease.kind).toBe("full-proof");
+      expect(lease.weightTokens).toBe(3);
+      expect(lease.priority).toBe("publish");
+      expect(lease.checkoutRoot).toBe(root);
+      expect(lease.command).toContain("observed-lease.json");
+      expect(yield* fs.readDirectory(leases)).toEqual([]);
+      expect(yield* fs.readDirectory(path.join(runtimeDir, "beep", "admit", "queue"))).toEqual([]);
       expect(error.message).toContain("cheap-gates failed");
       expect(error.message).toContain("nothing was pushed");
       expect(A.map(yield* Ref.get(recorder), (entry) => entry.step.id)).toEqual(["full:00-cheap-gates"]);

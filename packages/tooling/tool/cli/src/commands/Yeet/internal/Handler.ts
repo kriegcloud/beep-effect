@@ -1125,8 +1125,9 @@ const submitDetachedReadyMonitor = Effect.fn("Yeet.submitDetachedReadyMonitor")(
 });
 
 // Push-first publish (push-first-publish D1-D8): the cheap-gates tier and the
-// head-install preflight are the whole local gate, and neither takes an
-// admission ticket. Hosted CI and review are the proof; publish ends once the
+// head-install preflight are the whole local gate. Cheap gates hold a weighted
+// lease because the schema-catalog scan peaks near 12.6 GiB. Hosted CI and
+// review are the proof; publish ends once the
 // readiness monitor is submitted.
 const runPushFirstPublishPhases = Effect.fn("Yeet.runPushFirstPublishPhases")(function* (
   plan: RepoRunPlan,
@@ -1136,13 +1137,20 @@ const runPushFirstPublishPhases = Effect.fn("Yeet.runPushFirstPublishPhases")(fu
   monitorSteps: ReadonlyArray<RepoPlanStep>,
   recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
   extras: Ref.Ref<YeetVerdictExtras>,
-  skipCommit: boolean
+  skipCommit: boolean,
+  attempt: O.Option<YeetAttemptStarted> = O.none()
 ): Effect.fn.Return<
   YeetRunResult,
   YeetCommandError,
-  Crypto.Crypto | FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  Crypto.Crypto | FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner | MemoryStats
 > {
-  const gateResults = yield* runProofPhase(plan.context, gateSteps, recorder);
+  const gateResults = yield* runWithFullProofCoordinator(
+    plan.context,
+    gateSteps,
+    runProofPhase(plan.context, gateSteps, recorder),
+    { priority: "publish" },
+    attempt
+  );
   if (A.some(gateResults, (result) => result.exitCode !== 0)) {
     return yield* failWithIssueArtifacts(
       plan.context,
@@ -1282,7 +1290,17 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
           skipCommit,
           attempt
         )
-      : runPushFirstPublishPhases(plan, options, fullSteps, publishSteps, monitorSteps, recorder, extras, skipCommit);
+      : runPushFirstPublishPhases(
+          plan,
+          options,
+          fullSteps,
+          publishSteps,
+          monitorSteps,
+          recorder,
+          extras,
+          skipCommit,
+          O.some(attempt)
+        );
 
   return yield* pipe(
     stash,
