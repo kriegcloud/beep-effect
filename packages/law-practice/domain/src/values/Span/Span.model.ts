@@ -62,46 +62,6 @@ export class Span extends S.Opaque<Span, { readonly brand: unique symbol }>()(
   )
 ) {
   /**
-   * Build a Span for a regex capture group using match.indices (ES2022 `d` flag).
-   *
-   * **Example** (Building Span from group index)
-   *
-   * ```ts
-   * import { SegmentMap, Span, TransformationMap } from "@beep/law-practice-domain"
-   * import * as HashMap from "effect/HashMap"
-   * import * as O from "effect/Option"
-   *
-   * const positions = HashMap.empty<number, number>()
-   * const map = TransformationMap.make({
-   *   cleanToOriginal: positions,
-   *   cleanToOriginalSegments: O.some(SegmentMap.identity(10)),
-   *   originalToClean: positions,
-   * })
-   *
-   * const span = Span.fromGroupIndex(0, [1, 3], map)
-   * console.log(span.cleanStart)
-   * ```
-   *
-   * @param tokenCleanStart - The token's cleanStart position in the document
-   * @param indices - match.indices[n] for the capture group
-   * @param map - TransformationMap for clean-to-original resolution
-   * @returns Span with both clean and original coordinates
-   * @category constructors
-   * @since 0.0.0
-   */
-  static readonly fromGroupIndex = (
-    tokenCleanStart: number,
-    indices: readonly [number, number],
-    map: TransformationMap
-  ): Span => {
-    const cleanStart = S.Natural.make(tokenCleanStart + indices[0]);
-    const cleanEnd = S.Natural.make(tokenCleanStart + indices[1]);
-    const { originalEnd, originalStart } = Span.resolveOriginal({ cleanEnd, cleanStart }, map);
-
-    return Span.make({ cleanEnd, cleanStart, originalEnd, originalStart });
-  };
-
-  /**
    * Resolve cleaned-text span positions against the original input text.
    *
    * **Gotchas**
@@ -112,14 +72,14 @@ export class Span extends S.Opaque<Span, { readonly brand: unique symbol }>()(
    * **Example** (Resolving original span positions)
    *
    * ```ts
-   * import { SegmentMap, Span, TransformationMap } from "@beep/law-practice-domain"
+   * import { Span, TransformationMap } from "@beep/law-practice-domain"
    * import * as HashMap from "effect/HashMap"
    * import * as O from "effect/Option"
    *
    * const positions = HashMap.empty<number, number>()
    * const map = TransformationMap.make({
    *   cleanToOriginal: positions,
-   *   cleanToOriginalSegments: O.some(SegmentMap.identity(10)),
+   *   cleanToOriginalSegments: O.none(),
    *   originalToClean: positions,
    * })
    *

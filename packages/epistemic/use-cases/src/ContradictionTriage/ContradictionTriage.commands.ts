@@ -1,4 +1,3 @@
-import * as Arbitrary from "effect/Arbitrary";
 /**
  * Contradiction-triage command and read-model contracts.
  *
@@ -28,6 +27,7 @@ import { SourceKind } from "@beep/shared-domain/entity/SourceKind";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
 import * as SharedEpistemic from "@beep/shared-domain/identity/Epistemic";
 import * as Shared from "@beep/shared-domain/identity/Shared";
+import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import { identity } from "effect/Function";

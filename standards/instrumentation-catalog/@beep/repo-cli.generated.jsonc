@@ -3138,6 +3138,8 @@
     {"name":"TurboConfigProof.runTurboConfigProof","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"TurboConfigProof.summarizeTurboDryRunOutput","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"TurboConfigProof.summarizeTurboQueryAffectedOutput","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"VersionSync.checkBunRuntimeVersion","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"VersionSync.compareBunRuntimeVersion","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"VersionSync.handle.check.failOnDrift","owner":"@beep/repo-cli","family":"tooling","conforms":false},
     {"name":"VersionSync.handle.write.applyUpdates","owner":"@beep/repo-cli","family":"tooling","conforms":false},
     {"name":"WorkstationState.resolveDir","owner":"@beep/repo-cli","family":"tooling","conforms":true},

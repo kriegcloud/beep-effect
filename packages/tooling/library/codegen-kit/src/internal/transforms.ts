@@ -510,6 +510,16 @@ const mergeReference = (
   return O.none();
 };
 
+const annotationsOf = (schema: Record<string, unknown>): Record<string, unknown> =>
+  R.filter(schema, (_, key) => isAnnotationKeyword(key));
+
+const constraintsOf = (schema: Record<string, unknown>): Record<string, unknown> =>
+  R.filter(schema, (_, key) => !isAnnotationKeyword(key));
+
+// Distributing over a union keeps both sides' own annotations on the resulting `anyOf`, right
+// over left as for objects: they describe the whole intersection. Only the other side's
+// constraints reach the branches, so its annotations neither overwrite a branch's own nor are
+// overwritten by them.
 const mergeIntersection = (
   left: unknown,
   right: unknown,
@@ -518,8 +528,15 @@ const mergeIntersection = (
   if (!P.isObject(left) || !P.isObject(right)) return failDistribute("Unsupported intersection of non-object schemas");
   const referenced = mergeReference(left, right, inline);
   if (O.isSome(referenced)) return referenced.value;
-  if (A.isArray(left.anyOf)) return { anyOf: A.map(left.anyOf, (branch) => mergeIntersection(branch, right, inline)) };
-  if (A.isArray(right.anyOf)) return { anyOf: A.map(right.anyOf, (branch) => mergeIntersection(left, branch, inline)) };
+  const annotations = { ...annotationsOf(left), ...annotationsOf(right) };
+  if (A.isArray(left.anyOf)) {
+    const constraints = constraintsOf(right);
+    return { ...annotations, anyOf: A.map(left.anyOf, (branch) => mergeIntersection(branch, constraints, inline)) };
+  }
+  if (A.isArray(right.anyOf)) {
+    const constraints = constraintsOf(left);
+    return { ...annotations, anyOf: A.map(right.anyOf, (branch) => mergeIntersection(constraints, branch, inline)) };
+  }
   return mergeObjectSchemas(left, right);
 };
 
@@ -537,8 +554,8 @@ const mergeOverlappingProperties = (
 
 const distributeNode = (node: Record<string, unknown>, inline: (ref: string) => unknown): unknown => {
   const { allOf, anyOf, ...base } = node;
-  const annotations = R.filter(base, (_, key) => isAnnotationKeyword(key));
-  const constraints = R.filter(base, (_, key) => !isAnnotationKeyword(key));
+  const annotations = annotationsOf(base);
+  const constraints = constraintsOf(base);
   const reduced = A.isArray(allOf)
     ? A.reduce(allOf, constraints, (current: Record<string, unknown>, part: unknown) =>
         mergeIntersection(current, part, inline)

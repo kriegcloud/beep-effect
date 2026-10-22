@@ -118,6 +118,7 @@ export class QuestionWriteError extends S.TaggedError<QuestionWriteError, { read
     description: "A question write, or the undo of one, failed at the calendar.",
   })
 ) {
+  // fallow-ignore-next-line unused-class-member -- QuestionWriteError.message: Error.toString / Effect Cause.pretty reads this Error override.
   override get message(): string {
     return A.isReadonlyArrayEmpty(this.pendingItemIds)
       ? `The question write failed: ${this.reason}.`

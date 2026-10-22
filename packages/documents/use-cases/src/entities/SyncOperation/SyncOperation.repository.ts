@@ -254,9 +254,7 @@ export class SyncOperationRepositoryUnavailable extends S.TaggedError<
     title: "SyncOperation repository unavailable",
     description: "The SyncOperation repository could not serve the request.",
   })
-) {
-  static readonly is = S.is(SyncOperationRepositoryUnavailable);
-}
+) {}
 
 /**
  * Listing input addressing the queued operations of one workspace mirror.

@@ -5090,6 +5090,8 @@ export const DiffChange = S.Union([
 ]).pipe(
   $I.annoteSchema("DiffChange", {
     description: "Generated ACP schema for DiffChange.",
+    documentation:
+      "One file-level change described by a [`Diff`].\n\nStructured change metadata lets clients identify affected files and\noperations without parsing the text patch.",
     identifier: "DiffChange",
   }),
 );
@@ -5639,6 +5641,8 @@ export const SetSessionConfigOptionRequest = S.Union([
 ]).pipe(
   $I.annoteSchema("SetSessionConfigOptionRequest", {
     description: "Generated ACP schema for SetSessionConfigOptionRequest.",
+    documentation:
+      "Request parameters for setting a session configuration option.",
     identifier: "SetSessionConfigOptionRequest",
   }),
 );
@@ -7109,6 +7113,7 @@ export const CreateElicitationResponse = S.Union([
 ]).pipe(
   $I.annoteSchema("CreateElicitationResponse", {
     description: "Generated ACP schema for CreateElicitationResponse.",
+    documentation: "Response from the client to an elicitation request.",
     identifier: "CreateElicitationResponse",
   }),
 );
@@ -9747,6 +9752,8 @@ export const SessionConfigOption = S.Union([
 ]).pipe(
   $I.annoteSchema("SessionConfigOption", {
     description: "Generated ACP schema for SessionConfigOption.",
+    documentation:
+      "A session configuration option selector and its current state.",
     identifier: "SessionConfigOption",
   }),
 );
@@ -10783,7 +10790,10 @@ export const SessionUpdate = S.Union([
         title: "none",
         description: "No stop reason: `stopReason` is omitted or `null`.",
       }),
-    ]),
+    ]).annotateKey({
+      description:
+        "No foreground work is active. Background activity may continue.",
+    }),
     S.StructWithRest(
       S.Struct({
         sessionUpdate: S.tag("state_update"),
@@ -11873,7 +11883,10 @@ export const CreateElicitationRequest = S.Union([
       description:
         "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    description:
+      "Form-based elicitation where the client renders a form from the provided schema.",
+  }),
   S.Union([
     S.StructWithRest(
       S.Struct({
@@ -11957,7 +11970,10 @@ export const CreateElicitationRequest = S.Union([
       description:
         "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    description:
+      "URL-based elicitation where the client directs the user to a URL.",
+  }),
   S.Union([
     S.StructWithRest(
       S.Struct({
@@ -12043,10 +12059,16 @@ export const CreateElicitationRequest = S.Union([
       description:
         "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    title: "other",
+    description:
+      "Custom or future elicitation mode.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.\n\nClients that do not understand this mode should preserve the raw payload\nwhen storing, replaying, proxying, or forwarding elicitation requests.\nThey MUST NOT render it as a known elicitation mode.",
+  }),
 ]).pipe(
   $I.annoteSchema("CreateElicitationRequest", {
     description: "Generated ACP schema for CreateElicitationRequest.",
+    documentation:
+      "Request from the agent to elicit structured user input.\n\nThe agent sends this to the client to request information from the user,\neither via a form or by directing them to a URL.\nElicitations are tied to a session (optionally a tool call) or a request.\n\nA session-scoped request follows the aggregate foreground-state contract:\nagents SHOULD report `requires_action` when the whole foreground workflow is\nblocked on user action. Once reported, they MUST report `running` when progress\nresumes, or `idle` if work ends without resuming. Independent background requests\nand request-scoped elicitations do not themselves change session state.\nAccepting a URL does not mean the external interaction completed.\n\nAgents SHOULD cancel pending elicitations no longer needed by cancelled work.\nThe request's scope alone does not establish that dependency.\n\nSee protocol docs: [Elicitation](https://agentclientprotocol.com/protocol/v2/draft/elicitation)",
     identifier: "CreateElicitationRequest",
   }),
 );
@@ -14102,6 +14124,8 @@ export const ElicitationFormMode = S.Union([
 ]).pipe(
   $I.annoteSchema("ElicitationFormMode", {
     description: "Generated ACP schema for ElicitationFormMode.",
+    documentation:
+      "Form-based elicitation mode where the client renders a form from the provided schema.",
   }),
 );
 
@@ -14283,6 +14307,8 @@ export const ElicitationUrlMode = S.Union([
 ]).pipe(
   $I.annoteSchema("ElicitationUrlMode", {
     description: "Generated ACP schema for ElicitationUrlMode.",
+    documentation:
+      "URL-based elicitation mode where the client directs the user to a URL.",
   }),
 );
 
@@ -14686,6 +14712,8 @@ export const IdleStateUpdate = S.Union([
 ]).pipe(
   $I.annoteSchema("IdleStateUpdate", {
     description: "Generated ACP schema for IdleStateUpdate.",
+    documentation:
+      "No foreground work is active. Background activity may continue.\n\nAgents SHOULD include a `stopReason` when the idle transition ends foreground\nwork. An idle update that does not end foreground work need not include one.\nReceivers treat an omitted, `null`, or malformed `stopReason` as the agent not\nreporting one.\nRepeated or resume snapshots may carry the last stop reason for context.\nThey MUST NOT be counted as new completions, cancellations, or additional usage.",
   }),
 );
 
