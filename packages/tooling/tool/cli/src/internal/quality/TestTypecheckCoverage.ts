@@ -122,6 +122,7 @@ export class TestTypecheckCoverage extends S.Class<TestTypecheckCoverage, { read
   })
 ) {
   /** Whether every judged test source is typechecked by the package's `check` script. */
+  // fallow-ignore-next-line unused-class-member -- TestTypecheckCoverage.covered: Quality/internal/TestTsgoPrograms.ts reads the instance getter.
   get covered(): boolean {
     return A.isReadonlyArrayEmpty(this.uncoveredSources);
   }

@@ -410,9 +410,7 @@ export class SpecificationSource extends S.Opaque<SpecificationSource, { readonl
       description: "Immutable authority record used to ground conformance claims.",
     })
   )
-) {
-  static readonly toEquivalenceArray = SpecificationSource.pipe(S.Array, S.toEquivalence);
-}
+) {}
 
 /**
  * Locator from an invariant to a section of a registered authority.

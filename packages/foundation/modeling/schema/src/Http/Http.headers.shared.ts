@@ -136,23 +136,7 @@ export const HeaderMaxAgeSeconds = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe
  */
 export type HeaderMaxAgeSeconds = typeof HeaderMaxAgeSeconds.Type;
 
-/**
- * Schema that normalizes a string or URL into an encoded absolute URL string.
- *
- * **Example** (Decode encoded absolute URI)
- *
- * ```ts
- * import * as S from "effect/Schema"
- * import { EncodedStrictURIFromStrOrURL } from "../../src/Http/Http.headers.shared.ts"
- *
- * const uri = S.decodeUnknownSync(EncodedStrictURIFromStrOrURL)("https://example.com/docs")
- * console.log(uri)
- * ```
- *
- * @category schemas
- * @since 0.0.0
- */
-export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
+const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
   S.decodeTo(
     S.String.pipe(S.brand("EncodedStrictURIFromStrOrURL")),
     SchemaTransformation.transformEffect({
@@ -172,26 +156,7 @@ export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
   })
 );
 
-/**
- * Type for encoded absolute URL strings.
- *
- * **Example** (Annotate encoded absolute URI)
- *
- * ```ts
- * import * as S from "effect/Schema"
- * import { EncodedStrictURIFromStrOrURL } from "../../src/Http/Http.headers.shared.ts"
- * import type { EncodedStrictURIFromStrOrURL as EncodedStrictURIFromStrOrURLType } from "../../src/Http/Http.headers.shared.ts"
- *
- * const uri: EncodedStrictURIFromStrOrURLType = S.decodeUnknownSync(EncodedStrictURIFromStrOrURL)(
- *   "https://example.com/docs"
- * )
- * console.log(uri)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type EncodedStrictURIFromStrOrURL = typeof EncodedStrictURIFromStrOrURL.Type;
+type EncodedStrictURIFromStrOrURL = typeof EncodedStrictURIFromStrOrURL.Type;
 
 const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
   cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);

@@ -232,6 +232,7 @@ export class ParserOptions extends S.Class<ParserOptions, { readonly brand: uniq
    * Decode raw parser option input into a normalized {@link ParserOptions}
    * instance.
    */
+  // fallow-ignore-next-line unused-class-member -- ParserOptions.new: Csv/Csv.schema.ts calls this through the exported class alias.
   static readonly new = (input?: ParserOptionsArgs): ParserOptions =>
     pipe(
       ParserOptions.decodeUnknownResult(input ?? {}, parserOptionsParseOptions),
@@ -247,18 +248,22 @@ export class ParserOptions extends S.Class<ParserOptions, { readonly brand: uniq
     return Regex.escape(this.delimiter);
   }
 
+  // fallow-ignore-next-line unused-class-member -- escapeChar: CsvParser.parser.ts / CsvFormatter.formatter.ts reads the schema instance getter.
   get escapeChar(): O.Option<string> {
     return O.orElse(() => this.quote)(this.escape);
   }
 
+  // fallow-ignore-next-line unused-class-member -- ParserOptions.supportsComments: test/ParserOptions.test.ts reads the schema instance getter.
   get supportsComments(): boolean {
     return O.isSome(this.comment);
   }
 
+  // fallow-ignore-next-line unused-class-member -- ParserOptions.limitRows: test/ParserOptions.test.ts reads the schema instance getter.
   get limitRows(): boolean {
     return Num.isGreaterThan(0)(this.maxRows);
   }
 
+  // fallow-ignore-next-line unused-class-member -- ParserOptions.NEXT_TOKEN_REGEXP: test/ParserOptions.test.ts reads the schema instance getter.
   get NEXT_TOKEN_REGEXP(): globalThis.RegExp {
     return buildNextTokenRegExp(this.escapedDelimiter);
   }

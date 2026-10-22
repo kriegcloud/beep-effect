@@ -55,8 +55,6 @@ export class OntologyActionError extends S.TaggedError<OntologyActionError, { re
   static readonly new = (message: string) => OntologyActionError.make({ message });
 
   static readonly failEffect = flow(this.new, Effect.fail);
-
-  static readonly failEffectThunk = flow(this.failEffect, (effect) => () => effect);
 }
 
 /**
