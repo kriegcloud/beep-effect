@@ -26,6 +26,9 @@
       "path": "../packages/drivers/github/tsconfig.json"
     },
     {
+      "path": "../packages/drivers/m365/tsconfig.json"
+    },
+    {
       "path": "../packages/drivers/n3/tsconfig.json"
     },
     {
@@ -129,6 +132,9 @@
     },
     {
       "path": "../packages/foundation/ui-system/dock/tsconfig.json"
+    },
+    {
+      "path": "../packages/law-practice/use-cases/tsconfig.json"
     },
     {
       "path": "../packages/tooling/library/repo-utils/tsconfig.json"
