@@ -32,7 +32,7 @@ Use this command for execution-capable sessions:
 ## Current Phase
 
 P0 Research — complete (2026-10-21): inventory and importer census in `SPEC.md`.
-P1 Implement — complete (2026-10-22): four modules moved, seven id-bearing modules as factories (P1b), intervals and the `Claim<P>` envelope; evidence in `research/p1-move-report.md`. Next: P2 Verify (hosted CI on the P1 PR).
+P1 Implement — complete (2026-10-22): four modules moved, seven id-bearing modules as factories (P1b), intervals and the `Claim<P>` envelope; evidence in `research/p1-move-report.md`.
 
 ## Latest Evidence
 
@@ -42,3 +42,6 @@ Not started.
 
 <Record high-signal constraints or resume notes that do not belong in the
 normative spec.>
+P2 Verify — complete (2026-10-22): #2017 hosted checks passed, apart from three hosted-only reds on main (schema catalog, root oxlint `no-inline-schema-compile`, JSDoc Ratchet). Each was fixed on main by #2019 (`9439053a3f`) or #2021 (`07f8856fec`).
+P3 Yeet — complete (2026-10-22): #2017 merged as `ab6000add2`.
+P4 Close — in progress (2026-10-22): reflection `history/reflections/2026-10-22-claude.md`; closeout proposed as `completed-retained` with final PR #2017. `goals completion refresh` reports the gate unsatisfied, because #2017 merged over attributed reds under S43. The lifecycle stays `active` until the remediation ledger verifies completion.
