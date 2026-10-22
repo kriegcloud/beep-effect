@@ -150,27 +150,25 @@ const delimiterRunEnd = (source: string, i: number, delimiter: string): number =
 
 const isDigit = (code: string | undefined): boolean => code !== undefined && code >= "0" && code <= "9";
 
+/** The one bare-key character class, shared by `isBareKeyChar` and `scanBareKey`. */
+const BARE_KEY_CHARACTER = /^[A-Za-z0-9_-]$/;
+
 /**
- * Whether `code` is a bare-key character: `[A-Za-z0-9_-]`.
+ * Whether the one-character string `char` is a bare-key character: `[A-Za-z0-9_-]`.
  *
  * **Example** (Recognize bare-key characters)
  *
  * ```ts
  * import { isBareKeyChar } from "@beep/toml/internal/scanner"
  *
- * console.log(isBareKeyChar(0x61)) // true
- * console.log(isBareKeyChar(0x20)) // false
+ * console.log(isBareKeyChar("a")) // true
+ * console.log(isBareKeyChar(" ")) // false
  * ```
  *
  * @category predicates
  * @since 0.0.0
  */
-export const isBareKeyChar = (code: number): boolean =>
-  (code >= 0x61 && code <= 0x7a) ||
-  (code >= 0x41 && code <= 0x5a) ||
-  (code >= 0x30 && code <= 0x39) ||
-  code === 0x5f ||
-  code === 0x2d;
+export const isBareKeyChar = (char: string): boolean => BARE_KEY_CHARACTER.test(char);
 
 /**
  * The number of code units to skip for a single leading U+FEFF BOM.
@@ -333,8 +331,6 @@ export const scanComment: {
   return { value: Str.slice(pos + 1, end)(source), end };
 });
 
-const BARE_KEY_CHARACTER = /^[A-Za-z0-9_-]$/;
-
 /**
  * Scan a run of bare-key characters; the value may be empty.
  *
@@ -356,7 +352,7 @@ export const scanBareKey: {
   (pos: number): (source: string) => ScanResult<string>;
 } = dual(2, (source: string, pos: number): ScanResult<string> => {
   let i = pos;
-  while (i < source.length && BARE_KEY_CHARACTER.test(Str.slice(i, i + 1)(source))) {
+  while (i < source.length && isBareKeyChar(Str.slice(i, i + 1)(source))) {
     i += 1;
   }
   return { value: Str.slice(pos, i)(source), end: i };

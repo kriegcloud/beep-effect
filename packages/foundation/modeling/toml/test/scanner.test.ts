@@ -16,9 +16,6 @@ import {
 } from "@beep/toml/internal/scanner";
 import { TomlLocalDate, TomlLocalDateTime, TomlLocalTime, TomlOffsetDateTime } from "@beep/toml/TomlDateTime";
 import { assert, describe, it } from "@effect/vitest";
-import { constant, pipe } from "effect/Function";
-import * as O from "effect/Option";
-import * as Str from "effect/String";
 import type { TomlErrorCodeRaw } from "@beep/toml/internal/diagnostics";
 
 /** Assert `fn` throws a RawTomlError with `code` (and `offset`, when given). */
@@ -210,18 +207,12 @@ describe("scanner", () => {
       assert.deepStrictEqual(scanBareKey("a]", 0), { value: "a", end: 1 });
       assert.deepStrictEqual(scanBareKey("k.v", 2), { value: "v", end: 3 });
     });
-    it("classifies bare-key characters by code", () => {
+    it("classifies bare-key characters", () => {
       for (const ch of ["a", "z", "A", "Z", "0", "9", "_", "-"]) {
-        assert.isTrue(
-          isBareKeyChar(pipe(ch, Str.charCodeAt(0), O.getOrElse(constant(Number.NaN)))),
-          `expected ${ch} to be a bare-key char`
-        );
+        assert.isTrue(isBareKeyChar(ch), `expected ${ch} to be a bare-key char`);
       }
       for (const ch of [".", " ", "\t", "=", "]", "#", '"', "'", "é"]) {
-        assert.isFalse(
-          isBareKeyChar(pipe(ch, Str.charCodeAt(0), O.getOrElse(constant(Number.NaN)))),
-          `expected ${ch} not to be a bare-key char`
-        );
+        assert.isFalse(isBareKeyChar(ch), `expected ${ch} not to be a bare-key char`);
       }
     });
   });
