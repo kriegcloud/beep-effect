@@ -60,7 +60,7 @@ die() { printf '[beep-cloud:%s] ERROR: %s\n' "${VENDOR}" "$*" >&2; exit 1; }
 [ "$(uname -m)" = "x86_64" ] || die "x86_64 only; got $(uname -m)."
 
 BUN_VERSION="$(tr -d '[:space:]' < .bun-version)"
-NODE_VERSION="$(tr -d '[:space:]' < .nvmrc 2>/dev/null || echo 24)"
+NODE_VERSION="$(tr -d '[:space:]' < .nvmrc 2>/dev/null || echo 24.22.1)"
 export BUN_INSTALL="${BUN_INSTALL:-${HOME}/.bun}"
 NODE_PREFIX="${HOME}/.local/node${NODE_VERSION}"
 # Directory holding the Node this script provisioned. The tarball path fills
@@ -122,7 +122,7 @@ if ! command -v bun >/dev/null 2>&1 || [ "$(bun --version 2>/dev/null)" != "${BU
 fi
 
 need_node=0
-if ! command -v node >/dev/null 2>&1 || [ "$(node --version 2>/dev/null | sed 's/^v//' | cut -d. -f1)" != "${NODE_VERSION}" ]; then
+if ! command -v node >/dev/null 2>&1 || [ "$(node --version 2>/dev/null | sed 's/^v//')" != "${NODE_VERSION}" ]; then
   need_node=1
 fi
 
@@ -149,7 +149,7 @@ fetch_node() {
   local index version work
   index="$(curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --retry 3 \
     "https://nodejs.org/dist/index.tab")" || return 1
-  version="$(printf '%s\n' "${index}" | awk -v major="v${NODE_VERSION}." 'index($1, major) == 1 { print $1; exit }')"
+  version="$(printf '%s\n' "${index}" | awk -v requested="v${NODE_VERSION}" '$1 == requested { print $1; exit }')"
   [ -n "${version}" ] || return 1
   work="${run_dir}/node"
   mkdir -p "${work}"

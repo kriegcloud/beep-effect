@@ -369,7 +369,7 @@ describe("@beep/openclaw models", () => {
     expect(OPENCLAW_COMPATIBILITY_SET.npmIntegrity).toBe(
       "sha512-ycF3yPcbjN6bUPeaUx6Mh6vze1hQWoD3CT/wWcmD7a8xaHHHRUaAlaq+lFxMHf1ssEgODVAwjlzYqp2twkYZ7g=="
     );
-    expect(OPENCLAW_COMPATIBILITY_SET.nodeVersion).toBe("24.16.0");
+    expect(OPENCLAW_COMPATIBILITY_SET.nodeVersion).toBe("24.22.1");
     expect(OPENCLAW_COMPATIBILITY_SET.adapterVersion).toBe(1);
     expect(isOpenclawCompatibilitySet(OPENCLAW_COMPATIBILITY_SET)).toBe(true);
 
