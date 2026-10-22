@@ -170,6 +170,51 @@ const withInbox = Effect.fn("YeetInboxHookAdapterTest.withInbox")(function* <Val
 
 describe("Yeet inbox harness adapter", () => {
   it.layer(NodeServices.layer, { timeout: "15 seconds" })((it) => {
+    for (const location of ["nested-clone", "outside-checkout"]) {
+      it.effect(`blocks Stop from a ${location} using the project inbox`, () =>
+        withInbox(({ root }) =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const cwd =
+              location === "nested-clone" ? path.join(root, ".repos", "effect") : yield* fs.makeTempDirectoryScoped();
+            yield* fs.makeDirectory(cwd, { recursive: true });
+            if (location === "nested-clone") {
+              const handle = yield* ChildProcess.make("git", ["init", "--quiet", cwd], {
+                stdout: "ignore",
+                stderr: "ignore",
+              });
+              expect(yield* handle.exitCode).toBe(0);
+            }
+            const result = yield* runHook(
+              root,
+              "claude",
+              { cwd, hook_event_name: "Stop" },
+              {
+                BEEP_YEET_HOOK_ROOT: "",
+                CLAUDE_PROJECT_DIR: root,
+              }
+            );
+            expect(result.exitCode).toBe(0);
+            expect(result.stderr).toBe("");
+            expect(yield* decodeObject(result.stdout)).toMatchObject({ decision: "block" });
+            expect(result.stdout).toContain("coverage-live");
+            expect(yield* fs.exists(path.join(cwd, ".beep"))).toBe(false);
+          })
+        )
+      );
+    }
+    it.effect("fails with a diagnostic when the session directory cannot be created", () =>
+      withInbox(({ root }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* fs.writeFileString(`${root}/.beep/inbox/sessions`, "not a directory");
+          const result = yield* runHook(root, "claude", { cwd: root, hook_event_name: "Stop" });
+          expect(result.exitCode).toBe(1);
+          expect(result.stderr).toContain("yeet inbox: cannot create session directory");
+        })
+      )
+    );
     it.effect("scopes linked worktree Stop checks to payload cwd instead of the owning clone", () =>
       withInbox(({ root }) =>
         Effect.gen(function* () {

@@ -401,12 +401,24 @@ const recoverReadiness = Effect.fn("Goals.Completion.recoverReadiness")(function
   const statusRead = yield* readContainedFileStringNoFollow(root, statusFile);
   const job = yield* decodeJob(
     yield* Effect.fromOption(jobRead.contents).pipe(
-      Effect.mapError(() => YeetCommandError.make({ message: "canonical job artifact is absent" }))
+      Effect.mapError(() =>
+        YeetCommandError.make({
+          message: jobRead.exists
+            ? "canonical job artifact is unreadable or not a file"
+            : "canonical job artifact is absent",
+        })
+      )
     )
   );
   const status = yield* decodeRecoveryStatus(
     yield* Effect.fromOption(statusRead.contents).pipe(
-      Effect.mapError(() => YeetCommandError.make({ message: "canonical status artifact is absent" }))
+      Effect.mapError(() =>
+        YeetCommandError.make({
+          message: statusRead.exists
+            ? "canonical status artifact is unreadable or not a file"
+            : "canonical status artifact is absent",
+        })
+      )
     )
   );
   const runner = yield* Effect.fromOption(job.runner).pipe(
