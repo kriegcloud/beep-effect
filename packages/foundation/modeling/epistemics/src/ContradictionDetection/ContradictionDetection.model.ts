@@ -13,7 +13,7 @@ import * as S from "effect/Schema";
 import { makeValidIntervalCheck } from "../Contradiction/index.ts";
 import { Confidence } from "../EvidenceSpan/index.ts";
 import type { ContradictionVocabulary } from "../Contradiction/index.ts";
-import type { FieldSchema, SchemaIdentity } from "../Factory/index.ts";
+import type { FieldSchema, IdentityConfig, SchemaIdentity } from "../Factory/index.ts";
 
 /**
  * Fixed confidence for an assertion paired with its explicit equal negation.
@@ -66,7 +66,7 @@ export const ValueConflictConfidence = Confidence.make(0.9);
  * @category constructors
  * @since 0.0.0
  */
-export const makeContradictionDetectionVocabulary = (config: { readonly $I: SchemaIdentity }) => {
+export const makeContradictionDetectionVocabulary = (config: IdentityConfig) => {
   const { $I } = config;
   const ConflictClassBase = LiteralKit(["exact-negation", "value-conflict"]);
   const DetectionPolarityBase = LiteralKit(["asserted", "negated"]);

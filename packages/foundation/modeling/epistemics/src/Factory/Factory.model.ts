@@ -122,3 +122,21 @@ export interface FieldSchema<T, E = T, MakeIn = T, Rebuilt extends S.Top = S.Top
  * @since 0.0.0
  */
 export type KeyedFieldSchema<T, E = T, MakeIn = T> = FieldSchema<T, E, MakeIn, FieldSchema<T, E, MakeIn>>;
+
+/**
+ * Configuration of a factory that needs only the caller's identity composer.
+ *
+ * **Example** (Bind an identity-only factory config)
+ *
+ * ```ts
+ * import type { IdentityConfig } from "@beep/epistemics/Factory"
+ * import { $ScratchpadId } from "@beep/identity/packages"
+ *
+ * const config: IdentityConfig = { $I: $ScratchpadId.create("party/Contradiction") }
+ * console.log(config.$I.make("Contradiction"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type IdentityConfig = { readonly $I: SchemaIdentity };

@@ -4,10 +4,9 @@
  * Not part of the public API surface: the package `exports` map nulls
  * `./internal/*`.
  *
- * Byte-for-byte the encoder in `@beep/epistemic-domain`'s
- * `values/internal/CanonicalJson.ts`, which stays for the agent-authority
- * grant-set and ledger seals until those values get their own home; both copies
- * must encode identically or the digests they feed diverge.
+ * `@beep/epistemic-domain`'s agent-authority seals (grant sets, execution
+ * records) reuse this one implementation through `canonicalDetectionJson`, so
+ * every seal that shares a digest shares the encoder.
  *
  * @packageDocumentation
  * @since 0.0.0

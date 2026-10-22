@@ -24,9 +24,6 @@
       "path": "../../../packages/drivers/wink/tsconfig.json"
     },
     {
-      "path": "../../../packages/epistemic/domain/tsconfig.json"
-    },
-    {
       "path": "../../../packages/foundation/capability/file-processing/tsconfig.json"
     },
     {

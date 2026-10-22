@@ -31,7 +31,7 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import { Confidence } from "../EvidenceSpan/index.ts";
 import { canonicalJson } from "../internal/CanonicalJson.ts";
-import type { FieldSchema, KeyedFieldSchema, SchemaIdentity } from "../Factory/index.ts";
+import type { FieldSchema, IdentityConfig, KeyedFieldSchema, SchemaIdentity } from "../Factory/index.ts";
 
 const TrimmedText = S.String.pipe(S.decodeTo(S.NonEmptyString, SchemaTransformation.trim()));
 
@@ -292,7 +292,7 @@ const sha256Hex = (value: string): string => bytesToHex(sha256(utf8ToBytes(value
  * @category constructors
  * @since 0.0.0
  */
-export const makeContradictionVocabulary = (config: { readonly $I: SchemaIdentity }) => {
+export const makeContradictionVocabulary = (config: IdentityConfig) => {
   const { $I } = config;
 
   const ContradictionCandidateKey = Sha256Hex.pipe(

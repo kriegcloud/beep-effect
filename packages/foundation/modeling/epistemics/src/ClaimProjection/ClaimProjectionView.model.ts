@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import * as S from "effect/Schema";
-import type { SchemaIdentity } from "../Factory/index.ts";
+import type { IdentityConfig, SchemaIdentity } from "../Factory/index.ts";
 
 /**
  * Build the per-lifecycle-state claim count schema.
@@ -35,7 +35,7 @@ import type { SchemaIdentity } from "../Factory/index.ts";
  * @category constructors
  * @since 0.0.0
  */
-export const makeClaimStateCounts = (config: { readonly $I: SchemaIdentity }) => {
+export const makeClaimStateCounts = (config: IdentityConfig) => {
   const { $I } = config;
 
   const ClaimStateCountsSchema = S.Struct({

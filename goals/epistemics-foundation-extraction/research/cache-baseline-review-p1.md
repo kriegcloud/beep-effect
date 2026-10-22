@@ -1,6 +1,6 @@
 # Cache baseline review: epistemics foundation extraction (P1)
 
-Reviewed 2026-10-22 for P1 of `goals/epistemics-foundation-extraction`.
+Reviewed 2026-10-22 (re-reviewed on merge 66f3ab65be) for P1 of `goals/epistemics-foundation-extraction`.
 
 `bun run beep cache audit` reports 47 blocking findings that this branch
 introduced. All come from creating the `@beep/epistemics` workspace and adding
@@ -33,6 +33,11 @@ it as a dependency:
   The `@beep/epistemic-ui` dependency is a devDependency, because it is
   imported only from tests and stories.
 
+  `@beep/semantica` also drops its `@beep/epistemic-domain` dependency, along
+  with the matching `tsconfig.json` and `tsconfig.check.json` references.
+  Every semantica import of the epistemic vocabulary now resolves to
+  `@beep/epistemics`, and fallow dead-code reports the old dependency unused.
+
   `@beep/epistemic-domain`'s manifest has one more change. Its `exports` map
   drops the four subpaths whose modules moved to `@beep/epistemics`:
   `./values/ClaimDispositionStatus`, `./values/ClaimGate`,
@@ -41,19 +46,14 @@ it as a dependency:
 `@beep/scratchpad` also gained the dependency. The policy does not report it,
 and its recorded projection is unchanged.
 
-The audit also prints review-level `configuration-source-drift` lines for 19
-`turbo.json` files, which belong to the root subject `//`. They are inherited
-from main and not caused by this branch. `git diff e66bd500f5 -- turbo.json
-'**/turbo.json'` is empty, and in e66bd500f5 (#2005) the turbo bump changed only
-the `$schema` URL in each file, from `v2-11-9` to `v2-11-10`. The baseline
-recorder refuses this request without `//` (`Unreviewed: //`), because the
-recorded source digests changed. `//` is therefore recorded with those 19
-source digests. Its task nodes and global configuration are byte-equal to the
-recorded projection: I compared them field by field against a fresh census. No
-root task changed.
+An earlier version of this review also recorded the root subject `//`. Main's
+#2005 had changed only the `$schema` URL in 19 `turbo.json` files without
+refreshing the baseline, so its recorded source digests were stale. Main's
+#1934 (24e6c8ca09) re-recorded the baseline, and this branch has merged it
+(66f3ab65be). Every recorded `turbo.json` digest now matches, and the audit
+reports no source drift. `//` is therefore no longer part of this request.
 
-Recording these ten subjects accepts three things: the existing posture for
-the new workspace, the dependency-only drift of its eight importers, and the
-`$schema`-only source drift inherited on `//`. Scope, profile
+Recording these nine subjects accepts the existing posture for the new
+workspace and the dependency-only drift of its eight importers. Scope, profile
 and epoch are unchanged. No qualification is granted, and no other subject
 changes.
