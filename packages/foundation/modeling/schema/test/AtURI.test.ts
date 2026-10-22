@@ -6,6 +6,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const isAtUri2 = S.is(AtUri);
 
@@ -78,13 +79,13 @@ describe("AtUri", () => {
     "derives schema arbitrary values that remain normalized Lexicon AT URIs",
     [AtUriArbitrary],
     Effect.fnUntraced(function* ([uri]) {
-      const withoutScheme = uri.slice("at://".length);
-      const pathSegments = withoutScheme.split("/");
+      const withoutScheme = Str.slice("at://".length)(uri);
+      const pathSegments = Str.split("/")(withoutScheme);
 
       expect(isAtUri2(uri)).toBe(true);
-      expect(uri.startsWith("at://")).toBe(true);
+      expect(Str.startsWith("at://")(uri)).toBe(true);
       expect(uri).not.toMatch(/[?#]/u);
-      expect(uri.endsWith("/")).toBe(false);
+      expect(Str.endsWith("/")(uri)).toBe(false);
       expect(pathSegments.length).toBeLessThanOrEqual(3);
       expect(A.every(pathSegments, (segment) => segment.length > 0)).toBe(true);
 

@@ -213,6 +213,11 @@ describe("@beep/utils Str.replaceWith", () => {
       )
     ).toBe("BEEP beep");
   });
+
+  it("matches a string search literally and passes the match offset", () => {
+    expect(Str.replaceWith("axb a.b", ".", () => "!")).toBe("axb a!b");
+    expect(Str.replaceWith("xay", "a", (match, offset) => `${match}@${String(offset)}`)).toBe("xa@1y");
+  });
 });
 
 describe("@beep/utils Str.replaceAllWith", () => {
@@ -227,6 +232,15 @@ describe("@beep/utils Str.replaceAllWith", () => {
         Str.replaceAllWith(/beep/g, (match) => Str.toUpperCase(match))
       )
     ).toBe("BEEP BEEP");
+  });
+
+  it("replaces every literal occurrence of a string search, including the empty string", () => {
+    expect(Str.replaceAllWith("a.a.a", ".", () => "-")).toBe("a-a-a");
+    expect(Str.replaceAllWith("ab", "", () => "|")).toBe("|a|b|");
+  });
+
+  it("rejects a non-global RegExp like native replaceAll", () => {
+    expect(() => Str.replaceAllWith("beep", /e/, () => "")).toThrow(TypeError);
   });
 });
 

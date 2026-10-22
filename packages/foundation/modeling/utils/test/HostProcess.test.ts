@@ -12,6 +12,7 @@ import * as Effect from "effect/Effect";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeGuardOutput = S.decodeUnknownEffect(S.fromJsonString(S.Struct({ platform: S.String, arch: S.String })));
 
@@ -65,7 +66,7 @@ it.layer(NodeServices.layer, { timeout: "5 seconds" })("HostProcess browser-eval
         stderr: "inherit",
       });
       const output = yield* spawner.string(command);
-      expect(yield* decodeGuardOutput(output.trim())).toEqual({ platform: "browser", arch: "unknown" });
+      expect(yield* decodeGuardOutput(Str.trim(output))).toEqual({ platform: "browser", arch: "unknown" });
     }),
     30_000
   );

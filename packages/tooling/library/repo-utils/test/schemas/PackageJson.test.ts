@@ -24,6 +24,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 
 const decodePackageJson2 = S.decodeEffect(PackageJson);
@@ -38,7 +39,8 @@ const encodePackageJsonFieldsPublishConfig = S.encodeEffect(PackageJson.fields.p
 const isPackageJson = S.is(PackageJson);
 
 const objectKeys = (value: unknown): ReadonlyArray<string> => (P.isObject(value) ? Struct.keys(value) : A.empty());
-const decodeJsonPointerSegment = (segment: string): string => segment.replaceAll("~1", "/").replaceAll("~0", "~");
+const decodeJsonPointerSegment = (segment: string): string =>
+  pipe(segment, Str.replaceAll("~1", "/"), Str.replaceAll("~0", "~"));
 const PackageJsonNameArbitrary = Arbitrary.schema(PackageJson.fields.name);
 const PackageJsonDependenciesArbitrary = Arbitrary.schema(PackageJson.fields.dependencies);
 const NpmPackageJsonPeerDependenciesMetaArbitrary = Arbitrary.schema(NpmPackageJson.fields.peerDependenciesMeta);
@@ -846,7 +848,7 @@ describe("PackageJson schema", () => {
         throw new Error("expected PackageJson JSON schema document root to be a $ref");
       }
 
-      const packageJsonDefinitionName = decodeJsonPointerSegment(packageJsonSchema.$ref.slice("#/$defs/".length));
+      const packageJsonDefinitionName = decodeJsonPointerSegment(Str.slice("#/$defs/".length)(packageJsonSchema.$ref));
       const packageJsonDefinition = packageJsonJsonSchema.definitions[packageJsonDefinitionName];
 
       expect(packageJsonSchema.$ref).toMatch(/^#\/\$defs\/.+PackageJsonEncoded$/);
