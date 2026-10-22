@@ -418,6 +418,16 @@
       "reason": "Mixed protocol wiring: logging flags are modeled by AcpProtocolLoggingOptions and serverRequestMethods is in-memory routing data, while callbacks, Stdio, and Effects are live runtime handles."
     },
     {
+      "file": "packages/drivers/acp/test/terminals.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 25,
+      "owner": "@beep/acp",
+      "reason": "Terminal driver regression: the three codecs only frame fixed JSON-RPC envelopes so the test can drive terminal/create, wait_for_exit and output through the registered client over in-memory stdio; the subject is the terminal lifecycle, not the codecs. Schema-derived property coverage for AcpJson.fromJsonText lives in json.test.ts and for the wire schemas in protocol.test.ts."
+    },
+    {
       "file": "packages/drivers/ai-provider-cli/test/fixtures/managed-claude-peer.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",

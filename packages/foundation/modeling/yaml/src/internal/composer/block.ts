@@ -650,6 +650,13 @@ const BlockMapScan = S.Struct({
 );
 type BlockMapScan = typeof BlockMapScan.Type;
 
+/**
+ * Data-first detection for the `BlockMapScan` helpers whose trailing
+ * parameters are optional: a fixed `dual` arity would curry a call that omits
+ * them, so dispatch on the scan itself instead.
+ */
+const isBlockMapScanFirst = (args: IArguments): boolean => P.hasProperty(args[0], "sawNewlineSincePending");
+
 const makeBlockMapScan: {
   (
     children: readonly CstNode[],
@@ -728,7 +735,7 @@ const diagnoseOuterPropertyCollision: {
 const commitOuterIfNewlineSeen: {
   (scan: BlockMapScan, state: ComposerState, nextProperty?: CstNode): void;
   (state: ComposerState, nextProperty?: CstNode): (scan: BlockMapScan) => void;
-} = dual(3, (scan: BlockMapScan, state: ComposerState, nextProperty?: CstNode): void => {
+} = dual(isBlockMapScanFirst, (scan: BlockMapScan, state: ComposerState, nextProperty?: CstNode): void => {
   if (scan.sawNewlineSincePending && hasMeta(scan.pendingMeta)) {
     if (nextProperty !== undefined) diagnoseOuterPropertyCollision(scan, nextProperty, state);
     scan.outerMeta = hasMeta(scan.outerMeta) ? { ...scan.outerMeta, ...scan.pendingMeta } : scan.pendingMeta;
@@ -791,7 +798,7 @@ const reinjectEscapedComments: {
 const pushBlockMapNode: {
   (scan: BlockMapScan, state: ComposerState, node: YamlNode, nodeOffset?: number): void;
   (state: ComposerState, node: YamlNode, nodeOffset?: number): (scan: BlockMapScan) => void;
-} = dual(4, (scan: BlockMapScan, state: ComposerState, node: YamlNode, nodeOffset?: number): void => {
+} = dual(isBlockMapScanFirst, (scan: BlockMapScan, state: ComposerState, node: YamlNode, nodeOffset?: number): void => {
   // Track key column/offset when pushing in key position (before value-sep).
   // If `?` explicit-key indicator preceded this scalar, the entry's indent is
   // the `?` column. Otherwise it's the scalar's column.
@@ -809,7 +816,7 @@ const pushBlockMapNode: {
 const pushConsumedBlockMapNode: {
   (scan: BlockMapScan, state: ComposerState, node: YamlNode, nodeOffset?: number): void;
   (state: ComposerState, node: YamlNode, nodeOffset?: number): (scan: BlockMapScan) => void;
-} = dual(4, (scan: BlockMapScan, state: ComposerState, node: YamlNode, nodeOffset?: number): void => {
+} = dual(isBlockMapScanFirst, (scan: BlockMapScan, state: ComposerState, node: YamlNode, nodeOffset?: number): void => {
   resetAllMeta(scan);
   pushBlockMapNode(scan, state, node, nodeOffset);
 });

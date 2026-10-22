@@ -14,6 +14,7 @@ import { A, currentHostPlatform } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
@@ -1124,7 +1125,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("effect-acp client child
         return assert.fail("expected a process exit error");
       }
       assert.deepEqual(error.code, O.some(4));
-      assert.isTrue(O.isNone(error.stderr));
+      assertNone(error.stderr);
     })
   );
 });
