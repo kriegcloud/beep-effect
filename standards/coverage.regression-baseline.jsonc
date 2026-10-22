@@ -41264,18 +41264,6 @@
             "functions": 0
           }
         },
-        "packages/shared/domain/src/identity/LawPractice/PartyId.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/shared/domain/src/identity/LawPractice/PatentAssetId.ts": {
           "lines": 100,
           "statements": 100,
@@ -41337,6 +41325,18 @@
           }
         },
         "packages/shared/domain/src/identity/LawPractice/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/shared/domain/src/identity/Party/PartyId.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
