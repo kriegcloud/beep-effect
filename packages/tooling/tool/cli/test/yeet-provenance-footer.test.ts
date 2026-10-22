@@ -80,8 +80,8 @@ const encodeGhBodyEditsDocumentJsonResult = S.encodeUnknownResult(S.fromJsonStri
 // of returning a snapshot anyway.
 const RestPullFields = HashSet.make("body", "created_at", "updated_at", "number", "title", "html_url", "state");
 const restPullJqFields = (jq: string): ReadonlyArray<string> => [
-  ...A.map(A.fromIterable(jq.matchAll(/[{,]\s*([A-Za-z_]+)\s*(?=[,}])/g)), (match) => match[1] ?? ""),
-  ...A.map(A.fromIterable(jq.matchAll(/\.([A-Za-z_]+)/g)), (match) => match[1] ?? ""),
+  ...A.map(A.fromIterable(Str.matchAll(/[{,]\s*([A-Za-z_]+)\s*(?=[,}])/g)(jq)), (match) => match[1] ?? ""),
+  ...A.map(A.fromIterable(Str.matchAll(/\.([A-Za-z_]+)/g)(jq)), (match) => match[1] ?? ""),
 ];
 const unsupportedRestPullField = (args: ReadonlyArray<string>): O.Option<string> =>
   pipe(

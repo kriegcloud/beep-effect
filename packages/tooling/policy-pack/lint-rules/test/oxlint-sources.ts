@@ -31,7 +31,7 @@ export type OxlintRuleSources = {
 const lines = (...parts: ReadonlyArray<string>): string => A.join(parts, "\n");
 
 /** The repo path the host-process reference exemption keys on (suffix-matched by the rule). */
-const HOST_PROCESS_FILE = "packages/foundation/capability/chalk/src/internal/SupportsColor.ts";
+const HOST_PROCESS_FILE = "packages/foundation/modeling/utils/src/HostProcess.ts";
 
 export const OXLINT_SOURCES: {
   readonly [K in Exclude<OxlintRule, import("@beep/lint-rules/oxlint-docs").DocsRuleId>]: OxlintRuleSources;

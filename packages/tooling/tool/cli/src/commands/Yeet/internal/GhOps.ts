@@ -24,9 +24,9 @@
  * @since 0.0.0
  */
 
+import { GitHubClient } from "@beep/github/GitHubClient";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { GitHubClient } from "@effected/github";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as DateTime from "effect/DateTime";
@@ -65,7 +65,8 @@ import {
   YeetReviewThreadStateInput,
   yeetReviewThreadStateOutstanding,
 } from "./ReviewThreadState.ts";
-import type { GitHubError, Repo } from "@effected/github";
+import type { GitHubError } from "@beep/github/GitHubError";
+import type { Repo } from "@beep/github/Repo";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { CliReportedExit } from "../../../internal/cli/ExitCodeError.ts";

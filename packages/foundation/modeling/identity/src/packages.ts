@@ -228,7 +228,9 @@ const generatedComposers = $I.compose(
   "yaml",
   "npm-spec",
   "tsconfig",
-  "walker"
+  "walker",
+  "github",
+  "runtime-env"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3298,3 +3300,37 @@ export const $TsconfigId: Identity.IdentityComposer<"@beep/tsconfig"> = composer
  * @since 0.0.0
  */
 export const $WalkerId: Identity.IdentityComposer<"@beep/walker"> = composers.$WalkerId;
+
+/**
+ * Identity composer for `@beep/github`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $GithubId } from "@beep/identity/packages"
+ *
+ * const id = $GithubId.make("Github")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $GithubId: Identity.IdentityComposer<"@beep/github"> = composers.$GithubId;
+
+/**
+ * Identity composer for `@beep/runtime-env`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $RuntimeEnvId } from "@beep/identity/packages"
+ *
+ * const id = $RuntimeEnvId.make("RuntimeEnv")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $RuntimeEnvId: Identity.IdentityComposer<"@beep/runtime-env"> = composers.$RuntimeEnvId;

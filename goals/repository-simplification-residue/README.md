@@ -33,6 +33,9 @@ and renewed holds proved ([register](./history/receipts/hold-register.md)).
 #1856 is in progress: wave 1 classified the 342-file guidance surface and fixed
 every stale file ([record](./history/receipts/guidance-classification.md)); the
 660-directive review and a Markdown example compile check remain.
+#1855 is in progress: wave 1 closed F-S31-EV010 (already fixed by #1899) and taught
+the EV010 proof to follow same-file helpers, resolving 16 more rows with no exception
+added ([record](./history/receipts/detectors-wave-1.md)); FP-1..FP-7 come next.
 #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).
@@ -67,6 +70,12 @@ a qualified, verified atomic exchange, journals each publication with the same s
 machine, and recovers every crash point byte-exact through the next update or
 `beep skills recover`, refusing a replacing writer with every artifact kept
 ([record](./history/receipts/skill-publication.md)).
+
+#1882 is complete: the required `Security` job runs `beep ci dependency-review`
+with its read-only token. It excludes only manifests under the declared
+`**/test/**/fixtures/**` policy, keeps production transitive advisories and the
+action's thresholds, and fails closed when GitHub cannot answer
+([record](./history/receipts/dependency-review.md)).
 The repository-wide six-open-PR cap usually
 permits one or two residue lanes. S23 forbids parking for size and S31 forbids
 added debt/exception/baseline rows.

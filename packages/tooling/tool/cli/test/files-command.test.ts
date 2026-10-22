@@ -1113,9 +1113,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
       expect(pstRecord.status).toBe("succeeded");
       expect(xlsRecord.status).toBe("skipped");
       expect(childRecords.length).toBeGreaterThan(0);
-      expect(A.every(childRecords, (record) => record.child.relativePath.startsWith("children/"))).toBe(true);
-      expect(A.some(childRecords, (record) => record.child.relativePath.endsWith("/Message.eml"))).toBe(true);
-      expect(A.some(childRecords, (record) => record.child.relativePath.endsWith(".messages.jsonl"))).toBe(true);
+      expect(A.every(childRecords, (record) => Str.startsWith("children/")(record.child.relativePath))).toBe(true);
+      expect(A.some(childRecords, (record) => Str.endsWith("/Message.eml")(record.child.relativePath))).toBe(true);
+      expect(A.some(childRecords, (record) => Str.endsWith(".messages.jsonl")(record.child.relativePath))).toBe(true);
       for (const record of childRecords) {
         expect(yield* fs.exists(path.join(outDir, record.child.relativePath))).toBe(true);
       }
@@ -1454,9 +1454,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
       );
       const logLines = A.filter(yield* TestConsole.logLines, isString);
       expect(pstRecord.status).toBe("succeeded");
-      expect(A.some(childRecords, (record) => record.child.relativePath.endsWith("/Message.eml"))).toBe(false);
-      expect(A.some(childRecords, (record) => record.child.relativePath.endsWith(".messages.jsonl"))).toBe(true);
-      expect(A.some(logLines, (line) => line.includes("engine warning(s)"))).toBe(true);
+      expect(A.some(childRecords, (record) => Str.endsWith("/Message.eml")(record.child.relativePath))).toBe(false);
+      expect(A.some(childRecords, (record) => Str.endsWith(".messages.jsonl")(record.child.relativePath))).toBe(true);
+      expect(A.some(logLines, Str.includes("engine warning(s)"))).toBe(true);
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
@@ -4592,8 +4592,8 @@ exit 74
       expect(manifest.summary.coreCount).toBe(1);
       expect(manifest.summary.archiveCount).toBe(1);
       expect(A.map(manifest.entries, (entry) => entry.outputRelativePath)).toEqual([
-        `canonical/active/core/twv1_${firstBefore.slice("sha256:".length, "sha256:".length + 20)}.png`,
-        `archive/technical-quality/twv1_${secondBefore.slice("sha256:".length, "sha256:".length + 20)}.png`,
+        `canonical/active/core/twv1_${Str.slice("sha256:".length, "sha256:".length + 20)(firstBefore)}.png`,
+        `archive/technical-quality/twv1_${Str.slice("sha256:".length, "sha256:".length + 20)(secondBefore)}.png`,
       ]);
       for (const entry of manifest.entries) {
         const metadata = yield* readImageMetadata(entry.outputPath);
@@ -4644,7 +4644,7 @@ exit 74
       yield* runFilesCommand(["curate-images", "--dir", datasetDir, "--decisions", decisionsPath, "--out-dir", outDir]);
       const manifestPath = path.join(outDir, "manifests", "image-curation-manifest.json");
       const manifest = yield* decodeImageCurationManifest(yield* fs.readFileString(manifestPath));
-      const hashPrefix = sourceHash.slice("sha256:".length, "sha256:".length + 20);
+      const hashPrefix = Str.slice("sha256:".length, "sha256:".length + 20)(sourceHash);
       expect(A.map(manifest.entries, (entry) => entry.outputName)).toEqual([
         `twv1_${hashPrefix}.png`,
         `twv1_${hashPrefix}_2.png`,
@@ -4753,7 +4753,7 @@ exit 74
         "canonical",
         "active",
         "core",
-        `twv1_${sourceHash.slice("sha256:".length, "sha256:".length + 20)}.png`
+        `twv1_${Str.slice("sha256:".length, "sha256:".length + 20)(sourceHash)}.png`
       );
       const derivativeManifestError = yield* expectFilesCommandFailure([...baseArgs, outputPath]);
       expect(derivativeManifestError).toContain("must not overlap generated derivative");
@@ -4883,7 +4883,7 @@ exit 74
         "canonical",
         "active",
         "core",
-        `twv1_${validHash.slice("sha256:".length, "sha256:".length + 20)}.png`
+        `twv1_${Str.slice("sha256:".length, "sha256:".length + 20)(validHash)}.png`
       );
       yield* fs.makeDirectory(path.dirname(existingOutputPath), { recursive: true });
       yield* fs.makeDirectory(path.dirname(manifestPath), { recursive: true });
@@ -4950,7 +4950,7 @@ exit 74
               disposition: "active-core",
               reasons: ["clean-current-identity"],
               sourceName: "first.jpg",
-              sourceSha256: `sha256:${"0".repeat(64)}`,
+              sourceSha256: `sha256:${Str.repeat(64)("0")}`,
             },
             {
               disposition: "active-extended",

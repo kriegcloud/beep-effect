@@ -26,6 +26,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const LibraryCatalogJson = S.fromJsonString(LibraryCatalog);
 
@@ -462,7 +463,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 se
           } = yield* resolutionFixture();
           yield* fs.writeFileString(
             payloadPath,
-            yield* fixtureJson({ ...payload, evidence: { ...payload.evidence, sha256: "0".repeat(64) } })
+            yield* fixtureJson({ ...payload, evidence: { ...payload.evidence, sha256: Str.repeat(64)("0") } })
           );
           expect((yield* importLibraryResult(root, payloadPath).pipe(Effect.flip)).message).toContain("hash differs");
           yield* fs.writeFileString(
@@ -500,7 +501,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 se
           expect(target.locators).toContain(occurrence.locator);
           expect(A.getUnsafe(resolved.occurrences, 0)).toEqual({ ...occurrence, sourceId: target.id });
           expect(A.some(resolved.sources, (s) => s.kind === "github-repository")).toBe(true);
-          expect(A.filter(resolved.artifacts, (a) => a.role.startsWith("reference-resolution"))).toHaveLength(2);
+          expect(A.filter(resolved.artifacts, (a) => Str.startsWith("reference-resolution")(a.role))).toHaveLength(2);
           yield* importLibraryResult(root, payloadPath);
           expect(yield* loadCatalog(root)).toEqual(resolved);
           const missingSecondReport = () => new Error("Missing second report fixture");
@@ -718,7 +719,9 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer), { timeout: "30 se
         expect(O.getOrThrow(A.findFirst(catalog.documents, (d) => d.filenameDate === "2026-09-15")).reportDate).toBe(
           ""
         );
-        const proseDocument = O.getOrThrow(A.findFirst(catalog.documents, (d) => d.originalPath.endsWith("/a.md")));
+        const proseDocument = O.getOrThrow(
+          A.findFirst(catalog.documents, (d) => Str.endsWith("/a.md")(d.originalPath))
+        );
         expect(O.getOrThrow(A.findFirst(catalog.occurrences, (o) => o.documentId === proseDocument.id))).toMatchObject({
           locator: "2610.02204",
         });

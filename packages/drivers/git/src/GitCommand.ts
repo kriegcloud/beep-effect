@@ -15,6 +15,7 @@ import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const $I = $GitId.create("GitCommand");
 
@@ -114,7 +115,7 @@ const secretUrl = (value: string): GitArg => ({ redact: GitArgRedaction.Enum.url
  * consumed whole or its tail would survive into `redactedArgs`.
  */
 const redactUrlUserinfo = (value: string): string =>
-  value.replace(/^([a-z][a-z0-9+.-]*:\/\/)[^/]*@/i, `$1${REDACTED}@`);
+  Str.replace(/^([a-z][a-z0-9+.-]*:\/\/)[^/]*@/i, `$1${REDACTED}@`)(value);
 
 /**
  * Builds a `git` {@link GitInvocation} with the argv this package classifies

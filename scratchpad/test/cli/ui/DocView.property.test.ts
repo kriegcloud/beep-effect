@@ -15,7 +15,7 @@ import { Doc } from "../../../effected/cli/Doc.ts";
 import { Render } from "../../../effected/cli/Render.ts";
 import { CliUi } from "../../../effected/cli/ui/CliUi.ts";
 import { DocView } from "../../../effected/cli/ui/DocView.ts";
-import { Audience, TerminalEnv } from "../../../effected/env/index.ts";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { capturing } from "../helpers/live.ts";
 
 const runs = { arbitrary: fcRuns(100) };

@@ -30,6 +30,7 @@ import { ciLaneCommand, ciLocalCommand } from "./CiLane.ts";
 import { CiResourceLane } from "./CiOperational.schemas.ts";
 import { CiOperational, CiOperationalLive } from "./CiOperational.service.ts";
 import { ciRerunRunnerLossCommand } from "./CiRerunRunnerLoss.ts";
+import { ciDependencyReviewCommand } from "./DependencyReviewCommand.ts";
 import { ciLaneTimingsCommand } from "./LaneTimings.ts";
 
 const $I = $RepoCliId.create("commands/Ci/Ci.command");
@@ -421,6 +422,7 @@ export const ciCommand = Command.make("ci", {}, () =>
     "CI commands:",
     "- bun run beep ci admission [--event-name n] [--event-path p] [--base b] [--no-json] [--github-output]",
     "- bun run beep ci append-turbo-summary",
+    "- bun run beep ci dependency-review --base <sha> --head <sha>",
     "- bun run beep ci ruleset [--capture|--check]",
     "- bun run beep ci settings [--check]",
     "- bun run beep ci held-group",
@@ -441,6 +443,7 @@ export const ciCommand = Command.make("ci", {}, () =>
     ...ciGovernanceCommands,
     ciAdmissionCommand,
     appendTurboSummaryCommand,
+    ciDependencyReviewCommand,
     ciLaneCommand,
     ciLaneTimingsCommand,
     ciLocalCommand,

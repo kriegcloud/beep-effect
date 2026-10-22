@@ -27,13 +27,16 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as PlatformError from "effect/PlatformError";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import type * as ChildProcess from "effect/process/ChildProcess";
 
@@ -70,14 +73,9 @@ const uuidlessCrypto: Crypto.Crypto = {
 };
 
 const processGroupFromStat = (text: string): number | undefined => {
-  const commandEnd = text.lastIndexOf(") ");
+  const commandEnd = O.getOrElse(constant(-1))(Str.lastIndexOf(") ")(text));
   if (commandEnd < 0) return undefined;
-  const processGroup = Number(
-    text
-      .slice(commandEnd + 2)
-      .trim()
-      .split(/\s+/u)[2]
-  );
+  const processGroup = Number(Str.split(/\s+/u)(Str.trim(Str.slice(commandEnd + 2)(text)))[2]);
   return Number.isInteger(processGroup) && processGroup > 0 ? processGroup : undefined;
 };
 

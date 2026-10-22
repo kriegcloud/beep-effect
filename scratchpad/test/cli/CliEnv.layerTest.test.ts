@@ -1,7 +1,7 @@
 // CliEnv.layerTest: the env services a CliEnv.layer would build, from fixed answers, needing nothing and reading no
 // host environment.
 import { assert, describe, it } from "@effect/vitest";
-import { Audience, TerminalEnv } from "../../effected/env/index.ts";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";

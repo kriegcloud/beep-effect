@@ -3,7 +3,7 @@ import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import type * as Cli from "../index.ts";
-import type { ColorLevel } from "../../env/index.ts";
+import type { ColorLevel } from "@beep/runtime-env";
 import type { ReactElement, ReactNode } from "react";
 import { inkModules } from "./internal/ink.ts";
 import type { ScreenContextValue } from "./internal/ScreenContext.ts";

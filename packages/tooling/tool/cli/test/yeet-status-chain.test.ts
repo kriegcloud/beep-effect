@@ -157,7 +157,7 @@ const threadsJson = JSON.stringify({
 });
 const runsJson = JSON.stringify([
   { databaseId: 77, headSha: HEAD, status: "completed", conclusion: "failure", name: "Check" },
-  { databaseId: 76, headSha: "0".repeat(40), status: "completed", conclusion: "success", name: "Check" },
+  { databaseId: 76, headSha: Str.repeat(40)("0"), status: "completed", conclusion: "success", name: "Check" },
 ]);
 
 type Invocation = { readonly command: string; readonly args: ReadonlyArray<string> };

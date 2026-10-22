@@ -31,6 +31,7 @@ import * as A from "effect/Array";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -60,7 +61,12 @@ const stubVerdicts: Record<string, StubVerdict> = {
   "5_": { mimeType: "application/pdf", extensions: ["pdf"] },
 };
 const stubVerdict = (file: string): StubVerdict =>
-  stubVerdicts[file.slice(file.lastIndexOf("/") + 1, file.lastIndexOf("/") + 3)] ?? unknownVerdict;
+  stubVerdicts[
+    Str.slice(
+      O.getOrElse(Str.lastIndexOf("/")(file), constant(-1)) + 1,
+      O.getOrElse(Str.lastIndexOf("/")(file), constant(-1)) + 3
+    )(file)
+  ] ?? unknownVerdict;
 const StubSniffer = Layer.succeed(AttachmentMagicSniffer, {
   sniff: Effect.fn("Test.stubSniff")(function* (paths: ReadonlyArray<string>) {
     return A.map(paths, (file) => MagicSniffResult.make({ path: file, ...stubVerdict(file) }));
@@ -81,12 +87,12 @@ const fixture = Effect.fn("test.provenance.fixture")(function* () {
   const children = path.join(root, "staging", "extract", "children");
   const first = path.join(
     children,
-    `artifact:${"a".repeat(64)}.export`,
+    `artifact:${Str.repeat(64)("a")}.export`,
     "Top of Outlook data file",
     "Inbox",
     "Message00001"
   );
-  const second = path.join(children, `artifact:${"b".repeat(64)}.export`, "Search Root", "Message00002");
+  const second = path.join(children, `artifact:${Str.repeat(64)("b")}.export`, "Search Root", "Message00002");
   const embedded = path.join(first, "Attachments", "Attachment5", "Message00001");
   for (const directory of [first, second, embedded]) {
     yield* fs.makeDirectory(directory, { recursive: true });
@@ -268,13 +274,13 @@ it.layer(Services, { timeout: "30 seconds" })((it) => {
         lines(yield* fs.readFileString(path.join(root, "staging/provenance/metadata.jsonl"))),
         MetadataCensusRecordJson.decode
       );
-      expect(O.getOrThrow(A.findFirst(rows, (row) => row.relativePath.endsWith("1_report.p"))).fields.fileType).toBe(
-        "PDF"
-      );
-      expect(O.getOrThrow(A.findFirst(rows, (row) => row.relativePath.endsWith("2_photo.j"))).fields.fileType).toBe(
-        "JPEG"
-      );
-      expect(O.getOrThrow(A.findFirst(rows, (row) => row.relativePath.endsWith("4_blob"))).status).toBe("error");
+      expect(
+        O.getOrThrow(A.findFirst(rows, (row) => Str.endsWith("1_report.p")(row.relativePath))).fields.fileType
+      ).toBe("PDF");
+      expect(
+        O.getOrThrow(A.findFirst(rows, (row) => Str.endsWith("2_photo.j")(row.relativePath))).fields.fileType
+      ).toBe("JPEG");
+      expect(O.getOrThrow(A.findFirst(rows, (row) => Str.endsWith("4_blob")(row.relativePath))).status).toBe("error");
       for (const row of rows) expect(A.some(R.keys(row.tags), (key) => /^(System|File):/.test(key))).toBe(false);
     })
   );

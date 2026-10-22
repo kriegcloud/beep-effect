@@ -1,5 +1,5 @@
 import { assert, describe, it } from "@effect/vitest";
-import { CheckConclusion } from "../../effected/github/index.ts";
+import { CheckConclusion } from "@beep/github/CheckRun";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { flow } from "effect/Function";

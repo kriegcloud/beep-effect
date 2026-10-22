@@ -2567,7 +2567,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 23,
+      "line": 24,
       "owner": "@beep/repo-cli",
       "reason": "Import-rewriter regression fixtures use codecs to write tsconfig/package manifests and decode the installed export map. Assertions cover exact source syntax, aliases, collisions and blocked public routes; these are code-transformation contracts, not schema round-trip laws."
     },

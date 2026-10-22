@@ -21,9 +21,10 @@
  * @since 0.0.0
  */
 
+import { GitHubClient } from "@beep/github/GitHubClient";
+import { GraphQLDocument } from "@beep/github/GraphQL";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { GitHubClient, GraphQLDocument } from "@effected/github";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -32,7 +33,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 import { graphqlErrorToGitHubError } from "./GithubGraphql.ts";
-import type { GitHubError } from "@effected/github";
+import type { GitHubError } from "@beep/github/GitHubError";
 
 const $I = $RepoCliId.create("internal/github/GraphqlBudget");
 

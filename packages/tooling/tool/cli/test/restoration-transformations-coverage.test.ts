@@ -35,12 +35,14 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
 
@@ -112,7 +114,7 @@ const recycleMetadataV2 = (originalPath: string, sizeBytes: bigint): Uint8Array 
   view.setBigUint64(16, 132_223_104_000_000_000n, true);
   view.setUint32(24, originalPath.length + 1, true);
   A.forEach(Array.from(originalPath), (char, index) => {
-    view.setUint16(28 + index * 2, char.charCodeAt(0), true);
+    view.setUint16(28 + index * 2, O.getOrElse(constant(Number.NaN))(Str.charCodeAt(0)(char)), true);
   });
   return bytes;
 };
@@ -226,7 +228,7 @@ layer(testLayer, { timeout: 30_000 })("restoration transformation semantic helpe
       RT.residueRootFor("ordinary/file").pipe(assertNone);
       expect(RT.safeRestoredPath(path, "C:\\bad<name>\\file. ")).toBe("bad_name_/file");
       expect(RT.safeRestoredPath(path, "")).toBe("_");
-      expect(RT.safeRestoredPath(path, "x".repeat(200))).toContain("__");
+      expect(RT.safeRestoredPath(path, Str.repeat(200)("x"))).toContain("__");
       expect(
         RT.safeRestoredPath(
           path,
@@ -239,7 +241,7 @@ layer(testLayer, { timeout: 30_000 })("restoration transformation semantic helpe
 
       const used = MutableHashMap.empty<string, string>();
       const first = RT.collisionAllocatedPath(path, "mail/file.msg", "one", used);
-      MutableHashMap.set(used, first.toLocaleLowerCase("en-US"), "occupied");
+      MutableHashMap.set(used, Str.toLocaleLowerCase("en-US")(first), "occupied");
       expect(RT.collisionAllocatedPath(path, "mail/file.msg", "one", used)).not.toBe(first);
 
       expect(RT.sandboxedTool(path, "pffexport", "pff")).toEqual({ bindArgs: [], executable: "pffexport" });
@@ -291,7 +293,7 @@ layer(testLayer, { timeout: 30_000 })("restoration transformation semantic helpe
     expect(RT.emptyMailAttemptOutputDigest().sizeBytes).toBe(0);
     expect(O.getOrUndefined(RT.parseNormalizedRmse("123 (0.125)"))).toBe(0.125);
     RT.parseNormalizedRmse("missing").pipe(assertNone);
-    RT.parseNormalizedRmse(`(${"9".repeat(400)})`).pipe(assertNone);
+    RT.parseNormalizedRmse(`(${Str.repeat(400)("9")})`).pipe(assertNone);
     expect(RT.isCompoundFileBinary(Uint8Array.of(0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1))).toBe(true);
     expect(RT.isCompoundFileBinary(Uint8Array.of(0xd0))).toBe(false);
     expect(
@@ -599,7 +601,7 @@ layer(testLayer, { timeout: 30_000 })("restoration transformation semantic helpe
       };
       const outcome = yield* RT.appendRecycleJoins(grouped, RT.recycleSurfaceCounts(grouped), recycleContext, []);
       expect(outcome).toEqual({ joinOutcomeCount: 2, missingContentCount: 0 });
-      const surfaceId = `surface-${sha("$Recycle.Bin/S-1").slice(0, 16)}`;
+      const surfaceId = `surface-${Str.slice(0, 16)(sha("$Recycle.Bin/S-1"))}`;
       const joins = A.map(
         [
           ["duplicate", 1, ["content-duplicate"]],
@@ -670,7 +672,7 @@ layer(testLayer, { timeout: 30_000 })("restoration transformation semantic helpe
       expect(decoded.originalPath).toBe(originalPath);
       const digest = yield* RT.hashPreservedRecycleContent(pair.content);
       const usedPaths = MutableHashMap.empty<string, string>();
-      const surfaceId = `surface-${sha(pair.group.surfaceKey).slice(0, 16)}`;
+      const surfaceId = `surface-${Str.slice(0, 16)(sha(pair.group.surfaceKey))}`;
       const desired = path.join(surfaceId, RT.safeRestoredPath(path, originalPath));
       const restoredRelativePath = RT.collisionAllocatedPath(
         path,
@@ -1787,7 +1789,7 @@ else exit 92; fi
       expect(yield* fs.readFileString(ledgerPath)).toContain('"derivedSizeBytes":1');
 
       const unterminatedPath = path.join(root, "ledgers/mail/unterminated.jsonl");
-      yield* fs.writeFileString(unterminatedPath, first.trimEnd());
+      yield* fs.writeFileString(unterminatedPath, Str.trimEnd(first));
       (yield* RT.appendAttachmentRepair(
         { ...mailContext, ledgerPath: unterminatedPath },
         "attempt-3",
@@ -3324,7 +3326,7 @@ printf '%%PDF-1.4 synthetic attachment' > "$item/Attachment00001/report.bin"
           runLabel,
           "ledgers/recycle/full.jsonl"
         );
-        const recycleLines = (yield* fs.readFileString(recycleLedgerPath)).trimEnd().split("\n");
+        const recycleLines = Str.split("\n")(Str.trimEnd(yield* fs.readFileString(recycleLedgerPath)));
         const lastRecycleLine = recycleLines.at(-1);
         if (lastRecycleLine === undefined) return yield* Effect.die("Recycle ledger was unexpectedly empty.");
         expect((yield* decodeTransformationLedgerRecordJson(lastRecycleLine)).recordType).toBe(
@@ -3340,7 +3342,7 @@ printf '%%PDF-1.4 synthetic attachment' > "$item/Attachment00001/report.bin"
           runLabel,
           "ledgers/legacy-word/full.jsonl"
         );
-        const legacyLines = (yield* fs.readFileString(legacyLedgerPath)).trimEnd().split("\n");
+        const legacyLines = Str.split("\n")(Str.trimEnd(yield* fs.readFileString(legacyLedgerPath)));
         const lastLegacyLine = legacyLines.at(-1);
         if (lastLegacyLine === undefined) return yield* Effect.die("Legacy ledger was unexpectedly empty.");
         expect((yield* decodeTransformationLedgerRecordJson(lastLegacyLine)).recordType).toBe("family-acceptance-pass");

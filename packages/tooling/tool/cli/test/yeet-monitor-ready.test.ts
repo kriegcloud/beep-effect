@@ -49,6 +49,7 @@ import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -335,7 +336,9 @@ it.layer(platform, { timeout: "30 seconds" })("push → row → ack timeline", (
         expect(printed).toContain(
           "[yeet] push→row→ack bbbbbbb: pushed 2026-09-16T00:00:00.000Z, red -, row -, injected -, acked -"
         );
-        expect(printed.indexOf("push→ready")).toBeLessThan(printed.indexOf("push→row→ack bbbbbbb"));
+        expect(O.getOrElse(constant(-1))(Str.indexOf("push→ready")(printed))).toBeLessThan(
+          O.getOrElse(constant(-1))(Str.indexOf("push→row→ack bbbbbbb")(printed))
+        );
       })
     )
   );

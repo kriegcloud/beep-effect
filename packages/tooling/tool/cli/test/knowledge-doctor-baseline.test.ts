@@ -165,7 +165,7 @@ describe("knowledge doctor sealed baseline", () => {
         const again = yield* mintFirstSeal(baseTree());
         const text = yield* encodeKnowledgeBaselineText(baseline);
         assert.strictEqual(text, yield* encodeKnowledgeBaselineText(again.baseline));
-        assert.isTrue(text.endsWith("\n"));
+        assert.isTrue(Str.endsWith("\n")(text));
         yield* verifyKnowledgeBaselineText(text, again.baseline);
         const broken = yield* Effect.flip(verifyKnowledgeBaselineText(`${text} `, again.baseline));
         assert.strictEqual(broken._tag, "KnowledgeSealBroken");
@@ -448,7 +448,7 @@ describe("knowledge doctor sealed baseline", () => {
                 ...baseline,
                 entries: A.append(
                   baseline.entries,
-                  KnowledgeBaselineEntry.make({ ...entry, key: `knowledge-doctor/v1:${"f".repeat(64)}` })
+                  KnowledgeBaselineEntry.make({ ...entry, key: `knowledge-doctor/v1:${Str.repeat(64)("f")}` })
                 ),
               })
             ),
@@ -547,7 +547,7 @@ describe("knowledge doctor sealed baseline", () => {
     it.effect(
       "binds leases to merge-base CODEOWNERS and enforces lifetime, immutable issued, and quotas",
       Effect.fnUntraced(function* () {
-        const key = (digit: string) => `knowledge-doctor/v1:${digit.repeat(64)}`;
+        const key = (digit: string) => `knowledge-doctor/v1:${Str.repeat(64)(digit)}`;
         const evaluate = (
           leases: ReadonlyArray<KnowledgeDebtLease>,
           baseLeases: ReadonlyArray<KnowledgeDebtLease> = [],
@@ -850,7 +850,7 @@ describe("knowledge doctor sealed baseline", () => {
       "turns the lease report into yeet warnings and never fails on an unreadable report",
       Effect.fnUntraced(function* () {
         const expiring = yield* lease({
-          key: `knowledge-doctor/v1:${"a".repeat(64)}`,
+          key: `knowledge-doctor/v1:${Str.repeat(64)("a")}`,
           expires: "2026-10-18T00:00:00Z",
         });
         const rows = yield* evaluateKnowledgeLeases(

@@ -273,15 +273,15 @@ const SKILLS_LOCK_V1_FIXTURE = `${JSON.stringify(
   {
     version: 1,
     skills: {
-      yeet: { source: "beep-effect/beep-effect", sourceType: "local", computedHash: "0".repeat(64) },
+      yeet: { source: "beep-effect/beep-effect", sourceType: "local", computedHash: Str.repeat(64)("0") },
       shadcn: {
         source: "shadcn-ui/ui",
         sourceType: "github",
-        computedHash: "0".repeat(64),
+        computedHash: Str.repeat(64)("0"),
         ref: "main",
         skillPath: "skills/shadcn/SKILL.md",
       },
-      adhd: { source: "someone/adhd", sourceType: "github", computedHash: "0".repeat(64), ref: "main" },
+      adhd: { source: "someone/adhd", sourceType: "github", computedHash: Str.repeat(64)("0"), ref: "main" },
     },
   },
   null,
@@ -774,7 +774,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock write", (it) => {
         );
 
       expect(refusalReason(yield* write(O.none()))).toBe("missing-expect");
-      expect(refusalReason(yield* write(O.some("0".repeat(64))))).toBe("digest-mismatch");
+      expect(refusalReason(yield* write(O.some(Str.repeat(64)("0"))))).toBe("digest-mismatch");
 
       // A license that moved makes the seeded row unresolved, which a write cannot settle.
       const texts = yield* fixtureTexts();

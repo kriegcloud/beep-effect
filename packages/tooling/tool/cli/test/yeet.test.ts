@@ -1263,9 +1263,9 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
         const { filePath, tempContext } = yield* trackedFileRepository;
         const fs = yield* FileSystem.FileSystem;
 
-        yield* fs.writeFileString(filePath, `${"first\n".repeat(110_000)}`);
+        yield* fs.writeFileString(filePath, `${Str.repeat(110_000)("first\n")}`);
         const first = yield* collectDiffFingerprintForTesting(tempContext);
-        yield* fs.writeFileString(filePath, `${"second\n".repeat(110_000)}`);
+        yield* fs.writeFileString(filePath, `${Str.repeat(110_000)("second\n")}`);
         const second = yield* collectDiffFingerprintForTesting(tempContext);
 
         expect(first).toMatch(/^[a-f0-9]{64}$/u);
@@ -5694,7 +5694,7 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
 
       const oversized = closeoutWritePlanForTesting({
         knownThreadIds: known,
-        replyBody: "x".repeat(17 * 1024),
+        replyBody: Str.repeat(17 * 1024)("x"),
         replyThread: "PRRT_a",
         resolveThreads: "",
       });

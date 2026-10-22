@@ -118,7 +118,7 @@ const read = (overrides: Partial<Parameters<typeof MergeGateRead.make>[0]> = {})
 
 const options = (overrides: Partial<Parameters<typeof MergeGateOptions.make>[0]> = {}): MergeGateOptions =>
   MergeGateOptions.make({
-    wantSha: headSha.slice(0, 10),
+    wantSha: Str.slice(0, 10)(headSha),
     now: windowClosed,
     tolerate: [],
     forceWindow: false,
@@ -590,7 +590,7 @@ const workflowRunPages = (additionalActiveRuns: GhScript["additionalActiveRuns"]
       { id: 12, head_sha: pullFixture.head.sha, status: "in_progress" },
       { id: 12, head_sha: pullFixture.head.sha, status: "in_progress" },
       { id: 13, head_sha: pullFixture.head.sha, status: "in_progress" },
-      { id: 14, head_sha: "0".repeat(40), status: "waiting" },
+      { id: 14, head_sha: Str.repeat(40)("0"), status: "waiting" },
       { id: 19, head_sha: pullFixture.head.sha, status: "completed" },
     ],
   },
@@ -760,7 +760,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
       withScriptedGh(
         {
           ...defaultScript,
-          commits: ["fix(x): one\n\nBody.", longBullet.slice(2)],
+          commits: ["fix(x): one\n\nBody.", Str.slice(2)(longBullet)],
           commitlint: {
             exitCode: 1,
             output:
@@ -876,9 +876,9 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
         const cases = [
           [],
           [{ ...own, external_id: reviewerCheckExternalId(pullFixture.number + 1, headSha, pullFixture.base.sha) }],
-          [{ ...own, external_id: reviewerCheckExternalId(pullFixture.number, headSha, "b".repeat(40)) }],
+          [{ ...own, external_id: reviewerCheckExternalId(pullFixture.number, headSha, Str.repeat(40)("b")) }],
           [{ ...own, app: { id: 99 } }],
-          [{ ...own, head_sha: "b".repeat(40) }],
+          [{ ...own, head_sha: Str.repeat(40)("b") }],
           [{ ...own, conclusion: "failure" }],
           [{ ...own, status: "in_progress", conclusion: null }],
         ];
@@ -1019,7 +1019,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
             context,
             MergeGateRunOptions.make({
               prNumber: pullFixture.number,
-              wantSha: headSha.slice(0, 10),
+              wantSha: Str.slice(0, 10)(headSha),
               tolerate: [],
               forceWindow: false,
               relaxed: false,

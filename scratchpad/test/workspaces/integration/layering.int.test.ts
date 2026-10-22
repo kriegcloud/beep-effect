@@ -27,7 +27,7 @@ const LAB = join(REPO, "scratchpad", "effected");
 const TESTS = join(REPO, "scratchpad", "test");
 const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 
-// Kit modules waves 1a, 1b and 2a of the effected promotion moved out of the lab
+// Kit modules waves 1a, 1b, 2a and 2b of the effected promotion moved out of the lab
 // into `@beep/*` packages keep their lab layer: an import of the package
 // (`@beep/<pkg>` or `@beep/<pkg>/<File>`) is an edge to the lab module it was,
 // and the package's own `src` and `test` are scanned as that module's source and
@@ -35,11 +35,12 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // Wave 2a split two modules: the pure halves of `npm` and `tsconfig-json` are
 // `@beep/npm-spec` and `@beep/tsconfig`, and their IO halves stay lab
 // directories, so each package and its lab half fold into the one lab module.
-// Wave 2b promoted `walker` whole as `@beep/walker`.
+// Wave 2b promoted `walker` whole as `@beep/walker` and `env` whole as `@beep/runtime-env`.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
 	"@beep/git": "git",
+	"@beep/github": "github",
 	"@beep/github-commands": "github-commands",
 	"@beep/github-references": "github-references",
 	"@beep/glob": "glob",
@@ -48,6 +49,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/managed-section": "templates",
 	"@beep/memfs": "memfs",
 	"@beep/npm-spec": "npm",
+	"@beep/runtime-env": "env",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",
 	"@beep/spdx": "spdx",

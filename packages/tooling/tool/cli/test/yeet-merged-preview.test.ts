@@ -22,6 +22,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
+import * as Str from "effect/String";
 
 const TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
 const BASE_SHA = "1111111111111111111111111111111111111111";
@@ -162,7 +163,7 @@ describe("yeet merged preview context", () => {
     const derived = yeetMergedPreviewContext(context, preview, "/repo/.beep/yeet");
 
     expect(derived.packetDir).toBe("/repo/.beep/yeet");
-    expect(derived.packetDir.startsWith(preview.worktreePath)).toBe(false);
+    expect(Str.startsWith(preview.worktreePath)(derived.packetDir)).toBe(false);
   });
 });
 

@@ -1,0 +1,43 @@
+language js
+
+// EF-12 (standards/effect-first-development.md): identity annotations reach a
+// non-class schema through the pipeable composer helpers, never through the raw
+// `.annotate` / `.annotateKey` methods. `$C` is any `$`-prefixed IdentityComposer,
+// or a chain rooted at one such as `$Pkg.create("internal/x")`.
+//
+//   X.annotate($C.annote(...))     ->  X.pipe($C.annoteSchema(...))
+//   X.annotateKey($C.annote(...))  ->  X.pipe($C.annoteKey(...))
+//
+// Class trailing arguments (`S.Class(..., $C.annote(...))`) and check arguments
+// (`S.isInt($C.annote(...))`) never call `.annotate`, so they do not match. Raw
+// `.annotate({...})` / `.annotateKey({...})` objects are allowed. Where the pipe
+// form trips TS2310 inside a recursive class's own base, EF-12 applies the
+// helper directly, `$C.annoteKey(...)(S.suspend(...))`, which does not match.
+
+// Source text that starts with a `$`-prefixed identifier token, including
+// member chains that break across lines.
+pattern composer_rooted() { r"^[$][A-Za-z0-9_]*(?:[^A-Za-z0-9_$][\s\S]*)?$" }
+
+pattern identity_annote() {
+  or {
+    `$composer.annote($...)`,
+    `$composer.annote<$...>($...)`
+  } where { $composer <: composer_rooted() }
+}
+
+or {
+  or {
+    `$schema.annotate($annotation)`,
+    `$schema.annotate<$...>($annotation)`
+  } as $call where {
+    $annotation <: identity_annote(),
+    register_diagnostic(span=$call, message="Rule: identity annotations go through `$I.annoteSchema`, not `.annotate($I.annote(...))`. Why: the raw `.annotate` returns a plain schema and drops statics such as `match`, `cases`, `guards` and `isAnyOf` on `S.toTaggedUnion` results; `annoteSchema` preserves them (EF-12 in standards/effect-first-development.md). Fix: write `X.pipe($I.annoteSchema(...))`; a check takes the annotations as its argument, `S.isInt($I.annote(...))`.", severity="error")
+  },
+  or {
+    `$schema.annotateKey($annotation)`,
+    `$schema.annotateKey<$...>($annotation)`
+  } as $call where {
+    $annotation <: identity_annote(),
+    register_diagnostic(span=$call, message="Rule: identity annotations go through `$I.annoteKey`, not `.annotateKey($I.annote(...))`. Why: `annoteKey` is the canonical field form and types its extras as key annotations (EF-12 in standards/effect-first-development.md). Fix: write `X.pipe($I.annoteKey('Parent.key', {...}))`; inside a recursive class's own base, where the pipe form trips TS2310, apply it directly: `$I.annoteKey('Parent.key', {...})(S.suspend(...))`.", severity="error")
+  }
+}

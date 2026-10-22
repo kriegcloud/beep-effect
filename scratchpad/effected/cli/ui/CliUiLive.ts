@@ -1,7 +1,7 @@
 // Root types are named through the package's own name, so the emitted ui.d.ts imports them from "../index.ts".
 import type * as Cli from "../index.ts";
 import { $ScratchpadId } from "@beep/identity/packages";
-import { Audience, TerminalEnv } from "../../env/index.ts";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { CommandNeutralizer } from "@beep/github-commands";
 import type * as Console from "effect/Console";
 import * as Cause from "effect/Cause";

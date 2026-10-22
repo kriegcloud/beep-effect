@@ -1,7 +1,7 @@
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import type { TerminalEnvShape } from "../../env/index.ts";
+import type { TerminalEnvShape } from "@beep/runtime-env";
 
 /**
  * Whether the terminal facts let a run prompt: a terminal on standard input and on standard output, and a `TERM` that
@@ -15,13 +15,11 @@ import type { TerminalEnvShape } from "../../env/index.ts";
  * import { canPrompt } from "@beep/scratchpad/effected/cli/internal/canPrompt"
  * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
- * import type { StreamEnv, TerminalEnvShape } from "@beep/scratchpad/effected/env/TerminalEnv"
+ * import { StreamEnv, TerminalSnapshot } from "@beep/runtime-env/TerminalEnv"
  *
- * const stream: StreamEnv = { isTerminal: false, color: "none", hyperlinks: false, columns: O.none<number>() }
- * const terminal: TerminalEnvShape = {
- *   stdinIsTerminal: false,
- *   stdout: stream,
- *   stderr: stream,
+ * const stream = StreamEnv.make({ isTerminal: false, color: "none", hyperlinks: false, columns: O.none<number>() })
+ * const terminal = {
+ *   ...TerminalSnapshot.make({ stdinIsTerminal: false, stdout: stream, stderr: stream }),
  *   width: () => 80,
  * }
  * console.log(Effect.runSync(canPrompt(terminal))) // false
