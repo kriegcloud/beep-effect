@@ -331,6 +331,49 @@ Verification, each run alone through beep-heavy with `</dev/null`:
 - JSDoc ratchet: still +1. It is the inherited `decideLicense` finding from #1991,
   which #2004 fixes on main.
 
+## Review round 3 (#1998)
+
+Lane head `6012829f38`.
+
+- **PRRT_kwDOPbO_N86u_uvJ (P1, build break).** Round 2 passed `bindingReferences`
+  results (`Identifier`) to `wrappedByProvider` and `pipesThroughProvider`, which
+  took a `CallExpression`. Both only use `getAncestors()` and `containsNode`, so the
+  node parameter is now `MorphNode`. The round-2 verification missed this because
+  the Bun test run strips types and effect-diagnostics reports only Effect rules.
+  - At `HEAD`, `tsc-rs -p tsconfig.check.json` fails with TS2740 at lines 1082 and 1093.
+  - With the fix, `bun run check` (`tsc-rs` over `tsconfig.check.json` and
+    `scripts/tsconfig.json`) exits 0 with 0 errors.
+  - The test overlay (`tsc-rs -p test/tsconfig.json`) has one error, TS2345 at
+    `test/ci-dependency-review.test.ts:157`. It is inherited from #1991:
+    `src/commands/Ci/DependencyReview.ts` and that test are identical on
+    `origin/main` `26bc04db92`, and this lane does not touch them.
+  - The dependency dists were rebuilt first with
+    `bunx turbo run build --filter=@beep/repo-cli^...` (49 tasks, all successful).
+- **PRRT_kwDOPbO_N86u_uvR (P2): inline unknown wrappers.** When a helper call's
+  value reaches neither `yield*` nor a binding, `boundValueSafe` now applies
+  `flowsToNativeRun`, the same rule as the binding path. A helper call passed
+  inline to an unknown function therefore stays unfollowed. The same applies to an
+  object property, a spread or an assignment, which replaces the ad hoc
+  `isEscapeSite` check. New still-flagged fixtures:
+  - `yield* withFakeFs(stageWorkspace())`
+  - `yield* runElsewhere(stageWorkspace())`
+  - `yield* runElsewhere(Fx.map(stageWorkspace(), f))`
+
+  All three were unflagged at `6012829f38` and flag now. All 16 passing and 32
+  flagged shapes in the case hold, models-check included.
+
+Verification, each run alone through beep-heavy with `</dev/null`:
+
+- Typed `bun run check`: 0 errors.
+- Detector, contract and four models suites: 341/341 on Bun and 341/341 on Node.
+- `lint effect-vitest`: 1,698 findings, introduced=0, resolved=0, scan 26.1 s
+  (detect 25.9 s). Rows are unchanged and none re-opened.
+- `lint:schema-first`: introduced=0.
+- effect-diagnostics: 0 in changed files, plus the four inherited errors in
+  `test/laws-schema-tag-idioms.test.ts`.
+- oxlint and Biome: 0 on changed files.
+- `quality fallow audit --check --base origin/main`: exit 0.
+
 Route: S39/S41 Claude chain, `claude-opus-5-5` Agent child (step 1), no fallback.
 
 ## Reversal

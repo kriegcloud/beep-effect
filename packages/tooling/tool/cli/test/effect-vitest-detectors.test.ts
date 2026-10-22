@@ -1547,6 +1547,9 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         bound("const programs = { program: stageWorkspace() }; yield* Fx.provide(programs.program, FakeLayer);"),
         bound("const workspace = yield* stageWorkspace(); yield* Fx.provide(workspace, FakeLayer);"),
         bound("const program = stageWorkspace(); const wrap = () => program; yield* Fx.provide(wrap(), FakeLayer);"),
+        bound("yield* withFakeFs(stageWorkspace());"),
+        bound("yield* runElsewhere(stageWorkspace());"),
+        bound("yield* runElsewhere(Fx.map(stageWorkspace(), (value) => value));"),
       ])
         deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
     })

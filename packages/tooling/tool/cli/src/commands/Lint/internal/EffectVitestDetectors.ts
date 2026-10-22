@@ -968,7 +968,7 @@ const containsNode = (outer: MorphNode, inner: MorphNode): boolean =>
   outer === inner || A.some(inner.getAncestors(), (ancestor) => ancestor === outer);
 
 // A pipe whose input holds the call and whose later stages include a provider.
-const pipesThroughProvider = (pipe: CallExpression, call: CallExpression, imports: EffectVitestImports): boolean => {
+const pipesThroughProvider = (pipe: CallExpression, call: MorphNode, imports: EffectVitestImports): boolean => {
   const callee = pipe.getExpression();
   if (Node.isPropertyAccessExpression(callee) && callee.getName() === "pipe")
     return (
@@ -982,7 +982,7 @@ const pipesThroughProvider = (pipe: CallExpression, call: CallExpression, import
 
 // True when a provider or update wrapper encloses this call site within its region,
 // either taking it as an argument or piping it through a provider stage.
-const wrappedByProvider = (call: CallExpression, region: MorphNode, imports: EffectVitestImports): boolean =>
+const wrappedByProvider = (call: MorphNode, region: MorphNode, imports: EffectVitestImports): boolean =>
   A.some(
     A.takeWhile(call.getAncestors(), (ancestor) => ancestor !== region),
     (ancestor) =>
@@ -1095,15 +1095,6 @@ const resultBindingSafe = (declaration: VariableDeclaration, check: BindingCheck
   );
 };
 
-const isEscapeSite = (parent: MorphNode | undefined, value: MorphNode): boolean =>
-  Node.isPropertyAssignment(parent) ||
-  Node.isShorthandPropertyAssignment(parent) ||
-  Node.isSpreadElement(parent) ||
-  Node.isSpreadAssignment(parent) ||
-  (Node.isBinaryExpression(parent) &&
-    parent.getRight() === value &&
-    parent.getOperatorToken().getKind() === SyntaxKind.EqualsToken);
-
 // One step from a value to its consumer: through `yield*` (the effect has then run) or a carrier.
 const valueStep = (
   node: MorphNode,
@@ -1126,8 +1117,9 @@ const boundValueSafe = (call: CallExpression, region: MorphNode, imports: Effect
   const check: BindingCheck = { region, imports, seen: [] };
   if (Node.isVariableDeclaration(parent) && parent.getInitializer() === current)
     return ran ? resultBindingSafe(parent, check) : effectBindingSafe(parent, check);
-  // Stored in an object, spread, or assigned to an existing binding: the value escapes.
-  return ran || !isEscapeSite(parent, current);
+  // An unrun value must reach a native run like a bound one; an unknown function argument,
+  // object property, spread or assignment does not, so the helper stays unfollowed.
+  return ran || flowsToNativeRun(current, check);
 };
 
 // `updateServiceScoped` rewrites the rest of its scope, so it taints every call site in the region.
