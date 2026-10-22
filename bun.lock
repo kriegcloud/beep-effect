@@ -4233,7 +4233,6 @@
     "wink-eng-lite-web-model": "^1.8.1",
     "wink-nlp": "^2.4.0",
     "wink-nlp-utils": "^2.1.0",
-    "ws": "^8.22.0",
     "xstate": "6.0.0-alpha.70",
     "yaml": "^2.9.1",
   },
