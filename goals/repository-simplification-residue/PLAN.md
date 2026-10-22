@@ -53,6 +53,8 @@ more rows (`history/receipts/detectors-wave-1.md`). Wave 2 is FP-1..FP-7.
 Wave 2 repaired FP-1, FP-3, FP-4 and FP-5 and retired 155 rows with none added
 (`history/receipts/detectors-wave-2.md`); wave 3 is the FP-2/FP-6 rulings, individual exception
 review and the zero scan.
+Wave 3 ruled FP-2 and FP-6 and retired 192 rows with no row or allowlist entry added
+(`history/receipts/detectors-wave-3.md`); wave 4 is the EV014 named-test-layer frontier.
 #1875 `residue-vitest-canon` is in progress after wave 1, which leaves 689 open rows
 (`history/receipts/vitest-canon-wave-1.md`).
 #1876 `residue-rdf-pacer` is complete (`history/receipts/rdf-pacer-ports.md`): the
