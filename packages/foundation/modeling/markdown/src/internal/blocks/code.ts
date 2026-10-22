@@ -14,7 +14,7 @@
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
-import { Code } from "../../MarkdownNode.ts";
+import { trustedNode } from "../nodes.ts";
 import { CODE_INDENT, isSpaceOrTab, peekCode } from "../preprocess.ts";
 import { unescapeString } from "../unescape.ts";
 import type {
@@ -25,6 +25,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { Code } from "../nodes.ts";
 
 const reBlankLine = /^[ \t]*$/;
 const reClosingCodeFence = /^(?:`{3,}|~{3,})(?=[ \t]*$)/;
@@ -149,7 +150,8 @@ export const codeConstruct: BlockConstruct = {
       context: MaterializeContext
     ): MaterializedBlock | undefined => {
       const { isFenced, fenceChar, fenceLength, lang, meta } = block.data;
-      return Code.make({
+      return trustedNode<Code>({
+        type: "code",
         value: block.stringContent,
         position: context.position(block.startOffset, block.endOffset),
         ...O.getSomesStruct({ lang: O.fromUndefinedOr(lang) }),

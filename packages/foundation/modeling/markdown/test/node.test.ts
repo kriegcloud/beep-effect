@@ -1,4 +1,5 @@
 import { $MarkdownId } from "@beep/identity/packages";
+import * as Mdx from "@beep/markdown/MarkdownMdx";
 import * as Node from "@beep/markdown/MarkdownNode";
 import {
   Blockquote,
@@ -66,7 +67,7 @@ describe("MarkdownNode", () => {
     });
 
     it("describes MDX keys without changing their encoded shapes", () => {
-      for (const schema of [Node.MdxJsxAttribute, Node.MdxJsxFlowElement, Node.MdxJsxTextElement]) {
+      for (const schema of [Mdx.MdxJsxAttribute, Mdx.MdxJsxFlowElement, Mdx.MdxJsxTextElement]) {
         for (const field of Object.values(schema.fields)) {
           assert.isString(field.ast.context?.annotations?.description);
           assert.isNotEmpty(field.ast.context?.annotations?.description);
@@ -82,12 +83,12 @@ describe("MarkdownNode", () => {
         position,
       } as const;
       const text = { type: "mdxJsxTextElement", name: null, attributes: [], children: [], position } as const;
-      const decodedAttribute = Result.getOrThrow(S.decodeResult(Node.MdxJsxAttribute)(attribute));
-      const decodedFlow = Result.getOrThrow(S.decodeResult(Node.MdxJsxFlowElement)(flow));
-      const decodedText = Result.getOrThrow(S.decodeResult(Node.MdxJsxTextElement)(text));
-      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(Node.MdxJsxAttribute)(decodedAttribute)), attribute);
-      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(Node.MdxJsxFlowElement)(decodedFlow)), flow);
-      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(Node.MdxJsxTextElement)(decodedText)), text);
+      const decodedAttribute = Result.getOrThrow(S.decodeResult(Mdx.MdxJsxAttribute)(attribute));
+      const decodedFlow = Result.getOrThrow(S.decodeResult(Mdx.MdxJsxFlowElement)(flow));
+      const decodedText = Result.getOrThrow(S.decodeResult(Mdx.MdxJsxTextElement)(text));
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(Mdx.MdxJsxAttribute)(decodedAttribute)), attribute);
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(Mdx.MdxJsxFlowElement)(decodedFlow)), flow);
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(Mdx.MdxJsxTextElement)(decodedText)), text);
     });
 
     it("preserves named literal members, identities and keyed helper APIs", () => {
@@ -176,29 +177,28 @@ describe("MarkdownNode", () => {
       assert.strictEqual(text.position.end.offset, 4);
     });
 
-    it("passes constructed children through `make` by identity", () => {
-      // The pin for the category-union children fields (`RowContent` in
-      // `MarkdownNode.ts`): `make` passes an already-constructed instance
-      // through a nested class-typed field by reference, whether the field
-      // is a plain class type or — as here — wrapped in a category union.
-      // `position` (a plain class-typed field, pinned in
-      // node-synthesis.test.ts) and `children` (wrapped in `RowContent` /
-      // `TableContent`) both preserve identity on `make`; this test pins
-      // that pass-through specifically for the category-union `children`
-      // fields that back `TableRow`/`Table`/`List`.
+    it("copies constructed children through `make`, keeping them deep-equal", () => {
+      // Nodes are plain-data `S.Opaque` values (D-22, D-39): `make` validates
+      // and copies nested data, through a plain node-typed field and through a
+      // category union (`RowContent`, `TableContent`, `ListContent`) alike.
+      // Before the conversion, class instances passed through by reference.
       const text = Text.make({ value: "x", position: span(0, 1) });
       const cell = TableCell.make({ children: [text], position: span(0, 1) });
-      assert.strictEqual(cell.children[0], text);
+      assert.notStrictEqual(cell.children[0], text);
+      assert.deepStrictEqual(cell.children[0], text);
 
       const row = TableRow.make({ children: [cell], position: span(0, 1) });
-      assert.strictEqual(row.children[0], cell);
+      assert.notStrictEqual(row.children[0], cell);
+      assert.deepStrictEqual(row.children[0], cell);
 
       const table = Table.make({ children: [row], position: span(0, 1) });
-      assert.strictEqual(table.children[0], row);
+      assert.notStrictEqual(table.children[0], row);
+      assert.deepStrictEqual(table.children[0], row);
 
       const item = ListItem.make({ children: [], position: span(0, 1) });
       const list = List.make({ children: [item], position: span(0, 1) });
-      assert.strictEqual(list.children[0], item);
+      assert.notStrictEqual(list.children[0], item);
+      assert.deepStrictEqual(list.children[0], item);
     });
   });
 
@@ -387,19 +387,19 @@ describe("MarkdownNode", () => {
 
       const decoded = decodeRoot(tree);
 
-      assert.instanceOf(decoded, Root);
+      assert(S.is(Root)(decoded));
       assert.strictEqual(decoded.children.length, 7);
 
       const list = decoded.children[5];
       assert.strictEqual(list?.type, "list");
-      assert.instanceOf(list, List);
+      assert(S.is(List)(list));
       assert.strictEqual(list.start, 3);
       assert.strictEqual(list.ordered, true);
 
       const item = list.children[0];
-      assert.instanceOf(item, ListItem);
+      assert(S.is(ListItem)(item));
       const quote = item?.children[0];
-      assert.instanceOf(quote, Blockquote);
+      assert(S.is(Blockquote)(quote));
     });
 
     it("round-trips a decoded tree back through encode", () => {
@@ -473,7 +473,7 @@ describe("MarkdownNode", () => {
       }
 
       assert.strictEqual(seen, 40);
-      assert.instanceOf(cursor, Paragraph);
+      assert(S.is(Paragraph)(cursor));
     });
   });
 
@@ -695,29 +695,29 @@ describe("MarkdownNode", () => {
 
         const decoded = decodeRoot(tree);
 
-        assert.instanceOf(decoded, Root);
+        assert(S.is(Root)(decoded));
         assert.strictEqual(decoded.children.length, 4);
 
         const paragraph = decoded.children[0];
-        assert.instanceOf(paragraph, Paragraph);
-        assert.instanceOf(paragraph.children[0], Delete);
-        assert.instanceOf(paragraph.children[1], FootnoteReference);
+        assert(S.is(Paragraph)(paragraph));
+        assert(S.is(Delete)(paragraph.children[0]));
+        assert(S.is(FootnoteReference)(paragraph.children[1]));
 
         const list = decoded.children[1];
-        assert.instanceOf(list, List);
+        assert(S.is(List)(list));
         const item = list.children[0];
-        assert.instanceOf(item, ListItem);
+        assert(S.is(ListItem)(item));
         assert.strictEqual(item.checked, true);
 
         const table = decoded.children[2];
-        assert.instanceOf(table, Table);
+        assert(S.is(Table)(table));
         assert.deepStrictEqual(table.align, ["left", null]);
         const row = table.children[0];
-        assert.instanceOf(row, TableRow);
-        assert.instanceOf(row.children[0], TableCell);
+        assert(S.is(TableRow)(row));
+        assert(S.is(TableCell)(row.children[0]));
 
         const footnoteDefinition = decoded.children[3];
-        assert.instanceOf(footnoteDefinition, FootnoteDefinition);
+        assert(S.is(FootnoteDefinition)(footnoteDefinition));
         assert.strictEqual(footnoteDefinition.identifier, "note");
       });
 

@@ -22,8 +22,8 @@
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
-import { Definition } from "../../MarkdownNode.ts";
 import { makeBlockNode } from "../blockTypes.ts";
+import { trustedNode } from "../nodes.ts";
 import { parseReference } from "../references.ts";
 import { sliceWithSegments, sourceOffsetAt } from "../segments.ts";
 import type {
@@ -34,6 +34,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { Definition } from "../nodes.ts";
 
 const C_OPEN_BRACKET = 0x5b;
 
@@ -177,7 +178,8 @@ export const definitionConstruct: BlockConstruct = {
       if (definition === undefined) {
         return undefined;
       }
-      return Definition.make({
+      return trustedNode<Definition>({
+        type: "definition",
         identifier: definition.identifier,
         label: definition.label,
         url: definition.url,

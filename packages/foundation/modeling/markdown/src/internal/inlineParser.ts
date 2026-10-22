@@ -46,8 +46,20 @@ import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as P from "effect/Predicate";
-import {
+import { GuardExceeded } from "./carriers.ts";
+import { appendChild, childrenOf, insertAfter, makeInlineNode, unlink } from "./inlineNode.ts";
+import { inlineDialect } from "./inlineRegistry.ts";
+import { C_TILDE, insertStrikethrough } from "./inlines/strikethrough.ts";
+import { MAX_NESTING_DEPTH } from "./limits.ts";
+import { trustedNode } from "./nodes.ts";
+import { globalOf, stickyOf } from "./patterns.ts";
+import { sourceOffsetAt } from "./segments.ts";
+import type { InlineNode } from "./inlineNode.ts";
+import type { InlineDialectName } from "./inlineRegistry.ts";
+import type { Bracket, Delimiter, InlineDialect, InlineScanner, InlineSource } from "./inlineTypes.ts";
+import type {
   Break,
+  Definition,
   Delete,
   Emphasis,
   FootnoteReference,
@@ -57,20 +69,11 @@ import {
   InlineCode,
   Link,
   LinkReference,
+  PhrasingContent,
+  Position,
   Strong,
   Text,
-} from "../MarkdownNode.ts";
-import { GuardExceeded } from "./carriers.ts";
-import { appendChild, childrenOf, insertAfter, makeInlineNode, unlink } from "./inlineNode.ts";
-import { inlineDialect } from "./inlineRegistry.ts";
-import { C_TILDE, insertStrikethrough } from "./inlines/strikethrough.ts";
-import { MAX_NESTING_DEPTH } from "./limits.ts";
-import { globalOf, stickyOf } from "./patterns.ts";
-import { sourceOffsetAt } from "./segments.ts";
-import type { Definition, PhrasingContent, Position } from "../MarkdownNode.ts";
-import type { InlineNode } from "./inlineNode.ts";
-import type { InlineDialectName } from "./inlineRegistry.ts";
-import type { Bracket, Delimiter, InlineDialect, InlineScanner, InlineSource } from "./inlineTypes.ts";
+} from "./nodes.ts";
 
 const C_UNDERSCORE = 0x5f;
 const C_ASTERISK = 0x2a;
@@ -137,28 +140,33 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
     dual(
       2,
       (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
-        InlineCode.make({ value: node.value, position })
+        trustedNode<InlineCode>({ type: "inlineCode", value: node.value, position })
     )
   ),
   Match.when({ type: "html" }, (node) =>
     dual(
       2,
       (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
-        Html.make({ value: node.value, position })
+        trustedNode<Html>({ type: "html", value: node.value, position })
     )
   ),
   Match.when({ type: "break" }, (node) =>
     dual(
       2,
       (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
-        Break.make({ position, ...O.getSomesStruct({ breakStyle: O.fromUndefinedOr(node.data.breakStyle) }) })
+        trustedNode<Break>({
+          type: "break",
+          position,
+          ...O.getSomesStruct({ breakStyle: O.fromUndefinedOr(node.data.breakStyle) }),
+        })
     )
   ),
   Match.when({ type: "emphasis" }, (node) =>
     dual(
       2,
       (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
-        Emphasis.make({
+        trustedNode<Emphasis>({
+          type: "emphasis",
           children: materializeChildren(node),
           position,
           ...O.getSomesStruct({ markerChar: O.fromUndefinedOr(node.data.markerChar) }),
@@ -169,14 +177,15 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
     dual(
       2,
       (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
-        Delete.make({ children: materializeChildren(node), position })
+        trustedNode<Delete>({ type: "delete", children: materializeChildren(node), position })
     )
   ),
   Match.when({ type: "strong" }, (node) =>
     dual(
       2,
       (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
-        Strong.make({
+        trustedNode<Strong>({
+          type: "strong",
           children: materializeChildren(node),
           position,
           ...O.getSomesStruct({ markerChar: O.fromUndefinedOr(node.data.markerChar) }),
@@ -187,7 +196,8 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
     dual(
       2,
       (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
-        Link.make({
+        trustedNode<Link>({
+          type: "link",
           url: node.data.url ?? "",
           children: materializeChildren(node),
           position,
@@ -199,7 +209,8 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
     dual(
       2,
       (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
-        Image.make({
+        trustedNode<Image>({
+          type: "image",
           url: node.data.url ?? "",
           position,
           ...O.getSomesStruct({ title: O.fromUndefinedOr(node.data.title) }),
@@ -211,7 +222,8 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
     dual(
       2,
       (position: Position, materializeChildren: MaterializeChildren): PhrasingContent =>
-        LinkReference.make({
+        trustedNode<LinkReference>({
+          type: "linkReference",
           identifier: node.data.identifier ?? "",
           referenceType: node.data.referenceType ?? "shortcut",
           children: materializeChildren(node),
@@ -227,7 +239,8 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
         // The GFM counterpart of `linkReference`, and unresolved for the
         // same reason: which definition it points at is the consumer's
         // business, not the parser's.
-        FootnoteReference.make({
+        trustedNode<FootnoteReference>({
+          type: "footnoteReference",
           identifier: node.data.identifier ?? "",
           position,
           ...O.getSomesStruct({ label: O.fromUndefinedOr(node.data.label) }),
@@ -238,7 +251,8 @@ const materializeInlineNode = Match.type<MaterializableInlineNode>().pipe(
     dual(
       2,
       (position: Position, _materializeChildren: MaterializeChildren): PhrasingContent =>
-        ImageReference.make({
+        trustedNode<ImageReference>({
+          type: "imageReference",
           identifier: node.data.identifier ?? "",
           referenceType: node.data.referenceType ?? "shortcut",
           position,
@@ -718,7 +732,11 @@ class InlineParser implements InlineScanner {
       }
       if (pendingText.value.length > 0) {
         children.push(
-          Text.make({ value: pendingText.value, position: this.position(pendingText.start, pendingText.end) })
+          trustedNode<Text>({
+            type: "text",
+            value: pendingText.value,
+            position: this.position(pendingText.start, pendingText.end),
+          })
         );
       }
       pendingText = undefined;

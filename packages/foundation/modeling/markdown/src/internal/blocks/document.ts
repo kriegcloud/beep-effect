@@ -8,7 +8,8 @@
 // (`linkReferenceDefinition.ts`), so this construct's finalize is a no-op.
 
 import { dual } from "effect/Function";
-import { Root } from "../../MarkdownNode.ts";
+import { flowChildren } from "../blockTypes.ts";
+import { trustedNode } from "../nodes.ts";
 import type {
   BlockConstruct,
   BlockContinueResult,
@@ -17,6 +18,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { Root } from "../nodes.ts";
 
 /**
  * Materializes the document root, containing everything except a bare list item.
@@ -45,6 +47,10 @@ export const documentConstruct: BlockConstruct = {
       children: ReadonlyArray<MaterializedBlock>,
       context: MaterializeContext
     ): MaterializedBlock | undefined =>
-      Root.make({ children, position: context.position(block.startOffset, block.endOffset) })
+      trustedNode<Root>({
+        type: "root",
+        children: flowChildren(children),
+        position: context.position(block.startOffset, block.endOffset),
+      })
   ),
 };

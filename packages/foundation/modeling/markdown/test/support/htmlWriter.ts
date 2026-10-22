@@ -15,6 +15,7 @@
 
 import { dual } from "effect/Function";
 import { hasProperty } from "effect/Predicate";
+import type { MdxjsEsm } from "@beep/markdown/MarkdownMdx";
 import type {
   Blockquote,
   Code,
@@ -28,7 +29,6 @@ import type {
   LinkReference,
   List,
   ListItem,
-  MdxjsEsm,
   Paragraph,
   PhrasingContent,
   Root,

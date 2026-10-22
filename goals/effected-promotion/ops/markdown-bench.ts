@@ -30,7 +30,7 @@
  * record total ms and peak RSS; informational, never gated).
  */
 import { Markdown, MarkdownParseOptions } from "@beep/markdown/Markdown";
-import { InlineCode, Paragraph, Root, Table, TableCell, TableRow, Text } from "@beep/markdown/MarkdownNode";
+import { InlineCode, Paragraph, Root, Text } from "@beep/markdown/MarkdownNode";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
@@ -96,6 +96,12 @@ const MacroRun = S.Struct({
 
 const BenchReport = S.Struct({
   schemaVersion: S.Literal(1),
+  // Bumped whenever a corpus definition changes, so a compare never pairs two
+  // reports that measured different trees. Reports written before version 2
+  // carry no field and are refused by --compare.
+  workloadVersion: S.optionalKey(S.Int),
+  // `git rev-parse HEAD` of the checkout that produced the report.
+  commit: S.optionalKey(S.NonEmptyString),
   tool: S.NonEmptyString,
   generatedAt: S.NonEmptyString,
   runtime: S.Struct({
@@ -135,6 +141,11 @@ class MarkdownBenchUsage extends Data.TaggedError("MarkdownBenchUsage")<{
 // --- configuration ------------------------------------------------------------
 
 const TOOL = "goals/effected-promotion/ops/markdown-bench.ts";
+// 1: the move-commit baseline (table-150000-rows built from one shared
+//    TableRow.make value).
+// 2: table-150000-rows is parsed from generated markdown, so its tree has the
+//    same shape whatever `make` does with node identity.
+const WORKLOAD_VERSION = 2;
 const MAX_SLOWDOWN_PCT = 10;
 const MAX_DEPTH_RATIO = 2.5;
 const DEPTHS = A.make(32, 64, 128, 256);
@@ -253,9 +264,16 @@ const stringifyOf = (workload: Workload): O.Option<Workload> =>
       )
     : O.none();
 
-const stringifyScalability = (): ReadonlyArray<Workload> => {
-  const row = TableRow.make({ children: [TableCell.make({ children: [] })] });
-  const table = Root.make({ children: [Table.make({ children: A.makeBy(150_000, () => row) })] });
+const TABLE_ROWS = 150_000;
+
+// The table is parsed, not built with `make`: the move commit's `make` keeps a
+// shared row by reference and an S.Opaque `make` copies it, so a `make`-built
+// tree with one shared row has a different shape on each side of the
+// conversion. Parsing gives one distinct one-cell row per line on both sides.
+// The header row counts toward the 150 000 rows. Parsing is not timed.
+const tableDocument = A.join(A.appendAll(["|  |", "| --- |"], A.replicate("|  |", TABLE_ROWS - 1)), "\n");
+
+const stringifyScalability = (table: Root): ReadonlyArray<Workload> => {
   const textSiblings = A.map(A.make(4_000, 8_000, 16_000), (size) => ({
     size,
     root: Root.make({ children: [Paragraph.make({ children: A.makeBy(size, () => Text.make({ value: "x" })) })] }),
@@ -325,7 +343,9 @@ const loadWorkloads = Effect.fn("MarkdownBench.loadWorkloads")(function* () {
   );
   const parses = A.flatten([conformance, depth, wide, pathological]);
   const stringifies = A.getSomes(A.map(A.flatten([conformance, depth, wide]), stringifyOf));
-  return A.flatten([parses, stringifies, stringifyScalability()]);
+  // A parse failure aborts the run instead of timing an empty tree.
+  const table = yield* Effect.fromResult(Markdown.parseResult(tableDocument, gfm));
+  return A.flatten([parses, stringifies, stringifyScalability(table)]);
 });
 
 // --- measurement --------------------------------------------------------------
@@ -616,6 +636,18 @@ const program = Effect.gen(function* () {
     onNone: () => Effect.succeed(O.none<BenchReport>()),
     onSome: (path) => readText(path).pipe(Effect.flatMap(decodeReport), Effect.asSome),
   });
+  const baselineWorkload = O.map(baseline, (report) => report.workloadVersion);
+  if (O.isSome(baselineWorkload) && baselineWorkload.value !== WORKLOAD_VERSION) {
+    return yield* new MarkdownBenchUsage({
+      message: `baseline workloadVersion ${baselineWorkload.value ?? "missing"} does not match ${WORKLOAD_VERSION}; re-baseline`,
+    });
+  }
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const commit = yield* spawner.string(ChildProcess.make("git", ["rev-parse", "HEAD"], { cwd: repoRoot })).pipe(
+    Effect.map(Str.trim),
+    Effect.map(O.liftPredicate(Str.isNonEmpty)),
+    Effect.orElseSucceed(() => O.none<string>())
+  );
   // The macro run happens in a child process: its peak RSS is then its own, and
   // its 700 MB heap does not change GC behaviour for the micro corpora, so a
   // baseline taken with --macro stays comparable with a compare run without it.
@@ -650,6 +682,8 @@ const program = Effect.gen(function* () {
   );
   const report: BenchReport = {
     schemaVersion: 1,
+    workloadVersion: WORKLOAD_VERSION,
+    ...O.match(commit, { onNone: () => ({}), onSome: (sha) => ({ commit: sha }) }),
     tool: TOOL,
     generatedAt: DateTime.formatIso(yield* DateTime.now),
     runtime: {

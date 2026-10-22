@@ -1,6 +1,7 @@
+import { trustedNode } from "@beep/markdown/internal/nodes";
 import { stringifyTree } from "@beep/markdown/internal/stringify";
 import { Markdown } from "@beep/markdown/Markdown";
-import { InlineCode, Paragraph, Root, Table, TableCell, TableRow, Text } from "@beep/markdown/MarkdownNode";
+import { InlineCode, Paragraph, Position, Root, Table, TableCell, TableRow, Text } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -38,9 +39,12 @@ describe("stringify scalability", () => {
             },
           })
       );
-      const paragraph = Paragraph.make({ children });
+      // `make` copies its input (D-22) and would drop the read-counting
+      // proxies, so the tree is assembled the way the parser assembles it
+      // (D-39) and the serializer reads the proxies themselves.
+      const paragraph = trustedNode<Paragraph>({ type: "paragraph", children, position: Position.synthetic });
       const before = paragraph.children;
-      const root = Root.make({ children: [paragraph] });
+      const root = trustedNode<Root>({ type: "root", children: [paragraph], position: Position.synthetic });
       reads = 0;
       assert.strictEqual(Result.getOrThrow(Markdown.stringifyResult(root)), `${Str.repeat(size)("x")}\n`);
       assert.isAtMost(reads, size * 4);

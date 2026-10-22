@@ -11,8 +11,8 @@
 // matches the full `HTMLTAG` union this file's type 7 is a subset of.
 
 import { dual } from "effect/Function";
-import { Html } from "../../MarkdownNode.ts";
 import { CLOSETAG, OPENTAG } from "../htmlTags.ts";
+import { trustedNode } from "../nodes.ts";
 import { peekCode } from "../preprocess.ts";
 import type {
   BlockConstruct,
@@ -24,6 +24,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { Html } from "../nodes.ts";
 
 const C_LESSTHAN = 0x3c;
 
@@ -115,7 +116,8 @@ export const htmlBlockConstruct: BlockConstruct = {
       _children: ReadonlyArray<MaterializedBlock>,
       context: MaterializeContext
     ): MaterializedBlock | undefined =>
-      Html.make({
+      trustedNode<Html>({
+        type: "html",
         value: block.stringContent,
         position: context.position(block.startOffset, block.endOffset),
       })

@@ -16,14 +16,8 @@ import * as SchemaIssue from "effect/SchemaIssue";
 import * as Str from "effect/String";
 import { unescapeString } from "./internal/unescape.ts";
 import { FrontmatterFormat, Position, Root } from "./MarkdownNode.ts";
-import type {
-  FlowContent,
-  Frontmatter,
-  List,
-  MarkdownNode,
-  MdxJsxAttributeContent,
-  PhrasingContent,
-} from "./MarkdownNode.ts";
+import type { MdxJsxAttributeContent } from "./MarkdownMdx.ts";
+import type { FlowContent, Frontmatter, List, MarkdownNode, PhrasingContent } from "./MarkdownNode.ts";
 
 const $I = $MarkdownId.create("Mdast");
 

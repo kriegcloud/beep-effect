@@ -43,13 +43,22 @@ const walk = (node: MarkdownNode, visit: (n: MarkdownNode) => void): void => {
   }
 };
 
+/** Parse options whose `dialect` getter throws a plain Error: a non-carrier raised inside the block pass. */
+const throwingOptions = (): MarkdownParseOptions =>
+  new Proxy(MarkdownParseOptions.make({}), {
+    get(target, key, receiver) {
+      if (key === "dialect") throw new Error("boom: a programmer error, not a carrier");
+      return Reflect.get(target, key, receiver);
+    },
+  });
+
 describe("Markdown.parseResult", () => {
   it("succeeds with a Root tree", () => {
     const result = Markdown.parseResult("# Title\n\nBody *text*.\n");
     assertSuccess(result, Result.getOrThrow(result));
     if (Result.isFailure(result)) return;
     const root = result.success;
-    assert.instanceOf(root, Root);
+    assert(S.is(Root)(root));
     assert.strictEqual(root.type, "root");
     assert.deepStrictEqual(
       root.children.map((child) => child.type),
@@ -130,24 +139,14 @@ describe("Markdown.parseResult", () => {
 
   it("rethrows a non-carrier as a defect rather than converting it", () => {
     // The defect-passthrough invariant: only the engine's own carriers
-    // become typed failures. A programmer error inside a construct — here
-    // a plain Error thrown from the node constructor the block pass calls
-    // — must escape untouched, never be laundered into MarkdownParseError.
-    const original = Paragraph.make;
-    const boom = new Error("boom: a programmer error, not a carrier");
-    Object.defineProperty(Paragraph, "make", {
-      configurable: true,
-      writable: true,
-      value: () => {
-        throw boom;
-      },
-    });
-    try {
-      assert.throws(() => Markdown.parseResult("a paragraph\n"), /boom: a programmer error/);
-    } finally {
-      Object.defineProperty(Paragraph, "make", { configurable: true, writable: true, value: original });
-    }
-    // And the seam really is restored — otherwise the assertion above is vacuous.
+    // become typed failures. A programmer error inside the guarded block pass
+    // — here a plain Error thrown by an options getter the pass reads — must
+    // escape untouched, never be laundered into MarkdownParseError. (The seam
+    // used to be a patched `Paragraph.make`; node schemas are `S.Opaque`
+    // now (D-22, D-39), the parser no longer calls `make` per node, and a
+    // schema's memoized `make` cannot be redefined.)
+    assert.throws(() => Markdown.parseResult("a paragraph\n", throwingOptions()), /boom: a programmer error/);
+    // And the seam is local to that call — otherwise the assertion above is vacuous.
     const restored = Markdown.parseResult("a paragraph\n");
     assertSuccess(restored, Result.getOrThrow(restored));
   });
@@ -176,23 +175,13 @@ describe("Markdown.parse", () => {
 
   it.effect("surfaces a non-carrier throw as a defect, not a typed failure", () =>
     Effect.gen(function* () {
-      const original = Paragraph.make;
-      const boom = new Error("boom: a programmer error, not a carrier");
-      Object.defineProperty(Paragraph, "make", {
-        configurable: true,
-        writable: true,
-        value: () => {
-          throw boom;
-        },
-      });
-      const exit = yield* Effect.exit(Markdown.parse("a paragraph\n"));
-      Object.defineProperty(Paragraph, "make", { configurable: true, writable: true, value: original });
+      const exit = yield* Effect.exit(Markdown.parse("a paragraph\n", throwingOptions()));
       assertExitFailure(
         exit,
         exit.pipe(
           Exit.match({
             onFailure: identity,
-            onSuccess: () => assert.fail("expected the constructor throw to fail"),
+            onSuccess: () => assert.fail("expected the options throw to fail"),
           })
         )
       );
@@ -214,7 +203,7 @@ describe("MarkdownParseOptions", () => {
       assert.fail("expected the parse to succeed");
     }
     const paragraph = result.success.children[0];
-    assert.instanceOf(paragraph, Paragraph);
+    assert(S.is(Paragraph)(paragraph));
     return paragraph.children.map((child) => child.type);
   };
 
@@ -253,7 +242,7 @@ describe("Markdown.MarkdownFromString", () => {
   it.effect("decodes markdown source into a Root", () =>
     Effect.gen(function* () {
       const root = yield* decode("para *em*\n");
-      assert.instanceOf(root, Root);
+      assert(S.is(Root)(root));
       assert.deepStrictEqual(
         root.children.map((child) => child.type),
         ["paragraph"]

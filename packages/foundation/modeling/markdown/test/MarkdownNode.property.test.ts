@@ -1,13 +1,11 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import * as Mdx from "@beep/markdown/MarkdownMdx";
 import * as Subject from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import * as SchemaAST from "effect/SchemaAST";
-import * as SchemaGetter from "effect/SchemaGetter";
-import * as SchemaTransformation from "effect/SchemaTransformation";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -67,29 +65,18 @@ describe("MarkdownNode schema property floor", () => {
   roundTrips("Table", Subject.Table);
   roundTrips("FlowContent", Subject.FlowContent);
   roundTrips("ListContent", Subject.ListContent);
-  roundTrips("MdxJsxAttributeValueExpression", Subject.MdxJsxAttributeValueExpression);
-  // Constructive representation avoids rejection at native Arbitrary size zero,
-  // while encode/decode and equivalence still use the exported class codec.
-  roundTrips(
-    "MdxJsxAttribute",
-    Subject.MdxJsxAttribute.annotate({
-      toCodecArbitrary: () =>
-        new SchemaAST.Link(
-          S.Struct({ ...Subject.MdxJsxAttribute.fields, name: S.NonEmptyString }).ast,
-          SchemaTransformation.makeTransformation({
-            decode: SchemaGetter.transform((value: Subject.MdxJsxAttribute) => Subject.MdxJsxAttribute.make(value)),
-            encode: SchemaGetter.forbiddenEncoding,
-          })
-        ),
-    })
-  );
-  roundTrips("MdxJsxExpressionAttribute", Subject.MdxJsxExpressionAttribute);
-  roundTrips("MdxJsxAttributeContent", Subject.MdxJsxAttributeContent);
-  roundTrips("MdxJsxFlowElement", Subject.MdxJsxFlowElement);
-  roundTrips("MdxJsxTextElement", Subject.MdxJsxTextElement);
-  roundTrips("MdxFlowExpression", Subject.MdxFlowExpression);
-  roundTrips("MdxTextExpression", Subject.MdxTextExpression);
-  roundTrips("MdxjsEsm", Subject.MdxjsEsm);
+  roundTrips("MdxJsxAttributeValueExpression", Mdx.MdxJsxAttributeValueExpression);
+  // The former `toCodecArbitrary` override is gone: the effect Arbitrary
+  // compiler honors it only on declarations, and the node is an `S.Opaque`
+  // struct now (D-22), so the native struct arbitrary drives it.
+  roundTrips("MdxJsxAttribute", Mdx.MdxJsxAttribute);
+  roundTrips("MdxJsxExpressionAttribute", Mdx.MdxJsxExpressionAttribute);
+  roundTrips("MdxJsxAttributeContent", Mdx.MdxJsxAttributeContent);
+  roundTrips("MdxJsxFlowElement", Mdx.MdxJsxFlowElement);
+  roundTrips("MdxJsxTextElement", Mdx.MdxJsxTextElement);
+  roundTrips("MdxFlowExpression", Mdx.MdxFlowExpression);
+  roundTrips("MdxTextExpression", Mdx.MdxTextExpression);
+  roundTrips("MdxjsEsm", Mdx.MdxjsEsm);
   roundTrips("FrontmatterFormat", Subject.FrontmatterFormat);
   roundTrips("Frontmatter", Subject.Frontmatter);
   roundTrips("FrontmatterContent", Subject.FrontmatterContent);

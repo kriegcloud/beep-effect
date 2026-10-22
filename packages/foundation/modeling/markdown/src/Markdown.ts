@@ -25,9 +25,8 @@ import { isGuardExceeded, isRawMarkdownError } from "./internal/carriers.ts";
 import { parsePhrasingText } from "./internal/phrasing.ts";
 import { stringifyTree } from "./internal/stringify.ts";
 import { MarkdownDiagnostic } from "./MarkdownDiagnostic.ts";
-import { Root } from "./MarkdownNode.ts";
+import { PhrasingContent, Root } from "./MarkdownNode.ts";
 import type { BlockPassResult } from "./internal/blockParser.ts";
-import type { PhrasingContent } from "./MarkdownNode.ts";
 
 const $I = $MarkdownId.create("Markdown");
 
@@ -273,6 +272,9 @@ export class MarkdownStringifyError extends S.TaggedError<MarkdownStringifyError
   }
 }
 
+// The admission schema for a parsed phrasing run.
+const PhrasingChildren = S.Array(PhrasingContent);
+
 /**
  * The dialect an options object resolves to. The PUBLIC default — `"gfm"`,
  * a product decision — is spelled exactly once, here. The engine's own
@@ -299,6 +301,14 @@ const frontmatterOf = (options?: MarkdownParseOptions): boolean => options?.fron
  * Shared by {@link Markdown.parseResult} and `MarkdownDocument.parseResult`
  * so the two entry points can never disagree about what is typed and what is
  * a defect.
+ *
+ * **Gotchas**
+ *
+ * The pass is not admitted: the parser builds its nodes as plain values and
+ * checks nothing (D-39). Each entry point admits the tree exactly once —
+ * `Markdown.parseResult` with `Root.make`, `MarkdownDocument.parseResult`
+ * with `MarkdownDocument.make` — so never hand `root` to a caller without
+ * one of them.
  *
  * **Example** (Inspect a successful block pass)
  *
@@ -408,7 +418,9 @@ export class Markdown {
   } = dual(
     (args) => P.isString(args[0]),
     (text: string, options?: MarkdownParseOptions): Result.Result<Root, MarkdownParseError> =>
-      Result.map(parsePassResult(text, options), (pass) => pass.root)
+      // The single checked admission (D-39): one linear `Root.make` over the
+      // plain tree the parser built, instead of a `make` per node.
+      Result.map(parsePassResult(text, options), (pass) => Root.make(pass.root))
   );
 
   /**
@@ -505,7 +517,8 @@ export class Markdown {
     (args) => P.isString(args[0]),
     (text: string, options?: MarkdownParseOptions): Result.Result<ReadonlyArray<PhrasingContent>, MarkdownParseError> =>
       Result.try({
-        try: () => parsePhrasingText(text, dialectOf(options)),
+        // One checked admission for the whole phrasing run (D-39).
+        try: () => PhrasingChildren.make(parsePhrasingText(text, dialectOf(options))),
         catch: (caught) => {
           if (isGuardExceeded(caught)) {
             return MarkdownParseError.make({
@@ -764,12 +777,16 @@ export class Markdown {
   static fromString(options?: MarkdownParseOptions): S.Codec<Root, string> {
     return S.String.pipe(
       S.decodeTo(
-        Root,
+        S.toType(Root),
         SchemaTransformation.transformEffect({
+          // The decode target `S.toType(Root)` is the single checked
+          // admission (D-39), so the transformation hands it the unadmitted
+          // pass tree; going through `Markdown.parse` would walk it twice.
           decode: (input: string) =>
-            Effect.mapError(
-              Markdown.parse(input, options),
-              (error) => new SchemaIssue.InvalidValue({ message: error.message }, input)
+            Effect.fromResult(parsePassResult(input, options)).pipe(
+              Effect.map((pass) => pass.root),
+              Effect.mapError((error) => new SchemaIssue.InvalidValue({ message: error.message }, input)),
+              Effect.withSpan("Markdown.parse")
             ),
           encode: (value: Root) =>
             Effect.mapError(

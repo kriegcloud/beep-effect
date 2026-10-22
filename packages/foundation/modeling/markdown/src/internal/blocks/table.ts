@@ -45,11 +45,10 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Table, TableCell, TableRow } from "../../MarkdownNode.ts";
 import { RawInlineSegment, tableCellChildren, tableRowChildren } from "../blockTypes.ts";
+import { trustedNode } from "../nodes.ts";
 import { sliceWithSegments } from "../segments.ts";
 import { ESCAPABLE } from "../unescape.ts";
-import type { TableAlign } from "../../MarkdownNode.ts";
 import type {
   BlockConstruct,
   BlockContinueResult,
@@ -61,6 +60,7 @@ import type {
   MaterializedBlock,
   TableData,
 } from "../blockTypes.ts";
+import type { Table, TableAlign, TableCell, TableRow } from "../nodes.ts";
 
 const $I = $MarkdownId.create("internal/blocks/table");
 
@@ -806,7 +806,8 @@ export const tableConstruct: BlockConstruct = {
       if (rows.length === 0) {
         return undefined;
       }
-      return Table.make({
+      return trustedNode<Table>({
+        type: "table",
         align: block.data.tableData?.align ?? [],
         children: rows,
         position: context.position(block.startOffset, block.endOffset),
@@ -842,7 +843,8 @@ export const tableRowConstruct: BlockConstruct = {
       children: ReadonlyArray<MaterializedBlock>,
       context: MaterializeContext
     ): MaterializedBlock | undefined =>
-      TableRow.make({
+      trustedNode<TableRow>({
+        type: "tableRow",
         children: tableCellChildren(children),
         position: context.position(block.startOffset, block.endOffset),
       })
@@ -883,7 +885,8 @@ export const tableCellConstruct: BlockConstruct = {
       context: MaterializeContext
     ): MaterializedBlock | undefined => {
       const inline = context.inlineSlice(block);
-      const node = TableCell.make({
+      const node = trustedNode<TableCell>({
+        type: "tableCell",
         children: inline.children,
         position: context.position(inline.startOffset, inline.endOffset),
       });

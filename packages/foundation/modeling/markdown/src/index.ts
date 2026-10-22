@@ -7,11 +7,9 @@
  * strikethrough, autolink literals, task-list items and footnotes; `gfm` is
  * the default dialect): {@link Markdown} (the `parseResult` primitive, the
  * `parse` Effect and the `MarkdownFromString` codec), {@link MarkdownDocument}
- * (source, tree, diagnostics, definitions), the mdast-shaped node classes, and
- * {@link MarkdownDiagnostic}. Frontmatter is captured raw behind a parse
- * toggle and decoded through the free-standing codecs — `YamlFrontmatter`,
- * `TomlFrontmatter`, `JsonFrontmatter` — each peering optionally on its
- * format package. The edit vocabulary (`MarkdownEdit`, `MarkdownRange` and
+ * (source, tree, diagnostics, definitions), the mdast-shaped core node
+ * schemas, and {@link MarkdownDiagnostic}. Frontmatter is captured raw behind
+ * a parse toggle and split by {@link FrontmatterSource}. The edit vocabulary (`MarkdownEdit`, `MarkdownRange` and
  * `MarkdownEdit.applyAll`) carries the cross-package offset-splice parity
  * contract; `Markdown.stringify` serializes trees canonically, and
  * `MarkdownFormat` computes marker-normalization and surgical-replacement
@@ -20,37 +18,23 @@
  * {@link MarkdownVisitor} streams a tree walk; and the document's navigation
  * accessors (headings, sections, links) serve outline and link extraction.
  *
+ * **Gotchas**
+ *
+ * This barrel is core-only and codec-free: it never reaches `@beep/yaml`,
+ * `@beep/toml` or `@beep/jsonc`. Typed frontmatter (`Frontmatter`,
+ * `FrontmatterResolver`, `YamlFrontmatter`, `TomlFrontmatter`,
+ * `JsonFrontmatter`) and the MDX node vocabulary (`MarkdownMdx`) are
+ * subpath-only imports (D-43).
+ *
  * @packageDocumentation
  */
 
-export {
-  FrontmatterDecodeError,
-  FrontmatterEncodeError,
-  FrontmatterFormatMismatchError,
-  FrontmatterMissingError,
-  FrontmatterMissingReason,
-  FrontmatterValidationError,
-  MarkdownFrontmatter,
-} from "./Frontmatter.ts";
-export {
-  SchemaDeclaration,
-  SchemaDeclarationByName,
-  SchemaDeclarationByPath,
-  SchemaDeclarationByUrl,
-  SchemaDeclarationInline,
-  SchemaDeclarationInvalidError,
-  SchemaDeclarationMissingError,
-  SchemaNameUnknownError,
-  SchemaResolver,
-  SchemaVersionUnresolvableError,
-} from "./FrontmatterResolver.ts";
 export {
   FrontmatterNewline,
   FrontmatterSource,
   FrontmatterSourceBlock,
   FrontmatterSourceSplit,
 } from "./FrontmatterSource.ts";
-export { JsonFrontmatter } from "./JsonFrontmatter.ts";
 export {
   Markdown,
   MarkdownDialect,
@@ -99,15 +83,7 @@ export {
   ListDelimiter,
   ListItem,
   MarkdownNode,
-  MdxFlowExpression,
-  MdxJsxAttribute,
-  MdxJsxAttributeContent,
-  MdxJsxAttributeValueExpression,
-  MdxJsxExpressionAttribute,
-  MdxJsxFlowElement,
-  MdxJsxTextElement,
-  MdxjsEsm,
-  MdxTextExpression,
+  MarkdownNodeKind,
   Paragraph,
   PhrasingContent,
   Point,
@@ -127,10 +103,6 @@ export {
 } from "./MarkdownNode.ts";
 export { MarkdownVisitor, MarkdownVisitorEvent } from "./MarkdownVisitor.ts";
 export { Mdast, MdastDecodeError } from "./Mdast.ts";
-export { TomlFrontmatter } from "./TomlFrontmatter.ts";
-export { YamlFrontmatter } from "./YamlFrontmatter.ts";
-export type { FrontmatterCodec, FrontmatterSchemaError, FrontmatterWriteError } from "./Frontmatter.ts";
-export type { FrontmatterResolveError, FrontmatterSchemaResolver } from "./FrontmatterResolver.ts";
 export type {
   DocumentHeading,
   DocumentLink,
@@ -140,5 +112,15 @@ export type {
 } from "./MarkdownDocument.ts";
 export type { MarkdownPath, MarkdownSegment } from "./MarkdownEdit.ts";
 export type { MarkdownRangeLike } from "./MarkdownFormat.ts";
-export type { MarkdownNodeOfType, MarkdownNodeType } from "./MarkdownNode.ts";
+export type {
+  FlowContentEncoded,
+  FrontmatterContentEncoded,
+  ListContentEncoded,
+  MarkdownNodeEncoded,
+  MarkdownNodeOfType,
+  MarkdownNodeType,
+  PhrasingContentEncoded,
+  RowContentEncoded,
+  TableContentEncoded,
+} from "./MarkdownNode.ts";
 export type { MdastNode } from "./Mdast.ts";

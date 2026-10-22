@@ -11,7 +11,8 @@
 
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { assert, describe, it } from "@effect/vitest";
-import type { FlowContent, Frontmatter, ListItem, MdxjsEsm, Text } from "@beep/markdown/MarkdownNode";
+import type { MdxjsEsm } from "@beep/markdown/MarkdownMdx";
+import type { FlowContent, Frontmatter, ListItem, Text } from "@beep/markdown/MarkdownNode";
 
 /** Every list item in a source, in document order, however deeply nested. */
 const itemsOf = (source: string, dialect: "commonmark" | "gfm" = "gfm"): ReadonlyArray<ListItem> => {

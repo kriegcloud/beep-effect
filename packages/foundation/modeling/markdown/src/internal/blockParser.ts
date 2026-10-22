@@ -37,7 +37,6 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Frontmatter, Point, Position, Root } from "../MarkdownNode.ts";
 import { blockDialect, MarkdownDialect } from "./blockRegistry.ts";
 import { scanFrontmatter } from "./blocks/frontmatter.ts";
 import { isHtmlBlockEnd } from "./blocks/htmlBlock.ts";
@@ -45,9 +44,9 @@ import { makeBlockNode } from "./blockTypes.ts";
 import { GuardExceeded } from "./carriers.ts";
 import { MAX_NESTING_DEPTH } from "./limits.ts";
 import { LineIndex } from "./lineIndex.ts";
+import { trustedNode } from "./nodes.ts";
 import { columnsToNextTabStop, preprocessLines } from "./preprocess.ts";
 import { prepareInline } from "./rawInline.ts";
-import type { Definition, MarkdownNode } from "../MarkdownNode.ts";
 import type { FrontmatterCapture } from "./blocks/frontmatter.ts";
 import type {
   BlockConstruct,
@@ -62,6 +61,7 @@ import type {
   RawInlineSlice,
 } from "./blockTypes.ts";
 import type { RawDiagnostic } from "./carriers.ts";
+import type { Definition, Frontmatter, MarkdownNode, Point, Position, Root } from "./nodes.ts";
 import type { SourceLine } from "./preprocess.ts";
 
 const $I = $MarkdownId.create("internal/blockParser");
@@ -520,17 +520,13 @@ class BlockParser implements BlockScanner {
     if (capture === null) {
       return root;
     }
-    const node = Frontmatter.make({
+    const node = trustedNode<Frontmatter>({
       type: "frontmatter",
       format: capture.format,
       value: capture.value,
       position: this.position(0, capture.endOffset),
     });
-    return Root.make({
-      type: "root",
-      children: [node, ...root.children],
-      position: root.position,
-    });
+    return trustedNode<Root>({ type: "root", children: [node, ...root.children], position: root.position });
   }
 
   private position(startOffset: number, endOffset: number): Position {
@@ -538,9 +534,9 @@ class BlockParser implements BlockScanner {
     const end = Math.min(Math.max(endOffset, start), this.sourceLength);
     const startPoint = this.lineIndex.positionAt(start);
     const endPoint = this.lineIndex.positionAt(end);
-    return Position.make({
-      start: Point.make({ line: startPoint.line, column: startPoint.column, offset: start }),
-      end: Point.make({ line: endPoint.line, column: endPoint.column, offset: end }),
+    return trustedNode<Position>({
+      start: trustedNode<Point>({ line: startPoint.line, column: startPoint.column, offset: start }),
+      end: trustedNode<Point>({ line: endPoint.line, column: endPoint.column, offset: end }),
     });
   }
 

@@ -9,7 +9,7 @@ import * as O from "@beep/utils/Option";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ThematicBreak, ThematicBreakChar } from "../../MarkdownNode.ts";
+import { ThematicBreakChar, trustedNode } from "../nodes.ts";
 import type {
   BlockConstruct,
   BlockContinueResult,
@@ -20,6 +20,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { ThematicBreak } from "../nodes.ts";
 
 const reThematicBreak = /^(?:\*[ \t]*){3,}$|^(?:_[ \t]*){3,}$|^(?:-[ \t]*){3,}$/;
 
@@ -53,7 +54,8 @@ export const thematicBreakConstruct: BlockConstruct = {
       context: MaterializeContext
     ): MaterializedBlock | undefined => {
       const marker = block.data.markerChar;
-      return ThematicBreak.make({
+      return trustedNode<ThematicBreak>({
+        type: "thematicBreak",
         position: context.position(block.startOffset, block.endOffset),
         // Conditional spread: an absent optionalKey must be genuinely
         // absent, never an explicit `undefined` — passing one throws at

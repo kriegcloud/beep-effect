@@ -10,9 +10,9 @@ import * as P from "effect/Predicate";
 import { parseInlines } from "./inlineParser.ts";
 import type * as HashMap from "effect/HashMap";
 import type * as HashSet from "effect/HashSet";
-import type { Definition, PhrasingContent, Position } from "../MarkdownNode.ts";
 import type { BlockNode, PreparedInline, RawInlineSegment } from "./blockTypes.ts";
 import type { InlineDialectName } from "./inlineRegistry.ts";
+import type { Definition, PhrasingContent, Position } from "./nodes.ts";
 
 /** Builds the `Position` for an absolute source range. */
 type PositionOf = {

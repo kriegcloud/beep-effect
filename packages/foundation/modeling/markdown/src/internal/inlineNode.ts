@@ -19,7 +19,7 @@ import { $MarkdownId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
-import type { BreakStyle, EmphasisChar, ReferenceType } from "../MarkdownNode.ts";
+import type { BreakStyle, EmphasisChar, ReferenceType } from "./nodes.ts";
 
 const $I = $MarkdownId.create("internal/inlineNode");
 

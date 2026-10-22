@@ -76,7 +76,7 @@ class DocumentNavigationError extends S.TaggedError<DocumentNavigationError, { r
  * @since 0.0.0
  */
 export const DocumentHeading = S.Struct({
-  node: Heading.pipe(
+  node: S.suspend(() => Heading).pipe(
     $I.annoteKey("DocumentHeading.node", { description: "The original heading node in the document tree" })
   ),
   depth: HeadingDepth.pipe(
@@ -611,7 +611,7 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
         description: "Resolved grammar used for parsing and contextual modification checks; defaults to gfm",
       })
     ),
-    root: Root.pipe(
+    root: S.suspend(() => Root).pipe(
       $I.annoteKey("MarkdownDocument.root", {
         description: "Parsed mdast-shaped document tree carrying source positions and fidelity details",
       })
@@ -624,13 +624,13 @@ export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand
     definitions: S.HashMap(S.String, Definition).pipe(
       $I.annoteKey("MarkdownDocument.definitions", {
         description:
-          "Link-reference definitions indexed by normalized, case-folded label, with the first definition winning and nodes retained in the tree",
+          "Link-reference definitions indexed by normalized, case-folded label, with the first definition winning; each node equals the tree's definition node at its span",
       })
     ),
     definitionOrder: S.Array(S.Tuple([S.String, Definition])).pipe(
       $I.annoteKey("MarkdownDocument.definitionOrder", {
         description:
-          "Winning normalized labels and their original definition nodes in document order; HashMap iteration order is unspecified",
+          "Winning normalized labels and their definition nodes (equal to the tree's) in document order; HashMap iteration order is unspecified",
       })
     ),
   },

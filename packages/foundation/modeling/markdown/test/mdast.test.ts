@@ -324,7 +324,7 @@ describe("Mdast.fromMdast", () => {
     const back = Mdast.fromMdastResult(Mdast.toMdast(root));
     assertSuccess(back, Result.getOrThrow(back));
     if (Result.isSuccess(back)) {
-      assert.instanceOf(back.success, Root);
+      assert(S.is(Root)(back.success));
       assert.deepStrictEqual(Mdast.toMdast(back.success), Mdast.toMdast(root));
     }
   });
@@ -403,7 +403,7 @@ describe("Mdast.fromMdast", () => {
     assertSuccess(back, Result.getOrThrow(back));
     if (Result.isSuccess(back)) {
       const node = back.success.children[0];
-      assert.instanceOf(node, Frontmatter);
+      assert(S.is(Frontmatter)(node));
       if (S.is(Frontmatter)(node)) {
         assert.strictEqual(node.format, "yaml");
         assert.strictEqual(node.value, "a: 1");

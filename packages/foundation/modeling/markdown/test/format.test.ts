@@ -10,6 +10,7 @@
 // re-parses cleanly by construction; raw markdown replacement is
 // deliberately not offered day one.
 
+import { trustedNode } from "@beep/markdown/internal/nodes";
 import { Markdown } from "@beep/markdown/Markdown";
 import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
 import { MarkdownEdit } from "@beep/markdown/MarkdownEdit";
@@ -582,8 +583,13 @@ describe("MarkdownFormat round-3 boundary regressions", () => {
 
   it.effect("returns FragmentUnrenderable for an over-deep fragment inside a link", () =>
     Effect.gen(function* () {
+      // `Emphasis.make` validates and copies its children (D-22), which is
+      // quadratic and overflows the stack at this depth, so the over-deep
+      // fragment is assembled the way the parser assembles trees (D-39).
       let fragment: PhrasingContent = Text.make({ value: "new" });
-      for (let depth = 0; depth < 30000; depth++) fragment = Emphasis.make({ children: [fragment] });
+      for (let depth = 0; depth < 30000; depth++) {
+        fragment = trustedNode<Emphasis>({ type: "emphasis", children: [fragment], position: Position.synthetic });
+      }
       for (const source of ["[old](/a)\n", "[old][a]\n\n[a]: /a\n"]) {
         const doc = yield* parseDoc(source);
         const target = doc.find("text");

@@ -16,7 +16,7 @@
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { Heading, HeadingDepth } from "../../MarkdownNode.ts";
+import { HeadingDepth, trustedNode } from "../nodes.ts";
 import type {
   BlockConstruct,
   BlockContinueResult,
@@ -27,6 +27,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { Heading } from "../nodes.ts";
 
 const reATXHeadingMarker = /^#{1,6}(?:[ \t]+|$)/;
 const reOnlyTrailingHashes = /^[ \t]*#+[ \t]*$/;
@@ -65,7 +66,8 @@ export const headingConstruct: BlockConstruct = {
     ): MaterializedBlock | undefined => {
       const inline = context.inlineSlice(block);
       const style = block.data.headingStyle ?? "atx";
-      const node = Heading.make({
+      const node = trustedNode<Heading>({
+        type: "heading",
         depth: block.data.level ?? 1,
         children: inline.children,
         position: context.position(block.startOffset, block.endOffset),

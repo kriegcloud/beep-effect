@@ -9,6 +9,7 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -35,10 +36,6 @@ describe("Markdown schema property floor", () => {
 });
 
 import { Paragraph, Root } from "@beep/markdown/MarkdownNode";
-import * as SchemaAST from "effect/SchemaAST";
-import * as SchemaGetter from "effect/SchemaGetter";
-import * as SchemaIssue from "effect/SchemaIssue";
-import * as SchemaTransformation from "effect/SchemaTransformation";
 import { renderHtml } from "./support/htmlWriter.ts";
 import { normalizeHtml } from "./support/normalizeHtml.ts";
 
@@ -54,23 +51,15 @@ const render = (sample: typeof Sample.Type): string =>
 for (const dialect of ["commonmark", "gfm"] as const) {
   const options = MarkdownParseOptions.make({ dialect });
   const codec = Markdown.fromString(options);
-  const generated = codec.annotate({
-    toCodecArbitrary: () =>
-      new SchemaAST.Link(
-        Sample.ast,
-        SchemaTransformation.makeTransformation({
-          decode: SchemaGetter.transformEffect((sample: typeof Sample.Type) =>
-            Markdown.parse(render(sample), options).pipe(
-              Effect.mapError((error) => new SchemaIssue.InvalidValue({ message: error.message }, sample))
-            )
-          ),
-          encode: SchemaGetter.forbiddenEncoding,
-        })
-      ),
-  });
+  // A `toCodecArbitrary` override on the codec no longer applies: the effect
+  // Arbitrary compiler honors it only on declarations, and `Root` is a
+  // branded `S.Opaque` struct now (D-22), so the samples are mapped directly.
+  const generated = Arbitrary.map(Arbitrary.schema(Sample), (sample) =>
+    Result.getOrThrow(Markdown.parseResult(render(sample), options))
+  );
   it.effect.prop(
     `${dialect} fromString codec decodes its encoding without failure and preserves semantics`,
-    [Arbitrary.schema(generated)],
+    [generated],
     ([root]) =>
       Effect.gen(function* () {
         const encoded = yield* S.encodeEffect(codec)(root);
@@ -86,23 +75,12 @@ for (const dialect of ["commonmark", "gfm"] as const) {
   );
 }
 const defaultCodec = Markdown.MarkdownFromString;
-const defaultGenerated = defaultCodec.annotate({
-  toCodecArbitrary: () =>
-    new SchemaAST.Link(
-      Sample.ast,
-      SchemaTransformation.makeTransformation({
-        decode: SchemaGetter.transformEffect((sample: typeof Sample.Type) =>
-          Markdown.parse(render(sample)).pipe(
-            Effect.mapError((error) => new SchemaIssue.InvalidValue({ message: error.message }, sample))
-          )
-        ),
-        encode: SchemaGetter.forbiddenEncoding,
-      })
-    ),
-});
+const defaultGenerated = Arbitrary.map(Arbitrary.schema(Sample), (sample) =>
+  Result.getOrThrow(Markdown.parseResult(render(sample)))
+);
 it.effect.prop(
   "MarkdownFromString decode(encode(x)) preserves structural content and decoding never fails",
-  [Arbitrary.schema(defaultGenerated)],
+  [defaultGenerated],
   ([root]) =>
     Effect.gen(function* () {
       const encoded = yield* S.encodeEffect(defaultCodec)(root);

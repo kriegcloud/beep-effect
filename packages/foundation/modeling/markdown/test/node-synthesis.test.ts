@@ -23,30 +23,25 @@ const parseDoc = (text: string) => {
 
 describe("Position.synthetic", () => {
   it("is the zero-width sentinel: line 1, column 1, offset 0 at both ends", () => {
-    assert.instanceOf(Position.synthetic, Position);
+    assert(S.is(Position)(Position.synthetic));
     assert.deepStrictEqual(Position.synthetic.start, Point.make({ line: 1, column: 1, offset: 0 }));
     assert.deepStrictEqual(Position.synthetic.end, Point.make({ line: 1, column: 1, offset: 0 }));
   });
 });
 
-// Asserted by both reference and value. `make` passes an already-constructed
-// `Position` instance through a nested class-typed field by reference — the
-// zero-width default fills in the single shared `Position.synthetic`
-// instance, so every synthesized node's position is strictly that same
-// object (pinned below with `strictEqual`). `Position` is also an immutable
-// value class with structural equality, so `deepStrictEqual` remains the
-// right comparison wherever a fresh-but-equal `Position` is legitimate — a
-// hand-built plain-object literal, for instance, which `make` promotes to a
-// distinct instance rather than reusing.
+// Asserted by value. `make` validates and copies nested data (D-22, D-39), the
+// zero-width default included, so a synthesized node's position is
+// deep-equal to `Position.synthetic` and to an explicit position, never the
+// same object.
 describe("make fills the synthetic position", () => {
   it("constructs a Text fragment in one line", () => {
     const text = Text.make({ value: "shipped" });
-    assert.instanceOf(text, Text);
+    assert(S.is(Text)(text));
     assert.strictEqual(text.value, "shipped");
     assert.deepStrictEqual(text.position, Position.synthetic);
-    // The default is the single shared `Position.synthetic` instance, not a
-    // fresh copy — pins that `make` never re-synthesizes it.
-    assert.strictEqual(text.position, Position.synthetic);
+    // `make` copies the default like any nested value (D-22): equal to the
+    // shared `Position.synthetic`, never the same object.
+    assert.notStrictEqual(text.position, Position.synthetic);
   });
 
   it("constructs Paragraph and Heading fragments in one line", () => {
@@ -66,9 +61,9 @@ describe("make fills the synthetic position", () => {
     assert.deepStrictEqual(text.position, explicit);
     // the point of the test: the default did NOT win
     assert.notDeepEqual(text.position, Position.synthetic);
-    // an already-constructed Position passed explicitly is passed through
-    // by reference, not re-constructed
-    assert.strictEqual(text.position, explicit);
+    // `make` copies nested data (D-22): an explicit Position comes back
+    // deep-equal, never the same object
+    assert.notStrictEqual(text.position, explicit);
   });
 });
 

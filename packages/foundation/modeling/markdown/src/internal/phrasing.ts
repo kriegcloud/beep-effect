@@ -22,14 +22,14 @@
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
-import { Point, Position as PositionClass } from "../MarkdownNode.ts";
 import { parseInlines } from "./inlineParser.ts";
 import { LineIndex } from "./lineIndex.ts";
+import { trustedNode } from "./nodes.ts";
 import { preprocessLines } from "./preprocess.ts";
 import { trimWithSegments } from "./rawInline.ts";
-import type { Definition, PhrasingContent, Position } from "../MarkdownNode.ts";
 import type { RawInlineSegment } from "./blockTypes.ts";
 import type { InlineDialectName } from "./inlineRegistry.ts";
+import type { Definition, PhrasingContent, Point, Position, Position as PositionClass } from "./nodes.ts";
 
 const EMPTY_REFMAP = HashMap.empty<string, Definition>();
 
@@ -94,9 +94,9 @@ export const parsePhrasingText: {
     const clampedEnd = Math.min(Math.max(end, clampedStart), sourceLength);
     const startPoint = lineIndex.positionAt(clampedStart);
     const endPoint = lineIndex.positionAt(clampedEnd);
-    return PositionClass.make({
-      start: Point.make({ line: startPoint.line, column: startPoint.column, offset: clampedStart }),
-      end: Point.make({ line: endPoint.line, column: endPoint.column, offset: clampedEnd }),
+    return trustedNode<PositionClass>({
+      start: trustedNode<Point>({ line: startPoint.line, column: startPoint.column, offset: clampedStart }),
+      end: trustedNode<Point>({ line: endPoint.line, column: endPoint.column, offset: clampedEnd }),
     });
   });
 

@@ -16,8 +16,8 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { EmphasisChar } from "../../MarkdownNode.ts";
 import type { InlineConstruct, InlineScanner } from "../inlineTypes.ts";
+import type { EmphasisChar } from "../nodes.ts";
 
 const $I = $MarkdownId.create("internal/inlines/emphasis");
 

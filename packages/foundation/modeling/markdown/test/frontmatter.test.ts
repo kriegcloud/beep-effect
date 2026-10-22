@@ -241,12 +241,12 @@ describe("frontmatter capture", () => {
       assert.strictEqual(node.format, "yaml");
     });
 
-    // A constructor-defaulted class field accepts a plain-object literal for
+    // A constructor-defaulted field accepts a plain-object literal for
     // `position`, matching what `~type.make.in` has always admitted: `make`
-    // deep-validates the literal and promotes it to a real `Position`/`Point`
-    // instance tree rather than requiring the caller to pre-construct one.
-    // This asserts that promotion.
-    it("make accepts a plain-object position and promotes it to instances", () => {
+    // deep-validates the literal into a `Position`/`Point` value rather than
+    // requiring the caller to pre-construct one. The guards are structural
+    // (D-22), so this asserts the validated shape, not class membership.
+    it("make accepts a plain-object position and validates it into a Position", () => {
       const node = Frontmatter.make({
         type: "frontmatter",
         format: "yaml",
@@ -256,9 +256,9 @@ describe("frontmatter capture", () => {
           end: { line: 3, column: 4, offset: 12 },
         },
       });
-      assert.instanceOf(node.position, Position);
-      assert.instanceOf(node.position.start, Point);
-      assert.instanceOf(node.position.end, Point);
+      assert(S.is(Position)(node.position));
+      assert(S.is(Point)(node.position.start));
+      assert(S.is(Point)(node.position.end));
       assert.strictEqual(node.position.end.offset, 12);
     });
   });

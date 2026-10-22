@@ -26,9 +26,9 @@ import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import { appendChild, childrenOf, insertAfter, makeInlineNode, unlink } from "../inlineNode.ts";
 import { normalizeReference, ReferenceScanner } from "../references.ts";
-import type { ReferenceType } from "../../MarkdownNode.ts";
 import type { InlineNode } from "../inlineNode.ts";
 import type { Bracket, InlineConstruct, InlineScanner } from "../inlineTypes.ts";
+import type { ReferenceType } from "../nodes.ts";
 
 const C_BANG = 0x21;
 const C_CARET = 0x5e;

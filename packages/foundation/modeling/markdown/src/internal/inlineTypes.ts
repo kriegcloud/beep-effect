@@ -16,8 +16,8 @@ import * as S from "effect/Schema";
 import { RawInlineSegment } from "./blockTypes.ts";
 import type * as HashMap from "effect/HashMap";
 import type * as HashSet from "effect/HashSet";
-import type { Definition } from "../MarkdownNode.ts";
 import type { InlineNode } from "./inlineNode.ts";
+import type { Definition } from "./nodes.ts";
 
 const $I = $MarkdownId.create("internal/inlineTypes");
 

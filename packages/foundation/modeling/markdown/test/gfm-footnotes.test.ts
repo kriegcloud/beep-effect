@@ -19,12 +19,12 @@
 import { parseBlocks } from "@beep/markdown/internal/blockParser";
 import { MAX_NESTING_DEPTH } from "@beep/markdown/internal/limits";
 import { assert, describe, it } from "@effect/vitest";
+import type { MdxjsEsm } from "@beep/markdown/MarkdownMdx";
 import type {
   FlowContent,
   FootnoteDefinition,
   FootnoteReference,
   Frontmatter,
-  MdxjsEsm,
   Paragraph,
   PhrasingContent,
   Text,

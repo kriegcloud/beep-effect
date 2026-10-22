@@ -14,12 +14,6 @@
 import { Markdown } from "@beep/markdown/Markdown";
 import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
 import {
-  Blockquote,
-  Code,
-  FootnoteDefinition,
-  Heading,
-  List,
-  ListItem,
   MdxFlowExpression,
   MdxJsxAttribute,
   MdxJsxAttributeValueExpression,
@@ -28,6 +22,14 @@ import {
   MdxJsxTextElement,
   MdxjsEsm,
   MdxTextExpression,
+} from "@beep/markdown/MarkdownMdx";
+import {
+  Blockquote,
+  Code,
+  FootnoteDefinition,
+  Heading,
+  List,
+  ListItem,
   Paragraph,
   Root,
   Strong,

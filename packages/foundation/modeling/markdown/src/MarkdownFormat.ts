@@ -34,29 +34,40 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Equal from "effect/Equal";
 import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { trustedNode } from "./internal/nodes.ts";
 import { Markdown, MarkdownDialect, MarkdownParseOptions } from "./Markdown.ts";
 import { MarkdownEdit } from "./MarkdownEdit.ts";
 import {
   BulletChar,
   EmphasisChar,
   FenceChar,
-  FlowContent,
   HeadingStyle,
-  Paragraph,
-  PhrasingContent,
-  Root,
+  Position,
   Text,
   ThematicBreakChar,
 } from "./MarkdownNode.ts";
 import type { MarkdownDocument } from "./MarkdownDocument.ts";
 import type { MarkdownRange } from "./MarkdownEdit.ts";
-import type { Code, Emphasis, Heading, List, MarkdownNode, Strong, ThematicBreak } from "./MarkdownNode.ts";
+import type {
+  Code,
+  Emphasis,
+  FlowContent,
+  Heading,
+  List,
+  MarkdownNode,
+  Paragraph,
+  PhrasingContent,
+  Root,
+  Strong,
+  ThematicBreak,
+} from "./MarkdownNode.ts";
 
 const $I = $MarkdownId.create("MarkdownFormat");
 
@@ -920,9 +931,14 @@ const PHRASING_TYPES = LiteralKit([
   "text",
 ] satisfies A.NonEmptyReadonlyArray<MarkdownNode["type"]>);
 
-const isFlowReplacement = P.and(S.is(FlowContent), S.is(S.Struct({ type: FLOW_TYPES })));
+// Category checks read the `type` tag only. The fragment is already a typed
+// node (built with `make` or admitted by a parse), and a structural
+// `S.is(FlowContent)` would re-validate the whole fragment recursively, which
+// overflows the stack on the over-deep fragments `FragmentUnrenderable` exists
+// to report (D-39).
+const isFlowReplacement = S.is(S.Struct({ type: FLOW_TYPES }));
 
-const isPhrasingReplacement = P.and(S.is(PhrasingContent), S.is(S.Struct({ type: PHRASING_TYPES })));
+const isPhrasingReplacement = S.is(S.Struct({ type: PHRASING_TYPES }));
 
 /** Parent types whose child slot holds flow content. */
 const FLOW_PARENTS = LiteralKit([
@@ -976,7 +992,21 @@ const escapeCellPipes = (content: string): string => {
   return out;
 };
 
-/** Find `target` by identity; returns its ancestor chain (nearest first) or undefined. */
+/**
+ * Whether `node` is `target`: the same reference, or (nodes being plain data,
+ * D-22) an equal value at the same source span. Value matching keeps a
+ * `MarkdownDocument.definitions` entry — a validated copy of the tree's
+ * definition node, not the same reference — a valid `modify` target; the
+ * offset prefilter keeps the deep comparison off every non-candidate.
+ */
+const isSameNode = (node: MarkdownNode, target: MarkdownNode): boolean =>
+  node === target ||
+  (node.type === target.type &&
+    node.position.start.offset === target.position.start.offset &&
+    node.position.end.offset === target.position.end.offset &&
+    Equal.equals(node, target));
+
+/** Find `target` (see `isSameNode`); returns its ancestor chain (nearest first) or undefined. */
 const findAncestry: {
   (root: Root, target: MarkdownNode): ReadonlyArray<MarkdownNode> | undefined;
   (target: MarkdownNode): (root: Root) => ReadonlyArray<MarkdownNode> | undefined;
@@ -985,7 +1015,7 @@ const findAncestry: {
     (node: MarkdownNode, trail: Array<MarkdownNode>): ReadonlyArray<MarkdownNode> | undefined;
     (trail: Array<MarkdownNode>): (node: MarkdownNode) => ReadonlyArray<MarkdownNode> | undefined;
   } = dual(2, (node: MarkdownNode, trail: Array<MarkdownNode>): ReadonlyArray<MarkdownNode> | undefined => {
-    if (node === target) {
+    if (isSameNode(node, target)) {
       return trail;
     }
     for (const child of childrenOf(node)) {
@@ -1196,11 +1226,11 @@ export abstract class MarkdownFormat {
 
   /**
    * Compute the edit that replaces `target` — a node from `document`'s own
-   * tree, matched by identity — with `replacement`: a plain string (treated
-   * as literal text and escaped; block-wrapped when the target is a flow
-   * node) or a node fragment whose content category must fit the target's
-   * slot (flow for flow targets, phrasing for phrasing targets and table
-   * cells). Every replacement renders through the canonical stringifier, so
+   * tree, matched by reference or by equal value at the same span — with
+   * `replacement`: a plain string (treated as literal text and escaped;
+   * block-wrapped when the target is a flow node) or a node fragment whose
+   * content category must fit the target's slot (flow for flow targets,
+   * phrasing for phrasing targets and table cells). Every replacement renders through the canonical stringifier, so
    * the modified document re-parses cleanly by construction. List
    * items, table rows, frontmatter and the root refuse with
    * `UnsupportedTarget`, as does a multi-line replacement whose target sits
@@ -1226,7 +1256,8 @@ export abstract class MarkdownFormat {
    *
    * @param document - The parsed {@link MarkdownDocument} the target belongs to.
    * @param target - The node to replace; it must be a node of
-   *   `document.root`, matched by identity.
+   *   `document.root`, matched by reference or by equal value at the same
+   *   source span.
    * @param replacement - A plain string (literal text) or a node fragment of
    *   the target's content category.
    * @returns An `Effect` that succeeds with the edit to apply (via
@@ -1278,13 +1309,16 @@ export abstract class MarkdownFormat {
       } else {
         return yield* fail("UnsupportedTarget", `a ${target.type} node inside a ${parent.type} cannot be replaced`);
       }
+      // Synthesized render scaffolding around an already-typed fragment, built
+      // with `trustedNode` so the fragment is not re-walked and copied (D-39);
+      // the zero-width position is never read by the stringifier.
+      const paragraphOf = (children: ReadonlyArray<PhrasingContent>): Paragraph =>
+        trustedNode<Paragraph>({ type: "paragraph", children, position: Position.synthetic });
+      const rootOf = (children: ReadonlyArray<FlowContent>): Root =>
+        trustedNode<Root>({ type: "root", children, position: Position.synthetic });
       let renderRoot: Root;
       if (P.isString(replacement)) {
-        // Synthesized render scaffolding: `make` fills the zero-width
-        // sentinel position, and the stringifier never reads it.
-        const textNode = Text.make({ value: replacement });
-        const paragraph = Paragraph.make({ children: [textNode] });
-        renderRoot = Root.make({ children: [paragraph] });
+        renderRoot = rootOf([paragraphOf([Text.make({ value: replacement })])]);
       } else if (slot === "flow") {
         if (!isFlowReplacement(replacement)) {
           return yield* fail(
@@ -1292,7 +1326,7 @@ export abstract class MarkdownFormat {
             `a ${replacement.type} fragment does not fit a flow slot — pass flow content or a plain string`
           );
         }
-        renderRoot = Root.make({ children: [replacement] });
+        renderRoot = rootOf([replacement]);
       } else {
         if (!isPhrasingReplacement(replacement)) {
           return yield* fail(
@@ -1300,8 +1334,7 @@ export abstract class MarkdownFormat {
             `a ${replacement.type} fragment does not fit a phrasing slot — pass phrasing content or a plain string`
           );
         }
-        const paragraph = Paragraph.make({ children: [replacement] });
-        renderRoot = Root.make({ children: [paragraph] });
+        renderRoot = rootOf([paragraphOf([replacement])]);
       }
       const rendered = Markdown.stringifyResult(renderRoot);
       if (Result.isFailure(rendered)) {
@@ -1474,7 +1507,8 @@ export abstract class MarkdownFormat {
    *
    * @param document - The parsed {@link MarkdownDocument} the target belongs to.
    * @param target - The node to replace; it must be a node of
-   *   `document.root`, matched by identity.
+   *   `document.root`, matched by reference or by equal value at the same
+   *   source span.
    * @param replacement - A plain string (literal text) or a node fragment of
    *   the target's content category.
    * @returns An `Effect` that succeeds with the modified source, or fails with

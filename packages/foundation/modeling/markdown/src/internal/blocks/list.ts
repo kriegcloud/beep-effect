@@ -22,8 +22,8 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { BulletChar, List, ListDelimiter, ListItem } from "../../MarkdownNode.ts";
 import { flowChildren, listItemChildren } from "../blockTypes.ts";
+import { BulletChar, ListDelimiter, trustedNode } from "../nodes.ts";
 import { isSpaceOrTab, peekCode } from "../preprocess.ts";
 import type {
   BlockConstruct,
@@ -36,6 +36,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { List, ListItem } from "../nodes.ts";
 
 const reBulletListMarker = /^[*+-]/;
 const reOrderedListMarker = /^(\d{1,9})([.)])/;
@@ -215,7 +216,8 @@ export const listConstruct: BlockConstruct = {
     ): MaterializedBlock | undefined => {
       const listData = block.data.listData;
       const ordered = listData?.type === "ordered";
-      return List.make({
+      return trustedNode<List>({
+        type: "list",
         ordered,
         spread: block.data.spread ?? false,
         children: listItemChildren(children),
@@ -293,7 +295,8 @@ export const listItemConstruct: BlockConstruct = {
       children: ReadonlyArray<MaterializedBlock>,
       context: MaterializeContext
     ): MaterializedBlock | undefined =>
-      ListItem.make({
+      trustedNode<ListItem>({
+        type: "listItem",
         spread: block.data.spread ?? false,
         children: flowChildren(children),
         position: context.position(block.startOffset, block.endOffset),

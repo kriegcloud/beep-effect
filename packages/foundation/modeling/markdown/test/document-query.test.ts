@@ -13,6 +13,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import type { FlowContent } from "@beep/markdown/MarkdownNode";
 
@@ -45,7 +46,7 @@ describe("MarkdownDocument.find", () => {
     const document = parseDoc(source);
     const heading = document.find("heading");
     assert.isDefined(heading);
-    assert.instanceOf(heading, Heading);
+    assert(S.is(Heading)(heading));
     // The narrowed static type exposes `depth` without a cast.
     assert.strictEqual(heading.depth, 1);
   });
@@ -65,14 +66,14 @@ describe("MarkdownDocument.find", () => {
     const document = parseDoc(source);
     const found = document.find((node) => node.type === "heading" && node.depth === 2);
     assert.isDefined(found);
-    assert.instanceOf(found, Heading);
+    assert(S.is(Heading)(found));
   });
 
   it("narrows through a type-guard predicate", () => {
     const document = parseDoc(source);
     const table = document.find((node): node is Table => node.type === "table");
     assert.isDefined(table);
-    assert.instanceOf(table, Table);
+    assert(S.is(Table)(table));
     assert.isDefined(table.align);
   });
 
@@ -89,7 +90,7 @@ describe("MarkdownDocument.findAll", () => {
     const headings = document.findAll("heading");
     assert.strictEqual(headings.length, 3);
     for (const heading of headings) {
-      assert.instanceOf(heading, Heading);
+      assert(S.is(Heading)(heading));
     }
     // Document order: the quoted heading sits between the two root-level
     // ones, and `findAll("heading")[1]` addresses it without child indexing.
@@ -123,7 +124,7 @@ describe("MarkdownDocument.findAll", () => {
     const document = parseDoc(source);
     const unordered = document.findAll((node): node is List => node.type === "list" && node.ordered !== true);
     assert.strictEqual(unordered.length, 1);
-    assert.instanceOf(unordered[0], List);
+    assert(S.is(List)(unordered[0]));
   });
 });
 

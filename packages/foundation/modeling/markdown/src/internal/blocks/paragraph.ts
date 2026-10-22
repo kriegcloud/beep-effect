@@ -10,7 +10,7 @@
 // this port does it as each paragraph closes.
 
 import { dual } from "effect/Function";
-import { Paragraph } from "../../MarkdownNode.ts";
+import { trustedNode } from "../nodes.ts";
 import { extractDefinitions } from "./linkReferenceDefinition.ts";
 import type {
   BlockConstruct,
@@ -20,6 +20,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { Paragraph } from "../nodes.ts";
 
 /**
  * Absorbs paragraph lines until a blank line and contains no child blocks.
@@ -65,7 +66,8 @@ export const paragraphConstruct: BlockConstruct = {
         return undefined;
       }
 
-      const node = Paragraph.make({
+      const node = trustedNode<Paragraph>({
+        type: "paragraph",
         children: inline.children,
         position: context.position(block.startOffset, block.endOffset),
       });

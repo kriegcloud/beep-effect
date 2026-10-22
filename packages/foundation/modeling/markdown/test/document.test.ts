@@ -5,6 +5,7 @@
 import { MAX_NESTING_DEPTH } from "@beep/markdown/internal/limits";
 import { MarkdownDiagnostic } from "@beep/markdown/MarkdownDiagnostic";
 import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
+import { MarkdownFormat } from "@beep/markdown/MarkdownFormat";
 import {
   Blockquote,
   Definition,
@@ -19,6 +20,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
+import * as Equal from "effect/Equal";
 import * as Exit from "effect/Exit";
 import { identity } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -44,7 +46,7 @@ describe("MarkdownDocument.parseResult", () => {
     if (Result.isFailure(result)) {
       assert.fail("expected the document to parse");
     }
-    assert.instanceOf(result.success.root, Root);
+    assert(S.is(Root)(result.success.root));
     assert.deepStrictEqual(
       result.success.root.children.map((child) => child.type),
       ["heading", "paragraph", "definition", "definition"]
@@ -62,7 +64,7 @@ describe("MarkdownDocument.parseResult", () => {
     assert.isTrue(HashMap.isHashMap(definitions));
     assert.strictEqual(HashMap.size(definitions), 2);
     for (const definition of HashMap.values(definitions)) {
-      assert.instanceOf(definition, Definition);
+      assert(S.is(Definition)(definition));
     }
     // Labels fold case, so `[a]` and `[B]` land under one normalized key each.
     const urls = [...HashMap.values(definitions)].map((definition) => definition.url).sort();
@@ -434,7 +436,7 @@ describe("MarkdownDocument navigation accessors", () => {
 });
 
 describe("definition index document order", () => {
-  it("retains first-definition-wins, nested order and original node identity", () => {
+  it("retains first-definition-wins, nested order and the winning definition nodes", () => {
     const document = Result.getOrThrow(
       MarkdownDocument.parseResult("[z]: /z\n\n> [a]: /a\n\n[z]: /duplicate\n\n[m]: /m\n\n[z] [a] [m]\n")
     );
@@ -447,8 +449,20 @@ describe("definition index document order", () => {
     assert.strictEqual(definitions.length, 4);
     for (const [label, definition] of document.definitionOrder) {
       assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(Definition)(definition)), definition);
-      assert.strictEqual(HashMap.get(document.definitions, label).pipe(O.getOrThrow), definition);
-      assert.isTrue(definitions.some((node) => node === definition));
+      // `MarkdownDocument.make` validates and copies its fields (D-22, D-39), so
+      // the index and the tree hold equal nodes, not the same objects.
+      const indexed = HashMap.get(document.definitions, label).pipe(O.getOrThrow);
+      assert.deepStrictEqual(indexed, definition);
+      assert.isTrue(definitions.some((node) => Equal.equals(node, definition)));
+      // Equal value at the same span is the same node to `modify`, so an
+      // index entry still targets the tree node it was copied from.
+      for (const target of [indexed, definition]) {
+        const edits = Effect.runSync(MarkdownFormat.modify(document, target, "replaced"));
+        assert.deepStrictEqual(
+          edits.map(({ offset, length }) => [offset, length]),
+          [[target.position.start.offset, target.position.end.offset - target.position.start.offset]]
+        );
+      }
     }
     assert.strictEqual(HashMap.get(document.definitions, "Z").pipe(O.getOrThrow).url, "/z");
     assert.deepStrictEqual(

@@ -8,7 +8,7 @@
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { FenceChar } from "../../MarkdownNode.ts";
+import { FenceChar } from "../nodes.ts";
 import type { BlockNode, BlockScanner, BlockStart, BlockStartResult } from "../blockTypes.ts";
 
 const reCodeFence = /^`{3,}(?!.*`)|^~{3,}/;

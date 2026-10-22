@@ -6,11 +6,11 @@
 // literal path touches.
 
 import { Markdown } from "@beep/markdown/Markdown";
+import { MdxFlowExpression } from "@beep/markdown/MarkdownMdx";
 import {
   Emphasis,
   Heading,
   InlineCode,
-  MdxFlowExpression,
   Paragraph,
   Root,
   Table,
@@ -50,6 +50,11 @@ describe("adjacent text run boundaries", () => {
       [literal("a  "), canonical("\nb")],
     ]) {
       const tree = paragraphOf(...children);
+      // `make` copies its input (D-22), so pin the tree's own nodes: the
+      // serializer must neither merge nor replace them.
+      const built = tree.children[0];
+      if (built?.type !== "paragraph") assert.fail("expected built paragraph");
+      const kids = [...built.children];
       const emitted = out(tree);
       assert.strictEqual(emitted, "a  &#10;b\n");
       const paragraph = parse(emitted).children[0];
@@ -61,19 +66,26 @@ describe("adjacent text run boundaries", () => {
       for (let index = 0; index < children.length; index += 1) {
         const original = tree.children[0];
         if (original?.type !== "paragraph") assert.fail("expected original paragraph");
-        assert.strictEqual(original.children[index], children[index]);
+        assert.strictEqual(original.children[index], kids[index]);
+        assert.deepStrictEqual(original.children[index], children[index]);
       }
     }
   });
 
   it("keeps canonical underscore boundaries and split entity defenses", () => {
     const children = [canonical("a"), canonical("_"), canonical("b &a"), canonical("mp;"), canonical("")];
-    const paragraph = Paragraph.make({ children });
+    // `make` copies its input (D-22), so pin the tree the serializer reads:
+    // it must neither merge nor replace the text nodes.
+    const root = Root.make({ children: [Paragraph.make({ children })] });
+    const paragraph = root.children[0];
+    if (paragraph?.type !== "paragraph") assert.fail("expected paragraph");
     const before = paragraph.children;
-    assert.strictEqual(out(Root.make({ children: [paragraph] })), "a\\_b \\&amp;\n");
+    const kids = [...paragraph.children];
+    assert.strictEqual(out(root), "a\\_b \\&amp;\n");
     assert.strictEqual(paragraph.children, before);
     for (let index = 0; index < children.length; index += 1) {
-      assert.strictEqual(paragraph.children[index], children[index]);
+      assert.strictEqual(paragraph.children[index], kids[index]);
+      assert.deepStrictEqual(paragraph.children[index], children[index]);
     }
   });
 

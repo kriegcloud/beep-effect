@@ -35,8 +35,8 @@
 //    never disagree.
 
 import { dual } from "effect/Function";
-import { FootnoteDefinition } from "../../MarkdownNode.ts";
 import { flowChildren } from "../blockTypes.ts";
+import { trustedNode } from "../nodes.ts";
 import { stickyOf } from "../patterns.ts";
 import { normalizeLabelText } from "../references.ts";
 import type {
@@ -49,6 +49,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { FootnoteDefinition } from "../nodes.ts";
 
 /**
  * `_scan_footnote_definition` from `src/scanners.re`:
@@ -114,7 +115,8 @@ export const footnoteDefinitionConstruct: BlockConstruct = {
       if (footnote === undefined) {
         return undefined;
       }
-      return FootnoteDefinition.make({
+      return trustedNode<FootnoteDefinition>({
+        type: "footnoteDefinition",
         identifier: footnote.identifier,
         label: footnote.label,
         children: flowChildren(children),

@@ -7,8 +7,8 @@
 // first becomes reachable (`addLine` pads the remainder back out).
 
 import { dual } from "effect/Function";
-import { Blockquote } from "../../MarkdownNode.ts";
 import { flowChildren } from "../blockTypes.ts";
+import { trustedNode } from "../nodes.ts";
 import { isSpaceOrTab, peekCode } from "../preprocess.ts";
 import type {
   BlockConstruct,
@@ -20,6 +20,7 @@ import type {
   MaterializeContext,
   MaterializedBlock,
 } from "../blockTypes.ts";
+import type { Blockquote } from "../nodes.ts";
 
 const C_GREATERTHAN = 0x3e;
 
@@ -61,7 +62,8 @@ export const blockquoteConstruct: BlockConstruct = {
       children: ReadonlyArray<MaterializedBlock>,
       context: MaterializeContext
     ): MaterializedBlock | undefined =>
-      Blockquote.make({
+      trustedNode<Blockquote>({
+        type: "blockquote",
         children: flowChildren(children),
         position: context.position(block.startOffset, block.endOffset),
       })

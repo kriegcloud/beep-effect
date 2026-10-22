@@ -1,14 +1,6 @@
 import { MarkdownDocument } from "@beep/markdown/MarkdownDocument";
-import {
-  Break,
-  Heading,
-  Html,
-  Image,
-  ImageReference,
-  MdxTextExpression,
-  Root,
-  Text,
-} from "@beep/markdown/MarkdownNode";
+import { MdxTextExpression } from "@beep/markdown/MarkdownMdx";
+import { Break, Heading, Html, Image, ImageReference, Root, Text } from "@beep/markdown/MarkdownNode";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";

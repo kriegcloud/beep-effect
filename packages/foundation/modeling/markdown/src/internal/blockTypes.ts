@@ -22,7 +22,7 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Heading, Paragraph, PhrasingContent, TableCell } from "../MarkdownNode.ts";
+import { Heading, Paragraph, PhrasingContent, TableCell } from "./nodes.ts";
 import type * as HashMap from "effect/HashMap";
 import type {
   BulletChar,
@@ -37,7 +37,7 @@ import type {
   TableAlign,
   TableRow,
   ThematicBreakChar,
-} from "../MarkdownNode.ts";
+} from "./nodes.ts";
 
 const $I = $MarkdownId.create("internal/blockTypes");
 

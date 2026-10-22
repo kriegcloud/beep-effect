@@ -90,7 +90,7 @@ import type {
   Root,
   Table,
   TableAlign,
-} from "../MarkdownNode.ts";
+} from "./nodes.ts";
 
 /**
  * How inline content is being assembled.
