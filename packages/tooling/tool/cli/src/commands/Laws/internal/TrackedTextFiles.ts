@@ -51,7 +51,7 @@ type FileOutcome<Finding> = {
  * **Example** (Find line starts)
  *
  * ```ts
- * import { lineStartOffsets } from "@beep/repo-cli/commands/Laws/internal/TrackedTextFiles"
+ * import { lineStartOffsets } from "@beep/repo-cli/test/Laws"
  *
  * console.log(lineStartOffsets("ab\ncd\n")) // [ 0, 3, 6 ]
  * ```
@@ -81,7 +81,7 @@ export const lineStartOffsets = (content: string): ReadonlyArray<number> =>
  * **Example** (Locate a match on the second line)
  *
  * ```ts
- * import { lineStartOffsets, locateIndex } from "@beep/repo-cli/commands/Laws/internal/TrackedTextFiles"
+ * import { lineStartOffsets, locateIndex } from "@beep/repo-cli/test/Laws"
  *
  * console.log(locateIndex(lineStartOffsets("ab\ncd\n"), 4)) // { line: 2, column: 2 }
  * ```
@@ -90,7 +90,7 @@ export const lineStartOffsets = (content: string): ReadonlyArray<number> =>
  *
  * ```ts
  * import { pipe } from "effect/Function"
- * import { lineStartOffsets, locateIndex } from "@beep/repo-cli/commands/Laws/internal/TrackedTextFiles"
+ * import { lineStartOffsets, locateIndex } from "@beep/repo-cli/test/Laws"
  *
  * console.log(pipe(lineStartOffsets("ab\ncd\n"), locateIndex(0))) // { line: 1, column: 1 }
  * ```
@@ -126,7 +126,7 @@ export const locateIndex: {
  *
  * ```ts
  * import { RetiredEffectPathsExecutionError } from "@beep/repo-cli/commands/Laws/Laws.errors"
- * import { messageGitErrorAdapter } from "@beep/repo-cli/commands/Laws/internal/TrackedTextFiles"
+ * import { messageGitErrorAdapter } from "@beep/repo-cli/test/Laws"
  *
  * const adapter = messageGitErrorAdapter(RetiredEffectPathsExecutionError.new)
  * console.log(adapter.onNonZeroExit({ commandLine: "git ls-files", exitCode: 128, output: "" }).message)
@@ -183,7 +183,7 @@ const listTrackedRegularFiles = Effect.fn("TrackedTextFiles.listTrackedRegularFi
  * ```ts
  * import * as Effect from "effect/Effect"
  * import { RetiredEffectPathsExecutionError } from "@beep/repo-cli/commands/Laws/Laws.errors"
- * import { messageGitErrorAdapter, scanTrackedTextFiles } from "@beep/repo-cli/commands/Laws/internal/TrackedTextFiles"
+ * import { messageGitErrorAdapter, scanTrackedTextFiles } from "@beep/repo-cli/test/Laws"
  *
  * const program = scanTrackedTextFiles({
  *   cwd: process.cwd(),
