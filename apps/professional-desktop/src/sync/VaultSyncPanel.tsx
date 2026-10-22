@@ -292,7 +292,7 @@ const VaultSyncConflictsList = ({
  * @category components
  * @since 0.0.0
  */
-// fallow-ignore-next-line complexity -- cognitive 14 = pre-existing hook/JSX tax (six atom-hook bindings plus the status/panel-state conditionals); this branch's change here was passing the new probedAt prop through to DisconnectedNote and added no branching
+// fallow-ignore-next-line complexity -- fallow's React model adds one cognitive point per hook binding; cognitive 15 comes from six atom-hook bindings plus the status and panel-state conditionals, so splitting would only fragment hook ownership (#1855 detector frontier). Owner: @beep/professional-desktop. Exit: remove when the component sheds bindings or fallow stops counting hook bindings as branches.
 export function VaultSyncPanel({ floating = true }: { readonly floating?: boolean }): JSX.Element {
   const status = useAtomValue(vaultSyncStatusAtom(DEFAULT_PROFESSIONAL_WORKSPACE_ID));
   const refreshStatus = useAtomRefresh(vaultSyncStatusAtom(DEFAULT_PROFESSIONAL_WORKSPACE_ID));

@@ -81,7 +81,6 @@ const Tab = (props: {
   const close = (): void => submit(makeOperation(ClosePanelCommand.make({ panelId: props.panel.id })));
   const pointerRef = (node: HTMLDivElement | null): (() => void) | undefined => {
     if (P.isNull(node)) return undefined;
-    // fallow-ignore-next-line code-duplication -- tab dragging owns a distinct cancel handler and drag atom
     const clearDrag = (): void => {
       const current = props.graph.registry.get(props.state.dragAtom);
       props.graph.registry.set(props.state.dragAtom, O.none());
@@ -224,7 +223,7 @@ const Tab = (props: {
             moved: false,
             concluded: false,
             pointerId: event.pointerId,
-            // fallow-ignore-next-line code-duplication -- pointer-down captures the drag snapshot for the paired move handler
+            // fallow-ignore-next-line code-duplication -- pointer-down captures the drag snapshot for its paired move handler, like the floating pane. Owner: @beep/dock-react. Exit: share one drag-snapshot hook once a third pane needs it.
           })
         )
       );
@@ -234,7 +233,7 @@ const Tab = (props: {
     node.addEventListener("pointerup", up);
     node.addEventListener("pointercancel", clearDrag);
     node.addEventListener("click", click);
-    // fallow-ignore-next-line code-duplication -- listener registration and its mirrored teardown must name the same closures inline; extracting them would hide the identity contract that makes removeEventListener work
+    // fallow-ignore-next-line code-duplication -- listener registration and its teardown must name the same closures inline so removeEventListener matches them. Owner: @beep/dock-react. Exit: replace with an atom-owned listener scope that releases its own listeners.
     document.addEventListener("keydown", keydown);
     return () => {
       node.removeEventListener("pointerdown", down);
@@ -294,7 +293,7 @@ const Tab = (props: {
   );
 };
 
-// fallow-ignore-next-line complexity -- cognitive 11 = pre-existing hook/JSX tax (fallow counts each of the 11 hook bindings); this branch's only change in this file was a one-line aria-selected on the Tab child and added no branching
+// fallow-ignore-next-line complexity -- fallow's React model adds one cognitive point per hook binding; cognitive 11 comes from 11 hook bindings with cyclomatic 1, so splitting would only fragment hook ownership (#1855 detector frontier). Owner: @beep/dock-react. Exit: remove when the component sheds bindings or fallow stops counting hook bindings as branches.
 const TabStrip = (
   props: DockviewReactProps & {
     readonly groupId: GroupId;
@@ -517,7 +516,7 @@ const TabStrip = (
   );
 };
 
-// fallow-ignore-next-line complexity -- cognitive 15 = pre-existing branching over tab/box options and floating variants; this branch's only change in this file was a one-line aria-selected on the Tab child and added no branching
+// fallow-ignore-next-line complexity -- cognitive 14 comes from branching over tab and box options and the floating variants. Owner: @beep/dock-react. Exit: split the floating variant into its own component when its options diverge further.
 export const GroupPane = (
   props: DockviewReactProps & {
     readonly groupId: GroupId;

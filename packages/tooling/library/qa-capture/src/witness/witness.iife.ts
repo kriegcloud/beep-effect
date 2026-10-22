@@ -189,7 +189,7 @@ declare const decodeURIComponent: (value: string) => string;
 // only import, the pure `effect/Array` module, `Bun.build` inlines).
 // The arrow is the module body rather than a unit of logic, and the script is
 // exercised by live capture rounds, not by Node unit tests.
-// fallow-ignore-next-line complexity -- browser IIFE bundled by Bun.build; its helpers cannot hoist to module scope without breaking the single-IIFE bundling contract
+// fallow-ignore-next-line complexity -- browser IIFE bundled by Bun.build; its helpers cannot hoist to module scope without breaking the single-IIFE bundle. Owner: @beep/qa-capture. Exit: remove when the witness bundles as an ES module.
 (() => {
   if (window.__beepQa !== undefined) {
     return;
@@ -306,7 +306,7 @@ declare const decodeURIComponent: (value: string) => string;
   // Deterministic selector-priority ladder: each branch is one strategy and
   // the order IS the contract. CRAP is coverage-driven here (cyclomatic 10
   // against a threshold of 20); this file is a browser IIFE, not Node-testable.
-  // fallow-ignore-next-line complexity -- selector-priority ladder whose order is the contract; exercised by live capture rounds, not Node-unit-testable
+  // fallow-ignore-next-line complexity -- CRAP finding comes from fallow's static coverage estimate; the selector-priority ladder's order is the contract, and live capture rounds exercise it rather than Node unit tests. Owner: @beep/qa-capture. Exit: remove once fallow health reads the measured coverage for this file (#1855 detector frontier) or the branches collapse.
   const terminalToken = (element: WitnessElement): string | null => {
     const dataQa = attributeToken(element, "data-qa");
     if (dataQa !== null) {

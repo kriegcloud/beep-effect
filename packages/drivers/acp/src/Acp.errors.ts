@@ -1300,7 +1300,6 @@ export const AcpError = pipe(
     AcpTransportError,
     AcpInputStreamEndedError,
   ]),
-  // fallow-ignore-next-line code-duplication -- preserve the selected guard through Effect's tagged-union rebuild
   $I.annoteSchema("AcpError", {
     description: "Union of typed technical failures emitted by the ACP driver.",
   }),

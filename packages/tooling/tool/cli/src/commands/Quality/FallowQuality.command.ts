@@ -778,7 +778,7 @@ const normalizeFindings = (feature: FallowFeature, document: unknown): ReadonlyA
     security: () => findingsForCount(feature, "security-findings", rawSecurityFindingCount(document)),
   });
 
-// fallow-ignore-next-line code-duplication -- raw-count dispatch mirrors normalization for each fallow output shape
+// fallow-ignore-next-line code-duplication -- raw-count dispatch mirrors the normalizer match for each fallow output shape. Owner: @beep/repo-cli. Exit: derive the count from the normalizer table when fallow output shapes share one summary field.
 const rawFindingCount = (feature: FallowFeature, document: unknown): number =>
   FallowFeatureFamily.$match(feature, {
     audit: () => A.length(normalizeAuditFindings(document)),

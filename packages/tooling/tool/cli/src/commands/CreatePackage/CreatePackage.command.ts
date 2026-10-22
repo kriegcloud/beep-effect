@@ -894,7 +894,7 @@ const matchesWorkspacePattern: {
   );
 });
 
-// fallow-ignore-next-line code-duplication -- config-updater helper twins converged after the tstyche removal + JSDoc grammar migration; consolidation onto @beep/repo-utils is a recorded quality-speedup follow-up
+// fallow-ignore-next-line code-duplication -- config-updater helper twin of the CreatePackage/TsconfigSync copy, converged after the tstyche removal and the JSDoc grammar migration. Owner: @beep/repo-cli. Exit: consolidate both onto `@beep/repo-utils` (workspaceGlobsFrom/readPackageJsonFile) and delete the twins.
 const isPathCoveredByWorkspacePatterns = (patterns: ReadonlyArray<string>, targetPath: string): boolean =>
   A.some(patterns, matchesWorkspacePattern(targetPath));
 
@@ -1210,7 +1210,7 @@ export const createPackageCommand = Command.make(
   },
   // Pre-existing complexity debt: this handler predates the fallow audit gate
   // and only re-entered the diff via a one-line registry fix (2026-06-12).
-  // fallow-ignore-next-line complexity -- legacy scaffold handler keeps flag validation and file planning in one transaction
+  // fallow-ignore-next-line complexity -- legacy scaffold handler keeps flag validation and file planning in one transaction (cognitive 92). Owner: @beep/repo-cli. Exit: remove when create-package moves to the operation-plan executor.
   Effect.fn(function* (config) {
     const {
       name,

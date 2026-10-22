@@ -304,7 +304,26 @@ const watchThreadState = (node: WatchThreadNode, pullRequestAuthor: O.Option<str
     })
   );
 
-// fallow-ignore-next-line complexity -- the GraphQL cursor and page validity checks form one pagination state machine
+const pullRequestAuthorLogin = (author: GhActor | null | undefined): O.Option<string> =>
+  pipe(
+    O.fromUndefinedOr(author),
+    O.flatMap(O.fromNullishOr),
+    O.map((actor) => actor.login)
+  );
+
+const nextReviewThreadsCursor = (pageInfo: WatchThreadPageInfo): Effect.Effect<O.Option<string>, YeetCommandError> => {
+  if (!pageInfo.hasNextPage) return Effect.succeedNone;
+  if (pageInfo.endCursor === null || Str.isEmpty(pageInfo.endCursor)) {
+    return Effect.fail(
+      YeetCommandError.make({
+        message: "PR review threads reported another GraphQL page without an end cursor.",
+        exitCode: 1,
+      })
+    );
+  }
+  return Effect.succeedSome(pageInfo.endCursor);
+};
+
 const reviewThreadsRead = Effect.fn("Yeet.reviewThreadsRead")(function* (
   context: RepoRunContext,
   pullRequestId: string
@@ -337,23 +356,12 @@ const reviewThreadsRead = Effect.fn("Yeet.reviewThreadsRead")(function* (
       Effect.mapError(YeetCommandError.new("Failed to decode PR review threads JSON for yeet watch."))
     );
     if (node === null) return { pullRequestAuthor, nodes };
-    pullRequestAuthor = O.orElse(pullRequestAuthor, () =>
-      pipe(
-        O.fromUndefinedOr(node.author),
-        O.flatMap(O.fromNullishOr),
-        O.map((author) => author.login)
-      )
-    );
+    pullRequestAuthor = O.orElse(pullRequestAuthor, () => pullRequestAuthorLogin(node.author));
     const connection = node.reviewThreads;
     nodes.push(...connection.nodes);
-    if (!connection.pageInfo.hasNextPage) return { pullRequestAuthor, nodes };
-    if (connection.pageInfo.endCursor === null || Str.isEmpty(connection.pageInfo.endCursor)) {
-      return yield* YeetCommandError.make({
-        message: "PR review threads reported another GraphQL page without an end cursor.",
-        exitCode: 1,
-      });
-    }
-    cursor = O.some(connection.pageInfo.endCursor);
+    const nextCursor = yield* nextReviewThreadsCursor(connection.pageInfo);
+    if (O.isNone(nextCursor)) return { pullRequestAuthor, nodes };
+    cursor = nextCursor;
   }
 });
 
@@ -961,7 +969,6 @@ const reportWatchRegistrationWait = (snapshot: YeetWatchSnapshot, emptyPolls: nu
  * @category services
  * @since 0.0.0
  */
-// fallow-ignore-next-line complexity -- the polling loop owns one coherent snapshot, comment cursor, and exit decision
 export const runYeetWatchStream = Effect.fn("Yeet.runYeetWatchStream")(function* (
   context: RepoRunContext,
   config: {

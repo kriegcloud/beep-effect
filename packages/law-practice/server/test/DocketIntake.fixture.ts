@@ -23,7 +23,7 @@ export const MAILBOX = "docket@fixture.invalid";
 
 // The store names its temporary files after the process, which it reads from `/proc/self`.
 // The app's test support has the same layer; neither can import the other's test files.
-// fallow-ignore-next-line code-duplication -- test-only Linux-shaped memory file system
+// fallow-ignore-next-line code-duplication -- test-only Linux-shaped memory file system; the app test support has the same layer and neither may import the other's test files. Owner: @beep/law-practice-server. Exit: import it from @beep/test-utils once it ships a memory FileSystem layer.
 const LinuxFileSystemLayer = Layer.effect(
   FileSystem.FileSystem,
   Effect.gen(function* () {

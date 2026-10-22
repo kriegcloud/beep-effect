@@ -159,7 +159,6 @@ export class WorkerActionFailed extends S.TaggedError<WorkerActionFailed, { read
  * @since 0.0.0
  */
 export const WorkerActionError = S.Union([WorkerNotFound, WorkerConflict, WorkerActionFailed]).pipe(
-  // fallow-ignore-next-line code-duplication -- preserve the selected guard through Effect's tagged-union rebuild
   $I.annoteSchema("WorkerActionError", {
     title: "Worker action error",
     description: "Tagged union of public Worker use-case failures.",
