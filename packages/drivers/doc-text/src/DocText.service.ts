@@ -12,6 +12,7 @@ import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -254,6 +255,50 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
         const text = Str.replace(/^\uFEFF+/, "")(new TextDecoder("utf-8", { fatal: true }).decode(content));
         let targets = R.empty<string, string>();
         let depth = 0;
+        // Resolve namespaces explicitly and only for element selection, as
+        // Mammoth's xmldom reader does: an undeclared prefix (for example an
+        // unbound `w14:` extension attribute) resolves to no namespace instead
+        // of failing the part. Well-formedness errors still reject the part.
+        // Each scope stores only its own declarations: O(attributes) to push,
+        // O(1) to pop, and at most DOCX_MAX_XML_DEPTH scopes per lookup.
+        const scopes: Array<MutableHashMap.MutableHashMap<string, string>> = [];
+        const bindNamespace = (
+          bindings: MutableHashMap.MutableHashMap<string, string>,
+          [attribute, uri]: [string, string]
+        ) => {
+          if (attribute === "xmlns") MutableHashMap.set(bindings, "", uri);
+          else if (Str.startsWith("xmlns:")(attribute)) MutableHashMap.set(bindings, Str.slice(6)(attribute), uri);
+        };
+        const pushNamespaceScope = (attributes: Readonly<Record<string, string>>) => {
+          const scope = MutableHashMap.empty<string, string>();
+          for (const attribute of R.toEntries(attributes)) bindNamespace(scope, attribute);
+          scopes.push(scope);
+        };
+        const namespaceUri = (prefix: string) => {
+          for (let index = scopes.length - 1; index >= 0; --index) {
+            const scope = scopes[index];
+            if (scope === undefined) continue;
+            const uri = MutableHashMap.get(scope, prefix);
+            if (O.isSome(uri)) return uri.value;
+          }
+          return "";
+        };
+        const popNamespaceScope = () => {
+          --depth;
+          scopes.pop();
+        };
+        const resolveElementName = (name: string) =>
+          O.match(Str.indexOf(":")(name), {
+            onNone: () => ["", name] as const,
+            onSome: (separator) => [Str.slice(0, separator)(name), Str.slice(separator + 1)(name)] as const,
+          });
+        const isRelationshipElement = (name: string) => {
+          const [prefix, local] = resolveElementName(name);
+          return (
+            local === "Relationship" &&
+            namespaceUri(prefix) === "http://schemas.openxmlformats.org/package/2006/relationships"
+          );
+        };
         const rememberTarget = (type: string, target: string) => {
           // Mammoth chooses the first existing target for each fixed type.
           // Inventory is complete, so retain at most six values instead of
@@ -262,24 +307,19 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
           const resolved = resolveTarget(name, target);
           if (MutableHashSet.has(names, resolved)) targets = R.set(targets, type, resolved);
         };
-        const parser = new SaxesParser({ xmlns: true });
+        const parser = new SaxesParser({ xmlns: false });
         parser.on("doctype", exceeded);
         parser.on("opentag", (tag) => {
           chargeNode();
           if (++depth > DOCX_MAX_XML_DEPTH) exceeded();
-          if (
-            tag.local !== "Relationship" ||
-            tag.uri !== "http://schemas.openxmlformats.org/package/2006/relationships"
-          )
-            return;
-          const type = tag.attributes.Type?.value;
-          const target = tag.attributes.Target?.value;
+          pushNamespaceScope(tag.attributes);
+          if (!isRelationshipElement(tag.name)) return;
+          const type = tag.attributes.Type;
+          const target = tag.attributes.Target;
           if (type === undefined || target === undefined || depth !== 2) return;
           rememberTarget(type, target);
         });
-        parser.on("closetag", () => {
-          --depth;
-        });
+        parser.on("closetag", popNamespaceScope);
         parser.on("attribute", chargeNode);
         parser.on("text", chargeNode);
         parser.on("cdata", chargeNode);
