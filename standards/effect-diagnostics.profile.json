@@ -6,6 +6,7 @@
     "preferBarrelImport": "off",
     "preferEffectArray": "error",
     "preferEffectRecord": "error",
+    "preferEffectString": "error",
     "preferNamespaceImport": "off",
     "preferSchemaTaggedError": "error",
     "schemaClassMissingBrand": "error",
