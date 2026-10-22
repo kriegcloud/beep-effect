@@ -257,6 +257,7 @@
     "@shadcn/lint": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
+    "@types/picomatch": "catalog:",
     "@typescript/native": "catalog:",
     "@typescript/typescript6": "catalog:",
     "@vitest/browser": "catalog:",

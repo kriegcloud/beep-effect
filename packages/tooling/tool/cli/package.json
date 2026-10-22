@@ -196,6 +196,7 @@
     "@beep/ffmpeg": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/github": "workspace:^",
+    "@beep/glob": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/libpff": "workspace:^",
     "@beep/m365": "workspace:^",

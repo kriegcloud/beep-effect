@@ -21,6 +21,7 @@
         "@shadcn/lint": "catalog:",
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
+        "@types/picomatch": "catalog:",
         "@typescript/native": "catalog:",
         "@typescript/typescript6": "catalog:",
         "@vitest/browser": "catalog:",
@@ -2854,7 +2855,6 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "effect": "catalog:",
-        "picomatch": "catalog:",
       },
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
@@ -2863,7 +2863,6 @@
         "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
-        "@types/picomatch": "catalog:",
         "bun-types": "catalog:",
         "type-fest": "catalog:",
       },
@@ -3524,6 +3523,7 @@
       "name": "@beep/repo-utils",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
@@ -3678,6 +3678,7 @@
         "@beep/ffmpeg": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/github": "workspace:^",
+        "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/libpff": "workspace:^",
         "@beep/m365": "workspace:^",

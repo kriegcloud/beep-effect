@@ -4,7 +4,7 @@
 
 import { GlobPattern, GlobPatternError, GlobPatternOptions } from "@beep/glob";
 import { assert, describe, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -159,6 +159,47 @@ describe("GlobPattern metadata", () => {
       assert.isTrue((yield* GlobPattern.compile("packages/*/x")).crossesSegments);
       assert.isFalse(
         (yield* GlobPattern.compile("a/**", GlobPatternOptions.make({ noglobstar: true }))).crossesSegments
+      );
+    })
+  );
+
+  it.effect("mayMatchBelow admits a directory iff some path below it could still match", () =>
+    Effect.gen(function* () {
+      const scoped = yield* GlobPattern.compile("packages/*/test/**/*.ts");
+      assert.isTrue(scoped.mayMatchBelow("packages"));
+      assert.isTrue(scoped.mayMatchBelow("packages/glob"));
+      assert.isTrue(scoped.mayMatchBelow("packages/glob/test/internal"));
+      assert.isFalse(scoped.mayMatchBelow("packages/glob/src"));
+      assert.isFalse(scoped.mayMatchBelow("apps"));
+
+      const braced = yield* GlobPattern.compile("{src,dist}/*.ts");
+      assert.isTrue(braced.mayMatchBelow("src"));
+      assert.isTrue(braced.mayMatchBelow("dist"));
+      assert.isFalse(braced.mayMatchBelow("docs"));
+      assert.isFalse(braced.mayMatchBelow("src/nested"));
+    })
+  );
+
+  it.effect("literalPath names the one path a pattern can match, resolving escapes", () =>
+    Effect.gen(function* () {
+      assertSome((yield* GlobPattern.compile("src/index.ts")).literalPath, "src/index.ts");
+      assertSome((yield* GlobPattern.compile(GlobPattern.escape("src/a*b.ts"))).literalPath, "src/a*b.ts");
+      assertNone((yield* GlobPattern.compile("src/{a,b}.ts")).literalPath);
+      assertNone((yield* GlobPattern.compile("src/*.ts")).literalPath);
+      assertNone((yield* GlobPattern.compile("!src/index.ts")).literalPath);
+      assertNone((yield* GlobPattern.compile("index.ts", GlobPatternOptions.make({ matchBase: true }))).literalPath);
+    })
+  );
+
+  it.effect("mayMatchBelow honors dot, negation and matchBase", () =>
+    Effect.gen(function* () {
+      assert.isFalse((yield* GlobPattern.compile("**/*.ts")).mayMatchBelow(".git"));
+      assert.isTrue(
+        (yield* GlobPattern.compile("**/*.ts", GlobPatternOptions.make({ dot: true }))).mayMatchBelow(".git")
+      );
+      assert.isTrue((yield* GlobPattern.compile("!src/**")).mayMatchBelow("anything/else"));
+      assert.isTrue(
+        (yield* GlobPattern.compile("*.ts", GlobPatternOptions.make({ matchBase: true }))).mayMatchBelow("a/b/c")
       );
     })
   );

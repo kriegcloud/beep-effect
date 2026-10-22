@@ -6,9 +6,6 @@
   "attributes": [],
   "instruments": [],
   "spans": [
-    {"name":"Glob.glob","owner":"@beep/utils","family":"foundation","conforms":true},
-    {"name":"Glob.glob.bun","owner":"@beep/utils","family":"foundation","conforms":false},
-    {"name":"Glob.glob.nodeFallback","owner":"@beep/utils","family":"foundation","conforms":false},
     {"name":"makeDrainableWorker","owner":"@beep/utils","family":"foundation","conforms":false}
   ]
 }

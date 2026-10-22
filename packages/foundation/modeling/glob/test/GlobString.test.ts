@@ -1,0 +1,125 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { GlobString } from "@beep/glob";
+import { GlobString as GlobStringLeaf } from "@beep/glob/GlobString";
+import { assert, describe, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+
+const decodeGlobString = S.decodeUnknownEffect(GlobString);
+const isGlobString = S.is(GlobString);
+const GlobStringPayload = S.Struct({ glob: GlobString });
+const decodeGlobStringPayload = S.decodeUnknownEffect(GlobStringPayload);
+
+const failureMessage = Effect.fnUntraced(function* (input: unknown) {
+  const exit = yield* Effect.exit(decodeGlobString(input));
+  assert.isTrue(Exit.isFailure(exit));
+  return Exit.isFailure(exit) ? String(exit.cause) : "";
+});
+
+describe("GlobString", () => {
+  it.effect("accepts portable patterns, including unterminated classes and braces", () =>
+    Effect.gen(function* () {
+      for (const pattern of [
+        "src/**/*.ts",
+        "{src,test}/**/*.ts",
+        "foo/bar",
+        "foo/[bar",
+        "foo/{bar",
+        "!index.ts",
+        "@(a|b)/[[:alpha:]]*",
+        "../a",
+        "/abs/**",
+      ]) {
+        assert.strictEqual(yield* decodeGlobString(pattern), pattern);
+      }
+    })
+  );
+
+  it.effect("rejects empty input", () =>
+    Effect.gen(function* () {
+      assert.include(yield* failureMessage(""), "Glob pattern must not be empty");
+    })
+  );
+
+  it.effect("rejects backslash-separated patterns", () =>
+    Effect.gen(function* () {
+      assert.include(
+        yield* failureMessage("src\\**\\*.ts"),
+        "Glob pattern must use forward slashes instead of backslashes"
+      );
+      assert.include(yield* failureMessage("a\\"), "Glob pattern must use forward slashes instead of backslashes");
+    })
+  );
+
+  it.effect("rejects patterns longer than 64 KiB and accepts exactly 64 KiB", () =>
+    Effect.gen(function* () {
+      const atCap = Str.repeat(65_536)("a");
+      assert.strictEqual(yield* decodeGlobString(atCap), atCap);
+      assert.include(yield* failureMessage(Str.repeat(65_537)("a")), "Glob pattern must not exceed 65536 characters");
+    })
+  );
+
+  it.effect("rejects patterns that trip the expansion or nesting caps at compile time", () =>
+    Effect.gen(function* () {
+      const message = "Glob pattern must compile within the expansion and nesting caps";
+      // 2^17 = 131072 alternatives exceeds the 100000 expansion budget; 2^16 does not.
+      assert.include(yield* failureMessage(Str.repeat(17)("{a,b}")), message);
+      assert.isTrue(isGlobString(Str.repeat(16)("{a,b}")));
+      assert.include(yield* failureMessage("{1..100001}"), message);
+      assert.isTrue(isGlobString("{1..10}"));
+      assert.include(yield* failureMessage(`${Str.repeat(300)("{")}a${Str.repeat(300)(",b}")}`), message);
+      assert.include(yield* failureMessage(`${Str.repeat(300)("+(")}a${Str.repeat(300)(")")}`), message);
+    })
+  );
+
+  it("supports guard-style checks", () => {
+    assert.isTrue(isGlobString("src/**/*.ts"));
+    assert.isFalse(isGlobString("src\\**\\*.ts"));
+    assert.isFalse(isGlobString(42));
+  });
+
+  it("make validates and throws on an invalid pattern", () => {
+    assert.strictEqual(GlobString.make(".changeset/*.md"), ".changeset/*.md");
+    assert.throws(() => GlobString.make("src\\*.ts"));
+    assert.throws(() => GlobString.make(""));
+  });
+
+  it.effect("reports nested field failures at the glob key", () =>
+    Effect.gen(function* () {
+      const exit = yield* Effect.exit(decodeGlobStringPayload({ glob: "src\\**\\*.ts" }));
+      exit.pipe(Exit.isFailure, assertTrue);
+      assert.include(Exit.isFailure(exit) ? String(exit.cause) : "", `["glob"]`);
+    })
+  );
+
+  it.effect("decodes every element of an array field", () =>
+    Effect.gen(function* () {
+      const decodeArray = S.decodeUnknownEffect(S.Array(GlobString));
+      const patterns = ["packages/a/dist/**", "packages/a/.beep/**"];
+      const decoded: ReadonlyArray<string> = yield* decodeArray(patterns);
+      assert.deepStrictEqual(decoded, patterns);
+      const exit = yield* Effect.exit(decodeArray(A.append(patterns, "")));
+      exit.pipe(Exit.isFailure, assertTrue);
+    })
+  );
+
+  it.effect.prop(
+    "derives valid glob strings from the schema arbitrary",
+    [Arbitrary.schema(GlobString)],
+    ([pattern]) =>
+      Effect.gen(function* () {
+        assert.isTrue(isGlobString(pattern));
+        assert.strictEqual(yield* decodeGlobString(pattern), pattern);
+      }),
+    { arbitrary: fcRuns(25) }
+  );
+
+  it("exposes the same schema from the root barrel and the leaf module", () => {
+    assert.strictEqual(GlobString, GlobStringLeaf);
+  });
+});

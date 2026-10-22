@@ -22,6 +22,7 @@ import { FsUtils, GlobOptions } from "./FsUtils.ts";
 import { decodePackageJsonEffect, PackageJson, readPackageJsonFile } from "./schemas/PackageJson.ts";
 import type * as FileSystem from "effect/FileSystem";
 import type { NoSuchFileError } from "./errors/index.ts";
+import type { FsUtilsShape } from "./FsUtils.ts";
 import type { Workspaces as PackageJsonWorkspaces } from "./schemas/PackageJson.ts";
 
 const $I = $RepoUtilsId.create("Workspaces");
@@ -34,6 +35,9 @@ const $I = $RepoUtilsId.create("Workspaces");
  */
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**", "**/.turbo/**"];
 const absoluteWorkspacePattern = /^(?:[A-Za-z]:\/|\/\/|\/)/;
+
+const workspaceManifestPattern = (workspaceGlob: string): string =>
+  `${Str.replace(/\/+$/, "")(workspaceGlob)}/package.json`;
 
 const isWorkspacePatternArray = (value: PackageJsonWorkspaces): value is ReadonlyArray<string> => A.isArray(value);
 
@@ -94,13 +98,74 @@ const isContainedCanonicalPath: {
   );
 });
 
+// The root manifest's workspace globs, each checked to stay inside the repository root.
+const readWorkspaceGlobs = Effect.fnUntraced(function* (fsUtils: FsUtilsShape, rootDir: string) {
+  const rootPkgPath = `${rootDir}/package.json`;
+  const rawPkg = yield* fsUtils.readJson(rootPkgPath);
+  if (O.isNone(rawPkg)) {
+    return yield* DomainError.make({
+      message: `Failed to parse JSON at "${rootPkgPath}"`,
+    });
+  }
+  const rootPkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
+    Effect.mapError((error) =>
+      DomainError.make({ cause: error, message: `Failed to decode root package.json at "${rootPkgPath}"` })
+    )
+  );
+  const workspaceGlobs = workspaceGlobsFrom(rootPkg.workspaces);
+  const unsafe = A.findFirst(workspaceGlobs, (workspaceGlob) => !isSafeWorkspacePattern(workspaceGlob));
+  if (O.isSome(unsafe)) {
+    return yield* DomainError.make({
+      message: `Unsafe workspace glob "${unsafe.value}" escapes the repository root.`,
+    });
+  }
+  return workspaceGlobs;
+});
+
+// One workspace manifest's package name and canonical directory, or None when the manifest vanished.
+const readWorkspaceEntry = Effect.fnUntraced(function* (
+  fsUtils: FsUtilsShape,
+  canonicalRootDir: string,
+  manifest: string
+) {
+  const dir = yield* fsUtils.getParentDirectory(manifest);
+  const canonicalDir = yield* fsUtils
+    .realPath(dir)
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve workspace path "${dir}"`)));
+
+  if (!isContainedCanonicalPath(canonicalRootDir, canonicalDir)) {
+    return yield* DomainError.make({
+      message: `Workspace path escapes repository root: "${dir}" -> "${canonicalDir}"`,
+    });
+  }
+
+  const pkgJsonPath = `${dir}/package.json`;
+  const rawChildPkg = yield* fsUtils
+    .readJson(pkgJsonPath)
+    .pipe(Effect.catchTag("NoSuchFileError", thunkEffectSucceedNull));
+  if (P.isNull(rawChildPkg)) {
+    return O.none<readonly [string, string]>();
+  }
+  if (O.isNone(rawChildPkg)) {
+    return yield* DomainError.make({
+      message: `Failed to parse JSON at "${pkgJsonPath}"`,
+    });
+  }
+
+  const childPkg = yield* decodePackageJsonEffect(rawChildPkg.value).pipe(
+    Effect.mapError(DomainError.newCause(`Failed to decode package.json at "${pkgJsonPath}"`))
+  );
+  return O.some<readonly [string, string]>([childPkg.name, canonicalDir]);
+});
+
 /**
  * Resolve all workspace directories declared in the root `package.json`.
  *
  * **Details**
  *
  * Reads the `workspaces` array from the root `package.json`, expands each
- * glob pattern, reads each matching directory's `package.json` to extract
+ * glob pattern to the `package.json` manifests beneath it (following
+ * symlinked workspace directories), reads each manifest to extract
  * the package name, and returns a `HashMap<PackageName, AbsoluteDirectory>`.
  *
  * **Example** (Resolve root workspace directories)
@@ -123,83 +188,31 @@ export const resolveWorkspaceDirs: (
 ) => Effect.Effect<HashMap.HashMap<string, string>, NoSuchFileError | DomainError, FsUtils> = Effect.fn(
   function* (rootDir) {
     const fsUtils = yield* FsUtils;
-
-    // Read and decode root package.json
-    const rootPkgPath = `${rootDir}/package.json`;
-    const rawPkg = yield* fsUtils.readJson(rootPkgPath);
-    if (O.isNone(rawPkg)) {
-      return yield* DomainError.make({
-        message: `Failed to parse JSON at "${rootPkgPath}"`,
-      });
-    }
-    const rootPkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
-      Effect.mapError((error) =>
-        DomainError.make({ cause: error, message: `Failed to decode root package.json at "${rootPkgPath}"` })
-      )
-    );
-
-    const workspaceGlobs = workspaceGlobsFrom(rootPkg.workspaces);
+    const workspaceGlobs = yield* readWorkspaceGlobs(fsUtils, rootDir);
     if (A.isReadonlyArrayEmpty(workspaceGlobs)) {
       return HashMap.empty<string, string>();
-    }
-
-    for (const workspaceGlob of workspaceGlobs) {
-      if (!isSafeWorkspacePattern(workspaceGlob)) {
-        return yield* DomainError.make({
-          message: `Unsafe workspace glob "${workspaceGlob}" escapes the repository root.`,
-        });
-      }
     }
 
     const canonicalRootDir = yield* fsUtils
       .realPath(rootDir)
       .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve repository root "${rootDir}"`)));
 
-    // Expand all workspace globs
-    const dirs = yield* fsUtils.glob(
-      workspaceGlobs,
+    // Expand each workspace glob to the manifests beneath it. Symlinked workspace
+    // directories are followed, and a directory without a manifest never matches.
+    const manifests = yield* fsUtils.globFiles(
+      A.map(workspaceGlobs, workspaceManifestPattern),
       GlobOptions.make({
         cwd: rootDir,
         absolute: true,
+        followSymlinks: true,
         ignore: IGNORED_DIRS,
       })
     );
 
-    // For each directory, read package.json and extract name
-    let result = HashMap.empty<string, string>();
-
-    for (const dir of dirs) {
-      const canonicalDir = yield* fsUtils
-        .realPath(dir)
-        .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve workspace path "${dir}"`)));
-
-      if (!isContainedCanonicalPath(canonicalRootDir, canonicalDir)) {
-        return yield* DomainError.make({
-          message: `Workspace path escapes repository root: "${dir}" -> "${canonicalDir}"`,
-        });
-      }
-
-      const pkgJsonPath = `${dir}/package.json`;
-      const rawChildPkg = yield* fsUtils
-        .readJson(pkgJsonPath)
-        .pipe(Effect.catchTag("NoSuchFileError", thunkEffectSucceedNull));
-      if (P.isNull(rawChildPkg)) {
-        continue;
-      }
-      if (O.isNone(rawChildPkg)) {
-        return yield* DomainError.make({
-          message: `Failed to parse JSON at "${pkgJsonPath}"`,
-        });
-      }
-
-      const childPkg = yield* decodePackageJsonEffect(rawChildPkg.value).pipe(
-        Effect.mapError(DomainError.newCause(`Failed to decode package.json at "${pkgJsonPath}"`))
-      );
-
-      result = HashMap.set(result, childPkg.name, canonicalDir);
-    }
-
-    return result;
+    const entries = yield* Effect.forEach(manifests, (manifest) =>
+      readWorkspaceEntry(fsUtils, canonicalRootDir, manifest)
+    );
+    return HashMap.fromIterable(A.getSomes(entries));
   }
 );
 

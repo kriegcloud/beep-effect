@@ -722,6 +722,13 @@ const writeLeftCanvasPatternImage = Effect.fn("FilesTest.writeLeftCanvasPatternI
   }).pipe(Effect.asVoid);
 });
 
+// A noisy near-black pixel inside the left and right borders, a flat colour everywhere else.
+const nearSolidBorderPixel = (x: number, y: number, width: number, borderWidth: number): ReadonlyArray<number> => {
+  const inBorder = x < borderWidth || x >= width - borderWidth;
+  const value = (x + y) % 7;
+  return inBorder ? [value, value, value] : [140, 90, 40];
+};
+
 const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")(function* (
   filePath: string,
   width: number,
@@ -732,12 +739,7 @@ const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")
 
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      const offset = (y * width + x) * 3;
-      const inBorder = x < borderWidth || x >= width - borderWidth;
-      const value = inBorder ? (x + y) % 7 : 140;
-      data[offset] = value;
-      data[offset + 1] = inBorder ? value : 90;
-      data[offset + 2] = inBorder ? value : 40;
+      data.set(nearSolidBorderPixel(x, y, width, borderWidth), (y * width + x) * 3);
     }
   }
 
@@ -3365,6 +3367,30 @@ exit 74
       expect(yield* sortedDirectoryEntries(hiddenDir)).toEqual([]);
       expect(yield* fs.readFileString(path.join(sourceDir, "notes.txt"))).toBe("keep direct");
       expect(yield* fs.readFileString(path.join(nestedDir, "keep.md"))).toBe("keep nested");
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
+  it.effect("leaves symlinked media files and symlinked directories in place while flattening", () =>
+    Effect.gen(function* () {
+      const tmpDir = yield* temporaryWorkingDirectory;
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const sourceDir = path.join(tmpDir, "source");
+      const outsideDir = path.join(tmpDir, "outside");
+      const outDir = path.join(tmpDir, "flat");
+      yield* fs.makeDirectory(sourceDir, { recursive: true });
+      yield* fs.makeDirectory(outsideDir, { recursive: true });
+      yield* fs.writeFileString(path.join(sourceDir, "real.png"), "real image");
+      yield* fs.writeFileString(path.join(outsideDir, "target.png"), "outside image");
+      yield* fs.writeFileString(path.join(outsideDir, "nested.mp4"), "outside video");
+      yield* fs.symlink(path.join(outsideDir, "target.png"), path.join(sourceDir, "linked.png"));
+      yield* fs.symlink(outsideDir, path.join(sourceDir, "linked-dir"));
+      yield* runFilesCommand(["flatten-media", "--dir", sourceDir, "--out-dir", outDir]);
+      expect(yield* sortedDirectoryEntries(outDir)).toEqual(["real.png"]);
+      expect(yield* fs.readFileString(path.join(outDir, "real.png"))).toBe("real image");
+      expect(yield* sortedDirectoryEntries(sourceDir)).toEqual(["linked-dir", "linked.png"]);
+      expect(yield* fs.readLink(path.join(sourceDir, "linked.png"))).toBe(path.join(outsideDir, "target.png"));
+      expect(yield* sortedDirectoryEntries(outsideDir)).toEqual(["nested.mp4", "target.png"]);
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 

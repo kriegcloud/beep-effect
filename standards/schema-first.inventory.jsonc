@@ -1786,14 +1786,6 @@
       "reason": "Live collector handle scoped to one recording round: awaitStop, eventsWritten, and rejectedCount are Effects reading server-local Refs and a Deferred. The persisted part is already modeled by CollectorHandle, which this interface carries; the running server itself never crosses a decode boundary."
     },
     {
-      "file": "packages/tooling/library/repo-utils/src/FsUtils.ts",
-      "symbol": "WalkFilesOptions",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/repo-utils",
-      "reason": "Mixed traversal options intentionally couple runtime inclusion and symlink predicates with local algorithm controls; no independent decode or persistence boundary exists."
-    },
-    {
       "file": "packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts",
       "symbol": "JSDocTagDefinition",
       "kind": "plain-data-schema-class",

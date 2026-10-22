@@ -1,5 +1,5 @@
 import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
-import { exists, FsUtils, FsUtilsLive, findNearestPackageDir, walkFiles } from "@beep/repo-utils/FsUtils";
+import { exists, FsUtils, FsUtilsLive, findNearestPackageDir } from "@beep/repo-utils/FsUtils";
 import { normalizePath } from "@beep/schema";
 import { it as rootIt } from "@beep/test-runner";
 import { A, Str } from "@beep/utils";
@@ -21,12 +21,12 @@ const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
 const MemoryTestLayer = FsUtilsLive.pipe(Layer.provideMerge(Layer.mergeAll(MemoryFileSystem.layer, Path.layer)));
 
 describe("FsUtils", () => {
-  rootIt.layer(TestLayer, { timeout: "10 seconds" })("glob", (it) => {
+  rootIt.layer(TestLayer, { timeout: "10 seconds" })("globFiles patterns", (it) => {
     it.effect(
       "should match files with a pattern",
       Effect.fn(function* () {
         const utils = yield* FsUtils;
-        const results = yield* utils.glob("src/**/*.ts", {
+        const results = yield* utils.globFiles("src/**/*.ts", {
           cwd: `${__dirname}/..`,
         });
         expect(results.length).toBeGreaterThan(0);
@@ -38,7 +38,7 @@ describe("FsUtils", () => {
       "should return empty array for non-matching pattern",
       Effect.fn(function* () {
         const utils = yield* FsUtils;
-        const results = yield* utils.glob("**/*.nonexistent-ext-xyz", {
+        const results = yield* utils.globFiles("**/*.nonexistent-ext-xyz", {
           cwd: `${__dirname}/..`,
         });
         expect(results).toEqual([]);
@@ -49,7 +49,7 @@ describe("FsUtils", () => {
       "should respect ignore option",
       Effect.fn(function* () {
         const utils = yield* FsUtils;
-        const results = yield* utils.glob("src/**/*.ts", {
+        const results = yield* utils.globFiles("src/**/*.ts", {
           cwd: `${__dirname}/..`,
           ignore: ["**/errors/**"],
         });
@@ -64,7 +64,7 @@ describe("FsUtils", () => {
         const utils = yield* FsUtils;
         const cwd = `${__dirname}/..`;
         const canonicalCwd = yield* utils.realPath(cwd);
-        const results = yield* utils.glob(["src/**/*.ts", "src/FsUtils.ts", "src/FsUtils.ts"], {
+        const results = yield* utils.globFiles(["src/**/*.ts", "src/FsUtils.ts", "src/FsUtils.ts"], {
           cwd,
           absolute: true,
         });
@@ -310,24 +310,29 @@ describe("FsUtils", () => {
     );
   });
 
-  rootIt.layer(MemoryTestLayer, { timeout: "10 seconds" })("walkFiles", (it) => {
+  rootIt.layer(MemoryTestLayer, { timeout: "10 seconds" })("globFiles traversal", (it) => {
     it.effect(
       "should return an empty array for a missing root",
       Effect.fn(function* () {
-        const files = yield* walkFiles("/nonexistent/root/xyz");
+        const utils = yield* FsUtils;
+        const files = yield* utils.globFiles("nonexistent/root/xyz/**", { cwd: "/" });
         expect(files).toEqual([]);
+        // The walk root may be missing; the cwd a relative pattern resolves against may not.
+        const missingCwd = yield* Effect.flip(utils.globFiles("**", { cwd: "/nonexistent/root/xyz" }));
+        expect(missingCwd._tag).toBe("DomainError");
 
         const fs = yield* Fs.FileSystem;
         const root = yield* fs.makeTempDirectoryScoped();
         const present = `${root}/present.ts`;
         yield* fs.writeFileString(present, "");
-        expect(yield* walkFiles(root)).toEqual([present]);
+        expect(yield* utils.globFiles("**", { cwd: root, absolute: true })).toEqual([present]);
       })
     );
 
     it.effect(
       "should sort the flat result globally by path, not per directory level",
       Effect.fn(function* () {
+        const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectoryScoped();
 
@@ -335,7 +340,7 @@ describe("FsUtils", () => {
         yield* fs.writeFileString(`${tmpDir}/a/x.ts`, "");
         yield* fs.writeFileString(`${tmpDir}/a.ts`, "");
 
-        const files = yield* pipe(tmpDir, walkFiles());
+        const files = yield* utils.globFiles("**", { cwd: tmpDir, absolute: true });
         // Global path order places "a.ts" before "a/x.ts" ('.' < '/');
         // a per-level DFS sort would descend "a" first and invert them.
         expect(files).toEqual([`${tmpDir}/a.ts`, `${tmpDir}/a/x.ts`]);
@@ -343,8 +348,9 @@ describe("FsUtils", () => {
     );
 
     it.effect(
-      "should prune skipDirectories by exact base name and apply the include predicate",
+      "should prune a **/<name>/** ignore by exact directory name and filter by the include pattern",
       Effect.fn(function* () {
+        const utils = yield* FsUtils;
         const fs = yield* Fs.FileSystem;
         const tmpDir = yield* fs.makeTempDirectoryScoped();
 
@@ -355,41 +361,63 @@ describe("FsUtils", () => {
           recursive: true,
         });
         yield* fs.writeFileString(`${tmpDir}/node_modules/dep/index.ts`, "");
+        yield* fs.makeDirectory(`${tmpDir}/node_modules_extra`);
+        yield* fs.writeFileString(`${tmpDir}/node_modules_extra/kept.ts`, "");
 
-        const files = yield* walkFiles(tmpDir, {
-          skipDirectories: ["node_modules"],
-          include: (_filePath, name) => Str.endsWith(".ts")(name),
+        const files = yield* utils.globFiles("**/*.ts", {
+          cwd: tmpDir,
+          absolute: true,
+          ignore: ["**/node_modules/**"],
         });
 
-        expect(files).toEqual([`${tmpDir}/src/keep.ts`]);
+        expect(files).toEqual([`${tmpDir}/node_modules_extra/kept.ts`, `${tmpDir}/src/keep.ts`]);
+      })
+    );
+
+    it.effect(
+      "should not apply the walker's default prune when no ignore names a directory",
+      Effect.fn(function* () {
+        const utils = yield* FsUtils;
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+
+        yield* fs.makeDirectory(`${tmpDir}/node_modules/dep`, { recursive: true });
+        yield* fs.writeFileString(`${tmpDir}/node_modules/dep/index.ts`, "");
+        yield* fs.writeFileString(`${tmpDir}/root.ts`, "");
+
+        expect(yield* utils.globFiles("**/*.ts", { cwd: tmpDir })).toEqual(["node_modules/dep/index.ts", "root.ts"]);
+        expect(yield* utils.globFiles("**/*.ts", { cwd: tmpDir, ignore: "node_modules" })).toEqual(["root.ts"]);
       })
     );
 
     rootIt.layer(TestLayer, { timeout: "10 seconds" })((it) => {
       it.effect(
-        "should exclude symlinked entries under the skip-symlinks guard",
+        "should match symlinked files but never enter symlinked directories by default",
         Effect.fn(function* () {
+          const utils = yield* FsUtils;
           const fs = yield* Fs.FileSystem;
           const tmpDir = yield* fs.makeTempDirectoryScoped();
 
           yield* fs.writeFileString(`${tmpDir}/real.ts`, "");
           yield* fs.symlink(`${tmpDir}/real.ts`, `${tmpDir}/link.ts`);
+          yield* fs.makeDirectory(`${tmpDir}/pkg`);
+          yield* fs.writeFileString(`${tmpDir}/pkg/index.ts`, "");
+          yield* fs.symlink(`${tmpDir}/pkg`, `${tmpDir}/alias`);
 
-          const followed = yield* walkFiles(tmpDir);
-          expect(A.sort(followed, Order.String)).toEqual([`${tmpDir}/link.ts`, `${tmpDir}/real.ts`]);
+          const files = yield* utils.globFiles("**/*.ts", { cwd: tmpDir });
+          expect(A.sort(files, Order.String)).toEqual(["link.ts", "pkg/index.ts", "real.ts"]);
 
-          const guarded = yield* walkFiles(tmpDir, {
-            symlinkGuard: "skip-symlinks",
-          });
-          expect(guarded).toEqual([`${tmpDir}/real.ts`]);
+          const followed = yield* utils.globFiles("**/*.ts", { cwd: tmpDir, followSymlinks: true });
+          expect(followed).toEqual(["alias/index.ts", "link.ts", "pkg/index.ts", "real.ts"]);
         })
       );
     });
 
     rootIt.layer(TestLayer, { timeout: "10 seconds" })((it) => {
       it.effect(
-        "should terminate on a symlink directory cycle under the guard-cycles guard",
+        "should terminate on a symlink directory cycle under followSymlinks",
         Effect.fn(function* () {
+          const utils = yield* FsUtils;
           const fs = yield* Fs.FileSystem;
           const tmpDir = yield* fs.makeTempDirectoryScoped();
 
@@ -398,10 +426,52 @@ describe("FsUtils", () => {
           // A self-referential loop: pkg/loop -> pkg
           yield* fs.symlink(`${tmpDir}/pkg`, `${tmpDir}/pkg/loop`);
 
-          const files = yield* walkFiles(tmpDir, {
-            symlinkGuard: "guard-cycles",
+          const files = yield* utils.globFiles("**", {
+            cwd: tmpDir,
+            absolute: true,
+            followSymlinks: true,
           });
           expect(files).toEqual([`${tmpDir}/pkg/index.ts`]);
+        })
+      );
+    });
+
+    rootIt.layer(TestLayer, { timeout: "10 seconds" })((it) => {
+      it.effect(
+        "should match an absolute pattern from its filesystem root and return absolute paths",
+        Effect.fn(function* () {
+          const utils = yield* FsUtils;
+          const fs = yield* Fs.FileSystem;
+          const tmpDir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped());
+
+          yield* fs.makeDirectory(`${tmpDir}/src`);
+          yield* fs.writeFileString(`${tmpDir}/src/a.ts`, "");
+          yield* fs.writeFileString(`${tmpDir}/src/b.md`, "");
+
+          const files = yield* utils.globFiles(`${tmpDir}/src/**/*.ts`, { cwd: "/nonexistent/cwd" });
+          expect(files).toEqual([`${tmpDir}/src/a.ts`]);
+        })
+      );
+    });
+
+    rootIt.layer(TestLayer, { timeout: "10 seconds" })((it) => {
+      it.effect(
+        "should fail with DomainError when a directory mid-walk is unreadable",
+        Effect.fn(function* () {
+          const utils = yield* FsUtils;
+          const fs = yield* Fs.FileSystem;
+          const tmpDir = yield* fs.makeTempDirectoryScoped();
+
+          yield* fs.makeDirectory(`${tmpDir}/locked`);
+          yield* fs.writeFileString(`${tmpDir}/locked/a.ts`, "");
+          yield* fs.chmod(`${tmpDir}/locked`, 0o000);
+
+          const error = yield* utils.globFiles("**/*.ts", { cwd: tmpDir, ignore: ["locked/**"] }).pipe(Effect.flip);
+          expect(error._tag).toBe("DomainError");
+          expect(error.message).toBe('Glob failed for pattern "**/*.ts"');
+
+          yield* fs.chmod(`${tmpDir}/locked`, 0o755);
+          expect(yield* utils.globFiles("**/*.ts", { cwd: tmpDir })).toEqual(["locked/a.ts"]);
         })
       );
     });
