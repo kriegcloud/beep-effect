@@ -129,6 +129,7 @@ export class LicenseNode extends S.TaggedClass<
  * @since 0.0.0
  */
 export declare namespace LicenseNode {
+  /** @since 0.0.0 */
   export interface Encoded {
     readonly _tag: "License";
     readonly id: string;
@@ -204,6 +205,7 @@ export class LicenseRefNode extends S.TaggedClass<
  * @since 0.0.0
  */
 export declare namespace LicenseRefNode {
+  /** @since 0.0.0 */
   export interface Encoded {
     readonly documentRef?: undefined | string;
     readonly ref: string;
