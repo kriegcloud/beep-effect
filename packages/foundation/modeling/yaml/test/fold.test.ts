@@ -10,6 +10,7 @@ import {
 import { RequoteScalarInput, requoteScalarText } from "@beep/yaml/internal/requote";
 import { assert, describe, it } from "@effect/vitest";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { parse } from "yaml";
 
 /** Adapt an Option-returning renderer to its nullable reading for assertions. */
@@ -93,7 +94,7 @@ describe("block and single-quoted representability regressions", () => {
         assert.strictEqual(render("\n\nx", indent), null);
       }
       for (let width = 1; width <= 9; width++) {
-        assert.strictEqual(parse(`${render(" x", " ".repeat(width))}\n`), " x");
+        assert.strictEqual(parse(`${render(" x", Str.repeat(width)(" "))}\n`), " x");
       }
     }
     assert.strictEqual(O.getOrNull(renderBlockLiteral("x", "", undefined, undefined, false, 0)), null);

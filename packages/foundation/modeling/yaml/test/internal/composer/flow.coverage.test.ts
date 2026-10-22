@@ -6,6 +6,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { CstNode, CstNodeType } from "@beep/yaml/internal/cst";
 import type { YamlSeq } from "@beep/yaml/YamlNode";
 
@@ -214,7 +215,7 @@ describe("flow composer recovery and metadata", () => {
     Effect.sync(() => {
       for (const text of ["[1,\n# a\n# b\n]", "[1,\n# a\n\n# b\n]", "[\n# a\n# b\n]"]) {
         const node = composeFlowSeq(findFlow(text), stateFor(text));
-        assert.strictEqual(node.comment, text.includes("# a\n\n") ? " a\n\n b" : " a\n b");
+        assert.strictEqual(node.comment, Str.includes("# a\n\n")(text) ? " a\n\n b" : " a\n b");
       }
       const node = composeFlowSeq(collection("flow-seq", [token("comment", "#x", -1)]), stateFor());
       assert.strictEqual(node.comment, "x");

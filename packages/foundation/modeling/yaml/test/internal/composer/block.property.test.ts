@@ -16,6 +16,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { CstNode } from "@beep/yaml/internal/cst";
 import type { YamlPair } from "@beep/yaml/YamlNode";
 
@@ -80,7 +81,7 @@ const assertRenderRoundtrip = Effect.fn(function* (text: string, comment: string
   const rendered = yield* doc.stringify();
   const reparsed = yield* YamlDocument.parse(rendered);
   assert.deepStrictEqual(reparsed.toValue(), doc.toValue());
-  assert.strictEqual(rendered.includes(`# ${comment}`), true);
+  assert.strictEqual(Str.includes(`# ${comment}`)(rendered), true);
   assert.strictEqual(yield* reparsed.stringify(), rendered);
 });
 

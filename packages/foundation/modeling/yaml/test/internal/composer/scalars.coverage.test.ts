@@ -4,6 +4,7 @@ import { createState } from "@beep/yaml/internal/composer/state";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { CstNode, CstNodeType } from "@beep/yaml/internal/cst";
 
 const node = (type: CstNodeType, source: string, offset = 0, children?: readonly CstNode[]): CstNode => ({
@@ -164,7 +165,7 @@ describe("scalar seam coverage", () => {
         const s = state(raw);
         const result = C.makeScalar(node("block-scalar", raw), s);
         expect(result.value).toBe(block(raw, raw));
-        expect(s.errors.length).toBe(raw.includes("   \r") ? 1 : 0);
+        expect(s.errors.length).toBe(Str.includes("   \r")(raw) ? 1 : 0);
       }
     })
   );

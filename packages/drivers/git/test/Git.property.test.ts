@@ -8,6 +8,7 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { scripted } from "./fixtures.ts";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -78,11 +79,11 @@ const parserLaw = <T, E>(
 
 // Process output is UTF-8: lone UTF-16 surrogates are replaced before parsing.
 // Restrict only wire-format properties; schema round trips above use full arbitraries.
-const noNul = (text: string): boolean => text.isWellFormed() && text.includes("\0") === false;
+const noNul = (text: string): boolean => text.isWellFormed() && Str.includes("\0")(text) === false;
 const lineField = (text: string): boolean =>
-  noNul(text) && text.includes("\n") === false && text.includes("\r") === false;
+  noNul(text) && Str.includes("\n")(text) === false && Str.includes("\r")(text) === false;
 const atom = (text: string): boolean =>
-  lineField(text) && text.includes(" ") === false && text.includes("\t") === false;
+  lineField(text) && Str.includes(" ")(text) === false && Str.includes("\t")(text) === false;
 const nulStrings = S.String.pipe(
   S.Array,
   Arbitrary.schema,
@@ -272,7 +273,10 @@ describe("Git parser and formatter property floor", () => {
     remote,
     Arbitrary.schema(remote).pipe(
       Arbitrary.filter((entries) =>
-        A.every(entries, (entry) => lineField(entry.sha) && entry.sha.includes("\t") === false && lineField(entry.ref))
+        A.every(
+          entries,
+          (entry) => lineField(entry.sha) && Str.includes("\t")(entry.sha) === false && lineField(entry.ref)
+        )
       )
     ),
     (entries) => lineJoin(A.map(entries, (entry) => `${entry.sha}\t${entry.ref}`)),
@@ -289,9 +293,9 @@ describe("Git parser and formatter property floor", () => {
           entries,
           (entry) =>
             noNul(entry.ref) &&
-            entry.ref.includes("\u001f") === false &&
+            Str.includes("\u001f")(entry.ref) === false &&
             noNul(entry.sha) &&
-            entry.sha.includes("\u001f") === false &&
+            Str.includes("\u001f")(entry.sha) === false &&
             noNul(entry.message)
         )
       )
@@ -382,8 +386,9 @@ describe("Git parser and formatter property floor", () => {
           (entry) =>
             atom(entry.sha) &&
             lineField(entry.path) &&
-            entry.path.includes(" (") === false &&
-            (entry.describe === undefined || (lineField(entry.describe) && entry.describe.includes(" (") === false))
+            Str.includes(" (")(entry.path) === false &&
+            (entry.describe === undefined ||
+              (lineField(entry.describe) && Str.includes(" (")(entry.describe) === false))
         )
       )
     ),
@@ -439,7 +444,7 @@ describe("Git parser and formatter property floor", () => {
     ([entries]) =>
       Effect.gen(function* () {
         const rendered = G.StatusEntry.format(entries);
-        const parsed = yield* parseWith((git) => git.status(cwd), A.join(rendered.split("\n"), "\0"));
+        const parsed = yield* parseWith((git) => git.status(cwd), A.join(Str.split("\n")(rendered), "\0"));
         assert.strictEqual(G.StatusEntry.format(parsed), rendered);
         assert.strictEqual(S.toEquivalence(status)(parsed, entries), true);
       }),
@@ -450,7 +455,7 @@ describe("Git parser and formatter property floor", () => {
     "remote short-name formatting is stable and recovers the advertised name",
     [
       Arbitrary.schema(S.String).pipe(
-        Arbitrary.filter((name) => name.endsWith("^{}") === false && name.startsWith("refs/") === false)
+        Arbitrary.filter((name) => Str.endsWith("^{}")(name) === false && Str.startsWith("refs/")(name) === false)
       ),
     ],
     ([name]) =>
