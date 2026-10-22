@@ -1,11 +1,15 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { checkBunRuntimeVersion, compareBunRuntimeVersion } from "@beep/repo-cli/commands/VersionSync";
 import { it } from "@beep/test-runner";
-import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Sink from "effect/Sink";
+import * as Stream from "effect/Stream";
 
 describe("Bun runtime version comparison", () => {
   it.effect("accepts equal versions after trimming command and pin newlines", () =>
@@ -38,7 +42,33 @@ describe("Bun runtime version comparison", () => {
   );
 });
 
-it.layer(NodeServices.layer)("Bun runtime preflight I/O", (it) => {
+// Keep pin I/O in memory; the local CLI gate separately exercises the real Bun process.
+const runtimeLayer = Layer.mergeAll(
+  MemoryFileSystem.layer,
+  Path.layer,
+  Layer.succeed(
+    ChildProcessSpawner.ChildProcessSpawner,
+    ChildProcessSpawner.make(() =>
+      Effect.succeed(
+        ChildProcessSpawner.makeHandle({
+          all: Stream.make(new TextEncoder().encode("1.4.3\n")),
+          stdout: Stream.make(new TextEncoder().encode("1.4.3\n")),
+          stderr: Stream.empty,
+          stdin: Sink.drain,
+          exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(0)),
+          getInputFd: () => Sink.drain,
+          getOutputFd: () => Stream.empty,
+          isRunning: Effect.succeed(false),
+          kill: () => Effect.void,
+          pid: ChildProcessSpawner.ProcessId(1),
+          unref: Effect.succeed(Effect.void),
+        })
+      )
+    )
+  )
+);
+
+it.layer(runtimeLayer, { timeout: "30 seconds" })("Bun runtime preflight I/O", (it) => {
   it.effect("fails closed when the repository has no .bun-version", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -50,7 +80,7 @@ it.layer(NodeServices.layer)("Bun runtime preflight I/O", (it) => {
     })
   );
 
-  it.effect("runs bun --version and rejects a different pin", () =>
+  it.effect("compares the command output with the pin and rejects a mismatch", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
