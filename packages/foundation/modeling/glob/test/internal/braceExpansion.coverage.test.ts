@@ -2,6 +2,7 @@ import { expand } from "@beep/glob/internal/braceExpansion";
 import { GuardExceeded, MAX_NESTING_DEPTH } from "@beep/glob/internal/limits";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 describe("brace expansion coverage", () => {
   it.effect("preserves escaped punctuation, literal braces and shell parameter braces", () =>
@@ -29,15 +30,15 @@ describe("brace expansion coverage", () => {
   );
   it.effect("adjacent nested comma parts and recursive expansion trip the depth guard", () =>
     Effect.sync(() => {
-      const adjacent = `{${"{a,b}".repeat(MAX_NESTING_DEPTH + 1)},c}`;
+      const adjacent = `{${Str.repeat(MAX_NESTING_DEPTH + 1)("{a,b}")},c}`;
       assert.throws(() => expand(adjacent), GuardExceeded);
-      const nested = "{a,".repeat(MAX_NESTING_DEPTH + 1) + "b" + "}".repeat(MAX_NESTING_DEPTH + 1);
+      const nested = Str.repeat(MAX_NESTING_DEPTH + 1)("{a,") + "b" + Str.repeat(MAX_NESTING_DEPTH + 1)("}");
       assert.throws(() => expand(nested), GuardExceeded);
     })
   );
   it.effect("shell parameter suffix recursion accepts the depth limit and reports the first excess frame", () =>
     Effect.sync(() => {
-      const atLimit = "${a}".repeat(MAX_NESTING_DEPTH + 1);
+      const atLimit = Str.repeat(MAX_NESTING_DEPTH + 1)("${a}");
       assert.deepStrictEqual(expand(atLimit), [atLimit]);
       assert.throws(
         () => expand(atLimit + "${a}"),

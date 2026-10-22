@@ -31,9 +31,11 @@ import {
   EdgeMatterScope,
   EdgeObservationRef,
   EdgeQualifiers,
-  EdgeRelation,
   LogicalEdgeKey,
 } from "@beep/epistemic-domain/values";
+import { EdgeRelation } from "@beep/epistemics/EdgeRelation";
+import { KnowledgeIntervalFields } from "@beep/epistemics/KnowledgeInterval";
+import { ValidIntervalFields } from "@beep/epistemics/ValidInterval";
 import { $EpistemicDomainId } from "@beep/identity/packages";
 import * as ProductEntity from "@beep/shared-domain/entity/ProductEntity";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
@@ -108,11 +110,7 @@ export class EdgeVersion extends ProductEntity.Entity<EdgeVersion>()(Epistemic.E
     evidenceScope: EdgeEvidenceScope.pipe(S.OptionFromNullOr)
       .annotateKey({ description: "Optional evidence-set scope the edge was asserted under." })
       .pipe(pg.text(), pg.columnName("evidence_scope")),
-    expiredAt: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr)
-      .annotateKey({
-        description: "Exclusive transaction-time upper bound; absent while the row is the current record.",
-      })
-      .pipe(pg.bigint("number"), pg.columnName("expired_at")),
+    expiredAt: KnowledgeIntervalFields.expiredAt.pipe(pg.bigint("number"), pg.columnName("expired_at")),
     fact: S.Record(S.String, S.Unknown)
       .annotateKey({
         description: "Immutable payload asserted by this edge version.",
@@ -127,9 +125,7 @@ export class EdgeVersion extends ProductEntity.Entity<EdgeVersion>()(Epistemic.E
     qualifiers: EdgeQualifiers.annotateKey({
       description: "Further string qualifiers partitioning the edge.",
     }).pipe(pg.jsonb()),
-    recordedAt: S.DateTimeUtcFromMillis.annotateKey({
-      description: "Inclusive transaction-time lower bound: when this row became known.",
-    }).pipe(pg.bigint("number"), pg.columnName("recorded_at")),
+    recordedAt: KnowledgeIntervalFields.recordedAt.pipe(pg.bigint("number"), pg.columnName("recorded_at")),
     relation: EdgeRelation.annotateKey({
       description: "Relation the source endpoint bears to the target.",
     }).pipe(pg.text()),
@@ -168,12 +164,8 @@ export class EdgeVersion extends ProductEntity.Entity<EdgeVersion>()(Epistemic.E
     targetObservationRef: EdgeObservationRef.pipe(S.OptionFromNullOr)
       .annotateKey({ description: "Target observation reference, populated only when the target kind is observation." })
       .pipe(pg.text(), pg.columnName("target_observation_ref")),
-    validFrom: S.DateTimeUtcFromMillis.annotateKey({
-      description: "Inclusive valid-time lower bound: when the fact started being true.",
-    }).pipe(pg.bigint("number"), pg.columnName("valid_from")),
-    validTo: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr)
-      .annotateKey({ description: "Exclusive valid-time upper bound; absent while the fact is still held true." })
-      .pipe(pg.bigint("number"), pg.columnName("valid_to")),
+    validFrom: ValidIntervalFields.validFrom.pipe(pg.bigint("number"), pg.columnName("valid_from")),
+    validTo: ValidIntervalFields.validTo.pipe(pg.bigint("number"), pg.columnName("valid_to")),
     version: PosInt.annotateKey({
       description: "Monotonic version number within the logical edge.",
     }).pipe(pg.integer()),

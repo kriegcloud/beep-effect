@@ -4,20 +4,15 @@
  * never re-exports it and the package `exports` map nulls `./values/internal/*`.
  *
  * One implementation on purpose — {@link canonicalJson} feeds both the
- * grant-set seal and the ledger record seals, so a second private copy could
- * drift and silently split the digests those seals are supposed to share.
+ * grant-set seal and the ledger record seals, and it is the same encoder the
+ * `@beep/epistemics` contradiction, detection and evidence-verification seals
+ * use, so a second private copy could drift and silently split the digests
+ * those seals are supposed to share.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
-import { A, P, R } from "@beep/utils";
-import * as Order from "effect/Order";
-
-const isScalar: P.Predicate<unknown> = P.some([P.isNull, P.isNumber, P.isBoolean, P.isString]);
-
-type CanonicalEntry = readonly [key: string, entry: unknown];
-
-const byKeyAscending = Order.mapInput(Order.String, ([key]: CanonicalEntry) => key);
+import { canonicalDetectionJson } from "@beep/epistemics/ContradictionDetection";
 
 /**
  * Deterministic canonical JSON over wire-form values: object keys sorted
@@ -27,20 +22,4 @@ const byKeyAscending = Order.mapInput(Order.String, ([key]: CanonicalEntry) => k
  * @category encoding
  * @since 0.0.0
  */
-export const canonicalJson = (value: unknown): string => {
-  if (isScalar(value)) {
-    return JSON.stringify(value);
-  }
-  if (A.isArray(value)) {
-    return `[${A.join(A.map(value, canonicalJson), ",")}]`;
-  }
-  const defined: ReadonlyArray<CanonicalEntry> = A.filter(
-    R.toEntries(value as R.ReadonlyRecord<string, unknown>),
-    ([, entry]) => entry !== undefined
-  );
-  const entries = A.sort(defined, byKeyAscending);
-  return `{${A.join(
-    A.map(entries, ([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`),
-    ","
-  )}}`;
-};
+export const canonicalJson: (value: unknown) => string = canonicalDetectionJson;

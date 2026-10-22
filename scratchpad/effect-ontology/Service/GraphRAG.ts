@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { IRI } from "@beep/rdf";
 import * as Context from "effect/Context";
@@ -98,7 +98,7 @@ const GenerationOptionsShape = S.Struct({
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { IRI } from "@beep/rdf"
  * import { Entity } from "@effect-ontology/Model/Entity"
  * import { EntityId } from "@effect-ontology/Model/shared"
@@ -137,7 +137,7 @@ export class ScoredNode extends S.Opaque<ScoredNode, { readonly brand: unique sy
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { RetrievalStats } from "@effect-ontology/Service/GraphRAG"
  *
  * const stats = RetrievalStats.make({
@@ -205,7 +205,7 @@ export type RetrievalOptionsInput = (typeof RetrievalOptions)["~type.make.in"];
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { IRI } from "@beep/rdf"
  * import { Entity } from "@effect-ontology/Model/Entity"
  * import { EntityId } from "@effect-ontology/Model/shared"
@@ -376,7 +376,7 @@ export type FormatContextOptionsInput = (typeof FormatContextOptions)["~type.mak
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { IRI } from "@beep/rdf"
  * import { Entity } from "@effect-ontology/Model/Entity"
  * import { EntityId } from "@effect-ontology/Model/shared"
@@ -491,7 +491,7 @@ export class ReasoningStep extends S.Opaque<ReasoningStep, { readonly brand: uni
  * **Example** (Trace a one-step authorship path)
  *
  * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { IRI } from "@beep/rdf"
  * import { Entity, Relation, RelationObject } from "@effect-ontology/Model/Entity"
  * import { EntityId } from "@effect-ontology/Model/shared"

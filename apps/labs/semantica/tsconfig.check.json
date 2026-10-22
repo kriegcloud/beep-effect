@@ -24,9 +24,6 @@
       "path": "../../../packages/drivers/wink/tsconfig.json"
     },
     {
-      "path": "../../../packages/epistemic/domain/tsconfig.json"
-    },
-    {
       "path": "../../../packages/foundation/capability/file-processing/tsconfig.json"
     },
     {
@@ -37,6 +34,9 @@
     },
     {
       "path": "../../../packages/foundation/capability/semantic-web/tsconfig.json"
+    },
+    {
+      "path": "../../../packages/foundation/modeling/epistemics/tsconfig.json"
     },
     {
       "path": "../../../packages/foundation/modeling/identity/tsconfig.json"

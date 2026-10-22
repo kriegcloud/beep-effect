@@ -386,43 +386,51 @@
       }
     },
     "@beep/epistemic-domain": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
       }
     },
     "@beep/epistemic-server": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
       }
     },
     "@beep/epistemic-tables": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
       }
     },
     "@beep/epistemic-ui": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
       }
     },
     "@beep/epistemic-use-cases": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
+      }
+    },
+    "@beep/epistemics": {
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
+      "basis": {
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
       }
     },
     "@beep/exiftool": {
@@ -610,11 +618,11 @@
       }
     },
     "@beep/law-practice-use-cases": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
       }
     },
     "@beep/lejeune-bolt-workbench": {
@@ -1010,11 +1018,11 @@
       }
     },
     "@beep/professional-desktop": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
       }
     },
     "@beep/provenance": {
@@ -1154,11 +1162,11 @@
       }
     },
     "@beep/semantica": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (epistemics-foundation-extraction P1, feat/epistemics-foundation-p1)",
+      "reason": "Record the new workspace @beep/epistemics scaffolded by create-package with the generated task set, and the dependency-only drift of its eight importers (the new @beep/epistemics workspace dependency and its tsconfig references; @beep/epistemic-domain also drops four moved export subpaths and @beep/semantica drops its now-unused @beep/epistemic-domain dependency); no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/epistemics-foundation-extraction/research/cache-baseline-review-p1.md",
+        "sha256": "8003b7ed1e7bbe5bb90e8d9317d6b29bf70be93dcca1ff78896e624c340b2986"
       }
     },
     "@beep/semver": {
@@ -34565,6 +34573,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/effect-drizzle#audit",
+          "@beep/epistemics#audit",
           "@beep/identity#audit",
           "@beep/provenance#audit",
           "@beep/schema#audit",
@@ -34634,6 +34643,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/effect-drizzle#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -34692,6 +34702,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/effect-drizzle#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -34737,6 +34748,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/effect-drizzle#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -34831,6 +34843,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/effect-drizzle#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -34921,6 +34934,7 @@
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/effect-drizzle#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -35129,6 +35143,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/effect-drizzle#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -35177,6 +35192,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/effect-drizzle#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -35231,6 +35247,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/effect-drizzle#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -35284,6 +35301,7 @@
           "@beep/epistemic-domain#audit",
           "@beep/epistemic-tables#audit",
           "@beep/epistemic-use-cases#audit",
+          "@beep/epistemics#audit",
           "@beep/file-processing#audit",
           "@beep/identity#audit",
           "@beep/mcp-kit#audit",
@@ -35364,6 +35382,7 @@
           "@beep/epistemic-domain#build",
           "@beep/epistemic-tables#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -35433,6 +35452,7 @@
           "@beep/epistemic-domain#build",
           "@beep/epistemic-tables#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -35489,6 +35509,7 @@
           "@beep/epistemic-domain#build",
           "@beep/epistemic-tables#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -35630,6 +35651,7 @@
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-tables#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/mcp-kit#transit",
@@ -35849,6 +35871,7 @@
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-tables#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/mcp-kit#transit",
@@ -35908,6 +35931,7 @@
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-tables#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/mcp-kit#transit",
@@ -35973,6 +35997,7 @@
           "@beep/epistemic-domain#build",
           "@beep/epistemic-tables#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -36030,6 +36055,7 @@
           "@beep/epistemic-domain#build",
           "@beep/epistemic-tables#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -36084,6 +36110,7 @@
         "dependencies": [
           "@beep/effect-drizzle#audit",
           "@beep/epistemic-domain#audit",
+          "@beep/epistemics#audit",
           "@beep/identity#audit",
           "@beep/provenance#audit",
           "@beep/schema#audit",
@@ -36153,6 +36180,7 @@
         "dependencies": [
           "@beep/effect-drizzle#build",
           "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -36211,6 +36239,7 @@
         "dependencies": [
           "@beep/effect-drizzle#build",
           "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -36256,6 +36285,7 @@
         "dependencies": [
           "@beep/effect-drizzle#build",
           "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -36386,6 +36416,7 @@
           "//#lint:policy-fingerprint",
           "@beep/effect-drizzle#transit",
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -36594,6 +36625,7 @@
         "dependencies": [
           "@beep/effect-drizzle#transit",
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -36642,6 +36674,7 @@
         "dependencies": [
           "@beep/effect-drizzle#transit",
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -36696,6 +36729,7 @@
         "dependencies": [
           "@beep/effect-drizzle#build",
           "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -36742,6 +36776,7 @@
         "dependencies": [
           "@beep/effect-drizzle#transit",
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -36792,6 +36827,7 @@
           "@beep/epistemic-client#audit",
           "@beep/epistemic-domain#audit",
           "@beep/epistemic-use-cases#audit",
+          "@beep/epistemics#audit",
           "@beep/identity#audit",
           "@beep/provenance#audit",
           "@beep/schema#audit",
@@ -36863,6 +36899,7 @@
           "@beep/epistemic-client#build",
           "@beep/epistemic-domain#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -36923,6 +36960,7 @@
           "@beep/epistemic-client#build",
           "@beep/epistemic-domain#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -36970,6 +37008,7 @@
           "@beep/epistemic-client#build",
           "@beep/epistemic-domain#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -37102,6 +37141,7 @@
           "@beep/epistemic-client#transit",
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -37312,6 +37352,7 @@
           "@beep/epistemic-client#transit",
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -37362,6 +37403,7 @@
           "@beep/epistemic-client#transit",
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
           "@beep/schema#transit",
@@ -37418,6 +37460,7 @@
           "@beep/epistemic-client#build",
           "@beep/epistemic-domain#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/identity#build",
           "@beep/provenance#build",
           "@beep/schema#build",
@@ -37464,6 +37507,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/epistemic-domain#audit",
+          "@beep/epistemics#audit",
           "@beep/file-processing#audit",
           "@beep/identity#audit",
           "@beep/provenance#audit",
@@ -37535,6 +37579,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/provenance#build",
@@ -37595,6 +37640,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/provenance#build",
@@ -37642,6 +37688,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/provenance#build",
@@ -37738,6 +37785,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
@@ -37830,6 +37878,7 @@
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
@@ -38040,6 +38089,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
@@ -38090,6 +38140,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
@@ -38146,6 +38197,7 @@
         "commandDigest": "107420765a4be2b200434993062437f58ba960b542f2a31f7c93ead4d7c142bb",
         "dependencies": [
           "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/provenance#transit",
@@ -38184,6 +38236,640 @@
           "dependsOn": [
             "@beep/utils#transit",
             "^transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#audit",
+        "command": "bun run --if-present beep:audit",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "@beep/identity#audit",
+          "@beep/provenance#audit",
+          "@beep/schema#audit",
+          "@beep/test-runner#audit",
+          "@beep/utils#audit"
+        ],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../biome.jsonc",
+            "../../../../package.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            "../../../../vite.shared.ts",
+            "../../../../vitest.shared.ts"
+          ],
+          "env": [
+            "ALLOWED_EMAILS",
+            "APP_ADMINS_EMAILS",
+            "AUTH_*",
+            "BEEP_TEST_*",
+            "BEEP_TIKA_*",
+            "DATABASE_URL",
+            "DATABASE_URL_UNPOOLED",
+            "EMAIL_*",
+            "LIVEBLOCKS_*",
+            "NEXT_PUBLIC_*",
+            "OAUTH_*",
+            "OPENAI_*",
+            "RESEND_*",
+            "SECURITY_*"
+          ],
+          "passThroughEnv": [],
+          "outputs": [
+            "!**/.turbo/**",
+            "!.next/cache/**",
+            "**/node_modules/.tmp/*.tsbuildinfo",
+            ".expo/**",
+            ".next/**",
+            ".output/**",
+            ".vercel/output/**",
+            "_next/**",
+            "build/**",
+            "dist/**",
+            "docs/**",
+            "next-env.d.ts"
+          ],
+          "dependsOn": [
+            "^audit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "new-only"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#build",
+        "command": "bun run beep:build",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "@beep/identity#build",
+          "@beep/provenance#build",
+          "@beep/schema#build",
+          "@beep/test-runner#build",
+          "@beep/utils#build"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../package.json",
+            "../../../../tools/tsgo-shim/package.json",
+            "../../../../tools/tsgo-shim/tsgo.js",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            "../../../../vite.shared.ts",
+            "../../../../vitest.aliases.generated.json",
+            "../../../../vitest.shared.ts",
+            ".env",
+            ".env.*"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [
+            "!**/.turbo/**",
+            "!.next/cache/**",
+            "**/node_modules/.tmp/*.tsbuildinfo",
+            ".expo/**",
+            ".next/**",
+            ".output/**",
+            ".vercel/output/**",
+            "_next/**",
+            "build/**",
+            "dist/**",
+            "next-env.d.ts",
+            "storybook-static/**"
+          ],
+          "dependsOn": [
+            "^build"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#check",
+        "command": "bun run beep:check",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "@beep/identity#build",
+          "@beep/provenance#build",
+          "@beep/schema#build",
+          "@beep/test-runner#build",
+          "@beep/utils#build"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../package.json",
+            "../../../../tools/tsgo-shim/package.json",
+            "../../../../tools/tsgo-shim/tsgo.js",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            "../../../../vite.shared.ts",
+            "../../../../vitest.aliases.generated.json",
+            "../../../../vitest.shared.ts",
+            ".env",
+            ".env.*"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "^build"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#coverage",
+        "command": "bunx vitest run --coverage --exclude=test/integration/**",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "@beep/identity#build",
+          "@beep/provenance#build",
+          "@beep/schema#build",
+          "@beep/test-runner#build",
+          "@beep/utils#build"
+        ],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../package.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            "../../../../vite.shared.ts",
+            "../../../../vitest.aliases.generated.json",
+            "../../../../vitest.setup.ts",
+            "../../../../vitest.shared.ts",
+            "package.json",
+            "server/**",
+            "src-tauri/**",
+            "src/**",
+            "test/**",
+            "tsconfig*.json",
+            "vitest.config.ts",
+            "vitest.coverage.config.ts"
+          ],
+          "env": [
+            "BEEP_FC_SEED",
+            "NODE_OPTIONS",
+            "VITEST_COVERAGE_RATCHET",
+            "VITEST_COVERAGE_REPORT_ONLY"
+          ],
+          "passThroughEnv": [],
+          "outputs": [
+            "coverage/**"
+          ],
+          "dependsOn": [
+            "^build"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#docgen",
+        "command": "bun run beep:docgen",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "@beep/epistemics#transit",
+          "@beep/repo-docgen#transit"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../package.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            ".env",
+            ".env.*"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [
+            ".beep/docgen/**",
+            ".jsdoc-loop/generated-docs/**",
+            "docs/**"
+          ],
+          "dependsOn": [
+            "@beep/repo-docgen#transit",
+            "transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#lint",
+        "command": "bun run beep:lint",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!../../../../tsconfig*.json",
+            "!.beep/**",
+            "!.beep/**",
+            "!.fallow/**",
+            "!.fallow/**",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../biome.jsonc",
+            "../../../../package.json",
+            "../../../../packages/tooling/policy-pack/lint-rules/configs/**",
+            "../../../../packages/tooling/policy-pack/lint-rules/rules/**",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            ".env",
+            ".env.*"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#lint:deprecated-apis",
+        "command": "beep-cli lint deprecated-apis --package .",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "//#lint:policy-fingerprint",
+          "@beep/identity#transit",
+          "@beep/provenance#transit",
+          "@beep/schema#transit",
+          "@beep/test-runner#transit",
+          "@beep/utils#transit"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!**/.cache/**",
+            "!**/.next/**",
+            "!**/.turbo/**",
+            "!**/coverage/**",
+            "!**/dist/**",
+            "!**/docs/**",
+            "!**/generated/**",
+            "!**/node_modules/**",
+            "!**/vendor/**",
+            "!../../../../**/.beep/**/package.json",
+            "!../../../../**/.next/**/package.json",
+            "!../../../../**/.turbo/**/package.json",
+            "!../../../../**/build/**/package.json",
+            "!../../../../**/coverage/**/package.json",
+            "!../../../../**/dist/**/package.json",
+            "!../../../../**/node_modules/**/package.json",
+            "!../../../../**/storybook-static/**/package.json",
+            "!.beep/**",
+            "!.fallow/**",
+            "!node_modules/**",
+            "**/*.{ts,tsx,js,jsx,mjs,cjs}",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../.oxlintrc.deprecated-apis.jsonc",
+            "../../../../apps/**/package.json",
+            "../../../../apps/**/tsconfig*.json",
+            "../../../../infra/**/tsconfig*.json",
+            "../../../../infra/package.json",
+            "../../../../package.json",
+            "../../../../packages/**/package.json",
+            "../../../../packages/**/tsconfig*.json",
+            "../../../../tsconfig*.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            ".env",
+            ".env.*",
+            "package.json",
+            "tsconfig*.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "//#lint:policy-fingerprint",
+            "^transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#lint:fix",
+        "command": "bun run beep:lint:fix",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "!../../../../tsconfig*.json",
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../biome.jsonc",
+            "../../../../package.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#lint:jsdoc",
+        "command": "beep-cli lint jsdoc --package .",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "//#lint:policy-fingerprint"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!**/.next/**",
+            "!**/.turbo/**",
+            "!**/coverage/**",
+            "!**/dist/**",
+            "!**/docs/**",
+            "!**/node_modules/**",
+            "!**/src-tauri/target/**",
+            "!**/storybook-static/**",
+            "!../../../../**/.beep/**/package.json",
+            "!../../../../**/.next/**/package.json",
+            "!../../../../**/.turbo/**/package.json",
+            "!../../../../**/build/**/package.json",
+            "!../../../../**/coverage/**/package.json",
+            "!../../../../**/dist/**/package.json",
+            "!../../../../**/node_modules/**/package.json",
+            "!../../../../**/storybook-static/**/package.json",
+            "!node_modules/**",
+            "**/*.{ts,tsx,js,jsx,mjs,cjs}",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../.oxlintrc.docs.json",
+            "../../../../package.json",
+            "../../../../packages/tooling/policy-pack/lint-rules/package.json",
+            "../../../../packages/tooling/policy-pack/lint-rules/src/**",
+            "../../../../packages/tooling/policy-pack/lint-rules/src/rules/**",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            "../../../../tsdoc.json",
+            ".env",
+            ".env.*",
+            "package.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "//#lint:policy-fingerprint"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#lint:laws",
+        "command": "beep-cli lint laws --package .",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "//#lint:policy-fingerprint"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!**/.turbo/**",
+            "!**/build/**",
+            "!**/coverage/**",
+            "!**/dist/**",
+            "!**/node_modules/**",
+            "!../../../../**/.beep/**/package.json",
+            "!../../../../**/.next/**/package.json",
+            "!../../../../**/.turbo/**/package.json",
+            "!../../../../**/build/**/package.json",
+            "!../../../../**/coverage/**/package.json",
+            "!../../../../**/dist/**/package.json",
+            "!../../../../**/node_modules/**/package.json",
+            "!../../../../**/storybook-static/**/package.json",
+            "!node_modules/**",
+            "**/*.{ts,tsx}",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../package.json",
+            "../../../../packages/**/package.json",
+            "../../../../packages/tooling/policy-pack/repo-configs/src/internal/laws/generated/EffectLawsAllowlistSnapshot.ts",
+            "../../../../packages/tooling/policy-pack/repo-configs/src/laws/EffectLawsAllowlist.ts",
+            "../../../../packages/tooling/policy-pack/repo-configs/src/laws/NoNativeRuntimeHotspots.ts",
+            "../../../../standards/effect-laws.allowlist.jsonc",
+            "../../../../tsconfig*.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            ".env",
+            ".env.*",
+            "package.json",
+            "tsconfig*.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "//#lint:policy-fingerprint"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#package-test-typecheck",
+        "command": "beep-cli quality test-tsgo-package",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "@beep/identity#transit",
+          "@beep/provenance#transit",
+          "@beep/schema#transit",
+          "@beep/test-runner#transit",
+          "@beep/utils#transit"
+        ],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../package.json",
+            "../../../../packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+            "../../../../packages/tooling/tool/cli/src/commands/Quality/internal/TestTsgoSyntheticConfig.ts",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            "package.json",
+            "scripts/**",
+            "server/**",
+            "src-tauri/**",
+            "src/**",
+            "test/**",
+            "tsconfig*.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [
+            ".turbo/package-test-typecheck-result.json"
+          ],
+          "dependsOn": [
+            "^transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#test",
+        "command": "bun run beep:test",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "@beep/identity#transit",
+          "@beep/provenance#transit",
+          "@beep/schema#transit",
+          "@beep/test-runner#transit",
+          "@beep/utils#transit",
+          "@beep/utils#transit"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../package.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            "../../../../vite.shared.ts",
+            "../../../../vitest.aliases.generated.json",
+            "../../../../vitest.setup.ts",
+            "../../../../vitest.shared.ts",
+            ".env",
+            ".env.*"
+          ],
+          "env": [
+            "BEEP_COVERAGE_INVOCATION_ID",
+            "BEEP_COVERAGE_RUNTIME_RECEIPT",
+            "BEEP_FC_NUM_RUNS",
+            "BEEP_FC_SEED"
+          ],
+          "passThroughEnv": [
+            "BEEP_CREATE_PACKAGE_BUN_ARGS_FILE",
+            "GITHUB_STEP_SUMMARY"
+          ],
+          "outputs": [],
+          "dependsOn": [
+            "@beep/utils#transit",
+            "^transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/epistemics#test:integration",
+        "command": "bun run beep:test:integration",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
+        "dependencies": [
+          "@beep/identity#build",
+          "@beep/provenance#build",
+          "@beep/schema#build",
+          "@beep/test-runner#build",
+          "@beep/utils#build"
+        ],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../../.bun-version",
+            "../../../../.nvmrc",
+            "../../../../package.json",
+            "../../../../tsconfig.base.json",
+            "../../../../tsconfig.json",
+            "../../../../tsconfig.packages.json",
+            "../../../../vite.shared.ts",
+            "../../../../vitest.aliases.generated.json",
+            "../../../../vitest.setup.ts",
+            "../../../../vitest.shared.ts"
+          ],
+          "env": [
+            "BEEP_TEST_*",
+            "BEEP_TIKA_*",
+            "CLOUD_BOX_TOKEN"
+          ],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "^build"
           ],
           "persistent": false,
           "interactive": false,
@@ -53565,6 +54251,7 @@
         "dependencies": [
           "@beep/epistemic-domain#audit",
           "@beep/epistemic-use-cases#audit",
+          "@beep/epistemics#audit",
           "@beep/file-processing#audit",
           "@beep/identity#audit",
           "@beep/langextract#audit",
@@ -53640,6 +54327,7 @@
         "dependencies": [
           "@beep/epistemic-domain#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/langextract#build",
@@ -53704,6 +54392,7 @@
         "dependencies": [
           "@beep/epistemic-domain#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/langextract#build",
@@ -53755,6 +54444,7 @@
         "dependencies": [
           "@beep/epistemic-domain#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/langextract#build",
@@ -53891,6 +54581,7 @@
           "//#lint:policy-fingerprint",
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/langextract#transit",
@@ -54105,6 +54796,7 @@
         "dependencies": [
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/langextract#transit",
@@ -54159,6 +54851,7 @@
         "dependencies": [
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/langextract#transit",
@@ -54219,6 +54912,7 @@
         "dependencies": [
           "@beep/epistemic-domain#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/langextract#transit",
@@ -86796,6 +87490,7 @@
           "@beep/epistemic-tables#audit",
           "@beep/epistemic-ui#audit",
           "@beep/epistemic-use-cases#audit",
+          "@beep/epistemics#audit",
           "@beep/file-processing#audit",
           "@beep/graph-3d#audit",
           "@beep/identity#audit",
@@ -86906,6 +87601,7 @@
           "@beep/epistemic-tables#build",
           "@beep/epistemic-ui#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/graph-3d#build",
           "@beep/identity#build",
@@ -87009,6 +87705,7 @@
           "@beep/epistemic-tables#build",
           "@beep/epistemic-ui#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/graph-3d#build",
           "@beep/identity#build",
@@ -87097,6 +87794,7 @@
           "@beep/epistemic-tables#codegen",
           "@beep/epistemic-ui#codegen",
           "@beep/epistemic-use-cases#codegen",
+          "@beep/epistemics#codegen",
           "@beep/file-processing#codegen",
           "@beep/graph-3d#codegen",
           "@beep/identity#codegen",
@@ -87176,6 +87874,7 @@
           "@beep/epistemic-tables#build",
           "@beep/epistemic-ui#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/graph-3d#build",
           "@beep/identity#build",
@@ -87272,6 +87971,7 @@
           "@beep/epistemic-tables#build",
           "@beep/epistemic-ui#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/graph-3d#build",
           "@beep/identity#build",
@@ -87424,6 +88124,7 @@
           "@beep/epistemic-tables#transit",
           "@beep/epistemic-ui#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/graph-3d#transit",
           "@beep/identity#transit",
@@ -87673,6 +88374,7 @@
           "@beep/epistemic-tables#transit",
           "@beep/epistemic-ui#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/graph-3d#transit",
           "@beep/identity#transit",
@@ -87762,6 +88464,7 @@
           "@beep/epistemic-tables#transit",
           "@beep/epistemic-ui#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/graph-3d#transit",
           "@beep/identity#transit",
@@ -87857,6 +88560,7 @@
           "@beep/epistemic-tables#build",
           "@beep/epistemic-ui#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/graph-3d#build",
           "@beep/identity#build",
@@ -87944,6 +88648,7 @@
           "@beep/epistemic-tables#build",
           "@beep/epistemic-ui#build",
           "@beep/epistemic-use-cases#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/graph-3d#build",
           "@beep/identity#build",
@@ -88031,6 +88736,7 @@
           "@beep/epistemic-tables#transit",
           "@beep/epistemic-ui#transit",
           "@beep/epistemic-use-cases#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/graph-3d#transit",
           "@beep/identity#transit",
@@ -99284,7 +99990,7 @@
           "@beep/anthropic#audit",
           "@beep/doc-text#audit",
           "@beep/duckdb#audit",
-          "@beep/epistemic-domain#audit",
+          "@beep/epistemics#audit",
           "@beep/file-processing#audit",
           "@beep/identity#audit",
           "@beep/langextract#audit",
@@ -99364,7 +100070,7 @@
           "@beep/anthropic#build",
           "@beep/doc-text#build",
           "@beep/duckdb#build",
-          "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/langextract#build",
@@ -99433,7 +100139,7 @@
           "@beep/anthropic#build",
           "@beep/doc-text#build",
           "@beep/duckdb#build",
-          "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/langextract#build",
@@ -99489,7 +100195,7 @@
           "@beep/anthropic#build",
           "@beep/doc-text#build",
           "@beep/duckdb#build",
-          "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/langextract#build",
@@ -99555,7 +100261,7 @@
           "@beep/anthropic#build",
           "@beep/doc-text#build",
           "@beep/duckdb#build",
-          "@beep/epistemic-domain#build",
+          "@beep/epistemics#build",
           "@beep/file-processing#build",
           "@beep/identity#build",
           "@beep/langextract#build",
@@ -99638,7 +100344,7 @@
           "@beep/anthropic#transit",
           "@beep/doc-text#transit",
           "@beep/duckdb#transit",
-          "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/langextract#transit",
@@ -99802,7 +100508,7 @@
           "@beep/anthropic#transit",
           "@beep/doc-text#transit",
           "@beep/duckdb#transit",
-          "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/langextract#transit",
@@ -99861,7 +100567,7 @@
           "@beep/anthropic#transit",
           "@beep/doc-text#transit",
           "@beep/duckdb#transit",
-          "@beep/epistemic-domain#transit",
+          "@beep/epistemics#transit",
           "@beep/file-processing#transit",
           "@beep/identity#transit",
           "@beep/langextract#transit",

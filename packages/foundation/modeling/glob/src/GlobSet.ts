@@ -25,6 +25,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { GlobPattern, GlobPatternError } from "./GlobPattern.ts";
 import { isGuardExceeded } from "./internal/limits.ts";
 import { braceExpand, Minimatch } from "./internal/minimatch.ts";
@@ -36,7 +37,7 @@ const $I = $GlobId.create("GlobSet");
 // bang is then ordinary minimatch whole-pattern negation inside the exclude —
 // degenerate, permitted, not specially cased.
 const exclusionTarget = (pattern: string): string | undefined =>
-  pattern.startsWith("!") ? pattern.slice(1) : undefined;
+  Str.startsWith("!")(pattern) ? Str.slice(1)(pattern) : undefined;
 
 // Compiles every member (exclusion bang stripped) under default options and
 // maps the FIRST guard trip. A non-guard throw is programmer error and stays a
@@ -63,7 +64,10 @@ const firstGuardTrip = <E>(
 // Returning the guard message string makes it the thrown validation message.
 const allCompileUnderDefaults = (patterns: ReadonlyArray<string>): true | string =>
   O.getOrElse(
-    firstGuardTrip(patterns, (pattern, guard) => `pattern ${JSON.stringify(pattern.slice(0, 64))}: ${guard.message}`),
+    firstGuardTrip(
+      patterns,
+      (pattern, guard) => `pattern ${JSON.stringify(Str.slice(0, 64)(pattern))}: ${guard.message}`
+    ),
     (): true | string => true
   );
 

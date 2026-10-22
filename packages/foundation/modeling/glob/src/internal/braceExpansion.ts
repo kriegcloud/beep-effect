@@ -35,11 +35,13 @@
 
 import { $GlobId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Random from "effect/Random";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { balanced } from "./balancedMatch.ts";
 import { assertCap, EXPANSION_MAX, GuardExceeded, MAX_NESTING_DEPTH } from "./limits.ts";
 import type { BalancedResult } from "./balancedMatch.ts";
@@ -63,23 +65,28 @@ const closePattern = /\\}/g;
 const commaPattern = /\\,/g;
 const periodPattern = /\\\./g;
 
-const numeric = (str: string): number => (Number.isNaN(Number(str)) ? str.charCodeAt(0) : Number.parseInt(str, 10));
+const numeric = (str: string): number =>
+  Number.isNaN(Number(str)) ? O.getOrElse(constant(Number.NaN))(Str.charCodeAt(0)(str)) : Number.parseInt(str, 10);
 
 const escapeBraces = (str: string): string =>
-  str
-    .replace(slashPattern, escSlash)
-    .replace(openPattern, escOpen)
-    .replace(closePattern, escClose)
-    .replace(commaPattern, escComma)
-    .replace(periodPattern, escPeriod);
+  pipe(
+    str,
+    Str.replace(slashPattern, escSlash),
+    Str.replace(openPattern, escOpen),
+    Str.replace(closePattern, escClose),
+    Str.replace(commaPattern, escComma),
+    Str.replace(periodPattern, escPeriod)
+  );
 
 const unescapeBraces = (str: string): string =>
-  str
-    .replace(escSlashPattern, "\\")
-    .replace(escOpenPattern, "{")
-    .replace(escClosePattern, "}")
-    .replace(escCommaPattern, ",")
-    .replace(escPeriodPattern, ".");
+  pipe(
+    str,
+    Str.replace(escSlashPattern, "\\"),
+    Str.replace(escOpenPattern, "{"),
+    Str.replace(escClosePattern, "}"),
+    Str.replace(escCommaPattern, ","),
+    Str.replace(escPeriodPattern, ".")
+  );
 
 /**
  * Basically just str.split(","), but handling cases where we have nested
@@ -101,11 +108,11 @@ const parseCommaParts: {
   const m = balanced("{", "}", str);
 
   if (m === false) {
-    return str.split(",");
+    return Str.split(",")(str);
   }
 
   const { pre, body, post } = m;
-  const p = pre.split(",");
+  const p = Str.split(",")(pre);
 
   p[p.length - 1] += `{${body}}`;
   const postParts = parseCommaParts(post, depth + 1);
@@ -195,8 +202,8 @@ export const expand: {
     // One could argue that this is a bug in Bash, but since the goal of
     // this module is to match Bash's rules, we escape a leading {}
     let input = str;
-    if (input.slice(0, 2) === "{}") {
-      input = `\\{\\}${input.slice(2)}`;
+    if (Str.slice(0, 2)(input) === "{}") {
+      input = `\\{\\}${Str.slice(2)(input)}`;
     }
 
     const result: Array<string> = [];
@@ -240,7 +247,7 @@ const LITERAL_STEP: BraceStep = { _tag: "Literal" };
 const braceKind = (body: string): BraceKind | undefined => {
   if (/^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(body)) return "numeric";
   if (/^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(body)) return "alpha";
-  return body.indexOf(",") >= 0 ? "options" : undefined;
+  return Str.includes(",")(body) ? "options" : undefined;
 };
 
 const classifyBrace = (current: string): BraceStep => {
@@ -250,7 +257,7 @@ const classifyBrace = (current: string): BraceStep => {
   const kind = braceKind(m.body);
   if (kind !== undefined) return { _tag: "Expand", m, kind };
   // {a},b}
-  if (m.post.match(/,(?!,).*}/) !== null) return { _tag: "Rewrite", current: `${m.pre}{${m.body}${escClose}${m.post}` };
+  if (/,(?!,).*}/.test(m.post)) return { _tag: "Rewrite", current: `${m.pre}{${m.body}${escClose}${m.post}` };
   return LITERAL_STEP;
 };
 
@@ -321,7 +328,7 @@ function* expandBraceSet(
 ): Generator<string> {
   const isSequence = kind !== "options";
   const set: BraceSet = { pre: m.pre, post: postOf(m, max, depth), isTop, isSequence, max, depth };
-  const n = isSequence ? m.body.split(/\.\./) : parseCommaParts(m.body, depth + 1);
+  const n = isSequence ? Str.split(/\.\./)(m.body) : parseCommaParts(m.body, depth + 1);
   const n0 = n[0];
   const n1 = n[1];
   if (isSequence && n0 !== undefined && n1 !== undefined) {
@@ -373,8 +380,8 @@ const numericMember = (i: number, plan: SequencePlan): string => {
   const c = String(i);
   const need = plan.pad ? plan.width - c.length : 0;
   if (need <= 0) return c;
-  const z = "0".repeat(need);
-  return i < 0 ? `-${z}${c.slice(1)}` : `${z}${c}`;
+  const z = Str.repeat(need)("0");
+  return i < 0 ? `-${z}${Str.slice(1)(c)}` : `${z}${c}`;
 };
 
 function* expandSequence(
