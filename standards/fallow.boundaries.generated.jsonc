@@ -2912,10 +2912,24 @@
       {
         "from": "@beep/markdown",
         "allow": [
-          "@beep/markdown"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/markdown",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils",
+          "@beep/yaml"
         ],
         "allowTypeOnly": [
-          "@beep/markdown"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/markdown",
+          "@beep/schema",
+          "@beep/toml",
+          "@beep/utils",
+          "@beep/yaml"
         ]
       },
       {
@@ -4341,6 +4355,7 @@
           "@beep/law-practice-use-cases",
           "@beep/m365",
           "@beep/managed-section",
+          "@beep/markdown",
           "@beep/md",
           "@beep/memfs",
           "@beep/n3",
@@ -4390,6 +4405,7 @@
           "@beep/law-practice-use-cases",
           "@beep/m365",
           "@beep/managed-section",
+          "@beep/markdown",
           "@beep/md",
           "@beep/memfs",
           "@beep/n3",

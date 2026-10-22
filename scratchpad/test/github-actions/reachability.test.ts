@@ -61,14 +61,14 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 };
 
 /**
- * The kit modules waves 1a, 1b, 2a and 2b of the effected promotion moved out of the lab
+ * The kit modules waves 1a, 1b, 2a, 2b and 2d of the effected promotion moved out of the lab
  * into `@beep/*` packages (`templates` became `@beep/managed-section`; the pure
  * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`; `env` became
  * `@beep/runtime-env`). Upstream
  * reached each as a bare `@effected/*` edge and the lab as a relative sibling
  * entrypoint; promoted, each is a bare package edge again, so the walker stops at
- * it as it stops at a lab sibling. The kit modules not yet promoted (`markdown`,
- * `sbom`, ...) are still lab siblings reached relatively. Add a module here
+ * it as it stops at a lab sibling. The kit modules not yet promoted (`sbom`,
+ * ...) are still lab siblings reached relatively. Add a module here
  * when it is promoted.
  */
 const PROMOTED_KIT_PACKAGES = new Set([
@@ -81,6 +81,7 @@ const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/jsonc",
 	"@beep/jsonl",
 	"@beep/managed-section",
+	"@beep/markdown",
 	"@beep/memfs",
 	"@beep/npm-spec",
 	"@beep/runtime-env",
@@ -124,6 +125,10 @@ const reachableRuntimeImports = (entry: string): ReadonlySet<string> => {
 	}
 	return bare;
 };
+
+/** A `@beep/markdown` edge: the package root or one of its leaves. */
+const reachesMarkdown = (specifier: string): boolean =>
+	specifier === "@beep/markdown" || specifier.startsWith("@beep/markdown/");
 
 const reachesAzure = (entry: string): boolean =>
 	[...reachableRuntimeImports(entry)].some((specifier) => specifier.startsWith("@azure/"));
@@ -348,17 +353,17 @@ describe("bundle reachability", () => {
 	});
 
 	it("the markdown engine is confined to the writer, on Azure's terms", () => {
-		// `@effected/markdown` is the second-heaviest engine this package can
+		// `@beep/markdown` is the second-heaviest engine this package can
 		// reach, and only the fluent writer earns it. The control comes first:
 		// a blinded walker must fail here, not pass everything below.
 		assert.isTrue(
-			[...reachableRuntimeImports("GitHubMarkdown.ts")].includes("../markdown/index.ts"),
+			[...reachableRuntimeImports("GitHubMarkdown.ts")].some(reachesMarkdown),
 			"GitHubMarkdown does not reach the engine — the walker is blind",
 		);
 		for (const entry of LIGHT_MODULES.filter((module) => module !== "GitHubMarkdown.ts")) {
 			assert.isFalse(
-				[...reachableRuntimeImports(entry)].includes("../markdown/index.ts"),
-				`${entry} reaches @effected/markdown — the writer confinement has leaked`,
+				[...reachableRuntimeImports(entry)].some(reachesMarkdown),
+				`${entry} reaches @beep/markdown — the writer confinement has leaked`,
 			);
 		}
 		// Exact edge sets for the new modules, same discipline as the light half:
@@ -410,8 +415,9 @@ describe("bundle reachability", () => {
 			"effect/String",
 		]);
 		assert.deepStrictEqual([...reachableRuntimeImports("GitHubMarkdown.ts")].sort(), [
-			"../markdown/index.ts",
 			"@beep/identity/packages",
+			"@beep/markdown/Markdown",
+			"@beep/markdown/MarkdownNode",
 			"@beep/schema/LiteralKit",
 			"effect/Array",
 			"effect/Function",

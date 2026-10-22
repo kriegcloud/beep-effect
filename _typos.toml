@@ -6,6 +6,8 @@ adjascent = "adjascent"
 abd = "abd"
 compilability = "compilability"
 anc = "anc"
+# @beep/markdown tests name the HTML entity "&curren;".
+curren = "curren"
 # @beep/commands quotes "raison d'etre"; @beep/schema-org tests reference the
 # vendored vocabulary's "fnd" namespace.
 raison = "raison"
@@ -114,6 +116,8 @@ extend-exclude = [
   "packages/foundation/modeling/schema-org/src/internal/vocabulary.ts",
   "packages/foundation/modeling/spdx/src/internal/licenseIds.ts",
   "packages/foundation/modeling/spdx/src/internal/licenseMeta.ts",
+  # The HTML5 named-character-reference table generated for @beep/markdown (entity names).
+  "packages/foundation/modeling/markdown/src/internal/entityMap.ts",
   # Licensed GLib source is retained from the upstream crate for a safety backport.
   # Preserve upstream spellings; authored maintenance docs live in vendor/rust/README.md.
   "vendor/rust/glib-0.18.5/**",

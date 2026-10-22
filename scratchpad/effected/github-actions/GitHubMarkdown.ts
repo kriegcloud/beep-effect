@@ -2,6 +2,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
+import { Markdown } from "@beep/markdown/Markdown";
 import {
 	Code,
 	Html,
@@ -9,13 +10,12 @@ import {
 	Link,
 	List,
 	ListItem,
-	Markdown,
 	Paragraph,
 	Root,
 	Table,
 	TableCell,
 	TableRow,
-} from "../markdown/index.ts";
+} from "@beep/markdown/MarkdownNode";
 import * as Result from "effect/Result";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -286,14 +286,14 @@ const block = (node: Root["children"][number]): string => render(Root.make({ chi
  * caller's fragments pass through verbatim) and returns a `string`, so
  * compositions read as plain string assembly. What the writer owns is the
  * *structure*: wherever a fragment could break the construct around it, the
- * output goes through `@effected/markdown`'s node classes and serializer
+ * output goes through `@beep/markdown`'s node classes and serializer
  * rather than string joining. A table cell carrying `>=1 || <2` renders with
  * its pipes escaped instead of shifting every column after it; a code block
  * whose content contains a fence gets a longer fence; inline code containing
  * a backtick gets a wider delimiter; a URL containing spaces or parentheses
  * is angle-bracketed.
  *
- * This module is the package's **only** importer of `@effected/markdown`, so
+ * This module is the package's **only** importer of `@beep/markdown`, so
  * an action that never renders markdown never links the engine.
  *
  * **Renders cannot fail, so do not `Effect.try`-wrap them.** The serializer's

@@ -5,7 +5,7 @@ tree on 2026-10-09 after step 2 (zero type, lint and tsgo diagnostics; tests at 
 Each entry is a deliberate choice that the operator can overrule: remove the directive and the
 diagnostic comes back.
 
-Totals: 29 in source, 11 in tests beyond the entry-point headers, 1 service annotation(s).
+Totals: 28 in source, 10 in tests beyond the entry-point headers, 1 service annotation(s).
 
 ## Source
 
@@ -24,7 +24,6 @@ Totals: 29 in source, 11 in tests beyond the entry-point headers, 1 service anno
 | `effected/github-actions/internal/digest.ts` | 2 | whole file | nodeBuiltinImport | The synchronous and streaming digests require incremental hashing, which Effect Crypto does not expose. |
 | `effected/github-actions/internal/sigv4.ts` | 2 | whole file | nodeBuiltinImport | SigV4 requires synchronous HMAC, which Effect Crypto does not expose. |
 | `effected/lockfiles/internal/npm.ts` | 150 | next line | preferSchemaOverJson | Syntax failures retain the original native throwable; Schema JSON decoding discards its identity and details. |
-| `effected/markdown/internal/blockParser.ts` | 669 | next line | missingPipeableSignature | The engine's default is the BASE dialect the registries compose on top of — not the public default, which is `"gfm"` and lives in the facade's `dialectOf`. The facade always passes its resolved dialect explicitly, so this default only ever serves engine-level callers (tests, mostly) that mean "the substrate". A dialect string can also be input text, so optional arguments make the two call forms ambiguous. |
 | `effected/memfs/NodeSyncFileSystem.ts` | 2 | whole file | nodeBuiltinImport | This adapter preserves synchronous Node filesystem throws and errno metadata; Effect FileSystem is asynchronous. |
 | `effected/memfs/internal/errno.ts` | 109 | next line | missingPipeableSignature | String paths overlap method strings, and the optional description makes the two call forms ambiguous. |
 | `effected/package-json/EntryPoint.ts` | 178 | next line | missingPipeableSignature | Manifest and options are both optional-field objects, so even an empty object makes the call forms ambiguous. |
@@ -54,7 +53,6 @@ Totals: 29 in source, 11 in tests beyond the entry-point headers, 1 service anno
 | `test/github-actions/results.ts` | 2 | whole file | missingPipeableSignature | This response factory is an internal test helper with a direct-call contract. |
 | `test/jsonc/JsoncFingerprint.test.ts` | 2 | next line | nodeBuiltinImport | The synchronous digest callback is tested against Node's real backend. |
 | `test/jsonc/Properties.test.ts` | 14 | next line | nodeBuiltinImport | Property floor for the jsonc module (effected-port goal 11.4, D10).  Every exported schema and codec round-trips: encoding then decoding returns the value under the schema's own equivalence, and decoding an encoded value never fails. Every parser and formatter keeps its idempotence and fidelity laws, together with the README's guarantees: comments survive edits, value spans are exact, a formatter pass is a whitespace diff, comment stripping keeps offsets with a replacement character, and fingerprints ignore key order (and line endings when asked). The properties already in Jsonc.test.ts (parse agreeing with stripComments, JsoncFromString over one fixed struct) and JsoncFormatter.test.ts (idempotence on plain JSON) are not repeated here.  The synchronous digest twin is checked against Node's real SHA-256 backend. |
-| `test/markdown/e2e/support/span.ts` | 2 | whole file | missingPipeableSignature | These span factories are internal test helpers with direct-call contracts. |
 | `test/memfs/FaultInjection.test.ts` | 200 | next line | missingEffectError, globalErrorInEffectFailure | @ts-expect-error -- a bare Error is not a PlatformError This negative type test deliberately supplies a bare Error failure to prove the fault API rejects it. |
 | `test/templates/fixtures.ts` | 2 | whole file | missingPipeableSignature | This filesystem factory is an internal test helper with a direct-call contract. |
 | `test/toml/oracle.property.test.ts` | 261 | next line | schemaNumber | TOML float round-trip properties must include infinities, as the scalar tests require. |

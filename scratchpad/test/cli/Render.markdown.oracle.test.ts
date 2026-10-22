@@ -2,7 +2,7 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import { Markdown } from "../../effected/markdown/index.ts";
+import { Markdown } from "@beep/markdown/Markdown";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import type { Block, LinkTarget, RenderContext, Style, TokenName } from "../../effected/cli/index.ts";
