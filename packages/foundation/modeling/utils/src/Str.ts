@@ -788,7 +788,9 @@ export const replaceWith: {
  *
  * A non-global RegExp still replaces every match: it is copied with the `g`
  * flag added, where native `replaceAll` throws a `TypeError`. The caller's
- * RegExp, including its `lastIndex`, is left untouched in that case.
+ * RegExp, including its `lastIndex`, is left untouched in that case. The
+ * string-replacement form `Str.replaceAll` (re-exported from `effect/String`)
+ * keeps native behaviour and still throws a `TypeError` for a non-global RegExp.
  *
  * **Example** (Call `replaceAllWith`)
  *
