@@ -10,3 +10,4 @@
 
 export { GlobPattern, GlobPatternError, GlobPatternOptions } from "./GlobPattern.ts";
 export { GlobSet } from "./GlobSet.ts";
+export { GlobString } from "./GlobString.ts";

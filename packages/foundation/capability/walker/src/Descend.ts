@@ -7,8 +7,8 @@
  * matching a glob under a directory" lives here. The walker is semantics-free:
  * dotfile behavior, case folding and every other matching option are carried
  * by the COMPILED pattern the caller hands in. This module never re-derives
- * options; it only reads `hasMagic`, `negated`, `enumerationPrefix` and
- * `crossesSegments` and calls `matches`. It is walker's first module with a
+ * options; it only reads `literalPath`, `negated` and `enumerationPrefix` and
+ * calls `matches` and `mayMatchBelow`. It is walker's first module with a
  * typed error channel.
  *
  * @packageDocumentation
@@ -26,6 +26,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { quoteJson } from "./internal/quote.ts";
@@ -515,11 +516,12 @@ type DescendSettings = {
   readonly prune: HashSet.HashSet<string>;
   readonly onUnreadable: OnUnreadable;
   readonly followSymlinks: boolean;
-  /** Only a pattern that can match below one level earns a descent; a negated pattern always walks. */
-  readonly deep: boolean;
   /** Populated only under "record"; `finish` decides the return shape. */
   readonly unreadable: Array<UnreadableDirectory>;
 };
+
+/** How many entries of one directory are classified at once; each classification is a `stat`. */
+const ENTRY_CONCURRENCY = 16;
 
 /** The two growing outputs of the walk: matched files and the worklist of directories. */
 type DescendSinks = {
@@ -534,7 +536,6 @@ const settingsOf = (pattern: GlobPattern, options: DescendAnyOptions): DescendSe
   prune: HashSet.fromIterable(options.prune ?? DEFAULT_PRUNE),
   onUnreadable: options.onUnreadable ?? "fail",
   followSymlinks: options.followSymlinks ?? false,
-  deep: pattern.crossesSegments || pattern.negated,
   unreadable: [],
 });
 
@@ -621,14 +622,14 @@ const finish = (settings: DescendSettings, matches: ReadonlyArray<string>): Read
     : matches;
 
 /**
- * The literal fast path: a single stat decides. Missing is zero matches, and
- * so is a literal that climbs above `cwd` — never stat outside the documented root.
+ * The literal fast path: a single stat of the one path the pattern names
+ * decides. Missing is zero matches, and so is a literal that climbs above
+ * `cwd` — never stat outside the documented root.
  */
-const literalMatches = Effect.fnUntraced(function* (settings: DescendSettings) {
+const literalMatches = Effect.fnUntraced(function* (settings: DescendSettings, literal: string) {
   const path = yield* Path.Path;
-  const source = settings.pattern.source;
-  if (escapesCwd(source)) return A.empty<string>();
-  return O.exists(yield* typeOf(path.join(settings.cwd, source)), isFileKind) ? A.of(source) : A.empty<string>();
+  if (escapesCwd(literal)) return A.empty<string>();
+  return O.exists(yield* typeOf(path.join(settings.cwd, literal)), isFileKind) ? A.of(literal) : A.empty<string>();
 });
 
 /**
@@ -710,30 +711,39 @@ const enqueueChild = Effect.fnUntraced(function* (
   return O.some<DescendFrame>({ relative, absolute, depth: frame.depth + 1, ancestors: ancestors.value });
 });
 
+/** Whether an entry, were it a directory, is one the walk enters: not pruned, and the pattern could match below it. */
+const isDescendable = (settings: DescendSettings, entry: string, relative: string): boolean =>
+  !HashSet.has(settings.prune, entry) && settings.pattern.mayMatchBelow(relative);
+
 /**
- * Classify one directory entry: a matching file joins the results, a
- * descendable directory joins the worklist, anything else is skipped. Prune
+ * Classify one directory entry: a matching file yields its path, a
+ * descendable directory yields its frame, anything else yields None. An
+ * entry the pattern can neither match nor descend through (by
+ * `GlobPattern.mayMatchBelow`) is skipped before any `stat`. Prune
  * suppresses DIRECTORIES only, per the option's contract — a FILE named
  * `.git` (a submodule or worktree gitlink) stays matchable.
  */
-const classifyEntry = Effect.fnUntraced(function* (
-  settings: DescendSettings,
-  sinks: DescendSinks,
-  frame: DescendFrame,
-  entry: string
-) {
-  const path = yield* Path.Path;
+const classifyEntry = Effect.fnUntraced(function* (settings: DescendSettings, frame: DescendFrame, entry: string) {
   const relative = frame.relative === "" ? entry : `${frame.relative}/${entry}`;
+  const file = settings.pattern.matches(relative);
+  const directory = isDescendable(settings, entry, relative);
+  if (!file && !directory) return O.none<string | DescendFrame>();
+  const path = yield* Path.Path;
   const absolute = path.join(frame.absolute, entry);
   const kind = yield* typeOf(absolute);
-  if (O.exists(kind, isFileKind)) {
-    if (settings.pattern.matches(relative)) sinks.results.push(relative);
-    return;
-  }
-  if (!O.exists(kind, isDirectoryKind) || !settings.deep || HashSet.has(settings.prune, entry)) return;
-  const child = yield* enqueueChild(settings, frame, entry, relative, absolute);
-  if (O.isSome(child)) sinks.frames.push(child.value);
+  if (file && O.exists(kind, isFileKind)) return O.some<string | DescendFrame>(relative);
+  if (!directory || !O.exists(kind, isDirectoryKind)) return O.none<string | DescendFrame>();
+  return yield* enqueueChild(settings, frame, entry, relative, absolute);
 });
+
+/** Route each classified entry, in listing order, to the results or the worklist. */
+const collectOutcomes = (sinks: DescendSinks, outcomes: ReadonlyArray<O.Option<string | DescendFrame>>): void => {
+  for (const outcome of outcomes) {
+    if (O.isNone(outcome)) continue;
+    if (P.isString(outcome.value)) sinks.results.push(outcome.value);
+    else sinks.frames.push(outcome.value);
+  }
+};
 
 /** Not exported — `descend`'s overloads below carry the public documentation. */
 const descendImpl: (
@@ -750,13 +760,18 @@ const descendImpl: (
       })
     );
   }
-  if (!pattern.hasMagic && !pattern.negated) return finish(settings, yield* literalMatches(settings));
+  const literal = pattern.literalPath;
+  if (O.isSome(literal)) return finish(settings, yield* literalMatches(settings, literal.value));
   const root = yield* resolveBase(settings);
   if (O.isNone(root)) return finish(settings, A.empty());
   const sinks: DescendSinks = { results: [], frames: [root.value] };
   // The worklist is dequeued by head index; `classifyEntry` appends to it.
   for (const frame of walkFrames(sinks.frames)) {
-    for (const entry of yield* readEntries(settings, frame)) yield* classifyEntry(settings, sinks, frame, entry);
+    const entries = yield* readEntries(settings, frame);
+    const outcomes = yield* Effect.forEach(entries, (entry) => classifyEntry(settings, frame, entry), {
+      concurrency: ENTRY_CONCURRENCY,
+    });
+    collectOutcomes(sinks, outcomes);
   }
   return finish(settings, A.sort(sinks.results, Order.String));
 });
@@ -767,9 +782,10 @@ const descendImpl: (
  *
  * **Details**
  *
- * A literal pattern (no magic, not negated) fast-paths to a single stat: the
- * result is `[source]` when it resolves to a file, `[]` otherwise — a missing
- * path is zero matches, not an error. A magic pattern walks from its literal
+ * A literal pattern (one that names a single path, `GlobPattern.literalPath`)
+ * fast-paths to a single stat: the result is that path when it resolves to a
+ * file, `[]` otherwise — a missing path is zero matches, not an error. A brace
+ * pattern names several paths and walks. Any other pattern walks from its literal
  * directory prefix (`GlobPattern.enumerationPrefix`); a NEGATED pattern can
  * match paths outside that prefix, so it walks from `cwd` itself. A missing
  * base directory is likewise an empty result, because zero matches is a
@@ -793,9 +809,12 @@ const descendImpl: (
  * `NotFound` is an unreadable directory under `onUnreadable`. A dangling
  * symlink is not a match. A
  * directory that vanishes between its parent's listing and its own read is a
- * benign race and reads as empty. A pattern that cannot match below one level
- * (no globstar, no mid-pattern magic segment) reads a single level and never
- * descends.
+ * benign race and reads as empty. A directory is entered only when the
+ * pattern could still match below it (`GlobPattern.mayMatchBelow`), so a
+ * single-level pattern reads one level, a brace pattern walks only its
+ * alternatives' branches, and under the default `dot: false` a dot-directory
+ * is never entered by a wildcard. An entry the pattern can neither match nor
+ * descend through costs no `stat`.
  *
  * The descent is a worklist, not a recursion — it cannot overflow the stack —
  * dequeued by head index, never `Array.shift()`. Like `ascend`, `maxDepth`

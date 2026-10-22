@@ -1,6 +1,5 @@
 import { it } from "@beep/test-runner";
 import * as FileSystem from "@beep/utils/FileSystem";
-import { GlobError } from "@beep/utils/Glob";
 import * as NodeUrl from "@beep/utils/NodeUrl";
 import * as Path from "@beep/utils/Path";
 import { EmptyStructError } from "@beep/utils/Struct";
@@ -13,6 +12,12 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+
+// EmptyStructError's exact fields under another tag: only the tag can break equivalence.
+class DifferentTagError extends S.TaggedError<DifferentTagError, { readonly brand: unique symbol }>()(
+  "DifferentTagError",
+  EmptyStructError.fields
+) {}
 
 const capture = (evaluate: () => unknown): unknown =>
   Result.match(Result.try(evaluate), {
@@ -35,21 +40,11 @@ const expectPrivateEquivalence = (first: unknown, second: unknown, different: un
 };
 
 describe("@beep/utils tagged-error declared equivalence", () => {
-  it("compares GlobError by pattern while ignoring its opaque cause", () => {
-    const same = S.toEquivalence(GlobError);
-    const first = GlobError.make({ cause: O.some({ side: "left" }), pattern: ["src/*.ts"] });
-    const second = GlobError.make({ cause: O.some({ side: "right" }), pattern: ["src/*.ts"] });
-    const different = GlobError.make({ cause: O.none(), pattern: ["test/*.ts"] });
-
-    expect(same(first, second)).toBe(true);
-    expect(same(first, different)).toBe(false);
-  });
-
   it("excludes every opaque EmptyStructError payload from diagnostic identity", () => {
     const same = S.toEquivalence(EmptyStructError);
     const first = EmptyStructError.make({ cause: O.some({ side: "left" }), input: { left: true } });
     const second = EmptyStructError.make({ cause: O.some({ side: "right" }), input: ["different"] });
-    const differentTag = GlobError.make({ cause: O.none(), pattern: ["src/*.ts"] });
+    const differentTag = DifferentTagError.make({ cause: O.none(), input: { left: true } });
 
     expect(same(first, second)).toBe(true);
     expect(Reflect.apply(same, undefined, [first, differentTag])).toBe(false);
