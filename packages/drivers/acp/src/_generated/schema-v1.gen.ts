@@ -12177,7 +12177,10 @@ export const CreateElicitationRequest = S.Union([
       description:
         "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    description:
+      "Form-based elicitation where the client renders a form from the provided schema.",
+  }),
   S.Union([
     S.StructWithRest(
       S.Struct({
@@ -12261,7 +12264,10 @@ export const CreateElicitationRequest = S.Union([
       description:
         "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    description:
+      "URL-based elicitation where the client directs the user to a URL.",
+  }),
   S.Union([
     S.StructWithRest(
       S.Struct({
