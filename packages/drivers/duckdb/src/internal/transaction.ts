@@ -85,12 +85,12 @@ const CONTROL_RULES: ReadonlyArray<readonly [TransactionControl, RegExp]> = [
 // that continues an identifier (`a$b$c`) never opens a dollar quote, so it
 // cannot hide a trailing statement from the multi-statement refusal.
 const LEXEME_SOURCE =
-  /--[^\n]*|\/\*|(?<![\w$\u0080-\uFFFF])[Ee]'(?:[^'\\]|\\[\s\S]|'')*'?|'(?:[^']|'')*'?|"(?:[^"]|"")*"?|(?<![\w$\u0080-\uFFFF])\$(?:[A-Za-z_]\w*)?\$|;|[^-'"$/;Ee]+|[\s\S]/
+  /--[^\n]*|\/\*|(?<![\w$\u{80}-\u{10FFFF}])[Ee]'(?:[^'\\]|\\[\s\S]|'')*'?|'(?:[^']|'')*'?|"(?:[^"]|"")*"?|(?<![\w$\u{80}-\u{10FFFF}])\$(?:[A-Za-z_\u{80}-\u{10FFFF}][\w\u{80}-\u{10FFFF}]*)?\$|;|[^-'"$/;Ee]+|[\s\S]/u
     .source;
 
 const BLOCK_COMMENT_EDGE_SOURCE = /\/\*|\*\//.source;
 
-const DOLLAR_TAG_PATTERN = /^\$(?:[A-Za-z_]\w*)?\$$/;
+const DOLLAR_TAG_PATTERN = /^\$(?:[A-Za-z_\u{80}-\u{10FFFF}][\w\u{80}-\u{10FFFF}]*)?\$$/u;
 
 const INTERRUPTED_MESSAGE = "DuckDB statement interrupted";
 

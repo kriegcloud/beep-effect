@@ -242,6 +242,10 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
         expectRefusedMultiStatement(hidden);
         const unicodeHidden = yield* sql.unsafe("select 1 as aé$b$c; COMMIT").pipe(Effect.flip);
         expectRefusedMultiStatement(unicodeHidden);
+        const astralHidden = yield* sql.unsafe("select 1 as a😀$b$c; COMMIT").pipe(Effect.flip);
+        expectRefusedMultiStatement(astralHidden);
+        const taggedHidden = yield* sql.unsafe("SELECT $é$ $b$ $é$; COMMIT; SELECT $b$x$b$").pipe(Effect.flip);
+        expectRefusedMultiStatement(taggedHidden);
         const error = yield* sql.unsafe("COMMIT").pipe(Effect.flip);
         expectRefusedCommit(error, ABORTED_MESSAGE);
         expect(yield* countRows(sql, "tx_multi_dollar_ident")).toBe(0);
