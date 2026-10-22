@@ -933,14 +933,16 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp protocol", (
     "cleans up interrupted extension requests before a late response arrives",
     Effect.fnUntraced(function* () {
       const { stdio, input, output } = yield* makeInMemoryStdio();
+      const drained = yield* Deferred.make<void>();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,
         serverRequestMethods: HashSet.empty(),
+        onNotification: () => Deferred.succeed(drained, undefined).pipe(Effect.asVoid),
       });
-      const lateResponse = yield* Deferred.make<unknown>();
+      const lateResponse = yield* Queue.unbounded<unknown>();
 
       yield* transport.clientProtocol
-        .run(0, (message) => Deferred.succeed(lateResponse, message).pipe(Effect.asVoid))
+        .run(0, (message) => Queue.offer(lateResponse, message).pipe(Effect.asVoid))
         .pipe(Effect.forkScoped);
 
       const response = yield* transport.request("x/test", { hello: "world" }).pipe(Effect.forkScoped);
@@ -957,16 +959,9 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp protocol", (
       yield* Fiber.interrupt(response);
       yield* Queue.offer(input, yield* encodeJsonl(ExtResponse, { jsonrpc: "2.0", id: 1, result: { ok: true } }));
 
-      assert.deepEqual(yield* Deferred.await(lateResponse), {
-        _tag: "Exit",
-        requestId: 1,
-        exit: {
-          _tag: "Success",
-          value: {
-            ok: true,
-          },
-        },
-      });
+      yield* Queue.offer(input, encoder.encode('{"jsonrpc":"2.0","method":"x/after","params":{}}\n'));
+      yield* Deferred.await(drained);
+      assert.equal(yield* Queue.size(lateResponse), 0);
     })
   );
 
@@ -1270,6 +1265,53 @@ const warningsAbout = (issue: string) =>
 // issued) is dropped, but a hung call must still leave something to diagnose.
 it.layer(Logger.layer([warningCollector]), { timeout: "10 seconds" })("effect-acp uncorrelated responses", (it) => {
   it.effect(
+    "warns and drops late extension replies and never-issued or completed integer ids",
+    Effect.fnUntraced(function* () {
+      const sentinel = "acp-orphan-integer-sentinel";
+      const { stdio, input, output } = yield* makeInMemoryStdio();
+      const drained = yield* Deferred.make<void>();
+      const seen = yield* Queue.unbounded<RpcMessage.FromServerEncoded>();
+      const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
+        stdio,
+        serverRequestMethods: HashSet.empty(),
+        onNotification: () => Deferred.succeed(drained, undefined).pipe(Effect.asVoid),
+      });
+      yield* transport.clientProtocol
+        .run(0, (message) => Queue.offer(seen, message).pipe(Effect.asVoid))
+        .pipe(Effect.forkScoped);
+      const extension = yield* transport.request("x/test", {}).pipe(Effect.forkScoped);
+      yield* Queue.take(output);
+      yield* Fiber.interrupt(extension);
+      yield* transport.clientProtocol.send(0, { _tag: "Request", id: 7, tag: "x/test", payload: {}, headers: [] });
+      yield* transport.clientProtocol.send(0, { _tag: "Request", id: 8, tag: "x/test", payload: {}, headers: [] });
+      yield* transport.clientProtocol.send(0, { _tag: "Interrupt", requestId: 8 });
+      yield* Queue.offer(
+        input,
+        encoder.encode('{"jsonrpc":"2.0","id":7,"chunk":true,"result":[1]}\n{"jsonrpc":"2.0","id":7,"result":2}\n')
+      );
+      assert.equal((yield* Queue.take(seen))._tag, "Chunk");
+      assert.equal((yield* Queue.take(seen))._tag, "Exit");
+      for (const id of [1, 999, 7, 8]) {
+        yield* Queue.offer(
+          input,
+          encoder.encode(`{"jsonrpc":"2.0","id":${id},"error":{"code":-32000,"message":"${sentinel}"}}\n`)
+        );
+      }
+      yield* Queue.offer(input, encoder.encode('{"jsonrpc":"2.0","method":"x/after","params":{}}\n'));
+      yield* Deferred.await(drained);
+      assert.equal(yield* Queue.size(seen), 0);
+      const warnings = A.filter(
+        capturedWarnings,
+        (annotations) => P.hasProperty(annotations, "errorMessage") && annotations.errorMessage === sentinel
+      );
+      assert.lengthOf(warnings, 4);
+      A.forEach([1, 999, 7, 8], (requestId, index) =>
+        assert.include(warnings[index], { requestId, messageTag: "Exit", code: -32000 })
+      );
+    })
+  );
+
+  it.effect(
     "warns with the error code and message when a response matches no outstanding request",
     Effect.fnUntraced(function* () {
       const sentinel = "acp-uncorrelated-response-sentinel";
@@ -1428,6 +1470,9 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
         serverRequestMethods: HashSet.make("session/request_permission"),
       });
       const serverSeen = yield* Queue.unbounded<unknown>();
+      for (const id of [6, 8, 9, 11]) {
+        yield* transport.clientProtocol.send(0, { _tag: "Request", id, tag: "x/test", payload: {}, headers: [] });
+      }
       const clientSeen = yield* Queue.unbounded<unknown>();
       yield* transport.serverProtocol
         .run((_clientId, message) => Queue.offer(serverSeen, message).pipe(Effect.asVoid))
@@ -1537,6 +1582,9 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp frame decode
         serverRequestMethods: HashSet.make("session/request_permission"),
       });
       const serverSeen = yield* Queue.unbounded<unknown>();
+      for (const id of [13, 113, 14, 10, 17]) {
+        yield* transport.clientProtocol.send(0, { _tag: "Request", id, tag: "x/test", payload: {}, headers: [] });
+      }
       const clientSeen = yield* Queue.unbounded<unknown>();
       yield* transport.serverProtocol
         .run((_clientId, message) => Queue.offer(serverSeen, message).pipe(Effect.asVoid))
@@ -1659,6 +1707,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("effect-acp untagged err
         stdio,
         serverRequestMethods: HashSet.empty(),
       });
+      for (const id of [8]) {
+        yield* transport.clientProtocol.send(0, { _tag: "Request", id, tag: "x/test", payload: {}, headers: [] });
+      }
       const clientSeen = yield* Queue.unbounded<unknown>();
       yield* transport.clientProtocol
         .run(0, (message) => Queue.offer(clientSeen, message).pipe(Effect.asVoid))
@@ -2168,16 +2219,18 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp protocol har
     Effect.fnUntraced(function* () {
       const { stdio, input } = yield* makeInMemoryStdio();
       const sending = yield* Deferred.make<void>();
+      const drained = yield* Deferred.make<void>();
       const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
         stdio,
         serverRequestMethods: HashSet.empty(),
+        onNotification: () => Deferred.succeed(drained, undefined).pipe(Effect.asVoid),
         logOutgoing: true,
         logger: (event) =>
           event.stage === "raw" ? Deferred.succeed(sending, undefined).pipe(Effect.andThen(Effect.never)) : Effect.void,
       });
-      const lateResponse = yield* Deferred.make<unknown>();
+      const lateResponse = yield* Queue.unbounded<unknown>();
       yield* transport.clientProtocol
-        .run(0, (message) => Deferred.succeed(lateResponse, message).pipe(Effect.asVoid))
+        .run(0, (message) => Queue.offer(lateResponse, message).pipe(Effect.asVoid))
         .pipe(Effect.forkScoped);
 
       const response = yield* transport.request("x/test", { hello: "world" }).pipe(Effect.forkScoped);
@@ -2185,12 +2238,10 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("effect-acp protocol har
       yield* Fiber.interrupt(response);
       yield* Queue.offer(input, yield* encodeJsonl(ExtResponse, { jsonrpc: "2.0", id: 1, result: { ok: true } }));
 
-      // No pending entry is left to swallow the late response, so it reaches the RPC client.
-      assert.deepEqual(yield* Deferred.await(lateResponse), {
-        _tag: "Exit",
-        requestId: 1,
-        exit: { _tag: "Success", value: { ok: true } },
-      });
+      // The cancelled request cannot claim a late response.
+      yield* Queue.offer(input, encoder.encode('{"jsonrpc":"2.0","method":"x/after","params":{}}\n'));
+      yield* Deferred.await(drained);
+      assert.equal(yield* Queue.size(lateResponse), 0);
     })
   );
 
