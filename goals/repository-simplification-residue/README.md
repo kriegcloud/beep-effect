@@ -87,3 +87,7 @@ Opening provenance is in
 [the bootstrap receipt](./history/receipts/bootstrap-materialization.json).
 The worker's proof and publication state are in
 [the opening handoff](./history/handoffs/rsc-residue-packet-2026-10-17.md).
+
+#1854 is complete: the foreign-clone census records checkout ownership and recovery,
+archives the idle map, and retains live tooling state
+([receipt](./history/receipts/2026-10-22-foreign-clone-residue.md)).
