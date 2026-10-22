@@ -41,6 +41,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { YeetCommandError } from "../Yeet.errors.ts";
 import { flipPullRequestReady, recordInheritedRedsInPullRequestBody, withYeetGh } from "./GhOps.ts";
+import { runGitOutput } from "./GitExec.ts";
 import { hydrateYeetReadOnlyContext } from "./Handler.ts";
 import { decodeAttributedCheckFlags, parseAttributedCheck } from "./MergeGate.ts";
 import { YEET_READY_COMMAND } from "./MonitorPolicy.ts";
@@ -530,11 +531,83 @@ interface YeetReadyGateDependencies {
     entries: ReadonlyArray<YeetReadyInheritedRed>,
     headSha: string
   ) => Effect.Effect<void, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>;
+  readonly requestReview?: (
+    context: RepoRunContext,
+    prNumber: number,
+    confirmedHead: string
+  ) => Effect.Effect<string, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>;
   readonly squashCommitlint?: (
     context: RepoRunContext,
     prNumber: number
   ) => Effect.Effect<SquashCommitlintReport, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>;
 }
+
+/**
+ * Subject of the empty commit `yeet ready` pushes after the flip (S32).
+ *
+ * **Details**
+ *
+ * beep-reviewer reviews only heads pushed while the pull request is ready, so
+ * the head current at the flip, pushed while the pull request was a draft, would
+ * otherwise never be reviewed.
+ *
+ * **Example** (Read the re-request subject)
+ *
+ * ```ts
+ * import { YEET_REVIEWER_REQUEST_SUBJECT } from "@beep/repo-cli/commands/Yeet/internal/ReadyGate"
+ *
+ * console.log(YEET_REVIEWER_REQUEST_SUBJECT) // chore: re-request beep-reviewer (S32)
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const YEET_REVIEWER_REQUEST_SUBJECT = "chore: re-request beep-reviewer (S32)";
+
+/**
+ * Whether `yeet ready` may push the reviewer re-request from this checkout.
+ *
+ * **Details**
+ *
+ * The empty commit is pushed only when the checkout stands on the head the gate
+ * just flipped; anything else (a later local commit, another branch) would
+ * push unreviewed work or the wrong branch, so the owner pushes by hand instead.
+ *
+ * **Example** (Decide whether to push the re-request)
+ *
+ * ```ts
+ * import { reviewerRequestPushable } from "@beep/repo-cli/commands/Yeet/internal/ReadyGate"
+ *
+ * console.log(reviewerRequestPushable("abc123", "abc123")) // true
+ * console.log(reviewerRequestPushable("def456", "abc123")) // false
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const reviewerRequestPushable: {
+  (localHead: string, confirmedHead: string): boolean;
+  (confirmedHead: string): (localHead: string) => boolean;
+} = dual(2, (localHead: string, confirmedHead: string): boolean => localHead === confirmedHead);
+
+const reviewerRequestManual = `git commit --allow-empty -m "${YEET_REVIEWER_REQUEST_SUBJECT}" && git push`;
+
+// Push one empty commit so beep-reviewer sees a head pushed to the ready pull
+// request; returns the line to log.
+const pushReviewerRequest = Effect.fn("Yeet.pushReviewerRequest")(function* (
+  context: RepoRunContext,
+  prNumber: number,
+  confirmedHead: string
+) {
+  const localHead = yield* runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
+  if (!reviewerRequestPushable(localHead, confirmedHead)) {
+    return `[yeet] note: the checkout is at ${localHead}, not the flipped head ${confirmedHead}; push the beep-reviewer re-request by hand: ${reviewerRequestManual}`;
+  }
+  yield* runGitOutput(context.repoRoot, ["commit", "--allow-empty", "-m", YEET_REVIEWER_REQUEST_SUBJECT]);
+  yield* runGitOutput(context.repoRoot, ["push"]);
+  const pushed = yield* runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
+  return `[yeet] pushed ${pushed} (${YEET_REVIEWER_REQUEST_SUBJECT}) so beep-reviewer reviews #${prNumber} on a head pushed while ready; send this sha as the final`;
+});
 
 // Advisory only: the merge gate holds on the same verdict, so the flip never
 // refuses on it, but the owner learns here, before the flip starts the review
@@ -696,6 +769,17 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
       // shared budget is spent instead of failing the way `gh pr ready` did.
       yield* (dependencies.markReady ?? markReadyThroughBudget)(prNumber, sameHead);
       yield* Console.log(`[yeet] pull request #${prNumber} flipped from draft to ready for review`);
+      // The head was pushed while the pull request was a draft, which
+      // beep-reviewer ignores; a failed re-request only warns, the flip stands.
+      yield* Console.log(
+        yield* (dependencies.requestReview ?? pushReviewerRequest)(context, prNumber, sameHead).pipe(
+          Effect.catchTag("YeetCommandError", (cause) =>
+            Effect.succeed(
+              `[yeet] warning: could not push the beep-reviewer re-request: ${cause.message}; push it by hand: ${reviewerRequestManual}`
+            )
+          )
+        )
+      );
       if (A.isReadonlyArrayNonEmpty(applied)) {
         yield* Console.log(`[yeet] recorded ${A.length(applied)} inherited red(s) in the PR body`);
       }

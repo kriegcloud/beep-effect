@@ -462,6 +462,10 @@ with the first blocker named (`pr-open`, `no-required-red`,
 `threads-resolved`). There is no `--force`. Flip only when no further push is
 planned: a push after the flip restarts the review window. Squash-message advice: [`gh-rest.md`](references/gh-rest.md).
 
+It then pushes one empty `chore: re-request beep-reviewer (S32)` commit (beep-reviewer
+ignores heads pushed while draft), only from the flipped head, else it prints the manual
+command; a failed push only warns. Send the sha it prints as the final; no hand-pushed S32.
+
 The merge gate carries the wait instead. `merge-ready: yes` needs the
 `review-window-elapsed` criterion: 20 minutes since the later of the latest
 `ready_for_review` timeline event (the PR's creation when it was opened

@@ -8,19 +8,11 @@
   "regeneration_command": "bun run beep lint package-test-typecheck --write-baseline",
   "comparison": "fail-on-growth: every blind-spot package must already be listed in the committed baseline",
   "new_package_handling": "New packages scaffolded with `beep create-package` or `beep architecture` already wire `beep:check:tests` into `beep:check`; keep new packages out of this baseline rather than regenerating it.",
-  "notes": {
-    "@beep/repo-cli": "Deferred deliberately: the CLI owns the repo's largest test surface. Its test/tsconfig.json narrows include to ./**/*.test.ts, which leaves test/global-cleanup.ts and test/support/CommandTest.ts unselected, so no project it owns covers the whole test tree. Remediate as its own packet."
-  },
+  "notes": {},
   "check": {
-    "total_findings": 1,
-    "missing_test_tsconfig": 1,
+    "total_findings": 0,
+    "missing_test_tsconfig": 0,
     "unwired_test_tsconfig": 0
   },
-  "findings": [
-    {
-      "package": "@beep/repo-cli",
-      "directory": "packages/tooling/tool/cli",
-      "kind": "missing-test-tsconfig"
-    }
-  ]
+  "findings": []
 }
