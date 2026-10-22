@@ -1,7 +1,7 @@
 import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { checkBunRuntimeVersion, compareBunRuntimeVersion } from "@beep/repo-cli/commands/VersionSync";
 import { it } from "@beep/test-runner";
-import { describe, expect } from "@effect/vitest";
+import { afterEach, describe, expect, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
@@ -10,6 +10,8 @@ import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("Bun runtime version comparison", () => {
   it.effect("accepts equal versions after trimming command and pin newlines", () =>
@@ -80,14 +82,34 @@ it.layer(runtimeLayer, { timeout: "30 seconds" })("Bun runtime preflight I/O", (
     })
   );
 
-  it.effect("compares the command output with the pin and rejects a mismatch", () =>
+  it.effect("falls back to command output on non-Bun hosts and rejects a mismatch", () =>
     Effect.gen(function* () {
+      vi.stubGlobal("process", { ...process, versions: { ...process.versions, bun: undefined } });
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const root = yield* fs.makeTempDirectoryScoped();
       yield* fs.writeFileString(path.join(root, ".bun-version"), "0.0.0\n");
       const error = yield* checkBunRuntimeVersion(root).pipe(Effect.flip);
       expect(error.message).toContain("Bun version mismatch: .bun-version=0.0.0; bun --version=");
+    })
+  );
+  it.effect("uses the in-process Bun version without requiring a spawner", () =>
+    Effect.gen(function* () {
+      vi.stubGlobal("process", { ...process, versions: { ...process.versions, bun: "1.4.2" } });
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped();
+      yield* fs.writeFileString(path.join(root, ".bun-version"), "1.4.3\n");
+      const error = yield* checkBunRuntimeVersion(root).pipe(
+        Effect.provideService(
+          ChildProcessSpawner.ChildProcessSpawner,
+          ChildProcessSpawner.make(() => Effect.die("must not spawn"))
+        ),
+        Effect.flip
+      );
+      expect(error.message).toBe("Bun version mismatch: .bun-version=1.4.3; bun --version=1.4.2");
+      yield* fs.writeFileString(path.join(root, ".bun-version"), "1.4.2\n");
+      expect(yield* checkBunRuntimeVersion(root)).toBe("1.4.2");
     })
   );
 });

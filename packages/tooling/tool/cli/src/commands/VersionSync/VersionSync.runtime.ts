@@ -51,7 +51,7 @@ export const compareBunRuntimeVersion = Effect.fn("VersionSync.compareBunRuntime
 });
 
 /**
- * Read the repository pin and run Bun once, failing closed on I/O or process errors.
+ * Read the repository pin and compare the host Bun version, spawning only on non-Bun hosts.
  *
  * **Example** (Compose the runtime preflight)
  *
@@ -68,22 +68,31 @@ export const compareBunRuntimeVersion = Effect.fn("VersionSync.compareBunRuntime
 export const checkBunRuntimeVersion = Effect.fn("VersionSync.checkBunRuntimeVersion")(function* (repoRoot: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const pinned = yield* fs
     .readFileString(path.join(repoRoot, ".bun-version"))
     .pipe(VersionSyncError.mapError("Cannot read .bun-version", ".bun-version"));
-  const running = yield* Effect.scoped(
-    Effect.gen(function* () {
-      const handle = yield* spawner.spawn(ChildProcess.make("bun", ["--version"], { cwd: repoRoot }));
-      const [output, exitCode] = yield* Effect.all(
-        [handle.stdout.pipe(Stream.decodeText, Stream.mkString), handle.exitCode],
-        { concurrency: 2 }
-      );
-      if (exitCode !== 0) {
-        return yield* VersionSyncError.make({ file: ".bun-version", message: `bun --version exited ${exitCode}` });
-      }
-      return output;
+  const running = yield* O.fromUndefinedOr(process.versions.bun).pipe(
+    O.match({
+      onSome: Effect.succeed,
+      onNone: () =>
+        Effect.scoped(
+          Effect.gen(function* () {
+            const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+            const handle = yield* spawner.spawn(ChildProcess.make("bun", ["--version"], { cwd: repoRoot }));
+            const [output, exitCode] = yield* Effect.all(
+              [handle.stdout.pipe(Stream.decodeText, Stream.mkString), handle.exitCode],
+              { concurrency: 2 }
+            );
+            if (exitCode !== 0) {
+              return yield* VersionSyncError.make({
+                file: ".bun-version",
+                message: `bun --version exited ${exitCode}`,
+              });
+            }
+            return output;
+          })
+        ).pipe(VersionSyncError.mapError("Cannot run bun --version", ".bun-version")),
     })
-  ).pipe(VersionSyncError.mapError("Cannot run bun --version", ".bun-version"));
+  );
   return yield* compareBunRuntimeVersion(O.some(pinned), running);
 });
