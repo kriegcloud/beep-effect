@@ -39,6 +39,9 @@ added ([record](./history/receipts/detectors-wave-1.md)); FP-1..FP-7 come next.
 Wave 2 repaired FP-1, FP-3, FP-4 and FP-5 with paired fixtures, retiring 155 rows and adding none
 ([record](./history/receipts/detectors-wave-2.md)); wave 3 takes the FP-2/FP-6 rulings, individual
 exception review and the zero scan.
+Wave 3 ruled FP-2 (fresh temp-root wrappers leave EV003) and FP-6 (a `weak-collection` kind),
+retiring 196 rows and adding no row or allowlist entry
+([record](./history/receipts/detectors-wave-3.md)); wave 4 takes the EV014 named test layers.
 #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).

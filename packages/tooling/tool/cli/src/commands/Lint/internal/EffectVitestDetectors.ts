@@ -4,7 +4,7 @@ import { A, Str } from "@beep/utils";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
-import { constFalse, dual } from "effect/Function";
+import { constFalse, constTrue, dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -243,13 +243,91 @@ const isResourceExpression = (
   );
 };
 
-const functionHasResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+const TEMP_ROOT_CONSTRUCTORS = ["makeTempDirectory", "makeTempDirectoryScoped"];
+
+const isEffectAcquisition = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireRelease", "acquireUseRelease"]);
+
+const isTempRootCall = (node: MorphNode): boolean => {
+  if (!Node.isCallExpression(node)) return false;
+  const callee = node.getExpression();
+  return Node.isPropertyAccessExpression(callee) && A.contains(TEMP_ROOT_CONSTRUCTORS, callee.getName());
+};
+
+// The acquire must create a temp root and acquire nothing else.
+const createsOnlyTempRoot = (acquire: MorphNode, imports: EffectVitestImports): boolean => {
+  const calls = [acquire, ...acquire.getDescendantsOfKind(SyntaxKind.CallExpression)];
+  return (
+    A.some(calls, isTempRootCall) &&
+    !A.some(calls, (call) => Node.isCallExpression(call) && isEffectAcquisition(call, imports))
+  );
+};
+
+const isEffectFunctionConstructor = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["fn", "fnUntraced"]);
+
+// `Effect.fnUntraced(function* (path) {...})` and `Effect.fn("name")(function* (path) {...})` release through their body.
+const releaseFunction = (release: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!Node.isCallExpression(release)) return O.some(release);
+  const callee = release.getExpression();
+  const constructed =
+    isEffectFunctionConstructor(release, imports) ||
+    (Node.isCallExpression(callee) && isEffectFunctionConstructor(callee, imports));
+  return constructed ? A.head(release.getArguments()) : O.none();
+};
+
+// The release must remove the exact path its acquire produced (its first parameter).
+const removesAcquiredPath = (candidate: MorphNode, imports: EffectVitestImports): boolean => {
+  const release = O.getOrUndefined(releaseFunction(candidate, imports));
+  if (!Node.isArrowFunction(release) && !Node.isFunctionExpression(release)) return false;
+  const parameter = release.getParameters()[0];
+  if (parameter === undefined || !Node.isIdentifier(parameter.getNameNode())) return false;
+  return A.some(release.getDescendantsOfKind(SyntaxKind.CallExpression), (call) => {
+    const callee = call.getExpression();
+    const target = call.getArguments()[0];
+    return (
+      Node.isPropertyAccessExpression(callee) &&
+      callee.getName() === "remove" &&
+      Node.isIdentifier(target) &&
+      O.exists(imports.resolveBinding(target), (binding) => binding === parameter)
+    );
+  });
+};
+
+// A fresh temp root per call isolates each case on purpose; `it.layer` sharing would undo that (#1855 FP-2).
+const isFreshTempRootAcquisition = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  if (!isEffectAcquisition(call, imports)) return false;
+  const releaseIndex = isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireUseRelease"]) ? 2 : 1;
+  const args = call.getArguments();
+  const acquire = args[0];
+  const release = args[releaseIndex];
+  return (
+    args.length === releaseIndex + 1 &&
+    acquire !== undefined &&
+    release !== undefined &&
+    createsOnlyTempRoot(acquire, imports) &&
+    removesAcquiredPath(release, imports)
+  );
+};
+
+const functionHasResourceWhere = (
+  definition: EffectVitestFunctionNode,
+  imports: EffectVitestImports,
+  countsAcquisition: (call: CallExpression) => boolean
+): boolean =>
   A.some(
     callbackCalls(definition),
     (call) =>
       isProvenanceCall(call, imports, LAYER_MODULES, "Layer", ["scoped", "effect", "unwrap", "launch"]) ||
-      isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireRelease", "acquireUseRelease"])
+      (isEffectAcquisition(call, imports) && countsAcquisition(call))
   );
+
+const functionHasResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  functionHasResourceWhere(definition, imports, constTrue);
+
+// EV003 asks for `it.layer` sharing only when a wrapper holds a resource other than a fresh temp root.
+const functionHasShareableResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  functionHasResourceWhere(definition, imports, (call) => !isFreshTempRootAcquisition(call, imports));
 
 const buildsAndProvidesLayer = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean => {
   const calls = callbackCalls(definition);
@@ -1517,10 +1595,10 @@ const detectResourceWrapper = (context: ReturnType<typeof inspectContext>, state
   if (
     (wrapperName(member) ||
       wrapperName(canonicalMember) ||
-      O.exists(definition, ({ node }) => functionHasResource(node, imports))) &&
+      O.exists(definition, ({ node }) => functionHasShareableResource(node, imports))) &&
     (rootTestBodyCall(call, imports) || O.exists(test, ({ callback }) => isWholeBodyCall(call, callback)))
   ) {
-    if (O.exists(definition, ({ node }) => functionHasResource(node, imports))) {
+    if (O.exists(definition, ({ node }) => functionHasShareableResource(node, imports))) {
       findings.push(makeFinding({ ruleId: "EV003", node: call, file, owner, symbol: member }));
     } else if (isUnresolvedImportedWrapper(context, imports)) {
       findings.push(
@@ -2394,10 +2472,9 @@ const detectResourceDefinition = (
   state: DetectorState
 ): void => {
   const { imports, findings, makeFinding, file, owner } = state;
-  if ((wrapperName(name) && functionHasResource(node, imports)) || buildsAndProvidesLayer(node, imports))
-    findings.push(
-      makeFinding({ ruleId: "EV003", node, file, owner, symbol: name, judgment: !functionHasResource(node, imports) })
-    );
+  const shareable = functionHasShareableResource(node, imports);
+  if ((wrapperName(name) && shareable) || buildsAndProvidesLayer(node, imports))
+    findings.push(makeFinding({ ruleId: "EV003", node, file, owner, symbol: name, judgment: !shareable }));
 };
 
 const detectRetryLoop = (loop: MorphNode, state: DetectorState): void => {

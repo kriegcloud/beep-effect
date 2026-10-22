@@ -395,6 +395,32 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("permits fresh temp-root wrappers and keeps shareable resources under resource review", () =>
+    Effect.gen(function* () {
+      const fresh = [
+        'const withTempDirectory = (use) => Fx.acquireUseRelease(Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; return yield* fs.makeTempDirectory({ prefix: "case-" }); }), use, (root) => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.remove(root, { recursive: true, force: true }); })); it.effect("x", () => withTempDirectory((root) => program(root)));',
+        'const withTempCwd = (use) => Fx.acquireUseRelease(Fx.flatMap(FileSystem.FileSystem, (fs) => fs.makeTempDirectory()), use, (dir) => Fx.flatMap(FileSystem.FileSystem, (fs) => fs.remove(dir, { recursive: true }).pipe(Fx.orDie))); it.effect("x", () => withTempCwd(program));',
+        'const inTempRepo = Fx.fn("inTempRepo")(function* (use) { const fs = yield* FileSystem.FileSystem; return yield* Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => fs.remove(root, { recursive: true }).pipe(Fx.orDie)); }); it.effect("x", () => inTempRepo(program));',
+        'const withTempRoot = (use) => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; const root = yield* Fx.acquireRelease(fs.makeTempDirectoryScoped(), (path) => fs.remove(path, { recursive: true })); return yield* use(root); }); it.effect("x", () => withTempRoot(program));',
+        'const inTempCheckout = Fx.fn(function* (use) { const fs = yield* FileSystem.FileSystem; const cwd = process.cwd; return yield* Fx.acquireUseRelease(fs.makeTempDirectory(), (root) => use(root), (root) => Fx.sync(() => { process.cwd = cwd; }).pipe(Fx.andThen(fs.remove(root, { recursive: true }).pipe(Fx.orDie)))); }); it.effect("x", () => inTempCheckout(program));',
+        'const withTempDirectory = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, Fx.fnUntraced(function* (tmpDir) { yield* fs.remove(tmpDir, { recursive: true }); })); it.effect("x", () => withTempDirectory(program));',
+        'const withTempDirectory = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, Fx.fn("release")(function* (tmpDir) { yield* fs.remove(tmpDir); })); it.effect("x", () => withTempDirectory(program));',
+      ];
+      for (const body of fresh) assertFalse(yield* hasRule(body, "EV003"));
+
+      const shareable = [
+        'const withCatalog = (use) => Fx.acquireUseRelease(fs.readFileString("fixtures/catalog.json"), use, () => Fx.void); it.effect("x", () => withCatalog(program));',
+        'const withTempLog = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => Fx.log(root)); it.effect("x", () => withTempLog(program));',
+        'const withTempOther = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => fs.remove(fixtureRoot, { recursive: true })); it.effect("x", () => withTempOther(program));',
+        'const withTempStore = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), (root) => Fx.acquireRelease(openStore(root), closeStore).pipe(Fx.flatMap(use)), (root) => fs.remove(root)); it.effect("x", () => withTempStore(program));',
+        'const withTempCwd = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, Fx.fnUntraced(function* (tmpDir) { yield* fs.remove(otherDir); })); it.effect("x", () => withTempCwd(program));',
+        'const withTempCwd = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, wrap(function* (tmpDir) { yield* fs.remove(tmpDir); })); it.effect("x", () => withTempCwd(program));',
+        'const withTempServer = (use) => Fx.acquireUseRelease(Fx.zip(fs.makeTempDirectory(), startServer), use, ([root]) => fs.remove(root)); it.effect("x", () => withTempServer(program));',
+      ];
+      for (const body of shareable) assertTrue(yield* hasRule(body, "EV003"));
+    })
+  );
+
   it.effect("inspects Option, Result, and Exit values supplied as matcher arguments", () =>
     Effect.gen(function* () {
       assertTrue(yield* hasRule('it("o", () => expect(value).toEqual(O.none()));', "EV006"));

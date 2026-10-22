@@ -66,7 +66,9 @@ const OBJECT_METHODS = HashSet.fromIterable([
 ]);
 const DATE_METHODS = HashSet.fromIterable(["now", "parse", "UTC"]);
 const ARRAY_STATIC_METHODS = HashSet.fromIterable(["from", "isArray", "of"]);
-const MAP_SET_CTORS = HashSet.fromIterable(["Map", "Set", "WeakMap", "WeakSet"]);
+const MAP_SET_CTORS = HashSet.fromIterable(["Map", "Set"]);
+// Effect has no weak collections, so these need a documented identity/GC reason rather than HashMap/HashSet.
+const WEAK_COLLECTION_CTORS = HashSet.fromIterable(["WeakMap", "WeakSet"]);
 const PLATFORM_AVAILABILITY_GLOBALS = HashSet.fromIterable([
   "document",
   "localStorage",
@@ -398,25 +400,32 @@ const detectImportViolation = (node: ImportDeclaration, inHotspotScope: boolean)
     : O.none();
 };
 
+const detectIdentifierConstructorViolation = (
+  node: NewExpression,
+  constructorName: string
+): O.Option<NativeRuntimeViolation> =>
+  Match.value(constructorName).pipe(
+    Match.when(
+      (ctor) => HashSet.has(MAP_SET_CTORS, ctor),
+      (ctor) => O.some(makeViolation(node, "new-map-set", "mapSetCtor", { ctor }))
+    ),
+    Match.when(
+      (ctor) => HashSet.has(WEAK_COLLECTION_CTORS, ctor),
+      (ctor) => O.some(makeViolation(node, "weak-collection", "weakCollectionCtor", { ctor }))
+    ),
+    Match.when("Date", () => O.some(makeViolation(node, "new-date", "newDate"))),
+    Match.when(
+      (ctor) => HashSet.has(NATIVE_ERROR_CTORS, ctor),
+      (ctor) => O.some(makeViolation(node, "native-error", "nativeError", { ctor }))
+    ),
+    Match.orElse(O.none<NativeRuntimeViolation>)
+  );
+
 const detectNewExpressionViolation = (node: NewExpression): O.Option<NativeRuntimeViolation> => {
   const expression = node.getExpression();
 
   if (Node.isIdentifier(expression)) {
-    const constructorName = expression.getText();
-
-    if (HashSet.has(MAP_SET_CTORS, constructorName)) {
-      return O.some(makeViolation(node, "new-map-set", "mapSetCtor", { ctor: constructorName }));
-    }
-
-    if (constructorName === "Date") {
-      return O.some(makeViolation(node, "new-date", "newDate"));
-    }
-
-    if (HashSet.has(NATIVE_ERROR_CTORS, constructorName)) {
-      return O.some(makeViolation(node, "native-error", "nativeError", { ctor: constructorName }));
-    }
-
-    return O.none();
+    return detectIdentifierConstructorViolation(node, expression.getText());
   }
 
   return pipe(
@@ -521,6 +530,11 @@ const formatViolationMessage = (violation: NativeRuntimeViolation): string => {
       "mapSetCtor",
       () =>
         `Avoid new ${data?.ctor ?? ""} in domain logic. Use Effect HashMap/HashSet variants or add an allowlist entry.`
+    ),
+    Match.when(
+      "weakCollectionCtor",
+      () =>
+        `new ${data?.ctor ?? ""} has no Effect equivalent. Keep it only where weak identity is required and add an allowlist entry that documents the identity/GC reason.`
     ),
     Match.when(
       "newDate",
