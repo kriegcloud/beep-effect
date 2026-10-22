@@ -7,7 +7,7 @@ it.effect("CliEnv retains its runtime class identity", () => Effect.sync(() => {
 }));
 
 import { CliInteractive } from "../../effected/cli/CliInteractive.ts";
-import { TerminalEnv } from "../../effected/env/index.ts";
+import { TerminalEnv } from "@beep/runtime-env";
 import { assertSome } from "@effect/vitest/utils";
 it.layer(CliEnv.layerTest({ columns: 123, tty: true }), { timeout: "30 seconds" })((it) => {
   it.effect("a test environment preserves an explicitly supplied width", () => Effect.gen(function* () {

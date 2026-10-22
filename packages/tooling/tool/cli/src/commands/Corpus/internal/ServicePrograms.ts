@@ -54,7 +54,7 @@ import * as Data from "effect/Data";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -169,7 +169,7 @@ type CorpusCommandServiceRequirements =
   | Path.Path
   | Crypto.Crypto
   | ChildProcessSpawner.ChildProcessSpawner;
-const sqlStringLiteral = (value: string): string => `'${value.replaceAll("'", "''")}'`;
+const sqlStringLiteral = (value: string): string => `'${Str.replaceAll("'", "''")(value)}'`;
 
 const createSourceFilesTable = (manifestPath: string): string => `
 CREATE OR REPLACE TABLE corpus_source_files AS
@@ -376,8 +376,8 @@ const basenameOf = (relativePath: string): string =>
   A.last(Str.split(relativePath, "/")).pipe(O.getOrElse(() => relativePath));
 
 const parentDirOf = (relativePath: string): string => {
-  const lastSlash = relativePath.lastIndexOf("/");
-  return lastSlash === -1 ? "" : relativePath.slice(0, lastSlash);
+  const lastSlash = O.getOrElse(Str.lastIndexOf("/")(relativePath), constant(-1));
+  return lastSlash === -1 ? "" : Str.slice(0, lastSlash)(relativePath);
 };
 
 const restorationToRow = (record: CorpusRestorationRecord): Array<string | number | null> =>
@@ -871,8 +871,8 @@ const deriveCorpusOperationId = Effect.fn("CorpusCommandService.deriveCorpusOper
 });
 
 const extensionOf = (name: string): string | undefined => {
-  const dot = name.lastIndexOf(".");
-  return dot <= 0 || dot === name.length - 1 ? undefined : name.slice(dot + 1).toLowerCase();
+  const dot = O.getOrElse(Str.lastIndexOf(".")(name), constant(-1));
+  return dot <= 0 || dot === name.length - 1 ? undefined : Str.toLowerCase(Str.slice(dot + 1)(name));
 };
 
 // Fail-closed resolver for manifest-supplied paths: the provenance manifest is
@@ -1737,7 +1737,7 @@ const extractCorpusLocked = Effect.fn("CorpusCommandService.extractCorpusLocked"
     CorpusCommandError,
     Crypto.Crypto
   > {
-    const sanitizedRelative = `${record.sourceLabel}/${record.relativePath}`.replaceAll("\\", "/");
+    const sanitizedRelative = Str.replaceAll("\\", "/")(`${record.sourceLabel}/${record.relativePath}`);
     const artifactId = yield* decodeArtifactId(`artifact:${record.sha256}`).pipe(
       CorpusCommandError.mapError("Provenance sha256 failed artifact id decoding.")
     );
@@ -2938,14 +2938,14 @@ const pipeDocket = (text: string): O.Option<{ readonly docket: string; readonly 
   O.fromNullishOr(docketPattern.exec(text)).pipe(
     O.flatMap((match) => O.fromNullishOr(match[1])),
     O.map((raw) => {
-      const docket = raw.toUpperCase();
+      const docket = Str.toUpperCase(raw);
       const family = docketFamilyPattern.exec(docket)?.[0] ?? docket;
       return { docket, family };
     })
   );
 
 const sanitizeSegment = (value: string): string => {
-  const cleaned = Str.trim(value.replaceAll(/[\\/\u0000]/gu, "_"));
+  const cleaned = Str.trim(Str.replaceAll(/[\\/\u0000]/gu, "_")(value));
   return Str.isEmpty(cleaned) ? "_" : cleaned;
 };
 
@@ -2956,9 +2956,9 @@ const windowsPathDirectories = (originalPath: string): Array<string> => {
 };
 
 const versionStem = (name: string): string => {
-  const dot = name.lastIndexOf(".");
-  const stem = dot <= 0 ? name : name.slice(0, dot);
-  return Str.trim(Str.toLowerCase(stem).replaceAll(/\s+/gu, " "));
+  const dot = O.getOrElse(Str.lastIndexOf(".")(name), constant(-1));
+  const stem = dot <= 0 ? name : Str.slice(0, dot)(name);
+  return Str.trim(Str.replaceAll(/\s+/gu, " ")(Str.toLowerCase(stem)));
 };
 
 const decodeRestorationRecordJson = S.decodeUnknownEffect(S.fromJsonString(CorpusRestorationRecord));
@@ -3110,7 +3110,7 @@ const planOrganizeRow = (
       client,
       extension: extensionOf(effectiveName),
       hasDocket: O.isSome(docket),
-      isEmailExport: record.relativePath.startsWith("Sent_Emails.export/"),
+      isEmailExport: Str.startsWith("Sent_Emails.export/")(record.relativePath),
       isRecycleMetadata,
     }),
     client,
@@ -3199,11 +3199,11 @@ const dedupeOrganizedTarget = (candidate: string, usedTargets: ReadonlySet<strin
   if (!usedTargets.has(candidate)) {
     return candidate;
   }
-  const digestSuffix = digest.slice("sha256:".length, "sha256:".length + 8);
-  const dot = candidate.lastIndexOf(".");
-  return dot <= candidate.lastIndexOf("/")
+  const digestSuffix = Str.slice("sha256:".length, "sha256:".length + 8)(digest);
+  const dot = O.getOrElse(Str.lastIndexOf(".")(candidate), constant(-1));
+  return dot <= O.getOrElse(Str.lastIndexOf("/")(candidate), constant(-1))
     ? `${candidate}--${digestSuffix}`
-    : `${candidate.slice(0, dot)}--${digestSuffix}${candidate.slice(dot)}`;
+    : `${Str.slice(0, dot)(candidate)}--${digestSuffix}${Str.slice(dot)(candidate)}`;
 };
 
 const materializeOrganizedRow = Effect.fn("CorpusCommandService.materializeOrganizedRow")(function* (
@@ -3359,7 +3359,9 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
     counts[row.category] += 1;
     const versionIndex = versionIndexByRow.get(row);
     const versionedName =
-      versionIndex === undefined ? row.effectiveName : `v${`${versionIndex}`.padStart(2, "0")}--${row.effectiveName}`;
+      versionIndex === undefined
+        ? row.effectiveName
+        : `v${Str.padStart(2, "0")(`${versionIndex}`)}--${row.effectiveName}`;
     const candidate = organizedRelativeFor(row, versionedName);
     const organizedRelative =
       candidate === undefined ? undefined : dedupeOrganizedTarget(candidate, usedTargets, row.digest);
@@ -3443,13 +3445,13 @@ const makeEnrichCandidateCollector = (): EnrichCandidateCollector => {
   };
   // fallow-ignore-next-line complexity -- pre-existing two-pattern identifier scan re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
   const scanText = (text: string, docketFamily: string | undefined): void => {
-    for (const match of text.matchAll(patentTextPattern)) {
+    for (const match of Str.matchAll(patentTextPattern)(text)) {
       const normalized = normalizeUsptoPatentNumber(match[1] ?? "");
       if (O.isSome(normalized) && normalized.value.length >= 7) {
         noteCandidate("patent", normalized.value, docketFamily);
       }
     }
-    for (const match of text.matchAll(applicationTextPattern)) {
+    for (const match of Str.matchAll(applicationTextPattern)(text)) {
       const normalized = normalizeUsptoApplicationNumber(match[1] ?? "");
       if (O.isSome(normalized)) {
         noteCandidate("application", normalized.value, docketFamily);
@@ -3592,7 +3594,7 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
     return yield* Effect.forEach(
       limited,
       Effect.fnUntraced(function* ([key, candidate]) {
-        const normalized = key.slice(key.indexOf(":") + 1);
+        const normalized = Str.slice(O.getOrElse(Str.indexOf(":")(key), constant(-1)) + 1)(key);
         yield* Effect.sleep(`${lookupDelayMillis} millis`);
         const resolved =
           candidate.kind === "application"

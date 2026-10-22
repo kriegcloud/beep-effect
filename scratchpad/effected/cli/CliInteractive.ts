@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { Audience, TerminalEnv } from "../env/index.ts";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -50,10 +50,10 @@ export class CliInteractive extends Context.Reference<boolean>($I`CliInteractive
  *
  * A dumb terminal is a terminal, but it cannot move the cursor or take synchronized output, which a prompt or a
  * screen redrawing in place needs: it gets what a pipe gets. `TERM` is read through the ambient `ConfigProvider`,
- * as `@effected/env` reads the environment, so it adds no requirement; a test fixes it with
+ * as `@beep/runtime-env` reads the environment, so it adds no requirement; a test fixes it with
  * `Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ TERM: "dumb" }))`.
  *
- * Bind the layer to a constant and provide it once; `Audience` and `TerminalEnv` come from `@effected/env`.
+ * Bind the layer to a constant and provide it once; `Audience` and `TerminalEnv` come from `@beep/runtime-env`.
  *
  * **Example** (Inspect the audience and terminal decision layer)
  *

@@ -5,7 +5,7 @@ tree on 2026-10-09 after step 2 (zero type, lint and tsgo diagnostics; tests at 
 Each entry is a deliberate choice that the operator can overrule: remove the directive and the
 diagnostic comes back.
 
-Totals: 30 in source, 11 in tests beyond the entry-point headers, 1 service annotation(s).
+Totals: 29 in source, 11 in tests beyond the entry-point headers, 1 service annotation(s).
 
 ## Source
 
@@ -17,7 +17,6 @@ Totals: 30 in source, 11 in tests beyond the entry-point headers, 1 service anno
 | `effected/config-file/JsonCodec.ts` | 29 | next line | preferSchemaOverJson | The codec preserves native TypeError causes and JSON.stringify returning undefined; Schema encoding changes both. |
 | `effected/config-file/JsoncCodec.ts` | 29 | next line | preferSchemaOverJson | The codec preserves native TypeError causes and JSON.stringify returning undefined; Schema encoding changes both. |
 | `effected/engine/ProcessGuard.ts` | 2 | whole file | asyncFunction, newPromise, globalTimers | These process guards install and inject native crashes before Effect loads, preserving host uncaught-error timing. |
-| `effected/env/internal/osc8/env.ts` | 20 | next line | missingPipeableSignature | A single string can be the env value or the optional spec, so the two call forms are ambiguous. |
 | `effected/github-actions/DetachedProcess.ts` | 2 | whole file | nodeBuiltinImport | Detached children must outlive the Effect scope and inherit native log descriptors before unref. |
 | `effected/github-actions/DetachedProcess.ts` | 60 | next line | schemaNumber | The error reports the pid it refused, which may be NaN or infinite. |
 | `effected/github-actions/DetachedProcess.ts` | 80 | next line | schemaNumber | The error reports the pid it refused, which may be NaN or infinite. |

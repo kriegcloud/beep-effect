@@ -5,7 +5,7 @@ import * as Path from "effect/Path";
 // @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertFailure } from "@effect/vitest/utils";
-import { Audience, TerminalEnv } from "../../effected/env/index.ts";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";

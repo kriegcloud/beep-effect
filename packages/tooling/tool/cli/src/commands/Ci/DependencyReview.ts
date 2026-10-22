@@ -206,9 +206,9 @@ const OTHER_TOKEN = /(?<![\w-])OTHER(?![\w-])/gu;
  * **Example** (Decide three licenses)
  *
  * ```ts
- * import { decideLicense } from "@beep/repo-cli/commands/Ci"
+ * import { decideLicense, type DeniedLicense } from "@beep/repo-cli/commands/Ci"
  *
- * const deny = ["AGPL-3.0", "GPL-3.0"] as const
+ * const deny: ReadonlyArray<DeniedLicense> = ["AGPL-3.0", "GPL-3.0"]
  * console.log(decideLicense("GPL-2.0-or-later", deny)) // "denied"
  * console.log(decideLicense("MIT", deny)) // "allowed"
  * console.log(decideLicense("not a license", deny)) // "unresolved"

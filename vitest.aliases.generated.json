@@ -2087,5 +2087,12 @@
   ],
   "@beep/github": ["./packages/drivers/github/src/index.ts"],
   "@beep/github/*": ["./packages/drivers/github/src/*"],
-  "@beep/github/internal/*": ["./packages/drivers/github/src/internal/*"]
+  "@beep/github/internal/*": ["./packages/drivers/github/src/internal/*"],
+  "@beep/runtime-env": [
+    "./packages/foundation/capability/runtime-env/src/index.ts"
+  ],
+  "@beep/runtime-env/*": ["./packages/foundation/capability/runtime-env/src/*"],
+  "@beep/runtime-env/internal/*": [
+    "./packages/foundation/capability/runtime-env/src/internal/*"
+  ]
 }

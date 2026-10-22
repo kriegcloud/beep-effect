@@ -34,11 +34,11 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — waves 1a (#1956) and 1b (#1981) merged; wave 2a (`@beep/npm-spec`,
-`@beep/tsconfig`) is in review as #1988. Wave 2b ships as three PRs (D-31): 2b-1
-(`@beep/walker` with its repo-utils and repo-cli adopters, D-32) is at zero
-in-package findings on a local stack over 2a; 2b-2 (`@beep/github`), 2b-3
-(`@beep/runtime-env`) and the 2c glob adoption follow. P0 research is complete:
+P1 Implement — waves 1a (#1956), 1b (#1981) and 2a (#1988) merged. Wave 2b
+ships as three PRs (D-31): 2b-1 (`@beep/walker`, D-32, #1992) and 2b-2
+(`@beep/github`, D-34, D-35, #1994) merged; 2b-3 (`@beep/runtime-env` with the
+`@beep/chalk` and `@beep/colors` delegation, D-33, D-36) is in progress, and the
+2c glob adoption follows. P0 research is complete:
 see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md)
 and [`research/wave-2b-plan-2026-10-21.md`](./research/wave-2b-plan-2026-10-21.md).
 

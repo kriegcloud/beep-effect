@@ -76,6 +76,7 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/runtime-env": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "effect": "catalog:"

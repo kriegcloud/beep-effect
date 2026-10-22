@@ -284,6 +284,13 @@ describe("supportsColor detection", () => {
         stream: { isTTY: true },
       })
     ).toMatchObject({ level: 3 });
+
+    expect(
+      createSupportsColor({
+        runtimeProcessLike: { env: { CI: "1", GITHUB_ACTIONS: "1" } },
+        stream: { isTTY: false },
+      })
+    ).toBe(false);
   });
 
   it("covers platform, flag, and terminal-specific rules with explicit runtime fixtures", () => {
@@ -291,8 +298,6 @@ describe("supportsColor detection", () => {
       env: Readonly<Record<string, string | undefined>>,
       options: {
         readonly argv?: ReadonlyArray<string>;
-        readonly osRelease?: string;
-        readonly platform?: string;
         readonly sniffFlags?: boolean;
       } = {}
     ) =>
@@ -301,8 +306,6 @@ describe("supportsColor detection", () => {
         runtimeProcessLike: {
           argv: options.argv ?? [],
           env,
-          platform: options.platform ?? "linux",
-          ...(options.osRelease === undefined ? {} : { osRelease: options.osRelease }),
         },
         stream: { isTTY: true },
       });
@@ -313,13 +316,17 @@ describe("supportsColor detection", () => {
     expect(detect({}, { argv: ["--color=16m"] })).toMatchObject({ level: 3 });
     expect(detect({}, { argv: ["--", "--color"] })).toBe(false);
     expect(detect({}, { argv: ["--color"], sniffFlags: false })).toBe(false);
+    expect(detect({ NO_COLOR: "1" }, { argv: ["--color"] })).toBe(false);
+    expect(detect({ FORCE_COLOR: "0" }, { argv: ["--color=16m"] })).toBe(false);
+    expect(detect({ FORCE_COLOR: "2" }, { argv: ["--color=16m"] })).toMatchObject({ level: 2 });
+    expect(detect({ TERM: "dumb" }, { argv: ["--color=256"] })).toMatchObject({ level: 2 });
     expect(detect({ TF_BUILD: "1", AGENT_NAME: "agent" })).toMatchObject({ level: 1 });
     expect(detect({ TERM: "dumb" })).toBe(false);
-    expect(detect({}, { platform: "win32", osRelease: "10.0.10586" })).toMatchObject({ level: 2 });
-    expect(detect({}, { platform: "win32", osRelease: "10.0.14931" })).toMatchObject({ level: 3 });
-    expect(detect({}, { platform: "win32", osRelease: "6.1.7601" })).toMatchObject({ level: 1 });
-    expect(detect({ CI: "1", TRAVIS: "1" })).toMatchObject({ level: 1 });
-    expect(detect({ CI: "1", CI_NAME: "codeship" })).toMatchObject({ level: 1 });
+    expect(detect({ OS: "Windows_NT" })).toMatchObject({ level: 3 });
+    expect(detect({ OS: "Windows_NT", NO_COLOR: "1" })).toBe(false);
+    expect(detect({ CI: "1", TRAVIS: "1" })).toMatchObject({ level: 2 });
+    expect(detect({ CI: "1", CI_NAME: "codeship" })).toMatchObject({ level: 2 });
+    expect(detect({ CI: "1" })).toBe(false);
     expect(detect({ TEAMCITY_VERSION: "9.1.0" })).toMatchObject({ level: 1 });
     expect(detect({ TEAMCITY_VERSION: "9.0.0" })).toBe(false);
     expect(detect({ COLORTERM: "truecolor" })).toMatchObject({ level: 3 });

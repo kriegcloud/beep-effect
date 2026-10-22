@@ -3,7 +3,7 @@ import * as S from "effect/Schema";
 // Root types are named through the package's own name, so the emitted ui.d.ts imports them from "../index.ts"
 // (kept external by dtsExternals) instead of carrying copies a consumer's root layers cannot satisfy.
 import type * as Cli from "../index.ts";
-import { Audience } from "../../env/index.ts";
+import { Audience } from "@beep/runtime-env";
 import type * as Scope from "effect/Scope";
 import * as Cause from "effect/Cause";
 import * as Deferred from "effect/Deferred";
