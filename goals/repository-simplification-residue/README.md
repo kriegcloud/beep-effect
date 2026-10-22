@@ -21,60 +21,60 @@ Read [SPEC.md](./SPEC.md) for the per-issue contract and standing rulings,
 
 P0 Research and admission is in progress. Wave 1 is the A/catalog retirement
 train (#1851/#1860) plus detector repairs (#1855), starting with F-S31-EV010.
-#1860 is complete: the third A-train PR landed the catalog removals and the
+Issue #1860 is complete: the third A-train PR landed the catalog removals and the
 `beep quality catalog-usage` detector
 ([record](./history/receipts/catalog-removals-record.md)).
-#1853 is complete: all five retained patches have a focused test and a
+Issue #1853 is complete: all five retained patches have a focused test and a
 fail-unpatched/pass-patched pair at the installed version, and none has a published
 upstream exit yet ([record](./history/receipts/patch-proofs-record.md)).
-#1861 is complete ahead of its 2026-10-30 deadline: the hold register records
+Issue #1861 is complete ahead of its 2026-10-30 deadline: the hold register records
 every retained override, patch, catalog hold and OSV exception, with the removed
 and renewed holds proved ([register](./history/receipts/hold-register.md)).
-#1856 is in progress: wave 1 classified the 342-file guidance surface and fixed
+Issue #1856 is in progress: wave 1 classified the 342-file guidance surface and fixed
 every stale file ([record](./history/receipts/guidance-classification.md)); the
 660-directive review and a Markdown example compile check remain.
-#1855 is in progress: wave 1 closed F-S31-EV010 (already fixed by #1899) and taught
+Issue #1855 is in progress: wave 1 closed F-S31-EV010 (already fixed by #1899) and taught
 the EV010 proof to follow same-file helpers, resolving 16 more rows with no exception
 added ([record](./history/receipts/detectors-wave-1.md)); FP-1..FP-7 come next.
 Wave 2 repaired FP-1, FP-3, FP-4 and FP-5 with paired fixtures, retiring 155 rows and adding none
 ([record](./history/receipts/detectors-wave-2.md)); wave 3 takes the FP-2/FP-6 rulings, individual
 exception review and the zero scan.
-#1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
+Issue #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).
-#1876 is complete: the RDF failure assertions and the Pacer logout teardown
+Issue #1876 is complete: the RDF failure assertions and the Pacer logout teardown
 witness are ported, with a per-hunk disposition of the preserved exports
 ([record](./history/receipts/rdf-pacer-ports.md)).
-#1869 is complete: telemetry storage completeness and stamp qualification are
+Issue #1869 is complete: telemetry storage completeness and stamp qualification are
 separate fields, historical rows stay `unknown`, and a run that cannot evaluate a
 session keeps a verified stamp, while the session's own contradicting evidence
 still clears it
 ([record](./history/receipts/telemetry-completeness.md)).
-#1874 is complete: the base incremental state lives inside `outDir`. A dist-only
+Issue #1874 is complete: the base incremental state lives inside `outDir`. A dist-only
 clean therefore also clears it, and cold, warm and changed-input builds all restore
 the complete public output manifest
 ([record](./history/receipts/build-restore.md)).
-#1878 is complete: goal completion verifies only on GitHub's rule suite for the
+Issue #1878 is complete: goal completion verifies only on GitHub's rule suite for the
 merge push, which covers rulesets deleted since then, and on green required checks at
 the accepted head. Missing, deleted or partial evidence stays `unknown`
 ([record](./history/receipts/completion-evidence.md)).
-#1879 is complete: native writes qualify atomic exchange on the target's own
+Issue #1879 is complete: native writes qualify atomic exchange on the target's own
 mount. The capability is cached per parent-directory mount id, device and
 filesystem type, and is probed with disposable files on that mount. A bind-mounted
 or otherwise unsupported target refuses before any backup or publication
 ([record](./history/receipts/target-exchange.md)).
-#1880 is complete: each native publication records durable states in its journal,
+Issue #1880 is complete: each native publication records durable states in its journal,
 and restart recovery reconciles every crash point byte-exact, idempotently, through
 the next apply, `beep models recover` or `restore`. A target a competing writer
 changed is refused and every artifact is kept
 ([record](./history/receipts/exchange-recovery.md)).
-#1881 is complete: `skills update` replaces skill files and directories only through
+Issue #1881 is complete: `skills update` replaces skill files and directories only through
 a qualified, verified atomic exchange, journals each publication with the same state
 machine, and recovers every crash point byte-exact through the next update or
 `beep skills recover`, refusing a replacing writer with every artifact kept
 ([record](./history/receipts/skill-publication.md)).
 
-#1882 is complete: the required `Security` job runs `beep ci dependency-review`
+Issue #1882 is complete: the required `Security` job runs `beep ci dependency-review`
 with its read-only token. It excludes only manifests under the declared
 `**/test/**/fixtures/**` policy, keeps production transitive advisories and the
 action's thresholds, and fails closed when GitHub cannot answer
@@ -87,3 +87,8 @@ Opening provenance is in
 [the bootstrap receipt](./history/receipts/bootstrap-materialization.json).
 The worker's proof and publication state are in
 [the opening handoff](./history/handoffs/rsc-residue-packet-2026-10-17.md).
+
+Issue #1854: census + idle-map archive recorded (receipt 2026-10-22); 34 idle
+no-owner paths remain and are tracked in #1854 for a recoverable archive pass
+run by a session that owns each clone
+([receipt](./history/receipts/2026-10-22-foreign-clone-residue.md)).
