@@ -12,6 +12,7 @@ import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -258,21 +259,29 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
         // Mammoth's xmldom reader does: an undeclared prefix (for example an
         // unbound `w14:` extension attribute) resolves to no namespace instead
         // of failing the part. Well-formedness errors still reject the part.
-        // A mutable stack keeps each event O(1) at the depth limit.
-        const scopes: Array<Readonly<Record<string, string>>> = [];
-        const bindNamespace = (bindings: Readonly<Record<string, string>>, [attribute, uri]: [string, string]) => {
-          if (attribute === "xmlns") return R.set(bindings, "", uri);
-          if (Str.startsWith("xmlns:")(attribute)) return R.set(bindings, Str.slice(6)(attribute), uri);
-          return bindings;
+        // Each scope stores only its own declarations: O(attributes) to push,
+        // O(1) to pop, and at most DOCX_MAX_XML_DEPTH scopes per lookup.
+        const scopes: Array<MutableHashMap.MutableHashMap<string, string>> = [];
+        const bindNamespace = (
+          bindings: MutableHashMap.MutableHashMap<string, string>,
+          [attribute, uri]: [string, string]
+        ) => {
+          if (attribute === "xmlns") MutableHashMap.set(bindings, "", uri);
+          else if (Str.startsWith("xmlns:")(attribute)) MutableHashMap.set(bindings, Str.slice(6)(attribute), uri);
         };
         const pushNamespaceScope = (attributes: Readonly<Record<string, string>>) => {
-          const scope = A.reduce(
-            R.toEntries(attributes),
-            scopes[scopes.length - 1] ?? R.empty<string, string>(),
-            bindNamespace
-          );
+          const scope = MutableHashMap.empty<string, string>();
+          for (const attribute of R.toEntries(attributes)) bindNamespace(scope, attribute);
           scopes.push(scope);
-          return scope;
+        };
+        const namespaceUri = (prefix: string) => {
+          for (let index = scopes.length - 1; index >= 0; --index) {
+            const scope = scopes[index];
+            if (scope === undefined) continue;
+            const uri = MutableHashMap.get(scope, prefix);
+            if (O.isSome(uri)) return uri.value;
+          }
+          return "";
         };
         const popNamespaceScope = () => {
           --depth;
@@ -283,10 +292,11 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
             onNone: () => ["", name] as const,
             onSome: (separator) => [Str.slice(0, separator)(name), Str.slice(separator + 1)(name)] as const,
           });
-        const isRelationshipElement = (name: string, scope: Readonly<Record<string, string>>) => {
+        const isRelationshipElement = (name: string) => {
           const [prefix, local] = resolveElementName(name);
           return (
-            local === "Relationship" && scope[prefix] === "http://schemas.openxmlformats.org/package/2006/relationships"
+            local === "Relationship" &&
+            namespaceUri(prefix) === "http://schemas.openxmlformats.org/package/2006/relationships"
           );
         };
         const rememberTarget = (type: string, target: string) => {
@@ -302,8 +312,8 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
         parser.on("opentag", (tag) => {
           chargeNode();
           if (++depth > DOCX_MAX_XML_DEPTH) exceeded();
-          const scope = pushNamespaceScope(tag.attributes);
-          if (!isRelationshipElement(tag.name, scope)) return;
+          pushNamespaceScope(tag.attributes);
+          if (!isRelationshipElement(tag.name)) return;
           const type = tag.attributes.Type;
           const target = tag.attributes.Target;
           if (type === undefined || target === undefined || depth !== 2) return;

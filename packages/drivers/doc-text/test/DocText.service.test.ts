@@ -396,6 +396,24 @@ describe("@beep/doc-text", () => {
   );
 
   describe("tolerant namespace resolution", () => {
+    it.effect("completes within the XML budget with 20000 namespace declarations on one root", () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const declarations = A.join(
+          A.makeBy(20_000, (index) => `xmlns:p${index}=""`),
+          " "
+        );
+        const bytes = zipSync({
+          "[Content_Types].xml": strToU8(
+            `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types" ${declarations}/>`
+          ),
+          "word/document.xml": strToU8(documentXml("many namespaces")),
+        });
+        const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+        expect(result.text).toBe("many namespaces\n\n");
+      })
+    );
+
     for (const { name, xml } of [
       {
         name: "undeclared extension prefix",
