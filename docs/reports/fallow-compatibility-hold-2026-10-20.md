@@ -73,15 +73,18 @@ The seven redundant raw generated TypeScript projections are retired at their
 producers; canonical JSON inputs and the consumed court/reporter vocabularies
 remain. Every affected package is private; no major changeset is required.
 
-Paired used/unused member fixtures are retained in
-`packages/tooling/tool/cli/test/fixtures/fallow334`. On 3.34.1 the raw fixtures
-report both live getters and both unused controls; line-specific suppressions
-remove only the live getter findings. The controls remain detectable.
+The 18 retained findings are false positives of 3.34.1 member attribution. Fallow
+does not attribute uses made through a re-exported schema alias (`Options` exported
+as `Schema`), through an instance returned by a schema factory, or through a
+structural `Error.message` read. Each is suppressed at its declaration with a
+`// fallow-ignore-next-line <rule> -- <consumer>` comment that names the live
+consumer. Those comments are the in-repo record of each decision. Unused members
+on the same classes were removed, so suppressions cover only proven-live symbols.
 Declaration emit also proves that the `ProtobufInt64Input` type export is live:
 removing it causes TS4023 in `Fixed64`; its export is preserved.
 
-The unchanged dead-code, audit, and health checks pass on 3.34.1. The local
-63-row evidence table and command receipts are in `.beep/fallow334/TRIAGE.md`.
+The unchanged dead-code, audit, and health checks pass on 3.34.1. The per-finding
+decisions are summarized in PR #2057.
 The 3.33.1 pin is no longer needed after this qualification. Reversal is the
 version/lockfile change plus the focused source changes; no application data
 migration is involved.
