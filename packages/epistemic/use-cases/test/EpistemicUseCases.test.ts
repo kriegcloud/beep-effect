@@ -1,7 +1,8 @@
-import { CandidateClaim, ClaimGateResult, ClaimLifecycle, ClaimProjectionView, Evidence } from "@beep/epistemic-domain";
+import { CandidateClaim, ClaimLifecycle, ClaimProjectionView, Evidence } from "@beep/epistemic-domain";
 import * as ClaimGateUC from "@beep/epistemic-use-cases/ClaimGate";
 import * as ClaimLifecycleUC from "@beep/epistemic-use-cases/ClaimLifecycle";
 import { ClaimProjection, projectClaims } from "@beep/epistemic-use-cases/ClaimProjection";
+import { ClaimGateResult } from "@beep/epistemics/ClaimGate";
 import { $EpistemicId } from "@beep/identity/packages";
 import { makeNamedNode } from "@beep/rdf/Rdf";
 import {

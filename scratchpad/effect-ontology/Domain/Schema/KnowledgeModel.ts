@@ -14,7 +14,7 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { TextAnchor } from "@beep/provenance/TextAnchor";
 import { AbsoluteIRI, NamedNode, ObjectTerm } from "@beep/rdf";

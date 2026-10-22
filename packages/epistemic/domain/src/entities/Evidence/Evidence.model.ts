@@ -4,7 +4,8 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { EpistemicFixtureKey, EvidenceSpan } from "@beep/epistemic-domain/values";
+import { EpistemicFixtureKey } from "@beep/epistemic-domain/values";
+import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan";
 import { $EpistemicDomainId } from "@beep/identity/packages";
 import * as ProductEntity from "@beep/shared-domain/entity/ProductEntity";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";

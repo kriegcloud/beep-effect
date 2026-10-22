@@ -2,21 +2,21 @@ import {
   Activity,
   appendTurnFinalizationUsageRecord,
   CandidateClaim,
-  ClaimGateResult,
-  ClaimGateSeverity,
-  ClaimGateViolation,
   ClaimLifecycle,
   ClaimLifecycleError,
   ClaimProjectionView,
-  Confidence,
   EpistemicFixtureKey,
-  EVIDENCE_SPAN_QUOTE_MAX_LENGTH,
   Evidence,
-  EvidenceSpan,
   TurnFinalizationUsageAppend,
   UsageRecord,
 } from "@beep/epistemic-domain";
-import { EvidenceSpanArbitrary } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { ClaimGateResult, ClaimGateSeverity, ClaimGateViolation } from "@beep/epistemics/ClaimGate";
+import {
+  Confidence,
+  EVIDENCE_SPAN_QUOTE_MAX_LENGTH,
+  EvidenceSpan,
+  EvidenceSpanArbitrary,
+} from "@beep/epistemics/EvidenceSpan";
 import { $EpistemicId } from "@beep/identity/packages";
 import { TextAnchor } from "@beep/provenance/TextAnchor";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";

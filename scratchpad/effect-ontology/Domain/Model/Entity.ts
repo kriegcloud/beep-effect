@@ -6,7 +6,7 @@ import * as Arbitrary from "effect/Arbitrary";
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { TextAnchorFields, TextAnchorWidthCheck } from "@beep/provenance/TextAnchor";
 import { IRI } from "@beep/rdf";
@@ -147,7 +147,7 @@ class GroundingRejected extends S.Opaque<GroundingRejected, { readonly brand: un
  *
  * **Example** (Construct a supported decision)
  * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { GroundingDecision } from "@effect-ontology/Model/Entity"
  *
  * const decision = GroundingDecision.cases.Supported.make({ confidence: Confidence.make(0.9) })
@@ -410,7 +410,7 @@ export class Entity extends S.Class<Entity, { readonly brand: unique symbol }>($
    *
    * **Example** (Read evaluated grounding confidence)
    * ```ts
-   * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+   * import { Confidence } from "@beep/epistemics/EvidenceSpan"
    * import { IRI } from "@beep/rdf"
    * import * as O from "effect/Option"
    * import { Entity, GroundingDecision } from "@effect-ontology/Model/Entity"

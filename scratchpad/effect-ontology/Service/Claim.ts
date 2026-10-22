@@ -10,7 +10,7 @@
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import type { PostgresDrizzle } from "@beep/postgres";
 import type { Quad } from "@beep/rdf";
@@ -60,7 +60,7 @@ const randomUuid = Effect.all([
  * **Example** (Create a claim payload)
  *
  * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { CreateClaimInput } from "@effect-ontology/Service/Claim"
  *
  * const input = CreateClaimInput.make({
@@ -181,7 +181,7 @@ interface ClaimServiceShape {
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { ClaimService, CreateClaimInput } from "@effect-ontology/Service/Claim"
  *
  * const program = Effect.gen(function* () {

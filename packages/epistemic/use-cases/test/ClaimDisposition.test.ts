@@ -1,10 +1,10 @@
-import { ClaimDispositionStatus } from "@beep/epistemic-domain";
 import {
   ClaimDispositionRepository,
   ClaimGateOutcomeInput,
   makeClaimGateOutcomeResolver,
 } from "@beep/epistemic-use-cases/ClaimDisposition";
 import { makeClaimTransition } from "@beep/epistemic-use-cases/ClaimLifecycle";
+import { ClaimDispositionStatus } from "@beep/epistemics/ClaimDispositionStatus";
 import { $EpistemicId } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
 import { productEntityFixtureInput } from "@beep/test-utils";
