@@ -14,16 +14,15 @@ import { $EpistemicsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { KnowledgeInterval } from "../KnowledgeInterval/index.ts";
-import { ValidIntervalFields, ValidIntervalOrderCheck } from "../ValidInterval/index.ts";
+import { ValidInterval, ValidIntervalFields } from "../ValidInterval/index.ts";
 import type { IdCodec, SchemaIdentity } from "../Factory/index.ts";
-import type { ValidInterval } from "../ValidInterval/index.ts";
 
 const $I = $EpistemicsId.create("Claim/Claim.model");
 
 /**
  * Why an evidence signal is absent. Absence is never zero.
  *
- * @category signals
+ * @category schemas
  * @since 0.0.0
  */
 export const AbsenceReason = LiteralKit(["not-assessed", "unavailable", "not-applicable", "legacy-unknown"]).pipe(
@@ -31,7 +30,7 @@ export const AbsenceReason = LiteralKit(["not-assessed", "unavailable", "not-app
 );
 
 /**
- * @category signals
+ * @category models
  * @since 0.0.0
  */
 export type AbsenceReason = typeof AbsenceReason.Type;
@@ -51,7 +50,7 @@ export type AbsenceReason = typeof AbsenceReason.Type;
  * S.decodeUnknownSync(Trust)({ _tag: "Absent", reason: "not-assessed" })
  * ```
  *
- * @category signals
+ * @category factories
  * @since 0.0.0
  */
 export const makeSignal = <A extends S.Top>(value: A) =>
@@ -61,7 +60,7 @@ export const makeSignal = <A extends S.Top>(value: A) =>
  * A typed measurement. A detector score, a cosine similarity and a calibrated
  * probability are different contracts and never share a field.
  *
- * @category signals
+ * @category schemas
  * @since 0.0.0
  */
 export const Measurement = S.TaggedUnion({
@@ -75,7 +74,7 @@ export const Measurement = S.TaggedUnion({
 }).pipe($I.annoteSchema("Measurement", { description: "Typed measurement; never a blended score." }));
 
 /**
- * @category signals
+ * @category models
  * @since 0.0.0
  */
 export type Measurement = typeof Measurement.Type;
@@ -83,7 +82,7 @@ export type Measurement = typeof Measurement.Type;
 /**
  * Lowercase SHA-256 hex digest of the evidence basis a reviewer looked at.
  *
- * @category signals
+ * @category schemas
  * @since 0.0.0
  */
 export const BasisDigest = S.String.check(
@@ -91,7 +90,7 @@ export const BasisDigest = S.String.check(
 ).pipe($I.annoteSchema("BasisDigest", { description: "SHA-256 digest of a sealed evidence basis." }));
 
 /**
- * @category signals
+ * @category models
  * @since 0.0.0
  */
 export type BasisDigest = typeof BasisDigest.Type;
@@ -100,7 +99,7 @@ export type BasisDigest = typeof BasisDigest.Type;
  * Structural verdict. `Admitted` means the candidate satisfied the shape
  * contract. It does not mean the claim is true.
  *
- * @category claim
+ * @category schemas
  * @since 0.0.0
  */
 export const StructuralVerdict = S.TaggedUnion({
@@ -109,7 +108,7 @@ export const StructuralVerdict = S.TaggedUnion({
 }).pipe($I.annoteSchema("StructuralVerdict", { description: "Shape verdict only." }));
 
 /**
- * @category claim
+ * @category models
  * @since 0.0.0
  */
 export type StructuralVerdict = typeof StructuralVerdict.Type;
@@ -117,7 +116,7 @@ export type StructuralVerdict = typeof StructuralVerdict.Type;
 /**
  * Review-state tags a projection may select.
  *
- * @category claim
+ * @category schemas
  * @since 0.0.0
  */
 export const ReviewTag = LiteralKit(["Proposed", "Accepted", "Rejected", "Disputed", "Retracted"]).pipe(
@@ -125,16 +124,19 @@ export const ReviewTag = LiteralKit(["Proposed", "Accepted", "Rejected", "Disput
 );
 
 /**
- * @category claim
+ * @category models
  * @since 0.0.0
  */
 export type ReviewTag = typeof ReviewTag.Type;
+
+// Compiled once: ValidInterval already carries ValidIntervalOrderCheck.
+const isOrderedValidInterval = S.is(ValidInterval);
 
 /**
  * When a claim holds. `Unknown` is a real state, not an open interval: an
  * as-of-valid-time read never selects it.
  *
- * @category claim
+ * @category schemas
  * @since 0.0.0
  */
 export const ValidTime = S.TaggedUnion({
@@ -144,14 +146,14 @@ export const ValidTime = S.TaggedUnion({
   .check(
     S.makeFilter(
       (validTime: { readonly _tag: "Unknown" } | ({ readonly _tag: "Interval" } & ValidInterval)) =>
-        validTime._tag === "Unknown" || S.is(S.Struct(ValidIntervalFields).check(ValidIntervalOrderCheck))(validTime),
+        validTime._tag === "Unknown" || isOrderedValidInterval(validTime),
       $I.annote("ValidTimeOrderCheck", { description: "An Interval valid time is non-empty and forward." })
     )
   )
   .pipe($I.annoteSchema("ValidTime", { description: "Valid time: unknown, or a half-open interval." }));
 
 /**
- * @category claim
+ * @category models
  * @since 0.0.0
  */
 export type ValidTime = typeof ValidTime.Type;
@@ -186,7 +188,7 @@ export type ValidTime = typeof ValidTime.Type;
  * ClaimVersion.fields.logicalKey
  * ```
  *
- * @category claim
+ * @category factories
  * @since 0.0.0
  */
 export const makeClaimEnvelope = <
@@ -276,7 +278,7 @@ export const makeClaimEnvelope = <
  * The fields a bitemporal read needs from a claim version. Every binding's
  * `ClaimVersion` satisfies it.
  *
- * @category claim
+ * @category models
  * @since 0.0.0
  */
 const BitemporalVersionSchema = S.Struct({
@@ -286,7 +288,7 @@ const BitemporalVersionSchema = S.Struct({
 }).pipe($I.annoteSchema("BitemporalVersion", { description: "Fields a bitemporal read selects on." }));
 
 /**
- * @category claim
+ * @category models
  * @since 0.0.0
  */
 export type BitemporalVersion = typeof BitemporalVersionSchema.Type;
@@ -295,7 +297,7 @@ export type BitemporalVersion = typeof BitemporalVersionSchema.Type;
  * A bitemporal read scope: what the system knew at `asOf`, about what held at
  * `validAt`, in the review states a consumer accepts.
  *
- * @category claim
+ * @category models
  * @since 0.0.0
  */
 const BitemporalScopeSchema = S.Struct({
@@ -305,7 +307,7 @@ const BitemporalScopeSchema = S.Struct({
 }).pipe($I.annoteSchema("BitemporalScope", { description: "Knowledge time, valid time and accepted review states." }));
 
 /**
- * @category claim
+ * @category models
  * @since 0.0.0
  */
 export type BitemporalScope = typeof BitemporalScopeSchema.Type;
