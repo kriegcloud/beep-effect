@@ -1204,7 +1204,9 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
     );
   });
 
-const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
+// A services bundle used only by the shared harness is not filesystem evidence.
+// Keep portable filesystem candidates unless the existing native-subject proof succeeds.
+const canonicalPlatformIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
   O.exists(servicesBundleLayers(declaration, imports), (layers) => {
     const visited: FlowCache = MutableHashMap.empty();
     return O.exists(O.all(A.map(layers, (layer) => harnessFlows(layer, imports, [], false, visited))), (nested) => {
@@ -1213,13 +1215,24 @@ const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: Ef
         A.map(flows, ({ harness }) => harness),
         (left, right) => left === right
       );
+      const readsFileSystem = A.some(
+        declaration.getSourceFile().getDescendants(),
+        (node) =>
+          Node.isExpression(node) &&
+          node.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) === undefined &&
+          (!Node.isIdentifier(node) || !isNamePosition(node)) &&
+          isProvenanceExpression(node, imports, ["effect", "effect/FileSystem"], "FileSystem", ["FileSystem"])
+      );
       return (
         !A.isReadonlyArrayEmpty(harnesses) &&
-        A.every(harnesses, (harness) =>
-          harnessProvesNativeFileSystem(
-            { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
-            imports
-          )
+        A.every(
+          harnesses,
+          (harness) =>
+            (!readsFileSystem && O.isSome(harnessCallback(harness))) ||
+            harnessProvesNativeFileSystem(
+              { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
+              imports
+            )
         )
       );
     });
@@ -2258,7 +2271,7 @@ const detectPlatformImport = (declaration: ImportDeclaration, state: DetectorSta
     moduleName,
     members,
     osTemp,
-    () => nativeFileSystemIntegration(declaration, imports),
+    () => canonicalPlatformIntegration(declaration, imports),
     state
   );
 };
