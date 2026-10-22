@@ -14,9 +14,8 @@ import { $EpistemicsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { KnowledgeInterval } from "../KnowledgeInterval/index.ts";
-import { ValidIntervalFields, ValidIntervalOrderCheck } from "../ValidInterval/index.ts";
+import { ValidInterval, ValidIntervalFields } from "../ValidInterval/index.ts";
 import type { IdCodec, SchemaIdentity } from "../Factory/index.ts";
-import type { ValidInterval } from "../ValidInterval/index.ts";
 
 const $I = $EpistemicsId.create("Claim/Claim.model");
 
@@ -130,6 +129,9 @@ export const ReviewTag = LiteralKit(["Proposed", "Accepted", "Rejected", "Disput
  */
 export type ReviewTag = typeof ReviewTag.Type;
 
+// Compiled once: ValidInterval already carries ValidIntervalOrderCheck.
+const isOrderedValidInterval = S.is(ValidInterval);
+
 /**
  * When a claim holds. `Unknown` is a real state, not an open interval: an
  * as-of-valid-time read never selects it.
@@ -144,7 +146,7 @@ export const ValidTime = S.TaggedUnion({
   .check(
     S.makeFilter(
       (validTime: { readonly _tag: "Unknown" } | ({ readonly _tag: "Interval" } & ValidInterval)) =>
-        validTime._tag === "Unknown" || S.is(S.Struct(ValidIntervalFields).check(ValidIntervalOrderCheck))(validTime),
+        validTime._tag === "Unknown" || isOrderedValidInterval(validTime),
       $I.annote("ValidTimeOrderCheck", { description: "An Interval valid time is non-empty and forward." })
     )
   )
