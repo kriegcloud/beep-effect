@@ -1039,8 +1039,8 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 
   describe("delete-package registration-geometry tokens", () => {
     const SHAPE_TEST = "packages/foundation/modeling/identity/test/shape-stable.test.ts";
-    const PREFLIGHT_REFUSAL =
-      "[delete-package] REFUSE [dependent/hard] 1 production/test/script/path dependent hit(s); --force never overrides dependents.";
+    const preflightRefusal = (hits: number) =>
+      `[delete-package] REFUSE [dependent/hard] ${hits} production/test/script/path dependent hit(s); --force never overrides dependents.`;
 
     const writeShapeTest = Effect.fn(function* (lines: ReadonlyArray<string>) {
       const fs = yield* FileSystem.FileSystem;
@@ -1106,7 +1106,74 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           ]);
           const { exit, errors } = yield* dryRunErrors;
           expectReportedExit(exit);
-          expect(errors).toStrictEqual([PREFLIGHT_REFUSAL]);
+          // One line naming both the package and the accessor: a file-path and an import-test hit.
+          expect(errors).toStrictEqual([preflightRefusal(2)]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("refuses when the shape test names the removed accessor outside its rows", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* writeShapeTest([
+            "const currentPackagesRuntimeNamedImports = [",
+            '  "$CourtlistenerId",',
+            "] as const;",
+            "",
+            "const expectedPackageComposerIdentities = {",
+            '  $CourtlistenerId: "@beep/courtlistener",',
+            "} as const;",
+            "",
+            "const composed = [",
+            '  IdentityPackages.$CourtlistenerId.create("Server"),',
+            "];",
+            "",
+          ]);
+          const { exit, errors } = yield* dryRunErrors;
+          expectReportedExit(exit);
+          expect(errors).toStrictEqual([preflightRefusal(1)]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("refuses when another identity-package file uses the removed accessor", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* fs.makeDirectory("packages/foundation/modeling/identity/test", { recursive: true });
+          yield* fs.writeFileString(
+            "packages/foundation/modeling/identity/test/Identity.test.ts",
+            'import * as IdentityPackages from "@beep/identity/packages";\n\nexport const id = IdentityPackages.$CourtlistenerId.make("Probe");\n'
+          );
+          const { exit, errors } = yield* dryRunErrors;
+          expectReportedExit(exit);
+          expect(errors).toStrictEqual([preflightRefusal(1)]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    // The doctor re-checks the shape test even when a deletion skipped the preflight.
+    it.effect("reports a leftover shape-test accessor as identity-segment residue", () =>
+      Effect.flatMap(temporaryDirectory, (repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          yield* fs.makeDirectory(path.join(repoRoot, "packages/foundation/modeling/identity/test"), {
+            recursive: true,
+          });
+          yield* fs.writeFileString(
+            path.join(repoRoot, SHAPE_TEST),
+            'const composed = [\n  IdentityPackages.$CourtlistenerId.create("Server"),\n];\n'
+          );
+
+          const observations = yield* inspectTargetAtRoot(repoRoot, target);
+          const identity = O.getOrThrow(A.findFirst(observations, (item) => item.surfaceId === "identity-segment"));
+          expect(identity.status).toBe("residue");
+          expect(identity.evidence).toStrictEqual([SHAPE_TEST]);
         })
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );

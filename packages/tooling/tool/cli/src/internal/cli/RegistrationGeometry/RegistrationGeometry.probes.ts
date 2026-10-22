@@ -149,11 +149,15 @@ const inspectSurface = Effect.fn("RegistrationGeometry.inspectSurface")(function
       return observation(workspace.id, A.isReadonlyArrayNonEmpty(evidence) ? "residue" : "clean", evidence);
     }),
     "identity-segment": Effect.fn(function* (identity) {
-      const evidence = yield* existingEvidence(
+      const registryEvidence = yield* existingEvidence(
         repoRoot,
         [identity.registryFile],
         [`"${identity.slug}"`, identity.accessor]
       );
+      // The deletion removes the accessor's shape-test rows too; any mention
+      // left in that file names an export that no longer exists.
+      const shapeTestEvidence = yield* existingEvidence(repoRoot, [IDENTITY_SHAPE_TEST_PATH], [identity.accessor]);
+      const evidence = A.appendAll(registryEvidence, shapeTestEvidence);
       return observation(identity.id, A.isReadonlyArrayNonEmpty(evidence) ? "residue" : "clean", evidence);
     }),
     "derived-rebuild": Effect.fn(function* (derived) {
@@ -357,8 +361,6 @@ const importHitsInFile = (
   return hits;
 };
 
-const IDENTITY_PACKAGE_PREFIX = "packages/foundation/modeling/identity/";
-
 const importKindForFile = (relativeFile: string): DependentHitKind =>
   Str.includes("/test/")(relativeFile) || Str.includes(".test.")(relativeFile) ? "import-test" : "import-prod";
 
@@ -380,13 +382,12 @@ const needleLineHits = (
 };
 
 const accessorHitsInFile = (
-  accessor: string,
   relativeFile: string,
   owner: string,
-  content: string
-): ReadonlyArray<DependentHit> => {
-  if (Str.startsWith(IDENTITY_PACKAGE_PREFIX)(relativeFile)) return A.empty<DependentHit>();
-  return needleLineHits(content, mentionsToken(accessor), (line) =>
+  content: string,
+  referencesAccessor: (line: string) => boolean
+): ReadonlyArray<DependentHit> =>
+  needleLineHits(content, referencesAccessor, (line) =>
     DependentHit.make({
       kind: importKindForFile(relativeFile),
       owner,
@@ -395,7 +396,6 @@ const accessorHitsInFile = (
       direct: true,
     })
   );
-};
 
 const BASELINE_REFERENCE_FILES = [
   "bun.lock",
@@ -615,10 +615,8 @@ export const dependentsOfAtRoot = Effect.fn("RegistrationGeometry.dependentsOfAt
   const direct = pipe(HashMap.get(reverse, target.packageName), O.getOrElse(HashSet.empty<string>));
   const transitive = yield* computeTransitiveClosure(reverse, target.packageName);
   const project = new Project({ skipAddingFilesFromTsConfig: true });
-  const identityAccessor = pipe(
-    A.findFirst(surfacesForTarget(target), RegistrationSurface.guards["identity-segment"]),
-    O.map((surface) => surface.accessor)
-  );
+  const identitySurface = A.findFirst(surfacesForTarget(target), RegistrationSurface.guards["identity-segment"]);
+  const identityAccessor = O.map(identitySurface, (surface) => surface.accessor);
   const mentionsTarget = mentionsAnyToken([target.packageName, target.packagePath]);
   const mentionsAccessor: (text: string) => boolean = O.match(identityAccessor, {
     onNone: () => thunkFalse,
@@ -629,6 +627,10 @@ export const dependentsOfAtRoot = Effect.fn("RegistrationGeometry.dependentsOfAt
   const isRemovedShapeTestRow = (relativeFile: string, line: string): boolean =>
     Str.equivalence(relativeFile, IDENTITY_SHAPE_TEST_PATH) &&
     O.exists(identityAccessor, (accessor) => O.exists(shapeTestRowAccessor(line), Str.equivalence(accessor)));
+  // The identity registry declares every accessor and the identity-segment
+  // surface rewrites it; every other file that names the accessor depends on it.
+  const isIdentityRegistry = (relativeFile: string): boolean =>
+    O.exists(identitySurface, (surface) => Str.equivalence(relativeFile, surface.registryFile));
 
   const sourceHits = (
     absoluteFile: string,
@@ -638,11 +640,14 @@ export const dependentsOfAtRoot = Effect.fn("RegistrationGeometry.dependentsOfAt
   ): ReadonlyArray<DependentHit> => {
     if (!isSuffixIn(SOURCE_SUFFIXES)(absoluteFile)) return A.empty<DependentHit>();
     const importHits = importHitsInFile(project, absoluteFile, relativeFile, owner, content, target);
-    const accessorHits = pipe(
-      identityAccessor,
-      O.map((accessor) => accessorHitsInFile(accessor, relativeFile, owner, content)),
-      O.getOrElse(A.empty<DependentHit>)
-    );
+    const accessorHits = isIdentityRegistry(relativeFile)
+      ? A.empty<DependentHit>()
+      : accessorHitsInFile(
+          relativeFile,
+          owner,
+          content,
+          (line) => mentionsAccessor(line) && !isRemovedShapeTestRow(relativeFile, line)
+        );
     return A.appendAll(importHits, accessorHits);
   };
   const textHits = (relativeFile: string, owner: string, content: string): ReadonlyArray<DependentHit> =>
