@@ -16,7 +16,7 @@ The head aliases below identify full commit SHAs, not moving branches.
 | Alias | Exact head | Run and event |
 | --- | --- | --- |
 | M | `74d3625ad0fe1a61cd2f3d003fc13191b7ba4d00` | [Check 39761207774](https://github.com/beep-effect/beep-effect/actions/runs/39761207774), main push after merge of #2027, completed/failure |
-| P | `f0ce92b09f6f26daa224ef184d9d007c34e4f2d2` | [Check 39779040740](https://github.com/beep-effect/beep-effect/actions/runs/39779040740), PR #2039, individual jobs below completed/success |
+| P | `f0ce92b09f6f26daa224ef184d9d007c34e4f2d2` | [Check 39779040740](https://github.com/beep-effect/beep-effect/actions/runs/39779040740), PR #2039, completed/cancelled; its reusable Heavy workflow resolved to B, not P |
 | N | `cf68c1d953bae912450825c5352cf1fc92297ad4` | [Property Laws Nightly 39779966274](https://github.com/beep-effect/beep-effect/actions/runs/39779966274), workflow_dispatch on main, requested by this lane with the existing 1000-run floor, completed/success |
 | S | `ab606411ed2f842f1a06347d527b32d6a646df63` | [Property Laws Nightly 39617181038](https://github.com/beep-effect/beep-effect/actions/runs/39617181038), 2026-10-21 schedule, completed/success |
 | B | `4ab30dac3e7f6e5baaac4f14fc632dcb409aed59` | [Storybook 39776970873](https://github.com/beep-effect/beep-effect/actions/runs/39776970873), main push, completed/success |
@@ -65,12 +65,24 @@ receipt. Settings readbacks have no execution SHA or run ID.
 | E-25, main-ref trust | M / 39761207774; P / 39779040740 | Export logs show trusted push read-write and PR read-only. Forged push-ref rejection was not exercised on GitHub; historical matrix tests do not replace that hosted probe. |
 | E-26, orphan secrets / environments / Vercel | No qualifying recovery run | Not run: needs each secret's verified recovery source and Vercel binding-owner evidence. Names-only inventory cannot restore values or establish an unused binding. Nothing deleted or rotated. |
 | E-27, ruleset hardening | No execution SHA/run; live ruleset check | Read-only agreement check recorded below; historical hardening snapshot remains the recovery source. No ruleset mutation. |
-| E-28, Heavy Admit replacement | P / 39779040740 | Heavy Admission and reusable jobs ran. Not run: needs the controlled pending-label replacement sequence; normal admission does not prove concurrency replacement. |
+| E-28, Heavy Admit replacement | P / 39779040740 | Heavy Admission passed; reusable jobs executed but did not all pass. The overall run completed/cancelled, with Heavy Lint Policy, Test Unit and Coverage Regression red; four unit shards cancelled. The reusable workflow resolved to B. Not run: needs the controlled pending-label replacement sequence; normal admission does not prove concurrency replacement. |
 | E-29, PR workflow trust | P / 39779040740 | Same-repository read-only execution observed. Historical single-operator trust decision is unchanged; no independent-contributor security guarantee is claimed. |
 | E-30, workflow descriptors | No execution SHA/run; live ruleset and workflow-lint checks | Read-only check results below supplement historical inventory proof. No generated declaration edited. |
 | E-31, merge-SHA Heavy | M / 39761207774 | Exact merge SHA and reusable-workflow SHA agree. Five original matrix lanes passed; Lint Policy and Effect Diagnostics failed. Coverage Regression also failed. All-green acceptance remains unmet; failure attribution is below. |
 | E-32, caller secret boundary | M / 39761207774; P / 39779040740 | Actual exporter logs show the guarded writer input on push and blank writer input on PR. Environment-only secret storage remains incomplete until the operator retires the repository token. |
 | E-33, admission comment | No new hosted probe | Historical documentation change. This lane did not manufacture label events to test the comment's explanation. |
+
+PR run P was still active during the initial individual-job observations.
+On the review refresh after first publication, its run-level result was completed/cancelled.
+Heavy / Lint Policy 119826513140, Test Unit 119837897437 and Heavy / Coverage
+Regression 119837931505 failed. Four Test Unit shards, jobs 119825840174,
+119825840229, 119825840290 and 119825840421, were cancelled. Test Unit and Coverage Regression red logs were read directly.
+The Lint Policy log endpoint returned HTTP 404, so its failure attribution is
+unknown beyond the job metadata. These are results of the sampled existing PR lane,
+not failures introduced by this receipt. P's `referenced_workflows` records
+`heavy.yml@main` at B (`4ab30dac3e7f6e5baaac4f14fc632dcb409aed59`), rather than
+P. The successful individual Security, Build and size-label jobs cited here
+do not establish that the overall PR run passed.
 
 ## Writer and cache proof
 
