@@ -74,6 +74,7 @@ import {
   currentYeetBranch,
   lockfileChangedSinceBase,
   refreshBaseRef,
+  runGitOutput,
 } from "./GitExec.ts";
 import { validateCommitMessage, validateMonitorGuards, validateRequiredMessage } from "./Guards.ts";
 import { HEAD_INSTALL_PREFLIGHT_STEP_ID } from "./HeadInstallPreflight.ts";
@@ -657,7 +658,7 @@ const ensureRequestedPullRequest = Effect.fn("Yeet.ensureRequestedPullRequest")(
 });
 
 const reusablePublishMaySkipCommit = (options: YeetRunOptions): boolean =>
-  options.reuseVerified && (options.pushOnly || (options.amend && options.noEdit));
+  options.pushOnly || (options.reuseVerified && options.amend && options.noEdit);
 
 const reusablePublishStagingIsClean = Effect.fn("Yeet.reusablePublishStagingIsClean")(function* (
   context: RepoRunContext,
@@ -671,8 +672,9 @@ const reusablePublishStagingIsClean = Effect.fn("Yeet.reusablePublishStagingIsCl
   if (A.isReadonlyArrayEmpty(stagedPaths)) return true;
   if (!options.pushOnly) return false;
   return yield* failPublishScopeWithPacket(context, {
-    message:
-      "yeet publish --push-only --reuse-verified refuses staged changes. Commit or unstage these files before pushing an already-verified commit.",
+    message: options.reuseVerified
+      ? "yeet publish --push-only --reuse-verified refuses staged changes. Commit or unstage these files before pushing an already-verified commit."
+      : "yeet publish --push-only refuses staged changes. Commit or unstage these files before pushing a base-sync merge.",
     paths: stagedPaths,
     remediation: "Commit the staged files through a normal publish, or unstage them, then retry --push-only.",
     subCategory: "reuse-staged",
@@ -691,7 +693,9 @@ const requireCleanReusablePublishWorktree = Effect.fn("Yeet.requireCleanReusable
   if (A.isReadonlyArrayEmpty(changedPaths)) return;
   return yield* failPublishScopeWithPacket(context, {
     message: options.pushOnly
-      ? "yeet publish --push-only --reuse-verified found uncommitted changes."
+      ? options.reuseVerified
+        ? "yeet publish --push-only --reuse-verified found uncommitted changes."
+        : "yeet publish --push-only found uncommitted changes."
       : "yeet publish --reuse-verified found uncommitted changes but no staged amend intent.",
     paths: changedPaths,
     remediation:
@@ -810,7 +814,11 @@ const preparePublishCommit = Effect.fn("Yeet.preparePublishCommit")(function* (
   Crypto.Crypto | FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   if (skipCommit) {
-    yield* Console.log("[yeet] skipped commit; exact reusable proof state matches the current clean commit");
+    yield* Console.log(
+      options.reuseVerified
+        ? "[yeet] skipped commit; exact reusable proof state matches the current clean commit"
+        : "[yeet] skipped commit; clean base-sync merge will run cheap gates and head-install preflight"
+    );
     return [true, O.none()];
   }
   const publishIntent = yield* collectPublishIntent(plan.context, options.stagedOnly);
@@ -1176,6 +1184,54 @@ const runPushFirstPublishPhases = Effect.fn("Yeet.runPushFirstPublishPhases")(fu
  */
 export const runPushFirstPublishPhasesForTesting = runPushFirstPublishPhases;
 
+/**
+ * Refuse an unverified push unless HEAD is exactly a base merge onto the published tip.
+ *
+ * **Details**
+ * Refreshes the published branch, requires two ordered parents and compares the
+ * tree with Git's merge result. A merge carrying extra edits fails closed.
+ * Conflicted merges whose resolutions cannot be reproduced require verified reuse.
+ *
+ * **Example** (Reference the merge guard)
+ *
+ * ```ts
+ * import { assertMergeOnlyPublish } from "@beep/repo-cli/test/Yeet"
+ * console.log(assertMergeOnlyPublish.name)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const assertMergeOnlyPublish = Effect.fn("Yeet.assertMergeOnlyPublish")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<void, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
+  const refuse = () =>
+    Effect.fail(
+      YeetCommandError.make({
+        message:
+          "yeet publish --push-only requires --reuse-verified unless HEAD is a reproducible merge of the base into the published branch.",
+      })
+    );
+  const parents = Str.split(
+    Str.trim(yield* runGitOutput(context.repoRoot, ["show", "-s", "--format=%P", "HEAD"])),
+    " "
+  );
+  if (parents.length !== 2) return yield* refuse();
+  const first = A.get(parents, 0);
+  const second = A.get(parents, 1);
+  if (O.isNone(first) || O.isNone(second)) return yield* refuse();
+  // FETCH_HEAD avoids trusting a stale tracking ref or updating any other checkout.
+  yield* runGitOutput(context.repoRoot, ["fetch", "--quiet", "--no-tags", "origin", `refs/heads/${context.branch}`]);
+  const published = Str.trim(yield* runGitOutput(context.repoRoot, ["rev-parse", "FETCH_HEAD"]));
+  const baseAncestor = Str.trim(yield* runGitOutput(context.repoRoot, ["merge-base", second.value, context.base]));
+  if (first.value !== published || baseAncestor !== second.value) return yield* refuse();
+  const merged = yield* runGitOutput(context.repoRoot, ["merge-tree", "--write-tree", first.value, second.value]).pipe(
+    Effect.catchTag("YeetCommandError", () => refuse())
+  );
+  const tree = Str.trim(yield* runGitOutput(context.repoRoot, ["rev-parse", "HEAD^{tree}"]));
+  if (Str.trim(merged) !== tree) return yield* refuse();
+});
+
 const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   plan: RepoRunPlan,
   message: O.Option<string>,
@@ -1196,6 +1252,7 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   if (options.reuseVerified) yield* assertReusableVerifiedState(plan.context);
 
   const freshness = yield* enforceBaseFreshness(plan.context, options);
+  if (options.pushOnly && !options.reuseVerified) yield* assertMergeOnlyPublish(plan.context);
   yield* Ref.update(extras, (state) => ({ ...state, baseFreshness: O.some(freshness) }));
   const [skipCommit, stash] = yield* preparePublishCommit(
     plan,
@@ -1213,7 +1270,7 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
     );
   }
   const runPostCommitPhases =
-    options.proveFirst || options.pushOnly
+    options.proveFirst || (options.pushOnly && options.reuseVerified)
       ? runStandardPublishPhases(
           plan,
           options,
@@ -2063,9 +2120,11 @@ const attemptStageFor = (options: YeetRunOptions): ProofStage =>
 const attemptEnvProfileFor = (options: YeetRunOptions): ProofEnvProfile => (options.merged ? "pr-posture" : "local");
 
 // A push-first publish proves only the cheap-gates tier before it pushes, so its
-// attempt facts say so; `--prove-first` and `--push-only` keep the full tier.
+// attempt facts say so; `--prove-first` and verified push-only reuse keep the full tier.
 const attemptProofTierFor = (options: YeetRunOptions): YeetProofTier =>
-  options.mode === "publish" && !options.proveFirst && !options.pushOnly ? "cheap-gates" : options.tier;
+  options.mode === "publish" && !options.proveFirst && !(options.pushOnly && options.reuseVerified)
+    ? "cheap-gates"
+    : options.tier;
 
 /**
  * Test-only stage classifier used by attempt-fact writer coverage.
@@ -2436,6 +2495,7 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
     pr: options.pr,
     proveFirst: options.proveFirst,
     pushOnly: options.pushOnly,
+    reuseVerified: options.reuseVerified,
     remote: options.remote,
     tier: options.tier,
   });
@@ -2475,6 +2535,7 @@ export class BuildYeetRunPlanTestOptions extends S.Opaque<
     pr: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     proveFirst: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     pushOnly: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    reuseVerified: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     remote: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     tier: YeetProofTier.pipe(S.withConstructorDefault(Effect.succeed("full"))),
   }).pipe(
@@ -2510,6 +2571,7 @@ export const buildYeetRunPlanForTesting = (
       pr: normalized.pr,
       proveFirst: normalized.proveFirst,
       pushOnly: normalized.pushOnly,
+      reuseVerified: normalized.reuseVerified,
       remote: normalized.remote,
       tier: normalized.tier,
     })

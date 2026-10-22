@@ -425,6 +425,16 @@ describe("yeet push-first publish plan wiring", () => {
     expect(stepIds(publishPlan({ pr: true }))).not.toContain("full:02-ci-parity");
   });
 
+  it("gates an unverified merge-only push with cheap gates and preflight and records no commit step", () => {
+    const plan = publishPlan({ pr: false, pushOnly: true });
+    expect(stepIds(plan)).toEqual(["full:00-cheap-gates", "publish:00-head-install-preflight", "publish:01-git-push"]);
+    const push = A.findFirst(plan.steps, (step) => step.id === "publish:01-git-push");
+    assertSome(
+      O.map(push, (step) => step.env?.BEEP_YEET_REUSE_PRE_PUSH_PROOF),
+      undefined
+    );
+  });
+
   it("plans --no-pr as a bare push with no pull request or monitor steps", () => {
     expect(stepIds(publishPlan({ pr: false }))).toEqual([
       "advisory:01-fallow-feedback",
