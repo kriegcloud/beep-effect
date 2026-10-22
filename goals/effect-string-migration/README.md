@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — waves 1–5c merged (#1968, #1976, #1983, #1987, #1993, #2008, #2001; 1,261 sites). The effected promotions added about 1,500 sites, so 1,730 remain (census 2026-10-22): waves 4b, 4c and 6a–6f, then wave 7 arms the rule; see the Waves table in `PLAN.md`.
+Waves 1–6f merged (2,991 sites across #1968, #1976, #1983, #1987, #1993, #2008, #2001, #2015, #2026, #2012, #2011, #2013, #2018, #2014, #2010); wave 7 migrates the last site, pins `@effect/tsgo` 0.55.0 and arms `preferEffectString` at error, proven by a zero-site census on main at b7c85da54c. Closeout reflection: `history/reflections/2026-10-22-claude.md`.
 
 ## Latest Evidence
 

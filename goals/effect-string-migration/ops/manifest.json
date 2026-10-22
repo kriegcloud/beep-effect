@@ -6,7 +6,7 @@
     "title": "effect/String migration",
     "status": "active",
     "created": "2026-10-21",
-    "updated": "2026-10-21",
+    "updated": "2026-10-22",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/effect-string-migration",
@@ -51,22 +51,22 @@
     {
       "id": "P1",
       "name": "Implement",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
