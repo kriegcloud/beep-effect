@@ -185,6 +185,18 @@
             "functions": 0
           }
         },
+        "packages/drivers/acp/src/AcpStderr.models.ts": {
+          "lines": 97.05,
+          "statements": 94.28,
+          "branches": 100,
+          "functions": 87.5,
+          "uncovered": {
+            "lines": 1,
+            "statements": 2,
+            "branches": 0,
+            "functions": 2
+          }
+        },
         "packages/drivers/acp/src/AcpV1.models.ts": {
           "lines": 100,
           "statements": 100,
@@ -26786,6 +26798,18 @@
             "functions": 0
           }
         },
+        "packages/tooling/tool/cli/src/commands/Ci/DependencyReview.ts": {
+          "lines": 96.6,
+          "statements": 96.86,
+          "branches": 93.84,
+          "functions": 94.82,
+          "uncovered": {
+            "lines": 7,
+            "statements": 7,
+            "branches": 4,
+            "functions": 6
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Ci/HeavyAdmission.ts": {
           "lines": 100,
           "statements": 100,
@@ -32426,6 +32450,18 @@
             "functions": 6
           }
         },
+        "packages/tooling/tool/cli/src/commands/Skills/SkillsPublication.service.ts": {
+          "lines": 95.94,
+          "statements": 93.78,
+          "branches": 83.69,
+          "functions": 94.87,
+          "uncovered": {
+            "lines": 14,
+            "statements": 24,
+            "branches": 30,
+            "functions": 6
+          }
+        },
         "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.render.ts": {
           "lines": 98.88,
           "statements": 99,
@@ -34956,6 +34992,18 @@
             "statements": 0,
             "branches": 0,
             "functions": 0
+          }
+        },
+        "packages/tooling/tool/cli/src/internal/publication/PublicationLedger.ts": {
+          "lines": 95.28,
+          "statements": 92.5,
+          "branches": 81.81,
+          "functions": 94.73,
+          "uncovered": {
+            "lines": 5,
+            "statements": 9,
+            "branches": 8,
+            "functions": 2
           }
         },
         "packages/tooling/tool/cli/src/internal/quality/SchemaFirstPolicyFinding.ts": {
