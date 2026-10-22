@@ -24,6 +24,7 @@ import * as Logger from "effect/Logger";
 import * as O from "effect/Option";
 import * as References from "effect/References";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeUnknownRedactCauseOptionsOption = S.decodeUnknownOption(RedactCauseOptions);
 const encodeRedactCauseOptionsOption = S.encodeOption(RedactCauseOptions);
@@ -51,7 +52,7 @@ describe("CauseRedaction", () => {
   it("caps length with redactString", () => {
     const out = redactString("token=sk-EXAMPLEKEY00 and a long tail of more text here", 16);
     expect(out.length).toBeLessThanOrEqual(16 + 3);
-    assertTrue(out.endsWith("..."));
+    assertTrue(Str.endsWith("...")(out));
   });
 
   it("redacts an unknown error into a transport-safe summary on the diagnostic channel", () => {
@@ -175,7 +176,7 @@ describe("CauseRedaction", () => {
 
   it("respects a custom message limit via options", () => {
     const safe = redactCause(
-      Cause.fail(new Error("x".repeat(500))),
+      Cause.fail(new Error(Str.repeat(500)("x"))),
       RedactCauseOptions.make({ messageLimit: S.Natural.make(32) })
     );
     expect(safe.message.length).toBeLessThanOrEqual(32 + 3);

@@ -13,6 +13,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ModHost } from "@/PracticeMod.host";
 import { KgAnswerItem } from "@/PracticeMod.values";
 import { VerdictInput, VerdictLog, verdictLogLayer } from "@/PracticeMod.verdicts";
@@ -123,8 +124,8 @@ describe("VerdictLog", () => {
         yield* log.record(verdict("partly", O.some("Right family, wrong docket.")));
         const jsonl = yield* log.exportJsonl;
 
-        expect(jsonl.trim().split("\n").length).toBe(2);
-        expect(jsonl.includes('"verdict":"partly"')).toBe(true);
+        expect(Str.split("\n")(Str.trim(jsonl)).length).toBe(2);
+        expect(Str.includes('"verdict":"partly"')(jsonl)).toBe(true);
       })
     );
   });

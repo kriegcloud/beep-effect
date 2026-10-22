@@ -31,6 +31,7 @@ import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -731,7 +732,10 @@ layer(
       // A live owner (this process) holds the lock: recovery and restore stand back.
       const live = yield* fs.readFileString("/proc/self/stat");
       const boot = Str.trim(yield* fs.readFileString("/proc/sys/kernel/random/boot_id"));
-      const fields = Str.split(Str.trim(live.slice(live.lastIndexOf(")") + 1)), " ");
+      const fields = Str.split(
+        Str.trim(Str.slice(O.getOrElse(Str.lastIndexOf(")")(live), constant(-1)) + 1)(live)),
+        " "
+      );
       const self = ModelsPublicationOwner.make({
         bootId: boot,
         pid: Number.parseInt(live, 10),

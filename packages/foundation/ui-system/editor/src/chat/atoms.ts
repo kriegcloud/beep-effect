@@ -19,6 +19,7 @@ import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as Atom from "effect/reactivity/Atom";
+import * as Str from "effect/String";
 import {
   $createParagraphNode,
   $getRoot,
@@ -938,7 +939,7 @@ export const sendCommandBindingAtom = Atom.family((editor: LexicalEditor) =>
           // Nothing to send when the editor has no text content — Enter (or the
           // Send button) on an empty composer is a no-op. (When attachment
           // transport lands, an attachments-present check joins this guard.)
-          const hasContent = editorState.read(() => $getRoot().getTextContent().trim().length > 0);
+          const hasContent = editorState.read(() => Str.trim($getRoot().getTextContent()).length > 0);
           const handler = get.once(onSendAtom(editor));
           // An unbound handler means the composer's `onSend` was never seeded —
           // or was swept out from under this binding by the registry's idle TTL

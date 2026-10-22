@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $RepoCliId } from "@beep/identity/packages";
 import { A, O, Str } from "@beep/utils";
 import * as Context from "effect/Context";
@@ -480,7 +481,9 @@ export const modelsExchangeHostRefusal: {
 
 // mountinfo octal-escapes space, tab, newline and backslash in mount points.
 const decodeMountPoint = (field: string): string =>
-  field.replace(/\\([0-7]{3})/g, (_match: string, octal: string) => String.fromCharCode(Number.parseInt(octal, 8)));
+  Str.replaceWith(field, /\\([0-7]{3})/g, (_match: string, octal: unknown) =>
+    String.fromCharCode(Number.parseInt(String(octal), 8))
+  );
 
 const containsPath = (point: string, path: string) =>
   point === "/" || path === point || Str.startsWith(`${point}/`)(path);

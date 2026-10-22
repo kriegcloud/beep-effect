@@ -13,7 +13,7 @@ const bare = (body: string): string => Str.replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
 
 /** Every module specifier a source imports, statically or dynamically. */
 const specifiers = (source: string): ReadonlyArray<string> =>
-  A.flatMap(A.fromIterable(source.matchAll(/(?:from|import)\s*\(?\s*"([^"]+)"/g)), (match) =>
+  A.flatMap(A.fromIterable(Str.matchAll(/(?:from|import)\s*\(?\s*"([^"]+)"/g)(source)), (match) =>
     A.fromNullishOr(match[1])
   );
 
