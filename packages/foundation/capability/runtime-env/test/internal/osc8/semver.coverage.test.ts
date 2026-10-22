@@ -7,6 +7,7 @@ import { assert, describe, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 // The detector answers with an Option; these assertions read its value, or null when it is None.
 const parseKonsoleVersion = flow(parseKonsoleVersionOption, O.getOrNull);
@@ -54,7 +55,7 @@ describe("semver edge behaviour", () => {
   it.effect("rejects missing, negative and nonfinite packed values but accepts numeric prefixes", () =>
     Effect.sync(() => {
       for (const parse of [parseVteVersion, parseKonsoleVersion]) {
-        for (const raw of [undefined, "", "unknown", "-1", "9".repeat(400)]) {
+        for (const raw of [undefined, "", "unknown", "-1", Str.repeat(400)("9")]) {
           assert.strictEqual(parse(raw), null);
         }
         assert.strictEqual(parse("0005202tail"), "0.52.2");

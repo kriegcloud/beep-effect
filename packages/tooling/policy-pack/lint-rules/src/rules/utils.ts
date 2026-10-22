@@ -12,6 +12,7 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { ESTree } from "@oxlint/plugins";
 
 /**
@@ -400,7 +401,7 @@ export const classifyImportSpecifier = (
   });
 
 // Normalize OS path separators to forward slashes so comparisons are platform-stable.
-const normalizePath = (path: string): string => path.replaceAll("\\", "/");
+const normalizePath = (path: string): string => Str.replaceAll("\\", "/")(path);
 
 /**
  * Convert an absolute `filename` to a repo-relative path by stripping the `${cwd}/` prefix.
@@ -428,9 +429,9 @@ export const toRepoPath: {
   (filename: string, cwd: string): string;
 } = dual(2, (filename: string, cwd: string): string => {
   const normalizedFilename = normalizePath(filename);
-  const normalizedCwd = normalizePath(cwd).replace(/\/+$/u, "");
+  const normalizedCwd = Str.replace(/\/+$/u, "")(normalizePath(cwd));
   const prefix = `${normalizedCwd}/`;
-  return normalizedFilename.startsWith(prefix) ? normalizedFilename.slice(prefix.length) : normalizedFilename;
+  return Str.startsWith(prefix)(normalizedFilename) ? Str.slice(prefix.length)(normalizedFilename) : normalizedFilename;
 });
 
 /**
@@ -456,4 +457,4 @@ export const toRepoPath: {
 export const pathMatchesSuffix: {
   (suffix: string): (path: string) => boolean;
   (path: string, suffix: string): boolean;
-} = dual(2, (path: string, suffix: string): boolean => path === suffix || path.endsWith(`/${suffix}`));
+} = dual(2, (path: string, suffix: string): boolean => path === suffix || Str.endsWith(`/${suffix}`)(path));

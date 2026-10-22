@@ -40,7 +40,7 @@ export const sourceOf = (file: string): string =>
 const readsMatching =
   (dotted: RegExp) =>
   (source: string): ReadonlyArray<string> =>
-    A.flatMap(A.fromIterable(source.matchAll(dotted)), (match) => A.fromNullishOr(match[1] ?? match[2]));
+    A.flatMap(A.fromIterable(Str.matchAll(dotted)(source)), (match) => A.fromNullishOr(match[1] ?? match[2]));
 
 /**
  * Every environment key a source reads as `env.KEY` (an upper-case key) or `env["KEY"]`, in source order, with

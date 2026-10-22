@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $LangExtractId } from "@beep/identity";
 import * as A from "@beep/utils/Array";
 import * as O from "@beep/utils/Option";
@@ -174,7 +175,7 @@ const appendNormalizedPoint = (scan: NormalizationScan, [point, whitespace]: Emi
 };
 
 const emitCluster = (source: string, scan: NormalizationScan): void => {
-  const [, emitted] = formOf(scan, source.slice(scan.clusterStart, scan.clusterEnd));
+  const [, emitted] = formOf(scan, Str.slice(scan.clusterStart, scan.clusterEnd)(source));
   for (const point of emitted) {
     appendNormalizedPoint(scan, point);
   }
@@ -182,7 +183,7 @@ const emitCluster = (source: string, scan: NormalizationScan): void => {
 
 const scanPoint = (source: string, scan: NormalizationScan, point: string): void => {
   const pointEnd = scan.clusterEnd + point.length;
-  const rawCluster = source.slice(scan.clusterStart, scan.clusterEnd);
+  const rawCluster = Str.slice(scan.clusterStart, scan.clusterEnd)(source);
   // Combining marks always join, so the join verdict (which normalizes the whole
   // open cluster) runs only for other code points. Its memo key is the cluster
   // followed by exactly one code point, which fixes both inputs of the verdict.

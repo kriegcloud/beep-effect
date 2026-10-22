@@ -9,6 +9,7 @@ import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 const HEADER = [
   'import * as S from "effect/Schema"',
@@ -21,7 +22,7 @@ const scan = (lines: ReadonlyArray<string>) => scanSchemaTagIdioms("fixture.ts",
 const rulesOf = (lines: ReadonlyArray<string>) =>
   A.map(scan(lines), (finding) => [finding.rule, finding.suggestion] as const);
 
-const fence = "`".repeat(3);
+const fence = Str.repeat(3)("`");
 
 describe("schema tag idiom law", () => {
   describe("struct-tag rule", () => {
@@ -483,7 +484,7 @@ describe("schema tag idiom law", () => {
 
     it.effect("parses .tsx sources and truncates long matches", () =>
       Effect.sync(() => {
-        const long = "x".repeat(130);
+        const long = Str.repeat(130)("x");
         const findings = scanSchemaTagIdioms(
           "View.tsx",
           [

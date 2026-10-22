@@ -4979,15 +4979,15 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/research-command.test.ts:134:provideTestLayer@4#1",
+      "id": "EV002:packages/tooling/tool/cli/test/research-command.test.ts:135:provideTestLayer@4#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/research-command.test.ts",
-      "line": 134,
-      "endLine": 134,
+      "line": 135,
+      "endLine": 135,
       "symbol": "provideTestLayer",
-      "occurrence": "v2:1d0131760c96a46a71b8a65177a40ca4109b547c1f1a7e13714665ad9ebaca61",
+      "occurrence": "v2:766227bde6a28c7cc97c3393810cf94d52958a466dab08f676f3452a7123dd03",
       "class": "unresolved-layer-provide",
       "evidence": "provideTestLayer",
       "replacement": {
@@ -11712,15 +11712,15 @@
       "status": "open"
     },
     {
-      "id": "EV003:packages/tooling/tool/cli/test/yeet-watch-mode.test.ts:586:inTempRepo@6#1",
+      "id": "EV003:packages/tooling/tool/cli/test/yeet-watch-mode.test.ts:587:inTempRepo@6#1",
       "lens": "detector",
       "ruleId": "EV003",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/yeet-watch-mode.test.ts",
-      "line": 586,
-      "endLine": 610,
+      "line": 587,
+      "endLine": 614,
       "symbol": "inTempRepo",
-      "occurrence": "v2:70dc761325dd2a5c4f8edc35bcce83f0d273f9894d0ddb6c4e919d9d6255306f",
+      "occurrence": "v2:11eb8777ba8891d6b68516f1bf10218ace858f10990ae54a8d51a5943cd2ca18",
       "class": "resource-wrapper",
       "evidence": "inTempRepo((root) => Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; const subjectContext = contextFor(root); const closeoutPath = yield* runArtifactPathForContext(subjectContext, \"",
       "replacement": {

@@ -19,6 +19,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { IsDnsLabel, LabLabelOf } from "@beep/public-site";
 
 const isDecodedLabLabel = S.is(S.toType(LabLabel));
@@ -214,12 +215,12 @@ describe("labRoute", () => {
       "a.b",
       "api-docs.labs.beep.localhost:1355",
       ".labs.beep.localhost",
-      "a".repeat(64),
+      Str.repeat(64)("a"),
     ];
     for (const name of rejected) {
       assertNone(S.decodeOption(LabPortlessName)(name));
     }
-    expect(decodes(O.getOrThrow(S.decodeOption(LabPortlessName)("a".repeat(63))))).toBe(true);
+    expect(decodes(O.getOrThrow(S.decodeOption(LabPortlessName)(Str.repeat(63)("a"))))).toBe(true);
   });
 
   it("routes a label decoded by schema", () => {

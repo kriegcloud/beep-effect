@@ -8,6 +8,8 @@
  * send/edit/stream behavior is covered by the in-memory chat-contract test and,
  * end-to-end, requires the sidecar.
  */
+
+import { vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { ChatClient, runTurnAtom, SendTurnRequest, turnErrorAtom } from "@beep/agents-client/Chat.atoms";
 import {
@@ -39,7 +41,7 @@ import * as O from "effect/Option";
 import * as Reactivity from "effect/reactivity/Reactivity";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
-import { vi } from "vitest";
+import * as Str from "effect/String";
 import { userDocument } from "@/chat/ChatFixtures";
 import { ChatApp } from "@/chat/ui/ChatApp";
 import { ChatTurnErrorToasts } from "@/chat/ui/ChatTurnErrorToasts";
@@ -165,7 +167,7 @@ describe("StreamingBlocks", { concurrent: false }, () => {
   });
 
   it("bounds the key derived from megabyte-scale untrusted content (CSF-004)", () => {
-    const huge = "x".repeat(2_000_000);
+    const huge = Str.repeat(2_000_000)("x");
     // boundedKey hashes only a capped prefix + appends length, so the key never
     // grows with content size and the full body is never hashed each render.
     expect(boundedKey(huge).length).toBeLessThan(64);
@@ -181,7 +183,7 @@ describe("StreamingBlocks", { concurrent: false }, () => {
     // prefix — but the string it was handed had already been built in full, because
     // the inline key concatenated every text node's whole body first. The guard
     // against a megabyte paragraph allocated the megabyte in order to bound it.
-    const huge = "x".repeat(2_000_000);
+    const huge = Str.repeat(2_000_000)("x");
 
     const paragraphKey = blockRenderKey(
       ParagraphBlock.make({
@@ -197,7 +199,7 @@ describe("StreamingBlocks", { concurrent: false }, () => {
   it("keeps two huge paragraphs distinct when they share an opening", () => {
     // A truncated sample alone would collide. The count and the true length -- both
     // computed without concatenating anything -- are what keep them apart.
-    const shared = "z".repeat(1_000);
+    const shared = Str.repeat(1_000)("z");
     const first = blockRenderKey(
       ParagraphBlock.make({ type: "paragraph", children: [TextInline.make({ type: "text", text: shared })] })
     );
@@ -220,7 +222,7 @@ describe("StreamingBlocks", { concurrent: false }, () => {
   });
 
   it("keeps distinct large contents distinct via the appended length (no prefix collision)", () => {
-    const shared = "y".repeat(5000);
+    const shared = Str.repeat(5000)("y");
     expect(boundedKey(shared)).not.toBe(boundedKey(`${shared}-tail`));
   });
 });

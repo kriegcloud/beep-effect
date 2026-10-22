@@ -17,6 +17,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -140,7 +141,7 @@ describe("research card output", () => {
         yield* persistCards(vaultRoot, yield* catalogDbPath(vaultRoot), "manual", [card]);
 
         const content = yield* fs.readFileString(path.join(vaultRoot, card.relativePath));
-        const frontmatter = content.match(/^---\n([\s\S]*?)\n---\n/);
+        const frontmatter = O.getOrNull(Str.match(/^---\n([\s\S]*?)\n---\n/)(content));
         expect(frontmatter).not.toBeNull();
         const parsed = yield* decodeFrontmatter(frontmatter?.[1] ?? "");
         expect(parsed).toMatchObject({

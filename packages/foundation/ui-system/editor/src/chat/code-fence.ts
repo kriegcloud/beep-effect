@@ -16,6 +16,8 @@
 
 import { $createCodeNode, $isCodeNode } from "@lexical/code";
 import { $findMatchingParent } from "@lexical/utils";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { $getSelection, $isParagraphNode, $isRangeSelection, $isTextNode } from "lexical";
 
 /**
@@ -106,12 +108,12 @@ export const $openCodeFence = (): boolean => {
     return false;
   }
 
-  const match = paragraph.getTextContent().match(CODE_FENCE_OPENER);
-  if (match === null) return false;
+  const match = Str.match(CODE_FENCE_OPENER)(paragraph.getTextContent());
+  if (O.isNone(match)) return false;
 
   // `replace` leaves the children behind, which is what we want: the backticks were
   // the gesture, not content.
-  const code = $createCodeNode(match[1]);
+  const code = $createCodeNode(match.value[1]);
   paragraph.replace(code);
   code.select();
   return true;

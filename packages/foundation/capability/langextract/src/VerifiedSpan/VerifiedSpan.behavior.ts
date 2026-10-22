@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { MAX_EXTRACTION_CANDIDATES } from "@beep/langextract/Extraction";
 import { SourceTextIdentity } from "@beep/provenance/SourceTextIdentity";
 import { isUtf16Boundary, TextAnchor } from "@beep/provenance/TextAnchor";
@@ -67,10 +68,10 @@ const reconstructionInitial = (): ReconstructionState => [S.Natural.make(0), Chu
 // call (a getter call under Vite's module runner), which dominated hosted CI.
 
 const nextMatchedLength = (
-  locatorCodes: ReadonlyArray<number>,
+  locatorCodes: string,
   prefixTable: ReadonlyArray<number>,
   matchedLength: number,
-  codeUnit: number
+  codeUnit: string | undefined
 ): number => {
   // KMP fallback walks the prefix chain iteratively, so a scanned code unit
   // allocates nothing and uses constant stack. The chain can be as long as the
@@ -85,17 +86,14 @@ const nextMatchedLength = (
   return locatorCodes[length] === codeUnit ? length + 1 : 0;
 };
 
-const codeUnits = (text: string): ReadonlyArray<number> =>
-  A.makeBy(Str.length(text), (index) => text.charCodeAt(index));
-
-const prefixTable = (locatorCodes: ReadonlyArray<number>): ReadonlyArray<number> => {
+const prefixTable = (locatorCodes: string): ReadonlyArray<number> => {
   // The single KMP-table allocation; it is immutable once construction returns.
   const table = A.make(0);
   pipe(
     I.range(1),
-    I.take(A.length(locatorCodes) - 1),
+    I.take(Str.length(locatorCodes) - 1),
     I.reduce(0, (matchedLength, index) => {
-      const nextLength = nextMatchedLength(locatorCodes, table, matchedLength, A.getUnsafe(locatorCodes, index));
+      const nextLength = nextMatchedLength(locatorCodes, table, matchedLength, locatorCodes[index]);
       A.appendInPlace(table, nextLength);
       return nextLength;
     })
@@ -120,8 +118,8 @@ const firstAcceptedMatches = <A>(
   admits: (start: number) => boolean,
   anchor: (start: number) => O.Option<A>
 ): ReadonlyArray<A> => {
-  const locatorCodes = codeUnits(locator);
-  const locatorLength = A.length(locatorCodes);
+  const locatorCodes = locator;
+  const locatorLength = Str.length(locatorCodes);
   const table = prefixTable(locatorCodes);
   const retainedLength = pipe(
     A.get(table, locatorLength - 1),
@@ -131,7 +129,7 @@ const firstAcceptedMatches = <A>(
   const textLength = Str.length(text);
   let matchedLength = 0;
   for (let index = 0; index < textLength && accepted.length < MATCH_LIMIT; index++) {
-    matchedLength = nextMatchedLength(locatorCodes, table, matchedLength, text.charCodeAt(index));
+    matchedLength = nextMatchedLength(locatorCodes, table, matchedLength, text[index]);
     if (matchedLength === locatorLength) {
       matchedLength = retainedLength;
       const start = index - locatorLength + 1;
