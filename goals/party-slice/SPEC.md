@@ -92,10 +92,15 @@ Higher sources outrank lower sources when they conflict.
   law-practice contact port is implemented in law-practice.
 - [ ] Law-practice's `Party` aggregate is renamed `LegalPartyReference` (no table, so no migration). No
   second aggregate named `Party` exists outside `@beep/party-domain`.
-- [ ] All three boundary checks in the Verification Matrix return no matches. Only
-  `@beep/law-practice-server` imports a `@beep/party-*` package.
-- [ ] Parties carry an integer `PartyId` plus deterministic `PartyKey`s. Tests cover
-  `SameParty` redirecting keys to the surviving id, and `DistinctParty` keeping them apart.
+- [ ] All four boundary checks in the Verification Matrix return no matches. `@beep/law-practice-server` is the
+  only law-practice package that imports from party, and it imports `@beep/party-use-cases` and nothing else.
+  The contact-source port's input and output types reach it through the use-cases public surface.
+- [ ] Parties carry an integer `PartyId` plus deterministic `PartyKey`s, and resolution follows the identity
+  rules in the Decision Log. Tests cover:
+  - the surviving-id choice, and replay producing the same view;
+  - an absorbed `PartyId` and its `LegalPartyReference` resolving to the survivor;
+  - `DistinctParty` vetoing a merge;
+  - a retracted `SameParty` restoring the split.
 - [ ] `bun run beep quality package-verify` passes for the three party packages.
 - [ ] No unrelated refactors or formatting churn.
 
@@ -109,6 +114,7 @@ Higher sources outrank lower sources when they conflict.
 | Party packages | `bun run beep quality package-verify @beep/party-domain` (and use-cases, server) | Passes |
 | Hosted-only gates | `beep lint schema-catalog`, root `lint:oxlint`, `beep docgen check`, the JSDoc ratchet over a regenerated inventory, `audit:github repo-sanity` | Pass locally before publish |
 | Boundary: law-practice | `rg -n '@beep/law-practice' packages/party` | No matches |
+| Boundary: law-practice server | `rg -n '@beep/party-' packages/law-practice/server \| rg -v '@beep/party-use-cases'` | No matches |
 | Boundary: law-practice tiers | `rg -n '@beep/party-' packages/law-practice/domain packages/law-practice/use-cases packages/law-practice/tables` | No matches |
 | Boundary: epistemic product | `rg -n '@beep/epistemic-' packages/party` (does not match `@beep/epistemics`) | No matches |
 
@@ -130,6 +136,7 @@ them and record each in the Decision Log.
 | 2026-10-22 | `PartyId` moves to a neutral `identity/Party` kit in a separate prerequisite PR, with no re-export | keeps the slice PR reviewable and lands the shared-kernel change alone; nothing persists the old derived names | restore it to `identity/LawPractice` |
 | 2026-10-22 | Party claims persist in a party-owned bitemporal ledger bound from `makeClaimEnvelope` | avoids depending on epistemic product code; any cross-slice projection is a later workflow | write party claims as epistemic edge versions |
 | 2026-10-22 | `PartyId` stays the integer surrogate from the neutral kit (#2025). Party identity evidence uses a separate deterministic `PartyKey` (`pk:` + SHA-256 of the evidence basis) in `@beep/party-domain`, mapped to a `PartyId` by `KeyAssignment` claims. `SameParty` redirects the absorbed party's keys to the surviving id; the memory ledger allocates ids from a counter. Operator ruling 2026-10-22 | every product entity uses the integer surrogate and `LegalPartyReference` keys by it. A stable surrogate survives merges and splits, while keys stay deterministic for ingestion; minting the id from evidence would force a winner-take-all rewrite on every merge | make the kit carry the deterministic string as the id |
+| 2026-10-22 | Identity rules. `KeyAssignment` maps a `PartyKey` to a `PartyId`; `SameParty` and `DistinctParty` relate `PartyId`s. Resolution is a read-time view over the accepted claim versions at a bitemporal scope, and no claim or reference is rewritten. In each merged component the smallest `PartyId` (earliest allocated) survives. Merges apply in `ClaimVersion` order (knowledge `recordedAt`, then id), so a replay gives the same view, and a `DistinctParty` between two components vetoes their merge. An absorbed `PartyId`, any `LegalPartyReference` keyed by it, and the absorbed party's keys all resolve to the survivor through the view. Retracting or superseding a `SameParty` recomputes the view, so the absorbed id and its keys resolve to themselves again | keeps resolution replayable and reversible (the scratchpad's `resolveParties` picked the smallest id and merged in claim order), keeps law-practice references stable without rewrites, and lets a mistaken merge be undone by a retraction | persist merges as rewrites of `KeyAssignment` and reference rows |
 | 2026-10-22 | Law-practice's `Party` aggregate is renamed `LegalPartyReference` in this goal | party owns party identity and `SameParty` resolution. The law-practice record is already a role-player reference that never resolves identity (its own Gotchas), so two aggregates named `Party` over one `PartyId` would leave ownership unclear. Applies the 2026-10-21 decision ("other slices refer to parties by id and attach their own role vocabularies") | keep the name and add an ownership note instead |
 | 2026-10-22 | Generic adapters live in party server; law-practice sources feed party through a use-case port | party never learns law-practice vocabulary, and ingestion stays domain-agnostic | move the adapters back into law-practice |
 
