@@ -28,7 +28,6 @@ import {
   contradictionEvidenceDigest,
   contradictionProposalDigest,
 } from "@beep/epistemic-domain/values/Contradiction";
-import { Confidence, EvidenceSpan } from "@beep/epistemic-domain/values/EvidenceSpan";
 import { LogicalEdgeIdentity, logicalEdgeKey } from "@beep/epistemic-domain/values/LogicalEdgeIdentity";
 import { DbSchema } from "@beep/epistemic-tables";
 import { fromEdgeVersionRow } from "@beep/epistemic-tables/entities/EdgeVersion";
@@ -43,6 +42,7 @@ import {
   RecordEdgeFact,
   SubmitContradictionCandidate,
 } from "@beep/epistemic-use-cases/server";
+import { Confidence, EvidenceSpan } from "@beep/epistemics/EvidenceSpan";
 import { resolvePathWithinCanonicalRoot } from "@beep/file-processing/PathSafety";
 import {
   SOURCE_TEXT_PAGE_CODE_UNITS,

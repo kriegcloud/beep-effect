@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { EvidenceVerification, hasValidManifestationKey } from "@beep/epistemic-domain/entities/EvidenceVerification";
-import { EvidenceSpan } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan";
 import * as DateTime from "effect/DateTime";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";

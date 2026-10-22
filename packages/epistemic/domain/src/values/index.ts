@@ -6,44 +6,12 @@
  */
 
 /**
- * Claim disposition status value exports.
- *
- * **Example** (Log rejected disposition status)
- *
- * ```ts
- * import { ClaimDispositionStatus } from "@beep/epistemic-domain/values"
- *
- * console.log(ClaimDispositionStatus.Enum.rejected)
- * ```
- *
- * @category value-objects
- * @since 0.0.0
- */
-export * from "./ClaimDispositionStatus/index.ts";
-/**
  * Exact claim evidence and human-review explanation models.
  *
  * @category value-objects
  * @since 0.0.0
  */
 export * from "./ClaimEvidenceReview/index.ts";
-/**
- * Claim gate verdict value exports.
- *
- * **Example** (Decode gate severity value)
- *
- * ```ts
- * import { ClaimGateSeverity } from "@beep/epistemic-domain/values"
- * import * as S from "effect/Schema"
- *
- * const severity = S.decodeUnknownSync(ClaimGateSeverity)("violation")
- * console.log(severity)
- * ```
- *
- * @category value-objects
- * @since 0.0.0
- */
-export * from "./ClaimGate/index.ts";
 /**
  * Claim lifecycle value exports.
  *
@@ -113,21 +81,6 @@ export * from "./ContradictionDetection/index.ts";
  */
 export * from "./EdgeEndpoint/index.ts";
 /**
- * Edge relation vocabulary exports.
- *
- * **Example** (Log supports edge relation)
- *
- * ```ts
- * import { EdgeRelation } from "@beep/epistemic-domain/values"
- *
- * console.log(EdgeRelation.Enum.supports)
- * ```
- *
- * @category value-objects
- * @since 0.0.0
- */
-export * from "./EdgeRelation/index.ts";
-/**
  * Epistemic fixture-key value exports.
  *
  * **Example** (Create epistemic fixture key)
@@ -142,23 +95,6 @@ export * from "./EdgeRelation/index.ts";
  * @since 0.0.0
  */
 export * from "./EpistemicFixtureKey/index.ts";
-/**
- * Evidence span value exports.
- *
- * **Example** (Decode confidence value)
- *
- * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values"
- * import * as S from "effect/Schema"
- *
- * const confidence = S.decodeUnknownSync(Confidence)(0.88)
- * console.log(confidence)
- * ```
- *
- * @category value-objects
- * @since 0.0.0
- */
-export * from "./EvidenceSpan/index.ts";
 /**
  * Evidence-verification manifestation value exports.
  *

@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
 import * as PrimaryKey from "effect/PrimaryKey";
@@ -422,7 +422,7 @@ class GroundingEnabled extends S.Opaque<GroundingEnabled, { readonly brand: uniq
  * **Example** (Configure grounding)
  * ```ts
  * import * as S from "effect/Schema"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { GroundingPolicy } from "@effect-ontology/Model/ExtractionRun"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))

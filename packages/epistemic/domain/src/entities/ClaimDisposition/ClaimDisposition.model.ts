@@ -4,7 +4,8 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { ClaimDispositionStatus, ClaimGateViolation } from "@beep/epistemic-domain/values";
+import { ClaimDispositionStatus } from "@beep/epistemics/ClaimDispositionStatus";
+import { ClaimGateViolation } from "@beep/epistemics/ClaimGate";
 import { $EpistemicDomainId } from "@beep/identity/packages";
 import { Principal } from "@beep/shared-domain/entity/Principal";
 import * as ProductEntity from "@beep/shared-domain/entity/ProductEntity";

@@ -12,6 +12,9 @@
       "path": "../../ecosystem/effect-drizzle/tsconfig.json"
     },
     {
+      "path": "../../foundation/modeling/epistemics/tsconfig.json"
+    },
+    {
       "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {
