@@ -10,15 +10,18 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const isIssueReferences = S.is(S.Array(IssueReference));
 
 // Pure classes get pure tests, with no layer at all.
 
-const capitalized = (word: string): string => word.charAt(0).toUpperCase() + word.slice(1);
+const capitalized = (word: string): string =>
+  Str.toUpperCase(O.getOrElse(Str.charAt(0)(word), constant(""))) + Str.slice(1)(word);
 
 describe("IssueReferences.harvestIssueReferences", () => {
   it("exports exactly the nine documented keywords", () => {
@@ -30,7 +33,7 @@ describe("IssueReferences.harvestIssueReferences", () => {
 
   it("finds every documented keyword, whatever the case, lowercased to canonical form", () => {
     for (const keyword of CLOSING_KEYWORDS) {
-      for (const spelled of [keyword, keyword.toUpperCase(), capitalized(keyword)]) {
+      for (const spelled of [keyword, Str.toUpperCase(keyword), capitalized(keyword)]) {
         const found = harvestIssueReferences(`This ${spelled} #12 today`);
         assert.lengthOf(found, 1, spelled);
         assert.strictEqual(found[0]?.keyword, keyword, spelled);
@@ -43,8 +46,8 @@ describe("IssueReferences.harvestIssueReferences", () => {
     const text = "chore: Fixes #12 and closes #345 done";
     const found = harvestIssueReferences(text);
     assert.lengthOf(found, 2);
-    assert.strictEqual(text.slice(found[0]?.start, found[0]?.end), "Fixes #12");
-    assert.strictEqual(text.slice(found[1]?.start, found[1]?.end), "closes #345");
+    assert.strictEqual(Str.slice(found[0]?.start, found[0]?.end)(text), "Fixes #12");
+    assert.strictEqual(Str.slice(found[1]?.start, found[1]?.end)(text), "closes #345");
   });
 
   it("keeps duplicates, in document order — dedup is the caller's business", () => {
@@ -176,7 +179,7 @@ describe("IssueReferences.review regressions", () => {
 
   it("continues after malformed and unsafe candidates without rounding or losing offsets", () => {
     const text = "fixes #oops closes #9007199254740993 resolves #4";
-    const start = text.indexOf("resolves #4");
+    const start = O.getOrElse(Str.indexOf("resolves #4")(text), constant(-1));
     assert.deepStrictEqual(harvestIssueReferences(text), [
       IssueReference.make({ issueNumber: 4, keyword: "resolves", start, end: text.length }),
     ]);
@@ -191,8 +194,8 @@ describe("IssueReferences.review regressions", () => {
       BareLineReference.make({ issueNumber: 12, keyword: "closes" }),
       BareLineReference.make({ issueNumber: 13, keyword: "fixed" }),
     ]);
-    const fixedStart = text.indexOf("FiXeD");
-    const resolvesStart = text.indexOf("ReSoLvEs");
+    const fixedStart = O.getOrElse(Str.indexOf("FiXeD")(text), constant(-1));
+    const resolvesStart = O.getOrElse(Str.indexOf("ReSoLvEs")(text), constant(-1));
     assert.deepStrictEqual(harvestIssueReferences(text), [
       IssueReference.make({
         issueNumber: 13,
@@ -217,7 +220,7 @@ describe("IssueReferences.parseBareLineReference", () => {
         `${keyword} #7`,
         `${keyword}: #7`,
         `${capitalized(keyword)}: #7`,
-        `${keyword.toUpperCase()} #7`,
+        `${Str.toUpperCase(keyword)} #7`,
       ]) {
         const parsed = parseBareLineReference(line);
         assert.doesNotThrow(() => assertSome(parsed, O.getOrThrow(parsed)), line);

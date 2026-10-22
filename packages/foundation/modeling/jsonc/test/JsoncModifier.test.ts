@@ -14,6 +14,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const apply = (text: string, edits: ReadonlyArray<JsoncEdit>): string => JsoncEdit.applyAll(text, edits);
 
@@ -384,10 +385,10 @@ describe("JsoncModifier", () => {
   describe("hostile input (hardening)", () => {
     it.effect("replaces a value past a deeply nested sibling without a stack-overflow defect", () =>
       Effect.gen(function* () {
-        const deep = `${"[".repeat(20000)}1${"]".repeat(20000)}`;
+        const deep = `${Str.repeat(20000)("[")}1${Str.repeat(20000)("]")}`;
         const text = `{ "d": ${deep}, "a": 1 }`;
         const edits = yield* JsoncModifier.modify(text, ["a"], 2);
-        assert.isTrue(apply(text, edits).endsWith('"a": 2 }'));
+        assert.isTrue(Str.endsWith('"a": 2 }')(apply(text, edits)));
       })
     );
 

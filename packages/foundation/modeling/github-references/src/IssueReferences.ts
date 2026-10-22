@@ -237,7 +237,9 @@ const BARE_LINE_PATTERN = new RegExp(`^(${KEYWORDS}):?[ \\t]+#(\\d+)$`, "i");
  */
 export const harvestIssueReferences = (text: string): ReadonlyArray<IssueReference> => {
   const references: Array<IssueReference> = [];
-  for (const match of text.matchAll(INLINE_PATTERN)) {
+  const pattern = new RegExp(INLINE_PATTERN);
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text)) !== null) {
     // Both captures are mandatory in INLINE_PATTERN.
     const issueNumber = Number(A.getUnsafe(match, 2));
     if (!Number.isSafeInteger(issueNumber)) continue;

@@ -3,6 +3,7 @@ import { NodeRef } from "@beep/schema-org/NodeRef";
 import { Person } from "@beep/schema-org/Person";
 import { SoftwareSourceCode } from "@beep/schema-org/SoftwareSourceCode";
 import { TechArticle } from "@beep/schema-org/TechArticle";
+import { replaceWith } from "@beep/utils/Str";
 import { assert, describe, it } from "@effect/vitest";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -172,7 +173,7 @@ describe("script embedding", () => {
 describe("script embedding — idempotence, which a consumer now depends on", () => {
   /** A consumer-side escaper: the same three characters, applied independently. */
   const consumerEscape = (text: string): string =>
-    text.replace(/[<>&]/g, (char) => ({ "<": "\\u003c", ">": "\\u003e", "&": "\\u0026" })[char] ?? char);
+    replaceWith(/[<>&]/g, (char) => ({ "<": "\\u003c", ">": "\\u003e", "&": "\\u0026" })[char] ?? char)(text);
 
   it("a second escaping pass over the body is a no-op", () => {
     const body = hostileGraph().toScriptBody();

@@ -1,6 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
+import * as Str from "effect/String";
 import { reachableFrom } from "./sources.ts";
 
 const SRC = "schema-org/src";
@@ -54,7 +55,7 @@ describe("entrypoint boundary", () => {
 
     for (const module of ["JsonLdDocument.ts", "NodeRef.ts", "TechArticle.ts", "SoftwareSourceCode.ts", "Thing.ts"]) {
       assert.isTrue(
-        A.some(A.fromIterable(reachable), (file) => file.endsWith(`/${module}`)),
+        A.some(A.fromIterable(reachable), (file) => Str.endsWith(`/${module}`)(file)),
         `${module} must be reachable from the default entrypoint`
       );
     }

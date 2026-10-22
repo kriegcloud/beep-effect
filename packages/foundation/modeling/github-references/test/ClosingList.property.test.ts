@@ -30,6 +30,7 @@ const roundTrips = <T, E>(
 import * as G from "@beep/github-references/ClosingList";
 import { ClosingKeyword } from "@beep/github-references/IssueReferences";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const referenceArbitrary = Arbitrary.all({
   keyword: Arbitrary.schema(G.ReferenceList.fields.keyword),
@@ -66,8 +67,8 @@ const stringifyHarvest = (values: ReadonlyArray<G.HarvestedReferenceList>): stri
       A.map(value.issueNumbers, (issue) => "#" + issue),
       ","
     );
-    text += " ".repeat(value.start - text.length);
-    text += value.keyword + " ".repeat(value.end - value.start - value.keyword.length - items.length) + items;
+    text += Str.repeat(value.start - text.length)(" ");
+    text += value.keyword + Str.repeat(value.end - value.start - value.keyword.length - items.length)(" ") + items;
   }
   return text;
 };
@@ -83,7 +84,7 @@ const singleProperty = <T>(
       Effect.sync(() => {
         const line =
           " " +
-          sample.keyword.toUpperCase() +
+          Str.toUpperCase(sample.keyword) +
           (sample.colon ? ":" : "") +
           "\t" +
           A.join(
@@ -115,7 +116,7 @@ const arrayProperty = <T>(
           A.map(sample.issues, (issue) => "#00" + issue),
           sample.separator
         );
-        const line = sample.keyword.toUpperCase() + (sample.colon ? ":" : "") + "\t" + items;
+        const line = Str.toUpperCase(sample.keyword) + (sample.colon ? ":" : "") + "\t" + items;
         for (const text of [
           line,
           "ignored\n" + line + "\r\n" + line,
@@ -163,7 +164,7 @@ describe("ClosingList property floor", () => {
       Effect.sync(() => {
         const issues = A.appendAll(sample.issues, sample.issues);
         const line =
-          sample.keyword.toUpperCase() +
+          Str.toUpperCase(sample.keyword) +
           " " +
           A.join(
             A.map(issues, (issue) => "#" + issue),
@@ -184,7 +185,7 @@ describe("ClosingList property floor", () => {
         const prose = "prefix " + line + " suffix";
         for (const hit of G.harvestReferenceLists(prose)) {
           assert.deepStrictEqual(
-            G.parseReferenceList(prose.slice(hit.start, hit.end)),
+            G.parseReferenceList(Str.slice(hit.start, hit.end)(prose)),
             O.some({ keyword: hit.keyword, closing: hit.closing, issueNumbers: hit.issueNumbers })
           );
         }
