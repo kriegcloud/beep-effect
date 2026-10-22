@@ -14,6 +14,7 @@ const decodeGlobString = S.decodeUnknownEffect(GlobString);
 const isGlobString = S.is(GlobString);
 const GlobStringPayload = S.Struct({ glob: GlobString });
 const decodeGlobStringPayload = S.decodeUnknownEffect(GlobStringPayload);
+const decodeGlobStringArray = S.decodeUnknownEffect(S.Array(GlobString));
 
 const failureMessage = Effect.fnUntraced(function* (input: unknown) {
   const exit = yield* Effect.exit(decodeGlobString(input));
@@ -99,11 +100,10 @@ describe("GlobString", () => {
 
   it.effect("decodes every element of an array field", () =>
     Effect.gen(function* () {
-      const decodeArray = S.decodeUnknownEffect(S.Array(GlobString));
       const patterns = ["packages/a/dist/**", "packages/a/.beep/**"];
-      const decoded: ReadonlyArray<string> = yield* decodeArray(patterns);
+      const decoded: ReadonlyArray<string> = yield* decodeGlobStringArray(patterns);
       assert.deepStrictEqual(decoded, patterns);
-      const exit = yield* Effect.exit(decodeArray(A.append(patterns, "")));
+      const exit = yield* Effect.exit(decodeGlobStringArray(A.append(patterns, "")));
       exit.pipe(Exit.isFailure, assertTrue);
     })
   );
