@@ -464,7 +464,8 @@ planned: a push after the flip restarts the review window. Squash-message advice
 
 It then pushes one empty `chore: re-request beep-reviewer (S32)` commit (beep-reviewer
 ignores heads pushed while draft), only from the flipped head, else it prints the manual
-command; a failed push only warns. Send the sha it prints as the final; no hand-pushed S32.
+command; a failed push only warns. Send the sha it prints as the final. Run that printed
+fallback only when `yeet ready` could not push; never push an unprompted S32 by hand.
 
 The merge gate carries the wait instead. `merge-ready: yes` needs the
 `review-window-elapsed` criterion: 20 minutes since the later of the latest

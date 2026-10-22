@@ -1298,7 +1298,12 @@ const scratchClone = Effect.fn("YeetReadyTest.scratchClone")(function* () {
   yield* scratchGit(work, ["remote", "add", "origin", origin]);
   yield* scratchGit(work, ["push", "--set-upstream", "origin", "main"]);
   const head = yield* scratchGit(work, ["rev-parse", "HEAD"]);
-  return { work, origin, head, context: RepoRunContext.make({ ...context, repoRoot: work, cwd: work }) };
+  return {
+    work,
+    origin,
+    head,
+    context: RepoRunContext.make({ ...context, repoRoot: work, cwd: work, branch: "main" }),
+  };
 });
 
 it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-request", (it) => {
@@ -1355,6 +1360,29 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-
       expect(yield* scratchGit(clone.origin, ["log", "-1", "--format=%s", "main"])).toBe(YEET_REVIEWER_REQUEST_SUBJECT);
       expect(yield* scratchGit(clone.origin, ["diff", "--name-only", "main~1", "main"])).toBe("");
       expect(yield* scratchGit(clone.work, ["diff", "--cached", "--name-only"])).toBe("staged.txt");
+    })
+  );
+
+  it.effect("pushes to the pull request branch on origin even when push config points elsewhere", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const clone = yield* scratchClone();
+      const decoy = path.join(path.dirname(clone.origin), "decoy.git");
+      yield* fs.makeDirectory(decoy);
+      yield* scratchGit(decoy, ["init", "--bare", "-b", "main"]);
+      yield* scratchGit(clone.work, ["remote", "add", "decoy", decoy]);
+      yield* scratchGit(clone.work, ["config", "remote.pushDefault", "decoy"]);
+      const decision = yield* runYeetReadyGate(clone.context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
+        markReady: () => Effect.void,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* scratchGit(clone.origin, ["log", "-1", "--format=%s", "main"])).toBe(YEET_REVIEWER_REQUEST_SUBJECT);
+      expect(yield* scratchGit(decoy, ["for-each-ref", "--format=%(refname)"])).toBe("");
     })
   );
 

@@ -590,9 +590,13 @@ export const reviewerRequestPushable: {
   (confirmedHead: string): (localHead: string) => boolean;
 } = dual(2, (localHead: string, confirmedHead: string): boolean => localHead === confirmedHead);
 
+// The explicit destination: the pull request branch on origin, where publish
+// pushed it, never the checkout's push configuration (which may point elsewhere).
+const reviewerRequestPush = (branch: string) => `git push origin HEAD:refs/heads/${branch}`;
+
 // The hand route, from a checkout of the pull request branch at the flipped head.
-const reviewerRequestManual = (confirmedHead: string) =>
-  `from a checkout of the pull request branch at ${confirmedHead}, run: git commit --allow-empty -m "${YEET_REVIEWER_REQUEST_SUBJECT}" && git push`;
+const reviewerRequestManual = (confirmedHead: string, branch: string) =>
+  `from a checkout of the pull request branch at ${confirmedHead}, run: git commit --allow-empty --only --no-verify -m "${YEET_REVIEWER_REQUEST_SUBJECT}" && ${reviewerRequestPush(branch)}`;
 
 // Push one empty commit so beep-reviewer sees a head pushed to the ready pull
 // request; returns the line to log. `--only` with no paths commits HEAD's own
@@ -606,7 +610,7 @@ const pushReviewerRequest = Effect.fn("Yeet.pushReviewerRequest")(function* (
 ) {
   const localHead = yield* runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
   if (!reviewerRequestPushable(localHead, confirmedHead)) {
-    return `[yeet] note: the checkout is at ${localHead}, not the flipped head ${confirmedHead}, so nothing was pushed; ${reviewerRequestManual(confirmedHead)}`;
+    return `[yeet] note: the checkout is at ${localHead}, not the flipped head ${confirmedHead}, so nothing was pushed; ${reviewerRequestManual(confirmedHead, context.branch)}`;
   }
   yield* runGitOutput(context.repoRoot, [
     "commit",
@@ -617,13 +621,13 @@ const pushReviewerRequest = Effect.fn("Yeet.pushReviewerRequest")(function* (
     YEET_REVIEWER_REQUEST_SUBJECT,
   ]);
   const request = yield* runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
-  return yield* runGitOutput(context.repoRoot, ["push"]).pipe(
+  return yield* runGitOutput(context.repoRoot, ["push", "origin", `HEAD:refs/heads/${context.branch}`]).pipe(
     Effect.as(
       `[yeet] pushed ${request} (${YEET_REVIEWER_REQUEST_SUBJECT}) so beep-reviewer reviews #${prNumber} on a head pushed while ready; send this sha as the final`
     ),
     Effect.catchTag("YeetCommandError", (cause) =>
       Effect.succeed(
-        `[yeet] warning: created the beep-reviewer re-request ${request} locally but the push failed: ${cause.message}; run: git push`
+        `[yeet] warning: created the beep-reviewer re-request ${request} locally but the push failed: ${cause.message}; run: ${reviewerRequestPush(context.branch)}`
       )
     )
   );
@@ -795,7 +799,7 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
         yield* (dependencies.requestReview ?? pushReviewerRequest)(context, prNumber, sameHead).pipe(
           Effect.catchTag("YeetCommandError", (cause) =>
             Effect.succeed(
-              `[yeet] warning: could not create the beep-reviewer re-request: ${cause.message}; ${reviewerRequestManual(sameHead)}`
+              `[yeet] warning: could not create the beep-reviewer re-request: ${cause.message}; ${reviewerRequestManual(sameHead, context.branch)}`
             )
           )
         )
