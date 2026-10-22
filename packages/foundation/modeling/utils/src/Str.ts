@@ -723,6 +723,16 @@ const searchPattern = (searchValue: string | RegExp, flags: string): RegExp =>
   P.isString(searchValue) ? new RegExp(Regex.escape(searchValue), flags) : searchValue;
 
 /**
+ * The global RegExp `replaceAllWith` runs: a string search matches literally,
+ * and a non-global RegExp is copied with the `g` flag added, so every match is
+ * replaced where native `replaceAll` would throw a `TypeError`.
+ */
+const globalSearchPattern = (searchValue: string | RegExp): RegExp => {
+  if (P.isString(searchValue)) return searchPattern(searchValue, "g");
+  return searchValue.global ? searchValue : new RegExp(searchValue, `${searchValue.flags}g`);
+};
+
+/**
  * Replaces the first occurrence of `searchValue` using a callback replacer.
  *
  * **Details**
@@ -774,6 +784,12 @@ export const replaceWith: {
  * for native `replaceAll` callback sites that cannot be expressed with
  * `Str.replaceAll(searchValue, replacement)`.
  *
+ * **Gotchas**
+ *
+ * A non-global RegExp still replaces every match: it is copied with the `g`
+ * flag added, where native `replaceAll` throws a `TypeError`. The caller's
+ * RegExp, including its `lastIndex`, is left untouched in that case.
+ *
  * **Example** (Call `replaceAllWith`)
  *
  * ```ts
@@ -805,13 +821,7 @@ export const replaceAllWith: {
     self: string,
     searchValue: string | RegExp,
     replacer: (substring: string, ...args: ReadonlyArray<unknown>) => string
-  ): string => {
-    // Native `replaceAll` rejects a non-global RegExp instead of replacing its first match.
-    if (P.isRegExp(searchValue) && !searchValue.global) {
-      throw new TypeError("replaceAll must be called with a global RegExp");
-    }
-    return searchPattern(searchValue, "g")[Symbol.replace](self, replacer);
-  }
+  ): string => globalSearchPattern(searchValue)[Symbol.replace](self, replacer)
 );
 /**
  * Re-export of all helpers from `effect/String`.

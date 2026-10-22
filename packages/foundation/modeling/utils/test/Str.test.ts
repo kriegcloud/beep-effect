@@ -239,8 +239,11 @@ describe("@beep/utils Str.replaceAllWith", () => {
     expect(Str.replaceAllWith("ab", "", () => "|")).toBe("|a|b|");
   });
 
-  it("rejects a non-global RegExp like native replaceAll", () => {
-    expect(() => Str.replaceAllWith("beep", /e/, () => "")).toThrow(TypeError);
+  it("replaces every match of a non-global RegExp and leaves the caller's RegExp untouched", () => {
+    const vowel = /e/;
+    expect(Str.replaceAllWith("beep", vowel, () => "o")).toBe("boop");
+    expect(vowel.global).toBe(false);
+    expect(vowel.lastIndex).toBe(0);
   });
 });
 
