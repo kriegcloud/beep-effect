@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "agent-rating-critique-fixes",
+    "packetId": "goal-packet/v1:f4c652408771f46fe4ba85097b755425073bf20093672e5460bbc760aa1c99e5",
+    "title": "Agent Rating Critique Fixes",
+    "status": "active",
+    "created": "2026-10-21",
+    "updated": "2026-10-21",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/agent-rating-critique-fixes",
+  "lifecycle": "active",
+  "mission": "Land the 2026-10-21 repository rating (8/10) as evidence and execute its critique fixes in scored phases",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/agent-rating-critique-fixes/README.md",
+    "goals/agent-rating-critique-fixes/SPEC.md",
+    "goals/agent-rating-critique-fixes/PLAN.md",
+    "goals/agent-rating-critique-fixes/GOAL.md",
+    "goals/agent-rating-critique-fixes/research/SOURCES.md",
+    "goals/agent-rating-critique-fixes/research/repository-rating.md"
+  ],
+  "researchReports": ["research/SOURCES.md", "research/repository-rating.md"],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/agent-rating-critique-fixes/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Land rating + packet",
+      "status": "in-progress"
+    },
+    {
+      "id": "P1",
+      "name": "Cheap wins: prefix, stale pins, vitest glob",
+      "status": "pending"
+    },
+    {
+      "id": "P2",
+      "name": "Silent-green + gate honesty",
+      "status": "pending"
+    },
+    {
+      "id": "P3",
+      "name": "Maintainability splits",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "Re-rate + Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/agent-rating-critique-fixes/GOAL.md)\" -le 4000",
+    "jq . goals/agent-rating-critique-fixes/ops/manifest.json",
+    "rg -n \"agent-rating-critique-fixes|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/agent-rating-critique-fixes",
+    "git diff --check -- goals/agent-rating-critique-fixes",
+    "bun run beep goals doctor",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}
