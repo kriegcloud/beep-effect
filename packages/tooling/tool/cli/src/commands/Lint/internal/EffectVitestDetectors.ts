@@ -1238,7 +1238,10 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
 // Unbound runtime I/O globals are opaque; local shadowing remains lexical.
 const opaquePlatformReference = (reference: Identifier, imports: EffectVitestImports): boolean => {
   const binding = imports.resolveBinding(reference);
-  if (O.isNone(binding)) return A.contains(["Bun", "require", "process", "globalThis"], reference.getText());
+  if (O.isNone(binding)) return A.contains(["Bun", "require", "process", "globalThis", "global"], reference.getText());
+  // Initializers cannot prove later values of mutable bindings safe.
+  if (Node.isVariableDeclaration(binding.value))
+    return binding.value.getVariableStatement()?.getDeclarationKind() !== "const";
   if (!Node.isImportDeclaration(binding.value)) return false;
   const module = binding.value.getModuleSpecifierValue();
   return (

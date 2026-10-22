@@ -395,6 +395,15 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("retains unresolved imported resource wrappers for judgment", () =>
+    Effect.gen(function* () {
+      const rows = yield* findings(
+        'import { withFixture } from "./fixture.ts"; it.effect("resource", () => withFixture(program));'
+      );
+      assertTrue(A.some(rows, (row) => row.ruleId === "EV003" && row.class === "unresolved-resource-wrapper"));
+    })
+  );
+
   it.effect("inspects Option, Result, and Exit values supplied as matcher arguments", () =>
     Effect.gen(function* () {
       assertTrue(yield* hasRule('it("o", () => expect(value).toEqual(O.none()));', "EV006"));
@@ -2138,6 +2147,12 @@ it.layer(NodeServices.layer)((it) => {
         ["const api = Bun;", 'Fx.sync(() => api.file("fixture"))'],
         ["", 'Fx.promise(() => import("./bundle-build.ts"))'],
         ["", 'Fx.sync(() => globalThis.Bun.file("fixture"))'],
+        ["", 'Fx.sync(() => global.Bun.file("fixture"))'],
+        ["", "Fx.sync(() => global.process.cwd())"],
+        ["let helper = () => 1;", "Fx.sync(helper)"],
+        ['let helper = () => 1; helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
+        ['var helper = () => 1; helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
+        ["let api = {}; api = Bun;", 'Fx.sync(() => api.file("fixture"))'],
         ['let helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
         ['const helper = Fx.fn("helper")(function* () { return 1; }, () => Bun.file("fixture"));', "helper()"],
         [
@@ -2165,15 +2180,19 @@ it.layer(NodeServices.layer)((it) => {
       const platform = 'import * as Services from "@effect/platform-bun/BunServices";';
       for (const [prelude, expression] of [
         ["const fixtureEffect = Fx.succeed(1); const fixture = fixtureEffect;", "fixture"],
+        ["const fixture = Fx.succeed(1);", "Fx.all([fixture, fixture])"],
         [
           "const buildBundleConsumer = () => Promise.resolve(1); const run = Fx.tryPromise(buildBundleConsumer);",
           "run",
         ],
         ['const Bun = { file: () => "pure" }; const api = Bun;', "Fx.sync(() => api.file())"],
         ['const globalThis = { Bun: { file: () => "pure" } };', "Fx.sync(() => globalThis.Bun.file())"],
+        ['const global = { Bun: { file: () => "pure" } };', "Fx.sync(() => global.Bun.file())"],
+        ["", "Fx.sync((global) => global.Bun.file())"],
+        ['let unused = () => 1; unused = () => Bun.file("fixture");', "Fx.succeed(1)"],
         ['const load = () => "./bundle-build.ts";', "Fx.sync(load)"],
         ["", "Fx.succeed(import.meta.dirname)"],
-        ["let helper = () => 1;", "Fx.sync(helper)"],
+        ["const helper = () => 1;", "Fx.sync(helper)"],
         ['const helper = Fx.fn("helper")(function* () { return 1; }, Fx.map((value) => value));', "helper()"],
         ["const first = () => second(); function second() { return first(); }", "Fx.sync(first)"],
         ["const first = second; const second = first;", "second"],
