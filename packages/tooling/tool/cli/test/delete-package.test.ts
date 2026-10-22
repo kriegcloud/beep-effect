@@ -10,6 +10,7 @@ import {
   inspectTargetAtRoot,
   planInverseForTarget,
   RegistrationTarget,
+  removeShapeTestRow,
   rewritePendingChangesets,
 } from "@beep/repo-cli/test/DeletePackage";
 import { TSMorphServiceLive } from "@beep/repo-utils";
@@ -927,6 +928,112 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         assertNone(yield* read("single.md"));
         assertSome(yield* read("sibling.md"), sibling);
       })
+    );
+  });
+
+  describe("delete-package exact name matching", () => {
+    const seedLiveCourtlistener = Effect.fn(function* (retiredName: string) {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const packageDir = path.join("packages", "drivers", "courtlistener");
+      yield* fs.writeFileString("bun.lock", "");
+      yield* fs.writeFileString(
+        "package.json",
+        '{ "name": "fixture", "private": true, "workspaces": ["packages/drivers/courtlistener"] }\n'
+      );
+      yield* fs.makeDirectory(packageDir, { recursive: true });
+      yield* fs.writeFileString(
+        path.join(packageDir, "package.json"),
+        '{ "name": "@beep/courtlistener", "private": true }\n'
+      );
+      yield* fs.makeDirectory("standards", { recursive: true });
+      yield* fs.writeFileString(
+        "standards/changesets.retired-packages.json",
+        `{\n  "packages": [\n    { "name": "${retiredName}", "rationale": "Retired fixture name." }\n  ]\n}\n`
+      );
+    });
+
+    it.effect("does not flag a retired-name collision for a prefix-sharing retired name", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/courtlistener-mcp");
+          const exit = yield* Effect.exit(runDeletePackage(["courtlistener", "--dry-run"]));
+          assertTrue(Exit.isSuccess(exit), Exit.isFailure(exit) ? Cause.pretty(exit.cause) : undefined);
+          expect(yield* TestConsole.errorLines).toStrictEqual([]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("still flags a retired-name collision for the exact live name", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/courtlistener");
+          const exit = yield* Effect.exit(runDeletePackage(["courtlistener", "--dry-run"]));
+          expectReportedExit(exit);
+          expect(yield* TestConsole.errorLines).toStrictEqual([
+            "[delete-package] REFUSE [retired-name-collision/hard] @beep/courtlistener is both live and retired; reconcile name provenance before deletion.",
+          ]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("removes only the exact accessor rows from the identity shape test", () =>
+      Effect.flatMap(temporaryDirectory, (repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const testDir = path.join(repoRoot, "packages", "foundation", "modeling", "identity", "test");
+          const shapeTest = path.join(testDir, "shape-stable.test.ts");
+          yield* fs.makeDirectory(testDir, { recursive: true });
+          yield* fs.writeFileString(
+            shapeTest,
+            A.join(
+              [
+                "const currentPackagesRuntimeNamedImports = [",
+                '  "$CourtlistenerId",',
+                '  "$CourtlistenerIdentityId",',
+                '  "$DataId",',
+                "] as const;",
+                "",
+                "const expectedPackageComposerIdentities = {",
+                '  $CourtlistenerId: "@beep/courtlistener",',
+                '  $CourtlistenerIdentityId: "@beep/courtlistener-identity",',
+                "} as const;",
+                "",
+                'for (const accessorName of ["$CourtlistenerIdentityId", "$DataId"]) {',
+                "  expect(accessorName).toBeTruthy();",
+                "}",
+                "",
+              ],
+              "\n"
+            )
+          );
+
+          yield* removeShapeTestRow(repoRoot, "@beep/courtlistener");
+          expect(yield* fs.readFileString(shapeTest)).toBe(
+            A.join(
+              [
+                "const currentPackagesRuntimeNamedImports = [",
+                '  "$CourtlistenerIdentityId",',
+                '  "$DataId",',
+                "] as const;",
+                "",
+                "const expectedPackageComposerIdentities = {",
+                '  $CourtlistenerIdentityId: "@beep/courtlistener-identity",',
+                "} as const;",
+                "",
+                'for (const accessorName of ["$CourtlistenerIdentityId", "$DataId"]) {',
+                "  expect(accessorName).toBeTruthy();",
+                "}",
+                "",
+              ],
+              "\n"
+            )
+          );
+        })
+      )
     );
   });
 });
