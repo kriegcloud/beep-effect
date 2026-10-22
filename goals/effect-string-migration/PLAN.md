@@ -28,7 +28,7 @@ wave moves `@effect/tsgo` to 0.55+ and arms `preferEffectString` at `error`.
 | 4b | editor, professional-desktop, schema, lint-rules, practice-claude-mod, repo-utils, storybook, utils, shared-domain, observability (open-lane hunks near their sites) | about 100 | pending |
 | 5a | repo-cli: the 58 files no open PR or lane touched on 2026-10-21 | 202 | merged (#1993) |
 | 5b | repo-cli: 49 of the remaining files (commands, internal, tests) | 224 | in review |
-| 5c | repo-cli: 50 further files plus `scripts/CreateKnowledgeMintApp.ts` and `scripts/CreateReviewerApp.ts` | 213 | in review |
+| 5c | repo-cli: 50 further files plus `scripts/CreateKnowledgeMintApp.ts` and `scripts/CreateReviewerApp.ts` | 213 | merged (#2001) |
 | 5d | repo-cli's 7 files with open-lane hunks (34 sites) and the root (16), then the pin moves to 0.55+ and the rule is armed | about 50 | pending |
 
 Wave proof, per package: the package's tests, `package-verify --quick`, and a

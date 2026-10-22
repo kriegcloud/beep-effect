@@ -24,6 +24,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const REPO_ROOT = "/repo";
@@ -310,7 +311,10 @@ describe("changeset status wrapper", () => {
 
           const logs = yield* TestConsole.logLines;
           expect(
-            A.some(logs, (line) => P.isString(line) && line.includes("changeset ceremony exempt: lab-only change set"))
+            A.some(
+              logs,
+              (line) => P.isString(line) && Str.includes("changeset ceremony exempt: lab-only change set")(line)
+            )
           ).toBe(true);
         })
       );
@@ -337,7 +341,7 @@ Base backlog coverage must not count.
 
           expect(error._tag).toBe("CliReportedExit");
           const errors = yield* TestConsole.errorLines;
-          expect(A.some(errors, (line) => P.isString(line) && line.includes("@beep/demo"))).toBe(true);
+          expect(A.some(errors, (line) => P.isString(line) && Str.includes("@beep/demo")(line))).toBe(true);
         })
       );
     });
@@ -358,7 +362,7 @@ Base backlog coverage must not count.
           }
 
           const errors = yield* TestConsole.errorLines;
-          expect(A.some(errors, (line) => P.isString(line) && line.includes("@beep/demo"))).toBe(true);
+          expect(A.some(errors, (line) => P.isString(line) && Str.includes("@beep/demo")(line))).toBe(true);
         })
       );
     });
@@ -392,7 +396,7 @@ Patch demo.
               logs,
               (line) =>
                 P.isString(line) &&
-                line.includes("every changed publish-enabled product workspace is named by a changeset added")
+                Str.includes("every changed publish-enabled product workspace is named by a changeset added")(line)
             )
           ).toBe(true);
         })
@@ -412,7 +416,7 @@ Patch demo.
           });
           yield* runChangesetStatus(tmpDir, O.some("main"));
           const logs = yield* TestConsole.logLines;
-          expect(A.some(logs, (line) => P.isString(line) && line.includes("private_skipped=1"))).toBe(true);
+          expect(A.some(logs, (line) => P.isString(line) && Str.includes("private_skipped=1")(line))).toBe(true);
           yield* writePackageJson(tmpDir, "packages/demo/package.json", {
             name: "@beep/demo",
             version: "0.0.0",
@@ -452,8 +456,8 @@ Patch demo.
 
           yield* runChangesetStatus(tmpDir, O.none());
 
-          expect(A.some(spawned, (command) => command.includes("origin/main...HEAD"))).toBe(true);
-          expect(A.every(spawned, (command) => !command.includes("bunx changeset status"))).toBe(true);
+          expect(A.some(spawned, (command) => Str.includes("origin/main...HEAD")(command))).toBe(true);
+          expect(A.every(spawned, (command) => !Str.includes("bunx changeset status")(command))).toBe(true);
         })
       );
     });

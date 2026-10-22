@@ -285,7 +285,7 @@ const parseBarrelHeader = (content: string): O.Option<string> =>
  */
 const parseBarrelDocs = (content: string): HashMap.HashMap<string, string> => {
   let docs = emptyBarrelDocs();
-  for (const match of content.matchAll(BARREL_DOCUMENTED_EXPORT_PATTERN)) {
+  for (const match of Str.matchAll(BARREL_DOCUMENTED_EXPORT_PATTERN)(content)) {
     const block = match[1];
     const importPath = match[2];
     if (block !== undefined && importPath !== undefined) {
