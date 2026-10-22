@@ -1,6 +1,8 @@
 /**
  * Evidence span value schema.
  *
+ * **Details**
+ *
  * The char-offset substrate now lives in `@beep/provenance` (`TextAnchor`) and
  * the unit-interval primitive in `@beep/schema` (`UnitInterval`); this module is
  * the epistemic value object that wraps the anchor fields and adds an extraction

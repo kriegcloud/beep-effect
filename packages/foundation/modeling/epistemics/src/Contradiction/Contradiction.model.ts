@@ -1,6 +1,8 @@
 /**
  * Contradiction-candidate schema factories.
  *
+ * **Details**
+ *
  * A binding builds the vocabulary once, then each stage over the classes the
  * previous stages produced: belief references, belief pairs, proposals,
  * assessments, candidate content, behavior and arbitraries. Each stage returns
