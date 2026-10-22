@@ -25,6 +25,7 @@ export * from "./VersionSync.errors.ts";
  * @since 0.0.0
  */
 export * from "./VersionSync.render.ts";
+export * from "./VersionSync.runtime.ts";
 /**
  * Public version-sync schemas export.
  *

@@ -133,29 +133,7 @@ export class VaultSyncConfigValue extends S.Opaque<VaultSyncConfigValue, { reado
  * @category services
  * @since 0.0.0
  */
-export class VaultSyncConfig extends Context.Service<VaultSyncConfig, VaultSyncConfigValue>()($I`VaultSyncConfig`) {
-  /**
-   * Escape hatch building a config layer from an explicit value.
-   *
-   * **Example** (Build layer from value)
-   *
-   * ```ts
-   * import * as S from "effect/Schema"
-   * import { VaultSyncConfig, VaultSyncConfigValue } from "@beep/documents-server/aggregates/Sync"
-   * const PosInt = S.Int.check(S.isGreaterThan(0))
-   *
-   * const layer = VaultSyncConfig.layerConfig(
-   *   VaultSyncConfigValue.make({ eventPageLimit: PosInt.make(10), maxAttempts: PosInt.make(1) })
-   * )
-   * console.log(layer)
-   * ```
-   *
-   * @category layers
-   * @since 0.0.0
-   */
-  static readonly layerConfig = (value: VaultSyncConfigValue): Layer.Layer<VaultSyncConfig> =>
-    Layer.succeed(VaultSyncConfig, value);
-}
+export class VaultSyncConfig extends Context.Service<VaultSyncConfig, VaultSyncConfigValue>()($I`VaultSyncConfig`) {}
 
 const readVaultSyncConfig = Effect.fn($I`readVaultSyncConfig`)(function* () {
   const eventPageLimit = yield* Config.schema(PosInt, DOCUMENTS_SYNC_EVENT_PAGE_LIMIT_ENV).pipe(

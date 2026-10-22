@@ -4,7 +4,7 @@ import { A, Str } from "@beep/utils";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
-import { constFalse, dual } from "effect/Function";
+import { constFalse, constTrue, dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -243,13 +243,218 @@ const isResourceExpression = (
   );
 };
 
-const functionHasResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+const TEMP_ROOT_CONSTRUCTORS = ["makeTempDirectory", "makeTempDirectoryScoped"];
+
+const isEffectAcquisition = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireRelease", "acquireUseRelease"]);
+
+// `<fs>.makeTempDirectory(options?)`: options only say where and how to name the root.
+const isTempRootCall = (node: MorphNode | undefined): boolean => {
+  if (!Node.isCallExpression(node)) return false;
+  const callee = node.getExpression();
+  return (
+    Node.isPropertyAccessExpression(callee) &&
+    Node.isIdentifier(callee.getExpression()) &&
+    A.contains(TEMP_ROOT_CONSTRUCTORS, callee.getName())
+  );
+};
+
+const isFileSystemTag = (node: MorphNode | undefined, imports: EffectVitestImports): boolean =>
+  Node.isExpression(node) &&
+  isProvenanceExpression(node, imports, ["effect", "effect/FileSystem"], "FileSystem", ["FileSystem"]);
+
+const yieldedExpression = (node: MorphNode | undefined): MorphNode | undefined =>
+  Node.isYieldExpression(node) && node.getAsteriskToken() !== undefined ? node.getExpression() : undefined;
+
+// `const fs = yield* FileSystem.FileSystem` only reads the service.
+const isFileSystemBinding = (statement: MorphNode, imports: EffectVitestImports): boolean =>
+  Node.isVariableStatement(statement) &&
+  A.every(statement.getDeclarations(), (declaration) => isFileSystemService(declaration, imports));
+
+// `(fs) => fs.makeTempDirectory()`, or a block whose only statement returns that call.
+const returnsTempRoot = (body: MorphNode | undefined): boolean => {
+  if (!Node.isArrowFunction(body) && !Node.isFunctionExpression(body)) return false;
+  const inner = body.getBody();
+  if (!Node.isBlock(inner)) return isTempRootCall(inner);
+  const statements = inner.getStatements();
+  const only = statements[0];
+  return statements.length === 1 && Node.isReturnStatement(only) && isTempRootCall(only.getExpression());
+};
+
+// `Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; return yield* fs.makeTempDirectory(); })`.
+const isTempRootGenerator = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  const body = call.getArguments()[0];
+  if (call.getArguments().length !== 1 || !Node.isFunctionExpression(body)) return false;
+  const statements = body.getStatements();
+  const last = A.last(statements);
+  return (
+    O.exists(
+      last,
+      (statement) => Node.isReturnStatement(statement) && isTempRootCall(yieldedExpression(statement.getExpression()))
+    ) && A.every(A.dropRight(statements, 1), (statement) => isFileSystemBinding(statement, imports))
+  );
+};
+
+// The acquire IS the temp-root call, optionally behind FileSystem access. Any combinator that adds
+// work (zipLeft, tap, andThen, zip, all, or a flatMap into other work) is not a fresh-root acquire.
+const isTempRootAcquire = (acquire: MorphNode, imports: EffectVitestImports): boolean => {
+  if (isTempRootCall(acquire)) return true;
+  if (!Node.isCallExpression(acquire)) return false;
+  if (isProvenanceCall(acquire, imports, EFFECT_MODULES, "Effect", ["gen"]))
+    return isTempRootGenerator(acquire, imports);
+  const [service, continuation, ...rest] = acquire.getArguments();
+  return (
+    isProvenanceCall(acquire, imports, EFFECT_MODULES, "Effect", ["flatMap"]) &&
+    A.isReadonlyArrayEmpty(rest) &&
+    isFileSystemTag(service, imports) &&
+    returnsTempRoot(continuation)
+  );
+};
+
+// `process.chdir(...)`, or an assignment or `delete` whose target is rooted at the global `process`.
+const PROCESS_MODULES = ["node:process", "process"];
+
+const isGlobalProcess = (node: MorphNode, imports: EffectVitestImports): boolean => {
+  if (!Node.isIdentifier(node) || node.getText() !== "process") return false;
+  const binding = imports.resolveBinding(node);
+  return (
+    O.isNone(binding) ||
+    O.exists(
+      binding,
+      (declaration) =>
+        Node.isImportDeclaration(declaration) && A.contains(PROCESS_MODULES, declaration.getModuleSpecifierValue())
+    )
+  );
+};
+
+const accessRoot = (node: MorphNode): MorphNode =>
+  Node.isPropertyAccessExpression(node) || Node.isElementAccessExpression(node)
+    ? accessRoot(node.getExpression())
+    : node;
+
+const isProcessAccess = (node: MorphNode, imports: EffectVitestImports): boolean =>
+  (Node.isPropertyAccessExpression(node) || Node.isElementAccessExpression(node)) &&
+  isGlobalProcess(accessRoot(node), imports);
+
+const ASSIGNMENT_OPERATORS = HashSet.fromIterable([
+  SyntaxKind.EqualsToken,
+  SyntaxKind.PlusEqualsToken,
+  SyntaxKind.QuestionQuestionEqualsToken,
+  SyntaxKind.BarBarEqualsToken,
+  SyntaxKind.AmpersandAmpersandEqualsToken,
+]);
+
+const mutatesProcessDirectly = (region: MorphNode, imports: EffectVitestImports): boolean =>
+  A.some(region.getDescendantsOfKind(SyntaxKind.CallExpression), (call) => {
+    const callee = call.getExpression();
+    return (
+      Node.isPropertyAccessExpression(callee) &&
+      callee.getName() === "chdir" &&
+      isGlobalProcess(callee.getExpression(), imports)
+    );
+  }) ||
+  A.some(
+    region.getDescendantsOfKind(SyntaxKind.BinaryExpression),
+    (binary) =>
+      HashSet.has(ASSIGNMENT_OPERATORS, binary.getOperatorToken().getKind()) &&
+      isProcessAccess(binary.getLeft(), imports)
+  ) ||
+  A.some(region.getDescendantsOfKind(SyntaxKind.DeleteExpression), (deletion) =>
+    isProcessAccess(deletion.getExpression(), imports)
+  );
+
+// Helpers are reached by name: a called identifier, or an identifier passed as an argument (`Effect.sync(restore)`).
+const helperReferences = (region: MorphNode): ReadonlyArray<MorphNode> =>
+  A.flatMap([region, ...region.getDescendantsOfKind(SyntaxKind.CallExpression)], (node) =>
+    Node.isCallExpression(node)
+      ? A.filter([node.getExpression(), ...node.getArguments()], Node.isIdentifier)
+      : A.filter([node], Node.isIdentifier)
+  );
+
+// Follows same-file helpers called by name, because they run inside the wrapper's use or release.
+const mutatesProcessState = (region: MorphNode, imports: EffectVitestImports): boolean => {
+  const visited = A.empty<MorphNode>();
+  const visit = (current: MorphNode): boolean =>
+    mutatesProcessDirectly(current, imports) ||
+    A.some(helperReferences(current), (reference) =>
+      O.exists(Node.isIdentifier(reference) ? imports.resolveBinding(reference) : O.none(), (binding) => {
+        // Identity, not `Equal`: structural equality over ts-morph nodes walks the whole tree.
+        if (A.some(visited, (seen) => seen === binding)) return false;
+        visited.push(binding);
+        return O.exists(helperBody(binding, imports), visit);
+      })
+    );
+  return visit(region);
+};
+
+const isEffectFunctionConstructor = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["fn", "fnUntraced"]);
+
+// `Effect.fnUntraced(function* (path) {...})` and `Effect.fn("name")(function* (path) {...})` release through their body.
+const releaseFunction = (release: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!Node.isCallExpression(release)) return O.some(release);
+  const callee = release.getExpression();
+  const constructed =
+    isEffectFunctionConstructor(release, imports) ||
+    (Node.isCallExpression(callee) && isEffectFunctionConstructor(callee, imports));
+  return constructed ? A.head(release.getArguments()) : O.none();
+};
+
+// The release must remove the exact path its acquire produced (its first parameter).
+const removesAcquiredPath = (candidate: MorphNode, imports: EffectVitestImports): boolean => {
+  const release = O.getOrUndefined(releaseFunction(candidate, imports));
+  if (!Node.isArrowFunction(release) && !Node.isFunctionExpression(release)) return false;
+  const parameter = release.getParameters()[0];
+  if (parameter === undefined || !Node.isIdentifier(parameter.getNameNode())) return false;
+  return A.some(release.getDescendantsOfKind(SyntaxKind.CallExpression), (call) => {
+    const callee = call.getExpression();
+    const target = call.getArguments()[0];
+    return (
+      Node.isPropertyAccessExpression(callee) &&
+      callee.getName() === "remove" &&
+      Node.isIdentifier(target) &&
+      O.exists(imports.resolveBinding(target), (binding) => binding === parameter)
+    );
+  });
+};
+
+// A fresh temp root per call isolates each case on purpose; `it.layer` sharing would undo that (#1855 FP-2).
+const isFreshTempRootAcquisition = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  if (!isEffectAcquisition(call, imports)) return false;
+  const releaseIndex = isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireUseRelease"]) ? 2 : 1;
+  const args = call.getArguments();
+  const acquire = args[0];
+  const release = args[releaseIndex];
+  return (
+    args.length === releaseIndex + 1 &&
+    acquire !== undefined &&
+    release !== undefined &&
+    isTempRootAcquire(acquire, imports) &&
+    removesAcquiredPath(release, imports)
+  );
+};
+
+const functionHasResourceWhere = (
+  definition: EffectVitestFunctionNode,
+  imports: EffectVitestImports,
+  countsAcquisition: (call: CallExpression) => boolean
+): boolean =>
   A.some(
     callbackCalls(definition),
     (call) =>
       isProvenanceCall(call, imports, LAYER_MODULES, "Layer", ["scoped", "effect", "unwrap", "launch"]) ||
-      isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireRelease", "acquireUseRelease"])
+      (isEffectAcquisition(call, imports) && countsAcquisition(call))
   );
+
+const functionHasResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  functionHasResourceWhere(definition, imports, constTrue);
+
+// EV003 asks for `it.layer` sharing only when a wrapper holds a resource other than a fresh temp root.
+// A wrapper that changes process state anywhere in its body (use, release, pipe stages, or a
+// same-file helper it reaches) stays under review even when its only acquisition is a fresh temp root.
+const functionHasShareableResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  functionHasResourceWhere(definition, imports, (call) => !isFreshTempRootAcquisition(call, imports)) ||
+  (functionHasResource(definition, imports) && mutatesProcessState(definition, imports));
 
 const buildsAndProvidesLayer = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean => {
   const calls = callbackCalls(definition);
@@ -1568,10 +1773,10 @@ const detectResourceWrapper = (context: ReturnType<typeof inspectContext>, state
   if (
     (wrapperName(member) ||
       wrapperName(canonicalMember) ||
-      O.exists(definition, ({ node }) => functionHasResource(node, imports))) &&
+      O.exists(definition, ({ node }) => functionHasShareableResource(node, imports))) &&
     (rootTestBodyCall(call, imports) || O.exists(test, ({ callback }) => isWholeBodyCall(call, callback)))
   ) {
-    if (O.exists(definition, ({ node }) => functionHasResource(node, imports))) {
+    if (O.exists(definition, ({ node }) => functionHasShareableResource(node, imports))) {
       findings.push(makeFinding({ ruleId: "EV003", node: call, file, owner, symbol: member }));
     } else if (isUnresolvedImportedWrapper(context, imports)) {
       findings.push(
@@ -2445,10 +2650,9 @@ const detectResourceDefinition = (
   state: DetectorState
 ): void => {
   const { imports, findings, makeFinding, file, owner } = state;
-  if ((wrapperName(name) && functionHasResource(node, imports)) || buildsAndProvidesLayer(node, imports))
-    findings.push(
-      makeFinding({ ruleId: "EV003", node, file, owner, symbol: name, judgment: !functionHasResource(node, imports) })
-    );
+  const shareable = functionHasShareableResource(node, imports);
+  if ((wrapperName(name) && shareable) || buildsAndProvidesLayer(node, imports))
+    findings.push(makeFinding({ ruleId: "EV003", node, file, owner, symbol: name, judgment: !shareable }));
 };
 
 const detectRetryLoop = (loop: MorphNode, state: DetectorState): void => {

@@ -796,6 +796,13 @@ export const githubCheckPrePushLanes: {
  */
 export const githubCheckCheapGateLanes = (repoRoot: string): ReadonlyArray<GithubCheckLaneSpec> => [
   githubCheckLane(
+    "version-sync:check-runtime",
+    "cheap-gates",
+    "repo-sanity",
+    "preflight",
+    bunRunLane(repoRoot, "version-sync:check-runtime", ["beep", "version-sync", "--check-runtime"])
+  ),
+  githubCheckLane(
     "quality:cache-policy",
     "cheap-gates",
     "repo-quality",

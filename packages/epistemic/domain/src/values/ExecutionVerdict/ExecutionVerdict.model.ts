@@ -196,9 +196,7 @@ export class ExecutionRequest extends S.Opaque<ExecutionRequest, { readonly bran
         "One governed execution request: principal, operation, sink class, destination, resolver-owned audience.",
     })
   )
-) {
-  static readonly is = S.is(ExecutionRequest);
-}
+) {}
 
 const ExecutionVerdictTag = LiteralKit(["allowed", "denied"]);
 

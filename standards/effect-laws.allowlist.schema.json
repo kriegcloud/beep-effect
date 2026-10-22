@@ -35,7 +35,8 @@
               "node-runtime-import",
               "object-method",
               "string-method",
-              "typeof-runtime"
+              "typeof-runtime",
+              "weak-collection"
             ]
           },
           "reason": { "type": "string", "minLength": 1 },

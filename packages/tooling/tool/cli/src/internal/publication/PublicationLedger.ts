@@ -46,25 +46,12 @@ const unreadableLockGraceMillis = 10 * 60 * 1000;
  * platform error code. Each writer maps it onto its own typed
  * `lock-unavailable` refusal.
  *
- * **Example** (Create the error)
- *
- * ```ts
- * import { PublicationLockUnavailable } from "@beep/repo-cli/internal/publication/PublicationLedger"
- *
- * const error = PublicationLockUnavailable.make({
- *   path: "/repo/journals/skills-1.recovering",
- *   message: "Cannot create the recovery lock (PermissionDenied); refusing recovery."
- * })
- * console.log(error._tag) // "PublicationLockUnavailable"
- * ```
- *
  * @category errors
  * @since 0.0.0
  */
-export class PublicationLockUnavailable extends S.TaggedError<
-  PublicationLockUnavailable,
-  { readonly brand: unique symbol }
->($I`PublicationLockUnavailable`)(
+class PublicationLockUnavailable extends S.TaggedError<PublicationLockUnavailable, { readonly brand: unique symbol }>(
+  $I`PublicationLockUnavailable`
+)(
   "PublicationLockUnavailable",
   { path: S.String, message: S.String },
   $I.annoteError<PublicationLockUnavailable>("PublicationLockUnavailable", {
@@ -115,19 +102,10 @@ const parsePublicationProcessStat = (
  * the renamed bytes are still the stale bytes read, so a fresh lock taken in
  * the meantime is put back.
  *
- * **Example** (Describe the primitives)
- *
- * ```ts
- * import type { PublicationLedgerPrimitives } from "@beep/repo-cli/internal/publication/PublicationLedger"
- *
- * const names: ReadonlyArray<keyof PublicationLedgerPrimitives> = ["writeDurable", "publishRecord", "ownerAlive"]
- * console.log(names.length) // 3
- * ```
- *
  * @category services
  * @since 0.0.0
  */
-export interface PublicationLedgerPrimitives {
+interface PublicationLedgerPrimitives {
   readonly currentOwner: Effect.Effect<O.Option<ModelsPublicationOwner>>;
   readonly discard: (
     entry: string,
