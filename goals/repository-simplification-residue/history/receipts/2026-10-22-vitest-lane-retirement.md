@@ -1,6 +1,6 @@
 # Vitest lane retirement receipt — 2026-10-22
 
-Refs #1877. Inventory captured before any retirement action.
+Refs #1877, which is out of this packet's scope. This receipt is recorded here only as evidence for its owner. Inventory captured before any retirement action.
 
 | Worktree path | Branch | Head SHA | On origin/main | PR | Doctor state / unpushed | Open owner / cwd holder | Disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
