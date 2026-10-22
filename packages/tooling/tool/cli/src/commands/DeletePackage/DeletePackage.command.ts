@@ -58,6 +58,7 @@ import {
 } from "./DeletePackage.schemas.ts";
 import { DeletePackageDataResource } from "./internal/DataResource.ts";
 import { renderCanonicalDeletionChangeset } from "./internal/DeletionChangeset.ts";
+import { IDENTITY_SHAPE_TEST_PATH, shapeTestRowAccessor } from "./internal/ShapeTestRow.ts";
 import type {
   DependentsReport,
   RegistrationGeometryServiceShape,
@@ -70,7 +71,6 @@ const decodeJsonEffect = S.decodeEffect(S.fromJsonString(S.Unknown));
 const decodeDeletePackageManifestJson = S.decodeEffect(S.fromJsonString(DeletePackageManifest));
 
 const $I = $RepoCliId.create("commands/DeletePackage");
-const IDENTITY_SHAPE_TEST_PATH = "packages/foundation/modeling/identity/test/shape-stable.test.ts";
 
 class ResolvedDeleteTarget extends S.Opaque<ResolvedDeleteTarget, { readonly brand: unique symbol }>()(
   S.Struct({
@@ -315,15 +315,6 @@ const removeWorkspaceLiteral = Effect.fn("DeletePackage.removeWorkspaceLiteral")
     );
   }
 });
-
-// A shape-test row names one accessor, either as an array element
-// (`"$SchemaId",`) or as a record key (`$SchemaId: "@beep/schema",`).
-const shapeTestRowAccessor = (line: string): O.Option<string> => {
-  const row = Str.trim(line);
-  return Str.startsWith(row, '"')
-    ? pipe(row, O.liftPredicate(Str.endsWith('",')), O.map(Str.slice(1, -2)))
-    : O.map(Str.indexOf(":")(row), (end) => Str.slice(0, end)(row));
-};
 
 /**
  * Remove the package's accessor rows from the identity shape-stability test.

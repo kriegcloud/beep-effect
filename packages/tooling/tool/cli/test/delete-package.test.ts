@@ -931,28 +931,28 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
     );
   });
 
-  describe("delete-package exact name matching", () => {
-    const seedLiveCourtlistener = Effect.fn(function* (retiredName: string) {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const packageDir = path.join("packages", "drivers", "courtlistener");
-      yield* fs.writeFileString("bun.lock", "");
-      yield* fs.writeFileString(
-        "package.json",
-        '{ "name": "fixture", "private": true, "workspaces": ["packages/drivers/courtlistener"] }\n'
-      );
-      yield* fs.makeDirectory(packageDir, { recursive: true });
-      yield* fs.writeFileString(
-        path.join(packageDir, "package.json"),
-        '{ "name": "@beep/courtlistener", "private": true }\n'
-      );
-      yield* fs.makeDirectory("standards", { recursive: true });
-      yield* fs.writeFileString(
-        "standards/changesets.retired-packages.json",
-        `{\n  "packages": [\n    { "name": "${retiredName}", "rationale": "Retired fixture name." }\n  ]\n}\n`
-      );
-    });
+  const seedLiveCourtlistener = Effect.fn(function* (retiredName: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const packageDir = path.join("packages", "drivers", "courtlistener");
+    yield* fs.writeFileString("bun.lock", "");
+    yield* fs.writeFileString(
+      "package.json",
+      '{ "name": "fixture", "private": true, "workspaces": ["packages/drivers/courtlistener"] }\n'
+    );
+    yield* fs.makeDirectory(packageDir, { recursive: true });
+    yield* fs.writeFileString(
+      path.join(packageDir, "package.json"),
+      '{ "name": "@beep/courtlistener", "private": true }\n'
+    );
+    yield* fs.makeDirectory("standards", { recursive: true });
+    yield* fs.writeFileString(
+      "standards/changesets.retired-packages.json",
+      `{\n  "packages": [\n    { "name": "${retiredName}", "rationale": "Retired fixture name." }\n  ]\n}\n`
+    );
+  });
 
+  describe("delete-package exact name matching", () => {
     it.effect("does not flag a retired-name collision for a prefix-sharing retired name", () =>
       Effect.andThen(
         temporaryWorkingDirectory,
@@ -1033,6 +1033,192 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             )
           );
         })
+      )
+    );
+  });
+
+  describe("delete-package registration-geometry tokens", () => {
+    const SHAPE_TEST = "packages/foundation/modeling/identity/test/shape-stable.test.ts";
+    const PREFLIGHT_REFUSAL =
+      "[delete-package] REFUSE [dependent/hard] 1 production/test/script/path dependent hit(s); --force never overrides dependents.";
+
+    const writeShapeTest = Effect.fn(function* (lines: ReadonlyArray<string>) {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.makeDirectory("packages/foundation/modeling/identity/test", { recursive: true });
+      yield* fs.writeFileString(SHAPE_TEST, A.join(lines, "\n"));
+    });
+
+    // A sibling whose name, path and accessor all extend the target's.
+    const seedPrefixSibling = Effect.fn(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.writeFileString(
+        "package.json",
+        '{ "name": "fixture", "private": true, "workspaces": ["packages/drivers/courtlistener", "packages/drivers/courtlistener-identity"] }\n'
+      );
+      yield* fs.makeDirectory("packages/drivers/courtlistener-identity/src", { recursive: true });
+      yield* fs.writeFileString(
+        "packages/drivers/courtlistener-identity/package.json",
+        '{ "name": "@beep/courtlistener-identity", "private": true }\n'
+      );
+      yield* fs.writeFileString(
+        "packages/drivers/courtlistener-identity/src/index.ts",
+        'import { $CourtlistenerIdentityId } from "@beep/identity/packages";\n\nexport const id = $CourtlistenerIdentityId;\n'
+      );
+    });
+
+    const dryRunErrors = Effect.gen(function* () {
+      const exit = yield* Effect.exit(runDeletePackage(["courtlistener", "--dry-run"]));
+      return { exit, errors: yield* TestConsole.errorLines };
+    });
+
+    it.effect("does not block on the target's own shape-test rows, which the deletion removes", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* writeShapeTest([
+            "const currentPackagesRuntimeNamedImports = [",
+            '  "$CourtlistenerId",',
+            "] as const;",
+            "",
+            "const expectedPackageComposerIdentities = {",
+            '  $CourtlistenerId: "@beep/courtlistener",',
+            "} as const;",
+            "",
+          ]);
+          const { exit, errors } = yield* dryRunErrors;
+          assertTrue(Exit.isSuccess(exit), Exit.isFailure(exit) ? Cause.pretty(exit.cause) : undefined);
+          expect(errors).toStrictEqual([]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("still blocks on a shape-test line that is not one of the target's rows", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* writeShapeTest([
+            "const accessorCases = [",
+            '  { accessor: "$CourtlistenerId", base: "courtlistener", identity: "@beep/courtlistener" },',
+            "];",
+            "",
+          ]);
+          const { exit, errors } = yield* dryRunErrors;
+          expectReportedExit(exit);
+          expect(errors).toStrictEqual([PREFLIGHT_REFUSAL]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("does not block on a prefix-sharing sibling package", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* seedPrefixSibling();
+          const { exit, errors } = yield* dryRunErrors;
+          assertTrue(Exit.isSuccess(exit), Exit.isFailure(exit) ? Cause.pretty(exit.cause) : undefined);
+          expect(errors).toStrictEqual([]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("deletes a package next to a prefix-sharing sibling and passes the post-apply doctor", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* seedPrefixSibling();
+          yield* fs.writeFileString(
+            "tsconfig.json",
+            '{ "compilerOptions": { "paths": { "@beep/courtlistener": ["./packages/drivers/courtlistener/src/index.ts"], "@beep/courtlistener-identity": ["./packages/drivers/courtlistener-identity/src/index.ts"] } } }\n'
+          );
+          yield* fs.writeFileString(
+            "tsconfig.packages.json",
+            '{ "references": [{ "path": "packages/drivers/courtlistener" }, { "path": "packages/drivers/courtlistener-identity" }] }\n'
+          );
+          yield* fs.writeFileString(
+            "syncpack.config.ts",
+            A.join(
+              [
+                'import type { RcFile } from "syncpack";',
+                "",
+                "const config = {",
+                "  source: [",
+                '    "package.json",',
+                '    "packages/drivers/courtlistener/package.json",',
+                '    "packages/drivers/courtlistener-identity/package.json",',
+                "  ],",
+                "  customTypes: {},",
+                "  versionGroups: [],",
+                "} satisfies RcFile;",
+                "",
+                "export default config;",
+                "",
+              ],
+              "\n"
+            )
+          );
+          yield* fs.makeDirectory("packages/foundation/modeling/identity/src", { recursive: true });
+          yield* fs.writeFileString(
+            "packages/foundation/modeling/identity/src/packages.ts",
+            'const composers = $I.compose("courtlistener", "courtlistener-identity");\nexport const $CourtlistenerId = composers.$CourtlistenerId;\n'
+          );
+          yield* writeShapeTest([
+            "const currentPackagesRuntimeNamedImports = [",
+            '  "$CourtlistenerId",',
+            '  "$CourtlistenerIdentityId",',
+            "] as const;",
+            "",
+            "const expectedPackageComposerIdentities = {",
+            '  $CourtlistenerId: "@beep/courtlistener",',
+            '  $CourtlistenerIdentityId: "@beep/courtlistener-identity",',
+            "} as const;",
+            "",
+          ]);
+
+          const exit = yield* Effect.exit(
+            runDeletePackage([
+              "courtlistener",
+              "--force",
+              "--allow-stale-packets",
+              "--skip-lockfile",
+              "--skip-baselines",
+            ])
+          );
+          assertTrue(Exit.isSuccess(exit), Exit.isFailure(exit) ? Cause.pretty(exit.cause) : undefined);
+          expect(yield* TestConsole.errorLines).toStrictEqual([]);
+          expect(
+            A.some(
+              yield* TestConsole.logLines,
+              (line) => P.isString(line) && Str.includes("removed with zero declared residue")(line)
+            )
+          ).toBe(true);
+          expect(yield* fs.exists("packages/drivers/courtlistener")).toBe(false);
+          expect(yield* fs.exists("packages/drivers/courtlistener-identity/package.json")).toBe(true);
+          expect(yield* fs.readFileString(SHAPE_TEST)).toBe(
+            A.join(
+              [
+                "const currentPackagesRuntimeNamedImports = [",
+                '  "$CourtlistenerIdentityId",',
+                "] as const;",
+                "",
+                "const expectedPackageComposerIdentities = {",
+                '  $CourtlistenerIdentityId: "@beep/courtlistener-identity",',
+                "} as const;",
+                "",
+              ],
+              "\n"
+            )
+          );
+        })
+      ).pipe(
+        flow(
+          Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ CI: "false" })),
+          Effect.provideServiceEffect(Console.Console, TestConsole.make)
+        )
       )
     );
   });
