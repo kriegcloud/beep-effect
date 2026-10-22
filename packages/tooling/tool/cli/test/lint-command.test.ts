@@ -902,6 +902,108 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
 
+    it.effect("skips arbitrary-tests advisories for non-test support modules", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          for (const supportFile of [
+            "packages/example/test/support/harness.ts",
+            "packages/example/test/fixtures/process.ts",
+            "packages/example/test/fixture.ts",
+          ])
+            yield* writeSchemaFirstFileFixture(supportFile, [
+              'import * as S from "effect/Schema";',
+              "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+              "export const staticChecks = [",
+              '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+              '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+              '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+              "];",
+              "",
+            ]);
+
+          yield* runSchemaFirstAndExpectNoErrors();
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("still reports arbitrary-tests advisories for tsx test files", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* writeSchemaFirstFileFixture("packages/example/test/Harness.test.tsx", [
+            'import * as S from "effect/Schema";',
+            "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+            "export const staticChecks = [",
+            '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+            '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+            '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+            "];",
+            "",
+          ]);
+
+          const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+          const errorLines = yield* TestConsole.errorLines;
+          expectReportedExit(exit);
+          expect(errorLines).toContain(
+            "- packages/example/test/Harness.test.tsx :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+          );
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("does not count S.Unknown codec plumbing toward the arbitrary-tests threshold", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* writeSchemaFirstFileFixture("packages/example/test/Example.test.ts", [
+            'import * as S from "effect/Schema";',
+            "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+            "const UnknownJson = S.fromJsonString(S.Unknown);",
+            "const encodeJson = S.encodeUnknownSync(S.fromJsonString(S.Unknown));",
+            "const decodeJson = S.decodeUnknownSync(UnknownJson);",
+            "const decodeValue = Schema.decodeUnknownSync(Schema.Unknown);",
+            "export const staticChecks = [",
+            '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+            '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+            "];",
+            "",
+          ]);
+
+          yield* runSchemaFirstAndExpectNoErrors();
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("still counts codecs over concrete schemas beside S.Unknown plumbing", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* writeSchemaFirstFileFixture("packages/example/test/Example.test.ts", [
+            'import * as S from "effect/Schema";',
+            "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+            "let UnknownJson = S.fromJsonString(S.Unknown);",
+            "const encodeJson = S.encodeUnknownSync(S.fromJsonString(S.Unknown));",
+            "export const staticChecks = [",
+            '  S.decodeUnknownEffect(S.fromJsonString(Worker))("{}"),',
+            '  S.decodeUnknownEffect(UnknownJson)("{}"),',
+            '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+            "];",
+            "",
+          ]);
+
+          const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+          const errorLines = yield* TestConsole.errorLines;
+          expectReportedExit(exit);
+          expect(errorLines).toContain(
+            "- packages/example/test/Example.test.ts :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+          );
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
     it.effect("accepts schema-derived static match usage without static-api advisories", () =>
       Effect.andThen(
         temporaryWorkingDirectory,
