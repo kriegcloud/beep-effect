@@ -29,6 +29,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 import { makeModelsTestExchangeSystem, modelsTestMountId } from "./helpers/models-atomic-exchange.ts";
 import type {
   ModelsAtomicExchangeShape,
@@ -128,7 +129,7 @@ layer(ModelsAtomicExchangeLive.pipe(Layer.provideMerge(Layer.mergeAll(NodeServic
       expect(first.directory).toBe(root);
       expect((yield* capability.qualify(sibling)).capability._tag).toBe("supported");
       expect(counter.probes).toBe(1);
-      expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.startsWith(probePrefix))).toEqual([]);
+      expect(A.filter(yield* fs.readDirectory(root), (entry) => Str.startsWith(probePrefix)(entry))).toEqual([]);
       const writer = yield* writerWith(capability);
       const journal = O.getOrThrow(yield* writer.apply(file, [topLevel], "write", backups));
       expect(yield* fs.readFileString(journal.backup)).toBe(native);
@@ -136,7 +137,7 @@ layer(ModelsAtomicExchangeLive.pipe(Layer.provideMerge(Layer.mergeAll(NodeServic
       yield* writer.restore(path.join(backups, `${journal.id}.json`), backups);
       expect(yield* fs.readFileString(file)).toBe(native);
       expect(counter.probes).toBe(3);
-      expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.startsWith(probePrefix))).toEqual([]);
+      expect(A.filter(yield* fs.readDirectory(root), (entry) => Str.startsWith(probePrefix)(entry))).toEqual([]);
     })
   );
 
@@ -204,7 +205,10 @@ layer(ModelsAtomicExchangeLive.pipe(Layer.provideMerge(Layer.mergeAll(NodeServic
       expect(error.message).toContain(`Journal: ${journal.id}`);
       expect(yield* fs.readFileString(file)).toBe(applied);
       expect(
-        A.filter(yield* fs.readDirectory(root), (entry) => entry.endsWith(".preimage") || entry.endsWith(".tmp"))
+        A.filter(
+          yield* fs.readDirectory(root),
+          (entry) => Str.endsWith(".preimage")(entry) || Str.endsWith(".tmp")(entry)
+        )
       ).toEqual([]);
       expect(yield* fs.readFileString(journal.backup)).toBe(native);
     })
@@ -242,7 +246,7 @@ layer(ModelsAtomicExchangeLive.pipe(Layer.provideMerge(Layer.mergeAll(NodeServic
       expect(error.message).toContain("no host verdict: simulated spawn EAGAIN");
       expect(yield* fs.exists(backups)).toBe(false);
       expect(yield* fs.readFileString(file)).toBe(native);
-      expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.startsWith(probePrefix))).toEqual([]);
+      expect(A.filter(yield* fs.readDirectory(root), (entry) => Str.startsWith(probePrefix)(entry))).toEqual([]);
       // Not cached: the next qualification probes again and the host verdict is supported.
       expect((yield* capability.qualify(file)).capability._tag).toBe("supported");
       expect(counter.launches).toBe(2);
@@ -267,7 +271,7 @@ layer(ModelsAtomicExchangeLive.pipe(Layer.provideMerge(Layer.mergeAll(NodeServic
       const { system } = yield* countingSystem({ noop: true });
       const { capability } = yield* (yield* makeModelsAtomicExchange(system)).qualify(file);
       expect(capability).toMatchObject({ _tag: "unsupported", reason: "unknown" });
-      expect(A.filter(yield* fs.readDirectory(root), (entry) => entry.startsWith(probePrefix))).toEqual([]);
+      expect(A.filter(yield* fs.readDirectory(root), (entry) => Str.startsWith(probePrefix)(entry))).toEqual([]);
     })
   );
 

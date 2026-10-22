@@ -267,17 +267,17 @@ Effect-sized source files. Public schema concepts use flat concept subpaths:
 
 ```ts
 import * as Color from "@beep/schema/Color"
-import * as Glob from "@beep/schema/Glob"
+import * as HttpProtocol from "@beep/schema/HttpProtocol"
 
 Color.HexColor
 Color.HexToRgb
-Glob.Schema
+HttpProtocol.Schema
 ```
 
 The package root remains a curated flat facade for convenience and migration:
 
 ```ts
-import { Glob, HexColor } from "@beep/schema"
+import { HexColor, LiteralKit } from "@beep/schema"
 ```
 
 Root exports are not the canonical place for full concept namespaces. New
@@ -318,8 +318,8 @@ semantic roles are allowed for clearer specialized modules such as parser,
 formatter, SQL projection, or color-conversion roles.
 
 Inside the namespace, concise role names are canonical. Prefer
-`Glob.Schema` over repeated names such as `Glob.Glob` in new code. Legacy full
-names may remain as aliases while consumers migrate.
+`HttpProtocol.Schema` over repeated names such as `HttpProtocol.HttpProtocol`
+in new code. Legacy full names may remain as aliases while consumers migrate.
 Promote source concepts rather than individual exported symbols; for example,
 `Color` remains one concept module rather than a public subpath per color
 schema.

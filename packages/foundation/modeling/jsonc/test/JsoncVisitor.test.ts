@@ -7,6 +7,7 @@ import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const collect = (text: string, options?: JsoncParseOptions) => Stream.runCollect(JsoncVisitor.visit(text, options));
 const tags = (text: string, options?: JsoncParseOptions) =>
@@ -207,10 +208,10 @@ describe("JsoncVisitor", () => {
 
     it.effect("deeply nested input yields a NestingDepthExceeded Error event, never a stack-overflow defect", () =>
       Effect.gen(function* () {
-        const deep = `${"[".repeat(20000)}1${"]".repeat(20000)}`;
+        const deep = `${Str.repeat(20000)("[")}1${Str.repeat(20000)("]")}`;
         const codes = yield* errorCodes(deep);
         assert.deepStrictEqual(codes, ["NestingDepthExceeded"]);
-        const objects = `${'{"a":'.repeat(300)}1${"}".repeat(300)}`;
+        const objects = `${Str.repeat(300)('{"a":')}1${Str.repeat(300)("}")}`;
         assert.deepStrictEqual(yield* errorCodes(objects), ["NestingDepthExceeded"]);
         const parsed = yield* Jsonc.parse(deep).pipe(Effect.asVoid, Effect.flip);
         assert.strictEqual(parsed._tag, "JsoncParseError");

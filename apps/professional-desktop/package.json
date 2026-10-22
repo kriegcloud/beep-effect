@@ -66,6 +66,7 @@
     "@beep/epistemic-tables": "workspace:^",
     "@beep/epistemic-ui": "workspace:^",
     "@beep/epistemic-use-cases": "workspace:^",
+    "@beep/epistemics": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/graph-3d": "workspace:^",
     "@beep/identity": "workspace:^",

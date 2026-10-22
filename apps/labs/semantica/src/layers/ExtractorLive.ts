@@ -1,4 +1,4 @@
-import { Confidence } from "@beep/epistemic-domain";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { AlignmentSource, alignCandidate } from "@beep/langextract/Alignment";
 import {
   ExtractionCandidate,

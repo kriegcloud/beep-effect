@@ -8,6 +8,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertInstanceOf } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { braceExpand as oracleExpand } from "minimatch";
 
 const reasonOf = (fn: () => unknown): string => {
@@ -85,7 +86,7 @@ describe("balancedMatch", () => {
   });
 
   it("completes fast on a long pathological input (iterative, no guard needed)", () => {
-    const long = `${"{".repeat(50_000)}a`;
+    const long = `${Str.repeat(50_000)("{")}a`;
     assert.isFalse(balanced("{", "}", long));
   });
 });
@@ -193,8 +194,8 @@ describe("braceExpansion hardening", () => {
   });
 
   it("rejects non-finite member counts with an Infinity measurement instead of a schema defect", () => {
-    const huge = "9".repeat(310);
-    const finite = `1${"0".repeat(308)}`;
+    const huge = Str.repeat(310)("9");
+    const finite = `1${Str.repeat(308)("0")}`;
     for (const source of [
       `{${huge}..${huge}}`,
       `{1..${huge}..${huge}}`,
@@ -214,7 +215,7 @@ describe("braceExpansion hardening", () => {
   });
 
   it("preserves finite counts, increments and padding when a step overflows", () => {
-    assert.deepStrictEqual(expand(`{01..03..${"9".repeat(310)}}`, { max: 1 }), ["01"]);
+    assert.deepStrictEqual(expand(`{01..03..${Str.repeat(310)("9")}}`, { max: 1 }), ["01"]);
     assert.deepStrictEqual(expand("{03..-03..2}"), ["003", "001", "-01", "-03"]);
   });
 
@@ -222,7 +223,7 @@ describe("braceExpansion hardening", () => {
     // The comma is load-bearing: a comma-free {{{...}}} never recurses upstream
     // (returned unexpanded); comma-bearing nesting descends one expand_ frame
     // per level.
-    const bomb = `${"{".repeat(300)}a,b${"}".repeat(300)}`;
+    const bomb = `${Str.repeat(300)("{")}a,b${Str.repeat(300)("}")}`;
     assert.strictEqual(
       reasonOf(() => expand(bomb)),
       "NestingDepthExceeded"
@@ -230,13 +231,13 @@ describe("braceExpansion hardening", () => {
   });
 
   it("returns a comma-free deep nest unexpanded without recursing (upstream shape)", () => {
-    const inert = `${"{".repeat(300)}a${"}".repeat(300)}`;
+    const inert = `${Str.repeat(300)("{")}a${Str.repeat(300)("}")}`;
     assert.deepStrictEqual(expand(inert), [inert]);
   });
 
   it("fails typed when the expansion budget is exhausted", () => {
     // 2^17 = 131_072 > 100_000
-    const bomb = "{a,b}".repeat(17);
+    const bomb = Str.repeat(17)("{a,b}");
     assert.strictEqual(
       reasonOf(() => expand(bomb)),
       "ExpansionBudgetExceeded"
@@ -252,25 +253,25 @@ describe("braceExpansion hardening", () => {
   });
 
   it("survives the a{},{},{} exponential-blowup shape (lazy post preserved)", () => {
-    const r = expand(`a${"{},".repeat(60)}b`);
+    const r = expand(`a${Str.repeat(60)("{},")}b`);
     assert.isArray(r); // completing within the test timeout IS the assertion
   });
 
   it("survives a {a},b} rewrite chain under the cap (for-loop rewrite preserved)", () => {
-    assert.isArray(expand(`${"{a},".repeat(200)}b}`));
+    assert.isArray(expand(`${Str.repeat(200)("{a},")}b}`));
   });
 
   it("fails typed, not with a stack overflow, past the sequential-group cap", () => {
     // Each sequential group is one parseCommaParts frame; upstream left this
     // surface unguarded and would recurse 5000 deep here.
     assert.strictEqual(
-      reasonOf(() => expand(`${"{a},".repeat(5000)}b}`)),
+      reasonOf(() => expand(`${Str.repeat(5000)("{a},")}b}`)),
       "NestingDepthExceeded"
     );
   });
 
   it("guards nested comma members in expand_", () => {
-    const deep = `{a,${"{b,".repeat(300)}c${"}".repeat(300)}}`;
+    const deep = `{a,${Str.repeat(300)("{b,")}c${Str.repeat(300)("}")}}`;
     assert.strictEqual(
       reasonOf(() => expand(deep)),
       "NestingDepthExceeded"
@@ -279,7 +280,7 @@ describe("braceExpansion hardening", () => {
 
   it("guards parseCommaParts against long sequential group chains", () => {
     // Sequential {x} groups recurse through parseCommaParts on the post side.
-    const chain = `{${"{x},".repeat(300)}y}`;
+    const chain = `{${Str.repeat(300)("{x},")}y}`;
     assert.strictEqual(
       reasonOf(() => expand(chain)),
       "NestingDepthExceeded"
@@ -294,7 +295,7 @@ describe("braceExpansion hardening", () => {
 
   it("stays fast and exact just under the budget", () => {
     // 2^16 = 65_536 <= 100_000: expands fully, no throw
-    const r = expand("{a,b}".repeat(16));
+    const r = expand(Str.repeat(16)("{a,b}"));
     assert.lengthOf(r, 65_536);
   });
 });

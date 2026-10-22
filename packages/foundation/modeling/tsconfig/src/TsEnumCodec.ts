@@ -51,11 +51,12 @@
 import { $TsconfigId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { CompilerOptions } from "./CompilerOptions.ts";
 
 const $I = $TsconfigId.create("TsEnumCodec");
@@ -233,9 +234,9 @@ const decode: {
 
 // Implementation of TsEnumCodec.normalizeLibReference; the public contract lives on the static.
 const normalizeLibReference = (lib: string): string => {
-  const base = lib.slice(lib.lastIndexOf("/") + 1).toLowerCase();
-  const withoutPrefix = base.startsWith("lib.") ? base.slice(4) : base;
-  return withoutPrefix.endsWith(".d.ts") ? withoutPrefix.slice(0, -5) : withoutPrefix;
+  const base = Str.toLowerCase(Str.slice(O.getOrElse(Str.lastIndexOf("/")(lib), constant(-1)) + 1)(lib));
+  const withoutPrefix = Str.startsWith("lib.")(base) ? Str.slice(4)(base) : base;
+  return Str.endsWith(".d.ts")(withoutPrefix) ? Str.slice(0, -5)(withoutPrefix) : withoutPrefix;
 };
 
 /** `compilerOptions` keys whose values are one of the enum families. */

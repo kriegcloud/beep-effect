@@ -30,12 +30,12 @@ wave moves `@effect/tsgo` to 0.55+ and arms `preferEffectString` at `error`.
 | 5b | repo-cli: 49 of the remaining files (commands, internal, tests) | 224 | merged (#2008) |
 | 5c | repo-cli: 50 further files plus `scripts/CreateKnowledgeMintApp.ts` and `scripts/CreateReviewerApp.ts` | 213 | merged (#2001) |
 | 4c | schema, utils, repo-utils and the repo-cli and walker files that effected-promotion wave 2c edits | 23 | held until 2c merges |
-| 6a | effected modeling: managed-section, jsonc, github-references, github-commands, tsconfig, spdx, npm-spec, schema-org, semver, jsonl, walker | 297 | in progress |
-| 6b | effected drivers: git, github, commands | 279 | in progress |
-| 6c | effected memfs and toml | 266 | in progress |
+| 6a | effected modeling: managed-section, jsonc, github-references, github-commands, tsconfig, spdx, npm-spec, schema-org, semver, jsonl, walker | 297 | in review (#2012) |
+| 6b | effected drivers: git, github, commands | 279 | merged (#2011) |
+| 6c | effected memfs and toml | 266 | in review (#2013) |
 | 6d | effected glob | 205 | held until 2c merges |
-| 6e | effected yaml sources | 286 | in progress |
-| 6f | effected yaml tests | 208 | in review |
+| 6e | effected yaml sources | 286 | in review |
+| 6f | effected yaml tests | 208 | merged (#2010) |
 | 7 | whatever later merges add, then the pin moves to 0.55+ and the rule is armed | — | pending |
 
 Wave proof, per package: the package's tests, `package-verify --quick`, and a

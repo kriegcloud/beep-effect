@@ -1,4 +1,3 @@
-import { EvidenceSpan } from "@beep/epistemic-domain";
 import { ClaimEvidenceBasis, ClaimEvidenceReview } from "@beep/epistemic-domain/values/ClaimEvidenceReview";
 import {
   ApproveClaimEvidence,
@@ -6,6 +5,7 @@ import {
   ExplainClaimEvidence,
   explainClaimEvidence,
 } from "@beep/epistemic-use-cases/ClaimEvidenceReview";
+import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan";
 import { SourceTextDigest, SourceTextExtractor, SourceTextIdentity } from "@beep/provenance/SourceTextIdentity";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { UnitInterval } from "@beep/schema/UnitInterval";

@@ -134,27 +134,6 @@ export {
    * @since 0.0.0
    */
   findNearestPackageDir,
-  /**
-   * @category utilities
-   * @since 0.0.0
-   */
-  walkFiles,
-} from "./FsUtils.ts";
-/**
- * @category models
- * @since 0.0.0
- */
-export type {
-  /**
-   * @category models
-   * @since 0.0.0
-   */
-  WalkFilesOptions,
-  /**
-   * @category models
-   * @since 0.0.0
-   */
-  WalkFilesSymlinkGuard,
 } from "./FsUtils.ts";
 /**
  * @category utilities

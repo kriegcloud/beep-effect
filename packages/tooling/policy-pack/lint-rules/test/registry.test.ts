@@ -13,6 +13,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const BiomePluginSection = S.Struct({ plugins: S.Array(S.String).pipe(S.optionalKey) });
 const BiomePluginConfig = S.Struct({
@@ -43,8 +44,8 @@ describe("rule registry", () => {
           const exists = yield* fs.exists(file);
           expect(exists, `${name}.grit must exist`).toBe(true);
           const content = yield* fs.readFileString(file);
-          expect(content.includes("language js"), `${name}.grit must declare language js`).toBe(true);
-          expect(content.includes("register_diagnostic"), `${name}.grit must register a diagnostic`).toBe(true);
+          expect(Str.includes("language js")(content), `${name}.grit must declare language js`).toBe(true);
+          expect(Str.includes("register_diagnostic")(content), `${name}.grit must register a diagnostic`).toBe(true);
         }
       })
     )
@@ -57,7 +58,7 @@ describe("rule registry", () => {
         const path = yield* Path.Path;
         const entries = yield* fs.readDirectory(rulesDir());
         const gritFiles = A.map(
-          A.filter(entries, (f) => f.endsWith(".grit")),
+          A.filter(entries, (f) => Str.endsWith(".grit")(f)),
           (f) => path.basename(f, ".grit")
         ).sort();
         expect(gritFiles).toEqual(sortedRuleNames);

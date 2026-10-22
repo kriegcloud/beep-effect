@@ -10,6 +10,7 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -50,7 +51,10 @@ it.effect.prop(
       assert.strictEqual(restored.toScriptBody(), body);
       assert.strictEqual(/[<>&]/.test(body), false);
       // README composition guarantee: escaping the already escaped body is idempotent.
-      assert.strictEqual(body.replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026"), body);
+      assert.strictEqual(
+        Str.replace(/&/g, "\\u0026")(Str.replace(/>/g, "\\u003e")(Str.replace(/</g, "\\u003c")(body))),
+        body
+      );
     }),
   runs
 );

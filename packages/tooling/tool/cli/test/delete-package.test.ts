@@ -10,6 +10,8 @@ import {
   inspectTargetAtRoot,
   planInverseForTarget,
   RegistrationTarget,
+  removeShapeTestRow,
+  rewritePendingChangesets,
 } from "@beep/repo-cli/test/DeletePackage";
 import { TSMorphServiceLive } from "@beep/repo-utils";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
@@ -874,5 +876,435 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(refusals).toStrictEqual([]);
     });
+  });
+
+  describe("delete-package pending changeset prune", () => {
+    const pruneChangesets = Effect.fn(function* (
+      packageName: string,
+      changesets: ReadonlyArray<readonly [file: string, content: string]>
+    ) {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* temporaryDirectory;
+      const changesetDir = path.join(repoRoot, ".changeset");
+      yield* fs.makeDirectory(changesetDir, { recursive: true });
+      for (const [file, content] of changesets) {
+        yield* fs.writeFileString(path.join(changesetDir, file), content);
+      }
+      yield* rewritePendingChangesets(repoRoot, packageName, "private-exempt");
+      return (file: string) => fs.readFileString(path.join(changesetDir, file)).pipe(Effect.option);
+    });
+
+    it.effect("keeps a sibling whose name extends the deleted package name", () =>
+      Effect.gen(function* () {
+        const read = yield* pruneChangesets("@beep/schema", [
+          ["multi.md", '---\n"@beep/schema": patch\n"@beep/schema-org": minor\n---\n\nTouches @beep/schema.\n'],
+        ]);
+        assertSome(yield* read("multi.md"), '---\n"@beep/schema-org": minor\n---\n\nTouches @beep/schema.\n');
+      })
+    );
+
+    it.effect("matches single-quoted and unquoted frontmatter keys exactly", () =>
+      Effect.gen(function* () {
+        const readQuoted = yield* pruneChangesets("@beep/schema", [
+          ["quoted.md", "---\n'@beep/schema': minor\n'@beep/schema-org': patch\n---\n\nSingle-quoted keys.\n"],
+        ]);
+        assertSome(yield* readQuoted("quoted.md"), "---\n'@beep/schema-org': patch\n---\n\nSingle-quoted keys.\n");
+
+        const readUnquoted = yield* pruneChangesets("probe", [
+          ["unquoted.md", "---\nprobe: patch\nprobe-extra: minor\n---\n\nUnquoted keys.\n"],
+        ]);
+        assertSome(yield* readUnquoted("unquoted.md"), "---\nprobe-extra: minor\n---\n\nUnquoted keys.\n");
+      })
+    );
+
+    it.effect("removes a single-package changeset and leaves a sibling-only changeset untouched", () =>
+      Effect.gen(function* () {
+        const sibling = '---\n"@beep/schema-org": minor\n---\n\nSibling only.\n';
+        const read = yield* pruneChangesets("@beep/schema", [
+          ["single.md", '---\n"@beep/schema": patch\n---\n\nOnly schema.\n'],
+          ["sibling.md", sibling],
+        ]);
+        assertNone(yield* read("single.md"));
+        assertSome(yield* read("sibling.md"), sibling);
+      })
+    );
+  });
+
+  const seedLiveCourtlistener = Effect.fn(function* (retiredName: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const packageDir = path.join("packages", "drivers", "courtlistener");
+    yield* fs.writeFileString("bun.lock", "");
+    yield* fs.writeFileString(
+      "package.json",
+      '{ "name": "fixture", "private": true, "workspaces": ["packages/drivers/courtlistener"] }\n'
+    );
+    yield* fs.makeDirectory(packageDir, { recursive: true });
+    yield* fs.writeFileString(
+      path.join(packageDir, "package.json"),
+      '{ "name": "@beep/courtlistener", "private": true }\n'
+    );
+    yield* fs.makeDirectory("standards", { recursive: true });
+    yield* fs.writeFileString(
+      "standards/changesets.retired-packages.json",
+      `{\n  "packages": [\n    { "name": "${retiredName}", "rationale": "Retired fixture name." }\n  ]\n}\n`
+    );
+  });
+
+  describe("delete-package exact name matching", () => {
+    it.effect("does not flag a retired-name collision for a prefix-sharing retired name", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/courtlistener-mcp");
+          const exit = yield* Effect.exit(runDeletePackage(["courtlistener", "--dry-run"]));
+          assertTrue(Exit.isSuccess(exit), Exit.isFailure(exit) ? Cause.pretty(exit.cause) : undefined);
+          expect(yield* TestConsole.errorLines).toStrictEqual([]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("still flags a retired-name collision for the exact live name", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/courtlistener");
+          const exit = yield* Effect.exit(runDeletePackage(["courtlistener", "--dry-run"]));
+          expectReportedExit(exit);
+          expect(yield* TestConsole.errorLines).toStrictEqual([
+            "[delete-package] REFUSE [retired-name-collision/hard] @beep/courtlistener is both live and retired; reconcile name provenance before deletion.",
+          ]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("removes only the exact accessor rows from the identity shape test", () =>
+      Effect.flatMap(temporaryDirectory, (repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const testDir = path.join(repoRoot, "packages", "foundation", "modeling", "identity", "test");
+          const shapeTest = path.join(testDir, "shape-stable.test.ts");
+          yield* fs.makeDirectory(testDir, { recursive: true });
+          yield* fs.writeFileString(
+            shapeTest,
+            A.join(
+              [
+                "const currentPackagesRuntimeNamedImports = [",
+                '  "$CourtlistenerId",',
+                '  "$CourtlistenerIdentityId",',
+                '  "$DataId",',
+                "] as const;",
+                "",
+                "const expectedPackageComposerIdentities = {",
+                '  $CourtlistenerId: "@beep/courtlistener",',
+                '  $CourtlistenerIdentityId: "@beep/courtlistener-identity",',
+                "} as const;",
+                "",
+                'for (const accessorName of ["$CourtlistenerIdentityId", "$DataId"]) {',
+                "  expect(accessorName).toBeTruthy();",
+                "}",
+                "",
+              ],
+              "\n"
+            )
+          );
+
+          yield* removeShapeTestRow(repoRoot, "@beep/courtlistener");
+          expect(yield* fs.readFileString(shapeTest)).toBe(
+            A.join(
+              [
+                "const currentPackagesRuntimeNamedImports = [",
+                '  "$CourtlistenerIdentityId",',
+                '  "$DataId",',
+                "] as const;",
+                "",
+                "const expectedPackageComposerIdentities = {",
+                '  $CourtlistenerIdentityId: "@beep/courtlistener-identity",',
+                "} as const;",
+                "",
+                'for (const accessorName of ["$CourtlistenerIdentityId", "$DataId"]) {',
+                "  expect(accessorName).toBeTruthy();",
+                "}",
+                "",
+              ],
+              "\n"
+            )
+          );
+        })
+      )
+    );
+  });
+
+  describe("delete-package registration-geometry tokens", () => {
+    const SHAPE_TEST = "packages/foundation/modeling/identity/test/shape-stable.test.ts";
+    const preflightRefusal = (hits: number) =>
+      `[delete-package] REFUSE [dependent/hard] ${hits} production/test/script/path dependent hit(s); --force never overrides dependents.`;
+
+    const writeShapeTest = Effect.fn(function* (lines: ReadonlyArray<string>) {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.makeDirectory("packages/foundation/modeling/identity/test", { recursive: true });
+      yield* fs.writeFileString(SHAPE_TEST, A.join(lines, "\n"));
+    });
+
+    // A sibling whose name, path and accessor all extend the target's.
+    const seedPrefixSibling = Effect.fn(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.writeFileString(
+        "package.json",
+        '{ "name": "fixture", "private": true, "workspaces": ["packages/drivers/courtlistener", "packages/drivers/courtlistener-identity"] }\n'
+      );
+      yield* fs.makeDirectory("packages/drivers/courtlistener-identity/src", { recursive: true });
+      yield* fs.writeFileString(
+        "packages/drivers/courtlistener-identity/package.json",
+        '{ "name": "@beep/courtlistener-identity", "private": true }\n'
+      );
+      yield* fs.writeFileString(
+        "packages/drivers/courtlistener-identity/src/index.ts",
+        'import { $CourtlistenerIdentityId } from "@beep/identity/packages";\n\nexport const id = $CourtlistenerIdentityId;\n'
+      );
+    });
+
+    const dryRunErrors = Effect.gen(function* () {
+      const exit = yield* Effect.exit(runDeletePackage(["courtlistener", "--dry-run"]));
+      return { exit, errors: yield* TestConsole.errorLines };
+    });
+
+    it.effect("does not block on the target's own shape-test rows, which the deletion removes", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* writeShapeTest([
+            "const currentPackagesRuntimeNamedImports = [",
+            '  "$CourtlistenerId",',
+            "] as const;",
+            "",
+            "const expectedPackageComposerIdentities = {",
+            '  $CourtlistenerId: "@beep/courtlistener",',
+            "} as const;",
+            "",
+          ]);
+          const { exit, errors } = yield* dryRunErrors;
+          assertTrue(Exit.isSuccess(exit), Exit.isFailure(exit) ? Cause.pretty(exit.cause) : undefined);
+          expect(errors).toStrictEqual([]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("still blocks on a shape-test line that is not one of the target's rows", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* writeShapeTest([
+            "const accessorCases = [",
+            '  { accessor: "$CourtlistenerId", base: "courtlistener", identity: "@beep/courtlistener" },',
+            "];",
+            "",
+          ]);
+          const { exit, errors } = yield* dryRunErrors;
+          expectReportedExit(exit);
+          // One line naming both the package and the accessor: a file-path and an import-test hit.
+          expect(errors).toStrictEqual([preflightRefusal(2)]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("refuses when the shape test names the removed accessor outside its rows", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* writeShapeTest([
+            "const currentPackagesRuntimeNamedImports = [",
+            '  "$CourtlistenerId",',
+            "] as const;",
+            "",
+            "const expectedPackageComposerIdentities = {",
+            '  $CourtlistenerId: "@beep/courtlistener",',
+            "} as const;",
+            "",
+            "const composed = [",
+            '  IdentityPackages.$CourtlistenerId.create("Server"),',
+            "];",
+            "",
+          ]);
+          const { exit, errors } = yield* dryRunErrors;
+          expectReportedExit(exit);
+          expect(errors).toStrictEqual([preflightRefusal(1)]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("refuses when another identity-package file uses the removed accessor", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* fs.makeDirectory("packages/foundation/modeling/identity/test", { recursive: true });
+          yield* fs.writeFileString(
+            "packages/foundation/modeling/identity/test/Identity.test.ts",
+            'import * as IdentityPackages from "@beep/identity/packages";\n\nexport const id = IdentityPackages.$CourtlistenerId.make("Probe");\n'
+          );
+          const { exit, errors } = yield* dryRunErrors;
+          expectReportedExit(exit);
+          expect(errors).toStrictEqual([preflightRefusal(1)]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    // The doctor re-checks the shape test even when a deletion skipped the preflight.
+    it.effect("reports a leftover shape-test accessor as identity-segment residue", () =>
+      Effect.flatMap(temporaryDirectory, (repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          yield* fs.makeDirectory(path.join(repoRoot, "packages/foundation/modeling/identity/test"), {
+            recursive: true,
+          });
+          yield* fs.writeFileString(
+            path.join(repoRoot, SHAPE_TEST),
+            'const composed = [\n  IdentityPackages.$CourtlistenerId.create("Server"),\n];\n'
+          );
+
+          const observations = yield* inspectTargetAtRoot(repoRoot, target);
+          const identity = O.getOrThrow(A.findFirst(observations, (item) => item.surfaceId === "identity-segment"));
+          expect(identity.status).toBe("residue");
+          expect(identity.evidence).toStrictEqual([SHAPE_TEST]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("does not block on a prefix-sharing sibling package", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* seedPrefixSibling();
+          const { exit, errors } = yield* dryRunErrors;
+          assertTrue(Exit.isSuccess(exit), Exit.isFailure(exit) ? Cause.pretty(exit.cause) : undefined);
+          expect(errors).toStrictEqual([]);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("deletes a package next to a prefix-sharing sibling and passes the post-apply doctor", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* seedLiveCourtlistener("@beep/retired-fixture");
+          yield* seedPrefixSibling();
+          yield* fs.writeFileString(
+            "tsconfig.json",
+            '{ "compilerOptions": { "paths": { "@beep/courtlistener": ["./packages/drivers/courtlistener/src/index.ts"], "@beep/courtlistener-identity": ["./packages/drivers/courtlistener-identity/src/index.ts"] } } }\n'
+          );
+          yield* fs.writeFileString(
+            "tsconfig.packages.json",
+            '{ "references": [{ "path": "packages/drivers/courtlistener" }, { "path": "packages/drivers/courtlistener-identity" }] }\n'
+          );
+          yield* fs.writeFileString(
+            "syncpack.config.ts",
+            A.join(
+              [
+                'import type { RcFile } from "syncpack";',
+                "",
+                "const config = {",
+                "  source: [",
+                '    "package.json",',
+                '    "packages/drivers/courtlistener/package.json",',
+                '    "packages/drivers/courtlistener-identity/package.json",',
+                "  ],",
+                "  customTypes: {},",
+                "  versionGroups: [],",
+                "} satisfies RcFile;",
+                "",
+                "export default config;",
+                "",
+              ],
+              "\n"
+            )
+          );
+          yield* fs.makeDirectory("packages/foundation/modeling/identity/src", { recursive: true });
+          yield* fs.writeFileString(
+            "packages/foundation/modeling/identity/src/packages.ts",
+            A.join(
+              [
+                'const composers = $I.compose("courtlistener", "courtlistener-identity");',
+                "export const $CourtlistenerId = composers.$CourtlistenerId;",
+                "export const $CourtlistenerIdentityId = composers.$CourtlistenerIdentityId;",
+                "",
+              ],
+              "\n"
+            )
+          );
+          yield* writeShapeTest([
+            "const currentPackagesRuntimeNamedImports = [",
+            '  "$CourtlistenerId",',
+            '  "$CourtlistenerIdentityId",',
+            "] as const;",
+            "",
+            "const expectedPackageComposerIdentities = {",
+            '  $CourtlistenerId: "@beep/courtlistener",',
+            '  $CourtlistenerIdentityId: "@beep/courtlistener-identity",',
+            "} as const;",
+            "",
+          ]);
+
+          const exit = yield* Effect.exit(
+            runDeletePackage([
+              "courtlistener",
+              "--force",
+              "--allow-stale-packets",
+              "--skip-lockfile",
+              "--skip-baselines",
+            ])
+          );
+          assertTrue(Exit.isSuccess(exit), Exit.isFailure(exit) ? Cause.pretty(exit.cause) : undefined);
+          expect(yield* TestConsole.errorLines).toStrictEqual([]);
+          expect(
+            A.some(
+              yield* TestConsole.logLines,
+              (line) => P.isString(line) && Str.includes("removed with zero declared residue")(line)
+            )
+          ).toBe(true);
+          expect(yield* fs.exists("packages/drivers/courtlistener")).toBe(false);
+          expect(yield* fs.exists("packages/drivers/courtlistener-identity/package.json")).toBe(true);
+          expect(yield* fs.readFileString("packages/foundation/modeling/identity/src/packages.ts")).toBe(
+            A.join(
+              [
+                'const composers = $I.compose("courtlistener-identity");',
+                "export const $CourtlistenerIdentityId = composers.$CourtlistenerIdentityId;",
+                "",
+              ],
+              "\n"
+            )
+          );
+          expect(yield* fs.readFileString(SHAPE_TEST)).toBe(
+            A.join(
+              [
+                "const currentPackagesRuntimeNamedImports = [",
+                '  "$CourtlistenerIdentityId",',
+                "] as const;",
+                "",
+                "const expectedPackageComposerIdentities = {",
+                '  $CourtlistenerIdentityId: "@beep/courtlistener-identity",',
+                "} as const;",
+                "",
+              ],
+              "\n"
+            )
+          );
+        })
+      ).pipe(
+        flow(
+          Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ CI: "false" })),
+          Effect.provideServiceEffect(Console.Console, TestConsole.make)
+        )
+      )
+    );
   });
 });

@@ -28,7 +28,9 @@ const roundTrips = <T, E>(
 };
 
 import * as G from "@beep/github-references/IssueReferences";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const spanArbitrary = Arbitrary.schema(G.IssueReference.fields.end.check(S.isGreaterThan(0))).pipe(
   Arbitrary.flatMap((end) =>
@@ -53,8 +55,8 @@ const stringifyHarvest = (values: ReadonlyArray<G.IssueReference>): string => {
   let text = "";
   for (const value of values) {
     const item = "#" + value.issueNumber;
-    text += " ".repeat(value.start - text.length);
-    text += value.keyword + " ".repeat(value.end - value.start - value.keyword.length - item.length) + item;
+    text += Str.repeat(value.start - text.length)(" ");
+    text += value.keyword + Str.repeat(value.end - value.start - value.keyword.length - item.length)(" ") + item;
   }
   return text;
 };
@@ -74,7 +76,7 @@ describe("IssueReferences property floor", () => {
     ([sample, noise]) =>
       Effect.sync(() => {
         for (const text of [
-          " " + sample.keyword.toUpperCase() + (sample.colon ? ":" : "") + "\t#00" + sample.issue + " ",
+          " " + Str.toUpperCase(sample.keyword) + (sample.colon ? ":" : "") + "\t#00" + sample.issue + " ",
           noise,
         ]) {
           const parsed = G.parseBareLineReference(text);
@@ -95,7 +97,7 @@ describe("IssueReferences property floor", () => {
       Effect.sync(() => {
         for (const text of [
           "ignored\n" +
-            sample.keyword.toUpperCase() +
+            Str.toUpperCase(sample.keyword) +
             ": #00" +
             sample.issue +
             "\r\n" +
@@ -121,7 +123,7 @@ describe("IssueReferences property floor", () => {
           ["\t", "\n", "\r\n", "\v", "\f", "\u00a0", "\u2028"],
           (gap) =>
             "prefix " +
-            sample.keyword.toUpperCase() +
+            Str.toUpperCase(sample.keyword) +
             gap +
             "#00" +
             sample.issue +
@@ -134,7 +136,7 @@ describe("IssueReferences property floor", () => {
         for (const text of [...structured, noise]) {
           const parsed = G.harvestIssueReferences(text);
           if (structured.includes(text)) {
-            const secondStart = text.indexOf(" and ") + 5;
+            const secondStart = O.getOrElse(Str.indexOf(" and ")(text), constant(-1)) + 5;
             assert.deepStrictEqual(parsed, [
               G.IssueReference.make({
                 keyword: sample.keyword,
@@ -167,7 +169,7 @@ describe("IssueReferences property floor", () => {
     [Arbitrary.schema(Sample)],
     ([sample]) =>
       Effect.sync(() => {
-        const inline = sample.keyword.toUpperCase() + " #" + sample.issue;
+        const inline = Str.toUpperCase(sample.keyword) + " #" + sample.issue;
         assert.deepStrictEqual(
           A.map(G.harvestIssueReferences(inline + "; " + inline), ({ keyword, issueNumber }) => ({
             keyword,

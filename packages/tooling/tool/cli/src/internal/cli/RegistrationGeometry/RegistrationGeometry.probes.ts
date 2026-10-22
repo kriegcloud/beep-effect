@@ -20,6 +20,11 @@ import * as S from "effect/Schema";
 import { Node, Project, SyntaxKind } from "ts-morph";
 import { DeletePackageDataResource } from "../../../commands/DeletePackage/internal/DataResource.ts";
 import { isCanonicalDeletionChangeset } from "../../../commands/DeletePackage/internal/DeletionChangeset.ts";
+import {
+  IDENTITY_SHAPE_TEST_PATH,
+  shapeTestRowAccessor,
+} from "../../../commands/DeletePackage/internal/ShapeTestRow.ts";
+import { mentionsAnyToken, mentionsToken } from "../../WholeToken.ts";
 import { isLabsWorkspacePath } from "../Labs/index.ts";
 import { RegistrationGeometryError } from "./RegistrationGeometry.errors.ts";
 import { surfacesForTarget } from "./RegistrationGeometry.plan.ts";
@@ -107,6 +112,7 @@ const existingEvidence = Effect.fn("RegistrationGeometry.existingEvidence")(func
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const mentionsNeedle = mentionsAnyToken(needles);
   let evidence = A.empty<string>();
 
   for (const relativeFile of relativeFiles) {
@@ -114,7 +120,7 @@ const existingEvidence = Effect.fn("RegistrationGeometry.existingEvidence")(func
     const exists = yield* fs.exists(absoluteFile).pipe(Effect.orElseSucceed(thunkFalse));
     if (!exists) continue;
     const content = yield* fs.readFileString(absoluteFile).pipe(Effect.orElseSucceed(() => Str.empty));
-    if (A.some(needles, (needle) => Str.includes(needle)(content))) evidence = A.append(evidence, relativeFile);
+    if (mentionsNeedle(content)) evidence = A.append(evidence, relativeFile);
   }
   return evidence;
 });
@@ -143,11 +149,15 @@ const inspectSurface = Effect.fn("RegistrationGeometry.inspectSurface")(function
       return observation(workspace.id, A.isReadonlyArrayNonEmpty(evidence) ? "residue" : "clean", evidence);
     }),
     "identity-segment": Effect.fn(function* (identity) {
-      const evidence = yield* existingEvidence(
+      const registryEvidence = yield* existingEvidence(
         repoRoot,
         [identity.registryFile],
         [`"${identity.slug}"`, identity.accessor]
       );
+      // The deletion removes the accessor's shape-test rows too; any mention
+      // left in that file names an export that no longer exists.
+      const shapeTestEvidence = yield* existingEvidence(repoRoot, [IDENTITY_SHAPE_TEST_PATH], [identity.accessor]);
+      const evidence = A.appendAll(registryEvidence, shapeTestEvidence);
       return observation(identity.id, A.isReadonlyArrayNonEmpty(evidence) ? "residue" : "clean", evidence);
     }),
     "derived-rebuild": Effect.fn(function* (derived) {
@@ -165,6 +175,7 @@ const inspectSurface = Effect.fn("RegistrationGeometry.inspectSurface")(function
     }),
     "authored-reference": Effect.fn(function* (authored) {
       const files = yield* collectFiles(repoRoot, TEXT_SUFFIXES);
+      const mentionsNeedle = mentionsAnyToken(authored.needles);
       let evidence = A.empty<string>();
       for (const file of files) {
         const relative = normalizePath(path.relative(repoRoot, file));
@@ -175,8 +186,7 @@ const inspectSurface = Effect.fn("RegistrationGeometry.inspectSurface")(function
         )
           continue;
         const content = yield* fs.readFileString(file).pipe(Effect.orElseSucceed(() => Str.empty));
-        if (A.some(authored.needles, (needle) => Str.includes(needle)(content)))
-          evidence = A.append(evidence, relative);
+        if (mentionsNeedle(content)) evidence = A.append(evidence, relative);
       }
       return observation(
         authored.id,
@@ -191,6 +201,7 @@ const inspectSurface = Effect.fn("RegistrationGeometry.inspectSurface")(function
       // itself emits; only OTHER pending changesets naming the package are
       // residue.
       const deletionNoteFile = `delete-${Str.replace("@beep/", Str.empty)(pending.packageName)}.md`;
+      const mentionsPackage = mentionsToken(pending.packageName);
       let evidence = A.empty<string>();
       for (const file of files) {
         const content = yield* fs.readFileString(file).pipe(Effect.orElseSucceed(() => Str.empty));
@@ -203,7 +214,7 @@ const inspectSurface = Effect.fn("RegistrationGeometry.inspectSurface")(function
             pending.packageName
           ));
         if (isCanonicalDeletionNote) continue;
-        if (hasDeletionNoteBasename || Str.includes(pending.packageName)(content))
+        if (hasDeletionNoteBasename || mentionsPackage(content))
           evidence = A.append(evidence, normalizePath(path.relative(repoRoot, file)));
       }
       return observation(
@@ -217,11 +228,11 @@ const inspectSurface = Effect.fn("RegistrationGeometry.inspectSurface")(function
         .exists(path.join(repoRoot, target.packagePath))
         .pipe(Effect.orElseSucceed(thunkFalse));
       const ciFiles = yield* collectFiles(path.join(repoRoot, ".beep", "ci"), TEXT_SUFFIXES);
+      const mentionsPackage = mentionsToken(target.packageName);
       let evidence = targetExists ? A.of(target.packagePath) : A.empty<string>();
       for (const file of ciFiles) {
         const content = yield* fs.readFileString(file).pipe(Effect.orElseSucceed(() => Str.empty));
-        if (Str.includes(target.packageName)(content))
-          evidence = A.append(evidence, normalizePath(path.relative(repoRoot, file)));
+        if (mentionsPackage(content)) evidence = A.append(evidence, normalizePath(path.relative(repoRoot, file)));
       }
       return observation(
         runtime.id,
@@ -244,13 +255,13 @@ const inspectSurface = Effect.fn("RegistrationGeometry.inspectSurface")(function
     },
     "historical-record": Effect.fn(function* (historical) {
       const files = yield* collectFiles(repoRoot, [".md", ".json", ".jsonc", ".tsv"]);
+      const mentionsNeedle = mentionsAnyToken(historical.needles);
       let evidence = A.empty<string>();
       for (const file of files) {
         const relative = normalizePath(path.relative(repoRoot, file));
         if (!(Str.startsWith("research/")(relative) || Str.startsWith("goals/")(relative))) continue;
         const content = yield* fs.readFileString(file).pipe(Effect.orElseSucceed(() => Str.empty));
-        if (A.some(historical.needles, (needle) => Str.includes(needle)(content)))
-          evidence = A.append(evidence, relative);
+        if (mentionsNeedle(content)) evidence = A.append(evidence, relative);
       }
       return observation(
         historical.id,
@@ -350,8 +361,6 @@ const importHitsInFile = (
   return hits;
 };
 
-const IDENTITY_PACKAGE_PREFIX = "packages/foundation/modeling/identity/";
-
 const importKindForFile = (relativeFile: string): DependentHitKind =>
   Str.includes("/test/")(relativeFile) || Str.includes(".test.")(relativeFile) ? "import-test" : "import-prod";
 
@@ -373,13 +382,12 @@ const needleLineHits = (
 };
 
 const accessorHitsInFile = (
-  accessor: string,
   relativeFile: string,
   owner: string,
-  content: string
-): ReadonlyArray<DependentHit> => {
-  if (Str.startsWith(IDENTITY_PACKAGE_PREFIX)(relativeFile)) return A.empty<DependentHit>();
-  return needleLineHits(content, Str.includes(accessor), (line) =>
+  content: string,
+  referencesAccessor: (line: string) => boolean
+): ReadonlyArray<DependentHit> =>
+  needleLineHits(content, referencesAccessor, (line) =>
     DependentHit.make({
       kind: importKindForFile(relativeFile),
       owner,
@@ -388,7 +396,6 @@ const accessorHitsInFile = (
       direct: true,
     })
   );
-};
 
 const BASELINE_REFERENCE_FILES = [
   "bun.lock",
@@ -448,10 +455,11 @@ const collectWorkspaceEdges = Effect.fn("RegistrationGeometry.collectWorkspaceEd
   return edges;
 });
 
-const rootScriptHits = (scripts: Record<string, string>, target: RegistrationTarget): ReadonlyArray<DependentHit> =>
-  pipe(
+const rootScriptHits = (scripts: Record<string, string>, target: RegistrationTarget): ReadonlyArray<DependentHit> => {
+  const mentionsTarget = mentionsAnyToken([target.packageName, target.packagePath]);
+  return pipe(
     R.toEntries(scripts),
-    A.filter(([, command]) => Str.includes(target.packageName)(command) || Str.includes(target.packagePath)(command)),
+    A.filter(([, command]) => mentionsTarget(command)),
     A.map(() =>
       DependentHit.make({
         kind: "script",
@@ -462,6 +470,7 @@ const rootScriptHits = (scripts: Record<string, string>, target: RegistrationTar
       })
     )
   );
+};
 
 const rootPolicyFileHits = Effect.fn("RegistrationGeometry.rootPolicyFileHits")(function* (
   repoRoot: string,
@@ -469,13 +478,14 @@ const rootPolicyFileHits = Effect.fn("RegistrationGeometry.rootPolicyFileHits")(
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const mentionsTarget = mentionsAnyToken([target.packageName, target.packagePath]);
   let hits = A.empty<DependentHit>();
   for (const rootPolicyFile of ["turbo.json", "lefthook.yml", "biome.jsonc"]) {
     const absoluteFile = path.join(repoRoot, rootPolicyFile);
     const exists = yield* fs.exists(absoluteFile).pipe(Effect.orElseSucceed(thunkFalse));
     if (!exists) continue;
     const content = yield* fs.readFileString(absoluteFile);
-    if (Str.includes(target.packageName)(content) || Str.includes(target.packagePath)(content)) {
+    if (mentionsTarget(content)) {
       hits = A.append(
         hits,
         DependentHit.make({
@@ -605,10 +615,22 @@ export const dependentsOfAtRoot = Effect.fn("RegistrationGeometry.dependentsOfAt
   const direct = pipe(HashMap.get(reverse, target.packageName), O.getOrElse(HashSet.empty<string>));
   const transitive = yield* computeTransitiveClosure(reverse, target.packageName);
   const project = new Project({ skipAddingFilesFromTsConfig: true });
-  const identityAccessor = pipe(
-    A.findFirst(surfacesForTarget(target), RegistrationSurface.guards["identity-segment"]),
-    O.map((surface) => surface.accessor)
-  );
+  const identitySurface = A.findFirst(surfacesForTarget(target), RegistrationSurface.guards["identity-segment"]);
+  const identityAccessor = O.map(identitySurface, (surface) => surface.accessor);
+  const mentionsTarget = mentionsAnyToken([target.packageName, target.packagePath]);
+  const mentionsAccessor: (text: string) => boolean = O.match(identityAccessor, {
+    onNone: () => thunkFalse,
+    onSome: mentionsToken,
+  });
+  // delete-package itself removes the target's shape-test rows, so they are
+  // not dependents: blocking on them forced every deletion to hand-strip them.
+  const isRemovedShapeTestRow = (relativeFile: string, line: string): boolean =>
+    Str.equivalence(relativeFile, IDENTITY_SHAPE_TEST_PATH) &&
+    O.exists(identityAccessor, (accessor) => O.exists(shapeTestRowAccessor(line), Str.equivalence(accessor)));
+  // The identity registry declares every accessor and the identity-segment
+  // surface rewrites it; every other file that names the accessor depends on it.
+  const isIdentityRegistry = (relativeFile: string): boolean =>
+    O.exists(identitySurface, (surface) => Str.equivalence(relativeFile, surface.registryFile));
 
   const sourceHits = (
     absoluteFile: string,
@@ -618,17 +640,20 @@ export const dependentsOfAtRoot = Effect.fn("RegistrationGeometry.dependentsOfAt
   ): ReadonlyArray<DependentHit> => {
     if (!isSuffixIn(SOURCE_SUFFIXES)(absoluteFile)) return A.empty<DependentHit>();
     const importHits = importHitsInFile(project, absoluteFile, relativeFile, owner, content, target);
-    const accessorHits = pipe(
-      identityAccessor,
-      O.map((accessor) => accessorHitsInFile(accessor, relativeFile, owner, content)),
-      O.getOrElse(A.empty<DependentHit>)
-    );
+    const accessorHits = isIdentityRegistry(relativeFile)
+      ? A.empty<DependentHit>()
+      : accessorHitsInFile(
+          relativeFile,
+          owner,
+          content,
+          (line) => mentionsAccessor(line) && !isRemovedShapeTestRow(relativeFile, line)
+        );
     return A.appendAll(importHits, accessorHits);
   };
   const textHits = (relativeFile: string, owner: string, content: string): ReadonlyArray<DependentHit> =>
     needleLineHits(
       content,
-      (line) => Str.includes(target.packageName)(line) || Str.includes(target.packagePath)(line),
+      (line) => mentionsTarget(line) && !isRemovedShapeTestRow(relativeFile, line),
       (line) =>
         DependentHit.make({
           kind: authoredKindFor(relativeFile),
@@ -642,12 +667,7 @@ export const dependentsOfAtRoot = Effect.fn("RegistrationGeometry.dependentsOfAt
     const relativeFile = normalizePath(path.relative(repoRoot, absoluteFile));
     if (Str.startsWith(`${target.packagePath}/`)(relativeFile)) return A.empty<DependentHit>();
     const content = yield* fs.readFileString(absoluteFile).pipe(Effect.orElseSucceed(() => Str.empty));
-    const mentionsAccessor = O.match(identityAccessor, {
-      onNone: thunkFalse,
-      onSome: (accessor) => Str.includes(accessor)(content),
-    });
-    if (!Str.includes(target.packageName)(content) && !Str.includes(target.packagePath)(content) && !mentionsAccessor)
-      return A.empty<DependentHit>();
+    if (!mentionsTarget(content) && !mentionsAccessor(content)) return A.empty<DependentHit>();
     const owner = ownerForFile(absoluteFile, workspaces);
     return A.appendAll(sourceHits(absoluteFile, relativeFile, owner, content), textHits(relativeFile, owner, content));
   });

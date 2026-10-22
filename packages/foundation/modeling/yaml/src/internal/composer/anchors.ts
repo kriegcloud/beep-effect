@@ -5,6 +5,7 @@
 import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { YamlAlias, YamlMap, YamlScalar, YamlSeq } from "../../YamlNode.ts";
 import { RawDiagnostic } from "../diagnostics.ts";
 import type { YamlNode } from "../../YamlNode.ts";
@@ -294,7 +295,7 @@ export function scanName(...[text, start]: [text: string, start: number]): strin
     }
     end++;
   }
-  return text.slice(start, end);
+  return Str.slice(start, end)(text);
 }
 
 // ---------------------------------------------------------------------------

@@ -5,6 +5,7 @@
  * @packageDocumentation \@beep/editor/mermaid-view
  * @since 0.0.0
  */
+
 "use client";
 
 import { $EditorId } from "@beep/identity";
@@ -15,6 +16,7 @@ import DOMPurify from "dompurify";
 import * as Cause from "effect/Cause";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import { constant, flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -177,13 +179,11 @@ const mermaidBuiltInKeyframes = [
 ];
 
 const normalizeCssTokens = (value: string): string =>
-  value
-    .replace(cssComment, "")
-    .replace(cssEscape, (_match, hexadecimal: string | undefined, escaped: string | undefined) => {
-      if (hexadecimal === undefined) return escaped ?? "";
-      const codePoint = Number.parseInt(hexadecimal, 16);
-      return String.fromCodePoint(codePoint === 0 || codePoint > 0x10ffff ? 0xfffd : codePoint);
-    });
+  Str.replaceWith(Str.replace(cssComment, "")(value), cssEscape, (_match, hexadecimal: unknown, escaped: unknown) => {
+    if (hexadecimal === undefined) return String(escaped ?? "");
+    const codePoint = Number.parseInt(String(hexadecimal), 16);
+    return String.fromCodePoint(codePoint === 0 || codePoint > 0x10ffff ? 0xfffd : codePoint);
+  });
 
 const normalizedCssValue = (value: string): string => Str.toLowerCase(Str.trim(value));
 
@@ -272,7 +272,7 @@ const scanCssSelectorCharacter = (state: CssSelectorScanState, character: string
 };
 
 const selectorSlice = (value: string, start: number, end?: number): string | undefined => {
-  const selector = value.slice(start, end).trim();
+  const selector = Str.trim(Str.slice(start, end)(value));
   return selector.length === 0 ? undefined : selector;
 };
 
@@ -350,7 +350,7 @@ const scanRootSelectorScope = (selector: string, start: number): boolean | undef
 };
 
 const selectorTargetsRoot = (selector: string, rootSelector: string): boolean | undefined =>
-  selector.startsWith(rootSelector) && isRootSelectorBoundary(selector[rootSelector.length])
+  Str.startsWith(rootSelector)(selector) && isRootSelectorBoundary(selector[rootSelector.length])
     ? scanRootSelectorScope(selector, rootSelector.length)
     : undefined;
 
@@ -405,7 +405,7 @@ const isSafeMermaidStyles = (styles: string, root: Element, renderId: string): b
   }
 };
 
-const elementHasText = (element: Element): boolean => (element.textContent?.trim().length ?? 0) > 0;
+const elementHasText = (element: Element): boolean => Str.trim(element.textContent ?? "").length > 0;
 
 const findElementById = (root: Element, id: string): Element | undefined => {
   for (const element of root.querySelectorAll("[id]")) {
@@ -426,16 +426,12 @@ const hasUniqueInternalFragmentTarget = (root: Element, id: string): boolean => 
 
 const hasSafeLocalFragmentUrls = (root: Element, value: string): boolean => {
   let targetsAreSafe = true;
-  const withoutLocalFragments = value.replace(
+  const withoutLocalFragments = Str.replaceWith(
+    value,
     localFragmentUrl,
-    (
-      _match: string,
-      unquotedId: string | undefined,
-      _quote: string | undefined,
-      quotedId: string | undefined
-    ): string => {
+    (_match: string, unquotedId: unknown, _quote: unknown, quotedId: unknown): string => {
       const id = unquotedId ?? quotedId;
-      targetsAreSafe = targetsAreSafe && id !== undefined && hasUniqueInternalFragmentTarget(root, id);
+      targetsAreSafe = targetsAreSafe && id !== undefined && hasUniqueInternalFragmentTarget(root, String(id));
       return "";
     }
   );
@@ -446,14 +442,11 @@ const scopedMermaidId = (ids: MutableHashMap.MutableHashMap<string, string>, id:
   O.getOrElse(MutableHashMap.get(ids, id), () => id);
 
 const rewriteLocalFragmentUrls = (ids: MutableHashMap.MutableHashMap<string, string>, value: string): string =>
-  value.replace(
+  Str.replaceWith(
+    value,
     localFragmentUrl,
-    (
-      _match: string,
-      unquotedId: string | undefined,
-      _quote: string | undefined,
-      quotedId: string | undefined
-    ): string => `url(#${scopedMermaidId(ids, unquotedId ?? quotedId ?? "")})`
+    (_match: string, unquotedId: unknown, _quote: unknown, quotedId: unknown): string =>
+      `url(#${scopedMermaidId(ids, String(unquotedId ?? quotedId ?? ""))})`
   );
 
 const idReferenceAttributes = HashSet.make(
@@ -536,7 +529,11 @@ const namespaceMermaidIds = (root: Element, renderId: string): boolean => {
 };
 
 const hasAssociatedText = (root: Element, attribute: "aria-describedby" | "aria-labelledby"): boolean => {
-  const references = root.getAttribute(attribute)?.trim().split(/\s+/u) ?? [];
+  const references = pipe(
+    O.fromNullishOr(root.getAttribute(attribute)),
+    O.map(flow(Str.trim, Str.split(/\s+/u))),
+    O.getOrElse(A.empty<string>)
+  );
   return A.some(references, (id) => {
     const element = findElementById(root, id);
     return element !== undefined && elementHasText(element);
@@ -544,7 +541,7 @@ const hasAssociatedText = (root: Element, attribute: "aria-describedby" | "aria-
 };
 
 const hasAccessibleName = (root: Element): boolean =>
-  (root.getAttribute("aria-label")?.trim().length ?? 0) > 0 || hasAssociatedText(root, "aria-labelledby");
+  Str.trim(root.getAttribute("aria-label") ?? "").length > 0 || hasAssociatedText(root, "aria-labelledby");
 
 const directTextChild = (root: Element, name: "desc" | "title"): Element | undefined => {
   for (const child of root.children) {
@@ -564,7 +561,7 @@ const uniqueElementId = (root: Element, preferred: string): string => {
 };
 
 const ensureElementId = (root: Element, element: Element, preferred: string): string => {
-  const existing = element.getAttribute("id")?.trim();
+  const existing = O.map(O.fromNullishOr(element.getAttribute("id")), Str.trim).pipe(O.getOrUndefined);
   if (existing !== undefined && existing.length > 0) return existing;
   const id = uniqueElementId(root, preferred);
   element.setAttribute("id", id);
@@ -633,9 +630,9 @@ const isSafeMermaidInlineStyle = (element: Element, isRoot: boolean, normalizedV
 };
 
 const isSafeMermaidAttribute = (element: Element, root: Element, attribute: Attr, isRoot: boolean): boolean => {
-  const name = attribute.name.toLowerCase();
-  const value = attribute.value.trim();
-  if (name.startsWith("on")) return false;
+  const name = Str.toLowerCase(attribute.name);
+  const value = Str.trim(attribute.value);
+  if (Str.startsWith("on")(name)) return false;
   if (name === "role") return isRoot && value === mermaidRootRole;
   if (HashSet.has(idReferenceAttributes, name)) {
     return A.every(Str.split(value, /\s+/u), (id) => hasUniqueInternalFragmentTarget(root, id));
@@ -650,7 +647,7 @@ const isSafeMermaidAttribute = (element: Element, root: Element, attribute: Attr
 };
 
 const isSafeMermaidElement = (element: Element, root: Element, renderId: string): boolean => {
-  if (element.namespaceURI !== svgNamespace || HashSet.has(forbiddenSvgElements, element.localName.toLowerCase()))
+  if (element.namespaceURI !== svgNamespace || HashSet.has(forbiddenSvgElements, Str.toLowerCase(element.localName)))
     return false;
   if (element.localName === "style" && !isSafeMermaidStyles(element.textContent ?? "", root, renderId)) return false;
 
@@ -670,10 +667,13 @@ const isSafeMermaidSvg = (svg: string, renderId: string): boolean => {
   return true;
 };
 
+/** `index` stays below `value.length`, so the fallback never runs; it only satisfies `Option`. */
+const zeroCodeUnit = constant(0);
+
 const hashString = (value: string): string => {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {
-    hash = Math.imul(31, hash) + value.charCodeAt(index);
+    hash = Math.imul(31, hash) + O.getOrElse(Str.charCodeAt(value, index), zeroCodeUnit);
   }
   return (hash >>> 0).toString(36);
 };
@@ -681,7 +681,7 @@ const hashString = (value: string): string => {
 const maxIdPartLength = 64;
 
 const sanitizeIdPart = (value: string): string => {
-  const sanitized = value.replace(/[^a-zA-Z0-9_-]/gu, "-");
+  const sanitized = Str.replace(/[^a-zA-Z0-9_-]/gu, "-")(value);
   if (sanitized.length === 0) return "diagram";
   return sanitized.length > maxIdPartLength ? hashString(sanitized) : sanitized;
 };

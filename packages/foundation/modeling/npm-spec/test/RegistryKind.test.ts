@@ -2,6 +2,7 @@ import { classifyRegistry, registryDisplayName, registryHost, registryShortLabel
 import { assert, describe, it } from "@effect/vitest";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 describe("classifyRegistry", () => {
   it("classifies the public npm registry, with or without a scheme or path", () => {
@@ -61,7 +62,7 @@ describe("registryHost", () => {
       // over a value this package does not control (registry strings come from
       // npmrc and package.json). CodeQL flagged it on exactly this line. The
       // scan-based form answers the same thing without the exposure.
-      const pathological = `evil.test/${"/".repeat(20000)}`;
+      const pathological = `evil.test/${Str.repeat(20000)("/")}`;
       const started = yield* Clock.currentTimeMillis;
       assert.strictEqual(registryHost(pathological), "evil.test");
       assert.isBelow((yield* Clock.currentTimeMillis) - started, 250, "must not backtrack");

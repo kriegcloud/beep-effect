@@ -10,11 +10,12 @@ import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
-import { dual } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { fallbackErrnoForTag, nodeErrno } from "./errno.ts";
 import { assertKnownFaultKeys } from "./faults.ts";
 import type * as PlatformError from "effect/PlatformError";
@@ -291,7 +292,7 @@ const followLinks = (volume: MemoryFileSystemVolume, current: string, start: str
   for (let target = volume.readLink(candidate); target !== undefined; target = volume.readLink(candidate)) {
     budget.hops += 1;
     if (budget.hops > MAX_LINK_HOPS) return resolutionFailure("ELOOP");
-    const resolved = walk(volume, target.startsWith("/") ? target : `${current}/${target}`, true, budget);
+    const resolved = walk(volume, Str.startsWith("/")(target) ? target : `${current}/${target}`, true, budget);
     if (Resolved.guards.Failure(resolved)) return resolved;
     candidate = resolved.path;
   }
@@ -310,7 +311,9 @@ const stepComponent = (
   // Applied to the RESOLVED location, so ".." after a link ascends from the
   // target rather than from the link's own parent.
   if (part === "..")
-    return Resolved.cases.Success.make({ path: current.slice(0, Math.max(0, current.lastIndexOf("/"))) });
+    return Resolved.cases.Success.make({
+      path: Str.slice(0, Math.max(0, pipe(current, Str.lastIndexOf("/"), O.getOrElse(constant(-1)))))(current),
+    });
   const candidate = `${current}/${part}`;
   const next = follow
     ? followLinks(volume, current, candidate, budget)
@@ -327,7 +330,7 @@ const walk: {
   // has to follow the link at `/links/pkg` before it can see `a.json`, exactly
   // as a real filesystem walks a path.
   let current = "";
-  const parts = A.filter(path.split("/"), (part) => part !== "" && part !== ".");
+  const parts = A.filter(Str.split("/")(path), (part) => part !== "" && part !== ".");
   for (const [i, part] of parts.entries()) {
     const step = stepComponent(volume, current, part, i < parts.length - 1 || followFinal, budget);
     if (Resolved.guards.Failure(step)) return step;
@@ -363,7 +366,7 @@ export const resolvePath: {
     // link is followed even for `lstat`, and a resolved non-directory is
     // ENOTDIR — never the file itself (which `walk`, dropping the empty
     // segment, would otherwise answer).
-    const trailingSlash = path.length > 1 && path.endsWith("/");
+    const trailingSlash = path.length > 1 && Str.endsWith("/")(path);
     const r = walk(volume, path, followFinal || trailingSlash, { hops: 0 });
     if (trailingSlash && Resolved.guards.Success(r) && volume.lstat(r.path)?.kind !== "directory")
       return Resolved.cases.Failure.make({ code: "ENOTDIR" });

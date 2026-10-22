@@ -24,7 +24,6 @@ import {
   contradictionEvidenceDigest,
   contradictionProposalDigest,
 } from "@beep/epistemic-domain/values/Contradiction";
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
 import { EpistemicServerDrizzleLive } from "@beep/epistemic-server/layer";
 import { DbSchema } from "@beep/epistemic-tables";
 import { toCandidateClaimInsert } from "@beep/epistemic-tables/entities/CandidateClaim";
@@ -44,6 +43,7 @@ import {
   RecordEdgeFact,
   SubmitContradictionCandidate,
 } from "@beep/epistemic-use-cases/server";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import * as Pglite from "@beep/pglite";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { SourceTextDigest, SourceTextExtractor, SourceTextIdentity } from "@beep/provenance/SourceTextIdentity";

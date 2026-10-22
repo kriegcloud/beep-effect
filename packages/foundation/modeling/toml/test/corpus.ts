@@ -54,7 +54,7 @@ export const readValid = (relPath: string): string => read(validFiles, VALID_ROO
 
 /** The raw tagged-JSON expectation paired with a valid case. */
 export const readValidExpected = (relPath: string): string =>
-  read(validFiles, VALID_ROOT, relPath.replace(/\.toml$/, ".json"));
+  read(validFiles, VALID_ROOT, Str.replace(/\.toml$/, ".json")(relPath));
 
 /** The raw source of an invalid case. */
 export const readInvalid = (relPath: string): string => read(invalidFiles, INVALID_ROOT, relPath);

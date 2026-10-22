@@ -14,6 +14,7 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -48,7 +49,10 @@ it.effect.prop(
   [Arbitrary.schema(Target), Arbitrary.schema(S.Json)],
   ([target, extension]) =>
     Effect.gen(function* () {
-      const decoded = yield* S.decodeEffect(CompilerOptions)({ target: target.toUpperCase(), futureOption: extension });
+      const decoded = yield* S.decodeEffect(CompilerOptions)({
+        target: Str.toUpperCase(target),
+        futureOption: extension,
+      });
       const encoded = yield* S.encodeEffect(CompilerOptions)(decoded);
       assert.strictEqual(encoded.target, target);
       assert.deepStrictEqual(encoded.futureOption, extension);

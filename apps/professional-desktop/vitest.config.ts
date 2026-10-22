@@ -1,4 +1,5 @@
 import * as NodeURL from "node:url";
+import * as Str from "effect/String";
 import { defineConfig, mergeConfig } from "vitest/config";
 import shared, { vitestDoctestActive } from "../../vitest.shared.ts";
 
@@ -20,7 +21,7 @@ export default mergeConfig(
       // unhandled error under bun-run vitest. Everything else still fails.
       onUnhandledError(error: unknown): boolean | undefined {
         const message = error instanceof Error ? error.message : String(error);
-        return message.includes("error during concurrent rendering") ? false : undefined;
+        return Str.includes("error during concurrent rendering")(message) ? false : undefined;
       },
       include: vitestDoctestActive ? [] : ["test/**/*.test.{ts,tsx}"],
       exclude: ["test/integration/**"],

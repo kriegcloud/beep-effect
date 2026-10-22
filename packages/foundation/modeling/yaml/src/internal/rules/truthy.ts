@@ -15,6 +15,7 @@ import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { YamlEdit } from "../../YamlEdit.ts";
 import { YamlLintDiagnostic, YamlLintSeverity, YamlRule } from "../../YamlLintRule.ts";
 import { positionAt, walkScalars } from "./util.ts";
@@ -139,11 +140,11 @@ export const truthy = YamlRule.make({
       "root",
       (scalar) => {
         if (scalar.style !== "plain" || scalar.tag !== undefined) return;
-        const raw = ctx.text.slice(scalar.offset, scalar.offset + scalar.length);
+        const raw = Str.slice(scalar.offset, scalar.offset + scalar.length)(ctx.text);
         if (!HashSet.has(TRUTHY, raw) || HashSet.has(allowed, raw)) return;
         const pos = positionAt(ctx.lines, scalar.offset);
         const isBool = P.isBoolean(scalar.value);
-        const truth = HashSet.has(TRUE_SET, raw.toLowerCase());
+        const truth = HashSet.has(TRUE_SET, Str.toLowerCase(raw));
         const respell = truth ? "true" : "false";
         // A real boolean respells when the canonical spelling is allowed; a
         // string lookalike gets quoted. Both preserve the parsed value.

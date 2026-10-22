@@ -100,10 +100,10 @@ const makeWebHandlerClient = (handler: (request: Request) => Effect.Effect<Respo
     )
   );
 
-const remoteGrillMeSkillWithVersion = remoteGrillMeSkill.replace(
+const remoteGrillMeSkillWithVersion = Str.replace(
   "---\n\n# Grill Me",
   "version: 1.0\n---\n\n# Grill Me"
-);
+)(remoteGrillMeSkill);
 
 const makeSkillsClient = (skillText: string = remoteGrillMeSkill) =>
   makeWebHandlerClient((request) =>
@@ -138,7 +138,7 @@ const makeTraversalSkillsClient = () =>
         });
       }
 
-      if (request.url.startsWith("https://raw.githubusercontent.com/mattpocock/skills/main/")) {
+      if (Str.startsWith("https://raw.githubusercontent.com/mattpocock/skills/main/")(request.url)) {
         return new Response(remoteGrillMeSkill, {
           status: 200,
           headers: { "content-type": "text/markdown" },
@@ -221,7 +221,7 @@ describe("skills command", () => {
     expect(Toml.parse(rendered)).toMatchObject({
       skills: { config: [{ name: "closeout", enabled: true, owner: "operator" }] },
     });
-    expect(rendered.match(/name = "closeout"/g)).toHaveLength(1);
+    expect(O.getOrNull(Str.match(/name = "closeout"/g)(rendered))).toHaveLength(1);
     expect(renderCodexConfigWithSkills(rendered, ["closeout"])).toBe(rendered);
   });
 
@@ -267,10 +267,10 @@ describe("skills command", () => {
           const target = path.join(root, "canonical", path.basename(relative));
           yield* fs.makeDirectory(path.dirname(target), { recursive: true });
           yield* fs.rename(link, target);
-          const before = `\n${yield* fs.readFileString(target)}`.replace(
+          const before = Str.replace(
             "include_instructions = true",
             "include_instructions = false"
-          );
+          )(`\n${yield* fs.readFileString(target)}`);
           yield* fs.writeFileString(target, before);
           yield* fs.chmod(target, 0o644);
           yield* fs.symlink(target, link);
@@ -347,14 +347,14 @@ describe("skills command", () => {
                 .writeFileString(target, content, options)
                 .pipe(
                   Effect.andThen(
-                    scenario === "projection drift" && target.startsWith(`${config}.tmp-`)
+                    scenario === "projection drift" && Str.startsWith(`${config}.tmp-`)(target)
                       ? fs.writeFileString(config, "[skills]\ninclude_instructions = false\nnew_native_key = true\n")
                       : Effect.void
                   )
                 )
             ),
             rename: Effect.fn("SkillsTest.rename")((from, to) =>
-              scenario === "publish failure" && from.includes(".grill-me.stage-")
+              scenario === "publish failure" && Str.includes(".grill-me.stage-")(from)
                 ? fs.rename(path.join(root, "missing-stage"), to)
                 : fs.rename(from, to)
             ),
@@ -362,7 +362,7 @@ describe("skills command", () => {
           const observed = FileSystem.FileSystem.of({
             ...wrapped,
             remove: Effect.fn("SkillsTest.remove")((target, options) =>
-              scenario === "cleanup failure" && target.endsWith(".previous")
+              scenario === "cleanup failure" && Str.endsWith(".previous")(target)
                 ? fs.remove(path.join(root, "missing-cleanup"))
                 : fs.remove(target, options)
             ),
@@ -373,14 +373,14 @@ describe("skills command", () => {
           );
           const backupRoot = path.join(root, ".beep/skills-backups");
           const entries = yield* fs.readDirectory(backupRoot);
-          const skillBackup = O.getOrThrow(A.findFirst(entries, (entry) => entry.startsWith("grill-me.")));
+          const skillBackup = O.getOrThrow(A.findFirst(entries, (entry) => Str.startsWith("grill-me.")(entry)));
           expect(yield* fs.readFileString(path.join(backupRoot, skillBackup, "SKILL.md"))).toBe("old skill\n");
           if (scenario === "backup and mode" || scenario === "cleanup failure") {
             expect(result).toMatchObject({ _tag: "Success" });
             expect(yield* fs.readFileString(skill)).toBe(remoteGrillMeSkill);
             expect((yield* fs.stat(config)).mode & 0o777).toBe(0o644);
             expect((yield* fs.stat(lockfile)).mode & 0o777).toBe(0o644);
-            const configBackup = O.getOrThrow(A.findFirst(entries, (entry) => entry.startsWith("config.toml.")));
+            const configBackup = O.getOrThrow(A.findFirst(entries, (entry) => Str.startsWith("config.toml.")(entry)));
             expect(yield* fs.readFileString(path.join(backupRoot, configBackup))).toBe(
               "[skills]\ninclude_instructions = false\n"
             );
@@ -471,7 +471,7 @@ describe("skills command", () => {
         yield* writeProjectFile(
           root,
           ".claude/skills/long-one/SKILL.md",
-          `---\nname: long-one\ndescription: Long test skill.\n---\n${"line\n".repeat(600)}`
+          `---\nname: long-one\ndescription: Long test skill.\n---\n${Str.repeat(600)("line\n")}`
         );
         yield* writeProjectFile(root, ".codex/config.toml", "[skills]\n  include_instructions = true\n");
 
@@ -482,9 +482,13 @@ describe("skills command", () => {
         assert(error._tag === "SkillFrontmatterError");
         expect(A.map(error.issues, (issue) => issue.skill)).toEqual(["local-only", "misnamed"]);
         expect(logs).toContain("skills:update: frontmatter issues (2)");
-        expect(A.some(logs, (line) => line.startsWith("- local-only:") && line.includes("version"))).toBe(true);
-        expect(A.some(logs, (line) => line.startsWith("- misnamed:") && line.includes("other-name"))).toBe(true);
-        expect(A.some(logs, (line) => line.includes("advisory long-one/SKILL.md has 604 lines"))).toBe(true);
+        expect(A.some(logs, (line) => Str.startsWith("- local-only:")(line) && Str.includes("version")(line))).toBe(
+          true
+        );
+        expect(A.some(logs, (line) => Str.startsWith("- misnamed:")(line) && Str.includes("other-name")(line))).toBe(
+          true
+        );
+        expect(A.some(logs, (line) => Str.includes("advisory long-one/SKILL.md has 604 lines")(line))).toBe(true);
       }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
     );
   });
@@ -504,10 +508,11 @@ describe("skills command", () => {
         expect(
           A.some(
             logs,
-            (line) => line.startsWith("skills:update: advisory upstream skill grill-me:") && line.includes("version")
+            (line) =>
+              Str.startsWith("skills:update: advisory upstream skill grill-me:")(line) && Str.includes("version")(line)
           )
         ).toBe(true);
-        expect(A.some(logs, (line) => line.startsWith("skills:update: frontmatter issues"))).toBe(false);
+        expect(A.some(logs, (line) => Str.startsWith("skills:update: frontmatter issues")(line))).toBe(false);
       }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient(remoteGrillMeSkillWithVersion)))
     );
   });

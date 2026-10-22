@@ -5,12 +5,14 @@ import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vi
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
+import { constant } from "effect/Function";
 import * as Hash from "effect/Hash";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const tree = (text: string): JsoncNode => Jsonc.parseTreeResult(text).pipe(Result.getOrThrow, O.getOrThrow);
 
@@ -178,7 +180,7 @@ describe("JsoncNode", () => {
     it("finds the innermost node at an offset and its path", () => {
       const text = '{ "a": { "b": 42 } }';
       const root = tree(text);
-      const offset = text.indexOf("42");
+      const offset = O.getOrElse(Str.indexOf("42")(text), constant(-1));
       assertSome(
         O.map(root.findAtOffset(offset), (node) => node.type),
         "number"
@@ -196,13 +198,13 @@ describe("JsoncNode", () => {
       const text = '{ "a": 1 , "b": [1 , 2] }';
       const root = tree(text);
       assertSome(
-        O.map(root.findAtOffset(text.indexOf(",")), (node) => node.type),
+        O.map(root.findAtOffset(O.getOrElse(Str.indexOf(",")(text), constant(-1))), (node) => node.type),
         "object"
       );
-      assertSome(root.pathAt(text.indexOf(",")), []);
-      assertSome(root.pathAt(text.lastIndexOf(",")), ["b"]);
-      assertSome(root.pathAt(text.indexOf('"a"')), ["a"]);
-      assertSome(root.pathAt(text.indexOf("2")), ["b", 1]);
+      assertSome(root.pathAt(O.getOrElse(Str.indexOf(",")(text), constant(-1))), []);
+      assertSome(root.pathAt(O.getOrElse(Str.lastIndexOf(",")(text), constant(-1))), ["b"]);
+      assertSome(root.pathAt(O.getOrElse(Str.indexOf('"a"')(text), constant(-1))), ["a"]);
+      assertSome(root.pathAt(O.getOrElse(Str.indexOf("2")(text), constant(-1))), ["b", 1]);
     });
 
     it("ignores non-property children of an object and resolves within a property node", () => {
@@ -318,7 +320,7 @@ describe("JsoncNode", () => {
         length: 3,
         children: [makeNodeUnsafe({ type: "number", offset: 1, length: 1, value: 1 })],
       });
-      assert.deepStrictEqual(deepArray(255).toValue(), JSON.parse(`${"[".repeat(255)}1${"]".repeat(255)}`));
+      assert.deepStrictEqual(deepArray(255).toValue(), JSON.parse(`${Str.repeat(255)("[")}1${Str.repeat(255)("]")}`));
       assert.strictEqual(leaf.children?.[0]?.toValue(), 1);
     });
 
@@ -371,7 +373,7 @@ describe("JsoncNode", () => {
       const text = '{ "a": 1   // trailing\n}';
       const valueNode = tree(text).children?.[0]?.children?.[1];
       assert.strictEqual(
-        text.substring(valueNode?.offset ?? 0, (valueNode?.offset ?? 0) + (valueNode?.length ?? 0)),
+        Str.substring(valueNode?.offset ?? 0, (valueNode?.offset ?? 0) + (valueNode?.length ?? 0))(text),
         "1"
       );
     });
@@ -380,8 +382,11 @@ describe("JsoncNode", () => {
       const text = '[ "hello"  , 2 ]   ';
       const root = tree(text);
       const first = root.children?.[0];
-      assert.strictEqual(text.substring(first?.offset ?? 0, (first?.offset ?? 0) + (first?.length ?? 0)), '"hello"');
-      assert.strictEqual(text.substring(root.offset, root.offset + root.length), '[ "hello"  , 2 ]');
+      assert.strictEqual(
+        Str.substring(first?.offset ?? 0, (first?.offset ?? 0) + (first?.length ?? 0))(text),
+        '"hello"'
+      );
+      assert.strictEqual(Str.substring(root.offset, root.offset + root.length)(text), '[ "hello"  , 2 ]');
     });
   });
 

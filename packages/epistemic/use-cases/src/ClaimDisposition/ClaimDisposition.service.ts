@@ -15,7 +15,8 @@
 
 import * as DomainCandidateClaim from "@beep/epistemic-domain/entities/CandidateClaim";
 import { ClaimDisposition } from "@beep/epistemic-domain/entities/ClaimDisposition";
-import { ClaimDispositionStatus, ClaimGateResult } from "@beep/epistemic-domain/values";
+import { ClaimDispositionStatus } from "@beep/epistemics/ClaimDispositionStatus";
+import { ClaimGateResult } from "@beep/epistemics/ClaimGate";
 import { $EpistemicUseCasesId } from "@beep/identity/packages";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
 import { Principal } from "@beep/shared-domain/entity/Principal";
@@ -31,7 +32,8 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { PosInt } from "../internal/PosInt.ts";
 import { appendClaimDisposition, ClaimDispositionAppend } from "./ClaimDisposition.commands.ts";
-import type { ClaimGateViolation, ClaimInvalidTransition } from "@beep/epistemic-domain/values";
+import type { ClaimInvalidTransition } from "@beep/epistemic-domain/values";
+import type { ClaimGateViolation } from "@beep/epistemics/ClaimGate";
 import type { ClaimTransitionShape } from "../ClaimLifecycle/ClaimLifecycle.service.ts";
 import type {
   ClaimDispositionRepositoryShape,

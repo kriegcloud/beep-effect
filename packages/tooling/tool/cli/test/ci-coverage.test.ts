@@ -1218,6 +1218,154 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
     })
   );
 
+  it.effect("expands the Epistemic coverage glob into eight canonical tests with no Unit extras", () =>
+    Effect.gen(function* () {
+      const entry = owner("@beep/epistemic-server", "packages/tool");
+      const { root, fs, path } = yield* fixture([entry]);
+      const directory = path.join(root, entry.packagePath);
+      const names = [
+        "BoundedShaclValidator",
+        "ContradictionTriage.observability",
+        "EpistemicRepositoryDriverFailure.pglite",
+        "EpistemicServer",
+        "GovernedEgress",
+        "GovernedTierGate",
+        "IdentityShaclProjection.e2e",
+      ];
+      const files = A.map(names, (name) => `test/${name}.test.ts`);
+      const integration = "test/integration/ContradictionTriage.pglite.test.ts";
+      yield* fs.makeDirectory(path.join(directory, "test/integration"), { recursive: true });
+      for (const file of [...files, integration])
+        yield* fs.writeFileString(path.join(directory, file), 'throw new Error("discovery must never execute tests");');
+      yield* fs.writeFileString(
+        path.join(directory, "package.json"),
+        yield* encode({
+          name: entry.packageName,
+          version: "0.0.0",
+          scripts: {
+            test: "bun run beep:test",
+            "beep:test": "bunx --bun vitest run test/*.test.ts",
+            coverage: `bunx vitest run --coverage test/*.test.ts ${integration}`,
+          },
+        })
+      );
+      yield* fs.writeFileString(
+        path.join(directory, "vitest.config.ts"),
+        'export default { test: { include: ["test/**/*.test.ts"] } };'
+      );
+      const vitest = path.resolve(import.meta.dirname, "../../../../../node_modules/vitest/vitest.mjs");
+      mocks.discover.mockImplementation((input: Parameters<typeof nativeRunCaptured>[0]) =>
+        input.command === "bunx"
+          ? nativeRunCaptured({
+              ...input,
+              command: input.args?.[0] === "--bun" ? "bun" : "node",
+              args: [vitest, ...A.drop(input.args ?? [], input.args?.[0] === "--bun" ? 2 : 1)],
+            })
+          : nativeRunCaptured(input)
+      );
+      yield* runCiCoverageComparison(root, options());
+      const compared = mocks.compare.mock.calls[0]?.[1];
+      assertDefined(compared);
+      const packages = A.flatMap(compared.expectedPartitions, (partition) => partition.packages);
+      expect(packages).toHaveLength(1);
+      expect(packages[0]?.testOnly).toBe(false);
+      expect(packages[0]?.expectedTestFiles).toHaveLength(8);
+      expect(packages[0]?.testCommand).toEqual(["bunx", "vitest", "run", "--coverage", ...files, integration]);
+      expect(mocks.discover).not.toHaveBeenCalledWith(
+        expect.objectContaining({ args: expect.arrayContaining(["test/*.test.ts"]) })
+      );
+    })
+  );
+  A.forEach(
+    [
+      { word: "'test/*.test.ts'", expected: "test/*.test.ts" },
+      { word: '"test/*.test.ts"', expected: "test/*.test.ts" },
+      { word: "test/\\*.test.ts", expected: "test/*.test.ts" },
+      { word: "missing/*.test.ts", expected: "missing/*.test.ts" },
+      { word: "--exclude=test/*.test.ts", expected: "--exclude=test/*.test.ts" },
+    ],
+    (scenario) =>
+      it.effect(`preserves canonical literal argument ${scenario.word}`, () =>
+        Effect.gen(function* () {
+          const { root, fs, path } = yield* fixture([owner("@beep/example")], `bunx vitest run ${scenario.word}`);
+          yield* fs.makeDirectory(path.join(root, "packages/tool/test"), { recursive: true });
+          yield* fs.writeFileString(path.join(root, "packages/tool/test/present.test.ts"), "");
+          yield* runCiCoverageComparison(root, options());
+          expect(mocks.discover).toHaveBeenCalledWith(
+            expect.objectContaining({ args: expect.arrayContaining([scenario.expected]) })
+          );
+        })
+      )
+  );
+
+  it.effect("expands sorted pathname matches containing spaces into separate arguments", () =>
+    Effect.gen(function* () {
+      const { root, fs, path } = yield* fixture([owner("@beep/example")], "bunx vitest run test/*.test.ts");
+      yield* fs.makeDirectory(path.join(root, "packages/tool/test"), { recursive: true });
+      for (const name of ["z last", "a first"])
+        yield* fs.writeFileString(path.join(root, `packages/tool/test/${name}.test.ts`), "");
+      yield* fs.writeFileString(
+        path.join(root, "packages/tool/package.json"),
+        yield* encode({
+          name: "@beep/example",
+          scripts: {
+            test: "bun run beep:test",
+            "beep:test": "bunx vitest run test/*.test.ts",
+            coverage: "bunx vitest run --coverage test/*.test.ts",
+            "shell-contract": "printf '<%s>\\n' test/*.test.ts",
+          },
+        })
+      );
+      const shell = yield* nativeRunCaptured({
+        command: "bun",
+        args: ["run", "--silent", "shell-contract"],
+        cwd: path.join(root, "packages/tool"),
+        source: "stdout",
+        trim: true,
+      });
+      expect(shell.exitCode).toBe(0);
+      expect(shell.output).toBe("<test/a first.test.ts>\n<test/z last.test.ts>");
+      yield* runCiCoverageComparison(root, options());
+      expect(mocks.discover).toHaveBeenCalledWith(
+        expect.objectContaining({
+          args: ["vitest", "list", "--filesOnly", "test/a first.test.ts", "test/z last.test.ts", "--json"],
+        })
+      );
+    })
+  );
+  A.forEach(
+    [
+      "../*.test.ts",
+      "/tmp/*.test.ts",
+      "node_modules/*.test.ts",
+      "test/**/*.test.ts",
+      "test/?.test.ts",
+      "test/[a].test.ts",
+      "test/space\\ dir/*.test.ts",
+      "test/\\*/*.test.ts",
+    ],
+    (pattern) =>
+      it.effect(`refuses unsupported or escaping pathname pattern ${pattern}`, () =>
+        Effect.gen(function* () {
+          const { root } = yield* fixture([owner("@beep/example")], `bunx vitest run ${pattern}`);
+          const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+          expect(failure.message).toMatch(/pathname pattern/u);
+          expect(mocks.discover).not.toHaveBeenCalled();
+        })
+      )
+  );
+
+  it.effect("reports filesystem pathname enumeration failures before test discovery", () =>
+    Effect.gen(function* () {
+      const { root, fs, path } = yield* fixture([owner("@beep/example")], "bunx vitest run test/*.test.ts");
+      const failure = yield* fs.readFileString(path.join(root, "missing-file")).pipe(Effect.flip);
+      vi.spyOn(fs, "glob").mockReturnValueOnce(Effect.fail(failure));
+      const error = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+      expect(error.message).toContain("Failed to expand test/*.test.ts");
+      expect(mocks.discover).not.toHaveBeenCalled();
+    })
+  );
+
   const scriptVariants = [
     { name: "identity Node", script: "bunx vitest run", runtimes: [false], env: {} },
     { name: "app Bun", script: "bunx --bun vitest run", runtimes: [true], env: {} },
@@ -1307,6 +1455,10 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
 
   for (const script of [
     "bunx vitest run; echo unsafe",
+    'bunx vitest run "test/"*.test.ts',
+    "bunx vitest run `echo unsafe`",
+    "bunx vitest run > output",
+    "bunx vitest run 'unterminated",
     "TOKEN=$(echo unsafe) bunx vitest run",
     "bunx vitest run | other",
     "bunx vitest run && custom-test-command",

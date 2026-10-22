@@ -19,6 +19,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const mode = Match.value(Bun.argv.includes("--check")).pipe(
   Match.when(true, () => "check" as const),
@@ -34,7 +35,7 @@ class StaleMigrationBundle extends S.TaggedError<StaleMigrationBundle, { readonl
 ) {}
 
 const quoteTemplateLiteral = (value: string): string =>
-  `\`${value.replaceAll("\\", "\\\\").replaceAll("`", "\\`").replaceAll("${", "\\${")}\``;
+  `\`${Str.replaceAll("${", "\\${")(Str.replaceAll("`", "\\`")(Str.replaceAll("\\", "\\\\")(value)))}\``;
 
 class MigrationBundleEntry extends S.Opaque<MigrationBundleEntry, { readonly brand: unique symbol }>()(
   S.Struct({

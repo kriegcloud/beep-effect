@@ -21,6 +21,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import * as Str from "effect/String";
 import { formatVersion, parseVersion } from "./internal/grammar.ts";
 import { compareBuild, compareParts, versionConstructor } from "./internal/order.ts";
 
@@ -452,7 +453,7 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
    * @since 0.0.0
    */
   static isValid(input: string): boolean {
-    return input === input.trim() && Result.isSuccess(SemVer.parseResult(input));
+    return input === Str.trim(input) && Result.isSuccess(SemVer.parseResult(input));
   }
 
   /**
@@ -484,7 +485,7 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
    * @since 0.0.0
    */
   static isPinnable(input: string): boolean {
-    if (input !== input.trim()) {
+    if (input !== Str.trim(input)) {
       return false;
     }
     const parsed = SemVer.parseResult(input);

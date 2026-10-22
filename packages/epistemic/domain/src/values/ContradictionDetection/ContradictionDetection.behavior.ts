@@ -4,14 +4,18 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { sha256 } from "@noble/hashes/sha2.js";
-import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
-import { dual } from "effect/Function";
-import * as Result from "effect/Result";
-import * as S from "effect/Schema";
-import { BeliefVersionRef, ContradictionProposalId } from "../Contradiction/index.ts";
-import { canonicalJson } from "../internal/CanonicalJson.ts";
-import type { ContradictionProposalContent } from "../Contradiction/index.ts";
+import {
+  canonicalDetectionJson as canonicalJson,
+  makeDetectionProposalId,
+} from "@beep/epistemics/ContradictionDetection";
+import {
+  BeliefVersionRef,
+  ContradictionProposalContent,
+  ContradictionProposalId as ProposalIdSchema,
+} from "../Contradiction/index.ts";
+import type * as Result from "effect/Result";
+import type * as S from "effect/Schema";
+import type { ContradictionProposalId } from "../Contradiction/index.ts";
 /**
  * Encode JSON values with the same canonicalizer used by shipped contradiction seals.
  *
@@ -25,8 +29,7 @@ import type { ContradictionProposalContent } from "../Contradiction/index.ts";
  * @category encoding
  * @since 0.0.0
  */
-export const canonicalDetectionJson = canonicalJson;
-const encodeRef = S.encodeResult(BeliefVersionRef);
+export const canonicalDetectionJson: (value: unknown) => string = canonicalJson;
 /**
  * Hash the losing immutable ref and the complete replacement fact for one proposal.
  *
@@ -54,8 +57,8 @@ export const detectionProposalId: {
   (
     fact: typeof ContradictionProposalContent.fields.fact.Type
   ): (losingBelief: BeliefVersionRef) => Result.Result<ContradictionProposalId, S.SchemaError>;
-} = dual(2, (losingBelief: BeliefVersionRef, fact: typeof ContradictionProposalContent.fields.fact.Type) =>
-  Result.map(encodeRef(losingBelief), (ref) =>
-    ContradictionProposalId.make(bytesToHex(sha256(utf8ToBytes(canonicalJson({ losingBelief: ref, fact })))))
-  )
-);
+} = makeDetectionProposalId({
+  contradiction: { ContradictionProposalId: ProposalIdSchema },
+  BeliefVersionRef,
+  ContradictionProposalContent,
+}).detectionProposalId;
