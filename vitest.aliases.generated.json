@@ -2104,5 +2104,32 @@
   ],
   "@beep/epistemics/ValidInterval": [
     "./packages/foundation/modeling/epistemics/src/ValidInterval/index.ts"
+  ],
+  "@beep/epistemics/Factory": [
+    "./packages/foundation/modeling/epistemics/src/Factory/index.ts"
+  ],
+  "@beep/epistemics/Claim": [
+    "./packages/foundation/modeling/epistemics/src/Claim/index.ts"
+  ],
+  "@beep/epistemics/ClaimEvidenceReview": [
+    "./packages/foundation/modeling/epistemics/src/ClaimEvidenceReview/index.ts"
+  ],
+  "@beep/epistemics/ClaimProjection": [
+    "./packages/foundation/modeling/epistemics/src/ClaimProjection/index.ts"
+  ],
+  "@beep/epistemics/Contradiction": [
+    "./packages/foundation/modeling/epistemics/src/Contradiction/index.ts"
+  ],
+  "@beep/epistemics/ContradictionDetection": [
+    "./packages/foundation/modeling/epistemics/src/ContradictionDetection/index.ts"
+  ],
+  "@beep/epistemics/EdgeEndpoint": [
+    "./packages/foundation/modeling/epistemics/src/EdgeEndpoint/index.ts"
+  ],
+  "@beep/epistemics/EvidenceVerification": [
+    "./packages/foundation/modeling/epistemics/src/EvidenceVerification/index.ts"
+  ],
+  "@beep/epistemics/LogicalEdgeIdentity": [
+    "./packages/foundation/modeling/epistemics/src/LogicalEdgeIdentity/index.ts"
   ]
 }

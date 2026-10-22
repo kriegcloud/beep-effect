@@ -4,34 +4,43 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
-import { Confidence } from "@beep/epistemics/EvidenceSpan";
+import {
+  CONTRADICTION_DETECTOR_MAX_LENGTH as DETECTOR_MAX_LENGTH,
+  CONTRADICTION_EVIDENCE_SET_MAX_COUNT as EVIDENCE_SET_MAX_COUNT,
+  makeBeliefVersionRef,
+  makeContradictionArbitraries,
+  makeContradictionAssessment,
+  makeContradictionBehavior,
+  makeContradictionBeliefPairs,
+  makeContradictionCandidate,
+  makeContradictionDispositionDecision,
+  makeContradictionMatchBasis,
+  makeContradictionProposals,
+  makeContradictionVocabulary,
+  makeValidIntervalCheck as makeIntervalCheck,
+  CONTRADICTION_PROPOSAL_FACT_MAX_BYTES as PROPOSAL_FACT_MAX_BYTES,
+  CONTRADICTION_PROPOSAL_MAX_COUNT as PROPOSAL_MAX_COUNT,
+  CONTRADICTION_PROPOSAL_RATIONALE_MAX_LENGTH as PROPOSAL_RATIONALE_MAX_LENGTH,
+  CONTRADICTION_REVIEW_REASON_MAX_LENGTH as REVIEW_REASON_MAX_LENGTH,
+} from "@beep/epistemics/Contradiction";
 import { $EpistemicDomainId } from "@beep/identity/packages";
-import { LiteralKit, SchemaUtils, Sha256Hex } from "@beep/schema";
-import { SemanticVersion } from "@beep/schema/SemanticVersion";
 import * as EpistemicIdentity from "@beep/shared-domain/identity/Epistemic";
-import { P, R } from "@beep/utils";
-import { sha256 } from "@noble/hashes/sha2.js";
-import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
-import * as Arbitrary from "effect/Arbitrary";
-import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
-import * as DateTime from "effect/DateTime";
-import * as Eq from "effect/Equal";
-import { dual, flow, identity, pipe } from "effect/Function";
-import * as O from "effect/Option";
 import * as Order from "effect/Order";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import * as SchemaTransformation from "effect/SchemaTransformation";
-import * as Str from "effect/String";
 import { PosInt } from "../../internal/PosInt.ts";
-import { canonicalJson } from "../internal/CanonicalJson.ts";
 import { LogicalEdgeKey } from "../LogicalEdgeIdentity/index.ts";
+import type * as Arbitrary from "effect/Arbitrary";
+import type * as Result from "effect/Result";
 
 const $I = $EpistemicDomainId.create("values/Contradiction/Contradiction.model");
-const TrimmedText = S.String.pipe(S.decodeTo(S.NonEmptyString, SchemaTransformation.trim()));
-
+const vocabulary = makeContradictionVocabulary({ $I });
+const beliefRef = makeBeliefVersionRef({
+  $I,
+  ids: { edgeVersion: EpistemicIdentity.EdgeVersionId },
+  positiveInt: PosInt,
+  LogicalEdgeKey,
+});
+const matchBasis = makeContradictionMatchBasis({ $I, vocabulary, ids: { evidence: EpistemicIdentity.EvidenceId } });
 /**
  * Digest identifying one contradiction candidate independent of submission
  * order.
@@ -48,12 +57,7 @@ const TrimmedText = S.String.pipe(S.decodeTo(S.NonEmptyString, SchemaTransformat
  * @category identifiers
  * @since 0.0.0
  */
-export const ContradictionCandidateKey = Sha256Hex.pipe(
-  S.brand("ContradictionCandidateKey"),
-  $I.annoteSchema("ContradictionCandidateKey", {
-    description: "SHA-256 digest identifying one canonical contradiction candidate and match basis.",
-  })
-);
+export const ContradictionCandidateKey = vocabulary.ContradictionCandidateKey;
 
 /**
  * Runtime type for {@link ContradictionCandidateKey}.
@@ -87,12 +91,7 @@ export type ContradictionCandidateKey = typeof ContradictionCandidateKey.Type;
  * @category identifiers
  * @since 0.0.0
  */
-export const ContradictionReceiptKey = Sha256Hex.pipe(
-  S.brand("ContradictionReceiptKey"),
-  $I.annoteSchema("ContradictionReceiptKey", {
-    description: "Caller-owned SHA-256 idempotency key for one contradiction-submission receipt.",
-  })
-);
+export const ContradictionReceiptKey = vocabulary.ContradictionReceiptKey;
 
 /**
  * Runtime type for {@link ContradictionReceiptKey}.
@@ -128,12 +127,7 @@ export type ContradictionReceiptKey = typeof ContradictionReceiptKey.Type;
  * @category identifiers
  * @since 0.0.0
  */
-export const ContradictionCandidateDigest = Sha256Hex.pipe(
-  S.brand("ContradictionCandidateDigest"),
-  $I.annoteSchema("ContradictionCandidateDigest", {
-    description: "SHA-256 digest guarding the complete immutable payload stored for a contradiction candidate.",
-  })
-);
+export const ContradictionCandidateDigest = vocabulary.ContradictionCandidateDigest;
 
 /**
  * Runtime type for {@link ContradictionCandidateDigest}.
@@ -174,12 +168,7 @@ export type ContradictionCandidateDigest = typeof ContradictionCandidateDigest.T
  * @category identifiers
  * @since 0.0.0
  */
-export const ContradictionEvidenceDigest = Sha256Hex.pipe(
-  S.brand("ContradictionEvidenceDigest"),
-  $I.annoteSchema("ContradictionEvidenceDigest", {
-    description: "Order-independent SHA-256 digest of the exact evidence ids in one contradiction basis.",
-  })
-);
+export const ContradictionEvidenceDigest = vocabulary.ContradictionEvidenceDigest;
 
 /**
  * Runtime type for {@link ContradictionEvidenceDigest}.
@@ -220,12 +209,7 @@ export type ContradictionEvidenceDigest = typeof ContradictionEvidenceDigest.Typ
  * @category identifiers
  * @since 0.0.0
  */
-export const ContradictionProposalId = Sha256Hex.pipe(
-  S.brand("ContradictionProposalId"),
-  $I.annoteSchema("ContradictionProposalId", {
-    description: "Stable SHA-256 identifier for one persisted contradiction resolution proposal.",
-  })
-);
+export const ContradictionProposalId = vocabulary.ContradictionProposalId;
 
 /**
  * Runtime type for {@link ContradictionProposalId}.
@@ -266,12 +250,7 @@ export type ContradictionProposalId = typeof ContradictionProposalId.Type;
  * @category identifiers
  * @since 0.0.0
  */
-export const ContradictionProposalDigest = Sha256Hex.pipe(
-  S.brand("ContradictionProposalDigest"),
-  $I.annoteSchema("ContradictionProposalDigest", {
-    description: "SHA-256 digest binding a proposal id to its losing belief, replacement, validity, and rationale.",
-  })
-);
+export const ContradictionProposalDigest = vocabulary.ContradictionProposalDigest;
 
 /**
  * Runtime type for {@link ContradictionProposalDigest}.
@@ -310,56 +289,11 @@ export type ContradictionProposalDigest = typeof ContradictionProposalDigest.Typ
  * @since 0.0.0
  */
 export class BeliefVersionRef extends S.Opaque<BeliefVersionRef, { readonly brand: unique symbol }>()(
-  S.Struct({
-    edgeVersionId: EpistemicIdentity.EdgeVersionId.annotateKey({
-      description: "Immutable edge-version row observed by the detector.",
-    }),
-    logicalKey: LogicalEdgeKey.annotateKey({
-      description: "Logical lineage containing the observed edge version.",
-    }),
-    version: PosInt.annotateKey({
-      description: "Optimistic logical version observed by the detector.",
-    }),
-  }).pipe(
-    $I.annoteSchema("BeliefVersionRef", {
-      description: "Exact immutable edge version observed as one side of a contradiction candidate.",
-    })
-  )
+  beliefRef.BeliefVersionRefSchema
 ) {}
 
-const encodeBeliefRef = (ref: BeliefVersionRef): string =>
-  A.join([ref.logicalKey, `${ref.edgeVersionId}`, `${ref.version}`], ":");
-
-const beliefRefOrder = Order.mapInput(Order.String, encodeBeliefRef);
-const beliefRefComesBefore = Order.isLessThan(beliefRefOrder);
-const edgeVersionIdEquivalent = S.toEquivalence(BeliefVersionRef.fields.edgeVersionId);
-const beliefsAreDistinct = ({ left, right }: S.Struct.Type<typeof ContradictionBeliefPairStruct.fields>) =>
-  !edgeVersionIdEquivalent(left.edgeVersionId, right.edgeVersionId);
-
-class ContradictionBeliefPairStruct extends S.Opaque<
-  ContradictionBeliefPairStruct,
-  { readonly brand: unique symbol }
->()(
-  S.Struct({
-    left: BeliefVersionRef.annotateKey({ description: "Belief presented on the left side of a submission." }),
-    right: BeliefVersionRef.annotateKey({ description: "Belief presented on the right side of a submission." }),
-  }).pipe(
-    $I.annoteSchema("ContradictionBeliefPairStruct", {
-      description: "Structural contradiction belief pair before distinctness is checked.",
-    })
-  )
-) {}
-
-const DistinctBeliefPairCheck = S.makeFilter(
-  beliefsAreDistinct,
-  $I.annote("DistinctBeliefPairCheck", {
-    title: "Distinct Contradiction Belief Pair",
-    description: "Checks that the two sides reference different immutable edge-version rows.",
-    message: "Expected left and right to reference different edge versions.",
-  })
-);
-
-const ContradictionBeliefPairSchema = ContradictionBeliefPairStruct.mapFields(identity).check(DistinctBeliefPairCheck);
+const beliefPairs = makeContradictionBeliefPairs({ $I, BeliefVersionRef });
+const proposals = makeContradictionProposals({ $I, vocabulary, BeliefVersionRef });
 
 /**
  * Submission-order pair of exact conflicting belief versions.
@@ -383,26 +317,8 @@ const ContradictionBeliefPairSchema = ContradictionBeliefPairStruct.mapFields(id
  * @since 0.0.0
  */
 export class ContradictionBeliefPair extends S.Opaque<ContradictionBeliefPair, { readonly brand: unique symbol }>()(
-  ContradictionBeliefPairSchema.pipe(
-    $I.annoteSchema("ContradictionBeliefPair", {
-      description: "Submission-order pair of exact conflicting belief versions.",
-    })
-  )
+  beliefPairs.ContradictionBeliefPairSchema
 ) {}
-
-const CanonicalBeliefPairCheck = S.makeFilter(
-  ({ left, right }: S.Struct.Type<typeof ContradictionBeliefPair.fields>) =>
-    beliefRefComesBefore(BeliefVersionRef.make(left), BeliefVersionRef.make(right)),
-  $I.annote("CanonicalBeliefPairCheck", {
-    title: "Canonical Contradiction Belief Pair",
-    description: "Checks that a persisted contradiction pair is ordered by its stable encoded belief references.",
-    message: "Expected the distinct left belief reference to sort before the right belief reference.",
-  })
-);
-
-const CanonicalContradictionBeliefPairSchema = ContradictionBeliefPair.mapFields(identity)
-  .check(DistinctBeliefPairCheck)
-  .check(CanonicalBeliefPairCheck);
 
 /**
  * Canonically ordered pair persisted inside a contradiction candidate.
@@ -421,29 +337,7 @@ const CanonicalContradictionBeliefPairSchema = ContradictionBeliefPair.mapFields
 export class CanonicalContradictionBeliefPair extends S.Opaque<
   CanonicalContradictionBeliefPair,
   { readonly brand: unique symbol }
->()(
-  CanonicalContradictionBeliefPairSchema.pipe(
-    $I.annoteSchema("CanonicalContradictionBeliefPair", {
-      description: "Checked canonical ordering of the immutable belief-version pair persisted in a candidate.",
-    })
-  )
-) {}
-
-/**
- * Evidence and detector revision that form the repeatable match basis.
- *
- * **Example** (Inspect evidence digest field)
- *
- * ```ts
- * import { ContradictionMatchBasis } from "@beep/epistemic-domain/values/Contradiction"
- *
- * console.log(ContradictionMatchBasis.fields.evidenceDigest !== undefined)
- * ```
- *
- * @category value-objects
- * @since 0.0.0
- */
-const ContradictionMatchBasisKindBase = LiteralKit(["same-source-overlap", "independent-evidence"]);
+>()(beliefPairs.CanonicalContradictionBeliefPairSchema) {}
 
 /**
  * Bounded semantic basis on which a detector may assert a contradiction.
@@ -460,12 +354,7 @@ const ContradictionMatchBasisKindBase = LiteralKit(["same-source-overlap", "inde
  * @category schemas
  * @since 0.0.0
  */
-export const ContradictionMatchBasisKind = ContradictionMatchBasisKindBase.pipe(
-  $I.annoteSchema("ContradictionMatchBasisKind", {
-    description: "Whether a contradiction is grounded in overlapping source text or independent evidence.",
-  }),
-  SchemaUtils.withLiteralKitStatics(ContradictionMatchBasisKindBase)
-);
+export const ContradictionMatchBasisKind = vocabulary.ContradictionMatchBasisKind;
 
 /**
  * Runtime type for {@link ContradictionMatchBasisKind}.
@@ -487,11 +376,6 @@ export const ContradictionMatchBasisKind = ContradictionMatchBasisKindBase.pipe(
  */
 export type ContradictionMatchBasisKind = typeof ContradictionMatchBasisKind.Type;
 
-const evidenceIdEquivalence = S.toEquivalence(EpistemicIdentity.EvidenceId);
-const evidenceIdOrder = Order.mapInput(Order.String, (evidenceId: EpistemicIdentity.EvidenceId) => `${evidenceId}`);
-const hasUniqueEvidenceIds = (ids: ReadonlyArray<EpistemicIdentity.EvidenceId>): boolean =>
-  Eq.equals(A.length(A.dedupeWith(ids, evidenceIdEquivalence)), A.length(ids));
-
 /**
  * Maximum evidence identifiers retained on either side of one contradiction.
  *
@@ -506,7 +390,7 @@ const hasUniqueEvidenceIds = (ids: ReadonlyArray<EpistemicIdentity.EvidenceId>):
  * @category constants
  * @since 0.0.0
  */
-export const CONTRADICTION_EVIDENCE_SET_MAX_COUNT = 32;
+export const CONTRADICTION_EVIDENCE_SET_MAX_COUNT = EVIDENCE_SET_MAX_COUNT;
 
 /**
  * Maximum UTF-16 length accepted for a contradiction detector identity.
@@ -522,104 +406,7 @@ export const CONTRADICTION_EVIDENCE_SET_MAX_COUNT = 32;
  * @category constants
  * @since 0.0.0
  */
-export const CONTRADICTION_DETECTOR_MAX_LENGTH = 256;
-
-const ContradictionDetectorIdentity = TrimmedText.check(
-  S.isMaxLength(
-    CONTRADICTION_DETECTOR_MAX_LENGTH,
-    $I.annote("ContradictionDetectorIdentityMaximumLengthCheck", {
-      arbitraryConstraint: { patterns: [{ source: "^[a-zA-Z0-9_-]{1,256}$", flags: "" }] },
-      title: "Contradiction Detector Identity Maximum Length",
-      description: "Checks that a contradiction detector identity contains at most 256 UTF-16 code units.",
-      message: "Expected contradiction detector identity to contain at most 256 UTF-16 code units.",
-    })
-  )
-).pipe(
-  $I.annoteSchema("ContradictionDetectorIdentity", {
-    description: "Trimmed non-empty stable detector identity containing at most 256 UTF-16 code units.",
-  })
-);
-
-const UniqueNonEmptyEvidenceIds = S.NonEmptyArray(EpistemicIdentity.EvidenceId)
-  .check(
-    S.isMaxLength(
-      CONTRADICTION_EVIDENCE_SET_MAX_COUNT,
-      $I.annote("UniqueNonEmptyEvidenceIdsMaximumLengthCheck", {
-        title: "Contradiction Evidence Set Maximum Count",
-        description: "Checks that either side of one contradiction retains at most 32 evidence identifiers.",
-        message: "Expected at most 32 EvidenceIds in either contradiction evidence set.",
-      })
-    )
-  )
-  .check(
-    S.makeFilter(
-      hasUniqueEvidenceIds,
-      $I.annote("UniqueNonEmptyEvidenceIdsCheck", {
-        title: "Unique Non-Empty Evidence IDs",
-        description: "Checks that an evidence set contains at least one id and never repeats an id.",
-        message: "Expected every EvidenceId in the non-empty evidence set to be unique.",
-      })
-    )
-  )
-  .pipe(
-    $I.annoteSchema("UniqueNonEmptyEvidenceIds", {
-      description: "A non-empty side-specific contradiction evidence set containing no repeated EvidenceId.",
-    })
-  );
-
-class ContradictionMatchBasisStruct extends S.Opaque<
-  ContradictionMatchBasisStruct,
-  { readonly brand: unique symbol }
->()(
-  S.Struct({
-    detector: ContradictionDetectorIdentity.annotateKey({
-      description: "Stable detector or caller name; it identifies provenance, not authority.",
-    }),
-    detectorVersion: SemanticVersion.annotateKey({
-      description: "Version of the detector semantics that produced this basis.",
-    }),
-    evidenceDigest: ContradictionEvidenceDigest.annotateKey({
-      description: "Digest binding the exact side-specific evidence sets.",
-    }),
-    kind: ContradictionMatchBasisKind.annotateKey({
-      description: "Typed semantic basis for the match.",
-    }),
-    leftEvidenceIds: UniqueNonEmptyEvidenceIds.annotateKey({
-      description: "Evidence grounding the first canonical belief.",
-    }),
-    rightEvidenceIds: UniqueNonEmptyEvidenceIds.annotateKey({
-      description: "Evidence grounding the second canonical belief.",
-    }),
-  }).pipe(
-    $I.annoteSchema("ContradictionMatchBasisStruct", {
-      description: "Internal structural base for a contradiction candidate match basis.",
-    })
-  )
-) {}
-
-const evidenceSetsAreDisjoint = ({
-  leftEvidenceIds,
-  rightEvidenceIds,
-}: S.Struct.Type<typeof ContradictionMatchBasisStruct.fields>): boolean =>
-  A.every(leftEvidenceIds, (leftId) =>
-    A.every(rightEvidenceIds, (rightId) => Bool.not(evidenceIdEquivalence(leftId, rightId)))
-  );
-
-const IndependentEvidenceSetsCheck = S.makeFilter(
-  (basis: S.Struct.Type<typeof ContradictionMatchBasisStruct.fields>) =>
-    ContradictionMatchBasisKind.$match(basis.kind, {
-      "independent-evidence": () => evidenceSetsAreDisjoint(basis),
-      "same-source-overlap": () => true,
-    }),
-  $I.annote("IndependentEvidenceSetsCheck", {
-    title: "Independent Contradiction Evidence Sets",
-    description: "Checks that independent-evidence candidates never reuse one EvidenceId on both sides.",
-    message: "Expected left and right evidence sets to be disjoint for an independent-evidence match.",
-  })
-);
-
-const ContradictionMatchBasisSchema =
-  ContradictionMatchBasisStruct.mapFields(identity).check(IndependentEvidenceSetsCheck);
+export const CONTRADICTION_DETECTOR_MAX_LENGTH = DETECTOR_MAX_LENGTH;
 
 /**
  * Evidence and detector revision that form the repeatable match basis.
@@ -636,11 +423,7 @@ const ContradictionMatchBasisSchema =
  * @since 0.0.0
  */
 export class ContradictionMatchBasis extends S.Opaque<ContradictionMatchBasis, { readonly brand: unique symbol }>()(
-  ContradictionMatchBasisSchema.pipe(
-    $I.annoteSchema("ContradictionMatchBasis", {
-      description: "Exact evidence pair and detector revision supporting a contradiction candidate.",
-    })
-  )
+  matchBasis.ContradictionMatchBasisSchema
 ) {}
 
 /**
@@ -657,7 +440,7 @@ export class ContradictionMatchBasis extends S.Opaque<ContradictionMatchBasis, {
  * @category constants
  * @since 0.0.0
  */
-export const CONTRADICTION_PROPOSAL_RATIONALE_MAX_LENGTH = 2_000;
+export const CONTRADICTION_PROPOSAL_RATIONALE_MAX_LENGTH = PROPOSAL_RATIONALE_MAX_LENGTH;
 
 /**
  * Maximum canonical UTF-8 bytes accepted for one replacement fact.
@@ -673,122 +456,7 @@ export const CONTRADICTION_PROPOSAL_RATIONALE_MAX_LENGTH = 2_000;
  * @category constants
  * @since 0.0.0
  */
-export const CONTRADICTION_PROPOSAL_FACT_MAX_BYTES = 64 * 1_024;
-
-const CONTRADICTION_PROPOSAL_FACT_MAX_DEPTH = 32;
-const CONTRADICTION_PROPOSAL_FACT_MAX_NODES = 4_096;
-
-type ProposalFactNode = {
-  readonly depth: number;
-  readonly value: S.Json;
-};
-
-const proposalFactObjectEntries = (value: S.Json): ReadonlyArray<readonly [string, S.Json]> =>
-  P.isObject(value) ? R.toEntries(value as R.ReadonlyRecord<string, S.Json>) : A.empty();
-
-const proposalFactTextCodeUnits = (value: S.Json, objectEntries: ReadonlyArray<readonly [string, S.Json]>): number =>
-  (P.isString(value) ? Str.length(value) : 0) + A.reduce(objectEntries, 0, (total, [key]) => total + Str.length(key));
-
-const proposalFactChildren = (
-  value: S.Json,
-  objectEntries: ReadonlyArray<readonly [string, S.Json]>
-): ReadonlyArray<S.Json> =>
-  A.isArray(value) ? (value as ReadonlyArray<S.Json>) : A.map(objectEntries, ([, child]) => child);
-
-const isBoundedProposalFact = (fact: S.JsonObject): boolean => {
-  const pending: Array<ProposalFactNode> = [{ depth: 0, value: fact }];
-  let cursor = 0;
-  let minimumTextCodeUnits = 0;
-
-  while (cursor < A.length(pending)) {
-    const current = A.getUnsafe(pending, cursor);
-    if (current.depth > CONTRADICTION_PROPOSAL_FACT_MAX_DEPTH) {
-      return false;
-    }
-    cursor += 1;
-
-    const objectEntries = proposalFactObjectEntries(current.value);
-    minimumTextCodeUnits += proposalFactTextCodeUnits(current.value, objectEntries);
-    if (minimumTextCodeUnits > CONTRADICTION_PROPOSAL_FACT_MAX_BYTES) {
-      return false;
-    }
-
-    const children = proposalFactChildren(current.value, objectEntries);
-    if (A.length(pending) + A.length(children) > CONTRADICTION_PROPOSAL_FACT_MAX_NODES) {
-      return false;
-    }
-    pending.push(...A.map(children, (value) => ({ depth: current.depth + 1, value })));
-  }
-
-  return utf8ToBytes(canonicalJson(fact)).byteLength <= CONTRADICTION_PROPOSAL_FACT_MAX_BYTES;
-};
-
-const ContradictionProposalFact = S.JsonObject.check(
-  S.makeFilter(
-    isBoundedProposalFact,
-    $I.annote("ContradictionProposalFactBoundsCheck", {
-      title: "Bounded Contradiction Proposal Fact",
-      description:
-        "Checks replacement facts before digesting: at most 64 KiB canonical UTF-8, 4,096 JSON nodes, and 32 levels.",
-      message: "Expected a bounded contradiction proposal fact.",
-    })
-  )
-).pipe(
-  $I.annoteSchema("ContradictionProposalFact", {
-    description: "JSON-safe replacement fact bounded before canonicalization, hashing, persistence, and display.",
-  })
-);
-
-const ContradictionProposalRationale = TrimmedText.check(
-  S.isMaxLength(
-    CONTRADICTION_PROPOSAL_RATIONALE_MAX_LENGTH,
-    $I.annote("ContradictionProposalRationaleMaximumLengthCheck", {
-      arbitraryConstraint: { patterns: [{ source: "^[a-zA-Z0-9_-]{1,2000}$", flags: "" }] },
-      title: "Contradiction Proposal Rationale Maximum Length",
-      description: "Checks that a detector-supplied proposal rationale contains at most 2,000 characters.",
-      message: "Expected contradiction proposal rationale to contain at most 2,000 characters.",
-    })
-  )
-).pipe(
-  $I.annoteSchema("ContradictionProposalRationale", {
-    description: "Trimmed non-empty detector-supplied proposal rationale containing at most 2,000 characters.",
-  })
-);
-
-class ContradictionResolutionProposalStruct extends S.Opaque<
-  ContradictionResolutionProposalStruct,
-  { readonly brand: unique symbol }
->()(
-  S.Struct({
-    fact: ContradictionProposalFact.annotateKey({
-      description: "Immutable JSON-safe replacement fact proposed for the losing lineage.",
-    }),
-    losingBelief: BeliefVersionRef.annotateKey({
-      description: "Exact persisted belief version whose logical lineage the proposal would replace.",
-    }),
-    proposalDigest: ContradictionProposalDigest.annotateKey({
-      description: "Digest guarding every authority-changing proposal field.",
-    }),
-    proposalId: ContradictionProposalId.annotateKey({
-      description: "Stable proposal identifier selected by public review.",
-    }),
-    rationale: ContradictionProposalRationale.annotateKey({
-      description: "Detector-supplied rationale presented to the reviewer.",
-    }),
-    validFrom: S.DateTimeUtcFromMillis.annotateKey({
-      description: "Inclusive valid-time lower bound of the proposed replacement.",
-    }),
-    validTo: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr).annotateKey({
-      description: "Exclusive valid-time upper bound of the replacement, when known.",
-    }),
-  }).pipe(
-    $I.annoteSchema("ContradictionResolutionProposalStruct", {
-      description: "Structural contradiction proposal before its half-open valid interval is checked.",
-    })
-  )
-) {}
-
-const validIntervalIsOrdered = Order.isLessThan(DateTime.Order);
+export const CONTRADICTION_PROPOSAL_FACT_MAX_BYTES = PROPOSAL_FACT_MAX_BYTES;
 
 /**
  * Build the shared half-open valid-interval filter for contradiction payloads.
@@ -817,38 +485,7 @@ const validIntervalIsOrdered = Order.isLessThan(DateTime.Order);
  * @category utilities
  * @since 0.0.0
  */
-export const makeValidIntervalCheck = (annotations: ValidIntervalCheckAnnotations) =>
-  S.makeFilter(
-    ({ validFrom, validTo }: ValidInterval) =>
-      O.match(validTo, {
-        onNone: () => true,
-        onSome: (upperBound) => validIntervalIsOrdered(validFrom, upperBound),
-      }),
-    {
-      ...annotations,
-      message: "Expected validFrom to be earlier than validTo when validTo is present.",
-    }
-  );
-
-type ValidIntervalCheckAnnotations = {
-  readonly identifier: string;
-  readonly title: string;
-  readonly description: string;
-};
-
-type ValidInterval = {
-  readonly validFrom: DateTime.Utc;
-  readonly validTo: O.Option<DateTime.Utc>;
-};
-
-const ContradictionResolutionProposalSchema = ContradictionResolutionProposalStruct.mapFields(identity).check(
-  makeValidIntervalCheck(
-    $I.annote("ContradictionResolutionProposalValidIntervalCheck", {
-      title: "Contradiction Resolution Proposal Valid Interval",
-      description: "Checks that a closed proposal validity interval is a non-empty forward half-open range.",
-    })
-  )
-);
+export const makeValidIntervalCheck: typeof makeIntervalCheck = makeIntervalCheck;
 
 /**
  * Human-reviewable replacement proposed for one conflicting lineage.
@@ -867,19 +504,9 @@ const ContradictionResolutionProposalSchema = ContradictionResolutionProposalStr
 export class ContradictionResolutionProposal extends S.Opaque<
   ContradictionResolutionProposal,
   { readonly brand: unique symbol }
->()(
-  ContradictionResolutionProposalSchema.pipe(
-    $I.annoteSchema("ContradictionResolutionProposal", {
-      description: "Human-reviewable replacement proposed for one conflicting logical lineage.",
-    })
-  )
-) {}
+>()(proposals.ContradictionResolutionProposalSchema) {}
 
-const contradictionProposalIdEquivalence = S.toEquivalence(ContradictionProposalId);
-const proposalsShareId = (self: ContradictionResolutionProposal, that: ContradictionResolutionProposal): boolean =>
-  contradictionProposalIdEquivalence(self.proposalId, that.proposalId);
-const hasUniqueProposalIds = (proposals: ReadonlyArray<ContradictionResolutionProposal>): boolean =>
-  Eq.equals(A.length(A.dedupeWith(proposals, proposalsShareId)), A.length(proposals));
+const assessment = makeContradictionAssessment({ $I, vocabulary, ContradictionResolutionProposal });
 
 /**
  * Maximum proposals retained for one contradiction candidate.
@@ -895,34 +522,7 @@ const hasUniqueProposalIds = (proposals: ReadonlyArray<ContradictionResolutionPr
  * @category constants
  * @since 0.0.0
  */
-export const CONTRADICTION_PROPOSAL_MAX_COUNT = 32;
-
-const UniqueNonEmptyContradictionProposals = S.NonEmptyArray(ContradictionResolutionProposal)
-  .check(
-    S.isMaxLength(
-      CONTRADICTION_PROPOSAL_MAX_COUNT,
-      $I.annote("UniqueNonEmptyContradictionProposalsMaximumLengthCheck", {
-        title: "Contradiction Proposal Maximum Count",
-        description: "Checks that one candidate retains at most 32 human-reviewable proposals.",
-        message: "Expected at most 32 contradiction proposals.",
-      })
-    )
-  )
-  .check(
-    S.makeFilter(
-      hasUniqueProposalIds,
-      $I.annote("UniqueNonEmptyContradictionProposalsCheck", {
-        title: "Unique Non-Empty Contradiction Proposals",
-        description: "Checks that an assessment has at least one proposal and never repeats a proposal id.",
-        message: "Expected every proposalId in the non-empty proposal collection to be unique.",
-      })
-    )
-  )
-  .pipe(
-    $I.annoteSchema("UniqueNonEmptyContradictionProposals", {
-      description: "A non-empty contradiction proposal collection containing no repeated proposal identifier.",
-    })
-  );
+export const CONTRADICTION_PROPOSAL_MAX_COUNT = PROPOSAL_MAX_COUNT;
 
 /**
  * Detector confidence and explicit human-reviewable resolution proposals.
@@ -939,21 +539,20 @@ const UniqueNonEmptyContradictionProposals = S.NonEmptyArray(ContradictionResolu
  * @since 0.0.0
  */
 export class ContradictionAssessment extends S.Opaque<ContradictionAssessment, { readonly brand: unique symbol }>()(
-  S.Struct({
-    confidence: Confidence.annotateKey({
-      description: "Detector confidence that the two exact belief versions contradict.",
-    }),
-    proposals: UniqueNonEmptyContradictionProposals.annotateKey({
-      description: "One or more explicit supersession proposals presented for human review.",
-    }),
-  }).pipe(
-    $I.annoteSchema("ContradictionAssessment", {
-      description: "Detector confidence paired with explicit human-reviewable supersession proposals.",
-    })
-  )
+  assessment.ContradictionAssessmentSchema
 ) {}
 
-const ContradictionDispositionStatusBase = LiteralKit(["rejected", "superseded"]);
+const candidate = makeContradictionCandidate({
+  $I,
+  ContradictionAssessment,
+  ContradictionMatchBasis,
+  CanonicalContradictionBeliefPair,
+});
+const disposition = makeContradictionDispositionDecision({
+  $I,
+  vocabulary,
+  ids: { edgeVersion: EpistemicIdentity.EdgeVersionId },
+});
 
 /**
  * Slice-local disposition vocabulary for contradiction review.
@@ -974,12 +573,7 @@ const ContradictionDispositionStatusBase = LiteralKit(["rejected", "superseded"]
  * @category schemas
  * @since 0.0.0
  */
-export const ContradictionDispositionStatus = ContradictionDispositionStatusBase.pipe(
-  $I.annoteSchema("ContradictionDispositionStatus", {
-    description: "Recorded outcomes of human contradiction review; unresolved is represented by absence.",
-  }),
-  SchemaUtils.withLiteralKitStatics(ContradictionDispositionStatusBase)
-);
+export const ContradictionDispositionStatus = vocabulary.ContradictionDispositionStatus;
 
 /**
  * Runtime type for {@link ContradictionDispositionStatus}.
@@ -1012,7 +606,7 @@ export type ContradictionDispositionStatus = typeof ContradictionDispositionStat
  * @category constants
  * @since 0.0.0
  */
-export const CONTRADICTION_REVIEW_REASON_MAX_LENGTH = 2_000;
+export const CONTRADICTION_REVIEW_REASON_MAX_LENGTH = REVIEW_REASON_MAX_LENGTH;
 
 /**
  * Normalized human rationale attached to a contradiction review decision.
@@ -1039,20 +633,7 @@ export const CONTRADICTION_REVIEW_REASON_MAX_LENGTH = 2_000;
  * @category validation
  * @since 0.0.0
  */
-export const ContradictionReviewReason = TrimmedText.check(
-  S.isMaxLength(
-    CONTRADICTION_REVIEW_REASON_MAX_LENGTH,
-    $I.annote("ContradictionReviewReasonMaximumLengthCheck", {
-      title: "Contradiction Review Reason Maximum Length",
-      description: "Checks that a normalized contradiction review reason contains at most 2,000 characters.",
-      message: "Expected contradiction review reason to contain at most 2,000 characters",
-    })
-  )
-).pipe(
-  $I.annoteSchema("ContradictionReviewReason", {
-    description: "Trimmed non-empty human review rationale containing at most 2,000 characters.",
-  })
-);
+export const ContradictionReviewReason = vocabulary.ContradictionReviewReason;
 
 /**
  * Runtime type for {@link ContradictionReviewReason}.
@@ -1071,31 +652,6 @@ export const ContradictionReviewReason = TrimmedText.check(
  */
 export type ContradictionReviewReason = typeof ContradictionReviewReason.Type;
 
-const ContradictionDispositionDecisionBase = ContradictionDispositionStatusBase.toTaggedUnion("status")({
-  rejected: {
-    reason: ContradictionReviewReason.annotateKey({
-      description: "Normalized bounded reason the candidate was rejected.",
-    }),
-  },
-  superseded: {
-    formerEdgeVersionId: EpistemicIdentity.EdgeVersionId.annotateKey({
-      description: "Open edge version replaced by the approved correction.",
-    }),
-    proposalDigest: ContradictionProposalDigest.annotateKey({
-      description: "Persisted proposal digest verified immediately before supersession.",
-    }),
-    proposalId: ContradictionProposalId.annotateKey({
-      description: "Persisted proposal selected by the reviewer.",
-    }),
-    reason: ContradictionReviewReason.annotateKey({
-      description: "Normalized bounded reason the supersession was approved.",
-    }),
-    replacementEdgeVersionId: EpistemicIdentity.EdgeVersionId.annotateKey({
-      description: "Edge version atomically inserted as the replacement.",
-    }),
-  },
-});
-
 /**
  * Typed durable outcome of a contradiction review.
  *
@@ -1113,11 +669,7 @@ const ContradictionDispositionDecisionBase = ContradictionDispositionStatusBase.
  * @category value-objects
  * @since 0.0.0
  */
-export const ContradictionDispositionDecision = ContradictionDispositionDecisionBase.pipe(
-  $I.annoteSchema("ContradictionDispositionDecision", {
-    description: "Typed durable outcome of rejecting a candidate or atomically superseding one belief.",
-  })
-);
+export const ContradictionDispositionDecision = disposition.ContradictionDispositionDecision;
 
 /**
  * Runtime type for {@link ContradictionDispositionDecision}.
@@ -1139,55 +691,21 @@ export const ContradictionDispositionDecision = ContradictionDispositionDecision
  */
 export type ContradictionDispositionDecision = typeof ContradictionDispositionDecision.Type;
 
-const sortEvidenceIds = A.sort(evidenceIdOrder);
-
-const encodeEvidenceIds = flow(
-  sortEvidenceIds,
-  A.map((id: EpistemicIdentity.EvidenceId) => `${id}`),
-  A.join(",")
-);
-
-const sha256Hex = (value: string): string => bytesToHex(sha256(utf8ToBytes(value)));
-
-const evidenceDigestForSides = (
-  leftEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>,
-  rightEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>
-): ContradictionEvidenceDigest =>
-  ContradictionEvidenceDigest.make(
-    sha256Hex(
-      A.join(["v3", `left:${encodeEvidenceIds(leftEvidenceIds)}`, `right:${encodeEvidenceIds(rightEvidenceIds)}`], "|")
-    )
-  );
-
-const bindEvidenceSides = (
-  matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>,
-  leftEvidenceIds: ContradictionMatchBasis["leftEvidenceIds"],
-  rightEvidenceIds: ContradictionMatchBasis["rightEvidenceIds"]
-): ContradictionMatchBasis =>
-  pipe(
-    {
-      leftEvidenceIds: sortEvidenceIds(leftEvidenceIds),
-      rightEvidenceIds: sortEvidenceIds(rightEvidenceIds),
-    },
-    ({ leftEvidenceIds: canonicalLeftEvidenceIds, rightEvidenceIds: canonicalRightEvidenceIds }) =>
-      ContradictionMatchBasis.make({
-        ...matchBasis,
-        evidenceDigest: evidenceDigestForSides(canonicalLeftEvidenceIds, canonicalRightEvidenceIds),
-        leftEvidenceIds: canonicalLeftEvidenceIds,
-        rightEvidenceIds: canonicalRightEvidenceIds,
-      })
-  );
-
 class CanonicalizedContradiction extends S.Opaque<CanonicalizedContradiction, { readonly brand: unique symbol }>()(
-  S.Struct({
-    matchBasis: ContradictionMatchBasis,
-    pair: CanonicalContradictionBeliefPair,
-  }).pipe(
-    $I.annoteSchema("CanonicalizedContradiction", {
-      description: "Canonical belief pair with evidence that remains bound to its corresponding side.",
-    })
-  )
+  candidate.CanonicalizedContradictionSchema
 ) {}
+
+const behavior = makeContradictionBehavior({
+  vocabulary,
+  evidenceIdOrder: Order.mapInput(Order.String, (evidenceId: EpistemicIdentity.EvidenceId) => `${evidenceId}`),
+  BeliefVersionRef,
+  ContradictionMatchBasisStruct: matchBasis.ContradictionMatchBasisStructSchema,
+  ContradictionMatchBasis,
+  CanonicalContradictionBeliefPair,
+  CanonicalizedContradiction,
+  encodeProposalContent: proposals.encodeProposalContent,
+  encodeCandidateContent: candidate.encodeCandidateContent,
+});
 
 type CanonicalizeContradiction = {
   (
@@ -1197,6 +715,26 @@ type CanonicalizeContradiction = {
     pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
     matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
   ): CanonicalizedContradiction;
+};
+
+type ContradictionEvidenceDigestFn = {
+  (
+    rightEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>
+  ): (leftEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>) => ContradictionEvidenceDigest;
+  (
+    leftEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>,
+    rightEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>
+  ): ContradictionEvidenceDigest;
+};
+
+type ContradictionCandidateKeyFn = {
+  (
+    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
+  ): (pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>) => ContradictionCandidateKey;
+  (
+    pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
+    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
+  ): ContradictionCandidateKey;
 };
 
 /**
@@ -1219,38 +757,7 @@ type CanonicalizeContradiction = {
  * @category normalization
  * @since 0.0.0
  */
-export const canonicalizeContradiction: CanonicalizeContradiction = dual(
-  2,
-  (
-    pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
-    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
-  ): CanonicalizedContradiction =>
-    pipe(
-      beliefRefComesBefore(BeliefVersionRef.make(pair.left), BeliefVersionRef.make(pair.right)),
-      Bool.match({
-        onFalse: () =>
-          CanonicalizedContradiction.make({
-            matchBasis: bindEvidenceSides(matchBasis, matchBasis.rightEvidenceIds, matchBasis.leftEvidenceIds),
-            pair: CanonicalContradictionBeliefPair.make({ left: pair.right, right: pair.left }),
-          }),
-        onTrue: () =>
-          CanonicalizedContradiction.make({
-            matchBasis: bindEvidenceSides(matchBasis, matchBasis.leftEvidenceIds, matchBasis.rightEvidenceIds),
-            pair: CanonicalContradictionBeliefPair.make({ left: pair.left, right: pair.right }),
-          }),
-      })
-    )
-);
-
-type ContradictionEvidenceDigestFn = {
-  (
-    rightEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>
-  ): (leftEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>) => ContradictionEvidenceDigest;
-  (
-    leftEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>,
-    rightEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>
-  ): ContradictionEvidenceDigest;
-};
+export const canonicalizeContradiction: CanonicalizeContradiction = behavior.canonicalizeContradiction;
 
 /**
  * Digest the exact side-specific evidence-id sets of one match basis.
@@ -1281,23 +788,7 @@ type ContradictionEvidenceDigestFn = {
  * @category encoding
  * @since 0.0.0
  */
-export const contradictionEvidenceDigest: ContradictionEvidenceDigestFn = dual(
-  2,
-  (
-    leftEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>,
-    rightEvidenceIds: ReadonlyArray<EpistemicIdentity.EvidenceId>
-  ): ContradictionEvidenceDigest => evidenceDigestForSides(leftEvidenceIds, rightEvidenceIds)
-);
-
-type ContradictionCandidateKeyFn = {
-  (
-    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
-  ): (pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>) => ContradictionCandidateKey;
-  (
-    pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
-    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
-  ): ContradictionCandidateKey;
-};
+export const contradictionEvidenceDigest: ContradictionEvidenceDigestFn = behavior.contradictionEvidenceDigest;
 
 /**
  * Compute the duplicate-suppression key for a canonical contradiction basis.
@@ -1313,28 +804,7 @@ type ContradictionCandidateKeyFn = {
  * @category encoding
  * @since 0.0.0
  */
-export const contradictionCandidateKey: ContradictionCandidateKeyFn = dual(
-  2,
-  (
-    pair: S.Struct.Type<typeof ContradictionBeliefPair.fields>,
-    matchBasis: S.Struct.Type<typeof ContradictionMatchBasis.fields>
-  ): ContradictionCandidateKey => {
-    const normalized = canonicalizeContradiction(pair, matchBasis);
-    const canonical = A.join(
-      [
-        "v1",
-        encodeBeliefRef(BeliefVersionRef.make(normalized.pair.left)),
-        encodeBeliefRef(BeliefVersionRef.make(normalized.pair.right)),
-        normalized.matchBasis.kind,
-        normalized.matchBasis.evidenceDigest,
-        normalized.matchBasis.detector,
-        normalized.matchBasis.detectorVersion,
-      ],
-      "|"
-    );
-    return ContradictionCandidateKey.make(sha256Hex(canonical));
-  }
-);
+export const contradictionCandidateKey: ContradictionCandidateKeyFn = behavior.contradictionCandidateKey;
 
 /**
  * Digest-bearing proposal content before its digest is attached.
@@ -1354,34 +824,7 @@ export const contradictionCandidateKey: ContradictionCandidateKeyFn = dual(
 export class ContradictionProposalContent extends S.Opaque<
   ContradictionProposalContent,
   { readonly brand: unique symbol }
->()(
-  S.Struct({
-    fact: ContradictionProposalFact.annotateKey({
-      description: "Immutable JSON-safe replacement fact covered by the proposal digest.",
-    }),
-    losingBelief: BeliefVersionRef.annotateKey({
-      description: "Exact persisted belief version whose logical lineage the proposal would replace.",
-    }),
-    proposalId: ContradictionProposalId.annotateKey({
-      description: "Stable proposal identifier covered by the proposal digest.",
-    }),
-    rationale: ContradictionProposalRationale.annotateKey({
-      description: "Detector-supplied rationale covered by the proposal digest.",
-    }),
-    validFrom: S.DateTimeUtcFromMillis.annotateKey({
-      description: "Inclusive valid-time lower bound covered by the proposal digest.",
-    }),
-    validTo: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr).annotateKey({
-      description: "Exclusive valid-time upper bound covered by the proposal digest, when known.",
-    }),
-  }).pipe(
-    $I.annoteSchema("ContradictionProposalContent", {
-      description: "Complete authority-changing proposal content covered by its digest.",
-    })
-  )
-) {}
-
-const encodeProposalContent = S.encodeResult(ContradictionProposalContent.mapFields(identity));
+>()(proposals.ContradictionProposalContentSchema) {}
 
 /**
  * Compute the digest a public proposal selection must echo.
@@ -1426,62 +869,9 @@ const encodeProposalContent = S.encodeResult(ContradictionProposalContent.mapFie
  * @category encoding
  * @since 0.0.0
  */
-export const contradictionProposalDigest = (
+export const contradictionProposalDigest: (
   content: ContradictionProposalContent
-): Result.Result<ContradictionProposalDigest, S.SchemaError> =>
-  Result.map(encodeProposalContent(content), (encoded) =>
-    ContradictionProposalDigest.make(sha256Hex(`v1\n${canonicalJson(encoded)}`))
-  );
-
-/**
- * Structural candidate content before its validity interval is checked.
- *
- * **Example** (Inspect validFrom field)
- *
- * ```ts
- * import { ContradictionCandidateContent } from "@beep/epistemic-domain/values/Contradiction"
- *
- * console.log(ContradictionCandidateContent.fields.validFrom !== undefined) // true
- * ```
- *
- * @category value-objects
- * @since 0.0.0
- */
-class ContradictionCandidateContentStruct extends S.Opaque<
-  ContradictionCandidateContentStruct,
-  { readonly brand: unique symbol }
->()(
-  S.Struct({
-    assessment: ContradictionAssessment.annotateKey({
-      description: "Detector confidence and resolution proposals covered by the candidate digest.",
-    }),
-    matchBasis: ContradictionMatchBasis.annotateKey({
-      description: "Evidence and detector revision covered by the candidate digest.",
-    }),
-    pair: CanonicalContradictionBeliefPair.annotateKey({
-      description: "Canonical conflicting belief pair covered by the candidate digest.",
-    }),
-    validFrom: S.DateTimeUtcFromMillis.annotateKey({
-      description: "Inclusive valid-time lower bound covered by the candidate digest.",
-    }),
-    validTo: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr).annotateKey({
-      description: "Exclusive valid-time upper bound covered by the candidate digest, when known.",
-    }),
-  }).pipe(
-    $I.annoteSchema("ContradictionCandidateContentStruct", {
-      description: "Structural candidate payload before its half-open valid interval is checked.",
-    })
-  )
-) {}
-
-const ContradictionCandidateContentSchema = ContradictionCandidateContentStruct.mapFields(identity).check(
-  makeValidIntervalCheck(
-    $I.annote("ContradictionCandidateContentValidIntervalCheck", {
-      title: "Contradiction Candidate Valid Interval",
-      description: "Checks that a closed candidate validity interval is a non-empty forward half-open range.",
-    })
-  )
-);
+) => Result.Result<ContradictionProposalDigest, S.SchemaError> = behavior.contradictionProposalDigest;
 
 /**
  * Immutable candidate payload with a validated half-open validity interval.
@@ -1500,15 +890,7 @@ const ContradictionCandidateContentSchema = ContradictionCandidateContentStruct.
 export class ContradictionCandidateContent extends S.Opaque<
   ContradictionCandidateContent,
   { readonly brand: unique symbol }
->()(
-  ContradictionCandidateContentSchema.pipe(
-    $I.annoteSchema("ContradictionCandidateContent", {
-      description: "Complete immutable candidate payload covered by its collision-guard digest.",
-    })
-  )
-) {}
-
-const encodeCandidateContent = S.encodeResult(ContradictionCandidateContent.mapFields(identity));
+>()(candidate.ContradictionCandidateContentSchema) {}
 
 /**
  * Compute the immutable candidate payload digest used to reject key collisions.
@@ -1587,12 +969,26 @@ const encodeCandidateContent = S.encodeResult(ContradictionCandidateContent.mapF
  * @category encoding
  * @since 0.0.0
  */
-export const contradictionCandidateDigest = (
+export const contradictionCandidateDigest: (
   content: S.Struct.Type<typeof ContradictionCandidateContent.fields>
-): Result.Result<ContradictionCandidateDigest, S.SchemaError> =>
-  Result.map(encodeCandidateContent(content), (encoded) =>
-    ContradictionCandidateDigest.make(sha256Hex(`v1\n${canonicalJson(encoded)}`))
-  );
+) => Result.Result<ContradictionCandidateDigest, S.SchemaError> = behavior.contradictionCandidateDigest;
+
+const arbitraries = makeContradictionArbitraries({
+  makeEvidenceId: (value: number) => EpistemicIdentity.EvidenceId.make(value),
+  BeliefVersionRef,
+  ContradictionBeliefPairStruct: beliefPairs.ContradictionBeliefPairStructSchema,
+  beliefsAreDistinct: beliefPairs.beliefsAreDistinct,
+  ContradictionBeliefPair,
+  CanonicalContradictionBeliefPair,
+  ContradictionMatchBasisStruct: matchBasis.ContradictionMatchBasisStructSchema,
+  ContradictionMatchBasis,
+  ContradictionResolutionProposalStruct: proposals.ContradictionResolutionProposalStructSchema,
+  ContradictionResolutionProposal,
+  proposalsShareId: assessment.proposalsShareId,
+  ContradictionAssessment,
+  ContradictionCandidateInterval: candidate.ContradictionCandidateIntervalSchema,
+  ContradictionCandidateContent,
+});
 
 /**
  * Native generator preserving the cross-field invariants of ContradictionBeliefPair.
@@ -1609,10 +1005,8 @@ export const contradictionCandidateDigest = (
  * @category testing
  * @since 0.0.0
  */
-export const ContradictionBeliefPairArbitrary = Arbitrary.schema(ContradictionBeliefPairStruct).pipe(
-  Arbitrary.filter(beliefsAreDistinct),
-  Arbitrary.map((pair) => ContradictionBeliefPair.make(pair))
-);
+export const ContradictionBeliefPairArbitrary: Arbitrary.Arbitrary<ContradictionBeliefPair> =
+  arbitraries.ContradictionBeliefPairArbitrary;
 
 /**
  * Native generator preserving the cross-field invariants of CanonicalContradictionBeliefPair.
@@ -1629,15 +1023,8 @@ export const ContradictionBeliefPairArbitrary = Arbitrary.schema(ContradictionBe
  * @category testing
  * @since 0.0.0
  */
-export const CanonicalContradictionBeliefPairArbitrary = ContradictionBeliefPairArbitrary.pipe(
-  Arbitrary.map(({ left, right }) =>
-    CanonicalContradictionBeliefPair.make(
-      beliefRefComesBefore(BeliefVersionRef.make(left), BeliefVersionRef.make(right))
-        ? { left, right }
-        : { left: right, right: left }
-    )
-  )
-);
+export const CanonicalContradictionBeliefPairArbitrary: Arbitrary.Arbitrary<CanonicalContradictionBeliefPair> =
+  arbitraries.CanonicalContradictionBeliefPairArbitrary;
 
 /**
  * Native generator preserving the cross-field invariants of ContradictionMatchBasis.
@@ -1654,33 +1041,8 @@ export const CanonicalContradictionBeliefPairArbitrary = ContradictionBeliefPair
  * @category testing
  * @since 0.0.0
  */
-export const ContradictionMatchBasisArbitrary = Arbitrary.all({
-  basis: Arbitrary.schema(ContradictionMatchBasisStruct),
-  seeds: Arbitrary.schema(
-    S.Struct({
-      left: S.Array(S.Int.check(S.isBetween({ minimum: 2, maximum: 1_073_741_823 }))).check(S.isMaxLength(7)),
-      right: S.Array(S.Int.check(S.isBetween({ minimum: 2, maximum: 1_073_741_823 }))).check(S.isMaxLength(7)),
-    })
-  ),
-}).pipe(
-  Arbitrary.map(({ basis, seeds }) =>
-    ContradictionMatchBasisKind.$match(basis.kind, {
-      "same-source-overlap": () => ContradictionMatchBasis.make(basis),
-      "independent-evidence": () =>
-        ContradictionMatchBasis.make({
-          ...basis,
-          leftEvidenceIds: [
-            EpistemicIdentity.EvidenceId.make(1),
-            ...A.map(A.dedupe(seeds.left), (seed) => EpistemicIdentity.EvidenceId.make(seed * 2 - 1)),
-          ],
-          rightEvidenceIds: [
-            EpistemicIdentity.EvidenceId.make(2),
-            ...A.map(A.dedupe(seeds.right), (seed) => EpistemicIdentity.EvidenceId.make(seed * 2)),
-          ],
-        }),
-    })
-  )
-);
+export const ContradictionMatchBasisArbitrary: Arbitrary.Arbitrary<ContradictionMatchBasis> =
+  arbitraries.ContradictionMatchBasisArbitrary;
 
 /**
  * Native generator preserving the cross-field invariants of ContradictionResolutionProposal.
@@ -1697,14 +1059,8 @@ export const ContradictionMatchBasisArbitrary = Arbitrary.all({
  * @category testing
  * @since 0.0.0
  */
-export const ContradictionResolutionProposalArbitrary = Arbitrary.schema(ContradictionResolutionProposalStruct).pipe(
-  Arbitrary.map((proposal) =>
-    ContradictionResolutionProposal.make({
-      ...proposal,
-      validTo: O.filter(proposal.validTo, (upperBound) => validIntervalIsOrdered(proposal.validFrom, upperBound)),
-    })
-  )
-);
+export const ContradictionResolutionProposalArbitrary: Arbitrary.Arbitrary<ContradictionResolutionProposal> =
+  arbitraries.ContradictionResolutionProposalArbitrary;
 
 /**
  * Native generator preserving the cross-field invariants of ContradictionAssessment.
@@ -1721,14 +1077,8 @@ export const ContradictionResolutionProposalArbitrary = Arbitrary.schema(Contrad
  * @category testing
  * @since 0.0.0
  */
-export const ContradictionAssessmentArbitrary = Arbitrary.all({
-  confidence: Arbitrary.schema(ContradictionAssessment.fields.confidence),
-  proposals: Arbitrary.schema(S.Int.check(S.isBetween({ minimum: 1, maximum: 8 }))).pipe(
-    Arbitrary.flatMap((count) => Arbitrary.all(A.replicate(ContradictionResolutionProposalArbitrary, count))),
-    Arbitrary.filter(A.isArrayNonEmpty),
-    Arbitrary.map((proposals) => A.dedupeWith(proposals, proposalsShareId))
-  ),
-}).pipe(Arbitrary.map((assessment) => ContradictionAssessment.make(assessment)));
+export const ContradictionAssessmentArbitrary: Arbitrary.Arbitrary<ContradictionAssessment> =
+  arbitraries.ContradictionAssessmentArbitrary;
 
 /**
  * Native generator preserving the cross-field invariants of ContradictionCandidateContent.
@@ -1745,19 +1095,5 @@ export const ContradictionAssessmentArbitrary = Arbitrary.all({
  * @category testing
  * @since 0.0.0
  */
-export const ContradictionCandidateContentArbitrary = Arbitrary.all({
-  content: Arbitrary.schema(
-    ContradictionCandidateContentStruct.mapFields(({ assessment, matchBasis, pair, ...fields }) => fields)
-  ),
-  assessment: ContradictionAssessmentArbitrary,
-  matchBasis: ContradictionMatchBasisArbitrary,
-  pair: CanonicalContradictionBeliefPairArbitrary,
-}).pipe(
-  Arbitrary.map(({ content, ...fields }) =>
-    ContradictionCandidateContent.make({
-      ...content,
-      ...fields,
-      validTo: O.filter(content.validTo, (upperBound) => validIntervalIsOrdered(content.validFrom, upperBound)),
-    })
-  )
-);
+export const ContradictionCandidateContentArbitrary: Arbitrary.Arbitrary<ContradictionCandidateContent> =
+  arbitraries.ContradictionCandidateContentArbitrary;

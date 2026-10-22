@@ -2245,14 +2245,16 @@
           "@beep/identity",
           "@beep/provenance",
           "@beep/schema",
-          "@beep/test-runner"
+          "@beep/test-runner",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/epistemics",
           "@beep/identity",
           "@beep/provenance",
           "@beep/schema",
-          "@beep/test-runner"
+          "@beep/test-runner",
+          "@beep/utils"
         ]
       },
       {

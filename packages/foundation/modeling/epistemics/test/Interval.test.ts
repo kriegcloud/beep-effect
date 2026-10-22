@@ -2,9 +2,10 @@ import { KnowledgeInterval, KnowledgeIntervalFields, knownAt } from "@beep/epist
 import { holdsAt, ValidInterval, ValidIntervalFields } from "@beep/epistemics/ValidInterval";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
+import { assertNone } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const at = DateTime.makeUnsafe;
@@ -17,7 +18,7 @@ describe("ValidInterval", () => {
     Effect.gen(function* () {
       const open = yield* decode({ validFrom: 1_000, validTo: null });
       const closed = yield* decode({ validFrom: 1_000, validTo: 2_000 });
-      expect(O.isNone(open.validTo)).toBe(true);
+      assertNone(open.validTo);
       expect(yield* encode(open)).toStrictEqual({ validFrom: 1_000, validTo: null });
       expect(yield* encode(closed)).toStrictEqual({ validFrom: 1_000, validTo: 2_000 });
     })
@@ -93,5 +94,21 @@ describe("KnowledgeInterval", () => {
       expect(knownAt(row, at(1_000))).toBe(true);
       expect(yield* S.encodeEffect(Row)(row)).toStrictEqual(encoded);
     })
+  );
+});
+
+describe("interval schema laws", () => {
+  it.effect.prop(
+    "round-trips schema-derived intervals through their flat columns",
+    [Arbitrary.schema(ValidInterval), Arbitrary.schema(KnowledgeInterval)],
+    ([valid, knowledge]) =>
+      Effect.gen(function* () {
+        const validRoundTrip = yield* S.decodeEffect(ValidInterval)(yield* S.encodeEffect(ValidInterval)(valid));
+        const knowledgeRoundTrip = yield* S.decodeEffect(KnowledgeInterval)(
+          yield* S.encodeEffect(KnowledgeInterval)(knowledge)
+        );
+        expect(S.toEquivalence(ValidInterval)(validRoundTrip, valid)).toBe(true);
+        expect(S.toEquivalence(KnowledgeInterval)(knowledgeRoundTrip, knowledge)).toBe(true);
+      })
   );
 });

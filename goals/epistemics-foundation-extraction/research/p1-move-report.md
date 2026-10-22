@@ -175,3 +175,125 @@ All are recorded in the SPEC Decision Log:
   drift, so I reverted that and left the regeneration to `yeet repair`.
 - `packages/foundation/modeling/identity/src/packages.ts`: the scaffold's
   `"runtime-env", "epistemics"` line was biome-formatted onto two lines.
+
+## Addendum (lead rulings, 2026-10-22)
+
+- Option (a) confirmed: the four-module scope stands; the seven id-bearing
+  modules and `EpistemicFixtureKey` stay in `@beep/epistemic-domain` untouched.
+- SPEC updated: the Inventory marks the seven "blocked: shared-kernel ids"
+  with the exact import; acceptance criterion 1 is narrowed to the four
+  modules; a P1b criterion and the operator's P1b Decision Log row
+  (factories over caller-supplied id schemas, e.g. `makeEdgeEndpoint`) are
+  added; the stale-import regex covers the four moved modules only. P1b is not
+  implemented.
+- The narrowed regex (`--glob '!packages/epistemic/**'`, TypeScript sources)
+  returns 0 matches.
+
+## P1b
+
+All seven id-bearing values are now factories in `@beep/epistemics`. Each
+slice module under `packages/epistemic/domain/src/values/<M>/` is a binding
+over the shared-domain ids. Every export name and subpath is unchanged, so no
+importer was edited.
+
+### Shape (operator ruling (a), 2026-10-22)
+
+- **Builders and behavior factories.** Foundation exports generic schema
+  builders and behavior factories that are generic over the bound classes.
+  Each binding module declares its own `S.Opaque` classes from the builders,
+  in dependency order: EdgeEndpoint → LogicalEdgeIdentity, and Contradiction →
+  ContradictionDetection. A class over a generic base fails with TS2509, so no
+  factory declares one.
+- **`@beep/epistemics/Factory`** exports:
+  - `IdCodec`: `S.Top & { readonly Type: string | number }`.
+  - `SchemaIdentity`: `IdentityComposer<string>`.
+  - `FieldSchema<T, E, MakeIn, Rebuilt>` and `KeyedFieldSchema<T, E, MakeIn>`.
+    A builder types a parameter this way when its own checks or behavior read
+    the parameter's values. All four types are inferred from the bound schema.
+    This keeps the struct's `Type` resolvable inside the generic factory.
+- **Exported directly (no identity):** constants, `makeValidIntervalCheck`,
+  `encodeEdgeEndpointKey`, `canonicalDetectionJson`,
+  `ExactNegationConfidence` and `ValueConflictConfidence`.
+- **Built by vocabulary factories (carry the caller's `$I`):** the id-free
+  schemas that carry an identity, from `makeContradictionVocabulary` and
+  `makeContradictionDetectionVocabulary`.
+- **`PosInt`:** passed in by the binding, because its identifier is part of
+  the listing.
+- **Evidence ids:** behavior takes `evidenceIdOrder` and arbitraries take
+  `makeEvidenceId` from the binding. The epistemic binding keeps the
+  `${id}`-string order, because its digests depend on it. Foundation never
+  assumes an id encoding.
+- **CanonicalJson:** copied to `@beep/epistemics/src/internal/CanonicalJson.ts`.
+  The slice copy stays for `GrantSet` and `ExecutionRecord`; this is recorded
+  in the Exception Ledger.
+
+### Files
+
+Foundation (`packages/foundation/modeling/epistemics`):
+
+- `src/Factory/`
+- `src/EdgeEndpoint/`
+- `src/LogicalEdgeIdentity/`
+- `src/EvidenceVerification/`
+- `src/ClaimProjection/`
+- `src/ClaimEvidenceReview/`
+- `src/Contradiction/`
+- `src/ContradictionDetection/`
+- `src/internal/CanonicalJson.ts`
+- Root barrel entries and `./<M>` export subpaths.
+- Dependencies `@beep/utils` and `@noble/hashes`.
+
+Slice (`packages/epistemic/domain`):
+
+- Seven binding modules.
+- `ClaimEvidenceReview.behavior.ts` merged into the model binding. The
+  subpath and export names are unchanged.
+
+### Proof
+
+- **Tests.** The existing tests in `packages/epistemic/**` were not edited.
+  - `@beep/epistemic-domain`: 12 files, 103 tests, pass.
+  - The use-cases, tables, server and ui packages pass in package-verify.
+- **Types.** `packages/epistemic/domain/test/FactoryBinding.types.test.ts`
+  asserts that the bound `EdgeEndpoint` type equals the pre-factory
+  definition, for both `Type` and `Encoded`. It does the same for
+  `BeliefVersionRef`'s fields and `Encoded`. A negative probe confirmed that
+  the `Equals` assertion rejects a mismatch.
+- **Second binding.** `packages/foundation/modeling/epistemics/test/Factories.test.ts`
+  binds every factory to local branded string ids under `$EpistemicsId`
+  `test/party/*`. It checks that the bound schemas decode, check, seal,
+  canonicalize and generate valid arbitraries, and that identifiers differ
+  between two bindings. `@beep/epistemics` runs 5 test files, 26 tests, all
+  passing.
+- **Identifiers.**
+  - `packages/epistemic/domain/test/ValueSchemaIdentifiers.test.ts` lists
+    every schema identifier reachable from the seven bound modules' exports,
+    258 lines. It compares them to `test/fixtures/value-schema-identifiers.txt`.
+  - I regenerated the listing on a temporary d0d3ddb225 checkout, since
+    removed. `cmp` against the fixture is byte-identical, with a diff count
+    of 0.
+  - The current tree matches the same fixture.
+
+### Verification
+
+- `package-verify` (full):
+  - `@beep/epistemic-domain`: ok audit, ok docgen.
+  - `@beep/epistemic-use-cases`, `@beep/epistemic-tables`,
+    `@beep/epistemic-server`, `@beep/epistemic-ui`: ok audit, ok docgen.
+  - `@beep/epistemics`: build, check, tests, laws and docgen pass. `beep:lint`
+    fails on 7 biome formatting diagnostics, all in the lead's
+    `src/Claim/Claim.behavior.ts`, `src/Claim/Claim.model.ts` and
+    `test/Claim.test.ts`, which I did not touch.
+- `package-verify --quick` on the other importers of these modules:
+  `@beep/professional-desktop`, `@beep/law-practice-server`, `@beep/db-admin`.
+  All report ok lint and ok check.
+- `bun run beep tsconfig-sync --check`: `no drift detected`.
+- `bun run beep lint package-scripts`: `178 manifests, 0 drifting`.
+
+### Notes
+
+- **Inherited P0.** The checkout's Yeet inbox carries a
+  `package:@beep/repo-cli:lint` row (`local-shard-8e1c96d7ce02`) that this
+  lane did not cause. I left it unacknowledged for the orchestrator.
+- **beep-heavy.** In these `zsh -ic` shells, `beep-heavy` resolved to a bash
+  without `compgen`. I ran it as `/usr/bin/bash ~/.local/bin/beep-heavy`.

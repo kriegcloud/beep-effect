@@ -4,12 +4,14 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { encodeEdgeEndpointKey as encodeKey, makeEdgeEndpoint } from "@beep/epistemics/EdgeEndpoint";
 import { $EpistemicDomainId } from "@beep/identity/packages";
-import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
-import * as S from "effect/Schema";
 
-const $I = $EpistemicDomainId.create("values/EdgeEndpoint/EdgeEndpoint.model");
+const bound = makeEdgeEndpoint({
+  $I: $EpistemicDomainId.create("values/EdgeEndpoint/EdgeEndpoint.model"),
+  ids: { candidateClaim: Epistemic.CandidateClaimId, evidence: Epistemic.EvidenceId },
+});
 
 /**
  * Opaque reference to a domain entity that is not itself an epistemic row.
@@ -27,12 +29,7 @@ const $I = $EpistemicDomainId.create("values/EdgeEndpoint/EdgeEndpoint.model");
  * @category schemas
  * @since 0.0.0
  */
-export const EdgeEntityRef = S.NonEmptyString.pipe(
-  S.brand("EdgeEntityRef"),
-  $I.annoteSchema("EdgeEntityRef", {
-    description: "Opaque non-empty reference to a domain entity used as an epistemic edge endpoint.",
-  })
-);
+export const EdgeEntityRef = bound.EdgeEntityRef;
 
 /**
  * Runtime type for {@link EdgeEntityRef}.
@@ -68,12 +65,7 @@ export type EdgeEntityRef = typeof EdgeEntityRef.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const EdgeObservationRef = S.NonEmptyString.pipe(
-  S.brand("EdgeObservationRef"),
-  $I.annoteSchema("EdgeObservationRef", {
-    description: "Opaque non-empty reference to an observation used as an epistemic edge endpoint.",
-  })
-);
+export const EdgeObservationRef = bound.EdgeObservationRef;
 
 /**
  * Runtime type for {@link EdgeObservationRef}.
@@ -93,8 +85,6 @@ export const EdgeObservationRef = S.NonEmptyString.pipe(
  */
 export type EdgeObservationRef = typeof EdgeObservationRef.Type;
 
-const EdgeEndpointKindBase = LiteralKit(["claim", "evidence", "entity", "observation"]);
-
 /**
  * Bounded vocabulary of what a bitemporal epistemic edge may point at.
  *
@@ -111,12 +101,7 @@ const EdgeEndpointKindBase = LiteralKit(["claim", "evidence", "entity", "observa
  * @category schemas
  * @since 0.0.0
  */
-export const EdgeEndpointKind = EdgeEndpointKindBase.pipe(
-  $I.annoteSchema("EdgeEndpointKind", {
-    description: "Bounded vocabulary of what a bitemporal epistemic edge may point at.",
-  }),
-  SchemaUtils.withLiteralKitStatics(EdgeEndpointKindBase)
-);
+export const EdgeEndpointKind = bound.EdgeEndpointKind;
 
 /**
  * Runtime type for {@link EdgeEndpointKind}.
@@ -134,31 +119,6 @@ export const EdgeEndpointKind = EdgeEndpointKindBase.pipe(
  * @since 0.0.0
  */
 export type EdgeEndpointKind = typeof EdgeEndpointKind.Type;
-
-const EdgeEndpointBase = EdgeEndpointKindBase.toTaggedUnion("kind")({
-  claim: {
-    claimId: Epistemic.CandidateClaimId.annotateKey({ description: "Candidate claim this endpoint points at." }),
-  },
-  evidence: {
-    evidenceId: Epistemic.EvidenceId.annotateKey({ description: "Evidence row this endpoint points at." }),
-  },
-  entity: {
-    entityRef: EdgeEntityRef.annotateKey({ description: "Opaque domain entity reference this endpoint points at." }),
-  },
-  observation: {
-    observationRef: EdgeObservationRef.annotateKey({
-      description: "Opaque observation reference this endpoint points at.",
-    }),
-  },
-});
-
-const edgeEndpointStatics = () => ({
-  cases: EdgeEndpointBase.cases,
-  discriminants: EdgeEndpointBase.discriminants,
-  guards: EdgeEndpointBase.guards,
-  isAnyOf: EdgeEndpointBase.isAnyOf,
-  match: EdgeEndpointBase.match,
-});
 
 /**
  * One end of a bitemporal epistemic edge, discriminated on `kind`. Making the
@@ -179,12 +139,7 @@ const edgeEndpointStatics = () => ({
  * @category schemas
  * @since 0.0.0
  */
-export const EdgeEndpoint = EdgeEndpointBase.pipe(
-  $I.annoteSchema("EdgeEndpoint", {
-    description: "One end of a bitemporal epistemic edge, discriminated on endpoint kind.",
-  }),
-  SchemaUtils.withStatics(edgeEndpointStatics)
-);
+export const EdgeEndpoint = bound.EdgeEndpoint;
 
 /**
  * Runtime type for {@link EdgeEndpoint}.
@@ -222,10 +177,4 @@ export type EdgeEndpoint = typeof EdgeEndpoint.Type;
  * @category encoding
  * @since 0.0.0
  */
-export const encodeEdgeEndpointKey = (endpoint: EdgeEndpoint): string =>
-  EdgeEndpoint.match(endpoint, {
-    claim: (value) => `claim:${value.claimId}`,
-    evidence: (value) => `evidence:${value.evidenceId}`,
-    entity: (value) => `entity:${value.entityRef}`,
-    observation: (value) => `observation:${value.observationRef}`,
-  });
+export const encodeEdgeEndpointKey: (endpoint: EdgeEndpoint) => string = encodeKey;

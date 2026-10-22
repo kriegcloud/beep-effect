@@ -4,17 +4,20 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
-import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan";
+import {
+  makeClaimEvidenceBasis,
+  makeClaimEvidenceReview,
+  makeClaimEvidenceReviewStatus,
+  makeReviewStatusFor,
+} from "@beep/epistemics/ClaimEvidenceReview";
 import { $EpistemicDomainId } from "@beep/identity/packages";
-import { SourceTextIdentity } from "@beep/provenance/SourceTextIdentity";
-import { VerifiedTextAnchorErrorReason } from "@beep/provenance/VerifiedTextAnchor";
-import { LiteralKit } from "@beep/schema";
 import { UserPrincipal } from "@beep/shared-domain/entity/Principal";
 import * as S from "effect/Schema";
 import { EpistemicFixtureKey } from "../EpistemicFixtureKey/index.ts";
+import type * as O from "effect/Option";
 
 const $I = $EpistemicDomainId.create("values/ClaimEvidenceReview/ClaimEvidenceReview.model");
+const basis = makeClaimEvidenceBasis({ $I, claimRef: EpistemicFixtureKey });
 
 /**
  * Complete assertion and source manifestation a reviewer is asked to assess.
@@ -37,18 +40,10 @@ const $I = $EpistemicDomainId.create("values/ClaimEvidenceReview/ClaimEvidenceRe
  * @since 0.0.0
  */
 export class ClaimEvidenceBasis extends S.Opaque<ClaimEvidenceBasis, { readonly brand: unique symbol }>()(
-  S.Struct({
-    claimRef: EpistemicFixtureKey,
-    assertion: S.NonEmptyString,
-    subject: S.NonEmptyString,
-    evidence: EvidenceSpan,
-    source: SourceTextIdentity,
-  }).pipe(
-    $I.annoteSchema("ClaimEvidenceBasis", {
-      description: "Exact assertion, subject, evidence span, and scoped source identity presented for human review.",
-    })
-  )
+  basis.ClaimEvidenceBasisSchema
 ) {}
+
+const review = makeClaimEvidenceReview({ $I, ClaimEvidenceBasis, reviewer: UserPrincipal });
 
 /**
  * A human approval bound to the entire reviewed claim and evidence snapshot.
@@ -72,16 +67,10 @@ export class ClaimEvidenceBasis extends S.Opaque<ClaimEvidenceBasis, { readonly 
  * @since 0.0.0
  */
 export class ClaimEvidenceReview extends S.Opaque<ClaimEvidenceReview, { readonly brand: unique symbol }>()(
-  S.Struct({
-    basis: ClaimEvidenceBasis,
-    reviewedBy: UserPrincipal,
-    reviewedAt: S.DateTimeUtcFromMillis,
-  }).pipe(
-    $I.annoteSchema("ClaimEvidenceReview", {
-      description: "Human approval of one exact claim and evidence basis; retained as history when that basis changes.",
-    })
-  )
+  review.ClaimEvidenceReviewSchema
 ) {}
+
+const status = makeClaimEvidenceReviewStatus({ $I, ClaimEvidenceBasis, ClaimEvidenceReview });
 
 /**
  * Result of checking a quote against the presently resolved source text.
@@ -98,14 +87,7 @@ export class ClaimEvidenceReview extends S.Opaque<ClaimEvidenceReview, { readonl
  * @category schemas
  * @since 0.0.0
  */
-export const ClaimEvidenceVerification = S.TaggedUnion({
-  Verified: {},
-  Unverified: { reason: VerifiedTextAnchorErrorReason },
-}).pipe(
-  $I.annoteSchema("ClaimEvidenceVerification", {
-    description: "Current exact-source verification result, separate from any human approval.",
-  })
-);
+export const ClaimEvidenceVerification = status.ClaimEvidenceVerification;
 
 /**
  * Runtime type of {@link ClaimEvidenceVerification}.
@@ -124,12 +106,6 @@ export const ClaimEvidenceVerification = S.TaggedUnion({
  */
 export type ClaimEvidenceVerification = typeof ClaimEvidenceVerification.Type;
 
-const ReviewStalenessReason = LiteralKit(["basis-changed", "source-unverified"]).pipe(
-  $I.annoteSchema("ReviewStalenessReason", {
-    description: "Reason a historical approval cannot apply to the current evidence.",
-  })
-);
-
 /**
  * Human-review state with the historical approval retained after drift.
  *
@@ -144,15 +120,7 @@ const ReviewStalenessReason = LiteralKit(["basis-changed", "source-unverified"])
  * @category schemas
  * @since 0.0.0
  */
-export const ClaimEvidenceReviewStatus = S.TaggedUnion({
-  Pending: {},
-  Current: { review: ClaimEvidenceReview },
-  Stale: { review: ClaimEvidenceReview, reason: ReviewStalenessReason },
-}).pipe(
-  $I.annoteSchema("ClaimEvidenceReviewStatus", {
-    description: "Pending human review, a current approval, or a retained approval whose basis is stale.",
-  })
-);
+export const ClaimEvidenceReviewStatus = status.ClaimEvidenceReviewStatus;
 
 /**
  * Runtime type of {@link ClaimEvidenceReviewStatus}.
@@ -193,16 +161,45 @@ export type ClaimEvidenceReviewStatus = typeof ClaimEvidenceReviewStatus.Type;
  * @since 0.0.0
  */
 export class ClaimEvidenceExplanation extends S.Opaque<ClaimEvidenceExplanation, { readonly brand: unique symbol }>()(
-  S.Struct({
-    basis: ClaimEvidenceBasis,
-    currentSource: SourceTextIdentity,
-    sourceText: S.String,
-    verification: ClaimEvidenceVerification,
-    review: ClaimEvidenceReviewStatus,
-  }).pipe(
-    $I.annoteSchema("ClaimEvidenceExplanation", {
-      description:
-        "Read model explaining an assertion, its exact source evidence, and the applicability of human review.",
-    })
-  )
+  status.ClaimEvidenceExplanationSchema
 ) {}
+
+/**
+ * Explain whether a historical approval still applies to the current basis.
+ *
+ * **Details**
+ *
+ * A changed assertion, subject, confidence, span, scope, or source identity
+ * invalidates reuse of the approval. Even an unchanged basis requires fresh
+ * source verification before its approval can be reported as current.
+ *
+ * **Example** (No approval means pending review)
+ *
+ * ```ts
+ * import { reviewStatusFor } from "@beep/epistemic-domain/values/ClaimEvidenceReview"
+ *
+ * console.log(typeof reviewStatusFor) // function
+ * ```
+ *
+ * @param basis - Exact claim and evidence currently presented.
+ * @param verification - Result of verifying the presently resolved source.
+ * @param review - Optional historical human approval.
+ * @returns Pending, current, or stale status, retaining the original approval.
+ * @category validation
+ * @since 0.0.0
+ */
+export const reviewStatusFor: {
+  (
+    basis: ClaimEvidenceBasis,
+    verification: ClaimEvidenceVerification,
+    review: O.Option<ClaimEvidenceReview>
+  ): ClaimEvidenceReviewStatus;
+  (
+    verification: ClaimEvidenceVerification,
+    review: O.Option<ClaimEvidenceReview>
+  ): (basis: ClaimEvidenceBasis) => ClaimEvidenceReviewStatus;
+} = makeReviewStatusFor({
+  ClaimEvidenceBasis,
+  ClaimEvidenceReview,
+  ClaimEvidenceReviewStatus,
+}).reviewStatusFor;
