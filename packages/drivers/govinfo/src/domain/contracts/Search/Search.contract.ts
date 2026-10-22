@@ -216,7 +216,6 @@ export const Failure = S.Union([
   FailureNotFound.pipe(HttpApiSchema.status(404)),
   FailureInternalServerError.pipe(HttpApiSchema.status(500)),
 ]).pipe(
-  // fallow-ignore-next-line code-duplication -- preserve the selected guard through Effect's tagged-union rebuild
   $I.annoteSchema("Failure", {
     description: "Tagged union of typed GovInfo search endpoint failures.",
   }),

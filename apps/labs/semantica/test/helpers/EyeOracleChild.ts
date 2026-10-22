@@ -1,4 +1,4 @@
-// fallow-ignore-file unused-file -- spawned EYE oracle process entry resolved by path at runtime
+// fallow-ignore-file unused-file -- tests spawn this EYE oracle child process by file path, so no import reaches it. Owner: @beep/semantica. Exit: remove when the oracle runs in-process or fallow learns spawned entries.
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import { queryOnce, SwiplEye } from "eyereasoner";

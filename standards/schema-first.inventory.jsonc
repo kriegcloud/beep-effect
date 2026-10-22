@@ -2175,7 +2175,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-fn-schema",
-      "line": 431,
+      "line": 437,
       "owner": "@beep/repo-cli",
       "reason": "Inline input pairs in-memory block bytes with token allowances the rewriter computed in the same call; nothing crosses an IO boundary and the findings are transient strings consumed by quarantine reporting."
     },

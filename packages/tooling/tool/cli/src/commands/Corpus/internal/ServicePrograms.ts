@@ -893,7 +893,6 @@ const resolveWithinRoot = Effect.fn("CorpusCommandService.resolveWithinRoot")(fu
   );
 });
 
-// fallow-ignore-next-line complexity -- pre-existing extract-label validation re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
 const extractOutputLabel = (outLabel: string | undefined): Effect.Effect<string, CorpusCommandError> => {
   const label = outLabel ?? "extract";
   return Str.isEmpty(Str.trim(label)) ||
@@ -1630,7 +1629,6 @@ const selectExtractRecords = (
   return { duplicatesSkipped, selected };
 };
 
-// fallow-ignore-next-line complexity -- pre-existing extract coverage reducer re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
 const buildExtractCoverage = (
   sourceRecords: ReadonlyArray<SourceProcessingRecord>
 ): Effect.Effect<FileProcessingCoverageSummary, CorpusCommandError> => {
@@ -2416,7 +2414,6 @@ const salvageCorpusImpl = Effect.fn("CorpusCommandService.salvageCorpus")(functi
 
   const records = yield* Effect.forEach(
     sourceFiles,
-    // fallow-ignore-next-line complexity -- pre-existing per-file salvage transaction re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
     Effect.fn("CorpusCommandService.salvageCorpus.processFile")(function* (originFile) {
       const sha256Text = yield* hashFileSha256(originFile.originPath);
       const sha256 = yield* decodeSha256Hex(sha256Text).pipe(
@@ -2998,7 +2995,6 @@ interface OrganizePlanRow {
   readonly sourceRelativePath: string;
 }
 
-// fallow-ignore-next-line complexity -- pre-existing overwrite safety transaction re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
 const prepareOrganizedRoot = Effect.fn("CorpusCommandService.prepareOrganizedRoot")(function* (
   organizedRoot: string,
   overwrite: boolean
@@ -3068,7 +3064,6 @@ const loadClientMap = Effect.fn("CorpusCommandService.loadClientMap")(function* 
   return clientByLabel;
 });
 
-// fallow-ignore-next-line complexity -- pre-existing exhaustive organization-category precedence re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
 const organizeCategoryFor = (input: {
   readonly client: string | undefined;
   readonly extension: string | undefined;
@@ -3076,19 +3071,16 @@ const organizeCategoryFor = (input: {
   readonly isEmailExport: boolean;
   readonly isRecycleMetadata: boolean;
 }): CorpusOrganizeCategory =>
-  input.isRecycleMetadata
-    ? "recycle-metadata"
-    : input.extension === "pst"
-      ? "email-archive"
-      : input.hasDocket
-        ? "docket"
-        : input.isEmailExport
-          ? "email-export"
-          : input.client === undefined
-            ? "unsorted"
-            : "client";
+  Match.value(input).pipe(
+    Match.withReturnType<CorpusOrganizeCategory>(),
+    Match.when({ isRecycleMetadata: true }, () => "recycle-metadata"),
+    Match.when({ extension: "pst" }, () => "email-archive"),
+    Match.when({ hasDocket: true }, () => "docket"),
+    Match.when({ isEmailExport: true }, () => "email-export"),
+    Match.when({ client: P.isUndefined }, () => "unsorted"),
+    Match.orElse(() => "client")
+  );
 
-// fallow-ignore-next-line complexity -- pre-existing organization planner re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
 const planOrganizeRow = (
   record: CorpusProvenanceRecord,
   restoration: MatchedRestorationRecord | undefined,
@@ -3144,7 +3136,6 @@ const buildOrganizePlan = (
   return { duplicatesSkipped, plan };
 };
 
-// fallow-ignore-next-line complexity -- pre-existing deterministic version grouping re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
 const assignVersionIndexes = (
   plan: ReadonlyArray<OrganizePlanRow>
 ): { readonly multiVersionGroups: number; readonly versionIndexByRow: ReadonlyMap<OrganizePlanRow, number> } => {
@@ -3269,26 +3260,20 @@ const writeOrganizedTable = Effect.fn("CorpusCommandService.writeOrganizedTable"
     Effect.gen(function* () {
       const db = yield* DuckDb;
       yield* db.run(createOrganizedTable);
-      yield* insertRows(
-        db,
-        insertOrganizedStatement,
-        records,
-        // fallow-ignore-next-line complexity -- pre-existing positional DuckDB binding re-entered the diff only through the mixed-ledger decoder change; this mapper's control flow is unchanged
-        (record) => [
-          record.digest,
-          record.sourceLabel,
-          record.sourceRelativePath,
-          record.category,
-          record.client ?? null,
-          record.docket ?? null,
-          record.docketFamily ?? null,
-          record.versionIndex ?? null,
-          record.organizedRelativePath ?? null,
-          record.effectiveName,
-          record.restoredFromRecycleBin,
-          record.materialized,
-        ]
-      );
+      yield* insertRows(db, insertOrganizedStatement, records, (record) => [
+        record.digest,
+        record.sourceLabel,
+        record.sourceRelativePath,
+        record.category,
+        record.client ?? null,
+        record.docket ?? null,
+        record.docketFamily ?? null,
+        record.versionIndex ?? null,
+        record.organizedRelativePath ?? null,
+        record.effectiveName,
+        record.restoredFromRecycleBin,
+        record.materialized,
+      ]);
     })
   );
 });
@@ -3317,7 +3302,6 @@ const buildOrganizeSummary = (input: {
   });
 };
 
-// fallow-ignore-next-line complexity -- pre-existing organize orchestration re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
 const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(function* (
   options: CorpusOrganizeOptions
 ): Effect.fn.Return<CorpusOrganizeSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
@@ -3443,20 +3427,38 @@ const makeEnrichCandidateCollector = (): EnrichCandidateCollector => {
     }
     candidates.set(key, existing);
   };
-  // fallow-ignore-next-line complexity -- pre-existing two-pattern identifier scan re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
+  const noteMatches = (
+    kind: "application" | "patent",
+    pattern: RegExp,
+    normalize: (raw: string) => O.Option<string>,
+    keep: (normalized: string) => boolean,
+    text: string,
+    docketFamily: string | undefined
+  ): void => {
+    for (const match of Str.matchAll(pattern)(text)) {
+      const normalized = normalize(match[1] ?? "");
+      if (O.isSome(normalized) && keep(normalized.value)) {
+        noteCandidate(kind, normalized.value, docketFamily);
+      }
+    }
+  };
   const scanText = (text: string, docketFamily: string | undefined): void => {
-    for (const match of Str.matchAll(patentTextPattern)(text)) {
-      const normalized = normalizeUsptoPatentNumber(match[1] ?? "");
-      if (O.isSome(normalized) && normalized.value.length >= 7) {
-        noteCandidate("patent", normalized.value, docketFamily);
-      }
-    }
-    for (const match of Str.matchAll(applicationTextPattern)(text)) {
-      const normalized = normalizeUsptoApplicationNumber(match[1] ?? "");
-      if (O.isSome(normalized)) {
-        noteCandidate("application", normalized.value, docketFamily);
-      }
-    }
+    noteMatches(
+      "patent",
+      patentTextPattern,
+      normalizeUsptoPatentNumber,
+      (normalized) => normalized.length >= 7,
+      text,
+      docketFamily
+    );
+    noteMatches(
+      "application",
+      applicationTextPattern,
+      normalizeUsptoApplicationNumber,
+      constant(true),
+      text,
+      docketFamily
+    );
   };
   return { candidates, scanText };
 };
@@ -3477,35 +3479,21 @@ const loadEnrichOrganizeRecords = Effect.fn("CorpusCommandService.loadEnrichOrga
   );
 });
 
-// fallow-ignore-next-line complexity -- pre-existing docket-family index builder re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
-const buildFamilyByTextName = Effect.fn("CorpusCommandService.buildFamilyByTextName")(function* (
-  corpusRoot: string,
-  organizeRecords: ReadonlyArray<CorpusOrganizeRecord>
-): Effect.fn.Return<ReadonlyMap<string, string>, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+const familyByDigestOf = (organizeRecords: ReadonlyArray<CorpusOrganizeRecord>): Map<string, string> => {
   const familyByDigest = new Map<string, string>();
   for (const record of organizeRecords) {
     if (record.docketFamily !== undefined) {
       familyByDigest.set(record.digest, record.docketFamily);
     }
   }
+  return familyByDigest;
+};
+
+const indexFamiliesByTextName = (
+  sourceRows: ReadonlyArray<SourceProcessingRecord>,
+  familyByDigest: ReadonlyMap<string, string>
+): Map<string, string> => {
   const familyByTextName = new Map<string, string>();
-  const sourcesPath = path.join(corpusRoot, "staging", "extract", "sources.jsonl");
-  const sourcesExists = yield* fs
-    .exists(sourcesPath)
-    .pipe(CorpusCommandError.mapError(`Failed checking extraction sources "${sourcesPath}".`));
-  if (!sourcesExists) {
-    return familyByTextName;
-  }
-  const sourcesText = yield* fs
-    .readFileString(sourcesPath)
-    .pipe(CorpusCommandError.mapError(`Failed reading extraction sources "${sourcesPath}".`));
-  const sourceRows = yield* Effect.forEach(A.filter(Str.split(sourcesText, "\n"), Str.isNonEmpty), (line) =>
-    decodeSourceProcessingRecordJson(line).pipe(
-      CorpusCommandError.mapError("Extraction sources line failed schema validation.")
-    )
-  );
   for (const row of sourceRows) {
     if (row.status !== "succeeded" || row.textPath === undefined) {
       continue;
@@ -3516,6 +3504,31 @@ const buildFamilyByTextName = Effect.fn("CorpusCommandService.buildFamilyByTextN
     }
   }
   return familyByTextName;
+};
+
+const buildFamilyByTextName = Effect.fn("CorpusCommandService.buildFamilyByTextName")(function* (
+  corpusRoot: string,
+  organizeRecords: ReadonlyArray<CorpusOrganizeRecord>
+): Effect.fn.Return<ReadonlyMap<string, string>, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const familyByDigest = familyByDigestOf(organizeRecords);
+  const sourcesPath = path.join(corpusRoot, "staging", "extract", "sources.jsonl");
+  const sourcesExists = yield* fs
+    .exists(sourcesPath)
+    .pipe(CorpusCommandError.mapError(`Failed checking extraction sources "${sourcesPath}".`));
+  if (!sourcesExists) {
+    return new Map<string, string>();
+  }
+  const sourcesText = yield* fs
+    .readFileString(sourcesPath)
+    .pipe(CorpusCommandError.mapError(`Failed reading extraction sources "${sourcesPath}".`));
+  const sourceRows = yield* Effect.forEach(A.filter(Str.split(sourcesText, "\n"), Str.isNonEmpty), (line) =>
+    decodeSourceProcessingRecordJson(line).pipe(
+      CorpusCommandError.mapError("Extraction sources line failed schema validation.")
+    )
+  );
+  return indexFamiliesByTextName(sourceRows, familyByDigest);
 });
 
 const buildEnrichSummary = (records: ReadonlyArray<CorpusEnrichmentRecord>): CorpusEnrichSummary => {
@@ -3532,7 +3545,6 @@ const buildEnrichSummary = (records: ReadonlyArray<CorpusEnrichmentRecord>): Cor
   });
 };
 
-// fallow-ignore-next-line complexity -- pre-existing enrichment orchestration re-entered the diff only through the mixed-ledger decoder change; this function's control flow is unchanged
 const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function* (
   options: CorpusEnrichOptions
 ): Effect.fn.Return<CorpusEnrichSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
@@ -3661,25 +3673,19 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
     Effect.gen(function* () {
       const db = yield* DuckDb;
       yield* db.run(createEnrichmentTable);
-      yield* insertRows(
-        db,
-        insertEnrichmentStatement,
-        records,
-        // fallow-ignore-next-line complexity -- pre-existing positional DuckDB binding re-entered the diff only through the mixed-ledger decoder change; this mapper's control flow is unchanged
-        (record) => [
-          record.candidate,
-          record.candidateKind,
-          record.status,
-          record.applicationNumber ?? null,
-          record.patentNumber ?? null,
-          record.inventionTitle ?? null,
-          record.firstApplicantName ?? null,
-          record.firstInventorName ?? null,
-          record.occurrenceCount,
-          A.join(record.docketFamilies, " | "),
-          A.join(record.parentApplicationNumbers, " | "),
-        ]
-      );
+      yield* insertRows(db, insertEnrichmentStatement, records, (record) => [
+        record.candidate,
+        record.candidateKind,
+        record.status,
+        record.applicationNumber ?? null,
+        record.patentNumber ?? null,
+        record.inventionTitle ?? null,
+        record.firstApplicantName ?? null,
+        record.firstInventorName ?? null,
+        record.occurrenceCount,
+        A.join(record.docketFamilies, " | "),
+        A.join(record.parentApplicationNumbers, " | "),
+      ]);
     })
   );
 

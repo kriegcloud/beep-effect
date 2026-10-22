@@ -51,7 +51,7 @@ const hubIndex = (projection: Graph3DProjection): number => {
   return best;
 };
 
-// fallow-ignore-next-line complexity -- cognitive 12 = pre-existing hook/JSX tax (six hook bindings across state/memo/effect); this branch's changes in this file were story args and story renames only and added no branching here
+// fallow-ignore-next-line complexity -- fallow's React model adds one cognitive point per hook binding; cognitive 12 comes from six state, memo and effect hook bindings in the demo story, so splitting would only fragment hook ownership (#1855 detector frontier). Owner: @beep/graph-3d. Exit: remove when the component sheds bindings or fallow stops counting hook bindings as branches.
 const Graph3DDemo = ({ nodeCount, edgeCount, communityCount, seed, selectHub, flatten }: Graph3DDemoProps) => {
   const [picked, setPicked] = useState<number | undefined>(undefined);
 

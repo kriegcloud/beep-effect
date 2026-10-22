@@ -11,7 +11,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-// fallow-ignore-file code-duplication -- consumer-local composition that replaces the retired `@beep/schema` `PosInt`; the upstream-first doctrine (standards/architecture/DECISIONS.md, 2026-09-29) forbids a shared replacement.
+// fallow-ignore-file code-duplication -- consumer-local PosInt composition replacing the retired `@beep/schema` export; the upstream-first ruling (standards/architecture/DECISIONS.md, 2026-09-29) forbids a shared helper. Owner: @beep/workspace-server. Exit: delete this file and import upstream when effect/Schema ships a positive-integer schema, or when that ruling admits a shared export.
 
 import { $WorkspaceServerId } from "@beep/identity";
 import * as S from "effect/Schema";

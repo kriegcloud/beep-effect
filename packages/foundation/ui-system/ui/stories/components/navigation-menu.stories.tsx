@@ -1,4 +1,4 @@
-// fallow-ignore-file code-duplication -- pre-existing story clones on main: the diff-attributed audit charges them to this change because its edited lines fall inside the clone ranges. Story variants repeat the canonical markup on purpose (the Storybook docs panel shows each story's source; shared render helpers would hide that usage). Review by 2026-12-31.
+// fallow-ignore-file code-duplication -- Storybook story variants repeat the canonical markup on purpose so the docs panel shows each story's own source; shared render helpers would hide that usage. Owner: @beep/ui. Exit: remove when the docs panel can render a shared helper's source, or when a variant stops being a teaching copy.
 import {
   NavigationMenu,
   NavigationMenuContent,

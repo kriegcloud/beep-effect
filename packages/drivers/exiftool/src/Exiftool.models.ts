@@ -11,7 +11,7 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
 // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+// fallow-ignore-next-line code-duplication -- driver-boundary idiom repeated across sibling drivers that must not depend on each other; no foundation capability owns it yet. Owner: @beep/exiftool. Exit: import it and delete this copy once a foundation capability package exports the idiom.
 const $I = $ExiftoolId.create("Exiftool.models");
 
 /**
@@ -31,7 +31,7 @@ const $I = $ExiftoolId.create("Exiftool.models");
  * @since 0.0.0
  */
 // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- shared driver boundary idiom; no in-family home, future foundation capability candidate
+// fallow-ignore-next-line code-duplication -- driver-boundary idiom repeated across sibling drivers that must not depend on each other; no foundation capability owns it yet. Owner: @beep/exiftool. Exit: import it and delete this copy once a foundation capability package exports the idiom.
 export const PositiveMilliseconds = S.Finite.check(
   S.makeFilterGroup(
     [

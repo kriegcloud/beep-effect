@@ -273,7 +273,7 @@ export type AnnotatedTextGraph = Graph.DirectedGraph<AnnotatedNode, TextEdge>;
  */
 export type MutableAnnotatedTextGraph = Graph.MutableDirectedGraph<AnnotatedNode, TextEdge>;
 
-// fallow-ignore-next-line code-duplication -- AnnotatedTextGraph/TextGraph share node construction; jsdoc-carrier migration only rewrote comment carriers and Fallow attributes the pre-existing twin as introduced
+// fallow-ignore-next-line code-duplication -- jsdoc-carrier migration rewrote only comment carriers, so the audit attributes this pre-existing twin as introduced; AnnotatedTextGraph and TextGraph share node construction. Owner: @beep/nlp-processing. Exit: extract one node constructor once both graphs share a node schema.
 const makeTextNode = (fields: {
   readonly text: string;
   readonly type: TextNode["type"];

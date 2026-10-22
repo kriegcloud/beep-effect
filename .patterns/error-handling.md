@@ -87,9 +87,9 @@ class ValidationError extends S.TaggedError<ValidationError>($I`ValidationError`
 class NetworkError extends S.TaggedError<NetworkError>($I`NetworkError`)(
   "NetworkError",
   {
-    status: S.Number,
+    status: S.Finite,
     url: S.String,
-    cause: S.optionalKey(S.Defect({ includeStack: true }))
+    cause: S.optionalKey(S.Defect({ includeStack: true })) // encodes the cause stack; plain S.Defect() drops it
   },
   $I.annoteError<NetworkError>(
     "NetworkError",
@@ -118,7 +118,7 @@ class SystemError extends S.TaggedError<SystemError>($I`SystemError`)(
     method: S.String,
     pathOrDescriptor: S.optionalKey(S.Union([
       S.String,
-      S.Number
+      S.Finite
     ])),
     cause: S.optionalKey(S.Defect({ includeStack: true }))
   },
@@ -132,7 +132,7 @@ class SystemError extends S.TaggedError<SystemError>($I`SystemError`)(
   override get message(): string {
     return `${this.reason}: ${this.module}.${this.method}${this.pathOrDescriptor !== undefined
                                                            ? ` (${this.pathOrDescriptor})`
-                                                           : ""}${this.cause
+                                                           : ""}${this.cause !== undefined
                                                                   ? `: ${this.cause}`
                                                                   : ""}`;
   }

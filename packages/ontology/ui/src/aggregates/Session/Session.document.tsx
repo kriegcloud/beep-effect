@@ -110,7 +110,7 @@ const isOntologyFoldLevel = S.is(OntologyFoldLevel);
  */
 // The zero-behavior extraction keeps the toolbar's established event wiring
 // together so document actions and their error surface remain one region.
-// fallow-ignore-next-line complexity -- toolbar keeps document actions, view controls, dirty state, and errors in one region
+// fallow-ignore-next-line complexity -- fallow's React model adds one cognitive point per hook binding; the toolbar region binds document actions, view controls, dirty state and errors (cognitive 24, cyclomatic 2), so splitting would only fragment hook ownership (#1855 detector frontier). Owner: @beep/ontology-ui. Exit: remove when the component sheds bindings or fallow stops counting hook bindings as branches.
 export function OntologyDocumentRegion(): JSX.Element {
   // First-run bootstrap: opens the seeded tutorial once per app session when
   // nothing is open. Mounted here because this region owns the open action.
