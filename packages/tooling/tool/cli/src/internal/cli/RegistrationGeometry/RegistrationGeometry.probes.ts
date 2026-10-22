@@ -16,7 +16,6 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
-import * as Regex from "effect/RegExp";
 import * as S from "effect/Schema";
 import { Node, Project, SyntaxKind } from "ts-morph";
 import { DeletePackageDataResource } from "../../../commands/DeletePackage/internal/DataResource.ts";
@@ -25,6 +24,7 @@ import {
   IDENTITY_SHAPE_TEST_PATH,
   shapeTestRowAccessor,
 } from "../../../commands/DeletePackage/internal/ShapeTestRow.ts";
+import { mentionsAnyToken, mentionsToken } from "../../WholeToken.ts";
 import { isLabsWorkspacePath } from "../Labs/index.ts";
 import { RegistrationGeometryError } from "./RegistrationGeometry.errors.ts";
 import { surfacesForTarget } from "./RegistrationGeometry.plan.ts";
@@ -77,20 +77,6 @@ const isSuffixIn =
   (suffixes: ReadonlyArray<string>) =>
   (file: string): boolean =>
     A.some(suffixes, (suffix) => Str.endsWith(suffix)(file));
-
-// A needle matches only as a whole token: the characters directly around it
-// must not continue an identifier or a package name (`[A-Za-z0-9_$-]`). Dots,
-// slashes, quotes and whitespace end a token, so `$SchemaId.create` and
-// `@beep/schema/sub` match while `$SchemaIdentityId` and `@beep/schema-org` do not.
-const mentionsToken = (needle: string): ((text: string) => boolean) => {
-  const pattern = new RegExp(`(?<![\\w$-])${Regex.escape(needle)}(?![\\w$-])`);
-  return (text) => O.isSome(Str.match(pattern)(text));
-};
-
-const mentionsAnyToken = (needles: ReadonlyArray<string>): ((text: string) => boolean) => {
-  const matchers = A.map(needles, mentionsToken);
-  return (text) => A.some(matchers, (matches) => matches(text));
-};
 
 const collectFiles = Effect.fn("RegistrationGeometry.collectFiles")(function* (
   root: string,

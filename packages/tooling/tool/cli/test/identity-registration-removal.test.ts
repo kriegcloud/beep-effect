@@ -52,17 +52,40 @@ const REGISTRY_FIXTURE = A.join(
   "\n"
 );
 
-const runRemoval = (packageName: string) =>
+const withRegistry = <A, E, R>(registry: string, use: Effect.Effect<A, E, R>) =>
   withTempWorkingDirectory(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       yield* fs.writeFileString("bun.lock", "");
       yield* fs.writeFileString("tsconfig.json", '{ "compilerOptions": {} }\n');
-      yield* fs.writeFileString("packages.ts", REGISTRY_FIXTURE);
+      yield* fs.writeFileString("packages.ts", registry);
+      return yield* use;
+    })
+  ).pipe(provideScopedLayer(removalLayer));
+
+const removeFrom = (registry: string, packageName: string) =>
+  withRegistry(
+    registry,
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
       yield* CreatePackageIdentityRegistration.removeIdentityPackageRegistration("packages.ts", packageName);
       return yield* fs.readFileString("packages.ts");
     })
-  ).pipe(provideScopedLayer(removalLayer));
+  );
+
+const runRemoval = (packageName: string) => removeFrom(REGISTRY_FIXTURE, packageName);
+
+// `$CourtlistenerIdentityId` extends `$CourtlistenerId`, so only whole-token
+// matching tells the two registrations apart.
+const PREFIX_SIBLING_REGISTRY = A.join(
+  [
+    'const composers = $I.compose("courtlistener", "courtlistener-identity");',
+    'export const $CourtlistenerId: Identity.IdentityComposer<"@beep/courtlistener"> = composers.$CourtlistenerId;',
+    'export const $CourtlistenerIdentityId: Identity.IdentityComposer<"@beep/courtlistener-identity"> = composers.$CourtlistenerIdentityId;',
+    "",
+  ],
+  "\n"
+);
 
 describe("identity registration removal", () => {
   it.effect("removes the compose slug, typed export, and nothing else", () =>
@@ -84,6 +107,42 @@ describe("identity registration removal", () => {
       expect(Str.includes("$LangExtractId")(next)).toBe(false);
       expect(Str.includes("$LangextractId")(next)).toBe(false);
       expect(Str.includes("$AlphaId")(next)).toBe(true);
+    })
+  );
+
+  it.effect("keeps a prefix-sharing sibling export when removing a package", () =>
+    Effect.gen(function* () {
+      const next = yield* removeFrom(PREFIX_SIBLING_REGISTRY, "courtlistener");
+      expect(next).toBe(
+        A.join(
+          [
+            'const composers = $I.compose("courtlistener-identity");',
+            'export const $CourtlistenerIdentityId: Identity.IdentityComposer<"@beep/courtlistener-identity"> = composers.$CourtlistenerIdentityId;',
+            "",
+          ],
+          "\n"
+        )
+      );
+    })
+  );
+
+  it.effect("needs a registration when only a prefix-sharing sibling export exists", () =>
+    Effect.gen(function* () {
+      const courtlistenerNeeded = CreatePackageIdentityRegistration.identityPackageRegistrationNeeded(
+        ".",
+        "packages.ts",
+        "courtlistener"
+      );
+      const siblingOnly = A.join(
+        [
+          'const composers = $I.compose("courtlistener", "courtlistener-identity");',
+          "export const $CourtlistenerIdentityId = composers.$CourtlistenerIdentityId;",
+          "",
+        ],
+        "\n"
+      );
+      expect(yield* withRegistry(siblingOnly, courtlistenerNeeded)).toBe(true);
+      expect(yield* withRegistry(PREFIX_SIBLING_REGISTRY, courtlistenerNeeded)).toBe(false);
     })
   );
 

@@ -1164,7 +1164,15 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory("packages/foundation/modeling/identity/src", { recursive: true });
           yield* fs.writeFileString(
             "packages/foundation/modeling/identity/src/packages.ts",
-            'const composers = $I.compose("courtlistener", "courtlistener-identity");\nexport const $CourtlistenerId = composers.$CourtlistenerId;\n'
+            A.join(
+              [
+                'const composers = $I.compose("courtlistener", "courtlistener-identity");',
+                "export const $CourtlistenerId = composers.$CourtlistenerId;",
+                "export const $CourtlistenerIdentityId = composers.$CourtlistenerIdentityId;",
+                "",
+              ],
+              "\n"
+            )
           );
           yield* writeShapeTest([
             "const currentPackagesRuntimeNamedImports = [",
@@ -1198,6 +1206,16 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           ).toBe(true);
           expect(yield* fs.exists("packages/drivers/courtlistener")).toBe(false);
           expect(yield* fs.exists("packages/drivers/courtlistener-identity/package.json")).toBe(true);
+          expect(yield* fs.readFileString("packages/foundation/modeling/identity/src/packages.ts")).toBe(
+            A.join(
+              [
+                'const composers = $I.compose("courtlistener-identity");',
+                "export const $CourtlistenerIdentityId = composers.$CourtlistenerIdentityId;",
+                "",
+              ],
+              "\n"
+            )
+          );
           expect(yield* fs.readFileString(SHAPE_TEST)).toBe(
             A.join(
               [
