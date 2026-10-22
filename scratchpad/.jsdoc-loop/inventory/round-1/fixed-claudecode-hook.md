@@ -70,7 +70,7 @@ fileoverview on `Hook.ts` (0-owning hub; census skips module findings).
   owned surface: every exporting module with owning symbols now has
   `@packageDocumentation`; no leftover `console.log(Hook.Tool.Symbol)`
   placeholders; no `@example` / `@remarks` / `@module` / `@template`.
-- Not run here (no shell): `/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts`
+- Not run here (no shell): `$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts`
 - Not run here (no shell): `zsh -ic 'bun run docgen:local'`
 - Not run here (no shell): `zsh -ic 'bun run --cwd scratchpad claudecode:check'`
 

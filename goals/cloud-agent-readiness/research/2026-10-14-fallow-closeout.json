@@ -34,7 +34,7 @@
     "phase": "finished",
     "outcome": {
       "verdictOutcome": "failure",
-      "verdictPath": "/home/elpresidank/YeeBois/projects/beep-effect-worktrees/yeet-fallow-proof/.beep/yeet/runs/chore_worker-fallow-proof-da75fb418f59/verdict.json",
+      "verdictPath": "~/YeeBois/projects/beep-effect-worktrees/yeet-fallow-proof/.beep/yeet/runs/chore_worker-fallow-proof-da75fb418f59/verdict.json",
       "elapsedMs": 770456,
       "endedAt": "2026-10-14T13:09:12.302Z"
     },
@@ -62,7 +62,7 @@
     "phase": "finished",
     "outcome": {
       "verdictOutcome": "success",
-      "verdictPath": "/home/elpresidank/YeeBois/projects/beep-effect-worktrees/yeet-fallow-proof/.beep/yeet/runs/chore_worker-fallow-proof-da75fb418f59/verdict.json",
+      "verdictPath": "~/YeeBois/projects/beep-effect-worktrees/yeet-fallow-proof/.beep/yeet/runs/chore_worker-fallow-proof-da75fb418f59/verdict.json",
       "elapsedMs": 613502,
       "endedAt": "2026-10-14T13:24:01.243Z"
     },

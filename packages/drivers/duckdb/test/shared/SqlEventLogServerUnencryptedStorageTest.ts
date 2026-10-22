@@ -86,6 +86,7 @@ export const openChanges: {
       .pipe(Stream.toQueue({ capacity: "unbounded" }))
 );
 
+// beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
 const assertEntries = (
   rows: ReadonlyArray<EventJournal.RemoteEntry>,
   expected: ReadonlyArray<EventJournal.Entry>,

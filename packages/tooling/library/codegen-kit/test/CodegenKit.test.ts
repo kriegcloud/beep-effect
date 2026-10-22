@@ -993,21 +993,54 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
   it.effect("inlines a $ref in either allOf position so member order does not matter", () =>
     Effect.gen(function* () {
       const definitions: JsonSchema.Definitions = {
-        Named: { type: "object", properties: { name: { type: "string" } }, required: ["name"] },
+        Named: {
+          type: "object",
+          properties: { name: { type: "string" } },
+          required: ["name"],
+          description: "Target description",
+          title: "Target title",
+        },
       };
       const hook = composeTransforms(["distributeAllOf"], definitions);
       const extra = { type: "object", properties: { x: { type: "number" } } };
-      const refFirst = hook({ allOf: [{ $ref: "#/$defs/Named" }, extra] });
-      const refLast = hook({ allOf: [extra, { $ref: "#/$defs/Named" }] });
+      const member = { $ref: "#/$defs/Named", description: "Member description", title: "Member title" };
+      const outer = { description: "Outer", title: "Outer title" };
+      const refFirst = hook({ ...outer, allOf: [member, extra] });
+      const refLast = hook({ ...outer, allOf: [extra, member] });
       expect(refFirst).toEqual({
+        description: "Outer",
+        title: "Outer title",
         type: "object",
         properties: { name: { type: "string" }, x: { type: "number" } },
         required: ["name"],
       });
-      expect(refLast.properties).toEqual(refFirst.properties);
-      expect(refLast.required).toEqual(refFirst.required);
+      expect(refLast).toEqual(refFirst);
       expect(refFirst.$ref).toBeUndefined();
       expect(refLast.$ref).toBeUndefined();
+    })
+  );
+
+  it.effect("keeps outer allOf annotations on the reduced union and preserves branch annotations", () =>
+    Effect.gen(function* () {
+      const branches = [
+        { type: "object", properties: { done: { const: true } }, description: "Completed", title: "Done" },
+        { type: "object", properties: { done: { const: false } }, description: "Cancelled", title: "Stopped" },
+      ];
+      const hook = composeTransforms(["distributeAllOf"], { Outcome: { anyOf: branches } });
+      const outer = { description: "Outer description", title: "Outer title" };
+      const constraints = { type: "object", properties: { id: { type: "string" } } };
+      const expected = {
+        ...outer,
+        anyOf: A.map(branches, (branch) => ({
+          ...branch,
+          properties: { ...constraints.properties, ...branch.properties },
+        })),
+      };
+      const direct = hook({ ...outer, ...constraints, allOf: [{ anyOf: branches }] });
+      const referenced = hook({ ...outer, ...constraints, allOf: [{ $ref: "#/$defs/Outcome" }] });
+      expect(direct).toEqual(expected);
+      expect(referenced).toEqual(expected);
+      expect(hook(referenced)).toEqual(expected);
     })
   );
 

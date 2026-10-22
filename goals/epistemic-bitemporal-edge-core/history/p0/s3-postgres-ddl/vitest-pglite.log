@@ -1,5 +1,5 @@
 
- RUN  v4.1.10 /home/elpresidank/YeeBois/projects/beep-effect2/packages/drivers/pglite
+ RUN  v4.1.10 $HOME/YeeBois/projects/beep-effect2/packages/drivers/pglite
 
  ✓ test/integration/spike/EpistemicBitemporalSpike.pglite.test.ts > EpistemicBitemporalSpike (PGlite) > btree_gist loads and a gist exclusion constraint rejects overlap by name 900ms
  ✓ test/integration/spike/EpistemicBitemporalSpike.pglite.test.ts > EpistemicBitemporalSpike (PGlite) > candidate DDL applies through the db-admin migrate path and re-running is idempotent 751ms

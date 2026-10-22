@@ -1,7 +1,7 @@
 # Paper map — Graphnosis "Borrowable Skills as Lean Un-Ganglia Subgraphs" → beep-effect
 
 Source note: `scratchpad/graphnosis/paper-trained-skills.md` (946 lines, read in full: 1–490, 491–946).
-Repo verified: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
+Repo verified: `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
 Date: 2026-08-06.
 
 ---

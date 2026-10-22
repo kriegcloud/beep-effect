@@ -619,7 +619,7 @@ this doc draws from them.
 ## Amendment (2026-06-17) — v3 prior-art reconciliation
 
 After this assessment was written, an exploration of the **pre-migration Effect v3** repo
-(`/home/elpresidank/YeeBois/projects/beep-effect4` — the *older* codebase despite the "4")
+(`$HOME/YeeBois/projects/beep-effect4` — the *older* codebase despite the "4")
 surfaced a built, test-backed knowledge engine. See companions `synthesis/40`–`43` (esp.
 [`43-v3-prior-art-impact.md`](./43-v3-prior-art-impact.md)). Net effect on this doc:
 

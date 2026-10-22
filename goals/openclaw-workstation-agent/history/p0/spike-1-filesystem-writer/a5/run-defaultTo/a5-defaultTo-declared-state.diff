@@ -1,5 +1,5 @@
---- /home/elpresidank/.cache/beep-p0-spike1a5.Gb9bdw/spike1/a5-defaultTo-declared-state-before.inventory	2026-07-25 23:30:19.847684010 -0500
-+++ /home/elpresidank/.cache/beep-p0-spike1a5.Gb9bdw/spike1/a5-defaultTo-declared-state-after.inventory	2026-07-25 23:30:23.358818815 -0500
+--- $HOME/.cache/beep-p0-spike1a5.Gb9bdw/spike1/a5-defaultTo-declared-state-before.inventory	2026-07-25 23:30:19.847684010 -0500
++++ $HOME/.cache/beep-p0-spike1a5.Gb9bdw/spike1/a5-defaultTo-declared-state-after.inventory	2026-07-25 23:30:23.358818815 -0500
 @@ -1,6 +1,9 @@
  d	700	1000:1000	50864666	./state	
  d	700	1000:1000	50864684	./identity	
@@ -15,8 +15,8 @@
  f	600	1000:1000	50864707	./credentials/telegram-pairing.json	
  f	600	1000:1000	50873165	./skill-workshop/proposals.json	
 +f	600	1000:1000	50883461	./agents/spike/sessions/sessions.json	
- l	777	1000:1000	50864690	./plugin-skills/browser-automation	/home/elpresidank/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/browser/skills/browser-automation
- l	777	1000:1000	50864691	./plugin-skills/canvas	/home/elpresidank/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/canvas/skills/canvas
+ l	777	1000:1000	50864690	./plugin-skills/browser-automation	$HOME/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/browser/skills/browser-automation
+ l	777	1000:1000	50864691	./plugin-skills/canvas	$HOME/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/canvas/skills/canvas
 +49ef0a1ec05506e97c276152da78b8693f04c870c1376ee951220a827e602bb3  ./agents/spike/sessions/sessions.json
  0acc80db40f45b5e408387c3f710ffacff957b9f5e170667a07c7f29f1b6d1fc  ./credentials/telegram-pairing.json
  be77c84a9e806e44238d64435e985df153568920d80a3451a9871e4eb975777d  ./identity/device.json

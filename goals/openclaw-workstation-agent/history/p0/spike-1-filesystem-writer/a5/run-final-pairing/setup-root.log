@@ -6,7 +6,7 @@ gateway_token_fingerprint=da3145d3
 == spike1 setup: render canonical generation A ==
 == spike1 setup: privileged install ==
 == spike1 setup: install isolated user unit ==
-unit_fragment=/home/elpresidank/.config/systemd/user/openclaw-spike.service marker=verified
+unit_fragment=$HOME/.config/systemd/user/openclaw-spike.service marker=verified
 == spike1 setup: installed-root evidence ==
 config_sha256=124928d4b621242dd961c24050df8069ef5e76896dd2477a69e3f8fa5ef61435 generation=124928d4b621242dd961c24050df8069ef5e76896dd2477a69e3f8fa5ef61435
 installed_spike_root_sha256=3f5d829076706822e802360370536093c4d5034eb9b92ace2ed957bd75c2bd99

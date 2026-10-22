@@ -18,7 +18,7 @@ _Date: 2026-06-17 · Packet: `atlas-synthesis` · Posture: map → grade portabi
 >    **Enron** demo corpus. The domain used to *learn* the engine; **not** the product.
 > 3. **THE PRODUCT** — the solo IP-law flywheel (v4 / `beep-effect3`).
 >
-> The v3 work is **proven prior art in a separate repo** (`/home/elpresidank/YeeBois/projects/beep-effect4`,
+> The v3 work is **proven prior art in a separate repo** (`$HOME/YeeBois/projects/beep-effect4`,
 > the *older* codebase despite the "4" in its name). It **de-risks** the v4 build
 > by converting it from greenfield invention into migration/redesign. It is **NOT**
 > present v4 capability and is not inventoried as such anywhere below.
@@ -356,7 +356,7 @@ thesis.
 
 ### Verification (2026-06-17)
 
-Adversarial re-check **directly against the v3 tree** (`/home/elpresidank/YeeBois/projects/beep-effect4`),
+Adversarial re-check **directly against the v3 tree** (`$HOME/YeeBois/projects/beep-effect4`),
 read-only, no builds — going beyond this doc's stated "did not re-open v3 source":
 
 **Confirmed (spot-checked, paths exist + substantive):**

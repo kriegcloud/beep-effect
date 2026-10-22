@@ -1,6 +1,6 @@
 # Graphnosis survey — territory: `.gai` binary format, integrity & conformance
 
-Repo surveyed: `/home/elpresidank/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis` v0.11.0).
+Repo surveyed: `$HOME/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis` v0.11.0).
 Everything below was read in full or verified empirically against the shipped `dist/` build and the
 shipped fixture bytes. Line references are to files in that checkout.
 

@@ -1,6 +1,6 @@
 # Mapping — Graphnosis `.gai` format / integrity / conformance → beep-effect
 
-Checkout mapped: `/home/elpresidank/YeeBois/projects/beep-effect15` (branch `main`, clean at `d1dfc4b3c1`).
+Checkout mapped: `$HOME/YeeBois/projects/beep-effect15` (branch `main`, clean at `d1dfc4b3c1`).
 Source survey: `scratchpad/graphnosis/survey-gai-format.md`. Source repo: `~/YeeBois/dev/Graphnosis`.
 
 Rule followed throughout: **no `gap` claim without a search command that returned nothing**, and no

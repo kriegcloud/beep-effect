@@ -5,7 +5,7 @@
 **Inputs read:** all five map reports in this directory; `CAPTURE.md`; `DECISIONS.md`;
 `assets/x-post-itsjuliopereyra-2085772997944803682.md`.
 **Verification:** in-repo capability claims below were checked against live source in
-`/home/elpresidank/YeeBois/projects/beep-effect13` (paths are repo-relative). harvey-labs
+`$HOME/YeeBois/projects/beep-effect13` (paths are repo-relative). harvey-labs
 citations are relative to `~/YeeBois/research/harvey-labs`. Numbers marked *(computed here)*
 were derived by this agent from the 250 `task.json` files; nothing under
 `tasks/firm-knowledge/dms/` was opened.

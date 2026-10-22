@@ -200,7 +200,7 @@ const shadingRows = (svg: string): ReadonlyArray<StrokeRow> =>
   pipe(
     shadingPathData(svg),
     O.match({
-      onNone: () => A.empty<StrokeRow>(),
+      onNone: A.empty<StrokeRow>,
       onSome: (d) => rowsOfPath(d, sheetScale(svg).unitsPerMm),
     })
   );
@@ -574,7 +574,7 @@ const measureLayer = (tag: string, index: number, unitsPerMm: number): MeasuredL
     attr(tag, "stroke-dasharray"),
     O.filter((value) => Str.trim(value) !== "none"),
     O.map((value) => A.map(numbersIn(value), (units) => round(units / unitsPerMm, 3))),
-    O.getOrElse(() => A.empty<number>())
+    O.getOrElse(A.empty<number>)
   );
   const drawn = walkPath(O.getOrElse(attr(tag, "d"), () => ""));
   return {

@@ -4,7 +4,7 @@ All 15 SOURCES.md §4 anchors re-verified against main @ 8fbbf1ef63. -->
 
 # P0 surface re-verification — `goals/legal-position-relator-runtime`
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect18`
+Repo: `$HOME/YeeBois/projects/beep-effect18`
 Branch: `feat/legal-position-relator-runtime` (working tree clean at verification time)
 Date: 2026-08-06
 Mode: READ-ONLY. No repo file was modified.

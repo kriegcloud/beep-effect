@@ -2,7 +2,7 @@
 
 ## Baseline Commands
 
-Captured on 2026-05-16 from `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Captured on 2026-05-16 from `$HOME/YeeBois/projects/beep-effect3`.
 
 | Command | Result | Evidence |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ changesets before this packet was published.
 
 Captured on 2026-05-20 after merging latest `origin/main`, running `bun i`, and
 rerunning the local quality loop from
-`/home/elpresidank/YeeBois/projects/beep-effect3`.
+`$HOME/YeeBois/projects/beep-effect3`.
 
 | Command | Result | Evidence |
 | --- | --- | --- |

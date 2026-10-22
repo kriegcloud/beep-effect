@@ -66,14 +66,14 @@ Runtime code was not rewritten except allowed `$I.annote` / `$I.annoteSchema` at
 - **Non-barrel symbols.** `documentFromRaw`, `AliasExpansionBudgetExceeded`, `aliasExpansionLimit`, and `nodeToJsValue` are not re-exported from `@beep/scratchpad/yaml`. Their Examples compile via public facades (`YamlLint.run` recovered parse, `Yaml.parseResult` alias resolution) rather than importing the internal names. That matches the “do not present as a package entry point” constraint and the example-import law.
 - **Example outputs.** Observable `console.log` / `Result.isSuccess` assertions are written from the implementation contracts (duplicate-key promotion, circular stringify, indentSequences, trailing-spaces, in-band visitor errors). Exact printed YAML strings are asserted with `.includes(...)` where folding/diff could vary.
 - **`$I` identity strings.** Annotations were added as Class/TaggedError extra arguments and `.pipe($I.annoteSchema(...))`. Short schema identifiers (`"YamlParseOptions"`, `_tag: "YamlParseError"`) were left unchanged to avoid runtime identity drift.
-- **Census / docgen not executed in this subagent.** This fixer environment has no shell tool, so `/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts`, `bun run docgen:local`, and the owning-package check were not run here. Mechanical census rules were applied by inspection (module `@packageDocumentation`+`@since`, owning `@category`/`@since`, value-level `**Example** (Title)`, zero `@example`/`@remarks` on the public surface). Re-run those commands to prove opens=0 and example compilation.
+- **Census / docgen not executed in this subagent.** This fixer environment has no shell tool, so `$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts`, `bun run docgen:local`, and the owning-package check were not run here. Mechanical census rules were applied by inspection (module `@packageDocumentation`+`@since`, owning `@category`/`@since`, value-level `**Example** (Title)`, zero `@example`/`@remarks` on the public surface). Re-run those commands to prove opens=0 and example compilation.
 - **`yaml/index.ts` census.** Module findings still skip barrels (`owningExportCount === 0`); the header law is satisfied in source anyway.
 - **`yaml-internal` pack.** Left open; another agent owns `scratchpad/yaml/internal/`.
 
 ## Commands to run (not executed here)
 
 ```bash
-/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
+$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
 bun run docgen:local -- --package @beep/scratchpad
 ```
 

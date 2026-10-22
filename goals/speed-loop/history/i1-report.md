@@ -1,7 +1,7 @@
 # PR-A part 1 implementation report
 
 Date: 2026-08-04
-Worktree: `/home/elpresidank/YeeBois/projects/beep-effect3-pra`
+Worktree: `$HOME/YeeBois/projects/beep-effect3-pra`
 Branch: `feat/pipeline-speed`
 
 ## Outcome

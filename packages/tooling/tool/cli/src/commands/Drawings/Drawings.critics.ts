@@ -582,7 +582,7 @@ const seatStop = (
     : Match.value(route).pipe(
         Match.when("grok", () => grokSandboxRefusal(output.stderr)),
         Match.when("claude", () => claudeOutputLimit(output.stdout)),
-        Match.orElse(() => O.none<CriticSeatUnavailable>())
+        Match.orElse(O.none<CriticSeatUnavailable>)
       );
 
 /**
@@ -838,7 +838,7 @@ export const criticInvocation = (input: {
           "enabled",
           "--workspace",
           cwd,
-          ...O.match(input.syntheticPack, { onNone: () => A.empty<string>(), onSome: (dir) => ["--add-dir", dir] }),
+          ...O.match(input.syntheticPack, { onNone: A.empty<string>, onSome: (dir) => ["--add-dir", dir] }),
           "--model",
           input.reviewer.model,
           "--output-format",

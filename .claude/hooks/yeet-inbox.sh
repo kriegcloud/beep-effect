@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Local inbox adapter for Claude Code, Codex, and Grok-compatible tails.
-# The hook never calls GitHub or git. Its hot path reads only .beep/inbox state.
+# The hook never calls GitHub. Its hot path reads only .beep/inbox state.
 # PreToolUse events inject context without denying tools. Unacknowledged P0 rows
 # remain a hard gate only at Stop and SubagentStop.
 set -u
@@ -14,20 +14,40 @@ command -v jq >/dev/null 2>&1 || exit 0
 event="$(printf '%s' "$payload" | jq -r '.hook_event_name // empty' 2>/dev/null || true)"
 session_id="$(printf '%s' "$payload" | jq -r '.session_id // "anonymous"' 2>/dev/null || printf 'anonymous')"
 
-root="${BEEP_YEET_HOOK_ROOT:-${CLAUDE_PROJECT_DIR:-}}"
+root="${BEEP_YEET_HOOK_ROOT:-}"
 if [ -z "$root" ]; then
   root="$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null || true)"
 fi
 if [ -z "$root" ]; then
-  root="$PWD"
+  root="${PWD:-${CLAUDE_PROJECT_DIR:-}}"
 fi
 
 # Hooks can fire from a package directory. Walk to the checkout without
-# invoking git, so a failure boundary never waits on repository plumbing.
+# invoking git on the usual same-checkout path.
+# CLAUDE_PROJECT_DIR can name the owning clone for a linked worktree session;
+# the payload cwd (or process cwd) identifies the invoking checkout instead.
 while [ "$root" != "/" ] && [ ! -e "$root/.git" ]; do
   root="${root%/*}"
   [ -n "$root" ] || root="/"
 done
+
+# A transient cwd in an independent clone (including .repos/*) or outside Git
+# must not bypass the owning project's inbox. Linked worktrees keep their own
+# inbox; compare canonical common directories only across checkout boundaries.
+if [ -z "${BEEP_YEET_HOOK_ROOT:-}" ] && [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  project_root="$CLAUDE_PROJECT_DIR"
+  while [ "$project_root" != "/" ] && [ ! -e "$project_root/.git" ]; do
+    project_root="${project_root%/*}"
+    [ -n "$project_root" ] || project_root="/"
+  done
+  if [ "$root" != "$project_root" ]; then
+    root_common="$(git -C "$root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+    project_common="$(git -C "$project_root" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+    if [ -z "$root_common" ] || [ "$root_common" != "$project_common" ]; then
+      root="$project_root"
+    fi
+  fi
+fi
 
 inbox="$root/.beep/inbox"
 failures="$inbox/failures.ndjson"
@@ -56,7 +76,10 @@ if [ "$failures_present" = true ] && { [ -L "$failures" ] || [ ! -r "$failures" 
   exit 0
 fi
 
-mkdir -p "$sessions" 2>/dev/null || exit 0
+if ! mkdir -p "$sessions" 2>/dev/null; then
+  printf 'yeet inbox: cannot create session directory: %s\n' "$sessions" >&2
+  exit 1
+fi
 
 pretool_tool_name=''
 pretool_checkout_mutating=false

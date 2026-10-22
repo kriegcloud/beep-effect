@@ -83,7 +83,7 @@ redesign).
 The dankserver monitoring stack is Ansible-managed from the `dankserver`
 repo (`ansible/roles/monitoring/templates/{otel-config.yaml.j2,
 compose.yaml.j2}`). Collector changes MUST land there and deploy through
-that repo's flow — hand-editing `/home/elpresidank/monitoring/otel/config.yaml`
+that repo's flow — hand-editing `$HOME/monitoring/otel/config.yaml`
 creates drift that the next ansible run erases. Traces fan-out additionally
 requires the collector container to join the external
 `beep-ai-metrics-dankserver_default` network, because Phoenix publishes

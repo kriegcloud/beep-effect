@@ -1,6 +1,6 @@
 # Lexical Playground source audit
 
-- Source: `/home/elpresidank/YeeBois/dev/text_editor_ui/lexical/packages/lexical-playground/`
+- Source: `$HOME/YeeBois/dev/text_editor_ui/lexical/packages/lexical-playground/`
 - Package version: `0.49.0`
 - Revision: `a933222c489e7025d87b9217c2489d309fc8a3cf`
 - Revision date: `2026-08-02T21:12:23+02:00`

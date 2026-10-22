@@ -55,8 +55,8 @@ Memfs inspectable shape:
 Acceptance runner (parent should execute):
 
 ```bash
-/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
-/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun run --cwd /home/elpresidank/YeeBois/projects/beep-effect8 docgen:local -- --package scratchpad
+$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
+$HOME/.local/share/mise/installs/bun/latest/bin/bun run --cwd $HOME/YeeBois/projects/beep-effect8 docgen:local -- --package scratchpad
 ```
 
 Packs `glob`, `schemastore`, and `memfs` should remain `openModuleCount: 0` and `openOwningExportCount: 0`.

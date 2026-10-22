@@ -347,7 +347,7 @@ Adversarial spot-check of the in-repo claims by a skeptical verifier.
 - `agentic-professional-runtime` has no `GOAL.md` (ops/docs/fixtures/history present).
 - All 5 exploration manifests match their stage/status/updated rows.
 - Corpus CLI (`packages/tooling/tool/cli/src/commands/Corpus/`) and the data home
-  (`/home/elpresidank/data-home/oppold-corpus/`) exist; `apps/professional-desktop`
+  (`$HOME/data-home/oppold-corpus/`) exist; `apps/professional-desktop`
   exists. No pruned `codegraph`/`repo-intel`/`repo-memory`/`code-ast` packages
   exist under `packages/` — guardrail respected, learning-residue not presented
   as live capability.

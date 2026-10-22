@@ -4,7 +4,7 @@ Found 7 actionable defects. The highest-risk issues are concurrent sync executio
 
 1. **SYNC-01 — P1: concurrent sync passes can requeue and duplicate active work**
 
-   [VaultSyncPanel.tsx:173](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/sync/VaultSyncPanel.tsx:173), [VaultSyncEngine.service.ts:1303](/home/elpresidank/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1303)
+   [VaultSyncPanel.tsx:173]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/sync/VaultSyncPanel.tsx:173), [VaultSyncEngine.service.ts:1303]($HOME/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1303)
 
    The client guard is only React state. Two clicks before the next render, a second window, or another RPC caller can invoke `syncOnce` concurrently. Every pass begins by requeueing all leased operations. Pass B can therefore turn an operation actively being uploaded by pass A back into `queued`, lease it again, and execute the same remote mutation concurrently.
 
@@ -12,7 +12,7 @@ Found 7 actionable defects. The highest-risk issues are concurrent sync executio
 
 2. **INTAKE-01 — P1: dropped files are copied and Base64-expanded without any size limit**
 
-   [DocumentIntakeTarget.tsx:265](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/DocumentIntakeTarget.tsx:265), [Intake.atoms.ts:153](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/Intake.atoms.ts:153)
+   [DocumentIntakeTarget.tsx:265]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/DocumentIntakeTarget.tsx:265), [Intake.atoms.ts:153]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/Intake.atoms.ts:153)
 
    A large drop is materialized as an `ArrayBuffer`, copied into a `Uint8Array`, encoded as Base64 for RPC, decoded by the server, then retained during extraction and materialization. Base64 alone adds roughly 33%, while serialization can create further string copies. A sufficiently large filing—or several queued batches—can freeze or terminate the renderer/sidecar.
 
@@ -20,7 +20,7 @@ Found 7 actionable defects. The highest-risk issues are concurrent sync executio
 
 3. **SYNC-02 — P1: Box token expiry remains falsely “connected” and sync can appear successful**
 
-   [DmsMirrorBox.ts:733](/home/elpresidank/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/DmsMirrorBox.ts:733), [VaultSyncEngine.service.ts:1311](/home/elpresidank/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1311)
+   [DmsMirrorBox.ts:733]($HOME/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/DmsMirrorBox.ts:733), [VaultSyncEngine.service.ts:1311]($HOME/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1311)
 
    After the first successful probe, `rootRef` permanently satisfies later probes without touching Box. If the token expires, status continues reporting `connected: true`. Push failures are converted into operation state, and poll failures are caught into cursor state, so `TriggerVaultSync` can return a normal status instead of an authentication failure. The UI can show a completed sync with only counters changing.
 
@@ -28,7 +28,7 @@ Found 7 actionable defects. The highest-risk issues are concurrent sync executio
 
 4. **SYNC-03 — P1: “Mark reviewed” hides the conflict but leaves the item permanently conflicted**
 
-   [VaultSyncEngine.service.ts:1030](/home/elpresidank/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1030), [VaultSyncEngine.service.ts:1289](/home/elpresidank/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1289)
+   [VaultSyncEngine.service.ts:1030]($HOME/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1030), [VaultSyncEngine.service.ts:1289]($HOME/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1289)
 
    Remote drift sets the tracked item to `syncState: conflict`. `markConflictReviewed` only updates the conflict record. After review, the record disappears from the UI while `conflictItems` stays nonzero. An unchanged local scan does not transition that item, so users have neither a visible conflict row nor a resolution action.
 
@@ -36,7 +36,7 @@ Found 7 actionable defects. The highest-risk issues are concurrent sync executio
 
 5. **SYNC-04 — P2: conflict-query failures are rendered as “no conflicts”**
 
-   [VaultSyncPanel.tsx:109](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/sync/VaultSyncPanel.tsx:109)
+   [VaultSyncPanel.tsx:109]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/sync/VaultSyncPanel.tsx:109)
 
    `VaultSyncConflictsList` renders content only for a successful, non-empty result. Initial loading, an empty result, and RPC failure all become `null`. If conflict loading fails during an otherwise healthy status request, the operator sees no indication that conflicts may be unavailable.
 
@@ -44,7 +44,7 @@ Found 7 actionable defects. The highest-risk issues are concurrent sync executio
 
 6. **INTAKE-02 — P2: native Tauri picker failures are silently treated as cancellation**
 
-   [DocumentIntakeTarget.tsx:41](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/DocumentIntakeTarget.tsx:41)
+   [DocumentIntakeTarget.tsx:41]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/DocumentIntakeTarget.tsx:41)
 
    Any import, IPC, permission, or command failure is converted to `null`. `configureSelectedWorkspaceVault` treats `null` as user cancellation and returns without setting status. Clicking “Choose folder” can consequently do nothing with no diagnostic or recovery path.
 
@@ -52,7 +52,7 @@ Found 7 actionable defects. The highest-risk issues are concurrent sync executio
 
 7. **BOX-01 — P2: `pruneUndefined` is unsafe for `__proto__` keys and eagerly clones entire responses**
 
-   [Box.runtime.ts:23](/home/elpresidank/YeeBois/projects/beep-effect6/packages/drivers/box/src/internal/Box.runtime.ts:23)
+   [Box.runtime.ts:23]($HOME/YeeBois/projects/beep-effect6/packages/drivers/box/src/internal/Box.runtime.ts:23)
 
    The normalizer writes arbitrary keys into `{}`. An own `__proto__` property invokes the legacy prototype setter rather than creating a normal data property, altering the prototype of the normalized object and dropping the original field. Separately, every array and plain object is recursively cloned even when no `undefined` exists; large listings pay a full traversal/allocation before schema decoding. Deep or cyclic SDK values can also overflow or recurse forever.
 
