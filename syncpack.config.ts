@@ -154,7 +154,7 @@ const config = {
       // errors; schema-opaque-default armed schemaClassMissingBrand on
       // 2026-10-15 in its closing PR. The 0.54.1 bump armed schemaClassObjectLiteral.
       // The 0.55.0 bump armed preferEffectString after the effect/String migration
-      // (goals/effect-string-migration) cleared its 2,991 sites.
+      // (goals/effect-string-migration) cleared its 2,992 sites.
       // The import-style rules remain declared off; named helper imports are
       // deliberate and Effect barrel imports contradict the module-path law.
       // tsc-rs (pingdotgg/ts-rust) 0.6.0 stays independently held. Its port is
