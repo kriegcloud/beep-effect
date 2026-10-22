@@ -22,6 +22,7 @@ import {
   ReviewFindingId,
   ReviewFindingRef,
   ReviewIngestRequest,
+  ReviewIntake,
   ReviewInventory,
   ReviewOpenRequest,
   ReviewPageRef,
@@ -1328,6 +1329,84 @@ describe("beep drawings review", () => {
           ])
         );
         expect(malformed.message).toContain('"nonsense" is not <file>[:<page>]=<FIG.>');
+      })
+    );
+  });
+});
+
+describe("beep drawings review plan command", () => {
+  it.layer(TestLayer, { timeout: "60 seconds" })((it) => {
+    it.effect(
+      "plans a round through the command and prints the reviewer pages its intake matched",
+      Effect.fnUntraced(function* () {
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const opened = yield* review.open(
+          ReviewOpenRequest.make({
+            location: corpus.location,
+            manifestPath: corpus.sent.manifest,
+            deliveryPath: O.none(),
+          })
+        );
+        // An ingested round with its intake, recorded the way ingest records it, without running poppler.
+        const round = ReviewRound.make(opened.round);
+        const intakeSha256 = yield* writeJsonFile(
+          ReviewIntake,
+          path.join(opened.roundDir, "intake.json"),
+          ReviewIntake.make({
+            schemaVersion: "drawing-review-intake/v1",
+            round: round.round,
+            reviewedSheetSetSha256: round.reviewedSheetSetSha256,
+            pages: sharedPages,
+          })
+        );
+        const inventorySha256 = yield* writeJsonFile(
+          ReviewInventory,
+          path.join(opened.roundDir, "inventory.json"),
+          inventoryOf(round, findingsOf(sharedPages))
+        );
+        yield* writeJsonFile(
+          ReviewRound,
+          path.join(opened.roundDir, "round.json"),
+          ReviewRound.make({
+            ...round,
+            status: "ingested",
+            intakeSha256: O.some(intakeSha256),
+            inventorySha256: O.some(inventorySha256),
+          })
+        );
+        const dispositionsFile = path.join(corpus.matter, "dispositions-draft.json");
+        yield* writeJsonFile(
+          ReviewDispositions,
+          dispositionsFile,
+          ReviewDispositions.make({
+            schemaVersion: "drawing-review-dispositions/v1",
+            round: 1,
+            entries: [entry("A1-01", specChange), entry("A1-02", declined), entry("A1-03", specChange)],
+          })
+        );
+        yield* runDrawings([
+          "review",
+          "plan",
+          "--corpus-root",
+          corpus.root,
+          "--matter",
+          corpus.matter,
+          "--round",
+          "1",
+          "--dispositions",
+          dispositionsFile,
+        ]);
+        const output = yield* logged;
+        expect(output).toContain(`review round 1: planned, sheet set ${corpus.sent.hash}`);
+        expect(output).toContain("  Fig1.pdf page 1 → FIG. 1 (ink-coverage, coverage 1.000), 2 note(s)");
+        expect(output).toContain("  Fig2.pdf page 1 → FIG. 2 (ink-coverage, coverage 1.000), 2 note(s)");
+        // a planned spec change stays open until a re-render answers it
+        expect(output).toContain("  3 finding(s), 2 open required, 3 required in all");
+        expect(output).toContain(
+          `  A1-02@${Str.slice(0, 12)(corpus.sent.hash)} P1 declined all sheets: Margins: 1 in (all sheets) (×2)`
+        );
       })
     );
   });

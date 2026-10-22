@@ -116,6 +116,22 @@ const graded = (fields?: {
     ladderReach: O.fromNullishOr(fields?.ladderReach),
   });
 
+// The stroke pass's inputs for a shape in the front view under the graded plan, with no measured rooms, claims,
+// neighbours or lines beyond a band; the caller gives the probe regions.
+const frontHatch = (shape: replicad.AnyShape) => ({
+  oc: replicad.getOC(),
+  shape,
+  camera: front,
+  plan: graded(),
+  rooms: () => O.none(),
+  isBrokenFace: () => false,
+  claimedOf: () => O.none(),
+  viewedLength: ([a, b]: readonly [readonly [number, number, number], readonly [number, number, number]]) =>
+    Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]),
+  neighbours: [],
+  groupBeyond: () => O.none(),
+});
+
 // The validator's ladder check on a view drawn at 1.5 mm a model unit, reading every line the sheet draws.
 const ladderFindings = (view: EdgeSet | undefined) => {
   const mm = (segments: ReadonlyArray<Segment>) =>
@@ -169,19 +185,7 @@ describe("@beep/occt shading", () => {
       Effect.fnUntraced(function* () {
         yield* Occt;
         const shape = replicad.makeBox([-10, -10, 0], [10, 10, 20]);
-        const base = {
-          oc: replicad.getOC(),
-          shape,
-          camera: front,
-          plan: graded(),
-          rooms: () => O.none(),
-          isBrokenFace: () => false,
-          claimedOf: () => O.none(),
-          viewedLength: ([a, b]: readonly [readonly [number, number, number], readonly [number, number, number]]) =>
-            Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]),
-          neighbours: [],
-          groupBeyond: () => O.none(),
-        };
+        const base = frontHatch(shape);
         const nested: A.NonEmptyReadonlyArray<StretchPiece<never>> = [
           { row: 0, from: 0, to: 10, low: 2, high: 4, probes: [] },
           { row: 1, from: 2, to: 8, low: 0, high: 6, probes: [] },
@@ -197,6 +201,135 @@ describe("@beep/occt shading", () => {
           const skipped = hatchCompound({ ...base, regions: O.some(() => [small]) });
           expect(A.some(skipped.faces, (face) => A.some(face.skipped, (skip) => skip.reason === "no-room"))).toBe(true);
           A.forEach(skipped.faces, (face) => A.forEach(face.stretches, (stretch) => stretch.shape.delete()));
+        } finally {
+          shape.delete();
+        }
+      })
+    );
+
+    it.effect(
+      "drops an overlay whose points all coincide and keeps the overlay beside it",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // a polyline of one repeated point has no leg to draw, so it is never built; the line next to it still prints
+        const model = ModelSpec.make({
+          ...box([-10, -10, 0], [10, 10, 20]),
+          overlays: [
+            OverlayLine.make({
+              name: "dot",
+              points: [
+                [0, -15, 5],
+                [0, -15, 5],
+              ],
+              style: "emphasis",
+            }),
+            OverlayLine.make({
+              name: "line",
+              points: [
+                [-5, -15, 5],
+                [5, -15, 5],
+              ],
+              style: "emphasis",
+            }),
+          ],
+        });
+        const [view] = yield* occt.project(ProjectionRequest.make({ solid: model, cameras: [front] }));
+        expect(view?.emphasis).toEqual([[-5, 5, 5, 5]]);
+      })
+    );
+
+    it.effect(
+      "pairs a lit face with its darker neighbour across a ridge a notch splits into two edges",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // The ridge block of the lit-taper test below, with a notch 2 tall and half a unit deep cut out of its ridge at
+        // z = 28: the lit and the dark face now share two collinear edges, below and above the notch, and what the view
+        // shows of the two is summed for the pair. The notch stays inside the bands' first pitch, so both faces are
+        // banded exactly as on the whole ridge, the lit band still cut back to the lit taper (review loop 3, O-02).
+        const ridge = Prism.make({
+          profile: [
+            [0, 0, 0],
+            [30, 0, 0],
+            [30, 0, 20],
+            [0, 0, 60],
+          ],
+          extrusion: [0, 30, 0],
+        });
+        const projected = (subtract: ReadonlyArray<Box>) =>
+          occt.project(
+            ProjectionRequest.make({
+              solid: ModelSpec.make({ parts: [Part.make({ name: "block", add: [ridge], subtract })] }),
+              cameras: [Camera.make({ eye: [-1, -1, 1], up: [0, 0, 1] })],
+              shading: O.some(graded({ minStroke: 1.5, minFaceSpan: 3 })),
+            })
+          );
+        const [whole] = yield* projected([]);
+        const [notched] = yield* projected([Box.make({ min: [-1, -1, 28], max: [0.5, 0.5, 30] })]);
+        const strokes = notched?.shading ?? [];
+        expect(strokes).toEqual(whole?.shading);
+        const lit = A.filter(strokes, (s) => s[0] < 0);
+        expect(A.length(lit)).toBeGreaterThanOrEqual(2);
+        // every lit stroke is a short one: at most 0.6 of the 60-tall chord, which the sheet shows at 2/sqrt(6)
+        expect(Math.max(...A.map(lit, lengthOf))).toBeLessThanOrEqual(0.6 * 60 * (2 / Math.sqrt(6)) + 1e-6);
+      })
+    );
+
+    it.effect(
+      "plans a face given lines that no probe row saw as hidden, with no strokes",
+      Effect.fnUntraced(function* () {
+        yield* Occt;
+        const shape = replicad.makeBox([-10, -10, 0], [10, 10, 20]);
+        try {
+          // the probe pass found no visible area on any face: the front face, the only one turned toward the eye, is
+          // hidden rather than banded over its whole extent
+          const hatched = hatchCompound({ ...frontHatch(shape), regions: O.some(() => []) });
+          expect(
+            A.map(hatched.faces, (face) =>
+              face.treatment.kind === "skipped" ? face.treatment.reason : face.treatment.kind
+            )
+          ).toEqual(["back-facing", "back-facing", "hidden", "back-facing", "back-facing", "back-facing"]);
+          expect(A.map(hatched.faces, (face) => [A.length(face.stretches), A.length(face.skipped), face.seen])).toEqual(
+            A.makeBy(6, () => [0, 0, 0])
+          );
+        } finally {
+          shape.delete();
+        }
+      })
+    );
+
+    it.effect(
+      "draws a band once per run of adjacent probe rows, never across a row between them that missed the area",
+      Effect.fnUntraced(function* () {
+        yield* Occt;
+        const shape = replicad.makeBox([-10, -10, 0], [10, 10, 20]);
+        // Positions along the front face's lines read along -z, its top at -20. Rows 0 and 1 saw the face from z = 20
+        // down to 11, rows 3 and 4 from z = 9 down to 0, and row 2 saw none of it: every line of the band is drawn once
+        // in the cells of each run of rows, and none crosses the gap between them.
+        const gapped: A.NonEmptyReadonlyArray<StretchPiece<never>> = [
+          { row: 0, from: 0, to: 20, low: -20, high: -14, probes: [] },
+          { row: 1, from: 0, to: 20, low: -16, high: -11, probes: [] },
+          { row: 3, from: 0, to: 20, low: -9, high: -4, probes: [] },
+          { row: 4, from: 0, to: 20, low: -6, high: 0, probes: [] },
+        ];
+        try {
+          const hatched = hatchCompound({ ...frontHatch(shape), regions: O.some(() => [gapped]) });
+          A.forEach(hatched.faces, (face) => A.forEach(face.stretches, (stretch) => stretch.shape.delete()));
+          const planned = A.flatMap(hatched.faces, (face) => A.flatMap(face.stretches, (stretch) => stretch.planned));
+          const rounded = (n: number) => Math.round(n * 1e6) / 1e6;
+          expect(
+            A.map(planned, ({ ends: [a, b], rank }) => [
+              rank,
+              rounded(Math.min(a[2], b[2])),
+              rounded(Math.max(a[2], b[2])),
+            ])
+          ).toEqual([
+            [0, 11, 20],
+            [0, 0, 9],
+            [1, 11, 20],
+            [1, 0, 9],
+            [2, 12.8, 18.2],
+            [2, 1.8, 7.2],
+          ]);
         } finally {
           shape.delete();
         }
