@@ -1,12 +1,13 @@
 # Foreign-clone residue census, 2026-10-22
 
-Resolves the bounded local-residue disposition in #1854. The program orchestrator
+Records the census and single idle-map archive for #1854; remaining dispositions
+stay open in that issue. The program orchestrator
 owns this receipt; checkout owners below come from `bun run beep session open`.
 The later S44 issue triage authorizes this census and the single idle-map archive.
 
 Snapshot completed at `2026-10-22T12:37:41.371555+00:00`. Census: 242 git checkouts in
-`~/YeeBois/projects/beep-effect*`, including children of 24
-sibling `-worktrees` roots. Git metadata and working trees were read with
+`~/YeeBois/projects/beep-effect*`, including 36 clone roots and 206 worktree checkouts
+across the 16 sibling `-worktrees` roots listed in Coverage (36 + 206 = 242). Git metadata and working trees were read with
 `GIT_OPTIONAL_LOCKS=0`; no foreign checkout was modified except the named map move.
 The primary `beep-effect` working tree was preserved.
 `beep-effect11-worktrees/practice-services` was excluded entirely.
@@ -23,7 +24,8 @@ The primary `beep-effect` working tree was preserved.
 - Read foreign file contents only to compute SHA-256. Directory byte counts sum
   descendant file sizes without following directory symlinks; they describe the
   entire top-level directory, including tracked or ignored descendants, rather
-  than only its untracked subset. Directory hashes are not applicable.
+  than only its untracked subset. Directory rows carry byte totals only, not
+  hashes; this receipt is census-only and includes no recursive manifests.
   Counts are logical bytes and do not measure reclaimable filesystem space.
 - An open ledger row means live owner. A blocked row means unknown liveness;
   no row means idle under the brief's ledger rule, not proof that no process
@@ -99,6 +101,10 @@ second `session open` read found no owner row for `beep-effect2`. The destinatio
 did not exist, and the source digest still matched the census. After the rename,
 the source was absent and the destination had the same byte count and SHA-256.
 No file content was inspected beyond hashing.
+The archive destination convention is `~/.cache/beep/residue/<clone>/…`, outside
+every checkout; restore this archive with
+`mv -n ~/.cache/beep/residue/beep-effect2/map.html ~/YeeBois/projects/beep-effect2/map.html`
+after the checks below.
 
 To reverse, first recheck the clone owner, require the original source path to be
 absent, and verify the archive against the digest above. Then move the archive
@@ -134,8 +140,9 @@ a point-in-time observation; concurrent owners may subsequently change their pat
 ## Left open
 
 SST declarations remain with #1851, including the observed `sst-env.d.ts` above.
-All other untracked paths remain with their live checkout owner or the program
-orchestrator for a separately bounded disposition. Original Vitest work, pilot
-state, active jobs, and Serena state were preserved. This receipt closes #1854's
-census and authorized archive; it does not claim those retained paths are deleted
+The 34 idle no-owner paths (excluding Serena, the archived map and the #1851
+SST declaration) remain tracked in #1854 for a recoverable archive pass per clone
+by its owning session; other retained paths remain with their checkout owners. Original Vitest work, pilot
+state, active jobs, and Serena state were preserved. This receipt records only the census
+and authorized archive; #1854 remains open, and it does not claim those retained paths are deleted
 or that the broader repository-simplification packet is complete.

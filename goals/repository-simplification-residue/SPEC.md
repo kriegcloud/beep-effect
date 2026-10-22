@@ -325,6 +325,8 @@ job. Record: `history/receipts/dependency-review.md`.
 
 ## Decision Log
 
+2026-10-22 (S44): the #1854 census and the idle map.html archive were produced by an orchestrator lane; the remaining dispositions stay with #1854
+
 | Date | Decision | Reason | Reversal |
 | --- | --- | --- | --- |
 | 2026-10-17 | S36 opens this single active successor for the fifteen named issues. Launch issue-owned waves; leave the eighteen external issues as cross-references. | S23 forbids parking source work solely for size after the predecessor closeout. S31 forbids inventory growth. | Revert the packet-opening PR and ownership comments with a recorded superseding ownership decision; retain issues, source evidence and recovery assets. Do not erase the original unmet acceptances. |
