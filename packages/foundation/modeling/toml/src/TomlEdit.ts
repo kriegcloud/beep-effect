@@ -22,6 +22,7 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $TomlId.create("TomlEdit");
 
@@ -186,7 +187,7 @@ export class TomlEdit extends S.Opaque<TomlEdit, { readonly brand: unique symbol
     }
     let result = text;
     for (const edit of sorted) {
-      result = result.slice(0, edit.offset) + edit.content + result.slice(edit.offset + edit.length);
+      result = Str.slice(0, edit.offset)(result) + edit.content + Str.slice(edit.offset + edit.length)(result);
     }
     return result;
   });

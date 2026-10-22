@@ -11,6 +11,7 @@ import * as Scheduler from "effect/Scheduler";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "../deliberatelyInvalid.ts";
 import { collectWatch } from "../helpers.ts";
 import type * as FileSystem from "effect/FileSystem";
@@ -31,10 +32,10 @@ const assertEbadf = Effect.fnUntraced(function* <A>(effect: Effect.Effect<A, Pla
   assert.strictEqual(cause.code, "EBADF");
 });
 
-const isReadableFlag = (flag: FileSystem.OpenFlag) => flag === "r" || flag.endsWith("+");
+const isReadableFlag = (flag: FileSystem.OpenFlag) => flag === "r" || Str.endsWith("+")(flag);
 
 const contentAfterWrite = (flag: FileSystem.OpenFlag, exclusive: boolean, initialSize: number) => {
-  if (flag.startsWith("a") && !exclusive) return new Uint8Array([1, 2, 3]);
+  if (Str.startsWith("a")(flag) && !exclusive) return new Uint8Array([1, 2, 3]);
   return initialSize === 2 ? new Uint8Array([3, 2]) : new Uint8Array([3]);
 };
 
@@ -63,15 +64,15 @@ const assertFlagWrite = Effect.fnUntraced(function* (
     return;
   }
   yield* file.writeAll(new Uint8Array([3]));
-  assert.deepStrictEqual(yield* fs.readFile(path), contentAfterWrite(flag, flag.includes("x"), initialSize));
+  assert.deepStrictEqual(yield* fs.readFile(path), contentAfterWrite(flag, Str.includes("x")(flag), initialSize));
 });
 
 const exerciseOpenFlag = Effect.fnUntraced(function* (fs: FileSystem.FileSystem, flag: FileSystem.OpenFlag) {
   const path = `/flag-${flag}`;
-  const exclusive = flag.includes("x");
+  const exclusive = Str.includes("x")(flag);
   if (!exclusive) yield* fs.writeFile(path, new Uint8Array([1, 2]));
   const file = yield* fs.open(path, { flag });
-  const initialSize = exclusive || flag.startsWith("w") ? 0 : 2;
+  const initialSize = exclusive || Str.startsWith("w")(flag) ? 0 : 2;
   assert.strictEqual(Number((yield* file.stat).size), initialSize);
   yield* assertFlagRead(file, flag, initialSize);
   yield* file.seek(0n, "start");
@@ -310,7 +311,7 @@ describe("volume uncovered contracts", () => {
       yield* fs.makeDirectory("/wide/nested", { recursive: true });
       const names: Array<string> = [];
       for (let index = 255; index >= 0; index--) {
-        const name = `entry-${String(index).padStart(3, "0")}`;
+        const name = `entry-${Str.padStart(3, "0")(String(index))}`;
         names.unshift(name);
         yield* fs.writeFile(`/wide/${name}`, new Uint8Array([index]));
       }
@@ -462,8 +463,8 @@ describe("volume uncovered contracts", () => {
         "./a",
         "../a",
         "",
-        "{".repeat(257),
-        `{${"a,".repeat(1025)}b}`,
+        Str.repeat(257)("{"),
+        `{${Str.repeat(1025)("a,")}b}`,
       ])
         yield* fails(fs.glob(pattern));
       assert.deepStrictEqual(yield* fs.glob("\\*"), []);
