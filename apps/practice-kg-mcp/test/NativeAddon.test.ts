@@ -1,11 +1,9 @@
 import NodeModule from "node:module";
 import { it } from "@beep/test-runner";
-import * as BunServices from "@effect/platform-bun/BunServices";
 import { describe, expect } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
 import {
   executableDirectory,
@@ -75,44 +73,45 @@ describe("NativeAddon", () => {
     expect(seen).toEqual([]);
   });
 
-  it.layer(BunServices.layer)("installation", (it) => {
-    it.effect("installs once, resolves the bundled addon, and delegates missing or unrelated requests", () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const root = yield* fs.makeTempDirectoryScoped();
-        const executablePath = process.execPath;
-        const resolver = NodeModule as unknown as {
-          _resolveFilename: (request: string, ...rest: ReadonlyArray<unknown>) => string;
-        };
-        const original = resolver._resolveFilename;
-        const calls: Array<string> = [];
-        resolver._resolveFilename = (request, ...rest) => {
-          if (!isNativeAddonRequest(request) && request !== "effect/Effect") {
-            return original.call(NodeModule, request, ...rest);
-          }
-          calls.push(request);
-          return `fallback:${request}`;
-        };
-        try {
-          const addonDirectory = `${root}/node_modules/@duckdb/node-bindings-win32-x64`;
-          yield* fs.makeDirectory(addonDirectory, { recursive: true });
-          yield* fs.writeFileString(`${addonDirectory}/duckdb.node`, "fixture");
-          Object.defineProperty(process, "execPath", { value: `${root}/practice-kg-mcp`, configurable: true });
-          yield* Effect.promise(() => import("../src/NativeAddon.install.ts"));
-          const installed = resolver._resolveFilename;
-          installNativeAddonResolver();
-          expect(resolver._resolveFilename).toBe(installed);
-          expect(resolver._resolveFilename(addon)).toBe(`${addonDirectory}/duckdb.node`);
-          expect(resolver._resolveFilename("@duckdb/node-bindings-missing/duckdb.node")).toBe(
-            "fallback:@duckdb/node-bindings-missing/duckdb.node"
-          );
-          expect(resolver._resolveFilename("effect/Effect")).toBe("fallback:effect/Effect");
-          expect(calls).toEqual(["@duckdb/node-bindings-missing/duckdb.node", "effect/Effect"]);
-        } finally {
-          resolver._resolveFilename = original;
-          Object.defineProperty(process, "execPath", { value: executablePath, configurable: true });
+  it.effect("installs once, resolves the bundled addon, and delegates missing or unrelated requests", () =>
+    Effect.gen(function* () {
+      const root = "/opt/native-addon-test";
+      const executablePath = process.execPath;
+      const resolver = NodeModule as unknown as {
+        _resolveFilename: (request: string, ...rest: ReadonlyArray<unknown>) => string;
+      };
+      const original = resolver._resolveFilename;
+      const calls: Array<string> = [];
+      resolver._resolveFilename = (request, ...rest) => {
+        if (request === `${root}/node_modules/${addon}`) {
+          return request;
         }
-      }).pipe(Effect.scoped)
-    );
-  });
+        if (request === `${root}/node_modules/@duckdb/node-bindings-missing/duckdb.node`) {
+          throw new Error("Missing fixture addon");
+        }
+        if (!isNativeAddonRequest(request) && request !== "effect/Effect") {
+          return original.call(NodeModule, request, ...rest);
+        }
+        calls.push(request);
+        return `fallback:${request}`;
+      };
+      try {
+        const addonDirectory = `${root}/node_modules/@duckdb/node-bindings-win32-x64`;
+        Object.defineProperty(process, "execPath", { value: `${root}/practice-kg-mcp`, configurable: true });
+        yield* Effect.promise(() => import("../src/NativeAddon.install.ts"));
+        const installed = resolver._resolveFilename;
+        installNativeAddonResolver();
+        expect(resolver._resolveFilename).toBe(installed);
+        expect(resolver._resolveFilename(addon)).toBe(`${addonDirectory}/duckdb.node`);
+        expect(resolver._resolveFilename("@duckdb/node-bindings-missing/duckdb.node")).toBe(
+          "fallback:@duckdb/node-bindings-missing/duckdb.node"
+        );
+        expect(resolver._resolveFilename("effect/Effect")).toBe("fallback:effect/Effect");
+        expect(calls).toEqual(["@duckdb/node-bindings-missing/duckdb.node", "effect/Effect"]);
+      } finally {
+        resolver._resolveFilename = original;
+        Object.defineProperty(process, "execPath", { value: executablePath, configurable: true });
+      }
+    })
+  );
 });
