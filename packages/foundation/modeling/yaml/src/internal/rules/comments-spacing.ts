@@ -10,6 +10,7 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { YamlEdit } from "../../YamlEdit.ts";
 import { StyleVote, YamlLintDiagnostic, YamlLintSeverity, YamlRule } from "../../YamlLintRule.ts";
 import { nonNegativeIntegerOption } from "./util.ts";
@@ -84,7 +85,7 @@ const spacingBefore: {
 });
 
 /** Recognizes a shebang (hash followed by an exclamation mark) at the very start of the stream. */
-const isShebang = (token: YamlToken): boolean => token.offset === 0 && token.text.startsWith("#!");
+const isShebang = (token: YamlToken): boolean => token.offset === 0 && Str.startsWith("#!")(token.text);
 
 /** The configured spacing requirements, with their defaults. */
 const readCommentOptions = (options: unknown): { readonly minBefore: number; readonly requireAfter: boolean } => {
@@ -100,7 +101,7 @@ const lintableComments = (ctx: LintContext): ReadonlyArray<YamlToken> =>
   A.filter(ctx.tokens, (token) => token.kind === "comment" && !isShebang(token));
 
 /** True when a space or tab follows the `#`. */
-const hasSpaceAfterHash = (token: YamlToken): boolean => /[ \t]/.test(token.text.charAt(1));
+const hasSpaceAfterHash = (token: YamlToken): boolean => /[ \t]/.test(Str.slice(1, 2)(token.text));
 
 /** True when prose follows the `#` without a separating space. */
 const lacksSpaceAfter = (token: YamlToken): boolean => token.text.length > 1 && !hasSpaceAfterHash(token);
@@ -140,7 +141,7 @@ const spacingBeforeFinding = (
     fix: YamlEdit.make({
       offset: token.offset,
       length: 0,
-      content: " ".repeat(minBefore - spaces),
+      content: Str.repeat(minBefore - spaces)(" "),
     }),
   });
 };

@@ -1,6 +1,7 @@
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 
 // Document-level composition: the per-CST-document compose walk, directive
 // validation (per-document and cross-document), the sourceMultiline
@@ -68,7 +69,7 @@ const isDocStartMarker = (c: CstNode): boolean => c.type === "whitespace" && c.s
 const isDocEndMarker = (c: CstNode): boolean => c.type === "whitespace" && c.source === "...";
 
 /** True for a whitespace child whose source is blank. */
-const isBlankWhitespace = (c: CstNode): boolean => c.type === "whitespace" && c.source.trim() === "";
+const isBlankWhitespace = (c: CstNode): boolean => c.type === "whitespace" && Str.trim(c.source) === "";
 
 /** True for a directive child. */
 const isDirectiveChild = (c: CstNode): boolean => c.type === "directive";
@@ -273,7 +274,7 @@ const appendCommentLine = (
 };
 
 /** True for a C0 control character other than tab/LF/CR. */
-const isForbiddenControl = (cc: number): boolean => cc < 0x20 && cc !== 0x09 && cc !== 0x0a && cc !== 0x0d;
+const forbiddenControl = /[\x00-\x08\x0b\x0c\x0e-\x1f]/;
 
 /**
  * Hardening: unescaped C0 control characters (other than tab/LF/CR) are not
@@ -284,12 +285,13 @@ const isForbiddenControl = (cc: number): boolean => cc < 0x20 && cc !== 0x09 && 
 const reportFirstControlCharacter = (cst: CstNode, state: ComposerState): void => {
   const spanEnd = Math.min(cst.offset + cst.length, state.text.length);
   for (let ci = cst.offset; ci < spanEnd; ci++) {
-    const cc = state.text.charCodeAt(ci);
-    if (isForbiddenControl(cc)) {
+    const ch = Str.slice(ci, ci + 1)(state.text);
+    if (forbiddenControl.test(ch)) {
+      const cc = O.getOrElse(constant(0))(Str.charCodeAt(0)(ch));
       state.errors.push(
         RawDiagnostic.make({
           code: "UnexpectedCharacter",
-          message: `Unescaped control character U+${cc.toString(16).toUpperCase().padStart(4, "0")}`,
+          message: `Unescaped control character U+${Str.padStart(4, "0")(Str.toUpperCase(cc.toString(16)))}`,
           offset: ci,
           length: 1,
         })
@@ -887,7 +889,7 @@ const reportDuplicateYamlDirective = (
 ): void => {
   if (A.filter(directives, (d) => d.name === "YAML").length <= 1) return;
   // Find the second directive's offset in the CST
-  const yamlChildren = A.filter(children, (c) => isDirectiveChild(c) && c.source.trim().startsWith("%YAML"));
+  const yamlChildren = A.filter(children, (c) => isDirectiveChild(c) && Str.startsWith("%YAML")(Str.trim(c.source)));
   const second = yamlChildren[1];
   if (second !== undefined) pushInvalidDirective(state, second, "Duplicate %YAML directive");
 };
@@ -909,12 +911,14 @@ const directiveParameterError = (directiveName: string, params: readonly string[
  * source is checked.
  */
 const directiveCommentIndex = (directiveName: string, src: string): number =>
-  directiveName === "%TAG" ? src.search(/[ \t]#/) + 1 : src.indexOf("#");
+  directiveName === "%TAG"
+    ? O.getOrElse(constant(-1))(Str.search(/[ \t]#/)(src)) + 1
+    : O.getOrElse(constant(-1))(Str.indexOf("#")(src));
 
 /** Validates a `%YAML` or `%TAG` directive's comment separation and parameters. */
 const validateDirectiveSyntax = (child: CstNode, state: ComposerState): void => {
-  const src = child.source.trim();
-  const directiveName = src.split(/\s+/, 1)[0];
+  const src = Str.trim(child.source);
+  const directiveName = /^\S*/.exec(src)?.[0];
   if (directiveName !== "%YAML" && directiveName !== "%TAG") return;
   const hashIdx = directiveCommentIndex(directiveName, src);
   // Check for comment without preceding whitespace (e.g., %YAML 1.1#...)
@@ -923,8 +927,8 @@ const validateDirectiveSyntax = (child: CstNode, state: ComposerState): void => 
     return;
   }
   // Strip inline comment before checking parameters; parts[0] = "YAML", rest are parameters
-  const withoutComment = hashIdx > 0 ? src.slice(0, hashIdx).trimEnd() : src;
-  const params = withoutComment.slice(1).split(/\s+/).slice(1);
+  const withoutComment = hashIdx > 0 ? Str.trimEnd(Str.slice(0, hashIdx)(src)) : src;
+  const params = Str.split(/\s+/)(Str.slice(1)(withoutComment)).slice(1);
   const message = directiveParameterError(directiveName, params);
   if (message !== undefined) pushInvalidDirective(state, child, message);
 };
@@ -1094,8 +1098,8 @@ const isSourceMultiline: {
   if (length <= 0) return false;
   const end = Math.min(offset + length, text.length);
   for (let i = offset; i < end; i++) {
-    const ch = text.charCodeAt(i);
-    if (ch === 0x0a /* \n */ || ch === 0x0d /* \r */) return true;
+    const ch = text[i];
+    if (ch === "\n" || ch === "\r") return true;
   }
   return false;
 });
@@ -1309,7 +1313,8 @@ export const composeFirstDocumentCounted: {
         cstNodes[i + 1]
       );
       for (const error of later.errors) {
-        if (error.code === "UnresolvedTag" && error.message.startsWith("Tag handle ")) laterHandleErrors.push(error);
+        if (error.code === "UnresolvedTag" && Str.startsWith("Tag handle ")(error.message))
+          laterHandleErrors.push(error);
       }
     }
     return {

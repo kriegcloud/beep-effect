@@ -33,8 +33,8 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ScalarStyle } from "../YamlNode.ts";
-import { isControlChar } from "./fold.ts";
 import { renderDoubleQuoted, renderSingleQuoted } from "./stringifier.ts";
 
 const $I = $YamlId.create("internal/requote");
@@ -125,20 +125,14 @@ export type RequoteMode = typeof RequoteMode.Type;
  */
 function isSingleQuotable(value: string): boolean {
   for (let i = 0; i < value.length; i++) {
-    if (!isSingleQuotableCode(value.charCodeAt(i))) return false;
+    if (singleQuoteUnsafe.test(Str.slice(i, i + 1)(value))) return false;
   }
   return true;
 }
 
 // Tab, LF and CR are the escapable whitespace; DEL and the C1 range join the
 // C0 controls as characters single-quoted style cannot spell.
-const isSingleQuotableCode = (code: number): boolean =>
-  code !== 0x09 &&
-  code !== 0x0a &&
-  code !== 0x0d &&
-  !isControlChar(code) &&
-  code !== 0x7f &&
-  !(code >= 0x80 && code <= 0x9f);
+const singleQuoteUnsafe = /[\x00-\x1f\x7f-\x9f]/;
 
 /**
  * The replacement raw text that re-quotes `scalar` with `quote`, or
@@ -168,12 +162,12 @@ export function requoteScalarText(
   ]
 ): O.Option<string> {
   if (!isRequoteCandidate(scalar)) return O.none();
-  const raw = text.slice(scalar.offset, scalar.offset + scalar.length);
+  const raw = Str.slice(scalar.offset, scalar.offset + scalar.length)(text);
   // A multi-line source scalar folds line breaks into its value; re-quoting
   // it from the value would collapse the layout, so it is skipped whole.
   // A lone `\r` is a YAML line break too (b-carriage-return), so a scalar
   // folded on CR-only breaks is just as multi-line as an LF one.
-  if (raw.includes("\n") || raw.includes("\r")) return O.none();
+  if (Str.includes("\n")(raw) || Str.includes("\r")(raw)) return O.none();
   return mode === "conservative"
     ? requoteConservative(raw, scalar.style, scalar.value, quote)
     : requoteEscaping(scalar.style, scalar.value, quote);
@@ -188,9 +182,9 @@ const isRequoteCandidate = (scalar: S.Struct.Type<typeof RequoteScalarInput.fiel
 // quotes) and the target quote never appears in it does requoting
 // provably preserve the value.
 function requoteConservative(raw: string, style: ScalarStyle, value: string, quote: '"' | "'"): O.Option<string> {
-  const inner = style === "plain" ? raw : raw.slice(1, -1);
-  if (inner !== value || inner.includes(quote)) return O.none();
-  if (quote === '"' && inner.includes("\\")) return O.none();
+  const inner = style === "plain" ? raw : Str.slice(1, -1)(raw);
+  if (inner !== value || Str.includes(quote)(inner)) return O.none();
+  if (quote === '"' && Str.includes("\\")(inner)) return O.none();
   return O.some(`${quote}${inner}${quote}`);
 }
 

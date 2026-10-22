@@ -10,6 +10,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import { parseCSTAll } from "../cst-parser.ts";
 import { RawDiagnostic } from "../diagnostics.ts";
 import { RawDirective } from "../raw-document.ts";
@@ -54,7 +55,7 @@ export const tagPrefixFor = (
  * @since 0.0.0
  */
 export const splitNamedHandle = (tag: string): O.Option<readonly [handle: string, suffix: string]> => {
-  const namedMatch = tag.match(/^(![\w-]*!)(.*)$/);
+  const namedMatch = O.getOrNull(Str.match(/^(![\w-]*!)(.*)$/)(tag));
   return namedMatch === null ? O.none() : O.some([A.getUnsafe(namedMatch, 1), A.getUnsafe(namedMatch, 2)] as const);
 };
 
@@ -73,7 +74,7 @@ export const splitNamedHandle = (tag: string): O.Option<readonly [handle: string
  * @since 0.0.0
  */
 export const isPrimaryHandleTag = (tag: string): boolean =>
-  tag.startsWith("!") && tag.length > 1 && !tag.startsWith("!!");
+  Str.startsWith("!")(tag) && tag.length > 1 && !Str.startsWith("!!")(tag);
 
 /**
  * Resolves a tag shorthand using the document's `%TAG` directives.
@@ -105,14 +106,14 @@ export function resolveTagHandle(
   ...[tag, state, span]: [tag: string, state: ComposerState, span?: NodeMeta["tagSpan"]]
 ): string {
   // Verbatim tags: !<...> — return the content as-is
-  if (tag.startsWith("!<") && tag.endsWith(">")) {
-    return tag.slice(2, -1);
+  if (Str.startsWith("!<")(tag) && Str.endsWith(">")(tag)) {
+    return Str.slice(2, -1)(tag);
   }
   // Secondary tag handle: !!suffix
-  if (tag.startsWith("!!")) {
+  if (Str.startsWith("!!")(tag)) {
     const prefix = tagPrefixFor(state.tagMap, "!!");
     // Default secondary tag handle: tag:yaml.org,2002:
-    return O.getOrElse(prefix, () => "tag:yaml.org,2002:") + decodeTagSuffix(tag.slice(2), tag, state, span);
+    return O.getOrElse(prefix, () => "tag:yaml.org,2002:") + decodeTagSuffix(Str.slice(2)(tag), tag, state, span);
   }
   // Named tag handle: !name!suffix
   const named = splitNamedHandle(tag);
@@ -124,7 +125,9 @@ export function resolveTagHandle(
   // Primary tag handle: !suffix (non-empty suffix)
   if (isPrimaryHandleTag(tag)) {
     // Default primary: local tag
-    return O.getOrElse(tagPrefixFor(state.tagMap, "!"), () => "!") + decodeTagSuffix(tag.slice(1), tag, state, span);
+    return (
+      O.getOrElse(tagPrefixFor(state.tagMap, "!"), () => "!") + decodeTagSuffix(Str.slice(1)(tag), tag, state, span)
+    );
   }
   // Non-specific tag: ! alone
   return tag;
@@ -215,15 +218,15 @@ const decodeTagSuffix: {
  * @since 0.0.0
  */
 export function parseDirective(source: string): O.Option<RawDirective> {
-  const trimmed = source.trim();
-  if (!trimmed.startsWith("%")) return O.none();
-  const parts = trimmed.slice(1).split(/\s+/);
+  const trimmed = Str.trim(source);
+  if (!Str.startsWith("%")(trimmed)) return O.none();
+  const parts = Str.split(/\s+/)(Str.slice(1)(trimmed));
   const name = parts[0];
   if (!(name !== undefined && name !== "")) return O.none();
   // Strip trailing comments from parameters (e.g. `%FOO bar # comment`).
   const parameters: string[] = [];
   for (const p of parts.slice(1)) {
-    if (p.startsWith("#")) break;
+    if (Str.startsWith("#")(p)) break;
     parameters.push(p);
   }
   return O.some(RawDirective.make({ name, parameters }));
@@ -254,14 +257,15 @@ const namedHandlePattern = /^(![\w-]*!)/;
 
 // The percent-encoded suffix portion of a non-verbatim tag source.
 const tagSuffixOf = (src: string): string => {
-  if (src.startsWith("!!")) return src.slice(2);
-  const named = src.match(namedTagPattern);
-  return named !== null ? A.getUnsafe(named, 2) : src.slice(1);
+  if (Str.startsWith("!!")(src)) return Str.slice(2)(src);
+  const named = O.getOrNull(Str.match(namedTagPattern)(src));
+  return named !== null ? A.getUnsafe(named, 2) : Str.slice(1)(src);
 };
 
 // Verbatim tags `!<...>` and `!!`-prefixed (default secondary handle)
 // and bare `!` are always valid.
-const isAlwaysDeclaredTag = (src: string): boolean => src.startsWith("!<") || src.startsWith("!!") || src === "!";
+const isAlwaysDeclaredTag = (src: string): boolean =>
+  Str.startsWith("!<")(src) || Str.startsWith("!!")(src) || src === "!";
 
 const reportUndeclaredHandle = (
   node: CstNode,
@@ -269,7 +273,7 @@ const reportUndeclaredHandle = (
   localHandles: MutableHashSet.MutableHashSet<string>
 ): void => {
   if (isAlwaysDeclaredTag(node.source)) return;
-  const handle = node.source.match(namedHandlePattern)?.[1];
+  const handle = O.getOrNull(Str.match(namedHandlePattern)(node.source))?.[1];
   if (handle === undefined || handle === "" || MutableHashSet.has(localHandles, handle)) return;
   state.errors.push(
     RawDiagnostic.make({
@@ -298,7 +302,7 @@ const validateTagNode = (
 ): void => {
   if (isOutsideValidationScope(node, state, mode)) return;
   const src = node.source;
-  if (mode !== "handles" && !src.startsWith("!<")) decodeTagSuffix(tagSuffixOf(src), src, state, node);
+  if (mode !== "handles" && !Str.startsWith("!<")(src)) decodeTagSuffix(tagSuffixOf(src), src, state, node);
   if (mode !== "percent") reportUndeclaredHandle(node, state, localHandles);
 };
 

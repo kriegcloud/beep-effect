@@ -3,6 +3,7 @@ import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // Flow-collection composition: flow mappings, flow sequences, and the
 // flow-children flattening walk. Imports the shared pair-building machinery
@@ -56,7 +57,7 @@ const isPunctuation = (node: CstNode | undefined, source: string): boolean =>
 
 /** True for a whitespace token that carries no characters but blanks. */
 const isBlankWhitespace = (node: CstNode | undefined): boolean =>
-  node?.type === "whitespace" && node.source.trim() === "";
+  node?.type === "whitespace" && Str.trim(node.source) === "";
 
 /** True for a plain-style flow scalar. */
 const isPlainFlowScalar = (node: CstNode): boolean => node.type === "flow-scalar" && getScalarStyle(node) === "plain";
@@ -602,7 +603,7 @@ const isTerminalExplicitKeyScalar = (children: readonly CstNode[], index: number
  * immediately after `,` or `]` or `}`, it means `#` wasn't preceded by whitespace.
  */
 const reportUnspacedCommentIndicator = (child: CstNode, state: ComposerState): void => {
-  if (!child.source.startsWith("#") || child.offset <= 0) return;
+  if (!Str.startsWith("#")(child.source) || child.offset <= 0) return;
   const prev = state.text[child.offset - 1];
   if (prev === " " || prev === "\t" || prev === "\n" || prev === "\r") return;
   state.errors.push(
