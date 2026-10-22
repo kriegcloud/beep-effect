@@ -230,8 +230,8 @@ export const acquireLibraryGithub = Effect.fn("Library.acquireGithub")(function*
       observedSlug: string
     ) {
       if (
-        identity.full_name.toLowerCase() !== observedSlug ||
-        identity.html_url.toLowerCase() !== `https://github.com/${observedSlug}` ||
+        Str.toLowerCase(identity.full_name) !== observedSlug ||
+        Str.toLowerCase(identity.html_url) !== `https://github.com/${observedSlug}` ||
         (first !== undefined && (first.id !== identity.id || first.node_id !== identity.node_id))
       ) {
         return yield* LibraryError.make({

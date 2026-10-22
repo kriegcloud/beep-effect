@@ -193,9 +193,9 @@ const isDirectSafeName = (path: Pick<ImagePathOperations, "basename">, value: st
   value !== "." &&
   value !== ".." &&
   path.basename(value) === value &&
-  !value.includes("/") &&
-  !value.includes("\\") &&
-  !value.includes("\0");
+  !Str.includes("/")(value) &&
+  !Str.includes("\\")(value) &&
+  !Str.includes("\0")(value);
 
 const pathsOverlap = (
   path: Pick<ImagePathOperations, "isAbsolute" | "relative">,
@@ -203,7 +203,7 @@ const pathsOverlap = (
   right: string
 ): boolean => {
   const relative = path.relative(left, right);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  return relative === "" || (!Str.startsWith("..")(relative) && !path.isAbsolute(relative));
 };
 
 const skippedAuditSource = (sourceName: string, sourcePath: string, message: string): AuditSourceResult => [
@@ -544,7 +544,7 @@ const hexHammingDistance = (left: string, right: string): number => {
   const length = Math.min(left.length, right.length);
   for (let index = 0; index < length; index += 1) {
     const xor = Number.parseInt(left[index] ?? "0", 16) ^ Number.parseInt(right[index] ?? "0", 16);
-    distance += xor.toString(2).replaceAll("0", "").length;
+    distance += Str.replaceAll("0", "")(xor.toString(2)).length;
   }
   return distance + Math.abs(left.length - right.length) * 4;
 };
@@ -658,7 +658,7 @@ const duplicateClusters = (
   const sortedGroups = pipe(nonEmptyGroups, A.map(sortDuplicateClusterGroup), A.sort(duplicateClusterGroupOrder));
   return A.map(sortedGroups, (names, index) =>
     ImageAuditCluster.make({
-      id: `duplicate-${`${index + 1}`.padStart(3, "0")}`,
+      id: `duplicate-${Str.padStart(3, "0")(`${index + 1}`)}`,
       sourceNames: names,
     })
   );
@@ -1062,23 +1062,23 @@ const collisionSafeOutputName = (
   hash: FileSha256Hash,
   usedNames: MutableHashMap.MutableHashMap<string, FileSha256Hash>
 ): string => {
-  const hex = hash.slice("sha256:".length);
+  const hex = Str.slice("sha256:".length)(hash);
   let prefixLength = 20;
-  let outputName = `twv1_${hex.slice(0, prefixLength)}.png`;
+  let outputName = `twv1_${Str.slice(0, prefixLength)(hex)}.png`;
   while (true) {
     const existingHash = MutableHashMap.get(usedNames, outputName);
     if (O.isNone(existingHash)) return outputName;
     if (existingHash.value !== hash) {
       prefixLength += 1;
-      outputName = `twv1_${hex.slice(0, prefixLength)}.png`;
+      outputName = `twv1_${Str.slice(0, prefixLength)(hex)}.png`;
       continue;
     }
 
     let duplicateIndex = 2;
-    let duplicateName = `twv1_${hex.slice(0, prefixLength)}_${duplicateIndex}.png`;
+    let duplicateName = `twv1_${Str.slice(0, prefixLength)(hex)}_${duplicateIndex}.png`;
     while (MutableHashMap.has(usedNames, duplicateName)) {
       duplicateIndex += 1;
-      duplicateName = `twv1_${hex.slice(0, prefixLength)}_${duplicateIndex}.png`;
+      duplicateName = `twv1_${Str.slice(0, prefixLength)(hex)}_${duplicateIndex}.png`;
     }
     return duplicateName;
   }
@@ -1330,7 +1330,7 @@ const curationSummary = (
   materializedCount: number
 ): ImageCurationSummary =>
   ImageCurationSummary.make({
-    archiveCount: A.length(A.filter(decisions, (decision) => decision.disposition.startsWith("archive-"))),
+    archiveCount: A.length(A.filter(decisions, (decision) => Str.startsWith("archive-")(decision.disposition))),
     coreCount: A.length(A.filter(decisions, (decision) => decision.disposition === "active-core")),
     dryRun,
     extendedCount: A.length(A.filter(decisions, (decision) => decision.disposition === "active-extended")),
@@ -1511,7 +1511,7 @@ export const curateImagesImpl = Effect.fn("FilesCommandService.curateImages")(fu
       let staged = A.empty<StagedCurationEntry>();
       let index = 0;
       for (const entry of validated.prepared) {
-        const stagedPath = path.join(tempDirectory, `${`${index}`.padStart(4, "0")}-${entry.outputName}`);
+        const stagedPath = path.join(tempDirectory, `${Str.padStart(4, "0")(`${index}`)}-${entry.outputName}`);
         const output = yield* materializeCanonicalPng(entry, stagedPath);
         const outputSha256 = yield* fileSha256(stagedPath);
         staged = A.append(staged, {
@@ -1573,7 +1573,7 @@ export const curateImagesImpl = Effect.fn("FilesCommandService.curateImages")(fu
                 backedUp: false,
                 backupPath: path.join(
                   tempDirectory,
-                  `backup-${`${recordIndex}`.padStart(4, "0")}-${stagedEntry.entry.outputName}`
+                  `backup-${Str.padStart(4, "0")(`${recordIndex}`)}-${stagedEntry.entry.outputName}`
                 ),
                 committed: false,
                 description: "curation output",
