@@ -182,10 +182,12 @@ export const suite: {
             const changes = yield* openChanges(storage, storeId);
             const replayed = yield* Queue.takeAll(changes);
 
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
               A.map(replayed, (entry) => entry.remoteSequence),
               [1, 2]
             );
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
               A.map(replayed, (entry) => entry.entry.idString),
               [entryA.idString, entryB.idString]
@@ -249,6 +251,7 @@ export const suite: {
 
             const changesA = yield* openChanges(storage, storeA);
             const backlogA = yield* Queue.takeAll(changesA);
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
               A.map(backlogA, (entry) => entry.entry.idString),
               [entryA1.idString]
