@@ -233,7 +233,6 @@ The lowest score, and the one a new human feels first.
   `packages/foundation/modeling/html/src/Html.model.ts` 11,419 lines;
   `packages/tooling/tool/cli/src/commands/Corpus/internal/RestorationTransformations.ts`
   5,327; `packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts` 5,225;
-  `packages/drivers/firecrawl/src/Firecrawl.models.ts` 5,157;
   `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts`
   4,458. Vocabulary tables mitigate some; a 5k-line CLI command file is
   where bugs go to hide.
@@ -293,7 +292,15 @@ maintainability auditor's structured report did not arrive intact. The
 maintainability (§10) and security (§11) scores were therefore verified
 directly by the orchestrating session with the `wc` / `rg` / `git` runs
 quoted there. The other nine dimensions are the auditors', spot-checked
-against the files they cite. The audit also surfaced one live proof of its
-own thesis: its first launch failed because the workflow pinned
-`claude-opus-5-5` children in a session whose catalog only offered the
-session model — exactly the stale-pin failure mode §1 deducts for.
+against the files they cite. The audit's first launch failed because the
+workflow pinned `claude-opus-5-5` children in a session whose catalog only
+offered the session model. That is an availability failure of the session
+catalog, not a stale pin (`claude-opus-5-5` is the current Claude child pin
+in `AGENTS.md`), so it is recorded here and not counted as §1 evidence.
+
+Review corrections (PR #1996), the only content departures from the audit
+text beyond the link rebasing SOURCES.md notes: the §10 mega-file list
+dropped a fifth row, `packages/drivers/firecrawl/src/Firecrawl.models.ts`
+(5,157 lines), which names a file that does not exist in the tree; and the
+launch-failure note above replaced the audit's wording, which had counted it
+as §1 evidence.

@@ -4,7 +4,9 @@
   live repository audit run on 2026-10-21 at the operator's request
   ("rate this repository 1–10 … be thorough, specific"). The audit report
   is the primary source and is landed verbatim (link-rebased) as
-  [`repository-rating.md`](./repository-rating.md).
+  [`repository-rating.md`](./repository-rating.md), except the two review
+  corrections its Disclosure records (PR #1996: the §10 Firecrawl row and
+  the launch-failure note).
 
 ## 1. Mined source corpus
 
@@ -38,8 +40,10 @@ None. Every claim in the rating cites an in-repo path.
   `rg` escape-hatch counts over `packages/**/src`; `wc -l` largest-file
   lists excluding `*generated*`/`*.gen.ts`; `git ls-files '*.md'`;
   `TODO|FIXME|HACK` scan; workflow/package/test file counts.
-- The audit's first workflow launch failed on a stale model pin
-  (`claude-opus-5-5` in a `muse-wonder-1.0` session). Recorded in the
-  rating Disclosure as live evidence for the §1 stale-pin deduction.
+- The audit's first workflow launch failed because the `muse-wonder-1.0`
+  session's catalog offered only the session model, so the current
+  `claude-opus-5-5` child pin could not be served: an availability failure
+  of the session catalog, recorded in the rating Disclosure and not counted
+  as §1 stale-pin evidence.
 - Friction ledger: none yet. Phase lanes append here when work is
   slower or riskier than it should be (redacted, minimal error text).
