@@ -219,6 +219,16 @@ export const ReviewStatus = LiteralKit([
 export type ReviewStatus = typeof ReviewStatus.Type;
 
 /**
+ * Statuses that settle a case: the decision was applied and agrees with every
+ * other applied decision. Only these may emit Accepted claims or leave the queue.
+ *
+ * @category review-loop
+ * @since 0.0.0
+ */
+export const isSettled = (status: ReviewStatus): boolean =>
+  status === "reviewed-same" || status === "reviewed-distinct" || status === "reviewed-grouped";
+
+/**
  * Apply recorded decisions to the current cases. The latest decision per name
  * wins; a decision whose basis no longer matches the case is stale.
  *
@@ -231,7 +241,12 @@ export const applyReviews = ({
 }: {
   readonly cases: ReadonlyArray<CollisionCase>;
   readonly decisions: ReadonlyArray<CollisionDecision>;
-}): ReadonlyArray<{ readonly case: CollisionCase; readonly status: ReviewStatus }> => {
+}): ReadonlyArray<{
+  readonly case: CollisionCase;
+  readonly status: ReviewStatus;
+  /** The latest decision for this case's name, when its basis matches the case. */
+  readonly decision: O.Option<CollisionDecision>;
+}> => {
   const latest = R.map(A.groupBy(decisions, (d) => d.name), (ds) =>
     A.max(ds, Order.mapInput(Order.String, (d: CollisionDecision) => d.reviewedAt))
   );
@@ -279,6 +294,6 @@ export const applyReviews = ({
               },
             }),
     });
-    return { case: c, status };
+    return { case: c, status, decision: O.filter(decision, (d) => d.basis === c.basis) };
   });
 };

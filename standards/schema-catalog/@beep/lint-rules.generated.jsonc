@@ -7,6 +7,6 @@
     {"file":"packages/tooling/policy-pack/lint-rules/src/index.ts","symbol":"RuleRegistrySchema","kind":"struct-const","owner":"@beep/lint-rules","identity":"RuleRegistrySchema","description":"Schema for the finite rule registry keyed by rule slug."},
     {"file":"packages/tooling/policy-pack/lint-rules/src/rules/docs.model.ts","symbol":"DocsRuleId","kind":"literal-kit","owner":"@beep/lint-rules","identity":"DocsRuleId","description":"Repo-owned documentation rule identifiers."},
     {"file":"packages/tooling/policy-pack/lint-rules/src/rules/docs.model.ts","symbol":"DocsRuleSet","kind":"struct-const","owner":"@beep/lint-rules","identity":"DocsRuleSet","description":"Validated severities for every documentation rule."},
-    {"file":"packages/tooling/policy-pack/lint-rules/src/rules/utils.ts","symbol":"ImportBinding","kind":"tagged-union","owner":"@beep/lint-rules"}
+    {"file":"packages/tooling/policy-pack/lint-rules/src/rules/utils.ts","symbol":"ImportBinding","kind":"tagged-union","owner":"@beep/lint-rules","identity":"ImportBinding","description":"Value (non-type) import specifier classified by how it binds a local name."}
   ]
 }

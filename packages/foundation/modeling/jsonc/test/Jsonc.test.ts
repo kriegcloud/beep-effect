@@ -25,9 +25,10 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 
-const deeplyNested = `${"[".repeat(20000)}1${"]".repeat(20000)}`;
+const deeplyNested = `${Str.repeat(20000)("[")}1${Str.repeat(20000)("]")}`;
 
 // The typed failure of an Effect whose success is irrelevant to the assertion.
 const failureOf = <E>(self: Effect.Effect<unknown, E>) => self.pipe(Effect.asVoid, Effect.flip);
@@ -59,7 +60,7 @@ const scalesLinearly = Effect.fnUntraced(function* (run: (input: string) => unkn
   assert.isBelow(large, small * 48);
 });
 
-const flatArray = (size: number): string => `[${"0,".repeat(size)}0]`;
+const flatArray = (size: number): string => `[${Str.repeat(size)("0,")}0]`;
 
 // The parse-error codes a malformed document reports, in either parse mode.
 const parseCodes = (text: string): ReadonlyArray<string> => Jsonc.parseResult(text).pipe(failure, codes);
@@ -266,7 +267,7 @@ describe("Jsonc", () => {
     it.effect("parses deep nesting under the depth cap in linear time", () =>
       Effect.gen(function* () {
         const depth = 250;
-        let node = O.getOrThrow(yield* Jsonc.parseTree(`${"[".repeat(depth)}1${"]".repeat(depth)}`));
+        let node = O.getOrThrow(yield* Jsonc.parseTree(`${Str.repeat(depth)("[")}1${Str.repeat(depth)("]")}`));
         let levels = 0;
         while (node.type === "array" && node.children?.length === 1) {
           const child = node.children[0];
@@ -463,7 +464,7 @@ describe("Jsonc", () => {
       [
         "parseValue accumulates recovered errors",
         (text) => parseValueRaw(text, flags),
-        (size) => `[${",".repeat(size)}]`,
+        (size) => `[${Str.repeat(size)(",")}]`,
       ],
       ["parseTree accumulates array children", (text) => parseTreeRaw(text, flags), flatArray],
       [
@@ -475,9 +476,9 @@ describe("Jsonc", () => {
             ","
           )}}`,
       ],
-      ["the scanner decodes escapes", (text) => parseValueRaw(text, flags), (size) => `"${"\\n".repeat(size)}"`],
+      ["the scanner decodes escapes", (text) => parseValueRaw(text, flags), (size) => `"${Str.repeat(size)("\\n")}"`],
       ["JsoncFormatter.format accumulates edits", JsoncFormatter.format, flatArray],
-      ["Jsonc.stripComments accumulates pieces", Jsonc.stripComments, (size) => `[${"/**/0,".repeat(size)}0]`],
+      ["Jsonc.stripComments accumulates pieces", Jsonc.stripComments, (size) => `[${Str.repeat(size)("/**/0,")}0]`],
     ];
     for (const [name, run, make] of cases) {
       // The measurement needs real elapsed time, which the TestClock would freeze.
@@ -582,7 +583,7 @@ describe("Jsonc", () => {
 
     it.effect("survives documents with tens of thousands of consecutive line breaks", () =>
       Effect.gen(function* () {
-        assert.deepStrictEqual(yield* Jsonc.parse(`[1,${"\n".repeat(50000)}2]`), [1, 2]);
+        assert.deepStrictEqual(yield* Jsonc.parse(`[1,${Str.repeat(50000)("\n")}2]`), [1, 2]);
       })
     );
 
@@ -613,7 +614,7 @@ describe("Jsonc", () => {
       // instead of recursing further.
       let other: unknown = 2;
       for (let i = 0; i < 256; i++) other = [other];
-      assert.isFalse(Jsonc.equalsValue(`${"[".repeat(256)}1${"]".repeat(256)}`, other));
+      assert.isFalse(Jsonc.equalsValue(`${Str.repeat(256)("[")}1${Str.repeat(256)("]")}`, other));
     });
   });
 
@@ -708,7 +709,7 @@ describe("Jsonc", () => {
     it.effect.prop("parse agrees with the JSON codec on comment-free-equivalent input", [Sample], ([value]) =>
       Effect.gen(function* () {
         const json = yield* encodeSample(value);
-        const commented = `${json.slice(0, -1)} /* trailing */ }`;
+        const commented = `${Str.slice(0, -1)(json)} /* trailing */ }`;
         assert.deepStrictEqual(yield* decodeSample(Jsonc.stripComments(commented)), value);
         assert.deepStrictEqual(yield* Jsonc.parse(commented), value);
       })
@@ -848,7 +849,7 @@ describe("Jsonc", () => {
       }
       assertSuccess(text(1.5), '{\n "a": [\n  1\n ]\n}');
       assertSuccess(text(2.9), '{\n  "a": [\n    1\n  ]\n}');
-      const ten = `{\n${" ".repeat(10)}"a": [\n${" ".repeat(20)}1\n${" ".repeat(10)}]\n}`;
+      const ten = `{\n${Str.repeat(10)(" ")}"a": [\n${Str.repeat(20)(" ")}1\n${Str.repeat(10)(" ")}]\n}`;
       for (const width of [10, 11, 100]) {
         assertSuccess(text(width), ten);
       }

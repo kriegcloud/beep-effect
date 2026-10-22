@@ -10,6 +10,7 @@ import * as Equal from "effect/Equal";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Immer } from "immer";
 import type { SectionRenderError } from "@beep/managed-section";
 
@@ -96,7 +97,7 @@ describe("SectionDialect", () => {
 
     it("emits the requested line ending throughout", () => {
       const text = expectSuccess(SectionDialect.default.render(hashId.section("a\nb"), "\r\n"));
-      assert.strictEqual(text.split("\r\n").length, 4);
+      assert.strictEqual(Str.split("\r\n")(text).length, 4);
       assert.isFalse(/[^\r]\n/.test(text), "every LF must be preceded by a CR");
     });
 
@@ -176,7 +177,7 @@ describe("SectionDialect review regressions", () => {
           eol
         )
       );
-      assert.isFalse(text.includes("\r\r\n"));
+      assert.isFalse(Str.includes("\r\r\n")(text));
       const parsed = SectionDocument.parseResult(text);
       if (!Result.isSuccess(parsed)) assert.fail("rendered content must parse");
       assert.strictEqual(parsed.success.check(section)._tag, "UpToDate");
@@ -233,7 +234,7 @@ describe("SectionDialect review regressions", () => {
       }
     }
     for (const value of ["", "hello", "\u2028", "\u2029", 'a"b', "a\n", "a\r", "a\r\n"]) {
-      const accepted = !value.includes('"') && !value.includes("\n") && !value.includes("\r");
+      const accepted = !Str.includes('"')(value) && !Str.includes("\n")(value) && !Str.includes("\r")(value);
       assert.strictEqual(S.is(AttributeValue)(value), accepted);
       const result = SectionDialect.default.render(hashId.section("body", { name: value }));
       assert.strictEqual(Result.isSuccess(result), accepted);
@@ -278,7 +279,7 @@ describe("SectionDialect round-2 regressions", () => {
       );
       const rendered = expectSuccess(SectionDialect.default.render(section, "\r\n"));
       const parsed = Result.getOrThrow(SectionDocument.parseResult(rendered));
-      assert.strictEqual(parsed.sections[0]?.section.content, content.replace(/\r\n/g, "\n"));
+      assert.strictEqual(parsed.sections[0]?.section.content, Str.replace(/\r\n/g, "\n")(content));
       assert.strictEqual(parsed.check(section)._tag, "UpToDate");
       assert.strictEqual(
         expectSuccess(SectionDialect.default.render(parsed.sections[0]?.section ?? section, "\r\n")),
@@ -309,7 +310,7 @@ describe("SectionDialect round-2 regressions", () => {
     const parseRun = vi.spyOn(AttributeParsing, "parseAttributeRun");
     try {
       for (const size of [4096, 16384, 65536, 262144]) {
-        const gap = " ".repeat(size);
+        const gap = Str.repeat(size)(" ");
         for (const style of [CommentStyle.hash, CommentStyle.html]) {
           const id = SectionId.make({ key: "tool", commentStyle: style });
           const prefix = `${style.prefix} --- BEGIN tool MANAGED SECTION`;

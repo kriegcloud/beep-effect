@@ -101,6 +101,32 @@ export class ParseOptionsInput extends S.Opaque<ParseOptionsInput, { readonly br
 }
 
 /**
+ * Validates the spaces-per-level `indent` stringify option.
+ *
+ * **Details**
+ *
+ * A non-negative integer: `0` stays valid (a multiline plain scalar then falls
+ * back to quotes), while negatives and fractions are rejected when options are
+ * decoded instead of reaching the indentation renderer.
+ *
+ * **Example** (Validate an indent width)
+ *
+ * ```ts
+ * import { IndentWidth } from "@beep/yaml/internal/options"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(IndentWidth)(4)) // true
+ * console.log(S.is(IndentWidth)(-2)) // false
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const IndentWidth = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
+  $I.annoteSchema("IndentWidth", { description: "Spaces per indentation level: a non-negative integer." })
+);
+
+/**
  * Configures scalar presentation and collection layout in the stringifier.
  *
  * **Details**
@@ -125,7 +151,7 @@ export class StringifyOptionsInput extends S.Opaque<StringifyOptionsInput, { rea
      *
      * @since 0.0.0
      */
-    indent: S.optionalKey(S.Finite).pipe(
+    indent: S.optionalKey(IndentWidth).pipe(
       $I.annoteKey("StringifyOptionsInput.indent", { description: "Spaces per indentation level. Default `2`." })
     ),
     /**

@@ -17,6 +17,7 @@ import * as Layer from "effect/Layer";
 import * as PlatformError from "effect/PlatformError";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { denied } from "./helpers.ts";
 import type { MemoryFileSystemFaults, MemoryFileSystemTransientFault } from "@beep/memfs/MemoryFileSystem";
@@ -377,8 +378,8 @@ describe("MemoryFileSystem fault factories", () => {
       { "/docs.json": "{}" },
       {
         faults: (base) => ({
-          stat: (path) => base.stat(path.toLowerCase()),
-          readFileString: (path, encoding) => base.readFileString(path.toLowerCase(), encoding),
+          stat: (path) => base.stat(Str.toLowerCase(path)),
+          readFileString: (path, encoding) => base.readFileString(Str.toLowerCase(path), encoding),
         }),
       }
     ),

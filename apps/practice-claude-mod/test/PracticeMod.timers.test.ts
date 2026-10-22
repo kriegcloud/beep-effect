@@ -10,6 +10,7 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ModHost } from "@/PracticeMod.host";
 import { TimerLog, timerLogLayer } from "@/PracticeMod.timers";
 import { ChosenMatter, TimerInterval } from "@/PracticeMod.values";
@@ -76,7 +77,9 @@ describe("TimerLog", () => {
         );
         assertNone(O.flatMap(A.last(rows), (row) => row.matter));
         const jsonl = yield* log.exportJsonl;
-        const decoded = yield* Effect.forEach(jsonl.trim().split("\n"), (line) => decodeTimerIntervalLine(line));
+        const decoded = yield* Effect.forEach(Str.split("\n")(Str.trim(jsonl)), (line) =>
+          decodeTimerIntervalLine(line)
+        );
         expect(decoded).toEqual(rows);
       })
     );

@@ -131,8 +131,8 @@ export const logicalKey = Proposition.match({
  */
 export const partiesOf = Proposition.match({
   IdentifierOf: (p) => [p.party],
-  AccountIdentifier: thunkEmptyArray,
-  MailboxKind: thunkEmptyArray,
+  AccountIdentifier: thunkEmptyArray<PartyId>(),
+  MailboxKind: thunkEmptyArray<PartyId>(),
   AccountControl: (p) => [p.controller],
   VoiceAuthor: (p) => [p.author],
   SameParty: (p) => [p.left, p.right],

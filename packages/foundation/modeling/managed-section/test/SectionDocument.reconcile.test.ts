@@ -3,9 +3,12 @@ import { ReconcileInput, ReconcileOutput, reconcile as reconcileCore } from "@be
 import { SectionReconciliation as Reconciliation } from "@beep/managed-section/SectionDocument";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
+import { constant } from "effect/Function";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { block, crlf, lines, parse, section } from "./fixtures.ts";
 import type { Section, SectionDialect, SectionReconciliation, SectionRenderError } from "@beep/managed-section";
 
@@ -125,17 +128,20 @@ describe("SectionDocument.reconcile", () => {
       const result = run(before, [sectionA]);
       assert.include(result.text, "# a user comment");
       assert.include(result.text, "trailing prose");
-      assert.strictEqual(result.text.indexOf("# a user comment"), before.indexOf("# a user comment"));
+      assert.strictEqual(
+        O.getOrElse(Str.indexOf("# a user comment")(result.text), constant(-1)),
+        O.getOrElse(Str.indexOf("# a user comment")(before), constant(-1))
+      );
     });
 
     it("preserves a byte-order mark", () => {
       const before = `﻿${lines("header", block("alpha", "old"), "")}`;
-      assert.isTrue(run(before, [sectionA]).text.startsWith("﻿"));
+      assert.isTrue(Str.startsWith("﻿")(run(before, [sectionA]).text));
     });
 
     it("leaves a file with no trailing newline without one", () => {
       const before = lines("header", block("alpha", "old"));
-      assert.isFalse(run(before, [sectionA]).text.endsWith("\n"));
+      assert.isFalse(Str.endsWith("\n")(run(before, [sectionA]).text));
     });
   });
 
@@ -306,11 +312,12 @@ describe("blank-prefix insertion regressions", () => {
     ]) {
       const doc = parse(prefix);
       const eol = doc.eol;
-      const separator = prefix === "" || /(?:\r?\n){2}$/.test(prefix) ? "" : prefix.endsWith("\n") ? eol : eol + eol;
+      const separator =
+        prefix === "" || /(?:\r?\n){2}$/.test(prefix) ? "" : Str.endsWith("\n")(prefix) ? eol : eol + eol;
       const rendered = Result.getOrThrow(Dialect.default.render(sectionA, eol));
       const first = run(prefix, [sectionA]);
       assert.strictEqual(first.text, prefix + separator + rendered + eol);
-      assert.isTrue(first.text.startsWith(prefix));
+      assert.isTrue(Str.startsWith(prefix)(first.text));
       assert.deepStrictEqual(tags(first), ["Created"]);
       const second = run(first.text, [sectionA]);
       assert.strictEqual(second.text, first.text);

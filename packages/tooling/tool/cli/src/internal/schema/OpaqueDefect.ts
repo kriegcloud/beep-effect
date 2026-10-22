@@ -20,6 +20,13 @@ import * as S from "effect/Schema";
  * composition instead of repeating it at every `cause` field, which keeps the
  * package's type-check instantiation count flat.
  *
+ * **Gotchas**
+ *
+ * Keep the plain `.annotate({ identifier, description })` here: `$I.annoteSchema`
+ * on this const costs +323 single-checker instantiations, which the
+ * `@beep/repo-cli` check-census row rejects (effect-schema-parity decision
+ * log, 2026-09-29).
+ *
  * @category schemas
  * @since 0.0.0
  */

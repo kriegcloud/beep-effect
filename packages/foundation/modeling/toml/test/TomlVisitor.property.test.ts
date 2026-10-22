@@ -7,8 +7,11 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { constant, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -51,8 +54,16 @@ it.effect.prop(
       assert.deepStrictEqual(
         A.map(assignments, (event) => event.node.value),
         [
-          Node.TomlInteger.make({ value, offset: text.indexOf(String(value)), length: String(value).length }),
-          Node.TomlBoolean.make({ value: true, offset: text.indexOf("true"), length: 4 }),
+          Node.TomlInteger.make({
+            value,
+            offset: pipe(text, Str.indexOf(String(value)), O.getOrElse(constant(-1))),
+            length: String(value).length,
+          }),
+          Node.TomlBoolean.make({
+            value: true,
+            offset: pipe(text, Str.indexOf("true"), O.getOrElse(constant(-1))),
+            length: 4,
+          }),
         ]
       );
       const comments = A.filter(events, Model.TomlVisitorEvent.$is("Comment"));
@@ -61,7 +72,7 @@ it.effect.prop(
         ["lead", "header", "value"]
       );
       assert.deepStrictEqual(
-        A.map(comments, (event) => text.charAt(event.offset)),
+        A.map(comments, (event) => pipe(text, Str.charAt(event.offset), O.getOrElse(constant("")))),
         ["#", "#", "#"]
       );
     }),

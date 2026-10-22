@@ -20,7 +20,7 @@ import { A, O, Str } from "@beep/utils";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as Path from "effect/Path";
 import * as Random from "effect/Random";
 import * as S from "effect/Schema";
@@ -101,9 +101,9 @@ export class PublicationLockUnavailable extends S.TaggedError<
 export const parsePublicationProcessStat = (
   text: string
 ): O.Option<{ readonly pid: number; readonly state: string; readonly startTicks: string }> => {
-  const close = text.lastIndexOf(")");
+  const close = O.getOrElse(Str.lastIndexOf(")")(text), constant(-1));
   const pid = Number.parseInt(text, 10);
-  const fields = Str.split(Str.trim(text.slice(close + 1)), " ");
+  const fields = Str.split(Str.trim(Str.slice(close + 1)(text)), " ");
   return O.all({ state: A.get(fields, 0), startTicks: A.get(fields, 19) }).pipe(
     O.filter(() => close > 0 && Number.isSafeInteger(pid)),
     O.map((entry) => ({ ...entry, pid }))

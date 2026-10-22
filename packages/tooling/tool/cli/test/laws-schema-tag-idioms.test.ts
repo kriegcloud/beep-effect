@@ -9,6 +9,7 @@ import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 const HEADER = [
   'import * as S from "effect/Schema"',
@@ -21,7 +22,7 @@ const scan = (lines: ReadonlyArray<string>) => scanSchemaTagIdioms("fixture.ts",
 const rulesOf = (lines: ReadonlyArray<string>) =>
   A.map(scan(lines), (finding) => [finding.rule, finding.suggestion] as const);
 
-const fence = "`".repeat(3);
+const fence = Str.repeat(3)("`");
 
 describe("schema tag idiom law", () => {
   describe("struct-tag rule", () => {
@@ -45,12 +46,15 @@ describe("schema tag idiom law", () => {
       Effect.sync(() => {
         const findings = scanSchemaTagIdioms(
           "fixture.ts",
-          [
-            'import * as Schema from "effect/Schema"',
-            'import { Literal as L, Struct } from "effect/Schema"',
-            'const A = Schema.Struct({ _tag: Schema.Literal("A") })',
-            'const B = Struct({ kind: L("b") })',
-          ].join("\n")
+          A.join(
+            [
+              'import * as Schema from "effect/Schema"',
+              'import { Literal as L, Struct } from "effect/Schema"',
+              'const A = Schema.Struct({ _tag: Schema.Literal("A") })',
+              'const B = Struct({ kind: L("b") })',
+            ],
+            "\n"
+          )
         );
         expect(A.map(findings, (finding) => [finding.rule, finding.suggestion])).toEqual([
           ["struct-tag", 'Schema.TaggedStruct("A", { … })'],
@@ -338,18 +342,21 @@ describe("schema tag idiom law", () => {
       Effect.sync(() => {
         const findings = scanSchemaTagIdioms(
           "fixture.ts",
-          [
-            'import "./polyfill.ts"',
-            'import Default from "./default.ts"',
-            'import type * as SchemaTypes from "effect/Schema"',
-            'import * as O from "effect/Option"',
-            'import { type Top, Literal } from "effect/Schema"',
-            'import { Effect as RootEffect, Option, Schema as RootSchema } from "effect"',
-            'import { Struct as LocalStruct } from "./local.ts"',
-            'const A = RootSchema.Struct({ kind: RootSchema.Literal("r").pipe(RootSchema.withConstructorDefault(RootEffect.succeed("r"))) })',
-            'const B = SchemaTypes.Struct({ kind: SchemaTypes.Literal("t") })',
-            'const C = LocalStruct({ kind: Literal("l") })',
-          ].join("\n")
+          A.join(
+            [
+              'import "./polyfill.ts"',
+              'import Default from "./default.ts"',
+              'import type * as SchemaTypes from "effect/Schema"',
+              'import * as O from "effect/Option"',
+              'import { type Top, Literal } from "effect/Schema"',
+              'import { Effect as RootEffect, Option, Schema as RootSchema } from "effect"',
+              'import { Struct as LocalStruct } from "./local.ts"',
+              'const A = RootSchema.Struct({ kind: RootSchema.Literal("r").pipe(RootSchema.withConstructorDefault(RootEffect.succeed("r"))) })',
+              'const B = SchemaTypes.Struct({ kind: SchemaTypes.Literal("t") })',
+              'const C = LocalStruct({ kind: Literal("l") })',
+            ],
+            "\n"
+          )
         );
         expect(A.map(findings, (finding) => finding.suggestion)).toEqual(['kind: RootSchema.tag("r")']);
       })
@@ -483,14 +490,17 @@ describe("schema tag idiom law", () => {
 
     it.effect("parses .tsx sources and truncates long matches", () =>
       Effect.sync(() => {
-        const long = "x".repeat(130);
+        const long = Str.repeat(130)("x");
         const findings = scanSchemaTagIdioms(
           "View.tsx",
-          [
-            'import * as S from "effect/Schema"',
-            `const Props = S.Struct({ kind: S.Literal("${long}") })`,
-            "export const View = () => <div />",
-          ].join("\n")
+          A.join(
+            [
+              'import * as S from "effect/Schema"',
+              `const Props = S.Struct({ kind: S.Literal("${long}") })`,
+              "export const View = () => <div />",
+            ],
+            "\n"
+          )
         );
         expect(A.map(findings, (finding) => finding.match.length)).toEqual([120]);
       })
@@ -500,22 +510,25 @@ describe("schema tag idiom law", () => {
   describe("Markdown fences and report lines", () => {
     it.effect("reports a fenced struct tag on its Markdown line", () =>
       Effect.sync(() => {
-        const markdown = [
-          "# Title",
-          "",
-          `${fence}ts`,
-          'import * as S from "effect/Schema"',
-          'const Demo = S.Struct({ _tag: S.Literal("Demo") })',
-          fence,
-          "",
-          `${fence}ts`,
-          'const NoImport = S.Struct({ _tag: S.Literal("NoImport") })',
-          fence,
-          `${fence}tsx`,
-          'import * as S from "effect/Schema"',
-          'const View = () => <div kind={S.Struct({ kind: S.Literal("view") })} />',
-          fence,
-        ].join("\n");
+        const markdown = A.join(
+          [
+            "# Title",
+            "",
+            `${fence}ts`,
+            'import * as S from "effect/Schema"',
+            'const Demo = S.Struct({ _tag: S.Literal("Demo") })',
+            fence,
+            "",
+            `${fence}ts`,
+            'const NoImport = S.Struct({ _tag: S.Literal("NoImport") })',
+            fence,
+            `${fence}tsx`,
+            'import * as S from "effect/Schema"',
+            'const View = () => <div kind={S.Struct({ kind: S.Literal("view") })} />',
+            fence,
+          ],
+          "\n"
+        );
         const findings = scanSchemaTagIdiomsMarkdown("README.md", markdown);
         expect(A.map(findings, (finding) => [finding.rule, finding.line, finding.column])).toEqual([
           ["struct-tag", 5, 14],

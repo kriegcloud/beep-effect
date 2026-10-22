@@ -360,8 +360,8 @@ const queryPage = (url: string): O.Option<number> =>
  * positive integer, or an entry without `<url>`), so a page that cannot be
  * followed is never mistaken for the last one.
  *
- * @param headers - The response header lines as `name: value` strings; only `link:` lines are read.
- * @returns `O.none()` on the last page, `O.some(page)` for a readable next page, or the reason the next entry could not be followed.
+ * @param headers - Response header lines, including any pagination links.
+ * @returns The next page number, no page for the last response, or an invalid-link error.
  */
 const nextPage = (headers: ReadonlyArray<string>): Result.Result<O.Option<number>, string> =>
   pipe(

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-10-21",
+  "generatedOn": "2026-10-22",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -1786,14 +1786,6 @@
       "reason": "Live collector handle scoped to one recording round: awaitStop, eventsWritten, and rejectedCount are Effects reading server-local Refs and a Deferred. The persisted part is already modeled by CollectorHandle, which this interface carries; the running server itself never crosses a decode boundary."
     },
     {
-      "file": "packages/tooling/library/repo-utils/src/FsUtils.ts",
-      "symbol": "WalkFilesOptions",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/repo-utils",
-      "reason": "Mixed traversal options intentionally couple runtime inclusion and symlink predicates with local algorithm controls; no independent decode or persistence boundary exists."
-    },
-    {
       "file": "packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts",
       "symbol": "JSDocTagDefinition",
       "kind": "plain-data-schema-class",
@@ -2537,7 +2529,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 58,
+      "line": 68,
       "owner": "@beep/repo-cli",
       "reason": "CI lane regression writes fixed JSON fixture documents through the compact S.fromJsonString(S.Unknown) codec; the codec calls serialize fixtures and assert no schema law, so schema-derived arbitrary coverage does not apply."
     },

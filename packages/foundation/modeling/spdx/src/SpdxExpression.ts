@@ -34,7 +34,7 @@ type SpdxNode = Data.TaggedEnum<{
     readonly ref: string;
   };
   WithException: {
-    readonly license: LicenseNode.Encoded | typeof LicenseRefNode.Encoded;
+    readonly license: typeof LicenseNode.Encoded | typeof LicenseRefNode.Encoded;
     readonly exception: string;
   };
   And: { readonly left: SpdxNode; readonly right: SpdxNode };
@@ -129,7 +129,12 @@ export class LicenseNode extends S.TaggedClass<
  * @since 0.0.0
  */
 export declare namespace LicenseNode {
-  /** @since 0.0.0 */
+  /**
+   * Encoded license identifier and its optional later-version marker.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
   export interface Encoded {
     readonly _tag: "License";
     readonly id: string;
@@ -205,8 +210,14 @@ export class LicenseRefNode extends S.TaggedClass<
  * @since 0.0.0
  */
 export declare namespace LicenseRefNode {
-  /** @since 0.0.0 */
+  /**
+   * Encoded custom license reference, optionally scoped to an external document.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
   export interface Encoded {
+    readonly _tag: "LicenseRef";
     readonly documentRef?: undefined | string;
     readonly ref: string;
   }

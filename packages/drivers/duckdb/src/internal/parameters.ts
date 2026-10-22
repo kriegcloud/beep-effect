@@ -49,6 +49,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { SqlError, UnknownError } from "effect/sql/SqlError";
 import { isPlainObject } from "./compiler.ts";
 import type { DuckDBType, DuckDBValue } from "@duckdb/node-api";
@@ -86,7 +87,7 @@ const encodeJsonText = S.encodeUnknownResult(S.fromJsonString(S.Unknown));
 const isDuckDbValueInstance = (value: unknown): value is DuckDBValue =>
   A.some(DUCKDB_VALUE_CLASSES, (valueClass) => value instanceof valueClass);
 
-const kindOf = (value: unknown): string => Object.prototype.toString.call(value).slice(8, -1);
+const kindOf = (value: unknown): string => Str.slice(8, -1)(Object.prototype.toString.call(value));
 
 type BindResult = Result.Result<DuckDBValue, string>;
 

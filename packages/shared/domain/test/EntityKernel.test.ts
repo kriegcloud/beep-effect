@@ -178,7 +178,7 @@ describe("PublicEntityId", () => {
         const publicId = yield* PublicEntityId.generate(DocumentId);
 
         assertTrue(S.is(DocumentPublicId)(publicId));
-        assertTrue(publicId.startsWith(`${DocumentId.tableName}_`));
+        assertTrue(Str.startsWith(`${DocumentId.tableName}_`)(publicId));
       })
     );
   });

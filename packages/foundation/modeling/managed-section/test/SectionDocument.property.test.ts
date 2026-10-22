@@ -8,6 +8,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -37,7 +38,7 @@ it.effect.prop(
   [Arbitrary.schema(S.String), Arbitrary.schema(S.String), Arbitrary.schema(S.String), Arbitrary.schema(Eol)],
   ([prefix, suffix, value, eol]) =>
     Effect.gen(function* () {
-      const safe = (text: string) => text.replace(/\r/g, "").replace(/\n/g, "\nuser:");
+      const safe = (text: string) => Str.replace(/\n/g, "\nuser:")(Str.replace(/\r/g, "")(text));
       const before = `\uFEFFuser:${safe(prefix)}${eol}${eol}`;
       const after = `${eol}${eol}user:${safe(suffix)}`;
       const id = SectionId.make({ key: "tool", commentStyle: CommentStyle.hash });
@@ -78,18 +79,18 @@ it.effect.prop(
           ""
         );
       const id = SectionId.make({ key: "tool", commentStyle: CommentStyle.hash });
-      const section = id.section(`data:${value.replace(/\r/g, "").replace(/\n/g, "\ndata:")}`);
+      const section = id.section(`data:${Str.replace(/\n/g, "\ndata:")(Str.replace(/\r/g, "")(value))}`);
       const parsed = yield* SectionDocument.parse(prefix);
       const block = yield* Effect.fromResult(SectionDialect.default.render(section, parsed.eol));
       const separator =
-        prefix === "" || prefix.endsWith(parsed.eol + parsed.eol)
+        prefix === "" || Str.endsWith(parsed.eol + parsed.eol)(prefix)
           ? ""
-          : prefix.endsWith(parsed.eol)
+          : Str.endsWith(parsed.eol)(prefix)
             ? parsed.eol
             : parsed.eol + parsed.eol;
       const first = yield* Effect.fromResult(parsed.reconcile([section]));
       assert.strictEqual(first.text, prefix + separator + block + parsed.eol);
-      assert.strictEqual(first.text.slice(0, prefix.length), prefix);
+      assert.strictEqual(Str.slice(0, prefix.length)(first.text), prefix);
       assert.deepStrictEqual(
         A.map(first.outcomes, (outcome) => outcome._tag),
         ["Created"]

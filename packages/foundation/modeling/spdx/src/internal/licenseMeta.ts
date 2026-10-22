@@ -1,5 +1,8 @@
 import * as A from "effect/Array";
+import { constant } from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 // Vendored SPDX license metadata. The entry array below is machine-generated
 // by `lib/scripts/generate-data.ts` from the SPDX workgroup's own published
@@ -832,9 +835,9 @@ export const LICENSE_META_ROWS: readonly string[] = [
  */
 export const LICENSE_META: HashMap.HashMap<string, LicenseMetaEntry> = HashMap.fromIterable(
   A.map(LICENSE_META_ROWS, (row): readonly [string, LicenseMetaEntry] => {
-    const tab = row.indexOf("\t");
-    const last = row.lastIndexOf("\t");
-    const id = row.slice(0, tab);
-    return [id, [id, row.slice(tab + 1, last), Number(row.slice(last + 1))]];
+    const tab = O.getOrElse(Str.indexOf("\t")(row), constant(-1));
+    const last = O.getOrElse(Str.lastIndexOf("\t")(row), constant(-1));
+    const id = Str.slice(0, tab)(row);
+    return [id, [id, Str.slice(tab + 1, last)(row), Number(Str.slice(last + 1)(row))]];
   })
 );

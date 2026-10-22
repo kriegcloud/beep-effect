@@ -726,17 +726,17 @@ package-local tests use source-only `@beep/repo-cli/test/<Group>` aliases rather
 than package exports.
 
 `@beep/schema` uses namespace-first schema concept modules. Reusable schema
-concepts publish flat public subpaths such as `@beep/schema/Glob`,
-`@beep/schema/Color`, and `@beep/schema/HttpHeaders`.
+concepts publish flat public subpaths such as `@beep/schema/Color`,
+`@beep/schema/HttpHeaders`, and `@beep/schema/HttpProtocol`.
 Consumers import the concept namespace and use concise role members:
 
 ```ts
 import * as Color from "@beep/schema/Color"
-import * as Glob from "@beep/schema/Glob"
+import * as HttpProtocol from "@beep/schema/HttpProtocol"
 
 Color.HexColor
 Color.HexToRgb
-Glob.Schema
+HttpProtocol.Schema
 ```
 
 The package root `@beep/schema` remains a curated flat facade for convenience
@@ -781,7 +781,8 @@ such as parser, formatter, SQL projection, or color-conversion roles.
 
 Inside a concept namespace, concise role names are canonical: `Schema`,
 `Input`, `FromInput`, `Object`, and `Unit`. Legacy full names such as
-`Glob.Glob` may remain as aliases of `Glob.Schema` during migration.
+`HttpProtocol.HttpProtocol` may remain as aliases of `HttpProtocol.Schema`
+during migration.
 Prefer promoted source concepts over per-symbol modules: `Color` is one
 concept module even though it exports many color schemas and conversions.
 Package-local tests may use source-only test seams such as

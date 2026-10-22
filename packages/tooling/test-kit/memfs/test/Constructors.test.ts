@@ -11,6 +11,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { denied } from "./helpers.ts";
 
@@ -76,7 +77,7 @@ describe("options.faults", () => {
       { "/locked-seed.txt": "seeded" },
       {
         faults: {
-          writeFile: (path) => (path.startsWith("/locked") ? Effect.fail(denied("writeFile", path)) : undefined),
+          writeFile: (path) => (Str.startsWith("/locked")(path) ? Effect.fail(denied("writeFile", path)) : undefined),
         },
       }
     ),

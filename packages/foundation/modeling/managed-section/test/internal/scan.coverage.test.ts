@@ -4,6 +4,7 @@ import { SectionId } from "@beep/managed-section/Section";
 import { SectionDialect } from "@beep/managed-section/SectionDialect";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 describe("scanner boundary coverage", () => {
   it.effect("counts a marker matched by duplicate styles only once", () =>
@@ -49,7 +50,7 @@ describe("linear marker recognition regressions", () => {
     assert.strictEqual(placed.start, 1);
     assert.strictEqual(placed.end, 1 + begin.length + "\r\nbody\r\n".length + end.length);
     assert.strictEqual(placed.line, 1);
-    assert.strictEqual(text.slice(placed.start, placed.end), begin + "\r\nbody\r\n" + end);
+    assert.strictEqual(Str.slice(placed.start, placed.end)(text), begin + "\r\nbody\r\n" + end);
     assert.strictEqual(placed.section.commentStyle, CommentStyle.html);
     assert.deepStrictEqual(placed.section.attributes, { note: "--- quoted ---" });
     assert.strictEqual(placed.section.content, "body");
@@ -76,7 +77,7 @@ describe("linear marker recognition regressions", () => {
     const dialect = SectionDialect.default;
     const id = SectionId.make({ key: "tool", commentStyle: CommentStyle.hash });
     for (const size of [4096, 16384, 65536, 262144]) {
-      const malformed = "# --- BEGIN other MANAGED SECTION x" + " ".repeat(size) + "!";
+      const malformed = "# --- BEGIN other MANAGED SECTION x" + Str.repeat(size)(" ") + "!";
       const text = `${dialect.beginMarker(id)}\n${malformed}\n${dialect.endMarker(id)}`;
       const result = scan(text, dialect);
       if (!result.ok) assert.fail("malformed markers remain content");

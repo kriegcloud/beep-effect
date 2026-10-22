@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { MAX_EXTRACTION_CANDIDATES } from "@beep/langextract/Extraction";
 import { SourceTextIdentity } from "@beep/provenance/SourceTextIdentity";
 import { isUtf16Boundary, TextAnchor } from "@beep/provenance/TextAnchor";
@@ -67,10 +68,10 @@ const reconstructionInitial = (): ReconstructionState => [S.Natural.make(0), Chu
 // call (a getter call under Vite's module runner), which dominated hosted CI.
 
 const nextMatchedLength = (
-  locatorCodes: ReadonlyArray<number>,
+  locator: string,
   prefixTable: ReadonlyArray<number>,
   matchedLength: number,
-  codeUnit: number
+  unit: string | undefined
 ): number => {
   // KMP fallback walks the prefix chain iteratively, so a scanned code unit
   // allocates nothing and uses constant stack. The chain can be as long as the
@@ -79,23 +80,20 @@ const nextMatchedLength = (
   // overflow. `length` always stays below the locator length, keeping both
   // reads in bounds.
   let length = matchedLength;
-  while (length > 0 && locatorCodes[length] !== codeUnit) {
+  while (length > 0 && locator[length] !== unit) {
     length = A.getUnsafe(prefixTable, length - 1);
   }
-  return locatorCodes[length] === codeUnit ? length + 1 : 0;
+  return locator[length] === unit ? length + 1 : 0;
 };
 
-const codeUnits = (text: string): ReadonlyArray<number> =>
-  A.makeBy(Str.length(text), (index) => text.charCodeAt(index));
-
-const prefixTable = (locatorCodes: ReadonlyArray<number>): ReadonlyArray<number> => {
+const prefixTable = (locator: string): ReadonlyArray<number> => {
   // The single KMP-table allocation; it is immutable once construction returns.
   const table = A.make(0);
   pipe(
     I.range(1),
-    I.take(A.length(locatorCodes) - 1),
+    I.take(Str.length(locator) - 1),
     I.reduce(0, (matchedLength, index) => {
-      const nextLength = nextMatchedLength(locatorCodes, table, matchedLength, A.getUnsafe(locatorCodes, index));
+      const nextLength = nextMatchedLength(locator, table, matchedLength, locator[index]);
       A.appendInPlace(table, nextLength);
       return nextLength;
     })
@@ -120,9 +118,8 @@ const firstAcceptedMatches = <A>(
   admits: (start: number) => boolean,
   anchor: (start: number) => O.Option<A>
 ): ReadonlyArray<A> => {
-  const locatorCodes = codeUnits(locator);
-  const locatorLength = A.length(locatorCodes);
-  const table = prefixTable(locatorCodes);
+  const locatorLength = Str.length(locator);
+  const table = prefixTable(locator);
   const retainedLength = pipe(
     A.get(table, locatorLength - 1),
     O.getOrElse(() => 0)
@@ -131,7 +128,7 @@ const firstAcceptedMatches = <A>(
   const textLength = Str.length(text);
   let matchedLength = 0;
   for (let index = 0; index < textLength && accepted.length < MATCH_LIMIT; index++) {
-    matchedLength = nextMatchedLength(locatorCodes, table, matchedLength, text.charCodeAt(index));
+    matchedLength = nextMatchedLength(locator, table, matchedLength, text[index]);
     if (matchedLength === locatorLength) {
       matchedLength = retainedLength;
       const start = index - locatorLength + 1;
@@ -545,8 +542,8 @@ const verifiedAttemptOutcome = (
   receipts: ReadonlyArray<VerifiedSpanCandidateAnchorReceipt>
 ): VerifiedSpanAttemptOutcomeType =>
   A.match(receipts, {
-    /* v8 ignore next -- successful location preserves one anchor per non-empty candidate batch */
-    onEmpty: () => failedAttemptOutcome(attemptFailure("anchor", "invalid-anchor")),
+    onEmpty: /* istanbul ignore next -- successful location preserves one anchor per non-empty candidate batch */ () =>
+      failedAttemptOutcome(attemptFailure("anchor", "invalid-anchor")),
     onNonEmpty: (anchors) => VerifiedSpanAttemptOutcome.cases.verified.make({ anchors }),
   });
 
@@ -593,8 +590,10 @@ const verifyLocatedAnchors = (
             receipt: toTextAnchorVerificationReceipt(verified),
           })
         ),
-        /* v8 ignore next -- locator output already proves boundaries and exact slices; retain fail-closed defense */
-        Effect.mapError((error) => attemptFailure("anchor", error.reason, O.some(S.Natural.make(index))))
+        Effect.mapError(
+          /* istanbul ignore next -- locator output already proves boundaries and exact slices; retain fail-closed defense */
+          (error) => attemptFailure("anchor", error.reason, O.some(S.Natural.make(index)))
+        )
       ),
     { concurrency: 1 }
   ).pipe(

@@ -1,5 +1,6 @@
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
+import * as Str from "effect/String";
 
 // Scalar resolution and decoding: YAML 1.2 Core Schema type resolution
 // (spec chapter 10.3.2), flow/block scalar decoding, multi-line plain-scalar
@@ -76,7 +77,7 @@ const safeParseInt: {
  * @since 0.0.0
  */
 export function classifyPlainNumeric(raw: string): O.Option<"int" | "float"> {
-  const t = raw.trim();
+  const t = Str.trim(raw);
   if (OCT_RE.test(t) || HEX_RE.test(t) || INT_RE.test(t)) return O.some("int");
   if (INF_RE.test(t) || NAN_RE.test(t) || FLOAT_RE.test(t)) return O.some("float");
   return O.none();
@@ -84,7 +85,7 @@ export function classifyPlainNumeric(raw: string): O.Option<"int" | "float"> {
 
 /** `.inf` / `-.inf` as a signed JS infinity. */
 const signedInfinity = (value: string): number =>
-  value.startsWith("-") ? -Number.POSITIVE_INFINITY : Number.POSITIVE_INFINITY;
+  Str.startsWith("-")(value) ? -Number.POSITIVE_INFINITY : Number.POSITIVE_INFINITY;
 
 /**
  * The Core Schema plain-scalar resolution rules, in precedence order: the
@@ -94,8 +95,8 @@ const PLAIN_SCALAR_RULES: ReadonlyArray<readonly [pattern: RegExp, resolve: (val
   [NULL_RE, () => null],
   [TRUE_RE, () => true],
   [FALSE_RE, () => false],
-  [OCT_RE, (value) => safeParseInt(value.slice(2), 8)],
-  [HEX_RE, (value) => safeParseInt(value.slice(2), 16)],
+  [OCT_RE, (value) => safeParseInt(Str.slice(2)(value), 8)],
+  [HEX_RE, (value) => safeParseInt(Str.slice(2)(value), 16)],
   [INT_RE, (value) => safeParseInt(value, 10)],
   [INF_RE, signedInfinity],
   [NAN_RE, () => Number.NaN],
@@ -117,8 +118,8 @@ const resolveTaggedScalar: {
   Match.value(tag).pipe(
     Match.when(Match.is("!!str", "tag:yaml.org,2002:str"), () => rawValue),
     Match.when(Match.is("!!int", "tag:yaml.org,2002:int"), () => {
-      if (OCT_RE.test(rawValue)) return safeParseInt(rawValue.slice(2), 8);
-      if (HEX_RE.test(rawValue)) return safeParseInt(rawValue.slice(2), 16);
+      if (OCT_RE.test(rawValue)) return safeParseInt(Str.slice(2)(rawValue), 8);
+      if (HEX_RE.test(rawValue)) return safeParseInt(Str.slice(2)(rawValue), 16);
       if (INT_RE.test(rawValue)) return safeParseInt(rawValue, 10);
       const n = Number.parseInt(rawValue, 10);
       return Number.isNaN(n) ? rawValue : n;
@@ -200,7 +201,7 @@ export const resolveScalar: {
  */
 export function getScalarStyle(node: CstNode): ScalarStyle {
   if (node.type === "block-scalar") {
-    const ch = node.source.trimStart()[0];
+    const ch = Str.trimStart(node.source)[0];
     return ch === ">" ? "block-folded" : "block-literal";
   }
   const first = node.source[0];
@@ -236,9 +237,9 @@ export function getBlockChomp(node: CstNode): O.Option<"strip" | "clip" | "keep"
   // Inspect only the INDICATOR RUN directly after `|`/`>` — never the rest
   // of the header line, where a `+`/`-` inside a header comment
   // (`| # keep+this`) would misread as a chomp indicator.
-  const indicators = node.source.trimStart().match(/^[|>]([0-9+-]*)/)?.[1] ?? "";
-  if (indicators.includes("+")) return O.some("keep");
-  if (indicators.includes("-")) return O.some("strip");
+  const indicators = O.getOrNull(Str.match(/^[|>]([0-9+-]*)/)(Str.trimStart(node.source)))?.[1] ?? "";
+  if (Str.includes("+")(indicators)) return O.some("keep");
+  if (Str.includes("-")(indicators)) return O.some("strip");
   return O.some("clip");
 }
 
@@ -268,8 +269,8 @@ export function getBlockChomp(node: CstNode): O.Option<"strip" | "clip" | "keep"
  */
 export function getBlockIndent(node: CstNode): O.Option<number> {
   if (node.type !== "block-scalar") return O.none();
-  const indicators = node.source.trimStart().match(/^[|>]([0-9+-]*)/)?.[1] ?? "";
-  return O.map(O.fromUndefinedOr(indicators.match(/[1-9]/)?.[0]), Number);
+  const indicators = O.getOrNull(Str.match(/^[|>]([0-9+-]*)/)(Str.trimStart(node.source)))?.[1] ?? "";
+  return O.map(O.fromUndefinedOr(O.getOrNull(Str.match(/[1-9]/)(indicators))?.[0]), Number);
 }
 
 /**
@@ -282,15 +283,15 @@ export function getBlockIndent(node: CstNode): O.Option<number> {
  * pass.
  */
 function blockScalarHeaderComment(cst: CstNode): string | undefined {
-  const src = cst.source.trimStart();
-  const nl = src.search(/[\r\n]/);
-  const header = nl < 0 ? src : src.slice(0, nl);
-  const hash = header.indexOf("#");
+  const src = Str.trimStart(cst.source);
+  const nl = O.getOrElse(constant(-1))(Str.search(/[\r\n]/)(src));
+  const header = nl < 0 ? src : Str.slice(0, nl)(src);
+  const hash = O.getOrElse(constant(-1))(Str.indexOf("#")(header));
   if (hash < 1) return undefined;
   // A header comment requires separation whitespace after the indicators.
   const before = header[hash - 1];
   if (before !== " " && before !== "\t") return undefined;
-  return rawCommentText(header.slice(hash));
+  return rawCommentText(Str.slice(hash)(header));
 }
 
 /**
@@ -336,8 +337,8 @@ export const getScalarValue: {
  * - Trailing whitespace before newlines trimmed
  */
 function decodePlainScalar(raw: string): string {
-  const trimmed = raw.trim();
-  if (!trimmed.includes("\n")) return trimmed;
+  const trimmed = Str.trim(raw);
+  if (!Str.includes("\n")(trimmed)) return trimmed;
   return foldFlowLines(trimmed);
 }
 
@@ -347,9 +348,9 @@ function decodePlainScalar(raw: string): string {
  * Bare newlines follow flow folding rules.
  */
 function decodeSingleQuoted(raw: string): string {
-  const inner = raw.slice(1, -1);
-  const unescaped = inner.replace(/''/g, "'");
-  if (!unescaped.includes("\n")) return unescaped;
+  const inner = Str.slice(1, -1)(raw);
+  const unescaped = Str.replace(/''/g, "'")(inner);
+  if (!Str.includes("\n")(unescaped)) return unescaped;
   return foldFlowLines(unescaped);
 }
 
@@ -415,7 +416,7 @@ const escapeText = (cur: DoubleQuotedCursor, esc: string | undefined): string =>
   const hex = HEX_ESCAPES[esc];
   if (hex === undefined) return esc;
   const [width, decode] = hex;
-  const digits = cur.inner.slice(cur.i + 1, cur.i + 1 + width);
+  const digits = Str.slice(cur.i + 1, cur.i + 1 + width)(cur.inner);
   cur.i += width;
   return decode(Number.parseInt(digits, 16));
 };
@@ -443,7 +444,7 @@ const decodeEscape = (cur: DoubleQuotedCursor): void => {
  * single space when the next line has content.
  */
 const foldBareNewline = (cur: DoubleQuotedCursor, ch: string): void => {
-  cur.result = cur.result.slice(0, cur.significantEnd);
+  cur.result = Str.slice(0, cur.significantEnd)(cur.result);
   cur.i = skipBlanks(cur.inner, cur.i + (ch === "\r" ? 2 : 1));
   if (!isBreakAt(cur.inner, cur.i)) cur.result += " ";
   while (isBreakAt(cur.inner, cur.i)) {
@@ -461,7 +462,7 @@ const appendLiteral = (cur: DoubleQuotedCursor, ch: string | undefined): void =>
 };
 
 function decodeDoubleQuoted(raw: string): string {
-  const cur = makeDoubleQuotedCursor(raw.slice(1, -1));
+  const cur = makeDoubleQuotedCursor(Str.slice(1, -1)(raw));
   while (cur.i < cur.inner.length) {
     const ch = cur.inner[cur.i];
     if (ch === "\\") decodeEscape(cur);
@@ -493,9 +494,9 @@ function decodeDoubleQuoted(raw: string): string {
  * @since 0.0.0
  */
 export function foldFlowLines(text: string): string {
-  const lines = text.split("\n");
+  const lines = Str.split("\n")(text);
   // First line: trim trailing whitespace only
-  let result = (lines[0] ?? "").replace(/[ \t]+$/, "");
+  let result = Str.replace(/[ \t]+$/, "")(lines[0] ?? "");
   const last = lines.length - 1;
   for (let i = 1; i < lines.length; i++) result = foldContinuationLine(result, lines[i] ?? "", i === last);
   return result;
@@ -507,7 +508,7 @@ export function foldFlowLines(text: string): string {
  * lines (before a line break).
  */
 const foldContinuationLine = (result: string, line: string, isLast: boolean): string => {
-  const trimmed = isLast ? line.trimStart() : line.trim();
+  const trimmed = isLast ? Str.trimStart(line) : Str.trim(line);
   const afterBreak = result[result.length - 1] === "\n";
   // Non-empty continuation line: fold (previous non-empty → space → this),
   // unless the result already ends in \n (from empty lines)
@@ -548,13 +549,13 @@ export const collectMultilineKey: {
 } = dual(2, (children: readonly CstNode[], startIdx: number): { value: string; nextIdx: number } => {
   const first = children[startIdx];
   if (first?.type !== "flow-scalar") {
-    return { value: first?.source.trim() ?? "", nextIdx: startIdx + 1 };
+    return { value: Str.trim(first?.source ?? ""), nextIdx: startIdx + 1 };
   }
 
-  const parts: string[] = [first.source.trim()];
+  const parts: string[] = [Str.trim(first.source)];
   const idx = collectKeyContinuation(children, startIdx + 1, parts);
   if (parts.length === 1) {
-    return { value: first.source.trim(), nextIdx: idx };
+    return { value: Str.trim(first.source), nextIdx: idx };
   }
 
   return { value: foldFlowLines(A.join(parts, "\n")), nextIdx: idx };
@@ -565,7 +566,7 @@ const isPlainFlowScalar = (c: CstNode): boolean => c.type === "flow-scalar" && g
 
 /** True for a newline or a blank whitespace child. */
 const isBlankTrivia = (c: CstNode): boolean =>
-  c.type === "newline" || (c.type === "whitespace" && c.source.trim() === "");
+  c.type === "newline" || (c.type === "whitespace" && Str.trim(c.source) === "");
 
 /** True for the `:` value separator or the `,` entry separator (a segment boundary). */
 const isSegmentBoundary = (c: CstNode): boolean => c.type === "whitespace" && (c.source === ":" || c.source === ",");
@@ -580,7 +581,7 @@ const collectKeyContinuation = (children: readonly CstNode[], startIdx: number, 
   for (; idx < children.length; idx++) {
     const child = children[idx];
     if (child === undefined || isSegmentBoundary(child)) break;
-    if (isPlainFlowScalar(child)) parts.push(child.source.trim());
+    if (isPlainFlowScalar(child)) parts.push(Str.trim(child.source));
     else if (!isBlankTrivia(child)) break;
   }
   return idx;
@@ -604,7 +605,7 @@ const extractLineContent: {
   while (lineEnd < text.length && text[lineEnd] !== "\n" && text[lineEnd] !== "\r") {
     lineEnd++;
   }
-  return { lineText: text.slice(lineStart, lineEnd).trim(), lineEndOffset: lineEnd };
+  return { lineText: Str.trim(Str.slice(lineStart, lineEnd)(text)), lineEndOffset: lineEnd };
 });
 
 /**
@@ -696,7 +697,7 @@ export const collectMultilinePlainScalar: {
     }
 
     if (cur.parts.length === 1) {
-      return { value: first.source.trim(), nextIdx: cur.idx, partsCount: 1, endOffset: cur.endOffset };
+      return { value: Str.trim(first.source), nextIdx: cur.idx, partsCount: 1, endOffset: cur.endOffset };
     }
 
     // Apply flow folding to the collected parts
@@ -717,7 +718,7 @@ const singleScalarFragment = (
   if (first === undefined) return { value: "", nextIdx: startIdx + 1, partsCount: 1, endOffset: 0 };
   const endOffset = first.offset + first.length;
   // A quoted flow scalar decodes on its own; any other node keeps its source.
-  const value = first.type === "flow-scalar" ? getScalarValue(first) : first.source.trim();
+  const value = first.type === "flow-scalar" ? getScalarValue(first) : Str.trim(first.source);
   return { value, nextIdx: startIdx + 1, partsCount: 1, endOffset };
 };
 
@@ -736,7 +737,7 @@ const makePlainScalarCursor = (
   children,
   minContinuationColumn,
   sourceText,
-  parts: [first.source.trim()],
+  parts: [Str.trim(first.source)],
   endOffset: first.offset + first.length,
   emptyLines: 0,
   idx: startIdx + 1,
@@ -798,7 +799,7 @@ const mergePlainScalar = (cur: PlainScalarCursor, child: CstNode): boolean => {
   // This prevents merging e.g. "bar" (col 2) with "invalid" (col 0)
   // when the block mapping key is at col 0.
   if (isBelowContinuationColumn(cur, child)) return false;
-  pushPlainScalarPart(cur, child.source.trim(), child.offset + child.length);
+  pushPlainScalarPart(cur, Str.trim(child.source), child.offset + child.length);
   cur.idx++;
   return true;
 };
@@ -910,7 +911,7 @@ export const findNextSignificantChild: {
 } = dual(
   (args) => A.isArray(args[0]),
   (children: readonly CstNode[], startIdx: number, stopAtDash?: boolean): number | null => {
-    const j = scanPastTrivia(children, startIdx, (c) => stopAtDash === true && c.source.trim() === "-");
+    const j = scanPastTrivia(children, startIdx, (c) => stopAtDash === true && Str.trim(c.source) === "-");
     return j < 0 || children[j]?.type === "whitespace" ? null : j;
   }
 );
@@ -1049,7 +1050,7 @@ export function blockMapStartsWithValueSep(blockMap: CstNode): boolean {
 }
 
 /** True for a child whose source is not blank. */
-const isNonBlankChild = (c: CstNode): boolean => c.source.trim() !== "";
+const isNonBlankChild = (c: CstNode): boolean => Str.trim(c.source) !== "";
 
 /**
  * Detects a value separator beyond plain scalar continuation lines.
@@ -1165,7 +1166,7 @@ export const findNextContentInList: {
 export function findFirstContent(children: readonly CstNode[]): O.Option<CstNode> {
   for (const c of children) {
     if (c === undefined) continue;
-    if (c.type === "whitespace" && c.source.trim() === "") continue;
+    if (c.type === "whitespace" && Str.trim(c.source) === "") continue;
     if (c.type === "newline") continue;
     return O.some(c);
   }
@@ -1197,7 +1198,7 @@ export function findLastContent(children: readonly CstNode[]): O.Option<CstNode>
   for (let i = children.length - 1; i >= 0; i--) {
     const c = children[i];
     if (c === undefined) continue;
-    if (c.type === "whitespace" && c.source.trim() === "") continue;
+    if (c.type === "whitespace" && Str.trim(c.source) === "") continue;
     if (c.type === "newline") continue;
     return O.some(c);
   }
@@ -1582,7 +1583,7 @@ const pushBlockLine = (body: BlockBody, line: string): void => {
  * is deferred as an empty line.
  */
 const pushBlankBlockLine = (body: BlockBody, extra: number): void => {
-  if (extra > 0) pushBlockLine(body, " ".repeat(extra));
+  if (extra > 0) pushBlockLine(body, Str.repeat(extra)(" "));
   else body.trailing++;
 };
 
@@ -1600,7 +1601,7 @@ const collectBlockBody = (raw: string, start: number, contentIndent: number): Bl
     }
     if (spaces < contentIndent) break;
     const contentEnd = lineEndFrom(raw, i);
-    pushBlockLine(body, " ".repeat(spaces - contentIndent) + raw.slice(i, contentEnd));
+    pushBlockLine(body, Str.repeat(spaces - contentIndent)(" ") + Str.slice(i, contentEnd)(raw));
     i = skipLineBreak(raw, contentEnd);
   }
   return body;
@@ -1619,17 +1620,17 @@ const collectBlockBody = (raw: string, start: number, contentIndent: number): Bl
 const chompSuffix = (chomp: BlockHeader["chomp"], hasContent: boolean, trailing: number): string => {
   if (chomp === "strip") return "";
   const terminator = hasContent ? "\n" : "";
-  return chomp === "keep" ? terminator + "\n".repeat(trailing) : terminator;
+  return chomp === "keep" ? terminator + Str.repeat(trailing)("\n") : terminator;
 };
 
 function decodeBlockScalar(raw: string, fullText?: string, nodeOffset?: number): string {
-  const isFolded = raw.trimStart()[0] === ">";
-  const indicatorAt = raw.indexOf(isFolded ? ">" : "|");
+  const isFolded = Str.trimStart(raw)[0] === ">";
+  const indicatorAt = O.getOrElse(constant(-1))(Str.indexOf(isFolded ? ">" : "|")(raw));
   if (indicatorAt < 0) return "";
   const header = parseBlockHeader(raw, indicatorAt);
   const contentIndent = resolveContentIndent(raw, header, fullText, nodeOffset);
   if (contentIndent === undefined) {
-    return header.chomp === "keep" ? "\n".repeat(countKeptEmptyLines(raw, header.i)) : "";
+    return header.chomp === "keep" ? Str.repeat(countKeptEmptyLines(raw, header.i))("\n") : "";
   }
   const { lines, trailing } = collectBlockBody(raw, header.i, contentIndent);
   if (isFolded) return foldBlockLines(lines) + chompSuffix(header.chomp, hasBlockContent(lines), trailing);

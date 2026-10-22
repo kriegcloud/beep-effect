@@ -18,9 +18,9 @@ import { admit, depositionOutlineEntry } from "../Admission.ts";
 import { ReviewState, StructuralVerdict } from "../Claim.ts";
 import { CommunicationEvent, isDelegated, voiceOf } from "../Communication.ts";
 import { assessOperational, divergences } from "../Hierarchy.ts";
-import { ActivityId, PartyId } from "../Ids.ts";
+import { AccountId, ActivityId, AssertionId, ClaimVersionId, PartyId } from "../Ids.ts";
 import { LedgerConflict, PartyLedger, PartyLedgerMemory } from "../Ledger.ts";
-import { Proposition } from "../Proposition.ts";
+import { partiesOf, Proposition } from "../Proposition.ts";
 import { attributeEvents, chainOfCommand, declaredLines, identityView, orgGraph, selectorGraph } from "../Projection.ts";
 import { UtcInstant } from "../Time.ts";
 import * as Fx from "../fixtures/acme.ts";
@@ -52,6 +52,16 @@ describe("boundary: the schema refuses category mistakes", () => {
   it("does not let a structural gate verdict pass as a review decision", () => {
     expect(Exit.isSuccess(S.decodeExit(StructuralVerdict)({ _tag: "Admitted" }))).toBe(true);
     expect(fails(ReviewState, { _tag: "Admitted" })).toBe(true);
+  });
+
+  it("lists no parties (as an array) for account-only propositions", () => {
+    const parties = partiesOf(Proposition.cases.MailboxKind.make({ account: AccountId.make("acct:x"), kind: "shared" }));
+    expect(Array.isArray(parties) && A.isReadonlyArrayEmpty(parties)).toBe(true);
+  });
+
+  it("accepts only whole-second instants so string order is time order", () => {
+    expect(fails(UtcInstant, "2025-03-12T16:42:08Z")).toBe(false);
+    expect(fails(UtcInstant, "2025-03-12T16:42:08.5Z")).toBe(true);
   });
 
   it("cannot represent acceptance without a reviewer disposition", () => {
@@ -198,6 +208,33 @@ describe("admission tiers", () => {
     }
   });
 
+  it("refuses support the version does not cite, and a version not yet known at the knowledge time", () => {
+    const outside = admit({
+      policy: { ...depositionPolicy, tier: "analyst-lead", clauses: [{ _tag: "RequireDistinctiveEvidence" }] },
+      knowledgeTime,
+      evidence: {
+        version: Fx.averyAuthorship,
+        supports: [{ assertion: AssertionId.make("asrt:finance:v1"), side: "client-file", kind: "distinctive-behavior" }],
+        dependence: [],
+      },
+    });
+    expect(Result.isFailure(outside) ? A.map(outside.failure.unmet, (u) => u.clause._tag) : []).toEqual([
+      "SupportsInVersion",
+    ]);
+    const early = admit({
+      policy: { ...depositionPolicy, tier: "analyst-lead", clauses: [{ _tag: "RequireDistinctiveEvidence" }] },
+      knowledgeTime: at("2026-10-01T00:00:00Z"),
+      evidence: {
+        version: Fx.averyAuthorship,
+        supports: [{ assertion: Fx.averyAssertions.header.id, side: "client-file", kind: "distinctive-behavior" }],
+        dependence: [],
+      },
+    });
+    expect(Result.isFailure(early) ? A.map(early.failure.unmet, (u) => u.clause._tag) : []).toEqual([
+      "KnownAtKnowledgeTime",
+    ]);
+  });
+
   it("never founds an attribution on a signature block alone", () => {
     const result = admit({
       policy: { ...depositionPolicy, tier: "analyst-lead", clauses: [{ _tag: "RequireDistinctiveEvidence" }] },
@@ -285,6 +322,19 @@ layer(PartyLedgerMemory)("ledger service: append-only authority", (it) => {
       expect(O.map(v1, (v) => v.proposition)).toEqual(O.some(Fx.financeV1.proposition));
       const again = yield* Effect.flip(ledger.supersede(Fx.financeV2));
       expect(again).toBeInstanceOf(LedgerConflict);
+      // a successor reusing a recorded id is refused even when its target is open
+      const reused = yield* Effect.flip(ledger.supersede({ ...Fx.financeV2, supersedes: O.some(Fx.financeV2.id) }));
+      expect(reused.reason).toBe("version id already recorded");
+      // a successor recorded before its target would empty the target's interval and erase it from history
+      const backdated = yield* Effect.flip(
+        ledger.supersede({
+          ...Fx.financeV2,
+          id: ClaimVersionId.make("cv:finance:v3"),
+          supersedes: O.some(Fx.financeV2.id),
+          knowledge: { ...Fx.financeV2.knowledge, recordedAt: Fx.financeV1.knowledge.recordedAt },
+        })
+      );
+      expect(backdated.reason).toBe("successor must be recorded after the version it supersedes");
     })
   );
 });

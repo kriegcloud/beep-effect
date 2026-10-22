@@ -5,7 +5,9 @@
  * - **knowledge time** (`KnowledgeInterval`): when this system recorded the row
  *   and when a later row superseded it. Half-open `[recordedAt, expiredAt)`.
  *
- * Instants are ISO-8601 UTC strings (`...Z`), which order lexicographically.
+ * Instants are whole-second ISO-8601 UTC strings (`YYYY-MM-DDTHH:MM:SSZ`). One
+ * fixed-width form makes string order equal time order; fractional seconds are
+ * rejected because `.` sorts before `Z` and mixed precision would break that.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -25,7 +27,7 @@ const $I = $ScratchpadId.create("party/Time");
  * @since 0.0.0
  */
 export const UtcInstant = S.String.check(
-  S.isPattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?Z$/, $I.annote("UtcInstantCheck", { message: "Expected an ISO-8601 UTC instant ending in Z." }))
+  S.isPattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/, $I.annote("UtcInstantCheck", { message: "Expected a whole-second ISO-8601 UTC instant ending in Z." }))
 ).pipe(S.brand("UtcInstant"), $I.annoteSchema("UtcInstant", { description: "ISO-8601 UTC instant." }));
 export type UtcInstant = typeof UtcInstant.Type;
 

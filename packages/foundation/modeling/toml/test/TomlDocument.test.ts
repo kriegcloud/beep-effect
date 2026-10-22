@@ -13,6 +13,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { readValid, validCases } from "./corpus.ts";
 import { expectFailure } from "./expectFailure.ts";
 
@@ -78,7 +79,7 @@ describe("TomlDocument", () => {
 
     it.effect("a nesting-depth bomb fails typed, not as data or a defect", () =>
       Effect.gen(function* () {
-        const bomb = `a = ${"[".repeat(300)}${"]".repeat(300)}\n`;
+        const bomb = `a = ${Str.repeat(300)("[")}${Str.repeat(300)("]")}\n`;
         const error = yield* Effect.flip(TomlDocument.parse(bomb));
         assert.instanceOf(error, TomlParseError);
         assert.strictEqual(error.diagnostics[0]?.code, "NestingDepthExceeded");

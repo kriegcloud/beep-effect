@@ -6,5 +6,9 @@
   "compilerOptions": {
     "rootDir": "../../.."
   },
-  "references": [{ "path": "../../../tsconfig.json" }]
+  "references": [
+    {
+      "path": "../../../tsconfig.json"
+    }
+  ]
 }

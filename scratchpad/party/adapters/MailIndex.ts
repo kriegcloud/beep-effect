@@ -203,9 +203,12 @@ export const adaptMailRecord = ({
   const fromSlot: O.Option<Slot> = O.orElse(
     O.map(internetFrom, (parsed): Slot => ({ role: "from", field: "From", namespace: "rfc5322", parsed })),
     () =>
-      O.map(
-        O.orElse(representing, () => sender),
-        (parsed): Slot => ({ role: "from", field: "PR_SENT_REPRESENTING_EMAIL_ADDRESS", namespace: "mapi", parsed })
+      O.orElse(
+        O.map(
+          representing,
+          (parsed): Slot => ({ role: "from", field: "PR_SENT_REPRESENTING_EMAIL_ADDRESS", namespace: "mapi", parsed })
+        ),
+        () => O.map(sender, (parsed): Slot => ({ role: "from", field: "PR_SENDER_EMAIL_ADDRESS", namespace: "mapi", parsed }))
       )
   );
 

@@ -136,6 +136,19 @@ describe("mail-index adapter", () => {
     expect(A.some(ingest.identifiers, (i) => i.id === email("maya"))).toBe(true);
   });
 
+  it("anchors a sender-only fallback from to PR_SENDER_EMAIL_ADDRESS", () => {
+    const ingest = adapt({
+      ...base,
+      messagePath: "Inbox/Message00005",
+      outlook: { senderEmailAddress: "jordan@acme.example", senderName: "Jordan Lee" },
+      recipients: [{ kind: "to", emailAddress: "riley@acme.example" }],
+    });
+    const from = A.findFirst(ingest.observations, (o) => o._tag === "HeaderParticipant" && o.role === "from");
+    expect(
+      O.map(from, (o) => (o._tag === "HeaderParticipant" && o.anchor._tag === "HeaderField" ? o.anchor.field : ""))
+    ).toEqual(O.some("PR_SENDER_EMAIL_ADDRESS"));
+  });
+
   it("produces no event when no from participant can be read", () => {
     const ingest = adapt({
       ...base,

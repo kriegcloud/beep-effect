@@ -15,6 +15,7 @@ import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 // Hosts are assembled from labels so this file never spells a retired host or
 // the public origin; a repository-wide text search for them stays clean.
@@ -111,7 +112,7 @@ describe("retired IRI authority law", () => {
 
     it.effect("is case-insensitive like DNS", () =>
       Effect.sync(() => {
-        expect(matchesOf(`https://${DEV_HOST.toUpperCase()}/A`)).toEqual([`https://${DEV_HOST.toUpperCase()}`]);
+        expect(matchesOf(`https://${Str.toUpperCase(DEV_HOST)}/A`)).toEqual([`https://${Str.toUpperCase(DEV_HOST)}`]);
       })
     );
 

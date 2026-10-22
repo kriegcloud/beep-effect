@@ -17,6 +17,7 @@ import {
   EffectVitestPrimitive,
   EffectVitestPrimitiveGraphDocument,
   EffectVitestReplacement,
+  EffectVitestSourceFileGlobs,
   formatEffectVitestIntroducedReport,
   makeEffectVitestFindingKey,
   preserveEffectVitestExceptions,
@@ -40,6 +41,19 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { Project } from "ts-morph";
+import type { FsUtilsShape } from "@beep/repo-utils/FsUtils";
+
+// The discovery scan's include globs. A test double answers only that call with its fixture files;
+// every other glob (workspace manifests among them) reaches the real filesystem.
+const discoveryIncludes = A.join(
+  A.filter(EffectVitestSourceFileGlobs, (glob) => !Str.startsWith("!")(glob)),
+  "\n"
+);
+const withDiscoveredSources = (fsUtils: FsUtilsShape, files: ReadonlyArray<string>): FsUtilsShape => ({
+  ...fsUtils,
+  globFiles: (pattern, options) =>
+    A.join(A.ensure(pattern), "\n") === discoveryIncludes ? Effect.succeed(files) : fsUtils.globFiles(pattern, options),
+});
 
 const encodeInventoryJson = S.encodeEffect(S.fromJsonString(EffectVitestInventoryDocument));
 const encodeCensusJson = S.encodeEffect(S.fromJsonString(S.Array(EffectVitestCensusRow)));
@@ -149,7 +163,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         )
       );
       const timing = yield* runEffectVitestLint(EffectVitestLintOptions.make({ census: true, write: true })).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed(inputs) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, inputs)),
         Effect.provideService(Path.Path, {
           ...path,
           resolve: (...segments) =>
@@ -193,7 +207,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         },
       };
       const failure = yield* runEffectVitestLint(EffectVitestLintOptions.make({ census: false, write: false })).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([absolute]) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [absolute])),
         Effect.provideService(FileSystem.FileSystem, {
           ...fs,
           exists: (file) => (file === inventory ? Effect.succeed(false) : fs.exists(file)),
@@ -230,7 +244,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         })
       );
       const failure = yield* runEffectVitestLint(EffectVitestLintOptions.make({ census: false, write: false })).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([]) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [])),
         Effect.provideService(FileSystem.FileSystem, {
           ...fs,
           exists: (file) => (file === inventory ? Effect.succeed(true) : fs.exists(file)),
@@ -271,7 +285,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
       const timing = yield* runEffectVitestLint(
         EffectVitestLintOptions.make({ census: false, write: false, rows: O.some(output) })
       ).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([input]) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [input])),
         Effect.provideServiceEffect(FileSystem.FileSystem, fixtureInventoryFileSystem())
       );
       assertTrue(timing.fileCount === 1);
@@ -313,7 +327,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
     Effect.fnUntraced(function* () {
       const fsUtils = yield* FsUtils;
       const timing = yield* runEffectVitestLint(EffectVitestLintOptions.make({ census: false, write: false })).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([]) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [])),
         Effect.provideServiceEffect(FileSystem.FileSystem, fixtureInventoryFileSystem())
       );
       assertTrue(timing.fileCount === 0);
@@ -342,7 +356,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         const timing = yield* runEffectVitestLint(
           EffectVitestLintOptions.make({ census: false, write: false, rows: O.some(rows) })
         ).pipe(
-          Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([absolute]) }),
+          Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [absolute])),
           Effect.provideService(Path.Path, { ...path, relative }),
           Effect.provideServiceEffect(FileSystem.FileSystem, fixtureInventoryFileSystem())
         );

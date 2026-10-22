@@ -186,12 +186,13 @@ const identOf = (who: string, party = who) =>
     recordedAt: T0,
   });
 const plainVoice = (who: string) => `voice:${email(who)}|-|-`;
-const voiceAuthor = (voice: string, author: string, id: string) =>
+const voiceAuthor = (voice: string, author: string, id: string, supportedBy?: VersionSpec["supportedBy"]) =>
   version({
     id: `cv:voice:${id}`,
     logicalKey: `VoiceAuthor|${voice}|party:${author}`,
     proposition: { _tag: "VoiceAuthor", voice, author: `party:${author}` },
     recordedAt: T0,
+    ...(supportedBy === undefined ? {} : { supportedBy }),
   });
 const reportsTo = (sub: string, sup: string) =>
   version({
@@ -273,7 +274,11 @@ export const chrisVersions = [
 
 /** Avery authored the delegated voice of event 2. */
 export const delegatedVoice = `voice:${email("dana")}|${email("avery")}|${email("dana")}`;
-export const averyAuthorship = voiceAuthor(delegatedVoice, "avery", "avery-for-dana");
+export const averyAuthorship = voiceAuthor(delegatedVoice, "avery", "avery-for-dana", [
+  "asrt:avery:header",
+  "asrt:avery:perm",
+  "asrt:avery:depo",
+]);
 
 export const ledger: ReadonlyArray<ClaimVersion> = [
   ...A.map(["maya", "jordan", "avery", "dana", "sam", "riley", "quinn", "pat"], (p) => identOf(p)),

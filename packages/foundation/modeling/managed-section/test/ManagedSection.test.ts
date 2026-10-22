@@ -7,10 +7,11 @@ import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { block, id, lines, memoryFs, memoryFsWith, section } from "./fixtures.ts";
 
 const isErrorInstance = S.is(S.ErrorInstance());
@@ -152,8 +153,8 @@ describe("ManagedSection", () => {
             );
             const written = fs.text(HOOK) ?? "";
             assert.isBelow(
-              written.indexOf("BEGIN base"),
-              written.indexOf("BEGIN tool"),
+              O.getOrElse(Str.indexOf("BEGIN base")(written), constant(-1)),
+              O.getOrElse(Str.indexOf("BEGIN tool")(written), constant(-1)),
               "the preamble must precede the tool block"
             );
           })

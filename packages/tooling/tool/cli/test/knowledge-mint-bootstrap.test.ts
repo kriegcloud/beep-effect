@@ -7,9 +7,10 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const bootstrapUrl = new URL("../scripts/CreateKnowledgeMintApp.ts", import.meta.url).href;
-const PLACEHOLDER = "placeholder-only".repeat(4096);
+const PLACEHOLDER = Str.repeat(4096)("placeholder-only");
 
 // A fake `op` that accepts only a real pipe carrying the complete template.
 // No real key, conversion, or vault mutation is involved.
@@ -98,7 +99,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("knowledge mint manifest
     Effect.gen(function* () {
       const { stdout, stderr } = yield* run(17, 201, 500, "Do not reload this page");
       expect(stderr).toContain("1Password item creation exited 17");
-      expect(stdout.split("op-doctor-ran").length - 1).toBe(1);
+      expect(Str.split("op-doctor-ran")(stdout).length - 1).toBe(1);
     })
   );
 

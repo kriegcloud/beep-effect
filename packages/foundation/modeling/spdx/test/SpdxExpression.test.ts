@@ -18,6 +18,7 @@ import * as Equal from "effect/Equal";
 import * as Exit from "effect/Exit";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { SpdxExpression as SpdxExpressionAst } from "@beep/spdx/SpdxExpression";
 
 // A generative round-trip arbitrary built from the KNOWN SPDX id set, used
@@ -184,7 +185,7 @@ describe("SpdxExpression", () => {
   );
   it.effect("does not overflow on deeply nested input", () =>
     Effect.gen(function* () {
-      const deep = `${"(".repeat(5000)}MIT${")".repeat(5000)}`;
+      const deep = `${Str.repeat(5000)("(")}MIT${Str.repeat(5000)(")")}`;
       const exit = yield* Effect.exit(SpdxExpression.parse(deep));
       // caps out as a typed failure, never a RangeError defect
       const cause = exit.pipe(Exit.filterCause, Result.getOrThrow);
