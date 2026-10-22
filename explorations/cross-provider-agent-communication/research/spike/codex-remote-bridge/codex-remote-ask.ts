@@ -13,19 +13,24 @@
 // when the effective policy differs) -> turn/start -> wait for the turn/completed notification on this
 // same connection (the app-server only streams turn events to the connection that started or resumed
 // the thread) -> print one JSON line with the last agentMessage text. thread/read is the fallback when
-// the notification is missed: polling stops `fallbackGraceMs` before the deadline so the read always
-// gets its own budget. Every RPC is bounded by the remaining `--timeout-ms` budget and fails when the
-// socket closes. If the turn this client started is still running when the budget runs out, or when any
-// later step fails, the client sends turn/interrupt before exiting. If the socket itself is gone (the SSH
-// tunnel dropped), the interrupt cannot travel over it: the client makes one bounded reconnect attempt
-// to send it and otherwise prints `interruptNotPossible` with the thread and turn ids, because the turn
-// keeps running on the remote machine until someone re-opens the tunnel and sends turn/interrupt (for
-// example with codex-ws.ts). Notifications are echoed to stderr. The bearer token is read from the named
-// environment variable only; it never appears in argv or output.
+// the notification is missed: the turn gets the whole `--timeout-ms` budget, and the read then runs with
+// its own `fallbackGraceMs` budget past the deadline, as turn/interrupt does with `interruptGraceMs`, so
+// a short budget never interrupts a turn just to make room for the read. Worst-case wall clock is
+// `--timeout-ms` plus both graces. A turn/completed that arrives while the read is in flight still
+// counts, even when the read then fails. Every other RPC is bounded by the remaining `--timeout-ms`
+// budget, and every RPC fails when the socket closes. If the turn this client started is still running
+// when the budget runs out, or when any later step fails, the client sends turn/interrupt before
+// exiting. If the socket itself is gone (the SSH tunnel dropped), the interrupt cannot travel over it:
+// the client makes one bounded reconnect attempt to send it and otherwise prints `interruptNotPossible`
+// with the thread and turn ids, because the turn keeps running on the remote machine until someone
+// re-opens the tunnel and sends turn/interrupt (for example with codex-ws.ts). Notifications are echoed
+// to stderr. The bearer token is read from the named environment variable only; it never appears in
+// argv or output.
 //
-// Exit codes: 0 completed; 3 timeout (turn interrupted); 4 RPC or protocol error; 6 socket closed or
-// errored (interrupt attempted over a fresh connection); 7 effective policy differs from the requested
-// one; 8 turn ended without completing; 9 thread busy (a turn is already running; use codex queue).
+// Exit codes: 0 completed; 2 bad arguments or empty token env; 3 timeout (turn interrupted); 4 RPC or
+// protocol error; 6 socket closed or errored (interrupt attempted over a fresh connection); 7 effective
+// policy differs from the requested one; 8 turn ended without completing; 9 thread busy (a turn is
+// already running; use codex queue).
 const argv = Bun.argv.slice(2);
 const opt = (name: string, dflt?: string) => {
   const i = argv.indexOf(name);
@@ -63,6 +68,10 @@ if (!text) {
 }
 if (!threadId && !isNew) {
   console.error("pass --thread <uuid> or --new --cwd <path>");
+  process.exit(2);
+}
+if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+  console.error("--timeout-ms must be a positive number of milliseconds");
   process.exit(2);
 }
 const err = (o: unknown) => console.error(`${new Date().toISOString()} ${JSON.stringify(o)}`);
@@ -257,37 +266,47 @@ try {
   startedTurn = { threadId: tid, turnId: started.turn.id };
   err({ turnStarted: { ...startedTurn, model: opened.model, approvalPolicy: effApproval, sandbox: effSandbox } });
   let last: any = null;
-  // Stop polling `fallbackGraceMs` early so the thread/read fallback always has its own budget.
-  while (remaining() > fallbackGraceMs && socketOpen) {
+  // The turn gets the whole budget; the thread/read fallback below runs on its own grace past the deadline.
+  while (remaining() > 0 && socketOpen) {
     if (completedTurn) {
       last = completedTurn;
       break;
     }
-    await Bun.sleep(Math.min(1000, remaining() - fallbackGraceMs));
+    await Bun.sleep(Math.min(1000, remaining()));
   }
   if (!last && completedTurn) last = completedTurn;
   if (!last && socketOpen) {
-    // notification missed or budget nearly spent: read the thread before deciding it timed out
-    const read = await call("thread/read", { threadId: tid, includeTurns: true }, fallbackGraceMs);
-    const turn = (read.thread.turns ?? []).find((t: any) => t.id === startedTurn!.turnId);
-    const readStatus = turn ? statusWord(turn.status) : "missing";
-    // Hydrated history can label a still-open turn "interrupted" with no completedAt; only a completed
-    // status, or a terminal status that carries completedAt, counts as finished.
-    const finished = turn && (readStatus === "completed" || (readStatus !== "inProgress" && turn.completedAt != null));
-    err({
-      fallbackRead: {
-        turnId: startedTurn!.turnId,
-        status: readStatus,
-        completedAt: turn?.completedAt ?? null,
-        finished: Boolean(finished),
-      },
+    // notification missed: read the thread (own `fallbackGraceMs` budget) before deciding it timed out.
+    // If turn/completed lands while the read is in flight, a read that then fails (socket closed, no
+    // response within its grace) is moot: the re-check below reports that turn.
+    const read = await call("thread/read", { threadId: tid, includeTurns: true }, fallbackGraceMs).catch((e) => {
+      if (completedTurn) return null;
+      throw e;
     });
-    if (finished) {
-      last = turn;
-      for (const it of turn.items ?? [])
-        if (it.type === "agentMessage") agentMessages.push(it.text ?? JSON.stringify(it.content));
+    if (read) {
+      const turn = (read.thread.turns ?? []).find((t: any) => t.id === startedTurn!.turnId);
+      const readStatus = turn ? statusWord(turn.status) : "missing";
+      // Hydrated history can label a still-open turn "interrupted" with no completedAt; only a completed
+      // status, or a terminal status that carries completedAt, counts as finished.
+      const finished =
+        turn && (readStatus === "completed" || (readStatus !== "inProgress" && turn.completedAt != null));
+      err({
+        fallbackRead: {
+          turnId: startedTurn!.turnId,
+          status: readStatus,
+          completedAt: turn?.completedAt ?? null,
+          finished: Boolean(finished),
+        },
+      });
+      if (finished) {
+        last = turn;
+        for (const it of turn.items ?? [])
+          if (it.type === "agentMessage") agentMessages.push(it.text ?? JSON.stringify(it.content));
+      }
     }
   }
+  // turn/completed can arrive while thread/read is in flight: report that turn instead of a timeout.
+  if (!last && completedTurn) last = completedTurn;
   if (!last) {
     if (!socketOpen) throw new Error("socket closed while the turn was running");
     err({ timeout: timeoutMs, ...startedTurn });
