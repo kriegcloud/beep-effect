@@ -61,31 +61,31 @@ export const ThingFields = {
    *
    * @since 0.0.0
    */
-  name: S.optional(S.String),
+  name: S.optionalKey(S.String),
   /**
    * The canonical URL for the node. Single-valued.
    *
    * @since 0.0.0
    */
-  url: S.optional(S.String),
+  url: S.optionalKey(S.String),
   /**
    * A description of the node. Single-valued.
    *
    * @since 0.0.0
    */
-  description: S.optional(S.String),
+  description: S.optionalKey(S.String),
   /**
    * External identifiers for the node. Repeatable.
    *
    * @since 0.0.0
    */
-  identifier: S.String.pipe(S.Array, S.optional),
+  identifier: S.String.pipe(S.Array, S.optionalKey),
   /**
    * URLs of pages that unambiguously identify the node. Repeatable.
    *
    * @since 0.0.0
    */
-  sameAs: S.String.pipe(S.Array, S.optional),
+  sameAs: S.String.pipe(S.Array, S.optionalKey),
   /**
    * schema.org terms this package does not model as typed fields, flattened
    * into the node's JSON object at serialization.
@@ -102,5 +102,5 @@ export const ThingFields = {
    *
    * @since 0.0.0
    */
-  additional: S.optional(S.Record(S.String, S.Json)),
+  additional: S.optionalKey(S.Record(S.String, S.Json)),
 } as const;
