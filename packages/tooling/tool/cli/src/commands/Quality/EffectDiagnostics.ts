@@ -274,7 +274,7 @@ const scriptProjects = (commands: ReadonlyArray<string>, build: boolean) =>
           pipe(
             O.fromUndefinedOr(match[1]),
             O.map((value) => (build ? Str.split(value, /\s+/u) : [value])),
-            O.getOrElse(() => A.empty<string>())
+            O.getOrElse(A.empty<string>)
           )
         ),
         A.filter((value) => !Str.startsWith("-")(value)),
@@ -376,7 +376,7 @@ const collectDiagnosticsInventory = Effect.fn("EffectDiagnostics.inventory")(fun
       inventory,
       program.packageName,
       pipe(
-        O.getOrElse(HashMap.get(inventory, program.packageName), () => A.empty<string>()),
+        O.getOrElse(HashMap.get(inventory, program.packageName), A.empty<string>),
         A.append(program.tsconfigPath),
         A.dedupe,
         A.sort(Order.String)

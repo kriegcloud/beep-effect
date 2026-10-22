@@ -101,7 +101,7 @@ deriving a refusal (or a permission) from determinism, and no named divergence m
 **What exists — the evidence layer is real.**
 
 - Committed ratchet baselines: `standards/coverage.regression-baseline.jsonc`,
-  `standards/jsdoc-totals.regression-baseline.jsonc`, `standards/knip.regression-baseline.jsonc`,
+  `standards/jsdoc-totals.regression-baseline.jsonc`, `4ec5e74a89:standards/knip.regression-baseline.jsonc` (retired by #1584),
   `standards/fallow.{dead-code,health}.regression-baseline.jsonc` (`goals/quality-gate-ratchets`, 5/5).
 - Schema-validated judge inventories (`qa-inventory/v1`, `CLAUDE.md` Browser QA law) and
   `packages/tooling/tool/cli/src/commands/Qa/JudgeIngest.ts:122`.
