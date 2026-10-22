@@ -17,3 +17,9 @@ migrations, and compares them to the repo. The `test` cache key did not cover
 `20261021041032_row_version_default` the hosted Test Unit lane replayed a stale
 green (`cache hit, replaying logs`) while every uncached run failed with ENOENT.
 With the input declared, a migration change invalidates the cached result.
+
+Re-request 2026-10-22 (S43 batch remediation, `fix/s43-batch-main-reds`): the original request's
+`previous` no longer matched main after later baseline registrations, so the cherry-pick kept main's
+`standards/cache-qualification-baseline.json` and the request is re-submitted with `previous` set to the
+SHA-256 of main's current baseline text. `bun run beep cache audit` on the batch branch reports the same
+single drift: BLOCK `@beep/repo-cli#test`, REVIEW `packages/tooling/tool/cli/turbo.json`.
