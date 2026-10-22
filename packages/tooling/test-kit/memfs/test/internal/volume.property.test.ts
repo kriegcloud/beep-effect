@@ -4,6 +4,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const Name = S.String.check(S.isPattern(/^[a-z]{1,12}$/));
@@ -37,7 +38,7 @@ describe("volume path and byte fidelity", () => {
         const engine = yield* makeInspectableWith(EngineOptions.make({ caseSensitive: false }));
         const fs = engine.fileSystem;
         const filename = `file-${name}`;
-        const stored = filename.toUpperCase();
+        const stored = Str.toUpperCase(filename);
         yield* fs.writeFileString(`/${stored}`, text);
         const parsed = yield* fs.glob(filename);
         assert.deepStrictEqual(parsed, [stored]);

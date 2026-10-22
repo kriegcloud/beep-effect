@@ -36,6 +36,7 @@ import * as Console from "effect/Console";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as ChildProcess from "effect/process/ChildProcess";
@@ -588,7 +589,10 @@ describe("collectYeetWatchSnapshot", () => {
           const fs = yield* FileSystem.FileSystem;
           const subjectContext = contextFor(root);
           const closeoutPath = yield* runArtifactPathForContext(subjectContext, "pr-closeout.json");
-          yield* fs.makeDirectory(closeoutPath.slice(0, closeoutPath.lastIndexOf("/")), { recursive: true });
+          yield* fs.makeDirectory(
+            Str.slice(0, O.getOrElse(Str.lastIndexOf("/")(closeoutPath), constant(-1)))(closeoutPath),
+            { recursive: true }
+          );
           const report = PrCloseoutReport.make({
             actionableReviewThreadCount: 0,
             botCommentCount: 1,
@@ -636,7 +640,10 @@ describe("collectYeetWatchSnapshot", () => {
         const root = yield* fs.makeTempDirectoryScoped();
         const subjectContext = contextFor(root);
         const closeoutPath = yield* runArtifactPathForContext(subjectContext, "pr-closeout.json");
-        yield* fs.makeDirectory(closeoutPath.slice(0, closeoutPath.lastIndexOf("/")), { recursive: true });
+        yield* fs.makeDirectory(
+          Str.slice(0, O.getOrElse(Str.lastIndexOf("/")(closeoutPath), constant(-1)))(closeoutPath),
+          { recursive: true }
+        );
         const greptile = GreptileSummary.make({});
         const issues = gateIssues(
           PrCloseoutOptions.make({

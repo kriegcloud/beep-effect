@@ -3,6 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import { caseInsensitiveSuite } from "./CaseInsensitiveContract.ts";
 import { firstEvent } from "./helpers.ts";
 
@@ -78,7 +79,7 @@ describe("case-insensitive watch", () => {
           fs.writeFileString("/repo/sentinel.txt", "")
         );
         assert.strictEqual(event?._tag, "Update");
-        assert.strictEqual(event?.path.toLowerCase(), "/repo/docs.json");
+        assert.strictEqual(event === undefined ? undefined : Str.toLowerCase(event.path), "/repo/docs.json");
       })
     );
   });
@@ -95,7 +96,7 @@ describe("case-insensitive watch", () => {
           fs.writeFileString("/Repo/sentinel.txt", "")
         );
         assert.strictEqual(event?._tag, "Remove");
-        assert.strictEqual(event?.path.toLowerCase(), "/repo/docs.json");
+        assert.strictEqual(event === undefined ? undefined : Str.toLowerCase(event.path), "/repo/docs.json");
       })
     );
   });
@@ -112,7 +113,7 @@ describe("case-insensitive watch", () => {
           fs.writeFileString("/repo/sentinel.txt", "")
         );
         assert.strictEqual(event?._tag, "Update");
-        assert.strictEqual(event?.path.toLowerCase(), "/repo/sub/deep.json");
+        assert.strictEqual(event === undefined ? undefined : Str.toLowerCase(event.path), "/repo/sub/deep.json");
       })
     );
   });

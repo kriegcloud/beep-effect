@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2c, feat/effected-promotion-w2c)",
+      "reason": "Record the dependency-only drift of @beep/repo-utils and @beep/repo-cli (both gain @beep/glob), the export and dependency removals of @beep/schema (./Glob) and @beep/utils (picomatch), and the root @types/picomatch devDependency as wave 2c retires the duplicate glob modules; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2c.md",
+        "sha256": "454b7ef4d12734d638e3e37c7ae19b7d5249105ca0e3df921da95dec553f8a4b"
       }
     },
     "@beep/acp": {
@@ -1074,11 +1074,11 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2c, feat/effected-promotion-w2c)",
+      "reason": "Record the dependency-only drift of @beep/repo-utils and @beep/repo-cli (both gain @beep/glob), the export and dependency removals of @beep/schema (./Glob) and @beep/utils (picomatch), and the root @types/picomatch devDependency as wave 2c retires the duplicate glob modules; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2c.md",
+        "sha256": "454b7ef4d12734d638e3e37c7ae19b7d5249105ca0e3df921da95dec553f8a4b"
       }
     },
     "@beep/repo-configs": {
@@ -1098,11 +1098,11 @@
       }
     },
     "@beep/repo-utils": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2c, feat/effected-promotion-w2c)",
+      "reason": "Record the dependency-only drift of @beep/repo-utils and @beep/repo-cli (both gain @beep/glob), the export and dependency removals of @beep/schema (./Glob) and @beep/utils (picomatch), and the root @types/picomatch devDependency as wave 2c retires the duplicate glob modules; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2c.md",
+        "sha256": "454b7ef4d12734d638e3e37c7ae19b7d5249105ca0e3df921da95dec553f8a4b"
       }
     },
     "@beep/runpod": {
@@ -1130,11 +1130,11 @@
       }
     },
     "@beep/schema": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2c, feat/effected-promotion-w2c)",
+      "reason": "Record the dependency-only drift of @beep/repo-utils and @beep/repo-cli (both gain @beep/glob), the export and dependency removals of @beep/schema (./Glob) and @beep/utils (picomatch), and the root @types/picomatch devDependency as wave 2c retires the duplicate glob modules; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2c.md",
+        "sha256": "454b7ef4d12734d638e3e37c7ae19b7d5249105ca0e3df921da95dec553f8a4b"
       }
     },
     "@beep/schema-org": {
@@ -1354,11 +1354,11 @@
       }
     },
     "@beep/utils": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2c, feat/effected-promotion-w2c)",
+      "reason": "Record the dependency-only drift of @beep/repo-utils and @beep/repo-cli (both gain @beep/glob), the export and dependency removals of @beep/schema (./Glob) and @beep/utils (picomatch), and the root @types/picomatch devDependency as wave 2c retires the duplicate glob modules; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w2c.md",
+        "sha256": "454b7ef4d12734d638e3e37c7ae19b7d5249105ca0e3df921da95dec553f8a4b"
       }
     },
     "@beep/walker": {
@@ -92866,6 +92866,7 @@
           "@beep/ffmpeg#audit",
           "@beep/file-processing#audit",
           "@beep/github#audit",
+          "@beep/glob#audit",
           "@beep/identity#audit",
           "@beep/libpff#audit",
           "@beep/m365#audit",
@@ -92968,6 +92969,7 @@
           "@beep/ffmpeg#build",
           "@beep/file-processing#build",
           "@beep/github#build",
+          "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
@@ -93059,6 +93061,7 @@
           "@beep/ffmpeg#build",
           "@beep/file-processing#build",
           "@beep/github#build",
+          "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
@@ -93137,6 +93140,7 @@
           "@beep/ffmpeg#build",
           "@beep/file-processing#build",
           "@beep/github#build",
+          "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
@@ -93264,6 +93268,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
@@ -93387,6 +93392,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
@@ -93628,6 +93634,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
@@ -93709,6 +93716,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
@@ -93800,6 +93808,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
@@ -95210,6 +95219,7 @@
         "command": "bun run --if-present beep:audit",
         "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
+          "@beep/glob#audit",
           "@beep/identity#audit",
           "@beep/memfs#audit",
           "@beep/schema#audit",
@@ -95278,6 +95288,7 @@
         "command": "bun run beep:build",
         "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
+          "@beep/glob#build",
           "@beep/identity#build",
           "@beep/memfs#build",
           "@beep/schema#build",
@@ -95335,6 +95346,7 @@
         "command": "bun run beep:check",
         "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
+          "@beep/glob#build",
           "@beep/identity#build",
           "@beep/memfs#build",
           "@beep/schema#build",
@@ -95379,6 +95391,7 @@
         "command": "bunx vitest run --coverage",
         "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
+          "@beep/glob#build",
           "@beep/identity#build",
           "@beep/memfs#build",
           "@beep/schema#build",
@@ -95508,6 +95521,7 @@
         "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "//#lint:policy-fingerprint",
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
           "@beep/schema#transit",
@@ -95715,6 +95729,7 @@
         "command": "beep-cli quality test-tsgo-package",
         "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
           "@beep/schema#transit",
@@ -95762,6 +95777,7 @@
         "command": "bun run beep:test",
         "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
           "@beep/schema#transit",
@@ -95815,6 +95831,7 @@
         "command": "bun run beep:test",
         "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
+          "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/memfs#transit",
           "@beep/schema#transit",

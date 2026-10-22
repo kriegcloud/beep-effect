@@ -4112,6 +4112,7 @@
           "@beep/ffmpeg",
           "@beep/file-processing",
           "@beep/github",
+          "@beep/glob",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4156,6 +4157,7 @@
           "@beep/ffmpeg",
           "@beep/file-processing",
           "@beep/github",
+          "@beep/glob",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4237,6 +4239,7 @@
       {
         "from": "@beep/repo-utils",
         "allow": [
+          "@beep/glob",
           "@beep/identity",
           "@beep/memfs",
           "@beep/repo-utils",
@@ -4247,6 +4250,7 @@
           "@beep/walker"
         ],
         "allowTypeOnly": [
+          "@beep/glob",
           "@beep/identity",
           "@beep/memfs",
           "@beep/repo-utils",

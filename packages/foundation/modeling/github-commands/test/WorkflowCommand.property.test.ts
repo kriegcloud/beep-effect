@@ -5,6 +5,8 @@ import { assertDefined, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { constant } from "effect/Function";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -16,8 +18,9 @@ const names = Arbitrary.schema(S.Literals(["debug", "notice", "warning", "error"
 // Independent runner-style oracle: decode delimiters/newlines before percent,
 // exactly once, so literal escape-looking data remains literal data.
 const messageValue = (value: string): string =>
-  value.replaceAll("%0D", "\r").replaceAll("%0A", "\n").replaceAll("%25", "%");
-const propertyValue = (value: string): string => messageValue(value.replaceAll("%3A", ":").replaceAll("%2C", ","));
+  Str.replaceAll("%25", "%")(Str.replaceAll("%0A", "\n")(Str.replaceAll("%0D", "\r")(value)));
+const propertyValue = (value: string): string =>
+  messageValue(Str.replaceAll("%2C", ",")(Str.replaceAll("%3A", ":")(value)));
 const parse = (wire: string) => {
   const match = /^::([^ :]+)(?: ([\s\S]*?))?::([\s\S]*)$/.exec(wire);
   if (match === null) throw new Error("Malformed workflow command");
@@ -27,9 +30,9 @@ const parse = (wire: string) => {
   assertDefined(message);
   const properties = R.fromEntries(
     A.map(match[2] === undefined ? [] : Str.split(match[2], ","), (entry) => {
-      const separator = entry.indexOf("=");
+      const separator = O.getOrElse(Str.indexOf("=")(entry), constant(-1));
       assertTrue(separator >= 0);
-      return [entry.slice(0, separator), propertyValue(entry.slice(separator + 1))] as const;
+      return [Str.slice(0, separator)(entry), propertyValue(Str.slice(separator + 1)(entry))] as const;
     })
   );
   return { name, properties, message: messageValue(message) };

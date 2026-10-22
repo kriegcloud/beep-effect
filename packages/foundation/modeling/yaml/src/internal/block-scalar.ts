@@ -4,6 +4,7 @@
 
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as Str from "effect/String";
 
 const isLineBreak = (char: string | undefined): boolean => char === "\n" || char === "\r";
 
@@ -62,7 +63,7 @@ const foldSeparator = (result: string, touchesMoreIndented: boolean): string => 
   if (touchesMoreIndented) {
     return "\n";
   }
-  return result.endsWith("\n") ? "" : " ";
+  return Str.endsWith("\n")(result) ? "" : " ";
 };
 
 /**

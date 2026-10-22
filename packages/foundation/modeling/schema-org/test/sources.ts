@@ -54,8 +54,8 @@ const resolveSpecifier = (file: string, specifier: string): string => {
 /** Every relative import specifier in a module, resolved to a source path. */
 const importsOf = (file: string): ReadonlyArray<string> =>
   pipe(
-    A.fromIterable(sourceOf(file).matchAll(/from\s+"(\.[^"]+)"/g)),
-    A.map((match) => resolveSpecifier(file, (match[1] ?? "").replace(/\.js$/, ".ts")))
+    A.fromIterable(Str.matchAll(/from\s+"(\.[^"]+)"/g)(sourceOf(file))),
+    A.map((match) => resolveSpecifier(file, Str.replace(/\.js$/, ".ts")(match[1] ?? "")))
   );
 
 /**

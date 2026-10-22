@@ -23,6 +23,7 @@ import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import type { JsonLdNode } from "@beep/schema-org/JsonLdDocument";
 
@@ -295,7 +296,7 @@ describe("Conformance.validateResult", () => {
     );
     const error = Result.isFailure(result) ? result.failure : undefined;
     assert.strictEqual(error?.issues.length, 2);
-    assert.isTrue(error?.message.includes("schema.org 30.0"));
+    assert.isTrue(error === undefined ? undefined : Str.includes("schema.org 30.0")(error.message));
   });
 
   it.effect("has an Effect twin defined in terms of the Result form", () =>

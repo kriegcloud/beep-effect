@@ -8,6 +8,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -50,7 +51,7 @@ it.effect.prop(
   ([key, value, eol, index]) =>
     Effect.gen(function* () {
       const id = SectionId.make({ key, commentStyle: styles[index] });
-      const content = `data:${value.replace(/\r/g, "").replace(/\n/g, "\ndata:")}`;
+      const content = `data:${Str.replace(/\n/g, "\ndata:")(Str.replace(/\r/g, "")(value))}`;
       const section = id.section(content, { origin: "property", key });
       const dialect = SectionDialect.default;
       const rendered = yield* Effect.fromResult(dialect.render(section, eol));
@@ -63,9 +64,9 @@ it.effect.prop(
       assert.isTrue(S.toEquivalence(SectionDocument)(reparsed, parsed));
       assert.strictEqual(
         dialect.beginMarker(id),
-        rendered.split(eol)[0]?.replace(' origin="property" key="' + key + '"', "")
+        Str.replace(' origin="property" key="' + key + '"', "")(Str.split(eol)(rendered)[0])
       );
-      assert.strictEqual(dialect.endMarker(id), rendered.split(eol).at(-1));
+      assert.strictEqual(dialect.endMarker(id), Str.split(eol)(rendered).at(-1));
     }),
   runs
 );
@@ -76,7 +77,7 @@ it.effect.prop(
   ([key, value, index]) =>
     Effect.gen(function* () {
       const id = SectionId.make({ key, commentStyle: styles[index] });
-      const content = `data:${value.replace(/\r/g, "").replace(/\n/g, "\ndata:")}\r`;
+      const content = `data:${Str.replace(/\n/g, "\ndata:")(Str.replace(/\r/g, "")(value))}\r`;
       const section = id.section(content, { origin: "property", key });
       const dialect = SectionDialect.default;
       const refused = dialect.render(section, "\n");

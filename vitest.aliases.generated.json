@@ -9,9 +9,6 @@
   "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
   "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
   "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
-  "@beep/schema/Glob": [
-    "./packages/foundation/modeling/schema/src/Glob/index.ts"
-  ],
   "@beep/data": ["./packages/foundation/primitive/data/src/index.ts"],
   "@beep/data/*": ["./packages/foundation/primitive/data/src/*"],
   "@beep/ui": ["./packages/foundation/ui-system/ui/src/index.ts"],

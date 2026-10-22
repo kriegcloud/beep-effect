@@ -15,6 +15,7 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import { denied } from "./helpers.ts";
 
@@ -366,7 +367,7 @@ describe("engine name ordering", () => {
       yield* fs.copy("/source", "/new");
       yield* fs.copy("/source", "/existing", { overwrite: true });
       // The host comparison is the pinned upstream comparator, independent of the engine Order.
-      const expected = ["Z", "ä", "a"].sort((left, right) => left.localeCompare(right));
+      const expected = ["Z", "ä", "a"].sort((left, right) => Str.localeCompare(right)(left));
       for (const destination of ["/new", "/existing"]) {
         let previous = BigInt(-1);
         for (const name of expected) {

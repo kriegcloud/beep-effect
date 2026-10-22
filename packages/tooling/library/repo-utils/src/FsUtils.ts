@@ -8,20 +8,21 @@
  * @since 0.0.0
  */
 
+import { GlobPattern, GlobPatternOptions } from "@beep/glob/GlobPattern";
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { A, P, thunkFalse } from "@beep/utils";
-import { Glob as SharedGlob, layer as SharedGlobLayer, GlobOptions as SharedGlobOptions } from "@beep/utils/Glob";
+import { A, thunkFalse } from "@beep/utils";
 import * as O from "@beep/utils/Option";
+import { compileAndExpand } from "@beep/walker/Expand";
 import { Walker } from "@beep/walker/Walker";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { DomainError, NoSuchFileError } from "./errors/index.ts";
 import { jsonStringifyPretty } from "./JsonUtils.ts";
 
@@ -56,6 +57,9 @@ export class GlobOptions extends S.Opaque<GlobOptions, { readonly brand: unique 
     dot: S.optionalKey(S.Boolean).annotateKey({
       description: "Include dotfiles and dot-directories in glob results when true.",
     }),
+    followSymlinks: S.optionalKey(S.Boolean).annotateKey({
+      description: "Descend into symlinked directories, with a per-branch cycle guard, when true.",
+    }),
     ignore: S.optionalKey(S.Union([S.String, S.Array(S.String)])).annotateKey({
       description: "One or more glob patterns excluded from the search.",
     }),
@@ -65,6 +69,104 @@ export class GlobOptions extends S.Opaque<GlobOptions, { readonly brand: unique 
     })
   )
 ) {}
+
+// Ignore patterns always match dot segments, as the picomatch post-filter they replace did.
+const ignoreDialect = GlobPatternOptions.make({ dot: true });
+
+// A `**/<name>/**` ignore excludes every directory named `<name>`, so the walk can prune it outright.
+const prunableIgnore = /^\*\*\/([^/*?[\]{}()!+@\\]+)\/\*\*$/;
+
+// The directory names the walk never enters: the `<name>` of each `**/<name>/**` ignore.
+// Any other ignore shape prunes nothing, so the walker's own `node_modules`/`.git`
+// default never silently applies.
+const pruneFromIgnores: (ignores: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  A.flatMap(
+    flow(
+      Str.match(prunableIgnore),
+      O.flatMapNullishOr((match) => match[1]),
+      O.toArray
+    )
+  ),
+  A.dedupe
+);
+
+// A leading `./` and repeated slashes carry no meaning in a glob, so they never reach the walk or its results.
+const normalizeSource: (source: string) => string = flow(Str.replace(/\/{2,}/g, "/"), Str.replace(/^(?:\.\/)+/, ""));
+
+// A leading-`!` pattern in the include list excludes what it names, as in fast-glob and npm workspaces.
+const isExclusion = Str.startsWith("!");
+
+// Each ignore compiles as itself and as everything below it (`p` OR `p/**`), trailing slash dropped.
+const compileIgnores = Effect.fnUntraced(function* (ignores: ReadonlyArray<string>) {
+  const sources = A.flatMap(ignores, (ignore) => {
+    const base = Str.replace(/\/+$/, "")(normalizeSource(ignore));
+    return [base, `${base}/**`];
+  });
+  return yield* Effect.forEach(sources, (source) => GlobPattern.compile(source, ignoreDialect));
+});
+
+// Where one include pattern walks from, and the prefix its walk-relative matches are reported under.
+type WalkAnchor = {
+  readonly cwd: string;
+  readonly prefix: string;
+  readonly pattern: string;
+};
+
+// The compiled ignores of one call: relative ones match the reported path, absolute ones the absolute path.
+type IgnoreSets = {
+  readonly relative: ReadonlyArray<GlobPattern>;
+  readonly absolute: ReadonlyArray<GlobPattern>;
+};
+
+// The leading run of `../` segments a pattern climbs out of `cwd` with, or `""`.
+const leadingClimb: (source: string) => string = flow(
+  Str.match(/^(?:\.\.\/)+/),
+  O.flatMapNullishOr((match) => match[0]),
+  O.getOrElse(() => "")
+);
+
+// An absolute pattern walks from its filesystem root and yields absolute paths; a pattern that
+// starts by climbing out of `cwd` (`../`) walks from the directory it climbs to and keeps the climb
+// in its results; any other pattern walks from `cwd` itself.
+const anchorOf = (path: Path.Path, cwd: string, source: string): WalkAnchor => {
+  const prefix = path.isAbsolute(source) ? path.parse(source).root : leadingClimb(source);
+  return { cwd: path.resolve(cwd, prefix), prefix, pattern: Str.slice(prefix.length)(source) };
+};
+
+const compileIgnoreSets = Effect.fnUntraced(function* (path: Path.Path, ignores: ReadonlyArray<string>) {
+  const relative = yield* compileIgnores(A.filter(ignores, (ignore) => !path.isAbsolute(ignore)));
+  const absolute = yield* compileIgnores(A.filter(ignores, path.isAbsolute));
+  return { relative, absolute } satisfies IgnoreSets;
+});
+
+const isIgnored = (path: Path.Path, ignores: IgnoreSets, anchor: WalkAnchor, match: string): boolean => {
+  const reported = path.isAbsolute(anchor.prefix) ? match : `${anchor.prefix}${match}`;
+  const absolute = path.resolve(anchor.cwd, match);
+  return (
+    A.some(ignores.relative, (ignore) => ignore.matches(reported)) ||
+    A.some(ignores.absolute, (ignore) => ignore.matches(absolute))
+  );
+};
+
+// The include patterns of a call, and its ignores with every leading-`!` include folded in.
+const splitPatterns = (
+  pattern: string | ReadonlyArray<string>,
+  ignore: undefined | string | ReadonlyArray<string>
+): { readonly includes: ReadonlyArray<string>; readonly ignores: ReadonlyArray<string> } => {
+  const sources = A.map(A.ensure(pattern), normalizeSource);
+  return {
+    includes: A.filter(sources, (source) => !isExclusion(source)),
+    ignores: A.appendAll(A.ensure(ignore ?? A.empty<string>()), A.map(A.filter(sources, isExclusion), Str.slice(1))),
+  };
+};
+
+// A relative pattern needs a real directory to walk from; a missing or non-directory cwd fails.
+const requireDirectory = Effect.fnUntraced(function* (fs: FileSystem.FileSystem, cwd: string) {
+  const info = yield* fs.stat(cwd);
+  if (info.type !== "Directory") {
+    return yield* DomainError.make({ message: `Glob cwd "${cwd}" is not a directory` });
+  }
+});
 
 /**
  * Shape of the FsUtils service.
@@ -94,18 +196,27 @@ export interface FsUtilsShape {
    * @since 0.0.0
    */
   readonly getParentDirectory: (filePath: string) => Effect.Effect<string>;
-  /**
-   * Match files and directories using glob patterns.
-   *
-   * @since 0.0.0
-   */
-  readonly glob: (
-    pattern: string | ReadonlyArray<string>,
-    options?: undefined | typeof GlobOptions.Encoded
-  ) => Effect.Effect<ReadonlyArray<string>, DomainError>;
 
   /**
-   * Match only files (not directories) using glob patterns.
+   * Match files (never directories) using glob patterns.
+   *
+   * **Details**
+   *
+   * Each pattern compiles under the `@beep/glob` minimatch dialect and expands
+   * with the `@beep/walker` descent over the provided `FileSystem`. A leading
+   * `./` and repeated slashes are dropped, a leading-`!` pattern excludes what
+   * it names, a pattern that starts with `../` walks from the directory it
+   * climbs to and keeps the climb in its results, and an absolute pattern
+   * yields absolute paths. Ignore patterns exclude a match and everything below
+   * it; an absolute ignore is matched against the absolute path. Results are
+   * deduplicated and sorted, and symlinked directories are entered only under
+   * `followSymlinks`.
+   *
+   * **Gotchas**
+   *
+   * A relative pattern fails with `DomainError` when `cwd` is missing or not a
+   * directory, as does an unreadable directory the walk must enter or a walk
+   * deeper than 256 levels. A symlink to a file matches like the file.
    *
    * @since 0.0.0
    */
@@ -204,33 +315,41 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
   FsUtils,
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    const globUtils = yield* SharedGlob;
     const path = yield* Path.Path;
+    const platform = yield* Effect.context<FileSystem.FileSystem | Path.Path>();
 
-    const runGlob: (
-      pattern: string | ReadonlyArray<string>,
-      options?: undefined | (typeof GlobOptions.Encoded & { readonly nodir?: undefined | boolean })
-    ) => Effect.Effect<ReadonlyArray<string>, DomainError> = Effect.fnUntraced(function* (pattern, options) {
-      const sharedGlobOptions = {
-        ...O.getSomesStruct({ absolute: O.fromUndefinedOr(options?.absolute) }),
-        ...O.getSomesStruct({ cwd: O.fromUndefinedOr(options?.cwd) }),
-        ...O.getSomesStruct({ dot: O.fromUndefinedOr(options?.dot) }),
-        ...O.getSomesStruct({ ignore: O.fromUndefinedOr(options?.ignore) }),
-        ...O.getSomesStruct({ nodir: O.fromUndefinedOr(options?.nodir) }),
-      };
+    const globFiles: FsUtilsShape["globFiles"] = Effect.fn("FsUtils.globFiles")(
+      function* (pattern, options = {}) {
+        const cwd = path.resolve(options.cwd ?? ".");
+        const { includes, ignores } = splitPatterns(pattern, options.ignore);
+        const ignoreSets = yield* compileIgnoreSets(path, ignores);
+        const expandSettings = {
+          glob: { dot: options.dot ?? false },
+          prune: pruneFromIgnores(A.filter(ignores, (ignore) => !path.isAbsolute(ignore))),
+          followSymlinks: options.followSymlinks ?? false,
+          onUnreadable: "fail" as const,
+        };
+        if (A.some(includes, (include) => !path.isAbsolute(include))) yield* requireDirectory(fs, cwd);
 
-      return yield* globUtils
-        .glob(pattern, SharedGlobOptions.make(sharedGlobOptions))
-        .pipe(
-          Effect.mapError((error) =>
-            DomainError.make({ cause: error, message: `Glob failed for pattern "${String(pattern)}"` })
-          )
-        );
-    });
+        const expandOne = Effect.fnUntraced(function* (source: string) {
+          const anchor = anchorOf(path, cwd, source);
+          const matches = yield* compileAndExpand(anchor.pattern, { ...expandSettings, cwd: anchor.cwd });
+          return pipe(
+            matches,
+            A.filter((match) => !isIgnored(path, ignoreSets, anchor, match)),
+            A.map((match) => `${anchor.prefix}${match}`)
+          );
+        });
 
-    const globFiles: FsUtilsShape["globFiles"] = Effect.fnUntraced(function* (pattern, options) {
-      return yield* runGlob(pattern, { ...options, nodir: true });
-    });
+        const matched = A.flatten(yield* Effect.forEach(includes, expandOne).pipe(Effect.provide(platform)));
+        const resolved = options.absolute === true ? A.map(matched, (match) => path.resolve(cwd, match)) : matched;
+        return pipe(resolved, A.dedupe, A.sort(Order.String));
+      },
+      (effect, pattern) =>
+        Effect.mapError(effect, (cause) =>
+          DomainError.make({ cause, message: `Glob failed for pattern "${String(pattern)}"` })
+        )
+    );
 
     const readJson: FsUtilsShape["readJson"] = Effect.fn(function* (filePath) {
       return yield* fs.readFileString(filePath).pipe(
@@ -319,7 +438,6 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
     });
 
     return FsUtils.of({
-      glob: runGlob,
       globFiles,
       readJson,
       writeJson,
@@ -330,184 +448,6 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       isFile,
       getParentDirectory,
     });
-  })
-).pipe(Layer.provideMerge(SharedGlobLayer));
-
-/**
- * How {@link walkFiles} treats symbolic links encountered during traversal.
- *
- * **Details**
- *
- * - `"follow"` resolves link targets via `stat` and imposes no cycle guard —
- *   the lightest mode, matching plain recursive `readDirectory` walkers.
- * - `"skip-symlinks"` excludes every symlinked entry (file or directory) before
- *   `stat`, so links are neither traversed nor emitted.
- * - `"guard-cycles"` canonicalizes each directory with `realPath` and refuses to
- *   re-enter a directory already visited, protecting against symlink loops while
- *   still emitting the traversal (non-canonical) paths.
- *
- * **Example** (Selecting guard-cycles mode)
- *
- * ```ts
- * import type { WalkFilesSymlinkGuard } from "@beep/repo-utils/FsUtils"
- * const guard = "guard-cycles" satisfies WalkFilesSymlinkGuard
- * console.log(guard)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type WalkFilesSymlinkGuard = "follow" | "skip-symlinks" | "guard-cycles";
-
-/**
- * Options controlling a {@link walkFiles} traversal.
- *
- * **Example** (Skipping directories and filtering)
- *
- * ```ts
- * import * as A from "effect/Array"
- * import type { WalkFilesOptions } from "@beep/repo-utils/FsUtils"
- * const options = {
- *   skipDirectories: ["node_modules", "dist", "build", ".turbo"],
- *   include: (_filePath, name) => A.some([".ts", ".tsx"], (ext) => name.endsWith(ext)),
- * } satisfies WalkFilesOptions
- * console.log(options.skipDirectories)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export interface WalkFilesOptions {
-  /**
-   * Predicate deciding whether a regular file is emitted, receiving the joined
-   * child path and the bare entry name. Defaults to including every file.
-   *
-   * @since 0.0.0
-   */
-  readonly include?: undefined | ((filePath: string, name: string) => boolean);
-  /**
-   * Directory base names to prune from the traversal, matched by exact equality
-   * against each directory entry name (not a glob or substring).
-   *
-   * @since 0.0.0
-   */
-  readonly skipDirectories?: undefined | ReadonlyArray<string>;
-  /**
-   * Symbolic-link handling strategy. Defaults to `"follow"`.
-   *
-   * @since 0.0.0
-   */
-  readonly symlinkGuard?: undefined | WalkFilesSymlinkGuard;
-}
-
-const includeAllFiles = (_filePath: string, _name: string): boolean => true;
-
-/**
- * Recursively collect regular files beneath `root`, pruning skipped directories
- * and applying a file predicate, with deterministic sorted output.
- *
- * **Gotchas**
- *
- * Consolidates the hand-rolled recursive `readDirectory` walkers scattered
- * across repo tooling: each re-typed its own `node_modules`/`dist`/`build`/
- * `.turbo` skip list, extension filter, symlink policy, and ordering. The
- * returned paths are the joined traversal paths (never canonicalized), sorted
- * once as a flat list by lexicographic path order via `Order.String` — not
- * sorted per directory level. A missing `root` yields an empty array rather than
- * a failure. Directory reads and `stat` failures surface as {@link DomainError}.
- * See {@link WalkFilesSymlinkGuard} for the symlink modes.
- *
- * **Example** (Walking for TypeScript files)
- *
- * ```ts
- * import * as Effect from "effect/Effect";
- * import { walkFiles } from "@beep/repo-utils/FsUtils"
- *
- * const program = walkFiles("packages/example/src", {
- *   skipDirectories: ["node_modules", "dist"],
- *   include: (_filePath, name) => name.endsWith(".ts"),
- * })
- * const collect = Effect.map(program, (files) => files.length)
- * console.log(collect)
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const walkFiles: {
-  (
-    options?: undefined | WalkFilesOptions
-  ): (root: string) => Effect.Effect<ReadonlyArray<string>, DomainError, FileSystem.FileSystem | Path.Path>;
-  (
-    root: string,
-    options?: undefined | WalkFilesOptions
-  ): Effect.Effect<ReadonlyArray<string>, DomainError, FileSystem.FileSystem | Path.Path>;
-} = dual(
-  (args) => P.isString(args[0]),
-  Effect.fn(function* (root: string, options: WalkFilesOptions = {}) {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const skipDirectories = options.skipDirectories ?? A.empty<string>();
-    const include = options.include ?? includeAllFiles;
-    const symlinkGuard: WalkFilesSymlinkGuard = options.symlinkGuard ?? "follow";
-    const visited = MutableHashSet.empty<string>();
-
-    const rootExists = yield* fs.exists(root).pipe(Effect.orElseSucceed(thunkFalse));
-    if (!rootExists) {
-      return A.empty<string>();
-    }
-
-    if (symlinkGuard === "guard-cycles") {
-      const canonicalRoot = yield* fs.realPath(root).pipe(Effect.orElseSucceed(() => root));
-      MutableHashSet.add(visited, canonicalRoot);
-    }
-
-    const visit: (current: string) => Effect.Effect<ReadonlyArray<string>, DomainError> = Effect.fnUntraced(
-      function* (current) {
-        const entries = yield* fs
-          .readDirectory(current)
-          .pipe(Effect.mapError(DomainError.newCause(`Failed to read directory "${current}"`)));
-        let files = A.empty<string>();
-
-        for (const entry of entries) {
-          const childPath = path.join(current, entry);
-
-          if (symlinkGuard === "skip-symlinks") {
-            const link = yield* fs.readLink(childPath).pipe(Effect.option);
-            if (O.isSome(link)) {
-              continue;
-            }
-          }
-
-          const info = yield* fs
-            .stat(childPath)
-            .pipe(Effect.mapError(DomainError.newCause(`Failed to stat "${childPath}"`)));
-
-          if (info.type === "Directory") {
-            if (A.contains(skipDirectories, entry)) {
-              continue;
-            }
-            if (symlinkGuard === "guard-cycles") {
-              const canonical = yield* fs.realPath(childPath).pipe(Effect.orElseSucceed(() => childPath));
-              if (MutableHashSet.has(visited, canonical)) {
-                continue;
-              }
-              MutableHashSet.add(visited, canonical);
-            }
-            files = A.appendAll(files, yield* visit(childPath));
-            continue;
-          }
-
-          if (info.type === "File" && include(childPath, entry)) {
-            files = A.append(files, childPath);
-          }
-        }
-
-        return files;
-      }
-    );
-
-    return A.sort(yield* visit(root), Order.String);
   })
 );
 

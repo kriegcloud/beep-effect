@@ -16,6 +16,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as SubscriptionRef from "effect/SubscriptionRef";
 import * as TestClock from "effect/testing/TestClock";
 
@@ -96,7 +97,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("Journal integration", (
           // Payloads large enough that an unserialized writer would visibly
           // interleave, and distinct enough that a torn line is unmistakable.
           const rounds = Array.from({ length: 40 }, (_, index) => index);
-          yield* Effect.forEach(rounds, (round) => journal.append("started", { round, phase: "x".repeat(200) }), {
+          yield* Effect.forEach(rounds, (round) => journal.append("started", { round, phase: Str.repeat(200)("x") }), {
             concurrency: "unbounded",
           });
 

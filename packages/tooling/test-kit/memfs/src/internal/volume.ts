@@ -47,7 +47,7 @@ import * as ByteSize from "effect/ByteSize";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
@@ -61,6 +61,7 @@ import * as Queue from "effect/Queue";
 import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { ErrnoException, errnoError } from "./errno.ts";
 import type * as Cause from "effect/Cause";
 import type { ErrnoCode } from "./errno.ts";
@@ -69,7 +70,7 @@ const $I = $MemfsId.create("internal/volume");
 
 // localeCompare can return any negative/positive magnitude; Orders require -1/0/1.
 const LocaleNameOrder = Order.make<string>((left, right) => {
-  const compared = left.localeCompare(right);
+  const compared = Str.localeCompare(right)(left);
   return Order.Number(compared, 0);
 });
 const InodeNameOrder = Order.mapInput(LocaleNameOrder, (entry: readonly [string, Inode]) => entry[0]);
@@ -323,9 +324,9 @@ const lookupEntry: {
   const exact = O.getOrUndefined(HashMap.get(directory.entries, name));
   if (exact !== undefined) return [name, exact];
   if (state.caseSensitive) return undefined;
-  const folded = name.toLowerCase();
+  const folded = Str.toLowerCase(name);
   for (const [key, inode] of directory.entries) {
-    if (key.toLowerCase() === folded) return [key, inode];
+    if (Str.toLowerCase(key) === folded) return [key, inode];
   }
   return undefined;
 });
@@ -362,7 +363,8 @@ const getInode: {
 );
 
 const validateEntryName = Effect.fnUntraced(function* (method: string, name: string, pathOrDescriptor: string = name) {
-  const invalidName = name.length === 0 || name === "." || name === ".." || name.includes("/") || name.includes("\0");
+  const invalidName =
+    name.length === 0 || name === "." || name === ".." || Str.includes("/")(name) || Str.includes("\0")(name);
   if (invalidName) {
     return yield* invalidData(method, pathOrDescriptor, "Invalid directory entry name");
   }
@@ -407,15 +409,15 @@ const childPath: {
 } = dual(2, (parent: string, name: string): string => (parent === "/" ? `/${name}` : `${parent}/${name}`));
 
 const parentOfPath = (path: string): string => {
-  const separator = path.lastIndexOf("/");
-  return separator <= 0 ? "/" : path.slice(0, separator);
+  const separator = pipe(path, Str.lastIndexOf("/"), O.getOrElse(constant(-1)));
+  return separator <= 0 ? "/" : Str.slice(0, separator)(path);
 };
 
 const isStrictAncestorPath = (ancestor: string, path: string): boolean =>
-  ancestor !== "/" && path.startsWith(`${ancestor}/`);
+  ancestor !== "/" && Str.startsWith(`${ancestor}/`)(path);
 
 const isDescendantPath = (ancestor: string, path: string): boolean =>
-  ancestor === "/" || path.startsWith(`${ancestor}/`);
+  ancestor === "/" || Str.startsWith(`${ancestor}/`)(path);
 
 const isDirectChildPath = (parent: string, path: string): boolean => path !== "/" && parentOfPath(path) === parent;
 
@@ -468,7 +470,7 @@ const publishWatchEvents: {
     caseSensitive: boolean
   ): Effect.Effect<void> =>
     Effect.sync(() => {
-      const fold = caseSensitive ? (path: string) => path : (path: string) => path.toLowerCase();
+      const fold = caseSensitive ? (path: string) => path : (path: string) => Str.toLowerCase(path);
       for (const watcher of A.sort(MutableHashMap.values(watchers), WatchSubscriptionOrder)) {
         const watchedPath = fold(watcher.path);
         for (const event of events) {
@@ -743,11 +745,11 @@ const followSymbolicLink = Effect.fnUntraced(function* (
   if (target.length === 0) {
     return yield* notFound(method, originalPath);
   }
-  if (target.startsWith("/")) {
+  if (Str.startsWith("/")(target)) {
     cursor.stack.splice(1);
     cursor.names.splice(0);
   }
-  cursor.components = target.split("/").concat(cursor.components);
+  cursor.components = Str.split("/")(target).concat(cursor.components);
 });
 
 const resolveNamedComponent = Effect.fnUntraced(function* (
@@ -786,13 +788,13 @@ const resolve: {
   Effect.fnUntraced(function* (state: State, path: string, options: ResolveOptions) {
     const method = options.method;
     const originalPath = path;
-    if (path.includes("\0")) {
+    if (Str.includes("\0")(path)) {
       return yield* nullBytePath(method);
     }
     if (path.length === 0) {
       return yield* notFound(method, path);
     }
-    const cursor: ResolveCursor = { components: path.split("/"), stack: [RootInode], names: [], traversals: 0 };
+    const cursor: ResolveCursor = { components: Str.split("/")(path), stack: [RootInode], names: [], traversals: 0 };
 
     while (cursor.components.length > 0) {
       const component = O.getOrThrow(O.fromUndefinedOr(cursor.components.shift()));
@@ -821,7 +823,7 @@ const trimTrailingSlashParentPath = Effect.fnUntraced(function* (
   errorPath: string,
   missingWithTrailingSlash: ErrnoCode
 ) {
-  const trimmed = path.replace(/\/+$/, "");
+  const trimmed = Str.replace(/\/+$/, "")(path);
   if (trimmed.length === 0) {
     return yield* badResource(method, errorPath, "EISDIR");
   }
@@ -861,12 +863,12 @@ const OpenFlag = LiteralKit(["r", "r+", "w", "wx", "w+", "wx+", "a", "ax", "a+",
 const isOpenFlag = S.is(OpenFlag);
 
 const openMode = (flag: FileSystem.OpenFlag): OpenMode => ({
-  readable: flag === "r" || flag.endsWith("+"),
+  readable: flag === "r" || Str.endsWith("+")(flag),
   writable: flag !== "r",
-  append: flag.startsWith("a"),
-  create: flag.startsWith("w") || flag.startsWith("a"),
-  exclusive: flag.includes("x"),
-  truncate: flag.startsWith("w"),
+  append: Str.startsWith("a")(flag),
+  create: Str.startsWith("w")(flag) || Str.startsWith("a")(flag),
+  exclusive: Str.includes("x")(flag),
+  truncate: Str.startsWith("w")(flag),
 });
 
 // node reports a closed descriptor, or one lacking the access an operation
@@ -967,11 +969,11 @@ const symbolicLinkTargetPath: {
   (linkPath: string, target: string): string;
   (target: string): (linkPath: string) => string;
 } = dual(2, (linkPath: string, target: string): string => {
-  if (target.startsWith("/")) {
+  if (Str.startsWith("/")(target)) {
     return target;
   }
-  const separator = linkPath.lastIndexOf("/");
-  const directory = separator <= 0 ? "/" : linkPath.slice(0, separator);
+  const separator = pipe(linkPath, Str.lastIndexOf("/"), O.getOrElse(constant(-1)));
+  const directory = separator <= 0 ? "/" : Str.slice(0, separator)(linkPath);
   return `${directory}/${target}`;
 });
 
@@ -1010,19 +1012,20 @@ const resolveParent: {
     errorPath: string = path,
     missingWithTrailingSlash: ErrnoCode = "ENOENT"
   ) {
-    if (path.includes("\0")) {
+    if (Str.includes("\0")(path)) {
       return yield* nullBytePath(method);
     }
     if (path.length === 0) {
       return yield* notFound(method, errorPath);
     }
-    const entryPath = path.endsWith("/")
+    const entryPath = Str.endsWith("/")(path)
       ? yield* trimTrailingSlashParentPath(state, path, method, errorPath, missingWithTrailingSlash)
       : path;
-    const components = A.filter(entryPath.split("/"), (component) => component.length > 0);
+    const components = A.filter(Str.split("/")(entryPath), (component) => component.length > 0);
     const name = O.getOrThrow(O.fromUndefinedOr(components.pop()));
     yield* validateEntryName(method, name, errorPath);
-    const parentPath = components.length === 0 ? "/" : `${path.startsWith("/") ? "/" : ""}${A.join(components, "/")}`;
+    const parentPath =
+      components.length === 0 ? "/" : `${Str.startsWith("/")(path) ? "/" : ""}${A.join(components, "/")}`;
     const parent = yield* resolve(state, parentPath, { method }).pipe(
       Effect.mapError(withSystemErrorPath(method, errorPath))
     );
@@ -1258,7 +1261,7 @@ const makeDirectoryPieces = Effect.fnUntraced(function* (
   mode: number | undefined
 ) {
   const method = "makeDirectory";
-  const prefix = path.startsWith("/") ? "/" : "";
+  const prefix = Str.startsWith("/")(path) ? "/" : "";
   const walk: MakeDirectoryWalk = { state, createdPaths: [] };
   for (let index = 0; index < pieces.length; index++) {
     const candidate = `${prefix}${A.join(pieces.slice(0, index + 1), "/")}`;
@@ -1284,8 +1287,8 @@ const makeDirectory = (volume: Volume) =>
     return yield* volume.mutate(
       Effect.fnUntraced(function* (state) {
         const recursive = options?.recursive === true;
-        const pieces = A.filter(path.split("/"), (piece) => piece.length > 0);
-        if (path.includes("\0")) {
+        const pieces = A.filter(Str.split("/")(path), (piece) => piece.length > 0);
+        if (Str.includes("\0")(path)) {
           return yield* nullBytePath(method);
         }
         if (path.length === 0) {
@@ -1329,7 +1332,7 @@ const symlink = (volume: Volume) =>
     return yield* volume.mutate(
       Effect.fnUntraced(function* (state) {
         const parent = yield* resolveParent(state, path, method);
-        if (target.includes("\0")) {
+        if (Str.includes("\0")(target)) {
           return yield* argumentError(method, "target must not contain a null byte");
         }
         const [createdState, inode] = yield* createSymbolicLink(state, target);
@@ -1436,7 +1439,7 @@ const resolveRenameDestinationParent = (
   method: string
 ): Effect.Effect<ResolvedParentDirectory, PlatformError> =>
   source.entry._tag === "Directory" && /[^/]\/+$/.test(newPath)
-    ? resolveParent(state, newPath.replace(/\/+$/, ""), method, newPath)
+    ? resolveParent(state, Str.replace(/\/+$/, "")(newPath), method, newPath)
     : resolveParent(state, newPath, method, newPath, "ENOTDIR");
 
 const isCaseOnlyRename = (
@@ -2951,14 +2954,14 @@ const validateTemporaryFragment: {
 } = dual(
   3,
   (method: string, name: string, value: string): Effect.Effect<void, PlatformError> =>
-    value.includes("/") || value.includes("\0")
+    Str.includes("/")(value) || Str.includes("\0")(value)
       ? Effect.fail(argumentError(method, `${name} must be a file-name fragment`))
       : Effect.void
 );
 
 const allocateTemporaryToken = (state: State): readonly [State, string] => [
   { ...state, nextTemporary: state.nextTemporary + 1 },
-  state.nextTemporary.toString(36).padStart(8, "0"),
+  Str.padStart(8, "0")(state.nextTemporary.toString(36)),
 ];
 
 const allocateTempDirectory: {
@@ -3068,8 +3071,8 @@ const makeTempFile = (volume: Volume) => (options?: TempFileOptions) =>
 
 const makeTempFileScoped = (volume: Volume) => (options?: TempFileOptions) =>
   Effect.acquireRelease(makeTempFileWithMethod(volume, "makeTempFileScoped", options), (path) => {
-    const separator = path.lastIndexOf("/");
-    const directory = path.slice(0, separator);
+    const separator = pipe(path, Str.lastIndexOf("/"), O.getOrElse(constant(-1)));
+    const directory = Str.slice(0, separator)(path);
     return Effect.orDie(remove(volume)(directory, { recursive: true, force: true }));
   });
 
@@ -3187,7 +3190,7 @@ const scanBraceCharacter = (scan: BraceGroupScan, character: string, offset: num
 const scanBraceGroup = (pattern: string, start: number): readonly [number, ReadonlyArray<number>] | undefined => {
   const scan: BraceGroupScan = { depth: 1, characterClass: false, commas: [] };
   for (let end = start + 1; end < pattern.length; end++) {
-    const character = pattern.charAt(end);
+    const character = Str.slice(end, end + 1)(pattern);
     if (character === "\\") {
       end += 1;
     } else if (scanBraceCharacter(scan, character, end)) {
@@ -3200,7 +3203,7 @@ const scanBraceGroup = (pattern: string, start: number): readonly [number, Reado
 // The offset of the next unescaped "{" at or after `from`, or -1.
 const nextBraceOpen = (pattern: string, from: number): number => {
   for (let index = from; index < pattern.length; index++) {
-    const character = pattern.charAt(index);
+    const character = Str.slice(index, index + 1)(pattern);
     if (character === "\\") {
       index += 1;
     } else if (character === "{") {
@@ -3219,7 +3222,7 @@ const braceAlternatives = (
   const alternatives: Array<string> = [];
   let alternativeStart = start + 1;
   for (const comma of [...commas, end]) {
-    alternatives.push(pattern.slice(alternativeStart, comma));
+    alternatives.push(Str.slice(alternativeStart, comma)(pattern));
     alternativeStart = comma + 1;
   }
   return { start, end, alternatives };
@@ -3234,7 +3237,7 @@ const expansionOfBraceGroup = (
   commas: ReadonlyArray<number>
 ): BraceExpansion | undefined => {
   if (commas.length > 0) return braceAlternatives(pattern, start, end, commas);
-  const nested = findBraceExpansion(pattern.slice(start + 1, end));
+  const nested = findBraceExpansion(Str.slice(start + 1, end)(pattern));
   return nested === undefined
     ? undefined
     : { start: start + nested.start + 1, end: start + nested.end + 1, alternatives: nested.alternatives };
@@ -3286,7 +3289,7 @@ const trackBraceNesting = (scan: BraceNestingScan, character: string): void => {
 const braceNestingDepth = (pattern: string): number => {
   const scan: BraceNestingScan = { depth: 0, maximum: 0, characterClass: false };
   for (let index = 0; index < pattern.length; index++) {
-    const character = pattern.charAt(index);
+    const character = Str.slice(index, index + 1)(pattern);
     if (character === "\\") {
       index += 1;
     } else {
@@ -3317,7 +3320,8 @@ const expandBraces: {
       ...patterns.slice(0, index),
       ...A.map(
         expansion.alternatives,
-        (alternative) => `${current.slice(0, expansion.start)}${alternative}${current.slice(expansion.end + 1)}`
+        (alternative) =>
+          `${Str.slice(0, expansion.start)(current)}${alternative}${Str.slice(expansion.end + 1)(current)}`
       ),
       ...patterns.slice(index + 1),
     ];
@@ -3343,7 +3347,7 @@ const readCharacterClassAtom = (
       return argumentError(method, "character classes must not end with an escape");
     }
   }
-  scan.characters.push({ value: segment.charAt(scan.index), escaped });
+  scan.characters.push({ value: Str.slice(scan.index, scan.index + 1)(segment), escaped });
   scan.index += 1;
   return undefined;
 };
@@ -3449,7 +3453,7 @@ const readGlobEscape = (
   if (index + 1 === segment.length) {
     return argumentError(method, "patterns must not end with an escape");
   }
-  const value = segment.charAt(index + 1);
+  const value = Str.slice(index + 1, index + 2)(segment);
   return HashSet.has(globSyntaxCharacters, value)
     ? Effect.succeed([GlobToken.cases.Literal.make({ value }), index + 2] as const)
     : Effect.succeed([GlobToken.cases.Literal.make({ value: "\\" }), index + 1] as const);
@@ -3468,7 +3472,7 @@ const readGlobToken = (
   segment: string,
   index: number
 ): PlatformError | Effect.Effect<readonly [GlobToken, number]> => {
-  const character = segment.charAt(index);
+  const character = Str.slice(index, index + 1)(segment);
   if (character === "\\") return readGlobEscape(method, segment, index);
   if (character === "[") return parseCharacterClass(method, segment, index);
   return Effect.succeed([singleCharacterGlobToken(character), index + 1] as const);
@@ -3513,12 +3517,12 @@ const compileGlobPattern: {
 } = dual(
   2,
   Effect.fnUntraced(function* (method: string, pattern: string) {
-    if (pattern.length === 0 || pattern.includes("\0") || pattern.startsWith("/")) {
+    if (pattern.length === 0 || Str.includes("\0")(pattern) || Str.startsWith("/")(pattern)) {
       return yield* argumentError(method, "pattern must be a root-relative POSIX glob");
     }
-    const directoryOnly = pattern.endsWith("/");
-    const path = directoryOnly ? pattern.slice(0, -1) : pattern;
-    const segments = path.split("/");
+    const directoryOnly = Str.endsWith("/")(pattern);
+    const path = directoryOnly ? Str.slice(0, -1)(pattern) : pattern;
+    const segments = Str.split("/")(path);
     if (segments.includes("") || segments.includes(".") || segments.includes("..")) {
       return yield* argumentError(method, "pattern must not contain empty or dot path segments");
     }
@@ -3539,13 +3543,13 @@ const compileGlobPatterns: {
 );
 
 const matchesLiteral = (literal: string, value: string, fold: boolean): boolean =>
-  literal === value || (fold && literal.toLowerCase() === value.toLowerCase());
+  literal === value || (fold && Str.toLowerCase(literal) === Str.toLowerCase(value));
 
 const matchesCharacterClass = (token: GlobCharacterClass, value: string, fold: boolean): boolean => {
   const matches =
     characterClassIncludes(token, value) ||
     (fold &&
-      (characterClassIncludes(token, value.toLowerCase()) || characterClassIncludes(token, value.toUpperCase())));
+      (characterClassIncludes(token, Str.toLowerCase(value)) || characterClassIncludes(token, Str.toUpperCase(value))));
   return token.negated ? !matches : matches;
 };
 
@@ -3587,7 +3591,10 @@ const stepSegmentMatch = (pattern: GlobSegment, value: string, fold: boolean, cu
     cursor.patternIndex += 1;
     return true;
   }
-  if (token !== undefined && matchesGlobToken(token, value.charAt(cursor.valueIndex), fold)) {
+  if (
+    token !== undefined &&
+    matchesGlobToken(token, Str.slice(cursor.valueIndex, cursor.valueIndex + 1)(value), fold)
+  ) {
     cursor.patternIndex += 1;
     cursor.valueIndex += 1;
     return true;
@@ -3606,7 +3613,7 @@ const matchesGlobSegment: {
 } = dual(
   (args) => P.isTagged(args[0], "Segment"),
   (pattern: GlobSegment, value: string, fold = false): boolean => {
-    if (value.startsWith(".") && !pattern.startsWithDot) return false;
+    if (Str.startsWith(".")(value) && !pattern.startsWithDot) return false;
     const cursor: SegmentMatchCursor = { patternIndex: 0, valueIndex: 0, starIndex: -1, starValueIndex: -1 };
     while (cursor.valueIndex < value.length) {
       if (!stepSegmentMatch(pattern, value, fold, cursor)) return false;
@@ -3624,9 +3631,10 @@ const matchesGlobSegment: {
 const globstarMatchRow = (path: ReadonlyArray<string>, next: ReadonlyArray<boolean>): Array<boolean> => {
   const current = A.makeBy(path.length + 1, () => false);
   for (let pathIndex = path.length; pathIndex >= 0; pathIndex--) {
+    const component = path[pathIndex];
     current[pathIndex] =
       next[pathIndex] === true ||
-      (pathIndex < path.length && path[pathIndex]?.startsWith(".") === false && current[pathIndex + 1] === true);
+      (pathIndex < path.length && component !== undefined && component[0] !== "." && current[pathIndex + 1] === true);
   }
   return current;
 };
@@ -4105,7 +4113,8 @@ const lookupLiteral: {
   return entry;
 });
 
-const splitComponents = (path: string): ReadonlyArray<string> => A.filter(path.split("/"), (part) => part.length > 0);
+const splitComponents = (path: string): ReadonlyArray<string> =>
+  A.filter(Str.split("/")(path), (part) => part.length > 0);
 // END KIT EXTENSION (inspection lookup)
 
 // A member that is behavior: held by reference, recognized as a function.

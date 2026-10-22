@@ -33,6 +33,7 @@ import * as Effect from "effect/Effect";
 import * as AsyncResult from "effect/reactivity/AsyncResult";
 import * as Atom from "effect/reactivity/Atom";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { $createTextNode, $getSelection, $isRangeSelection } from "lexical";
 import { createPortal } from "react-dom";
 import {
@@ -111,12 +112,12 @@ export class MentionLookupError extends S.TaggedError<MentionLookupError, { read
 // its label, hint, or keywords. Extracted so the filter predicate reads as one
 // named match rather than an inline conditional chain.
 const slashItemMatchesQuery = (item: SlashItem, q: string): boolean =>
-  item.label.toLowerCase().includes(q) ||
-  (item.hint?.toLowerCase().includes(q) ?? false) ||
-  A.some(item.keywords ?? [], (keyword) => keyword.toLowerCase().includes(q));
+  Str.includes(q)(Str.toLowerCase(item.label)) ||
+  (item.hint !== undefined && Str.includes(q)(Str.toLowerCase(item.hint))) ||
+  A.some(item.keywords ?? [], (keyword) => Str.includes(q)(Str.toLowerCase(keyword)));
 
 const filterSlashItems = (items: ReadonlyArray<SlashItem>, query: string): ReadonlyArray<SlashItem> => {
-  const q = query.trim().toLowerCase();
+  const q = Str.toLowerCase(Str.trim(query));
   if (q === "") return items;
   return A.filter(items, (item) => slashItemMatchesQuery(item, q));
 };

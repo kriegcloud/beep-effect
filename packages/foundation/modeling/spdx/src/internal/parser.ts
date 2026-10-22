@@ -1,6 +1,7 @@
 import { $SpdxId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { License } from "../License.ts";
 import { LicenseException } from "../LicenseException.ts";
 
@@ -190,15 +191,10 @@ const DOCUMENT_REF_PREFIX = "DocumentRef-";
 const LICENSE_REF_PREFIX = "LicenseRef-";
 
 // idstring = 1*(ALPHA / DIGIT / "-" / "." ) — the SPDX Appendix IV character
-// class. Checked by code point to avoid constructing a RegExp per character.
-function isIdChar(code: number): boolean {
-  return (
-    (code >= 48 && code <= 57) || // 0-9
-    (code >= 65 && code <= 90) || // A-Z
-    (code >= 97 && code <= 122) || // a-z
-    code === 46 || // .
-    code === 45 // -
-  );
+// class. Reuse one expression for each one-character slice.
+const ID_CHAR = /^[0-9A-Za-z.-]$/;
+function isIdChar(char: string): boolean {
+  return ID_CHAR.test(char);
 }
 
 /**
@@ -218,7 +214,7 @@ function scan(source: string): ReadonlyArray<Token> | undefined {
   const n = source.length;
   while (i < n) {
     // Whitespace: SPDX permits only the ASCII space between tokens.
-    if (source.charCodeAt(i) === 32) {
+    if (source[i] === " ") {
       i++;
       continue;
     }
@@ -235,12 +231,12 @@ const CLOSE_PAREN_TOKEN: Token = { type: TOKEN_CLOSE_PAREN, value: ")" };
 const PLUS_TOKEN: Token = { type: TOKEN_PLUS, value: "+" };
 const COLON_TOKEN: Token = { type: TOKEN_COLON, value: ":" };
 
-// The single-character punctuation token for `code`, if it is one.
-function punctuationToken(code: number): Token | undefined {
-  if (code === 40) return OPEN_PAREN_TOKEN;
-  if (code === 41) return CLOSE_PAREN_TOKEN;
-  if (code === 43) return PLUS_TOKEN;
-  if (code === 58) return COLON_TOKEN;
+// The single-character punctuation token for `char`, if it is one.
+function punctuationToken(char: string): Token | undefined {
+  if (char === "(") return OPEN_PAREN_TOKEN;
+  if (char === ")") return CLOSE_PAREN_TOKEN;
+  if (char === "+") return PLUS_TOKEN;
+  if (char === ":") return COLON_TOKEN;
   return undefined;
 }
 
@@ -248,14 +244,14 @@ function punctuationToken(code: number): Token | undefined {
 // Returns the index just past it, or `-1` on an unexpected character or a
 // `+` preceded by a space (a `+` must abut its license id).
 function scanToken(source: string, i: number, tokens: Token[]): number {
-  const code = source.charCodeAt(i);
-  if (code === 43 && i > 0 && source.charCodeAt(i - 1) === 32) return -1;
-  const punctuation = punctuationToken(code);
+  const char = Str.slice(i, i + 1)(source);
+  if (char === "+" && i > 0 && source[i - 1] === " ") return -1;
+  const punctuation = punctuationToken(char);
   if (punctuation !== undefined) {
     tokens.push(punctuation);
     return i + 1;
   }
-  if (!isIdChar(code)) return -1;
+  if (!isIdChar(char)) return -1;
   return scanIdString(source, i, tokens);
 }
 
@@ -265,12 +261,12 @@ function scanToken(source: string, i: number, tokens: Token[]): number {
 function scanIdString(source: string, i: number, tokens: Token[]): number {
   const n = source.length;
   let j = i + 1;
-  while (j < n && isIdChar(source.charCodeAt(j))) j++;
-  const value = source.slice(i, j);
+  while (j < n && isIdChar(Str.slice(j, j + 1)(source))) j++;
+  const value = Str.slice(i, j)(source);
   // AND / OR / WITH are keywords only as whole tokens; a maximal
   // idstring run means an id merely containing them (e.g. the "or" in
   // `GPL-2.0-or-later`) is never mistaken for an operator.
-  tokens.push({ type: keywordType(value.toUpperCase()), value });
+  tokens.push({ type: keywordType(Str.toUpperCase(value)), value });
   return j;
 }
 
@@ -362,8 +358,8 @@ function parseOrUndefined(input: string): RawExpression | undefined {
 
   // Dispatch the head id to its simple-expression form.
   function parseSimpleLicense(value: string): RawSimpleLicense | undefined {
-    if (value.startsWith(DOCUMENT_REF_PREFIX)) return parseDocumentLicenseRef(value);
-    if (value.startsWith(LICENSE_REF_PREFIX)) return parseBareLicenseRef(value);
+    if (Str.startsWith(DOCUMENT_REF_PREFIX)(value)) return parseDocumentLicenseRef(value);
+    if (Str.startsWith(LICENSE_REF_PREFIX)(value)) return parseBareLicenseRef(value);
     return parseCatalogedLicense(value);
   }
 
@@ -373,7 +369,7 @@ function parseOrUndefined(input: string): RawExpression | undefined {
     if (peek()?.type !== TOKEN_COLON) return undefined;
     pos++; // consume :
     const refToken = peek();
-    if (refToken === undefined || refToken.type !== TOKEN_ID || !refToken.value.startsWith(LICENSE_REF_PREFIX)) {
+    if (refToken === undefined || refToken.type !== TOKEN_ID || !Str.startsWith(LICENSE_REF_PREFIX)(refToken.value)) {
       return undefined;
     }
     const full = `${value}:${refToken.value}`;
@@ -381,8 +377,8 @@ function parseOrUndefined(input: string): RawExpression | undefined {
     pos++; // consume LicenseRef- idstring
     return {
       kind: "licenseRef",
-      documentRef: value.slice(DOCUMENT_REF_PREFIX.length),
-      ref: refToken.value.slice(LICENSE_REF_PREFIX.length),
+      documentRef: Str.slice(DOCUMENT_REF_PREFIX.length)(value),
+      ref: Str.slice(LICENSE_REF_PREFIX.length)(refToken.value),
     };
   }
 
@@ -390,7 +386,7 @@ function parseOrUndefined(input: string): RawExpression | undefined {
   function parseBareLicenseRef(value: string): RawSimpleLicense | undefined {
     if (!License.isLicenseRef(value)) return undefined;
     pos++; // consume LicenseRef- idstring
-    return { kind: "licenseRef", documentRef: undefined, ref: value.slice(LICENSE_REF_PREFIX.length) };
+    return { kind: "licenseRef", documentRef: undefined, ref: Str.slice(LICENSE_REF_PREFIX.length)(value) };
   }
 
   // A cataloged SPDX license id, optionally `+`.

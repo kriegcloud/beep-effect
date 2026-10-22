@@ -16,6 +16,7 @@ import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Str from "effect/String";
 
 const PlatformLayer = FsUtilsLive.pipe(Layer.provideMerge(NodeServices.layer));
 const runInProcess = Command.runWith(lawsCommand, { version: "0.0.0" });
@@ -23,7 +24,7 @@ const withEmptyConfig = Effect.provideService(ConfigProvider.ConfigProvider, Con
 
 const failureText = <A, E>(exit: Exit.Exit<A, E>): string => (Exit.isFailure(exit) ? String(exit.cause) : "");
 
-const fence = "`".repeat(3);
+const fence = Str.repeat(3)("`");
 const schemaImport = 'import * as S from "effect/Schema"';
 const violatingSource = `${schemaImport}\nexport const Bad = S.Struct({ _tag: S.Literal("Bad") })\n`;
 const violatingMarkdown = A.join(

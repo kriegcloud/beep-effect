@@ -7,9 +7,9 @@
 
 import { isPathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCliId } from "@beep/identity/packages";
-import { walkFiles } from "@beep/repo-utils";
 import { A, Str } from "@beep/utils";
 import * as O from "@beep/utils/Option";
+import { compileAndExpand } from "@beep/walker/Expand";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -83,15 +83,11 @@ class FlattenMediaPlan extends S.Opaque<FlattenMediaPlan, { readonly brand: uniq
   )
 ) {}
 
-const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMediaTarget")(function* (
-  outDir: string
-): Effect.fn.Return<FlattenMediaTarget, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+// The nearest path at or above `directory` that exists, or a failure when none does.
+const nearestExistingAncestor = Effect.fnUntraced(function* (directory: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const directory = path.resolve(outDir);
-  let candidate = directory;
-
-  while (true) {
+  for (let candidate = directory; ; candidate = path.dirname(candidate)) {
     const exists = yield* fs
       .exists(candidate)
       .pipe(
@@ -103,57 +99,57 @@ const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMedia
           )
         )
       );
-
-    if (exists) {
-      const info = yield* fs
-        .stat(candidate)
-        .pipe(
-          Effect.mapError((cause) =>
-            formatPlatformError(
-              "Failed to stat flatten-media output path",
-              candidate,
-              PlatformErrorOptions.make({ cause })
-            )
-          )
-        );
-
-      if (!Eq.equals(info.type, "Directory")) {
-        return yield* FilesCommandError.make({
-          message: `Expected --out-dir and its existing ancestors to be directories: "${candidate}"`,
-        });
-      }
-
-      const canonicalCandidate = yield* fs
-        .realPath(candidate)
-        .pipe(
-          Effect.mapError((cause) =>
-            formatPlatformError(
-              "Failed to resolve flatten-media output path",
-              candidate,
-              PlatformErrorOptions.make({ cause })
-            )
-          )
-        );
-      const relativeSuffix = path.relative(candidate, directory);
-
-      return FlattenMediaTarget.make({
-        canonicalDirectory: Str.equivalence(relativeSuffix, "")
-          ? canonicalCandidate
-          : path.resolve(canonicalCandidate, relativeSuffix),
-        destinationDevice: info.dev,
-        destinationExisted: Str.equivalence(candidate, directory),
-        directory,
-      });
-    }
-
-    const parent = path.dirname(candidate);
-    if (Str.equivalence(parent, candidate)) {
+    if (exists) return candidate;
+    if (Str.equivalence(path.dirname(candidate), candidate)) {
       return yield* FilesCommandError.make({
         message: `Failed to find an existing ancestor for --out-dir "${directory}".`,
       });
     }
-    candidate = parent;
   }
+});
+
+const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMediaTarget")(function* (
+  outDir: string
+): Effect.fn.Return<FlattenMediaTarget, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const directory = path.resolve(outDir);
+  const candidate = yield* nearestExistingAncestor(directory);
+  const info = yield* fs
+    .stat(candidate)
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stat flatten-media output path", candidate, PlatformErrorOptions.make({ cause }))
+      )
+    );
+
+  if (!Eq.equals(info.type, "Directory")) {
+    return yield* FilesCommandError.make({
+      message: `Expected --out-dir and its existing ancestors to be directories: "${candidate}"`,
+    });
+  }
+
+  const canonicalCandidate = yield* fs
+    .realPath(candidate)
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError(
+          "Failed to resolve flatten-media output path",
+          candidate,
+          PlatformErrorOptions.make({ cause })
+        )
+      )
+    );
+  const relativeSuffix = path.relative(candidate, directory);
+
+  return FlattenMediaTarget.make({
+    canonicalDirectory: Str.equivalence(relativeSuffix, "")
+      ? canonicalCandidate
+      : path.resolve(canonicalCandidate, relativeSuffix),
+    destinationDevice: info.dev,
+    destinationExisted: Str.equivalence(candidate, directory),
+    directory,
+  });
 });
 
 const validateFlattenMediaDirectories = Effect.fn("Files.validateFlattenMediaDirectories")(function* (
@@ -179,6 +175,28 @@ const validateFlattenMediaDirectories = Effect.fn("Files.validateFlattenMediaDir
   });
 });
 
+// Every regular file below the source directory, dotfiles included, sorted and joined onto it.
+// Symlinked directories are never entered, and a symlinked file is dropped too: flattening
+// moves files, and moving a link would relocate the link rather than the media it points at.
+const collectFlattenMediaSources = Effect.fn("Files.collectFlattenMediaSources")(function* (sourceDirectory: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const files = yield* compileAndExpand("**", {
+    cwd: path.resolve(sourceDirectory),
+    glob: { dot: true },
+    prune: A.empty<string>(),
+    followSymlinks: false,
+    onUnreadable: "fail",
+  });
+  const sourcePaths = A.map(files, (file) => path.join(sourceDirectory, file));
+  return yield* Effect.filter(sourcePaths, (file) =>
+    fs.readLink(file).pipe(
+      Effect.as(false),
+      Effect.orElseSucceed(() => true)
+    )
+  );
+});
+
 const buildFlattenMediaPlan = Effect.fn("Files.buildFlattenMediaPlan")(function* (
   directories: FlattenMediaDirectories
 ): Effect.fn.Return<FlattenMediaPlan, FilesCommandError, FileSystem.FileSystem | Path.Path> {
@@ -197,9 +215,7 @@ const buildFlattenMediaPlan = Effect.fn("Files.buildFlattenMediaPlan")(function*
         )
       )
     : A.empty<string>();
-  const sourcePaths = yield* walkFiles(directories.sourceDirectory, {
-    symlinkGuard: "skip-symlinks",
-  }).pipe(
+  const sourcePaths = yield* collectFlattenMediaSources(directories.sourceDirectory).pipe(
     Effect.mapError((cause) =>
       FilesCommandError.new(cause, `Failed to recursively scan "${directories.sourceDirectory}" for media files.`)
     )

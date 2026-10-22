@@ -149,16 +149,16 @@ const splitDocument = (text: string, placed: ReadonlyArray<PlacedSection>): Arra
   const items: Array<Item> = [];
   let cursor = 0;
   for (const entry of placed) {
-    items.push({ kind: "text", value: text.slice(cursor, entry.start) });
+    items.push({ kind: "text", value: Str.slice(cursor, entry.start)(text) });
     items.push({
       kind: "section",
       identity: identityOfSection(entry.section),
-      raw: text.slice(entry.start, entry.end),
+      raw: Str.slice(entry.start, entry.end)(text),
       render: undefined,
     });
     cursor = entry.end;
   }
-  items.push({ kind: "text", value: text.slice(cursor) });
+  items.push({ kind: "text", value: Str.slice(cursor)(text) });
   return items;
 };
 

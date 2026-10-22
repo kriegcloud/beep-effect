@@ -207,12 +207,12 @@ describe("scanner", () => {
       assert.deepStrictEqual(scanBareKey("a]", 0), { value: "a", end: 1 });
       assert.deepStrictEqual(scanBareKey("k.v", 2), { value: "v", end: 3 });
     });
-    it("classifies bare-key characters by code", () => {
+    it("classifies bare-key characters", () => {
       for (const ch of ["a", "z", "A", "Z", "0", "9", "_", "-"]) {
-        assert.isTrue(isBareKeyChar(ch.charCodeAt(0)), `expected ${ch} to be a bare-key char`);
+        assert.isTrue(isBareKeyChar(ch), `expected ${ch} to be a bare-key char`);
       }
       for (const ch of [".", " ", "\t", "=", "]", "#", '"', "'", "é"]) {
-        assert.isFalse(isBareKeyChar(ch.charCodeAt(0)), `expected ${ch} not to be a bare-key char`);
+        assert.isFalse(isBareKeyChar(ch), `expected ${ch} not to be a bare-key char`);
       }
     });
   });

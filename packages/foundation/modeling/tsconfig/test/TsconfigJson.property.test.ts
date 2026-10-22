@@ -15,6 +15,7 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -51,7 +52,7 @@ it.effect.prop(
   ([value]) =>
     Effect.gen(function* () {
       const encoded = yield* S.encodeEffect(TsconfigJsonFromString)(value);
-      const commented = `/* config */ ${encoded.slice(0, -1)}${encoded.trim() === "{}" ? "" : ","}} // end`;
+      const commented = `/* config */ ${Str.slice(0, -1)(encoded)}${Str.trim(encoded) === "{}" ? "" : ","}} // end`;
       const parsed = yield* S.decodeEffect(TsconfigJsonFromString)(commented);
       assertTrue(S.toEquivalence(TsconfigJson)(parsed, value));
       const formatted = yield* S.encodeEffect(TsconfigJsonFromString)(parsed);

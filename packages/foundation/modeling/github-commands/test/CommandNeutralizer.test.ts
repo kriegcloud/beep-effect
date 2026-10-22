@@ -1,6 +1,7 @@
 import { CommandNeutralizer } from "@beep/github-commands";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
+import * as Str from "effect/String";
 import { commandLines, isCommand, isDotNetWhitespace, LINE_BREAK } from "./helpers/runnerCommands.ts";
 
 const ZWSP = String.fromCodePoint(0x200b);
@@ -137,14 +138,14 @@ describe("CommandNeutralizer: exhaustive over a small alphabet, judged by the in
 
   it("only a zero-width space is added: removing it gives back the input's own lines", () => {
     for (const text of ALL) {
-      const out = A.map(CommandNeutralizer.lines(text), (line) => line.replaceAll(ZWSP, ""));
-      assert.deepStrictEqual(out, text.split(LINE_BREAK), JSON.stringify(text));
+      const out = A.map(CommandNeutralizer.lines(text), (line) => Str.replaceAll(ZWSP, "")(line));
+      assert.deepStrictEqual(out, Str.split(LINE_BREAK)(text), JSON.stringify(text));
     }
   });
 
   it("a line the oracle does not read as a command is returned exactly as it was", () => {
     for (const text of ALL) {
-      const inputLines = text.split(LINE_BREAK);
+      const inputLines = Str.split(LINE_BREAK)(text);
       const out = CommandNeutralizer.lines(text);
       A.forEach(inputLines, (line, index) => {
         if (!isCommand(line)) assert.strictEqual(out[index], line, JSON.stringify(text));

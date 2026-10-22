@@ -1,5 +1,5 @@
 import { runTestTsgoChecksAt, testTsgoPlanningForTesting } from "@beep/repo-cli/test/Quality";
-import { checkScriptTestTypecheckCoverage } from "@beep/repo-cli/test/SharedInternals";
+import { checkScriptTestTypecheckCoverage, expandWorkspaceFiles } from "@beep/repo-cli/test/SharedInternals";
 import { it } from "@beep/test-runner";
 import { A, Str } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
@@ -82,6 +82,43 @@ describe("test-typecheck coverage", () => {
         expect(blindVerdict.covered).toBe(false);
         expect(blindVerdict.uncoveredSources).toEqual([blind.testFile]);
       }, Effect.scoped)
+    );
+  });
+
+  it.layer(PlatformLayer, { timeout: "5 seconds" })((it) => {
+    it.effect(
+      "expands workspace files with the shared prune set, dot entries and followed symlinks",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "workspace-files-" });
+        const write = Effect.fnUntraced(function* (relative: string) {
+          yield* fs.makeDirectory(path.dirname(path.join(root, relative)), { recursive: true });
+          yield* fs.writeFileString(path.join(root, relative), "{}\n");
+        });
+        yield* write("ws/a/package.json");
+        yield* write("ws/.hidden/b/package.json");
+        yield* write("ws/a/node_modules/dep/package.json");
+        yield* write("ws/a/dist/package.json");
+        yield* write("ws/a/dist-test/package.json");
+        yield* write("ws/a/coverage/package.json");
+        yield* write("ws/a/tmp/package.json");
+        yield* write("ws/a/.turbo/package.json");
+        yield* write("outside/c/package.json");
+        // A symlinked directory is followed; a link back to an ancestor closes a cycle and is skipped.
+        yield* fs.symlink(path.join(root, "outside"), path.join(root, "ws", "linked"));
+        yield* fs.symlink(path.join(root, "ws"), path.join(root, "ws", "a", "loop"));
+
+        const searchRoot = path.join(root, "ws");
+        const relativeTo = A.map((file: string) => Str.replace(`${searchRoot}/`, "")(file));
+
+        expect(relativeTo(yield* expandWorkspaceFiles(searchRoot, "**/package.json"))).toEqual([
+          ".hidden/b/package.json",
+          "a/package.json",
+          "linked/c/package.json",
+        ]);
+        expect(yield* expandWorkspaceFiles(path.join(root, "missing"), "**/package.json")).toEqual([]);
+      })
     );
   });
 

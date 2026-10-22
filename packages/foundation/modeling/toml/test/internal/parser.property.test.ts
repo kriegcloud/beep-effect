@@ -6,6 +6,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({
@@ -23,12 +24,12 @@ it.effect.prop(
   ([value, eol]) =>
     Effect.gen(function* () {
       const serialized = yield* Toml.stringify(value);
-      const text = `\uFEFF# leading${eol}${serialized.replaceAll("\n", eol)}${eol}  # trailing${eol}\t`;
+      const text = `\uFEFF# leading${eol}${Str.replaceAll("\n", eol)(serialized)}${eol}  # trailing${eol}\t`;
       const parsed = yield* Toml.parse(text);
       assert.deepStrictEqual(yield* Toml.parse(yield* Toml.stringify(parsed)), parsed);
       const expressions = parseExpressions(text);
       const reconstructed = A.join(
-        A.map(expressions, (expression) => text.slice(expression.offset, expression.offset + expression.length)),
+        A.map(expressions, (expression) => Str.slice(expression.offset, expression.offset + expression.length)(text)),
         ""
       );
       assert.strictEqual(reconstructed, text);

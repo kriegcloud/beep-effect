@@ -9,6 +9,7 @@ import * as Exit from "effect/Exit";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { platform, platformWith } from "./support/fixtures.ts";
 
 /** The defaults, spelled out — what a caller passes to mean "no option refinements". */
@@ -27,7 +28,7 @@ describe("GlobExpansionError — exact synchronous messages", () => {
   });
 
   it("does not truncate a pattern of exactly 64 characters", () => {
-    const pattern = "a".repeat(64);
+    const pattern = Str.repeat(64)("a");
     const cause = DescendError.make({ pattern, reason: "depthExceeded", path: "" });
     const error = GlobExpansionError.make({ pattern, cause });
     assert.strictEqual(
@@ -37,7 +38,7 @@ describe("GlobExpansionError — exact synchronous messages", () => {
   });
 
   it("truncates only the expansion prefix after 64 characters and keeps the full cause", () => {
-    const prefix = "a".repeat(64);
+    const prefix = Str.repeat(64)("a");
     const pattern = `${prefix}tail`;
     const cause = DescendError.make({ pattern, reason: "unreadableDirectory", path: "" });
     const error = GlobExpansionError.make({ pattern, cause });
@@ -135,7 +136,7 @@ layer(platform(tree), { timeout: "10 seconds" })("compileAndExpand, expansion", 
 layer(platform(tree), { timeout: "10 seconds" })("compileAndExpand, compile failure", (it) => {
   it.effect("an uncompilable pattern fails as GlobExpansionError at the compile stage", () =>
     Effect.gen(function* () {
-      const error = yield* Effect.flip(compileAndExpand("a".repeat(65_537), { cwd: "/proj", glob: defaults }));
+      const error = yield* Effect.flip(compileAndExpand(Str.repeat(65_537)("a"), { cwd: "/proj", glob: defaults }));
       assert.instanceOf(error, GlobExpansionError);
       assert.strictEqual(error._tag, "GlobExpansionError");
       assert.strictEqual(error.stage, "compile");
@@ -144,7 +145,7 @@ layer(platform(tree), { timeout: "10 seconds" })("compileAndExpand, compile fail
 
   it.effect("keeps the underlying GlobPatternError payload intact", () =>
     Effect.gen(function* () {
-      const error = yield* Effect.flip(compileAndExpand("{a,b}".repeat(17), { cwd: "/proj", glob: defaults }));
+      const error = yield* Effect.flip(compileAndExpand(Str.repeat(17)("{a,b}"), { cwd: "/proj", glob: defaults }));
       assert.strictEqual(error.cause._tag, "GlobPatternError");
       assert.instanceOf(error.cause, GlobPatternError);
       if (error.cause._tag !== "GlobPatternError") return;
@@ -156,8 +157,8 @@ layer(platform(tree), { timeout: "10 seconds" })("compileAndExpand, compile fail
 
   it.effect("carries the offending pattern source and chains as a native Error cause", () =>
     Effect.gen(function* () {
-      const error = yield* Effect.flip(compileAndExpand("{a,b}".repeat(17), { cwd: "/proj", glob: defaults }));
-      assert.strictEqual(error.pattern, "{a,b}".repeat(17));
+      const error = yield* Effect.flip(compileAndExpand(Str.repeat(17)("{a,b}"), { cwd: "/proj", glob: defaults }));
+      assert.strictEqual(error.pattern, Str.repeat(17)("{a,b}"));
       assert.instanceOf(error, Error);
       const nativeError: Error = error;
       assert.strictEqual(error.cause, nativeError.cause);
@@ -169,7 +170,9 @@ layer(platform(tree), { timeout: "10 seconds" })("compileAndExpand, compile fail
     Effect.gen(function* () {
       // A pattern rejected at compile time cannot reach a walk, so a cwd that
       // does not exist is irrelevant — the compile stage decides first.
-      const error = yield* Effect.flip(compileAndExpand("a".repeat(65_537), { cwd: "/nonexistent", glob: defaults }));
+      const error = yield* Effect.flip(
+        compileAndExpand(Str.repeat(65_537)("a"), { cwd: "/nonexistent", glob: defaults })
+      );
       assert.strictEqual(error.stage, "compile");
     })
   );
@@ -213,7 +216,7 @@ layer(platformWith(unreadableTree, { unreadable: HashSet.make("/proj/src/locked"
             : `unreadable: ${error.cause.path}`;
 
         const compileFailure = yield* Effect.flip(
-          compileAndExpand("a".repeat(65_537), { cwd: "/proj", glob: defaults })
+          compileAndExpand(Str.repeat(65_537)("a"), { cwd: "/proj", glob: defaults })
         );
         const descendFailure = yield* Effect.flip(compileAndExpand("src/**/*.ts", { cwd: "/proj", glob: defaults }));
 

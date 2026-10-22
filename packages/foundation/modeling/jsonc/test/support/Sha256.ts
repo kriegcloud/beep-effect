@@ -2,6 +2,8 @@
 // the JsoncFingerprint Result twins take. The tests pin it to the published
 // FIPS vectors and to WebCrypto, so it stands in for a platform hash backend.
 
+import * as Str from "effect/String";
+
 const K = Uint32Array.of(
   0x428a2f98,
   0x71374491,
@@ -158,7 +160,7 @@ export const sha256 = (bytes: Uint8Array): Uint8Array => {
 export const toHex = (bytes: Uint8Array): string => {
   let hex = "";
   for (const byte of bytes) {
-    hex += byte.toString(16).padStart(2, "0");
+    hex += Str.padStart(2, "0")(byte.toString(16));
   }
   return hex;
 };
