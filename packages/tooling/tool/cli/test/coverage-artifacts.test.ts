@@ -474,8 +474,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
               const failure = yield* f.write(1, empty).pipe(Effect.flip);
               expect(failure.message).toContain("missing executable source");
             }
-          }),
-        { timeout: 30_000 }
+          })
       );
     }
 
