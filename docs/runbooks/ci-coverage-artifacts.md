@@ -43,9 +43,11 @@ do not contribute to canonical coverage totals. This permits Bun-only unit
 tests alongside Node/V8 coverage without mixing providers or changing the
 measurement used by the existing ratchet.
 
-Coverage producers and the consumer pin Node 22.22.3, retaining the existing
-coverage lane's workaround for native escaped-key corruption in newer Node
-versions. The producer verifies Float16Array support; its worker flag remains
+Coverage producers and the consumer pin Node 22.23.4, the October 21 security
+release. This keeps the existing Node 22/V8 measurement engine used to avoid
+native escaped-key corruption observed on newer Node majors; it does not
+reintroduce the vulnerable 22.22.3 pin. Full coverage compatibility on 22.23.4
+is verified by the hosted producer and consumer checks before merge. The producer verifies Float16Array support; its worker flag remains
 scoped by `vitest.shared.ts`. Other CI lanes retain the repository's default Node.
 The combined producer clears the legacy standalone coverage flag that skips
 some test cases. Explicit coverage arguments enable instrumentation, while the
