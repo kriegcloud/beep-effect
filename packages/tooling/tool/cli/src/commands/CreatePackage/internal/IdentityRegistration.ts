@@ -14,6 +14,7 @@ import { pipe } from "effect/Function";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import { Project, SyntaxKind } from "ts-morph";
+import { mentionsToken } from "../../../internal/WholeToken.ts";
 import { toIdentityAccessorName, typedIdentityExportBlock } from "./IdentityExportBlock.ts";
 import type { CallExpression, SourceFile, VariableDeclaration } from "ts-morph";
 
@@ -133,22 +134,25 @@ const removeComposeSlugArguments = (call: CallExpression, packageName: string): 
 const isAccessorExportFor = (
   declaration: VariableDeclaration,
   packageName: string,
-  mechanicalAccessor: string
+  mechanicalAccessor: string,
+  readsComposerAccessor: (text: string) => boolean
 ): boolean => {
   const declarationText = declaration.getText();
   return (
     Str.equivalence(declaration.getName(), mechanicalAccessor) ||
     Str.includes(`IdentityComposer<"@beep/${packageName}">`)(declarationText) ||
-    Str.includes(`composers.${mechanicalAccessor}`)(declarationText)
+    readsComposerAccessor(declarationText)
   );
 };
 
 const removeAccessorExportStatements = (sourceFile: SourceFile, packageName: string): void => {
   const mechanicalAccessor = toIdentityAccessorName(packageName);
+  // Whole token: `composers.$XId` must not match a `composers.$XIdentityId` sibling.
+  const readsComposerAccessor = mentionsToken(`composers.${mechanicalAccessor}`);
   for (const declaration of sourceFile.getVariableDeclarations()) {
     const statement = declaration.getVariableStatement();
     if (statement === undefined || !statement.isExported()) continue;
-    if (isAccessorExportFor(declaration, packageName, mechanicalAccessor)) statement.remove();
+    if (isAccessorExportFor(declaration, packageName, mechanicalAccessor, readsComposerAccessor)) statement.remove();
   }
 };
 
@@ -214,7 +218,7 @@ const identityPackageRegistrationNeeded = Effect.fn(function* (
     .pipe(Effect.mapError(DomainError.newCause(`Failed to read "${filePath}"`)));
 
   const accessorName = toIdentityAccessorName(packageName);
-  return !Str.includes(`"${packageName}"`)(content) || !Str.includes(`export const ${accessorName}`)(content);
+  return !Str.includes(`"${packageName}"`)(content) || !mentionsToken(`export const ${accessorName}`)(content);
 });
 
 const BEEP_SCOPE_PREFIX = "@beep/";
