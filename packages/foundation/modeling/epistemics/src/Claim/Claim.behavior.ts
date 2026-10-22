@@ -24,7 +24,7 @@ import type { BitemporalScope, BitemporalVersion, ValidTime } from "./Claim.mode
  * validAt({ _tag: "Unknown" }, DateTime.makeUnsafe(0)) // => false
  * ```
  *
- * @category claim
+ * @category predicates
  * @since 0.0.0
  */
 export const validAt: {
@@ -48,7 +48,7 @@ export const validAt: {
  * versionsAt([], { asOf: now, validAt: now, states: ["Accepted"] }) // => []
  * ```
  *
- * @category claim
+ * @category queries
  * @since 0.0.0
  */
 export const versionsAt: {

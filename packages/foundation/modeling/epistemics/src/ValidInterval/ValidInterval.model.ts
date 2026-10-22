@@ -61,7 +61,7 @@ export const ValidIntervalFields = {
  * console.log(Result.isFailure(decoded)) // true
  * ```
  *
- * @category checks
+ * @category validation
  * @since 0.0.0
  */
 export const ValidIntervalOrderCheck = S.makeFilter(
