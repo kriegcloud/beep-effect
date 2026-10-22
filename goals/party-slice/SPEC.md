@@ -19,7 +19,7 @@ amendment.
 - Projecting party claims into the epistemic slice's edge authority. If wanted, that is a later
   cross-slice workflow (`10-cross-slice-coordination.md`).
 - Moving law-practice's contact, client or matter vocabulary into party.
-- Any corpus data. Fixtures stay synthetic; the private corpus (`~/data-home/oppold-corpus`) is never
+- Any corpus data. Fixtures stay synthetic; the private corpus (`$HOME/data-home/oppold-corpus`) is never
   committed or copied into tests.
 
 ## Source Hierarchy
