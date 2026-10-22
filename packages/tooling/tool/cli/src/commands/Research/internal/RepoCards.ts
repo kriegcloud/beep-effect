@@ -14,7 +14,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
@@ -143,10 +143,12 @@ const README_NAMES = ["README.md", "readme.md", "Readme.md", "README.MD"];
 const README_MAX_LINES = 80;
 
 const stripBadges = (line: string): string =>
-  line
-    .replace(/\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)/g, "")
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
-    .trimEnd();
+  pipe(
+    line,
+    Str.replace(/\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)/g, ""),
+    Str.replace(/!\[[^\]]*\]\([^)]*\)/g, ""),
+    Str.trimEnd
+  );
 
 const readmeExcerptOf = Effect.fn("RepoCards.readmeExcerptOf")(function* (
   repoDir: string
@@ -173,11 +175,11 @@ const readmeExcerptOf = Effect.fn("RepoCards.readmeExcerptOf")(function* (
  * @category utilities
  */
 const remoteToHttpsUrl = (remote: string): string => {
-  const sshMatch = remote.match(/^git@([^:]+):(.+?)(\.git)?$/);
+  const sshMatch = O.getOrNull(Str.match(/^git@([^:]+):(.+?)(\.git)?$/)(remote));
   if (!P.isNull(sshMatch)) {
     return `https://${sshMatch[1]}/${sshMatch[2]}`;
   }
-  return remote.replace(/\.git$/, "");
+  return Str.replace(/\.git$/, "")(remote);
 };
 
 /**
@@ -195,7 +197,7 @@ export const slugPartsOf: {
 } = dual(2, (remoteUrl: O.Option<string>, localDirname: string): readonly [string, string] =>
   remoteUrl.pipe(
     O.flatMap((url) => {
-      const match = remoteToHttpsUrl(url).match(/^https?:\/\/[^/]+\/([^/]+)\/([^/?#]+)/);
+      const match = O.getOrNull(Str.match(/^https?:\/\/[^/]+\/([^/]+)\/([^/?#]+)/)(remoteToHttpsUrl(url)));
       return P.isNull(match) ? O.none() : O.some([match[1] ?? "unknown", match[2] ?? localDirname] as const);
     }),
     O.getOrElse(() => ["local", localDirname] as const)

@@ -8,9 +8,9 @@ import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
-import type { AudienceKind } from "../env/index.ts";
-import { ColorLevel } from "../env/ColorLevel.ts";
-import { TerminalEnv } from "../env/index.ts";
+import type { AudienceKind } from "@beep/runtime-env";
+import { ColorLevel } from "@beep/runtime-env/ColorLevel";
+import { TerminalEnv } from "@beep/runtime-env";
 import type { GlyphSet } from "./Glyphs.ts";
 import { Glyphs } from "./Glyphs.ts";
 import { openSequence, paintStyle } from "./internal/ansi.ts";
@@ -311,7 +311,7 @@ export class CliTheme extends Context.Service<CliTheme, CliThemeShape>()($I`CliT
 	 * import { CliTheme } from "@beep/scratchpad/effected/cli/CliTheme";
 	 * import { Status } from "@beep/scratchpad/effected/cli/Status";
 	 * import { Fmt } from "@beep/scratchpad/effected/cli/Fmt";
-	 * import { Audience } from "@beep/scratchpad/effected/env/Audience";
+	 * import { Audience } from "@beep/runtime-env/Audience";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const name = "Ada";

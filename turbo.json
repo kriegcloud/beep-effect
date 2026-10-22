@@ -241,6 +241,8 @@
         "packages/foundation/capability/mcp-kit/src/**",
         "packages/foundation/capability/observability/package.json",
         "packages/foundation/capability/observability/src/**",
+        "packages/foundation/capability/runtime-env/package.json",
+        "packages/foundation/capability/runtime-env/src/**",
         "packages/foundation/capability/technical-drawing/package.json",
         "packages/foundation/capability/technical-drawing/src/**",
         "packages/foundation/capability/walker/package.json",

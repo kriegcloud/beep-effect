@@ -1054,7 +1054,7 @@ it.layer(CommandTestLayer, { concurrent: false, timeout: "10 seconds" })("ai-met
           expect(output).not.toContain("private-forwarder-retention-secret");
           expect(
             A.filter(yield* fs.readDirectory(path.join(dataRoot, "derived/parquet")), (entry) =>
-              entry.startsWith("forwarder-")
+              Str.startsWith("forwarder-")(entry)
             )
           ).toEqual([]);
         })
@@ -1808,7 +1808,7 @@ it.layer(CommandTestLayer, { concurrent: false, timeout: "10 seconds" })("ai-met
           );
           expect(yield* fs.exists(path.join(parquetRoot, "latest"))).toBe(true);
           expect(
-            A.filter(yield* fs.readDirectory(parquetRoot), (entry) => entry.startsWith("forwarder-"))
+            A.filter(yield* fs.readDirectory(parquetRoot), (entry) => Str.startsWith("forwarder-")(entry))
           ).toHaveLength(1);
 
           yield* runAiMetricsCommand([
@@ -1831,7 +1831,9 @@ it.layer(CommandTestLayer, { concurrent: false, timeout: "10 seconds" })("ai-met
             })
           );
           expect(yield* fs.exists(path.join(parquetRoot, "latest"))).toBe(true);
-          expect(A.filter(yield* fs.readDirectory(parquetRoot), (entry) => entry.startsWith("forwarder-"))).toEqual([]);
+          expect(
+            A.filter(yield* fs.readDirectory(parquetRoot), (entry) => Str.startsWith("forwarder-")(entry))
+          ).toEqual([]);
         })
       )
     ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))

@@ -46,6 +46,9 @@ complete (`history/receipts/hold-register.md`), ahead of the 2026-10-30 deadline
 guidance surface (`history/receipts/guidance-classification.md`). Wave 2 reviews
 the 660 inline directives individually; wave 3 adds a compile check for the 324
 Markdown TypeScript fences and decides the three upstream-copied `.patterns` files.
+#1855 `residue-detectors` is in progress: wave 1 closed F-S31-EV010, which #1899 had
+already fixed on main, and extended the EV010 proof to same-file helpers, resolving 16
+more rows (`history/receipts/detectors-wave-1.md`). Wave 2 is FP-1..FP-7.
 #1875 `residue-vitest-canon` is in progress after wave 1, which leaves 689 open rows
 (`history/receipts/vitest-canon-wave-1.md`).
 #1876 `residue-rdf-pacer` is complete (`history/receipts/rdf-pacer-ports.md`): the

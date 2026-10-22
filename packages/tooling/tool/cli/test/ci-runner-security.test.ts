@@ -16,7 +16,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -122,7 +122,10 @@ const PRUNE_APT_SOURCES = "scripts/ci-prune-apt-sources.sh";
 const assertPrunesAptSourcesBefore = (run: string, command: string): void => {
   assert.include(run, `\n${PRUNE_APT_SOURCES}\n`);
   assert.include(run, command);
-  assert.isBelow(run.indexOf(PRUNE_APT_SOURCES), run.indexOf(command));
+  assert.isBelow(
+    O.getOrElse(Str.indexOf(PRUNE_APT_SOURCES)(run), constant(-1)),
+    O.getOrElse(Str.indexOf(command)(run), constant(-1))
+  );
 };
 
 const setupMonorepoStep = (jobs: WorkflowJobs, jobId: string): WorkflowStep =>

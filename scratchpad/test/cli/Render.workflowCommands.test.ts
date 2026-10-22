@@ -2,8 +2,8 @@ import * as Data from "effect/Data";
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import type { AudienceKind } from "../../effected/env/index.ts";
-import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "../../effected/env/index.ts";
+import type { AudienceKind } from "@beep/runtime-env";
+import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { Markdown } from "../../effected/markdown/index.ts";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -16,6 +16,7 @@ import * as Terminal from "effect/Terminal";
 import type { Document } from "../../effected/cli/index.ts";
 import { CliFailure, CliLinks, CliRuntime, CliTheme, Doc, Render } from "../../effected/cli/index.ts";
 import { commandLines } from "./helpers/runnerCommands.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -59,7 +60,7 @@ const layers = (audience: AudienceKind, ci: "github-actions" | "generic" | "none
 const withContext =
 	(audience: AudienceKind, ci: "github-actions" | "generic" | "none" | "absent") =>
 	<A, E, R>(self: Effect.Effect<A, E, R>) => {
-		const selected = self.pipe(Effect.provideService(Audience, { kind: audience, source: "override" }));
+		const selected = self.pipe(Effect.provideService(Audience, AudienceShape.make({ kind: audience, source: "override" })));
 		return ci === "absent"
 			? selected
 			: selected.pipe(

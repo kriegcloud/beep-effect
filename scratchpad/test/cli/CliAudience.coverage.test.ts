@@ -11,7 +11,7 @@ import * as Path from "effect/Path";
 import * as Stdio from "effect/Stdio";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Command from "effect/cli/Command";
-import { Audience } from "../../effected/env/index.ts";
+import { Audience } from "@beep/runtime-env";
 import { MemoryFileSystem } from "@beep/memfs";
 import { TestTerminal } from "../../effected/cli/testing.ts";
 

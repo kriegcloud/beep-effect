@@ -822,6 +822,12 @@
         ]
       },
       {
+        "name": "@beep/runtime-env",
+        "patterns": [
+          "packages/foundation/capability/runtime-env/src/**"
+        ]
+      },
+      {
         "name": "@beep/sanity",
         "patterns": [
           "packages/drivers/sanity/src/**"
@@ -1562,6 +1568,7 @@
         "allow": [
           "@beep/chalk",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1570,6 +1577,7 @@
         "allowTypeOnly": [
           "@beep/chalk",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1616,6 +1624,7 @@
           "@beep/colors",
           "@beep/fc-runs",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/utils"
@@ -1624,6 +1633,7 @@
           "@beep/colors",
           "@beep/fc-runs",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/utils"
@@ -4228,6 +4238,21 @@
         ]
       },
       {
+        "from": "@beep/runtime-env",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/runtime-env",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/runtime-env",
+          "@beep/schema"
+        ]
+      },
+      {
         "from": "@beep/sanity",
         "allow": [
           "@beep/identity",
@@ -4314,6 +4339,7 @@
           "@beep/rdf",
           "@beep/repo-cli",
           "@beep/repo-utils",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
@@ -4360,6 +4386,7 @@
           "@beep/rdf",
           "@beep/repo-cli",
           "@beep/repo-utils",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",

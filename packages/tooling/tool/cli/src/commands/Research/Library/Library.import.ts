@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -710,7 +711,7 @@ const importReferenceResolution = Effect.fn("Library.importReferenceResolution")
         catalog.sources,
         (s) => s.id === payload.sourceId || A.contains(s.aliasIds, payload.sourceId)
       );
-      const locator = payload.locator.match(/^([A-Za-z][A-Za-z0-9_.-]*\/[A-Za-z0-9_.-]+)#(\d+)$/);
+      const locator = O.getOrNull(Str.match(/^([A-Za-z][A-Za-z0-9_.-]*\/[A-Za-z0-9_.-]+)#(\d+)$/)(payload.locator));
       if (O.isNone(source) || locator === null || !resolutionSourceMatches(source.value, payload))
         return yield* LibraryError.make({
           message: "Reference resolution source or citation binding differs.",

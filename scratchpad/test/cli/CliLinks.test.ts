@@ -2,7 +2,7 @@
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import { CurrentRuntimeEnv } from "../../effected/env/index.ts";
+import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { MemoryFileSystem } from "@beep/memfs";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";

@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as MutableRef from "effect/MutableRef";
 import * as S from "effect/Schema";
-import { TerminalEnv } from "../../../effected/env/index.ts";
+import { TerminalEnv } from "@beep/runtime-env";
 import { CliDoc } from "../../../effected/cli/CliFailure.ts";
 import { Doc } from "../../../effected/cli/Doc.ts";
 import type { Document } from "../../../effected/cli/Doc.ts";
@@ -14,7 +14,7 @@ import { CliTheme } from "../../../effected/cli/CliTheme.ts";
 import { CliLinks } from "../../../effected/cli/CliLinks.ts";
 import { FailureTargetCell, currentTarget, fallbackTarget, refreshFailureTarget, linesOf, plainFailureLines, readSpans } from "../../../effected/cli/internal/failureTarget.ts";
 import type { FailureSettings } from "../../../effected/cli/internal/failureTarget.ts";
-import type { AudienceShape } from "../../../effected/env/index.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 
 it.effect("refresh overloads dispatch omitted and undefined audiences to Effects and settings to a callable", () => Effect.gen(function* () {
   const omitted: Effect.Effect<void> = refreshFailureTarget();
@@ -28,7 +28,7 @@ it.effect("refresh overloads dispatch omitted and undefined audiences to Effects
   yield* explicitUndefined;
   yield* curried();
   yield* curried(undefined);
-  yield* curried({ kind: "agent", source: "flag" });
+  yield* curried(AudienceShape.make({ kind: "agent", source: "flag" }));
   yield* refreshFailureTarget(undefined, { spans: "off" });
 }));
 
@@ -38,11 +38,11 @@ it.effect("refresh builds without an audience service when an explicit shape is 
   const context = yield* Layer.build(services);
   const cell = MutableRef.make<typeof fallbackTarget | undefined>(undefined);
   yield* Effect.gen(function* () {
-    yield* refreshFailureTarget({ kind: "agent", source: "flag" }, { displayPath: (path) => path.replace("/root/", ""), stackFrames: "all", spans: "off", appModule: "/app/main.ts" });
+    yield* refreshFailureTarget(AudienceShape.make({ kind: "agent", source: "flag" }), { displayPath: (path) => path.replace("/root/", ""), stackFrames: "all", spans: "off", appModule: "/app/main.ts" });
     const first = yield* currentTarget;
     assert.strictEqual(first.ctx.audience, "agent");
     assert.strictEqual(first.ctx.displayPath("/root/a"), "a");
-    yield* refreshFailureTarget({ kind: "human", source: "flag" });
+    yield* refreshFailureTarget(AudienceShape.make({ kind: "human", source: "flag" }));
     const second = yield* currentTarget;
     assert.strictEqual(second.ctx.audience, "human");
     assert.strictEqual(second.stackFrames, "all");

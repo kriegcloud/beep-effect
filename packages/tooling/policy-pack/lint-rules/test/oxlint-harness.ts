@@ -176,7 +176,7 @@ const ruleIdOf = (code: string | undefined): O.Option<string> =>
  * Lint `source` (written to a temp file named `filename`) with only `rule` enabled, and
  * return its normalized findings. `filename` controls the on-disk name so `*.test.ts`-gated
  * and path-exempt rules can be exercised; pass a nested relative path (e.g.
- * `"packages/.../SupportsColor.ts"`) to land the fixture at a path a rule treats specially.
+ * `"packages/.../HostProcess.ts"`) to land the fixture at a path a rule treats specially.
  *
  * @param rule - The oxlint rule slug to enable.
  * @param source - The fixture source written to the temp file.

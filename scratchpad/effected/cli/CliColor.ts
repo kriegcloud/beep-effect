@@ -1,4 +1,4 @@
-import { TerminalEnv } from "../env/index.ts";
+import { TerminalEnv } from "@beep/runtime-env";
 import type * as Stdio from "effect/Stdio";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -11,7 +11,7 @@ import * as R from "effect/Record";
  *
  * **Details**
  *
- * The decision is `@effected/env`'s `TerminalEnv.colorLevel("stdout")`, which
+ * The decision is `@beep/runtime-env`'s `TerminalEnv.colorLevel("stdout")`, which
  * follows Node's `getColorDepth` precedence: `FORCE_COLOR` first (`0` or an
  * unrecognised value forces colour off; an empty value, `1` or `true` force basic colour, `2` 256 colours and
  * `3` truecolor, even without a terminal), then a non-empty `NO_COLOR` or `NODE_DISABLE_COLORS` and
