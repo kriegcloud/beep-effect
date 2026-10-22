@@ -590,10 +590,15 @@ export const reviewerRequestPushable: {
   (confirmedHead: string): (localHead: string) => boolean;
 } = dual(2, (localHead: string, confirmedHead: string): boolean => localHead === confirmedHead);
 
-const reviewerRequestManual = `git commit --allow-empty -m "${YEET_REVIEWER_REQUEST_SUBJECT}" && git push`;
+// The hand route, from a checkout of the pull request branch at the flipped head.
+const reviewerRequestManual = (confirmedHead: string) =>
+  `from a checkout of the pull request branch at ${confirmedHead}, run: git commit --allow-empty -m "${YEET_REVIEWER_REQUEST_SUBJECT}" && git push`;
 
 // Push one empty commit so beep-reviewer sees a head pushed to the ready pull
-// request; returns the line to log.
+// request; returns the line to log. `--only` with no paths commits HEAD's own
+// tree and disregards the index, so staged changes (a lefthook re-stage
+// included) cannot ride onto the ready pull request unproven; `--no-verify`
+// keeps hooks from re-staging into it, and signing follows the git config.
 const pushReviewerRequest = Effect.fn("Yeet.pushReviewerRequest")(function* (
   context: RepoRunContext,
   prNumber: number,
@@ -601,12 +606,27 @@ const pushReviewerRequest = Effect.fn("Yeet.pushReviewerRequest")(function* (
 ) {
   const localHead = yield* runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
   if (!reviewerRequestPushable(localHead, confirmedHead)) {
-    return `[yeet] note: the checkout is at ${localHead}, not the flipped head ${confirmedHead}; push the beep-reviewer re-request by hand: ${reviewerRequestManual}`;
+    return `[yeet] note: the checkout is at ${localHead}, not the flipped head ${confirmedHead}, so nothing was pushed; ${reviewerRequestManual(confirmedHead)}`;
   }
-  yield* runGitOutput(context.repoRoot, ["commit", "--allow-empty", "-m", YEET_REVIEWER_REQUEST_SUBJECT]);
-  yield* runGitOutput(context.repoRoot, ["push"]);
-  const pushed = yield* runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
-  return `[yeet] pushed ${pushed} (${YEET_REVIEWER_REQUEST_SUBJECT}) so beep-reviewer reviews #${prNumber} on a head pushed while ready; send this sha as the final`;
+  yield* runGitOutput(context.repoRoot, [
+    "commit",
+    "--allow-empty",
+    "--only",
+    "--no-verify",
+    "-m",
+    YEET_REVIEWER_REQUEST_SUBJECT,
+  ]);
+  const request = yield* runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
+  return yield* runGitOutput(context.repoRoot, ["push"]).pipe(
+    Effect.as(
+      `[yeet] pushed ${request} (${YEET_REVIEWER_REQUEST_SUBJECT}) so beep-reviewer reviews #${prNumber} on a head pushed while ready; send this sha as the final`
+    ),
+    Effect.catchTag("YeetCommandError", (cause) =>
+      Effect.succeed(
+        `[yeet] warning: created the beep-reviewer re-request ${request} locally but the push failed: ${cause.message}; run: git push`
+      )
+    )
+  );
 });
 
 // Advisory only: the merge gate holds on the same verdict, so the flip never
@@ -775,7 +795,7 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
         yield* (dependencies.requestReview ?? pushReviewerRequest)(context, prNumber, sameHead).pipe(
           Effect.catchTag("YeetCommandError", (cause) =>
             Effect.succeed(
-              `[yeet] warning: could not push the beep-reviewer re-request: ${cause.message}; push it by hand: ${reviewerRequestManual}`
+              `[yeet] warning: could not create the beep-reviewer re-request: ${cause.message}; ${reviewerRequestManual(sameHead)}`
             )
           )
         )

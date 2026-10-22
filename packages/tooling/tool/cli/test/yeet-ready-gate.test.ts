@@ -1335,3 +1335,44 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-
     })
   );
 });
+
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-request safety", (it) => {
+  it.effect("never commits staged changes into the re-request", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const clone = yield* scratchClone();
+      yield* fs.writeFileString(path.join(clone.work, "staged.txt"), "not proven\n");
+      yield* scratchGit(clone.work, ["add", "staged.txt"]);
+      const decision = yield* runYeetReadyGate(clone.context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
+        markReady: () => Effect.void,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* scratchGit(clone.origin, ["log", "-1", "--format=%s", "main"])).toBe(YEET_REVIEWER_REQUEST_SUBJECT);
+      expect(yield* scratchGit(clone.origin, ["diff", "--name-only", "main~1", "main"])).toBe("");
+      expect(yield* scratchGit(clone.work, ["diff", "--cached", "--name-only"])).toBe("staged.txt");
+    })
+  );
+
+  it.effect("keeps the local re-request and the flip when the push fails", () =>
+    Effect.gen(function* () {
+      const clone = yield* scratchClone();
+      yield* scratchGit(clone.work, ["remote", "remove", "origin"]);
+      const decision = yield* runYeetReadyGate(clone.context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
+        markReady: () => Effect.void,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* scratchGit(clone.work, ["log", "-1", "--format=%s"])).toBe(YEET_REVIEWER_REQUEST_SUBJECT);
+      expect(yield* scratchGit(clone.work, ["rev-parse", "HEAD~1"])).toBe(clone.head);
+      expect(yield* scratchGit(clone.origin, ["rev-parse", "main"])).toBe(clone.head);
+    })
+  );
+});
