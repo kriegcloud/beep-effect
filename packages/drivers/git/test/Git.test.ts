@@ -35,6 +35,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
 import * as TestClock from "effect/testing/TestClock";
 import { scripted } from "./fixtures.ts";
@@ -576,7 +577,9 @@ describe("Git", () => {
         assert.instanceOf(failure, GitCommandError);
         if (S.is(GitCommandError)(failure)) {
           assert.isDefined(failure.detail);
-          assert.isTrue(failure.detail?.startsWith("spawn failed: PermissionDenied:"));
+          assert.isTrue(
+            failure.detail === undefined ? undefined : Str.startsWith("spawn failed: PermissionDenied:")(failure.detail)
+          );
           assert.include(failure.detail ?? "", "EACCES on git binary");
         }
       })
@@ -712,8 +715,8 @@ describe("Git", () => {
           const git = yield* Git;
           return yield* git.revParse(cwd, "feat/point-in-time");
         });
-        const sha = yield* run(program, () => ({ stdout: "a".repeat(40), exit: 0 }));
-        assert.strictEqual(sha, "a".repeat(40));
+        const sha = yield* run(program, () => ({ stdout: Str.repeat(40)("a"), exit: 0 }));
+        assert.strictEqual(sha, Str.repeat(40)("a"));
       })
     );
 
@@ -1030,7 +1033,7 @@ describe("Git", () => {
           });
           assert.strictEqual(yield* run(program, () => ({ stdout: `${path}\n`, exit: 0 })), path);
           assert.strictEqual(
-            yield* run(program, () => ({ stdout: path.endsWith("\n") ? `${path}\n` : path, exit: 0 })),
+            yield* run(program, () => ({ stdout: Str.endsWith("\n")(path) ? `${path}\n` : path, exit: 0 })),
             path
           );
         }
@@ -2221,7 +2224,7 @@ describe("Git", () => {
 
     it.effect("submoduleStatus decodes every state prefix, the describe suffix and a path with spaces", () =>
       Effect.gen(function* () {
-        const sha = "a".repeat(40);
+        const sha = Str.repeat(40)("a");
         const output = A.join(
           [
             ` ${sha} .repos/effect (effect@4.0.0-beta.101)`,
@@ -2489,9 +2492,9 @@ describe("Git — remaining tiers (round 2)", () => {
 
     it("nearMatches surfaces a monorepo-prefixed tag for a bare wanted ref, and nothing else", () => {
       const entries = [
-        LsRemoteEntry.make({ sha: "a".repeat(40), ref: "refs/tags/effect@4.0.0-beta.101" }),
-        LsRemoteEntry.make({ sha: "b".repeat(40), ref: "refs/tags/4.0.0-beta.101-rc" }),
-        LsRemoteEntry.make({ sha: "c".repeat(40), ref: "refs/heads/main" }),
+        LsRemoteEntry.make({ sha: Str.repeat(40)("a"), ref: "refs/tags/effect@4.0.0-beta.101" }),
+        LsRemoteEntry.make({ sha: Str.repeat(40)("b"), ref: "refs/tags/4.0.0-beta.101-rc" }),
+        LsRemoteEntry.make({ sha: Str.repeat(40)("c"), ref: "refs/heads/main" }),
       ];
       // The systems#357 story: the caller wanted `4.0.0-beta.101`, the remote
       // advertises `effect@4.0.0-beta.101` — a near miss behind a separator.
@@ -2501,7 +2504,10 @@ describe("Git — remaining tiers (round 2)", () => {
         ["refs/tags/effect@4.0.0-beta.101"]
       );
       // An exact match is a MATCH, not a near miss.
-      const exact = LsRemoteEntry.nearMatches([LsRemoteEntry.make({ sha: "d".repeat(40), ref: "refs/tags/v1" })], "v1");
+      const exact = LsRemoteEntry.nearMatches(
+        [LsRemoteEntry.make({ sha: Str.repeat(40)("d"), ref: "refs/tags/v1" })],
+        "v1"
+      );
       assert.deepStrictEqual(exact, []);
     });
 
@@ -2726,13 +2732,13 @@ describe("Git — remaining tiers (round 2)", () => {
           return yield* git.forEachRef(cwd, { patterns: ["refs/tags"] });
         });
         const output = A.join(
-          [`refs/tags/v1\0${"a".repeat(40)}\0tag`, `refs/tags/v2\0${"b".repeat(40)}\0commit`],
+          [`refs/tags/v1\0${Str.repeat(40)("a")}\0tag`, `refs/tags/v2\0${Str.repeat(40)("b")}\0commit`],
           "\n"
         );
         const result = yield* run(program, () => ({ stdout: `${output}\n`, exit: 0 }));
         assert.deepStrictEqual(result, [
-          RefEntry.make({ ref: "refs/tags/v1", sha: "a".repeat(40), objectType: "tag" }),
-          RefEntry.make({ ref: "refs/tags/v2", sha: "b".repeat(40), objectType: "commit" }),
+          RefEntry.make({ ref: "refs/tags/v1", sha: Str.repeat(40)("a"), objectType: "tag" }),
+          RefEntry.make({ ref: "refs/tags/v2", sha: Str.repeat(40)("b"), objectType: "commit" }),
         ]);
       })
     );
@@ -2743,8 +2749,11 @@ describe("Git — remaining tiers (round 2)", () => {
           const git = yield* Git;
           return yield* git.revList(cwd, "HEAD", { limit: 2, firstParent: true });
         });
-        const result = yield* run(listing, () => ({ stdout: `${"a".repeat(40)}\n${"b".repeat(40)}\n`, exit: 0 }));
-        assert.deepStrictEqual(result, ["a".repeat(40), "b".repeat(40)]);
+        const result = yield* run(listing, () => ({
+          stdout: `${Str.repeat(40)("a")}\n${Str.repeat(40)("b")}\n`,
+          exit: 0,
+        }));
+        assert.deepStrictEqual(result, [Str.repeat(40)("a"), Str.repeat(40)("b")]);
         const guarded = Effect.gen(function* () {
           const git = yield* Git;
           return yield* git.revList(cwd, "HEAD", { limit: Number.NaN });
@@ -3536,7 +3545,7 @@ describe("Git — remaining tiers (round 2)", () => {
             A.map(path, (segment) => `${segment}`),
             "."
           );
-          if (key.includes("GIT_SSH_COMMAND")) reads += 1;
+          if (Str.includes("GIT_SSH_COMMAND")(key)) reads += 1;
           return Effect.as(Effect.void, undefined);
         });
         yield* Effect.gen(function* () {

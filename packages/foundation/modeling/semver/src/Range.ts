@@ -109,7 +109,7 @@ const pickSatisfying =
     for (const v of versions) {
       if (range.test(v) && (best === undefined || replaces(v, best))) best = v;
     }
-    return best === undefined ? O.none() : O.some(best);
+    return O.fromUndefinedOr(best);
   };
 
 /**

@@ -9,7 +9,7 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
@@ -36,6 +36,10 @@ import {
 import { hashBytes, mergeLibraryVersions, saveImmutable, withCatalog } from "./Library.store.ts";
 import type { LibraryInventoryOptions, LibraryOwnership, LibrarySourceKind } from "./Library.schemas.ts";
 
+// `effect/String` match results type `index` as optional; every match here comes from a global
+// `matchAll`, which always sets it.
+const matchIndex = (match: RegExpMatchArray): number => O.getOrElse(O.fromUndefinedOr(match.index), constant(0));
+
 const LibraryManifestJson = S.fromJsonString(LibraryManifest);
 const LibraryIntakeJson = S.fromJsonString(LibraryIntake);
 
@@ -59,9 +63,7 @@ const documentTopicEvidence = (text: string) =>
         /^##+\s/.test(line)
           ? line
           : O.getOrElse(
-              O.map(O.fromNullishOr(line.match(/"axis"\s*:\s*"([^"]+)"/)), (m) =>
-                O.getOrElse(O.fromNullishOr(m[1]), () => "")
-              ),
+              O.map(Str.match(/"axis"\s*:\s*"([^"]+)"/)(line), (m) => O.getOrElse(O.fromNullishOr(m[1]), () => "")),
               () => ""
             )
     ),
@@ -107,14 +109,14 @@ export const extractLibraryReferences: {
       if (!sharedSpan && A.some(covered, ([start, end]) => offset >= start && offset < end)) return;
       const before = Str.slice(0, offset)(text);
       const line = Str.split(before, "\n").length;
-      const lastNewline = before.lastIndexOf("\n");
+      const lastNewline = O.getOrElse(Str.lastIndexOf("\n")(before), constant(-1));
       const column = offset - lastNewline;
       const endOffset = offset + citationText.length;
       const endBefore = Str.slice(0, endOffset)(text);
       const endLine = Str.split(endBefore, "\n").length;
-      const endColumn = endOffset - endBefore.lastIndexOf("\n");
+      const endColumn = endOffset - O.getOrElse(Str.lastIndexOf("\n")(endBefore), constant(-1));
       const context = Str.slice(lastNewline + 1, offset)(text);
-      const labelMatch = context.match(/\[([^\]\n]+)\]\($/);
+      const labelMatch = O.getOrNull(Str.match(/\[([^\]\n]+)\]\($/)(context));
       const label = O.getOrElse(
         O.map(O.fromNullishOr(labelMatch), (m) => O.getOrElse(O.fromNullishOr(m[1]), () => "")),
         () => ""
@@ -161,8 +163,8 @@ export const extractLibraryReferences: {
         return;
       }
       if (A.some(covered, ([start, end]) => offset >= start && offset < end)) return;
-      const categories = locator.match(
-        /^(?:https?:\/\/)?arxiv\.org\/list\/(cs\.[A-Za-z]+(?:\|cs\.[A-Za-z]+)+)\/(new|pastweek)$/
+      const categories = O.getOrNull(
+        Str.match(/^(?:https?:\/\/)?arxiv\.org\/list\/(cs\.[A-Za-z]+(?:\|cs\.[A-Za-z]+)+)\/(new|pastweek)$/)(locator)
       );
       if (categories === null) {
         add(locator, offset, form);
@@ -184,57 +186,57 @@ export const extractLibraryReferences: {
         );
     };
     const collectWebLocators = () => {
-      for (const match of text.matchAll(/https?:\/\/[^\s\]<>"`\\，。；！？、]+/g)) {
+      for (const match of Str.matchAll(/https?:\/\/[^\s\]<>"`\\，。；！？、]+/g)(text)) {
         let locator = match[0];
         locator = Str.replace(/[.,;:!?]+$/, "")(locator);
         while (Str.endsWith(")")(locator) && Str.split(locator, ")").length > Str.split(locator, "(").length)
           locator = Str.slice(0, -1)(locator);
         locator = Str.replace(/\]+$/, "")(locator);
-        addWeb(locator, match.index, "url");
+        addWeb(locator, matchIndex(match), "url");
       }
     };
     collectWebLocators();
     const collectIdentifierLocators = () => {
-      for (const match of text.matchAll(/arxiv(?:\s*:\s*|\s+)\d{4}\.\d{4,5}(?:v\d+)?/gi))
-        add(match[0], match.index, "arxiv-id");
-      for (const match of text.matchAll(
+      for (const match of Str.matchAll(/arxiv(?:\s*:\s*|\s+)\d{4}\.\d{4,5}(?:v\d+)?/gi)(text))
+        add(match[0], matchIndex(match), "arxiv-id");
+      for (const match of Str.matchAll(
         /arxiv(?:\s*:\s*|\s+)\d{4}\.\d{4,5}(?:v\d+)?(?:\s*[;,]\s*\d{4}\.\d{4,5}(?:v\d+)?)+/gi
-      )) {
-        for (const candidate of match[0].matchAll(/\d{4}\.\d{4,5}(?:v\d+)?/g))
-          add(candidate[0], match.index + candidate.index, "arxiv-id");
+      )(text)) {
+        for (const candidate of Str.matchAll(/\d{4}\.\d{4,5}(?:v\d+)?/g)(match[0]))
+          add(candidate[0], matchIndex(match) + matchIndex(candidate), "arxiv-id");
       }
-      for (const match of text.matchAll(/\bgithub\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/[^\s<>"`]+)?/g))
-        add(Str.replace(/[.,;)]+$/, "")(match[0]), match.index, "bare-github-url");
-      for (const match of text.matchAll(
+      for (const match of Str.matchAll(/\bgithub\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/[^\s<>"`]+)?/g)(text))
+        add(Str.replace(/[.,;)]+$/, "")(match[0]), matchIndex(match), "bare-github-url");
+      for (const match of Str.matchAll(
         /\b(?:[A-Za-z0-9-]+\.)+(?:gov|com|org|net|edu|io|ai|dev|app)\/[^\s\]<>"`，。；！？、]+/g
-      ))
-        addWeb(Str.replace(/[.,;)]+$/, "")(match[0]), match.index, "bare-web-url");
-      for (const match of text.matchAll(/\b10\.\d{4,9}\/[^\s\]<>"`]+/gi))
-        add(Str.replace(/[.,;)]+$/, "")(match[0]), match.index, "doi");
+      )(text))
+        addWeb(Str.replace(/[.,;)]+$/, "")(match[0]), matchIndex(match), "bare-web-url");
+      for (const match of Str.matchAll(/\b10\.\d{4,9}\/[^\s\]<>"`]+/gi)(text))
+        add(Str.replace(/[.,;)]+$/, "")(match[0]), matchIndex(match), "doi");
     };
     collectIdentifierLocators();
     const collectMarkdownReferences = () => {
       const collectInlineMarkdownLinks = () => {
-        for (const match of text.matchAll(/\]\((?!https?:\/\/)([^\s)]+)(?:\s+"[^"]*")?\)/g)) {
+        for (const match of Str.matchAll(/\]\((?!https?:\/\/)([^\s)]+)(?:\s+"[^"]*")?\)/g)(text)) {
           const locator = O.getOrElse(O.fromNullishOr(match[1]), () => "");
-          add(locator, match.index + 2, "relative-link");
+          add(locator, matchIndex(match) + 2, "relative-link");
         }
-        for (const match of text.matchAll(/`([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)`/g)) {
+        for (const match of Str.matchAll(/`([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)`/g)(text)) {
           const locator = O.getOrElse(O.fromNullishOr(match[1]), () => "");
-          add(locator, match.index + 1, "repo-shorthand");
+          add(locator, matchIndex(match) + 1, "repo-shorthand");
         }
       };
       collectInlineMarkdownLinks();
       const normalizeKey = (key: string) => Str.toLowerCase(Str.trim(Str.replace(/\s+/g, " ")(key)));
       let definitions: ReadonlyArray<LibraryReference> = [];
       const collectReferenceDefinitions = () => {
-        for (const match of text.matchAll(/^ {0,3}\[([^\]\n]+)\]:\s*<?(https?:\/\/[^\s>]+)>?/gm)) {
+        for (const match of Str.matchAll(/^ {0,3}\[([^\]\n]+)\]:\s*<?(https?:\/\/[^\s>]+)>?/gm)(text)) {
           const key = O.getOrElse(O.fromNullishOr(match[1]), () => "");
           const locator = Str.replace(/[.,;]+$/, "")(O.getOrElse(O.fromNullishOr(match[2]), () => ""));
-          const offset = match.index + match[0].indexOf(locator);
+          const offset = matchIndex(match) + O.getOrElse(Str.indexOf(locator)(match[0]), constant(-1));
           const before = Str.slice(0, offset)(text);
           const line = Str.split(before, "\n").length;
-          const column = offset - before.lastIndexOf("\n");
+          const column = offset - O.getOrElse(Str.lastIndexOf("\n")(before), constant(-1));
           definitions = A.append(
             definitions,
             LibraryReference.make({
@@ -252,15 +254,15 @@ export const extractLibraryReferences: {
         }
       };
       collectReferenceDefinitions();
-      for (const match of text.matchAll(/\[([^\]\n]+)\](?:\[([^\]\n]*)\])?/g)) {
-        const following = text[match.index + match[0].length];
-        if (following === "(" || following === ":" || text[match.index - 1] === "\\") continue;
+      for (const match of Str.matchAll(/\[([^\]\n]+)\](?:\[([^\]\n]*)\])?/g)(text)) {
+        const following = text[matchIndex(match) + match[0].length];
+        if (following === "(" || following === ":" || text[matchIndex(match) - 1] === "\\") continue;
         const label = O.getOrElse(O.fromNullishOr(match[1]), () => "");
         const explicitKey = O.getOrElse(O.fromNullishOr(match[2]), () => "");
         const key = normalizeKey(explicitKey || label);
         const definition = A.findFirst(definitions, (d) => d.referenceKey === key);
         if (O.isSome(definition))
-          add(definition.value.locator, match.index, "reference-use", match[0], label, definition);
+          add(definition.value.locator, matchIndex(match), "reference-use", match[0], label, definition);
       }
     };
     collectMarkdownReferences();
@@ -268,20 +270,22 @@ export const extractLibraryReferences: {
       const knownPaperIds = A.dedupe([
         ...A.flatMap(knownReferences, (reference) =>
           A.map(
-            A.fromIterable(reference.matchAll(/(?:arxiv:|arxiv\.org\/(?:abs|pdf|html)\/)(\d{4}\.\d{4,5})/gi)),
+            A.fromIterable(Str.matchAll(/(?:arxiv:|arxiv\.org\/(?:abs|pdf|html)\/)(\d{4}\.\d{4,5})/gi)(reference)),
             (match) => O.getOrElse(O.fromNullishOr(match[1]), () => "")
           )
         ),
         ...A.map(
           A.fromIterable(
-            text.matchAll(/(?:arxiv(?:\s*:\s*|\s+)|arxiv\.org\/(?:abs|pdf|html)\/|"arxiv"\s*:\s*")(\d{4}\.\d{4,5})/gi)
+            Str.matchAll(/(?:arxiv(?:\s*:\s*|\s+)|arxiv\.org\/(?:abs|pdf|html)\/|"arxiv"\s*:\s*")(\d{4}\.\d{4,5})/gi)(
+              text
+            )
           ),
           (match) => O.getOrElse(O.fromNullishOr(match[1]), () => "")
         ),
       ]);
-      for (const match of text.matchAll(/\b(\d{4}\.\d{4,5})(?:v\d+)?\b/g)) {
-        const before = Str.slice(0, match.index)(text);
-        const after = Str.slice(match.index + match[0].length)(text);
+      for (const match of Str.matchAll(/\b(\d{4}\.\d{4,5})(?:v\d+)?\b/g)(text)) {
+        const before = Str.slice(0, matchIndex(match))(text);
+        const after = Str.slice(matchIndex(match) + match[0].length)(text);
         const numericLinkLabel = Str.endsWith("[")(before) && /^\]\s*(?:\(|\[)/.test(after);
         const context =
           A.join(A.takeRight(Str.split(before, "\n"), 1), "") + O.getOrElse(A.get(Str.split(after, "\n"), 0), () => "");
@@ -293,22 +297,23 @@ export const extractLibraryReferences: {
           ) ||
             /\barxiv\b/i.test(context))
         )
-          add(match[0], match.index, "arxiv-id");
+          add(match[0], matchIndex(match), "arxiv-id");
       }
     };
     collectContextualPaperIds();
     const collectRepositoryShorthand = () => {
-      for (const match of text.matchAll(/\b[A-Za-z][A-Za-z0-9_.-]*\/[A-Za-z0-9_.-]+#\d+\b/g))
-        add(match[0], match.index, "repo-resource-shorthand");
+      for (const match of Str.matchAll(/\b[A-Za-z][A-Za-z0-9_.-]*\/[A-Za-z0-9_.-]+#\d+\b/g)(text))
+        add(match[0], matchIndex(match), "repo-resource-shorthand");
       const explicitRepositories = A.dedupe([
         ...A.map(knownReferences, Str.toLowerCase),
         ...A.map(
-          A.fromIterable(text.matchAll(/(?:https?:\/\/)?github\.com\/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)/g)),
+          A.fromIterable(Str.matchAll(/(?:https?:\/\/)?github\.com\/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)/g)(text)),
           (match) => Str.toLowerCase(O.getOrElse(O.fromNullishOr(match[1]), () => ""))
         ),
       ]);
-      for (const match of text.matchAll(/\b[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\b/g)) {
-        if (A.contains(explicitRepositories, Str.toLowerCase(match[0]))) add(match[0], match.index, "repo-shorthand");
+      for (const match of Str.matchAll(/\b[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\b/g)(text)) {
+        if (A.contains(explicitRepositories, Str.toLowerCase(match[0])))
+          add(match[0], matchIndex(match), "repo-shorthand");
       }
     };
     collectRepositoryShorthand();
@@ -455,10 +460,12 @@ export const classifyLibraryReference = Effect.fn("ResearchLibrary.classifyRefer
       }
     }
   });
-  const arxiv = locator.match(
-    /^(?:(?:arxiv(?:\s*:\s*|\s+))?|https?:\/\/(?:www\.)?arxiv\.org\/(?:abs|pdf|html)\/)(\d{4}\.\d{4,5})(v\d+)?(?:\.pdf)?$/i
+  const arxiv = O.getOrNull(
+    Str.match(
+      /^(?:(?:arxiv(?:\s*:\s*|\s+))?|https?:\/\/(?:www\.)?arxiv\.org\/(?:abs|pdf|html)\/)(\d{4}\.\d{4,5})(v\d+)?(?:\.pdf)?$/i
+    )(locator)
   );
-  const doi = locator.match(/^(?:https?:\/\/(?:dx\.)?doi\.org\/)?(10\.\d{4,9}\/.+)$/i);
+  const doi = O.getOrNull(Str.match(/^(?:https?:\/\/(?:dx\.)?doi\.org\/)?(10\.\d{4,9}\/.+)$/i)(locator));
   if (arxiv !== null) {
     const paperId = O.getOrElse(O.fromNullishOr(arxiv[1]), () => locator);
     revision = O.getOrElse(O.fromNullishOr(arxiv[2]), () => "");
@@ -581,9 +588,9 @@ export const inventoryLibrary = Effect.fn("ResearchLibrary.inventory")(function*
               ...knownPaperReferences,
               ...A.map(
                 A.fromIterable(
-                  inputText.matchAll(
+                  Str.matchAll(
                     /(?:arxiv(?:\s*:\s*|\s+)|arxiv\.org\/(?:abs|pdf|html)\/|"arxiv"\s*:\s*")(\d{4}\.\d{4,5})/gi
-                  )
+                  )(inputText)
                 ),
                 (match) => `arxiv:${O.getOrElse(O.fromNullishOr(match[1]), () => "")}`
               ),
@@ -642,15 +649,15 @@ export const inventoryLibrary = Effect.fn("ResearchLibrary.inventory")(function*
             ...A.flatMap(sources, (source) => [source.repository, source.identity]),
           ]);
           const title = O.getOrElse(
-            O.map(O.fromNullishOr(text.match(/^#\s+(.+)$/m)), (m) =>
+            O.map(Str.match(/^#\s+(.+)$/m)(text), (m) =>
               O.getOrElse(O.fromNullishOr(m[1]), () => path.basename(originalPath))
             ),
             () => path.basename(originalPath)
           );
           const reportDate = O.getOrElse(
             O.map(
-              O.flatMap(O.fromNullishOr(text.match(/^#\s+(.+)$/m)), (heading) =>
-                O.fromNullishOr(O.getOrElse(O.fromNullishOr(heading[1]), () => "").match(/\d{4}-\d{2}-\d{2}/))
+              O.flatMap(Str.match(/^#\s+(.+)$/m)(text), (heading) =>
+                Str.match(/\d{4}-\d{2}-\d{2}/)(O.getOrElse(O.fromNullishOr(heading[1]), () => ""))
               ),
               (m) => m[0]
             ),
@@ -670,11 +677,11 @@ export const inventoryLibrary = Effect.fn("ResearchLibrary.inventory")(function*
                 "library-topic-rules/v1: explicit section heading and structured axis keyword classification",
               reportDate,
               headingDate: O.getOrElse(
-                O.map(O.fromNullishOr(title.match(/\d{4}-\d{2}-\d{2}|\d{1,2} [A-Za-z]+ \d{4}/)), (m) => m[0]),
+                O.map(Str.match(/\d{4}-\d{2}-\d{2}|\d{1,2} [A-Za-z]+ \d{4}/)(title), (m) => m[0]),
                 () => ""
               ),
               filenameDate: O.getOrElse(
-                O.map(O.fromNullishOr(path.basename(originalPath).match(/\d{4}-\d{2}-\d{2}/)), (m) => m[0]),
+                O.map(Str.match(/\d{4}-\d{2}-\d{2}/)(path.basename(originalPath)), (m) => m[0]),
                 () => ""
               ),
               expectedOccurrences: references.length,
@@ -695,7 +702,7 @@ export const inventoryLibrary = Effect.fn("ResearchLibrary.inventory")(function*
               );
               const topicEvidence = /"axis"\s*:/.test(currentLine)
                 ? O.getOrElse(
-                    O.map(O.fromNullishOr(currentLine.match(/"axis"\s*:\s*"([^"]+)"/)), (m) =>
+                    O.map(Str.match(/"axis"\s*:\s*"([^"]+)"/)(currentLine), (m) =>
                       O.getOrElse(O.fromNullishOr(m[1]), () => "")
                     ),
                     () => ""
@@ -722,7 +729,7 @@ export const inventoryLibrary = Effect.fn("ResearchLibrary.inventory")(function*
                 () => ""
               );
               const headingFindingId = O.getOrElse(
-                O.map(O.fromNullishOr(findingHeading.match(/\bf-(?:law|effect|agents)-\d+/)), (m) => m[0]),
+                O.map(Str.match(/\bf-(?:law|effect|agents)-\d+/)(findingHeading), (m) => m[0]),
                 () => ""
               );
               const occurrenceId = yield* hashText(`${id}:${reference.line}:${reference.column}:${reference.locator}`);
@@ -737,10 +744,8 @@ export const inventoryLibrary = Effect.fn("ResearchLibrary.inventory")(function*
                   context: O.getOrElse(A.get(Str.split(text, "\n"), reference.line - 1), () => ""),
                   findingId: O.getOrElse(
                     O.map(
-                      O.fromNullishOr(
-                        O.getOrElse(A.get(Str.split(text, "\n"), reference.line - 1), () => "").match(
-                          /"id"\s*:\s*"([^"]+)"/
-                        )
+                      Str.match(/"id"\s*:\s*"([^"]+)"/)(
+                        O.getOrElse(A.get(Str.split(text, "\n"), reference.line - 1), () => "")
                       ),
                       (m) => O.getOrElse(O.fromNullishOr(m[1]), () => "")
                     ),

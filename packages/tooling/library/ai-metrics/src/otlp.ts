@@ -39,9 +39,10 @@ import {
 import { hashPublicTextSha256 } from "./privacy.ts";
 import type { HrTime } from "@opentelemetry/api";
 import type { Resource } from "@opentelemetry/resources";
-import type { ReadableSpan } from "@opentelemetry/sdk-trace-base";
 
 const $I = $RepoAiMetricsId.create("otlp");
+
+type ReadableSpan = Parameters<OTLPTraceExporter["export"]>[0][number];
 
 /**
  * OTLP attributes approved for redacted AI metrics span export.

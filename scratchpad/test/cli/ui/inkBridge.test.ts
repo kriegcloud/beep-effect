@@ -1,6 +1,6 @@
 import * as R from "effect/Record";
 import { assert, describe, it } from "@effect/vitest";
-import type { ColorLevel } from "../../../effected/env/index.ts";
+import type { ColorLevel } from "@beep/runtime-env";
 import type * as Scope from "effect/Scope";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";

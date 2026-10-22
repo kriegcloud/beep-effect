@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Layer from "effect/Layer";
-import { CurrentRuntimeEnv } from "../../effected/env/index.ts";
+import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { ambientLinksLayer } from "../../effected/cli/CliLinks.ts";
 import * as S from "effect/Schema";
 import { CliLinks } from "../../effected/cli/CliLinks.ts";

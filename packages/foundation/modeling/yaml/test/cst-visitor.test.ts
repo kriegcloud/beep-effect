@@ -4,6 +4,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { isMap, isScalar, isSeq, parseDocument } from "yaml";
 import type { Node } from "yaml";
 
@@ -87,7 +88,7 @@ describe("CST key/value projections", () => {
         assert.deepStrictEqual(oracleValues, cstValues);
         // Compact/block projections also agree with the lab AST. The oracle
         // above covers omitted flow values independently of the composer.
-        if (!source.startsWith("{")) {
+        if (!Str.startsWith("{")(source)) {
           const astEvents = yield* Stream.runCollect(YamlVisitor.visit(source));
           const pairs = A.filter(astEvents, YamlVisitorEvent.$is("Pair"));
           assert.deepStrictEqual(

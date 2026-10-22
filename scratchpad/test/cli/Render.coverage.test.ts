@@ -1,6 +1,6 @@
 import { assert, it } from "@effect/vitest";
 import * as Layer from "effect/Layer";
-import { Audience, TerminalEnv } from "../../effected/env/index.ts";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import { CliTheme } from "../../effected/cli/CliTheme.ts";
 import { CliLinks } from "../../effected/cli/CliLinks.ts";
 import * as Effect from "effect/Effect";

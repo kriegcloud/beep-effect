@@ -34,6 +34,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -119,7 +120,7 @@ const BIG_FILE_SIZE = 1_500_000;
 
 const generateBigText = (size: number): string => {
   const line = "the quick brown fox jumps over the lazy dog\n";
-  return line.repeat(Math.ceil(size / line.length)).slice(0, size);
+  return pipe(line, Str.repeat(Math.ceil(size / line.length)), Str.slice(0, size));
 };
 
 /**
@@ -143,7 +144,7 @@ const buildFixture = Effect.fnUntraced(function* (dir: string) {
   yield* fs.writeFileString(join(dir, "deleted.txt"), "will be deleted\n");
   yield* raw(["add", "-A"]);
   yield* raw(["-c", "commit.gpgsign=false", "commit", "-m", "commit1"]);
-  const commit1 = (yield* raw(["rev-parse", "HEAD"])).trim();
+  const commit1 = Str.trim(yield* raw(["rev-parse", "HEAD"]));
 
   yield* raw(["branch", "feature/git"]);
   // checkout IS Git surface — dogfood the real service for the fixture's
@@ -152,14 +153,14 @@ const buildFixture = Effect.fnUntraced(function* (dir: string) {
   yield* fs.writeFileString(join(dir, "feature.txt"), "feature content\n");
   yield* raw(["add", "-A"]);
   yield* raw(["-c", "commit.gpgsign=false", "commit", "-m", "branch commit"]);
-  const branchCommit = (yield* raw(["rev-parse", "HEAD"])).trim();
+  const branchCommit = Str.trim(yield* raw(["rev-parse", "HEAD"]));
 
   yield* git.checkout(dir, "main").pipe(Effect.orDie);
   yield* fs.writeFileString(join(dir, "a.txt"), "two\n");
   yield* fs.remove(join(dir, "deleted.txt"));
   yield* raw(["add", "-A"]);
   yield* raw(["-c", "commit.gpgsign=false", "commit", "-m", "commit2"]);
-  const commit2 = (yield* raw(["rev-parse", "HEAD"])).trim();
+  const commit2 = Str.trim(yield* raw(["rev-parse", "HEAD"]));
 
   yield* raw(["tag", "v1.0.0", commit2]);
 
@@ -167,9 +168,9 @@ const buildFixture = Effect.fnUntraced(function* (dir: string) {
   yield* fs.writeFileString(join(dir, "big.txt"), bigContent);
   yield* raw(["add", "-A"]);
   yield* raw(["-c", "commit.gpgsign=false", "commit", "-m", "commit3: add big file"]);
-  const commit3 = (yield* raw(["rev-parse", "HEAD"])).trim();
+  const commit3 = Str.trim(yield* raw(["rev-parse", "HEAD"]));
 
-  const forkPoint = (yield* raw(["merge-base", "main", "feature/git"])).trim();
+  const forkPoint = Str.trim(yield* raw(["merge-base", "main", "feature/git"]));
 
   return { dir, commit1, commit2, commit3, branchCommit, forkPoint, tag: "v1.0.0", bigContent };
 });
@@ -276,8 +277,8 @@ it.layer(Layer.provideMerge(RepoFixtureLayer, TestLayer), { timeout: "30 seconds
           assertSome(shown, fixture.bigContent);
           const content = O.getOrThrow(shown);
           assert.strictEqual(content.length, fixture.bigContent.length);
-          assert.strictEqual(content.slice(0, 200), fixture.bigContent.slice(0, 200));
-          assert.strictEqual(content.slice(-200), fixture.bigContent.slice(-200));
+          assert.strictEqual(Str.slice(0, 200)(content), Str.slice(0, 200)(fixture.bigContent));
+          assert.strictEqual(Str.slice(-200)(content), Str.slice(-200)(fixture.bigContent));
           assert.strictEqual(content, fixture.bigContent);
         }),
       10_000

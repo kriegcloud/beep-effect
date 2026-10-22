@@ -252,12 +252,12 @@ export const mergeLibraryVersions = (versions: ReadonlyArray<LibraryVersion>): R
   });
 
 const releaseRevision = (url: string) =>
-  O.getOrElse(O.fromNullishOr(url.match(/\/releases\/tag\/([^?#]+)/)?.[1]), () => "");
+  O.getOrElse(O.fromNullishOr(O.getOrNull(Str.match(/\/releases\/tag\/([^?#]+)/)(url))?.[1]), () => "");
 
 const repairedCitationUrl = (url: string) => {
   const withoutSeparator = Str.replace(/(?:，|%EF%BC%8C).*/i, "")(url);
   const target = O.getOrElse(
-    O.fromNullishOr(withoutSeparator.match(/\]\((https?:\/\/.+)$/)?.[1]),
+    O.fromNullishOr(O.getOrNull(Str.match(/\]\((https?:\/\/.+)$/)(withoutSeparator))?.[1]),
     () => withoutSeparator
   );
   return Str.replace(

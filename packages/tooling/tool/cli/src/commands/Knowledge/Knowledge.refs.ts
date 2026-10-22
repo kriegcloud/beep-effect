@@ -16,7 +16,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual, flow, pipe } from "effect/Function";
+import { constant, dual, flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
@@ -2572,14 +2572,15 @@ const evidenceSourceOffsets = (node: ts.Node, source: ts.SourceFile) => {
   const offsets = A.empty<number>();
   const chunks = A.empty<string>();
   let cursor = 0;
-  for (const whitespace of raw.matchAll(evidenceWhitespace)) {
-    for (let index = cursor; index < whitespace.index; index++) {
+  for (const whitespace of Str.matchAll(evidenceWhitespace)(raw)) {
+    const whitespaceIndex = O.getOrElse(O.fromUndefinedOr(whitespace.index), constant(0));
+    for (let index = cursor; index < whitespaceIndex; index++) {
       chunks.push(Str.slice(index, index + 1)(raw));
       offsets.push(node.getStart(source) + index);
     }
     chunks.push(" ");
-    offsets.push(node.getStart(source) + whitespace.index);
-    cursor = whitespace.index + whitespace[0].length;
+    offsets.push(node.getStart(source) + whitespaceIndex);
+    cursor = whitespaceIndex + whitespace[0].length;
   }
   for (let index = cursor; index < raw.length; index++) {
     chunks.push(Str.slice(index, index + 1)(raw));

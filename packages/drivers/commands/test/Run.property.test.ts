@@ -9,6 +9,7 @@ import * as Layer from "effect/Layer";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as S from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
+import * as Str from "effect/String";
 
 const withLayer =
   <R, E2, R2>(layer: Layer.Layer<R, E2, R2>) =>
@@ -128,7 +129,7 @@ it.effect.prop(
       const spawner = ScriptedSpawner.make(() => ({ stdout }));
       const transmitted = new TextDecoder().decode(new TextEncoder().encode(stdout));
       const text = yield* Run.text(command).pipe(withLayer(spawner.layer));
-      assert.strictEqual(text, transmitted.trim());
+      assert.strictEqual(text, Str.trim(transmitted));
       assert.strictEqual(
         yield* Run.text(command).pipe(withLayer(ScriptedSpawner.make(() => ({ stdout: text })).layer)),
         text
@@ -137,7 +138,7 @@ it.effect.prop(
       assert.deepStrictEqual(
         lines,
         A.filter(
-          A.map(transmitted.split(/\r?\n/), (line) => line.trim()),
+          A.map(Str.split(/\r?\n/)(transmitted), (line) => Str.trim(line)),
           (line) => line.length > 0
         )
       );

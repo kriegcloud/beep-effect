@@ -2,7 +2,7 @@
 // interactive, through CliInteractive's own decision: a live view prints its final frame once, as for a
 // pipe, and a screen is refused.
 import { assert, describe, it } from "@effect/vitest";
-import { Audience, TerminalEnv } from "../../../effected/env/index.ts";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

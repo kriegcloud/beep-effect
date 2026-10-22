@@ -20,6 +20,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { GoalSlug } from "./Bootstrap.schemas.ts";
 import { readGoalLifecycle } from "./Completion.ts";
@@ -116,7 +117,7 @@ const printReport = Effect.fn("Goals.printGraphReport")(function* <A, I>(
 ) {
   if (json) {
     const rendered = yield* renderJson(schema, report);
-    yield* Console.log(rendered.trimEnd());
+    yield* Console.log(Str.trimEnd(rendered));
   } else {
     yield* Console.log(human(report));
   }

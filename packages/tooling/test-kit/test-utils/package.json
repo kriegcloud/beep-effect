@@ -71,7 +71,7 @@
     "@effect/sql-sqlite-node": "catalog:",
     "@effect/vitest": "catalog:",
     "effect": "catalog:",
-    "pg": "^8.20.0",
+    "pg": "^8.23.1",
     "testcontainers": "catalog:"
   },
   "devDependencies": {

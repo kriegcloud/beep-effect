@@ -66,6 +66,10 @@ jobs:
         shell: bash
         run: bun run beep ci admission --github-output
 
+  # Coverage evidence is produced and compared by Check even before this
+  # label lands. This workflow never adds another artifact comparison. During
+  # migration trusted main can still own the legacy producer; after promotion
+  # its matrix no longer dispatches coverage.
   heavy:
     name: Heavy
     needs: [admission]

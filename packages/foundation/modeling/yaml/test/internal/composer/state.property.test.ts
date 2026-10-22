@@ -13,6 +13,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 describe("composer state properties", () => {
@@ -58,19 +59,23 @@ describe("composer state properties", () => {
         const starts = getLineStarts(text);
         assert.strictEqual(
           A.join(
-            A.map(starts, (start, index) => text.slice(start, starts[index + 1])),
+            A.map(starts, (start, index) => Str.slice(start, starts[index + 1])(text)),
             ""
           ),
           text
         );
+        let line = 0;
+        let lineStart = 0;
         for (let offset = 0; offset <= text.length; offset++) {
-          const prefix = text.slice(0, offset);
-          const lineStart = prefix.lastIndexOf("\n") + 1;
+          if (offset > 0 && text[offset - 1] === "\n") {
+            line++;
+            lineStart = offset;
+          }
           const bom = text[lineStart] === "\uFEFF" && offset > lineStart ? 1 : 0;
           assert.deepStrictEqual(
             lineCol(text, offset),
             LineColumn.make({
-              line: prefix.split("\n").length - 1,
+              line,
               column: offset - lineStart - bom,
             })
           );

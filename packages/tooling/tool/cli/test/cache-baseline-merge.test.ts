@@ -27,8 +27,9 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as Rec from "effect/Record";
 import * as R from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
-const digest = (seed: number) => Sha256Hex.make(seed.toString(16).padStart(64, "0"));
+const digest = (seed: number) => Sha256Hex.make(Str.padStart(64, "0")(seed.toString(16)));
 const review = (reviewer: string, seed: number) =>
   CacheReviewDecision.make({
     reviewer,
@@ -94,7 +95,7 @@ const record = (prior: O.Option<CachePolicyBaseline>, current: CachePolicyProjec
 const retarget = (current: CachePolicyProjection, subject: string, seed: number) =>
   projection(
     A.map(current.nodes, (row) =>
-      row.computation.startsWith(`${subject}#`) ? node(row.computation, seed + row.commandDigest.length) : row
+      Str.startsWith(`${subject}#`)(row.computation) ? node(row.computation, seed + row.commandDigest.length) : row
     )
   );
 const decodeBaseline = S.decodeUnknownEffect(S.fromJsonString(CachePolicyBaseline));
@@ -213,7 +214,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("Cache baseline per-subj
       const withoutGamma = CachePolicyProjection.make({
         ...base,
         globalConfiguration: { ui: "stream" },
-        nodes: A.filter(base.nodes, (row) => !row.computation.startsWith("@beep/gamma#")),
+        nodes: A.filter(base.nodes, (row) => !Str.startsWith("@beep/gamma#")(row.computation)),
       });
       const next = record(prior, withoutGamma, alphaReview);
       expect(next.stamped).toStrictEqual(["//"]);

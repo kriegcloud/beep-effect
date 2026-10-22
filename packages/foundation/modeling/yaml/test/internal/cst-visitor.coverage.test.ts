@@ -4,6 +4,7 @@ import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 
 const leaves = (text: string) =>
   A.filterMap([...cstEvents(text)], (event) =>
@@ -173,15 +174,15 @@ describe("CST visitor coverage", () => {
     '"unterminated',
     'a: "unterminated',
     '{a: "unterminated}',
-    `${"[".repeat(270)}x${"]".repeat(270)}`,
-    `${"{a: ".repeat(270)}x${"}".repeat(270)}`,
+    `${Str.repeat(270)("[")}x${Str.repeat(270)("]")}`,
+    `${Str.repeat(270)("{a: ")}x${Str.repeat(270)("}")}`,
     "a:\n" +
       A.join(
-        A.makeBy(270, (i) => `${"  ".repeat(i + 1)}a:\n`),
+        A.makeBy(270, (i) => `${Str.repeat(i + 1)("  ")}a:\n`),
         ""
       ),
   ]) {
-    it.effect(`surfaces lexical or depth errors for ${text.slice(0, 24)}`, () =>
+    it.effect(`surfaces lexical or depth errors for ${Str.slice(0, 24)(text)}`, () =>
       Effect.sync(() => {
         const events = [...cstEvents(text)];
         assert.isAbove(A.filter(events, (event) => event._tag === "CstErrorEvent").length, 0);

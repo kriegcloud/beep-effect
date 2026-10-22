@@ -15,9 +15,11 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 describe("YamlDocument", () => {
   describe("parse", () => {
@@ -113,10 +115,10 @@ describe("YamlDocument", () => {
         // is a strict-parser restriction we do not enforce on read), but
         // re-emitting it implicitly would produce output strict parsers
         // reject — the node path must spill exactly like the value path.
-        const key = `pkg-a@1.0.0(${"a".repeat(1100)})`;
+        const key = `pkg-a@1.0.0(${Str.repeat(1100)("a")})`;
         const doc = yield* YamlDocument.parse(`${key}: value-one\n`);
         const text = yield* doc.stringify();
-        assert.isTrue(text.startsWith(`? ${key}\n: value-one`), "node path must spill to explicit form");
+        assert.isTrue(Str.startsWith(`? ${key}\n: value-one`)(text), "node path must spill to explicit form");
         const again = yield* YamlDocument.parse(text);
         assert.deepStrictEqual(again.toValue(), { [key]: "value-one" });
       })
@@ -126,7 +128,7 @@ describe("YamlDocument", () => {
       Effect.gen(function* () {
         // Same structural-pad contract as the value path: continuation
         // lines after `: ` align at column 2 regardless of ctx.indent.
-        const key = `pkg-a@1.0.0(${"a".repeat(1100)})`;
+        const key = `pkg-a@1.0.0(${Str.repeat(1100)("a")})`;
         const seqDoc = yield* YamlDocument.parse(`${key}:\n  - first\n  - second\n`);
         const seqText = yield* seqDoc.stringify(YamlStringifyOptions.make({ indent: 4 }));
         assert.include(seqText, ": - first\n  - second");
@@ -143,7 +145,7 @@ describe("YamlDocument", () => {
 
     it.effect("roundtrips the pnpm snapshots explicit-key shape through the node path (#322/#323)", () =>
       Effect.gen(function* () {
-        const key = `pkg-b@2.0.0(${"b".repeat(1100)})`;
+        const key = `pkg-b@2.0.0(${Str.repeat(1100)("b")})`;
         const source = A.join(["snapshots:", `  ? ${key}`, "  : dependencies:", "      dep-one: 1.2.3", ""], "\n");
         const doc = yield* YamlDocument.parse(source);
         const text = yield* doc.stringify();
@@ -170,11 +172,11 @@ describe("YamlDocument", () => {
 
         const viaNodePath = yield* doc.stringify(YamlStringifyOptions.make({ lineWidth: 30 }));
         // Inert: the long scalar stays on one physical line, far past column 30.
-        assert.isTrue(A.some(viaNodePath.split("\n"), (line) => line.length > 40));
+        assert.isTrue(A.some(Str.split("\n")(viaNodePath), (line) => line.length > 40));
 
         // The documented workaround folds: render the plain value instead.
         const viaValuePath = yield* Yaml.stringify(doc.toValue(), YamlStringifyOptions.make({ lineWidth: 30 }));
-        const foldedLines = viaValuePath.trimEnd().split("\n");
+        const foldedLines = Str.split("\n")(Str.trimEnd(viaValuePath));
         assert.isAbove(foldedLines.length, 1);
         for (const line of foldedLines) assert.isAtMost(line.length, 40);
         // The fold is semantically transparent: both spellings re-parse alike.
@@ -233,8 +235,8 @@ describe("YamlDocument", () => {
         if (!S.is(YamlAlias)(alias)) {
           return assert.fail("expected an alias value");
         }
-        assert.strictEqual(text.slice(alias.offset, alias.offset + alias.length), "*anc");
-        const lastNameChar = text.indexOf("*anc") + "*anc".length - 1;
+        assert.strictEqual(Str.slice(alias.offset, alias.offset + alias.length)(text), "*anc");
+        const lastNameChar = O.getOrElse(constant(-1))(Str.indexOf("*anc")(text)) + "*anc".length - 1;
         const found = root.findAtOffset(lastNameChar);
         if (O.isNone(found)) {
           return assert.fail("findAtOffset missed the last character of the alias");
@@ -256,10 +258,13 @@ describe("YamlDocument", () => {
           return assert.fail("expected a scalar value");
         }
         assert.strictEqual(scalar.value, "first line second line");
-        assert.strictEqual(scalar.offset, text.indexOf("first"));
-        assert.strictEqual(scalar.offset + scalar.length, text.indexOf("second line") + "second line".length);
+        assert.strictEqual(scalar.offset, O.getOrElse(constant(-1))(Str.indexOf("first")(text)));
+        assert.strictEqual(
+          scalar.offset + scalar.length,
+          O.getOrElse(constant(-1))(Str.indexOf("second line")(text)) + "second line".length
+        );
         assert.strictEqual(scalar.sourceMultiline, true);
-        const found = root.findAtOffset(text.indexOf("second"));
+        const found = root.findAtOffset(O.getOrElse(constant(-1))(Str.indexOf("second")(text)));
         if (O.isNone(found)) {
           return assert.fail("findAtOffset missed the second line of the folded scalar");
         }
@@ -280,10 +285,13 @@ describe("YamlDocument", () => {
           return assert.fail("expected a scalar item");
         }
         assert.strictEqual(scalar.value, "first second");
-        assert.strictEqual(scalar.offset, text.indexOf("first"));
-        assert.strictEqual(scalar.offset + scalar.length, text.indexOf("second") + "second".length);
+        assert.strictEqual(scalar.offset, O.getOrElse(constant(-1))(Str.indexOf("first")(text)));
+        assert.strictEqual(
+          scalar.offset + scalar.length,
+          O.getOrElse(constant(-1))(Str.indexOf("second")(text)) + "second".length
+        );
         assert.strictEqual(scalar.sourceMultiline, true);
-        const found = root.findAtOffset(text.indexOf("second"));
+        const found = root.findAtOffset(O.getOrElse(constant(-1))(Str.indexOf("second")(text)));
         if (O.isNone(found)) {
           return assert.fail("findAtOffset missed the second line of the folded scalar");
         }
@@ -304,10 +312,13 @@ describe("YamlDocument", () => {
           return assert.fail("expected a scalar item");
         }
         assert.strictEqual(scalar.value, "first second");
-        assert.strictEqual(scalar.offset, text.indexOf("first"));
-        assert.strictEqual(scalar.offset + scalar.length, text.indexOf("second") + "second".length);
+        assert.strictEqual(scalar.offset, O.getOrElse(constant(-1))(Str.indexOf("first")(text)));
+        assert.strictEqual(
+          scalar.offset + scalar.length,
+          O.getOrElse(constant(-1))(Str.indexOf("second")(text)) + "second".length
+        );
         assert.strictEqual(scalar.sourceMultiline, true);
-        const found = root.findAtOffset(text.indexOf("second"));
+        const found = root.findAtOffset(O.getOrElse(constant(-1))(Str.indexOf("second")(text)));
         if (O.isNone(found)) {
           return assert.fail("findAtOffset missed the second line of the folded scalar");
         }
@@ -327,7 +338,7 @@ describe("YamlDocument", () => {
         if (!S.is(YamlScalar)(scalar)) {
           return assert.fail("expected a scalar value");
         }
-        assert.strictEqual(scalar.offset, text.indexOf("value"));
+        assert.strictEqual(scalar.offset, O.getOrElse(constant(-1))(Str.indexOf("value")(text)));
         assert.strictEqual(scalar.length, "value".length);
         assert.strictEqual(scalar.sourceMultiline, undefined);
       })
@@ -361,12 +372,12 @@ describe("YamlDocument", () => {
         if (!S.is(YamlSeq)(seq)) {
           return assert.fail("expected a sequence value");
         }
-        const commentStart = text.indexOf("# reviewed before release");
+        const commentStart = O.getOrElse(constant(-1))(Str.indexOf("# reviewed before release")(text));
         // The span ends where the last item's line ends — at the comment
         // line's first character, never past it.
         assert.strictEqual(seq.offset + seq.length, commentStart);
         assert.strictEqual(
-          text.slice(seq.offset, seq.offset + seq.length),
+          Str.slice(seq.offset, seq.offset + seq.length)(text),
           "- by: human:spencer\n    at: 2026-09-01T00:00:00Z\n"
         );
         // The last item — the mapping the comment was swallowed into —
@@ -377,9 +388,7 @@ describe("YamlDocument", () => {
         }
         assert.strictEqual(item.offset + item.length, commentStart);
         // Splicing a new item at the seq's end lands BEFORE the comment.
-        const spliced = `${text.slice(0, seq.offset + seq.length)}  - by: human:other\n${text.slice(
-          seq.offset + seq.length
-        )}`;
+        const spliced = `${Str.slice(0, seq.offset + seq.length)(text)}  - by: human:other\n${Str.slice(seq.offset + seq.length)(text)}`;
         assert.deepStrictEqual((yield* YamlDocument.parse(spliced)).toValue(), {
           verified: [{ by: "human:spencer", at: "2026-09-01T00:00:00Z" }, { by: "human:other" }],
           status: "stable",
@@ -409,14 +418,14 @@ describe("YamlDocument", () => {
         if (!S.is(YamlSeq)(seq)) {
           return assert.fail("expected a sequence value");
         }
-        assert.strictEqual(seq.offset + seq.length, text.indexOf("status"));
+        assert.strictEqual(seq.offset + seq.length, O.getOrElse(constant(-1))(Str.indexOf("status")(text)));
         // The nested mapping's content column IS deeper than the comment,
         // so the item disowns it and its span stops at the comment line.
         const item = seq.items[0];
         if (!S.is(YamlMap)(item)) {
           return assert.fail("expected a mapping item");
         }
-        assert.strictEqual(item.offset + item.length, text.indexOf("  # kept"));
+        assert.strictEqual(item.offset + item.length, O.getOrElse(constant(-1))(Str.indexOf("  # kept")(text)));
       })
     );
 
@@ -432,7 +441,7 @@ describe("YamlDocument", () => {
         if (!S.is(YamlMap)(inner)) {
           return assert.fail("expected a mapping value");
         }
-        assert.strictEqual(inner.offset + inner.length, text.indexOf("# tail"));
+        assert.strictEqual(inner.offset + inner.length, O.getOrElse(constant(-1))(Str.indexOf("# tail")(text)));
         // The ROOT map's own column is 0, so a column-0 comment is not
         // shallower than its content and the root span is untouched.
         assert.strictEqual(root.offset + root.length, text.length);
@@ -453,7 +462,10 @@ describe("YamlDocument", () => {
         }
         // End of `  - by: a\n` — the blank line separating the entry from
         // the disowned comment goes with the comment, not the entry.
-        assert.strictEqual(seq.offset + seq.length, text.indexOf("by: a") + "by: a\n".length);
+        assert.strictEqual(
+          seq.offset + seq.length,
+          O.getOrElse(constant(-1))(Str.indexOf("by: a")(text)) + "by: a\n".length
+        );
       })
     );
   });

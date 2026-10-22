@@ -10,7 +10,7 @@ import { Doc, Render, Status } from "../../../effected/cli/index.ts";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
 import { DocView, useTerminalSize, useTheme } from "../../../effected/cli/ui.ts";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
-import { Audience, CurrentRuntimeEnv } from "../../../effected/env/index.ts";
+import { Audience, CurrentRuntimeEnv } from "@beep/runtime-env";
 import type { Ev, State } from "../helpers/live.ts";
 import { End, Start, liveOn, optionsOf, reduce, tick } from "../helpers/live.ts";
 import { labelLink } from "../helpers/renderContext.ts";

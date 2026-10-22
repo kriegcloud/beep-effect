@@ -598,7 +598,7 @@ const locationOf = (options: { readonly corpusRoot: string; readonly matter: str
     round: options.round,
   }).pipe(Effect.mapError((cause) => DrawingsCommandError.new(cause, `Round ${options.round} is not a valid round.`)));
 
-const oneLine = (text: string): string => text.replace(/\s*\n\s*/g, " / ");
+const oneLine = (text: string): string => Str.replace(/\s*\n\s*/g, " / ")(text);
 
 const findingLine = (finding: ReviewFinding, sheetSetSha256: Sha256Hex): string =>
   `  ${reviewFindingRef(finding.id, sheetSetSha256)} ${finding.severity} ${finding.status} ${

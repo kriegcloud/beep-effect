@@ -29,12 +29,10 @@ const RUNTIME_PROPERTIES = HashSet.fromIterable(["platform", "arch"]);
 // The only beep files allowed to read host runtime platform/architecture
 // directly: the shared HostProcess reference module (everything else injects
 // HostProcessPlatform / HostProcessArchitecture in Effect code or imports the
-// current* constants in sync code and tests), the vendored chalk color-support
-// probe, and the pre-runtime tsgo bootstrap shim, which has no Effect runtime
-// to inject into.
+// current* constants in sync code and tests) and the pre-runtime tsgo
+// bootstrap shim, which has no Effect runtime to inject into.
 const HOST_PROCESS_REFERENCE_FILES = HashSet.fromIterable([
   "packages/foundation/modeling/utils/src/HostProcess.ts",
-  "packages/foundation/capability/chalk/src/internal/SupportsColor.ts",
   "tools/tsgo-shim/tsgo.js",
 ]);
 const NODE_OS_MODULES = HashSet.fromIterable(["node:os", "os"]);

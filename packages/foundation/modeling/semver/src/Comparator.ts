@@ -7,7 +7,6 @@
  */
 import { $SemverId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
-import * as Match from "effect/Match";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
@@ -40,9 +39,12 @@ const $I = $SemverId.create("Comparator");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidComparatorError extends S.TaggedError<InvalidComparatorError, { readonly brand: unique symbol }>(
-  $I`InvalidComparatorError`
-)(
+export class InvalidComparatorError extends S.TaggedError<
+  InvalidComparatorError,
+  {
+    readonly brand: unique symbol;
+  }
+>($I`InvalidComparatorError`)(
   "InvalidComparatorError",
   {
     /** The raw input string that failed to parse. */
@@ -114,7 +116,12 @@ export class InvalidComparatorError extends S.TaggedError<InvalidComparatorError
  * @category models
  * @since 0.0.0
  */
-export class Comparator extends S.Class<Comparator, { readonly brand: unique symbol }>($I`Comparator`)(
+export class Comparator extends S.Class<
+  Comparator,
+  {
+    readonly brand: unique symbol;
+  }
+>($I`Comparator`)(
   {
     /** The relational operator applied to `version`; a missing prefix in the source string means `=`. */
     operator: ComparatorOperator.pipe(
@@ -203,10 +210,18 @@ export class Comparator extends S.Class<Comparator, { readonly brand: unique sym
   static parseResult(input: string): Result.Result<Comparator, InvalidComparatorError> {
     const result = parseComparator(input);
     if (!result.ok) {
-      return Result.fail(InvalidComparatorError.make({ input: result.input, position: result.position }));
+      return Result.fail(
+        InvalidComparatorError.make({
+          input: result.input,
+          position: result.position,
+        })
+      );
     }
     return Result.succeed(
-      Comparator.make({ operator: result.value.operator, version: SemVer.make(result.value.version) })
+      Comparator.make({
+        operator: result.value.operator,
+        version: SemVer.make(result.value.version),
+      })
     );
   }
 
@@ -256,14 +271,13 @@ export class Comparator extends S.Class<Comparator, { readonly brand: unique sym
    */
   test(version: SemVer): boolean {
     const cmp = version.compare(this.version);
-    return Match.value(this.operator).pipe(
-      Match.when("=", () => cmp === 0),
-      Match.when(">", () => cmp > 0),
-      Match.when(">=", () => cmp >= 0),
-      Match.when("<", () => cmp < 0),
-      Match.when("<=", () => cmp <= 0),
-      Match.exhaustive
-    );
+    return ComparatorOperator.$match(this.operator, {
+      "=": () => cmp === 0,
+      ">": () => cmp > 0,
+      ">=": () => cmp >= 0,
+      "<": () => cmp < 0,
+      "<=": () => cmp <= 0,
+    });
   }
 
   /**

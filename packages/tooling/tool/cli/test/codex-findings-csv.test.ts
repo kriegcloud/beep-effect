@@ -12,12 +12,13 @@ import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
-const id = (seed: string): string => seed.repeat(32).slice(0, 32);
-const sha = (seed: string): string => seed.repeat(40).slice(0, 40);
+const id = (seed: string): string => Str.slice(0, 32)(Str.repeat(32)(seed));
+const sha = (seed: string): string => Str.slice(0, 40)(Str.repeat(40)(seed));
 const url = (seed: string): string => `https://chatgpt.com/codex/cloud/security/findings/${id(seed)}`;
 
-const quote = (value: string): string => `"${value.replaceAll('"', '""')}"`;
+const quote = (value: string): string => `"${Str.replaceAll('"', '""')(value)}"`;
 
 const row = (input: {
   readonly seed: string;
@@ -248,7 +249,9 @@ describe("Security Cloud export migration", () => {
         )
       ).toBe("csv-row-malformed");
       expect(
-        yield* reason(csv([row({ seed: "a" }), row({ seed: "b" }).replace("kriegcloud/beep-effect", "example/other")]))
+        yield* reason(
+          csv([row({ seed: "a" }), Str.replace("kriegcloud/beep-effect", "example/other")(row({ seed: "b" }))])
+        )
       ).toBe("csv-row-malformed");
     })
   );
@@ -263,7 +266,7 @@ describe("Security Cloud export migration", () => {
         expect(yield* reason(cloudCsv([cloudRow([override])]))).toBe("csv-row-malformed");
       }
       expect(yield* reason(cloudCsv([`commit:${id("a")}`]))).toBe("csv-row-malformed");
-      expect(yield* reason(cloudCsv([cloudRow()]).replace('"Finding ID","Source"', '"Finding ID,Source"'))).toBe(
+      expect(yield* reason(Str.replace('"Finding ID","Source"', '"Finding ID,Source"')(cloudCsv([cloudRow()])))).toBe(
         "csv-header-unsupported"
       );
       expect(yield* reason(cloudCsv([cloudRow(), cloudRow()]))).toBe("csv-duplicate-finding");

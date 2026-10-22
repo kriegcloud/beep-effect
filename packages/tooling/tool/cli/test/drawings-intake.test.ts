@@ -536,7 +536,7 @@ const laneEnv = (overrides: Record<string, string> = {}) =>
       env: {
         INTAKE_TEST_TENANT_ID: "00000000-0000-0000-0000-000000000001",
         INTAKE_TEST_CLIENT_ID: "00000000-0000-0000-0000-000000000002",
-        INTAKE_TEST_CERT_THUMBPRINT_SHA256: "AB12CD34".repeat(8),
+        INTAKE_TEST_CERT_THUMBPRINT_SHA256: Str.repeat(8)("AB12CD34"),
         INTAKE_TEST_CERT_PRIVATE_KEY: "synthetic-private-key-text",
         INTAKE_TEST_MAILBOX: MAILBOX,
         ...overrides,
