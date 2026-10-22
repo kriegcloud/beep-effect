@@ -1,0 +1,22 @@
+{
+  "previous": "a3301b550dfa8c1a9c38cfa7c52687697d6b0b496128b4e8935d3a4f089519e8",
+  "review": {
+    "reviewer": "Claude Opus 5.5 (TS7 tooling lane, fix/repo-cli-test-typecheck-and-ready-rereview)",
+    "reason": "Record the manifest drift of @beep/repo-cli after beep:check gains tsc-rs -p test/tsconfig.json so check type-checks repo-cli's own tests; no qualification is granted.",
+    "basis": {
+      "path": "goals/turborepo-task-qualification/research/cache-baseline-review-repo-cli-test-check.md",
+      "sha256": "1da645fff53ee974615dbc2645d0919ac59fb4f16a5b6b487e19948cceb9bbff"
+    }
+  },
+  "scope": [
+    "@beep/identity#lint",
+    "@beep/types#lint",
+    "@beep/fc-runs#lint",
+    "@beep/test-runner#lint"
+  ],
+  "profile": "local-linux-x64-bun1.4.2",
+  "epoch": "qualification-v2",
+  "subjects": [
+    "@beep/repo-cli"
+  ]
+}

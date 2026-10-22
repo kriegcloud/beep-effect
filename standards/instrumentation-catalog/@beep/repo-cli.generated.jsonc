@@ -3383,6 +3383,7 @@
     {"name":"Yeet.provideStateRoot","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.publishResult","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.pullRequestPaths","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"Yeet.pushReviewerRequest","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.rawOutputPathForStep","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.readCurrentProofJobRecord","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.readFingerprintFileBytes","owner":"@beep/repo-cli","family":"tooling","conforms":true},
