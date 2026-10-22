@@ -21610,28 +21610,6 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/foundation/modeling/utils/test/HostProcess.test.ts:8:@effect/platform-node/NodeServices@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/utils",
-      "file": "packages/foundation/modeling/utils/test/HostProcess.test.ts",
-      "line": 8,
-      "endLine": 8,
-      "symbol": "@effect/platform-node/NodeServices",
-      "occurrence": "v2:fb7d6bba929488197f859519d08aea3efcf9ac097f647f2bbff02362d70850d7",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import * as NodeServices from \"@effect/platform-node/NodeServices\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "NodeServices supplies the real child-process spawner for a browser-evaluation regression test. A fresh process deletes its process global before importing the utils barrel; MemoryFileSystem cannot exercise that runtime boundary. The shared layer has an explicit hook timeout."
-    },
-    {
       "id": "EV010:packages/foundation/ui-system/brand/test/assets.test.ts:4:@effect/platform-bun/BunServices@0#1",
       "lens": "resource",
       "ruleId": "EV010",
