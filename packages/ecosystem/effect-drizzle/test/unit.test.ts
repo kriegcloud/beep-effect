@@ -5,8 +5,8 @@ import * as pg from "@beep/effect-drizzle/pg";
 import { fcRuns } from "@beep/fc-runs";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { defineRelations, getTableName } from "drizzle-orm";
-import { getTableConfig } from "drizzle-orm/pg-core";
+import { defineRelations, getTableName, is as isDrizzleEntity, SQL, sql } from "drizzle-orm";
+import { getTableConfig, PgDialect } from "drizzle-orm/pg-core";
 import { findFirst, head, map, sort } from "effect/Array";
 import { catchTag, exit, fail as failEffect, fnUntraced, gen, succeed } from "effect/Effect";
 import { equals } from "effect/Equal";
@@ -18,6 +18,7 @@ import { keys } from "effect/Record";
 import {
   Array as ArraySchema,
   Boolean as BooleanSchema,
+  Date as DateSchema,
   decodeEffect,
   encodeEffect,
   FiniteFromString,
@@ -637,6 +638,27 @@ describe("schema corroboration and invariants", () => {
     const columns = ColumnProjection.pipe(pg.toPgTable, getTableConfig).columns;
     expect(columnFrom(columns, "body").getSQLType()).toBe("text");
     expect(columnFrom(columns, "summary").getSQLType()).toBe("varchar(80)");
+  });
+
+  it("preserves timezone-free date storage and database-owned SQL defaults", () => {
+    class SqlDefaults extends Model<SqlDefaults>("SqlDefaults")({
+      createdAt: DateSchema.pipe(pg.timestamp({ mode: "date", withTimezone: false }), pg.defaultNow()),
+      label: StringSchema.pipe(pg.text(), pg.defaultExpr(sql<string>`lower('A')`)),
+    }) {}
+    const columns = SqlDefaults.pipe(pg.toPgTable, getTableConfig).columns;
+    const createdAt = columnFrom(columns, "created_at");
+    const label = columnFrom(columns, "label");
+    expect(createdAt.getSQLType()).toBe("timestamp");
+    expect(SqlDefaults.sql.columns.createdAt.column.ident).toBe("timestamp");
+    expect(SqlDefaults.sql.columns.createdAt.column.mode).toBe("date");
+    const createdDefault = createdAt.default;
+    const labelDefault = label.default;
+    if (!isDrizzleEntity(createdDefault, SQL) || !isDrizzleEntity(labelDefault, SQL)) {
+      throw new Error("SQL defaults must remain Drizzle SQL expressions");
+    }
+    const dialect = new PgDialect();
+    expect(dialect.sqlToQuery(createdDefault)).toMatchObject({ sql: "now()", params: [] });
+    expect(dialect.sqlToQuery(labelDefault)).toMatchObject({ sql: "lower('A')", params: [] });
   });
 
   it("scans maxLength checks without mutating the schema", () => {

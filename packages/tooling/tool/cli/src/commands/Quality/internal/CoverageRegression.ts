@@ -4168,6 +4168,7 @@ export const renderCoverageRemediation = (result: CoverageComparisonResult): Rea
  * @param repoRoot - Repository root.
  * @param scoped - Whether the coverage run was intentionally filtered or affected-scoped.
  * @param expectedPackageNames - Exact scoped package names that must emit summaries.
+ * @param validatedActuals - Sealed artifact snapshots; omission reads package-local coverage reports.
  * @category use-cases
  * @since 0.0.0
  */
@@ -4175,7 +4176,8 @@ export const compareCoverageRegressionBaseline = Effect.fn("CoverageRegression.c
   function* (
     repoRoot: string,
     scoped: boolean,
-    expectedPackageNames: ReadonlyArray<string> = A.empty<string>()
+    expectedPackageNames: ReadonlyArray<string> = A.empty<string>(),
+    validatedActuals?: ReadonlyArray<CoverageSnapshotEntry>
   ): Effect.fn.Return<
     void,
     CoverageRegressionError | QualityTaskFailed,
@@ -4183,7 +4185,7 @@ export const compareCoverageRegressionBaseline = Effect.fn("CoverageRegression.c
   > {
     const baselines = yield* readComparisonBaseline(repoRoot);
     const baseline = baselines.baseline;
-    const actuals = yield* collectCoverageSnapshot(repoRoot);
+    const actuals = validatedActuals ?? (yield* collectCoverageSnapshot(repoRoot));
     const result = compareCoverage(baselines, actuals, scoped, expectedPackageNames);
     const path = yield* Path.Path;
     const dispositionGaps = yield* workspaceCoverageDispositionGaps(repoRoot, path, baseline.exemptions);

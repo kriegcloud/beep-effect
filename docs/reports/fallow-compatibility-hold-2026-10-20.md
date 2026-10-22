@@ -36,3 +36,26 @@ trace the new findings, and retain paired used/unused fixtures for class aliases
 and schema factory inheritance. Remove this exact pin only after that migration
 passes the unchanged zero-findings gate. Reversal is the root catalog and lockfile
 version update; no application data or public schema API changed for the hold.
+
+The main #2005 dependency update reintroduced 3.34.1 before that migration was
+qualified. Its Fallow job
+[119581349691](https://github.com/beep-effect/beep-effect/actions/runs/39704537904/job/119581349691)
+reported 64 errors: seven files,
+three exports, six types and 48 class members. Audit reported zero introduced
+findings and health reported zero findings; neither result clears the separate
+dead-code failure. This reproduces the documented compatibility boundary rather
+than establishing that every newly reported symbol is safe to remove.
+
+Current source still demonstrates reachability gaps in the analyzer's member
+attribution: `Csv.schema.ts` calls `CsvCodecOptions.decodeEffect`, and
+`CsvParser.parser.ts` reads `parserOptions.escapeChar`, while 3.34.1 reports those
+members unused. Other findings, including unused exports from an internally used
+module, still need individual review. The existing entry patterns intentionally
+root top-level package modules; replacing them with recursive roots would also
+hide genuinely unused implementation and is not the migration remedy.
+
+Retain 3.33.1 under this same hold, with no new baseline allowance, suppression,
+entry expansion or API deletion. The reopening criteria above remain unchanged:
+review the glob migration and individual findings, prove used/unused member
+attribution, and pass the unchanged dead-code, audit and health gates before
+removing the pin.

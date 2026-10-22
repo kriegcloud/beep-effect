@@ -37,6 +37,8 @@ The attorney's review hub on the tailnet, the questions docket intake stores for
 notice: [practice review hub](runbooks/practice-review-hub.md).
 Owned provider sessions, scoped peer tools, durable receipts and ambiguity recovery:
 [local agent messaging](runbooks/agent-messaging.md).
+Unit-test coverage artifacts, shard merging, regression comparison and the Heavy
+workflow cutover: [CI coverage artifacts](runbooks/ci-coverage-artifacts.md).
 
 ## Rules
 
