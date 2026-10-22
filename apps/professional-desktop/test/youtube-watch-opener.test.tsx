@@ -46,6 +46,49 @@ describe("YouTube native opener bridge", { concurrent: false }, () => {
   );
 
   it.effect(
+    "leaves a valid request unclaimed outside a Tauri runtime",
+    Effect.fnUntraced(function* () {
+      render(<YouTubeWatchOpener />);
+      Reflect.deleteProperty(globalThis, "__TAURI_INTERNALS__");
+
+      const unclaimed = new CustomEvent(YOUTUBE_WATCH_EVENT, {
+        cancelable: true,
+        detail: YouTubeWatchRequest.make({
+          url: "https://www.youtube.com/watch?v=M7lc1UVf-VE",
+        }),
+      });
+      window.dispatchEvent(unclaimed);
+      yield* Effect.yieldNow;
+
+      expect(unclaimed.defaultPrevented).toBe(false);
+      expect(opener).not.toHaveBeenCalled();
+    })
+  );
+
+  it.effect(
+    "removes its window listener once the opener unmounts",
+    Effect.fnUntraced(function* () {
+      const view = render(<YouTubeWatchOpener />);
+      yield* Effect.sync(() => view.unmount());
+
+      // The atom finalizer runs when the registry releases the binding, so poll until a
+      // valid request is no longer claimed.
+      yield* Effect.promise(() =>
+        waitFor(() => {
+          const afterUnmount = new CustomEvent(YOUTUBE_WATCH_EVENT, {
+            cancelable: true,
+            detail: YouTubeWatchRequest.make({
+              url: "https://www.youtube.com/watch?v=M7lc1UVf-VE",
+            }),
+          });
+          window.dispatchEvent(afterUnmount);
+          expect(afterUnmount.defaultPrevented).toBe(false);
+        })
+      );
+    })
+  );
+
+  it.effect(
     "claims a valid request and resolves without a failure notice",
     Effect.fnUntraced(function* () {
       const view = render(<YouTubeWatchOpener />);

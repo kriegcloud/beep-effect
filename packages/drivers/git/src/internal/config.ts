@@ -23,7 +23,7 @@ import { $GitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
-import { dual, identity } from "effect/Function";
+import { constant, dual, identity, pipe } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -344,7 +344,7 @@ const skipWs = (text: string, from: number): number => {
 /** Advances while `predicate` holds for the current character. */
 const skipWhile = (text: string, from: number, predicate: (ch: string) => boolean): number => {
   let i = from;
-  while (i < text.length && predicate(text.charAt(i))) i += 1;
+  while (i < text.length && predicate(Str.slice(i, i + 1)(text))) i += 1;
   return i;
 };
 
@@ -448,7 +448,7 @@ const scanLine = (state: ScanState, lineStart: number): number => {
  * @since 0.0.0
  */
 export const scan = (text: string): RawParse => {
-  const nul = text.indexOf("\0");
+  const nul = pipe(text, Str.indexOf("\0"), O.getOrElse(constant(-1)));
   if (nul >= 0) {
     return RawParse.make({
       sections: [],
@@ -506,22 +506,21 @@ interface QuotedSubsection {
 }
 
 /** In a subsection name a backslash escapes ANY next character (git drops the backslash, keeps the character). */
-const subsectionCharAt = (text: string, i: number): string | undefined =>
-  text.charAt(i) === "\\" ? text[i + 1] : text.charAt(i);
+const subsectionCharAt = (text: string, i: number): string | undefined => (text[i] === "\\" ? text[i + 1] : text[i]);
 
-const subsectionCharWidth = (text: string, i: number): number => (text.charAt(i) === "\\" ? 2 : 1);
+const subsectionCharWidth = (text: string, i: number): number => (text[i] === "\\" ? 2 : 1);
 
 /** Scans a quoted subsection body starting just past its opening quote. */
 const scanQuotedSubsection = (text: string, from: number): QuotedSubsection => {
   let i = from;
   let value = "";
-  while (i < text.length && !isLineBreakChar(text.charAt(i)) && text.charAt(i) !== '"') {
+  while (i < text.length && !isLineBreakChar(text[i]) && text[i] !== '"') {
     const ch = subsectionCharAt(text, i);
     if (ch === undefined || isLineBreakChar(ch)) return { value, closed: false, end: i };
     value += ch;
     i += subsectionCharWidth(text, i);
   }
-  const closed = text.charAt(i) === '"';
+  const closed = text[i] === '"';
   return { value, closed, end: closed ? i + 1 : i };
 };
 
@@ -536,10 +535,10 @@ interface HeaderAddress {
  * lowercases this form's subsection before case-sensitive comparisons.
  */
 const headerAddress = (name: string, subsection: string | undefined, quoted: boolean): HeaderAddress => {
-  const dot = quoted ? -1 : name.indexOf(".");
+  const dot = quoted ? -1 : pipe(name, Str.indexOf("."), O.getOrElse(constant(-1)));
   return dot < 0
     ? { name, subsection, fold: false }
-    : { name: name.slice(0, dot), subsection: Str.toLowerCase(name.slice(dot + 1)), fold: true };
+    : { name: Str.slice(0, dot)(name), subsection: pipe(name, Str.slice(dot + 1), Str.toLowerCase), fold: true };
 };
 
 /** Finishes a header after its name (and optional quoted subsection): `]`, then an optional inline entry. */
@@ -572,7 +571,7 @@ const scanHeader: {
 } = dual(4, (text: string, lineStart: number, bracketOffset: number, diagnostics: Array<RawDiagnostic>): HeaderScan => {
   const context: HeaderContext = { bracketOffset, diagnostics, lineStart, text };
   const nameEnd = skipWhile(text, bracketOffset + 1, isNameChar);
-  const name = text.slice(bracketOffset + 1, nameEnd);
+  const name = Str.slice(bracketOffset + 1, nameEnd)(text);
   if (name === "") return headerFailure(context, nameEnd, "section header has no name");
   const afterName = skipWs(text, nameEnd);
   if (text[afterName] !== '"') return closeHeader(context, name, undefined, false, afterName);
@@ -681,7 +680,7 @@ const stepValueChar = (ch: string, cursor: ValueCursor): boolean => {
 };
 
 const isValueLineEnd = (text: string, i: number): boolean => {
-  const ch = text.charAt(i);
+  const ch = text[i];
   return ch === "\n" || (ch === "\r" && isLineEnd(text, i));
 };
 
@@ -695,7 +694,7 @@ const scanValue = (text: string, key: string, valueOffset: number, diagnostics: 
     significantEnd: valueOffset - 1,
   };
   while (cursor.i < text.length && !isValueLineEnd(text, cursor.i)) {
-    const ch = text.charAt(cursor.i);
+    const ch = Str.slice(cursor.i, cursor.i + 1)(text);
     const done = ch === "\\" ? stepValueEscape(text, key, cursor, diagnostics) : stepValueChar(ch, cursor);
     if (done) break;
   }
@@ -723,7 +722,7 @@ const scanEntry: {
   (text: string, lineStart: number, keyStart: number, diagnostics: Array<RawDiagnostic>): EntryScan;
   (lineStart: number, keyStart: number, diagnostics: Array<RawDiagnostic>): (text: string) => EntryScan;
 } = dual(4, (text: string, lineStart: number, keyStart: number, diagnostics: Array<RawDiagnostic>): EntryScan => {
-  if (!/[A-Za-z]/.test(text.charAt(keyStart))) {
+  if (!/[A-Za-z]/.test(Str.slice(keyStart, keyStart + 1)(text))) {
     return entryFailure(
       text,
       lineStart,
@@ -734,11 +733,11 @@ const scanEntry: {
     );
   }
   const keyEnd = skipWhile(text, keyStart, isKeyChar);
-  const key = text.slice(keyStart, keyEnd);
+  const key = Str.slice(keyStart, keyEnd)(text);
   const i = skipWs(text, keyEnd);
   if (endsLineOrComment(text, i)) return bareEntry(text, key, lineStart, keyEnd, i);
   if (text[i] !== "=") {
-    const shown = Result.getOrThrowWith(encodeDiagnosticJsonString(text.charAt(i)), identity);
+    const shown = Result.getOrThrowWith(encodeDiagnosticJsonString(Str.slice(i, i + 1)(text)), identity);
     return entryFailure(
       text,
       lineStart,
@@ -764,7 +763,7 @@ const scanEntry: {
   return {
     entry: RawEntry.make({
       key,
-      value: cursor.decoded.slice(0, cursor.significantDecoded),
+      value: Str.slice(0, cursor.significantDecoded)(cursor.decoded),
       offset: lineStart,
       length: next - lineStart,
       keyEnd,
@@ -802,7 +801,7 @@ export const matchesSection: {
   (name: string, subsection: string | undefined): (section: RawSection) => boolean;
   (section: RawSection, name: string, subsection: string | undefined): boolean;
 } = dual(3, (section: RawSection, name: string, subsection: string | undefined): boolean => {
-  if (section.name.toLowerCase() !== name.toLowerCase()) return false;
+  if (Str.toLowerCase(section.name) !== Str.toLowerCase(name)) return false;
   if (subsection === undefined) return section.subsection === undefined;
   if (section.subsection === undefined) return false;
   return section.subsection === subsection;
@@ -829,7 +828,7 @@ export const matchesSection: {
 export const matchesKey: {
   (key: string): (entry: RawEntry) => boolean;
   (entry: RawEntry, key: string): boolean;
-} = dual(2, (entry: RawEntry, key: string): boolean => entry.key.toLowerCase() === key.toLowerCase());
+} = dual(2, (entry: RawEntry, key: string): boolean => Str.toLowerCase(entry.key) === Str.toLowerCase(key));
 
 /**
  * Serializes a value for insertion into a config line: quoted and escaped
@@ -848,14 +847,16 @@ export const matchesKey: {
  * @since 0.0.0
  */
 export const serializeValue = (value: string): string => {
-  const needsQuoting = value === "" || value !== value.trim() || /["\\\n\t\b#;]/.test(value);
+  const needsQuoting = value === "" || value !== Str.trim(value) || /["\\\n\t\b#;]/.test(value);
   if (!needsQuoting) return value;
-  const escaped = value
-    .replaceAll("\\", "\\\\")
-    .replaceAll('"', '\\"')
-    .replaceAll("\n", "\\n")
-    .replaceAll("\t", "\\t")
-    .replaceAll("\b", "\\b");
+  const escaped = pipe(
+    value,
+    Str.replaceAll("\\", "\\\\"),
+    Str.replaceAll('"', '\\"'),
+    Str.replaceAll("\n", "\\n"),
+    Str.replaceAll("\t", "\\t"),
+    Str.replaceAll("\b", "\\b")
+  );
   return `"${escaped}"`;
 };
 
@@ -878,7 +879,9 @@ export const serializeHeader: {
   (subsection: string | undefined): (name: string) => string;
   (name: string, subsection: string | undefined): string;
 } = dual(2, (name: string, subsection: string | undefined): string =>
-  subsection === undefined ? `[${name}]` : `[${name} "${subsection.replaceAll("\\", "\\\\").replaceAll('"', '\\"')}"]`
+  subsection === undefined
+    ? `[${name}]`
+    : `[${name} "${pipe(subsection, Str.replaceAll("\\", "\\\\"), Str.replaceAll('"', '\\"'))}"]`
 );
 
 /**
@@ -928,7 +931,7 @@ export const applySplice: {
 } = dual(
   2,
   (text: string, splice: Splice): string =>
-    text.slice(0, splice.offset) + splice.content + text.slice(splice.offset + splice.length)
+    Str.slice(0, splice.offset)(text) + splice.content + Str.slice(splice.offset + splice.length)(text)
 );
 
 /**
@@ -961,7 +964,7 @@ export const sectionIndent: {
   if (first === undefined) return "\t";
   let end = first.offset;
   while (isWs(text[end])) end += 1;
-  return text.slice(first.offset, end);
+  return Str.slice(first.offset, end)(text);
 });
 
 /**

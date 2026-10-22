@@ -23,10 +23,11 @@ import { YamlMap, YamlScalar, YamlSeq } from "@beep/yaml/YamlNode";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 describe("composer review regressions", () => {
   it("resolves a scalar with two arguments", () => {
@@ -100,7 +101,7 @@ describe("composer review regressions", () => {
       const errors = A.filter(composeFirstDocument(source).errors, (error) => error.code === "MalformedFlowCollection");
       assert.deepStrictEqual(
         A.map(errors, (error) => [error.offset, error.length]),
-        [[source.lastIndexOf(":"), 1]]
+        [[O.getOrElse(constant(-1))(Str.lastIndexOf(":")(source)), 1]]
       );
     }
   });
@@ -173,7 +174,7 @@ describe("g8 required composer regressions", () => {
     ["a: &a &b foo\n", 6, 2],
     ["a: !!str !!int 1\n", 9, 5],
   ] as const) {
-    it(`rejects duplicate node properties at ${offset}: ${source.trim()}`, () => {
+    it(`rejects duplicate node properties at ${offset}: ${Str.trim(source)}`, () => {
       const document = composeFirstDocument(source);
       assert.deepStrictEqual(
         A.map(document.errors, (error) => [error.code, error.offset, error.length]),
@@ -231,7 +232,10 @@ describe("g8 required composer regressions", () => {
     it(`requires a comma between comment-separated entries: ${source}`, () => {
       const errors = A.filter(composeFirstDocument(source).errors, (error) => error.code === "MalformedFlowCollection");
       assert.strictEqual(errors.length, 1);
-      assert.strictEqual(errors[0]?.offset, source.indexOf("bar") - (source.includes('"bar"') ? 1 : 0));
+      assert.strictEqual(
+        errors[0]?.offset,
+        O.getOrElse(constant(-1))(Str.indexOf("bar")(source)) - (Str.includes('"bar"')(source) ? 1 : 0)
+      );
       const result = Yaml.parseResult(source);
       assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
     });
@@ -281,7 +285,7 @@ describe("g8 required composer regressions", () => {
 
   it("keeps separator-validation source reads linear on malformed comma-free segments", () => {
     const readsAt = (count: number): number => {
-      const text = `{k: ${"x [b] ".repeat(count)}}`;
+      const text = `{k: ${Str.repeat(count)("x [b] ")}}`;
       const cst = O.getOrUndefined(
         A.findFirst(parseCSTAll(text)[0]?.children ?? [], (child) => child.type === "flow-map")
       );

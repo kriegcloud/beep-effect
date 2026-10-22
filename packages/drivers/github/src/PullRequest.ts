@@ -10,6 +10,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $GithubId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
@@ -20,6 +21,7 @@ import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
 import { fileOf } from "./GitHubCommit.ts";
 import { GitHubError } from "./GitHubError.ts";
@@ -765,7 +767,7 @@ const project = (raw: RawPull): Effect.Effect<PullRequestInfo, GitHubError> =>
 const qualifyHead: {
   (head: string, owner: string): string;
   (owner: string): (head: string) => string;
-} = dual(2, (head: string, owner: string): string => (head.includes(":") ? head : `${owner}:${head}`));
+} = dual(2, (head: string, owner: string): string => (Str.includes(":")(head) ? head : `${owner}:${head}`));
 
 const make = (client: GitHubClient["Service"]): PullRequestShape => {
   const list = Effect.fn("PullRequest.list")(function* (options?: {

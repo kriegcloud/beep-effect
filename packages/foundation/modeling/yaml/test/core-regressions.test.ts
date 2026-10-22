@@ -299,7 +299,7 @@ describe("g8 tag diagnostic provenance", () => {
     it(`reports each malformed tag once at its own span: ${source}`, () => {
       const composed = composeAllDocuments(source);
       const errors = [...composed.streamErrors, ...A.flatMap(composed.documents, (document) => document.errors)];
-      const malformed = A.filter(errors, (error) => error.message.startsWith("Malformed percent encoding"));
+      const malformed = A.filter(errors, (error) => Str.startsWith("Malformed percent encoding")(error.message));
       assert.deepStrictEqual(
         A.map(malformed, (error) => [error.offset, error.length]),
         A.map(expected, (span) => [...span])

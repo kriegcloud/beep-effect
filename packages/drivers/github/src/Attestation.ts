@@ -10,6 +10,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $GithubId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -19,6 +20,7 @@ import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
 import { unstubbedFor } from "./internal/unstubbed.ts";
 import { Repo } from "./Repo.ts";
@@ -279,7 +281,7 @@ const make = (client: GitHubClient["Service"]): AttestationShape => ({
       options?: { readonly predicateType?: string | undefined }
     ) {
       const { owner, repo } = yield* Repo;
-      const digest = sha256.startsWith("sha256:") ? sha256 : `sha256:${sha256}`;
+      const digest = Str.startsWith("sha256:")(sha256) ? sha256 : `sha256:${sha256}`;
       yield* Effect.annotateCurrentSpan({ owner, repo, digest });
       const listed = yield* client
         .requestDecoded(

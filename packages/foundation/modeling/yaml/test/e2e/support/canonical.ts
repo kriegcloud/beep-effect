@@ -8,8 +8,11 @@
 
 import { YamlMap, YamlScalar, YamlSeq } from "@beep/yaml/YamlNode";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as Schema from "effect/Schema";
+import * as Str from "effect/String";
 import type { RawYamlDocument } from "@beep/yaml/internal/raw-document";
 
 /** Escape sequences for the characters with a short double-quoted form. */
@@ -21,19 +24,23 @@ const DQ_SHORT_ESCAPES: Readonly<Record<string, string>> = {
   "\t": "\\t",
 };
 
+/** Control-character escapes are built once, outside the per-character render loop. */
+const DQ_CONTROL_ESCAPES = R.fromEntries(
+  A.makeBy(0x20, (code) => [String.fromCharCode(code), `\\x${Str.padStart(2, "0")(code.toString(16))}`])
+);
+
 /** Escape one UTF-16 code unit for a YAML double-quoted scalar. */
 function escapeDoubleQuotedChar(ch: string): string {
   const short = DQ_SHORT_ESCAPES[ch];
   if (short !== undefined) return short;
-  const code = ch.charCodeAt(0);
-  return code < 0x20 ? `\\x${code.toString(16).padStart(2, "0")}` : ch;
+  return DQ_CONTROL_ESCAPES[ch] ?? ch;
 }
 
 /** Render a string as a YAML double-quoted single-line scalar. */
 function renderDoubleQuoted(s: string): string {
   let out = "";
   for (let i = 0; i < s.length; i++) {
-    out += escapeDoubleQuotedChar(s.charAt(i));
+    out += escapeDoubleQuotedChar(s[i] ?? "");
   }
   return `"${out}"`;
 }
@@ -73,8 +80,8 @@ const reservedDirectiveOwnLineStart: SingleDocRule = ({ doc, output, root, sourc
   doc.hasDocumentStart &&
   hasReservedDirective(doc) &&
   hadDocStartOnOwnLine(source) &&
-  output.startsWith("--- ")
-    ? `---\n${output.slice(4)}`
+  Str.startsWith("--- ")(output)
+    ? `---\n${Str.slice(4)(output)}`
     : undefined;
 
 /**
@@ -87,7 +94,10 @@ const reservedDirectiveOwnLineStart: SingleDocRule = ({ doc, output, root, sourc
  * unchanged.
  */
 const explicitIndentBlockSeqStart: SingleDocRule = ({ output, root, source }) =>
-  isYamlSeq(root) && root.style === "block" && hasExplicitIndentInMapValue(root, source) && !output.startsWith("---")
+  isYamlSeq(root) &&
+  root.style === "block" &&
+  hasExplicitIndentInMapValue(root, source) &&
+  !Str.startsWith("---")(output)
     ? `---\n${output}`
     : undefined;
 
@@ -101,7 +111,7 @@ const explicitIndentBlockSeqStart: SingleDocRule = ({ output, root, source }) =>
  * followed by an alpha char (key starts with `?`).
  */
 const flowMapIndicatorKeyStart: SingleDocRule = ({ output, root, source }) =>
-  isYamlMap(root) && sourceHasFlowAtRoot(source) && !output.startsWith("---") && /^[?][A-Za-z]/.test(output)
+  isYamlMap(root) && sourceHasFlowAtRoot(source) && !Str.startsWith("---")(output) && /^[?][A-Za-z]/.test(output)
     ? `---\n${output}`
     : undefined;
 
@@ -113,7 +123,7 @@ const flowMapIndicatorKeyStart: SingleDocRule = ({ output, root, source }) =>
  * so it does not match this pattern.
  */
 const isolatedFlowColonStart: SingleDocRule = ({ output, root, source }) =>
-  (isYamlMap(root) || isYamlSeq(root)) && sourceHasFlowWithIsolatedColon(source) && !output.startsWith("---")
+  (isYamlMap(root) || isYamlSeq(root)) && sourceHasFlowWithIsolatedColon(source) && !Str.startsWith("---")(output)
     ? `---\n${output}`
     : undefined;
 
@@ -127,10 +137,10 @@ const foldedTrailingBlanksDrop: SingleDocRule = ({ output, root, source }) =>
   isYamlScalar(root) &&
   root.style === "block-folded" &&
   typeof root.value === "string" &&
-  !root.value.replace(/\n$/, "").includes("\n") &&
+  !Str.includes("\n")(Str.replace(/\n$/, "")(root.value)) &&
   sourceHasMultipleTrailingBlanks(source) &&
-  output.startsWith("--- >")
-    ? output.slice(4)
+  Str.startsWith("--- >")(output)
+    ? Str.slice(4)(output)
     : undefined;
 
 /** A rule for a scalar root whose output starts with `--- `. */
@@ -152,8 +162,11 @@ const tabbedBlockScalarToDoubleQuoted: ScalarRootRule = (root, _output, firstAft
  * quoted scalars are handled by the general multi-line drop below.
  */
 const singleQuotedDashesDrop: ScalarRootRule = (root, output, firstAfter) =>
-  firstAfter === "'" && typeof root.value === "string" && !root.value.includes("\n") && root.value.startsWith("---")
-    ? output.slice(4)
+  firstAfter === "'" &&
+  typeof root.value === "string" &&
+  !Str.includes("\n")(root.value) &&
+  Str.startsWith("---")(root.value)
+    ? Str.slice(4)(output)
     : undefined;
 
 /**
@@ -169,15 +182,15 @@ const plainSafeDoubleQuotedUnquote: ScalarRootRule = (root, output) =>
   root.style === "double-quoted" &&
   root.sourceMultiline === true &&
   typeof root.value === "string" &&
-  !root.value.includes("\n") &&
+  !Str.includes("\n")(root.value) &&
   isPlainSafe(root.value)
-    ? `--- ${root.value}${output.endsWith("\n") ? "\n" : ""}`
+    ? `--- ${root.value}${Str.endsWith("\n")(output) ? "\n" : ""}`
     : undefined;
 
 /** Multi-line quoted scalar at root: libyaml drops the document-start marker. */
 const multiLineQuotedDrop: ScalarRootRule = (root, output, firstAfter) =>
-  typeof root.value === "string" && root.value.includes("\n") && (firstAfter === "'" || firstAfter === '"')
-    ? output.slice(4)
+  typeof root.value === "string" && Str.includes("\n")(root.value) && (firstAfter === "'" || firstAfter === '"')
+    ? Str.slice(4)(output)
     : undefined;
 
 const SCALAR_ROOT_RULES: ReadonlyArray<ScalarRootRule> = [
@@ -189,8 +202,8 @@ const SCALAR_ROOT_RULES: ReadonlyArray<ScalarRootRule> = [
 
 /** Scalar-root conventions, applied when the output opens with `--- `. */
 const scalarRootCanonical: SingleDocRule = ({ output, root }) => {
-  if (!isYamlScalar(root) || !output.startsWith("--- ")) return undefined;
-  const firstAfter = output.charAt(4);
+  if (!isYamlScalar(root) || !Str.startsWith("--- ")(output)) return undefined;
+  const firstAfter = output[4] ?? "";
   for (const rule of SCALAR_ROOT_RULES) {
     const rewritten = rule(root, output, firstAfter);
     if (rewritten !== undefined) return rewritten;
@@ -286,7 +299,7 @@ export function applyMultiDocCanonical(
         last.hasDocumentStart &&
         !last.hasDocumentEnd &&
         A.some(docs.slice(0, -1), (d) => d.contents !== null) &&
-        result.endsWith("---\n")
+        Str.endsWith("---\n")(result)
       ) {
         result = `${result}...\n`;
       }
@@ -304,18 +317,20 @@ export function applyMultiDocCanonical(
 function splitMultiDocOutput(output: string, docs: ReadonlyArray<RawYamlDocument>): string[] | null {
   const segments: string[] = [];
   let pos = 0;
+  const documentStart = /---/g;
   for (let i = 0; i < docs.length; i++) {
     const doc = docs[i];
     if (doc === undefined) return null;
     const isLast = i === docs.length - 1;
     if (isLast) {
-      segments.push(output.slice(pos));
+      segments.push(Str.slice(pos)(output));
       break;
     }
-    const next = output.indexOf("---", pos + 3);
-    if (next < 0) return null;
-    segments.push(output.slice(pos, next));
-    pos = next;
+    documentStart.lastIndex = pos + 3;
+    const next = documentStart.exec(output);
+    if (next === null) return null;
+    segments.push(Str.slice(pos, next.index)(output));
+    pos = next.index;
   }
   return segments;
 }
@@ -327,15 +342,15 @@ function splitMultiDocOutput(output: string, docs: ReadonlyArray<RawYamlDocument
  * Untagged or non-scalar outputs are returned unchanged.
  */
 function splitDocStartFromTaggedScalar(segment: string): string {
-  const verbatimMatch = segment.match(/^(---) (!<[^>]+>) (.*)$/m);
+  const verbatimMatch = O.getOrNull(Str.match(/^(---) (!<[^>]+>) (.*)$/m)(segment));
   if (verbatimMatch !== null) {
     const [whole, dashes, tag, rest] = verbatimMatch;
-    return segment.replace(whole, `${dashes} ${tag}\n${rest}`);
+    return Str.replace(whole, `${dashes} ${tag}\n${rest}`)(segment);
   }
-  const shorthandMatch = segment.match(/^(---) (![^ \n]+) (.*)$/m);
+  const shorthandMatch = O.getOrNull(Str.match(/^(---) (![^ \n]+) (.*)$/m)(segment));
   if (shorthandMatch !== null) {
     const [whole, dashes, tag, rest] = shorthandMatch;
-    return segment.replace(whole, `${dashes}\n${tag} ${rest}`);
+    return Str.replace(whole, `${dashes}\n${tag} ${rest}`)(segment);
   }
   return segment;
 }
@@ -351,10 +366,10 @@ function hasReservedDirective(doc: RawYamlDocument): boolean {
  * `--- <body>`.
  */
 function hadDocStartOnOwnLine(source: string): boolean {
-  const lines = source.split("\n");
+  const lines = Str.split("\n")(source);
   for (const line of lines) {
     if (line === "---") return true;
-    if (line.startsWith("--- ") && line.length > 4) return false;
+    if (Str.startsWith("--- ")(line) && line.length > 4) return false;
   }
   return false;
 }
@@ -374,7 +389,7 @@ function hasExplicitIndentInMapValue(seq: YamlSeq, source: string): boolean {
 /** True when `value` is a block scalar whose source header carries an explicit indent indicator. */
 function isExplicitIndentBlockScalar(value: unknown, source: string): boolean {
   if (!isYamlScalar(value) || !isBlockScalarStyle(value.style)) return false;
-  const region = source.slice(value.offset, value.offset + Math.min(value.length, 6));
+  const region = Str.slice(value.offset, value.offset + Math.min(value.length, 6))(source);
   return /^[|>][1-9]/.test(region);
 }
 
@@ -384,13 +399,13 @@ function isExplicitIndentBlockScalar(value: unknown, source: string): boolean {
  * Walks past leading directives, document-start, and comments.
  */
 function sourceHasFlowAtRoot(source: string): boolean {
-  const lines = source.split("\n");
+  const lines = Str.split("\n")(source);
   for (const line of lines) {
-    const trimmed = line.replace(/^\s+/, "");
-    if (trimmed === "" || trimmed.startsWith("#") || trimmed === "---" || trimmed.startsWith("%")) {
+    const trimmed = Str.replace(/^\s+/, "")(line);
+    if (trimmed === "" || Str.startsWith("#")(trimmed) || trimmed === "---" || Str.startsWith("%")(trimmed)) {
       continue;
     }
-    return trimmed.startsWith("{") || trimmed.startsWith("[");
+    return Str.startsWith("{")(trimmed) || Str.startsWith("[")(trimmed);
   }
   return false;
 }
@@ -402,11 +417,11 @@ function sourceHasFlowAtRoot(source: string): boolean {
  * key/value separator is on its own line.
  */
 function sourceHasFlowWithIsolatedColon(source: string): boolean {
-  const flowOpen = source.search(/[{[]/);
+  const flowOpen = O.getOrElse(constant(-1))(Str.search(/[{[]/)(source));
   if (flowOpen < 0) return false;
   const scan: FlowColonScan = { depth: 0, escapeNext: false, inFlow: false, inString: false, stringCh: "", text: "" };
   for (let i = flowOpen; i < source.length; i++) {
-    if (stepFlowColonScan(scan, source.charAt(i))) return true;
+    if (stepFlowColonScan(scan, source[i] ?? "")) return true;
   }
   return false;
 }
@@ -473,7 +488,7 @@ function closeFlowCollection(scan: FlowColonScan): boolean {
  * B3HG (`\n\n\n` at EOF) from 96L6 (`\n` at EOF).
  */
 function sourceHasMultipleTrailingBlanks(source: string): boolean {
-  const m = source.match(/\n+$/);
+  const m = O.getOrNull(Str.match(/\n+$/)(source));
   return m !== null && m[0].length >= 3;
 }
 
@@ -491,8 +506,8 @@ function isPlainSafe(s: string): boolean {
   // Leading/trailing whitespace requires quoting
   if (/^[ \t]|[ \t]$/.test(s)) return false;
   // Leading YAML indicator chars require quoting
-  if (PLAIN_UNSAFE_FIRST_CHARS.includes(s.charAt(0))) return false;
+  if (Str.includes(s[0] ?? "")(PLAIN_UNSAFE_FIRST_CHARS)) return false;
   // `:` followed by space, or trailing `:` — would parse as mapping key;
   // ` #` would start a comment
-  return !/:(?: |$)/.test(s) && !s.includes(" #");
+  return !/:(?: |$)/.test(s) && !Str.includes(" #")(s);
 }

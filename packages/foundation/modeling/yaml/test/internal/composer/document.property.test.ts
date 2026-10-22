@@ -15,6 +15,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { RawYamlDocument } from "@beep/yaml/internal/raw-document";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -45,7 +46,7 @@ const assertInlineScalarSpan = (document: ComposedDocument, text: string, value:
   const scalar = S.is(YamlMap)(document.contents) ? document.contents.items[0]?.value : null;
   expect(scalar?.comment).toBe(" inline");
   if (scalar !== undefined && scalar !== null)
-    expect(text.slice(scalar.offset, scalar.offset + scalar.length)).toBe(`${value}`);
+    expect(Str.slice(scalar.offset, scalar.offset + scalar.length)(text)).toBe(`${value}`);
 };
 
 const assertReadmeRoundtrip = (document: ComposedDocument) => {

@@ -19,6 +19,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import { loadAllTestCases } from "./support/suite.ts";
 import type { YamlToken } from "@beep/yaml";
 
@@ -46,15 +47,15 @@ function checkTokenTiling(tc: CorpusCase, token: YamlToken, cursor: number): voi
   if (token.offset < cursor) {
     assert.fail(`[${tc.id}] ${token.kind}@${token.offset}: overlaps previous token ending at ${cursor}`);
   }
-  if (token.offset > cursor && !/^[ \t\r]*$/.test(tc.yaml.slice(cursor, token.offset))) {
+  if (token.offset > cursor && !/^[ \t\r]*$/.test(Str.slice(cursor, token.offset)(tc.yaml))) {
     assert.fail(
-      `[${tc.id}] ${token.kind}@${token.offset}: non-whitespace gap ${JSON.stringify(tc.yaml.slice(cursor, token.offset))}`
+      `[${tc.id}] ${token.kind}@${token.offset}: non-whitespace gap ${JSON.stringify(Str.slice(cursor, token.offset)(tc.yaml))}`
     );
   }
 }
 
 function checkTokenText(tc: CorpusCase, token: YamlToken): void {
-  if (token.text !== tc.yaml.slice(token.offset, token.offset + token.length)) {
+  if (token.text !== Str.slice(token.offset, token.offset + token.length)(tc.yaml)) {
     assert.fail(`[${tc.id}] ${token.kind}@${token.offset}: text disagrees with its slice`);
   }
 }
@@ -82,7 +83,7 @@ function checkCaseTokens(tc: CorpusCase): number {
   }
   // Full coverage: nothing but horizontal whitespace may follow the
   // last token.
-  if (cursor < tc.yaml.length && !/^[ \t\r\n]*$/.test(tc.yaml.slice(cursor))) {
+  if (cursor < tc.yaml.length && !/^[ \t\r\n]*$/.test(Str.slice(cursor)(tc.yaml))) {
     assert.fail(`[${tc.id}] tokens cover ${cursor} of ${tc.yaml.length} source units`);
   }
   return result.success.length;
@@ -108,7 +109,7 @@ describe("EOF source fidelity regressions", () => {
       let cursor = 0;
       for (const token of tokens) {
         assert.strictEqual(token.offset, cursor);
-        assert.strictEqual(token.text, source.slice(token.offset, token.offset + token.length));
+        assert.strictEqual(token.text, Str.slice(token.offset, token.offset + token.length)(source));
         cursor += token.length;
       }
       assert.strictEqual(cursor, source.length);

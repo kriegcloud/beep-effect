@@ -19,7 +19,7 @@ it.effect.prop(
       for (const edit of [...edits].reverse()) {
         assert.isAtLeast(edit.offset, 0);
         assert.isAtMost(edit.offset + edit.length, end);
-        result = result.slice(0, edit.offset) + edit.content + result.slice(edit.offset + edit.length);
+        result = Str.slice(0, edit.offset)(result) + edit.content + Str.slice(edit.offset + edit.length)(result);
         end = edit.offset;
       }
       assert.strictEqual(result, modified);
@@ -39,7 +39,7 @@ it.effect.prop(
       const commentEnd = commentStart + "# keep this comment\n\n".length;
       for (const edit of [...computeEdits(original, modified)].reverse()) {
         assert.isTrue(edit.offset + edit.length <= commentStart || edit.offset >= commentEnd);
-        actual = actual.slice(0, edit.offset) + edit.content + actual.slice(edit.offset + edit.length);
+        actual = Str.slice(0, edit.offset)(actual) + edit.content + Str.slice(edit.offset + edit.length)(actual);
       }
       assert.strictEqual(actual, modified);
       assert.include(actual, "\n# keep this comment\n\n");

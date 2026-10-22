@@ -12,12 +12,14 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Base64 from "effect/encoding/Base64";
 import * as Fiber from "effect/Fiber";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
+import * as Str from "effect/String";
 import * as Tracer from "effect/Tracer";
 import * as TestClock from "effect/testing/TestClock";
 import { scriptedFetch } from "./support/fixtures.ts";
@@ -160,8 +162,8 @@ describe("GitHubApp.token", () => {
       // octokit's auth-token emits `bearer` for a three-segment JWT and
       // `token` otherwise, which is exactly the distinction the app and
       // installation credentials need — so no separate auth strategy exists.
-      assert.isTrue(authorization.startsWith("bearer "), authorization);
-      assert.lengthOf(authorization.slice("bearer ".length).split("."), 3);
+      assert.isTrue(Str.startsWith("bearer ")(authorization), authorization);
+      assert.lengthOf(pipe(authorization, Str.slice("bearer ".length), Str.split(".")), 3);
     })
   );
 

@@ -8,6 +8,7 @@ import * as Exit from "effect/Exit";
 import { constFalse, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import type { GitStubs } from "@beep/git/Git";
 
 const cwd = "/repo";
@@ -18,9 +19,9 @@ describe("Git.makeTest", () => {
   it.effect("an overridden method runs the stub", () =>
     Effect.gen(function* () {
       const double = Git.makeTest({
-        revParse: () => Effect.succeed("a".repeat(40)),
+        revParse: () => Effect.succeed(Str.repeat(40)("a")),
       });
-      assert.strictEqual(yield* double.revParse(cwd, "HEAD"), "a".repeat(40));
+      assert.strictEqual(yield* double.revParse(cwd, "HEAD"), Str.repeat(40)("a"));
     })
   );
 
@@ -207,7 +208,9 @@ describe("Git.makeTest", () => {
 const TestGit = Git.layerTest({
   show: (_cwd: string, _ref: string, path: string) => Effect.succeed(path === "package.json" ? O.some("{}") : O.none()),
   lsTree: () =>
-    Effect.succeed([LsTreeEntry.make({ mode: "100644", type: "blob", oid: "0".repeat(40), path: "package.json" })]),
+    Effect.succeed([
+      LsTreeEntry.make({ mode: "100644", type: "blob", oid: Str.repeat(40)("0"), path: "package.json" }),
+    ]),
 });
 
 describe("Git.layerTest", () => {

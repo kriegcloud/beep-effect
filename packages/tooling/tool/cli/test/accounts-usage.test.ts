@@ -139,7 +139,7 @@ const reportOf = (usages: ReadonlyArray<AccountUsage>, signedIn: ReadonlyArray<S
     groups: groupAccounts(rankAccounts(usages, now), signedIn),
   });
 
-const linesOf = (text: string) => text.split("\n");
+const linesOf = (text: string) => Str.split("\n")(text);
 
 const claudeBody = `{
   "five_hour": {"utilization": 1, "resets_at": null},
@@ -683,9 +683,9 @@ it.layer(inheritedPlatform, { timeout: "30 seconds" })("live account poller", (i
     Effect.gen(function* () {
       const seen = yield* Ref.make(A.empty<ReadonlyArray<string | undefined>>());
       const answer = (request: HttpClientRequest.HttpClientRequest) => {
-        if (request.url.includes("anthropic")) return respond(request, claudeBody);
-        if (request.url.includes("chatgpt")) return respond(request, codexBody);
-        if (request.url.includes("meta.ai")) return respond(request, `{"subs_tier_name":"Tier"}`);
+        if (Str.includes("anthropic")(request.url)) return respond(request, claudeBody);
+        if (Str.includes("chatgpt")(request.url)) return respond(request, codexBody);
+        if (Str.includes("meta.ai")(request.url)) return respond(request, `{"subs_tier_name":"Tier"}`);
         return HttpClientResponse.fromWeb(request, new Response(grokReply, { status: 200 }));
       };
       const client = HttpClient.make((request) =>
@@ -738,7 +738,9 @@ it.layer(inheritedPlatform, { timeout: "30 seconds" })("live account poller", (i
     Effect.gen(function* () {
       const idToken = `h.${Buffer.from(`{"email":"work@example.com"}`).toString("base64url")}.s`;
       const client = HttpClient.make((request) =>
-        Effect.succeed(request.url.includes("anthropic") ? respond(request, claudeBody) : respond(request, "{}", 500))
+        Effect.succeed(
+          Str.includes("anthropic")(request.url) ? respond(request, claudeBody) : respond(request, "{}", 500)
+        )
       );
       const [signedIn, report, again] = yield* runLive(
         {
@@ -969,8 +971,8 @@ describe("live accounts screen", () => {
         keyPress("r"),
         keyPress("q"),
       ]);
-      expect(output.startsWith("\u001b[?1049h")).toBe(true);
-      expect(output.endsWith("\u001b[?25h\u001b[?1049l")).toBe(true);
+      expect(Str.startsWith("\u001b[?1049h")(output)).toBe(true);
+      expect(Str.endsWith("\u001b[?25h\u001b[?1049l")(output)).toBe(true);
       expect(output).toContain("polling");
       expect(output).toContain("me@example.com");
       expect(output).toContain("r refresh");
@@ -984,7 +986,7 @@ describe("live accounts screen", () => {
       ]);
       expect(output).toContain("polling every account");
       expect(output).toContain("poll failed: disk gone (showing the last reading)");
-      expect(output.endsWith("\u001b[?1049l")).toBe(true);
+      expect(Str.endsWith("\u001b[?1049l")(output)).toBe(true);
     })
   );
 });
@@ -1171,7 +1173,7 @@ describe("Junie direct balance", () => {
         decoded,
         JunieRefreshBody.make({
           access_token: Redacted.make("synthetic-access"),
-          refresh_token: body.includes("refresh_token") ? O.some(stored) : O.none(),
+          refresh_token: Str.includes("refresh_token")(body) ? O.some(stored) : O.none(),
           expires_in: 3600,
           id_token: O.none(),
         })
@@ -1652,13 +1654,22 @@ describe("Junie detailed cycle quota", () => {
           assertSome(rank.hoursUntilWeeklyReset, 24);
           yield* pollAccounts;
           const seen = yield* Ref.get(yield* JunieRequests);
-          assertTrue(A.filter(seen, (request) => request[1]?.includes("provide-access") ?? false).length === 1);
-          assertTrue(A.filter(seen, (request) => request[1]?.includes("oauth2") ?? false).length === 2);
-          assertTrue(A.filter(seen, (request) => request[1]?.includes("quota/get") ?? false).length === 2);
+          assertTrue(
+            A.filter(seen, (request) => O.exists(O.fromNullishOr(request[1]), Str.includes("provide-access")))
+              .length === 1
+          );
+          assertTrue(
+            A.filter(seen, (request) => O.exists(O.fromNullishOr(request[1]), Str.includes("oauth2"))).length === 2
+          );
+          assertTrue(
+            A.filter(seen, (request) => O.exists(O.fromNullishOr(request[1]), Str.includes("quota/get"))).length === 2
+          );
           assertTrue(
             A.some(
               seen,
-              (request) => request[1]?.includes("provide-access") === true && request[2] === "Bearer synthetic-id"
+              (request) =>
+                O.exists(O.fromNullishOr(request[1]), Str.includes("provide-access")) &&
+                request[2] === "Bearer synthetic-id"
             )
           );
         })
@@ -1743,7 +1754,7 @@ describe("Junie detailed cycle quota", () => {
     junieTestLayer(credential, false, 401, 200, 200, true, undefined, 200, audienceRotated, false, overrides);
   const countOf = Effect.fnUntraced(function* (fragment: string) {
     const seen = yield* Ref.get(yield* JunieRequests);
-    return A.filter(seen, (request) => request[1]?.includes(fragment) ?? false).length;
+    return A.filter(seen, (request) => O.exists(O.fromNullishOr(request[1]), Str.includes(fragment))).length;
   });
   const okOutcome = Effect.fnUntraced(function* () {
     const outcome = (yield* pollAccounts)[0]?.outcome;

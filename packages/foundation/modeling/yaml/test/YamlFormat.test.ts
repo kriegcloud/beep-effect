@@ -5,9 +5,12 @@ import { YamlFormat, YamlFormattingOptions, YamlModificationError } from "@beep/
 import { assert, describe, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import { constant } from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { fixtureText } from "./fixture-text.ts";
 
@@ -444,7 +447,7 @@ describe("YamlFormat", () => {
       const text = "k: {a: 'x'}\n";
       assert.strictEqual(
         YamlFormat.formatToString(text, undefined, requoteDouble),
-        YamlFormat.formatToString(text).replace("'x'", '"x"')
+        Str.replace("'x'", '"x"')(YamlFormat.formatToString(text))
       );
     });
 
@@ -455,7 +458,7 @@ describe("YamlFormat", () => {
       // scalar's source span, touching nothing around it.
       const edits = YamlFormat.format(text, undefined, requoteDouble);
       assert.isAbove(edits.length, 0);
-      const span = { offset: text.indexOf("'x'"), length: "'x'".length };
+      const span = { offset: O.getOrElse(constant(-1))(Str.indexOf("'x'")(text)), length: "'x'".length };
       for (const edit of edits) {
         assert.isAtLeast(edit.offset, span.offset);
         assert.isAtMost(edit.offset + edit.length, span.offset + span.length);
@@ -527,7 +530,7 @@ describe("YamlFormat", () => {
         const edits = yield* YamlFormat.modify(text, ["second"], 5);
         // Only the changed line's span should appear among the edits.
         for (const edit of edits) {
-          assert.isAtLeast(edit.offset, text.indexOf("second"));
+          assert.isAtLeast(edit.offset, O.getOrElse(constant(-1))(Str.indexOf("second")(text)));
         }
         assert.deepStrictEqual(yield* Yaml.parse(apply(text, edits)), { first: "unchanged", second: 5 });
       })
@@ -749,7 +752,7 @@ describe("YamlFormat", () => {
 
     it.effect("fails typed when document and replacement exceed the depth cap together", () =>
       Effect.gen(function* () {
-        const text = `${"[".repeat(160)}0${"]".repeat(160)}\n`;
+        const text = `${Str.repeat(160)("[")}0${Str.repeat(160)("]")}\n`;
         const path: number[] = [];
         let replacement: unknown = "x";
         for (let i = 0; i < 160; i++) {

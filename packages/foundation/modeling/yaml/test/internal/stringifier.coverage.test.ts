@@ -5,6 +5,7 @@ import { renderDoubleQuoted, stringifyDocument, stringifyValue } from "@beep/yam
 import { YamlMap, YamlPair, YamlScalar, YamlSeq } from "@beep/yaml/YamlNode";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 import { parse } from "yaml";
 import type { YamlNode } from "@beep/yaml/YamlNode";
 import type * as S from "effect/Schema";
@@ -83,7 +84,7 @@ const commentedCollections = (
 const parentPositions = (node: YamlMap | YamlSeq): ReadonlyArray<YamlNode> => [
   node,
   map(scalar("outer"), node),
-  map(scalar("k".repeat(1025)), node),
+  map(scalar(Str.repeat(1025)("k")), node),
   YamlSeq.make({ items: [node], style: "block", offset: 0, length: 1 }),
 ];
 
@@ -146,7 +147,7 @@ describe("stringifier uncovered rendering cases", () => {
   );
   it.effect("long explicit value keys keep multiline strings and collections", () =>
     Effect.sync(() => {
-      const key = "k".repeat(1025);
+      const key = Str.repeat(1025)("k");
       for (const value of ["a\nb\n", "a\nb\n\n", { a: "a\nb\n\n", b: 2 }, ["a\nb\n\n", 2]]) {
         for (const defaultScalarStyle of ["plain", "block-literal", "block-folded"] as const) {
           const text = stringifyValue({ [key]: value }, StringifyOptionsInput.make({ defaultScalarStyle, indent: 4 }));
@@ -219,7 +220,7 @@ describe("stringifier metadata and blank-line branch matrix", () => {
   );
   it.effect("keeps blank lines in explicit values and canonical multiline quoted values", () =>
     Effect.sync(() => {
-      const key = scalar("k".repeat(1025));
+      const key = scalar(Str.repeat(1025)("k"));
       for (const value of ["first\nsecond", "first\nsecond\n", "first\n \tsecond"]) {
         const node = scalar(value, { style: "plain" });
         for (const parent of [
@@ -244,7 +245,7 @@ describe("stringifier metadata and blank-line branch matrix", () => {
       });
       for (const node of [seq, mapping]) {
         const text = stringifyDocument(document(map(key, node)));
-        assert.deepStrictEqual(parse(text), { ["k".repeat(1025)]: node.toValue() });
+        assert.deepStrictEqual(parse(text), { [Str.repeat(1025)("k")]: node.toValue() });
       }
       const block = scalar("", { style: "block-literal", comment: " empty" });
       assert.strictEqual(stringifyDocument(document(block)), '"" # empty\n');
@@ -276,13 +277,13 @@ describe("stringifier metadata and blank-line branch matrix", () => {
 describe("stringifier remaining presentation edges", () => {
   it.effect("keeps explicit leading blank comments, empty values and canonical flow collections", () =>
     Effect.sync(() => {
-      const key = scalar("k".repeat(1025));
+      const key = scalar(Str.repeat(1025)("k"));
       for (const value of [
         scalar(null, { length: 0, commentBefore: "\n lead\n" }),
         scalar("a\nb\n\n", { style: "block-literal", commentBefore: "\n lead\n" }),
       ]) {
         const text = stringifyDocument(document(map(key, value)));
-        assert.deepStrictEqual(parse(text), { ["k".repeat(1025)]: value.toValue() });
+        assert.deepStrictEqual(parse(text), { [Str.repeat(1025)("k")]: value.toValue() });
         assert.include(text, "# lead");
       }
       const seq = YamlSeq.make({
@@ -291,7 +292,9 @@ describe("stringifier remaining presentation edges", () => {
         offset: 0,
         length: 1,
       });
-      assert.deepStrictEqual(parse(stringifyDocument(document(map(key, seq)))), { ["k".repeat(1025)]: ["a\nb\n\n"] });
+      assert.deepStrictEqual(parse(stringifyDocument(document(map(key, seq)))), {
+        [Str.repeat(1025)("k")]: ["a\nb\n\n"],
+      });
       const empty = scalar(null, { length: 0, commentBefore: " lead" });
       assert.include(stringifyDocument(document(map(scalar("key"), empty))), "# lead");
       const quoted = scalar("a\nb", { commentBefore: " lead" });
