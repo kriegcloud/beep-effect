@@ -2599,6 +2599,18 @@
         "immer": "^11.1.18",
       },
     },
+    "packages/foundation/modeling/markdown": {
+      "name": "@beep/markdown",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/foundation/modeling/md": {
       "name": "@beep/md",
       "version": "0.0.2",
@@ -4546,6 +4558,8 @@
     "@beep/m365-mcp": ["@beep/m365-mcp@workspace:packages/drivers/m365-mcp"],
 
     "@beep/managed-section": ["@beep/managed-section@workspace:packages/foundation/modeling/managed-section"],
+
+    "@beep/markdown": ["@beep/markdown@workspace:packages/foundation/modeling/markdown"],
 
     "@beep/mcp-kit": ["@beep/mcp-kit@workspace:packages/foundation/capability/mcp-kit"],
 

@@ -498,6 +498,12 @@
         ]
       },
       {
+        "name": "@beep/markdown",
+        "patterns": [
+          "packages/foundation/modeling/markdown/src/**"
+        ]
+      },
+      {
         "name": "@beep/mcp-kit",
         "patterns": [
           "packages/foundation/capability/mcp-kit/src/**"
@@ -2901,6 +2907,15 @@
           "@beep/memfs",
           "@beep/schema",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/markdown",
+        "allow": [
+          "@beep/markdown"
+        ],
+        "allowTypeOnly": [
+          "@beep/markdown"
         ]
       },
       {

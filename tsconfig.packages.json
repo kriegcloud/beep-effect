@@ -349,6 +349,9 @@
       "path": "packages/foundation/modeling/managed-section"
     },
     {
+      "path": "packages/foundation/modeling/markdown"
+    },
+    {
       "path": "packages/foundation/modeling/md"
     },
     {
