@@ -527,8 +527,9 @@ export const addWorktree = Effect.fn("Worktree.addWorktree")(function* (
       context.currentRoot,
       "Failed to fetch origin/main for the new worktree."
     ).pipe(
-      Effect.catchTag("WorktreeCommandError", () =>
-        Effect.gen(function* () {
+      Effect.catchTag(
+        "WorktreeCommandError",
+        Effect.fnUntraced(function* () {
           yield* runWorktreeGitCapture(
             context.currentRoot,
             ["rev-parse", "--verify", "refs/remotes/origin/main^{commit}"],
