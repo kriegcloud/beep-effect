@@ -5969,6 +5969,8 @@ export const SetSessionConfigOptionRequest = S.Union([
 ]).pipe(
   $I.annoteSchema("SetSessionConfigOptionRequest", {
     description: "Generated ACP schema for SetSessionConfigOptionRequest.",
+    documentation:
+      "Request parameters for setting a session configuration option.",
     identifier: "SetSessionConfigOptionRequest",
   }),
 );
@@ -7364,6 +7366,7 @@ export const CreateElicitationResponse = S.Union([
 ]).pipe(
   $I.annoteSchema("CreateElicitationResponse", {
     description: "Generated ACP schema for CreateElicitationResponse.",
+    documentation: "Response from the client to an elicitation request.",
     identifier: "CreateElicitationResponse",
   }),
 );
@@ -10634,6 +10637,8 @@ export const SessionConfigOption = S.Union([
 ]).pipe(
   $I.annoteSchema("SessionConfigOption", {
     description: "Generated ACP schema for SessionConfigOption.",
+    documentation:
+      "A session configuration option selector and its current state.",
     identifier: "SessionConfigOption",
   }),
 );
@@ -12353,10 +12358,16 @@ export const CreateElicitationRequest = S.Union([
       description:
         "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
-  ]),
+  ]).annotateKey({
+    title: "other",
+    description:
+      "Custom or future elicitation mode.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.\n\nClients that do not understand this mode should preserve the raw payload\nwhen storing, replaying, proxying, or forwarding elicitation requests.\nThey MUST NOT render it as a known elicitation mode.",
+  }),
 ]).pipe(
   $I.annoteSchema("CreateElicitationRequest", {
     description: "Generated ACP schema for CreateElicitationRequest.",
+    documentation:
+      "Request from the agent to elicit structured user input.\n\nThe agent sends this to the client to request information from the user,\neither via a form or by directing them to a URL.\nElicitations are tied to a session (optionally a tool call) or a request.",
     identifier: "CreateElicitationRequest",
   }),
 );
@@ -14095,6 +14106,8 @@ export const ElicitationFormMode = S.Union([
 ]).pipe(
   $I.annoteSchema("ElicitationFormMode", {
     description: "Generated ACP schema for ElicitationFormMode.",
+    documentation:
+      "Form-based elicitation mode where the client renders a form from the provided schema.",
   }),
 );
 
@@ -14276,6 +14289,8 @@ export const ElicitationUrlMode = S.Union([
 ]).pipe(
   $I.annoteSchema("ElicitationUrlMode", {
     description: "Generated ACP schema for ElicitationUrlMode.",
+    documentation:
+      "URL-based elicitation mode where the client directs the user to a URL.",
   }),
 );
 
@@ -14669,6 +14684,8 @@ export const IdleStateUpdate = S.Union([
 ]).pipe(
   $I.annoteSchema("IdleStateUpdate", {
     description: "Generated ACP schema for IdleStateUpdate.",
+    documentation:
+      "The child is ready to process another prompt.\n\nAn omitted, `null`, or malformed `stopReason` means not reported.",
   }),
 );
 
