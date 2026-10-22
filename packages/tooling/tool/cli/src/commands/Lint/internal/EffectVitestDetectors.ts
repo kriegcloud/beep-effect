@@ -1238,7 +1238,7 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
 // Unbound runtime I/O globals are opaque; local shadowing remains lexical.
 const opaquePlatformReference = (reference: Identifier, imports: EffectVitestImports): boolean => {
   const binding = imports.resolveBinding(reference);
-  if (O.isNone(binding)) return A.contains(["Bun", "require", "process"], reference.getText());
+  if (O.isNone(binding)) return A.contains(["Bun", "require", "process", "globalThis"], reference.getText());
   if (!Node.isImportDeclaration(binding.value)) return false;
   const module = binding.value.getModuleSpecifierValue();
   return (
@@ -1248,24 +1248,45 @@ const opaquePlatformReference = (reference: Identifier, imports: EffectVitestImp
   );
 };
 
-// Follow local helper references, including callbacks passed to combinators.
-// External helper bodies cannot prove absence of filesystem I/O.
+// Follow local values as well as helpers: an initializer can hide an imported effect,
+// runtime alias or an Effect.fn pipeline that helperBody deliberately cannot open.
+// Include the region itself because an alias initializer may be just one identifier.
 const harnessHasOpaquePlatformReferences = (harness: CallExpression, imports: EffectVitestImports): boolean =>
   O.exists(harnessCallback(harness), (callback) => {
     const regions: Array<MorphNode> = [callback];
     for (const region of regions) {
+      const nodes = [region, ...region.getDescendants()];
+      if (
+        A.some(
+          nodes,
+          (node) => Node.isCallExpression(node) && node.getExpression().getKind() === SyntaxKind.ImportKeyword
+        )
+      )
+        return true;
       const references = A.filter(
-        region.getDescendantsOfKind(SyntaxKind.Identifier),
+        A.filter(nodes, Node.isIdentifier),
         (reference) =>
           !isNamePosition(reference) && reference.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) === undefined
       );
       if (A.some(references, (reference) => opaquePlatformReference(reference, imports))) return true;
-      const helpers = A.getSomes(
+      const reached = A.getSomes(
         A.map(references, (reference) =>
-          O.flatMap(imports.resolveBinding(reference), (binding) => helperBody(binding, imports))
+          O.flatMap(imports.resolveBinding(reference), (binding) =>
+            helperBody(binding, imports).pipe(
+              O.orElse(() =>
+                Node.isVariableDeclaration(binding) ? O.fromUndefinedOr(binding.getInitializer()) : O.none()
+              )
+            )
+          )
         )
       );
-      regions.push(...A.filter(helpers, (helper) => !A.some(regions, (known) => known === helper)));
+      // Deduplicate this batch as well as previously queued regions, including recursive aliases.
+      regions.push(
+        ...A.filter(
+          A.dedupeWith(reached, (left, right) => left === right),
+          (next) => !A.some(regions, (known) => known === next)
+        )
+      );
     }
     return false;
   });

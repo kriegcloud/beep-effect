@@ -2129,6 +2129,71 @@ it.layer(NodeServices.layer)((it) => {
     })
   );
 
+  it.effect("retains opaque aliases and dynamic runtime references in canonical harnesses", () =>
+    Effect.gen(function* () {
+      const platform = 'import * as Services from "@effect/platform-bun/BunServices";';
+      for (const [prelude, expression] of [
+        ['import { fixtureEffect } from "./fixture.ts"; const fixture = fixtureEffect;', "fixture"],
+        ['import { buildBundleConsumer } from "./bundle.ts"; const run = Fx.tryPromise(buildBundleConsumer);', "run"],
+        ["const api = Bun;", 'Fx.sync(() => api.file("fixture"))'],
+        ["", 'Fx.promise(() => import("./bundle-build.ts"))'],
+        ["", 'Fx.sync(() => globalThis.Bun.file("fixture"))'],
+        ['let helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
+        ['const helper = Fx.fn("helper")(function* () { return 1; }, () => Bun.file("fixture"));', "helper()"],
+        [
+          'import { stage } from "./fixture.ts"; const helper = Fx.fnUntraced(function* () { return 1; }, stage);',
+          "helper()",
+        ],
+        [
+          'import { fixtureEffect } from "./fixture.ts"; const first = () => second; const second = () => first; const fixture = [first, fixtureEffect];',
+          "fixture",
+        ],
+        ["const first = second; const second = [first, Bun];", "second"],
+      ]) {
+        assertTrue(
+          yield* hasRule(
+            `${platform} ${prelude} it.layer(Services.layer)((it) => { it.effect("opaque", () => ${expression}); });`,
+            "EV010"
+          )
+        );
+      }
+    })
+  );
+
+  it.effect("clears pure aliases, recursive helpers and lexically shadowed runtime values", () =>
+    Effect.gen(function* () {
+      const platform = 'import * as Services from "@effect/platform-bun/BunServices";';
+      for (const [prelude, expression] of [
+        ["const fixtureEffect = Fx.succeed(1); const fixture = fixtureEffect;", "fixture"],
+        [
+          "const buildBundleConsumer = () => Promise.resolve(1); const run = Fx.tryPromise(buildBundleConsumer);",
+          "run",
+        ],
+        ['const Bun = { file: () => "pure" }; const api = Bun;', "Fx.sync(() => api.file())"],
+        ['const globalThis = { Bun: { file: () => "pure" } };', "Fx.sync(() => globalThis.Bun.file())"],
+        ['const load = () => "./bundle-build.ts";', "Fx.sync(load)"],
+        ["", "Fx.succeed(import.meta.dirname)"],
+        ["let helper = () => 1;", "Fx.sync(helper)"],
+        ['const helper = Fx.fn("helper")(function* () { return 1; }, Fx.map((value) => value));', "helper()"],
+        ["const first = () => second(); function second() { return first(); }", "Fx.sync(first)"],
+        ["const first = second; const second = first;", "second"],
+        [
+          'import { fixtureEffect } from "./fixture.ts"; const fixture = fixtureEffect;',
+          "Fx.sync((fixture) => fixture)",
+        ],
+        ["const api = Bun;", "Fx.sync((api) => api.file())"],
+        ['const unused = () => import("./bundle-build.ts");', "Fx.succeed(1)"],
+      ]) {
+        assertFalse(
+          yield* hasRule(
+            `${platform} ${prelude} it.layer(Services.layer)((it) => { it.effect("pure", () => ${expression}); });`,
+            "EV010"
+          )
+        );
+      }
+    })
+  );
+
   it.effect.each([
     { root: "@effect/platform-node", services: "NodeServices" },
     { root: "@effect/platform-bun", services: "BunServices" },
