@@ -23,7 +23,7 @@
     "acceptanceEvidence": [
       {
         "kind": "yeet-verdict",
-        "ref": "yeet monitor --until-ready job 6a578a15-389a-410c-8296-cbb0d25a67ac (PR #2017)",
+        "ref": ".beep/yeet/runs/feat_epistemics-foundation-p1-ada9d9015733/verdict.json",
         "gating": true
       }
     ]
