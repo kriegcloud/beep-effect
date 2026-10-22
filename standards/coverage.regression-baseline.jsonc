@@ -32417,18 +32417,6 @@
             "functions": 8
           }
         },
-        "packages/tooling/tool/cli/src/commands/Lint/internal/WorkspaceWalk.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/tooling/tool/cli/src/commands/Models/Models.apply.service.ts": {
           "lines": 93.52,
           "statements": 90.4,

@@ -1,15 +1,27 @@
 import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
-import { checkBunRuntimeVersion, compareBunRuntimeVersion } from "@beep/repo-cli/commands/VersionSync";
+import {
+  checkBunRuntimeVersion,
+  compareBunRuntimeVersion,
+  versionSyncCommand,
+} from "@beep/repo-cli/commands/VersionSync";
+import { FsUtilsLive } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
+import * as NodeStdio from "@effect/platform-node/NodeStdio";
+import * as NodeTerminal from "@effect/platform-node/NodeTerminal";
 import { afterEach, describe, expect, vi } from "@effect/vitest";
+import * as Console from "effect/Console";
+import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as TestConsole from "effect/testing/TestConsole";
+import { expectReportedExit } from "./support/CommandTest.ts";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -69,6 +81,73 @@ const runtimeLayer = Layer.mergeAll(
     )
   )
 );
+
+const runVersionSync = Command.runWith(versionSyncCommand, { version: "0.0.0" });
+const commandLayer = Layer.mergeAll(
+  runtimeLayer,
+  NodeStdio.layer,
+  NodeTerminal.layer,
+  FetchHttpClient.layer,
+  FsUtilsLive.pipe(Layer.provide(runtimeLayer))
+);
+
+it.layer(commandLayer, { timeout: "30 seconds" })("version-sync runtime command", (it) => {
+  it.effect("checks only the runtime even when write and dry-run flags are supplied", () =>
+    Effect.gen(function* () {
+      vi.stubGlobal("process", { ...process, versions: { ...process.versions, bun: "1.4.3" } });
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = process.cwd();
+      yield* fs.makeDirectory(root, { recursive: true });
+      yield* fs.writeFileString(path.join(root, "bun.lock"), "");
+      yield* fs.writeFileString(path.join(root, ".bun-version"), "1.4.3\n");
+      for (const flags of [[], ["--write"], ["--write", "--dry-run"]]) {
+        yield* runVersionSync(["--check-runtime", ...flags]);
+      }
+      expect(yield* TestConsole.logLines).toEqual([
+        "bun-version: .bun-version=1.4.3; bun --version=1.4.3",
+        "bun-version: .bun-version=1.4.3; bun --version=1.4.3",
+        "bun-version: .bun-version=1.4.3; bun --version=1.4.3",
+      ]);
+      // No package.json exists: entering the normal sync handler would fail.
+      expect(yield* fs.exists(path.join(root, "package.json"))).toBe(false);
+    }).pipe(
+      Effect.provideServiceEffect(FileSystem.FileSystem, MemoryFileSystem.make),
+      Effect.provideServiceEffect(Console.Console, TestConsole.make)
+    )
+  );
+
+  it.effect("reports runtime mismatches as a failing CLI exit", () =>
+    Effect.gen(function* () {
+      vi.stubGlobal("process", { ...process, versions: { ...process.versions, bun: "1.4.2" } });
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = process.cwd();
+      yield* fs.makeDirectory(root, { recursive: true });
+      yield* fs.writeFileString(path.join(root, "bun.lock"), "");
+      yield* fs.writeFileString(path.join(root, ".bun-version"), "1.4.3\n");
+      expectReportedExit(yield* runVersionSync(["--check-runtime"]).pipe(Effect.exit));
+      expect(yield* TestConsole.errorLines).toEqual([
+        "version-sync: Bun version mismatch: .bun-version=1.4.3; bun --version=1.4.2 (.bun-version)",
+      ]);
+    }).pipe(
+      Effect.provideServiceEffect(FileSystem.FileSystem, MemoryFileSystem.make),
+      Effect.provideServiceEffect(Console.Console, TestConsole.make)
+    )
+  );
+
+  it.effect("reports missing repository roots as a failing CLI exit", () =>
+    Effect.gen(function* () {
+      expectReportedExit(yield* runVersionSync(["--check-runtime"]).pipe(Effect.exit));
+      expect(yield* TestConsole.errorLines).toEqual([
+        expect.stringContaining("version-sync: Could not find repository root"),
+      ]);
+    }).pipe(
+      Effect.provideServiceEffect(FileSystem.FileSystem, MemoryFileSystem.make),
+      Effect.provideServiceEffect(Console.Console, TestConsole.make)
+    )
+  );
+});
 
 it.layer(runtimeLayer, { timeout: "30 seconds" })("Bun runtime preflight I/O", (it) => {
   it.effect("fails closed when the repository has no .bun-version", () =>

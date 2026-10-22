@@ -404,6 +404,27 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("reviews temp wrappers that mutate imported process state or cannot prove their acquisition", () =>
+    Effect.gen(function* () {
+      for (const body of [
+        'import process from "node:process"; const wrap = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), use, (root) => Fx.sync(() => { delete process.env.ROOT; }).pipe(Fx.andThen(fs.remove(root))));',
+        'import * as process from "process"; const wrap = (use) => Fx.acquireUseRelease(fs.makeTempDirectory(), (root) => Fx.sync(() => process.chdir(root)).pipe(Fx.andThen(use(root))), (root) => fs.remove(root));',
+        "const wrap = (use) => Fx.acquireUseRelease(Fx.flatMap(FileSystem.FileSystem, acquireRoot), use, (root) => fs.remove(root));",
+        "const wrap = (use) => Fx.acquireUseRelease(Fx.flatMap(FileSystem.FileSystem, (fs) => { record(); return fs.makeTempDirectory(); }), use, (root) => fs.remove(root));",
+        'const wrap = (use) => Fx.acquireUseRelease(Fx.flatMap(FileSystem.FileSystem, (fs) => { return fs.readFileString("fixture"); }), use, (root) => fs.remove(root));',
+        "const wrap = (use) => Fx.acquireUseRelease(Fx.gen(() => fs.makeTempDirectory()), use, (root) => fs.remove(root));",
+        "const wrap = (use) => Fx.acquireUseRelease(Fx.gen(function* () { return fs.makeTempDirectory(); }), use, (root) => fs.remove(root));",
+      ])
+        assertTrue(yield* hasRule(`${body} it.effect("resource", () => wrap(program));`, "EV003"));
+      assertFalse(
+        yield* hasRule(
+          'const wrap = (use) => Fx.acquireUseRelease(Fx.flatMap(FileSystem.FileSystem, function (fs) { return fs.makeTempDirectory(); }), use, (root) => fs.remove(root)); it.effect("fresh", () => wrap(program));',
+          "EV003"
+        )
+      );
+    })
+  );
+
   it.effect("permits fresh temp-root wrappers and keeps shareable resources under resource review", () =>
     Effect.gen(function* () {
       const fresh = [
@@ -1618,6 +1639,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `const again = () => again(); const link = ${stage('yield* fs.symlink("a", "b");')}; ${platformSuite("Fx.andThen(again(), link())")}`,
         `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace().pipe(Fx.provideServiceEffect(Console.Console, makeConsole))")}`,
         `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("Fx.provideService(stageWorkspace(), Console.Console, testConsole)")}`,
+        `${subjectLayer} import * as NativeConsole from "effect/Console"; const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace().pipe(Fx.provideService(NativeConsole.Console, testConsole))")}`,
         `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.provideService(Console.Console, testConsole)); ${subjectSuite("stageWorkspace()")}`,
         `${subjectLayer} ${subjectBody("const Bun = { file: () => Fx.void }; yield* Bun.file();")}`,
         bound("const program = stageWorkspace(); yield* program;"),
@@ -2184,6 +2206,10 @@ it.layer(NodeServices.layer)((it) => {
         ['import { fixtureEffect } from "./fixture.ts"; const fixture = fixtureEffect;', "fixture"],
         ['import { buildBundleConsumer } from "./bundle.ts"; const run = Fx.tryPromise(buildBundleConsumer);', "run"],
         ["const api = Bun;", 'Fx.sync(() => api.file("fixture"))'],
+        ["const first = process; const second = first;", "Fx.sync(() => second.cwd())"],
+        ['const load = () => import("./fixture.ts"); const alias = load;', "Fx.promise(alias)"],
+        ["let counter = 2; counter--;", "Fx.succeed(counter)"],
+        ["let counter = 2; --counter;", "Fx.succeed(counter)"],
         ["", 'Fx.promise(() => import("./bundle-build.ts"))'],
         ["", 'Fx.sync(() => globalThis.Bun.file("fixture"))'],
         ["", 'Fx.sync(() => global.Bun.file("fixture"))'],
@@ -2232,6 +2258,8 @@ it.layer(NodeServices.layer)((it) => {
         ["", "Fx.succeed(import.meta.dirname)"],
         ["const helper = () => 1;", "Fx.sync(helper)"],
         ["let helper = () => 1;", "Fx.sync(helper)"],
+        ["let counter = 1; const copied = counter + 1;", "Fx.succeed(copied)"],
+        ["let counter = 1; const copied = !counter;", "Fx.succeed(copied)"],
         ["var helper = () => 1;", "Fx.sync(helper)"],
         ['const helper = Fx.fn("helper")(function* () { return 1; }, Fx.map((value) => value));', "helper()"],
         ["const first = () => second(); function second() { return first(); }", "Fx.sync(first)"],
