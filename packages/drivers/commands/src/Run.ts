@@ -349,7 +349,7 @@ const safeText: {
 );
 
 /** Whether a captured stream carries any non-whitespace text. */
-const hasText = (text: string | undefined): text is string => text !== undefined && text.trim() !== "";
+const hasText = (text: string | undefined): text is string => text !== undefined && Str.trim(text) !== "";
 
 /**
  * The stream whose tail explains a failure: stderr first, then stdout, because
@@ -363,9 +363,9 @@ const causeStream = (stderr: string | undefined, stdout: string | undefined): st
 
 /** Tail-bounded rendering: tools write warnings first and the real error last. */
 const tail = (text: string): string => {
-  const trimmed = text.trim();
+  const trimmed = Str.trim(text);
   if (trimmed.length <= MAX_MESSAGE_CHARS) return trimmed;
-  return `...[${trimmed.length - MAX_MESSAGE_CHARS} chars truncated from head]...\n${trimmed.slice(-MAX_MESSAGE_CHARS)}`;
+  return `...[${trimmed.length - MAX_MESSAGE_CHARS} chars truncated from head]...\n${Str.slice(-MAX_MESSAGE_CHARS)(trimmed)}`;
 };
 
 /**
@@ -714,7 +714,7 @@ export class CommandOutputError extends S.TaggedError<CommandOutputError, { read
       parts.push(`Command "${this.command}" produced more output than the configured limit`);
     }
     if (this.exitCode !== undefined) parts.push(`(exit ${this.exitCode})`);
-    if (this.stderr !== undefined && this.stderr.trim().length > 0) parts.push(`:\n${tail(this.stderr)}`);
+    if (this.stderr !== undefined && Str.trim(this.stderr).length > 0) parts.push(`:\n${tail(this.stderr)}`);
     return A.join(parts, " ");
   }
 }
@@ -921,7 +921,7 @@ const text: {
   (args) => ChildProcess.isCommand(args[0]),
   Effect.fn("Run.text")(function* (command: ChildProcess.Command, options?: RunOptions.Encoded) {
     const checked = yield* checkedRun(command, options);
-    return checked.stdout.trim();
+    return Str.trim(checked.stdout);
   })
 );
 
@@ -941,8 +941,8 @@ const lines: {
   Effect.fn("Run.lines")(function* (command: ChildProcess.Command, options?: RunOptions.Encoded) {
     const checked = yield* checkedRun(command, options);
     return Fn.pipe(
-      checked.stdout.split(/\r?\n/),
-      A.map((line) => line.trim()),
+      Str.split(/\r?\n/)(checked.stdout),
+      A.map(Str.trim),
       A.filter((line) => line.length > 0)
     );
   })
@@ -1005,7 +1005,7 @@ const jsonLine: {
     // missing or unusable, the exit code and captured streams (already redacted
     // by collectClassified) are the only evidence of what actually went wrong.
     const context = { exitCode: output.exitCode, stderr: output.stderr, stdout: output.stdout };
-    const candidates = A.filter(output.stdout.split(/\r?\n/), (candidate) => candidate.trim().length > 0);
+    const candidates = A.filter(Str.split(/\r?\n/)(output.stdout), (candidate) => Str.trim(candidate).length > 0);
     if (candidates.length === 0) {
       return yield* CommandOutputError.make({
         kind: "notJson",

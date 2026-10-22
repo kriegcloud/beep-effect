@@ -9,6 +9,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $GithubId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -18,6 +19,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
 import { numericId } from "./internal/ids.ts";
@@ -105,7 +107,7 @@ export class CommentMarker extends S.Class<CommentMarker, { readonly brand: uniq
    * @since 0.0.0
    */
   matches(body: string): boolean {
-    return body.includes(this.html);
+    return Str.includes(this.html)(body);
   }
 }
 

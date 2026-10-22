@@ -2,7 +2,9 @@ import { createScanner, lexAll } from "@beep/yaml/internal/lexer";
 import { YamlToken } from "@beep/yaml/internal/token";
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 describe("lexer", () => {
   describe("anchor and alias token spans", () => {
@@ -13,8 +15,8 @@ describe("lexer", () => {
       if (anchor === undefined) {
         assert.fail("expected an anchor token");
       }
-      assert.strictEqual(text.slice(anchor.offset, anchor.offset + anchor.length), "&anc");
-      assert.strictEqual(anchor.offset, text.indexOf("&anc"));
+      assert.strictEqual(Str.slice(anchor.offset, anchor.offset + anchor.length)(text), "&anc");
+      assert.strictEqual(anchor.offset, O.getOrElse(constant(-1))(Str.indexOf("&anc")(text)));
       assert.strictEqual(anchor.length, "&anc".length);
     });
 
@@ -23,8 +25,8 @@ describe("lexer", () => {
       if (alias === undefined) {
         assert.fail("expected an alias token");
       }
-      assert.strictEqual(text.slice(alias.offset, alias.offset + alias.length), "*anc");
-      assert.strictEqual(alias.offset, text.indexOf("*anc"));
+      assert.strictEqual(Str.slice(alias.offset, alias.offset + alias.length)(text), "*anc");
+      assert.strictEqual(alias.offset, O.getOrElse(constant(-1))(Str.indexOf("*anc")(text)));
       assert.strictEqual(alias.length, "*anc".length);
     });
 
@@ -73,13 +75,13 @@ describe("newline positions and scanner reset", () => {
       while (scanner.scan() !== null) {
         /* Populate state before reset. */
       }
-      scanner.setPosition(source.indexOf("b"));
+      scanner.setPosition(O.getOrElse(constant(-1))(Str.indexOf("b")(source)));
       assert.strictEqual(scanner.getToken(), null);
       assert.strictEqual(scanner.scan(), "scalar");
       assert.strictEqual(scanner.getTokenValue(), "b");
       assert.strictEqual(scanner.getTokenLine(), 1);
       assert.strictEqual(scanner.getTokenColumn(), 2);
-      scanner.setPosition(source.indexOf("d"));
+      scanner.setPosition(O.getOrElse(constant(-1))(Str.indexOf("d")(source)));
       assert.strictEqual(scanner.scan(), "scalar");
       assert.strictEqual(scanner.getTokenValue(), "d");
       assert.strictEqual(scanner.getTokenLine(), 3);
@@ -104,7 +106,7 @@ describe("plain scalar trailing whitespace", () => {
       assert.strictEqual(whitespace?.column, (scalar?.column ?? 0) + 5);
       assert.strictEqual(
         A.join(
-          A.map(tokens, (token) => source.slice(token.offset, token.offset + token.length)),
+          A.map(tokens, (token) => Str.slice(token.offset, token.offset + token.length)(source)),
           ""
         ),
         source
@@ -175,7 +177,7 @@ describe("block-scalar header recovery", () => {
       for (const modifiers of ["2+", "+2", "2-", "-2"]) {
         const tokens = lexAll(`${indicator}${modifiers}\n  a\n`);
         assert.strictEqual(tokens[0]?.kind, "scalar");
-        assert.strictEqual(tokens[0]?.value, modifiers.includes("-") ? "a" : "a\n");
+        assert.strictEqual(tokens[0]?.value, Str.includes("-")(modifiers) ? "a" : "a\n");
         assert.isFalse(A.some(tokens, (token) => token.kind === "error"));
       }
     }

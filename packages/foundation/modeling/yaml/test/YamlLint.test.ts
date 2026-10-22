@@ -15,6 +15,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ruleSourcePaths, sourceText } from "./fixture-text.ts";
 import type { LintContext } from "@beep/yaml/YamlLintRule";
 
@@ -298,9 +299,9 @@ describe("YamlLint.fix", () => {
 const importSpecifiers = (source: string): ReadonlyArray<string> => {
   // Line comments first: a `/*` inside a `//` comment (a glob like
   // `src/internal/rules/*`) must not open a phantom block comment.
-  const stripped = source.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const stripped = Str.replace(/\/\*[\s\S]*?\*\//g, "")(Str.replace(/\/\/[^\n]*/g, "")(source));
   const out: Array<string> = [];
-  for (const match of stripped.matchAll(/\bfrom\s+["']([^"']+)["']|^\s*import\s+["']([^"']+)["']/gm)) {
+  for (const match of Str.matchAll(/\bfrom\s+["']([^"']+)["']|^\s*import\s+["']([^"']+)["']/gm)(stripped)) {
     const specifier = match[1] ?? match[2];
     if (specifier !== undefined) out.push(specifier);
   }

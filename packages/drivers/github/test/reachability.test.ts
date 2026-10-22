@@ -3,6 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -50,11 +51,11 @@ const TYPE_ONLY_CLAUSE = /^\s*type\b/;
 // comment, imports included. That fails silently in the permissive direction,
 // which for a confinement test means passing for the wrong reason.
 const stripComments = (source: string): string =>
-  source.replace(/(^|\n)\s*\/\/.*/g, "$1").replace(/\/\*[\s\S]*?\*\//g, "");
+  pipe(source, Str.replace(/(^|\n)\s*\/\/.*/g, "$1"), Str.replace(/\/\*[\s\S]*?\*\//g, ""));
 
 /** Every `from "..."` specifier in a module, ignoring type-only imports and exports. */
 const runtimeSpecifiers = (source: string): ReadonlyArray<string> =>
-  A.flatMap(A.fromIterable(stripComments(source).matchAll(IMPORT_PATTERN)), (match) => {
+  A.flatMap(A.fromIterable(Str.matchAll(IMPORT_PATTERN)(stripComments(source))), (match) => {
     const specifier = match[2];
     return specifier === undefined || TYPE_ONLY_CLAUSE.test(match[1] ?? "") ? [] : [specifier];
   });

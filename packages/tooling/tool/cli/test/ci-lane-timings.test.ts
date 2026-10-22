@@ -477,8 +477,8 @@ describe("ci lane timings attempt filter", () => {
     // A zero would drag a spreadsheet average toward zero; an empty cell is
     // skipped, so the filter survives to the last consumer.
     const rendered = renderCiLaneTimingsTsv([ciLaneTimingRow(job({ run_attempt: 2 }))]);
-    const header = O.getOrUndefined(O.map(O.fromNullishOr(Str.split("\n")(rendered)[0]), Str.split("\t"))) ?? [];
-    const cells = O.getOrUndefined(O.map(O.fromNullishOr(Str.split("\n")(rendered)[1]), Str.split("\t"))) ?? [];
+    const header = Str.split("\t")(Str.split("\n")(rendered)[0] ?? "");
+    const cells = Str.split("\t")(Str.split("\n")(rendered)[1] ?? "");
 
     expect(cells[header.indexOf("pickupSeconds")]).toBe("");
     expect(cells[header.indexOf("durationSeconds")]).not.toBe("");
