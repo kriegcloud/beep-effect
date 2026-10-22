@@ -41,7 +41,7 @@ export const HeaderArray = pipe(
  * @category validation
  * @since 0.0.0
  */
-export type HeaderArray = typeof HeaderArray.Type;
+type HeaderArray = typeof HeaderArray.Type;
 
 /**
  * An identity function taking an array containing possibly nullish strings
@@ -73,4 +73,4 @@ export const HeaderTransformFunction = Fn({
  * @category validation
  * @since 0.0.0
  */
-export type HeaderTransformFunction = typeof HeaderTransformFunction.Type;
+type HeaderTransformFunction = typeof HeaderTransformFunction.Type;

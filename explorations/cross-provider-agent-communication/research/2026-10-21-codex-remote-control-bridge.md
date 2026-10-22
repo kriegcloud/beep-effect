@@ -23,7 +23,7 @@ surface only; GUI steps stay on the existing SSH plus interactive-task route.
 | Tailnet bind | `--listen ws://<tailnet-ip>:48123` also came up LISTENING on the Tailscale address only and was reachable from the workstation (the PC's `Tailscale-In` rule allows inbound on its Private-profile interface), but the client refuses it: `--remote-auth-token-env requires a wss:// or loopback ws:// remote`. Reverted to loopback |
 | Auth | no header: HTTP 401; wrong token: `HTTP error: 401 Unauthorized`; right token: connected |
 | `codex queue` by UUID | `Queued message … for thread …`; the idle thread started a turn within 2 s; rollout `task_complete.last_agent_message = "PONG"`, 2.3 s |
-| One-shot client | `codex-remote-ask.ts`: resume with explicit policy, `turn/start`, wait `turn/completed` (with a `thread/read` fallback that keeps its own 5 s budget); printed `{"status":"completed","durationMs":3887,"reply":"PONG"}`; 5 s wall clock. Every RPC is bounded by the remaining budget; on timeout or error it sends `turn/interrupt` for the turn it started before exiting (over a fresh connection when the socket is gone); the timeout, busy-thread and socket-loss paths were proven against a local 0.163.0 app-server |
+| One-shot client | `codex-remote-ask.ts`: resume with explicit policy, `turn/start`, wait `turn/completed` (with a `thread/read` fallback that runs after the deadline on its own 5 s budget); printed `{"status":"completed","durationMs":3887,"reply":"PONG"}`; 5 s wall clock. Apart from that read and `turn/interrupt` (5 s each), every RPC is bounded by the remaining budget; on timeout or error it sends `turn/interrupt` for the turn it started before exiting (over a fresh connection when the socket is gone); the timeout, busy-thread and socket-loss paths were proven against a local 0.163.0 app-server |
 | Effective policy | server echoed `approvalPolicy: never`, `sandbox: readOnly (networkAccess false)`, model `gpt-6.1-sol` (the PC config has no model key); `remoteControl/status/changed = disabled` on this server |
 
 Receipts: the probe thread id, the task wrapper log and the rollout path are in
@@ -205,8 +205,11 @@ SSH and console-session launches on the one-shot interactive task.
   and plugins for inert bridge threads; verify with `thread/start` read-back.
 - Same-platform name lookup (`codex queue --thread <name>` run on the PC) is
   untested; it would need the token on the PC.
-- Busy-thread queue semantics (steer vs follow-up) were not measured here; the
-  2026-10-09 spike covers the managed case.
+- `codex queue` delivery to a busy thread is not measured: whether
+  `thread/queue/add` holds the message as a follow-up until the running turn
+  ends. Direct `turn/start` on a busy thread is measured (it steers into the
+  running turn; see the `turn/start` entry under Gotchas). The 2026-10-09
+  spike covers the managed case.
 
 Sources: installed CLI help (`codex app-server --help`, `codex queue --help`,
 `codex remote-control --help`, 0.160.1 and 0.163.0), the generated v2 protocol

@@ -591,10 +591,12 @@ export class DetectedFileInfo extends S.Class<DetectedFileInfo, { readonly brand
     return this.info.extension;
   }
 
+  // fallow-ignore-next-line unused-class-member -- DetectedFileInfo.mimeType: test/FileTypeChecker.test.ts reads the schema instance getter.
   get mimeType(): string {
     return this.info.mimeType;
   }
 
+  // fallow-ignore-next-line unused-class-member -- DetectedFileInfo.description: test/FileTypeChecker.test.ts reads the schema instance getter.
   get description(): string {
     return this.info.description;
   }

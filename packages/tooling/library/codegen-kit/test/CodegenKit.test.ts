@@ -1044,6 +1044,109 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
     })
   );
 
+  it.effect("keeps union-level annotations when an intersection distributes a union of unions", () =>
+    Effect.sync(() => {
+      const scopes = [
+        { type: "object", properties: { sessionId: { type: "string" } }, description: "Session scope" },
+        { type: "object", properties: { requestId: { type: "string" } }, description: "Request scope" },
+      ];
+      const hook = composeTransforms(["distributeAllOf"], { Scoped: { description: "Scope", anyOf: scopes } });
+      const extend = (properties: Record<string, unknown>) =>
+        A.map(scopes, (scope) => ({ ...scope, properties: { ...properties, ...scope.properties } }));
+      const mode = (value: string, annotations: Record<string, string>) => ({
+        ...annotations,
+        type: "object",
+        properties: { mode: { const: value } },
+        allOf: [{ $ref: "#/$defs/Scoped" }],
+      });
+      const message = { message: { type: "string" } };
+      const request = hook({
+        type: "object",
+        properties: message,
+        anyOf: [
+          mode("form", { description: "Form mode", title: "Form" }),
+          mode("url", { description: "URL mode" }),
+          mode("other", {}),
+        ],
+      });
+      expect(request).toEqual({
+        anyOf: [
+          { description: "Form mode", title: "Form", anyOf: extend({ ...message, mode: { const: "form" } }) },
+          { description: "URL mode", anyOf: extend({ ...message, mode: { const: "url" } }) },
+          { description: "Scope", anyOf: extend({ ...message, mode: { const: "other" } }) },
+        ],
+      });
+      expect(hook(request)).toEqual(request);
+
+      const variants = [{ properties: { a: { type: "string" } } }, { properties: { b: { type: "string" } } }];
+      const crossed = hook({ description: "Outer", type: "object", allOf: [{ anyOf: scopes }], anyOf: variants });
+      expect(crossed).toEqual({
+        description: "Outer",
+        anyOf: A.map(scopes, ({ description, ...scope }) => ({
+          description,
+          anyOf: A.map(variants, (variant) => ({
+            ...scope,
+            properties: { ...scope.properties, ...variant.properties },
+          })),
+        })),
+      });
+      expect(hook(crossed)).toEqual(crossed);
+    })
+  );
+
+  it.effect("keeps a constrained node's own annotations on its anyOf in either member order", () =>
+    Effect.sync(() => {
+      const scopes = [
+        {
+          type: "object",
+          properties: { sessionId: { type: "string" } },
+          required: ["sessionId"],
+          description: "Session scope",
+          title: "Session",
+        },
+        {
+          type: "object",
+          properties: { requestId: { type: "string" } },
+          required: ["requestId"],
+          description: "Request scope",
+        },
+        { type: "object", properties: { token: { type: "string" } } },
+      ];
+      const form = { requestedSchema: { type: "object" } };
+      const message = { message: { type: "string" } };
+      const mode = { description: "Form mode", title: "Form", type: "object", properties: form, anyOf: scopes };
+      const hook = composeTransforms(["distributeAllOf"], {
+        Mode: mode,
+        Message: { description: "Message part", "x-side": "client", type: "object", properties: message },
+      });
+      const scoped = (properties: Record<string, unknown>) =>
+        A.map(scopes, (scope) => ({ ...scope, properties: { ...properties, ...scope.properties } }));
+
+      const own = hook(mode);
+      expect(own).toEqual({ description: "Form mode", title: "Form", anyOf: scoped(form) });
+      expect(hook(own)).toEqual(own);
+
+      const outer = { description: "Request" };
+      const expected = {
+        description: "Request",
+        title: "Form",
+        "x-side": "client",
+        anyOf: scoped({ ...form, ...message }),
+      };
+      const modeRef = { $ref: "#/$defs/Mode" };
+      const messageRef = { $ref: "#/$defs/Message" };
+      const unionFirst = hook({ ...outer, allOf: [modeRef, messageRef] });
+      const unionLast = hook({ ...outer, allOf: [messageRef, modeRef] });
+      expect(unionFirst).toEqual(expected);
+      expect(unionLast).toEqual(expected);
+      expect(hook(unionFirst)).toEqual(expected);
+
+      // Without outer annotations the later member wins the conflicting description, as between objects.
+      expect(hook({ allOf: [modeRef, messageRef] })).toEqual({ ...expected, description: "Message part" });
+      expect(hook({ allOf: [messageRef, modeRef] })).toEqual({ ...expected, description: "Form mode" });
+    })
+  );
+
   it.effect("keeps annotation-only references and rejects conflicting intersections", () =>
     Effect.gen(function* () {
       const definitions: JsonSchema.Definitions = {

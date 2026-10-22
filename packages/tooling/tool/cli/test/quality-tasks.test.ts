@@ -1167,6 +1167,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const lanes = githubCheckCheapGateLanes("/repo");
 
       expect(A.map(lanes, (lane) => lane.id)).toEqual([
+        "version-sync:check-runtime",
         "quality:cache-policy",
         "goals:index-check",
         "explore:atlas-check",
@@ -1186,6 +1187,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "fallow:audit",
         "fallow:dead-code",
         "fallow:health",
+      ]);
+      expect(qualityLaneArgs(lanes, "version-sync:check-runtime")).toEqual([
+        "run",
+        "beep",
+        "version-sync",
+        "--check-runtime",
       ]);
       expect(A.every(lanes, (lane) => lane.wave === "preflight")).toBe(true);
       expect(A.map(githubCheckLanePlan.githubCheckLaneWaves(lanes), (wave) => wave.wave)).toEqual(["preflight"]);
