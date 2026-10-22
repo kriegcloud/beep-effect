@@ -107,13 +107,14 @@ export type LegalRelatorViewKind = typeof LegalRelatorViewKind.Type;
  * import { LegalPositionRelatorView } from "@beep/law-practice-use-cases/LegalPositionRelatorPolicy"
  * import { HohfeldPosition, LegalActContent, LegalRole, PartyKind, SourceNormRef } from "@beep/law-practice-domain"
  * import * as LawPractice from "@beep/shared-domain/identity/LawPractice"
+ * import * as Party from "@beep/shared-domain/identity/Party"
  * import * as HashSet from "effect/HashSet"
  *
  * const role = (name: string, player: number) =>
  *   LegalRole.make({
  *     admittedPlayerKinds: HashSet.make(PartyKind.Enum["natural-person"]),
  *     name,
- *     player: LawPractice.PartyId.make(player),
+ *     player: Party.PartyId.make(player),
  *     sourceNorm: SourceNormRef.make({ designation: "cl. 4.1" }),
  *   })
  *
