@@ -25,28 +25,12 @@
  * @since 0.0.0
  */
 import NodeModule from "node:module";
+import { dual } from "effect/Function";
 import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 
 const NativeAddonPrefix = "@duckdb/node-bindings-";
-
-/**
- * Resolve a specifier from a directory, throwing when it does not resolve.
- *
- * **Example** (Use Bun's resolver)
- *
- * ```ts
- * import type { ResolveFrom } from "../../src/NativeAddon.ts"
- *
- * const resolveFrom: ResolveFrom = (specifier, directory) => Bun.resolveSync(specifier, directory)
- * console.log(typeof resolveFrom) // "function"
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type ResolveFrom = (specifier: string, directory: string) => string;
 
 /**
  * Whether a module request names a DuckDB native addon.
@@ -95,8 +79,9 @@ export const executableDirectory = (executablePath: string): string => {
  *
  * **Details**
  *
- * The working directory never takes part: the lookup starts from the
- * directory of `executablePath`. `None` means the caller falls back to the
+ * The lookup checks only the exact addon path under `executablePath`'s
+ * directory; neither the working directory nor ancestor folders take part.
+ * `None` means the caller falls back to the
  * default resolution (`NODE_PATH`, then the working directory).
  *
  * **Example** (Resolve beside the executable)
@@ -108,26 +93,29 @@ export const executableDirectory = (executablePath: string): string => {
  * const resolved = resolveNativeAddon(
  *   "@duckdb/node-bindings-linux-x64/duckdb.node",
  *   "/opt/ext/practice-kg-mcp",
- *   (specifier, directory) => `${directory}node_modules/${specifier}`
+ *   () => true
  * )
  * console.log(O.getOrNull(resolved)) // "/opt/ext/node_modules/@duckdb/node-bindings-linux-x64/duckdb.node"
  * ```
  *
  * @param request - The specifier passed to `require`.
  * @param executablePath - Usually `process.execPath`.
- * @param resolveFrom - Resolver anchored at a directory; throws when absent.
+ * @param exists - Checks whether the exact executable-relative addon exists.
  * @returns The resolved file, or `None` for other requests or a missing addon.
  * @category use-cases
  * @since 0.0.0
  */
-export const resolveNativeAddon = (
-  request: string,
-  executablePath: string,
-  resolveFrom: ResolveFrom
-): O.Option<string> =>
-  isNativeAddonRequest(request)
-    ? O.liftThrowable(() => resolveFrom(request, executableDirectory(executablePath)))()
-    : O.none();
+export const resolveNativeAddon: {
+  (executablePath: string, exists: (path: string) => boolean): (request: string) => O.Option<string>;
+  (request: string, executablePath: string, exists: (path: string) => boolean): O.Option<string>;
+} = dual(3, (request: string, executablePath: string, exists: (path: string) => boolean): O.Option<string> => {
+  if (!isNativeAddonRequest(request)) {
+    return O.none();
+  }
+  const directory = executableDirectory(executablePath);
+  const candidate = `${directory === "." ? "./" : directory}node_modules/${request}`;
+  return exists(candidate) ? O.some(candidate) : O.none();
+});
 
 type ResolveFilename = (this: unknown, request: string, ...rest: ReadonlyArray<unknown>) => string;
 
@@ -164,9 +152,10 @@ export const installNativeAddonResolver = (): void => {
   installed = true;
   const resolver = NodeModule as unknown as ModuleResolver;
   const fallback = resolver._resolveFilename;
+  const require = NodeModule.createRequire(import.meta.url);
   resolver._resolveFilename = function (this: unknown, request: string, ...rest: ReadonlyArray<unknown>) {
     return O.getOrElse(
-      resolveNativeAddon(request, process.execPath, (specifier, directory) => Bun.resolveSync(specifier, directory)),
+      resolveNativeAddon(request, process.execPath, (path) => O.isSome(O.liftThrowable(require.resolve)(path))),
       () => fallback.call(this, request, ...rest)
     );
   };
