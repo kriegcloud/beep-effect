@@ -1418,9 +1418,7 @@ export const runSkillsRecover = Effect.fn("Skills.runSkillsRecover")(function* (
   return reports;
 });
 
-const reportRecoverError = Effect.fn("Skills.recoverCommand.reportError")(function* (error: {
-  readonly message: string;
-}) {
+const reportRecoverError = Effect.fn("Skills.reportRecoverError")(function* (error: { readonly message: string }) {
   const message = `skills:recover: ${error.message}`;
   yield* Console.error(message);
   return yield* failWithReportedExit(message);
