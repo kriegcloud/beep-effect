@@ -101,6 +101,18 @@ describe("appendStderrTail", () => {
 
 describe("collectStderrTail", () => {
   it.effect(
+    "omits a truncated partial line and leaves an exit error unchanged without an excerpt",
+    Effect.fnUntraced(function* () {
+      const collector = yield* collectStderrTail(bytes(Str.repeat(ACP_STDERR_TAIL_MAX_CHARS + 1)("x")));
+      yield* collector.drained;
+      assert.isTrue((yield* collector.tail).truncated);
+      assertNone(yield* collector.excerpt);
+      const exited = AcpError.AcpProcessExitedError.make({ code: O.some(1) });
+      assert.strictEqual(yield* withStderrExcerpt(collector)(exited), exited);
+    })
+  );
+
+  it.effect(
     "collects the sanitized excerpt after the stream drains",
     Effect.fnUntraced(function* () {
       const collector = yield* collectStderrTail(bytes("fatal: config ", "/owned/profile/.agent missing\n"), {

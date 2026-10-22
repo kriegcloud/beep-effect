@@ -248,9 +248,7 @@ const decoder = new TextDecoder();
 
 const trimOutputStart = (buffer: OutputBuffer, bytes: number): void => {
   let remaining = Math.min(bytes, buffer.bytes);
-  while (remaining > 0) {
-    const head = buffer.chunks[0];
-    if (head === undefined) return;
+  for (const head of A.copy(buffer.chunks)) {
     if (head.byteLength <= remaining) {
       buffer.chunks.shift();
       buffer.bytes -= head.byteLength;
@@ -258,7 +256,8 @@ const trimOutputStart = (buffer: OutputBuffer, bytes: number): void => {
     } else {
       buffer.chunks[0] = head.subarray(remaining);
       buffer.bytes -= remaining;
-      remaining = 0;
+      buffer.truncated = true;
+      break;
     }
     buffer.truncated = true;
   }
@@ -280,8 +279,8 @@ const readOutput = (buffer: OutputBuffer): string => {
     return offset + chunk.byteLength;
   });
   // Dropping leading continuation bytes lands a truncated buffer on a character boundary.
-  let start = 0;
-  while (buffer.truncated && start < combined.byteLength && isContinuationByte(combined[start] ?? 0)) start += 1;
+  const boundary = buffer.truncated ? combined.findIndex((byte) => !isContinuationByte(byte)) : 0;
+  const start = boundary < 0 ? combined.byteLength : boundary;
   return decoder.decode(combined.subarray(start));
 };
 
