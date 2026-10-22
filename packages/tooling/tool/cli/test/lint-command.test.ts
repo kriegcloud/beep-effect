@@ -12,6 +12,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -1409,7 +1410,7 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
           const inventory = yield* fs.readFileString("standards/schema-first.inventory.jsonc");
 
           expectReportedExit(exit);
-          expect(inventory.match(/"symbol": "default@\d+"/g)).toHaveLength(4);
+          expect(O.getOrNull(Str.match(/"symbol": "default@\d+"/g)(inventory))).toHaveLength(4);
           expect(inventory).not.toContain('"symbol": ""');
         })
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))

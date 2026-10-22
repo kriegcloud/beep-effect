@@ -1,9 +1,9 @@
-import type { StreamEnv } from "../env/index.ts";
-import { AudienceKind } from "../env/Audience.ts";
-import { ColorLevel } from "../env/ColorLevel.ts";
+import type { StreamEnv } from "@beep/runtime-env";
+import { AudienceKind } from "@beep/runtime-env/Audience";
+import { ColorLevel } from "@beep/runtime-env/ColorLevel";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { Audience, CurrentRuntimeEnv, TerminalEnv } from "../env/index.ts";
+import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import type * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";
 import type * as Stdio from "effect/Stdio";

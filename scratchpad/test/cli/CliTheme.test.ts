@@ -1,7 +1,7 @@
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import { TerminalEnv } from "../../effected/env/index.ts";
+import { TerminalEnv } from "@beep/runtime-env";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Prompt from "effect/cli/Prompt";

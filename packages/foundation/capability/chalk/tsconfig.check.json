@@ -3,6 +3,9 @@
   "extends": "./tsconfig.json",
   "references": [
     {
+      "path": "../runtime-env/tsconfig.json"
+    },
+    {
       "path": "../../modeling/identity/tsconfig.json"
     },
     {

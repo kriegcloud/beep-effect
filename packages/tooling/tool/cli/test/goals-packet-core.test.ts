@@ -113,7 +113,7 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
     });
 
     it("round-trips event file names and rejects non-CAS names", () => {
-      const digest = "a".repeat(64);
+      const digest = Str.repeat(64)("a");
       const parsed = parsePacketEventFileName(`00002-status-set-${digest}.json`);
       parsed.pipe(O.isSome, assertTrue);
       if (O.isSome(parsed)) {
@@ -422,7 +422,7 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             packet: "demo",
             root: "goals",
             seq: 2,
-            parent: "b".repeat(64),
+            parent: Str.repeat(64)("b"),
             expectedRevision: 1,
             at: "2026-08-17T00:01:00.000Z",
             actor: "test",
@@ -455,7 +455,7 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
                 packet: "demo",
                 root: "goals",
                 seq: 2,
-                parent: parentByte.repeat(64),
+                parent: Str.repeat(64)(parentByte),
                 expectedRevision: 1,
                 at,
                 actor: "test",
@@ -469,7 +469,7 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             }
           }
           const derived = foldPacketEvents({ packet: "demo", root: "goals", events });
-          expect(A.map(derived.forks, (fork) => fork.parent)).toStrictEqual(["a".repeat(64), "b".repeat(64)]);
+          expect(A.map(derived.forks, (fork) => fork.parent)).toStrictEqual([Str.repeat(64)("a"), Str.repeat(64)("b")]);
         }),
       20_000
     );
@@ -936,14 +936,14 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
           const packetPath = yield* fs.makeTempDirectoryScoped();
           const events = `${packetPath}/ops/events`;
           const { content } = yield* writeStoredEvent(events, genesisEvent("robust"));
-          const digest = "d".repeat(64);
+          const digest = Str.repeat(64)("d");
           yield* fs.writeFileString(`${events}/junk.json`, "{}");
           yield* fs.writeFileString(`${events}/00002-status-set-${digest}.json`, "not json at all");
           yield* fs.writeFileString(
-            `${events}/00003-status-set-${"e".repeat(64)}.json`,
+            `${events}/00003-status-set-${Str.repeat(64)("e")}.json`,
             '{"schemaVersion":"packet-event/v1"}'
           );
-          yield* fs.writeFileString(`${events}/00004-status-set-${"f".repeat(64)}.json`, content);
+          yield* fs.writeFileString(`${events}/00004-status-set-${Str.repeat(64)("f")}.json`, content);
 
           const listing = yield* store.list(PacketStreamLocator.make({ packet: "robust", root: "goals", packetPath }));
           expect(A.length(listing.events)).toBe(1);
@@ -988,7 +988,7 @@ it.layer(testLayer, { concurrent: false, timeout: "20 seconds" })((it) => {
             packet: "robust",
             root: "goals",
             seq: 2,
-            parent: "a".repeat(64),
+            parent: Str.repeat(64)("a"),
             expectedRevision: 1,
             at: "2026-08-17T00:01:00.000Z",
             actor: "test",

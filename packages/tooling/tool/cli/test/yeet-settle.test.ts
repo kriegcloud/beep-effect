@@ -77,6 +77,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 
@@ -658,7 +659,7 @@ describe("B7 settle contracts", () => {
     ["success", 0, '[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"Lint"}]}}]'],
     ["exit", 1, "denied"],
     ["invalid", 0, "{"],
-    ["truncated", 0, " ".repeat(3_000_000)],
+    ["truncated", 0, Str.repeat(3_000_000)(" ")],
   ] as const) {
     it.effect(`ruleset reader ${label}`, () =>
       Effect.gen(function* () {

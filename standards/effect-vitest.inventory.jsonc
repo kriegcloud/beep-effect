@@ -3906,15 +3906,15 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/codegen-command.test.ts:75:provideScopedLayer@27#1",
+      "id": "EV002:packages/tooling/tool/cli/test/codegen-command.test.ts:76:provideScopedLayer@27#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/codegen-command.test.ts",
-      "line": 75,
-      "endLine": 75,
+      "line": 76,
+      "endLine": 76,
       "symbol": "provideScopedLayer",
-      "occurrence": "v2:fc42990324421f0cdb45c6886a087c9b72874feb846f395dc07859e07282b790",
+      "occurrence": "v2:3b15823ab052ea371aeb494b2ec2da2d230c610538f20966f8aeff0462aced70",
       "class": "unresolved-layer-provide",
       "evidence": "provideScopedLayer(testLayer)",
       "replacement": {
@@ -13734,15 +13734,15 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/codegen-command.test.ts:75:scoped@12#1",
+      "id": "EV004:packages/tooling/tool/cli/test/codegen-command.test.ts:76:scoped@12#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/codegen-command.test.ts",
-      "line": 75,
-      "endLine": 75,
+      "line": 76,
+      "endLine": 76,
       "symbol": "scoped",
-      "occurrence": "v2:fc42990324421f0cdb45c6886a087c9b72874feb846f395dc07859e07282b790",
+      "occurrence": "v2:3b15823ab052ea371aeb494b2ec2da2d230c610538f20966f8aeff0462aced70",
       "class": "helper-scope-lifetime-review",
       "evidence": "Effect.scoped",
       "replacement": {
@@ -33979,15 +33979,15 @@
       "reason": "The registered layer contains only fixed platform service factories. All fake handles, Deferreds, Refs, console effects and temporary paths are allocated inside the individual test. excludeTestServices is set only on the original live cases; controlled TestClock cases retain test services. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
     },
     {
-      "id": "EV014:packages/tooling/tool/cli/test/sync-data-to-ts.test.ts:1075:it.layer@0#1",
+      "id": "EV014:packages/tooling/tool/cli/test/sync-data-to-ts.test.ts:1076:it.layer@0#1",
       "lens": "resource",
       "ruleId": "EV014",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/sync-data-to-ts.test.ts",
-      "line": 1075,
-      "endLine": 1075,
+      "line": 1076,
+      "endLine": 1076,
       "symbol": "it.layer",
-      "occurrence": "v2:b7344a6673803245bdd94cddcf0340b0c59fa28f8fecd4ce9ea122eabba72418",
+      "occurrence": "v2:fb7851cd2a2128a9af9bc9200cca21ca14c79e362bee7a4ea2265424e3f9a5e0",
       "class": "resource-layer-without-hook-timeout",
       "evidence": "it.layer(CommandTestLayer)",
       "replacement": {
@@ -34294,7 +34294,7 @@
       "line": 1895,
       "endLine": 1895,
       "symbol": "it.layer",
-      "occurrence": "v2:0e4276cce9d6c7d4f3906bcf63e6206bebc7900294730db90b924f55b682ec2b",
+      "occurrence": "v2:9560dd289ab712c3ebb0f4db2bb9cbacf085e10c0610d31747b09c7ace2f13b6",
       "class": "resource-layer-without-hook-timeout",
       "evidence": "it.layer(testLayer)",
       "replacement": {

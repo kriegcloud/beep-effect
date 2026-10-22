@@ -5,8 +5,8 @@ import * as A from "effect/Array";
 // @effect-diagnostics strictEffectProvide:skip-file
 import * as Data from "effect/Data";
 import { assert, describe, it } from "@effect/vitest";
-import type { AudienceKind, StreamEnv } from "../../effected/env/index.ts";
-import { Audience, TerminalEnv } from "../../effected/env/index.ts";
+import type { AudienceKind, StreamEnv } from "@beep/runtime-env";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";

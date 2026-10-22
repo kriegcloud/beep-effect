@@ -1042,9 +1042,11 @@ const salvageClippedJsonArray = (text: string): string => {
     const char = scanned[index] ?? Str.empty;
     scan = scan.inString ? scanStringChar(scan, char) : scanStructuralChar(scan, char, index);
     // The outermost array closed: the document is whole up to here.
-    if (scan.depth === 0 && scan.lastComplete === index + 1) return scanned.slice(0, index + 1);
+    if (scan.depth === 0 && scan.lastComplete === index + 1) return Str.slice(0, index + 1)(scanned);
   }
-  return scan.lastComplete === 0 ? "[]" : `${scanned.slice(0, scan.lastComplete)}${Str.repeat(scan.closeDepth)("]")}`;
+  return scan.lastComplete === 0
+    ? "[]"
+    : `${Str.slice(0, scan.lastComplete)(scanned)}${Str.repeat(scan.closeDepth)("]")}`;
 };
 
 /**

@@ -6,8 +6,8 @@ import * as Path from "effect/Path";
 // @effect-diagnostics strictEffectProvide:skip-file
 import * as Data from "effect/Data";
 import { assert, describe, it } from "@effect/vitest";
-import type { AudienceKind } from "../../effected/env/index.ts";
-import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "../../effected/env/index.ts";
+import type { AudienceKind } from "@beep/runtime-env";
+import { Audience, CurrentRuntimeEnv, RuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import type * as FileSystem from "effect/FileSystem";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -22,6 +22,7 @@ import * as Runtime from "effect/Runtime";
 import type { CliLogFile, CliLoggerOptions } from "../../effected/cli/index.ts";
 import { CliLog, CliLogger, CliRuntime } from "../../effected/cli/index.ts";
 import { LINE_BREAK, isCommand } from "./helpers/runnerCommands.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 
 const platformServices = Layer.mergeAll(
 	Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {}),
@@ -491,7 +492,7 @@ it.layer(platformServices, { timeout: "30 seconds" })((it) => {
 
 	describe("CliLog.layer format follows the audience in force for each record", () => {
 		const inside = (kind: AudienceKind) =>
-			Effect.logInfo("hello").pipe(Effect.provideService(Audience, { kind, source: "flag" }));
+			Effect.logInfo("hello").pipe(Effect.provideService(Audience, AudienceShape.make({ kind, source: "flag" })));
 
 		it.effect("a human terminal with --agent in force gets NDJSON for records logged inside the flagged scope", () =>
 			Effect.gen(function* () {

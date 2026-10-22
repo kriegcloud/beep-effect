@@ -1,5 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
-import { CurrentRuntimeEnv } from "../../env/index.ts";
+import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import type * as Fiber from "effect/Fiber";
 import * as Context from "effect/Context";
 import * as O from "effect/Option";

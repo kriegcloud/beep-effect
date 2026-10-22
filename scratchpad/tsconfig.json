@@ -59,6 +59,9 @@
       "path": "../packages/foundation/capability/nlp-processing/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/capability/runtime-env/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/capability/semantic-web/tsconfig.json"
     },
     {

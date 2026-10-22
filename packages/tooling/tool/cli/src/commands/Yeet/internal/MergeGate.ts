@@ -574,7 +574,7 @@ const structuralHold = ({ read, options }: MergeGateInput): O.Option<MergeGateHo
       !sameHead(options.wantSha, read.headSha),
       read.prNumber,
       "head-moved",
-      `head is ${read.headSha.slice(0, 10)}, caller saw ${options.wantSha.slice(0, 10)}`
+      `head is ${Str.slice(0, 10)(read.headSha)}, caller saw ${Str.slice(0, 10)(options.wantSha)}`
     ),
     holdWhen(read.draft, read.prNumber, "draft", "still draft; the owner flips ready at content-final"),
     holdWhen(
@@ -864,7 +864,7 @@ const suffixed = (lists: ReadonlyArray<string>): string =>
   );
 
 const renderMerge = (decision: MergeGateMerge): string => {
-  const met = `at ${decision.headSha.slice(0, 10)} (window ${decision.windowAgeSeconds}s)`;
+  const met = `at ${Str.slice(0, 10)(decision.headSha)} (window ${decision.windowAgeSeconds}s)`;
   return decision.relaxed
     ? `#${decision.prNumber} GATE-MET (S11) ${met}${suffixed(atMergeLists(decision.atMerge))}`
     : `#${decision.prNumber} GATE-MET ${met}${suffixed(A.getSomes([attributedList("tolerated", decision.tolerated)]))}`;
@@ -1193,7 +1193,7 @@ const warnAfterMerge = (what: string) => (error: YeetCommandError) =>
 const s11MergeComment = (decision: MergeGateMerge, merged: MergeGateMerged, windowForced: boolean): string =>
   A.join(
     [
-      `yeet merge-gate (S11): merged ${decision.headSha.slice(0, 10)} as ${merged.mergeSha.slice(0, 10)}.`,
+      `yeet merge-gate (S11): merged ${Str.slice(0, 10)(decision.headSha)} as ${Str.slice(0, 10)(merged.mergeSha)}.`,
       ...atMergeLists(decision.atMerge),
       `Merged under operator ruling S11 (AGENTS.md "Mergeable"): threads addressed, no conflict, ${
         windowForced ? "review window forced (a fix that unblocks main)" : "review window elapsed"
@@ -1256,7 +1256,7 @@ const cancelMergedHeadRuns = Effect.fn("Yeet.cancelMergedHeadRuns")(function* (
   );
   yield* Effect.forEach(failures, warnAfterMerge("cancelling a leftover workflow run"), { discard: true });
   yield* Console.log(
-    `[yeet] cancelled ${A.length(cancelled)} of ${A.length(runIds)} active workflow run(s) on ${headSha.slice(0, 10)}`
+    `[yeet] cancelled ${A.length(cancelled)} of ${A.length(runIds)} active workflow run(s) on ${Str.slice(0, 10)(headSha)}`
   );
 });
 
@@ -1318,7 +1318,9 @@ export const runMergeGate = Effect.fn("Yeet.runMergeGate")(function* (
     return decision;
   }
   const merged = yield* executeMergeGate(context, decision);
-  yield* Console.log(`[yeet] MERGED #${merged.prNumber} -> ${merged.mergeSha.slice(0, 10)} "${merged.commitTitle}"`);
+  yield* Console.log(
+    `[yeet] MERGED #${merged.prNumber} -> ${Str.slice(0, 10)(merged.mergeSha)} "${merged.commitTitle}"`
+  );
   if (decision.relaxed) {
     yield* postS11MergeComment(context, decision, merged, options.forceWindow).pipe(
       Effect.catch(warnAfterMerge("the S11 merge comment"))

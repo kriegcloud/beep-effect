@@ -270,7 +270,7 @@ describe("pr-comment capsule", () => {
   });
 
   it("bounds the excerpt to about 200 characters, whitespace collapsed, with an ellipsis", () => {
-    const body = `First line.\n\n   Second   line.  ${"x".repeat(400)}`;
+    const body = `First line.\n\n   Second   line.  ${Str.repeat(400)("x")}`;
     const excerpt = O.map(
       yeetPrCommentCapsule(comment("reviewer", AFTER_SUBMIT, body), windowFor()),
       (value) => value.excerpt

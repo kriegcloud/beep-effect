@@ -152,7 +152,9 @@ const blockKindOf = (owner: Node): JSDocMigrateBlockKind => {
 const fileoverviewPreamblePattern = /^(?:#![^\n]*\n)?\s*$/;
 
 const indentBefore = (sourceText: string, start: number): string => {
-  const lineStart = sourceText.lastIndexOf("\n", start - 1) + 1;
+  let lineStart = Math.min(Math.max(0, start - 1), sourceText.length - 1);
+  while (lineStart >= 0 && sourceText[lineStart] !== "\n") lineStart--;
+  lineStart += 1;
   const prefix = Str.slice(lineStart, start)(sourceText);
   return /^[ \t]*$/.test(prefix) ? prefix : "";
 };
