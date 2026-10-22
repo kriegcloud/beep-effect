@@ -13,7 +13,7 @@ move the proof data root.
 ## Proof Runner Isolation
 
 - Created a dedicated Git worktree:
-  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+  `$HOME/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
 - Pinned it at commit
   `63c419721c735bfb860ccfa9bf1b31efbb23e33c`.
 - Kept it detached from a branch and locked it with Git worktree metadata:
@@ -21,13 +21,13 @@ move the proof data root.
 - Bootstrapped the worktree with `bun install --frozen-lockfile`.
 - Re-rendered and installed the workstation user timer so
   `beep-ai-metrics-forwarder.service` uses:
-  - `WorkingDirectory=/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
-  - `--data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics`
+  - `WorkingDirectory=$HOME/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+  - `--data-root .beep/ai-metrics`
   - `EnvironmentFile=%h/.config/beep/ai-metrics.env`
 - Preserved existing runtime secret values in `~/.config/beep/ai-metrics.env`;
   checked-in files still use only 1Password secret references.
 - Verified the installed service uses the proof worktree and original proof
-  data root, and does not pin `/home/elpresidank/.bun/bin/bun`.
+  data root, and does not pin `$HOME/.bun/bin/bun`.
 
 ## Isolation Evidence
 
@@ -54,7 +54,7 @@ move the proof data root.
     - Claude Code: `0` candidates, `0` included
     - OpenClaw: `0` candidates, `0` included
   - Parquet export:
-    `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/derived/parquet/forwarder-1778317519950`
+    `.beep/ai-metrics/derived/parquet/forwarder-1778317519950`
 - Phoenix health after isolation:
   - endpoint: `https://dankserver.tailc7c348.ts.net:8447/`
   - HTTP status: `200`
@@ -117,9 +117,9 @@ Backfill or broader source windows are deferred to P7 topology planning.
 The generated weekly report after isolation is:
 
 - Markdown:
-  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/reports/weekly-1777712918992-1778317718992.md`
+  `.beep/ai-metrics/reports/weekly-1777712918992-1778317718992.md`
 - JSON:
-  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/reports/weekly-1777712918992-1778317718992.json`
+  `.beep/ai-metrics/reports/weekly-1777712918992-1778317718992.json`
 
 Scorecard summary:
 
@@ -139,9 +139,9 @@ Record dated daily results in
 proof window can be closed.
 
 ```sh
-git -C /home/elpresidank/YeeBois/projects/beep-effect status --short --branch
-git -C /home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof status --short --branch
-git -C /home/elpresidank/YeeBois/projects/beep-effect worktree list --porcelain
+git -C $HOME/YeeBois/projects/beep-effect status --short --branch
+git -C $HOME/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof status --short --branch
+git -C $HOME/YeeBois/projects/beep-effect worktree list --porcelain
 
 systemctl --user list-timers beep-ai-metrics-forwarder.timer --no-pager
 systemctl --user show beep-ai-metrics-forwarder.service \
@@ -150,7 +150,7 @@ systemctl --user show beep-ai-metrics-forwarder.service \
 systemctl --user cat beep-ai-metrics-forwarder.service --no-pager
 
 jq '{ingestRunId,configSnapshotId,sourceFileCount,turnCount,sourceCoverage,parquetExportDir}' \
-  /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/forwarder/status/latest.json
+  .beep/ai-metrics/forwarder/status/latest.json
 
 curl -kIs --max-time 10 https://dankserver.tailc7c348.ts.net:8447/ | sed -n '1,12p'
 
@@ -162,7 +162,7 @@ bun run beep ai-metrics sources discover \
 
 bun run beep ai-metrics label queue \
   --target dankserver \
-  --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics \
+  --data-root .beep/ai-metrics \
   --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' \
   --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' \
   --json \
@@ -170,7 +170,7 @@ bun run beep ai-metrics label queue \
 
 bun run beep ai-metrics benchmark case list \
   --target dankserver \
-  --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics \
+  --data-root .beep/ai-metrics \
   --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' \
   --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' \
   --json
@@ -185,7 +185,7 @@ After the proof window, generate the final report:
 ```sh
 bun run beep ai-metrics report weekly \
   --target dankserver \
-  --data-root /home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics \
+  --data-root .beep/ai-metrics \
   --hash-salt-secret-ref 'op://TBK/ai-metrics/hash-salt' \
   --raw-archive-key-secret-ref 'op://TBK/ai-metrics/raw-archive-key' \
   --json

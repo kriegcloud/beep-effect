@@ -2,8 +2,8 @@
 # Persistent privileged session: ONE YubiKey tap arms a pty whose sudo ticket
 # stays warm; subsequent commands are fed in over a FIFO and run inside it.
 set -uo pipefail
-FIFO=/home/elpresidank/.cache/beep-sudo-session.fifo
-LOG=/home/elpresidank/.cache/beep-sudo-session.log
+FIFO=$HOME/.cache/beep-sudo-session.fifo
+LOG=$HOME/.cache/beep-sudo-session.log
 : > "$LOG"
 rm -f "$FIFO"; mkfifo -m 600 "$FIFO"
 

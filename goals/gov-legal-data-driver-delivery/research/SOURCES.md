@@ -27,7 +27,7 @@ session; extended during P0.
 
 ## 1. Donor SDK corpus (reference implementations)
 
-Local checkout: `/home/elpresidank/YeeBois/research/law_stuff/repos/us-legal-tools`
+Local checkout: `$HOME/YeeBois/research/law_stuff/repos/us-legal-tools`
 (github.com/beshkenadze/us-legal-tools, MIT). All four SDKs are Orval v7
 codegen over committed specs (axios SDK + fetch/zod MCP). **Port discipline:
 take the committed specs and API-shape knowledge with attribution; never port

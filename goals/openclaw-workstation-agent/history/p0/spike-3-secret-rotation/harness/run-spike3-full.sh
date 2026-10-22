@@ -4,8 +4,8 @@
 # Cleanup consumes the credential by design, so the whole cycle must run once
 # per installed token.
 set -uo pipefail
-H=/home/elpresidank/YeeBois/projects/beep-effect3/.beep/p0-orchestration/spike3
-OUT=/home/elpresidank/.cache/beep-p0-spike3-run
+H=$HOME/YeeBois/projects/beep-effect3/.beep/p0-orchestration/spike3
+OUT=$HOME/.cache/beep-p0-spike3-run
 ROOT=/etc/beep/openclaw-spike
 CRED="$ROOT/op-service-account-token"
 PARK=/etc/beep/.op-token-parked
@@ -17,7 +17,7 @@ sudo -n test -f "$CRED" || { echo "FATAL: credential absent at $CRED — operato
 sudo -n mv -f "$CRED" "$PARK" && sudo -n chown root:root "$PARK" && sudo -n chmod 0400 "$PARK"
 sudo -n rmdir "$ROOT" 2>/dev/null || { sudo -n find "$ROOT" -mindepth 1 | head -5; echo "FATAL: spike root not empty"; exit 1; }
 
-export SPIKE_P="$(mktemp -d /home/elpresidank/.cache/beep-p0-spike3.XXXXXX)"
+export SPIKE_P="$(mktemp -d $HOME/.cache/beep-p0-spike3.XXXXXX)"
 export SPIKE_OP_REF='op://beep-p0-spike3/spike3-rotating/password'
 # assertion 3 requires BOTH a model completion and a Telegram probe tied to
 # the rotation event; without these two the a3 leg reports ASSERT-BLOCKED

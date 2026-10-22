@@ -36,6 +36,6 @@ stick; recycle-bin-recovered PSTs in `~/Documents/$RE5ARTA/` and
 - USPTO Open Data Portal (P4 enrichment APIs).
 - libpff / `pffexport` tooling (P2 PST extraction).
 - Apache Tika (P2 document text/metadata extraction).
-- Research corpus at `/home/elpresidank/YeeBois/ontology_research/` —
+- Research corpus at `$HOME/YeeBois/ontology_research/` —
   background for downstream packets; explicitly not processed by this
   pipeline.

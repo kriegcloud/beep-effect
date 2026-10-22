@@ -3,7 +3,7 @@
 stop rc=0
 disable rc=0
 --- 2. remove unit file ---
-removed '/home/elpresidank/.config/systemd/user/openclaw-spike.service'
+removed '$HOME/.config/systemd/user/openclaw-spike.service'
 --- 3. daemon-reload ---
 daemon-reload rc=0
 reset-failed done

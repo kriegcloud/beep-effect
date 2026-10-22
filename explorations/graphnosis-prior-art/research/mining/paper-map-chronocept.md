@@ -1,8 +1,8 @@
 # Chronocept → beep-effect mapping: searches and raw evidence
 
 Source note: `/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect15/83275b25-e475-41f9-8451-e7d3f3d78d00/scratchpad/graphnosis/paper-chronocept.md`
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean)
-Sibling repo checked: `/home/elpresidank/YeeBois/dev/Graphnosis`
+Repo: `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean)
+Sibling repo checked: `$HOME/YeeBois/dev/Graphnosis`
 Date: 2026-08-06
 
 Note on output artifact: several `rg` runs in this session had the matched
@@ -303,7 +303,7 @@ Chronocept Table 11: Exponential RMSE 0.21–0.27 across all six scenarios vs
 
 The sibling repo being mined ships exactly that heuristic:
 
-`/home/elpresidank/YeeBois/dev/Graphnosis/src/core/optimization/reflection.ts:262-292`
+`$HOME/YeeBois/dev/Graphnosis/src/core/optimization/reflection.ts:262-292`
 ```ts
 /**
  * Decay confidence of nodes not accessed recently. Exported for callers that mean it.
@@ -323,7 +323,7 @@ export function decayConfidence(graph: KnowledgeGraph): number {
 Off by default, and their own docstring (`reflection.ts:27-40`) says it
 "compounds on every pass" and "measured **age, not disuse**".
 
-`rg -rn -i "chronocept" /home/elpresidank/YeeBois/dev/Graphnosis` → no output.
+`rg -rn -i "chronocept" $HOME/YeeBois/dev/Graphnosis` → no output.
 Nothing in Graphnosis implements a Chronocept-shaped temporal object.
 
 beep has no equivalent (see §D — `staleness|decay|half-life` is empty in the

@@ -1,5 +1,5 @@
 ### LANE N3b-identity-hostname (2026-07-26T04:39:41Z)
-### COMMAND: setsid -w env -i HOME=/home/elpresidank USER=elpresidank LOGNAME=elpresidank PATH=/usr/bin:/bin SPIKE_TARGET_USER=elpresidank SPIKE_EXPECTED_IDENTITY=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/expected-identity-mutated-hostname.json SPIKE_STATE_DIR=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/throwaway-state bash /tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/applicator.sh
+### COMMAND: setsid -w env -i HOME=$HOME USER=elpresidank LOGNAME=elpresidank PATH=/usr/bin:/bin SPIKE_TARGET_USER=elpresidank SPIKE_EXPECTED_IDENTITY=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/expected-identity-mutated-hostname.json SPIKE_STATE_DIR=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/throwaway-state bash /tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/applicator.sh
 
 
 === step 0: non-interactive context probe ===
@@ -11,7 +11,7 @@
 [04:39:41Z] DBUS_SESSION_BUS_ADDRESS inherited? <unset>
 
 === step 1: resolve target identity from the OS (not from env) ===
-[04:39:41Z] user=elpresidank uid=1000 home=/home/elpresidank
+[04:39:41Z] user=elpresidank uid=1000 home=$HOME
 [04:39:41Z] hostname=DankStation machine_id_sha256=90bdffbb<sha256-redacted>
 
 === step 2: linger ownership check ===
@@ -38,14 +38,14 @@
     |   "hostname": "DankStation",
     |   "uid": 1000,
     |   "user": "elpresidank",
-    |   "home": "/home/elpresidank",
+    |   "home": "$HOME",
     |   "runtime_dir": "/run/user/1000",
     |   "bus_address": "unix:path=/run/user/1000/bus"
     | }
 [04:39:41Z] expected identity tuple (/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/expected-identity-mutated-hostname.json):
     | {
     |   "bus_address": "unix:path=/run/user/1000/bus",
-    |   "home": "/home/elpresidank",
+    |   "home": "$HOME",
     |   "hostname": "SomeOtherHost",
     |   "machine_id_sha256": "90bdffbb<sha256-redacted>",
     |   "runtime_dir": "/run/user/1000",

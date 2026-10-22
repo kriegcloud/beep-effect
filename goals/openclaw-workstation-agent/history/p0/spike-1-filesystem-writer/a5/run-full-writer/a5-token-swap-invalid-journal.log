@@ -8,7 +8,7 @@ Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.308
 Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.366-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.695-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.696-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 0.6s)
-Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.697-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
+Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.697-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
 Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.698-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.721-05:00 [gateway] starting channels and sidecars...
 Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.769-05:00 [gateway] ready
@@ -16,7 +16,7 @@ Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.779
 Jul 25 21:19:13 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:13.811-05:00 [gateway] failed to promote config last-known-good backup: Error: EACCES: permission denied, open '/etc/beep/openclaw-spike/current/openclaw.json.last-good'
 Jul 25 21:19:14 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:14.099-05:00 [telegram] [default] starting provider (@beep_ip_bot)
 Jul 25 21:19:14 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:14.287-05:00 [telegram] menu text exceeded the conservative 5700-character payload budget; shortening descriptions to keep 70 commands visible.
-Jul 25 21:19:14 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:14.615-05:00 [telegram] [diag] isolated polling ingress started spool=/home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
+Jul 25 21:19:14 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:14.615-05:00 [telegram] [diag] isolated polling ingress started spool=$HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
 Jul 25 21:19:17 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:17.607-05:00 [ws] ⇄ res ✓ channels.status 575ms conn=477078d8…af7f id=c1074016…2bd4
 Jul 25 21:19:23 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:19:23.806-05:00 [gateway] agent runtime plugins pre-warmed in 37ms
 Jul 25 21:26:27 DankStation unit-entrypoint.sh[2095721]: 2026-07-25T21:26:27.606-05:00 [telegram] skipping Telegram target writeback for telegram:@p0_spike1_jul25 because gateway caller is missing operator.admin
@@ -40,7 +40,7 @@ Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.332
 Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.378-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.667-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.668-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 0.5s)
-Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.669-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
+Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.669-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
 Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.669-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.702-05:00 [gateway] starting channels and sidecars...
 Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.751-05:00 [gateway] ready
@@ -48,7 +48,7 @@ Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.760
 Jul 25 21:26:31 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:31.788-05:00 [gateway] failed to promote config last-known-good backup: Error: EACCES: permission denied, open '/etc/beep/openclaw-spike/current/openclaw.json.last-good'
 Jul 25 21:26:32 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:32.078-05:00 [telegram] [default] starting provider (@beep_ip_bot)
 Jul 25 21:26:32 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:32.226-05:00 [telegram] menu text exceeded the conservative 5700-character payload budget; shortening descriptions to keep 70 commands visible.
-Jul 25 21:26:32 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:32.558-05:00 [telegram] [diag] isolated polling ingress started spool=/home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
+Jul 25 21:26:32 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:32.558-05:00 [telegram] [diag] isolated polling ingress started spool=$HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
 Jul 25 21:26:35 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:35.537-05:00 [telegram] skipping Telegram target writeback for telegram:@p0_spike1_jul25 because gateway caller is missing operator.admin
 Jul 25 21:26:36 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:36.212-05:00 [telegram] outbound send ok accountId=default chatId=-1004475923698 messageId=10 operation=sendMessage deliveryKind=text chunkCount=1
 Jul 25 21:26:36 DankStation unit-entrypoint.sh[2394468]: 2026-07-25T21:26:36.216-05:00 [ws] ⇄ res ✓ message.action 1086ms channel=telegram conn=be1740cc…a444 id=ce2f4546…f96b
@@ -70,7 +70,7 @@ Jul 25 21:26:38 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:38.923
 Jul 25 21:26:38 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:38.967-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.246-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.248-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 0.5s)
-Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.263-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
+Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.263-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
 Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.265-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.285-05:00 [gateway] starting channels and sidecars...
 Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.333-05:00 [gateway] ready
@@ -78,12 +78,12 @@ Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.343
 Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.366-05:00 [gateway] failed to promote config last-known-good backup: Error: EACCES: permission denied, open '/etc/beep/openclaw-spike/current/openclaw.json.last-good'
 Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.660-05:00 [telegram] [default] starting provider (@beep_ip_bot)
 Jul 25 21:26:39 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:39.824-05:00 [telegram] menu text exceeded the conservative 5700-character payload budget; shortening descriptions to keep 70 commands visible.
-Jul 25 21:26:40 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:40.156-05:00 [telegram] [diag] isolated polling ingress started spool=/home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
+Jul 25 21:26:40 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:40.156-05:00 [telegram] [diag] isolated polling ingress started spool=$HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
 Jul 25 21:26:42 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:42.224-05:00 [ws] ⇄ res ✓ channels.status 560ms conn=4e22bfe8…326d id=ebeb0a59…70ff
 Jul 25 21:26:44 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:44.761-05:00 [ws] ⇄ res ✓ channels.status 553ms conn=1b089686…a293 id=13222176…8525
 Jul 25 21:26:48 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:48.536-05:00 [telegram] [default] starting provider (@beep_ip_bot)
 Jul 25 21:26:48 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:48.560-05:00 [telegram] menu text exceeded the conservative 5700-character payload budget; shortening descriptions to keep 70 commands visible.
-Jul 25 21:26:48 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:48.886-05:00 [telegram] [diag] isolated polling ingress started spool=/home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
+Jul 25 21:26:48 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:48.886-05:00 [telegram] [diag] isolated polling ingress started spool=$HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
 Jul 25 21:26:49 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:49.364-05:00 [gateway] agent runtime plugins pre-warmed in 31ms
 Jul 25 21:26:50 DankStation unit-entrypoint.sh[2396427]: 2026-07-25T21:26:50.755-05:00 [ws] ⇄ res ✓ channels.status 560ms conn=346e6208…5bc3 id=70750131…7b95
 Jul 25 21:26:51 DankStation systemd[12144]: Stopping OpenClaw P0 spike 1 gateway (disposable)...
@@ -104,7 +104,7 @@ Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.397
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.437-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.713-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.714-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 0.5s)
-Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.714-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
+Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.714-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.715-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.738-05:00 [gateway] starting channels and sidecars...
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.786-05:00 [gateway] ready

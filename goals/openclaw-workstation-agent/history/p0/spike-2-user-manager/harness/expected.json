@@ -3,6 +3,6 @@
   "hostname": "DankStation",
   "uid": "1000",
   "user": "elpresidank",
-  "home": "/home/elpresidank",
+  "home": "~",
   "runtimeDir": "/run/user/1000"
 }

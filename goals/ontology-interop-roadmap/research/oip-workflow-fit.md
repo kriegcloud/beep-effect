@@ -7,8 +7,8 @@ This is draft research context, not legal advice.
 ## Sources
 
 - Baseline scratch:
-  `/home/elpresidank/.config/JetBrains/WebStorm2026.2/scratches/PROMPTS/jun-4-2026__LEGAL_AI_STACK_ONTOLOGY_RESEARCH___BASELINE_AGENT_CONTEXT.md`
-- Corpus root: `/home/elpresidank/Documents/IP_ONTOLOGY_AI_RESEARCH`
+  `$HOME/.config/JetBrains/WebStorm2026.2/scratches/PROMPTS/jun-4-2026__LEGAL_AI_STACK_ONTOLOGY_RESEARCH___BASELINE_AGENT_CONTEXT.md`
+- Corpus root: `$HOME/Documents/IP_ONTOLOGY_AI_RESEARCH`
 - Corpus manifests:
   - `flatten_manifest_20260530t152515.json`
   - `rename_manifest_20260530t154325.json`

@@ -2,7 +2,7 @@
 
 ## Scope and bottom line
 
-This report analyzes the final tree at `BSL-drizzle` in `/home/elpresidank/YeeBois/projects/beep-effect-BSL-drizzle`. All `file:line` citations below are relative to that archive root. The dependency snapshot is Effect `^3.19.13`, `@effect/experimental` `^0.58.0`, `@effect/sql` `^0.49.0`, and Drizzle ORM `^0.45.1` (`package.json:109`, `package.json:172-180`, `package.json:367-370`).
+This report analyzes the final tree at `BSL-drizzle` in `$HOME/YeeBois/projects/beep-effect-BSL-drizzle`. All `file:line` citations below are relative to that archive root. The dependency snapshot is Effect `^3.19.13`, `@effect/experimental` `^0.58.0`, `@effect/sql` `^0.49.0`, and Drizzle ORM `^0.45.1` (`package.json:109`, `package.json:172-180`, `package.json:367-370`).
 
 The experiment found a genuinely useful center: an Effect Schema remained the field definition, a symbol-keyed `ColumnDef` traveled with it, `@effect/sql/Model` variant fields were preserved, and a mapped output type projected encoded field types into a Drizzle `PgTable`. The best ideas are the single field source of truth, encoded-side nullability, and variant-aware database/API views (`packages/common/schema/src/integrations/sql/dsl/types.ts:853-888`, `packages/common/schema/src/integrations/sql/dsl/types.ts:1026-1053`, `packages/common/schema/src/integrations/sql/dsl/adapters/drizzle.ts:116-140`).
 

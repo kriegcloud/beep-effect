@@ -1,8 +1,8 @@
 # Mapping: Graphnosis agent/MCP surface findings → beep-effect
 
-Checkout: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `main` (`d1dfc4b3c1`), clean.
+Checkout: `$HOME/YeeBois/projects/beep-effect15` @ `main` (`d1dfc4b3c1`), clean.
 Source survey: `scratchpad/graphnosis/survey-agent-surface.md`.
-Source repo: `/home/elpresidank/YeeBois/dev/Graphnosis`.
+Source repo: `$HOME/YeeBois/dev/Graphnosis`.
 
 ## Environment friction (recorded per AGENTS.md friction law)
 

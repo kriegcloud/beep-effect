@@ -37,7 +37,7 @@ Suggested categories applied: interfaces/seed/fault structs `models`; mapped ali
 
 ## Residual risk
 
-- **Census bun run.** Mechanical rules from `scratchpad/.jsdoc-loop/census.ts` (`mechanicalExportFindings`, module fileoverview checks, grep for retired carriers) were applied to the three files. Re-run `/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts` and expect memfs `openModuleCount: 0` and `openOwningExportCount: 0`. A scoped slice is at `scratchpad/.jsdoc-loop/census-memfs-check.ts` (delete after the official census is green).
+- **Census bun run.** Mechanical rules from `scratchpad/.jsdoc-loop/census.ts` (`mechanicalExportFindings`, module fileoverview checks, grep for retired carriers) were applied to the three files. Re-run `$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts` and expect memfs `openModuleCount: 0` and `openOwningExportCount: 0`. A scoped slice is at `scratchpad/.jsdoc-loop/census-memfs-check.ts` (delete after the official census is green).
 - **Example TypeScript gate.** Fences were written to compile under `scratchpad/docgen.json` (`@beep/scratchpad/memfs`, no top-level `yield*`, `Effect.runPromise` + `console.log`). They were not executed through `bun run docgen:local`.
 - **Runtime identifier.** `Context.Service("@effected/memfs/MemoryFileSystemVolume")` is unchanged (not JSDoc).
 

@@ -3,7 +3,7 @@
 ## Outcome
 
 Real extraction ran over every unique-digest artifact in `raw/` via
-`bun run beep corpus extract --corpus-root /home/elpresidank/data-home/oppold-corpus
+`bun run beep corpus extract --corpus-root $HOME/data-home/oppold-corpus
 --tika-jar ~/.local/share/tika/tika-app-3.3.1.jar --export-children
 --concurrency 4 --overwrite`. Output tree: `oppold-corpus/staging/extract/`
 (28 GB) with `run.json`, `coverage.json`, `sources.jsonl`, `failures.jsonl`,

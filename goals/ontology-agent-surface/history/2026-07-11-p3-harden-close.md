@@ -233,7 +233,7 @@ bun run beep yeet verify
 ### Canonical benchmark and ROBOT
 
 ```sh
-cd /home/elpresidank/YeeBois/projects/beep-effect8
+cd $HOME/YeeBois/projects/beep-effect8
 set -o pipefail
 bun run goals/ontology-agent-surface/ops/benchmark-stateless.ts 2>&1 | tee \
   goals/ontology-agent-surface/history/2026-07-11-p3-benchmark-host.log
@@ -248,7 +248,7 @@ the successful ROBOT output without secrets.
 ### Repaired socket and launched-sidecar client re-proof
 
 ```sh
-cd /home/elpresidank/YeeBois/projects/beep-effect8/apps/professional-desktop
+cd $HOME/YeeBois/projects/beep-effect8/apps/professional-desktop
 BEEP_TEST_ONTOLOGY_MCP_SOCKET=1 node ../../node_modules/vitest/vitest.mjs run \
   --config vitest.integration.config.ts \
   test/integration/ontology-mcp-http.test.ts
@@ -257,7 +257,7 @@ BEEP_TEST_ONTOLOGY_MCP_SOCKET=1 node ../../node_modules/vitest/vitest.mjs run \
 In terminal one:
 
 ```sh
-cd /home/elpresidank/YeeBois/projects/beep-effect8
+cd $HOME/YeeBois/projects/beep-effect8
 export BEEP_DESKTOP_RPC_SESSION_TOKEN="$(openssl rand -hex 32)"
 export CHAT_AGENT=fixture
 export CHAT_SIDECAR_PORT=3939
@@ -273,7 +273,7 @@ bun run --cwd apps/professional-desktop sidecar
 In terminal two, with the same exported bearer token available:
 
 ```sh
-cd /home/elpresidank/YeeBois/projects/beep-effect8
+cd $HOME/YeeBois/projects/beep-effect8
 set -o pipefail
 export ONTOLOGY_MCP_URL=http://127.0.0.1:3939/mcp
 export ONTOLOGY_MCP_ORIGIN=http://127.0.0.1:1421
@@ -288,7 +288,7 @@ Authorization value.
 ### Final quality and publication handoff
 
 ```sh
-cd /home/elpresidank/YeeBois/projects/beep-effect8
+cd $HOME/YeeBois/projects/beep-effect8
 gh pr view 383 --json url,state,mergeStateStatus,baseRefName,headRefName,statusCheckRollup
 (cd packages/ontology/use-cases && \
   node ../../../node_modules/vitest/vitest.mjs run \

@@ -97,9 +97,9 @@ Concrete live examples:
 
 | Repo-relative location | Matched text | Why live |
 | --- | --- | --- |
-| `.claude/skills/mcp-jetbrains/SKILL.md` | `/home/elpresidank/YeeBois/projects/beep-effect` | A skill tells an agent which project path to use |
-| `.claude/skills/claude-frontend-lane/SKILL.md` | `/home/elpresidank/YeeBois/projects/beep-effect2` | A machine-specific companion checkout is operational guidance |
-| `goals/ai-metrics-stack/ops/manifest.json` | `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof` | A manifest retains executable commands with a local worktree path |
+| `.claude/skills/mcp-jetbrains/SKILL.md` | `.` | A skill tells an agent which project path to use |
+| `.claude/skills/claude-frontend-lane/SKILL.md` | `$HOME/YeeBois/projects/beep-effect2` | A machine-specific companion checkout is operational guidance |
+| `goals/ai-metrics-stack/ops/manifest.json` | `$HOME/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof` | A manifest retains executable commands with a local worktree path |
 | `.claude/settings.json` | `~/.claude/memory/beep-effect` | Portable home convention, but still a lexical hit needing an exemption |
 | `.claude/skills/portless/SKILL.md` | `/tmp/portless` | Product documentation for a conventional temp directory |
 
@@ -107,7 +107,7 @@ Concrete archival examples:
 
 | Repo-relative location | Matched text | Why archival |
 | --- | --- | --- |
-| `goals/ontology-workbench/research/ontosphere-survey-report.md` | `/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere` | Source-checkout provenance in a survey report |
+| `goals/ontology-workbench/research/ontosphere-survey-report.md` | `$HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere` | Source-checkout provenance in a survey report |
 | `explorations/academia-corpus-mining/research/paper-catalog.jsonl` | `~/YeeBois/research/academia-2026-07` | Corpus-location provenance in a generated catalog |
 | `goals/openclaw-workstation-agent/history/p0/spike-2/logs/P1-positive-final.log` | `/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/.../scratchpad` | Literal captured proof log |
 

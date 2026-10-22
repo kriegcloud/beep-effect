@@ -1,6 +1,6 @@
 # Scratchpad JSDoc loop log
 
-- `repo_root`: `/home/elpresidank/YeeBois/projects/beep-effect8`
+- `repo_root`: `$HOME/YeeBois/projects/beep-effect8`
 - `branch`: `api-ref-scratch`
 - `base_ref`: `origin/main`
 - `started`: 2026-08-27

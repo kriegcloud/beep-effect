@@ -1033,7 +1033,7 @@
           "goals/skillopt-training-pilot/history/p5-training/out/**"
         ],
         "verificationCommands": [
-          "! rg -n \"/home/elpresidank|YeeBois|/tmp/|/Users/|beep-effect2\" goals/skillopt-training-pilot --glob \"!**/.repos/**\""
+          "! rg -n \"~|YeeBois|/tmp/|/Users/|beep-effect2\" goals/skillopt-training-pilot --glob \"!**/.repos/**\""
         ]
       },
       "closeout": {
@@ -1360,7 +1360,7 @@
           "goals/chat-input-and-theming/research/seed/USER_PROMPT_INITIAL.md"
         ],
         "verificationCommands": [
-          "! rg -n \"/home/elpresidank|YeeBois|/tmp/|/Users/|beep-effect2\" goals/chat-input-and-theming/research/seed/USER_PROMPT_INITIAL.md"
+          "! rg -n \"~|YeeBois|/tmp/|/Users/|beep-effect2\" goals/chat-input-and-theming/research/seed/USER_PROMPT_INITIAL.md"
         ]
       },
       "closeout": {
@@ -1400,7 +1400,7 @@
         "summary": "Redacted the internal Tailnet service URL from the exploration README.",
         "changedFiles": ["explorations/solo-firm-docketing/README.md"],
         "verificationCommands": [
-          "! rg -n \"tailnet|ts.net|/home/elpresidank|YeeBois|/tmp/|/Users/|beep-effect2\" explorations/solo-firm-docketing/README.md"
+          "! rg -n \"tailnet|ts.net|~|YeeBois|/tmp/|/Users/|beep-effect2\" explorations/solo-firm-docketing/README.md"
         ]
       },
       "closeout": {
@@ -1570,7 +1570,7 @@
           "goals/skillopt-training-pilot/history/**/out*/**"
         ],
         "verificationCommands": [
-          "! rg -n \"/home/elpresidank|YeeBois|/tmp/|/Users/|beep-effect2\" goals/skillopt-training-pilot --glob \"!**/.repos/**\""
+          "! rg -n \"~|YeeBois|/tmp/|/Users/|beep-effect2\" goals/skillopt-training-pilot --glob \"!**/.repos/**\""
         ]
       },
       "closeout": {
@@ -1832,7 +1832,7 @@
           "explorations/identity-as-iri/research/repos/skygest.md"
         ],
         "verificationCommands": [
-          "! rg -n \"/home/elpresidank|YeeBois|/tmp/|/Users/|beep-effect2\" explorations/identity-as-iri --glob \"!**/.repos/**\""
+          "! rg -n \"~|YeeBois|/tmp/|/Users/|beep-effect2\" explorations/identity-as-iri --glob \"!**/.repos/**\""
         ]
       },
       "closeout": {

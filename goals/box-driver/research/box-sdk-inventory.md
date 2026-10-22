@@ -13,7 +13,7 @@ the exact generated type surface has drifted from the authoring estimates:
 `BoxClient` has 85 manager properties, the manager classes expose 347 public
 methods (346 `Promise` methods plus synchronous `events.getEventStream`), and
 `lib/schemas` contains 299 schema `.d.ts` files. The local source clone at
-`/home/elpresidank/YeeBois/dev/box-node-sdk` is on commit
+`$HOME/YeeBois/dev/box-node-sdk` is on commit
 `2e5fbf7c97635b1fe80817361615f8e6eb977ce0`, branch `main...origin/main`, and
 also reports package version `10.11.1`.
 
@@ -32,7 +32,7 @@ the full 347 non-deprecated method surface.
 - Installed version: `10.11.1` (`node_modules/box-node-sdk/package.json`)
 - Declared in `packages/drivers/box/package.json` as `box-node-sdk: catalog:`
   (root catalog pins `^10.11.1`).
-- Local source clone: `/home/elpresidank/YeeBois/dev/box-node-sdk`
+- Local source clone: `$HOME/YeeBois/dev/box-node-sdk`
   (`2e5fbf7c97635b1fe80817361615f8e6eb977ce0`, clean
   `main...origin/main`, version `10.11.1`). Use this clone as the primary
   source-code reference when the installed `.d.ts` needs implementation context.

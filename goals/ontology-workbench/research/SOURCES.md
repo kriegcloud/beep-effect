@@ -71,8 +71,8 @@ not its stack.
 
 | Repo | License | Port discipline | What we take |
 |------|---------|-----------------|--------------|
-| Ontology-Playground (local checkout: `/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/Ontology-Playground`) | MIT (`LICENSE`) | port-with-attribution | UI patterns per corpus table above |
-| ontosphere (local checkout: `/home/elpresidank/YeeBois/research/ontology_research/ontology_repos/ontosphere`; citable — `CITATION.cff`, ISWC 2026 paper in-repo) | Apache-2.0 (`LICENSE`) | port-with-attribution | Session/worker/validation disciplines, fixtures, and panel UX per `os-*` corpus rows; renderer/engine stack explicitly not taken. Its own `ACKNOWLEDGEMENTS.md` credits Konclude, Reactodia, N3.js, SHACL, ELK/Dagre, Comunica |
+| Ontology-Playground (local checkout: `$HOME/YeeBois/research/ontology_research/ontology_repos/Ontology-Playground`) | MIT (`LICENSE`) | port-with-attribution | UI patterns per corpus table above |
+| ontosphere (local checkout: `$HOME/YeeBois/research/ontology_research/ontology_repos/ontosphere`; citable — `CITATION.cff`, ISWC 2026 paper in-repo) | Apache-2.0 (`LICENSE`) | port-with-attribution | Session/worker/validation disciplines, fixtures, and panel UX per `os-*` corpus rows; renderer/engine stack explicitly not taken. Its own `ACKNOWLEDGEMENTS.md` credits Konclude, Reactodia, N3.js, SHACL, ELK/Dagre, Comunica |
 | cosmos.gl `@cosmos.gl/graph` (https://github.com/cosmosgl/graph) | MIT | dependency (wrapped in `packages/drivers/cosmos`) | WebGL2 GPU force sim + rendering |
 | sigma.js + graphology (https://www.sigmajs.org/) | MIT | dependency (fallback path) | WebGL renderer + worker layouts |
 | N3.js | MIT | dependency (wrapped in `packages/drivers/n3`) | Turtle parse/serialize |

@@ -52,7 +52,7 @@
     },
     {
       "path": "docs/BEEPGRAPH_ARCHITECTURE.md",
-      "find": "`beep` = `/home/elpresidank/YeeBois/projects/beep-effect/`",
+      "find": "`beep` = `~/YeeBois/projects/beep-effect/`",
       "replace": "`beep` = this repository's root",
       "count": 1,
       "note": "B1: the legend's `beep` prefix marks repo-relative paths, so the checkout prefix is redundant."
@@ -73,14 +73,14 @@
     },
     {
       "path": "docs/PROSE_TO_PROOF_ARCHITECTURE_MAP.md",
-      "find": "(`/home/elpresidank/data-home/oppold-corpus/`)",
+      "find": "(`~/data-home/oppold-corpus/`)",
       "replace": "(the machine-local Oppold corpus home, outside any checkout)",
       "count": 1,
       "note": "B4: the corpus has no public upstream, so it is named rather than pathed; the sentence's point is that it stays out of the repo."
     },
     {
       "path": "docs/PROSE_TO_PROOF_VISION.md",
-      "find": "(`/home/elpresidank/data-home/oppold-corpus/`)",
+      "find": "(`~/data-home/oppold-corpus/`)",
       "replace": "(the machine-local Oppold corpus home)",
       "count": 1,
       "note": "B4: same out-of-repo corpus, named instead of pathed."
@@ -157,7 +157,7 @@
     },
     {
       "path": "explorations/agent-chat-interface/DECISIONS.md",
-      "find": "`/home/elpresidank/YeeBois/projects/effect-lexical-chat/handoff-agent-chat-exploration.md`",
+      "find": "`~/YeeBois/projects/effect-lexical-chat/handoff-agent-chat-exploration.md`",
       "replace": "`handoff-agent-chat-exploration.md` from the effect-lexical-chat proof repo (machine-local checkout)",
       "count": 1,
       "note": "B4: effect-lexical-chat has no public upstream, so it is named and the handoff filename kept."
@@ -171,21 +171,21 @@
     },
     {
       "path": "explorations/agent-chat-interface/MAP.md",
-      "find": "`/home/elpresidank/YeeBois/projects/effect-lexical-chat/` (read-only",
+      "find": "`~/YeeBois/projects/effect-lexical-chat/` (read-only",
       "replace": "the effect-lexical-chat proof repo (machine-local checkout; read-only",
       "count": 1,
       "note": "B4: names the proof repo inline; the parenthetical about the effect catalog still closes correctly."
     },
     {
       "path": "explorations/agent-chat-interface/RESEARCH.md",
-      "find": "`/home/elpresidank/YeeBois/projects/effect-lexical-chat/` built the full",
+      "find": "`~/YeeBois/projects/effect-lexical-chat/` built the full",
       "replace": "the machine-local `effect-lexical-chat` checkout built the full",
       "count": 1,
       "note": "B4: names the proof repo; the section heading already identifies it."
     },
     {
       "path": "explorations/agent-chat-interface/RESEARCH.md",
-      "find": "`/home/elpresidank/YeeBois/projects/effect-lexical-chat/handoff-agent-chat-exploration.md`",
+      "find": "`~/YeeBois/projects/effect-lexical-chat/handoff-agent-chat-exploration.md`",
       "replace": "`handoff-agent-chat-exploration.md` in that checkout",
       "count": 1,
       "note": "B4: the preceding sentence just named the checkout, so the filename alone suffices."
@@ -199,42 +199,42 @@
     },
     {
       "path": "explorations/atlas-synthesis/CAPTURE.md",
-      "find": "(`/home/elpresidank/YeeBois/dev/trustgraph/ts/`)",
+      "find": "(`~/YeeBois/dev/trustgraph/ts/`)",
       "replace": "(https://github.com/trustgraph-ai/trustgraph/tree/main/ts)",
       "count": 1,
       "note": "B3: same upstream with the cited `ts/` sub-path preserved via /tree/main/."
     },
     {
       "path": "explorations/atlas-synthesis/CAPTURE.md",
-      "find": "(Python, `/home/elpresidank/YeeBois/dev/trustgraph/`)",
+      "find": "(Python, `~/YeeBois/dev/trustgraph/`)",
       "replace": "(Python, upstream: https://github.com/trustgraph-ai/trustgraph)",
       "count": 1,
       "note": "B3: trustgraph is a mirror of a public repo, so the canonical URL replaces the local clone path."
     },
     {
       "path": "explorations/atlas-synthesis/CAPTURE.md",
-      "find": "`/home/elpresidank/data-home/oppold-corpus/`",
+      "find": "`~/data-home/oppold-corpus/`",
       "replace": "[the machine-local Oppold corpus home]",
       "count": 1,
       "note": "B4 inside a verbatim operator quote; brackets mark the redaction so the quote is not silently reworded."
     },
     {
       "path": "explorations/atlas-synthesis/CAPTURE.md",
-      "find": "`/home/elpresidank/YeeBois/dev/text_editor_ui/lexical/*.md`",
+      "find": "`~/YeeBois/dev/text_editor_ui/lexical/*.md`",
       "replace": "machine-local lexical-clone `*.md`",
       "count": 1,
       "note": "The named reports are the user's own analysis files inside the lexical clone, not upstream lexical sources, so B3's github.com/facebook/lexical URL would misattribute them; the clone is named instead."
     },
     {
       "path": "explorations/atlas-synthesis/CAPTURE.md",
-      "find": "→ `/home/elpresidank/YeeBois/projects/effect-lexical-chat`",
+      "find": "→ `~/YeeBois/projects/effect-lexical-chat`",
       "replace": "→ the machine-local `effect-lexical-chat` checkout",
       "count": 1,
       "note": "B4: names the lineage step; the arrow chain still reads."
     },
     {
       "path": "explorations/atlas-synthesis/MAP.md",
-      "find": "`/home/elpresidank/YeeBois/projects/beep-effect3/packages`",
+      "find": "`~/YeeBois/projects/beep-effect3/packages`",
       "replace": "`packages/` in the beep-effect3 sibling checkout",
       "count": 1,
       "note": "B4: sibling clone named rather than pathed; the audit's scope (the packages tree) is preserved."
@@ -248,7 +248,7 @@
     },
     {
       "path": "explorations/computable-workspace-geometry/CAPTURE.md",
-      "find": "[here](/home/elpresidank/YeeBois/dev/pretext)",
+      "find": "[here](~/YeeBois/dev/pretext)",
       "replace": "here: the machine-local `pretext` clone (npm `@chenglou/pretext`)",
       "count": 1,
       "note": "The link destination is a machine path so the link text goes to prose; note B3's PreTeXtBook/pretext URL is a different project — this packet's pretext is `@chenglou/pretext`, a pure-TS text-measurement lib (RESEARCH.md line 9), so no URL is invented."
@@ -332,14 +332,14 @@
     },
     {
       "path": "explorations/full-document-editor/CAPTURE.md",
-      "find": "`/home/elpresidank/YeeBois/dev/text_editor_ui/lexical/packages/lexical-playground/`",
+      "find": "`~/YeeBois/dev/text_editor_ui/lexical/packages/lexical-playground/`",
       "replace": "`packages/lexical-playground` in a lexical checkout (upstream: https://github.com/facebook/lexical/tree/main/packages/lexical-playground)",
       "count": 1,
       "note": "B3: lexical is a public repo, so the cited sub-path resolves to the canonical GitHub tree URL."
     },
     {
       "path": "explorations/gov-legal-data-driver-codegen/RESEARCH.md",
-      "find": "against /home/elpresidank/YeeBois/projects/beep-effect on 2026-06-29",
+      "find": "against ~/YeeBois/projects/beep-effect on 2026-06-29",
       "replace": "against this repository on 2026-06-29",
       "count": 1,
       "note": "B1: the verification target is this repo, so the checkout prefix carries no information."
@@ -388,7 +388,7 @@
     },
     {
       "path": "explorations/legal-patent-kg-deepening/CAPTURE.md",
-      "find": "Corpus: `/home/elpresidank/YeeBois/research/legal-patent-ontology-knowledge-graph-and-related-research/`",
+      "find": "Corpus: `~/YeeBois/research/legal-patent-ontology-knowledge-graph-and-related-research/`",
       "replace": "Corpus: the machine-local `legal-patent-ontology-knowledge-graph-and-related-research` corpus",
       "count": 1,
       "note": "B4 out-of-repo research corpus named, not pathed; the inventory that follows is unchanged."
@@ -409,10 +409,10 @@
     },
     {
       "path": "explorations/openclaw-deployment-platform/CAPTURE.md",
-      "find": "`/home/elpresidank/ai/docs/workstation/AI_WORKSTATION_SPECS.md`.",
+      "find": "`~/ai/docs/workstation/AI_WORKSTATION_SPECS.md`.",
       "replace": "`AI_WORKSTATION_SPECS.md`, in the machine-local workstation docs outside this repo.",
       "count": 1,
-      "note": "B4 explicitly covers `/home/elpresidank/ai/docs/...`; document named, path dropped."
+      "note": "B4 explicitly covers `~/ai/docs/...`; document named, path dropped."
     },
     {
       "path": "explorations/openclaw-deployment-platform/CAPTURE.md",
@@ -493,14 +493,14 @@
     },
     {
       "path": "goals/agent-reflection-loop/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: this `beep-effect` checkout.",
       "count": 1,
       "note": "B1 checkout root with no repo-relative tail; the launcher means \"the repo you are in\"."
     },
     {
       "path": "goals/ai-metrics-stack/ops/handoffs/HANDOFF_FRESH_REVIEW.md",
-      "find": "`/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "`~/YeeBois/projects/beep-effect`.",
       "replace": "this `beep-effect` checkout.",
       "count": 1,
       "note": "B1 checkout root; the copy-paste prompt still tells a fresh session where it is running."
@@ -521,84 +521,84 @@
     },
     {
       "path": "goals/ai-metrics-stack/ops/handoffs/HANDOFF_P7E_CLOSEOUT.md",
-      "find": "`WorkingDirectory=/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "`WorkingDirectory=~/YeeBois/projects/beep-effect`.",
       "replace": "`WorkingDirectory` set to the machine-local `beep-effect` checkout.",
       "count": 1,
       "note": "B6 compound token plus B4; the following sentences about that checkout's branch still read correctly."
     },
     {
       "path": "goals/ai-metrics-stack/ops/handoffs/HANDOFF_P7E_CLOSEOUT.md",
-      "find": "outside every repo**: `/home/elpresidank/.local/state/beep/ai-metrics`",
+      "find": "outside every repo**: `~/.local/state/beep/ai-metrics`",
       "replace": "outside every repo**: `~/.local/state/beep/ai-metrics`",
       "count": 1,
       "note": "B2 portable XDG state dir to tilde form, then covered by B8."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "archive drill --target dankserver --data-root /home/elpresidank/.local/state/beep/ai-metrics",
+      "find": "archive drill --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "replace": "archive drill --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "count": 1,
       "note": "B2 tilde form; unquoted so shell expansion still resolves the data root."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "durable state is independent under /home/elpresidank/.local/state/beep/ai-metrics",
+      "find": "durable state is independent under ~/.local/state/beep/ai-metrics",
       "replace": "durable state is independent under ~/.local/state/beep/ai-metrics",
       "count": 1,
       "note": "B2 tilde form inside a knownGaps prose string; JSON stays valid."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "forwarder timer --target dankserver --data-root /home/elpresidank/.local/state/beep/ai-metrics",
+      "find": "forwarder timer --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "replace": "forwarder timer --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "count": 1,
       "note": "B2 tilde form; unquoted tilde still expands in the shell and the JSON string stays valid."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "mirror build --target dankserver --data-root /home/elpresidank/.local/state/beep/ai-metrics",
+      "find": "mirror build --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "replace": "mirror build --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "count": 1,
       "note": "B2 tilde form; distinct from the proof-copy mirror build on line 226 which uses the env var."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "mirror sync --target dankserver --data-root /home/elpresidank/.local/state/beep/ai-metrics",
+      "find": "mirror sync --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "replace": "mirror sync --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "count": 1,
       "note": "B2 tilde form; the `--confirm p7-derived-mirror` guard is untouched."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "report weekly --target dankserver --data-root /home/elpresidank/.local/state/beep/ai-metrics",
+      "find": "report weekly --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "replace": "report weekly --target dankserver --data-root ~/.local/state/beep/ai-metrics",
       "count": 1,
       "note": "B2 tilde form."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "retention list --data-root /home/elpresidank/.local/state/beep/ai-metrics",
+      "find": "retention list --data-root ~/.local/state/beep/ai-metrics",
       "replace": "retention list --data-root ~/.local/state/beep/ai-metrics",
       "count": 1,
       "note": "B2 tilde form."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "retention restore-drill --data-root /home/elpresidank/.local/state/beep/ai-metrics",
+      "find": "retention restore-drill --data-root ~/.local/state/beep/ai-metrics",
       "replace": "retention restore-drill --data-root ~/.local/state/beep/ai-metrics",
       "count": 1,
       "note": "B2 tilde form; the mktemp restore root and placeholder timestamp are unchanged."
     },
     {
       "path": "goals/ai-metrics-stack/ops/manifest.json",
-      "find": "rsync -a --delete /home/elpresidank/.local/state/beep/ai-metrics/",
+      "find": "rsync -a --delete ~/.local/state/beep/ai-metrics/",
       "replace": "rsync -a --delete ~/.local/state/beep/ai-metrics/",
       "count": 1,
       "note": "B2 tilde form; the rsync source stays unquoted so it expands, trailing slash preserved."
     },
     {
       "path": "goals/ai-metrics-stack/PLAN.md",
-      "find": "`/home/elpresidank/.local/state/beep/ai-metrics`; no checkout contains a",
+      "find": "`~/.local/state/beep/ai-metrics`; no checkout contains a",
       "replace": "`~/.local/state/beep/ai-metrics`; no checkout contains a",
       "count": 1,
       "note": "B2 portable XDG state dir to tilde form."
@@ -612,28 +612,28 @@
     },
     {
       "path": "goals/ai-metrics-stack/README.md",
-      "find": "`/home/elpresidank/.local/state/beep/ai-metrics`. No checkout contains a",
+      "find": "`~/.local/state/beep/ai-metrics`. No checkout contains a",
       "replace": "`~/.local/state/beep/ai-metrics`. No checkout contains a",
       "count": 1,
       "note": "B2 portable XDG state dir to tilde form."
     },
     {
       "path": "goals/ai-metrics-stack/SPEC.md",
-      "find": "`/home/elpresidank/.local/state/beep/ai-metrics`. It is XDG state outside",
+      "find": "`~/.local/state/beep/ai-metrics`. It is XDG state outside",
       "replace": "`~/.local/state/beep/ai-metrics`. It is XDG state outside",
       "count": 1,
       "note": "B2 tilde form; the normative claim that it is XDG state outside every repo is unchanged."
     },
     {
       "path": "goals/box-driver/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect2`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect2`.",
       "replace": "Repo: the machine-local `beep-effect2` checkout.",
       "count": 1,
       "note": "B4 sibling clone named, not pathed; the packet ran in that clone and the record keeps that fact."
     },
     {
       "path": "goals/box-typecheck-cost/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect3`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect3`.",
       "replace": "Repo: the machine-local `beep-effect3` checkout.",
       "count": 1,
       "note": "B4 sibling clone named, not pathed."
@@ -689,21 +689,21 @@
     },
     {
       "path": "goals/chat-surface-parity/GOAL.md",
-      "find": "Proof-repo (read-only): `/home/elpresidank/YeeBois/projects/effect-lexical-chat/`",
+      "find": "Proof-repo (read-only): `~/YeeBois/projects/effect-lexical-chat/`",
       "replace": "Proof-repo (read-only): the machine-local `effect-lexical-chat` checkout",
       "count": 1,
       "note": "B4; the server file list on the next line keeps the reference navigable."
     },
     {
       "path": "goals/chat-surface-parity/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: this `beep-effect` checkout.",
       "count": 1,
       "note": "B1 checkout root with no repo-relative tail."
     },
     {
       "path": "goals/chat-surface-parity/SPEC.md",
-      "find": "`/home/elpresidank/YeeBois/projects/effect-lexical-chat/` (effect catalog",
+      "find": "`~/YeeBois/projects/effect-lexical-chat/` (effect catalog",
       "replace": "the machine-local `effect-lexical-chat` checkout (effect catalog",
       "count": 1,
       "note": "B4: effect-lexical-chat has no public upstream, so name the proof repo instead of its host path; parenthetical stays balanced."
@@ -780,49 +780,49 @@
     },
     {
       "path": "goals/desktop-chat-surface/GOAL.md",
-      "find": "`/home/elpresidank/YeeBois/projects/effect-lexical-chat/` — esp.",
+      "find": "`~/YeeBois/projects/effect-lexical-chat/` — esp.",
       "replace": "the machine-local `effect-lexical-chat` checkout — esp.",
       "count": 1,
       "note": "B4: proof repo has no public upstream; refer to it by name."
     },
     {
       "path": "goals/desktop-chat-surface/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: `beep-effect` (this checkout).",
       "count": 1,
       "note": "B1: the launcher points at this repo itself, so the repo-relative remainder is the root; names the repo instead of the host checkout path."
     },
     {
       "path": "goals/desktop-chat-surface/SPEC.md",
-      "find": "reference (read-only): `/home/elpresidank/YeeBois/projects/effect-lexical-chat/`",
+      "find": "reference (read-only): `~/YeeBois/projects/effect-lexical-chat/`",
       "replace": "reference (read-only): the machine-local `effect-lexical-chat` checkout",
       "count": 1,
       "note": "B4: same proof repo, named instead of pathed; the following '(same effect catalog ...)' clause still reads correctly."
     },
     {
       "path": "goals/domain-kernel-hardening/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: `beep-effect` (this checkout).",
       "count": 1,
       "note": "B1: self-reference to this repo; drop the machine checkout prefix."
     },
     {
       "path": "goals/epistemic-claim-lifecycle-gate/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: `beep-effect` (this checkout).",
       "count": 1,
       "note": "B1: self-reference to this repo; drop the machine checkout prefix."
     },
     {
       "path": "goals/gov-legal-data-driver-codegen/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: `beep-effect` (this checkout).",
       "count": 1,
       "note": "B1: self-reference to this repo; drop the machine checkout prefix."
     },
     {
       "path": "goals/gov-legal-data-driver-delivery/PLAN.md",
-      "find": "  `/home/elpresidank/YeeBois/research/law_stuff/repos/us-legal-tools/packages/*-sdk`",
+      "find": "  `~/YeeBois/research/law_stuff/repos/us-legal-tools/packages/*-sdk`",
       "replace": "  the machine-local `us-legal-tools` donor checkout, under `packages/*-sdk`",
       "count": 1,
       "note": "B4: donor repo named instead of pathed; line 94's MIT/attribution clause still applies to the same source."
@@ -857,21 +857,21 @@
     },
     {
       "path": "goals/lint-advisory-hardening/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect5`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect5`.",
       "replace": "Repo: `beep-effect` (this checkout).",
       "count": 1,
       "note": "B1: the packet was authored from the beep-effect5 clone, but the launcher means 'this repo'; the clone number is machine-local trivia."
     },
     {
       "path": "goals/lint-toolchain-modernization/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect5`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect5`.",
       "replace": "Repo: `beep-effect` (this checkout).",
       "count": 1,
       "note": "B1: same clone-number normalization as lint-advisory-hardening."
     },
     {
       "path": "goals/m365-driver/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect7`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect7`.",
       "replace": "Repo: `beep-effect` (this checkout).",
       "count": 1,
       "note": "B1: authored from the beep-effect7 clone; the launcher means this repo."
@@ -913,7 +913,7 @@
     },
     {
       "path": "goals/official-data-sync-foundation/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: `beep-effect` (this checkout).",
       "count": 1,
       "note": "B1: self-reference to this repo; drop the machine checkout prefix."
@@ -934,35 +934,35 @@
     },
     {
       "path": "goals/oip-web-launch/ops/manifest.json",
-      "find": "\"sourceBrandContext\": \"/home/elpresidank/Documents/OP_IP_LAW/assets/BRAND_CONTEXT.md\"",
+      "find": "\"sourceBrandContext\": \"~/Documents/OP_IP_LAW/assets/BRAND_CONTEXT.md\"",
       "replace": "\"sourceBrandContext\": \"OP_IP_LAW assets/BRAND_CONTEXT.md (machine-local, outside the repo)\"",
       "count": 1,
       "note": "B4: keeps the file identity (assets/BRAND_CONTEXT.md) without the host prefix."
     },
     {
       "path": "goals/oip-web-launch/ops/manifest.json",
-      "find": "\"sourcePrototype\": \"/home/elpresidank/Documents/OP_IP_LAW/site\"",
+      "find": "\"sourcePrototype\": \"~/Documents/OP_IP_LAW/site\"",
       "replace": "\"sourcePrototype\": \"OP_IP_LAW prototype site (machine-local, outside the repo)\"",
       "count": 1,
       "note": "B4: OIP assets are machine-local by design; named, not pathed. JSON stays valid."
     },
     {
       "path": "goals/oip-web-launch/README.md",
-      "find": "`/home/elpresidank/Documents/OP_IP_LAW/site` into the bootstrapped",
+      "find": "`~/Documents/OP_IP_LAW/site` into the bootstrapped",
       "replace": "the machine-local OP_IP_LAW prototype site into the bootstrapped",
       "count": 1,
       "note": "B4: continuation of 'migrated the prototype OIP law-firm website from' on line 19; reads as one sentence."
     },
     {
       "path": "goals/oppold-corpus-pipeline/GOAL.md",
-      "find": "- In: `/home/elpresidank/data-home/oppold-corpus/` (data tiers, outside the",
+      "find": "- In: `~/data-home/oppold-corpus/` (data tiers, outside the",
       "replace": "- In: the out-of-repo Oppold corpus home (data tiers, machine-local, outside the",
       "count": 1,
       "note": "B4: same corpus home named rather than pathed; 'outside the repo' wording preserved across the wrap."
     },
     {
       "path": "goals/oppold-corpus-pipeline/GOAL.md",
-      "find": "tier at `/home/elpresidank/data-home/oppold-corpus/`, then",
+      "find": "tier at `~/data-home/oppold-corpus/`, then",
       "replace": "tier in the out-of-repo Oppold corpus home (machine-local), then",
       "count": 1,
       "note": "B4: the corpus home is machine-local with no public upstream, so name it instead of pathing it."
@@ -983,14 +983,14 @@
     },
     {
       "path": "goals/oppold-corpus-pipeline/README.md",
-      "find": "governed home (`/home/elpresidank/data-home/oppold-corpus/`) with a DuckDB",
+      "find": "governed home (`~/data-home/oppold-corpus/`) with a DuckDB",
       "replace": "governed home (machine-local, outside the repo) with a DuckDB",
       "count": 1,
       "note": "B4: corpus home described, not pathed."
     },
     {
       "path": "goals/oppold-corpus-pipeline/SPEC.md",
-      "find": "- `/home/elpresidank/data-home/oppold-corpus/` (new, outside the repo):",
+      "find": "- `~/data-home/oppold-corpus/` (new, outside the repo):",
       "replace": "- The out-of-repo Oppold corpus home (new, machine-local, outside the repo):",
       "count": 1,
       "note": "B4: target-surface bullet names the corpus home; the tier list below still applies."
@@ -1004,7 +1004,7 @@
     },
     {
       "path": "goals/oppold-corpus-pipeline/SPEC.md",
-      "find": "`/home/elpresidank/data-home/oppold-corpus/`, with a DuckDB catalog and",
+      "find": "`~/data-home/oppold-corpus/`, with a DuckDB catalog and",
       "replace": "the out-of-repo Oppold corpus home (machine-local), with a DuckDB catalog and",
       "count": 1,
       "note": "B4: reads as 'records at the out-of-repo Oppold corpus home' with line 6 unchanged."
@@ -1025,343 +1025,343 @@
     },
     {
       "path": "goals/repo-quality-throughput/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: this `beep-effect` checkout.",
       "count": 1,
       "note": "B1: launcher header made clone-agnostic, matching the wording other GOAL.md packets already use."
     },
     {
       "path": "goals/repo-quality-throughput/ops/prompts/batch-01-baseline-and-dag.md",
-      "find": "`/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "`~/YeeBois/projects/beep-effect`.",
       "replace": "this `beep-effect` checkout.",
       "count": 1,
       "note": "B1: agent prompt now names the checkout it runs in instead of one machine's path."
     },
     {
       "path": "goals/repo-quality-throughput/ops/prompts/batch-02-hotspots.md",
-      "find": "`/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "`~/YeeBois/projects/beep-effect`.",
       "replace": "this `beep-effect` checkout.",
       "count": 1,
       "note": "B1: agent prompt now names the checkout it runs in instead of one machine's path."
     },
     {
       "path": "goals/repo-quality-throughput/ops/prompts/batch-03-external-and-synthesis.md",
-      "find": "`/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "`~/YeeBois/projects/beep-effect`.",
       "replace": "this `beep-effect` checkout.",
       "count": 1,
       "note": "B1: agent prompt now names the checkout it runs in instead of one machine's path."
     },
     {
       "path": "goals/rich-text-foundation/GOAL.md",
-      "find": "catalog): `/home/elpresidank/YeeBois/projects/effect-lexical-chat/` —",
+      "find": "catalog): `~/YeeBois/projects/effect-lexical-chat/` —",
       "replace": "catalog): the effect-lexical-chat project (machine-local checkout) —",
       "count": 1,
       "note": "B4: machine-local proof repo referred to by name."
     },
     {
       "path": "goals/rich-text-foundation/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: this `beep-effect` checkout.",
       "count": 1,
       "note": "B1: launcher header made clone-agnostic, matching the wording other GOAL.md packets already use."
     },
     {
       "path": "goals/rich-text-foundation/SPEC.md",
-      "find": "reference (read-only): `/home/elpresidank/YeeBois/projects/effect-lexical-chat/`",
+      "find": "reference (read-only): `~/YeeBois/projects/effect-lexical-chat/`",
       "replace": "reference (read-only): the effect-lexical-chat project (machine-local checkout)",
       "count": 1,
       "note": "B4: same proof repo named, with the beta-catalog note on line 17 untouched."
     },
     {
       "path": "goals/schema-first-v4-capabilities/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect3`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect3`.",
       "replace": "Repo: this `beep-effect` checkout.",
       "count": 1,
       "note": "B1/B4: the sibling-clone name was machine-local trivia; the packet targets this repo."
     },
     {
       "path": "goals/standards-remediation/ops/reports/P1-detectors/p1-a-dualarity.md",
-      "find": "v4.1.10 /home/elpresidank/YeeBois/projects/beep-effect7/packages/tooling/tool/cli",
+      "find": "v4.1.10 ~/YeeBois/projects/beep-effect7/packages/tooling/tool/cli",
       "replace": "v4.1.10 <checkout-root>/packages/tooling/tool/cli",
       "count": 1,
       "note": "B1b: captured vitest transcript keeps its evidence value with a placeholder root; the sibling-clone name is machine-local."
     },
     {
       "path": "goals/standards-remediation/ops/reports/P1-detectors/p1-b-jsdoc.md",
-      "find": "v4.1.10 /home/elpresidank/YeeBois/projects/beep-effect7/packages/tooling/tool/cli",
+      "find": "v4.1.10 ~/YeeBois/projects/beep-effect7/packages/tooling/tool/cli",
       "replace": "v4.1.10 <checkout-root>/packages/tooling/tool/cli",
       "count": 1,
       "note": "B1b: captured vitest transcript keeps its evidence value with a placeholder root; the sibling-clone name is machine-local."
     },
     {
       "path": "goals/standards-remediation/ops/reports/P1-detectors/p1-c-schemafirst.md",
-      "find": "v4.1.10 /home/elpresidank/YeeBois/projects/beep-effect7/packages/tooling/tool/cli",
+      "find": "v4.1.10 ~/YeeBois/projects/beep-effect7/packages/tooling/tool/cli",
       "replace": "v4.1.10 <checkout-root>/packages/tooling/tool/cli",
       "count": 1,
       "note": "B1b: captured vitest transcript keeps its evidence value with a placeholder root; the sibling-clone name is machine-local."
     },
     {
       "path": "goals/storybook-app/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: this `beep-effect` checkout.",
       "count": 1,
       "note": "B1: launcher header made clone-agnostic, matching the wording other GOAL.md packets already use."
     },
     {
       "path": "goals/workspace-thread-domain/GOAL.md",
-      "find": "`/home/elpresidank/YeeBois/projects/effect-lexical-chat/server/Anthropic.ts`.",
+      "find": "`~/YeeBois/projects/effect-lexical-chat/server/Anthropic.ts`.",
       "replace": "the effect-lexical-chat project's `server/Anthropic.ts` (machine-local checkout).",
       "count": 1,
       "note": "B4: keeps the cited file while dropping the machine path."
     },
     {
       "path": "goals/workspace-thread-domain/GOAL.md",
-      "find": "Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.",
+      "find": "Repo: `~/YeeBois/projects/beep-effect`.",
       "replace": "Repo: this `beep-effect` checkout.",
       "count": 1,
       "note": "B1: launcher header made clone-agnostic, matching the wording other GOAL.md packets already use."
     },
     {
       "path": "goals/workspace-thread-domain/SPEC.md",
-      "find": "reference (read-only): `/home/elpresidank/YeeBois/projects/effect-lexical-chat/`.",
+      "find": "reference (read-only): `~/YeeBois/projects/effect-lexical-chat/`.",
       "replace": "reference (read-only): the effect-lexical-chat project (machine-local checkout).",
       "count": 1,
       "note": "B4: machine-local proof repo referred to by name."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- [Effect ai-docs index](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/ai-docs/src/index.md)",
+      "find": "- [Effect ai-docs index](~/YeeBois/projects/beep-effect/.repos/effect-v4/ai-docs/src/index.md)",
       "replace": "- [Effect ai-docs index](.repos/effect-v4/ai-docs/src/index.md)",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- [Effect LLMS guide](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/LLMS.md)",
+      "find": "- [Effect LLMS guide](~/YeeBois/projects/beep-effect/.repos/effect-v4/LLMS.md)",
       "replace": "- [Effect LLMS guide](.repos/effect-v4/LLMS.md)",
       "count": 1,
       "note": "B1: strip the checkout prefix to a repo-relative path; note `.repos/effect-v4` no longer exists in this checkout (`.repos/effect` does) - staleness left as-is since fixing it would change meaning."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- [Effect migration notes](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/MIGRATION.md)",
+      "find": "- [Effect migration notes](~/YeeBois/projects/beep-effect/.repos/effect-v4/MIGRATION.md)",
       "replace": "- [Effect migration notes](.repos/effect-v4/MIGRATION.md)",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- [Effect Schema docs](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md)",
+      "find": "- [Effect Schema docs](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md)",
       "replace": "- [Effect Schema docs](.repos/effect-v4/packages/effect/SCHEMA.md)",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [acquireUseRelease](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:6254) and [scoped](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:6079).",
+      "find": "- Reference: [acquireUseRelease](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:6254) and [scoped](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:6079).",
       "replace": "- Reference: [acquireUseRelease](.repos/effect-v4/packages/effect/src/Effect.ts:6254) and [scoped](.repos/effect-v4/packages/effect/src/Effect.ts:6079).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [Config.redacted](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Config.ts:1161) and [Redacted](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Redacted.ts).",
+      "find": "- Reference: [Config.redacted](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Config.ts:1161) and [Redacted](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Redacted.ts).",
       "replace": "- Reference: [Config.redacted](.repos/effect-v4/packages/effect/src/Config.ts:1161) and [Redacted](.repos/effect-v4/packages/effect/src/Redacted.ts).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [Config](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Config.ts) and [ConfigProvider](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/ConfigProvider.ts:358).",
+      "find": "- Reference: [Config](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Config.ts) and [ConfigProvider](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/ConfigProvider.ts:358).",
       "replace": "- Reference: [Config](.repos/effect-v4/packages/effect/src/Config.ts) and [ConfigProvider](.repos/effect-v4/packages/effect/src/ConfigProvider.ts:358).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [die](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:1745) and [orDie](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:3557).",
+      "find": "- Reference: [die](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:1745) and [orDie](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:3557).",
       "replace": "- Reference: [die](.repos/effect-v4/packages/effect/src/Effect.ts:1745) and [orDie](.repos/effect-v4/packages/effect/src/Effect.ts:3557).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [dual API](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Function.ts:106).",
+      "find": "- Reference: [dual API](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Function.ts:106).",
       "replace": "- Reference: [dual API](.repos/effect-v4/packages/effect/src/Function.ts:106).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [Effect schema docs](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:1934).",
+      "find": "- Reference: [Effect schema docs](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:1934).",
       "replace": "- Reference: [Effect schema docs](.repos/effect-v4/packages/effect/SCHEMA.md:1891) and [toTaggedUnion notes](.repos/effect-v4/packages/effect/SCHEMA.md:1934).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [Effect.fn docs](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:12850) and [Effect.fnUntraced docs](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:12821).",
+      "find": "- Reference: [Effect.fn docs](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:12850) and [Effect.fnUntraced docs](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:12821).",
       "replace": "- Reference: [Effect.fn docs](.repos/effect-v4/packages/effect/src/Effect.ts:12850) and [Effect.fnUntraced docs](.repos/effect-v4/packages/effect/src/Effect.ts:12821).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [Effect.provide local option](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:5592) and [Layer.fresh](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Layer.ts:1621).",
+      "find": "- Reference: [Effect.provide local option](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:5592) and [Layer.fresh](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Layer.ts:1621).",
       "replace": "- Reference: [Effect.provide local option](.repos/effect-v4/packages/effect/src/Effect.ts:5592) and [Layer.fresh](.repos/effect-v4/packages/effect/src/Layer.ts:1621).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [forEach concurrency](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:990), [all concurrency](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:751), [withConcurrency](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:6001).",
+      "find": "- Reference: [forEach concurrency](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:990), [all concurrency](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:751), [withConcurrency](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:6001).",
       "replace": "- Reference: [forEach concurrency](.repos/effect-v4/packages/effect/src/Effect.ts:990), [all concurrency](.repos/effect-v4/packages/effect/src/Effect.ts:751), [withConcurrency](.repos/effect-v4/packages/effect/src/Effect.ts:6001).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [forkChild](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:7978) and [forkDetach](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:8121).",
+      "find": "- Reference: [forkChild](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:7978) and [forkDetach](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:8121).",
       "replace": "- Reference: [forkChild](.repos/effect-v4/packages/effect/src/Effect.ts:7978) and [forkDetach](.repos/effect-v4/packages/effect/src/Effect.ts:8121).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [retry](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:3978).",
+      "find": "- Reference: [retry](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:3978).",
       "replace": "- Reference: [retry](.repos/effect-v4/packages/effect/src/Effect.ts:3978).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [runPromise](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:8423), [runSync](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:8606), and [runFork](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:8264).",
+      "find": "- Reference: [runPromise](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:8423), [runSync](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:8606), and [runFork](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:8264).",
       "replace": "- Reference: [runPromise](.repos/effect-v4/packages/effect/src/Effect.ts:8423), [runSync](.repos/effect-v4/packages/effect/src/Effect.ts:8606), and [runFork](.repos/effect-v4/packages/effect/src/Effect.ts:8264).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [Schema Option helpers](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Schema.ts:5422) and [Schema optional field docs](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:636).",
+      "find": "- Reference: [Schema Option helpers](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Schema.ts:5422) and [Schema optional field docs](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md:636).",
       "replace": "- Reference: [Schema Option helpers](.repos/effect-v4/packages/effect/src/Schema.ts:5422) and [Schema optional field docs](.repos/effect-v4/packages/effect/SCHEMA.md:636).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/effect-first-development.md",
-      "find": "- Reference: [timeoutOption](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:4421) and [timeoutOrElse](/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:4467).",
+      "find": "- Reference: [timeoutOption](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:4421) and [timeoutOrElse](~/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/src/Effect.ts:4467).",
       "replace": "- Reference: [timeoutOption](.repos/effect-v4/packages/effect/src/Effect.ts:4421) and [timeoutOrElse](.repos/effect-v4/packages/effect/src/Effect.ts:4467).",
       "count": 1,
       "note": "B1: link destination stripped to the repo-relative path (no relative links elsewhere in this file, so root-relative is used)."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "  worktree add /home/elpresidank/YeeBois/projects/beep-effect-worktrees/beepgraph \\",
+      "find": "  worktree add ~/YeeBois/projects/beep-effect-worktrees/beepgraph \\",
       "replace": "  worktree add <checkout-root>-worktrees/beepgraph \\",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "  worktree add /home/elpresidank/YeeBois/projects/beep-effect-worktrees/feature-x \\",
+      "find": "  worktree add ~/YeeBois/projects/beep-effect-worktrees/feature-x \\",
       "replace": "  worktree add <checkout-root>-worktrees/feature-x \\",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "  worktree lock /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground",
+      "find": "  worktree lock ~/YeeBois/projects/beep-effect-worktrees/playground",
       "replace": "  worktree lock <checkout-root>-worktrees/playground",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "  worktree remove /home/elpresidank/YeeBois/projects/beep-effect-worktrees/feature-x",
+      "find": "  worktree remove ~/YeeBois/projects/beep-effect-worktrees/feature-x",
       "replace": "  worktree remove <checkout-root>-worktrees/feature-x",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "- Main checkout: `/home/elpresidank/YeeBois/projects/beep-effect`",
+      "find": "- Main checkout: `~/YeeBois/projects/beep-effect`",
       "replace": "- Main checkout: `<checkout-root>`",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "- Starter worktree: `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground`",
+      "find": "- Starter worktree: `~/YeeBois/projects/beep-effect-worktrees/playground`",
       "replace": "- Starter worktree: `<checkout-root>-worktrees/playground`",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "- Worktree root: `/home/elpresidank/YeeBois/projects/beep-effect-worktrees`",
+      "find": "- Worktree root: `~/YeeBois/projects/beep-effect-worktrees`",
       "replace": "- Worktree root: `<checkout-root>-worktrees`",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "2. Add a sibling worktree under `/home/elpresidank/YeeBois/projects/beep-effect-worktrees`.",
+      "find": "2. Add a sibling worktree under `~/YeeBois/projects/beep-effect-worktrees`.",
       "replace": "2. Add a sibling worktree under `<checkout-root>-worktrees`.",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "2. Create a worktree under `/home/elpresidank/YeeBois/projects/beep-effect-worktrees`.",
+      "find": "2. Create a worktree under `~/YeeBois/projects/beep-effect-worktrees`.",
       "replace": "2. Create a worktree under `<checkout-root>-worktrees`.",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "cd /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground",
+      "find": "cd ~/YeeBois/projects/beep-effect-worktrees/playground",
       "replace": "cd <checkout-root>-worktrees/playground",
       "count": 3,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders. Identical line text at 184, 223; the replacement is the same for all, so a single replace_all is safe."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "codex -C /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground",
+      "find": "codex -C ~/YeeBois/projects/beep-effect-worktrees/playground",
       "replace": "codex -C <checkout-root>-worktrees/playground",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "git -C /home/elpresidank/YeeBois/projects/beep-effect \\",
+      "find": "git -C ~/YeeBois/projects/beep-effect \\",
       "replace": "git -C <checkout-root> \\",
       "count": 4,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders. Identical line text at 53, 61, 74; the replacement is the same for all, so a single replace_all is safe."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "git -C /home/elpresidank/YeeBois/projects/beep-effect worktree list",
+      "find": "git -C ~/YeeBois/projects/beep-effect worktree list",
       "replace": "git -C <checkout-root> worktree list",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "git -C /home/elpresidank/YeeBois/projects/beep-effect worktree prune",
+      "find": "git -C ~/YeeBois/projects/beep-effect worktree prune",
       "replace": "git -C <checkout-root> worktree prune",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "git -C /home/elpresidank/YeeBois/projects/beep-effect worktree repair",
+      "find": "git -C ~/YeeBois/projects/beep-effect worktree repair",
       "replace": "git -C <checkout-root> worktree repair",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."
     },
     {
       "path": "standards/git-worktrees.md",
-      "find": "git -C /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground submodule update --init --recursive",
+      "find": "git -C ~/YeeBois/projects/beep-effect-worktrees/playground submodule update --init --recursive",
       "replace": "git -C <checkout-root>-worktrees/playground submodule update --init --recursive",
       "count": 1,
       "note": "B1b: worktree layout stays teachable with `<checkout-root>` / `<checkout-root>-worktrees` placeholders."

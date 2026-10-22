@@ -217,7 +217,7 @@ enforceable today**:
   **Verified in-repo:** `packages/tooling/tool/cli/src/commands/Corpus/` matches
   this exactly (`Corpus.command.ts`, `Corpus.errors.ts`, `Corpus.schemas.ts`,
   `Corpus.service.ts`, `index.ts`). _Per the packet guardrail, the Corpus CLI is
-  ahead-of-time data prep over `/home/elpresidank/data-home/oppold-corpus/`, not
+  ahead-of-time data prep over `$HOME/data-home/oppold-corpus/`, not
   a live product runtime feeder._
 
 ---

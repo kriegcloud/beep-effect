@@ -78,7 +78,7 @@ Against `scratchpad/.jsdoc-loop/census.ts`:
 - Required on the host (not executed in this tool surface):
 
 ```bash
-/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
+$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts
 bun run docgen:local -- --package @beep/scratchpad
 ```
 

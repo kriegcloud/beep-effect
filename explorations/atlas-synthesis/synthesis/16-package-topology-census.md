@@ -269,7 +269,7 @@ The solo IP-law firm flywheel's domain. **Domain tier only** — no server/table
 
 - Location: `packages/tooling/tool/cli/src/commands/Corpus/` — verified files: `Corpus.command.ts`, `Corpus.service.ts`, `Corpus.schemas.ts`, `Corpus.errors.ts`, `Corpus.recyclebin.ts`, `index.ts`.
 - Header comment: "Command definitions for **corpus curation**." Options include `CorpusCatalogOptions`, `CorpusEnrichOptions`.
-- Data target: `/home/elpresidank/data-home/oppold-corpus/` exists on disk (confirmed).
+- Data target: `$HOME/data-home/oppold-corpus/` exists on disk (confirmed).
 - Framing per guardrail: this is **offline curation/enrichment of the Oppold corpus** — ahead-of-time data prep, not a runtime ingestion pipeline wired into the product.
 
 ---
@@ -309,7 +309,7 @@ Authoritative names other agents should use verbatim:
 - Slice dir names via `ls packages` — exactly `agents, architecture-lab, drivers, epistemic, foundation, _internal, law-practice, shared, tooling, workspace`.
 - Naming resolutions: `agents` (NOT `agent-capability`; grep miss confirms rename not applied); `epistemic-domain` + `epistemic-tables`; `semantic-web` and `rdf` are single foundation packages (NOT slices); `law-practice-domain` is the only law-practice package.
 - Entity lists for `law-practice` (`LegalClient`, `LegalContact`, `Matter`, `PatentAsset`) and `epistemic` (`Activity`, `CandidateClaim`, `Evidence`, `UsageRecord`) via direct `ls`.
-- Corpus CLI file inventory under `packages/tooling/tool/cli/src/commands/Corpus/` and existence of `/home/elpresidank/data-home/oppold-corpus/`.
+- Corpus CLI file inventory under `packages/tooling/tool/cli/src/commands/Corpus/` and existence of `$HOME/data-home/oppold-corpus/`.
 - Export/symbol counts quoted from `standards/repo-exports.catalog.md` (read, not regenerated).
 
 **UNVERIFIED:**

@@ -107,7 +107,7 @@ Substrate the IP-law product will compose; built, with goals still open (`11`, `
 | File-processing contract + IR | `@beep/file-processing` + `@beep/tika`/`@beep/libpff` (scaffold + real subprocess engines) | **Built (contract-only by design, 4 importers); goal manifest label "pending" is STALE vs disk** |
 | Semantic-web / RDF substrate | `@beep/semantic-web` (JSON-LD/SHACL-subset/SPARQL/PROV), `@beep/rdf` (vocab) | **Built, mature** (SHACL is a "bounded subset", not full engine) |
 | Memory theory as schema | `@beep/epistemic-domain` (`CandidateClaim`/`Evidence`/`Activity`/`UsageRecord`) | **Built (domain schema only)**; `ClaimLifecycle` is candidate-only literal |
-| Corpus data prep | Corpus CLI → `/home/elpresidank/data-home/oppold-corpus/` (8,438 files / ~31.7 GB curated) | **Completed-retained batch; outside repo; not a live feeder** |
+| Corpus data prep | Corpus CLI → `$HOME/data-home/oppold-corpus/` (8,438 files / ~31.7 GB curated) | **Completed-retained batch; outside repo; not a live feeder** |
 
 ### What is PENDING / SPECCED (intent, not built)
 

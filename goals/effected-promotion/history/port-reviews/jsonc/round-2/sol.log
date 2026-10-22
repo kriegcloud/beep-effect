@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.160.1
 --------
-workdir: /home/elpresidank/YeeBois/projects/beep-effect
+workdir: $HOME/YeeBois/projects/beep-effect
 model: gpt-6.1-sol
 provider: openai
 approval: never
@@ -39,10 +39,10 @@ Use this record shape for every finding:
 
 End with a line `REQUIRED: <n>` and a line `BACKLOG: <n>`. If both are zero, say `NO FINDINGS`.
 warning: Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.
-  project (/home/elpresidank/YeeBois/projects/beep-effect/.codex/config.toml): `mcp_servers.webstorm.headers` is ignored.
+  project (.codex/config.toml): `mcp_servers.webstorm.headers` is ignored.
 warning: Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.
-  project (/home/elpresidank/YeeBois/projects/beep-effect/.codex/config.toml): `mcp_servers.webstorm.headers` is ignored.
-warning: clamping SessionEnd hook timeout to 3s in /home/elpresidank/.codex/plugins/cache/openai-codex/codex/1.0.6/hooks/hooks.json
+  project (.codex/config.toml): `mcp_servers.webstorm.headers` is ignored.
+warning: clamping SessionEnd hook timeout to 3s in $HOME/.codex/plugins/cache/openai-codex/codex/1.0.6/hooks/hooks.json
 hook: SessionStart
 hook: SessionStart
 hook: SessionStart
@@ -62,11 +62,11 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "rg -n 'jsonc|effected.*review|D11|EFFECTED_PORT' /home/elpresidank/.codex/memories/MEMORY.md" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "rg -n 'jsonc|effected.*review|D11|EFFECTED_PORT' $HOME/.codex/memories/MEMORY.md" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 310:- For Fallow findings, compare the exact path with `origin/main`; documented standalone exploration tooling can receive a narrow justified `.fallowrc.jsonc` exclusion, leaving thresholds/baselines unchanged. Validate with `bun run beep ci lane fallow --base origin/main`. [Task 1]
 3727:scope: Use for taking over a live PR from the actual checkout, racing property-law repair, or `.mcp.json`/`.mcp.jsonc` compatibility in a Beep checkout.
-3754:- rollout_summaries/2026-08-31T00-27-41-ZAF9-mcp_jsonc_compatibility_and_es2025_yeet_pr_924.md (cwd=/home/elpresidank/YeeBois/projects/beep-effect14, rollout_path=/home/elpresidank/.codex/sessions/2026/08/30/rollout-2026-08-30T19-27-41-01a05536-f8eb-7e22-91f6-d25e977b2e4f.jsonl, updated_at=2026-08-31T03:50:18+00:00, thread_id=01a05536-f8eb-7e22-91f6-d25e977b2e4f, JSONC semantics and PR #924 hosted closure verified)
+3754:- rollout_summaries/2026-08-31T00-27-41-ZAF9-mcp_jsonc_compatibility_and_es2025_yeet_pr_924.md (cwd=$HOME/YeeBois/projects/beep-effect14, rollout_path=$HOME/.codex/sessions/2026/08/30/rollout-2026-08-30T19-27-41-01a05536-f8eb-7e22-91f6-d25e977b2e4f.jsonl, updated_at=2026-08-31T03:50:18+00:00, thread_id=01a05536-f8eb-7e22-91f6-d25e977b2e4f, JSONC semantics and PR #924 hosted closure verified)
 3758:- `.mcp.json`, `.mcp.jsonc`, JSONC, ES2025, PR-924, Yeet, scheduler backpressure, exact-head
 3768:- Preserve strict MCP filename/path semantics: verify actual `.mcp.json` versus `.mcp.jsonc` behavior rather than assuming JSONC parsing applies to every config path. [Task 3]
 4748:- Numeric coverage floors do not clear a new-file ratchet with no baseline identity. Do not alter `standards/coverage.regression-baseline.jsonc` without authorization. PR #855 reached a focused coverage-test commit and merged; recheck hosted/main state live for any future cleanup. [Task 1]
@@ -97,7 +97,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'cat .claude/skills/graft/SKILL.md' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'cat .claude/skills/graft/SKILL.md' in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 ---
 name: graft
@@ -283,7 +283,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'git status --short; git rev-parse HEAD; git show --stat --oneline 1dc437fe3325d2b89bef4748a686827890174abd -- scratchpad/effected/jsonc scratchpad/test/jsonc' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'git status --short; git rev-parse HEAD; git show --stat --oneline 1dc437fe3325d2b89bef4748a686827890174abd -- scratchpad/effected/jsonc scratchpad/test/jsonc' in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
  M scratchpad/effected/jsonl/Envelope.ts
  M scratchpad/effected/jsonl/Journal.ts
@@ -345,7 +345,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'cat standards/schema-first-development-prompt.md .patterns/jsdoc-documentation.md .patterns/error-handling.md .patterns/module-organization.md .patterns/testing-patterns.md goals/effect-vitest-canon/SPEC.md packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'cat standards/schema-first-development-prompt.md .patterns/jsdoc-documentation.md .patterns/error-handling.md .patterns/module-organization.md .patterns/testing-patterns.md goals/effect-vitest-canon/SPEC.md packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts' in $HOME/YeeBois/projects/beep-effect
 hook: PostToolUse
  succeeded in 153ms:
 # Schema-First Development Session Prompt
@@ -4350,7 +4350,7 @@ hook: PostToolUse Completed
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'cat standards/ARCHITECTURE.md standards/effect-laws-v1.md standards/effect-first-development.md' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'cat standards/ARCHITECTURE.md standards/effect-laws-v1.md standards/effect-first-development.md' in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 # beep-effect Architecture Standard
 
@@ -7811,7 +7811,7 @@ hook: PreToolUse Completed
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'cat scratchpad/EFFECTED_PORT_GOAL.md' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'cat scratchpad/EFFECTED_PORT_GOAL.md' in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 # EFFECTED_PORT_GOAL — port the `@effected/*` kit into the beep-effect lab
 
@@ -8682,7 +8682,7 @@ EFFECTED_PORT_COMPLETE
 
 hook: PostToolUse
 exec
-/usr/bin/zsh -lc "cat scratchpad/effected/jsonc/.review/round-1/INVENTORY.md scratchpad/effected/jsonc/README.md; rg -n -A 100 -B 6 '\"jsonc\"' scratchpad/effected/PORT_LEDGER.json; rg --files scratchpad/effected/jsonc scratchpad/test/jsonc /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc -g '"'!*.log'"' -g '"'!**/.review/**'"'" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "cat scratchpad/effected/jsonc/.review/round-1/INVENTORY.md scratchpad/effected/jsonc/README.md; rg -n -A 100 -B 6 '\"jsonc\"' scratchpad/effected/PORT_LEDGER.json; rg --files scratchpad/effected/jsonc scratchpad/test/jsonc $HOME/YeeBois/references/effect/effected/packages/jsonc -g '"'!*.log'"' -g '"'!**/.review/**'"'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 # jsonc review round 1 — inventory
 
@@ -9243,38 +9243,38 @@ None. Upstream `@effected/jsonc` has zero runtime dependencies (`effect` is its 
 290-          "kind": "both",
 291-          "entry": "."
 292-        },
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/package.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/biome.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncVisitor.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncScanner.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncNode.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncModifier.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncFormatter.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncFingerprint.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncEdit.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/Jsonc.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/README.md
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/LICENSE
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/CLAUDE.md
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/CHANGELOG.md
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/tsconfig.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/types/env.d.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/turbo.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/tsdoc.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/savvy.build.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncEdit.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFingerprint.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFormatter.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncModifier.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncNode.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/navigate.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/skip.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/scanner.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/parser.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/limits.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/index.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncVisitor.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/package.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/biome.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncVisitor.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncScanner.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncNode.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncModifier.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncFormatter.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncFingerprint.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncEdit.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/Jsonc.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/README.md
+$HOME/YeeBois/references/effect/effected/packages/jsonc/LICENSE
+$HOME/YeeBois/references/effect/effected/packages/jsonc/CLAUDE.md
+$HOME/YeeBois/references/effect/effected/packages/jsonc/CHANGELOG.md
+$HOME/YeeBois/references/effect/effected/packages/jsonc/tsconfig.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/types/env.d.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/turbo.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/tsdoc.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/savvy.build.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncEdit.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFingerprint.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFormatter.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncModifier.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncNode.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/navigate.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/skip.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/scanner.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/parser.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/limits.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/index.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncVisitor.ts
 scratchpad/test/jsonc/JsoncFormatter.test.ts
 scratchpad/test/jsonc/JsoncScanner.test.ts
 scratchpad/test/jsonc/JsoncParser.test.ts
@@ -9312,7 +9312,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "cat scratchpad/effected/jsonc/.review/round-1/INVENTORY.md scratchpad/effected/jsonc/README.md; rg -n -A 65 -B 4 '\"jsonc\"' scratchpad/effected/PORT_LEDGER.json; rg --files scratchpad/effected/jsonc scratchpad/test/jsonc /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc -g '"'!*.log'"' -g '"'!**/.review/**'"'; sed -n '/"'^## 14'"\\./,"'$p'"' scratchpad/EFFECTED_PORT_GOAL.md" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "cat scratchpad/effected/jsonc/.review/round-1/INVENTORY.md scratchpad/effected/jsonc/README.md; rg -n -A 65 -B 4 '\"jsonc\"' scratchpad/effected/PORT_LEDGER.json; rg --files scratchpad/effected/jsonc scratchpad/test/jsonc $HOME/YeeBois/references/effect/effected/packages/jsonc -g '"'!*.log'"' -g '"'!**/.review/**'"'; sed -n '/"'^## 14'"\\./,"'$p'"' scratchpad/EFFECTED_PORT_GOAL.md" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 # jsonc review round 1 — inventory
 
@@ -9800,38 +9800,38 @@ None. Upstream `@effected/jsonc` has zero runtime dependencies (`effect` is its 
 255-          "kind": "both",
 256-          "entry": "."
 257-        },
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/biome.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/CLAUDE.md
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/CHANGELOG.md
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/LICENSE
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/README.md
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/types/env.d.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/turbo.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/tsdoc.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/tsconfig.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/package.json
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/savvy.build.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncEdit.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/Jsonc.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncFormatter.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncFingerprint.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncNode.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncModifier.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncScanner.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncVisitor.test.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncModifier.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFormatter.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFingerprint.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncEdit.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncVisitor.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncNode.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/index.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/navigate.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/skip.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/scanner.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/parser.ts
-/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/limits.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/biome.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/CLAUDE.md
+$HOME/YeeBois/references/effect/effected/packages/jsonc/CHANGELOG.md
+$HOME/YeeBois/references/effect/effected/packages/jsonc/LICENSE
+$HOME/YeeBois/references/effect/effected/packages/jsonc/README.md
+$HOME/YeeBois/references/effect/effected/packages/jsonc/types/env.d.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/turbo.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/tsdoc.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/tsconfig.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/package.json
+$HOME/YeeBois/references/effect/effected/packages/jsonc/savvy.build.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncEdit.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/Jsonc.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncFormatter.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncFingerprint.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncNode.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncModifier.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncScanner.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/__test__/JsoncVisitor.test.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncModifier.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFormatter.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFingerprint.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncEdit.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncVisitor.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncNode.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/index.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/navigate.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/skip.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/scanner.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/parser.ts
+$HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/limits.ts
 scratchpad/test/jsonc/JsoncFormatter.test.ts
 scratchpad/test/jsonc/JsoncScanner.test.ts
 scratchpad/test/jsonc/JsoncParser.test.ts
@@ -9929,7 +9929,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'cat scratchpad/effected/jsonc/Jsonc.ts' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'cat scratchpad/effected/jsonc/Jsonc.ts' in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 // The `Jsonc` facade: parsing, comment stripping, semantic equality and the
 // flagship schema factories, plus the parse-error vocabulary they raise.
@@ -10852,7 +10852,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'cat scratchpad/effected/jsonc/JsoncModifier.ts scratchpad/effected/jsonc/JsoncFormatter.ts' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'cat scratchpad/effected/jsonc/JsoncModifier.ts scratchpad/effected/jsonc/JsoncFormatter.ts' in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 // Structural JSONC modification: compute the edits needed to set, replace or
 // delete a value at a path, without mutating the source.
@@ -11320,7 +11320,7 @@ for name in [\"Jsonc.ts\",\"JsoncNode.ts\",\"JsoncEdit.ts\",\"JsoncFingerprint.t
  for i,line in enumerate(p.read_text().splitlines(),1):
   if line.lstrip().startswith(\"/**\"): inside=True
   if not inside: print(f\"{i}: {line}\")
-  if inside and \"*/\" in line: inside=False'" in /home/elpresidank/YeeBois/projects/beep-effect
+  if inside and \"*/\" in line: inside=False'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 
 FILE scratchpad/effected/jsonc/Jsonc.ts
@@ -12529,10 +12529,10 @@ for name in [\"internal/parser.ts\",\"internal/navigate.ts\",\"internal/scanner.
    if not inside and l.strip() and not l.lstrip().startswith(\"//\"): out.append(l)
    if inside and \"*/\" in l: inside=False
   return out
- a=Path(\"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src\")/name; b=Path(\"scratchpad/effected/jsonc\")/name
- print(\"\\n\".join(difflib.unified_diff(code(a),code(b),fromfile=str(a),tofile=str(b),n=3)))'" in /home/elpresidank/YeeBois/projects/beep-effect
+ a=Path(\"$HOME/YeeBois/references/effect/effected/packages/jsonc/src\")/name; b=Path(\"scratchpad/effected/jsonc\")/name
+ print(\"\\n\".join(difflib.unified_diff(code(a),code(b),fromfile=str(a),tofile=str(b),n=3)))'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
---- /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/parser.ts
+--- $HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/parser.ts
 
 +++ scratchpad/effected/jsonc/internal/parser.ts
 
@@ -13408,7 +13408,7 @@ for name in [\"internal/parser.ts\",\"internal/navigate.ts\",\"internal/scanner.
 +  const { root, errors } = run(text, flags, true);
 +  return { root, errors };
 +});
---- /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/navigate.ts
+--- $HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/navigate.ts
 
 +++ scratchpad/effected/jsonc/internal/navigate.ts
 
@@ -13705,7 +13705,7 @@ for name in [\"internal/parser.ts\",\"internal/navigate.ts\",\"internal/scanner.
 +    ? NavigateResult.cases.Insert.make({ container: "array", at: lastEnd, isFirst: index === 0, depth })
 +    : NavigateResult.cases.NoOp.make({});
 +});
---- /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/scanner.ts
+--- $HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/scanner.ts
 
 +++ scratchpad/effected/jsonc/internal/scanner.ts
 
@@ -14395,7 +14395,7 @@ for name in [\"internal/parser.ts\",\"internal/navigate.ts\",\"internal/scanner.
 +    };
 +  }
 +);
---- /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/skip.ts
+--- $HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/skip.ts
 
 +++ scratchpad/effected/jsonc/internal/skip.ts
 
@@ -14453,7 +14453,7 @@ for name in [\"internal/parser.ts\",\"internal/navigate.ts\",\"internal/scanner.
 +  } while (level > 0 && cursor.getToken() !== "EOF");
 +  return end;
  };
---- /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncNode.ts
+--- $HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncNode.ts
 
 +++ scratchpad/effected/jsonc/JsoncNode.ts
 
@@ -14780,7 +14780,7 @@ for name in [\"internal/parser.ts\",\"internal/navigate.ts\",\"internal/scanner.
 +    null: thunkNodeValue,
 +  });
 +});
---- /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncEdit.ts
+--- $HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncEdit.ts
 
 +++ scratchpad/effected/jsonc/JsoncEdit.ts
 
@@ -14938,10 +14938,10 @@ for name in [\"internal/parser.ts\",\"internal/navigate.ts\"]:
    if not inside and l.strip() and not l.lstrip().startswith(\"//\"): out.append(l.strip())
    if inside and \"*/\" in l: inside=False
   return out
- a=Path(\"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src\")/name; b=Path(\"scratchpad/effected/jsonc\")/name
- print(\"\\n\".join(difflib.unified_diff(code(a),code(b),fromfile=str(a),tofile=str(b),n=2)))'" in /home/elpresidank/YeeBois/projects/beep-effect
+ a=Path(\"$HOME/YeeBois/references/effect/effected/packages/jsonc/src\")/name; b=Path(\"scratchpad/effected/jsonc\")/name
+ print(\"\\n\".join(difflib.unified_diff(code(a),code(b),fromfile=str(a),tofile=str(b),n=2)))'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
---- /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/parser.ts
+--- $HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/parser.ts
 
 +++ scratchpad/effected/jsonc/internal/parser.ts
 
@@ -15676,7 +15676,7 @@ for name in [\"internal/parser.ts\",\"internal/navigate.ts\"]:
  return { root, errors };
 -};
 +});
---- /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/internal/navigate.ts
+--- $HOME/YeeBois/references/effect/effected/packages/jsonc/src/internal/navigate.ts
 
 +++ scratchpad/effected/jsonc/internal/navigate.ts
 
@@ -15934,7 +15934,7 @@ hook: PostToolUse Completed
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "rg -n '"'^#|''^##|''^###|MUST|must|forbid|never|Never|Required|Law '"' standards/ARCHITECTURE.md standards/effect-laws-v1.md standards/effect-first-development.md standards/schema-first-development-prompt.md .patterns/jsdoc-documentation.md .patterns/error-handling.md .patterns/module-organization.md .patterns/testing-patterns.md; rg -n '"'^'"\\| D[0-9]|"'^##|''^###'"' goals/effect-vitest-canon/SPEC.md; rg --files /home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules; rg -n '"'^#|''^##|''^###'"' /home/elpresidank/YeeBois/references/effect/effect/packages/effect/SCHEMA.md" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "rg -n '"'^#|''^##|''^###|MUST|must|forbid|never|Never|Required|Law '"' standards/ARCHITECTURE.md standards/effect-laws-v1.md standards/effect-first-development.md standards/schema-first-development-prompt.md .patterns/jsdoc-documentation.md .patterns/error-handling.md .patterns/module-organization.md .patterns/testing-patterns.md; rg -n '"'^'"\\| D[0-9]|"'^##|''^###'"' goals/effect-vitest-canon/SPEC.md; rg --files $HOME/YeeBois/references/effect/effect-tsgo/docs/rules; rg -n '"'^#|''^##|''^###'"' $HOME/YeeBois/references/effect/effect/packages/effect/SCHEMA.md" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 .patterns/testing-patterns.md:1:# Testing Patterns - Effect Library
 .patterns/testing-patterns.md:3:## 🎯 OVERVIEW
@@ -16341,124 +16341,124 @@ standards/ARCHITECTURE.md:1964:New architecture-sensitive work must not introduc
 451:## 7. Initial detector rule table (counts are rg estimates from 2026-09-04; detectors recount)
 474:## 8. Delivery rules (repeat in every lane and every PR)
 489:## 9. Decision Log
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-chain-to-first-success-of.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-all-to-map-error.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/async-function.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/any-unknown-in-error-context.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/abort-controller-in-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-fn-iife.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-do-notation.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/duplicate-package.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/deterministic-keys.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/class-self-mismatch.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-unfailable-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-to-or-else-succeed.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-to-ignore.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-in-void-success.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-in-failure.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-gen-uses-adapter.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-fn-opportunity.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-fn-implicit-any.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-succeed-with-void.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-map-void.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/effect-map-flatten.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/flat-map-to-map.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/extends-native-error.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/floating-effect-in-vitest.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/floating-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unstable-api-usage.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/experimental-api-usage.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-fetch-in-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-refail-to-tap-error.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/schema-sync.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/obsolete-match-import.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/instance-of-schema.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/flat-map-ignored-param-to-and-then.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-if-tag-to-catch-tag.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unsafe-effect-type-assertion.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/timeout-catch-tag-to-timeout-or-else.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/run-of-exit-to-run-exit.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/race-first-with-sleep-to-timeout.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/provide-layer-succeed-to-provide-service.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/obsolete-schema-import.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/node-builtin-import.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/match-effect-to-match.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/match-effect-to-map-both.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/crypto-random-uuid.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/crypto-random-uuid-in-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-tag-to-catch-reason.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-conditional-refail-to-catch-if.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-all-tag-dispatch-to-catch-tag.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/acquire-release-disposable.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/schema-sync-in-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/schema-number.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-succeed-some-or-none.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/option-match-to-from-option.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/map-some-to-as-some.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/generic-effect-services.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/flat-map-conditional-to-filter-or-fail.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/catch-die-to-or-die.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/all-of-map-to-for-each.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-typeof-type.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-pipe.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-pipe-chain.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-fail-yieldable-error.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-effect-gen.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-arrow-block.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/unknown-in-effect-catch.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/try-catch-in-effect-gen.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/sync-to-succeed.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/strict-effect-provide.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/strict-boolean-expressions.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/service-not-as-class.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/scope-in-layer-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/schema-union-of-literals.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/schema-struct-with-tag.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/schema-opaque-instance-member.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/schema-literal-non-finite.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/run-effect-inside-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/return-effect-in-gen.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/redundant-schema-tag-identifier.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/redundant-or-die.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/redundant-map-error.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/promise-in-effect-success.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/process-env.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/process-env-in-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-unsafe-constructor.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-typed-schema-decoder.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-schema-type-property.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-schema-over-json.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/overridden-schema-constructor.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/outdated-api.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/non-object-effect-service-type.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/new-schema-class.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/new-promise.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/nested-effect-gen-yield.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/multiple-effect-provide.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/multiple-catch-tag.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/missing-star-in-yield-effect-gen.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/missing-return-yield-star.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/missing-pipeable-signature.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/missing-layer-context.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/missing-effect-service-dependency.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/missing-effect-error.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/missing-effect-context.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/missed-pipeable-opportunity.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/leaking-requirements.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/lazy-promise-in-effect-sync.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/lazy-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/layer-merge-all-with-dependencies.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-timers.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-timers-in-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-random.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-random-in-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-fetch.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-error-in-effect-failure.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-error-in-effect-catch.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-date.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-date-in-effect.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-console.md
-/home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/global-console-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-chain-to-first-success-of.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-all-to-map-error.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/async-function.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/any-unknown-in-error-context.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/abort-controller-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-fn-iife.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-do-notation.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/duplicate-package.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/deterministic-keys.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/class-self-mismatch.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-unfailable-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-to-or-else-succeed.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-to-ignore.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-in-void-success.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-in-failure.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-gen-uses-adapter.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-fn-opportunity.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-fn-implicit-any.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-succeed-with-void.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-map-void.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/effect-map-flatten.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/flat-map-to-map.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/extends-native-error.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/floating-effect-in-vitest.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/floating-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unstable-api-usage.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/experimental-api-usage.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-fetch-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-refail-to-tap-error.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/schema-sync.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/obsolete-match-import.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/instance-of-schema.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/flat-map-ignored-param-to-and-then.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-if-tag-to-catch-tag.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unsafe-effect-type-assertion.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/timeout-catch-tag-to-timeout-or-else.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/run-of-exit-to-run-exit.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/race-first-with-sleep-to-timeout.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/provide-layer-succeed-to-provide-service.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/obsolete-schema-import.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/node-builtin-import.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/match-effect-to-match.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/match-effect-to-map-both.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/crypto-random-uuid.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/crypto-random-uuid-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-tag-to-catch-reason.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-conditional-refail-to-catch-if.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-all-tag-dispatch-to-catch-tag.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/acquire-release-disposable.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/schema-sync-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/schema-number.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-succeed-some-or-none.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/option-match-to-from-option.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/map-some-to-as-some.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/generic-effect-services.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/flat-map-conditional-to-filter-or-fail.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/catch-die-to-or-die.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/all-of-map-to-for-each.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-typeof-type.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-pipe.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-pipe-chain.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-fail-yieldable-error.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-effect-gen.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unnecessary-arrow-block.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/unknown-in-effect-catch.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/try-catch-in-effect-gen.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/sync-to-succeed.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/strict-effect-provide.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/strict-boolean-expressions.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/service-not-as-class.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/scope-in-layer-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/schema-union-of-literals.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/schema-struct-with-tag.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/schema-opaque-instance-member.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/schema-literal-non-finite.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/run-effect-inside-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/return-effect-in-gen.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/redundant-schema-tag-identifier.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/redundant-or-die.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/redundant-map-error.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/promise-in-effect-success.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/process-env.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/process-env-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-unsafe-constructor.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-typed-schema-decoder.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-schema-type-property.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-schema-over-json.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/overridden-schema-constructor.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/outdated-api.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/non-object-effect-service-type.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/new-schema-class.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/new-promise.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/nested-effect-gen-yield.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/multiple-effect-provide.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/multiple-catch-tag.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/missing-star-in-yield-effect-gen.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/missing-return-yield-star.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/missing-pipeable-signature.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/missing-layer-context.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/missing-effect-service-dependency.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/missing-effect-error.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/missing-effect-context.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/missed-pipeable-opportunity.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/leaking-requirements.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/lazy-promise-in-effect-sync.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/lazy-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/layer-merge-all-with-dependencies.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-timers.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-timers-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-random.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-random-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-fetch.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-error-in-effect-failure.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-error-in-effect-catch.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-date.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-date-in-effect.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-console.md
+$HOME/YeeBois/references/effect/effect-tsgo/docs/rules/global-console-in-effect.md
 1:# Schema
 17:## Design Philosophy
 23:### What's in This Guide
@@ -16717,7 +16717,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "bun --eval 'import { Jsonc } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as Oracle } from \"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; console.log(Jsonc.parseResult(\"1\")); console.log(Oracle.parseResult(\"1\"));'" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "bun --eval 'import { Jsonc } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as Oracle } from \"$HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; console.log(Jsonc.parseResult(\"1\")); console.log(Oracle.parseResult(\"1\"));'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 32ms:
 {
   _id: "Result",
@@ -16737,7 +16737,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'cat standards/effect-laws-v1.md' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'cat standards/effect-laws-v1.md' in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 # Effect Laws v1
 
@@ -16838,7 +16838,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "sed -n '280,450p' /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts; sed -n '140,310p' /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFingerprint.ts; cat scratchpad/effected/jsonc/.canon-exceptions.json; sed -n '335,445p' scratchpad/effected/PORT_LEDGER.json" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "sed -n '280,450p' $HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts; sed -n '140,310p' $HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFingerprint.ts; cat scratchpad/effected/jsonc/.canon-exceptions.json; sed -n '335,445p' scratchpad/effected/PORT_LEDGER.json" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 	 * `Result` instead of an `Effect`. Same error-recovery semantics as
 	 * {@link Jsonc.parse}: every parse error is collected and the failure side
@@ -17307,7 +17307,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "bun --eval 'import { Jsonc as L } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as U } from \"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; import { JsoncFingerprint as F } from \"./scratchpad/effected/jsonc/JsoncFingerprint.ts\"; import { JsoncFingerprint as O } from \"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFingerprint.ts\"; for (const v of [Object(1n), { a: Object(1n) }]) { for (const [name,c] of [[\"lab\",L],[\"upstream\",U]]) { const r=c.stringifyResult(v); console.log(name,r._tag,r.failure?.code); } } const a=[1,2]; Object.defineProperty(a,\"keys\",{value:()=>[99].values()}); console.log(\"keys override lab\",F.canonicalizeResult(a)); console.log(\"keys override upstream\",O.canonicalizeResult(a)); const b=[1,2]; Object.defineProperty(b,\"keys\",{get(){throw new Error(\"keys getter executed\")}}); for(const [name,c] of [[\"lab\",F],[\"upstream\",O]]) { try {console.log(name,c.canonicalizeResult(b));} catch(e) {console.log(name,\"THREW\",e.message)} }'" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "bun --eval 'import { Jsonc as L } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as U } from \"$HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; import { JsoncFingerprint as F } from \"./scratchpad/effected/jsonc/JsoncFingerprint.ts\"; import { JsoncFingerprint as O } from \"$HOME/YeeBois/references/effect/effected/packages/jsonc/src/JsoncFingerprint.ts\"; for (const v of [Object(1n), { a: Object(1n) }]) { for (const [name,c] of [[\"lab\",L],[\"upstream\",U]]) { const r=c.stringifyResult(v); console.log(name,r._tag,r.failure?.code); } } const a=[1,2]; Object.defineProperty(a,\"keys\",{value:()=>[99].values()}); console.log(\"keys override lab\",F.canonicalizeResult(a)); console.log(\"keys override upstream\",O.canonicalizeResult(a)); const b=[1,2]; Object.defineProperty(b,\"keys\",{get(){throw new Error(\"keys getter executed\")}}); for(const [name,c] of [[\"lab\",F],[\"upstream\",O]]) { try {console.log(name,c.canonicalizeResult(b));} catch(e) {console.log(name,\"THREW\",e.message)} }'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 838ms:
 lab Failure SerializationFailed
 upstream Failure BigIntValue
@@ -17342,7 +17342,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc 'cat scratchpad/effected/jsonc/internal/navigate.ts' in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc 'cat scratchpad/effected/jsonc/internal/navigate.ts' in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 // Scanner-based path navigation for the modifier. Private implementation.
 //
@@ -17622,7 +17622,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "sed -n '435,535p' /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts; cat scratchpad/test/jsonc/Properties.test.ts" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "sed -n '435,535p' $HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts; cat scratchpad/test/jsonc/Properties.test.ts" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 	 * if (Result.isSuccess(ok)) {
 	 *   console.log(ok.success); // => '{\n  "port": 3000\n}'
@@ -18250,7 +18250,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "wc -l standards/ARCHITECTURE.md standards/effect-first-development.md standards/schema-first-development-prompt.md .patterns/jsdoc-documentation.md .patterns/error-handling.md .patterns/module-organization.md .patterns/testing-patterns.md goals/effect-vitest-canon/SPEC.md; sed -n '1,225p' standards/effect-first-development.md; sed -n '181,288p' standards/schema-first-development-prompt.md; cat standards/ARCHITECTURE.md" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "wc -l standards/ARCHITECTURE.md standards/effect-first-development.md standards/schema-first-development-prompt.md .patterns/jsdoc-documentation.md .patterns/error-handling.md .patterns/module-organization.md .patterns/testing-patterns.md goals/effect-vitest-canon/SPEC.md; sed -n '1,225p' standards/effect-first-development.md; sed -n '181,288p' standards/schema-first-development-prompt.md; cat standards/ARCHITECTURE.md" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
   1973 standards/ARCHITECTURE.md
   1387 standards/effect-first-development.md
@@ -20575,7 +20575,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "bun --eval 'import { Jsonc as L } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as U } from \"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; for(const rep of [\""'$&","$$","$`","$'"\\u0027\"]) console.log(JSON.stringify(rep),\"lab\",JSON.stringify(L.stripComments(\"1/*x*/\",rep)),\"upstream\",JSON.stringify(U.stripComments(\"1/*x*/\",rep)));'" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "bun --eval 'import { Jsonc as L } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as U } from \"$HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; for(const rep of [\""'$&","$$","$`","$'"\\u0027\"]) console.log(JSON.stringify(rep),\"lab\",JSON.stringify(L.stripComments(\"1/*x*/\",rep)),\"upstream\",JSON.stringify(U.stripComments(\"1/*x*/\",rep)));'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 15ms:
 "$&" lab "1/*x*/" upstream "1$&$&$&$&$&"
 "$$" lab "1$$$$$" upstream "1$$$$$$$$$$"
@@ -20589,7 +20589,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "bun --eval 'import { Jsonc as L } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as U } from \"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; let seed=1729; const rand=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296); const chars=[\"{\",\"}\",\"[\",\"]\",\",\",\":\",\"\\\"\",\"\\\\\",\"/\",\"*\",\"1\",\"-\",\".\",\"e\",\"t\",\"r\",\"u\",\"n\",\"l\",\" \",\"\\n\",\"\\r\",\"\\u2028\"]; let diffs=0; for(let i=0;i<6000;i++){let s=\"\";for(let n=Math.floor(rand()*45);n>0;n--)s+=chars[Math.floor(rand()*chars.length)];for(const method of [\"parseResult\",\"parseTreeResult\"]){const a=L[method](s),b=U[method](s);const snap=r=>r._tag===\"Failure\"?JSON.stringify(r.failure.errors):JSON.stringify(r.success);if(snap(a)"'!==snap(b)){if(diffs++<5) console.log(method,JSON.stringify(s),snap(a),snap(b));}}} console.log("parse differential cases",12000,"differences",diffs);'"'" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "bun --eval 'import { Jsonc as L } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as U } from \"$HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; let seed=1729; const rand=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296); const chars=[\"{\",\"}\",\"[\",\"]\",\",\",\":\",\"\\\"\",\"\\\\\",\"/\",\"*\",\"1\",\"-\",\".\",\"e\",\"t\",\"r\",\"u\",\"n\",\"l\",\" \",\"\\n\",\"\\r\",\"\\u2028\"]; let diffs=0; for(let i=0;i<6000;i++){let s=\"\";for(let n=Math.floor(rand()*45);n>0;n--)s+=chars[Math.floor(rand()*chars.length)];for(const method of [\"parseResult\",\"parseTreeResult\"]){const a=L[method](s),b=U[method](s);const snap=r=>r._tag===\"Failure\"?JSON.stringify(r.failure.errors):JSON.stringify(r.success);if(snap(a)"'!==snap(b)){if(diffs++<5) console.log(method,JSON.stringify(s),snap(a),snap(b));}}} console.log("parse differential cases",12000,"differences",diffs);'"'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 459ms:
 parse differential cases 12000 differences 0
 
@@ -20610,8 +20610,8 @@ def code(p):
   if not inside and l.strip() and not l.lstrip().startswith(\"//\"): out.append(l.strip())
   if inside and \"*/\" in l: inside=False
  return out
-a=Path(\"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src\")/name; b=Path(\"scratchpad/effected/jsonc\")/name
-print(\"\\n\".join(difflib.unified_diff(code(a),code(b),n=2)))'" in /home/elpresidank/YeeBois/projects/beep-effect
+a=Path(\"$HOME/YeeBois/references/effect/effected/packages/jsonc/src\")/name; b=Path(\"scratchpad/effected/jsonc\")/name
+print(\"\\n\".join(difflib.unified_diff(code(a),code(b),n=2)))'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 --- 
 
@@ -21228,7 +21228,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Failed
 exec
-/usr/bin/zsh -lc "sed -n '1,170p' .patterns/jsdoc-documentation.md; sed -n '270,443p' .patterns/jsdoc-documentation.md; sed -n '1,145p' .patterns/error-handling.md; sed -n '95,205p' goals/effect-vitest-canon/SPEC.md" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "sed -n '1,170p' .patterns/jsdoc-documentation.md; sed -n '270,443p' .patterns/jsdoc-documentation.md; sed -n '1,145p' .patterns/error-handling.md; sed -n '95,205p' goals/effect-vitest-canon/SPEC.md" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 # JSDoc Documentation Patterns
 
@@ -21844,7 +21844,7 @@ for name in [\".patterns/module-organization.md\",\".patterns/testing-patterns.m
  code=False
  for l in Path(name).read_text().splitlines():
   if l.strip().startswith(\""'```"): code=not code; continue
-  if not code and l.strip(): print(l)'"'" in /home/elpresidank/YeeBois/projects/beep-effect
+  if not code and l.strip(): print(l)'"'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 2ms:
 FILE .patterns/module-organization.md
 # Module Organization Patterns - Effect Library
@@ -21958,7 +21958,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "sed -n '681,726p' scratchpad/effected/jsonc/Jsonc.ts; sed -n '523,570p' /home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts; sed -n '1,170p' scratchpad/effected/jsonc/JsoncFingerprint.ts; sed -n '220,285p' scratchpad/test/jsonc/JsoncFingerprint.test.ts; sed -n '295,365p' scratchpad/test/jsonc/Jsonc.test.ts; rg -n 'D5|D14|D1\\b|D6\\b' goals/effect-vitest-canon/SPEC.md" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "sed -n '681,726p' scratchpad/effected/jsonc/Jsonc.ts; sed -n '523,570p' $HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts; sed -n '1,170p' scratchpad/effected/jsonc/JsoncFingerprint.ts; sed -n '220,285p' scratchpad/test/jsonc/JsoncFingerprint.test.ts; sed -n '295,365p' scratchpad/test/jsonc/Jsonc.test.ts; rg -n 'D5|D14|D1\\b|D6\\b' goals/effect-vitest-canon/SPEC.md" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
   /**
    * Remove all comments from JSONC, producing valid JSON.
@@ -22385,7 +22385,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "bun --eval 'import { Jsonc as L } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as U } from \"/home/elpresidank/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; for(const value of [()=>{},new Date(),new Map(),Object(1n)]) console.log(String(value),L.equalsValue(\"{}\",value),U.equalsValue(\"{}\",value));'" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "bun --eval 'import { Jsonc as L } from \"./scratchpad/effected/jsonc/Jsonc.ts\"; import { Jsonc as U } from \"$HOME/YeeBois/references/effect/effected/packages/jsonc/src/Jsonc.ts\"; for(const value of [()=>{},new Date(),new Map(),Object(1n)]) console.log(String(value),L.equalsValue(\"{}\",value),U.equalsValue(\"{}\",value));'" in $HOME/YeeBois/projects/beep-effect
  succeeded in 31ms:
 () => {} false false
 Wed Oct 07 2026 03:44:18 GMT-0500 (Central Daylight Time) true true
@@ -22399,7 +22399,7 @@ hook: PreToolUse
 hook: PreToolUse Completed
 hook: PreToolUse Completed
 exec
-/usr/bin/zsh -lc "sed -n '224,245p' /home/elpresidank/YeeBois/references/effect/effect/packages/effect/SCHEMA.md; sed -n '2235,2315p' /home/elpresidank/YeeBois/references/effect/effect/packages/effect/SCHEMA.md; sed -n '4670,4703p' /home/elpresidank/YeeBois/references/effect/effect/packages/effect/SCHEMA.md; cat /home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-schema-over-json.md /home/elpresidank/YeeBois/references/effect/effect-tsgo/docs/rules/schema-number.md; git diff --name-only HEAD -- scratchpad/effected/jsonc scratchpad/test/jsonc" in /home/elpresidank/YeeBois/projects/beep-effect
+/usr/bin/zsh -lc "sed -n '224,245p' $HOME/YeeBois/references/effect/effect/packages/effect/SCHEMA.md; sed -n '2235,2315p' $HOME/YeeBois/references/effect/effect/packages/effect/SCHEMA.md; sed -n '4670,4703p' $HOME/YeeBois/references/effect/effect/packages/effect/SCHEMA.md; cat $HOME/YeeBois/references/effect/effect-tsgo/docs/rules/prefer-schema-over-json.md $HOME/YeeBois/references/effect/effect-tsgo/docs/rules/schema-number.md; git diff --name-only HEAD -- scratchpad/effected/jsonc scratchpad/test/jsonc" in $HOME/YeeBois/projects/beep-effect
  succeeded in 0ms:
 import { Getter, Parser, Schema } from "effect/schema"
 
