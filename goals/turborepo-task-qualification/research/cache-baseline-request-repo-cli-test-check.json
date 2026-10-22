@@ -1,5 +1,5 @@
 {
-  "previous": "a3301b550dfa8c1a9c38cfa7c52687697d6b0b496128b4e8935d3a4f089519e8",
+  "previous": "582771018b5b3510126068ab775384fe36911bc16a0ecf8f047c93d89706dcdb",
   "review": {
     "reviewer": "Claude Opus 5.5 (TS7 tooling lane, fix/repo-cli-test-typecheck-and-ready-rereview)",
     "reason": "Record the manifest drift of @beep/repo-cli after beep:check gains tsc-rs -p test/tsconfig.json so check type-checks repo-cli's own tests; no qualification is granted.",
