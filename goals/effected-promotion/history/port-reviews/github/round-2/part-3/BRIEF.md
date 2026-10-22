@@ -1,6 +1,6 @@
 You are a read-only reviewer. Module: github. Commit: 60fcfb5ebcdc26765a66cc1f13afc88adcb05d11. Round: 2.
 Surface: scratchpad/effected/github/**, scratchpad/test/github/** (and nothing else).
-Upstream oracle: /home/elpresidank/.cache/beep/effected-port/upstream/af7566a9da2eff169cb74955efcc5ede1e5de9f8/packages/github (read-only; upstream at the commit the ledger pins).
+Upstream oracle: $HOME/.cache/beep/effected-port/upstream/af7566a9da2eff169cb74955efcc5ede1e5de9f8/packages/github (read-only; upstream at the commit the ledger pins).
 The live checkout ~/YeeBois/references/effect/effected may have moved past that commit: compare against the
 oracle path only. Its node_modules links effect, @effect and every @effected package, so a read-only probe
 can import upstream source from it.

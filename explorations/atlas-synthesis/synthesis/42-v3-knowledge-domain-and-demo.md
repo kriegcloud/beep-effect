@@ -5,11 +5,11 @@
 > **client/ui surfaces**, and the **Enron knowledge demo** — then compare the v3 domain to the
 > current v4 epistemic domain (`CandidateClaim`/`Evidence`/`Activity`/`UsageRecord`).
 >
-> **Repo under survey:** `/home/elpresidank/YeeBois/projects/beep-effect4` — the *older* Effect-v3
+> **Repo under survey:** `$HOME/YeeBois/projects/beep-effect4` — the *older* Effect-v3
 > codebase (dir name says "4", git log says "archiving main" / "preparing for migration to effect
 > v4"). This is **proven prior art in another repo**, NOT current v4 product capability.
 >
-> **Current product repo:** `/home/elpresidank/YeeBois/projects/beep-effect3` (Effect-v4,
+> **Current product repo:** `$HOME/YeeBois/projects/beep-effect3` (Effect-v4,
 > Prose-to-Proof / BeepGraph IP-law workbench).
 
 ## Guardrail (applied throughout)
@@ -31,7 +31,7 @@ v4 capability. The v4 build is a **migration/distillation**, not greenfield — 
 
 ## 1. The v3 Knowledge Domain Model (`@beep/knowledge-domain`)
 
-Location: `/home/elpresidank/YeeBois/projects/beep-effect4/packages/knowledge/domain/src`
+Location: `$HOME/YeeBois/projects/beep-effect4/packages/knowledge/domain/src`
 
 Structure: `entities/` (22 entity dirs, **19 `.model.ts`**), `values/`, `projections/`,
 `services/`, `rpc/`, `errors/` (31 error modules). All schema-first via `@effect/sql/Model`
@@ -123,7 +123,7 @@ decode pattern; the per-entity model→repo→rpc→tool fan-out; the bullet→e
 
 ## 2. The Persistence Shape (`@beep/knowledge-tables`)
 
-Location: `/home/elpresidank/YeeBois/projects/beep-effect4/packages/knowledge/tables/src/tables`
+Location: `$HOME/YeeBois/projects/beep-effect4/packages/knowledge/tables/src/tables`
 — **21 Drizzle pg tables**, all via `OrgTable.make(EntityId)(...)` (org-scoped w/ RLS-aligned
 indexes). Tables mirror the domain models 1:1 plus the workflow/batch machinery:
 
@@ -267,7 +267,7 @@ product wants — demonstrated, in another repo, on the email learning corpus.
 ## 5. v3 domain vs. v4 epistemic domain — redesign or distillation?
 
 Current v4 epistemic domain:
-`/home/elpresidank/YeeBois/projects/beep-effect3/packages/epistemic/domain/src` — entities
+`$HOME/YeeBois/projects/beep-effect3/packages/epistemic/domain/src` — entities
 `CandidateClaim`, `Evidence`, `Activity`, `UsageRecord`; value `ClaimLifecycle`. Built on
 `BaseEntity.Class` + `EntitySchema.persist.*` + `Epistemic.*Id` (a newer base-entity factory than
 v3's `M.Class`+`makeFields`).
@@ -333,7 +333,7 @@ as the domain binding.
   repo that **de-risks** the v4 epistemic build.
 - **Repo-name caution:** the *older v3* code is under the directory `beep-effect4`; the *current
   v4 product* is under `beep-effect3`. All v3 paths above are absolute and rooted at
-  `/home/elpresidank/YeeBois/projects/beep-effect4`.
+  `$HOME/YeeBois/projects/beep-effect4`.
 
 ### Verification (2026-06-17)
 

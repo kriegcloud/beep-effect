@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-08
 **Agent:** verify-completeness (Opus 5)
-**Clone:** `/home/elpresidank/YeeBois/research/harvey-labs` @ `55510f0e6`.
+**Clone:** `$HOME/YeeBois/research/harvey-labs` @ `55510f0e6`.
 Paths in §1–§3 are **relative to the clone root** unless prefixed `[beep]`.
 
 **Inputs read in full:** `research/map-{harness,evaluation,task-census,corpus,pipeline-docs}.md`,

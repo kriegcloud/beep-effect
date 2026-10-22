@@ -28,15 +28,15 @@ Collected at approximately May 9, 2026 04:22-04:24 America/Chicago.
 - Main checkout branch:
   `codex/ai-metrics-pre-may16-readiness`
 - Proof runner worktree:
-  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+  `$HOME/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
 - Proof runner state: detached and locked with reason
   `AI metrics P6 proof runner pinned through 2026-05-16`
 - Proof runner commit:
   `63c419721c735bfb860ccfa9bf1b31efbb23e33c`
 - Installed service working directory:
-  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+  `$HOME/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
 - Installed service data root:
-  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics`
+  `.beep/ai-metrics`
 - Timer state: `enabled`, `active`
 - Scheduled service run:
   - start: May 9, 2026 04:22:15 America/Chicago
@@ -59,7 +59,7 @@ Collected at approximately May 9, 2026 04:22-04:24 America/Chicago.
   - Claude Code: `0` candidates, `0` included
   - OpenClaw: `0` candidates, `0` included
 - Parquet export:
-  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/derived/parquet/forwarder-1778318537681`
+  `.beep/ai-metrics/derived/parquet/forwarder-1778318537681`
 
 ### Phoenix Health
 
@@ -175,15 +175,15 @@ write mirror artifacts into the active proof data root.
 - Follow-up branch:
   `codex/ai-metrics-p6c-p7-followup`
 - Proof runner worktree:
-  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+  `$HOME/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
 - Proof runner state: detached and locked with reason
   `AI metrics P6 proof runner pinned through 2026-05-16`
 - Proof runner commit:
   `63c419721c735bfb860ccfa9bf1b31efbb23e33c`
 - Installed service working directory:
-  `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
+  `$HOME/YeeBois/projects/beep-effect-worktrees/ai-metrics-p6-proof`
 - Installed service data root:
-  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics`
+  `.beep/ai-metrics`
 - Timer state: enabled, active, next scheduled run May 12, 2026 07:12:14
   America/Chicago
 - Last scheduled service run:
@@ -207,7 +207,7 @@ write mirror artifacts into the active proof data root.
   - Claude Code: `0` candidates, `0` included
   - OpenClaw: `0` candidates, `0` included
 - Parquet export:
-  `/home/elpresidank/YeeBois/projects/beep-effect/.beep/ai-metrics/derived/parquet/forwarder-1778586999944`
+  `.beep/ai-metrics/derived/parquet/forwarder-1778586999944`
 - `otlpExport`: `null` because the pinned proof runner still predates the
   later additive forwarder OTLP status behavior.
 

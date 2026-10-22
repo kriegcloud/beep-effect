@@ -1,5 +1,5 @@
---- /home/elpresidank/.cache/beep-p0-spike1a5.AnSlho/spike1/a5-pairing-first-owner-state-before.inventory	2026-07-26 14:09:40.551774838 -0500
-+++ /home/elpresidank/.cache/beep-p0-spike1a5.AnSlho/spike1/a5-pairing-first-owner-state-after.inventory	2026-07-26 14:09:46.065988883 -0500
+--- $HOME/.cache/beep-p0-spike1a5.AnSlho/spike1/a5-pairing-first-owner-state-before.inventory	2026-07-26 14:09:40.551774838 -0500
++++ $HOME/.cache/beep-p0-spike1a5.AnSlho/spike1/a5-pairing-first-owner-state-after.inventory	2026-07-26 14:09:46.065988883 -0500
 @@ -9,12 +9,14 @@
  f	600	1000:1000	51791803	./state/openclaw.sqlite-shm	
  f	600	1000:1000	51791805	./log/openclaw.log	
@@ -7,8 +7,8 @@
 -f	600	1000:1000	51791817	./credentials/telegram-pairing.json	
 +f	600	1000:1000	51791829	./credentials/telegram-pairing.json	
 +f	600	1000:1000	51791832	./credentials/telegram-default-allowFrom.json	
- l	777	1000:1000	51791809	./plugin-skills/browser-automation	/home/elpresidank/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/browser/skills/browser-automation
- l	777	1000:1000	51791810	./plugin-skills/canvas	/home/elpresidank/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/canvas/skills/canvas
+ l	777	1000:1000	51791809	./plugin-skills/browser-automation	$HOME/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/browser/skills/browser-automation
+ l	777	1000:1000	51791810	./plugin-skills/canvas	$HOME/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/canvas/skills/canvas
 -6523117af301c798f9d8754bf09c8acc107ac3ad8015b909f509dab2df3da38c  ./credentials/telegram-pairing.json
 +ebbc89e33e77f3acf0d9ca72b89835b38d18a0ae7d361a84c2c119e2b6bcb221  ./credentials/telegram-default-allowFrom.json
 +0acc80db40f45b5e408387c3f710ffacff957b9f5e170667a07c7f29f1b6d1fc  ./credentials/telegram-pairing.json

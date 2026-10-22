@@ -28,9 +28,12 @@ import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { parse } from "vite";
 import { hostNodeExecutable } from "./helpers/native-node.ts";
@@ -104,8 +107,8 @@ const fixture = Effect.fnUntraced(function* () {
   expect(commit.exitCode).toBe(0);
   const head = yield* StepExec.runCaptured({ command: "git", args: ["rev-parse", "HEAD"], cwd: root });
   const identity = CoverageProducerIdentity.make({
-    executionSha: head.output.trim(),
-    baseSha: head.output.trim(),
+    executionSha: Str.trim(head.output),
+    baseSha: Str.trim(head.output),
     runId: "123",
     runAttempt: 1,
     scopeDigest: yield* sha256Hex(yield* encode(["@beep/example"])),
@@ -209,7 +212,7 @@ const signedV8Fixture = Effect.fnUntraced(function* () {
   const code = "export function choose(flag) { if (flag) { return 1; } return 2; }\n";
   yield* f.fs.writeFileString(file, code);
   yield* f.fs.remove(f.path.join(f.packageRoot, "src/index.ts"));
-  const consequent = code.indexOf("{ return 1; }");
+  const consequent = pipe(code, Str.indexOf("{ return 1; }"), O.getOrElse(constant(-1)));
   const fileUrl = yield* f.path.toFileUrl(file);
   const converted = yield* Effect.forEach([3, 0], (count) =>
     Effect.tryPromise(() =>
@@ -248,7 +251,7 @@ const signedV8Fixture = Effect.fnUntraced(function* () {
       expectedTestFiles: f.tests,
       testReportPath: "coverage/unit-results.json",
       testRuntime: "node",
-      testRuntimeVersion: version.output.trim(),
+      testRuntimeVersion: Str.trim(version.output),
       provider,
       testCommand: ["bunx", "vitest", "run"],
       testEnvironment: { PATH: `${f.path.dirname(node)}${delimiter}${searchPath}` },
@@ -348,7 +351,7 @@ const compoundFixture = Effect.fnUntraced(function* (secondRuntime: "bun" | "nod
         testOnly: testOnly === true && index === 1,
         provider: testOnly === true && index === 0 ? "v8" : "istanbul",
         testEnvironment: runtime === "node" ? { PATH: `${f.path.dirname(node)}${delimiter}${searchPath}` } : {},
-        testRuntimeVersion: runtime === "bun" ? bunVersion.output.trim() : nodeVersion.output.trim(),
+        testRuntimeVersion: runtime === "bun" ? Str.trim(bunVersion.output) : Str.trim(nodeVersion.output),
         expectedTestFiles: testOnly === true ? A.take(A.drop(f.tests, index), 1) : f.tests,
         testReportPath: `${directory}/unit-results.json`,
         runtimeReportPath: `${directory}/runtime.json`,
@@ -1009,7 +1012,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
           expect(result.exitCode).toBe(0);
         }
         const moving = yield* StepExec.runCaptured({ command: "git", args: ["rev-parse", "origin/main"], cwd: f.root });
-        expect(moving.output.trim()).not.toBe(before.baseSha);
+        expect(Str.trim(moving.output)).not.toBe(before.baseSha);
         expect(yield* resolve).toEqual(before);
       })
     );
@@ -1030,7 +1033,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
           f.root,
           CoverageProducerCompareOptions.make({
             ...f.options,
-            identity: CoverageProducerIdentity.make({ ...f.identity, executionSha: "b".repeat(40) }),
+            identity: CoverageProducerIdentity.make({ ...f.identity, executionSha: Str.repeat(40)("b") }),
           })
         ).pipe(Effect.flip);
         expect(failure.message).toContain("differs from the checkout");
@@ -1072,13 +1075,13 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
               BEEP_COVERAGE_RUN_ATTEMPT: "3",
               GITHUB_RUN_ID: "consumer",
               GITHUB_RUN_ATTEMPT: "9",
-              BEEP_COVERAGE_REQUEST_HEAD_SHA: "b".repeat(40),
+              BEEP_COVERAGE_REQUEST_HEAD_SHA: Str.repeat(40)("b"),
             })
           )
         );
         expect(identity.executionSha).toBe(f.identity.executionSha);
         expect(identity.baseSha).toBe(f.identity.executionSha);
-        expect(identity.requestHeadSha).toBe("b".repeat(40));
+        expect(identity.requestHeadSha).toBe(Str.repeat(40)("b"));
         expect(identity.runId).toBe("producer");
         expect(identity.runAttempt).toBe(3);
         const fallback = yield* resolveCoverageProducerIdentity(f.root, {
@@ -1269,9 +1272,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
     for (const [scenario, patch] of R.toEntries({
       attempt: { runAttempt: 2 },
       run: { runId: "different-run" },
-      requestHead: { requestHeadSha: "b".repeat(40) },
-      base: { baseSha: "b".repeat(40) },
-      scope: { scopeDigest: "b".repeat(64) },
+      requestHead: { requestHeadSha: Str.repeat(40)("b") },
+      base: { baseSha: Str.repeat(40)("b") },
+      scope: { scopeDigest: Str.repeat(64)("b") },
     })) {
       it.effect(`rejects stale ${scenario} provenance`, () =>
         Effect.gen(function* () {
@@ -1316,9 +1319,12 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
       missingTests: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({ ...entry, actualTestFiles: [] }),
       sourceHash: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
         ...entry,
-        sources: A.map(entry.sources, (source) => ({ ...source, sha256: "b".repeat(64) })),
+        sources: A.map(entry.sources, (source) => ({ ...source, sha256: Str.repeat(64)("b") })),
       }),
-      reportHash: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({ ...entry, reportSha256: "b".repeat(64) }),
+      reportHash: (_f: ArtifactFixture, entry: CoveragePackageArtifact) => ({
+        ...entry,
+        reportSha256: Str.repeat(64)("b"),
+      }),
     };
     for (const [scenario, patch] of R.toEntries(packagePatches)) {
       it.effect(`rejects ${scenario} envelope corruption`, () =>

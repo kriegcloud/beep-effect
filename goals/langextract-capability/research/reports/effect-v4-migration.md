@@ -25,7 +25,7 @@ Status: completed from Effect v4 upstream sources, local provider drivers, `@bee
 - Effect Vitest source: `.repos/effect-v4/packages/vitest/src/index.ts`.
 - Local provider adapters: `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts`, `retired:xai/src/XAiLanguageModel.service.ts`, and `retired:venice-ai/src/VeniceAiLanguageModel.service.ts`.
 - Local NLP service/layer shape: `packages/foundation/capability/nlp/src/NLPService.ts`.
-- Reference v3 service/provider patterns: `/home/elpresidank/YeeBois/ontology_research/ontology_ts_repos/effect-langextract/src`.
+- Reference v3 service/provider patterns: `$HOME/YeeBois/ontology_research/ontology_ts_repos/effect-langextract/src`.
 
 ## Inferences
 

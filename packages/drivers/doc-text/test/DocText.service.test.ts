@@ -395,6 +395,97 @@ describe("@beep/doc-text", () => {
     })
   );
 
+  describe("tolerant namespace resolution", () => {
+    it.effect("completes within the XML budget with 20000 namespace declarations on one root", () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const declarations = A.join(
+          A.makeBy(20_000, (index) => `xmlns:p${index}=""`),
+          " "
+        );
+        const bytes = zipSync({
+          "[Content_Types].xml": strToU8(
+            `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types" ${declarations}/>`
+          ),
+          "word/document.xml": strToU8(documentXml("many namespaces")),
+        });
+        const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+        expect(result.text).toBe("many namespaces\n\n");
+      })
+    );
+
+    for (const { name, xml } of [
+      {
+        name: "undeclared extension prefix",
+        xml: '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p w14:paraId="1A2B3C4D"><w:r><w:t>prefix tolerant text</w:t></w:r></w:p></w:body></w:document>',
+      },
+      {
+        name: "declared extension prefix control",
+        xml: '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"><w:body><w:p w14:paraId="1A2B3C4D"><w:r><w:t>prefix tolerant text</w:t></w:r></w:p></w:body></w:document>',
+      },
+    ]) {
+      it.effect(`keeps Mammoth's raw text for a DOCX with an ${name}`, () =>
+        Effect.gen(function* () {
+          const ids = yield* fixtureIds;
+          const bytes = zipSync({ "word/document.xml": strToU8(xml) });
+          const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+          expect(result.text).toBe("prefix tolerant text\n\n");
+        })
+      );
+    }
+
+    it.effect("still rejects malformed XML once namespace resolution is tolerant", () =>
+      Effect.gen(function* () {
+        const ids = yield* fixtureIds;
+        const bytes = zipSync({ "word/document.xml": strToU8("<w:document><w:body></w:document>") });
+        const error = yield* Effect.flip(
+          DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes))
+        );
+        expect(error.reason).toBe("file-extraction-failed");
+      })
+    );
+
+    for (const { name, relationships, selected } of [
+      {
+        name: "an arbitrary prefix binding",
+        relationships:
+          '<pr:Relationships xmlns:pr="http://schemas.openxmlformats.org/package/2006/relationships"><pr:Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="custom/main.part"/></pr:Relationships>',
+        selected: true,
+      },
+      {
+        name: "a wrong-namespace default binding",
+        relationships:
+          '<Relationships xmlns="urn:example:not-relationships"><Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="custom/main.part"/></Relationships>',
+        selected: false,
+      },
+      {
+        name: "an undeclared relationship prefix",
+        relationships:
+          '<pr:Relationships><pr:Relationship Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="custom/main.part"/></pr:Relationships>',
+        selected: false,
+      },
+      {
+        name: "a prefix rebound to the wrong namespace on the child",
+        relationships:
+          '<pr:Relationships xmlns:pr="http://schemas.openxmlformats.org/package/2006/relationships"><pr:Relationship xmlns:pr="urn:example:not-relationships" Id="main" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="custom/main.part"/></pr:Relationships>',
+        selected: false,
+      },
+    ]) {
+      it.effect(`selects relationships namespace-correctly with ${name}`, () =>
+        Effect.gen(function* () {
+          const ids = yield* fixtureIds;
+          const bytes = zipSync({
+            "_rels/.rels": strToU8(relationships),
+            "custom/main.part": strToU8(documentXml("selected custom text")),
+            "word/document.xml": strToU8(documentXml("conventional fallback text")),
+          });
+          const result = yield* DocTextFileProcessingEngine.extract(yield* makeOperation(ids, "docx", "docx", bytes));
+          expect(result.text).toContain(selected ? "selected custom text" : "conventional fallback text");
+        })
+      );
+    }
+  });
+
   it.effect("rejects duplicate local names instead of letting JSZip overwrite a part", () =>
     Effect.gen(function* () {
       const ids = yield* fixtureIds;

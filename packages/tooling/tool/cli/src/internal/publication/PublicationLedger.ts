@@ -73,32 +73,11 @@ export class PublicationLockUnavailable extends S.TaggedError<
   })
 ) {}
 
-/**
- * Parse a procfs `stat` record into its pid, state and start time.
- *
- * **Details**
- *
- * The record is `pid (comm) state ...`, where `comm` may hold spaces or
- * parentheses, so fields are counted after the last `)`. Field 3 is the
- * process state and field 22 the start time in clock ticks since boot.
- *
- * **Example** (Read a process record)
- *
- * ```ts
- * import { parsePublicationProcessStat } from "@beep/repo-cli/internal/publication/PublicationLedger"
- * import * as O from "effect/Option"
- *
- * const fields = Array.from({ length: 20 }, (_, index) => `${index}`).join(" ")
- * const parsed = parsePublicationProcessStat(`42 (my (odd) name) S ${fields}`)
- * console.log(O.getOrNull(O.map(parsed, (stat) => stat.pid))) // 42
- * ```
- *
- * @param text - The content of `/proc/<pid>/stat`.
- * @returns The pid, state and start ticks, or none for a malformed record.
- * @category parsing
- * @since 0.0.0
- */
-export const parsePublicationProcessStat = (
+// Parse a procfs `stat` record into its pid, state and start time. The record
+// is `pid (comm) state ...`, where `comm` may hold spaces or parentheses, so
+// fields are counted after the last `)`. Field 3 is the process state and
+// field 22 the start time in clock ticks since boot.
+const parsePublicationProcessStat = (
   text: string
 ): O.Option<{ readonly pid: number; readonly state: string; readonly startTicks: string }> => {
   const close = O.getOrElse(Str.lastIndexOf(")")(text), constant(-1));

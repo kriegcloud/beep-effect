@@ -4,7 +4,7 @@ Found four defects: one potential data-loss path, two stale/incorrect state race
 
 #### R02-ONT-01 — P0 — Seed can overwrite an existing user document after any read failure
 
-[OntologyWorkspaceSeed.ts:53](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/ontology/OntologyWorkspaceSeed.ts:53)
+[OntologyWorkspaceSeed.ts:53]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/ontology/OntologyWorkspaceSeed.ts:53)
 
 `Effect.option` converts every `OntologyFileStore.read` failure into `None`. The file-store collapses missing files, permission errors, transient I/O errors, and canonicalization failures into the same `readFailed` error. The seed consequently treats “could not verify” as “absent” and proceeds to an atomic replacement write.
 
@@ -14,7 +14,7 @@ Recommended fix: add a typed `notFound` reason and recover only that case. Add a
 
 #### R02-ONT-02 — P1 — Reads can publish results for a session that has already changed
 
-[Session.atoms.ts:1287](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1287), [Session.atoms.ts:1338](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1338)
+[Session.atoms.ts:1287]($HOME/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1287), [Session.atoms.ts:1338]($HOME/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1338)
 
 The semaphore protects authoring operations from each other, but SPARQL and validation capture a session outside it and publish their results without checking whether that session is still current.
 
@@ -24,7 +24,7 @@ Recommended fix: capture a session revision/signature and compare it immediately
 
 #### R02-ONT-03 — P2 — Semaphore queues user actions invisibly while permits cover inference and validation
 
-[Session.atoms.ts:1385](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1385), [Session.atoms.ts:1405](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1405), [Session.atoms.ts:1606](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1606), [Session.workbench.tsx:479](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/ui/src/aggregates/Session/Session.workbench.tsx:479)
+[Session.atoms.ts:1385]($HOME/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1385), [Session.atoms.ts:1405]($HOME/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1405), [Session.atoms.ts:1606]($HOME/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1606), [Session.workbench.tsx:479]($HOME/YeeBois/projects/beep-effect6/packages/ontology/ui/src/aggregates/Session/Session.workbench.tsx:479)
 
 Permits are held beyond the whole-session mutation, including inference and, for repairs, full revalidation. The UI has no shared mutation-pending state and leaves Apply, gestures, undo/redo, save, and open enabled.
 
@@ -34,7 +34,7 @@ Recommended fix: restrict the critical section to reading the current session, a
 
 #### R02-ONT-04 — P2 — Successful Open is reported as a document failure when optional inference fails
 
-[Session.atoms.ts:1493](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1493), [Session.atoms.ts:1511](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1511), [Session.atoms.ts:1519](/home/elpresidank/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1519)
+[Session.atoms.ts:1493]($HOME/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1493), [Session.atoms.ts:1511]($HOME/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1511), [Session.atoms.ts:1519]($HOME/YeeBois/projects/beep-effect6/packages/ontology/client/src/aggregates/Session/Session.atoms.ts:1519)
 
 Open commits the new session, path, and source before refreshing inferred view. If inference fails, the outer `tapCause` writes the inference cause into `ontologyDocumentErrorAtom`, even though opening succeeded. `ensureOntologyInference` also records the failure in the inference error atom, so the same underlying failure appears in two unrelated UI channels.
 

@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2c, feat/effected-promotion-w2c)",
-      "reason": "Record the dependency-only drift of @beep/repo-utils and @beep/repo-cli (both gain @beep/glob), the export and dependency removals of @beep/schema (./Glob) and @beep/utils (picomatch), and the root @types/picomatch devDependency as wave 2c retires the duplicate glob modules; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (S43 batch remediation, fix/s43-batch-main-reds)",
+      "reason": "Re-record @beep/repo-cli#test and the root configuration-source subject // after its turbo.json test inputs cover the whole architecture-proof surface (packages/architecture-lab/**, apps/architecture-lab-proof/**, packages/_internal/db-admin/** minus dist/docs/.turbo/node_modules), so architecture-operation-plan.test.ts re-runs when any manifest-included proof file changes. Command, outputs, cache flags and root turbo.json are unchanged; no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w2c.md",
-        "sha256": "454b7ef4d12734d638e3e37c7ae19b7d5249105ca0e3df921da95dec553f8a4b"
+        "path": "goals/entity-optimistic-concurrency/research/cache-baseline-review-2026-10-21.md",
+        "sha256": "37df05af2b44cd5339112befe5b84580a13368bd7f51f9f6436aa16ff474203b"
       }
     },
     "@beep/acp": {
@@ -1074,11 +1074,11 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 2c, feat/effected-promotion-w2c)",
-      "reason": "Record the dependency-only drift of @beep/repo-utils and @beep/repo-cli (both gain @beep/glob), the export and dependency removals of @beep/schema (./Glob) and @beep/utils (picomatch), and the root @types/picomatch devDependency as wave 2c retires the duplicate glob modules; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (TS7 tooling lane, fix/repo-cli-test-typecheck-and-ready-rereview)",
+      "reason": "Record the manifest drift of @beep/repo-cli after beep:check gains tsc-rs -p test/tsconfig.json so check type-checks repo-cli's own tests; no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w2c.md",
-        "sha256": "454b7ef4d12734d638e3e37c7ae19b7d5249105ca0e3df921da95dec553f8a4b"
+        "path": "goals/turborepo-task-qualification/research/cache-baseline-review-repo-cli-test-check.md",
+        "sha256": "1da645fff53ee974615dbc2645d0919ac59fb4f16a5b6b487e19948cceb9bbff"
       }
     },
     "@beep/repo-configs": {
@@ -92854,7 +92854,7 @@
       {
         "computation": "@beep/repo-cli#audit",
         "command": "bun run --if-present beep:audit",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/ai-provider-cli#audit",
           "@beep/ai-sync#audit",
@@ -92957,7 +92957,7 @@
       {
         "computation": "@beep/repo-cli#build",
         "command": "bun run beep:build",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
@@ -93049,7 +93049,7 @@
       {
         "computation": "@beep/repo-cli#check",
         "command": "bun run beep:check",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
@@ -93128,7 +93128,7 @@
       {
         "computation": "@beep/repo-cli#coverage",
         "command": "bunx vitest run --coverage",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
@@ -93217,7 +93217,7 @@
       {
         "computation": "@beep/repo-cli#docgen",
         "command": "bun run beep:docgen",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/repo-cli#transit",
           "@beep/repo-docgen#transit"
@@ -93256,7 +93256,7 @@
       {
         "computation": "@beep/repo-cli#doctest",
         "command": "bun run beep:doctest",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
@@ -93344,7 +93344,7 @@
       {
         "computation": "@beep/repo-cli#lint",
         "command": "bun run beep:lint",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [],
         "configuration": {
           "cache": true,
@@ -93379,7 +93379,7 @@
       {
         "computation": "@beep/repo-cli#lint:deprecated-apis",
         "command": "beep-cli lint deprecated-apis --package .",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/ai-provider-cli#transit",
@@ -93484,7 +93484,7 @@
       {
         "computation": "@beep/repo-cli#lint:fix",
         "command": "bun run beep:lint:fix",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [],
         "configuration": {
           "cache": false,
@@ -93513,7 +93513,7 @@
       {
         "computation": "@beep/repo-cli#lint:jsdoc",
         "command": "beep-cli lint jsdoc --package .",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -93568,7 +93568,7 @@
       {
         "computation": "@beep/repo-cli#lint:laws",
         "command": "beep-cli lint laws --package .",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -93622,7 +93622,7 @@
       {
         "computation": "@beep/repo-cli#package-test-typecheck",
         "command": "beep-cli quality test-tsgo-package",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
@@ -93704,7 +93704,7 @@
       {
         "computation": "@beep/repo-cli#test",
         "command": "bun run beep:test",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
@@ -93753,13 +93753,28 @@
         "configuration": {
           "cache": true,
           "inputs": [
+            "!../../../../apps/architecture-lab-proof/**/.turbo/**",
+            "!../../../../apps/architecture-lab-proof/**/dist/**",
+            "!../../../../apps/architecture-lab-proof/**/docs/**",
+            "!../../../../apps/architecture-lab-proof/**/node_modules/**",
+            "!../../../../packages/_internal/db-admin/**/.turbo/**",
+            "!../../../../packages/_internal/db-admin/**/dist/**",
+            "!../../../../packages/_internal/db-admin/**/docs/**",
+            "!../../../../packages/_internal/db-admin/**/node_modules/**",
+            "!../../../../packages/architecture-lab/**/.turbo/**",
+            "!../../../../packages/architecture-lab/**/dist/**",
+            "!../../../../packages/architecture-lab/**/docs/**",
+            "!../../../../packages/architecture-lab/**/node_modules/**",
             "!.beep/**",
             "!.fallow/**",
             "../../../../.bun-version",
             "../../../../.nvmrc",
+            "../../../../apps/architecture-lab-proof/**",
             "../../../../goals/time-to-certainty/research/economics.json",
             "../../../../goals/time-to-certainty/research/gate-order-handoff.json",
             "../../../../package.json",
+            "../../../../packages/_internal/db-admin/**",
+            "../../../../packages/architecture-lab/**",
             "../../../../standards/effect-diagnostics.profile.json",
             "../../../../tsconfig.base.json",
             "../../../../tsconfig.json",
@@ -93796,7 +93811,7 @@
       {
         "computation": "@beep/repo-cli#test:property",
         "command": "bun run beep:test",
-        "commandDigest": "b9428dfd4dbeb400983fda091ad0c7c19c05aabd422a842d979fbb4180182b23",
+        "commandDigest": "3ebb2fafaa59d4ea3afde4ab3aecb7451f326fd13139d00c0d188820b289576f",
         "dependencies": [
           "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
@@ -122040,7 +122055,7 @@
       },
       {
         "path": "packages/tooling/tool/cli/turbo.json",
-        "sha256": "348c85c459957b74a9aa02967e06083bb0a010bf34ff3312247d0abc1d22656e"
+        "sha256": "8f2d4af0fce6cca096f6c7d14f18c9390f2b474580ce802e145e4c9c30063974"
       },
       {
         "path": "turbo.json",

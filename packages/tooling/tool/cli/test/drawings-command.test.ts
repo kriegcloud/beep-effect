@@ -25,17 +25,23 @@ import {
   DrawingError,
   EngineInfo,
   FigureRecord,
+  FontPin,
   GeometryEngine,
   LabelFontAlias,
   ModelSpec,
   ModelSummary,
+  OmissionProof,
   Part,
   PdfBackend,
   RenderManifest,
+  Sha256Hex,
+  SheetFinding,
   SheetFonts,
   SheetOptions,
+  sha256Hex,
   structuralFindings,
   ValidationOptions,
+  ValidationReport,
 } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
@@ -50,6 +56,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { PDFDocument, StandardFonts } from "pdf-lib";
@@ -510,6 +517,294 @@ describe("beep drawings command", () => {
         yield* fs.writeFileString(reply, "no inventory here\n");
         const error = yield* Effect.flip(runDrawings(["judge-ingest", "--pack", dir, "--reply", reply]));
         assertInstanceOf(error, DrawingsCommandError);
+      })
+    );
+  });
+});
+
+describe("beep drawings render summary of a full manifest", () => {
+  it.effect(
+    "prints shading, part overlaps, label fonts, omissions, and every validator finding",
+    Effect.fnUntraced(function* () {
+      const requested = SheetOptions.make({});
+      const base = manifestWith(O.some(requested));
+      const finding = (code: SheetFinding["code"], page: O.Option<number>, message: string) =>
+        SheetFinding.make({ code, page, message });
+      const shaded = RenderManifest.make({
+        ...base,
+        shaded: true,
+        model: ModelSummary.make({ ...base.model, partOverlaps: 2 }),
+        fonts: [
+          FontPin.make({
+            family: "Label Boxes",
+            file: "/fonts/label.ttf",
+            sha256: Sha256Hex.make(Str.repeat(64)("a")),
+          }),
+        ],
+        figures: [
+          FigureRecord.make({
+            figure: 1,
+            view: "top-perspective",
+            description: "is a top view",
+            svgFile: "fig-1.svg",
+            svgSha256: "00",
+            visibleSegments: 4,
+            shadingSegments: 6,
+          }),
+        ],
+        omissions: [OmissionProof.make({ omitted: "rear", shown: "front", relation: "mirror", proven: true })],
+        validation: O.some(
+          ValidationReport.make({
+            pdfSha256: "00",
+            pageCount: 2,
+            findings: [
+              finding("pdf-version", O.none(), "PDF header is 1.7"),
+              finding("margin-top", O.some(2), "top margin is 1.2 cm"),
+            ],
+          })
+        ),
+      });
+      deepStrictEqual(renderManifestSummary({ manifest: shaded, requested }), [
+        'rendered "Synthetic block": 1 shaded sheet(s) at 2 pt/unit → sheets.pdf',
+        "sheet-set sha256 00",
+        "warning: 2 pair(s) of parts overlap (rendered under --allow-part-overlaps)",
+        "sheet: letter, margins cfr-cm",
+        `label font: Label Boxes → /fonts/label.ttf (sha256 ${Str.repeat(64)("a")})`,
+        // a pictorial figure without a recorded camera carries no projection note
+        "  FIG. 1 top-perspective: fig-1.svg (4 segments, 6 shading)",
+        "  omitted rear: mirror to front — proven",
+        "validator: 2 finding(s) on 2 page(s), sha256 00",
+        "  [pdf-version] PDF header is 1.7",
+        "  [margin-top] page 2: top margin is 1.2 cm",
+      ]);
+      const clean = RenderManifest.make({
+        ...base,
+        validation: O.some(ValidationReport.make({ pdfSha256: "00", pageCount: 3, findings: [] })),
+      });
+      expect(renderManifestSummary({ manifest: clean, requested })).toContain("validator: ok (3 page(s), sha256 00)");
+    })
+  );
+});
+
+const encodeManifest = S.encodeEffect(S.fromJsonString(RenderManifest));
+const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
+const textBytes = (text: string) => new TextEncoder().encode(text);
+
+// A synthetic sheet set: sheets.pdf and a manifest recording its hash, or the
+// hash of other bytes when `stale`; `figures: false` writes a manifest without
+// sheets, so nothing has to be rasterised.
+const writeSheetSet = Effect.fnUntraced(function* (options: { readonly figures: boolean; readonly stale: boolean }) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const dir = yield* fs.makeTempDirectoryScoped();
+  const bytes = textBytes("%PDF-1.6\n% synthetic sheet set\n");
+  yield* fs.writeFile(path.join(dir, "sheets.pdf"), bytes);
+  const base = manifestWith(O.none());
+  const manifest = RenderManifest.make({
+    ...base,
+    pdfSha256: yield* sha256Hex(options.stale ? textBytes("another sheet set") : bytes),
+    figures: options.figures ? base.figures : [],
+  });
+  const manifestPath = path.join(dir, "manifest.json");
+  yield* fs.writeFileString(manifestPath, yield* encodeManifest(manifest));
+  return { dir, manifest: manifestPath, pdf: path.join(dir, "sheets.pdf") };
+});
+
+const judgeReply = {
+  schemaVersion: "qa-inventory/v1",
+  round: 1,
+  sessionRef: "../../manifest.json",
+  judge: { model: "claude-opus-5-5", effort: "inherited" },
+  findings: [
+    {
+      id: "R1-01",
+      severity: "P1",
+      lens: "orientation",
+      title: "The reference photo shows the tab folded down",
+      evidence: [{ kind: "sheet", path: "photos/article.jpg", eventIds: [] }],
+      repro: "Compare the photo with FIG. 1.",
+      fix: "Flip the tab rotation sign in the spec.",
+    },
+  ],
+  requiredCount: 1,
+};
+
+const failureMessage = (args: ReadonlyArray<string>) =>
+  Effect.flip(runDrawings(args)).pipe(Effect.map((error) => error.message));
+
+// Every route below fails or finishes before a native PDF tool or a reviewer
+// process would run, so the cases hold on hosted runners without poppler.
+describe("beep drawings command routes", () => {
+  it.layer(TestLayer, { timeout: "120 seconds" })((it) => {
+    it.effect(
+      "render and validate map figure-set failures and print the findings of a sheet set without pages",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const spec = path.join(dir, "spec.json");
+        yield* fs.writeFileString(spec, "{}");
+        const render = yield* Effect.flip(runDrawings(["render", "--spec", spec, "--out", path.join(dir, "out")]));
+        assertInstanceOf(render, DrawingsCommandError);
+        expect(render.message).toContain(`Rendering the figure set failed: Invalid figure-set spec "${spec}". (`);
+
+        const notPdf = path.join(dir, "notes.pdf");
+        yield* fs.writeFileString(notPdf, "not a pdf\n");
+        expect(yield* failureMessage(["validate", notPdf])).toContain(
+          "Validating the sheet set failed: The PDF backend failed. ("
+        );
+
+        const empty = path.join(dir, "empty.pdf");
+        const doc = yield* Effect.promise(() => PDFDocument.create({ updateMetadata: false }));
+        // pdf-lib adds a blank page to an empty document unless told not to
+        const bytes = yield* Effect.promise(() => doc.save({ useObjectStreams: false, addDefaultPage: false }));
+        yield* fs.writeFile(empty, bytes);
+        const findings = yield* Effect.flip(runDrawings(["validate", empty]));
+        assertInstanceOf(findings, DrawingsCommandError);
+        expect(findings.message).toMatch(/^\d+ validator finding\(s\)\.$/u);
+        expect(yield* logged).toMatch(/validator: \d+ finding\(s\) on 0 page\(s\), sha256 [0-9a-f]{64}/u);
+      })
+    );
+
+    it.effect(
+      "statement warns that no round guards a set and refuses a PDF that no longer matches its manifest",
+      Effect.fnUntraced(function* () {
+        const set = yield* writeSheetSet({ figures: true, stale: true });
+        const error = yield* Effect.flip(runDrawings(["statement", "--manifest", set.manifest]));
+        assertInstanceOf(error, DrawingsCommandError);
+        expect(error.message).toContain(`"${set.pdf}" no longer matches its manifest`);
+        expect(yield* logged).toContain(`warning: no review/ directory in "${set.dir}" or any directory above it`);
+      })
+    );
+
+    it.effect(
+      "sign pdf refuses a sheet set that records no approver",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const set = yield* writeSheetSet({ figures: true, stale: false });
+        const reviewDir = yield* fs.makeTempDirectoryScoped();
+        const message = yield* failureMessage([
+          "sign",
+          "pdf",
+          "--manifest",
+          set.manifest,
+          "--by",
+          "operator",
+          "--pdf",
+          set.pdf,
+          "--page",
+          "1",
+          "--attested-by",
+          "operator",
+          "--delivered-by",
+          "approver@example.test",
+          "--corpus-root",
+          set.dir,
+          "--review-dir",
+          reviewDir,
+        ]);
+        expect(message).toBe(
+          "Approval refused: the sheet set records no approver. Add `approver` to the spec and render again."
+        );
+      })
+    );
+
+    it.effect(
+      "judge builds a pack for a set without sheets and judge-ingest stores the judge's reply",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const set = yield* writeSheetSet({ figures: false, stale: false });
+        const photos = path.join(set.dir, "photos-in");
+        yield* fs.makeDirectory(photos);
+        yield* fs.writeFileString(path.join(photos, "article.jpg"), "jpeg");
+        yield* runDrawings(["judge", "--manifest", set.manifest, "--photos", photos]);
+        const packDir = path.join(set.dir, "judge", "round-1");
+        const reply = path.join(set.dir, "reply.json");
+        yield* fs.writeFileString(reply, yield* encodeJson(judgeReply));
+        yield* runDrawings(["judge-ingest", "--pack", packDir, "--reply", reply]);
+        const output = yield* logged;
+        expect(output).toContain(`judge pack: ${packDir}\n  0 sheet(s), 1 reference photo(s)\n`);
+        expect(output).toContain(
+          "inventory: 1 finding(s), REQUIRED FINDINGS: 1\n  R1-01 P1 [orientation] The reference photo shows the tab folded down"
+        );
+        expect(yield* fs.exists(path.join(packDir, "inventory.json"))).toBe(true);
+
+        const unreadable = path.join(set.dir, "unreadable.json");
+        yield* fs.writeFileString(unreadable, "{}");
+        expect(yield* failureMessage(["judge", "--manifest", unreadable])).toContain(
+          `Could not read the render manifest "${unreadable}".`
+        );
+      })
+    );
+
+    it.effect(
+      "review routes refuse a round below one, and deliver refuses an empty message id",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const set = yield* writeSheetSet({ figures: true, stale: false });
+        const round = ["--corpus-root", set.dir, "--matter", set.dir, "--round", "0"];
+        const dispositions = path.join(set.dir, "dispositions.json");
+        yield* fs.writeFileString(dispositions, "{}");
+        const refusals = yield* Effect.forEach(
+          [
+            ["review", "status", ...round],
+            ["review", "plan", ...round, "--dispositions", dispositions],
+            ["review", "ingest", ...round, "--manifest", set.manifest, "--pdf", set.pdf],
+          ],
+          failureMessage
+        );
+        deepStrictEqual(refusals, A.replicate("Round 0 is not a valid round.", 3));
+
+        const draft = path.join(set.dir, "draft.json");
+        yield* fs.writeFileString(draft, "{}");
+        expect(
+          yield* failureMessage([
+            "deliver",
+            "record",
+            "--manifest",
+            set.manifest,
+            "--draft",
+            draft,
+            "--sent-message-id",
+            "",
+          ])
+        ).toBe("The delivery flags are not valid.");
+      })
+    );
+
+    it.effect(
+      "critics pack, run, and summary check their inputs before any reviewer runs",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const manifest = path.join(dir, "manifest.json");
+        const brief = path.join(dir, "BRIEF.md");
+        yield* fs.writeFileString(manifest, "{}");
+        yield* fs.writeFileString(brief, "# Brief\n");
+        const pack = ["critics", "pack", "--manifest", manifest, "--out", path.join(dir, "pack"), "--brief", brief];
+        expect(yield* failureMessage([...pack, "--zoom", "fig-1"])).toBe('"fig-1" is not fig:x,y,width,height:label.');
+        expect(yield* failureMessage([...pack, "--zoom", "1:10,20,300,200:tab"])).toContain(
+          `Could not decode the render manifest "${manifest}".`
+        );
+
+        const packDir = path.join(dir, "empty-pack");
+        yield* fs.makeDirectory(packDir);
+        const run = ["critics", "run", "--pack", packDir, "--loop-dir", path.join(dir, "loop-1")];
+        expect(yield* failureMessage([...run, "--reviewers", "nobody"])).toContain('"nobody" is not a known reviewer');
+        expect(yield* failureMessage([...run, "--reviewers", "grok-4.7", "--loop", "0"])).toBe(
+          "The critic run flags do not form a run request; --loop and --timeout-minutes must be at least 1."
+        );
+        expect(yield* failureMessage([...run, "--reviewers", "grok-4.7"])).toContain(
+          `"${packDir}" holds no readable pack.json; build the pack first.`
+        );
+
+        const loopDir = path.join(dir, "loop-0");
+        yield* fs.makeDirectory(loopDir);
+        yield* runDrawings(["critics", "summary", "--loop-dir", loopDir]);
+        expect(yield* logged).toContain("# Findings already reported in this loop");
       })
     );
   });

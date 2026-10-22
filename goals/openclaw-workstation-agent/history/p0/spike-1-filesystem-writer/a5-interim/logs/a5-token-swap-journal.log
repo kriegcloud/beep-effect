@@ -16,7 +16,7 @@ Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.042-
 Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.075-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.338-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.339-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 0.4s)
-Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.340-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1a5.ZUoCqx/spike1/state/log/openclaw.log
+Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.340-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1a5.ZUoCqx/spike1/state/log/openclaw.log
 Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.341-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.361-05:00 [gateway] starting channels and sidecars...
 Jul 25 19:21:45 DankStation unit-entrypoint.sh[452743]: 2026-07-25T19:21:45.403-05:00 [gateway] ready
@@ -46,7 +46,7 @@ Jul 25 19:21:56 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:56.902-
 Jul 25 19:21:56 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:56.936-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.203-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.203-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 0.4s)
-Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.204-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1a5.ZUoCqx/spike1/state/log/openclaw.log
+Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.204-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1a5.ZUoCqx/spike1/state/log/openclaw.log
 Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.205-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.225-05:00 [gateway] starting channels and sidecars...
 Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.270-05:00 [gateway] ready
@@ -54,5 +54,5 @@ Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.280-
 Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.307-05:00 [gateway] failed to promote config last-known-good backup: Error: EACCES: permission denied, open '/etc/beep/openclaw-spike/current/openclaw.json.last-good'
 Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.596-05:00 [telegram] [default] starting provider (@beep_ip_bot)
 Jul 25 19:21:57 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:57.738-05:00 [telegram] menu text exceeded the conservative 5700-character payload budget; shortening descriptions to keep 70 commands visible.
-Jul 25 19:21:58 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:58.073-05:00 [telegram] [diag] isolated polling ingress started spool=/home/elpresidank/.cache/beep-p0-spike1a5.ZUoCqx/spike1/state/telegram/ingress-spool-default
+Jul 25 19:21:58 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:21:58.073-05:00 [telegram] [diag] isolated polling ingress started spool=$HOME/.cache/beep-p0-spike1a5.ZUoCqx/spike1/state/telegram/ingress-spool-default
 Jul 25 19:22:00 DankStation unit-entrypoint.sh[453766]: 2026-07-25T19:22:00.399-05:00 [ws] ⇄ res ✓ channels.status 682ms conn=168e7e4f…014c id=874104a0…f1d1

@@ -2306,6 +2306,9 @@
       "@beep/epistemics/ValidInterval": [
         "./packages/foundation/modeling/epistemics/src/ValidInterval/index.ts"
       ],
+      "@beep/shared-domain/identity/Party": [
+        "./packages/shared/domain/src/identity/Party/index.ts"
+      ],
       "@beep/markdown": [
         "./packages/foundation/modeling/markdown/src/index.ts"
       ],

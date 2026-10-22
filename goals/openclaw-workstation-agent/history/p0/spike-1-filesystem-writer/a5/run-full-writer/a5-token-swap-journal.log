@@ -16,7 +16,7 @@ Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.397
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.437-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.713-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.714-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 0.5s)
-Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.714-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
+Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.714-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.715-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.738-05:00 [gateway] starting channels and sidecars...
 Jul 25 21:26:53 DankStation unit-entrypoint.sh[2407496]: 2026-07-25T21:26:53.786-05:00 [gateway] ready
@@ -46,7 +46,7 @@ Jul 25 21:27:05 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:05.696
 Jul 25 21:27:05 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:05.737-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.029-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.030-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 0.5s)
-Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.031-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
+Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.031-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/log/openclaw.log
 Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.032-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.054-05:00 [gateway] starting channels and sidecars...
 Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.102-05:00 [gateway] ready
@@ -54,5 +54,5 @@ Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.111
 Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.135-05:00 [gateway] failed to promote config last-known-good backup: Error: EACCES: permission denied, open '/etc/beep/openclaw-spike/current/openclaw.json.last-good'
 Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.433-05:00 [telegram] [default] starting provider (@beep_ip_bot)
 Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.574-05:00 [telegram] menu text exceeded the conservative 5700-character payload budget; shortening descriptions to keep 70 commands visible.
-Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.901-05:00 [telegram] [diag] isolated polling ingress started spool=/home/elpresidank/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
+Jul 25 21:27:06 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:06.901-05:00 [telegram] [diag] isolated polling ingress started spool=$HOME/.cache/beep-p0-spike1a5.r8AgBy/spike1/state/telegram/ingress-spool-default
 Jul 25 21:27:08 DankStation unit-entrypoint.sh[2411780]: 2026-07-25T21:27:08.967-05:00 [ws] ⇄ res ✓ channels.status 562ms conn=2c5a3141…4da0 id=6096d3c9…1dbb

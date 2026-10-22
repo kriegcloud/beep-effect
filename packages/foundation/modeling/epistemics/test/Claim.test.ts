@@ -8,6 +8,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
 import * as SchemaAST from "effect/SchemaAST";
+import * as Str from "effect/String";
 
 const Knows = S.TaggedStruct("Knows", { left: S.String, right: S.String });
 
@@ -73,7 +74,7 @@ describe("Claim envelope", () => {
       const disposition = (value: string) => ({
         disposition: value,
         reviewer: "reviewer-1",
-        basis: "a".repeat(64),
+        basis: Str.repeat(64)("a"),
         reviewedAt: 100,
         reason: "checked the basis",
       });

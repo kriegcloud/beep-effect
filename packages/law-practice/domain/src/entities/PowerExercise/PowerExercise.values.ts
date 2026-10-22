@@ -10,6 +10,7 @@ import { $LawPracticeDomainId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { Principal } from "@beep/shared-domain/entity/Principal";
 import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
+import * as Party from "@beep/shared-domain/identity/Party";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { ActFrameElementRef } from "../../values/ActFrameElementRef/index.ts";
@@ -422,10 +423,10 @@ export class PreconditionAssertion extends S.Opaque<PreconditionAssertion, { rea
  *
  * ```ts
  * import { ActFrameElementRef, ActFrameSlotAssignment } from "@beep/law-practice-domain"
- * import * as LawPractice from "@beep/shared-domain/identity/LawPractice"
+ * import * as Party from "@beep/shared-domain/identity/Party"
  *
  * const assignment = ActFrameSlotAssignment.make({
- *   player: LawPractice.PartyId.make(9),
+ *   player: Party.PartyId.make(9),
  *   slot: ActFrameElementRef.make({ label: "lessor", part: "slot" }),
  * })
  * console.log(assignment.slot.label) // "lessor"
@@ -436,7 +437,7 @@ export class PreconditionAssertion extends S.Opaque<PreconditionAssertion, { rea
  */
 export class ActFrameSlotAssignment extends S.Opaque<ActFrameSlotAssignment, { readonly brand: unique symbol }>()(
   S.Struct({
-    player: LawPractice.PartyId.annotateKey({
+    player: Party.PartyId.annotateKey({
       description: "Party recorded as filling the slot on this occasion.",
     }),
     slot: ActFrameElementRef.annotateKey({
@@ -481,7 +482,7 @@ export class ActFrameSlotAssignment extends S.Opaque<ActFrameSlotAssignment, { r
  *
  * ```ts
  * import { AssertedAuthorityBasis, LegalRole, PartyKind, SourceNormRef } from "@beep/law-practice-domain"
- * import * as LawPractice from "@beep/shared-domain/identity/LawPractice"
+ * import * as Party from "@beep/shared-domain/identity/Party"
  * import * as HashSet from "effect/HashSet"
  * import * as O from "effect/Option"
  *
@@ -489,7 +490,7 @@ export class ActFrameSlotAssignment extends S.Opaque<ActFrameSlotAssignment, { r
  *   claimedRole: LegalRole.make({
  *     admittedPlayerKinds: HashSet.make(PartyKind.Enum["natural-person"]),
  *     name: "lessee",
- *     player: LawPractice.PartyId.make(4),
+ *     player: Party.PartyId.make(4),
  *     sourceNorm: SourceNormRef.make({ designation: "cl. 4.1" }),
  *   }),
  *   exercisedPower: O.none(),

@@ -6279,14 +6279,14 @@
     },
     "@beep/duckdb": {
       "path": "packages/drivers/duckdb",
-      "lines": 96.87,
-      "statements": 96.68,
-      "branches": 92,
-      "functions": 94.73,
+      "lines": 97.15,
+      "statements": 96.96,
+      "branches": 92.82,
+      "functions": 94.91,
       "uncovered": {
         "lines": 19,
         "statements": 22,
-        "branches": 16,
+        "branches": 17,
         "functions": 18
       },
       "files": {
@@ -6399,9 +6399,9 @@
           }
         },
         "packages/drivers/duckdb/src/internal/connection.ts": {
-          "lines": 98.31,
-          "statements": 98.51,
-          "branches": 97.56,
+          "lines": 98.34,
+          "statements": 98.54,
+          "branches": 97.77,
           "functions": 97.53,
           "uncovered": {
             "lines": 2,
@@ -6413,7 +6413,7 @@
         "packages/drivers/duckdb/src/internal/convert.ts": {
           "lines": 100,
           "statements": 100,
-          "branches": 81.81,
+          "branches": 82.6,
           "functions": 100,
           "uncovered": {
             "lines": 0,
@@ -6460,9 +6460,9 @@
         },
         "packages/drivers/duckdb/src/internal/parameters.ts": {
           "lines": 100,
-          "statements": 98.03,
+          "statements": 98.24,
           "branches": 100,
-          "functions": 96.55,
+          "functions": 96.96,
           "uncovered": {
             "lines": 0,
             "statements": 1,
@@ -6471,14 +6471,14 @@
           }
         },
         "packages/drivers/duckdb/src/internal/transaction.ts": {
-          "lines": 96.49,
-          "statements": 96.55,
-          "branches": 77.77,
-          "functions": 94.11,
+          "lines": 98.14,
+          "statements": 98.18,
+          "branches": 88.09,
+          "functions": 95.12,
           "uncovered": {
             "lines": 2,
             "statements": 2,
-            "branches": 4,
+            "branches": 5,
             "functions": 2
           }
         }
@@ -19692,27 +19692,27 @@
           }
         },
         "packages/drivers/occt/src/internal/kernel.ts": {
-          "lines": 96.85,
-          "statements": 96.5,
-          "branches": 90.74,
-          "functions": 95.26,
+          "lines": 99,
+          "statements": 98.68,
+          "branches": 93.2,
+          "functions": 98.88,
           "uncovered": {
-            "lines": 19,
-            "statements": 24,
-            "branches": 15,
-            "functions": 17
+            "lines": 6,
+            "statements": 9,
+            "branches": 11,
+            "functions": 4
           }
         },
         "packages/drivers/occt/src/internal/shading.ts": {
-          "lines": 98.65,
-          "statements": 98.53,
-          "branches": 85.71,
-          "functions": 98.34,
+          "lines": 99.32,
+          "statements": 99.41,
+          "branches": 93.9,
+          "functions": 100,
           "uncovered": {
             "lines": 2,
-            "statements": 3,
-            "branches": 6,
-            "functions": 2
+            "statements": 2,
+            "branches": 5,
+            "functions": 0
           }
         },
         "packages/drivers/occt/src/internal/vector.ts": {
@@ -28035,15 +28035,15 @@
           }
         },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.command.ts": {
-          "lines": 71.22,
-          "statements": 70.31,
-          "branches": 57.69,
-          "functions": 54.54,
+          "lines": 93.39,
+          "statements": 93.6,
+          "branches": 88.46,
+          "functions": 92.2,
           "uncovered": {
-            "lines": 61,
-            "statements": 65,
-            "branches": 11,
-            "functions": 35
+            "lines": 14,
+            "statements": 14,
+            "branches": 3,
+            "functions": 6
           }
         },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts": {
@@ -28119,15 +28119,15 @@
           }
         },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.layer.ts": {
-          "lines": 75.47,
-          "statements": 75.92,
+          "lines": 98.11,
+          "statements": 98.14,
           "branches": 100,
-          "functions": 53.84,
+          "functions": 96.15,
           "uncovered": {
-            "lines": 13,
-            "statements": 13,
+            "lines": 1,
+            "statements": 1,
             "branches": 0,
-            "functions": 12
+            "functions": 1
           }
         },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.measurements.ts": {
@@ -41264,18 +41264,6 @@
             "functions": 0
           }
         },
-        "packages/shared/domain/src/identity/LawPractice/PartyId.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/shared/domain/src/identity/LawPractice/PatentAssetId.ts": {
           "lines": 100,
           "statements": 100,
@@ -41337,6 +41325,18 @@
           }
         },
         "packages/shared/domain/src/identity/LawPractice/index.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/shared/domain/src/identity/Party/PartyId.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -42351,15 +42351,15 @@
           }
         },
         "packages/foundation/capability/technical-drawing/src/Outline.rules.ts": {
-          "lines": 96.54,
-          "statements": 96.87,
-          "branches": 90.29,
-          "functions": 97.2,
+          "lines": 99.68,
+          "statements": 99.71,
+          "branches": 99.24,
+          "functions": 100,
           "uncovered": {
-            "lines": 11,
-            "statements": 11,
-            "branches": 13,
-            "functions": 4
+            "lines": 1,
+            "statements": 1,
+            "branches": 1,
+            "functions": 0
           }
         },
         "packages/foundation/capability/technical-drawing/src/Shading.rules.ts": {
@@ -42459,15 +42459,15 @@
           }
         },
         "packages/foundation/capability/technical-drawing/src/View.schemas.ts": {
-          "lines": 98.96,
-          "statements": 99.05,
-          "branches": 87.5,
-          "functions": 98.07,
+          "lines": 100,
+          "statements": 100,
+          "branches": 94.73,
+          "functions": 100,
           "uncovered": {
-            "lines": 1,
-            "statements": 1,
+            "lines": 0,
+            "statements": 0,
             "branches": 1,
-            "functions": 1
+            "functions": 0
           }
         },
         "packages/foundation/capability/technical-drawing/src/index.ts": {

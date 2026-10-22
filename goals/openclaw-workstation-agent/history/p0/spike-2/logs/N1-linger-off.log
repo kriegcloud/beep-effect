@@ -1,5 +1,5 @@
 ### LANE N1-linger-off (2026-07-26T04:37:36Z)
-### COMMAND: setsid -w env -i HOME=/home/elpresidank USER=elpresidank LOGNAME=elpresidank PATH=/usr/bin:/bin SPIKE_TARGET_USER=elpresidank SPIKE_EXPECTED_IDENTITY=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/expected-identity.json SPIKE_STATE_DIR=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/throwaway-state bash /tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/applicator.sh
+### COMMAND: setsid -w env -i HOME=$HOME USER=elpresidank LOGNAME=elpresidank PATH=/usr/bin:/bin SPIKE_TARGET_USER=elpresidank SPIKE_EXPECTED_IDENTITY=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/expected-identity.json SPIKE_STATE_DIR=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/throwaway-state bash /tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/applicator.sh
 
 
 === step 0: non-interactive context probe ===
@@ -11,7 +11,7 @@
 [04:37:36Z] DBUS_SESSION_BUS_ADDRESS inherited? <unset>
 
 === step 1: resolve target identity from the OS (not from env) ===
-[04:37:36Z] user=elpresidank uid=1000 home=/home/elpresidank
+[04:37:36Z] user=elpresidank uid=1000 home=$HOME
 [04:37:36Z] hostname=DankStation machine_id_sha256=90bdffbb<sha256-redacted>
 
 === step 2: linger ownership check ===

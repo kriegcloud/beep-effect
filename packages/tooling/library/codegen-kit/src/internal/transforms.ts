@@ -483,24 +483,38 @@ const mergeObjectSchemas = (left: Record<string, unknown>, right: Record<string,
 };
 
 // A `$ref` survives only beside annotation-only siblings; otherwise its target is inlined, on
-// either side, so the result does not depend on `allOf` member order. `none` when neither side
-// is a reference.
+// either side. Member annotations merge left to right; distributeNode applies the outer
+// `allOf` annotations last at the reduced schema's level, preserving union branch
+// annotations. `none` when neither side is a reference.
 const mergeReference = (
   left: Record<string, unknown>,
   right: Record<string, unknown>,
   inline: (ref: string) => unknown
 ): O.Option<Record<string, unknown>> => {
   if (P.isString(right.$ref)) {
-    return O.some(isAnnotationOnly(left) ? { ...right, ...left } : mergeIntersection(left, inline(right.$ref), inline));
+    const { $ref, ...siblings } = right;
+    return O.some(
+      isAnnotationOnly(left)
+        ? { ...left, ...right }
+        : mergeIntersection(left, mergeIntersection(inline($ref), siblings, inline), inline)
+    );
   }
   if (P.isString(left.$ref)) {
+    const { $ref, ...siblings } = left;
     return O.some(
-      isAnnotationOnly(right) ? { ...left, ...right } : mergeIntersection(inline(left.$ref), right, inline)
+      isAnnotationOnly(right)
+        ? { ...left, ...right }
+        : mergeIntersection(mergeIntersection(inline($ref), siblings, inline), right, inline)
     );
   }
   return O.none();
 };
 
+const annotationsOf = (schema: Record<string, unknown>): Record<string, unknown> =>
+  R.filter(schema, (_, key) => isAnnotationKeyword(key));
+
+// A union side keeps its own union-level annotations on the resulting `anyOf`, so a reduced
+// union that is itself a branch of a constrained union keeps its description and title.
 const mergeIntersection = (
   left: unknown,
   right: unknown,
@@ -509,8 +523,12 @@ const mergeIntersection = (
   if (!P.isObject(left) || !P.isObject(right)) return failDistribute("Unsupported intersection of non-object schemas");
   const referenced = mergeReference(left, right, inline);
   if (O.isSome(referenced)) return referenced.value;
-  if (A.isArray(left.anyOf)) return { anyOf: A.map(left.anyOf, (branch) => mergeIntersection(branch, right, inline)) };
-  if (A.isArray(right.anyOf)) return { anyOf: A.map(right.anyOf, (branch) => mergeIntersection(left, branch, inline)) };
+  if (A.isArray(left.anyOf)) {
+    return { ...annotationsOf(left), anyOf: A.map(left.anyOf, (branch) => mergeIntersection(branch, right, inline)) };
+  }
+  if (A.isArray(right.anyOf)) {
+    return { ...annotationsOf(right), anyOf: A.map(right.anyOf, (branch) => mergeIntersection(left, branch, inline)) };
+  }
   return mergeObjectSchemas(left, right);
 };
 
@@ -528,11 +546,16 @@ const mergeOverlappingProperties = (
 
 const distributeNode = (node: Record<string, unknown>, inline: (ref: string) => unknown): unknown => {
   const { allOf, anyOf, ...base } = node;
-  const combined = A.isArray(allOf)
-    ? A.reduce(allOf, base, (current: Record<string, unknown>, part: unknown) =>
+  const annotations = annotationsOf(base);
+  const constraints = R.filter(base, (_, key) => !isAnnotationKeyword(key));
+  const reduced = A.isArray(allOf)
+    ? A.reduce(allOf, constraints, (current: Record<string, unknown>, part: unknown) =>
         mergeIntersection(current, part, inline)
       )
     : base;
+  const combined = A.isArray(reduced.anyOf)
+    ? { ...reduced, ...annotations }
+    : mergeIntersection(reduced, annotations, inline);
   if (A.isArray(anyOf) && !A.isArray(allOf) && isAnnotationOnly(base)) return { ...base, anyOf };
   return A.isArray(anyOf) ? mergeIntersection(combined, { anyOf }, inline) : combined;
 };

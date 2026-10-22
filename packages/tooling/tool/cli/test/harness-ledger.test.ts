@@ -15,12 +15,15 @@ import {
 } from "@beep/repo-ai-metrics";
 import {
   HarnessLedgerDispositionOptions,
+  HarnessLedgerListEntry,
   HarnessLedgerListOptions,
   HarnessLedgerProposeOptions,
   HarnessLedgerPruneOptions,
   HarnessLedgerService,
   HarnessLedgerServiceLive,
+  harnessLedgerCommand,
   harnessLedgerDispositionCommand,
+  harnessLedgerListCommand,
   harnessLedgerProposeCommand,
   harnessLedgerPruneProposalsCommand,
   harnessLedgerPruneReportLines,
@@ -36,6 +39,7 @@ import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -47,11 +51,14 @@ import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as TestClock from "effect/testing/TestClock";
+import * as TestConsole from "effect/testing/TestConsole";
 import type { HarnessLedgerPruneReport } from "@beep/repo-cli/commands/HarnessLedger";
 
 const decodeReconcileReport = S.decodeEffect(
   S.fromJsonString(S.Struct({ agentKind: HookPulseAgentKind, transcriptFiles: S.Natural }))
 );
+const encodeLedgerList = S.encodeEffect(S.toCodecJson(S.Array(HarnessLedgerListEntry)));
 const transcriptJson = S.fromJsonString(S.Unknown);
 const encodeUnknownTranscript = S.encodeUnknownEffect(transcriptJson);
 const encodeTranscript = S.encodeEffect(transcriptJson);
@@ -204,6 +211,57 @@ describe("harness-ledger CLI", () => {
 });
 
 layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
+  it.effect("list rejects an invalid month before reading ledger rows", () =>
+    Effect.gen(function* () {
+      const error = yield* Command.runWith(harnessLedgerListCommand, { version: "0.0.0" })(["--month", "2026-13"]).pipe(
+        Effect.flip
+      );
+      expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
+      expect(error.message).toContain("is not YYYY-MM");
+    })
+  );
+
+  it.effect("list encodes a fixture ledger entry as JSON", () =>
+    Effect.gen(function* () {
+      const root = yield* makeRepo();
+      yield* TestClock.setTime(DateTime.makeUnsafe("2099-01-15T00:00:00Z").pipe(DateTime.toEpochMillis));
+      const row = yield* proposePending(root);
+      const ledger = yield* HarnessLedgerService;
+      const entries = yield* ledger.list(HarnessLedgerListOptions.make({ repoRoot: root, month: O.some("2099-01") }));
+      const encodedRow = yield* HarnessLedgerRow.encodeJsonEffect(row);
+      expect(yield* encodeLedgerList(entries)).toEqual([
+        { row: yield* S.decodeEffect(transcriptJson)(encodedRow), stale: false, chainLength: 1 },
+      ]);
+    })
+  );
+
+  it.effect("prints the available ledger operations when no subcommand is selected", () =>
+    Effect.gen(function* () {
+      const testConsole = yield* TestConsole.make;
+      yield* Command.runWith(harnessLedgerCommand, { version: "0.0.0" })([]).pipe(
+        Effect.provideService(Console.Console, testConsole)
+      );
+      const lines = yield* testConsole.logLines;
+      assertSome(A.head(lines), "Harness ledger commands:");
+      expect(lines).toHaveLength(6);
+    })
+  );
+
+  it.effect("disposition rejects whitespace-only evidence before looking up the row", () =>
+    Effect.gen(function* () {
+      const error = yield* Command.runWith(harnessLedgerDispositionCommand, { version: "0.0.0" })([
+        "--row",
+        "hl-20261020-12345678",
+        "--to",
+        "accepted",
+        "--evidence",
+        "   ",
+      ]).pipe(Effect.flip);
+      expect(error).toMatchObject({ _tag: "CliReportedExit", exitCode: 1 });
+      expect(error.message).toContain("--evidence is required and must be non-empty");
+    })
+  );
+
   it.effect("command rejects partial hypotheses before appending a proposal", () =>
     Effect.gen(function* () {
       const error = yield* Effect.flip(

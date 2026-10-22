@@ -9,7 +9,7 @@ SERVICE-ENV-OP-WHOAMI-PASS
 2026-07-26T16:19:44.601-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 2026-07-26T16:19:44.776-05:00 [gateway] agent model: ollama/gemma3:4b (thinking=medium, fast=off)
 2026-07-26T16:19:44.776-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 1.5s)
-2026-07-26T16:19:44.777-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/state/log/openclaw.log
+2026-07-26T16:19:44.777-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike3.5R0T7w/spike3/state/log/openclaw.log
 2026-07-26T16:19:44.798-05:00 [gateway] starting channels and sidecars...
 2026-07-26T16:19:44.823-05:00 [gateway] ready
 2026-07-26T16:19:44.831-05:00 [heartbeat] started
@@ -45,7 +45,7 @@ SERVICE-ENV-OP-WHOAMI-PASS
 2026-07-26T16:24:04.213-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 2026-07-26T16:24:04.428-05:00 [gateway] agent model: ollama/gemma3:4b (thinking=medium, fast=off)
 2026-07-26T16:24:04.429-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 1.6s)
-2026-07-26T16:24:04.430-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/state/log/openclaw.log
+2026-07-26T16:24:04.430-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike3.5R0T7w/spike3/state/log/openclaw.log
 2026-07-26T16:24:04.454-05:00 [gateway] starting channels and sidecars...
 2026-07-26T16:24:04.489-05:00 [gateway] ready
 2026-07-26T16:24:04.500-05:00 [heartbeat] started

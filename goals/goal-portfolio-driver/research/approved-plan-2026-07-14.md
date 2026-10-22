@@ -169,7 +169,7 @@ self-reports.
    variants, stash clear/drop/pop, branch -d/-D, worktree prune/--force, git clean/reset --hard,
    gh pr merge --admin, gh pr close, gh api DELETE/PATCH, Edit/Write on `.github/workflows/**`,
    `docs/_internal/**`, `.claude/settings.json`) + `additionalDirectories:
-   ["/home/elpresidank/YeeBois/projects/beep-effect-worktrees"]`. Verify one deny actually blocks.
+   ["$HOME/YeeBois/projects/beep-effect-worktrees"]`. Verify one deny actually blocks.
 3. **`/deep-research`** (codex-powered) on residual unknowns: codex-Chrome-extension unattended
    operation, multi-lane worktree failure modes, auto-merge + strict:false pipelining hazards,
    Greptile resolution API mechanics → `research/deep-research-<date>.md`.

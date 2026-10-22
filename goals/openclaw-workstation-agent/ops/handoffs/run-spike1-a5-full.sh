@@ -2,13 +2,13 @@
 # Spike-1 writer-surface leg (assertions 5-6) in one pass:
 # preflight -> teardown -> setup-root -> a5 -> cleanup.
 set -uo pipefail
-H=/home/elpresidank/YeeBois/projects/beep-effect3/.beep/p0-orchestration/spike1
-OUT=/home/elpresidank/.cache/beep-p0-spike1-a5
+H=$HOME/YeeBois/projects/beep-effect3/.beep/p0-orchestration/spike1
+OUT=$HOME/.cache/beep-p0-spike1-a5
 rm -rf "$OUT"; mkdir -p "$OUT"
 
 export SPIKE_TG_GROUP_ID='-1004475923698'
 export SPIKE_TG_GROUP_USERNAME='@p0_spike1_jul25'
-export SPIKE_P="$(mktemp -d /home/elpresidank/.cache/beep-p0-spike1a5.XXXXXX)"
+export SPIKE_P="$(mktemp -d $HOME/.cache/beep-p0-spike1a5.XXXXXX)"
 echo "SPIKE_P=$SPIKE_P" | tee "$OUT/SPIKE_P.txt"
 cd "$H" || exit 1
 

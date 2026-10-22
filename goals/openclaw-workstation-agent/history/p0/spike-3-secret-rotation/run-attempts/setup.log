@@ -16,7 +16,7 @@ operator-created Telegram SecretRef configured
 
 === validate before privileged install ===
 staged-package-sha256=4034a491f5fb31b20b8f16fe29a88e1782be4b70f4aeed0df43c09ce24b147a5 unchanged=yes
-Config valid: /home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/render/openclaw.json
+Config valid: $HOME/.cache/beep-p0-spike3.WkQp2E/spike3/render/openclaw.json
 
 === install root-owned content-addressed generation ===
 

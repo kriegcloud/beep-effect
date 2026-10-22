@@ -213,6 +213,21 @@ export * as Epistemic from "./Epistemic/index.ts";
  */
 export * as LawPractice from "./LawPractice/index.ts";
 /**
+ * Party entity-id registry namespace.
+ *
+ * **Example** (Log PartyId table name)
+ *
+ * ```ts
+ * import * as Party from "@beep/shared-domain/identity/Party"
+ *
+ * console.log(Party.PartyId.tableName)
+ * ```
+ *
+ * @category entity-ids
+ * @since 0.0.0
+ */
+export * as Party from "./Party/index.ts";
+/**
  * Shared entity-id registry namespace.
  *
  * **Example** (Log OrganizationId table name)

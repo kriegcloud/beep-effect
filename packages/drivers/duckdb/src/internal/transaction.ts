@@ -10,6 +10,14 @@
  * into a {@link TransactionPhase}, and decides whether a `COMMIT` may run, must
  * be probed first, or must be refused.
  *
+ * Classification strips SQL comments (line and nested block comments, as
+ * DuckDB parses them) and splits the text into statements outside quoted
+ * strings, identifiers and dollar-quoted strings. Transaction control is
+ * tracked only when it is the single statement of the text: multi-statement
+ * text that contains `BEGIN`, `COMMIT`, `ROLLBACK` or a savepoint statement is
+ * refused before it reaches DuckDB, because a failure part-way through leaves
+ * a transaction state the error alone cannot reveal (D59).
+ *
  * `SAVEPOINT effect_sql_<n>` and `ROLLBACK TO SAVEPOINT effect_sql_<n>` (the
  * exact text `SqlClient.make` generates for nested `withTransaction`) are
  * emulated: the connection never sends them to DuckDB inside a transaction,
@@ -39,6 +47,7 @@ const TransactionControl = LiteralKit([
   "savepoint",
   "rollbackSavepoint",
   "catalogContext",
+  "multiStatementControl",
   "statement",
 ]).pipe(
   $I.annoteSchema("TransactionControl", {
@@ -63,11 +72,25 @@ const ABORTED_TRANSACTION_PATTERN = /Current transaction is aborted/;
 const CONTROL_RULES: ReadonlyArray<readonly [TransactionControl, RegExp]> = [
   ["savepoint", SAVEPOINT_PATTERN],
   ["rollbackSavepoint", ROLLBACK_SAVEPOINT_PATTERN],
-  ["begin", /^\s*(?:BEGIN(?:\s+TRANSACTION)?|START\s+TRANSACTION)(?:\s+READ\s+(?:ONLY|WRITE))?\s*;?\s*$/i],
-  ["commit", /^\s*(?:COMMIT|END)(?:\s+TRANSACTION)?\s*;?\s*$/i],
-  ["rollback", /^\s*(?:ROLLBACK|ABORT)(?:\s+TRANSACTION)?\s*;?\s*$/i],
+  ["begin", /^\s*(?:BEGIN|START)(?:\s+(?:TRANSACTION|WORK))?(?:\s+READ\s+(?:ONLY|WRITE))?\s*;?\s*$/i],
+  ["commit", /^\s*(?:COMMIT|END)(?:\s+(?:TRANSACTION|WORK))?\s*;?\s*$/i],
+  ["rollback", /^\s*(?:ROLLBACK|ABORT)(?:\s+(?:TRANSACTION|WORK))?\s*;?\s*$/i],
   ["catalogContext", /^\s*(?:USE\s|(?:SET|RESET)\s+(?:(?:SESSION|LOCAL|GLOBAL)\s+)?(?:schema|search_path)\b)/i],
 ];
+
+// One lexeme of DuckDB SQL text: a line comment, the opening of a (nestable)
+// block comment, an escape string, a quoted string or identifier, a
+// dollar-quote tag, a statement separator, a run of ordinary text, or any
+// single character. Unterminated quotes run to the end of the text. A `$`
+// that continues an identifier (`a$b$c`) never opens a dollar quote, so it
+// cannot hide a trailing statement from the multi-statement refusal.
+const LEXEME_SOURCE =
+  /--[^\n]*|\/\*|(?<![\w$\u{80}-\u{10FFFF}])[Ee]'(?:[^'\\]|\\[\s\S]|'')*'?|'(?:[^']|'')*'?|"(?:[^"]|"")*"?|(?<![\w$\u{80}-\u{10FFFF}])\$(?:[A-Za-z_\u{80}-\u{10FFFF}][\w\u{80}-\u{10FFFF}]*)?\$|;|[^-'"$/;Ee]+|[\s\S]/u
+    .source;
+
+const BLOCK_COMMENT_EDGE_SOURCE = /\/\*|\*\//.source;
+
+const DOLLAR_TAG_PATTERN = /^\$(?:[A-Za-z_\u{80}-\u{10FFFF}][\w\u{80}-\u{10FFFF}]*)?\$$/u;
 
 const INTERRUPTED_MESSAGE = "DuckDB statement interrupted";
 
@@ -77,16 +100,120 @@ const REFUSED_NESTED_MESSAGE =
 const REFUSED_ABORTED_MESSAGE =
   "DuckDB aborted this transaction after an earlier statement failed; COMMIT refused because DuckDB would roll it back silently";
 
+const REFUSED_MULTI_STATEMENT_MESSAGE =
+  "DuckDB transaction control (BEGIN, COMMIT, ROLLBACK, SAVEPOINT) must be sent as its own statement; multi-statement text containing it was refused without running";
+
+// End offset of a block comment whose opening `/*` ends at `start`. DuckDB
+// nests block comments; an unterminated comment runs to the end of the text.
+const blockCommentEnd = (sql: string, start: number): number => {
+  const edge = new RegExp(BLOCK_COMMENT_EDGE_SOURCE, "g");
+  edge.lastIndex = start;
+  let depth = 1;
+  for (let match = edge.exec(sql); match !== null; match = edge.exec(sql)) {
+    depth += match[0] === "/*" ? 1 : -1;
+    if (depth === 0) {
+      return edge.lastIndex;
+    }
+  }
+  return sql.length;
+};
+
+// End offset of a dollar-quoted string whose opening `tag` ends at `start`.
+const dollarQuoteEnd = (sql: string, tag: string, start: number): number =>
+  pipe(
+    sql,
+    Str.slice(start),
+    Str.indexOf(tag),
+    O.match({
+      onNone: () => sql.length,
+      onSome: (close) => start + close + tag.length,
+    })
+  );
+
+/**
+ * Splits SQL text into its statements with comments removed.
+ *
+ * **Details**
+ *
+ * Line comments and (nested) block comments become a single space; quoted
+ * strings, quoted identifiers and dollar-quoted strings are kept verbatim and
+ * never split. Statements are trimmed and empty ones (blank text, a lone or
+ * trailing `;`, a comment-only statement) are dropped.
+ *
+ * **Example** (Split a comment-prefixed script)
+ *
+ * ```ts
+ * import { splitStatements } from "./transaction.ts"
+ *
+ * console.log(splitStatements("-- tx\nBEGIN; select ';' as s; -- done")) // ["BEGIN", "select ';' as s"]
+ * ```
+ *
+ * @internal
+ * @category utilities
+ * @since 0.0.0
+ */
+export const splitStatements = (sql: string): ReadonlyArray<string> => {
+  const lexeme = new RegExp(LEXEME_SOURCE, "uy");
+  const statements: Array<string> = [];
+  let current = "";
+  let index = 0;
+  while (index < sql.length) {
+    lexeme.lastIndex = index;
+    // The final `[\s\S]` alternative matches any character, so the sticky match
+    // never fails while `index` is inside the text; the fallback only types it.
+    const token = lexeme.exec(sql)?.[0] ?? Str.slice(index)(sql);
+    const next = index + token.length;
+    if (Str.startsWith("--")(token)) {
+      current += " ";
+      index = next;
+    } else if (token === "/*") {
+      current += " ";
+      index = blockCommentEnd(sql, next);
+    } else if (DOLLAR_TAG_PATTERN.test(token)) {
+      const end = dollarQuoteEnd(sql, token, next);
+      current += Str.slice(index, end)(sql);
+      index = end;
+    } else if (token === ";") {
+      statements.push(current);
+      current = "";
+      index = next;
+    } else {
+      current += token;
+      index = next;
+    }
+  }
+  statements.push(current);
+  return pipe(statements, A.map(Str.trim), A.filter(Str.isNonEmpty));
+};
+
+const classifyStatement = (statement: string): TransactionControl =>
+  pipe(
+    CONTROL_RULES,
+    A.findFirst(([, pattern]) => pattern.test(statement)),
+    O.match({
+      onNone: () => TransactionControl.Enum.statement,
+      onSome: ([control]) => control,
+    })
+  );
+
+const isTransactionControl = (control: TransactionControl): boolean =>
+  !TransactionControl.is.statement(control) && !TransactionControl.is.catalogContext(control);
+
 /**
  * Classifies SQL text into the transaction control kind the tracker reacts to.
  *
  * **Details**
  *
- * First match wins: the exact savepoint texts `SqlClient.make` generates,
- * then `BEGIN` / `START TRANSACTION`, `COMMIT` / `END`, `ROLLBACK` / `ABORT`,
- * then catalog-context statements (`USE`, `SET`/`RESET schema|search_path`)
- * that change how unqualified names resolve. Everything else, including
- * `RELEASE SAVEPOINT`, is a plain `statement`.
+ * The text is split with {@link splitStatements}, so leading comments do not
+ * hide a control keyword. A single statement is classified by first match:
+ * the exact savepoint texts `SqlClient.make` generates, then `BEGIN` /
+ * `START TRANSACTION`, `COMMIT` / `END`, `ROLLBACK` / `ABORT`, then
+ * catalog-context statements (`USE`, `SET`/`RESET schema|search_path`) that
+ * change how unqualified names resolve. Text with several statements is
+ * `multiStatementControl` when any of them is transaction control (the
+ * connection refuses it, D59), `catalogContext` when any of them is one, and
+ * a plain `statement` otherwise. Everything else, including
+ * `RELEASE SAVEPOINT` and comment-only text, is a plain `statement`.
  *
  * **Example** (Classify control statements)
  *
@@ -94,6 +221,8 @@ const REFUSED_ABORTED_MESSAGE =
  * import { classifyControl } from "./transaction.ts"
  *
  * console.log(classifyControl("BEGIN TRANSACTION")) // "begin"
+ * console.log(classifyControl("-- note\nCOMMIT")) // "commit"
+ * console.log(classifyControl("BEGIN; insert into t values (1)")) // "multiStatementControl"
  * console.log(classifyControl("SAVEPOINT effect_sql_1")) // "savepoint"
  * console.log(classifyControl("select 1")) // "statement"
  * ```
@@ -102,15 +231,48 @@ const REFUSED_ABORTED_MESSAGE =
  * @category utilities
  * @since 0.0.0
  */
-export const classifyControl = (sql: string): TransactionControl =>
-  pipe(
-    CONTROL_RULES,
-    A.findFirst(([, pattern]) => pattern.test(sql)),
-    O.match({
-      onNone: () => TransactionControl.Enum.statement,
-      onSome: ([control]) => control,
-    })
-  );
+export const classifyControl = (sql: string): TransactionControl => {
+  const controls = A.map(splitStatements(sql), classifyStatement);
+  return controls.length <= 1
+    ? O.getOrElse(A.head(controls), () => TransactionControl.Enum.statement)
+    : A.some(controls, isTransactionControl)
+      ? TransactionControl.Enum.multiStatementControl
+      : A.some(controls, TransactionControl.is.catalogContext)
+        ? TransactionControl.Enum.catalogContext
+        : TransactionControl.Enum.statement;
+};
+
+/**
+ * Builds the `SqlError` for multi-statement text that contains transaction
+ * control (D59).
+ *
+ * **Details**
+ *
+ * The reason is an `UnknownError` (not retryable, D22) carrying the caller's
+ * `operation`. Nothing was sent to DuckDB, so the transaction phase is
+ * unchanged.
+ *
+ * **Example** (Refuse a script that opens a transaction)
+ *
+ * ```ts
+ * import { refusedMultiStatementControl } from "./transaction.ts"
+ *
+ * const error = refusedMultiStatementControl("execute")
+ * console.log(error.reason.operation) // "execute"
+ * ```
+ *
+ * @internal
+ * @category errors
+ * @since 0.0.0
+ */
+export const refusedMultiStatementControl = (operation: string): SqlError =>
+  SqlError.make({
+    reason: UnknownError.make({
+      cause: REFUSED_MULTI_STATEMENT_MESSAGE,
+      message: REFUSED_MULTI_STATEMENT_MESSAGE,
+      operation,
+    }),
+  });
 
 /**
  * Transaction phase of one DuckDB connection.

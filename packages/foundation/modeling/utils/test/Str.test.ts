@@ -213,6 +213,11 @@ describe("@beep/utils Str.replaceWith", () => {
       )
     ).toBe("BEEP beep");
   });
+
+  it("matches a string search literally and passes the match offset", () => {
+    expect(Str.replaceWith("axb a.b", ".", () => "!")).toBe("axb a!b");
+    expect(Str.replaceWith("xay", "a", (match, offset) => `${match}@${String(offset)}`)).toBe("xa@1y");
+  });
 });
 
 describe("@beep/utils Str.replaceAllWith", () => {
@@ -227,6 +232,23 @@ describe("@beep/utils Str.replaceAllWith", () => {
         Str.replaceAllWith(/beep/g, (match) => Str.toUpperCase(match))
       )
     ).toBe("BEEP BEEP");
+  });
+
+  it("replaces every literal occurrence of a string search, including the empty string", () => {
+    expect(Str.replaceAllWith("a.a.a", ".", () => "-")).toBe("a-a-a");
+    expect(Str.replaceAllWith("ab", "", () => "|")).toBe("|a|b|");
+  });
+
+  it("replaces every match of a non-global RegExp and leaves the caller's RegExp untouched", () => {
+    const vowel = /e/;
+    expect(Str.replaceAllWith("beep", vowel, () => "o")).toBe("boop");
+    expect(vowel.global).toBe(false);
+    expect(vowel.lastIndex).toBe(0);
+  });
+
+  it("keeps a sticky RegExp anchored, like native replaceAll with a gy RegExp", () => {
+    expect(Str.replaceAllWith("eebe", /e/y, () => "o")).toBe("oobe");
+    expect(Str.replaceAllWith("beep", /e/y, () => "o")).toBe("beep");
   });
 });
 

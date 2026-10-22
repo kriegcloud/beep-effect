@@ -182,13 +182,13 @@ not re-count that document's reflection findings.
 ## Exact reproducible commands
 
 All commands were run from
-`/home/elpresidank/YeeBois/projects/beep-effect`. The DuckDB file was not
+`.`. The DuckDB file was not
 opened.
 
 ### Fleet paths and artifact coverage
 
 ```zsh
-repos=(/home/elpresidank/YeeBois/projects/beep-effect /home/elpresidank/YeeBois/projects/beep-effect{2,3,5,6,7,8,9})
+repos=($HOME/YeeBois/projects/beep-effect $HOME/YeeBois/projects/beep-effect{2,3,5,6,7,8,9})
 for repo in "${repos[@]}"; do
   { find "$repo/.beep/yeet/runs" -mindepth 1 -maxdepth 1 -type d -printf 'run\n'; find "$repo/.beep/yeet/runs" -mindepth 2 -maxdepth 2 -name verdict.json -type f -printf 'verdict\n'; find "$repo/.beep/yeet/runs" -mindepth 2 -maxdepth 2 -name state.json -type f -printf 'state\n'; find "$repo/.beep/yeet/runs" -mindepth 2 -maxdepth 2 -name status.json -type f -printf 'status\n'; } | jq -Rn --arg repo "${repo:t}" '[inputs] | {repo:$repo,runs:(map(select(.=="run"))|length),verdicts:(map(select(.=="verdict"))|length),states:(map(select(.=="state"))|length),statuses:(map(select(.=="status"))|length)}'
 done | jq -s '{repos:length,totals:{runs:(map(.runs)|add),verdicts:(map(.verdicts)|add),states:(map(.states)|add),statuses:(map(.statuses)|add)},by_repo:.}'

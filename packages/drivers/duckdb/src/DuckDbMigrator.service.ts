@@ -38,7 +38,10 @@ import type { SqlError } from "effect/sql/SqlError";
  * const loader = DuckDbMigrator.fromRecord({
  *   "1_create_events": Effect.flatMap(SqlClient.SqlClient, (sql) => sql`create table events (id integer)`)
  * })
- * console.log(loader)
+ *
+ * Effect.runPromise(loader).then((migrations) =>
+ *   console.log(migrations.map(([id, name]) => [id, name]))
+ * ) // [[1, "create_events"]]
  * ```
  *
  * @category constructors
@@ -96,7 +99,13 @@ export const run: <R2 = never>(
  *     "1_create": Effect.flatMap(SqlClient.SqlClient, (sql) => sql`create table t (id integer)`)
  *   })
  * }).pipe(Layer.provideMerge(DuckDbClient.layer({ databasePath: ":memory:" })))
- * console.log(MigrationsLive)
+ *
+ * const program = Effect.flatMap(
+ *   SqlClient.SqlClient,
+ *   (sql) => sql`select table_name from information_schema.tables where table_name = 't'`
+ * ).pipe(Effect.provide(MigrationsLive))
+ *
+ * Effect.runPromise(program).then((rows) => console.log(rows)) // [{ table_name: "t" }]
  * ```
  *
  * @category layers

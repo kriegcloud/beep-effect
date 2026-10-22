@@ -13,7 +13,9 @@ pre-commit:
         - "**/*.test.ts"
         - "**/*.spec.ts"
         - "**/*.d.ts"
-      run: bunx oxlint --config .oxlintrc.docs.json {staged_files}
+      # --no-error-on-unmatched-pattern: a staged file can sit under one of the docs config's
+      # ignorePatterns (for example src/test/**); oxlint then lints nothing and must not fail.
+      run: bunx oxlint --config .oxlintrc.docs.json --no-error-on-unmatched-pattern {staged_files}
     gitleaks:
       run: gitleaks protect --staged --verbose --config .gitleaks.toml
     typos:

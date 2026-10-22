@@ -20,7 +20,7 @@ and should be folded into the applicator contract before implementation.
 | Kernel (`uname -r`) | `7.1.4-1-cachyos` |
 | Distro (`/etc/os-release`) | CachyOS Linux (`ID=cachyos`, `ID_LIKE=arch`) |
 | User / UID | `elpresidank` / `1000` |
-| Home | `/home/elpresidank` |
+| Home | `$HOME` |
 | Hostname | `DankStation` |
 | `/etc/machine-id` | recorded as SHA-256 `90bdffbb…e60c563d` (see redaction note) |
 | Session state during run | `State=active`, `Sessions=3 2` (seat0 tty2 + manager) |
@@ -75,7 +75,7 @@ address from UID → **4** live bus reachability → **5** identity binding →
 controlling TTY and a scrubbed environment:
 
 ```
-setsid -w env -i HOME=/home/elpresidank USER=elpresidank LOGNAME=elpresidank \
+setsid -w env -i HOME=$HOME USER=elpresidank LOGNAME=elpresidank \
   PATH=/usr/bin:/bin SPIKE_TARGET_USER=elpresidank \
   SPIKE_EXPECTED_IDENTITY=<path> SPIKE_STATE_DIR=<path> \
   bash applicator.sh   </dev/null
@@ -146,10 +146,10 @@ Mutation phase — every step rc=0:
 
 ```
 === PREFLIGHT OK — entering mutation phase ===
-writing unit /home/elpresidank/.config/systemd/user/openclaw-spike.service
+writing unit $HOME/.config/systemd/user/openclaw-spike.service
 $ systemctl --user daemon-reload (rc=0)
 $ systemctl --user enable openclaw-spike.service (rc=0)
-    | Created symlink '/home/elpresidank/.config/systemd/user/default.target.wants/openclaw-spike.service' → '…/openclaw-spike.service'.
+    | Created symlink '$HOME/.config/systemd/user/default.target.wants/openclaw-spike.service' → '…/openclaw-spike.service'.
 $ systemctl --user start openclaw-spike.service (rc=0)
 $ systemctl --user is-active openclaw-spike.service (rc=0)
     | active
@@ -157,13 +157,13 @@ post-start unit properties:
     | LoadState=loaded
     | ActiveState=active
     | SubState=running
-    | FragmentPath=/home/elpresidank/.config/systemd/user/openclaw-spike.service
+    | FragmentPath=$HOME/.config/systemd/user/openclaw-spike.service
     | UnitFileState=enabled
     | MainPID=1491117
 $ systemctl --user stop openclaw-spike.service (rc=0)
 post-stop ActiveState: inactive
 $ systemctl --user disable openclaw-spike.service (rc=0)
-    | Removed '/home/elpresidank/.config/systemd/user/default.target.wants/openclaw-spike.service'.
+    | Removed '$HOME/.config/systemd/user/default.target.wants/openclaw-spike.service'.
 post-disable UnitFileState: disabled
 
 === APPLY OK ===
@@ -293,7 +293,7 @@ address and the target username:
   "hostname": "DankStation",
   "uid": 1000,
   "user": "elpresidank",
-  "home": "/home/elpresidank",
+  "home": "$HOME",
   "runtime_dir": "/run/user/1000",
   "bus_address": "unix:path=/run/user/1000/bus"
 }
@@ -403,7 +403,7 @@ Executed (`logs/cleanup.txt`):
 $ systemctl --user stop openclaw-spike.service          # rc=0
 $ systemctl --user disable openclaw-spike.service       # rc=0
 $ rm -vf ~/.config/systemd/user/openclaw-spike.service
-removed '/home/elpresidank/.config/systemd/user/openclaw-spike.service'
+removed '$HOME/.config/systemd/user/openclaw-spike.service'
 $ rm -vf ~/.config/systemd/user/default.target.wants/openclaw-spike.service
 $ systemctl --user daemon-reload                        # rc=0
 $ systemctl --user reset-failed openclaw-spike.service
