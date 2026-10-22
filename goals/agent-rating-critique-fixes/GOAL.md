@@ -57,6 +57,8 @@ bun run beep goals doctor
 ```
 
 Done only when P4 re-rating lands at overall ≥ 8.5 (or follow-up packets
-are named per missed target) and the packet flips `completed-retained`
-in the final PR, or when a blocker needing the operator is reported
-with file/command evidence.
+are named per missed target) and completion refresh verifies the merge of
+the final PR, which records `proposedCloseout` (`completed-retained`) in
+`ops/manifest.json` while operative status stays `active`. Otherwise done
+only when a blocker needing the operator is reported with file/command
+evidence.

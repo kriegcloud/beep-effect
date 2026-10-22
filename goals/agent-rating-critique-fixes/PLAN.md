@@ -11,11 +11,11 @@ below), landing from worktree `agent-rating-critique-fixes` on branch
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Land rating + packet | in-progress | Ship `research/repository-rating.md` (11 dimensions, overall 8/10) and this canonical packet. | Packet validates (doctor, jq, diff --check, GOAL ≤ 4000 chars); PR mergeable via Yeet. |
+| P0 Land rating + packet | in-progress | Ship `research/repository-rating.md` (11 dimensions, overall 8/10) and this canonical packet. | Packet validates (doctor, jq, diff --check, GOAL ≤ 4000 chars); PR merged to `main` (Yeet mergeability is the pre-merge check). |
 | P1 Cheap wins | pending | §1/§8 deductions: dedupe `AGENTS.md` model pins to one table, delete duplicated runbook prose, fix 3 stale model names, skill frontmatter conformance, root vitest depth-5 glob. | SPEC P1 boxes checked with before/after counts; Agent + Documentation re-scored ≥ 8 by spot audit. |
 | P2 Silent-green + gate honesty | pending | §6/§7 deductions: strip `passWithNoTests` where suites exist, absolute coverage floors or recorded rationale, promote or exception-list warn-only rules, S11 recommendation to operator. | Canary deleted-suite fails loudly; Testing re-scored ≥ 9 by spot audit. |
 | P3 Maintainability splits | pending | §9/§10 deductions: split the 4 named mega-files (≤ 2,500 lines each), exclude/relocate generated registries from `src` audits. | `wc -l` before/after recorded; each touched package passes `package-verify`. |
-| P4 Re-rate + Close | pending | Re-run the identical 11-dimension rubric; land `research/re-rating-YYYY-MM-DD.md`; close the packet. | Overall ≥ 8.5 or follow-up packets named per missed target; reflection landed; status `completed-retained` in the final PR. |
+| P4 Re-rate + Close | pending | Re-run the identical 11-dimension rubric; land `research/re-rating-YYYY-MM-DD.md`; close the packet. | Overall ≥ 8.5 or follow-up packets named per missed target; reflection landed; `proposedCloseout` (`completed-retained`) recorded in `ops/manifest.json` by the final PR, operative status `active` until completion refresh verifies the merge. |
 
 Each fix phase is its own PR citing the rating section it addresses.
 Phases may run in parallel lanes where surfaces do not overlap (P1 docs

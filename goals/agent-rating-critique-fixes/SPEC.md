@@ -46,7 +46,8 @@ improved. The rating is the baseline; this packet is the fix programme.
   `packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts`,
   `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts`,
   generated registries under `src/generated` / `src/_generated`.
-- P4: this packet (`history/reflections/`, status flip), re-rating report.
+- P4: this packet (`history/reflections/`, `proposedCloseout` in
+  `ops/manifest.json`), re-rating report.
 
 ## Constraints
 
@@ -121,8 +122,10 @@ improved. The rating is the baseline; this packet is the fix programme.
       `research/re-rating-YYYY-MM-DD.md`; overall ≥ 8.5 or each missed
       target carries a named follow-up packet.
 - [ ] Closeout reflection in `history/reflections/`;
-      `bun run beep lint reflection-artifacts` passes; packet flips to
-      `completed-retained` in the same PR as the final fix wave.
+      `bun run beep lint reflection-artifacts` passes; the final fix-wave PR
+      records `proposedCloseout` (`completed-retained`) in `ops/manifest.json`
+      and operative status stays `active` until
+      `bun run beep goals completion refresh` verifies the merge.
 
 ## Verification Matrix
 
@@ -154,6 +157,7 @@ improved. The rating is the baseline; this packet is the fix programme.
 | 2026-10-21 | D3: S11 is a recommendation item, not a fix item. | S11 is a standing operator ruling; agents record friction, operators rule. | Operator ruling replaces S11; then delete this row's rationale. |
 | 2026-10-21 | D4: Maintainability/security scores are orchestrator-verified, disclosed in the rating. | The audit synthesis was truncated; hiding that would overstate the evidence. | Supersede with a full re-rating at P4. |
 | 2026-10-21 | D5: Review corrections from PR #1996's reviewer pass. The landed rating is amended only through corrections recorded in its Disclosure (the §10 Firecrawl row removed, the launch-failure note re-described); the P1 stale-name regex excludes the current `claude-opus-5-5` pins and its acceptance allows the `AGENTS.md` prohibition line and superseded list; the `passWithNoTests` surface moves from P1 to P2 so the phase surfaces do not overlap. | The Firecrawl file does not exist in the tree; the launch failure was an availability failure misread as a stale pin; the `\b` regex matched every current pin, so the P1 box could never be checked honestly; P2 acceptance and the PLAN P2 row already own `passWithNoTests`. | Restore the pre-correction text of the rating, SOURCES.md and SPEC.md from this PR's head before the fix commit (2c8293dea5) and drop this row; or re-rate at P4 with the corrected baseline. |
+| 2026-10-21 | D6: Closeout is declared, not flipped: the final PR records `proposedCloseout` (`completed-retained`) in `ops/manifest.json` and operative status stays `active` until `bun run beep goals completion refresh` verifies the merge (GOAL done line, PLAN P4 exit, SPEC P4 surface and acceptance aligned). P0 exits only once its PR is merged to `main`. | A proposal never reports achievement; the canonical closeout template and PLAN's closeout checklist already required `proposedCloseout`, and a P0 exit on 'mergeable' let P1 start on a branch without the rating (review threads on #1996). | Restore the pre-correction text from this PR's head e6bdbd08aa and drop this row. |
 
 ## Exception Ledger
 
