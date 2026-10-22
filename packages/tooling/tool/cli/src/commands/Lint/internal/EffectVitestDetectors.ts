@@ -1234,7 +1234,45 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
     );
   });
 
-const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
+// Imported values can carry filesystem effects even when passed without calling them.
+// Unbound runtime I/O globals are opaque; local shadowing remains lexical.
+const opaquePlatformReference = (reference: Identifier, imports: EffectVitestImports): boolean => {
+  const binding = imports.resolveBinding(reference);
+  if (O.isNone(binding)) return A.contains(["Bun", "require", "process"], reference.getText());
+  if (!Node.isImportDeclaration(binding.value)) return false;
+  const module = binding.value.getModuleSpecifierValue();
+  return (
+    module !== "effect" &&
+    !Str.startsWith("effect/")(module) &&
+    !A.contains(["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"], module)
+  );
+};
+
+// Follow local helper references, including callbacks passed to combinators.
+// External helper bodies cannot prove absence of filesystem I/O.
+const harnessHasOpaquePlatformReferences = (harness: CallExpression, imports: EffectVitestImports): boolean =>
+  O.exists(harnessCallback(harness), (callback) => {
+    const regions: Array<MorphNode> = [callback];
+    for (const region of regions) {
+      const references = A.filter(
+        region.getDescendantsOfKind(SyntaxKind.Identifier),
+        (reference) =>
+          !isNamePosition(reference) && reference.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) === undefined
+      );
+      if (A.some(references, (reference) => opaquePlatformReference(reference, imports))) return true;
+      const helpers = A.getSomes(
+        A.map(references, (reference) =>
+          O.flatMap(imports.resolveBinding(reference), (binding) => helperBody(binding, imports))
+        )
+      );
+      regions.push(...A.filter(helpers, (helper) => !A.some(regions, (known) => known === helper)));
+    }
+    return false;
+  });
+
+// A services bundle used only by the shared harness is not filesystem evidence.
+// Keep portable filesystem candidates unless the existing native-subject proof succeeds.
+const canonicalPlatformIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
   O.exists(servicesBundleLayers(declaration, imports), (layers) => {
     const visited: FlowCache = MutableHashMap.empty();
     return O.exists(O.all(A.map(layers, (layer) => harnessFlows(layer, imports, [], false, visited))), (nested) => {
@@ -1243,13 +1281,26 @@ const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: Ef
         A.map(flows, ({ harness }) => harness),
         (left, right) => left === right
       );
+      const readsFileSystem = A.some(
+        declaration.getSourceFile().getDescendants(),
+        (node) =>
+          Node.isExpression(node) &&
+          node.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) === undefined &&
+          (!Node.isIdentifier(node) || !isNamePosition(node)) &&
+          isProvenanceExpression(node, imports, ["effect", "effect/FileSystem"], "FileSystem", ["FileSystem"])
+      );
       return (
         !A.isReadonlyArrayEmpty(harnesses) &&
-        A.every(harnesses, (harness) =>
-          harnessProvesNativeFileSystem(
-            { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
-            imports
-          )
+        A.every(
+          harnesses,
+          (harness) =>
+            (!readsFileSystem &&
+              O.isSome(harnessCallback(harness)) &&
+              !harnessHasOpaquePlatformReferences(harness, imports)) ||
+            harnessProvesNativeFileSystem(
+              { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
+              imports
+            )
         )
       );
     });
@@ -2335,7 +2386,7 @@ const detectPlatformImport = (declaration: ImportDeclaration, state: DetectorSta
     moduleName,
     members,
     osTemp,
-    () => nativeFileSystemIntegration(declaration, imports),
+    () => canonicalPlatformIntegration(declaration, imports),
     state
   );
 };

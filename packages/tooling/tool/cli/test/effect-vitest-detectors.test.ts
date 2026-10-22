@@ -1514,10 +1514,9 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
       ])
         deepStrictEqual(yield* reviewClasses(body), []);
       for (const body of [
-        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('yield* fs.readFileString("a");')}`,
-        `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; layer(SubjectLive.pipe(L.provide(NodeServices.layer)))((it) => { it.effect("x", () => Fx.void); });`,
-        `${harness} import { TestLive } from "@beep/test-utils/Layer"; import { NodeServices } from "@effect/platform-node"; layer(TestLive.pipe(L.provide(NodeServices.layer)))${consume('yield* fs.readFileString("a");')}`,
         `${harness} import * as FakeFs from "./fake-fs"; import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)((it) => { it.effect("x", () => Fx.gen(function* () { const fs = yield* FakeFs.FileSystem; yield* fs.symlink("a", "b"); })); });`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('yield* fs.readFileString("a");')}`,
+        `${harness} import { TestLive } from "@beep/test-utils/Layer"; import { NodeServices } from "@effect/platform-node"; layer(TestLive.pipe(L.provide(NodeServices.layer)))${consume('yield* fs.readFileString("a");')}`,
         `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('yield* fs.symlink("a", "b");')} it.effect("y", () => program.pipe(Fx.provide(NodeServices.layer)));`,
         `${harness} import { NodeServices } from "@effect/platform-node"; function f(layer) { layer(NodeServices.layer)${consume('yield* fs.symlink("a", "b");')} }`,
         `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)${consume('const other = makeFake(); yield* other.symlink("a", "b");')}`,
@@ -1537,7 +1536,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)(suite);`,
         `${harness} import * as Platform from "@effect/platform-node"; use(Platform); layer(Platform.NodeServices.layer)${consume('yield* fs.symlink("a", "b");')}`,
       ])
-        deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
+        deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"], body);
     })
   );
 
@@ -1572,6 +1571,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace().pipe(Fx.provideServiceEffect(Console.Console, makeConsole))")}`,
         `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("Fx.provideService(stageWorkspace(), Console.Console, testConsole)")}`,
         `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.provideService(Console.Console, testConsole)); ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} ${subjectBody("const Bun = { file: () => Fx.void }; yield* Bun.file();")}`,
         bound("const program = stageWorkspace(); yield* program;"),
         bound("const program = stageWorkspace(); yield* (program);"),
         bound("const program = stageWorkspace(); const mapped = Fx.map(program, (value) => value); yield* mapped;"),
@@ -1584,10 +1584,23 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
       ])
         deepStrictEqual(yield* reviewClasses(body), []);
       for (const body of [
+        `${subjectLayer} import { stageWorkspace } from "./helpers/stage"; ${subjectSuite("stageWorkspace()")}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; import { stageWorkspace } from "./support/CommandTest.ts"; layer(NodeServices.layer)((it) => { it.effect("explore check", () => Fx.gen(function* () { yield* stageWorkspace(); })); });`,
+        `${subjectLayer} import * as CommandTest from "./support/CommandTest.ts"; ${subjectSuite("CommandTest.stageWorkspace()")}`,
+        `${subjectLayer} import { stageWorkspace as stage } from "./support/CommandTest.ts"; const run = () => stage(); ${subjectSuite("run()")}`,
+        `${subjectLayer} import { stageWorkspace } from "./support/CommandTest.ts"; const run = () => stageWorkspace().pipe(Fx.provide(FakeLayer)); ${subjectSuite("run()")}`,
+        `import { stageWorkspace } from "./support/CommandTest.ts"; ${platformSuite('stageWorkspace("fixture")')}`,
+        `${subjectLayer} import { buildBundleConsumer } from "./bundle-build.ts"; ${subjectSuite("Fx.tryPromise(buildBundleConsumer)")}`,
+        `${subjectLayer} import { fixtureEffect } from "./support/CommandTest.ts"; ${subjectSuite("fixtureEffect")}`,
+        `${subjectLayer} import { buildBundleConsumer } from "./bundle-build.ts"; const run = () => Fx.tryPromise(buildBundleConsumer); ${subjectSuite("Fx.suspend(run)")}`,
+        `${subjectLayer} ${subjectSuite('Fx.promise(() => Bun.file("fixture").text())')}`,
+        `${subjectLayer} ${subjectSuite('Fx.sync(() => new Bun.Glob("**/*").scanSync())')}`,
+        `${subjectLayer} ${subjectSuite('Fx.sync(() => require("./helpers/stage").stageWorkspace("fixture"))')}`,
+        `${subjectLayer} ${subjectSuite("Fx.sync(() => process.cwd())")}`,
+
         `${subjectLayer} const stageWorkspace = Fx.fnUntraced(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }, Fx.provide(FakeFs.layer)); ${subjectSuite("stageWorkspace()")}`,
         `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.provide(FakeFs.layer)); ${subjectSuite("stageWorkspace()")}`,
         `${subjectLayer} let stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace()")}`,
-        `${subjectLayer} import { stageWorkspace } from "./helpers/stage"; ${subjectSuite("stageWorkspace()")}`,
         `${subjectLayer} const helpers = { stageWorkspace: ${stage('yield* fs.readFileString("a");')} }; ${subjectSuite("helpers.stageWorkspace()")}`,
         `${subjectLayer} const stageWorkspace = withFakeFileSystem(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }); ${subjectSuite("stageWorkspace()")}`,
         `const read = ${stage('yield* fs.readFileString("a");')}; ${platformSuite("read()")}`,
@@ -1621,7 +1634,49 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         bound("yield* runElsewhere(stageWorkspace());"),
         bound("yield* runElsewhere(Fx.map(stageWorkspace(), (value) => value));"),
       ])
-        deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
+        deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"], body);
+    })
+  );
+
+  it.effect("keeps filesystem I/O in imported support helpers opaque", () =>
+    Effect.gen(function* () {
+      const project = new Project({ useInMemoryFileSystem: true, skipAddingFilesFromTsConfig: true });
+      project.createSourceFile(
+        "support/CommandTest.ts",
+        `
+        import * as Effect from "effect/Effect";
+        import * as FileSystem from "effect/FileSystem";
+        export const stageWorkspace = Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectory();
+          yield* fs.writeFileString(root + "/fixture", "fixture");
+          return root;
+        });
+      `
+      );
+      const source = project.createSourceFile(
+        "explore-check.test.ts",
+        `
+        import { it } from "@effect/vitest";
+        import { NodeServices } from "@effect/platform-node";
+        import { stageWorkspace } from "./support/CommandTest.ts";
+        it.layer(NodeServices.layer)((it) => {
+          it.effect("stages workspace", () => stageWorkspace());
+        });
+      `
+      );
+      const rows = yield* detectEffectVitestFindings(
+        source,
+        "packages/example/test/explore-check.test.ts",
+        "@beep/example"
+      );
+      deepStrictEqual(
+        A.map(
+          A.filter(rows, (row) => row.ruleId === "EV010"),
+          (row) => row.class
+        ),
+        ["platform-resource-provenance-review"]
+      );
     })
   );
 
@@ -2071,6 +2126,33 @@ it.layer(NodeServices.layer)((it) => {
           "EV006"
         )
       );
+    })
+  );
+
+  it.effect.each([
+    { root: "@effect/platform-node", services: "NodeServices" },
+    { root: "@effect/platform-bun", services: "BunServices" },
+  ])("excludes canonical $services harness setup without inferring filesystem use", ({ root, services }) =>
+    Effect.gen(function* () {
+      const suite = '((it) => { it.effect("subject", () => program); });';
+      for (const body of [
+        `import { ${services} as Services } from "${root}"; it.layer(Services.layer)${suite}`,
+        `import * as Platform from "${root}"; it.layer(Platform.${services}.layer)${suite}`,
+        `import * as Services from "${root}/${services}"; it.layer(Services.layer)${suite}`,
+        `import { layer as platform } from "${root}/${services}"; it.layer(platform)${suite}`,
+        `import { layer as shared } from "@effect/vitest"; import { ${services} } from "${root}"; const platform = ${services}.layer; shared(platform)${suite}`,
+        `import { SubjectLive } from "@beep/example/Subject"; import { ${services} } from "${root}"; const live = SubjectLive.pipe(L.provide(${services}.layer)); it.layer(live)${suite}`,
+      ])
+        assertFalse(yield* hasRule(body, "EV010"));
+      for (const body of [
+        `import { ${services} } from "${root}"; it.effect("unit", () => program.pipe(Fx.provide(${services}.layer)));`,
+        `import { ${services} } from "${root}"; it.layer(${services}.layer)${suite} use(${services}.layer);`,
+        `import { ${services} } from "${root}"; function setup(it) { it.layer(${services}.layer)${suite} }`,
+        `import { ${services} } from "${root}"; const platform = ${services}.layer; use(platform); it.layer(platform)${suite}`,
+        `import { ${services} } from "${root}"; it.layer(${services}.layer)(suite);`,
+        `import { ${services} } from "${root}"; it.layer(${services}.layer)((it) => { it.effect("portable", () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("fixture"); })); });`,
+      ])
+        assertTrue(yield* hasRule(body, "EV010"));
     })
   );
 

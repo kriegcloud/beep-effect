@@ -116,6 +116,30 @@ const CASES: ReadonlyArray<Expected> = [
     retryable: true,
   },
   {
+    name: "rule 5: statement-time transaction conflict on insert",
+    cause: nativeError(
+      'TransactionContext Error: Transaction conflict: attempting to insert into table "t" but it has been altered by a different transaction'
+    ),
+    tag: "SerializationError",
+    retryable: true,
+  },
+  {
+    name: "rule 5: statement-time transaction conflict on index",
+    cause: nativeError(
+      "TransactionContext Error: Transaction conflict: cannot add an index to a table that has been altered or dropped"
+    ),
+    tag: "SerializationError",
+    retryable: true,
+  },
+  {
+    name: "rule 5: commit-time transaction conflict",
+    cause: nativeError(
+      'TransactionContext Error: Failed to commit: Transaction conflict: attempting to insert into table "t" but it has been dropped by a different transaction'
+    ),
+    tag: "SerializationError",
+    retryable: true,
+  },
+  {
     name: "rule 5b: read-only transaction write",
     cause: nativeError(
       'TransactionContext Error: Cannot write to database "memory" - transaction is launched in read-only mode'
