@@ -12,7 +12,9 @@ import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { createVitest, parseCLI } from "vitest/node";
 import { messageWithCause } from "../../../internal/cli/CommandErrorFields.ts";
@@ -39,6 +41,7 @@ const boundaryError = (message: string) => (cause: unknown) =>
 export const inspectCoverageRuntimeSources = Effect.fn("CoverageConfig.inspectSources")(function* (
   argv: ReadonlyArray<string>
 ) {
+  const zeroWitness = yield* Config.String("BEEP_COVERAGE_V8_ZERO_WITNESS").pipe(Config.option);
   const expectedRuntime = yield* Config.String("BEEP_COVERAGE_EXPECTED_RUNTIME");
   const expectedVersion = yield* Config.String("BEEP_COVERAGE_EXPECTED_RUNTIME_VERSION");
   const expectedProvider = yield* Config.Literals(["istanbul", "v8"], "BEEP_COVERAGE_EXPECTED_PROVIDER");
@@ -70,6 +73,22 @@ export const inspectCoverageRuntimeSources = Effect.fn("CoverageConfig.inspectSo
         try: () => provider.initialize(context),
         catch: boundaryError("Cannot initialize invocation coverage discovery."),
       });
+      if (O.isSome(zeroWitness)) {
+        if (!(provider instanceof V8CoverageProvider))
+          return yield* QualityTaskConfigurationError.new("Zero-unit discovery requires the V8 provider.");
+        const map = yield* Effect.tryPromise({
+          try: () => provider.generateCoverage({ allTestsRun: true }),
+          catch: boundaryError("Cannot derive provider-backed V8 zero-unit witnesses."),
+        });
+        return A.filter(map.files(), (file) => {
+          const data = map.fileCoverageFor(file).toJSON();
+          return (
+            R.keys(data.statementMap).length === 0 &&
+            R.keys(data.fnMap).length === 0 &&
+            R.keys(data.branchMap).length === 0
+          );
+        });
+      }
       const files = yield* Effect.tryPromise({
         try: () => provider.getUntestedFiles([]),
         catch: boundaryError("Cannot discover invocation coverage sources."),

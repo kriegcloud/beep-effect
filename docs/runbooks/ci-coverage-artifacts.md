@@ -8,12 +8,12 @@ execute tests or regenerate the baseline.
 ## Producers
 
 The four Test Unit partitions keep their existing identities: `unit-a`,
-`unit-b`, `repo-cli-1` and `repo-cli-2`. They instrument the existing test
-commands, preserving environment assignments and test selection. The CLI's two
-partitions use its existing coverage command under Node/V8; the other packages
-use Istanbul under their canonical Bun or Node test runtime. The Labs job
-supplies a fifth artifact. Providers are recorded per invocation, and a package's
-shards must use the same provider before their raw counters can be merged.
+`unit-b`, `repo-cli-1` and `repo-cli-2`. They run each package's canonical coverage
+commands, preserving environment assignments, configuration and test selection.
+Node invocations use V8; Bun invocations use Istanbul. The CLI's two partitions
+use its existing Node/V8 coverage command. The Labs job supplies a fifth
+artifact. Providers are recorded per invocation, and a package's canonical
+coverage shards must use the same provider before their raw counters can be merged.
 The coverage scope planner supplies required owners in addition to ordinary
 unit-test selection, so affected dependents and labs remain represented.
 
@@ -34,6 +34,14 @@ test invocations retains both, with a distinct report for each invocation.
 Its dependency builds run before those invocations. A reporter inside each
 Vitest process records the actual test runtime, version and completion status;
 the CLI runtime that seals the artifact is recorded separately.
+
+Unit tests outside the canonical coverage census run once as disjoint
+complements, preserving their original command, runtime and environment. The
+trusted assignment marks these invocations `testOnly`. Their reports, runtime
+receipts, test census, sources and digests must still validate, but their hits
+do not contribute to canonical coverage totals. This permits Bun-only unit
+tests alongside Node/V8 coverage without mixing providers or changing the
+measurement used by the existing ratchet.
 
 Coverage producers and the consumer pin Node 22.22.3, retaining the existing
 coverage lane's workaround for native escaped-key corruption in newer Node
@@ -91,6 +99,12 @@ includes type barrels and empty classes without methods, fields or static
 blocks. Zero instrumentable units do not imply that evaluating imports or a
 class's base expression has no runtime effects. Such files retain their genuine
 zero counters; they are not assigned invented 100% coverage.
+
+V8 can also report zero units for an immutable alias of an imported member.
+Such an entry must already be present in the raw report, match the restricted
+import-alias syntax, and independently produce zero units through the actual
+configured V8 provider. Missing V8 entries and executable initializers still
+fail validation.
 
 The existing package/per-file floors, minimums and ratchet remain authoritative.
 Report consumption does not authorize writing or weakening the baseline.

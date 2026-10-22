@@ -934,6 +934,7 @@ jobs:
         with:
           cache-turbo: "true"
           cache-write: "false"
+          native-pdf-tools: "true"
           turbo-remote-cache: "true"
           app-secrets: "true"
           turbo-api: ${{ vars.TURBO_API }}

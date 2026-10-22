@@ -67,7 +67,7 @@ const isPreparationCommand = S.is(
 );
 class CanonicalVitestInvocation extends S.Opaque<CanonicalVitestInvocation, { readonly brand: unique symbol }>()(
   S.Struct({
-    command: S.Literal("bunx"),
+    command: S.tag("bunx"),
     args: S.Array(S.String),
     cwd: S.String,
     env: S.Record(S.String, S.String),
@@ -212,8 +212,7 @@ const resolveCoverageScript = Effect.fn("CiCoverage.resolveCoverageScript")(func
 const unitOnlyInvocation = Effect.fn("CiCoverage.unitOnlyInvocation")(function* (
   command: CanonicalVitestInvocation,
   packageName: string,
-  seen: ReadonlyArray<string>,
-  bun: boolean
+  seen: ReadonlyArray<string>
 ) {
   const path = yield* Path.Path;
   const files = yield* coverageTestInventory(command, packageName);
@@ -226,8 +225,7 @@ const unitOnlyInvocation = Effect.fn("CiCoverage.unitOnlyInvocation")(function* 
   const extra = CanonicalVitestInvocation.make({
     ...command,
     args: [
-      ...(bun ? ["--bun"] : []),
-      ...A.filter(command.args, (arg) => arg !== "--bun" && arg !== "--coverage"),
+      ...A.filter(command.args, (arg) => arg !== "--coverage"),
       ...A.map(seen, (file) => `--exclude=${normalize(path.relative(command.cwd, file))}`),
     ],
     preparationCommands: [],
@@ -236,7 +234,7 @@ const unitOnlyInvocation = Effect.fn("CiCoverage.unitOnlyInvocation")(function* 
   const actual = yield* coverageTestInventory(extra, packageName);
   if (!sameTestFiles(missing, actual))
     return yield* CiCommandError.make({ message: `Disjoint unit coverage census differs for ${packageName}.` });
-  return O.some({ command: extra, files: actual });
+  return O.some({ command: extra, files: actual, testOnly: true });
 });
 
 const configuredInvocations = Effect.fn("CiCoverage.configuredInvocations")(function* (
@@ -262,14 +260,14 @@ const configuredInvocations = Effect.fn("CiCoverage.configuredInvocations")(func
   let invocations = yield* Effect.forEach(
     coverage,
     Effect.fnUntraced(function* (command) {
-      return { command, files: yield* coverageTestInventory(command, packageName) };
+      return { command, files: yield* coverageTestInventory(command, packageName), testOnly: false };
     })
   );
   let seen = A.flatMap(invocations, (invocation) => invocation.files);
   if (A.length(seen) !== A.length(A.dedupe(seen)))
     return yield* CiCommandError.make({ message: `Overlapping canonical coverage invocations for ${packageName}.` });
   for (const command of unit) {
-    const extra = yield* unitOnlyInvocation(command, packageName, seen, runtimes[0] === true);
+    const extra = yield* unitOnlyInvocation(command, packageName, seen);
     if (O.isSome(extra)) {
       invocations = A.append(invocations, extra.value);
       seen = A.appendAll(seen, extra.value.files);
@@ -309,7 +307,7 @@ const discoverCoveragePackages = Effect.fn("CiCoverage.discoverCoveragePackages"
       const invocations = yield* configuredInvocations(workspace.scripts, owner.packageName, workspace.dir);
       return yield* Effect.forEach(
         invocations,
-        Effect.fnUntraced(function* ({ command, files }, index) {
+        Effect.fnUntraced(function* ({ command, files, testOnly }, index) {
           const reportDirectory = invocations.length === 1 ? "coverage" : `coverage/invocation-${index}`;
           const testRuntime = command.args[0] === "--bun" ? "bun" : "node";
           const testRuntimeVersion = yield* coverageTestRuntimeVersion(command, owner.packageName, testRuntime);
@@ -318,6 +316,7 @@ const discoverCoveragePackages = Effect.fn("CiCoverage.discoverCoveragePackages"
             packagePath: owner.packagePath,
             invocationId: String(index),
             testRuntime,
+            testOnly,
             provider: testRuntime === "bun" ? "istanbul" : "v8",
             testRuntimeVersion,
             testCommand: [command.command, ...command.args],

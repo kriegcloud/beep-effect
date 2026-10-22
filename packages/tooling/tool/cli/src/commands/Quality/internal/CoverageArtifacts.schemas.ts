@@ -67,6 +67,10 @@ export class CoverageProducerPackage extends S.Opaque<CoverageProducerPackage, {
     invocationId: S.NonEmptyString.pipe(S.withConstructorDefault(Effect.succeed("0"))),
     testRuntime: TestRuntime.pipe(S.withConstructorDefault(Effect.succeed("bun"))),
     testRuntimeVersion: S.NonEmptyString,
+    testOnly: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(false))
+    ),
     provider: CoverageProvider.pipe(S.withConstructorDefault(Effect.succeed("istanbul"))),
     runtimeReportPath: RelativePath.pipe(S.withConstructorDefault(Effect.succeed("coverage/runtime.json"))),
     testCommand: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([]))),
@@ -240,7 +244,7 @@ export class CoverageSourceIdentity extends S.Opaque<CoverageSourceIdentity, { r
  */
 export class CoverageRuntimeReceipt extends S.Opaque<CoverageRuntimeReceipt, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("coverage-runtime/v1"),
+    schemaVersion: S.tag("coverage-runtime/v1"),
     invocationId: S.NonEmptyString,
     testRuntime: TestRuntime,
     runtimeVersion: S.NonEmptyString,
@@ -295,12 +299,12 @@ export class CoveragePackageArtifact extends S.Opaque<CoveragePackageArtifact, {
  */
 export class CoverageProducerManifest extends S.Opaque<CoverageProducerManifest, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("coverage-producer/v1"),
+    schemaVersion: S.tag("coverage-producer/v1"),
     identity: CoverageProducerIdentity,
     partitionId: S.NonEmptyString,
-    rawFormat: S.Literal("istanbul"),
-    coverageLibraryVersion: S.Literal("1.0.2"),
-    producerRuntime: S.Literal("bun"),
+    rawFormat: S.tag("istanbul"),
+    coverageLibraryVersion: S.tag("1.0.2"),
+    producerRuntime: S.tag("bun"),
     producerRuntimeVersion: S.NonEmptyString,
     packages: S.Array(CoveragePackageArtifact),
   }).pipe(

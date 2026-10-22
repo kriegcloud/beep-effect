@@ -190,9 +190,9 @@ export const resolveNodeVersions: (
 // exception tied to the actual workflow, job IDs, and reviewed runtime pin.
 const isCanonicalCoverageRuntimePin = S.is(
   S.Struct({
-    file: S.Literal(".github/workflows/check.yml"),
+    file: S.tag(".github/workflows/check.yml"),
     jobName: S.Literals(["test-unit-shard", "coverage-regression"]),
-    currentValue: S.Literal("22.22.3"),
+    currentValue: S.tag("22.22.3"),
   })
 );
 

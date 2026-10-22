@@ -728,7 +728,17 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
           ["packages/tool/test/unit-only.test.ts"],
         ]);
         expect(
-          A.every(selected, (invocation) => invocation.testRuntime === "node" && invocation.provider === "v8")
+          A.makeEquivalence(S.toEquivalence(S.Struct({ runtime: S.String, provider: S.String, testOnly: S.Boolean })))(
+            A.map(selected, (invocation) => ({
+              runtime: invocation.testRuntime,
+              provider: invocation.provider,
+              testOnly: invocation.testOnly,
+            })),
+            [
+              { runtime: "node", provider: "v8", testOnly: false },
+              { runtime: "bun", provider: "istanbul", testOnly: true },
+            ]
+          )
         ).toBe(true);
         expect(selected[0]?.testCommand).toContain("vitest.coverage.config.ts");
         expect(selected[1]?.testEnvironment).toEqual({ MODE: "unit" });

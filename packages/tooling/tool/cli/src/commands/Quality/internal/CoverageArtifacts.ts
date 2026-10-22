@@ -71,10 +71,10 @@ const decodeManifest = S.decodeUnknownEffect(ManifestJson, { onExcessProperty: "
 const decodeResults = S.decodeUnknownEffect(
   S.fromJsonString(
     S.Struct({
-      success: S.Literal(true),
-      numFailedTests: S.Literal(0),
-      numFailedTestSuites: S.Literal(0),
-      testResults: S.Array(S.Struct({ name: S.NonEmptyString, status: S.Literal("passed") })),
+      success: S.tag(true),
+      numFailedTests: S.tag(0),
+      numFailedTestSuites: S.tag(0),
+      testResults: S.Array(S.Struct({ name: S.NonEmptyString, status: S.tag("passed") })),
     })
   )
 );
@@ -174,7 +174,8 @@ export const resolveCoverageProducerIdentity = Effect.fn("CoverageArtifacts.reso
 const discoverInvocationSources = Effect.fn("CoverageArtifacts.discoverInvocationSources")(function* (
   repoRoot: string,
   packageRoot: string,
-  invocation: CoverageProducerPackage
+  invocation: CoverageProducerPackage,
+  zeroWitness = false
 ) {
   const helper = new URL("./CoverageConfig.runtime.ts", import.meta.url);
   const helperUrl = yield* encodeString(helper.href).pipe(mapError("cannot encode discovery helper URL."));
@@ -200,6 +201,7 @@ const discoverInvocationSources = Effect.fn("CoverageArtifacts.discoverInvocatio
       BEEP_COVERAGE_EXPECTED_RUNTIME: invocation.testRuntime,
       BEEP_COVERAGE_EXPECTED_RUNTIME_VERSION: invocation.testRuntimeVersion,
       BEEP_COVERAGE_EXPECTED_PROVIDER: invocation.provider,
+      BEEP_COVERAGE_V8_ZERO_WITNESS: zeroWitness === true ? "1" : undefined,
     },
     extendEnv: true,
     source: "stdout",
@@ -401,12 +403,53 @@ const normalizedRaw = Effect.fn("CoverageArtifacts.normalizedRaw")(function* (
   return R.fromEntries(A.sortWith(entries, (entry) => entry[0], Order.String));
 });
 
+// V8 deliberately removes SSR imported-member aliases from its own unit map.
+// Admit only immutable aliases rooted in an import, then require the actual
+// configured provider to independently reproduce the zero-unit map.
+const isV8ImportBindingSource = (file: string, source: string) => {
+  const project = new Project({ useInMemoryFileSystem: true });
+  const parsed = project.createSourceFile(file, source);
+  const imports = A.flatMap(parsed.getImportDeclarations(), (declaration) => [
+    ...O.toArray(O.fromUndefinedOr(declaration.getDefaultImport()?.getText())),
+    ...O.toArray(O.fromUndefinedOr(declaration.getNamespaceImport()?.getText())),
+    ...A.map(declaration.getNamedImports(), (named) => named.getAliasNode()?.getText() ?? named.getName()),
+  ]);
+  return A.every(parsed.getStatements(), (statement) => {
+    if (Node.isImportDeclaration(statement) || Node.isExportDeclaration(statement)) return true;
+    if (!Node.isVariableStatement(statement) || statement.getDeclarationKind() !== "const") return false;
+    return A.every(statement.getDeclarations(), (declaration) => {
+      if (!Node.isIdentifier(declaration.getNameNode())) return false;
+      let value = declaration.getInitializer();
+      if (value === undefined || !Node.isPropertyAccessExpression(value)) return false;
+      while (Node.isPropertyAccessExpression(value)) value = value.getExpression();
+      return Node.isIdentifier(value) && A.contains(imports, value.getText());
+    });
+  });
+};
+
+const requireZeroSource = Effect.fn("CoverageArtifacts.requireZeroSource")(function* (
+  file: string,
+  text: string,
+  selection: CoverageProducerPackage,
+  v8ZeroFiles: ReturnType<typeof discoverInvocationSources>
+) {
+  if (O.isSome(yield* structuralZero(file, text))) return;
+  if (selection.provider !== "v8" || !isV8ImportBindingSource(file, text))
+    return yield* configurationError(`missing executable source ${file}.`);
+  if (!A.contains(yield* v8ZeroFiles, file))
+    return yield* configurationError(`missing executable source ${file}; V8 witness has coverage units.`);
+});
+
 const sourceInventory = Effect.fn("CoverageArtifacts.sourceInventory")(function* (
   repoRoot: string,
   selection: CoverageProducerPackage,
   raw: Readonly<Record<string, CoverageRawFile>>
 ) {
   const files = yield* discoverCoverageArtifactSources(repoRoot, selection.packagePath, selection);
+  const path = yield* Path.Path;
+  const v8ZeroFiles = yield* Effect.cached(
+    discoverInvocationSources(repoRoot, path.join(repoRoot, selection.packagePath), selection, true)
+  );
   const unexpected = A.difference(R.keys(raw), files);
   if (A.isReadonlyArrayNonEmpty(unexpected))
     return yield* configurationError(`unexpected coverage sources: ${A.join(unexpected, ", ")}.`);
@@ -418,8 +461,7 @@ const sourceInventory = Effect.fn("CoverageArtifacts.sourceInventory")(function*
       if (selection.provider === "v8" && O.isNone(reported))
         return yield* configurationError(`missing V8 source ${file}; no provider-backed zero witness.`);
       const structural = O.isNone(reported) || hasNoCoverageUnits(reported.value);
-      if (structural && O.isNone(yield* structuralZero(file, text)))
-        return yield* configurationError(`missing executable source ${file}.`);
+      if (structural) yield* requireZeroSource(file, text, selection, v8ZeroFiles);
       return CoverageSourceIdentity.make({ path: file, sha256: yield* digest(text), structuralZero: structural });
     }),
     { concurrency: 1 }
@@ -562,6 +604,7 @@ const PackageCensus = S.Struct({
   testRuntime: S.String,
   testRuntimeVersion: S.String,
   provider: S.String,
+  testOnly: S.Boolean,
   testCommand: S.Array(S.String),
   preparationCommands: CoverageProducerPackage.fields.preparationCommands,
   continuationScripts: CoverageProducerPackage.fields.continuationScripts,
@@ -576,6 +619,7 @@ const packageCensus = (entry: CoveragePackageArtifact) => ({
   testRuntime: entry.selection.testRuntime,
   testRuntimeVersion: entry.selection.testRuntimeVersion,
   provider: entry.selection.provider,
+  testOnly: entry.selection.testOnly,
   testCommand: entry.selection.testCommand,
   preparationCommands: entry.selection.preparationCommands,
   continuationScripts: entry.selection.continuationScripts,
@@ -615,7 +659,12 @@ const validatePackageSlices = Effect.fn("CoverageArtifacts.validatePackageSlices
 const validatePackageInvocations = Effect.fn("CoverageArtifacts.validatePackageInvocations")(function* (
   slices: A.NonEmptyReadonlyArray<CoveragePackageArtifact>
 ) {
-  if (A.length(A.dedupe(A.map(slices, (slice) => slice.selection.provider))) !== 1)
+  const canonical = A.filter(slices, (slice) => !slice.selection.testOnly);
+  const selection = yield* O.match(A.head(canonical), {
+    onNone: () => configurationError("missing canonical coverage invocation."),
+    onSome: (entry) => Effect.succeed(entry.selection),
+  });
+  if (A.length(A.dedupe(A.map(canonical, (slice) => slice.selection.provider))) !== 1)
     return yield* configurationError("mixed coverage providers within one package.");
   const groups = A.groupBy(slices, (slice) => slice.selection.invocationId);
   yield* Effect.forEach(R.values(groups), validatePackageSlices, { concurrency: 1 });
@@ -629,7 +678,7 @@ const validatePackageInvocations = Effect.fn("CoverageArtifacts.validatePackageI
         );
     }
   }
-  return slices[0].selection;
+  return selection;
 });
 
 const loadManifest = Effect.fn("CoverageArtifacts.loadManifest")(function* (
@@ -798,7 +847,10 @@ export const collectCoverageProducerArtifacts = Effect.fn("CoverageArtifacts.col
       const seen = R.empty<string, string>();
       const reports = yield* Effect.forEach(
         located,
-        ({ entry, directory }) => loadSliceCoverage(repoRoot, directory, entry),
+        Effect.fnUntraced(function* ({ entry, directory }) {
+          const files = yield* loadSliceCoverage(repoRoot, directory, entry);
+          return entry.selection.testOnly ? [] : files;
+        }),
         { concurrency: 1 }
       );
       for (const file of A.flatten(reports)) {

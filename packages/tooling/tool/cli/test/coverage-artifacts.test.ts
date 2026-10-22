@@ -20,6 +20,7 @@ import { sha256Hex } from "@beep/repo-utils/Sha256Hex";
 import { currentHostPlatform } from "@beep/utils";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { afterEach, describe, expect, it, vi } from "@effect/vitest";
+import { assertDefined } from "@effect/vitest/utils";
 import { createInstrumenter } from "@vitest/istanbul-lib-instrument";
 import convertV8 from "ast-v8-to-istanbul";
 import * as A from "effect/Array";
@@ -325,9 +326,9 @@ const rejectChangedManifest = Effect.fnUntraced(function* (
   expect(failure.message).toContain("Coverage artifact:");
 });
 
-const compoundFixture = Effect.fnUntraced(function* (secondRuntime: "bun" | "node") {
+const compoundFixture = Effect.fnUntraced(function* (secondRuntime: "bun" | "node", testOnly = false) {
   const f = yield* fixture();
-  const runtimes: ReadonlyArray<"bun" | "node"> = ["bun", secondRuntime];
+  const runtimes: ReadonlyArray<"bun" | "node"> = testOnly === true ? ["node", "bun"] : ["bun", secondRuntime];
   const bunVersion = yield* StepExec.runCaptured({ command: "bun", args: ["--print", "process.versions.bun"] });
   const node = yield* hostNodeExecutable;
   const searchPath = yield* Config.String("PATH");
@@ -344,9 +345,11 @@ const compoundFixture = Effect.fnUntraced(function* (secondRuntime: "bun" | "nod
         packagePath: f.packagePath,
         invocationId,
         testRuntime: runtime,
+        testOnly: testOnly === true && index === 1,
+        provider: testOnly === true && index === 0 ? "v8" : "istanbul",
         testEnvironment: runtime === "node" ? { PATH: `${f.path.dirname(node)}${delimiter}${searchPath}` } : {},
         testRuntimeVersion: runtime === "bun" ? bunVersion.output.trim() : nodeVersion.output.trim(),
-        expectedTestFiles: f.tests,
+        expectedTestFiles: testOnly === true ? A.take(A.drop(f.tests, index), 1) : f.tests,
         testReportPath: `${directory}/unit-results.json`,
         runtimeReportPath: `${directory}/runtime.json`,
         testCommand: runtime === "bun" ? ["bunx", "--bun", "vitest", "run"] : ["bunx", "vitest", "run"],
@@ -359,7 +362,22 @@ const compoundFixture = Effect.fnUntraced(function* (secondRuntime: "bun" | "nod
       };
       yield* f.fs.writeFileString(
         f.path.join(f.packageRoot, directory, "coverage-final.json"),
-        yield* encode({ [f.raw.path]: raw })
+        yield* encode({
+          [f.raw.path]: raw,
+          ...(selection.provider === "v8"
+            ? {
+                [f.path.join(f.packageRoot, "src/index.ts")]: {
+                  path: f.path.join(f.packageRoot, "src/index.ts"),
+                  statementMap: {},
+                  fnMap: {},
+                  branchMap: {},
+                  s: {},
+                  f: {},
+                  b: {},
+                },
+              }
+            : {}),
+        })
       );
       yield* f.fs.writeFileString(
         f.path.join(f.packageRoot, selection.testReportPath),
@@ -367,7 +385,10 @@ const compoundFixture = Effect.fnUntraced(function* (secondRuntime: "bun" | "nod
           success: true,
           numFailedTests: 0,
           numFailedTestSuites: 0,
-          testResults: A.map(f.tests, (file) => ({ name: f.path.join(f.root, file), status: "passed" })),
+          testResults: A.map(selection.expectedTestFiles, (file) => ({
+            name: f.path.join(f.root, file),
+            status: "passed",
+          })),
         })
       );
       yield* f.fs.writeFileString(
@@ -425,6 +446,39 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
       })
     );
 
+    for (const [kind, source] of R.toEntries({
+      imported: 'import { Runtime } from "./excluded.ts"; export const it = Runtime.it;',
+      mutable: 'import { Runtime } from "./excluded.ts"; export let it = Runtime.it;',
+      callback: 'import { Runtime } from "./excluded.ts"; export const it = () => Runtime.it;',
+      call: 'import { Runtime } from "./excluded.ts"; export const it = Runtime.it();',
+      local: "const Runtime = { it: 1 }; export const it = Runtime.it;",
+      initializer: 'import { Runtime } from "./excluded.ts"; export const it = Runtime.it, extra = 1;',
+    })) {
+      it.effect(
+        `validates present V8 zero maps against real provider and immutable import-binding shape: ${kind}`,
+        () =>
+          Effect.gen(function* () {
+            const f = yield* signedV8Fixture();
+            yield* f.fs.writeFileString(f.path.join(f.packageRoot, "src/choose.ts"), source);
+            yield* f.fs.writeFileString(
+              f.path.join(f.packageRoot, "src/excluded.ts"),
+              "export const Runtime = { it: 1 };"
+            );
+            const empty = { ...f.first, statementMap: {}, fnMap: {}, branchMap: {}, s: {}, f: {}, b: {} };
+            if (kind === "imported") {
+              yield* f.write(1, empty);
+              yield* f.write(2, empty);
+              const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+              expect(snapshots[0]?.baseline.uncovered).toEqual({ lines: 0, statements: 0, functions: 0, branches: 0 });
+            } else {
+              const failure = yield* f.write(1, empty).pipe(Effect.flip);
+              expect(failure.message).toContain("missing executable source");
+            }
+          }),
+        { timeout: 30_000 }
+      );
+    }
+
     it.effect("merges every explicit Bun and Node invocation while preserving their runtime receipts", () =>
       Effect.gen(function* () {
         const f = yield* compoundFixture("node");
@@ -440,6 +494,24 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
         expect(A.dedupe(A.map(manifest.packages, (entry) => entry.reportPath))).toHaveLength(2);
       })
     );
+    it.effect("authenticates Bun-only Unit receipts without adding their hits to canonical Node/V8 coverage", () =>
+      Effect.gen(function* () {
+        const f = yield* compoundFixture("bun", true);
+        yield* f.write;
+        const snapshots = yield* collectCoverageProducerArtifacts(f.root, f.options);
+        expect(snapshots[0]?.baseline.branches).toBe(50);
+        expect(snapshots[0]?.baseline.uncovered.branches).toBe(1);
+        const manifestPath = f.path.join(f.root, ".beep/compound/one/manifest.json");
+        const manifest = yield* f.fs.readFileString(manifestPath).pipe(Effect.flatMap(decodeManifest));
+        expect(A.map(manifest.packages, (entry) => entry.selection.testOnly)).toEqual([false, true]);
+        const unit = manifest.packages[1];
+        assertDefined(unit);
+        yield* f.fs.writeFileString(f.path.join(f.root, ".beep/compound/one", unit.runtimeReceiptPath), "{}");
+        const failure = yield* collectCoverageProducerArtifacts(f.root, f.options).pipe(Effect.flip);
+        expect(failure.message).toContain("runtime receipt digest mismatch");
+      })
+    );
+
     it.effect("rejects a compound package whose second canonical invocation is absent", () =>
       Effect.gen(function* () {
         const f = yield* compoundFixture("node");
@@ -1079,16 +1151,17 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("coverage artifact integ
     );
   });
   describe("manifest and raw counter validation", () => {
-    it.effect("decodes an older sealed manifest with no preparation commands as an empty preparation", () =>
+    it.effect("decodes an older sealed manifest as canonical coverage with no preparation commands", () =>
       Effect.gen(function* () {
         const f = yield* sealedFixture();
         const manifest = yield* decodeManifest(
           yield* encode({
             ...f.manifest,
-            packages: [{ ...f.entry, selection: Struct.omit(f.entry.selection, ["preparationCommands"]) }],
+            packages: [{ ...f.entry, selection: Struct.omit(f.entry.selection, ["preparationCommands", "testOnly"]) }],
           })
         );
         expect(manifest.packages[0]?.selection.preparationCommands).toEqual([]);
+        expect(manifest.packages[0]?.selection.testOnly).toBe(false);
       })
     );
     it.effect("selects the newest sealed attempt per partition without replaying successful older partitions", () =>

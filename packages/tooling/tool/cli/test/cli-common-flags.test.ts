@@ -1,5 +1,5 @@
+import { MemoryFileSystem } from "@beep/memfs/MemoryFileSystem";
 import { dryRunFlag, forceFlag, outputFlag, packageFlag, verboseFlag } from "@beep/repo-cli/test/Cli";
-import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import { expect, it } from "@effect/vitest";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";

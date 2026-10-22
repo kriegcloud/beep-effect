@@ -980,6 +980,7 @@
     {"name":"CoverageArtifacts.readText","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.relativeFile","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.requireUnique","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"CoverageArtifacts.requireZeroSource","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.resolveIdentity","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.sealPackage","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"CoverageArtifacts.sourceInventory","owner":"@beep/repo-cli","family":"tooling","conforms":true},
