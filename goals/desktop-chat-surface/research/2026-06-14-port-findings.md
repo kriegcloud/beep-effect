@@ -1,6 +1,6 @@
 # Desktop Chat Surface — P0 Port Findings (2026-06-14)
 
-First-hand read-through of the POC (`/home/elpresidank/YeeBois/projects/effect-lexical-chat`)
+First-hand read-through of the POC (`$HOME/YeeBois/projects/effect-lexical-chat`)
 and the current `beep-effect` foundation, against `SPEC.md` and the binding
 standards (`01`, `09`, `12`). Prerequisite packets `rich-text-foundation` and
 `workspace-thread-domain` are both `completed-retained` (all phases `complete`)

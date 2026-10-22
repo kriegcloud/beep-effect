@@ -58,7 +58,7 @@
     "unit_properties": {
       "ActiveState": "active",
       "SubState": "running",
-      "DropInPaths": "/home/elpresidank/.config/systemd/user/beep-proof-.service.d/20-worker-environment.conf",
+      "DropInPaths": "~/.config/systemd/user/beep-proof-.service.d/20-worker-environment.conf",
       "RuntimeMaxUSec": "3min",
       "MainPID": "71812",
       "Slice": "agent-runs.slice",

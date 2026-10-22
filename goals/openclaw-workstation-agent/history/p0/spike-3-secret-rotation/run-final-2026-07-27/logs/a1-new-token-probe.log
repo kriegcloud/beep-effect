@@ -96,14 +96,14 @@
         "ackMaxChars": 300
       },
       "sessions": {
-        "path": "/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/state/agents/spike3/sessions/sessions.json",
+        "path": "$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/state/agents/spike3/sessions/sessions.json",
         "count": 0,
         "recent": []
       }
     }
   ],
   "sessions": {
-    "path": "/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/state/agents/spike3/sessions/sessions.json",
+    "path": "$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/state/agents/spike3/sessions/sessions.json",
     "count": 0,
     "recent": []
   }

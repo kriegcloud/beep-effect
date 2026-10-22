@@ -1,6 +1,6 @@
 # Graphnosis survey — territory: ingestion, extraction, enrichment & examples
 
-Repo: `/home/elpresidank/YeeBois/dev/Graphnosis` (Apache-2.0, TypeScript, Next.js app + SDK + MCP + CLI).
+Repo: `$HOME/YeeBois/dev/Graphnosis` (Apache-2.0, TypeScript, Next.js app + SDK + MCP + CLI).
 Scope read in full: `src/core/ingestion/parsers/*.ts`, `src/core/extraction/*.ts`,
 `src/core/enrichment/*.ts`, `src/core/giki/giki-generator.ts`, `src/examples/**`.
 Adjacent files read for mechanism: `src/core/graph/graph-builder.ts`,

@@ -17,7 +17,7 @@
     ]
   },
   "logging": {
-    "file": "/home/elpresidank/.cache/beep-p0-spike4.FmtrDN/spike4/state/log/openclaw.log"
+    "file": "~/.cache/beep-p0-spike4.FmtrDN/spike4/state/log/openclaw.log"
   },
   "auth": {
     "profiles": {

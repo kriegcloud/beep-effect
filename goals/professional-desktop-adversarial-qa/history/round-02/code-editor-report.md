@@ -4,7 +4,7 @@ Found six actionable issues in the scoped editor changes. No P0 defects.
 
 #### R02-01 — P1: typeahead visibility is not scoped to the active composer
 
-[atoms.ts:149](/home/elpresidank/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/atoms.ts:149)
+[atoms.ts:149]($HOME/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/atoms.ts:149)
 
 `isTypeaheadMenuVisible(editor)` obtains the current editor root but then queries the entire `ownerDocument`:
 
@@ -18,7 +18,7 @@ Fix: associate each portal with its editor root using a unique editor/menu ID an
 
 #### R02-02 — P1: mention failure notice does not count as a visible typeahead
 
-[atoms.ts:152](/home/elpresidank/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/atoms.ts:152), [typeahead.tsx:283](/home/elpresidank/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/typeahead.tsx:283)
+[atoms.ts:152]($HOME/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/atoms.ts:152), [typeahead.tsx:283]($HOME/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/typeahead.tsx:283)
 
 Visibility requires a `[role="option"]`, but `MentionUnavailableNotice` renders only `role="status"` and lacks `data-typeahead-menu`.
 
@@ -28,7 +28,7 @@ Fix: track actual menu ownership in per-editor state or mark the failure portal 
 
 #### R02-03 — P2: viewport listeners can cause unbounded synchronous render churn
 
-[typeahead.tsx:86](/home/elpresidank/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/typeahead.tsx:86)
+[typeahead.tsx:86]($HOME/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/typeahead.tsx:86)
 
 The atom correctly removes both listeners through its finalizer, so I found no persistent listener leak or post-unmount write. However, its capture-phase `scroll` listener receives scroll events from every descendant in the window and synchronously increments atom state for every event, without animation-frame coalescing.
 
@@ -38,7 +38,7 @@ Fix: coalesce updates to one per animation frame, cancel the outstanding frame i
 
 #### R02-04 — P2: every thread streaming update re-encodes all persisted viewer states
 
-[viewer.tsx:67](/home/elpresidank/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/viewer.tsx:67)
+[viewer.tsx:67]($HOME/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/viewer.tsx:67)
 
 The encoded state is calculated synchronously on every `EditorViewer` render. The comment that this “costs nothing extra” is incorrect: it avoids a second encode within that render, but does not avoid re-encoding unchanged messages. In the desktop thread, streaming state causes the parent timeline to render repeatedly, and the persisted rows are not memoized.
 
@@ -48,7 +48,7 @@ Fix: memoize encoding by `state` identity and memoize the persisted message/turn
 
 #### R02-05 — P2: `AttachmentPortFailed` is logged and then deliberately erased
 
-[atoms.ts:310](/home/elpresidank/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/atoms.ts:310)
+[atoms.ts:310]($HOME/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/atoms.ts:310)
 
 The code appends attachments before invoking `onAttach`, catches a thrown port failure, logs it, and applies `Effect.ignore`. The UI consequently shows an ordinary successful attachment chip with no failure state or retry path.
 
@@ -58,7 +58,7 @@ Fix: expose the typed failure through a per-editor attachment status/error atom 
 
 #### R02-06 — P2: block-type detection misclassifies headings/quotes/code inside tables
 
-[toolbar.tsx:120](/home/elpresidank/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/toolbar.tsx:120)
+[toolbar.tsx:120]($HOME/YeeBois/projects/beep-effect6/packages/foundation/ui-system/editor/src/chat/toolbar.tsx:120)
 
 For content inside a table cell, `getTopLevelElement()` resolves toward the table-level ancestor rather than the nearest block containing the selection. Lists work only because they receive a separate nearest-list lookup. Heading, quote, and code checks are performed against the top-level element.
 

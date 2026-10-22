@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-04
 **Machine:** DankStation (CachyOS, 32c/128GB), single user `elpresidank`
-**Fleet root:** `/home/elpresidank/YeeBois/projects/`
+**Fleet root:** `$HOME/YeeBois/projects/`
 **Method:** every number below was measured on the live fleet at the time of writing.
 Raw artifacts under
 `/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect5/56137bb3-d54a-4063-823e-aa7d138b6574/scratchpad/fleet-coord/`.
@@ -178,7 +178,7 @@ Three independent signals; you need all three, because each misses a real case.
 ```bash
 for p in /proc/[0-9]*; do
   cwd=$(readlink "$p/cwd" 2>/dev/null) || continue
-  case "$cwd" in /home/elpresidank/YeeBois/projects/beep-effect*) echo "${p#/proc/}  $cwd";; esac
+  case "$cwd" in $HOME/YeeBois/projects/beep-effect*) echo "${p#/proc/}  $cwd";; esac
 done
 ```
 
@@ -239,7 +239,7 @@ The **first line** is a `session_meta` record carrying the launch cwd:
 
 ```json
 {"timestamp":"…","type":"session_meta","payload":{"session_id":"019fcccf-…",
- "cwd":"/home/elpresidank/YeeBois/projects/beep-effect11","originator":"codex-tui", …}}
+ "cwd":"$HOME/YeeBois/projects/beep-effect11","originator":"codex-tui", …}}
 ```
 
 `head -c 400 <file>` is enough to extract it. Measured: `beep-effect11` 1 s,
@@ -536,7 +536,7 @@ Honest boundary, so the design does not over-claim:
 
 ### 7.1 `goals/speed-loop/research/OPPORTUNITIES.md` + `GRILL-DECISIONS.md`
 
-Read at `/home/elpresidank/YeeBois/projects/beep-effect3-pra/goals/speed-loop/research/`.
+Read at `$HOME/YeeBois/projects/beep-effect3-pra/goals/speed-loop/research/`.
 PR-I "agent kit" is **locked** by decisions 16, 26, 27, 28, 29.
 
 | Item | Status | Relation to fleet derivation |

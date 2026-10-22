@@ -6,7 +6,7 @@
 2026-07-25T08:54:12.195-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 2026-07-25T08:54:12.300-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 2026-07-25T08:54:12.301-05:00 [gateway] http server listening (7 plugins: browser, canvas, device-pair, file-transfer, memory-core, phone-control, talk-voice; 0.2s)
-2026-07-25T08:54:12.301-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike4.FmtrDN/spike4/ctrl-openclaw.log
+2026-07-25T08:54:12.301-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike4.FmtrDN/spike4/ctrl-openclaw.log
 2026-07-25T08:54:12.303-05:00 [gateway] starting channels and sidecars...
 2026-07-25T08:54:12.330-05:00 [gateway] ready
 2026-07-25T08:54:12.376-05:00 [heartbeat] started

@@ -1,7 +1,7 @@
 # Browser QA Vision Judge — Round 4
 
 You are the vision judge for browser QA round 4 of Professional Desktop editor-proof panel: @beep/editor capability profiles (lexical-playground-capability-atlas P2, round 4 after round-3 fixes).
-Round directory: `/home/elpresidank/YeeBois/projects/beep-effect15/.beep/qa/round-4`
+Round directory: `$HOME/YeeBois/projects/beep-effect15/.beep/qa/round-4`
 
 ## Hard rules
 

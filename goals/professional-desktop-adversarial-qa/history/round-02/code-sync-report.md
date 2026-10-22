@@ -2,7 +2,7 @@
 
 ### R2-SYNC-01 — P1 — conflict review races with sync and can create an invisible, permanently conflicted item
 
-[VaultSyncEngine.service.ts:1326](/home/elpresidank/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1326)
+[VaultSyncEngine.service.ts:1326]($HOME/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1326)
 
 `markConflictReviewed` does not acquire the workspace semaphore used by `syncOnce`, and the conflict and item mutations are not atomic.
 
@@ -20,7 +20,7 @@ Recommended fix: run review under the same per-workspace semaphore and make “r
 
 ### R2-INTAKE-02 — P1 — the 25 MB limit does not protect the RPC or server boundary
 
-[DocumentIntakeTarget.tsx:321](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/DocumentIntakeTarget.tsx:321)
+[DocumentIntakeTarget.tsx:321]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/DocumentIntakeTarget.tsx:321)
 
 The bound exists only in the React file picker/drop path. `IntakeDroppedFilePayload.content` and the server handler accept an unbounded base64 `Uint8Array`.
 
@@ -30,7 +30,7 @@ Recommended fix: enforce the byte limit in the payload schema or immediately aft
 
 ### R2-SYNC-03 — P2 — one transient Box probe failure forces a false disconnect for 30 seconds
 
-[DmsMirrorBox.ts:761](/home/elpresidank/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/DmsMirrorBox.ts:761)
+[DmsMirrorBox.ts:761]($HOME/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/DmsMirrorBox.ts:761)
 
 `cachedWithTTL` correctly coalesces concurrent callers, so there is no per-layer thundering herd. However, it caches failed exits for the full TTL.
 
@@ -40,7 +40,7 @@ Recommended fix: cache successful probes for 30 seconds but use a much shorter f
 
 ### R2-SYNC-04 — P2 — conflict review performs a workspace-wide read for a single item
 
-[VaultSyncEngine.service.ts:1303](/home/elpresidank/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1303)
+[VaultSyncEngine.service.ts:1303]($HOME/YeeBois/projects/beep-effect6/packages/documents/server/src/aggregates/Sync/VaultSyncEngine.service.ts:1303)
 
 Every review loads and materializes every Box sync item in the workspace, sorts them in the repository, and then performs a linear search.
 
@@ -50,7 +50,7 @@ Recommended fix: add a workspace/provider-scoped `findById` or conditional updat
 
 ### R2-INTAKE-05 — P2 — the size bound permits unbounded batch count and cumulative payload
 
-[DocumentIntakeTarget.tsx:315](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/DocumentIntakeTarget.tsx:315)
+[DocumentIntakeTarget.tsx:315]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/intake/DocumentIntakeTarget.tsx:315)
 
 Each file is bounded, but neither file count nor total accepted bytes is bounded. Rejections also append one React state update and one persistent result row per file.
 

@@ -1024,6 +1024,12 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus restoration evidence inva
       expect(RA.sameSourceIdentity(identity, identity)).toBe(true);
       expect(RA.sameSourceIdentity(identity, noMtimeIdentity)).toBe(false);
       expect(RA.sameSourceIdentityExceptMtime(identity, noMtimeIdentity)).toBe(true);
+      const missingInode = { ...identity, inode: O.none<number>() };
+      expect(RA.sameSourceIdentityExceptMtime(missingInode, missingInode)).toBe(true);
+      expect(RA.sameSourceIdentityExceptMtime(missingInode, identity)).toBe(false);
+      expect(RA.sameSourceIdentityExceptMtime(identity, missingInode)).toBe(false);
+      expect(RA.sameSourceIdentity(missingInode, missingInode)).toBe(true);
+      expect(RA.sourceIdentityToken(missingInode)).toContain("\u0000-1\u0000");
       strictEqual(RA.sameDeviceAndInode(identity, identity), O.isSome(identity.inode));
       expect(RA.sameDeviceAndInode({ ...identity, inode: O.none() }, identity)).toBe(false);
       expect(RA.sourceIdentityToken(identity)).toContain("\u0000");

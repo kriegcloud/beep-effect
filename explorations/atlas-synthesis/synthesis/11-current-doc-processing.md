@@ -140,7 +140,7 @@ So `@beep/md` is the **canonical/owned** document model; `@beep/pandoc-ast` is t
 
 ## 7. Corpus CLI at a glance (deep-dive → corpus-data artifact)
 
-Path: `packages/tooling/tool/cli/src/commands/Corpus/`. Per the topology census and guardrail, this is **ahead-of-time curation/enrichment of the Oppold corpus** (`/home/elpresidank/data-home/oppold-corpus/`), not a live product feeder. Its relevance *here*: it is the **only** wiring point for the real Tika/pffexport subprocess engines (`Corpus.service.ts:780–981`), driving `makeFileProcessingServiceLayer` against `[pffexport, tika-app]` with `FileSystem | Path | ChildProcessSpawner` requirements. Everything else about Corpus (catalog/enrich options, recycle bin) belongs to the corpus-data artifact.
+Path: `packages/tooling/tool/cli/src/commands/Corpus/`. Per the topology census and guardrail, this is **ahead-of-time curation/enrichment of the Oppold corpus** (`$HOME/data-home/oppold-corpus/`), not a live product feeder. Its relevance *here*: it is the **only** wiring point for the real Tika/pffexport subprocess engines (`Corpus.service.ts:780–981`), driving `makeFileProcessingServiceLayer` against `[pffexport, tika-app]` with `FileSystem | Path | ChildProcessSpawner` requirements. Everything else about Corpus (catalog/enrich options, recycle bin) belongs to the corpus-data artifact.
 
 ---
 

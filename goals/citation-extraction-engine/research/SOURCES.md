@@ -30,9 +30,9 @@ safety, and public representation.
 
 | Repository | Commit | Tree | License | Local reference | Disposition |
 | --- | --- | --- | --- | --- | --- |
-| [freelawproject/eyecite](https://github.com/freelawproject/eyecite) | `04d82c032ad5fd0f9ab72a61c87110c46ee8f52e` | `a35a58fac03400f71a93a93485b77f1d56f2b02f` | BSD-2-Clause | `/home/elpresidank/YeeBois/research/law_stuff/repos/eyecite` | Normative pinned oracle; port/reimplement with attribution |
-| [medelman17/eyecite-ts](https://github.com/medelman17/eyecite-ts) | `34133d03143ea65861f48a5ed0eb32c931581666` | `f1243d0723cea1e53a5263ef67c9e066230729fc` | MIT | `/home/elpresidank/YeeBois/research/law_stuff/repos/eyecite-ts` | Differential and extension reference; never a runtime dependency |
-| [beshkenadze/eyecite-js](https://github.com/beshkenadze/eyecite-js) | `53a49f2412da668aaf262e5f92584c2c3781043b` | `521fc394d7130f9b21e206d2bf236ffebcca932c` | BSD-2-Clause | `/home/elpresidank/YeeBois/dev/eyecite-js` | Differential and extension reference; never a runtime dependency |
+| [freelawproject/eyecite](https://github.com/freelawproject/eyecite) | `04d82c032ad5fd0f9ab72a61c87110c46ee8f52e` | `a35a58fac03400f71a93a93485b77f1d56f2b02f` | BSD-2-Clause | `$HOME/YeeBois/research/law_stuff/repos/eyecite` | Normative pinned oracle; port/reimplement with attribution |
+| [medelman17/eyecite-ts](https://github.com/medelman17/eyecite-ts) | `34133d03143ea65861f48a5ed0eb32c931581666` | `f1243d0723cea1e53a5263ef67c9e066230729fc` | MIT | `$HOME/YeeBois/research/law_stuff/repos/eyecite-ts` | Differential and extension reference; never a runtime dependency |
+| [beshkenadze/eyecite-js](https://github.com/beshkenadze/eyecite-js) | `53a49f2412da668aaf262e5f92584c2c3781043b` | `521fc394d7130f9b21e206d2bf236ffebcca932c` | BSD-2-Clause | `$HOME/YeeBois/dev/eyecite-js` | Differential and extension reference; never a runtime dependency |
 
 File hashes captured on 2026-07-29:
 

@@ -9,7 +9,7 @@ import { A, Str } from "@beep/utils";
 import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
-import { Node, SyntaxKind } from "ts-morph";
+import { Node, SyntaxKind, VariableDeclarationKind } from "ts-morph";
 import { createInMemoryTsMorphProject } from "../../../internal/tsmorph/index.ts";
 import { SchemaFirstInventoryEntry } from "../Lint.schemas.ts";
 
@@ -52,7 +52,9 @@ const REPO_SCHEMA_ARBITRARY_HELPERS = ["assertSchemaArbitraryDecodesToSelf"] as 
 // schema itself and using it in a property, or through repo-owned helpers that
 // perform that property assertion internally. Bare arbitrary construction is not
 // coverage and must not suppress the advisory.
-const TEST_FILE_PATTERN = /(?:\/test\/|\/tests\/|\.test\.tsx?$|\.spec\.tsx?$)/;
+// Only test entry files count: support modules under `test/` (harnesses,
+// fixtures, executable peers) assert nothing on their own.
+const TEST_FILE_PATTERN = /\.(?:test|spec)\.tsx?$/;
 const TEST_FILE_EXCLUDED_SEGMENTS = [
   "/.repos/",
   "/node_modules/",
@@ -84,6 +86,55 @@ const isSchemaCodecCallExpression = (callExpression: import("ts-morph").CallExpr
     isSchemaCodecHelperName(expression.getName()) &&
     Node.isIdentifier(expression.getExpression())
   );
+};
+
+const SCHEMA_NAMESPACE_NAMES = ["S", "Schema"] as const;
+
+const isSchemaMember = (expression: import("ts-morph").Node, member: string): boolean =>
+  Node.isPropertyAccessExpression(expression) &&
+  Node.isIdentifier(expression.getExpression()) &&
+  literalMemberEquals(SCHEMA_NAMESPACE_NAMES, expression.getExpression().getText()) &&
+  Str.Equivalence(expression.getName(), member);
+
+// `S.Unknown` and `S.fromJsonString(S.Unknown)` are JSON plumbing, not a schema
+// whose values a property test could generate. Same-file `const` aliases resolve.
+const isUnknownSchemaExpression = (
+  expression: import("ts-morph").Node,
+  unknownAliases: HashSet.HashSet<string>
+): boolean => {
+  if (Node.isIdentifier(expression)) return HashSet.has(unknownAliases, expression.getText());
+  if (isSchemaMember(expression, "Unknown")) return true;
+  if (!Node.isCallExpression(expression) || !isSchemaMember(expression.getExpression(), "fromJsonString")) return false;
+  const args = expression.getArguments();
+  return args.length === 1 && O.exists(A.head(args), (argument) => isUnknownSchemaExpression(argument, unknownAliases));
+};
+
+const sourceUnknownSchemaAliases = (sourceFile: import("ts-morph").SourceFile): HashSet.HashSet<string> =>
+  A.reduce(
+    A.flatMap(
+      A.filter(
+        sourceFile.getVariableStatements(),
+        (statement: import("ts-morph").VariableStatement) =>
+          statement.getDeclarationKind() === VariableDeclarationKind.Const
+      ),
+      (statement: import("ts-morph").VariableStatement) => statement.getDeclarations()
+    ),
+    HashSet.empty<string>(),
+    (aliases: HashSet.HashSet<string>, declaration: import("ts-morph").VariableDeclaration) => {
+      const nameNode = declaration.getNameNode();
+      const initializer = declaration.getInitializer();
+      return Node.isIdentifier(nameNode) && initializer !== undefined && isUnknownSchemaExpression(initializer, aliases)
+        ? HashSet.add(aliases, nameNode.getText())
+        : aliases;
+    }
+  );
+
+const isUnknownSchemaCodecCall = (
+  callExpression: import("ts-morph").CallExpression,
+  unknownAliases: HashSet.HashSet<string>
+): boolean => {
+  const args = callExpression.getArguments();
+  return args.length === 1 && O.exists(A.head(args), (argument) => isUnknownSchemaExpression(argument, unknownAliases));
 };
 
 /**
@@ -284,15 +335,19 @@ const arbitraryTestsEntryFromSourceFile = (
     return O.none();
   }
 
+  const codecCalls = A.filter(sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression), isSchemaCodecCallExpression);
+  const unknownAliases = sourceUnknownSchemaAliases(sourceFile);
   const schemaCodecCalls = A.filter(
-    sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression),
-    isSchemaCodecCallExpression
+    codecCalls,
+    (callExpression) => !isUnknownSchemaCodecCall(callExpression, unknownAliases)
   );
   if (schemaCodecCalls.length < 3) {
     return O.none();
   }
 
-  const line = sourceFile.getLineAndColumnAtPos(schemaCodecCalls[0]?.getStart() ?? sourceFile.getStart()).line;
+  // The row stays anchored at the first codec call of any kind so excluding
+  // S.Unknown plumbing from the count never re-keys an existing entry.
+  const line = sourceFile.getLineAndColumnAtPos(codecCalls[0]?.getStart() ?? sourceFile.getStart()).line;
   return O.some(
     SchemaFirstInventoryEntry.make({
       file,

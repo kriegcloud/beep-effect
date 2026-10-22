@@ -5,11 +5,14 @@ import {
 } from "@beep/repo-cli/commands/Research";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it, layer } from "@effect/vitest";
 import * as A from "effect/Array";
+import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
+import * as HttpClient from "effect/http/HttpClient";
+import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
@@ -43,6 +46,49 @@ const makeFixture = Effect.fn("ResearchNotionPullTest.makeFixture")(function* (l
   yield* fs.writeFileString(linksFile, yield* encodeLinksFile(links));
   return { linksFile, vaultRoot };
 });
+
+// A Notion block-children page: one bulleted link, one non-object entry and one
+// paragraph with no href. Only the first is a saved link; the other two exercise
+// the rejection paths of the record narrowing the API parser relies on.
+const BLOCK_CHILDREN = {
+  object: "list",
+  has_more: false,
+  next_cursor: null,
+  results: [
+    {
+      id: "block-link",
+      type: "bulleted_list_item",
+      created_time: "2026-07-08T12:00:00.000Z",
+      bulleted_list_item: {
+        rich_text: [{ plain_text: "Schema First", href: "https://example.com/a/" }],
+      },
+    },
+    "not-a-block",
+    { id: "block-text", type: "paragraph", paragraph: { rich_text: [{ plain_text: "no link" }] } },
+  ],
+};
+
+const stubNotionLayer = Layer.mergeAll(
+  ResearchCommandServiceLive.pipe(
+    Layer.provideMerge(
+      Layer.succeed(
+        HttpClient.HttpClient,
+        HttpClient.make((request) =>
+          encodeLinksFile(BLOCK_CHILDREN).pipe(
+            Effect.map((body) =>
+              HttpClientResponse.fromWeb(
+                request,
+                new Response(body, { status: 200, headers: { "content-type": "application/json" } })
+              )
+            ),
+            Effect.orDie
+          )
+        )
+      ).pipe(Layer.provideMerge(NodeServices.layer))
+    )
+  ),
+  NodeServices.layer
+);
 
 describe("research notion-pull", () => {
   it.effect("writes one x-post card per usable saved link and skips the rest", () =>
@@ -117,6 +163,24 @@ describe("research notion-pull", () => {
         );
         expect(error.message).toContain("Failed reading links file");
       })
+    )
+  );
+});
+
+layer(stubNotionLayer, { timeout: "10 seconds" })("research notion-pull over the Notion API", (it) => {
+  it.effect("pulls saved links from a Notion page's block children", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const vaultRoot = yield* fs.makeTempDirectoryScoped({ prefix: "research-notion-api-" });
+
+      const summary = yield* pullResearchNotionLinks(
+        ResearchNotionPullOptions.make({ database: "Reading List", pageId: "page-1", vaultRoot })
+      );
+
+      expect(summary.pagesSeen).toBe(1);
+      expect(summary.cardsWritten).toBe(1);
+    }).pipe(
+      Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ NOTION_API_KEY: "test-key" }))
     )
   );
 });

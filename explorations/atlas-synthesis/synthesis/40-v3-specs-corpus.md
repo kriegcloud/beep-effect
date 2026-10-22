@@ -1,7 +1,7 @@
 # 40 — v3 Specs Corpus (Prior Art Survey)
 
 **Date:** 2026-06-17
-**Source repo:** `/home/elpresidank/YeeBois/projects/beep-effect4` (the OLDER Effect-v3 codebase; dir name is "beep-effect4" but content predates the v4 migration — last commits "preparing for migration to effect v4", "archiving main").
+**Source repo:** `$HOME/YeeBois/projects/beep-effect4` (the OLDER Effect-v3 codebase; dir name is "beep-effect4" but content predates the v4 migration — last commits "preparing for migration to effect v4", "archiving main").
 **Scope:** Read-only survey of the v3 `specs/` corpus and cross-checks against built `packages/knowledge/*` source. No builds run, no v3 files modified.
 
 > **GUARDRAIL APPLIED.** This file inventories **proven prior art in another repo**, not current v4 (beep-effect3) capability. Three layers are kept distinct:
@@ -150,7 +150,7 @@ The BUILT items in the ENGINE layer are the portable prior art the v4 IP-law pro
 
 ### Verification (2026-06-17)
 
-Adversarial read-only re-check against `/home/elpresidank/YeeBois/projects/beep-effect4`. No builds run, no v3 files modified.
+Adversarial read-only re-check against `$HOME/YeeBois/projects/beep-effect4`. No builds run, no v3 files modified.
 
 **Checked & CONFIRMED:**
 - Corpus size: `find specs -name '*.md'` = **1,108** (exact).

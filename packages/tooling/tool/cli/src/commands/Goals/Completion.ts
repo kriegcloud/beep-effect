@@ -399,10 +399,34 @@ const recoverReadiness = Effect.fn("Goals.Completion.recoverReadiness")(function
   const jobRead = yield* readContainedFileStringNoFollow(root, jobFile);
   const statusFile = path.join(runRoot, "status.json");
   const statusRead = yield* readContainedFileStringNoFollow(root, statusFile);
-  const job = yield* decodeJob(yield* Effect.fromOption(jobRead.contents));
-  const status = yield* decodeRecoveryStatus(yield* Effect.fromOption(statusRead.contents));
-  const runner = yield* Effect.fromOption(job.runner);
-  const outcome = yield* Effect.fromOption(job.outcome);
+  const job = yield* decodeJob(
+    yield* Effect.fromOption(jobRead.contents).pipe(
+      Effect.mapError(() =>
+        YeetCommandError.make({
+          message: jobRead.exists
+            ? "canonical job artifact is unreadable or not a file"
+            : "canonical job artifact is absent",
+        })
+      )
+    )
+  );
+  const status = yield* decodeRecoveryStatus(
+    yield* Effect.fromOption(statusRead.contents).pipe(
+      Effect.mapError(() =>
+        YeetCommandError.make({
+          message: statusRead.exists
+            ? "canonical status artifact is unreadable or not a file"
+            : "canonical status artifact is absent",
+        })
+      )
+    )
+  );
+  const runner = yield* Effect.fromOption(job.runner).pipe(
+    Effect.mapError(() => YeetCommandError.make({ message: "job runner receipt is absent" }))
+  );
+  const outcome = yield* Effect.fromOption(job.outcome).pipe(
+    Effect.mapError(() => YeetCommandError.make({ message: "job outcome receipt is absent" }))
+  );
   const systemd = yield* Effect.fromOption(job.systemd).pipe(
     Effect.mapError(() => YeetCommandError.make({ message: "job service finalization receipt is absent" }))
   );
@@ -520,9 +544,16 @@ const readLocalEvidence = Effect.fn("Goals.Completion.localEvidence")(function* 
     ref,
     outcome,
     observedHead,
-    O.isSome(recovery)
-      ? `Readiness recovery refused: ${O.getOrElse(refusal, () => "declared verdict does not permit recovery")}.`
-      : "Yeet verdict checked against resolvedHeadSha and mergeReady.ready."
+    Match.value({ recovery: O.isSome(recovery), outcome }).pipe(
+      Match.when({ recovery: false }, () => "Yeet verdict checked against resolvedHeadSha and mergeReady.ready."),
+      Match.when(
+        { outcome: "verified" },
+        () => "Readiness recovery unnecessary: declared verdict already verifies the resolved head and readiness."
+      ),
+      Match.orElse(
+        () => `Readiness recovery refused: ${O.getOrElse(refusal, () => "declared verdict does not permit recovery")}.`
+      )
+    )
   );
 });
 

@@ -6,8 +6,8 @@ Scope: design the offset-preserving char-span chunker contract between `@beep/md
 
 ### The round-trip invariant already exists in-repo and is UTF-16-based
 
-- `@beep/provenance` `TextAnchor` is the canonical "where in the source" value: `{ startChar: NonNegativeInt, endChar: NonNegativeInt, quote: S.String }`, a half-open `[startChar, endChar)` range, with the documented invariant that "given the source text, `text.slice(startChar, endChar)` should reproduce `quote`." It carries `isWellOrdered` (`startChar <= endChar`) and no confidence/claim semantics. Source: `/home/elpresidank/YeeBois/projects/beep-effect/packages/foundation/modeling/provenance/src/TextAnchor.ts`.
-- `@beep/langextract` `GroundedExtraction` already carries a `span?: Contract.Span` (`{ start, end }` as `NonNegativeInt`, half-open) plus `alignmentStatus`, `matchedText`, `text`, `label`. `AlignmentStatus = ["match_exact","match_lesser","match_fuzzy","unaligned"]`. Source: `/home/elpresidank/YeeBois/projects/beep-effect/packages/foundation/capability/langextract/src/Extraction/index.ts` (lines 118-224).
+- `@beep/provenance` `TextAnchor` is the canonical "where in the source" value: `{ startChar: NonNegativeInt, endChar: NonNegativeInt, quote: S.String }`, a half-open `[startChar, endChar)` range, with the documented invariant that "given the source text, `text.slice(startChar, endChar)` should reproduce `quote`." It carries `isWellOrdered` (`startChar <= endChar`) and no confidence/claim semantics. Source: `packages/foundation/modeling/provenance/src/TextAnchor.ts`.
+- `@beep/langextract` `GroundedExtraction` already carries a `span?: Contract.Span` (`{ start, end }` as `NonNegativeInt`, half-open) plus `alignmentStatus`, `matchedText`, `text`, `label`. `AlignmentStatus = ["match_exact","match_lesser","match_fuzzy","unaligned"]`. Source: `packages/foundation/capability/langextract/src/Extraction/index.ts` (lines 118-224).
 - **Load-bearing fact: those offsets are UTF-16 code-unit indices, not code points and not bytes.** JS `String.prototype.slice`, indexing and `.length` all count UTF-16 code units — MDN: "The `length` data property of a `String` value contains the length of the string in UTF-16 code units" and "each Unicode character may be encoded as one or two code units, so it's possible for the value returned by `length` to not match the actual number of Unicode characters" (`"😄".length === 2`, `[...emoji].length === 1`). https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/length . The existing langextract aligner confirms this: `spanFromMatch` sets `end = NonNegativeInt.make(start + matchedText.length)` where `matchedText.length` is a UTF-16 count and `start` comes from `sourceText.indexOf(...)` (also UTF-16). Source: `.../langextract/src/Alignment/index.ts` (lines 71-80, 231-234). **Therefore the chunker MUST emit `charStart/charEnd` as UTF-16 offsets into the exact same JS string langextract aligns against, or the `text.slice(start,end)===quote` round-trip breaks.**
 
 ### The chunker is a windowing layer that composes with — not duplicates — langextract's aligner
@@ -48,9 +48,9 @@ Scope: design the offset-preserving char-span chunker contract between `@beep/md
 
 ## Sources
 
-- `@beep/provenance` TextAnchor (in-repo): `/home/elpresidank/YeeBois/projects/beep-effect/packages/foundation/modeling/provenance/src/TextAnchor.ts`
-- `@beep/langextract` Extraction (GroundedExtraction/AlignmentStatus/Contract.Span): `/home/elpresidank/YeeBois/projects/beep-effect/packages/foundation/capability/langextract/src/Extraction/index.ts`
-- `@beep/langextract` Alignment (UTF-16 offsets, code-point iteration): `/home/elpresidank/YeeBois/projects/beep-effect/packages/foundation/capability/langextract/src/Alignment/index.ts`
+- `@beep/provenance` TextAnchor (in-repo): `packages/foundation/modeling/provenance/src/TextAnchor.ts`
+- `@beep/langextract` Extraction (GroundedExtraction/AlignmentStatus/Contract.Span): `packages/foundation/capability/langextract/src/Extraction/index.ts`
+- `@beep/langextract` Alignment (UTF-16 offsets, code-point iteration): `packages/foundation/capability/langextract/src/Alignment/index.ts`
 - Google langextract chunking.py (Apache-2.0, CharInterval/TokenInterval/TextChunk): https://github.com/google/langextract/blob/main/langextract/chunking.py
 - Google langextract chunking strategy + max_char_buffer: https://deepwiki.com/google/langextract , https://zread.ai/google/langextract/13-document-chunking-strategy
 - MDN String.length (UTF-16 code units, surrogate examples): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/length

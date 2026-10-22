@@ -6,7 +6,7 @@ the binding P0 pick lives in ../SPEC.md decision log entry 13. -->
 
 # P0 evidence — rung-2 cross-slice candidate handoff
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect18`, branch
+Repo: `$HOME/YeeBois/projects/beep-effect18`, branch
 `feat/legal-position-relator-runtime`, HEAD `8fbbf1ef63`. Read-only pass; no
 repo file edited.
 

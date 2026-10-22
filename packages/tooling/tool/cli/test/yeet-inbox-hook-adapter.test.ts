@@ -49,7 +49,7 @@ const runHook = Effect.fn("YeetInboxHookAdapterTest.runHook")(function* (
   const payloadJson = yield* encodeUnknown(payload);
   const handle = yield* ChildProcess.make(hookPath, [harness], {
     cwd: root,
-    env: { ...env, BEEP_YEET_HOOK_ROOT: root },
+    env: { BEEP_YEET_HOOK_ROOT: root, ...env },
     extendEnv: true,
     stdin: {
       stream: Stream.encodeText(Stream.make(payloadJson)),
@@ -169,6 +169,106 @@ const withInbox = Effect.fn("YeetInboxHookAdapterTest.withInbox")(function* <Val
 });
 
 describe("Yeet inbox harness adapter", () => {
+  it.layer(NodeServices.layer, { timeout: "15 seconds" })((it) => {
+    for (const location of ["nested-clone", "outside-checkout"]) {
+      it.effect(`blocks Stop from a ${location} using the project inbox`, () =>
+        withInbox(({ root }) =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const cwd =
+              location === "nested-clone" ? path.join(root, ".repos", "effect") : yield* fs.makeTempDirectoryScoped();
+            yield* fs.makeDirectory(cwd, { recursive: true });
+            if (location === "nested-clone") {
+              const handle = yield* ChildProcess.make("git", ["init", "--quiet", cwd], {
+                stdout: "ignore",
+                stderr: "ignore",
+              });
+              expect(yield* handle.exitCode).toBe(0);
+            }
+            const result = yield* runHook(
+              root,
+              "claude",
+              { cwd, hook_event_name: "Stop" },
+              {
+                BEEP_YEET_HOOK_ROOT: "",
+                CLAUDE_PROJECT_DIR: root,
+              }
+            );
+            expect(result.exitCode).toBe(0);
+            expect(result.stderr).toBe("");
+            expect(yield* decodeObject(result.stdout)).toMatchObject({ decision: "block" });
+            expect(result.stdout).toContain("coverage-live");
+            expect(yield* fs.exists(path.join(cwd, ".beep"))).toBe(false);
+          })
+        )
+      );
+    }
+    it.effect("fails with a diagnostic when the session directory cannot be created", () =>
+      withInbox(({ root }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* fs.writeFileString(`${root}/.beep/inbox/sessions`, "not a directory");
+          const result = yield* runHook(root, "claude", { cwd: root, hook_event_name: "Stop" });
+          expect(result.exitCode).toBe(1);
+          expect(result.stderr).toContain("yeet inbox: cannot create session directory");
+        })
+      )
+    );
+    it.effect("scopes linked worktree Stop checks to payload cwd instead of the owning clone", () =>
+      withInbox(({ root }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const git = Effect.fn("YeetInboxHookAdapterTest.git")(function* (args: ReadonlyArray<string>) {
+            const handle = yield* ChildProcess.make("git", args, { cwd: root, stdout: "ignore", stderr: "ignore" });
+            expect(yield* handle.exitCode).toBe(0);
+          });
+          yield* fs.remove(path.join(root, ".git"), { recursive: true });
+          yield* git(["init", "--quiet"]);
+          yield* git([
+            "-c",
+            "user.name=Test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "--allow-empty",
+            "-m",
+            "fixture",
+          ]);
+          const lane = path.join(root, "lane");
+          yield* git(["worktree", "add", "--detach", lane]);
+          const nested = path.join(lane, "packages", "example");
+          yield* fs.makeDirectory(nested, { recursive: true });
+          const env = { BEEP_YEET_HOOK_ROOT: "", CLAUDE_PROJECT_DIR: root };
+          for (const cwd of [lane, nested]) {
+            const result = yield* runHook(root, "claude", { cwd, hook_event_name: "Stop" }, env);
+            expect(yield* decodeObject(result.stdout)).toEqual({});
+          }
+          const ownInbox = path.join(lane, ".beep", "inbox");
+          yield* fs.makeDirectory(ownInbox, { recursive: true });
+          const ownRow = yield* encodeUnknown({
+            schemaVersion: "yeet-inbox/v1",
+            kind: "base-conflict",
+            id: "lane-conflict",
+            severity: "P0",
+            checkout: lane,
+            capsule: { base: "origin/main" },
+          });
+          yield* fs.writeFileString(path.join(ownInbox, "failures.ndjson"), ownRow);
+          const own = yield* runHook(root, "claude", { cwd: nested, hook_event_name: "Stop" }, env);
+          expect(yield* decodeObject(own.stdout)).toMatchObject({ decision: "block" });
+          expect(own.stdout).toContain("lane-conflict");
+          expect(own.stdout).not.toContain("coverage-live");
+          const clone = yield* runHook(root, "claude", { cwd: root, hook_event_name: "Stop" }, env);
+          expect(yield* decodeObject(clone.stdout)).toMatchObject({ decision: "block" });
+          expect(clone.stdout).toContain("coverage-live");
+          expect(yield* fs.exists(path.join(root, ".beep", "inbox", "acks", "coverage-live"))).toBe(false);
+        })
+      )
+    );
+  });
+
   it.layer(NodeServices.layer, { timeout: "15 seconds" })((it) => {
     it.effect("injects each severity at the intended Claude session boundary and deduplicates it", () =>
       withInbox(({ root }) =>

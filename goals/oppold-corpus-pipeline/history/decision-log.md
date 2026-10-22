@@ -8,7 +8,7 @@
    research amendment. Folding into `agentic-professional-runtime` was
    rejected (product-definition packet, not a data operation).
 2. **Corpus home + salvage-first.** Canonical root
-   `/home/elpresidank/data-home/oppold-corpus/` with immutable SHA-256
+   `$HOME/data-home/oppold-corpus/` with immutable SHA-256
    verified `raw/`, plus `staging/`, `organized/`, `catalog/` tiers. P0 is
    USB salvage — the 26-PST motherlode has no second copy. Catalog-in-place
    (no consolidation) was rejected while the largest source sits on

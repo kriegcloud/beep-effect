@@ -156,27 +156,57 @@ const localInitializer = (identifier: Identifier, imports: EffectVitestImports):
       : O.none()
   );
 
-const isPureStubLayer = (
-  expression: Expression,
-  imports: EffectVitestImports,
-  seen: ReadonlyArray<string> = []
-): boolean => {
-  if (Node.isCallExpression(expression)) {
-    if (isProvenanceCall(expression, imports, LAYER_MODULES, "Layer", ["succeed", "mock"])) return true;
-    if (isProvenanceCall(expression, imports, LAYER_MODULES, "Layer", ["merge", "mergeAll"])) {
-      return A.every(
-        expression.getArguments(),
-        (argument) => Node.isExpression(argument) && isPureStubLayer(argument, imports, seen)
+type LayerLeaf = (expression: Expression, imports: EffectVitestImports) => boolean;
+
+// Follows Layer.merge/mergeAll operands and const initializers down to leaves.
+const layerComposedOf =
+  (leaf: LayerLeaf) =>
+  (expression: Expression, imports: EffectVitestImports): boolean => {
+    const visit = (current: Expression, seen: ReadonlyArray<string>): boolean => {
+      if (leaf(current, imports)) return true;
+      if (Node.isCallExpression(current))
+        return (
+          isProvenanceCall(current, imports, LAYER_MODULES, "Layer", ["merge", "mergeAll"]) &&
+          A.every(current.getArguments(), (argument) => Node.isExpression(argument) && visit(argument, seen))
+        );
+      if (!Node.isIdentifier(current) || A.contains(seen, current.getText())) return false;
+      return O.exists(localInitializer(current, imports), (initializer) =>
+        visit(initializer, [...seen, current.getText()])
       );
-    }
-    return false;
-  }
-  if (isProvenanceExpression(expression, imports, LAYER_MODULES, "Layer", ["empty"])) return true;
-  if (!Node.isIdentifier(expression) || A.contains(seen, expression.getText())) return false;
-  return O.exists(localInitializer(expression, imports), (initializer) =>
-    isPureStubLayer(initializer, imports, [...seen, expression.getText()])
+    };
+    return visit(expression, []);
+  };
+
+const isStubLayerLeaf: LayerLeaf = (expression, imports) =>
+  Node.isCallExpression(expression)
+    ? isProvenanceCall(expression, imports, LAYER_MODULES, "Layer", ["succeed", "mock"])
+    : isProvenanceExpression(expression, imports, LAYER_MODULES, "Layer", ["empty"]);
+
+const isPureStubLayer = layerComposedOf(isStubLayerLeaf);
+
+// Platform service bundles build in-process services and acquire no external
+// resource, so a hook timeout guards nothing.
+const platformServiceLayerModules = A.flatMap(
+  [
+    { runtime: "Node", root: "@effect/platform-node" },
+    { runtime: "Bun", root: "@effect/platform-bun" },
+  ],
+  ({ runtime, root }) =>
+    A.map(["Services", "FileSystem", "Path", "Crypto", "ChildProcessSpawner", "Stdio", "Terminal"], (service) => ({
+      name: `${runtime}${service}`,
+      root,
+    }))
+);
+
+const isPlatformServiceLayer: LayerLeaf = (expression, imports) =>
+  !Node.isCallExpression(expression) &&
+  A.some(platformServiceLayerModules, ({ name, root }) =>
+    isProvenanceExpression(expression, imports, [root, `${root}/${name}`], name, ["layer", `${name}.layer`])
   );
-};
+
+const isAcquisitionFreeLayer = layerComposedOf(
+  (expression, imports) => isStubLayerLeaf(expression, imports) || isPlatformServiceLayer(expression, imports)
+);
 
 const isContextProvision = (
   expression: Expression,
@@ -1204,7 +1234,45 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
     );
   });
 
-const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
+// Imported values can carry filesystem effects even when passed without calling them.
+// Unbound runtime I/O globals are opaque; local shadowing remains lexical.
+const opaquePlatformReference = (reference: Identifier, imports: EffectVitestImports): boolean => {
+  const binding = imports.resolveBinding(reference);
+  if (O.isNone(binding)) return A.contains(["Bun", "require", "process"], reference.getText());
+  if (!Node.isImportDeclaration(binding.value)) return false;
+  const module = binding.value.getModuleSpecifierValue();
+  return (
+    module !== "effect" &&
+    !Str.startsWith("effect/")(module) &&
+    !A.contains(["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"], module)
+  );
+};
+
+// Follow local helper references, including callbacks passed to combinators.
+// External helper bodies cannot prove absence of filesystem I/O.
+const harnessHasOpaquePlatformReferences = (harness: CallExpression, imports: EffectVitestImports): boolean =>
+  O.exists(harnessCallback(harness), (callback) => {
+    const regions: Array<MorphNode> = [callback];
+    for (const region of regions) {
+      const references = A.filter(
+        region.getDescendantsOfKind(SyntaxKind.Identifier),
+        (reference) =>
+          !isNamePosition(reference) && reference.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) === undefined
+      );
+      if (A.some(references, (reference) => opaquePlatformReference(reference, imports))) return true;
+      const helpers = A.getSomes(
+        A.map(references, (reference) =>
+          O.flatMap(imports.resolveBinding(reference), (binding) => helperBody(binding, imports))
+        )
+      );
+      regions.push(...A.filter(helpers, (helper) => !A.some(regions, (known) => known === helper)));
+    }
+    return false;
+  });
+
+// A services bundle used only by the shared harness is not filesystem evidence.
+// Keep portable filesystem candidates unless the existing native-subject proof succeeds.
+const canonicalPlatformIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
   O.exists(servicesBundleLayers(declaration, imports), (layers) => {
     const visited: FlowCache = MutableHashMap.empty();
     return O.exists(O.all(A.map(layers, (layer) => harnessFlows(layer, imports, [], false, visited))), (nested) => {
@@ -1213,13 +1281,26 @@ const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: Ef
         A.map(flows, ({ harness }) => harness),
         (left, right) => left === right
       );
+      const readsFileSystem = A.some(
+        declaration.getSourceFile().getDescendants(),
+        (node) =>
+          Node.isExpression(node) &&
+          node.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) === undefined &&
+          (!Node.isIdentifier(node) || !isNamePosition(node)) &&
+          isProvenanceExpression(node, imports, ["effect", "effect/FileSystem"], "FileSystem", ["FileSystem"])
+      );
       return (
         !A.isReadonlyArrayEmpty(harnesses) &&
-        A.every(harnesses, (harness) =>
-          harnessProvesNativeFileSystem(
-            { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
-            imports
-          )
+        A.every(
+          harnesses,
+          (harness) =>
+            (!readsFileSystem &&
+              O.isSome(harnessCallback(harness)) &&
+              !harnessHasOpaquePlatformReferences(harness, imports)) ||
+            harnessProvesNativeFileSystem(
+              { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
+              imports
+            )
         )
       );
     });
@@ -1762,6 +1843,57 @@ const pipedAbsenceAssertion = (call: CallExpression, imports: EffectVitestImport
   ).pipe(O.map(({ predicate, truth }) => predicateAssertionReplacement("Option", predicate, truth)));
 };
 
+const predicateFamilies = [
+  { family: "Option", modules: OPTION_MODULES, members: ["isSome", "isNone"] },
+  { family: "Result", modules: RESULT_MODULES, members: ["isSuccess", "isFailure"] },
+  { family: "Exit", modules: EXIT_MODULES, members: ["isSuccess", "isFailure"] },
+];
+
+// `value.pipe(O.isSome)` / `pipe(value, O.isSome)`: the terminal stage is a predicate reference.
+const pipedPredicateDescription = (node: MorphNode | undefined, imports: EffectVitestImports) =>
+  O.flatMap(Node.isCallExpression(node) ? terminalPipeStage(node, imports) : O.none(), (stage) =>
+    Node.isExpression(stage)
+      ? A.head(
+          A.getSomes(
+            A.map(predicateFamilies, ({ family, modules, members }) =>
+              A.findFirst(members, (member) => isProvenanceExpression(stage, imports, modules, family, [member])).pipe(
+                O.map((member) => ({ family, member }))
+              )
+            )
+          )
+        )
+      : O.none()
+  );
+
+const isCompoundBoolean = (node: MorphNode | undefined): boolean => {
+  const expression = Node.isParenthesizedExpression(node) ? node.getExpression() : node;
+  return (
+    Node.isBinaryExpression(expression) &&
+    A.contains([SyntaxKind.AmpersandAmpersandToken, SyntaxKind.BarBarToken], expression.getOperatorToken().getKind())
+  );
+};
+
+// A canonical utils.assertTrue/assertFalse already states a compound Boolean
+// predicate, or a piped predicate whose recommended primitive is that same helper.
+const isCanonicalBooleanForm = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  A.some([true, false], (truth) => {
+    const helper = truth ? "assertTrue" : "assertFalse";
+    if (!isProvenanceCall(call, imports, ["@effect/vitest/utils"], "utils", [helper])) return false;
+    const actual = call.getArguments()[0];
+    return (
+      isCompoundBoolean(actual) ||
+      O.exists(
+        pipedPredicateDescription(actual, imports),
+        ({ family, member }) => predicateAssertionReplacement(family, member, truth).primitive === `utils.${helper}`
+      )
+    );
+  });
+
+const isReviewableBooleanAssertion = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isBooleanAssertion(call, imports) &&
+  A.some(call.getArguments(), (argument) => containsDataShape(argument, imports)) &&
+  !isCanonicalBooleanForm(call, imports);
+
 const detectBooleanDataShape = (
   { call, member, inTest }: ReturnType<typeof inspectContext>,
   state: DetectorState
@@ -1783,11 +1915,7 @@ const detectBooleanDataShape = (
     );
     return;
   }
-  if (
-    !isBooleanAssertion(call, imports) ||
-    !A.some(call.getArguments(), (argument) => containsDataShape(argument, imports))
-  )
-    return;
+  if (!isReviewableBooleanAssertion(call, imports)) return;
   const route = dataAssertionRoute(
     call.getArguments()[0],
     undefined,
@@ -2000,7 +2128,7 @@ const detectLayerTimeout = ({ call }: ReturnType<typeof inspectContext>, state: 
 
   if (isHarnessMethodCall(call, imports, "layer") && !Node.isCallExpression(call.getExpression())) {
     const layer = call.getArguments()[0];
-    if (Node.isExpression(layer) && !isPureStubLayer(layer, imports) && !layerHasTimeout(call)) {
+    if (Node.isExpression(layer) && !isAcquisitionFreeLayer(layer, imports) && !layerHasTimeout(call)) {
       findings.push(makeFinding({ ruleId: "EV014", node: call, file, owner, symbol: "it.layer", judgment: true }));
     }
   }
@@ -2258,7 +2386,7 @@ const detectPlatformImport = (declaration: ImportDeclaration, state: DetectorSta
     moduleName,
     members,
     osTemp,
-    () => nativeFileSystemIntegration(declaration, imports),
+    () => canonicalPlatformIntegration(declaration, imports),
     state
   );
 };

@@ -19,7 +19,7 @@ RULES
 -->
 
 - **Cluster / origin:** hand-curated intake corpus at
-  `/home/elpresidank/YeeBois/research/legal-patent-ontology-knowledge-graph-and-related-research/`
+  `$HOME/YeeBois/research/legal-patent-ontology-knowledge-graph-and-related-research/`
   (~120 papers, ~24 cloned repos, `links.md` with 15 seed URLs), assembled
   2026-07-31 → 2026-08-01.
 - **Provenance:** corpus inventory in [`../CAPTURE.md`](../CAPTURE.md);

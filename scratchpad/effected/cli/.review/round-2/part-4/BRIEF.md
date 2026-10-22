@@ -1,6 +1,6 @@
 You are a read-only reviewer. Module: cli. Commit: 2f515ae2519cc72223c94917019bf7ebfe92a4a5. Round: 2.
 Surface: scratchpad/effected/cli/**, scratchpad/test/cli/** (and nothing else).
-Upstream oracle: /home/elpresidank/.cache/beep/effected-port/upstream/af7566a9da2eff169cb74955efcc5ede1e5de9f8/packages/cli (read-only; upstream at the commit the ledger pins).
+Upstream oracle: $HOME/.cache/beep/effected-port/upstream/af7566a9da2eff169cb74955efcc5ede1e5de9f8/packages/cli (read-only; upstream at the commit the ledger pins).
 The live checkout ~/YeeBois/references/effect/effected may have moved past that commit: compare against the
 oracle path only. Its node_modules links effect, @effect and every @effected package, so a read-only probe
 can import upstream source from it.

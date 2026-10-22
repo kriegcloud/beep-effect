@@ -15,10 +15,10 @@ Historical P6 outputs remain evidence of what was true during the May proof.
   2 minutes 28 seconds with exit status 0 and a 7.5 GB memory peak.
 - The service executes
   `packages/tooling/tool/cli/src/bin.ts -- ai-metrics forwarder run` from
-  `/home/elpresidank/YeeBois/projects/beep-effect` with a per-source cap of 50
+  `.` with a per-source cap of 50
   files, a 32 MiB file cap, OTLP enabled, and `--parquet-mode none`.
 - Every durable artifact is under
-  `/home/elpresidank/.local/state/beep/ai-metrics`: encrypted raw archives,
+  `$HOME/.local/state/beep/ai-metrics`: encrypted raw archives,
   config snapshots, DuckDB, reports, and forwarder status. A filesystem scan
   confirmed that no checkout under `~/YeeBois/projects` contains
   `.beep/ai-metrics`.
@@ -121,9 +121,9 @@ rolling current week:
 Artifacts:
 
 - Markdown:
-  `/home/elpresidank/.local/state/beep/ai-metrics/reports/weekly-1778311560000-1778916360000.md`
+  `$HOME/.local/state/beep/ai-metrics/reports/weekly-1778311560000-1778916360000.md`
 - JSON:
-  `/home/elpresidank/.local/state/beep/ai-metrics/reports/weekly-1778311560000-1778916360000.json`
+  `$HOME/.local/state/beep/ai-metrics/reports/weekly-1778311560000-1778916360000.json`
 
 Credited config result:
 
@@ -156,7 +156,7 @@ The final production build and confirmed sync completed with:
 
 - bundle: `p7-mirror-1786367539589`
 - local bundle root:
-  `/home/elpresidank/.local/state/beep/ai-metrics/mirror/bundles/p7-mirror-1786367539589`
+  `$HOME/.local/state/beep/ai-metrics/mirror/bundles/p7-mirror-1786367539589`
 - remote root: `/srv/data/ai-metrics/p7-derived-mirror`
 - sync confirmation: `p7-derived-mirror`
 - remote status: `available`

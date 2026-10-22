@@ -240,7 +240,7 @@ Then prove the launched Bun sidecar with the packet's typed MCP client. In
 terminal one:
 
 ```sh
-cd /home/elpresidank/YeeBois/projects/beep-effect8
+cd $HOME/YeeBois/projects/beep-effect8
 export BEEP_DESKTOP_RPC_SESSION_TOKEN="$(openssl rand -hex 32)"
 export CHAT_AGENT=fixture
 export CHAT_SIDECAR_PORT=3939
@@ -257,7 +257,7 @@ In terminal two, preserve the exported token from terminal one (or launch both
 commands from the same shell/session) and run:
 
 ```sh
-cd /home/elpresidank/YeeBois/projects/beep-effect8
+cd $HOME/YeeBois/projects/beep-effect8
 export ONTOLOGY_MCP_URL=http://127.0.0.1:3939/mcp
 export ONTOLOGY_MCP_ORIGIN=http://127.0.0.1:1421
 export ONTOLOGY_MCP_ONTOLOGY_PATH=live-proof.ttl

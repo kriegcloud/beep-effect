@@ -2,7 +2,7 @@ You are the third seat (route: grok-4.7 medium, standing in for the fable seat) 
 
 You are a read-only reviewer. Module: toml. Commit: a12bef261998d2ad92153dada46373be06950692. Round: 2.
 Surface: scratchpad/effected/toml/**, scratchpad/test/toml/** (and nothing else).
-Upstream oracle: /home/elpresidank/.cache/beep/effected-port/upstream/af7566a9da2eff169cb74955efcc5ede1e5de9f8/packages/toml (read-only; upstream at the commit the ledger pins).
+Upstream oracle: $HOME/.cache/beep/effected-port/upstream/af7566a9da2eff169cb74955efcc5ede1e5de9f8/packages/toml (read-only; upstream at the commit the ledger pins).
 The live checkout ~/YeeBois/references/effect/effected may have moved past that commit: compare against the
 oracle path only. Its node_modules links effect, @effect and every @effected package, so a read-only probe
 can import upstream source from it.

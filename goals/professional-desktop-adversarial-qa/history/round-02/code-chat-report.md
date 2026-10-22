@@ -4,7 +4,7 @@ Found five issues: two P1 lifecycle/data-consistency defects and three P2 robust
 
 1. P1 — partial persistence is incorrectly treated as a rejected turn
 
-[ChatOrchestrator.ts:304](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:304), [Chat.atoms.ts:833](/home/elpresidank/YeeBois/projects/beep-effect6/packages/agents/client/src/Chat.atoms.ts:833)
+[ChatOrchestrator.ts:304]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:304), [Chat.atoms.ts:833]($HOME/YeeBois/projects/beep-effect6/packages/agents/client/src/Chat.atoms.ts:833)
 
 `persisted` is set before either persistence operation succeeds. More importantly, assistant-row persistence and usage-record persistence are separate operations.
 
@@ -22,7 +22,7 @@ Recommended fix: define a transactional finalization boundary for assistant turn
 
 2. P1 — the write semaphore does not protect against multiple sidecar processes
 
-[ThreadStore.repo.ts:420](/home/elpresidank/YeeBois/projects/beep-effect6/packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts:420), [ThreadStore.repo.ts:507](/home/elpresidank/YeeBois/projects/beep-effect6/packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts:507)
+[ThreadStore.repo.ts:420]($HOME/YeeBois/projects/beep-effect6/packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts:420), [ThreadStore.repo.ts:507]($HOME/YeeBois/projects/beep-effect6/packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts:507)
 
 The semaphore protects only one `ThreadStore` instance. IDs are still allocated with `max(existing) + 1`, including maxima read across the entire tables.
 
@@ -40,7 +40,7 @@ Recommended fix: use database-generated identity/sequence values. If that is tem
 
 3. P2 — interrupted-turn refresh can race server-side exit persistence
 
-[ChatOrchestrator.ts:388](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:388), [Chat.atoms.ts:857](/home/elpresidank/YeeBois/projects/beep-effect6/packages/agents/client/src/Chat.atoms.ts:857)
+[ChatOrchestrator.ts:388]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:388), [Chat.atoms.ts:857]($HOME/YeeBois/projects/beep-effect6/packages/agents/client/src/Chat.atoms.ts:857)
 
 The client invalidates the timeline as soon as its RPC fiber is interrupted, while the remote stream’s `onExit` finalizer still needs to append `(stopped)`.
 
@@ -57,7 +57,7 @@ Recommended fix: introduce a cancellation RPC that acknowledges durable stopped-
 
 4. P2 — `activeBranchTurns` silently accepts forward/self parents and produces the wrong branch
 
-[ThreadTimeline.ts:274](/home/elpresidank/YeeBois/projects/beep-effect6/packages/workspace/use-cases/src/aggregates/Thread/ThreadTimeline.ts:274)
+[ThreadTimeline.ts:274]($HOME/YeeBois/projects/beep-effect6/packages/workspace/use-cases/src/aggregates/Thread/ThreadTimeline.ts:274)
 
 The reducer only recognizes a parent already present in the accumulated branch. It terminates on cycles and self-parenting, but treats unresolvable parent references as ordinary root-like turns.
 
@@ -76,7 +76,7 @@ Recommended fix: validate timeline graph invariants at decode/repository project
 
 5. P2 — stopped/failed state is indistinguishable from model-authored text
 
-[ChatOrchestrator.ts:74](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:74), [ChatOrchestrator.ts:307](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:307)
+[ChatOrchestrator.ts:74]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:74), [ChatOrchestrator.ts:307]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:307)
 
 Lifecycle state is encoded as an ordinary assistant `Document` containing `(stopped)` or `(failed)`.
 

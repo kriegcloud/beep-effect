@@ -13,7 +13,7 @@
       "durationMs": 17432,
       "agentMeta": {
         "sessionId": "a9db1643-54b1-4166-af20-6475689dbc79",
-        "sessionFile": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/state/agents/spike3/sessions/a9db1643-54b1-4166-af20-6475689dbc79.jsonl",
+        "sessionFile": "~/.cache/beep-p0-spike3.5R0T7w/spike3/state/agents/spike3/sessions/a9db1643-54b1-4166-af20-6475689dbc79.jsonl",
         "provider": "ollama",
         "model": "gemma3:4b",
         "contextTokens": 32768,
@@ -60,7 +60,7 @@
         "sessionKey": "agent:spike3:rotation-3b6cd0d9",
         "provider": "ollama",
         "model": "gemma3:4b",
-        "workspaceDir": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/workspace",
+        "workspaceDir": "~/.cache/beep-p0-spike3.5R0T7w/spike3/workspace",
         "bootstrapMaxChars": 20000,
         "bootstrapTotalMaxChars": 60000,
         "bootstrapTruncation": {
@@ -83,7 +83,7 @@
         "injectedWorkspaceFiles": [
           {
             "name": "AGENTS.md",
-            "path": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/AGENTS.md",
+            "path": "~/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/AGENTS.md",
             "missing": false,
             "rawChars": 7195,
             "injectedChars": 7195,
@@ -91,7 +91,7 @@
           },
           {
             "name": "SOUL.md",
-            "path": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/SOUL.md",
+            "path": "~/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/SOUL.md",
             "missing": false,
             "rawChars": 1509,
             "injectedChars": 1509,
@@ -99,7 +99,7 @@
           },
           {
             "name": "TOOLS.md",
-            "path": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/TOOLS.md",
+            "path": "~/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/TOOLS.md",
             "missing": false,
             "rawChars": 866,
             "injectedChars": 866,
@@ -107,7 +107,7 @@
           },
           {
             "name": "IDENTITY.md",
-            "path": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/IDENTITY.md",
+            "path": "~/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/IDENTITY.md",
             "missing": false,
             "rawChars": 1275,
             "injectedChars": 1275,
@@ -115,7 +115,7 @@
           },
           {
             "name": "USER.md",
-            "path": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/USER.md",
+            "path": "~/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/USER.md",
             "missing": false,
             "rawChars": 534,
             "injectedChars": 534,
@@ -123,7 +123,7 @@
           },
           {
             "name": "HEARTBEAT.md",
-            "path": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/HEARTBEAT.md",
+            "path": "~/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/HEARTBEAT.md",
             "missing": false,
             "rawChars": 243,
             "injectedChars": 243,
@@ -131,7 +131,7 @@
           },
           {
             "name": "BOOTSTRAP.md",
-            "path": "/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/BOOTSTRAP.md",
+            "path": "~/.cache/beep-p0-spike3.5R0T7w/spike3/workspace/BOOTSTRAP.md",
             "missing": false,
             "rawChars": 1668,
             "injectedChars": 1668,
