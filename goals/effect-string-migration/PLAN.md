@@ -25,11 +25,18 @@ wave moves `@effect/tsgo` to 0.55+ and arms `preferEffectString` at `error`.
 | 2 | technical-drawing, epistemic-server, epistemic-domain, law-practice-use-cases, law-practice-domain, epistemic-ui, documents-domain, m365, occt, openclaw, db-admin, practice-identify, documents-server, html, todox, agents-server, m365-mcp, uspto, epistemic-tables, file-processing, law-practice-tables, shared-use-cases, repo-configs, fc-runs | 145 | merged (#1976) |
 | 3 | effect-drizzle, repo-ai-metrics, pdf-tools, nlp-processing, law-practice-server, semantica, identity, infra, ciops, mcp-kit, ui, oip-web, wink, test-runner, practice-gateway, ontology, box, ai-sync, windows-secrets, rdf, practice-setup, openai-compat, nlp-mcp, mcpb-kit | 237 | merged (#1983) |
 | 4a | acp, test-utils (ai-provider-cli had no sites left) | 47 | merged (#1987) |
-| 4b | editor, professional-desktop, schema, lint-rules, practice-claude-mod, repo-utils, storybook, utils, shared-domain, observability (open-lane hunks near their sites) | about 100 | pending |
+| 4b | the non-effected remainder: repo-cli's last files, the root vitest files, professional-desktop, editor, lint-rules, runtime-env, practice-claude-mod, langextract, shared-domain, observability, public-site, storybook, duckdb | 166 | in progress |
 | 5a | repo-cli: the 58 files no open PR or lane touched on 2026-10-21 | 202 | merged (#1993) |
-| 5b | repo-cli: 49 of the remaining files (commands, internal, tests) | 224 | in review |
+| 5b | repo-cli: 49 of the remaining files (commands, internal, tests) | 224 | merged (#2008) |
 | 5c | repo-cli: 50 further files plus `scripts/CreateKnowledgeMintApp.ts` and `scripts/CreateReviewerApp.ts` | 213 | merged (#2001) |
-| 5d | repo-cli's 7 files with open-lane hunks (34 sites) and the root (16), then the pin moves to 0.55+ and the rule is armed | about 50 | pending |
+| 4c | schema, utils, repo-utils and the repo-cli and walker files that effected-promotion wave 2c edits | 23 | held until 2c merges |
+| 6a | effected modeling: managed-section, jsonc, github-references, github-commands, tsconfig, spdx, npm-spec, schema-org, semver, jsonl, walker | 297 | in progress |
+| 6b | effected drivers: git, github, commands | 279 | in progress |
+| 6c | effected memfs and toml | 266 | in progress |
+| 6d | effected glob | 205 | held until 2c merges |
+| 6e | effected yaml sources | 286 | in progress |
+| 6f | effected yaml tests | 208 | in review |
+| 7 | whatever later merges add, then the pin moves to 0.55+ and the rule is armed | — | pending |
 
 Wave proof, per package: the package's tests, `package-verify --quick`, and a
 temporary local `@effect/tsgo` 0.55.0 install with `preferEffectString` armed,

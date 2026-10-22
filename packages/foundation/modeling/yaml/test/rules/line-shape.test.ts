@@ -2,17 +2,18 @@
 // empty-lines, eof-newline — each through the shared fixture harness (which
 // carries the mutation proofs).
 
+import * as Str from "effect/String";
 import { builtin, testRule } from "./harness.ts";
 
 testRule(builtin("line-length"), [
   {
     name: "lines within the default 120 report nothing",
-    input: `short: 1\nlonger: ${"x".repeat(100)}\n`,
+    input: `short: 1\nlonger: ${Str.repeat(100)("x")}\n`,
     expected: [],
   },
   {
     name: "a line past the default 120 reports at the boundary",
-    input: `key: ${"x".repeat(130)}\n`,
+    input: `key: ${Str.repeat(130)("x")}\n`,
     expected: [{ line: 0, character: 120, length: 15, messageIncludes: "longer than 120" }],
   },
   {
@@ -25,17 +26,17 @@ testRule(builtin("line-length"), [
     // Line text excludes the terminator whole — CRLF's `\r` is not a
     // 121st character.
     name: "CRLF: an exactly-max-width line passes at the default 120",
-    input: `key: ${"x".repeat(115)}\r\n`,
+    input: `key: ${Str.repeat(115)("x")}\r\n`,
     expected: [],
   },
   {
     name: "CRLF: one character past the max reports 121, not 122",
-    input: `key: ${"x".repeat(116)}\r\n`,
+    input: `key: ${Str.repeat(116)("x")}\r\n`,
     expected: [{ line: 0, character: 120, length: 1, messageIncludes: "(121)" }],
   },
   {
     name: "multiple long lines each report",
-    input: `a: ${"x".repeat(10)}\nb: ${"y".repeat(10)}\n`,
+    input: `a: ${Str.repeat(10)("x")}\nb: ${Str.repeat(10)("y")}\n`,
     setting: { max: 5 },
     expected: [
       { line: 0, character: 5 },
