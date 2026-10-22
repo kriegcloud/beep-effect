@@ -12,6 +12,12 @@
     <status>Curated from pasted conversation; use distilled sections as the main task brief and raw turns as provenance.</status>
   </metadata>
 
+  <supersession_note date="2026-10-20">
+    The public-origin authority decision supersedes the historical placeholder
+    hosts preserved in defanged form below. The current namespace authority is
+    https://beep-effect.com/ns/. The July wording records provenance only.
+  </supersession_note>
+
   <research_basis>
     <source name="Anthropic Prompting Best Practices" url="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">
       <takeaway>Use clear, descriptive XML tags; nest naturally; wrap examples; put long document data near the top; put the query/instructions after the long context; use explicit output constraints.</takeaway>
@@ -79,7 +85,7 @@
   </decision_log>
 
   <open_questions>
-    <question id="q1">What real public authority host should replace placeholder values such as https://ns[.]beep[.]sh/ (superseded 2026-10-20 by https://beep-effect.com/ns/) when publishing @beep IRIs?</question>
+    <question id="q1">What real public authority host should replace placeholder values such as https://ns[.]beep[.]sh/ when publishing @beep IRIs?</question>
     <question id="q2">Should relationship triples be fold-only, inline-only, or both? Current recommendation is both eventually, but implement fold-level triples first.</question>
     <question id="q3">Should the Fibered kit live in @beep/ontology or a vocabulary-agnostic shared schema package after the first implementation proves its shape?</question>
   </open_questions>
@@ -181,12 +187,12 @@ Marked **LOCKED** (agreed in session), **DEFAULT** (recommended, proceed unless
 vetoed), or **OPEN** (blocked on elpresidank).
 
 - **D1 — Authority binding is total, at the root. LOCKED.**
-  `make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep", vocab })`.
+  `make("beep", { authority: "https://ns[.]beep[.]sh/", prefix: "beep", vocab })`.
   Every composer monorepo-wide derives `.iri`/`.curie` mechanically from its
   path. Even never-published identities get canonical IRIs (provenance needs
   them).
 - **D2 — Slash IRIs for the mechanical mapping; hash allowed via `rebase`. DEFAULT.**
-  Internal: `https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl`. Published
+  Internal: `https://ns[.]beep[.]sh/ontology/Ontology.models/HttpUrl`. Published
   vocabularies may rebase to hash namespaces
   (`https://opip.law/ns/patent#Claim`). Rationale: slash → per-term
   dereference/docs pages (explore/tree ambition); hash → single-document
@@ -285,7 +291,7 @@ getters, with the binding threaded from `make`:
 
 ```ts
 export const { $BeepId } = make("beep", {
-  authority: "https://beep-effect.com/ns/",
+  authority: "https://ns[.]beep[.]sh/",
   prefix: "beep",
   // vocab?: extensions merged into CoreVocab
 });
@@ -523,7 +529,7 @@ block, deterministic across runs.
 
 1. **D7** — inline `is:` pairs on `$I.class`, fold-only `triples`, or both?
    (Fold channel ships in Phase 3 regardless.)
-2. Authority host: `https://ns[.]beep[.]sh/` is a placeholder (superseded 2026-10-20 by `https://beep-effect.com/ns/`) — confirm the real
+2. Authority host: `https://ns[.]beep[.]sh/` is a placeholder — confirm the real
    authority before Phase 2 lands (it is `rebase`-able later, but the default
    should be right).
 3. Where does `Fibered` live — `@beep/schema` (vocab-agnostic, near
@@ -641,12 +647,12 @@ mints; retrieval becomes dereference.**
 vetoed), or **OPEN** (blocked on elpresidank).
 
 - **D1 — Authority binding is total, at the root. LOCKED.**
-  `make("beep", { authority: "https://beep-effect.com/ns/", prefix: "beep", vocab })`.
+  `make("beep", { authority: "https://ns[.]beep[.]sh/", prefix: "beep", vocab })`.
   Every composer monorepo-wide derives `.iri`/`.curie` mechanically from its
   path. Even never-published identities get canonical IRIs (provenance needs
   them).
 - **D2 — Slash IRIs for the mechanical mapping; hash allowed via `rebase`. DEFAULT.**
-  Internal: `https://beep-effect.com/ns/ontology/Ontology.models/HttpUrl`. Published
+  Internal: `https://ns[.]beep[.]sh/ontology/Ontology.models/HttpUrl`. Published
   vocabularies may rebase to hash namespaces
   (`https://opip.law/ns/patent#Claim`). Rationale: slash → per-term
   dereference/docs pages (explore/tree ambition); hash → single-document
@@ -744,7 +750,7 @@ getters, with the binding threaded from `make`:
 
 ```ts
 export const { $BeepId } = make("beep", {
-  authority: "https://beep-effect.com/ns/",
+  authority: "https://ns[.]beep[.]sh/",
   prefix: "beep",
   // vocab?: extensions merged into CoreVocab
 });
@@ -975,7 +981,7 @@ block, deterministic across runs.
     <section index="11" title="10. Open questions for elpresidank">
 <![CDATA[1. **D7** — inline `is:` pairs on `$I.class`, fold-only `triples`, or both?
    (Fold channel ships in Phase 3 regardless.)
-2. Authority host: `https://ns[.]beep[.]sh/` is a placeholder (superseded 2026-10-20 by `https://beep-effect.com/ns/`) — confirm the real
+2. Authority host: `https://ns[.]beep[.]sh/` is a placeholder — confirm the real
    authority before Phase 2 lands (it is `rebase`-able later, but the default
    should be right).
 3. Where does `Fibered` live — `@beep/schema` (vocab-agnostic, near
@@ -2323,7 +2329,7 @@ This mirrors how RDF stores handle IRIs — the same IRI in different documents 
 The final piece is closing the loop on self-description and dereferenceability — the idea that when you encounter an IRI, you should be able to follow it to get its definition. The codebase itself becomes an ontology where every schema, check, error, and service gets a minted IRI and symbol, turning the entire monorepo into RDF resources. The create/compose hierarchy naturally maps to semantic relationships like broader/narrower concepts, so you could export the whole thing as a SKOS or OWL ontology where each identity becomes a formal knowledge resource.
 Since these identities are stable and interned, they're perfect anchors for provenance tracking—every proposed change to a schema references that schema's identity, and the full audit trail (who proposed it, when, what SHACL rules gated it) hangs off that same IRI, making $I the foundation for the bitemporal provenance pipeline.
 The determinism constraint—forbidding template interpolation and requiring static literal segments—isn't just a guardrail; it's what makes these identities usable as IRIs in the first place. By ensuring identities are statically determinable at build time, they remain stable and referentially transparent, which means static analysis tools can extract them without executing code, and that's what enables the whole system to work.
-There's still a gap though: the namespace is currently a CURIE-like identifier rather than a dereferenceable HTTP IRI. For real interoperability with RDF tooling like Oxigraph or SPARQL processors, I'd need to map @beep/ to an actual base IRI—something like https://beep-effect.com/ns/ontology/ or a urn:beep: scheme—so the prefix declarations work cleanly in RDF contexts.
+There's still a gap though: the namespace is currently a CURIE-like identifier rather than a dereferenceable HTTP IRI. For real interoperability with RDF tooling like Oxigraph or SPARQL processors, I'd need to map @beep/ to an actual base IRI—something like https://beep[.]dev/ns/ontology/ or a urn:beep: scheme—so the prefix declarations work cleanly in RDF contexts.
 The bigger picture is that $I acts as the CURIE authority, and with just one resolve(identity) → IRI function plus a @context entry mapping "beep" to the full IRI, the internal identities become proper RDF IRIs on the wire. The interned symbol is the in-memory canonical form; the IRI is what gets serialized. It mirrors that same in-memory-versus-serialized duality from their schema-as-codec approach.
 Let me double-check I'm reading the code correctly here—Symbol.for does create globally interned symbols where Symbol.for(x) === Symbol.for(x) always holds, and the template tag syntax forbids interpolation and requires a single segment. The user is asking me to reflect on the bigger picture they're seeing in the code — they want me to articulate the synthesis of what $I really is as a system. I'm recognizing that this is an IRI-minting and interning layer, essentially the identity and namespace-authority foundation of their ontology, and I should frame that insight clearly for them while staying grounded in what the code actually demonstrates. So the missing piece is mapping the @beep/ CURI to a real base IRI for RDF-tool interop. I need to be careful here—this person is operating at a high level of sophistication and doesn't need basic explanations or cheerleading, just substantive peer-level engagement with the pattern itself. I should stay dense and precise, mostly prose, and avoid the traps of being sycophantic, over-formatted, or vague about what this actually accomplishes.
 The core reframe is that the path builder is really an IRI minter and interning layer. Symbol.for is the keystone because it gives referential transparency—the same string always returns the same symbol. That duality between minting and reuse connects directly to what we discussed before. The determinism constraint isn't just a nice property; it's what makes static extraction possible. And all of this ties back to their actual flywheel and provenance work—the codebase becomes a graph you can reason about. The concrete gap is just CURIE to dereferenceable IRI, and the bridge is surprisingly small. The bigger story is that this is a CURIE authority plus interning layer, and there's probably something they haven't quite seen yet about how that positioning unlocks the rest. it means their whole codebase becomes a triple factory once annotated this way — $I provides the subject IRIs, the ontology annotations provide the predicates, and the decoded data provides the objects. But I need to be careful here: in OWLClass, the identifier on each field is actually the predicate, and the subject comes from the class's own IRI field (a FOLIO IRI), not from $I. So for externally-sourced data like FOLIO, the subject is already determined by FOLIO's own identity system.
@@ -2381,7 +2387,7 @@ I'm examining how the old API was actually used in the tests to understand what 
 The old ontology package widened everything to plain string at the boundary, and references like Ont.parent("Parent") only resolve at assembly time by string matching — typos become runtime failures. With literal-preserving composers, those term references could be checked at compile time instead. What's needed is for the IdentityComposer itself to act as an IRI builder with full type safety and literal preservation, carrying both the internal identity and the dereferenceable IRI as a dual-form identity, then deriving annotation properties from that.
 The @beep/... CURIE and https://.../ns/... IRI are really just two encodings of the same path — it's an encode/decode duality. The composer should become namespace-aware, bound to a namespace declaration with prefix and base IRI, so every derived path has three canonical literal-typed forms: the internal CURIE, the dereferenceable IRI, and an interned symbol. The transformation from internal form to IRI is mechanical and deterministic.
 There's a real design choice here between hash and slash namespaces — hash works when the whole vocabulary is one document, but slash is better if each term dereferences individually, which fits their explore-and-tree vision. Rather than keeping the parallel $I wrapper, I'd extend the identity composer itself with an optional namespace parameter, eliminating the need for a separate Ontology.create wrapper.
-The cleanest approach might be centralizing namespace binding at the @beep root level, mapping it once to an authority like https://beep-effect.com/ns/, so every composer becomes an IRI builder automatically through a pure function of the path. That said, they might want per-package vocabulary IRIs that don't mirror the internal structure — like publishing a clean public ontology under a different domain.
+The cleanest approach might be centralizing namespace binding at the @beep root level, mapping it once to an authority like https://ns[.]beep[.]sh/, so every composer becomes an IRI builder automatically through a pure function of the path. That said, they might want per-package vocabulary IRIs that don't mirror the internal structure — like publishing a clean public ontology under a different domain.
 So the solution is a default mechanical mapping from the root binding with per-composer override capability, where the override rebases the IRI while preserving the internal identity. The real ergonomic win comes from treating terms as first-class values instead of strings: mint a term once with $I.class("Parent", {...}) and pass that term object around, which carries its IRI, CURIE, symbol, and annotations, making it directly usable in schemas and references.
 Beyond that, I want to extend the derivation system so that instead of repeating annotations, I derive them from the identifier: rdfs:label and skos:prefLabel both come from the title transform, the IRI is computed from namespace and path, the CURIE from prefix and local name, and I add slug derivations like kebab-case for markdown anchors and camelCase for JSON-LD context terms.
 For naming conventions, I'm thinking about adopting RDF vocabulary directly—calling a bound root a Namespace and a leaf a Term, so the API reads as ns.term("Parent") following the rdflib/N3.js pattern. The composer is already callable as a template tag, so I could extend that to something like $I.t`Parent` to return the term identity, keeping the interface clean and consistent.
@@ -2417,7 +2423,7 @@ Here's my proposal, stated as one sentence first: **bind a namespace authority a
 ```ts
 // identity root — ONE new field
 export const { $BeepId } = make("beep", {
-  authority: "https://beep-effect.com/ns/",
+  authority: "https://ns[.]beep[.]sh/",
   prefix: "beep",
 })
 
@@ -2426,13 +2432,13 @@ Every composer everywhere is now an IRI builder with zero call-site changes, bec
 ```ts
 const $I = $OntologyId.create("Ontology.models")
 $I.identifier  // "@beep/ontology/Ontology.models"          (internal, unchanged)
-$I.iri         // "https://beep-effect.com/ns/ontology/Ontology.models"  (literal type!)
+$I.iri         // "https://ns[.]beep[.]sh/ontology/Ontology.models"  (literal type!)
 $I.curie       // "beep:ontology/Ontology.models"
 ```
 
 This is the encode/decode duality landing exactly where you predicted: `identifier` is the in-memory canonical form, `iri` is the wire form, and the transform between them is a codec you can write once at both the type level and value level. Your `TitleFromIdentifier` machinery already proves the pattern — this adds `IriFromIdentity<Authority, Path>` and friends (`SlugFromIdentifier` for markdown anchors, camelCase for JSON-LD context terms) to the same family.
 
-**2. Rebasing for published vocabularies.** The mechanical mapping is right for internal identities, but you won't want `https://beep-effect.com/ns/ip-ontology/patent/Claim` on opip.law. So one combinator:
+**2. Rebasing for published vocabularies.** The mechanical mapping is right for internal identities, but you won't want `https://ns[.]beep[.]sh/ip-ontology/patent/Claim` on opip.law. So one combinator:
 
 ```ts
 const $Pat = $OntologyId.create("patent").rebase({
@@ -2617,7 +2623,7 @@ Extension follows your existing convention — bake at the root, once, and every
 
 ```ts
 export const { $OntologyId } = make("ontology", {
-  authority: "https://beep-effect.com/ns/",
+  authority: "https://ns[.]beep[.]sh/",
   vocab: { folio: { iri: "https://folio.openlegalstandard.org/ns#", terms: FolioTerms } },
 });
 // every file: const $I = $OntologyId.create("path/to/module") — unchanged, now speaks "folio:*"
@@ -2775,7 +2781,7 @@ One kit, and the pattern becomes reusable for `TagValue`, `LiteralKit`-style enu
 
 Now let me build the handoff.The handoff doc consolidates the whole arc: the four-phase plan (vocab/CURIE types → composer binding → the fold → `Fibered` + retrieval), every decision tagged LOCKED/DEFAULT/OPEN, the `Ontology_models.ts` retro-fixes, the resurrection map for the old projections, and testing strategy including a CI check for the static-extraction invariant. It also tells Fable the fibration layer stays strictly in the discrete case — no building 2-cells before the version-migration story actually needs them.
 
-Two things still flagged OPEN in §10 that only you can answer, D7 (inline vs fold-only triples — you never picked, so Phase 3 ships the fold channel either way and the inline channel waits) and the real authority host, since `https://ns[.]beep[.]sh/` is my placeholder (superseded 2026-10-20 by `https://beep-effect.com/ns/`).
+Two things still flagged OPEN in §10 that only you can answer, D7 (inline vs fold-only triples — you never picked, so Phase 3 ships the fold channel either way and the inline channel waits) and the real authority host, since `https://ns[.]beep[.]sh/` is my placeholder.
 
 One parting thought on the fibration insight, because I think it's the deepest thing in this whole session: you've now got the same construction appearing at three scales — a JSDoc tag's metadata over its tag, a schema's annotations over its `$I` identity, and the knowledge graph's triples over its IRIs. Same base-and-section shape, three stores, one index. When Fable builds `project(value, policy)`, your skill's context-lifting rules stop being documentation about how agents *should* use metadata and become the executable sections themselves. The skill was the spec all along.
 ````
