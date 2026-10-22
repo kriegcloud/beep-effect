@@ -29,6 +29,7 @@ import * as PlatformError from "effect/PlatformError";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import type { Vitest } from "@effect/vitest";
 import type * as Layer from "effect/Layer";
 
@@ -171,7 +172,7 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
         yield* writeSourceTree(fs, path);
 
         const entries = A.map(yield* fs.readDirectory(path("src"), { recursive: true }), (path) =>
-          path.replaceAll("\\", "/")
+          Str.replaceAll("\\", "/")(path)
         ).sort();
 
         assert.isTrue(entries.includes("features/chat.ts"));
@@ -420,7 +421,7 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
 
         const suffixedFile = yield* fs.makeTempFile({ directory: path(), prefix: "plain-", suffix: ".txt" });
         assert.strictEqual((yield* fs.stat(suffixedFile)).type, "File");
-        assert.isTrue(suffixedFile.endsWith(".txt"));
+        assert.isTrue(Str.endsWith(".txt")(suffixedFile));
 
         const scopedDirectory = yield* Effect.scoped(
           Effect.gen(function* () {
@@ -446,7 +447,7 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
               suffix: ".txt",
             });
             assert.strictEqual((yield* fs.stat(file)).type, "File");
-            assert.isTrue(file.endsWith(".txt"));
+            assert.isTrue(Str.endsWith(".txt")(file));
             return file;
           })
         );
@@ -659,7 +660,7 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
     ) {
       if (access !== "write") {
         yield* file.seek(BigInt(0), "start");
-        assert.strictEqual(decoder.decode(yield* readAllocUpTo(file, 1)), expectedContent.slice(0, 1));
+        assert.strictEqual(decoder.decode(yield* readAllocUpTo(file, 1)), Str.slice(0, 1)(expectedContent));
         return;
       }
       const error = yield* Effect.flip(file.readAlloc(1));
@@ -732,8 +733,8 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
         ] as const;
 
         for (const { existing: expectedExisting, flag, missing: expectedMissing } of cases) {
-          const existing = path(`${flag.replace("+", "plus")}-existing.txt`);
-          const missing = path(`${flag.replace("+", "plus")}-missing.txt`);
+          const existing = path(`${Str.replace("+", "plus")(flag)}-existing.txt`);
+          const missing = path(`${Str.replace("+", "plus")(flag)}-missing.txt`);
           yield* fs.writeFileString(existing, "seed");
 
           const existingResult = yield* Effect.exit(fs.writeFileString(existing, "x", { flag }));
@@ -991,10 +992,10 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
 
         assert.notStrictEqual(firstDirectory, secondDirectory);
         assert.notStrictEqual(firstFile, secondFile);
-        assert.isTrue(firstDirectory.startsWith(path("directory-")));
-        assert.isTrue(secondDirectory.startsWith(path("directory-")));
-        assert.isTrue(firstFile.startsWith(path("file-")) && firstFile.endsWith(".txt"));
-        assert.isTrue(secondFile.startsWith(path("file-")) && secondFile.endsWith(".txt"));
+        assert.isTrue(Str.startsWith(path("directory-"))(firstDirectory));
+        assert.isTrue(Str.startsWith(path("directory-"))(secondDirectory));
+        assert.isTrue(Str.startsWith(path("file-"))(firstFile) && Str.endsWith(".txt")(firstFile));
+        assert.isTrue(Str.startsWith(path("file-"))(secondFile) && Str.endsWith(".txt")(secondFile));
       })
     );
 
@@ -1279,11 +1280,11 @@ export const fileSystemCases = (it: Vitest.MethodsNonLive<FileSystem.FileSystem>
             root,
             exclude: ["**/*.test.ts"],
           }),
-          (entry) => entry.replaceAll("\\", "/")
+          (entry) => Str.replaceAll("\\", "/")(entry)
         ).sort();
 
         assert.strictEqual(matches.length, 1);
-        assert.isTrue(matches[0]?.endsWith("src/index.ts") === true);
+        assert.isTrue((matches[0] === undefined ? undefined : Str.endsWith("src/index.ts")(matches[0])) === true);
       })
     );
 
