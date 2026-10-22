@@ -59,8 +59,8 @@ subagents/workflows.
 ```sh
 bun run beep ai-metrics sources discover \
   --target local \
-  --repo-root /home/elpresidank/YeeBois/projects/beep-effect \
-  --home-dir /home/elpresidank \
+  --repo-root $HOME/YeeBois/projects/beep-effect \
+  --home-dir $HOME \
   --all \
   --max-files 5 \
   --max-file-bytes 8388608 \

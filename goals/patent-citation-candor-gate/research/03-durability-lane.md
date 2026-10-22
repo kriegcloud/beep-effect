@@ -1,7 +1,7 @@
 # Rung 2 Durability Lane — Copy-Accurate Machinery Map
 
 Provenance: 2026-08-05, agent Explore, branch `feat/patent-citation-candor-gate`,
-repo `/home/elpresidank/YeeBois/projects/beep-effect12`. Every code block below
+repo `$HOME/YeeBois/projects/beep-effect12`. Every code block below
 is verbatim from live source at the cited `path:line`. Nothing is reconstructed
 from memory or from `dist/`.
 

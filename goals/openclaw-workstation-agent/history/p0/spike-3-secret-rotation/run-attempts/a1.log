@@ -4,7 +4,7 @@ credential-parent path=/etc/beep/openclaw-spike owner=0 gid=0 mode=755
 credential path=/etc/beep/openclaw-spike/op-service-account-token owner=0 group=elpresidank mode=0440
 credential parents=/etc,/etc/beep,/etc/beep/openclaw-spike canonical=yes writable-by-group-or-world=no
 credential service-user-readable=yes private-group-extra-members=none
-client-config-created path=/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/a1-old-client.json mode=600
+client-config-created path=$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/a1-old-client.json mode=600
 
 === establish old-snapshot cold owner ===
 cold-owner-connected=acp socket-inode=222804303 old-sha256-prefix=cf5bcbd0
@@ -12,7 +12,7 @@ cold-owner-connected=acp socket-inode=222804303 old-sha256-prefix=cf5bcbd0
 === operator rotation at unchanged reference ===
 ROTATE-NOW: replace the disposable field in the 1Password UI; do not use an argv-valued op edit.
 polling unchanged reference=op://beep-p0-spike3/spike3-rotating/password timeout-seconds=300
-client-config-created path=/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/a1-new-client.json mode=600
+client-config-created path=$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/a1-new-client.json mode=600
 before sha256-prefix=cf5bcbd0 length=32
 after  sha256-prefix=6c9c6b13 length=32 reference-unchanged=yes
 
@@ -92,9 +92,9 @@ log-scan label=rotated-gateway sha256-prefix=6c9c6b13 plaintext=absent token-sha
 log-scan label=rotated-gateway sha256-prefix=6c9c6b13 plaintext=absent token-shapes=absent
 log-scan label=rotated-gateway sha256-prefix=6c9c6b13 plaintext=absent token-shapes=absent
 ASSERT-PASS: model and Telegram probes are causally tied to reload event 957f1e5aaf3f942d3fa00dc1
-client-config-removing path=/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/a1-old-client.json mode=600
-client-config-removed path=/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/a1-old-client.json mode=600
-client-config-removing path=/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/a1-new-client.json mode=600
-client-config-removed path=/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/a1-new-client.json mode=600
+client-config-removing path=$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/a1-old-client.json mode=600
+client-config-removed path=$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/a1-old-client.json mode=600
+client-config-removing path=$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/a1-new-client.json mode=600
+client-config-removed path=$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/a1-new-client.json mode=600
 log-scan label=old-gateway sha256-prefix=cf5bcbd0 plaintext=absent token-shapes=absent
 log-scan label=new-gateway sha256-prefix=6c9c6b13 plaintext=absent token-shapes=absent

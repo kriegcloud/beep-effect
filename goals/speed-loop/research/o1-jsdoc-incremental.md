@@ -1,7 +1,7 @@
 # Opportunities 1 + 7: incremental JSDoc inventory and Yeet attempt journal
 
 Date: 2026-08-04  
-Checkout: `/home/elpresidank/YeeBois/projects/beep-effect3`, PR #548 branch  
+Checkout: `$HOME/YeeBois/projects/beep-effect3`, PR #548 branch  
 Method: read-only source inspection. No build, inventory regeneration, install, or network call was run.
 
 ## Executive recommendation

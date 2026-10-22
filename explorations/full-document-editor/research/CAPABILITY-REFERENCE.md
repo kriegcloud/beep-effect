@@ -12,7 +12,7 @@ the machine-validated Goal A atlas.
 | Live target | <https://playground.lexical.dev/> |
 | Live audit | 2026-08-04 |
 | Runtime | `Playground`, `0.49.0+dev.esm` |
-| Source | `/home/elpresidank/YeeBois/dev/text_editor_ui/lexical/packages/lexical-playground/` |
+| Source | `$HOME/YeeBois/dev/text_editor_ui/lexical/packages/lexical-playground/` |
 | Package | `0.49.0` |
 | Commit | `a933222c489e7025d87b9217c2489d309fc8a3cf` |
 | License | MIT, verified from the pinned checkout |

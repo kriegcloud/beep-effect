@@ -1,6 +1,6 @@
 # Mapping — Graphnosis "corrections, confidence, contradiction & forgetting" → beep-effect
 
-Checkout: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
+Checkout: `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
 Source survey: `scratchpad/graphnosis/survey-epistemics.md`. Source repo: `~/YeeBois/dev/Graphnosis`.
 
 ## Headline

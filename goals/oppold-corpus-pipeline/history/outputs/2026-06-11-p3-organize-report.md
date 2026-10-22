@@ -2,7 +2,7 @@
 
 ## Outcome
 
-`bun run beep corpus organize --corpus-root /home/elpresidank/data-home/oppold-corpus
+`bun run beep corpus organize --corpus-root $HOME/data-home/oppold-corpus
 --client-map .../ops/client-map.json --overwrite` built the
 `oppold-corpus/organized/` taxonomy from the restoration manifest and
 canonical (digest-deduplicated) provenance records, with the organize

@@ -61,8 +61,8 @@ unit-file-present=no          # zero mutation
 
 ```text
 PREFLIGHT-OK machine=0bffc9bc5a6b48928f1ab4794df5244b host=DankStation uid=1000
-  home=/home/elpresidank runtime=/run/user/1000 linger=yes manager=degraded tty=not a tty
-== unit installed: /home/elpresidank/.config/systemd/user/openclaw-spike.service
+  home=$HOME runtime=/run/user/1000 linger=yes manager=degraded tty=not a tty
+== unit installed: $HOME/.config/systemd/user/openclaw-spike.service
 == daemon-reload OK
 Created symlink '…/default.target.wants/openclaw-spike.service' → '…/openclaw-spike.service'.
 == enable OK

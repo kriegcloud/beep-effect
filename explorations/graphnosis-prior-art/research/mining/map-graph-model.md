@@ -1,9 +1,9 @@
 # Graphnosis -> beep-effect mapping — territory: dual-graph data model & mutation semantics
 
-Mapped against the live checkout at `/home/elpresidank/YeeBois/projects/beep-effect15`
+Mapped against the live checkout at `$HOME/YeeBois/projects/beep-effect15`
 (branch `main`, HEAD `d1dfc4b3c1`). Source survey:
 `scratchpad/graphnosis/survey-graph-model.md`. Graphnosis clone:
-`/home/elpresidank/YeeBois/dev/Graphnosis` @ `7a19c4b`.
+`$HOME/YeeBois/dev/Graphnosis` @ `7a19c4b`.
 
 ---
 

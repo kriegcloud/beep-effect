@@ -2,7 +2,7 @@
 
 Date: 2026-08-08
 Agent: verify-facts (Opus 5)
-Clone verified against: `/home/elpresidank/YeeBois/research/harvey-labs` @ `55510f0e6`
+Clone verified against: `$HOME/YeeBois/research/harvey-labs` @ `55510f0e6`
 Paths in the verdict columns are **relative to the clone root**.
 
 Method: every concrete, checkable claim in

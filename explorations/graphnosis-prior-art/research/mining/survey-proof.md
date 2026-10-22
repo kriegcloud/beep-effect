@@ -1,6 +1,6 @@
 # Graphnosis survey — territory: error classification, tests, benchmarks & evidence
 
-Repo: `/home/elpresidank/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis` v0.11.0,
+Repo: `$HOME/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis` v0.11.0,
 TypeScript, Next.js app + published library + CLI + MCP server).
 
 Everything below was read in full or executed live. Where I ran something, the output is

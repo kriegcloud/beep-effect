@@ -1,5 +1,5 @@
 
- RUN  v4.1.10 /home/elpresidank/YeeBois/projects/beep-effect2/packages/drivers/pglite
+ RUN  v4.1.10 $HOME/YeeBois/projects/beep-effect2/packages/drivers/pglite
 
  ✓ test/integration/spike/EpistemicBitemporalSpike.pg.test.ts > EpistemicBitemporalSpike (external Postgres) > resets, migrates the candidate DDL, and the exclusion constraint enforces on real Postgres 44ms
  ✓ test/integration/spike/EpistemicBitemporalSpike.pg.test.ts > EpistemicBitemporalSpike (external Postgres) > race A: concurrent supersession is deterministic — loser observes no open head and aborts 261ms

@@ -11,7 +11,7 @@ Captured: 2026-07-29
 - Upstream commit date: `2025-10-03T13:23:57-04:00`
 - License: BSD-2-Clause
 - Local reference:
-  `/home/elpresidank/YeeBois/research/law_stuff/repos/eyecite`
+  `$HOME/YeeBois/research/law_stuff/repos/eyecite`
 
 The checkout was cloned from the official repository and checked out detached.
 It is research/oracle state outside this repository and is not a build or

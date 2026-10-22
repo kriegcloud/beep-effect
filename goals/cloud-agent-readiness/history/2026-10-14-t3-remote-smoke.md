@@ -26,7 +26,7 @@ questions, not command approvals; Chrome UI is needed for the latter.
 ## Result and qualification limits
 
 T3 reported the durable run as completed. The actual shell output verified
-hostname beep-worker, cwd `/home/elpresidank/YeeBois/projects/beep-effect`, clean
+hostname beep-worker, cwd `.`, clean
 git status before and after at b43a4098, every requested command on PATH, and
 SSH_AUTH_SOCK absent. All requested version probes exited zero.
 
@@ -47,7 +47,7 @@ actual elapsed time. No second runtime/repo test was started to hide that fricti
 
 ## Agent's final report (retain with the correction above)
 
-**PASS** — Host `beep-worker`; cwd `/home/elpresidank/YeeBois/projects/beep-effect`; HEAD `b43a4098`. `git status --short` was empty before and after. `SSH_AUTH_SOCK`: absent.
+**PASS** — Host `beep-worker`; cwd `.`; HEAD `b43a4098`. `git status --short` was empty before and after. `SSH_AUTH_SOCK`: absent.
 
 All requested commands resolved on `PATH`; version checks exited 0:
 

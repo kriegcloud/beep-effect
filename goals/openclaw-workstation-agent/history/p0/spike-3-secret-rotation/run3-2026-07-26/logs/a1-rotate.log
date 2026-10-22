@@ -1,4 +1,4 @@
-client-config-created path=/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/a1-old-client.json mode=600
+client-config-created path=$HOME/.cache/beep-p0-spike3.5R0T7w/spike3/a1-old-client.json mode=600
 
 === establish old-snapshot cold owner ===
 cold-owner-connected=acp socket-inode=158350763 old-sha256-prefix=59df7cc1
@@ -6,7 +6,7 @@ cold-owner-connected=acp socket-inode=158350763 old-sha256-prefix=59df7cc1
 === operator rotation at unchanged reference ===
 ROTATE-NOW: replace the disposable field in the 1Password UI; do not use an argv-valued op edit.
 polling unchanged reference=op://beep-p0-spike3/spike3-rotating/password timeout-seconds=300
-client-config-created path=/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/a1-new-client.json mode=600
+client-config-created path=$HOME/.cache/beep-p0-spike3.5R0T7w/spike3/a1-new-client.json mode=600
 before sha256-prefix=59df7cc1 length=32
 after  sha256-prefix=3b6cd0d9 length=32 reference-unchanged=yes
 
@@ -71,10 +71,10 @@ tied-event old-sha256-prefix=59df7cc1 new-sha256-prefix=3b6cd0d9 reload-epoch=17
 
 === authenticated model completion after tied reload ===
 ASSERT-FAIL: completion failed the pinned gateway payload schema
-client-config-removing path=/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/a1-old-client.json mode=600
-client-config-removed path=/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/a1-old-client.json mode=600
-client-config-removing path=/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/a1-new-client.json mode=600
-client-config-removed path=/home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/a1-new-client.json mode=600
+client-config-removing path=$HOME/.cache/beep-p0-spike3.5R0T7w/spike3/a1-old-client.json mode=600
+client-config-removed path=$HOME/.cache/beep-p0-spike3.5R0T7w/spike3/a1-old-client.json mode=600
+client-config-removing path=$HOME/.cache/beep-p0-spike3.5R0T7w/spike3/a1-new-client.json mode=600
+client-config-removed path=$HOME/.cache/beep-p0-spike3.5R0T7w/spike3/a1-new-client.json mode=600
 log-scan label=old-gateway sha256-prefix=59df7cc1 plaintext=absent token-shapes=absent
 log-scan label=new-gateway sha256-prefix=3b6cd0d9 plaintext=absent token-shapes=absent
 restoring verified setup after failed a1 assertion
@@ -96,7 +96,7 @@ Telegram reference absent; assertion 3 will be BLOCKED
 
 === validate before privileged install ===
 staged-package-sha256=4034a491f5fb31b20b8f16fe29a88e1782be4b70f4aeed0df43c09ce24b147a5 unchanged=yes
-Config valid: /home/elpresidank/.cache/beep-p0-spike3.5R0T7w/spike3/render/openclaw.json
+Config valid: $HOME/.cache/beep-p0-spike3.5R0T7w/spike3/render/openclaw.json
 
 === install root-owned content-addressed generation ===
 

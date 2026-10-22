@@ -652,7 +652,7 @@
     "residualRmsMs": 30.989062139212415,
     "slope": 1
   },
-  "eventsPath": "/home/elpresidank/YeeBois/projects/beep-effect8/.beep/qa/round-3/events.ndjson",
+  "eventsPath": "~/YeeBois/projects/beep-effect8/.beep/qa/round-3/events.ndjson",
   "schemaVersion": "beep.qa.capture-session.v1",
   "session": {
     "commitDirty": true,
@@ -670,5 +670,5 @@
     "url": "http://professional-desktop.beep.localhost:1355",
     "viewport": { "height": 1000, "width": 1600 }
   },
-  "videoPath": "/home/elpresidank/YeeBois/projects/beep-effect8/.beep/qa/round-3/video/capture.webm"
+  "videoPath": "~/YeeBois/projects/beep-effect8/.beep/qa/round-3/video/capture.webm"
 }

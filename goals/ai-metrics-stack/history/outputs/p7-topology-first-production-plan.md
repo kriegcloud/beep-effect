@@ -29,7 +29,7 @@ The center of gravity is topology first:
 Chosen topology: hybrid derived mirror.
 
 - Raw encrypted transcripts remain workstation-local under
-  `/home/elpresidank/.local/state/beep/ai-metrics`, outside every repository.
+  `$HOME/.local/state/beep/ai-metrics`, outside every repository.
 - Derived/report/status artifacts may sync to dankserver only after a P7-safe
   allowlist export step.
 - The default remote mirror root is

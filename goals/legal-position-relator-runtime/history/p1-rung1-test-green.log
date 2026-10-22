@@ -2,7 +2,7 @@
 $ bun run beep:test
 $ bunx --bun vitest run --passWithNoTests
 
- RUN  v4.1.10 /home/elpresidank/YeeBois/projects/beep-effect18/packages/law-practice/use-cases
+ RUN  v4.1.10 $HOME/YeeBois/projects/beep-effect18/packages/law-practice/use-cases
 
  Test Files  3 passed (3)
       Tests  45 passed (45)
@@ -12,7 +12,7 @@ $ bunx --bun vitest run --passWithNoTests
 
 # per-test listing: bunx --bun vitest run --reporter=verbose test/LegalPositionRelatorPolicy.test.ts
 
- RUN  v4.1.10 /home/elpresidank/YeeBois/projects/beep-effect18/packages/law-practice/use-cases
+ RUN  v4.1.10 $HOME/YeeBois/projects/beep-effect18/packages/law-practice/use-cases
 
  ✓ test/LegalPositionRelatorPolicy.test.ts > LegalPositionRelatorPolicy — the derivations over the closed eight-member domain > are total: every kind maps into the domain under both derivations 19ms
  ✓ test/LegalPositionRelatorPolicy.test.ts > LegalPositionRelatorPolicy — the derivations over the closed eight-member domain > are involutive: applying either derivation twice returns the position it started from 22ms

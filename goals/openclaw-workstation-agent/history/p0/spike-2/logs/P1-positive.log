@@ -1,5 +1,5 @@
 ### LANE P1-positive (2026-07-26T04:38:03Z)
-### COMMAND: setsid -w env -i HOME=/home/elpresidank USER=elpresidank LOGNAME=elpresidank PATH=/usr/bin:/bin SPIKE_TARGET_USER=elpresidank SPIKE_EXPECTED_IDENTITY=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/expected-identity.json SPIKE_STATE_DIR=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/throwaway-state bash /tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/applicator.sh
+### COMMAND: setsid -w env -i HOME=$HOME USER=elpresidank LOGNAME=elpresidank PATH=/usr/bin:/bin SPIKE_TARGET_USER=elpresidank SPIKE_EXPECTED_IDENTITY=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/expected-identity.json SPIKE_STATE_DIR=/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/throwaway-state bash /tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/applicator.sh
 
 
 === step 0: non-interactive context probe ===
@@ -11,7 +11,7 @@
 [04:38:03Z] DBUS_SESSION_BUS_ADDRESS inherited? <unset>
 
 === step 1: resolve target identity from the OS (not from env) ===
-[04:38:03Z] user=elpresidank uid=1000 home=/home/elpresidank
+[04:38:03Z] user=elpresidank uid=1000 home=$HOME
 [04:38:03Z] hostname=DankStation machine_id_sha256=90bdffbb<sha256-redacted>
 
 === step 2: linger ownership check ===
@@ -38,14 +38,14 @@
     |   "hostname": "DankStation",
     |   "uid": 1000,
     |   "user": "elpresidank",
-    |   "home": "/home/elpresidank",
+    |   "home": "$HOME",
     |   "runtime_dir": "/run/user/1000",
     |   "bus_address": "unix:path=/run/user/1000/bus"
     | }
 [04:38:04Z] expected identity tuple (/tmp/claude-1000/-home-elpresidank-YeeBois-projects-beep-effect2/24ddf3c1-674e-4ddb-acac-1343f8e844f6/scratchpad/spike-2/expected-identity.json):
     | {
     |   "bus_address": "unix:path=/run/user/1000/bus",
-    |   "home": "/home/elpresidank",
+    |   "home": "$HOME",
     |   "hostname": "DankStation",
     |   "machine_id_sha256": "90bdffbb<sha256-redacted>",
     |   "runtime_dir": "/run/user/1000",
@@ -55,7 +55,7 @@
 [04:38:04Z] identity tuple matches expectation on all 7 fields: OK
 
 === PREFLIGHT OK — entering mutation phase ===
-[04:38:04Z] writing unit /home/elpresidank/.config/systemd/user/openclaw-spike.service
+[04:38:04Z] writing unit $HOME/.config/systemd/user/openclaw-spike.service
 [04:38:04Z] unit content:
     | [Unit]
     | Description=OpenClaw P0 Spike 2 placeholder unit (no OpenClaw binary involved)
@@ -72,7 +72,7 @@
     | WantedBy=default.target
 [04:38:04Z] $ systemctl --user daemon-reload (rc=0)
 [04:38:04Z] $ systemctl --user enable openclaw-spike.service (rc=0)
-    | Created symlink '/home/elpresidank/.config/systemd/user/default.target.wants/openclaw-spike.service' → '/home/elpresidank/.config/systemd/user/openclaw-spike.service'.
+    | Created symlink '$HOME/.config/systemd/user/default.target.wants/openclaw-spike.service' → '$HOME/.config/systemd/user/openclaw-spike.service'.
 [04:38:04Z] $ systemctl --user start openclaw-spike.service (rc=0)
 [04:38:04Z] $ systemctl --user is-active openclaw-spike.service (rc=0)
     | active
@@ -80,13 +80,13 @@
     | LoadState=loaded
     | ActiveState=active
     | SubState=running
-    | FragmentPath=/home/elpresidank/.config/systemd/user/openclaw-spike.service
+    | FragmentPath=$HOME/.config/systemd/user/openclaw-spike.service
     | UnitFileState=enabled
     | MainPID=1458977
 [04:38:04Z] $ systemctl --user stop openclaw-spike.service (rc=0)
 [04:38:04Z] post-stop ActiveState: inactive
 [04:38:04Z] $ systemctl --user disable openclaw-spike.service (rc=0)
-    | Removed '/home/elpresidank/.config/systemd/user/default.target.wants/openclaw-spike.service'.
+    | Removed '$HOME/.config/systemd/user/default.target.wants/openclaw-spike.service'.
 [04:38:04Z] post-disable UnitFileState: disabled
 
 === APPLY OK ===

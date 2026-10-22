@@ -3,7 +3,7 @@
 Date: 2026-08-06
 Scope: repo-only. No web fetches were performed for this report; every claim
 below is grounded in a file on disk in the `beep-effect` checkout at
-`/home/elpresidank/YeeBois/projects/beep-effect17` (branch `main`, clean at
+`$HOME/YeeBois/projects/beep-effect17` (branch `main`, clean at
 session start, HEAD `2162ebdc8a`).
 
 **Purpose.** Give the later Lynx/LKG synthesis a defensible answer to three
