@@ -817,15 +817,15 @@ export abstract class Jsonc {
       if (isComment(kind)) {
         const offset = scanner.getTokenOffset();
         const length = scanner.getTokenLength();
-        parts.push(text.substring(lastOffset, offset));
+        parts.push(Str.substring(lastOffset, offset)(text));
         if (P.isString(replaceCh)) {
-          parts.push(blankComment(text.substring(offset, offset + length), replaceCh));
+          parts.push(blankComment(Str.substring(offset, offset + length)(text), replaceCh));
         }
         lastOffset = offset + length;
       }
       kind = scanner.scan();
     }
-    parts.push(text.substring(lastOffset));
+    parts.push(Str.substring(lastOffset)(text));
     return A.join(parts, Str.empty);
   }
 

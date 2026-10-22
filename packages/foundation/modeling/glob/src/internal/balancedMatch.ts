@@ -25,7 +25,10 @@
 
 import { $GlobId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as RE from "effect/RegExp";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $GlobId.create("internal/balancedMatch");
 
@@ -73,7 +76,7 @@ const maybeMatch: {
   (reg: RegExp, str: string): string | null;
   (str: string): (reg: RegExp) => string | null;
 } = dual(2, (reg: RegExp, str: string): string | null => {
-  const m = str.match(reg);
+  const m = O.getOrNull(Str.match(reg)(str));
   return m !== null ? m[0] : null;
 });
 
@@ -112,9 +115,9 @@ export const balanced: {
   return BalancedResult.make({
     start: r[0],
     end: r[1],
-    pre: str.slice(0, r[0]),
-    body: str.slice(r[0] + ma.length, r[1]),
-    post: str.slice(r[1] + mb.length),
+    pre: Str.slice(0, r[0])(str),
+    body: Str.slice(r[0] + ma.length, r[1])(str),
+    post: Str.slice(r[1] + mb.length)(str),
   });
 });
 
@@ -141,12 +144,22 @@ export const range: {
   (b: string, str: string): (a: string) => undefined | [number, number];
   (a: string, b: string, str: string): undefined | [number, number];
 } = dual(3, (a: string, b: string, str: string): undefined | [number, number] => {
-  const ai = str.indexOf(a);
-  const bi = str.indexOf(b, ai + 1);
+  const opening = new RegExp(RE.escape(a), "g");
+  const closing = new RegExp(RE.escape(b), "g");
+  const ai = delimiterIndex(opening, str, 0);
+  const bi = delimiterIndex(closing, str, ai + 1);
   if (ai < 0 || bi <= 0) return undefined;
   if (a === b) return [ai, bi];
-  return scanRange(a, b, str, ai, bi);
+  return scanRange(opening, closing, str, ai, bi);
 });
+
+// Reuse each positioned search expression throughout the scan, including empty delimiters.
+const delimiterIndex = (delimiter: RegExp, str: string, from: number): number => {
+  delimiter.lastIndex = Math.min(from, str.length);
+  const match = delimiter.exec(str);
+  if (match === null) return -1;
+  return match.index;
+};
 
 // Mutable cursor state of one balanced-range scan.
 interface RangeScan {
@@ -159,16 +172,16 @@ interface RangeScan {
   right: number | undefined;
 }
 
-const scanRange = (a: string, b: string, str: string, ai: number, bi: number): undefined | [number, number] => {
+const scanRange = (a: RegExp, b: RegExp, str: string, ai: number, bi: number): undefined | [number, number] => {
   const scan: RangeScan = { ai, bi, i: ai, left: str.length, right: undefined, result: undefined, begs: [] };
   while (scan.i >= 0 && scan.result === undefined) rangeStep(scan, a, b, str);
   return scan.begs.length !== 0 && scan.right !== undefined ? [scan.left, scan.right] : scan.result;
 };
 
-const rangeStep = (scan: RangeScan, a: string, b: string, str: string): void => {
+const rangeStep = (scan: RangeScan, a: RegExp, b: RegExp, str: string): void => {
   if (scan.i === scan.ai) {
     scan.begs.push(scan.i);
-    scan.ai = str.indexOf(a, scan.i + 1);
+    scan.ai = delimiterIndex(a, str, scan.i + 1);
   } else if (scan.begs.length === 1) {
     // This branch has exactly one opening offset.
     for (const r of scan.begs.splice(-1)) scan.result = [r, scan.bi];
@@ -178,11 +191,11 @@ const rangeStep = (scan: RangeScan, a: string, b: string, str: string): void => 
   scan.i = scan.ai < scan.bi && scan.ai >= 0 ? scan.ai : scan.bi;
 };
 
-const closeInnerPair = (scan: RangeScan, b: string, str: string): void => {
+const closeInnerPair = (scan: RangeScan, b: RegExp, str: string): void => {
   const beg = scan.begs.pop();
   if (beg !== undefined && beg < scan.left) {
     scan.left = beg;
     scan.right = scan.bi;
   }
-  scan.bi = str.indexOf(b, scan.i + 1);
+  scan.bi = delimiterIndex(b, str, scan.i + 1);
 };

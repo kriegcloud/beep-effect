@@ -3,6 +3,7 @@ import { AST, ASTError, ExtglobType } from "@beep/glob/internal/ast";
 import { MAX_NESTING_DEPTH } from "@beep/glob/internal/limits";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 import { AST as OracleAST } from "minimatch";
 
 const matches = (pattern: RegExp | string, candidate: string) =>
@@ -108,8 +109,8 @@ describe("AST coverage", () => {
       assert.isFalse(part.isStart());
       assert.isTrue(part.isEnd());
       assert.isTrue(root.hasMagic);
-      assert.isTrue(inspect(root).includes("@@type"));
-      assert.isTrue(inspect(part).includes("parent"));
+      assert.isTrue(Str.includes("@@type")(inspect(root)));
+      assert.isTrue(Str.includes("parent")(inspect(part)));
       assert.isTrue(matches(part.toMMPattern(), "ab"));
       const copy = new AST(null);
       copy.copyIn(root);
@@ -170,7 +171,9 @@ describe("AST coverage", () => {
         for (const candidate of ["a", "b", text])
           assert.strictEqual(matches(actual, candidate), matches(expected, candidate));
       }
-      assert.throws(() => AST.fromGlob("@(".repeat(MAX_NESTING_DEPTH + 1) + "a" + ")".repeat(MAX_NESTING_DEPTH + 1)));
+      assert.throws(() =>
+        AST.fromGlob(Str.repeat(MAX_NESTING_DEPTH + 1)("@(") + "a" + Str.repeat(MAX_NESTING_DEPTH + 1)(")"))
+      );
       const root = new AST(null);
       let parent = root;
       for (let depth = 0; depth <= MAX_NESTING_DEPTH; depth++) {

@@ -230,7 +230,8 @@ const generatedComposers = $I.compose(
   "tsconfig",
   "walker",
   "github",
-  "runtime-env"
+  "runtime-env",
+  "epistemics"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3334,3 +3335,20 @@ export const $GithubId: Identity.IdentityComposer<"@beep/github"> = composers.$G
  * @since 0.0.0
  */
 export const $RuntimeEnvId: Identity.IdentityComposer<"@beep/runtime-env"> = composers.$RuntimeEnvId;
+
+/**
+ * Identity composer for `@beep/epistemics`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $EpistemicsId } from "@beep/identity/packages"
+ *
+ * const id = $EpistemicsId.make("Epistemics")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $EpistemicsId: Identity.IdentityComposer<"@beep/epistemics"> = composers.$EpistemicsId;

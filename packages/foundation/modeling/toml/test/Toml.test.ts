@@ -14,6 +14,7 @@ import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { expectFailure } from "./expectFailure.ts";
 
@@ -61,7 +62,7 @@ describe("Toml", () => {
 
     it.effect("surfaces the nesting-depth guard as a typed parse error, never a defect", () =>
       Effect.gen(function* () {
-        const bomb = `a = ${"[".repeat(300)}${"]".repeat(300)}\n`;
+        const bomb = `a = ${Str.repeat(300)("[")}${Str.repeat(300)("]")}\n`;
         const e = yield* expectFailure(Toml.parse(bomb));
         assert.instanceOf(e, TomlParseError);
         const diagnostic = e.diagnostics[0];
@@ -389,7 +390,7 @@ describe("Toml", () => {
       ["a syntax error", "name = \n"],
       ["a duplicate key", "a = 1\na = 2\n"],
       ["an unterminated string", 'a = "oops\n'],
-      ["a nesting-depth bomb", `a = ${"[".repeat(300)}${"]".repeat(300)}\n`],
+      ["a nesting-depth bomb", `a = ${Str.repeat(300)("[")}${Str.repeat(300)("]")}\n`],
     ];
 
     for (const [label, text] of parseRows) {

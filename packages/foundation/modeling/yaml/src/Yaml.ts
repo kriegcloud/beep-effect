@@ -37,7 +37,7 @@ import { composeAllDocuments, composeFirstDocument } from "./internal/composer/d
 import { isFatalCode } from "./internal/diagnostics.ts";
 import { deepEqual } from "./internal/equal.ts";
 import { lexAll } from "./internal/lexer.ts";
-import { ParseOptionsInput, StringifyOptionsInput } from "./internal/options.ts";
+import { IndentWidth, ParseOptionsInput, StringifyOptionsInput } from "./internal/options.ts";
 import { StringifyDepthExceeded, StringifyFailure, stringifyValue } from "./internal/stringifier.ts";
 import { YamlDiagnostic } from "./YamlDiagnostic.ts";
 import {
@@ -173,7 +173,7 @@ export class YamlParseOptions extends S.Opaque<YamlParseOptions, { readonly bran
  */
 export class YamlStringifyOptions extends S.Opaque<YamlStringifyOptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    indent: S.optionalKey(S.Finite).pipe(
+    indent: S.optionalKey(IndentWidth).pipe(
       $I.annoteKey("YamlStringifyOptions.indent", {
         description: "Spaces per indentation level in emitted YAML; defaults to `2`",
       })

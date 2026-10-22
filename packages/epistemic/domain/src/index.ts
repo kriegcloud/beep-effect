@@ -23,14 +23,12 @@ export * from "./entities/index.ts";
 /**
  * Epistemic value model exports.
  *
- * **Example** (Decode ClaimGateSeverity warning value)
+ * **Example** (Log admitted lifecycle status)
  *
  * ```ts
- * import { ClaimGateSeverity } from "@beep/epistemic-domain"
- * import * as S from "effect/Schema"
+ * import { ClaimLifecycle } from "@beep/epistemic-domain"
  *
- * const severity = S.decodeUnknownSync(ClaimGateSeverity)("warning")
- * console.log(severity)
+ * console.log(ClaimLifecycle.Enum.admitted)
  * ```
  *
  * @category value-objects

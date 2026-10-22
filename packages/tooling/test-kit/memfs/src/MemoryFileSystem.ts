@@ -18,13 +18,14 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ErrnoException, errnoError, nodeErrno } from "./internal/errno.ts";
 import { wrapFaulty } from "./internal/faults.ts";
 import {
@@ -828,8 +829,9 @@ const buildHandle: {
     // "link/../x" lands where the link leads — as the host and the absolute
     // spelling do. (Seed keys, by contrast, join lexically.) Errors still
     // report the caller's own path.
-    const at = (path: string) => (path.startsWith("/") ? path : `${root ?? ""}/${path}`);
-    const parentOf = (path: string) => path.slice(0, Math.max(1, path.lastIndexOf("/")));
+    const at = (path: string) => (Str.startsWith("/")(path) ? path : `${root ?? ""}/${path}`);
+    const parentOf = (path: string) =>
+      Str.slice(0, Math.max(1, pipe(path, Str.lastIndexOf("/"), O.getOrElse(constant(-1)))))(path);
     const sync = makeSyncFileSystem(volume);
     // Only creates a parent that is absent: an existing parent that is a file
     // must reach the write itself, which fails ENOTDIR as `writeFileSync` does
@@ -870,7 +872,7 @@ const buildHandle: {
         Effect.mapError((error) => {
           const cause = error.reason.cause;
           if (!S.is(ErrnoException)(cause) || cause.code !== "ENOTDIR") return error;
-          const pieces = path.split("/");
+          const pieces = Str.split("/")(path);
           for (let index = 1; index < pieces.length; index++) {
             const prefix = A.join(pieces.slice(0, index + 1), "/");
             const resolved = resolvePath(volume, prefix);

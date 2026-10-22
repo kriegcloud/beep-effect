@@ -1,4 +1,5 @@
 import { dual } from "effect/Function";
+import * as Str from "effect/String";
 
 // The tagged-JSON comparator for the toml-test corpus. Expected files encode
 // leaves as `{"type": T, "value": string}` with T one of the eight tags;
@@ -96,7 +97,7 @@ const assertFloatLeaf: LeafAsserter = (actual, expected, path) => {
     assert.strictEqual(actual, spelledInfinity, `${path}: expected ${expected.value}`);
     return;
   }
-  if (expected.value.includes("nan")) {
+  if (Str.includes("nan")(expected.value)) {
     assert.isTrue(Number.isNaN(actual), `${path}: expected nan, got ${String(actual)}`);
     return;
   }

@@ -5,6 +5,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -39,7 +40,7 @@ const parsedDocuments = S.toType(codec).annotate({
         Effect.gen(function* () {
           const eol = sample.crlf ? "\r\n" : "\n";
           const valueText = yield* Toml.stringify({ title: sample.title, count: sample.count });
-          const text = `# retained comment${eol}${eol}${valueText.replaceAll("\n", eol)}${sample.duplicate ? `count = 2${eol}` : ""}# EOF`;
+          const text = `# retained comment${eol}${eol}${Str.replaceAll("\n", eol)(valueText)}${sample.duplicate ? `count = 2${eol}` : ""}# EOF`;
           return yield* TomlDocument.parse(text);
         }).pipe(Effect.orDie)
       ),
@@ -69,7 +70,7 @@ describe("lossless document laws", () => {
       Effect.gen(function* () {
         const eol = sample.crlf ? "\r\n" : "\n";
         const valueText = yield* Toml.stringify({ title: sample.title, count: sample.count });
-        const text = `# retained comment${eol}${eol}${valueText.replaceAll("\n", eol)}${sample.duplicate ? `count = 2${eol}` : ""}# EOF`;
+        const text = `# retained comment${eol}${eol}${Str.replaceAll("\n", eol)(valueText)}${sample.duplicate ? `count = 2${eol}` : ""}# EOF`;
         const doc = yield* TomlDocument.parse(text);
         const encoded = yield* S.encodeEffect(codec)(doc);
         const decoded = yield* S.decodeEffect(codec)(encoded);

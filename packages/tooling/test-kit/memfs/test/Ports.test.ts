@@ -8,6 +8,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { ErrnoFields, thrown } from "./helpers.ts";
 import type { MemoryFileSystemSyncFileSystem } from "@beep/memfs";
@@ -173,7 +174,7 @@ describe("sync port faults", () => {
       const sync = MemoryFileSystem.syncFileSystem(volume, {
         faults: {
           readFile: (path) => {
-            if (path.endsWith("file.txt")) throw MemoryFileSystem.errno("EACCES", "open", path);
+            if (Str.endsWith("file.txt")(path)) throw MemoryFileSystem.errno("EACCES", "open", path);
             return undefined;
           },
         },

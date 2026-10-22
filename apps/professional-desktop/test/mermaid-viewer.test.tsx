@@ -9,6 +9,7 @@ import { cleanup, render, waitFor, within } from "@testing-library/react";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const mermaidDocument = MdModel.Document.make({
   children: [
@@ -183,7 +184,7 @@ describe("persisted mermaid rendering", { concurrent: false }, () => {
   it.effect(
     "refuses oversized source before rendering and escapes it as text",
     Effect.fnUntraced(function* () {
-      const source = `<script data-diagram-xss="no">${"x".repeat(20_001)}</script>`;
+      const source = `<script data-diagram-xss="no">${Str.repeat(20_001)("x")}</script>`;
       const { container } = render(<MermaidView renderKey="oversized" source={source} />);
 
       yield* Effect.promise(() =>

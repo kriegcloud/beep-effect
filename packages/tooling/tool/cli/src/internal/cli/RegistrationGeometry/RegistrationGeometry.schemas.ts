@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 
+import { GlobString } from "@beep/glob/GlobString";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Glob } from "@beep/schema/Glob";
 import { PosixPath } from "@beep/schema/PosixPath";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -60,7 +60,7 @@ export class OwnedTreeSurface extends S.Opaque<OwnedTreeSurface, { readonly bran
     kind: S.tag("owned-tree"),
     id: S.NonEmptyString,
     root: PosixPath,
-    artifacts: S.Array(Glob),
+    artifacts: S.Array(GlobString),
   }).pipe(
     $I.annoteSchema("OwnedTreeSurface", {
       description: "A target-owned directory whose tracked and ignored contents share its lifecycle.",
@@ -128,7 +128,7 @@ export class AuthoredReferenceSurface extends S.Opaque<AuthoredReferenceSurface,
   S.Struct({
     kind: S.tag("authored-reference"),
     id: S.NonEmptyString,
-    files: S.Array(Glob),
+    files: S.Array(GlobString),
     needles: S.Array(S.NonEmptyString),
   }).pipe(
     $I.annoteSchema("AuthoredReferenceSurface", {
@@ -149,7 +149,7 @@ export class PendingChangesetSurface extends S.Opaque<PendingChangesetSurface, {
   S.Struct({
     kind: S.tag("pending-changeset"),
     id: S.NonEmptyString,
-    changesetGlob: Glob,
+    changesetGlob: GlobString,
     retiredRegistry: PosixPath,
     packageName: S.NonEmptyString,
     deletionNotePolicy: DeletionNotePolicy,
@@ -164,7 +164,7 @@ export class RuntimeArtifactSurface extends S.Opaque<RuntimeArtifactSurface, { r
   S.Struct({
     kind: S.tag("runtime-artifact"),
     id: S.NonEmptyString,
-    globs: S.Array(Glob),
+    globs: S.Array(GlobString),
   }).pipe(
     $I.annoteSchema("RuntimeArtifactSurface", {
       description: "Ignored or local artifacts that must be absent after deletion.",
@@ -191,7 +191,7 @@ export class HistoricalRecordSurface extends S.Opaque<HistoricalRecordSurface, {
   S.Struct({
     kind: S.tag("historical-record"),
     id: S.NonEmptyString,
-    files: S.Array(Glob),
+    files: S.Array(GlobString),
     needles: S.Array(S.NonEmptyString),
   }).pipe(
     $I.annoteSchema("HistoricalRecordSurface", {

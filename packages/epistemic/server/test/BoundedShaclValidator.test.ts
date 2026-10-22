@@ -1,7 +1,8 @@
-import { CandidateClaim, ClaimGateResult, Evidence } from "@beep/epistemic-domain";
+import { CandidateClaim, Evidence } from "@beep/epistemic-domain";
 import { BoundedShaclValidationServiceLive } from "@beep/epistemic-server/ShaclValidation";
 import * as ClaimGateUC from "@beep/epistemic-use-cases/ClaimGate";
 import * as ClaimLifecycleUC from "@beep/epistemic-use-cases/ClaimLifecycle";
+import { ClaimGateResult } from "@beep/epistemics/ClaimGate";
 import { Dataset, makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/rdf/Rdf";
 import { RDF_TYPE } from "@beep/rdf/Vocab/Rdf";
 import { XSD_STRING } from "@beep/rdf/Vocab/Xsd";

@@ -7,6 +7,7 @@ import { dual } from "effect/Function";
 import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import type { Section, SectionParseError } from "@beep/managed-section";
 import type { MemoryFileSystemSeed, MemoryFileSystemVolume } from "@beep/memfs";
 import type * as FileSystem from "effect/FileSystem";
@@ -101,7 +102,7 @@ export const block: {
 export const lines = (...parts: ReadonlyArray<string>) => A.join(parts, "\n");
 
 /** Rewrite an LF fixture as CRLF. */
-export const crlf = (text: string) => text.replace(/\n/g, "\r\n");
+export const crlf = (text: string) => Str.replace(/\n/g, "\r\n")(text);
 
 export const parse: {
   (text: string, dialect?: SectionDialect): SectionDocument;

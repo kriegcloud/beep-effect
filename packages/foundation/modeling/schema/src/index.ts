@@ -137,11 +137,6 @@ export * from "./Fn/index.ts";
  * @since 0.0.0
  * @category validation
  */
-export * from "./Glob/index.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
 export * from "./Html.ts";
 /**
  * @since 0.0.0

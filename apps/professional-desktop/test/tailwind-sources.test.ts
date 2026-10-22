@@ -6,6 +6,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { fcDeepSweepActive, vitestCoverageRunActive } from "../../../vitest.shared.ts";
 
 // Tailwind v4 roots content detection at the app's CSS and skips node_modules, and
@@ -46,7 +47,7 @@ it.layer(BunFileSystem.layer, { timeout: filesystemLayerTimeout })("tailwind sou
       // this test would otherwise pass while asserting nothing.
       expect(rendered.length).toBeGreaterThan(0);
 
-      const undeclared = A.filter(rendered, (name) => !globals.includes(uiPackageSources[name] ?? " "));
+      const undeclared = A.filter(rendered, (name) => !Str.includes(uiPackageSources[name] ?? " ")(globals));
 
       expect(undeclared).toStrictEqual([]);
     })

@@ -1,6 +1,7 @@
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Str from "effect/String";
 import { phraseToolCall, practiceKgToolOf } from "@/PracticeMod.phrases";
 
 describe("practiceKgToolOf", () => {
@@ -26,9 +27,9 @@ describe("phraseToolCall", () => {
   });
 
   it("quotes a search and cuts a long query", () => {
-    const sentence = phraseToolCall("corpus_search_text", { query: "a".repeat(80) });
-    expect(sentence.startsWith("Searching the firm's documents for \"")).toBe(true);
-    expect(sentence.endsWith('..."')).toBe(true);
+    const sentence = phraseToolCall("corpus_search_text", { query: Str.repeat(80)("a") });
+    expect(Str.startsWith("Searching the firm's documents for \"")(sentence)).toBe(true);
+    expect(Str.endsWith('..."')(sentence)).toBe(true);
   });
 
   it("shows only the file name of an opened document", () => {

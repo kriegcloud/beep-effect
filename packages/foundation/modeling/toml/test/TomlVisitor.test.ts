@@ -11,6 +11,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const MIXED = A.join(
   [
@@ -166,7 +167,7 @@ describe("TomlVisitor", () => {
 
     it.effect("an adversarial nesting-depth bomb fails the stream typed, not as a defect", () =>
       Effect.gen(function* () {
-        const bomb = `a = ${"[".repeat(10_000)}`;
+        const bomb = `a = ${Str.repeat(10_000)("[")}`;
         const error = yield* TomlVisitor.visit(bomb).pipe(Stream.runCollect, Effect.flip);
         assert.instanceOf(error, TomlParseError);
         assert.strictEqual(error.diagnostics[0]?.code, "NestingDepthExceeded");

@@ -28,7 +28,6 @@ import {
   contradictionEvidenceDigest,
   contradictionProposalDigest,
 } from "@beep/epistemic-domain/values/Contradiction";
-import { EvidenceSpan } from "@beep/epistemic-domain/values/EvidenceSpan";
 import { LogicalEdgeIdentity } from "@beep/epistemic-domain/values/LogicalEdgeIdentity";
 import { DbSchema } from "@beep/epistemic-tables";
 import {
@@ -58,6 +57,7 @@ import {
   EdgeAuthorityError,
   SupersedeEdgeFact,
 } from "@beep/epistemic-use-cases/server";
+import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan";
 import { PostgresDrizzle } from "@beep/postgres";
 import * as PublicEntityId from "@beep/shared-domain/entity/PublicEntityId";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";

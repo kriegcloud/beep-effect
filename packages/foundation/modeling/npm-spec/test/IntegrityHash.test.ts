@@ -12,6 +12,7 @@ import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 describe("IntegrityHash schema", () => {
   const sri = "sha512-tsPuRLBpQ2xk6+8HB4vP0Wq1v0EYlv6q6qz1oqTgU5U+lgY7Zp3Xf5sT2xM2mQ==";
@@ -254,7 +255,7 @@ describe("CorepackIntegrityHash.FromSri", () => {
 
   it.effect("accepts the unpadded canonical spelling", () =>
     Effect.gen(function* () {
-      assert.strictEqual(yield* decode(`sha512-${sriBase64.slice(0, -2)}`), corepack);
+      assert.strictEqual(yield* decode(`sha512-${Str.slice(0, -2)(sriBase64)}`), corepack);
     })
   );
 
@@ -291,17 +292,17 @@ describe("CorepackIntegrityHash.FromSri", () => {
         // Empty payload.
         "sha512-",
         // A length no base64 output has (remainder 1).
-        `sha512-${"A".repeat(85)}`,
+        `sha512-${Str.repeat(85)("A")}`,
         // Padding that does not match the body length (lenient decoders
         // accept this; the canonical form ends `==`).
-        `sha512-${sriBase64.slice(0, -1)}`,
+        `sha512-${Str.slice(0, -1)(sriBase64)}`,
         // Interior `=`.
-        `sha512-${sriBase64.slice(0, -4)}=${sriBase64.slice(-4)}`,
+        `sha512-${Str.slice(0, -4)(sriBase64)}=${Str.slice(-4)(sriBase64)}`,
         // A character outside the alphabet.
         "sha512-ab!c",
         // Non-zero trailing bits: `Qx==` decodes to the same byte as `Qw==`
         // under a lenient decoder but is not the canonical spelling npm emits.
-        `sha512-${sriBase64.slice(0, -3)}x==`,
+        `sha512-${Str.slice(0, -3)(sriBase64)}x==`,
       ]) {
         const error = yield* Effect.flip(decode(bad));
         assert.strictEqual(error._tag, "SchemaError", bad);

@@ -10,7 +10,7 @@
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import type { GraphTerm, Literal, NamedNode, ObjectTerm, Quad, Subject } from "@beep/rdf";
 import { IRI, makeNamedNode as makeCanonicalNamedNode } from "@beep/rdf";
@@ -246,7 +246,7 @@ export class IriCollisionReport extends S.Class<IriCollisionReport, { readonly b
  * **Example** (Construct persisted claim data)
  *
  * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { ClaimId } from "@effect-ontology/Schema/KnowledgeModel"
  * import { ClaimData } from "@effect-ontology/Utils/ClaimFactory"
  * import * as S from "effect/Schema"
@@ -784,7 +784,7 @@ export const knowledgeGraphToClaims = dual3(
  * **Example** (Reify one claim)
  *
  * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { ClaimId } from "@effect-ontology/Schema/KnowledgeModel"
  * import { claimDataToQuads } from "@effect-ontology/Utils/ClaimFactory"
  *

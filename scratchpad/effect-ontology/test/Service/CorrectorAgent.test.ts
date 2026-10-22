@@ -1,4 +1,4 @@
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";

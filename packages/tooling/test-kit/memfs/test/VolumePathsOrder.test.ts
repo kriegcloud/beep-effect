@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 
 describe("MemoryFileSystem.Volume.paths", () => {
   it.effect("sorts unsorted seed and written paths by UTF-16 code units", () =>
@@ -39,7 +40,7 @@ describe("MemoryFileSystem.Volume.paths", () => {
       yield* fileSystem.makeDirectory("/wide/nested", { recursive: true });
       const names: Array<string> = [];
       for (let index = 255; index >= 0; index--) {
-        const name = `entry-${String(index).padStart(3, "0")}`;
+        const name = `entry-${Str.padStart(3, "0")(String(index))}`;
         names.unshift(name);
         yield* fileSystem.writeFileString(`/wide/${name}`, name);
       }

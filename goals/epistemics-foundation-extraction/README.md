@@ -31,7 +31,8 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — complete (2026-10-21): inventory and importer census in `SPEC.md`. Next: P1 Implement.
+P0 Research — complete (2026-10-21): inventory and importer census in `SPEC.md`.
+P1 Implement — complete (2026-10-22): four modules moved, seven id-bearing modules as factories (P1b), intervals and the `Claim<P>` envelope; evidence in `research/p1-move-report.md`. Next: P2 Verify (hosted CI on the P1 PR).
 
 ## Latest Evidence
 

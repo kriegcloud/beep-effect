@@ -3,6 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 describe("JsoncFormatter", () => {
   describe("format / formatToString", () => {
@@ -115,7 +116,9 @@ describe("JsoncFormatter", () => {
         )
       );
       assert.isTrue(
-        JsoncFormatter.formatToString(text, JsoncRange.make({ offset: 0, length: text.length }), options).endsWith("\n")
+        Str.endsWith("\n")(
+          JsoncFormatter.formatToString(text, JsoncRange.make({ offset: 0, length: text.length }), options)
+        )
       );
     });
   });

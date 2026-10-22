@@ -11,6 +11,7 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { lexAll } from "./lexer.ts";
 import { YamlToken } from "./token.ts";
 import type { CstNode, CstNodeType } from "./cst.ts";
@@ -106,7 +107,7 @@ const makeContainerNode: {
   const last = A.getUnsafe(children, children.length - 1);
   const offset = first.offset;
   const end = last.offset + last.length;
-  const source = text.slice(offset, end);
+  const source = Str.slice(offset, end)(text);
   return { type, source, offset, length: end - offset, children };
 });
 
@@ -127,7 +128,7 @@ const makeLeafNode: {
   3,
   (type: CstNodeType, token: YamlToken.Data, text: string): CstNode => ({
     type,
-    source: text.slice(token.offset, token.offset + token.length),
+    source: Str.slice(token.offset, token.offset + token.length)(text),
     offset: token.offset,
     length: token.length,
   })
@@ -270,7 +271,7 @@ function parseBlockScalar(state: ParserState): CstNode {
   // The lexer gives us a "scalar" token whose raw span in the original text
   // covers the entire block scalar including the indicator.
   // We use token.offset and token.length to get the raw source.
-  const source = state.text.slice(token.offset, token.offset + token.length);
+  const source = Str.slice(token.offset, token.offset + token.length)(state.text);
   return {
     type: "block-scalar",
     source,

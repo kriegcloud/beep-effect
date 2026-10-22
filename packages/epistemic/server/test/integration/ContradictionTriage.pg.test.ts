@@ -25,7 +25,6 @@ import {
   contradictionEvidenceDigest,
   contradictionProposalDigest,
 } from "@beep/epistemic-domain/values/Contradiction";
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
 import { LogicalEdgeKey } from "@beep/epistemic-domain/values/LogicalEdgeIdentity";
 import { makeDrizzleContradictionTriageRepository, makeDrizzleEdgeAuthorityRepository } from "@beep/epistemic-server";
 import { DbSchema } from "@beep/epistemic-tables";
@@ -39,6 +38,7 @@ import {
   GetExpandedContradictionCandidate,
   RecordEdgeFact,
 } from "@beep/epistemic-use-cases/server";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
 import { Principal } from "@beep/shared-domain/entity/Principal";

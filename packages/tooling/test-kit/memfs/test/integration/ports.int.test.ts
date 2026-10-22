@@ -5,6 +5,7 @@
 // so node:fs is loaded for the calls under comparison only. Every host
 // fixture is built through the harness's FileSystem (NodeServices, the node
 // adapter) under a scoped temp directory.
+
 import { MemoryFileSystem } from "@beep/memfs";
 import { NodeServices } from "@effect/platform-node";
 import { assert, describe, layer } from "@effect/vitest";
@@ -13,6 +14,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { ErrnoFields } from "../helpers.ts";
 
 // node's synchronous fs API is the oracle under comparison; Effect's FileSystem
@@ -47,8 +49,8 @@ const errorOutcome = (host: string, e: unknown) => {
   return {
     code: error.code,
     syscall: error.syscall,
-    message: A.join(error.message.split(host), "/r"),
-    path: error.path === undefined ? undefined : A.join(error.path.split(host), "/r"),
+    message: A.join(Str.split(host)(error.message), "/r"),
+    path: error.path === undefined ? undefined : A.join(Str.split(host)(error.path), "/r"),
   };
 };
 
