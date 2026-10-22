@@ -14,6 +14,7 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { YamlEdit } from "../../YamlEdit.ts";
 import { StyleVote, YamlLintDiagnostic, YamlLintSeverity, YamlRule } from "../../YamlLintRule.ts";
 import type { LintContext } from "../../YamlLintRule.ts";
@@ -87,7 +88,7 @@ const missingStartMarker = (ctx: LintContext, first: YamlToken | undefined): Rea
       // offset 0 (directives precede the marker); no fix there.
       ...(hasDirectives(ctx)
         ? {}
-        : { fix: YamlEdit.make({ offset: ctx.text.startsWith("\uFEFF") ? 1 : 0, length: 0, content: "---\n" }) }),
+        : { fix: YamlEdit.make({ offset: Str.startsWith("\uFEFF")(ctx.text) ? 1 : 0, length: 0, content: "---\n" }) }),
     }),
   ];
 };
@@ -110,7 +111,8 @@ const forbiddenStartMarker = (ctx: LintContext, first: YamlToken): YamlLintDiagn
   const alone = isRemovableStartMarker(ctx, first);
   // The fix removes the marker line whole: marker plus its terminator
   // (two characters under CRLF, one under LF).
-  const terminator = ctx.text.startsWith("\r\n", first.offset + first.length) ? 2 : 1;
+  const terminator =
+    Str.slice(first.offset + first.length, first.offset + first.length + 2)(ctx.text) === "\r\n" ? 2 : 1;
   return YamlLintDiagnostic.make({
     rule: "document-start",
     severity: "error",

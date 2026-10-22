@@ -10,8 +10,9 @@
 import { $YamlId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
+import { replaceWith } from "@beep/utils/Str";
 import * as A from "effect/Array";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
@@ -41,6 +42,7 @@ import {
   renderBlockLiteral,
   renderSingleQuotedMultiline,
 } from "./fold.ts";
+import { IndentWidth } from "./options.ts";
 import type { YamlNode } from "../YamlNode.ts";
 import type { StringifyOptionsInput } from "./options.ts";
 import type { RawDirective, RawYamlDocument } from "./raw-document.ts";
@@ -370,7 +372,7 @@ function wouldBeCoerced(s: string, ignoreType: boolean, quoteCompat: QuoteCompat
  * `]`, …) always requires quoting at the start.
  */
 function hasUnsafeLeadingIndicator(s: string): boolean {
-  const first = s.slice(0, 1);
+  const first = Str.slice(0, 1)(s);
   if (first === " " || first === "\t") return true;
   if (!Str.includes(first)(INDICATOR_CHARS)) return false;
   if (first !== ":" && first !== "?" && first !== "-") return true;
@@ -385,10 +387,10 @@ function hasUnsafeLeadingIndicator(s: string): boolean {
  * whitespace (plain scalars lose it).
  */
 function hasAmbiguousPlainSyntax(s: string): boolean {
-  if (s.startsWith("---") || s.startsWith("...")) return true;
-  if (s.includes(": ") || s.includes(":\t") || s.endsWith(":")) return true;
-  if (s.includes(" #") || s.includes("\t#")) return true;
-  const last = s.slice(-1);
+  if (Str.startsWith("---")(s) || Str.startsWith("...")(s)) return true;
+  if (Str.includes(": ")(s) || Str.includes(":\t")(s) || Str.endsWith(":")(s)) return true;
+  if (Str.includes(" #")(s) || Str.includes("\t#")(s)) return true;
+  const last = Str.slice(-1)(s);
   return last === " " || last === "\t";
 }
 
@@ -401,10 +403,12 @@ function hasAmbiguousPlainSyntax(s: string): boolean {
  * an interior tab produces text other YAML parsers reject. Only single-line
  * values reach this point, so quoting on any TAB is safe for block styles.
  */
+const plainUnsafe = /[\x00-\x09\x0b-\x1f]/;
+
 function hasUnplainableChar(s: string): boolean {
   for (let i = 0; i < s.length; i++) {
-    const code = s.charCodeAt(i);
-    if (code === 0x09 || code === 0x0d || isControlChar(code)) return true;
+    const ch = Str.slice(i, i + 1)(s);
+    if (plainUnsafe.test(ch)) return true;
   }
   return false;
 }
@@ -414,7 +418,7 @@ function hasUnplainableChar(s: string): boolean {
  */
 function hasNonAscii(s: string): boolean {
   for (let i = 0; i < s.length; i++) {
-    if (s.charCodeAt(i) > 0x7e) return true;
+    if (Str.slice(i, i + 1)(s) > "~") return true;
   }
   return false;
 }
@@ -444,20 +448,26 @@ function hasNonAscii(s: string): boolean {
  * @since 0.0.0
  */
 export function renderDoubleQuoted(s: string, ...[canonical = false]: [canonical?: boolean]): string {
-  const escaped = s
-    .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r")
-    .replace(/\t/g, "\\t");
-  let result = "";
-  // Iterating by code point keeps a well-formed surrogate pair together, so
-  // canonical mode escapes it as one supplementary-plane `\UXXXXXXXX`.
-  for (const ch of escaped) {
-    result += escapeDoubleQuotedChar(ch, canonical);
-  }
-  return `"${result}"`;
+  const escaped = pipe(
+    s,
+    Str.replace(/\\/g, "\\\\"),
+    Str.replace(/"/g, '\\"'),
+    Str.replace(/\n/g, "\\n"),
+    Str.replace(/\r/g, "\\r"),
+    Str.replace(/\t/g, "\\t")
+  );
+  return `"${replaceWith(canonical ? CANONICAL_ESCAPED_CHAR : CONTROL_CHAR, escapeDoubleQuotedChar)(escaped)}"`;
 }
+
+/** The C0 controls `isControlChar` accepts; tab, LF and CR are already escaped by name. */
+const CONTROL_CHAR = /[\x00-\x08\x0b\x0c\x0e-\x1f]/g;
+
+/**
+ * Canonical mode also escapes every code point above `~`. The `u` flag keeps a
+ * well-formed surrogate pair together, so it escapes as one supplementary-plane
+ * `\UXXXXXXXX`, while a lone surrogate escapes as `\uXXXX`.
+ */
+const CANONICAL_ESCAPED_CHAR = /[\x00-\x08\x0b\x0c\x0e-\x1f]|[^\x00-\x7e]/gu;
 
 /** YAML 1.2 named escapes for the C0 controls that have one, keyed by code: NUL, BEL, BS, VT, FF, ESC. */
 const NAMED_CONTROL_ESCAPES: Readonly<Record<number, string>> = {
@@ -470,18 +480,17 @@ const NAMED_CONTROL_ESCAPES: Readonly<Record<number, string>> = {
 };
 
 /**
- * Escape one code point (`ch`, one or two UTF-16 units) for a double-quoted
- * scalar: C0 controls use YAML 1.2 named escapes where available, otherwise
- * `\xXX`; in canonical mode non-ASCII characters escape as `\uXXXX` (or
+ * Escape one matched code point (`ch`, one or two UTF-16 units) for a
+ * double-quoted scalar: C0 controls use YAML 1.2 named escapes where available,
+ * otherwise `\xXX`; the canonical-mode matches above `~` escape as `\uXXXX` (or
  * `\UXXXXXXXX` for a supplementary-plane pair).
  */
-function escapeDoubleQuotedChar(ch: string, canonical: boolean): string {
-  const code = ch.charCodeAt(0);
-  if (isControlChar(code)) return NAMED_CONTROL_ESCAPES[code] ?? `\\x${code.toString(16).padStart(2, "0")}`;
-  if (!canonical || code <= 0x7e) return ch;
+function escapeDoubleQuotedChar(ch: string): string {
+  const code = pipe(ch, Str.charCodeAt(0), O.getOrElse(constant(0)));
+  if (isControlChar(code)) return NAMED_CONTROL_ESCAPES[code] ?? `\\x${Str.padStart(2, "0")(code.toString(16))}`;
   return ch.length === 2
-    ? `\\U${(ch.codePointAt(0) ?? code).toString(16).toUpperCase().padStart(8, "0")}`
-    : `\\u${code.toString(16).toUpperCase().padStart(4, "0")}`;
+    ? `\\U${Str.padStart(8, "0")(Str.toUpperCase(pipe(ch, Str.codePointAt(0), O.getOrElse(constant(code))).toString(16)))}`
+    : `\\u${Str.padStart(4, "0")(Str.toUpperCase(code.toString(16)))}`;
 }
 
 /**
@@ -565,7 +574,7 @@ const stringStyleRenderers: Record<ScalarStyle, (input: StringRenderContext) => 
       // double-quoted under either quoteStyle — single quotes cannot
       // express them. Backslashes are literal in single-quoted YAML
       // and do NOT need double-quoting.
-      if (s.includes("\t")) {
+      if (Str.includes("\t")(s)) {
         return renderDoubleQuoted(s, canonical);
       }
       // Otherwise the caller's fallback preference decides: single-quoted
@@ -667,7 +676,7 @@ const renderString: {
       inFlow,
     };
     if (mustDoubleQuoteString(s, style, inFlow)) return renderDoubleQuoted(s, canonical);
-    return s.includes("\n") ? renderMultilineString(input, style, nested) : renderSingleLineString(input, style);
+    return Str.includes("\n")(s) ? renderMultilineString(input, style, nested) : renderSingleLineString(input, style);
   }
 );
 
@@ -679,11 +688,13 @@ const isBlockStyle = (style: ScalarStyle): boolean => style === "block-literal" 
  * escaped and cannot use block headers (mapping keys included); CR and
  * controls need escaping under every presentation style.
  */
+const doubleQuoteRequired = /[\x00-\x08\x0b-\x1f]/;
+
 function mustDoubleQuoteString(s: string, style: ScalarStyle, inFlow: boolean): boolean {
-  if (inFlow && (s.includes("\n") || isBlockStyle(style))) return true;
+  if (inFlow && (Str.includes("\n")(s) || isBlockStyle(style))) return true;
   for (let i = 0; i < s.length; i++) {
-    const code = s.charCodeAt(i);
-    if (isControlChar(code) || code === 0x0d) return true;
+    const ch = Str.slice(i, i + 1)(s);
+    if (doubleQuoteRequired.test(ch)) return true;
   }
   return false;
 }
@@ -733,7 +744,7 @@ const multilineStyleRenderers: Record<ScalarStyle, (input: StringRenderContext, 
 function renderCanonicalMultiline({ s, indent, canonical }: StringRenderContext, nested: boolean): string {
   // A root-level closing quote is invalid inside a block collection, and
   // flow-quoted continuation whitespace is folded away by YAML readers.
-  if ((nested && s.endsWith("\n")) || /\n[ \t]/.test(s)) return renderDoubleQuoted(s, canonical);
+  if ((nested && Str.endsWith("\n")(s)) || /\n[ \t]/.test(s)) return renderDoubleQuoted(s, canonical);
   return O.getOrElse(renderSingleQuotedMultiline(s, indent), () => renderDoubleQuoted(s, canonical));
 }
 
@@ -760,10 +771,10 @@ function renderSingleLineString(input: StringRenderContext, style: ScalarStyle):
  * and returns true when the chomp indicator is `+`.
  */
 function endsWithKeepChomp(rendered: string): boolean {
-  const match = rendered.match(/[|>][1-9]?[+-]?$|[|>][1-9]?[+-]?(?=\n)/g);
+  const match = O.getOrNull(Str.match(/[|>][1-9]?[+-]?$|[|>][1-9]?[+-]?(?=\n)/g)(rendered));
   if (match === null) return false;
   const last = A.getUnsafe(match, match.length - 1);
-  return last.includes("+");
+  return Str.includes("+")(last);
 }
 
 // ---------------------------------------------------------------------------
@@ -808,7 +819,7 @@ const detectCircular: {
 // ---------------------------------------------------------------------------
 
 const StringifyContext = S.Struct({
-  indent: S.Finite.pipe(
+  indent: IndentWidth.pipe(
     $I.annoteKey("StringifyContext.indent", { description: "The number of spaces per indentation level." })
   ),
   lineWidth: S.Finite.pipe(
@@ -942,7 +953,7 @@ function renderPrimitiveValue(value: unknown): string {
 
 /** Render a string value; block scalar header and body lines come back already split. */
 function stringifyStringLines(value: string, ctx: StringifyContext, depth: number, allowFold: boolean): string[] {
-  const indentStr = " ".repeat(ctx.indent);
+  const indentStr = Str.repeat(ctx.indent)(" ");
   const rendered = renderString(
     value,
     ctx.defaultScalarStyle,
@@ -962,7 +973,7 @@ function stringifyStringLines(value: string, ctx: StringifyContext, depth: numbe
   // folded continuation lines carry `indentStr`, which the block mapping /
   // sequence callers place inline just like a multi-line block scalar.
   const folded = allowFold && ctx.lineWidth > 0 ? foldRenderedScalar(rendered, indentStr, ctx.lineWidth) : rendered;
-  return folded.split("\n");
+  return Str.split("\n")(folded);
 }
 
 /** Run `render` with `value` pushed on the cycle-detection ancestor stack. */
@@ -982,7 +993,7 @@ function withAncestor(value: object, ctx: StringifyContext, render: () => string
  * (plain or double-quoted) put the first line inline and emit the rest as-is.
  */
 const continuesInline = (first: string, value: unknown): boolean =>
-  first.startsWith("|") || first.startsWith(">") || P.isString(value);
+  Str.startsWith("|")(first) || Str.startsWith(">")(first) || P.isString(value);
 
 /**
  * Stringifies a JavaScript array into YAML sequence lines (no leading indent).
@@ -1003,7 +1014,7 @@ const stringifyArrayLines: {
   }
 
   // Block style — each item rendered relative to depth 0
-  const pad = " ".repeat(ctx.indent);
+  const pad = Str.repeat(ctx.indent)(" ");
   const lines: string[] = [];
   for (const item of arr) {
     pushBlockSeqItem(lines, item, stringifyLines(item, ctx, depth + 1), pad);
@@ -1050,7 +1061,7 @@ const stringifyObjectLines: {
   }
   if (ctx.defaultCollectionStyle === "flow") return [renderFlowObject(obj, keys, ctx, depth)];
   // Block style
-  const pad = " ".repeat(ctx.indent);
+  const pad = Str.repeat(ctx.indent)(" ");
   const lines: string[] = [];
   for (const k of keys) {
     pushBlockObjectEntry(lines, k, obj[k], ctx, depth, pad);
@@ -1087,7 +1098,7 @@ function renderFlowObject(
  * multiline keys use double-quoted style with `\n` escapes.
  */
 const renderBlockKey = (k: string, ctx: StringifyContext): string =>
-  k.includes("\n") ? renderDoubleQuoted(k, ctx.forceDefaultStyles) : renderPlainKey(k, ctx, false);
+  Str.includes("\n")(k) ? renderDoubleQuoted(k, ctx.forceDefaultStyles) : renderPlainKey(k, ctx, false);
 
 function pushBlockObjectEntry(
   lines: string[],
@@ -1185,7 +1196,7 @@ function buildTagMap(directives: ReadonlyArray<RawDirective>): MutableHashMap.Mu
 
 /** A resolved tag URI in canonical form: `!!suffix` for a standard YAML tag, verbatim `!<uri>` otherwise. */
 const canonicalTagUri = (uri: string): string =>
-  uri.startsWith(YAML_TAG_PREFIX) ? `!!${uri.slice(YAML_TAG_PREFIX.length)}` : `!<${uri}>`;
+  Str.startsWith(YAML_TAG_PREFIX)(uri) ? `!!${Str.slice(YAML_TAG_PREFIX.length)(uri)}` : `!<${uri}>`;
 
 /**
  * Normalize a tag for canonical output.
@@ -1201,8 +1212,8 @@ const normalizeTag: {
   (tag: string, tagMap: MutableHashMap.MutableHashMap<string, string>): string;
   (tagMap: MutableHashMap.MutableHashMap<string, string>): (tag: string) => string;
 } = dual(2, (tag: string, tagMap: MutableHashMap.MutableHashMap<string, string>): string => {
-  if (tag.startsWith("!<") && tag.endsWith(">")) return normalizeVerbatimTag(tag);
-  if (tag.startsWith("!!")) return normalizeSecondaryTag(tag, tagMap);
+  if (Str.startsWith("!<")(tag) && Str.endsWith(">")(tag)) return normalizeVerbatimTag(tag);
+  if (Str.startsWith("!!")(tag)) return normalizeSecondaryTag(tag, tagMap);
   // Non-specific tag (! alone) or no matching handle stays as written.
   return O.getOrElse(resolveHandleTag(tag, tagMap), () => tag);
 });
@@ -1212,9 +1223,9 @@ const normalizeTag: {
  * local verbatim tag `!<!foo>` becomes `!foo`, a non-standard URI stays verbatim.
  */
 function normalizeVerbatimTag(tag: string): string {
-  const uri = tag.slice(2, -1);
-  if (uri.startsWith(YAML_TAG_PREFIX)) return `!!${uri.slice(YAML_TAG_PREFIX.length)}`;
-  return uri.startsWith("!") ? uri : tag;
+  const uri = Str.slice(2, -1)(tag);
+  if (Str.startsWith(YAML_TAG_PREFIX)(uri)) return `!!${Str.slice(YAML_TAG_PREFIX.length)(uri)}`;
+  return Str.startsWith("!")(uri) ? uri : tag;
 }
 
 /**
@@ -1226,7 +1237,7 @@ const normalizeSecondaryTag = (tag: string, tagMap: MutableHashMap.MutableHashMa
     O.filter(tagPrefixFor(tagMap, "!!"), (prefix) => prefix !== YAML_TAG_PREFIX),
     {
       onNone: () => tag,
-      onSome: (customPrefix) => `!<${customPrefix}${tag.slice(2)}>`,
+      onSome: (customPrefix) => `!<${customPrefix}${Str.slice(2)(tag)}>`,
     }
   );
 
@@ -1239,7 +1250,7 @@ function resolveHandleTag(tag: string, tagMap: MutableHashMap.MutableHashMap<str
     O.map(tagPrefixFor(tagMap, handle), (prefix) => canonicalTagUri(prefix + suffix))
   );
   if (O.isSome(named) || !isPrimaryHandleTag(tag)) return named;
-  return O.map(tagPrefixFor(tagMap, "!"), (prefix) => canonicalTagUri(prefix + tag.slice(1)));
+  return O.map(tagPrefixFor(tagMap, "!"), (prefix) => canonicalTagUri(prefix + Str.slice(1)(tag)));
 }
 
 /** A node's span, anchor, comment triple and multi-line flag, with its tag normalized against `tagMap`. */
@@ -1457,20 +1468,22 @@ function renderScalarNodeValueLines(
   // multiline strings (block-literal vs block-folded vs double-quoted) since
   // the canonical output retains scalar presentation style. When a tag is
   // present, type-conflict quoting is unnecessary.
-  return renderString(
-    val,
-    node.style,
-    " ".repeat(ctx.indent),
-    isNonEmptyText(node.tag),
-    ctx.forceDefaultStyles,
-    node.chomp,
-    ctx.parentPosition,
-    ctx.quoteStyle,
-    node.blockIndent,
-    ctx.quoteCompat,
-    ctx.inFlow,
-    depth > 0
-  ).split("\n");
+  return Str.split("\n")(
+    renderString(
+      val,
+      node.style,
+      Str.repeat(ctx.indent)(" "),
+      isNonEmptyText(node.tag),
+      ctx.forceDefaultStyles,
+      node.chomp,
+      ctx.parentPosition,
+      ctx.quoteStyle,
+      node.blockIndent,
+      ctx.quoteCompat,
+      ctx.inFlow,
+      depth > 0
+    )
+  );
 }
 
 /**
@@ -1539,7 +1552,7 @@ const stringifyMappingKeyLines: {
  * `""`, the embedded-blank-line encoding (see `rawCommentText`).
  */
 function unescapeCommentLine(line: string): string {
-  return /^ +$/.test(line) ? line.slice(0, -1) : line;
+  return /^ +$/.test(line) ? Str.slice(0, -1)(line) : line;
 }
 
 /**
@@ -1549,7 +1562,7 @@ function unescapeCommentLine(line: string): string {
  * renders as `#` + the unescaped slice (`" "` → `#`, `"  "` → `# `).
  */
 function commentBlockLines(comment: string): string[] {
-  return A.map(comment.split("\n"), (l) => (l === "" ? "" : `#${unescapeCommentLine(l)}`));
+  return A.map(Str.split("\n")(comment), (l) => (l === "" ? "" : `#${unescapeCommentLine(l)}`));
 }
 
 /**
@@ -1561,10 +1574,10 @@ const withHeaderComment: {
   (rendered: string, comment: string): string;
   (comment: string): (rendered: string) => string;
 } = dual(2, (rendered: string, comment: string): string => {
-  const nl = rendered.indexOf("\n");
+  const nl = O.getOrElse(constant(-1))(Str.indexOf("\n")(rendered));
   return nl === -1
     ? `${rendered}${renderTrailingComment(comment)}`
-    : `${rendered.slice(0, nl)}${renderTrailingComment(comment)}${rendered.slice(nl)}`;
+    : `${Str.slice(0, nl)(rendered)}${renderTrailingComment(comment)}${Str.slice(nl)(rendered)}`;
 });
 
 /**
@@ -1648,7 +1661,7 @@ const rendersAcrossLines: {
 
 /** Render a trailing comment for appending after content on the same line. */
 function renderTrailingComment(comment: string): string {
-  const flat = pipe(comment.split("\n"), A.map(unescapeCommentLine), A.join(" "));
+  const flat = pipe(Str.split("\n")(comment), A.map(unescapeCommentLine), A.join(" "));
   return ` #${flat}`;
 }
 
@@ -1747,7 +1760,7 @@ function pushExplicitMultiLineValue(
     // placing it, exactly as for every other value shape.
     return isBlockScalarHeader ? headerIdx : lines.length - 1;
   }
-  if (first.startsWith("-") || (isYamlMap(valNode) && isBlockCollectionNode(valNode, ctx))) {
+  if (Str.startsWith("-")(first) || (isYamlMap(valNode) && isBlockCollectionNode(valNode, ctx))) {
     lines.push(`: ${first}`);
     pushPadded(lines, valLines.slice(1), EXPLICIT_COMPACT_PAD);
     return -1;
@@ -1797,8 +1810,8 @@ const inlineScalarShape = (
 ): { readonly isBlockScalarHeader: boolean; readonly isInlineQuoted: boolean } => {
   const firstStripped = stripScalarMetadataPrefix(first);
   return {
-    isBlockScalarHeader: firstStripped.startsWith("|") || firstStripped.startsWith(">"),
-    isInlineQuoted: isYamlScalar(node) && firstStripped.startsWith("'"),
+    isBlockScalarHeader: Str.startsWith("|")(firstStripped) || Str.startsWith(">")(firstStripped),
+    isInlineQuoted: isYamlScalar(node) && Str.startsWith("'")(firstStripped),
   };
 };
 
@@ -1927,7 +1940,7 @@ function renderMultilineFlowLines(
   open: string,
   close: string
 ): string[] {
-  const flowPad = " ".repeat(ctx.indent);
+  const flowPad = Str.repeat(ctx.indent)(" ");
   const flowPrefix = buildMetadataPrefix(node.tag, node.anchor);
   const flowLines: string[] = [isNonEmptyText(flowPrefix) ? `${flowPrefix} ${open}` : open];
   for (let fi = 0; fi < entries.length; fi++) {
@@ -1959,7 +1972,7 @@ function stringifyBlockMapLines(
   ctx: StringifyContext,
   depth: number
 ): string[] {
-  const pad = " ".repeat(ctx.indent);
+  const pad = Str.repeat(ctx.indent)(" ");
   const lines: string[] = [];
   for (const pair of items) {
     pushBlockMapPair(lines, pair, node, ctx, depth, pad);
@@ -2018,7 +2031,7 @@ function pushBlockMapPair(
  */
 function isComplexKey(key: YamlNode): boolean {
   if (isYamlMap(key) || isYamlSeq(key)) return key.items.length > 0;
-  return isYamlScalar(key) && ((P.isString(key.value) && key.value.includes("\n")) || isBlockStyle(key.style));
+  return isYamlScalar(key) && ((P.isString(key.value) && Str.includes("\n")(key.value)) || isBlockStyle(key.style));
 }
 
 function pushComplexKeyPair(lines: string[], pair: YamlPair, ctx: StringifyContext, depth: number, pad: string): void {
@@ -2050,8 +2063,9 @@ function pushComplexKeyPair(lines: string[], pair: YamlPair, ctx: StringifyConte
  * (structural, never ctx.indent — see EXPLICIT_COMPACT_PAD).
  */
 function explicitKeyContinuationPad(first: string, key: YamlNode): string {
-  const firstTokens = A.filter(first.trim().split(/\s+/), Boolean);
-  const firstIsMetaOnly = firstTokens.length > 0 && A.every(firstTokens, (t) => t.startsWith("&") || t.startsWith("!"));
+  const firstTokens = A.filter(Str.split(/\s+/)(Str.trim(first)), Boolean);
+  const firstIsMetaOnly =
+    firstTokens.length > 0 && A.every(firstTokens, (t) => Str.startsWith("&")(t) || Str.startsWith("!")(t));
   const keyIsBlockScalar = isYamlScalar(key) && isBlockStyle(key.style);
   return firstIsMetaOnly || keyIsBlockScalar ? "" : EXPLICIT_COMPACT_PAD;
 }
@@ -2315,7 +2329,7 @@ function stripScalarMetadataPrefix(line: string): string {
   for (let next = metadataTokenEnd(line, i); next > i; next = metadataTokenEnd(line, i)) {
     i = next;
   }
-  return line.slice(i);
+  return Str.slice(i)(line);
 }
 
 /**
@@ -2366,7 +2380,7 @@ const stringifySeqNodeLines: {
     return renderFlowCollectionLines(node, entries, ctx, "[", "]");
   }
   // Block style
-  const pad = " ".repeat(ctx.indent);
+  const pad = Str.repeat(ctx.indent)(" ");
   const lines: string[] = [];
   const itemCtx: StringifyContext = { ...ctx, parentPosition: "block-seq-item" };
   for (const item of items) {
@@ -2511,7 +2525,8 @@ const prependDocComment = (docComment: string | undefined, text: string): string
   isNonEmptyText(docComment) ? `${docComment}\n${text}` : text;
 
 /** Trim the output's final newline unless `finalNewline` asks to keep it. */
-const applyFinalNewline = (out: string, finalNewline: boolean): string => (finalNewline ? out : out.replace(/\n$/, ""));
+const applyFinalNewline = (out: string, finalNewline: boolean): string =>
+  finalNewline ? out : Str.replace(/\n$/, "")(out);
 
 function stringifyEmptyDocument(
   doc: RawYamlDocument,
@@ -2674,7 +2689,7 @@ const rootMetadataPrefix = (contents: YamlNode): string | undefined =>
  */
 function stripRootMetadata(body: string, metaStr: string): string {
   const metaLinePrefix = `${metaStr}\n`;
-  if (body.startsWith(metaLinePrefix)) return body.slice(metaLinePrefix.length);
+  if (Str.startsWith(metaLinePrefix)(body)) return Str.slice(metaLinePrefix.length)(body);
   const metaInlinePrefix = `${metaStr} `;
-  return body.startsWith(metaInlinePrefix) ? body.slice(metaInlinePrefix.length) : body;
+  return Str.startsWith(metaInlinePrefix)(body) ? Str.slice(metaInlinePrefix.length)(body) : body;
 }

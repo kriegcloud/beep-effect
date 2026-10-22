@@ -3,9 +3,11 @@
 // scalars, plus the whitespace analyses that decide when block styles cannot
 // represent a value faithfully.
 
+import { replaceWith } from "@beep/utils/Str";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 /**
  * Folds a logical scalar line at safe spaces while preserving its YAML value.
@@ -95,11 +97,11 @@ function findFoldPoints(text: string, lineWidth: number, indentAtStart: number, 
 
 /** Replaces each fold-point space with a break plus the continuation indent. */
 function applyFolds(text: string, folds: ReadonlyArray<number>, indent: string): string {
-  let result = text.slice(0, folds[0]);
+  let result = Str.slice(0, folds[0])(text);
   for (const [f, fold] of folds.entries()) {
     const sliceEnd = folds[f + 1] ?? text.length;
     // Drop the space at `fold`; the inserted break carries the join.
-    result += `\n${indent}${text.slice(fold + 1, sliceEnd)}`;
+    result += `\n${indent}${Str.slice(fold + 1, sliceEnd)(text)}`;
   }
   return result;
 }
@@ -146,7 +148,7 @@ export function foldRenderedScalar(
   if (first === "|" || first === "'") return rendered;
   if (first === ">") return foldBlockFoldedBody(rendered, indent, lineWidth);
   if (first === '"') {
-    const inner = rendered.slice(1, -1);
+    const inner = Str.slice(1, -1)(rendered);
     // +1 for the opening quote already consumed on the first line.
     return `"${foldScalarLine(inner, indent, lineWidth, indent.length + 1)}"`;
   }
@@ -160,14 +162,17 @@ export function foldRenderedScalar(
  * line "more-indented" and its break literal to the reader).
  */
 const isBaseIndentContentLine = (line: string, indent: string): boolean =>
-  line.length > indent.length && line.startsWith(indent) && line[indent.length] !== " " && line[indent.length] !== "\t";
+  line.length > indent.length &&
+  Str.startsWith(indent)(line) &&
+  line[indent.length] !== " " &&
+  line[indent.length] !== "\t";
 
 /** Width-folds the base-indent body lines of a rendered `>` block scalar, keeping its header line. */
 function foldBlockFoldedBody(rendered: string, indent: string, lineWidth: number): string {
-  const lines = rendered.split("\n");
+  const lines = Str.split("\n")(rendered);
   const body = A.map(lines.slice(1), (line) =>
     isBaseIndentContentLine(line, indent)
-      ? indent + foldScalarLine(line.slice(indent.length), indent, lineWidth, indent.length)
+      ? indent + foldScalarLine(Str.slice(indent.length)(line), indent, lineWidth, indent.length)
       : line
   );
   return A.join([...lines.slice(0, 1), ...body], "\n");
@@ -217,24 +222,24 @@ export function hasInteriorTrailingWhitespace(s: string): boolean {
   // block. If the whitespace sits on the last content line only, block style
   // handles it correctly via the chomp indicator — only an INTERIOR newline
   // followed by content matters here.
-  const firstNewline = s.indexOf("\n");
+  const firstNewline = O.getOrElse(constant(-1))(Str.indexOf("\n")(s));
   return firstNewline >= 0 && firstNewline < trailingNewlinesStart(s);
 }
 
 /** True when some newline is immediately preceded by a space or tab. */
 function hasWhitespaceBeforeNewline(s: string): boolean {
   for (let i = 1; i < s.length; i++) {
-    if (s.charCodeAt(i) === 0x0a && isSpaceOrTabCode(s.charCodeAt(i - 1))) return true;
+    if (s[i] === "\n" && isSpaceOrTabCode(Str.slice(i - 1, i)(s))) return true;
   }
   return false;
 }
 
-const isSpaceOrTabCode = (code: number): boolean => code === 0x20 || code === 0x09;
+const isSpaceOrTabCode = (ch: string): boolean => ch === " " || ch === "\t";
 
 /** The index where the run of trailing newlines begins (`s.length` when there is none). */
 function trailingNewlinesStart(s: string): number {
   let start = s.length;
-  while (start > 0 && s.charCodeAt(start - 1) === 0x0a) start--;
+  while (start > 0 && s[start - 1] === "\n") start--;
   return start;
 }
 
@@ -257,7 +262,7 @@ function trailingNewlinesStart(s: string): number {
  */
 export function hasNewlineSpacesTab(s: string): boolean {
   for (let i = 0; i < s.length - 2; i++) {
-    if (s.charCodeAt(i) === 0x0a && isSpacesThenTab(s, i + 1)) return true;
+    if (s[i] === "\n" && isSpacesThenTab(s, i + 1)) return true;
   }
   return false;
 }
@@ -265,8 +270,8 @@ export function hasNewlineSpacesTab(s: string): boolean {
 /** True when `s` holds one or more spaces starting at `from`, immediately followed by a tab. */
 function isSpacesThenTab(s: string, from: number): boolean {
   let j = from;
-  while (j < s.length && s.charCodeAt(j) === 0x20) j++;
-  return j > from && j < s.length && s.charCodeAt(j) === 0x09;
+  while (j < s.length && s[j] === " ") j++;
+  return j > from && j < s.length && s[j] === "\t";
 }
 
 /**
@@ -304,21 +309,25 @@ function isSpacesThenTab(s: string, from: number): boolean {
 export function renderSingleQuotedMultiline(s: string, ...[indent]: [indent: string]): O.Option<string> {
   if (hasSingleQuoteUnsafeChar(s)) return O.none();
   if (hasInteriorTrailingWhitespace(s) || /\n[ \t]/.test(s)) return O.none();
-  const escaped = s.replace(/'/g, "''");
+  const escaped = Str.replace(/'/g, "''")(s);
   // Each literal newline in the value requires one extra source newline; a
   // newline run followed by content starts an indented continuation line.
-  const result = escaped.replace(
+  const result = replaceWith(
+    escaped,
     /\n+/g,
-    (run: string, offset: number) => "\n".repeat(run.length + 1) + (offset + run.length < escaped.length ? indent : "")
+    (run: string, ...args: ReadonlyArray<unknown>) =>
+      Str.repeat(run.length + 1)("\n") + (Number(args[0]) + run.length < escaped.length ? indent : "")
   );
   return O.some(`'${result}'`);
 }
 
 /** CR or non-tab control chars cannot be represented in single-quoted style. */
+const singleQuoteControl = /[\x00-\x08\x0b\x0c\x0e-\x1f]/;
+
 function hasSingleQuoteUnsafeChar(s: string): boolean {
   for (let i = 0; i < s.length; i++) {
-    const code = s.charCodeAt(i);
-    if (code === 0x0d || isControlChar(code)) return true;
+    const ch = Str.slice(i, i + 1)(s);
+    if (ch === "\r" || singleQuoteControl.test(ch)) return true;
   }
   return false;
 }
@@ -395,20 +404,20 @@ export function renderBlockLiteral(
  * or `+` when the caller re-emits an explicit keep header.
  */
 function blockChomp(s: string, explicitKeep: boolean): string {
-  if (s.endsWith("\n\n") || (s.length > 0 && /^\n+$/.test(s))) return "+";
-  if (!s.endsWith("\n")) return "-";
+  if (Str.endsWith("\n\n")(s) || (s.length > 0 && /^\n+$/.test(s))) return "+";
+  if (!Str.endsWith("\n")(s)) return "-";
   return explicitKeep ? "+" : "";
 }
 
 /** The value's lines for a block body; a trailing `\n` contributes no final empty line. */
 function blockBodyLines(s: string): string[] {
-  const lines = s.split("\n");
-  if (s.endsWith("\n")) lines.pop();
+  const lines = Str.split("\n")(s);
+  if (Str.endsWith("\n")(s)) lines.pop();
   return lines;
 }
 
 const isEmptyLine = (l: string): boolean => l === "";
-const startsWithSpace = (l: string): boolean => l.startsWith(" ");
+const startsWithSpace = (l: string): boolean => Str.startsWith(" ")(l);
 
 /**
  * Explicit indent indicator for a `|` block is needed when:
@@ -547,7 +556,7 @@ function foldedOutputLines(valueLines: ReadonlyArray<string>, indent: string): s
       outputLines.push("");
       continue;
     }
-    const isMoreIndented = line.startsWith(" ") || line.startsWith("\t");
+    const isMoreIndented = Str.startsWith(" ")(line) || Str.startsWith("\t")(line);
     if (prevContentNormal && !isMoreIndented) outputLines.push("");
     outputLines.push(`${indent}${line}`);
     prevContentNormal = !isMoreIndented;

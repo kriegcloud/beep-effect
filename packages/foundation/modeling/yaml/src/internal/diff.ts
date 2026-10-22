@@ -5,6 +5,7 @@
 import { $YamlId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $YamlId.create("internal/diff");
 
@@ -82,8 +83,8 @@ export function computeEdits(original: string, ...[modified]: [modified: string]
   const modEnd = modified.length - suffixLen;
 
   // Try to split into line-level edits for better granularity
-  const origLines = original.substring(origStart, origEnd).split("\n");
-  const modLines = modified.substring(modStart, modEnd).split("\n");
+  const origLines = Str.split("\n")(Str.substring(origStart, origEnd)(original));
+  const modLines = Str.split("\n")(Str.substring(modStart, modEnd)(modified));
 
   if (origLines.length === modLines.length && origLines.length > 1) {
     return lineEdits(origLines, modLines, origStart);
@@ -94,7 +95,7 @@ export function computeEdits(original: string, ...[modified]: [modified: string]
     RawEdit.make({
       offset: origStart,
       length: origEnd - origStart,
-      content: modified.substring(modStart, modEnd),
+      content: Str.substring(modStart, modEnd)(modified),
     }),
   ];
 }

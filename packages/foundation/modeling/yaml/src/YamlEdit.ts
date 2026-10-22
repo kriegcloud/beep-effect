@@ -23,6 +23,7 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $YamlId.create("YamlEdit");
 
@@ -193,7 +194,7 @@ export class YamlEdit extends S.Opaque<YamlEdit, { readonly brand: unique symbol
     }
     let result = text;
     for (const edit of sorted) {
-      result = result.substring(0, edit.offset) + edit.content + result.substring(edit.offset + edit.length);
+      result = Str.substring(0, edit.offset)(result) + edit.content + Str.substring(edit.offset + edit.length)(result);
     }
     return result;
   });
