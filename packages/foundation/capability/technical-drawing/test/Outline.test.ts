@@ -362,6 +362,74 @@ describe("separateCloseOutlines", () => {
     expect(closeOutlineGaps({ segments: result.segments, ...tolerances })).toEqual([]);
   });
 
+  it("keeps collinear pieces apart where only a degenerate point stands at their facing ends", () => {
+    // Two collinear vertical edges 30 apart, the upper one drawn downward, and a longer line 0.34 beside the lower one
+    // only. A degenerate point drawn at each facing end crosses nothing, so the edges stay two lines and only the lower
+    // one moves; a line truly crossing at each facing end makes them one line, moved whole.
+    const lower: Segment2 = [0, 0, 0, 30];
+    const upper: Segment2 = [0, 90, 0, 60];
+    const beside: Segment2 = [0.34, -50, 0.34, 35];
+    const points: ReadonlyArray<Segment2> = [
+      [0, 30, 0, 30],
+      [0, 60, 0, 60],
+    ];
+    const pointed = separate([lower, upper, beside, ...points]);
+    expect(A.map(pointed.segments, round)).toEqual([
+      [-0.36, 0, -0.36, 30],
+      [0, 90, 0, 60],
+      [0.34, -50, 0.34, 35],
+      [0, 30, 0, 30],
+      [0, 60, 0, 60],
+    ]);
+    expect(pointed.segments[1]).toBe(upper);
+    expect(gaps(pointed.segments)).toEqual([]);
+    const crossed = separate([lower, upper, beside, [-8, 30, 8, 30], [-8, 60, 8, 60]]);
+    expect(A.map(A.take(crossed.segments, 2), round)).toEqual([
+      [-0.36, 0, -0.36, 30],
+      [-0.36, 90, -0.36, 60],
+    ]);
+  });
+
+  it("moves a shallow line seen either side of a post by its larger shortfall, then again until its far piece clears", () => {
+    // A level edge and a line rising 0.04 a unit across it, both behind a post 12 wide (x 44 to 56), so each shows as
+    // two pieces joined across the post. Left of the post the shallow line runs 0.16 under the edge, right of it a
+    // short piece 0.32 to 0.37 over it. The larger shortfall (0.54, downward) moves it, which brings the short piece
+    // 0.17 under the edge, so it moves again until that piece's far end stands 0.7 under.
+    const rise = (x: number) => (x - 48) * 0.04;
+    const input: ReadonlyArray<Segment2> = [
+      [0, 0, 44, 0],
+      [56, 0, 100, 0],
+      [10, rise(10), 44, rise(44)],
+      [56, rise(56), 57.25, rise(57.25)],
+      [44, -8, 44, 8],
+      [56, -8, 56, 8],
+    ];
+    expect(A.map(gaps(input), (gap) => Math.round(gap * 1e9) / 1e9)).toEqual([0.16, 0.32]);
+    const result = separate(input);
+    expect(A.map(result.segments, round)).toEqual([
+      [0, 0, 44, 0],
+      [56, 0, 100, 0],
+      [10, -2.59, 44, -1.23],
+      [56, -0.75, 57.25, -0.7],
+      [44, -8, 44, 8],
+      [56, -8, 56, 8],
+    ]);
+    expect(A.map(result.moves, (move) => Math.round(move * 1e9) / 1e9)).toEqual([1.07]);
+    expect(gaps(result.segments)).toEqual([]);
+  });
+
+  it("returns its input untouched when a line between two emphasised outlines has no room to open", () => {
+    // A line 0.5 above one emphasised outline and 0.6 under another: opening it from either closes it on the other, so
+    // no pass falls less short than the input and the input comes back with both pairs still close.
+    const below: Segment2 = [0, -0.5, 100, -0.5];
+    const above: Segment2 = [0, 0.6, 100, 0.6];
+    const input: ReadonlyArray<Segment2> = [below, [0, 0, 100, 0], above];
+    const result = separate(input, [below, above]);
+    expect(result.segments).toBe(input);
+    expect(result.moves).toEqual([]);
+    expect(gaps(result.segments)).toEqual([0.5, 0.6]);
+  });
+
   it("returns its input untouched when no pair runs too close", () => {
     const cases: ReadonlyArray<ReadonlyArray<Segment2>> = [
       // 0.75 apart: clear
