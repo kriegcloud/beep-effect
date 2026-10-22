@@ -1471,6 +1471,90 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("follows same-file helpers that read FileSystem in the harness context", () =>
+    Effect.gen(function* () {
+      const harness = 'import { layer } from "@effect/vitest";';
+      const subject = 'import { SubjectLive } from "@beep/example/Subject";';
+      const subjectLayer = `${harness} ${subject} import { NodeServices } from "@effect/platform-node"; const platform = L.mergeAll(NodeServices.layer); const live = SubjectLive.pipe(L.provide(platform));`;
+      const subjectSuite = (call: string) =>
+        `layer(L.mergeAll(platform, live))((it) => { it.effect("x", () => Fx.gen(function* () { yield* ${call}; })); });`;
+      const subjectBody = (statements: string) =>
+        `layer(L.mergeAll(platform, live))((it) => { it.effect("x", () => Fx.gen(function* () { ${statements} })); });`;
+      const bound = (statements: string) =>
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectBody(statements)}`;
+      const platformSuite = (call: string) =>
+        `${harness} import { NodeServices } from "@effect/platform-node"; layer(NodeServices.layer)((it) => { it.effect("x", () => Fx.gen(function* () { yield* ${call}; })); });`;
+      const stage = (operation: string) =>
+        `Fx.fnUntraced(function* () { const fs = yield* FileSystem.FileSystem; ${operation} })`;
+      const reviewClasses = Effect.fnUntraced(function* (body: string) {
+        return A.map(
+          A.filter(yield* findings(body), (row) => row.ruleId === "EV010"),
+          (row) => row.class
+        );
+      });
+      for (const body of [
+        `${subjectLayer} const stageWorkspace = ${stage("yield* fs.makeTempDirectoryScoped();")}; ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} const stageWorkspace = ${stage("yield* fs.makeTempDirectoryScoped();")}; const runCheckIn = Fx.fnUntraced(function* () { return yield* stageWorkspace(); }); const runCheck = () => Fx.map(runCheckIn(), (run) => run); ${subjectSuite("runCheck()")}`,
+        `${subjectLayer} const stageWorkspace = Fx.fn("stageWorkspace")(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }); ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} function stageWorkspace() { return Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }); } ${subjectSuite("stageWorkspace()")}`,
+        `const link = ${stage('yield* fs.symlink("a", "b");')}; ${platformSuite("link()")}`,
+        `const again = () => again(); const link = ${stage('yield* fs.symlink("a", "b");')}; ${platformSuite("Fx.andThen(again(), link())")}`,
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace().pipe(Fx.provideServiceEffect(Console.Console, makeConsole))")}`,
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("Fx.provideService(stageWorkspace(), Console.Console, testConsole)")}`,
+        `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.provideService(Console.Console, testConsole)); ${subjectSuite("stageWorkspace()")}`,
+        bound("const program = stageWorkspace(); yield* program;"),
+        bound("const program = stageWorkspace(); yield* (program);"),
+        bound("const program = stageWorkspace(); const mapped = Fx.map(program, (value) => value); yield* mapped;"),
+        bound(
+          "const program = stageWorkspace(); yield* program.pipe(Fx.provideServiceEffect(Console.Console, makeConsole));"
+        ),
+        bound("const workspace = yield* stageWorkspace(); yield* Fx.log(workspace);"),
+        bound("const { root } = yield* stageWorkspace(); yield* Fx.log(root);"),
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; const runIt = () => { const program = stageWorkspace(); return program; }; ${subjectSuite("runIt()")}`,
+      ])
+        deepStrictEqual(yield* reviewClasses(body), []);
+      for (const body of [
+        `${subjectLayer} const stageWorkspace = Fx.fnUntraced(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }, Fx.provide(FakeFs.layer)); ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.provide(FakeFs.layer)); ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} let stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} import { stageWorkspace } from "./helpers/stage"; ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} const helpers = { stageWorkspace: ${stage('yield* fs.readFileString("a");')} }; ${subjectSuite("helpers.stageWorkspace()")}`,
+        `${subjectLayer} const stageWorkspace = withFakeFileSystem(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }); ${subjectSuite("stageWorkspace()")}`,
+        `const read = ${stage('yield* fs.readFileString("a");')}; ${platformSuite("read()")}`,
+        `const unused = ${stage('yield* fs.symlink("a", "b");')}; ${platformSuite("Fx.void")}`,
+        `${subjectLayer} import { provideScopedLayer } from "@beep/test-utils"; const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(provideScopedLayer(FakeFs.layer)); ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.updateService(FileSystem.FileSystem, () => fakeFs)); ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("Fx.provideService(stageWorkspace(), FileSystem.FileSystem, fakeFs)")}`,
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace().pipe(Fx.provide(FakeLayer))")}`,
+        `${subjectLayer} import { pipe } from "effect/Function"; const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("pipe(stageWorkspace(), Fx.updateContext((context) => context))")}`,
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("Fx.provide(Fx.map(stageWorkspace(), (value) => value), FakeLayer)")}`,
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace().pipe(Fx.provideService(FileSystem.FileSystem)(fakeFs))")}`,
+        `${subjectLayer} const Fs = FileSystem.FileSystem; const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace().pipe(Fx.provideService(Fs, fakeFs))")}`,
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; layer(L.mergeAll(platform, live))((it) => { it.effect("x", () => Fx.gen(function* () { yield* Fx.updateServiceScoped(FileSystem.FileSystem, () => fakeFs); yield* stageWorkspace(); })); });`,
+        bound("const program = stageWorkspace(); yield* program.pipe(Fx.provide(FakeLayer));"),
+        bound("const program = stageWorkspace(); yield* Fx.provide(program, FakeLayer);"),
+        bound(
+          "const program = stageWorkspace(); yield* program.pipe(Fx.provideService(FileSystem.FileSystem)(fakeFs));"
+        ),
+        `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.setContext(fakeContext)); ${subjectSuite("stageWorkspace()")}`,
+        `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("Fx.setContext(stageWorkspace(), fakeContext)")}`,
+        bound(
+          "const program = stageWorkspace(); const mapped = Fx.map(program, (value) => value); yield* Fx.provide(mapped, FakeLayer);"
+        ),
+        bound("const program = stageWorkspace(); yield* runElsewhere(program);"),
+        bound("let program = stageWorkspace(); yield* program;"),
+        bound("const [program] = [stageWorkspace()]; yield* program;"),
+        bound("const programs = { program: stageWorkspace() }; yield* Fx.provide(programs.program, FakeLayer);"),
+        bound("const workspace = yield* stageWorkspace(); yield* Fx.provide(workspace, FakeLayer);"),
+        bound("const program = stageWorkspace(); const wrap = () => program; yield* Fx.provide(wrap(), FakeLayer);"),
+        bound("yield* withFakeFs(stageWorkspace());"),
+        bound("yield* runElsewhere(stageWorkspace());"),
+        bound("yield* runElsewhere(Fx.map(stageWorkspace(), (value) => value));"),
+      ])
+        deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"]);
+    })
+  );
+
   it.effect("retains native filesystem provenance through the instrumented layer harness", () =>
     Effect.gen(function* () {
       for (const module of ["@beep/test-runner", "@beep/test-utils/Vitest", "@effect/vitest"]) {
