@@ -38,12 +38,12 @@ const failure = <E>(result: Result.Result<unknown, E>): E => result.pipe(Result.
 
 const codes = (error: JsoncParseError): ReadonlyArray<string> => A.map(error.errors, (e) => e.code);
 
-// The best of three wall-clock runs of `run(input)` in nanoseconds, after one
+// The best of five wall-clock runs of `run(input)` in nanoseconds, after one
 // warm-up call; taking the minimum filters out collection pauses and load.
 const bestNanos = Effect.fnUntraced(function* (run: (input: string) => unknown, input: string) {
   run(input);
   let best = Number.POSITIVE_INFINITY;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 5; attempt++) {
     const start = yield* Clock.currentTimeNanos;
     run(input);
     best = Math.min(best, Number((yield* Clock.currentTimeNanos) - start));
@@ -51,13 +51,14 @@ const bestNanos = Effect.fnUntraced(function* (run: (input: string) => unknown, 
   return best;
 });
 
-// Growing the input 16-fold must grow the time less than 48-fold. Linear
-// accumulation measures 5 to 20 here; the copy-per-append accumulators this
-// guards against measured 80 to 220.
+// Growing the input 16-fold must grow the time less than 64-fold. Linear
+// accumulation measures 5 to 20 here and reached 49 once on the Node coverage
+// lane under instrumentation and a loaded host (2026-10-22); the
+// copy-per-append accumulators this guards against measured 80 to 220.
 const scalesLinearly = Effect.fnUntraced(function* (run: (input: string) => unknown, make: (size: number) => string) {
   const small = yield* bestNanos(run, make(2_000));
   const large = yield* bestNanos(run, make(32_000));
-  assert.isBelow(large, small * 48);
+  assert.isBelow(large, small * 64);
 });
 
 const flatArray = (size: number): string => `[${Str.repeat(size)("0,")}0]`;
