@@ -351,8 +351,6 @@ export class EdgeRepositoryUnavailable extends S.TaggedError<
     description: "The bitemporal edge repository could not serve the request.",
   })
 ) {
-  static readonly is = S.is(EdgeRepositoryUnavailable);
-
   /**
    * Build the unavailability error for an operation, optionally retaining the
    * driver defect that produced it.

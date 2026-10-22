@@ -1,5 +1,8 @@
 # Fallow 3.34 migration hold
 
+Status: retired by the 2026-10-22 issue #1932 migration described below.
+The original hold evidence is preserved here.
+
 The recovery branch pins Fallow to 3.33.1, the minor version selected on main,
 while retaining the zero-findings dead-code baseline and blocking check.
 No finding allowance or suppression was added.
@@ -59,3 +62,29 @@ entry expansion or API deletion. The reopening criteria above remain unchanged:
 review the glob migration and individual findings, prove used/unused member
 attribution, and pass the unchanged dead-code, audit and health gates before
 removing the pin.
+
+## 2026-10-22 qualification
+
+The 3.34.1 migration audits the current 63 findings individually: 45 dead
+implementations or unused exports removed, and 18 false positives retained with
+symbol-specific, line-level suppressions. No dynamic entry expansion was needed.
+The top-level entry semantics, rule severities, and zero baseline stay unchanged.
+The seven redundant raw generated TypeScript projections are retired at their
+producers; canonical JSON inputs and the consumed court/reporter vocabularies
+remain. Every affected package is private; no major changeset is required.
+
+The 18 retained findings are false positives of 3.34.1 member attribution. Fallow
+does not attribute uses made through a re-exported schema alias (`Options` exported
+as `Schema`), through an instance returned by a schema factory, or through a
+structural `Error.message` read. Each is suppressed at its declaration with a
+`// fallow-ignore-next-line <rule> -- <consumer>` comment that names the live
+consumer. Those comments are the in-repo record of each decision. Unused members
+on the same classes were removed, so suppressions cover only proven-live symbols.
+Declaration emit also proves that the `ProtobufInt64Input` type export is live:
+removing it causes TS4023 in `Fixed64`; its export is preserved.
+
+The unchanged dead-code, audit, and health checks pass on 3.34.1. The per-finding
+decisions are summarized in PR #2057.
+The 3.33.1 pin is no longer needed after this qualification. Reversal is the
+version/lockfile change plus the focused source changes; no application data
+migration is involved.

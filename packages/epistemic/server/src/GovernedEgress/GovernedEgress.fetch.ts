@@ -138,9 +138,7 @@ export class GovernedEgressOptions extends S.Opaque<GovernedEgressOptions, { rea
       description: "Session-static inputs the composition root supplies to the governed egress boundary.",
     })
   )
-) {
-  static readonly is = S.is(GovernedEgressOptions);
-}
+) {}
 
 const egressPrincipal = SystemPrincipal.make({ component: "Runtime", kind: "System" });
 
