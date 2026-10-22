@@ -5,6 +5,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 it.effect.prop(
@@ -22,7 +23,7 @@ it.effect.prop(
                 kind: "nonZero",
                 command: "tool",
                 args: [],
-                [stream]: `${context}\n${pattern.toUpperCase()}`,
+                [stream]: `${context}\n${Str.toUpperCase(pattern)}`,
               });
               assert.isTrue(Retry.isTransient(error));
               assert.isTrue(Retry.transient().while(error));

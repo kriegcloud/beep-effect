@@ -3,6 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertDefined, assertFalse } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 const continuationTails = (ending: string): ReadonlyArray<string> =>
   ending === "\\" ? [""] : ["", "\n", "\r\n", "# keep\n", "; keep\r\n", " \t # keep\n"];
@@ -85,7 +86,7 @@ describe("git config scanner boundary coverage", () => {
         assert.strictEqual(entry.value, value);
         assert.strictEqual(entry.valueOffset, "[core]\nkey= \t".length);
         assert.strictEqual(entry.valueLength, significantRaw.length);
-        assert.strictEqual(text.slice(entry.valueOffset, entry.valueOffset + entry.valueLength), significantRaw);
+        assert.strictEqual(Str.slice(entry.valueOffset, entry.valueOffset + entry.valueLength)(text), significantRaw);
       }
     })
   );
