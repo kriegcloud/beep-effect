@@ -210,7 +210,7 @@ for entry in "${pids[@]:-}"; do
   if ! wait "${pid}"; then
     case "${name}" in
       bun) die "bun ${BUN_VERSION} download or checksum failed." ;;
-      node) node_ok=0; warn "Node ${NODE_VERSION} provisioning failed; the image's node stays on PATH (Next.js and portless want 24+)." ;;
+      node) node_ok=0; warn "Node ${NODE_VERSION} provisioning failed." ;;
       op) op_ok=0; warn "1Password CLI download or signature verification failed; skipping op (op-backed secret runs unavailable)." ;;
     esac
   fi
@@ -251,7 +251,7 @@ if [ "${need_node}" = "1" ] && [ "${node_ok}" = "1" ]; then
         NODE_BIN_DIR="$(dirname "${nvm_node}")"
       else
         node_ok=0
-        warn "nvm did not yield a Node ${NODE_VERSION} binary; the image's node stays on PATH."
+        warn "nvm did not yield a Node ${NODE_VERSION} binary."
       fi
       ;;
     tarball)
@@ -266,6 +266,10 @@ if [ "${need_node}" = "1" ] && [ "${node_ok}" = "1" ]; then
     link_global "${NODE_BIN_DIR}/npm" npm
     link_global "${NODE_BIN_DIR}/npx" npx
   fi
+fi
+
+if [ "${node_ok}" != "1" ] || ! command -v node >/dev/null 2>&1 || [ "$(node --version 2>/dev/null | sed 's/^v//')" != "${NODE_VERSION}" ]; then
+  die "Node ${NODE_VERSION} is required; refusing to continue with an unverified or older runtime."
 fi
 
 op_path=""
