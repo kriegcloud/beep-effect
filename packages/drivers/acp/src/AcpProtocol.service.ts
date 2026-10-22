@@ -894,8 +894,10 @@ const toAcpWireRequest: (message: AcpWireMessage) => AcpWireMessage = Match.type
  *   ACP has no such method.
  * - A peer error response fails only the request with its id, as an `AcpRequestError`. An error
  *   object tagged `Defect` is not read as an effect-rpc defect, which would fail every in-flight
- *   typed call. A response that matches no outstanding request (no id, `id: null`, or an id this
- *   side never issued) is dropped with a warning that carries its id, error code and message.
+ *   typed call. A response with no id, `id: null`, or no request in flight for its id is dropped
+ *   with a warning that carries its id, error code and message. This includes ids never issued,
+ *   typed requests already answered by an `Exit` or interrupted locally, and cancelled extension
+ *   requests. Chunks keep a typed request in flight.
  *
  * **Example** (Build protocol over stdio)
  *
@@ -1437,10 +1439,10 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
     );
   });
 
-  // A response that no outstanding request can claim (no id, `id: null`, or an id this side never
-  // issued as a typed RPC call, such as an agent-internal string id or effect's -32603 `Defect`
-  // id) is not handed to the RpcClient. It is dropped with a warning, so a hung call that the
-  // peer answered without a usable id (a -32700 parse-error reply, for example) leaves a trace.
+  // A response with no id, `id: null`, or no request in flight for its id is dropped with a warning.
+  // This includes ids never issued, typed requests already answered by an `Exit` or interrupted
+  // locally, and cancelled extension requests. Chunks keep a typed request in flight. The warning
+  // also leaves a trace when the peer answers without a usable id (for example, a parse-error reply).
   const forwardToRpcClient = Effect.fn($I`forwardToRpcClient`)(function* (message: AcpInboundResponse) {
     const claimed = yield* Ref.modify(rpcPending, (pending) => [
       isEffectRpcRequestId(message.requestId) && HashSet.has(pending, message.requestId),

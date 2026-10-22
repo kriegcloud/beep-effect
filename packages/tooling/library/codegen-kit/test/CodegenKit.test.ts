@@ -993,15 +993,23 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
   it.effect("inlines a $ref in either allOf position so member order does not matter", () =>
     Effect.gen(function* () {
       const definitions: JsonSchema.Definitions = {
-        Named: { type: "object", properties: { name: { type: "string" } }, required: ["name"] },
+        Named: {
+          type: "object",
+          properties: { name: { type: "string" } },
+          required: ["name"],
+          description: "Target description",
+          title: "Target title",
+        },
       };
       const hook = composeTransforms(["distributeAllOf"], definitions);
       const extra = { type: "object", properties: { x: { type: "number" } } };
-      const refFirst = hook({ description: "Outer", allOf: [{ $ref: "#/$defs/Named", title: "Member" }, extra] });
-      const refLast = hook({ description: "Outer", allOf: [extra, { $ref: "#/$defs/Named", title: "Member" }] });
+      const member = { $ref: "#/$defs/Named", description: "Member description", title: "Member title" };
+      const outer = { description: "Outer", title: "Outer title" };
+      const refFirst = hook({ ...outer, allOf: [member, extra] });
+      const refLast = hook({ ...outer, allOf: [extra, member] });
       expect(refFirst).toEqual({
         description: "Outer",
-        title: "Member",
+        title: "Outer title",
         type: "object",
         properties: { name: { type: "string" }, x: { type: "number" } },
         required: ["name"],

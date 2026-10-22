@@ -3890,7 +3890,7 @@ export const ReplayFrom = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "Inclusive replay cursor requesting replay from the start of retained conversation history.",
+      "Replay all retained conversation history from its first replayable entry.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -4904,9 +4904,7 @@ export const DiffChange = S.Union([
       }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Operation metadata for add, delete, and modify changes.",
-  }),
+  ).annotateKey({ description: "A file was added." }),
   S.StructWithRest(
     S.Struct({
       fileType: S.optionalKey(
@@ -4939,9 +4937,7 @@ export const DiffChange = S.Union([
       }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Operation metadata for add, delete, and modify changes.",
-  }),
+  ).annotateKey({ description: "A file was deleted." }),
   S.StructWithRest(
     S.Struct({
       fileType: S.optionalKey(
@@ -4974,9 +4970,7 @@ export const DiffChange = S.Union([
       }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Operation metadata for add, delete, and modify changes.",
-  }),
+  ).annotateKey({ description: "A file was modified in place." }),
   S.StructWithRest(
     S.Struct({
       fileType: S.optionalKey(
@@ -5012,9 +5006,7 @@ export const DiffChange = S.Union([
       }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Operation metadata for move and copy changes.",
-  }),
+  ).annotateKey({ description: "A file was moved or renamed." }),
   S.StructWithRest(
     S.Struct({
       fileType: S.optionalKey(
@@ -5050,9 +5042,7 @@ export const DiffChange = S.Union([
       }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Operation metadata for move and copy changes.",
-  }),
+  ).annotateKey({ description: "A file was copied." }),
   S.StructWithRest(
     S.Struct({
       fileType: S.optionalKey(
@@ -6346,7 +6336,7 @@ export const AuthMethod = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "Terminal-based authentication method.\n\nThe client runs the configured agent program as a separate interactive\nprocess for the user to authenticate via a TUI. Agents MUST advertise this\nmethod only when the client enabled its terminal authentication capability.\nA zero exit status signals success; any other termination signals failure.\nThe client MUST NOT pass this method to `auth/login`.",
+      "Client runs the configured agent program as a separate interactive\nprocess, without passing this method to `auth/login`.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -6889,7 +6879,10 @@ export const McpServer = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "HTTP transport configuration for MCP." }),
+  ).annotateKey({
+    description:
+      "HTTP transport configuration\n\nOnly available when the Agent capabilities include `session.mcp.http`.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("acp"),
@@ -6918,7 +6911,7 @@ export const McpServer = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nACP transport configuration for MCP.\n\nThe MCP server is provided by an ACP component and communicates over the ACP channel\nusing `mcp/message`.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nACP transport configuration\n\nOnly available when the Agent capabilities include `session.mcp.acp`.\nThe MCP server is provided by an ACP component and communicates over the ACP channel.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -6954,7 +6947,10 @@ export const McpServer = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "Stdio transport configuration for MCP." }),
+  ).annotateKey({
+    description:
+      "Stdio transport configuration\n\nOnly available when the Agent capabilities include `session.mcp.stdio`.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.String.annotateKey({
@@ -7041,9 +7037,7 @@ export const CreateElicitationResponse = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "The user accepted the elicitation and provided content.",
-  }),
+  ).annotateKey({ description: "The user accepted and provided content." }),
   S.StructWithRest(
     S.Struct({
       _meta: S.optionalKey(
@@ -7392,7 +7386,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "The active work ended successfully.\nIncludes locally handled commands that required no model call.",
+        "No foreground work is active. Background activity may continue.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7423,7 +7417,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "The active work ended because the agent reached the maximum number of tokens.",
+        "No foreground work is active. Background activity may continue.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7454,7 +7448,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "The active work ended because the agent reached the maximum number of\nallowed agent requests before returning idle.",
+        "No foreground work is active. Background activity may continue.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7485,7 +7479,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "The active work ended because the agent refused to continue. The user\nprompt and everything that comes after it won't be included in the next\nprompt, so this should be reflected in the UI.",
+        "No foreground work is active. Background activity may continue.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7516,7 +7510,7 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       description:
-        "Active session work was cancelled by the client via `session/cancel`.\n\nAgents MUST report this stop reason on an idle `state_update` when\ncancellation ends active foreground work, even if aborting causes\nexceptions. Agents MUST catch these errors and report `cancelled`, not\n`error`.",
+        "No foreground work is active. Background activity may continue.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7552,7 +7546,8 @@ export const StateUpdate = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      description: "Details of a failure that ended active work.",
+      description:
+        "No foreground work is active. Background activity may continue.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7594,7 +7589,7 @@ export const StateUpdate = S.Union([
     ).annotateKey({
       title: "other",
       description:
-        "Custom or future stop reason.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.",
+        "No foreground work is active. Background activity may continue.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -7622,7 +7617,8 @@ export const StateUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       title: "none",
-      description: "No stop reason: `stopReason` is omitted or `null`.",
+      description:
+        "No foreground work is active. Background activity may continue.",
     }),
   ]),
   S.StructWithRest(
@@ -7642,10 +7638,7 @@ export const StateUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "The foreground workflow as a whole is blocked on user action.\n\nAgents SHOULD report this state when foreground work cannot progress without\nuser action. Pending permissions or elicitations alone do not imply this\nstate if other foreground work can progress, or if the requests belong only\nto independent background activity. Once reported, agents MUST report\n`running` when progress resumes, or `idle` if the work ends without resuming.\nResponding to one request does not itself imply `running`.",
-  }),
+  ).annotateKey({ description: "Foreground work is blocked on user action." }),
   S.StructWithRest(
     S.Struct({
       state: S.tag("unknown"),
@@ -7665,7 +7658,7 @@ export const StateUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nThe Agent cannot currently determine foreground activity.\n\nReport this when activity becomes unobservable, not merely because the session\nhas been quiet. The Client MUST stop presenting the previous state as confirmed\ncurrent activity, but may retain it as last known. A later state replaces this\nsnapshot normally.\n\nThis is not a task outcome or session closure. It does not cancel work, resolve\npending requests, or revoke capabilities; capabilities are updated separately.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nThe Agent cannot currently determine foreground activity.\nThis replaces previously confirmed activity without ending the work or session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -7817,7 +7810,7 @@ export const PlanUpdateContent = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "A plan represented as structured entries." }),
+  ).annotateKey({ description: "Structured plan entries." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("file"),
@@ -7844,7 +7837,7 @@ export const PlanUpdateContent = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA plan represented by a file URI.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA URI pointing to a file containing the plan.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -7871,7 +7864,7 @@ export const PlanUpdateContent = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA plan represented as raw markdown content.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nRaw markdown content for the plan.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -8085,7 +8078,7 @@ export const MultiSelectItems = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description: "String item schema for multi-select enum properties.",
+    description: "Multi-select string items with plain string values.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -8403,7 +8396,10 @@ export const ContentBlock = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "Text provided to or from an LLM." }),
+  ).annotateKey({
+    description:
+      "Text content. May be plain text or formatted with Markdown.\n\nAll agents MUST support text content blocks in prompts.\nClients SHOULD render this text as Markdown.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("image"),
@@ -8443,7 +8439,10 @@ export const ContentBlock = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "An image provided to or from an LLM." }),
+  ).annotateKey({
+    description:
+      "Images for visual context or analysis.\n\nRequires the `image` prompt capability when included in prompts.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("audio"),
@@ -8474,7 +8473,10 @@ export const ContentBlock = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "Audio provided to or from an LLM." }),
+  ).annotateKey({
+    description:
+      "Audio data for transcription or analysis.\n\nRequires the `audio` prompt capability when included in prompts.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("resource_link"),
@@ -8548,7 +8550,7 @@ export const ContentBlock = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "A resource that the server is capable of reading, included in a prompt or tool call result.",
+      "References to resources that the agent can access.\n\nAll agents MUST support resource links in prompts.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -8580,7 +8582,7 @@ export const ContentBlock = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "The contents of a resource, embedded into a prompt or tool call result.",
+      "Complete resource contents embedded directly in the message.\n\nPreferred for including context as it avoids extra round-trips.\n\nRequires the `embeddedContext` prompt capability when included in prompts.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -8812,7 +8814,7 @@ export const ElicitationPropertySchema = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      'Schema for string properties in an elicitation form.\n\nWhen `enum` or `oneOf` is set, this represents a single-select enum\nwith `"type": "string"`.',
+      "String property (or single-select enum when `enum`/`oneOf` is set).",
   }),
   S.StructWithRest(
     S.Struct({
@@ -8879,10 +8881,7 @@ export const ElicitationPropertySchema = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "Schema for number (floating-point) properties in an elicitation form.",
-  }),
+  ).annotateKey({ description: "Number (floating-point) property." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("integer"),
@@ -8948,9 +8947,7 @@ export const ElicitationPropertySchema = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Schema for integer properties in an elicitation form.",
-  }),
+  ).annotateKey({ description: "Integer property." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("boolean"),
@@ -8995,9 +8992,7 @@ export const ElicitationPropertySchema = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description: "Schema for boolean properties in an elicitation form.",
-  }),
+  ).annotateKey({ description: "Boolean property." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("array"),
@@ -9075,10 +9070,7 @@ export const ElicitationPropertySchema = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "Schema for multi-select (array) properties in an elicitation form.",
-  }),
+  ).annotateKey({ description: "Multi-select array property." }),
   S.StructWithRest(
     S.Struct({
       type: S.String.annotateKey({
@@ -9396,10 +9388,7 @@ export const ToolCallContent = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "File changes produced by a tool call.\n\n`changes` is authoritative for affected absolute paths and operations.\n`patch` optionally carries renderable text for some or all of those changes\nand MUST be consistent with `changes`. Agents SHOULD provide `patch` whenever\nfeasible. Clients MUST handle diffs where `patch` is omitted or `null`.\n\nSee protocol docs: [Content](https://agentclientprotocol.com/protocol/v2/draft/tool-calls#content)",
-  }),
+  ).annotateKey({ description: "File modification shown as a diff." }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("terminal"),
@@ -9421,8 +9410,7 @@ export const ToolCallContent = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description:
-      "A display-only reference to an agent-owned terminal.\n\nTerminal state and output are delivered separately through\n[`TerminalUpdate`] and [`TerminalOutputChunk`].",
+    description: "A display-only reference to an agent-owned terminal.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -9656,10 +9644,7 @@ export const SessionConfigOption = S.Union([
       ).annotateKey({ description: "The set of selectable options." }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "A single-value selector (dropdown) session configuration option payload.",
-  }),
+  ).annotateKey({ description: "Single-value selector (dropdown)." }),
   S.StructWithRest(
     S.Struct({
       configId: S.suspend(
@@ -9702,10 +9687,7 @@ export const SessionConfigOption = S.Union([
       }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "A boolean on/off toggle session configuration option payload.",
-  }),
+  ).annotateKey({ description: "Boolean on/off toggle." }),
   S.StructWithRest(
     S.Struct({
       configId: S.suspend(
@@ -10354,7 +10336,9 @@ export const SessionUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "A streamed item of message content." }),
+  ).annotateKey({
+    description: "A chunk of the user's message being streamed.",
+  }),
   S.StructWithRest(
     S.Struct({
       sessionUpdate: S.tag("user_message"),
@@ -10385,7 +10369,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "A user message upsert.\n\nOnly [`UserMessage::message_id`] is required. `content` has patch semantics:\nan omitted field leaves existing message content unchanged, `null` clears the\nvalue, and a concrete array replaces the previous value. For a new\n`messageId`, omitted fields use client defaults. `content` is replaced as a\nwhole array; send `[]` or `null` to clear it.\n\nMessage updates and chunks are applied in the order they are received. When\na `user_message` update includes `content`, that array replaces any content\npreviously accumulated for the message, including content from earlier\nchunks. Later chunks with the same `messageId` append to the current\ncontent.",
+      "A user message has been created or updated.\n\nAgents can send this when they accept or replay a user message. When a\nclient receives another `user_message` update with the same `messageId`,\nfields in the new update patch the previous fields for that message.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -10411,7 +10395,9 @@ export const SessionUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "A streamed item of message content." }),
+  ).annotateKey({
+    description: "A chunk of the agent's response being streamed.",
+  }),
   S.StructWithRest(
     S.Struct({
       sessionUpdate: S.tag("agent_message"),
@@ -10442,7 +10428,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "An agent message upsert.\n\nOnly [`AgentMessage::message_id`] is required. `content` has patch semantics:\nan omitted field leaves existing message content unchanged, `null` clears the\nvalue, and a concrete array replaces the previous value. For a new\n`messageId`, omitted fields use client defaults. `content` is replaced as a\nwhole array; send `[]` or `null` to clear it.\n\nMessage updates and chunks are applied in the order they are received. When\nan `agent_message` update includes `content`, that array replaces any\ncontent previously accumulated for the message, including content from\nearlier chunks. Later chunks with the same `messageId` append to the current\ncontent.",
+      "An agent message has been created or updated.\n\nAgents can send this in addition to streamed chunks. When a client\nreceives another `agent_message` update with the same `messageId`,\nfields in the new update patch the previous fields for that message.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -10468,7 +10454,9 @@ export const SessionUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "A streamed item of message content." }),
+  ).annotateKey({
+    description: "A chunk of the agent's internal reasoning being streamed.",
+  }),
   S.StructWithRest(
     S.Struct({
       sessionUpdate: S.tag("agent_thought"),
@@ -10500,7 +10488,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "An agent thought or reasoning message upsert.\n\nOnly [`AgentThought::message_id`] is required. `content` has patch semantics:\nan omitted field leaves existing thought content unchanged, `null` clears the\nvalue, and a concrete array replaces the previous value. For a new\n`messageId`, omitted fields use client defaults. `content` is replaced as a\nwhole array; send `[]` or `null` to clear it.\n\nMessage updates and chunks are applied in the order they are received. When\nan `agent_thought` update includes `content`, that array replaces any\ncontent previously accumulated for the thought, including content from\nearlier chunks. Later chunks with the same `messageId` append to the current\ncontent.",
+      "An agent thought or reasoning message has been created or updated.\n\nAgents can send this in addition to streamed chunks. When a client\nreceives another `agent_thought` update with the same `messageId`,\nfields in the new update patch the previous fields for that message.",
   }),
   S.Union([
     S.StructWithRest(
@@ -10521,7 +10509,9 @@ export const SessionUpdate = S.Union([
         ),
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-    ).annotateKey({ description: "Foreground work is in progress." }),
+    ).annotateKey({
+      description: "A snapshot of the session's aggregate foreground activity.",
+    }),
     S.Union([
       S.StructWithRest(
         S.Struct({
@@ -10553,7 +10543,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "The active work ended successfully.\nIncludes locally handled commands that required no model call.",
+          "A snapshot of the session's aggregate foreground activity.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10585,7 +10575,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "The active work ended because the agent reached the maximum number of tokens.",
+          "A snapshot of the session's aggregate foreground activity.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10617,7 +10607,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "The active work ended because the agent reached the maximum number of\nallowed agent requests before returning idle.",
+          "A snapshot of the session's aggregate foreground activity.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10649,7 +10639,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "The active work ended because the agent refused to continue. The user\nprompt and everything that comes after it won't be included in the next\nprompt, so this should be reflected in the UI.",
+          "A snapshot of the session's aggregate foreground activity.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10681,7 +10671,7 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         description:
-          "Active session work was cancelled by the client via `session/cancel`.\n\nAgents MUST report this stop reason on an idle `state_update` when\ncancellation ends active foreground work, even if aborting causes\nexceptions. Agents MUST catch these errors and report `cancelled`, not\n`error`.",
+          "A snapshot of the session's aggregate foreground activity.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10718,7 +10708,8 @@ export const SessionUpdate = S.Union([
         }),
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
-        description: "Details of a failure that ended active work.",
+        description:
+          "A snapshot of the session's aggregate foreground activity.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10761,7 +10752,7 @@ export const SessionUpdate = S.Union([
       ).annotateKey({
         title: "other",
         description:
-          "Custom or future stop reason.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.",
+          "A snapshot of the session's aggregate foreground activity.",
       }),
       S.StructWithRest(
         S.Struct({
@@ -10790,7 +10781,8 @@ export const SessionUpdate = S.Union([
         [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
       ).annotateKey({
         title: "none",
-        description: "No stop reason: `stopReason` is omitted or `null`.",
+        description:
+          "A snapshot of the session's aggregate foreground activity.",
       }),
     ]),
     S.StructWithRest(
@@ -10812,8 +10804,7 @@ export const SessionUpdate = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      description:
-        "The foreground workflow as a whole is blocked on user action.\n\nAgents SHOULD report this state when foreground work cannot progress without\nuser action. Pending permissions or elicitations alone do not imply this\nstate if other foreground work can progress, or if the requests belong only\nto independent background activity. Once reported, agents MUST report\n`running` when progress resumes, or `idle` if the work ends without resuming.\nResponding to one request does not itself imply `running`.",
+      description: "A snapshot of the session's aggregate foreground activity.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -10834,8 +10825,7 @@ export const SessionUpdate = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      description:
-        "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nThe Agent cannot currently determine foreground activity.\n\nReport this when activity becomes unobservable, not merely because the session\nhas been quiet. The Client MUST stop presenting the previous state as confirmed\ncurrent activity, but may retain it as last known. A later state replaces this\nsnapshot normally.\n\nThis is not a task outcome or session closure. It does not cancel work, resolve\npending requests, or revoke capabilities; capabilities are updated separately.",
+      description: "A snapshot of the session's aggregate foreground activity.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -10858,8 +10848,7 @@ export const SessionUpdate = S.Union([
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
       title: "other",
-      description:
-        "Custom or future session state.\n\nValues beginning with `_` are reserved for implementation-specific\nextensions. Unknown values that do not begin with `_` are reserved for\nfuture ACP variants.",
+      description: "A snapshot of the session's aggregate foreground activity.",
     }),
   ]),
   S.StructWithRest(
@@ -10888,8 +10877,7 @@ export const SessionUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description:
-      "A streamed item of tool-call content.\n\nTool-call content chunks append one [`ToolCallContent`] item to the current\ncontent for the matching [`ToolCallId`]. Agents can use\n[`ToolCallUpdate::content`] when they need to replace the whole content\ncollection instead.",
+    description: "A chunk of tool-call content being streamed.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -10969,10 +10957,7 @@ export const SessionUpdate = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({
-    description:
-      "Represents an upsert for a tool call that the language model has requested.\n\nTool calls are actions that the agent executes on behalf of the language model,\nsuch as reading files, executing code, or fetching data from external sources.\n\nOnly [`ToolCallUpdate::tool_call_id`] is required. Other fields have patch semantics:\nomitted fields leave the existing tool call value unchanged, `null` clears or\nunsets the value, and concrete values replace the previous value. For\ncollection fields, concrete arrays replace the previous collection, and both\n`null` and `[]` clear the collection. A concrete `_meta` object instead\npatches the stored metadata by top-level key. When a client receives a tool\ncall ID it has not seen before, omitted fields use client defaults.\n\nSee protocol docs: [Tool Calls](https://agentclientprotocol.com/protocol/v2/draft/tool-calls)",
-  }),
+  ).annotateKey({ description: "A tool call has been created or updated." }),
   S.StructWithRest(
     S.Struct({
       sessionUpdate: S.tag("terminal_update"),
@@ -11017,8 +11002,7 @@ export const SessionUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description:
-      "An upsert for the stored state of an agent-owned terminal.\n\nOnly [`TerminalUpdate::terminal_id`] is required. Other fields have patch\nsemantics: omitted fields leave the stored value unchanged, `null` clears\nit, and concrete values replace it. A concrete `_meta` object instead\npatches the stored metadata by top-level key. When the terminal ID is new,\nomitted fields start unknown.",
+    description: "An agent-owned terminal has been created or updated.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11069,7 +11053,8 @@ export const SessionUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description: "A content update for a plan identified by ID.",
+    description:
+      "A content update for a plan identified by ID.\nSee protocol docs: [Agent Plan](https://agentclientprotocol.com/protocol/v2/draft/agent-plan)",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11180,7 +11165,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "Update to session metadata. All fields are optional to support partial updates.\n\nAgents send this notification to update session information like title or custom metadata.\nThis allows clients to display dynamic session names and track session state changes.\n\nOmitted fields leave the existing session info unchanged. `null` clears the\ncorresponding value. A concrete `_meta` object patches the stored metadata by\ntop-level key.",
+      "Session metadata has been updated (title, timestamps, custom metadata)",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11221,7 +11206,7 @@ export const SessionUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description: "Context window and cost update for a session.",
+    description: "Context window and cost update for the session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11262,7 +11247,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "Fire-and-forget information for the user.\n\nNotices are live events rather than session history. Agents must not rely on\na notice being received, displayed, or seen by the user.\nNo Client capability is required, and unsupported Clients may ignore notices.\n\nSee RFD: [Session Notices](https://agentclientprotocol.com/rfds/session-notices)",
+      "Information for the user that is not part of session history.\n\nNo Client capability is required. Clients that do not understand or\npresent notices may ignore them.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11308,8 +11293,7 @@ export const SessionUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description:
-      "A context compaction upsert. The first notification fixes the compaction's\ntimeline position. Later updates with the same ID patch that entity in place.\n\n`summary`, `error`, and `_meta` have patch semantics: omission leaves the\nstored value unchanged, `null` clears it, and a concrete value replaces it.\n`summary: []` also clears the summary. A concrete `_meta` object patches the\nstored metadata by top-level key instead of replacing it.",
+    description: "A context compaction has been created or updated.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11339,7 +11323,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "A content block appended to a compaction's summary. A first-seen ID creates\nan in-progress compaction. Chunks append in receive order.",
+      "A content block appended to a context compaction's retained summary.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11394,7 +11378,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nNotification that the enclosing parent session created and owns a child session.\n\nLater updates modify the existing association's metadata, not its ownership.\n\nSent on the immediate parent session. The first update for an unknown\n[`SubagentUpdate::session_id`] announces the child and MUST be sent\nbefore any live request or notification bearing the child's session ID,\nincluding messages naming it as sender or recipient. Child events are\ndelivered automatically; no separate child load, resume, or subscription is needed.\nUnderstanding this update, registering child sessions, and applying their\noperation restrictions are baseline v2 requirements; no Client capability\nis required.\n\nOnly [`SubagentUpdate::session_id`] is required. Other fields have\npatch semantics: omitted fields leave the stored value unchanged, `null`\nclears or unsets the value, and concrete values replace it. A concrete\n`_meta` object instead patches the stored metadata by top-level key. For\n`state`, `null` removes the current state report and leaves activity\nunconfirmed; it does not report idle or cancellation. A child whose capabilities are\nunset permits no Client-initiated session mutations.\n\nThe title and description provide the parent's display metadata for the\nchild. Agents SHOULD mirror known child state changes in the parent's\n[`SubagentUpdate::state`] using the same [`StateUpdate`] snapshot as the\nordinary `state_update` notification on the child session. This reports\nchild state, not a separate parent-owned lifecycle. Consumers should\ntreat duplicate reports idempotently.\nCompleting or cancelling work does not end the association: the parent may\nmessage the same child again. Individual messages and their outcomes do not\nchange this association.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nAnnounces a child session created and owned by this session, or updates\nthat ownership association's metadata.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11440,7 +11424,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nAn upsert for an inter-session message.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA message upsert observed in this session's transcript, sent to or\nreceived from another session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11480,7 +11464,7 @@ export const SessionUpdate = S.Union([
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
     description:
-      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nA streamed content block of an inter-session message.",
+      "**UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nOne content block appended to a sent or received session message.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -11849,7 +11833,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Session",
       description:
-        "Tied to a session, optionally to a specific tool call within that session.",
+        "Form-based elicitation where the client renders a form from the provided schema.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -11884,7 +11868,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Request",
       description:
-        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+        "Form-based elicitation where the client renders a form from the provided schema.",
     }),
   ]),
   S.Union([
@@ -11930,7 +11914,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Session",
       description:
-        "Tied to a session, optionally to a specific tool call within that session.",
+        "URL-based elicitation where the client directs the user to a URL.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -11968,7 +11952,7 @@ export const CreateElicitationRequest = S.Union([
     ).annotateKey({
       title: "Request",
       description:
-        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+        "URL-based elicitation where the client directs the user to a URL.",
     }),
   ]),
   S.Union([
@@ -12105,7 +12089,9 @@ export const RequestPermissionSubject = S.Union([
       }),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "Permission request details for a tool call." }),
+  ).annotateKey({
+    description: "Permission is requested before executing a tool call.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.tag("command"),
@@ -12141,7 +12127,9 @@ export const RequestPermissionSubject = S.Union([
       ),
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
-  ).annotateKey({ description: "Permission request details for a command." }),
+  ).annotateKey({
+    description: "Permission is requested before running a command.",
+  }),
   S.StructWithRest(
     S.Struct({
       type: S.String.annotateKey({
@@ -14621,7 +14609,8 @@ export const IdleStateUpdate = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
-    description: "Details of a failure that ended active work.",
+    description:
+      "The active work ended because something failed.\n\nThis includes pre-insertion foreground work. A prompt failure before\ninsertion also requires an error response to `session/prompt`; after\ninsertion, the prompt's response remains successful.",
   }),
   S.StructWithRest(
     S.Struct({

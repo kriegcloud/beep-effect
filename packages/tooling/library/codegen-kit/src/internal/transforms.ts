@@ -483,8 +483,9 @@ const mergeObjectSchemas = (left: Record<string, unknown>, right: Record<string,
 };
 
 // A `$ref` survives only beside annotation-only siblings; otherwise its target is inlined, on
-// either side, so the result does not depend on `allOf` member order. `none` when neither side
-// is a reference.
+// either side. Member annotations merge left to right; distributeNode applies the outer
+// `allOf` annotations last, so they win regardless of member order. `none` when neither
+// side is a reference.
 const mergeReference = (
   left: Record<string, unknown>,
   right: Record<string, unknown>,
@@ -494,7 +495,7 @@ const mergeReference = (
     const { $ref, ...siblings } = right;
     return O.some(
       isAnnotationOnly(left)
-        ? { ...right, ...left }
+        ? { ...left, ...right }
         : mergeIntersection(left, mergeIntersection(inline($ref), siblings, inline), inline)
     );
   }
@@ -536,9 +537,15 @@ const mergeOverlappingProperties = (
 
 const distributeNode = (node: Record<string, unknown>, inline: (ref: string) => unknown): unknown => {
   const { allOf, anyOf, ...base } = node;
+  const annotations = R.filter(base, (_, key) => isAnnotationKeyword(key));
+  const constraints = R.filter(base, (_, key) => !isAnnotationKeyword(key));
   const combined = A.isArray(allOf)
-    ? A.reduce(allOf, base, (current: Record<string, unknown>, part: unknown) =>
-        mergeIntersection(current, part, inline)
+    ? mergeIntersection(
+        A.reduce(allOf, constraints, (current: Record<string, unknown>, part: unknown) =>
+          mergeIntersection(current, part, inline)
+        ),
+        annotations,
+        inline
       )
     : base;
   if (A.isArray(anyOf) && !A.isArray(allOf) && isAnnotationOnly(base)) return { ...base, anyOf };
