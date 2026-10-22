@@ -14,16 +14,18 @@ command -v jq >/dev/null 2>&1 || exit 0
 event="$(printf '%s' "$payload" | jq -r '.hook_event_name // empty' 2>/dev/null || true)"
 session_id="$(printf '%s' "$payload" | jq -r '.session_id // "anonymous"' 2>/dev/null || printf 'anonymous')"
 
-root="${BEEP_YEET_HOOK_ROOT:-${CLAUDE_PROJECT_DIR:-}}"
+root="${BEEP_YEET_HOOK_ROOT:-}"
 if [ -z "$root" ]; then
   root="$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null || true)"
 fi
 if [ -z "$root" ]; then
-  root="$PWD"
+  root="${PWD:-${CLAUDE_PROJECT_DIR:-}}"
 fi
 
 # Hooks can fire from a package directory. Walk to the checkout without
 # invoking git, so a failure boundary never waits on repository plumbing.
+# CLAUDE_PROJECT_DIR can name the owning clone for a linked worktree session;
+# the payload cwd (or process cwd) identifies the invoking checkout instead.
 while [ "$root" != "/" ] && [ ! -e "$root/.git" ]; do
   root="${root%/*}"
   [ -n "$root" ] || root="/"
