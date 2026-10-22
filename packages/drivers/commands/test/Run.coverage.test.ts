@@ -8,6 +8,7 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const withLayer =
   <R, E2, R2>(layer: Layer.Layer<R, E2, R2>) =>
@@ -38,10 +39,10 @@ it.effect("failure rendering handles missing causes, empty streams, stdout fallb
       CommandFailedError.make({ ...nonZero, stdout: "  " }).message,
       'Command "tool arg" failed (exit 2)'
     );
-    const long = CommandFailedError.make({ ...nonZero, stderr: "x".repeat(2001) });
+    const long = CommandFailedError.make({ ...nonZero, stderr: Str.repeat(2001)("x") });
     assert.strictEqual(
       long.message,
-      `Command "tool arg" failed (exit 2) :\n...[1 chars truncated from head]...\n${"x".repeat(2000)}`
+      `Command "tool arg" failed (exit 2) :\n...[1 chars truncated from head]...\n${Str.repeat(2000)("x")}`
     );
     assert.strictEqual(
       CommandOutputError.make({ kind: "schema", command: "tool", exitCode: 3, stderr: " " }).message,

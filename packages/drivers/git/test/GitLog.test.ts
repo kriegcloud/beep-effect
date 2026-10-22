@@ -14,6 +14,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { scripted } from "./fixtures.ts";
 import type { GitStubs } from "@beep/git/Git";
 import type { ScriptResult } from "./fixtures.ts";
@@ -45,8 +46,8 @@ const record = (
   return paths.length === 0 ? header : `${header}\n${A.join(paths, "\0")}\0`;
 };
 
-const SHA_A = "a".repeat(40);
-const SHA_B = "b".repeat(40);
+const SHA_A = Str.repeat(40)("a");
+const SHA_B = Str.repeat(40)("b");
 
 describe("Git.log", () => {
   it.effect("decodes a record's five header fields and its --name-only paths", () =>

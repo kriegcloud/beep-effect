@@ -875,22 +875,329 @@ const isNativeFileSystemOperation = (
 
 const harnessCallbackKinds = HashSet.fromIterable([SyntaxKind.ArrowFunction, SyntaxKind.FunctionExpression]);
 
+const isFunctionValue = (node: MorphNode | undefined): node is EffectVitestFunctionNode =>
+  Node.isArrowFunction(node) || Node.isFunctionExpression(node);
+
+// `Effect.fn(name)(body)`, `Effect.fn(body)` and `Effect.fnUntraced(body)` with no pipeline stages
+// keep the caller's context; any extra stage could provide another FileSystem.
+const effectFunctionBody = (call: CallExpression, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  const [body, ...stages] = call.getArguments();
+  if (!isFunctionValue(body) || !A.isReadonlyArrayEmpty(stages)) return O.none();
+  const callee = call.getExpression();
+  const named = Node.isCallExpression(callee) && isProvenanceCall(callee, imports, EFFECT_MODULES, "Effect", ["fn"]);
+  return named || isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["fn", "fnUntraced"])
+    ? O.some(body)
+    : O.none();
+};
+
+const helperBody = (binding: MorphNode, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  if (Node.isFunctionDeclaration(binding)) return O.some(binding);
+  if (!Node.isVariableDeclaration(binding) || binding.getVariableStatement()?.getDeclarationKind() !== "const")
+    return O.none();
+  const initializer = binding.getInitializer();
+  if (isFunctionValue(initializer)) return O.some(initializer);
+  return Node.isCallExpression(initializer) ? effectFunctionBody(initializer, imports) : O.none();
+};
+
+const isPublicLayerProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, ["@beep/test-utils", "@beep/test-utils/Layer"], "provideScopedLayer", [
+    "provideScopedLayer",
+  ]);
+
+// Every effect/Effect combinator that provides or rewrites services for the effect it wraps.
+const effectContextProviders = ["provide", "provideContext", "setContext", "updateContext"];
+// Service-keyed providers name the one service they replace.
+const effectServiceProviders = ["provideService", "provideServiceEffect", "updateService", "updateServiceScoped"];
+
+// One classifier for any call that provides or rewrites context: the public
+// `provideScopedLayer` helper plus every effect/Effect provide and update combinator.
+const isContextProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isPublicLayerProvider(call, imports) ||
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", [...effectContextProviders, ...effectServiceProviders]);
+
+// `updateServiceScoped(key, f, options?)` always leads with the key; the others take
+// `(self, key, value)` data-first and `(key, value)` or `(key)` data-last.
+const serviceKey = (call: CallExpression, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", effectServiceProviders)) return O.none();
+  const args = call.getArguments();
+  const leading = isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["updateServiceScoped"]);
+  return O.fromUndefinedOr(args[!leading && args.length === 3 ? 1 : 0]);
+};
+
+const importedName = (declaration: ImportDeclaration, local: string): string =>
+  O.getOrElse(
+    O.map(
+      A.findFirst(
+        declaration.getNamedImports(),
+        (specifier) => (specifier.getAliasNode()?.getText() ?? specifier.getName()) === local
+      ),
+      (specifier) => specifier.getName()
+    ),
+    () => local
+  );
+
+// A key proves another service only when it is an imported tag that is not FileSystem:
+// not from effect/FileSystem, not imported as FileSystem, and not a `.FileSystem` member.
+const keysOtherService = (key: MorphNode, imports: EffectVitestImports): boolean => {
+  const access = Node.isPropertyAccessExpression(key);
+  const root = access ? key.getExpression() : key;
+  if (!Node.isIdentifier(root) || (access && key.getName() === "FileSystem")) return false;
+  return O.exists(
+    O.filter(imports.resolveBinding(root), Node.isImportDeclaration),
+    (declaration) =>
+      declaration.getModuleSpecifierValue() !== "effect/FileSystem" &&
+      importedName(declaration, root.getText()) !== "FileSystem"
+  );
+};
+
+// A provider replaces FileSystem unless its service key provably names another service.
+const replacesFileSystem = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isContextProvider(call, imports) && !O.exists(serviceKey(call, imports), (key) => keysOtherService(key, imports));
+
+// A pipe stage is a provider call, or the curried `provideService(key)(value)` form.
+const isProviderStage = (stage: MorphNode, imports: EffectVitestImports): boolean => {
+  if (!Node.isCallExpression(stage)) return false;
+  const callee = stage.getExpression();
+  return replacesFileSystem(stage, imports) || (Node.isCallExpression(callee) && replacesFileSystem(callee, imports));
+};
+
+const providesContext = (helper: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  A.some(callbackCalls(helper), (call) => replacesFileSystem(call, imports));
+
+const containsNode = (outer: MorphNode, inner: MorphNode): boolean =>
+  outer === inner || A.some(inner.getAncestors(), (ancestor) => ancestor === outer);
+
+// A pipe whose input holds the call and whose later stages include a provider.
+const pipesThroughProvider = (pipe: CallExpression, call: MorphNode, imports: EffectVitestImports): boolean => {
+  const callee = pipe.getExpression();
+  if (Node.isPropertyAccessExpression(callee) && callee.getName() === "pipe")
+    return (
+      containsNode(callee.getExpression(), call) &&
+      A.some(pipe.getArguments(), (stage) => isProviderStage(stage, imports))
+    );
+  if (!isProvenanceCall(pipe, imports, ["effect", "effect/Function"], "Function", ["pipe"])) return false;
+  const [input, ...stages] = pipe.getArguments();
+  return input !== undefined && containsNode(input, call) && A.some(stages, (stage) => isProviderStage(stage, imports));
+};
+
+// True when a provider or update wrapper encloses this call site within its region,
+// either taking it as an argument or piping it through a provider stage.
+const wrappedByProvider = (call: MorphNode, region: MorphNode, imports: EffectVitestImports): boolean =>
+  A.some(
+    A.takeWhile(call.getAncestors(), (ancestor) => ancestor !== region),
+    (ancestor) =>
+      Node.isCallExpression(ancestor) &&
+      ((isProviderStage(ancestor, imports) &&
+        A.some(ancestor.getArguments(), (argument) => containsNode(argument, call))) ||
+        pipesThroughProvider(ancestor, call, imports))
+  );
+
+const isYieldStar = (node: MorphNode | undefined): boolean =>
+  Node.isYieldExpression(node) && node.getAsteriskToken() !== undefined;
+
+// A call on an effect/Effect namespace (`Effect.map(program, f)`) keeps carrying its effect arguments.
+const isEffectModuleCall = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  const callee = call.getExpression();
+  if (!Node.isPropertyAccessExpression(callee)) return false;
+  const receiver = callee.getExpression();
+  return (
+    Node.isIdentifier(receiver) &&
+    O.exists(O.filter(imports.resolveBinding(receiver), Node.isImportDeclaration), (declaration) =>
+      A.contains(EFFECT_MODULES, declaration.getModuleSpecifierValue())
+    )
+  );
+};
+
+// `program.pipe(...stages)` carries the receiver on when no stage is a provider.
+const pipeCarrier = (access: MorphNode, node: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!Node.isPropertyAccessExpression(access) || access.getExpression() !== node || access.getName() !== "pipe")
+    return O.none();
+  const pipe = access.getParent();
+  return Node.isCallExpression(pipe) &&
+    pipe.getExpression() === access &&
+    !A.some(pipe.getArguments(), (stage) => isProviderStage(stage, imports))
+    ? O.some(pipe)
+    : O.none();
+};
+
+// `Effect.map(program, f)` and similar effect/Effect calls carry their effect arguments.
+const effectCallCarries = (parent: MorphNode | undefined, node: MorphNode, imports: EffectVitestImports): boolean =>
+  Node.isCallExpression(parent) &&
+  isArgumentOf(parent, node) &&
+  isEffectModuleCall(parent, imports) &&
+  !isProviderStage(parent, imports);
+
+// The expression that carries this effect value one step further, when the step adds no provider.
+const carriedBy = (node: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  const parent = node.getParent();
+  if (parent === undefined) return O.none();
+  if (Node.isParenthesizedExpression(parent) || Node.isArrayLiteralExpression(parent)) return O.some(parent);
+  return effectCallCarries(parent, node, imports) ? O.some(parent) : pipeCarrier(parent, node, imports);
+};
+
+// A function whose returned effect is run by its own caller: the region itself, whose call
+// sites are checked separately, or a test registration callback run by the harness.
+const returnsToRunner = (fn: MorphNode | undefined, region: MorphNode, imports: EffectVitestImports): boolean => {
+  if (fn === region) return true;
+  const registration = fn?.getParent();
+  return (
+    Node.isCallExpression(registration) &&
+    O.exists(classifyHarnessCall(registration, imports), (mode) => mode !== "layer")
+  );
+};
+
+type BindingCheck = {
+  readonly region: MorphNode;
+  readonly imports: EffectVitestImports;
+  readonly seen: Array<VariableDeclaration>;
+};
+
+// Where one effect value ends up. It is safe only when it is run by `yield*`, discarded,
+// returned to a runner, or bound to a `const` whose own uses are all safe.
+const flowsToNativeRun = (node: MorphNode, check: BindingCheck): boolean => {
+  let current = node;
+  for (let next = carriedBy(current, check.imports); O.isSome(next); next = carriedBy(current, check.imports))
+    current = next.value;
+  const parent = current.getParent();
+  if (isYieldStar(parent) || Node.isExpressionStatement(parent)) return true;
+  if (Node.isReturnStatement(parent))
+    return returnsToRunner(parent.getFirstAncestor(functionLike), check.region, check.imports);
+  if (Node.isArrowFunction(parent) && parent.getBody() === current)
+    return returnsToRunner(parent, check.region, check.imports);
+  return Node.isVariableDeclaration(parent) && parent.getInitializer() === current && effectBindingSafe(parent, check);
+};
+
+const functionLike = (node: MorphNode): boolean =>
+  Node.isArrowFunction(node) || Node.isFunctionExpression(node) || Node.isFunctionDeclaration(node);
+
+// A `const` holding an unrun effect: every reference must be resolvable and flow safely,
+// and none may sit under a provider. `let`, destructuring and escapes keep it opaque.
+const effectBindingSafe = (declaration: VariableDeclaration, check: BindingCheck): boolean => {
+  if (A.some(check.seen, (prior) => prior === declaration)) return true;
+  check.seen.push(declaration);
+  const name = declaration.getNameNode();
+  if (!Node.isIdentifier(name) || declaration.getVariableStatement()?.getDeclarationKind() !== "const") return false;
+  return A.every(
+    bindingReferences(declaration, name.getText(), check.imports),
+    (reference) => !wrappedByProvider(reference, check.region, check.imports) && flowsToNativeRun(reference, check)
+  );
+};
+
+// A `yield*` result binding: the helper already ran in the caller's context, so only a
+// reference placed under a provider can make the call site ambiguous.
+const resultBindingSafe = (declaration: VariableDeclaration, check: BindingCheck): boolean => {
+  const name = declaration.getNameNode();
+  return (
+    !Node.isIdentifier(name) ||
+    !A.some(bindingReferences(declaration, name.getText(), check.imports), (reference) =>
+      wrappedByProvider(reference, check.region, check.imports)
+    )
+  );
+};
+
+// One step from a value to its consumer: through `yield*` (the effect has then run) or a carrier.
+const valueStep = (
+  node: MorphNode,
+  imports: EffectVitestImports
+): O.Option<{ readonly next: MorphNode; readonly ran: boolean }> => {
+  const parent = node.getParent();
+  if (parent !== undefined && isYieldStar(parent)) return O.some({ next: parent, ran: true });
+  return O.map(carriedBy(node, imports), (next) => ({ next, ran: false }));
+};
+
+// Follows the helper call's value to its binding, if any, and checks every use of it.
+const boundValueSafe = (call: CallExpression, region: MorphNode, imports: EffectVitestImports): boolean => {
+  let current: MorphNode = call;
+  let ran = false;
+  for (let step = valueStep(current, imports); O.isSome(step); step = valueStep(current, imports)) {
+    current = step.value.next;
+    ran = ran || step.value.ran;
+  }
+  const parent = current.getParent();
+  const check: BindingCheck = { region, imports, seen: [] };
+  if (Node.isVariableDeclaration(parent) && parent.getInitializer() === current)
+    return ran ? resultBindingSafe(parent, check) : effectBindingSafe(parent, check);
+  // An unrun value must reach a native run like a bound one; an unknown function argument,
+  // object property, spread or assignment does not, so the helper stays unfollowed.
+  return ran || flowsToNativeRun(current, check);
+};
+
+// `updateServiceScoped` rewrites the rest of its scope, so it taints every call site in the region.
+const regionUpdatesScope = (calls: ReadonlyArray<CallExpression>, imports: EffectVitestImports): boolean =>
+  A.some(
+    calls,
+    (call) =>
+      isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["updateServiceScoped"]) &&
+      replacesFileSystem(call, imports)
+  );
+
+// A same-file helper called by name runs in the caller's context, so its
+// FileSystem reads count as the harness callback's own.
+const calledHelper = (call: CallExpression, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  const callee = call.getExpression();
+  return Node.isIdentifier(callee)
+    ? O.filter(
+        O.flatMap(imports.resolveBinding(callee), (binding) => helperBody(binding, imports)),
+        (helper) => !providesContext(helper, imports)
+      )
+    : O.none();
+};
+
+// Records FileSystem service bindings and calls lexically inside one region.
+const collectFileSystemEvidence = (
+  region: MorphNode,
+  imports: EffectVitestImports,
+  services: Array<VariableDeclaration>,
+  calls: Array<CallExpression>
+): void =>
+  region.forEachDescendant((node, traversal) => {
+    if (Node.isVariableDeclaration(node) && isFileSystemService(node, imports)) services.push(node);
+    if (Node.isCallExpression(node)) calls.push(node);
+    // Only these two syntax kinds can be harness callbacks; other descendants need no provenance lookup.
+    if (!HashSet.has(harnessCallbackKinds, node.getKind())) return;
+    const harness = node.getParentIfKind(SyntaxKind.CallExpression)?.getExpressionIfKind(SyntaxKind.CallExpression);
+    if (harness === undefined) return;
+    // A nested layer owns its callback's services and may replace FileSystem.
+    if (isHarnessMethodCall(harness, imports, "layer") && O.contains(harnessCallback(harness), node)) {
+      traversal.skip();
+    }
+  });
+
+// Queues each newly reached same-file helper once, so recursive helpers terminate.
+// A call site wrapped by a provider may run the helper against another FileSystem,
+// so its helper is not followed and the import stays flagged for review.
+const appendCalledHelpers = (
+  calls: ReadonlyArray<CallExpression>,
+  region: MorphNode,
+  regions: Array<MorphNode>,
+  imports: EffectVitestImports
+): void => {
+  if (regionUpdatesScope(calls, imports)) return;
+  for (const call of calls) {
+    // Resolve the helper first: the call-site checks walk references and run only for helper calls.
+    const helper = calledHelper(call, imports);
+    if (
+      O.isSome(helper) &&
+      !A.some(regions, (known) => known === helper.value) &&
+      !wrappedByProvider(call, region, imports) &&
+      boundValueSafe(call, region, imports)
+    )
+      regions.push(helper.value);
+  }
+};
+
 const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestImports): boolean =>
   O.exists(harnessCallback(flow.harness), (callback) => {
     const services = A.empty<VariableDeclaration>();
     const calls = A.empty<CallExpression>();
-    callback.forEachDescendant((node, traversal) => {
-      if (Node.isVariableDeclaration(node) && isFileSystemService(node, imports)) services.push(node);
-      if (Node.isCallExpression(node)) calls.push(node);
-      // Only these two syntax kinds can be harness callbacks; other descendants need no provenance lookup.
-      if (!HashSet.has(harnessCallbackKinds, node.getKind())) return;
-      const harness = node.getParentIfKind(SyntaxKind.CallExpression)?.getExpressionIfKind(SyntaxKind.CallExpression);
-      if (harness === undefined) return;
-      // A nested layer owns its callback's services and may replace FileSystem.
-      if (isHarnessMethodCall(harness, imports, "layer") && O.contains(harnessCallback(harness), node)) {
-        traversal.skip();
-      }
-    });
+    // The callback plus every same-file helper it reaches by name, each visited once;
+    // for-of also visits the helpers appended while it runs.
+    const regions: Array<MorphNode> = [callback];
+    for (const region of regions) {
+      const known = calls.length;
+      collectFileSystemEvidence(region, imports, services, calls);
+      appendCalledHelpers(A.drop(calls, known), region, regions, imports);
+    }
     return (
       !A.isReadonlyArrayEmpty(services) &&
       (flow.subject || A.some(calls, (call) => isNativeFileSystemOperation(call, services, imports)))
@@ -1059,11 +1366,6 @@ type DetectorState = {
   readonly file: string;
   readonly owner: string;
 };
-
-const isPublicLayerProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
-  isProvenanceCall(call, imports, ["@beep/test-utils", "@beep/test-utils/Layer"], "provideScopedLayer", [
-    "provideScopedLayer",
-  ]);
 
 const inspectContext = (call: CallExpression, member: string, canonicalMember: string, state: DetectorState) => {
   const { imports, harness, definitions } = state;

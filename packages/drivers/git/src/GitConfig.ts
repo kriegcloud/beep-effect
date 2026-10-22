@@ -13,6 +13,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   applySplice,
   GitConfigDiagnosticCode,
@@ -546,7 +547,7 @@ const valueEndSeparator = (text: string, offset: number, separator: string): str
 
 /** True for `[include]` (no subsection) and `[includeIf "<condition>"]` sections. */
 const isIncludeSection = (section: RawSection): boolean => {
-  const name = section.name.toLowerCase();
+  const name = Str.toLowerCase(section.name);
   return name === "include"
     ? section.subsection === undefined
     : name === "includeif" && section.subsection !== undefined;
@@ -1128,14 +1129,15 @@ const validateAddress: {
     // `[section.subsection]` form and splits at the first dot, so a dotted
     // name written here (`addSection("a.b")` → `[a.b]`) would re-parse as
     // section "a" subsection "b" and never match its own address again.
-    if (!isValidSectionName(section) || section.includes(".")) {
+    if (!isValidSectionName(section) || Str.includes(".")(section)) {
       return editError(op, "invalidSectionName", section, subsection, key);
     }
     if (subsection !== undefined && /[\n\r\0]/.test(subsection)) {
       return editError(op, "invalidSubsection", section, subsection, key);
     }
     if (key !== undefined && !isValidKey(key)) return editError(op, "invalidKey", section, subsection, key);
-    if (value?.includes("\0") === true) return editError(op, "invalidValue", section, subsection, key);
+    if (value !== undefined && Str.includes("\0")(value))
+      return editError(op, "invalidValue", section, subsection, key);
     return undefined;
   }
 );

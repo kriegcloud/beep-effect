@@ -14,6 +14,7 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -46,7 +47,7 @@ describe("GitConfig property floor", () => {
     ([entry]) =>
       Effect.gen(function* () {
         const canonical = Gitmodules.make({ entries: [entry] }).stringify();
-        const text = `\ufeff# preserved comment\r\n\r\n${canonical.replaceAll("\n", "\r\n")}# trailing comment`;
+        const text = `\ufeff# preserved comment\r\n\r\n${Str.replaceAll("\n", "\r\n")(canonical)}# trailing comment`;
         const parsed = yield* GitConfig.parse(text);
         assert.strictEqual(parsed.stringify(), text);
         const reparsed = yield* GitConfig.parse(parsed.stringify());
@@ -65,8 +66,8 @@ describe("GitConfig property floor", () => {
         const text = "# before\n[core]\n\turl = old # inline\n# after\n";
         const parsed = yield* GitConfig.parse(text);
         const edited = yield* Effect.fromResult(parsed.set("core", undefined, "url", entry.url));
-        assert.strictEqual(edited.stringify().startsWith("# before\n[core]\n\turl = "), true);
-        assert.strictEqual(edited.stringify().endsWith(" # inline\n# after\n"), true);
+        assert.strictEqual(Str.startsWith("# before\n[core]\n\turl = ")(edited.stringify()), true);
+        assert.strictEqual(Str.endsWith(" # inline\n# after\n")(edited.stringify()), true);
         assert.deepStrictEqual(edited.getAll("core", undefined, "url"), [entry.url]);
         const repeated = yield* Effect.fromResult(edited.set("core", undefined, "url", entry.url));
         assert.strictEqual(repeated.stringify(), edited.stringify());

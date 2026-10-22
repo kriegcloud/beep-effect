@@ -16,11 +16,13 @@ import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { fixtureText } from "./fixture-text.ts";
 
@@ -63,7 +65,7 @@ describe("Yaml", () => {
           for (const modifiers of ["2+", "+2", "2-", "-2"]) {
             assert.strictEqual(
               yield* Yaml.parse(`${indicator}${modifiers}\n  a\n`, YamlParseOptions.make({ strict: true })),
-              modifiers.includes("-") ? "a" : "a\n"
+              Str.includes("-")(modifiers) ? "a" : "a\n"
             );
           }
         }
@@ -203,8 +205,8 @@ describe("Yaml", () => {
           // pnpm emits `? 'key'` / `  : dependencies:` once the key exceeds
           // the 1024-char implicit-key limit; the whole entry is indented
           // inside the `snapshots:` mapping.
-          const k1 = `pkg-a@1.0.0(${"a".repeat(1100)})`;
-          const k2 = `pkg-b@2.0.0(${"b".repeat(1100)})`;
+          const k1 = `pkg-a@1.0.0(${Str.repeat(1100)("a")})`;
+          const k2 = `pkg-b@2.0.0(${Str.repeat(1100)("b")})`;
           const text = A.join(
             [
               "snapshots:",
@@ -337,7 +339,7 @@ describe("Yaml", () => {
         assert.instanceOf(first, YamlScalar);
         assert.ok(S.is(YamlScalar)(first));
         const scalar = first;
-        assert.strictEqual(text.slice(scalar.offset, scalar.offset + scalar.length), "'x'");
+        assert.strictEqual(Str.slice(scalar.offset, scalar.offset + scalar.length)(text), "'x'");
       })
     );
 
@@ -510,8 +512,8 @@ describe("Yaml", () => {
       // parsers reject the output. The expected bytes are oracle-authored
       // fixtures (yaml@2.9.0, generated once — see fixtures/explicit-key/
       // ORACLE.md); the reference package is not a dependency of this run.
-      const k1 = `pkg-a@1.0.0(${"a".repeat(1100)})`;
-      const k2 = `pkg-b@2.0.0(${"b".repeat(1100)})`;
+      const k1 = `pkg-a@1.0.0(${Str.repeat(1100)("a")})`;
+      const k2 = `pkg-b@2.0.0(${Str.repeat(1100)("b")})`;
       const fixture = (name: string): string => fixtureText(`explicit-key/${name}.yaml`);
 
       // Emit-side twins of PR #322's parse-side compact-value regression
@@ -533,8 +535,8 @@ describe("Yaml", () => {
             },
           },
         ],
-        ["boundary-1024-implicit", { ["k".repeat(1024)]: 1 }],
-        ["boundary-1025-explicit", { ["k".repeat(1025)]: 1 }],
+        ["boundary-1024-implicit", { [Str.repeat(1024)("k")]: 1 }],
+        ["boundary-1025-explicit", { [Str.repeat(1025)("k")]: 1 }],
       ];
 
       for (const [name, value] of cases) {
@@ -554,28 +556,28 @@ describe("Yaml", () => {
           // A leading space forces single-quoting under the default
           // quoteStyle, so a 1023-char source key renders as 1025 chars
           // (`'` + 1023 + `'`) and must spill…
-          const quoted1025 = ` ${"a".repeat(1022)}`;
+          const quoted1025 = ` ${Str.repeat(1022)("a")}`;
           const spilled = yield* Yaml.stringify({ [quoted1025]: 1 });
-          assert.isTrue(spilled.startsWith("? '"), "1025-char rendered key must spill");
+          assert.isTrue(Str.startsWith("? '")(spilled), "1025-char rendered key must spill");
           assert.deepStrictEqual(yield* Yaml.parse(spilled), { [quoted1025]: 1 });
           // …while a 1022-char source key renders as exactly 1024 chars and
           // stays implicit.
-          const quoted1024 = ` ${"a".repeat(1021)}`;
+          const quoted1024 = ` ${Str.repeat(1021)("a")}`;
           const implicit = yield* Yaml.stringify({ [quoted1024]: 1 });
-          assert.isFalse(implicit.startsWith("? "), "1024-char rendered key stays implicit");
+          assert.isFalse(Str.startsWith("? ")(implicit), "1024-char rendered key stays implicit");
           assert.deepStrictEqual(yield* Yaml.parse(implicit), { [quoted1024]: 1 });
         })
       );
 
       it.effect("flow context never spills — only block mappings have implicit-key limits", () =>
         Effect.gen(function* () {
-          const long = "f".repeat(1100);
+          const long = Str.repeat(1100)("f");
           const text = yield* Yaml.stringify(
             { [long]: 1 },
             YamlStringifyOptions.make({ defaultCollectionStyle: "flow" })
           );
           assert.notInclude(text, "? ");
-          assert.isTrue(text.startsWith("{"));
+          assert.isTrue(Str.startsWith("{")(text));
           assert.deepStrictEqual(yield* Yaml.parse(text), { [long]: 1 });
         })
       );
@@ -994,9 +996,9 @@ describe("Yaml", () => {
         it.effect(`quotes and round-trips a scalar containing a ${label}`, () =>
           Effect.gen(function* () {
             const text = yield* Yaml.stringify({ key: value });
-            const scalar = text.slice("key: ".length).trimEnd();
+            const scalar = Str.trimEnd(Str.slice("key: ".length)(text));
             assert.ok(
-              scalar.startsWith('"') || scalar.startsWith("'"),
+              Str.startsWith('"')(scalar) || Str.startsWith("'")(scalar),
               `expected a quoted scalar for ${label}, got plain: ${yield* S.encodeEffect(JsonString)(scalar)}`
             );
             assert.deepStrictEqual(yield* Yaml.parse(text), { key: value });
@@ -1010,7 +1012,10 @@ describe("Yaml", () => {
           // plain path. Block scalars can carry tabs and must keep doing so.
           const value = { key: "line one\n\tindented line\n" };
           const text = yield* Yaml.stringify(value);
-          assert.ok(text.includes("|"), `expected a block scalar, got: ${yield* S.encodeEffect(JsonString)(text)}`);
+          assert.ok(
+            Str.includes("|")(text),
+            `expected a block scalar, got: ${yield* S.encodeEffect(JsonString)(text)}`
+          );
           assert.deepStrictEqual(yield* Yaml.parse(text), value);
         })
       );
@@ -1056,7 +1061,7 @@ describe("Yaml", () => {
         Effect.gen(function* () {
           const value = { text: long };
           const wrapped = yield* Yaml.stringify(value, YamlStringifyOptions.make({ lineWidth: 30 }));
-          const lines = wrapped.trimEnd().split("\n");
+          const lines = Str.split("\n")(Str.trimEnd(wrapped));
           // Folding fired: the scalar spans several physical lines.
           assert.isAbove(lines.length, 1);
           // Each line stays near the target column (folding is approximate but
@@ -1075,7 +1080,7 @@ describe("Yaml", () => {
               value,
               YamlStringifyOptions.make({ lineWidth: 30, defaultScalarStyle })
             );
-            assert.isAbove(wrapped.trimEnd().split("\n").length, 1);
+            assert.isAbove(Str.split("\n")(Str.trimEnd(wrapped)).length, 1);
             assert.deepStrictEqual(yield* Yaml.parse(wrapped), value);
           }
         })
@@ -1084,11 +1089,11 @@ describe("Yaml", () => {
       it.effect("folds a scalar in a sequence item and at the document root", () =>
         Effect.gen(function* () {
           const seq = yield* Yaml.stringify([long], YamlStringifyOptions.make({ lineWidth: 30 }));
-          assert.isAbove(seq.trimEnd().split("\n").length, 1);
+          assert.isAbove(Str.split("\n")(Str.trimEnd(seq)).length, 1);
           assert.deepStrictEqual(yield* Yaml.parse(seq), [long]);
 
           const root = yield* Yaml.stringify(long, YamlStringifyOptions.make({ lineWidth: 30 }));
-          assert.isAbove(root.trimEnd().split("\n").length, 1);
+          assert.isAbove(Str.split("\n")(Str.trimEnd(root)).length, 1);
           assert.strictEqual(yield* Yaml.parse(root), long);
         })
       );
@@ -1099,7 +1104,7 @@ describe("Yaml", () => {
           // line must survive uncut so the literal round-trips byte-for-byte.
           const value = { text: `${long}\nsecond line` };
           const out = yield* Yaml.stringify(value, YamlStringifyOptions.make({ lineWidth: 20 }));
-          assert.isTrue(A.some(out.split("\n"), (l) => l.length > 40));
+          assert.isTrue(A.some(Str.split("\n")(out), (l) => l.length > 40));
           assert.deepStrictEqual(yield* Yaml.parse(out), value);
         })
       );
@@ -1125,7 +1130,7 @@ describe("Yaml", () => {
           const wrapped = yield* Yaml.stringify(value, YamlStringifyOptions.make({ lineWidth: 30 }));
           const unwrapped = yield* Yaml.stringify(value, YamlStringifyOptions.make({ lineWidth: 0 }));
           assert.notStrictEqual(wrapped, unwrapped);
-          assert.isAbove(wrapped.split("\n").length, unwrapped.split("\n").length);
+          assert.isAbove(Str.split("\n")(wrapped).length, Str.split("\n")(unwrapped).length);
         })
       );
     });
@@ -1243,7 +1248,10 @@ describe("Yaml", () => {
       const input = "a: 1 # comment\nb: 2";
       const stripped = Yaml.stripComments(input, " ");
       assert.strictEqual(stripped.length, input.length);
-      assert.strictEqual(stripped.indexOf("b: 2"), input.indexOf("b: 2"));
+      assert.strictEqual(
+        O.getOrElse(constant(-1))(Str.indexOf("b: 2")(stripped)),
+        O.getOrElse(constant(-1))(Str.indexOf("b: 2")(input))
+      );
     });
 
     it("treats # inside quoted scalars as content", () => {
@@ -1339,7 +1347,7 @@ describe("Yaml", () => {
     it.effect("deeply nested flow collections fail with NestingDepthExceeded, not a stack overflow", () =>
       Effect.gen(function* () {
         const n = 5000;
-        const error = yield* Effect.matchEffect(Yaml.parse(`${"[".repeat(n)}1${"]".repeat(n)}`), {
+        const error = yield* Effect.matchEffect(Yaml.parse(`${Str.repeat(n)("[")}1${Str.repeat(n)("]")}`), {
           onFailure: Effect.succeed,
           onSuccess: Effect.die,
         });
@@ -1350,7 +1358,7 @@ describe("Yaml", () => {
     it.effect("deeply nested block mappings fail with NestingDepthExceeded, not a stack overflow", () =>
       Effect.gen(function* () {
         let text = "";
-        for (let i = 0; i < 4000; i++) text += `${" ".repeat(i)}k:\n`;
+        for (let i = 0; i < 4000; i++) text += `${Str.repeat(i)(" ")}k:\n`;
         const error = yield* Effect.matchEffect(Yaml.parse(text), { onFailure: Effect.succeed, onSuccess: Effect.die });
         assert.isTrue(A.some(error.diagnostics, (d) => d.code === "NestingDepthExceeded"));
       })

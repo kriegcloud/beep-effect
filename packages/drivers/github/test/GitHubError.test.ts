@@ -1,6 +1,7 @@
 import { GitHubError, GitHubValidationEntry, readRateLimitHeaders } from "@beep/github/GitHubError";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Str from "effect/String";
 
 /** Builds the shape octokit's RequestError actually throws. */
 const thrown = (options: {
@@ -109,7 +110,7 @@ describe("GitHubError.fromOctokit", () => {
   }
 
   it("classifies duplicate prose beyond the displayed reason limit", () => {
-    const prefix = "x".repeat(501);
+    const prefix = Str.repeat(501)("x");
     for (const status of [409, 422]) {
       const original = thrown({
         status,
@@ -118,7 +119,7 @@ describe("GitHubError.fromOctokit", () => {
       });
       const error = GitHubError.fromOctokit("duplicate", original, NOW);
       assert.strictEqual(error.kind, "alreadyExists");
-      assert.strictEqual(error.reason, `${"x".repeat(500)}…`);
+      assert.strictEqual(error.reason, `${Str.repeat(500)("x")}…`);
       assert.strictEqual(error.validation?.[0]?.message, "detail");
       assert.strictEqual(error.cause, original);
     }
@@ -332,9 +333,9 @@ describe("GitHubError.fromOctokit", () => {
   });
 
   it("truncates an absurdly long reason", () => {
-    const error = GitHubError.fromOctokit("x", thrown({ status: 500, message: "x".repeat(5000) }), NOW);
+    const error = GitHubError.fromOctokit("x", thrown({ status: 500, message: Str.repeat(5000)("x") }), NOW);
     assert.isBelow(error.reason.length, 600);
-    assert.isTrue(error.reason.endsWith("…"));
+    assert.isTrue(Str.endsWith("…")(error.reason));
   });
 
   it("keeps the original throwable on cause", () => {

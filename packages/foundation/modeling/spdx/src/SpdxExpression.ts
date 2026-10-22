@@ -16,6 +16,7 @@ import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import { parse as parseRaw } from "./internal/parser.ts";
 import { InvalidSpdxExpressionError, License } from "./License.ts";
+import type * as Data from "effect/Data";
 import type { RawExpression, RawSimpleLicense } from "./internal/parser.ts";
 
 const $I = $SpdxId.create("SpdxExpression");
@@ -26,16 +27,19 @@ const $I = $SpdxId.create("SpdxExpression");
  * and the encoded form produced by {@link (SpdxExpression:variable).FromString}'s encode
  * side are structurally identical, ONE serializer walks either representation.
  */
-type SpdxNode =
-  | { readonly _tag: "License"; readonly id: string; readonly plus: boolean }
-  | { readonly _tag: "LicenseRef"; readonly documentRef?: string; readonly ref: string }
-  | {
-      readonly _tag: "WithException";
-      readonly license: typeof LicenseNode.Encoded | typeof LicenseRefNode.Encoded;
-      readonly exception: string;
-    }
-  | { readonly _tag: "And"; readonly left: SpdxNode; readonly right: SpdxNode }
-  | { readonly _tag: "Or"; readonly left: SpdxNode; readonly right: SpdxNode };
+type SpdxNode = Data.TaggedEnum<{
+  License: { readonly id: string; readonly plus: boolean };
+  LicenseRef: {
+    readonly documentRef?: string;
+    readonly ref: string;
+  };
+  WithException: {
+    readonly license: typeof LicenseNode.Encoded | typeof LicenseRefNode.Encoded;
+    readonly exception: string;
+  };
+  And: { readonly left: SpdxNode; readonly right: SpdxNode };
+  Or: { readonly left: SpdxNode; readonly right: SpdxNode };
+}>;
 
 /**
  * Serialize a tagged SPDX AST node — a class instance OR its encoded POJO — to
@@ -76,7 +80,12 @@ const serialize: (node: SpdxNode) => string = Match.type<SpdxNode>().pipe(
  * @category models
  * @since 0.0.0
  */
-export class LicenseNode extends S.TaggedClass<LicenseNode, { readonly brand: unique symbol }>($I`LicenseNode`)(
+export class LicenseNode extends S.TaggedClass<
+  LicenseNode,
+  {
+    readonly brand: unique symbol;
+  }
+>($I`LicenseNode`)(
   "License",
   {
     /** The SPDX short identifier, e.g. `"MIT"` or `"Apache-2.0"`. */
@@ -114,6 +123,26 @@ export class LicenseNode extends S.TaggedClass<LicenseNode, { readonly brand: un
 }
 
 /**
+ * Companion types for {@link LicenseNode}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace LicenseNode {
+  /**
+   * Encoded license identifier and its optional later-version marker.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "License";
+    readonly id: string;
+    readonly plus: boolean;
+  }
+}
+
+/**
  * A `LicenseRef`/`DocumentRef` reference leaf. The `LicenseRef-`/`DocumentRef-`
  * prefixes and the `:` separator are structural and are not stored; only the
  * bare idstrings are kept, so the node round-trips to canonical form without
@@ -132,9 +161,12 @@ export class LicenseNode extends S.TaggedClass<LicenseNode, { readonly brand: un
  * @category models
  * @since 0.0.0
  */
-export class LicenseRefNode extends S.TaggedClass<LicenseRefNode, { readonly brand: unique symbol }>(
-  $I`LicenseRefNode`
-)(
+export class LicenseRefNode extends S.TaggedClass<
+  LicenseRefNode,
+  {
+    readonly brand: unique symbol;
+  }
+>($I`LicenseRefNode`)(
   "LicenseRef",
   {
     /** The `DocumentRef-` idstring when the reference is document-scoped; absent otherwise. */
@@ -172,6 +204,26 @@ export class LicenseRefNode extends S.TaggedClass<LicenseRefNode, { readonly bra
 }
 
 /**
+ * Companion types for {@link LicenseRefNode}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace LicenseRefNode {
+  /**
+   * Encoded custom license reference, optionally scoped to an external document.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "LicenseRef";
+    readonly documentRef?: undefined | string;
+    readonly ref: string;
+  }
+}
+
+/**
  * A `license WITH exception` node. Per the SPDX grammar, `WITH` binds to a
  * simple expression — a license identifier (optionally `+`) or a
  * `LicenseRef`/`DocumentRef` reference — never a compound expression, so
@@ -193,9 +245,12 @@ export class LicenseRefNode extends S.TaggedClass<LicenseRefNode, { readonly bra
  * @category models
  * @since 0.0.0
  */
-export class WithExceptionNode extends S.TaggedClass<WithExceptionNode, { readonly brand: unique symbol }>(
-  $I`WithExceptionNode`
-)(
+export class WithExceptionNode extends S.TaggedClass<
+  WithExceptionNode,
+  {
+    readonly brand: unique symbol;
+  }
+>($I`WithExceptionNode`)(
   "WithException",
   {
     /** The license the exception applies to: a simple license (which may carry the `+` marker) or a `LicenseRef` reference. */
@@ -260,7 +315,12 @@ export class WithExceptionNode extends S.TaggedClass<WithExceptionNode, { readon
  * @category models
  * @since 0.0.0
  */
-export class AndNode extends S.TaggedClass<AndNode, { readonly brand: unique symbol }>($I`AndNode`)(
+export class AndNode extends S.TaggedClass<
+  AndNode,
+  {
+    readonly brand: unique symbol;
+  }
+>($I`AndNode`)(
   "And",
   {
     /** The left operand. */
@@ -320,7 +380,12 @@ export class AndNode extends S.TaggedClass<AndNode, { readonly brand: unique sym
  * @category models
  * @since 0.0.0
  */
-export class OrNode extends S.TaggedClass<OrNode, { readonly brand: unique symbol }>($I`OrNode`)(
+export class OrNode extends S.TaggedClass<
+  OrNode,
+  {
+    readonly brand: unique symbol;
+  }
+>($I`OrNode`)(
   "Or",
   {
     /** The left operand. */
@@ -388,7 +453,12 @@ function materializeSimple(raw: RawSimpleLicense): LicenseNode | LicenseRefNode 
   return raw.kind === "license"
     ? LicenseNode.make({ id: raw.id, plus: raw.plus })
     : LicenseRefNode.make(
-        raw.documentRef !== undefined ? { documentRef: raw.documentRef, ref: raw.ref } : { ref: raw.ref }
+        raw.documentRef !== undefined
+          ? {
+              documentRef: raw.documentRef,
+              ref: raw.ref,
+            }
+          : { ref: raw.ref }
       );
 }
 
@@ -405,8 +475,16 @@ const materialize: (raw: RawExpression) => SpdxExpression = Match.type<RawExpres
         license: materializeSimple(raw.license),
         exception: raw.exception,
       }),
-    and: (raw) => AndNode.make({ left: materialize(raw.left), right: materialize(raw.right) }),
-    or: (raw) => OrNode.make({ left: materialize(raw.left), right: materialize(raw.right) }),
+    and: (raw) =>
+      AndNode.make({
+        left: materialize(raw.left),
+        right: materialize(raw.right),
+      }),
+    or: (raw) =>
+      OrNode.make({
+        left: materialize(raw.left),
+        right: materialize(raw.right),
+      }),
   })
 );
 

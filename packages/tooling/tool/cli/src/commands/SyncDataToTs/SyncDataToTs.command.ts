@@ -401,7 +401,7 @@ const patchSummaryRows = (result: SyncDataTargetResult): ReadonlyArray<ReadonlyA
       result.targetId,
       operation.op,
       humanizeJsonPointer(operation.path),
-      "value" in operation ? formatJson(operation.value).trimEnd() : "",
+      "value" in operation ? Str.trimEnd(formatJson(operation.value)) : "",
     ])
   );
 

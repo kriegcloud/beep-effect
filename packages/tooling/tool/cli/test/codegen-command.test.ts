@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const runCodegenCommand = Command.runWith(codegenCommand, { version: "0.0.0" });
@@ -65,7 +66,7 @@ describe("codegen command", () => {
 
       yield* runCodegenCommand(["barrel", "--package", packageDir]);
       const first = yield* fs.readFileString(path.join(srcDir, "index.ts"));
-      expect(first.startsWith(`${header}\n`)).toBe(true);
+      expect(Str.startsWith(`${header}\n`)(first)).toBe(true);
       expect(first).toContain(`${modelDoc}\nexport * from "./Model.ts";`);
       expect(first).toContain('/**\n * @since 0.0.0\n */\nexport * from "./View.ts";');
 

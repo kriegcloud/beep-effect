@@ -12,16 +12,21 @@ import { A, O, Struct } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import { assertInstanceOf } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
-import { flow } from "effect/Function";
+import { constant, flow } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const encodeUnknownJsonSync = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
 
 const hex = (seed: string, length: number): string => {
   const digits = "0123456789abcdef";
   return A.join(
-    A.map(A.range(0, length - 1), (index) => digits[(seed.charCodeAt(index % seed.length) + index) % 16] ?? "0"),
+    A.map(
+      A.range(0, length - 1),
+      (index) =>
+        digits[(O.getOrElse(Str.charCodeAt(index % seed.length)(seed), constant(Number.NaN)) + index) % 16] ?? "0"
+    ),
     ""
   );
 };
@@ -224,7 +229,7 @@ describe("codex findings payload rejection", () => {
 
   it.effect("rejects an over-length title rather than truncating it", () =>
     Effect.gen(function* () {
-      expect(yield* rejects(payloadOf([captureFinding({ codexId: hex("aa", 32), title: "x".repeat(301) })]))).toBe(
+      expect(yield* rejects(payloadOf([captureFinding({ codexId: hex("aa", 32), title: Str.repeat(301)("x") })]))).toBe(
         "rejected"
       );
     })

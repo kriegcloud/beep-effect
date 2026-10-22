@@ -419,7 +419,7 @@ class EvidenceKey extends S.Opaque<EvidenceKey, { readonly brand: unique symbol 
 
 /** argv for a version probe: the flag string split on whitespace. */
 const probeArgs = (probe: VersionProbe): ReadonlyArray<string> =>
-  probe._tag === "VersionNone" ? ["--version"] : A.filter(probe.flag.split(/\s+/), (part) => part.length > 0);
+  probe._tag === "VersionNone" ? ["--version"] : A.filter(Str.split(/\s+/)(probe.flag), (part) => part.length > 0);
 
 /** Non-throwing JSON boundary over unknown input. */
 const UnknownJson = S.fromJsonString(S.Unknown);
@@ -581,7 +581,7 @@ const make = Effect.fnUntraced(function* () {
   const resolve = Effect.fn("ToolDiscovery.resolve")(function* (tool: Tool) {
     yield* Effect.annotateCurrentSpan({ tool: tool.name, source: tool.source });
     // Pre-spawn guard: argv position zero is not a place to accept a flag.
-    if (tool.name === "" || tool.name.startsWith("-")) {
+    if (tool.name === "" || Str.startsWith("-")(tool.name)) {
       return yield* ToolRefusedError.make({ tool: tool.name });
     }
 
