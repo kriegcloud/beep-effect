@@ -13,6 +13,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $GithubId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
@@ -31,6 +32,7 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import githubAppJwt from "universal-github-app-jwt";
 import { GitHubClient, makeClientShape } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
@@ -686,8 +688,11 @@ const makeApp: {
           : Effect.gen(function* () {
               const all = yield* installations(request);
               if (request.owner !== undefined) {
-                const wanted = request.owner.toLowerCase();
-                const match = A.findFirst(all, (entry) => entry.account?.toLowerCase() === wanted);
+                const wanted = Str.toLowerCase(request.owner);
+                const match = A.findFirst(
+                  all,
+                  (entry) => entry.account !== undefined && Str.toLowerCase(entry.account) === wanted
+                );
                 if (O.isSome(match)) return match.value.id;
                 return yield* GitHubAppError.of(
                   "installation",

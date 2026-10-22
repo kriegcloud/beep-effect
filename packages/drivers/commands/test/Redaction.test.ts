@@ -5,6 +5,7 @@ import * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const secret = (value: string) => Redacted.make(value);
 
@@ -114,15 +115,15 @@ describe("Redaction properties", () => {
   // and "aa***bb" scrubbed of "a***b" IS "a***b". A placeholder can always be
   // re-formed from itself and its neighbours; that is a documented limitation
   // rather than a defect.
-  const secretValue = Arbitrary.schema(S.NonEmptyString).pipe(Arbitrary.filter((s) => !s.includes("*")));
+  const secretValue = Arbitrary.schema(S.NonEmptyString).pipe(Arbitrary.filter((s) => !Str.includes("*")(s)));
 
   it.prop("no secret value survives apply", [secretValue, S.String, S.String], ([value, before, after]) => {
     const text = `${before}${value}${after}`;
-    return !Redaction.apply(text, [secret(value)]).includes(value);
+    return !Str.includes(value)(Redaction.apply(text, [secret(value)]));
   });
 
   it.prop("no secret value survives applyArgs, in any position", [secretValue, S.Array(S.String)], ([value, rest]) => {
     const args = [...rest, value, `prefix-${value}-suffix`];
-    return A.every(Redaction.applyArgs(args, [secret(value)]), (arg) => !arg.includes(value));
+    return A.every(Redaction.applyArgs(args, [secret(value)]), (arg) => !Str.includes(value)(arg));
   });
 });

@@ -29,7 +29,13 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { formatCommandLine, repoRunOutputBound, runCaptured, runCapturedStreams } from "../process/StepExec.ts";
+import {
+  formatCommandLine,
+  OutputBound,
+  repoRunOutputBound,
+  runCaptured,
+  runCapturedStreams,
+} from "../process/StepExec.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as PlatformError from "effect/PlatformError";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -359,6 +365,13 @@ const structuredCapture = (cwd: string): Omit<RunCapturedStreamsOptions, "comman
   trim: true,
 });
 
+// Large merges can contain thousands of long filenames. Only the machine-read
+// path stream gets this budget; stderr and general Git output keep their cap.
+const gitPathOutputBound = OutputBound.make({
+  maxChars: 8 * 1024 * 1024,
+  truncatedNotice: "\n[repo-run] Git filename inventory exceeded 8 MiB",
+});
+
 const failFromOutcome = <E>(
   outcome: GitCaptureOutcome,
   commandLine: string,
@@ -428,7 +441,9 @@ export const runGitOutput = Effect.fn("GitExec.runGitOutput")(function* <E>(
  * **Details**
  *
  * Reads stdout alone. `-z` records are machine-read, so a zero-exit diagnostic on stderr must not
- * become a phantom path; stderr surfaces only in the nonzero-exit message.
+ * become a phantom path; stderr surfaces only in the nonzero-exit message. Filename stdout is
+ * bounded at 8 MiB, while stderr retains the generic repo-run bound. Configured truncation
+ * adapters still reject incomplete inventories rather than parsing their clipped paths.
  *
  * **Example** (List staged paths)
  *
@@ -458,7 +473,7 @@ export const runGitPathList = Effect.fn("GitExec.runGitPathList")(function* <E>(
   args: ReadonlyArray<string>,
   adapter: GitCommandErrorAdapter<E>
 ): Effect.fn.Return<ReadonlyArray<string>, E, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
-  const output = yield* runGitStructured(args, adapter, structuredCapture(cwd));
+  const output = yield* runGitStructured(args, adapter, { ...structuredCapture(cwd), stdoutBound: gitPathOutputBound });
   return gitPathListFromNulOutput(output);
 });
 

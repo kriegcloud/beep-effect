@@ -3906,15 +3906,15 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/codegen-command.test.ts:75:provideScopedLayer@27#1",
+      "id": "EV002:packages/tooling/tool/cli/test/codegen-command.test.ts:76:provideScopedLayer@27#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/codegen-command.test.ts",
-      "line": 75,
-      "endLine": 75,
+      "line": 76,
+      "endLine": 76,
       "symbol": "provideScopedLayer",
-      "occurrence": "v2:fc42990324421f0cdb45c6886a087c9b72874feb846f395dc07859e07282b790",
+      "occurrence": "v2:3b15823ab052ea371aeb494b2ec2da2d230c610538f20966f8aeff0462aced70",
       "class": "unresolved-layer-provide",
       "evidence": "provideScopedLayer(testLayer)",
       "replacement": {
@@ -4937,13 +4937,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/qa-judge-skill.test.ts:33:provideScopedLayer@11#1",
+      "id": "EV002:packages/tooling/tool/cli/test/qa-judge-skill.test.ts:34:provideScopedLayer@11#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/qa-judge-skill.test.ts",
-      "line": 33,
-      "endLine": 33,
+      "line": 34,
+      "endLine": 34,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:e1855fd3e3ef30dd8d7456b0ac6fdf3dad231fe762a31629a2197db58665aff2",
       "class": "unresolved-layer-provide",
@@ -5357,13 +5357,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/setup-effect-ref.test.ts:79:provide@55#1",
+      "id": "EV002:packages/tooling/tool/cli/test/setup-effect-ref.test.ts:80:provide@55#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/setup-effect-ref.test.ts",
-      "line": 79,
-      "endLine": 79,
+      "line": 80,
+      "endLine": 80,
       "symbol": "provide",
       "occurrence": "v2:e1d472e6a2ce089671ff0f2c8a539b15d9da5bc0e90f8efbb4922291a5020e91",
       "class": "unresolved-layer-provide",
@@ -13734,15 +13734,15 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/codegen-command.test.ts:75:scoped@12#1",
+      "id": "EV004:packages/tooling/tool/cli/test/codegen-command.test.ts:76:scoped@12#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/codegen-command.test.ts",
-      "line": 75,
-      "endLine": 75,
+      "line": 76,
+      "endLine": 76,
       "symbol": "scoped",
-      "occurrence": "v2:fc42990324421f0cdb45c6886a087c9b72874feb846f395dc07859e07282b790",
+      "occurrence": "v2:3b15823ab052ea371aeb494b2ec2da2d230c610538f20966f8aeff0462aced70",
       "class": "helper-scope-lifetime-review",
       "evidence": "Effect.scoped",
       "replacement": {
@@ -14390,13 +14390,13 @@
       "reason": "The it.layer block shares one NodeServices/TestConsole build (only the test Scope is fresh per test); neither case asserts TestConsole lines because captureOutput swaps Console; withScratchCheckout keeps its own shorter scope for native Git clone/worktree cleanup."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/setup-effect-ref.test.ts:84:scoped@12#1",
+      "id": "EV004:packages/tooling/tool/cli/test/setup-effect-ref.test.ts:85:scoped@12#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/setup-effect-ref.test.ts",
-      "line": 84,
-      "endLine": 84,
+      "line": 85,
+      "endLine": 85,
       "symbol": "scoped",
       "occurrence": "v2:e1d472e6a2ce089671ff0f2c8a539b15d9da5bc0e90f8efbb4922291a5020e91",
       "class": "inner-helper-scope-lifetime-review",
@@ -21345,28 +21345,6 @@
       "reason": "The test compares real scoped temporary-file bytes with the checked-in generated artifact. Preserve native Node filesystem services and test-owned cleanup; a MemoryFS substitute changes the subject."
     },
     {
-      "id": "EV010:packages/drivers/libpff/test/Libpff.pffexport.test.ts:19:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/libpff",
-      "file": "packages/drivers/libpff/test/Libpff.pffexport.test.ts",
-      "line": 19,
-      "endLine": 19,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Retain the actual NodeServices platform: native subprocess spawning, filesystem/PATH/shebang/symlink behavior and crypto-backed artifact identities remain the test subjects. Bubblewrap executes when present; absent PST is explicitly skipped. An in-memory filesystem or stubbed process layer would not prove these boundaries."
-    },
-    {
       "id": "EV010:packages/drivers/libpff/test/Libpff.service.test.ts:21:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -21666,49 +21644,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Effect FileSystem hashes host migration SQL that native drizzle reads through node:fs. Keep shared host-visible fixture content, ordered journal assertions and sequential registration."
-    },
-    {
-      "id": "EV010:packages/drivers/tesseract/test/Tesseract.test.ts:15:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/tesseract",
-      "file": "packages/drivers/tesseract/test/Tesseract.test.ts",
-      "line": 15,
-      "endLine": 15,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV010:packages/drivers/tika/test/Tika.tikaapp.test.ts:8:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/tika",
-      "file": "packages/drivers/tika/test/Tika.tikaapp.test.ts",
-      "line": 8,
-      "endLine": 8,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Retain NodeServices for real temporary executable files, actual child processes and snapshot-versus-locator proof in tika-app, and native fixture files plus real HTTP in the opt-in server suite. Injected HTTP unit tests no longer provide NodeServices. Shell stubs are not JVM/JAR conformance; absent live URL is explicit non-execution, not parser proof."
     },
     {
       "id": "EV010:packages/drivers/tika/test/integration/Tika.server.live.test.ts:7:@effect/platform-node@0#1",
@@ -23278,28 +23213,6 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/cache-dispatch.test.ts:37:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/cache-dispatch.test.ts",
-      "line": 37,
-      "endLine": 37,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeCrypto, NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Native platform services retain real Bun.write output/error and bounded request safety behavior; the baseline-request property law uses MemoryFileSystem."
-    },
-    {
       "id": "EV010:packages/tooling/tool/cli/test/cache-entrypoints.test.ts:14:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -23429,27 +23342,6 @@
       "reason": "Reviewed in goals/turborepo-task-qualification/research/test-resource-boundaries.md. Protocol worker tests use real scoped filesystem roots and the real local HTTP fixture to check bounded capture traversal, native-summary selection and output containment. Filesystem, path, crypto and HTTP services are explicit it.layer providers with real-clock services for socket progress. Native process execution is controlled and fails closed if the seam is bypassed; this is not native protocol qualification."
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/cache-qualification.test.ts:22:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/cache-qualification.test.ts",
-      "line": 22,
-      "endLine": 22,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeCrypto, NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV010:packages/tooling/tool/cli/test/cache-signed-runner.test.ts:19:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -23491,28 +23383,6 @@
       "confidence": 0.55,
       "mechanization": "judgment",
       "status": "open"
-    },
-    {
-      "id": "EV010:packages/tooling/tool/cli/test/cache-workflow.test.ts:33:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/cache-workflow.test.ts",
-      "line": 33,
-      "endLine": 33,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeCrypto, NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Reviewed in goals/turborepo-task-qualification/research/test-resource-boundaries.md. Workflow identity tests create real Git repositories and verify native executable permissions, symlinks, ignored files and source-root containment. NodeServices and NodeCrypto are explicit it.layer providers. A simulated filesystem would not establish these Git and native path properties."
     },
     {
       "id": "EV010:packages/tooling/tool/cli/test/changeset-graph.test.ts:9:@effect/platform-node@0#1",
@@ -23643,13 +23513,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/ci-rerun-runner-loss.test.ts:23:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/ci-rerun-runner-loss.test.ts:28:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/ci-rerun-runner-loss.test.ts",
-      "line": 23,
-      "endLine": 23,
+      "line": 28,
+      "endLine": 28,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -23862,27 +23732,6 @@
       "file": "packages/tooling/tool/cli/test/create-package-identity-template.test.ts",
       "line": 3,
       "endLine": 3,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV010:packages/tooling/tool/cli/test/create-package-lab.test.ts:24:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/create-package-lab.test.ts",
-      "line": 24,
-      "endLine": 24,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -24194,27 +24043,6 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/frozen-grant-set.test.ts:5:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/frozen-grant-set.test.ts",
-      "line": 5,
-      "endLine": 5,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV010:packages/tooling/tool/cli/test/gate-order-handoff.test.ts:32:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -24362,27 +24190,6 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/graft-cache-sync.test.ts:12:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/graft-cache-sync.test.ts",
-      "line": 12,
-      "endLine": 12,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV010:packages/tooling/tool/cli/test/graft-deep-refresh.test.ts:28:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -24411,27 +24218,6 @@
       "file": "packages/tooling/tool/cli/test/identity-registration-removal.test.ts",
       "line": 14,
       "endLine": 14,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV010:packages/tooling/tool/cli/test/image-command.test.ts:6:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 6,
-      "endLine": 6,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -24636,28 +24422,6 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/labs-list.test.ts:7:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/labs-list.test.ts",
-      "line": 7,
-      "endLine": 7,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "NodeServices is intentional for the temporary workspace and live labs manifest directory scan. Four tests pass on Node and Bun."
-    },
-    {
       "id": "EV010:packages/tooling/tool/cli/test/laws-package.test.ts:12:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -24722,28 +24486,6 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/lint-tsconfig-overlay.test.ts:6:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/lint-tsconfig-overlay.test.ts",
-      "line": 6,
-      "endLine": 6,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "NodeServices is intentional for temporary on-disk tsconfig JSONC fixtures and the live CLI filesystem scan. Seven tests pass on Node and Bun."
-    },
-    {
       "id": "EV010:packages/tooling/tool/cli/test/lint-workers.test.ts:7:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -24786,27 +24528,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Retain native NodeServices for actual physical stream/sink wx/a staging flags and atomic rename/install. No Memory substitution or unexercised DB/lock/symlink claim."
-    },
-    {
-      "id": "EV010:packages/tooling/tool/cli/test/models-check.test.ts:25:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/models-check.test.ts",
-      "line": 25,
-      "endLine": 25,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeCrypto, NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
     },
     {
       "id": "EV010:packages/tooling/tool/cli/test/models-locators.test.ts:16:@effect/platform-node@0#1",
@@ -25405,27 +25126,6 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/research-timers.test.ts:17:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/research-timers.test.ts",
-      "line": 17,
-      "endLine": 17,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV010:packages/tooling/tool/cli/test/residue-reap.test.ts:12:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -25498,27 +25198,6 @@
       "file": "packages/tooling/tool/cli/test/roadmap-refs.test.ts",
       "line": 8,
       "endLine": 8,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV010:packages/tooling/tool/cli/test/run-scope.test.ts:10:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/run-scope.test.ts",
-      "line": 10,
-      "endLine": 10,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -25730,27 +25409,6 @@
       "file": "packages/tooling/tool/cli/test/skills-relock.test.ts",
       "line": 39,
       "endLine": 39,
-      "symbol": "@effect/platform-node",
-      "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
-      "class": "platform-resource-provenance-review",
-      "evidence": "import { NodeCrypto, NodeServices } from \"@effect/platform-node\";",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV010:packages/tooling/tool/cli/test/skills-review.test.ts:51:@effect/platform-node@0#1",
-      "lens": "resource",
-      "ruleId": "EV010",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/skills-review.test.ts",
-      "line": 51,
-      "endLine": 51,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
       "class": "platform-resource-provenance-review",
@@ -26504,13 +26162,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:31:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:34:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 31,
-      "endLine": 31,
+      "line": 34,
+      "endLine": 34,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -33739,13 +33397,13 @@
       "status": "open"
     },
     {
-      "id": "EV014:packages/tooling/tool/cli/test/jsdoc-migrate.test.ts:516:it.layer@2#1",
+      "id": "EV014:packages/tooling/tool/cli/test/jsdoc-migrate.test.ts:525:it.layer@2#1",
       "lens": "resource",
       "ruleId": "EV014",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/jsdoc-migrate.test.ts",
-      "line": 516,
-      "endLine": 516,
+      "line": 525,
+      "endLine": 525,
       "symbol": "it.layer",
       "occurrence": "v2:adde87b3cea194e67845863579f1dd6c88f4dd07cdcc9e424c2f6532dfceb2e4",
       "class": "resource-layer-without-hook-timeout",
@@ -33760,13 +33418,13 @@
       "status": "open"
     },
     {
-      "id": "EV014:packages/tooling/tool/cli/test/jsdoc-migrate.test.ts:594:it.layer@0#1",
+      "id": "EV014:packages/tooling/tool/cli/test/jsdoc-migrate.test.ts:603:it.layer@0#1",
       "lens": "resource",
       "ruleId": "EV014",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/jsdoc-migrate.test.ts",
-      "line": 594,
-      "endLine": 594,
+      "line": 603,
+      "endLine": 603,
       "symbol": "it.layer",
       "occurrence": "v2:a89b1e78c45bedf8a3258011f033d22feff5b86130a606259073c0b4103b30c7",
       "class": "resource-layer-without-hook-timeout",
@@ -33781,13 +33439,13 @@
       "status": "open"
     },
     {
-      "id": "EV014:packages/tooling/tool/cli/test/jsdoc-migrate.test.ts:680:it.layer@0#1",
+      "id": "EV014:packages/tooling/tool/cli/test/jsdoc-migrate.test.ts:689:it.layer@0#1",
       "lens": "resource",
       "ruleId": "EV014",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/jsdoc-migrate.test.ts",
-      "line": 680,
-      "endLine": 680,
+      "line": 689,
+      "endLine": 689,
       "symbol": "it.layer",
       "occurrence": "v2:5ffe973fa9a45f61b922d8c3809bef687e28db279d12b075ef0f2ad98d2c549a",
       "class": "resource-layer-without-hook-timeout",
@@ -36574,13 +36232,13 @@
       "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
     },
     {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-gh-rest-first.test.ts:253:TestClock.adjust@13#1",
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-gh-rest-first.test.ts:312:TestClock.adjust@13#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/yeet-gh-rest-first.test.ts",
-      "line": 253,
-      "endLine": 253,
+      "line": 312,
+      "endLine": 312,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:3b442ccfb4f15cccd300c61cec4f5659a295f52e039d59ea50df7503eaf6ee09",
       "class": "shared-test-clock-adjustment",
@@ -36680,13 +36338,13 @@
       "status": "open"
     },
     {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1122:TestClock.adjust@13#1",
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1135:TestClock.adjust@13#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 1122,
-      "endLine": 1122,
+      "line": 1135,
+      "endLine": 1135,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:16af695d6fdd2c50ed44ebc1644b55d8fbbbf2ef74b2adb092cf2a9008c9f844",
       "class": "shared-test-clock-adjustment",
@@ -36702,13 +36360,13 @@
       "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
     },
     {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1126:TestClock.adjust@13#1",
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1139:TestClock.adjust@13#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 1126,
-      "endLine": 1126,
+      "line": 1139,
+      "endLine": 1139,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:f5f72453e622f338e0862cd4adf4696a1dc053d28b030d2d8f26aab9f844d320",
       "class": "shared-test-clock-adjustment",
@@ -36724,13 +36382,13 @@
       "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
     },
     {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1147:TestClock.adjust@13#1",
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1160:TestClock.adjust@13#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 1147,
-      "endLine": 1147,
+      "line": 1160,
+      "endLine": 1160,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:7764f481f1365b5a4273608abe4b751cdc34356a2d93d8d9ca1319b390c0a040",
       "class": "shared-test-clock-adjustment",
@@ -36746,13 +36404,13 @@
       "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
     },
     {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1176:TestClock.adjust@13#1",
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1189:TestClock.adjust@13#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 1176,
-      "endLine": 1176,
+      "line": 1189,
+      "endLine": 1189,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:5e21b25388c7682b6f1c4a8ae9855d334f4c5d65d7513ddacb5f7fe24a5fb5fb",
       "class": "shared-test-clock-adjustment",

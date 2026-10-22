@@ -279,6 +279,57 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync Effect Ca
     );
 
     it.effect(
+      "preserves the reviewed coverage runtime pins while reporting lookalike drift",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectoryScoped();
+        const workflowDir = path.join(tmpDir, ".github", "workflows");
+        yield* fs.makeDirectory(workflowDir, { recursive: true });
+        yield* fs.writeFileString(path.join(tmpDir, ".nvmrc"), "24.22.0\n");
+        yield* fs.writeFileString(
+          path.join(workflowDir, "check.yml"),
+          A.join(
+            [
+              "jobs:",
+              "  test-unit-shard:",
+              "    steps:",
+              "      - with:",
+              '          node-version: "22.22.3"',
+              "  coverage-regression:",
+              "    steps:",
+              "      - with:",
+              '          node-version: "22.22.3"',
+              "  ordinary-check:",
+              "    steps:",
+              "      - with:",
+              '          node-version: "22.22.3"',
+            ],
+            "\n"
+          )
+        );
+        const pinned = yield* resolveNodeVersions(tmpDir);
+        expect(A.map(pinned.workflowLocations, (location) => location.jobName)).toEqual(["ordinary-check"]);
+        expect(buildNodeReport(pinned).items).toHaveLength(1);
+
+        yield* fs.writeFileString(
+          path.join(workflowDir, "other.yml"),
+          'jobs:\n  coverage-regression:\n    steps:\n      - with:\n          node-version: "22.22.3"\n'
+        );
+        yield* fs.writeFileString(
+          path.join(workflowDir, "check.yml"),
+          'jobs:\n  test-unit-shard:\n    steps:\n      - with:\n          node-version: "20.11.1"\n'
+        );
+        const drift = yield* resolveNodeVersions(tmpDir);
+        expect(drift.workflowLocations).toHaveLength(2);
+        const report = buildNodeReport(drift);
+        expect(report.status).toBe("drift");
+        expect(A.map(report.items, (item) => item.current)).toEqual(expect.arrayContaining(["20.11.1", "22.22.3"]));
+        expect(A.map(report.items, (item) => item.expected)).toEqual(["24.22.0", "24.22.0"]);
+      })
+    );
+
+    it.effect(
       "skips templated node-version values that fall back to .nvmrc at runtime",
       Effect.fn(function* () {
         const fs = yield* FileSystem.FileSystem;

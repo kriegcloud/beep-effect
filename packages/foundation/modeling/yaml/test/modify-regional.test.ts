@@ -10,8 +10,10 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const modify = YamlFormat.modify;
 const modifyToString = YamlFormat.modifyToString;
@@ -44,7 +46,7 @@ describe("YamlFormat.modify region-confined scalar replacement (#659)", () => {
       assert.strictEqual(edits.length, 1);
       const edit = edits[0];
       assert.isDefined(edit);
-      assert.strictEqual(text.slice(edit.offset, edit.offset + edit.length), "'2020-01-01T00:00:00Z'");
+      assert.strictEqual(Str.slice(edit.offset, edit.offset + edit.length)(text), "'2020-01-01T00:00:00Z'");
       assert.strictEqual(edit.content, "'2026-01-01T00:00:00Z'");
     })
   );
@@ -71,12 +73,12 @@ describe("YamlFormat.modify region-confined scalar replacement (#659)", () => {
       const text = "flag: value\nother: 1\n";
       const out = yield* modifyToString(text, ["flag"], "123");
       // "123" must not re-parse as a number: the stringifier quotes it.
-      assert.ok(out.match(/^flag: (['"])123\1\nother: 1\n$/));
+      assert.ok(O.getOrNull(Str.match(/^flag: (['"])123\1\nother: 1\n$/)(out)));
       const edits = yield* modify(text, ["flag"], "123");
       assert.strictEqual(edits.length, 1);
       const edit = edits[0];
       assert.isDefined(edit);
-      assert.ok(edit.offset + edit.length <= text.indexOf("\nother"));
+      assert.ok(edit.offset + edit.length <= O.getOrElse(constant(-1))(Str.indexOf("\nother")(text)));
     })
   );
 
@@ -142,7 +144,7 @@ describe("YamlFormat.modify region-confined scalar replacement (#659)", () => {
       // pipeline picks a style that can express it (double-quoted).
       const text = "a: 'x'\nb: 1\n";
       const out = yield* modifyToString(text, ["a"], "has\ttab");
-      assert.ok(out.includes("has\\ttab"));
+      assert.ok(Str.includes("has\\ttab")(out));
       assert.ok((yield* modify(text, ["a"], "has\ttab")).length >= 1);
     })
   );
@@ -151,7 +153,7 @@ describe("YamlFormat.modify region-confined scalar replacement (#659)", () => {
     Effect.gen(function* () {
       const text = "a: 'x'\nb: 1\n";
       const out = yield* modifyToString(text, ["a"], { nested: true });
-      assert.ok(out.includes("nested: true"));
+      assert.ok(Str.includes("nested: true")(out));
       assert.ok((yield* modify(text, ["a"], { nested: true })).length >= 1);
     })
   );

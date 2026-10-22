@@ -18,6 +18,7 @@ import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { parse } from "yaml";
 import type { YamlNode } from "@beep/yaml/YamlNode";
 
@@ -124,14 +125,16 @@ describe("stringifier data-first defaults", () => {
 describe("large-integer AST fidelity", () => {
   for (const spelling of ["9007199254740993", "-9007199254740993", "0x20000000000001", "0o400000000000000001"]) {
     for (const input of [`${spelling}\n`, `n: ${spelling}\n`, `[${spelling}]\n`]) {
-      it(`preserves the unquoted bigint value in ${input.trim()}`, () => {
+      it(`preserves the unquoted bigint value in ${Str.trim(input)}`, () => {
         const before = composeFirstDocument(input);
         assert.deepStrictEqual(before.errors, []);
         for (const forceDefaultStyles of [false, true]) {
           const output = stringifyDocument(before, StringifyOptionsInput.make({ forceDefaultStyles }));
           const numericText = BigInt(spelling).toString();
           const expected =
-            forceDefaultStyles && input.startsWith("[") ? `- ${numericText}\n` : input.replace(spelling, numericText);
+            forceDefaultStyles && Str.startsWith("[")(input)
+              ? `- ${numericText}\n`
+              : Str.replace(spelling, numericText)(input);
           assert.strictEqual(output, expected);
           assert.deepStrictEqual(parse(output, { intAsBigInt: true }), parse(input, { intAsBigInt: true }));
           const after = composeFirstDocument(output);

@@ -25,7 +25,7 @@ import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { constant, flow, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -633,9 +633,9 @@ const seatStop = (
  */
 export const extractReportText = (input: { readonly route: CriticRoute; readonly text: string }): O.Option<string> => {
   const outermost = (text: string): O.Option<string> => {
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
-    return start >= 0 && end > start ? O.some(text.slice(start, end + 1)) : O.none();
+    const start = O.getOrElse(Str.indexOf("{")(text), constant(-1));
+    const end = O.getOrElse(Str.lastIndexOf("}")(text), constant(-1));
+    return start >= 0 && end > start ? O.some(Str.slice(start, end + 1)(text)) : O.none();
   };
   const field = (value: unknown, key: string): O.Option<unknown> =>
     P.hasProperty(value, key) ? O.fromNullishOr(value[key]) : O.none();

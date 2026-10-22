@@ -137,6 +137,9 @@ describe("gateway probes", () => {
       expect(yield* probe("box-drive-signed-in", bare)).toEqual(
         ProbeMissing.make({ detail: "Box Drive is not running, so it cannot be signed in." })
       );
+      expect(yield* probe("box-drive-folder-available", bare)).toEqual(
+        ProbeMissing.make({ detail: "The Box folder is not in your user folder yet." })
+      );
     })
   );
 
@@ -313,4 +316,19 @@ describe("setup doctor over the gateway probes", () => {
       })
     );
   });
+});
+
+it.layer(probesFor({}), { timeout: layerTimeout })("automatic repair refusals", (it) => {
+  it.effect("refuses automatic repair for manual-only and unknown requirements", () =>
+    Effect.gen(function* () {
+      const manual = requirementFromCatalog("claude-desktop-installed", "documents");
+      const unknown = SetupRequirement.make({ ...manual, id: SetupRequirementId.make("unknown-thing") });
+      for (const requirement of [manual, unknown]) {
+        const error = yield* SetupProbes.use((probes) => probes.repair(requirement)).pipe(Effect.flip);
+        expect(error).toBeInstanceOf(SetupRepairFailed);
+        expect(error.requirement).toBe(requirement.id);
+        expect(error.reason).toBe("The practice gateway has no automatic repair for this requirement.");
+      }
+    })
+  );
 });

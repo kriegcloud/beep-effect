@@ -202,7 +202,7 @@ const collectDotKeepFiles = (rootDir: string, repoPath: string): ReadonlyArray<s
   return pipe(
     Str.split("\n")(String(result.stdout)),
     A.filter(Str.isNonEmpty),
-    A.map(Str.replace(`${rootDir.replace(/\/$/u, "")}/`, ""))
+    A.map(Str.replace(`${Str.replace(/\/$/u, "")(rootDir)}/`, ""))
   );
 };
 

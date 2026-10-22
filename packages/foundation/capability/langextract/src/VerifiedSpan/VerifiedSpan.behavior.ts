@@ -543,8 +543,8 @@ const verifiedAttemptOutcome = (
   receipts: ReadonlyArray<VerifiedSpanCandidateAnchorReceipt>
 ): VerifiedSpanAttemptOutcomeType =>
   A.match(receipts, {
-    /* v8 ignore next -- successful location preserves one anchor per non-empty candidate batch */
-    onEmpty: () => failedAttemptOutcome(attemptFailure("anchor", "invalid-anchor")),
+    onEmpty: /* istanbul ignore next -- successful location preserves one anchor per non-empty candidate batch */ () =>
+      failedAttemptOutcome(attemptFailure("anchor", "invalid-anchor")),
     onNonEmpty: (anchors) => VerifiedSpanAttemptOutcome.cases.verified.make({ anchors }),
   });
 
@@ -591,8 +591,10 @@ const verifyLocatedAnchors = (
             receipt: toTextAnchorVerificationReceipt(verified),
           })
         ),
-        /* v8 ignore next -- locator output already proves boundaries and exact slices; retain fail-closed defense */
-        Effect.mapError((error) => attemptFailure("anchor", error.reason, O.some(S.Natural.make(index))))
+        Effect.mapError(
+          /* istanbul ignore next -- locator output already proves boundaries and exact slices; retain fail-closed defense */
+          (error) => attemptFailure("anchor", error.reason, O.some(S.Natural.make(index)))
+        )
       ),
     { concurrency: 1 }
   ).pipe(

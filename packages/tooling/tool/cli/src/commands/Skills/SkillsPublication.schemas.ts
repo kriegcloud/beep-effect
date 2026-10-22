@@ -315,8 +315,8 @@ export class SkillPublicationJournal extends S.Opaque<SkillPublicationJournal, {
  *
  * **Details**
  *
- * `pending` reconciles interrupted publications only; it is what `skills
- * update` runs before it writes. `retry` also revisits publications an
+ * `pending` reconciles interrupted publications only; it is what
+ * `skills update` runs before it writes. `retry` also revisits publications an
  * earlier recovery refused; it is what `skills recover` runs. Neither touches
  * a completed, recovered or legacy journal.
  *

@@ -10,14 +10,17 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $GithubId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
 import { unstubbedFor } from "./internal/unstubbed.ts";
@@ -470,7 +473,7 @@ const make = (client: GitHubClient["Service"]): GitCommitShape => {
       readonly changes: ReadonlyArray<FileChange>;
     }) {
       const { owner, repo } = yield* Repo;
-      const short = options.branch.replace(/^refs\/heads\//, "").replace(/^heads\//, "");
+      const short = pipe(options.branch, Str.replace(/^refs\/heads\//, ""), Str.replace(/^heads\//, ""));
       yield* Effect.annotateCurrentSpan({ owner, repo, branch: short, changes: options.changes.length });
       const ref = yield* client.request("GET /repos/{owner}/{repo}/git/ref/{ref}", {
         owner,

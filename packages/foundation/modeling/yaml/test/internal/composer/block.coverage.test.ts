@@ -23,6 +23,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { SemanticItem } from "@beep/yaml/internal/composer/block";
 import type { CstNode, CstNodeType } from "@beep/yaml/internal/cst";
 
@@ -516,7 +517,7 @@ describe("block composer edge coverage", () => {
       const seq = composeBlockSeq(
         {
           type: "block-seq",
-          source: text.slice(4),
+          source: Str.slice(4)(text),
           offset: 4,
           length: text.length - 4,
           children: [{ type: "flow-scalar", source: "a", offset: 5, length: 1 }],

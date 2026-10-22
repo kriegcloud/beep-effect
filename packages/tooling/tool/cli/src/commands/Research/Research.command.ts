@@ -15,6 +15,7 @@ import { constFalse } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { resolveOperatorPath, resolveUnitBunPath, systemdUnitPathRule } from "../../internal/systemd/index.ts";
 import { installResearchTimers, readRecordedResearchTimer, uninstallResearchTimers } from "./internal/Timers.ts";
 import { resolveVaultRoot } from "./internal/Vault.ts";
@@ -121,7 +122,7 @@ const researchRepoCardCommand = Command.make(
         includeStars: stars,
         researchRoot: O.getOrElse(researchRoot, () => `${home}/YeeBois/research`),
         vaultRoot,
-        ...(O.isNone(only) ? {} : { only: only.value.toLowerCase() }),
+        ...(O.isNone(only) ? {} : { only: Str.toLowerCase(only.value) }),
       })
     ).pipe(Effect.asVoid);
   })

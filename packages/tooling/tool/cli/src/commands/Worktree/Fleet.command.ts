@@ -22,6 +22,7 @@ import { dual } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
+import * as Str from "effect/String";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { jsonFlagWith } from "../../internal/cli/Flags.ts";
 import { printCommandJson } from "../../internal/cli/Json.ts";
@@ -35,7 +36,7 @@ import type {
   FleetSnapshot,
 } from "./Worktree.schemas.ts";
 
-const shortSha = (sha: string | null): string => (sha === null ? "unknown" : sha.slice(0, 10));
+const shortSha = (sha: string | null): string => (sha === null ? "unknown" : Str.slice(0, 10)(sha));
 
 const CONTESTED_RENDER_LIMIT = 20;
 const PATH_LIST_RENDER_LIMIT = 6;
