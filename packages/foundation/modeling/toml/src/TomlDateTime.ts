@@ -18,6 +18,7 @@ import { $TomlId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $TomlId.create("TomlDateTime");
 
@@ -25,7 +26,7 @@ const $I = $TomlId.create("TomlDateTime");
 const pad: {
   (value: number, width: number): string;
   (width: number): (value: number) => string;
-} = dual(2, (value: number, width: number): string => String(value).padStart(width, "0"));
+} = dual(2, (value: number, width: number): string => Str.padStart(width, "0")(String(value)));
 
 /** Whether `year` is a Gregorian leap year (div-4, except centuries unless div-400). */
 function isLeapYear(year: number): boolean {
@@ -157,7 +158,7 @@ function formatTime(time: {
   if (time.nanosecond === 0) {
     return base;
   }
-  const fraction = pad(time.nanosecond, 9).replace(/0+$/, "");
+  const fraction = Str.replace(/0+$/, "")(pad(time.nanosecond, 9));
   return `${base}.${fraction}`;
 }
 

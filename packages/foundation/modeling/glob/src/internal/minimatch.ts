@@ -1,4 +1,3 @@
-import * as Result from "effect/Result";
 // Ported from minimatch@10.2.5 (https://github.com/isaacs/minimatch)
 // Copyright: Isaac Z. Schlueter and Contributors
 // License: BlueOak-1.0.0 (https://blueoakcouncil.org/license/1.0.0)
@@ -32,8 +31,11 @@ import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { assertValidPattern } from "./assertValidPattern.ts";
 import { AST } from "./ast.ts";
 import { expand } from "./braceExpansion.ts";
@@ -82,48 +84,48 @@ export class MinimatchError extends S.TaggedError<MinimatchError, { readonly bra
 
 // Optimized checking for the most common glob patterns.
 const starDotExtRE = /^\*+([^+@!?*[(]*)$/;
-const starDotExtTest = (ext: string) => (f: string) => !f.startsWith(".") && f.endsWith(ext);
-const starDotExtTestDot = (ext: string) => (f: string) => f.endsWith(ext);
+const starDotExtTest = (ext: string) => (f: string) => !Str.startsWith(".")(f) && Str.endsWith(ext)(f);
+const starDotExtTestDot = (ext: string) => (f: string) => Str.endsWith(ext)(f);
 const starDotExtTestNocase = (ext: string) => {
-  const lower = ext.toLowerCase();
-  return (f: string) => !f.startsWith(".") && f.toLowerCase().endsWith(lower);
+  const lower = Str.toLowerCase(ext);
+  return (f: string) => !Str.startsWith(".")(f) && Str.endsWith(lower)(Str.toLowerCase(f));
 };
 const starDotExtTestNocaseDot = (ext: string) => {
-  const lower = ext.toLowerCase();
-  return (f: string) => f.toLowerCase().endsWith(lower);
+  const lower = Str.toLowerCase(ext);
+  return (f: string) => Str.endsWith(lower)(Str.toLowerCase(f));
 };
 const starDotStarRE = /^\*+\.\*+$/;
-const starDotStarTest = (f: string) => !f.startsWith(".") && f.includes(".");
-const starDotStarTestDot = (f: string) => f !== "." && f !== ".." && f.includes(".");
+const starDotStarTest = (f: string) => !Str.startsWith(".")(f) && Str.includes(".")(f);
+const starDotStarTestDot = (f: string) => f !== "." && f !== ".." && Str.includes(".")(f);
 const dotStarRE = /^\.\*+$/;
-const dotStarTest = (f: string) => f !== "." && f !== ".." && f.startsWith(".");
+const dotStarTest = (f: string) => f !== "." && f !== ".." && Str.startsWith(".")(f);
 const starRE = /^\*+$/;
-const starTest = (f: string) => f.length !== 0 && !f.startsWith(".");
+const starTest = (f: string) => f.length !== 0 && !Str.startsWith(".")(f);
 const starTestDot = (f: string) => f.length !== 0 && f !== "." && f !== "..";
 const qmarksRE = /^\?+([^+@!?*[(]*)?$/;
 const qmarksTestNocase = ([$0, ext = ""]: RegExpMatchArray) => {
   const noext = qmarksTestNoExt([$0]);
   if (ext === "") return noext;
-  const lower = ext.toLowerCase();
-  return (f: string) => noext(f) && f.toLowerCase().endsWith(lower);
+  const lower = Str.toLowerCase(ext);
+  return (f: string) => noext(f) && Str.endsWith(lower)(Str.toLowerCase(f));
 };
 const qmarksTestNocaseDot = ([$0, ext = ""]: RegExpMatchArray) => {
   const noext = qmarksTestNoExtDot([$0]);
   if (ext === "") return noext;
-  const lower = ext.toLowerCase();
-  return (f: string) => noext(f) && f.toLowerCase().endsWith(lower);
+  const lower = Str.toLowerCase(ext);
+  return (f: string) => noext(f) && Str.endsWith(lower)(Str.toLowerCase(f));
 };
 const qmarksTestDot = ([$0, ext = ""]: RegExpMatchArray) => {
   const noext = qmarksTestNoExtDot([$0]);
-  return ext === "" ? noext : (f: string) => noext(f) && f.endsWith(ext);
+  return ext === "" ? noext : (f: string) => noext(f) && Str.endsWith(ext)(f);
 };
 const qmarksTest = ([$0, ext = ""]: RegExpMatchArray) => {
   const noext = qmarksTestNoExt([$0]);
-  return ext === "" ? noext : (f: string) => noext(f) && f.endsWith(ext);
+  return ext === "" ? noext : (f: string) => noext(f) && Str.endsWith(ext)(f);
 };
 const qmarksTestNoExt = ([$0]: [string]) => {
   const len = $0.length;
-  return (f: string) => f.length === len && !f.startsWith(".");
+  return (f: string) => f.length === len && !Str.startsWith(".")(f);
 };
 const qmarksTestNoExtDot = ([$0]: [string]) => {
   const len = $0.length;
@@ -251,23 +253,23 @@ const collapseParentSegments = (parts: Array<string>, collapse: (dd: number, par
 
 // replace stuff like \* with *
 const globMagic = /[?*]|[+@!]\(.*?\)|\[|]/;
-const regExpEscape = (s: string): string => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+const regExpEscape = Str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
 // The fast segment test for the most common glob pattern parts, or null.
 // The first shape that matches decides; a `*.<ext>` match without an
 // extension capture gets no fast test.
 const selectFastTest = (pattern: string, options: EngineOptionsInput): null | ((f: string) => boolean) => {
-  if (pattern.match(starRE) !== null) return options.dot === true ? starTestDot : starTest;
-  const mStarDotExt = pattern.match(starDotExtRE);
+  if (starRE.test(pattern)) return options.dot === true ? starTestDot : starTest;
+  const mStarDotExt = O.getOrNull(Str.match(starDotExtRE)(pattern));
   if (mStarDotExt !== null) return mStarDotExt[1] === undefined ? null : starDotExtTestFor(options)(mStarDotExt[1]);
   return selectLaterFastTest(pattern, options);
 };
 
 const selectLaterFastTest = (pattern: string, options: EngineOptionsInput): null | ((f: string) => boolean) => {
-  const mQmarks = pattern.match(qmarksRE);
+  const mQmarks = O.getOrNull(Str.match(qmarksRE)(pattern));
   if (mQmarks !== null) return qmarksTestFor(options)(mQmarks);
-  if (pattern.match(starDotStarRE) !== null) return options.dot === true ? starDotStarTestDot : starDotStarTest;
-  return pattern.match(dotStarRE) !== null ? dotStarTest : null;
+  if (starDotStarRE.test(pattern)) return options.dot === true ? starDotStarTestDot : starDotStarTest;
+  return dotStarRE.test(pattern) ? dotStarTest : null;
 };
 
 const starDotExtTestFor = (options: EngineOptionsInput): ((ext: string) => (f: string) => boolean) => {
@@ -315,7 +317,7 @@ const alignDriveRoots = (file: Array<string>, pattern: Array<ParseReturn>): read
   if (fdi === undefined || pdi === undefined) return [0, 0];
   const fd = file[fdi];
   const pd = pattern[pdi];
-  if (!P.isString(fd) || !P.isString(pd) || fd.toLowerCase() !== pd.toLowerCase()) return [0, 0];
+  if (!P.isString(fd) || !P.isString(pd) || Str.toLowerCase(fd) !== Str.toLowerCase(pd)) return [0, 0];
   pattern[pdi] = fd;
   return [fdi, pdi];
 };
@@ -477,7 +479,7 @@ const partSource = (
   flags: MutableHashSet.MutableHashSet<string>
 ): string | typeof GLOBSTAR | undefined => {
   if (p instanceof RegExp) {
-    for (const f of p.flags.split("")) MutableHashSet.add(flags, f);
+    for (const f of p.flags) MutableHashSet.add(flags, f);
   }
   return P.isString(p) ? regExpEscape(p) : p === GLOBSTAR ? GLOBSTAR : p._src;
 };
@@ -873,7 +875,7 @@ export class Minimatch {
     this.isWindows = this.platform === "win32";
     this.windowsPathsNoEscape = options.windowsPathsNoEscape === true;
     if (this.windowsPathsNoEscape) {
-      this.pattern = this.pattern.replace(/\\/g, "/");
+      this.pattern = Str.replace(/\\/g, "/")(this.pattern);
     }
     this.preserveMultipleSlashes = options.preserveMultipleSlashes === true;
     this.regexp = null;
@@ -1006,7 +1008,7 @@ export class Minimatch {
 
   // empty patterns and comments match nothing.
   #markTrivial(): boolean {
-    if (this.options.nocomment !== true && this.pattern.charAt(0) === "#") {
+    if (this.options.nocomment !== true && this.pattern[0] === "#") {
       this.comment = true;
       return true;
     }
@@ -1359,7 +1361,7 @@ export class Minimatch {
 
   // Whether a `*` segment covers the other alternative's segment.
   #starCovers(star: string, other: string): boolean {
-    return star === "*" && other !== "" && (this.options.dot === true || !other.startsWith(".")) && other !== "**";
+    return star === "*" && other !== "" && (this.options.dot === true || !Str.startsWith(".")(other)) && other !== "**";
   }
 
   /**
@@ -1391,12 +1393,12 @@ export class Minimatch {
     let negate = false;
     let negateOffset = 0;
 
-    for (let i = 0; i < pattern.length && pattern.charAt(i) === "!"; i++) {
+    for (let i = 0; i < pattern.length && pattern[i] === "!"; i++) {
       negate = !negate;
       negateOffset++;
     }
 
-    if (negateOffset !== 0) this.pattern = pattern.slice(negateOffset);
+    if (negateOffset !== 0) this.pattern = Str.slice(negateOffset)(pattern);
     this.negate = negate;
   }
 
@@ -1549,7 +1551,7 @@ export class Minimatch {
   // A `.`/`..` segment, or a dotfile segment when dot is off: a globstar
   // never crosses one.
   #isBadDotSegment(f: string): boolean {
-    return f === "." || f === ".." || (this.options.dot !== true && f.startsWith("."));
+    return f === "." || f === ".." || (this.options.dot !== true && Str.startsWith(".")(f));
   }
 
   // return false for "nope, not matching"
@@ -1844,7 +1846,7 @@ export class Minimatch {
 
     // In partial mode, '/' should always match as it's a valid prefix for any pattern
     if (this.partial) {
-      re = `^(?:\\/|${open}${re.slice(1, -1)}${close})$`;
+      re = `^(?:\\/|${open}${Str.slice(1, -1)(re)}${close})$`;
     }
 
     // can match anything, as long as it's not this.
@@ -1877,13 +1879,13 @@ export class Minimatch {
     // / characters are coalesced into one, unless
     // preserveMultipleSlashes is set to true.
     if (this.preserveMultipleSlashes) {
-      return p.split("/");
+      return Str.split("/")(p);
     }
     if (this.isWindows && /^\/\/[^/]+/.test(p)) {
       // add an extra '' for the one we lose
-      return ["", ...p.split(/\/+/)];
+      return ["", ...Str.split(/\/+/)(p)];
     }
-    return p.split(/\/+/);
+    return Str.split(/\/+/)(p);
   }
 
   /**
@@ -1918,7 +1920,7 @@ export class Minimatch {
     const options = this.options;
 
     // windows: need to use /, not \
-    const f = this.isWindows ? A.join(fInput.split("\\"), "/") : fInput;
+    const f = this.isWindows ? A.join(Str.split("\\")(fInput), "/") : fInput;
 
     // treat the test path as a set of pathparts.
     const ff = this.slashSplit(f);

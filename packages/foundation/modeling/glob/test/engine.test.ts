@@ -14,6 +14,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { minimatch as oracle } from "minimatch";
 
 const reasonOf = (fn: () => unknown): string => {
@@ -122,7 +123,7 @@ describe("GuardExceeded schema and factory", () => {
 
   it("throws the schema-backed guard with the engine's overflowing measurement", () => {
     try {
-      new Minimatch(`{1..${"9".repeat(310)}}`);
+      new Minimatch(`{1..${Str.repeat(310)("9")}}`);
       assert.fail("expected an overflowing expansion to throw GuardExceeded");
     } catch (error) {
       assert.instanceOf(error, GuardExceeded);
@@ -212,10 +213,10 @@ describe("character classes", () => {
 describe("assertValidPattern", () => {
   it("fails typed past 64KB", () => {
     assert.strictEqual(
-      reasonOf(() => assertValidPattern("a".repeat(65537))),
+      reasonOf(() => assertValidPattern(Str.repeat(65537)("a"))),
       "PatternTooLong"
     );
-    assertValidPattern("a".repeat(65536)); // exactly at the cap: fine
+    assertValidPattern(Str.repeat(65536)("a")); // exactly at the cap: fine
   });
 
   it("dies on a non-string, programmer error", () => {
@@ -261,14 +262,14 @@ describe("Minimatch smoke", () => {
 
 describe("extglob depth behavior", () => {
   it("degrades over-nesting to literal at the default cap, agreeing with the oracle", () => {
-    const p = `${"+(".repeat(6)}a${")".repeat(6)}`;
+    const p = `${Str.repeat(6)("+(")}a${Str.repeat(6)(")")}`;
     for (const c of [p, "a", "aa"]) {
       assert.strictEqual(new Minimatch(p).match(c), oracle(c, p), `candidate ${c}`);
     }
   });
 
   it("caps AST depth typed when maxExtglobRecursion is raised past the nesting cap", () => {
-    const deep = `${"!(".repeat(300)}a${")".repeat(300)}`;
+    const deep = `${Str.repeat(300)("!(")}a${Str.repeat(300)(")")}`;
     assert.strictEqual(
       reasonOf(() => new Minimatch(deep, { maxExtglobRecursion: 400 })),
       "NestingDepthExceeded"
@@ -279,7 +280,7 @@ describe("extglob depth behavior", () => {
     // Coalescible types recurse without incrementing extDepth upstream:
     // the real minimatch 10.2.5 dies with RangeError (stack overflow) on this
     // input at DEFAULT options (verified 2026-07-09). The port fails typed.
-    const chain = `${"@(".repeat(20000)}a${")".repeat(20000)}`;
+    const chain = `${Str.repeat(20000)("@(")}a${Str.repeat(20000)(")")}`;
     assert.strictEqual(
       reasonOf(() => new Minimatch(chain)),
       "NestingDepthExceeded"
@@ -287,7 +288,7 @@ describe("extglob depth behavior", () => {
   });
 
   it("still coalesces reasonable adoption chains like upstream", () => {
-    const p = `${"@(".repeat(50)}a${")".repeat(50)}`;
+    const p = `${Str.repeat(50)("@(")}a${Str.repeat(50)(")")}`;
     const m = new Minimatch(p);
     assert.isTrue(m.match("a"));
     assert.isFalse(m.match("b"));

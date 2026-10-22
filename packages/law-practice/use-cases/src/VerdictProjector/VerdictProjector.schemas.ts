@@ -6,7 +6,8 @@
  * @since 0.0.0
  */
 
-import { ClaimDispositionStatus, ClaimGateViolation } from "@beep/epistemic-domain/values";
+import { ClaimDispositionStatus } from "@beep/epistemics/ClaimDispositionStatus";
+import { ClaimGateViolation } from "@beep/epistemics/ClaimGate";
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
 import { Principal } from "@beep/shared-domain/entity/Principal";
 import { CandidateClaimId } from "@beep/shared-domain/identity/Epistemic";

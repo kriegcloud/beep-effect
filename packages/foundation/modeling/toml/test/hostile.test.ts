@@ -32,6 +32,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { expectFailure } from "./expectFailure.ts";
 
@@ -75,21 +76,21 @@ describe("hostile input", () => {
   describe("parse — depth bombs", () => {
     it.effect("10_000 unbalanced open brackets fail typed, never a stack overflow", () =>
       Effect.gen(function* () {
-        const error = yield* parseError(`a = ${"[".repeat(10_000)}`);
+        const error = yield* parseError(`a = ${Str.repeat(10_000)("[")}`);
         assert.strictEqual(codeOf(error), "NestingDepthExceeded");
       })
     );
 
     it.effect("10_000 nested inline tables fail typed", () =>
       Effect.gen(function* () {
-        const error = yield* parseError(`a = ${"{b = ".repeat(10_000)}`);
+        const error = yield* parseError(`a = ${Str.repeat(10_000)("{b = ")}`);
         assert.strictEqual(codeOf(error), "NestingDepthExceeded");
       })
     );
 
     it.effect("mixed array/inline-table nesting counts against one combined depth", () =>
       Effect.gen(function* () {
-        const error = yield* parseError(`a = ${"[{a = [".repeat(2_000)}`);
+        const error = yield* parseError(`a = ${Str.repeat(2_000)("[{a = [")}`);
         assert.strictEqual(codeOf(error), "NestingDepthExceeded");
       })
     );
@@ -129,7 +130,7 @@ describe("hostile input", () => {
         // non-empty leaf parse; stringify must count the same way — a guard
         // that also checked the scalar leaf would see depth 257 and give
         // stringify a one-level tighter bound than parse (PR #31 review).
-        const doc = `a = ${"[".repeat(256)}1${"]".repeat(256)}\n`;
+        const doc = `a = ${Str.repeat(256)("[")}1${Str.repeat(256)("]")}\n`;
         const value = yield* Toml.parse(doc);
         const text = yield* Toml.stringify(value);
         const back = yield* Toml.parse(text);
@@ -223,7 +224,7 @@ describe("hostile input", () => {
   describe("facade surfaces on deep input", () => {
     // TomlVisitor.visit against this exact bomb is pinned in
     // TomlVisitor.test.ts; the remaining facade surfaces ride here.
-    const bomb = `a = ${"[".repeat(10_000)}`;
+    const bomb = `a = ${Str.repeat(10_000)("[")}`;
 
     it.effect("TomlDocument.parse fails typed on the 10_000-bracket bomb", () =>
       Effect.gen(function* () {
@@ -291,7 +292,7 @@ describe("hostile input", () => {
         Effect.gen(function* () {
           const lines = Array.from(
             { length: 50_000 },
-            (_, i) => `k${String(i).padStart(5, "0")} = "${"x".repeat(28)}"`
+            (_, i) => `k${Str.padStart(5, "0")(String(i))} = "${Str.repeat(28)("x")}"`
           );
           const doc = `${A.join(lines, "\n")}\n`;
           assert.isAtLeast(doc.length, 2_000_000);
@@ -299,7 +300,7 @@ describe("hostile input", () => {
           const value = checkedTable(yield* Toml.parse(doc));
           const elapsed = performance.now() - started;
           assert.strictEqual(R.size(value), 50_000);
-          assert.strictEqual(value.k49999, "x".repeat(28));
+          assert.strictEqual(value.k49999, Str.repeat(28)("x"));
           assert.isBelow(elapsed, ELAPSED_BOUND_MS);
         }),
       ELAPSED_BOUND_MS
@@ -309,7 +310,7 @@ describe("hostile input", () => {
       "a 1MB single-line string parses",
       () =>
         Effect.gen(function* () {
-          const payload = "x".repeat(1_048_576);
+          const payload = Str.repeat(1_048_576)("x");
           const started = performance.now();
           const value = checkedTable(yield* Toml.parse(`s = "${payload}"\n`));
           const elapsed = performance.now() - started;
@@ -324,7 +325,7 @@ describe("hostile input", () => {
       () =>
         Effect.gen(function* () {
           const started = performance.now();
-          const error = yield* parseError(`s = "${"x".repeat(1_048_576)}`);
+          const error = yield* parseError(`s = "${Str.repeat(1_048_576)("x")}`);
           const elapsed = performance.now() - started;
           assert.strictEqual(codeOf(error), "UnterminatedString");
           assert.isBelow(elapsed, ELAPSED_BOUND_MS);
@@ -466,7 +467,7 @@ describe("hostile input", () => {
 
     it.effect("a 20-digit hex integer fails typed as IntegerOutOfRange", () =>
       Effect.gen(function* () {
-        const error = yield* parseError(`a = 0x${"F".repeat(20)}\n`);
+        const error = yield* parseError(`a = 0x${Str.repeat(20)("F")}\n`);
         assert.strictEqual(codeOf(error), "IntegerOutOfRange");
       })
     );

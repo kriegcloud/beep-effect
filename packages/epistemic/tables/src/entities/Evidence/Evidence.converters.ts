@@ -7,7 +7,7 @@
  */
 
 import { Evidence } from "@beep/epistemic-domain/entities/Evidence";
-import { EvidenceSpan } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan";
 import { $EpistemicTablesId } from "@beep/identity/packages";
 import { TextAnchorFields } from "@beep/provenance/TextAnchor";
 import { pipe } from "effect/Function";

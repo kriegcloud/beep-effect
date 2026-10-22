@@ -231,6 +231,7 @@ const generatedComposers = $I.compose(
   "walker",
   "github",
   "runtime-env",
+  "epistemics",
   "markdown"
 );
 
@@ -3335,6 +3336,23 @@ export const $GithubId: Identity.IdentityComposer<"@beep/github"> = composers.$G
  * @since 0.0.0
  */
 export const $RuntimeEnvId: Identity.IdentityComposer<"@beep/runtime-env"> = composers.$RuntimeEnvId;
+
+/**
+ * Identity composer for `@beep/epistemics`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $EpistemicsId } from "@beep/identity/packages"
+ *
+ * const id = $EpistemicsId.make("Epistemics")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $EpistemicsId: Identity.IdentityComposer<"@beep/epistemics"> = composers.$EpistemicsId;
 
 /**
  * Identity composer for `@beep/markdown`.

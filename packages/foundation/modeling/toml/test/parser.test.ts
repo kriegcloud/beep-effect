@@ -18,6 +18,7 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Schema from "effect/Schema";
+import * as Str from "effect/String";
 import type { TomlErrorCodeRaw } from "@beep/toml/internal/diagnostics";
 import type { TomlExpression } from "@beep/toml/TomlNode";
 
@@ -26,7 +27,7 @@ function tiles(src: string): ReadonlyArray<TomlExpression> {
   const exprs = parseExpressions(src);
   assert.strictEqual(
     A.join(
-      A.map(exprs, (e) => src.slice(e.offset, e.offset + e.length)),
+      A.map(exprs, (e) => Str.slice(e.offset, e.offset + e.length)(src)),
       ""
     ),
     src
@@ -180,7 +181,7 @@ describe("parser", () => {
       const src = "  'k' = 1\n";
       const kv = keyValueAt(parseExpressions(src), 0);
       const key = kv.keyPath[0];
-      assert.strictEqual(src.slice(key?.offset, (key?.offset ?? 0) + (key?.length ?? 0)), "'k'");
+      assert.strictEqual(Str.slice(key?.offset, (key?.offset ?? 0) + (key?.length ?? 0))(src), "'k'");
       assert.strictEqual(kv.offset, 0);
     });
   });
@@ -310,13 +311,13 @@ describe("parser", () => {
   describe("depth", () => {
     it("parses 255 and 256 nested arrays (inclusive bound)", () => {
       for (const depth of [255, 256]) {
-        const src = `a = ${"[".repeat(depth)}${"]".repeat(depth)}`;
+        const src = `a = ${Str.repeat(depth)("[")}${Str.repeat(depth)("]")}`;
         const exprs = tiles(src);
         assert.isTrue(Schema.is(TomlArray)(keyValueAt(exprs, 0).value));
       }
     });
     it("throws GuardExceeded at the 257th opening bracket", () => {
-      const src = `a = ${"[".repeat(257)}1${"]".repeat(257)}`;
+      const src = `a = ${Str.repeat(257)("[")}1${Str.repeat(257)("]")}`;
       try {
         parseExpressions(src);
       } catch (error) {
@@ -332,7 +333,7 @@ describe("parser", () => {
       assert.fail("expected GuardExceeded, but nothing was thrown");
     });
     it("counts arrays and inline tables against one combined depth", () => {
-      const src = `a = ${"[{k = ".repeat(128)}[`;
+      const src = `a = ${Str.repeat(128)("[{k = ")}[`;
       try {
         parseExpressions(src);
       } catch (error) {

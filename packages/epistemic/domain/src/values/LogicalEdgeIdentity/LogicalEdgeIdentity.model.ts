@@ -11,31 +11,15 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { makeLogicalEdgeIdentity, makeLogicalEdgeKey } from "@beep/epistemics/LogicalEdgeIdentity";
 import { $EpistemicDomainId } from "@beep/identity/packages";
-import { Sha256Hex } from "@beep/schema";
-import { A, O, R, Str } from "@beep/utils";
-import { sha256 } from "@noble/hashes/sha2.js";
-import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
-import { flow, pipe } from "effect/Function";
-import * as Order from "effect/Order";
 import * as S from "effect/Schema";
-import { EdgeEndpoint, encodeEdgeEndpointKey } from "../EdgeEndpoint/index.ts";
-import { EdgeRelation, isSymmetricEdgeRelation } from "../EdgeRelation/index.ts";
+import { EdgeEndpoint } from "../EdgeEndpoint/index.ts";
 
-const $I = $EpistemicDomainId.create("values/LogicalEdgeIdentity/LogicalEdgeIdentity.model");
-
-/**
- * Digest version prefix. Bump it whenever the canonical encoding changes so old
- * and new keys can never collide in a table that holds both.
- */
-const canonicalEncodingVersion = "v1";
-
-/**
- * Marker for an absent scope. It is a distinct token rather than an empty string
- * so `none` can never collide with a real scope value — the encoding-side
- * analogue of the SQL NULL hole that motivated the digest column.
- */
-const absentScopeMarker = "<none>";
+const schemas = makeLogicalEdgeIdentity({
+  $I: $EpistemicDomainId.create("values/LogicalEdgeIdentity/LogicalEdgeIdentity.model"),
+  EdgeEndpoint,
+});
 
 /**
  * Organization scope of a logical edge: the stringified owning organization id.
@@ -53,11 +37,7 @@ const absentScopeMarker = "<none>";
  * @category schemas
  * @since 0.0.0
  */
-export const EdgeOrgScope = S.NonEmptyString.pipe(
-  $I.annoteSchema("EdgeOrgScope", {
-    description: "Stringified owning organization id that scopes a logical epistemic edge.",
-  })
-);
+export const EdgeOrgScope = schemas.EdgeOrgScope;
 
 /**
  * Runtime type for {@link EdgeOrgScope}.
@@ -92,11 +72,7 @@ export type EdgeOrgScope = typeof EdgeOrgScope.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const EdgeMatterScope = S.NonEmptyString.pipe(
-  $I.annoteSchema("EdgeMatterScope", {
-    description: "Optional matter scope narrowing a logical epistemic edge.",
-  })
-);
+export const EdgeMatterScope = schemas.EdgeMatterScope;
 
 /**
  * Runtime type for {@link EdgeMatterScope}.
@@ -130,11 +106,7 @@ export type EdgeMatterScope = typeof EdgeMatterScope.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const EdgeEvidenceScope = S.NonEmptyString.pipe(
-  $I.annoteSchema("EdgeEvidenceScope", {
-    description: "Optional evidence-set scope narrowing a logical epistemic edge.",
-  })
-);
+export const EdgeEvidenceScope = schemas.EdgeEvidenceScope;
 
 /**
  * Runtime type for {@link EdgeEvidenceScope}.
@@ -171,11 +143,7 @@ export type EdgeEvidenceScope = typeof EdgeEvidenceScope.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const EdgeQualifiers = S.Record(S.String, S.String).pipe(
-  $I.annoteSchema("EdgeQualifiers", {
-    description: "Order-insensitive string qualifiers that further partition a logical epistemic edge.",
-  })
-);
+export const EdgeQualifiers = schemas.EdgeQualifiers;
 
 /**
  * Runtime type for {@link EdgeQualifiers}.
@@ -215,12 +183,7 @@ export type EdgeQualifiers = typeof EdgeQualifiers.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const LogicalEdgeKey = Sha256Hex.pipe(
-  S.brand("LogicalEdgeKey"),
-  $I.annoteSchema("LogicalEdgeKey", {
-    description: "Lowercase SHA-256 hex digest naming one logical epistemic edge.",
-  })
-);
+export const LogicalEdgeKey = schemas.LogicalEdgeKey;
 
 /**
  * Runtime type for {@link LogicalEdgeKey}.
@@ -272,78 +235,10 @@ export type LogicalEdgeKey = typeof LogicalEdgeKey.Type;
  * @since 0.0.0
  */
 export class LogicalEdgeIdentity extends S.Opaque<LogicalEdgeIdentity, { readonly brand: unique symbol }>()(
-  S.Struct({
-    evidenceScope: EdgeEvidenceScope.pipe(S.OptionFromNullOr).annotateKey({
-      description: "Optional evidence-set scope the edge was asserted under.",
-    }),
-    matterScope: EdgeMatterScope.pipe(S.OptionFromNullOr).annotateKey({
-      description: "Optional matter scope the edge was asserted under.",
-    }),
-    orgScope: EdgeOrgScope.annotateKey({ description: "Stringified owning organization id." }),
-    qualifiers: EdgeQualifiers.annotateKey({ description: "Further string qualifiers partitioning the edge." }),
-    relation: EdgeRelation.annotateKey({ description: "Relation the source endpoint bears to the target." }),
-    source: EdgeEndpoint.annotateKey({ description: "Endpoint recorded as the source of the edge." }),
-    target: EdgeEndpoint.annotateKey({ description: "Endpoint recorded as the target of the edge." }),
-  }).pipe(
-    $I.annoteSchema("LogicalEdgeIdentity", {
-      description: "Time-independent identity of a bitemporal epistemic edge.",
-    })
-  )
+  schemas.LogicalEdgeIdentitySchema
 ) {}
 
-/**
- * Escape one canonical component so the `|` join is injective: free-form
- * values (scopes, endpoint refs) cannot smuggle the component delimiter into
- * the encoding and merge two distinct identities onto one string. `%` escapes
- * first so escaped output can never collide with a literal that already
- * contained an escape sequence.
- */
-const escapeCanonicalComponent: (value: string) => string = flow(
-  Str.replaceAll("%", "%25"),
-  Str.replaceAll("|", "%7C")
-);
-
-/**
- * Escape one qualifier key or value: the qualifier sub-encoding additionally
- * owns `=` (entry separator) and `,` (list separator), so both join layers
- * stay injective.
- */
-const escapeQualifierComponent: (value: string) => string = flow(
-  escapeCanonicalComponent,
-  Str.replaceAll("=", "%3D"),
-  Str.replaceAll(",", "%2C")
-);
-
-const encodeScope: (scope: O.Option<string>) => string = O.match({
-  onNone: () => absentScopeMarker,
-  onSome: (value) => `some:${escapeCanonicalComponent(value)}`,
-});
-
-const byEntryKey = Order.mapInput(Order.String, (entry: readonly [string, string]) => entry[0]);
-
-const encodeQualifiers = (qualifiers: EdgeQualifiers): string =>
-  pipe(
-    R.toEntries(qualifiers),
-    A.sort(byEntryKey),
-    A.map(([key, value]) => `${escapeQualifierComponent(key)}=${escapeQualifierComponent(value)}`),
-    A.join(",")
-  );
-
-/**
- * Order the two encoded endpoints. A symmetric relation means the recorded
- * source/target ordering carries no meaning, so both presentations must collapse
- * onto the same canonical pair; an asymmetric relation never swaps. Each
- * encoded endpoint is escaped so a free-form entity/observation ref cannot
- * inject the component delimiter.
- */
-const orderEndpoints = (identity: LogicalEdgeIdentity): ReadonlyArray<string> =>
-  pipe(
-    [
-      escapeCanonicalComponent(encodeEdgeEndpointKey(identity.source)),
-      escapeCanonicalComponent(encodeEdgeEndpointKey(identity.target)),
-    ],
-    (endpoints) => (isSymmetricEdgeRelation(identity.relation) ? A.sort(endpoints, Order.String) : endpoints)
-  );
+const digest = makeLogicalEdgeKey({ LogicalEdgeIdentity, LogicalEdgeKey });
 
 /**
  * Total canonical string encoding of a {@link LogicalEdgeIdentity}. Every
@@ -375,19 +270,7 @@ const orderEndpoints = (identity: LogicalEdgeIdentity): ReadonlyArray<string> =>
  * @category encoding
  * @since 0.0.0
  */
-export const encodeLogicalEdgeIdentity = (identity: LogicalEdgeIdentity): string =>
-  A.join(
-    [
-      canonicalEncodingVersion,
-      identity.relation,
-      ...orderEndpoints(identity),
-      escapeCanonicalComponent(identity.orgScope),
-      encodeScope(identity.matterScope),
-      encodeScope(identity.evidenceScope),
-      encodeQualifiers(identity.qualifiers),
-    ],
-    "|"
-  );
+export const encodeLogicalEdgeIdentity: (identity: LogicalEdgeIdentity) => string = digest.encodeLogicalEdgeIdentity;
 
 /**
  * The {@link LogicalEdgeKey} naming the logical edge an identity denotes:
@@ -416,5 +299,4 @@ export const encodeLogicalEdgeIdentity = (identity: LogicalEdgeIdentity): string
  * @category encoding
  * @since 0.0.0
  */
-export const logicalEdgeKey = (identity: LogicalEdgeIdentity): LogicalEdgeKey =>
-  LogicalEdgeKey.make(bytesToHex(sha256(utf8ToBytes(encodeLogicalEdgeIdentity(identity)))));
+export const logicalEdgeKey: (identity: LogicalEdgeIdentity) => LogicalEdgeKey = digest.logicalEdgeKey;

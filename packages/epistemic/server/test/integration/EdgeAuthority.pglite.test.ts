@@ -2,7 +2,7 @@ import * as NodeURL from "node:url";
 import * as NodeUtil from "node:util";
 import { CandidateClaim, Evidence } from "@beep/epistemic-domain";
 import { unflattenEdgeSource, unflattenEdgeTarget } from "@beep/epistemic-domain/entities/EdgeVersion";
-import { ClaimGateResult, LogicalEdgeIdentity, logicalEdgeKey } from "@beep/epistemic-domain/values";
+import { LogicalEdgeIdentity, logicalEdgeKey } from "@beep/epistemic-domain/values";
 import { EpistemicServerDrizzleLive } from "@beep/epistemic-server/layer";
 import { DbSchema } from "@beep/epistemic-tables";
 import { toCandidateClaimInsert } from "@beep/epistemic-tables/entities/CandidateClaim";
@@ -21,6 +21,7 @@ import {
   SupersedeEdgeFact,
   SupersessionConflict,
 } from "@beep/epistemic-use-cases/EdgeAuthority";
+import { ClaimGateResult } from "@beep/epistemics/ClaimGate";
 import { $EpistemicId } from "@beep/identity/packages";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { it } from "@beep/test-runner";

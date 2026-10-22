@@ -71,6 +71,7 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/epistemics": "workspace:^",
     "@beep/provenance": "workspace:^",
     "@beep/test-runner": "workspace:^",
     "@beep/test-utils": "workspace:^",

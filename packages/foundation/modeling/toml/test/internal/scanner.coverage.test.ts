@@ -1,6 +1,7 @@
 import { classifyValueToken, scanMultilineBasicString, scanMultilineLiteralString } from "@beep/toml/internal/scanner";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 it.effect("multiline scanning preserves short quote runs and reports unfinished trimming", () =>
   Effect.sync(() => {
@@ -31,7 +32,7 @@ it.effect("Gregorian month boundaries preserve all twelve lengths and century le
       [12, 31],
     ] as const;
     for (const [month, days] of months) {
-      const prefix = `2023-${String(month).padStart(2, "0")}-`;
+      const prefix = `2023-${Str.padStart(2, "0")(String(month))}-`;
       const lastDay = `${prefix}${days}`;
       assert.strictEqual(classifyValueToken(lastDay, 0).toString(), lastDay);
       assert.throws(() => classifyValueToken(`${prefix}${days + 1}`, 0), /does not exist in month/);

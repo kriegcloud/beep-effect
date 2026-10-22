@@ -31,7 +31,7 @@ const segmentAlias = (segment: string): string =>
   O.getOrElse(HashMap.get(NODE_SEGMENT_ALIASES, segment), () => Str.pascalCase(segment));
 
 const expectedNamespaceAlias = (source: string): string => {
-  const moduleName = source.slice("node:".length);
+  const moduleName = Str.slice("node:".length)(source);
 
   return O.match(HashMap.get(NODE_MODULE_ALIASES, moduleName), {
     onSome: (knownAlias) => `Node${knownAlias}`,

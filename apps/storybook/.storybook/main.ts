@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { mergeConfig } from "vite";
 import type { StorybookConfig } from "@storybook/react-vite";
 import type { Plugin, ServerOptions } from "vite";
@@ -45,7 +46,7 @@ const stripMisplacedLexicalPureAnnotations = (): Plugin => ({
       return null;
     }
 
-    const sanitizedCode = code.replace(misplacedPureAnnotationBeforeReturn, "");
+    const sanitizedCode = Str.replace(misplacedPureAnnotationBeforeReturn, "")(code);
 
     return sanitizedCode === code ? null : { code: sanitizedCode, map: null };
   },
@@ -58,13 +59,13 @@ const resolveUniformTypeScriptSourceSpecifiers = (): Plugin => ({
   name: "beep:resolve-uniform-typescript-source-specifiers",
   enforce: "pre",
   resolveId(source, importer, options) {
-    if (importer === undefined || !source.startsWith(".") || !source.endsWith(".ts")) {
+    if (importer === undefined || !Str.startsWith(".")(source) || !Str.endsWith(".ts")(source)) {
       return null;
     }
 
     return this.resolve(source, importer, { ...options, skipSelf: true }).then((exactSource) =>
       exactSource === null
-        ? this.resolve(source.replace(/\.ts$/, ".tsx"), importer, { ...options, skipSelf: true })
+        ? this.resolve(Str.replace(/\.ts$/, ".tsx")(source), importer, { ...options, skipSelf: true })
         : exactSource
     );
   },

@@ -322,6 +322,9 @@
       "path": "packages/foundation/capability/walker"
     },
     {
+      "path": "packages/foundation/modeling/epistemics"
+    },
+    {
       "path": "packages/foundation/modeling/github-commands"
     },
     {

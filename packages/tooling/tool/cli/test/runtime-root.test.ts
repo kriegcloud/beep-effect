@@ -17,6 +17,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 
 const uid = NodeOS.userInfo().uid;
 const canonicalRoot = canonicalRuntimeRootForTesting(currentHostPlatform, NodeOS.userInfo().homedir);
@@ -73,7 +74,7 @@ it.layer(Layer.mergeAll(NodePath.layer, BunCrypto.layer), { timeout: "5 seconds"
           provideRuntimeRootForTesting(configured),
           Effect.provideService(FileSystem.FileSystem, FileSystem.makeNoop({}))
         );
-        expect(lock.startsWith("/configured/runtime/beep-yeet-proof-locks-")).toBe(true);
+        expect(Str.startsWith("/configured/runtime/beep-yeet-proof-locks-")(lock)).toBe(true);
         expect(lock).not.toContain("/beep/admit/");
       })
     );

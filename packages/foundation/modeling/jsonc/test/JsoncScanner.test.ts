@@ -2,6 +2,7 @@ import { createScanner, ScanError, SyntaxKind } from "@beep/jsonc/internal/scann
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 import type { Scanner } from "@beep/jsonc/internal/scanner";
 
 // Scan every token of `text`, pairing each kind with its decoded value and error.
@@ -88,11 +89,30 @@ describe("createScanner", () => {
     });
   });
 
+  describe("non-ASCII code units", () => {
+    it("preserves Unicode in strings and line comments", () => {
+      assert.deepStrictEqual(single('"é😀"'), ["String", "é😀", "None"]);
+      assert.deepStrictEqual(tokens(createScanner("// é😀\n1")), [
+        ["LineComment", "// é😀", "None"],
+        ["LineBreak", "\n", "None"],
+        ["Number", "1", "None"],
+      ]);
+    });
+
+    it("rejects non-ASCII escapes and characters outside strings", () => {
+      assert.deepStrictEqual(single('"\\é"'), ["String", "", "InvalidEscapeCharacter"]);
+      assert.deepStrictEqual(tokens(createScanner("1é")), [
+        ["Number", "1", "None"],
+        ["Unknown", "é", "InvalidCharacter"],
+      ]);
+    });
+  });
+
   describe("whitespace and line breaks", () => {
     it("groups every whitespace code unit into one trivia token", () => {
       const text = " \t\u000b\u000c ﻿1";
       const [first, second] = tokens(createScanner(text));
-      assert.deepStrictEqual(first, ["Trivia", text.slice(0, -1), "None"]);
+      assert.deepStrictEqual(first, ["Trivia", Str.slice(0, -1)(text), "None"]);
       assert.deepStrictEqual(second, ["Number", "1", "None"]);
     });
 
@@ -190,7 +210,7 @@ describe("createScanner", () => {
       const scanner = createScanner(text, true);
       const spans: Array<string> = [];
       for (let kind = scanner.scan(); kind !== "EOF"; kind = scanner.scan()) {
-        spans.push(text.substring(scanner.getTokenOffset(), scanner.getTokenOffset() + scanner.getTokenLength()));
+        spans.push(Str.substring(scanner.getTokenOffset(), scanner.getTokenOffset() + scanner.getTokenLength())(text));
       }
       assert.deepStrictEqual(spans, ["{", '"k"', ":", "[", "1", "]", "}"]);
     });

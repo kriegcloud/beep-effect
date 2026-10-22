@@ -6,6 +6,7 @@
  * UsageRecordSink. The orchestration operations are exercised directly via
  * their use-case Effects/streams (no rpc transport).
  */
+
 import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent";
 import { UserTurnHistoryItem } from "@beep/agents-use-cases";
 import { FixtureTurnKernel, fixtureBlocksFor, fixtureEventsFor } from "@beep/agents-use-cases/proof";
@@ -376,7 +377,7 @@ describe("@beep/professional-desktop chat contract", () => {
 
         // the stopped turn carries the marker and none of the streamed content
         const stopped = items[1];
-        const stoppedText = renderPlainTextUnsafe(stopped!.content).trim();
+        const stoppedText = Str.trim(renderPlainTextUnsafe(stopped!.content));
         expect(stoppedText).toBe("(stopped)");
 
         // still no usage record on interrupt

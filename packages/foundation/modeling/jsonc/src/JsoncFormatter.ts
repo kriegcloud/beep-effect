@@ -160,7 +160,11 @@ const formatImpl: {
     (offset: number, length: number, content: string): void;
     (length: number, content: string): (offset: number) => void;
   } = dual(3, (offset: number, length: number, content: string): void => {
-    if (offset >= rangeStart && offset + length <= rangeEnd && text.substring(offset, offset + length) !== content) {
+    if (
+      offset >= rangeStart &&
+      offset + length <= rangeEnd &&
+      Str.substring(offset, offset + length)(text) !== content
+    ) {
       edits.push(JsoncEdit.make({ offset, length, content }));
     }
   });
@@ -176,7 +180,7 @@ const formatImpl: {
     if (isCloser(kind)) {
       depth--;
     }
-    const gap = text.substring(prev.end, tokenOffset);
+    const gap = Str.substring(prev.end, tokenOffset)(text);
     const content =
       options.keepLines && Str.includes("\n")(gap) ? gap : expectedGap({ kind, prevToken: prev.token, gap, depth });
     addEdit(prev.end, tokenOffset - prev.end, content);
@@ -204,7 +208,7 @@ const formatImpl: {
 
   // Routed through addEdit so the range restriction applies here too.
   const appendFinalNewline = (last: PreviousToken): void => {
-    const trailing = text.substring(last.end);
+    const trailing = Str.substring(last.end)(text);
     if (!Str.endsWith(options.eol)(trailing)) {
       addEdit(last.end, trailing.length, options.eol);
     }

@@ -15,6 +15,7 @@ import * as Result from "effect/Result";
 // Rejects `v`/`V` prefixes, `=` prefixes on versions, leading zeros on
 // numeric identifiers, and unsafe integers. Input must be fully consumed.
 
+import * as Str from "effect/String";
 import { desugarCaret, desugarHyphen, desugarTilde, desugarXRange } from "./desugar.ts";
 import { ComparatorParts, VersionParts } from "./order.ts";
 import type { PartialParts } from "./desugar.ts";
@@ -63,7 +64,7 @@ const peek = (s: ParserState): string | undefined => (s.pos < s.len ? s.input[s.
 
 // Every caller has already checked the next character (or separator width).
 const advance = (s: ParserState): string => {
-  const ch = s.input.charAt(s.pos);
+  const ch = Str.slice(s.pos, s.pos + 1)(s.input);
   s.pos++;
   return ch;
 };
@@ -270,7 +271,7 @@ const parseVersionCore = (s: ParserState): VersionParts => {
  * @since 0.0.0
  */
 export const parseVersion = (raw: string): ParseResult<VersionParts> => {
-  const trimmed = raw.trim();
+  const trimmed = Str.trim(raw);
 
   if (trimmed.length === 0) {
     return { ok: false, input: raw, position: 0 };
@@ -459,7 +460,7 @@ const parseRangeComparators = (s: ParserState): ReadonlyArray<ComparatorParts> =
  * @since 0.0.0
  */
 export const parseRange = (raw: string): ParseResult<ReadonlyArray<ReadonlyArray<ComparatorParts>>> => {
-  const trimmed = raw.trim();
+  const trimmed = Str.trim(raw);
 
   if (trimmed.length === 0) {
     // Empty string = match all
@@ -537,7 +538,7 @@ const parseComparatorCore = (s: ParserState): ComparatorParts => {
  * @since 0.0.0
  */
 export const parseComparator = (raw: string): ParseResult<ComparatorParts> => {
-  const trimmed = raw.trim();
+  const trimmed = Str.trim(raw);
 
   if (trimmed.length === 0) {
     return { ok: false, input: raw, position: 0 };

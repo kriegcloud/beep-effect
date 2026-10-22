@@ -2,15 +2,15 @@
 
 ## Status
 
-Status: `pending`
+Status: `in-progress`
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Research | complete (2026-10-21) | Inspect source hierarchy and confirm scope. | Inventory, tenancy check and importer census recorded in `SPEC.md`. |
-| P1 Implement | pending | 1) `bun run beep create-package` for `@beep/epistemics`; 2) move the value modules listed in `SPEC.md` with transitional re-exports; 3) add `ValidInterval`/`KnowledgeInterval` and repoint `EdgeVersion` with a row round-trip test; 4) add the `Claim<P>` and evidence-signal envelopes; 5) repoint every external importer and delete the re-exports. | Acceptance criteria are met. |
-| P2 Verify | pending | Run required checks and capture evidence. | Verification is green or blockers are documented. |
+| P1 Implement | complete (2026-10-22) | 1) `bun run beep create-package` for `@beep/epistemics`; 2) move the value modules listed in `SPEC.md` with transitional re-exports; 3) add `ValidInterval`/`KnowledgeInterval` and repoint `EdgeVersion` with a row round-trip test; 4) add the `Claim<P>` and evidence-signal envelopes; 5) repoint every external importer and delete the re-exports. | Acceptance criteria are met. |
+| P2 Verify | in-progress | Run required checks and capture evidence. | Verification is green or blockers are documented. |
 | P3 Yeet: PR to mergeable | pending | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
 | P4 Close | pending | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
 

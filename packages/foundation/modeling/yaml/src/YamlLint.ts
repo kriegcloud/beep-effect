@@ -25,6 +25,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { composeFirstDocument } from "./internal/composer/document.ts";
 import { isFatalCode } from "./internal/diagnostics.ts";
 import { ParseOptionsInput } from "./internal/options.ts";
@@ -245,7 +246,7 @@ const buildLines = (text: string): ReadonlyArray<LintLine> => {
     // The final empty segment after a trailing newline is not a line.
     if (offset === text.length && number > 0) break;
     const end = lineContentEnd(text, offset);
-    lines.push(LintLine.make({ text: text.slice(offset, end), offset, number }));
+    lines.push(LintLine.make({ text: Str.slice(offset, end)(text), offset, number }));
     if (end === text.length) break;
     offset = end + lineTerminatorWidth(text, end);
     number++;

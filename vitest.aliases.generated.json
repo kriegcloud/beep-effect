@@ -9,9 +9,6 @@
   "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
   "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
   "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
-  "@beep/schema/Glob": [
-    "./packages/foundation/modeling/schema/src/Glob/index.ts"
-  ],
   "@beep/data": ["./packages/foundation/primitive/data/src/index.ts"],
   "@beep/data/*": ["./packages/foundation/primitive/data/src/*"],
   "@beep/ui": ["./packages/foundation/ui-system/ui/src/index.ts"],
@@ -854,14 +851,8 @@
   "@beep/file-processing/PathSafety": [
     "./packages/foundation/capability/file-processing/src/PathSafety/index.ts"
   ],
-  "@beep/epistemic-domain/values/ClaimGate": [
-    "./packages/epistemic/domain/src/values/ClaimGate/index.ts"
-  ],
   "@beep/epistemic-domain/values/ClaimProjection": [
     "./packages/epistemic/domain/src/values/ClaimProjection/index.ts"
-  ],
-  "@beep/epistemic-domain/values/EvidenceSpan": [
-    "./packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
   ],
   "@beep/epistemic-server": ["./packages/epistemic/server/src/index.ts"],
   "@beep/epistemic-server/layer": ["./packages/epistemic/server/src/Layer.ts"],
@@ -1196,14 +1187,8 @@
   "@beep/epistemic-domain/entities/EdgeVersion": [
     "./packages/epistemic/domain/src/entities/EdgeVersion/index.ts"
   ],
-  "@beep/epistemic-domain/values/ClaimDispositionStatus": [
-    "./packages/epistemic/domain/src/values/ClaimDispositionStatus/index.ts"
-  ],
   "@beep/epistemic-domain/values/EdgeEndpoint": [
     "./packages/epistemic/domain/src/values/EdgeEndpoint/index.ts"
-  ],
-  "@beep/epistemic-domain/values/EdgeRelation": [
-    "./packages/epistemic/domain/src/values/EdgeRelation/index.ts"
   ],
   "@beep/epistemic-domain/values/LogicalEdgeIdentity": [
     "./packages/epistemic/domain/src/values/LogicalEdgeIdentity/index.ts"
@@ -2094,6 +2079,55 @@
   "@beep/runtime-env/*": ["./packages/foundation/capability/runtime-env/src/*"],
   "@beep/runtime-env/internal/*": [
     "./packages/foundation/capability/runtime-env/src/internal/*"
+  ],
+  "@beep/epistemics": [
+    "./packages/foundation/modeling/epistemics/src/index.ts"
+  ],
+  "@beep/epistemics/*": ["./packages/foundation/modeling/epistemics/src/*"],
+  "@beep/epistemics/Claim": [
+    "./packages/foundation/modeling/epistemics/src/Claim/index.ts"
+  ],
+  "@beep/epistemics/ClaimDispositionStatus": [
+    "./packages/foundation/modeling/epistemics/src/ClaimDispositionStatus/index.ts"
+  ],
+  "@beep/epistemics/ClaimEvidenceReview": [
+    "./packages/foundation/modeling/epistemics/src/ClaimEvidenceReview/index.ts"
+  ],
+  "@beep/epistemics/ClaimGate": [
+    "./packages/foundation/modeling/epistemics/src/ClaimGate/index.ts"
+  ],
+  "@beep/epistemics/ClaimProjection": [
+    "./packages/foundation/modeling/epistemics/src/ClaimProjection/index.ts"
+  ],
+  "@beep/epistemics/Contradiction": [
+    "./packages/foundation/modeling/epistemics/src/Contradiction/index.ts"
+  ],
+  "@beep/epistemics/ContradictionDetection": [
+    "./packages/foundation/modeling/epistemics/src/ContradictionDetection/index.ts"
+  ],
+  "@beep/epistemics/EdgeEndpoint": [
+    "./packages/foundation/modeling/epistemics/src/EdgeEndpoint/index.ts"
+  ],
+  "@beep/epistemics/EdgeRelation": [
+    "./packages/foundation/modeling/epistemics/src/EdgeRelation/index.ts"
+  ],
+  "@beep/epistemics/EvidenceSpan": [
+    "./packages/foundation/modeling/epistemics/src/EvidenceSpan/index.ts"
+  ],
+  "@beep/epistemics/EvidenceVerification": [
+    "./packages/foundation/modeling/epistemics/src/EvidenceVerification/index.ts"
+  ],
+  "@beep/epistemics/Factory": [
+    "./packages/foundation/modeling/epistemics/src/Factory/index.ts"
+  ],
+  "@beep/epistemics/KnowledgeInterval": [
+    "./packages/foundation/modeling/epistemics/src/KnowledgeInterval/index.ts"
+  ],
+  "@beep/epistemics/LogicalEdgeIdentity": [
+    "./packages/foundation/modeling/epistemics/src/LogicalEdgeIdentity/index.ts"
+  ],
+  "@beep/epistemics/ValidInterval": [
+    "./packages/foundation/modeling/epistemics/src/ValidInterval/index.ts"
   ],
   "@beep/markdown": ["./packages/foundation/modeling/markdown/src/index.ts"],
   "@beep/markdown/*": ["./packages/foundation/modeling/markdown/src/*"],

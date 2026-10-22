@@ -13,6 +13,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const JsonString = S.fromJsonString(S.String);
 
@@ -208,7 +209,7 @@ describe("GlobSet: set semantics truth table", () => {
 describe("GlobSet: construction and failure", () => {
   it.effect("compile fails typed on the first uncompilable pattern, naming it", () =>
     Effect.gen(function* () {
-      const bomb = "{a,b}".repeat(17);
+      const bomb = Str.repeat(17)("{a,b}");
       const e = yield* Effect.flip(GlobSet.compile(["fine/*", bomb, "also-fine"]));
       assert.instanceOf(e, GlobPatternError);
       assert.strictEqual(e.reason, "ExpansionBudgetExceeded");
@@ -218,13 +219,13 @@ describe("GlobSet: construction and failure", () => {
 
   it.effect("compile validates exclusion patterns after stripping the bang", () =>
     Effect.gen(function* () {
-      const e = yield* Effect.flip(GlobSet.compile([`!${"{a,b}".repeat(17)}`]));
+      const e = yield* Effect.flip(GlobSet.compile([`!${Str.repeat(17)("{a,b}")}`]));
       assert.strictEqual(e.reason, "ExpansionBudgetExceeded");
     })
   );
 
   it("make throws when any member is uncompilable (wiring defect)", () => {
-    assert.throws(() => GlobSet.make({ patterns: ["ok", "{a,b}".repeat(17)] }));
+    assert.throws(() => GlobSet.make({ patterns: ["ok", Str.repeat(17)("{a,b}")] }));
   });
 
   it("make succeeds and matches lazily", () => {
@@ -330,8 +331,8 @@ describe("GlobSet.compileResult", () => {
 
   it.effect("returns typed failures for non-finite include and exclude arithmetic", () =>
     Effect.gen(function* () {
-      const huge = "9".repeat(310);
-      const finite = `1${"0".repeat(308)}`;
+      const huge = Str.repeat(310)("9");
+      const finite = `1${Str.repeat(308)("0")}`;
       for (const source of [
         `{${huge}..${huge}}`,
         `{1..${huge}..${huge}}`,
@@ -355,7 +356,7 @@ describe("GlobSet.compileResult", () => {
   );
 
   it("preserves an overflowing expansion count in a synchronous typed failure", () => {
-    const source = `{1..${"9".repeat(310)}}`;
+    const source = `{1..${Str.repeat(310)("9")}}`;
     for (const member of [source, `!${source}`]) {
       const result = GlobSet.compileResult(["fine/*", member, "also-fine"]);
       assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
@@ -369,7 +370,7 @@ describe("GlobSet.compileResult", () => {
 
   it.effect("preserves an overflowing expansion count in the Effect failure channel", () =>
     Effect.gen(function* () {
-      const source = `{1..${"9".repeat(310)}}`;
+      const source = `{1..${Str.repeat(310)("9")}}`;
       for (const member of [source, `!${source}`]) {
         const error = yield* Effect.flip(GlobSet.compile(["fine/*", member, "also-fine"]));
         assert.instanceOf(error, GlobPatternError);
@@ -390,7 +391,7 @@ describe("GlobSet.compileResult", () => {
   });
 
   it("is total: an uncompilable member is a Result failure, never a throw", () => {
-    const r = GlobSet.compileResult(["ok/*", "a".repeat(65_537)]);
+    const r = GlobSet.compileResult(["ok/*", Str.repeat(65_537)("a")]);
     assertFailure(r, r.pipe(Result.flip, Result.getOrThrow));
     assert.instanceOf(r.failure, GlobPatternError);
     assert.strictEqual(r.failure.reason, "PatternTooLong");
@@ -398,12 +399,12 @@ describe("GlobSet.compileResult", () => {
 
   it.effect("names the offending member, bang included, exactly as compile does", () =>
     Effect.gen(function* () {
-      const patterns = ["ok/*", `!${"{a,b}".repeat(17)}`];
+      const patterns = ["ok/*", `!${Str.repeat(17)("{a,b}")}`];
       const sync = GlobSet.compileResult(patterns);
       const eff = yield* Effect.flip(GlobSet.compile(patterns));
       assertFailure(sync, sync.pipe(Result.flip, Result.getOrThrow));
       assertFailure(sync, eff);
-      assert.strictEqual(sync.failure.pattern, `!${"{a,b}".repeat(17)}`);
+      assert.strictEqual(sync.failure.pattern, `!${Str.repeat(17)("{a,b}")}`);
       assert.strictEqual(sync.failure.pattern, eff.pattern);
       assert.strictEqual(sync.failure.reason, eff.reason);
       assert.strictEqual(sync.failure.limit, eff.limit);
@@ -437,7 +438,7 @@ describe("GlobSet.compileResult", () => {
   );
 
   it("fails on the FIRST uncompilable member", () => {
-    const r = GlobSet.compileResult(["a".repeat(65_537), "{a,b}".repeat(17)]);
+    const r = GlobSet.compileResult([Str.repeat(65_537)("a"), Str.repeat(17)("{a,b}")]);
     assertFailure(r, r.pipe(Result.flip, Result.getOrThrow));
     assert.strictEqual(r.failure.reason, "PatternTooLong");
   });

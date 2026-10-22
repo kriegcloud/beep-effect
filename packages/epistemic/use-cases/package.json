@@ -60,6 +60,7 @@
   "sideEffects": [],
   "dependencies": {
     "@beep/epistemic-domain": "workspace:^",
+    "@beep/epistemics": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/provenance": "workspace:^",

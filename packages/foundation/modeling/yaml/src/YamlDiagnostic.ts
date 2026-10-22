@@ -390,13 +390,10 @@ export class YamlDiagnostic extends S.Opaque<YamlDiagnostic, { readonly brand: u
   static positionIndex(text: string): (offset: number) => { line: number; character: number } {
     const breaks: Array<number> = [];
     const starts: Array<number> = [0];
-    for (let i = 0; i < text.length; i++) {
-      const ch = text.charCodeAt(i);
-      if (ch === 0x0a || ch === 0x0d || ch === 0x2028 || ch === 0x2029) {
-        breaks.push(i + 1);
-        if (ch === 0x0d && text.charCodeAt(i + 1) === 0x0a) i++;
-        starts.push(i + 1);
-      }
+    LINE_BREAK.lastIndex = 0;
+    for (let match = LINE_BREAK.exec(text); match !== null; match = LINE_BREAK.exec(text)) {
+      breaks.push(match.index + 1);
+      starts.push(match.index + match[0].length);
     }
     return (offset) => {
       const limit = Math.min(offset, text.length);
@@ -458,3 +455,6 @@ export class YamlDiagnostic extends S.Opaque<YamlDiagnostic, { readonly brand: u
  * kept inside the scanned prefix for standalone diagnostic conversion.
  */
 const lineGrammar = { unicodeSeparators: true, crlfLookahead: "prefix" } as const;
+
+/** One YAML line break for `positionIndex`'s single scan; CRLF matches as one break. */
+const LINE_BREAK = /\r\n|[\n\r\u2028\u2029]/g;

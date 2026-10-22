@@ -8,8 +8,11 @@
 import { $GlobId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as RE from "effect/RegExp";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $GlobId.create("internal/braceExpressions");
 
@@ -73,9 +76,9 @@ const posixClasses: { [k: string]: [e: string, u: boolean, n?: boolean] } = {
 
 // only need to escape a few things inside of brace expressions
 // escapes: [ \ ] -
-const braceEscape = (s: string): string => s.replace(/[[\]\\-]/g, "\\$&");
+const braceEscape = Str.replace(/[[\]\\-]/g, "\\$&");
 // escape all regexp magic characters
-const regexpEscape = (s: string): string => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+const regexpEscape = Str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
 // everything has already been escaped, we just have to join
 const rangesToString = (ranges: Array<string>): string => A.join(ranges, "");
@@ -131,7 +134,7 @@ export const parseClass: {
   (glob: string, position: number): ParseClassResult;
 } = dual(2, (glob: string, position: number): ParseClassResult => {
   const pos = position;
-  if (glob.charAt(pos) !== "[") {
+  if (!O.contains("[")(Str.charAt(pos)(glob))) {
     throw BraceExpressionError.make({ message: "not in a brace expression" });
   }
   const scan: ClassScan = {
@@ -152,7 +155,10 @@ export const parseClass: {
   return finishClass(scan);
 });
 
-const posixClassEntries = R.toEntries(posixClasses);
+const posixClassEntries = A.map(R.toEntries(posixClasses), (entry) => ({
+  entry,
+  regexp: new RegExp(RE.escape(entry[0]), "y"),
+}));
 
 // Mutable cursor state of one [...] class scan. `poisoned` marks an invalid
 // posix class inside a range ([a-[:alpha:]]), which poisons the whole glob.
@@ -173,7 +179,7 @@ interface ClassScan {
 
 // One scan step; false ends the scan (closing bracket or poison).
 const classStep = (scan: ClassScan): boolean => {
-  const c = scan.glob.charAt(scan.i);
+  const c = String(scan.glob[scan.i]);
   const control = classControlStep(scan, c);
   if (control !== undefined) return control;
   if (c === "[" && !scan.escaping) {
@@ -210,8 +216,9 @@ const classControlStep = (scan: ClassScan, c: string): boolean | undefined => {
 // Consumes a posix class at the cursor: true when consumed, false when it
 // poisons the class, undefined when none starts here.
 const consumePosixClass = (scan: ClassScan): boolean | undefined => {
-  for (const entry of posixClassEntries) {
-    if (scan.glob.startsWith(entry[0], scan.i)) return applyPosixClass(scan, entry);
+  for (const { entry, regexp } of posixClassEntries) {
+    regexp.lastIndex = scan.i;
+    if (regexp.test(scan.glob)) return applyPosixClass(scan, entry);
   }
   return undefined;
 };
@@ -241,12 +248,12 @@ const classCharacter = (scan: ClassScan, c: string): void => {
   }
   // now might be the start of a range.
   // can be either c-d or c-] or c<more...>] or c] at this point
-  if (scan.glob.startsWith("-]", scan.i + 1)) {
+  if (scan.glob[scan.i + 1] === "-" && scan.glob[scan.i + 2] === "]") {
     scan.ranges.push(braceEscape(`${c}-`));
     scan.i += 2;
     return;
   }
-  if (scan.glob.startsWith("-", scan.i + 1)) {
+  if (scan.glob[scan.i + 1] === "-") {
     scan.rangeStart = c;
     scan.i += 2;
     return;
@@ -292,7 +299,7 @@ const literalClass = (scan: ClassScan): ParseClassResult | undefined => {
   const soleRange = ranges[0];
   if (negs.length !== 0 || ranges.length !== 1 || soleRange === undefined || scan.negate) return undefined;
   if (!/^\\?.$/.test(soleRange)) return undefined;
-  const r = soleRange.length === 2 ? soleRange.slice(-1) : soleRange;
+  const r = soleRange.length === 2 ? Str.slice(-1)(soleRange) : soleRange;
   return [regexpEscape(r), false, scan.endPos - scan.pos, false];
 };
 

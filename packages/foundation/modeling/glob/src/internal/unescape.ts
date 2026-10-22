@@ -6,6 +6,7 @@
 
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import type { EngineOptions } from "./types.ts";
 
 /**
@@ -67,12 +68,12 @@ const unescapePattern: {
   ): string => {
     if (magicalBraces) {
       return windowsPathsNoEscape
-        ? s.replace(/\[([^/\\])]/g, "$1")
-        : s.replace(/((?!\\).|^)\[([^/\\])]/g, "$1$2").replace(/\\([^/])/g, "$1");
+        ? Str.replace(/\[([^/\\])]/g, "$1")(s)
+        : Str.replace(/\\([^/])/g, "$1")(Str.replace(/((?!\\).|^)\[([^/\\])]/g, "$1$2")(s));
     }
     return windowsPathsNoEscape
-      ? s.replace(/\[([^/\\{}])]/g, "$1")
-      : s.replace(/((?!\\).|^)\[([^/\\{}])]/g, "$1$2").replace(/\\([^/{}])/g, "$1");
+      ? Str.replace(/\[([^/\\{}])]/g, "$1")(s)
+      : Str.replace(/\\([^/{}])/g, "$1")(Str.replace(/((?!\\).|^)\[([^/\\{}])]/g, "$1$2")(s));
   }
 );
 

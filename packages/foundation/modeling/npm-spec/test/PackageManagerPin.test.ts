@@ -14,6 +14,7 @@ import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decode = S.decodeUnknownEffect(PackageManagerPin.FromString);
 const encode = S.encodeUnknownEffect(PackageManagerPin.FromString);
@@ -212,7 +213,7 @@ describe("PackageManagerPin.parseResult", () => {
 
 describe("PackageManagerPin.bare", () => {
   it("renders name@version without the integrity, and equals toString for a bare pin", () => {
-    const hashed = PackageManagerPin.parseResult(`pnpm@12.6.0+sha512.${"ab".repeat(64)}`);
+    const hashed = PackageManagerPin.parseResult(`pnpm@12.6.0+sha512.${Str.repeat(64)("ab")}`);
     const plain = PackageManagerPin.parseResult("pnpm@12.6.0");
     assertSuccess(hashed, Result.getOrThrow(hashed));
     assertSuccess(plain, Result.getOrThrow(plain));

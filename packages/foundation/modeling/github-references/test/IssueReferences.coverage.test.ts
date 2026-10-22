@@ -8,16 +8,17 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
 describe("IssueReferences regex-guaranteed fields", () => {
   it.effect("derives canonical keywords and safe numbers from every supported full match", () =>
     Effect.sync(() => {
       for (const keyword of CLOSING_KEYWORDS) {
-        const text = keyword.toUpperCase() + "\t#00012";
+        const text = Str.toUpperCase(keyword) + "\t#00012";
         assert.deepStrictEqual(harvestIssueReferences(text), [
           IssueReference.make({ keyword, issueNumber: 12, start: 0, end: text.length }),
         ]);
-        const bare = parseBareLineReference(" " + keyword.toUpperCase() + ":\t#00012 ");
+        const bare = parseBareLineReference(" " + Str.toUpperCase(keyword) + ":\t#00012 ");
         assertSome(bare, BareLineReference.make({ keyword, issueNumber: 12 }));
         assertNone(parseBareLineReference(keyword + " #9007199254740992"));
       }

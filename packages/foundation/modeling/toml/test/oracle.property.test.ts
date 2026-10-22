@@ -44,6 +44,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { parse as oracleParse, stringify as oracleStringify } from "smol-toml";
 import { readValid, readValidExpected, validCases } from "./corpus.ts";
 import { assertMatchesTagged } from "./e2e/taggedJson.ts";
@@ -58,15 +59,15 @@ const DATETIME_RE = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d
 
 /** The oracle's millisecond truncation, applied to a fraction-digits string. */
 const fractionToMs = (fraction: string | undefined): number =>
-  fraction === undefined ? 0 : Number(fraction.padEnd(3, "0").slice(0, 3));
+  fraction === undefined ? 0 : Number(Str.slice(0, 3)(Str.padEnd(3, "0")(fraction)));
 
 /** `Z`/`+hh:mm`/`-hh:mm` → signed minutes, with `-00:00` canonicalized to 0. */
 const offsetToMinutes = (offset: string): number => {
-  if (offset.toUpperCase() === "Z") {
+  if (Str.toUpperCase(offset) === "Z") {
     return 0;
   }
-  const total = Number(offset.slice(1, 3)) * 60 + Number(offset.slice(4, 6));
-  return offset.startsWith("-") && total !== 0 ? -total : total;
+  const total = Number(Str.slice(1, 3)(offset)) * 60 + Number(Str.slice(4, 6)(offset));
+  return Str.startsWith("-")(offset) && total !== 0 ? -total : total;
 };
 
 /**
@@ -414,7 +415,7 @@ describe("corpus differential", () => {
         if (Result.isFailure(oracleResult)) {
           divergences.push({
             file: relPath,
-            detail: `oracle rejected: ${String(oracleResult.failure).split("\n")[0]}`,
+            detail: `oracle rejected: ${Str.split("\n")(String(oracleResult.failure))[0]}`,
           });
           assertOursAgainstCorpus(ours, relPath);
           return;

@@ -18,13 +18,20 @@ import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { applyJsoncModification, JsoncModification } from "../../internal/cli/Jsonc.ts";
-import { decodeLabManifestJson, isLabsWorkspacePath, LAB_MANIFEST_FILENAME } from "../../internal/cli/Labs/index.ts";
+import {
+  decodeLabManifestJson,
+  isLabsWorkspacePath,
+  LAB_MANIFEST_FILENAME,
+  RETIRED_REGISTRY_PATH,
+  readRetiredPackageNames,
+} from "../../internal/cli/Labs/index.ts";
 import {
   DeletionNotePolicy,
   LabTargetFacts,
@@ -51,6 +58,7 @@ import {
 } from "./DeletePackage.schemas.ts";
 import { DeletePackageDataResource } from "./internal/DataResource.ts";
 import { renderCanonicalDeletionChangeset } from "./internal/DeletionChangeset.ts";
+import { IDENTITY_SHAPE_TEST_PATH, shapeTestRowAccessor } from "./internal/ShapeTestRow.ts";
 import type {
   DependentsReport,
   RegistrationGeometryServiceShape,
@@ -63,8 +71,6 @@ const decodeJsonEffect = S.decodeEffect(S.fromJsonString(S.Unknown));
 const decodeDeletePackageManifestJson = S.decodeEffect(S.fromJsonString(DeletePackageManifest));
 
 const $I = $RepoCliId.create("commands/DeletePackage");
-const RETIRED_REGISTRY_PATH = "standards/changesets.retired-packages.json";
-const IDENTITY_SHAPE_TEST_PATH = "packages/foundation/modeling/identity/test/shape-stable.test.ts";
 
 class ResolvedDeleteTarget extends S.Opaque<ResolvedDeleteTarget, { readonly brand: unique symbol }>()(
   S.Struct({
@@ -310,7 +316,30 @@ const removeWorkspaceLiteral = Effect.fn("DeletePackage.removeWorkspaceLiteral")
   }
 });
 
-const removeShapeTestRow = Effect.fn("DeletePackage.removeShapeTestRow")(function* (
+/**
+ * Remove the package's accessor rows from the identity shape-stability test.
+ *
+ * **Details**
+ *
+ * Only a row that names exactly the package's identity accessor is dropped:
+ * an array element (`"$SchemaId",`) or a record key
+ * (`$SchemaId: "@beep/schema",`). Rows for accessors that merely share a
+ * prefix, and every other line that mentions the accessor, stay byte-identical.
+ * A missing shape test is a no-op.
+ *
+ * **Example** (Build a shape-test row removal effect)
+ *
+ * ```ts
+ * import { removeShapeTestRow } from "@beep/repo-cli/commands/DeletePackage"
+ * import * as Effect from "effect/Effect";
+ * const program = removeShapeTestRow("/repo", "@beep/probe")
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const removeShapeTestRow = Effect.fn("DeletePackage.removeShapeTestRow")(function* (
   repoRoot: string,
   packageName: string
 ) {
@@ -326,11 +355,29 @@ const removeShapeTestRow = Effect.fn("DeletePackage.removeShapeTestRow")(functio
   const next = pipe(
     content,
     Str.split("\n"),
-    A.filter((line) => !Str.includes(accessor)(line)),
+    A.filter((line) => !O.exists(shapeTestRowAccessor(line), Str.equivalence(accessor))),
     A.join("\n")
   );
   if (!Str.equivalence(content, next)) yield* fs.writeFileString(file, next);
 });
+
+const FRONTMATTER_KEY_QUOTES: ReadonlyArray<string> = ['"', "'"];
+
+// The mapping key of a changeset frontmatter line: the content of a `"…"` or
+// `'…'` key, or the trimmed text before the first `:` of an unquoted one.
+const frontmatterEntryKey = (line: string): O.Option<string> => {
+  const entry = Str.trim(line);
+  return O.match(
+    A.findFirst(FRONTMATTER_KEY_QUOTES, (quote) => Str.startsWith(entry, quote)),
+    {
+      onNone: () => O.map(Str.indexOf(":")(entry), (end) => Str.trim(Str.slice(0, end)(entry))),
+      onSome: (quote) => {
+        const quoted = Str.slice(1)(entry);
+        return O.map(Str.indexOf(quote)(quoted), (end) => Str.slice(0, end)(quoted));
+      },
+    }
+  );
+};
 
 const stripPackageFromFrontmatter = (content: string, packageName: string): string => {
   let inFrontmatter = false;
@@ -342,7 +389,7 @@ const stripPackageFromFrontmatter = (content: string, packageName: string): stri
       return true;
     }
     if (boundaryCount === 2) inFrontmatter = false;
-    return !(inFrontmatter && Str.includes(packageName)(line));
+    return !(inFrontmatter && O.exists(frontmatterEntryKey(line), Str.equivalence(packageName)));
   });
   return A.join(nextLines, "\n");
 };
@@ -602,13 +649,10 @@ const hasRetiredCollision = Effect.fn("DeletePackage.hasRetiredCollision")(funct
   repoRoot: string,
   packageName: string
 ) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const file = path.join(repoRoot, RETIRED_REGISTRY_PATH);
-  const exists = yield* fs.exists(file).pipe(Effect.orElseSucceed(thunkFalse));
-  if (!exists) return false;
-  const content = yield* fs.readFileString(file);
-  return Str.includes(packageName)(content);
+  const retiredNames = yield* readRetiredPackageNames(repoRoot).pipe(
+    Effect.mapError(DomainError.newCause(`Failed to read ${RETIRED_REGISTRY_PATH}.`))
+  );
+  return HashSet.some(retiredNames, Str.equivalence(packageName));
 });
 
 type DeletePackageHandlerOptions = {

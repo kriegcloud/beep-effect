@@ -40,6 +40,7 @@ import { Section } from "@beep/managed-section/Section";
 import { SectionDialect } from "@beep/managed-section/SectionDialect";
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
+import * as Str from "effect/String";
 
 const content = S.Literals(["a", " ", "\n", "\r\n", "😀", "\t"]).pipe(
   S.Array,
@@ -54,9 +55,9 @@ it.effect.prop(
     Effect.sync(() => {
       const normalized = normalizeEol(text);
       assert.strictEqual(normalizeEol(normalized), normalized);
-      assert.strictEqual(detectEol(text), text.includes("\r\n") ? "\r\n" : "\n");
+      assert.strictEqual(detectEol(text), Str.includes("\r\n")(text) ? "\r\n" : "\n");
       assert.strictEqual(detectEol(detectEol(text)), detectEol(text));
-      assert.strictEqual(normalizeEol(normalized.replace(/\n/g, "\r\n")), normalized);
+      assert.strictEqual(normalizeEol(Str.replace(/\n/g, "\r\n")(normalized)), normalized);
     }),
   runs
 );
@@ -80,7 +81,7 @@ it.effect.prop(
         assert.strictEqual(parsed.sections.length, 1);
         for (const placed of parsed.sections) {
           assertTrue(Equal.equals(placed.section, section));
-          assert.strictEqual(rendered.slice(placed.start, placed.end), rendered);
+          assert.strictEqual(Str.slice(placed.start, placed.end)(rendered), rendered);
           const formatted = yield* Effect.fromResult(dialect.render(placed.section, eol));
           assert.strictEqual(formatted, rendered);
           const reparsed = scan(formatted, dialect);

@@ -11,7 +11,7 @@ import { it as rootIt } from "@beep/test-runner";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect } from "@effect/vitest";
-import { assertNone, assertTrue } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Fs from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
@@ -116,6 +116,34 @@ rootIt.layer(TestLayer, { timeout: "10 seconds" })("Workspaces", (it) => {
       })
     );
 
+    it.effect(
+      "should follow symlinked workspace directories and skip directories without a manifest",
+      Effect.fn(function* () {
+        const pathApi = yield* Path.Path;
+        const fs = yield* Fs.FileSystem;
+        const tmpDir = yield* fs.realPath(yield* fs.makeTempDirectoryScoped());
+        const realDir = pathApi.join(tmpDir, "vendor", "pkg-linked");
+
+        yield* fs.makeDirectory(pathApi.join(tmpDir, "packages", "no-manifest"), { recursive: true });
+        yield* fs.makeDirectory(realDir, { recursive: true });
+        yield* fs.writeFileString(
+          pathApi.join(tmpDir, "package.json"),
+          '{ "name": "root", "workspaces": ["packages/*"] }'
+        );
+        yield* fs.writeFileString(
+          pathApi.join(realDir, "package.json"),
+          '{ "name": "@mock/pkg-linked", "version": "1.0.0" }'
+        );
+        yield* fs.writeFileString(pathApi.join(tmpDir, "packages", "README.md"), "not a workspace");
+        yield* fs.symlink(realDir, pathApi.join(tmpDir, "packages", "pkg-linked"));
+
+        const workspaces = yield* resolveWorkspaceDirs(tmpDir);
+
+        expect(HashMap.size(workspaces)).toBe(1);
+        assertSome(HashMap.get(workspaces, "@mock/pkg-linked"), realDir);
+      })
+    );
+
     rootIt.layer(FsUtilsLive.pipe(Layer.provideMerge(Layer.mergeAll(MemoryFileSystem.layer, Path.layer))), {
       timeout: "10 seconds",
     })((it) => {
@@ -130,10 +158,19 @@ rootIt.layer(TestLayer, { timeout: "10 seconds" })("Workspaces", (it) => {
           const fs = yield* Fs.FileSystem;
           const present = yield* fs.makeTempDirectoryScoped();
           yield* fs.writeFileString(`${present}/package.json`, '{ "name": "present-root" }');
-          // No workspaces: the subject returns after decoding this manifest,
-          // before reaching the native glob implementation.
+          // No workspaces: the subject returns after decoding this manifest.
           const workspaces = yield* resolveWorkspaceDirs(present);
           expect(HashMap.size(workspaces)).toBe(0);
+
+          // Workspace globs read the provided FileSystem, so members resolve on memfs too.
+          yield* fs.makeDirectory(`${present}/packages/pkg-a`, { recursive: true });
+          yield* fs.writeFileString(`${present}/packages/pkg-a/package.json`, '{ "name": "@mock/pkg-a" }');
+          yield* fs.writeFileString(
+            `${present}/package.json`,
+            '{ "name": "present-root", "workspaces": ["packages/*"] }'
+          );
+          const members = yield* resolveWorkspaceDirs(present);
+          assertSome(HashMap.get(members, "@mock/pkg-a"), `${present}/packages/pkg-a`);
         })
       );
     });

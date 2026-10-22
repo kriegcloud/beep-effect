@@ -23,7 +23,7 @@ describe("GritQL rules", () => {
           Effect.gen(function* () {
             const { diagnostics } = yield* runRule(rule, invalid);
             expect(diagnostics.length).toBe(invalidCount);
-            expect(A.every(diagnostics, (d) => d.message.includes(messageIncludes))).toBe(true);
+            expect(A.every(diagnostics, (d) => Str.includes(messageIncludes)(d.message))).toBe(true);
             expect(A.every(diagnostics, (d) => d.severity === expectedSeverity)).toBe(true);
           })
         )

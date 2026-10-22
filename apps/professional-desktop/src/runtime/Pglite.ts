@@ -25,6 +25,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 /// <reference path="../assets.d.ts" />
 
 import * as NodeURL from "node:url";
@@ -44,6 +45,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import btreeGistBundlePath from "../../../../node_modules/@electric-sql/pglite/dist/btree_gist.tar.gz" with {
   type: "file",
@@ -311,7 +313,7 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
  * @since 0.0.0
  */
 const toBunFileSystemPath = (path: string): string =>
-  path.startsWith(ViteFileSystemPrefix) ? `/${path.slice(ViteFileSystemPrefix.length)}` : path;
+  Str.startsWith(ViteFileSystemPrefix)(path) ? `/${Str.slice(ViteFileSystemPrefix.length)(path)}` : path;
 
 const compileWasmFile = (path: string): Effect.Effect<WebAssembly.Module> =>
   Effect.promise(() => Bun.file(toBunFileSystemPath(path)).arrayBuffer()).pipe(

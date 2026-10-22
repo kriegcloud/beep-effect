@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 // Array form ONLY: the named-record form of it.effect.prop silently discards
 // Schema conversion (see packages/glob/__test__/compliance.test.ts).
@@ -174,7 +175,7 @@ describe("Line properties", () => {
     [anyText],
     ([text]) =>
       Effect.sync(() => {
-        const nonBlank = A.filter(Line.split(text), (line) => line.text.trim() !== "");
+        const nonBlank = A.filter(Line.split(text), (line) => Str.trim(line.text) !== "");
         assert.strictEqual(Line.parseAll(text).length, nonBlank.length);
       }),
     runs
@@ -225,7 +226,7 @@ describe("Line properties", () => {
       Effect.sync(() => {
         // A torn prefix is superseded by the next complete append, exactly as
         // the dogfood journal's correction-by-append rule requires.
-        const source = `${prefix}${prefix === "" || prefix.endsWith("\n") ? "" : "\n"}${line}\n`;
+        const source = `${prefix}${prefix === "" || Str.endsWith("\n")(prefix) ? "" : "\n"}${line}\n`;
         assertSome(
           O.map(Line.lastValid(source), (row) => row.value),
           parseJson(line)
@@ -250,7 +251,7 @@ describe("Line properties", () => {
         );
         const tail = payloads.at(-1) ?? "{}";
         const keep = 1 + (cut % (tail.length - 1));
-        const torn = `${head}${tail.slice(0, keep)}`;
+        const torn = `${head}${Str.slice(0, keep)(tail)}`;
         const expected = payloads.at(-2);
         assertDefined(expected);
         assertSome(

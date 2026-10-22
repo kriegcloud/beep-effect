@@ -4,20 +4,19 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import {
+  makeEvidenceVerification,
+  makeEvidenceVerificationManifestationKey,
+} from "@beep/epistemics/EvidenceVerification";
 import { $EpistemicDomainId } from "@beep/identity/packages";
-import { TextAnchorVerificationReceipt } from "@beep/provenance/VerifiedTextAnchor";
-import { Sha256Hex } from "@beep/schema";
 import * as EpistemicIdentity from "@beep/shared-domain/identity/Epistemic";
-import { sha256 } from "@noble/hashes/sha2.js";
-import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
-import * as Eq from "effect/Equal";
-import { dual } from "effect/Function";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { canonicalJson } from "../internal/CanonicalJson.ts";
+import type * as Result from "effect/Result";
 
-const $I = $EpistemicDomainId.create("values/EvidenceVerification/EvidenceVerification.model");
-const manifestationEncodingVersion = "evidence-verification-manifestation/v1";
+const schemas = makeEvidenceVerification({
+  $I: $EpistemicDomainId.create("values/EvidenceVerification/EvidenceVerification.model"),
+  ids: { evidence: EpistemicIdentity.EvidenceId },
+});
 
 /**
  * Digest naming one exact evidence-to-source verification manifestation.
@@ -39,12 +38,7 @@ const manifestationEncodingVersion = "evidence-verification-manifestation/v1";
  * @category identifiers
  * @since 0.0.0
  */
-export const EvidenceVerificationManifestationKey = Sha256Hex.pipe(
-  S.brand("EvidenceVerificationManifestationKey"),
-  $I.annoteSchema("EvidenceVerificationManifestationKey", {
-    description: "SHA-256 digest naming one exact evidence id and verified source-text anchor within an organization.",
-  })
-);
+export const EvidenceVerificationManifestationKey = schemas.EvidenceVerificationManifestationKey;
 
 /**
  * Runtime type for {@link EvidenceVerificationManifestationKey}.
@@ -80,23 +74,12 @@ export type EvidenceVerificationManifestationKey = typeof EvidenceVerificationMa
 export class EvidenceVerificationManifestation extends S.Opaque<
   EvidenceVerificationManifestation,
   { readonly brand: unique symbol }
->()(
-  S.Struct({
-    evidenceId: EpistemicIdentity.EvidenceId.annotateKey({
-      description: "Existing epistemic evidence row bound to the verified anchor.",
-    }),
-    verifiedAnchor: TextAnchorVerificationReceipt.annotateKey({
-      description:
-        "Persisted receipt for the exact source identity and UTF-16 anchor; runtime use requires re-verification.",
-    }),
-  }).pipe(
-    $I.annoteSchema("EvidenceVerificationManifestation", {
-      description: "One exact evidence id and verified source-text anchor pair.",
-    })
-  )
-) {}
+>()(schemas.EvidenceVerificationManifestationSchema) {}
 
-const encodeManifestation = S.encodeResult(EvidenceVerificationManifestation);
+const digest = makeEvidenceVerificationManifestationKey({
+  EvidenceVerificationManifestation,
+  EvidenceVerificationManifestationKey,
+});
 
 /**
  * Compute the stable key for one exact verification manifestation.
@@ -119,24 +102,9 @@ const encodeManifestation = S.encodeResult(EvidenceVerificationManifestation);
  * @category encoding
  * @since 0.0.0
  */
-export const evidenceVerificationManifestationKey = (
+export const evidenceVerificationManifestationKey: (
   manifestation: EvidenceVerificationManifestation
-): Result.Result<EvidenceVerificationManifestationKey, S.SchemaError> =>
-  Result.map(encodeManifestation(manifestation), (encoded) =>
-    EvidenceVerificationManifestationKey.make(
-      bytesToHex(sha256(utf8ToBytes(`${manifestationEncodingVersion}\n${canonicalJson(encoded)}`)))
-    )
-  );
-
-type IsEvidenceVerificationManifestationKey = {
-  (
-    key: EvidenceVerificationManifestationKey
-  ): (manifestation: EvidenceVerificationManifestation) => Result.Result<boolean, S.SchemaError>;
-  (
-    manifestation: EvidenceVerificationManifestation,
-    key: EvidenceVerificationManifestationKey
-  ): Result.Result<boolean, S.SchemaError>;
-};
+) => Result.Result<EvidenceVerificationManifestationKey, S.SchemaError> = digest.evidenceVerificationManifestationKey;
 
 /**
  * Check a persisted manifestation key against its exact immutable payload.
@@ -152,11 +120,12 @@ type IsEvidenceVerificationManifestationKey = {
  * @category validation
  * @since 0.0.0
  */
-export const isEvidenceVerificationManifestationKey: IsEvidenceVerificationManifestationKey = dual(
-  2,
+export const isEvidenceVerificationManifestationKey: {
+  (
+    key: EvidenceVerificationManifestationKey
+  ): (manifestation: EvidenceVerificationManifestation) => Result.Result<boolean, S.SchemaError>;
   (
     manifestation: EvidenceVerificationManifestation,
     key: EvidenceVerificationManifestationKey
-  ): Result.Result<boolean, S.SchemaError> =>
-    Result.map(evidenceVerificationManifestationKey(manifestation), (expected) => Eq.equals(expected, key))
-);
+  ): Result.Result<boolean, S.SchemaError>;
+} = digest.isEvidenceVerificationManifestationKey;

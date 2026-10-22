@@ -1,6 +1,7 @@
 import { AnnotationProperties, WorkflowCommand } from "@beep/github-commands";
 import { assert, describe, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 describe("WorkflowCommand", () => {
   describe("AnnotationProperties runtime contract", () => {
@@ -91,7 +92,7 @@ describe("WorkflowCommand", () => {
 
     it("refuses to let a message inject a second command", () => {
       const rendered = WorkflowCommand.render("debug", {}, "x\n::set-output name=a::b");
-      assert.notInclude(rendered.slice("::debug::".length), "\n");
+      assert.notInclude(Str.slice("::debug::".length)(rendered), "\n");
       assert.strictEqual(rendered, "::debug::x%0A::set-output name=a::b");
     });
   });

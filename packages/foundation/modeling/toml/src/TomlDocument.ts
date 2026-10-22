@@ -21,6 +21,7 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import * as Str from "effect/String";
 import { isRawTomlError } from "./internal/diagnostics.ts";
 import { parseExpressions } from "./internal/parser.ts";
 import { analyze, buildValue } from "./internal/semantic.ts";
@@ -234,7 +235,7 @@ export class TomlDocument extends S.Class<TomlDocument, { readonly brand: unique
   stringify(): string {
     let out = "";
     for (const expression of this.expressions) {
-      out += this.source.slice(expression.offset, expression.offset + expression.length);
+      out += Str.slice(expression.offset, expression.offset + expression.length)(this.source);
     }
     return out;
   }

@@ -7,6 +7,7 @@ import { assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const decodeUnknownMembershipModel = S.decodeUnknownEffect(Membership.Model);
 const decodeUnknownUserModel = S.decodeUnknownEffect(User.Model);
@@ -17,7 +18,7 @@ const systemPrincipal = {
 } as const;
 
 const publicIdFor = (entityType: string, id: number) =>
-  `${entityType.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase()}_a${id}`;
+  `${Str.toLowerCase(Str.replace(/([a-z0-9])([A-Z])/g, "$1_$2")(entityType))}_a${id}`;
 
 const baseEntityInput = (entityType: string, id: number) => ({
   createdAt: id,

@@ -24,6 +24,7 @@
 // @effect-diagnostics processEnv:skip-file
 // @effect-diagnostics globalTimers:skip-file
 // @effect-diagnostics globalRandom:skip-file
+
 import * as NodeChildProcess from "node:child_process";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import * as NodeFS from "node:fs";
@@ -33,6 +34,7 @@ import * as NodePath from "node:path";
 import * as NodeStream from "node:stream";
 import { A, O, P, R } from "@beep/utils";
 import { addEqualityTesters } from "@effect/vitest";
+import * as Str from "effect/String";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import picomatch from "picomatch";
@@ -401,7 +403,7 @@ const parseToml = (content: string): unknown => {
     return normalizeTomlValue(Toml.parse(content));
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
-    throw new Error(message.includes('"=" found') ? `Unexpected = (${message})` : message);
+    throw new Error(Str.includes('"=" found')(message) ? `Unexpected = (${message})` : message);
   }
 };
 
@@ -410,9 +412,9 @@ const parseJsonlChunk: BunTestShim["JSONL"]["parseChunk"] = (content) => {
   const values: Array<unknown> = [];
   let read = 0;
 
-  for (const line of content.split("\n")) {
+  for (const line of Str.split("\n")(content)) {
     const lineWithTerminatorLength = line.length + (read + line.length < content.length ? 1 : 0);
-    if (line.trim().length === 0) {
+    if (Str.trim(line).length === 0) {
       read += lineWithTerminatorLength;
       continue;
     }
@@ -440,11 +442,11 @@ const parseJsonlChunk: BunTestShim["JSONL"]["parseChunk"] = (content) => {
   };
 };
 
-const normalizeFilePath = (value: string): string => value.replaceAll("\\", "/");
+const normalizeFilePath = (value: string): string => Str.replaceAll("\\", "/")(value);
 const globMetaPattern = /[*?[{(!]/u;
 
 const scanRootForGlobPattern = (pattern: string): string => {
-  const segments = normalizeFilePath(pattern).split("/");
+  const segments = Str.split("/")(normalizeFilePath(pattern));
   const staticSegments = O.match(
     A.findFirstIndex(segments, (segment) => globMetaPattern.test(segment)),
     {
@@ -494,10 +496,10 @@ class GlobShim {
     const cwd = options?.cwd ?? process.cwd();
     const entries: Array<string> = [];
     const normalizedPattern = normalizeFilePath(this.pattern);
-    const patternDepth = normalizedPattern.split("/").length;
-    const recursivePattern = normalizedPattern.includes("**");
+    const patternDepth = Str.split("/")(normalizedPattern).length;
+    const recursivePattern = Str.includes("**")(normalizedPattern);
     const scanRoot = scanRootForGlobPattern(normalizedPattern);
-    const includeDirectories = options?.onlyFiles !== true && !this.pattern.endsWith("/**/*");
+    const includeDirectories = options?.onlyFiles !== true && !Str.endsWith("/**/*")(this.pattern);
     const outputPath = (relativePath: string, absolutePath: string): string =>
       options?.absolute === true ? normalizeFilePath(absolutePath) : relativePath;
 
@@ -515,7 +517,7 @@ class GlobShim {
       })();
 
       for (const dirent of dirents) {
-        if (options?.dot !== true && dirent.name.startsWith(".")) {
+        if (options?.dot !== true && Str.startsWith(".")(dirent.name)) {
           continue;
         }
 
@@ -544,7 +546,7 @@ class GlobShim {
           if (includeDirectories && this.match(relativePath)) {
             entries.push(outputPath(relativePath, absolutePath));
           }
-          if (recursivePattern || relativePath.split("/").length < patternDepth) {
+          if (recursivePattern || Str.split("/")(relativePath).length < patternDepth) {
             visit(absolutePath, relativePath);
           }
         } else if (this.match(relativePath)) {
@@ -562,7 +564,7 @@ class GlobShim {
 }
 
 const renderMarkdownHtml = (content: string, options?: BunMarkdownOptions): string => {
-  if (options?.tagFilter === false && /^<script\b/iu.test(content.trimStart())) {
+  if (options?.tagFilter === false && /^<script\b/iu.test(Str.trimStart(content))) {
     return `${content}\n`;
   }
 

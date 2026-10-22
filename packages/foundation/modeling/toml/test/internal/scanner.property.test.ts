@@ -17,7 +17,10 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { constant, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const Characters = S.Array(S.Literals(["a", "b", " ", "\t", "\n", "\r", '"', "\\", "😀", "\u0000"]));
@@ -60,7 +63,7 @@ it.effect.prop(
       assert.deepStrictEqual(basic, { value, end: encoded.length });
       const reencoded = yield* S.encodeEffect(JsonString)(basic.value);
       assert.deepStrictEqual(scanBasicString(reencoded, 0), basic);
-      const multiline = `"""${encoded.slice(1, -1)}"""`;
+      const multiline = `"""${Str.slice(1, -1)(encoded)}"""`;
       assert.deepStrictEqual(scanMultilineBasicString(multiline, 0), { value, end: multiline.length });
       const canonical = yield* Toml.stringify({ value });
       assert.deepStrictEqual(yield* Toml.parse(canonical), { value });
@@ -102,7 +105,7 @@ it.effect.prop(
       const scanned = scanComment(`#${comment}${newline}`, 0);
       assert.deepStrictEqual(scanned, { value: comment, end: comment.length + 1 });
       assert.deepStrictEqual(scanComment(`#${scanned.value}${newline}`, 0), scanned);
-      const spaces = " \t".repeat(keyCharacters.length);
+      const spaces = Str.repeat(keyCharacters.length)(" \t");
       const end = scanWhitespace(`${spaces}${key}`, 0);
       assert.strictEqual(end, spaces.length);
       assert.strictEqual(scanWhitespace(`${spaces}${key}`, end), end);
@@ -122,7 +125,7 @@ it.effect.prop(
       assert.deepStrictEqual(token, { value: text, end: text.length });
       assert.strictEqual(classifyValueToken(token.value, 0), value);
       const encoded = yield* Toml.stringify({ value });
-      const start = encoded.indexOf("=") + 2;
+      const start = pipe(encoded, Str.indexOf("="), O.getOrElse(constant(-1))) + 2;
       const canonical = scanValueToken(encoded, start);
       assert.strictEqual(classifyValueToken(canonical.value, start), value);
       assert.strictEqual(yield* Toml.stringify(yield* Toml.parse(encoded)), encoded);
