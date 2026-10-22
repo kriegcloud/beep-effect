@@ -1,4 +1,4 @@
-import { Glob } from "@beep/schema/Glob";
+import { GlobString } from "@beep/glob/GlobString";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { A, Str } from "@beep/utils";
 import * as O from "effect/Option";
@@ -55,9 +55,9 @@ export const surfacesForTarget = (target: RegistrationTarget): ReadonlyArray<Reg
       artifacts: A.appendAll(
         A.map(
           [".beep", ".turbo", "dist", "coverage", "node_modules", "docs", ".next", "src-tauri/target"],
-          (artifact) => Glob.make(`${target.packagePath}/${artifact}/**`)
+          (artifact) => GlobString.make(`${target.packagePath}/${artifact}/**`)
         ),
-        isLab ? [Glob.make(`${target.packagePath}/${LAB_MANIFEST_FILENAME}`)] : A.empty<Glob>()
+        isLab ? [GlobString.make(`${target.packagePath}/${LAB_MANIFEST_FILENAME}`)] : A.empty<GlobString>()
       ),
     }),
     WorkspaceLiteralSurface.make({
@@ -158,25 +158,27 @@ export const surfacesForTarget = (target: RegistrationTarget): ReadonlyArray<Reg
           "goals/**/ops/manifest.json",
           "standards/**/*.jsonc",
         ],
-        (value) => Glob.make(value)
+        (value) => GlobString.make(value)
       ),
       needles: packageNeedles,
     }),
     PendingChangesetSurface.make({
       id: "pending-changesets",
-      changesetGlob: Glob.make(".changeset/*.md"),
+      changesetGlob: GlobString.make(".changeset/*.md"),
       retiredRegistry: PosixPath.make("standards/changesets.retired-packages.json"),
       packageName: target.packageName,
       deletionNotePolicy: isLab ? "labs-exempt" : target.private ? "private-exempt" : "emit-empty-note",
     }),
     RuntimeArtifactSurface.make({
       id: "runtime-artifacts",
-      globs: A.map([`${target.packagePath}/**`, `.beep/ci/**/*${slug}*`, `.beep/ci/**`], (value) => Glob.make(value)),
+      globs: A.map([`${target.packagePath}/**`, `.beep/ci/**/*${slug}*`, `.beep/ci/**`], (value) =>
+        GlobString.make(value)
+      ),
     }),
     HistoricalRecordSurface.make({
       id: "historical-records",
       files: A.map(["research/**", "goals/**/research/**", "goals/**/history/**", ".changeset/**/*.md"], (value) =>
-        Glob.make(value)
+        GlobString.make(value)
       ),
       needles: packageNeedles,
     }),

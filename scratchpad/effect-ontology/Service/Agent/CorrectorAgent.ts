@@ -18,7 +18,7 @@
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { makeLiteral, makeNamedNode, makeQuad } from "@beep/rdf/Rdf";
 import { RDF_TYPE } from "@beep/rdf/Vocab/Rdf";
@@ -209,7 +209,7 @@ class SkipStrategy extends CorrectionBase.extend<SkipStrategy>($I`SkipStrategy`)
  *
  * ```ts
  * import { Correction } from "@effect-ontology/Service/Agent/CorrectorAgent"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  *
  * const correction = Correction.cases.skip.make({
  *   focusNode: "https://example.com/entity/1",
@@ -255,7 +255,7 @@ const meetsConfidenceThreshold = (correction: CorrectionBase): boolean => correc
  *
  * ```ts
  * import { Correction, correctionShouldApply } from "@effect-ontology/Service/Agent/CorrectorAgent"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  *
  * const correction = Correction.cases.skip.make({
  *   focusNode: "https://example.com/entity/1",
@@ -327,7 +327,7 @@ export class CorrectionError extends S.TaggedError<CorrectionError, { readonly b
  * **Example** (Construct an application error)
  *
  * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { Correction, CorrectionApplicationError } from "@effect-ontology/Service/Agent/CorrectorAgent"
  *
  * const error = CorrectionApplicationError.make({
@@ -365,7 +365,7 @@ export class CorrectionApplicationError extends S.TaggedError<CorrectionApplicat
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { makeNamedNode } from "@beep/rdf/Rdf"
  * import { ShaclValidationViolation } from "@beep/semantic-web/services/shacl-validation"
  * import { Correction, CorrectionResult } from "@effect-ontology/Service/Agent/CorrectorAgent"

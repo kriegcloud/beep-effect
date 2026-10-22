@@ -1,4 +1,4 @@
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { IRI } from "@beep/rdf/Iri";
 import { ObjectRef } from "@beep/rdf/Prov";
 import { describe, expect, it } from "@effect/vitest";

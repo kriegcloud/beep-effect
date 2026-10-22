@@ -17,12 +17,13 @@
 import { $GlobId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import * as Str from "effect/String";
 import { EXPANSION_MAX, GuardMeasurement, GuardReason, isGuardExceeded } from "./internal/limits.ts";
 import { escape as engineEscape, unescape as engineUnescape, GLOBSTAR, Minimatch } from "./internal/minimatch.ts";
 import { Platform } from "./internal/types.ts";
@@ -124,7 +125,7 @@ export class GlobPatternError extends S.TaggedError<GlobPatternError, { readonly
    * @since 0.0.0
    */
   override get message(): string {
-    const shown = this.pattern.length > 64 ? `${this.pattern.slice(0, 64)}…` : this.pattern;
+    const shown = this.pattern.length > 64 ? `${Str.slice(0, 64)(this.pattern)}…` : this.pattern;
     return `glob pattern ${JSON.stringify(shown)} rejected: ${this.reason} (limit ${this.limit}, actual ${this.actual})`;
   }
 }
@@ -673,6 +674,38 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
   }
 
   /**
+   * Whether some path below `directory` could still match: the directory's
+   * segments do not contradict any alternative of the pattern.
+   *
+   * **Details**
+   *
+   * This is minimatch's partial match, so a directory walker can prune a
+   * subtree the pattern can never reach. It honors the compiled options: under
+   * the default `dot: false` a dot-directory is not admitted by a wildcard or a
+   * globstar. A negated pattern can match outside its inner pattern, and a
+   * `matchBase` pattern matches by basename at any depth, so both admit every
+   * directory.
+   *
+   * **Example** (Prune directories a pattern cannot reach)
+   *
+   * ```ts
+   * import { GlobPattern } from "@beep/glob/GlobPattern";
+   *
+   * const pattern = GlobPattern.make({ source: "packages/glob/test/**" });
+   * console.log(pattern.mayMatchBelow("packages/glob")) // true
+   * console.log(pattern.mayMatchBelow("packages/walker")) // false
+   * ```
+   *
+   * @category predicates
+   * @since 0.0.0
+   */
+  mayMatchBelow(directory: string): boolean {
+    const engine = this.#engineOf();
+    if (engine.negate || engine.options.matchBase === true) return true;
+    return engine.match(directory, true);
+  }
+
+  /**
    * Whether the pattern contains any magic (wildcards, classes, extglobs).
    *
    * **Example** (Distinguish wildcards from literals)
@@ -708,6 +741,42 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
    */
   get negated(): boolean {
     return this.#engineOf().negate;
+  }
+
+  /**
+   * The single literal path the pattern names, or None when it can match more
+   * than one path.
+   *
+   * **Details**
+   *
+   * Some only when the pattern is not negated, not `matchBase`, expands to one
+   * brace alternative, and every segment of that alternative is literal. The
+   * path is the compiled alternative, not the source text: escapes are
+   * resolved, so `GlobPattern.escape("a*b.ts")` names `a*b.ts`. A brace
+   * pattern such as `src/{a,b}.ts` is not literal even though `hasMagic` is
+   * false, because it names two paths.
+   *
+   * **Example** (Find the one path a literal pattern names)
+   *
+   * ```ts
+   * import { GlobPattern } from "@beep/glob/GlobPattern";
+   * import * as O from "effect/Option";
+   *
+   * console.log(O.getOrNull(GlobPattern.make({ source: "src/index.ts" }).literalPath)) // src/index.ts
+   * console.log(O.isNone(GlobPattern.make({ source: "src/{a,b}.ts" }).literalPath)) // true
+   * ```
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  get literalPath(): O.Option<string> {
+    const engine = this.#engineOf();
+    if (engine.negate || engine.options.matchBase === true || engine.set.length !== 1) return O.none();
+    return pipe(
+      A.head(engine.set),
+      O.filter((row): row is Array<string> => A.every(row, P.isString)),
+      O.map(A.join("/"))
+    );
   }
 
   /**
@@ -754,9 +823,10 @@ export class GlobPattern extends S.Class<GlobPattern, { readonly brand: unique s
   /**
    * Whether the pattern can match more than one level below
    * {@link GlobPattern.enumerationPrefix}: true iff any alternative contains
-   * a globstar, or a magic segment followed by more segments. The enumerator
-   * uses this to decide between a single-level read and a bounded recursive
-   * descent.
+   * a globstar, or a magic segment followed by more segments. It reads each
+   * alternative on its own, so brace alternatives with different literal
+   * leaders (`{src,dist}/*.ts`) answer false; a walker deciding which
+   * directories to enter uses {@link GlobPattern.mayMatchBelow} instead.
    *
    * **Gotchas**
    *

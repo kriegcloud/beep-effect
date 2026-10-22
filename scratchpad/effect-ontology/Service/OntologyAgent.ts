@@ -12,7 +12,7 @@
  */
 
 import type { DrizzleError } from "@beep/drizzle";
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { OxigraphSparqlQueryServiceLive } from "@beep/oxigraph";
 import { LiteralKit } from "@beep/schema";

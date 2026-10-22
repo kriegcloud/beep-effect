@@ -12,7 +12,7 @@
  * @since 0.0.0
  */
 
-import type { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import type { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { Percentage } from "@beep/schema/Percentage";

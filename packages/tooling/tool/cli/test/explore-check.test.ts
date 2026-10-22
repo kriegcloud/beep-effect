@@ -90,7 +90,7 @@ describe("explore --check", () => {
           const soloId = yield* writeEvent("goals/solo", solo);
           yield* writeProjectFile(
             "goals/solo/ops/trace.json",
-            `{"schemaVersion":"packet-trace/v1","projectorVersion":2,"sourceTip":{"seq":9,"id":"${"c".repeat(64)}"},"timeline":[],"derived":{"packet":"solo","root":"goals","revision":9,"forks":[],"issues":[]}}\n`
+            `{"schemaVersion":"packet-trace/v1","projectorVersion":2,"sourceTip":{"seq":9,"id":"${Str.repeat(64)("c")}"},"timeline":[],"derived":{"packet":"solo","root":"goals","revision":9,"forks":[],"issues":[]}}\n`
           );
 
           // Third stream: healthy events with the byte-exact derived trace.
@@ -156,7 +156,7 @@ describe("explore --check", () => {
                 packet: "twinned",
                 root: "goals",
                 seq: 2,
-                parent: parentByte.repeat(64),
+                parent: Str.repeat(64)(parentByte),
                 expectedRevision: 1,
                 at,
                 actor: "test",
@@ -172,8 +172,8 @@ describe("explore --check", () => {
           const summaryCount = A.length(Str.split(output, "repair plan (read-only)")) - 1;
           expect(forkCount).toBe(2);
           expect(summaryCount).toBe(1);
-          const parentA = "a".repeat(64);
-          const parentB = "b".repeat(64);
+          const parentA = Str.repeat(64)("a");
+          const parentB = Str.repeat(64)("b");
           const forkA = PacketForkVerdict.make({ parent: parentA, parentSeq: 1, children: [] });
           const forkB = PacketForkVerdict.make({ parent: parentB, parentSeq: 1, children: [] });
           expect(packetForkFindingKey("twinned", forkA)).toBe(`twinned packet-stream-fork ${parentA}`);

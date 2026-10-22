@@ -132,7 +132,7 @@ const completingAddsContentBreak = (ctx: LintContext, lastLine: LintLine): boole
 export const eofNewline = YamlRule.make({
   id: "eof-newline",
   check: dual(2, (ctx: LintContext, _options: unknown): Iterable<YamlLintDiagnostic> => {
-    if (ctx.text.length === 0 || ctx.text.endsWith("\n")) return [];
+    if (ctx.text.length === 0 || Str.endsWith("\n")(ctx.text)) return [];
     const lastLine = ctx.lines[ctx.lines.length - 1];
     if (lastLine === undefined) return [];
     const addsContentBreak = /^ +$/.test(lastLine.text) && completingAddsContentBreak(ctx, lastLine);

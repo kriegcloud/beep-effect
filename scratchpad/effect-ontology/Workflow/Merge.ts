@@ -10,7 +10,7 @@
  * @since 0.0.0
  */
 
-import type { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import type { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import type { IRI } from "@beep/rdf";
 import { ProvBundle } from "@beep/rdf/Prov";

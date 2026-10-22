@@ -12,7 +12,7 @@
  * @since 0.0.0
  */
 
-import { ClaimGateViolation } from "@beep/epistemic-domain/values";
+import { ClaimGateViolation } from "@beep/epistemics/ClaimGate";
 import { $EpistemicId } from "@beep/identity/packages";
 import { makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/rdf/Rdf";
 import { RDF_TYPE } from "@beep/rdf/Vocab/Rdf";
@@ -29,7 +29,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type * as DomainCandidateClaim from "@beep/epistemic-domain/entities/CandidateClaim";
 import type * as DomainEvidence from "@beep/epistemic-domain/entities/Evidence";
-import type { ClaimGateResult } from "@beep/epistemic-domain/values";
+import type { ClaimGateResult } from "@beep/epistemics/ClaimGate";
 import type { Dataset } from "@beep/rdf/Rdf";
 import type { ShaclValidationResult, ShaclValidationServiceShape } from "@beep/semantic-web/services/shacl-validation";
 import type { ClaimGateShape } from "./ClaimGate.ports.ts";

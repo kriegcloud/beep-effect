@@ -31,7 +31,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
-import { flow } from "effect/Function";
+import { constant, flow } from "effect/Function";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientError from "effect/http/HttpClientError";
 import * as HttpClientResponse from "effect/http/HttpClientResponse";
@@ -594,7 +594,7 @@ const liveOwnerStamp = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const bootId = Str.trim(yield* fs.readFileString("/proc/sys/kernel/random/boot_id"));
   const stat = yield* fs.readFileString("/proc/self/stat");
-  const fields = Str.split(Str.trim(stat.slice(stat.lastIndexOf(")") + 1)), " ");
+  const fields = Str.split(Str.trim(Str.slice(O.getOrElse(Str.lastIndexOf(")")(stat), constant(-1)) + 1)(stat)), " ");
   return yield* encodeOwner(
     ModelsPublicationOwner.make({ bootId, pid: Number.parseInt(stat, 10), startTicks: fields[19] ?? "" })
   );

@@ -13,7 +13,7 @@ import * as Crypto from "effect/Crypto";
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { IRI } from "@beep/rdf";
 import { LiteralKit } from "@beep/schema";
@@ -160,7 +160,7 @@ export class EntityVerificationInput extends S.Opaque<EntityVerificationInput, {
  * **Example** (Represent a supported entity)
  *
  * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { IRI } from "@beep/rdf"
  * import { Entity, GroundingDecision } from "@effect-ontology/Model/Entity"
  * import { EntityId } from "@effect-ontology/Model/shared"
@@ -196,7 +196,7 @@ export class EntityGrounderResult extends S.Class<EntityGrounderResult, { readon
    *
    * **Example** (Check a supported entity)
    * ```ts
-   * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+   * import { Confidence } from "@beep/epistemics/EvidenceSpan"
    * import { IRI } from "@beep/rdf"
    * import { Entity, GroundingDecision } from "@effect-ontology/Model/Entity"
    * import { EntityId } from "@effect-ontology/Model/shared"
@@ -526,7 +526,7 @@ export class GrounderResult extends S.Class<GrounderResult, { readonly brand: un
    *
    * **Example** (Check a supported relation)
    * ```ts
-   * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+   * import { Confidence } from "@beep/epistemics/EvidenceSpan"
    * import { IRI } from "@beep/rdf"
    * import { GroundingDecision, Relation, RelationObject } from "@effect-ontology/Model/Entity"
    * import { EntityId } from "@effect-ontology/Model/shared"

@@ -2338,5 +2338,22 @@ compile-time role checking without making every new relation a shared-kernel
 change. Evidence for the model: `scratchpad/party/PARTY-DATA-MODEL.md`
 (49 tests; run over a real 241,501-message index). Reverse by keeping the
 vocabulary in `@beep/epistemic-domain` (delete `@beep/epistemics` and repoint
-imports) and, for party, by leaving the model in scratchpad; neither step has
-shipped yet, so reversal before the extraction PR is a doc edit.
+imports) and, for party, by leaving the model in scratchpad.
+
+Amendment (2026-10-22, operator ruling during the extraction): "tenant-free"
+is not enough for a move to foundation. Seven of the value modules
+(`EdgeEndpoint`, `LogicalEdgeIdentity`, `EvidenceVerification`, `Contradiction`,
+`ContradictionDetection`, `ClaimEvidenceReview`, `ClaimProjection`) carry
+shared-kernel ids (`EvidenceId`, `CandidateClaimId`, `EdgeVersionId`,
+`UserPrincipal`), and foundation may not depend on the shared kernel. These
+modules now live in `@beep/epistemics` as generic schema builders and behavior
+factories over caller-supplied id schemas (`IdCodec`: a schema whose type is
+`string | number`) and a caller-supplied identity composer. Each slice declares
+its own `S.Opaque` classes from the builders under its existing names and
+identity paths, because TypeScript cannot declare a class over a generic base
+(TS2509). The epistemic slice therefore emits byte-identical schema identifiers
+(258 checked), and the party slice binds the same factories to its own ids. The
+`Claim<P>` envelope (`makeClaimEnvelope`) follows the same contract. Reverse by
+moving the shared-domain id brands into foundation and collapsing the builders
+back into concrete schemas. Record: `goals/epistemics-foundation-extraction/SPEC.md`
+"P1b factory contract".

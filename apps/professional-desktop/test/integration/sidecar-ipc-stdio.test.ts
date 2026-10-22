@@ -26,6 +26,7 @@ import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as RpcClient from "effect/rpc/RpcClient";
 import * as RpcSerialization from "effect/rpc/RpcSerialization";
 import * as S from "effect/Schema";
@@ -52,7 +53,7 @@ const resolveSidecarBinaryPath = Effect.try({
     if (!result.success) {
       throw new Error(`rustc -vV failed: ${result.stderr.toString()}`);
     }
-    const triple = result.stdout.toString().match(/host: (\S+)/)?.[1];
+    const triple = O.getOrUndefined(Str.match(/host: (\S+)/)(result.stdout.toString()))?.[1];
     if (triple === undefined) {
       throw new Error("could not determine the target triple from `rustc -vV`");
     }

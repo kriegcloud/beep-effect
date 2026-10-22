@@ -30,6 +30,7 @@ import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { expectReportedExit } from "./support/CommandTest.ts";
 
@@ -65,15 +66,15 @@ it.layer(PlatformLayer, { timeout: "5 seconds" })((it) => {
     });
 
     it("reports a schema lens the prompt never names", () => {
-      const withoutContrast = syncedPrompt.replace("`contrast`, ", "");
+      const withoutContrast = Str.replace("`contrast`, ", "")(syncedPrompt);
       expect(diffJudgeRubricLenses(withoutContrast).missingFromPrompt).toEqual(["contrast"]);
     });
 
     it("reports a prompt token that is not a QaLens literal", () => {
-      const withDriftedLens = syncedPrompt.replace(
+      const withDriftedLens = Str.replace(
         "## Output contract",
         "Also grade `made-up-lens`.\n\n## Output contract"
-      );
+      )(syncedPrompt);
       expect(diffJudgeRubricLenses(withDriftedLens).unknownInPrompt).toEqual(["made-up-lens"]);
     });
 
@@ -92,10 +93,10 @@ it.layer(PlatformLayer, { timeout: "5 seconds" })((it) => {
     });
 
     it("treats a lens from another rubric family as drift", () => {
-      const withDrawingLens = syncedPrompt.replace(
+      const withDrawingLens = Str.replace(
         "## Output contract",
         "Also grade `view-agreement`.\n\n## Output contract"
-      );
+      )(syncedPrompt);
       expect(diffJudgeRubricLenses(withDrawingLens).unknownInPrompt).toEqual(["view-agreement"]);
       expect(
         diffJudgeRubricFamily(JudgeRubricFamilyInput.make({ prompt: syncedPrompt, family: DrawingQaLens.literals }))
