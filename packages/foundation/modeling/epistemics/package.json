@@ -1,0 +1,111 @@
+{
+  "name": "@beep/epistemics",
+  "version": "0.0.0",
+  "description": "Tenant-free epistemic vocabulary: evidence spans, claim gates, edge identity, contradictions, intervals and claim envelopes.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/epistemics",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
+    "directory": "packages/foundation/modeling/epistemics"
+  },
+  "beep": {
+    "family": "foundation",
+    "kind": "modeling"
+  },
+  "scripts": {
+    "audit": "bun run --if-present beep:audit",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run lint:laws && bun run beep:docgen && bun run beep:lint",
+    "beep:build": "tsc-rs -p tsconfig.json && bun run babel",
+    "beep:check": "tsc-rs -p tsconfig.check.json && bun run beep:check:tests",
+    "beep:check:tests": "tsc-rs -p tsconfig.test.json --noEmit",
+    "beep:docgen": "bunx --bun --no-install docgen",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+    "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx vitest run --coverage --exclude=test/integration/**",
+    "docgen": "bun run beep:docgen",
+    "lint": "bun run beep:lint",
+    "lint:deprecated-apis": "beep-cli lint deprecated-apis --package .",
+    "lint:fix": "bun run beep:lint:fix",
+    "lint:jsdoc": "beep-cli lint jsdoc --package .",
+    "lint:laws": "beep-cli lint laws --package .",
+    "package-test-typecheck": "beep-cli quality test-tsgo-package",
+    "test": "bun run beep:test",
+    "test:integration": "bun run beep:test:integration"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./Claim": "./src/Claim/index.ts",
+    "./ClaimDispositionStatus": "./src/ClaimDispositionStatus/index.ts",
+    "./ClaimEvidenceReview": "./src/ClaimEvidenceReview/index.ts",
+    "./ClaimGate": "./src/ClaimGate/index.ts",
+    "./ClaimProjection": "./src/ClaimProjection/index.ts",
+    "./Contradiction": "./src/Contradiction/index.ts",
+    "./ContradictionDetection": "./src/ContradictionDetection/index.ts",
+    "./EdgeEndpoint": "./src/EdgeEndpoint/index.ts",
+    "./EdgeRelation": "./src/EdgeRelation/index.ts",
+    "./EvidenceSpan": "./src/EvidenceSpan/index.ts",
+    "./EvidenceVerification": "./src/EvidenceVerification/index.ts",
+    "./Factory": "./src/Factory/index.ts",
+    "./KnowledgeInterval": "./src/KnowledgeInterval/index.ts",
+    "./LogicalEdgeIdentity": "./src/LogicalEdgeIdentity/index.ts",
+    "./ValidInterval": "./src/ValidInterval/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null,
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": "./dist/index.js",
+      "./Claim": "./dist/Claim/index.js",
+      "./ClaimDispositionStatus": "./dist/ClaimDispositionStatus/index.js",
+      "./ClaimEvidenceReview": "./dist/ClaimEvidenceReview/index.js",
+      "./ClaimGate": "./dist/ClaimGate/index.js",
+      "./ClaimProjection": "./dist/ClaimProjection/index.js",
+      "./Contradiction": "./dist/Contradiction/index.js",
+      "./ContradictionDetection": "./dist/ContradictionDetection/index.js",
+      "./EdgeEndpoint": "./dist/EdgeEndpoint/index.js",
+      "./EdgeRelation": "./dist/EdgeRelation/index.js",
+      "./EvidenceSpan": "./dist/EvidenceSpan/index.js",
+      "./EvidenceVerification": "./dist/EvidenceVerification/index.js",
+      "./Factory": "./dist/Factory/index.js",
+      "./KnowledgeInterval": "./dist/KnowledgeInterval/index.js",
+      "./LogicalEdgeIdentity": "./dist/LogicalEdgeIdentity/index.js",
+      "./ValidInterval": "./dist/ValidInterval/index.js",
+      "./*": "./dist/*.js",
+      "./internal/*": null,
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/provenance": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@noble/hashes": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/test-runner": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:",
+    "bun-types": "catalog:"
+  }
+}

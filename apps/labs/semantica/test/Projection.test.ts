@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
-import { Confidence } from "@beep/epistemic-domain";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { OxigraphSparqlQueryServiceLive } from "@beep/oxigraph";
 import {
   SourceTextDigest,

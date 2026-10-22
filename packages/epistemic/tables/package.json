@@ -80,6 +80,7 @@
   "dependencies": {
     "@beep/effect-drizzle": "workspace:^",
     "@beep/epistemic-domain": "workspace:^",
+    "@beep/epistemics": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/provenance": "workspace:^",
     "@beep/schema": "workspace:^",
