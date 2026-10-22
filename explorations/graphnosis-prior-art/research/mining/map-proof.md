@@ -1,8 +1,8 @@
 # Graphnosis → beep-effect mapping proof
 
 Territory: **error classification, tests, benchmarks & evidence**
-Repo under test: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean)
-Source: `/home/elpresidank/YeeBois/dev/Graphnosis`
+Repo under test: `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean)
+Source: `$HOME/YeeBois/dev/Graphnosis`
 Mining note: `../graphnosis/survey-proof.md`
 Date: 2026-08-06
 

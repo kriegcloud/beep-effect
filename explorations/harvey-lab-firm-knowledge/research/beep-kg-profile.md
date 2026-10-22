@@ -5,7 +5,7 @@ Lane: in-repo profile (no web research) · Method: live source + packet docs onl
 
 > **Scope note.** This report makes **zero external claims**. Every statement
 > below is verified by `rg`/`ls`/`read` against the working tree at
-> `/home/elpresidank/YeeBois/projects/beep-effect13` on commit `6b42b239a6`
+> `$HOME/YeeBois/projects/beep-effect13` on commit `6b42b239a6`
 > (branch `main`). No URLs were fetched; the Sources section lists repo paths
 > and prior packet reports instead. Where a statement rests on a document
 > rather than executable code, it is labelled **DOC-CLAIM** — a written

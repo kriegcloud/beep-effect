@@ -40,5 +40,5 @@ Editorial: `jsonc-R1-014` … `jsonc-R1-021`.
 ## Commands run
 
 - Mechanical census-equivalent greps over `scratchpad/jsonc/**/*.ts` (legacy carriers, category/since counts vs 55 owning exports + 13 modules, titled Example presence, undescribed `@see`, type braces).
-- Not run in this process: `/home/elpresidank/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts`
+- Not run in this process: `$HOME/.local/share/mise/installs/bun/latest/bin/bun scratchpad/.jsdoc-loop/census.ts`
 - Not run in this process: `bun run docgen:local` (scratchpad examples compile through `scratchpad/package.json` `docgen` / `scratchpad/docgen.json`).

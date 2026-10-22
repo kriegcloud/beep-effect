@@ -1,8 +1,8 @@
 # Mapping — Graphnosis craft findings onto beep-effect
 
 Territory: product scope discipline, docs craft & positioning.
-Repo mapped: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
-Source survey: `scratchpad/graphnosis/survey-craft.md`. Source repo: `/home/elpresidank/YeeBois/dev/Graphnosis`.
+Repo mapped: `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
+Source survey: `scratchpad/graphnosis/survey-craft.md`. Source repo: `$HOME/YeeBois/dev/Graphnosis`.
 
 ## Standing shape of the target repo (verified, not assumed)
 
@@ -121,7 +121,7 @@ in memory: `coverage-ratchet-penalizes-deletion`, `instantiation-budgets-need-a-
 
 Also a live instance of the exact defect Graphnosis withdrew a figure for (a citation the reader
 cannot reach): 42 machine-local absolute paths in tracked public docs, **12 of them dead**, e.g.
-`standards/effect-first-development.md:443` → `/home/elpresidank/YeeBois/projects/beep-effect/.repos/effect-v4/packages/effect/SCHEMA.md`
+`standards/effect-first-development.md:443` → `.repos/effect-v4/packages/effect/SCHEMA.md`
 (wrong checkout; `ls` → No such file or directory).
 
 **Verdict:** `partial`.
@@ -451,7 +451,7 @@ doctrine says the last gate should guard it. The protections that do exist are h
 |---|---|
 | A1 orphaned high-authority doc | **Partly defended.** `docs/ROADMAP.md:3` carries `Freshness: 2026-07-27`; `docs/mirror/2026-07-08-roadmap.md` is explicitly superseded ("Where the two disagree, this file wins"); `docs/BEEPGRAPH_ARCHITECTURE.md` is labelled "remains a proposal" (`docs/ROADMAP.md:128`). `beep lint roadmap-refs` (`packages/tooling/tool/cli/src/commands/Lint/RoadmapRefs.ts`) resolves every goal/exploration link in ROADMAP.md. **Undefended:** nothing enumerates docs reachable from no top-level page; `docs/agent-memory-infra/` (15 files) and `docs/graphs/` (4) are linked from `docs/README.md` only by directory glob. |
 | A2 agent-instruction files as shadow specs | **Actively defended.** `AGENTS.md`/`CLAUDE.md` are the prompt-cache prefix and are explicitly budgeted ("Context Economy"), `docs(agents): prune always-loaded context and fix stale routing facts (#564)` is a recent maintenance commit, and `goals/knowledge-surface-automation` treats `.claude/`/`.agents/`/`.codex/` as gated surfaces. |
-| A3 normative claim contradicted in a third file | **Real risk, named but not shipped.** `goals/knowledge-surface-automation/SPEC.md:172` is the planned contradiction pass. A concrete live instance: 42 `/home/elpresidank/...` absolute paths in tracked public docs, **12 dead**, including `standards/effect-first-development.md:443`. |
+| A3 normative claim contradicted in a third file | **Real risk, named but not shipped.** `goals/knowledge-surface-automation/SPEC.md:172` is the planned contradiction pass. A concrete live instance: 42 `$HOME/...` absolute paths in tracked public docs, **12 dead**, including `standards/effect-first-development.md:443`. |
 | A4 retraction placed below the claim | **Already solved better** — `explorations/academia-corpus-mining/DECISIONS.md:142-149` reasons explicitly about errata *placement* and puts the banner at the entry points. |
 | A5 hand-maintained test chain | **Not applicable.** turbo + vitest + `beep ci lane <name>`; lane bodies live in the CLI, not in a `&&` string. |
 | A6 stale transcript at the repo root teaching a wrong constant | **Mild.** `THE_SCHEMA_IS_TRUTH_A_CATEGORICAL_FEVER_DREAM...md` and `docs/PROSE_TO_PROOF_CHAT.html` are root-level narrative artifacts; `scratchpad/` is repo-tracked and holds experiment code (`scratchpad/effect-ontology/**`, `scratchpad/claudecode/**`) that an agent browsing the repo could implement from. Neither carries a staleness banner. |

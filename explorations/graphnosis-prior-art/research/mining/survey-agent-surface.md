@@ -1,6 +1,6 @@
 # Graphnosis survey — territory: agent/MCP tool surface, skills, authority ceiling
 
-Repo surveyed: `/home/elpresidank/YeeBois/dev/Graphnosis` @ `7a19c4b` (npm `@nehloo/graphnosis` v0.11.0, Apache-2.0).
+Repo surveyed: `$HOME/YeeBois/dev/Graphnosis` @ `7a19c4b` (npm `@nehloo/graphnosis` v0.11.0, Apache-2.0).
 Files read in full: `GRAPHNOSIS.md`, `AGENTS.md`, `CLAUDE.md`, `.claude/launch.json`, `SPEC.md` §8 (332–582),
 `src/mcp/{server,graph-session,tfidf-cache}.ts`, `src/mcp/tools/{load_graph,ingest_files,update_graph,query,export}.ts`,
 `src/sdk/index.ts` (1626 lines), `src/sdk/log-redact.ts`, `src/sdk/adapters/{openai,local,static}.ts`,

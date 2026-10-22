@@ -96,7 +96,7 @@ Scope: rebuildable vector-projection schema — HNSW `vector_cosine_ops` tuning,
 - Mixpeek — embedding portability & versioning: https://mixpeek.com/guides/embedding-portability-versioning
 - CallSphere — migrating vector databases (re-embed vs copy, atomic index): https://callsphere.ai/blog/migrating-vector-databases-pinecone-pgvector-weaviate-embeddings
 - Medium (Stafford) — different embedding models, different spaces: https://medium.com/data-science-collective/different-embedding-models-different-spaces-the-hidden-cost-of-model-upgrades-899db24ad233
-- CAPTURE.md (in-repo gold nuggets): /home/elpresidank/YeeBois/projects/beep-effect/explorations/rag-retrieval-projection/CAPTURE.md
+- CAPTURE.md (in-repo gold nuggets): explorations/rag-retrieval-projection/CAPTURE.md
 
 ## Open / Unverified
 

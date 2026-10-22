@@ -1,6 +1,6 @@
 # Effect v3 Reference Report
 
-Scope: P1 read-only behavior audit of `/home/elpresidank/YeeBois/ontology_research/ontology_ts_repos/effect-langextract`.
+Scope: P1 read-only behavior audit of `$HOME/YeeBois/ontology_research/ontology_ts_repos/effect-langextract`.
 
 Status: completed. The reference checkout was dirty during research, so it is treated as a behavior snapshot, not a source of exact current truth.
 
@@ -21,7 +21,7 @@ Status: completed. The reference checkout was dirty during research, so it is tr
 
 ## Evidence
 
-- Reference root: `/home/elpresidank/YeeBois/ontology_research/ontology_ts_repos/effect-langextract`.
+- Reference root: `$HOME/YeeBois/ontology_research/ontology_ts_repos/effect-langextract`.
 - Key behavior files: `src/Data.ts`, `src/Chunking.ts`, `src/Prompting.ts`, `src/SchemaPromptBuilder.ts`, `src/FormatHandler.ts`, `src/Resolver.ts`, `src/Annotator.ts`, `src/ExtractionTarget.ts`, `src/TypedExtraction.ts`, and `src/LanguageModel.ts`.
 - Out-of-scope topology: reference `src/providers/**`, CLI entrypoints, ingestion services, rendering/visualization assets, and package provider dependencies.
 - Packet exclusions: provider-specific SDK adapters, provider env/config loading, live provider tests, CLI, rendering, and visualization are explicitly out of V1.

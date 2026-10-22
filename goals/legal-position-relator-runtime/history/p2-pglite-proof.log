@@ -1,4 +1,4 @@
- RUN  v4.1.10 /home/elpresidank/YeeBois/projects/beep-effect18/packages/_internal/db-admin
+ RUN  v4.1.10 $HOME/YeeBois/projects/beep-effect18/packages/_internal/db-admin
 
  ✓ test/integration/ArchitectureLabMigration.pglite.test.ts > db-admin architecture-lab migration PgLite integration > runs the architecture-lab migration target SQL 1213ms
  ✓ test/integration/EpistemicContradictionMigration.pglite.test.ts > db-admin epistemic-contradiction migration PgLite integration > migrates the tenant-bound append-only evidence-verification sidecar 1202ms

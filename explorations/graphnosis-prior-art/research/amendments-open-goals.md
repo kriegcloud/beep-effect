@@ -1,7 +1,7 @@
 # Amendments to OPEN work — reasoning, files opened, rejected candidates
 
 Lane: amendments to `active` goal packets and mid-stage explorations.
-Target repo: `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
+Target repo: `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean).
 Input: `SYNTHESIS.md` (read §1–§8 in full), plus live verification of every claim I carried.
 
 ## Method

@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-08
 **Agent:** map-task-census (Opus 5)
-**Source:** `/home/elpresidank/YeeBois/research/harvey-labs` @ MIT license.
+**Source:** `$HOME/YeeBois/research/harvey-labs` @ MIT license.
 Paths below are relative to that clone root.
 **Scope:** all 250 `tasks/firm-knowledge/tasks/*/task.json` read and aggregated
 programmatically; 20 tasks deep-read verbatim. **The `dms/` corpus was never

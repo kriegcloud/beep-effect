@@ -2,8 +2,8 @@
 
 Sources on disk: `survey-*.md` (8), `map-*.md` (8), `paper-{whitepaper,trained-skills,raptor,chronocept}.md`,
 `paper-map-*.md` (4), `INDEX-repo.json`.
-Repos: beep-effect `/home/elpresidank/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean);
-Graphnosis `/home/elpresidank/YeeBois/dev/Graphnosis` v0.11.0 @ `7a19c4b8`.
+Repos: beep-effect `$HOME/YeeBois/projects/beep-effect15` @ `d1dfc4b3c1` (main, clean);
+Graphnosis `$HOME/YeeBois/dev/Graphnosis` v0.11.0 @ `7a19c4b8`.
 Date: 2026-08-06. Every Graphnosis `file:line` below was re-verified live in this session, not taken
 from the notes.
 

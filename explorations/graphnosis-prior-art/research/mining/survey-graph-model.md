@@ -1,6 +1,6 @@
 # Graphnosis survey — territory: dual-graph data model & mutation semantics
 
-Repo: `/home/elpresidank/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis` v0.11.0,
+Repo: `$HOME/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis` v0.11.0,
 Nehloo Interactive LLC). Read at commit `7a19c4b`.
 
 Files read in full for this territory:

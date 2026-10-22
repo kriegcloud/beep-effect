@@ -2,13 +2,13 @@
 
 ## Scope and evidence rules
 
-- Target source tree: `/home/elpresidank/YeeBois/projects/beep-effect2`.
+- Target source tree: `$HOME/YeeBois/projects/beep-effect2`.
 - Analysis is read-only against that tree. This report is the only deliverable and is written in the isolated lane workspace.
 - Incident statements supplied in the request are treated as leads. Claims below are tied to live-source `file:line` evidence; interpretation is labeled **Inference** where the source does not establish the runtime fact directly.
 
 ### Live checkout state
 
-The inspected checkout resolves to `/home/elpresidank/YeeBois/projects/beep-effect2` at HEAD `287ff0afb9c1ab0b353b4795c1ac1b066d136da7` on local `main`, two commits behind `origin/main`. It already had unrelated modifications to `bun.lock` and `explorations/ATLAS.md`, plus untracked `explorations/ci-hang-observability/`; none was modified. This matters because the report describes the current on-disk implementation, which visibly contains anti-wedge logic and commentary that may postdate the supplied incident.
+The inspected checkout resolves to `$HOME/YeeBois/projects/beep-effect2` at HEAD `287ff0afb9c1ab0b353b4795c1ac1b066d136da7` on local `main`, two commits behind `origin/main`. It already had unrelated modifications to `bun.lock` and `explorations/ATLAS.md`, plus untracked `explorations/ci-hang-observability/`; none was modified. This matters because the report describes the current on-disk implementation, which visibly contains anti-wedge logic and commentary that may postdate the supplied incident.
 
 ## 1. Workflow wrapper and lane dispatch
 

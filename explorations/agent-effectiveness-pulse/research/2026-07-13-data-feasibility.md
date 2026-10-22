@@ -195,7 +195,7 @@ jq -r 'select(.type=="response_item" and .payload.type=="function_call") |
  .payload.name' "$f" | sort | uniq -c
 ```
 
-Sample: cwd `/home/elpresidank/YeeBois/projects/beep-effect`; model `gpt-5.5`
+Sample: cwd `.`; model `gpt-5.5`
 in `turn_context`; token fields input / cached input / output / reasoning
 output / total; 71 `exec_command` calls in the sampled session.
 
