@@ -36,6 +36,9 @@ every stale file ([record](./history/receipts/guidance-classification.md)); the
 #1855 is in progress: wave 1 closed F-S31-EV010 (already fixed by #1899) and taught
 the EV010 proof to follow same-file helpers, resolving 16 more rows with no exception
 added ([record](./history/receipts/detectors-wave-1.md)); FP-1..FP-7 come next.
+Wave 2 repaired FP-1, FP-3, FP-4 and FP-5 with paired fixtures, retiring 155 rows and adding none
+([record](./history/receipts/detectors-wave-2.md)); wave 3 takes the FP-2/FP-6 rulings, individual
+exception review and the zero scan.
 #1875 is in progress: wave 1 completed the `@beep/editor`, `@beep/libpff` and
 `@beep/test-runner` cohorts and left 689 open rows
 ([record](./history/receipts/vitest-canon-wave-1.md)).
