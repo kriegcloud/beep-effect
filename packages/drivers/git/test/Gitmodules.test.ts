@@ -10,6 +10,7 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { GitmodulesParseError } from "@beep/git/Gitmodules";
 
 /** Unwraps a successful Result or fails the test with the failure's message. */
@@ -259,10 +260,10 @@ describe("Gitmodules", () => {
       const edited = ok(Gitmodules.setUrl(doc, ".repos/effect", "https://github.com/effect-ts/effect.git"));
       assert.strictEqual(
         edited.stringify(),
-        REAL_WORLD.replace("https://github.com/Effect-TS/effect.git", "https://github.com/effect-ts/effect.git")
+        Str.replace("https://github.com/Effect-TS/effect.git", "https://github.com/effect-ts/effect.git")(REAL_WORLD)
       );
       // The leading comment is untouched — the edit was surgical.
-      assert.isTrue(edited.stringify().startsWith("# vendored reference repos\n"));
+      assert.isTrue(Str.startsWith("# vendored reference repos\n")(edited.stringify()));
     });
 
     it("setBranch sets, and unsets when omitted", () => {
@@ -296,7 +297,7 @@ describe("Gitmodules", () => {
       assert.strictEqual(decoded.entries.length, 3);
       assert.deepStrictEqual(decoded.entries[2], entry);
       // The pre-existing text is untouched.
-      assert.isTrue(edited.stringify().startsWith(REAL_WORLD));
+      assert.isTrue(Str.startsWith(REAL_WORLD)(edited.stringify()));
     });
 
     it("remove deletes the named section only", () => {
@@ -485,7 +486,7 @@ describe("Gitmodules round-1 codec regressions", () => {
 
   it("the ignore schema and decoder share every accepted case-folded policy", () => {
     for (const ignore of ["all", "dirty", "untracked", "none"] as const) {
-      const modules = ok(Gitmodules.parseResult(`[submodule "a"]\npath=p\nurl=u\nignore=${ignore.toUpperCase()}\n`));
+      const modules = ok(Gitmodules.parseResult(`[submodule "a"]\npath=p\nurl=u\nignore=${Str.toUpperCase(ignore)}\n`));
       assert.strictEqual(modules.entries[0]?.ignore, ignore);
       assert.deepStrictEqual(modules.entries[0], GitmodulesEntry.make({ name: "a", path: "p", url: "u", ignore }));
     }

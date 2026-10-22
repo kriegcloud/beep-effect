@@ -7,10 +7,12 @@
  */
 
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Redacted from "effect/Redacted";
+import * as Str from "effect/String";
 
 /**
  * The placeholder every redaction writes in place of a secret.
@@ -95,7 +97,7 @@ const replaceAll: {
   for (const value of values) {
     // split/join is a literal replace on both sides: no regex compilation of
     // the needle, and no `$&`-style expansion of the replacement.
-    out = A.join(out.split(value), REDACTED);
+    out = A.join(Str.split(value)(out), REDACTED);
   }
   return out;
 });
@@ -122,7 +124,7 @@ const isSecretName: {
   (name: string, extra: HashSet.HashSet<string>): boolean;
   (extra: HashSet.HashSet<string>): (name: string) => boolean;
 } = dual(2, (name: string, extra: HashSet.HashSet<string>): boolean => {
-  const lower = name.toLowerCase();
+  const lower = Str.toLowerCase(name);
   return HashSet.has(SECRET_FLAGS, lower) || HashSet.has(extra, lower) || AUTH_KEY.test(name);
 });
 
@@ -137,9 +139,9 @@ const scrubArgAt = (
   out: Array<string>
 ): number => {
   const arg = args[index] ?? "";
-  const equals = arg.indexOf("=");
-  if (equals > 0 && isSecretName(arg.slice(0, equals), extra)) {
-    out.push(`${arg.slice(0, equals)}=${REDACTED}`);
+  const equals = pipe(arg, Str.indexOf("="), O.getOrElse(constant(-1)));
+  if (equals > 0 && isSecretName(Str.slice(0, equals)(arg), extra)) {
+    out.push(`${Str.slice(0, equals)(arg)}=${REDACTED}`);
     return index + 1;
   }
   out.push(arg);
@@ -167,7 +169,7 @@ const scrubArgs: {
     args: ReadonlyArray<string>,
     options?: { readonly flags?: ReadonlyArray<string> | undefined }
   ): ReadonlyArray<string> => {
-    const extra = HashSet.fromIterable(A.map(options?.flags ?? [], (flag) => flag.toLowerCase()));
+    const extra = HashSet.fromIterable(A.map(options?.flags ?? [], Str.toLowerCase));
     const out: Array<string> = [];
     for (let index = 0; index < args.length; ) {
       index = scrubArgAt(args, index, extra, out);

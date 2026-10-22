@@ -16,10 +16,12 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
+import { constant, pipe } from "effect/Function";
 import * as Latch from "effect/Latch";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Schema from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import { linkNext } from "./support/fixtures.ts";
 import { harness } from "./support/harness.ts";
@@ -41,16 +43,16 @@ describe("CheckRunOutput byte budgeting", () => {
   });
 
   it("cuts a summary that exceeds the byte budget", () => {
-    const output = CheckRunOutput.make({ title: "t", summary: "a".repeat(70_000) });
+    const output = CheckRunOutput.make({ title: "t", summary: Str.repeat(70_000)("a") });
     const cut = output.truncated().summary;
     assert.isAtMost(Buffer.byteLength(cut, "utf8"), CheckRunOutput.LIMIT_BYTES);
-    assert.isTrue(cut.endsWith(CheckRunOutput.NOTICE));
+    assert.isTrue(Str.endsWith(CheckRunOutput.NOTICE)(cut));
   });
 
   it("counts BYTES, not characters", () => {
     // 30k emoji is 30k characters and 120k bytes. A character-count check
     // passes this and the request comes back 422.
-    const summary = "🦋".repeat(30_000);
+    const summary = Str.repeat(30_000)("🦋");
     assert.isBelow(summary.length, CheckRunOutput.LIMIT_BYTES, "under the limit by characters");
     assert.isAbove(Buffer.byteLength(summary, "utf8"), CheckRunOutput.LIMIT_BYTES, "over it by bytes");
     const cut = CheckRunOutput.make({ title: "t", summary }).truncated().summary;
@@ -58,14 +60,14 @@ describe("CheckRunOutput byte budgeting", () => {
   });
 
   it("leaves no broken code point behind", () => {
-    const cut = CheckRunOutput.make({ title: "t", summary: "🦋".repeat(30_000) }).truncated().summary;
-    assert.notInclude(cut.slice(0, -CheckRunOutput.NOTICE.length), "�");
+    const cut = CheckRunOutput.make({ title: "t", summary: Str.repeat(30_000)("🦋") }).truncated().summary;
+    assert.notInclude(Str.slice(0, -CheckRunOutput.NOTICE.length)(cut), "�");
   });
 
   it("preserves complete replacement characters at the byte boundary", () => {
     const budget = CheckRunOutput.LIMIT_BYTES - Buffer.byteLength(CheckRunOutput.NOTICE, "utf8");
-    const prefix = `${"a".repeat(budget - 6)}��`;
-    const cut = CheckRunOutput.make({ title: "t", summary: prefix + "b".repeat(100) }).truncated().summary;
+    const prefix = `${Str.repeat(budget - 6)("a")}��`;
+    const cut = CheckRunOutput.make({ title: "t", summary: prefix + Str.repeat(100)("b") }).truncated().summary;
     assert.strictEqual(cut, prefix + CheckRunOutput.NOTICE);
     assert.strictEqual(Buffer.byteLength(cut, "utf8"), CheckRunOutput.LIMIT_BYTES);
   });
@@ -74,8 +76,8 @@ describe("CheckRunOutput byte budgeting", () => {
     const budget = CheckRunOutput.LIMIT_BYTES - Buffer.byteLength(CheckRunOutput.NOTICE, "utf8");
     for (const character of ["é", "€", "🦋", "�"]) {
       for (let included = 1; included < Buffer.byteLength(character, "utf8"); included += 1) {
-        const prefix = `${"a".repeat(budget - included - 3)}�`;
-        const cut = CheckRunOutput.make({ title: "t", summary: prefix + character + "b".repeat(100) }).truncated()
+        const prefix = `${Str.repeat(budget - included - 3)("a")}�`;
+        const cut = CheckRunOutput.make({ title: "t", summary: prefix + character + Str.repeat(100)("b") }).truncated()
           .summary;
         assert.strictEqual(cut, prefix + CheckRunOutput.NOTICE);
         assert.isAtMost(Buffer.byteLength(cut, "utf8"), CheckRunOutput.LIMIT_BYTES);
@@ -84,7 +86,7 @@ describe("CheckRunOutput byte budgeting", () => {
   });
 
   it("caps text as well as summary", () => {
-    const output = CheckRunOutput.make({ title: "t", summary: "s", text: "b".repeat(70_000) });
+    const output = CheckRunOutput.make({ title: "t", summary: "s", text: Str.repeat(70_000)("b") });
     assert.isAtMost(Buffer.byteLength(output.truncated().text ?? "", "utf8"), CheckRunOutput.LIMIT_BYTES);
   });
 
@@ -123,7 +125,9 @@ describe("CheckRunOutput byte budgeting", () => {
       const withinBudget = Buffer.byteLength(cut, "utf8") <= CheckRunOutput.LIMIT_BYTES;
       // Round-tripping through UTF-8 is lossless exactly when nothing is broken
       // beyond what the input already contained.
-      const noNewDamage = (cut.match(/�/g) ?? []).length <= (summary.match(/�/g) ?? []).length + 1;
+      const noNewDamage =
+        pipe(cut, Str.match(/�/g), O.getOrElse(constant([]))).length <=
+        pipe(summary, Str.match(/�/g), O.getOrElse(constant([]))).length + 1;
       return withinBudget && noNewDamage;
     },
     // `size: 40_000` is load-bearing: at 20_000 no run ever crosses the
@@ -142,7 +146,7 @@ describe("CheckRun", () => {
       it.effect("sends a truncated output on the wire, not the raw one", () =>
         Effect.gen(function* () {
           yield* Effect.flatMap(CheckRun, (check) =>
-            check.update(1, CheckRunOutput.make({ title: "t", summary: "x".repeat(70_000) }))
+            check.update(1, CheckRunOutput.make({ title: "t", summary: Str.repeat(70_000)("x") }))
           );
           const body = yield* Schema.decodeEffect(JsonCheckOutput)(script.calls[0]?.body ?? "{}");
           assert.isAtMost(Buffer.byteLength(body.output.summary, "utf8"), CheckRunOutput.LIMIT_BYTES);

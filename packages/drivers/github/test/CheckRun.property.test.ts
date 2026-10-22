@@ -4,6 +4,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -103,11 +104,11 @@ it.effect.prop(
   ([character]) =>
     Effect.gen(function* () {
       const budget = CheckRunOutput.LIMIT_BYTES - Buffer.byteLength(CheckRunOutput.NOTICE, "utf8");
-      const prefix = character.repeat(Math.floor(budget / Buffer.byteLength(character, "utf8")));
+      const prefix = Str.repeat(Math.floor(budget / Buffer.byteLength(character, "utf8")))(character);
       const value = CheckRunOutput.make({
         title: "budget",
-        summary: prefix + character.repeat(100),
-        text: prefix + character.repeat(100),
+        summary: prefix + Str.repeat(100)(character),
+        text: prefix + Str.repeat(100)(character),
       });
       const once = value.truncated();
       assert.strictEqual(once.summary, prefix + CheckRunOutput.NOTICE);

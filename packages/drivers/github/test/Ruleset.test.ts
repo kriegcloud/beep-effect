@@ -11,6 +11,7 @@ import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { listedRulesetFixture, rulesetFixture, teamFixture } from "./support/fixtures.ts";
 import { harness } from "./support/harness.ts";
 import type { GitHubFixtures, RecordedCall } from "@beep/github/GitHubClient";
@@ -96,7 +97,7 @@ describe("Ruleset.upsert", () => {
       );
       // Nothing was written to the organization's ruleset.
       assert.strictEqual(
-        A.some(requested, (call) => call.route.includes("{ruleset_id}")),
+        A.some(requested, (call) => Str.includes("{ruleset_id}")(call.route)),
         false
       );
       assert.notInclude(yield* S.encodeEffect(JsonValue)(requested), '"ruleset_id":7');

@@ -276,13 +276,13 @@ const collectSubmodules = (config: GitConfig): MutableHashMap.MutableHashMap<str
   const byName = MutableHashMap.empty<string, CollectedSubmodule>();
   for (const section of config.sections) {
     const name = section.subsection;
-    if (section.name.toLowerCase() !== "submodule" || name === undefined) continue;
+    if (Str.toLowerCase(section.name) !== "submodule" || name === undefined) continue;
     const collected = O.getOrElse(MutableHashMap.get(byName, name), () => ({
       name,
       fields: MutableHashMap.empty<string, string | null>(),
     }));
     for (const entry of section.entries) {
-      MutableHashMap.set(collected.fields, entry.key.toLowerCase(), entry.value ?? null);
+      MutableHashMap.set(collected.fields, Str.toLowerCase(entry.key), entry.value ?? null);
     }
     MutableHashMap.set(byName, name, collected);
   }
@@ -345,7 +345,7 @@ const ignoreSubmoduleField = ({
 }: CollectedSubmodule): Result.Result<GitmodulesEntry["ignore"], GitmodulesDecodeError> => {
   const raw = rawSubmoduleField(fields, "ignore");
   if (raw === undefined) return Result.succeed(undefined);
-  const folded = raw === null ? undefined : raw.toLowerCase();
+  const folded = raw === null ? undefined : Str.toLowerCase(raw);
   return folded !== undefined && isSubmoduleIgnore(folded)
     ? Result.succeed(folded)
     : Result.fail(invalidSubmoduleField(name, "ignore", raw));
@@ -357,7 +357,7 @@ const fetchRecurseSubmoduleField = ({
 }: CollectedSubmodule): Result.Result<GitmodulesEntry["fetchRecurseSubmodules"], GitmodulesDecodeError> => {
   const raw = rawSubmoduleField(fields, "fetchrecursesubmodules");
   if (raw === undefined) return Result.succeed(undefined);
-  if (raw !== null && raw.toLowerCase() === "on-demand") return Result.succeed("on-demand");
+  if (raw !== null && Str.toLowerCase(raw) === "on-demand") return Result.succeed("on-demand");
   return booleanSubmoduleValue(name, "fetchRecurseSubmodules", raw);
 };
 
