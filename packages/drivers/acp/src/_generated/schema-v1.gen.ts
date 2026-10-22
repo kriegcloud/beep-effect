@@ -12148,8 +12148,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
+      title: "Session",
       description:
-        "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -12182,8 +12183,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
+      title: "Request",
       description:
-        "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
   ]),
   S.Union([
@@ -12227,8 +12229,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
+      title: "Session",
       description:
-        "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -12264,8 +12267,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
+      title: "Request",
       description:
-        "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
   ]),
   S.Union([
@@ -12310,9 +12314,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      title: "other",
+      title: "Session",
       description:
-        "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+        "Tied to a session, optionally to a specific tool call within that session.",
     }),
     S.StructWithRest(
       S.Struct({
@@ -12349,9 +12353,9 @@ export const CreateElicitationRequest = S.Union([
       }),
       [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
     ).annotateKey({
-      title: "other",
+      title: "Request",
       description:
-        "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+        "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
     }),
   ]),
 ]).pipe(
@@ -14070,8 +14074,9 @@ export const ElicitationFormMode = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
+    title: "Session",
     description:
-      "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+      "Tied to a session, optionally to a specific tool call within that session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -14087,8 +14092,9 @@ export const ElicitationFormMode = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
+    title: "Request",
     description:
-      "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+      "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
   }),
 ]).pipe(
   $I.annoteSchema("ElicitationFormMode", {
@@ -14246,8 +14252,9 @@ export const ElicitationUrlMode = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
+    title: "Session",
     description:
-      "Session-scoped elicitation, optionally tied to a specific tool call.\n\nWhen `tool_call_id` is set, the elicitation is tied to a specific tool call.\nThis is useful when an agent receives an elicitation from an MCP server\nduring a tool call and needs to redirect it to the user.",
+      "Tied to a session, optionally to a specific tool call within that session.",
   }),
   S.StructWithRest(
     S.Struct({
@@ -14266,8 +14273,9 @@ export const ElicitationUrlMode = S.Union([
     }),
     [S.Record(S.String, S.Json.annotate({ expected: "JSON value" }))],
   ).annotateKey({
+    title: "Request",
     description:
-      "Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
+      "Tied to a specific JSON-RPC request outside of a session\n(e.g., during auth/configuration phases before any session is started).",
   }),
 ]).pipe(
   $I.annoteSchema("ElicitationUrlMode", {

@@ -491,11 +491,19 @@ const mergeReference = (
   inline: (ref: string) => unknown
 ): O.Option<Record<string, unknown>> => {
   if (P.isString(right.$ref)) {
-    return O.some(isAnnotationOnly(left) ? { ...right, ...left } : mergeIntersection(left, inline(right.$ref), inline));
+    const { $ref, ...siblings } = right;
+    return O.some(
+      isAnnotationOnly(left)
+        ? { ...right, ...left }
+        : mergeIntersection(left, mergeIntersection(inline($ref), siblings, inline), inline)
+    );
   }
   if (P.isString(left.$ref)) {
+    const { $ref, ...siblings } = left;
     return O.some(
-      isAnnotationOnly(right) ? { ...left, ...right } : mergeIntersection(inline(left.$ref), right, inline)
+      isAnnotationOnly(right)
+        ? { ...left, ...right }
+        : mergeIntersection(mergeIntersection(inline($ref), siblings, inline), right, inline)
     );
   }
   return O.none();

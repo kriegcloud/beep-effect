@@ -944,6 +944,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   const terminationFailure = yield* Deferred.make<never, AcpError.AcpError>();
   // Keyed by the raw JSON-RPC id: HashMap equality keeps the number 1 and the string "1" apart.
   const extPending = yield* Ref.make(HashMap.empty<AcpError.AcpRequestId, AcpPendingRequest>());
+  const rpcPending = yield* Ref.make(HashSet.empty<AcpError.AcpRequestId>());
   const extRequestFibers = yield* FiberSet.make<void>();
   const extRequestPermits = yield* Semaphore.make(ACP_PROTOCOL_EXT_REQUEST_CONCURRENCY);
   const notificationHandlerFibers = yield* FiberSet.make<void>();
@@ -1440,12 +1441,19 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   // issued as a typed RPC call, such as an agent-internal string id or effect's -32603 `Defect`
   // id) is not handed to the RpcClient. It is dropped with a warning, so a hung call that the
   // peer answered without a usable id (a -32700 parse-error reply, for example) leaves a trace.
-  const forwardToRpcClient = (message: AcpInboundResponse) =>
-    isEffectRpcRequestId(message.requestId)
-      ? Queue.offer(clientQueue, message).pipe(Effect.asVoid)
-      : Effect.logWarning("Dropped an ACP response that matches no outstanding request").pipe(
-          Effect.annotateLogs(uncorrelatedResponseAnnotations(message))
-        );
+  const forwardToRpcClient = Effect.fn($I`forwardToRpcClient`)(function* (message: AcpInboundResponse) {
+    const claimed = yield* Ref.modify(rpcPending, (pending) => [
+      isEffectRpcRequestId(message.requestId) && HashSet.has(pending, message.requestId),
+      message._tag === "Exit" && P.isNumber(message.requestId) ? HashSet.remove(pending, message.requestId) : pending,
+    ]);
+    if (claimed) {
+      yield* Queue.offer(clientQueue, message);
+    } else {
+      yield* Effect.logWarning("Dropped an ACP response that matches no outstanding request").pipe(
+        Effect.annotateLogs(uncorrelatedResponseAnnotations(message))
+      );
+    }
+  });
 
   const settlePendingExit = (message: RpcMessage.ResponseExitEncoded, pending: AcpPendingRequest) =>
     Match.value(message.exit).pipe(
@@ -1660,7 +1668,20 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
       )
     ),
     send: Effect.fn($I`AcpClient_Protocol_send`)((_clientId, request) =>
-      offerOutgoing(request).pipe(
+      Effect.gen(function* () {
+        if (request._tag === "Request") {
+          yield* Ref.update(rpcPending, HashSet.add(request.id));
+        } else if (request._tag === "Interrupt") {
+          yield* Ref.update(rpcPending, HashSet.remove(request.requestId));
+        }
+        yield* offerOutgoing(request).pipe(
+          Effect.onExit((exit) =>
+            request._tag === "Request" && Exit.isFailure(exit)
+              ? Ref.update(rpcPending, HashSet.remove(request.id))
+              : Effect.void
+          )
+        );
+      }).pipe(
         Effect.mapError((error) =>
           RpcClientError.RpcClientError.make({
             reason: RpcClientError.RpcClientDefect.make({

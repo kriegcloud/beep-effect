@@ -997,15 +997,16 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
       };
       const hook = composeTransforms(["distributeAllOf"], definitions);
       const extra = { type: "object", properties: { x: { type: "number" } } };
-      const refFirst = hook({ allOf: [{ $ref: "#/$defs/Named" }, extra] });
-      const refLast = hook({ allOf: [extra, { $ref: "#/$defs/Named" }] });
+      const refFirst = hook({ description: "Outer", allOf: [{ $ref: "#/$defs/Named", title: "Member" }, extra] });
+      const refLast = hook({ description: "Outer", allOf: [extra, { $ref: "#/$defs/Named", title: "Member" }] });
       expect(refFirst).toEqual({
+        description: "Outer",
+        title: "Member",
         type: "object",
         properties: { name: { type: "string" }, x: { type: "number" } },
         required: ["name"],
       });
-      expect(refLast.properties).toEqual(refFirst.properties);
-      expect(refLast.required).toEqual(refFirst.required);
+      expect(refLast).toEqual(refFirst);
       expect(refFirst.$ref).toBeUndefined();
       expect(refLast.$ref).toBeUndefined();
     })
