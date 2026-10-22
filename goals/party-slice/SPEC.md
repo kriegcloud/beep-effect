@@ -47,13 +47,15 @@ Higher sources outrank lower sources when they conflict.
 | `Ledger.ts` | port in `@beep/party-use-cases`; `PartyLedgerMemory` in `@beep/party-server` | append-only bitemporal ledger, a `Context.Service` port |
 | `adapters/MailIndex.ts`, `MailCensus.ts`, `IdentityEvidence.ts`, `OrgEvidence.ts`, `ReviewLoop.ts` | `@beep/party-server` | generic ingestion over the mail drivers (`libpff`, `m365`) |
 | `adapters/ContactEvidence.ts` | split | the generic contact-card path goes to `@beep/party-server`; the law-practice `contacts-kg` / client-number path stays in law-practice and feeds party through a `@beep/party-use-cases` port |
+| law-practice `entities/Party` (`Party extends ProductEntity.Entity(PartyId)`) | renamed `LegalPartyReference` in `@beep/law-practice-domain` | party owns party identity and resolution; law-practice keeps a role-player reference record keyed by the shared `PartyId` (Decision Log) |
 | `scripts/*`, `fixtures/acme.ts` | scripts stay in scratchpad; fixtures move to `@beep/party-domain/test` | fixtures stay fully synthetic |
 
 ## Target Surfaces
 
 - New `packages/party/domain`, `packages/party/use-cases`, `packages/party/server`, created only with
   `bun run beep create-package`.
-- The law-practice package that implements the contact-source port (only the adapter and its Layer wiring).
+- `@beep/law-practice-server`: the contact-source port adapter and its Layer wiring only (bounded exception, see the Exception Ledger).
+- `@beep/law-practice-domain`: the `Party` -> `LegalPartyReference` rename and its importers.
 - `scratchpad/party`: remove or repoint modules once they have graduated.
 
 ## Constraints
@@ -87,6 +89,9 @@ Higher sources outrank lower sources when they conflict.
   the slice packages on the synthetic fixtures.
 - [ ] The ingestion adapters run end to end on a synthetic mail index through the memory ledger, and the
   law-practice contact port is implemented in law-practice.
+- [ ] Law-practice's `Party` aggregate is renamed `LegalPartyReference` (no table, so no migration). No
+  second aggregate named `Party` exists outside `@beep/party-domain`.
+- [ ] Both boundary checks in the Verification Matrix return no matches.
 - [ ] `bun run beep quality package-verify` passes for the three party packages.
 - [ ] No unrelated refactors or formatting churn.
 
@@ -99,7 +104,8 @@ Higher sources outrank lower sources when they conflict.
 | Whitespace | `git diff --check -- goals/party-slice` | Passes |
 | Party packages | `bun run beep quality package-verify @beep/party-domain` (and use-cases, server) | Passes |
 | Hosted-only gates | `beep lint schema-catalog`, root `lint:oxlint`, `beep docgen check`, the JSDoc ratchet over a regenerated inventory, `audit:github repo-sanity` | Pass locally before publish |
-| Boundary | `rg -n '@beep/law-practice' packages/party` | No matches |
+| Boundary: law-practice | `rg -n '@beep/law-practice' packages/party` | No matches |
+| Boundary: epistemic product | `rg -n '@beep/epistemic-' packages/party` (does not match `@beep/epistemics`) | No matches |
 
 ## Stop Conditions
 
@@ -118,10 +124,11 @@ them and record each in the Decision Log.
 | 2026-10-22 | First goal creates `domain`, `use-cases`, `server` only | smallest legal slice (doc 13); tables wait for a persistence shape the adapters have exercised | add packages in a later goal |
 | 2026-10-22 | `PartyId` moves to a neutral `identity/Party` kit in a separate prerequisite PR, with no re-export | keeps the slice PR reviewable and lands the shared-kernel change alone; nothing persists the old derived names | restore it to `identity/LawPractice` |
 | 2026-10-22 | Party claims persist in a party-owned bitemporal ledger bound from `makeClaimEnvelope` | avoids depending on epistemic product code; any cross-slice projection is a later workflow | write party claims as epistemic edge versions |
+| 2026-10-22 | Law-practice's `Party` aggregate is renamed `LegalPartyReference` in this goal | party owns party identity and `SameParty` resolution. The law-practice record is already a role-player reference that never resolves identity (its own Gotchas), so two aggregates named `Party` over one `PartyId` would leave ownership unclear. Applies the 2026-10-21 decision ("other slices refer to parties by id and attach their own role vocabularies") | keep the name and add an ownership note instead |
 | 2026-10-22 | Generic adapters live in party server; law-practice sources feed party through a use-case port | party never learns law-practice vocabulary, and ingestion stays domain-agnostic | move the adapters back into law-practice |
 
 ## Exception Ledger
 
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
-| None | N/A | N/A | N/A | N/A |
+| `@beep/law-practice-server` imports `@beep/party-use-cases` to implement the contact-source port | law-practice server tier only (the contact adapter and its Layer wiring); never law-practice domain or use-cases, never party importing law-practice | this goal (party-slice) | `01-hexagonal-vertical-slices.md:71-74` forbids slice-to-slice imports; DECISIONS 2026-06-18 allows one at the use-cases/server tier as a bounded exception recorded here | a third consumer of contact sources justifies a `shared/use-cases` contact-source contract, or law-practice emits a contact event party consumes (`10-cross-slice-coordination.md`) |

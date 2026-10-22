@@ -20,7 +20,7 @@ prose when they conflict.
 
 Scope:
 
-- In: new `packages/party/{domain,use-cases,server}` (via `beep create-package`), the law-practice contact-port adapter, `scratchpad/party`, and this packet.
+- In: new `packages/party/{domain,use-cases,server}` (via `beep create-package`), the law-practice contact-port adapter (server tier, bounded exception), the law-practice `Party` -> `LegalPartyReference` rename, `scratchpad/party`, and this packet.
 - Out: party tables/persistence, client/ui/config packages, the review page, epistemic edge projection, and any corpus data (see `SPEC.md` Non-Goals).
 
 Workflow:
