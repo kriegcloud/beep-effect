@@ -15,7 +15,7 @@ describe("collectAnnotationsAt", () => {
     expect(collectAnnotationsAt(Root, "traversalLabel")).toEqual(["root", "name", "count"]);
     expect(collectAnnotationsAt("traversalLabel")(Root)).toEqual(["root", "name", "count"]);
 
-    // @ts-expect-error The raw collector does not accept a caller-selected payload type.
+    // @ts-expect-error -- The raw collector does not accept a caller-selected payload type. Owner: @beep/schema. Exit: remove if the API is meant to accept this.
     expect(collectAnnotationsAt<string>(Root, "traversalLabel")).toEqual(["root", "name", "count"]);
   });
 

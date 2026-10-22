@@ -255,7 +255,7 @@ describe("admission tiers", () => {
       evidence: { version: Fx.averyAuthorship, supports: [], dependence: [] },
     });
     if (Result.isSuccess(lower)) {
-      // @ts-expect-error client-facing proof cannot enter a deposition outline
+      // @ts-expect-error -- client-facing proof cannot enter a deposition outline. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
       depositionOutlineEntry({ admitted: lower.success, note: "nope" });
     }
     expect(Result.isSuccess(lower)).toBe(true);

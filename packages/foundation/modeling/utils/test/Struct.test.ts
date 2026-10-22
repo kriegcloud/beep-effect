@@ -72,7 +72,7 @@ describe("@beep/utils Struct.dotGet", () => {
 
   it("returns undefined for out-of-bounds array access", () => {
     const source = { tags: ["a"] } as const;
-    // @ts-expect-error
+    // @ts-expect-error -- the typed path rejects an index past the tuple, and the test proves the runtime still answers undefined. Owner: @beep/utils. Exit: remove if the API is meant to accept this.
     expect(Struct.dotGet(source, "tags.5")).toBeUndefined();
   });
 

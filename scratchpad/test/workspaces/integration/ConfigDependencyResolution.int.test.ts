@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file nodeBuiltinImport:skip-file processEnvInEffect:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file processEnvInEffect:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; processEnvInEffect because it sets and restores PNPM_HOME for the real resolution ladder. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // The declared-version resolution ladder, driven through BOTH replaying layers
 // against one on-disk fixture — a fake `.pnpm-config` install and a fake pnpm
 // store `links/` tree — so `layerLive` and `layerSubprocess` are pinned to

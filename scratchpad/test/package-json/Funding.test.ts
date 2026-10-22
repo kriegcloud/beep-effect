@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it loads on-disk fixture files synchronously at module load. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // `funding` — the manifest field a consumer reaches for when it wants to put a
 // sponsor link beside a maintainer's name.
 //

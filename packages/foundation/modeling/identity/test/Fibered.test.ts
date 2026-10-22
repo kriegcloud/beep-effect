@@ -142,7 +142,7 @@ describe("Fibered", () => {
     const textOnly = family.pullback(["text"]);
     expectTypeOf(textOnly.meta).parameter(0).toEqualTypeOf<"text">();
     const rejectExcludedPoint = () => {
-      // @ts-expect-error The pullback excludes the count point.
+      // @ts-expect-error -- The pullback excludes the count point. Owner: @beep/identity. Exit: remove if the API is meant to accept this.
       textOnly.meta("count");
     };
     expectTypeOf(rejectExcludedPoint).toBeFunction();
@@ -155,7 +155,7 @@ describe("Fibered", () => {
         fibers: { x: S.String, y: S.Finite },
         section: {
           schema: S.Struct({ label: S.String }),
-          // @ts-expect-error A total section over x and y must include y.
+          // @ts-expect-error -- A total section over x and y must include y. Owner: @beep/identity. Exit: remove if the API is meant to accept this.
           values: { x: { label: "X" } },
         },
       });
@@ -168,7 +168,7 @@ describe("Fibered", () => {
       Fibered.make({
         base: S.Literals(["text"]),
         fibers: { text: S.String },
-        // @ts-expect-error Member hooks must preserve the tagged member shape.
+        // @ts-expect-error -- Member hooks must preserve the tagged member shape. Owner: @beep/identity. Exit: remove if the API is meant to accept this.
         member: () => S.String,
         section: {
           schema: S.Struct({ label: S.String }),

@@ -95,7 +95,7 @@ describe("NamedColor spells the bright variants as chalk and Ink do", () => {
 	}
 
 	it("the old brightX spellings are gone", () => {
-		// @ts-expect-error renamed to cyanBright
+		// @ts-expect-error -- renamed to cyanBright. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
 		const old: NamedColor = "brightCyan";
 		// Rendered as an unknown name, it is ignored rather than guessed at.
 		assert.strictEqual(paintStyle({ fg: old }, "basic", "x"), "x");

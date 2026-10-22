@@ -20,7 +20,7 @@ export const q1Standalone = S.decodeEffect(RenamedStruct)({
   "approved-skills": "Bash",
 });
 
-// @ts-expect-error decodeTo<...> does not satisfy `S extends Struct<Struct.Fields>`
+// @ts-expect-error -- probe Q1's answer: S.Class requires S.Struct fields, and a struct piped through S.encodeKeys is a decodeTo, so Effect's S.Class rejects it. Owner: @beep/scratchpad. Exit: Effect's S.Class accepts an S.encodeKeys-piped struct, or the probe is retired.
 export class Q1Class extends S.Class<Q1Class, { readonly brand: unique symbol }>("Q1Class")(RenamedStruct) {}
 
 // --- Q2: use-site encodeKeys on a model's json variant static ------------

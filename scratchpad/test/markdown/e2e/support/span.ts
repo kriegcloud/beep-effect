@@ -1,5 +1,4 @@
-// These span factories are internal test helpers with direct-call contracts.
-// @effect-diagnostics missingPipeableSignature:skip-file
+// @effect-diagnostics missingPipeableSignature:skip-file -- missingPipeableSignature because the factories are internal test helpers with a direct-call contract. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // Position helpers for hand-built trees.
 //
 // Every node schema requires a `position`, which is right for a parser (it
