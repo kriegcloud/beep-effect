@@ -23,6 +23,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { LintContext, YamlLintDiagnostic } from "@beep/yaml/YamlLintRule";
 
 const observation = S.Union([StyleVote, StyleFloor]);
@@ -37,7 +38,7 @@ type StyleCandidate = StyleConflict["candidates"][number];
 /** Source text a conflict candidate points at (empty-window semantics preserved for a missing candidate). */
 const candidateSource = (text: string, candidate: StyleCandidate | undefined): string => {
   const offset = candidate?.offset ?? 0;
-  return text.slice(candidate?.offset, offset + (candidate?.length ?? 0));
+  return Str.slice(candidate?.offset, offset + (candidate?.length ?? 0))(text);
 };
 
 const assertQuoteConflictCandidates = (text: string, conflict: StyleConflict | undefined): void => {
@@ -338,7 +339,7 @@ describe("YamlLint.resolveLenient / inferLenient", () => {
     const deviation = A.filter(residual, (d) => d.rule === "quoted-strings");
     assert.strictEqual(deviation.length, 1);
     assert.strictEqual(
-      text.slice(deviation[0]?.offset, (deviation[0]?.offset ?? 0) + (deviation[0]?.length ?? 0)),
+      Str.slice(deviation[0]?.offset, (deviation[0]?.offset ?? 0) + (deviation[0]?.length ?? 0))(text),
       '"z"'
     );
   });

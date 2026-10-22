@@ -4,6 +4,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import * as YAML from "yaml";
 import { builtin, testRule, testRuleInference } from "./harness.ts";
 
@@ -11,14 +12,14 @@ describe("composed scalar blank-line fidelity", () => {
   for (const blankCount of [1, 3]) {
     for (const shape of ["mapping", "flow sequence", "block sequence"]) {
       it(`${shape} content with ${blankCount} blank lines never diagnoses, fixes or votes as layout`, () => {
-        const breaks = "\n".repeat(blankCount + 1);
+        const breaks = Str.repeat(blankCount + 1)("\n");
         const input =
           shape === "mapping"
             ? `a: first${breaks}  second\n`
             : shape === "flow sequence"
               ? `[first${breaks}  second]\n`
               : `- first${breaks}  second\n`;
-        const value = `first${"\n".repeat(blankCount)}second`;
+        const value = `first${Str.repeat(blankCount)("\n")}second`;
         const expected = shape === "mapping" ? { a: value } : [value];
         const rule = builtin("empty-lines");
         for (const setting of [{}, { max: 0 }]) {
