@@ -4,6 +4,7 @@ import {
   effectDiagnosticsProjectConfig,
   readEffectDiagnosticsProfile,
 } from "@beep/repo-cli/commands/Quality/EffectDiagnostics";
+import { runTsgoSmokeCheck } from "@beep/repo-cli/test/Quality";
 import { MemoryStats, provideRuntimeRootForTesting, RuntimeRootChoice } from "@beep/repo-cli/test/RepoRun";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
@@ -19,6 +20,7 @@ import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -73,6 +75,37 @@ const consoleText = Effect.fn("QualityCommandDispatchTest.consoleText")(function
 });
 
 it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch", (it) => {
+  it.effect("creates the tsgo smoke parent in a fresh repository before invoking the compiler", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const originalCwd = process.cwd();
+      const repoRoot = yield* fs.makeTempDirectoryScoped({ directory: originalCwd, prefix: "tsgo-smoke-test-" });
+      const tempRoot = path.join(repoRoot, "node_modules", ".tmp");
+      yield* fs.writeFileString(path.join(repoRoot, "bun.lock"), "");
+      expect(yield* fs.exists(tempRoot)).toBe(false);
+      yield* Effect.acquireRelease(
+        Effect.sync(() => process.chdir(repoRoot)),
+        () => Effect.sync(() => process.chdir(originalCwd))
+      );
+      const spawned: Array<string> = [];
+      const diagnosticHandle = ChildProcessSpawner.makeHandle({
+        ...successfulHandle,
+        all: Stream.make(encoder.encode("effect(effectFnOpportunity)")),
+        exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(1)),
+        stdout: Stream.make(encoder.encode("effect(effectFnOpportunity)")),
+      });
+
+      yield* runTsgoSmokeCheck().pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, recordingSpawner(spawned, diagnosticHandle))
+      );
+
+      expect(spawned).toEqual([expect.stringContaining(path.join(repoRoot, "node_modules", ".bin", "effect-tsgo"))]);
+      expect(yield* fs.exists(tempRoot)).toBe(true);
+      expect(yield* fs.readDirectory(tempRoot)).toEqual([]);
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
   it.effect("renders the root command index", () =>
     Effect.gen(function* () {
       yield* runQualityCommand([]);

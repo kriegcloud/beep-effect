@@ -3115,6 +3115,9 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
 > {
   const { fs, path, repoRoot } = yield* qualityFileContext();
   const tempRoot = path.join(repoRoot, "node_modules", ".tmp");
+  yield* fs
+    .makeDirectory(tempRoot, { recursive: true })
+    .pipe(QualityScriptCommandError.mapError("Failed to create tsgo smoke dir."));
   const smokeDir = yield* fs
     .makeTempDirectory({ directory: tempRoot })
     .pipe(QualityScriptCommandError.mapError("Failed to create tsgo smoke dir."));

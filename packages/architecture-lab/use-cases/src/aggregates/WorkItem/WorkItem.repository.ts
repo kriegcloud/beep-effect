@@ -46,9 +46,7 @@ export class WorkItemRepositoryNotFound extends S.TaggedError<
     title: "WorkItem repository not found",
     description: "The WorkItem repository could not find the requested aggregate.",
   })
-) {
-  static readonly is = S.is(WorkItemRepositoryNotFound);
-}
+) {}
 
 /**
  * Persistence failure raised when a WorkItem write conflicts.
@@ -86,9 +84,7 @@ export class WorkItemRepositoryConflict extends S.TaggedError<
     title: "WorkItem repository conflict",
     description: "The WorkItem repository rejected a conflicting write.",
   })
-) {
-  static readonly is = S.is(WorkItemRepositoryConflict);
-}
+) {}
 
 /**
  * Persistence failure raised when the WorkItem repository is unavailable.
@@ -120,9 +116,7 @@ export class WorkItemRepositoryUnavailable extends S.TaggedError<
     title: "WorkItem repository unavailable",
     description: "The WorkItem repository could not serve the request.",
   })
-) {
-  static readonly is = S.is(WorkItemRepositoryUnavailable);
-}
+) {}
 
 /**
  * WorkItem repository failure schema.

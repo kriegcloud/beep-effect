@@ -463,38 +463,6 @@ const acquireReportersDbProjection = Effect.fn("SyncDataToTs.ReportersDb.acquire
   return SyncDataTargetProjection.make({
     files: [
       outputFile(
-        `${outputRoot}/case-name-abbreviations.ts`,
-        renderUnknownJsonModule({
-          exportName: "CaseNameAbbreviationsData",
-          refreshCommand,
-          value: caseNameAbbreviations,
-        })
-      ),
-      outputFile(
-        `${outputRoot}/journals.ts`,
-        renderUnknownJsonModule({ exportName: "JournalsData", refreshCommand, value: journals })
-      ),
-      outputFile(
-        `${outputRoot}/laws.ts`,
-        renderUnknownJsonModule({ exportName: "LawsData", refreshCommand, value: laws })
-      ),
-      outputFile(
-        `${outputRoot}/regexes.ts`,
-        renderUnknownJsonModule({ exportName: "RegexesData", refreshCommand, value: regexes })
-      ),
-      outputFile(
-        `${outputRoot}/reporters.ts`,
-        renderUnknownJsonModule({ exportName: "ReportersData", refreshCommand, value: reporters })
-      ),
-      outputFile(
-        `${outputRoot}/state-abbreviations.ts`,
-        renderUnknownJsonModule({
-          exportName: "StateAbbreviationsData",
-          refreshCommand,
-          value: stateAbbreviations,
-        })
-      ),
-      outputFile(
         vocabularyOutputPath,
         renderUnknownJsonModule({
           exportName: "ReportersVocabularyData",

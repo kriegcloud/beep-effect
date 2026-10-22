@@ -35,3 +35,8 @@ post-merge:
   commands:
     version-sync-check:
       run: bun run beep version-sync --skip-network
+
+pre-push:
+  commands:
+    bun-version-check:
+      run: bun run beep version-sync --check-runtime

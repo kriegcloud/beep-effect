@@ -117,9 +117,7 @@ export class DraftGrantSet extends S.Opaque<DraftGrantSet, { readonly brand: uni
       description: "Grant set under construction; the only state addGrant accepts.",
     })
   )
-) {
-  static readonly is = S.is(DraftGrantSet);
-}
+) {}
 
 /**
  * A sealed grant set: contents fixed at {@link freezeGrantSet} time and named
@@ -167,9 +165,7 @@ export class FrozenGrantSet extends S.Opaque<FrozenGrantSet, { readonly brand: u
       description: "Sealed grant set; construct only via freezeGrantSet, verify via verifyFrozenGrantSetDigest.",
     })
   )
-) {
-  static readonly is = S.is(FrozenGrantSet);
-}
+) {}
 
 const GrantSetState = LiteralKit(["draft", "frozen"]);
 
@@ -331,9 +327,7 @@ export class GrantSetDigestInput extends S.Opaque<GrantSetDigestInput, { readonl
       description: "The committed-to input of a grant-set seal.",
     })
   )
-) {
-  static readonly is = S.is(GrantSetDigestInput);
-}
+) {}
 
 const encodeDigestInput = S.encodeResult(GrantSetDigestInput);
 

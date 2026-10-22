@@ -212,6 +212,7 @@ export class GraphqlBudgetExhausted extends S.TaggedError<GraphqlBudgetExhausted
     description: "The GraphQL budget is below the policy threshold.",
   })
 ) {
+  // fallow-ignore-next-line unused-class-member -- GraphqlBudgetExhausted.message: Error.toString / Effect Cause.pretty reads this Error override.
   override get message(): string {
     return `GitHub GraphQL budget too low for ${this.operation} (${this.remaining} points left, resets ${DateTime.formatIso(this.resetAt)})`;
   }

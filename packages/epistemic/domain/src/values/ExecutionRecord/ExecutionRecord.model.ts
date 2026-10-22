@@ -449,9 +449,7 @@ export class ExecutionOutcomeRecord extends S.Opaque<ExecutionOutcomeRecord, { r
       description: "Post-settlement outcome record bound to its allowed decision by hash.",
     })
   )
-) {
-  static readonly is = S.is(ExecutionOutcomeRecord);
-}
+) {}
 
 const digestOf = (version: string, canonical: string): string =>
   bytesToHex(sha256(utf8ToBytes(`${version}\n${canonical}`)));

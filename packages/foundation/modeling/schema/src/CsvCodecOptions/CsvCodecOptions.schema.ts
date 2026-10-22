@@ -91,11 +91,13 @@ export class CsvCodecOptions extends S.Class<CsvCodecOptions, { readonly brand: 
     parseOptions: csvCodecOptionsParseOptions,
   })
 ) {
+  // fallow-ignore-next-line unused-class-member -- CsvCodecOptions.decodeEffect: Csv/Csv.schema.ts calls this through the exported class alias.
   static readonly decodeEffect: {
     (input: unknown, options?: AST.ParseOptions): Effect.Effect<CsvCodecOptions, S.SchemaError>;
     (options?: AST.ParseOptions): (input: unknown) => Effect.Effect<CsvCodecOptions, S.SchemaError>;
   } = dual(SchemaUtils.isCodecDataFirst, S.decodeUnknownEffect(CsvCodecOptions));
 
+  // fallow-ignore-next-line unused-class-member -- escapeChar: CsvParser.parser.ts / CsvFormatter.formatter.ts reads the schema instance getter.
   get escapeChar(): O.Option<string> {
     return O.orElse(() => this.quote)(this.escape);
   }

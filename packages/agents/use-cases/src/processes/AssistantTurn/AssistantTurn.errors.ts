@@ -6,8 +6,6 @@
  */
 
 import { $AgentsUseCasesId } from "@beep/identity/packages";
-import * as Effect from "effect/Effect";
-import { flow } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $AgentsUseCasesId.create("processes/AssistantTurn/AssistantTurn.errors");
@@ -39,8 +37,4 @@ export class TurnGenerationError extends S.TaggedError<TurnGenerationError, { re
   })
 ) {
   static readonly new = (message: string) => TurnGenerationError.make({ message });
-
-  static readonly failEffect = flow(this.new, Effect.fail);
-
-  static readonly failEffectThunk = flow(this.failEffect, (effect) => () => effect);
 }

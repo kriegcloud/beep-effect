@@ -12194,18 +12194,6 @@
             "functions": 0
           }
         },
-        "packages/law-practice/domain/src/internal/generated/free-law-project/case-name-abbreviations.ts": {
-          "lines": 0,
-          "statements": 0,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 2,
-            "statements": 2,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/law-practice/domain/src/internal/generated/free-law-project/courts-vocabulary.ts": {
           "lines": 100,
           "statements": 100,
@@ -12218,54 +12206,6 @@
             "functions": 0
           }
         },
-        "packages/law-practice/domain/src/internal/generated/free-law-project/courts.ts": {
-          "lines": 0,
-          "statements": 0,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 2,
-            "statements": 2,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/law-practice/domain/src/internal/generated/free-law-project/journals.ts": {
-          "lines": 0,
-          "statements": 0,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 2,
-            "statements": 2,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/law-practice/domain/src/internal/generated/free-law-project/laws.ts": {
-          "lines": 0,
-          "statements": 0,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 2,
-            "statements": 2,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/law-practice/domain/src/internal/generated/free-law-project/regexes.ts": {
-          "lines": 0,
-          "statements": 0,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 2,
-            "statements": 2,
-            "branches": 0,
-            "functions": 0
-          }
-        },
         "packages/law-practice/domain/src/internal/generated/free-law-project/reporters-vocabulary.ts": {
           "lines": 100,
           "statements": 100,
@@ -12274,30 +12214,6 @@
           "uncovered": {
             "lines": 0,
             "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/law-practice/domain/src/internal/generated/free-law-project/reporters.ts": {
-          "lines": 0,
-          "statements": 0,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 2,
-            "statements": 2,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/law-practice/domain/src/internal/generated/free-law-project/state-abbreviations.ts": {
-          "lines": 0,
-          "statements": 0,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 2,
-            "statements": 2,
             "branches": 0,
             "functions": 0
           }

@@ -48,9 +48,7 @@ export class WorkerRepositoryNotFound extends S.TaggedError<
     title: "Worker repository not found",
     description: "The Worker repository could not find the requested entity.",
   })
-) {
-  static readonly is = S.is(WorkerRepositoryNotFound);
-}
+) {}
 
 /**
  * Persistence failure raised when a Worker write conflicts.
@@ -89,9 +87,7 @@ export class WorkerRepositoryConflict extends S.TaggedError<
     title: "Worker repository conflict",
     description: "The Worker repository rejected a conflicting write.",
   })
-) {
-  static readonly is = S.is(WorkerRepositoryConflict);
-}
+) {}
 
 /**
  * Persistence failure raised when the Worker repository is unavailable.
@@ -123,9 +119,7 @@ export class WorkerRepositoryUnavailable extends S.TaggedError<
     title: "Worker repository unavailable",
     description: "The Worker repository could not serve the request.",
   })
-) {
-  static readonly is = S.is(WorkerRepositoryUnavailable);
-}
+) {}
 
 /**
  * Worker repository failure schema.
