@@ -43,6 +43,8 @@ import * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -389,8 +391,24 @@ else: print(json.dumps({'html_url':'https://github.com/fixture/renamed/issues/1'
     })
   );
 
-  it.effect("binds headerless arxiv full text to observed official metadata and identical versioned PDF bytes", () =>
+  it.effect("binds headerless arxiv full text to observed official metadata and identical versioned PDF bytes", (ctx) =>
     Effect.gen(function* () {
+      const pdftotextPresent = yield* Effect.gen(function* () {
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        const handle = yield* spawner.spawn(
+          ChildProcess.make("pdftotext", ["-v"], { stdin: "ignore", stderr: "ignore", stdout: "ignore" })
+        );
+        yield* handle.exitCode;
+        return true;
+      }).pipe(
+        Effect.catchTag("PlatformError", (error) =>
+          error.reason._tag === "NotFound" ? Effect.succeed(false) : Effect.fail(error)
+        )
+      );
+      if (!pdftotextPresent) {
+        ctx.skip("Missing native prerequisite: pdftotext on PATH");
+        return;
+      }
       const fixture = yield* prepare();
       const paper = LibrarySource.make({
         ...source,
