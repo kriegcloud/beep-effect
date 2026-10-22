@@ -125,6 +125,18 @@
             "functions": 24
           }
         },
+        "packages/drivers/acp/src/AcpClientTerminals.service.ts": {
+          "lines": 100,
+          "statements": 99.37,
+          "branches": 94.87,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 1,
+            "branches": 2,
+            "functions": 0
+          }
+        },
         "packages/drivers/acp/src/AcpCompat.models.ts": {
           "lines": 100,
           "statements": 100,
@@ -31934,18 +31946,6 @@
             "functions": 0
           }
         },
-        "packages/tooling/tool/cli/src/commands/Research/internal/UnknownRecord.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 75,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 1,
-            "functions": 0
-          }
-        },
         "packages/tooling/tool/cli/src/commands/Research/internal/Vault.ts": {
           "lines": 73.07,
           "statements": 70.37,
@@ -42731,43 +42731,7 @@
             "functions": 0
           }
         },
-        "packages/tooling/test-kit/test-utils/src/FileSystemConformance.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 80,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 1,
-            "functions": 0
-          }
-        },
         "packages/tooling/test-kit/test-utils/src/Layer.ts": {
-          "lines": 100,
-          "statements": 100,
-          "branches": 100,
-          "functions": 100,
-          "uncovered": {
-            "lines": 0,
-            "statements": 0,
-            "branches": 0,
-            "functions": 0
-          }
-        },
-        "packages/tooling/test-kit/test-utils/src/MemoryFileSystem/MemoryFileSystem.test-kit.ts": {
-          "lines": 98.88,
-          "statements": 97.68,
-          "branches": 94.58,
-          "functions": 97.88,
-          "uncovered": {
-            "lines": 13,
-            "statements": 30,
-            "branches": 31,
-            "functions": 7
-          }
-        },
-        "packages/tooling/test-kit/test-utils/src/MemoryFileSystem/index.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,

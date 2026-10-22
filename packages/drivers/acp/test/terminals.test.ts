@@ -1,4 +1,6 @@
-import { AcpClientTerminalLimits, make } from "@beep/acp/terminals";
+import * as AcpClient from "@beep/acp/client";
+import * as AcpJson from "@beep/acp/json";
+import { AcpClientTerminalLimits, layer, make, register } from "@beep/acp/terminals";
 import * as NodeChildProcessSpawner from "@effect/platform-node/NodeChildProcessSpawner";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, it } from "@effect/vitest";
@@ -9,12 +11,20 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Queue from "effect/Queue";
 import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { makeInMemoryStdio } from "./helpers.ts";
 
 const node = process.execPath;
 const script = (source: string) => ({ command: node, args: ["-e", source] });
 const cwd = process.cwd();
+
+const encoder = new TextEncoder();
+const encodeJsonText = S.encodeUnknownEffect(AcpJson.fromJsonText(S.Unknown));
+const decodeResponse = S.decodeEffect(AcpJson.fromJsonText(S.Struct({ id: S.Finite, result: S.Unknown })));
+const decodeTerminalId = S.decodeUnknownEffect(S.Struct({ terminalId: S.String }));
 
 // The spawner reads the filesystem only to check that an explicit cwd is accessible; every
 // command here runs in the test's own working directory.
@@ -261,6 +271,42 @@ it.layer(SpawnerLayer, { timeout: "30 seconds" })("AcpClientTerminals", (it) => 
 it.layer(SpawnerLayer, { excludeTestServices: true, timeout: "30 seconds" })(
   "AcpClientTerminals on the real clock",
   (it) => {
+    it.effect(
+      "serves an agent's terminal requests through the client once registered",
+      Effect.fnUntraced(function* () {
+        const { stdio, input, output } = yield* makeInMemoryStdio();
+        const acp = yield* AcpClient.make(stdio);
+        const call = Effect.fnUntraced(function* (id: number, method: string, params: unknown) {
+          const line = yield* encodeJsonText({ jsonrpc: "2.0", id, method, params });
+          yield* Queue.offer(input, encoder.encode(`${line}\n`));
+          const response = yield* Effect.flatMap(Queue.take(output), decodeResponse);
+          assert.strictEqual(response.id, id);
+          return response.result;
+        });
+
+        yield* register.pipe(
+          Effect.provideService(AcpClient.AcpClient, acp),
+          Effect.provide(layer({ defaultCwd: cwd }))
+        );
+
+        const { terminalId } = yield* decodeTerminalId(
+          yield* call(1, "terminal/create", {
+            sessionId: "session",
+            ...script("process.stdout.write('served over acp'); process.exit(5);"),
+          })
+        );
+        const terminal = { sessionId: "session", terminalId };
+        assert.deepEqual(yield* call(2, "terminal/wait_for_exit", terminal), { exitCode: 5, signal: null });
+        assert.deepEqual(yield* call(3, "terminal/output", terminal), {
+          output: "served over acp",
+          truncated: false,
+          exitStatus: { exitCode: 5, signal: null },
+        });
+        assert.deepEqual(yield* call(4, "terminal/kill", terminal), {});
+        assert.deepEqual(yield* call(5, "terminal/release", terminal), {});
+      })
+    );
+
     it.effect(
       "escalates terminal/kill to SIGKILL when the command ignores SIGTERM",
       Effect.fnUntraced(function* () {
