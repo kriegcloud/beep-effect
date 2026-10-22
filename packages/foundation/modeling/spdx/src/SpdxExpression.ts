@@ -34,7 +34,7 @@ type SpdxNode = Data.TaggedEnum<{
     readonly ref: string;
   };
   WithException: {
-    readonly license: LicenseNode.Encoded | typeof LicenseRefNode.Encoded;
+    readonly license: typeof LicenseNode.Encoded | typeof LicenseRefNode.Encoded;
     readonly exception: string;
   };
   And: { readonly left: SpdxNode; readonly right: SpdxNode };

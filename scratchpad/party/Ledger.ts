@@ -122,6 +122,8 @@ export const PartyLedgerMemory = Layer.effect(
         if (O.isNone(target)) return Result.fail("superseded version not found");
         if (O.isSome(target.value.knowledge.expiredAt)) return Result.fail("superseded version already expired");
         const at = next.knowledge.recordedAt;
+        if (at <= target.value.knowledge.recordedAt)
+          return Result.fail("successor must be recorded after the version it supersedes");
         return Result.succeed({
           ...current,
           versions: [

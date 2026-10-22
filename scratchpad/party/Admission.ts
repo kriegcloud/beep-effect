@@ -31,7 +31,7 @@ import type { EvidenceKind } from "./Communication.ts";
 import type { AssertionId } from "./Ids.ts";
 import { ClaimVersionId } from "./Ids.ts";
 import { CollectionSide } from "./Provenance.ts";
-import { UtcInstant } from "./Time.ts";
+import { knownAt, UtcInstant } from "./Time.ts";
 import { thunkEmptyArray } from "@beep/utils";
 
 const $I = $ScratchpadId.create("party/Admission");
@@ -66,6 +66,10 @@ export const AdmissionClause = S.TaggedUnion({
   RequireDistinctiveEvidence: {},
   /** At least one supporting assertion from a side other than `side` (testimonial-tier guard). */
   RequireSupportOutsideSide: { side: CollectionSide },
+  /** Every cited support is in the version's `supportedBy`. `admit` always enforces it. */
+  SupportsInVersion: {},
+  /** The version is part of the system's knowledge at the admission's knowledge time. `admit` always enforces it. */
+  KnownAtKnowledgeTime: {},
 }).pipe($I.annoteSchema("AdmissionClause", { description: "One admission requirement." }));
 export type AdmissionClause = typeof AdmissionClause.Type;
 
@@ -216,7 +220,10 @@ export const independentSupportCount = ({
   return A.length(A.dedupe(A.map(supports, find)));
 };
 
-const evaluate = (clause: AdmissionClause, evidence: AdmissionEvidence): O.Option<string> =>
+/** Clauses `admit` checks before any policy clause, so no policy can omit them. */
+const integrityClauses: ReadonlyArray<AdmissionClause> = [{ _tag: "SupportsInVersion" }, { _tag: "KnownAtKnowledgeTime" }];
+
+const evaluate = (clause: AdmissionClause, evidence: AdmissionEvidence, knowledgeTime: UtcInstant): O.Option<string> =>
   AdmissionClause.match(clause, {
     MinIndependentSupport: ({ n, unknownCountsAs }) => {
       const count = independentSupportCount({
@@ -238,6 +245,16 @@ const evaluate = (clause: AdmissionClause, evidence: AdmissionEvidence): O.Optio
         : O.some("all support is shared-template or bulk-distribution evidence"),
     RequireSupportOutsideSide: ({ side }) =>
       A.some(evidence.supports, (s) => s.side !== side) ? O.none() : O.some(`all support comes from ${side}`),
+    SupportsInVersion: () => {
+      const outside = A.filter(evidence.supports, (s) => !A.contains(evidence.version.supportedBy, s.assertion));
+      return A.isReadonlyArrayEmpty(outside)
+        ? O.none()
+        : O.some(`${A.length(outside)} support(s) not in the version's supportedBy`);
+    },
+    KnownAtKnowledgeTime: () =>
+      knownAt(evidence.version.knowledge, knowledgeTime)
+        ? O.none()
+        : O.some(`version ${evidence.version.id} is not known at ${knowledgeTime}`),
   });
 
 /**
@@ -255,8 +272,8 @@ export const admit = <T extends AdmissionTier>({
   readonly evidence: AdmissionEvidence;
   readonly knowledgeTime: UtcInstant;
 }): Result.Result<Admitted<T>, AdmissionRefused> => {
-  const unmet = A.flatMap(policy.clauses, (clause) =>
-    O.match(evaluate(clause, evidence), { onNone: thunkEmptyArray(), onSome: (saw) => [{ clause, saw }] })
+  const unmet = A.flatMap(A.appendAll(integrityClauses, policy.clauses), (clause) =>
+    O.match(evaluate(clause, evidence, knowledgeTime), { onNone: thunkEmptyArray(), onSome: (saw) => [{ clause, saw }] })
   );
   const ref = { id: policy.id, version: policy.version };
   return A.isReadonlyArrayNonEmpty(unmet)
