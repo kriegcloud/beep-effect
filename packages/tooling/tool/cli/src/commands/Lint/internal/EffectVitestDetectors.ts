@@ -1204,6 +1204,51 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
     );
   });
 
+// Resolve the root binding so aliases, namespace calls and shadowing stay lexical.
+const callsImportedHelper = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  let callee: MorphNode = call.getExpression();
+  while (Node.isPropertyAccessExpression(callee) || Node.isElementAccessExpression(callee))
+    callee = callee.getExpression();
+  return (
+    Node.isIdentifier(callee) &&
+    O.exists(O.filter(imports.resolveBinding(callee), Node.isImportDeclaration), (declaration) => {
+      const module = declaration.getModuleSpecifierValue();
+      // Effect combinators and harness registration are understood locally.
+      return (
+        module !== "effect" &&
+        !Str.startsWith("effect/")(module) &&
+        !A.contains(["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"], module)
+      );
+    })
+  );
+};
+
+// External helper bodies cannot prove absence of filesystem I/O. Follow the same
+// local helper graph as the native proof, preserving lexical import shadowing.
+const harnessCallsImportedHelper = (harness: CallExpression, imports: EffectVitestImports): boolean =>
+  O.exists(harnessCallback(harness), (callback) => {
+    const regions: Array<MorphNode> = [callback];
+    const calls = A.empty<CallExpression>();
+    const services = A.empty<VariableDeclaration>();
+    for (const region of regions) {
+      const known = calls.length;
+      collectFileSystemEvidence(region, imports, services, calls);
+      const reached = A.drop(calls, known);
+      if (A.some(reached, (call) => callsImportedHelper(call, imports))) return true;
+      // Context providers do not make an external helper's body visible.
+      const helpers = A.getSomes(
+        A.map(reached, (call) => {
+          const callee = call.getExpression();
+          return Node.isIdentifier(callee)
+            ? O.flatMap(imports.resolveBinding(callee), (binding) => helperBody(binding, imports))
+            : O.none();
+        })
+      );
+      regions.push(...A.filter(helpers, (helper) => !A.some(regions, (known) => known === helper)));
+    }
+    return false;
+  });
+
 // A services bundle used only by the shared harness is not filesystem evidence.
 // Keep portable filesystem candidates unless the existing native-subject proof succeeds.
 const canonicalPlatformIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
@@ -1228,7 +1273,7 @@ const canonicalPlatformIntegration = (declaration: ImportDeclaration, imports: E
         A.every(
           harnesses,
           (harness) =>
-            (!readsFileSystem && O.isSome(harnessCallback(harness))) ||
+            (!readsFileSystem && O.isSome(harnessCallback(harness)) && !harnessCallsImportedHelper(harness, imports)) ||
             harnessProvesNativeFileSystem(
               { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
               imports

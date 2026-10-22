@@ -1501,7 +1501,6 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace().pipe(Fx.provideServiceEffect(Console.Console, makeConsole))")}`,
         `${subjectLayer} const stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("Fx.provideService(stageWorkspace(), Console.Console, testConsole)")}`,
         `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.provideService(Console.Console, testConsole)); ${subjectSuite("stageWorkspace()")}`,
-        `${subjectLayer} import { stageWorkspace } from "./helpers/stage"; ${subjectSuite("stageWorkspace()")}`,
         bound("const program = stageWorkspace(); yield* program;"),
         bound("const program = stageWorkspace(); yield* (program);"),
         bound("const program = stageWorkspace(); const mapped = Fx.map(program, (value) => value); yield* mapped;"),
@@ -1514,6 +1513,12 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
       ])
         deepStrictEqual(yield* reviewClasses(body), []);
       for (const body of [
+        `${subjectLayer} import { stageWorkspace } from "./helpers/stage"; ${subjectSuite("stageWorkspace()")}`,
+        `${harness} import { NodeServices } from "@effect/platform-node"; import { stageWorkspace } from "./support/CommandTest.ts"; layer(NodeServices.layer)((it) => { it.effect("explore check", () => Fx.gen(function* () { yield* stageWorkspace(); })); });`,
+        `${subjectLayer} import * as CommandTest from "./support/CommandTest.ts"; ${subjectSuite("CommandTest.stageWorkspace()")}`,
+        `${subjectLayer} import { stageWorkspace as stage } from "./support/CommandTest.ts"; const run = () => stage(); ${subjectSuite("run()")}`,
+        `${subjectLayer} import { stageWorkspace } from "./support/CommandTest.ts"; const run = () => stageWorkspace().pipe(Fx.provide(FakeLayer)); ${subjectSuite("run()")}`,
+        `import { stageWorkspace } from "./support/CommandTest.ts"; ${platformSuite('stageWorkspace("fixture")')}`,
         `${subjectLayer} const stageWorkspace = Fx.fnUntraced(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }, Fx.provide(FakeFs.layer)); ${subjectSuite("stageWorkspace()")}`,
         `${subjectLayer} const stageWorkspace = () => Fx.gen(function* () { const fs = yield* FileSystem.FileSystem; yield* fs.readFileString("a"); }).pipe(Fx.provide(FakeFs.layer)); ${subjectSuite("stageWorkspace()")}`,
         `${subjectLayer} let stageWorkspace = ${stage('yield* fs.readFileString("a");')}; ${subjectSuite("stageWorkspace()")}`,
@@ -1551,6 +1556,48 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         bound("yield* runElsewhere(Fx.map(stageWorkspace(), (value) => value));"),
       ])
         deepStrictEqual(yield* reviewClasses(body), ["platform-resource-provenance-review"], body);
+    })
+  );
+
+  it.effect("keeps filesystem I/O in imported support helpers opaque", () =>
+    Effect.gen(function* () {
+      const project = new Project({ useInMemoryFileSystem: true, skipAddingFilesFromTsConfig: true });
+      project.createSourceFile(
+        "support/CommandTest.ts",
+        `
+        import * as Effect from "effect/Effect";
+        import * as FileSystem from "effect/FileSystem";
+        export const stageWorkspace = Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectory();
+          yield* fs.writeFileString(root + "/fixture", "fixture");
+          return root;
+        });
+      `
+      );
+      const source = project.createSourceFile(
+        "explore-check.test.ts",
+        `
+        import { it } from "@effect/vitest";
+        import { NodeServices } from "@effect/platform-node";
+        import { stageWorkspace } from "./support/CommandTest.ts";
+        it.layer(NodeServices.layer)((it) => {
+          it.effect("stages workspace", () => stageWorkspace());
+        });
+      `
+      );
+      const rows = yield* detectEffectVitestFindings(
+        source,
+        "packages/example/test/explore-check.test.ts",
+        "@beep/example"
+      );
+      deepStrictEqual(
+        A.map(
+          A.filter(rows, (row) => row.ruleId === "EV010"),
+          (row) => row.class
+        ),
+        ["platform-resource-provenance-review"]
+      );
     })
   );
 
