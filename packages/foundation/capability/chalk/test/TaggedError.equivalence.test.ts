@@ -1,6 +1,7 @@
+import { Chalk } from "@beep/chalk";
 import { makeCreateChalk } from "@beep/chalk/internal/ChalkRuntime";
 import { it } from "@beep/test-runner";
-import { describe, expect } from "@effect/vitest";
+import { assert, describe, expect } from "@effect/vitest";
 import { identity } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
@@ -21,6 +22,25 @@ const triggerMissingBuilderMetadata = (): unknown => {
 };
 
 describe("@beep/chalk tagged-error declared equivalence", () => {
+  it("rejects a foreign visible receiver without damaging the registered builder", () => {
+    const builder = new Chalk({ level: 1 });
+    const prototype = Reflect.getPrototypeOf(builder);
+    assert(P.isObjectKeyword(prototype));
+    const descriptor = Reflect.getOwnPropertyDescriptor(prototype, "visible");
+    assert(P.isNotUndefined(descriptor));
+    const getter = descriptor.get;
+    assert(P.isFunction(getter));
+
+    expect(() => Reflect.apply(getter, () => "foreign", [])).toThrow(
+      expect.objectContaining({
+        _tag: "MissingBuilderMetadataError",
+        message: "Missing Chalk builder metadata.",
+      })
+    );
+    expect(builder.visible.red("registered")).toBe("\u001B[31mregistered\u001B[39m");
+    expect(builder.level).toBe(1);
+  });
+
   it("compares the private missing-builder-metadata error by declared message", () => {
     const first = capture(triggerMissingBuilderMetadata);
     const second = capture(triggerMissingBuilderMetadata);

@@ -96,10 +96,7 @@ const parseDescriptor = (descriptor: string): O.Option<ParsedDescriptor> =>
   pipe(
     descriptor,
     Str.match(WIDTH_DESCRIPTOR_PATTERN),
-    O.flatMap((match) => {
-      const [, digits = ""] = match;
-      return pipe(digits, normalizeWidth, O.map(makeWidthDescriptor));
-    }),
+    O.flatMap(() => pipe(descriptor, Str.slice(0, -1), normalizeWidth, O.map(makeWidthDescriptor))),
     O.orElse(() => pipe(descriptor, densityKey, O.map(makeDensityDescriptor)))
   );
 

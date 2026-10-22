@@ -18,6 +18,9 @@ import {
   runCiLane,
   withCiLaneDefaultPlacements,
 } from "@beep/repo-cli/commands/Ci";
+import * as CiCoverage from "@beep/repo-cli/commands/Ci/CiCoverage";
+import { CiCoverageArtifactPlan } from "@beep/repo-cli/commands/Quality/Tasks";
+import { CoverageProducerIdentity, CoverageScopeOwner } from "@beep/repo-cli/test/Quality";
 import {
   isLabsWorkspaceDir,
   readTurboCacheEnvironment,
@@ -29,12 +32,12 @@ import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect } from "@effect/vitest";
+import { describe, expect, vi } from "@effect/vitest";
 import { assertDefined, assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
-import { flow, pipe } from "effect/Function";
+import { constUndefined, flow, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -54,6 +57,13 @@ import * as TestConsole from "effect/testing/TestConsole";
 import { parseDocument } from "yaml";
 
 const REPO_ROOT = "/repo";
+const coverageDispatchIdentity = CoverageProducerIdentity.make({
+  executionSha: "a".repeat(40),
+  baseSha: "b".repeat(40),
+  runId: "coverage-dispatch-fixture",
+  runAttempt: 1,
+  scopeDigest: "c".repeat(64),
+});
 const encoder = new TextEncoder();
 const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
 
@@ -1266,6 +1276,27 @@ describe("ciLaneStepsForTesting", () => {
     expect(firstOf(steps).env).toBeUndefined();
   });
 
+  it("instruments the existing unit shard once and forces only its exact test targets", () => {
+    const options = CiLaneRunOptions.make({ ...baseOptions, coverageOutput: ".beep/ci-coverage/repo-cli-1" });
+    const args = ciLanePartitionArgsForTesting(
+      "test-unit",
+      ["@beep/repo-cli"],
+      options,
+      CiLanePartitionShard.make({ index: 1, total: 2 })
+    );
+    expect(args.execution).toContain("@beep/repo-cli#test");
+    expect(args.execution).toContain("--only");
+    expect(args.execution).toContain("--force");
+    expect(A.filter(args.execution, (arg) => arg === "--")).toHaveLength(1);
+    expect(args.execution).toContain("--coverage.provider=istanbul");
+    expect(args.execution).toContain("--coverage.reporter=json");
+    expect(args.execution).toContain("--coverage.reporter=json-summary");
+    expect(args.execution).toContain("--outputFile=coverage/unit-results.json");
+    expect(args.execution).toContain("--shard=1/2");
+    expect(args.selection).not.toContain("--coverage");
+    expect(args.execution).not.toContain("@beep/repo-cli#coverage");
+  });
+
   it("matches coverage baseline regeneration concurrency", () => {
     const coverage = firstOf(ciLaneStepsForTesting(REPO_ROOT, "coverage", prShapeOptions));
     expect([...coverage.args]).toEqual(["run", "coverage", "--", "--concurrency=3", "--affected", "--summarize"]);
@@ -2065,3 +2096,165 @@ it.layer(ciExecutionLayer([], [], failedInventoryCommands, "jsdoc:inventory:chec
     );
   }
 );
+
+describe("public CI coverage lane dispatch", () => {
+  it.layer(PartitionLaneLayer, { timeout: "10 seconds" })((it) => {
+    it.effect("routes comparison-only coverage without invoking a producer", () =>
+      Effect.gen(function* () {
+        const comparison = vi.spyOn(CiCoverage, "runCiCoverageComparison").mockReturnValue(Effect.sync(constUndefined));
+        const producer = vi.spyOn(CiCoverage, "runCiCoveragePartition").mockReturnValue(Effect.void);
+        yield* Effect.addFinalizer(() =>
+          Effect.sync(() => {
+            comparison.mockRestore();
+            producer.mockRestore();
+          })
+        );
+        const repoRoot = yield* findRepoRoot();
+        const options = CiLaneRunOptions.make({
+          ...baseOptions,
+          compareOnly: true,
+          coverageInput: ".beep/downloaded-coverage",
+        });
+        yield* runCiLane("coverage", options);
+        expect(comparison).toHaveBeenCalledExactlyOnceWith(repoRoot, options);
+        expect(producer).not.toHaveBeenCalled();
+
+        const error = yield* runCiLane("lint", options).pipe(Effect.flip);
+        expect(error._tag).toBe("CiCommandError");
+        expect(error.message).toContain("must be used together on the coverage lane");
+        expect(comparison).toHaveBeenCalledTimes(1);
+        expect(producer).not.toHaveBeenCalled();
+      })
+    );
+
+    it.effect("passes Labs check and lint work while removing the duplicate test target", () =>
+      Effect.gen(function* () {
+        const labs = vi.spyOn(CiCoverage, "runCiLabsCoverage").mockReturnValue(Effect.void);
+        yield* Effect.addFinalizer(() => Effect.sync(() => labs.mockRestore()));
+        const repoRoot = yield* findRepoRoot();
+        const options = CiLaneRunOptions.make({
+          ...baseOptions,
+          coverageOutput: ".beep/labs-coverage",
+          coverageOnly: true,
+        });
+        const original = ciLaneStepsForTesting(repoRoot, "labs", options);
+        yield* runCiLane("labs", options);
+        expect(labs).toHaveBeenCalledTimes(1);
+        const [actualRoot, actualOptions, checks] = firstOf(labs.mock.calls);
+        expect(actualRoot).toBe(repoRoot);
+        expect(actualOptions).toEqual(options);
+        expect(A.map(checks, (step) => step.label)).toEqual(A.map(original, (step) => step.label));
+        expect(A.map(checks, (step) => step.args)).toEqual(
+          A.map(original, (step) => A.filter(step.args, (argument) => argument !== "test"))
+        );
+        expect(A.flatMap(original, (step) => step.args)).toContain("test");
+        expect(A.flatMap(checks, (step) => step.args)).not.toContain("test");
+        expect(A.flatMap(checks, (step) => step.args)).toEqual(expect.arrayContaining(["check", "lint"]));
+      })
+    );
+
+    it.effect("adds ordinary coverage owners to the unit selection and leaves Labs to its own lane", () =>
+      Effect.gen(function* () {
+        const repoRoot = yield* findRepoRoot();
+        const path = yield* Path.Path;
+        const workspaces = yield* resolveWorkspacePackages(repoRoot);
+        const packageName = firstOf(partitionPackages("unit-a"));
+        const workspace = O.getOrThrow(HashMap.get(workspaces, packageName));
+        const selectedOwner = CoverageScopeOwner.make({
+          packageName,
+          packagePath: path.relative(repoRoot, workspace.dir),
+          hasCoverage: true,
+        });
+        const selectedPlan = CiCoverageArtifactPlan.make({
+          identity: coverageDispatchIdentity,
+          scoped: true,
+          owners: [
+            selectedOwner,
+            CoverageScopeOwner.make({
+              packageName: "@beep/fixture-lab",
+              packagePath: "apps/labs/fixture-lab",
+              hasCoverage: true,
+            }),
+          ],
+        });
+        const planner = vi.spyOn(CiCoverage, "ciCoveragePlan").mockReturnValue(Effect.succeed(selectedPlan));
+        const producer = vi.spyOn(CiCoverage, "runCiCoveragePartition").mockReturnValue(Effect.void);
+        yield* Effect.addFinalizer(() =>
+          Effect.sync(() => {
+            planner.mockRestore();
+            producer.mockRestore();
+          })
+        );
+        const options = CiLaneRunOptions.make({
+          ...baseOptions,
+          affected: true,
+          partition: "unit-a",
+          coverageOutput: ".beep/unit-a-coverage",
+        });
+        yield* withPartitionShim({ dryRunOutput: turboDryRunOutput("test", []) }, ({ commandLogPath }) =>
+          Effect.gen(function* () {
+            yield* runCiLane("test-unit", options);
+            const fs = yield* FileSystem.FileSystem;
+            const commands = pipe(yield* fs.readFileString(commandLogPath), Str.split("\n"), A.filter(Str.isNonEmpty));
+            expect(commands).toHaveLength(1);
+            expect(firstOf(commands)).toContain("--dry-run=json");
+          })
+        );
+        expect(planner).toHaveBeenCalledExactlyOnceWith(repoRoot, options);
+        expect(producer).toHaveBeenCalledTimes(1);
+        const [actualRoot, actualOptions, actualPlan, proof, step] = firstOf(producer.mock.calls);
+        expect(actualRoot).toBe(repoRoot);
+        expect(actualOptions).toEqual(options);
+        expect(actualPlan).toEqual(selectedPlan);
+        expect(proof.packages).toEqual([packageName]);
+        expect(proof.selectedTaskCount).toBe(1);
+        expect(proof.partitionTaskCount).toBe(1);
+        assertDefined(step);
+        expect(step.command).toBe("bunx");
+        expect(step.cwd).toBe(repoRoot);
+        expect(step.args).toContain(`--filter=${packageName}`);
+        expect(step.args).not.toContain("--filter=@beep/fixture-lab");
+      })
+    );
+
+    it.effect("seals an empty affected unit partition without creating an execution step", () =>
+      Effect.gen(function* () {
+        const selectedPlan = CiCoverageArtifactPlan.make({
+          identity: coverageDispatchIdentity,
+          scoped: true,
+          owners: [],
+        });
+        const planner = vi.spyOn(CiCoverage, "ciCoveragePlan").mockReturnValue(Effect.succeed(selectedPlan));
+        const producer = vi.spyOn(CiCoverage, "runCiCoveragePartition").mockReturnValue(Effect.void);
+        yield* Effect.addFinalizer(() =>
+          Effect.sync(() => {
+            planner.mockRestore();
+            producer.mockRestore();
+          })
+        );
+        const repoRoot = yield* findRepoRoot();
+        const options = CiLaneRunOptions.make({
+          ...baseOptions,
+          affected: true,
+          partition: "unit-a",
+          coverageOutput: ".beep/unit-a-coverage",
+        });
+        yield* withPartitionShim({ dryRunOutput: turboDryRunOutput("test", []) }, () =>
+          runCiLane("test-unit", options)
+        );
+        expect(producer).toHaveBeenCalledTimes(1);
+        const [actualRoot, actualOptions, actualPlan, proof, step] = firstOf(producer.mock.calls);
+        expect(actualRoot).toBe(repoRoot);
+        expect(actualOptions).toEqual(options);
+        expect(actualPlan).toEqual(selectedPlan);
+        expect(proof.packages).toEqual([]);
+        expect(proof.selectedTaskCount).toBe(0);
+        expect(proof.partitionTaskCount).toBe(0);
+        expect(step).toBeUndefined();
+        expect(A.join(A.filter(yield* TestConsole.logLines, P.isString), "\n")).toContain(
+          "test-unit unit-a: partition has no selected tasks (skipped)"
+        );
+      })
+    );
+  });
+});

@@ -18,6 +18,8 @@ import {
   guardCloneLocalGitAttributes,
   isSafeOriginBranch,
   originBranchFromBase,
+  runGitOutput,
+  runGitPathList,
   safeOriginBranchFromBase,
   sortedUniquePaths,
   writeGitArchive,
@@ -216,6 +218,95 @@ describe("GitExec archive spawn wiring", () => {
       new Error(`${failure.commandLine} exit ${failure.exitCode}`),
     onTruncated: O.none(),
   };
+
+  const captureSpawner = (stdout: string, stderr = "") =>
+    ChildProcessSpawner.make(() =>
+      Effect.succeed(
+        ChildProcessSpawner.makeHandle({
+          ...emptyHandle,
+          stdout: Stream.make(encode(stdout)),
+          stderr: Stream.make(encode(stderr)),
+          all: Stream.make(encode(`${stdout}${stderr}`)),
+        })
+      )
+    );
+  const completeAdapter = {
+    ...adapter,
+    onTruncated: O.some((commandLine: string) => new Error(`${commandLine} truncated`)),
+  };
+
+  layer(BunCrypto.layer, { timeout: "10 seconds" })("Git filename inventory capture", (it) => {
+    it.effect("retains every NUL filename when a large merge exceeds the generic Git capture budget", () =>
+      Effect.gen(function* () {
+        const paths = A.append(
+          A.map(
+            A.range(1, 8_000),
+            (index) =>
+              `packages/large-main-merge/long-package-name/src/deeply/nested/component-group/filename-${index}.ts`
+          ),
+          "directory with spaces/line\nbreak.ts"
+        );
+        const stdout = `${A.join(A.reverse(paths), "\0")}\0`;
+        expect(stdout.length).toBeGreaterThan(repoRunOutputBound.maxChars);
+        const actual = yield* runGitPathList(
+          "/repo",
+          ["diff", "--name-only", "-z", "origin/topic..HEAD"],
+          completeAdapter
+        ).pipe(
+          Effect.provideService(
+            ChildProcessSpawner.ChildProcessSpawner,
+            captureSpawner(stdout, "warning: advice stays out of filename records\n")
+          )
+        );
+        expect(actual).toEqual(sortedUniquePaths(paths));
+      })
+    );
+
+    it.effect("rejects a filename inventory beyond its separate bounded budget", () =>
+      Effect.gen(function* () {
+        const stdout = `${A.join(
+          A.map(
+            A.range(1, 100_000),
+            (index) =>
+              `packages/large-main-merge/long-package-name/src/deeply/nested/component-group/filename-${index}.ts`
+          ),
+          "\0"
+        )}\0`;
+        expect(stdout.length).toBeGreaterThan(8 * 1024 * 1024);
+        const failure = yield* runGitPathList("/repo", ["diff", "--name-only", "-z"], completeAdapter).pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, captureSpawner(stdout)),
+          Effect.flip
+        );
+        expect(failure.message).toContain("truncated");
+      })
+    );
+
+    it.effect("keeps the smaller stderr diagnostic bound for machine-read filename operations", () =>
+      Effect.gen(function* () {
+        const failure = yield* runGitPathList("/repo", ["ls-files", "-z"], completeAdapter).pipe(
+          Effect.provideService(
+            ChildProcessSpawner.ChildProcessSpawner,
+            captureSpawner("src/file.ts\0", Str.repeat(repoRunOutputBound.maxChars + 1)("x"))
+          ),
+          Effect.flip
+        );
+        expect(failure.message).toContain("truncated");
+      })
+    );
+
+    it.effect("keeps generic Git content captures at the existing smaller bound", () =>
+      Effect.gen(function* () {
+        const failure = yield* runGitOutput("/repo", ["show", "HEAD:content.txt"], completeAdapter).pipe(
+          Effect.provideService(
+            ChildProcessSpawner.ChildProcessSpawner,
+            captureSpawner(Str.repeat(repoRunOutputBound.maxChars + 1)("x"))
+          ),
+          Effect.flip
+        );
+        expect(failure.message).toContain("truncated");
+      })
+    );
+  });
 
   it.effect(
     "sends the canonical vector, the attribute-isolation env, and extendEnv on the archive spawn",
