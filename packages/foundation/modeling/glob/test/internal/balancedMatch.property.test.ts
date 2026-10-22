@@ -4,10 +4,11 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const text = Arbitrary.schema(S.Literals(["a", "b", " ", "é", "{nested}"])).pipe(
-  Arbitrary.flatMap((atom) => Arbitrary.schema(S.Int).pipe(Arbitrary.map((n) => atom.repeat(Math.abs(n % 10)))))
+  Arbitrary.flatMap((atom) => Arbitrary.schema(S.Int).pipe(Arbitrary.map((n) => Str.repeat(Math.abs(n % 10))(atom))))
 );
 describe("balanced parser property floor", () => {
   it.effect.prop(

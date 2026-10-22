@@ -4,6 +4,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { minimatch } from "minimatch";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -45,9 +46,9 @@ describe("character class property floor", () => {
     ([text, suffix]) =>
       Effect.sync(() => {
         const parsed = parseClass(text + suffix, 0);
-        const rendered = (text + suffix).slice(0, parsed[2]);
+        const rendered = Str.slice(0, parsed[2])(text + suffix);
         assert.deepStrictEqual(parseClass(rendered, 0), parsed);
-        const again = rendered.slice(0, parseClass(rendered, 0)[2]);
+        const again = Str.slice(0, parseClass(rendered, 0)[2])(rendered);
         assert.strictEqual(again, rendered);
         assert.deepStrictEqual(parseClass(`prefix${rendered}`, 6), parsed);
       }),
