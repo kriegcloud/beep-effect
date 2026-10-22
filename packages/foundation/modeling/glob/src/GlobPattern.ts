@@ -23,6 +23,7 @@ import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import * as Str from "effect/String";
 import { EXPANSION_MAX, GuardMeasurement, GuardReason, isGuardExceeded } from "./internal/limits.ts";
 import { escape as engineEscape, unescape as engineUnescape, GLOBSTAR, Minimatch } from "./internal/minimatch.ts";
 import { Platform } from "./internal/types.ts";
@@ -124,7 +125,7 @@ export class GlobPatternError extends S.TaggedError<GlobPatternError, { readonly
    * @since 0.0.0
    */
   override get message(): string {
-    const shown = this.pattern.length > 64 ? `${this.pattern.slice(0, 64)}…` : this.pattern;
+    const shown = this.pattern.length > 64 ? `${Str.slice(0, 64)(this.pattern)}…` : this.pattern;
     return `glob pattern ${JSON.stringify(shown)} rejected: ${this.reason} (limit ${this.limit}, actual ${this.actual})`;
   }
 }

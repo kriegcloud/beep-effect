@@ -10,6 +10,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { minimatch as oracle } from "minimatch";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
@@ -59,7 +60,7 @@ describe("GlobPattern.compile", () => {
 
   it.effect("fails typed with PatternTooLong past 64KB", () =>
     Effect.gen(function* () {
-      const e = yield* Effect.flip(GlobPattern.compile("a".repeat(65_537)));
+      const e = yield* Effect.flip(GlobPattern.compile(Str.repeat(65_537)("a")));
       assert.instanceOf(e, GlobPatternError);
       assert.strictEqual(e._tag, "GlobPatternError");
       assert.strictEqual(e.reason, "PatternTooLong");
@@ -71,7 +72,7 @@ describe("GlobPattern.compile", () => {
 
   it.effect("fails typed with ExpansionBudgetExceeded on a brace bomb", () =>
     Effect.gen(function* () {
-      const e = yield* Effect.flip(GlobPattern.compile("{a,b}".repeat(17)));
+      const e = yield* Effect.flip(GlobPattern.compile(Str.repeat(17)("{a,b}")));
       assert.strictEqual(e.reason, "ExpansionBudgetExceeded");
       assert.strictEqual(e.limit, 100_000);
     })
@@ -79,7 +80,7 @@ describe("GlobPattern.compile", () => {
 
   it.effect("fails typed with NestingDepthExceeded on deep comma nesting", () =>
     Effect.gen(function* () {
-      const e = yield* Effect.flip(GlobPattern.compile(`${"{".repeat(300)}a,b${"}".repeat(300)}`));
+      const e = yield* Effect.flip(GlobPattern.compile(`${Str.repeat(300)("{")}a,b${Str.repeat(300)("}")}`));
       assert.strictEqual(e.reason, "NestingDepthExceeded");
       assert.strictEqual(e.limit, 256);
     })
@@ -90,7 +91,9 @@ describe("GlobPattern.compile", () => {
       // Decision 4: nobrace masks the bomb from the effective engine, but a
       // GlobPattern value must always be defaults-compilable — the same typed
       // error, never a defect.
-      const e = yield* Effect.flip(GlobPattern.compile("{a,b}".repeat(17), GlobPatternOptions.make({ nobrace: true })));
+      const e = yield* Effect.flip(
+        GlobPattern.compile(Str.repeat(17)("{a,b}"), GlobPatternOptions.make({ nobrace: true }))
+      );
       assert.instanceOf(e, GlobPatternError);
       assert.strictEqual(e.reason, "ExpansionBudgetExceeded");
     })
@@ -213,8 +216,8 @@ describe("GlobPattern construction and schema", () => {
   });
 
   it("make throws on an uncompilable pattern (wiring defect at construction)", () => {
-    assert.throws(() => GlobPattern.make({ source: "{a,b}".repeat(17) }));
-    assert.throws(() => GlobPattern.make({ source: "a".repeat(65_537) }));
+    assert.throws(() => GlobPattern.make({ source: Str.repeat(17)("{a,b}") }));
+    assert.throws(() => GlobPattern.make({ source: Str.repeat(65_537)("a") }));
   });
 
   it.effect("class decode produces a working instance and encode emits only source", () =>
@@ -230,7 +233,7 @@ describe("GlobPattern construction and schema", () => {
 
   it.effect("class decode rejects an uncompilable pattern as SchemaError", () =>
     Effect.gen(function* () {
-      const e = yield* Effect.flip(S.decodeEffect(GlobPattern)({ source: "{a,b}".repeat(17) }));
+      const e = yield* Effect.flip(S.decodeEffect(GlobPattern)({ source: Str.repeat(17)("{a,b}") }));
       assert.strictEqual(e._tag, "SchemaError");
     })
   );
@@ -246,7 +249,7 @@ describe("GlobPattern construction and schema", () => {
 
   it.effect("FromString surfaces uncompilable input as SchemaError", () =>
     Effect.gen(function* () {
-      const e = yield* Effect.flip(S.decodeEffect(GlobPattern.FromString)("{a,b}".repeat(17)));
+      const e = yield* Effect.flip(S.decodeEffect(GlobPattern.FromString)(Str.repeat(17)("{a,b}")));
       assert.strictEqual(e._tag, "SchemaError");
     })
   );
@@ -371,8 +374,8 @@ describe("GlobPattern.compileResult", () => {
 
   it.effect("returns typed failures for non-finite member arithmetic in both compile forms", () =>
     Effect.gen(function* () {
-      const huge = "9".repeat(310);
-      const finite = `1${"0".repeat(308)}`;
+      const huge = Str.repeat(310)("9");
+      const finite = `1${Str.repeat(308)("0")}`;
       for (const source of [
         `{${huge}..${huge}}`,
         `{1..${huge}..${huge}}`,
@@ -393,7 +396,7 @@ describe("GlobPattern.compileResult", () => {
   );
 
   it("preserves an overflowing expansion count in a synchronous typed failure", () => {
-    const source = `{1..${"9".repeat(310)}}`;
+    const source = `{1..${Str.repeat(310)("9")}}`;
     const result = GlobPattern.compileResult(source);
     assertFailure(result, result.pipe(Result.flip, Result.getOrThrow));
     assert.instanceOf(result.failure, GlobPatternError);
@@ -405,7 +408,7 @@ describe("GlobPattern.compileResult", () => {
 
   it.effect("preserves an overflowing expansion count in the Effect failure channel", () =>
     Effect.gen(function* () {
-      const source = `{1..${"9".repeat(310)}}`;
+      const source = `{1..${Str.repeat(310)("9")}}`;
       const error = yield* Effect.flip(GlobPattern.compile(source));
       assert.instanceOf(error, GlobPatternError);
       assert.strictEqual(error._tag, "GlobPatternError");
@@ -425,7 +428,7 @@ describe("GlobPattern.compileResult", () => {
   });
 
   it("is total: a guard trip is a Result failure, never a throw", () => {
-    const r = GlobPattern.compileResult("a".repeat(65_537));
+    const r = GlobPattern.compileResult(Str.repeat(65_537)("a"));
     assertFailure(r, r.pipe(Result.flip, Result.getOrThrow));
     assert.instanceOf(r.failure, GlobPatternError);
     assert.strictEqual(r.failure.reason, "PatternTooLong");
@@ -433,7 +436,11 @@ describe("GlobPattern.compileResult", () => {
 
   it.effect("carries the same typed error as compile for every guard", () =>
     Effect.gen(function* () {
-      for (const source of ["a".repeat(65_537), "{a,b}".repeat(17), `${"{".repeat(300)}a,b${"}".repeat(300)}`]) {
+      for (const source of [
+        Str.repeat(65_537)("a"),
+        Str.repeat(17)("{a,b}"),
+        `${Str.repeat(300)("{")}a,b${Str.repeat(300)("}")}`,
+      ]) {
         const sync = GlobPattern.compileResult(source);
         const eff = yield* Effect.flip(GlobPattern.compile(source));
         assertFailure(sync, sync.pipe(Result.flip, Result.getOrThrow));
@@ -478,7 +485,7 @@ describe("GlobPattern.compileResult", () => {
   );
 
   it("still rejects a defaults-uncompilable pattern under permissive options", () => {
-    const r = GlobPattern.compileResult("{a,b}".repeat(17), GlobPatternOptions.make({ nobrace: true }));
+    const r = GlobPattern.compileResult(Str.repeat(17)("{a,b}"), GlobPatternOptions.make({ nobrace: true }));
     assertFailure(r, r.pipe(Result.flip, Result.getOrThrow));
   });
 });
