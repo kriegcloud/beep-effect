@@ -52,7 +52,7 @@ const decodeTestFiles = S.decodeUnknownEffect(S.fromJsonString(S.Array(VitestTes
 const normalize = Str.replace(/\\/g, "/");
 const CanonicalVitestCommand = S.String.check(
   S.isPattern(
-    /^(?:[A-Za-z_][A-Za-z0-9_]*=[A-Za-z0-9_./:@%+,-]*\s+)*bunx\s+(?:--bun\s+)?vitest\s+run(?:\s+[^\s;&|<>()"'`$\\#]+)*$/u
+    /^(?:[A-Za-z_][A-Za-z0-9_]*=[A-Za-z0-9_./:@%+,-]*\s+)*bunx\s+(?:--bun\s+)?vitest\s+run(?:\s+(?:'[^'\n]*'|"(?:\\["\\$`]|[^"\\$`\n])*"|(?:\\[^\n]|[^\s;&|<>()"'`$\\#{}~])+))*$/u
   )
 ).pipe(
   $I.annoteSchema("CanonicalVitestCommand", {
@@ -83,6 +83,33 @@ class CanonicalVitestInvocation extends S.Opaque<CanonicalVitestInvocation, { re
 const decodeInvocations = S.decodeUnknownEffect(S.NonEmptyArray(CanonicalVitestInvocation));
 const decodePreparations = S.decodeUnknownEffect(CoverageProducerPackage.fields.preparationCommands);
 
+// Whole quoted words and escaped characters retain pathname-expansion provenance.
+const canonicalWordValue = (word: string) => {
+  if (Str.startsWith("'")(word)) return Str.slice(1, -1)(word);
+  if (Str.startsWith('"')(word)) return Str.replace(/\\(["\\$`])/gu, "$1")(Str.slice(1, -1)(word));
+  return Str.replace(/\\(.)/gu, "$1")(word);
+};
+const expandCanonicalWord = Effect.fnUntraced(function* (word: string, cwd: string) {
+  const value = canonicalWordValue(word);
+  if (Str.startsWith("'")(word) || Str.startsWith('"')(word) || Str.startsWith("-")(value)) return [value];
+  // Support the simple pathname stars used by canonical package scripts. Other
+  // shell pattern dialects require their own package-script parity qualification.
+  const active = Str.replace(/\\./gu, "")(word);
+  if (/[?[\]]|\*\*/u.test(active))
+    return yield* CiCommandError.make({ message: `Unsupported canonical pathname pattern: ${word}.` });
+  if (!Str.includes("*")(active)) return [value];
+  if (Str.includes("\\")(word))
+    return yield* CiCommandError.make({ message: `Unsupported escaped canonical pathname pattern: ${word}.` });
+  const path = yield* Path.Path;
+  if (path.isAbsolute(value) || A.some(Str.split("/")(value), (part) => part === ".." || part === "node_modules"))
+    return yield* CiCommandError.make({
+      message: `Canonical pathname pattern must remain inside its package: ${word}.`,
+    });
+  const fs = yield* FileSystem.FileSystem;
+  const matches = yield* fs.glob(word, { root: cwd }).pipe(CiCommandError.mapError(`Failed to expand ${word}.`));
+  return A.isReadonlyArrayEmpty(matches) ? [value] : A.sort(matches, Order.String);
+});
+
 const coverageTestCommands = Effect.fn("CiCoverage.testCommands")(function* (
   script: string,
   packageName: string,
@@ -102,7 +129,12 @@ const coverageTestCommands = Effect.fn("CiCoverage.testCommands")(function* (
   const commands = yield* Effect.forEach(
     prefix,
     Effect.fnUntraced(function* (command, index) {
-      const [assignments, tokens] = A.span(Str.split(/\s+/)(command), isEnvironmentAssignment);
+      const words = A.map(
+        A.fromIterable(Str.matchAll(/'[^'\n]*'|"(?:\\.|[^"\\])*"|(?:\\.|[^\s'"\\])+/gu)(command)),
+        (match) => match[0]
+      );
+      const [assignments, tokens] = A.span(words, isEnvironmentAssignment);
+      const args = A.flatten(yield* Effect.forEach(A.drop(tokens, 1), (word) => expandCanonicalWord(word, cwd)));
       const env = A.reduce(assignments, R.empty<string, string>(), (values, assignment) => {
         const name = A.headNonEmpty(Str.split("=")(assignment));
         return R.set(values, name, Str.slice(name.length + 1)(assignment));
@@ -111,7 +143,7 @@ const coverageTestCommands = Effect.fn("CiCoverage.testCommands")(function* (
         command: "bunx",
         cwd,
         env,
-        args: A.drop(tokens, 1),
+        args,
         preparationCommands: index === 0 ? preparationCommands : [],
         continuationScripts:
           index === prefix.length - 1 ? A.map(continuations, (value) => Str.replace(/^bun\s+run\s+/, "")(value)) : [],

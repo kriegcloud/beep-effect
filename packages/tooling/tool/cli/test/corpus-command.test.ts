@@ -5,6 +5,7 @@ import {
   CorpusArchiveMoveManifestRecord,
   CorpusArchiveMoveOptions,
   CorpusCatalogOptions,
+  CorpusCommandError,
   CorpusCommandServiceLive,
   CorpusExtractOcrCounts,
   CorpusExtractOptions,
@@ -3313,66 +3314,89 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus restoration preservation"
     );
   });
 
-  it.layer(archiveCopyMutationLayer, { timeout: "30 seconds" })((it) => {
-    it.effect(
-      "does not let a stable recopy mask unrelated source-tree drift",
-      Effect.fnUntraced(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const fixture = yield* makeRestorationFixture();
-        const sourcePath = path.join(fixture.sourceRoot, "nested", "large.bin");
-        const partialPath = path.join(
-          fixture.corpusRoot,
-          "raw",
-          "synthetic-restoration",
-          "payload",
-          "tree",
-          "nested",
-          "large.bin.partial"
-        );
-        const sourceBytes = new Uint8Array(2 * 1024 * 1024);
-        sourceBytes.fill(0x41);
-        const stableReplacement = new Uint8Array(sourceBytes.length);
-        stableReplacement.fill(0x42);
-        yield* fs.writeFile(sourcePath, sourceBytes);
-        const replacementPath = path.join(path.dirname(fixture.sourceRoot), "stable-replacement.bin");
-        yield* fs.writeFile(replacementPath, stableReplacement);
-        const denominators = yield* measurePreservationDenominators(fixture.sourceRoot, fixture.rootArchive);
-        const collectorRowCount = yield* writePresentCollectorManifest(fixture.sourceRoot, fixture.collectorManifest);
-        const options = RestorationPreserveOptions.make({
-          ...restorationOptions({
-            ...fixture,
-            ...denominators,
-            capacityCeilingBytes: 64 * 1024 * 1024,
-          }),
-          chunkSizeBytes: PosInt.make(1024 * 1024),
-          expectedCollectorCopiedCount: S.Natural.make(collectorRowCount),
-          expectedCollectorErrorCount: S.Natural.make(0),
-          expectedCollectorPresentSuccessfulRowCount: S.Natural.make(collectorRowCount),
-          expectedCollectorResumedCount: S.Natural.make(0),
-          expectedCollectorRowCount: S.Natural.make(collectorRowCount),
-          expectedCollectorUniqueSuccessfulDestinationCount: S.Natural.make(collectorRowCount),
-          expectedMissingRecyclePayloadCount: S.Natural.make(0),
-          expectedMutatedDestinationCount: S.Natural.make(0),
-        });
-        const error = yield* preserveWithArchiveCopyMutation(
-          options,
-          partialPath,
-          Effect.fn("CorpusTest.mutateArchiveSourceAndAddDrift")(function* (racingFs) {
-            yield* racingFs.rename(replacementPath, sourcePath);
-            yield* racingFs.writeFileString(path.join(fixture.sourceRoot, "unrelated-added.bin"), "unexpected drift");
-          })
-        ).pipe(Effect.flip);
-        const manifestPath = path.join(fixture.corpusRoot, "raw", "synthetic-restoration", "archive-ledger.jsonl");
-        const lines = A.filter(Str.split(/\r?\n/u)(yield* fs.readFileString(manifestPath)), Str.isNonEmpty);
-        const records = yield* Effect.forEach(lines, decodeArchiveLedgerRecordJson);
+  for (const changeParentMode of [false, true]) {
+    it.layer(archiveCopyMutationLayer, { timeout: "30 seconds" })((it) => {
+      it.effect(
+        changeParentMode
+          ? "rejects a stable recopy when its parent directory permissions change"
+          : "does not let a stable recopy mask unrelated source-tree drift",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const fixture = yield* makeRestorationFixture();
+          const sourcePath = path.join(fixture.sourceRoot, "nested", "large.bin");
+          const partialPath = path.join(
+            fixture.corpusRoot,
+            "raw",
+            "synthetic-restoration",
+            "payload",
+            "tree",
+            "nested",
+            "large.bin.partial"
+          );
+          const sourceBytes = new Uint8Array(2 * 1024 * 1024);
+          sourceBytes.fill(0x41);
+          const stableReplacement = new Uint8Array(sourceBytes.length);
+          stableReplacement.fill(0x42);
+          yield* fs.writeFile(sourcePath, sourceBytes);
+          const replacementPath = path.join(path.dirname(fixture.sourceRoot), "stable-replacement.bin");
+          yield* fs.writeFile(replacementPath, stableReplacement);
+          const denominators = yield* measurePreservationDenominators(fixture.sourceRoot, fixture.rootArchive);
+          const collectorRowCount = yield* writePresentCollectorManifest(fixture.sourceRoot, fixture.collectorManifest);
+          const options = RestorationPreserveOptions.make({
+            ...restorationOptions({
+              ...fixture,
+              ...denominators,
+              capacityCeilingBytes: 64 * 1024 * 1024,
+            }),
+            chunkSizeBytes: PosInt.make(1024 * 1024),
+            expectedCollectorCopiedCount: S.Natural.make(collectorRowCount),
+            expectedCollectorErrorCount: S.Natural.make(0),
+            expectedCollectorPresentSuccessfulRowCount: S.Natural.make(collectorRowCount),
+            expectedCollectorResumedCount: S.Natural.make(0),
+            expectedCollectorRowCount: S.Natural.make(collectorRowCount),
+            expectedCollectorUniqueSuccessfulDestinationCount: S.Natural.make(collectorRowCount),
+            expectedMissingRecyclePayloadCount: S.Natural.make(0),
+            expectedMutatedDestinationCount: S.Natural.make(0),
+          });
+          const error = yield* preserveWithArchiveCopyMutation(
+            options,
+            partialPath,
+            Effect.fn("CorpusTest.mutateArchiveSourceAndAddDrift")(function* (racingFs) {
+              yield* racingFs.rename(replacementPath, sourcePath);
+              if (changeParentMode) {
+                const before = yield* racingFs.stat(fixture.sourceRoot);
+                const permissions = (before.mode & 0o777) ^ 0o020;
+                yield* racingFs.chmod(fixture.sourceRoot, permissions);
+                const after = yield* racingFs.stat(fixture.sourceRoot);
+                expect(after.mode & 0o777).toBe(permissions);
+                expect(after.mode & 0o700).toBe(before.mode & 0o700);
+              } else {
+                yield* racingFs.writeFileString(
+                  path.join(fixture.sourceRoot, "unrelated-added.bin"),
+                  "unexpected drift"
+                );
+              }
+            })
+          ).pipe(Effect.flip);
+          const manifestPath = path.join(fixture.corpusRoot, "raw", "synthetic-restoration", "archive-ledger.jsonl");
+          const lines = A.filter(Str.split(/\r?\n/u)(yield* fs.readFileString(manifestPath)), Str.isNonEmpty);
+          const records = yield* Effect.forEach(lines, decodeArchiveLedgerRecordJson);
 
-        expect(error.message).toMatch(/source/iu);
-        expect(A.some(records, (record) => record.recordType === "archive-changed-during-copy")).toBe(true);
-        expect(A.some(records, (record) => record.recordType === "archive-manifest-seal")).toBe(false);
-      })
-    );
-  });
+          if (changeParentMode) {
+            expect(error).toBeInstanceOf(CorpusCommandError);
+            expect(error.message).toBe(
+              "A stable source replacement's parent directory changed beyond its expected timestamp transition."
+            );
+          } else {
+            expect(error.message).toMatch(/source/iu);
+          }
+          expect(A.some(records, (record) => record.recordType === "archive-changed-during-copy")).toBe(true);
+          expect(A.some(records, (record) => record.recordType === "archive-manifest-seal")).toBe(false);
+        })
+      );
+    });
+  }
 
   it.effect(
     "rejects symlinked partial and ledger destinations without touching their outside canaries",
