@@ -1,6 +1,8 @@
 /**
  * Bitemporal claim envelope over a slice-owned proposition.
  *
+ * **Details**
+ *
  * A claim version is one immutable ledger row: a proposition, the assertions
  * that support or challenge it, when it holds (valid time), when the system
  * knew it (knowledge time), its review state and five separate evidence
@@ -22,6 +24,15 @@ const $I = $EpistemicsId.create("Claim/Claim.model");
 /**
  * Why an evidence signal is absent. Absence is never zero.
  *
+ * **Example** (Decode an absence reason)
+ *
+ * ```ts
+ * import { AbsenceReason } from "@beep/epistemics/Claim"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.decodeUnknownSync(AbsenceReason)("not-assessed"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -30,6 +41,8 @@ export const AbsenceReason = LiteralKit(["not-assessed", "unavailable", "not-app
 );
 
 /**
+ * Decoded type of {@link AbsenceReason}.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -43,7 +56,7 @@ export type AbsenceReason = typeof AbsenceReason.Type;
  *
  * ```ts
  * import { makeSignal } from "@beep/epistemics/Claim"
- * import { LiteralKit } from "@beep/schema"
+ * import { LiteralKit } from "@beep/schema/LiteralKit"
  * import * as S from "effect/Schema"
  *
  * const Trust = makeSignal(LiteralKit(["low", "high"]))
@@ -60,6 +73,21 @@ export const makeSignal = <A extends S.Top>(value: A) =>
  * A typed measurement. A detector score, a cosine similarity and a calibrated
  * probability are different contracts and never share a field.
  *
+ * **Example** (Decode a calibrated classifier probability)
+ *
+ * ```ts
+ * import { Measurement } from "@beep/epistemics/Claim"
+ * import * as S from "effect/Schema"
+ *
+ * const m = S.decodeUnknownSync(Measurement)({
+ *   _tag: "ClassifierProbability",
+ *   value: 0.82,
+ *   model: "detector-v1",
+ *   calibrated: true,
+ * })
+ * console.log(m._tag)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -74,6 +102,8 @@ export const Measurement = S.TaggedUnion({
 }).pipe($I.annoteSchema("Measurement", { description: "Typed measurement; never a blended score." }));
 
 /**
+ * Decoded type of {@link Measurement}.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -81,6 +111,16 @@ export type Measurement = typeof Measurement.Type;
 
 /**
  * Lowercase SHA-256 hex digest of the evidence basis a reviewer looked at.
+ *
+ * **Example** (Accept only a lowercase SHA-256 digest)
+ *
+ * ```ts
+ * import { BasisDigest } from "@beep/epistemics/Claim"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(BasisDigest)("a".repeat(64))) // true
+ * console.log(S.is(BasisDigest)("not-a-digest")) // false
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -90,6 +130,8 @@ export const BasisDigest = S.String.check(
 ).pipe($I.annoteSchema("BasisDigest", { description: "SHA-256 digest of a sealed evidence basis." }));
 
 /**
+ * Decoded type of {@link BasisDigest}.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -98,6 +140,16 @@ export type BasisDigest = typeof BasisDigest.Type;
 /**
  * Structural verdict. `Admitted` means the candidate satisfied the shape
  * contract. It does not mean the claim is true.
+ *
+ * **Example** (Record a shape rejection)
+ *
+ * ```ts
+ * import { StructuralVerdict } from "@beep/epistemics/Claim"
+ * import * as S from "effect/Schema"
+ *
+ * const verdict = S.decodeUnknownSync(StructuralVerdict)({ _tag: "ShapeRejected", violations: ["missing subject"] })
+ * console.log(verdict._tag)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -108,6 +160,8 @@ export const StructuralVerdict = S.TaggedUnion({
 }).pipe($I.annoteSchema("StructuralVerdict", { description: "Shape verdict only." }));
 
 /**
+ * Decoded type of {@link StructuralVerdict}.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -115,6 +169,16 @@ export type StructuralVerdict = typeof StructuralVerdict.Type;
 
 /**
  * Review-state tags a projection may select.
+ *
+ * **Example** (Select accepted versions only)
+ *
+ * ```ts
+ * import { ReviewTag } from "@beep/epistemics/Claim"
+ * import * as S from "effect/Schema"
+ *
+ * const states = S.decodeUnknownSync(S.Array(ReviewTag))(["Accepted"])
+ * console.log(states)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -124,6 +188,8 @@ export const ReviewTag = LiteralKit(["Proposed", "Accepted", "Rejected", "Disput
 );
 
 /**
+ * Decoded type of {@link ReviewTag}.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -135,6 +201,17 @@ const isOrderedValidInterval = S.is(ValidInterval);
 /**
  * When a claim holds. `Unknown` is a real state, not an open interval: an
  * as-of-valid-time read never selects it.
+ *
+ * **Example** (Unknown valid time is a value, not a missing field)
+ *
+ * ```ts
+ * import { ValidTime } from "@beep/epistemics/Claim"
+ * import * as S from "effect/Schema"
+ *
+ * const unknown = S.decodeUnknownSync(ValidTime)({ _tag: "Unknown" })
+ * const bounded = S.decodeUnknownSync(ValidTime)({ _tag: "Interval", validFrom: 0, validTo: 1_000 })
+ * console.log(unknown._tag, bounded._tag)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -153,6 +230,8 @@ export const ValidTime = S.TaggedUnion({
   .pipe($I.annoteSchema("ValidTime", { description: "Valid time: unknown, or a half-open interval." }));
 
 /**
+ * Decoded type of {@link ValidTime}.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -288,6 +367,8 @@ const BitemporalVersionSchema = S.Struct({
 }).pipe($I.annoteSchema("BitemporalVersion", { description: "Fields a bitemporal read selects on." }));
 
 /**
+ * Decoded type of {@link BitemporalVersion}.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -307,6 +388,8 @@ const BitemporalScopeSchema = S.Struct({
 }).pipe($I.annoteSchema("BitemporalScope", { description: "Knowledge time, valid time and accepted review states." }));
 
 /**
+ * Decoded type of {@link BitemporalScope}.
+ *
  * @category models
  * @since 0.0.0
  */

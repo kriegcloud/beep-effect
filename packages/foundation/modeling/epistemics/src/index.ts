@@ -12,7 +12,7 @@
  * **Example** (Read the current accepted view)
  *
  * ```ts
- * import { versionsAt } from "@beep/epistemics"
+ * import { versionsAt } from "@beep/epistemics/Claim"
  * import * as DateTime from "effect/DateTime"
  *
  * const now = DateTime.makeUnsafe(1_000)
@@ -29,7 +29,7 @@ export * from "./Claim/index.ts";
  * **Example** (Log rejected disposition status)
  *
  * ```ts
- * import { ClaimDispositionStatus } from "@beep/epistemics"
+ * import { ClaimDispositionStatus } from "@beep/epistemics/ClaimDispositionStatus"
  *
  * console.log(ClaimDispositionStatus.Enum.rejected)
  * ```
@@ -44,7 +44,7 @@ export * from "./ClaimDispositionStatus/index.ts";
  * **Example** (Bind an evidence basis)
  *
  * ```ts
- * import { makeClaimEvidenceBasis } from "@beep/epistemics"
+ * import { makeClaimEvidenceBasis } from "@beep/epistemics/ClaimEvidenceReview"
  * import { $ScratchpadId } from "@beep/identity/packages"
  * import * as S from "effect/Schema"
  *
@@ -65,7 +65,7 @@ export * from "./ClaimEvidenceReview/index.ts";
  * **Example** (Decode gate severity value)
  *
  * ```ts
- * import { ClaimGateSeverity } from "@beep/epistemics"
+ * import { ClaimGateSeverity } from "@beep/epistemics/ClaimGate"
  * import * as S from "effect/Schema"
  *
  * const severity = S.decodeUnknownSync(ClaimGateSeverity)("violation")
@@ -82,7 +82,7 @@ export * from "./ClaimGate/index.ts";
  * **Example** (Bind claim state counts)
  *
  * ```ts
- * import { makeClaimStateCounts } from "@beep/epistemics"
+ * import { makeClaimStateCounts } from "@beep/epistemics/ClaimProjection"
  * import { $ScratchpadId } from "@beep/identity/packages"
  *
  * const { ClaimStateCountsSchema } = makeClaimStateCounts({ $I: $ScratchpadId.create("party/ClaimProjection") })
@@ -99,7 +99,7 @@ export * from "./ClaimProjection/index.ts";
  * **Example** (Bind the contradiction vocabulary)
  *
  * ```ts
- * import { makeContradictionVocabulary } from "@beep/epistemics"
+ * import { makeContradictionVocabulary } from "@beep/epistemics/Contradiction"
  * import { $ScratchpadId } from "@beep/identity/packages"
  *
  * const vocabulary = makeContradictionVocabulary({ $I: $ScratchpadId.create("party/Contradiction") })
@@ -116,7 +116,7 @@ export * from "./Contradiction/index.ts";
  * **Example** (Encode canonical detection JSON)
  *
  * ```ts
- * import { canonicalDetectionJson } from "@beep/epistemics"
+ * import { canonicalDetectionJson } from "@beep/epistemics/ContradictionDetection"
  *
  * console.log(canonicalDetectionJson({ b: 1, a: 2 })) // {"a":2,"b":1}
  * ```
@@ -131,7 +131,7 @@ export * from "./ContradictionDetection/index.ts";
  * **Example** (Encode an endpoint key)
  *
  * ```ts
- * import { encodeEdgeEndpointKey } from "@beep/epistemics"
+ * import { encodeEdgeEndpointKey } from "@beep/epistemics/EdgeEndpoint"
  *
  * console.log(encodeEdgeEndpointKey({ kind: "evidence", evidenceId: 7 })) // "evidence:7"
  * ```
@@ -146,7 +146,7 @@ export * from "./EdgeEndpoint/index.ts";
  * **Example** (Log supports edge relation)
  *
  * ```ts
- * import { EdgeRelation } from "@beep/epistemics"
+ * import { EdgeRelation } from "@beep/epistemics/EdgeRelation"
  *
  * console.log(EdgeRelation.Enum.supports)
  * ```
@@ -161,7 +161,7 @@ export * from "./EdgeRelation/index.ts";
  * **Example** (Decode confidence value)
  *
  * ```ts
- * import { Confidence } from "@beep/epistemics"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import * as S from "effect/Schema"
  *
  * const confidence = S.decodeUnknownSync(Confidence)(0.88)
@@ -178,7 +178,7 @@ export * from "./EvidenceSpan/index.ts";
  * **Example** (Bind a manifestation key)
  *
  * ```ts
- * import { makeEvidenceVerification } from "@beep/epistemics"
+ * import { makeEvidenceVerification } from "@beep/epistemics/EvidenceVerification"
  * import { $ScratchpadId } from "@beep/identity/packages"
  * import * as S from "effect/Schema"
  *
@@ -199,7 +199,7 @@ export * from "./EvidenceVerification/index.ts";
  * **Example** (Check whether a record is current)
  *
  * ```ts
- * import { KnowledgeInterval, knownAt } from "@beep/epistemics"
+ * import { KnowledgeInterval, knownAt } from "@beep/epistemics/KnowledgeInterval"
  * import * as DateTime from "effect/DateTime"
  * import * as S from "effect/Schema"
  *
@@ -217,7 +217,7 @@ export * from "./KnowledgeInterval/index.ts";
  * **Example** (Bind logical edge identity schemas)
  *
  * ```ts
- * import { makeEdgeEndpoint, makeLogicalEdgeIdentity } from "@beep/epistemics"
+ * import { makeEdgeEndpoint, makeLogicalEdgeIdentity } from "@beep/epistemics/LogicalEdgeIdentity"
  * import { $ScratchpadId } from "@beep/identity/packages"
  * import * as S from "effect/Schema"
  *
@@ -239,7 +239,7 @@ export * from "./LogicalEdgeIdentity/index.ts";
  * **Example** (Check whether a fact holds)
  *
  * ```ts
- * import { holdsAt, ValidInterval } from "@beep/epistemics"
+ * import { holdsAt, ValidInterval } from "@beep/epistemics/ValidInterval"
  * import * as DateTime from "effect/DateTime"
  * import * as S from "effect/Schema"
  *
@@ -257,7 +257,7 @@ export * from "./ValidInterval/index.ts";
  * **Example** (Type a factory identity parameter)
  *
  * ```ts
- * import type { SchemaIdentity } from "@beep/epistemics"
+ * import type { SchemaIdentity } from "@beep/epistemics/Factory"
  * import { $ScratchpadId } from "@beep/identity/packages"
  *
  * const $I: SchemaIdentity = $ScratchpadId.create("party/Claim")
