@@ -313,7 +313,9 @@ const cutBeforeDisownedComments = (
 /** Start of the blank line ending just before `cut`, or -1 when that line is not blank or not inside the span. */
 const blankLineStartBefore = (text: string, offset: number, cut: number): number => {
   const prevEnd = text[cut - 1] === "\n" && text[cut - 2] === "\r" ? cut - 2 : cut - 1;
-  const prevLineStart = lineBreakBefore(text, prevEnd - 1) + 1;
+  // Search only the prefix before `prevEnd`, as `lineBreakBefore` clamps a negative index to 0:
+  // with `prevEnd` 0 the empty prefix yields -1, so the line starts at 0, not 1.
+  const prevLineStart = lineBreakBefore(Str.slice(0, prevEnd)(text), prevEnd - 1) + 1;
   if (prevLineStart <= offset) return -1;
   return Str.trim(Str.slice(prevLineStart, prevEnd)(text)) === "" ? prevLineStart : -1;
 };
