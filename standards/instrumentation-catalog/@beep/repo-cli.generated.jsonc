@@ -3247,6 +3247,7 @@
     {"name":"Yeet.appendYeetInboxRowOnce","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.applyHeavyAdmissionLabel","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.artifactDirForContext","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"Yeet.assertMergeOnlyPublish","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.assertNoUnresolvedReviewThreads","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.assertReusableVerifiedState","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Yeet.assessBaseFreshness","owner":"@beep/repo-cli","family":"tooling","conforms":true},

@@ -70,10 +70,6 @@ const optionGuardRules: ReadonlyArray<OptionGuardRule> = [
     message: "yeet --push-only is only valid for publish.",
   },
   {
-    rejects: (options) => options.pushOnly && !options.reuseVerified,
-    message: "yeet publish --push-only requires --reuse-verified.",
-  },
-  {
     rejects: (options) => options.pushOnly && (options.amend || options.noEdit),
     message: "yeet publish --push-only cannot be combined with --amend or --no-edit.",
   },

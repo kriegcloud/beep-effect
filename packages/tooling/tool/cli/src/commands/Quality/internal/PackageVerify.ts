@@ -23,6 +23,12 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { QualityTaskStep, runCaptured } from "../../../internal/process/index.ts";
 import { collectDirtyWorktreeFiles } from "../../../internal/repo-run/ChangedFiles.ts";
+import { renderDocgenIssueText } from "../../Docgen/internal/Local.ts";
+import {
+  analyzePackageDocumentation,
+  ResolveDocgenWorkspacePackageOptions,
+  resolveDocgenWorkspacePackage,
+} from "../../Docgen/internal/Operations.ts";
 import { recordYeetLocalShardOutcome, YeetLocalShardOutcome } from "../../Yeet/internal/LocalShardPoison.ts";
 import { QualityScriptCommandError } from "../Quality.errors.ts";
 import type { DomainError, FsUtils, NoSuchFileError } from "@beep/repo-utils";
@@ -639,7 +645,7 @@ const runPackageVerifyStep = Effect.fn("PackageVerify.runPackageVerifyStep")(fun
 ): Effect.fn.Return<
   PackageVerifyStepResult,
   QualityScriptCommandError,
-  Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
+  FsUtils | FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
   if (O.isNone(R.get(workspace.scripts, spec.script))) {
     return PackageVerifyStepResult.make({
@@ -654,7 +660,29 @@ const runPackageVerifyStep = Effect.fn("PackageVerify.runPackageVerifyStep")(fun
   }
 
   const startedAt = yield* Clock.currentTimeMillis;
-  const result = yield* runPackageVerifyStepPlan(packageVerifyStepPlan(repoRoot, workspace, spec));
+  const metadata = PackageVerifyStepName.is.docgen(spec.step)
+    ? yield* resolveDocgenWorkspacePackage(
+        workspace.name,
+        ResolveDocgenWorkspacePackageOptions.make({ rootDir: repoRoot })
+      ).pipe(
+        Effect.flatMap(analyzePackageDocumentation),
+        Effect.asSome,
+        QualityScriptCommandError.mapError("Failed to check package JSDoc metadata.")
+      )
+    : O.none();
+  const result =
+    O.isSome(metadata) && metadata.value.summary.missingDocumentation > 0
+      ? {
+          exitCode: 1,
+          output: A.join(
+            A.flatMap(metadata.value.exports, (issue) => {
+              const text = renderDocgenIssueText(issue.missingTags, issue.categoryIssues);
+              return Str.isNonEmpty(text) ? [`${issue.filePath}:${issue.line} ${issue.name} ${text}`] : [];
+            }),
+            "\n"
+          ),
+        }
+      : yield* runPackageVerifyStepPlan(packageVerifyStepPlan(repoRoot, workspace, spec));
   const completedAt = yield* Clock.currentTimeMillis;
 
   return PackageVerifyStepResult.make({

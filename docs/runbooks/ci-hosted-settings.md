@@ -35,10 +35,13 @@ Both generated catalogs (schema and instrumentation) are sharded per owning
 package so pull requests that touch different packages do not conflict; see
 `standards/generated-artifacts.policy.md`.
 
-The schema catalog stays out of the local `beep quality github-checks
-cheap-gates` preflight. That tier runs four lanes at once and excludes
-heavyweight work, and the catalog generator peaks near 12 GB RSS (measured
-2026-10-15: killed under a 6 GB cgroup cap, passes under 12 GB, about 25 s).
-Repo Sanity runs its steps one at a time on a 16 GB runner, so the check fits
-there. `observability:catalog-check` remains a local cheap gate. Run the
-schema catalog check by hand before publishing a schema change.
+Local `beep quality github-checks cheap-gates` also runs the schema catalog.
+It runs alone in the `heavy` scheduling wave **within the cheap-gates tier**,
+after the parallel preflight lanes. The generator has no package-scoped check:
+its whole-repository ownership and orphan-shard checks require the full scan.
+The 2026-10-22 profile measured about 24 seconds and 12.6 GiB peak RSS, so keep
+it isolated and allow at least the existing 16 GiB runner envelope. This wave
+still gates publication before the head-install preflight. Root `lint:oxlint`
+and `quality:jsdoc-ratchet:regenerated` run in the parallel preflight wave;
+the latter writes only `.beep/ci/` artifacts before comparing totals.
+`observability:catalog-check` remains a local cheap gate.
