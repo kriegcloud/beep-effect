@@ -1276,24 +1276,27 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
       );
     })
   );
-  for (const scenario of [
-    { word: "'test/*.test.ts'", expected: "test/*.test.ts" },
-    { word: '"test/*.test.ts"', expected: "test/*.test.ts" },
-    { word: "test/\\*.test.ts", expected: "test/*.test.ts" },
-    { word: "missing/*.test.ts", expected: "missing/*.test.ts" },
-    { word: "--exclude=test/*.test.ts", expected: "--exclude=test/*.test.ts" },
-  ])
-    it.effect(`preserves canonical literal argument ${scenario.word}`, () =>
-      Effect.gen(function* () {
-        const { root, fs, path } = yield* fixture([owner("@beep/example")], `bunx vitest run ${scenario.word}`);
-        yield* fs.makeDirectory(path.join(root, "packages/tool/test"), { recursive: true });
-        yield* fs.writeFileString(path.join(root, "packages/tool/test/present.test.ts"), "");
-        yield* runCiCoverageComparison(root, options());
-        expect(mocks.discover).toHaveBeenCalledWith(
-          expect.objectContaining({ args: expect.arrayContaining([scenario.expected]) })
-        );
-      })
-    );
+  A.forEach(
+    [
+      { word: "'test/*.test.ts'", expected: "test/*.test.ts" },
+      { word: '"test/*.test.ts"', expected: "test/*.test.ts" },
+      { word: "test/\\*.test.ts", expected: "test/*.test.ts" },
+      { word: "missing/*.test.ts", expected: "missing/*.test.ts" },
+      { word: "--exclude=test/*.test.ts", expected: "--exclude=test/*.test.ts" },
+    ],
+    (scenario) =>
+      it.effect(`preserves canonical literal argument ${scenario.word}`, () =>
+        Effect.gen(function* () {
+          const { root, fs, path } = yield* fixture([owner("@beep/example")], `bunx vitest run ${scenario.word}`);
+          yield* fs.makeDirectory(path.join(root, "packages/tool/test"), { recursive: true });
+          yield* fs.writeFileString(path.join(root, "packages/tool/test/present.test.ts"), "");
+          yield* runCiCoverageComparison(root, options());
+          expect(mocks.discover).toHaveBeenCalledWith(
+            expect.objectContaining({ args: expect.arrayContaining([scenario.expected]) })
+          );
+        })
+      )
+  );
 
   it.effect("expands sorted pathname matches containing spaces into separate arguments", () =>
     Effect.gen(function* () {
@@ -1330,24 +1333,27 @@ it.layer(layer, { timeout: "10 seconds" })("CI coverage artifact orchestration",
       );
     })
   );
-  for (const pattern of [
-    "../*.test.ts",
-    "/tmp/*.test.ts",
-    "node_modules/*.test.ts",
-    "test/**/*.test.ts",
-    "test/?.test.ts",
-    "test/[a].test.ts",
-    "test/space\\ dir/*.test.ts",
-    "test/\\*/*.test.ts",
-  ])
-    it.effect(`refuses unsupported or escaping pathname pattern ${pattern}`, () =>
-      Effect.gen(function* () {
-        const { root } = yield* fixture([owner("@beep/example")], `bunx vitest run ${pattern}`);
-        const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
-        expect(failure.message).toMatch(/pathname pattern/u);
-        expect(mocks.discover).not.toHaveBeenCalled();
-      })
-    );
+  A.forEach(
+    [
+      "../*.test.ts",
+      "/tmp/*.test.ts",
+      "node_modules/*.test.ts",
+      "test/**/*.test.ts",
+      "test/?.test.ts",
+      "test/[a].test.ts",
+      "test/space\\ dir/*.test.ts",
+      "test/\\*/*.test.ts",
+    ],
+    (pattern) =>
+      it.effect(`refuses unsupported or escaping pathname pattern ${pattern}`, () =>
+        Effect.gen(function* () {
+          const { root } = yield* fixture([owner("@beep/example")], `bunx vitest run ${pattern}`);
+          const failure = yield* runCiCoverageComparison(root, options()).pipe(Effect.flip);
+          expect(failure.message).toMatch(/pathname pattern/u);
+          expect(mocks.discover).not.toHaveBeenCalled();
+        })
+      )
+  );
 
   it.effect("reports filesystem pathname enumeration failures before test discovery", () =>
     Effect.gen(function* () {

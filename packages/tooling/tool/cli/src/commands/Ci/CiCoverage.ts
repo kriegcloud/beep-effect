@@ -91,7 +91,7 @@ const canonicalWordValue = (word: string) => {
 };
 const expandCanonicalWord = Effect.fnUntraced(function* (word: string, cwd: string) {
   const value = canonicalWordValue(word);
-  if (Str.startsWith("'")(word) || Str.startsWith('"')(word) || Str.startsWith("-")(value)) return [value];
+  if (P.or(Str.startsWith("'"), Str.startsWith('"'))(word) || Str.startsWith("-")(value)) return [value];
   // Support the simple pathname stars used by canonical package scripts. Other
   // shell pattern dialects require their own package-script parity qualification.
   const active = Str.replace(/\\./gu, "")(word);
