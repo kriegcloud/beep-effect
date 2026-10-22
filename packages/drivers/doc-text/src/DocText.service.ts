@@ -254,6 +254,41 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
         const text = Str.replace(/^\uFEFF+/, "")(new TextDecoder("utf-8", { fatal: true }).decode(content));
         let targets = R.empty<string, string>();
         let depth = 0;
+        // Resolve namespaces explicitly and only for element selection, as
+        // Mammoth's xmldom reader does: an undeclared prefix (for example an
+        // unbound `w14:` extension attribute) resolves to no namespace instead
+        // of failing the part. Well-formedness errors still reject the part.
+        // A mutable stack keeps each event O(1) at the depth limit.
+        const scopes: Array<Readonly<Record<string, string>>> = [];
+        const bindNamespace = (bindings: Readonly<Record<string, string>>, [attribute, uri]: [string, string]) => {
+          if (attribute === "xmlns") return R.set(bindings, "", uri);
+          if (Str.startsWith("xmlns:")(attribute)) return R.set(bindings, Str.slice(6)(attribute), uri);
+          return bindings;
+        };
+        const pushNamespaceScope = (attributes: Readonly<Record<string, string>>) => {
+          const scope = A.reduce(
+            R.toEntries(attributes),
+            scopes[scopes.length - 1] ?? R.empty<string, string>(),
+            bindNamespace
+          );
+          scopes.push(scope);
+          return scope;
+        };
+        const popNamespaceScope = () => {
+          --depth;
+          scopes.pop();
+        };
+        const resolveElementName = (name: string) =>
+          O.match(Str.indexOf(":")(name), {
+            onNone: () => ["", name] as const,
+            onSome: (separator) => [Str.slice(0, separator)(name), Str.slice(separator + 1)(name)] as const,
+          });
+        const isRelationshipElement = (name: string, scope: Readonly<Record<string, string>>) => {
+          const [prefix, local] = resolveElementName(name);
+          return (
+            local === "Relationship" && scope[prefix] === "http://schemas.openxmlformats.org/package/2006/relationships"
+          );
+        };
         const rememberTarget = (type: string, target: string) => {
           // Mammoth chooses the first existing target for each fixed type.
           // Inventory is complete, so retain at most six values instead of
@@ -262,24 +297,19 @@ const boundedDocx = Effect.fn("DocTextFileProcessingEngine.boundDocx")((bytes: U
           const resolved = resolveTarget(name, target);
           if (MutableHashSet.has(names, resolved)) targets = R.set(targets, type, resolved);
         };
-        const parser = new SaxesParser({ xmlns: true });
+        const parser = new SaxesParser({ xmlns: false });
         parser.on("doctype", exceeded);
         parser.on("opentag", (tag) => {
           chargeNode();
           if (++depth > DOCX_MAX_XML_DEPTH) exceeded();
-          if (
-            tag.local !== "Relationship" ||
-            tag.uri !== "http://schemas.openxmlformats.org/package/2006/relationships"
-          )
-            return;
-          const type = tag.attributes.Type?.value;
-          const target = tag.attributes.Target?.value;
+          const scope = pushNamespaceScope(tag.attributes);
+          if (!isRelationshipElement(tag.name, scope)) return;
+          const type = tag.attributes.Type;
+          const target = tag.attributes.Target;
           if (type === undefined || target === undefined || depth !== 2) return;
           rememberTarget(type, target);
         });
-        parser.on("closetag", () => {
-          --depth;
-        });
+        parser.on("closetag", popNamespaceScope);
         parser.on("attribute", chargeNode);
         parser.on("text", chargeNode);
         parser.on("cdata", chargeNode);
