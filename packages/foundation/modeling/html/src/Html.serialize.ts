@@ -299,7 +299,7 @@ const isRuntimeForeignNode = (node: RuntimeNode): node is RuntimeForeignNode => 
 const runtimeChildren = (node: RuntimeNode): ReadonlyArray<RuntimeNode> => {
   /* istanbul ignore else -- every encoded container node has a generated array-valued children field */
   if (A.isArray(node.children)) return A.filter(node.children, isRuntimeNode);
-  /* v8 ignore next -- the HtmlRoot encoder guarantees array-valued children for container nodes */
+  /* istanbul ignore next -- the HtmlRoot encoder guarantees array-valued children for container nodes */
   return A.emptyReadonly();
 };
 

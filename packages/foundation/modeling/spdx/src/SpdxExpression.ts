@@ -129,6 +129,12 @@ export class LicenseNode extends S.TaggedClass<
  * @since 0.0.0
  */
 export declare namespace LicenseNode {
+  /**
+   * Encoded license identifier and its optional later-version marker.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
   export interface Encoded {
     readonly _tag: "License";
     readonly id: string;
@@ -204,6 +210,12 @@ export class LicenseRefNode extends S.TaggedClass<
  * @since 0.0.0
  */
 export declare namespace LicenseRefNode {
+  /**
+   * Encoded custom license reference, optionally scoped to an external document.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
   export interface Encoded {
     readonly _tag: "LicenseRef";
     readonly documentRef?: undefined | string;

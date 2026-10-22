@@ -157,7 +157,8 @@ they gain an entry for `@beep/epistemics`.
 
 ## Target Surfaces
 
-- New `packages/foundation/modeling/epistemics`, created only with
+- Planned package `@beep/epistemics`, to be created under
+  `packages/foundation/modeling` with directory name `epistemics`, using only
   `bun run beep create-package`.
 - `packages/epistemic/domain` (value modules removed or re-exported, entities
   repointed).

@@ -171,6 +171,10 @@ const config = {
       // `LexicalExtensionComposer`, whose extension-based config is a
       // gesture-bearing editor migration with its own browser-QA campaign;
       // the whole lockstep `@lexical/*` family stays at 0.50 until it lands.
+      // Fallow 3.34 corrects entry-glob semantics and exposes 61 existing findings.
+      // Promote it after the public API and generated-entry triage, without a new baseline.
+      // Ink 8 strips U+200B workflow-command neutralization markers from output.
+      // Keep Ink 7 until terminal command safety and width contracts migrate together.
       // jsdom 30.1.0 breaks every vitest 5 jsdom-environment file at worker
       // start ("'addEventListener' called on an object that is not a valid
       // instance of EventTarget" from vitest's catchWindowErrors), so no
@@ -180,6 +184,8 @@ const config = {
       // jsdom ships the fix.
       label: "Held back — do not auto-update (see changeset portless-default-react-grab-storybook)",
       dependencies: [
+        "fallow",
+        "ink",
         "tstyche",
         "lexical",
         "@lexical/**",

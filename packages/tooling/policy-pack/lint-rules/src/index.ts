@@ -135,7 +135,7 @@ class RuleMetadataSchema extends S.Opaque<RuleMetadataSchema, { readonly brand: 
     replaces: S.OptionFromNullOr(S.String),
     summary: S.String,
     scope: S.OptionFromNullOr(S.String),
-  }).annotate({ identifier: "RuleMetadataSchema" })
+  }).pipe($I.annoteSchema("RuleMetadataSchema"))
 ) {}
 
 type RuleMetadata = RuleMetadataSchema;

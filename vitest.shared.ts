@@ -26,7 +26,8 @@ type AliasEntry = {
 const projectRootDirectory = new URL("./", import.meta.url);
 // V8 inspector coverage is unsupported on Bun and can falsely cover untouched
 // branches. Use source instrumentation for explicit Bun coverage runs. Canonical
-// coverage commands retain Node/V8 until the per-file ratchet migration qualifies.
+// local coverage commands retain Node/V8; hosted Unit shards qualify Bun/Istanbul
+// reports against the same per-file ratchet before the CI producer is retired.
 const coverageProvider = P.isUndefined(process.versions.bun) ? "v8" : "istanbul";
 
 // Vite treats an explicit `.ts` suffix as an exact filename, while the repository
