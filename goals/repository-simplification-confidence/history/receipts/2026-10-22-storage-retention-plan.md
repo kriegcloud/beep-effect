@@ -4,7 +4,8 @@ Census UTC: `2026-10-22T12:38:05.225Z`. Mode: dry-run only. Source revision:
 `cf68c1d953bae912450825c5352cf1fc92297ad4`. This plan supersedes the
 2026-10-09 snapshot for this attempt; changes in counts are fleet drift, not reclamation.
 
-The census returned 5,099 rows across 220 checkout roots.
+The census scanned 220 checkout roots. Of these, 130 had candidate rows
+(5,099 rows total), and 90 had none.
 Apparent bytes total 8,224,709,825; btrfs exclusive bytes total
 7,995,277,312. Every row has an exclusive-byte measurement. These are
 retained data measurements. Shared extents and directory overhead mean that these

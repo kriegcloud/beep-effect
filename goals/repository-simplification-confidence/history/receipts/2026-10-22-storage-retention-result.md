@@ -6,7 +6,9 @@ reads. Issue #1871 remains open. This attempt establishes no physical reclamatio
 
 | Measure | Result |
 | --- | ---: |
-| Checkout roots | 220 |
+| Checkout roots scanned | 220 |
+| Checkout roots with candidate rows | 130 |
+| Checkout roots without candidate rows | 90 |
 | Rows surveyed | 5099 |
 | Rows deferred | 4973 |
 | Rows excluded by explicit path boundary | 126 |
