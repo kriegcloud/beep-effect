@@ -531,7 +531,7 @@ export const layerClient = (config: DuckDbClientConfig): Layer.Layer<DuckDbClien
  *   const client = yield* DuckDbClient.DuckDbClient
  *   const sql = yield* SqlClient.SqlClient
  *   const rows = yield* sql`select 1 as n`
- *   return [client.config.databasePath, rows] as const
+ *   return [client.config.databasePath, rows]
  * }).pipe(Effect.provide(DuckDbLive))
  *
  * Effect.runPromise(program).then(console.log) // [":memory:", [{ n: 1 }]]

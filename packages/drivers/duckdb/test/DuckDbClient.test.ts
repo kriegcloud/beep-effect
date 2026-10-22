@@ -614,6 +614,30 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
+      "streams the last result of multi-statement schema switches and refreshes cached statements",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE SCHEMA memory.stream_ctx_s`;
+        yield* sql`CREATE TABLE memory.main.stream_ctx_t (src VARCHAR)`;
+        yield* sql`INSERT INTO memory.main.stream_ctx_t VALUES ('main')`;
+        yield* sql`CREATE TABLE memory.stream_ctx_s.stream_ctx_t (src INTEGER)`;
+        yield* sql`INSERT INTO memory.stream_ctx_s.stream_ctx_t VALUES (7)`;
+        const select = sql`SELECT src FROM stream_ctx_t WHERE ${1} = 1`;
+        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+        assert.deepStrictEqual(
+          yield* sql.unsafe("SET schema = 'stream_ctx_s'; SELECT src FROM stream_ctx_t").stream.pipe(Stream.runCollect),
+          [{ src: 7 }]
+        );
+        assert.deepStrictEqual(yield* select, [{ src: 7 }]);
+        assert.deepStrictEqual(
+          yield* sql.unsafe("RESET schema; SELECT src FROM stream_ctx_t").stream.pipe(Stream.runCollect),
+          [{ src: "main" }]
+        );
+        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+      })
+    );
+
+    it.effect(
       "pins DECIMAL widening rules",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;

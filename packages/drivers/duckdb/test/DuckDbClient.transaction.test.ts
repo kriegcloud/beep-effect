@@ -240,6 +240,8 @@ describe("DuckDbClient transactions", { concurrent: false }, () => {
         // `a$b$c` is an identifier, not the `$b$` dollar-quote opener.
         const hidden = yield* sql.unsafe("select 1 as a$b$c; COMMIT").pipe(Effect.flip);
         expectRefusedMultiStatement(hidden);
+        const unicodeHidden = yield* sql.unsafe("select 1 as aé$b$c; COMMIT").pipe(Effect.flip);
+        expectRefusedMultiStatement(unicodeHidden);
         const error = yield* sql.unsafe("COMMIT").pipe(Effect.flip);
         expectRefusedCommit(error, ABORTED_MESSAGE);
         expect(yield* countRows(sql, "tx_multi_dollar_ident")).toBe(0);

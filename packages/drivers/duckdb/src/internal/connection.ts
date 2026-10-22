@@ -50,6 +50,7 @@ import {
   isAbortedTransactionError,
   refusedCommit,
   refusedMultiStatementControl,
+  splitStatements,
   TransactionPhase,
 } from "./transaction.ts";
 import type {
@@ -375,6 +376,11 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
             Effect.andThen(
               gate.runUnlocked("executeStream", () => native.stream(sql, nativeBinds(binds), bindTypes(binds)))
             ),
+            Effect.tap(() =>
+              classifyControl(sql) === "catalogContext"
+                ? O.match(cache, { onNone: () => Effect.void, onSome: ScopedCache.invalidateAll })
+                : Effect.void
+            ),
             Effect.map((result) => {
               const iterator = result.yieldConvertedRowObjects(converter);
               return Stream.paginate(undefined, () =>
@@ -410,19 +416,20 @@ export const makeConnection = Effect.fnUntraced(function* (options: ConnectionOp
       runStatement(sql, params, "executeValuesUnprepared", false, readValues, []),
     executeStream: (sql, params, transformRows) =>
       Stream.unwrap(
-        Effect.suspend(
-          (): Effect.Effect<Stream.Stream<Row, SqlError>, SqlError, Scope.Scope> =>
-            // Transaction control and catalog-context text take the tracked path
-            // even outside a transaction, so the phase and the prepared cache
-            // stay in step with DuckDB.
-            isTransaction() || classifyControl(sql) !== "statement"
-              ? Effect.succeed(
-                  runRows(sql, params, "executeStream", false, transformRows).pipe(Stream.fromIterableEffect)
-                )
-              : isBlank(sql)
-                ? Effect.succeed(Stream.empty)
-                : incrementalStream(sql, params, transformRows)
-        )
+        Effect.suspend((): Effect.Effect<Stream.Stream<Row, SqlError>, SqlError, Scope.Scope> => {
+          const control = classifyControl(sql);
+          // Multi-statement catalog-context streams keep native.stream's last
+          // result while invalidating the prepared cache under its op lock.
+          const incremental =
+            control === "statement" || (control === "catalogContext" && splitStatements(sql).length > 1);
+          return isTransaction() || !incremental
+            ? Effect.succeed(
+                runRows(sql, params, "executeStream", false, transformRows).pipe(Stream.fromIterableEffect)
+              )
+            : isBlank(sql)
+              ? Effect.succeed(Stream.empty)
+              : incrementalStream(sql, params, transformRows);
+        })
       ),
   };
   return connection;

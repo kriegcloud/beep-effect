@@ -85,7 +85,7 @@ const CONTROL_RULES: ReadonlyArray<readonly [TransactionControl, RegExp]> = [
 // that continues an identifier (`a$b$c`) never opens a dollar quote, so it
 // cannot hide a trailing statement from the multi-statement refusal.
 const LEXEME_SOURCE =
-  /--[^\n]*|\/\*|(?<![\w$])[Ee]'(?:[^'\\]|\\[\s\S]|'')*'?|'(?:[^']|'')*'?|"(?:[^"]|"")*"?|(?<![\w$])\$(?:[A-Za-z_]\w*)?\$|;|[^-'"$/;Ee]+|[\s\S]/
+  /--[^\n]*|\/\*|(?<![\w$\u0080-\uFFFF])[Ee]'(?:[^'\\]|\\[\s\S]|'')*'?|'(?:[^']|'')*'?|"(?:[^"]|"")*"?|(?<![\w$\u0080-\uFFFF])\$(?:[A-Za-z_]\w*)?\$|;|[^-'"$/;Ee]+|[\s\S]/
     .source;
 
 const BLOCK_COMMENT_EDGE_SOURCE = /\/\*|\*\//.source;
@@ -119,10 +119,16 @@ const blockCommentEnd = (sql: string, start: number): number => {
 };
 
 // End offset of a dollar-quoted string whose opening `tag` ends at `start`.
-const dollarQuoteEnd = (sql: string, tag: string, start: number): number => {
-  const close = sql.indexOf(tag, start);
-  return close < 0 ? sql.length : close + tag.length;
-};
+const dollarQuoteEnd = (sql: string, tag: string, start: number): number =>
+  pipe(
+    sql,
+    Str.slice(start),
+    Str.indexOf(tag),
+    O.match({
+      onNone: () => sql.length,
+      onSome: (close) => start + close + tag.length,
+    })
+  );
 
 /**
  * Splits SQL text into its statements with comments removed.
@@ -147,7 +153,7 @@ const dollarQuoteEnd = (sql: string, tag: string, start: number): number => {
  * @since 0.0.0
  */
 export const splitStatements = (sql: string): ReadonlyArray<string> => {
-  const lexeme = new RegExp(LEXEME_SOURCE, "y");
+  const lexeme = new RegExp(LEXEME_SOURCE, "uy");
   const statements: Array<string> = [];
   let current = "";
   let index = 0;
@@ -155,7 +161,7 @@ export const splitStatements = (sql: string): ReadonlyArray<string> => {
     lexeme.lastIndex = index;
     // The final `[\s\S]` alternative matches any character, so the sticky match
     // never fails while `index` is inside the text; the fallback only types it.
-    const token = lexeme.exec(sql)?.[0] ?? sql.slice(index);
+    const token = lexeme.exec(sql)?.[0] ?? Str.slice(index)(sql);
     const next = index + token.length;
     if (Str.startsWith("--")(token)) {
       current += " ";
@@ -165,7 +171,7 @@ export const splitStatements = (sql: string): ReadonlyArray<string> => {
       index = blockCommentEnd(sql, next);
     } else if (DOLLAR_TAG_PATTERN.test(token)) {
       const end = dollarQuoteEnd(sql, token, next);
-      current += sql.slice(index, end);
+      current += Str.slice(index, end)(sql);
       index = end;
     } else if (token === ";") {
       statements.push(current);
