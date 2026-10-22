@@ -44,16 +44,19 @@ Every value module in `packages/epistemic/domain/src/values` is tenant-free
 
 | Module | Moves to `@beep/epistemics` | Notes |
 | --- | --- | --- |
-| `ClaimGate` | yes | structural verdict; `admitted` is shape conformance, not truth |
+| `ClaimGate` | yes (moved P1) | structural verdict; `admitted` is shape conformance, not truth |
 | `ClaimLifecycle` | **no** | already promoted to `shared/domain` (promotion record; 2026-06-18 decision); the slice only re-exports it |
-| `ClaimDispositionStatus` | yes | |
-| `ClaimEvidenceReview` | yes | |
-| `ClaimProjection` | yes | |
-| `EvidenceSpan` | yes | most imported subpath outside the slice (56 import sites) |
-| `EvidenceVerification` (value) | yes | the entity of the same name stays |
-| `EdgeEndpoint`, `EdgeRelation`, `LogicalEdgeIdentity` | yes | |
-| `Contradiction` (value), `ContradictionDetection` | yes | depend only on `EvidenceSpan`, `LogicalEdgeIdentity` |
-| `EpistemicFixtureKey` | decide in P1 | test/fixture vocabulary; may stay slice-local |
+| `ClaimDispositionStatus` | yes (moved P1) | |
+| `ClaimEvidenceReview` | **blocked: shared-kernel ids** (P1b) | imports `UserPrincipal` from `@beep/shared-domain/entity/Principal` and slice-local `EpistemicFixtureKey` |
+| `ClaimProjection` | **blocked: shared-kernel ids** (P1b) | imports slice-local `EpistemicFixtureKey` |
+| `EvidenceSpan` | yes (moved P1) | most imported subpath outside the slice (56 import sites) |
+| `EvidenceVerification` (value) | **blocked: shared-kernel ids** (P1b) | imports `EvidenceId` from `@beep/shared-domain/identity/Epistemic`; the entity of the same name stays |
+| `EdgeRelation` | yes (moved P1) | |
+| `EdgeEndpoint` | **blocked: shared-kernel ids** (P1b) | imports `CandidateClaimId`, `EvidenceId` from `@beep/shared-domain/identity/Epistemic` |
+| `LogicalEdgeIdentity` | **blocked: shared-kernel ids** (P1b) | imports `EdgeEndpoint` (transitive shared-kernel ids) |
+| `Contradiction` (value) | **blocked: shared-kernel ids** (P1b) | imports `EvidenceId`, `EdgeVersionId` from `@beep/shared-domain/identity/Epistemic` (and slice `internal/PosInt`) |
+| `ContradictionDetection` | **blocked: shared-kernel ids** (P1b) | imports `Contradiction` (transitive shared-kernel ids) |
+| `EpistemicFixtureKey` | **no** (decided P1) | test/fixture vocabulary; stays slice-local |
 | `ExecutionGrant`, `GrantSet`, `ExecutionRecord`, `ExecutionVerdict` | **no** | misfiled agent-authority values; separate change |
 
 New in `@beep/epistemics` (not moves):
@@ -105,17 +108,23 @@ they gain an entry for `@beep/epistemics`.
 ## Acceptance Criteria
 
 - [ ] `@beep/epistemics` exists under `foundation/modeling`, created by
-  `beep create-package`, with the moved value modules, `ValidInterval`,
+  `beep create-package`, with the four moved value modules (`ClaimGate`,
+  `ClaimDispositionStatus`, `EvidenceSpan`, `EdgeRelation`), `ValidInterval`,
   `KnowledgeInterval`, `Claim<P>` envelope and evidence-signal envelopes.
-- [ ] `EdgeVersion` composes `ValidInterval` and `KnowledgeInterval`; encoded
+- [ ] P1b: `EdgeEndpoint`, `LogicalEdgeIdentity`, `EvidenceVerification`,
+  `Contradiction`, `ContradictionDetection`, `ClaimEvidenceReview` and
+  `ClaimProjection` live in `@beep/epistemics` as factories over
+  caller-supplied id schemas; `@beep/epistemic-domain` binds them to the
+  shared-domain ids and their importers are repointed.
+- [x] `EdgeVersion` composes `ValidInterval` and `KnowledgeInterval`; encoded
   rows are identical before and after (round-trip test).
-- [ ] No file outside `packages/epistemic/**` imports a moved value from
+- [x] No file outside `packages/epistemic/**` imports a moved value from
   `@beep/epistemic-domain`; the transitional re-exports are deleted.
-- [ ] `ExecutionGrant`, `GrantSet`, `ExecutionRecord`, `ExecutionVerdict` are
+- [x] `ExecutionGrant`, `GrantSet`, `ExecutionRecord`, `ExecutionVerdict` are
   untouched and absent from `@beep/epistemics`.
-- [ ] `bun run beep quality package-verify @beep/epistemics` and
+- [x] `bun run beep quality package-verify @beep/epistemics` and
   `@beep/epistemic-domain` pass.
-- [ ] No unrelated refactors or formatting churn.
+- [x] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
 
@@ -126,7 +135,7 @@ they gain an entry for `@beep/epistemics`.
 | Whitespace | `git diff --check -- goals/epistemics-foundation-extraction` | Passes |
 | Foundation package | `bun run beep quality package-verify @beep/epistemics` | Passes |
 | Slice package | `bun run beep quality package-verify @beep/epistemic-domain` | Passes |
-| No stale imports | `rg -n '@beep/epistemic-domain/values/(ClaimGate\|ClaimDispositionStatus\|ClaimEvidenceReview\|ClaimProjection\|EvidenceSpan\|EvidenceVerification\|EdgeEndpoint\|EdgeRelation\|LogicalEdgeIdentity\|Contradiction\|ContradictionDetection)\b' --glob '!packages/epistemic/**'` | No matches |
+| No stale imports | `rg -n '@beep/epistemic-domain/values/(ClaimGate\|ClaimDispositionStatus\|EvidenceSpan\|EdgeRelation)\b' --glob '!packages/epistemic/**'` | No matches |
 | Row compatibility | `EdgeVersion` encode/decode round-trip test on pre-extraction fixtures | Passes |
 
 ## Stop Conditions
@@ -146,9 +155,18 @@ them and record each in the Decision Log.
 | 2026-10-21 | Package name `@beep/epistemics` under `foundation/modeling` | Vocabulary, not a capability service; modeling is the schema substrate family | Rename via `create-package` before first release |
 | 2026-10-21 | Agent-authority values excluded from the move | Not epistemics; moving them would bake a misfiling into foundation | Include them in a later goal if a review decides otherwise |
 | 2026-10-21 | Intervals extracted as new values rather than left inline | Party and other slices need the same `[from, to)` semantics; inline fields can't be shared | Inline the fields back into `EdgeVersion` |
+| 2026-10-21 | P1 moves only `ClaimGate`, `ClaimDispositionStatus`, `EvidenceSpan`, `EdgeRelation` | The other seven import shared-kernel ids directly or transitively (see Inventory); a byte-for-byte move cannot drop them | Superseded for the seven by the P1b row below |
+| 2026-10-22 | P1b: id-bearing values (`EdgeEndpoint`, `LogicalEdgeIdentity`, `EvidenceVerification`, `Contradiction`, `ContradictionDetection`, `ClaimEvidenceReview`, `ClaimProjection`) become factories over caller-supplied id schemas in `@beep/epistemics`, e.g. `makeEdgeEndpoint({ evidence, candidate })`. `@beep/epistemic-domain` binds them to the shared-domain ids; the party slice binds its own. Operator ruling 2026-10-22 | Foundation may not depend on the shared kernel (`standards/ARCHITECTURE.md:692`); parameterizing keeps product identity out of foundation | Move the shared-domain id brands into foundation instead |
+| 2026-10-21 | `EpistemicFixtureKey` stays slice-local | Test/projection fixture vocabulary for slice read models, not cross-slice epistemics; no moved module needs it once `ClaimProjection`/`ClaimEvidenceReview` stay | `git mv` it to `@beep/epistemics` together with `ClaimProjection` |
+| 2026-10-21 | No `CanonicalJson` copy in `@beep/epistemics` | None of the four moved modules uses `values/internal/CanonicalJson.ts`; it stays in the slice for `Contradiction`, `ContradictionDetection`, `EvidenceVerification`, `GrantSet`, `ExecutionRecord` | Add an internal copy (or a foundation helper) when a module that needs it moves |
+| 2026-10-21 | Moved schema identities change from `@beep/epistemic-domain/values/<M>/...` to `@beep/epistemics/<M>/...` | Identities are annotations only: no persisted row, snapshot, table or fixture carries them (rg over the repo, `*.snap` none) | Re-annotate with `$EpistemicDomainId` |
+| 2026-10-21 | Explicit `./<M>` export subpaths per module directory | The scaffold's `./*` maps to `src/*.ts`; moved modules keep their `src/<M>/index.ts` layout | Flatten modules to `src/<M>.ts` and drop the explicit entries |
+| 2026-10-21 | `EdgeVersion` composes the interval fields per key (`ValidIntervalFields.validFrom.pipe(pg...)`) rather than an object spread | The entity must keep its `pg.bigint`/`pg.columnName` column metadata, which foundation may not carry; piping onto the shared field keeps one definition of schema and description. Round-trip test passes against both the pre-change and the new model | Inline the four field schemas back into `EdgeVersion` |
+| 2026-10-21 | Historical records left unedited: `explorations/semantica-lab/research/effect-ontology-map.md`, `goals/jsdoc-carrier-migration/data/extract.jsonl` | They record past state, not live imports | None needed |
 
 ## Exception Ledger
 
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
-| Transitional re-exports from `@beep/epistemic-domain` | moved value modules | this goal | keeps importers compiling while they are repointed | all importers repointed (acceptance criterion 3) |
+| Transitional re-exports from `@beep/epistemic-domain` | moved value modules | this goal | keeps importers compiling while they are repointed | all importers repointed (acceptance criterion 3); P1 never added any: the four moved modules were repointed in place |
+| Seven id-bearing value modules stay in `@beep/epistemic-domain` until P1b | `EdgeEndpoint`, `LogicalEdgeIdentity`, `EvidenceVerification`, `Contradiction`, `ContradictionDetection`, `ClaimEvidenceReview`, `ClaimProjection` | this goal | foundation may not import `@beep/shared-domain` | P1b factories land and the slice binds them (P1b acceptance criterion) |

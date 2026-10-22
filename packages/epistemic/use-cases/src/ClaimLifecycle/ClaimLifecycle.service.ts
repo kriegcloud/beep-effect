@@ -10,7 +10,8 @@
  * @since 0.0.0
  */
 import * as DomainCandidateClaim from "@beep/epistemic-domain/entities/CandidateClaim";
-import { ClaimGateResult, ClaimInvalidTransition } from "@beep/epistemic-domain/values";
+import { ClaimInvalidTransition } from "@beep/epistemic-domain/values";
+import { ClaimGateResult } from "@beep/epistemics/ClaimGate";
 import { $EpistemicUseCasesId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -85,7 +86,8 @@ export class ClaimTransition extends Context.Service<ClaimTransition, ClaimTrans
  *
  * ```ts
  * import { strictEqual } from "node:assert"
- * import { CandidateClaim, ClaimGateResult } from "@beep/epistemic-domain"
+ * import { CandidateClaim } from "@beep/epistemic-domain"
+ * import { ClaimGateResult } from "@beep/epistemics/ClaimGate"
  * import { makeClaimTransition } from "@beep/epistemic-use-cases/ClaimLifecycle"
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema"

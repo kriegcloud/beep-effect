@@ -3,13 +3,13 @@ import { ClaimDisposition as ClaimDispositionModel } from "@beep/epistemic-domai
 import { EdgeVersion as EdgeVersionModel } from "@beep/epistemic-domain/entities/EdgeVersion";
 import { Evidence as EvidenceModel } from "@beep/epistemic-domain/entities/Evidence";
 import { UsageRecord as UsageRecordModel } from "@beep/epistemic-domain/entities/UsageRecord";
-import { EVIDENCE_SPAN_QUOTE_MAX_LENGTH } from "@beep/epistemic-domain/values/EvidenceSpan";
 import { DbSchema, Entities } from "@beep/epistemic-tables";
 import * as CandidateClaim from "@beep/epistemic-tables/entities/CandidateClaim";
 import * as ClaimDisposition from "@beep/epistemic-tables/entities/ClaimDisposition";
 import * as EdgeVersion from "@beep/epistemic-tables/entities/EdgeVersion";
 import * as Evidence from "@beep/epistemic-tables/entities/Evidence";
 import * as UsageRecord from "@beep/epistemic-tables/entities/UsageRecord";
+import { EVIDENCE_SPAN_QUOTE_MAX_LENGTH } from "@beep/epistemics/EvidenceSpan";
 import { $EpistemicId } from "@beep/identity/packages";
 import { it } from "@beep/test-runner";
 import { fcRuns, productEntityFixtureInput, systemPrincipal } from "@beep/test-utils";

@@ -63,6 +63,7 @@
     "@beep/epistemic-domain": "workspace:^",
     "@beep/epistemic-tables": "workspace:^",
     "@beep/epistemic-use-cases": "workspace:^",
+    "@beep/epistemics": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/mcp-kit": "workspace:^",

@@ -18,7 +18,7 @@
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import { provBundleToDataset } from "@beep/rdf/ProvRdf";
 import * as Crypto from "effect/Crypto";
@@ -200,7 +200,7 @@ const extractOntologyName = (uri: string): OntologyName => {
  * **Example** (Map batch input to chunking and grounding)
  *
  * ```ts
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import * as Duration from "effect/Duration";
  * import { BatchId, ContentHash, DocumentId, GcsUri, Namespace, OntologyName } from "@effect-ontology/Identity"
  * import { ExtractionActivityInput } from "@effect-ontology/Schema/Batch"

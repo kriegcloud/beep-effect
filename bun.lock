@@ -177,6 +177,7 @@
         "@beep/doc-text": "workspace:^",
         "@beep/duckdb": "workspace:^",
         "@beep/epistemic-domain": "workspace:^",
+        "@beep/epistemics": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/langextract": "workspace:^",
@@ -507,6 +508,7 @@
         "@beep/epistemic-tables": "workspace:^",
         "@beep/epistemic-ui": "workspace:^",
         "@beep/epistemic-use-cases": "workspace:^",
+        "@beep/epistemics": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/graph-3d": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -2088,6 +2090,7 @@
       "name": "@beep/epistemic-domain",
       "version": "0.0.2",
       "dependencies": {
+        "@beep/epistemics": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/provenance": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -2115,6 +2118,7 @@
         "@beep/epistemic-domain": "workspace:^",
         "@beep/epistemic-tables": "workspace:^",
         "@beep/epistemic-use-cases": "workspace:^",
+        "@beep/epistemics": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
@@ -2147,6 +2151,7 @@
       "dependencies": {
         "@beep/effect-drizzle": "workspace:^",
         "@beep/epistemic-domain": "workspace:^",
+        "@beep/epistemics": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/provenance": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -2177,6 +2182,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/epistemics": "workspace:^",
         "@beep/provenance": "workspace:^",
         "@beep/test-runner": "workspace:^",
         "@beep/test-utils": "workspace:^",
@@ -2198,6 +2204,7 @@
       "version": "0.0.2",
       "dependencies": {
         "@beep/epistemic-domain": "workspace:^",
+        "@beep/epistemics": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/provenance": "workspace:^",
@@ -2433,6 +2440,22 @@
       "devDependencies": {
         "@beep/fc-runs": "workspace:^",
         "@beep/memfs": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/epistemics": {
+      "name": "@beep/epistemics",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/provenance": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-runner": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "bun-types": "catalog:",
@@ -3208,6 +3231,7 @@
       "dependencies": {
         "@beep/epistemic-domain": "workspace:^",
         "@beep/epistemic-use-cases": "workspace:^",
+        "@beep/epistemics": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/langextract": "workspace:^",
@@ -3885,6 +3909,7 @@
         "@beep/drizzle": "workspace:^",
         "@beep/effect-drizzle": "workspace:^",
         "@beep/epistemic-domain": "workspace:^",
+        "@beep/epistemics": "workspace:^",
         "@beep/file-processing": "workspace:^",
         "@beep/git": "workspace:^",
         "@beep/github": "workspace:^",
@@ -4474,6 +4499,8 @@
     "@beep/epistemic-ui": ["@beep/epistemic-ui@workspace:packages/epistemic/ui"],
 
     "@beep/epistemic-use-cases": ["@beep/epistemic-use-cases@workspace:packages/epistemic/use-cases"],
+
+    "@beep/epistemics": ["@beep/epistemics@workspace:packages/foundation/modeling/epistemics"],
 
     "@beep/exiftool": ["@beep/exiftool@workspace:packages/drivers/exiftool"],
 

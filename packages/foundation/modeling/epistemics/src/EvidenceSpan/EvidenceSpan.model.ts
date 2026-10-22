@@ -10,7 +10,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { $EpistemicDomainId } from "@beep/identity/packages";
+import { $EpistemicsId } from "@beep/identity/packages";
 import {
   isInternallyConsistent as isTextAnchorInternallyConsistent,
   TextAnchor,
@@ -23,7 +23,7 @@ import { dual, identity } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $EpistemicDomainId.create("values/EvidenceSpan/EvidenceSpan.model");
+const $I = $EpistemicsId.create("EvidenceSpan/EvidenceSpan.model");
 const textAnchorEquivalent = S.toEquivalence(TextAnchor);
 
 /**
@@ -34,7 +34,7 @@ const textAnchorEquivalent = S.toEquivalence(TextAnchor);
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { Confidence } from "@beep/epistemic-domain"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import * as S from "effect/Schema"
  *
  * Effect.runPromise(S.decodeUnknownEffect(Confidence)(0.92)).then(console.log)
@@ -56,8 +56,8 @@ export const Confidence = UnitInterval.pipe(
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { Confidence } from "@beep/epistemic-domain"
- * import type { Confidence as ConfidenceValue } from "@beep/epistemic-domain"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
+ * import type { Confidence as ConfidenceValue } from "@beep/epistemics/EvidenceSpan"
  * import * as S from "effect/Schema"
  *
  * const program = S.decodeUnknownEffect(Confidence)(0.92)
@@ -75,7 +75,7 @@ export type Confidence = typeof Confidence.Type;
  * **Example** (Log max quote length)
  *
  * ```ts
- * import { EVIDENCE_SPAN_QUOTE_MAX_LENGTH } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { EVIDENCE_SPAN_QUOTE_MAX_LENGTH } from "@beep/epistemics/EvidenceSpan"
  *
  * console.log(EVIDENCE_SPAN_QUOTE_MAX_LENGTH) // 65536
  * ```
@@ -127,7 +127,7 @@ const EvidenceSpanSchema = EvidenceSpanStruct.mapFields(identity).check(TextAnch
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { EvidenceSpan } from "@beep/epistemic-domain"
+ * import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan"
  * import * as S from "effect/Schema"
  *
  * const program = S.decodeUnknownEffect(EvidenceSpan)({
@@ -188,7 +188,7 @@ export class EvidenceSpan extends S.Opaque<EvidenceSpan, { readonly brand: uniqu
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { Confidence, EvidenceSpan, isEvidenceSpanInternallyConsistent } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence, EvidenceSpan, isEvidenceSpanInternallyConsistent } from "@beep/epistemics/EvidenceSpan"
  *
  * const span = EvidenceSpan.make({
  *   startChar: S.Natural.make(0),
@@ -211,7 +211,7 @@ export const isEvidenceSpanInternallyConsistent = EvidenceSpan.isInternallyConsi
  * **Example** (Sample a valid value)
  *
  * ```ts
- * import { EvidenceSpanArbitrary } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { EvidenceSpanArbitrary } from "@beep/epistemics/EvidenceSpan"
  * import * as Arbitrary from "effect/Arbitrary"
  *
  * const sample = Arbitrary.sampleEffect(EvidenceSpanArbitrary, { count: 1 })

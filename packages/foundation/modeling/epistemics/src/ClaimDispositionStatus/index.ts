@@ -11,7 +11,7 @@
  * **Example** (Import and log rejected status)
  *
  * ```ts
- * import { ClaimDispositionStatus } from "@beep/epistemic-domain/values/ClaimDispositionStatus"
+ * import { ClaimDispositionStatus } from "@beep/epistemics/ClaimDispositionStatus"
  *
  * console.log(ClaimDispositionStatus.Enum.rejected)
  * ```

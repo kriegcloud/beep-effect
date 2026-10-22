@@ -68,6 +68,9 @@
       "path": "../../../packages/foundation/capability/semantic-web/tsconfig.json"
     },
     {
+      "path": "../../../packages/foundation/modeling/epistemics/tsconfig.json"
+    },
+    {
       "path": "../../../packages/foundation/modeling/identity/tsconfig.json"
     },
     {

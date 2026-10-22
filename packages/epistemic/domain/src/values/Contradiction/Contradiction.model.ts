@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $EpistemicDomainId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils, Sha256Hex } from "@beep/schema";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
@@ -25,7 +26,6 @@ import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import { PosInt } from "../../internal/PosInt.ts";
-import { Confidence } from "../EvidenceSpan/index.ts";
 import { canonicalJson } from "../internal/CanonicalJson.ts";
 import { LogicalEdgeKey } from "../LogicalEdgeIdentity/index.ts";
 
@@ -1529,7 +1529,7 @@ const encodeCandidateContent = S.encodeResult(ContradictionCandidateContent.mapF
  *   contradictionCandidateDigest,
  *   contradictionEvidenceDigest,
  * } from "@beep/epistemic-domain/values/Contradiction"
- * import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { Confidence } from "@beep/epistemics/EvidenceSpan"
  * import { LogicalEdgeKey } from "@beep/epistemic-domain/values/LogicalEdgeIdentity"
  * import * as Epistemic from "@beep/shared-domain/identity/Epistemic"
  * import * as DateTime from "effect/DateTime";

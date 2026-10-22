@@ -26,7 +26,6 @@ import {
   contradictionEvidenceDigest,
   contradictionProposalDigest,
 } from "@beep/epistemic-domain/values/Contradiction";
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
 import { LogicalEdgeKey } from "@beep/epistemic-domain/values/LogicalEdgeIdentity";
 import {
   fromContradictionCandidateRow,
@@ -36,6 +35,7 @@ import {
   toContradictionDispositionInsert,
   toContradictionReceiptInsert,
 } from "@beep/epistemic-tables/entities/Contradiction";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import * as EpistemicIdentity from "@beep/shared-domain/identity/Epistemic";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
 import * as SharedIdentity from "@beep/shared-domain/identity/Shared";

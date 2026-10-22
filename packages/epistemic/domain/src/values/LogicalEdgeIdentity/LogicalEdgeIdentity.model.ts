@@ -11,6 +11,8 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
+import { EdgeRelation, isSymmetricEdgeRelation } from "@beep/epistemics/EdgeRelation";
 import { $EpistemicDomainId } from "@beep/identity/packages";
 import { Sha256Hex } from "@beep/schema";
 import { A, O, R, Str } from "@beep/utils";
@@ -20,7 +22,6 @@ import { flow, pipe } from "effect/Function";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import { EdgeEndpoint, encodeEdgeEndpointKey } from "../EdgeEndpoint/index.ts";
-import { EdgeRelation, isSymmetricEdgeRelation } from "../EdgeRelation/index.ts";
 
 const $I = $EpistemicDomainId.create("values/LogicalEdgeIdentity/LogicalEdgeIdentity.model");
 

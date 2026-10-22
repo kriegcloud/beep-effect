@@ -12,7 +12,7 @@
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { EvidenceSpan } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan"
  * import * as S from "effect/Schema"
  *
  * const program = S.decodeUnknownEffect(EvidenceSpan)({

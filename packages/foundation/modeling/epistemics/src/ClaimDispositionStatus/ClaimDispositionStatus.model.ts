@@ -4,10 +4,10 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { $EpistemicDomainId } from "@beep/identity/packages";
+import { $EpistemicsId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 
-const $I = $EpistemicDomainId.create("values/ClaimDispositionStatus/ClaimDispositionStatus.model");
+const $I = $EpistemicsId.create("ClaimDispositionStatus/ClaimDispositionStatus.model");
 
 const ClaimDispositionStatusBase = LiteralKit(["active", "rejected", "superseded"]);
 
@@ -20,7 +20,7 @@ const ClaimDispositionStatusBase = LiteralKit(["active", "rejected", "superseded
  * **Example** (Decode rejected status value)
  *
  * ```ts
- * import { ClaimDispositionStatus } from "@beep/epistemic-domain"
+ * import { ClaimDispositionStatus } from "@beep/epistemics/ClaimDispositionStatus"
  * import * as S from "effect/Schema"
  *
  * const status = S.decodeUnknownSync(ClaimDispositionStatus)("rejected")
@@ -43,7 +43,7 @@ export const ClaimDispositionStatus = ClaimDispositionStatusBase.pipe(
  * **Example** (Satisfy active status type)
  *
  * ```ts
- * import type { ClaimDispositionStatus } from "@beep/epistemic-domain"
+ * import type { ClaimDispositionStatus } from "@beep/epistemics/ClaimDispositionStatus"
  *
  * const status = "active" satisfies ClaimDispositionStatus
  * console.log(status)

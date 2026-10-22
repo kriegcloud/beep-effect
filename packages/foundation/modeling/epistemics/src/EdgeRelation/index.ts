@@ -11,7 +11,7 @@
  * **Example** (Import and log EdgeRelation)
  *
  * ```ts
- * import { EdgeRelation } from "@beep/epistemic-domain/values/EdgeRelation"
+ * import { EdgeRelation } from "@beep/epistemics/EdgeRelation"
  *
  * console.log(EdgeRelation.Enum.contradicts)
  * ```

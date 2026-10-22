@@ -4,11 +4,11 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { $EpistemicDomainId } from "@beep/identity/packages";
+import { $EpistemicsId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $EpistemicDomainId.create("values/EdgeRelation/EdgeRelation.model");
+const $I = $EpistemicsId.create("EdgeRelation/EdgeRelation.model");
 
 const EdgeRelationBase = LiteralKit(["supports", "refutes", "contradicts"]);
 
@@ -19,7 +19,7 @@ const EdgeRelationBase = LiteralKit(["supports", "refutes", "contradicts"]);
  * **Example** (Decode supports relation)
  *
  * ```ts
- * import { EdgeRelation } from "@beep/epistemic-domain"
+ * import { EdgeRelation } from "@beep/epistemics/EdgeRelation"
  * import * as S from "effect/Schema"
  *
  * const relation = S.decodeUnknownSync(EdgeRelation)("supports")
@@ -42,7 +42,7 @@ export const EdgeRelation = EdgeRelationBase.pipe(
  * **Example** (Satisfy EdgeRelation type)
  *
  * ```ts
- * import type { EdgeRelation } from "@beep/epistemic-domain"
+ * import type { EdgeRelation } from "@beep/epistemics/EdgeRelation"
  *
  * const relation = "contradicts" satisfies EdgeRelation
  * console.log(relation)
@@ -64,7 +64,7 @@ const SymmetricEdgeRelationBase = LiteralKit(EdgeRelationBase.pick(["contradicts
  * **Example** (Decode contradicts relation)
  *
  * ```ts
- * import { SymmetricEdgeRelation } from "@beep/epistemic-domain"
+ * import { SymmetricEdgeRelation } from "@beep/epistemics/EdgeRelation"
  * import * as S from "effect/Schema"
  *
  * const relation = S.decodeUnknownSync(SymmetricEdgeRelation)("contradicts")
@@ -87,7 +87,7 @@ export const SymmetricEdgeRelation = SymmetricEdgeRelationBase.pipe(
  * **Example** (Satisfy SymmetricEdgeRelation type)
  *
  * ```ts
- * import type { SymmetricEdgeRelation } from "@beep/epistemic-domain"
+ * import type { SymmetricEdgeRelation } from "@beep/epistemics/EdgeRelation"
  *
  * const relation = "contradicts" satisfies SymmetricEdgeRelation
  * console.log(relation)
@@ -104,7 +104,7 @@ export type SymmetricEdgeRelation = typeof SymmetricEdgeRelation.Type;
  * **Example** (Log symmetric relations list)
  *
  * ```ts
- * import { symmetricEdgeRelations } from "@beep/epistemic-domain"
+ * import { symmetricEdgeRelations } from "@beep/epistemics/EdgeRelation"
  *
  * console.log(symmetricEdgeRelations)
  * ```
@@ -121,7 +121,7 @@ export const symmetricEdgeRelations: ReadonlyArray<EdgeRelation> = SymmetricEdge
  * **Example** (Check relation symmetry)
  *
  * ```ts
- * import { isSymmetricEdgeRelation } from "@beep/epistemic-domain"
+ * import { isSymmetricEdgeRelation } from "@beep/epistemics/EdgeRelation"
  *
  * console.log(isSymmetricEdgeRelation("contradicts"))
  * console.log(isSymmetricEdgeRelation("supports"))

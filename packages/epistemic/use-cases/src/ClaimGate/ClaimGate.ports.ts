@@ -12,7 +12,7 @@ import { $EpistemicUseCasesId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import type * as DomainCandidateClaim from "@beep/epistemic-domain/entities/CandidateClaim";
 import type * as DomainEvidence from "@beep/epistemic-domain/entities/Evidence";
-import type { ClaimGateResult } from "@beep/epistemic-domain/values";
+import type { ClaimGateResult } from "@beep/epistemics/ClaimGate";
 import type { ShaclValidationService } from "@beep/semantic-web/services/shacl-validation";
 import type * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";

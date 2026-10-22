@@ -32,6 +32,7 @@
     "@beep/drizzle": "workspace:^",
     "@beep/effect-drizzle": "workspace:^",
     "@beep/epistemic-domain": "workspace:^",
+    "@beep/epistemics": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/git": "workspace:^",
     "@beep/github": "workspace:^",

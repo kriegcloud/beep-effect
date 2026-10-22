@@ -41,6 +41,7 @@
     "@beep/doc-text": "workspace:^",
     "@beep/duckdb": "workspace:^",
     "@beep/epistemic-domain": "workspace:^",
+    "@beep/epistemics": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/langextract": "workspace:^",

@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { EvidenceSpan } from "@beep/epistemics/EvidenceSpan";
 import { $EpistemicDomainId } from "@beep/identity/packages";
 import { SourceTextIdentity } from "@beep/provenance/SourceTextIdentity";
 import { VerifiedTextAnchorErrorReason } from "@beep/provenance/VerifiedTextAnchor";
@@ -12,7 +13,6 @@ import { LiteralKit } from "@beep/schema";
 import { UserPrincipal } from "@beep/shared-domain/entity/Principal";
 import * as S from "effect/Schema";
 import { EpistemicFixtureKey } from "../EpistemicFixtureKey/index.ts";
-import { EvidenceSpan } from "../EvidenceSpan/index.ts";
 
 const $I = $EpistemicDomainId.create("values/ClaimEvidenceReview/ClaimEvidenceReview.model");
 

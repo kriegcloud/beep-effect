@@ -4,11 +4,11 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { $EpistemicDomainId } from "@beep/identity/packages";
+import { $EpistemicsId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $EpistemicDomainId.create("values/ClaimGate/ClaimGateResult.model");
+const $I = $EpistemicsId.create("ClaimGate/ClaimGateResult.model");
 const ClaimGateSeverityBase = LiteralKit(["info", "warning", "violation"]);
 
 /**
@@ -24,7 +24,7 @@ const ClaimGateSeverityBase = LiteralKit(["info", "warning", "violation"]);
  * **Example** (Decode severity value)
  *
  * ```ts
- * import { ClaimGateSeverity } from "@beep/epistemic-domain"
+ * import { ClaimGateSeverity } from "@beep/epistemics/ClaimGate"
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  *
@@ -50,7 +50,7 @@ export const ClaimGateSeverity = ClaimGateSeverityBase.pipe(
  * **Example** (Satisfy severity type)
  *
  * ```ts
- * import type { ClaimGateSeverity } from "@beep/epistemic-domain"
+ * import type { ClaimGateSeverity } from "@beep/epistemics/ClaimGate"
  *
  * const severity = "violation" satisfies ClaimGateSeverity
  * console.log(severity)
@@ -68,7 +68,7 @@ export type ClaimGateSeverity = typeof ClaimGateSeverity.Type;
  * **Example** (Construct a violation)
  *
  * ```ts
- * import { ClaimGateViolation } from "@beep/epistemic-domain"
+ * import { ClaimGateViolation } from "@beep/epistemics/ClaimGate"
  * import { $EpistemicId } from "@beep/identity/packages"
  *
  * const violation = ClaimGateViolation.make({
@@ -110,7 +110,7 @@ const ClaimGateVerdict = LiteralKit(["admitted", "rejected"]).pipe(
  * **Example** (Decode rejected result)
  *
  * ```ts
- * import { ClaimGateResult } from "@beep/epistemic-domain"
+ * import { ClaimGateResult } from "@beep/epistemics/ClaimGate"
  * import { $EpistemicId } from "@beep/identity/packages"
  * import * as S from "effect/Schema"
  *
@@ -151,7 +151,7 @@ export const ClaimGateResult = ClaimGateVerdict.toTaggedUnion("verdict")({
  * **Example** (Type admitted result)
  *
  * ```ts
- * import type { ClaimGateResult } from "@beep/epistemic-domain"
+ * import type { ClaimGateResult } from "@beep/epistemics/ClaimGate"
  *
  * const admitted: ClaimGateResult = { verdict: "admitted" }
  * console.log(admitted.verdict)

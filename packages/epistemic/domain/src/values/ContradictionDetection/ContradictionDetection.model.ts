@@ -4,6 +4,8 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $EpistemicDomainId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as A from "effect/Array";
@@ -18,7 +20,6 @@ import {
   ContradictionProposalContent,
   makeValidIntervalCheck,
 } from "../Contradiction/index.ts";
-import { Confidence } from "../EvidenceSpan/index.ts";
 
 const $I = $EpistemicDomainId.create("values/ContradictionDetection/ContradictionDetection.model");
 const ConflictClassBase = LiteralKit(["exact-negation", "value-conflict"]);

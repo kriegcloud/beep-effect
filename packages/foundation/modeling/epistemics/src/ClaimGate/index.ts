@@ -11,7 +11,7 @@
  * **Example** (Decode admitted ClaimGateResult)
  *
  * ```ts
- * import { ClaimGateResult } from "@beep/epistemic-domain/values/ClaimGate"
+ * import { ClaimGateResult } from "@beep/epistemics/ClaimGate"
  * import * as S from "effect/Schema"
  *
  * const result = S.decodeUnknownSync(ClaimGateResult)({ verdict: "admitted" })

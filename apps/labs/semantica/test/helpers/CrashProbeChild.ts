@@ -1,5 +1,5 @@
 // fallow-ignore-file unused-file -- spawned crash-probe fixture entry resolved by path at runtime
-import { Confidence } from "@beep/epistemic-domain";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import {
   SourceTextDigest,
   SourceTextExtractor,
