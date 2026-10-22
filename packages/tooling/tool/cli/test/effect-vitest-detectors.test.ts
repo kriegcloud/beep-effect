@@ -627,6 +627,35 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("permits platform service layers without a hook timeout and keeps resource layers judged", () =>
+    Effect.gen(function* () {
+      for (const body of [
+        'import * as NodeServices from "@effect/platform-node/NodeServices"; it.layer(NodeServices.layer)("x", it => {});',
+        'import * as NodeServices from "@effect/platform-node/NodeServices"; it.layer(NodeServices.layer, { excludeTestServices: true })("x", it => {});',
+        'import { layer } from "@effect/vitest"; import * as NodeServices from "@effect/platform-node/NodeServices"; layer(NodeServices.layer)("x", it => {});',
+        'import * as BunFileSystem from "@effect/platform-bun/BunFileSystem"; it.layer(BunFileSystem.layer)("x", it => {});',
+        'import * as BunServices from "@effect/platform-bun/BunServices"; it.layer(BunServices.layer)("x", it => {});',
+        'import * as BunCrypto from "@effect/platform-bun/BunCrypto"; it.layer(BunCrypto.layer)("x", it => {});',
+        'import { NodeCrypto, NodeFileSystem, NodePath } from "@effect/platform-node"; it.layer(L.mergeAll(NodeCrypto.layer, NodeFileSystem.layer, NodePath.layer))("x", it => {});',
+        'import * as Platform from "@effect/platform-node"; it.layer(Platform.NodeServices.layer)("x", it => {});',
+        'import * as NodeServices from "@effect/platform-node/NodeServices"; const platform = NodeServices.layer; it.layer(platform)("x", it => {});',
+        'import * as BunPath from "@effect/platform-bun/BunPath"; it.layer(L.merge(BunPath.layer, L.succeed(A, {})))("x", it => {});',
+      ])
+        assertFalse(yield* hasRule(body, "EV014"));
+      for (const body of [
+        'it.layer(L.scoped(Service, acquire))("x", it => {});',
+        'it.layer(NodeServices.layer)("x", it => {});',
+        'import * as NodeServices from "@beep/fake/NodeServices"; it.layer(NodeServices.layer)("x", it => {});',
+        'import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer"; it.layer(NodeHttpServer.layer)("x", it => {});',
+        'import * as NodeServices from "@effect/platform-node/NodeServices"; it.layer(L.mergeAll(NodeServices.layer, ImportedLive))("x", it => {});',
+        'import * as NodeServices from "@effect/platform-node/NodeServices"; it.layer(L.provide(ImportedLive, NodeServices.layer))("x", it => {});',
+        'import * as NodeServices from "@effect/platform-node/NodeServices"; it.layer(NodeServices.other)("x", it => {});',
+        'import * as NodeServices from "@effect/platform-node/NodeServices"; const f = (NodeServices) => it.layer(NodeServices.layer)("x", it => {});',
+      ])
+        assertTrue(A.some(yield* findings(body), (row) => row.ruleId === "EV014" && row.mechanization === "judgment"));
+    })
+  );
+
   it.effect("limits withLive exemption to the wrapped wait and preserves cancellation uncertainty", () =>
     Effect.gen(function* () {
       assertFalse(yield* hasRule('it.effect("live", () => TC.withLive(Fx.sleep("1 second")));', "EV008"));
@@ -1367,6 +1396,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         'import { vi } from "vitest"; vi.fn();',
         'import { vi } from "vitest"; function f(vi) { vi.mock("subject"); }',
         'import * as Vitest from "vitest"; Vitest.vi.mock("subject");',
+        'import { describe, expect } from "vitest"; describe("x", () => expect(1).toBe(1));',
       ])
         assertTrue(
           A.some(
@@ -1374,6 +1404,46 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
             (row) => row.ruleId === "EV011"
           )
         );
+    })
+  );
+
+  it.effect("accepts canonical Boolean assertions over compound and piped predicates", () =>
+    Effect.gen(function* () {
+      const prelude =
+        'import { pipe } from "effect/Function"; import { assertTrue, assertFalse } from "@effect/vitest/utils";';
+      for (const assertion of [
+        "assertTrue(ready && O.isSome(value))",
+        "assertTrue(R.isSuccess(decoded) && S.is(Model)(decoded.success))",
+        'assertTrue(result.kind === "populated" && O.isNone(result.maximized))',
+        "assertTrue((O.isSome(left) || O.isSome(right)))",
+        "assertFalse(O.isSome(value) && ready)",
+        "assertTrue(value.pipe(O.isSome))",
+        "assertTrue(decode(input).pipe(R.isFailure))",
+        "assertTrue(pipe(value, O.isSome))",
+        "assertFalse(value.pipe(O.isNone))",
+      ])
+        assertFalse(yield* hasRule(`${prelude} it("canonical", () => ${assertion});`, "EV006"));
+      for (const [assertion, primitive] of [
+        ["expect(O.isSome(value)).toBe(true)", "utils.assertTrue"],
+        ["expect(ready && O.isSome(value)).toBe(true)", "utils.deepStrictEqual"],
+        ["assertTrue(!O.isSome(value))", "utils.deepStrictEqual"],
+        ["assertTrue(value.pipe(O.map(f)))", "utils.deepStrictEqual"],
+      ] as const)
+        deepStrictEqual(
+          A.map(
+            A.filter(yield* findings(`${prelude} it("flagged", () => ${assertion});`), (row) => row.ruleId === "EV006"),
+            (row) => row.replacement.primitive
+          ),
+          [primitive]
+        );
+      for (const absence of ["assertTrue(value.pipe(O.isNone))", "assertFalse(value.pipe(O.isSome))"])
+        assertTrue(yield* hasRule(`${prelude} it("absence", () => ${absence});`, "EV006"));
+      assertTrue(
+        yield* hasRule(
+          'import { assert } from "vitest"; it("plain", () => assert.isTrue(ready && O.isSome(value)));',
+          "EV006"
+        )
+      );
     })
   );
 
