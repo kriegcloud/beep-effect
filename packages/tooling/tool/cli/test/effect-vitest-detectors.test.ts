@@ -2149,7 +2149,6 @@ it.layer(NodeServices.layer)((it) => {
         ["", 'Fx.sync(() => globalThis.Bun.file("fixture"))'],
         ["", 'Fx.sync(() => global.Bun.file("fixture"))'],
         ["", "Fx.sync(() => global.process.cwd())"],
-        ["let helper = () => 1;", "Fx.sync(helper)"],
         ['let helper = () => 1; helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
         ['var helper = () => 1; helper = () => Bun.file("fixture");', "Fx.sync(helper)"],
         ["let api = {}; api = Bun;", 'Fx.sync(() => api.file("fixture"))'],
@@ -2193,6 +2192,8 @@ it.layer(NodeServices.layer)((it) => {
         ['const load = () => "./bundle-build.ts";', "Fx.sync(load)"],
         ["", "Fx.succeed(import.meta.dirname)"],
         ["const helper = () => 1;", "Fx.sync(helper)"],
+        ["let helper = () => 1;", "Fx.sync(helper)"],
+        ["var helper = () => 1;", "Fx.sync(helper)"],
         ['const helper = Fx.fn("helper")(function* () { return 1; }, Fx.map((value) => value));', "helper()"],
         ["const first = () => second(); function second() { return first(); }", "Fx.sync(first)"],
         ["const first = second; const second = first;", "second"],
@@ -2210,6 +2211,31 @@ it.layer(NodeServices.layer)((it) => {
           )
         );
       }
+    })
+  );
+
+  it.effect("clears canonical harness loop heads, stable locals and catch bindings", () =>
+    Effect.gen(function* () {
+      const platform = 'import * as Services from "@effect/platform-bun/BunServices";';
+      for (const body of [
+        'for (const name of ["a", "b"]) it.effect(name, () => Fx.succeed(name));',
+        "for (const name in { a: 1 }) it.effect(name, () => Fx.succeed(name));",
+        'for (let index = 0; index < 1;) { it.effect("index", () => Fx.succeed(index)); break; }',
+        'let counter = 1; it.effect("counter", () => Fx.succeed(counter));',
+        'try { it.effect("try", () => Fx.succeed(1)); } catch (error) { it.effect("catch", () => Fx.succeed(error)); }',
+      ])
+        assertFalse(yield* hasRule(`${platform} it.layer(Services.layer)((it) => { ${body} });`, "EV010"));
+      for (const body of [
+        'let helper = () => 1; helper = () => 2; it.effect("write", () => Fx.sync(helper));',
+        'function rewrite() { helper = () => 2; } let helper = () => 1; rewrite(); it.effect("write", () => Fx.sync(helper));',
+        'let counter = 0; counter++; it.effect("write", () => Fx.succeed(counter));',
+        'let counter = 0; ++counter; it.effect("write", () => Fx.succeed(counter));',
+        'let counter = 0; counter += 1; it.effect("write", () => Fx.succeed(counter));',
+        'let helper = () => 1; ({ helper } = replacement); it.effect("write", () => Fx.sync(helper));',
+        'let helper = () => 1; for (helper of helpers) {} it.effect("write", () => Fx.sync(helper));',
+        'let name = "pure"; for (name in names) {} it.effect("write", () => Fx.succeed(name));',
+      ])
+        assertTrue(yield* hasRule(`${platform} it.layer(Services.layer)((it) => { ${body} });`, "EV010"));
     })
   );
 

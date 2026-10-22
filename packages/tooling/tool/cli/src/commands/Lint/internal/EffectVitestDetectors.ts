@@ -1239,9 +1239,36 @@ const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestI
 const opaquePlatformReference = (reference: Identifier, imports: EffectVitestImports): boolean => {
   const binding = imports.resolveBinding(reference);
   if (O.isNone(binding)) return A.contains(["Bun", "require", "process", "globalThis", "global"], reference.getText());
-  // Initializers cannot prove later values of mutable bindings safe.
-  if (Node.isVariableDeclaration(binding.value))
-    return binding.value.getVariableStatement()?.getDeclarationKind() !== "const";
+  // Loop heads have a declaration list but no variable statement; catch bindings have neither.
+  if (Node.isVariableDeclaration(binding.value)) {
+    const declaration = binding.value;
+    const declarations = declaration.getParentIfKind(SyntaxKind.VariableDeclarationList);
+    if (declarations === undefined || declarations.getDeclarationKind() === "const") return false;
+    // A mutable declaration is opaque only if a later write can replace its initializer.
+    return A.some(declaration.getSourceFile().getDescendantsOfKind(SyntaxKind.Identifier), (candidate) => {
+      if (
+        (candidate.getStart() >= declaration.getStart() && candidate.getEnd() <= declaration.getEnd()) ||
+        !O.contains(imports.resolveBinding(candidate), declaration)
+      )
+        return false;
+      return A.some(candidate.getAncestors(), (ancestor) => {
+        if (Node.isForInStatement(ancestor) || Node.isForOfStatement(ancestor))
+          return candidate.getEnd() <= ancestor.getInitializer().getEnd();
+        if (Node.isBinaryExpression(ancestor)) {
+          const operator = ancestor.getOperatorToken().getKind();
+          return (
+            operator >= SyntaxKind.FirstAssignment &&
+            operator <= SyntaxKind.LastAssignment &&
+            candidate.getEnd() <= ancestor.getLeft().getEnd()
+          );
+        }
+        return (
+          (Node.isPrefixUnaryExpression(ancestor) || Node.isPostfixUnaryExpression(ancestor)) &&
+          A.contains([SyntaxKind.PlusPlusToken, SyntaxKind.MinusMinusToken], ancestor.getOperatorToken())
+        );
+      });
+    });
+  }
   if (!Node.isImportDeclaration(binding.value)) return false;
   const module = binding.value.getModuleSpecifierValue();
   return (
