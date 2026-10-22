@@ -297,7 +297,7 @@ export const hermeticOpenclawEnv = (ctx: OpenclawInvocationContext): Record<stri
  * **Details**
  *
  * OpenClaw `2026.7.1-2` (`0790d9f`) from the npm registry, verified against
- * the recorded dist shasum and integrity, running under Node `24.16.0`, with
+ * the recorded dist shasum and integrity, running under Node `24.22.1`, with
  * render-adapter version `1`.
  *
  * **Example** (Read pinned compatibility versions)
@@ -314,7 +314,7 @@ export const hermeticOpenclawEnv = (ctx: OpenclawInvocationContext): Record<stri
  */
 export const OPENCLAW_COMPATIBILITY_SET = OpenclawCompatibilitySet.make({
   adapterVersion: 1,
-  nodeVersion: "24.16.0",
+  nodeVersion: "24.22.1",
   npmIntegrity: "sha512-ycF3yPcbjN6bUPeaUx6Mh6vze1hQWoD3CT/wWcmD7a8xaHHHRUaAlaq+lFxMHf1ssEgODVAwjlzYqp2twkYZ7g==",
   npmShasum: "4583b987ea7277230ce1c7b2b8535d3e219f57ac",
   openclawCommit: "0790d9f",
