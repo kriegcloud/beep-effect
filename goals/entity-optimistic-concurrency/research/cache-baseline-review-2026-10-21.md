@@ -23,3 +23,13 @@ Re-request 2026-10-22 (S43 batch remediation, `fix/s43-batch-main-reds`): the or
 `standards/cache-qualification-baseline.json` and the request is re-submitted with `previous` set to the
 SHA-256 of main's current baseline text. `bun run beep cache audit` on the batch branch reports the same
 single drift: BLOCK `@beep/repo-cli#test`, REVIEW `packages/tooling/tool/cli/turbo.json`.
+
+Review round 1 on #2040 (2026-10-22): `drizzle/**` alone left the same stale-green hazard, because
+`architecture-operation-plan.test.ts` compares every manifest-included file under
+`packages/architecture-lab/*`, `apps/architecture-lab-proof` and `packages/_internal/db-admin`. @beep/repo-cli
+depends on none of them, and the root `test` task only `dependsOn` `^transit`. The `test` inputs now
+cover those three roots as `**`, with scoped exclusions for the generated segments the test itself skips
+(`dist`, `docs`, `.turbo`, `node_modules`). `db-admin/**` subsumes the earlier `drizzle/**` line. A turbo
+dry run lists the architecture-lab, proof-app and db-admin `src` and `drizzle` files among the task inputs,
+and no `dist`, `node_modules` or `docs` paths. The drift is still the single subject
+`@beep/repo-cli#test`. Command, outputs and cache flags are unchanged, and no qualification is granted.
