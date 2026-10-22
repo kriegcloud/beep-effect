@@ -15,6 +15,7 @@ import {
 } from "@beep/repo-ai-metrics";
 import {
   HarnessLedgerDispositionOptions,
+  HarnessLedgerListEntry,
   HarnessLedgerListOptions,
   HarnessLedgerProposeOptions,
   HarnessLedgerPruneOptions,
@@ -50,14 +51,14 @@ import * as Path from "effect/Path";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 import type { HarnessLedgerPruneReport } from "@beep/repo-cli/commands/HarnessLedger";
 
 const decodeReconcileReport = S.decodeEffect(
   S.fromJsonString(S.Struct({ agentKind: HookPulseAgentKind, transcriptFiles: S.Natural }))
 );
-const ledgerListJson = S.Array(S.Unknown).pipe(S.fromJsonString);
-const decodeLedgerList = S.decodeEffect(ledgerListJson);
+const encodeLedgerList = S.encodeEffect(S.toCodecJson(S.Array(HarnessLedgerListEntry)));
 const transcriptJson = S.fromJsonString(S.Unknown);
 const encodeUnknownTranscript = S.encodeUnknownEffect(transcriptJson);
 const encodeTranscript = S.encodeEffect(transcriptJson);
@@ -220,23 +221,30 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
     })
   );
 
-  it.effect("list prints a JSON array through the command output service", () =>
+  it.effect("list encodes a fixture ledger entry as JSON", () =>
     Effect.gen(function* () {
-      const output = yield* Ref.make("");
-      yield* Command.runWith(harnessLedgerListCommand, { version: "0.0.0" })(["--month", "2099-01", "--json"]).pipe(
-        Effect.provideService(CommandJsonOutput, (text) => Ref.set(output, text))
-      );
-      expect(yield* decodeLedgerList(yield* Ref.get(output))).toEqual([]);
+      const root = yield* makeRepo();
+      yield* TestClock.setTime(DateTime.makeUnsafe("2099-01-15T00:00:00Z").pipe(DateTime.toEpochMillis));
+      const row = yield* proposePending(root);
+      const ledger = yield* HarnessLedgerService;
+      const entries = yield* ledger.list(HarnessLedgerListOptions.make({ repoRoot: root, month: O.some("2099-01") }));
+      const encodedRow = yield* HarnessLedgerRow.encodeJsonEffect(row);
+      expect(yield* encodeLedgerList(entries)).toEqual([
+        { row: yield* S.decodeEffect(transcriptJson)(encodedRow), stale: false, chainLength: 1 },
+      ]);
     })
   );
 
   it.effect("prints the available ledger operations when no subcommand is selected", () =>
     Effect.gen(function* () {
-      yield* Command.runWith(harnessLedgerCommand, { version: "0.0.0" })([]);
-      const lines = yield* TestConsole.logLines;
+      const testConsole = yield* TestConsole.make;
+      yield* Command.runWith(harnessLedgerCommand, { version: "0.0.0" })([]).pipe(
+        Effect.provideService(Console.Console, testConsole)
+      );
+      const lines = yield* testConsole.logLines;
       assertSome(A.head(lines), "Harness ledger commands:");
       expect(lines).toHaveLength(6);
-    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    })
   );
 
   it.effect("disposition rejects whitespace-only evidence before looking up the row", () =>
