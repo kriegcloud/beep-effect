@@ -13,8 +13,8 @@
 #     the same file serves a cached setup script and a per-session hook.
 #   - Durable preparation only: toolchain + workspace dependencies + the tsgo
 #     patch. No dev servers, no secrets, no background processes.
-#   - Fail loud on the core toolchain (bun, dependencies, tsgo patch); best-effort
-#     on the optional tools (Node 24, portless, 1Password CLI).
+#   - Fail loud on the core toolchain (bun, pinned Node, dependencies, tsgo patch);
+#     best-effort on the optional tools (portless, 1Password CLI).
 #   - Scoped to cloud VMs: without a cloud marker the script exits 0 untouched,
 #     so a SessionStart hook can call it unconditionally. BEEP_CLOUD_FORCE=1
 #     overrides the guard for local dry runs.
