@@ -6,6 +6,7 @@
 
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import type { EngineOptions } from "./types.ts";
 
 /**
@@ -51,9 +52,9 @@ const escapePattern: {
     // that make those magic, and escaping ! as [!] isn't valid,
     // because [!]] is a valid glob class meaning not ']'.
     if (magicalBraces) {
-      return windowsPathsNoEscape ? s.replace(/[?*()[\]{}]/g, "[$&]") : s.replace(/[?*()[\]\\{}]/g, "\\$&");
+      return windowsPathsNoEscape ? Str.replace(/[?*()[\]{}]/g, "[$&]")(s) : Str.replace(/[?*()[\]\\{}]/g, "\\$&")(s);
     }
-    return windowsPathsNoEscape ? s.replace(/[?*()[\]]/g, "[$&]") : s.replace(/[?*()[\]\\]/g, "\\$&");
+    return windowsPathsNoEscape ? Str.replace(/[?*()[\]]/g, "[$&]")(s) : Str.replace(/[?*()[\]\\]/g, "\\$&")(s);
   }
 );
 

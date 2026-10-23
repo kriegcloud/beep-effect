@@ -23,6 +23,7 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { begin, block, end, id, lines, memoryFs, parse, parseFailure, section } from "./fixtures.ts";
 import type { Section, SectionDocument, SectionRenderError } from "@beep/managed-section";
 
@@ -74,7 +75,7 @@ describe("marker attributes", () => {
       const bare = expectRender(SectionDialect.default.render(id("k").section("x")));
       const empty = expectRender(SectionDialect.default.render(id("k").section("x", {})));
       assert.strictEqual(empty, bare);
-      assert.strictEqual(bare.split("\n")[0], begin("k"));
+      assert.strictEqual(Str.split("\n")(bare)[0], begin("k"));
     });
   });
 
@@ -266,7 +267,7 @@ describe("marker attributes", () => {
       // pair, then a long tail that is almost-but-never a second pair. The
       // run parser is a single linear walk, so this is just a big line of
       // prose — the whole document is content, not a marker.
-      const hostile = beginWith("k", `a="v"${" a".repeat(20_000)}`);
+      const hostile = beginWith("k", `a="v"${Str.repeat(20_000)(" a")}`);
       assert.strictEqual(parse(lines(hostile, "")).sections.length, 0);
     });
 
@@ -367,25 +368,29 @@ describe("marker attributes", () => {
 });
 
 describe("attribute constraint review regressions", () => {
+  const $AttributesId = $ManagedSectionId.create("internal/attributes");
+
   it("identifies the reusable name check and documents its grammar", () => {
-    assert.deepInclude(AttributeName.ast.checks?.[0]?.annotations, {
-      identifier: $ManagedSectionId.create("internal/attributes")`AttributeNameCheck`,
-      title: "AttributeNameCheck",
-      description:
-        "An ASCII letter followed by ASCII letters, digits, underscores or hyphens, with JavaScript dollar-anchor semantics.",
-      message:
-        "Expected an attribute name starting with an ASCII letter, followed by ASCII letters, digits, underscores or hyphens",
-    });
+    assert.deepInclude(
+      AttributeName.ast.checks?.[0]?.annotations,
+      $AttributesId.annote("AttributeNameCheck", {
+        description:
+          "An ASCII letter followed by ASCII letters, digits, underscores or hyphens, with JavaScript dollar-anchor semantics.",
+        message:
+          "Expected an attribute name starting with an ASCII letter, followed by ASCII letters, digits, underscores or hyphens",
+      })
+    );
   });
 
   it("identifies the reusable value check and documents its exclusions", () => {
-    assert.deepInclude(AttributeValue.ast.checks?.[0]?.annotations, {
-      identifier: $ManagedSectionId.create("internal/attributes")`AttributeValueCheck`,
-      title: "AttributeValueCheck",
-      description:
-        "Text rendered verbatim inside double quotes, excluding double quotes, carriage returns and line feeds.",
-      message: "Expected an attribute value without double quotes, carriage returns or line feeds",
-    });
+    assert.deepInclude(
+      AttributeValue.ast.checks?.[0]?.annotations,
+      $AttributesId.annote("AttributeValueCheck", {
+        description:
+          "Text rendered verbatim inside double quotes, excluding double quotes, carriage returns and line feeds.",
+        message: "Expected an attribute value without double quotes, carriage returns or line feeds",
+      })
+    );
   });
 
   it.effect("explains an invalid attribute name when decoding", () =>
@@ -435,7 +440,7 @@ describe("attribute constraint review regressions", () => {
 
   it("matches the original value guard without accidentally admitting a trailing CR or LF", () => {
     for (const value of ["", "plain", "---", "\t", "\u2028", "\u2029", '"', 'a"b', "a\n", "a\r", "a\r\n", "\nstart"]) {
-      const expected = !value.includes('"') && !value.includes("\n") && !value.includes("\r");
+      const expected = !Str.includes('"')(value) && !Str.includes("\n")(value) && !Str.includes("\r")(value);
       assert.strictEqual(S.is(AttributeValue)(value), expected, JSON.stringify(value));
       assert.strictEqual(isValidAttributeValue(value), expected, JSON.stringify(value));
     }

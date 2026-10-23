@@ -330,7 +330,7 @@ const openPanel = Effect.fn("DockReducer.openPanel")(function* (
   });
 });
 
-// fallow-ignore-next-line complexity -- activation coordinates selection, visibility, maximization, and events atomically
+// fallow-ignore-next-line complexity -- activation coordinates selection, visibility, maximization and events atomically (cognitive 11). Owner: @beep/dock. Exit: split when dock events derive from a state diff instead of per-command emission.
 const activatePanelCommand = Effect.fn("DockReducer.activatePanel")(function* (
   state: DockWorkspace,
   envelope: DockCommandEnvelope,
@@ -366,7 +366,7 @@ const activatePanelCommand = Effect.fn("DockReducer.activatePanel")(function* (
       ? A.append(GroupRestoredEvent.make({ groupId: maximized.value }))
       : (value) => value
   );
-  // fallow-ignore-next-line code-duplication -- activation rebuilds the workspace after replacing the target tabs
+  // fallow-ignore-next-line code-duplication -- activation rebuilds the workspace after replacing the target tabs, like the other tab transitions. Owner: @beep/dock. Exit: share one replace-tabs-and-rebuild helper once a third transition needs it.
   const replaced = DockWorkspace.replaceAtGroup(state, nextTabs.groupId, nextTabs);
   const next = DockWorkspace.match(replaced, {
     empty: ({ floating }) => EmptyWorkspace.make({ floating }),
@@ -505,7 +505,7 @@ const updateGroup = Effect.fn("DockReducer.updateGroup")(function* (
       O.exists(maximized, (id) => S.toEquivalence(GroupId)(id, tabs.groupId)),
       !metadata.visible
     ),
-    // fallow-ignore-next-line code-duplication -- hiding the maximized group clears maximization while preserving other state
+    // fallow-ignore-next-line code-duplication -- hiding the maximized group clears maximization while preserving other state, like the close transition. Owner: @beep/dock. Exit: share one clear-maximization helper once a third transition needs it.
     { onTrue: O.none, onFalse: () => maximized }
   );
   const next = DockWorkspace.match(replaced, {
@@ -694,7 +694,7 @@ const dockFloatingGroup = Effect.fn("DockReducer.dockFloatingGroup")(function* (
       DockNode.findTabs(member.root, command.groupId),
       O.map(() =>
         pipe(
-          // fallow-ignore-next-line code-duplication -- docking rebuilds the floating source tree while preserving its box
+          // fallow-ignore-next-line code-duplication -- docking rebuilds the floating source tree while preserving its box, like floating-group removal. Owner: @beep/dock. Exit: share one rebuild-with-box helper once a third transition needs it.
           DockNode.removeTabs(member.root, command.groupId),
           O.map((root) => A.of(FloatingMember.make({ anchoredBox: member.anchoredBox, root }))),
           O.getOrElse(A.empty)
@@ -863,7 +863,6 @@ const movePanelForest = Effect.fn("DockReducer.movePanelForest")(function* (
   envelope: DockCommandEnvelope,
   command: MovePanelCommand
 ) {
-  // fallow-ignore-next-line code-duplication -- move commands repeat source validation to keep transitions self-contained
   const source = yield* Effect.fromOption(DockWorkspace.findTabsForPanel(state, command.panelId), () =>
     reject(envelope, "panel-not-found", `Panel '${command.panelId}' does not exist.`)
   );

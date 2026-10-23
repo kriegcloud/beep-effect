@@ -16,6 +16,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const reasonOf = (fn: () => unknown): string => {
   try {
@@ -30,7 +31,7 @@ const reasonOf = (fn: () => unknown): string => {
 describe("hostility: pattern length", () => {
   it("rejects a pattern past 64KB typed, with limit and actual populated", () => {
     try {
-      new Minimatch("a".repeat(65_537));
+      new Minimatch(Str.repeat(65_537)("a"));
       assert.fail("expected a GuardExceeded throw");
     } catch (e) {
       assertInstanceOf(e, GuardExceeded);
@@ -42,12 +43,12 @@ describe("hostility: pattern length", () => {
   });
 
   it("compiles a pattern of exactly 64KB", () => {
-    const m = new Minimatch("a".repeat(65_536));
+    const m = new Minimatch(Str.repeat(65_536)("a"));
     assert.isFalse(m.match("b"));
   });
 
   it("handles a comment pattern with a 64KB body fast", () => {
-    assert.isFalse(new Minimatch(`#${"a".repeat(65_000)}`).match("anything"));
+    assert.isFalse(new Minimatch(`#${Str.repeat(65_000)("a")}`).match("anything"));
   });
 });
 
@@ -69,8 +70,8 @@ describe("hostility: brace expansion", () => {
   });
 
   it("rejects overflowing endpoint and count arithmetic typed without hanging", () => {
-    const huge = "9".repeat(310);
-    const finite = `1${"0".repeat(308)}`;
+    const huge = Str.repeat(310)("9");
+    const finite = `1${Str.repeat(308)("0")}`;
     for (const source of [
       `{${huge}..${huge}}`,
       `{1..${huge}..${huge}}`,
@@ -92,13 +93,13 @@ describe("hostility: brace expansion", () => {
   it("fails typed on an expansion bomb, never truncating silently", () => {
     // 2^17 = 131_072 > 100_000
     assert.strictEqual(
-      reasonOf(() => new Minimatch("{a,b}".repeat(17))),
+      reasonOf(() => new Minimatch(Str.repeat(17)("{a,b}"))),
       "ExpansionBudgetExceeded"
     );
   });
 
   it("fails typed on comma-bearing nesting past the depth cap", () => {
-    const bomb = `${"{".repeat(300)}a,b${"}".repeat(300)}`;
+    const bomb = `${Str.repeat(300)("{")}a,b${Str.repeat(300)("}")}`;
     assert.strictEqual(
       reasonOf(() => new Minimatch(bomb)),
       "NestingDepthExceeded"
@@ -106,13 +107,13 @@ describe("hostility: brace expansion", () => {
   });
 
   it("survives the exponential-blowup shape (lazy post preserved)", () => {
-    const m = new Minimatch(`a${"{},".repeat(60)}b`);
+    const m = new Minimatch(`a${Str.repeat(60)("{},")}b`);
     assert.isNotNull(m);
   });
 
   it("fails typed past the sequential comma-group cap, never a stack overflow", () => {
     assert.strictEqual(
-      reasonOf(() => expand(`${"{a},".repeat(5000)}b}`)),
+      reasonOf(() => expand(`${Str.repeat(5000)("{a},")}b}`)),
       "NestingDepthExceeded"
     );
   });
@@ -120,21 +121,21 @@ describe("hostility: brace expansion", () => {
   it("shortcuts the CVE-2022-3517 non-closing brace prefix fast", () => {
     // No closing brace: the ReDoS-safe pre-check regex must reject expansion
     // in linear time and treat the pattern as literal.
-    const p = `${"{".repeat(20_000)}a`;
+    const p = `${Str.repeat(20_000)("{")}a`;
     assert.deepStrictEqual(braceExpand(p), [p]);
   });
 });
 
 describe("hostility: extglobs", () => {
   it("degrades over-nesting to literal at the default cap, never hanging", () => {
-    const p = `${"+(".repeat(50)}a${")".repeat(50)}`;
+    const p = `${Str.repeat(50)("+(")}a${Str.repeat(50)(")")}`;
     const m = new Minimatch(p);
     assert.isBoolean(m.match(p));
     assert.isBoolean(m.match("a"));
   });
 
   it("fails typed when a raised extglob cap meets deep nesting", () => {
-    const deep = `${"!(".repeat(300)}a${")".repeat(300)}`;
+    const deep = `${Str.repeat(300)("!(")}a${Str.repeat(300)(")")}`;
     assert.strictEqual(
       reasonOf(() => new Minimatch(deep, { maxExtglobRecursion: 400 })),
       "NestingDepthExceeded"
@@ -142,7 +143,7 @@ describe("hostility: extglobs", () => {
   });
 
   it("fails typed on the adoption chain that stack-overflows upstream", () => {
-    const chain = `${"@(".repeat(20_000)}a${")".repeat(20_000)}`;
+    const chain = `${Str.repeat(20_000)("@(")}a${Str.repeat(20_000)(")")}`;
     assert.strictEqual(
       reasonOf(() => new Minimatch(chain)),
       "NestingDepthExceeded"

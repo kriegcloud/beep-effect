@@ -65,6 +65,7 @@ const NativeRuntimeAllowlistKind = LiteralKit([
   "object-method",
   "string-method",
   "typeof-runtime",
+  "weak-collection",
 ]).pipe(
   $I.annoteSchema("NativeRuntimeAllowlistKind", {
     description: "Native runtime violation kinds currently supported by the allowlist checker.",
@@ -101,7 +102,7 @@ class EffectLawsAllowlistEntry extends S.Opaque<EffectLawsAllowlistEntry, { read
   )
 ) {}
 
-// fallow-ignore-next-line code-duplication -- CLI allowlist checks intentionally keep a command-local schema boundary.
+// fallow-ignore-next-line code-duplication -- each laws allowlist check keeps a command-local document schema. Owner: @beep/repo-cli. Exit: share one allowlist document schema when the allowlist formats converge.
 class EffectLawsAllowlistDocument extends S.Opaque<EffectLawsAllowlistDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     version: S.tag(1),

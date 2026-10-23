@@ -11,7 +11,7 @@ Complete source audit of 15 assigned census files; P2 remains gated. 63 judgment
 
 ## Top ten files by judgment rows
 
-- `packages/foundation/modeling/utils/test/Glob.test.ts` — 5 rows.
+- utils `Glob.test.ts` — 5 rows (retired 2026-10-21 by effected-promotion D-37; its assertions now live in `packages/foundation/capability/walker/test/Expand.fixture.test.ts` and `packages/tooling/library/repo-utils/test/FsUtils.glob.test.ts`).
 - `packages/foundation/modeling/utils/test/Str.test.ts` — 5 rows.
 - `packages/foundation/modeling/utils/test/Struct.test.ts` — 5 rows.
 - `packages/foundation/modeling/utils/test/Array.test.ts` — 4 rows.

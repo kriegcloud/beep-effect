@@ -9,7 +9,7 @@ SERVICE-ENV-OP-WHOAMI-PASS
 2026-07-27T03:08:54.026-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 2026-07-27T03:08:54.300-05:00 [gateway] agent model: ollama/gemma3:4b (thinking=medium, fast=off)
 2026-07-27T03:08:54.300-05:00 [gateway] http server listening (9 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice, telegram; 1.7s)
-2026-07-27T03:08:54.301-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/state/log/openclaw.log
+2026-07-27T03:08:54.301-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike3.WkQp2E/spike3/state/log/openclaw.log
 2026-07-27T03:08:54.320-05:00 [gateway] starting channels and sidecars...
 2026-07-27T03:08:54.362-05:00 [gateway] ready
 2026-07-27T03:08:54.369-05:00 [heartbeat] started
@@ -18,7 +18,7 @@ SERVICE-ENV-OP-WHOAMI-PASS
 2026-07-27T03:08:54.681-05:00 [telegram] [default] starting provider (@beep_ip_bot)
 2026-07-27T03:08:54.824-05:00 [telegram] menu text exceeded the conservative 5700-character payload budget; shortening descriptions to keep 70 commands visible.
 2026-07-27T03:08:54.887-05:00 [reload] config watcher error; re-creating watcher (attempt 2/3 in 2000ms): Error: ENOSPC: System limit for number of file watchers reached, watch '/etc/beep/openclaw-spike/current/openclaw.json'
-2026-07-27T03:08:55.155-05:00 [telegram] [diag] isolated polling ingress started spool=/home/elpresidank/.cache/beep-p0-spike3.WkQp2E/spike3/state/telegram/ingress-spool-default
+2026-07-27T03:08:55.155-05:00 [telegram] [diag] isolated polling ingress started spool=$HOME/.cache/beep-p0-spike3.WkQp2E/spike3/state/telegram/ingress-spool-default
 2026-07-27T03:08:55.920-05:00 [gateway] device pairing auto-approved device=beb4ede2ce86b21a26818faf641c9a51bfe738efc16f95f597e8841f63a0291f role=operator
 2026-07-27T03:08:56.889-05:00 [reload] config watcher error; re-creating watcher (attempt 3/3 in 5000ms): Error: ENOSPC: System limit for number of file watchers reached, watch '/etc/beep/openclaw-spike/current/openclaw.json'
 2026-07-27T03:09:01.376-05:00 [secrets] [SECRETS_GATEWAY_AUTH_SURFACE] gateway.auth.token is active. gateway.auth.mode is "token".

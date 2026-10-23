@@ -10,13 +10,13 @@ the `@beep/xstate` driver in `packages/drivers/xstate`.
 
 | Package | Pin | Note |
 | --- | --- | --- |
-| `xstate` | `6.0.0-alpha.63` | v6 alpha: inline transition functions, `schemas`, state contracts. |
-| `@xstate/effect` | `0.1.0-alpha.5` | Peers `effect ^4.0.0-rc.115`; runs on the repo's Effect 4.0.0 snapshot. |
-| `@xstate/test` | `2.0.0-alpha.1` | Model-based testing. Peers vitest 3; works on the repo's vitest. |
-| `@statelyai/sdk` | `0.37.2` | Inspector client. `@statelyai/inspect` peers xstate v5 and is not used. |
-| `statelyai` | `0.12.3` | CLI, root dev dependency. |
+| `xstate` | `6.0.0-alpha.70` | v6 alpha: inline transition functions, `schemas`, state contracts. |
+| `@xstate/effect` | `1.0.0-alpha.9` | Peers `effect ^4.0.0` and `xstate ^6.0.0-alpha.70`; declaration patch required. |
+| `@xstate/test` | `2.0.0-alpha.4` | Model-based testing. Declares Vitest 3 or 4 as an optional peer. |
+| `@statelyai/sdk` | `0.39.1` | Inspector client. `@statelyai/inspect` peers xstate v5 and is not used. |
+| `statelyai` | `0.14.3` | CLI, root dev dependency. |
 
-All five are catalog entries in the root `package.json`. No Effect version change was needed.
+All five are catalog entries in the root `package.json`. Keep this table in sync when updating the catalog.
 
 ## File roles
 
@@ -119,8 +119,9 @@ Suites that share a process global (the Tauri `invoke` mock, `import.meta.env`, 
 Two gate notes for new statechart tests:
 
 - `vi.mock` and `vi.hoisted` only work with `import { vi } from "vitest"`; the `@effect/vitest`
-  re-export fails with "problems in resolving the mocks API". The `lint:effect-vitest` gate reports
-  that import as EV011, so such files carry a reviewed row in `standards/effect-vitest.inventory.jsonc`.
+  re-export fails with "problems in resolving the mocks API". The `lint:effect-vitest` gate accepts a
+  `vi`-only `vitest` import that the file uses for `vi.mock` or `vi.hoisted`; take every other `vi`
+  use (`vi.fn`, `vi.stubGlobal`, ...) from `@effect/vitest`, or EV011 reports the import.
 - A test that advances `TestClock` must own its clock: run it outside a shared `it.layer` block and
   provide the services it needs per test (`Reactivity.make` + `Effect.provideService`), as
   `startIntakeIsolated` does in the intake test harness.
@@ -180,9 +181,11 @@ Stately sign-in the first time it is used, and it must be listed in `enabledMcpj
 
 These were found while building the reference machine. Re-check them on each alpha bump.
 
-1. `@xstate/effect` 0.1.0-alpha.6 imports `effect/reactivity` natively, so it needs no import
-   rewrite. `patches/@xstate%2Feffect@0.1.0-alpha.6.patch` only replaces the `effectActionBrand`
-   unique-symbol key in two declaration files with the string key `"~xstate/effect/action"`.
+1. `@xstate/effect` 1.0.0-alpha.9 needs a declaration-only patch.
+   [The alpha.9 patch](../../patches/@xstate%252Feffect@1.0.0-alpha.9.patch) replaces the private
+   `effectActionBrand` unique-symbol key in both the action type and its service-requirement
+   extractor with the string key `"~xstate/effect/action"`. The atom entry point already imports
+   `effect/reactivity`; the patch does not rewrite runtime imports.
 2. `@xstate/test/effect-schema` calls `Schema.toArbitrary`, which Effect 4.0.0 does not have.
    Use `eventsFromSchemas` from `@beep/xstate/test`, built on `effect/Arbitrary`.
 3. An event that crosses an actor boundary cannot be an internal event. That covers events from
@@ -205,6 +208,28 @@ These were found while building the reference machine. Re-check them on each alp
 10. Effect actions are branded with an unexported unique symbol, so declaration emit fails with
     TS4023 for any exported machine that declares `actions`. The same patch replaces the symbol key
     with a string key in the two typings that use it. The brand is type-only; no runtime changes.
+    The declaration guard in
+    [DeclarationEmit.test.ts](../../packages/drivers/xstate/test/DeclarationEmit.test.ts) checks an
+    exported machine with Effect actions without adding an annotation that hides its inferred type.
+
+## Maintaining the declaration patch
+
+On each `@xstate/effect` update, check whether the unpatched release passes the declaration guard.
+If it still fails with TS4023, migrate the patch to the exact new version and update both the
+`patchedDependencies` key and path in the root `package.json`. Patch both declaration sites so
+Effect service requirements continue to flow from actions into actors. Regenerate `bun.lock` with
+`bun install --ignore-scripts`, then confirm the lockfile and patch agree:
+
+```bash
+bun install --frozen-lockfile --ignore-scripts
+(cd packages/drivers/xstate && bun run beep:test)
+bun run beep quality package-verify @beep/xstate
+bun run beep quality effect-diagnostics --filter @beep/xstate --concurrency 1
+```
+
+Remove the old version's patch once active references have migrated. When upstream fixes the
+declaration issue, remove the patch and its manifest entry together, regenerate the lockfile, and
+keep the declaration guard to catch regressions.
 
 ## Adding a machine
 

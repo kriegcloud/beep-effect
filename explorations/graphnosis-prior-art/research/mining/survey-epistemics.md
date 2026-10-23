@@ -1,6 +1,6 @@
 # Graphnosis survey — territory: corrections, confidence, contradiction & forgetting
 
-Repo: `/home/elpresidank/YeeBois/dev/Graphnosis` (Apache-2.0, TypeScript, `@nehloo/graphnosis`, v0.11.0, 2026-08-04).
+Repo: `$HOME/YeeBois/dev/Graphnosis` (Apache-2.0, TypeScript, `@nehloo/graphnosis`, v0.11.0, 2026-08-04).
 Surveyed: `src/core/corrections/{correction-engine,confidence}.ts`, `src/core/optimization/{reflection,pruner,deduplicator,compressor}.ts`,
 `src/core/audit/audit-exporter.ts`, plus the modules those depend on that decide the same facts
 (`src/core/graph/retirement.ts`, `src/core/graph/incremental.ts`, `src/core/errors.ts`, the SDK facade

@@ -26,7 +26,8 @@ type AliasEntry = {
 const projectRootDirectory = new URL("./", import.meta.url);
 // V8 inspector coverage is unsupported on Bun and can falsely cover untouched
 // branches. Use source instrumentation for explicit Bun coverage runs. Canonical
-// coverage commands retain Node/V8 until the per-file ratchet migration qualifies.
+// local coverage commands retain Node/V8; hosted Unit shards qualify Bun/Istanbul
+// reports against the same per-file ratchet before the CI producer is retired.
 const coverageProvider = P.isUndefined(process.versions.bun) ? "v8" : "istanbul";
 
 // Vite treats an explicit `.ts` suffix as an exact filename, while the repository
@@ -35,13 +36,13 @@ const resolveUniformTypeScriptSourceSpecifiers = (): Plugin => ({
   name: "beep:resolve-uniform-typescript-source-specifiers",
   enforce: "pre",
   resolveId(source, importer, options) {
-    if (importer === undefined || !source.startsWith(".") || !source.endsWith(".ts")) {
+    if (importer === undefined || !Str.startsWith(".")(source) || !Str.endsWith(".ts")(source)) {
       return null;
     }
 
     return this.resolve(source, importer, { ...options, skipSelf: true }).then((exactSource) =>
       exactSource === null
-        ? this.resolve(source.replace(/\.ts$/, ".tsx"), importer, { ...options, skipSelf: true })
+        ? this.resolve(Str.replace(/\.ts$/, ".tsx")(source), importer, { ...options, skipSelf: true })
         : exactSource
     );
   },
@@ -147,7 +148,7 @@ const listTestFiles = (directory: string): ReadonlyArray<string> => {
   }
 };
 const toPosixRelative = (root: string, file: string): string =>
-  A.join(NodePath.relative(root, file).split(NodePath.sep), "/");
+  A.join(Str.split(NodePath.relative(root, file), NodePath.sep), "/");
 const propertyTestInclude = (packageRoot: string): ReadonlyArray<string> =>
   pipe(
     listTestFiles(NodePath.join(packageRoot, "test")),
@@ -266,7 +267,7 @@ const config: ViteUserConfig = {
     // pool an explicit execArgv (overriding fork inheritance), so a flagged
     // main process with an unflagged worker list would strand the workers.
     execArgv:
-      process.versions.bun === undefined && Number(process.versions.node.split(".")[0]) < 24
+      process.versions.bun === undefined && Number(Str.split(process.versions.node, ".")[0]) < 24
         ? ["--js-float16array"]
         : [],
     sequence: {

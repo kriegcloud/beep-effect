@@ -9,6 +9,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { RawDiagnostic } from "../diagnostics.ts";
 import { EscapedComment } from "./comments.ts";
 import type { YamlMap, YamlNode, YamlSeq } from "../../YamlNode.ts";
@@ -367,7 +368,7 @@ export function reportUnexpectedContent(state: ComposerState, ...[child]: [child
   state.errors.push(
     RawDiagnostic.make({
       code: "UnexpectedToken",
-      message: `Unexpected content: ${child.source.trim() || "(empty)"}`,
+      message: `Unexpected content: ${Str.trim(child.source) || "(empty)"}`,
       offset: child.offset,
       length: child.length,
     })

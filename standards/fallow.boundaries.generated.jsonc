@@ -312,6 +312,12 @@
         ]
       },
       {
+        "name": "@beep/epistemics",
+        "patterns": [
+          "packages/foundation/modeling/epistemics/src/**"
+        ]
+      },
+      {
         "name": "@beep/exiftool",
         "patterns": [
           "packages/drivers/exiftool/src/**"
@@ -819,6 +825,12 @@
         "name": "@beep/runpod",
         "patterns": [
           "packages/drivers/runpod/src/**"
+        ]
+      },
+      {
+        "name": "@beep/runtime-env",
+        "patterns": [
+          "packages/foundation/capability/runtime-env/src/**"
         ]
       },
       {
@@ -1562,6 +1574,7 @@
         "allow": [
           "@beep/chalk",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1570,6 +1583,7 @@
         "allowTypeOnly": [
           "@beep/chalk",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -1616,6 +1630,7 @@
           "@beep/colors",
           "@beep/fc-runs",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/utils"
@@ -1624,6 +1639,7 @@
           "@beep/colors",
           "@beep/fc-runs",
           "@beep/identity",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/utils"
@@ -2062,6 +2078,7 @@
         "allow": [
           "@beep/effect-drizzle",
           "@beep/epistemic-domain",
+          "@beep/epistemics",
           "@beep/identity",
           "@beep/provenance",
           "@beep/schema",
@@ -2073,6 +2090,7 @@
         "allowTypeOnly": [
           "@beep/effect-drizzle",
           "@beep/epistemic-domain",
+          "@beep/epistemics",
           "@beep/identity",
           "@beep/provenance",
           "@beep/schema",
@@ -2091,6 +2109,7 @@
           "@beep/epistemic-server",
           "@beep/epistemic-tables",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/mcp-kit",
@@ -2113,6 +2132,7 @@
           "@beep/epistemic-server",
           "@beep/epistemic-tables",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/mcp-kit",
@@ -2135,6 +2155,7 @@
           "@beep/effect-drizzle",
           "@beep/epistemic-domain",
           "@beep/epistemic-tables",
+          "@beep/epistemics",
           "@beep/identity",
           "@beep/provenance",
           "@beep/schema",
@@ -2146,6 +2167,7 @@
           "@beep/effect-drizzle",
           "@beep/epistemic-domain",
           "@beep/epistemic-tables",
+          "@beep/epistemics",
           "@beep/identity",
           "@beep/provenance",
           "@beep/schema",
@@ -2161,6 +2183,7 @@
           "@beep/epistemic-domain",
           "@beep/epistemic-ui",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/identity",
           "@beep/provenance",
           "@beep/schema",
@@ -2174,6 +2197,7 @@
           "@beep/epistemic-domain",
           "@beep/epistemic-ui",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/identity",
           "@beep/provenance",
           "@beep/schema",
@@ -2188,6 +2212,7 @@
         "allow": [
           "@beep/epistemic-domain",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/provenance",
@@ -2201,6 +2226,7 @@
         "allowTypeOnly": [
           "@beep/epistemic-domain",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/provenance",
@@ -2210,6 +2236,25 @@
           "@beep/shared-domain",
           "@beep/test-runner",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/epistemics",
+        "allow": [
+          "@beep/epistemics",
+          "@beep/identity",
+          "@beep/provenance",
+          "@beep/schema",
+          "@beep/test-runner",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/epistemics",
+          "@beep/identity",
+          "@beep/provenance",
+          "@beep/schema",
+          "@beep/test-runner",
+          "@beep/utils"
         ]
       },
       {
@@ -2696,6 +2741,7 @@
         "allow": [
           "@beep/epistemic-domain",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/langextract",
@@ -2713,6 +2759,7 @@
         "allowTypeOnly": [
           "@beep/epistemic-domain",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/langextract",
@@ -3843,6 +3890,7 @@
           "@beep/epistemic-tables",
           "@beep/epistemic-ui",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/graph-3d",
           "@beep/identity",
@@ -3895,6 +3943,7 @@
           "@beep/epistemic-tables",
           "@beep/epistemic-ui",
           "@beep/epistemic-use-cases",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/graph-3d",
           "@beep/identity",
@@ -4063,6 +4112,7 @@
           "@beep/ffmpeg",
           "@beep/file-processing",
           "@beep/github",
+          "@beep/glob",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4107,6 +4157,7 @@
           "@beep/ffmpeg",
           "@beep/file-processing",
           "@beep/github",
+          "@beep/glob",
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
@@ -4188,6 +4239,7 @@
       {
         "from": "@beep/repo-utils",
         "allow": [
+          "@beep/glob",
           "@beep/identity",
           "@beep/memfs",
           "@beep/repo-utils",
@@ -4198,6 +4250,7 @@
           "@beep/walker"
         ],
         "allowTypeOnly": [
+          "@beep/glob",
           "@beep/identity",
           "@beep/memfs",
           "@beep/repo-utils",
@@ -4225,6 +4278,21 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/runtime-env",
+        "allow": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/runtime-env",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/runtime-env",
+          "@beep/schema"
         ]
       },
       {
@@ -4289,6 +4357,7 @@
           "@beep/drizzle",
           "@beep/effect-drizzle",
           "@beep/epistemic-domain",
+          "@beep/epistemics",
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/git",
@@ -4298,6 +4367,8 @@
           "@beep/glob",
           "@beep/identity",
           "@beep/jsonc",
+          "@beep/law-practice-use-cases",
+          "@beep/m365",
           "@beep/managed-section",
           "@beep/md",
           "@beep/memfs",
@@ -4314,6 +4385,7 @@
           "@beep/rdf",
           "@beep/repo-cli",
           "@beep/repo-utils",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
@@ -4335,6 +4407,7 @@
           "@beep/drizzle",
           "@beep/effect-drizzle",
           "@beep/epistemic-domain",
+          "@beep/epistemics",
           "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/git",
@@ -4344,6 +4417,8 @@
           "@beep/glob",
           "@beep/identity",
           "@beep/jsonc",
+          "@beep/law-practice-use-cases",
+          "@beep/m365",
           "@beep/managed-section",
           "@beep/md",
           "@beep/memfs",
@@ -4360,6 +4435,7 @@
           "@beep/rdf",
           "@beep/repo-cli",
           "@beep/repo-utils",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
@@ -4404,7 +4480,7 @@
           "@beep/anthropic",
           "@beep/doc-text",
           "@beep/duckdb",
-          "@beep/epistemic-domain",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/langextract",
@@ -4426,7 +4502,7 @@
           "@beep/anthropic",
           "@beep/doc-text",
           "@beep/duckdb",
-          "@beep/epistemic-domain",
+          "@beep/epistemics",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/langextract",

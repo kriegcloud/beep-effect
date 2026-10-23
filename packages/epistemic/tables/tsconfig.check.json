@@ -9,6 +9,9 @@
       "path": "../domain/tsconfig.json"
     },
     {
+      "path": "../../foundation/modeling/epistemics/tsconfig.json"
+    },
+    {
       "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {

@@ -7,6 +7,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 // Block-collection composition: block mappings (with the sibling-first-key
 // CST shape), block sequences, flat block maps, and the shared pair-building
 // machinery (`SemanticItem`, `buildPairs`) that flow composition also uses.
@@ -29,6 +30,7 @@ import {
   joinPendingComments,
   lastNonBlankBefore,
   leadingCommentFields,
+  lineBreakBefore,
   PendingComment,
   rawCommentText,
   sameLineSpan,
@@ -238,8 +240,8 @@ function finishBlockMap(
 
 /** Report an implicit mapping key whose source span crosses a line break. */
 function reportMultilineImplicitKey(state: ComposerState, key: YamlNode): void {
-  const keySource = state.text.slice(key.offset, key.offset + key.length);
-  if (keySource.includes("\n") || keySource.includes("\r")) {
+  const keySource = Str.slice(key.offset, key.offset + key.length)(state.text);
+  if (Str.includes("\n")(keySource) || Str.includes("\r")(keySource)) {
     state.errors.push(
       RawDiagnostic.make({
         code: "UnexpectedToken",
@@ -287,8 +289,7 @@ const trimDisownedTrailingComments: {
 });
 
 /** Start offset of the line containing `offset`. */
-const lineStartBefore = (text: string, offset: number): number =>
-  Math.max(text.lastIndexOf("\n", offset - 1), text.lastIndexOf("\r", offset - 1)) + 1;
+const lineStartBefore = (text: string, offset: number): number => lineBreakBefore(text, offset - 1) + 1;
 
 /** The earliest line start of a comment this collection disowned, or `end`. */
 const cutBeforeDisownedComments = (
@@ -312,10 +313,11 @@ const cutBeforeDisownedComments = (
 /** Start of the blank line ending just before `cut`, or -1 when that line is not blank or not inside the span. */
 const blankLineStartBefore = (text: string, offset: number, cut: number): number => {
   const prevEnd = text[cut - 1] === "\n" && text[cut - 2] === "\r" ? cut - 2 : cut - 1;
-  const prefix = text.slice(0, prevEnd);
-  const prevLineStart = Math.max(prefix.lastIndexOf("\n"), prefix.lastIndexOf("\r")) + 1;
+  // Search only the prefix before `prevEnd`, as `lineBreakBefore` clamps a negative index to 0:
+  // with `prevEnd` 0 the empty prefix yields -1, so the line starts at 0, not 1.
+  const prevLineStart = lineBreakBefore(Str.slice(0, prevEnd)(text), prevEnd - 1) + 1;
   if (prevLineStart <= offset) return -1;
-  return text.slice(prevLineStart, prevEnd).trim() === "" ? prevLineStart : -1;
+  return Str.trim(Str.slice(prevLineStart, prevEnd)(text)) === "" ? prevLineStart : -1;
 };
 
 /** Moves `cut` back over the blank lines immediately above a trimmed run. */
@@ -532,7 +534,7 @@ const isPunctuationToken = (node: CstNode | undefined, source: string): boolean 
 
 /** True for a whitespace token that carries nothing but blanks. */
 const isBlankWhitespaceToken = (node: CstNode | undefined): boolean =>
-  node?.type === "whitespace" && node.source.trim() === "";
+  node?.type === "whitespace" && Str.trim(node.source) === "";
 
 /** True for a plain-style flow scalar. */
 const isPlainFlowScalarNode = (node: CstNode): boolean =>
@@ -1687,7 +1689,7 @@ function keyIsSimple(keyNode: YamlNode | undefined): boolean {
   // exactly as a plain scalar key does and can carry a trailing comment.
   if (isYamlAlias(keyNode)) return true;
   if (!isYamlScalar(keyNode)) return false;
-  if (P.isString(keyNode.value) && keyNode.value.includes("\n")) return false;
+  if (P.isString(keyNode.value) && Str.includes("\n")(keyNode.value)) return false;
   return keyNode.style !== "block-literal" && keyNode.style !== "block-folded";
 }
 
@@ -1848,11 +1850,11 @@ export const keyIdentity: {
     Match.when(P.isString, (value) => `s:${value}`),
     Match.when(P.isBigInt, (value) => `i:${value.toString()}`),
     Match.when(P.isNumber, (value) => {
-      const raw = text.slice(key.offset, key.offset + key.length).trim();
+      const raw = Str.trim(Str.slice(key.offset, key.offset + key.length)(text));
       const tag = key.tag ?? "";
-      const tagKind = tag.includes("float")
+      const tagKind = Str.includes("float")(tag)
         ? O.some("float" as const)
-        : tag.includes("int")
+        : Str.includes("int")(tag)
           ? O.some("int" as const)
           : O.none<"int" | "float">();
       const kind = O.orElse(tagKind, () => classifyPlainNumeric(raw));
@@ -2278,7 +2280,7 @@ const validateNoTabAfterContinuationValueSep: {
       reportTabBeforeValue(colonChild, c, sawTab, state);
       return;
     }
-    sawTab = sawTab || c.source.includes("\t");
+    sawTab = sawTab || Str.includes("\t")(c.source);
   }
 });
 
@@ -2304,7 +2306,7 @@ const precededByExplicitKeyMarker: {
 } = dual(2, (children: readonly CstNode[], idx: number): boolean => {
   const c = precedingNonTriviaChild(children, idx);
   if (c === undefined) return false;
-  return (c.type === "block-seq" && c.length === 0) || (c.type === "block-map" && c.source.trimEnd() === "?");
+  return (c.type === "block-seq" && c.length === 0) || (c.type === "block-map" && Str.trimEnd(c.source) === "?");
 });
 
 /** The nearest preceding child that is not a hole, whitespace, a newline or a comment. */
@@ -2562,7 +2564,7 @@ const acceptSeqComment = (scan: BlockSeqScan, child: CstNode, state: ComposerSta
  * (e.g. `- &a\n- b` anchors the first entry, not the second).
  */
 const acceptSeqEntryIndicator = (scan: BlockSeqScan, child: CstNode, state: ComposerState): void => {
-  if (child.source.trim() !== "-") return;
+  if (Str.trim(child.source) !== "-") return;
   if (scan.sawEntry) {
     const emptyScalar = scalarWithMeta(null, scan.pendingMeta, state, child.offset, 0);
     scan.pendingMeta = NodeMeta.make({});

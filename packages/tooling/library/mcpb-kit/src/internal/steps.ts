@@ -24,15 +24,15 @@ import { McpbPackageFailure } from "../McpbKit.errors.ts";
 
 const $I = $McpbKitId.create("internal/steps");
 
-const DuckDbVersion = "1.5.6-r.1";
+const DuckDbVersion = "1.5.6-r.2";
 /*
- * sha512 integrity for the win32 bindings tarball, copied from bun.lock's
- * entry for @duckdb/node-bindings-win32-x64@1.5.6-r.1. The download is
- * verified against this pin before anything is extracted into a
- * user-installed artifact; a DuckDB catalog bump must update both constants.
+ * sha512 integrity published by the npm registry for
+ * @duckdb/node-bindings-win32-x64@1.5.6-r.2, checked against the downloaded tarball.
+ * Packaging verifies this pin before extracting a user-installed artifact;
+ * a DuckDB catalog bump must update both constants.
  */
 const WindowsBindingsSha512 =
-  "5Rpn5WXEG5gY/u7Keh+c4kuwG/LiE31pCP9CoCohv+u0aFensk/yRIQVW/CXuIoITky9xFhdRzaWUtAnGTYxJQ==";
+  "iFPP94+k8ODB0k0FnELFO5vFB3IkI203RiaPa/9gfymE3AaugLFiN/2oOLhKqvowXWzRLuDBF4dJXRAWJDJ0KA==";
 const WindowsBindingsUrl = `https://registry.npmjs.org/@duckdb/node-bindings-win32-x64/-/node-bindings-win32-x64-${DuckDbVersion}.tgz`;
 
 class BindingsManifest extends S.Opaque<BindingsManifest, { readonly brand: unique symbol }>()(
@@ -170,7 +170,6 @@ export const ensureWindowsBindings = Effect.fn("McpbPackage.ensureWindowsBinding
  *
  * @since 0.0.0
  */
-// fallow-ignore-next-line complexity -- archive gate is deliberately explicit; exercised by package:mcpb on every build
 export const assertArchive = Effect.fn("McpbPackage.assertArchive")(function* (options: {
   readonly archivePath: string;
   readonly appName: string;

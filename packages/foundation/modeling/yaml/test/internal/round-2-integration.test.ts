@@ -12,6 +12,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const CstNodes = S.Array(CstNode);
 const node = (type: CstNode["type"], source: string): CstNode => ({ type, source, offset: 0, length: source.length });
@@ -60,7 +61,7 @@ describe("round 2 integration seams", () => {
             A.filter(events, (event) => event._tag === "CstValueEvent"),
             (event) => event.source
           ),
-          text.includes("a: b") ? ["b", "c"] : ["c"]
+          Str.includes("a: b")(text) ? ["b", "c"] : ["c"]
         );
       })
     );

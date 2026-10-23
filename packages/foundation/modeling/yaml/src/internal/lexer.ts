@@ -10,6 +10,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import { findKeyIndent, foldBlockLines } from "./block-scalar.ts";
 import type { ScalarChomp } from "../YamlNode.ts";
 import type { YamlToken, YamlTokenKind } from "./token.ts";
@@ -56,7 +57,7 @@ const isLineEnd = (ch: string): boolean => ch === "" || isNewline(ch);
 /** Separation after an indicator or marker: a blank, a line break, or the end of input. */
 const isSeparatorOrEnd = (ch: string): boolean => isLineEnd(ch) || isWhitespace(ch);
 
-const isFlowIndicator = (ch: string): boolean => ch.length === 1 && "{}[],".includes(ch);
+const isFlowIndicator = (ch: string): boolean => ch === "{" || ch === "}" || ch === "[" || ch === "]" || ch === ",";
 
 /** YAML 1.2 ns-anchor-char (and tag suffix char): any non-whitespace char except c-flow-indicator. */
 const isNameChar = (ch: string): boolean => !isWhitespace(ch) && !isNewline(ch) && !isFlowIndicator(ch);
@@ -65,8 +66,10 @@ const isNameChar = (ch: string): boolean => !isWhitespace(ch) && !isNewline(ch) 
 const isIndentIndicator = (ch: string): boolean => ch.length === 1 && ch >= "1" && ch <= "9";
 
 /** What may follow `|` / `>` for it to open a block scalar header (0 included so `|0` is rejected by the header). */
+const blockHeaderCharacter = /[-+#0-9]/;
+
 const isBlockScalarHeaderStart = (next: string): boolean =>
-  isSeparatorOrEnd(next) || (next.length === 1 && "-+#0123456789".includes(next));
+  isSeparatorOrEnd(next) || (next.length === 1 && blockHeaderCharacter.test(next));
 
 // ---------------------------------------------------------------------------
 // Source probes (pure)
@@ -74,8 +77,8 @@ const isBlockScalarHeaderStart = (next: string): boolean =>
 
 /** True when a document marker (--- or ...) followed by whitespace, a line break or EOF starts at `at`. */
 const isDocumentMarkerAt = (text: string, at: number): boolean => {
-  const head = text.slice(at, at + 3);
-  return (head === "---" || head === "...") && isSeparatorOrEnd(text.slice(at + 3, at + 4));
+  const head = Str.slice(at, at + 3)(text);
+  return (head === "---" || head === "...") && isSeparatorOrEnd(Str.slice(at + 3, at + 4)(text));
 };
 
 /** The offset after the line break at `at` (CRLF as one break). */
@@ -85,7 +88,7 @@ const lineBreakEnd = (text: string, at: number): number =>
 /** The offset where the line containing `at` starts. */
 const lineStartOf = (text: string, at: number): number => {
   let lineStart = at;
-  while (lineStart > 0 && !isNewline(text.charAt(lineStart - 1))) {
+  while (lineStart > 0 && !isNewline(Str.slice(lineStart - 1, lineStart)(text))) {
     lineStart--;
   }
   return lineStart;
@@ -109,7 +112,7 @@ const detectBlockIndent = (text: string, from: number): number => {
     const spaces = countSpaces(text, at);
     const content = at + spaces;
     if (spaces === 0 && isDocumentMarkerAt(text, content)) return -1;
-    if (!isLineEnd(text.slice(content, content + 1))) return spaces;
+    if (!isLineEnd(Str.slice(content, content + 1)(text))) return spaces;
     at = content < text.length ? lineBreakEnd(text, content) : content;
   }
   return -1;
@@ -129,7 +132,7 @@ const toggledQuote = (ch: string, quote: string): string => {
 /** Apply a block scalar's chomping: strip drops the final break, clip keeps one, keep also keeps trailing empty lines. */
 const chompBlockValue = (body: string, chomp: ScalarChomp, trailingEmptyLines: number): string => {
   if (chomp === "strip") return body;
-  return body + "\n".repeat(chomp === "keep" ? trailingEmptyLines + 1 : 1);
+  return body + Str.repeat(chomp === "keep" ? trailingEmptyLines + 1 : 1)("\n");
 };
 
 // ---------------------------------------------------------------------------
@@ -370,11 +373,11 @@ export function createScanner(text: string): YamlScanner {
 
   function peek(offset = 0): string {
     const idx = pos + offset;
-    return text.slice(idx, idx + 1);
+    return Str.slice(idx, idx + 1)(text);
   }
 
   function charAt(i: number): string {
-    return text.slice(i, i + 1);
+    return Str.slice(i, i + 1)(text);
   }
 
   /** True when the line break at `at` opens a new line (the LF of a CRLF pair does not). */
@@ -558,12 +561,12 @@ export function createScanner(text: string): YamlScanner {
 
   /** An `error` token spanning the source from `start` to the cursor. */
   function errorSince(start: number, sLine: number, sCol: number): YamlToken.Data {
-    return makeToken("error", text.slice(start, pos), start, sLine, sCol);
+    return makeToken("error", Str.slice(start, pos)(text), start, sLine, sCol);
   }
 
   /** A `whitespace` token spanning the source from `start` to the cursor. */
   function whitespaceSince(start: number, sLine: number, sCol: number): YamlToken.Data {
-    return makeToken("whitespace", text.slice(start, pos), start, sLine, sCol);
+    return makeToken("whitespace", Str.slice(start, pos)(text), start, sLine, sCol);
   }
 
   /** Consume the single character at the cursor as a token of `kind`. */
@@ -582,8 +585,9 @@ export function createScanner(text: string): YamlScanner {
    */
   function scanSeparation(): { readonly end: number; readonly firstTab: number } {
     const end = blankRunEnd(pos);
-    const tab = text.slice(pos, end).indexOf("\t");
-    return { end, firstTab: tab < 0 ? -1 : pos + tab };
+    let firstTab = pos;
+    while (firstTab < end && text[firstTab] !== "\t") firstTab++;
+    return { end, firstTab: firstTab < end ? firstTab : -1 };
   }
 
   /** True when the character at `at` is content rather than a line break. */
@@ -723,7 +727,9 @@ export function createScanner(text: string): YamlScanner {
    */
   function isMixedIndentError(start: number, sCol: number): boolean {
     if (lineIndentLocked || flowDepth !== 0 || sCol !== 0) return false;
-    const tabIdx = text.slice(start, pos).indexOf("\t");
+    let tab = start;
+    while (tab < pos && text[tab] !== "\t") tab++;
+    const tabIdx = tab < pos ? tab - start : -1;
     return tabIdx > 0 && !isLineEnd(charAt(pos)) && MutableHashMap.has(blockStarted, tabIdx);
   }
 
@@ -748,7 +754,7 @@ export function createScanner(text: string): YamlScanner {
     const sLine = line;
     const sCol = col;
     consumeToLineEnd();
-    return makeToken("comment", text.slice(start, pos), start, sLine, sCol);
+    return makeToken("comment", Str.slice(start, pos)(text), start, sLine, sCol);
   }
 
   function scanDocumentStartOrEnd(): YamlToken.Data | null {
@@ -756,7 +762,7 @@ export function createScanner(text: string): YamlScanner {
     const start = pos;
     const sLine = line;
     const sCol = col;
-    const marker = text.slice(pos, pos + 3);
+    const marker = Str.slice(pos, pos + 3)(text);
     // Must be exactly 3 chars followed by EOF, newline, or whitespace
     if (!isSeparatorOrEnd(charAt(pos + 3))) {
       return null; // not a document marker, treat as plain scalar
@@ -799,7 +805,7 @@ export function createScanner(text: string): YamlScanner {
 
     col -= pos - end;
     pos = end;
-    const value = text.slice(start, end);
+    const value = Str.slice(start, end)(text);
     return makeToken("scalar", value, start, sLine, sCol);
   }
 
@@ -865,7 +871,7 @@ export function createScanner(text: string): YamlScanner {
    */
   function scanHexEscape(width: number): string | null {
     advance(); // skip 'x', 'u' or 'U'
-    const hex = text.slice(pos, pos + width);
+    const hex = Str.slice(pos, pos + width)(text);
     const cp = hex.length === width && /^[\da-fA-F]+$/.test(hex) ? Number.parseInt(hex, 16) : Number.NaN;
     if (!(cp <= 0x10ffff)) return null;
     advance(width);
@@ -1027,7 +1033,7 @@ export function createScanner(text: string): YamlScanner {
    */
   function emptyBlockScalar(chomp: ScalarChomp, start: number, sLine: number, sCol: number): YamlToken.Data {
     if (chomp === "keep") {
-      const value = "\n".repeat(consumeKeptEmptyLines());
+      const value = Str.repeat(consumeKeptEmptyLines())("\n");
       return makeToken("scalar", value, start, sLine, sCol, pos - start);
     }
     afterEmptyBlockScalar = true;
@@ -1058,7 +1064,7 @@ export function createScanner(text: string): YamlScanner {
       pos++;
       col++;
     }
-    return text.slice(contentStart, pos);
+    return Str.slice(contentStart, pos)(text);
   }
 
   /** Whether the body line at the cursor, after its `spaces` leading spaces, ends the block scalar body. */
@@ -1090,7 +1096,7 @@ export function createScanner(text: string): YamlScanner {
       // Content, or a whitespace-only line with extra indentation, which is
       // content rather than an empty line (YAML 1.2 section 8.1.3)
       flushTrailingLines(lines, trailingNewlines);
-      lines.push(" ".repeat(spaces - contentIndent) + (blank ? "" : consumeRawLine()));
+      lines.push(Str.repeat(spaces - contentIndent)(" ") + (blank ? "" : consumeRawLine()));
     }
     consumeBlockLineBreak();
     return true;
@@ -1144,7 +1150,7 @@ export function createScanner(text: string): YamlScanner {
     const nameStart = pos;
     // YAML 1.2 ns-anchor-char: any non-whitespace char except c-flow-indicator
     consumeNameChars();
-    const name = text.slice(nameStart, pos);
+    const name = Str.slice(nameStart, pos)(text);
     if (name.length === 0) {
       return errorSince(start, sLine, sCol);
     }
@@ -1160,7 +1166,7 @@ export function createScanner(text: string): YamlScanner {
     }
     if (peek() !== ">") return errorSince(start, sLine, sCol);
     advance(); // skip '>'
-    return makeToken("tag", text.slice(start, pos), start, sLine, sCol);
+    return makeToken("tag", Str.slice(start, pos)(text), start, sLine, sCol);
   }
 
   function scanTag(): YamlToken.Data {
@@ -1180,7 +1186,7 @@ export function createScanner(text: string): YamlScanner {
     // Collect tag suffix
     consumeNameChars();
 
-    return makeToken("tag", text.slice(start, pos), start, sLine, sCol);
+    return makeToken("tag", Str.slice(start, pos)(text), start, sLine, sCol);
   }
 
   function scanDirective(): YamlToken.Data {
@@ -1190,7 +1196,7 @@ export function createScanner(text: string): YamlScanner {
     const sCol = col;
     // Consume the entire line
     consumeToLineEnd();
-    return makeToken("directive", text.slice(start, pos), start, sLine, sCol);
+    return makeToken("directive", Str.slice(start, pos)(text), start, sLine, sCol);
   }
 
   // -----------------------------------------------------------------------
@@ -1210,7 +1216,7 @@ export function createScanner(text: string): YamlScanner {
 
   /** Document markers (only at column 0); `null` falls through to the next candidate. */
   function scanMarkerAtLineStart(marker: string): YamlToken.Data | null {
-    return col === 0 && text.startsWith(marker, pos) ? scanDocumentStartOrEnd() : null;
+    return col === 0 && Str.slice(pos, pos + marker.length)(text) === marker ? scanDocumentStartOrEnd() : null;
   }
 
   /**

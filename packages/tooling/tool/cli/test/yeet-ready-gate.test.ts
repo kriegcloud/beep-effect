@@ -15,6 +15,7 @@ import {
   parseYeetReadyInheritedRed,
   RepoRunContext,
   recordInheritedRedsWithRest,
+  reviewerRequestPushable,
   runYeetReady,
   runYeetReadyGate,
   SquashCommitlintFail,
@@ -23,6 +24,7 @@ import {
   SquashCommitlintReport,
   SquashCommitMessage,
   spliceYeetInheritedRedsSection,
+  YEET_REVIEWER_REQUEST_SUBJECT,
   YeetReadyInheritedRed,
   YeetReadyOptions,
   YeetReadyPullRequestRead,
@@ -39,7 +41,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -50,6 +52,7 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -119,9 +122,12 @@ const noPullRequest = YeetReadyPullRequestRead.make({
 
 // The squash-commitlint advisory the flip prints: a passing verdict by default.
 const squashMessage = SquashCommitMessage.make({ header: "feat(ready): gate (#42)", body: "" });
+// The flip pushes a reviewer re-request; tests answer it without running git.
+const stubReviewerRequest = () => Effect.succeed("[yeet] reviewer re-request stubbed");
+
 const passingSquashCommitlint = () =>
   Effect.succeed(SquashCommitlintReport.make({ message: squashMessage, verdict: SquashCommitlintPass.make({}) }));
-const longBullet = `* ${"a".repeat(100)}`;
+const longBullet = `* ${Str.repeat(100)("a")}`;
 const failingSquashCommitlint = () =>
   Effect.succeed(
     SquashCommitlintReport.make({
@@ -323,12 +329,56 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
         markReady: recordingMarkReady(calls),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       });
       expect(decision._tag).toBe("flip");
       expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
     })
   );
+
+  it.effect("pushes the beep-reviewer re-request for the flipped head after the flip", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      const requests = yield* Ref.make<ReadonlyArray<readonly [number, string]>>([]);
+      const decision = yield* runYeetReadyGate(context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView()),
+        markReady: recordingMarkReady(calls),
+        requestReview: (_context, prNumber, confirmedHead) =>
+          Ref.update(requests, A.append([prNumber, confirmedHead] as const)).pipe(Effect.as("[yeet] pushed")),
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
+      expect(yield* Ref.get(requests)).toEqual([[42, headSha]]);
+    })
+  );
+
+  it.effect("keeps the flip when the reviewer re-request push fails", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      const decision = yield* runYeetReadyGate(context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView()),
+        markReady: recordingMarkReady(calls),
+        requestReview: () =>
+          Effect.fail(YeetCommandError.make({ message: "git push failed", command: "git push", exitCode: 1 })),
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
+    })
+  );
+
+  it("pushes the re-request only from the flipped head", () => {
+    expect(reviewerRequestPushable("abcdef1234", "abcdef1234")).toBe(true);
+    expect(reviewerRequestPushable("fedcba9876", "abcdef1234")).toBe(false);
+    expect(reviewerRequestPushable("abcdef1234")("abcdef1234")).toBe(true);
+    expect(YEET_REVIEWER_REQUEST_SUBJECT).toBe("chore: re-request beep-reviewer (S32)");
+  });
 
   it.effect("refuses to flip when the head moved between the gate read and the confirmation", () =>
     Effect.gen(function* () {
@@ -404,6 +454,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ pendingOptionalCheckCount: 9, pendingRequiredCheckCount: 1 })),
         markReady: recordingMarkReady(calls),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       });
       expect(decision._tag).toBe("flip");
@@ -422,6 +473,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
         squashCommitlint: failingSquashCommitlint,
         read: () => Effect.succeed(prView()),
         markReady: recordingMarkReady(calls),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       });
       expect(decision._tag).toBe("flip");
@@ -433,7 +485,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
       expect(printed).toContain(`"${longBullet}"`);
       expect(printed).toContain("The merge gate holds on squash-commitlint");
       // The advisory precedes the flip in the log (TestConsole accumulates across this block, so compare the last run).
-      expect(printed.lastIndexOf("squash commit message")).toBeLessThan(printed.lastIndexOf("flipped from draft"));
+      expect(O.getOrElse(constant(-1))(Str.lastIndexOf("squash commit message")(printed))).toBeLessThan(
+        O.getOrElse(constant(-1))(Str.lastIndexOf("flipped from draft")(printed))
+      );
     })
   );
 
@@ -450,6 +504,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
         squashCommitlint: () => Effect.fail(YeetCommandError.make({ message: "gh api pulls failed", exitCode: 1 })),
         read: () => Effect.succeed(prView()),
         markReady: recordingMarkReady(calls),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       });
       expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
@@ -518,6 +573,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
           squashCommitlint: passingSquashCommitlint,
           recordInherited: recordingRecord(calls),
           markReady: recordingMarkReady(calls),
+          requestReview: stubReviewerRequest,
           findMonitor: () => Effect.succeedNone,
         },
         [lintInherited, knipInherited]
@@ -566,6 +622,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
           squashCommitlint: passingSquashCommitlint,
           recordInherited: recordingRecord(calls),
           markReady: recordingMarkReady(calls),
+          requestReview: stubReviewerRequest,
           findMonitor: () => Effect.succeedNone,
         },
         [lintInherited]
@@ -724,6 +781,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
             Effect.andThen(Ref.set(green, true))
           ),
         markReady: () => Ref.update(flips, (n) => n + 1),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       };
       const error = yield* runYeetReadyGate(context, dependencies, [lintInherited]).pipe(Effect.flip);
@@ -758,6 +816,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
         recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>, head: string) =>
           Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries, head))),
         markReady: () => Ref.set(draft, false),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       };
       expect((yield* runYeetReadyGate(context, dependencies, [lintInherited]))._tag).toBe("flip");
@@ -781,7 +840,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
         {
           read: () =>
             Ref.getAndUpdate(reads, (n) => n + 1).pipe(
-              Effect.map((n) => (n < 2 ? redRead([lint]) : prView({ headSha: O.some("b".repeat(40)) })))
+              Effect.map((n) => (n < 2 ? redRead([lint]) : prView({ headSha: O.some(Str.repeat(40)("b")) })))
             ),
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
@@ -903,6 +962,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
             Effect.mapError((cause) => YeetCommandError.make({ message: cause.message, exitCode: 1 }))
           ),
         markReady: (prNumber) => Ref.update(calls, A.append(["ready", `${prNumber}`])),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       });
       expect(decision._tag).toBe("flip");
@@ -925,6 +985,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
             Effect.andThen(Effect.fail(YeetCommandError.make({ message: "body write failed", exitCode: 1 })))
           ),
         markReady: (prNumber) => Ref.update(calls, A.append(["ready", `${prNumber}`])),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       });
       expect(decision._tag).toBe("flip");
@@ -990,6 +1051,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
           recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView()),
           markReady: () => Effect.void,
+          requestReview: stubReviewerRequest,
           findMonitor: () => Effect.succeedSome(record),
         }))._tag
       ).toBe("flip");
@@ -1130,6 +1192,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("ready head after the Gr
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         markReady: flip.markReady,
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       }).pipe(Effect.flip, Effect.forkChild);
       yield* TestClock.adjust(Duration.seconds(1));
@@ -1155,6 +1218,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("ready head after the Gr
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         markReady: (number, head) => Ref.set(confirmed, head).pipe(Effect.andThen(flip.markReady(number, head))),
+        requestReview: stubReviewerRequest,
         findMonitor: () => Effect.succeedNone,
       }).pipe(Effect.forkChild);
       yield* TestClock.adjust(Duration.minutes(11));
@@ -1197,6 +1261,146 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("ready head after the Gr
       );
       expect(yield* Ref.get(reads)).toBe(6);
       expect(yield* Ref.get(records)).toBe(2);
+    })
+  );
+});
+
+// The default re-request runs real git, so it is proven against a scratch clone
+// with a bare origin rather than a stub.
+const scratchGit = Effect.fn("YeetReadyTest.scratchGit")(function* (cwd: string, args: ReadonlyArray<string>) {
+  const handle = yield* ChildProcess.make("git", [...args], {
+    cwd,
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "inherit",
+  });
+  const output = yield* handle.stdout.pipe(Stream.decodeText(), Stream.mkString);
+  expect(yield* handle.exitCode).toBe(0);
+  return Str.trim(output);
+});
+
+const scratchClone = Effect.fn("YeetReadyTest.scratchClone")(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const tmp = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-ready-rereview-" });
+  const work = path.join(tmp, "work");
+  const origin = path.join(tmp, "origin.git");
+  yield* fs.makeDirectory(work);
+  yield* fs.makeDirectory(origin);
+  yield* scratchGit(origin, ["init", "--bare", "-b", "main"]);
+  yield* scratchGit(work, ["init", "-b", "main"]);
+  yield* scratchGit(work, ["config", "user.email", "yeet-ready-test@example.com"]);
+  yield* scratchGit(work, ["config", "user.name", "Yeet Ready Test"]);
+  yield* scratchGit(work, ["config", "commit.gpgsign", "false"]);
+  yield* fs.writeFileString(path.join(work, "README.md"), "# scratch\n");
+  yield* scratchGit(work, ["add", "README.md"]);
+  yield* scratchGit(work, ["commit", "-m", "init"]);
+  yield* scratchGit(work, ["remote", "add", "origin", origin]);
+  yield* scratchGit(work, ["push", "--set-upstream", "origin", "main"]);
+  const head = yield* scratchGit(work, ["rev-parse", "HEAD"]);
+  return {
+    work,
+    origin,
+    head,
+    context: RepoRunContext.make({ ...context, repoRoot: work, cwd: work, branch: "main" }),
+  };
+});
+
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-request", (it) => {
+  it.effect("pushes one empty re-request commit on top of the flipped head", () =>
+    Effect.gen(function* () {
+      const clone = yield* scratchClone();
+      const decision = yield* runYeetReadyGate(clone.context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
+        markReady: () => Effect.void,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* scratchGit(clone.origin, ["log", "-1", "--format=%s", "main"])).toBe(YEET_REVIEWER_REQUEST_SUBJECT);
+      expect(yield* scratchGit(clone.origin, ["rev-parse", "main~1"])).toBe(clone.head);
+      expect(yield* scratchGit(clone.work, ["diff", "--stat", "HEAD~1", "HEAD"])).toBe("");
+    })
+  );
+
+  it.effect("pushes nothing when the checkout is not on the flipped head", () =>
+    Effect.gen(function* () {
+      const clone = yield* scratchClone();
+      const decision = yield* runYeetReadyGate(clone.context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView({ headSha: O.some("0000000000000000000000000000000000000000") })),
+        markReady: () => Effect.void,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* scratchGit(clone.origin, ["rev-parse", "main"])).toBe(clone.head);
+      expect(yield* scratchGit(clone.work, ["rev-parse", "HEAD"])).toBe(clone.head);
+    })
+  );
+});
+
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-request safety", (it) => {
+  it.effect("never commits staged changes into the re-request", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const clone = yield* scratchClone();
+      yield* fs.writeFileString(path.join(clone.work, "staged.txt"), "not proven\n");
+      yield* scratchGit(clone.work, ["add", "staged.txt"]);
+      const decision = yield* runYeetReadyGate(clone.context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
+        markReady: () => Effect.void,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* scratchGit(clone.origin, ["log", "-1", "--format=%s", "main"])).toBe(YEET_REVIEWER_REQUEST_SUBJECT);
+      expect(yield* scratchGit(clone.origin, ["diff", "--name-only", "main~1", "main"])).toBe("");
+      expect(yield* scratchGit(clone.work, ["diff", "--cached", "--name-only"])).toBe("staged.txt");
+    })
+  );
+
+  it.effect("pushes to the pull request branch on origin even when push config points elsewhere", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const clone = yield* scratchClone();
+      const decoy = path.join(path.dirname(clone.origin), "decoy.git");
+      yield* fs.makeDirectory(decoy);
+      yield* scratchGit(decoy, ["init", "--bare", "-b", "main"]);
+      yield* scratchGit(clone.work, ["remote", "add", "decoy", decoy]);
+      yield* scratchGit(clone.work, ["config", "remote.pushDefault", "decoy"]);
+      const decision = yield* runYeetReadyGate(clone.context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
+        markReady: () => Effect.void,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* scratchGit(clone.origin, ["log", "-1", "--format=%s", "main"])).toBe(YEET_REVIEWER_REQUEST_SUBJECT);
+      expect(yield* scratchGit(decoy, ["for-each-ref", "--format=%(refname)"])).toBe("");
+    })
+  );
+
+  it.effect("keeps the local re-request and the flip when the push fails", () =>
+    Effect.gen(function* () {
+      const clone = yield* scratchClone();
+      yield* scratchGit(clone.work, ["remote", "remove", "origin"]);
+      const decision = yield* runYeetReadyGate(clone.context, {
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
+        markReady: () => Effect.void,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* scratchGit(clone.work, ["log", "-1", "--format=%s"])).toBe(YEET_REVIEWER_REQUEST_SUBJECT);
+      expect(yield* scratchGit(clone.work, ["rev-parse", "HEAD~1"])).toBe(clone.head);
+      expect(yield* scratchGit(clone.origin, ["rev-parse", "main"])).toBe(clone.head);
     })
   );
 });

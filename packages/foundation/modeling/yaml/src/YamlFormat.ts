@@ -32,6 +32,7 @@ import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { composeAllDocuments, composeFirstDocumentCounted } from "./internal/composer/document.ts";
 import { MAX_NESTING_DEPTH } from "./internal/composer/state.ts";
 import { isFatalCode } from "./internal/diagnostics.ts";
@@ -470,7 +471,7 @@ const withSourceBom: {
   (text: string, formatted: string): string;
   (formatted: string): (text: string) => string;
 } = dual(2, (text: string, formatted: string): string =>
-  text.startsWith("\uFEFF") ? `\uFEFF${formatted}` : formatted
+  Str.startsWith("\uFEFF")(text) ? `\uFEFF${formatted}` : formatted
 );
 
 const formatDocument: {
@@ -836,8 +837,8 @@ const rebuildSeq: {
  */
 function isSingleQuoteUnsafe(s: string): boolean {
   for (let i = 0; i < s.length; i++) {
-    const code = s.charCodeAt(i);
-    if (code <= 0x1f || (code >= 0x7f && code <= 0x9f)) return true;
+    const ch = Str.slice(i, i + 1)(s);
+    if (ch <= "\x1f" || (ch >= "\x7f" && ch <= "\x9f")) return true;
   }
   return false;
 }
@@ -1042,7 +1043,7 @@ const tryRegionalScalarEdit: {
     if (!isSpliceableScalar(target)) return undefined;
     // The composer decorates every span containing a line break with
     // sourceMultiline, already excluded by isSpliceableScalar.
-    const span = text.slice(target.offset, target.offset + target.length);
+    const span = Str.slice(target.offset, target.offset + target.length)(text);
     const rendered = renderRegionalScalarText(target, value, inFlow, options);
     if (rendered === undefined) return undefined;
     if (rendered === span) return []; // no-op replace: the span already says exactly this

@@ -8,6 +8,7 @@
  */
 import { it } from "@beep/test-runner";
 import { assert } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";
@@ -85,18 +86,19 @@ export const openChanges: {
       .pipe(Stream.toQueue({ capacity: "unbounded" }))
 );
 
+// beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
 const assertEntries = (
   rows: ReadonlyArray<EventJournal.RemoteEntry>,
   expected: ReadonlyArray<EventJournal.Entry>,
   startSequence: number
 ) => {
   assert.deepStrictEqual(
-    rows.map((row) => row.remoteSequence),
-    expected.map((_, index) => startSequence + index)
+    A.map(rows, (row) => row.remoteSequence),
+    A.map(expected, (_, index) => startSequence + index)
   );
   assert.deepStrictEqual(
-    rows.map((row) => row.entry.idString),
-    expected.map((entry) => entry.idString)
+    A.map(rows, (row) => row.entry.idString),
+    A.map(expected, (entry) => entry.idString)
   );
 };
 
@@ -180,12 +182,14 @@ export const suite: {
             const changes = yield* openChanges(storage, storeId);
             const replayed = yield* Queue.takeAll(changes);
 
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
-              replayed.map((entry) => entry.remoteSequence),
+              A.map(replayed, (entry) => entry.remoteSequence),
               [1, 2]
             );
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
-              replayed.map((entry) => entry.entry.idString),
+              A.map(replayed, (entry) => entry.entry.idString),
               [entryA.idString, entryB.idString]
             );
 
@@ -247,8 +251,9 @@ export const suite: {
 
             const changesA = yield* openChanges(storage, storeA);
             const backlogA = yield* Queue.takeAll(changesA);
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
-              backlogA.map((entry) => entry.entry.idString),
+              A.map(backlogA, (entry) => entry.entry.idString),
               [entryA1.idString]
             );
 

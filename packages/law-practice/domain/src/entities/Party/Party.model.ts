@@ -6,7 +6,7 @@
  */
 import { $LawPracticeDomainId } from "@beep/identity/packages";
 import * as ProductEntity from "@beep/shared-domain/entity/ProductEntity";
-import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
+import * as PartyIdentity from "@beep/shared-domain/identity/Party";
 import { PartyKind } from "../../values/PartyKind/index.ts";
 import { LawPracticeText } from "../LawPracticeEntity.fields.ts";
 import { PartyReference } from "./Party.values.ts";
@@ -51,7 +51,7 @@ const pg = ProductEntity.pg;
  * @category entities
  * @since 0.0.0
  */
-export class Party extends ProductEntity.Entity<Party>()(LawPractice.PartyId)(
+export class Party extends ProductEntity.Entity<Party>()(PartyIdentity.PartyId)(
   {
     displayName: LawPracticeText.annotateKey({
       description: "Human-readable name for the party, recorded for display and never used as identity.",

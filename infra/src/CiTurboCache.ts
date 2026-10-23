@@ -54,7 +54,7 @@ const CacheBucketName = S.String.check(
     })
   )
 ).pipe(
-  // fallow-ignore-next-line code-duplication -- each infra module owns its AWS schemas under its own file-local identity
+  // fallow-ignore-next-line code-duplication -- each infra stack module owns its AWS schemas under its own file-local identity. Owner: @beep/infra. Exit: move the shared bucket-name schema into one infra schema module when a third stack needs it.
   $I.annoteSchema("CacheBucketName", {
     description: "A lowercase, DNS-compatible S3 bucket name for Turbo artifacts.",
   })
@@ -70,7 +70,7 @@ const SsmParameterArn = S.String.check(
     })
   )
 ).pipe(
-  // fallow-ignore-next-line code-duplication -- each infra module owns its AWS schemas under its own file-local identity
+  // fallow-ignore-next-line code-duplication -- each infra stack module owns its AWS schemas under its own file-local identity. Owner: @beep/infra. Exit: move the shared schema into one infra schema module when a third stack needs it.
   $I.annoteSchema("SsmParameterArn", {
     description: "An ARN for an AWS Systems Manager SecureString parameter.",
   })

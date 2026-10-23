@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-// fallow-ignore-file code-duplication -- each process driver owns its spawn-and-capture step (tika, tesseract, poppler); drivers do not depend on each other and no shared capture helper exists below repo-cli.
+// fallow-ignore-file code-duplication -- each process driver (tika, tesseract, poppler) owns its spawn-and-capture step; drivers do not depend on each other and no shared capture helper exists below repo-cli. Owner: @beep/tesseract. Exit: import a foundation-level capture helper once one exists.
 
 import { PageOcrEngineIdentity, PageOcrError, PageOcrResult, PageOcrTiming } from "@beep/file-processing/PageOcr";
 import { A, O, Str } from "@beep/utils";

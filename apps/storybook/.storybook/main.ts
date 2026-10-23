@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { mergeConfig } from "vite";
 import type { StorybookConfig } from "@storybook/react-vite";
 import type { Plugin, ServerOptions } from "vite";
@@ -32,7 +33,7 @@ const proxyHmr = O.map(portlessConfig.mode === "0" ? O.none() : portlessConfig.u
 // The strip plugin is deliberately copied into each Vite composition root
 // (professional-desktop vite.config.ts is the other); a shared tooling package
 // for a two-site workaround is out of this packet's scope.
-// fallow-ignore-next-line code-duplication -- composition-root workaround mirrors professional-desktop's Lexical plugin
+// fallow-ignore-next-line code-duplication -- the Lexical prod-module strip plugin is copied into both Vite composition roots (professional-desktop is the other). Owner: @beep/storybook. Exit: import it from a shared Vite tooling module once one exists, or delete when Lexical ships fixed pure annotations.
 const lexicalReactProdModule =
   /node_modules[\\/]@lexical[\\/]react[\\/]dist[\\/]Lexical(ContentEditable|ErrorBoundary)\.prod\.mjs(?:\?.*)?$/;
 const misplacedPureAnnotationBeforeReturn = /\/\*#__PURE__\*\/\s*(?=return\b)/g;
@@ -45,7 +46,7 @@ const stripMisplacedLexicalPureAnnotations = (): Plugin => ({
       return null;
     }
 
-    const sanitizedCode = code.replace(misplacedPureAnnotationBeforeReturn, "");
+    const sanitizedCode = Str.replace(misplacedPureAnnotationBeforeReturn, "")(code);
 
     return sanitizedCode === code ? null : { code: sanitizedCode, map: null };
   },
@@ -53,18 +54,18 @@ const stripMisplacedLexicalPureAnnotations = (): Plugin => ({
 
 // Vite treats an explicit `.ts` suffix as an exact filename, while the repository
 // convention intentionally uses `.ts` specifiers for both `.ts` and `.tsx` sources.
-// fallow-ignore-next-line code-duplication -- composition-root resolver mirrors professional-desktop's Vite plugin
+// fallow-ignore-next-line code-duplication -- the `.ts`-to-`.tsx` resolver is copied into both Vite composition roots (professional-desktop is the other). Owner: @beep/storybook. Exit: import it from a shared Vite tooling module once one exists, or delete when Vite applies the TypeScript source fallback.
 const resolveUniformTypeScriptSourceSpecifiers = (): Plugin => ({
   name: "beep:resolve-uniform-typescript-source-specifiers",
   enforce: "pre",
   resolveId(source, importer, options) {
-    if (importer === undefined || !source.startsWith(".") || !source.endsWith(".ts")) {
+    if (importer === undefined || !Str.startsWith(".")(source) || !Str.endsWith(".ts")(source)) {
       return null;
     }
 
     return this.resolve(source, importer, { ...options, skipSelf: true }).then((exactSource) =>
       exactSource === null
-        ? this.resolve(source.replace(/\.ts$/, ".tsx"), importer, { ...options, skipSelf: true })
+        ? this.resolve(Str.replace(/\.ts$/, ".tsx")(source), importer, { ...options, skipSelf: true })
         : exactSource
     );
   },

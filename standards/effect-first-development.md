@@ -289,6 +289,11 @@ export class MyService extends Context.Service<MyService, {
   expression trips TS2310 on the pipe form, apply the helper directly:
   `$I.annoteKey("Parent.key", {...})(S.suspend(() => Node))`.
 - Annotation descriptions should encode intent, not repeat the symbol name.
+- Biome enforces the composer forms in every package's `lint` task through two
+  `@beep/lint-rules` GritQL rules: `prefer-identity-annote-pipe` rejects
+  `.annotate($I.annote(...))` and `.annotateKey($I.annote(...))`, and
+  `no-hand-built-identity-annotation` rejects `identifier:` values built from
+  `` $I`Name` `` or `$I.make("Name")`.
 
 Example:
 

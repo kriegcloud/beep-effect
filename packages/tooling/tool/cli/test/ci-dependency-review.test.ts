@@ -153,8 +153,8 @@ const RecordedGithub = Layer.effect(
       const bodies = yield* Effect.forEach(served, (rows) => encodePage(rows));
       return A.map(bodies, (body, index) => ok(httpPage(index + 1, last, body)));
     });
-    const byManifest = (rows: ReadonlyArray<DependencyChange>) =>
-      A.groupWith(rows, (self, that) => self.manifest === that.manifest);
+    const byManifest = (rows: ReadonlyArray<DependencyChange>): ReadonlyArray<ReadonlyArray<DependencyChange>> =>
+      A.isReadonlyArrayNonEmpty(rows) ? A.groupWith(rows, (self, that) => self.manifest === that.manifest) : [];
     const pr1592ByManifest = byManifest(A.flatten(pr1592Pages));
     const replies = HashMap.make(
       [rangeKey(PR_911), yield* paged(byManifest(A.flatten(pr911Pages)))],

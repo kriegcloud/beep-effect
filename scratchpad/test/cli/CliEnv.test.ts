@@ -1,7 +1,7 @@
 import * as Data from "effect/Data";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitSuccess, assertExitFailure } from "@effect/vitest/utils";
-import { Audience, CurrentRuntimeEnv, TerminalEnv } from "../../effected/env/index.ts";
+import { Audience, CurrentRuntimeEnv, TerminalEnv } from "@beep/runtime-env";
 import { MemoryFileSystem } from "@beep/memfs";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -24,6 +24,7 @@ import * as Context from "effect/Context";
 import type { CliEnvOptions } from "../../effected/cli/index.ts";
 import { CliEnv, CliInteractive, CliLinks, CliRuntime, CliTheme } from "../../effected/cli/index.ts";
 import { TestTerminal } from "../../effected/cli/testing.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 
 class TestError extends Data.TaggedError("TestError")<{ readonly message: string; readonly cause?: unknown }> {
 	override readonly name = "Error";
@@ -84,7 +85,7 @@ describe("CliEnv.layer", () => {
 				const interactive = yield* CliInteractive;
 				assert.isDefined(runtime);
 				assert.strictEqual(terminal.stdinIsTerminal, true);
-				assert.deepStrictEqual(audience, { kind: "agent", source: "override" });
+				assert.deepStrictEqual(audience, AudienceShape.make({ kind: "agent", source: "override" }));
 				assert.strictEqual(theme.color, "none");
 				// An agent audience is never interactive, even on a terminal.
 				assert.strictEqual(interactive, false);

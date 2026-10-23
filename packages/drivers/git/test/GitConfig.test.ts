@@ -4,8 +4,10 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
+import * as Str from "effect/String";
 import type { GitConfigParseError } from "@beep/git/GitConfig";
 
 /** Unwraps a successful Result or fails the test with the failure's message. */
@@ -225,7 +227,7 @@ describe("GitConfig", () => {
     assert.deepStrictEqual(doc.getAll("remote", undefined, "url"), ["plain"]);
     assert.deepStrictEqual(doc.getAll("remote", "origin", "url"), []);
     assert.strictEqual(doc.stringify(), text);
-    assert.strictEqual(ok(doc.set("remote", "", "url", "new")).stringify(), text.replace("url=two", "url=new"));
+    assert.strictEqual(ok(doc.set("remote", "", "url", "new")).stringify(), Str.replace("url=two", "url=new")(text));
   });
 
   it("an EOF backslash outside quotes is dropped from the value and included in the replaced span", () => {
@@ -384,7 +386,7 @@ describe("GitConfig", () => {
     });
 
     it("parseResult never throws on hostile input", () => {
-      const hostile = ['"'.repeat(10_000), "[".repeat(10_000), `[a]\n${"\tk = v\\\n".repeat(5_000)}x\n`];
+      const hostile = [Str.repeat(10_000)('"'), Str.repeat(10_000)("["), `[a]\n${Str.repeat(5_000)("\tk = v\\\n")}x\n`];
       for (const text of hostile) {
         // Must return a Result (either way), not throw.
         const result = GitConfig.parseResult(text);
@@ -694,10 +696,18 @@ describe("GitConfig round-1 scanner regressions", () => {
       assert.strictEqual(doc.stringify(), text);
       assert.deepStrictEqual(doc.get("core", undefined, "bare"), O.some("false"));
       const entry = doc.sections[0]?.entries[0];
-      assert.strictEqual(entry?.offset, text.indexOf("]") + 1);
-      assert.strictEqual(entry?.length, text.indexOf("\n") + 1 - (text.indexOf("]") + 1));
-      assert.strictEqual(ok(doc.set("core", undefined, "bare", "true")).stringify(), text.replace("false", "true"));
-      const newline = text.includes("\r\n") ? "\r\n" : "\n";
+      assert.strictEqual(entry?.offset, pipe(text, Str.indexOf("]"), O.getOrElse(constant(-1))) + 1);
+      assert.strictEqual(
+        entry?.length,
+        pipe(text, Str.indexOf("\n"), O.getOrElse(constant(-1))) +
+          1 -
+          (pipe(text, Str.indexOf("]"), O.getOrElse(constant(-1))) + 1)
+      );
+      assert.strictEqual(
+        ok(doc.set("core", undefined, "bare", "true")).stringify(),
+        Str.replace("false", "true")(text)
+      );
+      const newline = Str.includes("\r\n")(text) ? "\r\n" : "\n";
       assert.strictEqual(ok(doc.unset("core", undefined, "bare")).stringify(), `[CoRe]${newline}other=v${newline}`);
       assert.strictEqual(ok(doc.unsetAll("core", undefined, "bare")).stringify(), `[CoRe]${newline}other=v${newline}`);
     }
@@ -747,7 +757,7 @@ describe("GitConfig round-1 scanner regressions", () => {
       assert.strictEqual(error.diagnostics.length, 1);
       assert.strictEqual(
         error.diagnostics[0]?.code,
-        text.startsWith("[core]\r") ? "invalidSectionHeader" : "invalidLine"
+        Str.startsWith("[core]\r")(text) ? "invalidSectionHeader" : "invalidLine"
       );
     }
   });
@@ -764,9 +774,12 @@ describe("GitConfig round-1 scanner regressions", () => {
     assert.strictEqual(doc.stringify(), text);
     assert.strictEqual(doc.sections[0]?.offset, 0);
     assert.strictEqual(doc.sections[0]?.entries[0]?.offset, 7);
-    assert.strictEqual(doc.sections[0]?.entries[1]?.offset, text.indexOf("other"));
+    assert.strictEqual(
+      doc.sections[0]?.entries[1]?.offset,
+      pipe(text, Str.indexOf("other"), O.getOrElse(constant(-1)))
+    );
     assert.deepStrictEqual(doc.get("core", undefined, "bare"), O.some("false"));
-    assert.strictEqual(ok(doc.set("core", undefined, "bare", "true")).stringify(), text.replace("false", "true"));
+    assert.strictEqual(ok(doc.set("core", undefined, "bare", "true")).stringify(), Str.replace("false", "true")(text));
     assert.strictEqual(ok(doc.unset("core", undefined, "bare")).stringify(), "\uFEFF[core]\nother=v\n");
     const bad = failure("\uFEFF[core]\n1bad=v\n");
     assert.strictEqual(bad.diagnostics[0]?.offset, 8);

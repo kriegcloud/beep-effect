@@ -583,6 +583,77 @@ layer(platformWith(unreadableTree, unreadableOptions), { timeout: "10 seconds" }
   }
 );
 
+// Branches no pattern alternative can reach: an unreadable directory and a tree past the depth cap.
+const scopedTree = {
+  "/proj/apps/x/package.json": "",
+  "/proj/packages/a/test/x.test.ts": "",
+  "/proj/src/index.ts": "",
+  "/proj/dist/out.ts": "",
+  "/proj/docs/q.ts": "",
+  "/proj/.hidden/h.ts": "",
+  [`/proj/deep/${A.join(A.replicate("d", 4), "/")}/leaf.ts`]: "",
+  "/proj/junk/locked/secret.ts": "",
+  "/proj/lit/a*b.ts": "",
+};
+const scopedOptions = { unreadable: HashSet.make("/proj/junk/locked") };
+
+layer(platformWith(scopedTree, scopedOptions), { timeout: "10 seconds" })("descend, partial-match pruning", (it) => {
+  it.effect("a fixed-depth pattern never reads an unrelated unreadable directory", () =>
+    Effect.gen(function* () {
+      const pattern = yield* GlobPattern.compile("*/x/package.json");
+      assert.deepStrictEqual(yield* descend(pattern, { cwd: "/proj" }), ["apps/x/package.json"]);
+    })
+  );
+
+  it.effect("a brace-rooted globstar walks only its alternatives' branches", () =>
+    Effect.gen(function* () {
+      const pattern = yield* GlobPattern.compile("{apps,packages,infra}/**/test/**/*.ts");
+      assert.deepStrictEqual(yield* descend(pattern, { cwd: "/proj" }), ["packages/a/test/x.test.ts"]);
+    })
+  );
+
+  it.effect("a brace-rooted single-level pattern descends one level into each alternative", () =>
+    Effect.gen(function* () {
+      const pattern = yield* GlobPattern.compile("{src,dist}/*.ts");
+      assert.deepStrictEqual(yield* descend(pattern, { cwd: "/proj" }), ["dist/out.ts", "src/index.ts"]);
+      const slashed = yield* GlobPattern.compile("{src/*,docs/*}.ts");
+      assert.deepStrictEqual(yield* descend(slashed, { cwd: "/proj" }), ["docs/q.ts", "src/index.ts"]);
+    })
+  );
+
+  it.effect("a brace pattern without other magic walks every alternative instead of stating its source", () =>
+    Effect.gen(function* () {
+      const leaf = yield* GlobPattern.compile("src/{index,other}.ts");
+      assert.deepStrictEqual(yield* descend(leaf, { cwd: "/proj" }), ["src/index.ts"]);
+      const spanning = yield* GlobPattern.compile("{src/index,dist/out}.ts");
+      assert.deepStrictEqual(yield* descend(spanning, { cwd: "/proj" }), ["dist/out.ts", "src/index.ts"]);
+    })
+  );
+
+  it.effect("an escaped literal stats the path it names, not its source text", () =>
+    Effect.gen(function* () {
+      const pattern = yield* GlobPattern.compile(GlobPattern.escape("lit/a*b.ts"));
+      assert.deepStrictEqual(yield* descend(pattern, { cwd: "/proj" }), ["lit/a*b.ts"]);
+    })
+  );
+
+  it.effect("an unreachable deep branch cannot trip the depth cap", () =>
+    Effect.gen(function* () {
+      const pattern = yield* GlobPattern.compile("*/*.ts");
+      const found = yield* descend(pattern, { cwd: "/proj", maxDepth: 2, onUnreadable: "fail" });
+      assert.deepStrictEqual(found, ["dist/out.ts", "docs/q.ts", "lit/a*b.ts", "src/index.ts"]);
+    })
+  );
+
+  it.effect("a wildcard never enters a dot-directory unless the pattern compiles with dot", () =>
+    Effect.gen(function* () {
+      const hidden = yield* GlobPattern.compile("*/*.ts", GlobPatternOptions.make({ dot: true }));
+      const found = yield* descend(hidden, { cwd: "/proj", onUnreadable: "skip" });
+      assert.isTrue(A.contains(found, ".hidden/h.ts"));
+    })
+  );
+});
+
 // A directory that vanishes between its parent's listing and its own read.
 const vanishedTree = { "/proj/src/a.ts": "" };
 const vanishedOptions = { vanished: HashSet.make("/proj/src/gone") };

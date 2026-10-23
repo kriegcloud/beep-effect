@@ -15,7 +15,9 @@ import { dual } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $JsoncId.create("internal/scanner");
 
@@ -147,6 +149,25 @@ export interface Scanner {
   readonly scan: () => SyntaxKind;
 }
 
+const QUOTE = '"';
+const BACKSLASH = "\\";
+const LINE_FEED = "\n";
+const CARRIAGE_RETURN = "\r";
+const LINE_SEPARATOR = "\u2028";
+const PARAGRAPH_SEPARATOR = "\u2029";
+const CONTROL_MAX = "\u001f";
+const ASTERISK = "*";
+const SLASH = "/";
+
+// Numeric classes used by the lexer, without allocating an Option per code unit.
+const SCANNER_CODES: Readonly<Record<string, number>> = {
+  ...R.fromEntries(A.makeBy(128, (code): readonly [string, number] => [String.fromCharCode(code), code])),
+  "\u00a0": 0xa0,
+  "\ufeff": 0xfeff,
+  "\u2028": 0x2028,
+  "\u2029": 0x2029,
+};
+
 const isWhitespace = (ch: number): boolean =>
   ch === 0x20 || ch === 0x09 || ch === 0x0b || ch === 0x0c || ch === 0xa0 || ch === 0xfeff;
 
@@ -246,7 +267,8 @@ export const createScanner: {
     let tokenValue = "";
     let tokenError: ScanError = "None";
 
-    const charAt = (index: number): number => (index < len ? text.charCodeAt(index) : 0);
+    const charAt = (index: number): number =>
+      index < len ? (SCANNER_CODES[Str.slice(index, index + 1)(text)] ?? 0xffff) : 0;
 
     const scanHexDigits = (count: number): O.Option<number> => {
       let value = 0;
@@ -272,9 +294,17 @@ export const createScanner: {
     // the token stays intact for recovery.
     const skipStringRun = (): void => {
       while (pos < len) {
-        const ch = text.charCodeAt(pos);
-        if (ch === 0x22 || ch === 0x5c || isLineBreak(ch)) return;
-        if (ch <= 0x1f) tokenError = "InvalidCharacter";
+        const ch = Str.slice(pos, pos + 1)(text);
+        if (
+          ch === QUOTE ||
+          ch === BACKSLASH ||
+          ch === LINE_FEED ||
+          ch === CARRIAGE_RETURN ||
+          ch === LINE_SEPARATOR ||
+          ch === PARAGRAPH_SEPARATOR
+        )
+          return;
+        if (ch <= CONTROL_MAX) tokenError = "InvalidCharacter";
         pos++;
       }
     };
@@ -282,7 +312,7 @@ export const createScanner: {
     // Decode the escape whose code unit sits at `pos` (just after the
     // backslash) and append it to `chunks`.
     const appendEscape = (chunks: Array<string>): void => {
-      const escaped = text.charCodeAt(pos);
+      const escaped = SCANNER_CODES[Str.slice(pos, pos + 1)(text)] ?? 0xffff;
       pos++;
       const simple = simpleEscape(escaped);
       if (O.isSome(simple)) {
@@ -308,12 +338,12 @@ export const createScanner: {
         tokenError = "UnexpectedEndOfString";
         return true;
       }
-      const ch = text.charCodeAt(pos);
-      if (ch === 0x22) {
+      const ch = Str.slice(pos, pos + 1)(text);
+      if (ch === QUOTE) {
         pos++;
         return true;
       }
-      if (ch !== 0x5c) {
+      if (ch !== BACKSLASH) {
         tokenError = "UnexpectedEndOfString";
         return true;
       }
@@ -335,7 +365,7 @@ export const createScanner: {
       while (!done) {
         const start = pos;
         skipStringRun();
-        chunks.push(text.substring(start, pos));
+        chunks.push(Str.substring(start, pos)(text));
         done = scanStringBoundary(chunks);
       }
       return A.join(chunks, "");
@@ -379,15 +409,15 @@ export const createScanner: {
       if (!(scanFraction() && scanExponent())) {
         tokenError = "UnexpectedEndOfNumber";
       }
-      return text.substring(start, pos);
+      return Str.substring(start, pos)(text);
     };
 
     const scanLineComment = (): SyntaxKind => {
       pos += 2;
-      while (pos < len && !isLineBreak(text.charCodeAt(pos))) {
+      while (pos < len && !isLineBreak(SCANNER_CODES[Str.slice(pos, pos + 1)(text)] ?? 0xffff)) {
         pos++;
       }
-      tokenValue = text.substring(tokenOffset, pos);
+      tokenValue = Str.substring(tokenOffset, pos)(text);
       return "LineComment";
     };
 
@@ -395,7 +425,7 @@ export const createScanner: {
       pos += 2;
       let closed = false;
       while (pos < len - 1 && !closed) {
-        if (text.charCodeAt(pos) === 0x2a && text.charCodeAt(pos + 1) === 0x2f) {
+        if (text[pos] === ASTERISK && text[pos + 1] === SLASH) {
           pos += 2;
           closed = true;
         } else {
@@ -406,7 +436,7 @@ export const createScanner: {
         pos = len;
         tokenError = "UnexpectedEndOfComment";
       }
-      tokenValue = text.substring(tokenOffset, pos);
+      tokenValue = Str.substring(tokenOffset, pos)(text);
       return "BlockComment";
     };
 
@@ -414,7 +444,7 @@ export const createScanner: {
       while (isLowerAlpha(charAt(pos))) {
         pos++;
       }
-      tokenValue = text.substring(tokenOffset, pos);
+      tokenValue = Str.substring(tokenOffset, pos)(text);
       const kind = keywordKind(tokenValue);
       if (kind === "Unknown") {
         tokenError = "InvalidSymbol";
@@ -424,14 +454,14 @@ export const createScanner: {
 
     const scanUnknown = (error: ScanError): SyntaxKind => {
       pos++;
-      tokenValue = text.substring(tokenOffset, pos);
+      tokenValue = Str.substring(tokenOffset, pos)(text);
       tokenError = error;
       return "Unknown";
     };
 
     const scanPunctuation = (kind: SyntaxKind): SyntaxKind => {
       pos++;
-      tokenValue = text.substring(tokenOffset, pos);
+      tokenValue = Str.substring(tokenOffset, pos)(text);
       return kind;
     };
 
@@ -439,7 +469,7 @@ export const createScanner: {
       do {
         pos++;
       } while (isWhitespace(charAt(pos)));
-      tokenValue = text.substring(tokenOffset, pos);
+      tokenValue = Str.substring(tokenOffset, pos)(text);
       return "Trivia";
     };
 
@@ -448,7 +478,7 @@ export const createScanner: {
       if (ch === 0x0d && charAt(pos) === 0x0a) {
         pos++;
       }
-      tokenValue = text.substring(tokenOffset, pos);
+      tokenValue = Str.substring(tokenOffset, pos)(text);
       return "LineBreak";
     };
 
@@ -484,7 +514,7 @@ export const createScanner: {
       tokenError = "None";
       tokenOffset = pos;
       if (pos >= len) return "EOF";
-      const ch = text.charCodeAt(pos);
+      const ch = SCANNER_CODES[Str.slice(pos, pos + 1)(text)] ?? 0xffff;
       if (isWhitespace(ch)) return scanWhitespace();
       if (isLineBreak(ch)) return scanLineBreak(ch);
       const punctuation = punctuationKind(ch);

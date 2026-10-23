@@ -32,6 +32,7 @@ import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 
 const Json = S.fromJsonString(S.Unknown);
@@ -49,8 +50,8 @@ const ReviewerResultArbitrary = Arbitrary.schema(ReviewerResult);
 const encodeReviewerResult = S.encodeResult(ReviewerResultJson);
 const decodeReviewerResult = S.decodeResult(ReviewerResultJson);
 const sameReviewerResult = S.toEquivalence(ReviewerResult);
-const sha = "a".repeat(40);
-const baseSha = "b".repeat(40);
+const sha = Str.repeat(40)("a");
+const baseSha = Str.repeat(40)("b");
 const check = (id: number, app = 42, status = "in_progress", conclusion: string | null = null, pr = 7) => ({
   id,
   name: "beep-reviewer",
@@ -62,8 +63,8 @@ const check = (id: number, app = 42, status = "in_progress", conclusion: string 
 });
 const completionFixture = (state: string) => ({
   pull: {
-    head: { sha: state === "stale" ? "c".repeat(40) : sha },
-    base: { sha: state === "base-moved" ? "d".repeat(40) : baseSha },
+    head: { sha: state === "stale" ? Str.repeat(40)("c") : sha },
+    base: { sha: state === "base-moved" ? Str.repeat(40)("d") : baseSha },
   },
   run:
     state === "unassociated"
@@ -79,7 +80,7 @@ const summary = (
 ) => ({
   id: 12,
   body,
-  user: { login, type: login.endsWith("[bot]") ? "Bot" : "User" },
+  user: { login, type: Str.endsWith("[bot]")(login) ? "Bot" : "User" },
   performed_via_github_app: app === null ? null : { id: app },
 });
 const result = (p0 = 0, p1 = 0) =>
@@ -163,7 +164,7 @@ describe("reviewer conclusions and identity", () => {
   it.effect("requires the newest run for the exact App, PR, head, and base", () =>
     Effect.sync(() => {
       expect(reviewerCheckSatisfied([check(1, 99, "completed", "success")], sha, 42, 7, baseSha)).toBe(false);
-      expect(reviewerCheckSatisfied([check(1, 42, "completed", "success")], "c".repeat(40), 42, 7, baseSha)).toBe(
+      expect(reviewerCheckSatisfied([check(1, 42, "completed", "success")], Str.repeat(40)("c"), 42, 7, baseSha)).toBe(
         false
       );
       expect(reviewerCheckSatisfied([check(1, 42, "completed", "success"), check(2)], sha, 42, 7, baseSha)).toBe(false);
@@ -172,7 +173,9 @@ describe("reviewer conclusions and identity", () => {
       const newerDocsSuccess = check(2, 42, "completed", "success", 8);
       expect(reviewerCheckSatisfied([codeFailure, newerDocsSuccess], sha, 42, 7, baseSha)).toBe(false);
       expect(reviewerCheckSatisfied([newerDocsSuccess], sha, 42, 7, baseSha)).toBe(false);
-      expect(reviewerCheckSatisfied([check(3, 42, "completed", "success")], sha, 42, 7, "d".repeat(40))).toBe(false);
+      expect(reviewerCheckSatisfied([check(3, 42, "completed", "success")], sha, 42, 7, Str.repeat(40)("d"))).toBe(
+        false
+      );
     })
   );
   it.effect("does not classify a code-to-doc rename or empty file list as L0", () =>
@@ -234,17 +237,17 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
     Effect.gen(function* () {
       const files = [{ filename: "docs/app.md" }, { filename: "README.md" }];
       const http = client((_method, url) =>
-        url.pathname.endsWith("/files")
+        Str.endsWith("/files")(url.pathname)
           ? files
-          : url.pathname.endsWith("/pulls")
+          : Str.endsWith("/pulls")(url.pathname)
             ? [{ number: 7, state: "open", head: { sha } }]
             : { head: { sha }, base: { sha: baseSha }, changed_files: 2 }
       );
       assertSome(yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(http)), baseSha);
       const sharedHead = client((_method, url) =>
-        url.pathname.endsWith("/files")
+        Str.endsWith("/files")(url.pathname)
           ? files
-          : url.pathname.endsWith("/pulls")
+          : Str.endsWith("/pulls")(url.pathname)
             ? [
                 { number: 7, state: "open", head: { sha } },
                 { number: 8, state: "open", head: { sha } },
@@ -253,18 +256,18 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       );
       assertNone(yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(sharedHead)));
       const missingAssociation = client((_method, url) =>
-        url.pathname.endsWith("/files")
+        Str.endsWith("/files")(url.pathname)
           ? files
-          : url.pathname.endsWith("/pulls")
+          : Str.endsWith("/pulls")(url.pathname)
             ? []
             : { head: { sha }, base: { sha: baseSha }, changed_files: 2 }
       );
       assertNone(yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(missingAssociation)));
       let reads = 0;
       const moved = client((_method, url) => {
-        if (url.pathname.endsWith("/files")) return files;
+        if (Str.endsWith("/files")(url.pathname)) return files;
         reads += 1;
-        return { head: { sha: reads === 1 ? sha : "c".repeat(40) }, base: { sha: baseSha }, changed_files: 2 };
+        return { head: { sha: reads === 1 ? sha : Str.repeat(40)("c") }, base: { sha: baseSha }, changed_files: 2 };
       });
       const outcome = yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(
         usingHttp(moved),
@@ -273,9 +276,9 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       expect(outcome._tag).toBe("Failure");
       let baseReads = 0;
       const movedBase = client((_method, url) => {
-        if (url.pathname.endsWith("/files")) return files;
+        if (Str.endsWith("/files")(url.pathname)) return files;
         baseReads += 1;
-        return { head: { sha }, base: { sha: baseReads === 1 ? baseSha : "d".repeat(40) }, changed_files: 2 };
+        return { head: { sha }, base: { sha: baseReads === 1 ? baseSha : Str.repeat(40)("d") }, changed_files: 2 };
       });
       expect(
         (yield* Reviewer.use((reviewer) => reviewer.docsOnly(7, sha)).pipe(usingHttp(movedBase), Effect.result))._tag
@@ -290,7 +293,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
     Effect.gen(function* () {
       let creates = 0;
       const http = client((method, url) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
+        if (Str.endsWith("/pulls/7")(url.pathname)) return { head: { sha }, base: { sha: baseSha } };
         if (method === "POST") {
           creates += 1;
           return { id: 44 };
@@ -302,7 +305,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       expect(creates).toBe(0);
       let postedBody: unknown;
       const otherPr = client((method, url, body) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
+        if (Str.endsWith("/pulls/7")(url.pathname)) return { head: { sha }, base: { sha: baseSha } };
         if (method === "POST") {
           postedBody = body;
           return { id: 44 };
@@ -312,7 +315,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       expect(yield* Reviewer.use((reviewer) => reviewer.start(7, sha)).pipe(usingHttp(otherPr))).toBe(44);
       expect((yield* decodeObject(postedBody)).external_id).toBe(reviewerCheckExternalId(7, sha, baseSha));
       const changedSinceClassification = client((_method, url) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: "d".repeat(40) } };
+        if (Str.endsWith("/pulls/7")(url.pathname)) return { head: { sha }, base: { sha: Str.repeat(40)("d") } };
         return { total_count: 0, check_runs: [] };
       });
       expect(
@@ -328,7 +331,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       let pages = 0;
       let creates = 0;
       const http = client((method, url) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
+        if (Str.endsWith("/pulls/7")(url.pathname)) return { head: { sha }, base: { sha: baseSha } };
         if (method === "POST") {
           creates += 1;
           return { id: 44 };
@@ -393,7 +396,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
     Effect.gen(function* () {
       const bodies: Array<unknown> = [];
       const http = client((method, url, body) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
+        if (Str.endsWith("/pulls/7")(url.pathname)) return { head: { sha }, base: { sha: baseSha } };
         if (method === "GET") return check(2);
         bodies.push(body);
         return { id: 2 };
@@ -423,7 +426,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
         const { pull, run } = completionFixture(state);
         const http = client((method, url) => {
           if (method !== "GET") writes += 1;
-          return url.pathname.endsWith("/pulls/7") ? pull : run;
+          return Str.endsWith("/pulls/7")(url.pathname) ? pull : run;
         });
         const outcome = yield* Reviewer.use((reviewer) => reviewer.complete(2, result())).pipe(
           usingHttp(http),
@@ -439,7 +442,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       let cancelled = false;
       let completions = 0;
       const http = client((method, url) => {
-        if (url.pathname.endsWith("/pulls/7")) return { head: { sha }, base: { sha: baseSha } };
+        if (Str.endsWith("/pulls/7")(url.pathname)) return { head: { sha }, base: { sha: baseSha } };
         if (method === "GET")
           return check(2, 42, cancelled ? "completed" : "in_progress", cancelled ? "cancelled" : null);
         if (cancelled) completions += 1;
@@ -495,7 +498,7 @@ it.layer(HttpTestLayer, { timeout: "30 seconds" })("reviewer HTTP operations", (
       const posted = yield* decodeObject(bodies[0]);
       expect(posted.event).toBe("COMMENT");
       expect(posted.commit_id).toBe(sha);
-      const stale = yield* Reviewer.use((reviewer) => reviewer.start(7, "b".repeat(40))).pipe(
+      const stale = yield* Reviewer.use((reviewer) => reviewer.start(7, Str.repeat(40)("b"))).pipe(
         usingHttp(http),
         Effect.result
       );
@@ -638,7 +641,7 @@ it.layer(TokenTestLayer, { timeout: "30 seconds" })("installation token cache", 
       expect(A.map(tokens, Redacted.value)).toEqual(["opaque-2", "opaque-2"]);
       expect(fixture.exchanges()).toBe(2);
       expect(requestBodies[0]).toMatchObject({ repositories: ["beep-effect"], permissions: { checks: "write" } });
-      const jwt = (jwts[0] ?? "").slice(7).split(".");
+      const jwt = Str.split(".")(Str.slice(7)(jwts[0] ?? ""));
       const claims = yield* decodeJson(Buffer.from(jwt[1] ?? "", "base64url").toString()).pipe(
         Effect.flatMap(decodeObject)
       );

@@ -1,6 +1,6 @@
 # Chronocept — mining note
 
-**Source PDF:** `/home/elpresidank/YeeBois/projects/beep-effect15/explorations/graphnosis-prior-art/assets/chronocept-sense-of-time.pdf` (20 pages, read in full: 1-10, 11-20 including all appendices A-H)
+**Source PDF:** `$HOME/YeeBois/projects/beep-effect15/explorations/graphnosis-prior-art/assets/chronocept-sense-of-time.pdf` (20 pages, read in full: 1-10, 11-20 including all appendices A-H)
 
 **Citation, transcribed from the title page and arXiv sidebar:**
 

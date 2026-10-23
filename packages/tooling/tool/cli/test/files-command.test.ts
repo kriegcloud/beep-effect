@@ -722,6 +722,13 @@ const writeLeftCanvasPatternImage = Effect.fn("FilesTest.writeLeftCanvasPatternI
   }).pipe(Effect.asVoid);
 });
 
+// A noisy near-black pixel inside the left and right borders, a flat colour everywhere else.
+const nearSolidBorderPixel = (x: number, y: number, width: number, borderWidth: number): ReadonlyArray<number> => {
+  const inBorder = x < borderWidth || x >= width - borderWidth;
+  const value = (x + y) % 7;
+  return inBorder ? [value, value, value] : [140, 90, 40];
+};
+
 const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")(function* (
   filePath: string,
   width: number,
@@ -732,12 +739,7 @@ const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")
 
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
-      const offset = (y * width + x) * 3;
-      const inBorder = x < borderWidth || x >= width - borderWidth;
-      const value = inBorder ? (x + y) % 7 : 140;
-      data[offset] = value;
-      data[offset + 1] = inBorder ? value : 90;
-      data[offset + 2] = inBorder ? value : 40;
+      data.set(nearSolidBorderPixel(x, y, width, borderWidth), (y * width + x) * 3);
     }
   }
 
@@ -1113,9 +1115,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
       expect(pstRecord.status).toBe("succeeded");
       expect(xlsRecord.status).toBe("skipped");
       expect(childRecords.length).toBeGreaterThan(0);
-      expect(A.every(childRecords, (record) => record.child.relativePath.startsWith("children/"))).toBe(true);
-      expect(A.some(childRecords, (record) => record.child.relativePath.endsWith("/Message.eml"))).toBe(true);
-      expect(A.some(childRecords, (record) => record.child.relativePath.endsWith(".messages.jsonl"))).toBe(true);
+      expect(A.every(childRecords, (record) => Str.startsWith("children/")(record.child.relativePath))).toBe(true);
+      expect(A.some(childRecords, (record) => Str.endsWith("/Message.eml")(record.child.relativePath))).toBe(true);
+      expect(A.some(childRecords, (record) => Str.endsWith(".messages.jsonl")(record.child.relativePath))).toBe(true);
       for (const record of childRecords) {
         expect(yield* fs.exists(path.join(outDir, record.child.relativePath))).toBe(true);
       }
@@ -1454,9 +1456,9 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })("files command"
       );
       const logLines = A.filter(yield* TestConsole.logLines, isString);
       expect(pstRecord.status).toBe("succeeded");
-      expect(A.some(childRecords, (record) => record.child.relativePath.endsWith("/Message.eml"))).toBe(false);
-      expect(A.some(childRecords, (record) => record.child.relativePath.endsWith(".messages.jsonl"))).toBe(true);
-      expect(A.some(logLines, (line) => line.includes("engine warning(s)"))).toBe(true);
+      expect(A.some(childRecords, (record) => Str.endsWith("/Message.eml")(record.child.relativePath))).toBe(false);
+      expect(A.some(childRecords, (record) => Str.endsWith(".messages.jsonl")(record.child.relativePath))).toBe(true);
+      expect(A.some(logLines, Str.includes("engine warning(s)"))).toBe(true);
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
@@ -3368,6 +3370,30 @@ exit 74
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 
+  it.effect("leaves symlinked media files and symlinked directories in place while flattening", () =>
+    Effect.gen(function* () {
+      const tmpDir = yield* temporaryWorkingDirectory;
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const sourceDir = path.join(tmpDir, "source");
+      const outsideDir = path.join(tmpDir, "outside");
+      const outDir = path.join(tmpDir, "flat");
+      yield* fs.makeDirectory(sourceDir, { recursive: true });
+      yield* fs.makeDirectory(outsideDir, { recursive: true });
+      yield* fs.writeFileString(path.join(sourceDir, "real.png"), "real image");
+      yield* fs.writeFileString(path.join(outsideDir, "target.png"), "outside image");
+      yield* fs.writeFileString(path.join(outsideDir, "nested.mp4"), "outside video");
+      yield* fs.symlink(path.join(outsideDir, "target.png"), path.join(sourceDir, "linked.png"));
+      yield* fs.symlink(outsideDir, path.join(sourceDir, "linked-dir"));
+      yield* runFilesCommand(["flatten-media", "--dir", sourceDir, "--out-dir", outDir]);
+      expect(yield* sortedDirectoryEntries(outDir)).toEqual(["real.png"]);
+      expect(yield* fs.readFileString(path.join(outDir, "real.png"))).toBe("real image");
+      expect(yield* sortedDirectoryEntries(sourceDir)).toEqual(["linked-dir", "linked.png"]);
+      expect(yield* fs.readLink(path.join(sourceDir, "linked.png"))).toBe(path.join(outsideDir, "target.png"));
+      expect(yield* sortedDirectoryEntries(outsideDir)).toEqual(["nested.mp4", "target.png"]);
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
   it.effect("allocates deterministic collision suffixes around existing file and directory names", () =>
     Effect.gen(function* () {
       const tmpDir = yield* temporaryWorkingDirectory;
@@ -4592,8 +4618,8 @@ exit 74
       expect(manifest.summary.coreCount).toBe(1);
       expect(manifest.summary.archiveCount).toBe(1);
       expect(A.map(manifest.entries, (entry) => entry.outputRelativePath)).toEqual([
-        `canonical/active/core/twv1_${firstBefore.slice("sha256:".length, "sha256:".length + 20)}.png`,
-        `archive/technical-quality/twv1_${secondBefore.slice("sha256:".length, "sha256:".length + 20)}.png`,
+        `canonical/active/core/twv1_${Str.slice("sha256:".length, "sha256:".length + 20)(firstBefore)}.png`,
+        `archive/technical-quality/twv1_${Str.slice("sha256:".length, "sha256:".length + 20)(secondBefore)}.png`,
       ]);
       for (const entry of manifest.entries) {
         const metadata = yield* readImageMetadata(entry.outputPath);
@@ -4644,7 +4670,7 @@ exit 74
       yield* runFilesCommand(["curate-images", "--dir", datasetDir, "--decisions", decisionsPath, "--out-dir", outDir]);
       const manifestPath = path.join(outDir, "manifests", "image-curation-manifest.json");
       const manifest = yield* decodeImageCurationManifest(yield* fs.readFileString(manifestPath));
-      const hashPrefix = sourceHash.slice("sha256:".length, "sha256:".length + 20);
+      const hashPrefix = Str.slice("sha256:".length, "sha256:".length + 20)(sourceHash);
       expect(A.map(manifest.entries, (entry) => entry.outputName)).toEqual([
         `twv1_${hashPrefix}.png`,
         `twv1_${hashPrefix}_2.png`,
@@ -4753,7 +4779,7 @@ exit 74
         "canonical",
         "active",
         "core",
-        `twv1_${sourceHash.slice("sha256:".length, "sha256:".length + 20)}.png`
+        `twv1_${Str.slice("sha256:".length, "sha256:".length + 20)(sourceHash)}.png`
       );
       const derivativeManifestError = yield* expectFilesCommandFailure([...baseArgs, outputPath]);
       expect(derivativeManifestError).toContain("must not overlap generated derivative");
@@ -4883,7 +4909,7 @@ exit 74
         "canonical",
         "active",
         "core",
-        `twv1_${validHash.slice("sha256:".length, "sha256:".length + 20)}.png`
+        `twv1_${Str.slice("sha256:".length, "sha256:".length + 20)(validHash)}.png`
       );
       yield* fs.makeDirectory(path.dirname(existingOutputPath), { recursive: true });
       yield* fs.makeDirectory(path.dirname(manifestPath), { recursive: true });
@@ -4950,7 +4976,7 @@ exit 74
               disposition: "active-core",
               reasons: ["clean-current-identity"],
               sourceName: "first.jpg",
-              sourceSha256: `sha256:${"0".repeat(64)}`,
+              sourceSha256: `sha256:${Str.repeat(64)("0")}`,
             },
             {
               disposition: "active-extended",

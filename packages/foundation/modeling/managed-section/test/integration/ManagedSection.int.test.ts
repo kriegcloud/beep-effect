@@ -14,9 +14,11 @@ import { assertNone } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { constant } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 
 const tempDirOptions = { prefix: "effected-templates-" } as const;
@@ -175,11 +177,11 @@ it.layer(ManagedSection.layer.pipe(Layer.provideMerge(NodeServices.layer)), {
 
         const text = yield* fs.readFileString(path);
         assert.isBelow(
-          text.indexOf("BEGIN base"),
-          text.indexOf("BEGIN tool"),
+          O.getOrElse(Str.indexOf("BEGIN base")(text), constant(-1)),
+          O.getOrElse(Str.indexOf("BEGIN tool")(text), constant(-1)),
           "declared order is the contract consumers depend on"
         );
-        assert.isTrue(text.startsWith("#!/bin/sh"), "the shebang must survive");
+        assert.isTrue(Str.startsWith("#!/bin/sh")(text), "the shebang must survive");
 
         const again = yield* sections.syncAll(path, declared);
         assert.deepStrictEqual(

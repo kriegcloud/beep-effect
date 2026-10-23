@@ -33,6 +33,7 @@
  */
 
 import { $ColorsId } from "@beep/identity";
+import * as ColorLevel from "@beep/runtime-env/ColorLevel";
 import { SchemaUtils } from "@beep/schema";
 import { A, Str, thunk } from "@beep/utils";
 import { dual, pipe } from "effect/Function";
@@ -103,11 +104,6 @@ export class ProcessLike extends S.Opaque<ProcessLike, { readonly brand: unique 
         description: "Process environment variables consulted for ANSI color support detection.",
       })
     ),
-    platform: S.optionalKey(S.String).pipe(
-      $I.annoteKey("ProcessLike.platform", {
-        description: "Runtime platform string used to detect Windows color support.",
-      })
-    ),
     stdout: S.optionalKey(ProcessLikeStdout).pipe(
       $I.annoteKey("ProcessLike.stdout", {
         description: "Stdout metadata used to detect terminal color support.",
@@ -125,22 +121,10 @@ export class ProcessLike extends S.Opaque<ProcessLike, { readonly brand: unique 
   } = dual(SchemaUtils.isCodecDataFirst, S.decodeUnknownOption(ProcessLike));
 
   static readonly supportsColor = (processLike: ProcessLike = runtimeProcessLike): boolean => {
-    const argv = processLike.argv ?? A.empty();
     const env = processLike.env ?? {};
+    const flagDisables = env.FORCE_COLOR === undefined && A.contains(processLike.argv ?? A.empty(), "--no-color");
 
-    if (env.NO_COLOR !== undefined || A.contains(argv, "--no-color")) {
-      return false;
-    }
-
-    if (env.FORCE_COLOR !== undefined && env.FORCE_COLOR !== "0") {
-      return true;
-    }
-
-    return (
-      processLike.platform === "win32" ||
-      (Boolean(processLike.stdout?.isTTY) && env.TERM !== "dumb") ||
-      env.CI !== undefined
-    );
+    return !flagDisables && ColorLevel.fromEnv(env, processLike.stdout?.isTTY === true) !== "none";
   };
 }
 
@@ -231,8 +215,11 @@ const formatter =
  *
  * **Details**
  *
- * `NO_COLOR` and `--no-color` always disable colors, even when CI, Windows TTYs,
- * or `FORCE_COLOR` would otherwise enable them. `FORCE_COLOR="0"` is treated as disabled.
+ * The decision is `@beep/runtime-env`'s `ColorLevel.fromEnv`, with `--no-color` slotted in after the
+ * environment overrides. A present `FORCE_COLOR` decides alone (`""`, `1`, `2`, `3` and `true` enable,
+ * any other value disables), then a non-empty `NO_COLOR` or `NODE_DISABLE_COLORS` disables, then `--no-color` disables,
+ * then the stdout TTY and `TERM`/`COLORTERM` capability table decide. A CI environment never enables colors
+ * on its own: piped CI output stays plain unless `FORCE_COLOR` is set.
  *
  * **Example** (Detect forced color support)
  *

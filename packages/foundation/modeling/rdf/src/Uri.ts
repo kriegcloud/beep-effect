@@ -89,7 +89,7 @@ const makeReferenceChecks = (
           },
         })
       ),
-      // fallow-ignore-next-line code-duplication -- URI and IRI reference checks share one shape but keep separate identities and messages
+      // fallow-ignore-next-line code-duplication -- URI and IRI reference checks share one shape but keep separate identities and messages. Owner: @beep/rdf. Exit: derive both from one parameterized check factory if a third reference kind is added.
     ],
     $I.create(identifier).annote("Checks", {
       title,

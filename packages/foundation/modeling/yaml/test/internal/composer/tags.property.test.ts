@@ -10,6 +10,7 @@ import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const word = S.Literals(["A", "B", "C", "0", "1"]).pipe(
@@ -26,7 +27,7 @@ describe("tag parser properties", () => {
         const input = `%${source}`;
         const parsed = O.getOrNull(parseDirective(input));
         if (parsed === null) {
-          assert.strictEqual(O.getOrNull(parseDirective(input.trim())), null);
+          assert.strictEqual(O.getOrNull(parseDirective(Str.trim(input))), null);
         } else {
           const canonical = `%${A.join([parsed.name, ...parsed.parameters], " ")}`;
           const reparsed = O.getOrNull(parseDirective(canonical));
@@ -46,7 +47,7 @@ describe("tag parser properties", () => {
     ],
     ([name, parameters, comment]) =>
       Effect.sync(() => {
-        const text = `%${name} ${A.join(parameters, "\t")} # ${comment.replaceAll("\n", " ")}`;
+        const text = `%${name} ${A.join(parameters, "\t")} # ${Str.replaceAll("\n", " ")(comment)}`;
         assert.deepStrictEqual(O.getOrNull(parseDirective(text)), RawDirective.make({ name, parameters }));
       }),
     runs

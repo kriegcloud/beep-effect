@@ -2,7 +2,7 @@ import { YouTubeWatchRequest } from "@beep/editor/youtube-embed";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -44,9 +44,9 @@ const youtubeWatchCapability =
 
 const directiveSources = (policy: string, name: string): ReadonlyArray<string> =>
   pipe(
-    A.map(policy.split(";"), Str.trim),
-    A.findFirst((value) => value.startsWith(`${name} `)),
-    O.match({ onNone: () => [], onSome: (directive) => directive.split(/\s+/u).slice(1) })
+    A.map(Str.split(";")(policy), Str.trim),
+    A.findFirst((value) => Str.startsWith(`${name} `)(value)),
+    O.match({ onNone: () => [], onSome: (directive) => Str.split(/\s+/u)(directive).slice(1) })
   );
 
 describe("packaged YouTube security boundaries", () => {
@@ -60,8 +60,8 @@ describe("packaged YouTube security boundaries", () => {
     ]);
     expect(nativeSource).toContain('include_bytes!(env!("BEEP_WEB_EXTENSION_PATH"))');
     expect(nativeSource).toContain("main_window.extensions_path(prepare_youtube_web_extension(");
-    expect(nativeSource.indexOf("main_window.extensions_path(")).toBeLessThan(
-      nativeSource.indexOf("main_window.build()")
+    expect(O.getOrElse(Str.indexOf("main_window.extensions_path(")(nativeSource), constant(-1))).toBeLessThan(
+      O.getOrElse(Str.indexOf("main_window.build()")(nativeSource), constant(-1))
     );
   });
 

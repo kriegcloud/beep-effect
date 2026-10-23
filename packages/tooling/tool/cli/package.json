@@ -175,7 +175,7 @@
     "test:property": "bun run beep:test",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:python && bun run beep:lint && bun run beep:lint:python",
     "beep:build": "tsc-rs -p tsconfig.json && bun run babel",
-    "beep:check": "tsc-rs -p tsconfig.check.json && tsc-rs -p scripts/tsconfig.json",
+    "beep:check": "tsc-rs -p tsconfig.check.json && tsc-rs -p scripts/tsconfig.json && tsc-rs -p test/tsconfig.json",
     "beep:docgen": "bunx --bun --no-install docgen",
     "beep:doctest": "BEEP_VITEST_DOCTEST=1 bunx vitest run",
     "beep:lint": "biome check .",
@@ -196,6 +196,7 @@
     "@beep/ffmpeg": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/github": "workspace:^",
+    "@beep/glob": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/libpff": "workspace:^",
     "@beep/m365": "workspace:^",
@@ -233,6 +234,10 @@
     "@noble/hashes": "catalog:",
     "@nodable/entities": "3.1.0",
     "@openai/codex-sdk": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/istanbul-lib-coverage": "catalog:",
+    "@vitest/istanbul-lib-instrument": "catalog:",
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "fast-xml-validator": "catalog:",
@@ -245,6 +250,7 @@
     "tar": "catalog:",
     "tinyglobby": "catalog:",
     "ts-morph": "catalog:",
+    "vitest": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
@@ -255,6 +261,8 @@
     "@effect/platform-node-shared": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "pdf-lib": "catalog:"
+    "ast-v8-to-istanbul": "catalog:",
+    "pdf-lib": "catalog:",
+    "vite": "catalog:"
   }
 }

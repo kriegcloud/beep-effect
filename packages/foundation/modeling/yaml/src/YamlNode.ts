@@ -738,10 +738,9 @@ export class YamlPair extends S.Opaque<YamlPair, { readonly brand: unique symbol
     key: $I.annoteKey("YamlPair.key", {
       description: "Node identifying the mapping entry, carrying any own-line comments above that entry",
     })(S.suspend((): typeof YamlNode => YamlNode)),
-    // @effect-diagnostics-next-line missedPipeableOpportunity:off -- the pipe form makes TypeScript resolve YamlPair inside its own base (TS2310).
     value: $I.annoteKey("YamlPair.value", {
       description: "Node containing the mapping entry's content, or `null` when no value follows the key",
-    })(S.NullOr(S.suspend((): typeof YamlNode => YamlNode))),
+    })(S.suspend((): S.NullOr<typeof YamlNode> => S.NullOr(YamlNode))),
   }).pipe(
     $I.annoteSchema("YamlPair", {
       description:

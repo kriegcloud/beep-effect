@@ -229,14 +229,14 @@ export const makePracticeKgSmokeBundle = Effect.fn("PracticeKgSmoke.makeFixtureB
 // bin.ts resolves PRACTICE_KG_BUNDLE_DIR ahead of BUNDLE_DIR, so an ambient value in a
 // developer or CI shell would aim the compiled host at another bundle and let a leg pass
 // without proving the staged artifact. Dropping both higher-precedence overrides also
-// leaves PRACTICE_KG_CORPUS_ROOT unset, mirroring the pointer-only install. Every leg
-// spawns the host from this environment.
+// leaves PRACTICE_KG_CORPUS_ROOT unset, mirroring the pointer-only install. An ambient
+// NODE_PATH is dropped too, so only a leg that sets it explicitly (the manifest leg) gets
+// one. Every leg spawns the host from this environment.
 const compiledHostEnv = (): Record<string, string | undefined> => {
   const ambientEnv: Record<string, string | undefined> = { ...Bun.env };
-  return R.remove(R.remove(ambientEnv, "PRACTICE_KG_BUNDLE_DIR"), "PRACTICE_KG_CORPUS_ROOT");
+  return R.remove(R.remove(R.remove(ambientEnv, "PRACTICE_KG_BUNDLE_DIR"), "PRACTICE_KG_CORPUS_ROOT"), "NODE_PATH");
 };
 
-// fallow-ignore-next-line complexity -- stdio smoke harness; IS the coverage for the compiled artifact
 const runCompiledHost = Effect.fn("PracticeKgSmoke.runCompiledHost")(function* (
   executable: string,
   bundleOut: string,
@@ -379,7 +379,6 @@ const runCompiledHandshake = Effect.fn("PracticeKgSmoke.runCompiledHandshake")(f
   bundleOut: string,
   neutralCwd: string
 ) {
-  const path = yield* Path.Path;
   const initialize = `{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"${HANDSHAKE_PROTOCOL_VERSION}","capabilities":{},"clientInfo":{"name":"compiled-smoke","version":"0.0.0"}}}`;
   const pipeScript =
     `{ printf '%s\\n' '${initialize}'; sleep 2; ` +
@@ -390,11 +389,10 @@ const runCompiledHandshake = Effect.fn("PracticeKgSmoke.runCompiledHandshake")(f
       new Response(
         Bun.spawn(["sh", "-c", pipeScript, "practice-kg-handshake", executable], {
           cwd: neutralCwd,
-          env: {
-            ...compiledHostEnv(),
-            BUNDLE_DIR: bundleOut,
-            NODE_PATH: path.join(path.dirname(executable), "node_modules"),
-          },
+          // No NODE_PATH and a neutral cwd: a `claude mcp add` registration or a
+          // script launches the host this way, so the DuckDB addon must resolve
+          // from the executable's own folder (#1959).
+          env: { ...compiledHostEnv(), BUNDLE_DIR: bundleOut },
           stderr: "inherit",
           stdout: "pipe",
         }).stdout
@@ -431,7 +429,6 @@ const runCompiledSelfCheck = Effect.fn("PracticeKgSmoke.runCompiledSelfCheck")(f
   bundleOut: string,
   neutralCwd: string
 ) {
-  const path = yield* Path.Path;
   const selfCheckFailure = (message: string) => (cause: unknown) => SmokeFailure.make({ cause, message });
   const expected = yield* loadPracticeKgBundleContext(bundleOut).pipe(
     Effect.mapError(selfCheckFailure("Fixture bundle manifest could not be read for the self-check smoke."))
@@ -440,11 +437,8 @@ const runCompiledSelfCheck = Effect.fn("PracticeKgSmoke.runCompiledSelfCheck")(f
     try: () =>
       Bun.spawn([executable, "--self-check"], {
         cwd: neutralCwd,
-        env: {
-          ...compiledHostEnv(),
-          BUNDLE_DIR: bundleOut,
-          NODE_PATH: path.join(path.dirname(executable), "node_modules"),
-        },
+        // No NODE_PATH, neutral cwd: proves executable-relative addon resolution (#1959).
+        env: { ...compiledHostEnv(), BUNDLE_DIR: bundleOut },
         stderr: "inherit",
         stdin: "ignore",
         stdout: "pipe",

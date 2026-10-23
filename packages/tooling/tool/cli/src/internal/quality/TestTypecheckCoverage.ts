@@ -28,6 +28,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { normalizePath } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, O, pipe, R, Str, thunkFalse } from "@beep/utils";
+import { compileAndExpand } from "@beep/walker/Expand";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, flow } from "effect/Function";
@@ -121,6 +122,7 @@ export class TestTypecheckCoverage extends S.Class<TestTypecheckCoverage, { read
   })
 ) {
   /** Whether every judged test source is typechecked by the package's `check` script. */
+  // fallow-ignore-next-line unused-class-member -- TestTypecheckCoverage.covered: Quality/internal/TestTsgoPrograms.ts reads the instance getter.
   get covered(): boolean {
     return A.isReadonlyArrayEmpty(this.uncoveredSources);
   }
@@ -251,6 +253,84 @@ export const isDirectoryPath: {
       Effect.map(O.match({ onNone: thunkFalse, onSome: (type) => type === "Directory" }))
     )
 );
+
+// Build outputs, vendored dependencies, coverage and Turbo caches never hold
+// workspace-owned sources, so no workspace walk descends into them.
+const workspacePrunedDirectoryNames: ReadonlyArray<string> = [
+  "node_modules",
+  "dist",
+  "dist-test",
+  "coverage",
+  "tmp",
+  ".turbo",
+];
+
+/**
+ * Path segment that marks a fixture tree a workspace lint never judges.
+ *
+ * **Details**
+ * Fixture trees hold deliberately broken packages and configs for the lints'
+ * own tests; a lint that reported them would fail the gate on its evidence.
+ *
+ * **Example** (Recognise a fixture path)
+ *
+ * ```ts
+ * import { testFixtureSegment } from "@beep/repo-cli/test/SharedInternals"
+ * import * as Str from "effect/String"
+ *
+ * console.log(Str.includes(testFixtureSegment)("/repo/pkg/test/fixtures/broken/")) // true
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const testFixtureSegment = "/test/fixtures/";
+
+/**
+ * Absolute, sorted paths of the files a glob selects under a workspace search root.
+ *
+ * **Details**
+ * Expansion runs on `@beep/walker`, so every workspace lint agrees on scope:
+ * dot entries are walked, `node_modules`, `dist`, `dist-test`, `coverage`,
+ * `tmp` and `.turbo` directories are pruned, symlinked directories are
+ * followed under the walker's cycle guard, and an unreadable directory reads
+ * as empty. A missing or non-directory root yields no paths. Only files match.
+ *
+ * **Gotchas**
+ * The patterns are static and a workspace never nests 256 directories deep,
+ * so a compile guard trip or a depth overrun is a defect, not a typed failure.
+ *
+ * **Example** (List a package's top-level test files)
+ *
+ * ```ts
+ * import { expandWorkspaceFiles } from "@beep/repo-cli/test/SharedInternals"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = expandWorkspaceFiles("/repo/packages/example", "test/*.ts")
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ *
+ * @param searchRoot - Absolute directory the pattern is resolved against.
+ * @param pattern - Glob selecting files relative to `searchRoot`.
+ * @returns Normalized absolute paths of the matching files, sorted.
+ * @category filesystem
+ * @since 0.0.0
+ */
+export const expandWorkspaceFiles = Effect.fn("TestTypecheckCoverage.expandWorkspaceFiles")(function* (
+  searchRoot: string,
+  pattern: string
+): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
+  const path = yield* Path.Path;
+  const matches = yield* compileAndExpand(pattern, {
+    cwd: searchRoot,
+    glob: { dot: true },
+    prune: workspacePrunedDirectoryNames,
+    followSymlinks: true,
+    onUnreadable: "skip",
+  }).pipe(Effect.orDie);
+
+  return A.map(matches, (relative) => normalizePath(path.resolve(searchRoot, relative)));
+});
 
 const capturedGroups = (pattern: RegExp, text: string): ReadonlyArray<string> =>
   pipe(

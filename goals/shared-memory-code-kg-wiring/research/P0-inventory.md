@@ -4,7 +4,7 @@
 > repo and machine; see `standards/memory-architecture/04-decision-log.md`. Kept as a record.
 
 Read-only inventory for `shared-memory-code-kg-wiring`. Repo paths relative to
-`/home/elpresidank/YeeBois/projects/beep-effect16`. **Snapshot 2026-08-06
+`$HOME/YeeBois/projects/beep-effect16`. **Snapshot 2026-08-06
 16:47–16:55 CDT**; three surfaces changed *during* the sweep (see Blockers).
 
 ## 1. Cognee role-assigning references
@@ -249,7 +249,7 @@ Branch is **`main`** — PR-only per SPEC, so branch before committing.
 2. **`codegraph install --target claude` writes `~/.claude.json`, not the repo
    `.mcp.json`.** Only `-l local` targets `.mcp.json`, resolved against the
    **CWD** — my probe printed
-   `/home/elpresidank/YeeBois/research/codebase_graph_and_memory/.mcp.json`
+   `$HOME/YeeBois/research/codebase_graph_and_memory/.mcp.json`
    because that was the shell's cwd. Hand-write the two entries instead.
 3. **The installer cannot satisfy the keyless/no-telemetry rule.** No target
    emits `env`, so `DO_NOT_TRACK=1` and `CODEGRAPH_NO_UPDATE_CHECK=1` must be

@@ -169,7 +169,7 @@ export const runQaJudgeIngest = Effect.fn("QaJudgeIngest.run")(function* (
   options: QaJudgeIngestOptions
   // Every `beep qa` subcommand opens with the same service acquisition and
   // round-layout read; only the error wording each command owns differs.
-  // fallow-ignore-next-line code-duplication -- every beep qa subcommand shares this service-acquisition and round-layout prologue; only the error wording differs
+  // fallow-ignore-next-line code-duplication -- every `beep qa` subcommand repeats this service-acquisition and round-layout prologue with its own error wording. Owner: @beep/repo-cli. Exit: extract a shared Qa round-layout prologue once a third caller needs different wording rules.
 ): Effect.fn.Return<QaInventory, QaCommandError, FileSystem.FileSystem | Path.Path | SessionStore> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;

@@ -16,7 +16,7 @@
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId, CoreVocab } from "@beep/identity";
 import { XSD_NAMESPACE } from "@beep/rdf/Vocab/Xsd";
 import * as Context from "effect/Context";

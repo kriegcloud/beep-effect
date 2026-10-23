@@ -98,13 +98,6 @@ export * from "./MatterId.ts";
  */
 export * from "./OfficeActionId.ts";
 /**
- * PartyId schema and runtime type exports.
- *
- * @category entity-ids
- * @since 0.0.0
- */
-export * from "./PartyId.ts";
-/**
  * PatentAssetId schema and runtime type exports.
  *
  * @category entity-ids

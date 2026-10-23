@@ -1522,7 +1522,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       const kind = AiMetricsTranscriptSource.$match(sanitized.sourceKind, {
         claude: () => O.some(HookPulseAgentKind.Enum["claude-code"]),
         codex: () => O.some(HookPulseAgentKind.Enum["codex-cli"]),
-        openclaw: () => O.none<HookPulseAgentKind>(),
+        openclaw: O.none<HookPulseAgentKind>,
       });
       const sessionHarnessHash = O.flatMap(kind, (agentKind) => {
         const key = `${agentKind}:${hookPathHash}`;

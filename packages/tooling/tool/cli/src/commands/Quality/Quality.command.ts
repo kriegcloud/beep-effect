@@ -21,7 +21,7 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
-import { dual, flow, pipe } from "effect/Function";
+import { constant, dual, flow, pipe } from "effect/Function";
 import * as HM from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
@@ -1930,8 +1930,8 @@ export const missingTestTsgoTaskMessageForTesting = (groups: ReadonlyArray<TestT
 };
 
 const extractEffectTsgoDiagnosticsTableFragment = (readme: string): O.Option<string> => {
-  const tableStart = readme.indexOf(effectTsgoDiagnosticsTableStartMarker);
-  const tableEnd = readme.indexOf(effectTsgoDiagnosticsTableEndMarker);
+  const tableStart = O.getOrElse(Str.indexOf(effectTsgoDiagnosticsTableStartMarker)(readme), constant(-1));
+  const tableEnd = O.getOrElse(Str.indexOf(effectTsgoDiagnosticsTableEndMarker)(readme), constant(-1));
 
   return tableStart === -1 || tableEnd === -1 || tableEnd <= tableStart
     ? O.none()
@@ -1987,8 +1987,8 @@ const parseEffectTsgoExampleConfig = (jsonc: string): O.Option<unknown> => {
 };
 
 const extractEffectTsgoExampleConfigFragment = (readme: string): O.Option<string> => {
-  const start = readme.indexOf(effectTsgoExampleConfigStartMarker);
-  const end = readme.indexOf(effectTsgoExampleConfigEndMarker);
+  const start = O.getOrElse(Str.indexOf(effectTsgoExampleConfigStartMarker)(readme), constant(-1));
+  const end = O.getOrElse(Str.indexOf(effectTsgoExampleConfigEndMarker)(readme), constant(-1));
 
   return start === -1 || end === -1 || end <= start
     ? O.none()
@@ -3115,6 +3115,9 @@ export const runTsgoSmokeCheck = Effect.fn("QualityScriptCommands.runTsgoSmokeCh
 > {
   const { fs, path, repoRoot } = yield* qualityFileContext();
   const tempRoot = path.join(repoRoot, "node_modules", ".tmp");
+  yield* fs
+    .makeDirectory(tempRoot, { recursive: true })
+    .pipe(QualityScriptCommandError.mapError("Failed to create tsgo smoke dir."));
   const smokeDir = yield* fs
     .makeTempDirectory({ directory: tempRoot })
     .pipe(QualityScriptCommandError.mapError("Failed to create tsgo smoke dir."));
@@ -3569,20 +3572,29 @@ const jsdocRatchetCommand = Command.make(
       Flag.withDefault(defaultJSDocInventoryPath),
       Flag.withDescription("Generated JSDoc documentation inventory JSONC path")
     ),
+    regenerate: Flag.Boolean("regenerate").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Scan current source into ignored CI artifacts before comparing totals")
+    ),
     writeBaseline: Flag.Boolean("write-baseline").pipe(
       Flag.withDefault(false),
       Flag.withDescription("Rewrite the JSDoc totals regression baseline from the generated inventory")
     ),
   },
-  ({ baseline, inventory, writeBaseline }) =>
+  ({ baseline, inventory, regenerate, writeBaseline }) =>
     runQualityProgram(
-      runJSDocRatchet(
-        RunJSDocRatchetOptions.make({
-          baselinePath: baseline,
-          inventoryPath: inventory,
-          writeBaseline,
-        })
-      )
+      Effect.gen(function* () {
+        const inventoryPath = regenerate ? ".beep/ci/jsdoc-documentation.inventory.jsonc" : inventory;
+        if (regenerate) {
+          yield* runJSDocInventory(
+            JSDocDocumentationInventoryOptions.make({
+              outputJsonPath: inventoryPath,
+              outputMarkdownPath: ".beep/ci/jsdoc-documentation.inventory.md",
+            })
+          );
+        }
+        yield* runJSDocRatchet(RunJSDocRatchetOptions.make({ baselinePath: baseline, inventoryPath, writeBaseline }));
+      })
     )
 ).pipe(Command.withDescription("Run JSDoc inventory totals as a fail-on-growth regression-baseline gate"));
 

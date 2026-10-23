@@ -1,5 +1,7 @@
-import { dual } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 // The character-level heart of the engine: position-based scan functions over
 // the source string, plus value-token classification. Every scan function is
 // pure and stateless — `(source, pos)` in, `ScanResult` out — and every
@@ -40,29 +42,38 @@ export type ScalarValue =
   | TomlLocalDate
   | TomlLocalTime;
 
-const NUL = 0x00;
-const TAB = 0x09;
-const LF = 0x0a;
-const CR = 0x0d;
-const SPACE = 0x20;
-const QUOTE = 0x22;
-const HASH = 0x23;
-const APOSTROPHE = 0x27;
-const COMMA = 0x2c;
-const HYPHEN = 0x2d;
-const BACKSLASH = 0x5c;
-const RIGHT_BRACKET = 0x5d;
-const RIGHT_BRACE = 0x7d;
-const LOWER_U = 0x75;
-const UPPER_U = 0x55;
-const LOWER_X = 0x78;
-const BOM = 0xfeff;
+const NUL = "\u0000";
+const TAB = "\t";
+const LF = "\n";
+const CR = "\r";
+const SPACE = " ";
+const QUOTE = '"';
+const HASH = "#";
+const APOSTROPHE = "'";
+const COMMA = ",";
+const HYPHEN = "-";
+const BACKSLASH = "\\";
+const RIGHT_BRACKET = "]";
+const RIGHT_BRACE = "}";
+const LOWER_U = "u";
+const UPPER_U = "U";
+const LOWER_X = "x";
 
 /** `U+XXXX` display form of a char code. */
-const codeLabel = (code: number): string => `U+${code.toString(16).toUpperCase().padStart(4, "0")}`;
+const codeLabel = (code: number): string => `U+${pipe(code.toString(16), Str.toUpperCase, Str.padStart(4, "0"))}`;
 
 /** TOML control characters (tab excluded): U+0000-U+0008, U+000A-U+001F, U+007F. */
-const isControlChar = (code: number): boolean => code <= 0x08 || (code >= 0x0a && code <= 0x1f) || code === 0x7f;
+const isControlChar = (code: string | undefined): boolean =>
+  code !== undefined && (code <= "\u0008" || (code >= "\n" && code <= "\u001f") || code === "\u007f");
+
+/** Lex error for the control character at `i`, which the message places in `where`. */
+const raiseControlChar = (source: string, i: number, where: string): never =>
+  raise(
+    "ControlCharacterInString",
+    `control character ${codeLabel(pipe(source, Str.charCodeAt(i), O.getOrElse(constant(Number.NaN))))} in ${where}`,
+    i,
+    1
+  );
 
 /**
  * Advance past one character of a single-line string body. Newlines end the
@@ -70,25 +81,25 @@ const isControlChar = (code: number): boolean => code <= 0x08 || (code >= 0x0a &
  * characters are lex errors; `form` names the string form in messages.
  */
 const stepSingleLineChar = (source: string, i: number, pos: number, form: "basic" | "literal"): number => {
-  const code = source.charCodeAt(i);
-  if (code === LF || (code === CR && source.charCodeAt(i + 1) === LF)) {
+  const code = source[i];
+  if (code === LF || (code === CR && source[i + 1] === LF)) {
     return raise("UnterminatedString", `${form} string not closed before end of line`, pos, i - pos);
   }
   if (code === CR) {
     return raise("BareCarriageReturn", "carriage return not followed by a line feed", i, 1);
   }
   if (isControlChar(code)) {
-    return raise("ControlCharacterInString", `control character ${codeLabel(code)} in ${form} string`, i, 1);
+    return raiseControlChar(source, i, `${form} string`);
   }
   return i + 1;
 };
 
 /** Advance past the newline at `i` (`\n` or `\r\n`); a bare `\r` is a lex error. */
 const pastNewline = (source: string, i: number): number => {
-  if (source.charCodeAt(i) === LF) {
+  if (source[i] === LF) {
     return i + 1;
   }
-  if (source.charCodeAt(i + 1) === LF) {
+  if (source[i + 1] === LF) {
     return i + 2;
   }
   return raise("BareCarriageReturn", "carriage return not followed by a line feed", i, 1);
@@ -100,12 +111,12 @@ const pastNewline = (source: string, i: number): number => {
  * the string form in messages.
  */
 const stepMultilineChar = (source: string, i: number, form: "basic" | "literal"): number => {
-  const code = source.charCodeAt(i);
+  const code = source[i];
   if (code === LF || code === CR) {
     return pastNewline(source, i);
   }
   if (isControlChar(code)) {
-    return raise("ControlCharacterInString", `control character ${codeLabel(code)} in multiline ${form} string`, i, 1);
+    return raiseControlChar(source, i, `multiline ${form} string`);
   }
   return i + 1;
 };
@@ -118,44 +129,46 @@ const stepMultilineChar = (source: string, i: number, form: "basic" | "literal")
 const scanUntil = (
   source: string,
   start: number,
-  isEnd: (code: number) => boolean,
+  isEnd: (code: string | undefined) => boolean,
   step: (i: number) => number
 ): number => {
   let i = start;
-  while (i < source.length && !isEnd(source.charCodeAt(i))) {
+  while (i < source.length && !isEnd(source[i])) {
     i = step(i);
   }
   return i;
 };
 
 /** End of the run of `delimiter` characters starting at `i`. */
-const delimiterRunEnd = (source: string, i: number, delimiter: number): number => {
+const delimiterRunEnd = (source: string, i: number, delimiter: string): number => {
   let runEnd = i;
-  while (runEnd < source.length && source.charCodeAt(runEnd) === delimiter) {
+  while (runEnd < source.length && source[runEnd] === delimiter) {
     runEnd += 1;
   }
   return runEnd;
 };
 
-const isDigit = (code: number): boolean => code >= 0x30 && code <= 0x39;
+const isDigit = (code: string | undefined): boolean => code !== undefined && code >= "0" && code <= "9";
+
+/** The one bare-key character class, shared by `isBareKeyChar` and `scanBareKey`. */
+const BARE_KEY_CHARACTER = /^[A-Za-z0-9_-]$/;
 
 /**
- * Whether `code` is a bare-key character: `[A-Za-z0-9_-]`.
+ * Whether the one-character string `char` is a bare-key character: `[A-Za-z0-9_-]`.
  *
  * **Example** (Recognize bare-key characters)
  *
  * ```ts
  * import { isBareKeyChar } from "@beep/toml/internal/scanner"
  *
- * console.log(isBareKeyChar(0x61)) // true
- * console.log(isBareKeyChar(0x20)) // false
+ * console.log(isBareKeyChar("a")) // true
+ * console.log(isBareKeyChar(" ")) // false
  * ```
  *
  * @category predicates
  * @since 0.0.0
  */
-export const isBareKeyChar = (code: number): boolean =>
-  (code >= 0x61 && code <= 0x7a) || (code >= 0x41 && code <= 0x5a) || isDigit(code) || code === 0x5f || code === HYPHEN;
+export const isBareKeyChar = (char: string): boolean => BARE_KEY_CHARACTER.test(char);
 
 /**
  * The number of code units to skip for a single leading U+FEFF BOM.
@@ -172,7 +185,8 @@ export const isBareKeyChar = (code: number): boolean =>
  * @category parsing
  * @since 0.0.0
  */
-export const skipBom = (source: string): number => (source.charCodeAt(0) === BOM ? 1 : 0);
+export const skipBom = (source: string): number =>
+  pipe(source, Str.charCodeAt(0), O.getOrElse(constant(Number.NaN))) === 0xfeff ? 1 : 0;
 
 /**
  * Reject a document carrying U+FFFD REPLACEMENT CHARACTER.
@@ -200,12 +214,12 @@ export const skipBom = (source: string): number => (source.charCodeAt(0) === BOM
  * @since 0.0.0
  */
 export const assertValidUnicode = (source: string): void => {
-  const index = source.indexOf("�");
-  if (index !== -1) {
+  const index = Str.indexOf("�")(source);
+  if (O.isSome(index)) {
     raise(
       "InvalidUtf8",
       "invalid UTF-8: U+FFFD REPLACEMENT CHARACTER marks a malformed byte sequence in the decoded input",
-      index,
+      index.value,
       1
     );
   }
@@ -231,7 +245,7 @@ export const scanWhitespace: {
 } = dual(2, (source: string, pos: number): number => {
   let i = pos;
   while (i < source.length) {
-    const code = source.charCodeAt(i);
+    const code = source[i];
     if (code !== SPACE && code !== TAB) {
       break;
     }
@@ -264,12 +278,12 @@ export const scanNewline: {
   (source: string, pos: number): number;
   (pos: number): (source: string) => number;
 } = dual(2, (source: string, pos: number): number => {
-  const code = source.charCodeAt(pos);
+  const code = source[pos];
   if (code === LF) {
     return pos + 1;
   }
   if (code === CR) {
-    if (source.charCodeAt(pos + 1) === LF) {
+    if (source[pos + 1] === LF) {
       return pos + 2;
     }
     return raise("BareCarriageReturn", "carriage return not followed by a line feed", pos, 1);
@@ -303,13 +317,18 @@ export const scanComment: {
     pos + 1,
     (code) => code === LF || code === CR,
     (i) => {
-      const code = source.charCodeAt(i);
+      const code = source[i];
       return isControlChar(code)
-        ? raise("ControlCharacterInComment", `control character ${codeLabel(code)} in comment`, i, 1)
+        ? raise(
+            "ControlCharacterInComment",
+            `control character ${codeLabel(pipe(source, Str.charCodeAt(i), O.getOrElse(constant(Number.NaN))))} in comment`,
+            i,
+            1
+          )
         : i + 1;
     }
   );
-  return { value: source.slice(pos + 1, end), end };
+  return { value: Str.slice(pos + 1, end)(source), end };
 });
 
 /**
@@ -333,20 +352,20 @@ export const scanBareKey: {
   (pos: number): (source: string) => ScanResult<string>;
 } = dual(2, (source: string, pos: number): ScanResult<string> => {
   let i = pos;
-  while (i < source.length && isBareKeyChar(source.charCodeAt(i))) {
+  while (i < source.length && isBareKeyChar(Str.slice(i, i + 1)(source))) {
     i += 1;
   }
-  return { value: source.slice(pos, i), end: i };
+  return { value: Str.slice(pos, i)(source), end: i };
 });
 
 /** The decoded character for a simple escape code, or undefined. */
-const simpleEscape = Match.type<number>().pipe(
-  Match.when(0x62, () => "\b"),
-  Match.when(0x74, () => "\t"),
-  Match.when(0x6e, () => "\n"),
-  Match.when(0x66, () => "\f"),
-  Match.when(0x72, () => "\r"),
-  Match.when(0x65, () => "\u001b"),
+const simpleEscape = Match.type<string | undefined>().pipe(
+  Match.when("b", () => "\b"),
+  Match.when("t", () => "\t"),
+  Match.when("n", () => "\n"),
+  Match.when("f", () => "\f"),
+  Match.when("r", () => "\r"),
+  Match.when("e", () => "\u001b"),
   Match.when(QUOTE, () => '"'),
   Match.when(BACKSLASH, () => "\\"),
   Match.orElse(() => undefined)
@@ -370,7 +389,7 @@ const decodeUnicodeEscape: {
   3,
   (source: string, backslash: number, width: 2 | 4 | 8): { readonly codePoint: number; readonly end: number } => {
     const start = backslash + 2;
-    const hex = source.slice(start, start + width);
+    const hex = Str.slice(start, start + width)(source);
     if (hex.length < width || !HEX_DIGITS.test(hex)) {
       return raise(
         "InvalidUnicodeEscape",
@@ -393,12 +412,12 @@ const decodeUnicodeEscape: {
 );
 
 /** The escape width for a unicode-style escape letter, or undefined. */
-const unicodeEscapeWidth = (code: number): 2 | 4 | 8 | undefined =>
+const unicodeEscapeWidth = (code: string | undefined): 2 | 4 | 8 | undefined =>
   code === LOWER_X ? 2 : code === LOWER_U ? 4 : code === UPPER_U ? 8 : undefined;
 
 /** The decoded text and end of a simple or unicode escape at `backslash`, or undefined for neither. */
 const decodeEscape = (source: string, backslash: number): ScanResult<string> | undefined => {
-  const next = source.charCodeAt(backslash + 1);
+  const next = source[backslash + 1];
   const mapped = simpleEscape(next);
   if (mapped !== undefined) {
     return { value: mapped, end: backslash + 2 };
@@ -440,9 +459,9 @@ export const scanBasicString: {
   let chunkStart = pos + 1;
   let i = pos + 1;
   while (i < source.length) {
-    const code = source.charCodeAt(i);
+    const code = source[i];
     if (code === QUOTE) {
-      return { value: out + source.slice(chunkStart, i), end: i + 1 };
+      return { value: out + Str.slice(chunkStart, i)(source), end: i + 1 };
     }
     if (code !== BACKSLASH) {
       i = stepSingleLineChar(source, i, pos, "basic");
@@ -452,7 +471,7 @@ export const scanBasicString: {
       break;
     }
     const escape = requireBasicEscape(source, i);
-    out += source.slice(chunkStart, i) + escape.value;
+    out += Str.slice(chunkStart, i)(source) + escape.value;
     i = escape.end;
     chunkStart = i;
   }
@@ -486,7 +505,7 @@ export const scanLiteralString: {
     (i) => stepSingleLineChar(source, i, pos, "literal")
   );
   if (close < source.length) {
-    return { value: source.slice(pos + 1, close), end: close + 1 };
+    return { value: Str.slice(pos + 1, close)(source), end: close + 1 };
   }
   return raise("UnterminatedString", "unterminated literal string", pos, source.length - pos);
 });
@@ -496,10 +515,10 @@ const skipLeadingNewline: {
   (source: string, pos: number): number;
   (pos: number): (source: string) => number;
 } = dual(2, (source: string, pos: number): number => {
-  if (source.charCodeAt(pos) === LF) {
+  if (source[pos] === LF) {
     return pos + 1;
   }
-  if (source.charCodeAt(pos) === CR && source.charCodeAt(pos + 1) === LF) {
+  if (source[pos] === CR && source[pos + 1] === LF) {
     return pos + 2;
   }
   return pos;
@@ -512,7 +531,7 @@ const skipLineEndingTrim: {
 } = dual(2, (source: string, pos: number): number => {
   let i = pos;
   while (i < source.length) {
-    const code = source.charCodeAt(i);
+    const code = source[i];
     if (code === SPACE || code === TAB) {
       i += 1;
       continue;
@@ -537,7 +556,7 @@ const raiseUnterminatedMultilineBasic = (source: string, pos: number): never =>
 const closeMultilineBasic = (source: string, prefix: string, runStart: number): ScanResult<string> => {
   const runEnd = delimiterRunEnd(source, runStart, QUOTE);
   const contentQuotes = Math.min(runEnd - runStart - 3, 2);
-  return { value: prefix + source.slice(runStart, runStart + contentQuotes), end: runStart + contentQuotes + 3 };
+  return { value: prefix + Str.slice(runStart, runStart + contentQuotes)(source), end: runStart + contentQuotes + 3 };
 };
 
 /**
@@ -550,8 +569,8 @@ const lineEndingBackslash = (source: string, backslash: number, pos: number): Sc
   if (probe >= source.length) {
     return raiseUnterminatedMultilineBasic(source, pos);
   }
-  const probeCode = source.charCodeAt(probe);
-  if (probeCode === LF || (probeCode === CR && source.charCodeAt(probe + 1) === LF)) {
+  const probeCode = source[probe];
+  if (probeCode === LF || (probeCode === CR && source[probe + 1] === LF)) {
     return { value: "", end: skipLineEndingTrim(source, probe) };
   }
   return raise("InvalidEscape", `invalid escape sequence \\${source[backslash + 1]}`, backslash, probe - backslash + 1);
@@ -581,17 +600,17 @@ export const scanMultilineBasicString: {
   let out = "";
   let chunkStart = i;
   while (i < source.length) {
-    const code = source.charCodeAt(i);
+    const code = source[i];
     // one or two quotes are content and step like any other character
     if (code === QUOTE && delimiterRunEnd(source, i, QUOTE) - i >= 3) {
-      return closeMultilineBasic(source, out + source.slice(chunkStart, i), i);
+      return closeMultilineBasic(source, out + Str.slice(chunkStart, i)(source), i);
     }
     if (code !== BACKSLASH) {
       i = stepMultilineChar(source, i, "basic");
       continue;
     }
     const escape = decodeEscape(source, i) ?? lineEndingBackslash(source, i, pos);
-    out += source.slice(chunkStart, i) + escape.value;
+    out += Str.slice(chunkStart, i)(source) + escape.value;
     i = escape.end;
     chunkStart = i;
   }
@@ -621,7 +640,7 @@ export const scanMultilineLiteralString: {
   const contentStart = skipLeadingNewline(source, pos + 3);
   let i = contentStart;
   while (i < source.length) {
-    const code = source.charCodeAt(i);
+    const code = source[i];
     if (code === APOSTROPHE) {
       const runEnd = delimiterRunEnd(source, i, APOSTROPHE);
       const run = runEnd - i;
@@ -630,7 +649,7 @@ export const scanMultilineLiteralString: {
         continue;
       }
       const contentQuotes = Math.min(run - 3, 2);
-      return { value: source.slice(contentStart, i + contentQuotes), end: i + contentQuotes + 3 };
+      return { value: Str.slice(contentStart, i + contentQuotes)(source), end: i + contentQuotes + 3 };
     }
     i = stepMultilineChar(source, i, "literal");
   }
@@ -638,10 +657,11 @@ export const scanMultilineLiteralString: {
 });
 
 /** Whitespace and newlines end a raw value token. */
-const isTokenSpace = (code: number): boolean => code === SPACE || code === TAB || code === LF || code === CR;
+const isTokenSpace = (code: string | undefined): boolean =>
+  code === SPACE || code === TAB || code === LF || code === CR;
 
 /** Characters that end a raw value token: whitespace, newlines, `,`, `]`, `}` and `#`. */
-const isTokenTerminator = (code: number): boolean =>
+const isTokenTerminator = (code: string | undefined): boolean =>
   isTokenSpace(code) || code === COMMA || code === RIGHT_BRACKET || code === RIGHT_BRACE || code === HASH;
 
 /** Scan one raw token span; NUL anywhere is a lex error. */
@@ -651,7 +671,7 @@ const scanTokenSpan: {
 } = dual(2, (source: string, pos: number): number => {
   let i = pos;
   while (i < source.length) {
-    const code = source.charCodeAt(i);
+    const code = source[i];
     if (code === NUL) {
       return raise("InvalidCharacter", "NUL character in document", i, 1);
     }
@@ -702,14 +722,10 @@ export const scanValueToken: {
   (pos: number): (source: string) => ScanResult<string>;
 } = dual(2, (source: string, pos: number): ScanResult<string> => {
   let end = scanTokenSpan(source, pos);
-  if (
-    LOCAL_DATE.test(source.slice(pos, end)) &&
-    source.charCodeAt(end) === SPACE &&
-    isDigit(source.charCodeAt(end + 1))
-  ) {
+  if (LOCAL_DATE.test(Str.slice(pos, end)(source)) && source[end] === SPACE && isDigit(source[end + 1])) {
     end = scanTokenSpan(source, end + 1);
   }
-  return { value: source.slice(pos, end), end };
+  return { value: Str.slice(pos, end)(source), end };
 });
 
 // Classification regexes (anchored, copied verbatim from the TOML ABNF).
@@ -743,9 +759,9 @@ const decodeDecimalInteger: {
   (token: string, offset: number): number | bigint;
   (offset: number): (token: string) => number | bigint;
 } = dual(2, (token: string, offset: number): number | bigint => {
-  let digits = token.replace(/_/g, "");
-  if (digits.startsWith("+")) {
-    digits = digits.slice(1);
+  let digits = Str.replace(/_/g, "")(token);
+  if (Str.startsWith("+")(digits)) {
+    digits = Str.slice(1)(digits);
   }
   return narrowInteger(BigInt(digits), token, offset);
 });
@@ -754,7 +770,7 @@ const decodePrefixedInteger: {
   (token: string, offset: number): number | bigint;
   (offset: number): (token: string) => number | bigint;
 } = dual(2, (token: string, offset: number): number | bigint =>
-  narrowInteger(BigInt(token.replace(/_/g, "")), token, offset)
+  narrowInteger(BigInt(Str.replace(/_/g, "")(token)), token, offset)
 );
 
 const isLeapYear = (year: number): boolean => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -790,7 +806,7 @@ const validateTime: {
 
 /** Right-pad or truncate fractional-second digits to exactly nine → nanoseconds. */
 const decodeNanosecond = (fraction: string | undefined): number =>
-  fraction === undefined ? 0 : Number(`${fraction}000000000`.slice(0, 9));
+  fraction === undefined ? 0 : Number(Str.slice(0, 9)(`${fraction}000000000`));
 
 /**
  * Validated date and time fields from capture groups 1-7
@@ -831,8 +847,8 @@ const decodeOffsetMinutes: {
   if (text === "Z" || text === "z") {
     return 0;
   }
-  const hh = Number(text.slice(1, 3));
-  const mm = Number(text.slice(4, 6));
+  const hh = Number(Str.slice(1, 3)(text));
+  const mm = Number(Str.slice(4, 6)(text));
   if (hh > 23) {
     raise("InvalidDateTime", `offset hour ${hh} is out of range 0-23`, offset, length);
   }
@@ -843,7 +859,7 @@ const decodeOffsetMinutes: {
   if (total === 0) {
     return 0;
   }
-  return text.charCodeAt(0) === HYPHEN ? -total : total;
+  return text[0] === HYPHEN ? -total : total;
 });
 
 /** An offset date-time from OFFSET_DATE_TIME capture groups (offset in group 8). */
@@ -893,10 +909,10 @@ const classifyDateTime = (token: string, offset: number, length: number): Scalar
 
 /** `inf` / `nan` with an optional sign. */
 const decodeSpecialFloat = (token: string): number => {
-  if (token.endsWith("nan")) {
+  if (Str.endsWith("nan")(token)) {
     return Number.NaN;
   }
-  return token.charCodeAt(0) === HYPHEN ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+  return token[0] === HYPHEN ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
 };
 
 /** Integers across four radixes and floats; anything else is InvalidNumber or InvalidValue. */
@@ -908,7 +924,7 @@ const classifyNumber = (token: string, offset: number, length: number): number |
     return decodePrefixedInteger(token, offset);
   }
   if (FLOAT.test(token)) {
-    return Number(token.replace(/_/g, ""));
+    return Number(Str.replace(/_/g, "")(token));
   }
   if (FLOAT_SPECIAL.test(token)) {
     return decodeSpecialFloat(token);

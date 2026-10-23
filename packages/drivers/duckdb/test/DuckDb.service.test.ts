@@ -917,6 +917,29 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
     it.effect(
+      "fails a catalog-context statement after the client scope closes with ConnectionError",
+      Effect.fnUntraced(function* () {
+        const liveConnection = yield* acquireNativeDuckDbConnection;
+        const clientScope = yield* Scope.make();
+        const client = yield* DuckDbClient.fromConnection({ connection: liveConnection }).pipe(
+          Scope.provide(clientScope)
+        );
+        const sql = client.withoutTransforms();
+
+        // A bound statement fills the prepared cache, so a later `USE` would
+        // reach `invalidateAll` on the closed cache if invalidation ran.
+        yield* sql`SELECT ${1} AS n`;
+        yield* Scope.close(clientScope, Exit.void);
+
+        const exit = yield* Effect.exit(sql.unsafe("USE memory"));
+        expect(Exit.hasInterrupts(exit)).toBe(false);
+        assertSome(exit.pipe(Exit.findErrorOption, O.map(reasonTagOf)), "ConnectionError");
+      })
+    );
+  });
+
+  it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
+    it.effect(
       "closes a created instance when connection acquisition fails",
       Effect.fnUntraced(function* () {
         let instanceCloseAttempts = 0;
@@ -1165,6 +1188,77 @@ describe("DuckDbClient native lifecycle", { concurrent: false }, () => {
       })
     );
   });
+
+  it.effect("caches the direct-run fallback when native prepare rejects multiple statements", () =>
+    Effect.gen(function* () {
+      let prepares = 0;
+      const runs: Array<ReadonlyArray<unknown>> = [];
+      const fakeConnection = {
+        interrupt: () => undefined,
+        prepare: () => {
+          prepares += 1;
+          return Promise.reject(new Error("Invalid Input Error: Cannot prepare multiple statements at once"));
+        },
+        run: (text: string, binds?: ReadonlyArray<unknown>) => {
+          if (text === "select ? as value; select 2") {
+            runs.push(binds ?? []);
+            return Promise.resolve(fakeQueryResult([{ value: binds?.[0] }]));
+          }
+          return Promise.resolve(setupResult);
+        },
+      };
+      const client = yield* DuckDbClient.fromConnection({
+        connection: fakeConnection as unknown as DuckDBConnection,
+      });
+      expect(yield* client.unsafe("select ? as value; select 2", [1])).toEqual([{ value: 1 }]);
+      expect(yield* client.unsafe("select ? as value; select 2", [3])).toEqual([{ value: 3 }]);
+      expect(prepares).toBe(1);
+      expect(runs).toEqual([[1], [3]]);
+    }).pipe(Effect.provideServiceEffect(Reactivity.Reactivity, Reactivity.make))
+  );
+
+  // A private TestClock per test: advancing a clock shared through it.layer
+  // would move every other test of that block (effect-vitest EV015).
+  it.effect("re-prepares a cached bound statement once its prepareCacheTTL expires", () =>
+    Effect.gen(function* () {
+      const events: Array<string> = [];
+      let prepared = 0;
+      const fakeConnection = {
+        closeSync: () => undefined,
+        interrupt: () => undefined,
+        prepare: () => {
+          prepared += 1;
+          const generation = prepared;
+          events.push(`prepare ${generation}`);
+          return Promise.resolve({
+            bind: () => undefined,
+            clearBindings: () => undefined,
+            destroySync: () => {
+              events.push(`destroy ${generation}`);
+            },
+            run: () => Promise.resolve(fakeQueryResult([{ generation }])),
+          });
+        },
+        run: () => Promise.resolve(setupResult),
+      };
+      const client = yield* DuckDbClient.fromConnection({
+        connection: fakeConnection as unknown as DuckDBConnection,
+        prepareCacheTTL: "50 millis",
+      });
+      const select = client.unsafe<{ readonly generation: number }>("select ? as generation", [1]);
+
+      expect(yield* select).toEqual([{ generation: 1 }]);
+      // A use inside the TTL reuses the statement and does not extend its lifetime.
+      yield* TestClock.adjust("30 millis");
+      expect(yield* select).toEqual([{ generation: 1 }]);
+      yield* TestClock.adjust("20 millis");
+      expect(yield* select).toEqual([{ generation: 2 }]);
+      expect(events).toEqual(["prepare 1", "destroy 1", "prepare 2"]);
+      yield* TestClock.adjust("49 millis");
+      expect(yield* select).toEqual([{ generation: 2 }]);
+      expect(events).toEqual(["prepare 1", "destroy 1", "prepare 2"]);
+    }).pipe(Effect.provideServiceEffect(Reactivity.Reactivity, Reactivity.make))
+  );
 
   it.layer(Reactivity.layer, { timeout: "30 seconds" })((it) => {
     it.effect(
@@ -1436,4 +1530,53 @@ describe("DuckDb legacy re-base", { concurrent: false }, () => {
       );
     }
   );
+});
+
+const DIFFERENT_CONFIGURATION = "Can't open a connection to same database file with a different configuration";
+
+describe("DuckDbClient read-only first open", { concurrent: false }, () => {
+  it.layer(Layer.merge(nativeDirectoryLayer, Reactivity.layer), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "blocks later read-write opens of the same file until the read-only client closes",
+      Effect.fnUntraced(function* () {
+        const tmpDir = yield* NativeTestDirectory;
+        const path = yield* Path.Path;
+        const databasePath = path.join(tmpDir, "read-only-first.duckdb");
+
+        const seedScope = yield* Scope.make();
+        const seed = (yield* DuckDbClient.make({ databasePath }).pipe(Scope.provide(seedScope))).withoutTransforms();
+        yield* seed`CREATE TABLE ro_first_events (id INTEGER)`;
+        yield* seed`INSERT INTO ro_first_events VALUES (${1})`;
+        yield* Scope.close(seedScope, Exit.void);
+
+        const readerScope = yield* Scope.make();
+        const reader = (yield* DuckDbClient.make({ databasePath, readOnly: true }).pipe(
+          Scope.provide(readerScope)
+        )).withoutTransforms();
+
+        const refused = yield* DuckDbClient.make({ databasePath }).pipe(Effect.flip);
+        expect(reasonTagOf(refused)).toBe("ConnectionError");
+        expect(refused.reason.isRetryable).toBe(true);
+        expect(String(refused.reason.cause)).toContain(DIFFERENT_CONFIGURATION);
+
+        const legacyContext = yield* Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath })));
+        const legacyError = yield* Context.get(legacyContext, DuckDb)
+          .query("SELECT id FROM ro_first_events")
+          .pipe(Effect.flip);
+        expect(legacyError._tag).toBe("DuckDbError");
+        expect(legacyError.message).toBe("Failed to open DuckDB connection.");
+        expect(String(O.getOrUndefined(legacyError.cause))).toContain(DIFFERENT_CONFIGURATION);
+
+        expect(yield* reader<{ readonly id: number }>`SELECT id FROM ro_first_events`).toEqual([{ id: 1 }]);
+        yield* Scope.close(readerScope, Exit.void);
+
+        const writer = (yield* DuckDbClient.make({ databasePath })).withoutTransforms();
+        yield* writer`INSERT INTO ro_first_events VALUES (${2})`;
+        expect(yield* writer<{ readonly id: number }>`SELECT id FROM ro_first_events ORDER BY id`).toEqual([
+          { id: 1 },
+          { id: 2 },
+        ]);
+      })
+    );
+  });
 });

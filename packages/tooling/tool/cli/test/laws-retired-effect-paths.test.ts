@@ -12,6 +12,7 @@ import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 
 const scanOne = (content: string) => scanText("fixture.md", content);
 const matchesOf = (content: string) => A.map(scanOne(content), (finding) => finding.match);
@@ -115,7 +116,7 @@ describe("retired Effect module path law", () => {
           [20, "effectunstablerpc"],
           [49, "effectunstablesql"],
         ]);
-        expect(scanOne(`${"#a".repeat(20)}effectunstable-`.repeat(2_000))).toEqual([]);
+        expect(scanOne(Str.repeat(2_000)(`${Str.repeat(20)("#a")}effectunstable-`))).toEqual([]);
       })
     );
   });

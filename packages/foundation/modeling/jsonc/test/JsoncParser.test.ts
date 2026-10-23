@@ -15,13 +15,14 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 
 const flags = ParseFlags.make({});
 const codes = (text: string, options = flags): ReadonlyArray<string> =>
   A.map(parseValue(text, options).errors, (e) => e.code);
 const treeCodes = (text: string, options = flags): ReadonlyArray<string> =>
   A.map(parseTree(text, options).errors, (e) => e.code);
-const deep = (depth: number): string => `${"[".repeat(depth)}1${"]".repeat(depth)}`;
+const deep = (depth: number): string => `${Str.repeat(depth)("[")}1${Str.repeat(depth)("]")}`;
 
 describe("internal/parser", () => {
   describe("schemas", () => {
@@ -161,7 +162,7 @@ describe("internal/parser", () => {
     it("caps nesting with one deduplicated NestingDepthExceeded error and a bounded placeholder", () => {
       assert.deepStrictEqual(codes(deep(300)), ["NestingDepthExceeded"]);
       assert.deepStrictEqual(codes(`[${deep(300)}, ${deep(300)}]`), ["NestingDepthExceeded"]);
-      assert.deepStrictEqual(codes(`${'{"a":'.repeat(300)}1${"}".repeat(300)}`), ["NestingDepthExceeded"]);
+      assert.deepStrictEqual(codes(`${Str.repeat(300)('{"a":')}1${Str.repeat(300)("}")}`), ["NestingDepthExceeded"]);
       assert.deepStrictEqual(codes(deep(256)), []);
     });
 
@@ -257,7 +258,7 @@ describe("internal/parser", () => {
         ["NestingDepthExceeded"]
       );
       assert.strictEqual(O.getOrThrow(arrays.root).type, "array");
-      const objects = parseTree(`${'{"a":'.repeat(300)}1${"}".repeat(300)}`, flags);
+      const objects = parseTree(`${Str.repeat(300)('{"a":')}1${Str.repeat(300)("}")}`, flags);
       assert.deepStrictEqual(
         A.map(objects.errors, (e) => e.code),
         ["NestingDepthExceeded"]

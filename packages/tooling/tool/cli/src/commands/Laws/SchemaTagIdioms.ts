@@ -202,7 +202,7 @@ const addImportBindings = (bindings: SchemaBindings, statement: ts.Statement): S
   }
   const module = statement.moduleSpecifier.text;
   const namedBindings = statement.importClause?.namedBindings;
-  if (statement.importClause?.isTypeOnly === true || P.isUndefined(namedBindings)) {
+  if (statement.importClause?.phaseModifier === ts.SyntaxKind.TypeKeyword || P.isUndefined(namedBindings)) {
     return bindings;
   }
   return ts.isNamespaceImport(namedBindings)

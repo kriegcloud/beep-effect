@@ -35,6 +35,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { parseClass } from "./braceExpressions.ts";
 import { assertCap, GuardExceeded, MAX_EXTGLOB_RECURSION, MAX_NESTING_DEPTH } from "./limits.ts";
 import { unescape as unescapePattern } from "./unescape.ts";
@@ -230,7 +231,7 @@ const addPatternStart = HashSet.make("[", ".");
 // cases where traversal is A-OK, no dot prevention needed
 const justDots = HashSet.make("..", ".");
 const reSpecials = HashSet.fromIterable("().*{}+?[]^$\\!");
-const regExpEscape = (s: string): string => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+const regExpEscape = Str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
 // any single thing other than /
 const qmark = "[^/]";
@@ -249,7 +250,7 @@ const guardDepth = (depth: number): void => {
 
 // Whether `c` opens an extglob at the scan position (its `(` follows).
 const opensExtglob = (str: string, pos: number, opt: EngineOptionsInput, c: string): c is ExtglobType =>
-  opt.noext !== true && isExtglobType(c) && str.charAt(pos) === "(";
+  opt.noext !== true && isExtglobType(c) && str[pos] === "(";
 
 // A non-empty object child of sequence type (null operator).
 const isSequenceChild = (child?: AST | string): child is AST =>
@@ -293,7 +294,7 @@ class LiteralScanner {
 
   *[Symbol.iterator](): Generator<string, void, undefined> {
     while (this.pos < this.#str.length) {
-      const c = this.#str.charAt(this.pos++);
+      const c = String(this.#str[this.pos++]);
       if (this.#consumes(c)) {
         this.acc += c;
       } else {
@@ -348,18 +349,18 @@ const caseFlags = (options: EngineOptionsInput): string => (options.nocase === t
 // no-traversal guard.
 const needsNoTraversal = (src: string, dot: boolean): boolean =>
   // dots are allowed, and the pattern starts with [ or .
-  (dot && HashSet.has(addPatternStart, src.charAt(0))) ||
+  (dot && HashSet.has(addPatternStart, Str.slice(0, 1)(src))) ||
   // the pattern starts with \., and then [ or .
-  (src.startsWith("\\.") && HashSet.has(addPatternStart, src.charAt(2))) ||
+  (Str.startsWith("\\.")(src) && HashSet.has(addPatternStart, Str.slice(2, 3)(src))) ||
   // the pattern starts with \.\., and then [ or .
-  (src.startsWith("\\.\\.") && HashSet.has(addPatternStart, src.charAt(4)));
+  (Str.startsWith("\\.\\.")(src) && HashSet.has(addPatternStart, Str.slice(4, 5)(src)));
 
 // check if we have a possibility of matching . or .., and prevent that. no
 // need to prevent dots if it can't match a dot, or if a sub-pattern will be
 // preventing it anyway.
 const startGuard = (src: string, dot: boolean, allowDot: boolean | undefined): string => {
   if (needsNoTraversal(src, dot)) return startNoTraversal;
-  return !dot && allowDot !== true && HashSet.has(addPatternStart, src.charAt(0)) ? startNoDot : "";
+  return !dot && allowDot !== true && HashSet.has(addPatternStart, Str.slice(0, 1)(src)) ? startNoDot : "";
 };
 
 // The closing group of a non-negated extglob; `dotted` marks a repeat whose
@@ -396,7 +397,7 @@ const parseGlobPiece = (glob: string, hasMagicInput: boolean | undefined, noEmpt
     escaping: false,
     inStar: false,
   };
-  for (; scan.i < glob.length; scan.i++) globPieceStep(scan, glob.charAt(scan.i));
+  for (; scan.i < glob.length; scan.i++) globPieceStep(scan, String(glob[scan.i]));
   return [scan.re, unescapePattern(glob), scan.hasMagic === true, scan.uflag];
 };
 
@@ -477,17 +478,17 @@ interface CompiledSegment {
 
 const segmentRegExp = (options: EngineOptionsInput, [source, , , unicode]: RegExpSourceResult): RegExp =>
   new RegExp(
-    `^(?:${source.replace(startNoTraversal, "").replace(startNoDot, "")})$`,
+    `^(?:${Str.replace(startNoDot, "")(Str.replace(startNoTraversal, "")(source))})$`,
     caseFlags(options) + (unicode ? "u" : "")
   );
 
 // Whether the contextual start assertions of `source` reject the candidate
 // tail at `start`.
 const startBlocked = (source: string, candidate: string, start: number): boolean => {
-  const tail = candidate.slice(start);
+  const tail = Str.slice(start)(candidate);
   return (
-    (source.startsWith(startNoDot) && tail.startsWith(".")) ||
-    (source.startsWith(startNoTraversal) && start === 0 && (tail === "." || tail === ".."))
+    (Str.startsWith(startNoDot)(source) && Str.startsWith(".")(tail)) ||
+    (Str.startsWith(startNoTraversal)(source) && start === 0 && (tail === "." || tail === ".."))
   );
 };
 
@@ -495,7 +496,7 @@ const startBlocked = (source: string, candidate: string, start: number): boolean
 const scanEnds = (regexp: RegExp, candidate: string, start: number): Array<number> => {
   const ends: Array<number> = [];
   for (let end = start; end <= candidate.length; end++) {
-    if (regexp.test(candidate.slice(start, end))) ends.push(end);
+    if (regexp.test(Str.slice(start, end)(candidate))) ends.push(end);
   }
   return ends;
 };
@@ -503,14 +504,14 @@ const scanEnds = (regexp: RegExp, candidate: string, start: number): Array<numbe
 const scanEndSet = (regexp: RegExp, candidate: string, start: number): HashSet.HashSet<number> => {
   let ends = HashSet.empty<number>();
   for (let end = start; end <= candidate.length; end++) {
-    if (regexp.test(candidate.slice(start, end))) ends = HashSet.add(ends, end);
+    if (regexp.test(Str.slice(start, end)(candidate))) ends = HashSet.add(ends, end);
   }
   return ends;
 };
 
 const fixedEndSet = (regexp: RegExp, candidate: string, start: number, length: number): HashSet.HashSet<number> => {
   const end = start + length;
-  return end <= candidate.length && regexp.test(candidate.slice(start, end))
+  return end <= candidate.length && regexp.test(Str.slice(start, end)(candidate))
     ? HashSet.add(HashSet.empty<number>(), end)
     : HashSet.empty<number>();
 };
@@ -1270,7 +1271,7 @@ export class AST {
     // maybe something else in there.
     ast.type = null;
     ast.#hasMagic = undefined;
-    ast.#parts = [frame.str.substring(pos - 1)];
+    ast.#parts = [Str.slice(pos - 1)(frame.str)];
     return state.scan.pos;
   }
 
@@ -1598,7 +1599,7 @@ export class AST {
     return (
       this.#options.nocase === true &&
       this.#options.nocaseMagicOnly !== true &&
-      glob.toUpperCase() !== glob.toLowerCase()
+      !Str.Equivalence(Str.toUpperCase(glob), Str.toLowerCase(glob))
     );
   }
 
@@ -1665,7 +1666,7 @@ export class AST {
     const ids: SegmentIds = { next: 0 };
     const step = AST.#compileSegment(this, ids);
     return (candidate) =>
-      !candidate.includes("/") && step(candidate, 0, false, MutableHashMap.empty()).includes(candidate.length);
+      !Str.includes("/")(candidate) && step(candidate, 0, false, MutableHashMap.empty()).includes(candidate.length);
   }
 
   static #compileSegment(node: AST, ids: SegmentIds): SegmentStep {
@@ -1697,7 +1698,7 @@ export class AST {
     return dual(
       4,
       (candidate: string, start: number, _allowDot: boolean, _memo: SegmentMemo): ReadonlyArray<number> => {
-        if (!magic) return regexp.test(candidate.slice(start, start + body.length)) ? [start + body.length] : [];
+        if (!magic) return regexp.test(Str.slice(start, start + body.length)(candidate)) ? [start + body.length] : [];
         return scanEnds(regexp, candidate, start);
       }
     );
@@ -1785,7 +1786,7 @@ export class AST {
     allowDot: boolean
   ): HashSet.HashSet<number> {
     const forbidden = node.#emptyExt === false && HashSet.has(ends, candidate.length);
-    const blocked = node.isStart() && node.#options.dot !== true && !allowDot && candidate.charAt(start) === ".";
+    const blocked = node.isStart() && node.#options.dot !== true && !allowDot && candidate[start] === ".";
     let result = HashSet.empty<number>();
     if (forbidden || blocked) return result;
     for (let end = start + (node.#emptyExt ? 1 : 0); end <= candidate.length; end++) result = HashSet.add(result, end);

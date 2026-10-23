@@ -15,7 +15,7 @@ import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as Inspectable from "effect/Inspectable";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
@@ -483,7 +483,7 @@ const appendMappingCandidate = (
 const flatExportsFrom = (value: unknown): O.Option<FlatPackageExports> =>
   isFlatPackageExports(value) ? O.some(value) : O.none();
 
-// fallow-ignore-next-line complexity -- one export-graph traversal must validate workspace and publish routes together; ambiguity and missing-route fixtures cover every branch
+// fallow-ignore-next-line complexity -- one export-graph traversal validates workspace and publish routes together; ambiguity and missing-route fixtures cover each branch. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
 const buildFoundationRootMappings = Effect.fn("EffectImports.buildFoundationRootMappings")(function* (
   project: Project,
   effectExports: FlatPackageExports
@@ -824,7 +824,7 @@ const manualReview = (
   reason: string
 ): EffectImportManualReview => EffectImportManualReview.make({ kind, file, line, moduleSpecifier, binding, reason });
 
-// fallow-ignore-next-line complexity -- the explicit ts-morph syntax matrix preserves aliases, type-only bindings, namespaces, and manual-review reasons; fixtures cover each branch
+// fallow-ignore-next-line complexity -- ts-morph syntax matrix preserves aliases, type-only bindings, namespaces and manual-review reasons; fixtures cover each branch. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
 const planNamedRootImport = (
   mappings: RootImportMappings,
   file: string,
@@ -1077,7 +1077,7 @@ const transferImportStructureTrivia = (
   declaration.replaceWithText(`${leadingTrivia}${declaration.getText()}${trailingTrivia}`);
 };
 
-// fallow-ignore-next-line complexity -- this atomic ts-morph merge matrix preserves default, namespace, named-import, and trivia semantics; collision fixtures cover every branch
+// fallow-ignore-next-line complexity -- atomic ts-morph merge matrix preserves default, namespace, named-import and trivia semantics; collision fixtures cover each branch. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
 const applyImportStructures = (
   sourceFile: SourceFile,
   rootDeclaration: ImportDeclaration,
@@ -1151,7 +1151,7 @@ type ExportPlan = {
   readonly manualReviews: ReadonlyArray<EffectImportManualReview>;
 };
 
-// fallow-ignore-next-line complexity -- the explicit ts-morph export matrix preserves aliases, namespaces, stars, type-only bindings, and review reasons; fixtures cover each branch
+// fallow-ignore-next-line complexity -- ts-morph export matrix preserves aliases, namespaces, stars, type-only bindings and review reasons; fixtures cover each branch. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
 const planRootExport = (mappings: RootImportMappings, file: string, declaration: ExportDeclaration): ExportPlan => {
   const moduleSpecifier = declaration.getModuleSpecifierValue();
   if (P.isUndefined(moduleSpecifier)) {
@@ -1181,7 +1181,7 @@ const planRootExport = (mappings: RootImportMappings, file: string, declaration:
   const namespaceDeclarations = A.empty<OptionalKind<ExportDeclarationStructure>>();
   const manualReviews = A.empty<EffectImportManualReview>();
 
-  // fallow-ignore-next-line code-duplication -- named import and export planners intentionally mirror syntax-specific alias and manual-review semantics
+  // fallow-ignore-next-line code-duplication -- named import and export planners mirror syntax-specific alias and manual-review semantics. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
   for (const specifier of namedExports) {
     const binding = specifier.getName();
     const target = O.getOrUndefined(importTargetFor(mappings, moduleSpecifier, binding));
@@ -1256,7 +1256,7 @@ const rootSpecifierFromNode = (node: Node, mappings: RootImportMappings): O.Opti
     O.filter((moduleSpecifier) => R.has(mappings, moduleSpecifier))
   );
 
-// fallow-ignore-next-line complexity -- this closed syntax census keeps dynamic import, require, import-type, and import-equals findings in one auditable review ledger
+// fallow-ignore-next-line complexity -- closed syntax census keeps dynamic import, require, import-type and import-equals findings in one review ledger. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
 const unsupportedRootUsageReviews = (
   mappings: RootImportMappings,
   file: string,
@@ -1351,7 +1351,7 @@ const incrementSpecifierCount = (
     )
   );
 
-// fallow-ignore-next-line complexity -- this counter deliberately mirrors the closed unsupported-syntax census so measured totals and review detection cannot drift
+// fallow-ignore-next-line complexity -- counter mirrors the closed unsupported-syntax census so measured totals and review detection cannot drift. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
 const rootSpecifierCountsFor = (
   mappings: RootImportMappings,
   sourceFile: SourceFile
@@ -1404,7 +1404,7 @@ const mergeSpecifierCounts = (
   return merged;
 };
 
-// fallow-ignore-next-line complexity -- one source transaction must preserve shebang/trivia while atomically rewriting import and export declarations; the fixture matrix covers its branches
+// fallow-ignore-next-line complexity -- one source transaction preserves shebang and trivia while rewriting import and export declarations atomically. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
 const transformSourceFile = (
   mappings: RootImportMappings,
   file: string,
@@ -1541,7 +1541,7 @@ const markdownImportFences = (content: string) =>
     Str.matchAll(markdownImportFencePattern)(content),
     A.fromIterable,
     A.map((match) => {
-      const openingLength = match[0].indexOf("\n") + 1;
+      const openingLength = O.getOrElse(Str.indexOf("\n")(match[0]), constant(-1)) + 1;
       const code = match[3] ?? "";
       const codeStart = (match.index ?? 0) + openingLength;
       const language = Str.toLowerCase(match[2] ?? "ts");
@@ -1629,7 +1629,7 @@ const renderJsDoc = (innerText: string): string =>
     (lines) => A.join(["/**", ...lines, " */"], "\n")
   );
 
-// fallow-ignore-next-line complexity -- the policy predicate keeps exclusion, explicit scope, candidate mode, documentation mode, and family promotion gates visibly co-located
+// fallow-ignore-next-line complexity -- CRAP finding comes from fallow's static coverage estimate; the policy predicate keeps exclusion, scope, candidate, documentation and family-promotion gates together with cognitive 7. Owner: @beep/repo-cli. Exit: remove once fallow health reads the measured coverage for this file (#1855 detector frontier) or the branches collapse.
 const isPathInActiveScope = (
   options: EffectImportRulesOptions,
   excludePaths: MutableHashSet.MutableHashSet<string>,
@@ -1677,7 +1677,7 @@ const codeGlobsFor = (options: EffectImportRulesOptions): ReadonlyArray<string> 
  * @category utilities
  * @since 0.0.0
  */
-// fallow-ignore-next-line complexity -- one command transaction coordinates the inert ratchet, three corpus modes, persistence, and strict verdict while preserving a single summary schema
+// fallow-ignore-next-line complexity -- one command transaction coordinates the inert ratchet, three corpus modes, persistence and the strict verdict behind one summary schema. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
 export const runEffectImportRules = Effect.fn("EffectImports.runEffectImportRules")(function* (
   options: EffectImportRulesOptions
 ) {
@@ -1829,7 +1829,7 @@ export const runEffectImportRules = Effect.fn("EffectImports.runEffectImportRule
           continue;
         }
         const sourceSummary = transformed.value;
-        // fallow-ignore-next-line code-duplication -- executable and fenced-source scans intentionally fold the same public counters into one summary ledger
+        // fallow-ignore-next-line code-duplication -- executable and fenced-source scans fold the same public counters into one summary ledger. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
         rootImportsRewritten += sourceSummary.rootImportsRewritten;
         rootExportsRewritten += sourceSummary.rootExportsRewritten;
         emittedImports += sourceSummary.emittedImports;
@@ -1843,7 +1843,7 @@ export const runEffectImportRules = Effect.fn("EffectImports.runEffectImportRule
       const jsDocs = A.reverse(sourceFile.getDescendantsOfKind(SyntaxKind.JSDoc));
       for (const jsDoc of jsDocs) {
         const originalInnerText = jsDoc.getInnerText();
-        // fallow-ignore-next-line code-duplication -- Markdown-file and JSDoc walkers retain distinct persistence ownership while folding the same fence-summary schema
+        // fallow-ignore-next-line code-duplication -- Markdown-file and JSDoc walkers keep distinct persistence ownership while folding the same fence-summary schema. Owner: @beep/repo-cli. Exit: split the matrix by syntax kind when another import form is supported, or retire it if the law moves to a Biome GritQL rule.
         const fenceSummary = transformFencedContent(rootMappings, relativePath, originalInnerText);
         scannedFences += fenceSummary.scannedFences;
         rootImportsRewritten += fenceSummary.rootImportsRewritten;

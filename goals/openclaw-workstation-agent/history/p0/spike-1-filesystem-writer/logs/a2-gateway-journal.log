@@ -8,7 +8,7 @@ Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.674
 Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.707-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.882-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.882-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 0.3s)
-Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.883-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1.4s9APY/spike1/state/log/openclaw.log
+Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.883-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1.4s9APY/spike1/state/log/openclaw.log
 Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.884-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.908-05:00 [gateway] starting channels and sidecars...
 Jul 25 11:27:09 DankStation unit-entrypoint.sh[3492615]: 2026-07-25T11:27:09.939-05:00 [gateway] ready
@@ -32,7 +32,7 @@ Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.138
 Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.168-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.338-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.339-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 0.3s)
-Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.340-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1.4s9APY/spike1/state/log/openclaw.log
+Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.340-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1.4s9APY/spike1/state/log/openclaw.log
 Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.340-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.362-05:00 [gateway] starting channels and sidecars...
 Jul 25 11:27:16 DankStation unit-entrypoint.sh[3493578]: 2026-07-25T11:27:16.393-05:00 [gateway] ready
@@ -56,7 +56,7 @@ Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.300
 Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.337-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.526-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.527-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 0.4s)
-Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.527-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1.i0Hwk3/spike1/state/log/openclaw.log
+Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.527-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1.i0Hwk3/spike1/state/log/openclaw.log
 Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.528-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.549-05:00 [gateway] starting channels and sidecars...
 Jul 25 11:35:05 DankStation unit-entrypoint.sh[3592863]: 2026-07-25T11:35:05.579-05:00 [gateway] ready
@@ -80,7 +80,7 @@ Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.264
 Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.296-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.460-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.461-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 0.3s)
-Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.462-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1.i0Hwk3/spike1/state/log/openclaw.log
+Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.462-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1.i0Hwk3/spike1/state/log/openclaw.log
 Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.463-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.484-05:00 [gateway] starting channels and sidecars...
 Jul 25 11:35:09 DankStation unit-entrypoint.sh[3593389]: 2026-07-25T11:35:09.514-05:00 [gateway] ready
@@ -104,7 +104,7 @@ Jul 25 11:35:11 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:11.768
 Jul 25 11:35:11 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:11.804-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 11:35:11 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:11.981-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 11:35:11 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:11.982-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 0.4s)
-Jul 25 11:35:11 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:11.983-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1.i0Hwk3/spike1/state/log/openclaw.log
+Jul 25 11:35:11 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:11.983-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1.i0Hwk3/spike1/state/log/openclaw.log
 Jul 25 11:35:11 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:11.983-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 11:35:12 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:12.006-05:00 [gateway] starting channels and sidecars...
 Jul 25 11:35:12 DankStation unit-entrypoint.sh[3593532]: 2026-07-25T11:35:12.037-05:00 [gateway] ready
@@ -128,7 +128,7 @@ Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.371
 Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.408-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.582-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.583-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 0.3s)
-Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.584-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1.1zm81o/spike1/state/log/openclaw.log
+Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.584-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1.1zm81o/spike1/state/log/openclaw.log
 Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.584-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.607-05:00 [gateway] starting channels and sidecars...
 Jul 25 12:14:55 DankStation unit-entrypoint.sh[3986264]: 2026-07-25T12:14:55.638-05:00 [gateway] ready
@@ -152,7 +152,7 @@ Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.479
 Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.509-05:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
 Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.685-05:00 [gateway] agent model: openai/gpt-5.5 (thinking=medium, fast=off)
 Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.686-05:00 [gateway] http server listening (8 plugins: browser, canvas, device-pair, file-transfer, memory-core, ollama, phone-control, talk-voice; 0.3s)
-Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.688-05:00 [gateway] log file: /home/elpresidank/.cache/beep-p0-spike1.1zm81o/spike1/state/log/openclaw.log
+Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.688-05:00 [gateway] log file: $HOME/.cache/beep-p0-spike1.1zm81o/spike1/state/log/openclaw.log
 Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.688-05:00 [gateway] running in Nix mode (config managed externally)
 Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.714-05:00 [gateway] starting channels and sidecars...
 Jul 25 12:14:59 DankStation unit-entrypoint.sh[3986722]: 2026-07-25T12:14:59.744-05:00 [gateway] ready

@@ -8,28 +8,30 @@ import { assert, describe, it, vi } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 describe("indexed diagnostic batches", () => {
   it.effect("scans source only once for thousands of duplicate-key positions", () =>
     Effect.sync(() => {
       const count = 4096;
-      const text = "a: 1\n".repeat(count);
+      const text = Str.repeat(count)("a: 1\n");
       const records = A.makeBy(count - 1, (i) =>
         RawDiagnostic.make({ code: "DuplicateKey", message: "Repeated key", offset: (i + 1) * 5, length: 1 })
       );
-      const reads = vi.spyOn(String.prototype, "charCodeAt");
+      // The index scans with one global line-break RegExp: one exec per break plus the final miss.
+      const reads = vi.spyOn(RegExp.prototype, "exec");
       try {
         const index = YamlDiagnostic.positionIndex(text);
-        assert.strictEqual(reads.mock.calls.length, text.length);
+        assert.strictEqual(reads.mock.calls.length, count + 1);
         const diagnostics = YamlDiagnostic.fromRawBatch(records, text, index);
         assert.strictEqual(diagnostics.length, count - 1);
         assert.deepStrictEqual(
           A.map(diagnostics, (d) => [d.offset, d.line, d.character]),
           A.map(records, (raw, i) => [raw.offset, i + 1, 0])
         );
-        assert.strictEqual(reads.mock.calls.length, text.length);
+        assert.strictEqual(reads.mock.calls.length, count + 1);
         YamlDiagnostic.fromRawBatch(records, text, index);
-        assert.strictEqual(reads.mock.calls.length, text.length);
+        assert.strictEqual(reads.mock.calls.length, count + 1);
       } finally {
         reads.mockRestore();
       }
@@ -38,7 +40,7 @@ describe("indexed diagnostic batches", () => {
 
   it.effect("shares one index across each parser, document stream, visitor and modification operation", () =>
     Effect.gen(function* () {
-      const text = "a: 1\n".repeat(128);
+      const text = Str.repeat(128)("a: 1\n");
       const indexes = vi.spyOn(YamlDiagnostic, "positionIndex");
       try {
         const error = yield* Effect.matchEffect(Yaml.parse(text), { onFailure: Effect.succeed, onSuccess: Effect.die });
@@ -69,7 +71,7 @@ describe("indexed diagnostic batches", () => {
         assert.strictEqual(A.filter(events, YamlVisitorEvent.$is("Error")).length, 127);
         assert.strictEqual(indexes.mock.calls.length, 1);
         indexes.mockClear();
-        const malformed = "a: *missing\n".repeat(128);
+        const malformed = Str.repeat(128)("a: *missing\n");
         const modification = yield* Effect.flip(YamlFormat.modify(malformed, ["a"], 2));
         assert.isAbove(modification.diagnostics.length, 1);
         assert.strictEqual(indexes.mock.calls.length, 1);

@@ -237,6 +237,6 @@
     { "bytes": 74600, "kind": "sheet", "path": "sheets/contact-sheet.jpg" }
   ],
   "round": 4,
-  "roundDir": "/home/elpresidank/YeeBois/projects/beep-effect15/.beep/qa/round-4",
+  "roundDir": "~/YeeBois/projects/beep-effect15/.beep/qa/round-4",
   "totalBytes": 8362179
 }

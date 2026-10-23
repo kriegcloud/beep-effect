@@ -31,7 +31,7 @@ import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
-import { dual, pipe } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as S from "effect/Schema";
@@ -632,7 +632,7 @@ const admissionWorkloadFields = (
 const sameAdmissionBinding = (left: AdmissionWorkloadBinding, right: AdmissionWorkloadBinding): boolean =>
   Str.Equivalence(left.workloadPath, right.workloadPath) && Str.Equivalence(left.leaseId, right.leaseId);
 
-// fallow-ignore-next-line complexity -- fail-closed admission binding keeps explicit and inherited identities in one check
+// fallow-ignore-next-line complexity -- CRAP finding comes from fallow's static coverage estimate; the fail-closed admission binding keeps explicit and inherited identities in one check with cognitive 7. Owner: @beep/repo-cli. Exit: remove once fallow health reads the measured coverage for this file (#1855 detector frontier) or the branches collapse.
 const resolveAdmissionWorkload = Effect.fn("StepExec.resolveAdmissionWorkload")(function* (
   options: SpawnFields
 ): Effect.fn.Return<O.Option<ResolvedAdmissionWorkload>, AdmissionWorkloadRegistrationError> {
@@ -676,12 +676,9 @@ const prepareAdmissionWorkload = Effect.fn("StepExec.prepareAdmissionWorkload")(
 });
 
 const procStartFromStat = (text: string): string | undefined => {
-  const commandEnd = text.lastIndexOf(") ");
+  const commandEnd = O.getOrElse(constant(-1))(Str.lastIndexOf(") ")(text));
   if (commandEnd < 0) return undefined;
-  return text
-    .slice(commandEnd + 2)
-    .trim()
-    .split(/\s+/u)[19];
+  return Str.split(/\s+/u)(Str.trim(Str.slice(commandEnd + 2)(text)))[19];
 };
 
 const registerAdmissionWorkload = Effect.fn("StepExec.registerAdmissionWorkload")(function* (

@@ -1,7 +1,7 @@
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import { Audience } from "../../../effected/env/index.ts";
+import { Audience } from "@beep/runtime-env";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import type { Document } from "../../../effected/cli/index.ts";
@@ -11,6 +11,7 @@ import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
 import type { Ev, State } from "../helpers/live.ts";
 import { End, Start, frameOf, reduce, tick } from "../helpers/live.ts";
 import { deliberatelyInvalid } from "../deliberatelyInvalid.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 
 const Json = S.fromJsonString(S.Unknown);
 
@@ -84,7 +85,7 @@ describe("CliUi.live final, when not interactive", () => {
 	it.effect("an agent gets the plain renderer and no escape; a person, without an audience, is painted", () =>
 		Effect.gen(function* () {
 			const agent = yield* CliUiTest.live({ ...base, final, interactive: false, color: "truecolor" }).pipe(
-				Effect.provideService(Audience, Audience.of({ kind: "agent", source: "override" })),
+				Effect.provideService(Audience, Audience.of(AudienceShape.make({ kind: "agent", source: "override" }))),
 			);
 			for (const event of [Start, End]) yield* agent.publish(event);
 			yield* agent.end;

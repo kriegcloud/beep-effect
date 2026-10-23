@@ -796,6 +796,13 @@ export const githubCheckPrePushLanes: {
  */
 export const githubCheckCheapGateLanes = (repoRoot: string): ReadonlyArray<GithubCheckLaneSpec> => [
   githubCheckLane(
+    "version-sync:check-runtime",
+    "cheap-gates",
+    "repo-sanity",
+    "preflight",
+    bunRunLane(repoRoot, "version-sync:check-runtime", ["beep", "version-sync", "--check-runtime"])
+  ),
+  githubCheckLane(
     "quality:cache-policy",
     "cheap-gates",
     "repo-quality",
@@ -893,6 +900,27 @@ export const githubCheckCheapGateLanes = (repoRoot: string): ReadonlyArray<Githu
     "repo-sanity",
     "preflight",
     rootTaskLane(repoRoot, "goals:doctor", "goals:doctor")
+  ),
+  githubCheckLane(
+    "lint:schema-catalog",
+    "cheap-gates",
+    "repo-sanity",
+    "heavy",
+    bunRunLane(repoRoot, "lint:schema-catalog", ["beep", "lint", "schema-catalog"])
+  ),
+  githubCheckLane(
+    "lint:oxlint",
+    "cheap-gates",
+    "repo-quality",
+    "preflight",
+    bunRunLane(repoRoot, "lint:oxlint", ["lint:oxlint"])
+  ),
+  githubCheckLane(
+    "quality:jsdoc-ratchet:regenerated",
+    "cheap-gates",
+    "repo-quality",
+    "preflight",
+    repoCliLane(repoRoot, "quality:jsdoc-ratchet:regenerated", ["jsdoc-ratchet", "--regenerate"])
   ),
   githubCheckLane(
     "quality:jsdoc-ratchet:committed",

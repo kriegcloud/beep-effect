@@ -55,7 +55,7 @@ import type {
 const createChalk = makeCreateChalk(detectedSupportsColorBrowser.stdout);
 const createChalkStderr = makeCreateChalk(detectedSupportsColorBrowser.stderr);
 
-// fallow-ignore-next-line code-duplication -- browser/node chalk dual surfaces intentionally share the public model re-export block; jsdoc-carrier migration only rewrote comment carriers and Fallow attributes the pre-existing twin as introduced
+// fallow-ignore-next-line code-duplication -- jsdoc-carrier migration rewrote only comment carriers, so the audit attributes this pre-existing twin as introduced; the browser and node chalk surfaces share the public model re-export block. Owner: @beep/chalk. Exit: re-export the block from one shared module once both entry points can import it.
 /**
  * Recursive callable Chalk builder surface for browser-targeted bundles.
  *

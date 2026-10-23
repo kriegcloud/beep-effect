@@ -189,9 +189,7 @@ export class ExecutionSink extends S.Opaque<ExecutionSink, { readonly brand: uni
       description: "Governed sink triple (class, audience, destination).",
     })
   )
-) {
-  static readonly is = S.is(ExecutionSink);
-}
+) {}
 
 /**
  * Purpose a grant was issued for. Opaque to the evaluator; recorded only via
@@ -381,9 +379,7 @@ export class GrantBudget extends S.Opaque<GrantBudget, { readonly brand: unique 
       description: "Recorded, unenforced grant budget (v1 carries the field, denies on nothing).",
     })
   )
-) {
-  static readonly is = S.is(GrantBudget);
-}
+) {}
 
 /**
  * One unit of pre-authorized authority: a principal may perform one operation
@@ -448,6 +444,4 @@ export class ExecutionGrant extends S.Opaque<ExecutionGrant, { readonly brand: u
         "Pre-authorized authority unit: principal, purpose, resource, operation, sink, budget, policy revision, expiry.",
     })
   )
-) {
-  static readonly is = S.is(ExecutionGrant);
-}
+) {}

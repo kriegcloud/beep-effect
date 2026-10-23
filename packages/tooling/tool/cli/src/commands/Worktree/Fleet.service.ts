@@ -132,7 +132,6 @@ export const classifyFleetLiveness: {
   (readings: FleetLivenessReadings, windowSeconds?: number): FleetLivenessVerdict;
 } = dual(
   (args: IArguments) => args.length >= 2 || (args.length === 1 && P.isNotUndefined(args[0]) && !P.isNumber(args[0])),
-  // fallow-ignore-next-line complexity -- existing fleet tests exhaustively cover the conservative liveness branches
   (readings: FleetLivenessReadings, windowSeconds: number = FLEET_LIVENESS_WINDOW_SECONDS): FleetLivenessVerdict => {
     const candidates: ReadonlyArray<readonly [boolean, FleetLivenessProbe]> = [
       [readings.processMatches > 0, "process-cwd"],
@@ -175,8 +174,8 @@ const statusRecordAt = (records: ReadonlyArray<string>, index: number): StatusRe
   if (record === undefined || Str.isEmpty(record)) {
     return SKIPPED_STATUS_RECORD;
   }
-  const target = record.slice(3);
-  if (!RENAME_OR_COPY_STATUS.test(record.slice(0, 2))) {
+  const target = Str.slice(3)(record);
+  if (!RENAME_OR_COPY_STATUS.test(Str.slice(0, 2)(record))) {
     return { paths: [target], counted: true, stride: 1 };
   }
   const origin = O.filter(O.fromUndefinedOr(records[index + 1]), Str.isNonEmpty);
@@ -471,8 +470,8 @@ type ScannerContext = {
 
 const normalizeOriginUrl = (url: string): string => {
   const trimmed = Str.trim(url);
-  const withoutSlash = Str.endsWith("/")(trimmed) ? trimmed.slice(0, -1) : trimmed;
-  return Str.endsWith(".git")(withoutSlash) ? withoutSlash.slice(0, -4) : withoutSlash;
+  const withoutSlash = Str.endsWith("/")(trimmed) ? Str.slice(0, -1)(trimmed) : trimmed;
+  return Str.endsWith(".git")(withoutSlash) ? Str.slice(0, -4)(withoutSlash) : withoutSlash;
 };
 
 const platformErrorTag = (error: PlatformError.PlatformError): string => error.reason._tag;

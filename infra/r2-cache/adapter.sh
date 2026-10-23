@@ -30,21 +30,19 @@ serve() {
   : "${R2_ENDPOINT:?R2_ENDPOINT is required}" "${R2_BUCKET:?R2_BUCKET is required}"
   : "${R2_ACCESS_KEY_ID:?R2_ACCESS_KEY_ID is required}" "${R2_SECRET_ACCESS_KEY:?R2_SECRET_ACCESS_KEY is required}"
   : "${TURBO_TOKEN:?TURBO_TOKEN is required}"
-  local port="${R2_ADAPTER_PORT:-9427}" name
+  local port="${R2_ADAPTER_PORT:-9427}"
   [[ "$port" =~ ^[0-9]{4,5}$ ]] && (( port >= 1024 && port <= 65535 )) || return 1
   [[ "$R2_ENDPOINT" =~ ^https://[a-f0-9]{32}\.r2\.cloudflarestorage\.com$ ]] || return 1
   install_binary
   export HOST=127.0.0.1 PORT="$port" S3_ENDPOINT="$R2_ENDPOINT" S3_REGION=auto
   export S3_BUCKET_NAME="$R2_BUCKET" S3_ACCESS_KEY="$R2_ACCESS_KEY_ID" S3_SECRET_KEY="$R2_SECRET_ACCESS_KEY"
   export S3_USE_PATH_STYLE=true TOKIO_WORKER_THREADS=2 OTEL_SDK_DISABLED=true
-  # The adapter receives storage access, never the caller's vault or app credentials.
-  while IFS= read -r name; do
-    case "$name" in
-      PATH|HOME|LANG|RUNNER_TRACKING_ID|SSL_CERT_FILE|SSL_CERT_DIR|HOST|PORT|S3_ENDPOINT|S3_REGION|S3_BUCKET_NAME|S3_ACCESS_KEY|S3_SECRET_KEY|S3_USE_PATH_STYLE|TOKIO_WORKER_THREADS|OTEL_SDK_DISABLED|TURBO_TOKEN) ;;
-      *) unset "$name" 2>/dev/null || true ;;
-    esac
-  done < <(compgen -e)
-  exec "$binary"
+  # Exec with an explicit environment; secret values never enter argv.
+  exec python3 -I - "$binary" <<'PYENV'
+import os,sys
+allowed=("PATH","HOME","LANG","RUNNER_TRACKING_ID","SSL_CERT_FILE","SSL_CERT_DIR","HOST","PORT","S3_ENDPOINT","S3_REGION","S3_BUCKET_NAME","S3_ACCESS_KEY","S3_SECRET_KEY","S3_USE_PATH_STYLE","TOKIO_WORKER_THREADS","OTEL_SDK_DISABLED","TURBO_TOKEN")
+os.execve(sys.argv[1],[sys.argv[1]],{name:os.environ[name] for name in allowed if name in os.environ})
+PYENV
 }
 
 owns_listener() {

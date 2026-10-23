@@ -3,7 +3,7 @@
 ## Outcome
 
 `USPTO_API_KEY=$(op read "op://BEEP_SECRETS/BEEP_SECRETS/USPTO_API_KEY")
-bun run beep corpus enrich --corpus-root /home/elpresidank/data-home/oppold-corpus
+bun run beep corpus enrich --corpus-root $HOME/data-home/oppold-corpus
 --max-lookups 150 --lookup-delay-millis 1100` resolved corpus-derived patent
 and application identifiers against the USPTO Open Data Portal via the new
 `drivers/uspto` driver. Outputs: `catalog/enrichment-manifest.jsonl`,

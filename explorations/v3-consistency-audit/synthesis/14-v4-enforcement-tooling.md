@@ -244,7 +244,7 @@ command-contract-check,boundaries config-check,ci-contract-check}`.
 
 | Gate | What it checks | Slice relevance |
 |---|---|---|
-| `knip` (`internal/KnipRatchet.ts`) | `bun run knip --reporter json` vs `standards/knip.regression-baseline.jsonc`; new packages must be clean | unused exports/files; `knip.jsonc` entry `packages/**: src/*.ts` means **top-level src modules are implicitly public**, so dead barrels are not flagged |
+| `knip` (`internal/KnipRatchet.ts`) | `bun run knip --reporter json` vs `4ec5e74a89:standards/knip.regression-baseline.jsonc` (retired by #1584); new packages must be clean | unused exports/files; `knip.jsonc` entry `packages/**: src/*.ts` means **top-level src modules are implicitly public**, so dead barrels are not flagged |
 | `jsdoc-ratchet` | inventory totals vs `standards/jsdoc-*.baseline` | none |
 | `tsgo-rules` | root `@effect/tsgo` diagnostic severities | none |
 | `config-check` (`quality fallow boundaries config-check --check`) | runs `bun run fallow:boundaries:check` = `beep fallow boundaries --check` (`FallowQuality.command.ts:2053`) | see §2.4 |

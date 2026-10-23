@@ -6,7 +6,7 @@ import * as Result from "effect/Result";
 // `CliAudience.run` / `runWith` scan argv first and provide the answer around the whole run.
 import { assert, describe, it } from "@effect/vitest";
 import { MemoryFileSystem } from "@beep/memfs";
-import { Audience, TerminalEnv } from "../../effected/env/index.ts";
+import { Audience, TerminalEnv } from "@beep/runtime-env";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
@@ -27,6 +27,7 @@ import * as Layer from "effect/Layer";
 import * as Runtime from "effect/Runtime";
 import { CliAudience, CliInteractive, CliPrompt, CliRuntime } from "../../effected/cli/index.ts";
 import { TestTerminal } from "../../effected/cli/testing.ts";
+import { AudienceShape } from "@beep/runtime-env/Audience";
 
 const gateLayer = (interactive: boolean, builtIns: ReadonlyArray<GlobalFlag.BuiltIn> = GlobalFlag.BuiltIns) =>
 	CliPrompt.gateWizard.pipe(
@@ -134,7 +135,7 @@ const run = Effect.fn("run")(function* (
 		Effect.provideService(Console.Console, double),
 		gateWizard ? Effect.provideContext(fixtures.gateHuman) : (self) => self,
 		Effect.provideService(CliInteractive, true),
-		Effect.provideService(Audience, { kind: "human", source: "detected" }),
+		Effect.provideService(Audience, AudienceShape.make({ kind: "human", source: "detected" })),
 	);
 	const code = Exit.isFailure(exit) ? exit.cause.pipe(Cause.squash, Runtime.getErrorExitCode) : 0;
 	return { out, err, code, reads: yield* terminal.reads };
@@ -331,7 +332,7 @@ it.layer(Layer.mergeAll(MemoryFileSystem.layer, fixturesLayer), { timeout: "30 s
 				Effect.provideContext(
 					facts.stdin ? (facts.stdout ? fixtures.tt : fixtures.tf) : facts.stdout ? fixtures.ft : fixtures.ff,
 				),
-				Effect.provideService(Audience, { kind: facts.detected, source: "detected" }),
+				Effect.provideService(Audience, AudienceShape.make({ kind: facts.detected, source: "detected" })),
 				Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown(env)),
 			);
 			const code = Exit.isFailure(exit) ? exit.cause.pipe(Cause.squash, Runtime.getErrorExitCode) : 0;

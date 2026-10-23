@@ -2,8 +2,8 @@
 import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { assert, describe, it } from "@effect/vitest";
-import type { Audience } from "../../effected/env/index.ts";
-import { TerminalEnv } from "../../effected/env/index.ts";
+import type { Audience } from "@beep/runtime-env";
+import { TerminalEnv } from "@beep/runtime-env";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
 import * as ConfigProvider from "effect/ConfigProvider";

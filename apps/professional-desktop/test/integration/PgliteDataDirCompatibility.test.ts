@@ -16,6 +16,7 @@ import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import {
   ChatDbCompatibilityMarker,
@@ -111,7 +112,7 @@ const backupNames = Effect.fn("ProfessionalDesktop.PgliteCompatibilityTest.backu
   dataDirName: string
 ) {
   const fs = yield* FileSystem.FileSystem;
-  return A.filter(yield* fs.readDirectory(rootDir), (entry) => entry.startsWith(`${dataDirName}.pre-inprocess-`));
+  return A.filter(yield* fs.readDirectory(rootDir), (entry) => Str.startsWith(`${dataDirName}.pre-inprocess-`)(entry));
 });
 
 it.layer(TestServices, { timeout: vitestCoverageRunActive || fcDeepSweepActive ? "5 minutes" : "10 seconds" })(

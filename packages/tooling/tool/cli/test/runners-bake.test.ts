@@ -34,7 +34,7 @@ import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { constant, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -851,8 +851,8 @@ describe("runner bake planning and argv", () => {
       "951ee2aee855f08595aeec6225226a298d3fea83a3dcd6465c09cbccdf7e848f' /tmp/bun-linux-x64.zip"
     );
     expect(script).toContain("sha256sum --check --strict -");
-    expect(script.indexOf("sha256sum --check --strict -")).toBeLessThan(
-      script.indexOf("install -o root -g root -m 0755")
+    expect(O.getOrElse(constant(-1))(Str.indexOf("sha256sum --check --strict -")(script))).toBeLessThan(
+      O.getOrElse(constant(-1))(Str.indexOf("install -o root -g root -m 0755")(script))
     );
     expect(script).not.toContain("bun.sh/install");
     expect(script).toContain("/tmp/bun-linux-x64/bun-linux-x64/bun /usr/local/bin/bun");
@@ -862,8 +862,8 @@ describe("runner bake planning and argv", () => {
     expect(script).toContain("ln -sfn bun /usr/local/bin/bunx");
     expect(script).toContain("chown -h root:root /usr/local/bin/bunx");
     expect(script).toContain("/usr/local/bin/bunx --version");
-    expect(script.indexOf("ln -sfn bun /usr/local/bin/bunx")).toBeLessThan(
-      script.indexOf("git clone --filter=blob:none")
+    expect(O.getOrElse(constant(-1))(Str.indexOf("ln -sfn bun /usr/local/bin/bunx")(script))).toBeLessThan(
+      O.getOrElse(constant(-1))(Str.indexOf("git clone --filter=blob:none")(script))
     );
     expect(script).not.toContain("bun install --cwd");
     expect(script).toContain("git -C /tmp/beep-effect checkout --detach 0123456789abcdef0123456789abcdef01234567");
@@ -903,8 +903,8 @@ describe("runner bake planning and argv", () => {
         );
         expect(script).toContain(".bun-linux-x64.sha256");
         expect(script).toContain("sha256sum --check --strict -");
-        expect(script.indexOf("sha256sum --check --strict -")).toBeLessThan(
-          script.indexOf('install -m 0755 "${run_dir}/bun/bun-linux-x64/bun"')
+        expect(O.getOrElse(constant(-1))(Str.indexOf("sha256sum --check --strict -")(script))).toBeLessThan(
+          O.getOrElse(constant(-1))(Str.indexOf('install -m 0755 "${run_dir}/bun/bun-linux-x64/bun"')(script))
         );
         expect(script).toContain('grep -q "^\\[GNUPG:\\] VALIDSIG ${OP_GPG_FINGERPRINT} "');
         expect(script).not.toContain('grep -q "VALIDSIG ${OP_GPG_FINGERPRINT}"');

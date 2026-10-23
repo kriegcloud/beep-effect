@@ -51,7 +51,8 @@ const errorOptionsFromInput = (options: DuckDbErrorContextInput): DuckDbErrorFro
  * ```ts
  * import { DuckDbOperation } from "@beep/duckdb"
  *
- * console.log(DuckDbOperation.Enum.query)
+ * console.log(DuckDbOperation.Enum.query) // "query"
+ * console.log(DuckDbOperation.is.query("query"), DuckDbOperation.is.query("run")) // true false
  * ```
  *
  * @category errors
@@ -72,7 +73,7 @@ export const DuckDbOperation = LiteralKit(["copyTableToParquet", "query", "run",
  * import type { DuckDbOperation } from "@beep/duckdb"
  *
  * const operation: DuckDbOperation = "query"
- * console.log(operation)
+ * console.log(operation === "query") // true
  * ```
  *
  * @category errors

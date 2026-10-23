@@ -48,17 +48,18 @@ const percentEscapePattern = /^%[0-9A-F]{2}$/u;
 const didRawCharacterPattern = /^[A-Za-z0-9._:-]$/u;
 
 const hasLowercaseAtUriScheme = Str.startsWith(AT_URI_SCHEME);
-const hasQueryOrFragment = (value: string): boolean => value.includes("?") || value.includes("#");
+const hasQueryOrFragment = (value: string): boolean => Str.includes("?")(value) || Str.includes("#")(value);
 const hasNoQueryOrFragment = (value: string): boolean => !hasQueryOrFragment(value);
 
 const hasNormalizedPercentEncoding = (value: string): boolean => {
-  for (let index = value.indexOf("%"); index >= 0; index = value.indexOf("%", index + 1)) {
-    const escape = value.slice(index, index + 3);
+  const percentSigns = /%([\s\S]{0,2})/g;
+  for (let match = percentSigns.exec(value); match !== null; match = percentSigns.exec(value)) {
+    const escape = match[0];
     if (!percentEscapePattern.test(escape)) {
       return false;
     }
 
-    const decoded = String.fromCharCode(Number.parseInt(escape.slice(1), 16));
+    const decoded = String.fromCharCode(Number(`0x${match[1]}`));
     if (decoded === "%" || didRawCharacterPattern.test(decoded)) {
       return false;
     }
@@ -122,7 +123,7 @@ const hasLexiconAtUriShape = (value: string): boolean => {
     return false;
   }
 
-  const [authority, collection, recordKey, extraSegment] = Str.split("/")(value.slice(AT_URI_SCHEME.length));
+  const [authority, collection, recordKey, extraSegment] = Str.split("/")(Str.slice(AT_URI_SCHEME.length)(value));
 
   return (
     authority !== undefined &&

@@ -22,6 +22,7 @@ import {
   ReviewFindingId,
   ReviewFindingRef,
   ReviewIngestRequest,
+  ReviewIntake,
   ReviewInventory,
   ReviewOpenRequest,
   ReviewPageRef,
@@ -55,6 +56,7 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import type { PDFPage } from "pdf-lib";
@@ -63,11 +65,11 @@ import type { PDFPage } from "pdf-lib";
 // and reviewer pages that copy a sheet and type notes over it, the way a
 // flattened reviewer export comes back.
 
-const hashA = Sha256Hex.make("a".repeat(64));
-const hashB = Sha256Hex.make("b".repeat(64));
-const hashC = Sha256Hex.make("c".repeat(64));
-const specX = Sha256Hex.make("e".repeat(64));
-const specY = Sha256Hex.make("f".repeat(64));
+const hashA = Sha256Hex.make(Str.repeat(64)("a"));
+const hashB = Sha256Hex.make(Str.repeat(64)("b"));
+const hashC = Sha256Hex.make(Str.repeat(64)("c"));
+const specX = Sha256Hex.make(Str.repeat(64)("e"));
+const specY = Sha256Hex.make(Str.repeat(64)("f"));
 const rect = (yMin: number, xMin = 72) => PdfRect.make({ xMin, yMin, xMax: xMin + 100, yMax: yMin + 12 });
 const coverage = (covered: number, base: number, marked: number) =>
   InkCoverage.make({
@@ -490,7 +492,7 @@ const foreignDrawing = (page: PDFPage) => {
   }
 };
 
-const SPEC = "0".repeat(64);
+const SPEC = Str.repeat(64)("0");
 
 const manifestJson = (pdfSha256: string, specSha256: string) =>
   toJson({
@@ -532,7 +534,7 @@ const makeCorpus = Effect.fnUntraced(function* () {
   // the same spec rendered again (a shaded twin): one more blank page, so another hash
   const other = yield* writeSet("other", yield* sheetSetPdf(1));
   // a set rendered from another spec of the matter
-  const foreign = yield* writeSet("foreign", yield* sheetSetPdf(2), "1".repeat(64));
+  const foreign = yield* writeSet("foreign", yield* sheetSetPdf(2), Str.repeat(64)("1"));
   const inputs = path.join(matter, "inputs");
   yield* fs.makeDirectory(inputs, { recursive: true });
   const location = ReviewRoundLocation.make({ corpusRoot: root, matter: "matter", round: 1 });
@@ -920,7 +922,7 @@ describe("beep drawings review", () => {
         const prompt = yield* fs.readFileString(path.join(pack.packDir, "prompt.md"));
         expect(prompt).toContain("### Reviewer requests (review round 1");
         expect(prompt).toContain(
-          `| A1-02@${corpus.sent.hash.slice(0, 12)} | all | Margins: 1 in (all sheets) | not planned yet |`
+          `| A1-02@${Str.slice(0, 12)(corpus.sent.hash)} | all | Margins: 1 in (all sheets) | not planned yet |`
         );
         expect(prompt).toContain("What the design claims is the attorney's call");
         const manifest = yield* fs.readFileString(path.join(pack.packDir, "manifest.json"));
@@ -1007,7 +1009,7 @@ describe("beep drawings review", () => {
         expect(output).toContain(`review round 1: planned, sheet set ${corpus.sent.hash}`);
         expect(output).toContain("3 finding(s), 1 open required, 2 required in all");
         expect(output).toContain(
-          `  A1-02@${corpus.sent.hash.slice(0, 12)} P1 declined all sheets: Margins: 1 in (all sheets) (×2)`
+          `  A1-02@${Str.slice(0, 12)(corpus.sent.hash)} P1 declined all sheets: Margins: 1 in (all sheets) (×2)`
         );
 
         const unopened = yield* Effect.flip(
@@ -1037,7 +1039,7 @@ describe("beep drawings review", () => {
         ]);
         yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
 
-        const sent = corpus.sent.hash.slice(0, 12);
+        const sent = Str.slice(0, 12)(corpus.sent.hash);
         const refused = yield* Effect.flip(runDrawings(["statement", "--manifest", corpus.sent.manifest]));
         assertInstanceOf(refused, DrawingsCommandError);
         expect(refused.message).toContain(
@@ -1327,6 +1329,84 @@ describe("beep drawings review", () => {
           ])
         );
         expect(malformed.message).toContain('"nonsense" is not <file>[:<page>]=<FIG.>');
+      })
+    );
+  });
+});
+
+describe("beep drawings review plan command", () => {
+  it.layer(TestLayer, { timeout: "60 seconds" })((it) => {
+    it.effect(
+      "plans a round through the command and prints the reviewer pages its intake matched",
+      Effect.fnUntraced(function* () {
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const opened = yield* review.open(
+          ReviewOpenRequest.make({
+            location: corpus.location,
+            manifestPath: corpus.sent.manifest,
+            deliveryPath: O.none(),
+          })
+        );
+        // An ingested round with its intake, recorded the way ingest records it, without running poppler.
+        const round = ReviewRound.make(opened.round);
+        const intakeSha256 = yield* writeJsonFile(
+          ReviewIntake,
+          path.join(opened.roundDir, "intake.json"),
+          ReviewIntake.make({
+            schemaVersion: "drawing-review-intake/v1",
+            round: round.round,
+            reviewedSheetSetSha256: round.reviewedSheetSetSha256,
+            pages: sharedPages,
+          })
+        );
+        const inventorySha256 = yield* writeJsonFile(
+          ReviewInventory,
+          path.join(opened.roundDir, "inventory.json"),
+          inventoryOf(round, findingsOf(sharedPages))
+        );
+        yield* writeJsonFile(
+          ReviewRound,
+          path.join(opened.roundDir, "round.json"),
+          ReviewRound.make({
+            ...round,
+            status: "ingested",
+            intakeSha256: O.some(intakeSha256),
+            inventorySha256: O.some(inventorySha256),
+          })
+        );
+        const dispositionsFile = path.join(corpus.matter, "dispositions-draft.json");
+        yield* writeJsonFile(
+          ReviewDispositions,
+          dispositionsFile,
+          ReviewDispositions.make({
+            schemaVersion: "drawing-review-dispositions/v1",
+            round: 1,
+            entries: [entry("A1-01", specChange), entry("A1-02", declined), entry("A1-03", specChange)],
+          })
+        );
+        yield* runDrawings([
+          "review",
+          "plan",
+          "--corpus-root",
+          corpus.root,
+          "--matter",
+          corpus.matter,
+          "--round",
+          "1",
+          "--dispositions",
+          dispositionsFile,
+        ]);
+        const output = yield* logged;
+        expect(output).toContain(`review round 1: planned, sheet set ${corpus.sent.hash}`);
+        expect(output).toContain("  Fig1.pdf page 1 → FIG. 1 (ink-coverage, coverage 1.000), 2 note(s)");
+        expect(output).toContain("  Fig2.pdf page 1 → FIG. 2 (ink-coverage, coverage 1.000), 2 note(s)");
+        // a planned spec change stays open until a re-render answers it
+        expect(output).toContain("  3 finding(s), 2 open required, 3 required in all");
+        expect(output).toContain(
+          `  A1-02@${Str.slice(0, 12)(corpus.sent.hash)} P1 declined all sheets: Margins: 1 in (all sheets) (×2)`
+        );
       })
     );
   });

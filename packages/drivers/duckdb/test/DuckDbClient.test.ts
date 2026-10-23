@@ -1,7 +1,7 @@
 import { DuckDbClient, DuckDbClientConfigData, DuckDbMigrator, DuckDbTestLayer } from "@beep/duckdb";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import { decimalValue } from "@duckdb/node-api";
+import { DuckDBTimestampTZValue, decimalValue } from "@duckdb/node-api";
 import { assert, describe, expect } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -154,6 +154,7 @@ describe("DuckDbClient", { concurrent: false }, () => {
           [2, "two"],
         ]);
         assert.deepStrictEqual(yield* sql`INSERT INTO values_rows VALUES (3, 'three')`.values, []);
+        assert.deepStrictEqual(yield* sql`INSERT INTO values_rows VALUES (4, 'four')`.valuesUnprepared, []);
       })
     );
 
@@ -321,6 +322,47 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
+      "widens a list mixing integers and non-integers to the widest number type",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`CREATE TABLE widen_list (id INTEGER, xs DOUBLE[], grid DOUBLE[][])`;
+        yield* sql`INSERT INTO widen_list ${sql.insert({ id: 1, xs: [1, 2.5], grid: [[1], [2.5]] })}`;
+        yield* sql.unsafe("INSERT INTO widen_list VALUES (?, ?, ?)", [2, [null, 3, 0.5], [[null, 4], null]]);
+        yield* sql.unsafe("INSERT INTO widen_list VALUES (?, ?, ?)", [3, [3e9, 1.5], [[2.5, 1]]]).unprepared;
+        assert.deepStrictEqual(yield* sql`SELECT * FROM widen_list ORDER BY id`, [
+          { id: 1, xs: [1, 2.5], grid: [[1], [2.5]] },
+          { id: 2, xs: [null, 3, 0.5], grid: [[null, 4], null] },
+          { id: 3, xs: [3e9, 1.5], grid: [[2.5, 1]] },
+        ]);
+        assert.deepStrictEqual(yield* sql`SELECT ${[1, 2.5]} AS l, typeof(${[1, 2.5]}) AS t`, [
+          { l: [1, 2.5], t: "DOUBLE[]" },
+        ]);
+        assert.deepStrictEqual(yield* sql`SELECT typeof(${[1, 3e9]}) AS t, typeof(${[[1], [2.5]]}) AS g`, [
+          { t: "BIGINT[]", g: "DOUBLE[][]" },
+        ]);
+      })
+    );
+
+    it.effect(
+      "binds an empty array as an empty LIST into typed and untyped contexts",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        yield* sql`CREATE TABLE empty_list_bind (id INTEGER, tags INTEGER[], names VARCHAR[], grid INTEGER[][])`;
+        yield* sql`INSERT INTO empty_list_bind ${sql.insert({ id: 1, tags: [], names: [], grid: [] })}`;
+        yield* sql.unsafe("INSERT INTO empty_list_bind VALUES (?, ?, ?, ?)", [2, [], [], [[], [3]]]);
+        yield* sql.unsafe("INSERT INTO empty_list_bind VALUES (?, ?, ?, ?)", [3, [], ["a"], [[]]]).unprepared;
+        assert.deepStrictEqual(yield* sql`SELECT * FROM empty_list_bind ORDER BY id`, [
+          { id: 1, tags: [], names: [], grid: [] },
+          { id: 2, tags: [], names: [], grid: [[], [3]] },
+          { id: 3, tags: [], names: ["a"], grid: [[]] },
+        ]);
+        assert.deepStrictEqual(yield* sql`SELECT ${[]} AS l, len(${[]}) AS n`, [{ l: [], n: 0 }]);
+        assert.deepStrictEqual(yield* sql.unsafe("SELECT ?::VARCHAR[] AS l", [[]]), [{ l: [] }]);
+        assert.deepStrictEqual(yield* sql`SELECT count(*) AS n FROM empty_list_bind WHERE tags = ${[]}`, [{ n: 3 }]);
+      })
+    );
+
+    it.effect(
       "reads infinite DATE and TIMESTAMP values of every precision as infinity strings",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
@@ -363,6 +405,33 @@ describe("DuckDbClient", { concurrent: false }, () => {
           big: "294247-01-10 04:00:54.775806",
           small: "290309-12-22 (BC) 00:00:00",
         });
+      })
+    );
+
+    it.effect(
+      "reads an out-of-range TIMESTAMPTZ as its UTC string under a non-UTC host offset",
+      Effect.fnUntraced(function* () {
+        const sql = yield* SqlClient.SqlClient;
+        // The upstream class captures the host offset once at module load;
+        // pin it to +05:30 so the read runs as if the process TZ were not UTC.
+        const row = yield* Effect.acquireUseRelease(
+          Effect.sync(() => {
+            const saved = DuckDBTimestampTZValue.timezoneOffsetInMinutes;
+            DuckDBTimestampTZValue.timezoneOffsetInMinutes = 330;
+            return saved;
+          }),
+          () =>
+            sql`SELECT
+              '294247-01-10 04:00:54.775806+00'::TIMESTAMPTZ AS big,
+              '290309-12-22 (BC) 00:00:00+00'::TIMESTAMPTZ AS small`,
+          (saved) =>
+            Effect.sync(() => {
+              DuckDBTimestampTZValue.timezoneOffsetInMinutes = saved;
+            })
+        );
+        assert.deepStrictEqual(row, [
+          { big: "294247-01-10 04:00:54.775806+00", small: "290309-12-22 (BC) 00:00:00+00" },
+        ]);
       })
     );
 
@@ -438,10 +507,12 @@ describe("DuckDbClient", { concurrent: false }, () => {
       "fails unbindable parameters with UnknownError carrying the method operation",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
-        assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[]])), "execute");
         assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [new Map()])), "execute");
         assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [INVALID_DATE])), "execute");
-        assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[]]).unprepared), "executeUnprepared");
+        assertUnknownError(
+          yield* Effect.flip(sql.unsafe("SELECT ? AS x", [new Map()]).unprepared),
+          "executeUnprepared"
+        );
         assertUnknownError(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [new Map()]).values), "executeValues");
         assertUnknownError(
           yield* Effect.flip(sql.unsafe("SELECT ? AS x", [new Map()]).valuesUnprepared),
@@ -455,11 +526,14 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
-      "fails the documented numeric bind limits with UnknownError",
+      "fails the documented number and mixed-array bind limits with UnknownError",
       Effect.fnUntraced(function* () {
         const sql = yield* SqlClient.SqlClient;
         assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [1e20])))._tag, "UnknownError");
-        assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[1, 2.5]])))._tag, "UnknownError");
+        assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[1, "a"]])))._tag, "UnknownError");
+        // A ragged list (a list item next to a scalar item) mixes kinds too.
+        assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[[1], 2]])))._tag, "UnknownError");
+        assert.strictEqual(reasonOf(yield* Effect.flip(sql.unsafe("SELECT ? AS x", [[2, [1]]])))._tag, "UnknownError");
       })
     );
 
@@ -484,22 +558,83 @@ describe("DuckDbClient", { concurrent: false }, () => {
     );
 
     it.effect(
-      "invalidates cached statements after USE",
+      "re-resolves cached bound statements after USE and SET schema",
       Effect.fnUntraced(function* () {
         const client = yield* DuckDbClient.DuckDbClient;
         const sql = client;
         yield* client.attach(":memory:", "use_aux");
-        yield* sql`CREATE TABLE use_aux.use_t (src VARCHAR)`;
-        yield* sql`INSERT INTO use_aux.use_t VALUES ('aux')`;
+        yield* sql`CREATE TABLE use_aux.use_t (src INTEGER)`;
+        yield* sql`INSERT INTO use_aux.use_t VALUES (42)`;
         yield* sql`CREATE TABLE memory.main.use_t (src VARCHAR)`;
         yield* sql`INSERT INTO memory.main.use_t VALUES ('main')`;
-        const select = sql`SELECT src FROM use_t`;
-        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+        yield* sql`CREATE SCHEMA memory.use_s2`;
+        yield* sql`CREATE TABLE memory.use_s2.use_t (src INTEGER, extra INTEGER)`;
+        yield* sql`INSERT INTO memory.use_s2.use_t VALUES (2, 3)`;
+        // A bind keeps the statement on the prepared cache path (D44); each
+        // context switch changes the resolved table and its result shape.
+        // DuckDB 1.5.6 re-binds bound statements per execution, so this pins
+        // the contract with or without the cache clear (D38).
+        const select = sql`SELECT * FROM use_t WHERE ${1} = 1`;
+        const main = [{ src: "main" }];
+        assert.deepStrictEqual(yield* select, main);
+        assert.deepStrictEqual(yield* select, main);
         yield* sql`USE use_aux`;
-        assert.deepStrictEqual(yield* select, [{ src: "aux" }]);
+        assert.deepStrictEqual(yield* select, [{ src: 42 }]);
         yield* sql`USE memory`;
-        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+        assert.deepStrictEqual(yield* select, main);
+        yield* sql`SET schema = 'use_s2'`;
+        assert.deepStrictEqual(yield* select, [{ src: 2, extra: 3 }]);
+        yield* sql`RESET schema`;
+        assert.deepStrictEqual(yield* select, main);
+        yield* sql`SET search_path = 'use_s2'`;
+        assert.deepStrictEqual(yield* select, [{ src: 2, extra: 3 }]);
+        yield* sql`RESET search_path`;
+        assert.deepStrictEqual(yield* select, main);
         yield* client.detach("use_aux");
+      })
+    );
+
+    it.effect(
+      "re-resolves cached bound statements after multi-statement text that sets the schema",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE SCHEMA memory.multi_ctx_s`;
+        yield* sql`CREATE TABLE memory.main.multi_ctx_t (src VARCHAR)`;
+        yield* sql`INSERT INTO memory.main.multi_ctx_t VALUES ('main')`;
+        yield* sql`CREATE TABLE memory.multi_ctx_s.multi_ctx_t (src INTEGER)`;
+        yield* sql`INSERT INTO memory.multi_ctx_s.multi_ctx_t VALUES (7)`;
+        const select = sql`SELECT src FROM multi_ctx_t WHERE ${1} = 1`;
+        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+        // A catalog-context statement inside multi-statement text is not transaction
+        // control, so the text runs and the context switch is still tracked.
+        yield* sql.unsafe("SET schema = 'multi_ctx_s'; SELECT 1");
+        assert.deepStrictEqual(yield* select, [{ src: 7 }]);
+        yield* sql.unsafe("SELECT 1; RESET schema");
+        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+      })
+    );
+
+    it.effect(
+      "streams the last result of multi-statement schema switches and refreshes cached statements",
+      Effect.fnUntraced(function* () {
+        const sql = yield* DuckDbClient.DuckDbClient;
+        yield* sql`CREATE SCHEMA memory.stream_ctx_s`;
+        yield* sql`CREATE TABLE memory.main.stream_ctx_t (src VARCHAR)`;
+        yield* sql`INSERT INTO memory.main.stream_ctx_t VALUES ('main')`;
+        yield* sql`CREATE TABLE memory.stream_ctx_s.stream_ctx_t (src INTEGER)`;
+        yield* sql`INSERT INTO memory.stream_ctx_s.stream_ctx_t VALUES (7)`;
+        const select = sql`SELECT src FROM stream_ctx_t WHERE ${1} = 1`;
+        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
+        assert.deepStrictEqual(
+          yield* sql.unsafe("SET schema = 'stream_ctx_s'; SELECT src FROM stream_ctx_t").stream.pipe(Stream.runCollect),
+          [{ src: 7 }]
+        );
+        assert.deepStrictEqual(yield* select, [{ src: 7 }]);
+        assert.deepStrictEqual(
+          yield* sql.unsafe("RESET schema; SELECT src FROM stream_ctx_t").stream.pipe(Stream.runCollect),
+          [{ src: "main" }]
+        );
+        assert.deepStrictEqual(yield* select, [{ src: "main" }]);
       })
     );
 
@@ -858,6 +993,10 @@ describe("DuckDbClient", { concurrent: false }, () => {
         assert.deepStrictEqual(yield* sql`SELECT ${2}::INTEGER AS v`, [{ v: 2 }]);
         assert.deepStrictEqual(yield* sql`CREATE TABLE no_cache (i INTEGER); INSERT INTO no_cache VALUES (1), (2)`, []);
         assert.deepStrictEqual(yield* sql`SELECT count(*) AS n FROM no_cache`.raw, { changes: 0, rows: [{ n: 2 }] });
+        assert.deepStrictEqual(
+          yield* sql.unsafe("SET schema = 'main'; SELECT i FROM no_cache ORDER BY i").stream.pipe(Stream.runCollect),
+          [{ i: 1 }, { i: 2 }]
+        );
       })
     );
   });

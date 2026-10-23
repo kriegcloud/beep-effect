@@ -148,9 +148,7 @@ export class GovernedTierGateOptions extends S.Opaque<GovernedTierGateOptions, {
       description: "Session-static inputs the composition root supplies to the governed tier gate.",
     })
   )
-) {
-  static readonly is = S.is(GovernedTierGateOptions);
-}
+) {}
 
 interface RunState {
   readonly expiresAtMillis: number;

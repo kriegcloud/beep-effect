@@ -1536,7 +1536,7 @@ describe("tmpfs reap", () => {
           const target = path.join(root, "outside-owner.txt");
           yield* fs.writeFileString(target, `${root}\n`);
           yield* fs.symlink(target, path.join(fallow, "link.last-used"));
-          yield* fs.writeFileString(path.join(fallow, "large.last-used"), `${root}\n${"x".repeat(4096)}`);
+          yield* fs.writeFileString(path.join(fallow, "large.last-used"), `${root}\n${Str.repeat(4096)("x")}`);
 
           const report = yield* runTmpfsReap({ cacheRoot, nowMillis: FIXTURE_NOW_MILLIS, tmpRoot });
           expect(candidateByPath(report, fallow).ownerRoot).toBeUndefined();

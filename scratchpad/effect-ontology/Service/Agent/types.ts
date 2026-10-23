@@ -11,7 +11,7 @@
  * @since 0.0.0
  */
 
-import { Confidence } from "@beep/epistemic-domain/values/EvidenceSpan";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { $ScratchpadId } from "@beep/identity";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

@@ -1,5 +1,5 @@
 import { dual, pipe } from "effect/Function";
-import type { ColorLevel } from "../../env/index.ts";
+import type { ColorLevel } from "@beep/runtime-env";
 import type { NamedColor, Style } from "../Token.ts";
 import * as R from "effect/Record";
 import * as A from "effect/Array";

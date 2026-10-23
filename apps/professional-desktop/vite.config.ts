@@ -1,5 +1,6 @@
 import * as NodeURL from "node:url";
 import react from "@vitejs/plugin-react";
+import * as Str from "effect/String";
 import { defineConfig } from "vite";
 import type { Plugin } from "vite";
 
@@ -16,7 +17,7 @@ const stripMisplacedLexicalPureAnnotations = (): Plugin => ({
       return null;
     }
 
-    const sanitizedCode = code.replace(misplacedPureAnnotationBeforeReturn, "");
+    const sanitizedCode = Str.replace(misplacedPureAnnotationBeforeReturn, "")(code);
 
     return sanitizedCode === code ? null : { code: sanitizedCode, map: null };
   },
@@ -24,18 +25,18 @@ const stripMisplacedLexicalPureAnnotations = (): Plugin => ({
 
 // Vite treats an explicit `.ts` suffix as an exact filename, while the repository
 // convention intentionally uses `.ts` specifiers for both `.ts` and `.tsx` sources.
-// fallow-ignore-next-line code-duplication -- composition-root plugin mirrors Storybook's .ts-to-.tsx resolver by design
+// fallow-ignore-next-line code-duplication -- the `.ts`-to-`.tsx` resolver is copied into both Vite composition roots (Storybook is the other). Owner: @beep/professional-desktop. Exit: import it from a shared Vite tooling module once one exists, or delete when Vite applies the TypeScript source fallback.
 const resolveUniformTypeScriptSourceSpecifiers = (): Plugin => ({
   name: "beep:resolve-uniform-typescript-source-specifiers",
   enforce: "pre",
   resolveId(source, importer, options) {
-    if (importer === undefined || !source.startsWith(".") || !source.endsWith(".ts")) {
+    if (importer === undefined || !Str.startsWith(".")(source) || !Str.endsWith(".ts")(source)) {
       return null;
     }
 
     return this.resolve(source, importer, { ...options, skipSelf: true }).then((exactSource) =>
       exactSource === null
-        ? this.resolve(source.replace(/\.ts$/, ".tsx"), importer, { ...options, skipSelf: true })
+        ? this.resolve(Str.replace(/\.ts$/, ".tsx")(source), importer, { ...options, skipSelf: true })
         : exactSource
     );
   },
@@ -165,7 +166,7 @@ export default defineConfig({
       "/otlp": {
         target: "http://localhost:4318",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/otlp/, ""),
+        rewrite: (path) => Str.replace(/^\/otlp/, "")(path),
       },
     },
     // Cargo can materialize tens of thousands of generated files under target.

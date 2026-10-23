@@ -50,8 +50,11 @@ import {
   turboCacheEnvironmentNeedsSecretSession,
   turboCachePlanArgs,
   turboCachePlanNeedsSecretSession,
-  turboCachePullRequestPosture,
 } from "../../internal/cli/TurboCache.ts";
+import { coverageEnvironment } from "./internal/CoverageEnvironment.ts";
+
+export { coverageProducerEnvironment } from "./internal/CoverageEnvironment.ts";
+
 import { globMatches } from "../../internal/GlobPattern.ts";
 import {
   CapturedStep,
@@ -65,6 +68,7 @@ import { collectChangedFiles, collectDirtyWorktreeFiles } from "../../internal/r
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { PosInt } from "../../internal/schema/PosInt.ts";
 import { assertCacheRuntimeKeyUnspecified, cacheRuntimeStep } from "../Cache/Cache.runtime.ts";
+import { CoverageProducerIdentity, resolveCoverageProducerIdentity } from "./internal/CoverageArtifacts.ts";
 import {
   cleanCoverageRegressionOutputs,
   compareCoverageRegressionBaseline,
@@ -73,6 +77,7 @@ import {
   writeCoverageRegressionBaseline,
 } from "./internal/CoverageRegression.ts";
 import {
+  CoverageScopeOwner,
   coverageScopeWeightSeconds,
   planCoverageFullShards,
   planWorkspaceCoverageAffectedScope,
@@ -128,7 +133,7 @@ import type { PgliteTestcontainerResource } from "@beep/test-utils";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type * as Scope from "effect/Scope";
 import type { CaptureCommandTimedOutError } from "../../internal/process/index.ts";
-import type { CoverageBaselineRowDelta, CoverageScopeOwner } from "./internal/CoverageScope.ts";
+import type { CoverageBaselineRowDelta } from "./internal/CoverageScope.ts";
 import type { FlakeQuarantineTask } from "./internal/FlakeQuarantine.ts";
 import type { LaneProofSession } from "./internal/LaneProofReuse.ts";
 import type { TurboLaneDigest } from "./internal/TurboLaneDigest.ts";
@@ -187,8 +192,6 @@ const COVERAGE_FULL_VITEST_WORKER_CAP = 11;
 const COVERAGE_SELECTED_SINGLE_RUN_MAX_WEIGHT_SECONDS = 300;
 const COVERAGE_WRITE_BASELINE_ARG = "--write-baseline";
 const COVERAGE_REPLACE_ALL_ARG = "--replace-all";
-const DEFAULT_COVERAGE_FAST_CHECK_SEED = "20260708";
-const COVERAGE_NODE_OPTIONS_ARG = "--no-experimental-webstorage";
 // A single lost child-exit signal must fail with the command name while the
 // workflow still has time to report and clean up. The longest healthy policy
 // child is under eight minutes on the hosted heavy runner.
@@ -424,7 +427,9 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
 });
 
 const isSafeWorkspacePattern = (pattern: string): boolean =>
-  pattern.length > 0 && !pattern.startsWith("/") && !A.some(pattern.split("/"), (segment) => segment === "..");
+  pattern.length > 0 &&
+  !Str.startsWith("/")(pattern) &&
+  !A.some(Str.split("/")(pattern), (segment) => segment === "..");
 
 const workspaceCandidateDirsForPattern = Effect.fn("QualityTasks.workspaceCandidateDirsForPattern")(function* (
   repoRoot: string,
@@ -439,8 +444,8 @@ const workspaceCandidateDirsForPattern = Effect.fn("QualityTasks.workspaceCandid
     );
   }
 
-  if (pattern.endsWith("/*")) {
-    const base = path.join(repoRoot, pattern.slice(0, -2));
+  if (Str.endsWith("/*")(pattern)) {
+    const base = path.join(repoRoot, Str.slice(0, -2)(pattern));
     const entries = yield* fs
       .readDirectory(base)
       .pipe(
@@ -858,7 +863,8 @@ const coverageFullPassthroughArgs = (args: ReadonlyArray<string>): ReadonlyArray
 
 const resolveCoverageTaskOptions = Effect.fn("QualityTasks.resolveCoverageTaskOptions")(function* (
   repoRoot: string,
-  args: ReadonlyArray<string>
+  args: ReadonlyArray<string>,
+  baseOverride?: string
 ): Effect.fn.Return<CoverageTaskOptions, QualityTaskConfigurationError, QualityTaskEnvironment> {
   const parsed = parseCoverageTaskOptions(args);
   // A scoped `--replace-all` is the deliberate re-measure path: it adopts every
@@ -878,7 +884,9 @@ const resolveCoverageTaskOptions = Effect.fn("QualityTasks.resolveCoverageTaskOp
     );
   }
 
-  const base = yield* configStringOption("TURBO_SCM_BASE").pipe(
+  const base = yield* (
+    baseOverride === undefined ? configStringOption("TURBO_SCM_BASE") : Effect.succeedSome(baseOverride)
+  ).pipe(
     Effect.flatMap(
       O.match({
         onNone: () => QualityTaskConfigurationError.new("Affected coverage requires TURBO_SCM_BASE."),
@@ -949,6 +957,62 @@ const resolveCoverageTaskOptions = Effect.fn("QualityTasks.resolveCoverageTaskOp
     ),
     Match.exhaustive
   );
+});
+
+/**
+ * Authoritative coverage owners and checkout identity for test producers.
+ *
+ * **Example** (Inspect the shared plan contract)
+ * ```ts
+ * import { CiCoverageArtifactPlan } from "@beep/repo-cli/commands/Quality/Tasks"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(CiCoverageArtifactPlan)({})) // false
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class CiCoverageArtifactPlan extends S.Opaque<CiCoverageArtifactPlan, { readonly brand: unique symbol }>()(
+  S.Struct({ identity: CoverageProducerIdentity, owners: S.Array(CoverageScopeOwner), scoped: S.Boolean }).pipe(
+    $RepoCliId.create("commands/Quality/Tasks").annoteSchema("CiCoverageArtifactPlan", {
+      description: "Coverage planner owners and trusted workflow identity shared by producers and comparator.",
+    })
+  )
+) {}
+
+/**
+ * Reuse the legacy coverage scope planner without cleaning or executing tests.
+ *
+ * **Example** (Build a report planning effect)
+ * ```ts
+ * import { resolveCiCoverageArtifactPlan } from "@beep/repo-cli/commands/Quality/Tasks"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(resolveCiCoverageArtifactPlan("/repo", [])))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const resolveCiCoverageArtifactPlan = Effect.fn("QualityTasks.resolveCiCoverageArtifactPlan")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>,
+  base?: string
+) {
+  const options = yield* resolveCoverageTaskOptions(repoRoot, args, base);
+  const owners = yield* workspaceCoverageScopeOwners(repoRoot);
+  const names = options.skip
+    ? A.empty<string>()
+    : options.scoped
+      ? options.expectedPackageNames
+      : A.map(
+          A.filter(owners, (owner) => owner.hasCoverage),
+          (owner) => owner.packageName
+        );
+  const selected = A.filter(owners, (owner) => A.contains(names, owner.packageName));
+  const comparisonBase = base ?? O.getOrElse(yield* configStringOption("TURBO_SCM_BASE"), () => "origin/main");
+  return CiCoverageArtifactPlan.make({
+    identity: yield* resolveCoverageProducerIdentity(repoRoot, { base: comparisonBase, packageNames: names }),
+    owners: selected,
+    scoped: options.scoped,
+  });
 });
 
 /**
@@ -1082,53 +1146,10 @@ const boundedRootTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string
 const includesTurboCoverageTask = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): boolean =>
   A.some(tasks, (task) => task === "coverage") || A.some(args, (arg) => arg === "coverage");
 
-const coverageNodeOptions = (): string =>
-  pipe(
-    O.fromUndefinedOr(Bun.env.NODE_OPTIONS),
-    O.map(Str.trim),
-    O.filter(Str.isNonEmpty),
-    O.map((nodeOptions) =>
-      Str.includes(COVERAGE_NODE_OPTIONS_ARG)(nodeOptions) ? nodeOptions : `${nodeOptions} ${COVERAGE_NODE_OPTIONS_ARG}`
-    ),
-    O.getOrElse(() => COVERAGE_NODE_OPTIONS_ARG)
-  );
-
-// Coverage compares instrumentation metrics across runs, so its default seed
-// is reproducible. Callers can override it for additional exploration, while
-// the unseeded nightly property-law sweep remains responsible for breadth.
-const coverageFastCheckSeed = (): string =>
-  pipe(
-    O.fromUndefinedOr(Bun.env.BEEP_FC_SEED),
-    O.map(Str.trim),
-    O.filter(Str.isNonEmpty),
-    O.getOrElse(() => DEFAULT_COVERAGE_FAST_CHECK_SEED)
-  );
-
-// Coverage is a hosted ratchet. Pin its CI identity, remove desktop terminal
-// metadata, and reduce the Turbo remote-cache quad to the pull-request posture
-// so local baseline generation, PR jobs, and main pushes all exercise the same
-// branches: a workstation's 1Password-backed TURBO_TOKEN and a main push's
-// literal token each reach arms of internal/cli/EnvConfig.ts that a PR job's
-// blank quad never does (ship-velocity B9). Step env wins over
-// turboEnvOverrides at spawn time, and the prebuild step never receives this
-// record, so main pushes keep their remote-cache reads for the build graph.
-const coverageEnvironment = (): Record<string, string | undefined> => ({
-  BEEP_FC_SEED: coverageFastCheckSeed(),
-  CI: "true",
-  GITHUB_ACTIONS: "true",
-  NODE_OPTIONS: coverageNodeOptions(),
-  TERM_PROGRAM: undefined,
-  TERM_PROGRAM_VERSION: undefined,
-  ...turboCachePullRequestPosture,
-  VITEST_COVERAGE_RATCHET: "1",
-});
-
-// fallow-ignore-next-line code-duplication -- coverage detection stays beside its deterministic hosted environment
 const turboCoverageEnv = (
   tasks: ReadonlyArray<string>,
   args: ReadonlyArray<string>
 ): Record<string, string | undefined> | undefined =>
-  // fallow-ignore-next-line code-duplication -- only Turbo coverage runs receive the hosted coverage environment
   includesTurboCoverageTask(tasks, args) ? coverageEnvironment() : undefined;
 
 const collectExistingWorkingTreeChangedFiles = Effect.fn("QualityTasks.collectExistingWorkingTreeChangedFiles")(
@@ -2124,7 +2145,7 @@ const persistGithubCheckLaneProof = Effect.fn("QualityTasks.persistGithubCheckLa
  * first red, the journal artifact, and the proof-ledger writes identical to
  * the serial runner when `concurrency` is 1 and deterministic above it.
  */
-// fallow-ignore-next-line complexity -- each chunk must fold reuse, journal, red, and proof state in order
+// fallow-ignore-next-line complexity -- each chunk must fold reuse, journal, red and proof state in order (cognitive 16). Owner: @beep/repo-cli. Exit: split once the GitHub check wave state moves into a schema-backed reducer.
 const runGithubCheckWave = Effect.fn("QualityTasks.runGithubCheckWave")(function* (
   label: string,
   wave: GithubCheckLaneWaveSpec,

@@ -145,7 +145,7 @@ export const modelsParsedLeaf: {
  */
 export const modelsCheckOnlyFormat = (locator: Locator): O.Option<string> =>
   Match.value(locator).pipe(
-    Match.tag("toml-top-level-key", "toml-table-key", "json-key", () => O.none<string>()),
+    Match.tag("toml-top-level-key", "toml-table-key", "json-key", O.none<string>),
     Match.tag("yaml-path", () => O.some("YAML")),
     Match.tag("xml-attribute", "xml-escaped-json-attribute", () => O.some("XML")),
     Match.tag("shell-assign", "env-key", () => O.some("Shell")),

@@ -207,7 +207,6 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet guards", (it) 
         [{ tier: "review-fix" }, "yeet publish picks its own proof"],
         [{ noEdit: true }, "yeet publish --no-edit requires --amend."],
         [{ mode: "verify", pushOnly: true }, "yeet --push-only is only valid for publish."],
-        [{ pushOnly: true }, "yeet publish --push-only requires --reuse-verified."],
         [
           { amend: true, pushOnly: true, reuseVerified: true },
           "yeet publish --push-only cannot be combined with --amend or --no-edit.",
@@ -233,6 +232,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet guards", (it) 
         [
           defaultYeetRunOptions(),
           defaultYeetRunOptions({ stagedOnly: true }),
+          defaultYeetRunOptions({ pushOnly: true }),
           defaultYeetRunOptions({ pushOnly: true, reuseVerified: true }),
           defaultYeetRunOptions({ amend: true, noEdit: true }),
           defaultYeetRunOptions({ mode: "monitor", plan: true }),

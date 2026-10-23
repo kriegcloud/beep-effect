@@ -32,6 +32,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { isRawTomlError } from "./internal/diagnostics.ts";
 import { isGuardExceeded, MAX_NESTING_DEPTH } from "./internal/limits.ts";
 import { parseExpressions } from "./internal/parser.ts";
@@ -187,22 +188,22 @@ export class TomlModificationError extends S.TaggedError<TomlModificationError, 
 
 // ── Internal: shared text helpers ───────────────────────────────────────────
 
-const TAB = 0x09;
-const LF = 0x0a;
-const CR = 0x0d;
-const SPACE = 0x20;
-const BANG = 0x21;
-const HASH = 0x23;
-const BOM = 0xfeff;
+const TAB = "\t";
+const LF = "\n";
+const CR = "\r";
+const SPACE = " ";
+const BANG = "!";
+const HASH = "#";
+const BOM = "\ufeff";
 
-const isWs = (code: number): boolean => code === SPACE || code === TAB;
+const isWs = (code: string | undefined): boolean => code === SPACE || code === TAB;
 
 const scanWs: {
   (source: string, pos: number, end: number): number;
   (pos: number, end: number): (source: string) => number;
 } = dual(3, (source: string, pos: number, end: number): number => {
   let i = pos;
-  while (i < end && isWs(source.charCodeAt(i))) {
+  while (i < end && isWs(source[i])) {
     i++;
   }
   return i;
@@ -213,7 +214,7 @@ const scanWsBack: {
   (pos: number, start: number): (source: string) => number;
 } = dual(3, (source: string, pos: number, start: number): number => {
   let i = pos;
-  while (i > start && isWs(source.charCodeAt(i - 1))) {
+  while (i > start && isWs(source[i - 1])) {
     i--;
   }
   return i;
@@ -224,11 +225,11 @@ const dominantNewline = (source: string): "\n" | "\r\n" => {
   let newlines = 0;
   let crlf = 0;
   for (let i = 0; i < source.length; i++) {
-    if (source.charCodeAt(i) !== LF) {
+    if (source[i] !== LF) {
       continue;
     }
     newlines++;
-    if (i > 0 && source.charCodeAt(i - 1) === CR) {
+    if (i > 0 && source[i - 1] === CR) {
       crlf++;
     }
   }
@@ -280,15 +281,14 @@ class FormatEmitter {
   }
 
   push(expr: TomlExpression, offset: number, length: number, newText: string): void {
-    if (this.source.slice(offset, offset + length) !== newText) {
+    if (Str.slice(offset, offset + length)(this.source) !== newText) {
       this.edits.push({ offset, length, newText, exprOffset: expr.offset, exprEnd: expr.offset + expr.length });
     }
   }
 }
 
 /** A line start past the document's BOM, when the line is the first one. */
-const skipBom = (source: string, lineStart: number): number =>
-  lineStart === 0 && source.charCodeAt(0) === BOM ? 1 : lineStart;
+const skipBom = (source: string, lineStart: number): number => (lineStart === 0 && source[0] === BOM ? 1 : lineStart);
 
 /** Rule 2: strip the expression's leading indentation (the first line's BOM excluded). */
 const formatLeading: {
@@ -312,7 +312,7 @@ const formatCommentBody: {
     emit.push(expr, bodyEnd, lineEnd - bodyEnd, "");
   }
   if (bodyEnd > bodyStart) {
-    const code = source.charCodeAt(bodyStart);
+    const code = source[bodyStart];
     if (code !== SPACE && code !== TAB && code !== BANG) {
       emit.push(expr, bodyStart, 0, " ");
     }
@@ -322,9 +322,9 @@ const formatCommentBody: {
 /** Where the expression's terminating newline (LF or CRLF) begins, never before `contentEnd`. */
 const newlineStart = (source: string, exprEnd: number, contentEnd: number): number => {
   let nlStart = exprEnd;
-  if (nlStart > contentEnd && source.charCodeAt(nlStart - 1) === LF) {
+  if (nlStart > contentEnd && source[nlStart - 1] === LF) {
     nlStart -= 1;
-    if (nlStart > contentEnd && source.charCodeAt(nlStart - 1) === CR) {
+    if (nlStart > contentEnd && source[nlStart - 1] === CR) {
       nlStart -= 1;
     }
   }
@@ -341,7 +341,7 @@ const formatTail: {
   // non-ws character is `#` or there is no comment — a bounded scan, never
   // an unbounded indexOf across the rest of the document.
   const hashIdx = scanWs(source, contentEnd, nlStart);
-  if (hashIdx >= nlStart || source.charCodeAt(hashIdx) !== HASH) {
+  if (hashIdx >= nlStart || source[hashIdx] !== HASH) {
     if (nlStart > contentEnd) {
       emit.push(expr, contentEnd, nlStart - contentEnd, "");
     }
@@ -354,7 +354,7 @@ const formatTail: {
 /** The end of the line starting at `pos` (its first CR or LF), bounded by `end`. */
 const scanLineEnd = (source: string, pos: number, end: number): number => {
   let j = pos;
-  while (j < end && source.charCodeAt(j) !== LF && source.charCodeAt(j) !== CR) {
+  while (j < end && source[j] !== LF && source[j] !== CR) {
     j++;
   }
   return j;
@@ -365,7 +365,7 @@ const skipNewline = (source: string, pos: number, end: number): number => {
   if (pos >= end) {
     return pos;
   }
-  const isCrlf = source.charCodeAt(pos) === CR && pos + 1 < end && source.charCodeAt(pos + 1) === LF;
+  const isCrlf = source[pos] === CR && pos + 1 < end && source[pos + 1] === LF;
   return pos + (isCrlf ? 2 : 1);
 };
 
@@ -424,8 +424,8 @@ const normalizeNewlineAt = (
   end: number,
   target: "\n" | "\r\n"
 ): number => {
-  const code = source.charCodeAt(i);
-  if (code === CR && i + 1 < end && source.charCodeAt(i + 1) === LF) {
+  const code = source[i];
+  if (code === CR && i + 1 < end && source[i + 1] === LF) {
     if (target === "\n") {
       emit.push(expr, i, 2, "\n");
     }
@@ -521,7 +521,7 @@ const formatFinalNewline = (
   expressions: ReadonlyArray<TomlExpression>,
   target: "\n" | "\r\n" | undefined
 ): void => {
-  if (expressions.length === 0 || source.charCodeAt(source.length - 1) === LF) {
+  if (expressions.length === 0 || source[source.length - 1] === LF) {
     return;
   }
   const last = A.getUnsafe(expressions, expressions.length - 1);
@@ -981,7 +981,7 @@ const insertEdit: {
   const keyPath = table.origin === "dotted" ? [...table.relPath, key] : [key];
   const line = `${pipe(keyPath, A.map(renderKey), A.join("."))} = ${renderInlineValue(value)}`;
   const offset = table.sectionIndex === 0 ? rootInsertOffset(ctx) : sectionInsertOffset(ctx, table.sectionIndex);
-  const needLeading = offset > 0 && ctx.source.charCodeAt(offset - 1) !== LF;
+  const needLeading = offset > 0 && ctx.source[offset - 1] !== LF;
   return { offset, length: 0, newText: `${needLeading ? ctx.nl : ""}${line}${ctx.nl}` };
 });
 

@@ -10,6 +10,7 @@
  */
 
 import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
+import { $AgentsUseCasesId } from "@beep/identity/packages";
 import { SafeDocument } from "@beep/md/Md.safe";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { Thread } from "@beep/workspace-domain";
@@ -18,6 +19,8 @@ import * as Rpc from "effect/rpc/Rpc";
 import * as RpcGroup from "effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
 import { ChatActionError } from "./Chat.errors.ts";
+
+const $I = $AgentsUseCasesId.create("processes/Chat/Chat.rpc");
 
 /**
  * Lists the threads in a workspace, most recent activity first.
@@ -124,10 +127,11 @@ export const TurnRequestStatus = S.Literals([
   "user_persisted",
   "not_persisted",
   "unknown",
-]).annotate({
-  identifier: "TurnRequestStatus",
-  description: "Server-side persistence status for one exact chat turn request.",
-});
+]).pipe(
+  $I.annoteSchema("TurnRequestStatus", {
+    description: "Server-side persistence status for one exact chat turn request.",
+  })
+);
 
 /**
  * Runtime type for {@link TurnRequestStatus}.

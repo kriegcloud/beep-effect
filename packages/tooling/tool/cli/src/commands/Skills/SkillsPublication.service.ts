@@ -316,8 +316,8 @@ export interface SkillPublisherShape {
  * entry displaced into the stage is exchanged back to the live path. Any other
  * target, or an artifact holding foreign content, is refused with a typed
  * reason and every artifact is kept. Backups are always kept. Automatic
- * recovery (`pending`) runs before `skills update` writes, and `skills
- * recover` (`retry`) also revisits earlier refusals. Each journal is
+ * recovery (`pending`) runs before `skills update` writes, and
+ * `skills recover` (`retry`) also revisits earlier refusals. Each journal is
  * reconciled under the shared exclusive `<id>.recovering` lock, so a second
  * recoverer reports `lock-held` or `settled`. A publication that fails before
  * its move into place drops its own stage and records the terminal

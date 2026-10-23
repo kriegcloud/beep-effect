@@ -21,9 +21,11 @@ import {
 import { assert, describe, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { fixtureText } from "./fixture-text.ts";
 
 const firstMap = (doc: YamlDocument): YamlMap => {
@@ -148,7 +150,7 @@ describe("comment fidelity (#127)", () => {
         assert.strictEqual(pair?.value?.comment, " vc");
         const out = yield* doc.stringify();
         assert.strictEqual(
-          (out.match(/#/g) ?? []).length,
+          (O.getOrNull(Str.match(/#/g)(out)) ?? []).length,
           2,
           `a comment was dropped: ${yield* S.encodeEffect(JsonString)(out)}`
         );
@@ -554,7 +556,7 @@ describe("comment fidelity (#127)", () => {
 
     it.effect("emits comments on explicit-key spill pairs (#323 interaction)", () =>
       Effect.gen(function* () {
-        const key = `pkg-a@1.0.0(${"a".repeat(1100)})`;
+        const key = `pkg-a@1.0.0(${Str.repeat(1100)("a")})`;
         const source = `# entry\n? ${key}\n: 1 # one\n`;
         const doc = yield* YamlDocument.parse(source);
         const out = yield* doc.stringify();
@@ -632,7 +634,7 @@ describe("comment fidelity (#127)", () => {
 
       it.effect("emits the header comment on an explicit-key spill pair's value header", () =>
         Effect.gen(function* () {
-          const key = `pkg-a@1.0.0(${"a".repeat(1100)})`;
+          const key = `pkg-a@1.0.0(${Str.repeat(1100)("a")})`;
           const source = `? ${key}\n: | # hdr\n  body\n`;
           const doc = yield* YamlDocument.parse(source);
           const out = yield* doc.stringify();
@@ -659,7 +661,7 @@ describe("comment fidelity (#127)", () => {
           // onto it. The header wins the line and the key's comment spills
           // above — one comment per line, neither dropped.
           const out = yield* doc.stringify();
-          assert.strictEqual((out.match(/#/g) ?? []).length, 2);
+          assert.strictEqual((O.getOrNull(Str.match(/#/g)(out)) ?? []).length, 2);
           const again = yield* YamlDocument.parse(out);
           assert.strictEqual(yield* again.stringify(), out);
         })
@@ -805,7 +807,7 @@ describe("comment fidelity (#127)", () => {
         // through both branches and was discarded.
         const source = "# a\n---\n# b\n";
         const out = YamlFormat.formatToString(source);
-        assert.strictEqual((out.match(/#/g) ?? []).length, 2);
+        assert.strictEqual((O.getOrNull(Str.match(/#/g)(out)) ?? []).length, 2);
         assert.include(out, "# a");
         assert.include(out, "# b");
         assert.strictEqual(YamlFormat.formatToString(out), out);
@@ -861,7 +863,7 @@ describe("comment fidelity (#127)", () => {
           assert.include(value.commentBefore ?? "", "lala");
           const out = yield* doc.stringify();
           assert.strictEqual(YamlFormat.formatToString(out), out);
-          assert.strictEqual((out.match(/#/g) ?? []).length, 2);
+          assert.strictEqual((O.getOrNull(Str.match(/#/g)(out)) ?? []).length, 2);
         })
       );
 

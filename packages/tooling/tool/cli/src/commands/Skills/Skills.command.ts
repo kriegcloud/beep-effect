@@ -391,12 +391,12 @@ const isSafeRelativeSkillFilePath = (filePath: string): boolean => {
   const normalized = normalizeSlashes(filePath);
   return (
     Str.isNonEmpty(normalized) &&
-    !normalized.includes("\0") &&
-    !normalized.startsWith("/") &&
+    !Str.includes("\0")(normalized) &&
+    !Str.startsWith("/")(normalized) &&
     normalized !== "." &&
     normalized !== ".." &&
-    !normalized.startsWith("../") &&
-    !normalized.includes("/../")
+    !Str.startsWith("../")(normalized) &&
+    !Str.includes("/../")(normalized)
   );
 };
 
@@ -637,7 +637,7 @@ const fetchRemoteSkillSnapshot = Effect.fn("Skills.fetchRemoteSkillSnapshot")(fu
     });
   }
 
-  const skillRoot = source.skillPath.slice(0, source.skillPath.length - "/SKILL.md".length);
+  const skillRoot = Str.slice(0, source.skillPath.length - "/SKILL.md".length)(source.skillPath);
   const blobEntries = pipe(
     tree.tree,
     A.filter(
@@ -658,7 +658,7 @@ const fetchRemoteSkillSnapshot = Effect.fn("Skills.fetchRemoteSkillSnapshot")(fu
     Effect.fnUntraced(function* (entry): Effect.fn.Return<SkillFile, SkillsCommandError, HttpClient.HttpClient> {
       const url = `https://raw.githubusercontent.com/${source.source}/${source.ref}/${entry.path}`;
       const bytes = yield* fetchResponseBytes(url);
-      const relativePath = yield* validateSkillFilePath(entry.path.slice(skillRoot.length + 1), source.name);
+      const relativePath = yield* validateSkillFilePath(Str.slice(skillRoot.length + 1)(entry.path), source.name);
       return {
         path: relativePath,
         bytes,
@@ -1010,7 +1010,7 @@ const printFrontmatterReport = Effect.fn("Skills.printFrontmatterReport")(functi
   }
   for (const issue of report.upstreamIssues) {
     yield* Console.log(
-      `skills:update: advisory upstream skill ${frontmatterIssueLine(issue.skill, issue.message).slice(2)}; fix it upstream or patch it through skills-lock, never by editing the mirror.`
+      `skills:update: advisory upstream skill ${Str.slice(2)(frontmatterIssueLine(issue.skill, issue.message))}; fix it upstream or patch it through skills-lock, never by editing the mirror.`
     );
   }
   if (report.issues.length === 0) {
@@ -1418,9 +1418,7 @@ export const runSkillsRecover = Effect.fn("Skills.runSkillsRecover")(function* (
   return reports;
 });
 
-const reportRecoverError = Effect.fn("Skills.recoverCommand.reportError")(function* (error: {
-  readonly message: string;
-}) {
+const reportRecoverError = Effect.fn("Skills.reportRecoverError")(function* (error: { readonly message: string }) {
   const message = `skills:recover: ${error.message}`;
   yield* Console.error(message);
   return yield* failWithReportedExit(message);

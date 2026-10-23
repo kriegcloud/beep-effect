@@ -21,6 +21,7 @@ import { dual } from "effect/Function";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { lexAll } from "./internal/lexer.ts";
 import { YamlTokenKind as InternalTokenKind } from "./internal/token.ts";
 import type { YamlToken as InternalToken } from "./internal/token.ts";
@@ -153,7 +154,7 @@ const promoteAll: {
     // hot-path exception) rather than the validating `make`.
     return YamlToken.make({
       kind: token.kind,
-      text: text.slice(token.offset, token.offset + token.length),
+      text: Str.slice(token.offset, token.offset + token.length)(text),
       offset: token.offset,
       length: token.length,
       line,

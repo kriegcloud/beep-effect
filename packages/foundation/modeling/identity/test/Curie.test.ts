@@ -115,6 +115,17 @@ describe("CURIE codec", () => {
     });
   });
 
+  it("contracts an IRI with the default core vocabulary", () => {
+    expect(contract("http://www.w3.org/2004/02/skos/core#prefLabel")).toBe("skos:prefLabel");
+  });
+
+  it("preserves the forward direction of ordinary predicates", () => {
+    expect(expandPredicate("rdfs:subClassOf")).toEqual({
+      iri: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      inverse: false,
+    });
+  });
+
   it("supports data-last CURIE operations", () => {
     expect(expand(CoreVocab)("skos:prefLabel")).toBe("http://www.w3.org/2004/02/skos/core#prefLabel");
     expect(contract(CoreVocab)("http://www.w3.org/2004/02/skos/core#prefLabel")).toBe("skos:prefLabel");

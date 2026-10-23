@@ -31,14 +31,24 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — waves 1–4a merged (#1968, #1976, #1983, #1987; 622 sites); wave 5a (repo-cli, 202 sites) in review; see the Waves table in `PLAN.md`.
+Waves 1–6f merged (2,991 sites across #1968, #1976, #1983, #1987, #1993, #2008, #2001, #2015, #2026, #2012, #2011, #2013, #2018, #2014, #2010); wave 7 (#2027) migrates the last site, pins `@effect/tsgo` 0.55.0 and arms `preferEffectString` at error, proven by the zero-site census on its branch (see Latest Evidence). Closeout reflection: `history/reflections/2026-10-22-claude.md`.
 
 ## Latest Evidence
 
-`research/census-2026-10-21.md`: 1,413 sites in 365 files (508 source,
-905 tests); 647 labelled same-runtime, 766 shape-changing.
+Zero-site census, 2026-10-22, on the wave 7 branch at `fe7bc21218`: main at
+`b7c85da54c` (#2026, the last site wave) plus the final epistemics fix, with
+`@effect/tsgo` 0.55.0 installed and `preferEffectString` at error.
+`bun run beep quality effect-diagnostics --concurrency 4` checked 375 projects
+(90,238 file visits) and reported 0 `preferEffectString`. The only findings
+left are 7 inherited `preferEffectArray` sites in
+`packages/drivers/duckdb/test/shared/SqlEventLogServerUnencryptedStorageTest.ts`
+(#1962).
+
+Earlier censuses: `research/census-2026-10-21.md` (1,413 sites before the
+effected promotions) and `research/census-2026-10-22.md` (1,730 remaining
+after them).
 
 ## Notes
 
 Spun out of the `@effect/tsgo` 0.54.1 bump (branch `chore/effect-tsgo-055`),
-which pins below 0.55 until this goal arms the rule.
+which held the pin below 0.55 until wave 7 (#2027) armed the rule.

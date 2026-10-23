@@ -120,26 +120,15 @@ export type GithubIdentityKind = typeof GithubIdentityKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class GithubIdentity extends S.Class<GithubIdentity, { readonly brand: unique symbol }>($I`GithubIdentity`)(
-  {
+export class GithubIdentity extends S.Opaque<GithubIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: GithubIdentityKind,
     tokenRef: S.Option(S.String),
     appId: S.Option(S.String),
     installationId: S.Option(S.Int),
     privateKeyRef: S.Option(S.String),
-  },
-  $I.annote("GithubIdentity", { description: "A selected GitHub identity, as references only." })
-) {
-  /** A short, secret-free label for logs. */
-  get label(): string {
-    return this.kind === "github-app"
-      ? `github-app ${O.getOrElse(this.appId, () => "?")}/${O.getOrElse(
-          O.map(this.installationId, (id) => `${id}`),
-          () => "?"
-        )}`
-      : this.kind;
-  }
-}
+  }).pipe($I.annoteSchema("GithubIdentity", { description: "A selected GitHub identity, as references only." }))
+) {}
 
 /**
  * Why a GitHub identity, token, or repository could not be resolved.
@@ -382,7 +371,7 @@ const remotePattern =
  */
 export const repoSlugFromRemote = (remote: string): O.Option<string> =>
   pipe(
-    O.fromNullishOr(Str.trim(remote).match(remotePattern)),
+    Str.match(remotePattern)(Str.trim(remote)),
     O.flatMap((parts) =>
       O.zipWith(O.fromNullishOr(parts[1]), O.fromNullishOr(parts[2]), (owner, name) => `${owner}/${name}`)
     )

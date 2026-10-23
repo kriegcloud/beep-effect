@@ -91,29 +91,22 @@ const normalizeColorSupportLevel = (level: unknown): ColorSupportLevelType =>
     Result.getOrThrow
   );
 
-const getBuilderLevel = (builder: ChalkFunction): MutableRef.MutableRef<ColorSupportLevelType> => {
-  const level = builderLevelMap.get(builder);
+const lookupBuilder = <A>(entries: WeakMap<ChalkFunction, A>, builder: ChalkFunction): A => {
+  const entry = entries.get(builder);
 
-  if (P.isUndefined(level)) {
-    throw MissingBuilderMetadataError.make({
-      message: "Missing Chalk builder level.",
-    });
-  }
-
-  return level;
-};
-
-const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => {
-  const meta = builderMetaMap.get(builder);
-
-  if (P.isUndefined(meta)) {
+  if (P.isUndefined(entry)) {
     throw MissingBuilderMetadataError.make({
       message: "Missing Chalk builder metadata.",
     });
   }
 
-  return meta;
+  return entry;
 };
+
+const getBuilderLevel = (builder: ChalkFunction): MutableRef.MutableRef<ColorSupportLevelType> =>
+  lookupBuilder(builderLevelMap, builder);
+
+const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => lookupBuilder(builderMetaMap, builder);
 
 const isTemplateStringsArray = (value: unknown): value is TemplateStringsArray =>
   A.isArray(value) && P.hasProperty(value, "raw") && A.isArray(value.raw);

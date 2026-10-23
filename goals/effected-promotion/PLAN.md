@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b-1 merged (#1992, `@beep/walker`); wave 2b-2 (`@beep/github`, D-34, D-35) in review.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c (glob adoption, D-37) in review.
 
 ## Phases
 
@@ -22,9 +22,9 @@ Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged 
 | 1b (merged, #1981) | `@beep/memfs` (+ D-07 retirement of `@beep/test-utils/MemoryFileSystem`), `@beep/managed-section`, `@beep/toml`, `@beep/git`, `@beep/glob`, `@beep/yaml` | Complexity and duplication refactored to zero against the conformance oracles (yaml-test-suite, toml-test, minimatch, node:fs differential suites); shared helpers in `@beep/utils` (D-23); memfs replaces the test-utils copy in 17 packages (D-25). |
 | 2a (merged, #1988) | `@beep/npm-spec`, `@beep/tsconfig` | The pure halves of `npm` and `tsconfig-json` (D-26..D-28); `DEFAULT_REGISTRY` moves into `@beep/npm-spec`. The registry/publish half and the tsconfig loaders stay in the lab. |
 | 2b-1 (merged, #1992) | `@beep/walker` | D-31, D-32. Adopters: repo-utils `Root` `findRepoRoot`, `TSMorph` `resolveFileEntrypointTsConfig`, `FsUtils` `findNearestPackageDir`; repo-cli `Drawings.review`, `TestTsgoPrograms` (segment-aware containment). Lab importers retargeted to `@beep/walker` leaves. |
-| 2b-2 (in review) | `@beep/github` | Replaces `@effected/github` in repo-cli (one atomic swap, D-34); closes the `@effected/github` Exception Ledger row. Merges after 2b-1 (shared identity, catalog, `bun.lock` and `PROMOTED`-map files). |
-| 2b-3 | `@beep/runtime-env` | Lands with repo-cli EnvConfig and the `@beep/chalk`/`@beep/colors` delegation (D-14, colour precedence ruling). Last in 2b: the only PR with intended CI-visible behaviour changes. |
-| 2c | glob adoption (no new package) | Needs 2b-1. Retires `@beep/utils/Glob`, `@beep/schema/Glob` and `FsUtils.walkFiles`/`globFiles` onto `@beep/glob` + `@beep/walker`, and repo-cli `Lint/internal/WorkspaceWalk.ts`; records the Bun `node:fs` glob census. Closes the "Duplicate glob matching" and "Duplicate directory traversal" ledger rows. |
+| 2b-2 (merged, #1994) | `@beep/github` | Replaces `@effected/github` in repo-cli (one atomic swap, D-34); closes the `@effected/github` Exception Ledger row. Merges after 2b-1 (shared identity, catalog, `bun.lock` and `PROMOTED`-map files). |
+| 2b-3 (merged, #2002) | `@beep/runtime-env` | Lands with the `@beep/chalk` and `@beep/colors` delegation (D-14 as amended by D-33, colour precedence; D-36 conformance shifts). repo-cli EnvConfig is not adopted: its exact `CI === "true"` differs from `RuntimeEnv.ci` (Exception Ledger "Duplicate CI detection", removal with cli-kit in wave 4). Last in 2b: the only PR with intended CI-visible behaviour changes (plain `@beep/colors` output in Actions logs, D-33 option (a)). |
+| 2c (in review) | glob adoption (no new package) | D-37. Needs 2b-1. Retires `@beep/utils/Glob`, `@beep/schema/Glob` and `FsUtils.walkFiles`/`globFiles` onto `@beep/glob` + `@beep/walker`, and repo-cli `Lint/internal/WorkspaceWalk.ts`; records the Bun `node:fs` glob census. Closes the "Duplicate directory traversal" ledger row and narrows "Duplicate glob matching" to repo-cli `internal/GlobPattern.ts` and the `EffectImports` tinyglobby scan (glob reuse phase). |
 | 2d | `@beep/markdown` (+ `@beep/md` `Md.syntax`/`Md.parse`) | D-02 layered design (formerly labelled 2c; renumbered by D-31). |
 | 3 | `@beep/package-json`, `@beep/lockfiles`, `@beep/github-reporting`, `@beep/config-file`, `@beep/repo-tsconfig` | `repo-tsconfig` replaces `get-tsconfig`; `config-file` lands with docgen and the repo-cli Models store as importers. |
 | 4 | `@beep/sbom`, `@beep/xdg`, `@beep/cli-kit`, `@beep/repo-workspaces` | `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |

@@ -639,8 +639,6 @@ const readContextInfo = (value: unknown): O.Option<BoxApiFailureContext> =>
     )
   );
 
-// shared driver boundary idiom; no in-family home; future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- driver-local cause labeling retains only closed error classifications
 const causeLabel = (cause: unknown): BoxErrorCause =>
   pipe(
     O.firstSomeOf([

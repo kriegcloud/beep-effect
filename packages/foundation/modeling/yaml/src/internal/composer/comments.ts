@@ -1,5 +1,6 @@
 import { $YamlId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
+import * as Str from "effect/String";
 
 // Comment-fidelity helpers shared by the block and flow composers: blank-line
 // detection between source spans, and immutable node rebuilds that merge the
@@ -203,7 +204,7 @@ export const hasBlankLineBetween: {
   (text: string, start: number, end: number): boolean;
 } = dual(3, (text: string, start: number, end: number): boolean => {
   if (start < 0) return false;
-  const gap = text.slice(Math.max(0, start), Math.max(0, end));
+  const gap = Str.slice(Math.max(0, start), Math.max(0, end))(text);
   return /(?:\r\n|\r(?!\n)|\n)[ \t]*(?:\r\n|\r|\n)/.test(gap);
 });
 
@@ -228,7 +229,7 @@ export const sameLineSpan: {
   (text: string, start: number, end: number): boolean;
 } = dual(3, (text: string, start: number, end: number): boolean => {
   if (start < 0) return false;
-  return !/[\r\n]/.test(text.slice(Math.max(0, start), Math.max(0, end)));
+  return !/[\r\n]/.test(Str.slice(Math.max(0, start), Math.max(0, end))(text));
 });
 
 /**
@@ -385,13 +386,12 @@ export const blankLineAboveStart: {
   (text: string, offset: number): number;
 } = dual(2, (text: string, offset: number): number => {
   const before = Math.max(0, offset - 1);
-  const lineBreak = Math.max(text.lastIndexOf("\n", before), text.lastIndexOf("\r", before));
+  const lineBreak = lineBreakBefore(text, before);
   if (lineBreak < 0) return -1;
   const prevEnd = text[lineBreak] === "\n" && text[lineBreak - 1] === "\r" ? lineBreak - 1 : lineBreak;
-  const prevBreak =
-    prevEnd > 0 ? Math.max(text.lastIndexOf("\n", prevEnd - 1), text.lastIndexOf("\r", prevEnd - 1)) : -1;
-  const prevLine = text.slice(prevBreak + 1, prevEnd);
-  return prevLine.trim() === "" ? prevBreak + 1 : -1;
+  const prevBreak = prevEnd > 0 ? lineBreakBefore(text, prevEnd - 1) : -1;
+  const prevLine = Str.slice(prevBreak + 1, prevEnd)(text);
+  return Str.trim(prevLine) === "" ? prevBreak + 1 : -1;
 });
 
 /**
@@ -497,7 +497,7 @@ export const hasBlankLineBelow: {
   const nextStart = lineEnd + (text[lineEnd] === "\r" && text[lineEnd + 1] === "\n" ? 2 : 1);
   let nextEnd = nextStart;
   while (nextEnd < text.length && text[nextEnd] !== "\n" && text[nextEnd] !== "\r") nextEnd++;
-  return nextEnd < text.length && text.slice(nextStart, nextEnd).trim() === "";
+  return nextEnd < text.length && Str.trim(Str.slice(nextStart, nextEnd)(text)) === "";
 });
 
 /**
@@ -528,7 +528,7 @@ export const hasBlankLineBelow: {
  * @since 0.0.0
  */
 export function rawCommentText(source: string): string {
-  const raw = source.startsWith("#") ? source.slice(1) : source;
+  const raw = Str.startsWith("#")(source) ? Str.slice(1)(source) : source;
   return /^ *$/.test(raw) ? `${raw} ` : raw;
 }
 
@@ -579,7 +579,7 @@ export const columnAt: {
   (text: string, offset: number): number;
 } = dual(2, (text: string, offset: number): number => {
   if (offset <= 0) return 0;
-  const lineStart = Math.max(text.lastIndexOf("\n", offset - 1), text.lastIndexOf("\r", offset - 1)) + 1;
+  const lineStart = lineBreakBefore(text, offset - 1) + 1;
   const bom = text[lineStart] === "\uFEFF" && offset > lineStart ? 1 : 0;
   return offset - lineStart - bom;
 });
@@ -733,3 +733,25 @@ const mergedCommentFields: {
     };
   }
 );
+
+/**
+ * Last CR or LF at or before the clamped UTF-16 offset.
+ *
+ * **Example** (Locate a preceding line break)
+ *
+ * ```ts
+ * import { lineBreakBefore } from "@beep/yaml/internal/composer/comments"
+ * console.log(lineBreakBefore("a\nb", 2)) // 1
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
+export const lineBreakBefore: {
+  (text: string, from: number): number;
+  (from: number): (text: string) => number;
+} = dual(2, (text: string, from: number): number => {
+  let at = Math.min(Math.max(0, from), text.length - 1);
+  while (at >= 0 && text[at] !== "\n" && text[at] !== "\r") at--;
+  return at;
+});

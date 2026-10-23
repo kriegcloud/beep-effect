@@ -46,8 +46,7 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { renderTruncatedLines } from "../../internal/artifacts/index.ts";
 import { CliReportedExit } from "../../internal/cli/ExitCodeError.ts";
-import { pathExists } from "../../internal/quality/TestTypecheckCoverage.ts";
-import { collectOwnedPaths, testFixtureSegment } from "./internal/WorkspaceWalk.ts";
+import { expandWorkspaceFiles, pathExists, testFixtureSegment } from "../../internal/quality/TestTypecheckCoverage.ts";
 import { TsconfigOverlayReadError } from "./Lint.errors.ts";
 
 const $I = $RepoCliId.create("commands/Lint/TsconfigOverlay");
@@ -61,7 +60,7 @@ const allowlistDetail = "outside the overlay allowlist";
 const checkCommand = "bun run beep lint tsconfig-overlay";
 const syncCommand = "bun run beep tsconfig-sync --write";
 // Mirrors the package test-typecheck lint's search roots so every overlay a
-// package owns is judged; the shared WorkspaceWalk prunes build outputs.
+// package owns is judged; expandWorkspaceFiles prunes build outputs.
 const overlaySearchRoots = ["apps", "infra", "packages"] as const;
 const renderedViolationLimit = 40;
 
@@ -274,24 +273,15 @@ const violationOrder: Order.Order<TsconfigOverlayViolation> = Order.Struct({
   key: Order.String,
 });
 
-// A directory owns its overlay when one exists outside a fixture tree.
-const overlayOwnedIn = Effect.fn("TsconfigOverlay.overlayOwnedIn")(function* (
-  directory: string
-): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const overlayPath = normalizePath(path.resolve(directory, overlayFileName));
-
-  return Str.includes(testFixtureSegment)(`${overlayPath}/`) || !(yield* pathExists(fs, overlayPath))
-    ? A.empty<string>()
-    : A.of(overlayPath);
-});
-
-// Every overlay file under one search root, absolute and in directory order.
-const collectOverlayFiles = (
+// Every overlay file under one search root outside a fixture tree, absolute
+// and sorted.
+const collectOverlayFiles = Effect.fn("TsconfigOverlay.collectOverlayFiles")(function* (
   searchRoot: string
-): Effect.Effect<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> =>
-  collectOwnedPaths(searchRoot, overlayOwnedIn);
+): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
+  const overlays = yield* expandWorkspaceFiles(searchRoot, `**/${overlayFileName}`);
+
+  return A.filter(overlays, (overlayPath) => !Str.includes(testFixtureSegment)(`${overlayPath}/`));
+});
 
 const violationsOf = (
   file: string,

@@ -42,6 +42,9 @@
       "path": "../../foundation/capability/semantic-web/tsconfig.json"
     },
     {
+      "path": "../../foundation/modeling/epistemics/tsconfig.json"
+    },
+    {
       "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {

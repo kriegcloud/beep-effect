@@ -2282,3 +2282,78 @@ types in skill-contract and the QA judge bumped to `/v2`, and deployment of
 each route is a separate goal. Reverse by reverting its PR and running
 `bun run beep laws retired-iri-authorities` in report mode to list what would
 re-flag.
+
+## 2026-10-21: Epistemic Vocabulary Is Foundation; Party Is A Product Slice; Propositions Are Slice-Owned
+
+- **Status:** Active
+
+Decision:
+
+`@beep/epistemic-domain` splits along the line it already has. Its tenant-free
+value vocabulary (claim gate verdict, evidence spans, edge
+relation and logical edge identity, bitemporal valid/knowledge intervals,
+evidence-signal envelopes, and a generic `Claim<P>` / edge-version envelope
+over an encoded proposition and its logical key) moves to a new
+`foundation/modeling` package, `@beep/epistemics`. The epistemic slice keeps
+everything that carries product semantics: the org-scoped `ProductEntity`
+entities (`EdgeVersion`, `Evidence`, `CandidateClaim`, `ClaimDisposition`,
+`Activity`, `Contradiction`, `EvidenceVerification`, `UsageRecord`), its
+tables, the Postgres edge authority, and the contradiction-triage service, and
+it imports the vocabulary from foundation. `ClaimLifecycle` is not part of the move: it is
+already shared-kernel vocabulary in `shared/domain` with a promotion record,
+per "2026-06-18: Cross-Slice Consumption Of The Epistemic Boundary", which this
+entry applies rather than supersedes (substrate to `foundation/modeling`,
+shared product vocabulary to `shared/domain`, mechanism stays in the slice).
+The agent-authority values
+(`ExecutionGrant`, `GrantSet`, `ExecutionRecord`, `ExecutionVerdict`) are not
+epistemics; they are recorded as misfiled and move to their own home in a
+separate change.
+
+Parties (persons, organizations, collective agents), their identifiers,
+accounts, voices, identity resolution, and the reviewer loop graduate from
+`scratchpad/party` into a new product slice, `packages/party/*`, created with
+`bun run beep create-package`. `PartyId` moves from
+`shared/domain` `identity/LawPractice` to a neutral `identity/Party` kit; other
+slices refer to parties by id and attach their own role vocabularies
+(law-practice keeps `LegalRole`). Each slice owns its proposition union
+(party: `IdentifierOf`, `AccountIdentifier`, `MailboxKind`, `VoiceAuthor`,
+`SameParty`, `DistinctParty`, `Membership`, `ReportsTo`, `DelegateOf`,
+`ContextRole`, ...) and instantiates the foundation `Claim<P>` envelope; no
+central proposition union exists in `shared`. Order: the `@beep/epistemics`
+extraction lands first, then the party slice builds on it instead of the
+scratchpad mirror.
+
+Rationale:
+
+Moving the whole epistemic package to foundation would violate
+`07-non-slice-families.md`: its entities are tenant-scoped product records with
+persistence and review workflows. Leaving it whole forces every slice that
+needs claim semantics (party, law-practice, future professional domains) into
+a cross-slice dependency on epistemic product code for what is really
+vocabulary. Party has behavior (resolution, review, ingestion), so it cannot be
+`shared` (which may not hold workflows) and it has one consumer today, so a
+shared promotion record is not satisfiable; keeping it inside law-practice
+defeats the domain-agnostic runtime goal. Slice-owned proposition unions keep
+compile-time role checking without making every new relation a shared-kernel
+change. Evidence for the model: `scratchpad/party/PARTY-DATA-MODEL.md`
+(49 tests; run over a real 241,501-message index). Reverse by keeping the
+vocabulary in `@beep/epistemic-domain` (delete `@beep/epistemics` and repoint
+imports) and, for party, by leaving the model in scratchpad.
+
+Amendment (2026-10-22, operator ruling during the extraction): "tenant-free"
+is not enough for a move to foundation. Seven of the value modules
+(`EdgeEndpoint`, `LogicalEdgeIdentity`, `EvidenceVerification`, `Contradiction`,
+`ContradictionDetection`, `ClaimEvidenceReview`, `ClaimProjection`) carry
+shared-kernel ids (`EvidenceId`, `CandidateClaimId`, `EdgeVersionId`,
+`UserPrincipal`), and foundation may not depend on the shared kernel. These
+modules now live in `@beep/epistemics` as generic schema builders and behavior
+factories over caller-supplied id schemas (`IdCodec`: a schema whose type is
+`string | number`) and a caller-supplied identity composer. Each slice declares
+its own `S.Opaque` classes from the builders under its existing names and
+identity paths, because TypeScript cannot declare a class over a generic base
+(TS2509). The epistemic slice therefore emits byte-identical schema identifiers
+(258 checked), and the party slice binds the same factories to its own ids. The
+`Claim<P>` envelope (`makeClaimEnvelope`) follows the same contract. Reverse by
+moving the shared-domain id brands into foundation and collapsing the builders
+back into concrete schemas. Record: `goals/epistemics-foundation-extraction/SPEC.md`
+"P1b factory contract".

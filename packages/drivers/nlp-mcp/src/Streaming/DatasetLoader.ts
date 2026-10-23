@@ -486,7 +486,7 @@ const isBlockedRemoteHost = (hostname: string): boolean => {
   // rather than coupling this driver to a foundation schema's internals.
   // IPv4-mapped IPv6 is decoded back to its IPv4 form so mapped private ranges
   // classify through the same isInternalIpv4 checks.
-  // fallow-ignore-next-line code-duplication -- SSRF blocklist mirrors SafeRemoteHost for independent security auditing
+  // fallow-ignore-next-line code-duplication -- the SSRF blocklist mirrors @beep/schema SafeRemoteHost so each security boundary audits independently. Owner: @beep/nlp-mcp. Exit: import SafeRemoteHost from @beep/schema, then delete both directives.
   return (
     host === "localhost" ||
     Str.endsWith(".localhost")(host) ||

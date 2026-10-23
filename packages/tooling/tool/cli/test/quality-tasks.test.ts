@@ -22,8 +22,10 @@ import {
   collectCoverageChangedFilesForTesting,
   collectGithubCheckLaneWavesForTesting,
   collectQualityTaskLaneRunsForTesting,
+  coverageProducerEnvironment,
   parseTestLaneSelectionForTesting,
   readLintPolicySweeps,
+  resolveCiCoverageArtifactPlan,
   resolveCoverageSelector,
   runQualityTaskGithubCheckLaneWaves,
   runQualityTaskStreamingLaneGroup,
@@ -175,7 +177,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
-import { flow, identity, pipe } from "effect/Function";
+import { constant, flow, identity, pipe } from "effect/Function";
 import * as HM from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -645,7 +647,126 @@ const expectSubstringBefore = (text: string, before: string, after: string): voi
   }
 };
 
+const coverageArtifactPlanRepository = Effect.fnUntraced(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = yield* fs.makeTempDirectoryScoped({ prefix: "coverage-plan-" });
+  yield* fs.writeFileString(
+    path.join(root, "package.json"),
+    yield* encodeJson({
+      name: "@beep/plan-root",
+      private: true,
+      workspaces: ["packages/*"],
+    })
+  );
+  yield* Effect.forEach(
+    ["covered", "bare"],
+    Effect.fnUntraced(function* (name) {
+      const dir = path.join(root, "packages", name);
+      yield* fs.makeDirectory(dir, { recursive: true });
+      yield* fs.writeFileString(
+        path.join(dir, "package.json"),
+        yield* encodeJson({
+          name: `@beep/${name}`,
+          private: true,
+          scripts: name === "covered" ? { coverage: "vitest run --coverage" } : { test: "vitest run" },
+        })
+      );
+    })
+  );
+  yield* runGit(root, ["init"]);
+  yield* runGit(root, ["config", "user.name", "Coverage Plan Fixture"]);
+  yield* runGit(root, ["config", "user.email", "coverage-plan@example.invalid"]);
+  yield* runGit(root, ["add", "--all"]);
+  yield* runGit(root, ["commit", "-m", "test: coverage plan fixture"]);
+  return root;
+});
+const artifactPlanConfiguration = ConfigProvider.fromUnknown({
+  BEEP_COVERAGE_RUN_ID: "123",
+  BEEP_COVERAGE_RUN_ATTEMPT: "2",
+  TURBO_SCM_BASE: "HEAD",
+});
+
 it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
+  describe("CI coverage artifact planning", () => {
+    it("keeps ordinary tests enabled while supplying deterministic coverage inputs", () => {
+      const env = coverageProducerEnvironment();
+      expect(env.CI).toBe("true");
+      expect(env.GITHUB_ACTIONS).toBe("true");
+      expect(env.VITEST_COVERAGE_RATCHET).toBeUndefined();
+      expect(env.TERM_PROGRAM).toBeUndefined();
+      expect(env.BEEP_FC_SEED).toEqual(expect.any(String));
+      for (const name of ["TERM_PROGRAM", "TERM_PROGRAM_VERSION", "TURBO_API", "TURBO_TOKEN", "TURBO_TEAM"]) {
+        expect(R.has(env, name)).toBe(true);
+        expect(env[name]).toBeUndefined();
+      }
+      expect(R.has(env, "VITEST_COVERAGE_RATCHET")).toBe(true);
+      expect(env.TURBO_CACHE).toBe("local:rw");
+    });
+    it.effect("plans full coverage owners and binds the configured workflow attempt", () =>
+      Effect.gen(function* () {
+        const root = yield* coverageArtifactPlanRepository();
+        const plan = yield* resolveCiCoverageArtifactPlan(root, []).pipe(
+          Effect.provideService(ConfigProvider.ConfigProvider, artifactPlanConfiguration)
+        );
+        expect(plan.scoped).toBe(false);
+        expect(A.map(plan.owners, (owner) => owner.packageName)).toEqual(["@beep/covered"]);
+        expect(plan.identity.runId).toBe("123");
+        expect(plan.identity.runAttempt).toBe(2);
+        expect(plan.identity.baseSha).toBe(plan.identity.executionSha);
+      })
+    );
+    it.effect("honors explicit comparison base and exact scoped package selection", () =>
+      Effect.gen(function* () {
+        const root = yield* coverageArtifactPlanRepository();
+        const plan = yield* resolveCiCoverageArtifactPlan(
+          root,
+          ["--write-baseline", "--filter=@beep/covered"],
+          "HEAD"
+        ).pipe(
+          Effect.provideService(
+            ConfigProvider.ConfigProvider,
+            ConfigProvider.fromUnknown({
+              BEEP_COVERAGE_RUN_ID: "123",
+              BEEP_COVERAGE_RUN_ATTEMPT: "2",
+              TURBO_SCM_BASE: "nonexistent-base",
+            })
+          )
+        );
+        expect(plan.scoped).toBe(true);
+        expect(A.map(plan.owners, (owner) => owner.packageName)).toEqual(["@beep/covered"]);
+        expect(plan.identity.baseSha).toBe(plan.identity.executionSha);
+      })
+    );
+    it.effect("uses the canonical origin/main base when no override is configured", () =>
+      Effect.gen(function* () {
+        const root = yield* coverageArtifactPlanRepository();
+        yield* runGit(root, ["branch", "origin/main", "HEAD"]);
+        const plan = yield* resolveCiCoverageArtifactPlan(root, []).pipe(
+          Effect.provideService(
+            ConfigProvider.ConfigProvider,
+            ConfigProvider.fromUnknown({
+              BEEP_COVERAGE_RUN_ID: "123",
+              BEEP_COVERAGE_RUN_ATTEMPT: "2",
+            })
+          )
+        );
+        expect(plan.identity.baseSha).toBe(plan.identity.executionSha);
+        expect(A.map(plan.owners, (owner) => owner.packageName)).toEqual(["@beep/covered"]);
+      })
+    );
+    it.effect("emits an explicit empty plan for an unchanged affected checkout", () =>
+      Effect.gen(function* () {
+        const root = yield* coverageArtifactPlanRepository();
+        const plan = yield* resolveCiCoverageArtifactPlan(root, ["--affected"], "HEAD").pipe(
+          Effect.provideService(ConfigProvider.ConfigProvider, artifactPlanConfiguration)
+        );
+        expect(plan.scoped).toBe(true);
+        expect(plan.owners).toEqual([]);
+      })
+    );
+  });
+
   describe("quality task adapter", () => {
     it.effect(
       "runs Bun audit with active OSV ignores and reports dropped entries",
@@ -1042,10 +1163,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       ]);
     });
 
-    it("plans every deterministic cheap gate in one preflight wave", () => {
+    it("plans parallel cheap preflight followed by an isolated schema catalog wave", () => {
       const lanes = githubCheckCheapGateLanes("/repo");
 
       expect(A.map(lanes, (lane) => lane.id)).toEqual([
+        "version-sync:check-runtime",
         "quality:cache-policy",
         "goals:index-check",
         "explore:atlas-check",
@@ -1061,13 +1183,27 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:effect-vitest",
         "lint:allowlist",
         "goals:doctor",
+        "lint:schema-catalog",
+        "lint:oxlint",
+        "quality:jsdoc-ratchet:regenerated",
         "quality:jsdoc-ratchet:committed",
         "fallow:audit",
         "fallow:dead-code",
         "fallow:health",
       ]);
-      expect(A.every(lanes, (lane) => lane.wave === "preflight")).toBe(true);
-      expect(A.map(githubCheckLanePlan.githubCheckLaneWaves(lanes), (wave) => wave.wave)).toEqual(["preflight"]);
+      expect(qualityLaneArgs(lanes, "version-sync:check-runtime")).toEqual([
+        "run",
+        "beep",
+        "version-sync",
+        "--check-runtime",
+      ]);
+      expect(A.every(lanes, (lane) => lane.wave === (lane.id === "lint:schema-catalog" ? "heavy" : "preflight"))).toBe(
+        true
+      );
+      expect(A.map(githubCheckLanePlan.githubCheckLaneWaves(lanes), (wave) => wave.wave)).toEqual([
+        "preflight",
+        "heavy",
+      ]);
       expect(qualityLaneArgs(lanes, "repo-sanity:tsconfig-sync")).toEqual(
         expectedTurboArgs("config-sync:check", ["--summarize"])
       );
@@ -1088,6 +1224,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(qualityLaneArgs(lanes, "lint:effect-vitest")).toEqual(["run", "beep", "lint", "effect-vitest"]);
       expect(qualityLaneArgs(lanes, "quality:catalog-usage")).toEqual(["run", "beep", "quality", "catalog-usage"]);
+      expect(qualityLaneArgs(lanes, "lint:schema-catalog")).toEqual(["run", "beep", "lint", "schema-catalog"]);
+      expect(qualityLaneArgs(lanes, "lint:oxlint")).toEqual(["run", "lint:oxlint"]);
+      expect(qualityLaneArgs(lanes, "quality:jsdoc-ratchet:regenerated")).toEqual([
+        "run",
+        "beep",
+        "quality",
+        "jsdoc-ratchet",
+        "--regenerate",
+      ]);
       expect(qualityLaneArgs(lanes, "quality:jsdoc-ratchet:committed")).toEqual([
         "run",
         "beep",
@@ -3366,11 +3511,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         // the ci-lane step-plan tests. Here we pin the workflow contract:
         // the dispatch line, and envelope validation as a separate
         // always()-guarded step after the run step.
-        const dispatchIndex = workflowText.indexOf(
-          'bun run beep ci lane fallow --base "${{ steps.base.outputs.base_ref }}"'
+        const dispatchIndex = O.getOrElse(constant(-1))(
+          Str.indexOf('bun run beep ci lane fallow --base "${{ steps.base.outputs.base_ref }}"')(workflowText)
         );
-        const validateStepIndex = workflowText.indexOf("      - name: Validate Fallow envelopes", dispatchIndex);
-        const uploadStepIndex = workflowText.indexOf("      - name: Upload Fallow envelopes", validateStepIndex);
+        const validateStep = / {6}- name: Validate Fallow envelopes/g;
+        validateStep.lastIndex = Math.max(0, dispatchIndex);
+        const validateStepIndex = validateStep.exec(workflowText)?.index ?? -1;
+        const uploadStep = / {6}- name: Upload Fallow envelopes/g;
+        uploadStep.lastIndex = Math.max(0, validateStepIndex);
+        const uploadStepIndex = uploadStep.exec(workflowText)?.index ?? -1;
 
         expect(dispatchIndex).toBeGreaterThan(-1);
         expect(workflowText).not.toContain("run_blocking_fallow()");

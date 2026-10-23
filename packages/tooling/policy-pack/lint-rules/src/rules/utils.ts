@@ -6,13 +6,17 @@
  * @since 0.1.0
  */
 
+import { $LintRulesId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { ESTree } from "@oxlint/plugins";
+
+const $I = $LintRulesId.create("rules/utils");
 
 /**
  * Node families the rule visitors hand to these helpers: expressions, call
@@ -278,21 +282,21 @@ class NamedImportBinding extends S.Opaque<NamedImportBinding, { readonly brand: 
     kind: S.tag("named"),
     imported: S.String,
     local: S.String,
-  }).annotate({ identifier: "NamedImportBinding" })
+  }).pipe($I.annoteSchema("NamedImportBinding"))
 ) {}
 
 class NamespaceImportBinding extends S.Opaque<NamespaceImportBinding, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("namespace"),
     local: S.String,
-  }).annotate({ identifier: "NamespaceImportBinding" })
+  }).pipe($I.annoteSchema("NamespaceImportBinding"))
 ) {}
 
 class DefaultImportBinding extends S.Opaque<DefaultImportBinding, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: S.tag("default"),
     local: S.String,
-  }).annotate({ identifier: "DefaultImportBinding" })
+  }).pipe($I.annoteSchema("DefaultImportBinding"))
 ) {}
 
 /**
@@ -319,9 +323,7 @@ class DefaultImportBinding extends S.Opaque<DefaultImportBinding, { readonly bra
  * @since 0.0.0
  */
 export const ImportBinding = S.Union([NamedImportBinding, NamespaceImportBinding, DefaultImportBinding]).pipe(
-  S.annotate({
-    identifier: "@beep/lint-rules/rules/utils/ImportBinding",
-    title: "ImportBinding",
+  $I.annoteSchema("ImportBinding", {
     description: "Value (non-type) import specifier classified by how it binds a local name.",
   }),
   S.toTaggedUnion("kind")
@@ -400,7 +402,7 @@ export const classifyImportSpecifier = (
   });
 
 // Normalize OS path separators to forward slashes so comparisons are platform-stable.
-const normalizePath = (path: string): string => path.replaceAll("\\", "/");
+const normalizePath = (path: string): string => Str.replaceAll("\\", "/")(path);
 
 /**
  * Convert an absolute `filename` to a repo-relative path by stripping the `${cwd}/` prefix.
@@ -428,9 +430,9 @@ export const toRepoPath: {
   (filename: string, cwd: string): string;
 } = dual(2, (filename: string, cwd: string): string => {
   const normalizedFilename = normalizePath(filename);
-  const normalizedCwd = normalizePath(cwd).replace(/\/+$/u, "");
+  const normalizedCwd = Str.replace(/\/+$/u, "")(normalizePath(cwd));
   const prefix = `${normalizedCwd}/`;
-  return normalizedFilename.startsWith(prefix) ? normalizedFilename.slice(prefix.length) : normalizedFilename;
+  return Str.startsWith(prefix)(normalizedFilename) ? Str.slice(prefix.length)(normalizedFilename) : normalizedFilename;
 });
 
 /**
@@ -456,4 +458,4 @@ export const toRepoPath: {
 export const pathMatchesSuffix: {
   (suffix: string): (path: string) => boolean;
   (path: string, suffix: string): boolean;
-} = dual(2, (path: string, suffix: string): boolean => path === suffix || path.endsWith(`/${suffix}`));
+} = dual(2, (path: string, suffix: string): boolean => path === suffix || Str.endsWith(`/${suffix}`)(path));

@@ -2,8 +2,8 @@
 # Orchestrator runner for spike-1 assertions 1-4 (no Telegram legs).
 # One sudo tap up front; a refresher keeps the tty ticket warm for the run.
 set -uo pipefail
-H=/home/elpresidank/YeeBois/projects/beep-effect3/.beep/p0-orchestration/spike1
-OUT=/home/elpresidank/.cache/beep-p0-spike1-run
+H=$HOME/YeeBois/projects/beep-effect3/.beep/p0-orchestration/spike1
+OUT=$HOME/.cache/beep-p0-spike1-run
 rm -rf "$OUT"; mkdir -p "$OUT"
 
 tty -s || { echo "FATAL: must run under a pty (script -qec ...) so sudo tickets are tty-keyed"; exit 1; }
@@ -24,7 +24,7 @@ else
 fi
 sudo -n stat -c '%U:%G:%a %n' /etc/beep
 
-export SPIKE_P="$(mktemp -d /home/elpresidank/.cache/beep-p0-spike1.XXXXXX)"
+export SPIKE_P="$(mktemp -d $HOME/.cache/beep-p0-spike1.XXXXXX)"
 echo "SPIKE_P=$SPIKE_P" | tee "$OUT/SPIKE_P.txt"
 cd "$H" || exit 1
 

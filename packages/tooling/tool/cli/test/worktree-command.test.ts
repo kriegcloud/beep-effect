@@ -1133,7 +1133,67 @@ describe("worktree git operations", () => {
     );
   });
 
-  it.layer(testLayer)((it) => {
+  it.layer(testLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("fetches main instead of inheriting the primary checkout branch and accepts an explicit base", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const mainSha = yield* runGitText(repoRoot, ["rev-parse", "HEAD"]);
+          yield* runGit(repoRoot, ["switch", "-c", "unrelated"]);
+          yield* fs.writeFileString(path.join(repoRoot, "unrelated.txt"), "operator work");
+          yield* runGit(repoRoot, ["add", "unrelated.txt"]);
+          yield* runGit(repoRoot, ["commit", "-m", "unrelated work"]);
+          const unrelatedSha = yield* runGitText(repoRoot, ["rev-parse", "HEAD"]);
+          yield* runGit(repoRoot, ["update-ref", "refs/remotes/origin/main", unrelatedSha]);
+          const context = yield* resolveWorktreeContext(repoRoot);
+          const target = yield* addWorktree(context, "fresh-main", "feat/fresh-main");
+          expect(yield* runGitText(target, ["rev-parse", "HEAD"])).toBe(mainSha);
+          const override = yield* addWorktree(context, "explicit-base", "feat/explicit-base", "unrelated");
+          expect(yield* runGitText(override, ["rev-parse", "HEAD"])).toBe(unrelatedSha);
+          expect(yield* runGitText(repoRoot, ["branch", "--show-current"])).toBe("unrelated");
+        })
+      )
+    );
+
+    it.effect("warns and uses the tracking commit when fetching main fails", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const mainSha = yield* runGitText(repoRoot, ["rev-parse", "HEAD"]);
+          yield* runGit(repoRoot, ["remote", "set-url", "origin", "/nonexistent/worktree-test-origin"]);
+          const context = yield* resolveWorktreeContext(repoRoot);
+          const console = yield* Console.Console;
+          const target = yield* addWorktree(context, "cached-main", "feat/cached-main").pipe(
+            Effect.provideService(Console.Console, {
+              ...console,
+              warn: console.error,
+            })
+          );
+          expect(yield* runGitText(target, ["rev-parse", "HEAD"])).toBe(mainSha);
+          expect(A.join(A.filter(yield* TestConsole.errorLines, P.isString), "\n")).toContain(
+            "Failed to fetch origin/main; using the existing tracking commit"
+          );
+        })
+      )
+    );
+
+    it.effect("fails with a typed error when fetching fails and no tracking base exists", () =>
+      withScratchRepo((repoRoot) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          yield* runGit(repoRoot, ["remote", "remove", "origin"]);
+          const context = yield* resolveWorktreeContext(repoRoot);
+          const error = yield* addWorktree(context, "missing-main", "feat/missing-main").pipe(Effect.flip);
+          expect(error).toMatchObject({
+            _tag: "WorktreeCommandError",
+            message: expect.stringContaining("no usable tracking base exists"),
+          });
+          expect(yield* fs.exists(path.join(context.worktreesRoot, "missing-main"))).toBe(false);
+        })
+      )
+    );
+
     it.effect("refuses to add a second worktree at an occupied path", () =>
       withScratchRepo((repoRoot) =>
         Effect.gen(function* () {
@@ -1914,7 +1974,9 @@ describe("worktree git operations", () => {
           const cleanPath = yield* addWorktree(context, "legacy-clean", defaultWorktreeBranch("legacy-clean"));
           const head = GitObjectId.make(yield* runGitText(cleanPath, ["rev-parse", "HEAD"]));
           const stale = yield* Effect.flip(
-            removalService.remove(legacyRequest("legacy-clean", cleanPath, O.some(GitObjectId.make("a".repeat(40)))))
+            removalService.remove(
+              legacyRequest("legacy-clean", cleanPath, O.some(GitObjectId.make(Str.repeat(40)("a"))))
+            )
           );
           expect(stale._tag).toBe("WorktreeCommandError");
           expect(yield* fs.exists(cleanPath)).toBe(true);

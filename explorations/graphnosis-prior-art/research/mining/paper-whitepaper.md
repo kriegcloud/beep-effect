@@ -1,6 +1,6 @@
 # Graphnosis whitepaper — "The Un-Brain" — full read notes
 
-**Source PDF:** `/home/elpresidank/YeeBois/projects/beep-effect15/explorations/graphnosis-prior-art/assets/graphnosis-whitepaper.pdf`
+**Source PDF:** `$HOME/YeeBois/projects/beep-effect15/explorations/graphnosis-prior-art/assets/graphnosis-whitepaper.pdf`
 (35 pages, created 2026-06-26)
 
 **Full title:** *The Un-Brain: A local-first, indelible knowledge multi-graph for private AI memory
@@ -12,7 +12,7 @@ ORCID 0009-0008-5548-4109. **Status: Preprint** (not peer-reviewed).
 
 **Artifacts named in the paper:**
 - `@nehloo/graphnosis` — Apache-2.0, `github.com/nehloo/Graphnosis` (the local checkout at
-  `/home/elpresidank/YeeBois/dev/Graphnosis`)
+  `$HOME/YeeBois/dev/Graphnosis`)
 - `graphnosis-secure-sync` — source-available under the **Functional Source License**,
   `github.com/nehloo-interactive/graphnosis-secure-sync` (NOT in the local checkout)
 - `graphnosis-app` — desktop app, also FSL (NOT in the local checkout)
@@ -175,7 +175,7 @@ that two of the directed types, `contradicts` and `supersedes`, "are the contrac
 ## 5. Verification against the actual repo
 
 I checked every mechanism the paper describes against
-`/home/elpresidank/YeeBois/dev/Graphnosis` (v0.11.0, `7a19c4b8`).
+`$HOME/YeeBois/dev/Graphnosis` (v0.11.0, `7a19c4b8`).
 
 ### 5.1 VERIFIED — edge-type taxonomy matches exactly
 

@@ -1,7 +1,6 @@
 import { fcRuns } from "@beep/fc-runs";
 import { it } from "@beep/test-runner";
 import { AppendFileSyncOptions, ReaddirSyncOptions, RmSyncOptions } from "@beep/utils/FileSystem";
-import { GlobOptions, Pattern } from "@beep/utils/Glob";
 import { PathInput } from "@beep/utils/Struct";
 import { describe, expect } from "@effect/vitest";
 import * as Result from "effect/Result";
@@ -21,27 +20,6 @@ const expectRoundTrip = <C extends S.Codec<unknown, unknown>>(schema: C, value: 
 
 describe("@beep/utils schema parity", () => {
   it("preserves representative encoded option and path shapes", () => {
-    expect(encode(Pattern, "src/**/*.ts")).toBe("src/**/*.ts");
-    expect(encode(Pattern, ["src/**/*.ts", "test/**/*.ts"])).toEqual(["src/**/*.ts", "test/**/*.ts"]);
-    expect(encode(GlobOptions, GlobOptions.make({}))).toEqual({});
-    expect(
-      encode(
-        GlobOptions,
-        GlobOptions.make({
-          absolute: true,
-          cwd: ".",
-          dot: false,
-          ignore: ["dist/**"],
-          nodir: true,
-        })
-      )
-    ).toEqual({
-      absolute: true,
-      cwd: ".",
-      dot: false,
-      ignore: ["dist/**"],
-      nodir: true,
-    });
     expect(
       encode(
         AppendFileSyncOptions,
@@ -66,24 +44,6 @@ describe("@beep/utils schema parity", () => {
     expect(encode(PathInput, "profile.name")).toBe("profile.name");
     expect(encode(PathInput, ["profile", "name"])).toEqual(["profile", "name"]);
   });
-
-  it.prop(
-    "round-trips Pattern",
-    { value: Pattern },
-    ({ value }) => {
-      expectRoundTrip(Pattern, value);
-    },
-    { arbitrary: fcRuns(50) }
-  );
-
-  it.prop(
-    "round-trips GlobOptions",
-    { value: GlobOptions },
-    ({ value }) => {
-      expectRoundTrip(GlobOptions, GlobOptions.make(value));
-    },
-    { arbitrary: fcRuns(50) }
-  );
 
   it.prop(
     "round-trips AppendFileSyncOptions",

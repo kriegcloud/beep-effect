@@ -411,7 +411,10 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
         assertTrue(Str.includes("ready but not actionable")(renderExplainHuman(explain(projection, answers, "pkt-c"))));
         assertTrue(Str.includes("cap/z [orphan, fog]")(renderCatalogHuman(catalog)));
         strictEqual(O.isNone(buildExplainReport(projection, answers, "pkt-missing")), true);
-        strictEqual(renderExplainHuman(explain(projection, answers, "pkt-c")).includes("requirements: none"), true);
+        strictEqual(
+          Str.includes("requirements: none")(renderExplainHuman(explain(projection, answers, "pkt-c"))),
+          true
+        );
       })
     );
 
@@ -525,7 +528,7 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
 
             expectReportedExit(yield* Effect.exit(runGoalsCommand(["explain", "pkt-missing"])));
             const errors = A.filter(yield* TestConsole.errorLines, P.isString);
-            assertTrue(A.some(errors, (line) => line.includes("bun run beep goals bootstrap --slug pkt-missing")));
+            assertTrue(A.some(errors, Str.includes("bun run beep goals bootstrap --slug pkt-missing")));
             expectReportedExit(yield* Effect.exit(runGoalsCommand(["explain", "Not_A_Slug"])));
 
             yield* writeProjectFile("goals/pkt-c/ops/manifest.json", '{"initiative": {"id": "pkt-other"}}\n');
@@ -550,7 +553,7 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
           yield* writeProjectFile("goals/pkt-b/ops/manifest.json", renamed);
           expectReportedExit(yield* Effect.exit(runGoalsCommand(["next", "--json"])));
           const errors = A.filter(yield* TestConsole.errorLines, P.isString);
-          assertTrue(A.some(errors, (line) => line.includes('declares initiative.id "pkt-z"')));
+          assertTrue(A.some(errors, Str.includes('declares initiative.id "pkt-z"')));
         })
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );

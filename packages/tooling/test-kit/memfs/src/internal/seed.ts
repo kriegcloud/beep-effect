@@ -1,17 +1,20 @@
 // KIT EXTENSION (seeding). The seed applier and the `root` option, kept out of
 // the facade so every seeded constructor shares one path.
+
 import { $MemfsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import { badArgument } from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import * as Str from "effect/String";
 import type * as FileSystem from "effect/FileSystem";
 import type { PlatformError } from "effect/PlatformError";
 import type { MemoryFileSystemOptionsInput } from "../MemoryFileSystem.ts";
@@ -213,8 +216,8 @@ const encoder = new TextEncoder();
 
 // Creates the entry's parent directories; the root always exists.
 const seedParent = (fs: FileSystem.FileSystem, path: string): Effect.Effect<void, PlatformError> => {
-  const separator = path.lastIndexOf("/");
-  const parent = separator <= 0 ? "/" : path.slice(0, separator);
+  const separator = pipe(path, Str.lastIndexOf("/"), O.getOrElse(constant(-1)));
+  const parent = separator <= 0 ? "/" : Str.slice(0, separator)(path);
   return parent === "/" ? Effect.void : fs.makeDirectory(parent, { recursive: true });
 };
 
@@ -322,7 +325,7 @@ export const seedVolume: {
  */
 export const normalizeAbsolute = (path: string): string => {
   const segments: Array<string> = [];
-  for (const segment of path.split("/")) {
+  for (const segment of Str.split("/")(path)) {
     if (segment === "" || segment === ".") continue;
     if (segment === "..") {
       segments.pop();
@@ -448,12 +451,12 @@ export const applyRoot: {
   (seed: MemoryFileSystemSeed, root: string | undefined): Result.Result<AppliedSeed, SeedRootError>;
 } = dual(2, (seed: MemoryFileSystemSeed, root: string | undefined): Result.Result<AppliedSeed, SeedRootError> => {
   if (root === undefined) return Result.succeed(AppliedSeed.make({ seed, root: undefined }));
-  if (!root.startsWith("/"))
+  if (!Str.startsWith("/")(root))
     return Result.fail(SeedRootError.make({ description: `root must be absolute, got "${root}"`, subject: root }));
   const base = normalizeAbsolute(root);
   const rooted: Record<string, MemoryFileSystemSeedEntry> = {};
   for (const [key, entry] of R.toEntries(seed)) {
-    if (key.startsWith("/")) {
+    if (Str.startsWith("/")(key)) {
       return Result.fail(
         SeedRootError.make({
           description: `seed key "${key}" is absolute but a root "${root}" was given`,

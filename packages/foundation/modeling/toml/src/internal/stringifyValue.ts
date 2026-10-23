@@ -5,6 +5,7 @@ import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 // The canonical TOML document emitter over plain JavaScript values — the
 // encode side of the value pipeline. Layout contract: within a table,
 // non-table pairs emit first (document order), then sub-tables as
@@ -91,31 +92,50 @@ const jsTypeName = (value: unknown): string => {
   return P.isString(name) && name.length > 0 ? name : "object";
 };
 
-/** The short escapes a basic string uses for `"`, `\` and the named control characters. */
-const SHORT_ESCAPES: Readonly<Record<number, string>> = {
-  34: '\\"', // U+0022 QUOTATION MARK
-  92: "\\\\", // U+005C REVERSE SOLIDUS
-  8: "\\b",
-  9: "\\t",
-  10: "\\n",
-  12: "\\f",
-  13: "\\r",
-};
-
-/** The escape for one character code in a basic string, or undefined when it passes through verbatim. */
-const escapeCode = (code: number): string | undefined => {
-  const short = SHORT_ESCAPES[code];
-  if (short !== undefined) {
-    return short;
-  }
-  return code < 0x20 || code === 0x7f ? `\\u${code.toString(16).toUpperCase().padStart(4, "0")}` : undefined;
+/** Escapes indexed by UTF-16 character; ordinary characters pass through without allocation. */
+const STRING_ESCAPES: Readonly<Record<string, string>> = {
+  "\u0000": "\\u0000",
+  "\u0001": "\\u0001",
+  "\u0002": "\\u0002",
+  "\u0003": "\\u0003",
+  "\u0004": "\\u0004",
+  "\u0005": "\\u0005",
+  "\u0006": "\\u0006",
+  "\u0007": "\\u0007",
+  "\b": "\\b",
+  "\t": "\\t",
+  "\n": "\\n",
+  "\u000b": "\\u000B",
+  "\f": "\\f",
+  "\r": "\\r",
+  "\u000e": "\\u000E",
+  "\u000f": "\\u000F",
+  "\u0010": "\\u0010",
+  "\u0011": "\\u0011",
+  "\u0012": "\\u0012",
+  "\u0013": "\\u0013",
+  "\u0014": "\\u0014",
+  "\u0015": "\\u0015",
+  "\u0016": "\\u0016",
+  "\u0017": "\\u0017",
+  "\u0018": "\\u0018",
+  "\u0019": "\\u0019",
+  "\u001a": "\\u001A",
+  "\u001b": "\\u001B",
+  "\u001c": "\\u001C",
+  "\u001d": "\\u001D",
+  "\u001e": "\\u001E",
+  "\u001f": "\\u001F",
+  '"': '\\"',
+  "\\": "\\\\",
+  "\u007f": "\\u007F",
 };
 
 /** A basic single-line string: `"` `\` and control characters escaped. */
 const renderString = (value: string): string => {
   let out = '"';
   for (let i = 0; i < value.length; i++) {
-    out += escapeCode(value.charCodeAt(i)) ?? value.charAt(i);
+    out += STRING_ESCAPES[Str.slice(i, i + 1)(value)] ?? value[i];
   }
   return `${out}"`;
 };

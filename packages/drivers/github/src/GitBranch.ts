@@ -10,14 +10,16 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $GithubId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
 import { GraphQLDocument } from "./GraphQL.ts";
@@ -411,13 +413,13 @@ const unstubbed = unstubbedFor({ service: "GitBranch" });
  * pass whichever they last saw. Normalizing once is cheaper than documenting it
  * seven times.
  */
-const shortName = (name: string): string => name.replace(/^refs\/heads\//, "").replace(/^heads\//, "");
+const shortName = (name: string): string => pipe(name, Str.replace(/^refs\/heads\//, ""), Str.replace(/^heads\//, ""));
 
 const rejectEmpty: {
   (operation: string, name: string): Effect.Effect<string, GitHubError>;
   (name: string): (operation: string) => Effect.Effect<string, GitHubError>;
 } = dual(2, (operation: string, name: string): Effect.Effect<string, GitHubError> => {
-  const short = shortName(name).trim();
+  const short = Str.trim(shortName(name));
   return short === ""
     ? Effect.fail(GitHubError.rejected(operation, 422, "a branch name is required"))
     : Effect.succeed(short);

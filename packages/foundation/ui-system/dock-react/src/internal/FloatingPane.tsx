@@ -76,7 +76,6 @@ export const FloatingPane = (
       if (P.isNull(node)) return undefined;
       const cancel = (): void => {
         props.graph.registry.set(props.state.floatingGestureAtom, O.none());
-        // fallow-ignore-next-line code-duplication -- gesture cancellation clears both coupled interaction atoms
         props.graph.registry.set(props.state.floatingOverrideAtom, O.none());
       };
       const keydown = (event: KeyboardEvent): void => {
@@ -140,7 +139,6 @@ export const FloatingPane = (
           )
         );
       };
-      // fallow-ignore-next-line code-duplication -- named pointer-up wrapper preserves listener identity for cleanup
       const up = (event: PointerEvent): void => finish(node, event);
       node.addEventListener("pointerdown", down);
       node.addEventListener("pointermove", move);

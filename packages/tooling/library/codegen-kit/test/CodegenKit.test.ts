@@ -993,21 +993,307 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
   it.effect("inlines a $ref in either allOf position so member order does not matter", () =>
     Effect.gen(function* () {
       const definitions: JsonSchema.Definitions = {
-        Named: { type: "object", properties: { name: { type: "string" } }, required: ["name"] },
+        Named: {
+          type: "object",
+          properties: { name: { type: "string" } },
+          required: ["name"],
+          description: "Target description",
+          title: "Target title",
+        },
       };
       const hook = composeTransforms(["distributeAllOf"], definitions);
       const extra = { type: "object", properties: { x: { type: "number" } } };
-      const refFirst = hook({ allOf: [{ $ref: "#/$defs/Named" }, extra] });
-      const refLast = hook({ allOf: [extra, { $ref: "#/$defs/Named" }] });
+      const member = { $ref: "#/$defs/Named", description: "Member description", title: "Member title" };
+      const outer = { description: "Outer", title: "Outer title" };
+      const refFirst = hook({ ...outer, allOf: [member, extra] });
+      const refLast = hook({ ...outer, allOf: [extra, member] });
       expect(refFirst).toEqual({
+        description: "Outer",
+        title: "Outer title",
         type: "object",
         properties: { name: { type: "string" }, x: { type: "number" } },
         required: ["name"],
       });
-      expect(refLast.properties).toEqual(refFirst.properties);
-      expect(refLast.required).toEqual(refFirst.required);
+      expect(refLast).toEqual(refFirst);
       expect(refFirst.$ref).toBeUndefined();
       expect(refLast.$ref).toBeUndefined();
+    })
+  );
+
+  it.effect("keeps outer allOf annotations on the reduced union and preserves branch annotations", () =>
+    Effect.gen(function* () {
+      const branches = [
+        { type: "object", properties: { done: { const: true } }, description: "Completed", title: "Done" },
+        { type: "object", properties: { done: { const: false } }, description: "Cancelled", title: "Stopped" },
+      ];
+      const hook = composeTransforms(["distributeAllOf"], { Outcome: { anyOf: branches } });
+      const outer = { description: "Outer description", title: "Outer title" };
+      const constraints = { type: "object", properties: { id: { type: "string" } } };
+      const expected = {
+        ...outer,
+        anyOf: A.map(branches, (branch) => ({
+          ...branch,
+          properties: { ...constraints.properties, ...branch.properties },
+        })),
+      };
+      const direct = hook({ ...outer, ...constraints, allOf: [{ anyOf: branches }] });
+      const referenced = hook({ ...outer, ...constraints, allOf: [{ $ref: "#/$defs/Outcome" }] });
+      expect(direct).toEqual(expected);
+      expect(referenced).toEqual(expected);
+      expect(hook(referenced)).toEqual(expected);
+    })
+  );
+
+  it.effect("keeps union-level annotations when an intersection distributes a union of unions", () =>
+    Effect.sync(() => {
+      const scopes = [
+        { type: "object", properties: { sessionId: { type: "string" } }, description: "Session scope" },
+        { type: "object", properties: { requestId: { type: "string" } }, description: "Request scope" },
+      ];
+      const hook = composeTransforms(["distributeAllOf"], { Scoped: { description: "Scope", anyOf: scopes } });
+      const extend = (properties: Record<string, unknown>) =>
+        A.map(scopes, (scope) => ({ ...scope, properties: { ...properties, ...scope.properties } }));
+      const mode = (value: string, annotations: Record<string, string>) => ({
+        ...annotations,
+        type: "object",
+        properties: { mode: { const: value } },
+        allOf: [{ $ref: "#/$defs/Scoped" }],
+      });
+      const message = { message: { type: "string" } };
+      const request = hook({
+        type: "object",
+        properties: message,
+        anyOf: [
+          mode("form", { description: "Form mode", title: "Form" }),
+          mode("url", { description: "URL mode" }),
+          mode("other", {}),
+        ],
+      });
+      expect(request).toEqual({
+        anyOf: [
+          { description: "Form mode", title: "Form", anyOf: extend({ ...message, mode: { const: "form" } }) },
+          { description: "URL mode", anyOf: extend({ ...message, mode: { const: "url" } }) },
+          { description: "Scope", anyOf: extend({ ...message, mode: { const: "other" } }) },
+        ],
+      });
+      expect(hook(request)).toEqual(request);
+
+      const variants = [{ properties: { a: { type: "string" } } }, { properties: { b: { type: "string" } } }];
+      const crossed = hook({ description: "Outer", type: "object", allOf: [{ anyOf: scopes }], anyOf: variants });
+      expect(crossed).toEqual({
+        description: "Outer",
+        anyOf: A.map(scopes, ({ description, ...scope }) => ({
+          description,
+          anyOf: A.map(variants, (variant) => ({
+            ...scope,
+            properties: { ...scope.properties, ...variant.properties },
+          })),
+        })),
+      });
+      expect(hook(crossed)).toEqual(crossed);
+    })
+  );
+
+  it.effect("keeps a constrained node's own annotations on its anyOf in either member order", () =>
+    Effect.sync(() => {
+      const scopes = [
+        {
+          type: "object",
+          properties: { sessionId: { type: "string" } },
+          required: ["sessionId"],
+          description: "Session scope",
+          title: "Session",
+        },
+        {
+          type: "object",
+          properties: { requestId: { type: "string" } },
+          required: ["requestId"],
+          description: "Request scope",
+        },
+        { type: "object", properties: { token: { type: "string" } } },
+      ];
+      const form = { requestedSchema: { type: "object" } };
+      const message = { message: { type: "string" } };
+      const mode = { description: "Form mode", title: "Form", type: "object", properties: form, anyOf: scopes };
+      const hook = composeTransforms(["distributeAllOf"], {
+        Mode: mode,
+        Message: { description: "Message part", "x-side": "client", type: "object", properties: message },
+      });
+      const scoped = (properties: Record<string, unknown>) =>
+        A.map(scopes, (scope) => ({ ...scope, properties: { ...properties, ...scope.properties } }));
+
+      const own = hook(mode);
+      expect(own).toEqual({ description: "Form mode", title: "Form", anyOf: scoped(form) });
+      expect(hook(own)).toEqual(own);
+
+      const outer = { description: "Request" };
+      const expected = {
+        description: "Request",
+        title: "Form",
+        "x-side": "client",
+        anyOf: scoped({ ...form, ...message }),
+      };
+      const modeRef = { $ref: "#/$defs/Mode" };
+      const messageRef = { $ref: "#/$defs/Message" };
+      const unionFirst = hook({ ...outer, allOf: [modeRef, messageRef] });
+      const unionLast = hook({ ...outer, allOf: [messageRef, modeRef] });
+      expect(unionFirst).toEqual(expected);
+      expect(unionLast).toEqual(expected);
+      expect(hook(unionFirst)).toEqual(expected);
+
+      // Without outer annotations the union keeps its own description in either member order.
+      expect(hook({ allOf: [modeRef, messageRef] })).toEqual({ ...expected, description: "Form mode" });
+      expect(hook({ allOf: [messageRef, modeRef] })).toEqual({ ...expected, description: "Form mode" });
+    })
+  );
+
+  it.effect("keeps a union's default, examples and discriminator on its anyOf and a branch's on that branch", () =>
+    Effect.sync(() => {
+      const branches = [
+        {
+          type: "object",
+          properties: { kind: { const: "text" } },
+          required: ["kind"],
+          default: { kind: "text" },
+          examples: [{ kind: "text" }],
+        },
+        {
+          type: "object",
+          properties: { kind: { const: "image" }, uri: { type: "string" } },
+          required: ["kind", "uri"],
+        },
+      ];
+      const unionLevel = {
+        default: { kind: "image", uri: "a.png" },
+        examples: [{ kind: "text" }, { kind: "image", uri: "b.png" }],
+        discriminator: { propertyName: "kind" },
+      };
+      const shared = { id: { type: "string" } };
+      const block = { ...unionLevel, type: "object", properties: shared, anyOf: branches };
+      const hook = composeTransforms(["distributeAllOf"], { Block: block });
+      const extend = (properties: Record<string, unknown>) =>
+        A.map(branches, (branch) => ({ ...branch, properties: { ...properties, ...shared, ...branch.properties } }));
+
+      const own = hook(block);
+      expect(own).toEqual({ ...unionLevel, anyOf: extend({}) });
+      expect(hook(own)).toEqual(own);
+
+      const caption = { caption: { type: "string" } };
+      const member = hook({
+        description: "Captioned block",
+        type: "object",
+        properties: caption,
+        allOf: [{ $ref: "#/$defs/Block" }],
+      });
+      expect(member).toEqual({ description: "Captioned block", ...unionLevel, anyOf: extend(caption) });
+      expect(hook(member)).toEqual(member);
+    })
+  );
+
+  it.effect("keeps a union's own annotations over an intersected object's in any member order", () =>
+    Effect.sync(() => {
+      const branches = [
+        {
+          type: "object",
+          properties: { kind: { const: "text" } },
+          description: "Text block",
+          default: { kind: "text" },
+        },
+        { type: "object", properties: { kind: { const: "image" } } },
+      ];
+      const caption = {
+        description: "Caption part",
+        title: "Caption",
+        default: { caption: "" },
+        "x-side": "client",
+        type: "object",
+        properties: { caption: { type: "string" } },
+      };
+      const hook = composeTransforms(["distributeAllOf"], {
+        Block: {
+          description: "Content block",
+          title: "Block",
+          default: { kind: "text" },
+          discriminator: { propertyName: "kind" },
+          anyOf: branches,
+        },
+        Caption: caption,
+        Locale: {
+          description: "Locale",
+          title: "Locale",
+          anyOf: [{ properties: { lang: { const: "en" } } }, { properties: { lang: { const: "fr" } } }],
+        },
+        Meta: { "x-side": "server", type: "object", properties: { meta: { type: "string" } } },
+      });
+      const blockRef = { $ref: "#/$defs/Block" };
+      const captionRef = { $ref: "#/$defs/Caption" };
+      const expected = {
+        description: "Content block",
+        title: "Block",
+        default: { kind: "text" },
+        discriminator: { propertyName: "kind" },
+        "x-side": "client",
+        anyOf: A.map(branches, (branch) => ({
+          ...branch,
+          properties: { ...branch.properties, ...caption.properties },
+        })),
+      };
+
+      const unionFirst = hook({ allOf: [blockRef, captionRef] });
+      expect(unionFirst).toEqual(expected);
+      expect(hook({ allOf: [captionRef, blockRef] })).toEqual(expected);
+      expect(hook(unionFirst)).toEqual(expected);
+
+      // Annotations beside a member's `$ref` override the referenced definition's and rank as that
+      // member's own; the node's own win over every member.
+      const useSite = { $ref: "#/$defs/Block", description: "Use site" };
+      expect(hook({ allOf: [useSite, captionRef] })).toEqual({ ...expected, description: "Use site" });
+      expect(hook({ allOf: [captionRef, useSite] })).toEqual({ ...expected, description: "Use site" });
+      expect(hook({ allOf: [blockRef, { ...captionRef, description: "Captioned" }] })).toEqual(expected);
+      expect(hook({ title: "Outer", allOf: [captionRef, blockRef] })).toEqual({ ...expected, title: "Outer" });
+
+      // Objects resolve a conflict right over left wherever the union sits among the members.
+      const metaRef = { $ref: "#/$defs/Meta" };
+      const sides = A.map(
+        [
+          [blockRef, captionRef, metaRef],
+          [captionRef, blockRef, metaRef],
+          [captionRef, metaRef, blockRef],
+          [metaRef, blockRef, captionRef],
+        ],
+        (allOf) => hook({ allOf })["x-side"]
+      );
+      expect(sides).toEqual(["server", "server", "server", "client"]);
+
+      // Between two unions, as between two objects, the later member wins.
+      const localeRef = { $ref: "#/$defs/Locale" };
+      const localeLast = hook({ allOf: [blockRef, localeRef] });
+      const localeFirst = hook({ allOf: [localeRef, blockRef] });
+      expect([localeLast.description, localeLast.title]).toEqual(["Locale", "Locale"]);
+      expect([localeFirst.description, localeFirst.title]).toEqual(["Content block", "Block"]);
+    })
+  );
+
+  it.effect("keeps object annotation precedence stable across pure allOf regrouping", () =>
+    Effect.sync(() => {
+      const hook = composeTransforms(["distributeAllOf"], {});
+      const left = { type: "object", description: "a", properties: { a: { type: "string" } } };
+      const right = { type: "object", description: "b", properties: { b: { type: "string" } } };
+      const union = { anyOf: [{ properties: { kind: { const: "x" } } }, { properties: { kind: { const: "y" } } }] };
+      const flat = hook({ allOf: [left, union, right] });
+      expect(flat.description).toBe("b");
+      for (const allOf of [
+        [{ allOf: [left, union] }, right],
+        [left, { allOf: [union, right] }],
+        [{ allOf: [{ allOf: [left, union] }, { allOf: [right] }] }],
+        [{ allOf: [] }, left, union, right],
+      ]) {
+        expect(hook({ allOf })).toEqual(flat);
+      }
+      expect(hook(flat)).toEqual(flat);
+      expect(hook({ allOf: [{ description: "Group", allOf: [left, union] }, right] }).description).toBe("Group");
+      expect(hook({ allOf: [{ type: "object", allOf: [left, union] }, right] }).description).toBe("a");
+      expect(hook({ description: "Outer", allOf: [{ allOf: [left, union] }, right] }).description).toBe("Outer");
     })
   );
 
@@ -1217,6 +1503,19 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit ACP 
         )
       );
       expect(conflict.message).toContain("conflicting constraint maxLength on overlapping property name");
+
+      for (const [property, message] of [
+        [true, "expected an object schema"],
+        [{ type: "string", anyOf: [{ type: "string" }] }, "anyOf with sibling constraints"],
+        [{ anyOf: [true] }, "expected object alternatives"],
+        [{ $ref: "#/$defs/Name" }, "$ref alternatives"],
+      ] as const) {
+        const failure = yield* transformFailure(() =>
+          hook(overlap({ type: "string" }, { type: "object", properties: { name: property } }))
+        );
+        expect(failure.transform).toBe("intersectSiblingProperties");
+        expect(failure.message).toContain(message);
+      }
 
       const reference = yield* transformFailure(() =>
         hook({

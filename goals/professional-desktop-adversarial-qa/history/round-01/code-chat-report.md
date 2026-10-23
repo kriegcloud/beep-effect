@@ -2,7 +2,7 @@
 
 1. **P1 — Successful persistence followed by timeline-refresh failure permanently locks chat streaming**
 
-   [Chat.atoms.ts:860](/home/elpresidank/YeeBois/projects/beep-effect6/packages/agents/client/src/Chat.atoms.ts:860)
+   [Chat.atoms.ts:860]($HOME/YeeBois/projects/beep-effect6/packages/agents/client/src/Chat.atoms.ts:860)
 
    After the streaming RPC succeeds, `ctx.result(threadTimelineAtoms(...))` runs outside the preceding error handler. If assistant persistence succeeds but the follow-up `GetTimeline` request fails, `streamingTurnAtom` is never cleared and `turnErrorAtom` is never populated. Every composer then sees a global active stream and refuses further submissions.
 
@@ -10,7 +10,7 @@
 
 2. **P1 — Submitting clears the only recoverable copy before the RPC accepts it**
 
-   [Composer.tsx:151](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/Composer.tsx:151)
+   [Composer.tsx:151]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/Composer.tsx:151)
 
    `runTurn(...)` is fire-and-forget, followed immediately by clearing the draft and edit target and returning `true`, which tells `ChatComposer` to clear its editor. If the sidecar is offline, rejects authorization, or rejects an edit, the user receives a toast but loses the composed replacement text.
 
@@ -18,7 +18,7 @@
 
 3. **P1 — Edit regeneration sends the obsolete branch tail to the model**
 
-   [ChatOrchestrator.ts:268](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:268)
+   [ChatOrchestrator.ts:268]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:268)
 
    `editMessage` appends a new user turn branching from the edited turn, then `streamAndPersist` fetches the entire timeline and `projectTimelineToHistory` flattens every turn. Editing an early prompt after several replies therefore sends the old user/assistant tail plus the new replacement prompt to the kernel. The generated response is based on history the UI has optimistically hidden.
 
@@ -26,7 +26,7 @@
 
 4. **P1 — Persisted assistant turns are detached from the user turn they answer**
 
-   [ChatOrchestrator.ts:278](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:278)
+   [ChatOrchestrator.ts:278]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ChatOrchestrator.ts:278)
 
    Both send and edit finalization persist the assistant with `parentTurnId: O.none()`. After an edit, the replacement user turn is correctly parented to the edited turn, but its assistant answer becomes another root. Sibling/version detection and any future ancestry-based branch selection cannot associate that assistant response with the replacement prompt.
 
@@ -34,7 +34,7 @@
 
 5. **P1 — Streaming links accept executable or privileged URI schemes**
 
-   [StreamingBlocks.tsx:155](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx:155)
+   [StreamingBlocks.tsx:155]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx:155)
 
    The schema describes an “absolute http(s) url” but enforces only `S.String`. Model-controlled content can therefore emit `javascript:`, `data:`, `file:`, or application-specific URLs directly into an anchor. Depending on the React/webview version and registered desktop protocols, clicking it can execute content, expose local resources, or invoke privileged handlers.
 
@@ -42,7 +42,7 @@
 
 6. **P2 — “Bounded” hashing still materializes unbounded paragraph, list, and table keys**
 
-   [StreamingBlocks.tsx:92](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx:92)
+   [StreamingBlocks.tsx:92]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx:92)
 
    `boundedKey` hashes only 4 KiB, but it receives an already-built `raw` string. `inlinesRenderKey`, table-row keying, and list/block keying concatenate all hostile content before the bound is applied. A multi-megabyte paragraph or table therefore causes large allocations and repeated full traversal on each streamed update despite the stated O(`KEY_SAMPLE_LIMIT`) guarantee.
 
@@ -50,7 +50,7 @@
 
 7. **P2 — Autoscroll forcibly steals the reader’s position on every block update**
 
-   [Thread.tsx:141](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/Thread.tsx:141)
+   [Thread.tsx:141]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/Thread.tsx:141)
 
    Both timeline and streaming atom changes unconditionally call smooth `scrollIntoView`. If the user scrolls upward to read an earlier answer while a response streams, every incoming block drags them back to the bottom. Smooth animations can also continuously restart during rapid block delivery.
 
@@ -58,7 +58,7 @@
 
 8. **P2 — Optimistic state records user content but never renders it**
 
-   [Thread.tsx:179](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/Thread.tsx:179)
+   [Thread.tsx:179]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/Thread.tsx:179)
 
    `StreamingTurn.userContent` is populated for sends and edits, but `Thread` renders only `turn.blocks`. Before timeline invalidation completes, a fresh user message can be absent while “Thinking…” appears. During editing, the old tail is hidden but the replacement prompt is also absent, leaving an assistant response with no visible triggering message.
 
@@ -66,7 +66,7 @@
 
 9. **P2 — Global edit state is not bound to its originating thread**
 
-   [Composer.tsx:124](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/Composer.tsx:124)
+   [Composer.tsx:124]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/Composer.tsx:124)
 
    `editTargetAtom` contains only `turnId` and content. If the active thread changes without the sidebar click handler clearing it—for example, the implicit “most recent thread” fallback changes after list invalidation—the new thread’s composer loads the old thread’s message and submits that old `turnId` with the new `threadId`. The RPC fails after the editor has already cleared.
 
@@ -74,7 +74,7 @@
 
 10. **P2 — Codec failure drops persisted message content despite a documented plain-text fallback**
 
-   [MessageView.tsx:43](/home/elpresidank/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/MessageView.tsx:43)
+   [MessageView.tsx:43]($HOME/YeeBois/projects/beep-effect6/apps/professional-desktop/src/chat/ui/MessageView.tsx:43)
 
    The module documentation promises a plain-text fallback, but failure renders only “This message could not be rendered.” A valid persisted Markdown document that hits a Lexical projection incompatibility becomes unreadable even though `@beep/md` already provides a plain-text renderer.
 
@@ -82,7 +82,7 @@
 
 ## Known sidebar date root cause
 
-Not counted as a finding per the waiver. The `"Dec 31"` display originates upstream: [ThreadStore.repo.ts:55](/home/elpresidank/YeeBois/projects/beep-effect6/packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts:55) assigns entity IDs such as `1` directly to `createdAt` and `updatedAt`. That means approximately `1970-01-01T00:00:00.001Z`; `DateTime.formatLocal` correctly converts it to December 31, 1969 in negative UTC offsets.
+Not counted as a finding per the waiver. The `"Dec 31"` display originates upstream: [ThreadStore.repo.ts:55]($HOME/YeeBois/projects/beep-effect6/packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts:55) assigns entity IDs such as `1` directly to `createdAt` and `updatedAt`. That means approximately `1970-01-01T00:00:00.001Z`; `DateTime.formatLocal` correctly converts it to December 31, 1969 in negative UTC offsets.
 
 The exact fix is to obtain `Clock.currentTimeMillis` in create/update/append operations and pass that timestamp into `baseEntityRecord`, preserving `createdAt` on updates while advancing `updatedAt`. Changing `Sidebar` to UTC formatting would merely conceal the invalid timestamp and would display real activity dates in the wrong user timezone.
 

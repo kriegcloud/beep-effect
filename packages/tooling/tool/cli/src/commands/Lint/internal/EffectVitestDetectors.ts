@@ -4,7 +4,7 @@ import { A, Str } from "@beep/utils";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
-import { constFalse, dual } from "effect/Function";
+import { constFalse, constTrue, dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -156,27 +156,57 @@ const localInitializer = (identifier: Identifier, imports: EffectVitestImports):
       : O.none()
   );
 
-const isPureStubLayer = (
-  expression: Expression,
-  imports: EffectVitestImports,
-  seen: ReadonlyArray<string> = []
-): boolean => {
-  if (Node.isCallExpression(expression)) {
-    if (isProvenanceCall(expression, imports, LAYER_MODULES, "Layer", ["succeed", "mock"])) return true;
-    if (isProvenanceCall(expression, imports, LAYER_MODULES, "Layer", ["merge", "mergeAll"])) {
-      return A.every(
-        expression.getArguments(),
-        (argument) => Node.isExpression(argument) && isPureStubLayer(argument, imports, seen)
+type LayerLeaf = (expression: Expression, imports: EffectVitestImports) => boolean;
+
+// Follows Layer.merge/mergeAll operands and const initializers down to leaves.
+const layerComposedOf =
+  (leaf: LayerLeaf) =>
+  (expression: Expression, imports: EffectVitestImports): boolean => {
+    const visit = (current: Expression, seen: ReadonlyArray<string>): boolean => {
+      if (leaf(current, imports)) return true;
+      if (Node.isCallExpression(current))
+        return (
+          isProvenanceCall(current, imports, LAYER_MODULES, "Layer", ["merge", "mergeAll"]) &&
+          A.every(current.getArguments(), (argument) => Node.isExpression(argument) && visit(argument, seen))
+        );
+      if (!Node.isIdentifier(current) || A.contains(seen, current.getText())) return false;
+      return O.exists(localInitializer(current, imports), (initializer) =>
+        visit(initializer, [...seen, current.getText()])
       );
-    }
-    return false;
-  }
-  if (isProvenanceExpression(expression, imports, LAYER_MODULES, "Layer", ["empty"])) return true;
-  if (!Node.isIdentifier(expression) || A.contains(seen, expression.getText())) return false;
-  return O.exists(localInitializer(expression, imports), (initializer) =>
-    isPureStubLayer(initializer, imports, [...seen, expression.getText()])
+    };
+    return visit(expression, []);
+  };
+
+const isStubLayerLeaf: LayerLeaf = (expression, imports) =>
+  Node.isCallExpression(expression)
+    ? isProvenanceCall(expression, imports, LAYER_MODULES, "Layer", ["succeed", "mock"])
+    : isProvenanceExpression(expression, imports, LAYER_MODULES, "Layer", ["empty"]);
+
+const isPureStubLayer = layerComposedOf(isStubLayerLeaf);
+
+// Platform service bundles build in-process services and acquire no external
+// resource, so a hook timeout guards nothing.
+const platformServiceLayerModules = A.flatMap(
+  [
+    { runtime: "Node", root: "@effect/platform-node" },
+    { runtime: "Bun", root: "@effect/platform-bun" },
+  ],
+  ({ runtime, root }) =>
+    A.map(["Services", "FileSystem", "Path", "Crypto", "ChildProcessSpawner", "Stdio", "Terminal"], (service) => ({
+      name: `${runtime}${service}`,
+      root,
+    }))
+);
+
+const isPlatformServiceLayer: LayerLeaf = (expression, imports) =>
+  !Node.isCallExpression(expression) &&
+  A.some(platformServiceLayerModules, ({ name, root }) =>
+    isProvenanceExpression(expression, imports, [root, `${root}/${name}`], name, ["layer", `${name}.layer`])
   );
-};
+
+const isAcquisitionFreeLayer = layerComposedOf(
+  (expression, imports) => isStubLayerLeaf(expression, imports) || isPlatformServiceLayer(expression, imports)
+);
 
 const isContextProvision = (
   expression: Expression,
@@ -213,13 +243,218 @@ const isResourceExpression = (
   );
 };
 
-const functionHasResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+const TEMP_ROOT_CONSTRUCTORS = ["makeTempDirectory", "makeTempDirectoryScoped"];
+
+const isEffectAcquisition = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireRelease", "acquireUseRelease"]);
+
+// `<fs>.makeTempDirectory(options?)`: options only say where and how to name the root.
+const isTempRootCall = (node: MorphNode | undefined): boolean => {
+  if (!Node.isCallExpression(node)) return false;
+  const callee = node.getExpression();
+  return (
+    Node.isPropertyAccessExpression(callee) &&
+    Node.isIdentifier(callee.getExpression()) &&
+    A.contains(TEMP_ROOT_CONSTRUCTORS, callee.getName())
+  );
+};
+
+const isFileSystemTag = (node: MorphNode | undefined, imports: EffectVitestImports): boolean =>
+  Node.isExpression(node) &&
+  isProvenanceExpression(node, imports, ["effect", "effect/FileSystem"], "FileSystem", ["FileSystem"]);
+
+const yieldedExpression = (node: MorphNode | undefined): MorphNode | undefined =>
+  Node.isYieldExpression(node) && node.getAsteriskToken() !== undefined ? node.getExpression() : undefined;
+
+// `const fs = yield* FileSystem.FileSystem` only reads the service.
+const isFileSystemBinding = (statement: MorphNode, imports: EffectVitestImports): boolean =>
+  Node.isVariableStatement(statement) &&
+  A.every(statement.getDeclarations(), (declaration) => isFileSystemService(declaration, imports));
+
+// `(fs) => fs.makeTempDirectory()`, or a block whose only statement returns that call.
+const returnsTempRoot = (body: MorphNode | undefined): boolean => {
+  if (!Node.isArrowFunction(body) && !Node.isFunctionExpression(body)) return false;
+  const inner = body.getBody();
+  if (!Node.isBlock(inner)) return isTempRootCall(inner);
+  const statements = inner.getStatements();
+  const only = statements[0];
+  return statements.length === 1 && Node.isReturnStatement(only) && isTempRootCall(only.getExpression());
+};
+
+// `Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; return yield* fs.makeTempDirectory(); })`.
+const isTempRootGenerator = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  const body = call.getArguments()[0];
+  if (call.getArguments().length !== 1 || !Node.isFunctionExpression(body)) return false;
+  const statements = body.getStatements();
+  const last = A.last(statements);
+  return (
+    O.exists(
+      last,
+      (statement) => Node.isReturnStatement(statement) && isTempRootCall(yieldedExpression(statement.getExpression()))
+    ) && A.every(A.dropRight(statements, 1), (statement) => isFileSystemBinding(statement, imports))
+  );
+};
+
+// The acquire IS the temp-root call, optionally behind FileSystem access. Any combinator that adds
+// work (zipLeft, tap, andThen, zip, all, or a flatMap into other work) is not a fresh-root acquire.
+const isTempRootAcquire = (acquire: MorphNode, imports: EffectVitestImports): boolean => {
+  if (isTempRootCall(acquire)) return true;
+  if (!Node.isCallExpression(acquire)) return false;
+  if (isProvenanceCall(acquire, imports, EFFECT_MODULES, "Effect", ["gen"]))
+    return isTempRootGenerator(acquire, imports);
+  const [service, continuation, ...rest] = acquire.getArguments();
+  return (
+    isProvenanceCall(acquire, imports, EFFECT_MODULES, "Effect", ["flatMap"]) &&
+    A.isReadonlyArrayEmpty(rest) &&
+    isFileSystemTag(service, imports) &&
+    returnsTempRoot(continuation)
+  );
+};
+
+// `process.chdir(...)`, or an assignment or `delete` whose target is rooted at the global `process`.
+const PROCESS_MODULES = ["node:process", "process"];
+
+const isGlobalProcess = (node: MorphNode, imports: EffectVitestImports): boolean => {
+  if (!Node.isIdentifier(node) || node.getText() !== "process") return false;
+  const binding = imports.resolveBinding(node);
+  return (
+    O.isNone(binding) ||
+    O.exists(
+      binding,
+      (declaration) =>
+        Node.isImportDeclaration(declaration) && A.contains(PROCESS_MODULES, declaration.getModuleSpecifierValue())
+    )
+  );
+};
+
+const accessRoot = (node: MorphNode): MorphNode =>
+  Node.isPropertyAccessExpression(node) || Node.isElementAccessExpression(node)
+    ? accessRoot(node.getExpression())
+    : node;
+
+const isProcessAccess = (node: MorphNode, imports: EffectVitestImports): boolean =>
+  (Node.isPropertyAccessExpression(node) || Node.isElementAccessExpression(node)) &&
+  isGlobalProcess(accessRoot(node), imports);
+
+const ASSIGNMENT_OPERATORS = HashSet.fromIterable([
+  SyntaxKind.EqualsToken,
+  SyntaxKind.PlusEqualsToken,
+  SyntaxKind.QuestionQuestionEqualsToken,
+  SyntaxKind.BarBarEqualsToken,
+  SyntaxKind.AmpersandAmpersandEqualsToken,
+]);
+
+const mutatesProcessDirectly = (region: MorphNode, imports: EffectVitestImports): boolean =>
+  A.some(region.getDescendantsOfKind(SyntaxKind.CallExpression), (call) => {
+    const callee = call.getExpression();
+    return (
+      Node.isPropertyAccessExpression(callee) &&
+      callee.getName() === "chdir" &&
+      isGlobalProcess(callee.getExpression(), imports)
+    );
+  }) ||
+  A.some(
+    region.getDescendantsOfKind(SyntaxKind.BinaryExpression),
+    (binary) =>
+      HashSet.has(ASSIGNMENT_OPERATORS, binary.getOperatorToken().getKind()) &&
+      isProcessAccess(binary.getLeft(), imports)
+  ) ||
+  A.some(region.getDescendantsOfKind(SyntaxKind.DeleteExpression), (deletion) =>
+    isProcessAccess(deletion.getExpression(), imports)
+  );
+
+// Helpers are reached by name: a called identifier, or an identifier passed as an argument (`Effect.sync(restore)`).
+const helperReferences = (region: MorphNode): ReadonlyArray<MorphNode> =>
+  A.flatMap([region, ...region.getDescendantsOfKind(SyntaxKind.CallExpression)], (node) =>
+    Node.isCallExpression(node)
+      ? A.filter([node.getExpression(), ...node.getArguments()], Node.isIdentifier)
+      : A.filter([node], Node.isIdentifier)
+  );
+
+// Follows same-file helpers called by name, because they run inside the wrapper's use or release.
+const mutatesProcessState = (region: MorphNode, imports: EffectVitestImports): boolean => {
+  const visited = A.empty<MorphNode>();
+  const visit = (current: MorphNode): boolean =>
+    mutatesProcessDirectly(current, imports) ||
+    A.some(helperReferences(current), (reference) =>
+      O.exists(Node.isIdentifier(reference) ? imports.resolveBinding(reference) : O.none(), (binding) => {
+        // Identity, not `Equal`: structural equality over ts-morph nodes walks the whole tree.
+        if (A.some(visited, (seen) => seen === binding)) return false;
+        visited.push(binding);
+        return O.exists(helperBody(binding, imports), visit);
+      })
+    );
+  return visit(region);
+};
+
+const isEffectFunctionConstructor = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["fn", "fnUntraced"]);
+
+// `Effect.fnUntraced(function* (path) {...})` and `Effect.fn("name")(function* (path) {...})` release through their body.
+const releaseFunction = (release: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!Node.isCallExpression(release)) return O.some(release);
+  const callee = release.getExpression();
+  const constructed =
+    isEffectFunctionConstructor(release, imports) ||
+    (Node.isCallExpression(callee) && isEffectFunctionConstructor(callee, imports));
+  return constructed ? A.head(release.getArguments()) : O.none();
+};
+
+// The release must remove the exact path its acquire produced (its first parameter).
+const removesAcquiredPath = (candidate: MorphNode, imports: EffectVitestImports): boolean => {
+  const release = O.getOrUndefined(releaseFunction(candidate, imports));
+  if (!Node.isArrowFunction(release) && !Node.isFunctionExpression(release)) return false;
+  const parameter = release.getParameters()[0];
+  if (parameter === undefined || !Node.isIdentifier(parameter.getNameNode())) return false;
+  return A.some(release.getDescendantsOfKind(SyntaxKind.CallExpression), (call) => {
+    const callee = call.getExpression();
+    const target = call.getArguments()[0];
+    return (
+      Node.isPropertyAccessExpression(callee) &&
+      callee.getName() === "remove" &&
+      Node.isIdentifier(target) &&
+      O.exists(imports.resolveBinding(target), (binding) => binding === parameter)
+    );
+  });
+};
+
+// A fresh temp root per call isolates each case on purpose; `it.layer` sharing would undo that (#1855 FP-2).
+const isFreshTempRootAcquisition = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  if (!isEffectAcquisition(call, imports)) return false;
+  const releaseIndex = isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireUseRelease"]) ? 2 : 1;
+  const args = call.getArguments();
+  const acquire = args[0];
+  const release = args[releaseIndex];
+  return (
+    args.length === releaseIndex + 1 &&
+    acquire !== undefined &&
+    release !== undefined &&
+    isTempRootAcquire(acquire, imports) &&
+    removesAcquiredPath(release, imports)
+  );
+};
+
+const functionHasResourceWhere = (
+  definition: EffectVitestFunctionNode,
+  imports: EffectVitestImports,
+  countsAcquisition: (call: CallExpression) => boolean
+): boolean =>
   A.some(
     callbackCalls(definition),
     (call) =>
       isProvenanceCall(call, imports, LAYER_MODULES, "Layer", ["scoped", "effect", "unwrap", "launch"]) ||
-      isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["acquireRelease", "acquireUseRelease"])
+      (isEffectAcquisition(call, imports) && countsAcquisition(call))
   );
+
+const functionHasResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  functionHasResourceWhere(definition, imports, constTrue);
+
+// EV003 asks for `it.layer` sharing only when a wrapper holds a resource other than a fresh temp root.
+// A wrapper that changes process state anywhere in its body (use, release, pipe stages, or a
+// same-file helper it reaches) stays under review even when its only acquisition is a fresh temp root.
+const functionHasShareableResource = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  functionHasResourceWhere(definition, imports, (call) => !isFreshTempRootAcquisition(call, imports)) ||
+  (functionHasResource(definition, imports) && mutatesProcessState(definition, imports));
 
 const buildsAndProvidesLayer = (definition: EffectVitestFunctionNode, imports: EffectVitestImports): boolean => {
   const calls = callbackCalls(definition);
@@ -875,29 +1110,425 @@ const isNativeFileSystemOperation = (
 
 const harnessCallbackKinds = HashSet.fromIterable([SyntaxKind.ArrowFunction, SyntaxKind.FunctionExpression]);
 
+const isFunctionValue = (node: MorphNode | undefined): node is EffectVitestFunctionNode =>
+  Node.isArrowFunction(node) || Node.isFunctionExpression(node);
+
+// `Effect.fn(name)(body)`, `Effect.fn(body)` and `Effect.fnUntraced(body)` with no pipeline stages
+// keep the caller's context; any extra stage could provide another FileSystem.
+const effectFunctionBody = (call: CallExpression, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  const [body, ...stages] = call.getArguments();
+  if (!isFunctionValue(body) || !A.isReadonlyArrayEmpty(stages)) return O.none();
+  const callee = call.getExpression();
+  const named = Node.isCallExpression(callee) && isProvenanceCall(callee, imports, EFFECT_MODULES, "Effect", ["fn"]);
+  return named || isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["fn", "fnUntraced"])
+    ? O.some(body)
+    : O.none();
+};
+
+const helperBody = (binding: MorphNode, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  if (Node.isFunctionDeclaration(binding)) return O.some(binding);
+  if (!Node.isVariableDeclaration(binding) || binding.getVariableStatement()?.getDeclarationKind() !== "const")
+    return O.none();
+  const initializer = binding.getInitializer();
+  if (isFunctionValue(initializer)) return O.some(initializer);
+  return Node.isCallExpression(initializer) ? effectFunctionBody(initializer, imports) : O.none();
+};
+
+const isPublicLayerProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isProvenanceCall(call, imports, ["@beep/test-utils", "@beep/test-utils/Layer"], "provideScopedLayer", [
+    "provideScopedLayer",
+  ]);
+
+// Every effect/Effect combinator that provides or rewrites services for the effect it wraps.
+const effectContextProviders = ["provide", "provideContext", "setContext", "updateContext"];
+// Service-keyed providers name the one service they replace.
+const effectServiceProviders = ["provideService", "provideServiceEffect", "updateService", "updateServiceScoped"];
+
+// One classifier for any call that provides or rewrites context: the public
+// `provideScopedLayer` helper plus every effect/Effect provide and update combinator.
+const isContextProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isPublicLayerProvider(call, imports) ||
+  isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", [...effectContextProviders, ...effectServiceProviders]);
+
+// `updateServiceScoped(key, f, options?)` always leads with the key; the others take
+// `(self, key, value)` data-first and `(key, value)` or `(key)` data-last.
+const serviceKey = (call: CallExpression, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", effectServiceProviders)) return O.none();
+  const args = call.getArguments();
+  const leading = isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["updateServiceScoped"]);
+  return O.fromUndefinedOr(args[!leading && args.length === 3 ? 1 : 0]);
+};
+
+const importedName = (declaration: ImportDeclaration, local: string): string =>
+  O.getOrElse(
+    O.map(
+      A.findFirst(
+        declaration.getNamedImports(),
+        (specifier) => (specifier.getAliasNode()?.getText() ?? specifier.getName()) === local
+      ),
+      (specifier) => specifier.getName()
+    ),
+    () => local
+  );
+
+// A key proves another service only when it is an imported tag that is not FileSystem:
+// not from effect/FileSystem, not imported as FileSystem, and not a `.FileSystem` member.
+const keysOtherService = (key: MorphNode, imports: EffectVitestImports): boolean => {
+  const access = Node.isPropertyAccessExpression(key);
+  const root = access ? key.getExpression() : key;
+  if (!Node.isIdentifier(root) || (access && key.getName() === "FileSystem")) return false;
+  return O.exists(
+    O.filter(imports.resolveBinding(root), Node.isImportDeclaration),
+    (declaration) =>
+      declaration.getModuleSpecifierValue() !== "effect/FileSystem" &&
+      importedName(declaration, root.getText()) !== "FileSystem"
+  );
+};
+
+// A provider replaces FileSystem unless its service key provably names another service.
+const replacesFileSystem = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isContextProvider(call, imports) && !O.exists(serviceKey(call, imports), (key) => keysOtherService(key, imports));
+
+// A pipe stage is a provider call, or the curried `provideService(key)(value)` form.
+const isProviderStage = (stage: MorphNode, imports: EffectVitestImports): boolean => {
+  if (!Node.isCallExpression(stage)) return false;
+  const callee = stage.getExpression();
+  return replacesFileSystem(stage, imports) || (Node.isCallExpression(callee) && replacesFileSystem(callee, imports));
+};
+
+const providesContext = (helper: EffectVitestFunctionNode, imports: EffectVitestImports): boolean =>
+  A.some(callbackCalls(helper), (call) => replacesFileSystem(call, imports));
+
+const containsNode = (outer: MorphNode, inner: MorphNode): boolean =>
+  outer === inner || A.some(inner.getAncestors(), (ancestor) => ancestor === outer);
+
+// A pipe whose input holds the call and whose later stages include a provider.
+const pipesThroughProvider = (pipe: CallExpression, call: MorphNode, imports: EffectVitestImports): boolean => {
+  const callee = pipe.getExpression();
+  if (Node.isPropertyAccessExpression(callee) && callee.getName() === "pipe")
+    return (
+      containsNode(callee.getExpression(), call) &&
+      A.some(pipe.getArguments(), (stage) => isProviderStage(stage, imports))
+    );
+  if (!isProvenanceCall(pipe, imports, ["effect", "effect/Function"], "Function", ["pipe"])) return false;
+  const [input, ...stages] = pipe.getArguments();
+  return input !== undefined && containsNode(input, call) && A.some(stages, (stage) => isProviderStage(stage, imports));
+};
+
+// True when a provider or update wrapper encloses this call site within its region,
+// either taking it as an argument or piping it through a provider stage.
+const wrappedByProvider = (call: MorphNode, region: MorphNode, imports: EffectVitestImports): boolean =>
+  A.some(
+    A.takeWhile(call.getAncestors(), (ancestor) => ancestor !== region),
+    (ancestor) =>
+      Node.isCallExpression(ancestor) &&
+      ((isProviderStage(ancestor, imports) &&
+        A.some(ancestor.getArguments(), (argument) => containsNode(argument, call))) ||
+        pipesThroughProvider(ancestor, call, imports))
+  );
+
+const isYieldStar = (node: MorphNode | undefined): boolean =>
+  Node.isYieldExpression(node) && node.getAsteriskToken() !== undefined;
+
+// A call on an effect/Effect namespace (`Effect.map(program, f)`) keeps carrying its effect arguments.
+const isEffectModuleCall = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  const callee = call.getExpression();
+  if (!Node.isPropertyAccessExpression(callee)) return false;
+  const receiver = callee.getExpression();
+  return (
+    Node.isIdentifier(receiver) &&
+    O.exists(O.filter(imports.resolveBinding(receiver), Node.isImportDeclaration), (declaration) =>
+      A.contains(EFFECT_MODULES, declaration.getModuleSpecifierValue())
+    )
+  );
+};
+
+// `program.pipe(...stages)` carries the receiver on when no stage is a provider.
+const pipeCarrier = (access: MorphNode, node: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  if (!Node.isPropertyAccessExpression(access) || access.getExpression() !== node || access.getName() !== "pipe")
+    return O.none();
+  const pipe = access.getParent();
+  return Node.isCallExpression(pipe) &&
+    pipe.getExpression() === access &&
+    !A.some(pipe.getArguments(), (stage) => isProviderStage(stage, imports))
+    ? O.some(pipe)
+    : O.none();
+};
+
+// `Effect.map(program, f)` and similar effect/Effect calls carry their effect arguments.
+const effectCallCarries = (parent: MorphNode | undefined, node: MorphNode, imports: EffectVitestImports): boolean =>
+  Node.isCallExpression(parent) &&
+  isArgumentOf(parent, node) &&
+  isEffectModuleCall(parent, imports) &&
+  !isProviderStage(parent, imports);
+
+// The expression that carries this effect value one step further, when the step adds no provider.
+const carriedBy = (node: MorphNode, imports: EffectVitestImports): O.Option<MorphNode> => {
+  const parent = node.getParent();
+  if (parent === undefined) return O.none();
+  if (Node.isParenthesizedExpression(parent) || Node.isArrayLiteralExpression(parent)) return O.some(parent);
+  return effectCallCarries(parent, node, imports) ? O.some(parent) : pipeCarrier(parent, node, imports);
+};
+
+// A function whose returned effect is run by its own caller: the region itself, whose call
+// sites are checked separately, or a test registration callback run by the harness.
+const returnsToRunner = (fn: MorphNode | undefined, region: MorphNode, imports: EffectVitestImports): boolean => {
+  if (fn === region) return true;
+  const registration = fn?.getParent();
+  return (
+    Node.isCallExpression(registration) &&
+    O.exists(classifyHarnessCall(registration, imports), (mode) => mode !== "layer")
+  );
+};
+
+type BindingCheck = {
+  readonly region: MorphNode;
+  readonly imports: EffectVitestImports;
+  readonly seen: Array<VariableDeclaration>;
+};
+
+// Where one effect value ends up. It is safe only when it is run by `yield*`, discarded,
+// returned to a runner, or bound to a `const` whose own uses are all safe.
+const flowsToNativeRun = (node: MorphNode, check: BindingCheck): boolean => {
+  let current = node;
+  for (let next = carriedBy(current, check.imports); O.isSome(next); next = carriedBy(current, check.imports))
+    current = next.value;
+  const parent = current.getParent();
+  if (isYieldStar(parent) || Node.isExpressionStatement(parent)) return true;
+  if (Node.isReturnStatement(parent))
+    return returnsToRunner(parent.getFirstAncestor(functionLike), check.region, check.imports);
+  if (Node.isArrowFunction(parent) && parent.getBody() === current)
+    return returnsToRunner(parent, check.region, check.imports);
+  return Node.isVariableDeclaration(parent) && parent.getInitializer() === current && effectBindingSafe(parent, check);
+};
+
+const functionLike = (node: MorphNode): boolean =>
+  Node.isArrowFunction(node) || Node.isFunctionExpression(node) || Node.isFunctionDeclaration(node);
+
+// A `const` holding an unrun effect: every reference must be resolvable and flow safely,
+// and none may sit under a provider. `let`, destructuring and escapes keep it opaque.
+const effectBindingSafe = (declaration: VariableDeclaration, check: BindingCheck): boolean => {
+  if (A.some(check.seen, (prior) => prior === declaration)) return true;
+  check.seen.push(declaration);
+  const name = declaration.getNameNode();
+  if (!Node.isIdentifier(name) || declaration.getVariableStatement()?.getDeclarationKind() !== "const") return false;
+  return A.every(
+    bindingReferences(declaration, name.getText(), check.imports),
+    (reference) => !wrappedByProvider(reference, check.region, check.imports) && flowsToNativeRun(reference, check)
+  );
+};
+
+// A `yield*` result binding: the helper already ran in the caller's context, so only a
+// reference placed under a provider can make the call site ambiguous.
+const resultBindingSafe = (declaration: VariableDeclaration, check: BindingCheck): boolean => {
+  const name = declaration.getNameNode();
+  return (
+    !Node.isIdentifier(name) ||
+    !A.some(bindingReferences(declaration, name.getText(), check.imports), (reference) =>
+      wrappedByProvider(reference, check.region, check.imports)
+    )
+  );
+};
+
+// One step from a value to its consumer: through `yield*` (the effect has then run) or a carrier.
+const valueStep = (
+  node: MorphNode,
+  imports: EffectVitestImports
+): O.Option<{ readonly next: MorphNode; readonly ran: boolean }> => {
+  const parent = node.getParent();
+  if (parent !== undefined && isYieldStar(parent)) return O.some({ next: parent, ran: true });
+  return O.map(carriedBy(node, imports), (next) => ({ next, ran: false }));
+};
+
+// Follows the helper call's value to its binding, if any, and checks every use of it.
+const boundValueSafe = (call: CallExpression, region: MorphNode, imports: EffectVitestImports): boolean => {
+  let current: MorphNode = call;
+  let ran = false;
+  for (let step = valueStep(current, imports); O.isSome(step); step = valueStep(current, imports)) {
+    current = step.value.next;
+    ran = ran || step.value.ran;
+  }
+  const parent = current.getParent();
+  const check: BindingCheck = { region, imports, seen: [] };
+  if (Node.isVariableDeclaration(parent) && parent.getInitializer() === current)
+    return ran ? resultBindingSafe(parent, check) : effectBindingSafe(parent, check);
+  // An unrun value must reach a native run like a bound one; an unknown function argument,
+  // object property, spread or assignment does not, so the helper stays unfollowed.
+  return ran || flowsToNativeRun(current, check);
+};
+
+// `updateServiceScoped` rewrites the rest of its scope, so it taints every call site in the region.
+const regionUpdatesScope = (calls: ReadonlyArray<CallExpression>, imports: EffectVitestImports): boolean =>
+  A.some(
+    calls,
+    (call) =>
+      isProvenanceCall(call, imports, EFFECT_MODULES, "Effect", ["updateServiceScoped"]) &&
+      replacesFileSystem(call, imports)
+  );
+
+// A same-file helper called by name runs in the caller's context, so its
+// FileSystem reads count as the harness callback's own.
+const calledHelper = (call: CallExpression, imports: EffectVitestImports): O.Option<EffectVitestFunctionNode> => {
+  const callee = call.getExpression();
+  return Node.isIdentifier(callee)
+    ? O.filter(
+        O.flatMap(imports.resolveBinding(callee), (binding) => helperBody(binding, imports)),
+        (helper) => !providesContext(helper, imports)
+      )
+    : O.none();
+};
+
+// Records FileSystem service bindings and calls lexically inside one region.
+const collectFileSystemEvidence = (
+  region: MorphNode,
+  imports: EffectVitestImports,
+  services: Array<VariableDeclaration>,
+  calls: Array<CallExpression>
+): void =>
+  region.forEachDescendant((node, traversal) => {
+    if (Node.isVariableDeclaration(node) && isFileSystemService(node, imports)) services.push(node);
+    if (Node.isCallExpression(node)) calls.push(node);
+    // Only these two syntax kinds can be harness callbacks; other descendants need no provenance lookup.
+    if (!HashSet.has(harnessCallbackKinds, node.getKind())) return;
+    const harness = node.getParentIfKind(SyntaxKind.CallExpression)?.getExpressionIfKind(SyntaxKind.CallExpression);
+    if (harness === undefined) return;
+    // A nested layer owns its callback's services and may replace FileSystem.
+    if (isHarnessMethodCall(harness, imports, "layer") && O.contains(harnessCallback(harness), node)) {
+      traversal.skip();
+    }
+  });
+
+// Queues each newly reached same-file helper once, so recursive helpers terminate.
+// A call site wrapped by a provider may run the helper against another FileSystem,
+// so its helper is not followed and the import stays flagged for review.
+const appendCalledHelpers = (
+  calls: ReadonlyArray<CallExpression>,
+  region: MorphNode,
+  regions: Array<MorphNode>,
+  imports: EffectVitestImports
+): void => {
+  if (regionUpdatesScope(calls, imports)) return;
+  for (const call of calls) {
+    // Resolve the helper first: the call-site checks walk references and run only for helper calls.
+    const helper = calledHelper(call, imports);
+    if (
+      O.isSome(helper) &&
+      !A.some(regions, (known) => known === helper.value) &&
+      !wrappedByProvider(call, region, imports) &&
+      boundValueSafe(call, region, imports)
+    )
+      regions.push(helper.value);
+  }
+};
+
 const harnessProvesNativeFileSystem = (flow: HarnessFlow, imports: EffectVitestImports): boolean =>
   O.exists(harnessCallback(flow.harness), (callback) => {
     const services = A.empty<VariableDeclaration>();
     const calls = A.empty<CallExpression>();
-    callback.forEachDescendant((node, traversal) => {
-      if (Node.isVariableDeclaration(node) && isFileSystemService(node, imports)) services.push(node);
-      if (Node.isCallExpression(node)) calls.push(node);
-      // Only these two syntax kinds can be harness callbacks; other descendants need no provenance lookup.
-      if (!HashSet.has(harnessCallbackKinds, node.getKind())) return;
-      const harness = node.getParentIfKind(SyntaxKind.CallExpression)?.getExpressionIfKind(SyntaxKind.CallExpression);
-      if (harness === undefined) return;
-      // A nested layer owns its callback's services and may replace FileSystem.
-      if (isHarnessMethodCall(harness, imports, "layer") && O.contains(harnessCallback(harness), node)) {
-        traversal.skip();
-      }
-    });
+    // The callback plus every same-file helper it reaches by name, each visited once;
+    // for-of also visits the helpers appended while it runs.
+    const regions: Array<MorphNode> = [callback];
+    for (const region of regions) {
+      const known = calls.length;
+      collectFileSystemEvidence(region, imports, services, calls);
+      appendCalledHelpers(A.drop(calls, known), region, regions, imports);
+    }
     return (
       !A.isReadonlyArrayEmpty(services) &&
       (flow.subject || A.some(calls, (call) => isNativeFileSystemOperation(call, services, imports)))
     );
   });
 
-const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
+// Imported values can carry filesystem effects even when passed without calling them.
+// Unbound runtime I/O globals are opaque; local shadowing remains lexical.
+const opaquePlatformReference = (reference: Identifier, imports: EffectVitestImports): boolean => {
+  const binding = imports.resolveBinding(reference);
+  if (O.isNone(binding)) return A.contains(["Bun", "require", "process", "globalThis", "global"], reference.getText());
+  // Loop heads have a declaration list but no variable statement; catch bindings have neither.
+  if (Node.isVariableDeclaration(binding.value)) {
+    const declaration = binding.value;
+    const declarations = declaration.getParentIfKind(SyntaxKind.VariableDeclarationList);
+    if (declarations === undefined || declarations.getDeclarationKind() === "const") return false;
+    // A mutable declaration is opaque only if a later write can replace its initializer.
+    return A.some(declaration.getSourceFile().getDescendantsOfKind(SyntaxKind.Identifier), (candidate) => {
+      if (
+        (candidate.getStart() >= declaration.getStart() && candidate.getEnd() <= declaration.getEnd()) ||
+        !O.contains(imports.resolveBinding(candidate), declaration)
+      )
+        return false;
+      return A.some(candidate.getAncestors(), (ancestor) => {
+        if (Node.isForInStatement(ancestor) || Node.isForOfStatement(ancestor))
+          return candidate.getEnd() <= ancestor.getInitializer().getEnd();
+        if (Node.isBinaryExpression(ancestor)) {
+          const operator = ancestor.getOperatorToken().getKind();
+          return (
+            operator >= SyntaxKind.FirstAssignment &&
+            operator <= SyntaxKind.LastAssignment &&
+            candidate.getEnd() <= ancestor.getLeft().getEnd()
+          );
+        }
+        return (
+          (Node.isPrefixUnaryExpression(ancestor) || Node.isPostfixUnaryExpression(ancestor)) &&
+          A.contains([SyntaxKind.PlusPlusToken, SyntaxKind.MinusMinusToken], ancestor.getOperatorToken())
+        );
+      });
+    });
+  }
+  if (!Node.isImportDeclaration(binding.value)) return false;
+  const module = binding.value.getModuleSpecifierValue();
+  return (
+    module !== "effect" &&
+    !Str.startsWith("effect/")(module) &&
+    !A.contains(["@effect/vitest", "@beep/test-runner", "@beep/test-utils/Vitest"], module)
+  );
+};
+
+// Follow local values as well as helpers: an initializer can hide an imported effect,
+// runtime alias or an Effect.fn pipeline that helperBody deliberately cannot open.
+// Include the region itself because an alias initializer may be just one identifier.
+const harnessHasOpaquePlatformReferences = (harness: CallExpression, imports: EffectVitestImports): boolean =>
+  O.exists(harnessCallback(harness), (callback) => {
+    const regions: Array<MorphNode> = [callback];
+    for (const region of regions) {
+      const nodes = [region, ...region.getDescendants()];
+      if (
+        A.some(
+          nodes,
+          (node) => Node.isCallExpression(node) && node.getExpression().getKind() === SyntaxKind.ImportKeyword
+        )
+      )
+        return true;
+      const references = A.filter(
+        A.filter(nodes, Node.isIdentifier),
+        (reference) =>
+          !isNamePosition(reference) && reference.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) === undefined
+      );
+      if (A.some(references, (reference) => opaquePlatformReference(reference, imports))) return true;
+      const reached = A.getSomes(
+        A.map(references, (reference) =>
+          O.flatMap(imports.resolveBinding(reference), (binding) =>
+            helperBody(binding, imports).pipe(
+              O.orElse(() =>
+                Node.isVariableDeclaration(binding) ? O.fromUndefinedOr(binding.getInitializer()) : O.none()
+              )
+            )
+          )
+        )
+      );
+      // Deduplicate this batch as well as previously queued regions, including recursive aliases.
+      regions.push(
+        ...A.filter(
+          A.dedupeWith(reached, (left, right) => left === right),
+          (next) => !A.some(regions, (known) => known === next)
+        )
+      );
+    }
+    return false;
+  });
+
+// A services bundle used only by the shared harness is not filesystem evidence.
+// Keep portable filesystem candidates unless the existing native-subject proof succeeds.
+const canonicalPlatformIntegration = (declaration: ImportDeclaration, imports: EffectVitestImports): boolean =>
   O.exists(servicesBundleLayers(declaration, imports), (layers) => {
     const visited: FlowCache = MutableHashMap.empty();
     return O.exists(O.all(A.map(layers, (layer) => harnessFlows(layer, imports, [], false, visited))), (nested) => {
@@ -906,13 +1537,26 @@ const nativeFileSystemIntegration = (declaration: ImportDeclaration, imports: Ef
         A.map(flows, ({ harness }) => harness),
         (left, right) => left === right
       );
+      const readsFileSystem = A.some(
+        declaration.getSourceFile().getDescendants(),
+        (node) =>
+          Node.isExpression(node) &&
+          node.getFirstAncestorByKind(SyntaxKind.ImportDeclaration) === undefined &&
+          (!Node.isIdentifier(node) || !isNamePosition(node)) &&
+          isProvenanceExpression(node, imports, ["effect", "effect/FileSystem"], "FileSystem", ["FileSystem"])
+      );
       return (
         !A.isReadonlyArrayEmpty(harnesses) &&
-        A.every(harnesses, (harness) =>
-          harnessProvesNativeFileSystem(
-            { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
-            imports
-          )
+        A.every(
+          harnesses,
+          (harness) =>
+            (!readsFileSystem &&
+              O.isSome(harnessCallback(harness)) &&
+              !harnessHasOpaquePlatformReferences(harness, imports)) ||
+            harnessProvesNativeFileSystem(
+              { harness, subject: A.some(flows, (flow) => flow.harness === harness && flow.subject) },
+              imports
+            )
         )
       );
     });
@@ -1060,11 +1704,6 @@ type DetectorState = {
   readonly owner: string;
 };
 
-const isPublicLayerProvider = (call: CallExpression, imports: EffectVitestImports): boolean =>
-  isProvenanceCall(call, imports, ["@beep/test-utils", "@beep/test-utils/Layer"], "provideScopedLayer", [
-    "provideScopedLayer",
-  ]);
-
 const inspectContext = (call: CallExpression, member: string, canonicalMember: string, state: DetectorState) => {
   const { imports, harness, definitions } = state;
 
@@ -1185,10 +1824,10 @@ const detectResourceWrapper = (context: ReturnType<typeof inspectContext>, state
   if (
     (wrapperName(member) ||
       wrapperName(canonicalMember) ||
-      O.exists(definition, ({ node }) => functionHasResource(node, imports))) &&
+      O.exists(definition, ({ node }) => functionHasShareableResource(node, imports))) &&
     (rootTestBodyCall(call, imports) || O.exists(test, ({ callback }) => isWholeBodyCall(call, callback)))
   ) {
-    if (O.exists(definition, ({ node }) => functionHasResource(node, imports))) {
+    if (O.exists(definition, ({ node }) => functionHasShareableResource(node, imports))) {
       findings.push(makeFinding({ ruleId: "EV003", node: call, file, owner, symbol: member }));
     } else if (isUnresolvedImportedWrapper(context, imports)) {
       findings.push(
@@ -1460,6 +2099,57 @@ const pipedAbsenceAssertion = (call: CallExpression, imports: EffectVitestImport
   ).pipe(O.map(({ predicate, truth }) => predicateAssertionReplacement("Option", predicate, truth)));
 };
 
+const predicateFamilies = [
+  { family: "Option", modules: OPTION_MODULES, members: ["isSome", "isNone"] },
+  { family: "Result", modules: RESULT_MODULES, members: ["isSuccess", "isFailure"] },
+  { family: "Exit", modules: EXIT_MODULES, members: ["isSuccess", "isFailure"] },
+];
+
+// `value.pipe(O.isSome)` / `pipe(value, O.isSome)`: the terminal stage is a predicate reference.
+const pipedPredicateDescription = (node: MorphNode | undefined, imports: EffectVitestImports) =>
+  O.flatMap(Node.isCallExpression(node) ? terminalPipeStage(node, imports) : O.none(), (stage) =>
+    Node.isExpression(stage)
+      ? A.head(
+          A.getSomes(
+            A.map(predicateFamilies, ({ family, modules, members }) =>
+              A.findFirst(members, (member) => isProvenanceExpression(stage, imports, modules, family, [member])).pipe(
+                O.map((member) => ({ family, member }))
+              )
+            )
+          )
+        )
+      : O.none()
+  );
+
+const isCompoundBoolean = (node: MorphNode | undefined): boolean => {
+  const expression = Node.isParenthesizedExpression(node) ? node.getExpression() : node;
+  return (
+    Node.isBinaryExpression(expression) &&
+    A.contains([SyntaxKind.AmpersandAmpersandToken, SyntaxKind.BarBarToken], expression.getOperatorToken().getKind())
+  );
+};
+
+// A canonical utils.assertTrue/assertFalse already states a compound Boolean
+// predicate, or a piped predicate whose recommended primitive is that same helper.
+const isCanonicalBooleanForm = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  A.some([true, false], (truth) => {
+    const helper = truth ? "assertTrue" : "assertFalse";
+    if (!isProvenanceCall(call, imports, ["@effect/vitest/utils"], "utils", [helper])) return false;
+    const actual = call.getArguments()[0];
+    return (
+      isCompoundBoolean(actual) ||
+      O.exists(
+        pipedPredicateDescription(actual, imports),
+        ({ family, member }) => predicateAssertionReplacement(family, member, truth).primitive === `utils.${helper}`
+      )
+    );
+  });
+
+const isReviewableBooleanAssertion = (call: CallExpression, imports: EffectVitestImports): boolean =>
+  isBooleanAssertion(call, imports) &&
+  A.some(call.getArguments(), (argument) => containsDataShape(argument, imports)) &&
+  !isCanonicalBooleanForm(call, imports);
+
 const detectBooleanDataShape = (
   { call, member, inTest }: ReturnType<typeof inspectContext>,
   state: DetectorState
@@ -1481,11 +2171,7 @@ const detectBooleanDataShape = (
     );
     return;
   }
-  if (
-    !isBooleanAssertion(call, imports) ||
-    !A.some(call.getArguments(), (argument) => containsDataShape(argument, imports))
-  )
-    return;
+  if (!isReviewableBooleanAssertion(call, imports)) return;
   const route = dataAssertionRoute(
     call.getArguments()[0],
     undefined,
@@ -1698,7 +2384,7 @@ const detectLayerTimeout = ({ call }: ReturnType<typeof inspectContext>, state: 
 
   if (isHarnessMethodCall(call, imports, "layer") && !Node.isCallExpression(call.getExpression())) {
     const layer = call.getArguments()[0];
-    if (Node.isExpression(layer) && !isPureStubLayer(layer, imports) && !layerHasTimeout(call)) {
+    if (Node.isExpression(layer) && !isAcquisitionFreeLayer(layer, imports) && !layerHasTimeout(call)) {
       findings.push(makeFinding({ ruleId: "EV014", node: call, file, owner, symbol: "it.layer", judgment: true }));
     }
   }
@@ -1956,7 +2642,7 @@ const detectPlatformImport = (declaration: ImportDeclaration, state: DetectorSta
     moduleName,
     members,
     osTemp,
-    () => nativeFileSystemIntegration(declaration, imports),
+    () => canonicalPlatformIntegration(declaration, imports),
     state
   );
 };
@@ -2015,10 +2701,9 @@ const detectResourceDefinition = (
   state: DetectorState
 ): void => {
   const { imports, findings, makeFinding, file, owner } = state;
-  if ((wrapperName(name) && functionHasResource(node, imports)) || buildsAndProvidesLayer(node, imports))
-    findings.push(
-      makeFinding({ ruleId: "EV003", node, file, owner, symbol: name, judgment: !functionHasResource(node, imports) })
-    );
+  const shareable = functionHasShareableResource(node, imports);
+  if ((wrapperName(name) && shareable) || buildsAndProvidesLayer(node, imports))
+    findings.push(makeFinding({ ruleId: "EV003", node, file, owner, symbol: name, judgment: !shareable }));
 };
 
 const detectRetryLoop = (loop: MorphNode, state: DetectorState): void => {

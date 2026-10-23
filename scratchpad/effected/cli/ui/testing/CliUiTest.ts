@@ -10,8 +10,8 @@ import * as Schedule from "effect/Schedule";
 // than carrying copies a consumer's own layers and screens could not satisfy.
 import type * as Cli from "../../index.ts";
 import type { LiveHandle, LiveOptions, Screen, ScreenControl } from "../../ui.ts";
-import type { ColorLevel } from "../../../env/index.ts";
-import { TerminalEnv } from "../../../env/index.ts";
+import type { ColorLevel } from "@beep/runtime-env";
+import { TerminalEnv } from "@beep/runtime-env";
 import type * as Scope from "effect/Scope";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";

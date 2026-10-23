@@ -1,4 +1,4 @@
-// fallow-ignore-file unused-file -- spawned C2 runtime probe entry resolved by path at runtime
+// fallow-ignore-file unused-file -- the C2 canary spawns this runtime probe child by file path, so no import reaches it. Owner: @beep/semantica. Exit: remove when the probe runs in-process or fallow learns spawned entries.
 import { OxigraphSparqlQueryServiceLive } from "@beep/oxigraph";
 import { LiteralKit } from "@beep/schema";
 import * as BunServices from "@effect/platform-bun/BunServices";

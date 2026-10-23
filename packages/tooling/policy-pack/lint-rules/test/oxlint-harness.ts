@@ -27,6 +27,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { encodeConfig, jsonReportParser, validateLinterProcess } from "./codec.ts";
 
 /** Absolute path to the package root (`.../lint-rules`). */
@@ -170,13 +171,13 @@ const withOxlintFixture = Effect.fn("oxlintHarness.withOxlintFixture")(function*
 
 /** Strip the `beep(<slug>)` wrapper oxlint puts around the rule id in `code`. */
 const ruleIdOf = (code: string | undefined): O.Option<string> =>
-  O.map(O.fromUndefinedOr(code), (raw) => raw.replace(/^beep\(/u, "").replace(/\)$/u, ""));
+  O.map(O.fromUndefinedOr(code), (raw) => Str.replace(/\)$/u, "")(Str.replace(/^beep\(/u, "")(raw)));
 
 /**
  * Lint `source` (written to a temp file named `filename`) with only `rule` enabled, and
  * return its normalized findings. `filename` controls the on-disk name so `*.test.ts`-gated
  * and path-exempt rules can be exercised; pass a nested relative path (e.g.
- * `"packages/.../SupportsColor.ts"`) to land the fixture at a path a rule treats specially.
+ * `"packages/.../HostProcess.ts"`) to land the fixture at a path a rule treats specially.
  *
  * @param rule - The oxlint rule slug to enable.
  * @param source - The fixture source written to the temp file.

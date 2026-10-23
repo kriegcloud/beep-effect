@@ -12,6 +12,7 @@ import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const tokensOf = (text: string): ReadonlyArray<YamlToken> => {
   const result = YamlTokens.tokenize(text);
@@ -31,7 +32,7 @@ describe("YamlTokens", () => {
         assert.isNumber(token.character);
         assert.notProperty(token, "value");
         assert.notProperty(token, "column");
-        assert.strictEqual("a: 1 # note\n".slice(token.offset, token.offset + token.length), token.text);
+        assert.strictEqual(Str.slice(token.offset, token.offset + token.length)("a: 1 # note\n"), token.text);
       }
     });
 
@@ -40,7 +41,7 @@ describe("YamlTokens", () => {
       let cursor = 0;
       for (const token of tokensOf(source)) {
         assert.isAtLeast(token.offset, cursor, "tokens must not overlap");
-        assert.match(source.slice(cursor, token.offset), /^[ \t\r]*$/, "gaps must be whitespace-only");
+        assert.match(Str.slice(cursor, token.offset)(source), /^[ \t\r]*$/, "gaps must be whitespace-only");
         cursor = token.offset + token.length;
       }
       assert.strictEqual(cursor, source.length);

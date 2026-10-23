@@ -8,6 +8,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -55,7 +56,7 @@ it.layer(ManagedSection.layer.pipe(Layer.provide(fs.layer)), { timeout: "30 seco
         const path = `file-${iteration}`;
         const initialWrites = writes;
         // Filesystem text is UTF-8: replace lone UTF-16 surrogates before declaring it.
-        const content = `data:${value.toWellFormed().replace(/\r/g, "").replace(/\n/g, "\ndata:")}`;
+        const content = `data:${Str.replace(/\n/g, "\ndata:")(Str.replace(/\r/g, "")(value.toWellFormed()))}`;
         const id = SectionId.make({ key: "tool", commentStyle: CommentStyle.hash });
         const section = id.section(content);
         const service = yield* ManagedSection;

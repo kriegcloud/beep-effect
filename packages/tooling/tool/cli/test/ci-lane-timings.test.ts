@@ -477,8 +477,8 @@ describe("ci lane timings attempt filter", () => {
     // A zero would drag a spreadsheet average toward zero; an empty cell is
     // skipped, so the filter survives to the last consumer.
     const rendered = renderCiLaneTimingsTsv([ciLaneTimingRow(job({ run_attempt: 2 }))]);
-    const header = rendered.split("\n")[0]?.split("\t") ?? [];
-    const cells = rendered.split("\n")[1]?.split("\t") ?? [];
+    const header = Str.split("\t")(Str.split("\n")(rendered)[0] ?? "");
+    const cells = Str.split("\t")(Str.split("\n")(rendered)[1] ?? "");
 
     expect(cells[header.indexOf("pickupSeconds")]).toBe("");
     expect(cells[header.indexOf("durationSeconds")]).not.toBe("");
@@ -528,7 +528,7 @@ describe("ci lane timings gh api retry", () => {
 
   it.effect("fails a truncated gh api capture without retrying", () =>
     Effect.gen(function* () {
-      const scripted = scriptedGhSpawner([{ exitCode: 0, output: "x".repeat(512 * 1024 + 1) }]);
+      const scripted = scriptedGhSpawner([{ exitCode: 0, output: Str.repeat(512 * 1024 + 1)("x") }]);
       const exit = yield* collectWithRetries(scripted.spawner);
 
       assertTrue(exit._tag === "Failure");

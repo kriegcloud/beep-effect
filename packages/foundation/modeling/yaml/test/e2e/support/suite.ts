@@ -66,7 +66,7 @@ interface CompositeScan {
   isEscaped: boolean;
 }
 
-const isWhitespace = (src: string, i: number): boolean => /\s/.test(src.charAt(i));
+const isWhitespace = (src: string, i: number): boolean => /\s/.test(src[i] ?? "");
 
 function skipWhitespace(src: string, i: number): number {
   let j = i;
@@ -144,13 +144,13 @@ function valueEnd(src: string, start: number): number {
  */
 function parseMultiJson(text: string): ParsedJson {
   const values: unknown[] = [];
-  const src = text.trim();
+  const src = Str.trim(text);
   let i = skipWhitespace(src, 0);
 
   while (i < src.length) {
     const end = valueEnd(src, i);
     if (end === -1) break;
-    values.push(JSON.parse(src.slice(i, end)));
+    values.push(JSON.parse(Str.slice(i, end)(src)));
     i = skipWhitespace(src, end);
   }
 
@@ -188,11 +188,11 @@ function loadCase(id: string, yaml: string): TestCase {
 export function loadAllTestCases(): TestCase[] {
   const cases = A.map(
     A.filter(R.toEntries(suiteFiles), ([path]) => Str.endsWith("/in.yaml")(path)),
-    ([path, text]) => loadCase(path.slice(SUITE_PREFIX.length, -"/in.yaml".length), text)
+    ([path, text]) => loadCase(Str.slice(SUITE_PREFIX.length, -"/in.yaml".length)(path), text)
   );
   if (A.isReadonlyArrayEmpty(cases)) {
     throw new Error(`yaml-test-suite not found under ${SUITE_PREFIX}.`);
   }
 
-  return cases.sort((a, b) => a.id.localeCompare(b.id));
+  return cases.sort((a, b) => Str.localeCompare(b.id)(a.id));
 }

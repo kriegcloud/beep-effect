@@ -23,11 +23,12 @@
 import { $TsconfigId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { constant, dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { CompilerOptions } from "./CompilerOptions.ts";
 import { Reference, TypeAcquisition, WatchOptions } from "./TsconfigJson.ts";
 import type { TsconfigJson } from "./TsconfigJson.ts";
@@ -113,23 +114,23 @@ const ResolvedTsconfigData = S.StructWithRest(
 // ── The `${configDir}` template ────────────────────────────────────────
 
 const CONFIG_DIR_TEMPLATE = `\${configDir}`;
-const CONFIG_DIR_TEMPLATE_LOWER = CONFIG_DIR_TEMPLATE.toLowerCase();
+const CONFIG_DIR_TEMPLATE_LOWER = Str.toLowerCase(CONFIG_DIR_TEMPLATE);
 
 /** A value is `${configDir}`-prefixed if its leading token matches case-insensitively. */
 const startsWithConfigDir = (value: string): boolean =>
-  value.slice(0, CONFIG_DIR_TEMPLATE.length).toLowerCase() === CONFIG_DIR_TEMPLATE_LOWER;
+  Str.toLowerCase(Str.slice(0, CONFIG_DIR_TEMPLATE.length)(value)) === CONFIG_DIR_TEMPLATE_LOWER;
 
 // ── Pure path helpers (forward-slash POSIX convention) ──────────────────────
 
-const normalizeSlashes = (p: string): string => p.replace(/\\/g, "/");
+const normalizeSlashes = (p: string): string => Str.replace(/\\/g, "/")(p);
 
 /** POSIX `dirname` over the normalized path; a rootless path yields `"."`. */
 const dirname = (p: string): string => {
   const norm = normalizeSlashes(p);
-  const idx = norm.lastIndexOf("/");
+  const idx = O.getOrElse(Str.lastIndexOf("/")(norm), constant(-1));
   if (idx < 0) return ".";
   if (idx === 0) return "/";
-  return norm.slice(0, idx);
+  return Str.slice(0, idx)(norm);
 };
 
 /** POSIX relative path from directory `from` to directory `to`. */
@@ -137,8 +138,8 @@ const relative: {
   (from: string, to: string): string;
   (to: string): (from: string) => string;
 } = dual(2, (from: string, to: string): string => {
-  const f = A.filter(normalizeSlashes(from).split("/"), (s) => s.length > 0);
-  const t = A.filter(normalizeSlashes(to).split("/"), (s) => s.length > 0);
+  const f = A.filter(Str.split("/")(normalizeSlashes(from)), (s) => s.length > 0);
+  const t = A.filter(Str.split("/")(normalizeSlashes(to)), (s) => s.length > 0);
   let i = 0;
   while (i < f.length && i < t.length && f[i] === t[i]) i++;
   const segments = [...A.map(f.slice(i), () => ".."), ...t.slice(i)];
@@ -146,7 +147,8 @@ const relative: {
 });
 
 /** True for POSIX-rooted, Windows-drive-rooted, and UNC paths. */
-const isAbsolutePath = (p: string): boolean => p.startsWith("/") || p.startsWith("\\\\") || /^[a-zA-Z]:[\\/]/.test(p);
+const isAbsolutePath = (p: string): boolean =>
+  Str.startsWith("/")(p) || Str.startsWith("\\\\")(p) || /^[a-zA-Z]:[\\/]/.test(p);
 
 // ── Safe record rebuilding (untrusted keys) ─────────────────────────────────
 
@@ -414,7 +416,7 @@ const substituteConfigDir: {
   (resolved: ResolvedTsconfig, finalDir: string): ResolvedTsconfig;
 } = dual(2, (resolved: ResolvedTsconfig, finalDir: string): ResolvedTsconfig => {
   const substitute = (value: string): string =>
-    startsWithConfigDir(value) ? finalDir + value.slice(CONFIG_DIR_TEMPLATE.length) : value;
+    startsWithConfigDir(value) ? finalDir + Str.slice(CONFIG_DIR_TEMPLATE.length)(value) : value;
 
   const compilerOptions = transformCompilerOptionPaths(resolved.compilerOptions, substitute, true);
   const substituteList = (list: ReadonlyArray<string> | undefined): O.Option<ReadonlyArray<string>> =>

@@ -109,12 +109,17 @@ type LineBreakGrammar = {
   readonly crlfLookahead?: "text" | "prefix";
 };
 
+const CARRIAGE_RETURN = "\r";
+const LINE_FEED = "\n";
+const LINE_SEPARATOR = "\u2028";
+const PARAGRAPH_SEPARATOR = "\u2029";
+
 const lineBreakWidth = (text: string, index: number, pairEnd: number, unicodeSeparators: boolean): number => {
-  const ch = text.charCodeAt(index);
-  if (ch === 0x0d) {
-    return index + 1 < pairEnd && text.charCodeAt(index + 1) === 0x0a ? 2 : 1;
+  const char = text[index];
+  if (char === CARRIAGE_RETURN) {
+    return index + 1 < pairEnd && text[index + 1] === LINE_FEED ? 2 : 1;
   }
-  return ch === 0x0a || (unicodeSeparators && (ch === 0x2028 || ch === 0x2029)) ? 1 : 0;
+  return char === LINE_FEED || (unicodeSeparators && (char === LINE_SEPARATOR || char === PARAGRAPH_SEPARATOR)) ? 1 : 0;
 };
 
 /**

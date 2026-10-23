@@ -17,6 +17,7 @@ import {
   EffectVitestPrimitive,
   EffectVitestPrimitiveGraphDocument,
   EffectVitestReplacement,
+  EffectVitestSourceFileGlobs,
   formatEffectVitestIntroducedReport,
   makeEffectVitestFindingKey,
   preserveEffectVitestExceptions,
@@ -40,6 +41,19 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { Project } from "ts-morph";
+import type { FsUtilsShape } from "@beep/repo-utils/FsUtils";
+
+// The discovery scan's include globs. A test double answers only that call with its fixture files;
+// every other glob (workspace manifests among them) reaches the real filesystem.
+const discoveryIncludes = A.join(
+  A.filter(EffectVitestSourceFileGlobs, (glob) => !Str.startsWith("!")(glob)),
+  "\n"
+);
+const withDiscoveredSources = (fsUtils: FsUtilsShape, files: ReadonlyArray<string>): FsUtilsShape => ({
+  ...fsUtils,
+  globFiles: (pattern, options) =>
+    A.join(A.ensure(pattern), "\n") === discoveryIncludes ? Effect.succeed(files) : fsUtils.globFiles(pattern, options),
+});
 
 const encodeInventoryJson = S.encodeEffect(S.fromJsonString(EffectVitestInventoryDocument));
 const encodeCensusJson = S.encodeEffect(S.fromJsonString(S.Array(EffectVitestCensusRow)));
@@ -149,7 +163,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         )
       );
       const timing = yield* runEffectVitestLint(EffectVitestLintOptions.make({ census: true, write: true })).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed(inputs) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, inputs)),
         Effect.provideService(Path.Path, {
           ...path,
           resolve: (...segments) =>
@@ -193,7 +207,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         },
       };
       const failure = yield* runEffectVitestLint(EffectVitestLintOptions.make({ census: false, write: false })).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([absolute]) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [absolute])),
         Effect.provideService(FileSystem.FileSystem, {
           ...fs,
           exists: (file) => (file === inventory ? Effect.succeed(false) : fs.exists(file)),
@@ -230,7 +244,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         })
       );
       const failure = yield* runEffectVitestLint(EffectVitestLintOptions.make({ census: false, write: false })).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([]) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [])),
         Effect.provideService(FileSystem.FileSystem, {
           ...fs,
           exists: (file) => (file === inventory ? Effect.succeed(true) : fs.exists(file)),
@@ -271,7 +285,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
       const timing = yield* runEffectVitestLint(
         EffectVitestLintOptions.make({ census: false, write: false, rows: O.some(output) })
       ).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([input]) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [input])),
         Effect.provideServiceEffect(FileSystem.FileSystem, fixtureInventoryFileSystem())
       );
       assertTrue(timing.fileCount === 1);
@@ -313,7 +327,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
     Effect.fnUntraced(function* () {
       const fsUtils = yield* FsUtils;
       const timing = yield* runEffectVitestLint(EffectVitestLintOptions.make({ census: false, write: false })).pipe(
-        Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([]) }),
+        Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [])),
         Effect.provideServiceEffect(FileSystem.FileSystem, fixtureInventoryFileSystem())
       );
       assertTrue(timing.fileCount === 0);
@@ -342,7 +356,7 @@ it.layer(discoveryLayer, { timeout: "30 seconds" })("discovery filesystem", (it)
         const timing = yield* runEffectVitestLint(
           EffectVitestLintOptions.make({ census: false, write: false, rows: O.some(rows) })
         ).pipe(
-          Effect.provideService(FsUtils, { ...fsUtils, globFiles: () => Effect.succeed([absolute]) }),
+          Effect.provideService(FsUtils, withDiscoveredSources(fsUtils, [absolute])),
           Effect.provideService(Path.Path, { ...path, relative }),
           Effect.provideServiceEffect(FileSystem.FileSystem, fixtureInventoryFileSystem())
         );
@@ -512,7 +526,7 @@ it("keeps control-bearing filenames inside one prefixed report line", () => {
 it("preserves a justified exception on the matching live row", () => {
   const live = EffectVitestFinding.make({
     ...finding(8, "Fx.runSync(program)"),
-    occurrence: O.some(`v2:${"a".repeat(64)}`),
+    occurrence: O.some(`v2:${Str.repeat(64)("a")}`),
   });
   const baselineFinding = EffectVitestFinding.make({
     ...live,
@@ -681,7 +695,7 @@ it.layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
 
   it.effect("retains full token evidence beyond the display limit and significant literal whitespace", () =>
     Effect.gen(function* () {
-      const prefix = "a".repeat(240);
+      const prefix = Str.repeat(240)("a");
       const before = yield* occurrences(`it("x", () => { Effect.runSync(subject("${prefix}a  b")); });`);
       const after = yield* occurrences(`it("x", () => { Effect.runSync(subject("${prefix}a b")); });`);
       assertTrue(before[0]?.evidence === after[0]?.evidence);
@@ -700,7 +714,7 @@ it.layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
 
   it.effect("requires re-review of a unique legacy exception when historical statement or context is unknowable", () =>
     Effect.gen(function* () {
-      const prefix = "a".repeat(240);
+      const prefix = Str.repeat(240)("a");
       const original = yield* occurrences(`it("original", () => { Effect.runSync(subject("${prefix}before")); });`);
       const legacy = A.map(original, (row) => EffectVitestFinding.make({ ...row, occurrence: O.none() }));
       const document = O.some(withException(legacy));
@@ -797,9 +811,9 @@ it("retains unmatched duplicate payloads and stable equal-id order in both membe
 });
 
 it("keeps indexed legacy membership separate from anchored exception eligibility", () => {
-  const current = EffectVitestFinding.make({ ...finding(4, "same"), occurrence: O.some(`v2:${"a".repeat(64)}`) });
+  const current = EffectVitestFinding.make({ ...finding(4, "same"), occurrence: O.some(`v2:${Str.repeat(64)("a")}`) });
   const legacy = EffectVitestFinding.make({ ...current, occurrence: O.none() });
-  const changed = EffectVitestFinding.make({ ...current, occurrence: O.some(`v2:${"b".repeat(64)}`) });
+  const changed = EffectVitestFinding.make({ ...current, occurrence: O.some(`v2:${Str.repeat(64)("b")}`) });
   deepStrictEqual(diffEffectVitestFindings([current], [legacy]), {
     currentCount: 1,
     baselineCount: 1,

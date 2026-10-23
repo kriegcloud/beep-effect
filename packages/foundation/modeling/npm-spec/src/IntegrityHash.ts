@@ -38,6 +38,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
 import * as SchemaTransformation from "effect/SchemaTransformation";
@@ -484,15 +485,9 @@ export type SriIntegrityHash = typeof SriIntegrityHash.Type;
 //
 // Canonical base64 alphabet; index = 6-bit value.
 const BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-const BASE64_INVALID = 0xff;
-const BASE64_INDEX = (() => {
-  const table = new Uint8Array("z".charCodeAt(0) + 1);
-  table.fill(BASE64_INVALID);
-  for (let index = 0; index < BASE64_ALPHABET.length; index += 1) {
-    table[BASE64_ALPHABET.charCodeAt(index)] = index;
-  }
-  return table;
-})();
+const BASE64_INDEX: Readonly<Record<string, number>> = R.fromEntries(
+  A.map(Str.split("")(BASE64_ALPHABET), (char, index): readonly [string, number] => [char, index])
+);
 
 // The unpadded body of a base64 value whose shape is canonical: a nonempty body
 // whose length some base64 output can have (remainder 1 cannot), followed by
@@ -510,9 +505,9 @@ const canonicalBody = (value: string): O.Option<string> => {
 };
 
 // The 6-bit value of one base64 character, `None` outside the alphabet.
-const sextetOf = (code: number): O.Option<number> => {
-  const sextet = code < BASE64_INDEX.length ? BASE64_INDEX[code] : BASE64_INVALID;
-  return sextet === undefined || sextet === BASE64_INVALID ? O.none() : O.some(sextet);
+const sextetOf = (char: string): O.Option<number> => {
+  const sextet = BASE64_INDEX[char];
+  return sextet === undefined ? O.none() : O.some(sextet);
 };
 
 // Pack the body's sextets into bytes; `None` for a character outside the
@@ -522,7 +517,7 @@ const packSextets = (body: string): O.Option<ReadonlyArray<number>> => {
   let bits = 0;
   const bytes: Array<number> = [];
   for (let index = 0; index < body.length; index += 1) {
-    const sextet = sextetOf(body.charCodeAt(index));
+    const sextet = sextetOf(Str.slice(index, index + 1)(body));
     if (O.isNone(sextet)) return O.none();
     buffer = (buffer << 6) | sextet.value;
     bits += 6;
@@ -552,10 +547,10 @@ const encodeBase64 = (bytes: ReadonlyArray<number>): string => {
     const b1 = bytes[index + 1];
     const b2 = bytes[index + 2];
     const buffer = (b0 << 16) | ((b1 ?? 0) << 8) | (b2 ?? 0);
-    out += BASE64_ALPHABET.charAt((buffer >>> 18) & 0x3f);
-    out += BASE64_ALPHABET.charAt((buffer >>> 12) & 0x3f);
-    out += b1 === undefined ? "=" : BASE64_ALPHABET.charAt((buffer >>> 6) & 0x3f);
-    out += b2 === undefined ? "=" : BASE64_ALPHABET.charAt(buffer & 0x3f);
+    out += Str.slice((buffer >>> 18) & 0x3f, ((buffer >>> 18) & 0x3f) + 1)(BASE64_ALPHABET);
+    out += Str.slice((buffer >>> 12) & 0x3f, ((buffer >>> 12) & 0x3f) + 1)(BASE64_ALPHABET);
+    out += b1 === undefined ? "=" : Str.slice((buffer >>> 6) & 0x3f, ((buffer >>> 6) & 0x3f) + 1)(BASE64_ALPHABET);
+    out += b2 === undefined ? "=" : Str.slice(buffer & 0x3f, (buffer & 0x3f) + 1)(BASE64_ALPHABET);
   }
   return out;
 };

@@ -773,11 +773,11 @@ already exists — not a message board.
 - [GitHub Docs — About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 
 **Repo evidence (live checkout, 2026-08-04):**
-- `/home/elpresidank/YeeBois/projects/beep-effect5/.github/workflows/check.yml`
-- `/home/elpresidank/YeeBois/projects/beep-effect5/.github/actions/setup-monorepo-ci/action.yml`
-- `/home/elpresidank/YeeBois/projects/beep-effect5/packages/tooling/tool/cli/src/commands/Yeet/internal/PublishScope.ts`
-- `/home/elpresidank/YeeBois/projects/beep-effect5/goals/speed-loop/research/OPPORTUNITIES.md` (#22, #23, #24)
-- `/home/elpresidank/YeeBois/projects/beep-effect5/goals/goal-portfolio-driver/research/deep-research-2026-07-14.md`
+- `$HOME/YeeBois/projects/beep-effect5/.github/workflows/check.yml`
+- `$HOME/YeeBois/projects/beep-effect5/.github/actions/setup-monorepo-ci/action.yml`
+- `$HOME/YeeBois/projects/beep-effect5/packages/tooling/tool/cli/src/commands/Yeet/internal/PublishScope.ts`
+- `$HOME/YeeBois/projects/beep-effect5/goals/speed-loop/research/OPPORTUNITIES.md` (#22, #23, #24)
+- `$HOME/YeeBois/projects/beep-effect5/goals/goal-portfolio-driver/research/deep-research-2026-07-14.md`
 - `gh api repos/beep-effect/beep-effect/rulesets/10240248`
 - `gh run list --workflow=check.yml --limit 12`
 - `git log --since="30 days ago" --first-parent main`

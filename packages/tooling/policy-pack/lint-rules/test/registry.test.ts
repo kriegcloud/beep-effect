@@ -13,6 +13,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const BiomePluginSection = S.Struct({ plugins: S.Array(S.String).pipe(S.optionalKey) });
 const BiomePluginConfig = S.Struct({
@@ -43,8 +44,8 @@ describe("rule registry", () => {
           const exists = yield* fs.exists(file);
           expect(exists, `${name}.grit must exist`).toBe(true);
           const content = yield* fs.readFileString(file);
-          expect(content.includes("language js"), `${name}.grit must declare language js`).toBe(true);
-          expect(content.includes("register_diagnostic"), `${name}.grit must register a diagnostic`).toBe(true);
+          expect(Str.includes("language js")(content), `${name}.grit must declare language js`).toBe(true);
+          expect(Str.includes("register_diagnostic")(content), `${name}.grit must register a diagnostic`).toBe(true);
         }
       })
     )
@@ -57,7 +58,7 @@ describe("rule registry", () => {
         const path = yield* Path.Path;
         const entries = yield* fs.readDirectory(rulesDir());
         const gritFiles = A.map(
-          A.filter(entries, (f) => f.endsWith(".grit")),
+          A.filter(entries, (f) => Str.endsWith(".grit")(f)),
           (f) => path.basename(f, ".grit")
         ).sort();
         expect(gritFiles).toEqual(sortedRuleNames);
@@ -105,6 +106,22 @@ describe("rule registry", () => {
           severity: "error",
           replaces: null,
           summary: "Prefer `.flatMap(f)` over `.map(f).flat()`.",
+          scope: null,
+        },
+        "prefer-identity-annote-pipe": {
+          name: "prefer-identity-annote-pipe",
+          severity: "error",
+          replaces: null,
+          summary:
+            "Pipe identity annotations onto non-class schemas: `X.pipe($I.annoteSchema(...))` and `X.pipe($I.annoteKey(...))`, not `.annotate($I.annote(...))` or `.annotateKey($I.annote(...))`.",
+          scope: null,
+        },
+        "no-hand-built-identity-annotation": {
+          name: "no-hand-built-identity-annotation",
+          severity: "error",
+          replaces: null,
+          summary:
+            "Disallow hand-built `{ identifier: $I`Name` }` annotation objects; use `$I.annote(...)` or `X.pipe($I.annoteSchema(...))`.",
           scope: null,
         },
       });

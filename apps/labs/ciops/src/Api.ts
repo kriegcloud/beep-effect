@@ -11,7 +11,7 @@ import * as HttpApiEndpoint from "effect/http-api/HttpApiEndpoint";
 import * as HttpApiGroup from "effect/http-api/HttpApiGroup";
 import * as S from "effect/Schema";
 
-// fallow-ignore-next-line code-duplication -- labs health-endpoint scaffold intentionally mirrors apps/labs/api-docs; shared extraction is graduation-time work
+// fallow-ignore-next-line code-duplication -- labs health-endpoint scaffold intentionally mirrors apps/labs/api-docs. Owner: @beep/ciops. Exit: replace with a shared labs health endpoint when the lab graduates.
 const $I = $CiopsId.create("Api");
 
 /**

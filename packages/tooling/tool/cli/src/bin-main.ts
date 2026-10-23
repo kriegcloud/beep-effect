@@ -25,14 +25,11 @@ const ROOT_CLI_GLOBAL_FLAG_NAMES: ReadonlyArray<string> = [
 
 const rawArgv = Bun.argv.slice(2);
 
-const { A } = await import("@beep/utils");
+const { A, Str } = await import("@beep/utils");
 const { flow } = await import("effect/Function");
 const CHANGED_PATH_DIFF_FILTER = A.join(["A", "C", "M", "R", "T", "U", "X", "B"], "");
 const nonEmptyLines = (text: string): ReadonlyArray<string> =>
-  A.filter(
-    A.map(text.split(/\r?\n/), (line) => line.trim()),
-    (line) => line.length > 0
-  );
+  A.filter(A.map(Str.split(/\r?\n/)(text), Str.trim), (line) => line.length > 0);
 
 const unique: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(A.fromIterable, A.dedupe);
 
@@ -82,7 +79,7 @@ const isLintPolicySubcommand = (value: string | undefined): boolean =>
 
 const isRootCliGlobalFlag = (value: string): boolean =>
   ROOT_CLI_GLOBAL_FLAG_NAMES.includes(value) ||
-  A.some(ROOT_CLI_GLOBAL_FLAG_NAMES, (name) => value.startsWith(`${name}=`));
+  A.some(ROOT_CLI_GLOBAL_FLAG_NAMES, (name) => Str.startsWith(`${name}=`)(value));
 
 const hasRootCliGlobalFlag = (argv: ReadonlyArray<string>): boolean => A.some(argv, isRootCliGlobalFlag);
 

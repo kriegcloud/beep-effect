@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { Confidence } from "@beep/epistemic-domain";
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import { ResolvedSourceText } from "@beep/file-processing/SourceText";
 import {
   SourceTextDigest,

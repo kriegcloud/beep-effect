@@ -8,6 +8,7 @@ import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -41,7 +42,7 @@ describe("YamlToken property floor", () => {
         );
         assert.strictEqual(reconstructed, text);
         for (const token of tokens) {
-          assert.strictEqual(token.text, text.slice(token.offset, token.offset + token.length));
+          assert.strictEqual(token.text, Str.slice(token.offset, token.offset + token.length)(text));
         }
         assert.deepStrictEqual(YamlTokens.tokenize(reconstructed), result);
         assert.deepStrictEqual(yield* Stream.runCollect(YamlTokens.stream(text)), tokens);

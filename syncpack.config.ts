@@ -153,8 +153,8 @@ const config = {
       // bump added no rules (hold register, 2026-10-17). All six 0.52 rules are
       // errors; schema-opaque-default armed schemaClassMissingBrand on
       // 2026-10-15 in its closing PR. The 0.54.1 bump armed schemaClassObjectLiteral.
-      // 0.55's preferEffectString has 1,413 sites; its effect/String migration
-      // moves this pin past 0.54 when it arms the rule at error.
+      // The 0.55.0 bump armed preferEffectString after the effect/String migration
+      // (goals/effect-string-migration) cleared its 2,992 sites.
       // The import-style rules remain declared off; named helper imports are
       // deliberate and Effect barrel imports contradict the module-path law.
       // tsc-rs (pingdotgg/ts-rust) 0.6.0 stays independently held. Its port is
@@ -171,6 +171,10 @@ const config = {
       // `LexicalExtensionComposer`, whose extension-based config is a
       // gesture-bearing editor migration with its own browser-QA campaign;
       // the whole lockstep `@lexical/*` family stays at 0.50 until it lands.
+      // Fallow 3.34 corrects entry-glob semantics and exposes 61 existing findings.
+      // Promote it after the public API and generated-entry triage, without a new baseline.
+      // Ink 8 strips U+200B workflow-command neutralization markers from output.
+      // Keep Ink 7 until terminal command safety and width contracts migrate together.
       // jsdom 30.1.0 breaks every vitest 5 jsdom-environment file at worker
       // start ("'addEventListener' called on an object that is not a valid
       // instance of EventTarget" from vitest's catchWindowErrors), so no
@@ -180,6 +184,8 @@ const config = {
       // jsdom ships the fix.
       label: "Held back — do not auto-update (see changeset portless-default-react-grab-storybook)",
       dependencies: [
+        "fallow",
+        "ink",
         "tstyche",
         "lexical",
         "@lexical/**",

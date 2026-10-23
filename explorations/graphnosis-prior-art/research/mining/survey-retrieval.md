@@ -1,6 +1,6 @@
 # Graphnosis — retrieval pipeline & the determinism doctrine
 
-Survey of `/home/elpresidank/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis`).
+Survey of `$HOME/YeeBois/dev/Graphnosis` (Apache-2.0, `@nehloo/graphnosis`).
 Territory: `src/core/query/*`, `src/core/similarity/*`, plus README determinism sections
 and the tests that guard them.
 

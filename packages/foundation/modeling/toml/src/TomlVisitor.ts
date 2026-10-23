@@ -30,11 +30,13 @@ import { $TomlId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { constant, dual, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { parseExpressions } from "./internal/parser.ts";
 import { scanComment, scanNewline, scanWhitespace } from "./internal/scanner.ts";
 import { analyze } from "./internal/semantic.ts";
@@ -149,7 +151,7 @@ interface PositionedEvent {
 }
 
 /** Decoded trailing-comment text: the raw text after `#` with one leading space stripped (mirrors internal/parser.ts). */
-const decodeCommentText = (raw: string): string => (raw.startsWith(" ") ? raw.slice(1) : raw);
+const decodeCommentText = (raw: string): string => (Str.startsWith(" ")(raw) ? Str.slice(1)(raw) : raw);
 
 /**
  * Locate the `#` starting a trailing comment already known to exist
@@ -162,11 +164,16 @@ const trailingCommentOffset: {
   (source: string, expression: TomlKeyValue | TomlTableHeader | TomlArrayTableHeader): number;
   (expression: TomlKeyValue | TomlTableHeader | TomlArrayTableHeader): (source: string) => number;
 } = dual(2, (source: string, expression: TomlKeyValue | TomlTableHeader | TomlArrayTableHeader): number => {
-  if (P.isTagged(expression, "TomlKeyValue")) {
-    return source.indexOf("#", expression.value.offset + expression.value.length);
-  }
-  const keyEnd = A.reduce(expression.keyPath, expression.offset, (_, key) => key.offset + key.length);
-  return source.indexOf("#", keyEnd);
+  const start = P.isTagged(expression, "TomlKeyValue")
+    ? expression.value.offset + expression.value.length
+    : A.reduce(expression.keyPath, expression.offset, (_, key) => key.offset + key.length);
+  return pipe(
+    source,
+    Str.slice(start),
+    Str.indexOf("#"),
+    O.map((index) => start + index),
+    O.getOrElse(constant(-1))
+  );
 });
 
 /** The position past the newline at a trivia line's end `i` (EOF stays put). */
@@ -179,7 +186,7 @@ const collectTriviaComments = (trivia: TomlTrivia): Array<PositionedEvent> => {
   let pos = 0;
   while (pos < text.length) {
     const i = scanWhitespace(text, pos);
-    if (text.charAt(i) !== "#") {
+    if ((text[i] ?? "") !== "#") {
       // blank line
       pos = pastLineEnd(text, i);
       continue;

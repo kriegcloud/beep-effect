@@ -1,6 +1,6 @@
 import { assert, it, vi } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess, assertSome } from "@effect/vitest/utils";
-import { TerminalEnv } from "../../../effected/env/index.ts";
+import { TerminalEnv } from "@beep/runtime-env";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

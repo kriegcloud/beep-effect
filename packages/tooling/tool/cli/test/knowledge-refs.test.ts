@@ -1326,7 +1326,7 @@ describe("knowledge refs source-bound generated evidence", () => {
 it.effect(
   "knowledge refs source-bound generated evidence requires the full closed source for a truncated prefix",
   Effect.fnUntraced(function* () {
-    const source = `consume("${"x".repeat(180)}/tmp/closed-path")`;
+    const source = `consume("${Str.repeat(180)("x")}/tmp/closed-path")`;
     const evidence = Str.slice(0, 200)(source);
     const docs = yield* generatedDocuments(generatedFinding(source, evidence));
     const hosts = hostObservations(yield* scanFixture({ ...docs, [generatedSourcePath]: source }));

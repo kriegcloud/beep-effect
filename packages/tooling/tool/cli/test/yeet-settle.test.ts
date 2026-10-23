@@ -77,6 +77,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 
@@ -658,7 +659,7 @@ describe("B7 settle contracts", () => {
     ["success", 0, '[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"Lint"}]}}]'],
     ["exit", 1, "denied"],
     ["invalid", 0, "{"],
-    ["truncated", 0, " ".repeat(3_000_000)],
+    ["truncated", 0, Str.repeat(3_000_000)(" ")],
   ] as const) {
     it.effect(`ruleset reader ${label}`, () =>
       Effect.gen(function* () {
@@ -1006,7 +1007,7 @@ it.layer(platform, { timeout: "30 seconds" })((it) =>
     temporary((root) =>
       Effect.gen(function* () {
         const checkReads = yield* Ref.make(0);
-        // fallow-ignore-next-line complexity -- Fixture routes git and GitHub command families to fixed census responses.
+        // fallow-ignore-next-line complexity -- fixture routes the git and GitHub command families to fixed census responses (cognitive 9). Owner: @beep/repo-cli. Exit: replace with a table-driven command fixture from the shared repo-run test kit once one exists.
         const runner = ChildProcessSpawner.make((command) => {
           if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
           const [first, second] = command.args;

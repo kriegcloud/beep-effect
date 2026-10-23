@@ -26,7 +26,7 @@ import { expectReportedExit, temporaryWorkingDirectory, writeProjectFile } from 
 
 const EXPLORATION = "graduation-fixture";
 const PROVENANCE = `explorations/${EXPLORATION}`;
-const DIGEST = "0".repeat(64);
+const DIGEST = Str.repeat(64)("0");
 const TODAY = "2026-10-13";
 
 const isGraduationPlan = S.is(GraduationPlan);
@@ -101,9 +101,9 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
         deepConflictFree(plan);
         strictEqual(A.length(plan.children), 1);
         const manifestEntry = A.findFirst(plan.children[0]?.entries ?? [], (entry) =>
-          entry.path.endsWith("/ops/manifest.json")
+          Str.endsWith("/ops/manifest.json")(entry.path)
         );
-        assertTrue(manifestEntry._tag === "Some" && (manifestEntry.value.payload ?? "").includes(PROVENANCE));
+        assertTrue(manifestEntry._tag === "Some" && Str.includes(PROVENANCE)(manifestEntry.value.payload ?? ""));
         expect(plan.explorationEdit).toMatchObject({
           path: `${PROVENANCE}/ops/manifest.json`,
           preImageDigest: DIGEST,
@@ -218,7 +218,7 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
         expect(reordered.planId).not.toBe(first.planId);
 
         const moved = yield* compileGraduationPlan(
-          ExplorationSnapshot.make({ ...snapshotOf(), manifestDigest: "1".repeat(64) }),
+          ExplorationSnapshot.make({ ...snapshotOf(), manifestDigest: Str.repeat(64)("1") }),
           request
         );
         expect(moved.planId).not.toBe(first.planId);

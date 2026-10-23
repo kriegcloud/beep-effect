@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-// fallow-ignore-next-line code-duplication -- button and ui/button intentionally share CVA variant tables; jsdoc-carrier migration only rewrote comment carriers and Fallow attributes the pre-existing twin as introduced
+// fallow-ignore-next-line code-duplication -- jsdoc-carrier migration rewrote only comment carriers, so the audit attributes this pre-existing twin as introduced; button and ui/button share the CVA variant tables. Owner: @beep/ui. Exit: delete one button module once consumers import a single variant table.
 "use client";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva } from "class-variance-authority";

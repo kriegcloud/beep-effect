@@ -8,8 +8,8 @@ f	600	1000:1000	49961812	./state/openclaw.sqlite-wal
 f	600	1000:1000	49961813	./state/openclaw.sqlite-shm	
 f	600	1000:1000	49961822	./log/openclaw.log	
 f	600	1000:1000	49961826	./identity/device.json	
-l	777	1000:1000	49961830	./plugin-skills/browser-automation	/home/elpresidank/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/browser/skills/browser-automation
-l	777	1000:1000	49961831	./plugin-skills/canvas	/home/elpresidank/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/canvas/skills/canvas
+l	777	1000:1000	49961830	./plugin-skills/browser-automation	$HOME/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/browser/skills/browser-automation
+l	777	1000:1000	49961831	./plugin-skills/canvas	$HOME/.cache/beep-p0-stage/openclaw-2026.7.1-2/node_modules/openclaw/dist/extensions/canvas/skills/canvas
 c86e17b0677c5111c663f73ace448b07e562304ab6f44ff50e0ee74f95c797a1  ./identity/device.json
 3914bbfa95a96d56ef3068dd9d6cc4edf4c337ad78f7f4bcd910b73e5c879535  ./log/openclaw.log
 40cf07c52bfaa52b334ef341456f970787f6dc701ffe18ad3c572cb5056dbd70  ./state/openclaw.sqlite

@@ -1,5 +1,5 @@
-// fallow-ignore-file unused-file -- spawned crash-probe fixture entry resolved by path at runtime
-import { Confidence } from "@beep/epistemic-domain";
+// fallow-ignore-file unused-file -- tests spawn this crash-probe child process by file path, so no import reaches it. Owner: @beep/semantica. Exit: remove when the probe runs in-process or fallow learns spawned entries.
+import { Confidence } from "@beep/epistemics/EvidenceSpan";
 import {
   SourceTextDigest,
   SourceTextExtractor,

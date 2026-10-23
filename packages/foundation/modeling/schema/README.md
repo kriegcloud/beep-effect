@@ -30,17 +30,17 @@ Canonical schema concept imports are namespace-first:
 
 ```ts
 import * as Color from "@beep/schema/Color"
-import * as Glob from "@beep/schema/Glob"
+import * as HttpProtocol from "@beep/schema/HttpProtocol"
 
 Color.HexColor
 Color.HexToRgb
-Glob.Schema
+HttpProtocol.Schema
 ```
 
 The package root remains a curated flat facade:
 
 ```ts
-import { Glob, HexColor } from "@beep/schema"
+import { HexColor, LiteralKit } from "@beep/schema"
 ```
 
 Root flat exports are convenience and compatibility, not the canonical home for
