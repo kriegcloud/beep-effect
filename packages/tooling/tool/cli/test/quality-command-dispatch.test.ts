@@ -245,6 +245,24 @@ it.layer(CommandTestLayer, { timeout: "10 seconds" })("quality command dispatch"
     { arbitrary: fcRuns() }
   );
 
+  it.effect("fails a project whose resolved chain declares no complete Effect plugin", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const dir = yield* fs.makeTempDirectoryScoped({ prefix: "effect-profile-missing-" });
+      const profile = yield* readEffectDiagnosticsProfile(new URL("../../../../..", import.meta.url).pathname);
+      // No `plugins` at all, and a `plugins` list without the Effect language service.
+      yield* fs.writeFileString(`${dir}/none.json`, yield* encodeUnknownJson({ compilerOptions: {} }));
+      yield* fs.writeFileString(
+        `${dir}/other.json`,
+        yield* encodeUnknownJson({ compilerOptions: { plugins: [{ name: "typescript-plugin-css-modules" }] } })
+      );
+      for (const project of [`${dir}/none.json`, `${dir}/other.json`]) {
+        const error = yield* Effect.flip(effectDiagnosticsProjectConfig(profile, project));
+        expect(error).toMatchObject({ message: `No complete Effect plugin in ${project}.`, exitCode: 1 });
+      }
+    })
+  );
+
   it.effect("fails the security check when the OSV scan fails", () => {
     const spawned: Array<string> = [];
     const failedHandle = ChildProcessSpawner.makeHandle({

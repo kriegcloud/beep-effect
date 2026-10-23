@@ -487,6 +487,9 @@
       "path": "packages/tooling/library/qa-capture"
     },
     {
+      "path": "packages/tooling/library/repo-tsconfig"
+    },
+    {
       "path": "packages/tooling/library/repo-utils"
     },
     {

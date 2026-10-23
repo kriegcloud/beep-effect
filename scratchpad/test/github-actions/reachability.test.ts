@@ -61,10 +61,11 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 };
 
 /**
- * The kit modules waves 1a, 1b, 2a, 2b, 2d and 3-1 of the effected promotion moved out of the lab
+ * The kit modules waves 1a, 1b, 2a, 2b, 2d and 3 of the effected promotion moved out of the lab
  * into `@beep/*` packages (`templates` became `@beep/managed-section`; the pure
- * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`; `env` became
- * `@beep/runtime-env`; this package's reporting suite became `@beep/github-reporting`). Upstream
+ * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`, and the
+ * `tsconfig-json` loader half `@beep/repo-tsconfig`; `env` became `@beep/runtime-env`; this
+ * package's reporting suite became `@beep/github-reporting`). Upstream
  * reached each as a bare `@effected/*` edge and the lab as a relative sibling
  * entrypoint; promoted, each is a bare package edge again, so the walker stops at
  * it as it stops at a lab sibling. The kit modules not yet promoted (`sbom`,
@@ -85,6 +86,7 @@ const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/markdown",
 	"@beep/memfs",
 	"@beep/npm-spec",
+	"@beep/repo-tsconfig",
 	"@beep/runtime-env",
 	"@beep/schema-org",
 	"@beep/semver",
