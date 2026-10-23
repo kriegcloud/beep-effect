@@ -4,6 +4,24 @@ Reuse sites from `research/promotion-map-2026-10-20.md` ("Reuse sites") and
 the wave plans, with their adoption status. `#n` is the map's site id. A site
 leaves the open list in the PR that migrates it, or carries its reason here.
 
+## `@beep/sbom` (wave 4-S, W4-b)
+
+4-S moves only lab importers; `@beep/sbom` has no repo adopter yet (modeling, so no capability gate). Its consumers are
+the lab `github-actions` adapters (wave 5 `@beep/github-actions`) and the lab Sigstore signer (deferred
+`@beep/sigstore`, W4-m). The live corpus (`research/sbom-corpus-w4.json`) generates an SBOM for 187 of the 188 tracked
+manifests with 0 full-schema failures.
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| lab `sbom` `SigstoreSigner.ts`, its tests, `index.ts`, `package.json`, `reachability.test.ts` | - | 4-S (done) | The signer imports `@beep/sbom/IdentityToken`, `/InTotoStatement` (type) and `/SigstoreBundle`; the lab index is signer-only, with no alias of the package; the lab reachability test keeps the signer assertions and pins leaf-only `@beep/sbom` edges. |
+| lab `github-actions` `ActionsIdentityToken.ts`, `ActionsProvenance.ts`, their tests, `package.json` | - | 4-S (done) | Retargeted to `@beep/sbom/IdentityToken` and `@beep/sbom/SlsaProvenance`; the manifest names `@beep/sbom` instead of `@effected/sbom`. Suites 24/24 before and after. |
+| both PROMOTED maps (`layering.int.test.ts`, github-actions `reachability.test.ts`) | - | 4-S (done) | `"@beep/sbom": "sbom"` (the package folds into the lab `sbom` module, D-29) and `@beep/sbom` in the kit-package set. Layering 26/26. |
+| `@beep/github` `Attestation.ts` JSDoc, `KNOWLEDGE.md` | - | 4-S (done) | Prose only: statements are `@beep/sbom`'s, signing is the lab signer's. No code edge. |
+| skill-contract `EvidenceReceipt.ts` | #138 | excluded | Stricter than the kit (a typed `{ sha256 }` digest, a literal `predicateType` per schema, a `NonEmptyArray` subject) and already thin; adopting `InTotoStatement` would loosen it. |
+| `@beep/github` `Attestation.ts` `predicateType` literal | - | excluded | A string in a JSDoc example and a test; a driver-to-modeling edge for one constant is not worth it. |
+| lab `github-actions` `ActionsIdentityToken`, `ActionsProvenance` move | - | wave 5 | They move with `@beep/github-actions` and import the `@beep/sbom` leaves they already use. |
+| lab `sbom` `SigstoreSigner.ts` | - | deferred (D-05, W4-m) | `@beep/sigstore` with its first consumer (a release attestation step), or deleted at C and recoverable by sha. |
+
 ## `@beep/github-reporting` (wave 3-1, W3-b)
 
 | Site | Map id | Status | Notes |

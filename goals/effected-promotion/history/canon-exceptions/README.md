@@ -12,3 +12,4 @@ and are not updated.
 | Module | Exceptions | Status |
 | --- | --- | --- |
 | `markdown` | 5 | All resolved in wave 2d-1 (`@beep/markdown`, SPEC D-45). The corpus loader reads `data/conformance/` through Vite `import.meta.glob` (EV010). `generate-entities.ts` moved to the package `scripts/` on `effect/FileSystem` (EV010). The stringify-scalability `vi.mock` spy became a structural assertion on the serializer source (EV011, EV012). The 150,000-line definition stack test runs in-process (EV010). |
+| `sbom` | 9 | All resolved in wave 4-S (`@beep/sbom`, SPEC W4-b, W4-g). The 6 EV002 rows in `IdentityToken.test.ts` go through `it.layer` (with hook timeouts); the 3 EV010 rows go through JSON imports of the vendored fixtures (`SlsaProvenance.test.ts`, `conformance.test.ts`) and a Vite raw-glob source walker (`reachability.test.ts`). The lab signer's reachability test, which stays in `scratchpad/test/sbom`, keeps its own Node-only walker. |
