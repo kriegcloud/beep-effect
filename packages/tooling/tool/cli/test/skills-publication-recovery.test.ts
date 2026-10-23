@@ -26,7 +26,7 @@ import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import * as NodeCrypto from "@effect/platform-node-shared/NodeCrypto";
 import { expect, layer } from "@effect/vitest";
-import { assertSome, assertTrue } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
@@ -825,7 +825,7 @@ layer(
       ).toContain("not a directory");
       const link = path.join(directory.root, "linked-tree");
       yield* fs.symlink(directory.target, link);
-      expect(O.isNone(yield* skillTreeDigest(link))).toBe(true);
+      assertNone(yield* skillTreeDigest(link));
       expect(
         (yield* publisher.publishDirectory(directory.root, link, intendedFiles).pipe(Effect.flip)).message
       ).toContain("symbolic link");
@@ -844,9 +844,9 @@ layer(
         expect(
           (yield* isolated.publishDirectory(directory.root, directory.target, intendedFiles).pipe(Effect.flip)).message
         ).toContain("Refusing a skill");
-        expect(
-          O.isNone(yield* skillTreeDigest(directory.target).pipe(Effect.provideService(FileSystem.FileSystem, wrapped)))
-        ).toBe(true);
+        assertNone(
+          yield* skillTreeDigest(directory.target).pipe(Effect.provideService(FileSystem.FileSystem, wrapped))
+        );
       }
     })
   );
@@ -980,7 +980,10 @@ layer(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      for (const identity of [O.none<string>(), O.some("changed-filesystem")]) {
+      for (const { identity, reason } of [
+        { identity: O.none<string>(), reason: "competing-writer" },
+        { identity: O.some("changed-filesystem"), reason: "filesystem-changed" },
+      ]) {
         const { journals, root, target } = yield* fixture("file", true);
         yield* crash("publish-file", root, target, "staged");
         const journal = O.getOrThrow(A.head(yield* journalsIn(journals)));
@@ -999,7 +1002,7 @@ layer(
         const reports = yield* (yield* publisherWith()).recover(root, "pending");
         expect(reports[0]?.result).toMatchObject({
           _tag: "refused",
-          reason: O.isNone(identity) ? "competing-writer" : "filesystem-changed",
+          reason,
         });
         expect(yield* fs.readFileString(tracked.staging)).toBe(competitorFile);
       }

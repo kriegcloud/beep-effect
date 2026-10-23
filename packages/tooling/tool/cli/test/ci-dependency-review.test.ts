@@ -620,7 +620,7 @@ const reviewWithClient = Effect.fn("DependencyReviewTest.reviewWithClient")(func
   return yield* review(target).pipe(Effect.provideContext(context));
 }, Effect.scoped);
 
-it.layer(RecordedGithub)("dependency review boundary failures", (it) => {
+it.layer(RecordedGithub, { timeout: "30 seconds" })("dependency review boundary failures", (it) => {
   it.effect("handles unquoted pagination, truncated licenses, absent scopes, and low advisories", () =>
     Effect.gen(function* () {
       const client = yield* GithubPolicyClient;

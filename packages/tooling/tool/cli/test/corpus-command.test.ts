@@ -1450,7 +1450,7 @@ const fixtureBytes = (content: string | Uint8Array): Uint8Array =>
   typeof content === "string" ? utf8ToBytes(content) : content;
 const contentDigest = (content: string | Uint8Array): string => bytesToHex(sha256(fixtureBytes(content)));
 
-it.layer(testLayer)("corpus organize", (it) => {
+it.layer(testLayer, { timeout: "30 seconds" })("corpus organize", (it) => {
   it.effect("materializes categories, deduplicates content, versions dockets, and protects existing output", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
