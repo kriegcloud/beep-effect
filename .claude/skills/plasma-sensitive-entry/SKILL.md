@@ -30,6 +30,8 @@ chat. A dialog collects the value; the agent receives only sanitized status.
    requested field and where it goes. Never put a secret in either string.
 2. Verify the local Plasma session and `kdialog` are available. Use only the
    selected session's display and bus metadata; never print its environment.
+   If the agent lacks user-bus context, use the integration contract's
+   [current-user preparation](references/integration.md#current-user-gui-preparation).
    A missing GUI is a blocker: arrange human entry in the trusted application.
    Never fall back to chat, question tools, terminal typing or plaintext files.
 3. Use [the pipe helper](scripts/prompt.py) from a trusted adapter, following

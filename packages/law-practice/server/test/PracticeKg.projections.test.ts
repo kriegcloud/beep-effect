@@ -89,10 +89,10 @@ import type { DuckDbShape } from "@beep/duckdb";
 import type { TestContext } from "@effect/vitest";
 
 class ConcurrentClaimsReader extends Context.Service<ConcurrentClaimsReader, DuckDbShape>()(
-  "test/ConcurrentClaimsReader"
+  "@beep/law-practice-server/test/PracticeKg.projections.test/ConcurrentClaimsReader"
 ) {}
 class ConcurrentClaimsOptions extends Context.Service<ConcurrentClaimsOptions, PracticeKgClaimsOptions>()(
-  "test/ConcurrentClaimsOptions"
+  "@beep/law-practice-server/test/PracticeKg.projections.test/ConcurrentClaimsOptions"
 ) {}
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
@@ -1846,8 +1846,12 @@ describe("practice KG projections", () => {
             Layer.succeed(
               OfficeActionReview,
               OfficeActionReview.of({
-                extractCandidate: () => Effect.die("Normalized patent claims must not invoke extraction."),
-                review: () => Effect.die("Normalized patent claims must not invoke review."),
+                extractCandidate: Effect.fn("OfficeActionReview.extractCandidate")(() =>
+                  Effect.die("Normalized patent claims must not invoke extraction.")
+                ),
+                review: Effect.fn("OfficeActionReview.review")(() =>
+                  Effect.die("Normalized patent claims must not invoke review.")
+                ),
               })
             ),
             Pglite.makeLayer({ dataDir: path.join(bundleOut, "kg.pglite") })
@@ -1857,7 +1861,7 @@ describe("practice KG projections", () => {
       { timeout: "120 seconds" }
     )((it) => {
       it.effect(
-        "resolves standalone claims while an independent cached read-only connection remains open",
+        "resolves standalone and injected claims with an independent cached read-only connection",
         Effect.fnUntraced(function* () {
           const reader = yield* ConcurrentClaimsReader;
           const options = yield* ConcurrentClaimsOptions;
@@ -1870,6 +1874,23 @@ describe("practice KG projections", () => {
           expect(summary).toMatchObject({ claims: 3, failedFiles: 0, files: 1 });
           expect(rows.length).toBeGreaterThan(0);
           expect(yield* reader.query("SELECT digest FROM documents ORDER BY digest")).toStrictEqual(rows);
+
+          // Reuse the supplied reader even when opening the fallback store would fail.
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const bundleOut = yield* fs.makeTempDirectoryScoped({ prefix: "practice-kg-injected-claims-" });
+          yield* fs.writeFileString(path.join(bundleOut, "practice.duckdb"), "invalid fallback store");
+          const snapshot = '{"claimText":"x","docket":"20001US01","evidenceFixtureKey":"e1","family":"20001"}';
+          const carry = yield* decodeClaimsCarry({
+            candidates: [carriedCandidate("claim_injected", snapshot, "1_Response OA - 20001US01.txt")],
+            evidence: [],
+          });
+
+          const carried = yield* writePracticeKgClaimsCarry(PracticeKgClaimsCarryWrite.make({ bundleOut, carry })).pipe(
+            Effect.provideService(DuckDb, reader)
+          );
+
+          expect([carried.claims, carried.withSourceDocument]).toStrictEqual([1, 1]);
         }),
         { timeout: 120_000 }
       );

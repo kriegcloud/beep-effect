@@ -41,6 +41,52 @@ state through the authorized connection first. The dialog is a transport for a
 human-provided value, not permission to bypass PAM, SSH, 1Password or a failed
 approval gate.
 
+## Current-user GUI preparation
+
+An agent tool may lack user-bus metadata even while Plasma is running. Before
+launching the pipe helper, a trusted adapter may prepare **its own current
+user's** runtime/bus context as below. Preserve an already complete selected
+GUI context; do not run this recipe to replace a different selected bus.
+Never inspect another UID's session or print a user-manager environment dump.
+
+```python
+import os
+import stat
+import subprocess
+
+def current_user_gui_env():
+    uid = os.geteuid()
+    if uid == 0 or uid != os.getuid():
+        raise RuntimeError("Plasma session unavailable")
+    runtime = f"/run/user/{uid}"
+    bus = f"{runtime}/bus"
+    directory, socket = os.lstat(runtime), os.lstat(bus)
+    if (not stat.S_ISDIR(directory.st_mode) or directory.st_uid != uid
+            or directory.st_mode & 0o077 or not stat.S_ISSOCK(socket.st_mode)
+            or socket.st_uid != uid):
+        raise RuntimeError("Plasma session unavailable")
+    metadata = {"XDG_RUNTIME_DIR": runtime,
+                "DBUS_SESSION_BUS_ADDRESS": f"unix:path={bus}"}
+    if any(os.environ.get(key, value) != value for key, value in metadata.items()):
+        raise RuntimeError("Plasma session unavailable")
+    env = os.environ | metadata
+    reachable = subprocess.run(
+        ["busctl", "--user", "status"], env=env, stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
+    if reachable.returncode != 0:
+        raise RuntimeError("Plasma session unavailable")
+    return env
+```
+
+Use the returned environment only for the owned helper/authentication lane's
+`Popen(..., env=env, pass_fds=(write_fd,))`. Catch preparation errors and timeout
+at the adapter boundary and report only unavailable; never print exceptions.
+This sets only nonsecret runtime/bus metadata. `prompt.py` then resolves display
+metadata consistently through the user manager, refusing mixed sessions. Do not
+guess a display or run `kdialog --password` directly. Successful ownership,
+socket and bus probes qualify GUI infrastructure; only a live masked-dialog
+acceptance check can qualify actual dialog delivery.
+
 ## Concrete SSH consumer
 
 Use `scripts/ssh-askpass.py` as `SSH_ASKPASS` only inside the existing approved
