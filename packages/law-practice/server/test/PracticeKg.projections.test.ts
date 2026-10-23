@@ -1837,7 +1837,7 @@ describe("practice KG projections", () => {
                 ],
               })
             ).pipe(
-              provideScopedLayer(
+              Effect.provide(
                 Layer.mergeAll(
                   Layer.succeed(
                     OfficeActionReview,
