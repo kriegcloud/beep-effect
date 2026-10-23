@@ -21,6 +21,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { optionalPulumiConfigFields, pulumiConfigSchemaIssueError } from "./internal/PulumiConfigSchema.ts";
 import type { AiMetricsInstallSpec, AiMetricsOtlpEndpointSpec, AiMetricsServiceSpec } from "@beep/repo-ai-metrics";
+import type { InfraPathEnv } from "./internal/InfraArtifactPath.ts";
 
 const $I = $InfraId.create("AIMetrics");
 const defaultPhoenixTailnetHttpsPort = 8447;
@@ -29,6 +30,8 @@ const defaultRemoteMirrorRoot = "/srv/data/ai-metrics/p7-derived-mirror";
 const defaultSshHost = "dankserver";
 const defaultSshUser = "elpresidank";
 const defaultTailnetFqdn = "dankserver.tailc7c348.ts.net";
+const remoteConfigRootEnvKey = "BEEP_AI_METRICS_REMOTE_CONFIG_ROOT";
+const remoteUserConfigRoot = (user: string): string => `/home/${user}/ai-metrics`;
 const remotePhoenixServiceName = "ai-metrics-phoenix.service";
 const remotePhoenixComposeFile = "phoenix.compose.yaml";
 const remotePhoenixTailnetPortStateFile = "phoenix-tailnet-https-port";
@@ -401,6 +404,11 @@ export class AIMetricsStackArgs extends S.Opaque<AIMetricsStackArgs, { readonly 
 /**
  * Build AI metrics stack args from decoded Pulumi config values.
  *
+ * **Details**
+ *
+ * An unset `remoteConfigRoot` resolves to `/home/<sshUser>/ai-metrics` on the
+ * remote target, matching the SSH user that runs the Phoenix service.
+ *
  * @example
  * ```ts
  * import { makeAIMetricsStackArgsFromConfigValues } from "@beep/infra"
@@ -428,15 +436,16 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
   target,
 }: AIMetricsPulumiConfigInputValues = {}): AIMetricsStackArgs => {
   const resolvedTarget = targetFromPulumiConfig(target);
+  const ssh = AIMetricsRemoteSshConfig.make({
+    ...O.getSomesStruct({ host: O.fromUndefinedOr(sshHost) }),
+    ...O.getSomesStruct({ user: O.fromUndefinedOr(sshUser) }),
+    agentSocketPath: O.fromUndefinedOr(sshAgentSocketPath),
+  });
   const remote = AIMetricsRemoteDeploymentConfig.make({
     ...O.getSomesStruct({ phoenixTailnetHttpsPort: O.fromUndefinedOr(phoenixTailnetHttpsPort) }),
-    ...O.getSomesStruct({ remoteConfigRoot: O.fromUndefinedOr(remoteConfigRoot) }),
+    remoteConfigRoot: O.getOrElse(O.fromUndefinedOr(remoteConfigRoot), () => remoteUserConfigRoot(ssh.user)),
     ...O.getSomesStruct({ remoteMirrorRoot: O.fromUndefinedOr(remoteMirrorRoot) }),
-    ssh: AIMetricsRemoteSshConfig.make({
-      ...O.getSomesStruct({ host: O.fromUndefinedOr(sshHost) }),
-      ...O.getSomesStruct({ user: O.fromUndefinedOr(sshUser) }),
-      agentSocketPath: O.fromUndefinedOr(sshAgentSocketPath),
-    }),
+    ssh,
     ...O.getSomesStruct({ tailnetFqdn: O.fromUndefinedOr(tailnetFqdn) }),
   });
   const installTarget = AiMetricsInstallInput.make(O.getSomesStruct({ target: resolvedTarget })).target;
@@ -464,6 +473,12 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
 /**
  * Load AI metrics args from Pulumi config.
  *
+ * **Details**
+ *
+ * The remote config root comes from `aiMetrics:remoteConfigRoot`, then
+ * `BEEP_AI_METRICS_REMOTE_CONFIG_ROOT`, then `/home/<sshUser>/ai-metrics` on
+ * the remote target, so the committed stack file carries no home path.
+ *
  * @example
  * ```ts
  * import { loadAIMetricsStackArgs } from "@beep/infra"
@@ -474,7 +489,7 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
  * @category constructors
  * @since 0.0.0
  */
-export const loadAIMetricsStackArgs = (): AIMetricsStackArgs => {
+export const loadAIMetricsStackArgs = (env: InfraPathEnv = process.env): AIMetricsStackArgs => {
   const config = new pulumi.Config("aiMetrics");
 
   return makeAIMetricsStackArgsFromConfigValues({
@@ -485,7 +500,11 @@ export const loadAIMetricsStackArgs = (): AIMetricsStackArgs => {
     phoenixTailnetHttpsPort: config.getNumber("phoenixTailnetHttpsPort"),
     publicBaseUrl: config.get("publicBaseUrl"),
     rawArchiveKeySecretRef: config.get("rawArchiveKeySecretRef"),
-    remoteConfigRoot: config.get("remoteConfigRoot"),
+    remoteConfigRoot: O.getOrUndefined(
+      O.orElse(O.fromUndefinedOr(config.get("remoteConfigRoot")), () =>
+        O.filter(O.fromUndefinedOr(env[remoteConfigRootEnvKey]), Str.isNonEmpty)
+      )
+    ),
     remoteMirrorRoot: config.get("remoteMirrorRoot"),
     sshAgentSocketPath: config.get("sshAgentSocketPath"),
     sshHost: config.get("sshHost"),
