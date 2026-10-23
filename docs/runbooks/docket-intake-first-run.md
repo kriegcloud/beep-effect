@@ -155,6 +155,11 @@ To keep the service running, install it as a user service from a pinned
 deploy checkout: [practice services](practice-services.md). It reuses this
 environment file through `op run`, plus the service's own settings.
 
+With the review hub configured, needs-review messages also become questions
+for the attorney ([practice review hub](practice-review-hub.md), section 5).
+Questions stored before they named their email are fixed with
+`backfill-questions`, described in that section.
+
 ## Exit codes
 
 | Code | Meaning |

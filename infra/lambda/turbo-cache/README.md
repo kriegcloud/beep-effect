@@ -73,8 +73,11 @@ three bundled-handler smoke checks, and three unminified CommonJS esbuild
 bundles targeting Node.js 22. It writes the resulting ZIP to:
 
 ```text
-$HOME/beep-infra-artifacts/turbo-cache/2.12.0/turbo-cache.zip
+${BEEP_INFRA_ARTIFACTS_ROOT:-$HOME/beep-infra-artifacts}/turbo-cache/2.12.0/turbo-cache.zip
 ```
+
+The `production` stack's relative `ciTurboCache:lambdaZipPath` resolves
+against the same root, so no path needs setting after a build.
 
 All npm dependencies, including `@aws-sdk/client-ssm`, are bundled. Node.js
 built-ins are supplied by the Node.js 22 Lambda runtime.

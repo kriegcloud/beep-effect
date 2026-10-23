@@ -1,6 +1,6 @@
-import { CiTurboCache, CiTurboCachePulumiConfigValues } from "@beep/infra";
+import { CiTurboCache, CiTurboCachePulumiConfigValues, loadCiTurboCacheConfig } from "@beep/infra";
 import { it } from "@beep/test-runner";
-import { assert, describe } from "@effect/vitest";
+import { assert, describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as pulumi from "@pulumi/pulumi";
 import * as Effect from "effect/Effect";
@@ -148,5 +148,50 @@ describe("@beep/infra CiTurboCache", () => {
       assert.notStrictEqual(readUri, functionArn("ci-turbo-cache-test-read"));
       assert.notStrictEqual(writeUri, functionArn("ci-turbo-cache-test-write"));
     })
+  );
+});
+
+describe("@beep/infra loadCiTurboCacheConfig", { concurrent: false }, () => {
+  const withTurboCacheConfig = (lambdaZipPath: string, use: () => void) =>
+    Effect.acquireUseRelease(
+      Effect.sync(pulumi.runtime.allConfig),
+      () =>
+        Effect.sync(() => {
+          pulumi.runtime.setAllConfig({
+            "ciTurboCache:bucketName": validConfigValues.bucketName,
+            "ciTurboCache:lambdaZipPath": lambdaZipPath,
+            "ciTurboCache:readOnlyTokenSsmParameterArn": validConfigValues.readOnlyTokenSsmParameterArn,
+            "ciTurboCache:tokenKmsKeyArn": validConfigValues.tokenKmsKeyArn,
+            "ciTurboCache:trustedWriteTokenSsmParameterArn": validConfigValues.trustedWriteTokenSsmParameterArn,
+            "ciTurboCache:writerSharedSecretSsmParameterArn": validConfigValues.writerSharedSecretSsmParameterArn,
+          });
+          use();
+        }),
+      (config) => Effect.sync(() => pulumi.runtime.setAllConfig(config))
+    );
+
+  it.effect("resolves a relative ZIP path against the artifacts root", () =>
+    withTurboCacheConfig("turbo-cache/2.12.0/turbo-cache.zip", () => {
+      expect(
+        loadCiTurboCacheConfig({ BEEP_INFRA_ARTIFACTS_ROOT: "/srv/artifacts/", HOME: "/home/example" }).lambdaZipPath
+      ).toBe("/srv/artifacts/turbo-cache/2.12.0/turbo-cache.zip");
+      expect(loadCiTurboCacheConfig({ BEEP_INFRA_ARTIFACTS_ROOT: "", HOME: "/home/example" }).lambdaZipPath).toBe(
+        "/home/example/beep-infra-artifacts/turbo-cache/2.12.0/turbo-cache.zip"
+      );
+    })
+  );
+
+  it.effect("keeps an absolute ZIP path and rejects an unresolvable relative one", () =>
+    Effect.andThen(
+      withTurboCacheConfig("/opt/artifacts/turbo-cache.zip", () => {
+        expect(loadCiTurboCacheConfig({}).lambdaZipPath).toBe("/opt/artifacts/turbo-cache.zip");
+      }),
+      withTurboCacheConfig("turbo-cache.zip", () => {
+        expect(() => loadCiTurboCacheConfig({})).toThrow("BEEP_INFRA_ARTIFACTS_ROOT");
+        expect(() => loadCiTurboCacheConfig({ BEEP_INFRA_ARTIFACTS_ROOT: "artifacts" })).toThrow(
+          "BEEP_INFRA_ARTIFACTS_ROOT"
+        );
+      })
+    )
   );
 });
