@@ -1,3 +1,6 @@
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { NodeFileSystem } from "@effect/platform-node";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -6,9 +9,6 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
-import { ConfigFile } from "../../../effected/config-file/ConfigFile.ts";
-import { JsonCodec } from "../../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../../effected/config-file/MergeStrategy.ts";
 
 class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}
 class AppConfig extends ConfigFile.Service<AppConfig, AppShape>()("test/SeededConfig") {}

@@ -2321,6 +2321,9 @@
       ],
       "@beep/config-file/*": [
         "./packages/foundation/capability/config-file/src/*"
+      ],
+      "@beep/config-file/internal/*": [
+        "./packages/foundation/capability/config-file/src/internal/*"
       ]
     }
   }

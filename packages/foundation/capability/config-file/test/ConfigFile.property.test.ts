@@ -12,7 +12,7 @@ import {
   ConfigFileReadError,
   ConfigFileWriteError,
   ConfigValidationError,
-} from "../../effected/config-file/ConfigFile.ts";
+} from "@beep/config-file/ConfigFile";
 
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
@@ -37,13 +37,13 @@ describe("ConfigFile schema properties", () => {
   roundTrips("ConfigValidationError", ConfigValidationError);
 });
 
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { ConfigFile } from "../../effected/config-file/ConfigFile.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
 
 class JsonConfig extends ConfigFile.Service<JsonConfig, S.Json>()("property/JsonConfig") {}
 const jsonPlatform = Layer.mergeAll(MemoryFileSystem.layer, Path.layer);

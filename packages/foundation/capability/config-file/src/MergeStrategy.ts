@@ -110,8 +110,8 @@ const layeredMerge = <A>(): MergeStrategy<A> => ({
  * **Example** (Create a layered merge strategy)
  *
  * ```ts
- * import { MergeStrategy } from "@beep/scratchpad/effected/config-file/MergeStrategy";
- * import type { NonEmptySources } from "@beep/scratchpad/effected/config-file/MergeStrategy";
+ * import { MergeStrategy } from "@beep/config-file/MergeStrategy";
+ * import type { NonEmptySources } from "@beep/config-file/MergeStrategy";
  * import * as Effect from "effect/Effect";
  *
  * const strategy = MergeStrategy.layeredMerge<{ port: number; host?: string }>();

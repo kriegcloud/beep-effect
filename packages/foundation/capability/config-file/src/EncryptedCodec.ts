@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $ConfigFileId } from "@beep/identity/packages";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -8,7 +8,7 @@ import { decrypt, deriveKey, encrypt, fromBase64, IV_LENGTH, randomIv, toBase64 
 import type { ConfigCodec } from "./ConfigCodec.ts";
 import type { CryptoFailure } from "./internal/crypto.ts";
 
-const $I = $ScratchpadId.create("effected/config-file/EncryptedCodec");
+const $I = $ConfigFileId.create("EncryptedCodec");
 
 /** Identifies an encrypted envelope that cannot contain both an IV and ciphertext. */
 class CiphertextTooShortError extends S.TaggedError<CiphertextTooShortError, { readonly brand: unique symbol }>(
@@ -36,7 +36,7 @@ class CiphertextTooShortError extends S.TaggedError<CiphertextTooShortError, { r
  * **Example** (Identify a decryption failure)
  *
  * ```ts
- * import { ConfigEncryptionError } from "@beep/scratchpad/effected/config-file/EncryptedCodec";
+ * import { ConfigEncryptionError } from "@beep/config-file/EncryptedCodec";
  *
  * const error = ConfigEncryptionError.make({ phase: "decrypt", cause: new Error("Invalid ciphertext") });
  * console.log(error.message) // Config encryption failed during decrypt
@@ -78,7 +78,7 @@ export class ConfigEncryptionError extends S.TaggedError<ConfigEncryptionError, 
    * **Example** (Read the cryptographic failure stage)
    *
    * ```ts
-   * import { ConfigEncryptionError } from "@beep/scratchpad/effected/config-file/EncryptedCodec";
+   * import { ConfigEncryptionError } from "@beep/config-file/EncryptedCodec";
    *
    * const error = ConfigEncryptionError.make({ phase: "decrypt", cause: new Error("Invalid ciphertext") });
    * console.log(error.message) // Config encryption failed during decrypt
@@ -119,7 +119,7 @@ export type EncryptedCodecKey =
  * **Example** (Describe a lazily derived passphrase key)
  *
  * ```ts
- * import { EncryptedCodecKey } from "@beep/scratchpad/effected/config-file/EncryptedCodec";
+ * import { EncryptedCodecKey } from "@beep/config-file/EncryptedCodec";
  *
  * const keySource = EncryptedCodecKey.fromPassphrase("correct horse", new Uint8Array(16));
  * console.log(keySource._tag) // Passphrase
@@ -147,7 +147,7 @@ export const EncryptedCodecKey = {
    * **Example** (Supply a retryable key effect)
    *
    * ```ts
-   * import { ConfigEncryptionError, EncryptedCodecKey } from "@beep/scratchpad/effected/config-file/EncryptedCodec";
+   * import { ConfigEncryptionError, EncryptedCodecKey } from "@beep/config-file/EncryptedCodec";
    * import * as Effect from "effect/Effect";
    *
    * const key = Effect.fail(ConfigEncryptionError.make({ phase: "key-derivation", cause: new Error("Key unavailable") }));
@@ -176,7 +176,7 @@ export const EncryptedCodecKey = {
    * **Example** (Construct a passphrase key source)
    *
    * ```ts
-   * import { EncryptedCodecKey } from "@beep/scratchpad/effected/config-file/EncryptedCodec";
+   * import { EncryptedCodecKey } from "@beep/config-file/EncryptedCodec";
    *
    * const keySource = EncryptedCodecKey.fromPassphrase("correct horse", new Uint8Array(16));
    * console.log(keySource._tag) // Passphrase
@@ -216,8 +216,8 @@ const keyEffect = (keySource: EncryptedCodecKey): Effect.Effect<CryptoKey, Confi
  * **Example** (Encrypt JSON configuration with a passphrase)
  *
  * ```ts
- * import { EncryptedCodec, EncryptedCodecKey } from "@beep/scratchpad/effected/config-file/EncryptedCodec";
- * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
+ * import { EncryptedCodec, EncryptedCodecKey } from "@beep/config-file/EncryptedCodec";
+ * import { JsonCodec } from "@beep/config-file/JsonCodec";
  *
  * const salt = new Uint8Array(16); // use a stored, random per-deployment salt
  * const codec = EncryptedCodec(JsonCodec, EncryptedCodecKey.fromPassphrase("correct horse", salt));

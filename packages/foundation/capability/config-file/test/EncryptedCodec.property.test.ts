@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { ConfigEncryptionError } from "../../effected/config-file/EncryptedCodec.ts";
+import { ConfigEncryptionError } from "@beep/config-file/EncryptedCodec";
 
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
@@ -27,9 +27,9 @@ describe("EncryptedCodec schema properties", () => {
   roundTrips("ConfigEncryptionError", ConfigEncryptionError);
 });
 
-import { EncryptedCodec, EncryptedCodecKey } from "../../effected/config-file/EncryptedCodec.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { JsoncCodec } from "../../effected/config-file/JsoncCodec.ts";
+import { EncryptedCodec, EncryptedCodecKey } from "@beep/config-file/EncryptedCodec";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { JsoncCodec } from "@beep/config-file/JsoncCodec";
 
 // A real generated key keeps the property inexpensive while exercising AES-GCM.
 const generatedKey = EncryptedCodecKey.fromCryptoKey(

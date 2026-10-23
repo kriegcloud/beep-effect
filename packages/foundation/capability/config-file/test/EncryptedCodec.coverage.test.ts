@@ -1,6 +1,6 @@
+import { ConfigEncryptionError } from "@beep/config-file/EncryptedCodec";
 import { assert, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { ConfigEncryptionError } from "../../effected/config-file/EncryptedCodec.ts";
 
 it.effect("encryption errors identify the failing phase", () =>
   Effect.sync(() => {

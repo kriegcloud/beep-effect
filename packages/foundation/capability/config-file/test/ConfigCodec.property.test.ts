@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
 
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(

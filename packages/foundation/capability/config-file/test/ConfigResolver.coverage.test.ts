@@ -1,10 +1,10 @@
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
 import { MemoryFileSystem } from "@beep/memfs";
 import { afterEach, assert, describe, it, vi } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
-import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
 
 afterEach(() => vi.unstubAllGlobals());
 const platform = Layer.mergeAll(MemoryFileSystem.layerWith({ "/config": "{}", "/package.json": "null" }), Path.layer);

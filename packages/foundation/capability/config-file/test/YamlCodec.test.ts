@@ -1,3 +1,5 @@
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
+import { YamlCodec } from "@beep/config-file/YamlCodec";
 import { YamlParseError } from "@beep/yaml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
@@ -6,8 +8,6 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
-import { YamlCodec } from "../../effected/config-file/YamlCodec.ts";
 
 describe("YamlCodec", () => {
   it.effect("parses a YAML document", () =>

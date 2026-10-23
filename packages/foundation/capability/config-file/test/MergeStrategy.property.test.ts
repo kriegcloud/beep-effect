@@ -1,9 +1,9 @@
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const Scalar = S.Union([S.String, S.Boolean, S.Int, S.Null]);

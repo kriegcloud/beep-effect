@@ -50,8 +50,8 @@ import type { ConfigFileShape, ConfigLoadError } from "./ConfigFile.ts";
  * **Example** (Use file configuration as an environment fallback)
  *
  * ```ts
- * import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
- * import { asConfigProvider } from "@beep/scratchpad/effected/config-file/ConfigProvider";
+ * import { ConfigFile } from "@beep/config-file/ConfigFile";
+ * import { asConfigProvider } from "@beep/config-file/ConfigProvider";
  * import * as ConfigProvider from "effect/ConfigProvider";
  * import * as Effect from "effect/Effect";
  *
@@ -117,10 +117,10 @@ export interface LayerConfigProviderOptions {
  * **Example** (Provide a config service to the fallback provider layer)
  *
  * ```ts
- * import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
- * import { layerConfigProvider } from "@beep/scratchpad/effected/config-file/ConfigProvider";
- * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
- * import { MergeStrategy } from "@beep/scratchpad/effected/config-file/MergeStrategy";
+ * import { ConfigFile } from "@beep/config-file/ConfigFile";
+ * import { layerConfigProvider } from "@beep/config-file/ConfigProvider";
+ * import { JsonCodec } from "@beep/config-file/JsonCodec";
+ * import { MergeStrategy } from "@beep/config-file/MergeStrategy";
  * import * as Layer from "effect/Layer";
  * import * as S from "effect/Schema";
  *

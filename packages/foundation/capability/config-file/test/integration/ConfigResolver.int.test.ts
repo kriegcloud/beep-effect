@@ -1,3 +1,4 @@
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
 import { MemoryFileSystem } from "@beep/memfs";
 import { describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
@@ -7,7 +8,6 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ConfigResolver } from "../../../effected/config-file/ConfigResolver.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 

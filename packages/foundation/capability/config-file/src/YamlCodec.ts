@@ -18,7 +18,7 @@ import type { ConfigCodec } from "./ConfigCodec.ts";
  * **Example** (Parse and stringify a port setting)
  *
  * ```ts
- * import { YamlCodec } from "@beep/scratchpad/effected/config-file/YamlCodec";
+ * import { YamlCodec } from "@beep/config-file/YamlCodec";
  * import * as Effect from "effect/Effect";
  *
  * const parsed = Effect.runSync(YamlCodec.parse("port: 8080"));

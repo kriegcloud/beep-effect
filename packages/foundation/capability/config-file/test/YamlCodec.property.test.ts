@@ -1,9 +1,9 @@
+import { YamlCodec } from "@beep/config-file/YamlCodec";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { YamlCodec } from "../../effected/config-file/YamlCodec.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 // The YAML engine decodes integer literals outside the safe range as bigint.

@@ -1,4 +1,4 @@
-import type { ConfigValidationError } from "../config-file/index.ts";
+import type { ConfigValidationError } from "@beep/config-file";
 import { formatIssue } from "./internal/format.ts";
 
 /**
@@ -23,7 +23,7 @@ import { formatIssue } from "./internal/format.ts";
  *
  * ```ts
  * import { ConfigIssueRenderer } from "@beep/scratchpad/effected/cli/ConfigIssueRenderer";
- * import { ConfigValidationError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+ * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
  * import * as Effect from "effect/Effect";
@@ -67,7 +67,7 @@ export abstract class ConfigIssueRenderer {
 	 *
 	 * ```ts
 	 * import { ConfigIssueRenderer } from "@beep/scratchpad/effected/cli/ConfigIssueRenderer";
-	 * import { ConfigValidationError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+	 * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
 	 * import * as O from "effect/Option";
 	 *
 	 * const error = ConfigValidationError.make({ path: O.none(), issue: new Error("Invalid port") });

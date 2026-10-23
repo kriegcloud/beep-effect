@@ -23,7 +23,7 @@ import type { ConfigCodec } from "./ConfigCodec.ts";
  * **Example** (Parse and stringify a port setting)
  *
  * ```ts
- * import { TomlCodec } from "@beep/scratchpad/effected/config-file/TomlCodec";
+ * import { TomlCodec } from "@beep/config-file/TomlCodec";
  * import * as Effect from "effect/Effect";
  *
  * const parsed = Effect.runSync(TomlCodec.parse("port = 8080"));

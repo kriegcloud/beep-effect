@@ -18,7 +18,7 @@ import type { ConfigCodec } from "./ConfigCodec.ts";
  * **Example** (Parse comments and a trailing comma)
  *
  * ```ts
- * import { JsoncCodec } from "@beep/scratchpad/effected/config-file/JsoncCodec";
+ * import { JsoncCodec } from "@beep/config-file/JsoncCodec";
  * import * as Effect from "effect/Effect";
  *
  * const value = Effect.runSync(JsoncCodec.parse('{ // HTTP port\n"port": 3000, }'));

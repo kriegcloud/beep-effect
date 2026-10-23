@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { ConfigMigrationError } from "../../effected/config-file/ConfigMigration.ts";
+import { ConfigMigrationError } from "@beep/config-file/ConfigMigration";
 
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(
@@ -27,8 +27,8 @@ describe("ConfigMigration schema properties", () => {
   roundTrips("ConfigMigrationError", ConfigMigrationError);
 });
 
-import { ConfigMigration } from "../../effected/config-file/ConfigMigration.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
+import { ConfigMigration } from "@beep/config-file/ConfigMigration";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
 
 const Latest = S.Struct({ version: S.tag(2), payload: S.Json });
 const Previous = S.Struct({ version: S.tag(1), payload: S.Json });

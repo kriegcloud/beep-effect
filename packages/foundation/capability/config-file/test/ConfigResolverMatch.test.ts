@@ -1,3 +1,7 @@
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
@@ -6,10 +10,6 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { ConfigFile } from "../../effected/config-file/ConfigFile.ts";
-import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
 import type * as FileSystem from "effect/FileSystem";
 
 const platform = (files: Record<string, string>): Layer.Layer<FileSystem.FileSystem | Path.Path> =>

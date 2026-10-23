@@ -1,3 +1,5 @@
+import { ConfigMigration, ConfigMigrationError, VersionAccess } from "@beep/config-file/ConfigMigration";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -7,8 +9,6 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { ConfigMigration, ConfigMigrationError, VersionAccess } from "../../effected/config-file/ConfigMigration.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
 
 const bump = (version: number, name: string, fn: (raw: Record<string, unknown>) => Record<string, unknown>) => ({
   version,

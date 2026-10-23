@@ -1,3 +1,5 @@
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -5,8 +7,6 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 

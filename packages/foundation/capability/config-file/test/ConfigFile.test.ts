@@ -1,3 +1,14 @@
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
+import { ConfigEvents } from "@beep/config-file/ConfigEvent";
+import {
+  ConfigFile,
+  ConfigFileNotFoundError,
+  ConfigFileReadError,
+  ConfigValidationError,
+} from "@beep/config-file/ConfigFile";
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
@@ -10,19 +21,8 @@ import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as PubSub from "effect/PubSub";
 import * as S from "effect/Schema";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
-import { ConfigEvents } from "../../effected/config-file/ConfigEvent.ts";
-import {
-  ConfigFile,
-  ConfigFileNotFoundError,
-  ConfigFileReadError,
-  ConfigValidationError,
-} from "../../effected/config-file/ConfigFile.ts";
-import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
-import type { ConfigCodec } from "../../effected/config-file/ConfigCodec.ts";
-import type { ConfigLoadError, ConfigReadError } from "../../effected/config-file/ConfigFile.ts";
+import type { ConfigCodec } from "@beep/config-file/ConfigCodec";
+import type { ConfigLoadError, ConfigReadError } from "@beep/config-file/ConfigFile";
 
 class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}
 class AppConfig extends ConfigFile.Service<AppConfig, AppShape>()("test/AppConfig") {}

@@ -20,7 +20,7 @@ const encodeJson = S.encodeEffect(S.fromJsonString(S.Unknown, { space: 2 }));
  * **Example** (Parse a plain JSON configuration)
  *
  * ```ts
- * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
+ * import { JsonCodec } from "@beep/config-file/JsonCodec";
  * import * as Effect from "effect/Effect";
  *
  * const value = Effect.runSync(JsonCodec.parse('{ "port": 3000 }'));

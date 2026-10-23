@@ -1,8 +1,3 @@
-import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, describe, it } from "@effect/vitest";
-import * as Arbitrary from "effect/Arbitrary";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 import {
   decrypt,
   encrypt,
@@ -11,7 +6,12 @@ import {
   randomIv,
   toArrayBufferView,
   toBase64,
-} from "../../../effected/config-file/internal/crypto.ts";
+} from "@beep/config-file/internal/crypto";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 const Byte = S.Int.check(S.isBetween({ minimum: 0, maximum: 255 }));

@@ -1,3 +1,4 @@
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
@@ -5,7 +6,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
 
 /** The typed failure a node adapter raises for EACCES. */
 const denied = (method: string, path: string) =>

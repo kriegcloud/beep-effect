@@ -6,7 +6,7 @@ import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
 
-import { JsoncCodec } from "../../effected/config-file/JsoncCodec.ts";
+import { JsoncCodec } from "@beep/config-file/JsoncCodec";
 
 const equivalent = S.toEquivalence(S.Json);
 const JsonText = S.fromJsonString(S.Json);

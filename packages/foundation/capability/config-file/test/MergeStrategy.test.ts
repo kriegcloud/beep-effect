@@ -1,3 +1,4 @@
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { assert, describe, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -5,8 +6,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
-import type { ConfigSource } from "../../effected/config-file/MergeStrategy.ts";
+import type { ConfigSource } from "@beep/config-file/MergeStrategy";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 

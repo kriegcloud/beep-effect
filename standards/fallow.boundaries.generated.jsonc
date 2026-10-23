@@ -1677,10 +1677,24 @@
       {
         "from": "@beep/config-file",
         "allow": [
-          "@beep/config-file"
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/toml",
+          "@beep/walker",
+          "@beep/yaml"
         ],
         "allowTypeOnly": [
-          "@beep/config-file"
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/jsonc",
+          "@beep/memfs",
+          "@beep/toml",
+          "@beep/walker",
+          "@beep/yaml"
         ]
       },
       {
@@ -4396,6 +4410,7 @@
         "from": "@beep/scratchpad",
         "allow": [
           "@beep/commands",
+          "@beep/config-file",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",
@@ -4447,6 +4462,7 @@
         ],
         "allowTypeOnly": [
           "@beep/commands",
+          "@beep/config-file",
           "@beep/dock",
           "@beep/dock-react",
           "@beep/drizzle",

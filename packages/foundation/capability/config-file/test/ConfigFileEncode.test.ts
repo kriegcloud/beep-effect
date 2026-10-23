@@ -1,3 +1,9 @@
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
+import { ConfigEvents } from "@beep/config-file/ConfigEvent";
+import { ConfigFile, ConfigValidationError } from "@beep/config-file/ConfigFile";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
+import { TomlCodec } from "@beep/config-file/TomlCodec";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSuccess } from "@effect/vitest/utils";
@@ -7,15 +13,9 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PubSub from "effect/PubSub";
 import * as S from "effect/Schema";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
-import { ConfigEvents } from "../../effected/config-file/ConfigEvent.ts";
-import { ConfigFile, ConfigValidationError } from "../../effected/config-file/ConfigFile.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
-import { TomlCodec } from "../../effected/config-file/TomlCodec.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
-import type { ConfigCodec as ConfigCodecShape } from "../../effected/config-file/ConfigCodec.ts";
-import type { ConfigEncodeError, ConfigWriteError } from "../../effected/config-file/ConfigFile.ts";
+import type { ConfigCodec as ConfigCodecShape } from "@beep/config-file/ConfigCodec";
+import type { ConfigEncodeError, ConfigWriteError } from "@beep/config-file/ConfigFile";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 

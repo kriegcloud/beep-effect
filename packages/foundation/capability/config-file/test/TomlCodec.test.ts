@@ -1,3 +1,5 @@
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
+import { TomlCodec } from "@beep/config-file/TomlCodec";
 import { TomlParseError, TomlStringifyError } from "@beep/toml";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
@@ -6,8 +8,6 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
-import { TomlCodec } from "../../effected/config-file/TomlCodec.ts";
 
 describe("TomlCodec", () => {
   it.effect("parses a TOML document", () =>

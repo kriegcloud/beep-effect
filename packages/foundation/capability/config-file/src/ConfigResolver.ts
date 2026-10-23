@@ -525,7 +525,7 @@ const systemEtc = (options: {
  * **Example** (Choose an explicit-path resolver)
  *
  * ```ts
- * import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
+ * import { ConfigResolver } from "@beep/config-file/ConfigResolver";
  *
  * const resolver = ConfigResolver.explicitPath("/app/config.json");
  * console.log(resolver.name) // explicit
@@ -544,7 +544,7 @@ export class ConfigResolver {
    * **Example** (Construct an exact-path lookup)
    *
    * ```ts
-   * import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
+   * import { ConfigResolver } from "@beep/config-file/ConfigResolver";
    * import * as Effect from "effect/Effect";
    *
    * const resolver = ConfigResolver.explicitPath("/app/config.json");
@@ -563,7 +563,7 @@ export class ConfigResolver {
    * **Example** (Construct a fixed-directory lookup)
    *
    * ```ts
-   * import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
+   * import { ConfigResolver } from "@beep/config-file/ConfigResolver";
    * import * as Effect from "effect/Effect";
    *
    * const resolver = ConfigResolver.staticDir({ dir: "/app", filename: "config.json" });
@@ -595,7 +595,7 @@ export class ConfigResolver {
    * **Example** (Probe multiple filenames at each ancestor)
    *
    * ```ts
-   * import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
+   * import { ConfigResolver } from "@beep/config-file/ConfigResolver";
    * import * as Effect from "effect/Effect";
    *
    * const resolver = ConfigResolver.upwardWalk({ cwd: "/app/src", filenames: [".app.json", "app.json"], name: "project" });
@@ -616,7 +616,7 @@ export class ConfigResolver {
    * **Example** (Anchor a lookup at the workspace root)
    *
    * ```ts
-   * import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
+   * import { ConfigResolver } from "@beep/config-file/ConfigResolver";
    * import * as Effect from "effect/Effect";
    *
    * const resolver = ConfigResolver.workspaceRoot({ cwd: "/app/src", filename: "config.json", subpaths: [".", ".config"] });
@@ -637,7 +637,7 @@ export class ConfigResolver {
    * **Example** (Anchor a lookup at the Git root)
    *
    * ```ts
-   * import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
+   * import { ConfigResolver } from "@beep/config-file/ConfigResolver";
    * import * as Effect from "effect/Effect";
    *
    * const resolver = ConfigResolver.gitRoot({ cwd: "/app/src", filename: "config.json" });
@@ -657,7 +657,7 @@ export class ConfigResolver {
    * **Example** (Construct a system configuration lookup)
    *
    * ```ts
-   * import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
+   * import { ConfigResolver } from "@beep/config-file/ConfigResolver";
    * import * as Effect from "effect/Effect";
    *
    * const resolver = ConfigResolver.systemEtc({ app: "my-app", filename: "config.json" });

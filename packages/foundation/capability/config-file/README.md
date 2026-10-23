@@ -11,10 +11,10 @@ Config loading is where a well-typed application usually gives up: a library fin
 Declare a schema, mint a service class for it with `ConfigFile.Service`, and build its live layer with `ConfigFile.layer`. The platform layers are provided once, at the edge:
 
 ```ts
-import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
-import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
-import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
-import { MergeStrategy } from "@beep/scratchpad/effected/config-file/MergeStrategy";
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -52,10 +52,10 @@ Effect.runPromise(program.pipe(Effect.provide(AppConfigLive), Effect.provide(Pla
 Resolvers are consulted in priority order, highest first. `MergeStrategy.firstMatch` takes the winner; `MergeStrategy.layeredMerge` deep-merges every source that matched, with higher-priority keys overwriting lower ones:
 
 ```ts
-import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
-import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
-import { MergeStrategy } from "@beep/scratchpad/effected/config-file/MergeStrategy";
-import { YamlCodec } from "@beep/scratchpad/effected/config-file/YamlCodec";
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
+import { YamlCodec } from "@beep/config-file/YamlCodec";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 
@@ -80,8 +80,8 @@ console.log(Layer.isLayer(SettingsLive)) // true
 Not every caller has a config file — some just have one path a caller already vouched for, such as a CLI's `--config` flag. `ConfigFile.read` is the one-shot escape from the service, the layer and the resolver chain: read, decode and validate a single path, with the schema and codec named per call rather than bound to a service class:
 
 ```ts
-import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
-import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { NodeFileSystem } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -103,10 +103,10 @@ It is deliberately read-only and discovery-free — no resolver chain, no `save`
 Effect's decoder ignores unknown keys by default, which for a config loader means a typo'd section is dropped in silence. The user gets no error, the setting they wrote has no effect, and nothing in the run says why. `parseOptions` threads decode options into every decode the loader performs, on `ConfigFile.layer` and `ConfigFile.read` alike:
 
 ```ts
-import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
-import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
-import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
-import { MergeStrategy } from "@beep/scratchpad/effected/config-file/MergeStrategy";
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
 
@@ -147,7 +147,7 @@ Every failure is a tagged error you route on with `Effect.catchTag`. The tags ex
 `ConfigLoadError`, `ConfigReadError`, `ConfigEncodeError`, `ConfigWriteError`, `ConfigSaveError` and `ConfigUpdateError` are exported unions naming exactly the failures each method can produce — `ConfigEncodeError` is `ConfigWriteError` minus `ConfigFileWriteError`, because `encode` never touches the disk. Catching one tag narrows the union, leaving the rest to propagate:
 
 ```ts
-import { ConfigFile, type ConfigFileShape } from "@beep/scratchpad/effected/config-file/ConfigFile";
+import { ConfigFile, type ConfigFileShape } from "@beep/config-file/ConfigFile";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -184,9 +184,9 @@ One install covers every format, and you still pay only for the parser you name.
 Codecs compose. `EncryptedCodec` wraps any codec with AES-GCM, and `ConfigMigration.make` wraps any codec so parsed content is brought up to the latest version. Each *widens* the error channel rather than flattening its failures into the inner codec's error:
 
 ```ts
-import { ConfigMigration } from "@beep/scratchpad/effected/config-file/ConfigMigration";
-import { EncryptedCodec, EncryptedCodecKey } from "@beep/scratchpad/effected/config-file/EncryptedCodec";
-import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
+import { ConfigMigration } from "@beep/config-file/ConfigMigration";
+import { EncryptedCodec, EncryptedCodecKey } from "@beep/config-file/EncryptedCodec";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 

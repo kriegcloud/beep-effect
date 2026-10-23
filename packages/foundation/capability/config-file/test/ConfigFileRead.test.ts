@@ -9,6 +9,10 @@
 // shape that replaces it — with the narrowed error union rather than one
 // stringly mega-error.
 
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
+import { ConfigFile, ConfigFileReadError, ConfigValidationError } from "@beep/config-file/ConfigFile";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { JsoncCodec } from "@beep/config-file/JsoncCodec";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
@@ -17,10 +21,6 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
-import { ConfigFile, ConfigFileReadError, ConfigValidationError } from "../../effected/config-file/ConfigFile.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { JsoncCodec } from "../../effected/config-file/JsoncCodec.ts";
 import type * as FileSystem from "effect/FileSystem";
 
 const JsonValue = S.fromJsonString(S.Unknown);

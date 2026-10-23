@@ -1,3 +1,7 @@
+import { ConfigEvents } from "@beep/config-file/ConfigEvent";
+import { ConfigFile, ConfigValidationError } from "@beep/config-file/ConfigFile";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import * as Context from "effect/Context";
@@ -8,10 +12,6 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
-import { ConfigEvents } from "../../effected/config-file/ConfigEvent.ts";
-import { ConfigFile, ConfigValidationError } from "../../effected/config-file/ConfigFile.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
 
 const Document = S.Struct({ port: S.Finite });
 class Service extends ConfigFile.Service<Service, typeof Document.Type>()("coverage/ConfigFile") {}
@@ -126,7 +126,7 @@ import {
   ConfigFileNotFoundError,
   ConfigFileReadError,
   ConfigFileWriteError,
-} from "../../effected/config-file/ConfigFile.ts";
+} from "@beep/config-file/ConfigFile";
 
 it.effect("error messages retain paths, plural candidate counts and in-memory validation context", () =>
   Effect.sync(() => {
@@ -159,8 +159,8 @@ it.effect("the exported static facade remains constructible for JavaScript consu
   })
 );
 
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
 import * as PlatformError from "effect/PlatformError";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
 
 it.layer(
   ConfigFile.layer(Service, {

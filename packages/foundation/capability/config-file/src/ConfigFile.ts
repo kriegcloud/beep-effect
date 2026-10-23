@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $ConfigFileId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -22,7 +22,7 @@ import type { ConfigEventPayload, ConfigEvents, ConfigEventsShape } from "./Conf
 import type { ConfigMatch, ConfigProbe } from "./ConfigResolver.ts";
 import type { ConfigSource, MergeStrategy, NonEmptySources } from "./MergeStrategy.ts";
 
-const $I = $ScratchpadId.create("effected/config-file/ConfigFile");
+const $I = $ConfigFileId.create("ConfigFile");
 
 /**
  * Indicates that the resolver chain produced no configuration source.
@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/config-file/ConfigFile");
  * **Example** (Inspect an exhausted resolver chain)
  *
  * ```ts
- * import { ConfigFileNotFoundError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+ * import { ConfigFileNotFoundError } from "@beep/config-file/ConfigFile";
  *
  * const error = ConfigFileNotFoundError.make({ searched: ["explicitPath"], candidates: ["./app.json"] });
  * console.log(error.message) // No config file found (searched: explicitPath — 1 candidate path checked)
@@ -92,7 +92,7 @@ export class ConfigFileNotFoundError extends S.TaggedError<ConfigFileNotFoundErr
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { ConfigFileNotFoundError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+   * import { ConfigFileNotFoundError } from "@beep/config-file/ConfigFile";
    *
    * const error = ConfigFileNotFoundError.make({ searched: ["explicitPath"], candidates: ["./app.json"] });
    * console.log(error.message) // No config file found (searched: explicitPath — 1 candidate path checked)
@@ -118,7 +118,7 @@ export class ConfigFileNotFoundError extends S.TaggedError<ConfigFileNotFoundErr
  * **Example** (Inspect a file read failure)
  *
  * ```ts
- * import { ConfigFileReadError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+ * import { ConfigFileReadError } from "@beep/config-file/ConfigFile";
  *
  * const error = ConfigFileReadError.make({ path: "./app.json", cause: new Error("Permission denied") });
  * console.log(error.message) // Failed to read config file at "./app.json"
@@ -158,7 +158,7 @@ export class ConfigFileReadError extends S.TaggedError<ConfigFileReadError, { re
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { ConfigFileReadError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+   * import { ConfigFileReadError } from "@beep/config-file/ConfigFile";
    *
    * const error = ConfigFileReadError.make({ path: "./app.json", cause: new Error("Permission denied") });
    * console.log(error.message) // Failed to read config file at "./app.json"
@@ -177,7 +177,7 @@ export class ConfigFileReadError extends S.TaggedError<ConfigFileReadError, { re
  * **Example** (Inspect a file write failure)
  *
  * ```ts
- * import { ConfigFileWriteError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+ * import { ConfigFileWriteError } from "@beep/config-file/ConfigFile";
  *
  * const error = ConfigFileWriteError.make({ path: "./app.json", cause: new Error("Permission denied") });
  * console.log(error.message) // Failed to write config file at "./app.json"
@@ -219,7 +219,7 @@ export class ConfigFileWriteError extends S.TaggedError<ConfigFileWriteError, { 
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { ConfigFileWriteError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+   * import { ConfigFileWriteError } from "@beep/config-file/ConfigFile";
    *
    * const error = ConfigFileWriteError.make({ path: "./app.json", cause: new Error("Permission denied") });
    * console.log(error.message) // Failed to write config file at "./app.json"
@@ -248,7 +248,7 @@ export class ConfigFileWriteError extends S.TaggedError<ConfigFileWriteError, { 
  * **Example** (Inspect a missing save destination)
  *
  * ```ts
- * import { ConfigDefaultPathMissingError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+ * import { ConfigDefaultPathMissingError } from "@beep/config-file/ConfigFile";
  *
  * const error = ConfigDefaultPathMissingError.make({});
  * console.log(error.message) // No `defaultPath` configured: `save` and `update` require ConfigFileOptions.defaultPath
@@ -275,7 +275,7 @@ export class ConfigDefaultPathMissingError extends S.TaggedError<
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { ConfigDefaultPathMissingError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+   * import { ConfigDefaultPathMissingError } from "@beep/config-file/ConfigFile";
    *
    * const error = ConfigDefaultPathMissingError.make({});
    * console.log(error.message) // No `defaultPath` configured: `save` and `update` require ConfigFileOptions.defaultPath
@@ -302,7 +302,7 @@ export class ConfigDefaultPathMissingError extends S.TaggedError<
  * **Example** (Inspect an in-memory validation failure)
  *
  * ```ts
- * import { ConfigValidationError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+ * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
  * import * as O from "effect/Option";
  *
  * const error = ConfigValidationError.make({ path: O.none(), issue: new Error("Invalid port") });
@@ -348,7 +348,7 @@ export class ConfigValidationError extends S.TaggedError<ConfigValidationError, 
    * **Example** (Read the failure message)
    *
    * ```ts
-   * import { ConfigValidationError } from "@beep/scratchpad/effected/config-file/ConfigFile";
+   * import { ConfigValidationError } from "@beep/config-file/ConfigFile";
    * import * as O from "effect/Option";
    *
    * const error = ConfigValidationError.make({ path: O.none(), issue: new Error("Invalid port") });
@@ -1297,8 +1297,8 @@ const read: {
  * **Example** (Construct a one-shot config read)
  *
  * ```ts
- * import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
- * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
+ * import { ConfigFile } from "@beep/config-file/ConfigFile";
+ * import { JsonCodec } from "@beep/config-file/JsonCodec";
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
  *
@@ -1319,7 +1319,7 @@ export class ConfigFile {
    * **Example** (Create an application config service)
    *
    * ```ts
-   * import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
+   * import { ConfigFile } from "@beep/config-file/ConfigFile";
    * import * as S from "effect/Schema";
    *
    * const AppShape = S.Struct({ port: S.Finite });
@@ -1358,10 +1358,10 @@ export class ConfigFile {
    * **Example** (Build a JSON config layer for an explicit path)
    *
    * ```ts
-   * import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
-   * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
-   * import { MergeStrategy } from "@beep/scratchpad/effected/config-file/MergeStrategy";
-   * import { ConfigResolver } from "@beep/scratchpad/effected/config-file/ConfigResolver";
+   * import { ConfigFile } from "@beep/config-file/ConfigFile";
+   * import { JsonCodec } from "@beep/config-file/JsonCodec";
+   * import { MergeStrategy } from "@beep/config-file/MergeStrategy";
+   * import { ConfigResolver } from "@beep/config-file/ConfigResolver";
    * import * as Layer from "effect/Layer";
    * import * as S from "effect/Schema";
    *
@@ -1409,9 +1409,9 @@ export class ConfigFile {
    * **Example** (Seed a temporary JSON config for tests)
    *
    * ```ts
-   * import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
-   * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
-   * import { MergeStrategy } from "@beep/scratchpad/effected/config-file/MergeStrategy";
+   * import { ConfigFile } from "@beep/config-file/ConfigFile";
+   * import { JsonCodec } from "@beep/config-file/JsonCodec";
+   * import { MergeStrategy } from "@beep/config-file/MergeStrategy";
    * import * as Layer from "effect/Layer";
    * import * as S from "effect/Schema";
    *
@@ -1456,8 +1456,8 @@ export class ConfigFile {
    * **Example** (Read a port from a validated JSON file)
    *
    * ```ts
-   * import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile";
-   * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
+   * import { ConfigFile } from "@beep/config-file/ConfigFile";
+   * import { JsonCodec } from "@beep/config-file/JsonCodec";
    * import * as Effect from "effect/Effect";
    * import * as S from "effect/Schema";
    *

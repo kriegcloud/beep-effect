@@ -1,3 +1,8 @@
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
+import { ConfigDefaultPathMissingError, ConfigFile, ConfigFileWriteError } from "@beep/config-file/ConfigFile";
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -7,19 +12,10 @@ import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
-import {
-  ConfigDefaultPathMissingError,
-  ConfigFile,
-  ConfigFileWriteError,
-} from "../../effected/config-file/ConfigFile.ts";
-import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
 import { hostileFs, recordingFs } from "./helpers.ts";
+import type { ConfigCodec as ConfigCodecShape } from "@beep/config-file/ConfigCodec";
+import type { ConfigSaveError, ConfigUpdateError, ConfigWriteError } from "@beep/config-file/ConfigFile";
 import type { MemoryFileSystemSeed } from "@beep/memfs";
-import type { ConfigCodec as ConfigCodecShape } from "../../effected/config-file/ConfigCodec.ts";
-import type { ConfigSaveError, ConfigUpdateError, ConfigWriteError } from "../../effected/config-file/ConfigFile.ts";
 import type { RecordingFs } from "./helpers.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);

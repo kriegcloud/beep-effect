@@ -1,3 +1,8 @@
+import { ConfigEventPayload, ConfigEvents } from "@beep/config-file/ConfigEvent";
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSuccess } from "@effect/vitest/utils";
@@ -8,14 +13,9 @@ import * as P from "effect/Predicate";
 import * as PubSub from "effect/PubSub";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ConfigEventPayload, ConfigEvents } from "../../effected/config-file/ConfigEvent.ts";
-import { ConfigFile } from "../../effected/config-file/ConfigFile.ts";
-import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 import { recordingFs } from "./helpers.ts";
-import type { ConfigEvent } from "../../effected/config-file/ConfigEvent.ts";
+import type { ConfigEvent } from "@beep/config-file/ConfigEvent";
 import type { RecordingFs } from "./helpers.ts";
 
 class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}

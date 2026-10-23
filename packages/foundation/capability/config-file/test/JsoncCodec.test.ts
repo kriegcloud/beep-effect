@@ -1,3 +1,5 @@
+import { ConfigCodecError } from "@beep/config-file/ConfigCodec";
+import { JsoncCodec } from "@beep/config-file/JsoncCodec";
 import { JsoncParseError, JsoncStringifyError } from "@beep/jsonc";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
@@ -5,8 +7,6 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
-import { ConfigCodecError } from "../../effected/config-file/ConfigCodec.ts";
-import { JsoncCodec } from "../../effected/config-file/JsoncCodec.ts";
 
 describe("JsoncCodec", () => {
   it.effect("parses JSONC with comments and trailing commas", () =>

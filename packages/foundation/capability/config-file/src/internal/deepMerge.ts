@@ -18,7 +18,7 @@ import * as R from "effect/Record";
  * **Example** (Distinguish mergeable nested objects from dates)
  *
  * ```ts
- * import { isPlainObject } from "@beep/scratchpad/effected/config-file/internal/deepMerge";
+ * import { isPlainObject } from "@beep/config-file/internal/deepMerge";
  *
  * console.log(isPlainObject({ port: 8080 }), isPlainObject(new Date(0))); // true false
  * ```
@@ -45,7 +45,7 @@ export const isPlainObject = (value: unknown): value is Record<PropertyKey, unkn
  * **Example** (Check top-level prototype compatibility)
  *
  * ```ts
- * import { canMerge } from "@beep/scratchpad/effected/config-file/internal/deepMerge";
+ * import { canMerge } from "@beep/config-file/internal/deepMerge";
  *
  * class Settings { port = 8080; }
  * console.log(canMerge({ port: 8080 }, { port: 3000 })); // true
@@ -83,7 +83,7 @@ export const canMerge: {
  * **Example** (Keep higher priority keys and merge nested sections)
  *
  * ```ts
- * import { deepMerge } from "@beep/scratchpad/effected/config-file/internal/deepMerge";
+ * import { deepMerge } from "@beep/config-file/internal/deepMerge";
  *
  * const merged = deepMerge(
  *   { server: { port: 8080 }, mode: "local" },

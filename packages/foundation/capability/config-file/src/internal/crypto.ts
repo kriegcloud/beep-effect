@@ -8,7 +8,7 @@ import { dual } from "effect/Function";
  * **Example** (Inspect the AES-GCM IV length)
  *
  * ```ts
- * import { IV_LENGTH } from "@beep/scratchpad/effected/config-file/internal/crypto";
+ * import { IV_LENGTH } from "@beep/config-file/internal/crypto";
  *
  * console.log(IV_LENGTH); // 12
  * ```
@@ -52,7 +52,7 @@ const fail =
  * **Example** (Copy bytes for Web Crypto)
  *
  * ```ts
- * import { toArrayBufferView } from "@beep/scratchpad/effected/config-file/internal/crypto";
+ * import { toArrayBufferView } from "@beep/config-file/internal/crypto";
  *
  * const source = new Uint8Array([1, 2, 3]);
  * const copy = toArrayBufferView(source);
@@ -81,7 +81,7 @@ export function toArrayBufferView(src: Uint8Array): Uint8Array<ArrayBuffer> {
  * **Example** (Derive a non-extractable encryption key)
  *
  * ```ts
- * import { deriveKey } from "@beep/scratchpad/effected/config-file/internal/crypto";
+ * import { deriveKey } from "@beep/config-file/internal/crypto";
  * import * as Effect from "effect/Effect";
  *
  * const key = await Effect.runPromise(deriveKey("example-passphrase", new Uint8Array(16)));
@@ -135,7 +135,7 @@ export const deriveKey: {
  * **Example** (Decode base64 bytes)
  *
  * ```ts
- * import { fromBase64 } from "@beep/scratchpad/effected/config-file/internal/crypto";
+ * import { fromBase64 } from "@beep/config-file/internal/crypto";
  * import * as Effect from "effect/Effect";
  *
  * const bytes = Effect.runSync(fromBase64("AQID"));
@@ -166,7 +166,7 @@ export const fromBase64 = (raw: string): Effect.Effect<Uint8Array<ArrayBuffer>, 
  * **Example** (Encode an IV and ciphertext envelope)
  *
  * ```ts
- * import { IV_LENGTH, toBase64 } from "@beep/scratchpad/effected/config-file/internal/crypto";
+ * import { IV_LENGTH, toBase64 } from "@beep/config-file/internal/crypto";
  * import * as Effect from "effect/Effect";
  *
  * const iv = new Uint8Array(IV_LENGTH);
@@ -208,7 +208,7 @@ export const toBase64: {
  * **Example** (Decrypt an AES-GCM round trip)
  *
  * ```ts
- * import { deriveKey, encrypt, decrypt, randomIv } from "@beep/scratchpad/effected/config-file/internal/crypto";
+ * import { deriveKey, encrypt, decrypt, randomIv } from "@beep/config-file/internal/crypto";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function*() {
@@ -254,7 +254,7 @@ export const decrypt: {
  * **Example** (Encrypt an AES-GCM round trip)
  *
  * ```ts
- * import { deriveKey, encrypt, decrypt, randomIv } from "@beep/scratchpad/effected/config-file/internal/crypto";
+ * import { deriveKey, encrypt, decrypt, randomIv } from "@beep/config-file/internal/crypto";
  * import * as Effect from "effect/Effect";
  *
  * const program = Effect.gen(function*() {
@@ -300,7 +300,7 @@ export const encrypt: {
  * **Example** (Generate a correctly sized random IV)
  *
  * ```ts
- * import { randomIv } from "@beep/scratchpad/effected/config-file/internal/crypto";
+ * import { randomIv } from "@beep/config-file/internal/crypto";
  *
  * console.log(randomIv().byteLength); // 12
  * ```

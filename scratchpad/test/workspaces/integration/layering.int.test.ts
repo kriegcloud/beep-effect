@@ -40,6 +40,7 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
+	"@beep/config-file": "config-file",
 	"@beep/git": "git",
 	"@beep/github": "github",
 	"@beep/github-commands": "github-commands",

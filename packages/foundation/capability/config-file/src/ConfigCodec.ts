@@ -1,8 +1,8 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $ConfigFileId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import type * as Effect from "effect/Effect";
 
-const $I = $ScratchpadId.create("effected/config-file/ConfigCodec");
+const $I = $ConfigFileId.create("ConfigCodec");
 
 /**
  * Indicates that a codec failed to parse or stringify configuration content.
@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/config-file/ConfigCodec");
  * **Example** (Inspect a parse failure)
  *
  * ```ts
- * import { ConfigCodecError } from "@beep/scratchpad/effected/config-file/ConfigCodec"
+ * import { ConfigCodecError } from "@beep/config-file/ConfigCodec"
  *
  * const error = ConfigCodecError.make({ codec: "json", operation: "parse", cause: "invalid JSON", path: "/app/config.json" });
  * console.log(error.message) // json parse failed
@@ -94,7 +94,7 @@ export class ConfigCodecError extends S.TaggedError<ConfigCodecError, { readonly
    * **Example** (Render the codec summary)
    *
    * ```ts
-   * import { ConfigCodecError } from "@beep/scratchpad/effected/config-file/ConfigCodec"
+   * import { ConfigCodecError } from "@beep/config-file/ConfigCodec"
    *
    * const error = ConfigCodecError.make({ codec: "toml", operation: "stringify", cause: "unsupported value" });
    * console.log(error.message) // toml stringify failed

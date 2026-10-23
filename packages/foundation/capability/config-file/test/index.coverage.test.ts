@@ -1,9 +1,9 @@
+import * as ConfigFileModule from "@beep/config-file";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
+import { TomlCodec } from "@beep/config-file/TomlCodec";
+import { YamlCodec } from "@beep/config-file/YamlCodec";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as ConfigFileModule from "../../effected/config-file/index.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
-import { TomlCodec } from "../../effected/config-file/TomlCodec.ts";
-import { YamlCodec } from "../../effected/config-file/YamlCodec.ts";
 
 describe("config-file barrel owned exports", () => {
   it.effect("exports the original codec and merge-strategy objects with working behavior", () =>

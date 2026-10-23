@@ -1,11 +1,11 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $ConfigFileId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as PubSub from "effect/PubSub";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/config-file/ConfigEvent");
+const $I = $ConfigFileId.create("ConfigEvent");
 
 /**
  * A reference to one configuration source that contributed to a load.
@@ -18,7 +18,7 @@ const $I = $ScratchpadId.create("effected/config-file/ConfigEvent");
  * **Example** (Decode a discovered source reference)
  *
  * ```ts
- * import { ConfigSourceRef } from "@beep/scratchpad/effected/config-file/ConfigEvent"
+ * import { ConfigSourceRef } from "@beep/config-file/ConfigEvent"
  * import * as S from "effect/Schema"
  *
  * const source = S.decodeUnknownSync(ConfigSourceRef)({ path: "/etc/app/.apprc", resolver: "systemEtc" });
@@ -70,7 +70,7 @@ export type ConfigSourceRef = typeof ConfigSourceRef.Type;
  * **Example** (Decode a parsed event payload)
  *
  * ```ts
- * import { ConfigEventPayload } from "@beep/scratchpad/effected/config-file/ConfigEvent"
+ * import { ConfigEventPayload } from "@beep/config-file/ConfigEvent"
  * import * as S from "effect/Schema"
  *
  * const payload = S.decodeUnknownSync(ConfigEventPayload)({ _tag: "Parsed", path: "/app/config.json", codec: "json" });
@@ -135,7 +135,7 @@ export type ConfigEventPayload = typeof ConfigEventPayload.Type;
  * **Example** (Timestamp a missing configuration event)
  *
  * ```ts
- * import { ConfigEvent } from "@beep/scratchpad/effected/config-file/ConfigEvent"
+ * import { ConfigEvent } from "@beep/config-file/ConfigEvent"
  * import * as DateTime from "effect/DateTime"
  *
  * const event = ConfigEvent.make({ timestamp: DateTime.makeUnsafe(0), event: { _tag: "NotFound" } });
@@ -188,10 +188,10 @@ export interface ConfigEventsShape {
  * **Example** (Wire a shared config event hub)
  *
  * ```ts
- * import { ConfigEvents } from "@beep/scratchpad/effected/config-file/ConfigEvent"
- * import { ConfigFile } from "@beep/scratchpad/effected/config-file/ConfigFile"
- * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec"
- * import { MergeStrategy } from "@beep/scratchpad/effected/config-file/MergeStrategy"
+ * import { ConfigEvents } from "@beep/config-file/ConfigEvent"
+ * import { ConfigFile } from "@beep/config-file/ConfigFile"
+ * import { JsonCodec } from "@beep/config-file/JsonCodec"
+ * import { MergeStrategy } from "@beep/config-file/MergeStrategy"
  * import * as Layer from "effect/Layer"
  * import * as S from "effect/Schema"
  *
@@ -226,7 +226,7 @@ export class ConfigEvents extends Context.Service<ConfigEvents, ConfigEventsShap
    * **Example** (Build a subscriber with the shared hub)
    *
    * ```ts
-   * import { ConfigEvents } from "@beep/scratchpad/effected/config-file/ConfigEvent"
+   * import { ConfigEvents } from "@beep/config-file/ConfigEvent"
    * import * as Effect from "effect/Effect"
    * import * as PubSub from "effect/PubSub"
    *

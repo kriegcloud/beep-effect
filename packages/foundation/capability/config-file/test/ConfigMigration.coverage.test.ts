@@ -1,6 +1,6 @@
+import { ConfigMigrationError, VersionAccess } from "@beep/config-file/ConfigMigration";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { ConfigMigrationError, VersionAccess } from "../../effected/config-file/ConfigMigration.ts";
 
 describe("migration version stamping", () => {
   it.effect("stamps object, nonempty text, empty text and primitive migration outputs", () =>
@@ -24,8 +24,8 @@ describe("migration version stamping", () => {
   );
 });
 
+import { ConfigMigration } from "@beep/config-file/ConfigMigration";
 import * as S from "effect/Schema";
-import { ConfigMigration } from "../../effected/config-file/ConfigMigration.ts";
 
 it.effect("the static migration facade is constructible and numeric error versions round-trip at domain edges", () =>
   Effect.gen(function* () {

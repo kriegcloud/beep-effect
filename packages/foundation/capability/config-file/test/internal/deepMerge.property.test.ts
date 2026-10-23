@@ -1,3 +1,4 @@
+import { canMerge, deepMerge, isPlainObject } from "@beep/config-file/internal/deepMerge";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
@@ -5,7 +6,6 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { canMerge, deepMerge, isPlainObject } from "../../../effected/config-file/internal/deepMerge.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const Fields = S.Struct({ constructor: S.String, prototype: S.String, payload: S.Json });

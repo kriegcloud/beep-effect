@@ -1,9 +1,9 @@
+import { TomlCodec } from "@beep/config-file/TomlCodec";
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { TomlCodec } from "../../effected/config-file/TomlCodec.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 // TOML documents are tables and cannot represent null. Include nested tables,

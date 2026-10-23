@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $ConfigFileId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -10,7 +10,7 @@ import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import type { ConfigCodec, ConfigCodecError } from "./ConfigCodec.ts";
 
-const $I = $ScratchpadId.create("effected/config-file/ConfigMigration");
+const $I = $ConfigFileId.create("ConfigMigration");
 
 /**
  * Indicates that a versioned config migration failed.
@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/config-file/ConfigMigration");
  * **Example** (Inspect the failed migration phase)
  *
  * ```ts
- * import { ConfigMigrationError } from "@beep/scratchpad/effected/config-file/ConfigMigration";
+ * import { ConfigMigrationError } from "@beep/config-file/ConfigMigration";
  *
  * const error = ConfigMigrationError.make({
  *   version: 2, name: "rename-host", phase: "apply", cause: new Error("Invalid config"),
@@ -92,7 +92,7 @@ export class ConfigMigrationError extends S.TaggedError<ConfigMigrationError, { 
    * **Example** (Read a migration failure message)
    *
    * ```ts
-   * import { ConfigMigrationError } from "@beep/scratchpad/effected/config-file/ConfigMigration";
+   * import { ConfigMigrationError } from "@beep/config-file/ConfigMigration";
    *
    * const error = ConfigMigrationError.make({
    *   version: 2, name: "rename-host", phase: "apply", cause: new Error("Invalid config"),
@@ -216,7 +216,7 @@ const defaultVersionAccess = {
  * **Example** (Read the default top-level version)
  *
  * ```ts
- * import { VersionAccess } from "@beep/scratchpad/effected/config-file/ConfigMigration";
+ * import { VersionAccess } from "@beep/config-file/ConfigMigration";
  * import * as Effect from "effect/Effect";
  *
  * console.log(Effect.runSync(VersionAccess.default.get({ version: 2 }))) // 2
@@ -328,8 +328,8 @@ const make: (options: ConfigMigrationOptions) => ConfigCodec<ConfigCodecError | 
  * **Example** (Migrate a parsed configuration document)
  *
  * ```ts
- * import { ConfigMigration } from "@beep/scratchpad/effected/config-file/ConfigMigration";
- * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
+ * import { ConfigMigration } from "@beep/config-file/ConfigMigration";
+ * import { JsonCodec } from "@beep/config-file/JsonCodec";
  * import * as Effect from "effect/Effect";
  * import * as S from "effect/Schema";
  *
@@ -366,8 +366,8 @@ export class ConfigMigration {
    * **Example** (Migrate a hostname field)
    *
    * ```ts
-   * import { ConfigMigration } from "@beep/scratchpad/effected/config-file/ConfigMigration";
-   * import { JsonCodec } from "@beep/scratchpad/effected/config-file/JsonCodec";
+   * import { ConfigMigration } from "@beep/config-file/ConfigMigration";
+   * import { JsonCodec } from "@beep/config-file/JsonCodec";
    * import * as Effect from "effect/Effect";
    * import * as S from "effect/Schema";
    *

@@ -1,3 +1,8 @@
+import { ConfigFile } from "@beep/config-file/ConfigFile";
+import { asConfigProvider, layerConfigProvider } from "@beep/config-file/ConfigProvider";
+import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
+import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import * as Config from "effect/Config";
@@ -7,12 +12,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { ConfigFile } from "../../effected/config-file/ConfigFile.ts";
-import { asConfigProvider, layerConfigProvider } from "../../effected/config-file/ConfigProvider.ts";
-import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
-import type { ConfigLoadError } from "../../effected/config-file/ConfigFile.ts";
+import type { ConfigLoadError } from "@beep/config-file/ConfigFile";
 
 class DbShape extends S.Class<DbShape, { readonly brand: unique symbol }>("DbShape")({ host: S.String }) {}
 class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({
@@ -23,7 +23,7 @@ class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("App
 class AppConfig extends ConfigFile.Service<AppConfig, AppShape>()("test/ProviderConfig") {}
 
 class ProviderFailure extends Context.Service<ProviderFailure, ConfigLoadError>()(
-  "@beep/scratchpad/test/config-file/ConfigProvider.test/ProviderFailure"
+  "@beep/config-file/test/ConfigProvider.test/ProviderFailure"
 ) {}
 
 const layerFor = (files: Record<string, string>) =>

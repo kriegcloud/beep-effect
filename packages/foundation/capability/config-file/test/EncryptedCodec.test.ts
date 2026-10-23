@@ -1,3 +1,5 @@
+import { ConfigEncryptionError, EncryptedCodec, EncryptedCodecKey } from "@beep/config-file/EncryptedCodec";
+import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { afterEach, assert, describe, it, vi } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
@@ -6,9 +8,7 @@ import * as Exit from "effect/Exit";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { ConfigEncryptionError, EncryptedCodec, EncryptedCodecKey } from "../../effected/config-file/EncryptedCodec.ts";
-import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
-import type { ConfigCodec } from "../../effected/config-file/ConfigCodec.ts";
+import type { ConfigCodec } from "@beep/config-file/ConfigCodec";
 
 const salt = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
 const key = () => EncryptedCodecKey.fromPassphrase("correct horse battery staple", salt);
