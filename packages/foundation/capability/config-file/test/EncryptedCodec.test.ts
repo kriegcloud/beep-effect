@@ -1,6 +1,7 @@
 import { ConfigEncryptionError, EncryptedCodec, EncryptedCodecKey } from "@beep/config-file/EncryptedCodec";
+import { deriveKey, PassphraseKeyDerivation } from "@beep/config-file/internal/crypto";
 import { JsonCodec } from "@beep/config-file/JsonCodec";
-import { afterEach, assert, describe, it, vi } from "@effect/vitest";
+import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
@@ -29,9 +30,24 @@ const passthrough: ConfigCodec<never> = {
   },
 };
 
-afterEach(() => {
-  vi.restoreAllMocks();
-});
+/**
+ * Wrap the real PBKDF2 derivation with a counter. The count is provided to
+ * one program only, so tests running concurrently in this file never see
+ * each other's derivations (a global `crypto.subtle` spy would).
+ */
+const countingDerivation = () => {
+  let derivations = 0;
+  return {
+    count: () => derivations,
+    provide: <A, E, R>(self: Effect.Effect<A, E, R>) =>
+      Effect.provideService(self, PassphraseKeyDerivation, (passphrase, salt) =>
+        Effect.suspend(() => {
+          derivations++;
+          return deriveKey(passphrase, salt);
+        })
+      ),
+  };
+};
 
 describe("EncryptedCodec", () => {
   it.effect("round-trips a value through encryption", () =>
@@ -186,12 +202,11 @@ describe("EncryptedCodec", () => {
     })
   );
 
-  it.effect("runs PBKDF2 exactly once per codec instance across parse and stringify", () =>
-    Effect.gen(function* () {
-      // Count the real derivations at the WebCrypto boundary, so the passphrase
-      // path is held to the same standard as `fromCryptoKey`.
-      const subtle = globalThis.crypto.subtle;
-      const spy = vi.spyOn(subtle, "deriveKey");
+  it.effect("runs PBKDF2 exactly once per codec instance across parse and stringify", () => {
+    // Count the real derivations at the PBKDF2 seam, so the passphrase path is
+    // held to the same standard as `fromCryptoKey`.
+    const derivation = countingDerivation();
+    return Effect.gen(function* () {
       const codec = EncryptedCodec(JsonCodec, key());
 
       const a = yield* codec.stringify({ a: 1 });
@@ -199,19 +214,18 @@ describe("EncryptedCodec", () => {
       yield* codec.parse(a);
       yield* codec.parse(a);
 
-      assert.strictEqual(spy.mock.calls.length, 1);
-    })
-  );
+      assert.strictEqual(derivation.count(), 1);
+    }).pipe(derivation.provide);
+  });
 
-  it.effect("a separate codec instance derives its own key", () =>
-    Effect.gen(function* () {
-      const subtle = globalThis.crypto.subtle;
-      const spy = vi.spyOn(subtle, "deriveKey");
+  it.effect("a separate codec instance derives its own key", () => {
+    const derivation = countingDerivation();
+    return Effect.gen(function* () {
       yield* EncryptedCodec(JsonCodec, key()).stringify({ a: 1 });
       yield* EncryptedCodec(JsonCodec, key()).stringify({ a: 1 });
-      assert.strictEqual(spy.mock.calls.length, 2);
-    })
-  );
+      assert.strictEqual(derivation.count(), 2);
+    }).pipe(derivation.provide);
+  });
 
   it.effect("a failing key effect is retried after failure", () =>
     Effect.gen(function* () {

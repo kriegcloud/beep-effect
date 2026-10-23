@@ -4,7 +4,15 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
-import { decrypt, deriveKey, encrypt, fromBase64, IV_LENGTH, randomIv, toBase64 } from "./internal/crypto.ts";
+import {
+  decrypt,
+  encrypt,
+  fromBase64,
+  IV_LENGTH,
+  PassphraseKeyDerivation,
+  randomIv,
+  toBase64,
+} from "./internal/crypto.ts";
 import type { ConfigCodec } from "./ConfigCodec.ts";
 import type { CryptoFailure } from "./internal/crypto.ts";
 
@@ -196,7 +204,10 @@ export const EncryptedCodecKey = {
 const keyEffect = (keySource: EncryptedCodecKey): Effect.Effect<CryptoKey, ConfigEncryptionError> =>
   keySource._tag === "CryptoKey"
     ? keySource.key
-    : Effect.mapError(deriveKey(keySource.passphrase, keySource.salt), toPublic);
+    : Effect.mapError(
+        PassphraseKeyDerivation.use((derive) => derive(keySource.passphrase, keySource.salt)),
+        toPublic
+      );
 
 /**
  * Wrap any {@link (ConfigCodec:interface)} with AES-GCM encryption.

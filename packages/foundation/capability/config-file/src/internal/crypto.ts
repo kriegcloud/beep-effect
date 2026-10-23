@@ -1,6 +1,10 @@
+import { $ConfigFileId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
+
+const $I = $ConfigFileId.create("internal/crypto");
 
 /**
  * AES-GCM's standard IV length, in bytes.
@@ -124,6 +128,43 @@ export const deriveKey: {
       catch: fail("key-derivation"),
     })
 );
+
+/**
+ * The PBKDF2 key derivation a passphrase-keyed codec resolves its key with.
+ *
+ * **Details**
+ *
+ * Defaults to {@link deriveKey}. It is read from the fiber that first resolves
+ * a codec's key, so a test can wrap the real derivation with
+ * `Effect.provideService` and count PBKDF2 runs per codec instance without a
+ * global spy. That count stays exact while other tests derive keys concurrently.
+ *
+ * **Example** (Count the PBKDF2 derivations of one program)
+ *
+ * ```ts
+ * import { deriveKey, PassphraseKeyDerivation } from "@beep/config-file/internal/crypto";
+ * import * as Effect from "effect/Effect";
+ *
+ * let derivations = 0;
+ * const program = PassphraseKeyDerivation.use((derive) => derive("example-passphrase", new Uint8Array(16)));
+ * await Effect.runPromise(
+ *   Effect.provideService(program, PassphraseKeyDerivation, (passphrase, salt) => {
+ *     derivations++;
+ *     return deriveKey(passphrase, salt);
+ *   })
+ * );
+ * console.log(derivations); // 1
+ * ```
+ *
+ * @internal
+ * @category services
+ * @since 0.0.0
+ */
+export const PassphraseKeyDerivation = Context.Reference<
+  (passphrase: string, salt: Uint8Array) => Effect.Effect<CryptoKey, CryptoFailure>
+>($I`PassphraseKeyDerivation`, {
+  defaultValue: () => deriveKey,
+});
 
 /**
  * Decode base64 into bytes.
