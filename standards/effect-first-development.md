@@ -1224,8 +1224,8 @@ const UnknownToString = S.Unknown.pipe(
   other two are built on it.
 - A field whose decoder really receives `undefined` from third-party code (a
   library's `exportJSON()`, an SDK response) is spelled explicitly as
-  `S.optionalKey(S.UndefinedOr(X))`, with the producer recorded where the
-  field is declared. Construction sites that hold a possibly-undefined value
+  `S.optionalKey(S.UndefinedOr(X))` (written `X.pipe(S.UndefinedOr, S.optionalKey)`),
+  with the producer recorded where the field is declared. Construction sites that hold a possibly-undefined value
   use `O.getSomesStruct({ k: O.fromUndefinedOr(v) })` (EF-2).
 - Enforced by the Biome GritQL rule `prefer-exact-optional-key`
   (`@beep/lint-rules`); migrate mechanically with

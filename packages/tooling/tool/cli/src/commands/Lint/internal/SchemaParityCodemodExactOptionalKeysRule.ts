@@ -127,6 +127,9 @@ const replaceNode = (node: Node, text: string): SchemaParityCodemodEdit =>
  * `S.optional` (value) and `S.optional<X>` / `typeof S.optional` (type) both
  * name the member through a qualifier; a bare identifier is a named import's
  * local binding and is reported at its import specifier instead.
+ *
+ * @param identifier - The candidate member-name identifier.
+ * @returns Whether the identifier is the qualified member name.
  */
 const isQualifiedMemberName = (identifier: Identifier): boolean => {
   const parent = identifier.getParent();
@@ -160,6 +163,9 @@ const undefinedFreeUnion = (typeNode: Node): O.Option<string> => {
 /**
  * The field key and owning declaration name of a rewritten value site:
  * `{ key: S.optional(X) }` inside `class Owner` / `const Owner = ...`.
+ *
+ * @param site - The rewritten member identifier.
+ * @returns The field key and owner name, when both exist.
  */
 const fieldOwner = (site: Node): O.Option<{ readonly key: string; readonly owner: string }> =>
   pipe(
@@ -184,6 +190,10 @@ const fieldOwner = (site: Node): O.Option<{ readonly key: string; readonly owner
  * or `interface Encoded { key?: X | undefined }`. `optional` also narrows the
  * decoded side, so every alias and interface in the namespace is
  * paired; the other members only change the encoded side.
+ *
+ * @param sourceFile - The file being planned.
+ * @param rewrites - The member rewrites planned for the file.
+ * @returns The companion-member edits paired with those rewrites.
  */
 const pairedDeclarationEdits = (
   sourceFile: SourceFile,

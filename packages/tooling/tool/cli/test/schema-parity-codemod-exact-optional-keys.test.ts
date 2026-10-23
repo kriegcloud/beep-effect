@@ -4,7 +4,7 @@ import {
   planSchemaParityCodemodFile,
   SchemaParityCodemodFileOutcome,
 } from "@beep/repo-cli/test/Lint";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { describe, it } from "@effect/vitest";
 import { assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
 import { Project, ts } from "ts-morph";
@@ -58,7 +58,7 @@ const rewrite = (body: string, header?: string): string => {
   const outcome = plan(body, header);
   assertTrue(SchemaParityCodemodFileOutcome.guards.Planned(outcome));
   const prefix = header ?? `import * as S from ${SCHEMA_IMPORT};\n`;
-  return outcome.nextText.slice(prefix.length);
+  return Str.slice(prefix.length)(outcome.nextText);
 };
 
 const residueReasons = (body: string, header?: string): ReadonlyArray<string> => {
@@ -69,7 +69,7 @@ const residueReasons = (body: string, header?: string): ReadonlyArray<string> =>
 
 describe("exact-optional-keys rule", () => {
   it("resolves members by the effect/Schema owner modules", () => {
-    assertTrue(A.some(EffectSchemaOwnerModules, (suffix) => `/repo/${SCHEMA_MODULE}`.endsWith(suffix)));
+    assertTrue(A.some(EffectSchemaOwnerModules, (suffix) => Str.endsWith(suffix)(`/repo/${SCHEMA_MODULE}`)));
   });
 
   it("rewrites the call form inside an inline struct", () => {

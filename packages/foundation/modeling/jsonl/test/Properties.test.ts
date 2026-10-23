@@ -331,12 +331,12 @@ describe("jsonl schema round trips", () => {
         const encodedConfig = yield* encodeConfig(config);
         for (const key of ["directory", "capacity", "shutdownPublishTimeout"] as const) {
           const explicit = yield* Effect.exit(decodeConfig({ ...encodedConfig, [key]: undefined }));
-          assertTrue(Exit.isFailure(explicit));
+          explicit.pipe(Exit.isFailure, assertTrue);
         }
         const encodedSlice = yield* encodeCursoredSlice(slice);
         for (const key of ["events", "scopes", "from", "to", "cursor"] as const) {
           const explicit = yield* Effect.exit(decodeCursoredSlice({ ...encodedSlice, [key]: undefined }));
-          assertTrue(Exit.isFailure(explicit));
+          explicit.pipe(Exit.isFailure, assertTrue);
         }
       }),
     runs

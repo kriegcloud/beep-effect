@@ -215,14 +215,14 @@ const ApiTransportDurationNumber = S.declare<number>(
 // `weeks?: number | undefined`: a value typed against `Duration.Input` may hold
 // an explicit undefined, so these keys keep it (EF-40 exception).
 const ApiTransportDurationObject = S.Struct({
-  weeks: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
-  days: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
-  hours: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
-  minutes: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
-  seconds: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
-  milliseconds: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
-  microseconds: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
-  nanoseconds: S.optionalKey(S.UndefinedOr(ApiTransportDurationNumber)),
+  weeks: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  days: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  hours: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  minutes: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  seconds: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  milliseconds: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  microseconds: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  nanoseconds: ApiTransportDurationNumber.pipe(S.UndefinedOr, S.optionalKey),
 });
 
 type ApiTransportDurationString = Extract<Duration.Input, string>;

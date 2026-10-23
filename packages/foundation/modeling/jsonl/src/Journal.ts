@@ -365,14 +365,14 @@ const DurationNumber = S.declare(P.isNumber).pipe(
  * an explicit undefined, so these keys keep it (EF-40 exception).
  */
 const DurationObject = S.Struct({
-  weeks: S.optionalKey(S.UndefinedOr(DurationNumber)),
-  days: S.optionalKey(S.UndefinedOr(DurationNumber)),
-  hours: S.optionalKey(S.UndefinedOr(DurationNumber)),
-  minutes: S.optionalKey(S.UndefinedOr(DurationNumber)),
-  seconds: S.optionalKey(S.UndefinedOr(DurationNumber)),
-  milliseconds: S.optionalKey(S.UndefinedOr(DurationNumber)),
-  microseconds: S.optionalKey(S.UndefinedOr(DurationNumber)),
-  nanoseconds: S.optionalKey(S.UndefinedOr(DurationNumber)),
+  weeks: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  days: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  hours: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  minutes: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  seconds: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  milliseconds: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  microseconds: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
+  nanoseconds: DurationNumber.pipe(S.UndefinedOr, S.optionalKey),
 }).pipe(
   $I.annoteSchema("DurationObject", { description: "Additive duration components accepted by Duration.fromInput." })
 );

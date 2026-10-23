@@ -158,7 +158,7 @@ describe("CodeScanningSetup", () => {
       assert.deepStrictEqual<CodeScanningSetup.Encoded>(omitted, {});
       assert.deepStrictEqual(yield* S.encodeEffect(CodeScanningSetup)(omitted), {});
       const explicit = yield* Effect.exit(S.decodeUnknownEffect(CodeScanningSetup)({ runner_label: undefined }));
-      assertTrue(Exit.isFailure(explicit));
+      explicit.pipe(Exit.isFailure, assertTrue);
     })
   );
 
