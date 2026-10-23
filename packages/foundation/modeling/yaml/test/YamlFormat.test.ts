@@ -1007,7 +1007,10 @@ describe("YamlFormat", () => {
       ["seq: |+ keep item, blank, next item", "- |+\n  text\n\n- 2\n"],
       ["seq: |+ keep item, blank, terminal comment", "- |+\n  text\n\n# tail\n"],
       ["nested map |+ keep, blank, outer sibling", "m:\n  a: |+\n    text\n\nb: 1\n"],
-      ["nested seq |+ keep, blank, outer sibling", "m:\n  - |+\n    text\n\nb: 1\n"],
+      // The formatter's canonical compact sequence form. The indented
+      // spelling only stayed byte-identical while the parser rejected a
+      // block scalar as the last item before an outer sibling (#2131).
+      ["nested seq |+ keep, blank, outer sibling", "m:\n- |+\n  text\n\nb: 1\n"],
       ["nested >+ folded keep, blank, outer sibling", "m:\n  a: >+\n    text\n\nb: 1\n"],
       ["doc root |+ keep, trailing comment", "|+\n  text\n\n# tail\n"],
       ["doc root |+ keep at EOF", "|+\n  text\n\n"],
