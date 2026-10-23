@@ -1,0 +1,42 @@
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "*.{ts,tsx,js,jsx,json,jsonc,css}"
+      exclude: ".beep/**|goals/**|outputs/**|scratchpad/**"
+      run: bunx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    jsdoc:
+      glob: "packages/tooling/*/*/src/**/*.ts"
+      exclude:
+        - "packages/tooling/*/*/src/internal/**"
+        - "**/*.test.ts"
+        - "**/*.spec.ts"
+        - "**/*.d.ts"
+      # --no-error-on-unmatched-pattern: a staged file can sit under one of the docs config's
+      # ignorePatterns (for example src/test/**); oxlint then lints nothing and must not fail.
+      run: bunx oxlint --config .oxlintrc.docs.json --no-error-on-unmatched-pattern {staged_files}
+    gitleaks:
+      run: gitleaks protect --staged --verbose --config .gitleaks.toml
+    typos:
+      glob: "*.{ts,tsx,js,jsx,md,json}"
+      exclude: ".beep/**|goals/**|outputs/**|scratchpad/**"
+      run: typos --exclude '.beep/**' --exclude 'scratchpad/**'
+    instructions-drift:
+      glob: "{CLAUDE.md,AGENTS.md}"
+      run: bun run instructions:drift
+
+commit-msg:
+  commands:
+    commitlint:
+      run: bunx commitlint --edit {1}
+
+post-merge:
+  commands:
+    version-sync-check:
+      run: bun run beep version-sync --skip-network
+
+pre-push:
+  commands:
+    bun-version-check:
+      run: bun run beep version-sync --check-runtime
