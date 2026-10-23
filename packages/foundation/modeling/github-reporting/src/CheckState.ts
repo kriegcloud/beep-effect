@@ -1,6 +1,6 @@
-import * as Match from "effect/Match";
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/github-actions/CheckState");
@@ -20,9 +20,18 @@ const $I = $ScratchpadId.create("effected/github-actions/CheckState");
  * @category errors
  * @since 0.0.0
  */
-export class UnhandledCheckStateError extends S.TaggedError<UnhandledCheckStateError, { readonly brand: unique symbol }>($I`UnhandledCheckStateError`)("UnhandledCheckStateError", {
-	message: S.String,
-}, $I.annoteError<UnhandledCheckStateError>("UnhandledCheckStateError", { description: "A check state outside the vocabulary was projected." })) {}
+export class UnhandledCheckStateError extends S.TaggedError<
+  UnhandledCheckStateError,
+  { readonly brand: unique symbol }
+>($I`UnhandledCheckStateError`)(
+  "UnhandledCheckStateError",
+  {
+    message: S.String,
+  },
+  $I.annoteError<UnhandledCheckStateError>("UnhandledCheckStateError", {
+    description: "A check state outside the vocabulary was projected.",
+  })
+) {}
 
 /**
  * The kit's check-state vocabulary.
@@ -55,13 +64,13 @@ export class UnhandledCheckStateError extends S.TaggedError<UnhandledCheckStateE
  * @since 0.0.0
  */
 export const CheckState = LiteralKit([
-	"running",
-	"pass",
-	"fail",
-	"warn",
-	"user_interaction_required",
-	"skipped",
-	"timeout",
+  "running",
+  "pass",
+  "fail",
+  "warn",
+  "user_interaction_required",
+  "skipped",
+  "timeout",
 ]).pipe($I.annoteSchema("CheckState", { description: "The kit's check-state vocabulary." }));
 
 /**
@@ -98,8 +107,17 @@ export type CheckState = typeof CheckState.Type;
  * @since 0.0.0
  */
 export const CheckRunConclusion = LiteralKit([
-	"success", "failure", "neutral", "skipped", "timed_out", "action_required",
-]).pipe($I.annoteSchema("CheckRunConclusion", { description: "The GitHub check-run conclusions the kit vocabulary can produce." }));
+  "success",
+  "failure",
+  "neutral",
+  "skipped",
+  "timed_out",
+  "action_required",
+]).pipe(
+  $I.annoteSchema("CheckRunConclusion", {
+    description: "The GitHub check-run conclusions the kit vocabulary can produce.",
+  })
+);
 
 /**
  * The conclusion type accepted by {@link CheckRunConclusion}.
@@ -110,7 +128,9 @@ export const CheckRunConclusion = LiteralKit([
  */
 export type CheckRunConclusion = typeof CheckRunConclusion.Type;
 
-const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe($I.annoteSchema("CheckRunStatus", { description: "The statuses produced by a kit check-state projection." }));
+const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe(
+  $I.annoteSchema("CheckRunStatus", { description: "The statuses produced by a kit check-state projection." })
+);
 
 /**
  * A `CheckState` on GitHub's check-run wire: a status, and a conclusion
@@ -136,14 +156,25 @@ const CheckRunStatus = LiteralKit(["in_progress", "completed"]).pipe($I.annoteSc
  * @since 0.0.0
  */
 export const CheckRunProjection = S.Union([
-	S.Struct({
-		status: S.tag(CheckRunStatus.Enum.in_progress).pipe($I.annoteKey("CheckRunProjection.in_progress.status", { description: "An active check without a conclusion." })),
-	}),
-	S.Struct({
-		status: S.tag(CheckRunStatus.Enum.completed).pipe($I.annoteKey("CheckRunProjection.completed.status", { description: "A finished check carrying its conclusion." })),
-		conclusion: CheckRunConclusion.pipe($I.annoteKey("CheckRunProjection.completed.conclusion", { description: "The completed check's wire conclusion." })),
-	}),
-]).pipe(S.toTaggedUnion("status"), $I.annoteSchema("CheckRunProjection", { description: "A plain-object wire projection with a conclusion exactly for completed checks." }));
+  S.Struct({
+    status: S.tag(CheckRunStatus.Enum.in_progress).pipe(
+      $I.annoteKey("CheckRunProjection.in_progress.status", { description: "An active check without a conclusion." })
+    ),
+  }),
+  S.Struct({
+    status: S.tag(CheckRunStatus.Enum.completed).pipe(
+      $I.annoteKey("CheckRunProjection.completed.status", { description: "A finished check carrying its conclusion." })
+    ),
+    conclusion: CheckRunConclusion.pipe(
+      $I.annoteKey("CheckRunProjection.completed.conclusion", { description: "The completed check's wire conclusion." })
+    ),
+  }),
+]).pipe(
+  S.toTaggedUnion("status"),
+  $I.annoteSchema("CheckRunProjection", {
+    description: "A plain-object wire projection with a conclusion exactly for completed checks.",
+  })
+);
 
 /**
  * The wire projection type accepted by {@link CheckRunProjection}.
@@ -178,13 +209,16 @@ export type CheckRunProjection = typeof CheckRunProjection.Type;
  * @since 0.0.0
  */
 export const projectCheckState = (state: CheckState): CheckRunProjection =>
-	Match.value(state).pipe(
-		Match.when("running", (): CheckRunProjection => ({ status: "in_progress" })),
-		Match.when("pass", (): CheckRunProjection => ({ status: "completed", conclusion: "success" })),
-		Match.when("fail", (): CheckRunProjection => ({ status: "completed", conclusion: "failure" })),
-		Match.when("warn", (): CheckRunProjection => ({ status: "completed", conclusion: "neutral" })),
-		Match.when("user_interaction_required", (): CheckRunProjection => ({ status: "completed", conclusion: "action_required" })),
-		Match.when("skipped", (): CheckRunProjection => ({ status: "completed", conclusion: "skipped" })),
-		Match.when("timeout", (): CheckRunProjection => ({ status: "completed", conclusion: "timed_out" })),
-		Match.exhaustive,
-	);
+  Match.value(state).pipe(
+    Match.when("running", (): CheckRunProjection => ({ status: "in_progress" })),
+    Match.when("pass", (): CheckRunProjection => ({ status: "completed", conclusion: "success" })),
+    Match.when("fail", (): CheckRunProjection => ({ status: "completed", conclusion: "failure" })),
+    Match.when("warn", (): CheckRunProjection => ({ status: "completed", conclusion: "neutral" })),
+    Match.when(
+      "user_interaction_required",
+      (): CheckRunProjection => ({ status: "completed", conclusion: "action_required" })
+    ),
+    Match.when("skipped", (): CheckRunProjection => ({ status: "completed", conclusion: "skipped" })),
+    Match.when("timeout", (): CheckRunProjection => ({ status: "completed", conclusion: "timed_out" })),
+    Match.exhaustive
+  );
