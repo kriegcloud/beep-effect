@@ -61,6 +61,10 @@ merge after the first takes main first and regenerates the shared files. Critica
 3-A4, 3-A6, R3a, R3b, C. Second path: 3-5, 4-W-a, 4-A1, 4-A3, C. The sites each row moves are in
 `history/reuse-ledger.md`.
 
+W4-c, W4-d and W4-f are copied into the SPEC Decision Log from the plan table with one spelling
+change: the plan's dot-slash subpaths are written as "the `XdgConfig` subpath" and "the `testing`
+subpath", because the knowledge doctor reads a dot-slash span as a packet-relative tracked path.
+
 | id | scope | depends on |
 | --- | --- | --- |
 | 3-3 (#2134, open) | `@beep/config-file`; docgen `readJsoncFile`, repo-cli Models `load`; lab xdg and cli retargets | 3-Y (merged) |

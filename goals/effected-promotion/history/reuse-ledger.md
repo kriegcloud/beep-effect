@@ -24,14 +24,14 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | repo-cli `Quality/ChangesetGraph.ts` frontmatter fence | #27, #276 (fence part) | adopted (2d-A, D-47) | `FrontmatterSource.split`; the YAML and schema block stays. Parity 912 of 1,044; the other 132 are empty blocks with no references either way. |
 | skill-contract `SkillProjection.ts` `---json` splitter | #231 | adopted (2d-A, D-47) | `FrontmatterSource.split` with format `json`, plus an import-closure assertion that the block parser stays out. |
 | repo-cli `Goals/Inventory.ts` README regexes | #287 | adopted (2d-A, D-47) | `MarkdownDocument.parseResult` with `firstSection`, `sectionByHeading` and `headingSource` (root-level H1, D-47); pin the `---json`, `<Goal Title>` and list-interrupt shifts. |
-| repo-cli DeletePackage `stripPackageFromFrontmatter` | #276 | 2d-later | Split, `YamlFormat.modifyToString`, join. The substring bug was fixed independently in #2020. |
-| ReflectionArtifact and SkillFrontmatterCheck typed frontmatter | #37 | 2d-later | `MarkdownFrontmatter.schema` with `YamlFrontmatter`; verdict parity over 302 reflections and 44 skills. |
-| docgen `@effect/markdown-toc` | #292 | 2d-later | Needs a GitHub slugger and a TOC renderer; drops the npm dependency. |
-| effect-drizzle `scripts/assemble-readme.ts` | - | 2d-later | After the TOC helper; `@beep/markdown` as a devDependency only (ecosystem polarity). |
-| docgen `fencePattern` and its consumers, EffectImports, SchemaTagIdioms | #282 | 2d-later | Needs code-node spans and an unterminated-fence diagnostic; zero JSDoc-ratchet drift. |
-| repo-cli Knowledge.refs, KnowledgeDoctor, RoadmapRefs | #232 | 2d-later | Behind a perf budget: a full parse costs about 400 times the line split. Prefilter fence-bearing files and re-benchmark. |
-| repo-cli KnowledgeDoctor `beep-historical` frontmatter | - | 2d-later | `FrontmatterSource`. |
-| runpod `RunpodDocs.service.ts` | #301 | 2d-later, optional | Needs a fixture first. |
+| repo-cli DeletePackage `stripPackageFromFrontmatter` | #276 | queued: R5a | Split, `YamlFormat.modifyToString`, join. The substring bug was fixed independently in #2020. |
+| ReflectionArtifact and SkillFrontmatterCheck typed frontmatter | #37 | queued: R5a | `MarkdownFrontmatter.schema` with `YamlFrontmatter`; verdict parity over 302 reflections and 44 skills. |
+| docgen `@effect/markdown-toc` | #292 | queued: R5b | Needs a GitHub slugger and a TOC renderer; drops the npm dependency. |
+| effect-drizzle `scripts/assemble-readme.ts` | - | queued: R5b | After the TOC helper; `@beep/markdown` as a devDependency only (ecosystem polarity). |
+| docgen `fencePattern` and its consumers, EffectImports, SchemaTagIdioms | #282 | queued: R6 (or deferred per W4-q) | Needs code-node spans and an unterminated-fence diagnostic; zero JSDoc-ratchet drift. |
+| repo-cli Knowledge.refs, KnowledgeDoctor, RoadmapRefs | #232 | excluded (W4-r) | Behind a perf budget: a full parse costs about 400 times the line split. Prefilter fence-bearing files and re-benchmark. |
+| repo-cli KnowledgeDoctor `beep-historical` frontmatter | - | queued: R5a | `FrontmatterSource`. |
+| runpod `RunpodDocs.service.ts` | #301 | excluded | Needs a fixture first. |
 | micromark oracle | #236 | excluded | A circular check. |
 | `@beep/schema` Markdown | #227, #258 | excluded | MQ7 cycle; deleting `MarkdownTextToHtml` is a separate cleanup. |
 | OnboardingSkill | #286 | excluded | Four lines in an app; not worth the dependency. |
@@ -83,10 +83,9 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 | `@beep/md` `Md.ts`: write-side DSL with no parser | #290 | resolved in 2d-2 | Merged into #237: `@beep/md/Md.parse` parses text. `@beep/schema`'s Markdown-to-HTML path stays (excluded with #227 and #258, MQ7 cycle). |
 | `@beep/md` merge design and hand-rolled frontmatter splitting | #259 | partly resolved in 2d-2 | Placement decided (D-02: parser in `@beep/markdown`, bridge in `@beep/md`) and the unsupported-node policy written (D-48). The frontmatter splitters are the 2d-A sites #37, #27, #276 and #231 above. |
 
-
 ## Backfill of the remaining map sites (R0, W4-k)
 
-Every confirmed and partial site of the map that had no row above, so each one is migrated, queued under a
+Every confirmed and partial site of the map that had no row above (the earlier `2d-later` rows now carry their plan PR or exclusion too), so each one is migrated, queued under a
 PR id of the wave-4 plan's PR sequence (`research/wave-4-plan-2026-10-23.md`), or excluded with a reason. Each
 PR flips its own rows. Rows whose status the plan does not name were assigned from the map's prerequisite column.
 202 rows: 24 migrated, 97 queued on a plan PR,
