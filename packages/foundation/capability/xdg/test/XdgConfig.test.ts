@@ -1,12 +1,16 @@
 import { ConfigFile, JsonCodec, MergeStrategy } from "@beep/config-file";
 import { MemoryFileSystem } from "@beep/memfs";
-import { AppDirs, CurrentPlatform, Xdg, XdgConfig, XdgPaths } from "@beep/xdg";
+import { HostProcessPlatform } from "@beep/utils/HostProcess";
+import { AppDirs, Xdg, XdgPaths } from "@beep/xdg";
+import { XdgConfig } from "@beep/xdg/XdgConfig";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type { XdgPlatform } from "@beep/xdg";
 import type * as O from "effect/Option";
@@ -43,8 +47,11 @@ const fsFixture = (options: {
   readonly probed?: Array<string>;
 }) =>
   MemoryFileSystem.layerWith(
-    Object.fromEntries(
-      [...(options.present ?? []), ...(options.denied ?? [])].map((target) => [target, options.files?.[target] ?? ""])
+    R.fromEntries(
+      A.map(
+        A.appendAll(options.present ?? [], options.denied ?? []),
+        (target) => [target, options.files?.[target] ?? ""] as const
+      )
     ),
     {
       faults: {
@@ -71,7 +78,7 @@ const context = (options: Parameters<typeof fsFixture>[0], platform: XdgPlatform
   const base = Layer.mergeAll(
     Path.layer,
     fsFixture(options),
-    Layer.succeed(CurrentPlatform, platform),
+    Layer.succeed(HostProcessPlatform, platform),
     Xdg.layerFrom(paths)
   );
   return Layer.provideMerge(AppDirs.layer({ namespace: "myapp" }), base);

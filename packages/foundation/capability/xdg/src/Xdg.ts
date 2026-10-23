@@ -1,14 +1,16 @@
 import { $XdgId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import { HostProcessPlatform } from "@beep/utils/HostProcess";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import { constant, dual, flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { isAbsolutePosix, isAbsoluteWin32 } from "./internal/absolute.ts";
 
 const $I = $XdgId.create("Xdg");
 
@@ -57,31 +59,26 @@ export const XdgPlatform = LiteralKit([
  */
 export type XdgPlatform = typeof XdgPlatform.Type;
 
-const detectPlatform = (): XdgPlatform => {
-  const platform = globalThis.process?.platform;
-  // A platform Node does not report — or no `process` at all, as in a browser
-  // or a worker — behaves as Linux: XDG is the convention, no native override.
-  return O.getOrElse(S.decodeOption(XdgPlatform)(platform), () => "linux");
-};
-
 /**
  * The platform every native-directory decision is taken against.
  *
  * **Details**
  *
- * A `Context.Reference`, not a global read. It
- * defaults to `process.platform`, so production behaviour is what you expect;
- * a test pins macOS or Windows semantics with
- * `Layer.succeed(CurrentPlatform, "win32")` and exercises the whole native-path
- * matrix without touching a real filesystem or the real platform.
+ * Reads `HostProcessPlatform` from `@beep/utils/HostProcess`, which defaults
+ * to `process.platform`. A platform outside {@link (XdgPlatform:variable)} (or
+ * no `process` at all, as in a browser or a worker, where the reference reads
+ * `"browser"`) behaves as Linux: XDG is the convention, with no native
+ * override. A test pins macOS or Windows semantics with
+ * `Effect.provideService(HostProcessPlatform, "win32")`.
  *
  * **Example** (Pin Windows semantics)
  *
  * ```ts
- * import { CurrentPlatform } from "@beep/xdg/Xdg";
+ * import { HostProcessPlatform } from "@beep/utils/HostProcess";
+ * import { currentPlatform } from "@beep/xdg/Xdg";
  * import * as Effect from "effect/Effect";
  *
- * const platform = Effect.runSync(CurrentPlatform.pipe(Effect.provideService(CurrentPlatform, "win32")));
+ * const platform = Effect.runSync(currentPlatform.pipe(Effect.provideService(HostProcessPlatform, "win32")));
  * console.log(platform); // win32
  * ```
  *
@@ -89,9 +86,10 @@ const detectPlatform = (): XdgPlatform => {
  * @category services
  * @since 0.0.0
  */
-export const CurrentPlatform: Context.Reference<XdgPlatform> = Context.Reference<XdgPlatform>($I`CurrentPlatform`, {
-  defaultValue: detectPlatform,
-});
+export const currentPlatform: Effect.Effect<XdgPlatform> = Effect.map(
+  HostProcessPlatform,
+  flow(S.decodeUnknownOption(XdgPlatform), O.getOrElse(constant<XdgPlatform>("linux")))
+);
 
 /**
  * Indicates that the environment cannot satisfy XDG directory resolution.
@@ -177,8 +175,8 @@ export class XdgEnvError extends S.TaggedError<XdgEnvError, { readonly brand: un
  * @category models
  * @since 0.0.0
  */
-export class XdgPaths extends S.Class<XdgPaths, { readonly brand: unique symbol }>($I`XdgPaths`)(
-  {
+export class XdgPaths extends S.Opaque<XdgPaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** `$HOME`. The one variable that must be set. */
     home: S.String.pipe($I.annoteKey("XdgPaths.home", { description: "`$HOME`. The one variable that must be set." })),
     /** `$XDG_CONFIG_HOME`. */
@@ -215,26 +213,32 @@ export class XdgPaths extends S.Class<XdgPaths, { readonly brand: unique symbol 
         description: '`$XDG_DATA_DIRS`, split on `:`. Defaults to `["/usr/local/share", "/usr/share"]`.',
       })
     ),
-  },
-  $I.annote("XdgPaths", { description: "The XDG Base Directory environment, resolved." })
+  }).pipe($I.annoteSchema("XdgPaths", { description: "The XDG Base Directory environment, resolved." }))
 ) {}
 
 /**
- * Split a `PATH`-style variable, dropping empty entries.
+ * Split a `PATH`-style variable, keeping only absolute entries.
  *
  * **Gotchas**
  *
- * Per the XDG spec, an unset **or empty** variable takes the default — so
- * `XDG_CONFIG_DIRS=""` is not "no system directories", it is `/etc/xdg`.
+ * Per the XDG spec, an unset **or empty** variable takes the default, and a
+ * relative entry is invalid and ignored. A list with no valid entry left
+ * (`XDG_CONFIG_DIRS=""`, `":::"` or `"etc:share"`) is therefore not "no
+ * system directories": it is the default.
  */
 const splitDirs: {
   (raw: string | undefined, fallback: ReadonlyArray<string>): ReadonlyArray<string>;
   (fallback: ReadonlyArray<string>): (raw: string | undefined) => ReadonlyArray<string>;
-} = dual(2, (raw: string | undefined, fallback: ReadonlyArray<string>): ReadonlyArray<string> => {
-  if (raw === undefined) return fallback;
-  const parts = A.filter(raw.split(":"), (entry) => entry.length > 0);
-  return A.match(parts, { onEmpty: () => fallback, onNonEmpty: () => parts });
-});
+} = dual(
+  2,
+  (raw: string | undefined, fallback: ReadonlyArray<string>): ReadonlyArray<string> =>
+    pipe(
+      O.fromUndefinedOr(raw),
+      O.map(flow(Str.split(":"), A.filter(isAbsolutePosix))),
+      O.filter(A.isReadonlyArrayNonEmpty<string>),
+      O.getOrElse(constant(fallback))
+    )
+);
 
 /**
  * XDG Base Directory environment resolution.
@@ -305,25 +309,25 @@ export class Xdg extends Context.Service<Xdg, XdgPaths>()($I`Xdg`) {
       const home = yield* asEnvError("HOME", Config.NonEmptyString("HOME"));
 
       /**
-       * An unset variable is `Option.none()`, not a failure. The residual
-       * `ConfigError` a `Config.option` can still raise is a *provider* failure
-       * (a `ConfigProvider` backed by a directory or a `.env` file that cannot be
-       * read), not a missing key — so it is mapped rather than swallowed.
+       * An unset variable is `Option.none()`, not a failure, and so is a value
+       * that fails `valid`: the spec says a relative path is invalid and must be
+       * ignored. The residual `ConfigError` a `Config.option` can still raise is
+       * a *provider* failure (a `ConfigProvider` backed by a directory or a
+       * `.env` file that cannot be read), not a missing key, so it is mapped
+       * rather than swallowed.
        */
-      const read = (name: string): Effect.Effect<string | undefined, XdgEnvError> =>
-        Effect.map(asEnvError(name, Config.option(Config.String(name))), (option) =>
-          O.getOrUndefined(O.filter(option, Str.isNonEmpty))
-        );
+      const read = (name: string, valid: (value: string) => boolean): Effect.Effect<string | undefined, XdgEnvError> =>
+        Effect.map(asEnvError(name, Config.option(Config.String(name))), flow(O.filter(valid), O.getOrUndefined));
 
-      const configHome = yield* read("XDG_CONFIG_HOME");
-      const dataHome = yield* read("XDG_DATA_HOME");
-      const cacheHome = yield* read("XDG_CACHE_HOME");
-      const stateHome = yield* read("XDG_STATE_HOME");
-      const runtimeDir = yield* read("XDG_RUNTIME_DIR");
-      const appData = yield* read("APPDATA");
-      const localAppData = yield* read("LOCALAPPDATA");
-      const configDirs = yield* read("XDG_CONFIG_DIRS");
-      const dataDirs = yield* read("XDG_DATA_DIRS");
+      const configHome = yield* read("XDG_CONFIG_HOME", isAbsolutePosix);
+      const dataHome = yield* read("XDG_DATA_HOME", isAbsolutePosix);
+      const cacheHome = yield* read("XDG_CACHE_HOME", isAbsolutePosix);
+      const stateHome = yield* read("XDG_STATE_HOME", isAbsolutePosix);
+      const runtimeDir = yield* read("XDG_RUNTIME_DIR", isAbsolutePosix);
+      const appData = yield* read("APPDATA", isAbsoluteWin32);
+      const localAppData = yield* read("LOCALAPPDATA", isAbsoluteWin32);
+      const configDirs = yield* read("XDG_CONFIG_DIRS", Str.isNonEmpty);
+      const dataDirs = yield* read("XDG_DATA_DIRS", Str.isNonEmpty);
 
       // A *present* key holding `undefined` is not the same as an absent key —
       // v4 constructors validate — so every optional field is conditionally spread.

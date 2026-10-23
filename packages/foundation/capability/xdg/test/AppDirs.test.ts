@@ -1,8 +1,12 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { MemoryFileSystem } from "@beep/memfs";
-import { AppDirKind, AppDirs, AppDirsError, CurrentPlatform, Xdg, XdgPaths } from "@beep/xdg";
+import { HostProcessPlatform } from "@beep/utils/HostProcess";
+import { AppDirKind, AppDirs, AppDirsError, ResolvedAppDirs, Xdg, XdgPaths } from "@beep/xdg";
 import { AppDirOverrides, AppDirsNamespaceError, AppDirsOptions } from "@beep/xdg/AppDirs";
 import { assert, describe, it } from "@effect/vitest";
-import { assertExitFailure, assertNone } from "@effect/vitest/utils";
+import { assertExitFailure, assertNone, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -70,16 +74,29 @@ const recordingFs = (made: Array<string>, failOn?: string) =>
 const base = Layer.mergeAll(Path.layer, recordingFs([]));
 
 /** Resolve `AppDirs` against fixed paths and a fixed platform. No IO. */
-const resolved = (options: AppDirsOptions, paths: XdgPaths, platform: XdgPlatform = "linux") =>
+const resolved = (options: typeof AppDirsOptions.Encoded, paths: XdgPaths, platform: XdgPlatform = "linux") =>
   Effect.gen(function* () {
     const appDirs = yield* AppDirs;
     return appDirs.dirs;
   }).pipe(
     provideLayer(AppDirs.layer(options).pipe(Layer.provide(Xdg.layerFrom(paths)), Layer.provide(base))),
-    Effect.provideService(CurrentPlatform, platform)
+    Effect.provideService(HostProcessPlatform, platform)
   );
 
 describe("AppDirs", () => {
+  it.effect.prop(
+    "AppDirsOptions and ResolvedAppDirs: decode(encode(x)) equals x",
+    [Arbitrary.schema(AppDirsOptions), Arbitrary.schema(ResolvedAppDirs)],
+    ([options, dirs]) =>
+      Effect.gen(function* () {
+        const reencodedOptions = yield* S.encodeEffect(AppDirsOptions)(options);
+        const reencodedDirs = yield* S.encodeEffect(ResolvedAppDirs)(dirs);
+        assertTrue(S.toEquivalence(AppDirsOptions)(yield* S.decodeEffect(AppDirsOptions)(reencodedOptions), options));
+        assertTrue(S.toEquivalence(ResolvedAppDirs)(yield* S.decodeEffect(ResolvedAppDirs)(reencodedDirs), dirs));
+      }),
+    { arbitrary: fcRuns(50) }
+  );
+
   it.effect("keeps the annotated AppDirKind literal kit surface", () =>
     Effect.gen(function* () {
       assert.deepStrictEqual(AppDirKind.literals, ["config", "data", "cache", "state", "runtime"]);
@@ -119,10 +136,10 @@ describe("AppDirs", () => {
     it.effect("preserves absent optional keys and accepts plain object options", () =>
       Effect.gen(function* () {
         const overrides = yield* S.decodeEffect(AppDirOverrides)({});
-        assert.deepStrictEqual(overrides, {});
+        assert.deepStrictEqual({ ...overrides }, {});
         for (const kind of AppDirKind.literals) assert.isFalse(kind in overrides);
         const options = yield* S.decodeEffect(AppDirsOptions)({ namespace: "myapp" });
-        assert.deepStrictEqual(options, { namespace: "myapp" });
+        assert.deepStrictEqual({ ...options }, { namespace: "myapp" });
         assert.isFalse("native" in options);
         assert.isFalse("fallbackDir" in options);
         assert.isFalse("dirs" in options);
@@ -139,8 +156,14 @@ describe("AppDirs", () => {
           fallbackDir: ".fallback",
           dirs: { config: "/c", data: "/d", cache: "/ca", state: "/s", runtime: "/r" },
         };
-        assert.deepStrictEqual(yield* S.decodeEffect(AppDirsOptions)(input), input);
-        assert.deepStrictEqual(yield* S.decodeEffect(AppDirOverrides)(input.dirs), input.dirs);
+        assert.deepStrictEqual(
+          yield* S.encodeEffect(AppDirsOptions)(yield* S.decodeEffect(AppDirsOptions)(input)),
+          input
+        );
+        assert.deepStrictEqual(
+          yield* S.encodeEffect(AppDirOverrides)(yield* S.decodeEffect(AppDirOverrides)(input.dirs)),
+          input.dirs
+        );
       })
     );
 
@@ -195,7 +218,7 @@ describe("AppDirs", () => {
       );
       const nativeDirs = yield* Effect.map(AppDirs, (app) => app.dirs).pipe(
         provideLayer(nativeLayer),
-        Effect.provideService(CurrentPlatform, "darwin")
+        Effect.provideService(HostProcessPlatform, "darwin")
       );
       assert.strictEqual(nativeDirs.config, "/home/ada/Library/Application Support/myapp");
       assert.strictEqual(nativeDirs.cache, "/home/ada/Library/Caches/myapp");
@@ -492,9 +515,9 @@ describe("AppDirs", () => {
           // The discriminating assertion: it is a DEFECT, not laundered into E.
           // Without this line, an implementation that raised a typed error would
           // still pass every other assertion here.
-          assert.isFalse(reasons.some(Cause.isFailReason));
-          const die = reasons.find(Cause.isDieReason);
-          assert.instanceOf(die?.defect, AppDirsNamespaceError);
+          assert.isFalse(A.some(reasons, Cause.isFailReason));
+          const die = A.findFirst(reasons, Cause.isDieReason).pipe(O.getOrThrow);
+          assert.instanceOf(die.defect, AppDirsNamespaceError);
         })
       );
 
@@ -509,12 +532,12 @@ describe("AppDirs", () => {
       Effect.gen(function* () {
         const emptyExit = yield* Effect.exit(build(""));
         const emptyCause = emptyExit.pipe(Exit.getCause, O.getOrThrow);
-        const emptyDefect = emptyCause.reasons.find(Cause.isDieReason)?.defect;
+        const emptyDefect = A.findFirst(emptyCause.reasons, Cause.isDieReason).pipe(O.getOrThrow).defect;
         assert(S.is(AppDirsNamespaceError)(emptyDefect));
         assert.strictEqual(emptyDefect.message, "AppDirs.layer: `namespace` must not be empty");
         const componentExit = yield* Effect.exit(build("my\\app"));
         const componentCause = componentExit.pipe(Exit.getCause, O.getOrThrow);
-        const componentDefect = componentCause.reasons.find(Cause.isDieReason)?.defect;
+        const componentDefect = A.findFirst(componentCause.reasons, Cause.isDieReason).pipe(O.getOrThrow).defect;
         assert(S.is(AppDirsNamespaceError)(componentDefect));
         assert.strictEqual(
           componentDefect.message,

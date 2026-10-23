@@ -6,7 +6,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { AppDirs } from "./AppDirs.ts";
 import { NativeDirs } from "./NativeDirs.ts";
-import { CurrentPlatform, Xdg } from "./Xdg.ts";
+import { currentPlatform, Xdg } from "./Xdg.ts";
 import type { ConfigResolver } from "@beep/config-file";
 
 // Implementation of XdgConfig.resolver; the public contract lives on the static.
@@ -31,7 +31,7 @@ const nativeResolver = (options: {
   name: "native",
   resolve: Effect.gen(function* () {
     const paths = yield* Xdg;
-    const platform = yield* CurrentPlatform;
+    const platform = yield* currentPlatform;
     const path = yield* Path.Path;
     const fs = yield* FileSystem.FileSystem;
 

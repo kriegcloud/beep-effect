@@ -11,7 +11,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { NativeDirs } from "./NativeDirs.ts";
-import { CurrentPlatform, Xdg } from "./Xdg.ts";
+import { currentPlatform, Xdg } from "./Xdg.ts";
 import type { XdgPaths, XdgPlatform } from "./Xdg.ts";
 
 const $I = $XdgId.create("AppDirs");
@@ -158,8 +158,8 @@ export class AppDirsError extends S.TaggedError<AppDirsError, { readonly brand: 
  * @category models
  * @since 0.0.0
  */
-export class ResolvedAppDirs extends S.Class<ResolvedAppDirs, { readonly brand: unique symbol }>($I`ResolvedAppDirs`)(
-  {
+export class ResolvedAppDirs extends S.Opaque<ResolvedAppDirs, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The app's configuration directory. */
     config: S.String.pipe(
       $I.annoteKey("ResolvedAppDirs.config", { description: "The app's configuration directory." })
@@ -203,8 +203,7 @@ export class ResolvedAppDirs extends S.Class<ResolvedAppDirs, { readonly brand: 
         description: "Where to look for data files, in priority order.",
       })
     ),
-  },
-  $I.annote("ResolvedAppDirs", { description: "The fully resolved, app-namespaced directories." })
+  }).pipe($I.annoteSchema("ResolvedAppDirs", { description: "The fully resolved, app-namespaced directories." }))
 ) {}
 
 /**
@@ -223,40 +222,34 @@ export class ResolvedAppDirs extends S.Class<ResolvedAppDirs, { readonly brand: 
  * @category schemas
  * @since 0.0.0
  */
-export const AppDirOverrides = S.Struct({
-  /** An absolute path for the config directory. */
-  config: S.optionalKey(S.String).pipe(
-    $I.annoteKey("AppDirOverrides.config", { description: "An absolute path for the config directory." })
-  ),
-  /** An absolute path for the data directory. */
-  data: S.optionalKey(S.String).pipe(
-    $I.annoteKey("AppDirOverrides.data", { description: "An absolute path for the data directory." })
-  ),
-  /** An absolute path for the cache directory. */
-  cache: S.optionalKey(S.String).pipe(
-    $I.annoteKey("AppDirOverrides.cache", { description: "An absolute path for the cache directory." })
-  ),
-  /** An absolute path for the state directory. */
-  state: S.optionalKey(S.String).pipe(
-    $I.annoteKey("AppDirOverrides.state", { description: "An absolute path for the state directory." })
-  ),
-  /** An absolute path for the runtime directory. */
-  runtime: S.optionalKey(S.String).pipe(
-    $I.annoteKey("AppDirOverrides.runtime", { description: "An absolute path for the runtime directory." })
-  ),
-}).pipe(
-  $I.annoteSchema("AppDirOverrides", {
-    description: "Per-kind absolute directory overrides. Each wins outright over every other rung.",
-  })
-);
-
-/**
- * The decoded per-kind directory overrides.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type AppDirOverrides = typeof AppDirOverrides.Type;
+export class AppDirOverrides extends S.Opaque<AppDirOverrides, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** An absolute path for the config directory. */
+    config: S.optionalKey(S.String).pipe(
+      $I.annoteKey("AppDirOverrides.config", { description: "An absolute path for the config directory." })
+    ),
+    /** An absolute path for the data directory. */
+    data: S.optionalKey(S.String).pipe(
+      $I.annoteKey("AppDirOverrides.data", { description: "An absolute path for the data directory." })
+    ),
+    /** An absolute path for the cache directory. */
+    cache: S.optionalKey(S.String).pipe(
+      $I.annoteKey("AppDirOverrides.cache", { description: "An absolute path for the cache directory." })
+    ),
+    /** An absolute path for the state directory. */
+    state: S.optionalKey(S.String).pipe(
+      $I.annoteKey("AppDirOverrides.state", { description: "An absolute path for the state directory." })
+    ),
+    /** An absolute path for the runtime directory. */
+    runtime: S.optionalKey(S.String).pipe(
+      $I.annoteKey("AppDirOverrides.runtime", { description: "An absolute path for the runtime directory." })
+    ),
+  }).pipe(
+    $I.annoteSchema("AppDirOverrides", {
+      description: "Per-kind absolute directory overrides. Each wins outright over every other rung.",
+    })
+  )
+) {}
 
 /**
  * Options for {@link AppDirs.layer}.
@@ -280,104 +273,58 @@ export type AppDirOverrides = typeof AppDirOverrides.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const AppDirsOptions = S.Struct({
-  /**
-   * The application namespace — one path component.
-   *
-   * **Gotchas**
-   *
-   * Must be non-empty and free of path separators. A namespace containing `..`
-   * or `/` would resolve the app's directories outside `$HOME` entirely, so it
-   * is rejected as a **defect** at layer construction: it can only come from
-   * code, never from user input.
-   */
-  namespace: S.String.pipe(
-    $I.annoteKey("AppDirsOptions.namespace", {
-      description: "The application namespace — one path component, validated as a defect during layer construction.",
+export class AppDirsOptions extends S.Opaque<AppDirsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The application namespace — one path component.
+     *
+     * **Gotchas**
+     *
+     * Must be non-empty and free of path separators. A namespace containing `..`
+     * or `/` would resolve the app's directories outside `$HOME` entirely, so it
+     * is rejected as a **defect** at layer construction: it can only come from
+     * code, never from user input.
+     */
+    namespace: S.String.pipe(
+      $I.annoteKey("AppDirsOptions.namespace", {
+        description: "The application namespace — one path component, validated as a defect during layer construction.",
+      })
+    ),
+    /**
+     * Use the OS-native directories where the platform has them. Defaults to `false`.
+     *
+     * **Details**
+     *
+     * Only consulted when no XDG variable and no explicit override applies, and
+     * only on darwin and win32 — on Linux there is nothing to override.
+     */
+    native: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("AppDirsOptions.native", {
+        description: "Use the OS-native directories where the platform has them. Defaults to false.",
+      })
+    ),
+    /**
+     * A single dot-directory under `$HOME` that all four kinds collapse to.
+     *
+     * **Details**
+     *
+     * Relative to `$HOME`: `fallbackDir: ".myapp"` gives `$HOME/.myapp`.
+     */
+    fallbackDir: S.optionalKey(S.String).pipe(
+      $I.annoteKey("AppDirsOptions.fallbackDir", {
+        description: "A single dot-directory under HOME that all four kinds collapse to.",
+      })
+    ),
+    /** Absolute per-kind overrides. */
+    dirs: S.optionalKey(AppDirOverrides).pipe(
+      $I.annoteKey("AppDirsOptions.dirs", { description: "Absolute per-kind overrides." })
+    ),
+  }).pipe(
+    $I.annoteSchema("AppDirsOptions", {
+      description: "Options for resolving application directories through the five-level precedence.",
     })
-  ),
-  /**
-   * Use the OS-native directories where the platform has them. Defaults to `false`.
-   *
-   * **Details**
-   *
-   * Only consulted when no XDG variable and no explicit override applies, and
-   * only on darwin and win32 — on Linux there is nothing to override.
-   */
-  native: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("AppDirsOptions.native", {
-      description: "Use the OS-native directories where the platform has them. Defaults to false.",
-    })
-  ),
-  /**
-   * A single dot-directory under `$HOME` that all four kinds collapse to.
-   *
-   * **Details**
-   *
-   * Relative to `$HOME`: `fallbackDir: ".myapp"` gives `$HOME/.myapp`.
-   */
-  fallbackDir: S.optionalKey(S.String).pipe(
-    $I.annoteKey("AppDirsOptions.fallbackDir", {
-      description: "A single dot-directory under HOME that all four kinds collapse to.",
-    })
-  ),
-  /** Absolute per-kind overrides. */
-  dirs: S.optionalKey(AppDirOverrides).pipe(
-    $I.annoteKey("AppDirsOptions.dirs", { description: "Absolute per-kind overrides." })
-  ),
-}).pipe(
-  $I.annoteSchema("AppDirsOptions", {
-    description: "Options for resolving application directories through the five-level precedence.",
-  })
-);
-
-/**
- * The decoded application directory options.
- *
- * @category type-level
- * @since 0.0.0
- */
-export type AppDirsOptions = typeof AppDirsOptions.Type;
-
-/**
- * App-namespaced directory resolution and on-demand creation.
- *
- * **Details**
- *
- * `dirs` is a **value**, not an `Effect`: the environment is fixed when the
- * layer is built, so resolution happens there, exactly once. Reading a path
- * cannot fail and cannot be observed to do IO. Only the `ensure*` operations
- * touch the filesystem, and they are the only fallible members.
- *
- * @public
- * @category type-level
- * @since 0.0.0
- */
-export interface AppDirsShape {
-  /** The resolved directories. Reading them cannot fail. */
-  readonly dirs: ResolvedAppDirs;
-  /** Create every directory that exists in the resolution, and return them all. */
-  readonly ensure: Effect.Effect<ResolvedAppDirs, AppDirsError>;
-  /** Create the cache directory if it does not exist, and return it. */
-  readonly ensureCache: Effect.Effect<string, AppDirsError>;
-  /** Create the config directory if it does not exist, and return it. */
-  readonly ensureConfig: Effect.Effect<string, AppDirsError>;
-  /** Create the data directory if it does not exist, and return it. */
-  readonly ensureData: Effect.Effect<string, AppDirsError>;
-  /**
-   * Create the runtime directory if there is one, and return it.
-   *
-   * **Details**
-   *
-   * `Option.none()` when no runtime directory is configured — nothing is created
-   * and nothing fails.
-   */
-  readonly ensureRuntime: Effect.Effect<O.Option<string>, AppDirsError>;
-  /** Create the state directory if it does not exist, and return it. */
-  readonly ensureState: Effect.Effect<string, AppDirsError>;
-  /** The namespace these directories were resolved for. */
-  readonly namespace: string;
-}
+  )
+) {}
 
 /**
  * Resolve one directory kind through the five-level precedence.
@@ -398,7 +345,7 @@ const resolveDir = (input: {
   readonly override: string | undefined;
   readonly xdgHome: string | undefined;
   readonly native: O.Option<string>;
-  readonly options: AppDirsOptions;
+  readonly options: typeof AppDirsOptions.Encoded;
   readonly home: string;
   readonly path: Path.Path;
 }): string => {
@@ -422,53 +369,67 @@ const searchPath: {
   ]
 );
 
-const resolveAll: {
-  (options: AppDirsOptions, paths: XdgPaths, platform: XdgPlatform, path: Path.Path): ResolvedAppDirs;
-  (paths: XdgPaths, platform: XdgPlatform, path: Path.Path): (options: AppDirsOptions) => ResolvedAppDirs;
-} = dual(4, (options: AppDirsOptions, paths: XdgPaths, platform: XdgPlatform, path: Path.Path): ResolvedAppDirs => {
-  const native = Bool.match(options.native ?? false, {
-    onTrue: () => NativeDirs.resolve({ platform, namespace: options.namespace, paths, path }),
-    onFalse: O.none<NativeDirs>,
-  });
+/** The four kinds with a fallback ladder; the runtime directory has none. */
+type LadderKind = Exclude<AppDirKind, "runtime">;
 
-  const forKind: {
-    (xdgHome: string | undefined, nativeDir: (n: NativeDirs) => string, override: string | undefined): string;
-    (nativeDir: (n: NativeDirs) => string, override: string | undefined): (xdgHome: string | undefined) => string;
-  } = dual(
-    3,
-    (xdgHome: string | undefined, nativeDir: (n: NativeDirs) => string, override: string | undefined): string =>
+/** The runtime directory: an override, or `$XDG_RUNTIME_DIR` namespaced, or nothing at all. */
+const runtimeDirOf = (options: typeof AppDirsOptions.Encoded, paths: XdgPaths, path: Path.Path): O.Option<string> =>
+  O.orElse(O.fromUndefinedOr(options.dirs?.runtime), () =>
+    O.map(O.fromUndefinedOr(paths.runtimeDir), (dir) => path.join(dir, options.namespace))
+  );
+
+const resolveAll: {
+  (options: typeof AppDirsOptions.Encoded, paths: XdgPaths, platform: XdgPlatform, path: Path.Path): ResolvedAppDirs;
+  (
+    paths: XdgPaths,
+    platform: XdgPlatform,
+    path: Path.Path
+  ): (options: typeof AppDirsOptions.Encoded) => ResolvedAppDirs;
+} = dual(
+  4,
+  (
+    options: typeof AppDirsOptions.Encoded,
+    paths: XdgPaths,
+    platform: XdgPlatform,
+    path: Path.Path
+  ): ResolvedAppDirs => {
+    const native = Bool.match(options.native === true, {
+      onTrue: () => NativeDirs.resolve({ platform, namespace: options.namespace, paths, path }),
+      onFalse: O.none<NativeDirs>,
+    });
+    const xdgHomes = {
+      config: paths.configHome,
+      data: paths.dataHome,
+      cache: paths.cacheHome,
+      state: paths.stateHome,
+    } satisfies Record<LadderKind, string | undefined>;
+
+    const forKind = (kind: LadderKind): string =>
       resolveDir({
-        override,
-        xdgHome,
-        native: O.map(native, nativeDir),
+        override: options.dirs?.[kind],
+        xdgHome: xdgHomes[kind],
+        native: O.map(native, (dirs) => dirs[kind]),
         options,
         home: paths.home,
         path,
-      })
-  );
+      });
 
-  const config = forKind(paths.configHome, (n) => n.config, options.dirs?.config);
-  const data = forKind(paths.dataHome, (n) => n.data, options.dirs?.data);
-  const cache = forKind(paths.cacheHome, (n) => n.cache, options.dirs?.cache);
-  const state = forKind(paths.stateHome, (n) => n.state, options.dirs?.state);
+    const config = forKind("config");
+    const data = forKind("data");
+    const runtime = runtimeDirOf(options, paths, path);
 
-  // The runtime directory has no fallback ladder: an override, or `$XDG_RUNTIME_DIR`
-  // namespaced, or nothing at all.
-  const runtime =
-    options.dirs?.runtime ??
-    (paths.runtimeDir !== undefined ? path.join(paths.runtimeDir, options.namespace) : undefined);
-
-  return ResolvedAppDirs.make({
-    config,
-    data,
-    cache,
-    state,
-    // A present key holding `undefined` is not an absent key — v4 constructors validate.
-    ...(runtime !== undefined && { runtime }),
-    configSearchPath: searchPath(config, paths.configDirs, options.namespace, path),
-    dataSearchPath: searchPath(data, paths.dataDirs, options.namespace, path),
-  });
-});
+    return ResolvedAppDirs.make({
+      config,
+      data,
+      cache: forKind("cache"),
+      state: forKind("state"),
+      // A present key holding `undefined` is not an absent key: v4 constructors validate.
+      ...O.match(runtime, { onNone: () => ({}), onSome: (dir) => ({ runtime: dir }) }),
+      configSearchPath: searchPath(config, paths.configDirs, options.namespace, path),
+      dataSearchPath: searchPath(data, paths.dataDirs, options.namespace, path),
+    });
+  }
+);
 
 const NonEmptyNamespace = S.String.check(
   S.isNonEmpty(
@@ -548,7 +509,34 @@ const badNamespace = (namespace: string): AppDirsNamespaceError | undefined => {
  * @category services
  * @since 0.0.0
  */
-export class AppDirs extends Context.Service<AppDirs, AppDirsShape>()($I`AppDirs`) {
+export class AppDirs extends Context.Service<
+  AppDirs,
+  {
+    /** The resolved directories. Reading them cannot fail. */
+    readonly dirs: ResolvedAppDirs;
+    /** Create every directory that exists in the resolution, and return them all. */
+    readonly ensure: Effect.Effect<ResolvedAppDirs, AppDirsError>;
+    /** Create the cache directory if it does not exist, and return it. */
+    readonly ensureCache: Effect.Effect<string, AppDirsError>;
+    /** Create the config directory if it does not exist, and return it. */
+    readonly ensureConfig: Effect.Effect<string, AppDirsError>;
+    /** Create the data directory if it does not exist, and return it. */
+    readonly ensureData: Effect.Effect<string, AppDirsError>;
+    /**
+     * Create the runtime directory if there is one, and return it.
+     *
+     * **Details**
+     *
+     * `Option.none()` when no runtime directory is configured — nothing is created
+     * and nothing fails.
+     */
+    readonly ensureRuntime: Effect.Effect<O.Option<string>, AppDirsError>;
+    /** Create the state directory if it does not exist, and return it. */
+    readonly ensureState: Effect.Effect<string, AppDirsError>;
+    /** The namespace these directories were resolved for. */
+    readonly namespace: string;
+  }
+>()($I`AppDirs`) {
   /**
    * Resolve the namespace's directories against the ambient {@link Xdg}
    * environment and platform.
@@ -572,7 +560,9 @@ export class AppDirs extends Context.Service<AppDirs, AppDirsShape>()($I`AppDirs
    * @category layers
    * @since 0.0.0
    */
-  static layer(options: AppDirsOptions): Layer.Layer<AppDirs, never, Xdg | FileSystem.FileSystem | Path.Path> {
+  static layer(
+    options: typeof AppDirsOptions.Encoded
+  ): Layer.Layer<AppDirs, never, Xdg | FileSystem.FileSystem | Path.Path> {
     return Layer.effect(
       AppDirs,
       Effect.gen(function* () {
@@ -582,7 +572,7 @@ export class AppDirs extends Context.Service<AppDirs, AppDirsShape>()($I`AppDirs
         const paths = yield* Xdg;
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        const platform = yield* CurrentPlatform;
+        const platform = yield* currentPlatform;
 
         const dirs = resolveAll(options, paths, platform, path);
 
@@ -619,8 +609,24 @@ export class AppDirs extends Context.Service<AppDirs, AppDirsShape>()($I`AppDirs
             if (dirs.runtime !== undefined) yield* makeDir("runtime", dirs.runtime);
             return dirs;
           }).pipe(Effect.withSpan("AppDirs.ensure")),
-        } satisfies AppDirsShape;
+        };
       })
     );
   }
 }
+
+/**
+ * App-namespaced directory resolution and on-demand creation.
+ *
+ * **Details**
+ *
+ * `dirs` is a **value**, not an `Effect`: the environment is fixed when the
+ * layer is built, so resolution happens there, exactly once. Reading a path
+ * cannot fail and cannot be observed to do IO. Only the `ensure*` operations
+ * touch the filesystem, and they are the only fallible members.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type AppDirsShape = (typeof AppDirs)["Service"];

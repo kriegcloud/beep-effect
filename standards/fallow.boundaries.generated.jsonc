@@ -5282,6 +5282,7 @@
           "@beep/identity",
           "@beep/memfs",
           "@beep/schema",
+          "@beep/utils",
           "@beep/walker",
           "@beep/xdg"
         ],
@@ -5291,6 +5292,7 @@
           "@beep/identity",
           "@beep/memfs",
           "@beep/schema",
+          "@beep/utils",
           "@beep/walker",
           "@beep/xdg"
         ]

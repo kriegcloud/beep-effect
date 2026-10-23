@@ -34,9 +34,9 @@ describe("Xdg schema laws", () => {
   roundTrips("XdgEnvError", XdgEnvError);
 
   it.effect.prop(
-    "search-path normalization is idempotent and preserves every nonempty entry in order",
-    [Arbitrary.schema(S.String)],
-    ([raw]) =>
+    "search-path normalization is idempotent and keeps every absolute entry in order",
+    [S.Struct({ absolute: S.Boolean, body: S.String }).pipe(S.Array, Arbitrary.schema)],
+    ([parts]) =>
       Effect.scopedWith((scope) =>
         Effect.gen(function* () {
           const parse = Effect.fn("parse")(function* (text: string) {
@@ -54,8 +54,13 @@ describe("Xdg schema laws", () => {
             const context = yield* Layer.buildWithScope(layer, scope);
             return yield* Xdg.pipe(Effect.provideContext(context));
           });
+          // Mix absolute and relative entries; a body may itself carry ":" separators.
+          const raw = A.join(
+            A.map(parts, ({ absolute, body }) => (absolute ? `/${body}` : body)),
+            ":"
+          );
           const parsed = yield* parse(raw);
-          const entries = A.filter(Str.split(raw, ":"), Str.isNonEmpty);
+          const entries = A.filter(Str.split(raw, ":"), Str.startsWith("/"));
           assert.deepStrictEqual(parsed.configDirs, entries.length === 0 ? ["/etc/xdg"] : entries);
           assert.deepStrictEqual(parsed.dataDirs, entries.length === 0 ? ["/usr/local/share", "/usr/share"] : entries);
           const configText = A.join(parsed.configDirs, ":");

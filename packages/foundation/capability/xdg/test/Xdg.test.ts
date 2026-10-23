@@ -1,6 +1,9 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Xdg, XdgEnvError, XdgPaths, XdgPlatform } from "@beep/xdg";
 import { assert, describe, it } from "@effect/vitest";
-import { assertExitFailure } from "@effect/vitest/utils";
+import { assertExitFailure, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -23,6 +26,17 @@ const env = (vars: Record<string, string>) =>
   Layer.provide(Xdg.layer, ConfigProvider.layer(ConfigProvider.fromUnknown(vars)));
 
 describe("Xdg", () => {
+  it.effect.prop(
+    "XdgPaths: decode(encode(x)) equals x",
+    [Arbitrary.schema(XdgPaths)],
+    ([paths]) =>
+      Effect.gen(function* () {
+        const decoded = yield* S.decodeEffect(XdgPaths)(yield* S.encodeEffect(XdgPaths)(paths));
+        assertTrue(S.toEquivalence(XdgPaths)(decoded, paths));
+      }),
+    { arbitrary: fcRuns(50) }
+  );
+
   describe("layer", () => {
     it.effect("reads every XDG variable from the environment", () =>
       Effect.gen(function* () {
@@ -79,8 +93,56 @@ describe("Xdg", () => {
         const exit = yield* Effect.exit(Effect.void.pipe(provideLayer(env({}))));
         assertExitFailure(exit, exit.pipe(Exit.getCause, O.getOrThrow));
         const reasons = exit.cause.reasons;
-        assert.isTrue(reasons.some(Cause.isFailReason));
-        assert.isFalse(reasons.some(Cause.isDieReason));
+        assert.isTrue(A.some(reasons, Cause.isFailReason));
+        assert.isFalse(A.some(reasons, Cause.isDieReason));
+      })
+    );
+  });
+
+  // Inverted: the lab kept any non-empty value. The spec says a relative path is
+  // invalid and must be ignored, which is also what systemd-path does.
+  describe("invalid environment values", () => {
+    const posixDirectories = [
+      ["XDG_CONFIG_HOME", "configHome"],
+      ["XDG_DATA_HOME", "dataHome"],
+      ["XDG_CACHE_HOME", "cacheHome"],
+      ["XDG_STATE_HOME", "stateHome"],
+      ["XDG_RUNTIME_DIR", "runtimeDir"],
+    ] as const;
+
+    for (const [variable, field] of posixDirectories) {
+      for (const value of [" ", "relative", "~/dir", " /leading-space", "C:\\Users\\ada"]) {
+        it.effect(`ignores ${JSON.stringify(value)} in ${variable}`, () =>
+          Effect.gen(function* () {
+            const paths = yield* Xdg;
+            assert.isFalse(field in paths);
+          }).pipe(provideLayer(env({ HOME: "/home/ada", [variable]: value })))
+        );
+      }
+    }
+
+    it.effect("keeps a Windows APPDATA and LOCALAPPDATA only when they are absolute", () =>
+      Effect.gen(function* () {
+        const absolute = yield* Xdg.pipe(
+          provideLayer(env({ HOME: "/home/ada", APPDATA: "\\\\server\\share", LOCALAPPDATA: "D:/Local" }))
+        );
+        assert.strictEqual(absolute.appData, "\\\\server\\share");
+        assert.strictEqual(absolute.localAppData, "D:/Local");
+        const relative = yield* Xdg.pipe(
+          provideLayer(env({ HOME: "/home/ada", APPDATA: "AppData\\Roaming", LOCALAPPDATA: "/usr/local" }))
+        );
+        assert.isFalse("appData" in relative);
+        assert.isFalse("localAppData" in relative);
+      })
+    );
+
+    it.effect("drops relative search-path entries and defaults when none is left", () =>
+      Effect.gen(function* () {
+        const mixed = yield* Xdg.pipe(
+          provideLayer(env({ HOME: "/home/ada", XDG_CONFIG_DIRS: "/a:relative:/b", XDG_DATA_DIRS: "share: /x" }))
+        );
+        assert.deepStrictEqual(mixed.configDirs, ["/a", "/b"]);
+        assert.deepStrictEqual(mixed.dataDirs, ["/usr/local/share", "/usr/share"]);
       })
     );
   });
@@ -110,10 +172,9 @@ describe("Xdg", () => {
       Effect.gen(function* () {
         const exit = yield* Effect.exit(Effect.void.pipe(provideLayer(env({ HOME: "" }))));
         const cause = exit.pipe(Exit.getCause, O.getOrThrow);
-        assert.isTrue(cause.reasons.some(Cause.isFailReason));
-        assert.isFalse(cause.reasons.some(Cause.isDieReason));
-        const failure = cause.reasons.find(Cause.isFailReason);
-        assert(P.isTagged("XdgEnvError")(failure?.error));
+        assert.isTrue(A.some(cause.reasons, Cause.isFailReason));
+        assert.isFalse(A.some(cause.reasons, Cause.isDieReason));
+        const failure = A.findFirst(cause.reasons, Cause.isFailReason).pipe(O.getOrThrow);
         assert.instanceOf(failure.error, XdgEnvError);
         assert.strictEqual(failure.error.variable, "HOME");
         assert.strictEqual(failure.error.message, "The HOME environment variable is not set");

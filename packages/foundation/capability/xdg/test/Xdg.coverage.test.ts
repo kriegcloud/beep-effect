@@ -1,5 +1,6 @@
-import { CurrentPlatform, Xdg } from "@beep/xdg/Xdg";
-import { assert, describe, it, vi } from "@effect/vitest";
+import { HostProcessPlatform } from "@beep/utils/HostProcess";
+import { currentPlatform, Xdg } from "@beep/xdg/Xdg";
+import { assert, describe, it } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -27,18 +28,14 @@ describe("Xdg fallback coverage", () => {
     )
   );
 
-  it.effect("uses Linux conventions when process is absent or reports an unknown platform", () =>
+  it.effect("uses Linux conventions when the host reports no process or an unknown platform", () =>
     Effect.gen(function* () {
-      try {
-        vi.stubGlobal("process", undefined);
-        assert.strictEqual(CurrentPlatform.defaultValue(), "linux");
-        vi.stubGlobal("process", { platform: "unknown-os" });
-        assert.strictEqual(CurrentPlatform.defaultValue(), "linux");
-        vi.stubGlobal("process", { platform: "darwin" });
-        assert.strictEqual(CurrentPlatform.defaultValue(), "darwin");
-      } finally {
-        vi.unstubAllGlobals();
-      }
+      const on = (platform: string) => currentPlatform.pipe(Effect.provideService(HostProcessPlatform, platform));
+      // HostProcessPlatform reads "browser" when there is no `process` at all.
+      assert.strictEqual(yield* on("browser"), "linux");
+      assert.strictEqual(yield* on("unknown-os"), "linux");
+      assert.strictEqual(yield* on("darwin"), "darwin");
+      assert.strictEqual(yield* on("win32"), "win32");
     })
   );
 });

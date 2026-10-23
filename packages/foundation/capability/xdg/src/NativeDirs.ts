@@ -28,8 +28,8 @@ const $I = $XdgId.create("NativeDirs");
  * @category models
  * @since 0.0.0
  */
-export class NativeDirs extends S.Class<NativeDirs, { readonly brand: unique symbol }>($I`NativeDirs`)(
-  {
+export class NativeDirs extends S.Opaque<NativeDirs, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Where configuration lives. */
     config: S.String.pipe($I.annoteKey("NativeDirs.config", { description: "Where configuration lives." })),
     /** Where application data lives. */
@@ -40,8 +40,7 @@ export class NativeDirs extends S.Class<NativeDirs, { readonly brand: unique sym
     state: S.String.pipe(
       $I.annoteKey("NativeDirs.state", { description: "Where persistent-but-regenerable state lives." })
     ),
-  },
-  $I.annote("NativeDirs", { description: "The OS-native application directories for one namespace." })
+  }).pipe($I.annoteSchema("NativeDirs", { description: "The OS-native application directories for one namespace." }))
 ) {
   /**
    * Map a platform and an environment onto the native directories for a namespace.
