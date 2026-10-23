@@ -503,7 +503,7 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
             )
           );
 
-      const readJson = Effect.fn("readJson")(function* (target: string) {
+      const readJson = Effect.fn("PackageJsonFile.readJson")(function* (target: string) {
         const content = yield* readText(target);
         return yield* S.decodeEffect(Json)(content).pipe(
           Effect.mapError((cause) => PackageJsonParseError.make({ path: target, cause }))
@@ -523,7 +523,10 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
         ): (target: string) => Effect.Effect<PackageFormatOptions.Encoded | undefined>;
       } = dual(
         isPathFirst,
-        Effect.fn("withPreservedSource")(function* (target: string, options?: PackageFormatOptions.Encoded) {
+        Effect.fn("PackageJsonFile.withPreservedSource")(function* (
+          target: string,
+          options?: PackageFormatOptions.Encoded
+        ) {
           if (options?.indent !== "preserve" || options.sourceText !== undefined) {
             return options;
           }
@@ -539,7 +542,7 @@ export class PackageJsonFile extends Context.Service<PackageJsonFile, PackageJso
         (json: string): (target: string) => Effect.Effect<void, PackageJsonWriteError>;
       } = dual(
         2,
-        Effect.fn("writeText")(
+        Effect.fn("PackageJsonFile.writeText")(
           function* (target: string, json: string) {
             const directory = path.dirname(target);
             yield* fs.makeDirectory(directory, { recursive: true });

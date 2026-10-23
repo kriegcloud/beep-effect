@@ -1355,7 +1355,7 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
       return O.none<string>();
     });
 
-    const resolveMap = Effect.fn("Package.resolve.map")(function* (map: HashMap.HashMap<string, string>) {
+    const resolveMap = Effect.fn("Package.resolveMap")(function* (map: HashMap.HashMap<string, string>) {
       let next = map;
       for (const [name, specifier] of HashMap.entries(map)) {
         const resolved = yield* resolveSpecifier(name, specifier);
