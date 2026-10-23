@@ -40,7 +40,6 @@ const OFF = {
 const tokensOf = (doc: ReadonlyArray<Block>, overrides: Partial<RenderContext> = {}) =>
 	Effect.map(ansi(doc, { ...TOKENS, ...overrides }), (out) => out.split("\n").map(decodeTokens));
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: asserting their absence is the point
 const CONTROL = /[\u0000-\u0009\u000B-\u001F\u007F-\u009F]/;
 const BOX = /[─│┌┐└┘├┤┬┴┼═║╔╗╚╝]/;
 
@@ -523,7 +522,6 @@ describe("Render.ansi: okfit's trial (counts paint, link suffix, annotations)", 
 });
 
 describe("Render.ansi reporter blocks: contextOf, strong and em, diffText, pipe tables (ansi)", () => {
-	// biome-ignore lint/suspicious/noControlCharactersInRegex: asserting the absence of any escape
 	const ESCAPE = /\u001b/;
 	const doc = [
 		Doc.paragraph(Doc.text("bad", "failure"), " ", Doc.strong("Total"), " ", Doc.link({ url: "https://a.test" }, "a")),

@@ -13,8 +13,6 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-// cspell:words SKOS DCTERMS skos dcterms
-
 export { IRI } from "@beep/rdf/Iri";
 export { URI } from "@beep/rdf/Uri";
 export {
@@ -47,12 +45,10 @@ const decodeIriResult = S.decodeUnknownResult(IRI);
 const decodeUriResult = S.decodeUnknownResult(URI);
 
 export const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError => {
-  /* istanbul ignore else -- public schema decoders surface SchemaError instances in this package */
   if (cause instanceof S.SchemaError) {
     return cause;
   }
 
-  /* istanbul ignore next -- public schema decoders surface SchemaError instances in this package */
   return new S.SchemaError(cause);
 };
 

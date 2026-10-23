@@ -10,5 +10,4 @@ config:
   aiMetrics:sshHost: dankserver
   aiMetrics:sshUser: elpresidank
   aiMetrics:tailnetFqdn: dankserver.tailc7c348.ts.net
-# cspell:disable-next-line
 encryptionsalt: v1:Qn8fnVP3/Ms=:v1:MJzhIpdhm4EqnpNa:IJnfOzAVr7DwLzgbktj7eYMTQpHKFA==

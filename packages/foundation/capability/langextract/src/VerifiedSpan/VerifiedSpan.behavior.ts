@@ -542,8 +542,9 @@ const verifiedAttemptOutcome = (
   receipts: ReadonlyArray<VerifiedSpanCandidateAnchorReceipt>
 ): VerifiedSpanAttemptOutcomeType =>
   A.match(receipts, {
-    onEmpty: /* istanbul ignore next -- successful location preserves one anchor per non-empty candidate batch */ () =>
-      failedAttemptOutcome(attemptFailure("anchor", "invalid-anchor")),
+    onEmpty:
+      /* istanbul ignore next -- successful location preserves one anchor per non-empty candidate batch. Owner: @beep/langextract. Exit: successful location returns a non-empty receipt array type. */ () =>
+        failedAttemptOutcome(attemptFailure("anchor", "invalid-anchor")),
     onNonEmpty: (anchors) => VerifiedSpanAttemptOutcome.cases.verified.make({ anchors }),
   });
 
@@ -591,7 +592,7 @@ const verifyLocatedAnchors = (
           })
         ),
         Effect.mapError(
-          /* istanbul ignore next -- locator output already proves boundaries and exact slices; retain fail-closed defense */
+          /* istanbul ignore next -- locator output already proves boundaries and exact slices; retain fail-closed defense. Owner: @beep/langextract. Exit: the locator returns a verified-receipt type that the verifier does not re-check. */
           (error) => attemptFailure("anchor", error.reason, O.some(S.Natural.make(index)))
         )
       ),
