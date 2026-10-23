@@ -151,6 +151,84 @@ describe("@beep/md/Md.syntax flow mapping", () => {
     expect(admonition).toMatchObject({ _tag: "admonition", title: "A styled title" });
   });
 
+  it("drops an HTML comment from an admonition title by default", () => {
+    const result = bridge("> [!NOTE] Title <!-- internal -->\n> body");
+    expect(Result.getOrThrow(Document.encodeResult(result.document)).children[0]).toMatchObject({
+      _tag: "admonition",
+      title: "Title",
+    });
+    expect(reasons(result)).toEqual(["htmlDropped"]);
+    assertSome(lossOf(result, "htmlDropped").detail, "comment");
+    expect(lossOf(result, "htmlDropped").nodeKind).toBe("html");
+  });
+
+  it("applies the html policy to raw HTML in an admonition title", () => {
+    const source = "> [!NOTE] Title <b>x</b>\n> body";
+    const titleOf = (result: MdFromSyntax) => Result.getOrThrow(Document.encodeResult(result.document)).children[0];
+    const details = (result: MdFromSyntax) =>
+      A.map(result.losses, (loss) => [loss.reason, O.getOrElse(loss.detail, () => "")]);
+
+    const dropped = bridge(source, { html: "drop" });
+    expect(titleOf(dropped)).toMatchObject({ _tag: "admonition", title: "Title x" });
+    expect(details(dropped)).toEqual([
+      ["htmlDropped", "<b>"],
+      ["htmlDropped", "</b>"],
+    ]);
+
+    const raw = bridge(source, { html: "rawHtml" });
+    expect(titleOf(raw)).toMatchObject({ _tag: "admonition", title: "Title x" });
+    expect(details(raw)).toEqual([
+      ["htmlDropped", "<b>"],
+      ["htmlDropped", "</b>"],
+    ]);
+
+    const escaped = bridge(source);
+    expect(titleOf(escaped)).toMatchObject({ _tag: "admonition", title: "Title <b>x</b>" });
+    expect(details(escaped)).toEqual([
+      ["admonitionTitleFlattened", " Title <b>x</b>"],
+      ["htmlEscapedAsText", "<b>"],
+      ["htmlEscapedAsText", "</b>"],
+    ]);
+    assertSome(lossOf(escaped, "htmlEscapedAsText").mdPath, ["children", 0]);
+  });
+
+  it("keeps an admonition-title comment as text only when comments are HTML and HTML is escaped", () => {
+    const source = "> [!NOTE] Title <!-- c -->\n> body";
+    const kept = bridge(source, { htmlComments: "asHtml" });
+    expect(Result.getOrThrow(Document.encodeResult(kept.document)).children[0]).toMatchObject({
+      title: "Title <!-- c -->",
+    });
+    expect(reasons(kept)).toEqual(["admonitionTitleFlattened", "htmlEscapedAsText"]);
+
+    const raw = bridge(source, { htmlComments: "asHtml", html: "rawHtml" });
+    expect(Result.getOrThrow(Document.encodeResult(raw.document)).children[0]).toMatchObject({ title: "Title" });
+    expect(reasons(raw)).toEqual(["htmlDropped"]);
+  });
+
+  it("drops raw HTML nested in inline markup of an admonition title", () => {
+    const result = bridge("> [!TIP] A *styled <!-- c -->* title\n> body");
+    expect(Result.getOrThrow(Document.encodeResult(result.document)).children[0]).toMatchObject({
+      title: "A styled  title",
+    });
+    expect(reasons(result)).toEqual(["admonitionTitleFlattened", "htmlDropped"]);
+  });
+
+  it("ends an admonition head line at a <br> tag the way a hard break does", () => {
+    const source = "> [!NOTE] Title<br>more\n> body";
+    const recognized = bridge(source);
+    expect(Result.getOrThrow(Document.encodeResult(recognized.document)).children[0]).toMatchObject({
+      title: "Title",
+      children: [{ _tag: "p", children: [{ _tag: "text", value: "more body" }] }],
+    });
+    expect(reasons(recognized)).toEqual([]);
+
+    const literal = bridge(source, { breakTag: false, html: "drop" });
+    expect(Result.getOrThrow(Document.encodeResult(literal.document)).children[0]).toMatchObject({
+      title: "Titlemore",
+    });
+    expect(reasons(literal)).toEqual(["htmlDropped"]);
+  });
+
   it("maps fenced and indented code to pre", () => {
     expect(encoded("```ts\nlet a = 1\n```\n\n    indented").children).toEqual([
       { _tag: "pre", language: "ts", value: "let a = 1" },
@@ -463,6 +541,96 @@ describe("@beep/md/Md.syntax phrasing mapping", () => {
     });
     expect(reasons(result)).toEqual(["referenceUnresolved", "referenceUnresolved", "definitionUnreferenced"]);
   });
+});
+
+// The pandoc `tex_math_dollars` rules, written as the direct quadratic scan
+// the recognizer replaced: the oracle the linear scan must agree with.
+const isMathSpace = (char: string | undefined): boolean => char === " " || char === "\t" || char === "\n";
+const isMathDigit = (char: string | undefined): boolean => char !== undefined && char >= "0" && char <= "9";
+
+const oracleInlineMath = (text: string): ReadonlyArray<{ readonly _tag: string; readonly value: string }> => {
+  const pieces: Array<{ readonly _tag: string; readonly value: string }> = [];
+  let textStart = 0;
+  let index = 0;
+  while (index < Str.length(text)) {
+    let close = -1;
+    if (text[index] === "$" && text[index + 1] !== "$" && !isMathSpace(text[index + 1])) {
+      for (let probe = index + 2; probe < Str.length(text) && close < 0; probe++) {
+        if (text[probe] === "$" && !isMathSpace(text[probe - 1]) && !isMathDigit(text[probe + 1])) {
+          close = probe;
+        }
+      }
+    }
+    if (close < 0) {
+      index += text[index] === "$" && text[index + 1] === "$" ? 2 : 1;
+      continue;
+    }
+    if (index > textStart) {
+      pieces.push({ _tag: "text", value: Str.slice(textStart, index)(text) });
+    }
+    pieces.push({ _tag: "inlineMath", value: Str.slice(index + 1, close)(text) });
+    textStart = close + 1;
+    index = textStart;
+  }
+  if (Str.length(text) > textStart) {
+    pieces.push({ _tag: "text", value: Str.slice(textStart)(text) });
+  }
+  return A.some(pieces, (piece) => piece._tag === "inlineMath") ? pieces : [{ _tag: "text", value: text }];
+};
+
+// Every string over the alphabet up to a length, so the parity check is
+// exhaustive and deterministic instead of sampled.
+const stringsUpTo = (alphabet: ReadonlyArray<string>, length: number): ReadonlyArray<string> =>
+  length === 0
+    ? [""]
+    : [
+        ...stringsUpTo(alphabet, length - 1),
+        ...A.flatMap(
+          A.filter(stringsUpTo(alphabet, length - 1), (prefix) => Str.length(prefix) === length - 1),
+          (prefix) => A.map(alphabet, (char) => `${prefix}${char}`)
+        ),
+      ];
+
+// Two passes, keep the faster: damps JIT and GC noise without hiding an
+// algorithmic blowup. Only the bridge is timed; parsing happens before.
+const bridgeMillis = (markdown: string): number => {
+  const parsed = Result.getOrThrow(MarkdownDocument.parseResult(markdown));
+  let best = Number.POSITIVE_INFINITY;
+  for (let pass = 0; pass < 2; pass += 1) {
+    const started = performance.now();
+    Result.getOrThrow(fromMarkdownDocument(parsed, { math: true, sourceMap: false }));
+    best = Math.min(best, performance.now() - started);
+  }
+  return best;
+};
+
+// Quadrupling the input costs ~4x when recognition is linear and ~16x when
+// it is quadratic; the threshold of 8 sits between the two.
+const growthRatio = (unit: string, small: number): number => {
+  bridgeMillis(Str.repeat(small / 4)(unit));
+  const smallMillis = bridgeMillis(Str.repeat(small)(unit));
+  const largeMillis = bridgeMillis(Str.repeat(small * 4)(unit));
+  return largeMillis / Math.max(smallMillis, 1);
+};
+
+describe("@beep/md/Md.syntax inline math scan", () => {
+  it("agrees with the direct pandoc-rule scan on every short string", () => {
+    for (const body of stringsUpTo(["$", "a", "1", " "], 6)) {
+      const text = `x${body}x`;
+      const children = encoded(text, { math: true }).children;
+      expect([text, children]).toEqual([text, [{ _tag: "p", children: oracleInlineMath(text) }]]);
+    }
+  });
+
+  it("scales linearly over openers that never close", () => {
+    const ratio = growthRatio("$a ", 4000);
+    expect(ratio, `4x the input cost ${ratio.toFixed(1)}x the time; linear is ~4x, quadratic ~16x`).toBeLessThan(8);
+  }, 120_000);
+
+  it("scales linearly over many closed inline math spans", () => {
+    const ratio = growthRatio("$a$ ", 4000);
+    expect(ratio, `4x the input cost ${ratio.toFixed(1)}x the time; linear is ~4x, quadratic ~16x`).toBeLessThan(8);
+  }, 120_000);
 });
 
 describe("@beep/md/Md.syntax recognizers", () => {

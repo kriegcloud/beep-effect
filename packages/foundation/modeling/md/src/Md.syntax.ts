@@ -32,6 +32,7 @@ import * as SchemaUtils from "@beep/schema/SchemaUtils";
 import * as A from "@beep/utils/Array";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
+import * as Hash from "effect/Hash";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -318,7 +319,11 @@ export type MdSourceOrigin = typeof MdSourceOrigin.Type;
  * **Details**
  *
  * `descendants` counts the node's Md descendants, so a walk skips a whole
- * subtree in one step.
+ * subtree in one step. `tag` is the Md node's `_tag` and `fingerprint` is a
+ * structural hash of the node's whole subtree (its tag, its own field values
+ * and its children's fingerprints, in order). {@link positionAt} recomputes
+ * the fingerprint of the node it reaches and compares, so a node whose
+ * content no longer matches the recorded one does not resolve.
  *
  * **Example** (Make an entry)
  *
@@ -326,8 +331,14 @@ export type MdSourceOrigin = typeof MdSourceOrigin.Type;
  * import { Position } from "@beep/markdown/MarkdownNode"
  * import { MdSourceEntry } from "@beep/md/Md.syntax"
  *
- * const entry = MdSourceEntry.make({ position: Position.synthetic, descendants: 0, origin: "parsed" })
- * console.log(entry.origin) // "parsed"
+ * const entry = MdSourceEntry.make({
+ *   position: Position.synthetic,
+ *   descendants: 0,
+ *   origin: "parsed",
+ *   tag: "hr",
+ *   fingerprint: 0,
+ * })
+ * console.log(entry.tag) // "hr"
  * ```
  *
  * @category models
@@ -340,6 +351,14 @@ export class MdSourceEntry extends S.Opaque<MdSourceEntry, { readonly brand: uni
       $I.annoteKey("MdSourceEntry.descendants", { description: "Number of Md nodes below this node." })
     ),
     origin: MdSourceOrigin.pipe($I.annoteKey("MdSourceEntry.origin", { description: "How the Md node was produced." })),
+    tag: S.NonEmptyString.pipe(
+      $I.annoteKey("MdSourceEntry.tag", { description: "The `_tag` of the Md node the entry was recorded for." })
+    ),
+    fingerprint: S.Int.pipe(
+      $I.annoteKey("MdSourceEntry.fingerprint", {
+        description: "Structural hash of the recorded Md node's subtree: tag, field values and child fingerprints.",
+      })
+    ),
   }).pipe(
     $I.annoteSchema("MdSourceEntry", {
       description: "Source span of one Md node at its pre-order ordinal.",
@@ -370,9 +389,23 @@ export declare namespace MdSourceEntry {
  *
  * Entry 0 is the document, then every Md node in pre-order. The map is keyed
  * by ordinal, not by path, so it costs one small record per node. It is valid
- * only for the document the bridge returned with it: any transform of that
- * document shifts the ordinals. {@link positionAt} checks the shape it walks
- * and returns `None` on a mismatch instead of a wrong position. The map is
+ * only for the document the bridge returned with it. {@link positionAt}
+ * answers only for a node that still matches the entry recorded at its path:
+ * every ancestor on the path must keep its tag and child count, and the
+ * addressed node must keep its tag and its subtree fingerprint. After an
+ * insert, remove, reorder or in-place edit it returns `None` for every node
+ * whose content no longer matches its entry instead of a different node's
+ * position.
+ *
+ * **Gotchas**
+ *
+ * Fingerprints compare values, not identity: a returned span was recorded
+ * for a node structurally equal to the one at the path, not necessarily for
+ * that node. Swapping two equal siblings is invisible, and so is equal
+ * content below two swapped siblings that share a tag and child count (the
+ * `foo` text of `# foo` and `## foo`): ancestors are checked by tag and child
+ * count only. Fingerprints are 32-bit hashes, so a changed subtree also
+ * matches its old entry on a hash collision. The map is
  * transient and is never persisted.
  *
  * **Example** (Use the empty map)
@@ -433,10 +466,63 @@ const directChildOrdinals = (entries: ReadonlyArray<MdSourceEntry>, ordinal: num
 const isChildStep = (path: ReadonlyArray<DocumentSafetyPathSegment>, at: number): boolean =>
   path[at] === "children" && P.isNumber(path[at + 1]);
 
-// A node still matches the map when its child count equals its entry's
-// direct-child count; any transform that adds or drops a child breaks that.
+const tagOf = (node: unknown): string => (P.hasProperty(node, "_tag") && P.isString(node._tag) ? node._tag : "");
+
+const fieldsOf = (node: unknown): ReadonlyArray<readonly [string, unknown]> =>
+  P.isReadonlyObject(node) ? R.toEntries(node) : [];
+
+// A field's share of its node's fingerprint, or None for an absent value.
+// `None`, `false` and a missing key hash alike, so the plain data the fold
+// builds and the admitted document (which fills constructor defaults such as
+// `title: None` or `checked: false`) fingerprint the same.
+const fieldFingerprint = (value: unknown): O.Option<number> =>
+  O.isOption(value)
+    ? O.map(value, Hash.hash)
+    : value === false || P.isUndefined(value)
+      ? O.none()
+      : O.some(Hash.hash(value));
+
+// Merkle-style: the node's own fields (order-free, as `Hash.structure` does)
+// combined with its children's fingerprints in order.
+const nodeFingerprint = (node: unknown, children: ReadonlyArray<number>): number => {
+  let fields = Hash.string("@beep/md/MdSourceEntry");
+  for (const [key, value] of fieldsOf(node)) {
+    if (key !== "children") {
+      fields ^= O.match(fieldFingerprint(value), {
+        onNone: () => 0,
+        onSome: (hash) => Hash.combine(Hash.string(key), hash),
+      });
+    }
+  }
+  return Hash.combine(Hash.optimize(fields), Hash.array(children));
+};
+
+// The fingerprint of a whole subtree, in O(subtree).
+const subtreeFingerprint = (node: unknown): number =>
+  nodeFingerprint(node, A.map(childrenOf(node), subtreeFingerprint));
+
+// Every node's tag and fingerprint in pre-order, in one bottom-up pass.
+const recordFingerprints = (node: unknown, out: Array<readonly [string, number]>): number => {
+  const at = out.length;
+  out.push([tagOf(node), 0]);
+  const fingerprint = nodeFingerprint(
+    node,
+    A.map(childrenOf(node), (child) => recordFingerprints(child, out))
+  );
+  out[at] = [tagOf(node), fingerprint];
+  return fingerprint;
+};
+
+// An ancestor on the walk still matches its entry when its tag and its child
+// count are unchanged; any transform that adds, drops or retypes a child
+// breaks that.
 const matchesEntry = (entries: ReadonlyArray<MdSourceEntry>, ordinal: number, node: unknown): boolean =>
-  childrenOf(node).length === directChildOrdinals(entries, ordinal).length;
+  entries[ordinal]?.tag === tagOf(node) && childrenOf(node).length === directChildOrdinals(entries, ordinal).length;
+
+// The addressed node must also be the very subtree the entry recorded, so a
+// reorder of same-shape siblings or an in-place edit yields None.
+const matchesTarget = (entries: ReadonlyArray<MdSourceEntry>, ordinal: number, node: unknown): boolean =>
+  matchesEntry(entries, ordinal, node) && entries[ordinal]?.fingerprint === subtreeFingerprint(node);
 
 // One step down the path: the child's ordinal and node, or None when the
 // current node no longer matches its entry or has no such child.
@@ -463,10 +549,10 @@ const positionAtImpl = (
   for (let at = 0; O.isSome(cursor) && isChildStep(path, at); at += 2) {
     cursor = descend(entries, cursor.value, path[at + 1]);
   }
-  // The addressed node must match its entry too, so a transform that only
+  // The addressed node must be the recorded subtree, so a transform that only
   // touched the target (the document itself included) still yields None.
   return O.flatMap(cursor, ([ordinal, node]) =>
-    matchesEntry(entries, ordinal, node) ? O.fromUndefinedOr(entries[ordinal]?.position) : O.none()
+    matchesTarget(entries, ordinal, node) ? O.fromUndefinedOr(entries[ordinal]?.position) : O.none()
   );
 };
 
@@ -477,10 +563,22 @@ const positionAtImpl = (
  *
  * The path is a `DocumentSafetyPathSegment` array such as
  * `["children", 0, "children", 2]`; a trailing field segment (`"href"`,
- * `"value"`) resolves to its node. The walk costs O(depth × siblings) and
- * allocates nothing per node. It returns `None` when the path leaves the
- * tree or when the document's shape no longer matches the map, which is
- * what happens after any transform of the bridged document.
+ * `"value"`) resolves to its node. It returns `None` when the path leaves
+ * the tree, when an ancestor on the path changed its tag or child count, or
+ * when the addressed node is not the subtree its entry recorded: after an
+ * insert, a remove, a reorder (same-shape siblings included) or an in-place
+ * edit of the node or anything below it. Ancestors are checked by tag and
+ * child count only, so an edit elsewhere in the document leaves unrelated
+ * nodes resolvable.
+ *
+ * **Gotchas**
+ *
+ * The walk costs O(depth × siblings) plus O(size of the addressed subtree),
+ * because the subtree's fingerprint is recomputed on every call; a lookup of
+ * the document itself is O(n). The check compares values, so a node equal
+ * to the one recorded at its path resolves to that recorded span even when
+ * it moved there: two swapped equal siblings, or equal content below two
+ * swapped siblings that share a tag and child count.
  *
  * **Example** (Locate a paragraph)
  *
@@ -1444,14 +1542,55 @@ const paragraphFlow =
       O.getOrElse(() => paragraphBlock(state, node.children, node.position, path))
     );
 
-const phrasingPlainText = (node: Kit.PhrasingContent): string =>
-  "children" in node
-    ? A.join(A.map(node.children, phrasingPlainText), "")
+// Raw HTML in an admonition head line lands in a plain-string title, so it
+// follows the inline HTML policy with one difference: the title cannot carry
+// raw HTML, so only `escapeAsText` keeps the markup (as text) and `rawHtml`
+// drops it like `drop` does. Comments follow `htmlComments` first.
+const headHtmlKept = (state: BridgeState, value: string): boolean =>
+  !(state.options.htmlComments === MdHtmlCommentPolicy.Enum.drop && isHtmlComment(value)) &&
+  state.options.html === MdHtmlPolicy.Enum.escapeAsText;
+
+const recordHeadHtml = (state: BridgeState, node: Kit.Html, path: SlotPath): void => {
+  if (headHtmlKept(state, node.value)) {
+    recordLoss(state, "htmlEscapedAsText", node, landed(path), node.value);
+  } else {
+    const comment = state.options.htmlComments === MdHtmlCommentPolicy.Enum.drop && isHtmlComment(node.value);
+    recordLoss(state, "htmlDropped", node, O.none(), comment ? "comment" : node.value);
+  }
+};
+
+// A hard break ends the head line, and so does a `<br>` tag under `breakTag`,
+// which the inline mapping recognizes as a break before any HTML policy.
+const isHeadBreak = (state: BridgeState, kid: Kit.PhrasingContent): boolean =>
+  kid.type === "break" || (kid.type === "html" && state.options.breakTag && isBreakTag(kid.value));
+
+// The plain text a head-line node contributes to the title, recording a loss
+// for every raw HTML node inside it. A break nested in inline markup
+// contributes nothing, as a nested hard break does.
+const headPlainText = (state: BridgeState, path: SlotPath, node: Kit.PhrasingContent): string => {
+  if (isHeadBreak(state, node)) {
+    return "";
+  }
+  if (node.type === "html") {
+    recordHeadHtml(state, node, path);
+    return headHtmlKept(state, node.value) ? node.value : "";
+  }
+  return "children" in node
+    ? A.join(
+        A.map(node.children, (child) => headPlainText(state, path, child)),
+        ""
+      )
     : "value" in node
       ? node.value
       : "alt" in node
         ? (node.alt ?? "")
         : "";
+};
+
+// A head-line node flattens into the title unless it is plain text or raw
+// HTML the policy drops outright.
+const flattensIntoTitle = (state: BridgeState, kid: Kit.PhrasingContent): boolean =>
+  kid.type === "html" ? headHtmlKept(state, kid.value) : kid.type !== "text";
 
 class AdmonitionHead {
   readonly title: string;
@@ -1472,26 +1611,33 @@ const remainderAfter = (
 ): ReadonlyArray<Kit.PhrasingContent> =>
   Str.isEmpty(after) ? rest : [Kit.Text.make({ value: after, position: text.position }), ...rest];
 
-const headLineText = (kid: Kit.PhrasingContent, index: number, firstLine: string): string =>
-  kid.type !== "text" ? phrasingPlainText(kid) : index === 0 ? firstLine : kid.value;
+const lineText = (kid: Kit.PhrasingContent, index: number, firstLine: string): string =>
+  kid.type !== "text" ? "" : index === 0 ? firstLine : kid.value;
 
-const endsHeadLine = (kid: Kit.PhrasingContent, text: string): boolean =>
-  kid.type === "break" || (kid.type === "text" && Str.includes("\n")(text));
+const endsHeadLine = (state: BridgeState, kid: Kit.PhrasingContent, text: string): boolean =>
+  isHeadBreak(state, kid) || (kid.type === "text" && Str.includes("\n")(text));
 
-const splitAdmonitionHead = (kids: ReadonlyArray<Kit.PhrasingContent>, firstLine: string): AdmonitionHead => {
-  const texts = A.map(kids, (kid, index) => headLineText(kid, index, firstLine));
+const splitAdmonitionHead = (
+  state: BridgeState,
+  path: SlotPath,
+  kids: ReadonlyArray<Kit.PhrasingContent>,
+  firstLine: string
+): AdmonitionHead => {
   const end = O.getOrElse(
-    A.findFirstIndex(kids, (kid, index) => endsHeadLine(kid, texts[index] ?? "")),
+    A.findFirstIndex(kids, (kid, index) => endsHeadLine(state, kid, lineText(kid, index, firstLine))),
     () => kids.length
   );
-  const before = A.take(texts, end);
-  const flattened = A.some(A.take(kids, end), (kid) => kid.type !== "text");
+  const head = A.take(kids, end);
+  const before = A.map(head, (kid, index) =>
+    kid.type === "text" ? lineText(kid, index, firstLine) : headPlainText(state, path, kid)
+  );
+  const flattened = A.some(head, (kid) => flattensIntoTitle(state, kid));
   const ender = kids[end];
   const rest = A.drop(kids, end + 1);
   if (ender?.type !== "text") {
     return new AdmonitionHead(A.join(before, ""), flattened, rest);
   }
-  const text = texts[end] ?? "";
+  const text = lineText(ender, end, firstLine);
   const newline = O.getOrElse(Str.indexOf("\n")(text), () => Str.length(text));
   return new AdmonitionHead(
     A.join([...before, Str.slice(0, newline)(text)], ""),
@@ -1514,7 +1660,7 @@ const admonitionFlow = (
     admonitionMarkerOf(slice(state, first.position)),
     O.filter(([, marker]) => Str.startsWith(marker)(head.value)),
     O.map(([kind, marker]) => {
-      const split = splitAdmonitionHead(first.children, Str.slice(Str.length(marker))(head.value));
+      const split = splitAdmonitionHead(state, path, first.children, Str.slice(Str.length(marker))(head.value));
       if (split.flattened) {
         recordLoss(state, "admonitionTitleFlattened", first, landed(path), split.title);
       }
@@ -1839,15 +1985,30 @@ const reportUnreferencedDefinitions = (state: BridgeState): void => {
 
 const byPosition = (loss: MdLoss): number => loss.position.start.offset;
 
+// The fold opens one slot per Md node in pre-order, so the fingerprint pass
+// over the finished plain document lines up with the slots ordinal by ordinal.
+const sourceEntries = (state: BridgeState, document: unknown): ReadonlyArray<MdSourceEntry> => {
+  const fingerprints: Array<readonly [string, number]> = [];
+  recordFingerprints(document, fingerprints);
+  return A.map(state.slots, (slot, ordinal) => {
+    const [tag, fingerprint] = fingerprints[ordinal] ?? ["document", 0];
+    return MdSourceEntry.make({
+      position: slot.position,
+      descendants: slot.descendants,
+      origin: slot.origin,
+      tag,
+      fingerprint,
+    });
+  });
+};
+
 const finish = (state: BridgeState, frontmatter: O.Option<S.JsonObject>, children: ReadonlyArray<Model.Block>) =>
   MdFromSyntax.make({
     document: { _tag: "document", frontmatter, children },
     losses: A.sortWith(state.losses, byPosition, N.Order),
     sourceMap: state.options.sourceMap
       ? MdSourceMap.make({
-          entries: A.map(state.slots, (slot) =>
-            MdSourceEntry.make({ position: slot.position, descendants: slot.descendants, origin: slot.origin })
-          ),
+          entries: sourceEntries(state, { _tag: "document", frontmatter, children }),
         })
       : MdSourceMap.empty,
   });

@@ -152,9 +152,21 @@ console.log(Result.isFailure(parseSafeResult("<b>x</b>", { html: "rawHtml" }))) 
 ### Source map lifetime
 
 The bridge builds the whole document as plain data and admits it once through `MdFromSyntax.make`, so the cost is
-linear in the node count. The source map is a pre-order list of spans over that exact document. It is valid only
-for the document it came with: after any transform (insert, remove, reorder) `positionAt` returns `Option.none()`
-when the path no longer matches the recorded shape, rather than a wrong span.
+linear in the node count. The source map is a pre-order list of spans over that exact document. Each entry also
+records the Md node's `_tag` and a structural fingerprint of its subtree (a hash over tags, field values and child
+fingerprints, computed bottom-up in one pass). The map is valid only for the document it came with. `positionAt`
+answers only when every ancestor on the path keeps its tag and child count and the addressed node keeps its tag and
+fingerprint. After an insert, a remove, a reorder or an in-place edit it returns `Option.none()` for each node whose
+content no longer matches its entry, rather than the span of a different node. Untouched nodes elsewhere still
+resolve.
+
+The check compares values, not identity, so the guarantee is this: a returned span was recorded for a node
+structurally equal to the one at the path. A moved node that equals the node recorded at its new place still
+resolves to that recorded span. Swapping two equal siblings is one case. Swapping two siblings that differ but have
+the same tag and child count is another: their descendants are checked one by one, so equal text below them (the
+`foo` of `# foo` and `## foo`) resolves to the span recorded at that place. Fingerprints are 32-bit hashes, so a
+changed subtree can also match its old entry on a hash collision. Each lookup recomputes the addressed subtree's
+fingerprint, so it costs the path walk plus O(subtree size); looking up the document itself is O(n).
 
 There is no `Context.Service`. Parsing has no environment, resource, or alternative implementation; a slice that
 wants configured ingest can wrap `parseSafe` in its own service.

@@ -12,6 +12,7 @@ import * as A from "@beep/utils/Array";
 import { dual, pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
+import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -77,20 +78,27 @@ const isSpace = (char: string | undefined): boolean => char === " " || char === 
 
 const isDigit = (char: string | undefined): boolean => char !== undefined && char >= "0" && char <= "9";
 
-const closingDollar = (text: string, open: number): O.Option<number> => {
-  for (let index = open + 2; index < Str.length(text); index++) {
-    if (text[index] === "$" && !isSpace(text[index - 1]) && !isDigit(text[index + 1])) {
-      return O.some(index);
-    }
+const isClosingDollar = (text: string, index: number): boolean =>
+  text[index] === "$" && !isSpace(text[index - 1]) && !isDigit(text[index + 1]);
+
+// `closers[k]` is the first valid closing `$` at or after `k`, or -1. One
+// right-to-left pass builds it, so an opener finds its closer in O(1) and a
+// run of openers that never close ("$a $a $a …") stays linear instead of
+// re-scanning to the end of the text once per opener.
+const closingDollars = (text: string): ReadonlyArray<number> => {
+  const length = Str.length(text);
+  const closers = A.makeBy(length + 2, () => -1);
+  for (let index = length - 1; index >= 0; index--) {
+    closers[index] = isClosingDollar(text, index) ? index : (closers[index + 1] ?? -1);
   }
-  return O.none();
+  return closers;
 };
 
 const isDoubleDollar = (text: string, index: number): boolean => text[index] === "$" && text[index + 1] === "$";
 
-const mathCloseAt = (text: string, index: number): O.Option<number> =>
+const mathCloseAt = (text: string, closers: ReadonlyArray<number>, index: number): O.Option<number> =>
   text[index] === "$" && !isDoubleDollar(text, index) && !isSpace(text[index + 1])
-    ? closingDollar(text, index)
+    ? O.filter(O.fromUndefinedOr(closers[index + 2]), N.isGreaterThanOrEqualTo(0))
     : O.none();
 
 const pushText = (segments: Array<MathSegment>, from: number, to: number): void => {
@@ -103,18 +111,21 @@ const pushText = (segments: Array<MathSegment>, from: number, to: number): void 
  * Split a text run into text and inline-math segments using pandoc's
  * `tex_math_dollars` rules: the opening `$` has a non-space character to its
  * right, the closing `$` has a non-space character to its left and is not
- * followed by a digit, and `$$` is never an inline opener.
+ * followed by a digit, and `$$` is never an inline opener. Each opener takes
+ * the first closer after it, found in a precomputed table, so the scan is
+ * linear in the text length.
  *
  * @internal
  * @category parsing
  * @since 0.0.0
  */
 export const scanInlineMath = (text: string): ReadonlyArray<MathSegment> => {
+  const closers = closingDollars(text);
   const segments: Array<MathSegment> = [];
   let textStart = 0;
   let index = 0;
   while (index < Str.length(text)) {
-    const close = mathCloseAt(text, index);
+    const close = mathCloseAt(text, closers, index);
     if (O.isNone(close)) {
       index += isDoubleDollar(text, index) ? 2 : 1;
       continue;

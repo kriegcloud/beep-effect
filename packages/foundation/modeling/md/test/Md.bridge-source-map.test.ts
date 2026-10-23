@@ -1,9 +1,9 @@
-import { Document, P as Paragraph, Text } from "@beep/md/Md.model";
+import { Document, Li, P as Paragraph, Text, Ul } from "@beep/md/Md.model";
 import { parseResult } from "@beep/md/Md.parse";
 import { positionAt } from "@beep/md/Md.syntax";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -101,5 +101,93 @@ describe("@beep/md/Md.syntax source map over the corpus", () => {
         expect([id, unresolved]).toStrictEqual([id, []]);
       }
     }
+  });
+});
+
+const bridgeText = (markdown: string): MdFromSyntax => Result.getOrThrow(parseResult(markdown));
+
+const withChildren = (bridged: MdFromSyntax, children: ReadonlyArray<Block>): Document =>
+  Document.make({ frontmatter: bridged.document.frontmatter, children });
+
+const recorded = (bridged: MdFromSyntax, path: NodePath) =>
+  O.getOrThrow(positionAt(bridged.sourceMap, bridged.document, path));
+
+describe("@beep/md/Md.syntax source map identity", () => {
+  it("resolves every node of an unchanged document and records its tag", () => {
+    const bridged = bridgeText("# T\n\n- a\n- b\n- a\n\n> [!NOTE] Title\n> body *x*\n\na\n\nb");
+    const paths = preOrderPaths(bridged.document, []);
+    A.forEach(paths, (path, ordinal) => {
+      const entry = bridged.sourceMap.entries[ordinal];
+      assertSome(
+        positionAt(bridged.sourceMap, bridged.document, path),
+        O.getOrThrow(O.fromUndefinedOr(entry)).position
+      );
+    });
+    const tags = A.map(bridged.sourceMap.entries, (entry) => entry.tag);
+    expect(tags[0]).toBe("document");
+    expect(A.dedupe(tags)).toStrictEqual(["document", "heading", "text", "ul", "li", "admonition", "p", "em"]);
+  });
+
+  it("returns None for both siblings after reversing equal-shape top-level paragraphs", () => {
+    const bridged = bridgeText("a\n\nb");
+    const reversed = withChildren(bridged, A.reverse(bridged.document.children));
+    const lookup = (path: NodePath) => positionAt(bridged.sourceMap, reversed, path);
+    assertNone(lookup(["children", 0]));
+    assertNone(lookup(["children", 1]));
+    assertNone(lookup(["children", 0, "children", 0]));
+    assertNone(lookup(["children", 1, "children", 0]));
+  });
+
+  it("returns None for swapped same-shape list items and keeps the untouched one", () => {
+    const bridged = bridgeText("- a\n- b\n- c");
+    const [list] = bridged.document.children;
+    if (list?._tag !== "ul") {
+      throw new Error("expected a bullet list");
+    }
+    const [first, middle, last] = list.children;
+    if (first === undefined || middle === undefined || last === undefined) {
+      throw new Error("expected three items");
+    }
+    const swapped = withChildren(bridged, [Ul.make({ children: [last, middle, first] })]);
+    const lookup = (path: NodePath) => positionAt(bridged.sourceMap, swapped, path);
+    assertNone(lookup(["children", 0]));
+    assertNone(lookup(["children", 0, "children", 0]));
+    assertNone(lookup(["children", 0, "children", 2]));
+    assertNone(lookup(["children", 0, "children", 0, "children", 0]));
+    assertSome(lookup(["children", 0, "children", 1]), recorded(bridged, ["children", 0, "children", 1]));
+    assertSome(
+      lookup(["children", 0, "children", 1, "children", 0]),
+      recorded(bridged, ["children", 0, "children", 1, "children", 0])
+    );
+  });
+
+  it("resolves equal content below swapped same-shape siblings to the span recorded at that place", () => {
+    const bridged = bridgeText("# foo\n\n## foo");
+    const reversed = withChildren(bridged, A.reverse(bridged.document.children));
+    const lookup = (path: NodePath) => positionAt(bridged.sourceMap, reversed, path);
+    assertNone(lookup(["children", 0]));
+    assertNone(lookup(["children", 1]));
+    // The documented limit: ancestors are checked by tag and child count, and
+    // the equal `foo` text resolves to the span recorded at its new path.
+    assertSome(lookup(["children", 0, "children", 0]), recorded(bridged, ["children", 0, "children", 0]));
+  });
+
+  it("returns None at and above an in-place leaf text edit and keeps unrelated nodes", () => {
+    const bridged = bridgeText("a\n\n- b");
+    const [paragraph, list] = bridged.document.children;
+    if (paragraph?._tag !== "p" || list?._tag !== "ul") {
+      throw new Error("expected a paragraph and a list");
+    }
+    const edited = withChildren(bridged, [
+      paragraph,
+      Ul.make({ children: [Li.make({ children: [Text.make({ value: "c" })] })] }),
+    ]);
+    const lookup = (path: NodePath) => positionAt(bridged.sourceMap, edited, path);
+    assertNone(lookup([]));
+    assertNone(lookup(["children", 1]));
+    assertNone(lookup(["children", 1, "children", 0]));
+    assertNone(lookup(["children", 1, "children", 0, "children", 0]));
+    assertSome(lookup(["children", 0]), recorded(bridged, ["children", 0]));
+    assertSome(lookup(["children", 0, "children", 0]), recorded(bridged, ["children", 0, "children", 0]));
   });
 });
