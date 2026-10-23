@@ -22,21 +22,20 @@ import * as S from "effect/Schema";
  * heritage chain, and leaves every class's emitted declaration listing its own
  * fields.
  *
- * Every field is `Schema.optional` rather than `Schema.optionalKey`, so it
- * accepts an explicit `undefined`: node fields usually come from
- * possibly-absent upstream metadata, and passing that straight through avoids a
- * wall of conditional spreads at each call site.
+ * Every field except `@id` uses `Schema.optionalKey`: omit absent metadata
+ * instead of passing an explicit `undefined`. A present field must satisfy
+ * its schema.
  *
- * **Example** (Decode shared node metadata)
+ * **Example** (Construct shared node metadata)
  *
- * ```ts
+ * ```ts import.meta.vitest name="Construct shared node metadata"
  * import { ThingFields } from "@beep/schema-org/Thing";
  * import * as S from "effect/Schema";
  *
  * const Thing = S.Struct(ThingFields);
- * const node = S.decodeUnknownSync(Thing)({ "@id": "_:pkg", name: undefined });
- * console.log(node["@id"]) // _:pkg
- * console.log(node.name) // undefined
+ * const node = Thing.make({ "@id": "_:pkg" });
+ * node["@id"] // => "_:pkg"
+ * node.name // => undefined
  * ```
  *
  * @public

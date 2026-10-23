@@ -32,23 +32,46 @@ describe("node classes", () => {
     }
   });
 
-  it("accepts an explicit undefined for any optional field", () => {
-    // This is the scoped `Schema.optional` exception. Under `optionalKey`
-    // every one of these would throw, and every consumer call site would
-    // need a conditional spread, because every field originates in a
-    // possibly-absent piece of upstream metadata.
+  it("accepts omitted Thing and TechArticle metadata", () => {
+    const node = TechArticle.make({ "@id": ID });
+
+    assert.notProperty(node, "headline");
+    assert.notProperty(node, "description");
+    assert.notProperty(node, "additional");
+  });
+
+  it.each([
+    "name",
+    "url",
+    "description",
+    "identifier",
+    "sameAs",
+    "additional",
+    "headline",
+    "articleSection",
+    "proficiencyLevel",
+    "dependencies",
+  ])("rejects explicit undefined for optionalKey metadata: %s", (key) => {
+    const decoded = S.decodeResult(TechArticle)({ "@id": ID, "@type": "TechArticle", [key]: undefined });
+
+    assertFailure(
+      Result.mapError(decoded, () => undefined),
+      undefined
+    );
+  });
+
+  it("accepts explicit undefined for CreativeWork fields modeled with Schema.optional", () => {
     const node = TechArticle.make({
       "@id": ID,
-      headline: undefined,
-      description: undefined,
       datePublished: undefined,
       author: undefined,
       mainEntity: undefined,
-      additional: undefined,
     });
 
     assert.strictEqual(node["@id"], ID);
-    assert.isUndefined(node.headline);
+    assert.isUndefined(node.datePublished);
+    assert.isUndefined(node.author);
+    assert.isUndefined(node.mainEntity);
   });
 
   it("requires @id and nothing else", () => {

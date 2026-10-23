@@ -233,7 +233,9 @@ describe("JsonLdDocument.toJsonLd — the wire form", () => {
 
   it("drops undefined-valued keys rather than emitting them", () => {
     const graph = Result.getOrThrow(
-      JsonLdDocument.buildResult([Person.make({ "@id": ALICE, name: "Alice", email: undefined, url: undefined })])
+      JsonLdDocument.buildResult([
+        Person.make({ "@id": ALICE, name: "Alice", email: undefined, affiliation: undefined }),
+      ])
     );
 
     const wire = graph.toJsonLd();
