@@ -38,22 +38,13 @@
         "scratchpad/test/tsconfig-json/PortableTsconfig.test.ts",
         "scratchpad/test/tsconfig-json/TsconfigDiscovery.test.ts"
       ],
-      "findings": [
-        "sol-1-2-models",
-        "sol-1-7-resolved"
-      ]
+      "findings": ["sol-1-2-models", "sol-1-7-resolved"]
     },
     {
       "id": "g3",
-      "files": [
-        "scratchpad/effected/tsconfig-json/JsxConfig.ts"
-      ],
-      "tests": [
-        "scratchpad/test/tsconfig-json/JsxConfig.test.ts"
-      ],
-      "findings": [
-        "sol-1-5"
-      ]
+      "files": ["scratchpad/effected/tsconfig-json/JsxConfig.ts"],
+      "tests": ["scratchpad/test/tsconfig-json/JsxConfig.test.ts"],
+      "findings": ["sol-1-5"]
     },
     {
       "id": "g4",
@@ -61,12 +52,8 @@
         "scratchpad/effected/tsconfig-json/TsconfigLoader.ts",
         "scratchpad/effected/tsconfig-json/internal/extendsTarget.ts"
       ],
-      "tests": [
-        "scratchpad/test/tsconfig-json/TsconfigLoader.test.ts"
-      ],
-      "findings": [
-        "fable-1-4-internals"
-      ]
+      "tests": ["scratchpad/test/tsconfig-json/TsconfigLoader.test.ts"],
+      "findings": ["fable-1-4-internals"]
     }
   ],
   "findings": {

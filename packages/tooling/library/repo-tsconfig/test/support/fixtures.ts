@@ -1,7 +1,7 @@
 import { MemoryFileSystem } from "@beep/memfs";
-import type * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import type * as FileSystem from "effect/FileSystem";
 
 /**
  * An in-memory fixture filesystem for the resolution suites. The map is
@@ -21,8 +21,8 @@ import * as Path from "effect/Path";
  * resolution engine probes config *files*, never directories.
  */
 export const fixtureFs = (tree: ReadonlyMap<string, string>): Layer.Layer<FileSystem.FileSystem> =>
-	MemoryFileSystem.layerWith(Object.fromEntries(tree));
+  MemoryFileSystem.layerWith(Object.fromEntries(tree));
 
 /** The fixture filesystem merged with a POSIX `Path`, the layer every resolution suite provides. */
 export const fixtureLayer = (tree: ReadonlyMap<string, string>): Layer.Layer<FileSystem.FileSystem | Path.Path> =>
-	Layer.mergeAll(fixtureFs(tree), Path.layer);
+  Layer.mergeAll(fixtureFs(tree), Path.layer);

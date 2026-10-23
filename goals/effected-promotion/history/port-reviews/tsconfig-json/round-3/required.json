@@ -3,27 +3,15 @@
   "groups": [
     {
       "id": "g1",
-      "files": [
-        "scratchpad/effected/tsconfig-json/ResolvedTsconfig.ts"
-      ],
-      "tests": [
-        "scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts"
-      ],
-      "findings": [
-        "sol-3-1"
-      ]
+      "files": ["scratchpad/effected/tsconfig-json/ResolvedTsconfig.ts"],
+      "tests": ["scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts"],
+      "findings": ["sol-3-1"]
     },
     {
       "id": "g2",
-      "files": [
-        "scratchpad/effected/tsconfig-json/PortableTsconfig.ts"
-      ],
-      "tests": [
-        "scratchpad/test/tsconfig-json/PortableTsconfig.test.ts"
-      ],
-      "findings": [
-        "fable-3-1"
-      ]
+      "files": ["scratchpad/effected/tsconfig-json/PortableTsconfig.ts"],
+      "tests": ["scratchpad/test/tsconfig-json/PortableTsconfig.test.ts"],
+      "findings": ["fable-3-1"]
     }
   ],
   "findings": {

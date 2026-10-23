@@ -3,42 +3,24 @@
   "groups": [
     {
       "id": "g1",
-      "files": [
-        "scratchpad/effected/tsconfig-json/PortableTsconfig.ts"
-      ],
+      "files": ["scratchpad/effected/tsconfig-json/PortableTsconfig.ts"],
       "tests": [
         "scratchpad/test/tsconfig-json/PortableTsconfig.test.ts",
         "scratchpad/test/tsconfig-json/PortableTsconfig.property.test.ts"
       ],
-      "findings": [
-        "sol-2-1"
-      ]
+      "findings": ["sol-2-1"]
     },
     {
       "id": "g2",
-      "files": [
-        "scratchpad/effected/tsconfig-json/TsEnumCodec.ts"
-      ],
-      "tests": [
-        "scratchpad/test/tsconfig-json/TsEnumCodec.test.ts"
-      ],
-      "findings": [
-        "fable-2-1",
-        "fable-2-2"
-      ]
+      "files": ["scratchpad/effected/tsconfig-json/TsEnumCodec.ts"],
+      "tests": ["scratchpad/test/tsconfig-json/TsEnumCodec.test.ts"],
+      "findings": ["fable-2-1", "fable-2-2"]
     },
     {
       "id": "g3",
-      "files": [
-        "scratchpad/effected/tsconfig-json/ResolvedTsconfig.ts"
-      ],
-      "tests": [
-        "scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts"
-      ],
-      "findings": [
-        "fable-2-3",
-        "fable-2-4"
-      ]
+      "files": ["scratchpad/effected/tsconfig-json/ResolvedTsconfig.ts"],
+      "tests": ["scratchpad/test/tsconfig-json/ResolvedTsconfig.test.ts"],
+      "findings": ["fable-2-3", "fable-2-4"]
     }
   ],
   "findings": {

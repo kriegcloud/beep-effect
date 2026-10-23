@@ -9,13 +9,18 @@ import { FindNearestOptions } from "../../effected/tsconfig-json/TsconfigDiscove
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   const equivalent = S.toEquivalence(schema);
-  it.effect.prop(`${name}: encoding decodes successfully to an equivalent value`, [Arbitrary.schema(schema)], ([value]) =>
-    Effect.gen(function* () {
-      const encoded = yield* S.encodeEffect(schema)(value);
-      const decoded = yield* S.decodeEffect(schema)(encoded);
-      assertTrue(equivalent(decoded, value));
-      assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
-    }), runs);
+  it.effect.prop(
+    `${name}: encoding decodes successfully to an equivalent value`,
+    [Arbitrary.schema(schema)],
+    ([value]) =>
+      Effect.gen(function* () {
+        const encoded = yield* S.encodeEffect(schema)(value);
+        const decoded = yield* S.decodeEffect(schema)(encoded);
+        assertTrue(equivalent(decoded, value));
+        assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
+      }),
+    runs
+  );
 };
 
 describe("TsconfigDiscovery property floor", () => {
