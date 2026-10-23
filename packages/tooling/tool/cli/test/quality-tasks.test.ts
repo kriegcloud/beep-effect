@@ -864,6 +864,37 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(select('{"packages":{"braces":["braces@3.0.3"]}')).toEqual([]);
     });
 
+    it.effect("scans changed ignored paths through root discovery instead of explicit targets", () =>
+      Effect.gen(function* () {
+        const ignored = "goals/repository-simplification-confidence/history/outputs/semgrep/first-party.ts";
+        const changed = "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts";
+        const commands: Array<ReadonlyArray<string>> = [];
+        const spawner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) {
+            return Effect.die("SAST test requires a standard command");
+          }
+          A.appendInPlace(commands, [command.command, ...command.args]);
+          const output = A.contains(command.args, "--name-only") ? `${ignored}\n${changed}\n` : "";
+          return Effect.succeed(qualityCommandHandle(output, 0));
+        });
+        yield* runGithubChecks("sast").pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner),
+          Effect.provideServiceEffect(Console.Console, TestConsole.make),
+          TestClock.withLive
+        );
+        const scan = A.findFirst(commands, (args) => A.contains(args, "semgrep/semgrep"));
+        scan.pipe(O.isSome, assertTrue);
+        if (O.isSome(scan)) {
+          expect(A.takeRight(scan.value, 5)).toEqual(["--include", ignored, "--include", changed, "."]);
+        }
+        const fs = yield* FileSystem.FileSystem;
+        const ignoreRules = yield* fs.readFileString(
+          NodeURL.fileURLToPath(new URL("../../../../../.semgrepignore", import.meta.url))
+        );
+        expect(ignoreRules).toContain("goals/**/history/outputs/");
+      })
+    );
+
     it.effect(
       "runs the review-fix command sequence with its default range",
       flow(

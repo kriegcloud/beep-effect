@@ -20,6 +20,7 @@ import { assert, describe, it, layer } from "@effect/vitest";
 import { assertInstanceOf, assertTrue, strictEqual } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as TestConsole from "effect/testing/TestConsole";
