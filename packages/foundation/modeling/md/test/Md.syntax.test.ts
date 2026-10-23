@@ -452,10 +452,10 @@ describe("@beep/md/Md.syntax phrasing mapping", () => {
     const source = 'before <span\nclass="x">after</span> end';
     expect(encoded(source).children).toEqual([{ _tag: "p", children: [{ _tag: "text", value: source }] }]);
     const result = bridge(source);
-    expect(A.map(result.losses, (loss) => loss.mdPath)).toEqual([
-      O.some(["children", 0, "children", 0]),
-      O.some(["children", 0, "children", 0]),
-    ]);
+    expect(result.losses).toHaveLength(2);
+    for (const loss of result.losses) {
+      assertSome(loss.mdPath, ["children", 0, "children", 0]);
+    }
   });
 
   it("keeps math recognition and source ranges at merged HTML boundaries", () => {
