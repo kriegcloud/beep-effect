@@ -74,11 +74,11 @@ console.log(Effect.runSync(program));
 
 `toJsonString` takes `PackageFormatOptions` — `indent`, `sort`, `stripEmpty`, `newline` — if you want the raw shape instead of the canonical one.
 
-Alongside `Package` the leaf concepts are usable on their own. `PackageName` classifies and validates npm names (`isValid`, `isScoped`, `scope`, `unscoped`); every name it accepts is valid for npm's `validate-npm-package-name` `validForOldPackages`, so a leading `-`, `node_modules` and `favicon.ico` are rejected, and brands them as `ScopedPackageName` or `UnscopedPackageName`. `DependencySpecifier` classifies any specifier string into one protocol — `range`, `tag`, `git`, `url`, `npm`, `file`, `link`, `portal`, `catalog`, `workspace` or `unknown` — and parses the range case into a `Range` from `@beep/semver`. `Dependency` pairs a name with a specifier and the `kind` of map it came from, exposing the same protocol predicates as getters.
+Alongside `Package` the leaf concepts are usable on their own. `PackageName` classifies and validates npm names (`isValid`, `isScoped`, `scope`, `unscoped`); every name it accepts is valid for npm's `validate-npm-package-name` `validForOldPackages`, so a leading `-`, `node_modules` and `favicon.ico` are rejected, and brands them as `ScopedPackageName` or `UnscopedPackageName`. `Dependency` pairs a name with a specifier and the `kind` of map it came from, exposing the specifier's protocol predicates as getters. The specifier itself is `@beep/npm-spec`'s: import `DependencySpecifier`, `InvalidDependencySpecifierError` and `isValidDependencySpecifier` from the `@beep/npm-spec/DependencySpecifier` leaf, which classifies any specifier string into one protocol (`range`, `tag`, `git`, `url`, `npm`, `file`, `link`, `portal`, `catalog`, `workspace` or `unknown`) and parses the range case into a `Range` from `@beep/semver`.
 
 ### Reading and writing
 
-`PackageJsonFile` is the only IO in the package: one service, two methods, over core `FileSystem` and `Path`.
+`PackageJsonFile` is the only IO in the package: one service over core `FileSystem` and `Path`, imported from the `@beep/package-json/PackageJsonFile` leaf. `read` and `write` decode and serialize a `Package`; `readManifest` and `writeManifest` do the same for the presence-lenient `PackageManifest`; and `modify` applies surgical `PackageFieldEdit`s to the file's text without decoding it, keeping every byte it does not touch.
 
 ```ts
 import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
@@ -233,21 +233,20 @@ Every failure is a `Schema.TaggedError` routed with `Effect.catchTag`. Causes ar
 | `PackageValidationError` | One or more validation rules failed. Carries every `failure`, each with its rule name, message and JSON path. |
 | `InvalidPackageNameError` | A string does not satisfy npm's naming rules. Raised by `Package.setName`. |
 | `InvalidSpdxLicenseError` | A string is not a valid SPDX license expression. Raised by `Package.setLicense`. |
-| `InvalidDependencySpecifierError` | A string is not a recognized dependency specifier. Raised by `DependencySpecifier.decode`. |
 | `UnresolvedEntryPointError` | No entry point could be resolved from a manifest. Returned in a `Result` by `resolveEntryPoint`, never raised, with `reason` telling `noConditionMatched`, `noRootExport` and `unsupportedExportsForm` apart. |
 
-`Package.setVersion` fails with `InvalidVersionError` from `@beep/semver`, which is where the version grammar lives.
+`Package.setVersion` fails with `InvalidVersionError` from `@beep/semver`, which is where the version grammar lives. A malformed dependency specifier fails with `InvalidDependencySpecifierError` from `@beep/npm-spec/DependencySpecifier`.
 
 ## Features
 
 - `Package` — the manifest model: typed known fields, the `rest` catch-all, computed getters (`isPrivate`, `isScoped`, `isESM`, `hasDependency`, the four `get*Dependencies`), dual mutation statics, `copyWith`, `Package.decode` and the pure `toJsonString` serializer.
 - `Package.schema` / `Package.wireFor` — the open-JSON ↔ class wire codec, and the factory that builds one for a `.extend()`ed subclass so its custom fields decode as typed members instead of falling into `rest`.
-- `PackageJsonFile` — the IO surface: `read` and `write` over core `FileSystem` / `Path`, with the platform implementation supplied at the edge.
+- `PackageJsonFile` (leaf only, `@beep/package-json/PackageJsonFile`) — the IO surface: `read`/`write` for `Package`, `readManifest`/`writeManifest` for `PackageManifest`, and the decode-free `modify` with `PackageFieldEdit`, over core `FileSystem` / `Path`, with the platform implementation supplied at the edge.
 - `PackageValidator` — rule-based validation aggregating every failure, with the default rule set, a parameterized `layerRules` factory, and the publish-gate rules `noUnresolvedDepsRule` and `noLocalDepsRule`.
 - `resolveEntryPoint` — the pure, `Result`-returning entry-point resolver over a manifest's `exports`/`main`, honoring `exports` encapsulation rather than falling through to `main`, with `EntryPointManifest` as its tolerant input shape.
 - `LenientManifest` — the shape-lenient discovery tier below `PackageManifest`: malformed known fields degrade to absence, are preserved verbatim in `rest` and reported on `issues`, rather than failing the document; `decodeResult`/`decode` and `parseResult`/`parse` in the package's usual `Result`/`Effect` pairing.
 - `Package.resolve` — `catalog:` and `workspace:` expansion over the `@beep/npm-spec` contracts with pnpm's publish-time projection (alias form included), as an explicit step that `write` never performs for you.
-- `PackageName`, `DependencySpecifier`, `Dependency`, `SpdxLicense`, `PackageManager`, `Person`, `Repository`, `Bugs`, `Funding`, `DevEngine` — the leaf concepts, each owning its own statics, brand and error, usable independently of `Package`. `Repository` and `Bugs` decode the `repository` and `bugs` fields from either their shorthand or object form, the same way `Person` does for `author`, `contributors` and `maintainers`; `Repository` also exposes `browseUrl` and `gitUrl` getters that normalize a shorthand or SSH form to `https://`.
+- `PackageName`, `Dependency`, `SpdxLicense`, `PackageManager`, `Person`, `Repository`, `Bugs`, `Funding`, `DevEngine` — the leaf concepts, each owning its own statics, brand and error, usable independently of `Package`. `Repository` and `Bugs` decode the `repository` and `bugs` fields from either their shorthand or object form, the same way `Person` does for `author`, `contributors` and `maintainers`; `Repository` also exposes `browseUrl` and `gitUrl` getters that normalize a shorthand or SSH form to `https://`.
 - `Repository.directoryUrl` — the browse URL of a monorepo member's own subdirectory, built from `repository.directory` against the host's path convention on GitHub, GitLab and Bitbucket. `none` for a host whose convention is unknown, or for a `directory` that climbs out of the repository — a guessed path would resolve to nothing while looking authoritative. With no `directory`, it is `browseUrl`.
 - `Funding` — the `funding` field, decoded from a bare URL string, an object, or an array of either, and **always** to an array so a consumer never branches on arity. Each entry re-encodes in the form it was read from, and unrecognized keys survive in `rest`.
 - `licenseExpressionOf` — a `SpdxLicense` as an `Option<SpdxExpression>` from `@beep/spdx`, for a caller that wants the parsed expression rather than the string. `none` for the `SEE LICENSE IN …` and `UNLICENSED` forms, which are valid `license` values but not license expressions.
