@@ -209,3 +209,60 @@ describe("TsconfigLoaderSync with a win32 SyncPath", () => {
     assert.isFalse(posixPath.isAbsolute("C:\\proj\\tsconfig.json"));
   });
 });
+
+// ---------------------------------------------------------------------------
+// The optional realPath: a package target is realpathed through the consumer's
+// function, and the identity stands in when the consumer supplies none.
+// ---------------------------------------------------------------------------
+
+/**
+ * A linked workspace package, spelled as the two places it lives: the files exist under
+ * `/proj/packages/lib`, and `/proj/app/node_modules/lib` is the same directory seen through a link.
+ */
+const LINKED_TREE = tree(
+  ["/proj/packages/base/tsconfig.base.json", `{ "compilerOptions": { "strict": true } }`],
+  ["/proj/packages/lib/tsconfig.json", `{ "extends": "../base/tsconfig.base.json" }`],
+  ["/proj/app/node_modules/lib/tsconfig.json", `{ "extends": "../base/tsconfig.base.json" }`],
+  ["/proj/app/tsconfig.json", `{ "extends": "lib/tsconfig.json" }`]
+);
+
+/** The link the tree models, as `realpathSync` would report it. */
+const linkedRealPath = (p: string): string =>
+  Str.startsWith("/proj/app/node_modules/lib/")(p) ? `/proj/packages/lib/${Str.slice(27)(p)}` : p;
+
+describe("TsconfigLoaderSync realPath", () => {
+  it("realpaths a package target through the consumer's realPath", () => {
+    const options: TsconfigLoaderSyncOptions = {
+      fileSystem: { ...syncFs(LINKED_TREE), realPath: linkedRealPath },
+      path: posixPath,
+    };
+    const resolved = TsconfigLoaderSync.resolve("/proj/app/tsconfig.json", options);
+    assert.deepStrictEqual(resolved.extendedPaths, [
+      "/proj/packages/base/tsconfig.base.json",
+      "/proj/packages/lib/tsconfig.json",
+      "/proj/app/tsconfig.json",
+    ]);
+    assert.strictEqual(resolved.compilerOptions.strict, true);
+  });
+
+  it("keeps a package target as found when realPath is absent", () => {
+    const thrown = capture(() => TsconfigLoaderSync.resolve("/proj/app/tsconfig.json", posixOptions(LINKED_TREE)));
+    if (!S.is(TsconfigExtendsError)(thrown)) return assert.fail("expected TsconfigExtendsError");
+    assert.strictEqual(thrown.reason, "not-found");
+    assert.strictEqual(thrown.path, "/proj/app/node_modules/lib/tsconfig.json");
+  });
+
+  it("throws the wrapped PlatformError when realPath throws", () => {
+    // An empty volume's readFile throws node's exact ENOENT for any path: a realistic realPath failure.
+    const options: TsconfigLoaderSyncOptions = {
+      fileSystem: { ...syncFs(LINKED_TREE), realPath: syncFs(tree()).readFile },
+      path: posixPath,
+    };
+    const thrown = capture(() => TsconfigLoaderSync.resolve("/proj/app/tsconfig.json", options));
+    if (!PlatformError.isPlatformError(thrown)) return assert.fail("expected PlatformError");
+    assert.strictEqual(thrown.reason.method, "realPath");
+    const cause = thrown.reason.cause;
+    if (!P.hasProperty(cause, "code")) return assert.fail("expected errno cause");
+    assert.strictEqual(cause.code, "ENOENT");
+  });
+});

@@ -25,7 +25,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
@@ -57,17 +57,20 @@ class UnsupportedPathOperationError extends S.TaggedError<
  *
  * Node's built-ins satisfy it directly. `readFile` returns the file's text and
  * may throw on failure (a missing file, a permission error); the throw is wrapped
- * in a `PlatformError` and rethrown through the loader's typed channel.
+ * in a `PlatformError` and rethrown through the loader's typed channel. Pass
+ * `realPath` (Node: `realpathSync`) to get tsc's symlink resolution for package
+ * `extends` targets; without it a package target is used as found.
  *
  * **Example** (Adapt Node file operations)
  *
  * ```ts
  * import type { SyncFileSystem } from "@beep/repo-tsconfig/TsconfigLoaderSync";
- * import { existsSync, readFileSync } from "node:fs";
+ * import { existsSync, readFileSync, realpathSync } from "node:fs";
  *
  * const fileSystem: SyncFileSystem = {
  *   exists: existsSync,
  *   readFile: (p) => readFileSync(p, "utf8"),
+ *   realPath: realpathSync,
  * };
  * console.log(typeof fileSystem.readFile) // function
  * ```
@@ -89,6 +92,15 @@ export interface SyncFileSystem {
    * @since 0.0.0
    */
   readonly readFile: (path: string) => string;
+  /**
+   * Resolve `path` to its real location (Node: `realpathSync`). Optional; when it is absent the
+   * loader keeps package-resolved `extends` targets as found, so a target reached through a
+   * `node_modules` symlink resolves its own relative `extends` from the link's directory. May
+   * throw; the throw surfaces as a `PlatformError`.
+   *
+   * @since 0.0.0
+   */
+  readonly realPath?: ((path: string) => string) | undefined;
 }
 
 /**
@@ -222,11 +234,31 @@ const makePathService = (path: SyncPath): Path.Path =>
   });
 
 /**
+ * Run one consumer file operation, wrapping a throw as a platform filesystem would report it.
+ *
+ * @param method - The `FileSystem` method being served.
+ * @param path - The path the operation reads.
+ * @param operation - The consumer's synchronous operation.
+ * @returns The operation's result, or a `PlatformError` carrying the throw as `cause`.
+ */
+const trySync = (
+  method: string,
+  path: string,
+  operation: (path: string) => string
+): Effect.Effect<string, PlatformError.PlatformError> =>
+  Effect.try({
+    try: () => operation(path),
+    catch: (cause) =>
+      PlatformError.systemError({ _tag: "Unknown", module: "FileSystem", method, pathOrDescriptor: path, cause }),
+  });
+
+/**
  * Adapt the consumer's `SyncFileSystem` into a core `FileSystem` service
- * value. A `readFile` throw is wrapped exactly as a platform filesystem would
- * report it: a `PlatformError` whose `SystemError` reason carries module
- * `"FileSystem"`, method `"readFileString"`, and the original throw as
- * `cause`.
+ * value. A `readFile` or `realPath` throw is wrapped exactly as a platform
+ * filesystem would report it: a `PlatformError` whose `SystemError` reason
+ * carries module `"FileSystem"`, the method (`"readFileString"` or
+ * `"realPath"`), and the original throw as `cause`. An absent `realPath` is the
+ * identity.
  *
  * **Gotchas**
  *
@@ -240,22 +272,14 @@ const makePathService = (path: SyncPath): Path.Path =>
  * @param fileSystem - The consumer's file operations.
  * @returns The core `FileSystem` service value.
  */
-const makeFileSystemService = (fileSystem: SyncFileSystem): FileSystem.FileSystem =>
-  FileSystem.makeNoop({
+const makeFileSystemService = (fileSystem: SyncFileSystem): FileSystem.FileSystem => {
+  const realPath = O.getOrElse(O.fromUndefinedOr(fileSystem.realPath), () => identity<string>);
+  return FileSystem.makeNoop({
     exists: (path) => Effect.sync(() => fileSystem.exists(path)),
-    readFileString: (path) =>
-      Effect.try({
-        try: () => fileSystem.readFile(path),
-        catch: (cause) =>
-          PlatformError.systemError({
-            _tag: "Unknown",
-            module: "FileSystem",
-            method: "readFileString",
-            pathOrDescriptor: path,
-            cause,
-          }),
-      }),
+    readFileString: (path) => trySync("readFileString", path, fileSystem.readFile),
+    realPath: (path) => trySync("realPath", path, realPath),
   });
+};
 
 /**
  * Run one loader effect synchronously against the consumer-supplied services,
@@ -324,8 +348,8 @@ const compilerOptions: {
  *
  * The two adapters treat unsupported members asymmetrically: a `Path` member
  * the loader pipeline never calls throws a named defect on contact, while a
- * `FileSystem` member outside the two overridden here (`exists`,
- * `readFileString`) inherits `FileSystem.makeNoop`'s typed `NotFound`
+ * `FileSystem` member outside the three overridden here (`exists`,
+ * `readFileString`, `realPath`) inherits `FileSystem.makeNoop`'s typed `NotFound`
  * failure. A loader change that starts using a new filesystem operation
  * therefore surfaces as a `NotFound` rather than a defect — extend the
  * adapter when that happens.

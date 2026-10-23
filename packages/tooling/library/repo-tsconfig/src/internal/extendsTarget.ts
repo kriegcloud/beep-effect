@@ -427,6 +427,11 @@ const isPathSpecifier = (path: Path.Path, spec: string): boolean =>
  *
  * **Details**
  *
+ * A package-resolved target is realpathed, matching tsc's `preserveSymlinks: false` module
+ * resolution: a workspace package linked under `node_modules` resolves to its real file, so the
+ * linked config's own relative `extends` resolves from its real directory. A relative or rooted
+ * target is not realpathed; tsc keeps that path as written.
+ *
  * Absence is `Option.none()`; a malformed manifest is coerced to an empty one
  * (tsc parity — the candidate's manifest-less lookups still run); a
  * `PlatformError` from the underlying IO flows through. Relative targets try
@@ -476,7 +481,10 @@ export const resolveExtendsTarget: {
     const ancestors = yield* Walker.ascend(fromDir);
     for (const dir of A.filter(ancestors, (ancestor) => path.basename(ancestor) !== "node_modules")) {
       const candidate = yield* tryCandidate(fs, path, dir, specifier);
-      if (O.isSome(candidate)) return candidate;
+      // tsc resolves a package target through the module resolver, which realpaths it
+      // (`preserveSymlinks: false`), so a workspace symlink under `node_modules` resolves the
+      // linked config's own relative `extends` from its real directory.
+      if (O.isSome(candidate)) return O.some(yield* fs.realPath(candidate.value));
     }
     return O.none();
   })
