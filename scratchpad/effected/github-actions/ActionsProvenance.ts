@@ -1,4 +1,4 @@
-import { SlsaProvenance } from "../sbom/index.ts";
+import { SlsaProvenance } from "@beep/sbom/SlsaProvenance";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
@@ -19,7 +19,7 @@ const DEFAULT_SERVER_URL = "https://github.com";
 
 /**
  * Builds the current run's SLSA provenance from the runner's OIDC claims: the
- * Actions side of `@effected/sbom`'s `SlsaProvenance.forGitHubWorkflow`.
+ * Actions side of `@beep/sbom`'s `SlsaProvenance.forGitHubWorkflow`.
  *
  * **Details**
  *
@@ -36,8 +36,8 @@ const DEFAULT_SERVER_URL = "https://github.com";
  *
  * The construct ends at the predicate. Assembling the in-toto statement,
  * signing it and uploading the bundle stay with the consumer — that pipeline
- * is deliberately consumer glue (see `@effected/sbom`'s `SigstoreSigner` and
- * `@effected/github`'s `Attestation.upload`).
+ * is deliberately consumer glue (see the lab `sbom` module's `SigstoreSigner`
+ * and `@beep/github`'s `Attestation.upload`).
  *
  * **Example** (Capture workflow provenance and read its builder ID)
  *

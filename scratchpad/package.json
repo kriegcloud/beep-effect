@@ -62,6 +62,7 @@
     "@beep/repo-tsconfig": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "@beep/runtime-env": "workspace:^",
+    "@beep/sbom": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/semantic-web": "workspace:^",
     "@beep/semver": "workspace:^",

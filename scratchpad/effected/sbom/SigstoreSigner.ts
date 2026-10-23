@@ -21,10 +21,10 @@ import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import type { IdentityTokenShape } from "./IdentityToken.ts";
-import { IdentityToken } from "./IdentityToken.ts";
-import type { InTotoStatement } from "./InTotoStatement.ts";
-import { IN_TOTO_PAYLOAD_TYPE, SigstoreBundle } from "./SigstoreBundle.ts";
+import type { IdentityTokenShape } from "@beep/sbom/IdentityToken";
+import { IdentityToken } from "@beep/sbom/IdentityToken";
+import type { InTotoStatement } from "@beep/sbom/InTotoStatement";
+import { IN_TOTO_PAYLOAD_TYPE, SigstoreBundle } from "@beep/sbom/SigstoreBundle";
 
 const $I = $ScratchpadId.create("effected/sbom/SigstoreSigner");
 
@@ -192,7 +192,7 @@ export interface SigstoreSignerShape {
 	 * ```ts
 	 * import { SigningError } from "@beep/scratchpad/effected/sbom/SigstoreSigner";
 	 * import { SigstoreSigner } from "@beep/scratchpad/effected/sbom/SigstoreSigner";
-	 * import { InTotoStatement } from "@beep/scratchpad/effected/sbom/InTotoStatement";
+	 * import { InTotoStatement } from "@beep/sbom/InTotoStatement";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const statement = InTotoStatement.of({ subject: [], predicateType: "https://example.com/predicate", predicate: {} });
@@ -275,8 +275,8 @@ const unstubbed = (): never => {
  * **Example** (Sign a statement with a static OIDC token)
  *
  * ```ts
- * import { InTotoStatement } from "@beep/scratchpad/effected/sbom/InTotoStatement";
- * import { IdentityToken } from "@beep/scratchpad/effected/sbom/IdentityToken";
+ * import { InTotoStatement } from "@beep/sbom/InTotoStatement";
+ * import { IdentityToken } from "@beep/sbom/IdentityToken";
  * import { SigstoreSigner } from "@beep/scratchpad/effected/sbom/SigstoreSigner";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
@@ -359,7 +359,7 @@ export class SigstoreSigner extends Context.Service<SigstoreSigner, SigstoreSign
 	 * ```ts
 	 * import { SigningError } from "@beep/scratchpad/effected/sbom/SigstoreSigner";
 	 * import { SigstoreSigner } from "@beep/scratchpad/effected/sbom/SigstoreSigner";
-	 * import { InTotoStatement } from "@beep/scratchpad/effected/sbom/InTotoStatement";
+	 * import { InTotoStatement } from "@beep/sbom/InTotoStatement";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const statement = InTotoStatement.of({ subject: [], predicateType: "https://example.com/predicate", predicate: {} });

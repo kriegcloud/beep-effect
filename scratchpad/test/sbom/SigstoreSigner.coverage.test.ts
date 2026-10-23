@@ -3,8 +3,8 @@ import * as Bundle from "@sigstore/bundle";
 import type { Signer } from "@sigstore/sign";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { IdentityToken } from "../../effected/sbom/IdentityToken.ts";
-import { InTotoStatement } from "../../effected/sbom/InTotoStatement.ts";
+import { IdentityToken } from "@beep/sbom/IdentityToken";
+import { InTotoStatement } from "@beep/sbom/InTotoStatement";
 import { SigstoreSigner } from "../../effected/sbom/SigstoreSigner.ts";
 
 const statement = InTotoStatement.of({ subject: [], predicateType: "test", predicate: {} });

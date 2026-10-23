@@ -1,15 +1,15 @@
-import { IdentityToken, IdentityTokenError } from "../sbom/index.ts";
+import { IdentityToken, IdentityTokenError } from "@beep/sbom/IdentityToken";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { OidcTokenIssuer } from "./OidcTokenIssuer.ts";
 
 /**
- * Serves `@effected/sbom`'s `IdentityToken` contract from the runner's own OIDC
+ * Serves `@beep/sbom`'s `IdentityToken` contract from the runner's own OIDC
  * token service, so signing an SBOM inside a workflow needs no further wiring.
  *
  * **Details**
  *
- * `@effected/sbom` declares `IdentityToken` — one method, one audience,
+ * `@beep/sbom` declares `IdentityToken` — one method, one audience,
  * one redacted token — precisely so that signing does not drag the Actions
  * runtime into every consumer that only wants to emit an SBOM. This is the
  * layer that closes the inversion from the other side: it serves that contract

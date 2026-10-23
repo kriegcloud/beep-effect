@@ -6,10 +6,10 @@
 // the shape. The media-type constants are therefore written out rather than
 // re-exported from `@sigstore/bundle`.
 
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $SbomId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("effected/sbom/SigstoreBundle");
+const $I = $SbomId.create("SigstoreBundle");
 
 /**
  * The Sigstore bundle media type this package produces.
@@ -22,7 +22,7 @@ const $I = $ScratchpadId.create("effected/sbom/SigstoreBundle");
  * **Example** (Identify the emitted bundle format)
  *
  * ```ts
- * import { SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE } from "@beep/scratchpad/effected/sbom/SigstoreBundle";
+ * import { SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE } from "@beep/sbom/SigstoreBundle";
  *
  * console.log(SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE) // application/vnd.dev.sigstore.bundle.v0.3+json
  * ```
@@ -40,7 +40,7 @@ export const SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE = "application/vnd.dev.sigstore.bun
  * **Example** (Identify the signed statement payload)
  *
  * ```ts
- * import { IN_TOTO_PAYLOAD_TYPE } from "@beep/scratchpad/effected/sbom/SigstoreBundle";
+ * import { IN_TOTO_PAYLOAD_TYPE } from "@beep/sbom/SigstoreBundle";
  *
  * console.log(IN_TOTO_PAYLOAD_TYPE) // application/vnd.in-toto+json
  * ```
@@ -68,7 +68,7 @@ export const IN_TOTO_PAYLOAD_TYPE = "application/vnd.in-toto+json" as const;
  * **Example** (Carry opaque signing material)
  *
  * ```ts
- * import { SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE, SigstoreBundle } from "@beep/scratchpad/effected/sbom/SigstoreBundle";
+ * import { SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE, SigstoreBundle } from "@beep/sbom/SigstoreBundle";
  *
  * const bundle = SigstoreBundle.make({
  *   mediaType: SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE,
@@ -83,11 +83,24 @@ export const IN_TOTO_PAYLOAD_TYPE = "application/vnd.in-toto+json" as const;
  * @category models
  * @since 0.0.0
  */
-export class SigstoreBundle extends S.Class<SigstoreBundle, { readonly brand: unique symbol }>($I`SigstoreBundle`)({
-	/** The bundle's media type, usually {@link SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE}. */
-	mediaType: S.String.pipe($I.annoteKey("SigstoreBundle.mediaType", { description: "The bundle's media type, usually SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE." })),
-	/** The certificate and transparency-log entries a verifier checks. */
-	verificationMaterial: S.Unknown.pipe($I.annoteKey("SigstoreBundle.verificationMaterial", { description: "The certificate and transparency-log entries a verifier checks." })),
-	/** The signed DSSE envelope carrying the statement. */
-	dsseEnvelope: S.Unknown.pipe($I.annoteKey("SigstoreBundle.dsseEnvelope", { description: "The signed DSSE envelope carrying the statement." })),
-}, $I.annote("SigstoreBundle", { description: "A signed Sigstore bundle: the wire form of an attestation." })) {}
+export class SigstoreBundle extends S.Class<SigstoreBundle, { readonly brand: unique symbol }>($I`SigstoreBundle`)(
+  {
+    /** The bundle's media type, usually {@link SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE}. */
+    mediaType: S.String.pipe(
+      $I.annoteKey("SigstoreBundle.mediaType", {
+        description: "The bundle's media type, usually SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE.",
+      })
+    ),
+    /** The certificate and transparency-log entries a verifier checks. */
+    verificationMaterial: S.Unknown.pipe(
+      $I.annoteKey("SigstoreBundle.verificationMaterial", {
+        description: "The certificate and transparency-log entries a verifier checks.",
+      })
+    ),
+    /** The signed DSSE envelope carrying the statement. */
+    dsseEnvelope: S.Unknown.pipe(
+      $I.annoteKey("SigstoreBundle.dsseEnvelope", { description: "The signed DSSE envelope carrying the statement." })
+    ),
+  },
+  $I.annote("SigstoreBundle", { description: "A signed Sigstore bundle: the wire form of an attestation." })
+) {}

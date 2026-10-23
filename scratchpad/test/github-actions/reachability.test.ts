@@ -61,16 +61,16 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
 };
 
 /**
- * The kit modules waves 1a, 1b, 2a, 2b, 2d and 3 of the effected promotion moved out of the lab
+ * The kit modules waves 1a, 1b, 2a, 2b, 2d, 3 and 4 of the effected promotion moved out of the lab
  * into `@beep/*` packages (`templates` became `@beep/managed-section`; the pure
  * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`, and the
  * `tsconfig-json` loader half `@beep/repo-tsconfig`; `env` became `@beep/runtime-env`; this
- * package's reporting suite became `@beep/github-reporting`). Upstream
+ * package's reporting suite became `@beep/github-reporting`; the pure half of `sbom`, which
+ * this package reaches for `IdentityToken` and `SlsaProvenance`, became `@beep/sbom`). Upstream
  * reached each as a bare `@effected/*` edge and the lab as a relative sibling
  * entrypoint; promoted, each is a bare package edge again, so the walker stops at
- * it as it stops at a lab sibling. The kit modules not yet promoted (`sbom`,
- * ...) are still lab siblings reached relatively. Add a module here
- * when it is promoted.
+ * it as it stops at a lab sibling. A kit module not yet promoted would still be a
+ * lab sibling reached relatively. Add a module here when it is promoted.
  */
 const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/commands",
@@ -89,6 +89,7 @@ const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/package-json",
 	"@beep/repo-tsconfig",
 	"@beep/runtime-env",
+	"@beep/sbom",
 	"@beep/schema-org",
 	"@beep/semver",
 	"@beep/spdx",

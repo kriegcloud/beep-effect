@@ -1,57 +1,25 @@
 /**
- * Software-supply-chain artifacts as Effect schemas: a CycloneDX 1.6 SBOM, the
- * NTIA minimum-elements report, in-toto statements and SLSA provenance, and
- * Sigstore DSSE signing.
+ * The Sigstore DSSE signer, the half of the effected `sbom` module that is not
+ * promoted yet (deferred `@beep/sigstore`, effected-promotion D-05 and W4-m).
  *
  * **Details**
  *
- * The SBOM half is pure and reaches no external dependency; only
- * `SigstoreSigner` imports `@sigstore/*`, so a consumer that emits an SBOM
- * never pulls Fulcio's transport into its bundle.
+ * The pure models it signs with — `IdentityToken`, `InTotoStatement` and
+ * `SigstoreBundle` — live in `@beep/sbom`; import them from its leaves. This
+ * entry point re-exports only the signer, so nothing here aliases the package.
  *
- * **Example** (Read the SLSA predicate identifier from the entry point)
+ * **Example** (Read the Sigstore OIDC audience from the entry point)
  *
  * ```ts
- * import { SLSA_PROVENANCE_V1 } from "@beep/scratchpad/effected/sbom/index";
+ * import { SIGSTORE_OIDC_AUDIENCE } from "@beep/scratchpad/effected/sbom/index";
  *
- * console.log(SLSA_PROVENANCE_V1) // https://slsa.dev/provenance/v1
+ * console.log(SIGSTORE_OIDC_AUDIENCE) // sigstore
  * ```
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-export { IdentityToken, IdentityTokenError, type IdentityTokenShape } from "./IdentityToken.ts";
-export {
-	CYCLONEDX_BOM_PREDICATE,
-	IN_TOTO_STATEMENT_V1,
-	InTotoStatement,
-	type InTotoStatementInput,
-	InTotoSubject,
-	type InTotoSubjectInput,
-	InvalidSha256DigestError,
-	type PredicateType,
-	Sha256Digest,
-} from "./InTotoStatement.ts";
-export { NtiaElement, NtiaElementId, NtiaReport } from "./NtiaReport.ts";
-export { Sbom, type SbomInput, type SbomJsonOptions, SbomWriteError } from "./Sbom.ts";
-export {
-	Component,
-	ComponentType,
-	Contact,
-	ExternalReference,
-	ExternalReferenceType,
-	SbomDocument,
-	SbomMetadata,
-	Supplier,
-} from "./SbomDocument.ts";
-export {
-	type ComponentInput,
-	type CopyrightYears,
-	type SbomMetadataOptions,
-	SbomMetadataSource,
-} from "./SbomMetadataSource.ts";
-export { IN_TOTO_PAYLOAD_TYPE, SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE, SigstoreBundle } from "./SigstoreBundle.ts";
 export {
 	SIGSTORE_OIDC_AUDIENCE,
 	SigningError,
@@ -60,11 +28,3 @@ export {
 	type SigstoreSignerOptions,
 	type SigstoreSignerShape,
 } from "./SigstoreSigner.ts";
-export {
-	GITHUB_BUILD_TYPE,
-	type GitHubWorkflowProvenance,
-	SLSA_PROVENANCE_V1,
-	SlsaBuildDefinition,
-	SlsaProvenance,
-	SlsaRunDetails,
-} from "./SlsaProvenance.ts";

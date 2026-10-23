@@ -40,7 +40,8 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // its reporting suite is `@beep/github-reporting` and the drivers stay a lab
 // directory, so the package folds into the `github-actions` lab module. Wave 3-2 promoted
 // the `tsconfig-json` IO half as `@beep/repo-tsconfig`, which folds into `tsconfig-json`
-// beside `@beep/tsconfig`.
+// beside `@beep/tsconfig`. Wave 4-S split `sbom`: its pure models are `@beep/sbom` and the
+// Sigstore signer stays a lab directory, so the package folds into the `sbom` lab module.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/commands": "commands",
@@ -59,6 +60,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/package-json": "package-json",
 	"@beep/repo-tsconfig": "tsconfig-json",
 	"@beep/runtime-env": "env",
+	"@beep/sbom": "sbom",
 	"@beep/schema-org": "schema-org",
 	"@beep/semver": "semver",
 	"@beep/spdx": "spdx",

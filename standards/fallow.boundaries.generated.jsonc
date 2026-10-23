@@ -4445,10 +4445,22 @@
       {
         "from": "@beep/sbom",
         "allow": [
-          "@beep/sbom"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/package-json",
+          "@beep/sbom",
+          "@beep/schema",
+          "@beep/spdx"
         ],
         "allowTypeOnly": [
-          "@beep/sbom"
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/package-json",
+          "@beep/sbom",
+          "@beep/schema",
+          "@beep/spdx"
         ]
       },
       {
@@ -4527,6 +4539,7 @@
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runtime-env",
+          "@beep/sbom",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
@@ -4581,6 +4594,7 @@
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runtime-env",
+          "@beep/sbom",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
