@@ -186,7 +186,7 @@ const decodeBunLockfileRaw = S.decodeUnknownEffect(BunLockfileRaw);
  * @category parsing
  * @since 0.0.0
  */
-export const parseBun = Effect.fn("parseBun")(function* (
+export const parseBun = Effect.fn("BunLockfile.parse")(function* (
   content: string
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
   const parsed = yield* Jsonc.parse(content).pipe(Effect.mapError(syntaxFailure));
@@ -292,7 +292,7 @@ const packageRows = (raw: BunLockfileRawType): ReadonlyArray<BunPackageRow> =>
         )
   );
 
-const toFields = Effect.fn("toFields")(function* (
+const toFields = Effect.fn("BunLockfile.toFields")(function* (
   raw: BunLockfileRawType
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
   // bun's own instance identities: the `packages` keys.

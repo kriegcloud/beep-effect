@@ -228,7 +228,7 @@ const recordedIntegrity: {
  * lockfile version. The one decode every preamble reader shares, so they
  * cannot disagree about which document is the preamble or what shape it has.
  */
-const decodePreamble = Effect.fn("decodePreamble")(function* (
+const decodePreamble = Effect.fn("PnpmEnvLockfile.decodePreamble")(function* (
   content: string
 ): Effect.fn.Return<O.Option<PnpmEnvRawType>, ParseFailure> {
   const { preamble } = yield* splitPnpmStream(content);
@@ -275,7 +275,7 @@ const rootDeclarations = (
  * @category parsing
  * @since 0.0.0
  */
-export const readPnpmPackageManager = Effect.fn("readPnpmPackageManager")(function* (
+export const readPnpmPackageManager = Effect.fn("PnpmEnvLockfile.readPackageManager")(function* (
   content: string
 ): Effect.fn.Return<O.Option<PackageManagerLock>, ParseFailure> {
   const raw = yield* decodePreamble(content);
@@ -336,7 +336,7 @@ const packageManagerLock = Effect.fnUntraced(function* (raw: PnpmEnvRawType, dec
  * @category parsing
  * @since 0.0.0
  */
-export const readPnpmConfigDependencies = Effect.fn("readPnpmConfigDependencies")(function* (
+export const readPnpmConfigDependencies = Effect.fn("PnpmEnvLockfile.readConfigDependencies")(function* (
   content: string
 ): Effect.fn.Return<HashMap.HashMap<string, ConfigDependencyLock>, ParseFailure> {
   const raw = yield* decodePreamble(content);

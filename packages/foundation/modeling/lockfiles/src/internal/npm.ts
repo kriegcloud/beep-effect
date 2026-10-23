@@ -254,7 +254,7 @@ const decodeJsonText = S.decodeEffect(S.fromJsonString(S.Unknown));
  * @category parsing
  * @since 0.0.0
  */
-export const parseNpm = Effect.fn("parseNpm")(function* (
+export const parseNpm = Effect.fn("NpmLockfile.parse")(function* (
   content: string
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
   const raw = yield* decodeJsonText(content).pipe(Effect.mapError(syntaxFailure));
@@ -393,7 +393,7 @@ const importerOf = (path: string, entry: NpmPackageEntryType | undefined): Lockf
 
 const isLink = (row: NpmRow): row is Extract<NpmRow, { _tag: "link" }> => row._tag === "link";
 
-const toFields = Effect.fn("toFields")(function* (
+const toFields = Effect.fn("NpmLockfile.toFields")(function* (
   raw: NpmLockfileRawType
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
   const rows = A.flatMap(R.toEntries(raw.packages), ([key, entry]) => O.toArray(npmRow(raw, key, entry)));

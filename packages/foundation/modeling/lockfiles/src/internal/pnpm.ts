@@ -608,7 +608,7 @@ const instancePackages = Effect.fnUntraced(function* (raw: PnpmLockfileRawType, 
   return A.appendAll(A.flatten(fromSnapshots), A.flatten(orphans));
 });
 
-const toFields = Effect.fn("toFields")(function* (
+const toFields = Effect.fn("PnpmLockfile.toFields")(function* (
   raw: PnpmLockfileRawType
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
   // A nameless importer cannot be modeled; it is skipped, never thrown on.

@@ -184,7 +184,7 @@ export declare namespace PnpmStream {
  * @category parsing
  * @since 0.0.0
  */
-export const splitPnpmStream = Effect.fn("splitPnpmStream")(function* (
+export const splitPnpmStream = Effect.fn("LockfileDocuments.splitPnpmStream")(function* (
   content: string
 ): Effect.fn.Return<PnpmStream, ParseFailure> {
   const documents = yield* Yaml.parseAll(content).pipe(Effect.mapError(syntaxFailure));
@@ -226,7 +226,7 @@ export const splitPnpmStream = Effect.fn("splitPnpmStream")(function* (
  * @category parsing
  * @since 0.0.0
  */
-export const selectSoleDocument = Effect.fn("selectSoleDocument")(function* (
+export const selectSoleDocument = Effect.fn("LockfileDocuments.selectSoleDocument")(function* (
   content: string
 ): Effect.fn.Return<SelectedDocument, ParseFailure> {
   const documents = yield* Yaml.parseAll(content).pipe(Effect.mapError(syntaxFailure));

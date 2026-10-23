@@ -135,7 +135,7 @@ const YarnMetadata = S.Struct({
  * @category parsing
  * @since 0.0.0
  */
-export const parseYarn = Effect.fn("parseYarn")(function* (
+export const parseYarn = Effect.fn("YarnLockfile.parse")(function* (
   content: string
 ): Effect.fn.Return<LockfileFields, ParseFailure> {
   // yarn defines no document framing, so a multi-document yarn.lock fails
@@ -210,7 +210,7 @@ const toFields: {
   ): (lockfileVersion: string) => Effect.Effect<LockfileFields, ParseFailure>;
 } = dual(
   2,
-  Effect.fn("toFields")(function* (
+  Effect.fn("YarnLockfile.toFields")(function* (
     lockfileVersion: string,
     decoded: MutableHashMap.MutableHashMap<string, YarnEntryType>
   ): Effect.fn.Return<LockfileFields, ParseFailure> {
