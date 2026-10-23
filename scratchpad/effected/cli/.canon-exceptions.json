@@ -1,69 +1,5 @@
 [
   {
-    "id": "EV002:scratchpad/test/cli/CliHelpRouting.test.ts:175:provide@5#1",
-    "reason": "CliOutput.layer is a pure Layer.succeed formatter stub; its inner override is the documented routing-bypass behavior under test, which an outer it.layer would not exercise."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliInteractive.test.ts:69:provide@10#1",
-    "reason": "CliInteractive.layerTest(true) is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliInteractive.test.ts:75:provide@10#1",
-    "reason": "CliInteractive.layerTest(true) is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliInteractive.test.ts:82:provide@10#1",
-    "reason": "CliInteractive.layerTest(true) is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliInteractive.test.ts:91:provide@10#1",
-    "reason": "CliInteractive.layerTest(true) is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliInteractive.test.ts:97:provide@10#1",
-    "reason": "CliInteractive.layerTest(true) is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliInteractive.test.ts:104:provide@10#1",
-    "reason": "CliInteractive.layerTest(true) is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliInteractive.test.ts:113:provide@10#1",
-    "reason": "CliInteractive.layerTest(true) is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliLinks.test.ts:272:provide@37#1",
-    "reason": "CliLinks.layerTest is a pure Layer.succeed stub; this test explicitly verifies operation without filesystem or Path services."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliLinks.test.ts:282:provide@35#1",
-    "reason": "CliLinks.layerTest is a pure Layer.succeed stub; each loop iteration intentionally selects a different fixed mode."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliLinks.test.ts:285:provide@34#1",
-    "reason": "CliLinks.layerTest is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliLinks.test.ts:372:provide@35#1",
-    "reason": "CliLinks.layerTest is a pure Layer.succeed stub; each loop iteration intentionally selects a different fixed mode."
-  },
-  {
-    "id": "EV002:scratchpad/test/cli/CliLog.status.test.ts:53:provide@11#1",
-    "reason": "CliTheme.layerTest is a pure Layer.succeed stub, permitted by D14."
-  },
-  {
-    "id": "EV004:scratchpad/test/cli/CliMain.test.ts:89:scoped@12#1",
-    "reason": "The program-local scope must finalize before main returns and before the finalized assertion; the enclosing test scope closes after those assertions."
-  },
-  {
-    "id": "EV010:scratchpad/test/cli/CliStdin.test.ts:14:@effect/platform-node@0#1",
-    "reason": "Real Node processes, piped stdin, and terminal behavior are the regression subject; a memory filesystem cannot replace this platform fixture."
-  },
-  {
-    "id": "EV010:scratchpad/test/cli/CliTest.test.ts:3:@effect/platform-node/NodeServices@0#1",
-    "reason": "The subject creates native sandbox paths and runs real child processes against them; Node filesystem and process services are required."
-  },
-  {
     "id": "EV004:scratchpad/test/cli/ui/CliUi.live.close.test.ts:184:scoped@103#1",
     "reason": "The child scope must close before joining the fiber and checking that another view can acquire the released mount permit."
   },
@@ -510,37 +446,5 @@
   {
     "id": "EV011:scratchpad/test/cli/ui/bridge-error-metadata.test.ts:5:vitest-import@0#1",
     "reason": "Vitest requires the direct vi import for vi.hoisted and the hoisted Schema observer; the @effect/vitest re-export cannot supply Vitest's hoisted mock API."
-  },
-  {
-    "id": "EV010:scratchpad/test/cli/erasableSyntax.test.ts:4:node:fs@0#1",
-    "reason": "Retained real filesystem reads: the test verifies that every actual CLI source file supports Node\u2019s strip-only TypeScript mode. A seeded memory tree would change what it verifies."
-  },
-  {
-    "id": "EV010:scratchpad/test/cli/entrypoints.test.ts:2:node:fs@0#1",
-    "reason": "Retained real filesystem reads: the tests walk the actual CLI entrypoint import graph and verify its source boundaries, with positive controls proving that real modules are reached."
-  },
-  {
-    "id": "EV010:scratchpad/test/cli/boundary.test.ts:2:node:fs@0#1",
-    "reason": "Retained real filesystem reads: the reachability and import-license assertions inspect the actual CLI source tree. The mutation controls already use an in-memory graph."
-  },
-  {
-    "id": "EV010:scratchpad/test/cli/boundary.test.ts:5:@effect/platform-node@0#1",
-    "reason": "Retained the platform layer: `SourceBoundary.scan` must inspect the actual CLI source tree, and assertions explicitly verify that the real tree was read."
-  },
-  {
-    "id": "EV006:scratchpad/test/cli/round3-key-input-schema.test.ts:34:isTrue@2#1",
-    "reason": "This production-schema rejection test intentionally accepts any SchemaError cause: only input rejection is the contract. assertExitFailure requires an exact expected Cause and would couple this test to schema issue formatting rather than validation behavior."
-  },
-  {
-    "id": "EV006:scratchpad/test/cli/round3-key-input-schema.test.ts:35:isTrue@2#1",
-    "reason": "This production-schema rejection test intentionally accepts any SchemaError cause: only input rejection is the contract. assertExitFailure requires an exact expected Cause and would couple this test to schema issue formatting rather than validation behavior."
-  },
-  {
-    "id": "EV006:scratchpad/test/cli/round3-key-input-schema.test.ts:36:isTrue@2#1",
-    "reason": "This production-schema rejection test intentionally accepts any SchemaError cause: only input rejection is the contract. assertExitFailure requires an exact expected Cause and would couple this test to schema issue formatting rather than validation behavior."
-  },
-  {
-    "id": "EV006:scratchpad/test/cli/round3-key-input-schema.test.ts:37:isTrue@2#1",
-    "reason": "This production-schema rejection test intentionally accepts any SchemaError cause: only input rejection is the contract. assertExitFailure requires an exact expected Cause and would couple this test to schema issue formatting rather than validation behavior."
   }
 ]
