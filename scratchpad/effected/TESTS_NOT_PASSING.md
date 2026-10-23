@@ -30,5 +30,5 @@ Port notes.
 | github | 454 passed |
 | github-actions | 712 passed |
 | memfs | 569 passed, 21 skipped (upstream's own skips) |
-| sbom | 130 passed |
+| sbom | 31 passed (the signer half; the pure half's suite moved to `@beep/sbom` in wave 4-S) |
 | workspaces | 1079 passed, 1 skipped (upstream's own skip) |

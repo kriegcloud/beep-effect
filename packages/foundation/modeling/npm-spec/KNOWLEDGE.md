@@ -16,7 +16,7 @@ maps to `src/<Module>.ts` for `CatalogAssemblyError`, `CatalogResolver`,
 `PackageTarball`, `PublishError`) has not been promoted; it stays in the scratchpad port
 until its first consumer (SPEC D-05), so the sections below about registry reads,
 tarballs and publishing describe code outside this package. Other names: `@effected/semver`
-is `@beep/semver`, `@effected/commands` is `@beep/commands`, `@effected/walker` is `@beep/walker`. The upstream `pnpm vitest` /
+is `@beep/semver`, `@effected/commands` is `@beep/commands`, `@effected/walker` is `@beep/walker`, `@effected/sbom` is `@beep/sbom` (its `IdentityToken` contract is `@beep/sbom/IdentityToken`). The upstream `pnpm vitest` /
 `pnpm build` commands map to `bun run test` / `bun run build` in the package, or
 `bun run beep quality package-verify @beep/npm-spec` from the repository root.
 

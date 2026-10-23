@@ -76,18 +76,17 @@ const TestToken = IdentityToken.layerTest({
 
 ## Port notes
 
-The record below is the lab port of the whole module; the pure-half rows are restated against the package's own
-paths in the [`@beep/sbom` README](../../../packages/foundation/modeling/sbom/README.md#port-notes).
+The attribution below covers the lab port of the whole module; the deviations are the signer half's only. The
+pure-half rows are restated against the package's own paths in the
+[`@beep/sbom` README](../../../packages/foundation/modeling/sbom/README.md#port-notes).
 
 ### Attribution
 
 - Upstream package: `@effected/sbom` 0.10.0
 - Upstream commit: `af7566a9da2eff169cb74955efcc5ede1e5de9f8` (~/YeeBois/references/effect/effected)
 - License: [LICENSE](./LICENSE) (verbatim upstream MIT notice)
-- scratchpad/effected/sbom/SbomDocument.ts:11 import { License, isValidExpression } from "@beep/spdx";
-- scratchpad/effected/sbom/SbomMetadataSource.ts:16 // timestamp is an argument, and so is the copyright year.
-- scratchpad/effected/sbom/SigstoreBundle.ts:7 // re-exported from `@sigstore/bundle`.
-- scratchpad/effected/sbom/index.ts:40 type CopyrightYears,
+- scratchpad/effected/sbom/SigstoreSigner.ts:1 // The ONE module that imports `@sigstore/*`.
+- The pure modules' attribution markers moved with them to `packages/foundation/modeling/sbom/src/` (wave 4-S).
 
 ### Added exports
 
@@ -95,21 +94,19 @@ None.
 
 ### Deviations
 
-One entry per class of change (law- or ruling-forced) and one per behavioural divergence; the full test, upstream behaviour, lab behaviour and reason are on the module's ledger row.
+This directory is the signer half only (wave 4-S). One entry per class of change that applies to `SigstoreSigner.ts`,
+its tests and the module reachability test. The pure-module deviations (native-runtime, schema-first, numeric-domains,
+identity-annotations, the pure-module reachability and upstream-bug rows, and the pure halves of the rows below) moved
+with the pure half: see `packages/foundation/modeling/sbom/README.md` → Port notes and the tests it names. The `sbom` row
+of `scratchpad/effected/PORT_LEDGER.json` keeps the lab-era evidence under the pre-promotion test paths.
 
-- **native-runtime** — The lab replaces upstream Object.entries, Date.parse, Object.assign schema statics and native Error with Effect Record/Schema facilities, S.Opaque statics and a tagged error (scratchpad/test/sbom/Sbom.test.ts:83; scratchpad/test/sbom/NtiaReport.test.ts:134; scratchpad/test/sbom/InTotoStatement.test.ts:68; scratchpad/test/sbom/SigstoreSigner.test.ts:261).
-- **identity-keys** — The lab registers IdentityToken and SigstoreSigner with module-local IdentityComposer keys instead of upstream @effected/sbom service keys (scratchpad/test/sbom/IdentityToken.test.ts:18; scratchpad/test/sbom/SigstoreSigner.test.ts:267; scratchpad/test/sbom/reachability.test.ts:132).
-- **tagged-errors** — The lab unstubbed signer throws UnstubbedSigstoreSignerError with a schema tag instead of upstream native Error, preserving the synchronous failure and message (scratchpad/test/sbom/SigstoreSigner.test.ts:261).
-- **schema-first** — The lab replaces eight upstream input interfaces with runtime schemas, named literal domains with LiteralKit, digest/NTIA predicates with schema guards and JSON.stringify with schema codecs that preserve successful bytes but surface SchemaError on failure (scratchpad/test/sbom/InTotoStatement.test.ts:68; scratchpad/test/sbom/InTotoStatement.test.ts:136; scratchpad/test/sbom/Sbom.test.ts:117; scratchpad/test/sbom/NtiaReport.test.ts:76; module suite scratchpad/test/sbom/**).
-- **numeric-domains** — The lab rejects non-finite SbomDocument revisions accepted by upstream Schema.Number and gives the new indentation/year schemas finite-number domains without changing function validation boundaries (module suite scratchpad/test/sbom/**).
-- **type-safety** — The lab replaces upstream digest, cause, bundle and parsed-JSON casts with schema-derived guards, property guards and typed inference while retaining oracle assertions (scratchpad/test/sbom/InTotoStatement.test.ts:161; scratchpad/test/sbom/Sbom.test.ts:74; scratchpad/test/sbom/SigstoreSigner.test.ts:115; scratchpad/test/sbom/conformance.test.ts:116; scratchpad/test/sbom/reachability.test.ts:191).
-- **tsgo-diagnostics** — The lab uses named Effect.fn callbacks, schema .make constructors and S.Finite in place of upstream diagnostic-triggering forms, retaining scoped test entry-point diagnostic exceptions (scratchpad/test/sbom/IdentityToken.test.ts:18; scratchpad/test/sbom/IdentityToken.test.ts:84; scratchpad/test/sbom/InTotoStatement.test.ts:73; scratchpad/test/sbom/SigstoreSigner.test.ts:206; module suite scratchpad/test/sbom/**).
-- **effect-first** — The lab replaces upstream callbacks, typeof checks, native component sorting and the redundant signer wrapper with Effect.fn, Predicate helpers, Array/Order/String helpers and a direct thunk while preserving ordering and stub selection (scratchpad/test/sbom/IdentityToken.test.ts:18; scratchpad/test/sbom/Sbom.test.ts:56; scratchpad/test/sbom/SigstoreSigner.test.ts:261).
-- **effect-imports** — The lab source, tests and source examples import dedicated effect/* modules instead of the upstream root effect barrel (module suite scratchpad/test/sbom/**; scratchpad/test/sbom/reachability.test.ts:132; scratchpad/test/sbom/reachability.test.ts:170).
-- **identity-annotations** — The lab adds $ScratchpadId identifiers and schema/field annotations absent upstream, including digest identity metadata and nested provenance/error descriptions while retaining the inline digest pattern (module suite scratchpad/test/sbom/**; scratchpad/test/sbom/InTotoStatement.test.ts:192; scratchpad/test/sbom/reachability.test.ts:170).
-- **test-environment** — The lab points source/manifest/signer-path tests at scratchpad/effected/sbom, a module-data package.json and TypeScript paths instead of upstream src/package/output assumptions (scratchpad/test/sbom/reachability.test.ts:191; scratchpad/test/sbom/reachability.test.ts:199; scratchpad/test/sbom/reachability.test.ts:231).
-- **reachability** — The lab enumerates effect/* and Beep imports and asserts the vendored SPDX edge plus package-json IO exclusion instead of upstream bare-package graph expectations (scratchpad/test/sbom/reachability.test.ts:132; scratchpad/test/sbom/reachability.test.ts:142; scratchpad/test/sbom/reachability.test.ts:170; scratchpad/test/sbom/reachability.test.ts:199).
-- **upstream-bug** — The lab declaration parser excludes the phantom ${this.path} import emitted by the upstream regex walker, with the exported-error-message regression fixture pinning the correction (scratchpad/test/sbom/reachability.test.ts:93; scratchpad/test/sbom/reachability.test.ts:110; scratchpad/test/sbom/reachability.test.ts:116).
+- **identity-keys** — The lab registers `SigstoreSigner` with a module-local IdentityComposer key instead of the upstream @effected/sbom service key (scratchpad/test/sbom/SigstoreSigner.test.ts; scratchpad/test/sbom/reachability.test.ts).
+- **tagged-errors** — The lab unstubbed signer throws UnstubbedSigstoreSignerError with a schema tag instead of upstream native Error, preserving the synchronous failure and message (scratchpad/test/sbom/SigstoreSigner.test.ts).
+- **type-safety** — The lab replaces upstream cause and bundle casts with property guards and typed inference while retaining oracle assertions (scratchpad/test/sbom/SigstoreSigner.test.ts).
+- **tsgo-diagnostics** — The lab uses named Effect.fn callbacks in place of upstream diagnostic-triggering forms (scratchpad/test/sbom/SigstoreSigner.test.ts).
+- **effect-first** — The lab replaces the redundant signer wrapper with a direct thunk while preserving stub selection (scratchpad/test/sbom/SigstoreSigner.test.ts).
+- **effect-imports** — The signer source and tests import dedicated effect/* modules instead of the upstream root effect barrel (module suite scratchpad/test/sbom/**).
+- **test-environment** — The signer-path and manifest tests point at scratchpad/effected/sbom and a module-data package.json instead of upstream src/package assumptions (scratchpad/test/sbom/reachability.test.ts).
 
 ### Dependency backlog
 

@@ -7,6 +7,8 @@ Paths of the form `packages/commands/src/...` and `packages/commands/__test__/..
 paths; in this repository they live at `packages/drivers/commands/src/...` and
 `packages/drivers/commands/test/...`. Upstream `pnpm` / `savvy.build.ts` commands do not apply
 here: use `bun run beep quality package-verify @beep/commands` (see README.md → Development).
+Upstream `@effected/sbom` is `@beep/sbom` here, and its `IdentityToken` contract is
+`@beep/sbom/IdentityToken`; `@effected/github-actions` is still the lab `github-actions` module.
 
 ---
 <!-- packages/commands/CLAUDE.md -->
