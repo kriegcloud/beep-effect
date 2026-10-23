@@ -26,7 +26,6 @@ import {
   DeclaredRoundCoherentVerdict,
   evaluateDeclaredRoundCoherent,
   evaluateJudgeOutputInventoryDecodes,
-  JudgeOutputDecodeFailure,
   JudgeOutputInventoryDecodesInput,
   JudgeOutputInventoryDecodesVerdict,
 } from "./JudgeContract.ts";
@@ -35,6 +34,7 @@ import { renderInventoryMarkdown } from "./Qa.render.ts";
 import { qaRootPath, readEventLog } from "./Qa.session.ts";
 import type { RoundLayout } from "@beep/qa-capture";
 import type { QaInventory } from "./Inventory.schemas.ts";
+import type { JudgeOutputDecodeFailure } from "./JudgeContract.ts";
 import type { QaJudgeIngestOptions } from "./Qa.schemas.ts";
 
 const encodeJsonEffect = S.encodeEffect(S.fromJsonString(S.Unknown));
@@ -108,6 +108,37 @@ export const inventoryJsonPath: {
 } = dual(2, (path: Path.Path, layout: RoundLayout): string => path.join(layout.root, INVENTORY_JSON_FILE));
 
 /**
+ * Decode a judge inventory candidate through the inventory-decodes gate,
+ * failing with the caller's message for each decode failure.
+ *
+ * **Example** (Decode a candidate inventory)
+ *
+ * ```ts
+ * import { decodeJudgeInventory } from "@beep/repo-cli/commands/Qa/JudgeIngest"
+ * import * as Effect from "effect/Effect";
+ * const decoded = decodeJudgeInventory("{}", {
+ *   "inventory-schema-rejected": "schema rejected",
+ *   "malformed-json": "not JSON",
+ * })
+ * console.log(Effect.isEffect(decoded)) // true
+ * ```
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const decodeJudgeInventory = Effect.fn("QaJudgeIngest.decodeJudgeInventory")(function* (
+  candidate: string,
+  messages: { readonly [Failure in JudgeOutputDecodeFailure]: string }
+): Effect.fn.Return<QaInventory, QaCommandError> {
+  const verdict = yield* evaluateJudgeOutputInventoryDecodes(JudgeOutputInventoryDecodesInput.make({ candidate }));
+  return yield* JudgeOutputInventoryDecodesVerdict.match(verdict, {
+    allowed: ({ audit }) => Effect.succeed(audit.detail.inventory),
+    denied: ({ audit }) =>
+      Effect.fail(QaCommandError.make({ cause: audit.detail.issue, message: messages[audit.detail.failure] })),
+  });
+});
+
+/**
  * Parse noisy judge output into a schema-valid inventory.
  *
  * **Example** (Parse non-JSON judge output)
@@ -129,22 +160,10 @@ export const parseJudgeOutput = Effect.fn("QaJudgeIngest.parseJudgeOutput")(func
       message: "qa judge-ingest found no parseable JSON inventory object (fenced or unfenced) in the judge output.",
     })
   );
-  const verdict = yield* evaluateJudgeOutputInventoryDecodes(
-    JudgeOutputInventoryDecodesInput.make({ candidate: block })
-  );
-  return yield* JudgeOutputInventoryDecodesVerdict.match(verdict, {
-    allowed: ({ audit }) => Effect.succeed(audit.detail.inventory),
-    denied: ({ audit }) =>
-      Effect.fail(
-        QaCommandError.make({
-          cause: audit.detail.issue,
-          message: JudgeOutputDecodeFailure.match(audit.detail.failure, {
-            "inventory-schema-rejected": () =>
-              "qa judge-ingest rejected the judge inventory. Check schemaVersion, finding ids (R<round>-<nn>), lens values, and that requiredCount equals the P0+P1 count.",
-            "malformed-json": () => "qa judge-ingest could not parse the judge's final JSON block.",
-          }),
-        })
-      ),
+  return yield* decodeJudgeInventory(block, {
+    "inventory-schema-rejected":
+      "qa judge-ingest rejected the judge inventory. Check schemaVersion, finding ids (R<round>-<nn>), lens values, and that requiredCount equals the P0+P1 count.",
+    "malformed-json": "qa judge-ingest could not parse the judge's final JSON block.",
   });
 });
 

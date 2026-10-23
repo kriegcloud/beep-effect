@@ -8,7 +8,7 @@ import {
 import * as SchemaUtils from "@beep/schema/SchemaUtils/index";
 import { it } from "@beep/test-runner";
 import { describe, expect } from "@effect/vitest";
-import { assertInstanceOf, deepStrictEqual } from "@effect/vitest/utils";
+import { assertInstanceOf, assertTrue, deepStrictEqual } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
@@ -354,7 +354,7 @@ describe("LiteralKit dispatch", () => {
   it("names the value, key and members in the unhandled-case defect", () => {
     const cases = { free: () => "f" } as unknown as { free: () => string; pro: () => string };
     const result = Result.try({ try: () => Tier.match("pro", cases), catch: (error) => error });
-    expect(Result.isFailure(result)).toBe(true);
+    assertTrue(Result.isFailure(result));
     if (Result.isFailure(result)) {
       assertInstanceOf(result.failure, LiteralKitUnhandledCaseError);
       expect(result.failure.key).toBe("pro");

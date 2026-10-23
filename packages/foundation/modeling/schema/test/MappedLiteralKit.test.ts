@@ -215,16 +215,18 @@ describe("MappedLiteralKit subsets and matchOrElse", () => {
     ["NOT_FOUND", 404],
   ] as const);
 
-  it("pick keeps the pairs whose from-side literal was picked", () => {
-    const Success = Code.pick(["OK", "CREATED"]);
-    deepStrictEqual(Success.Pairs, [
-      ["OK", 200],
-      ["CREATED", 201],
-    ]);
-    expect(Success.Enum.OK).toBe(200);
-    expect(Effect.runSync(S.decodeEffect(Success)("CREATED"))).toBe(201);
-    expect(S.is(Success.To)(404)).toBe(false);
-  });
+  it.effect("pick keeps the pairs whose from-side literal was picked", () =>
+    Effect.gen(function* () {
+      const Success = Code.pick(["OK", "CREATED"]);
+      deepStrictEqual(Success.Pairs, [
+        ["OK", 200],
+        ["CREATED", 201],
+      ]);
+      expect(Success.Enum.OK).toBe(200);
+      expect(yield* S.decodeEffect(Success)("CREATED")).toBe(201);
+      expect(S.is(Success.To)(404)).toBe(false);
+    })
+  );
 
   it("omit drops the pairs whose from-side literal was dropped", () => {
     const Failures = Code.omit(["OK", "CREATED"]);

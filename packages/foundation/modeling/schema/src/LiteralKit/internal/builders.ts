@@ -29,6 +29,8 @@ type Dispatcher = (...args: ReadonlyArray<unknown>) => unknown;
  * Derives the helper key of one literal: strings as-is, `number200`,
  * `bigint1n`, `true` / `false`.
  *
+ * **Details**
+ *
  * A `typeof` switch rather than an `effect/Match` pipeline: this runs on every
  * dispatch, and the four arms are the closed `LiteralValue` union, so the
  * switch is exhaustive without a matcher's allocation or type cost.
@@ -157,8 +159,7 @@ export const makeMatchOrElse = (literals: Literals): Dispatcher =>
  * ```ts
  * import { deriveKeys, literalKitBuilders } from "@beep/schema/LiteralKit/internal/builders"
  *
- * const literals = ["ok", 404] as const
- * console.log(literalKitBuilders.enum(literals, deriveKeys(literals))) // { ok: "ok", number404: 404 }
+ * console.log(literalKitBuilders.enum(["ok", 404], deriveKeys(["ok", 404]))) // { ok: "ok", number404: 404 }
  * ```
  *
  * @internal

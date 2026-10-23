@@ -19,7 +19,7 @@ import { YeetProofTier } from "../../../internal/repo-run/QualityScheduler.schem
 import {
   byRepoPlanStepAscending,
   enforceConservativeResume,
-  RepoPlanPhase,
+  phaseOrderValue,
   RepoPlanStep,
   RepoPlanWave,
   RepoRunPlan,
@@ -1081,17 +1081,5 @@ export const yeetPlanPhases = (plan: RepoRunPlan): ReadonlyArray<RepoPlanStep["p
     plan.steps,
     A.map((step) => step.phase),
     A.dedupe,
-    A.sort(
-      Order.mapInput(Order.Number, (phase: RepoPlanStep["phase"]) =>
-        RepoPlanPhase.match(phase, {
-          prepare: () => 0,
-          feedback: () => 1,
-          commit: () => 2,
-          "early-publish": () => 3,
-          full: () => 4,
-          publish: () => 5,
-          monitor: () => 6,
-        })
-      )
-    )
+    A.sort(Order.mapInput(Order.Number, phaseOrderValue))
   );
