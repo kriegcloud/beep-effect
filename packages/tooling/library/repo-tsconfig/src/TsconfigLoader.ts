@@ -72,7 +72,7 @@ const MAX_EXTENDS_DEPTH = 32;
  * ```ts
  * import { ExtendsFailureReason } from "@beep/repo-tsconfig/TsconfigLoader";
  *
- * const label = ExtendsFailureReason.$match("cycle", {
+ * const label = ExtendsFailureReason.match("cycle", {
  *   "not-found": () => "missing",
  *   cycle: () => "re-entrant",
  *   depth: () => "too deep",
@@ -181,7 +181,7 @@ export class TsconfigExtendsError extends S.TaggedError<TsconfigExtendsError, { 
    * @since 0.0.0
    */
   override get message(): string {
-    return ExtendsFailureReason.$match(this.reason, {
+    return ExtendsFailureReason.match(this.reason, {
       "not-found": () => `cannot resolve extends target "${this.target}" from "${this.path}"`,
       cycle: () => `extends cycle re-entering "${this.target}" via ${A.join(this.chain, " -> ")}`,
       depth: () => `extends chain exceeded depth ${MAX_EXTENDS_DEPTH} at "${this.path}"`,

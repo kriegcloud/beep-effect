@@ -98,7 +98,7 @@ The module-level port deviations recorded in the scratchpad port carry over: Eff
 - **`.json` siblings of export targets (bug fix).** An `exports` target ending in `.d.ts`, `.ts` or `.js` is read as its `.json` sibling, as tsc's config lookup does. The lab accepted only `.json` targets.
 - **`exports` blocks the fallback.** A manifest with `exports` that does not resolve the subpath ends the lookup for that package, as in tsc; `get-tsconfig` falls back to the plain file (236 of the 666 synthetic specifiers).
 - **No expansion of tsc defaults.** The resolution reports declared options only: no implied options (`strict` does not expand) and no implicit `outDir` entry in `exclude`.
-- **Schema-first.** `FindNearestOptions` is a branded `S.Opaque` (`findNearest` takes its `Encoded` shape, so object literals still work), and `ExtendsFailureReason` is a `LiteralKit` whose `$match` builds the error message.
+- **Schema-first.** `FindNearestOptions` is a branded `S.Opaque` (`findNearest` takes its `Encoded` shape, so object literals still work), and `ExtendsFailureReason` is a `LiteralKit` whose `match` builds the error message.
 - **Span and identities.** The discovery span is `TsconfigDiscovery.findNearest` (upstream `findNearest`). Schema identities moved from `@beep/scratchpad/effected/tsconfig-json/*` to `@beep/repo-tsconfig/*`.
 
 ## License
