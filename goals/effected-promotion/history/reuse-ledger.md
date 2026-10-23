@@ -106,14 +106,17 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 ## `@beep/semver` (roadmap R1, SPEC W4-h)
 
 R1 is the owner switch. Parity is recorded in `research/semver-owner-switch-differential-r1.json`
-(`ops/semver-owner-switch-differential.ts`, run on a clean tree before the deletion commit): 0 unclassified differences
-in every section.
+(`ops/semver-owner-switch-differential.ts`, run on a clean tree at f5a7feef24 with the deleted module restored
+from 6c0bb54d55 through `--old-module`): 0 unclassified differences in every section. That JSON is the only
+record of the old-module section; a run without `--old-module` reports it `skipped` and proves nothing for it.
+Docker differences are classified causally: the old strategy, re-run without the non-SemVer-core tags, must
+pick what the kit picks.
 
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
-| `@beep/schema/Semver` (`Semver`, `SemverFromString`) | #41 | retired (R1) | Zero importers. Deleted with its test, both export entries, the root re-export and the generated aliases, catalog and inventory rows. 2,265 versions parse alike with the same format; 5,130,225 ordered pairs agree except 14 probe pairs where the old `localeCompare` disagrees with ASCII order (§11.4.2). The old loose normalization (`v1.2.3`, `1.2`) had no caller. |
-| repo-cli VersionSync `BunResolver` `BunSemver` pattern and comparator | #42, #308 | adopted (R1) | `SemVer.isPinnable` after an optional leading `v`, then `SemVer.gte`. 602,625 of 606,062 pairs pick the same pin; the rest all involve a pin the kit rejects (leading zero, unsafe integer). `BunSemver` export removed (no importer). |
-| repo-cli VersionSync `DockerResolver` triple parser, comparator and the duplicated latest-tag loops | #43, #308 | adopted (R1) | One exported `selectLatestDockerTag` over `SemVer`: stable, pinnable, first-listed wins among equal versions. 8,846 of 9,000 seeded tag lists agree; the rest all carry a non-SemVer core. |
+| `@beep/schema/Semver` (`Semver`, `SemverFromString`) | #41 | retired (R1) | Zero importers. Deleted with its test, both export entries, the root re-export and the generated aliases, catalog and inventory rows. 2,264 versions parse alike with the same format; 5,125,696 ordered pairs agree except 14 probe pairs where the old `localeCompare` disagrees with ASCII order (§11.4.2). The old loose normalization (`v1.2.3`, `1.2`) had no caller. |
+| repo-cli VersionSync `BunResolver` `BunSemver` pattern and comparator | #42, #308 | adopted (R1) | One `SemVer.parseResult` after an optional leading `v` (no surrounding whitespace, no build metadata), then `SemVer.gte`; a property pins the `SemVer.gte` winner. 601,071 of 604,506 pairs pick the same pin; the rest all involve a pin the kit rejects (leading zero, unsafe integer). `BunSemver` export removed (no importer). |
+| repo-cli VersionSync `DockerResolver` triple parser, comparator and the duplicated latest-tag loops | #43, #308 | adopted (R1) | One exported `selectLatestDockerTag` over `SemVer`: stable, pinnable, first-listed wins among equal versions; a property pins the first tag holding the `SemVer.compare` maximum. 8,837 of 9,000 seeded tag lists agree; each of the other 163 goes away once its non-SemVer-core tags are removed. |
 | `@beep/repo-configs` `CacheClientPin.version` inline regex | #46 | adopted (R1) | `SemVer.PinnableVersionString`. All 5 committed pins pass both; the 6 old-only accepts are leading zeros, an empty identifier and an unsafe integer. |
 | repo-cli VersionSync `RootCatalog` bun.lock versions | #269 | 3-A1 | The lockfile half rides the lockfiles adoption; its Docker semver half is #43 above. |
 | repo-utils `schemas/PackageJson.ts` version fields | #243 | 3-A3 | Re-based on `@beep/package-json`, which already types versions through `@beep/semver`. |

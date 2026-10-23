@@ -1,11 +1,11 @@
 {
-  "previous": "32c3576f7d376cef6e7594c646600e3e3b4369a2d5f4b0f67ed17a8ea40a4ea4",
+  "previous": "960a9f2ba1754a0c209ba74c818ef19b51b6ee7198b1242e6b47f2ab918d7ea4",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion roadmap R1, refactor/semver-owner-switch)",
     "reason": "Record the R1 manifest edits that add the @beep/semver workspace dependency to @beep/repo-cli (VersionSync Bun and Docker resolvers) and @beep/repo-configs (CacheClientPin.version); the turbo coupling is measured in the review; no qualification is granted.",
     "basis": {
       "path": "goals/effected-promotion/research/cache-baseline-review-r1.md",
-      "sha256": "f1e651a77d80ee5e6df74c2d240582e9ab5b8f920fc1de1248be9670106bb9a0"
+      "sha256": "fb56bc111a0050d95bb02316f0df6f4dd3a670f6bf86ad38e1cced286e7ffd73"
     }
   },
   "scope": [
