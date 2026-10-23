@@ -1,8 +1,6 @@
 /**
  * App-local Tauri-IPC transport for the desktop chat sidecar (transport spike).
  *
- * cspell:words Unlisten
- *
  * Builds an Effect {@link Socket} whose inbound frames arrive on the Rust shell's
  * `sidecar://rx` event channel (the sidecar's stdout, bridged in
  * `src-tauri/src/lib.rs`) and whose outbound frames are written to the sidecar's

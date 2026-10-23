@@ -39,7 +39,7 @@ import type { InspectableActor } from "@beep/xstate";
  */
 export const statelyInspectEnabled = (): boolean => {
   // Vite types DEV as a boolean; tooling without the Vite client types sees a string.
-  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Vite injects DEV and VITE_* on import.meta.env.
+  // biome-ignore lint/suspicious/noUndeclaredEnvVars: Vite injects DEV and VITE_* on import.meta.env. Owner: @beep/professional-desktop. Exit: Biome recognizes Vite's built-in import.meta.env keys (#1855).
   const dev: unknown = import.meta.env.DEV;
   return (dev === true || dev === "true") && import.meta.env.VITE_STATELY_INSPECT === "1";
 };

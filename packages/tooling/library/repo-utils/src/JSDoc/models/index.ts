@@ -5,7 +5,6 @@
  * @category models
  * @since 0.0.0
  */
-/* cspell:ignore Derivability */
 
 /**
  * @category models

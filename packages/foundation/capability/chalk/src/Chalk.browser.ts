@@ -50,8 +50,6 @@ import type {
   ChalkInstanceSurface,
 } from "./internal/PublicSurface.ts";
 
-// oxlint-disable typescript-eslint/no-unsafe-declaration-merging
-
 const createChalk = makeCreateChalk(detectedSupportsColorBrowser.stdout);
 const createChalkStderr = makeCreateChalk(detectedSupportsColorBrowser.stderr);
 

@@ -4,7 +4,6 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-// cspell:ignore Klass
 
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ParagraphNode, TextNode } from "lexical";

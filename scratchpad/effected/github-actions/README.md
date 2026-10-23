@@ -1,7 +1,7 @@
 # github-actions (lab port of @effected/github-actions)
 
 
-The GitHub Actions runtime for [Effect](https://effect.website) v4: the services an action needs to talk to the runner it is executing inside. `Action.run` composes the runtime, runs your program, renders a failure as an `::error::` annotation and sets the exit code. `ActionInput` reads workflow inputs as typed `Config` values — string, boolean, integer, redacted secret, multiline list, `key=value` pairs, or a schema-decoded JSON blob — with one absence rule shared by every accessor: unset and `""` are both missing data. `ActionOutputs`, `ActionState`, `ActionLogger` and a fiber-local `ActionEnvironment` round out the runner surface, alongside `ActionCache`, `Artifact`, a metadata-carrying `BlobStore` (S3-compatible or the runner's own cache), `OidcTokenIssuer` and `ToolInstaller` for the heavier protocols. A reporting suite — `GitHubMarkdown`, `ManagedDocument`, `CheckState` and `CheckDocument` — covers the other direction: rendering what a run did onto a pull request comment, a check run or the job summary. No `@actions/*` dependency anywhere — the cache, artifact and tool-cache protocols are implemented directly against their HTTP APIs.
+The GitHub Actions runtime for [Effect](https://effect.website) v4: the services an action needs to talk to the runner it is executing inside. `Action.run` composes the runtime, runs your program, renders a failure as an `::error::` annotation and sets the exit code. `ActionInput` reads workflow inputs as typed `Config` values — string, boolean, integer, redacted secret, multiline list, `key=value` pairs, or a schema-decoded JSON blob — with one absence rule shared by every accessor: unset and `""` are both missing data. `ActionOutputs`, `ActionState`, `ActionLogger` and a fiber-local `ActionEnvironment` round out the runner surface, alongside `ActionCache`, `Artifact`, a metadata-carrying `BlobStore` (S3-compatible or the runner's own cache), `OidcTokenIssuer` and `ToolInstaller` for the heavier protocols. The reporting suite that renders what a run did onto a pull request comment, a check run or the job summary now ships as `@beep/github-reporting`. No `@actions/*` dependency anywhere — the cache, artifact and tool-cache protocols are implemented directly against their HTTP APIs.
 
 ## Why @effected/github-actions
 
@@ -165,77 +165,7 @@ An `OidcTokenError` passes through `capture` untouched: whether an unattested pu
 
 ## Reporting on GitHub surfaces
 
-The other half of an action's job is saying what happened — on a pull request comment, a check-run summary or the job summary. `GitHubMarkdown` writes those bodies. Every member takes pre-rendered markdown and returns a string, but the structure around it goes through `@effected/markdown`'s serializer rather than string joining, so a cell carrying `>=1 || <2` escapes its pipes instead of shifting every column after it. `tableFor` goes further and takes the table's whole shape from a row schema:
-
-```ts
-import { GitHubMarkdown } from "@beep/scratchpad/effected/github-actions/index";
-import * as S from "effect/Schema";
-
-const Row = S.Struct({
-  name: S.String.annotate({ title: "Check" }),
-  detail: S.String,
-});
-
-console.log(GitHubMarkdown.tableFor(Row).render([{ name: "build", detail: "clean" }]));
-// | Check | detail |
-// | --- | --- |
-// | build | clean |
-```
-
-Column order is field declaration order, each header is the field's `title` annotation, and each cell is the field's encoded form — so a typed field projects through its own codec, and a row cannot transpose columns because it is an object rather than a positional array.
-
-`ManagedDocument` owns named regions inside text a human also edits: a sentinel HTML comment identifies the document, marker comments delimit each region, and everything outside them survives byte-for-byte. Regions are replaced from current state rather than appended, which is what makes a sticky comment safe to re-render. `CheckDocument` puts a debounced reconciler on top — report a check as its state changes, and a background fiber projects the registry onto the document and writes it through a narrow sink:
-
-```ts
-import { CheckDocument, CheckReport } from "@beep/scratchpad/effected/github-actions/index";
-import * as Effect from "effect/Effect";
-
-const program = Effect.gen(function* () {
-  const doc = yield* CheckDocument;
-  yield* doc.report("build", CheckReport.make({ state: "running" }));
-  yield* doc.report("build", CheckReport.make({ state: "pass", outcome: "clean" }));
-  return yield* doc.flush;
-});
-// "written"   — one write carrying the final state
-// "unchanged" — the render was byte-identical to the last one, so nothing was sent
-// "stale"     — a newer run owns the document; this pass was dropped (see below)
-console.log(Effect.isEffect(program)) // true
-```
-
-The debounce is trailing with a max-wait, so a burst of reports coalesces into one write carrying the *final* state while a steady stream still surfaces progress.
-
-A region can also carry metadata: `withRegions` takes `[key, content, meta]` triples, the pairs ride the region's own marker, and `entry(key)` reads them back verbatim. Metadata survives a writer that knows nothing about it — a region a call does not name keeps its content *and* its metadata — and never takes part in addressing a region, so changing it updates that region in place rather than growing a second one.
-
-`CheckDocument` uses exactly that to survive two runs writing one document — a re-run overlapping the delayed run it replaced. Give the layer this run's `stamp` and a sink that can `read` as well as `write`, and each pass reconciles against the live document instead of a private shadow of what this process last wrote:
-
-```ts
-import { CheckDocument } from "@beep/scratchpad/effected/github-actions/index";
-import * as Effect from "effect/Effect";
-import * as A from "effect/Array";
-import * as HashMap from "effect/HashMap";
-import * as O from "effect/Option";
-import * as Layer from "effect/Layer";
-
-const startedAt = "2026-01-01T00:00:00Z";
-const runId = "42";
-const readComment = Effect.succeed<string | undefined>(undefined);
-const writeComment = (text: string) => Effect.log(text);
-
-const layer = CheckDocument.layer({
-  namespace: "release-bot",
-  key: "checks",
-  render: ({ checks, order }) => A.map(order, (name): readonly [string, string] => [
-    name, O.match(HashMap.get(checks, name), { onNone: () => "unknown", onSome: (report) => report.state }),
-  ]),
-  sink: { write: writeComment, read: readComment },
-  stamp: { at: startedAt, runId }, // a per-run constant — mint it once at startup
-});
-console.log(Layer.isLayer(layer)) // true
-```
-
-Every region the run writes then carries its `at` and `runId`, and a pass whose stamp is strictly older than the newest stamp already on the document is dropped rather than written — `flush` answers `"stale"` and the reconciler logs the drop once, at the transition. Equal stamps pass, so a run always may refine its own regions. Keeping the stamp constant is what preserves write suppression: the same run rendering the same state still produces byte-identical text.
-
-`CheckState` is the vocabulary both of them speak, and it is deliberately wider than GitHub's conclusion set — `running` is a state rather than the absence of one, and `user_interaction_required` names a pipeline waiting on a human. `projectCheckState` maps each onto the wire form GitHub wants, as a status plus a conclusion exactly when the status is `completed`.
+The reporting suite (`GitHubMarkdown`, `ManagedDocument`, `CheckState` and `CheckDocument`) ships as `@beep/github-reporting` since wave 3-1 of `goals/effected-promotion`. Its usage, features and port notes are in `packages/foundation/modeling/github-reporting/README.md`. Import the root (`CheckState`, `ManagedDocument`, `CheckDocument`) from `@beep/github-reporting` and the writer from `@beep/github-reporting/GitHubMarkdown`.
 
 ## Typed failures
 
@@ -305,10 +235,6 @@ console.log(Layer.isLayer(TestOutputs)) // true
 - `CacheKey` — cache keys and their restore-key ladder, `withNamespace(segment)` for a bust token or a shared-runner prefix, plus `hashFiles`/`matchingFiles`/`hashMatching` byte-compatible with `@actions/glob`.
 - `OidcTokenIssuer` — the runner's OIDC token service, with unverified claim decoding for provenance predicates.
 - `ActionsIdentityToken` / `ActionsProvenance` — the `@effected/sbom` seam: `layer` serves that package's `IdentityToken` contract from the runner's issuer, and `capture` builds a `SlsaProvenance` predicate out of the runner's OIDC claims.
-- `GitHubMarkdown` — the escaping-safe writer for GitHub surfaces: `table`, `tableFor(schema)`, `heading`, `link`, `code`, `codeBlock`, `list`, `details` and `raw`, and the package's only importer of `@effected/markdown`.
-- `ManagedDocument` — marker-delimited named regions in text a human also edits, for a sticky comment or a managed pull request description; content outside the regions survives byte-for-byte, and each region can carry marker metadata that round-trips through `entry(key)` without ever addressing the region.
-- `CheckState` / `projectCheckState` — the kit's check vocabulary, wider than GitHub's conclusions, and its projection onto the check-run wire form.
-- `CheckDocument` — the debounced check-to-document reconciler: report states as they change, and one write lands carrying the final one. `stamp` plus a readable sink lets two runs share one document, dropping a strictly older run's pass instead of clobbering the newer one; `flush` reports `written`, `unchanged` or `stale`.
 - `ToolInstaller` — download, extract and cache a toolchain in the runner's tool cache, with no `@actions/tool-cache` dependency; `ToolInstallerError` always names its `subject`.
 - `BlobStore` — durable `get`/`put`/`has` over `StoredBlob<A>` values (bytes plus caller-schema metadata; the type was named `Blob<A>` before, which collided with the global), backed by `layerS3` (SigV4-signed, no `@aws-sdk/*` dependency) or `GitHubCacheBlobStore.layer` (the runner's own cache); `layerMemory` runs the real envelope framing for tests.
 
@@ -336,8 +262,6 @@ console.log(Layer.isLayer(TestOutputs)) // true
 | `InvalidActionStateNameError` | value, type | Added by review round 1; see the deviations below. |
 | `InvalidDigestLengthError` | value, type | Added by review round 1; see the deviations below. |
 | `MissingProcessIdError` | value, type | Added by review round 1; see the deviations below. |
-| `RejectedRegionDialectError` | value, type | Added by review round 1; see the deviations below. |
-| `UnhandledCheckStateError` | value, type | Added by review round 1; see the deviations below. |
 
 ### Deviations
 
@@ -345,7 +269,7 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 
 - **native-runtime** — Effect hash collections, ordered check snapshots, scoped Logger.layer and Clock/DateTime replace native structures and wall-clock paths; zone-less stamps read as UTC. (scratchpad/test/github-actions/CheckDocument.test.ts:222,365; scratchpad/test/github-actions/BlobStore.test.ts:230; scratchpad/test/github-actions/Artifact.test.ts:392; scratchpad/test/github-actions/ActionLogger.test.ts)
 - **identity-keys** — IdentityComposer keys replace upstream service/reference identities and change CacheKey/ManagedDocument JSON Schema definition paths. (scratchpad/test/github-actions/CacheKey.test.ts:583; scratchpad/test/github-actions/ManagedDocument.test.ts:305)
-- **tagged-errors** — Schema tagged errors with retained messages replace native Error/RangeError values, and the five public replacements are exported. (scratchpad/test/github-actions/CacheKey.test.ts:245; scratchpad/test/github-actions/ActionState.test.ts:58; scratchpad/test/github-actions/Exports.test.ts:16)
+- **tagged-errors** — Schema tagged errors with retained messages replace native Error/RangeError values, and the five public replacements are exported (`UnhandledCheckStateError` and `RejectedRegionDialectError` moved to `@beep/github-reporting` in wave 3-1). (scratchpad/test/github-actions/CacheKey.test.ts:245; scratchpad/test/github-actions/ActionState.test.ts:58; scratchpad/test/github-actions/Exports.test.ts:16)
 - **schema-first** — Runtime schemas, LiteralKit domains and schema JSON codecs replace interfaces, asserted guards and native JSON paths, changing malformed-JSON cause/diagnostic identity. (scratchpad/test/github-actions/ActionInput.test.ts; scratchpad/test/github-actions/ActionEnvironment.test.ts:239; scratchpad/test/github-actions/ActionState.test.ts:156; scratchpad/test/github-actions/CheckState.test.ts:9; scratchpad/test/github-actions/DetachedProcess.test.ts:110)
 - **numeric-domains** — Finite schemas narrow numeric domains while integer filters and the non-finite InvalidPidError payload contract remain explicit. (scratchpad/test/github-actions/CacheKey.test.ts; scratchpad/test/github-actions/DetachedProcess.test.ts:160; scratchpad/test/github-actions/Artifact.test.ts:193; scratchpad/test/github-actions/ActionEnvironment.test.ts:150)
 - **type-safety** — Typed narrowing and the authorized wrong-input helper replace assertions; null installer JSON now takes typed failure paths. (scratchpad/test/github-actions/deliberatelyInvalid.ts; scratchpad/test/github-actions/GitHubMarkdown.test.ts:173; scratchpad/test/github-actions/ActionsIdentityToken.test.ts; scratchpad/test/github-actions/CheckDocument.test.ts:21)
@@ -362,17 +286,11 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 - **upstream-bug** — S3 URLs encode raw key segments consistently with signing instead of treating reserved key characters as URL syntax. (scratchpad/test/github-actions/BlobStore.test.ts:175; scratchpad/test/github-actions/sigv4.test.ts:15,38)
 - **upstream-bug** — S3 joins and signing preserve empty path segments so repeated/trailing-slash keys remain distinct. (scratchpad/test/github-actions/BlobStore.test.ts:199; scratchpad/test/github-actions/sigv4.test.ts:15,31,48)
 - **upstream-bug** — Literal two-dot filenames contribute to matching and hashing instead of being rejected as parent paths. (scratchpad/test/github-actions/CacheKey.test.ts:448)
-- **upstream-bug** — Exact decimal runId ordering rejects genuinely older large integers instead of rounding them equal. (scratchpad/test/github-actions/CheckDocument.test.ts:337,345,353)
-- **upstream-bug** — Sentinel adoption preserves unmanaged whitespace and newline bytes instead of stripping them. (scratchpad/test/github-actions/ManagedDocument.test.ts:243,256)
 - **upstream-bug** — Installer shim validation rejects escaping bin names before writes instead of accepting out-of-package destinations. (scratchpad/test/github-actions/PackageManagerInstaller.test.ts:1645)
 - **upstream-bug** — Finalize/delete results decode finite IDs and reject invalid supplied IDs through malformed ArtifactError with a SchemaError cause; missing IDs retain upload 0 and delete found.id defaults. (scratchpad/test/github-actions/Artifact.test.ts:130)
 - **upstream-bug** — Resolved paths containing LF or CR fail with archiveFailed and an offending-path diagnostic before manifest creation, tar or backend operations. (scratchpad/test/github-actions/ActionCache.test.ts:843)
 - **upstream-bug** — An ancestor-prefix pass removes recursively covered paths while retaining surviving order, symlink boundaries and original literal-pattern version hashing. (scratchpad/test/github-actions/ActionCache.test.ts:890)
-- **upstream-bug** — ManagedDocument exposes trailingCarriageReturn in its error-kind schema and returns the refusal through typed Result and Effect failure channels. (scratchpad/test/github-actions/ManagedDocument.test.ts:160; scratchpad/test/github-actions/ManagedDocument.test.ts:288)
 - **upstream-bug** — GET, PUT and HEAD reject complete . or .. segments as misconfigured BlobStoreError before signing or HTTP execution; other raw segments and encoding remain intact. (scratchpad/test/github-actions/BlobStore.test.ts:168,210)
-- **upstream-bug** — Polling sleeps for the lesser of the quiet interval and remaining maxWait budget, writing the latest state at 750ms without a duplicate at scope closure. (scratchpad/test/github-actions/CheckDocument.test.ts:129)
-- **upstream-bug** — Direct and schema-derived tables normalize CRLF, CR and LF to <br>, preserving row and column relationships. (scratchpad/test/github-actions/GitHubMarkdown.test.ts:11,153)
-- **upstream-bug** — Unmatched unescaped brackets are escaped before link construction, preserving the entire label and supported emphasis, balanced brackets, escapes and complete code spans. (scratchpad/test/github-actions/GitHubMarkdown.test.ts:68,83)
 - **upstream-bug** — Both node and direct-executable shims single-quote the complete target with embedded-quote escaping, preserving literal paths and argument forwarding. (scratchpad/test/github-actions/PackageManagerInstaller.test.ts:642)
 - **upstream-bug** — Windows rejects quotes, percent/exclamation expansion markers and control bytes anywhere in a complete target with layoutUnexpected before any shim write; separators and ordinary quoted metacharacters remain accepted. (scratchpad/test/github-actions/PackageManagerInstaller.test.ts:1918,1934)
 - **upstream-bug** — Windows-only validation rejects reserved device stems, including case/extension and superscript-digit variants, through layoutUnexpected before writes; POSIX acceptance remains unchanged. (scratchpad/test/github-actions/PackageManagerInstaller.test.ts:1882)
@@ -388,11 +306,8 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 - **upstream-bug** — Direct lookup uses own-property R.get, retaining own-entry precedence, aliases and empty-string handling. (scratchpad/test/github-actions/ActionInput.test.ts:76,85)
 - **upstream-bug** — Explicit NaN fails with invalidOptions before archiving; direct uploads retain finite and positive/negative infinity clamping. (scratchpad/test/github-actions/Artifact.test.ts:175,198)
 - **upstream-bug** — Only Windows paths normalize separators; POSIX resolved backslash paths fail archiveFailed before manifest, tar or upload. (scratchpad/test/github-actions/ActionCache.test.ts:106)
-- **upstream-bug** — The label writer adds one balancing backslash to odd trailing runs and preserves even runs and existing inline markup. (scratchpad/test/github-actions/GitHubMarkdown.test.ts:79)
-- **upstream-bug** — List items normalize CRLF and bare CR to LF before serialization so continuation text stays in one item. (scratchpad/test/github-actions/GitHubMarkdown.test.ts:173)
 - **upstream-bug** — Requests validate HTTP endpoints through misconfigured errors, refuse search/hash, and sign the complete transmitted encoded prefix plus object path; SigV4Request gains optional encodedPathPrefix. (scratchpad/test/github-actions/BlobStore.test.ts:158,215; scratchpad/test/github-actions/sigv4.test.ts:113)
 - **upstream-bug** — Non-Windows prepending selects exact PATH; Windows retains case-insensitive own-key selection and pathKeyOf remains case-insensitive. (scratchpad/test/github-actions/ChildEnv.test.ts:98,104)
-- **upstream-bug** — Heading text normalizes all three line endings to inline <br>, retaining the text within one heading. (scratchpad/test/github-actions/GitHubMarkdown.test.ts:150)
 - **upstream-bug** — The selected key is read through own-property R.get, excluding prototype values while preserving Windows own-key casing. (scratchpad/test/github-actions/ChildEnv.test.ts:110,118)
 - **upstream-bug** — Audience requests parse the base, append an encoded query parameter using ? or &, retain fragments, and fail requestFailed for invalid URLs before HTTP. (scratchpad/test/github-actions/OidcTokenIssuer.test.ts:72,166)
 - **upstream-bug** — Package roots cannot be symlinks; bin, overlay and shim paths must stay within the real package root before access or mutation, while internal symlinks remain accepted. (scratchpad/test/github-actions/PackageManagerInstaller.test.ts:344)

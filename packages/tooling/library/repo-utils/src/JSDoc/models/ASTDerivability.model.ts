@@ -7,8 +7,6 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 
-/* cspell:ignore Derivability */
-
 const $I = $RepoUtilsId.create("JSDoc/models/ASTDerivability.model");
 /**
  * Whether this tag's content can be deterministically derived from the TypeScript AST.

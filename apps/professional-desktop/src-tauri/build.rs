@@ -1,4 +1,3 @@
-// cspell:words pthread Werror Wextra
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};

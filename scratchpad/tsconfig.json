@@ -83,6 +83,9 @@
       "path": "../packages/foundation/modeling/github-references/tsconfig.json"
     },
     {
+      "path": "../packages/foundation/modeling/github-reporting/tsconfig.json"
+    },
+    {
       "path": "../packages/foundation/modeling/glob/tsconfig.json"
     },
     {

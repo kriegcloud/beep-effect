@@ -1,4 +1,3 @@
-/* cspell:words gboolean gchar Referer REFERER */
 #include <gmodule.h>
 
 #include "youtube_referrer.c"

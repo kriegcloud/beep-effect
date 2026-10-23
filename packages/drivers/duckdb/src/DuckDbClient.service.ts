@@ -3,8 +3,8 @@
  *
  * **Details**
  *
- * One serialized native connection per client. The client reports the
- * `"sqlite"` dialect and uses a DuckDB compiler that supports `updateValues`.
+ * One serialized writer connection per client, with optional read-only readers.
+ * The client reports the `"sqlite"` dialect and uses a DuckDB compiler that supports `updateValues`.
  * DuckDB has no savepoints: a nested `withTransaction` that rolls back refuses
  * the outer `COMMIT` and the whole transaction rolls back. `COMMIT` is safe:
  * when DuckDB already aborted the transaction after a failed statement, the
@@ -15,9 +15,12 @@
  *
  * **Gotchas**
  *
- * - A stream consumer that issues a statement per row outside a transaction
- *   (also on a `reserve`d connection) deadlocks on the single connection;
- *   collect the stream first or run the per-row work inside `withTransaction`.
+ * - With `readerConnections: 0` (default), a stream consumer that issues a
+ *   statement per row outside a transaction deadlocks. Enable readers or
+ *   collect first. Streams on a `reserve`d connection still deadlock.
+ * - Readers mirror the writer's catalog, search path, TimeZone and Calendar.
+ *   Other raw session settings, temporary tables and macros stay writer-only.
+ *   Reader streams refuse session changes and run in read-only transactions.
  * - A `readOnly` open shares the process-wide instance of its file and is
  *   refused with a `ConnectionError` while this process holds the same file
  *   read-write.
@@ -32,7 +35,7 @@
  */
 
 import { $DuckdbId } from "@beep/identity/packages";
-import { quotedString } from "@duckdb/node-api";
+import { quotedIdentifier, quotedString } from "@duckdb/node-api";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
@@ -40,6 +43,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Pool from "effect/Pool";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Reactivity from "effect/reactivity/Reactivity";
@@ -54,7 +58,13 @@ import type { DuckDBConnection, DuckDBInstance } from "@duckdb/node-api";
 import type * as Scope from "effect/Scope";
 import type { SqlError } from "effect/sql/SqlError";
 import type * as Statement from "effect/sql/Statement";
-import type { DuckDbClientConfigData, DuckDbParquetExport } from "./DuckDb.models.ts";
+import type {
+  DuckDbAppendRows,
+  DuckDbClientConfigData,
+  DuckDbDatabaseExport,
+  DuckDbDatabaseImport,
+  DuckDbParquetExport,
+} from "./DuckDb.models.ts";
 
 const $I = $DuckdbId.create("DuckDbClient.service");
 
@@ -192,7 +202,7 @@ export type DuckDbClientFromInstanceOptions = Omit<
  */
 export type DuckDbClientFromConnectionOptions = Omit<
   DuckDbClientConfig,
-  "databaseOptions" | "databasePath" | "readOnly"
+  "databaseOptions" | "databasePath" | "readOnly" | "readerConnections"
 > & {
   readonly connection: DuckDBConnection;
   readonly databasePath?: string | undefined;
@@ -205,7 +215,7 @@ export type DuckDbClientFromConnectionOptions = Omit<
  *
  * `updateValues` is supported (`(values ...) AS alias(cols)`). The extras run
  * on the transaction connection inside `withTransaction`, except
- * `copyTableToParquet` and `checkpoint`, which refuse there.
+ * `copyTableToParquet`, `exportDatabase` and `checkpoint`, which refuse there.
  *
  * **Example** (Read the client configuration)
  *
@@ -227,6 +237,9 @@ export type DuckDbClientFromConnectionOptions = Omit<
 export type DuckDbClientValue = SqlClient.SqlClient & {
   readonly [TypeId]: TypeId;
   readonly config: DuckDbClientConfig;
+  readonly exportDatabase: (request: typeof DuckDbDatabaseExport.Encoded) => Effect.Effect<void, SqlError>;
+  readonly importDatabase: (request: typeof DuckDbDatabaseImport.Encoded) => Effect.Effect<void, SqlError>;
+  readonly appendRows: (request: typeof DuckDbAppendRows.Encoded) => Effect.Effect<void, SqlError>;
   readonly copyTableToParquet: (request: DuckDbParquetExport) => Effect.Effect<void, SqlError>;
   readonly checkpoint: (
     options?: { readonly force?: boolean | undefined } | undefined
@@ -273,34 +286,91 @@ const hasTimeZoneKey = (options: Record<string, string> | undefined): boolean =>
 const stringField = (row: unknown, key: string): O.Option<string> =>
   P.hasProperty(row, key) && P.isString(row[key]) ? O.some(row[key]) : O.none();
 
+const makeAcquirers = Effect.fnUntraced(function* (
+  instance: DuckDBInstance | undefined,
+  connection: Effect.Success<ReturnType<typeof makeConnection>>,
+  readerConnections: number
+) {
+  const acquirers = SqlClient.makeSqliteAcquirers({
+    connection: Effect.succeed(connection),
+    semaphore: yield* Semaphore.make(1),
+  });
+  if (instance === undefined || readerConnections <= 0) {
+    return { ...acquirers, streamAcquirer: acquirers.acquirer };
+  }
+  yield* connection.sessionSnapshot;
+  const readerPool = yield* Pool.make({
+    size: readerConnections,
+    acquire: Effect.gen(function* () {
+      const readerNative = yield* acquireConnection(instance);
+      const reader = yield* makeConnection({
+        native: readerNative,
+        prepareCacheSize: 0,
+        prepareCacheTTL: Duration.zero,
+        readOnlyReader: true,
+      });
+      // A reader never executes session-changing user text, so only a new
+      // writer snapshot can invalidate its applied settings.
+      let applied: O.Option<Effect.Success<typeof connection.sessionSnapshot>> = O.none();
+      return {
+        reader,
+        synchronize: Effect.fnUntraced(function* () {
+          const snapshot = yield* connection.sessionSnapshot;
+          if (O.isSome(applied) && connection.sameSessionSnapshot(applied.value, snapshot)) return;
+          applied = O.none();
+          yield* reader.runDriverStatement(`USE ${quotedIdentifier(snapshot.database)}`, "executeStream");
+          yield* reader.runDriverStatement(`SET search_path = ${quotedString(snapshot.searchPath)}`, "executeStream");
+          yield* reader.runDriverStatement(`SET TimeZone = ${quotedString(snapshot.timeZone)}`, "executeStream");
+          yield* reader.runDriverStatement(`SET Calendar = ${quotedString(snapshot.calendar)}`, "executeStream");
+          applied = O.some(snapshot);
+        }),
+      };
+    }),
+  });
+  const streamAcquirer = Effect.gen(function* () {
+    const lease = yield* Pool.get(readerPool);
+    yield* lease.synchronize();
+    yield* Effect.acquireRelease(
+      lease.reader.runDriverStatement("BEGIN TRANSACTION READ ONLY", "beginTransaction"),
+      () => lease.reader.runDriverStatement("ROLLBACK", "rollbackTransaction").pipe(Effect.orDie)
+    );
+    return lease.reader;
+  });
+  return { ...acquirers, streamAcquirer };
+});
+
+const configureTimeZone = Effect.fnUntraced(function* (
+  connection: Effect.Success<ReturnType<typeof makeConnection>>,
+  timeZone: string | undefined,
+  skipDefault: boolean
+) {
+  if (timeZone === undefined && skipDefault) return;
+  yield* connection.runDriverStatement(`SET TimeZone = ${quotedString(timeZone ?? DEFAULT_TIME_ZONE)}`, "connect");
+});
+
 const makeFromNative = Effect.fnUntraced(function* (
   native: DuckDBConnection,
   options: CoreOptions,
-  skipDefaultTimeZone: boolean
+  skipDefaultTimeZone: boolean,
+  instance?: DuckDBInstance
 ) {
+  const readerConnections = options.readerConnections ?? 0;
   const connection = yield* makeConnection({
     native,
+    trackSession: readerConnections > 0,
     prepareCacheSize: options.prepareCacheSize ?? DEFAULT_PREPARE_CACHE_SIZE,
     prepareCacheTTL: options.prepareCacheTTL ?? Duration.minutes(10),
   });
-  if (options.timeZone !== undefined || !skipDefaultTimeZone) {
-    yield* connection.runDriverStatement(
-      `SET TimeZone = ${quotedString(options.timeZone ?? DEFAULT_TIME_ZONE)}`,
-      "connect"
-    );
-  }
+  yield* configureTimeZone(connection, options.timeZone, skipDefaultTimeZone);
   const database = A.head(yield* connection.executeUnprepared(DATABASE_QUERY, [], undefined));
   const databaseName = O.getOrElse(
     O.flatMap(database, (row) => stringField(row, "database_name")),
     () => "memory"
   );
   const databasePath = O.flatMap(database, (row) => stringField(row, "path"));
-  const acquirers = SqlClient.makeSqliteAcquirers({
-    connection: Effect.succeed(connection),
-    semaphore: yield* Semaphore.make(1),
-  });
+  const acquirers = yield* makeAcquirers(instance, connection, readerConnections);
   const client = yield* SqlClient.make({
-    acquirer: acquirers.acquirer,
+    acquirer: acquirers.streamAcquirer,
     borrower: acquirers.borrower,
     transactionAcquirer: acquirers.transactionAcquirer,
     onCommitFailure: acquirers.onCommitFailure,
@@ -362,7 +432,7 @@ export const make = Effect.fn("DuckDbClient.make")(function* (
 ): Effect.fn.Return<DuckDbClientValue, SqlError, Scope.Scope | Reactivity.Reactivity> {
   const instance = yield* acquireInstance(options);
   const native = yield* acquireConnection(instance);
-  return yield* makeFromNative(native, options, hasTimeZoneKey(options.databaseOptions));
+  return yield* makeFromNative(native, options, hasTimeZoneKey(options.databaseOptions), instance);
 });
 
 /**
@@ -398,7 +468,7 @@ export const fromInstance = Effect.fn("DuckDbClient.fromInstance")(function* (
 ): Effect.fn.Return<DuckDbClientValue, SqlError, Scope.Scope | Reactivity.Reactivity> {
   const { instance, ...config } = options;
   const native = yield* acquireConnection(instance);
-  return yield* makeFromNative(native, config, false);
+  return yield* makeFromNative(native, config, false, instance);
 });
 
 /**

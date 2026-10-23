@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46), with 2d-2, 2d-A and 2d-3 queued behind it; wave 3 started with 3-Y merged (#2116, the `@beep/yaml` plain-scalar continuation fix, W3-d) and 3-3 in progress (`@beep/config-file`, W3-e, with the docgen and repo-cli adopters), and the other sub-waves of `research/wave-3-plan-2026-10-23.md` queued or in their own lanes.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); 2d-2 in review, with 2d-3 queued behind it; wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-n): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, `@beep/github-reporting`, W3-b), 3-3 (`@beep/config-file`, W3-e) in review in this PR, 3-2 (#2129), 3-4 (#2126) and 3-5 in parallel lanes, 3-A1..3-A9 queued.
 
 ## Phases
 
@@ -31,13 +31,13 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 2c (merged, #2016) | glob adoption (no new package) | D-37. Needs 2b-1. Retires `@beep/utils/Glob`, `@beep/schema/Glob` and `FsUtils.walkFiles`/`globFiles` onto `@beep/glob` + `@beep/walker`, and repo-cli `Lint/internal/WorkspaceWalk.ts`; records the Bun `node:fs` glob census. Closes the "Duplicate directory traversal" ledger row and narrows "Duplicate glob matching" to repo-cli `internal/GlobPattern.ts` and the `EffectImports` tinyglobby scan (glob reuse phase). |
 | 2d-1 (merged, #2102) | `@beep/markdown` | D-38..D-45. Scaffold, rename-only move with the benchmark baseline (D-40), branded `S.Opaque` nodes admitted once per entry point (D-39), conformance lanes to zero findings with string-clean hot loops (D-41, D-42), the core-only codec-free root barrel and M3 MDX leaf (D-43), and the bridge prerequisites `MarkdownNodeKind`, `FrontmatterCodec.decodeResult`, `./conformance/*` and `MarkdownDocument.headingSource` (D-44). Lab importers (github-actions `GitHubMarkdown`, cli tests, reachability and layering maps) retargeted to `@beep/markdown` leaves; the five canon exceptions are cleared (D-45). |
 | 2d-2 (queued) | `@beep/md` `Md.syntax`/`Md.parse` | D-02 bridge; contract decided there (D-44). After 2d-1, in parallel with 2d-A. Single `Document.make` per bridge call, import-boundary and export-set test, bridge-corpus ledger, writer differential (measure only), `cache-baseline-request-w2d2` with the turbo coupling measured. |
-| 2d-A (queued) | adoption (no new package) | D-46. After 2d-1, in parallel with 2d-2: repo-cli `extractFrontmatter`, the `ChangesetGraph` fence, skill-contract `SkillProjection`, `Goals/Inventory`. Closes the "Duplicate frontmatter splitting and README heading parsing" ledger row. |
+| 2d-A (merged, #2114) | adoption (no new package) | D-46, D-47. After 2d-1, in parallel with 2d-2: repo-cli `extractFrontmatter` (file deleted), the `ChangesetGraph` fence, skill-contract `SkillProjection` (import-closure pins keep the block parser out), `Goals/Inventory` through `MarkdownDocument` and `headingSource`. Parity over the committed corpus with every intended shift pinned (D-47). Closes the "Duplicate frontmatter splitting and README heading parsing" ledger row. |
 | 2d-3 (queued, evidence-gated) | `@beep/md` `Md.render` writer fixes | `&` and `$` escaping, only if the 2d-2 ledger and writer differential show the need; its own changeset. `math` stays off by default in `Md.parse` until it lands. |
 | 2d-later | adoption, one PR each | D-46 deferred sites, tracked in `history/reuse-ledger.md`. |
-| 3-1 (queued) | `@beep/github-reporting` | W3-b. Lab adopters only (github-actions `index.ts`, `package.json`, `Exports.test.ts`, `reachability.test.ts`, the layering PROMOTED map). Fixes the GitHubMarkdown and ManagedDocument rows of "Inherited failures". From main; parallel with 3-2, 3-Y, 3-3, 3-4, 3-5. |
+| 3-1 (merged, #2122) | `@beep/github-reporting` | W3-b, W3-h, W3-i. The `github-actions` reporting suite (`CheckState`, `ManagedDocument`, `CheckDocument` on the root; `GitHubMarkdown` subpath-only) with branded `S.Opaque` records admitted once per read, managed-section leaf imports, the #1928 optionals restored, `markerLine`, the micromark GFM differential (in package and `ops/github-reporting-gfm-differential.ts`) and the growth guard. Lab retargets only: github-actions `index.ts`, `package.json`, `Exports.test.ts`, `reachability.test.ts`, both PROMOTED maps, README/KNOWLEDGE prose. |
 | 3-2 (queued) | `@beep/repo-tsconfig` + the `get-tsconfig` drop | W3-c. Adopters: repo-cli `EffectDiagnostics.ts` (2 sites), `test-tsgo-turbo-inputs.test.ts`, `TestTypecheckCoverage.ts`; the root catalog; the runbook line; plus the realpath fix. From main; serializes with 3-3 on the repo-cli manifest. |
 | 3-Y (merged, #2116) | `@beep/yaml` continuation fix | W3-d. No adopters. From main; parallel with all. Repro tests, an oracle property, yaml-test-suite at zero failures, the lockfiles suite re-run. |
-| 3-3 (in progress, this PR) | `@beep/config-file` | W3-e, W3-h (3-3). Adopters: docgen `Configuration.ts` `readJsoncFile` (docgen drops `jsonc-parser`), repo-cli `Models.manifest.service.ts` `load`; lab xdg and cli (the lab cli renderer no longer imports the package). Codec-corpus conformance suite and `ops/config-file-codec-differential.ts`; coverage 100/100/100/100. Cut after 3-Y merged; serializes with 3-2 on the repo-cli manifest. |
+| 3-3 (in review, this PR) | `@beep/config-file` | W3-e, W3-h (3-3). Adopters: docgen `Configuration.ts` `readJsoncFile` (docgen drops `jsonc-parser`), repo-cli `Models.manifest.service.ts` `load`; lab xdg and cli (the lab cli renderer no longer imports the package). Codec-corpus conformance suite and `ops/config-file-codec-differential.ts`; coverage 100/100/100/100. Cut after 3-Y merged; serializes with 3-2 on the repo-cli manifest. |
 | 3-4 (queued) | `@beep/package-json` | W3-f. Lab adopters only (sbom re-export dropped, workspaces, both PROMOTED maps). From main; 3-5 takes main first on `WorkspacePackage.ts`. |
 | 3-5 (queued) | `@beep/lockfiles` | W3-g. Lab adopters only (workspaces, both PROMOTED maps). From main; 3-4 takes main first on `WorkspacePackage.ts`. |
 | 3-A1 (queued) | lockfiles adoption + `ResolvedPackage.installName` | repo-cli `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half). After 3-5. |
@@ -68,7 +68,7 @@ GitHub and git helpers; `jsonc-parser`, `yaml`, `toml`, `picomatch` and
 Ledger changes in wave 2d: the `@effected/github` and "Duplicate directory
 traversal" Exception Ledger rows are removed (retired by #1994 and #2016);
 the "Duplicate frontmatter splitting and README heading parsing" row is added
-for the 2d-A sites; `history/reuse-ledger.md` starts with the `@beep/markdown`
+for the 2d-A sites and removed again by 2d-A (D-47); `history/reuse-ledger.md` starts with the `@beep/markdown`
 sites; and `history/canon-exceptions/README.md` records that all five
 markdown canon exceptions are resolved (D-45).
 
@@ -84,7 +84,7 @@ promotion restores the upstream optional semantics its tests assert, as
 | --- | --- | --- |
 | `github` | `CodeScanning.test.ts` explicit-undefined keys | fixed in 2b-2: `CodeScanningSetup`'s five optional keys are `S.optional` again; the Bun `blakejs` interop failure in `crypto.test.ts` went with the dependency (D-34) |
 | `engine` | `ProcessGuard.test.ts` explicit-undefined `onRejection` | deferred |
-| `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubMarkdown, GitHubToken, twirp, ManagedDocument, PackageManagerInstaller, sigv4, ToolInstaller option schemas | 5 |
+| `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubToken, twirp, PackageManagerInstaller, sigv4, ToolInstaller option schemas (GitHubMarkdown and ManagedDocument fixed in 3-1, W3-b) | 5 |
 | `cli` | CliLog/CliTest property tests, round-3 config and key-input schemas, CliMessage and Status hostile-glyph suites | 4 |
 
 ## Execution Notes

@@ -2516,6 +2516,27 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/foundation/modeling/github-reporting": {
+      "name": "@beep/github-reporting",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/managed-section": "workspace:^",
+        "@beep/markdown": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@beep/github": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "micromark": "catalog:",
+        "micromark-extension-gfm": "catalog:",
+      },
+    },
     "packages/foundation/modeling/glob": {
       "name": "@beep/glob",
       "version": "0.0.0",
@@ -2874,6 +2895,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/markdown": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
@@ -3771,6 +3793,7 @@
         "@beep/identity": "workspace:^",
         "@beep/libpff": "workspace:^",
         "@beep/m365": "workspace:^",
+        "@beep/markdown": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/obs": "workspace:^",
@@ -3828,6 +3851,7 @@
         "@beep/fc-runs": "workspace:^",
         "@beep/memfs": "workspace:^",
         "@beep/test-runner": "workspace:^",
+        "@changesets/parse": "catalog:",
         "@commitlint/is-ignored": "catalog:",
         "@effect/platform-node-shared": "catalog:",
         "@effect/vitest": "catalog:",
@@ -3972,6 +3996,7 @@
         "@beep/github": "workspace:^",
         "@beep/github-commands": "workspace:^",
         "@beep/github-references": "workspace:^",
+        "@beep/github-reporting": "workspace:^",
         "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/jsonc": "workspace:^",
@@ -4089,6 +4114,7 @@
     "@biomejs/biome": "2.5.6",
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
+    "@changesets/parse": "^1.0.0",
     "@chenglou/pretext": "1.0.0",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
@@ -4566,6 +4592,8 @@
     "@beep/github-commands": ["@beep/github-commands@workspace:packages/foundation/modeling/github-commands"],
 
     "@beep/github-references": ["@beep/github-references@workspace:packages/foundation/modeling/github-references"],
+
+    "@beep/github-reporting": ["@beep/github-reporting@workspace:packages/foundation/modeling/github-reporting"],
 
     "@beep/glob": ["@beep/glob@workspace:packages/foundation/modeling/glob"],
 

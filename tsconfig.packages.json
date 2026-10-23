@@ -334,6 +334,9 @@
       "path": "packages/foundation/modeling/github-references"
     },
     {
+      "path": "packages/foundation/modeling/github-reporting"
+    },
+    {
       "path": "packages/foundation/modeling/glob"
     },
     {
