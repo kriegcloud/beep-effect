@@ -1,3 +1,10 @@
+/**
+ * Versioned, forward-only migrations for config documents: `ConfigMigration.make` wraps a codec so
+ * `parse` reads the document version and applies every newer step in order.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ConfigFileId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

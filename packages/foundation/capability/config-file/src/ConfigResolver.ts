@@ -1,3 +1,11 @@
+/**
+ * Resolvers that find a config file: an explicit path, a fixed directory, an upward walk, the git or
+ * workspace root, and the system config root. Each reports what matched and which candidates it
+ * checked.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ConfigFileId } from "@beep/identity/packages";
 import { HostProcessPlatform } from "@beep/utils/HostProcess";
 import { Walker } from "@beep/walker/Walker";

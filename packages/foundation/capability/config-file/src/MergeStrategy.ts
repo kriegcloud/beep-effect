@@ -1,3 +1,10 @@
+/**
+ * How discovered config sources combine into one value: `firstMatch` keeps the highest-priority
+ * source, `layeredMerge` deep-merges plain records with higher priority winning.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";

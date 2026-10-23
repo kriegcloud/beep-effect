@@ -1,3 +1,10 @@
+/**
+ * The opt-in event hook for config loading: the `ConfigEventPayload` union, the timestamped
+ * `ConfigEvent`, and the `ConfigEvents` PubSub service a consumer subscribes to.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ConfigFileId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

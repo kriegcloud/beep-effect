@@ -1,3 +1,9 @@
+/**
+ * The strict JSON config codec, decoded through `effect/Schema` with no parsing engine of its own.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { ConfigCodecError } from "./ConfigCodec.ts";

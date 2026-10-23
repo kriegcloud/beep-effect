@@ -1,3 +1,10 @@
+/**
+ * The bridge from a loaded config document to Effect's `ConfigProvider`, so `Config` accessors can
+ * read the file beneath the ambient provider.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ConfigFileId } from "@beep/identity/packages";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Context from "effect/Context";

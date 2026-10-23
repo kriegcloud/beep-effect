@@ -1,3 +1,9 @@
+/**
+ * The YAML config codec, built on `@beep/yaml`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Yaml } from "@beep/yaml";
 import * as Effect from "effect/Effect";
 import { ConfigCodecError } from "./ConfigCodec.ts";

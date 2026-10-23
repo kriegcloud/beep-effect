@@ -1,3 +1,9 @@
+/**
+ * The TOML config codec, built on `@beep/toml`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Toml } from "@beep/toml";
 import * as Effect from "effect/Effect";
 import { ConfigCodecError } from "./ConfigCodec.ts";

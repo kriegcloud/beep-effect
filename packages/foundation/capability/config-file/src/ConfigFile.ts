@@ -1,3 +1,11 @@
+/**
+ * The config file service: `ConfigFile.Service` and `ConfigFile.layer` discover, parse, validate,
+ * merge and persist one schema-typed document, `ConfigFile.read` reads one known path, and
+ * `ConfigFile.testLayer` seeds files for tests.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ConfigFileId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";

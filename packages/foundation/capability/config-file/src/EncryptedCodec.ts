@@ -1,3 +1,15 @@
+/**
+ * AES-GCM encryption around any config codec, keyed by a `CryptoKey` effect or a PBKDF2-derived
+ * passphrase key.
+ *
+ * **Details**
+ *
+ * `effect/Crypto` has no PBKDF2 or AES-GCM, so the codec uses WebCrypto (`globalThis.crypto.subtle`)
+ * as an internal algorithm primitive; it is neither wrapped nor re-exported.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ConfigFileId } from "@beep/identity/packages";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

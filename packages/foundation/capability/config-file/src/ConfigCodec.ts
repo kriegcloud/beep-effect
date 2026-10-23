@@ -1,3 +1,10 @@
+/**
+ * The codec contract every config format implements: `parse` text into a document and `stringify` a
+ * document back, failing with a typed `ConfigCodecError` that names the codec and the operation.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ConfigFileId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import type * as Effect from "effect/Effect";

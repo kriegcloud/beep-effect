@@ -1,3 +1,9 @@
+/**
+ * The JSONC config codec (JSON with comments and trailing commas), built on `@beep/jsonc`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Jsonc } from "@beep/jsonc";
 import * as Effect from "effect/Effect";
 import { ConfigCodecError } from "./ConfigCodec.ts";
