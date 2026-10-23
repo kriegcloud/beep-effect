@@ -118,8 +118,8 @@ The client value carries these on top of `SqlClient`:
 | `attach(path, alias, { readOnly })` | `ATTACH 'path' AS "alias" [(READ_ONLY)]` | runs on the transaction connection; DuckDB rolls the attach back with the transaction |
 | `detach(alias)` | `DETACH "alias"` | runs on the transaction connection |
 
-There is no `backup` extra and no Appender. See the follow-ups in
-`AGENTS.md`.
+There is no `backup` extra and no Appender yet: `exportDatabase` is #2082 and
+Appender bulk loads are #2081 (backlog: #2088).
 
 ## DuckDbMigrator
 
@@ -162,12 +162,13 @@ const migrate = DuckDbMigrator.run({ loader }).pipe(
 
 At effect 4.0.5 a failing migration is a defect (`MigrationError` through
 `Effect.die`), and every migration of that run is rolled back, earlier ones
-included. `dumpSchema` is not implemented.
+included. `dumpSchema` is not implemented (#2085), so `schemaDirectory`
+writes nothing.
 
 ## The legacy `DuckDb` service
 
-`DuckDb` (with `DuckDb.makeNodeLayer`, `DuckDb.makeNodeClient`,
-`DuckDb.makeLayer` and the `DuckDbAdapter` contract) keeps its old API: rows
+`DuckDb` (with `DuckDb.makeNodeLayer`, `DuckDb.makeLayer` and the
+`DuckDbAdapter` contract) keeps its old API: rows
 come back as JSON values decoded by `DuckDbRows` (so `count(*)` is the string
 `"0"`), and parameters are positional arrays or named `$param` records passed
 straight to DuckDB. Failures are `DuckDbError`, whose `cause` is now the
@@ -185,8 +186,8 @@ transaction whose interruption the body swallowed (`Effect.timeoutOption`,
 its connection only after a statement still running at teardown settles. A file opened read-write by `DuckDb` and by
 `DuckDbClient` in one process shares one native database.
 
-`DuckDb.makeNodeClient` is unscoped and never closes its connection. Prefer
-`makeNodeLayer`, or move to `DuckDbClient`.
+The unscoped `DuckDb.makeNodeClient` is gone (#2087). Use `makeNodeLayer`, or
+move to `DuckDbClient`.
 
 ## Semantics you should know
 
@@ -273,7 +274,8 @@ query the caller runs on that connection outside the client.
   `reserve`d connection. Collect the stream first, or do the per-row work
   inside `withTransaction`. The driver holds the connection on purpose: a
   statement interleaved with a native stream silently truncates it at 2048
-  rows.
+  rows. Opt-in reader connections for streams, which remove the first
+  pattern, are designed in #2083.
 
 ### Prepared statements
 
@@ -396,10 +398,10 @@ DDL for it.
 | --- | --- |
 | Migrator, SqlSchema (findAll, findOne, findOneOption), SqlResolver, SqlModel insert/findById, KeyValueStore.layerSql, SqlEventLogServerUnencrypted (except a caught nested rollback) | supported, tested |
 | SqlModel update with a `GeneratedByDb` id | broken on every driver at 4.0.5 (a Model bug, not DuckDB) |
-| SqlEventJournal | unsupported (INT32 `timestamp` overflow) |
-| Persistence (both layers), PersistedQueue, cluster SqlMessageStorage/SqlRunnerStorage, SqlEventLogServerEncrypted | unsupported (`AUTOINCREMENT`, `datetime()`, partial index, INT32 columns) |
+| SqlEventJournal | unsupported (INT32 `timestamp` overflow); DuckDB-native layer designed in #2084 |
+| Persistence (both layers), PersistedQueue, cluster SqlMessageStorage/SqlRunnerStorage, SqlEventLogServerEncrypted | unsupported (`AUTOINCREMENT`, `datetime()`, partial index, INT32 columns); DuckDB-native layers designed in #2084, built when a consumer needs one |
 | Nested transaction rollback that the outer body catches | refuses the outer commit (no savepoints in DuckDB 1.5.6) |
-| `backup` | not provided (COPY FROM DATABASE fails on foreign-key order) |
+| `backup` | not provided (COPY FROM DATABASE fails on foreign-key order); `exportDatabase` is #2082 |
 | Concurrent Migrator runs on one file (two clients) | not lock-coordinated (probed, not covered by a test): the loser fails with `SerializationError` or dies, never with `MigrationError` kind `Locked` |
 | READ_ONLY client beside a read-write client of the same file in one process, in either open order | the later open is refused with `ConnectionError`; share the read-write client instead |
 
