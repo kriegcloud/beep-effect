@@ -14,7 +14,7 @@ The package owns the technical boundary to DuckDB: connections, statement
 compilation, value conversion and error classification. Domain packages own
 their schemas, retention rules and projections.
 
-Versions: effect 4.0.5, `@duckdb/node-api` 2.0.0-r.1 (engine 2.0.0).
+Versions: effect 4.0.6, `@duckdb/node-api` 2.0.0-r.1 (engine 2.0.0).
 
 ## DuckDbClient quick start
 

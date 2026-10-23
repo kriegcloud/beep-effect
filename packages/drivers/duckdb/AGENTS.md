@@ -145,15 +145,16 @@ and describes code that does not exist until that issue closes.
 
 ## Upgrade notes (effect > 4.0.5)
 
-1. Add `driver: "duckdb"` to the `SqlClient.make` options in `makeFromNative`
-   (`src/DuckDbClient.service.ts`); HEAD requires it.
+1. Done at 4.0.6: `makeFromNative` (`src/DuckDbClient.service.ts`) passes
+   `driver: "duckdb"` to `SqlClient.make`, which 4.0.6 requires.
 2. Pass `isTransaction: (conn) => isDuckDbConnection(conn) && conn.isTransaction()`
    to `MakeOptions.isTransaction` (HEAD `packages/effect/src/sql/SqlClient.ts`),
    relying on the phase tracking (a commit-time conflict already sets `Idle`).
    `makeSqliteAcquirers` already accepts `isTransaction` at 4.0.5 and stays
    without it (D34) unless the HEAD contract requires both to agree.
-3. Update the Migrator tests: failed migrations become typed `MigrationError`
-   failures instead of defects (HEAD `88bc68001c`).
+3. Done at 4.0.6: failed migrations are typed `MigrationError` failures
+   instead of defects (HEAD `88bc68001c`); `test/DuckDbMigrator.test.ts` reads
+   `Exit.findError`.
 4. Savepoint emulation is unaffected by HEAD's `makeWithTransaction` signature
    change because the driver never calls it.
 5. Re-run the consumer support matrix in `README.md`: the eventlog,
