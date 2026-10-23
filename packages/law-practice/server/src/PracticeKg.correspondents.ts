@@ -7,7 +7,7 @@
  * @since 0.0.0
  */
 
-import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import { DuckDb } from "@beep/duckdb";
 import { $LawPracticeServerId } from "@beep/identity/packages";
 import { PracticeKgEpistemicStatus } from "@beep/law-practice-domain/values";
 import {
@@ -41,7 +41,6 @@ import { PracticeKgProjectionError } from "./PracticeKg.errors.ts";
 import { PracticeKgDocumentAttribution } from "./PracticeKg.families.ts";
 import { GraphTextSourceSpec } from "./PracticeKg.fts.ts";
 import { PracticeKgBundle } from "./PracticeKg.host.ts";
-import { withDuckDb } from "./PracticeKg.rows.ts";
 import type { PracticeKgCorrespondentLookupRequest } from "@beep/law-practice-use-cases/server";
 
 const $I = $LawPracticeServerId.create("PracticeKg.correspondents");
@@ -664,7 +663,7 @@ const readMessage = Effect.fn("PracticeKg.readEmailMessage")(function* (source: 
  *
  * @param input - Bundle DuckDB and extraction sources.
  * @returns Email headers, one message per email document with readable metadata.
- * @effects Opens the bundle DuckDB read-only and reads metadata files.
+ * @effects Reads through the injected read-write DuckDb service and reads metadata files.
  * @category use-cases
  * @since 0.0.0
  */
@@ -673,7 +672,7 @@ export const readPracticeKgEmailMessages = Effect.fn("PracticeKg.readEmailMessag
 ): Effect.fn.Return<
   ReadonlyArray<PracticeKgEmailMessage>,
   PracticeKgProjectionError,
-  FileSystem.FileSystem | Path.Path
+  DuckDb | FileSystem.FileSystem | Path.Path
 > {
   const path = yield* Path.Path;
   if (!A.isReadonlyArrayNonEmpty(input.sourceSpecs)) {
@@ -686,12 +685,7 @@ export const readPracticeKgEmailMessages = Effect.fn("PracticeKg.readEmailMessag
   const emailSources = yield* Effect.gen(function* () {
     const db = yield* DuckDb;
     return yield* db.query(emailSourcesSql(sources)).pipe(Effect.flatMap(decodeEmailSourceRows));
-  }).pipe(
-    withDuckDb(
-      DuckDbConnectionOptions.make({ databaseOptions: { access_mode: "READ_ONLY" }, databasePath: input.databasePath })
-    ),
-    PracticeKgProjectionError.mapError(`Failed listing email documents in "${input.databasePath}".`)
-  );
+  }).pipe(PracticeKgProjectionError.mapError(`Failed listing email documents in "${input.databasePath}".`));
   const read = yield* Effect.forEach(emailSources, readMessage);
   const missing = A.length(read) - A.length(A.getSomes(read));
   if (missing > 0) {
@@ -986,7 +980,7 @@ const insertAddress = "INSERT INTO contact_addresses VALUES ($1, $2, $3, $4, $5,
  *
  * @param databasePath - Bundle DuckDB written earlier in the same build.
  * @returns A function from the tables to the write effect.
- * @effects Creates and fills three tables in the bundle DuckDB.
+ * @effects Uses the injected read-write DuckDb service to create and fill three tables in the bundle DuckDB.
  * @category use-cases
  * @since 0.0.0
  */
@@ -1033,10 +1027,7 @@ export const writePracticeKgCorrespondentTables = (databasePath: string) =>
           ]),
         { discard: true }
       );
-    }).pipe(
-      withDuckDb(DuckDbConnectionOptions.make({ databasePath })),
-      PracticeKgProjectionError.mapError(`Failed writing correspondent tables to "${databasePath}".`)
-    );
+    }).pipe(PracticeKgProjectionError.mapError(`Failed writing correspondent tables to "${databasePath}".`));
   });
 
 const contactsSql = `

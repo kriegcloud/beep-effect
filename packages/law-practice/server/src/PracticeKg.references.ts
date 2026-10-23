@@ -6,14 +6,14 @@
  * @since 0.0.0
  */
 
-import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
+import { DuckDb } from "@beep/duckdb";
 import { $LawPracticeServerId } from "@beep/identity/packages";
 import { practiceKgDocketCountryCodes } from "@beep/law-practice-use-cases/server";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { PracticeKgProjectionError } from "./PracticeKg.errors.ts";
-import { PracticeKgDocketReferenceRow, PracticeKgNumberMentionRow, withDuckDb } from "./PracticeKg.rows.ts";
+import { PracticeKgDocketReferenceRow, PracticeKgNumberMentionRow } from "./PracticeKg.rows.ts";
 
 const $I = $LawPracticeServerId.create("PracticeKg.references");
 
@@ -130,7 +130,7 @@ export class PracticeKgReferenceScans extends S.Opaque<PracticeKgReferenceScans,
  *
  * @param databasePath - Bundle DuckDB written earlier in the same build.
  * @returns Ordered docket-reference and number-mention rows.
- * @effects Opens the bundle DuckDB read-only for the duration of the scan.
+ * @effects Reads through the injected read-write DuckDb service.
  * @category use-cases
  * @since 0.0.0
  */
@@ -150,8 +150,5 @@ export const readReferenceScans = Effect.fn("PracticeKg.readReferenceScans")(fun
         PracticeKgProjectionError.mapError("Graph number-mention rows failed schema validation.")
       );
     return PracticeKgReferenceScans.make({ docketReferences, numberMentions });
-  }).pipe(
-    withDuckDb(DuckDbConnectionOptions.make({ databaseOptions: { access_mode: "READ_ONLY" }, databasePath })),
-    PracticeKgProjectionError.mapError(`Failed scanning graph references in "${databasePath}".`)
-  );
+  }).pipe(PracticeKgProjectionError.mapError(`Failed scanning graph references in "${databasePath}".`));
 });

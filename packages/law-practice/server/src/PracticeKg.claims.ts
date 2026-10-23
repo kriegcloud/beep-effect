@@ -301,16 +301,18 @@ const resolveSourceDocumentDigest = Effect.fn("PracticeKgClaims.resolveSourceDoc
   bundleDuckDbPath: string,
   filename: string
 ) {
-  return yield* Effect.gen(function* () {
+  const existing = yield* Effect.serviceOption(DuckDb);
+  const lookup = Effect.gen(function* () {
     const db = yield* DuckDb;
     const rows = yield* db
       .query(sourceDocumentDigestsSql, [sourceDocumentStem(filename)])
       .pipe(Effect.flatMap(decodeSourceDocumentDigestRows));
     return A.length(rows) === 1 ? A.head(rows).pipe(O.map((row) => row.digest)) : O.none<string>();
+  });
+  return yield* O.match(existing, {
+    onNone: () => lookup.pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath: bundleDuckDbPath }))),
+    onSome: (db) => lookup.pipe(Effect.provideService(DuckDb, db)),
   }).pipe(
-    withDuckDb(
-      DuckDbConnectionOptions.make({ databaseOptions: { access_mode: "READ_ONLY" }, databasePath: bundleDuckDbPath })
-    ),
     Effect.flatMap((digest) =>
       O.match(digest, {
         onNone: () => Effect.succeed(O.none<ContentDigest>()),

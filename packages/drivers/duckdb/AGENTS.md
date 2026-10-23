@@ -65,7 +65,7 @@ and describes code that does not exist until that issue closes.
 | D32 | Blank SQL returns the empty result without a native call | `run("")` is a native no-op while `prepare("")` and `extractStatements("")` fail | fail |
 | D33 | B1 (rename plus legacy instance policy) between A1 and A2; B2 (re-base) after A2 | barrel name collision; the legacy test fakes constrain the re-base; the instance policy must not be droppable | — |
 | D34 | `makeSqliteAcquirers` without `isTransaction` (the option exists at 4.0.5) | its only use is the cleanup ROLLBACK after a failed commit or poisoning; an unconditional ROLLBACK plus the raw-cause `no transaction is active` check cannot drift from DuckDB's real state | pass `(conn) => conn.isTransaction()` |
-| D35 | Client READ_ONLY opens go through `fromCache` (refused beside an in-process RW open); legacy READ_ONLY keeps `create()`; legacy RW moved to `fromCache` in B1 | a private RO instance beside RW reads corrupt blocks after a checkpoint and drops the process file lock on close; law-practice depends on legacy RO beside RW (known hazard, #2086) | RO through `create()` |
+| D35 | Client and legacy file opens, READ_ONLY included, go through `fromCache` (#2086); `:memory:` stays private | a private RO instance beside RW reads wrong blocks after a checkpoint and drops the process file lock on close; law-practice projection steps share one RW connection and claims lookups reuse the contextual RW service | restore private RO instances only after proving block and lock safety |
 | D36 | Result-name transform = local null-safe `makeRowTransform`, not `Statement.defaultTransforms(...).array` | upstream throws on LIST values with a leading `NULL` and on `null` elements in arrays of objects | upstream helper once fixed |
 | D37 | `clearBindings()` before every bind of a cached statement | stale bindings survive a short or empty bind | — (correctness) |
 | D38 | `USE` and `SET`/`RESET schema\|search_path` invalidate the connection's prepared cache | defensive on DuckDB 1.5.6: a statement with binds is re-bound per execution against the current catalog and schema, result-shape changes included (probed); only parameterless prepared statements keep their first binding, and D44 keeps those out of the cache. The clear keeps that true if a DuckDB release stops re-binding; test in `test/DuckDbClient.test.ts` | drop the invalidation |
@@ -88,7 +88,7 @@ and describes code that does not exist until that issue closes.
 | D55 | Raw `COMMIT`/`END` text run inside a transaction goes through the same commit decision as `withTransaction`'s commit; on a refusal the driver runs `ROLLBACK` and fails with the refused-commit `UnknownError` (`guardedCommit` in `src/internal/connection.ts`); D59 states which raw texts count as control | a raw `BEGIN` / swallowed constraint error / raw `COMMIT` reported success and wrote nothing although the tracker had recorded the failure (review round 2); the raw caller has no `onCommitFailure`, so the driver cleans up | send raw COMMIT straight to DuckDB and document the gap |
 | D56 | Legacy `DuckDbError.message` carries the native DuckDB diagnostic of a classified statement failure when no explicit message is given | the cause moved to a `SqlError` in B2, which put the native text two levels down | keep the generic default message |
 | D57 | A list whose number items bind as different types takes the widest, INTEGER < BIGINT < DOUBLE, recursively through nested lists (`[1, 2.5]` is `DOUBLE[]`, `[1, 3e9]` is `BIGINT[]`) in `bindTypes` (R2-05) | upstream `typeForValue` types a list from its first item, so `[1, 2.5]` bound as `INTEGER[]` and failed with "number is not an integer"; every JS number is a double, so widening loses nothing the caller had | keep failing and point at a typed `listValue` |
-| D58 | A read-write open of a file that a `readOnly` client holds in the same process is refused, not queued or downgraded: `DuckDbClient` fails with `ConnectionError`, the legacy service fails its first statement with `DuckDbError` (R2-CI-1, test in `test/DuckDb.service.test.ts`) | both opens go through `fromCache`, which refuses a second open of a cached file with a different configuration; letting RW through would need a private instance and bring back the D35 hazard | close the read-only client first, or open read-write only |
+| D58 | Mixed READ_ONLY/read-write opens of one file in one process are refused in either order: `DuckDbClient` fails with `ConnectionError`, the legacy service fails its first statement with `DuckDbError` (tests in `test/DuckDb.service.test.ts`) | both surfaces use `fromCache`, which refuses conflicting configurations; standalone READ_ONLY opens share the cache and remain supported | close every reader first, or share the read-write connection |
 | D59 | Raw transaction control is tracked only as the single statement of a text, after stripping line and nested block comments (`classifyControl` / `splitStatements` in `src/internal/transaction.ts`); multi-statement text containing `BEGIN`/`COMMIT`/`ROLLBACK`/a savepoint is refused with an `UnknownError` before it reaches DuckDB, on every execute path including streams (PR-T1, #1963) | `/* tx */ BEGIN` or `COMMIT; SELECT 1` classified as a plain statement, so a swallowed constraint error followed by raw COMMIT skipped the D55 guard and DuckDB discarded the writes; a probe showed a multi-statement failure leaves an undecidable state (a parser error runs nothing, a binder error after `BEGIN` leaves a healthy transaction, a constraint error leaves an aborted one, a failure after `COMMIT` leaves none) | classify by the first or last control statement and fold the phase, guessing the state after a part-way failure |
 | D60 | Reader connections (designed, #2083): one writer connection plus `readerConnections` read-only connections (`NonNegativeInt`, default `0` = today's behaviour). The readers are `SqlClient.make`'s `acquirer`; `borrower` and `transactionAcquirer` stay on the writer, so only `executeStream` outside a transaction reaches a reader | at effect 4.0.5 (unchanged at HEAD) `stream` alone uses `acquirer`; a statement on the streaming connection ends the stream after 2048 rows, while a second connection streams a full snapshot beside writes (probed); a symmetric `maxConnections` pool would make writes conflict optimistically (`Conflict on update!`) and scatter temp tables, `USE`, `search_path` and the tracked transaction phase across connections; always materializing costs unbounded memory | symmetric pool under `maxConnections`, or keep D9 |
 | D61 | Each reader lease runs inside `BEGIN TRANSACTION READ ONLY` … `ROLLBACK` (designed, #2083) | a write streamed through a reader (`INSERT … RETURNING`) would bypass the writer's serialization and the D3/D55 commit guard; DuckDB 1.5.6 refuses writes in a read-only transaction with a message `classify.ts` already maps to `AuthorizationError` (probed) | trust callers and document |
@@ -99,17 +99,12 @@ and describes code that does not exist until that issue closes.
 
 ## Known hazards
 
-- **Legacy READ_ONLY beside a read-write open of the same file.** The legacy
-  service still opens READ_ONLY files with `DuckDBInstance.create()` (D35)
-  because law-practice opens `practice.duckdb` READ_ONLY beside its RW
-  `PracticeKgHost` in one process (`PracticeKg.references.ts`,
-  `PracticeKg.claims.ts`, `PracticeKg.correspondents.ts`). Such a private RO
-  instance can read corrupt or wrong blocks after the RW instance checkpoints,
-  and closing it releases the process's file lock while the RW instance is
-  still open, so another process can then open the file read-write. The new
-  client never does this: its READ_ONLY opens are refused beside RW. The fix
-  (route those reads through the RW connection, then cache legacy READ_ONLY
-  opens) is #2086.
+- **Legacy READ_ONLY beside a read-write open of the same file is refused.**
+  Both surfaces use `DuckDBInstance.fromCache` (D35, D58). The legacy service
+  fails its first statement with `DuckDbError`; it never creates a private RO
+  instance that could read reused blocks or release a writer's file lock.
+  In-process readers must share the read-write service. Law-practice does this
+  for projection scans, email headers and contextual claims lookups (#2086).
 - **A `readOnly` client opened first blocks read-write opens of the file.**
   While it is open, a read-write `DuckDbClient` of the same file in the same
   process fails with `ConnectionError` and the legacy service fails its first
@@ -178,5 +173,3 @@ and its acceptance criteria:
 - #2084 DuckDB-native storages for the unsupported consumers, demand-gated
   (D11, D63–D65).
 - #2085 `DuckDbMigrator` `dumpSchema` from the DuckDB catalog.
-- #2086 Route law-practice READ_ONLY lookups through the read-write
-  connection, then move legacy READ_ONLY opens onto `fromCache` (D35).

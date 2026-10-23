@@ -952,41 +952,44 @@ export const buildPracticeKgBundleImpl = Effect.fn("PracticeKg.build")(function*
     ? A.empty<PracticeKgEmailHeaderRow>()
     : yield* readEmailRows(path.join(options.corpusRoot, "staging", "extract", "children"));
   const duckDbPath = path.join(bundleOut, "practice.duckdb");
-  const duckCounts = yield* buildDuckDb(
-    duckDbPath,
-    catalogRows,
-    enrichmentRows,
-    emailRows,
-    sourceSpecs,
-    options.maxTextBytes
-  );
-  const scans = yield* readReferenceScans(duckDbPath);
-  const graph = projectGraph(catalogRows, enrichmentRows, scans, registerRows);
-  const matterTables = buildMatterTables(
-    PracticeKgMatterGraph.make({ edges: graph.edges, nodes: graph.nodes, registerRows })
-  );
-  yield* writeMatterTables(duckDbPath)(matterTables);
-  const messages = yield* readPracticeKgEmailMessages(
-    PracticeKgEmailMessagesInput.make({ databasePath: duckDbPath, sourceSpecs })
-  );
-  // Archive mail joins by the docket references in its subjects (D-26),
-  // resolved against the matter tables just written.
-  const mailIndex = yield* readPracticeKgMailIndex(
-    PracticeKgMailIndexInput.make({ paths: options.mailIndexPaths, tables: matterTables })
-  );
-  yield* Effect.logInfo(
-    `practice-kg build: mail index rows=${mailIndex.counts.rows} distinct=${mailIndex.counts.distinctMessages} attributed=${mailIndex.counts.attributedMessages} ambiguous=${mailIndex.counts.ambiguousMessages} unreferenced=${mailIndex.counts.unreferencedMessages} withoutAddress=${mailIndex.counts.attributedWithoutAddress} exchangeDropped=${mailIndex.counts.exchangeAddressesDropped}`
-  );
-  yield* writePracticeKgCorrespondentTables(duckDbPath)(
-    buildPracticeKgCorrespondentTables(
-      PracticeKgCorrespondentTablesInput.make({
-        attributions: A.appendAll(graph.attributions, mailIndex.attributions),
-        contacts,
-        messages: A.appendAll(messages, mailIndex.messages),
-        practiceDomains: options.practiceDomains,
-      })
-    )
-  );
+  const { duckCounts, graph } = yield* Effect.gen(function* () {
+    const duckCounts = yield* buildDuckDb(
+      duckDbPath,
+      catalogRows,
+      enrichmentRows,
+      emailRows,
+      sourceSpecs,
+      options.maxTextBytes
+    );
+    const scans = yield* readReferenceScans(duckDbPath);
+    const graph = projectGraph(catalogRows, enrichmentRows, scans, registerRows);
+    const matterTables = buildMatterTables(
+      PracticeKgMatterGraph.make({ edges: graph.edges, nodes: graph.nodes, registerRows })
+    );
+    yield* writeMatterTables(duckDbPath)(matterTables);
+    const messages = yield* readPracticeKgEmailMessages(
+      PracticeKgEmailMessagesInput.make({ databasePath: duckDbPath, sourceSpecs })
+    );
+    // Archive mail joins by the docket references in its subjects (D-26),
+    // resolved against the matter tables just written.
+    const mailIndex = yield* readPracticeKgMailIndex(
+      PracticeKgMailIndexInput.make({ paths: options.mailIndexPaths, tables: matterTables })
+    );
+    yield* Effect.logInfo(
+      `practice-kg build: mail index rows=${mailIndex.counts.rows} distinct=${mailIndex.counts.distinctMessages} attributed=${mailIndex.counts.attributedMessages} ambiguous=${mailIndex.counts.ambiguousMessages} unreferenced=${mailIndex.counts.unreferencedMessages} withoutAddress=${mailIndex.counts.attributedWithoutAddress} exchangeDropped=${mailIndex.counts.exchangeAddressesDropped}`
+    );
+    yield* writePracticeKgCorrespondentTables(duckDbPath)(
+      buildPracticeKgCorrespondentTables(
+        PracticeKgCorrespondentTablesInput.make({
+          attributions: A.appendAll(graph.attributions, mailIndex.attributions),
+          contacts,
+          messages: A.appendAll(messages, mailIndex.messages),
+          practiceDomains: options.practiceDomains,
+        })
+      )
+    );
+    return { duckCounts, graph };
+  }).pipe(withDuckDb(DuckDbConnectionOptions.make({ databasePath: duckDbPath })));
   const builtAt = DateTime.formatIso(yield* DateTime.now);
   const counts = PracticeKgCounts.make({
     documents: S.Natural.make(duckCounts.documents),
