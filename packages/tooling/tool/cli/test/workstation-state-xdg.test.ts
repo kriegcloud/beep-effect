@@ -20,11 +20,14 @@ const resolved: ReadonlyArray<Row> = [
   ["a whitespace override", { BEEP_TEST_STATE_ROOT: "  ", HOME: "/h" }, "/h/.local/state/beep/sessions"],
 ];
 
-/** Rows where the resolution before @beep/xdg differs from the XDG spec. */
+/**
+ * Inverted rows: before @beep/xdg a relative XDG_STATE_HOME or HOME became a
+ * relative state root and HOME was joined unnormalized. The spec ignores a
+ * relative value, so the HOME default applies, or nothing resolves at all.
+ */
 const divergent: ReadonlyArray<Row> = [
-  ["a relative XDG_STATE_HOME", { XDG_STATE_HOME: "relative", HOME: "/h" }, "relative/beep/sessions"],
-  ["a relative HOME", { HOME: "relative" }, "relative/.local/state/beep/sessions"],
-  ["a HOME with a trailing slash", { HOME: "/h/" }, "/h//.local/state/beep/sessions"],
+  ["a relative XDG_STATE_HOME", { XDG_STATE_HOME: "relative", HOME: "/h" }, "/h/.local/state/beep/sessions"],
+  ["a HOME with a trailing slash", { HOME: "/h/" }, "/h/.local/state/beep/sessions"],
 ];
 
 describe("resolveWorkstationStateDir env matrix", () => {
@@ -39,6 +42,8 @@ describe("resolveWorkstationStateDir env matrix", () => {
   const unresolved: ReadonlyArray<readonly [string, Readonly<Record<string, string>>]> = [
     ["nothing set", {}],
     ["an empty HOME", { HOME: "" }],
+    // Inverted: a relative HOME used to resolve to relative/.local/state/beep/sessions.
+    ["a relative HOME", { HOME: "relative" }],
   ];
   for (const [name, env] of unresolved) {
     it.effect(`fails with a ConfigError for ${name}`, () =>

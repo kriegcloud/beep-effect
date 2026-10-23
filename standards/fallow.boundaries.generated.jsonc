@@ -2993,7 +2993,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/xdg"
         ],
         "allowTypeOnly": [
           "@beep/data",
@@ -3004,7 +3005,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/xdg"
         ]
       },
       {
@@ -4281,7 +4283,8 @@
           "@beep/tika",
           "@beep/uspto",
           "@beep/utils",
-          "@beep/walker"
+          "@beep/walker",
+          "@beep/xdg"
         ],
         "allowTypeOnly": [
           "@beep/ai-provider-cli",
@@ -4329,7 +4332,8 @@
           "@beep/tika",
           "@beep/uspto",
           "@beep/utils",
-          "@beep/walker"
+          "@beep/walker",
+          "@beep/xdg"
         ]
       },
       {

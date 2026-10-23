@@ -229,6 +229,7 @@
     "@beep/uspto": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/walker": "workspace:^",
+    "@beep/xdg": "workspace:^",
     "@effect/doctest": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
