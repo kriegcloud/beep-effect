@@ -81,7 +81,7 @@ const classifyPathFamily = Match.type<string>().pipe(
 
 const matchesSupportedPathFamily = (value: string): boolean =>
   isSupportedWindowsNamespace(value) &&
-  SupportedPathFamilyKit.$match(classifyPathFamily(value), {
+  SupportedPathFamilyKit.match(classifyPathFamily(value), {
     posixAbsolute: thunkTrue,
     posixRelative: thunkTrue,
     windowsDrive: () => isWindowsDrivePath(value),

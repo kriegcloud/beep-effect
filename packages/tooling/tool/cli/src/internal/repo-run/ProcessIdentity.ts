@@ -250,7 +250,7 @@ const probeRecordedProcessIdentity = (
   recordedIdentity: string
 ): Effect.Effect<O.Option<string>, never, FileSystem.FileSystem> => {
   const source = processIdentitySource(normalizeRecordedProcessIdentity(recordedIdentity));
-  return ProcessIdentitySource.$match(source, {
+  return ProcessIdentitySource.match(source, {
     proc: () => procProcessStartIdentity(pid),
     ps: () => processStartIdentityFromSystemCommand(pid, "ps"),
     win: () => processStartIdentityFromSystemCommand(pid, "win"),

@@ -730,7 +730,7 @@ const runPilot = Effect.fn("CachePilot.run")(
       yield* Effect.forEach(
         CacheRuntimeExecutable.literals,
         Effect.fn("CachePilot.verifySandboxLibrary")(function* (role) {
-          const executable = CacheRuntimeExecutable.$match({
+          const executable = CacheRuntimeExecutable.match({
             bun: () => "/tools/bun",
             node: () => "/tools/node",
             turbo: () => "/tools/turbo",
@@ -1256,7 +1256,7 @@ const runPilot = Effect.fn("CachePilot.run")(
         }
       });
       const changeRootMetadata = Effect.fn("CachePilot.changeRootMetadata")(function* () {
-        changedPath = mutationIds.$match({
+        changedPath = mutationIds.match({
           "root-lint-config": () => "biome.jsonc",
           lockfile: () => "bun.lock",
           "package-manager": () => "package.json",
@@ -1525,7 +1525,7 @@ const runPilot = Effect.fn("CachePilot.run")(
         CacheSignedPilotCaptureControl.fields.case.literals,
         Effect.fn("CachePilot.captureControl")(function* (control) {
           const marker = Hex.encode(yield* crypto.randomBytes(32));
-          const probe = CacheSignedPilotCaptureControl.fields.case.$match({
+          const probe = CacheSignedPilotCaptureControl.fields.case.match({
             "credential-output": () => `process.stdout.write("${marker}\\n");`,
             "terminal-control": () => 'process.stdout.write("probe\\rhidden\\n");',
             "oversized-log": () => 'process.stdout.write("x".repeat(65537) + "\\n");',

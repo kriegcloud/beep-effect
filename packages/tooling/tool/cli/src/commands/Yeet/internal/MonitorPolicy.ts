@@ -365,7 +365,7 @@ export const yeetMonitorLoopTerminals: {
   2,
   (policy: YeetMonitorLoopPolicy, attachment: YeetMonitorAttachment): HashSet.HashSet<YeetMonitorTerminalState> => {
     const terminals = yeetMonitorPolicyTerminals(policy);
-    return YeetMonitorAttachment.$match(attachment, {
+    return YeetMonitorAttachment.match(attachment, {
       attached: () =>
         yeetMonitorPolicyConverges(policy) ? HashSet.add(terminals, YeetMonitorTerminalState.Enum.wave) : terminals,
       detached: () => terminals,

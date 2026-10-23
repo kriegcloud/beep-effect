@@ -232,7 +232,7 @@ const dateForms = (date: LocalDate): ReadonlyArray<string> => [
 
 const amountForms = (amount: number): ReadonlyArray<string> => [`${amount}`, ...amountWords(amount)];
 
-const unitWord: (unit: DocketResponsePeriodUnit) => string = DocketResponsePeriodUnit.$match({
+const unitWord: (unit: DocketResponsePeriodUnit) => string = DocketResponsePeriodUnit.match({
   days: () => "days?",
   months: () => "months?",
 });
@@ -543,7 +543,7 @@ export class ReviewRoundDraft extends S.Opaque<ReviewRoundDraft, { readonly bran
 // The values of an entry that the text quoted for one field must contain. A field that holds no
 // date or period (the classification, say) has nothing to find in it.
 const quotedValues = (claims: Claims): ((field: ReviewField) => Claims) =>
-  ReviewField.$match({
+  ReviewField.match({
     classification: () => NO_CLAIMS,
     "due-date": () => claims,
     "mail-date": (): Claims => ({ ...NO_CLAIMS, mailDate: claims.mailDate }),
@@ -760,7 +760,7 @@ const CRITIC_CHECK_REASON: DisputeReason = {
 };
 
 // A failed check is put to the extractor as a dispute of the field it can correct.
-const extractorCheckReason: (check: DeterministicCheckName) => DisputeReason = DeterministicCheckName.$match({
+const extractorCheckReason: (check: DeterministicCheckName) => DisputeReason = DeterministicCheckName.match({
   "cited-span-exists": (): DisputeReason => ({
     field: "source-document",
     text: "The text you cited was not found in the message.",

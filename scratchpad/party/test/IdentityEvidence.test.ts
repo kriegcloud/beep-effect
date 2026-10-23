@@ -1,4 +1,3 @@
-// @effect-diagnostics schemaSync:skip-file
 /**
  * Pairing claims, drift, collision resolution, and contact-card adapters.
  */
@@ -109,6 +108,7 @@ describe("contact cards", () => {
   });
 
   it("asserts role mailboxes as `represents` and client links as context roles", () => {
+    // @effect-diagnostics-next-line schemaSync:off -- plain Vitest cases decode encoded test records synchronously. Owner: @beep/scratchpad. Exit: the party-slice port moves these cases to it.effect.
     const contact = S.decodeSync(Contact)({
       contactId: "a".repeat(64),
       displayName: "Riley Ng",

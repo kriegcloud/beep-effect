@@ -436,7 +436,7 @@ const otlpDeliveryRetrySchedule = Schedule.exponential("1 second").pipe(Schedule
 const unknownMetadata = "unknown";
 
 const providerFor = (row: AiMetricsOtlpTurnExportRow): string =>
-  AiMetricsTranscriptSource.$match(row.sourceKind, {
+  AiMetricsTranscriptSource.match(row.sourceKind, {
     claude: () => unknownMetadata,
     codex: () => unknownMetadata,
     openclaw: () => AiMetricsTranscriptSource.Enum.openclaw,

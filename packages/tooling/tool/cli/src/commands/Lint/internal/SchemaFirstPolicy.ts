@@ -20,7 +20,7 @@ const DEFAULT_MISSING_ENTRY_REMEDIATION =
 
 const MISSING_ENTRY_REMEDIATIONS: Readonly<Record<string, string>> = {
   "SFV4-static-api":
-    "Prefer schema-derived .match/.guards/.cases, or LiteralKit's $match, is, Enum, or toTaggedUnion, or run bun run beep lint schema-first --write with a justification when behavior intentionally differs.",
+    "Prefer schema-derived .match/.guards/.cases, or LiteralKit's match, is, Enum, or toTaggedUnion, or run bun run beep lint schema-first --write with a justification when behavior intentionally differs.",
   "SFV4-numeric-domain":
     "Review the numeric domain and replace broad S.Number/S.NumberFromString with S.Finite, S.Int, or checks; then run bun run beep lint schema-first --write if the broad domain is intentional.",
   "SFV4-boundary-codec":

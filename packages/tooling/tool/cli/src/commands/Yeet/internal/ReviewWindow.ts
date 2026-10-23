@@ -328,7 +328,7 @@ export const decideYeetReviewWindow = (
 };
 
 const anchorLabel = (anchor: YeetReviewWindowAnchor): string =>
-  YeetReviewWindowAnchor.$match(anchor, {
+  YeetReviewWindowAnchor.match(anchor, {
     "ready-for-review": () => "it was marked ready for review",
     "pr-opened": () => "it was opened ready for review",
     "head-push": () => "the last push",

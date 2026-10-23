@@ -433,7 +433,7 @@ export const collectTsconfigOverlayViolations = Effect.fn("TsconfigOverlay.colle
 // Every line reads `<file> <location>: <detail>`; the location names the
 // offending key at its scope.
 const renderViolation = (violation: TsconfigOverlayViolation): string => {
-  const location = TsconfigOverlayViolationScope.$match(violation.scope, {
+  const location = TsconfigOverlayViolationScope.match(violation.scope, {
     document: () => violation.key,
     compilerOptions: () => `compilerOptions.${violation.key}`,
     references: () => "references",

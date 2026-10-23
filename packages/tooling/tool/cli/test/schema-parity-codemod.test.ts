@@ -1,5 +1,6 @@
 import {
   literalKitFacetsRule,
+  literalKitMatchRenameRule,
   planSchemaParityCodemodFile,
   renderSchemaParityCodemodEdits,
   runSchemaParityCodemod,
@@ -84,7 +85,10 @@ const makeProject = (extraFiles: ReadonlyArray<readonly [string, string]> = []):
   project.createSourceFile(`/repo/${KIT_MODULE}`, KIT_STUB);
   project.createSourceFile(`/repo/${STATICS_MODULE}`, STATICS_STUB);
   project.createSourceFile(`/repo/${MAPPED_MODULE}`, MAPPED_STUB);
-  A.forEach(extraFiles, ([filePath, text]) => void project.createSourceFile(`/repo/${filePath}`, text));
+  A.forEach(
+    extraFiles,
+    ([filePath, text]) => void project.createSourceFile(`/repo/${filePath}`, text, { overwrite: true })
+  );
   return project;
 };
 
@@ -544,4 +548,83 @@ layer(TestLayer, { timeout: "60 seconds" })("schema-parity codemod run", (it) =>
       strictEqual(yield* fs.readFileString(path.join(root, FIXTURE_MODULE)), original);
     })
   );
+});
+
+describe("literal-kit-match-rename rule", () => {
+  // The renamed kit surface at the owner module path: the rule resolves the
+  // receiver's `Enum` and `is` by declaration module.
+  const matchKitStub = `export interface MatchKit {
+  readonly literals: readonly ["draft", "live"];
+  readonly Enum: { readonly draft: "draft"; readonly live: "live" };
+  readonly is: { readonly draft: (u: unknown) => u is "draft"; readonly live: (u: unknown) => u is "live" };
+  $match(...args: ReadonlyArray<unknown>): unknown;
+  pick<const P extends ReadonlyArray<"draft" | "live">>(literals: P): { readonly literals: P };
+}
+export declare function LiteralKit<const L extends readonly [string, ...Array<string>]>(literals: L): MatchKit;
+`;
+  const kitTyped = `import type { MatchKit } from ${KIT_IMPORT};
+declare const Status: MatchKit;
+`;
+  const taggedEnum = `declare const Shape: { readonly $is: (tag: string) => boolean; $match(...args: ReadonlyArray<unknown>): unknown };
+`;
+  const plan = (text: string) => planFixture(text, [[KIT_MODULE, matchKitStub]], [literalKitMatchRenameRule]);
+
+  it("renames $match on kit-typed receivers in both call forms", () => {
+    const text = `${kitTyped}export const a = Status.$match("draft", { draft: () => 1, live: () => 2 });
+export const b = Status.$match({ draft: () => 1, live: () => 2 });
+`;
+    assert.strictEqual(plannedText(plan(text)), Str.replaceAll("Status.$match(", "Status.match(")(text));
+  });
+
+  it("leaves $match alone on receivers without the kit records", () => {
+    assert.strictEqual(plan(`${taggedEnum}export const a = Shape.$match(1, {});\n`)._tag, "Unchanged");
+  });
+
+  it("leaves $match alone on a local object that only mimics the kit records", () => {
+    const text = `const other = { Enum: {}, is: {}, $match: () => 1 };
+export const a = other.$match();
+`;
+    assert.strictEqual(plan(text)._tag, "Unchanged");
+  });
+
+  it("unwraps LiteralKit(X.pick([...]).literals) to X.pick([...])", () => {
+    const text = `${kitImport}${kitTyped}export const Open = LiteralKit(Status.pick(["draft"]).literals);
+export const Piped = LiteralKit(Status.pick(["live"]).literals).pipe((s) => s);
+`;
+    assert.strictEqual(
+      plannedText(plan(text)),
+      `${kitImport}${kitTyped}export const Open = Status.pick(["draft"]);
+export const Piped = Status.pick(["live"]).pipe((s) => s);
+`
+    );
+  });
+
+  it("leaves a re-wrap alone when a local LiteralKit shadows the factory", () => {
+    const text = `${kitTyped}const LiteralKit = (literals: ReadonlyArray<string>) => literals.length;
+export const n = LiteralKit(Status.pick(["draft"]).literals);
+`;
+    assert.strictEqual(plan(text)._tag, "Unchanged");
+  });
+
+  it("leaves an unresolved LiteralKit call alone", () => {
+    const text = `${kitTyped}export const n = LiteralKit(Status.pick(["draft"]).literals);
+`;
+    assert.strictEqual(plan(text)._tag, "Unchanged");
+  });
+
+  it("leaves a LiteralKit call without exactly one argument alone", () => {
+    const text = `${kitImport}${kitTyped}export const none = LiteralKit();
+export const two = LiteralKit(Status.pick(["draft"]).literals, Status.pick(["live"]).literals);
+`;
+    assert.strictEqual(plan(text)._tag, "Unchanged");
+  });
+
+  it("reports a re-wrap with explicit type arguments and a $match element read as residue", () => {
+    const text = `${kitImport}${kitTyped}export const Open = LiteralKit<readonly ["draft"]>(Status.pick(["draft"]).literals);
+export const m = Status["$match"];
+`;
+    const outcome = plan(text);
+    assert.strictEqual(plannedText(outcome), text);
+    assert.deepStrictEqual(residueReasons(outcome), ["match-element-access", "pick-rewrap-explicit-type-arguments"]);
+  });
 });

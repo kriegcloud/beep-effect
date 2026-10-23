@@ -560,7 +560,7 @@ const resourceKindFor = (
  * @since 0.0.0
  */
 export const classifyOntologyResource = (kind: OntologyResourceKind): OntologyResourceClassification =>
-  OntologyResourceKind.$match(kind, {
+  OntologyResourceKind.match(kind, {
     class: () => "tbox",
     objectProperty: () => "tbox",
     dataProperty: () => "tbox",
@@ -953,7 +953,7 @@ export const resourceVisibleInViewMode: {
   (mode: OntologyViewMode): (resource: OntologyResourceSummary) => boolean;
   (resource: OntologyResourceSummary, mode: OntologyViewMode): boolean;
 } = dual(2, (resource: OntologyResourceSummary, mode: OntologyViewMode): boolean =>
-  OntologyViewMode.$match(mode, {
+  OntologyViewMode.match(mode, {
     all: () => true,
     tbox: () => resource.classification === "tbox",
     abox: () => resource.classification === "abox",

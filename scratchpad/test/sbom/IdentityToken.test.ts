@@ -1,4 +1,4 @@
-// @effect-diagnostics strictEffectProvide:skip-file
+// @effect-diagnostics strictEffectProvide:skip-file -- strictEffectProvide because each test provides its test layers at its own entry point (operator ruling 2026-10-09). Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // The inverted OIDC contract.
 //
 // The whole point of declaring this here rather than importing an issuer is

@@ -1582,7 +1582,7 @@ const resolvePgliteExternalConfig = Effect.fn("SqlTest.resolvePgliteExternalConf
 });
 
 const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgExternalTestDriverConfigInput): boolean =>
-  PgliteSqlTestLayerMode.$match(mode, {
+  PgliteSqlTestLayerMode.match(mode, {
     auto: () => config?.connectionUri !== undefined,
     external: () => true,
     "in-process": () => false,
@@ -1590,7 +1590,7 @@ const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgEx
   });
 
 const shouldUseTestcontainersPgliteLayer = (mode: PgliteSqlTestLayerMode): boolean =>
-  PgliteSqlTestLayerMode.$match(mode, {
+  PgliteSqlTestLayerMode.match(mode, {
     auto: () =>
       O.getOrUndefined(Effect.runSync(Config.String("BEEP_TEST_DATABASE_DRIVER").pipe(Config.option))) ===
       "pglite-testcontainers",

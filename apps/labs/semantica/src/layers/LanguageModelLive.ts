@@ -328,7 +328,7 @@ export const LanguageModelRuntimeLive = <E, R>(live: Layer.Layer<LanguageModel.L
   Layer.unwrap(
     LabConfig.pipe(
       Effect.map((config) =>
-        RuntimeMode.$match(config.mode, {
+        RuntimeMode.match(config.mode, {
           live: () => CachingLanguageModelLive(live),
           replay: () => ReplayLanguageModelLive,
         })

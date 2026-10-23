@@ -138,7 +138,7 @@ const human = (step: HumanRemediation["step"], instruction: string) => HumanReme
  * @category utilities
  * @since 0.0.0
  */
-export const bitLockerInstruction = AdminRights.$match({
+export const bitLockerInstruction = AdminRights.match({
   available: () =>
     "Turn on BitLocker for drive C: open Settings, search for BitLocker (on some computers it is called Device encryption), turn it on, and approve the Windows prompt.",
   blocked: () => "Ask your IT administrator to turn on BitLocker for drive C:.",

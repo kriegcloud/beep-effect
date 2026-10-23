@@ -43,7 +43,7 @@ export const packageShellTargetFor = (boundedContext: string): ArchitecturePlanT
     stage: "core",
   });
 
-const packageShellExportsForRole = ArchitecturePackageRole.$match({
+const packageShellExportsForRole = ArchitecturePackageRole.match({
   domain: () => [".", "./aggregates", "./entities", "./identity", "./values"],
   "use-cases": () => [".", "./public", "./server"],
   config: () => [".", "./public", "./server", "./secrets", "./layer", "./test"],
@@ -296,7 +296,7 @@ export default mergeConfig(
 );
 `;
 
-const categoryForRole = ArchitecturePackageRole.$match({
+const categoryForRole = ArchitecturePackageRole.match({
   domain: () => "aggregates",
   "use-cases": identity,
   config: () => "configuration",
@@ -306,7 +306,7 @@ const categoryForRole = ArchitecturePackageRole.$match({
   ui: () => "models",
 });
 
-const extraExportForRole = ArchitecturePackageRole.$match({
+const extraExportForRole = ArchitecturePackageRole.match({
   domain: () =>
     '\n/**\n * Aggregate namespace exports.\n *\n * @category aggregates\n * @since 0.0.0\n */\nexport * as Aggregates from "./aggregates/index.ts";\n/**\n * Entity namespace exports.\n *\n * @category entities\n * @since 0.0.0\n */\nexport * as Entities from "./entities/index.ts";\n/**\n * Identity namespace exports.\n *\n * @category entity-ids\n * @since 0.0.0\n */\nexport * as Identity from "./identity/index.ts";\n/**\n * Value-object namespace exports.\n *\n * @category value-objects\n * @since 0.0.0\n */\nexport * as Values from "./values/index.ts";\n',
   "use-cases": () =>

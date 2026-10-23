@@ -67,7 +67,7 @@ describe("Status.extend", () => {
 	});
 
 	it("rejects a name the vocabulary does not have at compile time", () => {
-		// @ts-expect-error "timeot" is not a status name
+		// @ts-expect-error -- "timeot" is not a status name. Owner: @beep/scratchpad. Exit: remove if the API is meant to accept this.
 		assert.throws(() => assert.isUndefined(vocab.def("timeot").rank));
 	});
 });

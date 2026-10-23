@@ -2607,7 +2607,7 @@ const sectionStatus = (
   readonly unavailable: ReadonlyArray<string>;
   readonly warnings: ReadonlyArray<string>;
 } =>
-  AgentEffectivenessStatus.$match(status, {
+  AgentEffectivenessStatus.match(status, {
     failed: () => ({ failures: [`${label}: ${message}`], unavailable: [], warnings: [] }),
     passed: () => ({ failures: [], unavailable: [], warnings: [] }),
     unavailable: () => ({ failures: [], unavailable: [`${label}: ${message}`], warnings: [] }),

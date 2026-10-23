@@ -18,7 +18,6 @@
     {"file":"packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts","symbol":"SpinParams","kind":"schema-class","owner":"@beep/ui","identity":"SpinParams","description":"Precision and step overrides accepted by number input increment and decrement actions."},
     {"file":"packages/foundation/ui-system/ui/src/lib/react-invariant.ts","symbol":"ReactContextInvariantError","kind":"tagged-error","owner":"@beep/ui","identity":"ReactContextInvariantError"},
     {"file":"packages/foundation/ui-system/ui/src/lib/react-invariant.ts","symbol":"ReactContextInvariantOptions","kind":"struct-const","owner":"@beep/ui","identity":"ReactContextInvariantOptions","description":"Options for a React context invariant check."},
-    {"file":"packages/foundation/ui-system/ui/src/themes/theme-provider.tsx","symbol":"ResolvedThemeMode","kind":"literal-kit","owner":"@beep/ui","identity":"ResolvedThemeMode","description":"The resolved mode of the theme, excluding 'system'."},
     {"file":"packages/foundation/ui-system/ui/src/themes/theme-provider.tsx","symbol":"ThemeMode","kind":"literal-kit","owner":"@beep/ui","identity":"ThemeMode","description":"The mode of the theme."}
   ]
 }

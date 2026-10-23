@@ -169,7 +169,7 @@ const containerAxes = structured(false, "container");
  * @category getters
  * @since 0.0.0
  */
-export const poPatternAxes: (pattern: PoPattern) => PoPatternAxes = PoPattern.$match({
+export const poPatternAxes: (pattern: PoPattern) => PoPatternAxes = PoPattern.match({
   atom: flat(true, "flow"),
   field: flat(true, "container"),
   inline: structured(true, "flow"),
