@@ -72,7 +72,7 @@ console.log(Effect.runSync(program));
 
 `toJsonString` takes `PackageFormatOptions` — `indent`, `sort`, `stripEmpty`, `newline` — if you want the raw shape instead of the canonical one.
 
-Alongside `Package` the leaf concepts are usable on their own. `PackageName` classifies and validates npm names (`isValid`, `isScoped`, `scope`, `unscoped`) and brands them as `ScopedPackageName` or `UnscopedPackageName`. `DependencySpecifier` classifies any specifier string into one protocol — `range`, `tag`, `git`, `url`, `npm`, `file`, `link`, `portal`, `catalog`, `workspace` or `unknown` — and parses the range case into a `Range` from `@effected/semver`. `Dependency` pairs a name with a specifier and the `kind` of map it came from, exposing the same protocol predicates as getters.
+Alongside `Package` the leaf concepts are usable on their own. `PackageName` classifies and validates npm names (`isValid`, `isScoped`, `scope`, `unscoped`); every name it accepts is valid for npm's `validate-npm-package-name` `validForOldPackages`, so a leading `-`, `node_modules` and `favicon.ico` are rejected, and brands them as `ScopedPackageName` or `UnscopedPackageName`. `DependencySpecifier` classifies any specifier string into one protocol — `range`, `tag`, `git`, `url`, `npm`, `file`, `link`, `portal`, `catalog`, `workspace` or `unknown` — and parses the range case into a `Range` from `@effected/semver`. `Dependency` pairs a name with a specifier and the `kind` of map it came from, exposing the same protocol predicates as getters.
 
 ## Reading and writing
 

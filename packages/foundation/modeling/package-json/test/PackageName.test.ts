@@ -36,6 +36,24 @@ describe("PackageName.isValid", () => {
   });
 });
 
+// W3-f conformance shift, pinned inverted: these three names were accepted
+// before promotion and are rejected now, matching validate-npm-package-name's
+// validForOldPackages (see PackageName.differential.test.ts).
+describe("PackageName follows npm's validForOldPackages", () => {
+  it("rejects a leading hyphen and the two reserved names it accepted before promotion", () => {
+    for (const name of ["-leading-hyphen", "-", "node_modules", "favicon.ico"]) {
+      assert.isFalse(PackageName.isValid(name), name);
+      assert.isFalse(S.is(UnscopedPackageName)(name), name);
+    }
+  });
+
+  it("still accepts a hyphen after the first character and inside a scope", () => {
+    for (const name of ["a-", "a-b", "@-scope/pkg", "@scope/-pkg", "@scope/node_modules", "node_modules-x"]) {
+      assert.isTrue(PackageName.isValid(name), name);
+    }
+  });
+});
+
 describe("PackageName classification statics", () => {
   it("scope/unscoped/isScoped", () => {
     assert.deepStrictEqual(PackageName.scope("@scope/pkg"), O.some("scope"));
@@ -118,7 +136,8 @@ describe("PackageName JSON Schema export", () => {
     const unscopedId = $I`UnscopedPackageName`;
     const unionId = $I`PackageName`;
     const scoped = String.raw`^@[a-z0-9-][a-z0-9._-]*\/[a-z0-9-][a-z0-9._-]*$`;
-    const unscoped = "^[a-z0-9-][a-z0-9._-]*$";
+    // W3-f: no leading `-` for an unscoped name (validForOldPackages).
+    const unscoped = "^[a-z0-9][a-z0-9._-]*$";
     assert.propertyVal(S.toJsonSchemaDocument(ScopedPackageName).definitions[scopedId], "pattern", scoped);
     assert.propertyVal(S.toJsonSchemaDocument(UnscopedPackageName).definitions[unscopedId], "pattern", unscoped);
     const union = S.toJsonSchemaDocument(PackageName);

@@ -5,6 +5,7 @@
 // raises.
 
 import { $PackageJsonId } from "@beep/identity/packages";
+import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -74,11 +75,22 @@ export class InvalidPackageNameError extends S.TaggedError<InvalidPackageNameErr
 // npm name grammar, written lookahead-free so `Arbitrary.schema` can derive a
 // generator: the native regex compiler in `effect/Arbitrary` rejects
 // `(?=`/`(?!` and would fall back to filtering random strings, none of which
-// is ever a package name. The first character may not be `.` or `_`; the
-// remainder is URL-safe lowercase.
-const UNSCOPED_RE = /^[a-z0-9-][a-z0-9._-]*$/u;
+// is ever a package name. The remainder is URL-safe lowercase. Every accepted
+// name is valid for npm's `validate-npm-package-name` `validForOldPackages`
+// (W3-f): an unscoped name may not start with `.`, `_` or `-`, and the two
+// names npm reserves outright are excluded by a separate check.
+const UNSCOPED_RE = /^[a-z0-9][a-z0-9._-]*$/u;
 const SCOPED_RE = /^@[a-z0-9-][a-z0-9._-]*\/[a-z0-9-][a-z0-9._-]*$/u;
 const MAX_LENGTH = 214;
+const RESERVED_NAMES = HashSet.make("node_modules", "favicon.ico");
+
+const isNotReserved = S.makeFilter(
+  (name: string) => (HashSet.has(RESERVED_NAMES, name) ? `"${name}" is reserved by npm` : undefined),
+  $I.annote("UnscopedPackageNameReserved", {
+    message: "Unreserved package name",
+    description: "An unscoped package name other than the two npm reserves outright: node_modules and favicon.ico.",
+  })
+);
 
 /**
  * A valid npm scoped package name (`@scope/name`).
@@ -128,7 +140,7 @@ export type ScopedPackageName = string & Brand.Brand<"ScopedPackageName">;
  * @since 0.0.0
  */
 export const UnscopedPackageName = S.String.pipe(
-  S.check(S.isPattern(UNSCOPED_RE), S.isMaxLength(MAX_LENGTH)),
+  S.check(S.isPattern(UNSCOPED_RE), S.isMaxLength(MAX_LENGTH), isNotReserved),
   S.brand("UnscopedPackageName"),
   $I.annoteSchema("UnscopedPackageName", { description: "A valid npm unscoped package name (no `@scope/` prefix)." })
 );
@@ -151,8 +163,7 @@ export type UnscopedPackageName = string & Brand.Brand<"UnscopedPackageName">;
  */
 export type PackageName = ScopedPackageName | UnscopedPackageName;
 
-const isValid = (name: string): boolean =>
-  name.length > 0 && name.length <= MAX_LENGTH && (UNSCOPED_RE.test(name) || SCOPED_RE.test(name));
+const isValid: (name: string) => boolean = S.is(S.Union([ScopedPackageName, UnscopedPackageName]));
 
 const scope = (name: string): O.Option<string> => {
   if (!Str.startsWith("@")(name)) return O.none();
@@ -195,7 +206,8 @@ const PackageNameBase: Omit<S.Opaque<PackageName, typeof PackageNameUnion, {}>, 
  *
  * ```ts
  * import { PackageName } from "@beep/package-json/PackageName";
- * import * as O from "effect/Option";
+ * import * as HashSet from "effect/HashSet";
+import * as O from "effect/Option";
  *
  * console.log(PackageName.isValid("@effected/semver")) // true
  * console.log(O.getOrElse(PackageName.scope("@effected/semver"), () => "no scope")) // effected
@@ -229,7 +241,8 @@ export const PackageName = class extends PackageNameBase {
    *
    * ```ts
    * import { PackageName } from "@beep/package-json/PackageName";
-   * import * as O from "effect/Option";
+   * import * as HashSet from "effect/HashSet";
+import * as O from "effect/Option";
    *
    * console.log(O.getOrElse(PackageName.scope("@scope/x"), () => "no scope")) // scope
    * console.log(O.isNone(PackageName.scope("x"))) // true

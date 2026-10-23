@@ -77,6 +77,8 @@
     "@beep/memfs": "workspace:^",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
-    "bun-types": "catalog:"
+    "@types/validate-npm-package-name": "catalog:",
+    "bun-types": "catalog:",
+    "validate-npm-package-name": "catalog:"
   }
 }
