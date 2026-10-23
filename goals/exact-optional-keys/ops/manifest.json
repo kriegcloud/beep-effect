@@ -19,7 +19,14 @@
     "requiresPullRequest": true,
     "requiresMergeable": true,
     "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
-    "grandfathered": false
+    "grandfathered": false,
+    "acceptanceEvidence": [
+      {
+        "gating": true,
+        "kind": "yeet-verdict",
+        "ref": ".beep/yeet/runs/refactor_exact-optional-keys-512845b98164/verdict.json"
+      }
+    ]
   },
   "currentSourceOfTruth": [
     "AGENTS.md",
@@ -31,12 +38,13 @@
     "goals/exact-optional-keys/research/SOURCES.md"
   ],
   "researchReports": [
+    "research/OPPORTUNITIES.md",
     "research/SOURCES.md",
-    "research/optional-vs-optional-key.md",
     "research/classification-ledger.md",
-    "research/verification.md",
     "research/codemod-dry-run.jsonc",
-    "research/codemod-write.jsonc"
+    "research/codemod-write.jsonc",
+    "research/optional-vs-optional-key.md",
+    "research/verification.md"
   ],
   "agentLaunchers": [
     {
@@ -73,7 +81,7 @@
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
@@ -87,5 +95,9 @@
     "Required source files are missing or materially contradictory.",
     "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
     "The same blocker repeats after reasonable investigation."
-  ]
+  ],
+  "proposedCloseout": {
+    "status": "completed-retained",
+    "finalPullRequest": 2145
+  }
 }

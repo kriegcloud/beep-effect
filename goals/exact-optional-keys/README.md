@@ -31,13 +31,16 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started.
+P3: PR #2145 at the merge gate; `proposedCloseout` completed-retained ships in the same PR.
 
 ## Latest Evidence
 
-Not started.
+- Grounding: [`research/optional-vs-optional-key.md`](./research/optional-vs-optional-key.md).
+- Exceptions: [`research/classification-ledger.md`](./research/classification-ledger.md).
+- Exhaustiveness and CI proof: [`research/verification.md`](./research/verification.md).
+- Friction: [`research/OPPORTUNITIES.md`](./research/OPPORTUNITIES.md).
+- Reflection: [`history/reflections/2026-10-23-claude.md`](./history/reflections/2026-10-23-claude.md).
 
 ## Notes
 
-<Record high-signal constraints or resume notes that do not belong in the
-normative spec.>
+Re-run `bun run beep lint schema-parity-codemod --rule exact-optional-keys --path packages --path apps --path scratchpad --path infra --write` after every base merge; live lanes keep adding `S.optional`.
