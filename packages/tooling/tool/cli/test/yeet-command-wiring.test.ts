@@ -534,7 +534,11 @@ describe("yeet push-first publish plan wiring", () => {
 });
 
 it.layer(commandTestLayer, { timeout: "30 seconds" })("cheap-gates admission", (it) => {
-  for (const mode of ["publish", "verify", "repair"] as const) {
+  for (const [mode, expectedMessage] of [
+    ["publish", "cheap-gates failed"],
+    ["verify", "proof failed"],
+    ["repair", "feedback phase failed"],
+  ] as const) {
     it.effect(
       `${mode} holds weighted admission during cheap gates and releases it on failure`,
       Effect.fnUntraced(function* () {
@@ -640,12 +644,10 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("cheap-gates admission", (
         expect(lease.command).toContain("observed-lease.json");
         expect(yield* fs.readDirectory(leases)).toEqual([]);
         expect(yield* fs.readDirectory(path.join(runtimeDir, "beep", "admit", "queue"))).toEqual([]);
+        expect(error.message).toContain(expectedMessage);
         if (mode === "publish") {
-          expect(error.message).toContain("cheap-gates failed");
           expect(error.message).toContain("nothing was pushed");
           expect(A.map(yield* Ref.get(recorder), (entry) => entry.step.id)).toEqual([gate.id]);
-        } else {
-          expect(error.message).toContain(mode === "repair" ? "feedback phase failed" : "proof failed");
         }
       })
     );
