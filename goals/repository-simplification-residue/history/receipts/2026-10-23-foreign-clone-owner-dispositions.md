@@ -12,7 +12,7 @@ sorted relative regular-file names with each file's SHA-256 as
 `<sha256>  <relative-name>\n`, concatenate and SHA-256 the UTF-8 result. For a
 file use the same manifest form with its basename. An absent path has zero
 files/bytes and an empty manifest hash. The two absent rows below were archive-retired
-by TS7 under #1877, landed in #2173; they are not retained in place.
+by TS7 under #1877, recorded in #2173 (merged as 66e67371ea; see `2026-10-23-vitest-lane-retirement-result.md`); they are not retained in place.
 Recovery for retained paths is in place and checkout history; prior archived
 paths keep the existing hash-verified restore instructions.
 
