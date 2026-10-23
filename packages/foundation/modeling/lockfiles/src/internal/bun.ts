@@ -12,6 +12,7 @@ import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { BunExtension } from "../BunExtension.ts";
 import { LockfileImporter } from "../LockfileImporter.ts";
 import { ResolvedPackage } from "../ResolvedPackage.ts";
@@ -359,6 +360,18 @@ const bunExtension = (raw: BunLockfileRawType): BunExtension.Encoded => ({
   }),
 });
 
+// bun keys a nested install `<parent-key>/<name>` and a scoped name spans two
+// segments, so the install name is the last segment, joined to the one before
+// it when that one is a scope.
+const installNameOf = (key: string): string => {
+  const segments = Str.split("/")(key);
+  const last = A.lastNonEmpty(segments);
+  return O.match(O.filter(A.get(segments, segments.length - 2), Str.startsWith("@")), {
+    onNone: () => last,
+    onSome: (scope) => `${scope}/${last}`,
+  });
+};
+
 const externalPackage: {
   (
     row: BunPackageRow,
@@ -381,11 +394,12 @@ const externalPackage: {
     const integrity = yield* toIntegrityHash(A.get(row.tuple, 3).pipe(O.filter(P.isString), O.getOrUndefined));
     const info = O.flatMap(A.get(row.tuple, 2), readBunPackageInfo);
     const peers = O.getOrUndefined(info);
+    const alias = O.liftPredicate(installNameOf(row.key), (installName) => installName !== row.name);
     return ResolvedPackage.make({
       name: row.name,
       version: row.version,
       instanceId: row.key,
-      ...O.getSomesStruct({ integrity }),
+      ...O.getSomesStruct({ integrity, alias }),
       isWorkspace: false,
       ...peerDeclarations(peers?.peerDependencies, undefined, peers?.optionalPeers),
       resolved: resolveBunEdges(row.key, infoSections(info), keys, instanceIds),

@@ -611,6 +611,66 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
   }
 
   /**
+   * The instance the workspace root resolves `name` to, or `Option.none()`
+   * when the lockfile records none.
+   *
+   * **Details**
+   *
+   * This is "which `name` does the root get", the package a root `bin` or a
+   * root import reaches, read the way each format records it:
+   *
+   * - bun keys a root install by its bare install name, so it is the instance
+   *   whose id is `name`;
+   * - npm keys it `node_modules/<name>`;
+   * - pnpm records it on the root importer: the `"."` importer's dependency
+   *   `name`, whose version and peer suffix compose the snapshot id (an
+   *   aliased dependency records `<real>@<version>`, which is the id itself);
+   * - yarn Berry records no importers, so it answers `Option.none()`.
+   *
+   * The answer may be a workspace package (bun and npm key a hoisted
+   * workspace link the same way); a caller that wants only registry
+   * installs filters on `isWorkspace`. An aliased bun install answers to its
+   * alias, so compare `name` when the real package matters.
+   *
+   * **Example** (Read the root's resolved turbo)
+   *
+   * ```ts
+   * import { Lockfile } from "@beep/lockfiles/Lockfile";
+   * import * as Effect from "effect/Effect";
+   * import * as O from "effect/Option";
+   *
+   * const lockfile = Effect.runSync(
+   *   Lockfile.parse('{"lockfileVersion":1,"workspaces":{"":{}},"packages":{"turbo":["turbo@2.10.14","",{}]}}', { format: "bun" })
+   * );
+   * console.log(O.getOrUndefined(lockfile.rootPackage("turbo"))?.version); // 2.10.14
+   * ```
+   *
+   * @param name - The install name to resolve from the workspace root.
+   * @returns The resolved {@link ResolvedPackage}, or `Option.none()`.
+   * @category getters
+   * @since 0.0.0
+   */
+  rootPackage(name: string): O.Option<ResolvedPackage> {
+    return LockfileFormat.match({
+      bun: () => this.packageByInstanceId(name),
+      npm: () => this.packageByInstanceId(`node_modules/${name}`),
+      pnpm: () =>
+        O.flatMap(
+          O.flatMap(this.importer("."), (root) => root.dependency(name)),
+          (dependency) =>
+            O.flatMap(O.fromUndefinedOr(dependency.version), (version) => {
+              const resolution = `${version}${dependency.peerSuffix ?? ""}`;
+              // An aliased dependency records `<real>@<version>`, already the id.
+              return O.orElse(this.packageByInstanceId(`${name}@${resolution}`), () =>
+                this.packageByInstanceId(resolution)
+              );
+            })
+        ),
+      yarn: () => O.none<ResolvedPackage>(),
+    })(this.format);
+  }
+
+  /**
    * The workspace-local packages.
    *
    * **Example** (Count workspace-local packages)
