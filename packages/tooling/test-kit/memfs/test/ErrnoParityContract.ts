@@ -77,6 +77,9 @@ const resolveExpectation = (expectation: Expectation, implementation: Implementa
   throw new Error(`no errno expectation for platform ${platform}`);
 };
 
+// The `type` of a `File.Info` success value, for `lstat` cases where the kind is the point.
+const infoType = (value: unknown) => (P.hasProperty(value, "type") ? value.type : undefined);
+
 const bytes = new Uint8Array([1, 2, 3, 4]);
 
 const withHandle = (
@@ -515,6 +518,24 @@ const cases: ReadonlyArray<Case> = [
     expect: fail("BadResource", "readDirectory", "ENOTDIR"),
   },
   { name: "stat a symlink loop", run: (fs, p) => fs.stat(p("loop1")), expect: fail("BadResource", "stat", "ELOOP") },
+  // lstat never follows the final link: a loop and a dangling link are both reported as links.
+  {
+    name: "lstat a symlink loop",
+    run: (fs, p) => fs.lstat(p("loop1")),
+    expect: "success",
+    check: (value) => Effect.sync(() => assert.strictEqual(infoType(value), "SymbolicLink")),
+  },
+  {
+    name: "lstat a dangling symlink",
+    run: (fs, p) => fs.lstat(p("dangling")),
+    expect: "success",
+    check: (value) => Effect.sync(() => assert.strictEqual(infoType(value), "SymbolicLink")),
+  },
+  {
+    name: "lstat beneath a file",
+    run: (fs, p) => fs.lstat(p("file", "x")),
+    expect: fail("BadResource", "lstat", "ENOTDIR"),
+  },
   {
     name: "utimes beneath a file",
     run: (fs, p) => fs.utimes(p("file", "x"), 0, 0),
