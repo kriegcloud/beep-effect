@@ -19,7 +19,6 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as SchemaIssue from "effect/SchemaIssue";
 import * as Domain from "./Domain.ts";
 import type { ConfigReadSchema } from "@beep/config-file/ConfigFile";
 
@@ -400,15 +399,6 @@ class PackageJsonSchema extends S.Opaque<PackageJsonSchema, { readonly brand: un
   }).pipe($I.annoteSchema("PackageJsonSchema"))
 ) {}
 
-// `ConfigFile.read` carries the schema failure as a structured `SchemaIssue`
-// tree; a value that is not one would break its contract, so it is a defect.
-const SchemaIssueValue = S.declare(SchemaIssue.isIssue).pipe(
-  $I.annoteSchema("SchemaIssueValue", {
-    description: "The structured schema issue a config-file validation failure carries.",
-  })
-);
-const formatIssue = SchemaIssue.makeFormatterDefault();
-
 const readJsoncFile = Effect.fn("readJsonCFile")(function* <A, I>(
   filePath: string,
   schema: ConfigReadSchema<A, I>
@@ -424,10 +414,13 @@ const readJsoncFile = Effect.fn("readJsonCFile")(function* <A, I>(
     Effect.catchTags({
       ConfigFileReadError: (error) => fail("read", String(error.cause)),
       ConfigCodecError: (error) => fail("parse", String(error.cause)),
+      // A schema-only read always carries a `SchemaIssue`; anything else breaks
+      // the `ConfigFile.read` contract, so it is a defect. The detail is the
+      // `SchemaError` text the old `S.decodeUnknownEffect` path produced.
       ConfigValidationError: (error) =>
-        S.decodeUnknownEffect(SchemaIssueValue)(error.issue).pipe(
+        Effect.fromOption(error.schemaIssue).pipe(
           Effect.orDie,
-          Effect.flatMap((issue) => fail("decode", formatIssue(issue)))
+          Effect.flatMap((issue) => fail("decode", String(new S.SchemaError(issue))))
         ),
     })
   );
