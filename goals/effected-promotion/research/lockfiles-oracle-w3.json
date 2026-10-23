@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "commit": "f345640f6fd5ec47a4f276e1de2d7346b975592d",
+  "commit": "d5fbfc14746be7bd2c5137ce17d8acf6e681fe55",
   "tool": "goals/effected-promotion/ops/lockfiles-oracle.ts",
-  "generatedAt": "2026-10-23T14:19:39.839Z",
+  "generatedAt": "2026-10-23T16:22:54.576Z",
   "live": {
     "lockfile": "bun.lock",
     "bunVersion": "1.4.4",
