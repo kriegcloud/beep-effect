@@ -13,6 +13,7 @@ import {
   makeDocketFileJournalLayer,
   makeDocketFileStoreLayer,
 } from "@beep/law-practice-server/DocketIntake";
+import { makeReviewFilesLayer, ReviewFilesConfig } from "@beep/law-practice-server/ReviewFiles";
 import { DocketIntakeError, DocketPollOptions } from "@beep/law-practice-use-cases/DocketIntake";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
@@ -24,6 +25,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
+import { backfillFromMailbox, DocketBackfillReport } from "./Backfill.ts";
 import { DocketIntakeAppConfigFromEnv } from "./Config.ts";
 import { DocketCycleReport, pollCycle, pollOnSchedule, seedCursor } from "./Cycle.ts";
 import { DocketDryRunReport, dryRunCycle, prepareDryRun } from "./DryRun.ts";
@@ -66,7 +68,7 @@ export type DocketIntakeWiring<E1, R1, E2, R2, E3, R3> = {
     readonly config: DocketIntakeAppConfig;
     readonly initialSince: string;
   }) => Layer.Layer<DocketIntake | DocketIntakeJournal | DocketIntakeStore, E1, R1>;
-  /** The mailbox connection alone, for `smoke` and `undo`. */
+  /** The mailbox connection alone, for `smoke`, `undo` and `backfill-questions`. */
   readonly mailbox: (config: DocketIntakeAppConfig) => Layer.Layer<Crypto.Crypto | M365, E2, R2>;
 };
 
@@ -92,6 +94,11 @@ const maxMessages = Flag.Int("max-messages").pipe(
   Flag.withSchema(S.Int.check(S.isGreaterThan(0))),
   Flag.optional,
   Flag.withDescription("Process at most this many pending messages, oldest first; the rest stay pending.")
+);
+
+const apply = Flag.Boolean("apply").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Write the questions; without it the command only counts what it would change.")
 );
 
 const yes = Flag.Boolean("yes").pipe(Flag.withDefault(false), Flag.withDescription("Confirm that undo may write."));
@@ -137,6 +144,7 @@ const printCycleReport = printJson(S.encodeEffect(S.fromJsonString(DocketCycleRe
 const printDryRunReport = printJson(S.encodeEffect(S.fromJsonString(DocketDryRunReport)));
 const printRunSummary = printJson(S.encodeEffect(S.fromJsonString(DocketRunSummary)));
 const printUndoReport = printJson(S.encodeEffect(S.fromJsonString(DocketUndoReport)));
+const printBackfillReport = printJson(S.encodeEffect(S.fromJsonString(DocketBackfillReport)));
 
 const pollOptions = (limit: O.Option<number>) => DocketPollOptions.make({ maxMessages: limit });
 
@@ -197,6 +205,28 @@ export const makeHandlers = <E1, R1, E2, R2, E3, R3>(wiring: DocketIntakeWiring<
   };
 
   return {
+    backfillQuestions: Effect.fnUntraced(function* (flags: { readonly apply: boolean }) {
+      const config = yield* DocketIntakeAppConfigFromEnv;
+      const dataDirectory = yield* Effect.fromOption(config.reviewHubDirectory).pipe(
+        Effect.mapError(() =>
+          DocketIntakeCommandError.failed(
+            "DOCKET_INTAKE_REVIEW_HUB_DIR is not set, so there are no questions to backfill"
+          )
+        )
+      );
+      const program = backfillFromMailbox(config, flags.apply).pipe(
+        Effect.catchTag("ReviewItemStoreError", ({ operation, reason }) =>
+          Effect.fail(DocketIntakeCommandError.failed(`review hub items, ${operation}: ${reason}`))
+        )
+      );
+      const report = yield* asCommandError(
+        runWith(
+          program,
+          Layer.merge(wiring.mailbox(config), makeReviewFilesLayer(ReviewFilesConfig.make({ dataDirectory })))
+        )
+      );
+      yield* printBackfillReport(report);
+    }),
     dryRun: Effect.fnUntraced(function* (flags: PassFlags) {
       const config = yield* DocketIntakeAppConfigFromEnv;
       const startAt = yield* startOf(config, flags.since);
@@ -264,7 +294,7 @@ export const makeHandlers = <E1, R1, E2, R2, E3, R3>(wiring: DocketIntakeWiring<
 
 /**
  * The `docket-intake` command with its `poll`, `run`, `dry-run`, `runs`,
- * `undo` and `smoke` subcommands.
+ * `undo`, `smoke` and `backfill-questions` subcommands.
  *
  * **Example** (Build the command over the live wiring)
  *
@@ -300,6 +330,11 @@ export const makeCommand = <E1, R1, E2, R2, E3, R3>(wiring: DocketIntakeWiring<E
       ),
       Command.make("smoke", { write }, handlers.smoke).pipe(
         Command.withDescription("Check the mailbox connection; read-only unless --write is given.")
+      ),
+      Command.make("backfill-questions", { apply }, handlers.backfillQuestions).pipe(
+        Command.withDescription(
+          "Name the email of stored review hub questions that do not say which email they are about; writes only with --apply."
+        )
       ),
     ])
   );

@@ -62,6 +62,7 @@ import {
 } from "./DocketIntake.ports.ts";
 import {
   DocketCalendarEntry,
+  DocketCandidateDate,
   DocketEntered,
   DocketIntakeOutcome,
   DocketIntakeState,
@@ -110,6 +111,7 @@ import type {
   DocketTrackedDatesShape,
 } from "./DocketIntake.ports.ts";
 import type {
+  DocketCandidateDateSource,
   DocketEntryFlag,
   DocketEntryKind,
   DocketMessage,
@@ -430,32 +432,47 @@ const dateLine = (label: string, date: O.Option<LocalDate>, derivation: string):
     })
   );
 
+// What the matter lookup found, on one line; `matterLine` puts it on an entry and a needs-review
+// outcome keeps it for the attorney's question.
+const matterText: (matter: MatterLookupResult) => string = MatterLookupResult.match({
+  MatterAmbiguous: (matter) => `ambiguous between ${A.join(matter.familyKeys, ", ")}; needs attorney`,
+  MatterNotFound: () => "not found in the practice records; needs attorney",
+  MatterSuggested: (matter) =>
+    `not attached in the records; suggested candidates: ${A.join(matter.familyKeys, ", ")}; needs attorney`,
+  MatterUnique: (matter) =>
+    A.join(
+      A.filter(
+        [
+          `family ${matter.familyKey}${matter.verified ? "" : " (unverified; needs attorney)"}`,
+          O.match(matter.client, { onNone: () => "", onSome: (client) => `client ${client}` }),
+          O.getOrElse(matter.clientName, () => ""),
+          A.isReadonlyArrayNonEmpty(matter.dockets) ? `dockets ${A.join(matter.dockets, ", ")}` : "",
+          A.isReadonlyArrayNonEmpty(matter.applications) ? `applications ${A.join(matter.applications, ", ")}` : "",
+          A.isReadonlyArrayNonEmpty(matter.patents) ? `patents ${A.join(matter.patents, ", ")}` : "",
+        ],
+        Str.isNonEmpty
+      ),
+      " · "
+    ),
+});
+
 const matterLine: (matter: O.Option<MatterLookupResult>) => string = flow(
-  O.map(
-    MatterLookupResult.match({
-      MatterAmbiguous: (matter) => `Matter: ambiguous between ${A.join(matter.familyKeys, ", ")}; needs attorney`,
-      MatterNotFound: () => "Matter: not found in the practice records; needs attorney",
-      MatterSuggested: (matter) =>
-        `Matter: not attached in the records; suggested candidates: ${A.join(matter.familyKeys, ", ")}; needs attorney`,
-      MatterUnique: (matter) =>
-        A.join(
-          A.filter(
-            [
-              `Matter: family ${matter.familyKey}${matter.verified ? "" : " (unverified; needs attorney)"}`,
-              O.match(matter.client, { onNone: () => "", onSome: (client) => `client ${client}` }),
-              O.getOrElse(matter.clientName, () => ""),
-              A.isReadonlyArrayNonEmpty(matter.dockets) ? `dockets ${A.join(matter.dockets, ", ")}` : "",
-              A.isReadonlyArrayNonEmpty(matter.applications) ? `applications ${A.join(matter.applications, ", ")}` : "",
-              A.isReadonlyArrayNonEmpty(matter.patents) ? `patents ${A.join(matter.patents, ", ")}` : "",
-            ],
-            Str.isNonEmpty
-          ),
-          " · "
-        ),
-    })
-  ),
-  O.getOrElse(() => "Matter: lookup unavailable; needs attorney")
+  O.match({ onNone: () => "lookup unavailable; needs attorney", onSome: matterText }),
+  (text) => `Matter: ${text}`
 );
+
+const onlyOne = (values: ReadonlyArray<string>): O.Option<string> =>
+  A.length(values) === 1 ? O.filter(A.head(values), Str.isNonEmpty) : O.none();
+
+// The docket a question belongs to: the one docket of a unique matter the references named, or
+// the only docket of a unique matter when they named the family. None when there is any doubt.
+const matterDocket = (matter: O.Option<MatterLookupResult>): O.Option<string> =>
+  pipe(
+    O.filter(matter, MatterLookupResult.guards.MatterUnique),
+    O.flatMap((unique) =>
+      onlyOne(A.isReadonlyArrayNonEmpty(unique.matchedDockets) ? unique.matchedDockets : unique.dockets)
+    )
+  );
 
 const matterFlags: (matter: O.Option<MatterLookupResult>) => ReadonlyArray<DocketEntryFlag> = O.match({
   onNone: (): ReadonlyArray<DocketEntryFlag> => ["matter-lookup-failed"],
@@ -683,15 +700,20 @@ const placeNeedsReview = (
     }),
   });
 
+// A needs-review outcome keeps what tells the attorney which email it is about, the dates the
+// deadline could be, the matter and the item's title (what a date the attorney picks writes), so
+// the question raised from it can say so. None of it is logged or put in the digest.
 const writeNeedsReview = Effect.fnUntraced(function* (
   ports: Ports,
   message: DocketMessage,
   today: LocalDate,
   input: {
+    readonly candidates: ReadonlyArray<DocketCandidateDate>;
     readonly date: O.Option<LocalDate>;
     readonly placement: NeedsReviewPlacement;
     readonly flags: ReadonlyArray<DocketEntryFlag>;
     readonly lines: ReadonlyArray<string>;
+    readonly matter: O.Option<MatterLookupResult>;
     readonly reason: DocketNeedsReviewReason;
     readonly review: O.Option<ReviewVerdict>;
     readonly title: string;
@@ -733,11 +755,20 @@ const writeNeedsReview = Effect.fnUntraced(function* (
   );
   yield* Effect.ignore(ports.mailbox.markEntered(message));
   return DocketNeedsReview.make({
+    candidateDates: input.candidates,
+    conversationId: message.conversationId,
+    docket: matterDocket(input.matter),
     entry,
     flags,
+    matter: O.map(input.matter, matterText),
     messageId: message.messageId,
+    messageLink: O.filter(message.webLink, Str.isNonEmpty),
     reason,
+    receivedDate: O.some(message.receivedDate),
     review: input.review,
+    sender: O.filter(message.sender, Str.isNonEmpty),
+    subject: O.filter(message.subject, Str.isNonEmpty),
+    title: O.liftPredicate(input.title, Str.isNonEmpty),
   });
 });
 
@@ -786,6 +817,23 @@ const earliestDate = (dates: ReadonlyArray<LocalDate>): O.Option<LocalDate> =>
 const criticDates = (reading: SecretaryReview): ReadonlyArray<LocalDate> =>
   A.getSomes([reading.statedDueDate, criticComputedDueDate(reading)]);
 
+const candidate =
+  (source: DocketCandidateDateSource) =>
+  (date: LocalDate): DocketCandidateDate =>
+    DocketCandidateDate.make({ date, source });
+
+// Every date the deadline could be, by where it came from: the first reader's date, the second
+// reader's dates, and the docket sheet's.
+const candidateDates = (
+  entry: ParalegalEntry,
+  reading: SecretaryReview,
+  tracked: TrackedCheck
+): ReadonlyArray<DocketCandidateDate> => [
+  ...A.map(A.fromOption(extractorDueDate(entry)), candidate("extractor")),
+  ...A.map(criticDates(reading), candidate("reviewer")),
+  ...A.map(A.fromOption(tracked.row), (row) => candidate("tracked")(row.date)),
+];
+
 const noteLines = (entry: ParalegalEntry, reading: SecretaryReview): ReadonlyArray<string> => [
   `Paralegal note: ${entry.rationale}`,
   `Reviewer note: ${reading.notes}`,
@@ -817,6 +865,7 @@ const enterDocketItem = Effect.fnUntraced(function* (
   if (O.isNone(resolved)) {
     const placed = placeWithSheet(needsReviewDate(message, today), tracked);
     return yield* writeNeedsReview(ports, message, today, {
+      candidates: candidateDates(entry, review, tracked),
       date: O.some(placed.date),
       placement: O.exists(tracked.row, (row) => sameDate(row.date, placed.date)) ? "resolved" : "fallback",
       flags: [
@@ -826,6 +875,7 @@ const enterDocketItem = Effect.fnUntraced(function* (
         ...whenFlag(isBefore(placed.date, today), "due-date-past"),
       ],
       lines: [...dateLines(entry, review), ...placed.lines, matterLine(matter), ...noteLines(entry, review)],
+      matter,
       reason: "no-usable-date",
       review: O.some(verdict),
       title: entry.title,
@@ -835,6 +885,7 @@ const enterDocketItem = Effect.fnUntraced(function* (
   const placed = placeWithSheet(resolved.value.date, tracked);
   if (isBefore(placed.date, today)) {
     return yield* writeNeedsReview(ports, message, today, {
+      candidates: candidateDates(entry, review, tracked),
       date: O.some(placed.date),
       placement: "past-due",
       flags: [
@@ -844,6 +895,7 @@ const enterDocketItem = Effect.fnUntraced(function* (
         ...missingSource,
       ],
       lines: [...dateLines(entry, review), ...placed.lines, matterLine(matter), ...noteLines(entry, review)],
+      matter,
       reason: "due-date-past",
       review: O.some(verdict),
       title: entry.title,
@@ -929,6 +981,7 @@ const escalateDisagreement = (
   verdict: ReviewVerdict
 ): Effect.Effect<DocketIntakeOutcome, DocketIntakeError> =>
   writeNeedsReview(ports, message, today, {
+    candidates: [],
     date: O.none(),
     placement: "fallback",
     flags: [],
@@ -936,6 +989,7 @@ const escalateDisagreement = (
       `Paralegal: ${verdictText(isDocketEntry(round.entry))} (${round.entry.rationale})`,
       `Reviewer: ${verdictText(round.reading.isDocketItem)} (${round.reading.notes})`,
     ],
+    matter: O.none(),
     reason: "agents-disagree",
     review: O.some(verdict),
     title: titleOf(round.entry),
@@ -1151,6 +1205,7 @@ const writeFlagged = Effect.fnUntraced(function* (
     tracked
   );
   return yield* writeNeedsReview(ports, message, today, {
+    candidates: candidateDates(entry, SecretaryReview.make(reading), tracked),
     date: O.some(placed.date),
     placement:
       A.isReadonlyArrayNonEmpty(candidates) || O.exists(tracked.row, (row) => sameDate(row.date, placed.date))
@@ -1177,6 +1232,7 @@ const writeFlagged = Effect.fnUntraced(function* (
       matterLine(matter),
       ...noteLines(entry, SecretaryReview.make(reading)),
     ],
+    matter,
     reason,
     review: O.some(verdict),
     title: titleOf(entry),
@@ -1328,10 +1384,12 @@ const settleExhausted = (
 ): Effect.Effect<DocketIntakeOutcome> =>
   isFailed(outcome) && attempts >= ports.config.maxAttempts && outcome.stage !== "calendar"
     ? writeNeedsReview(ports, message, today, {
+        candidates: [],
         date: O.none(),
         placement: "fallback",
         flags: [],
         lines: [`The message could not be processed automatically (stage: ${outcome.stage}, ${attempts} attempts).`],
+        matter: O.none(),
         reason: "processing-failed",
         review: O.none(),
         title: "Message could not be processed",

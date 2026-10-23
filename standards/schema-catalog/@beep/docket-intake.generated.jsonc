@@ -4,6 +4,7 @@
   "generatedBy": "bun run beep lint schema-catalog --write",
   "owner": "@beep/docket-intake",
   "entries": [
+    {"file":"apps/docket-intake/src/Backfill.ts","symbol":"DocketBackfillReport","kind":"struct-const","owner":"@beep/docket-intake","identity":"DocketBackfillReport","description":"Counts of one backfill of the emails docket intake questions are about."},
     {"file":"apps/docket-intake/src/Config.ts","symbol":"DocketIntakeAppConfig","kind":"struct-const","owner":"@beep/docket-intake","identity":"DocketIntakeAppConfig","description":"Resolved settings of the docket intake service."},
     {"file":"apps/docket-intake/src/Cycle.ts","symbol":"DocketCycleReport","kind":"struct-const","owner":"@beep/docket-intake","identity":"DocketCycleReport","description":"Run id and counts of one docket intake poll cycle."},
     {"file":"apps/docket-intake/src/Digest.ts","symbol":"DigestProgress","kind":"struct-const","owner":"@beep/docket-intake","identity":"DigestProgress","description":"How far the docket intake digests have come."},

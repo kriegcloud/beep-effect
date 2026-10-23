@@ -10,7 +10,7 @@ import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { CalendarDate } from "../../internal/CalendarDate.ts";
+import { CalendarDate } from "../CalendarDate/index.ts";
 import { SourceRef } from "../SourceRef/index.ts";
 
 const $I = $LawPracticeDomainId.create("values/Question/Question.model");
