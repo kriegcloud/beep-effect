@@ -243,14 +243,23 @@ interface Frame {
   readonly raw: string;
 }
 
+/**
+ * A `file:` URL as a path, with the rules of `node:url` `fileURLToPath` (#2152) and no `node:` import: a host other
+ * than `localhost` and an encoded separator (`%2F`, `%5C`) are not paths, every segment is percent-decoded, and a
+ * drive path loses its leading `/`.
+ */
+const pathOfFileUrl = (url: URL): string | undefined => {
+  if (url.hostname !== "" && url.hostname !== "localhost") return undefined;
+  if (/%(?:2f|5c)/i.test(url.pathname)) return undefined;
+  const path = decodeURIComponent(url.pathname);
+  return /^\/[A-Za-z]:\//.test(path) ? Str.slice(1)(path) : path;
+};
+
 /** The location of a frame as a path: a `file:` URL decoded, or an absolute POSIX or drive path; else `undefined`. */
 const asPath = (location: string): string | undefined => {
   if (Str.startsWith("file:")(location)) {
     return Result.getOrElse(
-      Result.try(() => {
-        const path = decodeURIComponent(new URL(location).pathname);
-        return /^\/[A-Za-z]:\//.test(path) ? Str.slice(1)(path) : path;
-      }),
+      Result.try(() => pathOfFileUrl(new URL(location))),
       () => undefined
     );
   }

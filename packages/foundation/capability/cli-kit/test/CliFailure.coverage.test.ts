@@ -49,6 +49,26 @@ it.effect("malformed file URLs and positionless application frames remain report
     assert.include(rendered, "C:/app/main.ts:1:2");
   })
 );
+it.effect("file URL frames follow fileURLToPath: encoded separators and remote hosts are not paths (#2152)", () =>
+  Effect.sync(() => {
+    const defect = new Error("boom");
+    defect.stack = [
+      "Error: boom",
+      " at file:///repo/src/esm%20x.ts:1:2",
+      " at file://localhost/repo/local.ts:3:4",
+      " at file:///repo/a%2Fb.ts:5:6",
+      " at file:///repo/c%5cd.ts:7:8",
+      " at file://server/share/e.ts:9:1",
+    ].join("\n");
+    const rendered = plain(Cause.die(defect), { stackFrames: "all" });
+    assert.include(rendered, "/repo/src/esm x.ts:1:2");
+    assert.include(rendered, "/repo/local.ts:3:4");
+    for (const raw of ["file:///repo/a%2Fb.ts:5:6", "file:///repo/c%5cd.ts:7:8", "file://server/share/e.ts:9:1"]) {
+      assert.include(rendered, raw);
+    }
+    assert.notInclude(rendered, "/repo/a/b.ts");
+  })
+);
 it.effect("unknown span stacks fail open, and a non-stack location is accepted", () =>
   Effect.sync(() => {
     for (const stack of [undefined, "/repo/main.ts:1:2", "a non-location"]) {
