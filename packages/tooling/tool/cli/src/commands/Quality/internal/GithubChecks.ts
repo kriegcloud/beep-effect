@@ -902,6 +902,27 @@ export const githubCheckCheapGateLanes = (repoRoot: string): ReadonlyArray<Githu
     rootTaskLane(repoRoot, "goals:doctor", "goals:doctor")
   ),
   githubCheckLane(
+    "lint:schema-catalog",
+    "cheap-gates",
+    "repo-sanity",
+    "heavy",
+    bunRunLane(repoRoot, "lint:schema-catalog", ["beep", "lint", "schema-catalog"])
+  ),
+  githubCheckLane(
+    "lint:oxlint",
+    "cheap-gates",
+    "repo-quality",
+    "preflight",
+    bunRunLane(repoRoot, "lint:oxlint", ["lint:oxlint"])
+  ),
+  githubCheckLane(
+    "quality:jsdoc-ratchet:regenerated",
+    "cheap-gates",
+    "repo-quality",
+    "preflight",
+    repoCliLane(repoRoot, "quality:jsdoc-ratchet:regenerated", ["jsdoc-ratchet", "--regenerate"])
+  ),
+  githubCheckLane(
     "quality:jsdoc-ratchet:committed",
     "cheap-gates",
     "repo-quality",

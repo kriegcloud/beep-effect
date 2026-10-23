@@ -1030,7 +1030,7 @@ const pullRequestAuthorLogin = (node: GhStatusReviewThreadsNode): O.Option<strin
     O.map((author) => author.login)
   );
 
-// fallow-ignore-next-line complexity -- the GraphQL cursor and page validity checks form one pagination state machine
+// fallow-ignore-next-line complexity -- GraphQL cursor and page validity checks form one pagination loop (cognitive 14). Owner: @beep/repo-cli. Exit: move onto the internal/github `ghGraphqlPage` and `nextCursor` helpers that Reply uses.
 const collectRemoteReviewThreads = Effect.fn("YeetStatus.collectRemoteReviewThreads")(function* (
   context: RepoRunContext,
   pullRequestId: string

@@ -89,7 +89,6 @@ export const decodeTestOperationIdentifiers = Effect.fn("FileProcessingTest.deco
   }
 );
 
-// fallow-ignore-next-line code-duplication -- synthetic fixtures keep their own engine-specific error wording
 const decodeTestArtifactPath = (
   path: string,
   operation: ExportArchiveOperation

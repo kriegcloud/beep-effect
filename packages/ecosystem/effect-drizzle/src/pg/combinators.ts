@@ -11,7 +11,7 @@
  *
  * @since 0.0.0
  */
-// fallow-ignore-file code-duplication -- the varchar/char tri-mode combinators are deliberately parallel walkers over the same evolveSchemas seam; collapsing them would couple independent column vocabularies (doc 14 family; review at next dialect addition)
+// fallow-ignore-file code-duplication -- the varchar and char tri-mode combinators walk the same evolveSchemas seam over independent column vocabularies (doc 14 family). Owner: @beep/effect-drizzle. Exit: collapse into one combinator factory if the two vocabularies converge.
 
 import {
   append,

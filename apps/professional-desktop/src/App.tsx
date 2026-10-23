@@ -717,7 +717,6 @@ const OntologyMenuList = ({
 // menu dismisses on outside press and Escape (ARIA disclosure practices).
 // The menu element and dismissal listeners are owned by runtime atoms, so
 // opening and closing the menu scopes the listener lifecycle.
-// fallow-ignore-next-line complexity -- cognitive 8 = five atom-hook bindings (each +1 in fallow's React model) plus two ternaries and one &&; item row and disclosure list are already extracted, and dropping a hook binding would fuse runtime atoms for the metric's sake
 const OntologyMenu = ({
   isCurrent,
   workspace,

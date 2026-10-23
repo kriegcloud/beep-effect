@@ -215,7 +215,7 @@ export class SanityErrorOptions extends S.Opaque<SanityErrorOptions, { readonly 
 ) {}
 
 // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- safe reflection keeps unknown API causes inside the Sanity boundary
+// fallow-ignore-next-line code-duplication -- error-boundary cause-reflection idiom repeated across sibling drivers that must not depend on each other; no foundation capability owns it yet. Owner: @beep/sanity. Exit: import it and delete this copy once a foundation capability package exports the idiom.
 const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
   if (!P.isObject(value)) {
     return O.none();
@@ -244,7 +244,7 @@ const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
     : O.none();
 
 // shared driver boundary idiom; no in-family home; future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- Sanity cause normalization preserves provider-specific HTTP labels
+// fallow-ignore-next-line code-duplication -- Sanity cause normalization keeps provider-specific HTTP labels, mirroring sibling drivers. Owner: @beep/sanity. Exit: import a shared cause normalizer once a foundation capability package exports one.
 const causeFromUnknown = (cause: unknown): O.Option<string> =>
   P.isUndefined(cause)
     ? O.none()

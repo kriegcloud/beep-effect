@@ -99,11 +99,11 @@ type Observation = typeof Observation.Type;
 
 type SkillDirectoryDigest = Extract<SkillContentDigest, { readonly _tag: "directory" }>;
 
-const failure = (message: string, reason?: SkillPublicationRefusal, target?: string) =>
+const failure = (message: string, reason: SkillPublicationRefusal | undefined, target: string) =>
   SkillPublicationError.make({
     message,
     ...(reason === undefined ? {} : { reason }),
-    ...(target === undefined ? {} : { target }),
+    target,
   });
 
 const sameDigest = (left: SkillContentDigest, right: SkillContentDigest) =>

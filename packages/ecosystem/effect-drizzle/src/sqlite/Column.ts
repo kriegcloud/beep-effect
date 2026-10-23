@@ -4,7 +4,7 @@
  * @since 0.0.0
  */
 
-// fallow-ignore-file code-duplication -- pg/sqlite are deliberately mirrored dialect implementations; shared logic lives in src/core and the remaining parallelism is per-dialect vocabulary that must evolve independently (doc 14 family; review at next dialect addition)
+// fallow-ignore-file code-duplication -- pg and sqlite are deliberately mirrored dialect implementations; shared logic already lives in src/core and the rest is per-dialect vocabulary that evolves independently (doc 14 family). Owner: @beep/effect-drizzle. Exit: lift the mirrored block into src/core when a third dialect lands or the two vocabularies converge.
 
 import { blob, integer, numeric, real, text } from "drizzle-orm/sqlite-core";
 import { append, contains, empty, every, isArray, isReadonlyArrayNonEmpty, some as someArray } from "effect/Array";

@@ -2624,6 +2624,28 @@
         "immer": "^11.1.18",
       },
     },
+    "packages/foundation/modeling/markdown": {
+      "name": "@beep/markdown",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/jsonc": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/toml": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@beep/yaml": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/fc-runs": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+        "commonmark": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
     "packages/foundation/modeling/md": {
       "name": "@beep/md",
       "version": "0.0.2",
@@ -3930,6 +3952,7 @@
         "@beep/law-practice-use-cases": "workspace:^",
         "@beep/m365": "workspace:^",
         "@beep/managed-section": "workspace:^",
+        "@beep/markdown": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/memfs": "workspace:^",
         "@beep/n3": "workspace:^",
@@ -3986,7 +4009,6 @@
         "@types/node": "catalog:",
         "@typescript/native": "catalog:",
         "@typescript/typescript6": "catalog:",
-        "commonmark": "0.31.2",
         "drizzle-kit": "catalog:",
         "minimatch": "10.2.6",
         "oxc-parser": "^0.155.0",
@@ -4180,6 +4202,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "comment-parser": "1.4.9",
+    "commonmark": "0.31.2",
     "countries-list": "^3.4.1",
     "country-flag-icons": "1.6.20",
     "d3": "^7.9.0",
@@ -4575,6 +4598,8 @@
     "@beep/m365-mcp": ["@beep/m365-mcp@workspace:packages/drivers/m365-mcp"],
 
     "@beep/managed-section": ["@beep/managed-section@workspace:packages/foundation/modeling/managed-section"],
+
+    "@beep/markdown": ["@beep/markdown@workspace:packages/foundation/modeling/markdown"],
 
     "@beep/mcp-kit": ["@beep/mcp-kit@workspace:packages/foundation/capability/mcp-kit"],
 
@@ -7654,7 +7679,7 @@
 
     "internmap": ["internmap@2.0.3", "", {}, "sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg=="],
 
-    "ip-address": ["ip-address@10.7.1", "", {}, "sha512-4OUAqU9Z1i3vCnS05hzGiFnEMDpQ+62pAD/MVQOp83fYyNC8GleCqaS0QikQBmcWCrKFiUs/B8ztRRiYOAXuCA=="],
+    "ip-address": ["ip-address@10.7.4", "", {}, "sha512-DWBMKyeM25D70nrIiTkgQth59/G+naKOTep6huF9j+GmeK3DMD60Zvxg5d5qQnz+38AHgou6ean2LECX+lrKDg=="],
 
     "ipaddr.js": ["ipaddr.js@1.9.1", "", {}, "sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g=="],
 

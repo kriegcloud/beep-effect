@@ -2079,7 +2079,6 @@ export const PandocInline = S.Union([
   RawInline,
   UnknownInline,
 ]).pipe(
-  // fallow-ignore-next-line code-duplication -- preserve the selected guard through Effect's tagged-union rebuild
   $I.annoteSchema("PandocInline", {
     description: "Pandoc inline union for the v1 compatibility slice.",
   }),
@@ -3612,7 +3611,6 @@ export const PandocBlock = S.Union([
   Figure,
   UnknownBlock,
 ]).pipe(
-  // fallow-ignore-next-line code-duplication -- preserve the selected guard through Effect's tagged-union rebuild
   $I.annoteSchema("PandocBlock", {
     description: "Pandoc block union for the v1 compatibility slice.",
   }),
@@ -4043,7 +4041,6 @@ export const PandocMetaValue = S.Union([
   MetaMap,
   UnknownMeta,
 ]).pipe(
-  // fallow-ignore-next-line code-duplication -- preserve the selected guard through Effect's tagged-union rebuild
   $I.annoteSchema("PandocMetaValue", {
     description: "Recursive semantic Pandoc metadata-value union.",
   }),

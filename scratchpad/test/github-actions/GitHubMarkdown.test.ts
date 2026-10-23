@@ -3,7 +3,7 @@ import * as DateTime from "effect/DateTime";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { GitHubHeadingDepth, GitHubListOptions, GitHubMarkdown } from "../../effected/github-actions/GitHubMarkdown.ts";
-import { Markdown } from "../../effected/markdown/index.ts";
+import { Markdown } from "@beep/markdown/Markdown";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 describe("GitHubMarkdown", () => {

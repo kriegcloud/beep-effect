@@ -24,7 +24,7 @@ You are an Effect-first implementer for the beep-effect repo.
      per the facet census in `standards/architecture/DECISIONS.md`
      "Upstream-First Foundation/Modeling").
 3. For v3/v4 API and import questions, validate against the v4 source
-   (`.repos/effect` / effect-smol) — never training-data priors.
+   (`.repos/effect`, Effect `main` is v4) — never training-data priors.
 
 ## Working rules
 

@@ -230,6 +230,8 @@ it.layer(Platform, { timeout: "5 seconds" })("runSetup", (it) => {
       expect(result.report.complete).toBe(true);
       expect(result.opened).toEqual([`link:${OPEN_CLAUDE_LINK}`, `open:${BUNDLE}`, HANDOFF_LINK]);
       expect(result.asked).toEqual([]);
+      // The lawyer hears about Claude's per-tool permission requests before pressing Send.
+      expect(saidAny(result.said, 'Choosing "Always allow" is fine')).toBe(true);
       expect(result.expectedVersions).toEqual(A.replicate(O.some(BUNDLE_VERSION), 3));
       expect(result.downloads).toEqual([]);
       expect(steps(result.written)).toEqual(steps(result.report));
@@ -316,7 +318,8 @@ it.layer(Platform, { timeout: "5 seconds" })("runSetup", (it) => {
       expect(details(result.report)[2]).toBe(
         `Claude still does not list the Beep Practice Gateway ${BUNDLE_VERSION}. Open Claude's Settings, choose Extensions, drag this file onto that page, then run this setup again: ${BUNDLE}`
       );
-      expect(result.opened).toEqual([`link:${OPEN_CLAUDE_LINK}`, `open:${BUNDLE}`]);
+      // A second hand-off follows the first watch, then the step fails.
+      expect(result.opened).toEqual([`link:${OPEN_CLAUDE_LINK}`, `open:${BUNDLE}`, `open:${BUNDLE}`]);
       expect(result.asked).toEqual([`asked:Setup stopped: ${details(result.report)[2]}`]);
     })
   );
@@ -339,8 +342,27 @@ it.layer(Platform, { timeout: "5 seconds" })("runSetup", (it) => {
       expect(details(result.report)[2]).toBe(
         `Claude still does not list the Beep Practice Gateway ${BUNDLE_VERSION}. Open Claude's Settings, choose Extensions, drag this file onto that page, then run this setup again: ${BUNDLE}`
       );
-      // The hand-off never opens on a stale gateway.
-      expect(result.opened).toEqual([`open:${BUNDLE}`]);
+      // The bundle is handed over twice; the chat hand-off never opens on a stale gateway.
+      expect(result.opened).toEqual([`open:${BUNDLE}`, `open:${BUNDLE}`]);
+    })
+  );
+
+  it.effect("hands the gateway over again when Claude takes it only after a late sign-in", () =>
+    Effect.gen(function* () {
+      // One probe before the first hand-off, three polls in each watch: the gateway
+      // turns current only during the second watch, as after an expired session.
+      const result = yield* run({
+        installs: ["per-user"],
+        gateway: ["outdated", "outdated", "outdated", "outdated", "current"],
+      });
+      expect(steps(result.report)[2]).toBe("gateway-extension:done");
+      expect(details(result.report)[2]).toBe(
+        "Claude lists the gateway at the bundled version after a second hand-off."
+      );
+      expect(saidAny(result.said, "If Claude asks you to sign in first, do that")).toBe(true);
+      expect(saidAny(result.said, "If Claude is asking you to sign in, sign in now.")).toBe(true);
+      expect(A.filter(result.opened, (event) => event === `open:${BUNDLE}`)).toHaveLength(2);
+      expect(result.report.complete).toBe(true);
     })
   );
 

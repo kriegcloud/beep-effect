@@ -1,5 +1,5 @@
 /**
- * Vendored from Effect (https://github.com/Effect-TS/effect-smol), tag effect@4.0.5,
+ * Vendored from Effect (https://github.com/Effect-TS/effect), tag effect@4.0.5,
  * packages/effect/test/eventlog/SqlEventLogServerUnencryptedStorageTest.ts. MIT License,
  * Copyright (c) Effectful Technologies Inc. Not shipped in the effect npm package.
  * beep changes: per-module effect imports, @beep/test-runner `it`, a `savepoints` suite
@@ -182,10 +182,12 @@ export const suite: {
             const changes = yield* openChanges(storage, storeId);
             const replayed = yield* Queue.takeAll(changes);
 
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
               A.map(replayed, (entry) => entry.remoteSequence),
               [1, 2]
             );
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
               A.map(replayed, (entry) => entry.entry.idString),
               [entryA.idString, entryB.idString]
@@ -249,6 +251,7 @@ export const suite: {
 
             const changesA = yield* openChanges(storage, storeA);
             const backlogA = yield* Queue.takeAll(changesA);
+            // beep: Effect Array helpers satisfy preferEffectArray in the vendored suite.
             assert.deepStrictEqual(
               A.map(backlogA, (entry) => entry.entry.idString),
               [entryA1.idString]

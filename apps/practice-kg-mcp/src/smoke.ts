@@ -237,7 +237,6 @@ const compiledHostEnv = (): Record<string, string | undefined> => {
   return R.remove(R.remove(R.remove(ambientEnv, "PRACTICE_KG_BUNDLE_DIR"), "PRACTICE_KG_CORPUS_ROOT"), "NODE_PATH");
 };
 
-// fallow-ignore-next-line complexity -- stdio smoke harness; IS the coverage for the compiled artifact
 const runCompiledHost = Effect.fn("PracticeKgSmoke.runCompiledHost")(function* (
   executable: string,
   bundleOut: string,

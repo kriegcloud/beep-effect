@@ -72,7 +72,7 @@ const isOpenClawPulumiConfigValues = S.is(OpenClawPulumiConfigValues);
 const OpenClawPulumiConfigValuesEquivalent = S.toEquivalence(OpenClawPulumiConfigValues);
 
 const identity = OpenClawExpectedIdentity.make({
-  home: "/home/elpresidank",
+  home: "/home/example",
   hostname: "DankStation",
   machineId: "0bffc9bc5a6b48928f1ab4794df5244b",
   runtimeDir: "/run/user/1000",
@@ -81,7 +81,7 @@ const identity = OpenClawExpectedIdentity.make({
 });
 
 const identityConfigValues = {
-  expectedHome: "/home/elpresidank",
+  expectedHome: "/home/example",
   expectedHostname: "DankStation",
   expectedMachineId: "0bffc9bc5a6b48928f1ab4794df5244b",
   expectedRuntimeDir: "/run/user/1000",
@@ -181,7 +181,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 Environment=PATH=/opt/beep/openclaw/node/bin:/usr/bin:/bin
-Environment=HOME=/home/elpresidank
+Environment=HOME=/home/example
 Environment=OPENCLAW_CONFIG_PATH=/etc/beep/openclaw/current/openclaw.json
 Environment=OPENCLAW_STATE_DIR=/var/lib/beep/openclaw
 Environment=OPENCLAW_NIX_MODE=1
@@ -574,7 +574,7 @@ describe("@beep/infra OpenClaw", () => {
       });
       const manifestContent = tree["manifest.json"]?.content ?? "";
       expect(manifestContent).toContain(`"openclawVersion": "2026.7.1-2"`);
-      expect(manifestContent).toContain(`"nodeVersion": "24.16.0"`);
+      expect(manifestContent).toContain(`"nodeVersion": "24.22.1"`);
       expect(manifestContent).toContain(`"generationId": "${defaultGeneration.generationId}"`);
       expect(manifestContent).toContain(`"configHash": "${defaultGeneration.configHash}"`);
       expect(manifestContent).toContain(`"soulSha256": "${defaultGeneration.soulHash}"`);

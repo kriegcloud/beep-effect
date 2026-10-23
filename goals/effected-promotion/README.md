@@ -34,20 +34,21 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — waves 1a (#1956), 1b (#1981) and 2a (#1988) merged. Wave 2b
-ships as three PRs (D-31): 2b-1 (`@beep/walker`, D-32, #1992) and 2b-2
-(`@beep/github`, D-34, D-35, #1994) merged; 2b-3 (`@beep/runtime-env` with the
-`@beep/chalk` and `@beep/colors` delegation, D-33, D-36) is in progress, and the
-2c glob adoption follows. P0 research is complete:
-see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md)
-and [`research/wave-2b-plan-2026-10-21.md`](./research/wave-2b-plan-2026-10-21.md).
+P1 Implement — waves 1a (#1956), 1b (#1981), 2a (#1988), 2b (#1992, #1994,
+#2002) and 2c (#2016, D-37) merged. Wave 2d-1 (`@beep/markdown`, D-38..D-46)
+is in review; 2d-2 (`@beep/md` `Md.syntax`/`Md.parse`) and 2d-A (four adopter
+sites) follow in parallel, then the evidence-gated 2d-3 writer fixes. P0
+research is complete:
+see [`research/promotion-map-2026-10-20.md`](./research/promotion-map-2026-10-20.md),
+[`research/wave-2b-plan-2026-10-21.md`](./research/wave-2b-plan-2026-10-21.md)
+and [`research/wave-2d-plan-2026-10-22.md`](./research/wave-2d-plan-2026-10-22.md).
 
 ## Latest Evidence
 
 - 2026-10-20 discovery workflow: 34-row package map (30 now, 4 deferred), 6
   waves, 312 deduplicated reuse sites (29 confirmed, 209 partial, 74 refuted),
   three scored `@beep/md` merge designs.
-- Decisions D-01..D-18 are in [`SPEC.md`](./SPEC.md).
+- Decisions D-01..D-46 are in [`SPEC.md`](./SPEC.md).
 
 ## Notes
 

@@ -1,4 +1,4 @@
-// fallow-ignore-file unused-file -- package script entry invoked outside the import graph
+// fallow-ignore-file unused-file -- package script run directly with Bun, outside the import graph. Owner: @beep/semantica. Exit: remove when the generator moves into a repo-cli command or the package declares it as a fallow entry.
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import { sha256TextSync } from "@/schema/Digest";

@@ -1,5 +1,5 @@
 /**
- * Vendored from Effect (https://github.com/Effect-TS/effect-smol), tag effect@4.0.5,
+ * Vendored from Effect (https://github.com/Effect-TS/effect), tag effect@4.0.5,
  * packages/effect/test/persistence/KeyValueStoreTest.ts. MIT License, Copyright (c)
  * Effectful Technologies Inc. Not shipped in the effect npm package.
  * beep changes: per-module effect imports, @beep/test-runner `it`, and a `dual` suite with a

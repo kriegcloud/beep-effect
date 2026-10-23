@@ -27,7 +27,7 @@
  *
  * @since 0.0.0
  */
-// fallow-ignore-file code-duplication -- collectMaxLengths/collectExactLengths are deliberately parallel dual-signature AST walkers over distinct check kinds; sharing their spine would obscure the per-check policy (doc 14 family; review at next dialect addition)
+// fallow-ignore-file code-duplication -- collectMaxLengths and collectExactLengths are parallel dual-signature AST walkers over distinct check kinds (doc 14 family). Owner: @beep/effect-drizzle. Exit: share one walker spine when a third length check kind is added.
 
 import {
   append,

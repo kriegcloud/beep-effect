@@ -46,7 +46,6 @@ export const spawnProcessResult = (input: {
     }),
     env: request.env,
     extendEnv,
-    // fallow-ignore-next-line code-duplication -- The approved process-hardening spec keeps output ownership inside each driver boundary.
     stdin: stdinText === undefined ? "ignore" : "pipe",
     stderr: "pipe",
     stdout: "pipe",
