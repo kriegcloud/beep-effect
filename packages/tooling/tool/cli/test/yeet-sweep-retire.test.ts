@@ -1,11 +1,13 @@
 import * as NodeURL from "node:url";
 import {
   CLAUDE_WORKTREES_RELATIVE_ROOT,
+  restoreBeepMaterial,
   WorktreeInotifyWatcher,
   WorktreeRemovalReceipt,
   WorktreeRemovalRequest,
   WorktreeRemovalService,
   WorktreeRemovalServiceLive,
+  WorktreeResidueManifest,
 } from "@beep/repo-cli/commands/Worktree";
 import {
   ProcessStatus,
@@ -146,6 +148,8 @@ const ghSpawner = Effect.fn("YeetRetireTest.ghSpawner")(function* (
 
 const ghLayer = (headRefOid: string, state: FakePullRequestState, files: ReadonlyArray<string> = []) =>
   Layer.effect(ChildProcessSpawner.ChildProcessSpawner, ghSpawner(headRefOid, state, files));
+
+const decodeResidueManifest = S.decodeUnknownEffect(S.fromJsonString(WorktreeResidueManifest));
 
 const withCwd = <A, E, R>(cwd: string, effect: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -522,9 +526,17 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
   );
 
   it.effect("retires the merged nested lane, deletes its branch, and fast-forwards the owning clone", () =>
-    withScratchRepo(({ repoRoot, lane, tip, packetDir }) =>
+    withScratchRepo(({ repoRoot, lane, tip, packetDir, residueRoot }) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        // `.beep/` is git-ignored, as in the repository, so the lane stays clean; its
+        // material must still survive the retirement (#2167).
+        yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+        yield* fs.makeDirectory(path.join(lane, ".beep", "quality"), { recursive: true });
+        yield* fs.writeFileString(path.join(lane, ".beep", "quality", "report.json"), '{"ok":true}\n');
+        yield* fs.makeDirectory(path.join(lane, ".beep", "ci"), { recursive: true });
+        yield* fs.writeFileString(path.join(lane, ".beep", "ci", "run.log"), "disposable\n");
         const output = yield* captureOutput(
           withCwd(lane, sweep(packetDir)).pipe(provideScopedLayer(ghLayer(tip, "MERGED")))
         );
@@ -537,6 +549,34 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
         // The retirement deleted the branch before the sweep observed the clone.
         expect(output).toContain("delete-local-branch: skipped: local branch claude/lane is already deleted");
         expect(output).not.toContain("local tip <absent>");
+        expect(output).toContain("residue: clean (archived under ");
+        const repositoryRoot = path.join(
+          residueRoot,
+          yield* Effect.fromOption(A.head(yield* fs.readDirectory(residueRoot)))
+        );
+        const laneRoot = path.join(
+          repositoryRoot,
+          yield* Effect.fromOption(A.head(yield* fs.readDirectory(repositoryRoot)))
+        );
+        const manifest = yield* fs
+          .readFileString(path.join(laneRoot, "manifest.json"))
+          .pipe(Effect.flatMap(decodeResidueManifest));
+        expect(A.map(manifest.materialEntries, ({ name, files, bytes }) => [name, files, bytes])).toEqual([
+          ["quality", 1, 12],
+        ]);
+        expect(yield* fs.readFileString(path.join(laneRoot, "beep-material", "quality", "report.json"))).toBe(
+          '{"ok":true}\n'
+        );
+        expect(yield* fs.exists(path.join(laneRoot, "beep-material", "ci"))).toBe(false);
+
+        // Restore is the exact inverse of the retirement's capture.
+        const restorePath = path.join(path.dirname(repoRoot), "restored-lane");
+        yield* runGit(repoRoot, ["worktree", "add", "--detach", restorePath, manifest.archiveRef]);
+        expect(yield* restoreBeepMaterial(manifest, restorePath)).toEqual(manifest.materialEntries);
+        expect(yield* fs.readFileString(path.join(restorePath, ".beep", "quality", "report.json"))).toBe(
+          '{"ok":true}\n'
+        );
+        expect(yield* fs.exists(path.join(laneRoot, "beep-material", "quality"))).toBe(false);
       })
     )
   );

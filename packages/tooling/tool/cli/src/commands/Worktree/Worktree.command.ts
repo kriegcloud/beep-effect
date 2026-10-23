@@ -950,6 +950,16 @@ const renderRemovalReceipt = Effect.fn("Worktree.renderRemovalReceipt")(function
       yield* Console.log(`  repository hash: ${manifest.repositoryHash}`);
       yield* Console.log(`  tracked patch: ${O.getOrElse(manifest.patchPath, () => "(none)")}`);
       yield* Console.log(`  untracked files: ${manifest.untrackedFiles.length}`);
+      yield* Console.log(
+        `  .beep material: ${
+          A.isReadonlyArrayNonEmpty(manifest.materialEntries)
+            ? A.join(
+                A.map(manifest.materialEntries, ({ name, files, bytes }) => `${name} (${files} files, ${bytes} bytes)`),
+                ", "
+              )
+            : "(none)"
+        }`
+      );
       yield* Console.log(`  residue root: ${manifest.residueRoot}`);
       yield* Console.log(`  manifest: ${manifest.residueRoot}/manifest.json`);
       yield* Console.log("  restore:");
@@ -959,6 +969,11 @@ const renderRemovalReceipt = Effect.fn("Worktree.renderRemovalReceipt")(function
       }
       if (manifest.untrackedFiles.length > 0) {
         yield* Console.log(`    copy ${manifest.residueRoot}/untracked/ contents back into <restore-path>`);
+      }
+      if (A.isReadonlyArrayNonEmpty(manifest.materialEntries)) {
+        yield* Console.log(
+          `    move ${manifest.residueRoot}/beep-material/ entries back into <restore-path>/.beep/ (restoreBeepMaterial verifies each digest)`
+        );
       }
     }),
   });
